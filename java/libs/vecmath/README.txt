@@ -1,0 +1,1 @@
+from http://www.java2s.com/Code/Jar/v/Downloadvecmath152jar.htm
