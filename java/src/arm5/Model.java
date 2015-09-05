@@ -37,11 +37,14 @@ public class Model {
 	
 		    while(entries.hasMoreElements()){
 		        entry = entries.nextElement();
-		        stream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
-		        initialize(gl2,stream);
-		        
-		        stream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
-		        loadFromStream(gl2,stream);
+		        if( entry.getName().equals(fname) ) {
+			        stream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+			        initialize(gl2,stream);
+			        
+			        stream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+			        loadFromStream(gl2,stream);
+			        break;
+		        }
 		    }
 		    zipFile.close();
 		} catch (IOException e) {
