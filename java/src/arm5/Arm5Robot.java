@@ -695,15 +695,15 @@ extends RobotWithSerialConnection {
 		//drawBounds(gl2);
 
 		if(isLoaded==false) {
-			anchor.load(gl2,"anchor.STL");
-			shoulder.load(gl2,"shoulder1.STL");
-			shoulder_pinion.load(gl2,"shoulder_pinion.STL");
-			boom.load(gl2,"boom.STL");
-			stick.load(gl2,"stick.STL");
-			wrist_bone.load(gl2,"wrist_bone.STL");
-			wrist_end.load(gl2,"wrist_end.STL");
-			wrist_interior.load(gl2,"wrist_interior.STL");
-			wrist_pinion.load(gl2,"wrist_pinion.STL");
+			anchor.loadFromZip(gl2,"ArmParts.zip","anchor.STL");
+			shoulder.loadFromZip(gl2,"ArmParts.zip","shoulder1.STL");
+			shoulder_pinion.loadFromZip(gl2,"ArmParts.zip","shoulder_pinion.STL");
+			boom.loadFromZip(gl2,"ArmParts.zip","boom.STL");
+			stick.loadFromZip(gl2,"ArmParts.zip","stick.STL");
+			wrist_bone.loadFromZip(gl2,"ArmParts.zip","wrist_bone.STL");
+			wrist_end.loadFromZip(gl2,"ArmParts.zip","wrist_end.STL");
+			wrist_interior.loadFromZip(gl2,"ArmParts.zip","wrist_interior.STL");
+			wrist_pinion.loadFromZip(gl2,"ArmParts.zip","wrist_pinion.STL");
 			isLoaded=true;
 		}
 
@@ -775,8 +775,11 @@ extends RobotWithSerialConnection {
 		gl2.glRotated(motion_now.angle_3+motion_now.angle_4,0,0,1);
 		gl2.glRotated(motion_now.angle_3-motion_now.angle_4, 1,0,0);
 		wrist_end.render(gl2);
-		gl2.glPopMatrix();
 		
+		PrimitiveSolids.drawStar(gl2, new Vector3f(0,6.29f,0));
+		PrimitiveSolids.drawStar(gl2, new Vector3f(0,6.29f,0.8f));
+		gl2.glPopMatrix();
+
 		//setColor(gl2,0.5f,0.5f,0.5f,1);
 		gl2.glPushMatrix();
 		gl2.glTranslated(5, 0, -1.43f);
@@ -790,6 +793,7 @@ extends RobotWithSerialConnection {
 		gl2.glRotated(-motion_now.angle_3*24.0/8.0, 0,0,1);
 		wrist_pinion.render(gl2);
 		gl2.glPopMatrix();
+		
 /*
 		// these two should always match!
 		//drawFK(gl2);
