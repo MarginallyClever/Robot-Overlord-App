@@ -48,7 +48,7 @@ extends RobotWithSerialConnection {
 	boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
 	Cylinder [] volumes = new Cylinder[6];
 	
-	class MotionState {
+	class Arm5MotionState {
 		// angle of rotation
 		float angle_0 = 0;
 		float angle_1 = 0;
@@ -78,7 +78,7 @@ extends RobotWithSerialConnection {
 		float base_pan=0;
 		float base_tilt=0;
 		
-		void set(MotionState other) {
+		void set(Arm5MotionState other) {
 			angle_0 = other.angle_0;
 			angle_1 = other.angle_1;
 			angle_2 = other.angle_2;
@@ -103,8 +103,8 @@ extends RobotWithSerialConnection {
 		}
 	};
 	
-	protected MotionState motion_now = new MotionState();
-	protected MotionState motion_future = new MotionState();
+	protected Arm5MotionState motion_now = new Arm5MotionState();
+	protected Arm5MotionState motion_future = new Arm5MotionState();
 	
 	boolean homed = false;
 	boolean homing = false;
@@ -146,7 +146,7 @@ extends RobotWithSerialConnection {
 	
 	
 	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
-	public boolean movePermitted(MotionState state) {
+	public boolean movePermitted(Arm5MotionState state) {
 		// don't hit floor
 		if(state.finger_tip.z<0.25f) {
 			return false;
@@ -193,7 +193,7 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	protected boolean CheckAngleLimits(MotionState state) {/*
+	protected boolean CheckAngleLimits(Arm5MotionState state) {/*
 		// machine specific limits
 		if (state.angle_0 < -180) return false;
 		if (state.angle_0 >  180) return false;
@@ -221,7 +221,7 @@ extends RobotWithSerialConnection {
 	 * @input results where to put resulting angles after the IK calculation
 	 * @return 0 if successful, 1 if the IK solution cannot be found.
 	 */
-	protected boolean IK(MotionState state) {
+	protected boolean IK(Arm5MotionState state) {
 		float a0,a1,a2,a3,a4,a5;
 		// if we know the position of the wrist relative to the shoulder
 		// we can use intersection of circles to find the elbow.
@@ -494,7 +494,7 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	protected void FK(MotionState state) {
+	protected void FK(Arm5MotionState state) {
 		Vector3f arm_plane = new Vector3f((float)Math.cos(state.angle_0/RAD2DEG),
 					  					  (float)Math.sin(state.angle_0/RAD2DEG),
 					  					  0);
@@ -559,11 +559,11 @@ extends RobotWithSerialConnection {
 			delta0 -= velabe * delta;
 			changed=true;
 		}
-		if (rDown) {
+		if (fDown) {
 			delta1 -= velcd * delta;
 			changed=true;
 		}
-		if (fDown) {
+		if (rDown) {
 			delta1 += velcd * delta;
 			changed=true;
 		}
@@ -575,20 +575,21 @@ extends RobotWithSerialConnection {
 			delta2 -= velcd * delta;
 			changed=true;
 		}
-		if(iDown) {
+		
+		if(oDown) {
 			delta3 += velabe * delta;
 			changed=true;
 		}
-		if(kDown) {
+		if(lDown) {
 			delta3 -= velabe * delta;
 			changed=true;
 		}
 		
-		if(oDown) {
+		if(iDown) {
 			delta4 += velabe * delta;
 			changed=true;
 		}
-		if(lDown) {
+		if(kDown) {
 			delta4 -= velabe * delta;
 			changed=true;
 		}
@@ -707,77 +708,92 @@ extends RobotWithSerialConnection {
 			isLoaded=true;
 		}
 
-		//gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 		gl2.glColorMaterial ( GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE ) ;
 		
+		// anchor
 		setColor(gl2,1,1,1,1);
 		gl2.glRotated(90, 1, 0, 0);
 		gl2.glTranslated(0, 0.64, 0);
 		anchor.render(gl2);
 
-		//setColor(gl2,1,0,0,1);
-		//gl2.glColor3f(1,0,0);
+		// shoulder (E)
+		setColor(gl2,1,0,0,1);
 		gl2.glTranslated(0, 3.27, 0);
 		gl2.glRotated(155-motion_now.angle_0,0,1,0);
 //		gl2.glRotated(motion_now.base_pan,1,0,0);
 		shoulder.render(gl2);
 
-		//setColor(gl2,0,1,0,1);
-		//gl2.glColor3f(0,1,0);
+		// shoulder pinion
+		setColor(gl2,0,1,0,1);
 		gl2.glPushMatrix();
 		gl2.glTranslated(-15, -2.28, 0);
-		gl2.glRotated(motion_now.angle_0*80.0/8.0 ,0,1,0);
+		double anchor_gear_ratio = 80.0/8.0;
+		gl2.glRotated(motion_now.angle_0*anchor_gear_ratio,0,1,0);
 		shoulder_pinion.render(gl2);
 		gl2.glPopMatrix();
 
-		//setColor(gl2,0,0,1,1);
-		//gl2.glColor3f(0,0,1);
+		// boom (D)
+		setColor(gl2,0,0,1,1);
 		gl2.glTranslated(8.0, 7, 0);
-		gl2.glRotated(210-motion_now.angle_1,0,0,1);
+		gl2.glRotated(90-motion_now.angle_1,0,0,1);
 		gl2.glPushMatrix();
 		gl2.glScaled(-1,1,1);
 		boom.render(gl2);
 		gl2.glPopMatrix();
 
-
-		//setColor(gl2,1,0,1,1);
-		//gl2.glColor3f(1,0,1);
+		// stick (C)
+		setColor(gl2,1,0,1,1);
 		gl2.glTranslated(0.0, 37.0, 0);
-		gl2.glRotated(50+motion_now.angle_2,0,0,1);
+		gl2.glRotated(90+motion_now.angle_2,0,0,1);
 		gl2.glPushMatrix();
-		//gl2.glScaled(1,1,-1);
+		gl2.glScaled(1,-1,1);
 		stick.render(gl2);
 		gl2.glPopMatrix();
 
+		// to center of wrist
 		gl2.glTranslated(-40.0, 0.0, 0);
-
-		//setColor(gl2,0,1,1,1);
+		
+		// B
+		setColor(gl2,0,1,1,1);
 		gl2.glPushMatrix();
-		gl2.glRotated(motion_now.angle_3,0,0,1);
+		gl2.glRotated(motion_now.angle_4,0,0,1);
 		gl2.glRotated(90, 1, 0, 0);
 		wrist_interior.render(gl2);
 		gl2.glPopMatrix();
 
+		// A
 		gl2.glPushMatrix();
-		gl2.glRotated(motion_now.angle_4,0,0,1);
+		gl2.glRotated(-motion_now.angle_3,0,0,1);
 		gl2.glRotated(-90, 1, 0, 0);
 		wrist_interior.render(gl2);
 		gl2.glPopMatrix();
 
-		//setColor(gl2,1,1,0,1);
+		// A+B
+		setColor(gl2,1,1,0,1);
 		gl2.glPushMatrix();
-		gl2.glRotated(motion_now.angle_3+motion_now.angle_4,0,0,1);
+		gl2.glRotated(-motion_now.angle_3+motion_now.angle_4,0,0,1);
 		wrist_bone.render(gl2);
 		gl2.glPopMatrix();
 		
+		// A+B
 		gl2.glPushMatrix();
-		gl2.glRotated(motion_now.angle_3+motion_now.angle_4,0,0,1);
-		gl2.glRotated(motion_now.angle_3-motion_now.angle_4, 1,0,0);
+		gl2.glRotated(-motion_now.angle_3+motion_now.angle_4,0,0,1);
+		// A-B
+		gl2.glRotated(motion_now.angle_3+motion_now.angle_4, 1,0,0);
+		setColor(gl2,1,1,0,0.75f);
+		gl2.glPushMatrix();
 		wrist_end.render(gl2);
+		gl2.glPopMatrix();
 		
-		PrimitiveSolids.drawStar(gl2, new Vector3f(0,6.29f,0));
-		PrimitiveSolids.drawStar(gl2, new Vector3f(0,6.29f,0.8f));
+		// finger tip
+		gl2.glDisable(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+		setColor(gl2,1,1,1,1);
+		PrimitiveSolids.drawStar(gl2, new Vector3f(-6.29f,0,0));
+		PrimitiveSolids.drawStar(gl2, new Vector3f(-6.29f,0.8f,0));
+		gl2.glEnable(GL2.GL_LIGHTING);
+		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 		gl2.glPopMatrix();
 
 		//setColor(gl2,0.5f,0.5f,0.5f,1);
@@ -790,7 +806,7 @@ extends RobotWithSerialConnection {
 		gl2.glPushMatrix();
 		gl2.glTranslated(5, 0, 1.43f);
 		gl2.glScaled(1,1,-1);
-		gl2.glRotated(-motion_now.angle_3*24.0/8.0, 0,0,1);
+		gl2.glRotated(motion_now.angle_3*24.0/8.0, 0,0,1);
 		wrist_pinion.render(gl2);
 		gl2.glPopMatrix();
 		
@@ -1152,6 +1168,10 @@ extends RobotWithSerialConnection {
 	}
 	
 	
+	private double parseNumber(String str) {
+		return (Math.floor(Float.parseFloat(str)*5.0)/5.0);
+	}
+	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
 	public boolean ConfirmPort(String preamble) {
@@ -1175,19 +1195,19 @@ extends RobotWithSerialConnection {
 				String items[] = preamble.split(" ");
 				if(items.length >= 5) {
 					if(items[0].startsWith("A")) {
-						motion_now.angle_4 = Float.parseFloat(items[0].substring(1));
+						motion_now.angle_4 = (float)parseNumber(items[0].substring(1));
 					}
 					if(items[1].startsWith("B")) {
-						motion_now.angle_3 = Float.parseFloat(items[1].substring(1));
+						motion_now.angle_3 = (float)parseNumber(items[1].substring(1));
 					}
 					if(items[2].startsWith("C")) {
-						motion_now.angle_2 = Float.parseFloat(items[2].substring(1));
+						motion_now.angle_2 = (float)parseNumber(items[2].substring(1));
 					}
 					if(items[3].startsWith("D")) {
-						motion_now.angle_1 = Float.parseFloat(items[3].substring(1));
+						motion_now.angle_1 = (float)parseNumber(items[3].substring(1));
 					}
 					if(items[4].startsWith("E")) {
-						motion_now.angle_0 = Float.parseFloat(items[4].substring(1));
+						motion_now.angle_0 = (float)parseNumber(items[4].substring(1));
 					}
 					
 					motion_future.set(motion_now);
