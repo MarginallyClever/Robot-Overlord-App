@@ -780,7 +780,7 @@ extends RobotWithSerialConnection {
 		gl2.glPushMatrix();
 		gl2.glRotated(-motion_now.angle_3+motion_now.angle_4,0,0,1);
 		// A-B
-		gl2.glRotated(motion_now.angle_3+motion_now.angle_4, 1,0,0);
+		gl2.glRotated(motion_now.angle_3+motion_now.angle_4,1,0,0);
 		setColor(gl2,1,1,0,0.75f);
 		gl2.glPushMatrix();
 		wrist_end.render(gl2);
