@@ -753,35 +753,33 @@ extends RobotWithSerialConnection {
 
 		// to center of wrist
 		gl2.glTranslated(-40.0, 0.0, 0);
-		
-		// B
-		setColor(gl2,0,1,1,1);
+
+		// Gear A
+		setColor(gl2,1,1,0,1);
 		gl2.glPushMatrix();
-		gl2.glRotated(motion_now.angle_4,0,0,1);
+		gl2.glRotated(180+motion_now.angle_4,0,0,1);
 		gl2.glRotated(90, 1, 0, 0);
 		wrist_interior.render(gl2);
 		gl2.glPopMatrix();
 
-		// A
+		// Gear B
+		setColor(gl2,0,0,1,1);
 		gl2.glPushMatrix();
-		gl2.glRotated(-motion_now.angle_3,0,0,1);
+		gl2.glRotated(180-motion_now.angle_3*2.0-motion_now.angle_4,0,0,1);
 		gl2.glRotated(-90, 1, 0, 0);
 		wrist_interior.render(gl2);
 		gl2.glPopMatrix();
 
-		// A+B
-		setColor(gl2,1,1,0,1);
-		gl2.glPushMatrix();
-		gl2.glRotated(-motion_now.angle_3+motion_now.angle_4,0,0,1);
-		wrist_bone.render(gl2);
-		gl2.glPopMatrix();
+		gl2.glPushMatrix();  // wrist
+		gl2.glRotated(-motion_now.angle_3+180,0,0,1);
 		
+		// B
+		setColor(gl2,0.5f,1,0,1);
+		wrist_bone.render(gl2);
+				
 		// A+B
-		gl2.glPushMatrix();
-		gl2.glRotated(-motion_now.angle_3+motion_now.angle_4,0,0,1);
-		// A-B
-		gl2.glRotated(motion_now.angle_3+motion_now.angle_4,1,0,0);
-		setColor(gl2,1,1,0,0.75f);
+		gl2.glRotated(motion_now.angle_3+motion_now.angle_4-75,1,0,0);  // Why is this -75 here?
+		setColor(gl2,0,1,0,1);
 		gl2.glPushMatrix();
 		wrist_end.render(gl2);
 		gl2.glPopMatrix();
@@ -794,19 +792,20 @@ extends RobotWithSerialConnection {
 		PrimitiveSolids.drawStar(gl2, new Vector3f(-6.29f,0.8f,0));
 		gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-		gl2.glPopMatrix();
+		gl2.glPopMatrix();  // wrist
 
-		//setColor(gl2,0.5f,0.5f,0.5f,1);
+		setColor(gl2,0,0,1,1);
 		gl2.glPushMatrix();
 		gl2.glTranslated(5, 0, -1.43f);
-		gl2.glRotated(-motion_now.angle_4*24.0/8.0, 0,0,1);
+		gl2.glRotated((motion_now.angle_3*2+motion_now.angle_4)*24.0/8.0, 0,0,1);
 		wrist_pinion.render(gl2);
 		gl2.glPopMatrix();
-		
+
+		setColor(gl2,1,1,0,1);
 		gl2.glPushMatrix();
 		gl2.glTranslated(5, 0, 1.43f);
 		gl2.glScaled(1,1,-1);
-		gl2.glRotated(motion_now.angle_3*24.0/8.0, 0,0,1);
+		gl2.glRotated((-motion_now.angle_4)*24.0/8.0, 0,0,1);
 		wrist_pinion.render(gl2);
 		gl2.glPopMatrix();
 		

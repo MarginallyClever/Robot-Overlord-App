@@ -137,7 +137,7 @@ implements ActionListener {
     }
 	
 	public void render(GL2 gl2, float dt ) {
-    	gl2.glClearColor(153.0f/255.0f, 204.0f/255.0f, 255.0f/255.0f, 0.0f);
+    	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
         // Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
         if (GLProfile.isAWTAvailable() &&

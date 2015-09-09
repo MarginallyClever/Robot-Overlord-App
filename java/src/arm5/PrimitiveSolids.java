@@ -239,6 +239,8 @@ public class PrimitiveSolids {
 	
 		gl2.glEnd();
 	}
+	
+	
 	static public void drawGrid(GL2 gl2) {
 		drawGrid(gl2,50,1);
 	}
