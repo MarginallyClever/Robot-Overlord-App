@@ -121,7 +121,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		LoadConfig();
 		LoadGenerators();
 		
-        frame = new JFrame( "Evil Minion #1" ); 
+        frame = new JFrame( "Evil Overlord" ); 
         frame.setSize( 1224, 768 );
         frame.setLayout(new java.awt.BorderLayout());
 
@@ -355,7 +355,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		
 		if( subject == buttonAbout ) {
 			JOptionPane.showMessageDialog(null,"<html><body>"
-					+"<h1>arm5 v"+version+"</h1>"
+					+"<h1>Evil Overlord v"+version+"</h1>"
 					+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
 					+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 					+"<p>To get the latest version please visit<br><a href='https://github.com/MarginallyClever/arm5'>https://github.com/MarginallyClever/arm5</a></p><br>"

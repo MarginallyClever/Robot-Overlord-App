@@ -773,12 +773,12 @@ extends RobotWithSerialConnection {
 		gl2.glPushMatrix();  // wrist
 		gl2.glRotated(-motion_now.angle_3+180,0,0,1);
 		
-		// B
+		// wrist bone
 		setColor(gl2,0.5f,1,0,1);
 		wrist_bone.render(gl2);
 				
-		// A+B
-		gl2.glRotated(motion_now.angle_3+motion_now.angle_4-75,1,0,0);  // Why is this -75 here?
+		// tool holder
+		gl2.glRotated(motion_now.angle_3+motion_now.angle_4-78,1,0,0);  // Why is this -78 here?
 		setColor(gl2,0,1,0,1);
 		gl2.glPushMatrix();
 		wrist_end.render(gl2);
@@ -792,6 +792,7 @@ extends RobotWithSerialConnection {
 		PrimitiveSolids.drawStar(gl2, new Vector3f(-6.29f,0.8f,0));
 		gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+		
 		gl2.glPopMatrix();  // wrist
 
 		setColor(gl2,0,0,1,1);

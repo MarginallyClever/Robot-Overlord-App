@@ -42,32 +42,20 @@ implements ActionListener {
     }
     
 
-    public void mouseClicked(MouseEvent e) {
-    	
-    }
+    public void mouseClicked(MouseEvent e) {}
     public void mouseDragged(MouseEvent e) {
     	camera.mouseDragged(e);
     }
-    public void mouseEntered(MouseEvent e) {
-    	
-    }
-    public void mouseExited(MouseEvent e) {
-    	
-    }
-    public void mouseMoved(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {}
+    public void mouseMoved(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {
     	camera.mousePressed(e);
-    	
     }
     public void mouseReleased(MouseEvent e) {
     	camera.mouseReleased(e);
-    	
     }
-    public void mouseWheelMoved(MouseEvent e) {
-    	
-    }
+    public void mouseWheelMoved(MouseEvent e) {}
     
     public void keyPressed(KeyEvent e) {
     	if(e.getKeyCode() == KeyEvent.VK_SPACE) {
