@@ -30,22 +30,19 @@ extends RobotWithSerialConnection {
 	final float WRIST_TO_FINGER      =(4.0f);
 	final float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
 	
-	float HOME_X = 13.05f;
-	float HOME_Y = 0;
-	float HOME_Z = 22.2f;
-	float HOME_A = 0;
-	float HOME_B = 0;
-	float HOME_C = 0;
+	final double ANCHOR_ADJUST_Y = 0.64;
+	final double ANCHOR_TO_SHOULDER_Y = 3.27;
+	final double SHOULDER_TO_PINION_X = -15;
+	final double SHOULDER_TO_PINION_Y = -2.28;
+	final double SHOULDER_TO_BOOM_X = 8;
+	final double SHOULDER_TO_BOOM_Y = 7;
+	final double BOOM_TO_STICK_Y = 37;
+	final double STICK_TO_WRIST_X = -40.0;
+	final double WRIST_TO_PINION_X = 5;
+	final double WRIST_TO_PINION_Z = 1.43;
+	final float WRIST_TO_TOOL_X = -6.29f;
+	final float WRIST_TO_TOOL_Y = 1.0f;
 	
-	float HOME_RIGHT_X = 0;
-	float HOME_RIGHT_Y = 0;
-	float HOME_RIGHT_Z = -1;
-
-	float HOME_FORWARD_X = 1;
-	float HOME_FORWARD_Y = 0;
-	float HOME_FORWARD_Z = 0;
-
-	boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
 	Cylinder [] volumes = new Cylinder[6];
 	
 	class Arm5MotionState {
@@ -55,12 +52,11 @@ extends RobotWithSerialConnection {
 		float angle_2 = 0;
 		float angle_3 = 0;
 		float angle_4 = 0;
-		float angle_5 = 0;
 
 		// robot arm coordinates.  Relative to base unless otherwise noted.
-		public Vector3f finger_tip = new Vector3f(HOME_X,HOME_Y,HOME_Z);
-		public Vector3f finger_forward = new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
-		public Vector3f finger_right = new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+		public Vector3f finger_tip = new Vector3f();
+		public Vector3f finger_forward = new Vector3f();
+		public Vector3f finger_right = new Vector3f();
 		public float iku=0;
 		public float ikv=0;
 		public float ikw=0;
@@ -84,7 +80,6 @@ extends RobotWithSerialConnection {
 			angle_2 = other.angle_2;
 			angle_3 = other.angle_3;
 			angle_4 = other.angle_4;
-			angle_5 = other.angle_5;
 			iku=other.iku;
 			ikv=other.ikv;
 			ikw=other.ikw;
@@ -112,40 +107,51 @@ extends RobotWithSerialConnection {
 	boolean arm_moved = false;
 	
 	// keyboard history
-	boolean rDown=false;
-	boolean fDown=false;
-	boolean tDown=false;
-	boolean gDown=false;
-	boolean yDown=false;
-	boolean hDown=false;
-	boolean uDown=false;
-	boolean jDown=false;
-	boolean iDown=false;
-	boolean kDown=false;
-	boolean oDown=false;
-	boolean lDown=false;
-	
-	boolean pDown=false;
+	boolean aPos=false;
+	boolean aNeg=false;
+	boolean bPos=false;
+	boolean bNeg=false;
+	boolean cPos=false;
+	boolean cNeg=false;
+	boolean dPos=false;
+	boolean dNeg=false;
+	boolean ePos=false;
+	boolean eNeg=false;
+
+	boolean xPos=false;
+	boolean xNeg=false;
+	boolean yPos=false;
+	boolean yNeg=false;
+	boolean zPos=false;
+	boolean zNeg=false;
+
 	boolean pWasOn=false;
 	boolean moveMode=false;
 	
 	boolean isLoaded=false;
+		
 	
-	
-	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
-	
-	
-	public void setHome(Vector3f newhome) {
-		HOME_X=newhome.x;
-		HOME_Y=newhome.y;
-		HOME_Z=newhome.z;
-		RotateBase(0f,0f);
-		MoveBase(new Vector3f(0,0,0));
-		FinalizeMove();
+	public Arm5Robot(String name) {
+		super(name);
+		
+		// set up bounding volumes
+		for(int i=0;i<volumes.length;++i) {
+			volumes[i] = new Cylinder();
+		}
+		volumes[0].radius=3.2f;
+		volumes[1].radius=3.0f*0.575f;
+		volumes[2].radius=2.2f;
+		volumes[3].radius=1.15f;
+		volumes[4].radius=1.2f;
+		volumes[5].radius=1.0f*0.575f;
+		
+		RotateBase(0,0);
+		IK(motion_now);
+		IK(motion_future);
 	}
+
 	
-	
-	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
+	// TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
 	public boolean movePermitted(Arm5MotionState state) {
 		// don't hit floor
 		if(state.finger_tip.z<0.25f) {
@@ -170,26 +176,6 @@ extends RobotWithSerialConnection {
 
 		// OK
 		return true;
-	}
-	
-	
-	public Arm5Robot(String name) {
-		super(name);
-		
-		// set up bounding volumes
-		for(int i=0;i<volumes.length;++i) {
-			volumes[i] = new Cylinder();
-		}
-		volumes[0].radius=3.2f;
-		volumes[1].radius=3.0f*0.575f;
-		volumes[2].radius=2.2f;
-		volumes[3].radius=1.15f;
-		volumes[4].radius=1.2f;
-		volumes[5].radius=1.0f*0.575f;
-		
-		RotateBase(0,0);
-		IK(motion_now);
-		IK(motion_future);
 	}
 	
 	
@@ -222,7 +208,7 @@ extends RobotWithSerialConnection {
 	 * @return 0 if successful, 1 if the IK solution cannot be found.
 	 */
 	protected boolean IK(Arm5MotionState state) {
-		float a0,a1,a2,a3,a4,a5;
+		float a0,a1,a2,a3,a4;
 		// if we know the position of the wrist relative to the shoulder
 		// we can use intersection of circles to find the elbow.
 		// once we know the elbow position we can find the angle of each joint.
@@ -296,8 +282,8 @@ extends RobotWithSerialConnection {
 		
 
 		Vector3f right_uprotated;
-		Vector3f forward = new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
-		Vector3f right = new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+		Vector3f forward = new Vector3f(0,0,1);
+		Vector3f right = new Vector3f(1,0,0);
 		Vector3f up = new Vector3f();
 		
 		up.cross(forward,right);
@@ -325,13 +311,6 @@ extends RobotWithSerialConnection {
 			float dx = -ffn.dot(ulna_forward);
 			float dy = ffn.dot(ulna_up);
 			a4=(float) Math.atan2(dy,dx);
-		}
-		
-		// find the angle of the finger rotation
-		{
-			float dy = ulna_normal.dot(state.finger_right);
-			float dx = ulna_up.dot(state.finger_right);
-			a5=(float) Math.atan2(dy,dx);
 		}
 		
 		// find the angle of the ulna rotation
@@ -368,7 +347,6 @@ extends RobotWithSerialConnection {
 		state.angle_2=a2 * RAD2DEG;
 		state.angle_3=a3 * RAD2DEG;
 		state.angle_4=a4 * RAD2DEG;
-		state.angle_5=a5 * RAD2DEG;
 
 		return true;
 	}
@@ -380,48 +358,48 @@ extends RobotWithSerialConnection {
 		final float vel=5.0f;
 		float dp = vel * delta;
 
-		if (rDown) {
+		if (dPos) {
 			motion_future.finger_tip.x -= dp;
 			changed=true;
 		}
-		if (fDown) {
+		if (dNeg) {
 			motion_future.finger_tip.x += dp;
 			changed=true;
 		}
 		
-		if (tDown) {
+		if (cPos) {
 			motion_future.finger_tip.y += dp;
 			changed=true;
 		}
-		if (gDown) {
+		if (bNeg) {
 			motion_future.finger_tip.y -= dp;
 			changed=true;
 		}
 		
-		if (yDown) {
+		if (yPos) {
 			motion_future.finger_tip.z += dp;
 			changed=true;
 		}
-		if (hDown) {
+		if (yNeg) {
 			motion_future.finger_tip.z -= dp;
 			changed=true;
 		}
 
 		// rotations
 		float ru=0,rv=0,rw=0;
-		if(uDown) rw= 0.1f;
-		if(jDown) rw=-0.1f;
-		if(iDown) rv=0.1f;
-		if(kDown) rv=-0.1f;
-		if(oDown) ru=0.1f;
-		if(lDown) ru=-0.1f;
+		//if(uDown) rw= 0.1f;
+		//if(jDown) rw=-0.1f;
+		if(aPos) rv=0.1f;
+		if(aNeg) rv=-0.1f;
+		if(bPos) ru=0.1f;
+		if(bNeg) ru=-0.1f;
 
 		//if(rw!=0 || rv!=0 || ru!=0 )
 		{
 			// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
 			// More complex arms start from the same assumption.
-			Vector3f forward = new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
-			Vector3f right = new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+			Vector3f forward = new Vector3f(0,0,1);
+			Vector3f right = new Vector3f(1,0,0);
 			Vector3f up = new Vector3f();
 			
 			up.cross(forward,right);
@@ -534,9 +512,7 @@ extends RobotWithSerialConnection {
 		
 		state.finger_right.set(up); 
 		state.finger_right.scale(-1);
-		//state.finger_right = RotateAroundAxis(state.finger_right, axis,-state.angle_3/RAD2DEG);
 		state.finger_right = RotateAroundAxis(state.finger_right, fn,-state.angle_4/RAD2DEG); 
-		state.finger_right = RotateAroundAxis(state.finger_right, state.finger_forward,state.angle_5/RAD2DEG);
 	}
 	
 	
@@ -551,45 +527,45 @@ extends RobotWithSerialConnection {
 		float delta3 = 0;
 		float delta4 = 0;
 
-		if (yDown) {
+		if (ePos) {
 			delta0 += velabe * delta;
 			changed=true;
 		}
-		if (hDown) {
+		if (eNeg) {
 			delta0 -= velabe * delta;
 			changed=true;
 		}
-		if (fDown) {
+		if (dNeg) {
 			delta1 -= velcd * delta;
 			changed=true;
 		}
-		if (rDown) {
+		if (dPos) {
 			delta1 += velcd * delta;
 			changed=true;
 		}
-		if (tDown) {
+		if (cPos) {
 			delta2 += velcd * delta;
 			changed=true;
 		}
-		if (gDown) {
+		if (cNeg) {
 			delta2 -= velcd * delta;
 			changed=true;
 		}
 		
-		if(oDown) {
+		if(bPos) {
 			delta3 += velabe * delta;
 			changed=true;
 		}
-		if(lDown) {
+		if(bNeg) {
 			delta3 -= velabe * delta;
 			changed=true;
 		}
 		
-		if(iDown) {
+		if(aPos) {
 			delta4 += velabe * delta;
 			changed=true;
 		}
-		if(kDown) {
+		if(aNeg) {
 			delta4 -= velabe * delta;
 			changed=true;
 		}
@@ -644,11 +620,6 @@ extends RobotWithSerialConnection {
 	
 	
 	public void PrepareMove(float delta) {
-		if(pDown) pWasOn=true;
-		if(!pDown && pWasOn) {
-			pWasOn=false;
-			moveMode=!moveMode;
-		}
 		if(moveMode) update_ik(delta);
 		else		 update_fk(delta);
 	}
@@ -669,57 +640,49 @@ extends RobotWithSerialConnection {
 	
 
 	protected void setColor(GL2 gl2,float r,float g,float b,float a) {
-		FloatBuffer mat_diffuse = FloatBuffer.allocate(4);
-		mat_diffuse.put(r);
-		mat_diffuse.put(g);
-		mat_diffuse.put(b);
-		mat_diffuse.put(a);
-		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, mat_diffuse);
-		gl2.glColor4f(r,g,b,a);
+		float [] mat_diffuse = { r,g,b,a};
+		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, mat_diffuse,0);
+
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, mat_diffuse,0);
+	    float[] emission={0.01f,0.01f,0.01f,1f};
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
+	    
+	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, 50.0f);
+
+	    gl2.glColor4f(r,g,b,a);
 	}
 	
+	
+	public void loadModels(GL2 gl2) {
+		anchor.loadFromZip(gl2,"ArmParts.zip","anchor.STL");
+		shoulder.loadFromZip(gl2,"ArmParts.zip","shoulder1.STL");
+		shoulder_pinion.loadFromZip(gl2,"ArmParts.zip","shoulder_pinion.STL");
+		boom.loadFromZip(gl2,"ArmParts.zip","boom.STL");
+		stick.loadFromZip(gl2,"ArmParts.zip","stick.STL");
+		wrist_bone.loadFromZip(gl2,"ArmParts.zip","wrist_bone.STL");
+		wrist_end.loadFromZip(gl2,"ArmParts.zip","wrist_end.STL");
+		wrist_interior.loadFromZip(gl2,"ArmParts.zip","wrist_interior.STL");
+		wrist_pinion.loadFromZip(gl2,"ArmParts.zip","wrist_pinion.STL");
+	}
+	
+	
 	public void render(GL2 gl2) {
-//		float n = (float)(System.currentTimeMillis()%360000)/10.0f;
-		
 		gl2.glPushMatrix();
-/*
-		gl2.glTranslatef(motion_now.base.x, motion_now.base.y, motion_now.base.z);
-		gl2.glRotatef(motion_now.base_pan, motion_now.base_up.x,motion_now.base_up.y,motion_now.base_up.z);
- 		// for debugging difference between FK and IK
-		gl2.glDisable(GL2.GL_LIGHTING);
-		gl2.glColor3d(1,1,1);
-		PrimitiveSolids.drawStar(gl2,motion_now.finger_tip,5);
-		PrimitiveSolids.drawStar(gl2,motion_now.elbow,10);
-		PrimitiveSolids.drawStar(gl2,motion_now.shoulder,15);
-		gl2.glEnable(GL2.GL_LIGHTING);
-*/
-		//drawBounds(gl2);
 
 		if(isLoaded==false) {
-			anchor.loadFromZip(gl2,"ArmParts.zip","anchor.STL");
-			shoulder.loadFromZip(gl2,"ArmParts.zip","shoulder1.STL");
-			shoulder_pinion.loadFromZip(gl2,"ArmParts.zip","shoulder_pinion.STL");
-			boom.loadFromZip(gl2,"ArmParts.zip","boom.STL");
-			stick.loadFromZip(gl2,"ArmParts.zip","stick.STL");
-			wrist_bone.loadFromZip(gl2,"ArmParts.zip","wrist_bone.STL");
-			wrist_end.loadFromZip(gl2,"ArmParts.zip","wrist_end.STL");
-			wrist_interior.loadFromZip(gl2,"ArmParts.zip","wrist_interior.STL");
-			wrist_pinion.loadFromZip(gl2,"ArmParts.zip","wrist_pinion.STL");
+			loadModels(gl2);
 			isLoaded=true;
 		}
 
-		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-		gl2.glColorMaterial ( GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE ) ;
-		
 		// anchor
 		setColor(gl2,1,1,1,1);
 		gl2.glRotated(90, 1, 0, 0);
-		gl2.glTranslated(0, 0.64, 0);
+		gl2.glTranslated(0, ANCHOR_ADJUST_Y, 0);
 		anchor.render(gl2);
 
 		// shoulder (E)
 		setColor(gl2,1,0,0,1);
-		gl2.glTranslated(0, 3.27, 0);
+		gl2.glTranslated(0, ANCHOR_TO_SHOULDER_Y, 0);
 		gl2.glRotated(155-motion_now.angle_0,0,1,0);
 //		gl2.glRotated(motion_now.base_pan,1,0,0);
 		shoulder.render(gl2);
@@ -727,7 +690,7 @@ extends RobotWithSerialConnection {
 		// shoulder pinion
 		setColor(gl2,0,1,0,1);
 		gl2.glPushMatrix();
-		gl2.glTranslated(-15, -2.28, 0);
+		gl2.glTranslated(SHOULDER_TO_PINION_X, SHOULDER_TO_PINION_Y, 0);
 		double anchor_gear_ratio = 80.0/8.0;
 		gl2.glRotated(motion_now.angle_0*anchor_gear_ratio,0,1,0);
 		shoulder_pinion.render(gl2);
@@ -735,7 +698,7 @@ extends RobotWithSerialConnection {
 
 		// boom (D)
 		setColor(gl2,0,0,1,1);
-		gl2.glTranslated(8.0, 7, 0);
+		gl2.glTranslated(SHOULDER_TO_BOOM_X,SHOULDER_TO_BOOM_Y, 0);
 		gl2.glRotated(90-motion_now.angle_1,0,0,1);
 		gl2.glPushMatrix();
 		gl2.glScaled(-1,1,1);
@@ -744,7 +707,7 @@ extends RobotWithSerialConnection {
 
 		// stick (C)
 		setColor(gl2,1,0,1,1);
-		gl2.glTranslated(0.0, 37.0, 0);
+		gl2.glTranslated(0.0, BOOM_TO_STICK_Y, 0);
 		gl2.glRotated(90+motion_now.angle_2,0,0,1);
 		gl2.glPushMatrix();
 		gl2.glScaled(1,-1,1);
@@ -752,7 +715,7 @@ extends RobotWithSerialConnection {
 		gl2.glPopMatrix();
 
 		// to center of wrist
-		gl2.glTranslated(-40.0, 0.0, 0);
+		gl2.glTranslated(STICK_TO_WRIST_X, 0.0, 0);
 
 		// Gear A
 		setColor(gl2,1,1,0,1);
@@ -771,50 +734,49 @@ extends RobotWithSerialConnection {
 		gl2.glPopMatrix();
 
 		gl2.glPushMatrix();  // wrist
-		gl2.glRotated(-motion_now.angle_3+180,0,0,1);
-		
-		// wrist bone
-		setColor(gl2,0.5f,1,0,1);
-		wrist_bone.render(gl2);
+
+			gl2.glRotated(-motion_now.angle_3+180,0,0,1);
+			
+			// wrist bone
+			setColor(gl2,0.5f,1,0,1);
+			wrist_bone.render(gl2);
 				
-		// tool holder
-		gl2.glRotated(motion_now.angle_3+motion_now.angle_4-78,1,0,0);  // Why is this -78 here?
-		setColor(gl2,0,1,0,1);
-		gl2.glPushMatrix();
-		wrist_end.render(gl2);
-		gl2.glPopMatrix();
-		
-		// finger tip
-		gl2.glDisable(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
-		setColor(gl2,1,1,1,1);
-		PrimitiveSolids.drawStar(gl2, new Vector3f(-6.29f,0,0));
-		PrimitiveSolids.drawStar(gl2, new Vector3f(-6.29f,0.8f,0));
-		gl2.glEnable(GL2.GL_LIGHTING);
-		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+			// tool holder
+			gl2.glRotated(motion_now.angle_3+motion_now.angle_4-78,1,0,0);  // Why is this -78 here?
+			setColor(gl2,0,1,0,1);
+			gl2.glPushMatrix();
+			wrist_end.render(gl2);
+			gl2.glPopMatrix();
+
+			// finger tip
+			boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
+			boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
+			gl2.glDisable(GL2.GL_LIGHTING);
+			gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+			setColor(gl2,1,1,1,1);
+			PrimitiveSolids.drawStar(gl2, new Vector3f(WRIST_TO_TOOL_X,0,0));
+			PrimitiveSolids.drawStar(gl2, new Vector3f(WRIST_TO_TOOL_X,WRIST_TO_TOOL_Y,0));
+			if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
+			if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 		
 		gl2.glPopMatrix();  // wrist
 
-		setColor(gl2,0,0,1,1);
-		gl2.glPushMatrix();
-		gl2.glTranslated(5, 0, -1.43f);
-		gl2.glRotated((motion_now.angle_3*2+motion_now.angle_4)*24.0/8.0, 0,0,1);
-		wrist_pinion.render(gl2);
-		gl2.glPopMatrix();
-
-		setColor(gl2,1,1,0,1);
-		gl2.glPushMatrix();
-		gl2.glTranslated(5, 0, 1.43f);
-		gl2.glScaled(1,1,-1);
-		gl2.glRotated((-motion_now.angle_4)*24.0/8.0, 0,0,1);
-		wrist_pinion.render(gl2);
-		gl2.glPopMatrix();
+			// pinions
+			setColor(gl2,0,0,1,1);
+			gl2.glPushMatrix();
+			gl2.glTranslated(WRIST_TO_PINION_X, 0, -WRIST_TO_PINION_Z);
+			gl2.glRotated((motion_now.angle_3*2+motion_now.angle_4)*24.0/8.0, 0,0,1);
+			wrist_pinion.render(gl2);
+			gl2.glPopMatrix();
+	
+			setColor(gl2,1,1,0,1);
+			gl2.glPushMatrix();
+			gl2.glTranslated(WRIST_TO_PINION_X, 0, WRIST_TO_PINION_Z);
+			gl2.glScaled(1,1,-1);
+			gl2.glRotated((-motion_now.angle_4)*24.0/8.0, 0,0,1);
+			wrist_pinion.render(gl2);
+			gl2.glPopMatrix();
 		
-/*
-		// these two should always match!
-		//drawFK(gl2);
-		//drawIK(gl2);
-*/
 		gl2.glPopMatrix();
 	}
 	
@@ -902,8 +864,8 @@ extends RobotWithSerialConnection {
 		Vector3f ffn = new Vector3f(ulna_forward);
 
 		Vector3f right_unrotated;
-		Vector3f forward = new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
-		Vector3f right = new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+		Vector3f forward = new Vector3f(0,0,1);
+		Vector3f right = new Vector3f(1,0,0);
 		Vector3f up = new Vector3f();
 		
 		up.cross(forward,right);
@@ -1050,7 +1012,6 @@ extends RobotWithSerialConnection {
 		gl2.glPopMatrix();
 
 		gl2.glTranslatef(a3.x,a3.y,a3.z);	
-		gl2.glRotatef(motion_now.angle_5,a3.x,a3.y,a3.z);
 		//gl2.glRotatef(-motion_now.angle_3,a2.x,a2.y,a2.z);
 		//gl2.glRotatef(motion_now.angle_4,0,1,0);
 		//gl2.glRotatef(-180+motion_now.angle_2,0,1,0);
@@ -1060,10 +1021,10 @@ extends RobotWithSerialConnection {
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glColor3f(1,0,1);  // magenta
 		gl2.glVertex3f(0,0,0);
-		gl2.glVertex3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+		gl2.glVertex3f(1,0,0);
 		gl2.glColor3f(0,1,0);  // green
 		gl2.glVertex3f(0,0,0);
-		gl2.glVertex3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
+		gl2.glVertex3f(0,0,1);
 		gl2.glEnd();
 		gl2.glEnable(GL2.GL_LIGHTING);
 		// TODO draw tool here
@@ -1122,15 +1083,14 @@ extends RobotWithSerialConnection {
 			gl2.glTranslatef(a3.x,a3.y,a3.z);	
 
 			// draw finger tip orientation
-			gl2.glRotatef(motion_now.angle_5,a3.x,a3.y,a3.z);
 			gl2.glRotatef(-90,0,1,0);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,0,1);  // magenta
 			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(HOME_RIGHT_X*5,HOME_RIGHT_Y*5,HOME_RIGHT_Z*5);
+			gl2.glVertex3f(5,0,0);
 			gl2.glColor3f(0,1,0);  // green
 			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
+			gl2.glVertex3f(0,0,1);
 			gl2.glEnd();
 			
 			// TODO draw tool here
@@ -1180,11 +1140,11 @@ extends RobotWithSerialConnection {
 		if(preamble.contains("HELLO WORLD! I AM MINION")) {
 			portConfirmed=true;
 
-			motion_future.finger_tip.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+			motion_future.finger_tip.set(0,0,0);  // HOME_* should match values in robot firmware.
 			IK(motion_future);
 			FinalizeMove();
-			this.SendCommand("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
 			this.SendCommand("G91");
+			this.SendCommand("R1");
 			homing=false;
 			homed=true;
 			follow_mode=true;
@@ -1194,22 +1154,11 @@ extends RobotWithSerialConnection {
 			if(preamble.startsWith("A")) {
 				String items[] = preamble.split(" ");
 				if(items.length >= 5) {
-					if(items[0].startsWith("A")) {
-						motion_now.angle_4 = (float)parseNumber(items[0].substring(1));
-					}
-					if(items[1].startsWith("B")) {
-						motion_now.angle_3 = (float)parseNumber(items[1].substring(1));
-					}
-					if(items[2].startsWith("C")) {
-						motion_now.angle_2 = (float)parseNumber(items[2].substring(1));
-					}
-					if(items[3].startsWith("D")) {
-						motion_now.angle_1 = (float)parseNumber(items[3].substring(1));
-					}
-					if(items[4].startsWith("E")) {
-						motion_now.angle_0 = (float)parseNumber(items[4].substring(1));
-					}
-					
+					if(items[0].startsWith("A")) motion_now.angle_4 = (float)parseNumber(items[0].substring(1));
+					if(items[1].startsWith("B")) motion_now.angle_3 = (float)parseNumber(items[1].substring(1));
+					if(items[2].startsWith("C")) motion_now.angle_2 = (float)parseNumber(items[2].substring(1));
+					if(items[3].startsWith("D")) motion_now.angle_1 = (float)parseNumber(items[3].substring(1));
+					if(items[4].startsWith("E")) motion_now.angle_0 = (float)parseNumber(items[4].substring(1));
 					motion_future.set(motion_now);
 				}
 			}

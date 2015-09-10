@@ -164,14 +164,14 @@ public class Model {
 		
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
 		gl2.glEnableClientState(GL2.GL_NORMAL_ARRAY);
-	      
-		// Bind the normal buffer to work with
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
-		gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
 
 		// Bind the vertex buffer to work with
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
 		gl2.glVertexPointer(3, GL2.GL_FLOAT, 0, 0);
+	      
+		// Bind the normal buffer to work with
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
+		gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
   
 		gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, num_triangles*3);
 		//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, num_triangles*3);

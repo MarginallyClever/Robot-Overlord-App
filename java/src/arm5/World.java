@@ -3,6 +3,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
@@ -125,6 +127,7 @@ implements ActionListener {
     }
 	
 	public void render(GL2 gl2, float dt ) {
+		// background color
     	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
         // Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
@@ -137,49 +140,47 @@ implements ActionListener {
           gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         }
         
-    	
+        gl2.glDisable(GL2.GL_CULL_FACE);
 		//gl2.glEnable(GL2.GL_CULL_FACE);
+		//gl2.glCullFace(GL2.GL_BACK);
 		
 		gl2.glPushMatrix();
 			camera.update(dt);
 			camera.render(gl2);
-
-			gl2.glDisable(GL2.GL_LIGHTING);
-			PrimitiveSolids.drawGrid(gl2,50,5);
+			
 			 // Enable lighting
+			gl2.glShadeModel(GL2.GL_SMOOTH);
 			gl2.glEnable(GL2.GL_LIGHTING);
 			gl2.glEnable(GL2.GL_LIGHT0);
 			gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-			/*
-			FloatBuffer position = ByteBuffer.allocateDirect(16).asFloatBuffer();
-		    position.mark();
-		    position.put(new float[] { -10f, 10f, 50f, 0f }); // even values about 10e3 for the first three parameters aren't changing anything
-		    position.reset();
-			gl2.glLight(GL2.GL_LIGHT0, GL2.GL_POSITION, position);
+			gl2.glColorMaterial ( GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE );
 
-		    FloatBuffer ambient = ByteBuffer.allocateDirect(16).asFloatBuffer();
-		    ambient.mark();
-		    ambient.put(new float[] { 0.85f, 0.85f, 0.85f, 1f });
-		    ambient.reset();
-		    gl2.glLight(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient);
+		    float[] position={1,1,1,0};
+			gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position,0);
+		    float[] ambient={0.2f,0.2f,0.2f,1f};
+		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient,0);
+		    float[] diffuse={1f,1f,1f,1f};
+		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse,0);
+		    float[] specular={0.5f,0.5f,0.5f,1f};
+		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, specular,0);
 
-		    FloatBuffer diffuse = ByteBuffer.allocateDirect(16).asFloatBuffer();
-		    diffuse.mark();
-		    diffuse.put(new float[] { 1.0f, 1.0f, 1.0f, 1f });
-		    diffuse.reset();
-		    gl2.glLight(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse);
-*/
+		    // draw grid
+			gl2.glDisable(GL2.GL_LIGHTING);
+			PrimitiveSolids.drawGrid(gl2,50,5);
+			gl2.glEnable(GL2.GL_LIGHTING);
+			
+			// draw robots
 			robot0.PrepareMove(dt);
-			//robot1.PrepareMove(dt);
 			//if(WillCollide(robot0,robot1) == false) 
 			{
 				robot0.FinalizeMove();
 				//robot1.FinalizeMove();
 			}
 			
+			gl2.glPushMatrix();
 			robot0.render(gl2);
-			//robot1.render(gl2);
-			
+			gl2.glPopMatrix();
+
 		gl2.glPopMatrix();
 	}
 
