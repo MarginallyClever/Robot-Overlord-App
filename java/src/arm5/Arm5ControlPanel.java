@@ -31,7 +31,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 	private JButton arm5Yneg;
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
-
+	
 	
 	private JButton createButton(String name) {
 		JButton b = new JButton(name);
@@ -41,107 +41,78 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 
 
 	public Arm5ControlPanel() {
+		JPanel p;
 		this.setLayout(new GridLayout(0,1));
+
 		this.add(new JLabel("Forward Kinematics"));
-		this.add(arm5Apos = createButton("A+"));
-		this.add(arm5Aneg = createButton("A-"));
-		this.add(arm5Bpos = createButton("B+"));
-		this.add(arm5Bneg = createButton("B-"));
-		this.add(arm5Cpos = createButton("C+"));
-		this.add(arm5Cneg = createButton("C-"));
-		this.add(arm5Dpos = createButton("D+"));
-		this.add(arm5Dneg = createButton("D-"));
-		this.add(arm5Epos = createButton("E+"));
-		this.add(arm5Eneg = createButton("E-"));
+		
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Apos = createButton("A+"));
+		p.add(arm5Aneg = createButton("A-"));
+		this.add(p);
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Bpos = createButton("B+"));
+		p.add(arm5Bneg = createButton("B-"));
+		this.add(p);
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Cpos = createButton("C+"));
+		p.add(arm5Cneg = createButton("C-"));
+		this.add(p);
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Dpos = createButton("D+"));
+		p.add(arm5Dneg = createButton("D-"));
+		this.add(p);
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Epos = createButton("E+"));
+		p.add(arm5Eneg = createButton("E-"));
+		this.add(p);
+
 		this.add(new JLabel("Inverse Kinematics"));
-		this.add(arm5Xpos = createButton("X+"));
-		this.add(arm5Xneg = createButton("X-"));
-		this.add(arm5Ypos = createButton("Y+"));
-		this.add(arm5Yneg = createButton("Y-"));
-		this.add(arm5Zpos = createButton("Z+"));
-		this.add(arm5Zneg = createButton("Z-"));
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Xpos = createButton("X+"));
+		p.add(arm5Xneg = createButton("X-"));
+		this.add(p);
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Ypos = createButton("Y+"));
+		p.add(arm5Yneg = createButton("Y-"));
+		this.add(p);
+
+		p = new JPanel(new GridLayout(1,0));
+		p.add(arm5Zpos = createButton("Z+"));
+		p.add(arm5Zneg = createButton("Z-"));
+		this.add(p);
 	}
 
 
+	
 	// arm5 controls
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();		
 
-		MainGUI gui = MainGUI.getSingleton();
-		World world = gui.world;		
+		World world = MainGUI.getSingleton().world;		
 		
-		if( subject == arm5Apos ) {
-			world.robot0.aPos = ( !world.robot0.aPos ) ? true : false;
-			world.robot0.aNeg = false;
-		}
-		if( subject == arm5Aneg ) {
-			world.robot0.aNeg = ( !world.robot0.aNeg ) ? true : false;
-			world.robot0.aPos = false;
-		}
+		if( subject == arm5Apos ) world.robot0.moveA(1);
+		if( subject == arm5Aneg ) world.robot0.moveA(-1);
+		if( subject == arm5Bpos ) world.robot0.moveB(1);
+		if( subject == arm5Bneg ) world.robot0.moveB(-1);
+		if( subject == arm5Cpos ) world.robot0.moveC(1);
+		if( subject == arm5Cneg ) world.robot0.moveC(-1);
+		if( subject == arm5Dpos ) world.robot0.moveD(1);
+		if( subject == arm5Dneg ) world.robot0.moveD(-1);
+		if( subject == arm5Zpos ) world.robot0.moveZ(1);
+		if( subject == arm5Zneg ) world.robot0.moveZ(-1);
 		
-		if( subject == arm5Bpos ) {
-			world.robot0.bPos = ( !world.robot0.bPos ) ? true : false;
-			world.robot0.bNeg = false;
-		}
-		if( subject == arm5Bneg ) {
-			world.robot0.bNeg = ( !world.robot0.bNeg ) ? true : false;
-			world.robot0.bPos = false;
-		}
-		
-		if( subject == arm5Cpos ) {
-			world.robot0.cPos = ( !world.robot0.cPos ) ? true : false;
-			world.robot0.cNeg = false;
-		}
-		if( subject == arm5Cneg ) {
-			world.robot0.cNeg = ( !world.robot0.cNeg ) ? true : false;
-			world.robot0.cPos = false;
-		}
-		
-		if( subject == arm5Dpos ) {
-			world.robot0.dPos = ( !world.robot0.dPos ) ? true : false;
-			world.robot0.dNeg = false;
-		}
-		if( subject == arm5Dneg ) {
-			world.robot0.dNeg = ( !world.robot0.dNeg ) ? true : false;
-			world.robot0.dPos = false;
-		}
-		
-		if( subject == arm5Epos ) {
-			world.robot0.ePos = ( !world.robot0.ePos ) ? true : false;
-			world.robot0.eNeg = false;
-		}
-		if( subject == arm5Eneg ) {
-			world.robot0.eNeg = ( !world.robot0.eNeg ) ? true : false;
-			world.robot0.ePos = false;
-		}
-		
-
-		
-		if( subject == arm5Xpos ) {
-			world.robot0.xPos = ( !world.robot0.xPos ) ? true : false;
-			world.robot0.xNeg = false;
-		}
-		if( subject == arm5Xneg ) {
-			world.robot0.xNeg = ( !world.robot0.xNeg ) ? true : false;
-			world.robot0.xPos = false;
-		}
-		
-		if( subject == arm5Ypos ) {
-			world.robot0.yPos = ( !world.robot0.yPos ) ? true : false;
-			world.robot0.yNeg = false;
-		}
-		if( subject == arm5Yneg ) {
-			world.robot0.yNeg = ( !world.robot0.yNeg ) ? true : false;
-			world.robot0.yPos = false;
-		}
-		
-		if( subject == arm5Zpos ) {
-			world.robot0.zPos = ( !world.robot0.zPos ) ? true : false;
-			world.robot0.zNeg = false;
-		}
-		if( subject == arm5Zneg ) {
-			world.robot0.zNeg = ( !world.robot0.zNeg ) ? true : false;
-			world.robot0.zPos = false;
-		}
+		if( subject == arm5Xpos ) world.robot0.moveX(1);
+		if( subject == arm5Xneg ) world.robot0.moveX(-1);
+		if( subject == arm5Ypos ) world.robot0.moveY(1);
+		if( subject == arm5Yneg ) world.robot0.moveY(-1);
+		if( subject == arm5Zpos ) world.robot0.moveZ(1);
+		if( subject == arm5Zneg ) world.robot0.moveZ(-1);
 	}
 }

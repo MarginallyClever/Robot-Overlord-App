@@ -107,23 +107,15 @@ extends RobotWithSerialConnection {
 	boolean arm_moved = false;
 	
 	// keyboard history
-	boolean aPos=false;
-	boolean aNeg=false;
-	boolean bPos=false;
-	boolean bNeg=false;
-	boolean cPos=false;
-	boolean cNeg=false;
-	boolean dPos=false;
-	boolean dNeg=false;
-	boolean ePos=false;
-	boolean eNeg=false;
+	float aDir = 0.0f;
+	float bDir = 0.0f;
+	float cDir = 0.0f;
+	float dDir = 0.0f;
+	float eDir = 0.0f;
 
-	boolean xPos=false;
-	boolean xNeg=false;
-	boolean yPos=false;
-	boolean yNeg=false;
-	boolean zPos=false;
-	boolean zNeg=false;
+	float xDir = 0.0f;
+	float yDir = 0.0f;
+	float zDir = 0.0f;
 
 	boolean pWasOn=false;
 	boolean moveMode=false;
@@ -150,6 +142,61 @@ extends RobotWithSerialConnection {
 		IK(motion_future);
 	}
 
+	
+	private void enableFK() {		
+		xDir=0;
+		yDir=0;
+		zDir=0;
+	}
+	
+	private void disableFK() {	
+		aDir=0;
+		bDir=0;
+		cDir=0;
+		dDir=0;
+		eDir=0;
+	}
+
+	public void moveA(float dir) {
+		aDir=dir;
+		enableFK();
+	}
+
+	public void moveB(float dir) {
+		bDir=dir;
+		enableFK();
+	}
+
+	public void moveC(float dir) {
+		cDir=dir;
+		enableFK();
+	}
+
+	public void moveD(float dir) {
+		dDir=dir;
+		enableFK();
+	}
+
+	public void moveE(float dir) {
+		eDir=dir;
+		enableFK();
+	}
+
+	public void moveX(float dir) {
+		xDir=dir;
+		disableFK();
+	}
+
+	public void moveY(float dir) {
+		yDir=dir;
+		disableFK();
+	}
+
+	public void moveZ(float dir) {
+		zDir=dir;
+		disableFK();
+	}
+	
 	
 	// TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
 	public boolean movePermitted(Arm5MotionState state) {
@@ -179,23 +226,24 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	protected boolean CheckAngleLimits(Arm5MotionState state) {/*
+	protected boolean CheckAngleLimits(Arm5MotionState state) {
 		// machine specific limits
-		if (state.angle_0 < -180) return false;
-		if (state.angle_0 >  180) return false;
-		if (state.angle_2 <  -20) return false;
-		if (state.angle_2 >  180) return false;
-		if (state.angle_1 < -150) return false;
-		if (state.angle_1 >   80) return false;
-		if (state.angle_1 < -state.angle_2+ 10) return false;
-		if (state.angle_1 > -state.angle_2+170) return false;
+		//a
+		//if (state.angle_4 < -180) return false;
+		//if (state.angle_4 >  180) return false;
+		//b
+		if (state.angle_3 <      72.90) return false;
+		if (state.angle_3 >  360-72.90) return false;
+		//c
+		if (state.angle_2 <   50.57) return false;
+		if (state.angle_2 >  160.31) return false;
+		//d
+		if (state.angle_1 <   87.85) return false;
+		if (state.angle_1 >  173.60) return false;
+		//e
+		if (state.angle_0 < 180-165) return false;
+		if (state.angle_0 > 180+165) return false;
 
-		if (state.angle_3 < -180) return false;
-		if (state.angle_3 >  180) return false;
-		if (state.angle_4 < -180) return false;
-		if (state.angle_4 >  180) return false;
-		if (state.angle_5 < -180) return false;
-		if (state.angle_5 >  180) return false;*/
 		
 		return true;
 	}
@@ -358,41 +406,30 @@ extends RobotWithSerialConnection {
 		final float vel=5.0f;
 		float dp = vel * delta;
 
-		if (dPos) {
-			motion_future.finger_tip.x -= dp;
+		if (xDir!=0) {
+			motion_future.finger_tip.x += xDir * dp;
 			changed=true;
+			xDir=0;
+		}		
+		if (yDir!=0) {
+			motion_future.finger_tip.y += yDir * dp;
+			changed=true;
+			yDir=0;
 		}
-		if (dNeg) {
-			motion_future.finger_tip.x += dp;
+		if (zDir!=0) {
+			motion_future.finger_tip.z += zDir * dp;
 			changed=true;
-		}
-		
-		if (cPos) {
-			motion_future.finger_tip.y += dp;
-			changed=true;
-		}
-		if (bNeg) {
-			motion_future.finger_tip.y -= dp;
-			changed=true;
-		}
-		
-		if (yPos) {
-			motion_future.finger_tip.z += dp;
-			changed=true;
-		}
-		if (yNeg) {
-			motion_future.finger_tip.z -= dp;
-			changed=true;
+			zDir=0;
 		}
 
 		// rotations
 		float ru=0,rv=0,rw=0;
 		//if(uDown) rw= 0.1f;
 		//if(jDown) rw=-0.1f;
-		if(aPos) rv=0.1f;
-		if(aNeg) rv=-0.1f;
-		if(bPos) ru=0.1f;
-		if(bNeg) ru=-0.1f;
+		//if(aPos) rv=0.1f;
+		//if(aNeg) rv=-0.1f;
+		//if(bPos) ru=0.1f;
+		//if(bNeg) ru=-0.1f;
 
 		//if(rw!=0 || rv!=0 || ru!=0 )
 		{
@@ -527,53 +564,39 @@ extends RobotWithSerialConnection {
 		float delta3 = 0;
 		float delta4 = 0;
 
-		if (ePos) {
-			delta0 += velabe * delta;
+		if (eDir!=0) {
+			delta0 += velabe * eDir * delta;
 			changed=true;
-		}
-		if (eNeg) {
-			delta0 -= velabe * delta;
-			changed=true;
-		}
-		if (dNeg) {
-			delta1 -= velcd * delta;
-			changed=true;
-		}
-		if (dPos) {
-			delta1 += velcd * delta;
-			changed=true;
-		}
-		if (cPos) {
-			delta2 += velcd * delta;
-			changed=true;
-		}
-		if (cNeg) {
-			delta2 -= velcd * delta;
-			changed=true;
+			eDir=0;
 		}
 		
-		if(bPos) {
-			delta3 += velabe * delta;
+		if (dDir!=0) {
+			delta1 += velcd * dDir * delta;
 			changed=true;
+			dDir=0;
 		}
-		if(bNeg) {
-			delta3 -= velabe * delta;
+
+		if (cDir!=0) {
+			delta2 += velcd * cDir * delta;
 			changed=true;
+			cDir=0;
 		}
 		
-		if(aPos) {
-			delta4 += velabe * delta;
+		if(bDir!=0) {
+			delta3 += velabe * bDir * delta;
 			changed=true;
+			bDir=0;
 		}
-		if(aNeg) {
-			delta4 -= velabe * delta;
+		
+		if(aDir!=0) {
+			delta4 += velabe * aDir * delta;
 			changed=true;
+			aDir=0;
 		}
 		
 
 		if(changed==true) {
 			if(CheckAngleLimits(motion_future)) {
-
 				this.SendCommand("R0"
 								+(delta4==0?"":" A"+delta4)
 								+(delta3==0?"":" B"+delta3)
@@ -1131,6 +1154,7 @@ extends RobotWithSerialConnection {
 	private double parseNumber(String str) {
 		return (Math.floor(Float.parseFloat(str)*5.0)/5.0);
 	}
+	
 	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
