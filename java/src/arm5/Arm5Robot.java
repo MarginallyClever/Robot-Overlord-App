@@ -8,9 +8,6 @@ import java.awt.event.KeyEvent;
 
 public class Arm5Robot 
 extends RobotWithSerialConnection {
-	//math constants
-	public final static float RAD2DEG = 180.0f/(float)Math.PI;
-	
 	//machine dimensions
 	public final static float BASE_TO_SHOULDER_X   =(5.37f);  // measured in solidworks
 	public final static float BASE_TO_SHOULDER_Z   =(9.55f);  // measured in solidworks
