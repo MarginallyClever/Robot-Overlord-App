@@ -45,59 +45,6 @@ extends RobotWithSerialConnection {
 	
 	Cylinder [] volumes = new Cylinder[6];
 	
-	class Arm5MotionState {
-		// angle of rotation
-		float angleE = 0;
-		float angleD = 0;
-		float angleC = 0;
-		float angleB = 0;
-		float angleA = 0;
-
-		// robot arm coordinates.  Relative to base unless otherwise noted.
-		public Vector3f fingerTip = new Vector3f();
-		public Vector3f fingerForward = new Vector3f();
-		public Vector3f fingerRight = new Vector3f();
-		public float iku=0;
-		public float ikv=0;
-		public float ikw=0;
-		private Vector3f wrist = new Vector3f();
-		private Vector3f elbow = new Vector3f();
-		private Vector3f shoulder = new Vector3f();
-		
-		public Vector3f base = new Vector3f();  // relative to world
-		// base orientation, affects entire arm
-		public Vector3f baseForward = new Vector3f();
-		public Vector3f baseUp = new Vector3f();
-		public Vector3f baseRight = new Vector3f();
-		
-		// rotating entire robot
-		float base_pan=0;
-		float base_tilt=0;
-		
-		void set(Arm5MotionState other) {
-			angleE = other.angleE;
-			angleD = other.angleD;
-			angleC = other.angleC;
-			angleB = other.angleB;
-			angleA = other.angleA;
-			iku=other.iku;
-			ikv=other.ikv;
-			ikw=other.ikw;
-			fingerForward.set(other.fingerForward);
-			fingerRight.set(other.fingerRight);
-			fingerTip.set(other.fingerTip);
-			wrist.set(other.wrist);
-			elbow.set(other.elbow);
-			shoulder.set(other.shoulder);
-			base.set(other.base);
-			baseForward.set(other.baseForward);
-			baseUp.set(other.baseUp);
-			baseRight.set(other.baseRight);
-			base_pan = other.base_pan;
-			base_tilt = other.base_tilt;
-		}
-	};
-	
 	protected Arm5MotionState motionNow = new Arm5MotionState();
 	protected Arm5MotionState motionFuture = new Arm5MotionState();
 	
@@ -138,8 +85,8 @@ extends RobotWithSerialConnection {
 		volumes[5].radius=1.0f*0.575f;
 		
 		RotateBase(0,0);
-		IK(motionNow);
-		IK(motionFuture);
+		inverseKinematics(motionNow);
+		inverseKinematics(motionFuture);
 	}
 
 	
@@ -217,16 +164,16 @@ extends RobotWithSerialConnection {
 		if(temp.length() < BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
 
 		// seems doable
-		if(IK(state)==false) return false;
+		if(inverseKinematics(state)==false) return false;
 		// angle are good?
-		if(CheckAngleLimits(state)==false) return false;
+		if(checkAngleLimits(state)==false) return false;
 
 		// OK
 		return true;
 	}
 	
 	
-	protected boolean CheckAngleLimits(Arm5MotionState state) {
+	protected boolean checkAngleLimits(Arm5MotionState state) {
 		// machine specific limits
 		//a
 		//if (state.angle_4 < -180) return false;
@@ -250,12 +197,10 @@ extends RobotWithSerialConnection {
 	
 	
 	/**
-	 * Convert cartesian XYZ to robot motor steps.
-	 * @input cartesian coordinates relative to the base
-	 * @input results where to put resulting angles after the IK calculation
+	 * Find the arm joint angles that would put the finger at the desired location.
 	 * @return 0 if successful, 1 if the IK solution cannot be found.
 	 */
-	protected boolean IK(Arm5MotionState state) {
+	protected boolean inverseKinematics(Arm5MotionState state) {
 		float a0,a1,a2,a3,a4;
 		// if we know the position of the wrist relative to the shoulder
 		// we can use intersection of circles to find the elbow.
@@ -400,7 +345,12 @@ extends RobotWithSerialConnection {
 	}
 
 	
-	protected void update_ik(float delta) {
+	
+	/**
+	 * update the desired finger location
+	 * @param delta
+	 */
+	protected void updateFingerForInverseKinematics(float delta) {
 		boolean changed=false;
 		motionFuture.fingerTip.set(motionNow.fingerTip);
 		final float vel=5.0f;
@@ -509,7 +459,10 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	
+	/**
+	 * Calculate the finger location from the angles at each joint
+	 * @param state
+	 */
 	protected void forwardKinematics(Arm5MotionState state) {
 		Vector3f arm_plane = new Vector3f((float)Math.cos(state.angleE/RAD2DEG),
 					  					  (float)Math.sin(state.angleE/RAD2DEG),
@@ -647,7 +600,7 @@ extends RobotWithSerialConnection {
 	
 	
 	public void PrepareMove(float delta) {
-		if(moveMode) update_ik(delta);
+		if(moveMode) updateFingerForInverseKinematics(delta);
 		else		 updateFKAngles(delta);
 	}
 	
@@ -873,7 +826,7 @@ extends RobotWithSerialConnection {
 			portConfirmed=true;
 
 			motionFuture.fingerTip.set(0,0,0);  // HOME_* should match values in robot firmware.
-			IK(motionFuture);
+			inverseKinematics(motionFuture);
 			finalizeMove();
 			this.sendCommand("G91");
 			this.sendCommand("R1");
