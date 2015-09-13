@@ -1,6 +1,6 @@
 package com.marginallyclever.evilOverlord;
 
-public class Arm5 {
+public class EvilOverlord {
 	public static MainGUI gui;
 	
 	public static void main(String[] argv) {

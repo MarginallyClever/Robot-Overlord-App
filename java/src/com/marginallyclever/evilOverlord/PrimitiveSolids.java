@@ -221,23 +221,6 @@ public class PrimitiveSolids {
 			}
 		}
 		gl2.glEnd();
-	
-		gl2.glBegin(GL2.GL_LINES);
-		
-		// +X line
-		gl2.glColor4f(0.5f,0,0,1);
-		gl2.glVertex3f(0,0,0.01f);
-		gl2.glVertex3f(grid_size*2,0,0.5f);
-		// +Y line
-		gl2.glColor4f(0,0.5f,0,1);
-		gl2.glVertex3f(0,0,0.01f);
-		gl2.glVertex3f(0,grid_size*2,0.5f);
-		// +Z line
-		gl2.glColor4f(0,0,0.5f,1);
-		gl2.glVertex3f(0,0,0.01f);
-		gl2.glVertex3f(0,0,grid_size*2+0.5f);
-	
-		gl2.glEnd();
 	}
 	
 	
