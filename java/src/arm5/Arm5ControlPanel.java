@@ -105,8 +105,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		if( subject == arm5Cneg ) world.robot0.moveC(-1);
 		if( subject == arm5Dpos ) world.robot0.moveD(1);
 		if( subject == arm5Dneg ) world.robot0.moveD(-1);
-		if( subject == arm5Zpos ) world.robot0.moveZ(1);
-		if( subject == arm5Zneg ) world.robot0.moveZ(-1);
+		if( subject == arm5Epos ) world.robot0.moveE(1);
+		if( subject == arm5Eneg ) world.robot0.moveE(-1);
 		
 		if( subject == arm5Xpos ) world.robot0.moveX(1);
 		if( subject == arm5Xneg ) world.robot0.moveX(-1);
