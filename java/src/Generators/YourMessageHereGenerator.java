@@ -21,7 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import arm5.MainGUI;
+import com.marginallyclever.evilOverlord.MainGUI;
 
 public class YourMessageHereGenerator implements GcodeGenerator {
 	// machine properties

@@ -6,7 +6,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import arm5.MainGUI;
+import com.marginallyclever.evilOverlord.MainGUI;
 
 // source http://introcs.cs.princeton.edu/java/32class/Hilbert.java.html
 public class LoadGCodeGenerator implements GcodeGenerator {
