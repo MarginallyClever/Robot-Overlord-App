@@ -1,5 +1,6 @@
 package arm5;
 
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +37,7 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 
 	public CameraControlPanel() {
 		this.setLayout(new GridLayout(0,1));
+		// TODO rearrange these buttons to make more sense?
 		this.add(buttonFlyUp = createButton("fly up"));
 		this.add(buttonFlyDown = createButton("fly down"));
 		this.add(buttonFlyLeft = createButton("fly left"));

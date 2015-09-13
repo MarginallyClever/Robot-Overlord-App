@@ -28,7 +28,7 @@ implements ActionListener {
 	
 	public World() {
 		//robot0.MoveBase(new Vector3f(-25f,0f,0f));
-		robot0.FinalizeMove();
+		robot0.finalizeMove();
 		/*
 		robot1.MoveBase(new Vector3f(25f,0f,0f));
 		robot1.RotateBase(180f,0f);
@@ -82,14 +82,14 @@ implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 		if(subject==buttonRescan) {
-			robot0.DetectSerialPorts();
+			robot0.detectSerialPorts();
 			//robot1.arduino.DetectSerialPorts();
 			//TODO tell RobotTrainer to update all menus
 			MainGUI.getSingleton().updateMenu();
 			return;
 		}
 		if(subject==buttonDisconnect) {
-			robot0.ClosePort();
+			robot0.closePort();
 			//robot1.arduino.ClosePort();
 			MainGUI.getSingleton().updateMenu();
 			return;
@@ -173,7 +173,7 @@ implements ActionListener {
 			robot0.PrepareMove(dt);
 			//if(WillCollide(robot0,robot1) == false) 
 			{
-				robot0.FinalizeMove();
+				robot0.finalizeMove();
 				//robot1.FinalizeMove();
 			}
 			

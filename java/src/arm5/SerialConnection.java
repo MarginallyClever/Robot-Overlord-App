@@ -48,17 +48,17 @@ implements SerialPortEventListener, ActionListener {
 	public SerialConnection(String name) {
 		prefs = Preferences.userRoot().node("SerialConnection").node(name);
 		
-		DetectSerialPorts();
+		detectSerialPorts();
 
-		OpenPort(GetLastPort());
+		openPort(getLastPort());
 	}
 	
 	public void finalize() {
-		ClosePort();
+		closePort();
 		//super.finalize();
 	}
 	
-	private String GetLastPort(){
+	private String getLastPort(){
 		return prefs.get("last port","");
 	}
 	
@@ -66,14 +66,14 @@ implements SerialPortEventListener, ActionListener {
 		prefs.put("last port", portName);
 	}
 	
-	public void Log(String msg) {
+	public void log(String msg) {
 		System.out.print(msg);
 		log.append(msg);
 		log.setCaretPosition(log.getText().length());
 	}
 
 	// override this method to check that the software is connected to the right type of robot.
-	public boolean ConfirmPort(String preamble) {
+	public boolean confirmPort(String preamble) {
 		if(!portOpened) return false;
 		
 		portConfirmed=true;
@@ -100,7 +100,7 @@ implements SerialPortEventListener, ActionListener {
 						oneLine = inputBuffer.substring(0,x);
 						inputBuffer = inputBuffer.substring(x);
 						// wait for the cue to send another command
-						if(ConfirmPort(oneLine)) {
+						if(confirmPort(oneLine)) {
 							// if we got a > send the next message.
 							if(oneLine.indexOf(cue)==0) {
 								waitingForCue=false;
@@ -108,14 +108,14 @@ implements SerialPortEventListener, ActionListener {
 						}
 					}
 					if(waitingForCue==false) {
-						SendQueuedCommand();
+						sendQueuedCommand();
 					}
 				}
             } catch (SerialPortException e) {}
         }
 	}
 	
-	protected void SendQueuedCommand() {
+	protected void sendQueuedCommand() {
 		if(!portOpened || waitingForCue) return;
 		
 		if(commandQueue.size()==0) {
@@ -131,7 +131,7 @@ implements SerialPortEventListener, ActionListener {
 				String [] lines = line.split(";");
 				command = lines[0];
 			}
-			Log(command+NL);
+			log(command+NL);
 			line+=NL;
 			serialPort.writeBytes(line.getBytes());
 			waitingForCue=true;
@@ -140,25 +140,25 @@ implements SerialPortEventListener, ActionListener {
 		catch(SerialPortException e2) {}
 	}
 	
-	public void SendCommand(String command) {
+	public void sendCommand(String command) {
 		if(!portOpened) return;
 		
 		commandQueue.add(command);
 		if(portConfirmed) {
-			SendQueuedCommand();
+			sendQueuedCommand();
 		}
 	}
 	
-	public void DeleteAllQueuedCommands() {
+	public void deleteAllQueuedCommands() {
 		commandQueue.clear();
 	}
 	
-	public boolean ReadyForCommands() {
+	public boolean readyForCommands() {
 		return waitingForCue==false;
 	}
 	
 	// find all available serial ports for the settings->ports menu.
-	public void DetectSerialPorts() {
+	public void detectSerialPorts() {
         if(System.getProperty("os.name").equals("Mac OS X")){
         	portsDetected = SerialPortList.getPortNames("/dev/");
             //System.out.println("OS X");
@@ -168,7 +168,7 @@ implements SerialPortEventListener, ActionListener {
         }
 	}
 	
-	public boolean PortExists(String portName) {
+	public boolean doesPortExist(String portName) {
 		if(portName==null || portName.equals("")) return false;
 
 		int i;
@@ -181,7 +181,7 @@ implements SerialPortEventListener, ActionListener {
 		return false;
 	}
 	
-	public void ClosePort() {
+	public void closePort() {
 		if(!portOpened) return;
 		
 	    if (serialPort != null) {
@@ -199,13 +199,13 @@ implements SerialPortEventListener, ActionListener {
 	}
 	
 	// open a serial connection to a device.  We won't know it's the robot until  
-	public int OpenPort(String portName) {
-		if(portOpened && portName.equals(GetLastPort())) return 0;
-		if(PortExists(portName) == false) return 0;
+	public int openPort(String portName) {
+		if(portOpened && portName.equals(getLastPort())) return 0;
+		if(doesPortExist(portName) == false) return 0;
 		
-		ClosePort();
+		closePort();
 		
-		Log("Connecting to "+portName+"..."+NL);
+		log("Connecting to "+portName+"..."+NL);
 
 		// open the port
 		serialPort = new SerialPort(portName);
@@ -214,11 +214,11 @@ implements SerialPortEventListener, ActionListener {
             serialPort.setParams(BAUD_RATE,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
             serialPort.addEventListener(this);
         } catch (SerialPortException e) {
-			Log("<span style='color:red'>Port could not be configured:"+e.getMessage()+"</span>\n");
+			log("<span style='color:red'>Port could not be configured:"+e.getMessage()+"</span>\n");
 			return 3;
 		}
 
-		Log("<span style='color:green'>Opened.</span>\n");
+		log("<span style='color:green'>Opened.</span>\n");
 		portOpened=true;
 		SetLastPort(portName);
 
@@ -232,7 +232,7 @@ implements SerialPortEventListener, ActionListener {
 		int i;
 		for(i=0;i<portsDetected.length;++i) {
 			if(subject == buttonPorts[i]) {
-				OpenPort(portsDetected[i]);
+				openPort(portsDetected[i]);
 				return;
 			}
 		}
@@ -246,7 +246,7 @@ implements SerialPortEventListener, ActionListener {
     // Notifies all the listeners
     private void notifyListeners() {
       for (SerialConnectionReadyListener listener : listeners) {
-        listener.SerialConnectionReady(this);
+        listener.serialConnectionReady(this);
       }
     }
 
@@ -255,7 +255,7 @@ implements SerialPortEventListener, ActionListener {
 	    ButtonGroup group = new ButtonGroup();
 	    buttonPorts = new JRadioButtonMenuItem[portsDetected.length];
 	    
-	    String lastPort=GetLastPort();
+	    String lastPort=getLastPort();
 	    
 		int i;
 	    for(i=0;i<portsDetected.length;++i) {

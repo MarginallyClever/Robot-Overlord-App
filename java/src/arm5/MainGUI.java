@@ -255,7 +255,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 	
 	protected JMenu LoadGenerateMenu() {
 		JMenu menu = new JMenu("Gcode");
-        menu.setEnabled(!world.robot0.IsRunning());
+        menu.setEnabled(!world.robot0.isRunning());
         
         for(int i=0;i<generators.length;++i) {
         	generatorButtons[i] = new JMenuItem(generators[i].GetMenuName());
@@ -273,22 +273,22 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 
         buttonStart = new JMenuItem("Start",KeyEvent.VK_S);
         buttonStart.addActionListener(this);
-    	buttonStart.setEnabled(world.robot0.IsConfirmed() && !world.robot0.IsRunning());
+    	buttonStart.setEnabled(world.robot0.isConfirmed() && !world.robot0.isRunning());
         menu.add(buttonStart);
 
         buttonStartAt = new JMenuItem("Start at...");
         buttonStartAt.addActionListener(this);
-        buttonStartAt.setEnabled(world.robot0.IsConfirmed() && !world.robot0.IsRunning());
+        buttonStartAt.setEnabled(world.robot0.isConfirmed() && !world.robot0.isRunning());
         menu.add(buttonStartAt);
 
         buttonPause = new JMenuItem("Pause");
         buttonPause.addActionListener(this);
-        buttonPause.setEnabled(world.robot0.IsConfirmed() && world.robot0.IsRunning());
+        buttonPause.setEnabled(world.robot0.isConfirmed() && world.robot0.isRunning());
         menu.add(buttonPause);
 
         buttonHalt = new JMenuItem(("Halt"),KeyEvent.VK_H);
         buttonHalt.addActionListener(this);
-        buttonHalt.setEnabled(world.robot0.IsConfirmed() && world.robot0.IsRunning());
+        buttonHalt.setEnabled(world.robot0.isConfirmed() && world.robot0.isRunning());
         menu.add(buttonHalt);
         
         return menu;

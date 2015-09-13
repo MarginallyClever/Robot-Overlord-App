@@ -28,11 +28,10 @@ implements SerialConnectionReadyListener {
 	private boolean dialog_result;  // so dialog boxes can return an ok/cancel
 
 	
-	public boolean IsRunning() { return running; }
-	public boolean IsPaused() { return paused; }
-	public boolean IsFileOpen() { return fileOpened; }
-	
-	public boolean IsConfirmed() { return isConfirmed; }
+	public boolean isRunning() { return running; }
+	public boolean isPaused() { return paused; }
+	public boolean isFileOpen() { return fileOpened; }
+	public boolean isConfirmed() { return isConfirmed; }
 	
 	public RobotWithSerialConnection(String name) {
 		super(name);
@@ -40,7 +39,7 @@ implements SerialConnectionReadyListener {
 	}
 	
 	
-	public void SerialConnectionReady(SerialConnection arg0) {
+	public void serialConnectionReady(SerialConnection arg0) {
 		if(arg0==this) arduinoReady=true;
 		
 		if(arduinoReady) {
@@ -178,7 +177,7 @@ implements SerialConnectionReadyListener {
 		}
 
 		// send relevant part of line to the robot
-		SendCommand(line);
+		sendCommand(line);
 		
 		return true;
 	}
