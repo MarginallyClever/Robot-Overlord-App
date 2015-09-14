@@ -178,7 +178,20 @@ class Arm5MotionState {
 		float d = v0.length();
 		float R = (float)Arm5Robot.BOOM_TO_STICK_Y;
 		float r = (float)Arm5Robot.STICK_TO_WRIST_X;
+		if( d > R+r ) {
+			// impossibly far away
+			return false;
+		}/*
+		if( d < Math.abs(R-r) ) {
+			// impossibly close?
+			return false;
+		}*/
+		
 		float x = (d*d - r*r + R*R ) / (2*d);
+		if( x > R ) {
+			// would cause Math.sqrt(a negative number)
+			return false;
+		}
 		v0.normalize();
 		ik_elbow.set(v0);
 		ik_elbow.scale(x);
