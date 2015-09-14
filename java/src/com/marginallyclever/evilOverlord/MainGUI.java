@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
@@ -549,9 +550,21 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
     	if(frame_delay<frame_length) {
     		frame_delay+=dt;
     	} else {
+    		boolean checkStackSize=false;
+    		if(checkStackSize) {
+	    		IntBuffer v = IntBuffer.allocate(1);
+	    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
+	    		System.out.print("start = "+v.get(0));
+    		}    		
 	        // draw the world
 	        world.render( gl2, frame_length );
 	        frame_delay-=frame_length;
+			
+    		if(checkStackSize) {
+	    		IntBuffer v = IntBuffer.allocate(1);
+				gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
+				System.out.println(" end = "+v.get(0));
+    		}
     	}
     	frame_delay+=dt;
     }

@@ -73,6 +73,17 @@ class Arm5MotionState {
 		baseRight.set(other.baseRight);
 		base_pan = other.base_pan;
 		base_tilt = other.base_tilt;
+		
+		ik_angleA = other.ik_angleA;
+		ik_angleB = other.ik_angleB;
+		ik_angleC = other.ik_angleC;
+		ik_angleD = other.ik_angleD;
+		ik_angleE = other.ik_angleE;
+
+		ik_wrist.set(other.ik_wrist);
+		ik_elbow.set(other.ik_elbow);
+		ik_boom.set(other.ik_boom);
+		ik_shoulder.set(other.ik_shoulder);
 	}
 	
 	
@@ -156,28 +167,18 @@ class Arm5MotionState {
 		ik_boom.add(ik_shoulder);
 		
 		// Find wrist 
-		v1.set(fingerForward);
-		v1.sub(fingerPosition);
-		v1.normalize();
-		v2.set(fingerRight);
-		v2.sub(fingerPosition);
-		v2.normalize();
-		v0.cross(v2,v1);
-		v0.normalize();
-		//v1.set(fingerPosition);
-		//v1.sub(v0);
-		v0.scale(-Arm5Robot.WRIST_TO_TOOL_X);
-		ik_wrist.set(fingerPosition);
-		ik_wrist.sub(v0);
-		
+		ik_wrist.set(fingerForward);
+		ik_wrist.scale(Arm5Robot.WRIST_TO_TOOL_X);
+		ik_wrist.add(fingerPosition);
+				
 		// Find elbow by using intersection of circles.
 		// http://mathworld.wolfram.com/Circle-CircleIntersection.html
 		// x = (dd-rr+RR) / (2d)
 		v0.set(ik_wrist);
 		v0.sub(ik_boom);
 		float d = v0.length();
-		float R = (float)Arm5Robot.BOOM_TO_STICK_Y;
-		float r = (float)Arm5Robot.STICK_TO_WRIST_X;
+		float R = (float)Math.abs(Arm5Robot.BOOM_TO_STICK_Y);
+		float r = (float)Math.abs(Arm5Robot.STICK_TO_WRIST_X);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
@@ -241,16 +242,21 @@ class Arm5MotionState {
 		v0.normalize();
 		v1.set(planeNormal);
 		v2.cross(planeNormal,v0);
-		v0.set(fingerForward);
-		v0.sub(fingerPosition);
+		v0.set(fingerRight);
 		
 		x = v2.dot(v0);
 		y = -v1.dot(v0);
-		aa = Math.atan2(y,x)-bb;
+		aa = Math.atan2(y,x)-bb-Math.PI/2.0;
 		while(aa<0) aa += Math.PI*2;
 		while(aa>Math.PI*2) aa -= Math.PI*2;
 		ik_angleA = (float)Math.toDegrees(aa);
 		
+		angleA=ik_angleA;
+		angleB=ik_angleB;
+		angleC=ik_angleC;
+		angleD=ik_angleD;
+		angleE=ik_angleE;
+
 		return true;
 	}
 	
@@ -271,10 +277,10 @@ class Arm5MotionState {
 									(float)Arm5Robot.SHOULDER_TO_BOOM_Y);
 		Vector3f planar = new Vector3f((float)Math.cos(e),(float)Math.sin(e),0);
 		planar.normalize();
-		Vector3f planarNormal = new Vector3f(-v1.y,v1.x,0);
-		planarNormal.normalize();
+		Vector3f planeNormal = new Vector3f(-v1.y,v1.x,0);
+		planeNormal.normalize();
 		Vector3f planarRight = new Vector3f();
-		planarRight.cross(planar, planarNormal);
+		planarRight.cross(planar, planeNormal);
 		planarRight.normalize();
 
 		// anchor to shoulder
@@ -300,7 +306,7 @@ class Arm5MotionState {
 		planar.set(v0);
 		planar.sub(v1);
 		planar.normalize();
-		planarRight.cross(planar, planarNormal);
+		planarRight.cross(planar, planeNormal);
 		planarRight.normalize();
 		v0.set(v1);
 
@@ -317,7 +323,7 @@ class Arm5MotionState {
 		planar.set(v0);
 		planar.sub(v1);
 		planar.normalize();
-		planarRight.cross(planar, planarNormal);
+		planarRight.cross(planar, planeNormal);
 		planarRight.normalize();
 		v0.set(v1);
 
@@ -331,11 +337,11 @@ class Arm5MotionState {
 		fingerPosition.set(v1);
 
 		// finger rotation
-		planarRight.set(planarNormal);
-		planarNormal.set(v1);
-		planarNormal.sub(v0);
-		planarNormal.normalize();
-		planar.cross(planarNormal,planarRight);
+		planarRight.set(planeNormal);
+		planeNormal.set(v1);
+		planeNormal.sub(v0);
+		planeNormal.normalize();
+		planar.cross(planeNormal,planarRight);
 		v0.set(v1);
 
 		v1.set(planar);
@@ -343,12 +349,14 @@ class Arm5MotionState {
 		v2.set(planarRight);
 		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
 		v1.add(v2);
-
-		fingerForward.set(v1);
-		fingerForward.add(fingerPosition);
+		v1.normalize();
 		
-		fingerRight.cross(v1, planarNormal);
+		v0.set(fingerPosition);
+		v0.sub(wrist);
+
+		fingerForward.set(planeNormal);
+		
+		fingerRight.cross(v1, planeNormal);
 		fingerRight.normalize();
-		fingerRight.add(fingerPosition);
 	}
 }

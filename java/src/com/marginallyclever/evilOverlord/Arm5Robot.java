@@ -4,6 +4,7 @@ import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
 import java.awt.event.KeyEvent;
+import java.nio.IntBuffer;
 
 
 public class Arm5Robot 
@@ -54,18 +55,14 @@ extends RobotWithSerialConnection {
 	float zDir = 0.0f;
 
 	// machine logic states
-	
-	boolean homed = false;
-	boolean homing = false;
-	boolean follow_mode = false;
 	boolean armMoved = false;
 	
 	boolean pWasOn=false;
 	boolean moveMode=false;
 	
 	boolean isLoaded=false;
-	boolean isRenderFKOn=true;
-	boolean isRenderIKOn=true;
+	boolean isRenderFKOn=false;
+	boolean isRenderIKOn=false;
 		
 	
 	public Arm5Robot(String name) {
@@ -83,10 +80,10 @@ extends RobotWithSerialConnection {
 		volumes[5].radius=1.0f*0.575f;
 		
 		RotateBase(0,0);
-		//motionNow.inverseKinematics();
-		//motionFuture.inverseKinematics();
 		motionNow.forwardKinematics();
 		motionFuture.forwardKinematics();
+		motionNow.inverseKinematics();
+		motionFuture.inverseKinematics();
 	}
 
 	
@@ -153,21 +150,25 @@ extends RobotWithSerialConnection {
 	protected void updateFingerForInverseKinematics(float delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
-		final float vel=5.0f;
-		float dp = vel * delta;
+		final float vel=1.0f;
+		float dp = vel;// * delta;
 
+		float dX=motionFuture.fingerPosition.x;
+		float dY=motionFuture.fingerPosition.y;
+		float dZ=motionFuture.fingerPosition.z;
+		
 		if (xDir!=0) {
-			motionFuture.fingerPosition.x += xDir * dp;
+			dX += xDir * dp;
 			changed=true;
 			xDir=0;
 		}		
 		if (yDir!=0) {
-			motionFuture.fingerPosition.y += yDir * dp;
+			dY += yDir * dp;
 			changed=true;
 			yDir=0;
 		}
 		if (zDir!=0) {
-			motionFuture.fingerPosition.z += zDir * dp;
+			dZ += zDir * dp;
 			changed=true;
 			zDir=0;
 		}
@@ -181,7 +182,7 @@ extends RobotWithSerialConnection {
 		//if(bPos) ru=0.1f;
 		//if(bNeg) ru=-0.1f;
 
-		//if(rw!=0 || rv!=0 || ru!=0 )
+		if(rw!=0 || rv!=0 || ru!=0 )
 		{
 			// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
 			// More complex arms start from the same assumption.
@@ -211,58 +212,44 @@ extends RobotWithSerialConnection {
 			result = rotateAroundAxis(result,ou,motionFuture.ikw);
 			motionFuture.fingerRight.set(result);
 			
-			changed=true;
+			//changed=true;
 		}
 		
-		if(changed==true && motionFuture.movePermitted()) {
-			if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f)) {
+		//if(changed==true && motionFuture.movePermitted()) {
+		if(changed==true) {
+			motionFuture.fingerPosition.x = dX;
+			motionFuture.fingerPosition.y = dY;
+			motionFuture.fingerPosition.z = dZ;
+			if(motionFuture.inverseKinematics()==false) {
+				motionFuture.set(motionNow);
+				return;
+			}
+			
+			if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
 				armMoved=true;
+				motionFuture.inverseKinematics();
+				isRenderIKOn=true;
+				isRenderFKOn=false;
+				//motionFuture.forwardKinematics();
+				motionNow.set(motionFuture);
+				
+				this.sendCommand("G0"
+						+(dX==motionFuture.fingerPosition.x?"":" X"+dX)
+						+(dY==motionFuture.fingerPosition.y?"":" Y"+dY)
+						+(dZ==motionFuture.fingerPosition.z?"":" Z"+dZ)
+						);
 			}
 		} else {
+			// move illegal, reset future to current position (no change will happen in near future)
 			motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		}
-	}
-	
-		
-	/**
-	 * Rotate the point xyz around the line passing through abc with direction uvw following the right hand rule for rotation
-	 * http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html
-	 * Special case where abc=0
-	 * @param vec
-	 * @param axis
-	 * @param angle
-	 * @return
-	 */
-	public static Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,double angle) {
-		float C = (float)Math.cos(angle);
-		float S = (float)Math.sin(angle);
-		float x = vec.x;
-		float y = vec.y;
-		float z = vec.z;
-		float u = axis.x;
-		float v = axis.y;
-		float w = axis.z;
-		
-		// (a*( v*v + w*w) - u*(b*v + c*w - u*x - v*y - w*z))(1.0-C)+x*C+(-c*v + b*w - w*y + v*z)*S
-		// (b*( u*u + w*w) - v*(a*v + c*w - u*x - v*y - w*z))(1.0-C)+y*C+( c*u - a*w + w*x - u*z)*S
-		// (c*( u*u + v*v) - w*(a*v + b*v - u*x - v*y - w*z))(1.0-C)+z*C+(-b*u + a*v - v*x + u*y)*S
-		// but a=b=c=0 so
-		// x' = ( -u*(- u*x - v*y - w*z)) * (1.0-C) + x*C + ( - w*y + v*z)*S
-		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
-		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
-		
-		float a = (-u*x - v*y - w*z);
-
-		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
-							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
-							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
 	}
 	
 	
 	protected void updateFKAngles(float delta) {
 		boolean changed=false;
-		float velcd=1.0f;
-		float velabe=1.0f;
+		float velcd=1.0f; // * delta
+		float velabe=1.0f; // * delta
 		
 		float dE = motionFuture.angleE;
 		float dD = motionFuture.angleD;
@@ -302,18 +289,27 @@ extends RobotWithSerialConnection {
 		
 
 		if(changed==true) {
-			//if(CheckAngleLimits(motion_future)) 
+			motionFuture.angleA=dA;
+			motionFuture.angleB=dB;
+			motionFuture.angleC=dC;
+			motionFuture.angleD=dD;
+			motionFuture.angleE=dE;
+			//if(motionFuture.CheckAngleLimits()) 
 			{
-				this.sendCommand("R0"
-								+(dA==motionFuture.angleA?"":" A"+dA)
-								+(dB==motionFuture.angleB?"":" B"+dB)
-								+(dC==motionFuture.angleC?"":" C"+dC)
-								+(dD==motionFuture.angleD?"":" D"+dD)
-								+(dE==motionFuture.angleE?"":" E"+dE)
-								);
 				
 				motionFuture.forwardKinematics();
+				isRenderIKOn=false;
+				isRenderFKOn=true;
+				motionNow.set(motionFuture);
 				armMoved=true;
+				
+				this.sendCommand("R0"
+						+(dA==motionFuture.angleA?"":" A"+dA)
+						+(dB==motionFuture.angleB?"":" B"+dB)
+						+(dC==motionFuture.angleC?"":" C"+dC)
+						+(dD==motionFuture.angleD?"":" D"+dD)
+						+(dE==motionFuture.angleE?"":" E"+dE)
+						);
 			}
 		}
 	}
@@ -339,7 +335,6 @@ extends RobotWithSerialConnection {
 	}
 
 	
-	
 	public void keyPressed(KeyEvent e) {
 		keyAction(e,true);
    	}
@@ -351,8 +346,8 @@ extends RobotWithSerialConnection {
 	
 	
 	public void PrepareMove(float delta) {
-		if(moveMode) updateFingerForInverseKinematics(delta);
-		else		 updateFKAngles(delta);
+		updateFingerForInverseKinematics(delta);
+		updateFKAngles(delta);
 	}
 	
 	
@@ -361,10 +356,9 @@ extends RobotWithSerialConnection {
 		motionNow.set(motionFuture);
 		
 		if(armMoved) {
-			if(homed && follow_mode && this.readyForCommands() ) {
+			if( portConfirmed && this.readyForCommands() ) {
 				armMoved=false;
 				this.deleteAllQueuedCommands();
-				//this.SendCommand("G0 X"+motion_now.finger_tip.x+" Y"+motion_now.finger_tip.y+" Z"+motion_now.finger_tip.z);
 			}
 		}
 	}
@@ -397,31 +391,37 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	public void render(GL2 gl2) {
-		motionNow.angleE=40;
-		motionNow.angleD=87.85f;
-		motionNow.angleC=40;
-		motionNow.angleB=110;
-		motionNow.angleA=130;
-		motionNow.forwardKinematics();
-		motionNow.inverseKinematics();
+	public void render(GL2 gl2) {/*
+		motionFuture.angleA=170;
+		motionFuture.angleB=110;
+		motionFuture.angleC=50;
+		motionFuture.angleD=40;
+		motionFuture.angleE=30;
+		motionFuture.forwardKinematics();
+		motionFuture.inverseKinematics();
+		motionNow.set(motionFuture);//*/
 		
 		gl2.glPushMatrix();
-		renderFKModels(gl2);
+		renderModels(gl2);
 		gl2.glPopMatrix();
-		if(isRenderFKOn) {
+		
+		if(isRenderFKOn)
+		{
 			gl2.glPushMatrix();
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			//renderFK(gl2);
+			renderFK(gl2);
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
+			gl2.glPopMatrix();
 		}
-		if(isRenderIKOn) {
+		
+		if(isRenderIKOn) 
+		{
 			gl2.glPushMatrix();
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
 			renderIK(gl2);
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
+			gl2.glPopMatrix();
 		}
-		gl2.glPopMatrix();
 	}
 	
 
@@ -434,7 +434,14 @@ extends RobotWithSerialConnection {
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
-		setColor(gl2,1,1,1,1);
+		Vector3f ff = new Vector3f();
+		ff.set(motionNow.fingerPosition);
+		ff.add(motionNow.fingerForward);
+		Vector3f fr = new Vector3f();
+		fr.set(motionNow.fingerPosition);
+		fr.add(motionNow.fingerRight);
+		
+		setColor(gl2,1,0,0,1);
 
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		gl2.glVertex3d(0,0,0);
@@ -443,15 +450,16 @@ extends RobotWithSerialConnection {
 		gl2.glVertex3d(motionNow.ik_elbow.x,motionNow.ik_elbow.y,motionNow.ik_elbow.z);
 		gl2.glVertex3d(motionNow.ik_wrist.x,motionNow.ik_wrist.y,motionNow.ik_wrist.z);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
-		gl2.glVertex3d(motionNow.fingerForward.x,motionNow.fingerForward.y,motionNow.fingerForward.z);
+		gl2.glVertex3d(ff.x,ff.y,ff.z);		
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
-		gl2.glVertex3d(motionNow.fingerRight.x,motionNow.fingerRight.y,motionNow.fingerRight.z);
+		gl2.glVertex3d(fr.x,fr.y,fr.z);
 		gl2.glEnd();
 
 		// finger tip
 		setColor(gl2,1,0.8f,0,1);
 		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
-		PrimitiveSolids.drawStar(gl2, motionNow.fingerForward );
+		PrimitiveSolids.drawStar(gl2, ff );
+		PrimitiveSolids.drawStar(gl2, fr );
 	
 		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
@@ -466,6 +474,13 @@ extends RobotWithSerialConnection {
 		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
+
+		Vector3f ff = new Vector3f();
+		ff.set(motionNow.fingerPosition);
+		ff.add(motionNow.fingerForward);
+		Vector3f fr = new Vector3f();
+		fr.set(motionNow.fingerPosition);
+		fr.add(motionNow.fingerRight);
 		
 		setColor(gl2,1,1,1,1);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
@@ -476,7 +491,9 @@ extends RobotWithSerialConnection {
 		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
 		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
-		gl2.glVertex3d(motionNow.fingerForward.x,motionNow.fingerForward.y,motionNow.fingerForward.z);
+		gl2.glVertex3d(ff.x,ff.y,ff.z);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		gl2.glVertex3d(fr.x,fr.y,fr.z);
 
 		gl2.glEnd();
 
@@ -484,7 +501,10 @@ extends RobotWithSerialConnection {
 		// finger tip
 		setColor(gl2,1,0.8f,0,1);
 		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
-		PrimitiveSolids.drawStar(gl2, motionNow.fingerForward );
+		setColor(gl2,0,0.8f,1,1);
+		PrimitiveSolids.drawStar(gl2, ff );
+		setColor(gl2,0,0,1,1);
+		PrimitiveSolids.drawStar(gl2, fr );
 	
 		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
@@ -495,7 +515,7 @@ extends RobotWithSerialConnection {
 	 * Draw the physical model according to the angle values in the motionNow state.
 	 * @param gl2
 	 */
-	protected void renderFKModels(GL2 gl2) {
+	protected void renderModels(GL2 gl2) {
 		if(isLoaded==false) {
 			loadModels(gl2);
 			isLoaded=true;
@@ -517,10 +537,10 @@ extends RobotWithSerialConnection {
 		// shoulder pinion
 		setColor(gl2,0,1,0,1);
 		gl2.glPushMatrix();
-		gl2.glTranslated(SHOULDER_TO_PINION_X, SHOULDER_TO_PINION_Y, 0);
-		double anchor_gear_ratio = 80.0/8.0;
-		gl2.glRotated(motionNow.angleE*anchor_gear_ratio,0,1,0);
-		shoulder_pinion.render(gl2);
+			gl2.glTranslated(SHOULDER_TO_PINION_X, SHOULDER_TO_PINION_Y, 0);
+			double anchor_gear_ratio = 80.0/8.0;
+			gl2.glRotated(motionNow.angleE*anchor_gear_ratio,0,1,0);
+			shoulder_pinion.render(gl2);
 		gl2.glPopMatrix();
 
 		// boom (D)
@@ -528,8 +548,8 @@ extends RobotWithSerialConnection {
 		gl2.glTranslated(SHOULDER_TO_BOOM_X,SHOULDER_TO_BOOM_Y, 0);
 		gl2.glRotated(90-motionNow.angleD,0,0,1);
 		gl2.glPushMatrix();
-		gl2.glScaled(-1,1,1);
-		boom.render(gl2);
+			gl2.glScaled(-1,1,1);
+			boom.render(gl2);
 		gl2.glPopMatrix();
 
 		// stick (C)
@@ -537,8 +557,8 @@ extends RobotWithSerialConnection {
 		gl2.glTranslated(0.0, BOOM_TO_STICK_Y, 0);
 		gl2.glRotated(90+motionNow.angleC,0,0,1);
 		gl2.glPushMatrix();
-		gl2.glScaled(1,-1,1);
-		stick.render(gl2);
+			gl2.glScaled(1,-1,1);
+			stick.render(gl2);
 		gl2.glPopMatrix();
 
 		// to center of wrist
@@ -547,17 +567,17 @@ extends RobotWithSerialConnection {
 		// Gear A
 		setColor(gl2,1,1,0,1);
 		gl2.glPushMatrix();
-		gl2.glRotated(180+motionNow.angleA,0,0,1);
-		gl2.glRotated(90, 1, 0, 0);
-		wristInterior.render(gl2);
+			gl2.glRotated(180+motionNow.angleA-motionNow.angleB*2.0,0,0,1);
+			gl2.glRotated(90, 1, 0, 0);
+			wristInterior.render(gl2);
 		gl2.glPopMatrix();
 
 		// Gear B
-		setColor(gl2,0,0,1,1);
+		setColor(gl2,0,0.5f,1,1);
 		gl2.glPushMatrix();
-		gl2.glRotated(180-motionNow.angleB*2.0-motionNow.angleA,0,0,1);
-		gl2.glRotated(-90, 1, 0, 0);
-		wristInterior.render(gl2);
+			gl2.glRotated(180-motionNow.angleB*2.0-motionNow.angleA,0,0,1);
+			gl2.glRotated(-90, 1, 0, 0);
+			wristInterior.render(gl2);
 		gl2.glPopMatrix();
 
 		gl2.glPushMatrix();  // wrist
@@ -565,33 +585,34 @@ extends RobotWithSerialConnection {
 			gl2.glRotated(-motionNow.angleB+180,0,0,1);
 			
 			// wrist bone
-			setColor(gl2,0.5f,1,0,1);
+			setColor(gl2,0.5f,0.5f,0.5f,1);
 			wristBone.render(gl2);
-				
+			
 			// tool holder
 			//gl2.glRotated(motionNow.angleB+motionNow.angleA-78,1,0,0);  // Why is this -78 here?
-			gl2.glRotated(motionNow.angleB+motionNow.angleA,1,0,0);
+			gl2.glRotated(motionNow.angleA,1,0,0);
+
 			setColor(gl2,0,1,0,1);
 			gl2.glPushMatrix();
-			wristEnd.render(gl2);
+				wristEnd.render(gl2);
 			gl2.glPopMatrix();
-			
 		gl2.glPopMatrix();  // wrist
 
-		// pinions
-		setColor(gl2,0,0,1,1);
+		// pinion B
+		setColor(gl2,0,0.5f,1,1);
 		gl2.glPushMatrix();
-		gl2.glTranslated(WRIST_TO_PINION_X, 0, -WRIST_TO_PINION_Z);
-		gl2.glRotated((motionNow.angleB*2+motionNow.angleA)*24.0/8.0, 0,0,1);
-		wristPinion.render(gl2);
+			gl2.glTranslated(WRIST_TO_PINION_X, 0, -WRIST_TO_PINION_Z);
+			gl2.glRotated((motionNow.angleB*2+motionNow.angleA)*24.0/8.0, 0,0,1);
+			wristPinion.render(gl2);
 		gl2.glPopMatrix();
 
+		// pinion A
 		setColor(gl2,1,1,0,1);
 		gl2.glPushMatrix();
-		gl2.glTranslated(WRIST_TO_PINION_X, 0, WRIST_TO_PINION_Z);
-		gl2.glScaled(1,1,-1);
-		gl2.glRotated((-motionNow.angleA)*24.0/8.0, 0,0,1);
-		wristPinion.render(gl2);
+			gl2.glTranslated(WRIST_TO_PINION_X, 0, WRIST_TO_PINION_Z);
+			gl2.glScaled(1,1,-1);
+			gl2.glRotated((-motionNow.angleA+motionNow.angleB*2.0)*24.0/8.0, 0,0,1);
+			wristPinion.render(gl2);
 		gl2.glPopMatrix();
 	}
 	
@@ -636,15 +657,9 @@ extends RobotWithSerialConnection {
 		
 		if(preamble.contains("HELLO WORLD! I AM MINION")) {
 			portConfirmed=true;
-
-			motionFuture.fingerPosition.set(0,0,0);  // HOME_* should match values in robot firmware.
-			motionFuture.inverseKinematics();
-			finalizeMove();
+			//finalizeMove();
 			this.sendCommand("G91");
 			this.sendCommand("R1");
-			homing=false;
-			homed=true;
-			follow_mode=true;
 		}
 		
 		if( portConfirmed == true ) {
@@ -745,5 +760,40 @@ extends RobotWithSerialConnection {
 		out.add(tempz);
 				
 		return out;
+	}
+	
+		
+	/**
+	 * Rotate the point xyz around the line passing through abc with direction uvw following the right hand rule for rotation
+	 * http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html
+	 * Special case where abc=0
+	 * @param vec
+	 * @param axis
+	 * @param angle
+	 * @return
+	 */
+	public static Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,double angle) {
+		float C = (float)Math.cos(angle);
+		float S = (float)Math.sin(angle);
+		float x = vec.x;
+		float y = vec.y;
+		float z = vec.z;
+		float u = axis.x;
+		float v = axis.y;
+		float w = axis.z;
+		
+		// (a*( v*v + w*w) - u*(b*v + c*w - u*x - v*y - w*z))(1.0-C)+x*C+(-c*v + b*w - w*y + v*z)*S
+		// (b*( u*u + w*w) - v*(a*v + c*w - u*x - v*y - w*z))(1.0-C)+y*C+( c*u - a*w + w*x - u*z)*S
+		// (c*( u*u + v*v) - w*(a*v + b*v - u*x - v*y - w*z))(1.0-C)+z*C+(-b*u + a*v - v*x + u*y)*S
+		// but a=b=c=0 so
+		// x' = ( -u*(- u*x - v*y - w*z)) * (1.0-C) + x*C + ( - w*y + v*z)*S
+		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
+		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
+		
+		float a = (-u*x - v*y - w*z);
+
+		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
+							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
+							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
 	}
 }
