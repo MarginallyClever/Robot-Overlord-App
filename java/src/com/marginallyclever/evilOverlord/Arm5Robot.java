@@ -63,7 +63,9 @@ extends RobotWithSerialConnection {
 	boolean isLoaded=false;
 	boolean isRenderFKOn=false;
 	boolean isRenderIKOn=false;
-		
+	
+	double speed=0;
+	
 	
 	public Arm5Robot(String name) {
 		super(name);
@@ -101,6 +103,13 @@ extends RobotWithSerialConnection {
 		eDir=0;
 	}
 
+	public void setSpeed(double newSpeed) {
+		speed=newSpeed;
+	}
+	public double getSpeed() {
+		return speed;
+	}
+	
 	public void moveA(float dir) {
 		aDir=dir;
 		enableFK();
@@ -150,7 +159,7 @@ extends RobotWithSerialConnection {
 	protected void updateFingerForInverseKinematics(float delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
-		final float vel=1.0f;
+		final float vel=(float)speed;
 		float dp = vel;// * delta;
 
 		float dX=motionFuture.fingerPosition.x;
@@ -248,8 +257,8 @@ extends RobotWithSerialConnection {
 	
 	protected void updateFKAngles(float delta) {
 		boolean changed=false;
-		float velcd=1.0f; // * delta
-		float velabe=1.0f; // * delta
+		float velcd=(float)speed; // * delta
+		float velabe=(float)speed; // * delta
 		
 		float dE = motionFuture.angleE;
 		float dD = motionFuture.angleD;
