@@ -26,9 +26,10 @@ class Arm5MotionState {
 	// joint locations relative to base
 	Vector3f wrist = new Vector3f();
 	Vector3f elbow = new Vector3f();
+	Vector3f boom = new Vector3f();
 	Vector3f shoulder = new Vector3f();
 	
-	public Vector3f basePosition = new Vector3f();  // relative to world
+	public Vector3f anchorPosition = new Vector3f();  // relative to world
 	// base orientation, affects entire arm
 	public Vector3f baseForward = new Vector3f();
 	public Vector3f baseUp = new Vector3f();
@@ -53,8 +54,9 @@ class Arm5MotionState {
 		fingerPosition.set(other.fingerPosition);
 		wrist.set(other.wrist);
 		elbow.set(other.elbow);
+		boom.set(other.boom);
 		shoulder.set(other.shoulder);
-		basePosition.set(other.basePosition);
+		anchorPosition.set(other.anchorPosition);
 		baseForward.set(other.baseForward);
 		baseUp.set(other.baseUp);
 		baseRight.set(other.baseRight);
@@ -94,8 +96,8 @@ class Arm5MotionState {
 	protected boolean checkAngleLimits() {
 		// machine specific limits
 		//a
-		//if (angle_4 < -180) return false;
-		//if (angle_4 >  180) return false;
+		//if (angleA < -180) return false;
+		//if (angleA >  180) return false;
 		//b
 		if (angleB <      72.90) return false;
 		if (angleB >  360-72.90) return false;
@@ -106,10 +108,9 @@ class Arm5MotionState {
 		if (angleD <   87.85) return false;
 		if (angleD >  173.60) return false;
 		//e
-		//if (angle_0 < 180-165) return false;
-		//if (angle_0 > 180+165) return false;
+		//if (angleE < 180-165) return false;
+		//if (angleE > 180+165) return false;
 
-		
 		return true;
 	}
 	
@@ -267,45 +268,93 @@ class Arm5MotionState {
 	 * @param state
 	 */
 	protected void forwardKinematics() {
-		Vector3f arm_plane = new Vector3f((float)Math.cos( Math.toRadians(angleE) ),
-					  					  (float)Math.sin( Math.toRadians(angleE) ),
-					  					  0);
-		shoulder.set(arm_plane.x*Arm5Robot.BASE_TO_SHOULDER_X,
-						   arm_plane.y*Arm5Robot.BASE_TO_SHOULDER_X,
-						               Arm5Robot.BASE_TO_SHOULDER_Z);
+		double e = Math.toRadians(angleE);
+		double d = Math.toRadians(180-angleD);
+		double c = Math.toRadians(angleC+180);
+		double b = Math.toRadians(180-angleB);
+		double a = Math.toRadians(angleA);
 		
-		elbow.set(arm_plane.x*(float)Math.cos( Math.toRadians(-angleD) )*Arm5Robot.SHOULDER_TO_ELBOW,
-						arm_plane.y*(float)Math.cos( Math.toRadians(-angleD) )*Arm5Robot.SHOULDER_TO_ELBOW,
-									(float)Math.sin( Math.toRadians(-angleD) )*Arm5Robot.SHOULDER_TO_ELBOW);
-		elbow.add(shoulder);
+		Vector3f v0 = new Vector3f(0,0,(float)(Arm5Robot.ANCHOR_ADJUST_Y+Arm5Robot.ANCHOR_TO_SHOULDER_Y));
+		Vector3f v1 = new Vector3f((float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.cos(e),
+									(float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.sin(e),
+									(float)Arm5Robot.SHOULDER_TO_BOOM_Y);
+		Vector3f planar = new Vector3f((float)Math.cos(e),(float)Math.sin(e),0);
+		planar.normalize();
+		Vector3f planarNormal = new Vector3f(-v1.y,v1.x,0);
+		planarNormal.normalize();
+		Vector3f planarRight = new Vector3f();
+		planarRight.cross(planar, planarNormal);
+		planarRight.normalize();
 
-		wrist.set(arm_plane.x*(float)Math.cos( Math.toRadians(angleC) )*-Arm5Robot.ELBOW_TO_WRIST,
-				 		arm_plane.y*(float)Math.cos( Math.toRadians(angleC) )*-Arm5Robot.ELBOW_TO_WRIST,
-				 					(float)Math.sin( Math.toRadians(angleC) )*-Arm5Robot.ELBOW_TO_WRIST);
-		wrist.add(elbow);
+		// anchor to shoulder
+		shoulder.set(v0);
 		
-		// build the axies around which we will rotate the tip
-		Vector3f fn = new Vector3f();
-		Vector3f up = new Vector3f(0,0,1);
-		fn.cross(arm_plane,up);
-		Vector3f axis = new Vector3f(wrist);
-		axis.sub(elbow);
-		axis.normalize();
-		fn = Arm5Robot.rotateAroundAxis(fn, axis, Math.toRadians(-angleB) );
-		up = Arm5Robot.rotateAroundAxis(up, axis, Math.toRadians(-angleB) );
-
-		fingerPosition.set(arm_plane);
-		fingerPosition = Arm5Robot.rotateAroundAxis(fingerPosition, axis, Math.toRadians(-angleB) ); 
-		fingerPosition = Arm5Robot.rotateAroundAxis(fingerPosition, fn, Math.toRadians(-angleA) );
-		fingerPosition.scale(Arm5Robot.WRIST_TO_FINGER);
-		fingerPosition.add(wrist);
-
-		fingerForward.set(fingerPosition);
-		fingerForward.sub(wrist);
-		fingerForward.normalize();
+		// shoulder to boom
+		v1.add(v0);
+		boom.set(v1);
 		
-		fingerRight.set(up); 
-		fingerRight.scale(-1);
-		fingerRight = Arm5Robot.rotateAroundAxis(fingerRight, fn, Math.toRadians(-angleA) ); 
+		// boom to elbow
+		v0.set(v1);
+		v1.set(planar);
+		v1.scale( (float)( Arm5Robot.BOOM_TO_STICK_Y * Math.cos(d) ) );
+		Vector3f v2 = new Vector3f();
+		v2.set(planarRight);
+		v2.scale( (float)( Arm5Robot.BOOM_TO_STICK_Y * Math.sin(d) ) );
+		v1.add(v2);
+		v1.add(v0);
+		
+		elbow.set(v1);
+		
+		// elbow to wrist
+		planar.set(v0);
+		planar.sub(v1);
+		planar.normalize();
+		planarRight.cross(planar, planarNormal);
+		planarRight.normalize();
+		v0.set(v1);
+
+		v1.set(planar);
+		v1.scale( (float)( Arm5Robot.STICK_TO_WRIST_X * Math.cos(c) ) );
+		v2.set(planarRight);
+		v2.scale( (float)( Arm5Robot.STICK_TO_WRIST_X * Math.sin(c) ) );
+		v1.add(v2);
+		v1.add(v0);
+		
+		wrist.set(v1);
+
+		// wrist to finger
+		planar.set(v0);
+		planar.sub(v1);
+		planar.normalize();
+		planarRight.cross(planar, planarNormal);
+		planarRight.normalize();
+		v0.set(v1);
+
+		v1.set(planar);
+		v1.scale( (float)( Arm5Robot.WRIST_TO_TOOL_X * Math.cos(b) ) );
+		v2.set(planarRight);
+		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_X * Math.sin(b) ) );
+		v1.add(v2);
+		v1.add(v0);
+
+		fingerPosition.set(v1);
+
+		// finger rotation
+		planarRight.set(planarNormal);
+		planarNormal.set(v1);
+		planarNormal.sub(v0);
+		planarNormal.normalize();
+		planar.cross(planarNormal,planarRight);
+		v0.set(v1);
+
+		v1.set(planar);
+		v1.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.cos(a-b) ) );
+		v2.set(planarRight);
+		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
+		v1.add(v2);
+		v1.add(v0);
+
+		fingerForward.set(v1);
+		fingerRight.cross(v1, planarNormal);
 	}
 }

@@ -72,6 +72,7 @@ extends RobotWithSerialConnection {
 	boolean moveMode=false;
 	
 	boolean isLoaded=false;
+	boolean isRenderFKOn=true;
 		
 	
 	public Arm5Robot(String name) {
@@ -89,8 +90,10 @@ extends RobotWithSerialConnection {
 		volumes[5].radius=1.0f*0.575f;
 		
 		RotateBase(0,0);
-		motionNow.inverseKinematics();
-		motionFuture.inverseKinematics();
+		//motionNow.inverseKinematics();
+		//motionFuture.inverseKinematics();
+		motionNow.forwardKinematics();
+		motionFuture.forwardKinematics();
 	}
 
 	
@@ -263,9 +266,6 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	
-	
-	
 	protected void updateFKAngles(float delta) {
 		boolean changed=false;
 		float velcd=1.0f;
@@ -405,12 +405,62 @@ extends RobotWithSerialConnection {
 	
 	
 	public void render(GL2 gl2) {
+		motionNow.angleD=90;
+		motionNow.angleC=50;
+		motionNow.angleB=60;
+		motionNow.angleA=230;
+		motionNow.forwardKinematics();
+		
 		gl2.glPushMatrix();
 		renderFKModels(gl2);
+		gl2.glPopMatrix();
+		if(isRenderFKOn) {
+			gl2.glPushMatrix();
+			gl2.glDisable(GL2.GL_DEPTH_TEST);
+			renderFK(gl2);
+			gl2.glEnable(GL2.GL_DEPTH_TEST);
+		}
 		gl2.glPopMatrix();
 	}
 	
 	
+	/**
+	 * Draw the arm without calling glRotate to prove forward kinematics are correct.
+	 * @param gl2
+	 */
+	protected void renderFK(GL2 gl2) {
+		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
+		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		
+		setColor(gl2,1,1,1,1);
+		gl2.glBegin(GL2.GL_LINE_STRIP);
+		
+		gl2.glVertex3d(0,0,0);
+		gl2.glVertex3d(motionNow.shoulder.x,motionNow.shoulder.y,motionNow.shoulder.z);
+		gl2.glVertex3d(motionNow.boom.x,motionNow.boom.y,motionNow.boom.z);
+		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
+		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		gl2.glVertex3d(motionNow.fingerForward.x,motionNow.fingerForward.y,motionNow.fingerForward.z);
+
+		gl2.glEnd();
+
+
+		// finger tip
+		setColor(gl2,1,0.8f,0,1);
+		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
+		PrimitiveSolids.drawStar(gl2, motionNow.fingerForward );
+	
+		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
+		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+	}
+	
+	
+	/**
+	 * Draw the physical model according to the angle values in the motionNow state.
+	 * @param gl2
+	 */
 	protected void renderFKModels(GL2 gl2) {
 		if(isLoaded==false) {
 			loadModels(gl2);
@@ -426,8 +476,8 @@ extends RobotWithSerialConnection {
 		// shoulder (E)
 		setColor(gl2,1,0,0,1);
 		gl2.glTranslated(0, ANCHOR_TO_SHOULDER_Y, 0);
-		gl2.glRotated(155-motionNow.angleE,0,1,0);
-//		gl2.glRotated(motion_now.base_pan,1,0,0);
+		//gl2.glRotated(155-motionNow.angleE,0,1,0);
+		gl2.glRotated(motionNow.angleE,0,1,0);
 		shoulder.render(gl2);
 
 		// shoulder pinion
@@ -451,7 +501,7 @@ extends RobotWithSerialConnection {
 		// stick (C)
 		setColor(gl2,1,0,1,1);
 		gl2.glTranslated(0.0, BOOM_TO_STICK_Y, 0);
-		gl2.glRotated(180+motionNow.angleC-90,0,0,1);
+		gl2.glRotated(90+motionNow.angleC,0,0,1);
 		gl2.glPushMatrix();
 		gl2.glScaled(1,-1,1);
 		stick.render(gl2);
@@ -485,23 +535,13 @@ extends RobotWithSerialConnection {
 			wristBone.render(gl2);
 				
 			// tool holder
-			gl2.glRotated(motionNow.angleB+motionNow.angleA-78,1,0,0);  // Why is this -78 here?
+			//gl2.glRotated(motionNow.angleB+motionNow.angleA-78,1,0,0);  // Why is this -78 here?
+			gl2.glRotated(motionNow.angleB+motionNow.angleA,1,0,0);
 			setColor(gl2,0,1,0,1);
 			gl2.glPushMatrix();
 			wristEnd.render(gl2);
 			gl2.glPopMatrix();
-
-			// finger tip
-			boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
-			boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
-			gl2.glDisable(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_COLOR_MATERIAL);
-			setColor(gl2,1,1,1,1);
-			PrimitiveSolids.drawStar(gl2, new Vector3f(WRIST_TO_TOOL_X,0,0));
-			PrimitiveSolids.drawStar(gl2, new Vector3f(WRIST_TO_TOOL_X,WRIST_TO_TOOL_Y,0));
-			if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
-			if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-		
+			
 		gl2.glPopMatrix();  // wrist
 
 		// pinions
@@ -548,7 +588,7 @@ extends RobotWithSerialConnection {
 		// base
 		
 		gl2.glPushMatrix();
-		gl2.glTranslatef(motionNow.basePosition.x, motionNow.basePosition.y, motionNow.basePosition.z);
+		gl2.glTranslatef(motionNow.anchorPosition.x, motionNow.anchorPosition.y, motionNow.anchorPosition.z);
 		gl2.glRotatef(motionNow.angleE,0,0,1);
 		gl2.glColor3f(0,0,1);
 		PrimitiveSolids.drawBox(gl2,4,BASE_TO_SHOULDER_X*2,BASE_TO_SHOULDER_Z);
@@ -611,7 +651,7 @@ extends RobotWithSerialConnection {
 	
 
 	public void MoveBase(Vector3f dp) {
-		motionFuture.basePosition.set(dp);
+		motionFuture.anchorPosition.set(dp);
 	}
 	
 	
@@ -676,7 +716,7 @@ extends RobotWithSerialConnection {
 	
 	
 	Vector3f GetWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.basePosition);
+		Vector3f out = new Vector3f(motionFuture.anchorPosition);
 		
 		Vector3f tempx = new Vector3f(motionFuture.baseForward);
 		tempx.scale(in.x);

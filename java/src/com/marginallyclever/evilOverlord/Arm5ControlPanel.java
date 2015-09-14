@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 public class Arm5ControlPanel extends JPanel implements ActionListener {
 	/**
@@ -31,7 +32,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 	private JButton arm5Yneg;
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
-	
+
+	JLabel xPos,yPos,zPos;
 	
 	private JButton createButton(String name) {
 		JButton b = new JButton(name);
@@ -71,6 +73,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		p.add(arm5Eneg = createButton("E-"));
 		this.add(p);
 
+		this.add(new JSeparator());
 		this.add(new JLabel("Inverse Kinematics"));
 
 		p = new JPanel(new GridLayout(1,0));
@@ -87,6 +90,25 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(arm5Zneg = createButton("Z-"));
 		this.add(p);
+		
+		this.add(new JSeparator());
+
+		xPos = new JLabel("0.00");
+		yPos = new JLabel("0.00");
+		zPos = new JLabel("0.00");
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("X"));
+		p.add(xPos);
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("Y"));
+		p.add(yPos);
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("Z"));
+		p.add(zPos);
 	}
 
 
@@ -114,5 +136,9 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		if( subject == arm5Yneg ) world.robot0.moveY(-1);
 		if( subject == arm5Zpos ) world.robot0.moveZ(1);
 		if( subject == arm5Zneg ) world.robot0.moveZ(-1);
+		
+		xPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.x));
+		yPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.y));
+		zPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.z));
 	}
 }
