@@ -398,10 +398,11 @@ extends RobotWithSerialConnection {
 	
 	
 	public void render(GL2 gl2) {
-		motionNow.angleD=90;
-		motionNow.angleC=50;
-		motionNow.angleB=60;
-		motionNow.angleA=200;
+		motionNow.angleE=40;
+		motionNow.angleD=87.85f;
+		motionNow.angleC=40;
+		motionNow.angleB=110;
+		motionNow.angleA=130;
 		motionNow.forwardKinematics();
 		motionNow.inverseKinematics();
 		
@@ -411,7 +412,7 @@ extends RobotWithSerialConnection {
 		if(isRenderFKOn) {
 			gl2.glPushMatrix();
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			renderFK(gl2);
+			//renderFK(gl2);
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
 		}
 		if(isRenderIKOn) {
@@ -434,23 +435,18 @@ extends RobotWithSerialConnection {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
 		setColor(gl2,1,1,1,1);
+
 		gl2.glBegin(GL2.GL_LINE_STRIP);
-		
 		gl2.glVertex3d(0,0,0);
 		gl2.glVertex3d(motionNow.ik_shoulder.x,motionNow.ik_shoulder.y,motionNow.ik_shoulder.z);
 		gl2.glVertex3d(motionNow.ik_boom.x,motionNow.ik_boom.y,motionNow.ik_boom.z);
-		setColor(gl2,1,0,0,1);
 		gl2.glVertex3d(motionNow.ik_elbow.x,motionNow.ik_elbow.y,motionNow.ik_elbow.z);
-		setColor(gl2,0,1,0,1);
 		gl2.glVertex3d(motionNow.ik_wrist.x,motionNow.ik_wrist.y,motionNow.ik_wrist.z);
-		setColor(gl2,1,1,1,1);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glVertex3d(motionNow.fingerForward.x,motionNow.fingerForward.y,motionNow.fingerForward.z);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glVertex3d(motionNow.fingerRight.x,motionNow.fingerRight.y,motionNow.fingerRight.z);
-
 		gl2.glEnd();
-
 
 		// finger tip
 		setColor(gl2,1,0.8f,0,1);

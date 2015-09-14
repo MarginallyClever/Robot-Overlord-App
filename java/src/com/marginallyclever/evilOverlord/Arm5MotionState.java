@@ -14,7 +14,7 @@ class Arm5MotionState {
 	float angleC = 0;
 	float angleB = 0;
 	float angleA = 0;
-
+	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
 	public Vector3f fingerPosition = new Vector3f();
 	public Vector3f fingerForward = new Vector3f();
@@ -44,6 +44,11 @@ class Arm5MotionState {
 	Vector3f ik_elbow = new Vector3f();
 	Vector3f ik_boom = new Vector3f();
 	Vector3f ik_shoulder = new Vector3f();
+	float ik_angleE = 0;
+	float ik_angleD = 0;
+	float ik_angleC = 0;
+	float ik_angleB = 0;
+	float ik_angleA = 0;
 	
 	
 	void set(Arm5MotionState other) {
@@ -142,6 +147,7 @@ class Arm5MotionState {
 		
 		// Find E
 		ee = Math.atan2(planar.y, planar.x);
+		ik_angleE = (float)Math.toDegrees(ee);
 
 		ik_shoulder.set(0,0,(float)(Arm5Robot.ANCHOR_ADJUST_Y+Arm5Robot.ANCHOR_TO_SHOULDER_Y));
 		ik_boom.set((float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.cos(ee),
@@ -183,6 +189,55 @@ class Arm5MotionState {
 		v1.scale(-a);
 		ik_elbow.add(v1);
 
+		// find boom angle (D)
+		v0.set(ik_elbow);
+		v0.sub(ik_boom);
+		x = -planar.dot(v0);
+		float y = planeRight.dot(v0);
+		dd = Math.atan2(y,x);
+		ik_angleD = (float)Math.toDegrees(dd);
+		
+		// find elbow angle (C)
+		planar.set(v0);
+		planar.normalize();
+		planeRight.cross(planeNormal,v0);
+		planeRight.normalize();
+		v0.set(ik_wrist);
+		v0.sub(ik_elbow);
+		x = -planar.dot(v0);
+		y = planeRight.dot(v0);
+		cc = Math.atan2(y,x);
+		ik_angleC = (float)Math.toDegrees(cc);
+		
+		// find wrist angle (B)
+		planar.set(ik_wrist);
+		planar.sub(ik_elbow);
+		planar.normalize();
+		planeRight.cross(planeNormal,v0);
+		planeRight.normalize();
+		v0.set(fingerPosition);
+		v0.sub(ik_wrist);
+		x = -planar.dot(v0);
+		y = -planeRight.dot(v0);
+		bb = Math.atan2(y,x);
+		ik_angleB = (float)Math.toDegrees(bb);
+		
+		// find wrist rotation (A)
+		v0.set(fingerPosition);
+		v0.sub(ik_wrist);
+		v0.normalize();
+		v1.set(planeNormal);
+		v2.cross(planeNormal,v0);
+		v0.set(fingerForward);
+		v0.sub(fingerPosition);
+		
+		x = v2.dot(v0);
+		y = -v1.dot(v0);
+		aa = Math.atan2(y,x)-bb;
+		while(aa<0) aa += Math.PI*2;
+		while(aa>Math.PI*2) aa -= Math.PI*2;
+		ik_angleA = (float)Math.toDegrees(aa);
+		
 		return true;
 	}
 	
@@ -276,10 +331,11 @@ class Arm5MotionState {
 		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
 		v1.add(v2);
 
+		fingerForward.set(v1);
+		fingerForward.add(fingerPosition);
+		
 		fingerRight.cross(v1, planarNormal);
 		fingerRight.normalize();
 		fingerRight.add(fingerPosition);
-		fingerForward.set(v1);
-		fingerForward.add(fingerPosition);
 	}
 }

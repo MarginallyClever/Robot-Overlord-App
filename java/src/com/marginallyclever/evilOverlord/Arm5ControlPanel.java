@@ -34,6 +34,9 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 	private JButton arm5Zneg;
 
 	JLabel xPos,yPos,zPos;
+	JLabel a1,b1,c1,d1,e1;
+	JLabel a2,b2,c2,d2,e2;
+
 	
 	private JButton createButton(String name) {
 		JButton b = new JButton(name);
@@ -96,6 +99,16 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
 		zPos = new JLabel("0.00");
+		a1 = new JLabel("0.00");
+		b1 = new JLabel("0.00");
+		c1 = new JLabel("0.00");
+		d1 = new JLabel("0.00");
+		e1 = new JLabel("0.00");
+		a2 = new JLabel("0.00");
+		b2 = new JLabel("0.00");
+		c2 = new JLabel("0.00");
+		d2 = new JLabel("0.00");
+		e2 = new JLabel("0.00");
 
 		p = new JPanel(new GridLayout(1,0));
 		this.add(p);
@@ -109,6 +122,37 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		this.add(p);
 		p.add(new JLabel("Z"));
 		p.add(zPos);
+		
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("a"));
+		p.add(a1);
+		p.add(a2);
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("b"));
+		p.add(b1);
+		p.add(b2);
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("c"));
+		p.add(c1);
+		p.add(c2);
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("d"));
+		p.add(d1);
+		p.add(d2);
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(new JLabel("e"));
+		p.add(e1);
+		p.add(e2);		
 	}
 
 
@@ -140,5 +184,18 @@ public class Arm5ControlPanel extends JPanel implements ActionListener {
 		xPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.x));
 		yPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.y));
 		zPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.z));
+
+		a1.setText(Float.toString(world.robot0.motionNow.angleA));
+		b1.setText(Float.toString(world.robot0.motionNow.angleB));
+		c1.setText(Float.toString(world.robot0.motionNow.angleC));
+		d1.setText(Float.toString(world.robot0.motionNow.angleD));
+		e1.setText(Float.toString(world.robot0.motionNow.angleE));
+		
+		a2.setText(Float.toString(world.robot0.motionNow.ik_angleA));
+		b2.setText(Float.toString(world.robot0.motionNow.ik_angleB));
+		c2.setText(Float.toString(world.robot0.motionNow.ik_angleC));
+		d2.setText(Float.toString(world.robot0.motionNow.ik_angleD));
+		e2.setText(Float.toString(world.robot0.motionNow.ik_angleE));
+		
 	}
 }
