@@ -10,14 +10,6 @@ public class Arm5Robot
 extends RobotWithSerialConnection {
 	//machine dimensions
 	
-	// out of date
-	public final static float BASE_TO_SHOULDER_X   =(5.37f);  // measured in solidworks
-	public final static float BASE_TO_SHOULDER_Z   =(9.55f);  // measured in solidworks
-	public final static float SHOULDER_TO_ELBOW    =(25.0f);
-	public final static float ELBOW_TO_WRIST       =(25.0f);
-	public final static float WRIST_TO_FINGER      =(4.0f);
-	public final static float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
-	
 	// new model
 	public final static double ANCHOR_ADJUST_Y = 0.64;
 	public final static double ANCHOR_TO_SHOULDER_Y = 3.27;
@@ -73,6 +65,7 @@ extends RobotWithSerialConnection {
 	
 	boolean isLoaded=false;
 	boolean isRenderFKOn=true;
+	boolean isRenderIKOn=true;
 		
 	
 	public Arm5Robot(String name) {
@@ -408,8 +401,9 @@ extends RobotWithSerialConnection {
 		motionNow.angleD=90;
 		motionNow.angleC=50;
 		motionNow.angleB=60;
-		motionNow.angleA=230;
+		motionNow.angleA=200;
 		motionNow.forwardKinematics();
+		motionNow.inverseKinematics();
 		
 		gl2.glPushMatrix();
 		renderFKModels(gl2);
@@ -420,7 +414,51 @@ extends RobotWithSerialConnection {
 			renderFK(gl2);
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
 		}
+		if(isRenderIKOn) {
+			gl2.glPushMatrix();
+			gl2.glDisable(GL2.GL_DEPTH_TEST);
+			renderIK(gl2);
+			gl2.glEnable(GL2.GL_DEPTH_TEST);
+		}
 		gl2.glPopMatrix();
+	}
+	
+
+	/**
+	 * Visualize the inverse kinematics calculations
+	 * @param gl2
+	 */
+	protected void renderIK(GL2 gl2) {
+		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
+		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		
+		setColor(gl2,1,1,1,1);
+		gl2.glBegin(GL2.GL_LINE_STRIP);
+		
+		gl2.glVertex3d(0,0,0);
+		gl2.glVertex3d(motionNow.ik_shoulder.x,motionNow.ik_shoulder.y,motionNow.ik_shoulder.z);
+		gl2.glVertex3d(motionNow.ik_boom.x,motionNow.ik_boom.y,motionNow.ik_boom.z);
+		setColor(gl2,1,0,0,1);
+		gl2.glVertex3d(motionNow.ik_elbow.x,motionNow.ik_elbow.y,motionNow.ik_elbow.z);
+		setColor(gl2,0,1,0,1);
+		gl2.glVertex3d(motionNow.ik_wrist.x,motionNow.ik_wrist.y,motionNow.ik_wrist.z);
+		setColor(gl2,1,1,1,1);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		gl2.glVertex3d(motionNow.fingerForward.x,motionNow.fingerForward.y,motionNow.fingerForward.z);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		gl2.glVertex3d(motionNow.fingerRight.x,motionNow.fingerRight.y,motionNow.fingerRight.z);
+
+		gl2.glEnd();
+
+
+		// finger tip
+		setColor(gl2,1,0.8f,0,1);
+		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
+		PrimitiveSolids.drawStar(gl2, motionNow.fingerForward );
+	
+		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
+		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 	}
 	
 	
@@ -585,33 +623,13 @@ extends RobotWithSerialConnection {
 	
 	
 	protected void drawBounds(GL2 gl2) {
-		// base
-		
-		gl2.glPushMatrix();
-		gl2.glTranslatef(motionNow.anchorPosition.x, motionNow.anchorPosition.y, motionNow.anchorPosition.z);
-		gl2.glRotatef(motionNow.angleE,0,0,1);
-		gl2.glColor3f(0,0,1);
-		PrimitiveSolids.drawBox(gl2,4,BASE_TO_SHOULDER_X*2,BASE_TO_SHOULDER_Z);
-		gl2.glPopMatrix();
-		
-		//gl2.glDisable(GL2.GL_LIGHTING);
-
-		gl2.glColor3f(0,1,0);	PrimitiveSolids.drawCylinder(gl2,volumes[0]);  // shoulder
-		gl2.glColor3f(0,0,1);	PrimitiveSolids.drawCylinder(gl2,volumes[1]);  // bicep
-		gl2.glColor3f(0,1,0);	PrimitiveSolids.drawCylinder(gl2,volumes[2]);  // elbow
-		gl2.glColor3f(0,0,1);	PrimitiveSolids.drawCylinder(gl2,volumes[3]);  // ulna
-		gl2.glColor3f(0,1,0);	PrimitiveSolids.drawCylinder(gl2,volumes[4]);  // wrist
-		gl2.glColor3f(0,0,1);	PrimitiveSolids.drawCylinder(gl2,volumes[5]);  // elbow
-
-		//gl2.glEnable(GL2.GL_LIGHTING);
-		
-		// TODO draw tool here
+		throw new UnsupportedOperationException();
 	}
 	
 	
 	
 	private double parseNumber(String str) {
-		return (Math.floor(Float.parseFloat(str)*5.0)/5.0);
+		return Float.parseFloat(str);
 	}
 	
 	

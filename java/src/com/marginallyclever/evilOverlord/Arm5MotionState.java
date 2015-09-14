@@ -38,6 +38,12 @@ class Arm5MotionState {
 	// rotating entire robot
 	float base_pan=0;
 	float base_tilt=0;
+
+	// inverse kinematics visualizations
+	Vector3f ik_wrist = new Vector3f();
+	Vector3f ik_elbow = new Vector3f();
+	Vector3f ik_boom = new Vector3f();
+	Vector3f ik_shoulder = new Vector3f();
 	
 	
 	void set(Arm5MotionState other) {
@@ -80,8 +86,6 @@ class Arm5MotionState {
 		Vector3f temp = new Vector3f(fingerPosition);
 		temp.sub(shoulder);
 		if(temp.length() > 50) return false;
-		// check near limit
-		if(temp.length() < Arm5Robot.BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
 
 		// seems doable
 		if(inverseKinematics()==false) return false;
@@ -117,148 +121,67 @@ class Arm5MotionState {
 	
 	/**
 	 * Find the arm joint angles that would put the finger at the desired location.
-	 * @return 0 if successful, 1 if the IK solution cannot be found.
+	 * @return false if successful, true if the IK solution cannot be found.
 	 */
 	protected boolean inverseKinematics() {
-		float a0,a1,a2,a3,a4;
-		// if we know the position of the wrist relative to the shoulder
-		// we can use intersection of circles to find the elbow.
-		// once we know the elbow position we can find the angle of each joint.
-		// each angle can be converted to motor steps.
+		double aa,bb,cc,dd,ee;
+		
+		Vector3f v0 = new Vector3f();
+		Vector3f v1 = new Vector3f();
+		Vector3f v2 = new Vector3f();
+		Vector3f planar = new Vector3f();
+		Vector3f planeNormal = new Vector3f();
+		Vector3f planeRight = new Vector3f(0,0,1);
 
-	    // the finger (attachment point for the tool) is a short distance in "front" of the wrist joint
-	    Vector3f finger = new Vector3f(fingerPosition);
-		wrist.set(fingerForward);
-		wrist.scale(-Arm5Robot.WRIST_TO_FINGER);
-		wrist.add(finger);
-				
-	    // use intersection of circles to find two possible elbow points.
-	    // the two circles are the bicep (shoulder-elbow) and the ulna (elbow-wrist)
-	    // the distance between circle centers is d  
-	    Vector3f arm_plane = new Vector3f(wrist.x,wrist.y,0);
-	    arm_plane.normalize();
-	
-	    shoulder.set(arm_plane);
-	    shoulder.scale(Arm5Robot.BASE_TO_SHOULDER_X);
-	    shoulder.z = Arm5Robot.BASE_TO_SHOULDER_Z;
-	    
-	    // use intersection of circles to find elbow
-	    Vector3f es = new Vector3f(wrist);
-	    es.sub(shoulder);
-	    float d = es.length();
-	    float r1=Arm5Robot.ELBOW_TO_WRIST;  // circle 1 centers on wrist
-	    float r0=Arm5Robot.SHOULDER_TO_ELBOW;  // circle 0 centers on shoulder
-	    if( d > Arm5Robot.ELBOW_TO_WRIST + Arm5Robot.SHOULDER_TO_ELBOW ) {
-	      // The points are impossibly far apart, no solution can be found.
-	      return false;  // should this throw an error because it's called from the constructor?
-	    }
-	    float a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
-	    // find the midpoint
-	    Vector3f mid=new Vector3f(es);
-	    mid.scale(a/d);
-	    mid.add(shoulder);
+		// Finger position is never on x=y=0 line, so this is safe.
+		planar.set(fingerPosition);
+		planar.z=0;
+		planar.normalize();
+		planeNormal.set(-planar.y,planar.x,0);
+		planeNormal.normalize();
+		
+		// Find E
+		ee = Math.atan2(planar.y, planar.x);
 
-	    // with a and r0 we can find h, the distance from midpoint to the intersections.
-	    float h=(float)Math.sqrt(r0*r0-a*a);
-	    // the distance h on a line orthogonal to n and plane_normal gives us the two intersections.
-		Vector3f n = new Vector3f(-arm_plane.y,arm_plane.x,0);
-		n.normalize();
-		Vector3f r = new Vector3f();
-		r.cross(n, es);  // check this!
-		r.normalize();
-		r.scale(h);
-
-		elbow.set(mid);
-		elbow.sub(r);
-		//Vector3f.add(mid, s, elbow);
-
+		ik_shoulder.set(0,0,(float)(Arm5Robot.ANCHOR_ADJUST_Y+Arm5Robot.ANCHOR_TO_SHOULDER_Y));
+		ik_boom.set((float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.cos(ee),
+					(float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.sin(ee),
+					(float)Arm5Robot.SHOULDER_TO_BOOM_Y);
+		ik_boom.add(ik_shoulder);
 		
-		// find the angle between elbow-shoulder and the horizontal
-		Vector3f bicep_forward = new Vector3f(elbow);
-		bicep_forward.sub(shoulder);		  
-		bicep_forward.normalize();
-		float ax = bicep_forward.dot(arm_plane);
-		float ay = bicep_forward.z;
-		a1 = (float) -Math.atan2(ay,ax);
-
-		// find the angle between elbow-wrist and the horizontal
-		Vector3f ulna_forward = new Vector3f(elbow);
-		ulna_forward.sub(wrist);
-		ulna_forward.normalize();
-		float bx = ulna_forward.dot(arm_plane);
-		float by = ulna_forward.z;
-		a2 = (float) Math.atan2(by,bx);
-
-		// find the angle of the base
-		a0 = (float) Math.atan2(wrist.y,wrist.x);
+		// Find wrist 
+		v1.set(fingerForward);
+		v1.sub(fingerPosition);
+		v1.normalize();
+		v2.set(fingerRight);
+		v2.sub(fingerPosition);
+		v2.normalize();
+		v0.cross(v2,v1);
+		v0.normalize();
+		//v1.set(fingerPosition);
+		//v1.sub(v0);
+		v0.scale(-Arm5Robot.WRIST_TO_TOOL_X);
+		ik_wrist.set(fingerPosition);
+		ik_wrist.sub(v0);
 		
-
-		Vector3f right_uprotated;
-		Vector3f forward = new Vector3f(0,0,1);
-		Vector3f right = new Vector3f(1,0,0);
-		Vector3f up = new Vector3f();
-		
-		up.cross(forward,right);
-		
-		//Vector3f of = new Vector3f(forward);
-		Vector3f or = new Vector3f(right);
-		Vector3f ou = new Vector3f(up);
-		
-		//result = RotateAroundAxis(right,of,motion_now.iku);
-		right_uprotated = Arm5Robot.rotateAroundAxis(right,or,ikv);
-		right_uprotated = Arm5Robot.rotateAroundAxis(right_uprotated,ou,ikw);
-
-		Vector3f ulna_normal = new Vector3f();
-		ulna_normal.cross(fingerForward,right_uprotated);
-		ulna_normal.normalize();
-		
-		Vector3f ulna_up = new Vector3f();
-		ulna_up.cross(ulna_forward,ulna_normal);
-		
-		Vector3f ffn = new Vector3f(fingerForward);
-		ffn.normalize();
-		
-		// find the angle of the wrist bend
-		{
-			float dx = -ffn.dot(ulna_forward);
-			float dy = ffn.dot(ulna_up);
-			a4=(float) Math.atan2(dy,dx);
-		}
-		
-		// find the angle of the ulna rotation
-		{
-	    
-			Vector3f arm_plane_normal = new Vector3f();
-			Vector3f arm_up = new Vector3f(0,0,1);
-			arm_plane_normal.cross(arm_plane,arm_up);
-			
-			Vector3f ffn2 = new Vector3f(ulna_forward);
-			ffn2.normalize();
-			float df= fingerForward.dot(ffn2);
-			if(Math.abs(df)<0.999999) {
-				Vector3f ulna_up_unrotated = new Vector3f();
-				ulna_up_unrotated.cross(ulna_forward,arm_plane_normal);
-				
-				Vector3f finger_on_ulna = new Vector3f(fingerForward);
-				Vector3f temp = new Vector3f(ffn2);
-				temp.scale(df);
-				finger_on_ulna.sub(temp);
-				finger_on_ulna.normalize();
-				
-				float cy = ulna_normal.dot(finger_on_ulna);
-				float cx = ulna_up.dot(finger_on_ulna);
-				a3 = (float) -Math.atan2(cy,cx);
-			} else {
-				a3 = 0;
-			}
-		}
-		
-		// all angles are in radians, I want degrees
-		angleE=(float) Math.toDegrees(a0);
-		angleD=(float) Math.toDegrees(a1);
-		angleC=(float) Math.toDegrees(a2);
-		angleB=(float) Math.toDegrees(a3);
-		angleA=(float) Math.toDegrees(a4);
+		// Find elbow by using intersection of circles.
+		// http://mathworld.wolfram.com/Circle-CircleIntersection.html
+		// x = (dd-rr+RR) / (2d)
+		v0.set(ik_wrist);
+		v0.sub(ik_boom);
+		float d = v0.length();
+		float R = (float)Arm5Robot.BOOM_TO_STICK_Y;
+		float r = (float)Arm5Robot.STICK_TO_WRIST_X;
+		float x = (d*d - r*r + R*R ) / (2*d);
+		v0.normalize();
+		ik_elbow.set(v0);
+		ik_elbow.scale(x);
+		ik_elbow.add(ik_boom);
+		// v1 is now at the intersection point between ik_wrist and ik_boom
+		float a = (float)( Math.sqrt( R*R - x*x ) );
+		v1.cross(planeNormal, v0);
+		v1.scale(-a);
+		ik_elbow.add(v1);
 
 		return true;
 	}
@@ -352,9 +275,11 @@ class Arm5MotionState {
 		v2.set(planarRight);
 		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
 		v1.add(v2);
-		v1.add(v0);
 
-		fingerForward.set(v1);
 		fingerRight.cross(v1, planarNormal);
+		fingerRight.normalize();
+		fingerRight.add(fingerPosition);
+		fingerForward.set(v1);
+		fingerForward.add(fingerPosition);
 	}
 }
