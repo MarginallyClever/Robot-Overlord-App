@@ -5,13 +5,20 @@ import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.net.URLConnection;
 
 
 public class Arm5Robot
 extends RobotWithSerialConnection {
-	//machine dimensions
-	
-	// new model
+	// machine ID
+	long robot_uid;
+
+	// machine dimensions from design software
 	public final static double ANCHOR_ADJUST_Y = 0.64;
 	public final static double ANCHOR_TO_SHOULDER_Y = 3.27;
 	public final static double SHOULDER_TO_PINION_X = -15;
@@ -382,7 +389,7 @@ extends RobotWithSerialConnection {
 		arm5Panel.d2.setText(Float.toString(roundOff(motionNow.ik_angleD)));
 		arm5Panel.e2.setText(Float.toString(roundOff(motionNow.ik_angleE)));
 		
-		arm5Panel.s.setText(Float.toString(roundOff(motionNow.angleServo)));
+		arm5Panel.servo.setText(Float.toString(roundOff(motionNow.angleServo)));
 	}
 	
 	
@@ -760,11 +767,27 @@ extends RobotWithSerialConnection {
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
 	public void serialDataAvailable(SerialConnection arg0,String line) {
-		if(line.contains("HELLO WORLD! I AM MINION")) {
+		String hello = "HELLO WORLD! I AM MINION #";
+		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();
 			setModeAbsolute();
 			connection.sendCommand("R1");
+			
+			String uidString=line.substring(hello.length()).trim();
+			System.out.println(">>> UID="+uidString);
+			try {
+				long uid = Long.parseLong(uidString);
+				if(uid==0) {
+					robot_uid = getNewRobotUID();
+				} else {
+					robot_uid = uid;
+				}
+				arm5Panel.setUID(robot_uid);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 		if( isPortConfirmed ) {
@@ -933,4 +956,39 @@ extends RobotWithSerialConnection {
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
 							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
 	}
+	
+
+	/**
+	 * based on http://www.exampledepot.com/egs/java.net/Post.html
+	 */
+	private long getNewRobotUID() {
+		long new_uid = 0;
+
+		try {
+			// Send data
+			URL url = new URL("https://marginallyclever.com/evil_minion_getuid.php");
+			URLConnection conn = url.openConnection();
+			try (
+					final InputStream connectionInputStream = conn.getInputStream();
+					final Reader inputStreamReader = new InputStreamReader(connectionInputStream);
+					final BufferedReader rd = new BufferedReader(inputStreamReader)
+					) {
+				String line = rd.readLine();
+				new_uid = Long.parseLong(line);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+
+		// did read go ok?
+		if (new_uid != 0) {
+			// make sure a topLevelMachinesPreferenceNode node is created
+			// tell the robot it's new UID.
+			connection.sendCommand("UID " + new_uid);
+		}
+		return new_uid;
+	}
+
+
 }

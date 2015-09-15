@@ -38,14 +38,15 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	private JButton arm5ServoOpen;
 	private JButton arm5ServoClose;
 
-	JLabel xPos,yPos,zPos;
-	JLabel a1,b1,c1,d1,e1;
-	JLabel a2,b2,c2,d2,e2;
-	JLabel s;
-	JLabel speedNow;
-	JSlider speedControl;
+	public JLabel xPos,yPos,zPos;
+	public JLabel a1,b1,c1,d1,e1;
+	public JLabel a2,b2,c2,d2,e2;
+	public JLabel servo;
+	private JLabel speedNow;
+	private JLabel uid;
+	private JSlider speedControl;
 	
-	Arm5Robot robotArm=null;
+	private Arm5Robot robotArm=null;
 	
 	
 	private JButton createButton(String name) {
@@ -59,6 +60,9 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		super();
 		
 		robotArm = arm;
+
+		uid = new JLabel("Evil Minion");
+		this.add(uid);
 		
 		JPanel p;
 		this.setLayout(new GridLayout(0,1));
@@ -93,8 +97,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		d2 = new JLabel("0.00");
 		e2 = new JLabel("0.00");
 		// for servo
-		s = new JLabel("0.00");
-		
+		servo = new JLabel("0.00");
 
 		this.add(new JLabel("Forward Kinematics"));
 		
@@ -158,7 +161,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p = new JPanel(new GridLayout(1,0));
 		this.add(p);
 		p.add(arm5ServoOpen = createButton("Open"));
-		p.add(s);
+		p.add(servo);
 		p.add(arm5ServoClose = createButton("Close"));
 	}
 
@@ -211,5 +214,10 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		
 		if( subject == arm5ServoOpen ) robotArm.moveServo(-1);
 		if( subject == arm5ServoClose ) robotArm.moveServo(1);
+	}
+	
+	
+	public void setUID(long id) {
+		uid.setText("Evil Minion #"+Long.toString(id));
 	}
 }
