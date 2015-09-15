@@ -86,6 +86,8 @@ extends RobotWithSerialConnection {
 		volumes[5].radius=1.0f*0.575f;
 		
 		RotateBase(0,0);
+		motionNow.checkAngleLimits();
+		motionFuture.checkAngleLimits();
 		motionNow.forwardKinematics();
 		motionFuture.forwardKinematics();
 		motionNow.inverseKinematics();
