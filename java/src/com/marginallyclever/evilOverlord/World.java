@@ -82,15 +82,15 @@ implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 		if(subject==buttonRescan) {
-			robot0.detectSerialPorts();
-			//robot1.arduino.DetectSerialPorts();
+			robot0.connection.detectSerialPorts();
+			//robot1.connection.DetectSerialPorts();
 			//TODO tell RobotTrainer to update all menus
 			MainGUI.getSingleton().updateMenu();
 			return;
 		}
 		if(subject==buttonDisconnect) {
-			robot0.closePort();
-			//robot1.arduino.ClosePort();
+			robot0.connection.closePort();
+			//robot1.connection.ClosePort();
 			MainGUI.getSingleton().updateMenu();
 			return;
 		}
@@ -104,7 +104,7 @@ implements ActionListener {
         menu.setMnemonic(KeyEvent.VK_T);
         menu.getAccessibleContext().setAccessibleDescription("Connection settings.");
         
-    	subMenu=robot0.getMenu();
+    	subMenu=robot0.connection.getMenu();
         subMenu.setText("Arm 0");
         menu.add(subMenu);
 /*
@@ -152,18 +152,28 @@ implements ActionListener {
 			 // Enable lighting
 			gl2.glShadeModel(GL2.GL_SMOOTH);
 			gl2.glEnable(GL2.GL_LIGHTING);
-			gl2.glEnable(GL2.GL_LIGHT0);
 			gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-			gl2.glColorMaterial ( GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE );
-
+			gl2.glColorMaterial( GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE );
+			
+			gl2.glEnable(GL2.GL_LIGHT0);
 		    float[] position={1,1,1,0};
 			gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position,0);
-		    float[] ambient={0.2f,0.2f,0.2f,1f};
+		    float[] ambient={0.0f,0.0f,0.0f,1f};
 		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient,0);
 		    float[] diffuse={1f,1f,1f,1f};
 		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse,0);
 		    float[] specular={0.5f,0.5f,0.5f,1f};
 		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, specular,0);
+
+			gl2.glEnable(GL2.GL_LIGHT1);
+		    position=new float[]{-1,-1,1,0};
+			gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, position,0);
+		    ambient=new float[]{0.0f,0.0f,0.0f,1f};
+		    gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, ambient,0);
+		    diffuse=new float[]{2.0f,2.0f,2.0f,1f};
+		    gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, diffuse,0);
+		    specular=new float[]{1.0f,1.0f,1.0f,1f};
+		    gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, specular,0);
 
 		    // draw grid
 			gl2.glDisable(GL2.GL_LIGHTING);

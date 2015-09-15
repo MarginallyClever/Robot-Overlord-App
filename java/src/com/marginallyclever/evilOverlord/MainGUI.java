@@ -77,7 +77,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 	final GLJPanel glCanvas;
 
     private JPanel cameraPanel=null;
-    private Arm5ControlPanel arm5Panel=null;
+    private JPanel arm5Panel=null;
 
     public JTabbedPane contextMenu;
     public Splitter split_left_right;
@@ -151,8 +151,8 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
         animator.add(glCanvas);
         glCanvas.addGLEventListener(this);
         
-        cameraPanel = new CameraControlPanel();
-        arm5Panel = new Arm5ControlPanel();
+        cameraPanel = world.camera.getControlPanel();
+        arm5Panel = world.robot0.getControlPanel();
         
         contextMenu = new JTabbedPane();
         JScrollPane p;
@@ -161,7 +161,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
         contextMenu.addTab("Camera",null,p,null);
         p = new JScrollPane();
         p.setViewportView(arm5Panel);
-        contextMenu.addTab("Arm5",null,p,null);
+        contextMenu.addTab("Arm",null,p,null);
 
         split_left_right = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
         split_left_right.add(glCanvas);

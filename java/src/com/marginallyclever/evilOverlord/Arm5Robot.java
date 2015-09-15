@@ -1,13 +1,13 @@
 package com.marginallyclever.evilOverlord;
 
+import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
 import java.awt.event.KeyEvent;
-import java.nio.IntBuffer;
 
 
-public class Arm5Robot 
+public class Arm5Robot
 extends RobotWithSerialConnection {
 	//machine dimensions
 	
@@ -59,12 +59,14 @@ extends RobotWithSerialConnection {
 	
 	boolean pWasOn=false;
 	boolean moveMode=false;
-	
+	boolean isPortConfirmed=false;
 	boolean isLoaded=false;
 	boolean isRenderFKOn=false;
 	boolean isRenderIKOn=false;
 	
 	double speed=0;
+	
+	Arm5ControlPanel arm5Panel=null;
 	
 	
 	public Arm5Robot(String name) {
@@ -88,6 +90,12 @@ extends RobotWithSerialConnection {
 		motionFuture.inverseKinematics();
 	}
 
+	
+	public JPanel getControlPanel() {
+		if(arm5Panel==null) arm5Panel = new Arm5ControlPanel(this);
+		return arm5Panel;
+	}
+	
 	
 	private void enableFK() {		
 		xDir=0;
@@ -229,36 +237,27 @@ extends RobotWithSerialConnection {
 			motionFuture.fingerPosition.x = dX;
 			motionFuture.fingerPosition.y = dY;
 			motionFuture.fingerPosition.z = dZ;
-			if(motionFuture.inverseKinematics()==false) {
-				motionFuture.set(motionNow);
-				return;
-			}
-			
-			if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
+			if(motionFuture.inverseKinematics()==false) return;
+			if(motionFuture.checkAngleLimits()) {
+			//if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
 				armMoved=true;
-				motionFuture.inverseKinematics();
 				isRenderIKOn=true;
 				isRenderFKOn=false;
-				//motionFuture.forwardKinematics();
+
+				sendChangeToRealMachine();
 				motionNow.set(motionFuture);
-				
-				this.sendCommand("G0"
-						+(dX==motionFuture.fingerPosition.x?"":" X"+dX)
-						+(dY==motionFuture.fingerPosition.y?"":" Y"+dY)
-						+(dZ==motionFuture.fingerPosition.z?"":" Z"+dZ)
-						);
+				updateGUI();
 			}
-		} else {
-			// move illegal, reset future to current position (no change will happen in near future)
-			motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		}
 	}
 	
 	
-	protected void updateFKAngles(float delta) {
+	protected void updateAnglesForForwardKinematics(float delta) {
 		boolean changed=false;
 		float velcd=(float)speed; // * delta
 		float velabe=(float)speed; // * delta
+
+		motionFuture.set(motionNow);
 		
 		float dE = motionFuture.angleE;
 		float dD = motionFuture.angleD;
@@ -303,26 +302,74 @@ extends RobotWithSerialConnection {
 			motionFuture.angleC=dC;
 			motionFuture.angleD=dD;
 			motionFuture.angleE=dE;
-			//if(motionFuture.CheckAngleLimits()) 
-			{
-				
+			if(motionFuture.checkAngleLimits()) {
 				motionFuture.forwardKinematics();
 				isRenderIKOn=false;
 				isRenderFKOn=true;
-				motionNow.set(motionFuture);
 				armMoved=true;
 				
-				this.sendCommand("R0"
-						+(dA==motionFuture.angleA?"":" A"+dA)
-						+(dB==motionFuture.angleB?"":" B"+dB)
-						+(dC==motionFuture.angleC?"":" C"+dC)
-						+(dD==motionFuture.angleD?"":" D"+dD)
-						+(dE==motionFuture.angleE?"":" E"+dE)
-						);
+				sendChangeToRealMachine();
+				motionNow.set(motionFuture);
+				updateGUI();
+			} else {
+				motionFuture.set(motionNow);
 			}
 		}
 	}
 
+	
+	protected float roundOff(float v) {
+		float SCALE = 1000.0f;
+		
+		return Math.round(v*SCALE)/SCALE;
+	}
+	
+
+	
+	public void updateGUI() {
+		arm5Panel.xPos.setText(Float.toString(motionNow.fingerPosition.x));
+		arm5Panel.yPos.setText(Float.toString(motionNow.fingerPosition.y));
+		arm5Panel.zPos.setText(Float.toString(motionNow.fingerPosition.z));
+
+		arm5Panel.a1.setText(Float.toString(motionNow.angleA));
+		arm5Panel.b1.setText(Float.toString(motionNow.angleB));
+		arm5Panel.c1.setText(Float.toString(motionNow.angleC));
+		arm5Panel.d1.setText(Float.toString(motionNow.angleD));
+		arm5Panel.e1.setText(Float.toString(motionNow.angleE));
+		
+		arm5Panel.a2.setText(Float.toString(motionNow.ik_angleA));
+		arm5Panel.b2.setText(Float.toString(motionNow.ik_angleB));
+		arm5Panel.c2.setText(Float.toString(motionNow.ik_angleC));
+		arm5Panel.d2.setText(Float.toString(motionNow.ik_angleD));
+		arm5Panel.e2.setText(Float.toString(motionNow.ik_angleE));
+	}
+	
+	
+	protected void sendChangeToRealMachine() {
+		if(isPortConfirmed==false) return;
+		
+		
+		String str="";
+		if(motionFuture.angleA!=motionNow.angleA) {
+			str+=" A"+roundOff(motionFuture.angleA);
+		}
+		if(motionFuture.angleB!=motionNow.angleB) {
+			str+=" B"+roundOff(motionFuture.angleB);
+		}
+		if(motionFuture.angleC!=motionNow.angleC) {
+			str+=" C"+roundOff(motionFuture.angleC);
+		}
+		if(motionFuture.angleD!=motionNow.angleD) {
+			str+=" D"+roundOff(motionFuture.angleD);
+		}
+		if(motionFuture.angleE!=motionNow.angleE) {
+			//str+=" E"+roundOff(motionFuture.angleE);
+		}
+		
+		if(str.length()>0) {
+			connection.sendCommand("R0"+str);
+		}
+	}
 	
 	protected void keyAction(KeyEvent e,boolean state) {
 		/*
@@ -356,7 +403,7 @@ extends RobotWithSerialConnection {
 	
 	public void PrepareMove(float delta) {
 		updateFingerForInverseKinematics(delta);
-		updateFKAngles(delta);
+		updateAnglesForForwardKinematics(delta);
 	}
 	
 	
@@ -365,19 +412,19 @@ extends RobotWithSerialConnection {
 		motionNow.set(motionFuture);
 		
 		if(armMoved) {
-			if( portConfirmed && this.readyForCommands() ) {
+			if( isPortConfirmed && connection.readyForCommands() ) {
 				armMoved=false;
-				this.deleteAllQueuedCommands();
+				connection.deleteAllQueuedCommands();
 			}
 		}
 	}
 	
 
 	protected void setColor(GL2 gl2,float r,float g,float b,float a) {
-		float [] mat_diffuse = { r,g,b,a};
-		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, mat_diffuse,0);
-
-	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, mat_diffuse,0);
+		float [] diffuse = {r,g,b,a};
+		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, diffuse,0);
+		float[] specular={0.85f,0.85f,0.85f,1.0f};
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, specular,0);
 	    float[] emission={0.01f,0.01f,0.01f,1f};
 	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
 	    
@@ -400,35 +447,26 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	public void render(GL2 gl2) {/*
-		motionFuture.angleA=170;
-		motionFuture.angleB=110;
-		motionFuture.angleC=50;
-		motionFuture.angleD=40;
-		motionFuture.angleE=30;
-		motionFuture.forwardKinematics();
-		motionFuture.inverseKinematics();
-		motionNow.set(motionFuture);//*/
-		
+	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		renderModels(gl2);
+			renderModels(gl2);
 		gl2.glPopMatrix();
 		
 		if(isRenderFKOn)
 		{
 			gl2.glPushMatrix();
-			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			renderFK(gl2);
-			gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glDisable(GL2.GL_DEPTH_TEST);
+				renderFK(gl2);
+				gl2.glEnable(GL2.GL_DEPTH_TEST);
 			gl2.glPopMatrix();
 		}
 		
 		if(isRenderIKOn) 
 		{
 			gl2.glPushMatrix();
-			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			renderIK(gl2);
-			gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glDisable(GL2.GL_DEPTH_TEST);
+				renderIK(gl2);
+				gl2.glEnable(GL2.GL_DEPTH_TEST);
 			gl2.glPopMatrix();
 		}
 	}
@@ -532,14 +570,15 @@ extends RobotWithSerialConnection {
 
 		// anchor
 		setColor(gl2,1,1,1,1);
+		// this rotation is here because the anchor model was built facing the wrong way.
 		gl2.glRotated(90, 1, 0, 0);
+		
 		gl2.glTranslated(0, ANCHOR_ADJUST_Y, 0);
 		anchor.render(gl2);
 
 		// shoulder (E)
 		setColor(gl2,1,0,0,1);
 		gl2.glTranslated(0, ANCHOR_TO_SHOULDER_Y, 0);
-		//gl2.glRotated(155-motionNow.angleE,0,1,0);
 		gl2.glRotated(motionNow.angleE,0,1,0);
 		shoulder.render(gl2);
 
@@ -598,7 +637,6 @@ extends RobotWithSerialConnection {
 			wristBone.render(gl2);
 			
 			// tool holder
-			//gl2.glRotated(motionNow.angleB+motionNow.angleA-78,1,0,0);  // Why is this -78 here?
 			gl2.glRotated(motionNow.angleA,1,0,0);
 
 			setColor(gl2,0,1,0,1);
@@ -655,36 +693,84 @@ extends RobotWithSerialConnection {
 	
 	
 	private double parseNumber(String str) {
-		return Float.parseFloat(str);
+		float f=0;
+		try {
+			f = Float.parseFloat(str);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return f;
+	}
+	
+
+	public void setModeAbsolute() {
+		if(connection!=null) connection.sendCommand("G90");
+	}
+	
+	
+	public void setModeRelative() {
+		if(connection!=null) connection.sendCommand("G91");
 	}
 	
 	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public boolean confirmPort(String preamble) {
-		if(!portOpened) return false;
-		
-		if(preamble.contains("HELLO WORLD! I AM MINION")) {
-			portConfirmed=true;
+	public void serialDataAvailable(SerialConnection arg0,String line) {
+		if(line.contains("HELLO WORLD! I AM MINION")) {
+			isPortConfirmed=true;
 			//finalizeMove();
-			this.sendCommand("G91");
-			this.sendCommand("R1");
+			setModeAbsolute();
+			connection.sendCommand("R1");
 		}
 		
-		if( portConfirmed == true ) {
-			if(preamble.startsWith("A")) {
-				String items[] = preamble.split(" ");
-				if(items.length >= 5) {
-					if(items[0].startsWith("A")) motionFuture.angleA = (float)parseNumber(items[0].substring(1));
-					if(items[1].startsWith("B")) motionFuture.angleB = (float)parseNumber(items[1].substring(1));
-					if(items[2].startsWith("C")) motionFuture.angleC = (float)parseNumber(items[2].substring(1));
-					if(items[3].startsWith("D")) motionFuture.angleD = (float)parseNumber(items[3].substring(1));
-					if(items[4].startsWith("E")) motionFuture.angleE = (float)parseNumber(items[4].substring(1));
+		if( isPortConfirmed ) {
+			if(line.startsWith("A")) {
+				String items[] = line.split(" ");
+				if(items.length>=5) {
+					for(int i=0;i<items.length;++i) {
+						if(items[i].startsWith("A")) {
+							float v = (float)parseNumber(items[i].substring(1));
+							if(motionFuture.angleA != v) {
+								motionFuture.angleA = v;
+								arm5Panel.a1.setText(Float.toString(roundOff(v)));
+							}
+						} else if(items[i].startsWith("B")) {
+							float v = (float)parseNumber(items[i].substring(1));
+							if(motionFuture.angleB != v) {
+								motionFuture.angleB = v;
+								arm5Panel.b1.setText(Float.toString(roundOff(v)));
+							}
+						} else if(items[i].startsWith("C")) {
+							float v = (float)parseNumber(items[i].substring(1));
+							if(motionFuture.angleC != v) {
+								motionFuture.angleC = v;
+								arm5Panel.c1.setText(Float.toString(roundOff(v)));
+							}
+						} else if(items[i].startsWith("D")) {
+							float v = (float)parseNumber(items[i].substring(1));
+							if(motionFuture.angleD != v) {
+								motionFuture.angleD = v;
+								arm5Panel.d1.setText(Float.toString(roundOff(v)));
+							}
+						} else if(items[i].startsWith("E")) {
+							float v = (float)parseNumber(items[i].substring(1));
+							if(motionFuture.angleE != v) {
+								motionFuture.angleE = v;
+								arm5Panel.e1.setText(Float.toString(roundOff(v)));
+							}
+						}
+					}
+					
+					motionFuture.forwardKinematics();
 					motionNow.set(motionFuture);
+					updateGUI();
 				}
+			} else {
+				System.out.print("*** "+line);
 			}
 		}
-		return portConfirmed;
 	}
 	
 

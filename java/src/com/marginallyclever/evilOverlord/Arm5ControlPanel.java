@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -42,6 +41,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	JLabel speedNow;
 	JSlider speedControl;
 	
+	Arm5Robot robotArm=null;
+	
 	
 	private JButton createButton(String name) {
 		JButton b = new JButton(name);
@@ -50,7 +51,11 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	}
 
 
-	public Arm5ControlPanel() {
+	public Arm5ControlPanel(Arm5Robot arm) {
+		super();
+		
+		robotArm = arm;
+		
 		JPanel p;
 		this.setLayout(new GridLayout(0,1));
 
@@ -143,9 +148,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	}
 
 	protected void setSpeed(double speed) {
-		World world = MainGUI.getSingleton().world;	
-		world.robot0.setSpeed(speed);
-		speedNow.setText(Double.toString(world.robot0.getSpeed()));
+		robotArm.setSpeed(speed);
+		speedNow.setText(Double.toString(robotArm.getSpeed()));
 	}
 	
 	public void stateChanged(ChangeEvent e) {
@@ -170,43 +174,24 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	
 	// arm5 controls
 	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();		
-
-		World world = MainGUI.getSingleton().world;		
+		Object subject = e.getSource();			
 		
-		if( subject == arm5Apos ) world.robot0.moveA(1);
-		if( subject == arm5Aneg ) world.robot0.moveA(-1);
-		if( subject == arm5Bpos ) world.robot0.moveB(1);
-		if( subject == arm5Bneg ) world.robot0.moveB(-1);
-		if( subject == arm5Cpos ) world.robot0.moveC(1);
-		if( subject == arm5Cneg ) world.robot0.moveC(-1);
-		if( subject == arm5Dpos ) world.robot0.moveD(1);
-		if( subject == arm5Dneg ) world.robot0.moveD(-1);
-		if( subject == arm5Epos ) world.robot0.moveE(1);
-		if( subject == arm5Eneg ) world.robot0.moveE(-1);
+		if( subject == arm5Apos ) robotArm.moveA(1);
+		if( subject == arm5Aneg ) robotArm.moveA(-1);
+		if( subject == arm5Bpos ) robotArm.moveB(1);
+		if( subject == arm5Bneg ) robotArm.moveB(-1);
+		if( subject == arm5Cpos ) robotArm.moveC(1);
+		if( subject == arm5Cneg ) robotArm.moveC(-1);
+		if( subject == arm5Dpos ) robotArm.moveD(1);
+		if( subject == arm5Dneg ) robotArm.moveD(-1);
+		if( subject == arm5Epos ) robotArm.moveE(1);
+		if( subject == arm5Eneg ) robotArm.moveE(-1);
 		
-		if( subject == arm5Xpos ) world.robot0.moveX(1);
-		if( subject == arm5Xneg ) world.robot0.moveX(-1);
-		if( subject == arm5Ypos ) world.robot0.moveY(1);
-		if( subject == arm5Yneg ) world.robot0.moveY(-1);
-		if( subject == arm5Zpos ) world.robot0.moveZ(1);
-		if( subject == arm5Zneg ) world.robot0.moveZ(-1);
-		
-		xPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.x));
-		yPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.y));
-		zPos.setText(Float.toString(world.robot0.motionNow.fingerPosition.z));
-
-		a1.setText(Float.toString(world.robot0.motionNow.angleA));
-		b1.setText(Float.toString(world.robot0.motionNow.angleB));
-		c1.setText(Float.toString(world.robot0.motionNow.angleC));
-		d1.setText(Float.toString(world.robot0.motionNow.angleD));
-		e1.setText(Float.toString(world.robot0.motionNow.angleE));
-		
-		a2.setText(Float.toString(world.robot0.motionNow.ik_angleA));
-		b2.setText(Float.toString(world.robot0.motionNow.ik_angleB));
-		c2.setText(Float.toString(world.robot0.motionNow.ik_angleC));
-		d2.setText(Float.toString(world.robot0.motionNow.ik_angleD));
-		e2.setText(Float.toString(world.robot0.motionNow.ik_angleE));
-		
+		if( subject == arm5Xpos ) robotArm.moveX(1);
+		if( subject == arm5Xneg ) robotArm.moveX(-1);
+		if( subject == arm5Ypos ) robotArm.moveY(1);
+		if( subject == arm5Yneg ) robotArm.moveY(-1);
+		if( subject == arm5Zpos ) robotArm.moveZ(1);
+		if( subject == arm5Zneg ) robotArm.moveZ(-1);
 	}
 }

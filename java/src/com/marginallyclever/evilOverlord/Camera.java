@@ -1,4 +1,5 @@
 package com.marginallyclever.evilOverlord;
+import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
@@ -6,7 +7,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 
-public class Camera {
+public class Camera extends ObjectInWorld {
 	/** position of camera */
 	Vector3f position = new Vector3f();
 	Vector3f forward = new Vector3f(0,1,0);
@@ -24,12 +25,22 @@ public class Camera {
 	public int move_fb=0;
 
 	
+	CameraControlPanel cameraPanel;
+	
+	
 	public Camera() {
+		super();
+		
 		position.set(0,100,-20);
 		pan=0;
 		tilt=80;
 	}
 
+	
+	public JPanel getControlPanel() {
+		if(cameraPanel==null) cameraPanel = new CameraControlPanel(this);
+		return cameraPanel;
+	}
 	
 	public void mousePressed(MouseEvent e) {
         prevMouseX = e.getX();

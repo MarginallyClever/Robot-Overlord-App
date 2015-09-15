@@ -119,14 +119,14 @@ class Arm5MotionState {
 		//if (angleA < -180) return false;
 		//if (angleA >  180) return false;
 		//b
-		if (angleB <      72.90) return false;
-		if (angleB >  360-72.90) return false;
+		if (angleB <      72.90) angleB = 72.90f;
+		if (angleB >  360-72.90) angleB = 360-72.90f;
 		//c
-		if (angleC <   50.57) return false;
-		if (angleC >  160.31) return false;
+		if (angleC <   50.57) angleC = 50.57f;
+		if (angleC >  160.31) angleC = 160.31f;
 		//d
-		if (angleD <   87.85) return false;
-		if (angleD >  173.60) return false;
+		if (angleD <   87.85) angleD = 87.85f;
+		if (angleD >  173.60) angleD = 173.60f;
 		//e
 		//if (angleE < 180-165) return false;
 		//if (angleE > 180+165) return false;
@@ -158,6 +158,7 @@ class Arm5MotionState {
 		
 		// Find E
 		ee = Math.atan2(planar.y, planar.x);
+		ee = capRotation(ee);
 		ik_angleE = (float)Math.toDegrees(ee);
 
 		ik_shoulder.set(0,0,(float)(Arm5Robot.ANCHOR_ADJUST_Y+Arm5Robot.ANCHOR_TO_SHOULDER_Y));
@@ -209,6 +210,7 @@ class Arm5MotionState {
 		x = -planar.dot(v0);
 		float y = planeRight.dot(v0);
 		dd = Math.atan2(y,x);
+		dd = capRotation(dd);
 		ik_angleD = (float)Math.toDegrees(dd);
 		
 		// find elbow angle (C)
@@ -221,6 +223,7 @@ class Arm5MotionState {
 		x = -planar.dot(v0);
 		y = planeRight.dot(v0);
 		cc = Math.atan2(y,x);
+		cc = capRotation(cc);
 		ik_angleC = (float)Math.toDegrees(cc);
 		
 		// find wrist angle (B)
@@ -234,6 +237,7 @@ class Arm5MotionState {
 		x = -planar.dot(v0);
 		y = -planeRight.dot(v0);
 		bb = Math.atan2(y,x);
+		bb = capRotation(bb);
 		ik_angleB = (float)Math.toDegrees(bb);
 		
 		// find wrist rotation (A)
@@ -247,8 +251,7 @@ class Arm5MotionState {
 		x = v2.dot(v0);
 		y = -v1.dot(v0);
 		aa = Math.atan2(y,x)-bb-Math.PI/2.0;
-		while(aa<0) aa += Math.PI*2;
-		while(aa>Math.PI*2) aa -= Math.PI*2;
+		aa = capRotation(aa);
 		ik_angleA = (float)Math.toDegrees(aa);
 		
 		angleA=ik_angleA;
@@ -258,6 +261,12 @@ class Arm5MotionState {
 		angleE=ik_angleE;
 
 		return true;
+	}
+	
+	double capRotation(double aa) {
+		while(aa<0) aa += Math.PI*2;
+		while(aa>Math.PI*2) aa -= Math.PI*2;
+		return aa;
 	}
 	
 	/**

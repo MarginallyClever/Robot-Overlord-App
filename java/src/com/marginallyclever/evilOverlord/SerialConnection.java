@@ -25,7 +25,6 @@ implements SerialPortEventListener, ActionListener {
 	public static int BAUD_RATE = 57600;
 	public SerialPort serialPort;
 	public boolean portOpened=false;
-	public boolean portConfirmed=false;
 	public String portName;
 	public boolean waitingForCue=true;
 	
@@ -47,15 +46,17 @@ implements SerialPortEventListener, ActionListener {
 	
 	public SerialConnection(String name) {
 		prefs = Preferences.userRoot().node("SerialConnection").node(name);
-		
 		detectSerialPorts();
-
 		openPort(getLastPort());
 	}
 	
 	public void finalize() {
 		closePort();
 		//super.finalize();
+	}
+	
+	public boolean isPortOpened() {
+		return portOpened;
 	}
 	
 	private String getLastPort(){
@@ -71,13 +72,12 @@ implements SerialPortEventListener, ActionListener {
 		log.append(msg);
 		log.setCaretPosition(log.getText().length());
 	}
-
-	// override this method to check that the software is connected to the right type of robot.
-	public boolean confirmPort(String preamble) {
-		if(!portOpened) return false;
-		
-		portConfirmed=true;
-		return true;
+	
+	// tell all listeners data has arrived
+	private void processLine(String line) {
+	      for (SerialConnectionReadyListener listener : listeners) {
+	        listener.serialDataAvailable(this,line);
+	      }
 	}
 	
 	@Override
@@ -99,12 +99,10 @@ implements SerialPortEventListener, ActionListener {
 						x=x+1;
 						oneLine = inputBuffer.substring(0,x);
 						inputBuffer = inputBuffer.substring(x);
+						processLine(oneLine);
 						// wait for the cue to send another command
-						if(confirmPort(oneLine)) {
-							// if we got a > send the next message.
-							if(oneLine.indexOf(cue)==0) {
-								waitingForCue=false;
-							}
+						if(oneLine.indexOf(cue)==0) {
+							waitingForCue=false;
 						}
 					}
 					if(waitingForCue==false) {
@@ -144,9 +142,7 @@ implements SerialPortEventListener, ActionListener {
 		if(!portOpened) return;
 		
 		commandQueue.add(command);
-		if(portConfirmed) {
-			sendQueuedCommand();
-		}
+		sendQueuedCommand();
 	}
 	
 	public void deleteAllQueuedCommands() {
@@ -195,7 +191,6 @@ implements SerialPortEventListener, ActionListener {
 	    }
 
 		portOpened=false;
-		portConfirmed=false;
 	}
 	
 	// open a serial connection to a device.  We won't know it's the robot until  

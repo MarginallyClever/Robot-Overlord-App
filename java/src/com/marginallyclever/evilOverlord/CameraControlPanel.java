@@ -15,6 +15,8 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 8529190569816182683L;
 	
 	
+	private Camera camera=null;
+	
 	private JButton buttonFlyUp;
 	private JButton buttonFlyDown;
 	private JButton buttonFlyLeft;
@@ -34,8 +36,11 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		return b;
 	}
 
-
-	public CameraControlPanel() {
+	public CameraControlPanel(Camera cam) {
+		super();
+		
+		camera=cam;
+		
 		this.setLayout(new GridLayout(0,1));
 		JPanel p;
 		

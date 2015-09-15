@@ -11,9 +11,10 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 
-public class RobotWithSerialConnection extends SerialConnection
+public class RobotWithSerialConnection extends ObjectInWorld
 implements SerialConnectionReadyListener {
 	//comms	
+	protected SerialConnection connection;
 	private boolean arduinoReady=false;
 	private boolean isConfirmed=false;
 
@@ -33,14 +34,17 @@ implements SerialConnectionReadyListener {
 	public boolean isFileOpen() { return fileOpened; }
 	public boolean isConfirmed() { return isConfirmed; }
 	
+	
 	public RobotWithSerialConnection(String name) {
-		super(name);
-		addListener(this);
+		super();
+		connection = new SerialConnection(name);
+		connection.addListener(this);
 	}
 	
-	
+
+	@Override
 	public void serialConnectionReady(SerialConnection arg0) {
-		if(arg0==this) arduinoReady=true;
+		if(arg0==connection) arduinoReady=true;
 		
 		if(arduinoReady) {
 			if(!isConfirmed) {
@@ -52,6 +56,12 @@ implements SerialConnectionReadyListener {
 		}
 	}
 
+	
+	@Override
+	public void serialDataAvailable(SerialConnection arg0,String data) {
+		
+	}
+	
 	
 	/**
 	 * Take the next line from the file and send it to the robot, if permitted. 
@@ -177,7 +187,7 @@ implements SerialConnectionReadyListener {
 		}
 
 		// send relevant part of line to the robot
-		sendCommand(line);
+		connection.sendCommand(line);
 		
 		return true;
 	}
