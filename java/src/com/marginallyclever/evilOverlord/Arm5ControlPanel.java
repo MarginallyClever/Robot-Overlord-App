@@ -126,7 +126,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		//p.add(e2);	
 		p.add(arm5Eneg = createButton("E-"));
 
-		this.add(new JLabel("Inverse Kinematics"));
+		this.add(new JLabel("Finger Tip Inverse Kinematics"));
 
 		p = new JPanel(new GridLayout(1,0));
 		this.add(p);

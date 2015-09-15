@@ -4,12 +4,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.io.File;
 import java.nio.IntBuffer;
 
+import javax.imageio.ImageIO;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.io.File;
+import java.io.IOException;
+import java.nio.IntBuffer;
 
 
 public class World
@@ -41,9 +54,41 @@ implements ActionListener {
 		gl2.glDepthFunc(GL2.GL_LESS);
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthMask(true);
+		
+		loadTextures(gl2);
     }
     
 
+	
+	void loadTextures( GL2 gl2 ) {
+		// world background texture
+		try {
+			BufferedImage[] img = new BufferedImage[6];
+			img[0] = ImageIO.read(new File("cube-x-pos.png"));
+			img[1] = ImageIO.read(new File("cube-y-pos.png"));
+			img[2] = ImageIO.read(new File("cube-z-pos.png"));
+			img[3] = ImageIO.read(new File("cube-x-neg.png"));
+			img[4] = ImageIO.read(new File("cube-y-neg.png"));
+			img[5] = ImageIO.read(new File("cube-z-neg.png"));
+/*
+			Raster r = img[0].getData();
+			DataBuffer d = r.getDataBuffer();
+			IntBuffer textures = IntBuffer.allocate(6);
+			gl2.glGenTextures(6, textures);
+
+			gl2.glBindTexture(GL2.GL_TEXTURE_2D, textures.get(0));
+			gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0,GL2.GL_RGB, 256, 256, GL2.GL_UNSIGNED_BYTE, d );
+
+			gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_NEAREST);
+			gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+*/
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
     public void mouseClicked(MouseEvent e) {}
     public void mouseDragged(MouseEvent e) {
     	camera.mouseDragged(e);
@@ -96,6 +141,7 @@ implements ActionListener {
 		}
 	}
 	
+	
     public JMenu updateMenu() {
     	JMenu menu, subMenu;
         
@@ -125,6 +171,7 @@ implements ActionListener {
         
         return menu;
     }
+    
 	
 	public void render(GL2 gl2, float dt ) {
 		// background color
@@ -195,6 +242,7 @@ implements ActionListener {
 		gl2.glPopMatrix();
 	}
 
+	
 	boolean WillCollide(Arm5Robot a,Arm5Robot b) {
 		// TODO complete me
 		//Get the cylinders for each robot

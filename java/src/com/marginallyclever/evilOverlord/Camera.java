@@ -23,14 +23,13 @@ public class Camera extends ObjectInWorld {
 	public int move_ud=0;
 	public int move_lr=0;
 	public int move_fb=0;
-
 	
 	CameraControlPanel cameraPanel;
 	
 	
 	public Camera() {
 		super();
-		
+				
 		position.set(0,100,-20);
 		pan=0;
 		tilt=80;
@@ -41,6 +40,7 @@ public class Camera extends ObjectInWorld {
 		if(cameraPanel==null) cameraPanel = new CameraControlPanel(this);
 		return cameraPanel;
 	}
+	
 	
 	public void mousePressed(MouseEvent e) {
         prevMouseX = e.getX();

@@ -24,6 +24,7 @@ public class Model {
 
 	int VBO[] = null;
 
+	
 	void loadFromZip(GL2 gl2,String zipName,String fname) {
 		ZipFile zipFile=null;
 		ZipEntry entry;
