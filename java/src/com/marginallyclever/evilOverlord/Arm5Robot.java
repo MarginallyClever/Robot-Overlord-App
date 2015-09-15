@@ -54,6 +54,8 @@ extends RobotWithSerialConnection {
 	float yDir = 0.0f;
 	float zDir = 0.0f;
 
+	float servoDir = 0.0f;
+	
 	// machine logic states
 	boolean armMoved = false;
 	
@@ -156,6 +158,10 @@ extends RobotWithSerialConnection {
 	public void moveZ(float dir) {
 		zDir=dir;
 		disableFK();
+	}
+
+	public void moveServo(float dir) {
+		servoDir=dir;
 	}
 
 	
@@ -316,6 +322,37 @@ extends RobotWithSerialConnection {
 			}
 		}
 	}
+	
+	
+	protected void updateServo(float dt) {
+		boolean changed=false;
+		float vel=(float)speed; // * delta
+		
+		float dS = motionFuture.angleServo;
+		
+		if(servoDir!=0) {
+			dS += vel * servoDir;
+			changed=true;
+			servoDir=0;
+		}
+		
+		if(changed==true) {
+			if(dS<120) dS=120;
+			if(dS>160) dS=160;
+			motionFuture.angleServo = dS;
+
+			if(isPortConfirmed==false) return;
+			
+			String str="";
+			if(motionFuture.angleServo!=motionNow.angleServo) {
+				str+=" S"+roundOff(motionFuture.angleServo);
+			}
+			if(str.length()>0) {
+				connection.sendCommand("R10"+str);
+				motionNow.set(motionFuture);
+			}
+		}
+	}
 
 	
 	protected float roundOff(float v) {
@@ -327,21 +364,23 @@ extends RobotWithSerialConnection {
 
 	
 	public void updateGUI() {
-		arm5Panel.xPos.setText(Float.toString(motionNow.fingerPosition.x));
-		arm5Panel.yPos.setText(Float.toString(motionNow.fingerPosition.y));
-		arm5Panel.zPos.setText(Float.toString(motionNow.fingerPosition.z));
+		arm5Panel.xPos.setText(Float.toString(roundOff(motionNow.fingerPosition.x)));
+		arm5Panel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
+		arm5Panel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
 
-		arm5Panel.a1.setText(Float.toString(motionNow.angleA));
-		arm5Panel.b1.setText(Float.toString(motionNow.angleB));
-		arm5Panel.c1.setText(Float.toString(motionNow.angleC));
-		arm5Panel.d1.setText(Float.toString(motionNow.angleD));
-		arm5Panel.e1.setText(Float.toString(motionNow.angleE));
+		arm5Panel.a1.setText(Float.toString(roundOff(motionNow.angleA)));
+		arm5Panel.b1.setText(Float.toString(roundOff(motionNow.angleB)));
+		arm5Panel.c1.setText(Float.toString(roundOff(motionNow.angleC)));
+		arm5Panel.d1.setText(Float.toString(roundOff(motionNow.angleD)));
+		arm5Panel.e1.setText(Float.toString(roundOff(motionNow.angleE)));
 		
-		arm5Panel.a2.setText(Float.toString(motionNow.ik_angleA));
-		arm5Panel.b2.setText(Float.toString(motionNow.ik_angleB));
-		arm5Panel.c2.setText(Float.toString(motionNow.ik_angleC));
-		arm5Panel.d2.setText(Float.toString(motionNow.ik_angleD));
-		arm5Panel.e2.setText(Float.toString(motionNow.ik_angleE));
+		arm5Panel.a2.setText(Float.toString(roundOff(motionNow.ik_angleA)));
+		arm5Panel.b2.setText(Float.toString(roundOff(motionNow.ik_angleB)));
+		arm5Panel.c2.setText(Float.toString(roundOff(motionNow.ik_angleC)));
+		arm5Panel.d2.setText(Float.toString(roundOff(motionNow.ik_angleD)));
+		arm5Panel.e2.setText(Float.toString(roundOff(motionNow.ik_angleE)));
+		
+		arm5Panel.s.setText(Float.toString(roundOff(motionNow.angleServo)));
 	}
 	
 	
@@ -404,6 +443,7 @@ extends RobotWithSerialConnection {
 	public void PrepareMove(float delta) {
 		updateFingerForInverseKinematics(delta);
 		updateAnglesForForwardKinematics(delta);
+		updateServo(delta);
 	}
 	
 	

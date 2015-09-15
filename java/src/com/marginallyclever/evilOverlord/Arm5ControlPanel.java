@@ -34,10 +34,14 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	private JButton arm5Yneg;
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
+	
+	private JButton arm5ServoOpen;
+	private JButton arm5ServoClose;
 
 	JLabel xPos,yPos,zPos;
 	JLabel a1,b1,c1,d1,e1;
 	JLabel a2,b2,c2,d2,e2;
+	JLabel s;
 	JLabel speedNow;
 	JSlider speedControl;
 	
@@ -88,6 +92,9 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		c2 = new JLabel("0.00");
 		d2 = new JLabel("0.00");
 		e2 = new JLabel("0.00");
+		// for servo
+		s = new JLabel("0.00");
+		
 
 		this.add(new JLabel("Forward Kinematics"));
 		
@@ -145,6 +152,14 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
+
+		this.add(new JLabel("Gripper"));
+
+		p = new JPanel(new GridLayout(1,0));
+		this.add(p);
+		p.add(arm5ServoOpen = createButton("Open"));
+		p.add(s);
+		p.add(arm5ServoClose = createButton("Close"));
 	}
 
 	protected void setSpeed(double speed) {
@@ -193,5 +208,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		if( subject == arm5Yneg ) robotArm.moveY(-1);
 		if( subject == arm5Zpos ) robotArm.moveZ(1);
 		if( subject == arm5Zneg ) robotArm.moveZ(-1);
+		
+		if( subject == arm5ServoOpen ) robotArm.moveServo(-1);
+		if( subject == arm5ServoClose ) robotArm.moveServo(1);
 	}
 }

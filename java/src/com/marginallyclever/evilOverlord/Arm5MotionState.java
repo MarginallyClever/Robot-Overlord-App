@@ -14,6 +14,7 @@ class Arm5MotionState {
 	float angleC = 0;
 	float angleB = 0;
 	float angleA = 0;
+	float angleServo = 120;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
 	public Vector3f fingerPosition = new Vector3f();
@@ -57,6 +58,7 @@ class Arm5MotionState {
 		angleC = other.angleC;
 		angleB = other.angleB;
 		angleA = other.angleA;
+		angleServo = other.angleServo;
 		iku=other.iku;
 		ikv=other.ikv;
 		ikw=other.ikw;
@@ -89,20 +91,10 @@ class Arm5MotionState {
 	
 	// TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
 	public boolean movePermitted() {
-		// don't hit floor
-		if(fingerPosition.z<0.25f) {
-			return false;
-		}
-		// don't hit ceiling
-		if(fingerPosition.z>50.0f) {
-			return false;
-		}
+		// don't hit floor?
+		// don't hit ceiling?
 
 		// check far limit
-		Vector3f temp = new Vector3f(fingerPosition);
-		temp.sub(shoulder);
-		if(temp.length() > 50) return false;
-
 		// seems doable
 		if(inverseKinematics()==false) return false;
 		// angle are good?
