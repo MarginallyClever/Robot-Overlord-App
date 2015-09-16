@@ -265,22 +265,22 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 
         buttonStart = new JMenuItem("Start",KeyEvent.VK_S);
         buttonStart.addActionListener(this);
-    	buttonStart.setEnabled(world.robot0.isConfirmed() && !world.robot0.isRunning());
+    	buttonStart.setEnabled(world.robot0.isPortConfirmed() && !world.robot0.isRunning());
         menu.add(buttonStart);
 
         buttonStartAt = new JMenuItem("Start at...");
         buttonStartAt.addActionListener(this);
-        buttonStartAt.setEnabled(world.robot0.isConfirmed() && !world.robot0.isRunning());
+        buttonStartAt.setEnabled(world.robot0.isPortConfirmed() && !world.robot0.isRunning());
         menu.add(buttonStartAt);
 
         buttonPause = new JMenuItem("Pause");
         buttonPause.addActionListener(this);
-        buttonPause.setEnabled(world.robot0.isConfirmed() && world.robot0.isRunning());
+        buttonPause.setEnabled(world.robot0.isPortConfirmed() && world.robot0.isRunning());
         menu.add(buttonPause);
 
         buttonHalt = new JMenuItem(("Halt"),KeyEvent.VK_H);
         buttonHalt.addActionListener(this);
-        buttonHalt.setEnabled(world.robot0.isConfirmed() && world.robot0.isRunning());
+        buttonHalt.setEnabled(world.robot0.isPortConfirmed() && world.robot0.isRunning());
         menu.add(buttonHalt);
         
         return menu;

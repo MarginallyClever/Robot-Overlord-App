@@ -51,31 +51,29 @@ extends RobotWithSerialConnection {
 	protected Arm5MotionState motionFuture = new Arm5MotionState();
 	
 	// keyboard history
-	float aDir = 0.0f;
-	float bDir = 0.0f;
-	float cDir = 0.0f;
-	float dDir = 0.0f;
-	float eDir = 0.0f;
+	protected float aDir = 0.0f;
+	protected float bDir = 0.0f;
+	protected float cDir = 0.0f;
+	protected float dDir = 0.0f;
+	protected float eDir = 0.0f;
 
-	float xDir = 0.0f;
-	float yDir = 0.0f;
-	float zDir = 0.0f;
+	protected float xDir = 0.0f;
+	protected float yDir = 0.0f;
+	protected float zDir = 0.0f;
 
-	float servoDir = 0.0f;
+	protected float servoDir = 0.0f;
 	
 	// machine logic states
-	boolean armMoved = false;
+	protected boolean armMoved = false;
+	protected boolean pWasOn=false;
+	protected boolean moveMode=false;
+	protected boolean isPortConfirmed=false;
+	protected boolean isLoaded=false;
+	protected boolean isRenderFKOn=false;
+	protected boolean isRenderIKOn=false;
+	protected double speed=0;
 	
-	boolean pWasOn=false;
-	boolean moveMode=false;
-	boolean isPortConfirmed=false;
-	boolean isLoaded=false;
-	boolean isRenderFKOn=false;
-	boolean isRenderIKOn=false;
-	
-	double speed=0;
-	
-	Arm5ControlPanel arm5Panel=null;
+	protected Arm5ControlPanel arm5Panel=null;
 	
 	
 	public Arm5Robot() {
@@ -105,6 +103,11 @@ extends RobotWithSerialConnection {
 	public JPanel getControlPanel() {
 		if(arm5Panel==null) arm5Panel = new Arm5ControlPanel(this);
 		return arm5Panel;
+	}
+	
+	
+	public boolean isPortConfirmed() {
+		return isPortConfirmed;
 	}
 	
 	
@@ -989,6 +992,4 @@ extends RobotWithSerialConnection {
 		}
 		return new_uid;
 	}
-
-
 }
