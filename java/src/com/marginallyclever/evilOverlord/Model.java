@@ -14,18 +14,18 @@ import javax.media.opengl.GL2;
 
 
 public class Model {
-	static int NUM_BUFFERS=2;  // verts, normals
+	public final static int NUM_BUFFERS=2;  // verts, normals
 	
-	String name;
-	int num_triangles;
-	
-	FloatBuffer vertices;
-	FloatBuffer normals;
-
-	int VBO[] = null;
+	protected String name;
+	protected int num_triangles;
+	protected FloatBuffer vertices;
+	protected FloatBuffer normals;
+	protected int VBO[] = null;
 
 	
-	void loadFromZip(GL2 gl2,String zipName,String fname) {
+	public void loadFromZip(GL2 gl2,String zipName,String fname) {
+		name=zipName+":"+fname;
+		
 		ZipFile zipFile=null;
 		ZipEntry entry;
 		BufferedReader stream;
@@ -54,7 +54,7 @@ public class Model {
 	
 	
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
-	void load(GL2 gl2,String fname) {
+	public void load(GL2 gl2,String fname) {
 		name=fname;
 
 		BufferedReader br = null;
@@ -79,7 +79,7 @@ public class Model {
 	}
 	
 	
-	void initialize(GL2 gl2,BufferedReader br) throws IOException {
+	protected void initialize(GL2 gl2,BufferedReader br) throws IOException {
 		String line;
 		int j=0;
 		while( ( line = br.readLine() ) != null ) {
@@ -100,7 +100,7 @@ public class Model {
 	
 	
 
-	void loadFromStream(GL2 gl2,BufferedReader br) throws IOException {
+	protected void loadFromStream(GL2 gl2,BufferedReader br) throws IOException {
 		String line;
 		int j;
 		
@@ -158,7 +158,7 @@ public class Model {
 	}
 	
 	
-	void render(GL2 gl2) {
+	public void render(GL2 gl2) {
 		if(VBO==null) return;
 		
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);

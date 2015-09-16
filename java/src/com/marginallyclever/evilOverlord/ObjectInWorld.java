@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.vecmath.Vector3f;
 
 
 /**
@@ -14,10 +15,12 @@ import javax.swing.JPanel;
 public class ObjectInWorld
 {
 	public List<ObjectInWorld> children;
+	public Vector3f position;
 	
 	
 	public ObjectInWorld() {
 		children = new ArrayList<ObjectInWorld>();
+		position = new Vector3f();
 	}
 	
 	

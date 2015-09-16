@@ -15,15 +15,14 @@ public class RobotWithSerialConnection extends ObjectInWorld
 implements SerialConnectionReadyListener {
 	//comms	
 	protected SerialConnection connection;
-	private boolean arduinoReady=false;
-	private boolean isConfirmed=false;
+	private boolean arduinoReady;
 
 	// sending file to the robot
-	private boolean running=false;
-	private boolean paused=true;
-    private long linesTotal=0;
-	private long linesProcessed=0;
-	private boolean fileOpened=false;
+	private boolean running;
+	private boolean paused;
+    private long linesTotal;
+	private long linesProcessed;
+	private boolean fileOpened;
 	private ArrayList<String> gcode;
 	
 	private boolean dialog_result;  // so dialog boxes can return an ok/cancel
@@ -32,13 +31,18 @@ implements SerialConnectionReadyListener {
 	public boolean isRunning() { return running; }
 	public boolean isPaused() { return paused; }
 	public boolean isFileOpen() { return fileOpened; }
-	public boolean isConfirmed() { return isConfirmed; }
 	
 	
 	public RobotWithSerialConnection() {
 		super();
 		connection = new SerialConnection();
 		connection.addListener(this);
+		arduinoReady=false;
+		linesTotal=0;
+		linesProcessed=0;
+		fileOpened=false;
+		paused=true;
+		running=false;
 	}
 	
 
@@ -47,10 +51,6 @@ implements SerialConnectionReadyListener {
 		if(arg0==connection) arduinoReady=true;
 		
 		if(arduinoReady) {
-			if(!isConfirmed) {
-				isConfirmed=true;
-				//UpdateMenuBar();
-			}
 			arduinoReady=false;
 			SendFileCommand();
 		}
@@ -67,7 +67,7 @@ implements SerialConnectionReadyListener {
 	 * Take the next line from the file and send it to the robot, if permitted. 
 	 */
 	public void SendFileCommand() {
-		if(running==false || paused==true || fileOpened==false || isConfirmed==false || linesProcessed>=linesTotal) return;
+		if(running==false || paused==true || fileOpened==false || linesProcessed>=linesTotal) return;
 		
 		String line;
 		do {			
