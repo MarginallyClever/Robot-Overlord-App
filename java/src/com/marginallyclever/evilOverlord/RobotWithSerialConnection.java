@@ -35,9 +35,9 @@ implements SerialConnectionReadyListener {
 	public boolean isConfirmed() { return isConfirmed; }
 	
 	
-	public RobotWithSerialConnection(String name) {
+	public RobotWithSerialConnection() {
 		super();
-		connection = new SerialConnection(name);
+		connection = new SerialConnection();
 		connection.addListener(this);
 	}
 	

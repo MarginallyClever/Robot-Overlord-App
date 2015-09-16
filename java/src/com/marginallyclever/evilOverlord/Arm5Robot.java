@@ -78,8 +78,8 @@ extends RobotWithSerialConnection {
 	Arm5ControlPanel arm5Panel=null;
 	
 	
-	public Arm5Robot(String name) {
-		super(name);
+	public Arm5Robot() {
+		super();
 		
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {

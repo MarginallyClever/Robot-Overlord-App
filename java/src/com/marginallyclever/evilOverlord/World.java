@@ -5,10 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
 import java.io.File;
-import java.nio.IntBuffer;
 
 import javax.imageio.ImageIO;
 import javax.media.opengl.GL2;
@@ -16,13 +13,7 @@ import javax.media.opengl.GLProfile;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.io.File;
 import java.io.IOException;
-import java.nio.IntBuffer;
 
 
 public class World
@@ -31,22 +22,19 @@ implements ActionListener {
 	JMenuItem buttonRescan, buttonDisconnect;
 	
 	/* world contents */
-	Camera camera = new Camera();
-	Arm5Robot robot0 = new Arm5Robot("0");
-	//Arm3Robot robot1 = new Arm3Robot("1");
+	Camera camera = null;
 	
-	final int NUM_ROBOTS = 1;
-	protected int activeRobot=0;
+	Arm5Robot robot0 = null;
 
-	
+	LightObject light0,light1;
+
 	public World() {
-		//robot0.MoveBase(new Vector3f(-25f,0f,0f));
-		robot0.finalizeMove();
-		/*
-		robot1.MoveBase(new Vector3f(25f,0f,0f));
-		robot1.RotateBase(180f,0f);
-		robot1.FinalizeMove();
-		*/
+		camera = new Camera();
+		
+		light0 = new LightObject();
+		light1 = new LightObject();
+		
+		robot0 = new Arm5Robot();
 	}
 	
 
@@ -55,10 +43,19 @@ implements ActionListener {
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthMask(true);
 		
+		setupLights();
 		loadTextures(gl2);
     }
     
 
+    protected void setupLights() {
+    	light1.index=1;
+	    light1.position=new float[]{-1,-1,1,0};
+	    light1.ambient=new float[]{0.0f,0.0f,0.0f,1f};
+	    light1.diffuse=new float[]{2.0f,2.0f,2.0f,1f};
+	    light1.specular=new float[]{1.0f,1.0f,1.0f,1f};
+    }
+    
 	
 	void loadTextures( GL2 gl2 ) {
 		// world background texture
@@ -105,22 +102,12 @@ implements ActionListener {
     public void mouseWheelMoved(MouseEvent e) {}
     
     public void keyPressed(KeyEvent e) {
-    	if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-    		activeRobot=(activeRobot+1)%NUM_ROBOTS;
-    	}
     	camera.keyPressed(e);
-    	switch(activeRobot) {
-    	case 0:    	robot0.keyPressed(e); break;
-    	//case 1:    	robot1.keyPressed(e); break;
-    	}
+    	robot0.keyPressed(e);
     }
-    
     public void keyReleased(KeyEvent e) {
     	camera.keyReleased(e);
-    	switch(activeRobot) {
-    	case 0:    	robot0.keyReleased(e); break;
-    	//case 1:    	robot1.keyReleased(e); break;
-    	}
+    	robot0.keyReleased(e);
     }
     
 
@@ -202,26 +189,9 @@ implements ActionListener {
 			gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 			gl2.glColorMaterial( GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE );
 			
-			gl2.glEnable(GL2.GL_LIGHT0);
-		    float[] position={1,1,1,0};
-			gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position,0);
-		    float[] ambient={0.0f,0.0f,0.0f,1f};
-		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient,0);
-		    float[] diffuse={1f,1f,1f,1f};
-		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse,0);
-		    float[] specular={0.5f,0.5f,0.5f,1f};
-		    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, specular,0);
-
-			gl2.glEnable(GL2.GL_LIGHT1);
-		    position=new float[]{-1,-1,1,0};
-			gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, position,0);
-		    ambient=new float[]{0.0f,0.0f,0.0f,1f};
-		    gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, ambient,0);
-		    diffuse=new float[]{2.0f,2.0f,2.0f,1f};
-		    gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, diffuse,0);
-		    specular=new float[]{1.0f,1.0f,1.0f,1f};
-		    gl2.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, specular,0);
-
+			light0.render(gl2);
+			light1.render(gl2);
+			
 		    // draw grid
 			gl2.glDisable(GL2.GL_LIGHTING);
 			PrimitiveSolids.drawGrid(gl2,50,5);

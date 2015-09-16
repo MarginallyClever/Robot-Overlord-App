@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
@@ -22,14 +21,13 @@ implements SerialPortEventListener, ActionListener {
 	
 	private String[] portsDetected;
 	
-	public static int BAUD_RATE = 57600;
-	public SerialPort serialPort;
-	public boolean portOpened=false;
-	public String portName;
-	public boolean waitingForCue=true;
+	public final static int BAUD_RATE = 57600;
+	protected SerialPort serialPort;
+	protected boolean portOpened=false;
+	protected String portName;
+	protected boolean waitingForCue=true;
 	
-	// settings
-	private Preferences prefs;
+	private String currentPort = "";
 	
 	// menus & GUIs
 	JTextArea log = new JTextArea();
@@ -44,10 +42,8 @@ implements SerialPortEventListener, ActionListener {
     private ArrayList<SerialConnectionReadyListener> listeners = new ArrayList<SerialConnectionReadyListener>();
 
 	
-	public SerialConnection(String name) {
-		prefs = Preferences.userRoot().node("SerialConnection").node(name);
+	public SerialConnection() {
 		detectSerialPorts();
-		openPort(getLastPort());
 	}
 	
 	public void finalize() {
@@ -57,14 +53,6 @@ implements SerialPortEventListener, ActionListener {
 	
 	public boolean isPortOpened() {
 		return portOpened;
-	}
-	
-	private String getLastPort(){
-		return prefs.get("last port","");
-	}
-	
-	private void SetLastPort(String portName) {
-		prefs.put("last port", portName);
 	}
 	
 	public void log(String msg) {
@@ -153,7 +141,9 @@ implements SerialPortEventListener, ActionListener {
 		return waitingForCue==false;
 	}
 	
-	// find all available serial ports for the settings->ports menu.
+	/**
+	 * Find all available serial ports for the settings->ports menu.
+	 */
 	public void detectSerialPorts() {
         if(System.getProperty("os.name").equals("Mac OS X")){
         	portsDetected = SerialPortList.getPortNames("/dev/");
@@ -191,11 +181,12 @@ implements SerialPortEventListener, ActionListener {
 	    }
 
 		portOpened=false;
+		currentPort="";
 	}
 	
 	// open a serial connection to a device.  We won't know it's the robot until  
 	public int openPort(String portName) {
-		if(portOpened && portName.equals(getLastPort())) return 0;
+		if(portOpened) closePort();
 		if(doesPortExist(portName) == false) return 0;
 		
 		closePort();
@@ -215,8 +206,8 @@ implements SerialPortEventListener, ActionListener {
 
 		log("<span style='color:green'>Opened.</span>\n");
 		portOpened=true;
-		SetLastPort(portName);
-
+		currentPort=portName;
+		
 		return 0;
 	}
 	
@@ -250,12 +241,10 @@ implements SerialPortEventListener, ActionListener {
 	    ButtonGroup group = new ButtonGroup();
 	    buttonPorts = new JRadioButtonMenuItem[portsDetected.length];
 	    
-	    String lastPort=getLastPort();
-	    
 		int i;
 	    for(i=0;i<portsDetected.length;++i) {
 	    	buttonPorts[i] = new JRadioButtonMenuItem(portsDetected[i]);
-	        if(lastPort.equals(portsDetected[i])) buttonPorts[i].setSelected(true);
+	        if(currentPort.equals(portsDetected[i])) buttonPorts[i].setSelected(true);
 	        buttonPorts[i].addActionListener(this);
 	        group.add(buttonPorts[i]);
 	        subMenu.add(buttonPorts[i]);

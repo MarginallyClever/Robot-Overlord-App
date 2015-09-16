@@ -13,7 +13,8 @@ import javax.swing.JPanel;
  */
 public class ObjectInWorld
 {
-	List<ObjectInWorld> children;
+	public List<ObjectInWorld> children;
+	
 	
 	public ObjectInWorld() {
 		children = new ArrayList<ObjectInWorld>();

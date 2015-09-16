@@ -14,7 +14,6 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 8529190569816182683L;
 	
-	
 	private Camera camera=null;
 	
 	private JButton buttonFlyUp;
@@ -75,39 +74,35 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();		
 
-		MainGUI gui = MainGUI.getSingleton();
-		World world = gui.world;
-
-
 		if( subject == buttonFlyUp ) {
-			world.camera.move_ud= ( world.camera.move_ud==1 ) ? 0 : 1;
+			camera.move_ud= ( camera.move_ud==1 ) ? 0 : 1;
 		}
 		if( subject == buttonFlyDown ) {
-			world.camera.move_ud= ( world.camera.move_ud==-1 ) ? 0 : -1;
+			camera.move_ud= ( camera.move_ud==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonFlyLeft ) {
-			world.camera.move_lr= ( world.camera.move_lr==1 ) ? 0 : 1;
+			camera.move_lr= ( camera.move_lr==1 ) ? 0 : 1;
 		}
 		if( subject == buttonFlyRight ) {
-			world.camera.move_lr= ( world.camera.move_lr==-1 ) ? 0 : -1;
+			camera.move_lr= ( camera.move_lr==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonFlyForward ) {
-			world.camera.move_fb= ( world.camera.move_fb==1 ) ? 0 : 1;
+			camera.move_fb= ( camera.move_fb==1 ) ? 0 : 1;
 		}
 		if( subject == buttonFlyBackward ) {
-			world.camera.move_fb= ( world.camera.move_fb==-1 ) ? 0 : -1;
+			camera.move_fb= ( camera.move_fb==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonLookDown ) {
-			world.camera.tilt_dir= ( world.camera.tilt_dir==-1 ) ? 0 : -1;	
+			camera.tilt_dir= ( camera.tilt_dir==-1 ) ? 0 : -1;	
 		}
 		if( subject == buttonLookUp ) {
-			world.camera.tilt_dir= ( world.camera.tilt_dir==1 ) ? 0 : 1;
+			camera.tilt_dir= ( camera.tilt_dir==1 ) ? 0 : 1;
 		}
 		if( subject == buttonLookLeft ) {
-			world.camera.pan_dir= ( world.camera.pan_dir==-1 ) ? 0 : -1;
+			camera.pan_dir= ( camera.pan_dir==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonLookRight ) {
-			world.camera.pan_dir= ( world.camera.pan_dir==1 ) ? 0 : 1;
+			camera.pan_dir= ( camera.pan_dir==1 ) ? 0 : 1;
 		}
 	}
 }
