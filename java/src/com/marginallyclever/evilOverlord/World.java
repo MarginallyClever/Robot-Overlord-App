@@ -13,20 +13,25 @@ import javax.media.opengl.GLProfile;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
+
 import java.io.IOException;
 
 
 public class World
 implements ActionListener {
-	/* menus */
+	// menus
 	JMenuItem buttonRescan, buttonDisconnect;
 	
-	/* world contents */
+	// world contents
 	Camera camera = null;
 	
 	Arm5Robot robot0 = null;
 
 	LightObject light0,light1;
+	
+	Texture t0,t1,t2,t3,t4,t5;
 
 	public World() {
 		camera = new Camera();
@@ -60,25 +65,13 @@ implements ActionListener {
 	void loadTextures( GL2 gl2 ) {
 		// world background texture
 		try {
-			BufferedImage[] img = new BufferedImage[6];
-			img[0] = ImageIO.read(new File("cube-x-pos.png"));
-			img[1] = ImageIO.read(new File("cube-y-pos.png"));
-			img[2] = ImageIO.read(new File("cube-z-pos.png"));
-			img[3] = ImageIO.read(new File("cube-x-neg.png"));
-			img[4] = ImageIO.read(new File("cube-y-neg.png"));
-			img[5] = ImageIO.read(new File("cube-z-neg.png"));
-/*
-			Raster r = img[0].getData();
-			DataBuffer d = r.getDataBuffer();
-			IntBuffer textures = IntBuffer.allocate(6);
-			gl2.glGenTextures(6, textures);
-
-			gl2.glBindTexture(GL2.GL_TEXTURE_2D, textures.get(0));
-			gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0,GL2.GL_RGB, 256, 256, GL2.GL_UNSIGNED_BYTE, d );
-
-			gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_NEAREST);
-			gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
-*/
+			t0 = TextureIO.newTexture(new File("cube-x-pos.png"), true);
+			t1 = TextureIO.newTexture(new File("cube-x-neg.png"), true);
+			t2 = TextureIO.newTexture(new File("cube-y-pos.png"), true);
+			t3 = TextureIO.newTexture(new File("cube-y-neg.png"), true);
+			t4 = TextureIO.newTexture(new File("cube-z-pos.png"), true);
+			t5 = TextureIO.newTexture(new File("cube-z-neg.png"), true);
+			System.out.println(">>> All textures loaded OK");
 		}
 		catch(IOException e) {
 			e.printStackTrace();
@@ -183,6 +176,8 @@ implements ActionListener {
 			camera.update(dt);
 			camera.render(gl2);
 			
+			drawSkyCube(gl2);
+			
 			 // Enable lighting
 			gl2.glShadeModel(GL2.GL_SMOOTH);
 			gl2.glEnable(GL2.GL_LIGHTING);
@@ -210,6 +205,69 @@ implements ActionListener {
 			gl2.glPopMatrix();
 
 		gl2.glPopMatrix();
+	}
+	
+	
+	protected void drawSkyCube(GL2 gl2) {
+		// Draw background
+		gl2.glDisable(GL2.GL_DEPTH_TEST);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+		gl2.glEnable(GL2.GL_TEXTURE_2D);
+		gl2.glPushMatrix();
+			gl2.glColor3f(1, 1, 1);
+			gl2.glTranslated(-camera.position.x,-camera.position.y,-camera.position.z);
+
+			t0.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, -10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, -10);
+			gl2.glEnd();
+
+			t1.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, -10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, -10);
+			gl2.glEnd();
+
+			t2.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
+			gl2.glEnd();
+
+			t3.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
+			gl2.glEnd();
+
+			t4.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10, 10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, 10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, 10);
+			gl2.glEnd();
+
+			t5.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10, 10, -10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, -10);
+			gl2.glEnd();
+			
+		gl2.glPopMatrix();
+		gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
 
 	
