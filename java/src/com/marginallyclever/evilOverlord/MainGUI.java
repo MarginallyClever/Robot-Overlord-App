@@ -97,13 +97,6 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 	}
 	
 	
-	private JButton createButton(String name) {
-		JButton b = new JButton(name);
-		b.addActionListener(this);
-		return b;
-	}
-	
-	
 	protected MainGUI() {
 		prefs = Preferences.userRoot().node("Evil Overlord");
 /*

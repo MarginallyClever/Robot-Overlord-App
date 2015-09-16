@@ -4,10 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
 import javax.swing.JMenu;
@@ -15,8 +13,6 @@ import javax.swing.JMenuItem;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-
-import java.io.IOException;
 
 
 public class World
@@ -73,7 +69,7 @@ implements ActionListener {
 			t5 = TextureIO.newTexture(new File("cube-z-neg.png"), true);
 			System.out.println(">>> All textures loaded OK");
 		}
-		catch(IOException e) {
+		catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -271,7 +267,7 @@ implements ActionListener {
 	}
 
 	
-	boolean WillCollide(Arm5Robot a,Arm5Robot b) {
+	boolean willCollide(Arm5Robot a,Arm5Robot b) {
 		// TODO complete me
 		//Get the cylinders for each robot
 		BoundingVolume [] from = a.GetBoundingVolumes();
