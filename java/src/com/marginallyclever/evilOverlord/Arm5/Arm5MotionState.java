@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord;
+package com.marginallyclever.evilOverlord.Arm5;
 
 import javax.vecmath.Vector3f;
 

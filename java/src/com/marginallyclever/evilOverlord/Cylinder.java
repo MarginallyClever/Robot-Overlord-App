@@ -8,7 +8,7 @@ public class Cylinder extends BoundingVolume {
 	private Vector3f n = new Vector3f(0,0,0);
 	private Vector3f f = new Vector3f(0,0,0);
 	private Vector3f r = new Vector3f(0,0,0);
-	float radius;
+	private float radius=1.0f;
 	
 	public void SetP1(Vector3f src) {
 		p1.set(src);
@@ -17,6 +17,13 @@ public class Cylinder extends BoundingVolume {
 	public void SetP2(Vector3f src) {
 		p2.set(src);
 		UpdateVectors();
+	}
+	
+	public void setRadius(float r) {
+		radius = r;
+	}
+	public float getRadius() {
+		return radius;
 	}
 	
 	public Vector3f GetP1() {

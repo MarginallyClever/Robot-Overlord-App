@@ -1,8 +1,15 @@
-package com.marginallyclever.evilOverlord;
+package com.marginallyclever.evilOverlord.Arm5;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
+
+import com.marginallyclever.evilOverlord.BoundingVolume;
+import com.marginallyclever.evilOverlord.Cylinder;
+import com.marginallyclever.evilOverlord.Model;
+import com.marginallyclever.evilOverlord.PrimitiveSolids;
+import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
+import com.marginallyclever.evilOverlord.SerialConnection;
 
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -11,12 +18,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 
 public class Arm5Robot
 extends RobotWithSerialConnection {
 	// machine ID
-	long robot_uid;
+	protected long robot_uid;
+	protected final static String hello = "HELLO WORLD! I AM MINION #";
 
 	// machine dimensions from design software
 	public final static double ANCHOR_ADJUST_Y = 0.64;
@@ -83,12 +92,12 @@ extends RobotWithSerialConnection {
 		for(int i=0;i<volumes.length;++i) {
 			volumes[i] = new Cylinder();
 		}
-		volumes[0].radius=3.2f;
-		volumes[1].radius=3.0f*0.575f;
-		volumes[2].radius=2.2f;
-		volumes[3].radius=1.15f;
-		volumes[4].radius=1.2f;
-		volumes[5].radius=1.0f*0.575f;
+		volumes[0].setRadius(3.2f);
+		volumes[1].setRadius(3.0f*0.575f);
+		volumes[2].setRadius(2.2f);
+		volumes[3].setRadius(1.15f);
+		volumes[4].setRadius(1.2f);
+		volumes[5].setRadius(1.0f*0.575f);
 		
 		RotateBase(0,0);
 		motionNow.checkAngleLimits();
@@ -100,9 +109,16 @@ extends RobotWithSerialConnection {
 	}
 
 	
-	public JPanel getControlPanel() {
-		if(arm5Panel==null) arm5Panel = new Arm5ControlPanel(this);
-		return arm5Panel;
+	@Override
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
+		
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		arm5Panel = new Arm5ControlPanel(this);
+		list.add(arm5Panel);
+		
+		return list;
 	}
 	
 	
@@ -376,9 +392,13 @@ extends RobotWithSerialConnection {
 
 	
 	public void updateGUI() {
-		arm5Panel.xPos.setText(Float.toString(roundOff(motionNow.fingerPosition.x)));
-		arm5Panel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
-		arm5Panel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
+		Vector3f v = new Vector3f();
+		v.set(motionNow.fingerPosition);
+		// TODO rotate fingerPosition before adding position
+		v.add(position);
+		arm5Panel.xPos.setText(Float.toString(roundOff(v.x)));
+		arm5Panel.yPos.setText(Float.toString(roundOff(v.y)));
+		arm5Panel.zPos.setText(Float.toString(roundOff(v.z)));
 
 		arm5Panel.a1.setText(Float.toString(roundOff(motionNow.angleA)));
 		arm5Panel.b1.setText(Float.toString(roundOff(motionNow.angleB)));
@@ -501,26 +521,31 @@ extends RobotWithSerialConnection {
 	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			renderModels(gl2);
+			// TODO rotate model
+			gl2.glTranslatef(position.x, position.y, position.z);
+			
+			gl2.glPushMatrix();
+				renderModels(gl2);
+			gl2.glPopMatrix();
+			
+			if(isRenderFKOn)
+			{
+				gl2.glPushMatrix();
+					gl2.glDisable(GL2.GL_DEPTH_TEST);
+					renderFK(gl2);
+					gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glPopMatrix();
+			}
+			
+			if(isRenderIKOn) 
+			{
+				gl2.glPushMatrix();
+					gl2.glDisable(GL2.GL_DEPTH_TEST);
+					renderIK(gl2);
+					gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glPopMatrix();
+			}
 		gl2.glPopMatrix();
-		
-		if(isRenderFKOn)
-		{
-			gl2.glPushMatrix();
-				gl2.glDisable(GL2.GL_DEPTH_TEST);
-				renderFK(gl2);
-				gl2.glEnable(GL2.GL_DEPTH_TEST);
-			gl2.glPopMatrix();
-		}
-		
-		if(isRenderIKOn) 
-		{
-			gl2.glPushMatrix();
-				gl2.glDisable(GL2.GL_DEPTH_TEST);
-				renderIK(gl2);
-				gl2.glEnable(GL2.GL_DEPTH_TEST);
-			gl2.glPopMatrix();
-		}
 	}
 	
 
@@ -770,7 +795,6 @@ extends RobotWithSerialConnection {
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
 	public void serialDataAvailable(SerialConnection arg0,String line) {
-		String hello = "HELLO WORLD! I AM MINION #";
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();
@@ -868,10 +892,10 @@ extends RobotWithSerialConnection {
 	public BoundingVolume [] GetBoundingVolumes() {
 		// shoulder joint
 		Vector3f t1=new Vector3f(motionFuture.baseRight);
-		t1.scale(volumes[0].radius/2);
+		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.shoulder);
 		Vector3f t2=new Vector3f(motionFuture.baseRight);
-		t2.scale(-volumes[0].radius/2);
+		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.shoulder);
 		volumes[0].SetP1(GetWorldCoordinatesFor(t1));
 		volumes[0].SetP2(GetWorldCoordinatesFor(t2));
@@ -880,10 +904,10 @@ extends RobotWithSerialConnection {
 		volumes[1].SetP2(GetWorldCoordinatesFor(motionFuture.elbow));
 		// elbow
 		t1.set(motionFuture.baseRight);
-		t1.scale(volumes[0].radius/2);
+		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.elbow);
 		t2.set(motionFuture.baseRight);
-		t2.scale(-volumes[0].radius/2);
+		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.elbow);
 		volumes[2].SetP1(GetWorldCoordinatesFor(t1));
 		volumes[2].SetP2(GetWorldCoordinatesFor(t2));
@@ -892,10 +916,10 @@ extends RobotWithSerialConnection {
 		volumes[3].SetP2(GetWorldCoordinatesFor(motionFuture.wrist));
 		// wrist
 		t1.set(motionFuture.baseRight);
-		t1.scale(volumes[0].radius/2);
+		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.wrist);
 		t2.set(motionFuture.baseRight);
-		t2.scale(-volumes[0].radius/2);
+		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.wrist);
 		volumes[4].SetP1(GetWorldCoordinatesFor(t1));
 		volumes[4].SetP2(GetWorldCoordinatesFor(t2));

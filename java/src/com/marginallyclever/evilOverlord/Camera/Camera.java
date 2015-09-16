@@ -1,15 +1,17 @@
-package com.marginallyclever.evilOverlord;
+package com.marginallyclever.evilOverlord.Camera;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
+import com.marginallyclever.evilOverlord.ObjectInWorld;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 
 public class Camera extends ObjectInWorld {
 	/** position of camera */
-	Vector3f position = new Vector3f();
 	Vector3f forward = new Vector3f(0,1,0);
 	Vector3f up = new Vector3f(0,0,1);
 	Vector3f right = new Vector3f(1,0,0);
@@ -36,9 +38,14 @@ public class Camera extends ObjectInWorld {
 	}
 
 	
-	public JPanel getControlPanel() {
-		if(cameraPanel==null) cameraPanel = new CameraControlPanel(this);
-		return cameraPanel;
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		cameraPanel = new CameraControlPanel(this);
+		list.add(cameraPanel);
+		
+		return list;
 	}
 	
 	

@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord;
+package com.marginallyclever.evilOverlord.Arm5;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -174,10 +174,10 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		Object subject = e.getSource();
 		if( subject == speedControl ) {
 			switch(speedControl.getValue()) {
-			case 0:  setSpeed(0.0001);  break;
-			case 1:  setSpeed(0.001);  break;
-			case 2:  setSpeed(0.01);  break;
-			case 3:  setSpeed(0.1);  break;
+			case 0:  setSpeed(0.05);  break;
+			case 1:  setSpeed(0.1);  break;
+			case 2:  setSpeed(0.2);  break;
+			case 3:  setSpeed(0.5);  break;
 			case 4:  setSpeed(1.0);  break;
 			case 5:  setSpeed(2.0);  break;
 			case 6:  setSpeed(5.0);  break;

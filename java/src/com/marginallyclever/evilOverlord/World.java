@@ -13,6 +13,8 @@ import javax.swing.JMenuItem;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
+import com.marginallyclever.evilOverlord.Camera.Camera;
 
 
 public class World
@@ -196,9 +198,7 @@ implements ActionListener {
 				//robot1.FinalizeMove();
 			}
 			
-			gl2.glPushMatrix();
 			robot0.render(gl2);
-			gl2.glPopMatrix();
 
 		gl2.glPopMatrix();
 	}

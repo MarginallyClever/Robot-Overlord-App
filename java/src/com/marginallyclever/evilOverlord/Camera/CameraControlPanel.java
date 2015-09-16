@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord;
+package com.marginallyclever.evilOverlord.Camera;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;

@@ -86,9 +86,9 @@ public class IntersectionTester {
 	    dP.add(u);
 	    dP.sub(v);
 
-	    //System.out.print(ca.radius+"\t"+cb.radius+"\t("+(ca.radius+cb.radius)+") >=\t"+dP.length()+"\n");
+	    //System.out.print(ca.getRadius()+"\t"+cb.getRadius()+"\t("+(ca.getRadius()+cb.getRadius())+") >=\t"+dP.length()+"\n");
 
-	    return dP.length() <= (cA.radius+cB.radius);   // return the closest distance
+	    return dP.length() <= (cA.getRadius()+cB.getRadius());   // return the closest distance
 	}
 	
 	

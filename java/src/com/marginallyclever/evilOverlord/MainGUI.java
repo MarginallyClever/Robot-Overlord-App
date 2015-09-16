@@ -1,6 +1,7 @@
 package com.marginallyclever.evilOverlord;
 
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
@@ -12,9 +13,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.prefs.Preferences;
 
-import javax.swing.JButton;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -144,8 +147,8 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
         animator.add(glCanvas);
         glCanvas.addGLEventListener(this);
         
-        cameraPanel = world.camera.getControlPanel();
-        arm5Panel = world.robot0.getControlPanel();
+        cameraPanel = buildPanel(world.camera.getControlPanels());
+        arm5Panel = buildPanel(world.robot0.getControlPanels());
         
         contextMenu = new JTabbedPane();
         JScrollPane p;
@@ -233,6 +236,21 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		catch(ClassNotFoundException e) {}
 	}
 	*/
+	
+	protected JPanel buildPanel(ArrayList<JPanel> list) {
+		JPanel sum = new JPanel();
+		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
+		
+		if(list==null) return sum;
+
+		Iterator<JPanel> pi = list.iterator();
+		while(pi.hasNext()) {
+			JPanel p = pi.next();
+			sum.add(p);
+		}
+		return sum;
+	}
+	
 	
 	protected void LoadGenerators() {
 		// TODO find the generator jar files and load them.

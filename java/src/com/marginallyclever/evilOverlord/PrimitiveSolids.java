@@ -4,7 +4,7 @@ import javax.media.opengl.GL2;
 
 
 public class PrimitiveSolids {
-	static void drawCylinder(GL2 gl2,Cylinder tube) {
+	static public void drawCylinder(GL2 gl2,Cylinder tube) {
 		/*
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glVertex3f(tube.GetP1().x, tube.GetP1().y, tube.GetP1().z);
@@ -29,8 +29,8 @@ public class PrimitiveSolids {
 			ty.set(tube.GetF());
 
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			tx.scale((float)Math.sin(ratio)*tube.radius);
-			ty.scale((float)Math.cos(ratio)*tube.radius);
+			tx.scale((float)Math.sin(ratio)*tube.getRadius());
+			ty.scale((float)Math.cos(ratio)*tube.getRadius());
 			t1.set(tube.GetP1());
 			t1.add(tx);
 			t1.add(ty);
@@ -45,8 +45,8 @@ public class PrimitiveSolids {
 			ty.set(tube.GetF());
 
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			tx.scale((float)Math.sin(ratio)*tube.radius);
-			ty.scale((float)Math.cos(ratio)*tube.radius);
+			tx.scale((float)Math.sin(ratio)*tube.getRadius());
+			ty.scale((float)Math.cos(ratio)*tube.getRadius());
 			t1.set(tube.GetP2());
 			t1.add(tx);
 			t1.add(ty);
@@ -61,8 +61,8 @@ public class PrimitiveSolids {
 			ty.set(tube.GetF());
 
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			tx.scale((float)Math.sin(ratio)*tube.radius);
-			ty.scale((float)Math.cos(ratio)*tube.radius);
+			tx.scale((float)Math.sin(ratio)*tube.getRadius());
+			ty.scale((float)Math.cos(ratio)*tube.getRadius());
 			t1.set(tube.GetP1());
 			t1.add(tx);
 			t1.add(ty);
@@ -81,7 +81,7 @@ public class PrimitiveSolids {
 	}
 
 	// TODO: move this to Cylinder?
-	static void drawCylinder(GL2 gl2,float thickness,float radius) {
+	static public void drawCylinder(GL2 gl2,float thickness,float radius) {
 		int i;
 		int c=36;
 		
@@ -120,7 +120,7 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 	}
 	
-	static void drawBox(GL2 gl2,float depth,float width,float height) {
+	static public void drawBox(GL2 gl2,float depth,float width,float height) {
 		width/=2;
 		depth/=2;
 
@@ -172,12 +172,12 @@ public class PrimitiveSolids {
 	}
 	
 
-	static void drawStar(GL2 gl2,Vector3f p) {
+	static public void drawStar(GL2 gl2,Vector3f p) {
 		drawStar(gl2,p,1.0f);
 	}
 	
 	
-	static void drawStar(GL2 gl2,Vector3f p,float size) {
+	static public void drawStar(GL2 gl2,Vector3f p,float size) {
 		size/=2.0f;
 		gl2.glPushMatrix();
 		gl2.glTranslatef(p.x, p.y, p.z);
