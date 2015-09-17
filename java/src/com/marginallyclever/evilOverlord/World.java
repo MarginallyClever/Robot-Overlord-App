@@ -16,7 +16,11 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
 import com.marginallyclever.evilOverlord.Camera.Camera;
 
-
+/**
+ * Container for all the visible objects in the world.
+ * @author danroyer
+ *
+ */
 public class World
 implements ActionListener {
 	// menus
