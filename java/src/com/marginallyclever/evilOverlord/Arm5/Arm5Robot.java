@@ -527,7 +527,7 @@ extends RobotWithSerialConnection {
 			gl2.glPushMatrix();
 				renderModels(gl2);
 			gl2.glPopMatrix();
-			
+			/*
 			if(isRenderFKOn)
 			{
 				gl2.glPushMatrix();
@@ -544,7 +544,7 @@ extends RobotWithSerialConnection {
 					renderIK(gl2);
 					gl2.glEnable(GL2.GL_DEPTH_TEST);
 				gl2.glPopMatrix();
-			}
+			}*/
 		gl2.glPopMatrix();
 	}
 	

@@ -5,16 +5,11 @@ package com.marginallyclever.evilOverlord;
  * Evil Overloard is a GUI for controlling Marginally Clever "Evil Minion" robot arms.
  * See https://marginallyclever.com/ for more details.
  * \section install_sec Install instructions for developers
- * \step 
- * download the code from http://github.com/imakerobots/Evil-Overlord
- * \step
- * download and install Eclipse
- * \step
- * in Eclipse, add the project.
- * \step
- * in Eclipse, right click on the project and choose Maven > Update Project
- * \step
- * you should now be able to build and run the program
+ * 1. Download the code from http://github.com/imakerobots/Evil-Overlord
+ * 2. Download and install Eclipse
+ * 3. In Eclipse, add the project.
+ * 4. In Eclipse, right click on the project and choose Maven > Update Project
+ * 5. You should now be able to build and run the program
  */
 
 /**

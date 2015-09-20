@@ -42,25 +42,44 @@ import Generators.YourMessageHereGenerator;
 
 import com.jogamp.opengl.util.Animator;
 
-
+/**
+ * MainGUI is the root window object.
+ * @author danroyer
+ *
+ */
 public class MainGUI 
 implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, KeyListener
 {
 	static final long serialVersionUID=1;
+	/// used for checking the application version with the github release, for "there is a new version available!" notification
 	static final String version="2";
+	
     static MainGUI __singleton;
 
+    /// the world within the simulator and all that it contains.
 	World world;
 
-	/** menus */
+	// menus
+    /// main menu bar
 	private JMenuBar mainMenu;
-    private JMenuItem buttonStart, buttonStartAt, buttonPause, buttonHalt;
-    private JMenuItem buttonAbout, buttonCheckForUpdate;
+	/// this button starts sending gcode to the robot
+    private JMenuItem buttonStart;
+	/// this button starts sending gcode to the robot, beginning at a line to be requested in a pop-up
+    private JMenuItem buttonStartAt;
+    /// pause sending gcode
+    private JMenuItem buttonPause;
+    /// stop sending gcode
+    private JMenuItem buttonHalt;
+    /// show the about dialog
+    private JMenuItem buttonAbout;
+    /// check the version against github and notify the user if they wer up to date or not
+    private JMenuItem buttonCheckForUpdate;
+    /// quit the application
     private JMenuItem buttonQuit;
 	
-	/* window management */
+	/// the main frame of the GUI
     final JFrame frame; 
-    /* animation system */
+    /// the animator keeps things moving
     final Animator animator = new Animator();
     
     /* timing for animations */
