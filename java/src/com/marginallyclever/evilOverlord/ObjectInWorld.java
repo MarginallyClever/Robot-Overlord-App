@@ -1,12 +1,9 @@
 package com.marginallyclever.evilOverlord;
 
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.vecmath.Vector3f;
 
 
@@ -20,7 +17,7 @@ public class ObjectInWorld
 	public List<ObjectInWorld> children;
 	public Vector3f position;
 	
-	private JPanel oiwPanel;
+	//private JPanel oiwPanel;
 	
 	
 	public ObjectInWorld() {
@@ -31,7 +28,7 @@ public class ObjectInWorld
 	
 	public ArrayList<JPanel> getControlPanels() {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
-		
+		/*
 		oiwPanel = new JPanel(new GridLayout(3,2));
 		
 		JLabel x=new JLabel("X");
@@ -53,7 +50,7 @@ public class ObjectInWorld
 		oiwPanel.add(pz);
 		
 		list.add(oiwPanel);
-		
+		*/
 		return list;
 	}
 }

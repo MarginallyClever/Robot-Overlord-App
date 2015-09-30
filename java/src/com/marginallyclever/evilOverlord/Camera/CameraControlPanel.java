@@ -46,16 +46,18 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		p = new JPanel(new GridLayout(3,3));
 		this.add(p);
 		p.add(new JLabel(""));
-		p.add(buttonFlyUp = createButton("up"));
+		p.add(buttonFlyUp = createButton("Up"));
 		p.add(new JLabel(""));
-		p.add(buttonFlyLeft = createButton("left"));
-		p.add(new JLabel("Fly"));
-		p.add(buttonFlyRight = createButton("right"));
+		p.add(buttonFlyLeft = createButton("Left"));
+		JLabel flyLabel = new JLabel("Fly");
+		flyLabel.setHorizontalAlignment(JLabel.CENTER);
+		p.add(flyLabel);
+		p.add(buttonFlyRight = createButton("Right"));
 		p.add(new JLabel(""));
-		p.add(buttonFlyDown = createButton("down"));
+		p.add(buttonFlyDown = createButton("Down"));
 
-		this.add(buttonFlyForward = createButton("fly forward"));
-		this.add(buttonFlyBackward = createButton("fly backward"));
+		this.add(buttonFlyForward = createButton("Forward"));
+		this.add(buttonFlyBackward = createButton("Backward"));
 
 		p = new JPanel(new GridLayout(3,3));
 		this.add(p);
@@ -63,7 +65,9 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		p.add(buttonLookUp = createButton("up"));
 		p.add(new JLabel(""));
 		p.add(buttonLookLeft = createButton("left"));
-		p.add(new JLabel("Look"));
+		JLabel lookLabel = new JLabel("Look");
+		lookLabel.setHorizontalAlignment(JLabel.CENTER);
+		p.add(lookLabel);
 		p.add(buttonLookRight = createButton("right"));
 		p.add(new JLabel(""));
 		p.add(buttonLookDown = createButton("down"));

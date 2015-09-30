@@ -27,14 +27,17 @@ implements SerialConnectionReadyListener {
 	
 	private boolean dialog_result;  // so dialog boxes can return an ok/cancel
 
+	MainGUI gui;
+	
 	
 	public boolean isRunning() { return running; }
 	public boolean isPaused() { return paused; }
 	public boolean isFileOpen() { return fileOpened; }
 	
 	
-	public RobotWithSerialConnection() {
+	public RobotWithSerialConnection(MainGUI _gui) {
 		super();
+		gui = _gui;
 		connection = new SerialConnection();
 		connection.addListener(this);
 		arduinoReady=false;
@@ -131,7 +134,7 @@ implements SerialConnectionReadyListener {
 	private boolean getStartingLineNumber() {
 		dialog_result=false;
 		
-		final JDialog driver = new JDialog(MainGUI.getSingleton().GetMainFrame(),"Start at...");
+		final JDialog driver = new JDialog(gui.GetMainFrame(),"Start at...");
 		driver.setLayout(new GridBagLayout());		
 		final JTextField starting_line = new JTextField("0",8);
 		final JButton cancel = new JButton(("Cancel"));

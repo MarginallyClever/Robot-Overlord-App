@@ -28,7 +28,15 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 	float z_down=40;
 	float z_up=90;
 	int order=4; // controls complexity of curve
-
+	
+	MainGUI gui;
+	
+	
+	public HilbertCurveGenerator(MainGUI _gui) {
+		super();
+		gui = _gui;
+	}
+	
 	
 	public String GetMenuName() {
 		return "Hilbert Curve";
@@ -36,7 +44,7 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 	
 	
 	public void Generate() {
-		final JDialog driver = new JDialog(MainGUI.getSingleton().GetMainFrame(),"Your Message Here",true);
+		final JDialog driver = new JDialog(gui.GetMainFrame(),"Your Message Here",true);
 		driver.setLayout(new GridLayout(0,1));
 
 		final JTextField field_size = new JTextField(Integer.toString((int)xmax));
@@ -134,7 +142,7 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 	        output.close();
 	        
 			// open the file automatically to save a click.
-			MainGUI.getSingleton().OpenFile(outputFile);
+			gui.OpenFile(outputFile);
 		}
 		catch(IOException ex) {}
 	}

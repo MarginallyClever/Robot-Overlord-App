@@ -10,6 +10,16 @@ import com.marginallyclever.evilOverlord.MainGUI;
 
 // source http://introcs.cs.princeton.edu/java/32class/Hilbert.java.html
 public class LoadGCodeGenerator implements GcodeGenerator {
+	
+	MainGUI gui;
+	
+	
+	public LoadGCodeGenerator(MainGUI _gui) {
+		super();
+		gui = _gui;
+	}
+	
+	
 	public String GetMenuName() {
 		return "Load GCode";
 	}
@@ -29,11 +39,11 @@ public class LoadGCodeGenerator implements GcodeGenerator {
 		//fc.addChoosableFileFilter(filterImage);
 		//fc.addChoosableFileFilter(filterDXF);
 		fc.addChoosableFileFilter(filterGCODE);
-	    if(fc.showOpenDialog(MainGUI.getSingleton().GetMainFrame()) == JFileChooser.APPROVE_OPTION) {
+	    if(fc.showOpenDialog(gui.GetMainFrame()) == JFileChooser.APPROVE_OPTION) {
 	    	String selectedFile=fc.getSelectedFile().getAbsolutePath();
 
 			// open the file automatically to save a click.
-			MainGUI.getSingleton().OpenFile(selectedFile);
+			gui.OpenFile(selectedFile);
 	    }
 	}
 }

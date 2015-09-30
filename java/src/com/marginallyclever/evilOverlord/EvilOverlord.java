@@ -25,7 +25,7 @@ public class EvilOverlord {
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {
-	        	gui = MainGUI.getSingleton();
+	        	gui = new MainGUI();
 	        }
 	    });
 	}

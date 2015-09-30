@@ -34,14 +34,19 @@ implements ActionListener {
 	LightObject light0,light1;
 	
 	Texture t0,t1,t2,t3,t4,t5;
+	
+	MainGUI gui;
+	
 
-	public World() {
+	public World(MainGUI _gui) {
+		gui = _gui;
+		
 		camera = new Camera();
 		
 		light0 = new LightObject();
 		light1 = new LightObject();
 		
-		robot0 = new Arm5Robot();
+		robot0 = new Arm5Robot(gui);
 	}
 	
 
@@ -112,13 +117,13 @@ implements ActionListener {
 			robot0.connection.detectSerialPorts();
 			//robot1.connection.DetectSerialPorts();
 			//TODO tell RobotTrainer to update all menus
-			MainGUI.getSingleton().updateMenu();
+			gui.updateMenu();
 			return;
 		}
 		if(subject==buttonDisconnect) {
 			robot0.connection.closePort();
 			//robot1.connection.ClosePort();
-			MainGUI.getSingleton().updateMenu();
+			gui.updateMenu();
 			return;
 		}
 	}

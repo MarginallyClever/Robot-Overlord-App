@@ -53,7 +53,15 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 	// debugging
 	protected boolean draw_bounding_box = true;
 	
+
 	
+	MainGUI gui;
+	
+	
+	public YourMessageHereGenerator(MainGUI _gui) {
+		super();
+		gui = _gui;
+	}
 	
 	public String GetMenuName() {
 		return "Your message here";
@@ -61,7 +69,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 	
 	
 	public void Generate() {
-		final JDialog driver = new JDialog(MainGUI.getSingleton().GetMainFrame(),"Your Message Here",true);
+		final JDialog driver = new JDialog(gui.GetMainFrame(),"Your Message Here",true);
 		driver.setLayout(new GridLayout(0,1));
 
 		final JTextArea text = new JTextArea(lastMessage,40,4);
@@ -92,7 +100,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 					lastMessage=text.getText();
 					TextCreateMessageNow(lastMessage);
 					// open the file automatically to save a click.
-					MainGUI.getSingleton().OpenFile(outputFile);
+					gui.OpenFile(outputFile);
 					
 					driver.dispose();
 				}

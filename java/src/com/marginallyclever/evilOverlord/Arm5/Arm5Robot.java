@@ -6,6 +6,7 @@ import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.BoundingVolume;
 import com.marginallyclever.evilOverlord.Cylinder;
+import com.marginallyclever.evilOverlord.MainGUI;
 import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.PrimitiveSolids;
 import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
@@ -85,8 +86,8 @@ extends RobotWithSerialConnection {
 	protected Arm5ControlPanel arm5Panel=null;
 	
 	
-	public Arm5Robot() {
-		super();
+	public Arm5Robot(MainGUI _gui) {
+		super(_gui);
 		
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {

@@ -1,7 +1,6 @@
 package com.marginallyclever.evilOverlord;
 
 
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
@@ -50,70 +49,61 @@ import com.jogamp.opengl.util.Animator;
 public class MainGUI 
 implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, KeyListener
 {
+	static final String APP_TITLE = "Evil Overlord";
+	
 	static final long serialVersionUID=1;
 	/// used for checking the application version with the github release, for "there is a new version available!" notification
 	static final String version="2";
-	
-    static MainGUI __singleton;
 
     /// the world within the simulator and all that it contains.
-	World world;
+	protected World world;
 
 	// menus
     /// main menu bar
-	private JMenuBar mainMenu;
+	protected JMenuBar mainMenu;
 	/// this button starts sending gcode to the robot
-    private JMenuItem buttonStart;
+	protected JMenuItem buttonStart;
 	/// this button starts sending gcode to the robot, beginning at a line to be requested in a pop-up
-    private JMenuItem buttonStartAt;
+	protected JMenuItem buttonStartAt;
     /// pause sending gcode
-    private JMenuItem buttonPause;
+	protected JMenuItem buttonPause;
     /// stop sending gcode
-    private JMenuItem buttonHalt;
+	protected JMenuItem buttonHalt;
     /// show the about dialog
-    private JMenuItem buttonAbout;
+	protected JMenuItem buttonAbout;
     /// check the version against github and notify the user if they wer up to date or not
-    private JMenuItem buttonCheckForUpdate;
+	protected JMenuItem buttonCheckForUpdate;
     /// quit the application
-    private JMenuItem buttonQuit;
+	protected JMenuItem buttonQuit;
 	
 	/// the main frame of the GUI
-    final JFrame frame; 
+    protected JFrame frame; 
     /// the animator keeps things moving
-    final Animator animator = new Animator();
+    protected Animator animator = new Animator();
     
     /* timing for animations */
-    long start_time;
-    long last_time;
+    protected long start_time;
+    protected long last_time;
     
 
 	// settings
-	private Preferences prefs;
-	private String[] recentFiles = {"","","","","","","","","",""};
+    protected Preferences prefs;
+	protected String[] recentFiles = {"","","","","","","","","",""};
 	
 	// Generators
-	GcodeGenerator [] generators;
-	JMenuItem generatorButtons[];
+	protected GcodeGenerator [] generators;
+	protected JMenuItem generatorButtons[];
     
 	
-	final GLJPanel glCanvas;
+	protected GLJPanel glCanvas;
 
-    private JPanel cameraPanel=null;
-    private JPanel arm5Panel=null;
+	protected JPanel cameraPanel=null;
+	protected JPanel arm5Panel=null;
 
-    public JTabbedPane contextMenu;
-    public Splitter split_left_right;
+	protected JTabbedPane contextMenu;
+	protected Splitter split_left_right;
     
 
-	
-	static public MainGUI getSingleton() {
-		if(__singleton==null) {
-			__singleton = new MainGUI();
-		}
-		return __singleton;
-	}
-	
-	
 	public JFrame GetMainFrame() {
 		return frame;
 	}
@@ -135,12 +125,12 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		LoadConfig();
 		LoadGenerators();
 		
-        frame = new JFrame( "Evil Overlord" ); 
+        frame = new JFrame( APP_TITLE ); 
         frame.setSize( 1224, 768 );
         frame.setLayout(new java.awt.BorderLayout());
 
 
-        world = new World();
+        world = new World(this);
 
         mainMenu = new JMenuBar();
         frame.setJMenuBar(mainMenu);
@@ -275,9 +265,9 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		// TODO find the generator jar files and load them.
 		
 		generators = new GcodeGenerator[3];
-		generators[0] = new LoadGCodeGenerator();
-		generators[1] = new YourMessageHereGenerator();
-		generators[2] = new HilbertCurveGenerator();
+		generators[0] = new LoadGCodeGenerator(this);
+		generators[1] = new YourMessageHereGenerator(this);
+		generators[2] = new HilbertCurveGenerator(this);
 		
 		generatorButtons = new JMenuItem[generators.length];
 	}
@@ -384,7 +374,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		
 		if( subject == buttonAbout ) {
 			JOptionPane.showMessageDialog(null,"<html><body>"
-					+"<h1>Evil Overlord v"+version+"</h1>"
+					+"<h1>"+APP_TITLE+" v"+version+"</h1>"
 					+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
 					+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 					+"<p>To get the latest version please visit<br><a href='https://github.com/MarginallyClever/arm5'>https://github.com/MarginallyClever/arm5</a></p><br>"
