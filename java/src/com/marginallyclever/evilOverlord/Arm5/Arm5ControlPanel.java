@@ -17,6 +17,10 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	 */
 	private static final long serialVersionUID = 257878994328366520L;
 
+	private final double [] speedOptions = {0.1, 0.2, 0.5, 
+			                                1, 2, 5, 
+			                                10, 20, 50};
+	
 	private JButton arm5Apos;
 	private JButton arm5Aneg;
 	private JButton arm5Bpos;
@@ -35,13 +39,9 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
 	
-	private JButton arm5ServoOpen;
-	private JButton arm5ServoClose;
-
 	public JLabel xPos,yPos,zPos;
 	public JLabel a1,b1,c1,d1,e1;
 	public JLabel a2,b2,c2,d2,e2;
-	public JLabel servo;
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
@@ -67,17 +67,23 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		JPanel p;
 		this.setLayout(new GridLayout(0,1));
 
-		speedNow = new JLabel("1.0");
+		double speed=robotArm.getSpeed();
+		int speedIndex;
+		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
+			if( speedOptions[speedIndex] >= speed )
+				break;
+		}
+		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]));
 
 		p = new JPanel(new GridLayout(1,0));
 		this.add(p);
 		
 		p.add(new JLabel("Speed"));
-		speedControl = new JSlider(0,10,4);
+		speedControl = new JSlider(0,speedOptions.length-1,speedIndex);
 		p.add(speedNow);
 		this.add(speedControl);
 		speedControl.addChangeListener(this);
-		speedControl.setMajorTickSpacing(10);
+		speedControl.setMajorTickSpacing(speedOptions.length-1);
 		speedControl.setMinorTickSpacing(1);
 		speedControl.setPaintTicks(true);
 		
@@ -96,8 +102,6 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		c2 = new JLabel("0.00");
 		d2 = new JLabel("0.00");
 		e2 = new JLabel("0.00");
-		// for servo
-		servo = new JLabel("0.00");
 
 		this.add(new JLabel("Forward Kinematics"));
 		
@@ -155,14 +159,6 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
-
-		this.add(new JLabel("Gripper"));
-
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
-		p.add(arm5ServoOpen = createButton("Open"));
-		p.add(servo);
-		p.add(arm5ServoClose = createButton("Close"));
 	}
 
 	protected void setSpeed(double speed) {
@@ -173,19 +169,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
 		if( subject == speedControl ) {
-			switch(speedControl.getValue()) {
-			case 0:  setSpeed(0.05);  break;
-			case 1:  setSpeed(0.1);  break;
-			case 2:  setSpeed(0.2);  break;
-			case 3:  setSpeed(0.5);  break;
-			case 4:  setSpeed(1.0);  break;
-			case 5:  setSpeed(2.0);  break;
-			case 6:  setSpeed(5.0);  break;
-			case 7:  setSpeed(10.0);  break;
-			case 8:  setSpeed(20.0);  break;
-			case 9:  setSpeed(50.0);  break;
-			case 10:  setSpeed(100.0);  break;
-			}
+			int i=speedControl.getValue();
+			setSpeed(speedOptions[i]);
 		}
 	}
 	
@@ -211,9 +196,6 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		if( subject == arm5Yneg ) robotArm.moveY(-1);
 		if( subject == arm5Zpos ) robotArm.moveZ(1);
 		if( subject == arm5Zneg ) robotArm.moveZ(-1);
-		
-		if( subject == arm5ServoOpen ) robotArm.moveServo(-1);
-		if( subject == arm5ServoClose ) robotArm.moveServo(1);
 	}
 	
 	

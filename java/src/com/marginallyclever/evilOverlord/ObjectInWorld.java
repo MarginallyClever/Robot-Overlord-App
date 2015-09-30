@@ -12,14 +12,13 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-public class ObjectInWorld
-{
-	public List<ObjectInWorld> children;
-	public Vector3f position;
+public class ObjectInWorld {
+	protected List<ObjectInWorld> children;
+	protected Vector3f position;
+	protected String name;
 	
 	//private JPanel oiwPanel;
-	
-	
+
 	public ObjectInWorld() {
 		children = new ArrayList<ObjectInWorld>();
 		position = new Vector3f();
@@ -52,5 +51,15 @@ public class ObjectInWorld
 		list.add(oiwPanel);
 		*/
 		return list;
+	}
+	
+	
+	public String getName() {
+		return name;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

@@ -11,6 +11,8 @@ import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.PrimitiveSolids;
 import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
 import com.marginallyclever.evilOverlord.SerialConnection;
+import com.marginallyclever.evilOverlord.ArmTool.ArmTool;
+import com.marginallyclever.evilOverlord.ArmTool.ArmToolGripper;
 
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -20,12 +22,13 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class Arm5Robot
 extends RobotWithSerialConnection {
 	// machine ID
-	protected long robot_uid;
+	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM MINION #";
 
 	// machine dimensions from design software
@@ -45,13 +48,14 @@ extends RobotWithSerialConnection {
 	// model files
 	private Model anchor = new Model();
 	private Model shoulder = new Model();
-	private Model shoulder_pinion = new Model();
+	private Model shoulderPinion = new Model();
 	private Model boom = new Model();
 	private Model stick = new Model();
 	private Model wristBone = new Model();
 	private Model wristEnd = new Model();
 	private Model wristInterior = new Model();
 	private Model wristPinion = new Model();
+	private ArmTool tool = null;
 	
 	// collision volumes
 	Cylinder [] volumes = new Cylinder[6];
@@ -71,8 +75,6 @@ extends RobotWithSerialConnection {
 	protected float yDir = 0.0f;
 	protected float zDir = 0.0f;
 
-	protected float servoDir = 0.0f;
-	
 	// machine logic states
 	protected boolean armMoved = false;
 	protected boolean pWasOn=false;
@@ -81,7 +83,7 @@ extends RobotWithSerialConnection {
 	protected boolean isLoaded=false;
 	protected boolean isRenderFKOn=false;
 	protected boolean isRenderIKOn=false;
-	protected double speed=0;
+	protected double speed=2;
 	
 	protected Arm5ControlPanel arm5Panel=null;
 	
@@ -107,6 +109,9 @@ extends RobotWithSerialConnection {
 		motionFuture.forwardKinematics();
 		motionNow.inverseKinematics();
 		motionFuture.inverseKinematics();
+		
+		tool = new ArmToolGripper();
+		tool.attachTo(this);
 	}
 
 	
@@ -118,6 +123,12 @@ extends RobotWithSerialConnection {
 		
 		arm5Panel = new Arm5ControlPanel(this);
 		list.add(arm5Panel);
+
+		ArrayList<JPanel> toolList = tool.getControlPanels();
+		Iterator<JPanel> iter = toolList.iterator();
+		while(iter.hasNext()) {
+			list.add(iter.next());
+		}
 		
 		return list;
 	}
@@ -187,10 +198,6 @@ extends RobotWithSerialConnection {
 	public void moveZ(float dir) {
 		zDir=dir;
 		disableFK();
-	}
-
-	public void moveServo(float dir) {
-		servoDir=dir;
 	}
 
 	
@@ -351,37 +358,6 @@ extends RobotWithSerialConnection {
 			}
 		}
 	}
-	
-	
-	protected void updateServo(float dt) {
-		boolean changed=false;
-		float vel=(float)speed; // * delta
-		
-		float dS = motionFuture.angleServo;
-		
-		if(servoDir!=0) {
-			dS += vel * servoDir;
-			changed=true;
-			servoDir=0;
-		}
-		
-		if(changed==true) {
-			if(dS<120) dS=120;
-			if(dS>160) dS=160;
-			motionFuture.angleServo = dS;
-
-			if(isPortConfirmed==false) return;
-			
-			String str="";
-			if(motionFuture.angleServo!=motionNow.angleServo) {
-				str+=" S"+roundOff(motionFuture.angleServo);
-			}
-			if(str.length()>0) {
-				connection.sendCommand("R10"+str);
-				motionNow.set(motionFuture);
-			}
-		}
-	}
 
 	
 	protected float roundOff(float v) {
@@ -412,8 +388,8 @@ extends RobotWithSerialConnection {
 		arm5Panel.c2.setText(Float.toString(roundOff(motionNow.ik_angleC)));
 		arm5Panel.d2.setText(Float.toString(roundOff(motionNow.ik_angleD)));
 		arm5Panel.e2.setText(Float.toString(roundOff(motionNow.ik_angleE)));
-		
-		arm5Panel.servo.setText(Float.toString(roundOff(motionNow.angleServo)));
+
+		if( tool != null ) tool.updateGUI();
 	}
 	
 	
@@ -476,7 +452,7 @@ extends RobotWithSerialConnection {
 	public void PrepareMove(float delta) {
 		updateFingerForInverseKinematics(delta);
 		updateAnglesForForwardKinematics(delta);
-		updateServo(delta);
+		if(tool != null) tool.update(delta);
 	}
 	
 	
@@ -510,7 +486,7 @@ extends RobotWithSerialConnection {
 	public void loadModels(GL2 gl2) {
 		anchor.loadFromZip(gl2,"ArmParts.zip","anchor.STL");
 		shoulder.loadFromZip(gl2,"ArmParts.zip","shoulder1.STL");
-		shoulder_pinion.loadFromZip(gl2,"ArmParts.zip","shoulder_pinion.STL");
+		shoulderPinion.loadFromZip(gl2,"ArmParts.zip","shoulder_pinion.STL");
 		boom.loadFromZip(gl2,"ArmParts.zip","boom.STL");
 		stick.loadFromZip(gl2,"ArmParts.zip","stick.STL");
 		wristBone.loadFromZip(gl2,"ArmParts.zip","wrist_bone.STL");
@@ -666,7 +642,7 @@ extends RobotWithSerialConnection {
 			gl2.glTranslated(SHOULDER_TO_PINION_X, SHOULDER_TO_PINION_Y, 0);
 			double anchor_gear_ratio = 80.0/8.0;
 			gl2.glRotated(motionNow.angleE*anchor_gear_ratio,0,1,0);
-			shoulder_pinion.render(gl2);
+			shoulderPinion.render(gl2);
 		gl2.glPopMatrix();
 
 		// boom (D)
@@ -721,6 +697,12 @@ extends RobotWithSerialConnection {
 			gl2.glPushMatrix();
 				wristEnd.render(gl2);
 			gl2.glPopMatrix();
+			
+			gl2.glTranslated(-6, 0, 0);
+			if(tool!=null) {
+				tool.render(gl2);
+			}
+
 		gl2.glPopMatrix();  // wrist
 
 		// pinion B
@@ -807,11 +789,11 @@ extends RobotWithSerialConnection {
 			try {
 				long uid = Long.parseLong(uidString);
 				if(uid==0) {
-					robot_uid = getNewRobotUID();
+					robotUID = getNewRobotUID();
 				} else {
-					robot_uid = uid;
+					robotUID = uid;
 				}
-				arm5Panel.setUID(robot_uid);
+				arm5Panel.setUID(robotUID);
 			}
 			catch(Exception e) {
 				e.printStackTrace();

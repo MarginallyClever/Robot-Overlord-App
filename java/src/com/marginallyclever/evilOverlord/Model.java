@@ -21,8 +21,14 @@ public class Model {
 	protected FloatBuffer vertices;
 	protected FloatBuffer normals;
 	protected int VBO[] = null;
+	protected boolean isLoaded = false;
 
 	
+	public boolean isLoaded() {
+		return isLoaded;
+	}
+
+
 	public void loadFromZip(GL2 gl2,String zipName,String fname) {
 		name=zipName+":"+fname;
 		
@@ -155,6 +161,8 @@ public class Model {
 		normals.rewind();
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
 	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*s, normals, GL2.GL_STATIC_DRAW);
+	    
+	    isLoaded=true;
 	}
 	
 	
