@@ -6,7 +6,7 @@ import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.ObjectInWorld;
 import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
 
-public class ArmTool extends ObjectInWorld {
+public abstract class ArmTool extends ObjectInWorld {
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
 	protected Arm5Robot attachedTo=null;
