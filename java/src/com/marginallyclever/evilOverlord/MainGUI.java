@@ -1,31 +1,27 @@
 package com.marginallyclever.evilOverlord;
 
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.prefs.Preferences;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
@@ -33,11 +29,6 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLPipelineFactory;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
-
-import Generators.GcodeGenerator;
-import Generators.LoadGCodeGenerator;
-import Generators.HilbertCurveGenerator;
-import Generators.YourMessageHereGenerator;
 
 import com.jogamp.opengl.util.Animator;
 
@@ -47,7 +38,7 @@ import com.jogamp.opengl.util.Animator;
  *
  */
 public class MainGUI 
-implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, KeyListener
+implements ActionListener, GLEventListener
 {
 	static final String APP_TITLE = "Evil Overlord";
 	
@@ -61,20 +52,19 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 	// menus
     /// main menu bar
 	protected JMenuBar mainMenu;
-	/// this button starts sending gcode to the robot
-	protected JMenuItem buttonStart;
-	/// this button starts sending gcode to the robot, beginning at a line to be requested in a pop-up
-	protected JMenuItem buttonStartAt;
-    /// pause sending gcode
-	protected JMenuItem buttonPause;
-    /// stop sending gcode
-	protected JMenuItem buttonHalt;
     /// show the about dialog
 	protected JMenuItem buttonAbout;
     /// check the version against github and notify the user if they wer up to date or not
 	protected JMenuItem buttonCheckForUpdate;
     /// quit the application
 	protected JMenuItem buttonQuit;
+
+	// TODO move all these to a context sensitive menu
+	protected JMenuItem buttonStart;
+	protected JMenuItem buttonStartAt;
+	protected JMenuItem buttonPause;
+	protected JMenuItem buttonHalt;
+	
 	
 	/// the main frame of the GUI
     protected JFrame frame; 
@@ -85,23 +75,14 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
     protected long start_time;
     protected long last_time;
     
-
 	// settings
     protected Preferences prefs;
 	protected String[] recentFiles = {"","","","","","","","","",""};
 	
-	// Generators
-	protected GcodeGenerator [] generators;
-	protected JMenuItem generatorButtons[];
-    
-	
-	protected GLJPanel glCanvas;
-
-	protected JPanel cameraPanel=null;
-	protected JPanel arm5Panel=null;
-
-	protected JTabbedPane contextMenu;
+	// the main view
 	protected Splitter split_left_right;
+	protected GLJPanel glCanvas;
+	protected JScrollPane contextMenu;
     
 
 	public JFrame GetMainFrame() {
@@ -123,18 +104,13 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 */
 		
 		LoadConfig();
-		LoadGenerators();
 		
         frame = new JFrame( APP_TITLE ); 
         frame.setSize( 1224, 768 );
         frame.setLayout(new java.awt.BorderLayout());
 
-
-        world = new World(this);
-
         mainMenu = new JMenuBar();
         frame.setJMenuBar(mainMenu);
-        updateMenu();
 
         
         final Animator animator = new Animator();
@@ -156,21 +132,15 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
         animator.add(glCanvas);
         glCanvas.addGLEventListener(this);
         
-        cameraPanel = buildPanel(world.camera.getControlPanels());
-        arm5Panel = buildPanel(world.robot0.getControlPanels());
-        
-        contextMenu = new JTabbedPane();
-        JScrollPane p;
-        p = new JScrollPane();
-        p.setViewportView(cameraPanel);
-        contextMenu.addTab("Camera",null,p,null);
-        p = new JScrollPane();
-        p.setViewportView(arm5Panel);
-        contextMenu.addTab("Arm",null,p,null);
+        contextMenu = new JScrollPane();
 
         split_left_right = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
         split_left_right.add(glCanvas);
         split_left_right.add(contextMenu);
+
+        world = new World(this);
+
+        updateMenu();
         
 //		frame.addKeyListener(this);
 //		glCanvas.addMouseListener(this);
@@ -191,14 +161,34 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
                 e.getComponent().requestFocus();
             }
         });
-		*/
+*/
         frame.add(split_left_right);
         frame.validate();
         frame.setVisible(true);
         animator.start();
-        
+
         last_time = start_time = System.currentTimeMillis();
     }
+	
+	public void setContextMenu(JPanel panel,String title) {
+		JPanel container = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.weighty=0;
+		c.weightx=1;
+		c.gridy=0;
+		c.gridx=0;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+        container.add(new JLabel(title,JLabel.CENTER),c);
+        c.gridy++;
+        container.add(new JSeparator(),c);
+		c.weighty=1;
+		c.gridy++;
+        container.add(panel,c);
+        
+        contextMenu.setViewportView(container);
+	}
+	
 	/*
 	private String getPath(Class cls) {
 	    String cn = cls.getName();
@@ -246,21 +236,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 	}
 	*/
 	
-	protected JPanel buildPanel(ArrayList<JPanel> list) {
-		JPanel sum = new JPanel();
-		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
-		
-		if(list==null) return sum;
-
-		Iterator<JPanel> pi = list.iterator();
-		while(pi.hasNext()) {
-			JPanel p = pi.next();
-			sum.add(p);
-		}
-		return sum;
-	}
-	
-	
+	/*
 	protected void LoadGenerators() {
 		// TODO find the generator jar files and load them.
 		
@@ -312,7 +288,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
         
         return menu;
 	}
-	
+	*/
 	
 	public void updateMenu() {
 		mainMenu.removeAll();
@@ -336,10 +312,6 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
         mainMenu.add(menu);
         
         mainMenu.add(world.updateMenu());
-
-        mainMenu.add(LoadGenerateMenu());
-        
-        mainMenu.add(LoadDrawMenu());
         
         mainMenu.updateUI();
     }
@@ -391,7 +363,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 			return;
 		}
 		
-		
+		/*
 		if(GeneratorMenuAction(e)) {
 			return;
 		}
@@ -413,7 +385,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 			world.robot0.Halt();
 			return;
 		}
-
+		*/
 	}
 
 	protected void LoadConfig() {
@@ -424,7 +396,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		GetRecentFiles();
 	}
 	
-	
+	/*
 	protected boolean GeneratorMenuAction(ActionEvent e) {
 		Object subject = e.getSource();
 		
@@ -437,6 +409,7 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
 		}
 		return false;
 	}
+	*/
 	
 	
 	/**
@@ -587,48 +560,5 @@ implements ActionListener, GLEventListener, MouseListener, MouseMotionListener, 
     		}
     	}
     	frame_delay+=dt;
-    }
-	
-
-	@Override
-	public void keyPressed(java.awt.event.KeyEvent e) {
-    	world.keyPressed(e);
-	}
-
-	@Override
-	public void keyReleased(java.awt.event.KeyEvent e) {
-		world.keyReleased(e);				
-	}
-
-	@Override
-	public void keyTyped(java.awt.event.KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
-	
-	public void mousePressed(MouseEvent e) {
-		world.mousePressed(e);
-    }
-        
-    public void mouseReleased(MouseEvent e) {
-    	world.mouseReleased(e);
-    }
-        
-    public void mouseDragged(MouseEvent e) {
-    	world.mouseDragged(e);
-	}
-    public void mouseMoved(MouseEvent e) {
-    	world.mouseMoved(e);
-	}
-
-    public void mouseClicked(MouseEvent e) {
-    	world.mouseClicked(e);
-    }
-        
-    public void mouseEntered(MouseEvent e) {
-    	world.mouseEntered(e);
-    }
-        
-    public void mouseExited(MouseEvent e) {
-    	world.mouseExited(e);
     }
 }

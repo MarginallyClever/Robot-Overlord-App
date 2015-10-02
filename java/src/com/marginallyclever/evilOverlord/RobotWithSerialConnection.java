@@ -1,6 +1,8 @@
 package com.marginallyclever.evilOverlord;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -8,14 +10,26 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
+
+import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
+import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
+import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionReadyListener;
 
 
 public class RobotWithSerialConnection extends ObjectInWorld
-implements SerialConnectionReadyListener {
+implements MarginallyCleverConnectionReadyListener, ActionListener {
 	//comms	
-	protected SerialConnection connection;
-	private boolean arduinoReady;
+	protected MarginallyCleverConnectionManager connectionManager;
+	protected String[] portsDetected=null;
+	protected MarginallyCleverConnection connection;
+	protected boolean isReadyToReceive;
+	
+	protected JPanel connectionPanel=null;
+	protected JPanel connectionList=null;
 
 	// sending file to the robot
 	private boolean running;
@@ -25,10 +39,14 @@ implements SerialConnectionReadyListener {
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 	
-	private boolean dialog_result;  // so dialog boxes can return an ok/cancel
+	private boolean dialogResult;  // so dialog boxes can return an ok/cancel
 
 	MainGUI gui;
-	
+
+	// connect/rescan/disconnect dialog options
+	protected JRadioButton [] buttonPorts;
+	protected JButton buttonRescan, buttonDisconnect;
+
 	
 	public boolean isRunning() { return running; }
 	public boolean isPaused() { return paused; }
@@ -38,9 +56,7 @@ implements SerialConnectionReadyListener {
 	public RobotWithSerialConnection(MainGUI _gui) {
 		super();
 		gui = _gui;
-		connection = new SerialConnection();
-		connection.addListener(this);
-		arduinoReady=false;
+		isReadyToReceive=false;
 		linesTotal=0;
 		linesProcessed=0;
 		fileOpened=false;
@@ -48,20 +64,101 @@ implements SerialConnectionReadyListener {
 		running=false;
 	}
 	
+	public MarginallyCleverConnectionManager getConnectionManager() {
+		return connectionManager;
+	}
+	public void setConnectionManager(MarginallyCleverConnectionManager connectionManager) {
+		this.connectionManager = connectionManager;
+	}
+	
 
 	@Override
-	public void serialConnectionReady(SerialConnection arg0) {
-		if(arg0==connection) arduinoReady=true;
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
+		list.add(getMenu());
 		
-		if(arduinoReady) {
-			arduinoReady=false;
+		return list;
+	}
+
+
+	protected JPanel getMenu() {
+		connectionList = new JPanel(new GridLayout(0,1));
+		rescanConnections();
+		
+        buttonRescan = new JButton("Rescan Ports");
+        buttonRescan.getAccessibleContext().setAccessibleDescription("Rescan the available ports.");
+        buttonRescan.addActionListener(this);
+
+        buttonDisconnect = new JButton("Disconnect");
+        buttonDisconnect.addActionListener(this);
+
+    	connectionPanel = new JPanel(new GridLayout(0,1));
+		connectionPanel.add(new JLabel("Connection"));
+		connectionPanel.add(connectionList);
+        connectionPanel.add(new JSeparator());
+	    connectionPanel.add(buttonRescan);
+        connectionPanel.add(buttonDisconnect);
+	    
+	    return connectionPanel;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object subject = e.getSource();
+		
+		int i;
+		for(i=0;i<buttonPorts.length;++i) {
+			if(subject == buttonPorts[i]) {
+				connection = connectionManager.openConnection(buttonPorts[i].getText());
+				connection.addListener(this);
+				rescanConnections();
+				return;
+			}
+		}
+		
+		if(subject==buttonRescan) {
+			rescanConnections();
+			return;
+		}
+		if(subject==buttonDisconnect) {
+			if(connection!=null) {
+				connection.closeConnection();
+				connection=null;
+				rescanConnections();
+			}
+		}
+	}
+
+	
+	public void rescanConnections() {
+		portsDetected = connectionManager.listConnections();
+	    buttonPorts = new JRadioButton[portsDetected.length];
+	    
+		int i;
+	    for(i=0;i<portsDetected.length;++i) {
+	    	buttonPorts[i] = new JRadioButton(portsDetected[i]);
+	    	if(connection != null && connection.isConnectionOpen() && connection.getRecentConnection().equals(portsDetected[i])) {
+	    		buttonPorts[i].setSelected(true);
+	    	}
+	        buttonPorts[i].addActionListener(this);
+	        connectionList.add(buttonPorts[i]);
+	    }
+	}
+	
+	
+	@Override
+	public void serialConnectionReady(MarginallyCleverConnection arg0) {
+		if(arg0==connection && connection!=null) isReadyToReceive=true;
+		
+		if(isReadyToReceive) {
+			isReadyToReceive=false;
 			SendFileCommand();
 		}
 	}
 
 	
 	@Override
-	public void serialDataAvailable(SerialConnection arg0,String data) {
+	public void serialDataAvailable(MarginallyCleverConnection arg0,String data) {
 		
 	}
 	
@@ -80,7 +177,7 @@ implements SerialConnectionReadyListener {
 			//statusBar.SetProgress(linesProcessed, linesTotal);
 			// loop until we find a line that gets sent to the robot, at which point we'll
 			// pause for the robot to respond.  Also stop at end of file.
-		} while(!SendLineToRobot(line) && linesProcessed<linesTotal);
+		} while(!sendLineToRobot(line) && linesProcessed<linesTotal);
 		
 		if(linesProcessed==linesTotal) {
 			// end of file
@@ -132,7 +229,7 @@ implements SerialConnectionReadyListener {
 	 * @return true if "ok" is pressed, false if the window is closed any other way.
 	 */
 	private boolean getStartingLineNumber() {
-		dialog_result=false;
+		dialogResult=false;
 		
 		final JDialog driver = new JDialog(gui.GetMainFrame(),"Start at...");
 		driver.setLayout(new GridBagLayout());		
@@ -151,12 +248,12 @@ implements SerialConnectionReadyListener {
 					
 					if(subject == start) {
 						linesProcessed=Integer.decode(starting_line.getText());
-						SendLineToRobot("M110 N"+linesProcessed);
-						dialog_result=true;
+						sendLineToRobot("M110 N"+linesProcessed);
+						dialogResult=true;
 						driver.dispose();
 					}
 					if(subject == cancel) {
-						dialog_result=false;
+						dialogResult=false;
 						driver.dispose();
 					}
 			  }
@@ -168,7 +265,7 @@ implements SerialConnectionReadyListener {
 		driver.pack();
 		driver.setVisible(true);  // modal
 		
-		return dialog_result;
+		return dialogResult;
 	}
 
 	/**
@@ -176,7 +273,7 @@ implements SerialConnectionReadyListener {
 	 * @param line
 	 * @return true if the command is sent to the robot.
 	 */
-	public boolean SendLineToRobot(String line) {
+	public boolean sendLineToRobot(String line) {
 		// contains a comment?  if so remove it
 		int index=line.indexOf('(');
 		if(index!=-1) {
@@ -190,8 +287,26 @@ implements SerialConnectionReadyListener {
 		}
 
 		// send relevant part of line to the robot
-		connection.sendCommand(line);
+		try{
+			connection.sendMessage(line);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		return true;
 	}
+	
+/*
+	// pull the last connected port from prefs
+	private void loadRecentPortFromPreferences() {
+		recentPort = prefs.get("recent-port", "");
+	}
+
+	// update the prefs with the last port connected and refreshes the menus.
+	public void setRecentPort(String portName) {
+		prefs.put("recent-port", portName);
+		recentPort = portName;
+		//UpdateMenuBar();
+	}
+*/
 }

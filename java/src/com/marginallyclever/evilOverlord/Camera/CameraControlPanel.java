@@ -1,5 +1,7 @@
 package com.marginallyclever.evilOverlord.Camera;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,37 +42,49 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		
 		camera=cam;
 		
-		this.setLayout(new GridLayout(0,1));
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.weightx=1;
+		c.weighty=0;
+		c.anchor=GridBagConstraints.NORTHWEST;
+		c.fill=GridBagConstraints.HORIZONTAL;
+
 		JPanel p;
 		
 		p = new JPanel(new GridLayout(3,3));
-		this.add(p);
-		p.add(new JLabel(""));
-		p.add(buttonFlyUp = createButton("Up"));
-		p.add(new JLabel(""));
-		p.add(buttonFlyLeft = createButton("Left"));
-		JLabel flyLabel = new JLabel("Fly");
-		flyLabel.setHorizontalAlignment(JLabel.CENTER);
-		p.add(flyLabel);
-		p.add(buttonFlyRight = createButton("Right"));
-		p.add(new JLabel(""));
-		p.add(buttonFlyDown = createButton("Down"));
+			p.add(new JLabel(""));
+			p.add(buttonFlyUp = createButton("Up"));
+			p.add(new JLabel(""));
+			p.add(buttonFlyLeft = createButton("Left"));
+			JLabel flyLabel = new JLabel("Fly");
+			flyLabel.setHorizontalAlignment(JLabel.CENTER);
+			p.add(flyLabel);
+			p.add(buttonFlyRight = createButton("Right"));
+			p.add(new JLabel(""));
+			p.add(buttonFlyDown = createButton("Down"));
+		this.add(p,c);
+		c.gridy++;
 
-		this.add(buttonFlyForward = createButton("Forward"));
-		this.add(buttonFlyBackward = createButton("Backward"));
+		this.add(buttonFlyForward = createButton("Forward"),c);
+		c.gridy++;
+		this.add(buttonFlyBackward = createButton("Backward"),c);
+		c.gridy++;
 
 		p = new JPanel(new GridLayout(3,3));
-		this.add(p);
-		p.add(new JLabel(""));
-		p.add(buttonLookUp = createButton("up"));
-		p.add(new JLabel(""));
-		p.add(buttonLookLeft = createButton("left"));
-		JLabel lookLabel = new JLabel("Look");
-		lookLabel.setHorizontalAlignment(JLabel.CENTER);
-		p.add(lookLabel);
-		p.add(buttonLookRight = createButton("right"));
-		p.add(new JLabel(""));
-		p.add(buttonLookDown = createButton("down"));
+			p.add(new JLabel(""));
+			p.add(buttonLookUp = createButton("Up"));
+			p.add(new JLabel(""));
+			p.add(buttonLookLeft = createButton("Left"));
+			JLabel lookLabel = new JLabel("Look");
+			lookLabel.setHorizontalAlignment(JLabel.CENTER);
+			p.add(lookLabel);
+			p.add(buttonLookRight = createButton("Right"));
+			p.add(new JLabel(""));
+			p.add(buttonLookDown = createButton("Down"));
+		this.add(p,c);
+		c.gridy++;
 	}
 
 

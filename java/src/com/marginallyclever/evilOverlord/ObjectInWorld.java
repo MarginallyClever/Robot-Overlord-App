@@ -1,8 +1,10 @@
 package com.marginallyclever.evilOverlord;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
@@ -51,6 +53,19 @@ public class ObjectInWorld {
 		list.add(oiwPanel);
 		*/
 		return list;
+	}
+	
+	public JPanel buildPanel() {
+		JPanel sum = new JPanel();
+		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
+		
+		ArrayList<JPanel> list = getControlPanels();
+		Iterator<JPanel> pi = list.iterator();
+		while(pi.hasNext()) {
+			JPanel p = pi.next();
+			sum.add(p);
+		}
+		return sum;
 	}
 	
 	

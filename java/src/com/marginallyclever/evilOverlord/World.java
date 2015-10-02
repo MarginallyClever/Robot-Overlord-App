@@ -2,9 +2,9 @@ package com.marginallyclever.evilOverlord;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
@@ -15,6 +15,8 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
 import com.marginallyclever.evilOverlord.Camera.Camera;
+import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
+import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
 
 /**
  * Container for all the visible objects in the world.
@@ -23,30 +25,37 @@ import com.marginallyclever.evilOverlord.Camera.Camera;
  */
 public class World
 implements ActionListener {
-	// menus
-	JMenuItem buttonRescan, buttonDisconnect;
+
+	protected MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
+	
+	protected MainGUI gui;
+	
+	protected JMenu worldMenu;
+	protected JMenuItem buttonAddArm5Robot;
+	protected boolean areTexturesLoaded=false;
 	
 	// world contents
-	Camera camera = null;
-	
-	Arm5Robot robot0 = null;
-
-	LightObject light0,light1;
-	
-	Texture t0,t1,t2,t3,t4,t5;
-	
-	MainGUI gui;
+	protected Camera camera = null;
+	protected ArrayList<ObjectInWorld> objects = new ArrayList<ObjectInWorld>();
+	protected LightObject light0, light1;
+	protected Texture t0,t1,t2,t3,t4,t5;
 	
 
 	public World(MainGUI _gui) {
 		gui = _gui;
 		
 		camera = new Camera();
-		
+        
+        gui.setContextMenu(camera.buildPanel(),"Camera");
+        
 		light0 = new LightObject();
 		light1 = new LightObject();
-		
-		robot0 = new Arm5Robot(gui);
+	}
+	
+	protected void addArm5Robot() {
+		Arm5Robot r = new Arm5Robot(gui);
+		r.setConnectionManager(connectionManager);
+		objects.add(r);
 	}
 	
 
@@ -70,6 +79,8 @@ implements ActionListener {
     
 	
 	void loadTextures( GL2 gl2 ) {
+		if(areTexturesLoaded) return;
+		
 		// world background texture
 		try {
 			t0 = TextureIO.newTexture(new File("cube-x-pos.png"), true);
@@ -79,6 +90,7 @@ implements ActionListener {
 			t4 = TextureIO.newTexture(new File("cube-z-pos.png"), true);
 			t5 = TextureIO.newTexture(new File("cube-z-neg.png"), true);
 			System.out.println(">>> All textures loaded OK");
+			areTexturesLoaded=true;
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -86,81 +98,27 @@ implements ActionListener {
 	}
 	
 	
-    public void mouseClicked(MouseEvent e) {}
-    public void mouseDragged(MouseEvent e) {
-    	camera.mouseDragged(e);
-    }
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
-    public void mouseMoved(MouseEvent e) {}
-    public void mousePressed(MouseEvent e) {
-    	camera.mousePressed(e);
-    }
-    public void mouseReleased(MouseEvent e) {
-    	camera.mouseReleased(e);
-    }
-    public void mouseWheelMoved(MouseEvent e) {}
-    
-    public void keyPressed(KeyEvent e) {
-    	camera.keyPressed(e);
-    	robot0.keyPressed(e);
-    }
-    public void keyReleased(KeyEvent e) {
-    	camera.keyReleased(e);
-    	robot0.keyReleased(e);
-    }
-    
-
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
-		if(subject==buttonRescan) {
-			robot0.connection.detectSerialPorts();
-			//robot1.connection.DetectSerialPorts();
-			//TODO tell RobotTrainer to update all menus
-			gui.updateMenu();
-			return;
-		}
-		if(subject==buttonDisconnect) {
-			robot0.connection.closePort();
-			//robot1.connection.ClosePort();
-			gui.updateMenu();
+		
+		if(subject == buttonAddArm5Robot) {
+			addArm5Robot();
 			return;
 		}
 	}
 	
 	
     public JMenu updateMenu() {
-    	JMenu menu, subMenu;
-        
-        // connection menu
-        menu = new JMenu("Connection(s)");
-        menu.setMnemonic(KeyEvent.VK_T);
-        menu.getAccessibleContext().setAccessibleDescription("Connection settings.");
-        
-    	subMenu=robot0.connection.getMenu();
-        subMenu.setText("Arm 0");
-        menu.add(subMenu);
-/*
-     	subMenu=robot1.getMenu();
-        subMenu.setText("Arm 1");
-        menu.add(subMenu);
-*/
-        buttonRescan = new JMenuItem("Rescan Ports",KeyEvent.VK_R);
-        buttonRescan.getAccessibleContext().setAccessibleDescription("Rescan the available ports.");
-        buttonRescan.addActionListener(this);
-        menu.add(buttonRescan);
-
-        menu.addSeparator();
-        
-        buttonDisconnect = new JMenuItem("Disconnect",KeyEvent.VK_D);
-        buttonDisconnect.addActionListener(this);
-        menu.add(buttonDisconnect);
-        
-        return menu;
+    	worldMenu = new JMenu("World");
+    	buttonAddArm5Robot = new JMenuItem("Add Evil Minion");
+    	worldMenu.add(buttonAddArm5Robot);
+    	buttonAddArm5Robot.addActionListener(this);
+    	
+    	return worldMenu;
     }
     
 	
-	public void render(GL2 gl2, float dt ) {
+	public void render(GL2 gl2, float delta ) {
 		// background color
     	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
         // Special handling for the case where the GLJPanel is translucent
@@ -180,7 +138,7 @@ implements ActionListener {
 
 		
 		gl2.glPushMatrix();
-			camera.update(dt);
+			camera.update(delta);
 			camera.render(gl2);
 			
 			drawSkyCube(gl2);
@@ -199,15 +157,25 @@ implements ActionListener {
 			PrimitiveSolids.drawGrid(gl2,50,5);
 			gl2.glEnable(GL2.GL_LIGHTING);
 			
-			// draw robots
-			robot0.PrepareMove(dt);
-			//if(WillCollide(robot0,robot1) == false) 
-			{
-				robot0.finalizeMove();
-				//robot1.FinalizeMove();
+			Iterator<ObjectInWorld> io = objects.iterator();
+			while(io.hasNext()) {
+				ObjectInWorld obj = io.next();
+				if(obj instanceof Arm5Robot) {
+					Arm5Robot arm = (Arm5Robot)obj;
+					arm.PrepareMove(delta);
+				}
 			}
+			//TODO do collision test here
 			
-			robot0.render(gl2);
+			io = objects.iterator();
+			while(io.hasNext()) {
+				ObjectInWorld obj = io.next();
+				if(obj instanceof Arm5Robot) {
+					Arm5Robot arm = (Arm5Robot)obj;
+					arm.finalizeMove();
+					arm.render(gl2);
+				}
+			}
 
 		gl2.glPopMatrix();
 	}

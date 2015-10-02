@@ -10,9 +10,9 @@ import com.marginallyclever.evilOverlord.MainGUI;
 import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.PrimitiveSolids;
 import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
-import com.marginallyclever.evilOverlord.SerialConnection;
 import com.marginallyclever.evilOverlord.ArmTool.ArmTool;
 import com.marginallyclever.evilOverlord.ArmTool.ArmToolGripper;
+import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -415,7 +415,7 @@ extends RobotWithSerialConnection {
 		}
 		
 		if(str.length()>0) {
-			connection.sendCommand("R0"+str);
+			this.sendLineToRobot("R0"+str);
 		}
 	}
 	
@@ -461,9 +461,8 @@ extends RobotWithSerialConnection {
 		motionNow.set(motionFuture);
 		
 		if(armMoved) {
-			if( isPortConfirmed && connection.readyForCommands() ) {
+			if( this.isReadyToReceive ) {
 				armMoved=false;
-				connection.deleteAllQueuedCommands();
 			}
 		}
 	}
@@ -766,23 +765,23 @@ extends RobotWithSerialConnection {
 	
 
 	public void setModeAbsolute() {
-		if(connection!=null) connection.sendCommand("G90");
+		if(connection!=null) this.sendLineToRobot("G90");
 	}
 	
 	
 	public void setModeRelative() {
-		if(connection!=null) connection.sendCommand("G91");
+		if(connection!=null) this.sendLineToRobot("G91");
 	}
 	
 	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public void serialDataAvailable(SerialConnection arg0,String line) {
+	public void serialDataAvailable(MarginallyCleverConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();
 			setModeAbsolute();
-			connection.sendCommand("R1");
+			this.sendLineToRobot("R1");
 			
 			String uidString=line.substring(hello.length()).trim();
 			System.out.println(">>> UID="+uidString);
@@ -995,7 +994,7 @@ extends RobotWithSerialConnection {
 		if (new_uid != 0) {
 			// make sure a topLevelMachinesPreferenceNode node is created
 			// tell the robot it's new UID.
-			connection.sendCommand("UID " + new_uid);
+			this.sendLineToRobot("UID " + new_uid);
 		}
 		return new_uid;
 	}

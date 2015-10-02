@@ -95,7 +95,7 @@ public class ArmToolGripper extends ArmTool {
 			if(dS>angleMax) dS=angleMax;
 			angle = dS;
 
-			getAttachedTo().SendLineToRobot("R10 S"+Float.toString(angle));
+			getAttachedTo().sendLineToRobot("R10 S"+Float.toString(angle));
 		
 			if(armToolGripperControlPanel!=null) {
 				armToolGripperControlPanel.updateGUI();
