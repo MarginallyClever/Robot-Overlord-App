@@ -10,6 +10,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
@@ -39,14 +40,20 @@ implements ActionListener {
 	protected ArrayList<ObjectInWorld> objects = new ArrayList<ObjectInWorld>();
 	protected LightObject light0, light1;
 	protected Texture t0,t1,t2,t3,t4,t5;
+
+	protected Vector3f pickForward=new Vector3f();
+	protected Vector3f pickRight=new Vector3f();
+	protected Vector3f pickUp=new Vector3f();
+	protected Vector3f pickRay=new Vector3f();
+	protected ObjectInWorld lastPickedObject=null;
 	
 
 	public World(MainGUI _gui) {
 		gui = _gui;
 		
 		camera = new Camera();
-        
-        gui.setContextMenu(camera.buildPanel(),"Camera");
+
+        gui.setContextMenu(camera.buildPanel(),camera.getDisplayName());
         
 		light0 = new LightObject();
 		light1 = new LightObject();
@@ -119,6 +126,9 @@ implements ActionListener {
     
 	
 	public void render(GL2 gl2, float delta ) {
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+		gl2.glLoadIdentity();
+
 		// background color
     	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
         // Special handling for the case where the GLJPanel is translucent
@@ -167,6 +177,7 @@ implements ActionListener {
 			}
 			//TODO do collision test here
 			
+			gl2.glPushName(1);
 			io = objects.iterator();
 			while(io.hasNext()) {
 				ObjectInWorld obj = io.next();
@@ -176,13 +187,52 @@ implements ActionListener {
 					arm.render(gl2);
 				}
 			}
+			gl2.glPopName();
+			
+			showPickingTest(gl2);
+			
+		gl2.glPopMatrix();
+	}
 
+	
+	protected void showPickingTest(GL2 gl2) {
+		gl2.glPushMatrix();
+		gl2.glDisable(GL2.GL_LIGHTING);
+
+		Vector3f forward = new Vector3f();
+		forward.set(pickForward);
+		forward.scale(10);
+		forward.sub(camera.position);
+		gl2.glColor3f(1,0,0);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		forward.set(pickForward);
+		forward.scale(10);
+		forward.add(pickRight);
+		forward.sub(camera.position);
+		gl2.glColor3f(0,1,0);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		forward.set(pickForward);
+		forward.scale(10);
+		forward.add(pickUp);
+		forward.sub(camera.position);
+		gl2.glColor3f(0,0,1);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		forward.set(pickRay);
+		forward.scale(10);
+		forward.sub(camera.position);
+		gl2.glColor3f(1,1,0);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 	}
 	
-	
+
+	// Draw background
 	protected void drawSkyCube(GL2 gl2) {
-		// Draw background
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
@@ -259,5 +309,44 @@ implements ActionListener {
 		}
 		// if there is any hit, return true.
 		return false;
+	}
+
+
+	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
+	public void rayPick(double screenX, double screenY) {
+		pickForward.set(camera.getForward());
+		pickForward.scale(-1);
+		pickRight.set(camera.getRight());
+		pickRight.scale(-1);
+		pickUp.set(camera.getUp());
+		
+		Vector3f vy = new Vector3f();
+		vy.set(pickUp);
+		vy.scale((float)-screenY*10);
+
+		Vector3f vx = new Vector3f();
+		vx.set(pickRight);
+		vx.scale((float)screenX*10);
+
+		pickRay.set(pickForward);
+		pickRay.scale(10);
+		pickRay.add(vx);
+		pickRay.add(vy);
+		pickRay.normalize();
+
+		// TODO traverse the world and find the object that intersects the ray
+	}
+
+	
+	public void pickObjectWithName(int name) {
+		if(name==0) {
+			lastPickedObject=camera;
+		} else {
+			
+		}
+		
+		// Hit nothing!  Default to camera controls
+		gui.setContextMenu(lastPickedObject.buildPanel(),lastPickedObject.getDisplayName());
+		
 	}
 }

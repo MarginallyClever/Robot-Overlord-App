@@ -12,29 +12,31 @@ import java.util.ArrayList;
 
 public class Camera extends ObjectInWorld {
 	/** position of camera */
-	Vector3f forward = new Vector3f(0,1,0);
-	Vector3f up = new Vector3f(0,0,1);
-	Vector3f right = new Vector3f(1,0,0);
-	int prevMouseX, prevMouseY;
-	boolean mouseRButtonDown = false;
+	protected Vector3f forward = new Vector3f(0,1,0);
+	protected Vector3f up = new Vector3f(0,0,1);
+	protected Vector3f right = new Vector3f(1,0,0);
+	protected int prevMouseX, prevMouseY;
+	protected boolean mouseRButtonDown = false;
 	// angles
-	public float pan, tilt;
+	protected float pan, tilt;
 
-	public int pan_dir=0;
-	public int tilt_dir=0;
-	public int move_ud=0;
-	public int move_lr=0;
-	public int move_fb=0;
+	protected int pan_dir=0;
+	protected int tilt_dir=0;
+	protected int move_ud=0;
+	protected int move_lr=0;
+	protected int move_fb=0;
 	
 	CameraControlPanel cameraPanel;
 	
 	
 	public Camera() {
 		super();
+		
+		displayName="Camera";
 				
-		position.set(0,100,-20);
+		position.set(0,40,-20);
 		pan=0;
-		tilt=80;
+		tilt=90;
 	}
 
 	
@@ -113,9 +115,9 @@ public class Camera extends ObjectInWorld {
 		if(tilt > 179) tilt= 179;
 
 		// calculate new vectors for translation based on pan/tilt angles
-		forward.y = (float)Math.sin((-pan-90) * Math.PI/180.0) * (float)Math.cos((90-tilt) * Math.PI/180.0);
-		forward.x = (float)Math.cos((-pan-90) * Math.PI/180.0) * (float)Math.cos((90-tilt) * Math.PI/180.0);
-		forward.z =                                              (float)Math.sin((90-tilt) * Math.PI/180.0);
+		forward.y = (float)Math.sin(Math.toRadians(-pan-90)) * (float)Math.cos(Math.toRadians(90-tilt));
+		forward.x = (float)Math.cos(Math.toRadians(-pan-90)) * (float)Math.cos(Math.toRadians(90-tilt));
+		forward.z =                                            (float)Math.sin(Math.toRadians(90-tilt));
 		
 		up.set(0,0,1);
 
@@ -166,5 +168,20 @@ public class Camera extends ObjectInWorld {
 		gl2.glRotatef(tilt, -1, 0, 0);
 		gl2.glRotatef(pan,0,0,1);
 		gl2.glTranslatef(position.x,position.y,position.z);
+	}
+
+
+	public Vector3f getForward() {
+		return forward;
+	}
+
+
+	public Vector3f getUp() {
+		return up;
+	}
+
+
+	public Vector3f getRight() {
+		return right;
 	}
 }

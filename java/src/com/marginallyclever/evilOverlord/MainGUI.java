@@ -5,7 +5,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseMotionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -30,6 +33,7 @@ import javax.media.opengl.GLPipelineFactory;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.util.Animator;
 
 /**
@@ -38,9 +42,15 @@ import com.jogamp.opengl.util.Animator;
  *
  */
 public class MainGUI 
-implements ActionListener, GLEventListener
+implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 {
 	static final String APP_TITLE = "Evil Overlord";
+	
+	// select picking
+	static final int SELECT_BUFFER_SIZE=256;
+	protected IntBuffer selectBuffer = null;
+	protected boolean pickNow=false;
+	protected double pickX, pickY;
 	
 	static final long serialVersionUID=1;
 	/// used for checking the application version with the github release, for "there is a new version available!" notification
@@ -74,16 +84,23 @@ implements ActionListener, GLEventListener
     /* timing for animations */
     protected long start_time;
     protected long last_time;
+
+    private float frame_delay=0;
+    private float frame_length=1.0f/30.0f;
     
 	// settings
     protected Preferences prefs;
 	protected String[] recentFiles = {"","","","","","","","","",""};
+
+	protected boolean checkStackSize=false;
 	
 	// the main view
 	protected Splitter split_left_right;
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
-    
+
+	protected GLU glu = new GLU();
+	
 
 	public JFrame GetMainFrame() {
 		return frame;
@@ -131,6 +148,8 @@ implements ActionListener, GLEventListener
         glCanvas = new GLJPanel();
         animator.add(glCanvas);
         glCanvas.addGLEventListener(this);
+        glCanvas.addMouseListener(this);
+        glCanvas.addMouseMotionListener(this);
         
         contextMenu = new JScrollPane();
 
@@ -483,20 +502,18 @@ implements ActionListener, GLEventListener
 	}
 
     @Override
-    public void reshape( GLAutoDrawable glautodrawable, int x, int y, int width, int height ) {
-    	GL2 gl2 = glautodrawable.getGL().getGL2();
+    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
+    	GL2 gl2 = drawable.getGL().getGL2();
         gl2.setSwapInterval(1);
 
-		gl2.glMatrixMode(GL2.GL_PROJECTION);
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 		//gl2.glOrtho(0, screen_width, 0, screen_height, 1, -1);
-		GLU glu = new GLU();
-        glu.gluPerspective(45, (float)width/(float)height, 1.0f, 1000.0f);
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
-		gl2.glLoadIdentity();
-		
+        glu.gluPerspective(90, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+        
         world.setup( gl2 );
     }
+    
     
     @Override
     public void init( GLAutoDrawable drawable ) {
@@ -523,35 +540,93 @@ implements ActionListener, GLEventListener
     
     
     @Override
-    public void dispose( GLAutoDrawable glautodrawable ) {
+    public void dispose( GLAutoDrawable drawable ) {
     }
     
     
-    private float frame_delay=0;
-    private float frame_length=1.0f/30.0f;
-    
     @Override
-    public void display( GLAutoDrawable glautodrawable ) {
+    @SuppressWarnings("unused")
+    public void display( GLAutoDrawable drawable ) {
         long now_time = System.currentTimeMillis();
         float dt = (now_time - last_time)*0.001f;
     	last_time = now_time;
     	//System.out.println(dt);
     	
 		// Clear The Screen And The Depth Buffer
-    	GL2 gl2 = glautodrawable.getGL().getGL2();
+    	GL2 gl2 = drawable.getGL().getGL2();
     	
     	if(frame_delay<frame_length) {
     		frame_delay+=dt;
     	} else {
-    		boolean checkStackSize=false;
     		if(checkStackSize) {
 	    		IntBuffer v = IntBuffer.allocate(1);
 	    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
 	    		System.out.print("start = "+v.get(0));
-    		}    		
+    		}		
 	        // draw the world
 	        world.render( gl2, frame_length );
 	        frame_delay-=frame_length;
+
+	        if(pickNow) {
+		        pickNow=false;
+	    		
+		        selectBuffer = Buffers.newDirectIntBuffer(MainGUI.SELECT_BUFFER_SIZE);
+	    		int[] viewport = new int[4];
+	    		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewport,0);
+	            gl2.glSelectBuffer(SELECT_BUFFER_SIZE, selectBuffer);
+	    		gl2.glRenderMode( GL2.GL_SELECT );
+	    		gl2.glInitNames();
+
+	            gl2.glMatrixMode(GL2.GL_PROJECTION);
+	            gl2.glPushMatrix();
+	            gl2.glLoadIdentity();
+	    		glu.gluPickMatrix(pickX, viewport[3]-pickY, 5.0, 5.0, viewport,0);
+	            glu.gluPerspective(90, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+	            	    		
+		        world.render( gl2, 0 );
+
+	            gl2.glMatrixMode(GL2.GL_PROJECTION);
+	            gl2.glPopMatrix();
+		        gl2.glFlush();
+
+		        boolean pickFound=false;
+		        int hits = gl2.glRenderMode( GL2.GL_RENDER );
+		        if(hits!=0) {
+		        	// report it here
+//		            System.out.println("---------------------------------");
+//		        	System.out.println("HITS="+hits);
+		        	int index=0;
+		        	int i;
+		        	for(i=0;i<hits;++i) {
+		        		int names=selectBuffer.get(index++);
+		        		
+		                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+		                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+		                
+//		                System.out.println("- - - - - - - - - - - -");
+//		                System.out.println("  hit: "+(i+1));
+//		                System.out.println("  number of names: " + names);
+//		                System.out.println("  z1: " + z1);
+//		                System.out.println("  z2: " + z2);
+//		                System.out.println("  names: ");
+		        		for (int j=0;j<names;j++) {
+		        			int name = selectBuffer.get(index++);
+//		        			System.out.print("    "+Integer.toString(name));
+			                if(j==names-1) {
+//			                	System.out.print(" <--");
+			                	world.pickObjectWithName(name);
+			                	pickFound=true;
+			                }
+//			                System.out.println();
+		        		}
+//		                System.out.println("- - - - - - - - - - - -");
+		        	}
+//		            System.out.println("---------------------------------");
+		        }
+		        if(pickFound==false) {
+		        	world.pickObjectWithName(0);
+		        }
+    		}
 			
     		if(checkStackSize) {
 	    		IntBuffer v = IntBuffer.allocate(1);
@@ -561,4 +636,27 @@ implements ActionListener, GLEventListener
     	}
     	frame_delay+=dt;
     }
+
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		pickX=e.getX();
+		pickY=e.getY();
+		pickNow=true;
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {}
+	@Override
+	public void mouseReleased(MouseEvent e) {}
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+	@Override
+	public void mouseExited(MouseEvent e) {}
+
+
+	@Override
+	public void mouseDragged(MouseEvent e) {}
+	@Override
+	public void mouseMoved(MouseEvent e) {}
 }

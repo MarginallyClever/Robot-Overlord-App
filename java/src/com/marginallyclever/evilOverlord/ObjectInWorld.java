@@ -17,11 +17,16 @@ import javax.vecmath.Vector3f;
 public class ObjectInWorld {
 	protected List<ObjectInWorld> children;
 	protected Vector3f position;
-	protected String name;
+	protected String displayName;
+	protected int pickName=0;
+	
+	// unique ids for all objects in the world.  zero is reserved to indicate no object.
+	static protected int pickNameCounter=1;
 	
 	//private JPanel oiwPanel;
 
 	public ObjectInWorld() {
+		pickName = pickNameCounter++;
 		children = new ArrayList<ObjectInWorld>();
 		position = new Vector3f();
 	}
@@ -69,12 +74,12 @@ public class ObjectInWorld {
 	}
 	
 	
-	public String getName() {
-		return name;
+	public String getDisplayName() {
+		return displayName;
 	}
 
 
 	public void setName(String name) {
-		this.name = name;
+		this.displayName = name;
 	}
 }

@@ -112,6 +112,8 @@ extends RobotWithSerialConnection {
 		
 		tool = new ArmToolGripper();
 		tool.attachTo(this);
+		
+		displayName="Evil Minion";
 	}
 
 	
@@ -797,6 +799,8 @@ extends RobotWithSerialConnection {
 			catch(Exception e) {
 				e.printStackTrace();
 			}
+
+			displayName="Evil Minion #"+robotUID;
 		}
 		
 		if( isPortConfirmed ) {
