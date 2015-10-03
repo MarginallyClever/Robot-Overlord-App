@@ -28,7 +28,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	protected MarginallyCleverConnection connection;
 	protected boolean isReadyToReceive;
 	
-	protected JPanel connectionPanel=null;
+	protected CollapsiblePanel connectionPanel=null;
 	protected JPanel connectionList=null;
 
 	// sending file to the robot
@@ -82,6 +82,17 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 
 
 	protected JPanel getMenu() {
+		connectionPanel = new CollapsiblePanel("Connection");
+		JPanel contents =connectionPanel.getContentPane();
+		
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTH;
+		
 		connectionList = new JPanel(new GridLayout(0,1));
 		rescanConnections();
 		
@@ -92,18 +103,22 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
         buttonDisconnect = new JButton("Disconnect");
         buttonDisconnect.addActionListener(this);
 
-    	connectionPanel = new JPanel(new GridLayout(0,1));
-		connectionPanel.add(new JLabel("Connection"));
-		connectionPanel.add(connectionList);
-        connectionPanel.add(new JSeparator());
-	    connectionPanel.add(buttonRescan);
-        connectionPanel.add(buttonDisconnect);
+        contents.add(connectionList,con1);
+		con1.gridy++;
+		contents.add(new JSeparator(),con1);
+		con1.gridy++;
+		contents.add(buttonRescan,con1);
+		con1.gridy++;
+		contents.add(buttonDisconnect,con1);
+		con1.gridy++;
 	    
 	    return connectionPanel;
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+		
 		Object subject = e.getSource();
 		
 		int i;
@@ -153,7 +168,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 		
 		if(isReadyToReceive) {
 			isReadyToReceive=false;
-			SendFileCommand();
+			sendFileCommand();
 		}
 	}
 
@@ -167,7 +182,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	/**
 	 * Take the next line from the file and send it to the robot, if permitted. 
 	 */
-	public void SendFileCommand() {
+	public void sendFileCommand() {
 		if(running==false || paused==true || fileOpened==false || linesProcessed>=linesTotal) return;
 		
 		String line;
@@ -182,7 +197,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 		
 		if(linesProcessed==linesTotal) {
 			// end of file
-			Halt();
+			halt();
 		}
 	}
 
@@ -191,33 +206,33 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	 * stop sending commands to the robot.
 	 * @todo add an e-stop command?
 	 */
-	public void Halt() {
+	public void halt() {
 		running=false;
 		paused=false;
 	    linesProcessed=0;
 	}
 
-	public void Start() {
+	public void start() {
 		paused=false;
 		running=true;
-		SendFileCommand();
+		sendFileCommand();
 	}
 	
-	public void StartAt() {
+	public void startAt() {
 		if(fileOpened && !running) {
 			linesProcessed=0;
 			if(getStartingLineNumber()) {
-				Start();
+				start();
 			}
 		}
 	}
 	
-	public void Pause() {
+	public void pause() {
 		if(running) {
 			if(paused==true) {
 				paused=false;
 				// TODO: if the robot is not ready to unpause, this might fail and the program would appear to hang.
-				SendFileCommand();
+				sendFileCommand();
 			} else {
 				paused=true;
 			}

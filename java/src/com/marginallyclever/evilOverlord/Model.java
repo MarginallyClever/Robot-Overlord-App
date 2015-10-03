@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -14,6 +16,8 @@ import javax.media.opengl.GL2;
 
 
 public class Model {
+	private static LinkedList<Model> modelPool = new LinkedList<Model>();
+	
 	public final static int NUM_BUFFERS=2;  // verts, normals
 	
 	protected String name;
@@ -24,14 +28,42 @@ public class Model {
 	protected boolean isLoaded = false;
 
 	
+	private Model() {}
+	private Model(String filename) {
+		name = filename;
+	}
+	
+	public static Model loadModel(String sourceName) {
+		// find the existing model in the pool
+		Iterator<Model> iter = modelPool.iterator();
+		while(iter.hasNext()) {
+			Model m = iter.next();
+			if(m.name.equals(sourceName)) {
+				return m;
+			}
+		}
+		
+		Model m = new Model(sourceName);
+		modelPool.add(m);
+		return m;
+	}
+	
+	
 	public boolean isLoaded() {
 		return isLoaded;
 	}
 
 
-	public void loadFromZip(GL2 gl2,String zipName,String fname) {
-		name=zipName+":"+fname;
-		
+	private void load(GL2 gl2) {
+		int index=name.lastIndexOf(':');
+		if(index==-1) {
+			this.loadFromFile(gl2,name);
+		} else {
+			this.loadFromZip(gl2, name.substring(0, index), name.substring(index+1,name.length()));
+		}
+	}
+	
+	private void loadFromZip(GL2 gl2,String zipName,String fname) {
 		ZipFile zipFile=null;
 		ZipEntry entry;
 		BufferedReader stream;
@@ -60,9 +92,7 @@ public class Model {
 	
 	
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
-	public void load(GL2 gl2,String fname) {
-		name=fname;
-
+	private void loadFromFile(GL2 gl2,String fname) {
 		BufferedReader br = null;
 		try {
 		    br = new BufferedReader(new FileReader(new File(fname)));
@@ -85,7 +115,7 @@ public class Model {
 	}
 	
 	
-	protected void initialize(GL2 gl2,BufferedReader br) throws IOException {
+	private void initialize(GL2 gl2,BufferedReader br) throws IOException {
 		String line;
 		int j=0;
 		while( ( line = br.readLine() ) != null ) {
@@ -106,7 +136,7 @@ public class Model {
 	
 	
 
-	protected void loadFromStream(GL2 gl2,BufferedReader br) throws IOException {
+	private void loadFromStream(GL2 gl2,BufferedReader br) throws IOException {
 		String line;
 		int j;
 		
@@ -167,6 +197,9 @@ public class Model {
 	
 	
 	public void render(GL2 gl2) {
+		if(isLoaded==false) {
+			this.load(gl2);
+		}
 		if(VBO==null) return;
 		
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);

@@ -95,7 +95,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	protected boolean checkStackSize=false;
 	
 	// the main view
-	protected Splitter split_left_right;
+	protected Splitter splitLeftRight;
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
 
@@ -153,9 +153,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         
         contextMenu = new JScrollPane();
 
-        split_left_right = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
-        split_left_right.add(glCanvas);
-        split_left_right.add(contextMenu);
+        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
+        splitLeftRight.add(glCanvas);
+        splitLeftRight.add(contextMenu);
 
         world = new World(this);
 
@@ -181,7 +181,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
             }
         });
 */
-        frame.add(split_left_right);
+        frame.add(splitLeftRight);
         frame.validate();
         frame.setVisible(true);
         animator.start();

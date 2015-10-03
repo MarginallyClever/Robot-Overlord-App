@@ -13,6 +13,8 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.evilOverlord.CollapsiblePanel;
+
 public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * Serial version UID
@@ -73,10 +75,6 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
-		
-		uid = new JLabel("Unconnected");
-		this.add(uid,con1);
-		con1.gridy++;
 
 		double speed=robotArm.getSpeed();
 		int speedIndex;
@@ -84,20 +82,37 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 			if( speedOptions[speedIndex] >= speed )
 				break;
 		}
-		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]));
+		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]),JLabel.CENTER);
+		java.awt.Dimension dim = speedNow.getPreferredSize();
+		dim.width = 50;
+		speedNow.setPreferredSize(dim);
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
+		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
+		this.add(speedPanel,con1);
 		con1.gridy++;
 		
-		p.add(new JLabel("Speed"));
+		GridBagConstraints con2 = new GridBagConstraints();
+		con2.gridx=0;
+		con2.gridy=0;
+		con2.fill=GridBagConstraints.HORIZONTAL;
+		con2.anchor=GridBagConstraints.NORTHWEST;
+		con2.weighty=1;
+		con2.weightx=0.25;
+		speedPanel.getContentPane().add(speedNow,con2);
+
 		speedControl = new JSlider(0,speedOptions.length-1,speedIndex);
-		p.add(speedNow);
 		speedControl.addChangeListener(this);
 		speedControl.setMajorTickSpacing(speedOptions.length-1);
 		speedControl.setMinorTickSpacing(1);
 		speedControl.setPaintTicks(true);
-		this.add(speedControl,con1);
+		con2.anchor=GridBagConstraints.NORTHEAST;
+		con2.fill=GridBagConstraints.HORIZONTAL;
+		con2.weightx=0.75;
+		con2.gridx=1;
+		speedPanel.getContentPane().add(speedControl,con2);
+
+		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
+		this.add(fkPanel,con1);
 		con1.gridy++;
 		
 		xPos = new JLabel("0.00");
@@ -116,69 +131,47 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		d2 = new JLabel("0.00");
 		e2 = new JLabel("0.00");
 
-		this.add(new JLabel("Forward Kinematics"),con1);
-		con1.gridy++;
 		
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
+		p = new JPanel(new GridLayout(5,3));
+		fkPanel.getContentPane().add(p);
 		con1.gridy++;
+
 		p.add(arm5Apos = createButton("A+"));
 		p.add(a1);
-		//p.add(a2);
 		p.add(arm5Aneg = createButton("A-"));
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
 		con1.gridy++;
 		p.add(arm5Bpos = createButton("B+"));
 		p.add(b1);
-		//p.add(b2);
 		p.add(arm5Bneg = createButton("B-"));
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
-		con1.gridy++;
 		p.add(arm5Cpos = createButton("C+"));
 		p.add(c1);
-		//p.add(c2);
 		p.add(arm5Cneg = createButton("C-"));
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
-		con1.gridy++;
 		p.add(arm5Dpos = createButton("D+"));
 		p.add(d1);
-		//p.add(d2);
 		p.add(arm5Dneg = createButton("D-"));
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
-		con1.gridy++;
 		p.add(arm5Epos = createButton("E+"));
 		p.add(e1);
-		//p.add(e2);	
 		p.add(arm5Eneg = createButton("E-"));
 
-		this.add(new JLabel("Finger Tip Inverse Kinematics"),con1);
+		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
+		this.add(ikPanel, con1);
 		con1.gridy++;
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
-		con1.gridy++;
+		p = new JPanel(new GridLayout(3,3));
+		ikPanel.getContentPane().add(p);
+
 		p.add(arm5Xpos = createButton("X+"));
 		p.add(xPos);
 		p.add(arm5Xneg = createButton("X-"));
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
-		con1.gridy++;
 		p.add(arm5Ypos = createButton("Y+"));
 		p.add(yPos);
 		p.add(arm5Yneg = createButton("Y-"));
 
-		p = new JPanel(new GridLayout(1,0));
-		this.add(p,con1);
-		con1.gridy++;
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));

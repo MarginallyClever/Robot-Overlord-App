@@ -10,6 +10,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.marginallyclever.evilOverlord.CollapsiblePanel;
+
 public class CameraControlPanel extends JPanel implements ActionListener {
 	/**
 	 * 
@@ -41,49 +43,54 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		super();
 		
 		camera=cam;
-		
+
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
 		c.gridy=0;
 		c.weightx=1;
-		c.weighty=0;
+		c.weighty=1;
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
 
 		JPanel p;
-		
-		p = new JPanel(new GridLayout(3,3));
+
+		CollapsiblePanel p2 = new CollapsiblePanel("Fly");
+		JPanel p1 = p2.getContentPane();
+		p1.setLayout(new GridLayout(0,1));
+			p = new JPanel(new GridLayout(3,3));
 			p.add(new JLabel(""));
 			p.add(buttonFlyUp = createButton("Up"));
 			p.add(new JLabel(""));
+			
 			p.add(buttonFlyLeft = createButton("Left"));
-			JLabel flyLabel = new JLabel("Fly");
-			flyLabel.setHorizontalAlignment(JLabel.CENTER);
-			p.add(flyLabel);
+			p.add(new JLabel(""));
 			p.add(buttonFlyRight = createButton("Right"));
+			
 			p.add(new JLabel(""));
 			p.add(buttonFlyDown = createButton("Down"));
-		this.add(p,c);
+			p.add(new JLabel(""));
+			p1.add(p);
+
+			p = new JPanel(new GridLayout(2,1));
+			p.add(buttonFlyForward = createButton("Forward"));
+			p.add(buttonFlyBackward = createButton("Backward"));
+			p1.add(p);
+		this.add(p2,c);
 		c.gridy++;
 
-		this.add(buttonFlyForward = createButton("Forward"),c);
-		c.gridy++;
-		this.add(buttonFlyBackward = createButton("Backward"),c);
-		c.gridy++;
-
-		p = new JPanel(new GridLayout(3,3));
-			p.add(new JLabel(""));
-			p.add(buttonLookUp = createButton("Up"));
-			p.add(new JLabel(""));
-			p.add(buttonLookLeft = createButton("Left"));
-			JLabel lookLabel = new JLabel("Look");
-			lookLabel.setHorizontalAlignment(JLabel.CENTER);
-			p.add(lookLabel);
-			p.add(buttonLookRight = createButton("Right"));
-			p.add(new JLabel(""));
-			p.add(buttonLookDown = createButton("Down"));
-		this.add(p,c);
+		p2 = new CollapsiblePanel("Look");
+		p1 = p2.getContentPane();
+		p1.setLayout(new GridLayout(3,3));
+			p1.add(new JLabel(""));
+			p1.add(buttonLookUp = createButton("Up"));
+			p1.add(new JLabel(""));
+			p1.add(buttonLookLeft = createButton("Left"));
+			p1.add(new JLabel(""));
+			p1.add(buttonLookRight = createButton("Right"));
+			p1.add(new JLabel(""));
+			p1.add(buttonLookDown = createButton("Down"));
+		this.add(p2,c);
 		c.gridy++;
 	}
 

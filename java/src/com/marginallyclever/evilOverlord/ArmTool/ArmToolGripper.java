@@ -97,21 +97,32 @@ public class ArmToolGripper extends ArmTool {
 
 			getAttachedTo().sendLineToRobot("R10 S"+Float.toString(angle));
 		
-			if(armToolGripperControlPanel!=null) {
-				armToolGripperControlPanel.updateGUI();
-			}
+			updateGUI();
 		}
 	}
 	
 	@Override
 	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+		ArrayList<JPanel> list=null;
 		
+		if(getAttachedTo()==null) {
+			// only show position when not attached.
+			list = super.getControlPanels();
+		}
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		armToolGripperControlPanel = new ArmToolGripperControlPanel(this);
 		list.add(armToolGripperControlPanel);
+		updateGUI();
 		
 		return list;
+	}
+	
+	@Override
+	public void updateGUI() {
+		super.updateGUI();
+		
+		if(armToolGripperControlPanel==null) return;
+		armToolGripperControlPanel.servo.setText(Float.toString(angle));
 	}
 }

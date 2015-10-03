@@ -21,13 +21,12 @@ public abstract class ArmTool extends ObjectInWorld {
 	}
 	
 	public void render(GL2 gl2) {
-		if( visibleShape==null ) return;
-		if( visibleShape.isLoaded()==false && shapeFile!=null ) {
-			visibleShape.load(gl2, shapeFile);
+		if( visibleShape==null && shapeFile!=null ) {
+			visibleShape = Model.loadModel(shapeFile);
 		}
-		if( visibleShape.isLoaded() ) {
-			visibleShape.render(gl2);
-		}
+		if( visibleShape.isLoaded()==false ) return;
+
+		visibleShape.render(gl2);
 	}
 	
 	public void updateGUI() {}

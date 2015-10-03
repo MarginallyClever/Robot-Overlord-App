@@ -46,15 +46,17 @@ extends RobotWithSerialConnection {
 	public final static float WRIST_TO_TOOL_Y = 1.0f;
 	
 	// model files
-	private Model anchor = new Model();
-	private Model shoulder = new Model();
-	private Model shoulderPinion = new Model();
-	private Model boom = new Model();
-	private Model stick = new Model();
-	private Model wristBone = new Model();
-	private Model wristEnd = new Model();
-	private Model wristInterior = new Model();
-	private Model wristPinion = new Model();
+	private Model anchor = Model.loadModel("ArmParts.zip:anchor.STL");
+	private Model shoulder = Model.loadModel("ArmParts.zip:shoulder1.STL");
+	private Model shoulderPinion = Model.loadModel("ArmParts.zip:shoulder_pinion.STL");
+	private Model boom = Model.loadModel("ArmParts.zip:boom.STL");
+	private Model stick = Model.loadModel("ArmParts.zip:stick.STL");
+	private Model wristBone = Model.loadModel("ArmParts.zip:wrist_bone.STL");
+	private Model wristEnd = Model.loadModel("ArmParts.zip:wrist_end.STL");
+	private Model wristInterior = Model.loadModel("ArmParts.zip:wrist_interior.STL");
+	private Model wristPinion = Model.loadModel("ArmParts.zip:wrist_pinion.STL");
+
+	// currently attached tool
 	private ArmTool tool = null;
 	
 	// collision volumes
@@ -125,6 +127,7 @@ extends RobotWithSerialConnection {
 		
 		arm5Panel = new Arm5ControlPanel(this);
 		list.add(arm5Panel);
+		updateGUI();
 
 		ArrayList<JPanel> toolList = tool.getControlPanels();
 		Iterator<JPanel> iter = toolList.iterator();
@@ -484,25 +487,12 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	public void loadModels(GL2 gl2) {
-		anchor.loadFromZip(gl2,"ArmParts.zip","anchor.STL");
-		shoulder.loadFromZip(gl2,"ArmParts.zip","shoulder1.STL");
-		shoulderPinion.loadFromZip(gl2,"ArmParts.zip","shoulder_pinion.STL");
-		boom.loadFromZip(gl2,"ArmParts.zip","boom.STL");
-		stick.loadFromZip(gl2,"ArmParts.zip","stick.STL");
-		wristBone.loadFromZip(gl2,"ArmParts.zip","wrist_bone.STL");
-		wristEnd.loadFromZip(gl2,"ArmParts.zip","wrist_end.STL");
-		wristInterior.loadFromZip(gl2,"ArmParts.zip","wrist_interior.STL");
-		wristPinion.loadFromZip(gl2,"ArmParts.zip","wrist_pinion.STL");
-	}
-	
-	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 			// TODO rotate model
-			gl2.glTranslatef(position.x, position.y, position.z);
 			
 			gl2.glPushMatrix();
+				gl2.glTranslatef(position.x, position.y, position.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
 			/*
@@ -618,11 +608,6 @@ extends RobotWithSerialConnection {
 	 * @param gl2
 	 */
 	protected void renderModels(GL2 gl2) {
-		if(isLoaded==false) {
-			loadModels(gl2);
-			isLoaded=true;
-		}
-
 		// anchor
 		setColor(gl2,1,1,1,1);
 		// this rotation is here because the anchor model was built facing the wrong way.

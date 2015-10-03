@@ -1,5 +1,7 @@
 package com.marginallyclever.evilOverlord.ArmTool;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.marginallyclever.evilOverlord.CollapsiblePanel;
 
 public class ArmToolGripperControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -34,13 +38,29 @@ public class ArmToolGripperControlPanel extends JPanel implements ActionListener
 		super();
 		
 		this.tool = tool;
+
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.weightx=1;
+		c.weighty=1;
+		c.anchor=GridBagConstraints.NORTHWEST;
+		c.fill=GridBagConstraints.HORIZONTAL;
 		
-		this.setLayout(new GridLayout(0,1));
-		
-		this.add(new JLabel("Gripper"));
+		CollapsiblePanel gripper = new CollapsiblePanel("Gripper");
+		this.add(gripper,c);
+
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTH;
 
 		JPanel p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		gripper.getContentPane().add(p);
 		p.add(arm5ServoOpen = createButton("Open"));
 		p.add(servo = new JLabel("0.00"));
 		p.add(arm5ServoClose = createButton("Close"));
@@ -63,9 +83,5 @@ public class ArmToolGripperControlPanel extends JPanel implements ActionListener
 		if( subject == arm5ServoClose ) {
 			tool.moveServo(1);
 		}
-	}
-
-	void updateGUI() {
-		servo.setText(Float.toString(tool.angle));
 	}
 }

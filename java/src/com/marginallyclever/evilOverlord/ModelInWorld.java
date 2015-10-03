@@ -6,12 +6,11 @@ import javax.media.opengl.GL2;
 public class ModelInWorld extends ObjectInWorld {
 	protected Model model;
 	
-	public ModelInWorld() {
-	}
+	public ModelInWorld() {}
 	
 	
 	public void loadModel(String filename) {
-		model = new Model();
+		model = Model.loadModel(filename);
 	}
 	
 	public void render(GL2 gl2) {
