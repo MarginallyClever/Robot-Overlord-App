@@ -1,37 +1,35 @@
 package com.marginallyclever.evilOverlord.RotaryStewartPlatform2;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.media.opengl.GL2;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.evilOverlord.BoundingVolume;
-import com.marginallyclever.evilOverlord.CollapsiblePanel;
-import com.marginallyclever.evilOverlord.Cylinder;
-import com.marginallyclever.evilOverlord.JLabelledTextField;
-import com.marginallyclever.evilOverlord.MainGUI;
-import com.marginallyclever.evilOverlord.Model;
-import com.marginallyclever.evilOverlord.PrimitiveSolids;
-import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
-import com.marginallyclever.evilOverlord.Arm5.Arm5ControlPanel;
+import com.marginallyclever.evilOverlord.*;
+import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
 public class RotaryStewartPlatform2
 extends RobotWithSerialConnection
 implements PropertyChangeListener
 {
-
+	// machine ID
+	protected long robotUID;
+	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
+	
 	//math constants
 	final float RAD2DEG = 180.0f/(float)Math.PI;
 	final float DEG2RAD = (float)Math.PI/180.0f;
@@ -71,9 +69,9 @@ implements PropertyChangeListener
 
 	protected boolean isPortConfirmed=false;
 
-	protected Model modelTop = null;
-	protected Model modelArm = null;
-	protected Model modelBase = null;
+	protected Model modelTop = Model.loadModel("/StewartPlatform.zip:top.STL");
+	protected Model modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL");
+	protected Model modelBase = Model.loadModel("/StewartPlatform.zip:base.STL");
 	
 	
 	class Arm {
@@ -95,7 +93,7 @@ implements PropertyChangeListener
 		  }
 	};
 	
-	class MotionState {
+	class RotaryStewartPlatform2MotionState {
 		// angle of rotation
 		Arm arms[];
 
@@ -120,7 +118,7 @@ implements PropertyChangeListener
 		float base_tilt=0;
 
 		
-		MotionState() {
+		RotaryStewartPlatform2MotionState() {
 			arms = new Arm[6];
 			int i;
 			for(i=0;i<6;++i) {
@@ -128,7 +126,7 @@ implements PropertyChangeListener
 			}
 		}
 		
-		void set(MotionState other) {
+		void set(RotaryStewartPlatform2MotionState other) {
 			iku=other.iku;
 			ikv=other.ikv;
 			ikw=other.ikw;
@@ -149,8 +147,8 @@ implements PropertyChangeListener
 		}
 	};
 	
-	protected MotionState motion_now = new MotionState();
-	protected MotionState motion_future = new MotionState();
+	protected RotaryStewartPlatform2MotionState motion_now = new RotaryStewartPlatform2MotionState();
+	protected RotaryStewartPlatform2MotionState motion_future = new RotaryStewartPlatform2MotionState();
 	
 	boolean homed = false;
 	boolean homing = false;
@@ -177,7 +175,7 @@ implements PropertyChangeListener
 	
 
 	protected JButton view_home=null, view_go=null;
-	protected JLabelledTextField view_px,view_py,view_pz,view_rx,view_ry,view_rz;
+	protected JLabelledTextField viewPx,viewPy,viewPz,viewRx,viewRy,viewRz;
 	
 	
 	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
@@ -194,7 +192,7 @@ implements PropertyChangeListener
 	
 	
 	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
-	public boolean movePermitted(MotionState state) {/*
+	public boolean movePermitted(RotaryStewartPlatform2MotionState state) {/*
 		// don't hit floor
 		if(state.finger_tip.z<0.25f) {
 			return false;
@@ -223,6 +221,8 @@ implements PropertyChangeListener
 	
 	public RotaryStewartPlatform2(MainGUI gui) {
 		super(gui);
+		setDisplayName("Rotary Stewart Platform 2");
+		
 		/*
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {
@@ -262,24 +262,7 @@ implements PropertyChangeListener
 	}
 	
 
-	void Init(GL2 gl2) {
-    	String current="";
-		try {
-			current = new java.io.File( "." ).getCanonicalPath();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        System.out.println("Current dir:"+current);
-        String currentDir = System.getProperty("user.dir");
-        System.out.println("Current dir using System:" +currentDir);
-        
-		modelTop = Model.loadModel(current+"/top.STL" );
-		modelArm = Model.loadModel(current+"/arm.STL" );
-		modelBase = Model.loadModel(current+"/base.STL");
-	}
-	
-	protected boolean CheckAngleLimits(MotionState state) {
+	protected boolean CheckAngleLimits(RotaryStewartPlatform2MotionState state) {
 		// machine specific limits
 		/*
 		if (state.angle_0 < -180) return false;
@@ -312,7 +295,7 @@ implements PropertyChangeListener
 	 * @input results where to put resulting angles after the IK calculation
 	 * @return 0 if successful, 1 if the IK solution cannot be found.
 	 */
-	protected boolean IK(MotionState state) {
+	protected boolean IK(RotaryStewartPlatform2MotionState state) {
 		try {
 			IK_update_end_effector(state);
 			IK_update_wrists(state);
@@ -325,7 +308,7 @@ implements PropertyChangeListener
 		return true;
 	}
 	
-	protected void IK_update_end_effector(MotionState state) {
+	protected void IK_update_end_effector(RotaryStewartPlatform2MotionState state) {
 		  state.finger_forward.set(1,0,0);
 		  state.finger_left   .set(0,1,0);
 		  state.finger_up     .set(0,0,1);
@@ -345,7 +328,7 @@ implements PropertyChangeListener
 		  state.finger_left    = RotateAroundAxis(state.finger_left,   new Vector3f(0,0,1),state.ikw*DEG2RAD);
 	}
 	
-	protected void IK_update_wrists(MotionState state) {
+	protected void IK_update_wrists(RotaryStewartPlatform2MotionState state) {
 		  Vector3f n1 = new Vector3f(),o1 = new Vector3f(),temp = new Vector3f();
 		  float c,s;
 		  int i;
@@ -385,7 +368,7 @@ implements PropertyChangeListener
 		  }
 	}
 	
-	protected void IK_update_shoulder_angles(MotionState state) throws AssertionError {
+	protected void IK_update_shoulder_angles(RotaryStewartPlatform2MotionState state) throws AssertionError {
 		Vector3f ortho = new Vector3f(),w = new Vector3f(),wop = new Vector3f(),temp = new Vector3f(),r = new Vector3f();
 		  float a,b,d,r1,r0,hh,y,x;
 		  
@@ -569,7 +552,7 @@ implements PropertyChangeListener
 	}
 	
 	
-	protected void FK(MotionState state) {}
+	protected void FK(RotaryStewartPlatform2MotionState state) {}
 	
 	
 	protected void update_fk(float delta) {
@@ -723,11 +706,11 @@ implements PropertyChangeListener
 			/*
 			if(view_px!=null) {	        
 				view_px.getField().setText(Float.toString(motion_now.finger_tip.x));
-				view_py.getField().setText(Float.toString(motion_now.finger_tip.y));
-				view_pz.getField().setText(Float.toString(motion_now.finger_tip.z));
-				view_rx.getField().setText(Float.toString(motion_now.iku));
-				view_ry.getField().setText(Float.toString(motion_now.ikv));
-				view_rz.getField().setText(Float.toString(motion_now.ikw));
+				viewPy.getField().setText(Float.toString(motion_now.finger_tip.y));
+				viewPz.getField().setText(Float.toString(motion_now.finger_tip.z));
+				viewRx.getField().setText(Float.toString(motion_now.iku));
+				viewRy.getField().setText(Float.toString(motion_now.ikv));
+				viewRz.getField().setText(Float.toString(motion_now.ikw));
 			}*/
 		}
 	}
@@ -747,7 +730,8 @@ implements PropertyChangeListener
 		//RebuildShoulders(motion_now);
 		
 		gl2.glPushMatrix();
-
+		gl2.glTranslated(position.x, position.y, position.z);
+		
 		if(draw_stl) {
 			// base
 			gl2.glPushMatrix();
@@ -755,7 +739,7 @@ implements PropertyChangeListener
 			gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z+0.6f);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(90, 1, 0, 0);
-			gl2.glScalef(0.1f,0.1f,0.1f);
+			//gl2.glScalef(0.1f,0.1f,0.1f);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 			
@@ -769,7 +753,7 @@ implements PropertyChangeListener
 				gl2.glRotatef(120.0f*i, 0, 0, 1);
 				gl2.glRotatef(90, 0, 1, 0);
 				gl2.glRotatef(180-motion_now.arms[i*2+0].angle,0,0,1);
-				gl2.glScalef(0.1f,0.1f,0.1f);
+				//gl2.glScalef(0.1f,0.1f,0.1f);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 	
@@ -781,7 +765,7 @@ implements PropertyChangeListener
 				gl2.glRotatef(120.0f*i, 0, 0, 1);
 				gl2.glRotatef(90, 0, 1, 0);
 				gl2.glRotatef(+motion_now.arms[i*2+1].angle,0,0,1);
-				gl2.glScalef(0.1f,0.1f,0.1f);
+				//gl2.glScalef(0.1f,0.1f,0.1f);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
@@ -794,7 +778,7 @@ implements PropertyChangeListener
 			gl2.glRotatef(motion_now.ikw, 0, 0, 1);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(180, 1, 0, 0);
-			gl2.glScalef(0.1f, 0.1f, 0.1f);
+			//gl2.glScalef(0.1f, 0.1f, 0.1f);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
@@ -888,16 +872,76 @@ implements PropertyChangeListener
 		gl2.glPopMatrix();
 	}
 	
+
+	public void setModeAbsolute() {
+		if(connection!=null) this.sendLineToRobot("G90");
+	}
 	
+	
+	public void setModeRelative() {
+		if(connection!=null) this.sendLineToRobot("G91");
+	}
+	
+
 	@Override
-	// override this method to check that the software is connected to the right type of robots.
-	public boolean ConfirmPort(String preamble) {
-		if(!portOpened) return false;
-		
-		if(preamble.contains("Arm3")) {
-			portConfirmed=true;			
+	// override this method to check that the software is connected to the right type of robot.
+	public void serialDataAvailable(MarginallyCleverConnection arg0,String line) {
+		if(line.contains(hello)) {
+			isPortConfirmed=true;
+			//finalizeMove();
+			setModeAbsolute();
+			this.sendLineToRobot("R1");
+			
+			String uidString=line.substring(hello.length()).trim();
+			System.out.println(">>> UID="+uidString);
+			try {
+				long uid = Long.parseLong(uidString);
+				if(uid==0) {
+					robotUID = getNewRobotUID();
+				} else {
+					robotUID = uid;
+				}
+				updateGUI();
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+
+			displayName="Rotary Stewart Platform 2 #"+robotUID;
 		}
-		return portConfirmed;
+	}
+	
+
+	/**
+	 * based on http://www.exampledepot.com/egs/java.net/Post.html
+	 */
+	private long getNewRobotUID() {
+		long new_uid = 0;
+
+		try {
+			// Send data
+			URL url = new URL("https://marginallyclever.com/stewart_platform_getuid.php");
+			URLConnection conn = url.openConnection();
+			try (
+					final InputStream connectionInputStream = conn.getInputStream();
+					final Reader inputStreamReader = new InputStreamReader(connectionInputStream);
+					final BufferedReader rd = new BufferedReader(inputStreamReader)
+					) {
+				String line = rd.readLine();
+				new_uid = Long.parseLong(line);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+
+		// did read go ok?
+		if (new_uid != 0) {
+			// make sure a topLevelMachinesPreferenceNode node is created
+			// tell the robot it's new UID.
+			this.sendLineToRobot("UID " + new_uid);
+		}
+		return new_uid;
 	}
 	
 	
@@ -906,13 +950,13 @@ implements PropertyChangeListener
 	}
 	
 
-	public void MoveBase(MotionState state,Vector3f dp) {
+	public void MoveBase(RotaryStewartPlatform2MotionState state,Vector3f dp) {
 		state.base.set(dp);
 		RebuildShoulders(state);
 	}
 	
 	
-	public void RotateBase(MotionState state,float pan,float tilt) {
+	public void RotateBase(RotaryStewartPlatform2MotionState state,float pan,float tilt) {
 		state.base_pan=pan;
 		state.base_tilt=tilt;
 		
@@ -931,7 +975,7 @@ implements PropertyChangeListener
 		RebuildShoulders(state);
 	}
 	
-	protected void RebuildShoulders(MotionState state) {
+	protected void RebuildShoulders(RotaryStewartPlatform2MotionState state) {
 		  Vector3f n1=new Vector3f(),o1=new Vector3f(),temp=new Vector3f();
 		  float c,s;
 		  int i;
@@ -1031,26 +1075,26 @@ implements PropertyChangeListener
 		rspPanel.getContentPane().setLayout(new GridLayout(0,1));
 		
 		view_home=new JButton("Home");
-		view_px=new JLabelledTextField(Float.toString(motion_now.finger_tip.x),"X");
-		view_py=new JLabelledTextField(Float.toString(motion_now.finger_tip.y),"Y");
-		view_pz=new JLabelledTextField(Float.toString(motion_now.finger_tip.z),"Z");
-		view_rx=new JLabelledTextField(Float.toString(motion_now.iku),"U");
-		view_ry=new JLabelledTextField(Float.toString(motion_now.ikv),"V");
-		view_rz=new JLabelledTextField(Float.toString(motion_now.ikw),"W");
+		viewPx=new JLabelledTextField(Float.toString(motion_now.finger_tip.x),"X");
+		viewPy=new JLabelledTextField(Float.toString(motion_now.finger_tip.y),"Y");
+		viewPz=new JLabelledTextField(Float.toString(motion_now.finger_tip.z),"Z");
+		viewRx=new JLabelledTextField(Float.toString(motion_now.iku),"U");
+		viewRy=new JLabelledTextField(Float.toString(motion_now.ikv),"V");
+		viewRz=new JLabelledTextField(Float.toString(motion_now.ikw),"W");
         rspPanel.getContentPane().add(view_home);
-		rspPanel.getContentPane().add(view_px);
-		rspPanel.getContentPane().add(view_py);
-		rspPanel.getContentPane().add(view_pz);
-		rspPanel.getContentPane().add(view_rx);
-		rspPanel.getContentPane().add(view_ry);
-		rspPanel.getContentPane().add(view_rz);
+		rspPanel.getContentPane().add(viewPx);
+		rspPanel.getContentPane().add(viewPy);
+		rspPanel.getContentPane().add(viewPz);
+		rspPanel.getContentPane().add(viewRx);
+		rspPanel.getContentPane().add(viewRy);
+		rspPanel.getContentPane().add(viewRz);
 		view_home.addActionListener(this);
-		view_px.addPropertyChangeListener("value",this);
-		view_py.addPropertyChangeListener("value",this);
-		view_pz.addPropertyChangeListener("value",this);
-		view_rx.addPropertyChangeListener("value",this);
-		view_ry.addPropertyChangeListener("value",this);
-		view_rz.addPropertyChangeListener("value",this);
+		viewPx.addPropertyChangeListener("value",this);
+		viewPy.addPropertyChangeListener("value",this);
+		viewPz.addPropertyChangeListener("value",this);
+		viewRx.addPropertyChangeListener("value",this);
+		viewRy.addPropertyChangeListener("value",this);
+		viewRz.addPropertyChangeListener("value",this);
 		
 		list.add(rspPanel);
 		updateGUI();
@@ -1079,24 +1123,24 @@ implements PropertyChangeListener
 		Object subject = e.getSource();
 
 		try {
-			if(subject == view_px ) {
-				String t=view_px.getField().getText();
+			if(subject == viewPx ) {
+				String t=viewPx.getField().getText();
 				float f = Float.parseFloat(t);
 				if(!Float.isNaN(f)) {
 					this.motion_future.finger_tip.x = f;
 					moveIfAble();
 				}
 			}
-			if(subject == view_py ) {
-				String t=view_py.getField().getText();
+			if(subject == viewPy ) {
+				String t=viewPy.getField().getText();
 				float f = Float.parseFloat(t);
 				if(!Float.isNaN(f)) {
 					this.motion_future.finger_tip.y = f;
 					moveIfAble();
 				}
 			}
-			if(subject == view_pz ) {
-				String t=view_pz.getField().getText();
+			if(subject == viewPz ) {
+				String t=viewPz.getField().getText();
 				float f = Float.parseFloat(t);
 				if(!Float.isNaN(f)) {
 					this.motion_future.finger_tip.z = f;
@@ -1104,24 +1148,24 @@ implements PropertyChangeListener
 				}
 			}
 			
-			if(subject == view_rx ) {
-				String t=view_rx.getField().getText();
+			if(subject == viewRx ) {
+				String t=viewRx.getField().getText();
 				float f = Float.parseFloat(t);
 				if(!Float.isNaN(f)) {
 					this.motion_future.iku = f;
 					moveIfAble();
 				}
 			}
-			if(subject == view_ry ) {
-				String t=view_ry.getField().getText();
+			if(subject == viewRy ) {
+				String t=viewRy.getField().getText();
 				float f = Float.parseFloat(t);
 				if(!Float.isNaN(f)) {
 					this.motion_future.ikv = f;
 					moveIfAble();
 				}
 			}
-			if(subject == view_rz ) {
-				String t=view_rz.getField().getText();
+			if(subject == viewRz ) {
+				String t=viewRz.getField().getText();
 				float f = Float.parseFloat(t);
 				if(!Float.isNaN(f)) {
 					this.motion_future.ikw = f;

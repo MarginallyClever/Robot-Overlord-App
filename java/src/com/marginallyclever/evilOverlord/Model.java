@@ -1,16 +1,13 @@
 package com.marginallyclever.evilOverlord;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import javax.media.opengl.GL2;
 
@@ -64,25 +61,33 @@ public class Model {
 	}
 	
 	private void loadFromZip(GL2 gl2,String zipName,String fname) {
-		ZipFile zipFile=null;
+		ZipInputStream zipFile=null;
 		ZipEntry entry;
+		InputStreamReader isr;
 		BufferedReader stream;
 		try {
-		    zipFile = new ZipFile(zipName);
-	
-		    Enumeration<? extends ZipEntry> entries = zipFile.entries();
-	
-		    while(entries.hasMoreElements()){
-		        entry = entries.nextElement();
+			zipFile = new ZipInputStream(getClass().getResourceAsStream(zipName));
+			isr = new InputStreamReader(zipFile);
+			
+		    while((entry = zipFile.getNextEntry())!=null) {
 		        if( entry.getName().equals(fname) ) {
-			        stream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+			        stream = new BufferedReader(isr);
 			        initialize(gl2,stream);
-			        
-			        stream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+		        }
+		    }
+		    zipFile.close();
+
+			zipFile = new ZipInputStream(getClass().getResourceAsStream(zipName));
+			isr = new InputStreamReader(zipFile);
+			
+		    while((entry = zipFile.getNextEntry())!=null) {
+		        if( entry.getName().equals(fname) ) {
+			        stream = new BufferedReader(isr);
 			        loadFromStream(gl2,stream);
 			        break;
 		        }
 		    }
+		    
 		    zipFile.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -95,10 +100,10 @@ public class Model {
 	private void loadFromFile(GL2 gl2,String fname) {
 		BufferedReader br = null;
 		try {
-		    br = new BufferedReader(new FileReader(new File(fname)));
+			br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
 		    initialize(gl2,br);
-		    
-		    br = new BufferedReader(new FileReader(new File(fname)));
+		    br.close();
+			br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
 		    loadFromStream(gl2,br);   
 		}
 		catch(IOException e) {

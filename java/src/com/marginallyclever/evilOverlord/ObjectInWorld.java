@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.media.opengl.GL2;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -134,4 +135,7 @@ public class ObjectInWorld implements ActionListener {
 			} catch(NumberFormatException e) {}
 		}
 	}
+	
+	
+	public void render(GL2 gl2) {}
 }

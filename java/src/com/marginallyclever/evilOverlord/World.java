@@ -16,6 +16,7 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
 import com.marginallyclever.evilOverlord.Camera.Camera;
+import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
 import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
 
@@ -33,6 +34,7 @@ implements ActionListener {
 	
 	protected JMenu worldMenu;
 	protected JMenuItem buttonAddArm5Robot;
+	protected JMenuItem buttonAddRSP2;
 	protected boolean areTexturesLoaded=false;
 	
 	// world contents
@@ -65,6 +67,12 @@ implements ActionListener {
 		objects.add(r);
 	}
 	
+	protected void addRSP2() {
+		RotaryStewartPlatform2 r = new RotaryStewartPlatform2(gui);
+		r.setConnectionManager(connectionManager);
+		objects.add(r);
+	}
+	
 
     protected void setup( GL2 gl2 ) {
 		gl2.glDepthFunc(GL2.GL_LESS);
@@ -88,14 +96,21 @@ implements ActionListener {
 	void loadTextures( GL2 gl2 ) {
 		if(areTexturesLoaded) return;
 		
-		// world background texture
-		try {
-			t0 = TextureIO.newTexture(new File("cube-x-pos.png"), true);
-			t1 = TextureIO.newTexture(new File("cube-x-neg.png"), true);
-			t2 = TextureIO.newTexture(new File("cube-y-pos.png"), true);
-			t3 = TextureIO.newTexture(new File("cube-y-neg.png"), true);
-			t4 = TextureIO.newTexture(new File("cube-z-pos.png"), true);
-			t5 = TextureIO.newTexture(new File("cube-z-neg.png"), true);
+		// World background texture
+		try {/*
+			t0 = TextureIO.newTexture(getClass().getResourceAsStream("/images/cube-x-pos.png"), true,null);
+			t1 = TextureIO.newTexture(getClass().getResourceAsStream("/images/cube-x-neg.png"), true,null);
+			t2 = TextureIO.newTexture(getClass().getResourceAsStream("/images/cube-y-pos.png"), true,null);
+			t3 = TextureIO.newTexture(getClass().getResourceAsStream("/images/cube-y-neg.png"), true,null);
+			t4 = TextureIO.newTexture(getClass().getResourceAsStream("/images/cube-z-pos.png"), true,null);
+			t5 = TextureIO.newTexture(getClass().getResourceAsStream("/images/cube-z-neg.png"), true,null);
+			*/
+			t0 = TextureIO.newTexture(new File("java/src/images/cube-x-pos.png"), true);
+			t1 = TextureIO.newTexture(new File("java/src/images/cube-x-neg.png"), true);
+			t2 = TextureIO.newTexture(new File("java/src/images/cube-y-pos.png"), true);
+			t3 = TextureIO.newTexture(new File("java/src/images/cube-y-neg.png"), true);
+			t4 = TextureIO.newTexture(new File("java/src/images/cube-z-pos.png"), true);
+			t5 = TextureIO.newTexture(new File("java/src/images/cube-z-neg.png"), true);
 			System.out.println(">>> All textures loaded OK");
 			areTexturesLoaded=true;
 		}
@@ -112,6 +127,10 @@ implements ActionListener {
 			addArm5Robot();
 			return;
 		}
+		if(subject == buttonAddRSP2) {
+			addRSP2();
+			return;
+		}
 	}
 	
 	
@@ -121,11 +140,35 @@ implements ActionListener {
     	worldMenu.add(buttonAddArm5Robot);
     	buttonAddArm5Robot.addActionListener(this);
     	
+    	buttonAddRSP2 = new JMenuItem("Add Rotary Stewart Platform 2");
+    	worldMenu.add(buttonAddRSP2);
+    	buttonAddRSP2.addActionListener(this);
+
     	return worldMenu;
     }
     
 	
 	public void render(GL2 gl2, float delta ) {
+		Iterator<ObjectInWorld> io = objects.iterator();
+		while(io.hasNext()) {
+			ObjectInWorld obj = io.next();
+			if(obj instanceof Arm5Robot) {
+				Arm5Robot arm = (Arm5Robot)obj;
+				arm.PrepareMove(delta);
+			}
+		}
+		//TODO do collision test here
+		
+		// Finalize the moves that don't collide
+		io = objects.iterator();
+		while(io.hasNext()) {
+			ObjectInWorld obj = io.next();
+			if(obj instanceof Arm5Robot) {
+				Arm5Robot arm = (Arm5Robot)obj;
+				arm.finalizeMove();
+			}
+		}
+
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
@@ -146,8 +189,9 @@ implements ActionListener {
 		//gl2.glEnable(GL2.GL_CULL_FACE);
 		//gl2.glCullFace(GL2.GL_BACK);
 
-		
+			
 		gl2.glPushMatrix();
+		
 			camera.update(delta);
 			camera.render(gl2);
 			
@@ -167,28 +211,15 @@ implements ActionListener {
 			PrimitiveSolids.drawGrid(gl2,50,5);
 			gl2.glEnable(GL2.GL_LIGHTING);
 			
-			Iterator<ObjectInWorld> io = objects.iterator();
-			while(io.hasNext()) {
-				ObjectInWorld obj = io.next();
-				if(obj instanceof Arm5Robot) {
-					Arm5Robot arm = (Arm5Robot)obj;
-					arm.PrepareMove(delta);
-				}
-			}
-			//TODO do collision test here
-			
+			// draw!
 			io = objects.iterator();
 			while(io.hasNext()) {
 				ObjectInWorld obj = io.next();
 				gl2.glPushName(obj.getPickName());
-				if(obj instanceof Arm5Robot) {
-					Arm5Robot arm = (Arm5Robot)obj;
-					arm.finalizeMove();
-					arm.render(gl2);
-				}
+				obj.render(gl2);
 				gl2.glPopName();
 			}
-			
+	
 			showPickingTest(gl2);
 			
 		gl2.glPopMatrix();
@@ -243,18 +274,18 @@ implements ActionListener {
 
 			t0.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, -10);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, -10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, -10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
 			gl2.glEnd();
 
 			t1.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, -10);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, -10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, -10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
 			gl2.glEnd();
 
 			t2.bind(gl2);
@@ -275,10 +306,10 @@ implements ActionListener {
 
 			t4.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, 10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, 10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, 10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, 10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10,-10, 10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, 10);
 			gl2.glEnd();
 
 			t5.bind(gl2);

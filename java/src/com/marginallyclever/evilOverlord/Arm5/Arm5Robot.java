@@ -4,12 +4,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
-import com.marginallyclever.evilOverlord.BoundingVolume;
-import com.marginallyclever.evilOverlord.Cylinder;
-import com.marginallyclever.evilOverlord.MainGUI;
-import com.marginallyclever.evilOverlord.Model;
-import com.marginallyclever.evilOverlord.PrimitiveSolids;
-import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
+import com.marginallyclever.evilOverlord.*;
 import com.marginallyclever.evilOverlord.ArmTool.ArmTool;
 import com.marginallyclever.evilOverlord.ArmTool.ArmToolGripper;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
@@ -46,15 +41,15 @@ extends RobotWithSerialConnection {
 	public final static float WRIST_TO_TOOL_Y = 1.0f;
 	
 	// model files
-	private Model anchor = Model.loadModel("ArmParts.zip:anchor.STL");
-	private Model shoulder = Model.loadModel("ArmParts.zip:shoulder1.STL");
-	private Model shoulderPinion = Model.loadModel("ArmParts.zip:shoulder_pinion.STL");
-	private Model boom = Model.loadModel("ArmParts.zip:boom.STL");
-	private Model stick = Model.loadModel("ArmParts.zip:stick.STL");
-	private Model wristBone = Model.loadModel("ArmParts.zip:wrist_bone.STL");
-	private Model wristEnd = Model.loadModel("ArmParts.zip:wrist_end.STL");
-	private Model wristInterior = Model.loadModel("ArmParts.zip:wrist_interior.STL");
-	private Model wristPinion = Model.loadModel("ArmParts.zip:wrist_pinion.STL");
+	private Model anchor = Model.loadModel("/ArmParts.zip:anchor.STL");
+	private Model shoulder = Model.loadModel("/ArmParts.zip:shoulder1.STL");
+	private Model shoulderPinion = Model.loadModel("/ArmParts.zip:shoulder_pinion.STL");
+	private Model boom = Model.loadModel("/ArmParts.zip:boom.STL");
+	private Model stick = Model.loadModel("/ArmParts.zip:stick.STL");
+	private Model wristBone = Model.loadModel("/ArmParts.zip:wrist_bone.STL");
+	private Model wristEnd = Model.loadModel("/ArmParts.zip:wrist_end.STL");
+	private Model wristInterior = Model.loadModel("/ArmParts.zip:wrist_interior.STL");
+	private Model wristPinion = Model.loadModel("/ArmParts.zip:wrist_pinion.STL");
 
 	// currently attached tool
 	private ArmTool tool = null;
