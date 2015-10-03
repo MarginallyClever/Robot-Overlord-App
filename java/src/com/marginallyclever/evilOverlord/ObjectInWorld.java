@@ -18,7 +18,7 @@ public class ObjectInWorld {
 	protected List<ObjectInWorld> children;
 	protected Vector3f position;
 	protected String displayName;
-	protected int pickName=0;
+	protected int pickName;
 	
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static protected int pickNameCounter=1;
@@ -79,7 +79,12 @@ public class ObjectInWorld {
 	}
 
 
-	public void setName(String name) {
-		this.displayName = name;
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+
+	public int getPickName() {
+		return pickName;
 	}
 }

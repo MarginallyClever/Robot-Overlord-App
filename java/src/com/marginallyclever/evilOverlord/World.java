@@ -177,17 +177,17 @@ implements ActionListener {
 			}
 			//TODO do collision test here
 			
-			gl2.glPushName(1);
 			io = objects.iterator();
 			while(io.hasNext()) {
 				ObjectInWorld obj = io.next();
+				gl2.glPushName(obj.getPickName());
 				if(obj instanceof Arm5Robot) {
 					Arm5Robot arm = (Arm5Robot)obj;
 					arm.finalizeMove();
 					arm.render(gl2);
 				}
+				gl2.glPopName();
 			}
-			gl2.glPopName();
 			
 			showPickingTest(gl2);
 			
@@ -338,15 +338,24 @@ implements ActionListener {
 	}
 
 	
-	public void pickObjectWithName(int name) {
-		if(name==0) {
-			lastPickedObject=camera;
+	public void pickObjectWithName(int pickName) {
+		ObjectInWorld newObject=null;
+		if(pickName==0) {
+			// Hit nothing!  Default to camera controls
+			newObject=camera;
 		} else {
-			
+			Iterator<ObjectInWorld> iter = objects.iterator();
+			while(iter.hasNext()) {
+				ObjectInWorld obj = iter.next();
+				if( obj.getPickName()==pickName ) {
+					newObject=obj;
+				}
+			}
 		}
 		
-		// Hit nothing!  Default to camera controls
-		gui.setContextMenu(lastPickedObject.buildPanel(),lastPickedObject.getDisplayName());
-		
+		if(newObject != lastPickedObject) {
+			lastPickedObject = newObject;
+			gui.setContextMenu(lastPickedObject.buildPanel(),lastPickedObject.getDisplayName());
+		}
 	}
 }

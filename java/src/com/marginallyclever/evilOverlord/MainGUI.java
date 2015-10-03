@@ -545,7 +545,6 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     
     
     @Override
-    @SuppressWarnings("unused")
     public void display( GLAutoDrawable drawable ) {
         long now_time = System.currentTimeMillis();
         float dt = (now_time - last_time)*0.001f;
@@ -569,63 +568,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 
 	        if(pickNow) {
 		        pickNow=false;
-	    		
-		        selectBuffer = Buffers.newDirectIntBuffer(MainGUI.SELECT_BUFFER_SIZE);
-	    		int[] viewport = new int[4];
-	    		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewport,0);
-	            gl2.glSelectBuffer(SELECT_BUFFER_SIZE, selectBuffer);
-	    		gl2.glRenderMode( GL2.GL_SELECT );
-	    		gl2.glInitNames();
-
-	            gl2.glMatrixMode(GL2.GL_PROJECTION);
-	            gl2.glPushMatrix();
-	            gl2.glLoadIdentity();
-	    		glu.gluPickMatrix(pickX, viewport[3]-pickY, 5.0, 5.0, viewport,0);
-	            glu.gluPerspective(90, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
-	            	    		
-		        world.render( gl2, 0 );
-
-	            gl2.glMatrixMode(GL2.GL_PROJECTION);
-	            gl2.glPopMatrix();
-		        gl2.glFlush();
-
-		        boolean pickFound=false;
-		        int hits = gl2.glRenderMode( GL2.GL_RENDER );
-		        if(hits!=0) {
-		        	// report it here
-//		            System.out.println("---------------------------------");
-//		        	System.out.println("HITS="+hits);
-		        	int index=0;
-		        	int i;
-		        	for(i=0;i<hits;++i) {
-		        		int names=selectBuffer.get(index++);
-		        		
-		                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-		                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-		                
-//		                System.out.println("- - - - - - - - - - - -");
-//		                System.out.println("  hit: "+(i+1));
-//		                System.out.println("  number of names: " + names);
-//		                System.out.println("  z1: " + z1);
-//		                System.out.println("  z2: " + z2);
-//		                System.out.println("  names: ");
-		        		for (int j=0;j<names;j++) {
-		        			int name = selectBuffer.get(index++);
-//		        			System.out.print("    "+Integer.toString(name));
-			                if(j==names-1) {
-//			                	System.out.print(" <--");
-			                	world.pickObjectWithName(name);
-			                	pickFound=true;
-			                }
-//			                System.out.println();
-		        		}
-//		                System.out.println("- - - - - - - - - - - -");
-		        	}
-//		            System.out.println("---------------------------------");
-		        }
-		        if(pickFound==false) {
-		        	world.pickObjectWithName(0);
-		        }
+		        pickIntoWorld(gl2);
     		}
 			
     		if(checkStackSize) {
@@ -637,6 +580,65 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     	frame_delay+=dt;
     }
 
+
+    /**
+     * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
+     * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
+     * http://www.programcreek.com/java-api-examples/java.nio.IntBuffer
+     * @param gl2
+     */
+    @SuppressWarnings("unused")
+    protected void pickIntoWorld(GL2 gl2) {
+    	// set up the buffer that will hold the names found under the cursor in furthest to closest.
+        selectBuffer = Buffers.newDirectIntBuffer(MainGUI.SELECT_BUFFER_SIZE);
+        gl2.glSelectBuffer(SELECT_BUFFER_SIZE, selectBuffer);
+        // change the render mode
+		gl2.glRenderMode( GL2.GL_SELECT );
+		// wipe the select buffer
+		gl2.glInitNames();
+        // get the current viewport dimensions to set up the projection matrix
+        int[] viewport = new int[4];
+		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewport,0);
+		// Set up a tiny viewport that only covers the area behind the cursor.  Tiny viewports are faster?
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glPushMatrix();
+        gl2.glLoadIdentity();
+		glu.gluPickMatrix(pickX, viewport[3]-pickY, 5.0, 5.0, viewport,0);
+        glu.gluPerspective(90, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+
+        // render in selection mode, without advancing time in the simulation.
+        world.render( gl2, 0 );
+
+        // return the projection matrix to it's old state.
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glPopMatrix();
+        gl2.glFlush();
+
+        // get the picking results and return the render mode to the default 
+        int hits = gl2.glRenderMode( GL2.GL_RENDER );
+
+        boolean pickFound=false;
+        if(hits!=0) {
+        	int index=0;
+        	int i;
+        	for(i=0;i<hits;++i) {
+        		int names=selectBuffer.get(index++);
+                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+                
+        		for (int j=0;j<names;j++) {
+        			int name = selectBuffer.get(index++);
+        		    if(j==names-1) {
+        		    	world.pickObjectWithName(name);
+	                	pickFound=true;
+	                }
+        		}
+        	}
+        }
+        if(pickFound==false) {
+        	world.pickObjectWithName(0);
+        }
+    }
 
 	@Override
 	public void mouseClicked(MouseEvent e) {

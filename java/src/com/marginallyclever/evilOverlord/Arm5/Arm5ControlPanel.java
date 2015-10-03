@@ -1,5 +1,7 @@
 package com.marginallyclever.evilOverlord.Arm5;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,14 +60,23 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 
 	public Arm5ControlPanel(Arm5Robot arm) {
 		super();
+
+		JPanel p;
 		
 		robotArm = arm;
 
-		uid = new JLabel("Evil Minion");
-		this.add(uid);
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTH;
 		
-		JPanel p;
-		this.setLayout(new GridLayout(0,1));
+		uid = new JLabel("Unconnected");
+		this.add(uid,con1);
+		con1.gridy++;
 
 		double speed=robotArm.getSpeed();
 		int speedIndex;
@@ -76,16 +87,18 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		
 		p.add(new JLabel("Speed"));
 		speedControl = new JSlider(0,speedOptions.length-1,speedIndex);
 		p.add(speedNow);
-		this.add(speedControl);
 		speedControl.addChangeListener(this);
 		speedControl.setMajorTickSpacing(speedOptions.length-1);
 		speedControl.setMinorTickSpacing(1);
 		speedControl.setPaintTicks(true);
+		this.add(speedControl,con1);
+		con1.gridy++;
 		
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
@@ -103,59 +116,69 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		d2 = new JLabel("0.00");
 		e2 = new JLabel("0.00");
 
-		this.add(new JLabel("Forward Kinematics"));
+		this.add(new JLabel("Forward Kinematics"),con1);
+		con1.gridy++;
 		
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Apos = createButton("A+"));
 		p.add(a1);
 		//p.add(a2);
 		p.add(arm5Aneg = createButton("A-"));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Bpos = createButton("B+"));
 		p.add(b1);
 		//p.add(b2);
 		p.add(arm5Bneg = createButton("B-"));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Cpos = createButton("C+"));
 		p.add(c1);
 		//p.add(c2);
 		p.add(arm5Cneg = createButton("C-"));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Dpos = createButton("D+"));
 		p.add(d1);
 		//p.add(d2);
 		p.add(arm5Dneg = createButton("D-"));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Epos = createButton("E+"));
 		p.add(e1);
 		//p.add(e2);	
 		p.add(arm5Eneg = createButton("E-"));
 
-		this.add(new JLabel("Finger Tip Inverse Kinematics"));
+		this.add(new JLabel("Finger Tip Inverse Kinematics"),con1);
+		con1.gridy++;
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Xpos = createButton("X+"));
 		p.add(xPos);
 		p.add(arm5Xneg = createButton("X-"));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Ypos = createButton("Y+"));
 		p.add(yPos);
 		p.add(arm5Yneg = createButton("Y-"));
 
 		p = new JPanel(new GridLayout(1,0));
-		this.add(p);
+		this.add(p,con1);
+		con1.gridy++;
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));

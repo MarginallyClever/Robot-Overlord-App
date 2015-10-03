@@ -133,6 +133,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	public void rescanConnections() {
 		portsDetected = connectionManager.listConnections();
 	    buttonPorts = new JRadioButton[portsDetected.length];
+	    connectionList.removeAll();
 	    
 		int i;
 	    for(i=0;i<portsDetected.length;++i) {
@@ -274,6 +275,8 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	 * @return true if the command is sent to the robot.
 	 */
 	public boolean sendLineToRobot(String line) {
+		if(connection==null) return false;
+
 		// contains a comment?  if so remove it
 		int index=line.indexOf('(');
 		if(index!=-1) {
