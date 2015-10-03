@@ -99,7 +99,7 @@ extends RobotWithSerialConnection {
 		volumes[4].setRadius(1.2f);
 		volumes[5].setRadius(1.0f*0.575f);
 		
-		RotateBase(0,0);
+		rotateBase(0,0);
 		motionNow.checkAngleLimits();
 		motionFuture.checkAngleLimits();
 		motionNow.forwardKinematics();
@@ -449,7 +449,7 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	public void PrepareMove(float delta) {
+	public void prepareMove(float delta) {
 		updateFingerForInverseKinematics(delta);
 		updateAnglesForForwardKinematics(delta);
 		if(tool != null) tool.update(delta);
@@ -832,12 +832,12 @@ extends RobotWithSerialConnection {
 	}
 	
 
-	public void MoveBase(Vector3f dp) {
+	public void moveBase(Vector3f dp) {
 		motionFuture.anchorPosition.set(dp);
 	}
 	
 	
-	public void RotateBase(float pan,float tilt) {
+	public void rotateBase(float pan,float tilt) {
 		motionFuture.base_pan=pan;
 		motionFuture.base_tilt=tilt;
 		
@@ -855,7 +855,7 @@ extends RobotWithSerialConnection {
 	}
 	
 	
-	public BoundingVolume [] GetBoundingVolumes() {
+	public BoundingVolume [] getBoundingVolumes() {
 		// shoulder joint
 		Vector3f t1=new Vector3f(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
@@ -863,11 +863,11 @@ extends RobotWithSerialConnection {
 		Vector3f t2=new Vector3f(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.shoulder);
-		volumes[0].SetP1(GetWorldCoordinatesFor(t1));
-		volumes[0].SetP2(GetWorldCoordinatesFor(t2));
+		volumes[0].SetP1(getWorldCoordinatesFor(t1));
+		volumes[0].SetP2(getWorldCoordinatesFor(t2));
 		// bicep
-		volumes[1].SetP1(GetWorldCoordinatesFor(motionFuture.shoulder));
-		volumes[1].SetP2(GetWorldCoordinatesFor(motionFuture.elbow));
+		volumes[1].SetP1(getWorldCoordinatesFor(motionFuture.shoulder));
+		volumes[1].SetP2(getWorldCoordinatesFor(motionFuture.elbow));
 		// elbow
 		t1.set(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
@@ -875,11 +875,11 @@ extends RobotWithSerialConnection {
 		t2.set(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.elbow);
-		volumes[2].SetP1(GetWorldCoordinatesFor(t1));
-		volumes[2].SetP2(GetWorldCoordinatesFor(t2));
+		volumes[2].SetP1(getWorldCoordinatesFor(t1));
+		volumes[2].SetP2(getWorldCoordinatesFor(t2));
 		// ulna
-		volumes[3].SetP1(GetWorldCoordinatesFor(motionFuture.elbow));
-		volumes[3].SetP2(GetWorldCoordinatesFor(motionFuture.wrist));
+		volumes[3].SetP1(getWorldCoordinatesFor(motionFuture.elbow));
+		volumes[3].SetP2(getWorldCoordinatesFor(motionFuture.wrist));
 		// wrist
 		t1.set(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
@@ -887,17 +887,17 @@ extends RobotWithSerialConnection {
 		t2.set(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.wrist);
-		volumes[4].SetP1(GetWorldCoordinatesFor(t1));
-		volumes[4].SetP2(GetWorldCoordinatesFor(t2));
+		volumes[4].SetP1(getWorldCoordinatesFor(t1));
+		volumes[4].SetP2(getWorldCoordinatesFor(t2));
 		// finger
-		volumes[5].SetP1(GetWorldCoordinatesFor(motionFuture.wrist));
-		volumes[5].SetP2(GetWorldCoordinatesFor(motionFuture.fingerPosition));
+		volumes[5].SetP1(getWorldCoordinatesFor(motionFuture.wrist));
+		volumes[5].SetP2(getWorldCoordinatesFor(motionFuture.fingerPosition));
 		
 		return volumes;
 	}
 	
 	
-	Vector3f GetWorldCoordinatesFor(Vector3f in) {
+	Vector3f getWorldCoordinatesFor(Vector3f in) {
 		Vector3f out = new Vector3f(motionFuture.anchorPosition);
 		
 		Vector3f tempx = new Vector3f(motionFuture.baseForward);

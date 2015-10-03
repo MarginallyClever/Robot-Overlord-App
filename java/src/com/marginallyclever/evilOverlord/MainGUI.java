@@ -45,6 +45,7 @@ public class MainGUI
 implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 {
 	static final String APP_TITLE = "Evil Overlord";
+	static final String APP_URL = "https://github.com/i-make-robots/Evil-Overlord";
 	
 	// select picking
 	static final int SELECT_BUFFER_SIZE=256;
@@ -312,7 +313,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	public void updateMenu() {
 		mainMenu.removeAll();
 		
-        JMenu menu = new JMenu("RobotTrainer");
+        JMenu menu = new JMenu(APP_TITLE);
         
             buttonAbout = new JMenuItem("About",KeyEvent.VK_A);
 	        buttonAbout.getAccessibleContext().setAccessibleDescription("About this program");
@@ -359,7 +360,6 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		}
 	}
 	
-	
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 		
@@ -368,7 +368,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 					+"<h1>"+APP_TITLE+" v"+version+"</h1>"
 					+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
 					+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
-					+"<p>To get the latest version please visit<br><a href='https://github.com/MarginallyClever/arm5'>https://github.com/MarginallyClever/arm5</a></p><br>"
+					+"<p>To get the latest version please visit<br><a href='"+APP_URL+"'>"+APP_URL+"</a></p><br>"
 					+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
 					+"</body></html>");
 			return;
@@ -508,8 +508,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
-		//gl2.glOrtho(0, screen_width, 0, screen_height, 1, -1);
-        glu.gluPerspective(90, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+		setPerspectiveMatrix();
         
         world.setup( gl2 );
     }
@@ -581,6 +580,10 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     }
 
 
+    protected void setPerspectiveMatrix() {
+        glu.gluPerspective(60, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+    }
+    
     /**
      * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
      * https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java
@@ -603,7 +606,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         gl2.glPushMatrix();
         gl2.glLoadIdentity();
 		glu.gluPickMatrix(pickX, viewport[3]-pickY, 5.0, 5.0, viewport,0);
-        glu.gluPerspective(90, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+		setPerspectiveMatrix();
 
         // render in selection mode, without advancing time in the simulation.
         world.render( gl2, 0 );
@@ -620,19 +623,25 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         if(hits!=0) {
         	int index=0;
         	int i;
+			System.out.println("-------------------\nhits:"+hits);
         	for(i=0;i<hits;++i) {
         		int names=selectBuffer.get(index++);
-                //float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-                //float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-        		selectBuffer.get(index++); // near z
-        		selectBuffer.get(index++); // far z
-                
+                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+        		//selectBuffer.get(index++); // near z
+        		//selectBuffer.get(index++); // far z
+                System.out.println("zMin:"+z1);
+                System.out.println("zMaz:"+z2);
+
+    			System.out.println("names:"+names);
         		for (int j=0;j<names;j++) {
         			int name = selectBuffer.get(index++);
-        		    if(j==names-1) {
+        			System.out.println("found:"+name);
+        		    //if(j==names-1) {
         		    	world.pickObjectWithName(name);
 	                	pickFound=true;
-	                }
+	                	return;
+	                //}
         		}
         	}
         }

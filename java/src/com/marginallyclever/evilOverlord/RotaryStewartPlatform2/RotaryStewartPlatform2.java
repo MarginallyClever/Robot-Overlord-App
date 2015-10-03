@@ -29,20 +29,16 @@ implements PropertyChangeListener
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
-	
-	//math constants
-	final float RAD2DEG = 180.0f/(float)Math.PI;
-	final float DEG2RAD = (float)Math.PI/180.0f;
 
 	//machine dimensions
-	final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
-	final float BASE_TO_SHOULDER_Y   =( 2.150f);
-	final float BASE_TO_SHOULDER_Z   =( 6.610f);
-	final float BICEP_LENGTH         =( 5.000f);
-	final float FOREARM_LENGTH       =(16.750f);
-	final float WRIST_TO_FINGER_X    =( 7.635f);
-	final float WRIST_TO_FINGER_Y    =( 0.553f);
-	final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
+	static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
+	static final float BASE_TO_SHOULDER_Y   =( 2.150f);
+	static final float BASE_TO_SHOULDER_Z   =( 6.610f);
+	static final float BICEP_LENGTH         =( 5.000f);
+	static final float FOREARM_LENGTH       =(16.750f);
+	static final float WRIST_TO_FINGER_X    =( 7.635f);
+	static final float WRIST_TO_FINGER_Y    =( 0.553f);
+	static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
 	
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
@@ -51,9 +47,9 @@ implements PropertyChangeListener
 	protected float HOME_B = 0.0f;
 	protected float HOME_C = 0.0f;
 	
-	protected float LIMIT_U=15;
-	protected float LIMIT_V=15;
-	protected float LIMIT_W=15;
+	static final float LIMIT_U=15;
+	static final float LIMIT_V=15;
+	static final float LIMIT_W=15;
 	
 	protected float HOME_RIGHT_X = 0;
 	protected float HOME_RIGHT_Y = 0;
@@ -72,80 +68,6 @@ implements PropertyChangeListener
 	protected Model modelTop = Model.loadModel("/StewartPlatform.zip:top.STL");
 	protected Model modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL");
 	protected Model modelBase = Model.loadModel("/StewartPlatform.zip:base.STL");
-	
-	
-	class Arm {
-		  Vector3f shoulder = new Vector3f();
-		  Vector3f elbow = new Vector3f();
-		  Vector3f shoulderToElbow = new Vector3f();
-		  Vector3f wrist = new Vector3f();
-
-		  float angle=0;
-		  
-
-		  public void set(Arm other) {
-			  shoulder.set(other.shoulder);
-			  elbow.set(other.elbow);
-			  shoulderToElbow.set(other.shoulderToElbow);
-			  wrist.set(other.wrist);
-			  
-			  angle = other.angle;
-		  }
-	};
-	
-	class RotaryStewartPlatform2MotionState {
-		// angle of rotation
-		Arm arms[];
-
-		// Relative to base unless otherwise noted.
-		public Vector3f finger_tip = new Vector3f(HOME_X,HOME_Y,HOME_Z);
-		public Vector3f finger_forward = new Vector3f();
-		public Vector3f finger_up = new Vector3f();
-		public Vector3f finger_left = new Vector3f();
-		// rotating the finger tip
-		public float iku=0;
-		public float ikv=0;
-		public float ikw=0;
-		
-		public Vector3f base = new Vector3f();  // relative to world
-		// base orientation, affects entire arm
-		public Vector3f base_forward = new Vector3f();
-		public Vector3f base_up = new Vector3f();
-		public Vector3f base_right = new Vector3f();
-		
-		// rotating entire robot
-		float base_pan=0;
-		float base_tilt=0;
-
-		
-		RotaryStewartPlatform2MotionState() {
-			arms = new Arm[6];
-			int i;
-			for(i=0;i<6;++i) {
-				arms[i] = new Arm();
-			}
-		}
-		
-		void set(RotaryStewartPlatform2MotionState other) {
-			iku=other.iku;
-			ikv=other.ikv;
-			ikw=other.ikw;
-			finger_tip.set(other.finger_tip);
-			finger_forward.set(other.finger_forward);
-			finger_left.set(other.finger_left);
-			finger_up.set(other.finger_up);
-			int i;
-			for(i=0;i<6;++i) {
-				arms[i].set(other.arms[i]);
-			}
-			base.set(other.base);
-			base_forward.set(other.base_forward);
-			base_up.set(other.base_up);
-			base_right.set(other.base_right);
-			base_pan = other.base_pan;
-			base_tilt = other.base_tilt;
-		}
-	};
 	
 	protected RotaryStewartPlatform2MotionState motion_now = new RotaryStewartPlatform2MotionState();
 	protected RotaryStewartPlatform2MotionState motion_future = new RotaryStewartPlatform2MotionState();
@@ -185,44 +107,16 @@ implements PropertyChangeListener
 		HOME_X=newhome.x;
 		HOME_Y=newhome.y;
 		HOME_Z=newhome.z;
-		RotateBase(motion_future,0f,0f);
-		MoveBase(motion_future,new Vector3f(0,0,0));
+		motion_future.rotateBase(0f,0f);
+		motion_future.moveBase(new Vector3f(0,0,0));
 		moveIfAble();
 	}
-	
-	
-	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
-	public boolean movePermitted(RotaryStewartPlatform2MotionState state) {/*
-		// don't hit floor
-		if(state.finger_tip.z<0.25f) {
-			return false;
-		}
-		// don't hit ceiling
-		if(state.finger_tip.z>50.0f) {
-			return false;
-		}
 
-		// check far limit
-		Vector3f temp = new Vector3f(state.finger_tip);
-		temp.sub(state.shoulder);
-		if(temp.length() > 50) return false;
-		// check near limit
-		if(temp.length() < BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
-*/
-		// angle are good?
-		if(CheckAngleLimits(state)==false) return false;
-		// seems doable
-		if(IK(state)==false) return false;
 
-		// OK
-		return true;
-	}
-	
-	
 	public RotaryStewartPlatform2(MainGUI gui) {
 		super(gui);
 		setDisplayName("Rotary Stewart Platform 2");
-		
+
 		/*
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {
@@ -234,207 +128,29 @@ implements PropertyChangeListener
 		volumes[3].radius=1.15f;
 		volumes[4].radius=1.2f;
 		volumes[5].radius=1.0f*0.575f;*/
-		
-		RotateBase(motion_now,0,0);
-		RotateBase(motion_future,0,0);
-		  
-		IK_update_end_effector(motion_now);
-		RebuildShoulders(motion_now);
-		IK_update_wrists(motion_now);
 
-		IK_update_end_effector(motion_future);
-		RebuildShoulders(motion_future);
-		IK_update_wrists(motion_future);
-		
+		motion_now.rotateBase(0,0);
+		motion_now.updateIKEndEffector();
+		motion_now.rebuildShoulders();
+		motion_now.updateIKWrists();
 
-		  // find the starting height of the end effector at home position
-		  // @TODO: project wrist-on-bicep to get more accurate distance
-		  float aa=(motion_now.arms[0].elbow.y-motion_now.arms[0].wrist.y);
-		  float cc=FOREARM_LENGTH;
-		  float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		  aa=motion_now.arms[0].elbow.x-motion_now.arms[0].wrist.x;
-		  cc=bb;
-		  bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		  motion_now.finger_tip.set(0,0,bb+BASE_TO_SHOULDER_Z-WRIST_TO_FINGER_Z);
-		  
-		  motion_future.finger_tip.set(motion_now.finger_tip);
+		motion_future.set(motion_now);
 
-	}
-	
+		// find the starting height of the end effector at home position
+		// @TODO: project wrist-on-bicep to get more accurate distance
+		float aa=(motion_now.arms[0].elbow.y-motion_now.arms[0].wrist.y);
+		float cc=FOREARM_LENGTH;
+		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		aa=motion_now.arms[0].elbow.x-motion_now.arms[0].wrist.x;
+		cc=bb;
+		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		motion_now.finger_tip.set(0,0,bb+BASE_TO_SHOULDER_Z-WRIST_TO_FINGER_Z);
 
-	protected boolean CheckAngleLimits(RotaryStewartPlatform2MotionState state) {
-		// machine specific limits
-		/*
-		if (state.angle_0 < -180) return false;
-		if (state.angle_0 >  180) return false;
-		if (state.angle_2 <  -20) return false;
-		if (state.angle_2 >  180) return false;
-		if (state.angle_1 < -150) return false;
-		if (state.angle_1 >   80) return false;
-		if (state.angle_1 < -state.angle_2+ 10) return false;
-		if (state.angle_1 > -state.angle_2+170) return false;
-
-		if (state.angle_3 < -180) return false;
-		if (state.angle_3 >  180) return false;
-		if (state.angle_4 < -180) return false;
-		if (state.angle_4 >  180) return false;
-		if (state.angle_5 < -180) return false;
-		if (state.angle_5 >  180) return false;
-		*/
-		if(Math.abs(state.iku)>LIMIT_U) return false;
-		if(Math.abs(state.ikv)>LIMIT_V) return false;
-		if(Math.abs(state.ikw)>LIMIT_W) return false;
-	
-		return true;
-	}
-	
-	
-	/**
-	 * Convert cartesian XYZ to robot motor steps.
-	 * @input cartesian coordinates relative to the base
-	 * @input results where to put resulting angles after the IK calculation
-	 * @return 0 if successful, 1 if the IK solution cannot be found.
-	 */
-	protected boolean IK(RotaryStewartPlatform2MotionState state) {
-		try {
-			IK_update_end_effector(state);
-			IK_update_wrists(state);
-			IK_update_shoulder_angles(state);
-		}
-		catch(AssertionError e) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	protected void IK_update_end_effector(RotaryStewartPlatform2MotionState state) {
-		  state.finger_forward.set(1,0,0);
-		  state.finger_left   .set(0,1,0);
-		  state.finger_up     .set(0,0,1);
-
-		  // roll, pitch, then yaw
-		  
-		  state.finger_forward = RotateAroundAxis(state.finger_forward,new Vector3f(1,0,0),state.iku*DEG2RAD);
-		  state.finger_forward = RotateAroundAxis(state.finger_forward,new Vector3f(0,1,0),state.ikv*DEG2RAD);
-		  state.finger_forward = RotateAroundAxis(state.finger_forward,new Vector3f(0,0,1),state.ikw*DEG2RAD);
-
-		  state.finger_up      = RotateAroundAxis(state.finger_up,     new Vector3f(1,0,0),state.iku*DEG2RAD);
-		  state.finger_up      = RotateAroundAxis(state.finger_up,     new Vector3f(0,1,0),state.ikv*DEG2RAD);
-		  state.finger_up      = RotateAroundAxis(state.finger_up,     new Vector3f(0,0,1),state.ikw*DEG2RAD);
-
-		  state.finger_left    = RotateAroundAxis(state.finger_left,   new Vector3f(1,0,0),state.iku*DEG2RAD);
-		  state.finger_left    = RotateAroundAxis(state.finger_left,   new Vector3f(0,1,0),state.ikv*DEG2RAD);
-		  state.finger_left    = RotateAroundAxis(state.finger_left,   new Vector3f(0,0,1),state.ikw*DEG2RAD);
-	}
-	
-	protected void IK_update_wrists(RotaryStewartPlatform2MotionState state) {
-		  Vector3f n1 = new Vector3f(),o1 = new Vector3f(),temp = new Vector3f();
-		  float c,s;
-		  int i;
-		  for(i=0;i<3;++i) {
-		    Arm arma=state.arms[i*2+0];
-		    Arm armb=state.arms[i*2+1];
-
-		    c=(float)Math.cos(i*Math.PI*2.0f/3.0f);
-		    s=(float)Math.sin(i*Math.PI*2.0f/3.0f);
-
-		    //n1 = n* c + o*s;
-		    n1.set(state.finger_forward);
-		    n1.scale(c);
-		    temp.set(state.finger_left);
-		    temp.scale(s);
-		    n1.add(temp);
-		    //o1 = n*-s + o*c;
-		    o1.set(state.finger_forward);
-		    o1.scale(-s);
-		    temp.set(state.finger_left);
-		    temp.scale(c);
-		    o1.add(temp);
-
-		    //arma.wrist = state.finger_tip + n1*T2W_X + state.finger_up*T2W_Z - o1*T2W_Y;
-		    //armb.wrist = state.finger_tip + n1*T2W_X + state.finger_up*T2W_Z + o1*T2W_Y;
-		    arma.wrist.set(n1);
-		    arma.wrist.scale(WRIST_TO_FINGER_X);
-		    arma.wrist.add(state.finger_tip);
-		    temp.set(state.finger_up);
-		    temp.scale(WRIST_TO_FINGER_Z);
-		    arma.wrist.add(temp);
-		    armb.wrist.set(arma.wrist);
-		    temp.set(o1);
-		    temp.scale(WRIST_TO_FINGER_Y);
-		    arma.wrist.sub(temp);
-		    armb.wrist.add(temp);
-		  }
-	}
-	
-	protected void IK_update_shoulder_angles(RotaryStewartPlatform2MotionState state) throws AssertionError {
-		Vector3f ortho = new Vector3f(),w = new Vector3f(),wop = new Vector3f(),temp = new Vector3f(),r = new Vector3f();
-		  float a,b,d,r1,r0,hh,y,x;
-		  
-		  int i;
-		  for(i=0;i<6;++i) {
-		    Arm arm = state.arms[i];
-		    
-		    // project wrist position onto plane of bicep (wop)
-		    ortho.x=(float)Math.cos((int)(i/2)*Math.PI*2.0f/3.0f);
-		    ortho.y=(float)Math.sin((int)(i/2)*Math.PI*2.0f/3.0f);
-		    ortho.z=0;
-		    
-		    //w = arm.wrist - arm.shoulder
-		    w.set(arm.wrist);
-		    w.sub(arm.shoulder);
-		    
-		    //a=w | ortho;
-		    a = w.dot( ortho );
-		    //wop = w - (ortho * a);
-		    temp.set(ortho);
-		    temp.scale(a);
-		    wop.set(w);
-		    wop.sub(temp);
-
-		    // we need to find wop-elbow to calculate the angle at the shoulder.
-		    // wop-elbow is not the same as wrist-elbow.
-		    b=(float)Math.sqrt(FOREARM_LENGTH*FOREARM_LENGTH-a*a);
-		    if(Float.isNaN(b)) throw new AssertionError();
-
-		    // use intersection of circles to find elbow point.
-		    //a = (r0r0 - r1r1 + d*d ) / (2*d) 
-		    r1=b;  // circle 1 centers on wrist
-		    r0=BICEP_LENGTH;  // circle 0 centers on shoulder
-		    d=wop.length();
-		    // distance along wop to the midpoint between the two possible intersections
-		    a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
-
-		    // now find the midpoint
-		    // normalize wop
-		    //wop /= d;
-		    wop.scale(1.0f/d);
-		    //temp=arm.shoulder+(wop*a);
-		    temp.set(wop);
-		    temp.scale(a);
-		    temp.add(arm.shoulder);
-		    // with a and r0 we can find h, the distance from midpoint to intersections.
-		    hh=(float)Math.sqrt(r0*r0-a*a);
-		    if(Float.isNaN(hh)) throw new AssertionError();
-		    // get a normal to the line wop in the plane orthogonal to ortho
-		    r.cross(ortho,wop);
-		    r.scale(hh);
-		    arm.elbow.set(temp);
-		    if(i%2==0) arm.elbow.add(r);
-		    else       arm.elbow.sub(r);
-
-		    temp.sub(arm.elbow,arm.shoulder);
-		    y=-temp.z;
-		    temp.z=0;
-		    x=temp.length();
-		    // use atan2 to find theta
-		    if( ( arm.shoulderToElbow.dot( temp ) ) < 0 ) x=-x;
-		    arm.angle= (float)Math.atan2(-y,x) * RAD2DEG;
-		  }
+		motion_future.finger_tip.set(motion_now.finger_tip);
+		moveIfAble();
 	}
 
-	
+
 	protected void update_ik(float delta) {
 		boolean changed=false;
 		motion_future.set(motion_now);
@@ -479,18 +195,18 @@ implements PropertyChangeListener
 	}
 	
 	public void moveIfAble() {
-		RotateFinger();	
+		rotateFinger();	
 		
-		if(movePermitted(motion_future)) {
+		if(motion_future.movePermitted()) {
 			arm_moved=true;
-			FinalizeMove();
+			finalizeMove();
 		} else {
 			motion_future.set(motion_now);
 		}
 	}
 	
 	
-	public void RotateFinger() {
+	public void rotateFinger() {
 		Vector3f forward = new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
 		Vector3f right = new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
 		Vector3f up = new Vector3f();
@@ -503,14 +219,14 @@ implements PropertyChangeListener
 		
 		Vector3f result;
 
-		result = RotateAroundAxis(forward,of,motion_future.iku*DEG2RAD);  // TODO rotating around itself has no effect.
-		result = RotateAroundAxis(result,or,motion_future.ikv*DEG2RAD);
-		result = RotateAroundAxis(result,ou,motion_future.ikw*DEG2RAD);
+		result = rotateAroundAxis(forward,of,Math.toRadians(motion_future.iku));  // TODO rotating around itself has no effect.
+		result = rotateAroundAxis(result,or,Math.toRadians(motion_future.ikv));
+		result = rotateAroundAxis(result,ou,Math.toRadians(motion_future.ikw));
 		motion_future.finger_forward.set(result);
 
-		result = RotateAroundAxis(right,of,motion_future.iku*DEG2RAD);
-		result = RotateAroundAxis(result,or,motion_future.ikv*DEG2RAD);
-		result = RotateAroundAxis(result,ou,motion_future.ikw*DEG2RAD);
+		result = rotateAroundAxis(right,of,Math.toRadians(motion_future.iku));
+		result = rotateAroundAxis(result,or,Math.toRadians(motion_future.ikv));
+		result = rotateAroundAxis(result,ou,Math.toRadians(motion_future.ikw));
 		motion_future.finger_left.set(result);
 		
 		motion_future.finger_up.cross(motion_future.finger_forward,motion_future.finger_left);
@@ -526,7 +242,7 @@ implements PropertyChangeListener
 	 * @param angle_radians in radians
 	 * @return
 	 */
-	protected Vector3f RotateAroundAxis(Vector3f vec,Vector3f axis,float angle_radians) {
+	static public Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,double angle_radians) {
 		float C = (float)Math.cos(angle_radians);
 		float S = (float)Math.sin(angle_radians);
 		float x = vec.x;
@@ -550,9 +266,6 @@ implements PropertyChangeListener
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
 							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
 	}
-	
-	
-	protected void FK(RotaryStewartPlatform2MotionState state) {}
 	
 	
 	protected void update_fk(float delta) {
@@ -616,8 +329,8 @@ implements PropertyChangeListener
 		
 
 		if(changed==true) {
-			if(CheckAngleLimits(motion_future)) {
-				FK(motion_future);
+			if(motion_future.checkAngleLimits()) {
+				motion_future.updateForwardKinematics();
 				arm_moved=true;
 			}
 		}
@@ -653,7 +366,7 @@ implements PropertyChangeListener
 	}
 	
 	
-	public void PrepareMove(float delta) {
+	public void prepareMove(float delta) {
 		if(pDown) pWasOn=true;
 		if(!pDown && pWasOn) {
 			pWasOn=false;
@@ -674,8 +387,8 @@ implements PropertyChangeListener
 					}
 				} else {
 					motion_future.finger_tip.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-					IK(motion_future);
-					FinalizeMove();
+					motion_future.updateInverseKinematics();
+					finalizeMove();
 					this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
 					homing=false;
 					homed=true;
@@ -686,7 +399,7 @@ implements PropertyChangeListener
 	}
 	
 	
-	public void FinalizeMove() {
+	public void finalizeMove() {
 		// copy motion_future to motion_now
 		motion_now.set(motion_future);
 		
@@ -949,104 +662,14 @@ implements PropertyChangeListener
 		return isPortConfirmed;
 	}
 	
-
-	public void MoveBase(RotaryStewartPlatform2MotionState state,Vector3f dp) {
-		state.base.set(dp);
-		RebuildShoulders(state);
-	}
 	
-	
-	public void RotateBase(RotaryStewartPlatform2MotionState state,float pan,float tilt) {
-		state.base_pan=pan;
-		state.base_tilt=tilt;
-		
-		state.base_forward.y = (float)Math.sin(pan *DEG2RAD) * (float)Math.cos(tilt *DEG2RAD);
-		state.base_forward.x = (float)Math.cos(pan *DEG2RAD) * (float)Math.cos(tilt *DEG2RAD);
-		state.base_forward.z =                                 (float)Math.sin(tilt *DEG2RAD);
-		state.base_forward.normalize();
-		
-		state.base_up.set(0,0,1);
-	
-		state.base_right.cross(state.base_up,state.base_forward);
-		state.base_right.normalize();
-		state.base_up.cross(state.base_forward,state.base_right);
-		state.base_up.normalize();
-		
-		RebuildShoulders(state);
-	}
-	
-	protected void RebuildShoulders(RotaryStewartPlatform2MotionState state) {
-		  Vector3f n1=new Vector3f(),o1=new Vector3f(),temp=new Vector3f();
-		  float c,s;
-		  int i;
-		  for(i=0;i<3;++i) {
-		    Arm arma=state.arms[i*2+0];
-		    Arm armb=state.arms[i*2+1];
-
-		    c=(float)Math.cos(i*(float)Math.PI*2.0f/3.0f);
-		    s=(float)Math.sin(i*(float)Math.PI*2.0f/3.0f);
-
-		    //n1 = n* c + o*s;
-		    n1.set(state.base_forward);
-		    n1.scale(c);
-		    temp.set(state.base_right);
-		    temp.scale(s);
-		    n1.add(temp);
-		    n1.normalize();
-		    //o1 = n*-s + o*c;
-		    o1.set(state.base_forward);
-		    o1.scale(-s);
-		    temp.set(state.base_right);
-		    temp.scale(c);
-		    o1.add(temp);
-		    o1.normalize();
-		    //n1.scale(-1);
-
-		    
-//		    arma.shoulder = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*BASE_TO_SHOULDER_Y;
-//		    armb.shoulder = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z + o1*BASE_TO_SHOULDER_Y;
-		    arma.shoulder.set(n1);
-		    arma.shoulder.scale(BASE_TO_SHOULDER_X);
-		    temp.set(state.base_up);
-		    temp.scale(BASE_TO_SHOULDER_Z);
-		    arma.shoulder.add(temp);
-		    armb.shoulder.set(arma.shoulder);
-		    temp.set(o1);
-		    temp.scale(BASE_TO_SHOULDER_Y);
-		    arma.shoulder.sub(temp);
-		    armb.shoulder.add(temp);
-		    //arma.shoulder.add(state.base);
-		    //armb.shoulder.add(state.base);
-
-//		    arma.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
-//		    armb.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z + o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
-		    arma.elbow.set(n1);
-		    arma.elbow.scale(BASE_TO_SHOULDER_X);
-		    temp.set(state.base_up);
-		    temp.scale(BASE_TO_SHOULDER_Z);
-		    arma.elbow.add(temp);
-		    armb.elbow.set(arma.elbow);
-		    temp.set(o1);
-		    temp.scale(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
-		    arma.elbow.sub(temp);
-		    armb.elbow.add(temp);
-		    //arma.shoulder.add(state.base);
-		    //armb.shoulder.add(state.base);		    
-		    
-		    arma.shoulderToElbow.set(o1);
-		    arma.shoulderToElbow.scale(-1);
-		    armb.shoulderToElbow.set(o1);
-		  }
-	}
-	
-	
-	public BoundingVolume [] GetBoundingVolumes() {
+	public BoundingVolume [] getBoundingVolumes() {
 		// TODO finish me
 		return volumes;
 	}
 	
 	
-	Vector3f GetWorldCoordinatesFor(Vector3f in) {
+	Vector3f getWorldCoordinatesFor(Vector3f in) {
 		Vector3f out = new Vector3f(motion_future.base);
 		
 		Vector3f tempx = new Vector3f(motion_future.base_forward);
@@ -1124,24 +747,21 @@ implements PropertyChangeListener
 
 		try {
 			if(subject == viewPx ) {
-				String t=viewPx.getField().getText();
-				float f = Float.parseFloat(t);
+				float f = Float.parseFloat(viewPx.getField().getText());
 				if(!Float.isNaN(f)) {
 					this.motion_future.finger_tip.x = f;
 					moveIfAble();
 				}
 			}
 			if(subject == viewPy ) {
-				String t=viewPy.getField().getText();
-				float f = Float.parseFloat(t);
+				float f = Float.parseFloat(viewPy.getField().getText());
 				if(!Float.isNaN(f)) {
 					this.motion_future.finger_tip.y = f;
 					moveIfAble();
 				}
 			}
 			if(subject == viewPz ) {
-				String t=viewPz.getField().getText();
-				float f = Float.parseFloat(t);
+				float f = Float.parseFloat(viewPz.getField().getText());
 				if(!Float.isNaN(f)) {
 					this.motion_future.finger_tip.z = f;
 					moveIfAble();
@@ -1149,24 +769,21 @@ implements PropertyChangeListener
 			}
 			
 			if(subject == viewRx ) {
-				String t=viewRx.getField().getText();
-				float f = Float.parseFloat(t);
+				float f = Float.parseFloat(viewRx.getField().getText());
 				if(!Float.isNaN(f)) {
 					this.motion_future.iku = f;
 					moveIfAble();
 				}
 			}
 			if(subject == viewRy ) {
-				String t=viewRy.getField().getText();
-				float f = Float.parseFloat(t);
+				float f = Float.parseFloat(viewRy.getField().getText());
 				if(!Float.isNaN(f)) {
 					this.motion_future.ikv = f;
 					moveIfAble();
 				}
 			}
 			if(subject == viewRz ) {
-				String t=viewRz.getField().getText();
-				float f = Float.parseFloat(t);
+				float f = Float.parseFloat(viewRz.getField().getText());
 				if(!Float.isNaN(f)) {
 					this.motion_future.ikw = f;
 					moveIfAble();

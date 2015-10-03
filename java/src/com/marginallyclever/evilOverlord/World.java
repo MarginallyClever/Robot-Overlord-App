@@ -154,7 +154,7 @@ implements ActionListener {
 			ObjectInWorld obj = io.next();
 			if(obj instanceof Arm5Robot) {
 				Arm5Robot arm = (Arm5Robot)obj;
-				arm.PrepareMove(delta);
+				arm.prepareMove(delta);
 			}
 		}
 		//TODO do collision test here
@@ -328,8 +328,8 @@ implements ActionListener {
 	boolean willCollide(Arm5Robot a,Arm5Robot b) {
 		// TODO complete me
 		//Get the cylinders for each robot
-		BoundingVolume [] from = a.GetBoundingVolumes();
-		BoundingVolume [] to = b.GetBoundingVolumes();
+		BoundingVolume [] from = a.getBoundingVolumes();
+		BoundingVolume [] to = b.getBoundingVolumes();
 		// test cylinder/cylinder intersection
 		for(int i=0;i<from.length;++i) {
 			for(int j=0;j<to.length;++j) {

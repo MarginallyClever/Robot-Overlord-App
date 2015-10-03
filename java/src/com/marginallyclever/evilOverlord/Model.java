@@ -73,6 +73,7 @@ public class Model {
 		        if( entry.getName().equals(fname) ) {
 			        stream = new BufferedReader(isr);
 			        initialize(gl2,stream);
+			        break;
 		        }
 		    }
 		    zipFile.close();
