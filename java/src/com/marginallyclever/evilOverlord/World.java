@@ -344,16 +344,20 @@ implements ActionListener {
 			// Hit nothing!  Default to camera controls
 			newObject=camera;
 		} else {
+			// scan all objects in world to find the one with the pickName.
 			Iterator<ObjectInWorld> iter = objects.iterator();
 			while(iter.hasNext()) {
 				ObjectInWorld obj = iter.next();
 				if( obj.getPickName()==pickName ) {
+					// found!
 					newObject=obj;
+					break;
 				}
 			}
 		}
 		
 		if(newObject != lastPickedObject) {
+			// only change the menu if the selected object has changed.
 			lastPickedObject = newObject;
 			gui.setContextMenu(lastPickedObject.buildPanel(),lastPickedObject.getDisplayName());
 		}

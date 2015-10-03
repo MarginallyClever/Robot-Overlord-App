@@ -583,11 +583,10 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 
     /**
      * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
+     * https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java
      * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
-     * http://www.programcreek.com/java-api-examples/java.nio.IntBuffer
      * @param gl2
      */
-    @SuppressWarnings("unused")
     protected void pickIntoWorld(GL2 gl2) {
     	// set up the buffer that will hold the names found under the cursor in furthest to closest.
         selectBuffer = Buffers.newDirectIntBuffer(MainGUI.SELECT_BUFFER_SIZE);
@@ -623,8 +622,10 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         	int i;
         	for(i=0;i<hits;++i) {
         		int names=selectBuffer.get(index++);
-                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+                //float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+                //float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+        		selectBuffer.get(index++); // near z
+        		selectBuffer.get(index++); // far z
                 
         		for (int j=0;j<names;j++) {
         			int name = selectBuffer.get(index++);
