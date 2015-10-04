@@ -76,40 +76,9 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
 
-		double speed=robotArm.getSpeed();
-		int speedIndex;
-		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
-			if( speedOptions[speedIndex] >= speed )
-				break;
-		}
-		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]),JLabel.CENTER);
-		java.awt.Dimension dim = speedNow.getPreferredSize();
-		dim.width = 50;
-		speedNow.setPreferredSize(dim);
-
-		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
+		CollapsiblePanel speedPanel = createSpeedPanel();
 		this.add(speedPanel,con1);
 		con1.gridy++;
-		
-		GridBagConstraints con2 = new GridBagConstraints();
-		con2.gridx=0;
-		con2.gridy=0;
-		con2.fill=GridBagConstraints.HORIZONTAL;
-		con2.anchor=GridBagConstraints.NORTHWEST;
-		con2.weighty=1;
-		con2.weightx=0.25;
-		speedPanel.getContentPane().add(speedNow,con2);
-
-		speedControl = new JSlider(0,speedOptions.length-1,speedIndex);
-		speedControl.addChangeListener(this);
-		speedControl.setMajorTickSpacing(speedOptions.length-1);
-		speedControl.setMinorTickSpacing(1);
-		speedControl.setPaintTicks(true);
-		con2.anchor=GridBagConstraints.NORTHEAST;
-		con2.fill=GridBagConstraints.HORIZONTAL;
-		con2.weightx=0.75;
-		con2.gridx=1;
-		speedPanel.getContentPane().add(speedControl,con2);
 
 		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
 		this.add(fkPanel,con1);
@@ -175,6 +144,43 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
+	}
+	
+	protected CollapsiblePanel createSpeedPanel() {
+		double speed=robotArm.getSpeed();
+		int speedIndex;
+		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
+			if( speedOptions[speedIndex] >= speed )
+				break;
+		}
+		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]),JLabel.CENTER);
+		java.awt.Dimension dim = speedNow.getPreferredSize();
+		dim.width = 50;
+		speedNow.setPreferredSize(dim);
+
+		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
+		
+		GridBagConstraints con2 = new GridBagConstraints();
+		con2.gridx=0;
+		con2.gridy=0;
+		con2.fill=GridBagConstraints.HORIZONTAL;
+		con2.anchor=GridBagConstraints.NORTHWEST;
+		con2.weighty=1;
+		con2.weightx=0.25;
+		speedPanel.getContentPane().add(speedNow,con2);
+
+		speedControl = new JSlider(0,speedOptions.length-1,speedIndex);
+		speedControl.addChangeListener(this);
+		speedControl.setMajorTickSpacing(speedOptions.length-1);
+		speedControl.setMinorTickSpacing(1);
+		speedControl.setPaintTicks(true);
+		con2.anchor=GridBagConstraints.NORTHEAST;
+		con2.fill=GridBagConstraints.HORIZONTAL;
+		con2.weightx=0.75;
+		con2.gridx=1;
+		speedPanel.getContentPane().add(speedControl,con2);
+		
+		return speedPanel;
 	}
 
 	protected void setSpeed(double speed) {

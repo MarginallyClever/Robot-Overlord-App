@@ -20,7 +20,7 @@ import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnecti
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionReadyListener;
 
 
-public class RobotWithSerialConnection extends ObjectInWorld
+public class RobotWithSerialConnection extends PhysicalObject
 implements MarginallyCleverConnectionReadyListener, ActionListener {
 	//comms	
 	protected MarginallyCleverConnectionManager connectionManager;

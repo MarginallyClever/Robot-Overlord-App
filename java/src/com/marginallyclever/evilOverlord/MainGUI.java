@@ -77,9 +77,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	protected JMenuItem buttonHalt;
 	
 	
-	/// the main frame of the GUI
+	/// The main frame of the GUI
     protected JFrame frame; 
-    /// the animator keeps things moving
+    /// The animator keeps things moving
     protected Animator animator = new Animator();
     
     /* timing for animations */
@@ -623,20 +623,20 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         if(hits!=0) {
         	int index=0;
         	int i;
-			System.out.println("-------------------\nhits:"+hits);
+//			System.out.println("-------------------\nhits:"+hits);
         	for(i=0;i<hits;++i) {
         		int names=selectBuffer.get(index++);
-                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-        		//selectBuffer.get(index++); // near z
-        		//selectBuffer.get(index++); // far z
-                System.out.println("zMin:"+z1);
-                System.out.println("zMaz:"+z2);
-
-    			System.out.println("names:"+names);
-        		for (int j=0;j<names;j++) {
+//                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+//                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+        		selectBuffer.get(index++); // near z
+        		selectBuffer.get(index++); // far z
+//                System.out.println("zMin:"+z1);
+//                System.out.println("zMaz:"+z2);
+//    			System.out.println("names:"+names);
+    			if(names>0) {
+        		//for (int j=0;j<names;j++) {
         			int name = selectBuffer.get(index++);
-        			System.out.println("found:"+name);
+//        			System.out.println("found:"+name);
         		    //if(j==names-1) {
         		    	world.pickObjectWithName(name);
 	                	pickFound=true;

@@ -365,7 +365,7 @@ implements PropertyChangeListener
 		keyAction(e,false);
 	}
 	
-	
+	@Override
 	public void prepareMove(float delta) {
 		if(pDown) pWasOn=true;
 		if(!pDown && pWasOn) {
@@ -397,8 +397,8 @@ implements PropertyChangeListener
 			}
 		}
 	}
-	
-	
+
+	@Override
 	public void finalizeMove() {
 		// copy motion_future to motion_now
 		motion_now.set(motion_future);

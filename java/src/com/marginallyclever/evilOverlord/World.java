@@ -17,6 +17,7 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
 import com.marginallyclever.evilOverlord.Camera.Camera;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
+import com.marginallyclever.evilOverlord.Spidee.Spidee;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
 import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
 
@@ -35,6 +36,7 @@ implements ActionListener {
 	protected JMenu worldMenu;
 	protected JMenuItem buttonAddArm5Robot;
 	protected JMenuItem buttonAddRSP2;
+	protected JMenuItem buttonAddSpidee;
 	protected boolean areTexturesLoaded=false;
 	
 	// world contents
@@ -73,6 +75,11 @@ implements ActionListener {
 		objects.add(r);
 	}
 	
+	protected void addSpidee() {
+		Spidee r = new Spidee(gui);
+		r.setConnectionManager(connectionManager);
+		objects.add(r);
+	}
 
     protected void setup( GL2 gl2 ) {
 		gl2.glDepthFunc(GL2.GL_LESS);
@@ -131,6 +138,10 @@ implements ActionListener {
 			addRSP2();
 			return;
 		}
+		if(subject == buttonAddSpidee) {
+			addSpidee();
+			return;
+		}
 	}
 	
 	
@@ -144,6 +155,10 @@ implements ActionListener {
     	worldMenu.add(buttonAddRSP2);
     	buttonAddRSP2.addActionListener(this);
 
+    	buttonAddSpidee = new JMenuItem("Add Spidee");
+    	worldMenu.add(buttonAddSpidee);
+    	buttonAddSpidee.addActionListener(this);
+    	
     	return worldMenu;
     }
     
@@ -152,20 +167,21 @@ implements ActionListener {
 		Iterator<ObjectInWorld> io = objects.iterator();
 		while(io.hasNext()) {
 			ObjectInWorld obj = io.next();
-			if(obj instanceof Arm5Robot) {
-				Arm5Robot arm = (Arm5Robot)obj;
-				arm.prepareMove(delta);
+			if(obj instanceof PhysicalObject) {
+				PhysicalObject po = (PhysicalObject)obj;
+				po.prepareMove(delta);
 			}
 		}
+		
 		//TODO do collision test here
 		
 		// Finalize the moves that don't collide
 		io = objects.iterator();
 		while(io.hasNext()) {
 			ObjectInWorld obj = io.next();
-			if(obj instanceof Arm5Robot) {
-				Arm5Robot arm = (Arm5Robot)obj;
-				arm.finalizeMove();
+			if(obj instanceof PhysicalObject) {
+				PhysicalObject po = (PhysicalObject)obj;
+				po.finalizeMove();
 			}
 		}
 

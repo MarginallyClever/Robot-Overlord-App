@@ -158,11 +158,23 @@ public class Model {
 			} else {
 				continue;
 			}
+			line = line.trim();
 			String c[] = line.split(" ");
-			float x=Float.parseFloat(c[0]);
-			float y=Float.parseFloat(c[1]);
-			float z=Float.parseFloat(c[2]);					
+			float x=0,y=0,z=0;
+			try {
+				x=Float.parseFloat(c[0]);
+				y=Float.parseFloat(c[1]);
+				z=Float.parseFloat(c[2]);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 			if(j==0) {
+				float len = (float)Math.sqrt(x*x+y*y+z*z);
+				x/=len;
+				y/=len;
+				z/=len;
+				
 				normals.put(x);
 				normals.put(y);
 				normals.put(z);
