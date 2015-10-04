@@ -47,7 +47,7 @@ public class SerialConnectionManager implements MarginallyCleverConnectionManage
     SerialConnection serialConnection = new SerialConnection();
 
     try {
-      serialConnection.openConnection(connectionName);
+      serialConnection.open(connectionName);
     } catch (Exception e) {
       return null;
     }

@@ -23,7 +23,7 @@ import com.marginallyclever.evilOverlord.*;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
 public class RotaryStewartPlatform2
-extends RobotWithSerialConnection
+extends RobotWithConnection
 implements PropertyChangeListener
 {
 	// machine ID

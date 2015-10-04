@@ -93,7 +93,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		p1.setLayout(new GridLayout(0,1));
 			p = new JPanel(new GridLayout(3,3));
 			p.add(new JLabel(""));
-			p.add(buttonWalkUp = createButton("Up"));
+			p.add(buttonWalkUp = createButton("Raise body"));
 			p.add(new JLabel(""));
 			
 			p.add(buttonWalkLeft = createButton("Left"));
@@ -101,7 +101,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 			p.add(buttonWalkRight = createButton("Right"));
 			
 			p.add(new JLabel(""));
-			p.add(buttonWalkDown = createButton("Down"));
+			p.add(buttonWalkDown = createButton("Lower body"));
 			p.add(new JLabel(""));
 			p1.add(p);
 
@@ -116,13 +116,13 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		p1 = p2.getContentPane();
 		p1.setLayout(new GridLayout(3,3));
 			p1.add(new JLabel(""));
-			p1.add(buttonTurnUp = createButton("Up"));
+			p1.add(buttonTurnUp = createButton("Tilt up"));
 			p1.add(new JLabel(""));
 			p1.add(buttonTurnLeft = createButton("Left"));
 			p1.add(new JLabel(""));
 			p1.add(buttonTurnRight = createButton("Right"));
 			p1.add(new JLabel(""));
-			p1.add(buttonTurnDown = createButton("Down"));
+			p1.add(buttonTurnDown = createButton("Tilt down"));
 		this.add(p2,con1);
 		con1.gridy++;
 

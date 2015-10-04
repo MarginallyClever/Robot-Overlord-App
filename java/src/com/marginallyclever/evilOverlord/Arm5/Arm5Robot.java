@@ -5,11 +5,9 @@ import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.*;
-import com.marginallyclever.evilOverlord.ArmTool.ArmTool;
-import com.marginallyclever.evilOverlord.ArmTool.ArmToolGripper;
+import com.marginallyclever.evilOverlord.ArmTool.*;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
-import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,7 +19,7 @@ import java.util.Iterator;
 
 
 public class Arm5Robot
-extends RobotWithSerialConnection {
+extends RobotWithConnection {
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM MINION #";
@@ -287,7 +285,10 @@ extends RobotWithSerialConnection {
 				isRenderFKOn=false;
 
 				sendChangeToRealMachine();
-				motionNow.set(motionFuture);
+				if(this.isPortConfirmed()==false) {
+					// live data from the sensors will update motionNow, so only do this if we're unconnected.
+					motionNow.set(motionFuture);
+				}
 				updateGUI();
 			}
 		}
@@ -351,7 +352,10 @@ extends RobotWithSerialConnection {
 				armMoved=true;
 				
 				sendChangeToRealMachine();
-				motionNow.set(motionFuture);
+				if(this.isPortConfirmed()==false) {
+					// live data from the sensors will update motionNow, so only do this if we're unconnected.
+					motionNow.set(motionFuture);
+				}
 				updateGUI();
 			} else {
 				motionFuture.set(motionNow);
@@ -411,41 +415,12 @@ extends RobotWithSerialConnection {
 			str+=" D"+roundOff(motionFuture.angleD);
 		}
 		if(motionFuture.angleE!=motionNow.angleE) {
-			//str+=" E"+roundOff(motionFuture.angleE);
+			str+=" E"+roundOff(motionFuture.angleE);
 		}
 		
 		if(str.length()>0) {
 			this.sendLineToRobot("R0"+str);
 		}
-	}
-	
-	protected void keyAction(KeyEvent e,boolean state) {
-		/*
-		switch(e.getKeyCode()) {
-		case KeyEvent.VK_R: rDown=state;  break;
-		case KeyEvent.VK_F: fDown=state;  break;
-		case KeyEvent.VK_T: tDown=state;  break;
-		case KeyEvent.VK_G: gDown=state;  break;
-		case KeyEvent.VK_Y: yDown=state;  break;
-		case KeyEvent.VK_H: hDown=state;  break;
-		case KeyEvent.VK_U: uDown=state;  break;
-		case KeyEvent.VK_J: jDown=state;  break;
-		case KeyEvent.VK_I: iDown=state;  break;
-		case KeyEvent.VK_K: kDown=state;  break;
-		case KeyEvent.VK_O: oDown=state;  break;
-		case KeyEvent.VK_L: lDown=state;  break;
-		case KeyEvent.VK_P: pDown=state;  break;
-		}*/
-	}
-
-	
-	public void keyPressed(KeyEvent e) {
-		keyAction(e,true);
-   	}
-	
-	
-	public void keyReleased(KeyEvent e) {
-		keyAction(e,false);
 	}
 	
 	@Override

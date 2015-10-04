@@ -5,9 +5,12 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,8 +23,8 @@ import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnecti
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionReadyListener;
 
 
-public class RobotWithSerialConnection extends PhysicalObject
-implements MarginallyCleverConnectionReadyListener, ActionListener {
+public class RobotWithConnection extends PhysicalObject
+implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener {
 	//comms	
 	protected MarginallyCleverConnectionManager connectionManager;
 	protected String[] portsDetected=null;
@@ -30,6 +33,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	
 	protected CollapsiblePanel connectionPanel=null;
 	protected JPanel connectionList=null;
+	protected JComboBox<String> connectionComboBox=null;
 
 	// sending file to the robot
 	private boolean running;
@@ -40,12 +44,12 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	private ArrayList<String> gcode;
 	
 	private boolean dialogResult;  // so dialog boxes can return an ok/cancel
-
+	private boolean ignoreSelectionEvents=false;
+	
 	MainGUI gui;
 
 	// connect/rescan/disconnect dialog options
-	protected JRadioButton [] buttonPorts;
-	protected JButton buttonRescan, buttonDisconnect;
+	protected JButton buttonRescan;
 
 	
 	public boolean isRunning() { return running; }
@@ -53,7 +57,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 	public boolean isFileOpen() { return fileOpened; }
 	
 	
-	public RobotWithSerialConnection(MainGUI _gui) {
+	public RobotWithConnection(MainGUI _gui) {
 		super();
 		gui = _gui;
 		isReadyToReceive=false;
@@ -96,22 +100,14 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 		connectionList = new JPanel(new GridLayout(0,1));
 		rescanConnections();
 		
-        buttonRescan = new JButton("Rescan Ports");
-        buttonRescan.getAccessibleContext().setAccessibleDescription("Rescan the available ports.");
+        buttonRescan = new JButton("Rescan");
         buttonRescan.addActionListener(this);
-
-        buttonDisconnect = new JButton("Disconnect");
-        buttonDisconnect.addActionListener(this);
 
         contents.add(connectionList,con1);
 		con1.gridy++;
-		contents.add(new JSeparator(),con1);
-		con1.gridy++;
 		contents.add(buttonRescan,con1);
 		con1.gridy++;
-		contents.add(buttonDisconnect,con1);
-		con1.gridy++;
-	    
+
 	    return connectionPanel;
 	}
 	
@@ -121,44 +117,62 @@ implements MarginallyCleverConnectionReadyListener, ActionListener {
 		
 		Object subject = e.getSource();
 		
-		int i;
-		for(i=0;i<buttonPorts.length;++i) {
-			if(subject == buttonPorts[i]) {
-				connection = connectionManager.openConnection(buttonPorts[i].getText());
-				connection.addListener(this);
-				rescanConnections();
-				return;
-			}
-		}
-		
 		if(subject==buttonRescan) {
 			rescanConnections();
 			return;
 		}
-		if(subject==buttonDisconnect) {
-			if(connection!=null) {
-				connection.closeConnection();
-				connection=null;
-				rescanConnections();
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		Object subject = e.getSource();
+		
+		if(subject == connectionComboBox) {
+			if(ignoreSelectionEvents==false && e.getStateChange()==ItemEvent.SELECTED) {
+				if(connectionComboBox.getSelectedIndex()==0) {
+					// disconnect
+					if(connection!=null) {
+						connection.close();
+						connection=null;
+					}
+					rescanConnections();
+					return;
+				} else {
+					String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
+					connection = connectionManager.openConnection(connectionName);
+					connection.addListener(this);
+					rescanConnections();
+					return;
+				}
 			}
 		}
 	}
-
 	
 	public void rescanConnections() {
-		portsDetected = connectionManager.listConnections();
-	    buttonPorts = new JRadioButton[portsDetected.length];
-	    connectionList.removeAll();
+		ignoreSelectionEvents=true;
+	    connectionComboBox = new JComboBox<String>();
+        connectionComboBox.addItemListener(this);
+        connectionList.removeAll();
+        connectionList.add(connectionComboBox);
 	    
+        connectionComboBox.addItem("No connection"); // index 0
+	    connectionComboBox.setSelectedIndex(0);
+	    
+	    String recentConnection = "";
+	    if(connection!=null) {
+	    	recentConnection = connection.getRecentConnection();
+	    }
+
+		portsDetected = connectionManager.listConnections();
 		int i;
 	    for(i=0;i<portsDetected.length;++i) {
-	    	buttonPorts[i] = new JRadioButton(portsDetected[i]);
-	    	if(connection != null && connection.isConnectionOpen() && connection.getRecentConnection().equals(portsDetected[i])) {
-	    		buttonPorts[i].setSelected(true);
+	    	connectionComboBox.addItem(portsDetected[i]);
+	    	if(recentConnection.equals(portsDetected[i])) {
+	    		connectionComboBox.setSelectedIndex(i+1);
 	    	}
-	        buttonPorts[i].addActionListener(this);
-	        connectionList.add(buttonPorts[i]);
 	    }
+
+        ignoreSelectionEvents=false;
 	}
 	
 	

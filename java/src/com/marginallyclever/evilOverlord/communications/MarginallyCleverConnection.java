@@ -8,9 +8,9 @@ package com.marginallyclever.evilOverlord.communications;
  * @since v7
  */
 public abstract interface MarginallyCleverConnection {
-	void closeConnection();
+	void close();
 	
-	void openConnection(String portName) throws Exception;
+	void open(String connectionName) throws Exception;
 
 	void reconnect() throws Exception;
 

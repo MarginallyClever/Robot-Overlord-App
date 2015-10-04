@@ -222,6 +222,8 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	
 	
 	public void setUID(long id) {
-		uid.setText("Evil Minion #"+Long.toString(id));
+		if(uid!=null) {
+			uid.setText("Evil Minion #"+Long.toString(id));
+		}
 	}
 }

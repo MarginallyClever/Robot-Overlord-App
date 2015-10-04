@@ -17,13 +17,13 @@ import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.MainGUI;
 import com.marginallyclever.evilOverlord.Model;
-import com.marginallyclever.evilOverlord.RobotWithSerialConnection;
+import com.marginallyclever.evilOverlord.RobotWithConnection;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
 import java.io.BufferedReader;
 
 public class Spidee 
-extends RobotWithSerialConnection 
+extends RobotWithConnection 
 implements ActionListener {
 	private Preferences prefs = Preferences.userRoot().node("Spidee");
 	

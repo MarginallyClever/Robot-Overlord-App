@@ -163,7 +163,7 @@ implements SerialPortEventListener, MarginallyCleverConnection {
 
 	
 	@Override
-	public void closeConnection() {
+	public void close() {
 		if(!portOpened) return;
 		
 	    if (serialPort != null) {
@@ -181,7 +181,7 @@ implements SerialPortEventListener, MarginallyCleverConnection {
 	}
 
 	@Override
-	public void openConnection(String portName) throws Exception {
+	public void open(String portName) throws Exception {
 		if(portOpened) return;
 		
 		serialPort = new SerialPort(portName);
