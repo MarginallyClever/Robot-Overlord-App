@@ -14,8 +14,8 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
 import com.marginallyclever.evilOverlord.Camera.Camera;
+import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
 import com.marginallyclever.evilOverlord.Spidee.Spidee;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
@@ -31,7 +31,7 @@ implements ActionListener {
 
 	protected MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
 	
-	protected MainGUI gui;
+	protected EvilOverlord gui;
 	
 	protected JMenu worldMenu;
 	protected JMenuItem buttonAddArm5Robot;
@@ -52,7 +52,7 @@ implements ActionListener {
 	protected ObjectInWorld lastPickedObject=null;
 	
 
-	public World(MainGUI _gui) {
+	public World(EvilOverlord _gui) {
 		gui = _gui;
 		
 		camera = new Camera();
@@ -64,7 +64,7 @@ implements ActionListener {
 	}
 	
 	protected void addArm5Robot() {
-		Arm5Robot r = new Arm5Robot(gui);
+		EvilMinionRobot r = new EvilMinionRobot(gui);
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
@@ -207,7 +207,6 @@ implements ActionListener {
 
 			
 		gl2.glPushMatrix();
-		
 			camera.update(delta);
 			camera.render(gl2);
 			
@@ -341,7 +340,7 @@ implements ActionListener {
 	}
 
 	
-	boolean willCollide(Arm5Robot a,Arm5Robot b) {
+	boolean willCollide(EvilMinionRobot a,EvilMinionRobot b) {
 		// TODO complete me
 		//Get the cylinders for each robot
 		BoundingVolume [] from = a.getBoundingVolumes();

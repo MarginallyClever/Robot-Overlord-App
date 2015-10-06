@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord.ArmTool;
+package com.marginallyclever.evilOverlord.EvilMinionTool;
 
 import java.util.ArrayList;
 
@@ -11,13 +11,13 @@ import javax.swing.JPanel;
  * @author danroyer
  *
  */
-public class ArmToolGripper extends ArmTool {
+public class EvilMinionToolGripper extends EvilMinionTool {
 	// The servo angle
 	protected float angleMax=160;
 	protected float angleMin=120;
 	protected float angle = angleMin;
 	protected float servoDir = 0.0f;
-	protected ArmToolGripperControlPanel armToolGripperControlPanel=null;
+	protected EvilMinionToolGripperControlPanel armToolGripperControlPanel=null;
 
 	
 	public void render(GL2 gl2) {
@@ -111,7 +111,7 @@ public class ArmToolGripper extends ArmTool {
 		}
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		armToolGripperControlPanel = new ArmToolGripperControlPanel(this);
+		armToolGripperControlPanel = new EvilMinionToolGripperControlPanel(this);
 		list.add(armToolGripperControlPanel);
 		updateGUI();
 		

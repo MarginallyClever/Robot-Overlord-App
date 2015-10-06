@@ -13,7 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import com.marginallyclever.evilOverlord.MainGUI;
+import com.marginallyclever.evilOverlord.EvilOverlord;
 
 // source http://introcs.cs.princeton.edu/java/32class/Hilbert.java.html
 public class HilbertCurveGenerator implements GcodeGenerator {
@@ -29,10 +29,10 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 	float z_up=90;
 	int order=4; // controls complexity of curve
 	
-	MainGUI gui;
+	EvilOverlord gui;
 	
 	
-	public HilbertCurveGenerator(MainGUI _gui) {
+	public HilbertCurveGenerator(EvilOverlord _gui) {
 		super();
 		gui = _gui;
 	}

@@ -93,7 +93,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		p1.setLayout(new GridLayout(0,1));
 			p = new JPanel(new GridLayout(3,3));
 			p.add(new JLabel(""));
-			p.add(buttonWalkUp = createButton("Raise body"));
+			p.add(buttonWalkUp = createButton("Higher"));
 			p.add(new JLabel(""));
 			
 			p.add(buttonWalkLeft = createButton("Left"));
@@ -101,7 +101,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 			p.add(buttonWalkRight = createButton("Right"));
 			
 			p.add(new JLabel(""));
-			p.add(buttonWalkDown = createButton("Lower body"));
+			p.add(buttonWalkDown = createButton("Lower"));
 			p.add(new JLabel(""));
 			p1.add(p);
 

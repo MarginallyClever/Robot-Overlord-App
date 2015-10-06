@@ -6,15 +6,15 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.marginallyclever.evilOverlord.MainGUI;
+import com.marginallyclever.evilOverlord.EvilOverlord;
 
 // source http://introcs.cs.princeton.edu/java/32class/Hilbert.java.html
 public class LoadGCodeGenerator implements GcodeGenerator {
 	
-	MainGUI gui;
+	EvilOverlord gui;
 	
 	
-	public LoadGCodeGenerator(MainGUI _gui) {
+	public LoadGCodeGenerator(EvilOverlord _gui) {
 		super();
 		gui = _gui;
 	}

@@ -23,11 +23,18 @@ public class Model {
 	protected FloatBuffer normals;
 	protected int VBO[] = null;
 	protected boolean isLoaded = false;
+	protected float loadScale=1.0f;
 
 	
 	private Model() {}
 	private Model(String filename) {
 		name = filename;
+	}
+
+	public static Model loadModel(String sourceName,float loadScale) {
+		Model m = loadModel(sourceName);
+		m.loadScale = loadScale;
+		return m;
 	}
 	
 	public static Model loadModel(String sourceName) {
@@ -187,9 +194,9 @@ public class Model {
 				normals.put(y);
 				normals.put(z);
 			} else {
-				vertices.put(x*0.1f);
-				vertices.put(y*0.1f);
-				vertices.put(z*0.1f);
+				vertices.put(x*loadScale);
+				vertices.put(y*loadScale);
+				vertices.put(z*loadScale);
 			}
 			j = (j+1)%4;
 		}

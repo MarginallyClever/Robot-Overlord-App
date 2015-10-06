@@ -1,22 +1,22 @@
-package com.marginallyclever.evilOverlord.ArmTool;
+package com.marginallyclever.evilOverlord.EvilMinionTool;
 
 import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.ObjectInWorld;
-import com.marginallyclever.evilOverlord.Arm5.Arm5Robot;
+import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 
-public abstract class ArmTool extends ObjectInWorld {
+public abstract class EvilMinionTool extends ObjectInWorld {
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
-	protected Arm5Robot attachedTo=null;
+	protected EvilMinionRobot attachedTo=null;
 
 	
-	public void attachTo(Arm5Robot robot) {
+	public void attachTo(EvilMinionRobot robot) {
 		attachedTo=robot;
 	}
 	
-	public Arm5Robot getAttachedTo() {
+	public EvilMinionRobot getAttachedTo() {
 		return attachedTo;
 	}
 	

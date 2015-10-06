@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
-import com.marginallyclever.evilOverlord.MainGUI;
+import com.marginallyclever.evilOverlord.EvilOverlord;
 import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.RobotWithConnection;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
@@ -107,7 +107,7 @@ implements ActionListener {
 	  SpideeControlPanel spideePanel;
 	  
 	
-	public Spidee(MainGUI gui) {
+	public Spidee(EvilOverlord gui) {
 		super(gui);
 		setDisplayName("Spidee");
 
@@ -642,7 +642,6 @@ implements ActionListener {
 	                 body.pos.z + 7.5f * body.up.z );
 	    gl2.glMultMatrixf(m);
 	    gl2.glRotatef(180,0,1,0);
-	    gl2.glScalef(10,10,10);
 	    model_body.render(gl2);
 
 	    gl2.glPopMatrix();
@@ -740,7 +739,6 @@ implements ActionListener {
 	      m.put(14,0);
 	      m.put(15,1);
 	      gl2.glMultMatrixf(m);
-	      gl2.glScalef(10,10,10);
 	      if(i<3) model_shoulder_left.render(gl2);
 	      else    model_shoulder_right.render(gl2);
 	      gl2.glPopMatrix();
@@ -779,7 +777,6 @@ implements ActionListener {
 	      m.put(15,1);
 	        
 	      gl2.glMultMatrixf(m);
-	      gl2.glScalef(10, 10, 10);
 	      model_thigh.render(gl2);	      
 	      gl2.glPopMatrix();
 	      
@@ -816,7 +813,6 @@ implements ActionListener {
 	      m.put(15,1);
 		    
 	      gl2.glMultMatrixf(m);
-	      gl2.glScalef(10, 10, 10);
 	      model_thigh.render(gl2);
 	      gl2.glPopMatrix();
 
@@ -866,7 +862,6 @@ implements ActionListener {
 	      m.put(15,1);
 		    
 	      gl2.glMultMatrixf(m);
-	      gl2.glScalef(10, 10, 10);
 	      if(i<3) model_shin_left.render(gl2);
 	      else    model_shin_right.render(gl2);
 	      gl2.glPopMatrix();

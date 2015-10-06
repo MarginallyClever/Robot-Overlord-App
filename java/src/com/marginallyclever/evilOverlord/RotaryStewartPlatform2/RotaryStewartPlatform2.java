@@ -65,9 +65,9 @@ implements PropertyChangeListener
 
 	protected boolean isPortConfirmed=false;
 
-	protected Model modelTop = Model.loadModel("/StewartPlatform.zip:top.STL");
-	protected Model modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL");
-	protected Model modelBase = Model.loadModel("/StewartPlatform.zip:base.STL");
+	protected Model modelTop = Model.loadModel("/StewartPlatform.zip:top.STL",0.1f);
+	protected Model modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL",0.1f);
+	protected Model modelBase = Model.loadModel("/StewartPlatform.zip:base.STL",0.1f);
 	
 	protected RotaryStewartPlatform2MotionState motion_now = new RotaryStewartPlatform2MotionState();
 	protected RotaryStewartPlatform2MotionState motion_future = new RotaryStewartPlatform2MotionState();
@@ -113,7 +113,7 @@ implements PropertyChangeListener
 	}
 
 
-	public RotaryStewartPlatform2(MainGUI gui) {
+	public RotaryStewartPlatform2(EvilOverlord gui) {
 		super(gui);
 		setDisplayName("Rotary Stewart Platform 2");
 
@@ -452,7 +452,6 @@ implements PropertyChangeListener
 			gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z+0.6f);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(90, 1, 0, 0);
-			//gl2.glScalef(0.1f,0.1f,0.1f);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 			
@@ -466,7 +465,6 @@ implements PropertyChangeListener
 				gl2.glRotatef(120.0f*i, 0, 0, 1);
 				gl2.glRotatef(90, 0, 1, 0);
 				gl2.glRotatef(180-motion_now.arms[i*2+0].angle,0,0,1);
-				//gl2.glScalef(0.1f,0.1f,0.1f);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 	
@@ -478,7 +476,6 @@ implements PropertyChangeListener
 				gl2.glRotatef(120.0f*i, 0, 0, 1);
 				gl2.glRotatef(90, 0, 1, 0);
 				gl2.glRotatef(+motion_now.arms[i*2+1].angle,0,0,1);
-				//gl2.glScalef(0.1f,0.1f,0.1f);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
@@ -491,11 +488,9 @@ implements PropertyChangeListener
 			gl2.glRotatef(motion_now.ikw, 0, 0, 1);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(180, 1, 0, 0);
-			//gl2.glScalef(0.1f, 0.1f, 0.1f);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
-		
 		
 		// draw the forearms
 		

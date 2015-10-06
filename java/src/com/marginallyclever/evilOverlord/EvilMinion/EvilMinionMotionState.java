@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord.Arm5;
+package com.marginallyclever.evilOverlord.EvilMinion;
 
 import javax.vecmath.Vector3f;
 
@@ -7,7 +7,7 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-class Arm5MotionState {
+class EvilMinionMotionState {
 	// angle of rotation
 	float angleE = 0;
 	float angleD = 0;
@@ -52,7 +52,7 @@ class Arm5MotionState {
 	float ik_angleA = 0;
 	
 	
-	void set(Arm5MotionState other) {
+	void set(EvilMinionMotionState other) {
 		angleE = other.angleE;
 		angleD = other.angleD;
 		angleC = other.angleC;
@@ -153,15 +153,15 @@ class Arm5MotionState {
 		ee = capRotation(ee);
 		ik_angleE = (float)Math.toDegrees(ee);
 
-		ik_shoulder.set(0,0,(float)(Arm5Robot.ANCHOR_ADJUST_Y+Arm5Robot.ANCHOR_TO_SHOULDER_Y));
-		ik_boom.set((float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.cos(ee),
-					(float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.sin(ee),
-					(float)Arm5Robot.SHOULDER_TO_BOOM_Y);
+		ik_shoulder.set(0,0,(float)(EvilMinionRobot.ANCHOR_ADJUST_Y+EvilMinionRobot.ANCHOR_TO_SHOULDER_Y));
+		ik_boom.set((float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.cos(ee),
+					(float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.sin(ee),
+					(float)EvilMinionRobot.SHOULDER_TO_BOOM_Y);
 		ik_boom.add(ik_shoulder);
 		
 		// Find wrist 
 		ik_wrist.set(fingerForward);
-		ik_wrist.scale(Arm5Robot.WRIST_TO_TOOL_X);
+		ik_wrist.scale(EvilMinionRobot.WRIST_TO_TOOL_X);
 		ik_wrist.add(fingerPosition);
 				
 		// Find elbow by using intersection of circles.
@@ -170,8 +170,8 @@ class Arm5MotionState {
 		v0.set(ik_wrist);
 		v0.sub(ik_boom);
 		float d = v0.length();
-		float R = (float)Math.abs(Arm5Robot.BOOM_TO_STICK_Y);
-		float r = (float)Math.abs(Arm5Robot.STICK_TO_WRIST_X);
+		float R = (float)Math.abs(EvilMinionRobot.BOOM_TO_STICK_Y);
+		float r = (float)Math.abs(EvilMinionRobot.STICK_TO_WRIST_X);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
@@ -272,10 +272,10 @@ class Arm5MotionState {
 		double b = Math.toRadians(180-angleB);
 		double a = Math.toRadians(angleA);
 		
-		Vector3f v0 = new Vector3f(0,0,(float)(Arm5Robot.ANCHOR_ADJUST_Y+Arm5Robot.ANCHOR_TO_SHOULDER_Y));
-		Vector3f v1 = new Vector3f((float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.cos(e),
-									(float)Arm5Robot.SHOULDER_TO_BOOM_X*(float)Math.sin(e),
-									(float)Arm5Robot.SHOULDER_TO_BOOM_Y);
+		Vector3f v0 = new Vector3f(0,0,(float)(EvilMinionRobot.ANCHOR_ADJUST_Y+EvilMinionRobot.ANCHOR_TO_SHOULDER_Y));
+		Vector3f v1 = new Vector3f((float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.cos(e),
+									(float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.sin(e),
+									(float)EvilMinionRobot.SHOULDER_TO_BOOM_Y);
 		Vector3f planar = new Vector3f((float)Math.cos(e),(float)Math.sin(e),0);
 		planar.normalize();
 		Vector3f planeNormal = new Vector3f(-v1.y,v1.x,0);
@@ -294,10 +294,10 @@ class Arm5MotionState {
 		// boom to elbow
 		v0.set(v1);
 		v1.set(planar);
-		v1.scale( (float)( Arm5Robot.BOOM_TO_STICK_Y * Math.cos(d) ) );
+		v1.scale( (float)( EvilMinionRobot.BOOM_TO_STICK_Y * Math.cos(d) ) );
 		Vector3f v2 = new Vector3f();
 		v2.set(planarRight);
-		v2.scale( (float)( Arm5Robot.BOOM_TO_STICK_Y * Math.sin(d) ) );
+		v2.scale( (float)( EvilMinionRobot.BOOM_TO_STICK_Y * Math.sin(d) ) );
 		v1.add(v2);
 		v1.add(v0);
 		
@@ -312,9 +312,9 @@ class Arm5MotionState {
 		v0.set(v1);
 
 		v1.set(planar);
-		v1.scale( (float)( Arm5Robot.STICK_TO_WRIST_X * Math.cos(c) ) );
+		v1.scale( (float)( EvilMinionRobot.STICK_TO_WRIST_X * Math.cos(c) ) );
 		v2.set(planarRight);
-		v2.scale( (float)( Arm5Robot.STICK_TO_WRIST_X * Math.sin(c) ) );
+		v2.scale( (float)( EvilMinionRobot.STICK_TO_WRIST_X * Math.sin(c) ) );
 		v1.add(v2);
 		v1.add(v0);
 		
@@ -329,9 +329,9 @@ class Arm5MotionState {
 		v0.set(v1);
 
 		v1.set(planar);
-		v1.scale( (float)( Arm5Robot.WRIST_TO_TOOL_X * Math.cos(b) ) );
+		v1.scale( (float)( EvilMinionRobot.WRIST_TO_TOOL_X * Math.cos(b) ) );
 		v2.set(planarRight);
-		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_X * Math.sin(b) ) );
+		v2.scale( (float)( EvilMinionRobot.WRIST_TO_TOOL_X * Math.sin(b) ) );
 		v1.add(v2);
 		v1.add(v0);
 
@@ -346,9 +346,9 @@ class Arm5MotionState {
 		v0.set(v1);
 
 		v1.set(planar);
-		v1.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.cos(a-b) ) );
+		v1.scale( (float)( EvilMinionRobot.WRIST_TO_TOOL_Y * Math.cos(a-b) ) );
 		v2.set(planarRight);
-		v2.scale( (float)( Arm5Robot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
+		v2.scale( (float)( EvilMinionRobot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
 		v1.add(v2);
 		v1.normalize();
 		

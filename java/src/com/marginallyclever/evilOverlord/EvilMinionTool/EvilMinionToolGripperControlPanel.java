@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord.ArmTool;
+package com.marginallyclever.evilOverlord.EvilMinionTool;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,7 +14,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.evilOverlord.CollapsiblePanel;
 
-public class ArmToolGripperControlPanel extends JPanel implements ActionListener, ChangeListener {
+public class EvilMinionToolGripperControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
@@ -24,7 +24,7 @@ public class ArmToolGripperControlPanel extends JPanel implements ActionListener
 	private JButton arm5ServoClose;
 	public JLabel servo;
 	
-	ArmToolGripper tool;
+	EvilMinionToolGripper tool;
 	
 	
 	private JButton createButton(String name) {
@@ -34,7 +34,7 @@ public class ArmToolGripperControlPanel extends JPanel implements ActionListener
 	}
 	
 	
-	public ArmToolGripperControlPanel(ArmToolGripper tool) {
+	public EvilMinionToolGripperControlPanel(EvilMinionToolGripper tool) {
 		super();
 		
 		this.tool = tool;

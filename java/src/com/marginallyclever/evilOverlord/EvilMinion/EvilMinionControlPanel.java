@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord.Arm5;
+package com.marginallyclever.evilOverlord.EvilMinion;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,7 +15,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.evilOverlord.CollapsiblePanel;
 
-public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeListener {
+public class EvilMinionControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * Serial version UID
 	 */
@@ -50,7 +50,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	private JLabel uid;
 	private JSlider speedControl;
 	
-	private Arm5Robot robotArm=null;
+	private EvilMinionRobot robotArm=null;
 	
 	
 	private JButton createButton(String name) {
@@ -60,7 +60,7 @@ public class Arm5ControlPanel extends JPanel implements ActionListener, ChangeLi
 	}
 
 
-	public Arm5ControlPanel(Arm5Robot arm) {
+	public EvilMinionControlPanel(EvilMinionRobot arm) {
 		super();
 
 		JPanel p;

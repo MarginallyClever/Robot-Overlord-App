@@ -14,8 +14,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
@@ -46,7 +44,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	private boolean dialogResult;  // so dialog boxes can return an ok/cancel
 	private boolean ignoreSelectionEvents=false;
 	
-	MainGUI gui;
+	EvilOverlord gui;
 
 	// connect/rescan/disconnect dialog options
 	protected JButton buttonRescan;
@@ -57,7 +55,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	public boolean isFileOpen() { return fileOpened; }
 	
 	
-	public RobotWithConnection(MainGUI _gui) {
+	public RobotWithConnection(EvilOverlord _gui) {
 		super();
 		gui = _gui;
 		isReadyToReceive=false;

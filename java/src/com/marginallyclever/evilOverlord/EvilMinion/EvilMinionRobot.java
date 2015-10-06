@@ -1,11 +1,11 @@
-package com.marginallyclever.evilOverlord.Arm5;
+package com.marginallyclever.evilOverlord.EvilMinion;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.*;
-import com.marginallyclever.evilOverlord.ArmTool.*;
+import com.marginallyclever.evilOverlord.EvilMinionTool.*;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
 import java.io.BufferedReader;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-public class Arm5Robot
+public class EvilMinionRobot
 extends RobotWithConnection {
 	// machine ID
 	protected long robotUID;
@@ -39,25 +39,25 @@ extends RobotWithConnection {
 	public final static float WRIST_TO_TOOL_Y = 1.0f;
 	
 	// model files
-	private Model anchor = Model.loadModel("/ArmParts.zip:anchor.STL");
-	private Model shoulder = Model.loadModel("/ArmParts.zip:shoulder1.STL");
-	private Model shoulderPinion = Model.loadModel("/ArmParts.zip:shoulder_pinion.STL");
-	private Model boom = Model.loadModel("/ArmParts.zip:boom.STL");
-	private Model stick = Model.loadModel("/ArmParts.zip:stick.STL");
-	private Model wristBone = Model.loadModel("/ArmParts.zip:wrist_bone.STL");
-	private Model wristEnd = Model.loadModel("/ArmParts.zip:wrist_end.STL");
-	private Model wristInterior = Model.loadModel("/ArmParts.zip:wrist_interior.STL");
-	private Model wristPinion = Model.loadModel("/ArmParts.zip:wrist_pinion.STL");
+	private Model anchor = Model.loadModel("/ArmParts.zip:anchor.STL",0.1f);
+	private Model shoulder = Model.loadModel("/ArmParts.zip:shoulder1.STL",0.1f);
+	private Model shoulderPinion = Model.loadModel("/ArmParts.zip:shoulder_pinion.STL",0.1f);
+	private Model boom = Model.loadModel("/ArmParts.zip:boom.STL",0.1f);
+	private Model stick = Model.loadModel("/ArmParts.zip:stick.STL",0.1f);
+	private Model wristBone = Model.loadModel("/ArmParts.zip:wrist_bone.STL",0.1f);
+	private Model wristEnd = Model.loadModel("/ArmParts.zip:wrist_end.STL",0.1f);
+	private Model wristInterior = Model.loadModel("/ArmParts.zip:wrist_interior.STL",0.1f);
+	private Model wristPinion = Model.loadModel("/ArmParts.zip:wrist_pinion.STL",0.1f);
 
 	// currently attached tool
-	private ArmTool tool = null;
+	private EvilMinionTool tool = null;
 	
 	// collision volumes
 	Cylinder [] volumes = new Cylinder[6];
 
 	// motion states
-	protected Arm5MotionState motionNow = new Arm5MotionState();
-	protected Arm5MotionState motionFuture = new Arm5MotionState();
+	protected EvilMinionMotionState motionNow = new EvilMinionMotionState();
+	protected EvilMinionMotionState motionFuture = new EvilMinionMotionState();
 	
 	// keyboard history
 	protected float aDir = 0.0f;
@@ -80,10 +80,10 @@ extends RobotWithConnection {
 	protected boolean isRenderIKOn=false;
 	protected double speed=2;
 	
-	protected Arm5ControlPanel arm5Panel=null;
+	protected EvilMinionControlPanel arm5Panel=null;
 	
 	
-	public Arm5Robot(MainGUI _gui) {
+	public EvilMinionRobot(EvilOverlord _gui) {
 		super(_gui);
 		
 		// set up bounding volumes
@@ -105,7 +105,7 @@ extends RobotWithConnection {
 		motionNow.inverseKinematics();
 		motionFuture.inverseKinematics();
 		
-		tool = new ArmToolGripper();
+		tool = new EvilMinionToolGripper();
 		tool.attachTo(this);
 		
 		displayName="Evil Minion";
@@ -118,7 +118,7 @@ extends RobotWithConnection {
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm5Panel = new Arm5ControlPanel(this);
+		arm5Panel = new EvilMinionControlPanel(this);
 		list.add(arm5Panel);
 		updateGUI();
 
