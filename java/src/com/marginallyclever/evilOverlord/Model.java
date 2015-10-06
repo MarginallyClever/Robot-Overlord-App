@@ -3,11 +3,14 @@ package com.marginallyclever.evilOverlord;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import javax.media.opengl.GL2;
 
@@ -23,6 +26,7 @@ public class Model {
 	protected FloatBuffer normals;
 	protected int VBO[] = null;
 	protected boolean isLoaded = false;
+	protected boolean isBinary = false;
 	protected float loadScale=1.0f;
 
 	
@@ -34,6 +38,14 @@ public class Model {
 	public static Model loadModel(String sourceName,float loadScale) {
 		Model m = loadModel(sourceName);
 		m.loadScale = loadScale;
+		m.isBinary = false;
+		return m;
+	}
+
+	public static Model loadModelBinary(String sourceName,float loadScale) {
+		Model m = loadModel(sourceName);
+		m.loadScale = loadScale;
+		m.isBinary = true;
 		return m;
 	}
 	
@@ -78,22 +90,27 @@ public class Model {
 			
 		    while((entry = zipFile.getNextEntry())!=null) {
 		        if( entry.getName().equals(fname) ) {
-			        stream = new BufferedReader(isr);
-			        initialize(gl2,stream);
+			        if(isBinary) {
+				        loadFromStreamBinary(gl2,zipFile);
+			        } else {
+				        stream = new BufferedReader(isr);
+			        	initialize(gl2,stream);
+			        }
 			        break;
 		        }
 		    }
-		    zipFile.close();
 
-			zipFile = new ZipInputStream(getClass().getResourceAsStream(zipName));
-			isr = new InputStreamReader(zipFile);
-			
-		    while((entry = zipFile.getNextEntry())!=null) {
-		        if( entry.getName().equals(fname) ) {
-			        stream = new BufferedReader(isr);
-			        loadFromStream(gl2,stream);
-			        break;
-		        }
+		    if(!isBinary) {
+				zipFile = new ZipInputStream(getClass().getResourceAsStream(zipName));
+				isr = new InputStreamReader(zipFile);
+				
+			    while((entry = zipFile.getNextEntry())!=null) {
+			        if( entry.getName().equals(fname) ) {
+				        stream = new BufferedReader(isr);
+				        loadFromStream(gl2,stream);
+				        break;
+			        }
+			    }
 		    }
 		    
 		    zipFile.close();
@@ -106,13 +123,17 @@ public class Model {
 	
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	private void loadFromFile(GL2 gl2,String fname) {
-		BufferedReader br = null;
+		BufferedReader br =null;
 		try {
-			br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
-		    initialize(gl2,br);
-		    br.close();
-			br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
-		    loadFromStream(gl2,br);   
+			if(isBinary) {
+				loadFromStreamBinary(gl2,getClass().getResourceAsStream(fname));
+			} else {
+				br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
+			    initialize(gl2,br);
+			    br.close();
+				br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
+			    loadFromStream(gl2,br);   
+			}
 		}
 		catch(IOException e) {
 			e.printStackTrace();
@@ -206,6 +227,92 @@ public class Model {
 
 		int totalBufferSize = num_triangles*3*3;
 		
+		// bind a buffer
+		vertices.rewind();
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
+	    // Write out vertex buffer to the currently bound VBO.
+	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*s, vertices, GL2.GL_STATIC_DRAW);
+	    
+	    // repeat for normals
+		normals.rewind();
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
+	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*s, normals, GL2.GL_STATIC_DRAW);
+	    
+	    isLoaded=true;
+	}
+	
+	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
+	private void loadFromStreamBinary(GL2 gl2,InputStream is) throws IOException {
+		int j;
+
+	    ByteBuffer dataBuffer;                // For reading in the correct endian
+	    byte[] Info=new byte[80];             // Header data
+	    byte[] Array_number= new byte[4];     // Holds the number of faces
+	    byte[] Temp_Info;
+	    
+	    is.read(Info);
+	    is.read(Array_number);
+	    dataBuffer = ByteBuffer.wrap(Array_number);
+	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
+	    num_triangles = dataBuffer.getInt();
+
+        Temp_Info = new byte[50*num_triangles];     // Each face has 50 bytes of data
+        is.read(Temp_Info);                         // We get the rest of the file
+        dataBuffer = ByteBuffer.wrap(Temp_Info);    // Now we have all the data in this ByteBuffer
+        dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        
+		VBO = new int[NUM_BUFFERS];
+		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);  // 2 = one for vertexes, one for normals
+		int totalBufferSize = num_triangles*3*3;
+		vertices = FloatBuffer.allocate(totalBufferSize);
+		normals = FloatBuffer.allocate(totalBufferSize);		
+		
+		float x,y,z;
+		for(j=0;j<num_triangles;++j) {
+			x=dataBuffer.getFloat();
+			y=dataBuffer.getFloat();
+			z=dataBuffer.getFloat();
+
+			normals.put(x);
+			normals.put(y);
+			normals.put(z);
+			
+			normals.put(x);
+			normals.put(y);
+			normals.put(z);
+			
+			normals.put(x);
+			normals.put(y);
+			normals.put(z);
+
+			x=dataBuffer.getFloat();
+			y=dataBuffer.getFloat();
+			z=dataBuffer.getFloat();
+			vertices.put(x*loadScale);
+			vertices.put(y*loadScale);
+			vertices.put(z*loadScale);
+
+			x=dataBuffer.getFloat();
+			y=dataBuffer.getFloat();
+			z=dataBuffer.getFloat();
+			vertices.put(x*loadScale);
+			vertices.put(y*loadScale);
+			vertices.put(z*loadScale);
+
+			x=dataBuffer.getFloat();
+			y=dataBuffer.getFloat();
+			z=dataBuffer.getFloat();
+			vertices.put(x*loadScale);
+			vertices.put(y*loadScale);
+			vertices.put(z*loadScale);
+			
+			// attribute bytes
+			dataBuffer.get();
+			dataBuffer.get();
+		}
+				
+		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+
 		// bind a buffer
 		vertices.rewind();
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);

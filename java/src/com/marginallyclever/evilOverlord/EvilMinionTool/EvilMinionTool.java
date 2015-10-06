@@ -3,10 +3,10 @@ package com.marginallyclever.evilOverlord.EvilMinionTool;
 import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.Model;
-import com.marginallyclever.evilOverlord.ObjectInWorld;
+import com.marginallyclever.evilOverlord.PhysicalObject;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 
-public abstract class EvilMinionTool extends ObjectInWorld {
+public abstract class EvilMinionTool extends PhysicalObject {
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
 	protected EvilMinionRobot attachedTo=null;
