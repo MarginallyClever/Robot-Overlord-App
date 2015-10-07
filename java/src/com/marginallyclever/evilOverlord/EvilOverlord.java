@@ -10,7 +10,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
@@ -207,6 +212,59 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         container.add(panel,c);
         
         contextMenu.setViewportView(container);
+	}
+	
+	void loadWorldFromFile(String filename) {
+		FileInputStream fin=null;
+		ObjectInputStream objectIn=null;
+		try {
+			// Create a file input stream
+			fin = new FileInputStream(filename);
+	
+			// Create an object input stream
+			objectIn = new ObjectInputStream(fin);
+	
+			// Read an object in from object store, and cast it to a GameWorld
+			world = (World) objectIn.readObject();
+		} catch(IOException e) {
+			System.out.println("World load failed (file io)");
+		} catch(ClassNotFoundException e) {
+			System.out.println("World load failed (class not found)");
+		} finally {
+			if(objectIn!=null) {
+				try {
+					objectIn.close();
+				} catch(IOException e) {}
+			}
+			if(fin!=null) {
+				try {
+					fin.close();
+				} catch(IOException e) {}
+			}
+		}
+	}
+	
+	void saveWorldToFile(String filename) {
+		FileOutputStream fout=null;
+		ObjectOutputStream objectOut=null;
+		try {
+			fout = new FileOutputStream(filename);
+			objectOut = new ObjectOutputStream(fout);
+			objectOut.writeObject(world);
+		} catch(IOException e) {
+			System.out.println("World save failed.");
+		} finally {
+			if(objectOut!=null) {
+				try {
+					objectOut.close();
+				} catch(IOException e) {}
+			}
+			if(fout!=null) {
+				try {
+					fout.close();
+				} catch(IOException e) {}
+			}
+		}
 	}
 	
 	/*
