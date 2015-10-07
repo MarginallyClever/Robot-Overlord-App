@@ -23,6 +23,10 @@ import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnecti
 
 public class RobotWithConnection extends PhysicalObject
 implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1970631551615654640L;
 	//comms	
 	protected MarginallyCleverConnectionManager connectionManager;
 	protected String[] portsDetected=null;

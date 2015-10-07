@@ -16,6 +16,10 @@ import com.marginallyclever.evilOverlord.PrimitiveSolids;
  *
  */
 public class EvilMinionToolGripper extends EvilMinionTool {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5290710988214905673L;
 	// The servo angle
 	protected float angleMax=160;
 	protected float angleMin=120;

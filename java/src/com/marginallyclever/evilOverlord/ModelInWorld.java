@@ -4,6 +4,11 @@ import javax.media.opengl.GL2;
 
 
 public class ModelInWorld extends ObjectInWorld {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 180224086839215506L;
+	
 	protected Model model;
 	
 	public ModelInWorld() {}

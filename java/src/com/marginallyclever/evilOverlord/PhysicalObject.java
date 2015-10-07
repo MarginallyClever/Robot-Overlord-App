@@ -4,6 +4,12 @@ import javax.media.opengl.GL2;
 
 public abstract class PhysicalObject extends ObjectInWorld {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1804941485489224976L;
+
+
 	// set up the future motion state of the physical object
 	public void prepareMove(float dt) {}
 	

@@ -26,6 +26,10 @@ public class RotaryStewartPlatform2
 extends RobotWithConnection
 implements PropertyChangeListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1816224308642132316L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";

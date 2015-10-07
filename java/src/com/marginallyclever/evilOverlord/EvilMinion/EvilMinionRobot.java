@@ -20,6 +20,10 @@ import java.util.Iterator;
 
 public class EvilMinionRobot
 extends RobotWithConnection {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3644731265897692399L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM MINION #";

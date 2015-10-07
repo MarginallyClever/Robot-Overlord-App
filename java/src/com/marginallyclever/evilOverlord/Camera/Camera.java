@@ -11,6 +11,11 @@ import java.util.ArrayList;
 
 
 public class Camera extends ObjectInWorld {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7511310951758205827L;
+	
 	/** position of camera */
 	protected Vector3f forward = new Vector3f(0,1,0);
 	protected Vector3f up = new Vector3f(0,0,1);

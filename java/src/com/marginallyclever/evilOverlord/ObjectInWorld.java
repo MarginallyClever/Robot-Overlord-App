@@ -3,6 +3,9 @@ package com.marginallyclever.evilOverlord;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +23,12 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-public class ObjectInWorld implements ActionListener {
+public class ObjectInWorld implements ActionListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2461060493057258044L;
+	
 	protected List<ObjectInWorld> children;
 	protected Vector3f position;
 	protected String displayName;
@@ -138,4 +146,6 @@ public class ObjectInWorld implements ActionListener {
 	
 	
 	public void render(GL2 gl2) {}
+	public void save(Writer writer) {}
+	public void load(Reader reader) {}
 }

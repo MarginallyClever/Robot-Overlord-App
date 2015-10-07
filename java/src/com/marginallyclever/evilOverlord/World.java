@@ -3,6 +3,7 @@ package com.marginallyclever.evilOverlord;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -27,7 +28,12 @@ import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
  *
  */
 public class World
-implements ActionListener {
+implements ActionListener, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2405142728731535038L;
 
 	protected MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
 	
