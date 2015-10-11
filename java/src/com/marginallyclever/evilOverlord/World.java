@@ -35,54 +35,55 @@ implements ActionListener, Serializable {
 	 */
 	private static final long serialVersionUID = -2405142728731535038L;
 
-	protected MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
+	protected transient MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
 	
-	protected EvilOverlord gui;
-	
-	protected JMenu worldMenu;
-	protected JMenuItem buttonAddArm5Robot;
-	protected JMenuItem buttonAddRSP2;
-	protected JMenuItem buttonAddSpidee;
-	protected boolean areTexturesLoaded=false;
+	protected transient JMenu worldMenu;
+	protected transient JMenuItem buttonAddArm5Robot;
+	protected transient JMenuItem buttonAddRSP2;
+	protected transient JMenuItem buttonAddSpidee;
+	protected transient boolean areTexturesLoaded=false;
 	
 	// world contents
-	protected Camera camera = null;
 	protected ArrayList<ObjectInWorld> objects = new ArrayList<ObjectInWorld>();
-	protected LightObject light0, light1;
-	protected Texture t0,t1,t2,t3,t4,t5;
+	protected Camera camera = null;
+	protected LightObject light0;
+	protected LightObject light1;
+	protected transient Texture t0,t1,t2,t3,t4,t5;
 
-	protected Vector3f pickForward=new Vector3f();
-	protected Vector3f pickRight=new Vector3f();
-	protected Vector3f pickUp=new Vector3f();
-	protected Vector3f pickRay=new Vector3f();
-	protected ObjectInWorld lastPickedObject=null;
+	protected transient Vector3f pickForward = null;
+	protected transient Vector3f pickRight = null;
+	protected transient Vector3f pickUp = null;
+	protected transient Vector3f pickRay = null;
+	protected transient ObjectInWorld lastPickedObject = null;
+	protected transient boolean isSetup = false;
 	
 
-	public World(EvilOverlord _gui) {
-		gui = _gui;
-		
-		camera = new Camera();
-
-        gui.setContextMenu(camera.buildPanel(),camera.getDisplayName());
-        
+	public World() {
+		camera = new Camera();		
 		light0 = new LightObject();
 		light1 = new LightObject();
+		areTexturesLoaded=false;
+
+		pickForward=new Vector3f();
+		pickRight=new Vector3f();
+		pickUp=new Vector3f();
+		pickRay=new Vector3f();
 	}
 	
 	protected void addArm5Robot() {
-		EvilMinionRobot r = new EvilMinionRobot(gui);
+		EvilMinionRobot r = new EvilMinionRobot();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
 	
 	protected void addRSP2() {
-		RotaryStewartPlatform2 r = new RotaryStewartPlatform2(gui);
+		RotaryStewartPlatform2 r = new RotaryStewartPlatform2();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
 	
 	protected void addSpidee() {
-		Spidee r = new Spidee(gui);
+		Spidee r = new Spidee();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
@@ -99,10 +100,10 @@ implements ActionListener, Serializable {
 
     protected void setupLights() {
     	light1.index=1;
-	    light1.position=new float[]{-1,-1,1,0};
-	    light1.ambient=new float[]{0.0f,0.0f,0.0f,1f};
-	    light1.diffuse=new float[]{2.0f,2.0f,2.0f,1f};
-	    light1.specular=new float[]{1.0f,1.0f,1.0f,1f};
+	    light1.position=new float[]{-1.0f,-1.0f,1.0f,0.0f};
+	    light1.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
+	    light1.diffuse =new float[]{ 2.0f, 2.0f,2.0f,1.0f};
+	    light1.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
     }
     
 	
@@ -170,6 +171,11 @@ implements ActionListener, Serializable {
     
 	
 	public void render(GL2 gl2, float delta ) {
+		if(isSetup==false) {
+			setup(gl2);
+			isSetup=true;
+		}
+		
 		Iterator<ObjectInWorld> io = objects.iterator();
 		while(io.hasNext()) {
 			ObjectInWorld obj = io.next();
@@ -248,6 +254,8 @@ implements ActionListener, Serializable {
 
 	
 	protected void showPickingTest(GL2 gl2) {
+		if(pickForward == null) return;
+		
 		gl2.glPushMatrix();
 		gl2.glDisable(GL2.GL_LIGHTING);
 
@@ -285,6 +293,8 @@ implements ActionListener, Serializable {
 
 	// Draw background
 	protected void drawSkyCube(GL2 gl2) {
+		if(!areTexturesLoaded) return;
+		
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
@@ -390,7 +400,7 @@ implements ActionListener, Serializable {
 	}
 
 	
-	public void pickObjectWithName(int pickName) {
+	public void pickObjectWithName(int pickName,EvilOverlord gui) {
 		ObjectInWorld newObject=null;
 		if(pickName==0) {
 			// Hit nothing!  Default to camera controls
@@ -411,7 +421,12 @@ implements ActionListener, Serializable {
 		if(newObject != lastPickedObject) {
 			// only change the menu if the selected object has changed.
 			lastPickedObject = newObject;
-			gui.setContextMenu(lastPickedObject.buildPanel(),lastPickedObject.getDisplayName());
+			gui.setContextMenu(lastPickedObject.buildPanel(gui),lastPickedObject.getDisplayName());
 		}
+	}
+	
+	public void pickCamera(EvilOverlord gui) {
+		lastPickedObject = camera;
+		gui.setContextMenu(lastPickedObject.buildPanel(gui),lastPickedObject.getDisplayName());
 	}
 }

@@ -8,7 +8,7 @@ public class LightObject extends ObjectInWorld {
 	 */
 	private static final long serialVersionUID = -3002135757633709477L;
 	
-	public transient int index=0;
+	public int index=0;
     public float[] position={1,1,1,0};
     public float[] ambient={0.0f,0.0f,0.0f,1f};
     public float[] diffuse={1f,1f,1f,1f};

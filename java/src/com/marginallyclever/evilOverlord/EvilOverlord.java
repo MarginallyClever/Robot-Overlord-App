@@ -20,6 +20,7 @@ import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -63,11 +64,17 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	static final String version="2";
 
     /// the world within the simulator and all that it contains.
-	protected World world;
+	protected World world = null;
 
 	// menus
     /// main menu bar
 	protected JMenuBar mainMenu;
+	/// load a new world
+	protected JMenuItem buttonNew;
+    /// show the load level dialog
+	protected JMenuItem buttonLoad;
+    /// show the save level dialog
+	protected JMenuItem buttonSave;
     /// show the about dialog
 	protected JMenuItem buttonAbout;
     /// check the version against github and notify the user if they wer up to date or not
@@ -163,7 +170,8 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         splitLeftRight.add(glCanvas);
         splitLeftRight.add(contextMenu);
 
-        world = new World(this);
+        world = new World();
+        world.pickCamera(this);
 
         updateMenu();
         
@@ -226,11 +234,14 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 			objectIn = new ObjectInputStream(fin);
 	
 			// Read an object in from object store, and cast it to a GameWorld
-			world = (World) objectIn.readObject();
+			this.world = (World) objectIn.readObject();
+			updateMenu();
 		} catch(IOException e) {
-			System.out.println("World load failed (file io)");
+			System.out.println("World load failed (file io).");
+			e.printStackTrace();
 		} catch(ClassNotFoundException e) {
 			System.out.println("World load failed (class not found)");
+			e.printStackTrace();
 		} finally {
 			if(objectIn!=null) {
 				try {
@@ -255,6 +266,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 			objectOut.writeObject(world);
 		} catch(IOException e) {
 			System.out.println("World save failed.");
+			e.printStackTrace();
 		} finally {
 			if(objectOut!=null) {
 				try {
@@ -267,6 +279,28 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 				} catch(IOException e) {}
 			}
 		}
+	}
+	
+	void saveWorldDialog() {
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this.GetMainFrame());
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+            saveWorldToFile(fc.getSelectedFile().getAbsolutePath());
+		}
+	}
+	
+	void loadWorldDialog() {
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(this.GetMainFrame());
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+            loadWorldFromFile(fc.getSelectedFile().getAbsolutePath());
+		}
+	}
+	
+	void newWorld() {
+		this.world = new World();
+		this.world.pickCamera(this);
+		updateMenu();
 	}
 	
 	/*
@@ -375,16 +409,30 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		
         JMenu menu = new JMenu(APP_TITLE);
         
+        	buttonNew = new JMenuItem("New",KeyEvent.VK_N);
+        	buttonNew.addActionListener(this);
+	        menu.add(buttonNew);
+        	
+        	buttonLoad = new JMenuItem("Load...",KeyEvent.VK_L);
+        	buttonLoad.addActionListener(this);
+	        menu.add(buttonLoad);
+
+        	buttonSave = new JMenuItem("Save As...",KeyEvent.VK_S);
+        	buttonSave.addActionListener(this);
+	        menu.add(buttonSave);
+
+	        menu.add(new JSeparator());
+	        
             buttonAbout = new JMenuItem("About",KeyEvent.VK_A);
 	        buttonAbout.getAccessibleContext().setAccessibleDescription("About this program");
 	        buttonAbout.addActionListener(this);
 	        menu.add(buttonAbout);
 	        
-	        buttonCheckForUpdate = new JMenuItem("Check for update",KeyEvent.VK_A);
+	        buttonCheckForUpdate = new JMenuItem("Check for update",KeyEvent.VK_U);
 	        buttonCheckForUpdate.addActionListener(this);
 	        menu.add(buttonCheckForUpdate);
 	        
-	        buttonQuit = new JMenuItem("Quit");
+	        buttonQuit = new JMenuItem("Quit",KeyEvent.VK_Q);
 	        buttonQuit.getAccessibleContext().setAccessibleDescription("Goodbye...");
 	        buttonQuit.addActionListener(this);
 	        menu.add(buttonQuit);
@@ -423,6 +471,18 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 		
+		if( subject == buttonNew ) {
+			this.newWorld();
+			return;
+		}
+		if( subject == buttonLoad ) {
+			this.loadWorldDialog();
+			return;
+		}
+		if( subject == buttonSave ) {
+			this.saveWorldDialog();
+			return;
+		}
 		if( subject == buttonAbout ) {
 			JOptionPane.showMessageDialog(null,"<html><body>"
 					+"<h1>"+APP_TITLE+" v"+version+"</h1>"
@@ -622,7 +682,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	    		System.out.print("start = "+v.get(0));
     		}		
 	        // draw the world
-	        world.render( gl2, frame_length );
+    		if( world !=null ) {
+    			world.render( gl2, frame_length );
+    		}
 	        frame_delay-=frame_length;
 
 	        if(pickNow) {
@@ -698,7 +760,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         			int name = selectBuffer.get(index++);
 //        			System.out.println("found:"+name);
         		    //if(j==names-1) {
-        		    	world.pickObjectWithName(name);
+        		    	world.pickObjectWithName(name,this);
 	                	pickFound=true;
 	                	return;
 	                //}
@@ -706,7 +768,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         	}
         }
         if(pickFound==false) {
-        	world.pickObjectWithName(0);
+        	world.pickCamera(this);
         }
     }
 

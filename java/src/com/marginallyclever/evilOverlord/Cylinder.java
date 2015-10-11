@@ -1,8 +1,10 @@
 package com.marginallyclever.evilOverlord;
+import java.io.Serializable;
+
 import javax.vecmath.Vector3f;
 
 
-public class Cylinder extends BoundingVolume {
+public class Cylinder extends BoundingVolume implements Serializable {
 	private Vector3f p1 = new Vector3f(0,0,0);
 	private Vector3f p2 = new Vector3f(0,0,0);
 	private Vector3f n = new Vector3f(0,0,0);

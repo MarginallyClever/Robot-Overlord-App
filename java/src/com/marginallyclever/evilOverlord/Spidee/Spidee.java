@@ -1,8 +1,10 @@
 package com.marginallyclever.evilOverlord.Spidee;
 
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -29,8 +31,6 @@ implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -3568205246113007041L;
-
-	private Preferences prefs = Preferences.userRoot().node("Spidee");
 	
 	public static final String hello="HELLO WORLD!  I AM SPIDEE #"; 
 	protected long robotUID=0;
@@ -102,20 +102,22 @@ implements ActionListener {
 	  boolean render_meshes = true;
 
 	  // models
-	  Model model_thigh = Model.loadModel( "/Spidee.zip:thigh.stl");
-	  Model model_body = Model.loadModel( "/Spidee.zip:body.stl");
-	  Model model_shoulder_left = Model.loadModel( "/Spidee.zip:shoulder_left.stl");
-	  Model model_shoulder_right = Model.loadModel( "/Spidee.zip:shoulder_right.stl");
-	  Model model_shin_left = Model.loadModel( "/Spidee.zip:shin_left.stl");
-	  Model model_shin_right = Model.loadModel( "/Spidee.zip:shin_right.stl");
+	  protected transient Model modelThigh = null;
+	  protected transient Model modelBody = null;
+	  protected transient Model modelShoulderLeft = null;
+	  protected transient Model modelShoulderRight = null;
+	  protected transient Model modelShinLeft = null;
+	  protected transient Model modelShinRight = null;
 	  
-	  SpideeControlPanel spideePanel;
+	  protected transient SpideeControlPanel spideePanel;
 	  
 	
-	public Spidee(EvilOverlord gui) {
-		super(gui);
+	public Spidee() {
+		super();
 		setDisplayName("Spidee");
 
+		setupModels();
+		
 		int i;
 		for(i=0;i<6;++i) {
 			legs[i] = new SpideeLeg();
@@ -150,6 +152,7 @@ implements ActionListener {
 		move_mode = MoveModes.MOVE_MODE_CALIBRATE;
 		speed_scale = 1.0f;
 
+		Preferences prefs = Preferences.userRoot().node("Spidee");
 		Preferences pn;
 		  
 		int j=0;
@@ -210,7 +213,6 @@ implements ActionListener {
 		    leg.knee_joint.pos.add(leg.knee_joint.relative);
 		    leg.ankle_joint.pos.set(leg.knee_joint.pos);
 		    leg.ankle_joint.pos.add(leg.ankle_joint.relative);
-
 
 		    pn = prefs.node("Leg "+j);
 		    leg.pan_joint.angle_max  = pn.getInt("pan_max",127+60);
@@ -275,6 +277,21 @@ implements ActionListener {
 		paused=false;
 	}
 	
+	protected void setupModels() {
+		  modelThigh = Model.loadModel( "/Spidee.zip:thigh.stl");
+		  modelBody = Model.loadModel( "/Spidee.zip:body.stl");
+		  modelShoulderLeft = Model.loadModel( "/Spidee.zip:shoulder_left.stl");
+		  modelShoulderRight = Model.loadModel( "/Spidee.zip:shoulder_right.stl");
+		  modelShinLeft = Model.loadModel( "/Spidee.zip:shin_left.stl");
+		  modelShinRight = Model.loadModel( "/Spidee.zip:shin_right.stl");
+	}
+
+    private void readObject(ObjectInputStream inputStream)
+            throws IOException, ClassNotFoundException
+    {
+    	setupModels();
+        inputStream.defaultReadObject();
+    }   
 	
 	void PlantFeet() {
 		  int i;
@@ -647,7 +664,7 @@ implements ActionListener {
 	                 body.pos.z + 7.5f * body.up.z );
 	    gl2.glMultMatrixf(m);
 	    gl2.glRotatef(180,0,1,0);
-	    model_body.render(gl2);
+	    modelBody.render(gl2);
 
 	    gl2.glPopMatrix();
 	}
@@ -744,8 +761,8 @@ implements ActionListener {
 	      m.put(14,0);
 	      m.put(15,1);
 	      gl2.glMultMatrixf(m);
-	      if(i<3) model_shoulder_left.render(gl2);
-	      else    model_shoulder_right.render(gl2);
+	      if(i<3) modelShoulderLeft.render(gl2);
+	      else    modelShoulderRight.render(gl2);
 	      gl2.glPopMatrix();
 
 	      // thigh
@@ -782,7 +799,7 @@ implements ActionListener {
 	      m.put(15,1);
 	        
 	      gl2.glMultMatrixf(m);
-	      model_thigh.render(gl2);	      
+	      modelThigh.render(gl2);	      
 	      gl2.glPopMatrix();
 	      
 	      gl2.glPushMatrix();
@@ -818,7 +835,7 @@ implements ActionListener {
 	      m.put(15,1);
 		    
 	      gl2.glMultMatrixf(m);
-	      model_thigh.render(gl2);
+	      modelThigh.render(gl2);
 	      gl2.glPopMatrix();
 
 	      // shin
@@ -867,8 +884,8 @@ implements ActionListener {
 	      m.put(15,1);
 		    
 	      gl2.glMultMatrixf(m);
-	      if(i<3) model_shin_left.render(gl2);
-	      else    model_shin_right.render(gl2);
+	      if(i<3) modelShinLeft.render(gl2);
+	      else    modelShinRight.render(gl2);
 	      gl2.glPopMatrix();
 	    }
 	}
@@ -1587,8 +1604,8 @@ implements ActionListener {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		spideePanel = new SpideeControlPanel(this);

@@ -1,8 +1,10 @@
 package com.marginallyclever.evilOverlord.Spidee;
 
+import java.io.Serializable;
+
 import javax.media.opengl.GL2;
 
-public class SpideeJoint extends SpideeLocation {
+public class SpideeJoint extends SpideeLocation implements Serializable {
 	 public static final int ANGLE_HISTORY_LENGTH = (30*3);
 	
 	  float angle;

@@ -11,7 +11,7 @@ public interface MarginallyCleverConnectionManager {
   /**
    * @return a list of addresses of a connection type at which robots are likely to exist.
    */
-  String[] listConnections();
+  public String[] listConnections();
 
   /**
    * opens a connection
@@ -19,10 +19,10 @@ public interface MarginallyCleverConnectionManager {
    * @param connectionName where to connect
    * @return a connection to the device at address <code>connectionName</code>
    */
-  MarginallyCleverConnection openConnection(String connectionName);
+  public MarginallyCleverConnection openConnection(String connectionName);
 
   /**
    * @return the name of the most recently opened connection.
    */
-  String getRecentConnection();
+  public String getRecentConnection();
 }

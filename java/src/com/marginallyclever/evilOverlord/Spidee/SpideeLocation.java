@@ -1,8 +1,10 @@
 package com.marginallyclever.evilOverlord.Spidee;
 
+import java.io.Serializable;
+
 import javax.vecmath.Vector3f;
 
-public class SpideeLocation {
+public class SpideeLocation implements Serializable {
 	  Vector3f up = new Vector3f();
 	  Vector3f left = new Vector3f();
 	  Vector3f forward = new Vector3f();

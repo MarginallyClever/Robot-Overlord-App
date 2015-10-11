@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,19 +16,19 @@ import java.nio.ByteOrder;
 import javax.media.opengl.GL2;
 
 
-public class Model {
+public class Model implements Serializable {
 	private static LinkedList<Model> modelPool = new LinkedList<Model>();
 	
 	public final static int NUM_BUFFERS=2;  // verts, normals
 	
-	protected String name;
-	protected int num_triangles;
-	protected FloatBuffer vertices;
-	protected FloatBuffer normals;
-	protected int VBO[] = null;
-	protected boolean isLoaded = false;
-	protected boolean isBinary = false;
-	protected float loadScale=1.0f;
+	protected transient String name;
+	protected transient int num_triangles;
+	protected transient FloatBuffer vertices;
+	protected transient FloatBuffer normals;
+	protected transient int VBO[] = null;
+	protected transient boolean isLoaded = false;
+	protected transient boolean isBinary = false;
+	protected transient float loadScale=1.0f;
 
 	
 	private Model() {}

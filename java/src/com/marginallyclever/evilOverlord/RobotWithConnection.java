@@ -28,14 +28,14 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	 */
 	private static final long serialVersionUID = 1970631551615654640L;
 	//comms	
-	protected MarginallyCleverConnectionManager connectionManager;
-	protected String[] portsDetected=null;
-	protected MarginallyCleverConnection connection;
-	protected boolean isReadyToReceive;
+	protected transient MarginallyCleverConnectionManager connectionManager;
+	protected transient String[] portsDetected=null;
+	protected transient MarginallyCleverConnection connection;
+	protected transient boolean isReadyToReceive;
 	
-	protected CollapsiblePanel connectionPanel=null;
-	protected JPanel connectionList=null;
-	protected JComboBox<String> connectionComboBox=null;
+	protected transient CollapsiblePanel connectionPanel=null;
+	protected transient JPanel connectionList=null;
+	protected transient JComboBox<String> connectionComboBox=null;
 
 	// sending file to the robot
 	private boolean running;
@@ -45,13 +45,12 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 	
-	private boolean dialogResult;  // so dialog boxes can return an ok/cancel
-	private boolean ignoreSelectionEvents=false;
-	
-	EvilOverlord gui;
+	private transient boolean dialogResult;  // so dialog boxes can return an ok/cancel
+	private transient boolean ignoreSelectionEvents=false;
 
 	// connect/rescan/disconnect dialog options
-	protected JButton buttonRescan;
+	protected transient JButton buttonRescan;
+	protected transient EvilOverlord gui;
 
 	
 	public boolean isRunning() { return running; }
@@ -59,9 +58,8 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	public boolean isFileOpen() { return fileOpened; }
 	
 	
-	public RobotWithConnection(EvilOverlord _gui) {
+	public RobotWithConnection() {
 		super();
-		gui = _gui;
 		isReadyToReceive=false;
 		linesTotal=0;
 		linesProcessed=0;
@@ -79,8 +77,9 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	
 
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
+		this.gui=gui;
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		list.add(getMenu());
 		
 		return list;
@@ -165,15 +164,16 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	    	recentConnection = connection.getRecentConnection();
 	    }
 
-		portsDetected = connectionManager.listConnections();
-		int i;
-	    for(i=0;i<portsDetected.length;++i) {
-	    	connectionComboBox.addItem(portsDetected[i]);
-	    	if(recentConnection.equals(portsDetected[i])) {
-	    		connectionComboBox.setSelectedIndex(i+1);
-	    	}
+	    if(connectionManager!=null) {
+			portsDetected = connectionManager.listConnections();
+			int i;
+		    for(i=0;i<portsDetected.length;++i) {
+		    	connectionComboBox.addItem(portsDetected[i]);
+		    	if(recentConnection.equals(portsDetected[i])) {
+		    		connectionComboBox.setSelectedIndex(i+1);
+		    	}
+		    }
 	    }
-
         ignoreSelectionEvents=false;
 	}
 	
@@ -263,7 +263,8 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	private boolean getStartingLineNumber() {
 		dialogResult=false;
 		
-		final JDialog driver = new JDialog(gui.GetMainFrame(),"Start at...");
+		// TODO replace with a more elegant dialog.  See Makelangelo converters for examples.
+		final JDialog driver = new JDialog(this.gui.GetMainFrame(),"Start at...");
 		driver.setLayout(new GridBagLayout());		
 		final JTextField starting_line = new JTextField("0",8);
 		final JButton cancel = new JButton(("Cancel"));

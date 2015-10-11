@@ -37,17 +37,28 @@ public class ObjectInWorld implements ActionListener, Serializable {
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static protected int pickNameCounter=1;
 	
-	private CollapsiblePanel oiwPanel;
-	protected JTextField fieldX,fieldY,fieldZ;
+	private transient CollapsiblePanel oiwPanel;
+	protected transient JTextField fieldX,fieldY,fieldZ;
+	
+	//protected transient EvilOverlord gui;
+	
 	
 	public ObjectInWorld() {
 		pickName = pickNameCounter++;
 		children = new ArrayList<ObjectInWorld>();
 		position = new Vector3f();
 	}
-	
-	
-	public ArrayList<JPanel> getControlPanels() {
+	/*
+	public void setGUI(EvilOverlord gui) {
+		this.gui = gui;
+		
+		Iterator<ObjectInWorld> iter = children.iterator();
+		while(iter.hasNext()) {
+			iter.next().setGUI(gui);
+		}
+	}
+	*/
+	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
 		oiwPanel = new CollapsiblePanel("Position");
@@ -89,11 +100,11 @@ public class ObjectInWorld implements ActionListener, Serializable {
 		return list;
 	}
 	
-	public JPanel buildPanel() {
+	public JPanel buildPanel(EvilOverlord gui) {
 		JPanel sum = new JPanel();
 		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
 		
-		ArrayList<JPanel> list = getControlPanels();
+		ArrayList<JPanel> list = getControlPanels(gui);
 		Iterator<JPanel> pi = list.iterator();
 		while(pi.hasNext()) {
 			JPanel p = pi.next();

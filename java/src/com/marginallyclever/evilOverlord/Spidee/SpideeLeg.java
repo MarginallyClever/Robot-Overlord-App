@@ -1,9 +1,11 @@
 package com.marginallyclever.evilOverlord.Spidee;
 
+import java.io.Serializable;
+
 import javax.media.opengl.GL2;
 import javax.vecmath.Vector3f;
 
-public class SpideeLeg {
+public class SpideeLeg implements Serializable {
 	  String name;
 	  int base_servo_address;
 	  
