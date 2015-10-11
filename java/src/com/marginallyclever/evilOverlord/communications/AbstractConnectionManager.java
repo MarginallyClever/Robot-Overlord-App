@@ -7,7 +7,7 @@ package com.marginallyclever.evilOverlord.communications;
  * @author Dan
  * @since v7.1.0.0
  */
-public interface MarginallyCleverConnectionManager {
+public abstract interface AbstractConnectionManager {
   /**
    * @return a list of addresses of a connection type at which robots are likely to exist.
    */
@@ -19,7 +19,7 @@ public interface MarginallyCleverConnectionManager {
    * @param connectionName where to connect
    * @return a connection to the device at address <code>connectionName</code>
    */
-  public MarginallyCleverConnection openConnection(String connectionName);
+  public AbstractConnection openConnection(String connectionName);
 
   /**
    * @return the name of the most recently opened connection.

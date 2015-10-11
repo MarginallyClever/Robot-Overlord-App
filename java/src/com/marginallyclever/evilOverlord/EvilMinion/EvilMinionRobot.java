@@ -6,7 +6,7 @@ import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.*;
 import com.marginallyclever.evilOverlord.EvilMinionTool.*;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
+import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -747,7 +747,7 @@ extends RobotWithConnection {
 	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public void serialDataAvailable(MarginallyCleverConnection arg0,String line) {
+	public void dataAvailable(AbstractConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();

@@ -19,7 +19,7 @@ import com.marginallyclever.evilOverlord.Camera.Camera;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
 import com.marginallyclever.evilOverlord.Spidee.Spidee;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionManager;
 import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
 
 /**
@@ -35,7 +35,7 @@ implements ActionListener, Serializable {
 	 */
 	private static final long serialVersionUID = -2405142728731535038L;
 
-	protected transient MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
+	protected transient AbstractConnectionManager connectionManager = new SerialConnectionManager();
 	
 	protected transient JMenu worldMenu;
 	protected transient JMenuItem buttonAddArm5Robot;

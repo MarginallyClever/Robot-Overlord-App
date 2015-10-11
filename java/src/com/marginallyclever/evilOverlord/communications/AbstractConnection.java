@@ -7,7 +7,7 @@ package com.marginallyclever.evilOverlord.communications;
  * @author Peter Colapietro
  * @since v7
  */
-public abstract interface MarginallyCleverConnection {
+public abstract interface AbstractConnection {
 	void close();
 	
 	void open(String connectionName) throws Exception;
@@ -20,7 +20,7 @@ public abstract interface MarginallyCleverConnection {
 
 	void sendMessage(String msg) throws Exception;
 	
-    public void addListener(MarginallyCleverConnectionReadyListener listener);
+    public void addListener(AbstractConnectionReadyListener listener);
     
-    public void removeListener(MarginallyCleverConnectionReadyListener listener);
+    public void removeListener(AbstractConnectionReadyListener listener);
 }

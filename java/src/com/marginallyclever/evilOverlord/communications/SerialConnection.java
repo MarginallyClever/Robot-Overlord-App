@@ -10,7 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class SerialConnection 
-implements SerialPortEventListener, MarginallyCleverConnection {
+implements SerialPortEventListener, AbstractConnection {
 	private String[] portsDetected;
 	
 	protected SerialPort serialPort;
@@ -36,7 +36,7 @@ implements SerialPortEventListener, MarginallyCleverConnection {
     ArrayList<String> commandQueue = new ArrayList<String>();
 
     // Listeners which should be notified of a change to the percentage.
-    private ArrayList<MarginallyCleverConnectionReadyListener> listeners = new ArrayList<MarginallyCleverConnectionReadyListener>();
+    private ArrayList<AbstractConnectionReadyListener> listeners = new ArrayList<AbstractConnectionReadyListener>();
 
 	
 	public SerialConnection() {
@@ -51,8 +51,8 @@ implements SerialPortEventListener, MarginallyCleverConnection {
 	
 	// tell all listeners data has arrived
 	private void processLine(String line) {
-	      for (MarginallyCleverConnectionReadyListener listener : listeners) {
-	        listener.serialDataAvailable(this,line);
+	      for (AbstractConnectionReadyListener listener : listeners) {
+	        listener.dataAvailable(this,line);
 	      }
 	}
 	
@@ -136,17 +136,17 @@ implements SerialPortEventListener, MarginallyCleverConnection {
 		return false;
 	}
 	
-    public void addListener(MarginallyCleverConnectionReadyListener listener) {
+    public void addListener(AbstractConnectionReadyListener listener) {
       listeners.add(listener);
     }
     
-    public void removeListener(MarginallyCleverConnectionReadyListener listener) {
+    public void removeListener(AbstractConnectionReadyListener listener) {
     	listeners.remove(listener);
     }
 
     private void notifyListeners() {
-      for (MarginallyCleverConnectionReadyListener listener : listeners) {
-        listener.serialConnectionReady(this);
+      for (AbstractConnectionReadyListener listener : listeners) {
+        listener.connectionReady(this);
       }
     }
 	

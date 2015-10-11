@@ -16,21 +16,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionReadyListener;
+import com.marginallyclever.evilOverlord.communications.AbstractConnection;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionManager;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionReadyListener;
 
 
 public class RobotWithConnection extends PhysicalObject
-implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener {
+implements AbstractConnectionReadyListener, ActionListener, ItemListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1970631551615654640L;
 	//comms	
-	protected transient MarginallyCleverConnectionManager connectionManager;
+	protected transient AbstractConnectionManager connectionManager;
 	protected transient String[] portsDetected=null;
-	protected transient MarginallyCleverConnection connection;
+	protected transient AbstractConnection connection;
 	protected transient boolean isReadyToReceive;
 	
 	protected transient CollapsiblePanel connectionPanel=null;
@@ -68,10 +68,10 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 		running=false;
 	}
 	
-	public MarginallyCleverConnectionManager getConnectionManager() {
+	public AbstractConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
-	public void setConnectionManager(MarginallyCleverConnectionManager connectionManager) {
+	public void setConnectionManager(AbstractConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 	}
 	
@@ -179,7 +179,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	
 	
 	@Override
-	public void serialConnectionReady(MarginallyCleverConnection arg0) {
+	public void connectionReady(AbstractConnection arg0) {
 		if(arg0==connection && connection!=null) isReadyToReceive=true;
 		
 		if(isReadyToReceive) {
@@ -190,7 +190,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 
 	
 	@Override
-	public void serialDataAvailable(MarginallyCleverConnection arg0,String data) {
+	public void dataAvailable(AbstractConnection arg0,String data) {
 		
 	}
 	
