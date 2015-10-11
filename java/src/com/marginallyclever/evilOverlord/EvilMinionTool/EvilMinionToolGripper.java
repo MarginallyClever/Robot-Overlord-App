@@ -60,7 +60,7 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		gl2.glPushMatrix();
 		this.setColor(gl2, 1,0,1,1);
 		gl2.glRotatef(90,0,0,1);
-		gl2.glTranslated(-9.55,-10.15,-1.9);
+		gl2.glTranslated(-1.375,-0.725,-1.9);
 		modelAdapter.render(gl2);
 		gl2.glPopMatrix();
 

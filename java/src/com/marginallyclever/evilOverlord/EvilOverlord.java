@@ -214,6 +214,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         contextMenu.setViewportView(container);
 	}
 	
+	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
 	void loadWorldFromFile(String filename) {
 		FileInputStream fin=null;
 		ObjectInputStream objectIn=null;
@@ -243,7 +244,8 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 			}
 		}
 	}
-	
+
+	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
 	void saveWorldToFile(String filename) {
 		FileOutputStream fout=null;
 		ObjectOutputStream objectOut=null;
