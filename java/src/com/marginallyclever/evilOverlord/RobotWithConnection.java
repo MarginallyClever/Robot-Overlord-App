@@ -18,11 +18,11 @@ import javax.swing.JTextField;
 
 import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 import com.marginallyclever.evilOverlord.communications.AbstractConnectionManager;
-import com.marginallyclever.evilOverlord.communications.AbstractConnectionReadyListener;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionListener;
 
 
 public class RobotWithConnection extends PhysicalObject
-implements AbstractConnectionReadyListener, ActionListener, ItemListener {
+implements AbstractConnectionListener, ActionListener, ItemListener {
 	/**
 	 * 
 	 */

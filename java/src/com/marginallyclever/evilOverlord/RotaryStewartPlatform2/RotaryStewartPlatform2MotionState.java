@@ -6,6 +6,11 @@ import javax.vecmath.Vector3f;
 
 
 public class RotaryStewartPlatform2MotionState implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// angle of rotation
 	protected RotaryStewartPlatform2Arm arms[];
 
@@ -32,7 +37,11 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 
 	
 	public class RotaryStewartPlatform2Arm implements Serializable {
-		  Vector3f shoulder = new Vector3f();
+		  /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		Vector3f shoulder = new Vector3f();
 		  Vector3f elbow = new Vector3f();
 		  Vector3f shoulderToElbow = new Vector3f();
 		  Vector3f wrist = new Vector3f();

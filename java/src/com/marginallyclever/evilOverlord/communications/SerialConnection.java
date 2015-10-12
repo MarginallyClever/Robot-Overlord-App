@@ -36,7 +36,7 @@ implements SerialPortEventListener, AbstractConnection {
     ArrayList<String> commandQueue = new ArrayList<String>();
 
     // Listeners which should be notified of a change to the percentage.
-    private ArrayList<AbstractConnectionReadyListener> listeners = new ArrayList<AbstractConnectionReadyListener>();
+    private ArrayList<AbstractConnectionListener> listeners = new ArrayList<AbstractConnectionListener>();
 
 	
 	public SerialConnection() {
@@ -51,7 +51,7 @@ implements SerialPortEventListener, AbstractConnection {
 	
 	// tell all listeners data has arrived
 	private void processLine(String line) {
-	      for (AbstractConnectionReadyListener listener : listeners) {
+	      for (AbstractConnectionListener listener : listeners) {
 	        listener.dataAvailable(this,line);
 	      }
 	}
@@ -136,16 +136,16 @@ implements SerialPortEventListener, AbstractConnection {
 		return false;
 	}
 	
-    public void addListener(AbstractConnectionReadyListener listener) {
+    public void addListener(AbstractConnectionListener listener) {
       listeners.add(listener);
     }
     
-    public void removeListener(AbstractConnectionReadyListener listener) {
+    public void removeListener(AbstractConnectionListener listener) {
     	listeners.remove(listener);
     }
 
     private void notifyListeners() {
-      for (AbstractConnectionReadyListener listener : listeners) {
+      for (AbstractConnectionListener listener : listeners) {
         listener.connectionReady(this);
       }
     }

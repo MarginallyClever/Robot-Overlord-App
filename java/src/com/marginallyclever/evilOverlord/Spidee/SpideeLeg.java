@@ -6,7 +6,11 @@ import javax.media.opengl.GL2;
 import javax.vecmath.Vector3f;
 
 public class SpideeLeg implements Serializable {
-	  String name;
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3631783587859663314L;
+	String name;
 	  int base_servo_address;
 	  
 	  SpideeJoint pan_joint = new SpideeJoint();

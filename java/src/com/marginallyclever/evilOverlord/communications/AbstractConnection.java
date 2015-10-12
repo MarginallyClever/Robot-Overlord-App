@@ -8,19 +8,19 @@ package com.marginallyclever.evilOverlord.communications;
  * @since v7
  */
 public abstract interface AbstractConnection {
-	void close();
+	public void close();
 	
-	void open(String connectionName) throws Exception;
+	public void open(String connectionName) throws Exception;
 
-	void reconnect() throws Exception;
+	public void reconnect() throws Exception;
 
-	boolean isConnectionOpen();
+	public boolean isConnectionOpen();
 
-	String getRecentConnection();
+	public String getRecentConnection();
 
-	void sendMessage(String msg) throws Exception;
+	public void sendMessage(String msg) throws Exception;
 	
-    public void addListener(AbstractConnectionReadyListener listener);
+    public void addListener(AbstractConnectionListener listener);
     
-    public void removeListener(AbstractConnectionReadyListener listener);
+    public void removeListener(AbstractConnectionListener listener);
 }

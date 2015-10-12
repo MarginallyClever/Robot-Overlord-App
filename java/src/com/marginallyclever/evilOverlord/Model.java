@@ -17,6 +17,11 @@ import javax.media.opengl.GL2;
 
 
 public class Model implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7136313382885361812L;
+
 	private static LinkedList<Model> modelPool = new LinkedList<Model>();
 	
 	public final static int NUM_BUFFERS=2;  // verts, normals

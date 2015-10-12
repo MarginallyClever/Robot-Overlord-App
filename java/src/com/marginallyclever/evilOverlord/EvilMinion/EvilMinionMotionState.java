@@ -10,6 +10,10 @@ import javax.vecmath.Vector3f;
  *
  */
 class EvilMinionMotionState implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1012199745425607761L;
 	// angle of rotation
 	float angleE = 0;
 	float angleD = 0;

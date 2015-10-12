@@ -5,7 +5,12 @@ import java.io.Serializable;
 import javax.media.opengl.GL2;
 
 public class SpideeJoint extends SpideeLocation implements Serializable {
-	 public static final int ANGLE_HISTORY_LENGTH = (30*3);
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5055658323708862756L;
+
+	public static final int ANGLE_HISTORY_LENGTH = (30*3);
 	
 	  float angle;
 	  int last_angle;
