@@ -9,8 +9,11 @@ import java.util.Iterator;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -41,6 +44,7 @@ implements ActionListener, Serializable {
 	protected transient JMenuItem buttonAddArm5Robot;
 	protected transient JMenuItem buttonAddRSP2;
 	protected transient JMenuItem buttonAddSpidee;
+	protected transient JMenuItem buttonAddModel;
 	protected transient boolean areTexturesLoaded=false;
 	
 	// world contents
@@ -86,6 +90,17 @@ implements ActionListener, Serializable {
 		Spidee r = new Spidee();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
+	}
+	
+	protected void addModel(JFrame mainFrame) {
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(mainFrame);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String filename = fc.getSelectedFile().getAbsolutePath();
+    		ModelInWorld m = new ModelInWorld();
+    		m.setFilename( filename );
+    		objects.add(m);
+		}
 	}
 
     protected void setup( GL2 gl2 ) {
@@ -149,6 +164,12 @@ implements ActionListener, Serializable {
 			addSpidee();
 			return;
 		}
+		if( subject == buttonAddModel ) {
+			JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(buttonAddModel);
+			
+			addModel(topFrame);
+			return;
+		}
 	}
 	
 	
@@ -165,6 +186,12 @@ implements ActionListener, Serializable {
     	buttonAddSpidee = new JMenuItem("Add Spidee");
     	worldMenu.add(buttonAddSpidee);
     	buttonAddSpidee.addActionListener(this);
+
+    	worldMenu.addSeparator();
+    	
+    	buttonAddModel = new JMenuItem("Add Model");
+    	worldMenu.add(buttonAddModel);
+    	buttonAddModel.addActionListener(this);
     	
     	return worldMenu;
     }

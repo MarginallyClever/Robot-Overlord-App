@@ -21,17 +21,21 @@ public class ModelInWorld extends ObjectInWorld {
 
 
 	public void setFilename(String filename) {
-		this.filename = filename;
+		// if the filename has changed, throw out the model so it will be reloaded.
+		if( this.filename!=filename ) {
+			this.filename = filename;
+			model=null;
+		}
 	}
 
 	
 	public void render(GL2 gl2) {
-		if(model==null) {
+		if( model==null && filename != null ) {
 			model = Model.loadModel(filename);
-			if(model == null) {
-				return;
-			}
 		}
+		if( model==null ) return;
+		
+		this.setColor(gl2,1,1,1,1);
 		gl2.glPushMatrix();
 			gl2.glTranslatef(position.x, position.y, position.z);
 			model.render(gl2);
