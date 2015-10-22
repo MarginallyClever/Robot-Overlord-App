@@ -141,8 +141,8 @@ extends RobotWithConnection {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
@@ -150,7 +150,7 @@ extends RobotWithConnection {
 		list.add(arm5Panel);
 		updateGUI();
 
-		ArrayList<JPanel> toolList = tool.getControlPanels(gui);
+		ArrayList<JPanel> toolList = tool.getControlPanels();
 		Iterator<JPanel> iter = toolList.iterator();
 		while(iter.hasNext()) {
 			list.add(iter.next());

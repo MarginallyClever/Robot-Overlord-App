@@ -1,7 +1,6 @@
 package com.marginallyclever.evilOverlord;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,10 +10,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 import com.marginallyclever.evilOverlord.communications.AbstractConnectionManager;
@@ -45,12 +41,10 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 	
-	private transient boolean dialogResult;  // so dialog boxes can return an ok/cancel
 	private transient boolean ignoreSelectionEvents=false;
 
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonRescan;
-	protected transient EvilOverlord gui;
 
 	
 	public boolean isRunning() { return running; }
@@ -77,9 +71,8 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	
 
 	@Override
-	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
-		this.gui=gui;
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
 		list.add(getMenu());
 		
 		return list;
@@ -234,12 +227,10 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 		sendFileCommand();
 	}
 	
-	public void startAt() {
+	public void startAt(int lineNumber) {
 		if(fileOpened && !running) {
-			linesProcessed=0;
-			if(getStartingLineNumber()) {
-				start();
-			}
+			linesProcessed=lineNumber;
+			start();
 		}
 	}
 	
@@ -253,52 +244,6 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 				paused=true;
 			}
 		}
-	}
-	
-
-	/**
-	 * open a dialog to ask for the line number.
-	 * @return true if "ok" is pressed, false if the window is closed any other way.
-	 */
-	private boolean getStartingLineNumber() {
-		dialogResult=false;
-		
-		// TODO replace with a more elegant dialog.  See Makelangelo converters for examples.
-		final JDialog driver = new JDialog(this.gui.GetMainFrame(),"Start at...");
-		driver.setLayout(new GridBagLayout());		
-		final JTextField starting_line = new JTextField("0",8);
-		final JButton cancel = new JButton(("Cancel"));
-		final JButton start = new JButton(("Start"));
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridwidth=2;	c.gridx=0;  c.gridy=0;  driver.add(new JLabel(("Start at line")),c);
-		c.gridwidth=2;	c.gridx=2;  c.gridy=0;  driver.add(starting_line,c);
-		c.gridwidth=1;	c.gridx=0;  c.gridy=1;  driver.add(cancel,c);
-		c.gridwidth=1;	c.gridx=2;  c.gridy=1;  driver.add(start,c);
-		
-		ActionListener driveButtons = new ActionListener() {
-			  public void actionPerformed(ActionEvent e) {
-					Object subject = e.getSource();
-					
-					if(subject == start) {
-						linesProcessed=Integer.decode(starting_line.getText());
-						sendLineToRobot("M110 N"+linesProcessed);
-						dialogResult=true;
-						driver.dispose();
-					}
-					if(subject == cancel) {
-						dialogResult=false;
-						driver.dispose();
-					}
-			  }
-		};
-
-		start.addActionListener(driveButtons);
-		cancel.addActionListener(driveButtons);
-	    driver.getRootPane().setDefaultButton(start);
-		driver.pack();
-		driver.setVisible(true);  // modal
-		
-		return dialogResult;
 	}
 
 	/**

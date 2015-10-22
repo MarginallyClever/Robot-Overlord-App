@@ -58,7 +58,7 @@ public class ObjectInWorld implements ActionListener, Serializable {
 		}
 	}
 	*/
-	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
+	public ArrayList<JPanel> getControlPanels() {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
 		oiwPanel = new CollapsiblePanel("Position");
@@ -104,7 +104,7 @@ public class ObjectInWorld implements ActionListener, Serializable {
 		JPanel sum = new JPanel();
 		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
 		
-		ArrayList<JPanel> list = getControlPanels(gui);
+		ArrayList<JPanel> list = getControlPanels();
 		Iterator<JPanel> pi = list.iterator();
 		while(pi.hasNext()) {
 			JPanel p = pi.next();

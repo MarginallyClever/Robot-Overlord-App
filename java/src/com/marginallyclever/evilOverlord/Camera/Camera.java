@@ -1,9 +1,8 @@
 package com.marginallyclever.evilOverlord.Camera;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
-import javax.media.opengl.GL2;
-
-import com.marginallyclever.evilOverlord.EvilOverlord;
+import javax.media.opengl.GL2
+;
 import com.marginallyclever.evilOverlord.ObjectInWorld;
 
 import java.awt.event.KeyEvent;
@@ -46,8 +45,8 @@ public class Camera extends ObjectInWorld {
 	}
 
 	
-	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		cameraPanel = new CameraControlPanel(this);

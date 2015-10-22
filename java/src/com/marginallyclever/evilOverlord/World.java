@@ -58,7 +58,6 @@ implements ActionListener, Serializable {
 	protected transient Vector3f pickRight = null;
 	protected transient Vector3f pickUp = null;
 	protected transient Vector3f pickRay = null;
-	protected transient ObjectInWorld lastPickedObject = null;
 	protected transient boolean isSetup = false;
 	
 
@@ -427,7 +426,7 @@ implements ActionListener, Serializable {
 	}
 
 	
-	public void pickObjectWithName(int pickName,EvilOverlord gui) {
+	public ObjectInWorld pickObjectWithName(int pickName) {
 		ObjectInWorld newObject=null;
 		if(pickName==0) {
 			// Hit nothing!  Default to camera controls
@@ -445,15 +444,6 @@ implements ActionListener, Serializable {
 			}
 		}
 		
-		if(newObject != lastPickedObject) {
-			// only change the menu if the selected object has changed.
-			lastPickedObject = newObject;
-			gui.setContextMenu(lastPickedObject.buildPanel(gui),lastPickedObject.getDisplayName());
-		}
-	}
-	
-	public void pickCamera(EvilOverlord gui) {
-		lastPickedObject = camera;
-		gui.setContextMenu(lastPickedObject.buildPanel(gui),lastPickedObject.getDisplayName());
+		return newObject;
 	}
 }

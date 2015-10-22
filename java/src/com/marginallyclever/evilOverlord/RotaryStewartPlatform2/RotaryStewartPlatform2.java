@@ -705,8 +705,8 @@ implements PropertyChangeListener
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getControlPanels() {
+		ArrayList<JPanel> list = super.getControlPanels();
 		
 		if(list==null) list = new ArrayList<JPanel>();
 

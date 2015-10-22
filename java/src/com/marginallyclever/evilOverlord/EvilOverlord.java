@@ -81,12 +81,6 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	protected JMenuItem buttonCheckForUpdate;
     /// quit the application
 	protected JMenuItem buttonQuit;
-
-	// TODO move all these to a context sensitive menu
-	protected JMenuItem buttonStart;
-	protected JMenuItem buttonStartAt;
-	protected JMenuItem buttonPause;
-	protected JMenuItem buttonHalt;
 	
 	
 	/// The main frame of the GUI
@@ -171,7 +165,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         splitLeftRight.add(contextMenu);
 
         world = new World();
-        world.pickCamera(this);
+        pickCamera();
 
         updateMenu();
         
@@ -299,11 +293,14 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 	void newWorld() {
 		this.world = new World();
-		this.world.pickCamera(this);
+		pickCamera();
 		updateMenu();
 	}
 	
 	/*
+	
+	// stuff for trying to find and load plugins, part of future expansion
+	 
 	private String getPath(Class cls) {
 	    String cn = cls.getName();
 	    //System.out.println("cn "+cn);
@@ -349,61 +346,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		catch(ClassNotFoundException e) {}
 	}
 	*/
-	
-	/*
-	protected void LoadGenerators() {
-		// TODO find the generator jar files and load them.
 		
-		generators = new GcodeGenerator[3];
-		generators[0] = new LoadGCodeGenerator(this);
-		generators[1] = new YourMessageHereGenerator(this);
-		generators[2] = new HilbertCurveGenerator(this);
-		
-		generatorButtons = new JMenuItem[generators.length];
-	}
-	
-	protected JMenu LoadGenerateMenu() {
-		JMenu menu = new JMenu("Gcode");
-        menu.setEnabled(!world.robot0.isRunning());
-        
-        for(int i=0;i<generators.length;++i) {
-        	generatorButtons[i] = new JMenuItem(generators[i].GetMenuName());
-        	generatorButtons[i].addActionListener(this);
-        	menu.add(generatorButtons[i]);
-        }
-        
-        return menu;
-	}
-
-	
-	public JMenu LoadDrawMenu() {
-        // Draw menu
-        JMenu menu = new JMenu("Action");
-
-        buttonStart = new JMenuItem("Start",KeyEvent.VK_S);
-        buttonStart.addActionListener(this);
-    	buttonStart.setEnabled(world.robot0.isPortConfirmed() && !world.robot0.isRunning());
-        menu.add(buttonStart);
-
-        buttonStartAt = new JMenuItem("Start at...");
-        buttonStartAt.addActionListener(this);
-        buttonStartAt.setEnabled(world.robot0.isPortConfirmed() && !world.robot0.isRunning());
-        menu.add(buttonStartAt);
-
-        buttonPause = new JMenuItem("Pause");
-        buttonPause.addActionListener(this);
-        buttonPause.setEnabled(world.robot0.isPortConfirmed() && world.robot0.isRunning());
-        menu.add(buttonPause);
-
-        buttonHalt = new JMenuItem(("Halt"),KeyEvent.VK_H);
-        buttonHalt.addActionListener(this);
-        buttonHalt.setEnabled(world.robot0.isPortConfirmed() && world.robot0.isRunning());
-        menu.add(buttonHalt);
-        
-        return menu;
-	}
-	*/
-	
 	public void updateMenu() {
 		mainMenu.removeAll();
 		
@@ -513,7 +456,10 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 			return;
 		}
 		if( subject == buttonStartAt ) {
-			world.robot0.StartAt();
+			int lineNumber =getStartingLineNumber();
+			if(lineNumber>=0) {
+				world.robot0.StartAt(lineNumber);
+			}
 			return;
 			
 		}
@@ -526,6 +472,31 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		}
 		*/
 	}
+	
+
+	/**
+	 * open a dialog to ask for the line number.
+	 * @return true if "ok" is pressed, false if the window is closed any other way.
+	 *//*
+	private int getStartingLineNumber() {
+		int lineNumber=-1;
+		
+		// TODO replace with a more elegant dialog.  See Makelangelo converters for examples.
+		JPanel driver = new JPanel(new GridBagLayout());		
+		JTextField starting_line = new JTextField("0",8);
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridwidth=2;	c.gridx=0;  c.gridy=0;  driver.add(new JLabel("Start at line"),c);
+		c.gridwidth=2;	c.gridx=2;  c.gridy=0;  driver.add(starting_line,c);
+			    	    
+	    int result = JOptionPane.showConfirmDialog(null, driver, "Start at line", 
+	    		JOptionPane.OK_CANCEL_OPTION,
+	    		JOptionPane.PLAIN_MESSAGE);
+	    if (result == JOptionPane.OK_OPTION) {
+			lineNumber=Integer.decode(starting_line.getText());
+	    }
+	    
+		return lineNumber;
+	}*/
 
 	protected void LoadConfig() {
 		GetRecentFiles();
@@ -745,7 +716,6 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         if(hits!=0) {
         	int index=0;
         	int i;
-//			System.out.println("-------------------\nhits:"+hits);
         	for(i=0;i<hits;++i) {
         		int names=selectBuffer.get(index++);
 //                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
@@ -756,21 +726,23 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 //                System.out.println("zMaz:"+z2);
 //    			System.out.println("names:"+names);
     			if(names>0) {
-        		//for (int j=0;j<names;j++) {
         			int name = selectBuffer.get(index++);
-//        			System.out.println("found:"+name);
-        		    //if(j==names-1) {
-        		    	world.pickObjectWithName(name,this);
-	                	pickFound=true;
-	                	return;
-	                //}
+    				ObjectInWorld newObject = world.pickObjectWithName(name);
+    				setContextMenu(newObject.buildPanel(this),newObject.getDisplayName());
+   					pickFound=true;
+                	return;
         		}
         	}
         }
         if(pickFound==false) {
-        	world.pickCamera(this);
+        	pickCamera();
         }
+        
     }
+	
+	public void pickCamera() {
+		setContextMenu(world.camera.buildPanel(this),world.camera.getDisplayName());
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {

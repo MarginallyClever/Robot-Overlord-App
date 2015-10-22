@@ -8,7 +8,6 @@ import javax.media.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.evilOverlord.EvilOverlord;
 import com.marginallyclever.evilOverlord.Model;
 import com.marginallyclever.evilOverlord.PrimitiveSolids;
 
@@ -248,12 +247,12 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	}
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(EvilOverlord gui) {
+	public ArrayList<JPanel> getControlPanels() {
 		ArrayList<JPanel> list=null;
 		
 		if(getAttachedTo()==null) {
 			// only show position when not attached.
-			list = super.getControlPanels(gui);
+			list = super.getControlPanels();
 		}
 		if(list==null) list = new ArrayList<JPanel>();
 		
