@@ -1569,7 +1569,7 @@ implements ActionListener {
 				} else {
 					robotUID = uid;
 				}
-				//TODO 
+				// TODO set UID
 				//arm5Panel.setUID(robotUID);
 			}
 			catch(Exception e) {

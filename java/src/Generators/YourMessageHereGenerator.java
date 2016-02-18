@@ -186,7 +186,6 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 		if(chars_per_line<=0) return;
 		
 		// find size of text block
-		// TODO count newlines
 		Rectangle2D r = TextCalculateBounds(text);
 
 		output.write("G90;\n");

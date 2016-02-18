@@ -67,15 +67,11 @@ public class EvilMinionToolGripperControlPanel extends JPanel implements ActionL
 	}
 	
 	@Override
-	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void stateChanged(ChangeEvent e) {}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();			
-		// TODO Auto-generated method stub
+		Object subject = e.getSource();
 
 		if( subject == arm5ServoOpen ) {
 			tool.moveServo(-1);

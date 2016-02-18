@@ -9,10 +9,15 @@ import java.util.ArrayList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class SerialConnection 
-implements SerialPortEventListener, MarginallyCleverConnection {
+/**
+ * Created on 4/12/15.  Encapsulate all jssc serial receive/transmit implementation
+ *
+ * @author Peter Colapietro
+ * @since v7
+ */
+public class SerialConnection implements SerialPortEventListener, MarginallyCleverConnection {
 	private String[] portsDetected;
-	
+
 	protected SerialPort serialPort;
 	protected boolean portOpened=false;
 	protected String portName;
@@ -194,9 +199,7 @@ implements SerialPortEventListener, MarginallyCleverConnection {
 	}
 
 	@Override
-	public void reconnect() throws Exception {
-		// TODO Auto-generated method stub
-	}
+	public void reconnect() throws Exception {}
 
 	@Override
 	public boolean isConnectionOpen() {

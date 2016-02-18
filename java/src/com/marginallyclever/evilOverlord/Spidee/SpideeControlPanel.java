@@ -26,7 +26,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 
 	protected Spidee robot;
 	
-	//TODO private JLabel uid;
+	//private JLabel uid;
 	private final double [] speedOptions = {0.1, 0.2, 0.3, 
 			                                .4, .5, .6, 
 			                                .7, .8, .9, 1.0};

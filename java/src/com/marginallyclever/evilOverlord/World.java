@@ -17,6 +17,7 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Camera.Camera;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
+import com.marginallyclever.evilOverlord.DeltaRobot2.DeltaRobot2;
 import com.marginallyclever.evilOverlord.Spidee.Spidee;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
 import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
@@ -36,6 +37,7 @@ implements ActionListener {
 	protected JMenu worldMenu;
 	protected JMenuItem buttonAddArm5Robot;
 	protected JMenuItem buttonAddRSP2;
+	protected JMenuItem buttonAddDeltaRobot2;
 	protected JMenuItem buttonAddSpidee;
 	protected boolean areTexturesLoaded=false;
 	
@@ -71,6 +73,12 @@ implements ActionListener {
 	
 	protected void addRSP2() {
 		RotaryStewartPlatform2 r = new RotaryStewartPlatform2(gui);
+		r.setConnectionManager(connectionManager);
+		objects.add(r);
+	}
+	
+	protected void addDeltaRobot2() {
+		DeltaRobot2 r = new DeltaRobot2(gui);
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
@@ -138,6 +146,10 @@ implements ActionListener {
 			addRSP2();
 			return;
 		}
+		if(subject == buttonAddDeltaRobot2) {
+			addDeltaRobot2();
+			return;
+		}
 		if(subject == buttonAddSpidee) {
 			addSpidee();
 			return;
@@ -155,6 +167,10 @@ implements ActionListener {
     	worldMenu.add(buttonAddRSP2);
     	buttonAddRSP2.addActionListener(this);
 
+    	buttonAddDeltaRobot2 = new JMenuItem("Add Delta Robot 2");
+    	worldMenu.add(buttonAddDeltaRobot2);
+    	buttonAddDeltaRobot2.addActionListener(this);
+    	
     	buttonAddSpidee = new JMenuItem("Add Spidee");
     	worldMenu.add(buttonAddSpidee);
     	buttonAddSpidee.addActionListener(this);
@@ -341,7 +357,6 @@ implements ActionListener {
 
 	
 	boolean willCollide(EvilMinionRobot a,EvilMinionRobot b) {
-		// TODO complete me
 		//Get the cylinders for each robot
 		BoundingVolume [] from = a.getBoundingVolumes();
 		BoundingVolume [] to = b.getBoundingVolumes();

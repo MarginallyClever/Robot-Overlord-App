@@ -115,7 +115,6 @@ public class Model {
 		    
 		    zipFile.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
