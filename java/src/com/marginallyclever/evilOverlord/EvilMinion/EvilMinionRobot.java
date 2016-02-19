@@ -6,11 +6,13 @@ import javax.media.opengl.GL2;
 
 import com.marginallyclever.evilOverlord.*;
 import com.marginallyclever.evilOverlord.EvilMinionTool.*;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
+import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -20,6 +22,10 @@ import java.util.Iterator;
 
 public class EvilMinionRobot
 extends RobotWithConnection {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3644731265897692399L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM MINION #";
@@ -40,15 +46,15 @@ extends RobotWithConnection {
 	public final static float WRIST_TO_TOOL_Y = 1.0f;
 	
 	// model files
-	private Model anchor = Model.loadModel("/ArmParts.zip:anchor.STL",0.1f);
-	private Model shoulder = Model.loadModel("/ArmParts.zip:shoulder1.STL",0.1f);
-	private Model shoulderPinion = Model.loadModel("/ArmParts.zip:shoulder_pinion.STL",0.1f);
-	private Model boom = Model.loadModel("/ArmParts.zip:boom.STL",0.1f);
-	private Model stick = Model.loadModel("/ArmParts.zip:stick.STL",0.1f);
-	private Model wristBone = Model.loadModel("/ArmParts.zip:wrist_bone.STL",0.1f);
-	private Model wristEnd = Model.loadModel("/ArmParts.zip:wrist_end.STL",0.1f);
-	private Model wristInterior = Model.loadModel("/ArmParts.zip:wrist_interior.STL",0.1f);
-	private Model wristPinion = Model.loadModel("/ArmParts.zip:wrist_pinion.STL",0.1f);
+	private transient Model anchor = null;
+	private transient Model shoulder = null;
+	private transient Model shoulderPinion = null;
+	private transient Model boom = null;
+	private transient Model stick = null;
+	private transient Model wristBone = null;
+	private transient Model wristEnd = null;
+	private transient Model wristInterior = null;
+	private transient Model wristPinion = null;
 
 	// currently attached tool
 	private EvilMinionTool tool = null;
@@ -81,11 +87,13 @@ extends RobotWithConnection {
 	protected boolean isRenderIKOn=false;
 	protected double speed=2;
 	
-	protected EvilMinionControlPanel arm5Panel=null;
+	protected transient EvilMinionControlPanel arm5Panel=null;
 	
 	
-	public EvilMinionRobot(EvilOverlord _gui) {
-		super(_gui);
+	public EvilMinionRobot() {
+		super();
+		
+		setupModels();
 		
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {
@@ -111,6 +119,26 @@ extends RobotWithConnection {
 		
 		setDisplayName(ROBOT_NAME);
 	}
+	
+
+	protected void setupModels() {
+		anchor = Model.loadModel("/ArmParts.zip:anchor.STL",0.1f);
+		shoulder = Model.loadModel("/ArmParts.zip:shoulder1.STL",0.1f);
+		shoulderPinion = Model.loadModel("/ArmParts.zip:shoulder_pinion.STL",0.1f);
+		boom = Model.loadModel("/ArmParts.zip:boom.STL",0.1f);
+		stick = Model.loadModel("/ArmParts.zip:stick.STL",0.1f);
+		wristBone = Model.loadModel("/ArmParts.zip:wrist_bone.STL",0.1f);
+		wristEnd = Model.loadModel("/ArmParts.zip:wrist_end.STL",0.1f);
+		wristInterior = Model.loadModel("/ArmParts.zip:wrist_interior.STL",0.1f);
+		wristPinion = Model.loadModel("/ArmParts.zip:wrist_pinion.STL",0.1f);
+	}
+
+    private void readObject(ObjectInputStream inputStream)
+            throws IOException, ClassNotFoundException
+    {
+    	setupModels();
+        inputStream.defaultReadObject();
+    }   
 
 	
 	@Override
@@ -720,7 +748,7 @@ extends RobotWithConnection {
 	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public void serialDataAvailable(MarginallyCleverConnection arg0,String line) {
+	public void dataAvailable(AbstractConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();

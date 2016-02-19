@@ -8,7 +8,7 @@ import jssc.SerialPortList;
  * @author Dan
  * @since v7.1.0.0
  */
-public class SerialConnectionManager implements MarginallyCleverConnectionManager {
+public class SerialConnectionManager implements AbstractConnectionManager {
   private String[] portsDetected;
   private String recentPort;
 
@@ -41,7 +41,7 @@ public class SerialConnectionManager implements MarginallyCleverConnectionManage
   /**
    * @return <code>serialConnection</code> if connection successful.  <code>null</code> on failure.
    */
-  public MarginallyCleverConnection openConnection(String connectionName) {
+  public AbstractConnection openConnection(String connectionName) {
     //if(connectionName.equals(recentPort)) return null;
 
     SerialConnection serialConnection = new SerialConnection();

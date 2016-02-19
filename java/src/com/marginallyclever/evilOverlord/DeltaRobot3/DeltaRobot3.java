@@ -20,12 +20,16 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.evilOverlord.*;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
+import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 
 public class DeltaRobot3
 extends RobotWithConnection
 implements PropertyChangeListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7173262402738411169L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
@@ -99,8 +103,8 @@ implements PropertyChangeListener
 	}
 
 
-	public DeltaRobot3(EvilOverlord gui) {
-		super(gui);
+	public DeltaRobot3() {
+		super();
 		setDisplayName(ROBOT_NAME);
 
 		/*
@@ -513,7 +517,7 @@ implements PropertyChangeListener
 
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public void serialDataAvailable(MarginallyCleverConnection arg0,String line) {
+	public void dataAvailable(AbstractConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();

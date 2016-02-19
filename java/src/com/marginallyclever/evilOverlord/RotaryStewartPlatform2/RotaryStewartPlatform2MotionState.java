@@ -1,11 +1,18 @@
 package com.marginallyclever.evilOverlord.RotaryStewartPlatform2;
 
+import java.io.Serializable;
+
 import javax.vecmath.Vector3f;
 
 
-public class RotaryStewartPlatform2MotionState {
+public class RotaryStewartPlatform2MotionState implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// angle of rotation
-	RotaryStewartPlatform2Arm arms[];
+	protected RotaryStewartPlatform2Arm arms[];
 
 	// Relative to base unless otherwise noted.
 	public Vector3f finger_tip = new Vector3f(0,0,0);
@@ -29,8 +36,12 @@ public class RotaryStewartPlatform2MotionState {
 
 
 	
-	public class RotaryStewartPlatform2Arm {
-		  Vector3f shoulder = new Vector3f();
+	public class RotaryStewartPlatform2Arm implements Serializable {
+		  /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		Vector3f shoulder = new Vector3f();
 		  Vector3f elbow = new Vector3f();
 		  Vector3f shoulderToElbow = new Vector3f();
 		  Vector3f wrist = new Vector3f();

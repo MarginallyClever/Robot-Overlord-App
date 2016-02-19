@@ -3,13 +3,17 @@ package com.marginallyclever.evilOverlord;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLProfile;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -19,7 +23,7 @@ import com.marginallyclever.evilOverlord.DeltaRobot3.DeltaRobot3;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
 import com.marginallyclever.evilOverlord.Spidee.Spidee;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionManager;
 import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
 
 /**
@@ -28,65 +32,82 @@ import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
  *
  */
 public class World
-implements ActionListener {
+implements ActionListener, Serializable {
 
-	protected MarginallyCleverConnectionManager connectionManager = new SerialConnectionManager();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2405142728731535038L;
+
+	protected transient AbstractConnectionManager connectionManager = new SerialConnectionManager();
 	
-	protected EvilOverlord gui;
-	
-	protected JMenu worldMenu;
-	protected JMenuItem buttonAddArm5Robot;
-	protected JMenuItem buttonAddRSP2;
-	protected JMenuItem buttonAddDeltaRobot2;
-	protected JMenuItem buttonAddSpidee;
-	protected boolean areTexturesLoaded=false;
+	protected transient JMenu worldMenu;
+	protected transient JMenuItem buttonAddArm5Robot;
+	protected transient JMenuItem buttonAddRSP2;
+	protected transient JMenuItem buttonAddDeltaRobot2;
+	protected transient JMenuItem buttonAddSpidee;
+	protected transient JMenuItem buttonAddModel;
+	protected transient boolean areTexturesLoaded=false;
 	
 	// world contents
-	protected Camera camera = null;
 	protected ArrayList<ObjectInWorld> objects = new ArrayList<ObjectInWorld>();
-	protected LightObject light0, light1;
-	protected Texture t0,t1,t2,t3,t4,t5;
+	protected Camera camera = null;
+	protected LightObject light0;
+	protected LightObject light1;
+	protected transient Texture t0,t1,t2,t3,t4,t5;
 
-	protected Vector3f pickForward=new Vector3f();
-	protected Vector3f pickRight=new Vector3f();
-	protected Vector3f pickUp=new Vector3f();
-	protected Vector3f pickRay=new Vector3f();
-	protected ObjectInWorld lastPickedObject=null;
+	protected transient Vector3f pickForward = null;
+	protected transient Vector3f pickRight = null;
+	protected transient Vector3f pickUp = null;
+	protected transient Vector3f pickRay = null;
+	protected transient boolean isSetup = false;
 	
 
-	public World(EvilOverlord _gui) {
-		gui = _gui;
-		
-		camera = new Camera();
-
-        gui.setContextMenu(camera.buildPanel(),camera.getDisplayName());
-        
+	public World() {
+		camera = new Camera();		
 		light0 = new LightObject();
 		light1 = new LightObject();
+		areTexturesLoaded=false;
+
+		pickForward=new Vector3f();
+		pickRight=new Vector3f();
+		pickUp=new Vector3f();
+		pickRay=new Vector3f();
 	}
 	
 	protected void addArm5Robot() {
-		EvilMinionRobot r = new EvilMinionRobot(gui);
+		EvilMinionRobot r = new EvilMinionRobot();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
 	
 	protected void addRSP2() {
-		RotaryStewartPlatform2 r = new RotaryStewartPlatform2(gui);
+		RotaryStewartPlatform2 r = new RotaryStewartPlatform2();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
 	
 	protected void addDeltaRobot2() {
-		DeltaRobot3 r = new DeltaRobot3(gui);
+		DeltaRobot3 r = new DeltaRobot3();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
 	
 	protected void addSpidee() {
-		Spidee r = new Spidee(gui);
+		Spidee r = new Spidee();
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
+	}
+	
+	protected void addModel(JFrame mainFrame) {
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(mainFrame);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String filename = fc.getSelectedFile().getAbsolutePath();
+    		ModelInWorld m = new ModelInWorld();
+    		m.setFilename( filename );
+    		objects.add(m);
+		}
 	}
 
     protected void setup( GL2 gl2 ) {
@@ -101,10 +122,10 @@ implements ActionListener {
 
     protected void setupLights() {
     	light1.index=1;
-	    light1.position=new float[]{-1,-1,1,0};
-	    light1.ambient=new float[]{0.0f,0.0f,0.0f,1f};
-	    light1.diffuse=new float[]{2.0f,2.0f,2.0f,1f};
-	    light1.specular=new float[]{1.0f,1.0f,1.0f,1f};
+	    light1.position=new float[]{-1.0f,-1.0f,1.0f,0.0f};
+	    light1.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
+	    light1.diffuse =new float[]{ 2.0f, 2.0f,2.0f,1.0f};
+	    light1.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
     }
     
 	
@@ -126,7 +147,7 @@ implements ActionListener {
 			t3 = TextureIO.newTexture(new File("java/src/images/cube-y-neg.png"), true);
 			t4 = TextureIO.newTexture(new File("java/src/images/cube-z-pos.png"), true);
 			t5 = TextureIO.newTexture(new File("java/src/images/cube-z-neg.png"), true);
-			System.out.println(">>> All textures loaded OK");
+			//System.out.println(">>> All textures loaded OK");
 			areTexturesLoaded=true;
 		}
 		catch(Exception e) {
@@ -154,6 +175,12 @@ implements ActionListener {
 			addSpidee();
 			return;
 		}
+		if( subject == buttonAddModel ) {
+			JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(buttonAddModel);
+			
+			addModel(topFrame);
+			return;
+		}
 	}
 	
 	
@@ -174,12 +201,23 @@ implements ActionListener {
     	buttonAddSpidee = new JMenuItem("Add Spidee");
     	worldMenu.add(buttonAddSpidee);
     	buttonAddSpidee.addActionListener(this);
+
+    	worldMenu.addSeparator();
+    	
+    	buttonAddModel = new JMenuItem("Add Model");
+    	worldMenu.add(buttonAddModel);
+    	buttonAddModel.addActionListener(this);
     	
     	return worldMenu;
     }
     
 	
 	public void render(GL2 gl2, float delta ) {
+		if(isSetup==false) {
+			setup(gl2);
+			isSetup=true;
+		}
+		
 		Iterator<ObjectInWorld> io = objects.iterator();
 		while(io.hasNext()) {
 			ObjectInWorld obj = io.next();
@@ -258,6 +296,8 @@ implements ActionListener {
 
 	
 	protected void showPickingTest(GL2 gl2) {
+		if(pickForward == null) return;
+		
 		gl2.glPushMatrix();
 		gl2.glDisable(GL2.GL_LIGHTING);
 
@@ -295,6 +335,8 @@ implements ActionListener {
 
 	// Draw background
 	protected void drawSkyCube(GL2 gl2) {
+		if(!areTexturesLoaded) return;
+		
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
@@ -399,7 +441,7 @@ implements ActionListener {
 	}
 
 	
-	public void pickObjectWithName(int pickName) {
+	public ObjectInWorld pickObjectWithName(int pickName) {
 		ObjectInWorld newObject=null;
 		if(pickName==0) {
 			// Hit nothing!  Default to camera controls
@@ -417,10 +459,6 @@ implements ActionListener {
 			}
 		}
 		
-		if(newObject != lastPickedObject) {
-			// only change the menu if the selected object has changed.
-			lastPickedObject = newObject;
-			gui.setContextMenu(lastPickedObject.buildPanel(),lastPickedObject.getDisplayName());
-		}
+		return newObject;
 	}
 }

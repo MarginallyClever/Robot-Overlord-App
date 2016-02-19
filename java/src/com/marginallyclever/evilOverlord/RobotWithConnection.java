@@ -1,7 +1,6 @@
 package com.marginallyclever.evilOverlord;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,27 +10,28 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionReadyListener;
+import com.marginallyclever.evilOverlord.communications.AbstractConnection;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionManager;
+import com.marginallyclever.evilOverlord.communications.AbstractConnectionListener;
 
 
 public class RobotWithConnection extends PhysicalObject
-implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener {
+implements AbstractConnectionListener, ActionListener, ItemListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1970631551615654640L;
 	//comms	
-	protected MarginallyCleverConnectionManager connectionManager;
-	protected String[] portsDetected=null;
-	protected MarginallyCleverConnection connection;
-	protected boolean isReadyToReceive;
+	protected transient AbstractConnectionManager connectionManager;
+	protected transient String[] portsDetected=null;
+	protected transient AbstractConnection connection;
+	protected transient boolean isReadyToReceive;
 	
-	protected CollapsiblePanel connectionPanel=null;
-	protected JPanel connectionList=null;
-	protected JComboBox<String> connectionComboBox=null;
+	protected transient CollapsiblePanel connectionPanel=null;
+	protected transient JPanel connectionList=null;
+	protected transient JComboBox<String> connectionComboBox=null;
 
 	// sending file to the robot
 	private boolean running;
@@ -41,13 +41,10 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 	
-	private boolean dialogResult;  // so dialog boxes can return an ok/cancel
-	private boolean ignoreSelectionEvents=false;
-	
-	EvilOverlord gui;
+	private transient boolean ignoreSelectionEvents=false;
 
 	// connect/rescan/disconnect dialog options
-	protected JButton buttonRescan;
+	protected transient JButton buttonRescan;
 
 	
 	public boolean isRunning() { return running; }
@@ -55,9 +52,8 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	public boolean isFileOpen() { return fileOpened; }
 	
 	
-	public RobotWithConnection(EvilOverlord _gui) {
+	public RobotWithConnection() {
 		super();
-		gui = _gui;
 		isReadyToReceive=false;
 		linesTotal=0;
 		linesProcessed=0;
@@ -66,10 +62,10 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 		running=false;
 	}
 	
-	public MarginallyCleverConnectionManager getConnectionManager() {
+	public AbstractConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
-	public void setConnectionManager(MarginallyCleverConnectionManager connectionManager) {
+	public void setConnectionManager(AbstractConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 	}
 	
@@ -161,21 +157,22 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 	    	recentConnection = connection.getRecentConnection();
 	    }
 
-		portsDetected = connectionManager.listConnections();
-		int i;
-	    for(i=0;i<portsDetected.length;++i) {
-	    	connectionComboBox.addItem(portsDetected[i]);
-	    	if(recentConnection.equals(portsDetected[i])) {
-	    		connectionComboBox.setSelectedIndex(i+1);
-	    	}
+	    if(connectionManager!=null) {
+			portsDetected = connectionManager.listConnections();
+			int i;
+		    for(i=0;i<portsDetected.length;++i) {
+		    	connectionComboBox.addItem(portsDetected[i]);
+		    	if(recentConnection.equals(portsDetected[i])) {
+		    		connectionComboBox.setSelectedIndex(i+1);
+		    	}
+		    }
 	    }
-
         ignoreSelectionEvents=false;
 	}
 	
 	
 	@Override
-	public void serialConnectionReady(MarginallyCleverConnection arg0) {
+	public void connectionReady(AbstractConnection arg0) {
 		if(arg0==connection && connection!=null) isReadyToReceive=true;
 		
 		if(isReadyToReceive) {
@@ -186,7 +183,7 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 
 	
 	@Override
-	public void serialDataAvailable(MarginallyCleverConnection arg0,String data) {
+	public void dataAvailable(AbstractConnection arg0,String data) {
 		
 	}
 	
@@ -230,12 +227,10 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 		sendFileCommand();
 	}
 	
-	public void startAt() {
+	public void startAt(int lineNumber) {
 		if(fileOpened && !running) {
-			linesProcessed=0;
-			if(getStartingLineNumber()) {
-				start();
-			}
+			linesProcessed=lineNumber;
+			start();
 		}
 	}
 	
@@ -249,51 +244,6 @@ implements MarginallyCleverConnectionReadyListener, ActionListener, ItemListener
 				paused=true;
 			}
 		}
-	}
-	
-
-	/**
-	 * open a dialog to ask for the line number.
-	 * @return true if "ok" is pressed, false if the window is closed any other way.
-	 */
-	private boolean getStartingLineNumber() {
-		dialogResult=false;
-		
-		final JDialog driver = new JDialog(gui.GetMainFrame(),"Start at...");
-		driver.setLayout(new GridBagLayout());		
-		final JTextField starting_line = new JTextField("0",8);
-		final JButton cancel = new JButton(("Cancel"));
-		final JButton start = new JButton(("Start"));
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridwidth=2;	c.gridx=0;  c.gridy=0;  driver.add(new JLabel(("Start at line")),c);
-		c.gridwidth=2;	c.gridx=2;  c.gridy=0;  driver.add(starting_line,c);
-		c.gridwidth=1;	c.gridx=0;  c.gridy=1;  driver.add(cancel,c);
-		c.gridwidth=1;	c.gridx=2;  c.gridy=1;  driver.add(start,c);
-		
-		ActionListener driveButtons = new ActionListener() {
-			  public void actionPerformed(ActionEvent e) {
-					Object subject = e.getSource();
-					
-					if(subject == start) {
-						linesProcessed=Integer.decode(starting_line.getText());
-						sendLineToRobot("M110 N"+linesProcessed);
-						dialogResult=true;
-						driver.dispose();
-					}
-					if(subject == cancel) {
-						dialogResult=false;
-						driver.dispose();
-					}
-			  }
-		};
-
-		start.addActionListener(driveButtons);
-		cancel.addActionListener(driveButtons);
-	    driver.getRootPane().setDefaultButton(start);
-		driver.pack();
-		driver.setVisible(true);  // modal
-		
-		return dialogResult;
 	}
 
 	/**

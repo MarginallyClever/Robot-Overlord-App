@@ -3,6 +3,9 @@ package com.marginallyclever.evilOverlord;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +23,12 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-public class ObjectInWorld implements ActionListener {
+public class ObjectInWorld implements ActionListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2461060493057258044L;
+	
 	protected List<ObjectInWorld> children;
 	protected Vector3f position;
 	protected String displayName;
@@ -29,16 +37,27 @@ public class ObjectInWorld implements ActionListener {
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static protected int pickNameCounter=1;
 	
-	private CollapsiblePanel oiwPanel;
-	protected JTextField fieldX,fieldY,fieldZ;
+	private transient CollapsiblePanel oiwPanel;
+	protected transient JTextField fieldX,fieldY,fieldZ;
+	
+	//protected transient EvilOverlord gui;
+	
 	
 	public ObjectInWorld() {
 		pickName = pickNameCounter++;
 		children = new ArrayList<ObjectInWorld>();
 		position = new Vector3f();
 	}
-	
-	
+	/*
+	public void setGUI(EvilOverlord gui) {
+		this.gui = gui;
+		
+		Iterator<ObjectInWorld> iter = children.iterator();
+		while(iter.hasNext()) {
+			iter.next().setGUI(gui);
+		}
+	}
+	*/
 	public ArrayList<JPanel> getControlPanels() {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
@@ -81,7 +100,7 @@ public class ObjectInWorld implements ActionListener {
 		return list;
 	}
 	
-	public JPanel buildPanel() {
+	public JPanel buildPanel(EvilOverlord gui) {
 		JPanel sum = new JPanel();
 		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
 		
@@ -138,4 +157,20 @@ public class ObjectInWorld implements ActionListener {
 	
 	
 	public void render(GL2 gl2) {}
+	public void save(Writer writer) {}
+	public void load(Reader reader) {}
+	
+
+	protected void setColor(GL2 gl2,float r,float g,float b,float a) {
+		float [] diffuse = {r,g,b,a};
+		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, diffuse,0);
+		float[] specular={0.85f,0.85f,0.85f,1.0f};
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, specular,0);
+	    float[] emission={0.01f,0.01f,0.01f,1f};
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
+	    
+	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, 50.0f);
+
+	    gl2.glColor4f(r,g,b,a);
+	}
 }

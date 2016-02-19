@@ -7,6 +7,10 @@ import com.marginallyclever.evilOverlord.PhysicalObject;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 
 public abstract class EvilMinionTool extends PhysicalObject {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5418173275880663460L;
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
 	protected EvilMinionRobot attachedTo=null;

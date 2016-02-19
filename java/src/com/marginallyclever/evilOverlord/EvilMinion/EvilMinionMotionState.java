@@ -1,5 +1,7 @@
 package com.marginallyclever.evilOverlord.EvilMinion;
 
+import java.io.Serializable;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -7,7 +9,11 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-class EvilMinionMotionState {
+class EvilMinionMotionState implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1012199745425607761L;
 	// angle of rotation
 	float angleE = 0;
 	float angleD = 0;

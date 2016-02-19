@@ -6,8 +6,10 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -20,12 +22,16 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.evilOverlord.*;
-import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
+import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 
 public class RotaryStewartPlatform2
 extends RobotWithConnection
 implements PropertyChangeListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1816224308642132316L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
@@ -66,9 +72,9 @@ implements PropertyChangeListener
 
 	protected boolean isPortConfirmed=false;
 
-	protected Model modelTop = Model.loadModel("/StewartPlatform.zip:top.STL",0.1f);
-	protected Model modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL",0.1f);
-	protected Model modelBase = Model.loadModel("/StewartPlatform.zip:base.STL",0.1f);
+	protected transient Model modelTop = null;
+	protected transient Model modelArm = null;
+	protected transient Model modelBase = null;
 	
 	protected RotaryStewartPlatform2MotionState motion_now = new RotaryStewartPlatform2MotionState();
 	protected RotaryStewartPlatform2MotionState motion_future = new RotaryStewartPlatform2MotionState();
@@ -97,8 +103,8 @@ implements PropertyChangeListener
 	boolean moveMode=true;
 	
 
-	protected JButton view_home=null, view_go=null;
-	protected JLabelledTextField viewPx,viewPy,viewPz,viewRx,viewRy,viewRz;
+	protected transient JButton view_home=null, view_go=null;
+	protected transient JLabelledTextField viewPx,viewPy,viewPz,viewRx,viewRy,viewRz;
 	
 	
 	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
@@ -114,8 +120,8 @@ implements PropertyChangeListener
 	}
 
 
-	public RotaryStewartPlatform2(EvilOverlord gui) {
-		super(gui);
+	public RotaryStewartPlatform2() {
+		super();
 		setDisplayName(ROBOT_NAME);
 
 		/*
@@ -136,7 +142,8 @@ implements PropertyChangeListener
 		motion_now.updateIKWrists();
 
 		motion_future.set(motion_now);
-
+		setupModels();
+		
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
 		float aa=(motion_now.arms[0].elbow.y-motion_now.arms[0].wrist.y);
@@ -150,6 +157,20 @@ implements PropertyChangeListener
 		motion_future.finger_tip.set(motion_now.finger_tip);
 		moveIfAble();
 	}
+	
+
+	protected void setupModels() {
+		modelTop = Model.loadModel("/StewartPlatform.zip:top.STL",0.1f);
+		modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL",0.1f);
+		modelBase = Model.loadModel("/StewartPlatform.zip:base.STL",0.1f);
+	}
+
+    private void readObject(ObjectInputStream inputStream)
+            throws IOException, ClassNotFoundException
+    {
+    	setupModels();
+        inputStream.defaultReadObject();
+    }   
 
 
 	protected void update_ik(float delta) {
@@ -594,7 +615,7 @@ implements PropertyChangeListener
 
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public void serialDataAvailable(MarginallyCleverConnection arg0,String line) {
+	public void dataAvailable(AbstractConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();

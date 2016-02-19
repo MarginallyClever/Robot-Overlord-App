@@ -1,9 +1,12 @@
 package com.marginallyclever.evilOverlord;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,19 +18,24 @@ import java.nio.ByteOrder;
 import javax.media.opengl.GL2;
 
 
-public class Model {
+public class Model implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7136313382885361812L;
+
 	private static LinkedList<Model> modelPool = new LinkedList<Model>();
 	
 	public final static int NUM_BUFFERS=2;  // verts, normals
 	
-	protected String name;
-	protected int num_triangles;
-	protected FloatBuffer vertices;
-	protected FloatBuffer normals;
-	protected int VBO[] = null;
-	protected boolean isLoaded = false;
-	protected boolean isBinary = false;
-	protected float loadScale=1.0f;
+	protected transient String name = null;
+	protected transient int num_triangles;
+	protected transient FloatBuffer vertices;
+	protected transient FloatBuffer normals;
+	protected transient int VBO[] = null;
+	protected transient boolean isLoaded = false;
+	protected transient boolean isBinary = false;
+	protected transient float loadScale=1.0f;
 
 	
 	private Model() {}
@@ -79,13 +87,21 @@ public class Model {
 		}
 	}
 	
+	protected InputStream getInputStream(String fname) throws IOException {
+		InputStream s = getClass().getResourceAsStream(fname);
+		if( s==null ) {
+			s = new FileInputStream(new File(fname));
+		}
+		return s;
+	}
+	
 	private void loadFromZip(GL2 gl2,String zipName,String fname) {
 		ZipInputStream zipFile=null;
 		ZipEntry entry;
 		InputStreamReader isr;
 		BufferedReader stream;
 		try {
-			zipFile = new ZipInputStream(getClass().getResourceAsStream(zipName));
+			zipFile = new ZipInputStream(getInputStream(zipName));
 			isr = new InputStreamReader(zipFile);
 			
 		    while((entry = zipFile.getNextEntry())!=null) {
@@ -101,7 +117,7 @@ public class Model {
 		    }
 
 		    if(!isBinary) {
-				zipFile = new ZipInputStream(getClass().getResourceAsStream(zipName));
+				zipFile = new ZipInputStream(getInputStream(zipName));
 				isr = new InputStreamReader(zipFile);
 				
 			    while((entry = zipFile.getNextEntry())!=null) {
@@ -119,18 +135,17 @@ public class Model {
 		}
 	}
 	
-	
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	private void loadFromFile(GL2 gl2,String fname) {
 		BufferedReader br =null;
 		try {
 			if(isBinary) {
-				loadFromStreamBinary(gl2,getClass().getResourceAsStream(fname));
+				loadFromStreamBinary(gl2,getInputStream(fname));
 			} else {
-				br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
+				br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
 			    initialize(gl2,br);
 			    br.close();
-				br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fname),"UTF-8"));
+				br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
 			    loadFromStream(gl2,br);   
 			}
 		}

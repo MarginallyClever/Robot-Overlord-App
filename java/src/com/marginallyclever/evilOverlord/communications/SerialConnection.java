@@ -15,7 +15,8 @@ import javax.swing.JTextArea;
  * @author Peter Colapietro
  * @since v7
  */
-public class SerialConnection implements SerialPortEventListener, MarginallyCleverConnection {
+public class SerialConnection 
+implements SerialPortEventListener, AbstractConnection {
 	private String[] portsDetected;
 
 	protected SerialPort serialPort;
@@ -41,7 +42,7 @@ public class SerialConnection implements SerialPortEventListener, MarginallyClev
     ArrayList<String> commandQueue = new ArrayList<String>();
 
     // Listeners which should be notified of a change to the percentage.
-    private ArrayList<MarginallyCleverConnectionReadyListener> listeners = new ArrayList<MarginallyCleverConnectionReadyListener>();
+    private ArrayList<AbstractConnectionListener> listeners = new ArrayList<AbstractConnectionListener>();
 
 	
 	public SerialConnection() {
@@ -56,8 +57,8 @@ public class SerialConnection implements SerialPortEventListener, MarginallyClev
 	
 	// tell all listeners data has arrived
 	private void processLine(String line) {
-	      for (MarginallyCleverConnectionReadyListener listener : listeners) {
-	        listener.serialDataAvailable(this,line);
+	      for (AbstractConnectionListener listener : listeners) {
+	        listener.dataAvailable(this,line);
 	      }
 	}
 	
@@ -141,17 +142,17 @@ public class SerialConnection implements SerialPortEventListener, MarginallyClev
 		return false;
 	}
 	
-    public void addListener(MarginallyCleverConnectionReadyListener listener) {
+    public void addListener(AbstractConnectionListener listener) {
       listeners.add(listener);
     }
     
-    public void removeListener(MarginallyCleverConnectionReadyListener listener) {
+    public void removeListener(AbstractConnectionListener listener) {
     	listeners.remove(listener);
     }
 
     private void notifyListeners() {
-      for (MarginallyCleverConnectionReadyListener listener : listeners) {
-        listener.serialConnectionReady(this);
+      for (AbstractConnectionListener listener : listeners) {
+        listener.connectionReady(this);
       }
     }
 	

@@ -1,5 +1,7 @@
 package com.marginallyclever.evilOverlord.EvilMinionTool;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 import javax.media.opengl.GL2;
@@ -16,6 +18,10 @@ import com.marginallyclever.evilOverlord.PrimitiveSolids;
  *
  */
 public class EvilMinionToolGripper extends EvilMinionTool {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5290710988214905673L;
 	// The servo angle
 	protected float angleMax=160;
 	protected float angleMin=120;
@@ -23,15 +29,39 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	protected float servoDir = 0.0f;
 	protected EvilMinionToolGripperControlPanel armToolGripperControlPanel=null;
 
-	protected Model modelAdapter = Model.loadModelBinary("/Gripper/Adapter.stl",0.1f);
-	protected Model modelMain = Model.loadModel("/Gripper/Main.stl",0.1f);
-	protected Model modelRearbar = Model.loadModel("/Gripper/Rearbar.stl",0.1f);
-	protected Model modelFrontbar = Model.loadModel("/Gripper/Frontbar.stl",0.1f);
-	protected Model modelLeftGear = Model.loadModel("/Gripper/LeftGear.stl",0.1f);
-	protected Model modelRightGear = Model.loadModel("/Gripper/RightGear.stl",0.1f);
-	protected Model modelBase = Model.loadModel("/Gripper/Base.stl",0.1f);
-	protected Model modelGripper = Model.loadModel("/Gripper/Gripper.stl",0.1f);
-	protected Model modelServo = Model.loadModel("/Spidee.zip:SG5010.stl");
+	protected transient Model modelAdapter = null;
+	protected transient Model modelMain = null;
+	protected transient Model modelRearbar = null;
+	protected transient Model modelFrontbar = null;
+	protected transient Model modelLeftGear = null;
+	protected transient Model modelRightGear = null;
+	protected transient Model modelBase = null;
+	protected transient Model modelGripper = null;
+	protected transient Model modelServo = null;
+	
+	
+	public EvilMinionToolGripper() {
+		setupModels();
+	}
+	
+	protected void setupModels() {
+		modelAdapter = Model.loadModelBinary("/Gripper/Adapter.stl",0.1f);
+		modelMain = Model.loadModel("/Gripper/Main.stl",0.1f);
+		modelRearbar = Model.loadModel("/Gripper/Rearbar.stl",0.1f);
+		modelFrontbar = Model.loadModel("/Gripper/Frontbar.stl",0.1f);
+		modelLeftGear = Model.loadModel("/Gripper/LeftGear.stl",0.1f);
+		modelRightGear = Model.loadModel("/Gripper/RightGear.stl",0.1f);
+		modelBase = Model.loadModel("/Gripper/Base.stl",0.1f);
+		modelGripper = Model.loadModel("/Gripper/Gripper.stl",0.1f);
+		modelServo = Model.loadModel("/Spidee.zip:SG5010.stl");
+	}
+
+    private void readObject(ObjectInputStream inputStream)
+            throws IOException, ClassNotFoundException
+    {
+    	setupModels();
+        inputStream.defaultReadObject();
+    }   
 	
 	
 	public void render(GL2 gl2) {
@@ -56,7 +86,7 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		gl2.glPushMatrix();
 		this.setColor(gl2, 1,0,1,1);
 		gl2.glRotatef(90,0,0,1);
-		gl2.glTranslated(-9.55,-10.15,-1.9);
+		gl2.glTranslated(-1.375,-0.725,-1.9);
 		modelAdapter.render(gl2);
 		gl2.glPopMatrix();
 
