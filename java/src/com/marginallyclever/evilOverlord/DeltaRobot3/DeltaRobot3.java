@@ -131,7 +131,7 @@ implements PropertyChangeListener
 		aa=motion_now.arms[0].elbow.x-motion_now.arms[0].wrist.x;
 		cc=bb;
 		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		motion_now.finger_tip.set(0,0,bb+BASE_TO_SHOULDER_Z-WRIST_TO_FINGER_Z);
+		motion_now.finger_tip.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
 
 		motion_future.finger_tip.set(motion_now.finger_tip);
 		moveIfAble();
@@ -349,7 +349,7 @@ implements PropertyChangeListener
 		//RebuildShoulders(motion_now);
 		
 		gl2.glPushMatrix();
-		gl2.glTranslated(position.x, position.y, position.z);
+		gl2.glTranslated(position.x, position.y, position.z+2);
 		
 		//motion_now.moveBase(new Vector3f(0,0,0));
 		
