@@ -162,20 +162,22 @@ extends RobotWithConnection {
 		boolean changed=false;
 		motion_future.set(motion_now);
 		
-		// speeds
-		final float vtranslate= (float)getSpeed() * delta;
+		// movement 
+		float dv = (float)getSpeed();
+		// if continuous, adjust speed over time
+		//* delta;
 		
 		// lateral moves
-		if (xDir!=0) {  motion_future.finger_tip.x += vtranslate * xDir;	}
-		if (yDir!=0) {  motion_future.finger_tip.y += vtranslate * yDir;	}
-		if (zDir!=0) {  motion_future.finger_tip.z += vtranslate * zDir;	}
+		if (xDir!=0) {  motion_future.finger_tip.x += dv * xDir;	}
+		if (yDir!=0) {  motion_future.finger_tip.y += dv * yDir;	}
+		if (zDir!=0) {  motion_future.finger_tip.z += dv * zDir;	}
 
 		// if not continuous, reset abc to zero
 		xDir=0;
 		yDir=0;
 		zDir=0;
 		
-		if(!motion_now.finger_tip.epsilonEquals(motion_future.finger_tip,vtranslate/2.0f)) {
+		if(!motion_now.finger_tip.epsilonEquals(motion_future.finger_tip,dv/2.0f)) {
 			changed=true;
 		}
 
@@ -231,14 +233,16 @@ extends RobotWithConnection {
 	
 	protected void update_fk(float delta) {
 		boolean changed=false;
-		final float vel=10.0f;
 		int i;
 		
 		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 			motion_future.arms[i].angle = motion_now.arms[i].angle;
 		}
-
-		float dv = vel * delta;
+		
+		// movement
+		float dv=(float)getSpeed();
+		// if continuous, adjust speed over time
+		//float dv *= delta;
 		
 		if (aDir!=0) {
 			motion_future.arms[0].angle -= dv * aDir;
