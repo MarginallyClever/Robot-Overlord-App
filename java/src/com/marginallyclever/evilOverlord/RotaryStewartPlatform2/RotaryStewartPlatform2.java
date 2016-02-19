@@ -29,7 +29,8 @@ implements PropertyChangeListener
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
-
+	public static final String ROBOT_NAME = "Stewart Platorm 2";
+	
 	//machine dimensions
 	static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
 	static final float BASE_TO_SHOULDER_Y   =( 2.150f);
@@ -115,7 +116,7 @@ implements PropertyChangeListener
 
 	public RotaryStewartPlatform2(EvilOverlord gui) {
 		super(gui);
-		setDisplayName("Rotary Stewart Platform 2");
+		setDisplayName(ROBOT_NAME);
 
 		/*
 		// set up bounding volumes
@@ -615,7 +616,7 @@ implements PropertyChangeListener
 				e.printStackTrace();
 			}
 
-			displayName="Rotary Stewart Platform 2 #"+robotUID;
+			setDisplayName(ROBOT_NAME+" #"+robotUID);
 		}
 	}
 	

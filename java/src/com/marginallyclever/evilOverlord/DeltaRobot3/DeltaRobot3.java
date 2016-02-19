@@ -1,4 +1,4 @@
-package com.marginallyclever.evilOverlord.DeltaRobot2;
+package com.marginallyclever.evilOverlord.DeltaRobot3;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -22,23 +22,24 @@ import javax.vecmath.Vector3f;
 import com.marginallyclever.evilOverlord.*;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnection;
 
-public class DeltaRobot2
+public class DeltaRobot3
 extends RobotWithConnection
 implements PropertyChangeListener
 {
 	// machine ID
 	protected long robotUID;
-	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V2-";
-
+	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
+	public final static String ROBOT_NAME = "Delta Robot 3";
+	
 	//machine dimensions
-	static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
-	static final float BASE_TO_SHOULDER_Y   =( 2.150f);
-	static final float BASE_TO_SHOULDER_Z   =( 6.610f);
+	static final float BASE_TO_SHOULDER_X   =( 0.0f);  // measured in solidworks, relative to base origin
+	static final float BASE_TO_SHOULDER_Y   =( 3.77f);
+	static final float BASE_TO_SHOULDER_Z   =(18.9f);
 	static final float BICEP_LENGTH         =( 5.000f);
-	static final float FOREARM_LENGTH       =(16.750f);
-	static final float WRIST_TO_FINGER_X    =( 7.635f);
-	static final float WRIST_TO_FINGER_Y    =( 0.553f);
-	static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
+	static final float FOREARM_LENGTH       =(16.50f);
+	static final float WRIST_TO_FINGER_X    =( 0.0f);
+	static final float WRIST_TO_FINGER_Y    =( 1.724f);
+	static final float WRIST_TO_FINGER_Z    =( 0.0f);  // measured in solidworks, relative to finger origin
 	
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
@@ -50,16 +51,16 @@ implements PropertyChangeListener
 
 	protected boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
 	
-	protected Cylinder [] volumes = new Cylinder[DeltaRobot2MotionState.NUM_ARMS];
+	protected Cylinder [] volumes = new Cylinder[DeltaRobot3MotionState.NUM_ARMS];
 
 	protected boolean isPortConfirmed=false;
 
-	protected Model modelTop = Model.loadModel("/DeltaRobot2.zip:top.STL",0.1f);
-	protected Model modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL",0.1f);
-	protected Model modelBase = Model.loadModel("/DeltaRobot2.zip:base.STL",0.1f);
+	protected Model modelTop = Model.loadModel("/DeltaRobot3.zip:top.STL",0.1f);
+	protected Model modelArm = Model.loadModel("/DeltaRobot3.zip:arm.STL",0.1f);
+	protected Model modelBase = Model.loadModel("/DeltaRobot3.zip:base.STL",0.1f);
 	
-	protected DeltaRobot2MotionState motion_now = new DeltaRobot2MotionState();
-	protected DeltaRobot2MotionState motion_future = new DeltaRobot2MotionState();
+	protected DeltaRobot3MotionState motion_now = new DeltaRobot3MotionState();
+	protected DeltaRobot3MotionState motion_future = new DeltaRobot3MotionState();
 	
 	boolean homed = false;
 	boolean homing = false;
@@ -98,9 +99,9 @@ implements PropertyChangeListener
 	}
 
 
-	public DeltaRobot2(EvilOverlord gui) {
+	public DeltaRobot3(EvilOverlord gui) {
 		super(gui);
-		setDisplayName("Delta Robot 2");
+		setDisplayName(ROBOT_NAME);
 
 		/*
 		// set up bounding volumes
@@ -113,7 +114,6 @@ implements PropertyChangeListener
 		*/
 
 		motion_now.rotateBase(0,0);
-		motion_now.updateIKEndEffector();
 		motion_now.rebuildShoulders();
 		motion_now.updateIKWrists();
 
@@ -208,7 +208,7 @@ implements PropertyChangeListener
 		final float vel=10.0f;
 		int i;
 		
-		for(i=0;i<DeltaRobot2MotionState.NUM_ARMS;++i) {
+		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 			motion_future.arms[i].angle = motion_now.arms[i].angle;
 		}
 
@@ -334,12 +334,12 @@ implements PropertyChangeListener
 	public void render(GL2 gl2) {
 		int i;
 
-		boolean draw_finger_star=false;
-		boolean draw_base_star=false;
-		boolean draw_shoulder_to_elbow=false;
-		boolean draw_shoulder_star=false;
-		boolean draw_elbow_star=false;
-		boolean draw_wrist_star=false;
+		boolean draw_finger_star=true;
+		boolean draw_base_star=true;
+		boolean draw_shoulder_to_elbow=true;
+		boolean draw_shoulder_star=true;
+		boolean draw_elbow_star=true;
+		boolean draw_wrist_star=true;
 		boolean draw_stl=true;
 
 		//RebuildShoulders(motion_now);
@@ -347,26 +347,30 @@ implements PropertyChangeListener
 		gl2.glPushMatrix();
 		gl2.glTranslated(position.x, position.y, position.z);
 		
+		//motion_now.moveBase(new Vector3f(0,0,0));
+		
 		if(draw_stl) {
 			// base
 			gl2.glPushMatrix();
 			gl2.glColor3f(0, 0, 1);
-			gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z+0.6f);
-			gl2.glRotatef(90, 0, 0, 1);
-			gl2.glRotatef(90, 1, 0, 0);
+			gl2.glRotatef(-180, 0, 0, 1);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
+
+			//gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z);
 			
 			// arms
-			for(i=0;i<DeltaRobot2MotionState.NUM_ARMS;++i) {
+			for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 				gl2.glColor3f(1, 0, 1);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motion_now.arms[i].shoulder.x,
 						         motion_now.arms[i].shoulder.y,
 						         motion_now.arms[i].shoulder.z);
-				gl2.glRotatef(120.0f*i, 0, 0, 1);
-				gl2.glRotatef(90, 0, 1, 0);
-				gl2.glRotatef(180-motion_now.arms[i].angle,0,0,1);
+				gl2.glRotatef(90,0,1,0);
+				//gl2.glRotatef(90,1,0,0);
+				gl2.glRotatef(180-i*(360.0f/DeltaRobot3MotionState.NUM_ARMS), 1, 0, 0);
+				gl2.glTranslatef(0, 0, 0.125f*2.54f);
+				gl2.glRotatef(motion_now.arms[i].angle,0,0,1);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
@@ -375,7 +379,7 @@ implements PropertyChangeListener
 			gl2.glColor3f(0, 1, 0);
 			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z);
 			gl2.glRotatef(90, 0, 0, 1);
-			gl2.glRotatef(180, 1, 0, 0);
+			gl2.glRotatef(-30, 0, 0, 1);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
@@ -385,22 +389,50 @@ implements PropertyChangeListener
 		Cylinder tube = new Cylinder();
 		gl2.glColor3f(0.8f,0.8f,0.8f);
 		tube.setRadius(0.15f);
-		for(i=0;i<DeltaRobot2MotionState.NUM_ARMS;++i) {
+		Vector3f a = new Vector3f();
+		Vector3f b = new Vector3f();
+		Vector3f ortho = new Vector3f();
+		
+		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 			//gl2.glBegin(GL2.GL_LINES);
 			//gl2.glColor3f(1,0,0);
 			//gl2.glVertex3f(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
 			//gl2.glColor3f(0,1,0);
 			//gl2.glVertex3f(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
 			//gl2.glEnd();
-			tube.SetP1(motion_now.arms[i].wrist);
-			tube.SetP2(motion_now.arms[i].elbow);
+			ortho.x=(float)Math.cos((float)i*Math.PI*2.0/3.0f);
+			ortho.y=(float)Math.sin((float)i*Math.PI*2.0/3.0f);
+			ortho.z=0;
+			a.set(motion_now.arms[i].wrist);
+			b.set(ortho);
+			b.scale(1);
+			a.add(b);
+			tube.SetP1(a);
+			a.set(motion_now.arms[i].elbow);
+			b.set(ortho);
+			b.scale(1);
+			a.add(b);
+			tube.SetP2(a);
+			PrimitiveSolids.drawCylinder(gl2, tube);
+
+			a.set(motion_now.arms[i].wrist);
+			b.set(ortho);
+			b.scale(-1);
+			a.add(b);
+			tube.SetP1(a);
+			a.set(motion_now.arms[i].elbow);
+			b.set(ortho);
+			b.scale(-1);
+			a.add(b);
+			tube.SetP2(a);
+
 			PrimitiveSolids.drawCylinder(gl2, tube);
 		}
 
 		gl2.glDisable(GL2.GL_LIGHTING);
 		// debug info
 		gl2.glPushMatrix();
-		for(i=0;i<DeltaRobot2MotionState.NUM_ARMS;++i) {
+		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 			gl2.glColor3f(1,1,1);
 			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, motion_now.arms[i].shoulder,5);
 			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, motion_now.arms[i].elbow,3);			
@@ -423,17 +455,17 @@ implements PropertyChangeListener
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,1,1);
 			gl2.glVertex3f(motion_now.finger_tip.x, motion_now.finger_tip.y, motion_now.finger_tip.z);
-			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.finger_forward.x*s,
-					       motion_now.finger_tip.y+motion_now.finger_forward.y*s,
-					       motion_now.finger_tip.z+motion_now.finger_forward.z*s);
+			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.base_forward.x*s,
+					       motion_now.finger_tip.y+motion_now.base_forward.y*s,
+					       motion_now.finger_tip.z+motion_now.base_forward.z*s);
 			gl2.glVertex3f(motion_now.finger_tip.x, motion_now.finger_tip.y, motion_now.finger_tip.z);
-			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.finger_up.x*s,
-				       motion_now.finger_tip.y+motion_now.finger_up.y*s,
-				       motion_now.finger_tip.z+motion_now.finger_up.z*s);
+			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.base_up.x*s,
+				       motion_now.finger_tip.y+motion_now.base_up.y*s,
+				       motion_now.finger_tip.z+motion_now.base_up.z*s);
 			gl2.glVertex3f(motion_now.finger_tip.x, motion_now.finger_tip.y, motion_now.finger_tip.z);
-			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.finger_left.x*s,
-				       motion_now.finger_tip.y+motion_now.finger_left.y*s,
-				       motion_now.finger_tip.z+motion_now.finger_left.z*s);
+			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.base_right.x*s,
+				       motion_now.finger_tip.y+motion_now.base_right.y*s,
+				       motion_now.finger_tip.z+motion_now.base_right.z*s);
 			
 			gl2.glEnd();
 		}
@@ -455,9 +487,9 @@ implements PropertyChangeListener
 				       motion_now.base.z+motion_now.base_up.z*s);
 			gl2.glColor3f(0,0,1);
 			gl2.glVertex3f(motion_now.base.x, motion_now.base.y, motion_now.base.z);
-			gl2.glVertex3f(motion_now.base.x+motion_now.finger_left.x*s,
-				       motion_now.base.y+motion_now.finger_left.y*s,
-				       motion_now.base.z+motion_now.finger_left.z*s);
+			gl2.glVertex3f(motion_now.base.x+motion_now.base_right.x*s,
+				       motion_now.base.y+motion_now.base_right.y*s,
+				       motion_now.base.z+motion_now.base_right.z*s);
 			
 			gl2.glEnd();
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -503,7 +535,7 @@ implements PropertyChangeListener
 				e.printStackTrace();
 			}
 
-			displayName="Rotary Stewart Platform 2 #"+robotUID;
+			setDisplayName(ROBOT_NAME+" #"+robotUID);
 		}
 	}
 	

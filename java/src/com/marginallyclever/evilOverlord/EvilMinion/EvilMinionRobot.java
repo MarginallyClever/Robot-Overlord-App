@@ -23,7 +23,8 @@ extends RobotWithConnection {
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM MINION #";
-
+	public final static String ROBOT_NAME = "Evil Minion Arm";
+	
 	// machine dimensions from design software
 	public final static double ANCHOR_ADJUST_Y = 0.64;
 	public final static double ANCHOR_TO_SHOULDER_Y = 3.27;
@@ -108,7 +109,7 @@ extends RobotWithConnection {
 		tool = new EvilMinionToolGripper();
 		tool.attachTo(this);
 		
-		displayName="Evil Minion";
+		setDisplayName(ROBOT_NAME);
 	}
 
 	
@@ -741,7 +742,7 @@ extends RobotWithConnection {
 				e.printStackTrace();
 			}
 
-			displayName="Evil Minion #"+robotUID;
+			setDisplayName(ROBOT_NAME+" #"+robotUID);
 		}
 		
 		if( isPortConfirmed ) {

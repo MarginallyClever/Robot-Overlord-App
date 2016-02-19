@@ -15,9 +15,9 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Camera.Camera;
+import com.marginallyclever.evilOverlord.DeltaRobot3.DeltaRobot3;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
-import com.marginallyclever.evilOverlord.DeltaRobot2.DeltaRobot2;
 import com.marginallyclever.evilOverlord.Spidee.Spidee;
 import com.marginallyclever.evilOverlord.communications.MarginallyCleverConnectionManager;
 import com.marginallyclever.evilOverlord.communications.SerialConnectionManager;
@@ -78,7 +78,7 @@ implements ActionListener {
 	}
 	
 	protected void addDeltaRobot2() {
-		DeltaRobot2 r = new DeltaRobot2(gui);
+		DeltaRobot3 r = new DeltaRobot3(gui);
 		r.setConnectionManager(connectionManager);
 		objects.add(r);
 	}
@@ -159,15 +159,15 @@ implements ActionListener {
 	
     public JMenu updateMenu() {
     	worldMenu = new JMenu("World");
-    	buttonAddArm5Robot = new JMenuItem("Add Evil Minion");
+    	buttonAddArm5Robot = new JMenuItem("Add "+EvilMinionRobot.ROBOT_NAME);
     	worldMenu.add(buttonAddArm5Robot);
     	buttonAddArm5Robot.addActionListener(this);
     	
-    	buttonAddRSP2 = new JMenuItem("Add Rotary Stewart Platform 2");
+    	buttonAddRSP2 = new JMenuItem("Add "+RotaryStewartPlatform2.ROBOT_NAME);
     	worldMenu.add(buttonAddRSP2);
     	buttonAddRSP2.addActionListener(this);
 
-    	buttonAddDeltaRobot2 = new JMenuItem("Add Delta Robot 2");
+    	buttonAddDeltaRobot2 = new JMenuItem("Add "+DeltaRobot3.ROBOT_NAME );
     	worldMenu.add(buttonAddDeltaRobot2);
     	buttonAddDeltaRobot2.addActionListener(this);
     	
