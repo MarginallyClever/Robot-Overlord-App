@@ -79,14 +79,14 @@ extends RobotWithConnection {
 
 	// machine logic states
 	protected boolean armMoved = false;
-	protected boolean pWasOn=false;
-	protected boolean moveMode=false;
 	protected boolean isPortConfirmed=false;
-	protected boolean isLoaded=false;
+	protected double speed=2;
+
+	// visual debugging
 	protected boolean isRenderFKOn=false;
 	protected boolean isRenderIKOn=false;
-	protected double speed=2;
-	
+
+	// gui
 	protected transient EvilMinionControlPanel arm5Panel=null;
 	
 	
@@ -94,6 +94,8 @@ extends RobotWithConnection {
 		super();
 		
 		setupModels();
+		
+		setDisplayName(ROBOT_NAME);
 		
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {
@@ -116,8 +118,6 @@ extends RobotWithConnection {
 		
 		tool = new EvilMinionToolGripper();
 		tool.attachTo(this);
-		
-		setDisplayName(ROBOT_NAME);
 	}
 	
 
@@ -233,7 +233,7 @@ extends RobotWithConnection {
 	 * update the desired finger location
 	 * @param delta
 	 */
-	protected void updateFingerForInverseKinematics(float delta) {
+	protected void updateIK(float delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		final float vel=(float)speed;
@@ -324,7 +324,7 @@ extends RobotWithConnection {
 	}
 	
 	
-	protected void updateAnglesForForwardKinematics(float delta) {
+	protected void updateFK(float delta) {
 		boolean changed=false;
 		float velcd=(float)speed; // * delta
 		float velabe=(float)speed; // * delta
@@ -454,11 +454,11 @@ extends RobotWithConnection {
 	
 	@Override
 	public void prepareMove(float delta) {
-		updateFingerForInverseKinematics(delta);
-		updateAnglesForForwardKinematics(delta);
+		updateIK(delta);
+		updateFK(delta);
 		if(tool != null) tool.update(delta);
 	}
-		
+
 	@Override
 	public void finalizeMove() {
 		// copy motion_future to motion_now

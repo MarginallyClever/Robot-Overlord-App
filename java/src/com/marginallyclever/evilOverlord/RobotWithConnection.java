@@ -132,9 +132,20 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 					rescanConnections();
 					return;
 				} else {
+					// close previous connection
+					if(connection!=null) {
+						connection.close();
+						connection=null;
+					}
+					
 					String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
 					connection = connectionManager.openConnection(connectionName);
-					connection.addListener(this);
+					// don't blow up if the connection failed
+					if(connection!=null) {
+						connection.addListener(this);
+					} else {
+						System.out.println("Failed to open connection.");
+					}
 					rescanConnections();
 					return;
 				}

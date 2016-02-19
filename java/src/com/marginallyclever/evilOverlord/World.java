@@ -177,7 +177,6 @@ implements ActionListener, Serializable {
 		}
 		if( subject == buttonAddModel ) {
 			JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(buttonAddModel);
-			
 			addModel(topFrame);
 			return;
 		}
