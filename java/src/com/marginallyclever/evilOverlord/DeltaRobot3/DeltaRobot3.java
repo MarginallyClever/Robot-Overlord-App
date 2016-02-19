@@ -1,21 +1,16 @@
 package com.marginallyclever.evilOverlord.DeltaRobot3;
 
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
 import javax.media.opengl.GL2;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
@@ -23,9 +18,7 @@ import com.marginallyclever.evilOverlord.*;
 import com.marginallyclever.evilOverlord.communications.AbstractConnection;
 
 public class DeltaRobot3
-extends RobotWithConnection
-implements PropertyChangeListener
-{
+extends RobotWithConnection {
 	/**
 	 * 
 	 */
@@ -47,7 +40,7 @@ implements PropertyChangeListener
 	
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
-	protected float HOME_Z = 0.0f;
+	protected float HOME_Z = 3.98f;
 	
 	static final float LIMIT_U=15;
 	static final float LIMIT_V=15;
@@ -57,37 +50,34 @@ implements PropertyChangeListener
 	
 	protected Cylinder [] volumes = new Cylinder[DeltaRobot3MotionState.NUM_ARMS];
 
-	protected boolean isPortConfirmed=false;
-
-	protected Model modelTop = Model.loadModel("/DeltaRobot3.zip:top.STL",0.1f);
-	protected Model modelArm = Model.loadModel("/DeltaRobot3.zip:arm.STL",0.1f);
-	protected Model modelBase = Model.loadModel("/DeltaRobot3.zip:base.STL",0.1f);
+	protected transient Model modelTop = null;
+	protected transient Model modelArm = null;
+	protected transient Model modelBase = null;
 	
 	protected DeltaRobot3MotionState motion_now = new DeltaRobot3MotionState();
 	protected DeltaRobot3MotionState motion_future = new DeltaRobot3MotionState();
+	protected transient DeltaRobot3ControlPanel controlPanel;
 	
 	boolean homed = false;
-	boolean homing = false;
-	boolean follow_mode = false;
 	boolean arm_moved = false;
 	
 	// keyboard history
-	boolean rDown=false;
-	boolean fDown=false;
-	
-	boolean tDown=false;
-	boolean gDown=false;
-	
-	boolean yDown=false;
-	boolean hDown=false;
+	protected float aDir = 0.0f;
+	protected float bDir = 0.0f;
+	protected float cDir = 0.0f;
+
+	protected float xDir = 0.0f;
+	protected float yDir = 0.0f;
+	protected float zDir = 0.0f;
+
 	
 	boolean pDown=false;
 	boolean pWasOn=false;
 	boolean moveMode=true;
+	protected boolean isPortConfirmed=false;
 	
+	protected double speed=2;
 
-	protected JButton view_home=null, view_go=null;
-	protected JLabelledTextField viewPx,viewPy,viewPz,viewRx,viewRy,viewRz;
 	
 	
 	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
@@ -105,6 +95,9 @@ implements PropertyChangeListener
 
 	public DeltaRobot3() {
 		super();
+		
+		setupModels();
+		
 		setDisplayName(ROBOT_NAME);
 
 		/*
@@ -136,6 +129,33 @@ implements PropertyChangeListener
 		motion_future.finger_tip.set(motion_now.finger_tip);
 		moveIfAble();
 	}
+	
+	
+	private void setupModels() {
+		modelTop = Model.loadModel("/DeltaRobot3.zip:top.STL",0.1f);
+		modelArm = Model.loadModel("/DeltaRobot3.zip:arm.STL",0.1f);
+		modelBase = Model.loadModel("/DeltaRobot3.zip:base.STL",0.1f);
+	}
+
+    private void readObject(ObjectInputStream inputStream)
+            throws IOException, ClassNotFoundException
+    {
+    	setupModels();
+        inputStream.defaultReadObject();
+    }
+	
+	
+	private void enableFK() {		
+		xDir=0;
+		yDir=0;
+		zDir=0;
+	}
+	
+	private void disableFK() {	
+		aDir=0;
+		bDir=0;
+		cDir=0;
+	}
 
 
 	protected void update_ik(float delta) {
@@ -143,17 +163,19 @@ implements PropertyChangeListener
 		motion_future.set(motion_now);
 		
 		// speeds
-		final float vtranslate=10.0f * delta;
+		final float vtranslate= (float)getSpeed() * delta;
 		
 		// lateral moves
-		if (rDown) {	motion_future.finger_tip.x -= vtranslate;	}
-		if (fDown) {	motion_future.finger_tip.x += vtranslate;	}
-		if (tDown) {	motion_future.finger_tip.y += vtranslate;	}
-		if (gDown) {	motion_future.finger_tip.y -= vtranslate;	}
-		if (yDown) {	motion_future.finger_tip.z += vtranslate;	}
-		if (hDown) {	motion_future.finger_tip.z -= vtranslate;	}
-		if(!motion_now.finger_tip.epsilonEquals(motion_future.finger_tip,vtranslate/2.0f)) 
-		{
+		if (xDir!=0) {  motion_future.finger_tip.x += vtranslate * xDir;	}
+		if (yDir!=0) {  motion_future.finger_tip.y += vtranslate * yDir;	}
+		if (zDir!=0) {  motion_future.finger_tip.z += vtranslate * zDir;	}
+
+		// if not continuous, reset abc to zero
+		xDir=0;
+		yDir=0;
+		zDir=0;
+		
+		if(!motion_now.finger_tip.epsilonEquals(motion_future.finger_tip,vtranslate/2.0f)) {
 			changed=true;
 		}
 
@@ -216,30 +238,25 @@ implements PropertyChangeListener
 			motion_future.arms[i].angle = motion_now.arms[i].angle;
 		}
 
-		if (rDown) {
-			motion_future.arms[1].angle -= vel * delta;
+		float dv = vel * delta;
+		
+		if (aDir!=0) {
+			motion_future.arms[0].angle -= dv * aDir;
 			changed=true;
 		}
-		if (fDown) {
-			motion_future.arms[1].angle += vel * delta;
+		if (bDir!=0) {
+			motion_future.arms[1].angle -= dv * bDir;
 			changed=true;
 		}
-		if (tDown) {
-			motion_future.arms[2].angle += vel * delta;
+		if (cDir!=0) {
+			motion_future.arms[2].angle += dv * cDir;
 			changed=true;
 		}
-		if (gDown) {
-			motion_future.arms[2].angle -= vel * delta;
-			changed=true;
-		}
-		if (yDown) {
-			motion_future.arms[0].angle += vel * delta;
-			changed=true;
-		}
-		if (hDown) {
-			motion_future.arms[0].angle -= vel * delta;
-			changed=true;
-		}
+		
+		// if not continuous, reset abc to zero
+		aDir=0;
+		bDir=0;
+		cDir=0;
 		
 		if(changed==true) {
 			if(motion_future.checkAngleLimits()) {
@@ -248,89 +265,28 @@ implements PropertyChangeListener
 			}
 		}
 	}
-
-	
-	protected void keyAction(KeyEvent e,boolean state) {
-		switch(e.getKeyCode()) {
-		case KeyEvent.VK_R: rDown=state;  break;
-		case KeyEvent.VK_F: fDown=state;  break;
-		case KeyEvent.VK_T: tDown=state;  break;
-		case KeyEvent.VK_G: gDown=state;  break;
-		case KeyEvent.VK_Y: yDown=state;  break;
-		case KeyEvent.VK_H: hDown=state;  break;
-		
-		case KeyEvent.VK_P: pDown=state;  break;
-		default: break;
-		}
-	}
-
-	
-	public void keyPressed(KeyEvent e) {
-		keyAction(e,true);
-   	}
-	
-	
-	public void keyReleased(KeyEvent e) {
-		keyAction(e,false);
-	}
 	
 	@Override
 	public void prepareMove(float delta) {
-		if(pDown) pWasOn=true;
-		if(!pDown && pWasOn) {
-			pWasOn=false;
-			moveMode=!moveMode;
-		}
-		if(moveMode) update_ik(delta);
-		else		 update_fk(delta);
-		
-		// before the robot is allowed to do anything it has to be homed
-		if( this.isReadyToReceive ) {
-			if(!homed) {
-				if(!homing) {
-					// we are not homed and we have not begun to home
-					if(HOME_AUTOMATICALLY_ON_STARTUP==true) {
-						// this should be sent by a human when they are ready
-						this.sendLineToRobot("G28");
-						homing = true;
-					}
-				} else {
-					motion_future.finger_tip.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-					motion_future.updateInverseKinematics();
-					finalizeMove();
-					this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
-					homing=false;
-					homed=true;
-					follow_mode=true;
-				}
-			}
-		}
+		update_ik(delta);
+		update_fk(delta);
 	}
 
+	
 	@Override
 	public void finalizeMove() {
 		// copy motion_future to motion_now
 		motion_now.set(motion_future);
 		
 		if(arm_moved) {
-			if(homed && follow_mode && this.isReadyToReceive ) {
+			if(homed) {
 				arm_moved=false;
 				this.sendLineToRobot("G0 X"+motion_now.finger_tip.x
 						          +" Y"+motion_now.finger_tip.y
 						          +" Z"+motion_now.finger_tip.z
 						          );
+				updateGUI();
 			}
-			
-			// TODO: update text fields when the cursor moves.  right now this causes inter-thread damage and crashes the app
-			/*
-			if(view_px!=null) {	        
-				view_px.getField().setText(Float.toString(motion_now.finger_tip.x));
-				viewPy.getField().setText(Float.toString(motion_now.finger_tip.y));
-				viewPz.getField().setText(Float.toString(motion_now.finger_tip.z));
-				viewRx.getField().setText(Float.toString(motion_now.iku));
-				viewRy.getField().setText(Float.toString(motion_now.ikv));
-				viewRz.getField().setText(Float.toString(motion_now.ikw));
-			}*/
 		}
 	}
 	
@@ -513,6 +469,16 @@ implements PropertyChangeListener
 	public void setModeRelative() {
 		if(connection!=null) this.sendLineToRobot("G91");
 	}
+
+	
+	public void goHome() {
+		this.sendLineToRobot("G28");
+		motion_future.finger_tip.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+		motion_future.updateInverseKinematics();
+		arm_moved=true;
+		finalizeMove();
+		homed=true;
+	}
 	
 
 	@Override
@@ -522,9 +488,9 @@ implements PropertyChangeListener
 			isPortConfirmed=true;
 			//finalizeMove();
 			setModeAbsolute();
-			this.sendLineToRobot("R1");
 			
 			String uidString=line.substring(hello.length()).trim();
+			uidString = uidString.substring(uidString.indexOf('#')+1);
 			System.out.println(">>> UID="+uidString);
 			try {
 				long uid = Long.parseLong(uidString);
@@ -541,6 +507,8 @@ implements PropertyChangeListener
 
 			setDisplayName(ROBOT_NAME+" #"+robotUID);
 		}
+		
+		System.out.print("*** "+line);
 	}
 	
 
@@ -552,7 +520,7 @@ implements PropertyChangeListener
 
 		try {
 			// Send data
-			URL url = new URL("https://marginallyclever.com/stewart_platform_getuid.php");
+			URL url = new URL("https://marginallyclever.com/deltarobot_getuid.php");
 			URLConnection conn = url.openConnection();
 			try (
 					final InputStream connectionInputStream = conn.getInputStream();
@@ -612,71 +580,74 @@ implements PropertyChangeListener
 		ArrayList<JPanel> list = super.getControlPanels();
 		
 		if(list==null) list = new ArrayList<JPanel>();
-
-		CollapsiblePanel rspPanel = new CollapsiblePanel("Inverse Kinematics");
-		rspPanel.getContentPane().setLayout(new GridLayout(0,1));
 		
-		view_home=new JButton("Home");
-		viewPx=new JLabelledTextField(Float.toString(motion_now.finger_tip.x),"X");
-		viewPy=new JLabelledTextField(Float.toString(motion_now.finger_tip.y),"Y");
-		viewPz=new JLabelledTextField(Float.toString(motion_now.finger_tip.z),"Z");
-        rspPanel.getContentPane().add(view_home);
-		rspPanel.getContentPane().add(viewPx);
-		rspPanel.getContentPane().add(viewPy);
-		rspPanel.getContentPane().add(viewPz);
-		view_home.addActionListener(this);
-		viewPx.addPropertyChangeListener("value",this);
-		viewPy.addPropertyChangeListener("value",this);
-		viewPz.addPropertyChangeListener("value",this);
-		
-		list.add(rspPanel);
+		controlPanel = new DeltaRobot3ControlPanel(this);
+		list.add(controlPanel);
 		updateGUI();
-		
+/*
+		ArrayList<JPanel> toolList = tool.getControlPanels();
+		Iterator<JPanel> iter = toolList.iterator();
+		while(iter.hasNext()) {
+			list.add(iter.next());
+		}
+*/
 		return list;
+	}
+
+	
+	protected float roundOff(float v) {
+		float SCALE = 1000.0f;
+		
+		return Math.round(v*SCALE)/SCALE;
 	}
 	
 	
 	public void updateGUI() {
+		Vector3f v = new Vector3f();
+		v.set(motion_now.finger_tip);
+		// TODO rotate fingerPosition before adding position
+		//v.add(position);
 		
+		controlPanel.xPos.setText(Float.toString(roundOff(v.x)));
+		controlPanel.yPos.setText(Float.toString(roundOff(v.y)));
+		controlPanel.zPos.setText(Float.toString(roundOff(v.z)));
 	}
 	
-
-	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();
-
-		if(subject == view_home ) {
-			JOptionPane.showMessageDialog(null, "Go Home","Click", JOptionPane.INFORMATION_MESSAGE);
-		}
-		
-		
-		super.actionPerformed(e);
+	
+	public void setSpeed(double newSpeed) {
+		speed=newSpeed;
+	}
+	public double getSpeed() {
+		return speed;
 	}
 	
-	public void propertyChange(PropertyChangeEvent e) {
-		Object subject = e.getSource();
+	public void moveA(float dir) {
+		aDir=dir;
+		enableFK();
+	}
 
-		try {
-			if(subject == viewPx ) {
-				float f = Float.parseFloat(viewPx.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.finger_tip.x = f;
-					moveIfAble();
-				}
-			}
-			if(subject == viewPy ) {
-				float f = Float.parseFloat(viewPy.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.finger_tip.y = f;
-					moveIfAble();
-				}
-			}
-			if(subject == viewPz ) {
-				float f = Float.parseFloat(viewPz.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.finger_tip.z = f;
-					moveIfAble();
-				}
-			}
-		} catch(NumberFormatException e2) {}
+	public void moveB(float dir) {
+		bDir=dir;
+		enableFK();
+	}
+
+	public void moveC(float dir) {
+		cDir=dir;
+		enableFK();
+	}
+
+	public void moveX(float dir) {
+		xDir=dir;
+		disableFK();
+	}
+
+	public void moveY(float dir) {
+		yDir=dir;
+		disableFK();
+	}
+
+	public void moveZ(float dir) {
+		zDir=dir;
+		disableFK();
 	}
 }
