@@ -34,6 +34,7 @@ import javax.swing.JSplitPane;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLPipelineFactory;
 import javax.media.opengl.awt.GLJPanel;
@@ -151,8 +152,14 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
                 }).start();
             }
           });
+        
 
-        glCanvas = new GLJPanel();
+        GLCapabilities caps = new GLCapabilities(null);
+        caps.setSampleBuffers(true);
+        caps.setHardwareAccelerated(true);
+        caps.setNumSamples(4);
+        glCanvas = new GLJPanel(caps);
+
         animator.add(glCanvas);
         glCanvas.addGLEventListener(this);
         glCanvas.addMouseListener(this);
@@ -612,7 +619,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     	boolean glTrace=false;
     	
         GL gl = drawable.getGL();
-
+        
         if(glDebug) {
             try {
                 // Debug ..
@@ -626,6 +633,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
                 gl = gl.getContext().setGL( GLPipelineFactory.create("javax.media.opengl.Trace", null, gl, new Object[] { System.err } ) );
             } catch (Exception e) {e.printStackTrace();}
         }
+
     }
     
     
@@ -643,7 +651,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     	
 		// Clear The Screen And The Depth Buffer
     	GL2 gl2 = drawable.getGL().getGL2();
-    	
+        
     	if(frame_delay<frame_length) {
     		frame_delay+=dt;
     	} else {
@@ -672,7 +680,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     	frame_delay+=dt;
     }
 
-
+    
     protected void setPerspectiveMatrix() {
         glu.gluPerspective(60, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
     }

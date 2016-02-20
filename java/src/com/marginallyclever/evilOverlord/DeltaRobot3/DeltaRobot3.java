@@ -294,6 +294,20 @@ extends RobotWithConnection {
 		}
 	}
 	
+
+	protected void setColor(GL2 gl2,float r,float g,float b,float a) {
+		float [] diffuse = {r,g,b,a};
+		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, diffuse,0);
+		float[] specular={0.85f,0.85f,0.85f,1.0f};
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, specular,0);
+	    float[] emission={0.01f,0.01f,0.01f,1f};
+	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
+	    
+	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, 50.0f);
+
+	    gl2.glColor4f(r,g,b,a);
+	}
+	
 	
 	public void render(GL2 gl2) {
 		int i;
@@ -316,7 +330,12 @@ extends RobotWithConnection {
 		if(draw_stl) {
 			// base
 			gl2.glPushMatrix();
-			gl2.glColor3f(0, 0, 1);
+			setColor(gl2,
+					247.0f/255.0f,
+					233.0f/255.0f,
+					215.0f/255.0f,
+					1.0f);
+			setColor(gl2,1,0.8f,0.6f,1);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 
@@ -324,24 +343,22 @@ extends RobotWithConnection {
 			
 			// arms
 			for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
-				gl2.glColor3f(1, 0, 1);
+				setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motion_now.arms[i].shoulder.x,
 						         motion_now.arms[i].shoulder.y,
 						         motion_now.arms[i].shoulder.z);
-				gl2.glRotatef(90,0,1,0);
-				//gl2.glRotatef(90,1,0,0);
+				gl2.glRotatef(90,0,1,0);  // model oriented wrong direction
 				gl2.glRotatef(60-i*(360.0f/DeltaRobot3MotionState.NUM_ARMS), 1, 0, 0);
-				gl2.glTranslatef(0, 0, 0.125f*2.54f);
+				gl2.glTranslatef(0, 0, 0.125f*2.54f);  // model origin wrong
 				gl2.glRotatef(180-motion_now.arms[i].angle,0,0,1);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
 			//top
 			gl2.glPushMatrix();
-			gl2.glColor3f(0, 1, 0);
+			setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z);
-			gl2.glRotatef(0, 0, 0, 1);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}

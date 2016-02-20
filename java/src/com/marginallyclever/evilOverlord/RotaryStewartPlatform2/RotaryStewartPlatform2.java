@@ -470,7 +470,7 @@ implements PropertyChangeListener
 		if(draw_stl) {
 			// base
 			gl2.glPushMatrix();
-			gl2.glColor3f(0, 0, 1);
+			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z+0.6f);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(90, 1, 0, 0);
@@ -479,7 +479,7 @@ implements PropertyChangeListener
 			
 			// arms
 			for(i=0;i<3;++i) {
-				gl2.glColor3f(1, 0, 1);
+				gl2.glColor3f(0.9f,0.9f,0.9f);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motion_now.arms[i*2+0].shoulder.x,
 						         motion_now.arms[i*2+0].shoulder.y,
@@ -490,7 +490,7 @@ implements PropertyChangeListener
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 	
-				gl2.glColor3f(1, 1, 0);
+				gl2.glColor3f(0.9f,0.9f,0.9f);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motion_now.arms[i*2+1].shoulder.x,
 						         motion_now.arms[i*2+1].shoulder.y,
@@ -503,7 +503,7 @@ implements PropertyChangeListener
 			}
 			//top
 			gl2.glPushMatrix();
-			gl2.glColor3f(0, 1, 0);
+			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z);
 			gl2.glRotatef(motion_now.iku, 1, 0, 0);
 			gl2.glRotatef(motion_now.ikv, 0, 1, 0);

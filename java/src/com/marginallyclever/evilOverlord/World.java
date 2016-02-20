@@ -116,24 +116,46 @@ implements ActionListener, Serializable {
 		gl2.glDepthFunc(GL2.GL_LESS);
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthMask(true);
-		
+
+    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
+        //gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
+        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+        
+        gl2.glEnable(GL2.GL_BLEND);
+        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+
+        gl2.glEnable(GL2.GL_MULTISAMPLE);
+        
+        int buf[] = new int[1];
+        int sbuf[] = new int[1];
+        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
+        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
+        System.out.println("samples = "+buf[0]);
+        System.out.println("Buffers = "+sbuf[0]);
+        
 		setupLights();
 		loadTextures(gl2);
     }
     
 
     protected void setupLights() {
+    	light0.index=0;
+	    light0.position=new float[]{  0.0f,0.0f,1.0f,0.0f};
+	    light0.ambient =new float[]{  0.0f, 0.0f,0.0f,1.0f};
+    	light0.diffuse =new float[]{255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f};  // noon
+	    light0.specular=new float[]{  0.0f, 0.0f,0.0f,1.0f};
+    	
     	light1.index=1;
 	    light1.position=new float[]{-1.0f,-1.0f,1.0f,0.0f};
 	    light1.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
-	    light1.diffuse =new float[]{ 2.0f, 2.0f,2.0f,1.0f};
+	    light1.diffuse =new float[]{ 1.0f, 1.0f,1.0f,1.0f};
 	    light1.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
 	    
     	light2.index=2;
-	    light2.position=new float[]{-1.0f, 3.0f,1.0f,0.0f};
-	    light2.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
-	    light2.diffuse =new float[]{ 2.0f, 2.0f,2.0f,1.0f};
-	    light2.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
+	    light2.position=new float[]{  1.0f, 1.0f,1.0f,0.0f};
+	    light2.ambient =new float[]{   0.0f, 0.0f,0.0f,1.0f};
+	    light2.diffuse =new float[]{ 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f,1.0f};  // metal halide
+	    light2.specular=new float[]{   1.0f, 1.0f,1.0f,1.0f};
     }
     
 	
@@ -220,10 +242,12 @@ implements ActionListener, Serializable {
     
 	
 	public void render(GL2 gl2, float delta ) {
-		//if(isSetup==false) {
+		if(isSetup==false) {
 			setup(gl2);
 			isSetup=true;
-		//}
+		}
+		
+		setupLights();
 		
 		Iterator<ObjectInWorld> io = objects.iterator();
 		while(io.hasNext()) {
@@ -251,7 +275,7 @@ implements ActionListener, Serializable {
 
 		// background color
     	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
-        // Special handling for the case where the GLJPanel is translucent
+    	// Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
         if (GLProfile.isAWTAvailable() &&
             (gl2 instanceof javax.media.opengl.awt.GLJPanel) &&

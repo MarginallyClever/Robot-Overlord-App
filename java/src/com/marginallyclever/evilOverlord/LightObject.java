@@ -15,10 +15,11 @@ public class LightObject extends ObjectInWorld {
     public float[] specular={0.5f,0.5f,0.5f,1f};
     
 	public void render(GL2 gl2) {
-		gl2.glEnable(GL2.GL_LIGHT0+index);
-		gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position,0);
-	    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient,0);
-	    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse,0);
-	    gl2.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, specular,0);
+		int i = GL2.GL_LIGHT0+index;
+		gl2.glEnable(i);
+		gl2.glLightfv(i, GL2.GL_POSITION, position,0);
+	    gl2.glLightfv(i, GL2.GL_AMBIENT, ambient,0);
+	    gl2.glLightfv(i, GL2.GL_DIFFUSE, diffuse,0);
+	    gl2.glLightfv(i, GL2.GL_DIFFUSE, specular,0);
 	}
 }
