@@ -36,7 +36,7 @@ extends RobotWithConnection {
 	static final float FOREARM_LENGTH       =(16.50f);
 	static final float WRIST_TO_FINGER_X    =( 0.0f);
 	static final float WRIST_TO_FINGER_Y    =( 1.724f);
-	static final float WRIST_TO_FINGER_Z    =( 0.0f);  // measured in solidworks, relative to finger origin
+	static final float WRIST_TO_FINGER_Z    =( 0.5f);  // measured in solidworks, relative to finger origin
 	
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
@@ -317,7 +317,6 @@ extends RobotWithConnection {
 			// base
 			gl2.glPushMatrix();
 			gl2.glColor3f(0, 0, 1);
-			gl2.glRotatef(-180, 0, 0, 1);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 
@@ -332,9 +331,9 @@ extends RobotWithConnection {
 						         motion_now.arms[i].shoulder.z);
 				gl2.glRotatef(90,0,1,0);
 				//gl2.glRotatef(90,1,0,0);
-				gl2.glRotatef(180-i*(360.0f/DeltaRobot3MotionState.NUM_ARMS), 1, 0, 0);
+				gl2.glRotatef(60-i*(360.0f/DeltaRobot3MotionState.NUM_ARMS), 1, 0, 0);
 				gl2.glTranslatef(0, 0, 0.125f*2.54f);
-				gl2.glRotatef(motion_now.arms[i].angle,0,0,1);
+				gl2.glRotatef(180-motion_now.arms[i].angle,0,0,1);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
@@ -342,8 +341,7 @@ extends RobotWithConnection {
 			gl2.glPushMatrix();
 			gl2.glColor3f(0, 1, 0);
 			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z);
-			gl2.glRotatef(90, 0, 0, 1);
-			gl2.glRotatef(-30, 0, 0, 1);
+			gl2.glRotatef(0, 0, 0, 1);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}

@@ -97,8 +97,8 @@ public class DeltaRobot3MotionState {
 		for(i=0;i<NUM_ARMS;++i) {
 			DeltaRobot3Arm arma=this.arms[i];
 
-			c=(float)Math.cos(i*(float)Math.PI*2.0f/3.0f);
-			s=(float)Math.sin(i*(float)Math.PI*2.0f/3.0f);
+			c=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			s=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
 			//n1 = n* c + o*s;
 			n1.set(this.base_forward);
@@ -141,8 +141,8 @@ public class DeltaRobot3MotionState {
 			DeltaRobot3Arm arm = this.arms[i];
 
 			// project wrist position onto plane of bicep (wop)
-			ortho.x=(float)Math.cos((float)i*Math.PI*2.0f/3.0f);
-			ortho.y=(float)Math.sin((float)i*Math.PI*2.0f/3.0f);
+			ortho.x=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			ortho.y=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 			ortho.z=0;
 
 			//w = arm.wrist - arm.shoulder
@@ -235,8 +235,8 @@ public class DeltaRobot3MotionState {
 		for(i=0;i<3;++i) {
 			DeltaRobot3Arm arma=this.arms[i];
 
-			c=(float)Math.cos(i*(float)Math.PI*2.0f/3.0f);
-			s=(float)Math.sin(i*(float)Math.PI*2.0f/3.0f);
+			c=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			s=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
 			//n1 = n* c + o*s;
 			n1.set(this.base_forward);

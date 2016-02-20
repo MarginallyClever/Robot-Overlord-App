@@ -54,6 +54,7 @@ implements ActionListener, Serializable {
 	protected Camera camera = null;
 	protected LightObject light0;
 	protected LightObject light1;
+	protected LightObject light2;
 	protected transient Texture t0,t1,t2,t3,t4,t5;
 
 	protected transient Vector3f pickForward = null;
@@ -67,6 +68,7 @@ implements ActionListener, Serializable {
 		camera = new Camera();		
 		light0 = new LightObject();
 		light1 = new LightObject();
+		light2 = new LightObject();
 		areTexturesLoaded=false;
 
 		pickForward=new Vector3f();
@@ -126,6 +128,12 @@ implements ActionListener, Serializable {
 	    light1.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
 	    light1.diffuse =new float[]{ 2.0f, 2.0f,2.0f,1.0f};
 	    light1.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
+	    
+    	light2.index=2;
+	    light2.position=new float[]{-1.0f, 3.0f,1.0f,0.0f};
+	    light2.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
+	    light2.diffuse =new float[]{ 2.0f, 2.0f,2.0f,1.0f};
+	    light2.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
     }
     
 	
@@ -212,10 +220,10 @@ implements ActionListener, Serializable {
     
 	
 	public void render(GL2 gl2, float delta ) {
-		if(isSetup==false) {
+		//if(isSetup==false) {
 			setup(gl2);
 			isSetup=true;
-		}
+		//}
 		
 		Iterator<ObjectInWorld> io = objects.iterator();
 		while(io.hasNext()) {
@@ -273,6 +281,7 @@ implements ActionListener, Serializable {
 			
 			light0.render(gl2);
 			light1.render(gl2);
+			light2.render(gl2);
 			
 		    // draw grid
 			gl2.glDisable(GL2.GL_LIGHTING);
