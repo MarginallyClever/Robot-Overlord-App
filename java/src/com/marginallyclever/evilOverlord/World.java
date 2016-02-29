@@ -124,6 +124,7 @@ implements ActionListener, Serializable {
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 
+        // add a settings toggle for this option, it really slows down older machines.
         gl2.glEnable(GL2.GL_MULTISAMPLE);
         
         int buf[] = new int[1];

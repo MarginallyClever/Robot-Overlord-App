@@ -14,6 +14,8 @@ This project is designed to work with Marginally Clever robots:
 Please visit the forums
 https://marginallyclever.com/forum
 
+For developers, please see https://github.com/i-make-robots/Evil-Overlord/wiki/Home/
+
 ## Get help ##
 
 Please visit the forums
