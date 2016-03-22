@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -103,6 +104,8 @@ implements ActionListener, Serializable {
 	
 	protected void addModel(JFrame mainFrame) {
 		JFileChooser fc = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("STL files", "STL", "abc");
+		fc.setFileFilter(filter);
 		int returnVal = fc.showOpenDialog(mainFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String filename = fc.getSelectedFile().getAbsolutePath();

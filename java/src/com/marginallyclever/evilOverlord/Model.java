@@ -14,6 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.CharBuffer;
 
 import javax.media.opengl.GL2;
 
@@ -46,14 +47,12 @@ public class Model implements Serializable {
 	public static Model loadModel(String sourceName,float loadScale) {
 		Model m = loadModel(sourceName);
 		m.loadScale = loadScale;
-		m.isBinary = false;
 		return m;
 	}
 
 	public static Model loadModelBinary(String sourceName,float loadScale) {
 		Model m = loadModel(sourceName);
 		m.loadScale = loadScale;
-		m.isBinary = true;
 		return m;
 	}
 	
@@ -79,11 +78,13 @@ public class Model implements Serializable {
 
 
 	private void load(GL2 gl2) {
-		int index=name.lastIndexOf(':');
+		File f = new File(name);
+		int index = f.getName().lastIndexOf(":");
 		if(index==-1) {
-			this.loadFromFile(gl2,name);
+			loadFromFile(gl2,name);
 		} else {
-			this.loadFromZip(gl2, name.substring(0, index), name.substring(index+1,name.length()));
+			index = name.lastIndexOf(":");
+			loadFromZip(gl2, name.substring(0, index), name.substring(index+1,name.length()));
 		}
 	}
 	
@@ -101,6 +102,24 @@ public class Model implements Serializable {
 		InputStreamReader isr;
 		BufferedReader stream;
 		try {
+			// check if the file is binary or ASCII
+			zipFile = new ZipInputStream(getInputStream(zipName));
+			isr = new InputStreamReader(zipFile);
+			
+		    while((entry = zipFile.getNextEntry())!=null) {
+		        if( entry.getName().equals(fname) ) {
+			        stream = new BufferedReader(isr);
+					CharBuffer binaryCheck = CharBuffer.allocate(5);
+					stream.read(binaryCheck);
+					binaryCheck.rewind();
+					isBinary = !binaryCheck.toString().equalsIgnoreCase("SOLID");
+					break;
+		        }
+		    }
+		    
+		    zipFile.close();
+		    
+		    // now load the file enough to initialize
 			zipFile = new ZipInputStream(getInputStream(zipName));
 			isr = new InputStreamReader(zipFile);
 			
@@ -137,8 +156,15 @@ public class Model implements Serializable {
 	
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	private void loadFromFile(GL2 gl2,String fname) {
-		BufferedReader br =null;
+		BufferedReader br = null;
 		try {
+			br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
+			CharBuffer binaryCheck = CharBuffer.allocate(5);
+			br.read(binaryCheck);
+			br.close();
+			binaryCheck.rewind();
+			isBinary = !binaryCheck.toString().equalsIgnoreCase("SOLID");
+		
 			if(isBinary) {
 				loadFromStreamBinary(gl2,getInputStream(fname));
 			} else {
