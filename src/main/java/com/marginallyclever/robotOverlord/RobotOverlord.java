@@ -53,7 +53,7 @@ import com.marginallyclever.robotOverlord.world.World;
 public class RobotOverlord 
 implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 {
-	static final String APP_TITLE = "Evil Overlord";
+	static final String APP_TITLE = "Robot Overlord";
 	static final String APP_URL = "https://github.com/i-make-robots/Evil-Overlord";
 	
 	// select picking
