@@ -4,7 +4,7 @@ http://www.marginallyclever.com/
 
 3D control software for most Marginally Clever robots.
 
- - Evil-Minion (http://github.com/i-make-robots/Evil-Minion), the 5 axis robot arm.
+ - Robot-Minion (http://github.com/MarginallyClever/Robot-Minion), the 5 axis robot arm.
  - Rotary Stewart Platform 2, the 6 axis motion control platform.
  - Arm3, the 3 axis robot arm.
  - Delta Robot 3, aka a Kossel.
@@ -12,7 +12,7 @@ http://www.marginallyclever.com/
 
 ## Instructions ##
 
-For developers, please see https://github.com/i-make-robots/Evil-Overlord/wiki/Home/
+For developers, please see https://github.com/MarginallyClever/Robot-Overlord/wiki/Home/
 
 ## Get help ##
 
@@ -21,5 +21,5 @@ https://marginallyclever.com/forum
 
 ## Misc ##
 
-This file was downloaded from https://github.com/i-make-robots/Evil-Overlord
+This file was downloaded from https://github.com/MarginallyClever/Robot-Overlord
 This file was last updated 2015-10-03
