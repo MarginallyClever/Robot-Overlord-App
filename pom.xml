@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.marginallyclever</groupId>
   <artifactId>Evil-Overlord</artifactId>
-  <version>v1-SNAPSHOT</version>
+  <version>v1.1.0</version>
   <name>Evil Overlord</name>
   <build>
     <sourceDirectory>java/src</sourceDirectory>
