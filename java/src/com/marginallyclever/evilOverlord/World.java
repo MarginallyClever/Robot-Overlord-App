@@ -20,6 +20,7 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.evilOverlord.Camera.Camera;
+import com.marginallyclever.evilOverlord.arm3.Arm3Robot;
 import com.marginallyclever.evilOverlord.DeltaRobot3.DeltaRobot3;
 import com.marginallyclever.evilOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.evilOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2;
@@ -43,6 +44,7 @@ implements ActionListener, Serializable {
 	protected transient AbstractConnectionManager connectionManager = new SerialConnectionManager();
 	
 	protected transient JMenu worldMenu;
+	protected transient JMenuItem buttonAddArm3Robot;
 	protected transient JMenuItem buttonAddArm5Robot;
 	protected transient JMenuItem buttonAddRSP2;
 	protected transient JMenuItem buttonAddDeltaRobot2;
@@ -76,6 +78,12 @@ implements ActionListener, Serializable {
 		pickRight=new Vector3f();
 		pickUp=new Vector3f();
 		pickRay=new Vector3f();
+	}
+
+	protected void addArm3Robot() {
+		Arm3Robot r = new Arm3Robot();
+		r.setConnectionManager(connectionManager);
+		objects.add(r);
 	}
 	
 	protected void addArm5Robot() {
@@ -134,8 +142,6 @@ implements ActionListener, Serializable {
         int sbuf[] = new int[1];
         gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
         gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
-        System.out.println("samples = "+buf[0]);
-        System.out.println("Buffers = "+sbuf[0]);
         
 		setupLights();
 		loadTextures(gl2);
@@ -192,7 +198,11 @@ implements ActionListener, Serializable {
 	
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
-		
+
+		if(subject == buttonAddArm3Robot) {
+			addArm3Robot();
+			return;
+		}
 		if(subject == buttonAddArm5Robot) {
 			addArm5Robot();
 			return;
@@ -222,6 +232,10 @@ implements ActionListener, Serializable {
     	buttonAddArm5Robot = new JMenuItem("Add "+EvilMinionRobot.ROBOT_NAME);
     	worldMenu.add(buttonAddArm5Robot);
     	buttonAddArm5Robot.addActionListener(this);
+    	
+    	buttonAddArm3Robot = new JMenuItem("Add "+Arm3Robot.ROBOT_NAME);
+    	worldMenu.add(buttonAddArm3Robot);
+    	buttonAddArm3Robot.addActionListener(this);
     	
     	buttonAddRSP2 = new JMenuItem("Add "+RotaryStewartPlatform2.ROBOT_NAME);
     	worldMenu.add(buttonAddRSP2);

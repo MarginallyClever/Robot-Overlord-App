@@ -23,6 +23,7 @@ extends RobotWithConnection {
 	 * 
 	 */
 	private static final long serialVersionUID = 7173262402738411169L;
+	
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";

@@ -138,7 +138,7 @@ extends RobotWithConnection {
     {
     	setupModels();
         inputStream.defaultReadObject();
-    }   
+    }
 
 	
 	@Override
@@ -319,6 +319,8 @@ extends RobotWithConnection {
 					motionNow.set(motionFuture);
 				}
 				updateGUI();
+			} else {
+				motionFuture.set(motionNow);
 			}
 		}
 	}
