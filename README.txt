@@ -1,18 +1,16 @@
-##### Evil Overlord #####
+##### Robot Overlord #####
 
 http://www.marginallyclever.com/
 
-3D control software for "Evil Minion" 5 axis robot arms.
-
-This project is designed to work with Marginally Clever robots:
+3D control software for most Marginally Clever robots.
 
  - Evil-Minion (http://github.com/i-make-robots/Evil-Minion), the 5 axis robot arm.
- - Rotary Stewart Platform 2 (http://github.com/MarginallyClever/RotaryStewartPlatform2), the 6 axis motion control platform.
+ - Rotary Stewart Platform 2, the 6 axis motion control platform.
+ - Arm3, the 3 axis robot arm.
+ - Delta Robot 3, aka a Kossel.
+ - Spidee, a 6 legged crab robot.
 
 ## Instructions ##
-
-Please visit the forums
-https://marginallyclever.com/forum
 
 For developers, please see https://github.com/i-make-robots/Evil-Overlord/wiki/Home/
 
