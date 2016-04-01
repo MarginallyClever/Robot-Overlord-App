@@ -482,24 +482,22 @@ extends RobotWithConnection {
 				gl2.glTranslatef(position.x, position.y, position.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
-			/*
-			if(isRenderFKOn)
-			{
+
+			if(isRenderFKOn) {
 				gl2.glPushMatrix();
-					gl2.glDisable(GL2.GL_DEPTH_TEST);
-					renderFK(gl2);
-					gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glDisable(GL2.GL_DEPTH_TEST);
+				renderFK(gl2);
+				gl2.glEnable(GL2.GL_DEPTH_TEST);
 				gl2.glPopMatrix();
 			}
 			
-			if(isRenderIKOn) 
-			{
+			if(isRenderIKOn) {
 				gl2.glPushMatrix();
-					gl2.glDisable(GL2.GL_DEPTH_TEST);
-					renderIK(gl2);
-					gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glDisable(GL2.GL_DEPTH_TEST);
+				renderIK(gl2);
+				gl2.glEnable(GL2.GL_DEPTH_TEST);
 				gl2.glPopMatrix();
-			}*/
+			}
 		gl2.glPopMatrix();
 	}
 	
