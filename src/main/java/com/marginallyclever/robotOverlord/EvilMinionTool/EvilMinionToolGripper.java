@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 

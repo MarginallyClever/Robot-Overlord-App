@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord;
 import javax.vecmath.Vector3f;
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 
 public class PrimitiveSolids {

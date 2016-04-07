@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
@@ -31,17 +32,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLPipelineFactory;
-import javax.media.opengl.awt.GLJPanel;
-import javax.media.opengl.glu.GLU;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLPipelineFactory;
+import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.Animator;
+import com.marginallyclever.robotOverlord.PropertiesFileHelper;
 import com.marginallyclever.robotOverlord.Camera.Camera;
 import com.marginallyclever.robotOverlord.world.World;
 
@@ -54,7 +56,7 @@ public class RobotOverlord
 implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 {
 	static final String APP_TITLE = "Robot Overlord";
-	static final String APP_URL = "https://github.com/i-make-robots/Evil-Overlord";
+	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
 	// select picking
 	static final int SELECT_BUFFER_SIZE=256;
@@ -64,7 +66,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 	static final long serialVersionUID=1;
 	/// used for checking the application version with the github release, for "there is a new version available!" notification
-	static final String version="2";
+	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 
     /// the world within the simulator and all that it contains.
 	protected World world = null;
@@ -398,25 +400,43 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 	
 	public void CheckForUpdate() {
+		String updateURL = "https://github.com/MarginallyClever/Robot-Overlord/releases/latest";
 		try {
-		    // Get Github info?
-			URL github = new URL("https://www.marginallyclever.com/other/software-update-check.php?id=3");
-	        BufferedReader in = new BufferedReader(new InputStreamReader(github.openStream()));
+			URL github = new URL(updateURL);
+			HttpURLConnection conn = (HttpURLConnection) github.openConnection();
+			conn.setInstanceFollowRedirects(false);  //you still need to handle redirect manully.
+			HttpURLConnection.setFollowRedirects(false);
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-	        String inputLine;
-	        if((inputLine = in.readLine()) != null) {
-	        	if( inputLine.compareTo(version) !=0 ) {
-	        		JOptionPane.showMessageDialog(null,"A new version of this software is available.  The latest version is "+inputLine+"\n"
-	        											+"Please visit http://www.marginallyclever.com/ to get the new hotness.");
-	        	} else {
-	        		JOptionPane.showMessageDialog(null,"This version is up to date.");
-	        	}
-	        } else {
-	        	throw new Exception();
-	        }
-	        in.close();
+			String inputLine;
+			if ((inputLine = in.readLine()) != null) {
+				// parse the URL in the text-only redirect
+				String matchStart = "<a href=\"";
+				String matchEnd = "\">";
+				int start = inputLine.indexOf(matchStart);
+				int end = inputLine.indexOf(matchEnd);
+				if (start != -1 && end != -1) {
+					inputLine = inputLine.substring(start + matchStart.length(), end);
+					// parse the last part of the redirect URL, which contains the release tag (which is the VERSION)
+					inputLine = inputLine.substring(inputLine.lastIndexOf("/") + 1);
+
+					System.out.println("last release: " + inputLine);
+					System.out.println("your VERSION: " + VERSION);
+					//System.out.println(inputLine.compareTo(VERSION));
+
+					if (inputLine.compareTo(VERSION) > 0) {
+						JOptionPane.showMessageDialog(null, "A new version of this software is available.  The latest version is "+inputLine+"\n"
+								+"Please visit http://www.marginallyclever.com/ to get the new hotness.");
+					} else {
+						JOptionPane.showMessageDialog(null, "This version is up to date.");
+					}
+				}
+			} else {
+				throw new Exception();
+			}
+			in.close();
 		} catch (Exception e) {
-    		JOptionPane.showMessageDialog(null,"Sorry, I failed.  Please visit http://www.marginallyclever.com/ to check yourself.");
+			JOptionPane.showMessageDialog(null, "Sorry, I failed.  Please visit "+updateURL+" to check yourself.");
 		}
 	}
 	
@@ -437,7 +457,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		}
 		if( subject == buttonAbout ) {
 			JOptionPane.showMessageDialog(null,"<html><body>"
-					+"<h1>"+APP_TITLE+" v"+version+"</h1>"
+					+"<h1>"+APP_TITLE+" v"+VERSION+"</h1>"
 					+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
 					+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 					+"<p>To get the latest version please visit<br><a href='"+APP_URL+"'>"+APP_URL+"</a></p><br>"
@@ -625,14 +645,14 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         if(glDebug) {
             try {
                 // Debug ..
-                gl = gl.getContext().setGL( GLPipelineFactory.create("javax.media.opengl.Debug", null, gl, null) );
+                gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
             } catch (Exception e) {e.printStackTrace();}
         }
 
         if(glTrace) {
             try {
                 // Trace ..
-                gl = gl.getContext().setGL( GLPipelineFactory.create("javax.media.opengl.Trace", null, gl, new Object[] { System.err } ) );
+                gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
             } catch (Exception e) {e.printStackTrace();}
         }
 

@@ -15,7 +15,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.Model;
 import com.marginallyclever.robotOverlord.RobotWithConnection;

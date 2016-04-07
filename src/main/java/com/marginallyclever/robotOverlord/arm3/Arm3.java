@@ -8,7 +8,7 @@ import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotWithConnection;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 
 import java.util.ArrayList;

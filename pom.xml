@@ -1,18 +1,79 @@
+<?xml version="1.0" ?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  
   <groupId>com.marginallyclever</groupId>
-  <artifactId>Evil-Overlord</artifactId>
+  <artifactId>Robot-Overlord</artifactId>
   <version>v1.1.0</version>
-  <name>Evil Overlord</name>
+  <name>Robot Overlord</name>
+  <description>A friendly 3D user interface for driving all Marginally Clever robots. 
+  
+If you like this project, please support us by buying Marginally Clever products.</description>
+
+  <url>http://www.marginallyclever.com/</url>
+  
+  <issueManagement>
+  	<url>github.com/MarginallyClever/Robot-Overlord/issues</url>
+    <system>GitHub Issues</system>
+  </issueManagement>
+
+  <licenses>
+    <license>
+      <name>GPLv2</name>
+      <url>http://opensource.org/licenses/GPL-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/MarginallyClever/Robot-Overlord</url>
+    <connection>scm:git:git@github.com:MarginallyClever/Robot-Overlord.git</connection>
+  </scm>
+
+  <organization>
+    <name>Marginally Clever Robots, Limited.</name>
+    <url>http://www.marginallyclever.com/</url>
+  </organization>
+  
+  <developers>
+    <developer>
+      <id>dr</id>
+      <name>Dan Royer</name>
+      <email>dan@marginallyclever.com</email>
+      <url>https://github.com/i-make-robots</url>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-8</timezone>
+    </developer>
+  </developers>
+
+  <prerequisites>
+    <maven>${minimum.maven.version}</maven>
+  </prerequisites>
+  
   <build>
     <sourceDirectory>java/src</sourceDirectory>
+    <!--
+    See: http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html
+    and http://stackoverflow.com/a/3697482
+    -->
     <resources>
-      <resource>
-        <directory>java/src</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+          <includes>
+            <include>**/*.properties</include>
+          </includes>
+        </resource>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>false</filtering>
+          <excludes>
+            <exclude>**/*.properties</exclude>
+          </excludes>
+        </resource>
     </resources>
     <plugins>
       <plugin>
@@ -21,34 +82,37 @@
       <configuration>
         <source>${minimum.java.version}</source>
         <target>${minimum.java.version}</target>
+          <compilerArgs>
+            <compilerArg>-Xlint:unchecked</compilerArg>
+            <compilerArg>-Xlint:deprecation</compilerArg>
+          </compilerArgs>
       </configuration>
     </plugin>
     <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.3</version>
+      <artifactId>maven-assembly-plugin</artifactId>
       <configuration>
         <archive>
           <manifest>
-            <mainClass>Arm3.Main</mainClass>
+            <mainClass>com.marginallyclever.makelangelo.RobotOverlord</mainClass>
           </manifest>
         </archive>
-        <descriptorRefs>
-          <descriptorRef>jar-with-dependencies</descriptorRef>
-        </descriptorRefs>
-      </configuration>
-      <!-- see http://stackoverflow.com/a/574650 -->
-      <executions>
-        <execution>
-          <id>make-assembly</id>
-          <!-- this is used for inheritance merges -->
-          <phase>package</phase>
-          <!-- bind to the packaging phase -->
-          <goals>
-            <goal>single</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
+          <descriptors>
+            <descriptor>src/main/assembly/application.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <!-- this is used for inheritance merges -->
+            <phase>package</phase>
+            <!-- bind to the packaging phase -->
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    
     <!-- Beginning of plugins defined originally only in Super POM  -->
     <plugin>
       <artifactId>maven-clean-plugin</artifactId>
@@ -81,7 +145,7 @@
     <!-- End of plugins defined originally only in Super POM  -->
     </plugins>
   </build>
-    <dependencies>
+  <dependencies>
     <dependency>
       <groupId>org.scream3r</groupId>
         <artifactId>jssc</artifactId>
@@ -89,30 +153,32 @@
     </dependency>
     <dependency>
       <groupId>org.jogamp.gluegen</groupId>
-        <artifactId>gluegen-rt-main</artifactId>
-        <version>${jogl.version}</version>
+      <artifactId>gluegen-rt-main</artifactId>
+      <version>${jogl.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jogamp.jogl</groupId>
-        <artifactId>jogl-all-main</artifactId>
-        <version>${jogl.version}</version>
+      <artifactId>jogl-all-main</artifactId>
+      <version>${jogl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.12</version>
     </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <minimum.maven.version>2.2.1</minimum.maven.version>
+    <minimum.maven.version>3</minimum.maven.version>
     <minimum.java.version>1.8</minimum.java.version>
-    <jogl.version>2.2.4</jogl.version>
+    <jogl.version>2.3.2</jogl.version>
+    <maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
   </properties>
-  <url>http://eviloverlord.info/</url>
-  <description>3D simulation and control software for Marginally Clever Robots.
-</description>
-  <organization>
-  	<name>Marginally Clever Robots, Ltd.</name>
-  	<url>http://marginallyclever.com/</url>
-  </organization>
-  <issueManagement>
-  	<system>github issues</system>
-  	<url>github.com/i-make-robots/Evil-Overlord/issues</url>
-  </issueManagement>
+
+  <repositories>
+    <repository>
+      <id>my-local-repo</id>
+      <url>file://${basedir}/local-maven-repo</url>
+    </repository>
+  </repositories>
 </project>

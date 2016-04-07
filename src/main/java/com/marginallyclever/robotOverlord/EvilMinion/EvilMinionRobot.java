@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.EvilMinion;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.EvilMinionTool.*;

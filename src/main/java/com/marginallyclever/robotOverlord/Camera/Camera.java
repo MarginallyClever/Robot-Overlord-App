@@ -4,7 +4,7 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.ObjectInWorld;
 
-import javax.media.opengl.GL2
+import com.jogamp.opengl.GL2
 ;
 
 import java.awt.event.KeyEvent;

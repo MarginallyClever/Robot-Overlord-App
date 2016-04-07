@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.Spidee;
 
 import java.io.Serializable;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 import javax.vecmath.Vector3f;
 
 public class SpideeLeg implements Serializable {
