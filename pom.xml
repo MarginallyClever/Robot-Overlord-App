@@ -47,6 +47,18 @@ If you like this project, please support us by buying Marginally Clever products
       </roles>
       <timezone>-8</timezone>
     </developer>
+    
+    <developer>
+      <id>pc</id>
+      <name>Peter Colapietro</name>
+      <email>petercolapietro@gmail.com</email>
+      <url>https://github.com/virtuoushub</url>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
   </developers>
 
   <prerequisites>
