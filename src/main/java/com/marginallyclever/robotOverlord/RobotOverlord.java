@@ -457,7 +457,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		}
 		if( subject == buttonAbout ) {
 			JOptionPane.showMessageDialog(null,"<html><body>"
-					+"<h1>"+APP_TITLE+" v"+VERSION+"</h1>"
+					+"<h1>"+APP_TITLE+" "+VERSION+"</h1>"
 					+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
 					+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 					+"<p>To get the latest version please visit<br><a href='"+APP_URL+"'>"+APP_URL+"</a></p><br>"
