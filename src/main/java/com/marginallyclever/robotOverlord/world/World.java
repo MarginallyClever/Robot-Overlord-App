@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLProfile;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLProfile;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -235,9 +235,9 @@ implements ActionListener, Serializable {
     	// Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
         if (GLProfile.isAWTAvailable() &&
-            (gl2 instanceof javax.media.opengl.awt.GLJPanel) &&
-            !((javax.media.opengl.awt.GLJPanel) gl2).isOpaque() &&
-            ((javax.media.opengl.awt.GLJPanel) gl2).shouldPreserveColorBufferIfTranslucent()) {
+            (gl2 instanceof com.jogamp.opengl.awt.GLJPanel) &&
+            !((com.jogamp.opengl.awt.GLJPanel) gl2).isOpaque() &&
+            ((com.jogamp.opengl.awt.GLJPanel) gl2).shouldPreserveColorBufferIfTranslucent()) {
           gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         } else {
           gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.EvilMinionTool;
 
-import javax.media.opengl.GL2;
+import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.Model;
 import com.marginallyclever.robotOverlord.PhysicalObject;
