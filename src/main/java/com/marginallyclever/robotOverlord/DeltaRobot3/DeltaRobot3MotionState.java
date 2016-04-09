@@ -10,7 +10,7 @@ public class DeltaRobot3MotionState {
 	public static final int NUM_ARMS = 3;
 
 	// Relative to base unless otherwise noted.
-	public Vector3f finger_tip = new Vector3f(0,0,0);
+	public Vector3f fingerPosition = new Vector3f(0,0,0);
 
 	public Vector3f base = new Vector3f();  // relative to world
 	// base orientation, affects entire arm
@@ -54,7 +54,7 @@ public class DeltaRobot3MotionState {
 	}
 
 	public void set(DeltaRobot3MotionState other) {
-		finger_tip.set(other.finger_tip);
+		fingerPosition.set(other.fingerPosition);
 		int i;
 		for(i=0;i<NUM_ARMS;++i) {
 			arms[i].set(other.arms[i]);
@@ -121,7 +121,7 @@ public class DeltaRobot3MotionState {
 			//armb.wrist = this.finger_tip + n1*T2W_X + this.base_up*T2W_Z + o1*T2W_Y;
 			arma.wrist.set(n1);
 			arma.wrist.scale(DeltaRobot3.WRIST_TO_FINGER_X);
-			arma.wrist.add(this.finger_tip);
+			arma.wrist.add(this.fingerPosition);
 			temp.set(this.base_up);
 			temp.scale(DeltaRobot3.WRIST_TO_FINGER_Z);
 			arma.wrist.add(temp);
