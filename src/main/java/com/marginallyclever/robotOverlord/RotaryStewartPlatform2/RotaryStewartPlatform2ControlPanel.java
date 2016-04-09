@@ -42,8 +42,8 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	private JButton goHome;
 	
 	public JLabel xPos,yPos,zPos;
-	public JLabel a1,b1,c1;
-	public JLabel a2,b2,c2;
+	public JLabel uPos,vPos,wPos;
+	
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
@@ -85,14 +85,9 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
 		zPos = new JLabel("0.00");
-		// used for fk testing
-		a1 = new JLabel("0.00");
-		b1 = new JLabel("0.00");
-		c1 = new JLabel("0.00");
-		// used for ik testing
-		a2 = new JLabel("0.00");
-		b2 = new JLabel("0.00");
-		c2 = new JLabel("0.00");
+		uPos = new JLabel("0.00");
+		vPos = new JLabel("0.00");
+		wPos = new JLabel("0.00");
 
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
 		this.add(ikPanel, con1);
@@ -104,16 +99,16 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 
 
 		p.add(arm5Upos = createButton("U+"));
-		p.add(a1);
+		p.add(uPos);
 		p.add(arm5Uneg = createButton("U-"));
 
 		con1.gridy++;
 		p.add(arm5Vpos = createButton("V+"));
-		p.add(b1);
+		p.add(vPos);
 		p.add(arm5Vneg = createButton("V-"));
 
 		p.add(arm5Wpos = createButton("W+"));
-		p.add(c1);
+		p.add(wPos);
 		p.add(arm5Wneg = createButton("W-"));
 
 		p.add(arm5Xpos = createButton("X+"));

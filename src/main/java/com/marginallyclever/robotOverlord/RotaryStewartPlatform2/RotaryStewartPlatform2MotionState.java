@@ -16,7 +16,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 
 	// Relative to base unless otherwise noted.
 	public Vector3f relative = new Vector3f();
-	public Vector3f finger_tip = new Vector3f(0,0,0);
+	public Vector3f fingerPosition = new Vector3f(0,0,0);
 	public Vector3f finger_forward = new Vector3f();
 	public Vector3f finger_up = new Vector3f();
 	public Vector3f finger_left = new Vector3f();
@@ -78,14 +78,14 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		cc=bb;
 		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
 		this.relative.set(0,0,bb+RotaryStewartPlatform2.BASE_TO_SHOULDER_Z-RotaryStewartPlatform2.WRIST_TO_FINGER_Z);
-		this.finger_tip.set(0,0,0);
+		this.fingerPosition.set(0,0,0);
 	}
 	
 	public void set(RotaryStewartPlatform2MotionState other) {
 		iku=other.iku;
 		ikv=other.ikv;
 		ikw=other.ikw;
-		finger_tip.set(other.finger_tip);
+		fingerPosition.set(other.fingerPosition);
 		finger_forward.set(other.finger_forward);
 		finger_left.set(other.finger_left);
 		finger_up.set(other.finger_up);
@@ -172,7 +172,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		    //armb.wrist = this.finger_tip + n1*T2W_X + this.finger_up*T2W_Z + o1*T2W_Y;
 		    arma.wrist.set(n1);
 		    arma.wrist.scale(RotaryStewartPlatform2.WRIST_TO_FINGER_X);
-		    arma.wrist.add(this.finger_tip);
+		    arma.wrist.add(this.fingerPosition);
 		    temp.set(this.finger_up);
 		    temp.scale(RotaryStewartPlatform2.WRIST_TO_FINGER_Z);
 		    arma.wrist.add(temp);
