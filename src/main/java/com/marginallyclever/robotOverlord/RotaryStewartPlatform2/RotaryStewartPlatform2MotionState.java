@@ -38,28 +38,24 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 
 	
 	public class RotaryStewartPlatform2Arm implements Serializable {
-		  /**
-		 * 
-		 */
 		private static final long serialVersionUID = 1L;
-		Vector3f shoulder = new Vector3f();
-		  Vector3f elbow = new Vector3f();
-		  Vector3f shoulderToElbow = new Vector3f();
-		  Vector3f wrist = new Vector3f();
 
-		  float angle=0;
-		  
+		public Vector3f shoulder = new Vector3f();
+		public Vector3f elbow = new Vector3f();
+		public Vector3f shoulderToElbow = new Vector3f();
+		public Vector3f wrist = new Vector3f();
+		float angle=0;
 
-		  public void set(RotaryStewartPlatform2Arm other) {
-			  shoulder.set(other.shoulder);
-			  elbow.set(other.elbow);
-			  shoulderToElbow.set(other.shoulderToElbow);
-			  wrist.set(other.wrist);
-			  
-			  angle = other.angle;
-		  }
+
+		public void set(RotaryStewartPlatform2Arm other) {
+			shoulder.set(other.shoulder);
+			elbow.set(other.elbow);
+			shoulderToElbow.set(other.shoulderToElbow);
+			wrist.set(other.wrist);
+
+			angle = other.angle;
+		}
 	};
-	
 	
 	
 	public RotaryStewartPlatform2MotionState() {
@@ -81,25 +77,28 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		this.fingerPosition.set(0,0,0);
 	}
 	
+	
 	public void set(RotaryStewartPlatform2MotionState other) {
-		iku=other.iku;
-		ikv=other.ikv;
-		ikw=other.ikw;
-		fingerPosition.set(other.fingerPosition);
-		finger_forward.set(other.finger_forward);
-		finger_left.set(other.finger_left);
-		finger_up.set(other.finger_up);
 		int i;
 		for(i=0;i<6;++i) {
 			arms[i].set(other.arms[i]);
 		}
+		
+		relative.set(other.relative);
+		fingerPosition.set(other.fingerPosition);
+		finger_forward.set(other.finger_forward);
+		finger_left.set(other.finger_left);
+		finger_up.set(other.finger_up);
+		iku=other.iku;
+		ikv=other.ikv;
+		ikw=other.ikw;
+		
 		base.set(other.base);
 		base_forward.set(other.base_forward);
 		base_up.set(other.base_up);
 		base_right.set(other.base_right);
 		base_pan = other.base_pan;
 		base_tilt = other.base_tilt;
-		relative.set(other.relative);
 	}
 
 	
