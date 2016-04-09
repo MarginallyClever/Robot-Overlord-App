@@ -581,13 +581,11 @@ extends RobotWithConnection
 	
 	
 	public void updateGUI() {
-		Vector3f v = new Vector3f();
-		v.set(motionNow.fingerPosition);
 		// TODO rotate fingerPosition before adding position
-		v.add(position);
-		rspPanel.xPos.setText(Float.toString(roundOff(v.x)));
-		rspPanel.yPos.setText(Float.toString(roundOff(v.y)));
-		rspPanel.zPos.setText(Float.toString(roundOff(v.z)));
+
+		rspPanel.xPos.setText(Float.toString(roundOff(motionNow.fingerPosition.x)));
+		rspPanel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
+		rspPanel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
 
 		rspPanel.uPos.setText(Float.toString(roundOff(motionNow.iku)));
 		rspPanel.vPos.setText(Float.toString(roundOff(motionNow.ikv)));
@@ -618,6 +616,8 @@ extends RobotWithConnection
 		motionFuture.iku=0;
 		motionFuture.updateInverseKinematics();
 		motionNow.set(motionFuture);
+		motionNow.updateInverseKinematics();
+		updateGUI();
 		
 		//finalizeMove();
 		//this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
