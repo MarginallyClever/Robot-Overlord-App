@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.world;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -148,12 +147,12 @@ implements ActionListener, Serializable {
 		
 		// World background texture
 		try {
-			t0 = TextureIO.newTexture(new File((this.getClass().getResource("/images/cube-x-pos.png")).getFile()), true);
-			t1 = TextureIO.newTexture(new File((this.getClass().getResource("/images/cube-x-neg.png")).getFile()), true);
-			t2 = TextureIO.newTexture(new File((this.getClass().getResource("/images/cube-y-pos.png")).getFile()), true);
-			t3 = TextureIO.newTexture(new File((this.getClass().getResource("/images/cube-y-neg.png")).getFile()), true);
-			t4 = TextureIO.newTexture(new File((this.getClass().getResource("/images/cube-z-pos.png")).getFile()), true);
-			t5 = TextureIO.newTexture(new File((this.getClass().getResource("/images/cube-z-neg.png")).getFile()), true);
+			t0 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-pos.png"), true, "png");
+			t1 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-neg.png"), true, "png");
+			t2 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-pos.png"), true, "png");
+			t3 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-neg.png"), true, "png");
+			t4 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-pos.png"), true, "png");
+			t5 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-neg.png"), true, "png");
 			//System.out.println(">>> All textures loaded OK");
 			areTexturesLoaded=true;
 		}
