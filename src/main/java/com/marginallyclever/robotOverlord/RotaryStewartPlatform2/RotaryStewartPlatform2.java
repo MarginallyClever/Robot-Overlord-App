@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.RotaryStewartPlatform2;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +11,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
@@ -61,8 +58,6 @@ extends RobotWithConnection
 	protected float HOME_FORWARD_Y = 0;
 	protected float HOME_FORWARD_Z = 0;
 
-	protected boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
-	
 	protected Cylinder [] volumes = new Cylinder[6];
 
 	protected boolean isPortConfirmed=false;
@@ -90,7 +85,7 @@ extends RobotWithConnection
 	
 	boolean moveMode=true;
 
-	private boolean just_testing_dont_get_uid=true;
+	private boolean just_testing_dont_get_uid=false;
 
 	protected transient RotaryStewartPlatform2ControlPanel rspPanel;
 	
