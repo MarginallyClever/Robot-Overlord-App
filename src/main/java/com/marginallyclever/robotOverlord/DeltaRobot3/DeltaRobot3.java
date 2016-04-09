@@ -55,8 +55,8 @@ extends RobotWithConnection {
 	protected transient Model modelArm = null;
 	protected transient Model modelBase = null;
 	
-	protected DeltaRobot3MotionState motion_now = new DeltaRobot3MotionState();
-	protected DeltaRobot3MotionState motion_future = new DeltaRobot3MotionState();
+	protected DeltaRobot3MotionState motionNow = new DeltaRobot3MotionState();
+	protected DeltaRobot3MotionState motionFuture = new DeltaRobot3MotionState();
 	protected transient DeltaRobot3ControlPanel controlPanel;
 	
 	boolean homed = false;
@@ -88,8 +88,8 @@ extends RobotWithConnection {
 		HOME_X=newhome.x;
 		HOME_Y=newhome.y;
 		HOME_Z=newhome.z;
-		motion_future.rotateBase(0f,0f);
-		motion_future.moveBase(new Vector3f(0,0,0));
+		motionFuture.rotateBase(0f,0f);
+		motionFuture.moveBase(new Vector3f(0,0,0));
 		moveIfAble();
 	}
 
@@ -111,23 +111,23 @@ extends RobotWithConnection {
 		volumes[2].radius=2.2f;
 		*/
 
-		motion_now.rotateBase(0,0);
-		motion_now.rebuildShoulders();
-		motion_now.updateIKWrists();
+		motionNow.rotateBase(0,0);
+		motionNow.rebuildShoulders();
+		motionNow.updateIKWrists();
 
-		motion_future.set(motion_now);
+		motionFuture.set(motionNow);
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
-		float aa=(motion_now.arms[0].elbow.y-motion_now.arms[0].wrist.y);
+		float aa=(motionNow.arms[0].elbow.y-motionNow.arms[0].wrist.y);
 		float cc=FOREARM_LENGTH;
 		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		aa=motion_now.arms[0].elbow.x-motion_now.arms[0].wrist.x;
+		aa=motionNow.arms[0].elbow.x-motionNow.arms[0].wrist.x;
 		cc=bb;
 		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		motion_now.finger_tip.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
+		motionNow.fingerPosition.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
 
-		motion_future.finger_tip.set(motion_now.finger_tip);
+		motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		moveIfAble();
 	}
 	
@@ -159,9 +159,9 @@ extends RobotWithConnection {
 	}
 
 
-	protected void update_ik(float delta) {
+	protected void updateIK(float delta) {
 		boolean changed=false;
-		motion_future.set(motion_now);
+		motionFuture.set(motionNow);
 		
 		// movement 
 		float dv = (float)getSpeed();
@@ -169,16 +169,16 @@ extends RobotWithConnection {
 		//* delta;
 		
 		// lateral moves
-		if (xDir!=0) {  motion_future.finger_tip.x += dv * xDir;	}
-		if (yDir!=0) {  motion_future.finger_tip.y += dv * yDir;	}
-		if (zDir!=0) {  motion_future.finger_tip.z += dv * zDir;	}
+		if (xDir!=0) {  motionFuture.fingerPosition.x += dv * xDir;	}
+		if (yDir!=0) {  motionFuture.fingerPosition.y += dv * yDir;	}
+		if (zDir!=0) {  motionFuture.fingerPosition.z += dv * zDir;	}
 
 		// if not continuous, reset abc to zero
 		xDir=0;
 		yDir=0;
 		zDir=0;
 		
-		if(!motion_now.finger_tip.epsilonEquals(motion_future.finger_tip,dv/2.0f)) {
+		if(!motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,dv/2.0f)) {
 			changed=true;
 		}
 
@@ -188,11 +188,11 @@ extends RobotWithConnection {
 	}
 	
 	public void moveIfAble() {
-		if(motion_future.movePermitted()) {
+		if(motionFuture.movePermitted()) {
 			arm_moved=true;
 			finalizeMove();
 		} else {
-			motion_future.set(motion_now);
+			motionFuture.set(motionNow);
 		}
 	}
 	
@@ -232,40 +232,29 @@ extends RobotWithConnection {
 	}
 	
 	
-	protected void update_fk(float delta) {
+	protected void updateFK(float delta) {
 		boolean changed=false;
 		int i;
 		
 		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
-			motion_future.arms[i].angle = motion_now.arms[i].angle;
+			motionFuture.arms[i].angle = motionNow.arms[i].angle;
 		}
 		
 		// movement
 		float dv=(float)getSpeed();
+
 		// if continuous, adjust speed over time
 		//float dv *= delta;
 		
-		if (aDir!=0) {
-			motion_future.arms[0].angle -= dv * aDir;
-			changed=true;
-		}
-		if (bDir!=0) {
-			motion_future.arms[1].angle -= dv * bDir;
-			changed=true;
-		}
-		if (cDir!=0) {
-			motion_future.arms[2].angle += dv * cDir;
-			changed=true;
-		}
+		if (aDir!=0) {  motionFuture.arms[0].angle -= dv * aDir;  changed=true;  aDir=0;  }
+		if (bDir!=0) {  motionFuture.arms[1].angle -= dv * bDir;  changed=true;  bDir=0;  }
+		if (cDir!=0) {  motionFuture.arms[2].angle += dv * cDir;  changed=true;  cDir=0;  }
 		
-		// if not continuous, reset abc to zero
-		aDir=0;
-		bDir=0;
-		cDir=0;
+		// if not continuous, set *Dir to zero.
 		
 		if(changed==true) {
-			if(motion_future.checkAngleLimits()) {
-				motion_future.updateForwardKinematics();
+			if(motionFuture.checkAngleLimits()) {
+				motionFuture.updateForwardKinematics();
 				arm_moved=true;
 			}
 		}
@@ -273,25 +262,30 @@ extends RobotWithConnection {
 	
 	@Override
 	public void prepareMove(float delta) {
-		update_ik(delta);
-		update_fk(delta);
+		// no move until homed!
+		if(!homed) return;
+		
+		updateIK(delta);
+		updateFK(delta);
 	}
 
 	
 	@Override
 	public void finalizeMove() {
-		// copy motion_future to motion_now
-		motion_now.set(motion_future);
+		// no move until homed!
+		if(!homed) return;
 		
+		// copy motion_future to motion_now
+		motionNow.set(motionFuture);
+		motionNow.updateForwardKinematics();
+
 		if(arm_moved) {
-			if(homed) {
-				arm_moved=false;
-				this.sendLineToRobot("G0 X"+motion_now.finger_tip.x
-						          +" Y"+motion_now.finger_tip.y
-						          +" Z"+motion_now.finger_tip.z
-						          );
-				updateGUI();
-			}
+			arm_moved=false;
+			this.sendLineToRobot("G0 X"+motionNow.fingerPosition.x
+					          +" Y"+motionNow.fingerPosition.y
+					          +" Z"+motionNow.fingerPosition.z
+					          );
+			updateGUI();
 		}
 	}
 	
@@ -346,20 +340,20 @@ extends RobotWithConnection {
 			for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 				setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 				gl2.glPushMatrix();
-				gl2.glTranslatef(motion_now.arms[i].shoulder.x,
-						         motion_now.arms[i].shoulder.y,
-						         motion_now.arms[i].shoulder.z);
+				gl2.glTranslatef(motionNow.arms[i].shoulder.x,
+						         motionNow.arms[i].shoulder.y,
+						         motionNow.arms[i].shoulder.z);
 				gl2.glRotatef(90,0,1,0);  // model oriented wrong direction
 				gl2.glRotatef(60-i*(360.0f/DeltaRobot3MotionState.NUM_ARMS), 1, 0, 0);
 				gl2.glTranslatef(0, 0, 0.125f*2.54f);  // model origin wrong
-				gl2.glRotatef(180-motion_now.arms[i].angle,0,0,1);
+				gl2.glRotatef(180-motionNow.arms[i].angle,0,0,1);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
 			//top
 			gl2.glPushMatrix();
 			setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
-			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z);
+			gl2.glTranslatef(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
@@ -383,24 +377,24 @@ extends RobotWithConnection {
 			ortho.x=(float)Math.cos((float)i*Math.PI*2.0/3.0f);
 			ortho.y=(float)Math.sin((float)i*Math.PI*2.0/3.0f);
 			ortho.z=0;
-			a.set(motion_now.arms[i].wrist);
+			a.set(motionNow.arms[i].wrist);
 			b.set(ortho);
 			b.scale(1);
 			a.add(b);
 			tube.SetP1(a);
-			a.set(motion_now.arms[i].elbow);
+			a.set(motionNow.arms[i].elbow);
 			b.set(ortho);
 			b.scale(1);
 			a.add(b);
 			tube.SetP2(a);
 			PrimitiveSolids.drawCylinder(gl2, tube);
 
-			a.set(motion_now.arms[i].wrist);
+			a.set(motionNow.arms[i].wrist);
 			b.set(ortho);
 			b.scale(-1);
 			a.add(b);
 			tube.SetP1(a);
-			a.set(motion_now.arms[i].elbow);
+			a.set(motionNow.arms[i].elbow);
 			b.set(ortho);
 			b.scale(-1);
 			a.add(b);
@@ -414,16 +408,16 @@ extends RobotWithConnection {
 		gl2.glPushMatrix();
 		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
 			gl2.glColor3f(1,1,1);
-			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, motion_now.arms[i].shoulder,5);
-			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, motion_now.arms[i].elbow,3);			
-			if(draw_wrist_star) PrimitiveSolids.drawStar(gl2, motion_now.arms[i].wrist,1);
+			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].shoulder,5);
+			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].elbow,3);			
+			if(draw_wrist_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].wrist,1);
 
 			if(draw_shoulder_to_elbow) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0,1,0);
-				gl2.glVertex3f(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
+				gl2.glVertex3f(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
 				gl2.glColor3f(0,0,1);
-				gl2.glVertex3f(motion_now.arms[i].shoulder.x,motion_now.arms[i].shoulder.y,motion_now.arms[i].shoulder.z);
+				gl2.glVertex3f(motionNow.arms[i].shoulder.x,motionNow.arms[i].shoulder.y,motionNow.arms[i].shoulder.z);
 				gl2.glEnd();
 			}
 		}
@@ -434,18 +428,18 @@ extends RobotWithConnection {
 			float s=2;
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,1,1);
-			gl2.glVertex3f(motion_now.finger_tip.x, motion_now.finger_tip.y, motion_now.finger_tip.z);
-			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.base_forward.x*s,
-					       motion_now.finger_tip.y+motion_now.base_forward.y*s,
-					       motion_now.finger_tip.z+motion_now.base_forward.z*s);
-			gl2.glVertex3f(motion_now.finger_tip.x, motion_now.finger_tip.y, motion_now.finger_tip.z);
-			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.base_up.x*s,
-				       motion_now.finger_tip.y+motion_now.base_up.y*s,
-				       motion_now.finger_tip.z+motion_now.base_up.z*s);
-			gl2.glVertex3f(motion_now.finger_tip.x, motion_now.finger_tip.y, motion_now.finger_tip.z);
-			gl2.glVertex3f(motion_now.finger_tip.x+motion_now.base_right.x*s,
-				       motion_now.finger_tip.y+motion_now.base_right.y*s,
-				       motion_now.finger_tip.z+motion_now.base_right.z*s);
+			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3f(motionNow.fingerPosition.x+motionNow.base_forward.x*s,
+					       motionNow.fingerPosition.y+motionNow.base_forward.y*s,
+					       motionNow.fingerPosition.z+motionNow.base_forward.z*s);
+			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3f(motionNow.fingerPosition.x+motionNow.base_up.x*s,
+				       motionNow.fingerPosition.y+motionNow.base_up.y*s,
+				       motionNow.fingerPosition.z+motionNow.base_up.z*s);
+			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3f(motionNow.fingerPosition.x+motionNow.base_right.x*s,
+				       motionNow.fingerPosition.y+motionNow.base_right.y*s,
+				       motionNow.fingerPosition.z+motionNow.base_right.z*s);
 			
 			gl2.glEnd();
 		}
@@ -456,20 +450,20 @@ extends RobotWithConnection {
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,0,0);
-			gl2.glVertex3f(motion_now.base.x, motion_now.base.y, motion_now.base.z);
-			gl2.glVertex3f(motion_now.base.x+motion_now.base_forward.x*s,
-					       motion_now.base.y+motion_now.base_forward.y*s,
-					       motion_now.base.z+motion_now.base_forward.z*s);
+			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3f(motionNow.base.x+motionNow.base_forward.x*s,
+					       motionNow.base.y+motionNow.base_forward.y*s,
+					       motionNow.base.z+motionNow.base_forward.z*s);
 			gl2.glColor3f(0,1,0);
-			gl2.glVertex3f(motion_now.base.x, motion_now.base.y, motion_now.base.z);
-			gl2.glVertex3f(motion_now.base.x+motion_now.base_up.x*s,
-				       motion_now.base.y+motion_now.base_up.y*s,
-				       motion_now.base.z+motion_now.base_up.z*s);
+			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3f(motionNow.base.x+motionNow.base_up.x*s,
+				       motionNow.base.y+motionNow.base_up.y*s,
+				       motionNow.base.z+motionNow.base_up.z*s);
 			gl2.glColor3f(0,0,1);
-			gl2.glVertex3f(motion_now.base.x, motion_now.base.y, motion_now.base.z);
-			gl2.glVertex3f(motion_now.base.x+motion_now.base_right.x*s,
-				       motion_now.base.y+motion_now.base_right.y*s,
-				       motion_now.base.z+motion_now.base_right.z*s);
+			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3f(motionNow.base.x+motionNow.base_right.x*s,
+				       motionNow.base.y+motionNow.base_right.y*s,
+				       motionNow.base.z+motionNow.base_right.z*s);
 			
 			gl2.glEnd();
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -493,8 +487,8 @@ extends RobotWithConnection {
 	
 	public void goHome() {
 		this.sendLineToRobot("G28");
-		motion_future.finger_tip.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-		motion_future.updateInverseKinematics();
+		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+		motionFuture.updateInverseKinematics();
 		arm_moved=true;
 		finalizeMove();
 		homed=true;
@@ -577,17 +571,17 @@ extends RobotWithConnection {
 	
 	
 	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motion_future.base);
+		Vector3f out = new Vector3f(motionFuture.base);
 		
-		Vector3f tempx = new Vector3f(motion_future.base_forward);
+		Vector3f tempx = new Vector3f(motionFuture.base_forward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motion_future.base_right);
+		Vector3f tempy = new Vector3f(motionFuture.base_right);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motion_future.base_up);
+		Vector3f tempz = new Vector3f(motionFuture.base_up);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -623,14 +617,14 @@ extends RobotWithConnection {
 	
 	
 	public void updateGUI() {
-		Vector3f v = new Vector3f();
-		v.set(motion_now.finger_tip);
-		// TODO rotate fingerPosition before adding position
-		//v.add(position);
+		if(controlPanel==null) return;
 		
-		controlPanel.xPos.setText(Float.toString(roundOff(v.x)));
-		controlPanel.yPos.setText(Float.toString(roundOff(v.y)));
-		controlPanel.zPos.setText(Float.toString(roundOff(v.z)));
+		controlPanel.angleA.setText(Float.toString(roundOff(motionFuture.arms[0].angle)));
+		controlPanel.angleB.setText(Float.toString(roundOff(motionFuture.arms[1].angle)));
+		controlPanel.angleC.setText(Float.toString(roundOff(motionFuture.arms[2].angle)));
+		controlPanel.xPos.setText(Float.toString(roundOff(motionNow.fingerPosition.x)));
+		controlPanel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
+		controlPanel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
 	}
 	
 	

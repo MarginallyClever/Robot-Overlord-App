@@ -41,8 +41,7 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	private JButton arm5Zneg;
 	
 	public JLabel xPos,yPos,zPos;
-	public JLabel a1,b1,c1,d1,e1;
-	public JLabel a2,b2,c2,d2,e2;
+	public JLabel angleA,angleB,angleC;
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
@@ -81,56 +80,54 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		this.add(homePanel,con1);
 		con1.gridy++;
 
-		goHome=createButton("Home");
+		goHome=createButton("Find Home");
 		homePanel.getContentPane().add(goHome);
 		
+		CollapsiblePanel fkPanel = createFKPanel();
+		//this.add(fkPanel,con1);
+		//con1.gridy++;
 
-		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
-		this.add(fkPanel,con1);
+		CollapsiblePanel ikPanel = createIKPanel();
+		this.add(ikPanel, con1);
 		con1.gridy++;
+	}
 
-
+	protected CollapsiblePanel createFKPanel() {
+		CollapsiblePanel cp = new CollapsiblePanel("Forward Kinematics");
 		
+		// used for IK
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
 		zPos = new JLabel("0.00");
-		// used for fk testing
-		a1 = new JLabel("0.00");
-		b1 = new JLabel("0.00");
-		c1 = new JLabel("0.00");
-		d1 = new JLabel("0.00");
-		e1 = new JLabel("0.00");
-		// used for ik testing
-		a2 = new JLabel("0.00");
-		b2 = new JLabel("0.00");
-		c2 = new JLabel("0.00");
-		d2 = new JLabel("0.00");
-		e2 = new JLabel("0.00");
+		// used for FK
+		angleA = new JLabel("0.00");
+		angleB = new JLabel("0.00");
+		angleC = new JLabel("0.00");
 
 		
-		p = new JPanel(new GridLayout(3,3));
-		fkPanel.getContentPane().add(p);
-		con1.gridy++;
+		JPanel p = new JPanel(new GridLayout(3,3));
+		cp.getContentPane().add(p);
 
 		p.add(arm5Apos = createButton("A+"));
-		p.add(a1);
+		p.add(angleA);
 		p.add(arm5Aneg = createButton("A-"));
 
-		con1.gridy++;
 		p.add(arm5Bpos = createButton("B+"));
-		p.add(b1);
+		p.add(angleB);
 		p.add(arm5Bneg = createButton("B-"));
 
 		p.add(arm5Cpos = createButton("C+"));
-		p.add(c1);
+		p.add(angleC);
 		p.add(arm5Cneg = createButton("C-"));
 
-		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
-		this.add(ikPanel, con1);
-		con1.gridy++;
-
-		p = new JPanel(new GridLayout(3,3));
-		ikPanel.getContentPane().add(p);
+		return cp;
+	}
+	
+	protected CollapsiblePanel createIKPanel() {
+		CollapsiblePanel cp = new CollapsiblePanel("Inverse Kinematics");
+		
+		JPanel p = new JPanel(new GridLayout(3,3));
+		cp.getContentPane().add(p);
 
 		p.add(arm5Xpos = createButton("X+"));
 		p.add(xPos);
@@ -143,6 +140,8 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
+		
+		return cp;
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
