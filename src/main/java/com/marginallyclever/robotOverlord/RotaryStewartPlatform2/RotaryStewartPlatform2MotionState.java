@@ -15,6 +15,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	protected RotaryStewartPlatform2Arm arms[];
 
 	// Relative to base unless otherwise noted.
+	public Vector3f relative = new Vector3f();
 	public Vector3f finger_tip = new Vector3f(0,0,0);
 	public Vector3f finger_forward = new Vector3f();
 	public Vector3f finger_up = new Vector3f();
@@ -67,6 +68,17 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		for(i=0;i<6;++i) {
 			arms[i] = new RotaryStewartPlatform2Arm();
 		}
+		
+		// find the starting height of the end effector at home position
+		// @TODO: project wrist-on-bicep to get more accurate distance
+		float aa=(this.arms[0].elbow.y-this.arms[0].wrist.y);
+		float cc=RotaryStewartPlatform2.FOREARM_LENGTH;
+		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		aa=this.arms[0].elbow.x-this.arms[0].wrist.x;
+		cc=bb;
+		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		this.relative.set(0,0,bb+RotaryStewartPlatform2.BASE_TO_SHOULDER_Z-RotaryStewartPlatform2.WRIST_TO_FINGER_Z);
+		this.finger_tip.set(0,0,0);
 	}
 	
 	public void set(RotaryStewartPlatform2MotionState other) {
@@ -87,6 +99,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		base_right.set(other.base_right);
 		base_pan = other.base_pan;
 		base_tilt = other.base_tilt;
+		relative.set(other.relative);
 	}
 
 	
@@ -166,8 +179,11 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		    armb.wrist.set(arma.wrist);
 		    temp.set(o1);
 		    temp.scale(RotaryStewartPlatform2.WRIST_TO_FINGER_Y);
+		    
 		    arma.wrist.sub(temp);
 		    armb.wrist.add(temp);
+		    arma.wrist.z+=relative.z;
+		    armb.wrist.z+=relative.z;
 		  }
 	}
 	
