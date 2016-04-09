@@ -76,7 +76,7 @@ extends RobotWithConnection
 	
 	boolean homed = false;
 	boolean homing = false;
-	boolean follow_mode = false;
+	boolean follow_mode = true;
 	boolean arm_moved = false;
 	
 	// keyboard history
@@ -131,16 +131,6 @@ extends RobotWithConnection
 
 		motion_future.set(motion_now);
 		setupModels();
-		
-		// find the starting height of the end effector at home position
-		// @TODO: project wrist-on-bicep to get more accurate distance
-		float aa=(motion_now.arms[0].elbow.y-motion_now.arms[0].wrist.y);
-		float cc=FOREARM_LENGTH;
-		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		aa=motion_now.arms[0].elbow.x-motion_now.arms[0].wrist.x;
-		cc=bb;
-		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
-		motion_now.finger_tip.set(0,0,bb+BASE_TO_SHOULDER_Z-WRIST_TO_FINGER_Z);
 
 		motion_future.finger_tip.set(motion_now.finger_tip);
 		moveIfAble();
@@ -196,32 +186,28 @@ extends RobotWithConnection
 	protected void updateIK(float delta) {
 		boolean changed=false;
 		motion_future.set(motion_now);
-		
-		// speeds
-		final float vtranslate=(float)speed* delta;
-		final float vrotate=(float)speed * delta;
 
 		// lateral moves
 		if (xDir!=0) {
-			motion_future.finger_tip.x += xDir * vtranslate;
+			motion_future.finger_tip.x += xDir * (float)speed;
 			changed=true;
 			xDir=0;
 		}		
 		if (yDir!=0) {
-			motion_future.finger_tip.y += yDir * vtranslate;
+			motion_future.finger_tip.y += yDir * (float)speed;
 			changed=true;
 			yDir=0;
 		}
 		if (zDir!=0) {
-			motion_future.finger_tip.z += zDir * vtranslate;
+			motion_future.finger_tip.z += zDir * (float)speed;
 			changed=true;
 			zDir=0;
 		}
 
 		// rotation		
-		if(uDir!=0) {	motion_future.iku = (float)speed * vrotate * uDir;	changed=true; }
-		if(vDir!=0) {	motion_future.ikv = (float)speed * vrotate * vDir;	changed=true; }
-		if(wDir!=0) {	motion_future.ikw = (float)speed * vrotate * wDir;	changed=true; }
+		if(uDir!=0) {	motion_future.iku = (float)speed * uDir;	changed=true; }
+		if(vDir!=0) {	motion_future.ikv = (float)speed * vDir;	changed=true; }
+		if(wDir!=0) {	motion_future.ikw = (float)speed * wDir;	changed=true; }
 
 		if(changed==true) {
 			moveIfAble();
@@ -313,7 +299,7 @@ extends RobotWithConnection
 		motion_now.set(motion_future);
 		
 		if(arm_moved) {
-			if(homed && follow_mode && this.isReadyToReceive ) {
+			if(homed && follow_mode ) {
 				arm_moved=false;
 				sendChangeToRealMachine();
 			}
@@ -385,7 +371,7 @@ extends RobotWithConnection
 			//top
 			gl2.glPushMatrix();
 			gl2.glColor3f(1, 0.8f, 0.6f);
-			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z);
+			gl2.glTranslatef(motion_now.finger_tip.x,motion_now.finger_tip.y,motion_now.finger_tip.z+motion_now.relative.z);
 			gl2.glRotatef(motion_now.iku, 1, 0, 0);
 			gl2.glRotatef(motion_now.ikv, 0, 1, 0);
 			gl2.glRotatef(motion_now.ikw, 0, 0, 1);
@@ -625,9 +611,14 @@ extends RobotWithConnection
 		homed=false;
 		this.sendLineToRobot("G28");
 		motion_future.finger_tip.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+		motion_future.iku=0;
+		motion_future.iku=0;
+		motion_future.iku=0;
 		motion_future.updateInverseKinematics();
-		finalizeMove();
-		this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
+		motion_now.set(motion_future);
+		
+		//finalizeMove();
+		//this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
 		homed=true;
 	}
 }
