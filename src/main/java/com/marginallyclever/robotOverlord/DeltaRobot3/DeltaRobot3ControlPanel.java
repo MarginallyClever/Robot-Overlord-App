@@ -58,8 +58,6 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 
 	public DeltaRobot3ControlPanel(DeltaRobot3 robot) {
 		super();
-
-		JPanel p;
 		
 		deltaRobot = robot;
 
@@ -83,7 +81,8 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		goHome=createButton("Find Home");
 		homePanel.getContentPane().add(goHome);
 		
-		CollapsiblePanel fkPanel = createFKPanel();
+		//CollapsiblePanel fkPanel = 
+				createFKPanel();
 		//this.add(fkPanel,con1);
 		//con1.gridy++;
 
