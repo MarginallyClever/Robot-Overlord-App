@@ -24,6 +24,7 @@ extends RobotWithConnection
 	 * 
 	 */
 	private static final long serialVersionUID = 1816224308642132316L;
+	
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
@@ -39,6 +40,7 @@ extends RobotWithConnection
 	static final float WRIST_TO_FINGER_Y    =( 0.553f);
 	static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
 	
+	// calibration settings
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
 	protected float HOME_Z = 0.0f;
@@ -58,21 +60,23 @@ extends RobotWithConnection
 	protected float HOME_FORWARD_Y = 0;
 	protected float HOME_FORWARD_Z = 0;
 
+	// volumes for collision detection (not being used yet)
 	protected Cylinder [] volumes = new Cylinder[6];
 
+	// networking information
 	protected boolean isPortConfirmed=false;
 
+	// visual models of robot
 	protected transient Model modelTop = null;
 	protected transient Model modelArm = null;
 	protected transient Model modelBase = null;
 	
+	// this should be come a list w/ rollback
 	protected RotaryStewartPlatform2MotionState motionNow = new RotaryStewartPlatform2MotionState();
 	protected RotaryStewartPlatform2MotionState motionFuture = new RotaryStewartPlatform2MotionState();
-	
-	boolean homed = false;
-	boolean homing = false;
-	boolean follow_mode = true;
-	boolean arm_moved = false;
+
+	// convenience
+	boolean hasArmMoved;
 	
 	// keyboard history
 	protected float xDir = 0.0f;
@@ -81,12 +85,10 @@ extends RobotWithConnection
 	protected float uDir = 0.0f;
 	protected float vDir = 0.0f;
 	protected float wDir = 0.0f;
-	protected double speed=2;
 	
-	boolean moveMode=true;
-
 	private boolean just_testing_dont_get_uid=false;
 
+	// visual model for controlling robot
 	protected transient RotaryStewartPlatform2ControlPanel rspPanel;
 	
 	
@@ -107,28 +109,26 @@ extends RobotWithConnection
 		super();
 		setDisplayName(ROBOT_NAME);
 
-		/*
+		// load the visuals
+		setupModels();
+		
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {
 			volumes[i] = new Cylinder();
 		}
-		volumes[0].radius=3.2f;
-		volumes[1].radius=3.0f*0.575f;
-		volumes[2].radius=2.2f;
-		volumes[3].radius=1.15f;
-		volumes[4].radius=1.2f;
-		volumes[5].radius=1.0f*0.575f;*/
+		volumes[0].setRadius(3.2f);
+		volumes[1].setRadius(3.0f*0.575f);
+		volumes[2].setRadius(2.2f);
+		volumes[3].setRadius(1.15f);
+		volumes[4].setRadius(1.2f);
+		volumes[5].setRadius(1.0f*0.575f);
 
+		// set up the initial state of the machine
 		motionNow.rotateBase(0,0);
-		motionNow.updateIKEndEffector();
-		motionNow.rebuildShoulders();
-		motionNow.updateIKWrists();
-
+		motionNow.updateIK();
 		motionFuture.set(motionNow);
-		setupModels();
-
-		motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		moveIfAble();
+		hasArmMoved = false;
 	}
 	
 
@@ -143,15 +143,7 @@ extends RobotWithConnection
     {
     	setupModels();
         inputStream.defaultReadObject();
-    }   
-	
-
-	public void setSpeed(double newSpeed) {
-		speed=newSpeed;
-	}
-	public double getSpeed() {
-		return speed;
-	}
+    }
 
 	public void moveX(float dir) {
 		xDir=dir;
@@ -176,6 +168,18 @@ extends RobotWithConnection
 	public void moveW(float dir) {
 		wDir=dir;
 	}
+	 
+
+	public void setSpeed(float newSpeed) {
+		motionNow.setSpeed(newSpeed);
+	}
+	public float getSpeed() {
+		return motionNow.getSpeed();
+	}
+	
+	public void updateForwardKinematics() {
+		Log.error("Forward Kinematics are not implemented yet");
+	}
 
 
 	protected void updateIK(float delta) {
@@ -183,13 +187,13 @@ extends RobotWithConnection
 		motionFuture.set(motionNow);
 
 		// lateral moves
-		if (xDir!=0) {  motionFuture.fingerPosition.x += xDir * (float)speed;  changed=true;  xDir=0;  }		
-		if (yDir!=0) {  motionFuture.fingerPosition.y += yDir * (float)speed;  changed=true;  yDir=0;  }
-		if (zDir!=0) {  motionFuture.fingerPosition.z += zDir * (float)speed;  changed=true;  zDir=0;  }
+		if (xDir!=0) {  motionFuture.fingerPosition.x += xDir * motionFuture.getSpeed();  changed=true;  xDir=0;  }		
+		if (yDir!=0) {  motionFuture.fingerPosition.y += yDir * motionFuture.getSpeed();  changed=true;  yDir=0;  }
+		if (zDir!=0) {  motionFuture.fingerPosition.z += zDir * motionFuture.getSpeed();  changed=true;  zDir=0;  }
 		// rotation		
-		if(uDir!=0) {	motionFuture.iku += (float)speed * uDir;	changed=true;  uDir=0;  }
-		if(vDir!=0) {	motionFuture.ikv += (float)speed * vDir;	changed=true;  vDir=0;  }
-		if(wDir!=0) {	motionFuture.ikw += (float)speed * wDir;	changed=true;  wDir=0;  }
+		if(uDir!=0) {	motionFuture.iku += motionFuture.getSpeed() * uDir;	changed=true;  uDir=0;  }
+		if(vDir!=0) {	motionFuture.ikv += motionFuture.getSpeed() * vDir;	changed=true;  vDir=0;  }
+		if(wDir!=0) {	motionFuture.ikw += motionFuture.getSpeed() * wDir;	changed=true;  wDir=0;  }
 
 		if(changed==true) {
 			moveIfAble();
@@ -200,7 +204,7 @@ extends RobotWithConnection
 		rotateFinger();	
 		
 		if(motionFuture.movePermitted()) {
-			arm_moved=true;
+			hasArmMoved=true;
 			finalizeMove();
 		} else {
 			motionFuture.set(motionNow);
@@ -280,9 +284,9 @@ extends RobotWithConnection
 		// copy motion_future to motion_now
 		motionNow.set(motionFuture);
 		
-		if(arm_moved) {
-			if(homed && follow_mode ) {
-				arm_moved=false;
+		if(hasArmMoved) {
+			if(motionNow.isHomed && motionNow.isFollowMode ) {
+				hasArmMoved=false;
 				sendChangeToRealMachine();
 				updateGUI();
 			}
@@ -429,14 +433,14 @@ extends RobotWithConnection
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,0,0);
 			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.base_forward.x*s,
-					       motionNow.base.y+motionNow.base_forward.y*s,
-					       motionNow.base.z+motionNow.base_forward.z*s);
+			gl2.glVertex3f(motionNow.base.x+motionNow.baseForward.x*s,
+					       motionNow.base.y+motionNow.baseForward.y*s,
+					       motionNow.base.z+motionNow.baseForward.z*s);
 			gl2.glColor3f(0,1,0);
 			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.base_up.x*s,
-				       motionNow.base.y+motionNow.base_up.y*s,
-				       motionNow.base.z+motionNow.base_up.z*s);
+			gl2.glVertex3f(motionNow.base.x+motionNow.baseUp.x*s,
+				       motionNow.base.y+motionNow.baseUp.y*s,
+				       motionNow.base.z+motionNow.baseUp.z*s);
 			gl2.glColor3f(0,0,1);
 			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
 			gl2.glVertex3f(motionNow.base.x+motionNow.finger_left.x*s,
@@ -542,15 +546,15 @@ extends RobotWithConnection
 	Vector3f getWorldCoordinatesFor(Vector3f in) {
 		Vector3f out = new Vector3f(motionFuture.base);
 		
-		Vector3f tempx = new Vector3f(motionFuture.base_forward);
+		Vector3f tempx = new Vector3f(motionFuture.baseForward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.base_right);
+		Vector3f tempy = new Vector3f(motionFuture.baseRight);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.base_up);
+		Vector3f tempz = new Vector3f(motionFuture.baseUp);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -608,19 +612,19 @@ extends RobotWithConnection
 	
 	
 	public void goHome() {
-		homed=false;
+		motionFuture.isHomed=false;
 		this.sendLineToRobot("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
 		motionFuture.iku=0;
 		motionFuture.iku=0;
 		motionFuture.iku=0;
-		motionFuture.updateInverseKinematics();
+		motionFuture.isHomed=true;
+		motionFuture.updateIK();
 		motionNow.set(motionFuture);
-		motionNow.updateInverseKinematics();
+		motionNow.updateIK();
 		updateGUI();
 		
 		//finalizeMove();
 		//this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
-		homed=true;
 	}
 }
