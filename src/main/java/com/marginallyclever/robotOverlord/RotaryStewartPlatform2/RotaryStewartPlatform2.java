@@ -193,6 +193,7 @@ extends RobotWithConnection
 		return motionNow.getSpeed();
 	}
 	
+	
 	public void updateFK(float delta) {}
 
 
@@ -205,9 +206,9 @@ extends RobotWithConnection
 		if (yDir!=0) {  motionFuture.fingerPosition.y += yDir * motionFuture.getSpeed();  changed=true;  yDir=0;  }
 		if (zDir!=0) {  motionFuture.fingerPosition.z += zDir * motionFuture.getSpeed();  changed=true;  zDir=0;  }
 		// rotation		
-		if(uDir!=0) {	motionFuture.iku += motionFuture.getSpeed() * uDir;	changed=true;  uDir=0;  }
-		if(vDir!=0) {	motionFuture.ikv += motionFuture.getSpeed() * vDir;	changed=true;  vDir=0;  }
-		if(wDir!=0) {	motionFuture.ikw += motionFuture.getSpeed() * wDir;	changed=true;  wDir=0;  }
+		if(uDir!=0) {	motionFuture.rotationAngleU += uDir * motionFuture.getSpeed();	changed=true;  uDir=0;  }
+		if(vDir!=0) {	motionFuture.rotationAngleV += vDir * motionFuture.getSpeed();	changed=true;  vDir=0;  }
+		if(wDir!=0) {	motionFuture.rotationAngleW += wDir * motionFuture.getSpeed();	changed=true;  wDir=0;  }
 
 		if(changed==true) {
 			moveIfAble();
@@ -239,14 +240,14 @@ extends RobotWithConnection
 		
 		Vector3f result;
 
-		result = rotateAroundAxis(forward,of,Math.toRadians(motionFuture.iku));  // TODO rotating around itself has no effect.
-		result = rotateAroundAxis(result,or,Math.toRadians(motionFuture.ikv));
-		result = rotateAroundAxis(result,ou,Math.toRadians(motionFuture.ikw));
+		result = rotateAroundAxis(forward,of,Math.toRadians(motionFuture.rotationAngleU));  // TODO rotating around itself has no effect.
+		result = rotateAroundAxis(result,or,Math.toRadians(motionFuture.rotationAngleV));
+		result = rotateAroundAxis(result,ou,Math.toRadians(motionFuture.rotationAngleW));
 		motionFuture.finger_forward.set(result);
 
-		result = rotateAroundAxis(right,of,Math.toRadians(motionFuture.iku));
-		result = rotateAroundAxis(result,or,Math.toRadians(motionFuture.ikv));
-		result = rotateAroundAxis(result,ou,Math.toRadians(motionFuture.ikw));
+		result = rotateAroundAxis(right,of,Math.toRadians(motionFuture.rotationAngleU));
+		result = rotateAroundAxis(result,or,Math.toRadians(motionFuture.rotationAngleV));
+		result = rotateAroundAxis(result,ou,Math.toRadians(motionFuture.rotationAngleW));
 		motionFuture.finger_left.set(result);
 		
 		motionFuture.finger_up.cross(motionFuture.finger_forward,motionFuture.finger_left);
@@ -374,9 +375,9 @@ extends RobotWithConnection
 			gl2.glPushMatrix();
 			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z+motionNow.relative.z);
-			gl2.glRotatef(motionNow.iku, 1, 0, 0);
-			gl2.glRotatef(motionNow.ikv, 0, 1, 0);
-			gl2.glRotatef(motionNow.ikw, 0, 0, 1);
+			gl2.glRotatef(motionNow.rotationAngleU, 1, 0, 0);
+			gl2.glRotatef(motionNow.rotationAngleV, 0, 1, 0);
+			gl2.glRotatef(motionNow.rotationAngleW, 0, 0, 1);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(180, 1, 0, 0);
 			modelTop.render(gl2);
@@ -606,9 +607,9 @@ extends RobotWithConnection
 		rspPanel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
 		rspPanel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
 
-		rspPanel.uPos.setText(Float.toString(roundOff(motionNow.iku)));
-		rspPanel.vPos.setText(Float.toString(roundOff(motionNow.ikv)));
-		rspPanel.wPos.setText(Float.toString(roundOff(motionNow.ikw)));
+		rspPanel.uPos.setText(Float.toString(roundOff(motionNow.rotationAngleU)));
+		rspPanel.vPos.setText(Float.toString(roundOff(motionNow.rotationAngleV)));
+		rspPanel.wPos.setText(Float.toString(roundOff(motionNow.rotationAngleW)));
 
 		//if( tool != null ) tool.updateGUI();
 	}
@@ -619,9 +620,9 @@ extends RobotWithConnection
 		this.sendLineToRobot("G0 X"+roundOff(motionNow.fingerPosition.x)
 		          +" Y"+roundOff(motionNow.fingerPosition.y)
 		          +" Z"+roundOff(motionNow.fingerPosition.z)
-		          +" U"+roundOff(motionNow.iku)
-		          +" V"+roundOff(motionNow.ikv)
-		          +" W"+roundOff(motionNow.ikw)
+		          +" U"+roundOff(motionNow.rotationAngleU)
+		          +" V"+roundOff(motionNow.rotationAngleV)
+		          +" W"+roundOff(motionNow.rotationAngleW)
 		          );
 	}
 	
@@ -630,9 +631,9 @@ extends RobotWithConnection
 		motionFuture.isHomed=false;
 		this.sendLineToRobot("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-		motionFuture.iku=0;
-		motionFuture.iku=0;
-		motionFuture.iku=0;
+		motionFuture.rotationAngleU=0;
+		motionFuture.rotationAngleU=0;
+		motionFuture.rotationAngleU=0;
 		motionFuture.isHomed=true;
 		motionFuture.updateIK();
 		motionNow.set(motionFuture);

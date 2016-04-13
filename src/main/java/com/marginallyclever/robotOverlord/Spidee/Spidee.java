@@ -550,9 +550,6 @@ implements ActionListener {
 		    leg.ankle_joint.pos.add( newpos );
 		  }
 	}
-
-	@Override
-	public void finalizeMove() {}
 	
 	@Override
 	public void prepareMove(float dt) {
@@ -617,6 +614,9 @@ implements ActionListener {
 			Move_Send_Serial();
 		}
 	}
+
+	@Override
+	public void finalizeMove() {}
 	
 	public void setMoveMode(MoveModes mode) {
 		move_mode = mode;

@@ -23,9 +23,9 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	public Vector3f finger_up = new Vector3f();
 	public Vector3f finger_left = new Vector3f();
 	// rotating the finger tip
-	public float iku=0;
-	public float ikv=0;
-	public float ikw=0;
+	public float rotationAngleU=0;
+	public float rotationAngleV=0;
+	public float rotationAngleW=0;
 	
 	public Vector3f base = new Vector3f();  // relative to world
 	// base orientation, affects entire arm
@@ -99,9 +99,9 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		finger_forward.set(other.finger_forward);
 		finger_left.set(other.finger_left);
 		finger_up.set(other.finger_up);
-		iku=other.iku;
-		ikv=other.ikv;
-		ikw=other.ikw;
+		rotationAngleU=other.rotationAngleU;
+		rotationAngleV=other.rotationAngleV;
+		rotationAngleW=other.rotationAngleW;
 		
 		base.set(other.base);
 		baseForward.set(other.baseForward);
@@ -155,17 +155,17 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		this.finger_up     .set(0,0,1);
 
 		// roll, pitch, then yaw
-		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),Math.toRadians(this.iku));
-		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),Math.toRadians(this.ikv));
-		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),Math.toRadians(this.ikw));
+		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),Math.toRadians(this.rotationAngleU));
+		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),Math.toRadians(this.rotationAngleV));
+		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),Math.toRadians(this.rotationAngleW));
 
-		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),Math.toRadians(this.iku));
-		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),Math.toRadians(this.ikv));
-		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),Math.toRadians(this.ikw));
+		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),Math.toRadians(this.rotationAngleU));
+		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),Math.toRadians(this.rotationAngleV));
+		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),Math.toRadians(this.rotationAngleW));
 
-		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),Math.toRadians(this.iku));
-		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),Math.toRadians(this.ikv));
-		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),Math.toRadians(this.ikw));
+		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),Math.toRadians(this.rotationAngleU));
+		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),Math.toRadians(this.rotationAngleV));
+		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),Math.toRadians(this.rotationAngleW));
 	}
 
 	protected void updateIKWrists() {
@@ -421,9 +421,9 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		if (state.angle_5 < -180) return false;
 		if (state.angle_5 >  180) return false;
 		*/
-		if(Math.abs(iku)>RotaryStewartPlatform2.LIMIT_U) return false;
-		if(Math.abs(ikv)>RotaryStewartPlatform2.LIMIT_V) return false;
-		if(Math.abs(ikw)>RotaryStewartPlatform2.LIMIT_W) return false;
+		if(Math.abs(rotationAngleU)>RotaryStewartPlatform2.LIMIT_U) return false;
+		if(Math.abs(rotationAngleV)>RotaryStewartPlatform2.LIMIT_V) return false;
+		if(Math.abs(rotationAngleW)>RotaryStewartPlatform2.LIMIT_W) return false;
 	
 		return true;
 	}
