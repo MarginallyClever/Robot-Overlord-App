@@ -9,7 +9,7 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-class EvilMinionMotionState implements Serializable {
+class EvilMinionRobotMotionState implements Serializable {
 	/**
 	 * 
 	 */
@@ -58,7 +58,7 @@ class EvilMinionMotionState implements Serializable {
 	float ik_angleA = 0;
 	
 	
-	void set(EvilMinionMotionState other) {
+	void set(EvilMinionRobotMotionState other) {
 		angleE = other.angleE;
 		angleD = other.angleD;
 		angleC = other.angleC;
