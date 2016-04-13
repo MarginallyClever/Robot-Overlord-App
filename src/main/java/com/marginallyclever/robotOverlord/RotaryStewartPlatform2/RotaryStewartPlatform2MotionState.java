@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.Log;
+
 
 public class RotaryStewartPlatform2MotionState implements Serializable {
 	/**
@@ -102,7 +104,9 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	}
 
 	
-	public void updateForwardKinematics() {}
+	public void updateForwardKinematics() {
+		Log.error("Forward Kinematics are not implemented yet");
+	}
 	
 	
 	/**

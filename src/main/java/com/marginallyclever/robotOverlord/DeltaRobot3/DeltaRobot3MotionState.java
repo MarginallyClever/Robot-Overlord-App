@@ -2,6 +2,8 @@ package com.marginallyclever.robotOverlord.DeltaRobot3;
 
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.Log;
+
 
 public class DeltaRobot3MotionState {
 	// angle of rotation
@@ -68,7 +70,9 @@ public class DeltaRobot3MotionState {
 	}
 
 
-	public void updateForwardKinematics() {}
+	public void updateForwardKinematics() {
+		Log.error("Forward Kinematics are not implemented yet");
+	}
 
 
 	/**
