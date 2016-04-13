@@ -63,8 +63,8 @@ extends RobotWithConnection {
 	Cylinder [] volumes = new Cylinder[6];
 
 	// motion states
-	protected EvilMinionMotionState motionNow = new EvilMinionMotionState();
-	protected EvilMinionMotionState motionFuture = new EvilMinionMotionState();
+	protected EvilMinionRobotMotionState motionNow = new EvilMinionRobotMotionState();
+	protected EvilMinionRobotMotionState motionFuture = new EvilMinionRobotMotionState();
 	
 	// keyboard history
 	protected float aDir = 0.0f;
@@ -87,7 +87,7 @@ extends RobotWithConnection {
 	protected boolean isRenderIKOn=false;
 
 	// gui
-	protected transient EvilMinionControlPanel arm5Panel=null;
+	protected transient EvilMinionRobotControlPanel arm5Panel=null;
 	
 	
 	public EvilMinionRobot() {
@@ -147,7 +147,7 @@ extends RobotWithConnection {
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm5Panel = new EvilMinionControlPanel(this);
+		arm5Panel = new EvilMinionRobotControlPanel(this);
 		list.add(arm5Panel);
 		updateGUI();
 

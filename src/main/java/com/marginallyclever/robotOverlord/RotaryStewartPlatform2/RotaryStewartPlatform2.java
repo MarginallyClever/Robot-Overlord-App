@@ -30,7 +30,7 @@ extends RobotWithConnection
 	protected final static String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	public static final String ROBOT_NAME = "Stewart Platorm 2";
 	
-	//machine dimensions
+	// machine dimensions
 	static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
 	static final float BASE_TO_SHOULDER_Y   =( 2.150f);
 	static final float BASE_TO_SHOULDER_Z   =( 6.610f);
@@ -41,35 +41,33 @@ extends RobotWithConnection
 	static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
 	
 	// calibration settings
-	protected float HOME_X = 0.0f;
-	protected float HOME_Y = 0.0f;
-	protected float HOME_Z = 0.0f;
-	protected float HOME_A = 0.0f;
-	protected float HOME_B = 0.0f;
-	protected float HOME_C = 0.0f;
+	protected float HOME_X;
+	protected float HOME_Y;
+	protected float HOME_Z;
+	protected float HOME_A;
+	protected float HOME_B;
+	protected float HOME_C;
+	protected float HOME_RIGHT_X;
+	protected float HOME_RIGHT_Y;
+	protected float HOME_RIGHT_Z;
+	protected float HOME_FORWARD_X;
+	protected float HOME_FORWARD_Y;
+	protected float HOME_FORWARD_Z;
 	
 	static final float LIMIT_U=15;
 	static final float LIMIT_V=15;
 	static final float LIMIT_W=15;
 	
-	protected float HOME_RIGHT_X = 0;
-	protected float HOME_RIGHT_Y = 0;
-	protected float HOME_RIGHT_Z = -1;
-
-	protected float HOME_FORWARD_X = 1;
-	protected float HOME_FORWARD_Y = 0;
-	protected float HOME_FORWARD_Z = 0;
-
 	// volumes for collision detection (not being used yet)
-	protected Cylinder [] volumes = new Cylinder[6];
+	protected Cylinder [] volumes;
 
 	// networking information
 	protected boolean isPortConfirmed=false;
 
 	// visual models of robot
-	protected transient Model modelTop = null;
-	protected transient Model modelArm = null;
-	protected transient Model modelBase = null;
+	protected transient Model modelTop;
+	protected transient Model modelArm;
+	protected transient Model modelBase;
 	
 	// this should be come a list w/ rollback
 	protected RotaryStewartPlatform2MotionState motionNow = new RotaryStewartPlatform2MotionState();
@@ -90,19 +88,6 @@ extends RobotWithConnection
 
 	// visual model for controlling robot
 	protected transient RotaryStewartPlatform2ControlPanel rspPanel;
-	
-	
-	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
-	
-	
-	public void setHome(Vector3f newhome) {
-		HOME_X=newhome.x;
-		HOME_Y=newhome.y;
-		HOME_Z=newhome.z;
-		motionFuture.rotateBase(0f,0f);
-		motionFuture.moveBase(new Vector3f(0,0,0));
-		moveIfAble();
-	}
 
 
 	public RotaryStewartPlatform2() {
@@ -113,6 +98,7 @@ extends RobotWithConnection
 		setupModels();
 		
 		// set up bounding volumes
+		volumes = new Cylinder[6];
 		for(int i=0;i<volumes.length;++i) {
 			volumes[i] = new Cylinder();
 		}
@@ -129,6 +115,36 @@ extends RobotWithConnection
 		motionFuture.set(motionNow);
 		moveIfAble();
 		hasArmMoved = false;
+	}
+	
+	
+	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
+	
+	
+	public void setHome(Vector3f newhome) {
+		HOME_X=newhome.x;
+		HOME_Y=newhome.y;
+		HOME_Z=newhome.z;
+		motionFuture.rotateBase(0f,0f);
+		motionFuture.moveBase(new Vector3f(0,0,0));
+		moveIfAble();
+	}
+
+	protected void loadCalibration() {
+		HOME_X = 0.0f;
+		HOME_Y = 0.0f;
+		HOME_Z = 0.0f;
+		HOME_A = 0.0f;
+		HOME_B = 0.0f;
+		HOME_C = 0.0f;
+		
+		HOME_RIGHT_X = 0;
+		HOME_RIGHT_Y = 0;
+		HOME_RIGHT_Z = -1;
+
+		HOME_FORWARD_X = 1;
+		HOME_FORWARD_Y = 0;
+		HOME_FORWARD_Z = 0;
 	}
 	
 
@@ -177,9 +193,7 @@ extends RobotWithConnection
 		return motionNow.getSpeed();
 	}
 	
-	public void updateForwardKinematics() {
-		Log.error("Forward Kinematics are not implemented yet");
-	}
+	public void updateFK(float delta) {}
 
 
 	protected void updateIK(float delta) {
@@ -276,6 +290,7 @@ extends RobotWithConnection
 	
 	@Override
 	public void prepareMove(float delta) {
+		updateFK(delta);
 		updateIK(delta);
 	}
 
