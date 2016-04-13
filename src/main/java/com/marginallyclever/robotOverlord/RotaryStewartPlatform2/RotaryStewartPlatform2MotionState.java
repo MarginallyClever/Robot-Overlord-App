@@ -29,14 +29,19 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	
 	public Vector3f base = new Vector3f();  // relative to world
 	// base orientation, affects entire arm
-	public Vector3f base_forward = new Vector3f();
-	public Vector3f base_up = new Vector3f();
-	public Vector3f base_right = new Vector3f();
+	public Vector3f baseForward = new Vector3f();
+	public Vector3f baseUp = new Vector3f();
+	public Vector3f baseRight = new Vector3f();
 	
 	// rotating entire robot
-	float base_pan=0;
-	float base_tilt=0;
+	float basePan=0;
+	float baseTilt=0;
 
+	boolean isHomed;
+	boolean isHoming;
+	boolean isFollowMode;
+
+	protected float speed;
 
 	
 	public class RotaryStewartPlatform2Arm implements Serializable {
@@ -77,6 +82,9 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
 		this.relative.set(0,0,bb+RotaryStewartPlatform2.BASE_TO_SHOULDER_Z-RotaryStewartPlatform2.WRIST_TO_FINGER_Z);
 		this.fingerPosition.set(0,0,0);
+		this.isHomed = false;
+		this.isHoming = false;
+		this.isFollowMode = true;
 	}
 	
 	
@@ -96,15 +104,28 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		ikw=other.ikw;
 		
 		base.set(other.base);
-		base_forward.set(other.base_forward);
-		base_up.set(other.base_up);
-		base_right.set(other.base_right);
-		base_pan = other.base_pan;
-		base_tilt = other.base_tilt;
+		baseForward.set(other.baseForward);
+		baseUp.set(other.baseUp);
+		baseRight.set(other.baseRight);
+		basePan = other.basePan;
+		baseTilt = other.baseTilt;
+		
+		this.isHomed = other.isHomed;
+		this.isFollowMode = other.isFollowMode;
+		this.isHoming = other.isHoming;
+		this.speed = 2;
 	}
-
+	 
 	
-	public void updateForwardKinematics() {
+
+	public void setSpeed(float newSpeed) {
+		speed=newSpeed;
+	}
+	public float getSpeed() {
+		return speed;
+	}
+	
+	public void updateFK() {
 		Log.error("Forward Kinematics are not implemented yet");
 	}
 	
@@ -115,7 +136,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	 * @input results where to put resulting angles after the IK calculation
 	 * @return 0 if successful, 1 if the IK solution cannot be found.
 	 */
-	public boolean updateInverseKinematics() {
+	public boolean updateIK() {
 		try {
 			updateIKEndEffector();
 			updateIKWrists();
@@ -127,26 +148,26 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		
 		return true;
 	}
-	
+
 	protected void updateIKEndEffector() {
-		  this.finger_forward.set(1,0,0);
-		  this.finger_left   .set(0,1,0);
-		  this.finger_up     .set(0,0,1);
+		this.finger_forward.set(1,0,0);
+		this.finger_left   .set(0,1,0);
+		this.finger_up     .set(0,0,1);
 
-		  // roll, pitch, then yaw
-		  this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),Math.toRadians(this.iku));
-		  this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),Math.toRadians(this.ikv));
-		  this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),Math.toRadians(this.ikw));
+		// roll, pitch, then yaw
+		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),Math.toRadians(this.iku));
+		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),Math.toRadians(this.ikv));
+		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),Math.toRadians(this.ikw));
 
-		  this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),Math.toRadians(this.iku));
-		  this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),Math.toRadians(this.ikv));
-		  this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),Math.toRadians(this.ikw));
+		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),Math.toRadians(this.iku));
+		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),Math.toRadians(this.ikv));
+		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),Math.toRadians(this.ikw));
 
-		  this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),Math.toRadians(this.iku));
-		  this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),Math.toRadians(this.ikv));
-		  this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),Math.toRadians(this.ikw));
+		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),Math.toRadians(this.iku));
+		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),Math.toRadians(this.ikv));
+		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),Math.toRadians(this.ikw));
 	}
-	
+
 	protected void updateIKWrists() {
 		  Vector3f n1 = new Vector3f(),o1 = new Vector3f(),temp = new Vector3f();
 		  float c,s;
@@ -255,33 +276,35 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		    arm.angle= (float)Math.toDegrees(Math.atan2(-y,x));
 		  }
 	}
-	
 
-	
 
 	public void moveBase(Vector3f dp) {
 		base.set(dp);
 		rebuildShoulders();
 	}
 	
-	
+	/**
+	 * tilt (around x) and then pan (around z) the base of this robot in world space. 
+	 * @param pan degrees
+	 * @param tilt degrees
+	 */
 	public void rotateBase(float pan,float tilt) {
-		this.base_pan=pan;
-		this.base_tilt=tilt;
+		this.basePan=pan;
+		this.baseTilt=tilt;
 		
 		pan = (float)Math.toRadians(pan);
 		tilt = (float)Math.toRadians(tilt);
-		this.base_forward.y = (float)Math.sin(pan) * (float)Math.cos(tilt);
-		this.base_forward.x = (float)Math.cos(pan) * (float)Math.cos(tilt);
-		this.base_forward.z =                                 (float)Math.sin(tilt);
-		this.base_forward.normalize();
+		this.baseForward.y = (float)Math.sin(pan) * (float)Math.cos(tilt);
+		this.baseForward.x = (float)Math.cos(pan) * (float)Math.cos(tilt);
+		this.baseForward.z =                                 (float)Math.sin(tilt);
+		this.baseForward.normalize();
 		
-		this.base_up.set(0,0,1);
+		this.baseUp.set(0,0,1);
 	
-		this.base_right.cross(this.base_up,this.base_forward);
-		this.base_right.normalize();
-		this.base_up.cross(this.base_forward,this.base_right);
-		this.base_up.normalize();
+		this.baseRight.cross(this.baseUp,this.baseForward);
+		this.baseRight.normalize();
+		this.baseUp.cross(this.baseForward,this.baseRight);
+		this.baseUp.normalize();
 		
 		rebuildShoulders();
 	}
@@ -298,16 +321,16 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		    s=(float)Math.sin(i*(float)Math.PI*2.0f/3.0f);
 
 		    //n1 = n* c + o*s;
-		    n1.set(this.base_forward);
+		    n1.set(this.baseForward);
 		    n1.scale(c);
-		    temp.set(this.base_right);
+		    temp.set(this.baseRight);
 		    temp.scale(s);
 		    n1.add(temp);
 		    n1.normalize();
 		    //o1 = n*-s + o*c;
-		    o1.set(this.base_forward);
+		    o1.set(this.baseForward);
 		    o1.scale(-s);
-		    temp.set(this.base_right);
+		    temp.set(this.baseRight);
 		    temp.scale(c);
 		    o1.add(temp);
 		    o1.normalize();
@@ -318,7 +341,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 //		    armb.shoulder = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z + o1*BASE_TO_SHOULDER_Y;
 		    arma.shoulder.set(n1);
 		    arma.shoulder.scale(RotaryStewartPlatform2.BASE_TO_SHOULDER_X);
-		    temp.set(this.base_up);
+		    temp.set(this.baseUp);
 		    temp.scale(RotaryStewartPlatform2.BASE_TO_SHOULDER_Z);
 		    arma.shoulder.add(temp);
 		    armb.shoulder.set(arma.shoulder);
@@ -333,7 +356,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 //		    armb.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z + o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
 		    arma.elbow.set(n1);
 		    arma.elbow.scale(RotaryStewartPlatform2.BASE_TO_SHOULDER_X);
-		    temp.set(this.base_up);
+		    temp.set(this.baseUp);
 		    temp.scale(RotaryStewartPlatform2.BASE_TO_SHOULDER_Z);
 		    arma.elbow.add(temp);
 		    armb.elbow.set(arma.elbow);
@@ -372,7 +395,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		// angle are good?
 		if(checkAngleLimits()==false) return false;
 		// seems doable
-		if(updateInverseKinematics()==false) return false;
+		if(updateIK()==false) return false;
 
 		// OK
 		return true;

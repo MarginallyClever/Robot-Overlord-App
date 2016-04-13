@@ -21,7 +21,7 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	 */
 	private static final long serialVersionUID = 257878994328366520L;
 
-	private final double [] speedOptions = {0.1, 0.2, 0.5, 
+	private final float [] speedOptions = {0.1f, 0.2f, 0.5f, 
 			                                1, 2, 5, 
 			                                10, 20, 50};
 	
@@ -125,7 +125,7 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
-		double speed=robot.getSpeed();
+		float speed=robot.getSpeed();
 		int speedIndex;
 		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
 			if( speedOptions[speedIndex] >= speed )
@@ -161,9 +161,9 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		return speedPanel;
 	}
 
-	protected void setSpeed(double speed) {
+	protected void setSpeed(float speed) {
 		robot.setSpeed(speed);
-		speedNow.setText(Double.toString(robot.getSpeed()));
+		speedNow.setText(Float.toString(robot.getSpeed()));
 	}
 	
 	public void stateChanged(ChangeEvent e) {
