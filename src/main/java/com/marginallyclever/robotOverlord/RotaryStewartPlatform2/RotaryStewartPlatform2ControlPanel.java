@@ -163,6 +163,11 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		speedNow.setText(Float.toString(robot.getSpeed()));
 	}
 	
+	protected float getSpeed() {
+		int i=speedControl.getValue();
+		return speedOptions[i];
+	}
+	
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
 		if( subject == speedControl ) {
