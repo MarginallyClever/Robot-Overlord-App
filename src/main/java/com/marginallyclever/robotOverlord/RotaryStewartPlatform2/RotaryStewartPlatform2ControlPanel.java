@@ -21,42 +21,37 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	 */
 	private static final long serialVersionUID = 257878994328366520L;
 
-	private final float [] speedOptions = {0.1f, 0.2f, 0.5f, 
-			                                1, 2, 5, 
-			                                10, 20, 50};
-	
-	private JButton arm5Upos;
-	private JButton arm5Uneg;
-	private JButton arm5Vpos;
-	private JButton arm5Vneg;
-	private JButton arm5Wpos;
-	private JButton arm5Wneg;
-	
-	private JButton arm5Xpos;
-	private JButton arm5Xneg;
-	private JButton arm5Ypos;
-	private JButton arm5Yneg;
-	private JButton arm5Zpos;
-	private JButton arm5Zneg;
+	private RotaryStewartPlatform2 robot=null;
+
+	private JLabel uid;
 	
 	private JButton goHome;
 	
+	private final float [] speedOptions = {0.1f, 0.2f, 0.5f, 
+			                                1, 2, 5, 
+			                                10, 20, 50};
+	private JLabel speedNow;
+	private JSlider speedControl;
+
+	private JButton arm5Xpos, arm5Xneg;
+	private JButton arm5Ypos, arm5Yneg;
+	private JButton arm5Zpos, arm5Zneg;
 	public JLabel xPos,yPos,zPos;
+
+	private JButton arm5Upos, arm5Uneg;
+	private JButton arm5Vpos, arm5Vneg;
+	private JButton arm5Wpos, arm5Wneg;
 	public JLabel uPos,vPos,wPos;
 	
-	private JLabel speedNow;
-	private JLabel uid;
-	private JSlider speedControl;
-	
-	private RotaryStewartPlatform2 robot=null;
-	
+	private JButton undoButton, redoButton;
+
 	
 	private JButton createButton(String name) {
 		JButton b = new JButton(name);
 		b.addActionListener(this);
 		return b;
 	}
-
+	
 
 	public RotaryStewartPlatform2ControlPanel(RotaryStewartPlatform2 arm) {
 		super();
@@ -74,13 +69,25 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
 		
+		// home button
 		goHome = createButton("Find Home");
 		this.add(goHome,con1);
 		con1.gridy++;
 
+
+		// speed panel
 		CollapsiblePanel speedPanel = createSpeedPanel();
 		this.add(speedPanel,con1);
 		con1.gridy++;
+
+		
+		// ik panel
+		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
+		this.add(ikPanel, con1);
+		con1.gridy++;
+
+		p = new JPanel(new GridLayout(7,3));
+		ikPanel.getContentPane().add(p);
 
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
@@ -89,39 +96,24 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		vPos = new JLabel("0.00");
 		wPos = new JLabel("0.00");
 
-		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
-		this.add(ikPanel, con1);
+		p.add(arm5Upos = createButton("U+"));		p.add(uPos);		p.add(arm5Uneg = createButton("U-"));
+		p.add(arm5Vpos = createButton("V+"));		p.add(vPos);		p.add(arm5Vneg = createButton("V-"));
+		p.add(arm5Wpos = createButton("W+"));		p.add(wPos);		p.add(arm5Wneg = createButton("W-"));
+		p.add(arm5Xpos = createButton("X+"));		p.add(xPos);		p.add(arm5Xneg = createButton("X-"));
+		p.add(arm5Ypos = createButton("Y+"));		p.add(yPos);		p.add(arm5Yneg = createButton("Y-"));
+		p.add(arm5Zpos = createButton("Z+"));		p.add(zPos);		p.add(arm5Zneg = createButton("Z-"));
+		
+		
+		// undo/redo panel
+		CollapsiblePanel urPanel = new CollapsiblePanel("History");
+		this.add(urPanel, con1);
 		con1.gridy++;
 
-
-		p = new JPanel(new GridLayout(7,3));
-		ikPanel.getContentPane().add(p);
-
-
-		p.add(arm5Upos = createButton("U+"));
-		p.add(uPos);
-		p.add(arm5Uneg = createButton("U-"));
-
-		con1.gridy++;
-		p.add(arm5Vpos = createButton("V+"));
-		p.add(vPos);
-		p.add(arm5Vneg = createButton("V-"));
-
-		p.add(arm5Wpos = createButton("W+"));
-		p.add(wPos);
-		p.add(arm5Wneg = createButton("W-"));
-
-		p.add(arm5Xpos = createButton("X+"));
-		p.add(xPos);
-		p.add(arm5Xneg = createButton("X-"));
-
-		p.add(arm5Ypos = createButton("Y+"));
-		p.add(yPos);
-		p.add(arm5Yneg = createButton("Y-"));
-
-		p.add(arm5Zpos = createButton("Z+"));
-		p.add(zPos);
-		p.add(arm5Zneg = createButton("Z-"));
+		p = new JPanel(new GridLayout(1,2));
+		urPanel.getContentPane().add(p);
+		
+		p.add(undoButton = createButton("Undo"));
+		p.add(redoButton = createButton("Redo"));
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -180,19 +172,22 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		Object subject = e.getSource();			
 		
 		if( subject == goHome   ) robot.goHome();
-		if( subject == arm5Upos ) robot.moveU(1);
-		if( subject == arm5Uneg ) robot.moveU(-1);
-		if( subject == arm5Vpos ) robot.moveV(1);
-		if( subject == arm5Vneg ) robot.moveV(-1);
-		if( subject == arm5Wpos ) robot.moveW(1);
-		if( subject == arm5Wneg ) robot.moveW(-1);
+		if( subject == arm5Upos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_U, 1.0f));
+		if( subject == arm5Uneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_U,-1.0f));
+		if( subject == arm5Vpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_V, 1.0f));
+		if( subject == arm5Vneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_V,-1.0f));
+		if( subject == arm5Wpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_W, 1.0f));
+		if( subject == arm5Wneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_W,-1.0f));
 		
-		if( subject == arm5Xpos ) robot.moveX(1);
-		if( subject == arm5Xneg ) robot.moveX(-1);
-		if( subject == arm5Ypos ) robot.moveY(1);
-		if( subject == arm5Yneg ) robot.moveY(-1);
-		if( subject == arm5Zpos ) robot.moveZ(1);
-		if( subject == arm5Zneg ) robot.moveZ(-1);
+		if( subject == arm5Xpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_X, 1.0f));
+		if( subject == arm5Xneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_X,-1.0f));
+		if( subject == arm5Ypos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Y, 1.0f));
+		if( subject == arm5Yneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Y,-1.0f));
+		if( subject == arm5Zpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Z, 1.0f));
+		if( subject == arm5Zneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Z,-1.0f));
+		
+		if( subject == redoButton ) robot.redo();
+		if( subject == undoButton ) robot.undo();
 	}
 	
 	
@@ -202,54 +197,23 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		}
 	}
 	
-	/*
-	public void propertyChange(PropertyChangeEvent e) {
-		Object subject = e.getSource();
+	public void update() { 
+		// TODO rotate fingerPosition before adding position
 
-		try {
-			if(subject == viewPx ) {
-				float f = Float.parseFloat(viewPx.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.finger_tip.x = f;
-					moveIfAble();
-				}
-			}
-			if(subject == viewPy ) {
-				float f = Float.parseFloat(viewPy.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.finger_tip.y = f;
-					moveIfAble();
-				}
-			}
-			if(subject == viewPz ) {
-				float f = Float.parseFloat(viewPz.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.finger_tip.z = f;
-					moveIfAble();
-				}
-			}
-			
-			if(subject == viewRx ) {
-				float f = Float.parseFloat(viewRx.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.iku = f;
-					moveIfAble();
-				}
-			}
-			if(subject == viewRy ) {
-				float f = Float.parseFloat(viewRy.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.ikv = f;
-					moveIfAble();
-				}
-			}
-			if(subject == viewRz ) {
-				float f = Float.parseFloat(viewRz.getField().getText());
-				if(!Float.isNaN(f)) {
-					this.motion_future.ikw = f;
-					moveIfAble();
-				}
-			}		
-		} catch(NumberFormatException e2) {}
-	}*/
+		xPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.fingerPosition.x)));
+		yPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.fingerPosition.y)));
+		zPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.fingerPosition.z)));
+
+		uPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleU)));
+		vPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleV)));
+		wPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleW)));
+
+		//if( tool != null ) tool.updateGUI();
+		
+		undoButton.setText(robot.commandSequence.getUndoPresentationName());
+	    redoButton.setText(robot.commandSequence.getRedoPresentationName());
+	    undoButton.getParent().validate();
+	    undoButton.setEnabled(robot.commandSequence.canUndo());
+	    redoButton.setEnabled(robot.commandSequence.canRedo());
+	}
 }
