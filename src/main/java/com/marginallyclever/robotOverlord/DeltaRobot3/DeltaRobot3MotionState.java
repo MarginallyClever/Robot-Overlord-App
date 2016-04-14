@@ -2,8 +2,6 @@ package com.marginallyclever.robotOverlord.DeltaRobot3;
 
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.robotOverlord.Log;
-
 
 public class DeltaRobot3MotionState {
 	// angle of rotation
@@ -11,11 +9,11 @@ public class DeltaRobot3MotionState {
 
 	public static final int NUM_ARMS = 3;
 
-	// Relative to base unless otherwise noted.
+	// Relative to base
 	public Vector3f fingerPosition = new Vector3f(0,0,0);
 
-	public Vector3f base = new Vector3f();  // relative to world
 	// base orientation, affects entire arm
+	public Vector3f base = new Vector3f();  // relative to world
 	public Vector3f base_forward = new Vector3f();
 	public Vector3f base_up = new Vector3f();
 	public Vector3f base_right = new Vector3f();
@@ -70,8 +68,7 @@ public class DeltaRobot3MotionState {
 	}
 
 
-	public void updateForwardKinematics() {
-		Log.error("Forward Kinematics are not implemented yet");
+	public void updateFK() {
 	}
 
 
@@ -81,7 +78,7 @@ public class DeltaRobot3MotionState {
 	 * @input results where to put resulting angles after the IK calculation
 	 * @return 0 if successful, 1 if the IK solution cannot be found.
 	 */
-	public boolean updateInverseKinematics() {
+	public boolean updateIK() {
 		try {
 			updateIKWrists();
 			updateIKShoulderAngles();
@@ -308,7 +305,7 @@ public class DeltaRobot3MotionState {
 		// angle are good?
 		if(checkAngleLimits()==false) return false;
 		// seems doable
-		if(updateInverseKinematics()==false) return false;
+		if(updateIK()==false) return false;
 
 		// OK
 		return true;
