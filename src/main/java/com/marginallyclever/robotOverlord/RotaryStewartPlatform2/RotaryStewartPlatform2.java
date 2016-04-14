@@ -12,18 +12,28 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 
 public class RotaryStewartPlatform2
-extends RobotWithConnection
+extends RobotWithConnection  
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1816224308642132316L;
+	
+	static final int AXIS_X = 0;
+	static final int AXIS_Y = 1;
+	static final int AXIS_Z = 2;
+	static final int AXIS_U = 3;
+	static final int AXIS_V = 4;
+	static final int AXIS_W = 5;
 	
 	// machine ID
 	protected long robotUID;
@@ -89,11 +99,14 @@ extends RobotWithConnection
 	// visual model for controlling robot
 	protected transient RotaryStewartPlatform2ControlPanel rspPanel;
 
+	protected transient UndoManager commandSequence;
 
-	public RotaryStewartPlatform2() {
+ 	public RotaryStewartPlatform2() {
 		super();
 		setDisplayName(ROBOT_NAME);
 
+		commandSequence = new UndoManager();
+		
 		// load the visuals
 		setupModels();
 		
@@ -184,7 +197,26 @@ extends RobotWithConnection
 	public void moveW(float dir) {
 		wDir=dir;
 	}
-	 
+	
+	public void undo() {
+		try {
+			commandSequence.undo();
+		} catch (CannotUndoException ex) {
+			ex.printStackTrace();
+		} finally {
+			rspPanel.update();
+		}
+	}
+	public void redo() {
+		try {
+			commandSequence.redo();
+		} catch (CannotRedoException ex) {
+			ex.printStackTrace();
+		} finally {
+			rspPanel.update();
+		}
+	}
+    
 
 	public void setSpeed(float newSpeed) {
 		motionNow.setSpeed(newSpeed);
@@ -202,13 +234,13 @@ extends RobotWithConnection
 		motionFuture.set(motionNow);
 
 		// lateral moves
-		if (xDir!=0) {  motionFuture.fingerPosition.x += xDir * motionFuture.getSpeed();  changed=true;  xDir=0;  }		
-		if (yDir!=0) {  motionFuture.fingerPosition.y += yDir * motionFuture.getSpeed();  changed=true;  yDir=0;  }
-		if (zDir!=0) {  motionFuture.fingerPosition.z += zDir * motionFuture.getSpeed();  changed=true;  zDir=0;  }
+		if (xDir!=0) {  motionFuture.fingerPosition.x += xDir;  changed=true;  xDir=0;  }		
+		if (yDir!=0) {  motionFuture.fingerPosition.y += yDir;  changed=true;  yDir=0;  }
+		if (zDir!=0) {  motionFuture.fingerPosition.z += zDir;  changed=true;  zDir=0;  }
 		// rotation		
-		if(uDir!=0) {	motionFuture.rotationAngleU += uDir * motionFuture.getSpeed();	changed=true;  uDir=0;  }
-		if(vDir!=0) {	motionFuture.rotationAngleV += vDir * motionFuture.getSpeed();	changed=true;  vDir=0;  }
-		if(wDir!=0) {	motionFuture.rotationAngleW += wDir * motionFuture.getSpeed();	changed=true;  wDir=0;  }
+		if(uDir!=0) {	motionFuture.rotationAngleU += uDir;	changed=true;  uDir=0;  }
+		if(vDir!=0) {	motionFuture.rotationAngleV += vDir;	changed=true;  vDir=0;  }
+		if(wDir!=0) {	motionFuture.rotationAngleW += wDir;	changed=true;  wDir=0;  }
 
 		if(changed==true) {
 			moveIfAble();
@@ -221,6 +253,7 @@ extends RobotWithConnection
 		if(motionFuture.movePermitted()) {
 			hasArmMoved=true;
 			finalizeMove();
+			if(rspPanel!=null) rspPanel.update();
 		} else {
 			motionFuture.set(motionNow);
 		}
@@ -304,7 +337,7 @@ extends RobotWithConnection
 			if(motionNow.isHomed && motionNow.isFollowMode ) {
 				hasArmMoved=false;
 				sendChangeToRealMachine();
-				updateGUI();
+				if(rspPanel!=null) rspPanel.update();
 			}
 			
 			// TODO: update text fields when the cursor moves.  right now this causes inter-thread damage and crashes the app
@@ -502,7 +535,7 @@ extends RobotWithConnection
 				} else {
 					robotUID = uid;
 				}
-				updateGUI();
+				if(rspPanel!=null) rspPanel.update();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -581,38 +614,22 @@ extends RobotWithConnection
 	@Override
 	public ArrayList<JPanel> getControlPanels() {
 		ArrayList<JPanel> list = super.getControlPanels();
-		
 		if(list==null) list = new ArrayList<JPanel>();
 
 		rspPanel = new RotaryStewartPlatform2ControlPanel(this);
-		
 		list.add(rspPanel);
-		updateGUI();
+		rspPanel.update();
 		
 		return list;
 	}
 	
 
-	protected float roundOff(float v) {
+	static protected float roundOff(float v) {
 		float SCALE = 1000.0f;
 		
 		return Math.round(v*SCALE)/SCALE;
 	}
-	
-	
-	public void updateGUI() {
-		// TODO rotate fingerPosition before adding position
 
-		rspPanel.xPos.setText(Float.toString(roundOff(motionNow.fingerPosition.x)));
-		rspPanel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
-		rspPanel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
-
-		rspPanel.uPos.setText(Float.toString(roundOff(motionNow.rotationAngleU)));
-		rspPanel.vPos.setText(Float.toString(roundOff(motionNow.rotationAngleV)));
-		rspPanel.wPos.setText(Float.toString(roundOff(motionNow.rotationAngleW)));
-
-		//if( tool != null ) tool.updateGUI();
-	}
 	
 	private void sendChangeToRealMachine() {
 		if(isPortConfirmed()==false) return;
@@ -638,7 +655,8 @@ extends RobotWithConnection
 		motionFuture.updateIK();
 		motionNow.set(motionFuture);
 		motionNow.updateIK();
-		updateGUI();
+		
+		if(rspPanel!=null) rspPanel.update();
 		
 		//finalizeMove();
 		//this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
