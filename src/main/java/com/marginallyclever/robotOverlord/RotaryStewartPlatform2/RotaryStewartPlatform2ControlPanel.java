@@ -24,7 +24,6 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	private RotaryStewartPlatform2 robot=null;
 
 	private JLabel uid;
-	
 	private JButton goHome;
 	
 	private final float [] speedOptions = {0.1f, 0.2f, 0.5f, 
@@ -33,14 +32,20 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	private JLabel speedNow;
 	private JSlider speedControl;
 
-	private JButton arm5Xpos, arm5Xneg;
-	private JButton arm5Ypos, arm5Yneg;
-	private JButton arm5Zpos, arm5Zneg;
+	private JButton arm5Xpos;
+	private JButton arm5Xneg;
+	private JButton arm5Ypos;
+	private JButton arm5Yneg;
+	private JButton arm5Zpos;
+	private JButton arm5Zneg;
 	public JLabel xPos,yPos,zPos;
 
-	private JButton arm5Upos, arm5Uneg;
-	private JButton arm5Vpos, arm5Vneg;
-	private JButton arm5Wpos, arm5Wneg;
+	private JButton arm5Upos;
+	private JButton arm5Uneg;
+	private JButton arm5Vpos;
+	private JButton arm5Vneg;
+	private JButton arm5Wpos;
+	private JButton arm5Wneg;
 	public JLabel uPos,vPos,wPos;
 	
 	private JButton undoButton, redoButton;
@@ -172,19 +177,19 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		Object subject = e.getSource();			
 		
 		if( subject == goHome   ) robot.goHome();
-		if( subject == arm5Upos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_U, 1.0f));
-		if( subject == arm5Uneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_U,-1.0f));
-		if( subject == arm5Vpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_V, 1.0f));
-		if( subject == arm5Vneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_V,-1.0f));
-		if( subject == arm5Wpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_W, 1.0f));
-		if( subject == arm5Wneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_W,-1.0f));
+		if( subject == arm5Upos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_U, 1.0f));
+		if( subject == arm5Uneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_U,-1.0f));
+		if( subject == arm5Vpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_V, 1.0f));
+		if( subject == arm5Vneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_V,-1.0f));
+		if( subject == arm5Wpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_W, 1.0f));
+		if( subject == arm5Wneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_W,-1.0f));
 		
-		if( subject == arm5Xpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_X, 1.0f));
-		if( subject == arm5Xneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_X,-1.0f));
-		if( subject == arm5Ypos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Y, 1.0f));
-		if( subject == arm5Yneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Y,-1.0f));
-		if( subject == arm5Zpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Z, 1.0f));
-		if( subject == arm5Zneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2.AXIS_Z,-1.0f));
+		if( subject == arm5Xpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_X, 1.0f));
+		if( subject == arm5Xneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_X,-1.0f));
+		if( subject == arm5Ypos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Y, 1.0f));
+		if( subject == arm5Yneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Y,-1.0f));
+		if( subject == arm5Zpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Z, 1.0f));
+		if( subject == arm5Zneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Z,-1.0f));
 		
 		if( subject == redoButton ) robot.redo();
 		if( subject == undoButton ) robot.undo();
@@ -209,6 +214,21 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		wPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleW)));
 
 		//if( tool != null ) tool.updateGUI();
+		
+		arm5Upos.setEnabled(robot.isHomed());
+		arm5Uneg.setEnabled(robot.isHomed());
+		arm5Vpos.setEnabled(robot.isHomed());
+		arm5Vneg.setEnabled(robot.isHomed());
+		arm5Wpos.setEnabled(robot.isHomed());
+		arm5Wneg.setEnabled(robot.isHomed());
+		
+		arm5Xpos.setEnabled(robot.isHomed());
+		arm5Xneg.setEnabled(robot.isHomed());
+		arm5Ypos.setEnabled(robot.isHomed());
+		arm5Yneg.setEnabled(robot.isHomed());
+		arm5Zpos.setEnabled(robot.isHomed());
+		arm5Zneg.setEnabled(robot.isHomed());
+		
 		
 		undoButton.setText(robot.commandSequence.getUndoPresentationName());
 	    redoButton.setText(robot.commandSequence.getRedoPresentationName());

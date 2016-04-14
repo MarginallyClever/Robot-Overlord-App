@@ -12,6 +12,9 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.*;
@@ -29,7 +32,7 @@ extends RobotWithConnection {
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
 	public final static String ROBOT_NAME = "Delta Robot 3";
 	
-	//machine dimensions
+	//machine dimensions & calibration
 	static final float BASE_TO_SHOULDER_X   =( 0.0f);  // measured in solidworks, relative to base origin
 	static final float BASE_TO_SHOULDER_Y   =( 3.77f);
 	static final float BASE_TO_SHOULDER_Z   =(18.9f);
@@ -47,75 +50,89 @@ extends RobotWithConnection {
 	static final float LIMIT_V=15;
 	static final float LIMIT_W=15;
 
-	protected boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
-	
-	protected Cylinder [] volumes = new Cylinder[DeltaRobot3MotionState.NUM_ARMS];
+	// bounding volumes for collision testing
+	protected Cylinder [] volumes;
 
-	protected transient Model modelTop = null;
-	protected transient Model modelArm = null;
-	protected transient Model modelBase = null;
+	// models for 3d rendering
+	protected transient Model modelTop;
+	protected transient Model modelArm;
+	protected transient Model modelBase;
 	
-	protected DeltaRobot3MotionState motionNow = new DeltaRobot3MotionState();
-	protected DeltaRobot3MotionState motionFuture = new DeltaRobot3MotionState();
+	// motion state testing
+	protected DeltaRobot3MotionState motionNow;
+	protected DeltaRobot3MotionState motionFuture;
+
+	// control panel
 	protected transient DeltaRobot3ControlPanel controlPanel;
 	
-	boolean homed = false;
-	boolean arm_moved = false;
-	
 	// keyboard history
-	protected float aDir = 0.0f;
-	protected float bDir = 0.0f;
-	protected float cDir = 0.0f;
+	private float aDir, bDir, cDir;
+	private float xDir, yDir, zDir;
 
-	protected float xDir = 0.0f;
-	protected float yDir = 0.0f;
-	protected float zDir = 0.0f;
+	// network info
+	private  boolean isPortConfirmed;
+	
+	// misc
+	private double speed;
+	private boolean isHomed = false;
+	private boolean haveArmsMoved = false;
+
+	protected transient UndoManager commandSequence;
+	
+
+	public DeltaRobot3() {
+		super();
+		setDisplayName(ROBOT_NAME);
+
+		commandSequence = new UndoManager();
+		motionNow = new DeltaRobot3MotionState();
+		motionFuture = new DeltaRobot3MotionState();
+		
+		setupBoundingVolumes();
+		setupModels();
+		setHome(new Vector3f(0,0,0));
+		
+		isPortConfirmed=false;
+		speed=2;
+		aDir = 0.0f;
+		bDir = 0.0f;
+		cDir = 0.0f;
+		xDir = 0.0f;
+		yDir = 0.0f;
+		zDir = 0.0f;
+	}
+	
+
+	protected void setupBoundingVolumes() {
+		// set up bounding volumes
+		volumes = new Cylinder[DeltaRobot3MotionState.NUM_ARMS];
+		for(int i=0;i<volumes.length;++i) {
+			volumes[i] = new Cylinder();
+		}
+		volumes[0].setRadius(3.2f);
+		volumes[1].setRadius(3.0f*0.575f);
+		volumes[2].setRadius(2.2f);
+	}
 
 	
-	boolean pDown=false;
-	boolean pWasOn=false;
-	boolean moveMode=true;
-	protected boolean isPortConfirmed=false;
-	
-	protected double speed=2;
-
+	private void setupModels() {
+		modelTop = Model.loadModel("/DeltaRobot3.zip:top.STL",0.1f);
+		modelArm = Model.loadModel("/DeltaRobot3.zip:arm.STL",0.1f);
+		modelBase = Model.loadModel("/DeltaRobot3.zip:base.STL",0.1f);
+	}
 	
 	
 	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
 	
 	
-	public void setHome(Vector3f newhome) {
-		HOME_X=newhome.x;
-		HOME_Y=newhome.y;
-		HOME_Z=newhome.z;
-		motionFuture.rotateBase(0f,0f);
-		motionFuture.moveBase(new Vector3f(0,0,0));
-		moveIfAble();
-	}
-
-
-	public DeltaRobot3() {
-		super();
-		
-		setupModels();
-		
-		setDisplayName(ROBOT_NAME);
-
-		/*
-		// set up bounding volumes
-		for(int i=0;i<volumes.length;++i) {
-			volumes[i] = new Cylinder();
-		}
-		volumes[0].radius=3.2f;
-		volumes[1].radius=3.0f*0.575f;
-		volumes[2].radius=2.2f;
-		*/
-
-		motionNow.rotateBase(0,0);
+	public void setHome(Vector3f newHome) {
+		HOME_X=newHome.x;
+		HOME_Y=newHome.y;
+		HOME_Z=newHome.z;
+		motionNow.rotateBase(0f,0f);
+		motionNow.moveBase(newHome);
 		motionNow.rebuildShoulders();
 		motionNow.updateIKWrists();
-
-		motionFuture.set(motionNow);
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
@@ -126,17 +143,31 @@ extends RobotWithConnection {
 		cc=bb;
 		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
 		motionNow.fingerPosition.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
+		motionFuture.set(motionNow);
 
-		motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		moveIfAble();
 	}
 	
 	
-	private void setupModels() {
-		modelTop = Model.loadModel("/DeltaRobot3.zip:top.STL",0.1f);
-		modelArm = Model.loadModel("/DeltaRobot3.zip:arm.STL",0.1f);
-		modelBase = Model.loadModel("/DeltaRobot3.zip:base.STL",0.1f);
+	public void undo() {
+		try {
+			commandSequence.undo();
+		} catch (CannotUndoException ex) {
+			ex.printStackTrace();
+		} finally {
+			controlPanel.update();
+		}
 	}
+	public void redo() {
+		try {
+			commandSequence.redo();
+		} catch (CannotRedoException ex) {
+			ex.printStackTrace();
+		} finally {
+			controlPanel.update();
+		}
+	}
+	
 
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
@@ -146,13 +177,14 @@ extends RobotWithConnection {
     }
 	
 	
-	private void enableFK() {		
+	private void enableFK() {
 		xDir=0;
 		yDir=0;
 		zDir=0;
 	}
 	
-	private void disableFK() {	
+	
+	private void disableFK() {
 		aDir=0;
 		bDir=0;
 		cDir=0;
@@ -163,34 +195,23 @@ extends RobotWithConnection {
 		boolean changed=false;
 		motionFuture.set(motionNow);
 		
-		// movement 
 		float dv = (float)getSpeed();
-		// if continuous, adjust speed over time
-		//* delta;
 		
-		// lateral moves
-		if (xDir!=0) {  motionFuture.fingerPosition.x += dv * xDir;	}
-		if (yDir!=0) {  motionFuture.fingerPosition.y += dv * yDir;	}
-		if (zDir!=0) {  motionFuture.fingerPosition.z += dv * zDir;	}
-
-		// if not continuous, reset abc to zero
-		xDir=0;
-		yDir=0;
-		zDir=0;
+		if (xDir!=0) {  motionFuture.fingerPosition.x += dv * xDir;  changed=true;  xDir=0;  }
+		if (yDir!=0) {  motionFuture.fingerPosition.y += dv * yDir;	 changed=true;  yDir=0;  }
+		if (zDir!=0) {  motionFuture.fingerPosition.z += dv * zDir;	 changed=true;  zDir=0;  }
 		
-		if(!motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,dv/2.0f)) {
-			changed=true;
-		}
-
-		if(changed==true) {
+		if(changed) {
 			moveIfAble();
 		}
 	}
 	
+	
 	public void moveIfAble() {
 		if(motionFuture.movePermitted()) {
-			arm_moved=true;
+			haveArmsMoved=true;
 			finalizeMove();
+			if(controlPanel!=null) controlPanel.update();
 		} else {
 			motionFuture.set(motionNow);
 		}
@@ -254,17 +275,14 @@ extends RobotWithConnection {
 		
 		if(changed==true) {
 			if(motionFuture.checkAngleLimits()) {
-				motionFuture.updateForwardKinematics();
-				arm_moved=true;
+				motionFuture.updateFK();
+				haveArmsMoved=true;
 			}
 		}
 	}
 	
 	@Override
 	public void prepareMove(float delta) {
-		// no move until homed!
-		if(!homed) return;
-		
 		updateIK(delta);
 		updateFK(delta);
 	}
@@ -272,21 +290,15 @@ extends RobotWithConnection {
 	
 	@Override
 	public void finalizeMove() {
-		// no move until homed!
-		if(!homed) return;
-		
-		// copy motion_future to motion_now
-		motionNow.set(motionFuture);
-		motionNow.updateForwardKinematics();
+		if(!haveArmsMoved) return;		
 
-		if(arm_moved) {
-			arm_moved=false;
-			this.sendLineToRobot("G0 X"+motionNow.fingerPosition.x
-					          +" Y"+motionNow.fingerPosition.y
-					          +" Z"+motionNow.fingerPosition.z
-					          );
-			updateGUI();
-		}
+		haveArmsMoved=false;
+		motionNow.set(motionFuture);
+		this.sendLineToRobot("G0 X"+motionNow.fingerPosition.x
+				          +" Y"+motionNow.fingerPosition.y
+				          +" Z"+motionNow.fingerPosition.z
+				          );
+		if(controlPanel!=null) controlPanel.update();
 	}
 	
 
@@ -486,12 +498,16 @@ extends RobotWithConnection {
 
 	
 	public void goHome() {
+		isHomed=false;
 		this.sendLineToRobot("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-		motionFuture.updateInverseKinematics();
-		arm_moved=true;
+		motionFuture.updateIK();
+		motionNow.set(motionFuture);
+		haveArmsMoved=true;
 		finalizeMove();
-		homed=true;
+		isHomed=true;
+		
+		if(controlPanel!=null) controlPanel.update();
 	}
 	
 
@@ -513,7 +529,7 @@ extends RobotWithConnection {
 				} else {
 					robotUID = uid;
 				}
-				updateGUI();
+				if(controlPanel!=null) controlPanel.update();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -597,7 +613,7 @@ extends RobotWithConnection {
 		
 		controlPanel = new DeltaRobot3ControlPanel(this);
 		list.add(controlPanel);
-		updateGUI();
+		if(controlPanel!=null) controlPanel.update();
 /*
 		ArrayList<JPanel> toolList = tool.getControlPanels();
 		Iterator<JPanel> iter = toolList.iterator();
@@ -613,18 +629,6 @@ extends RobotWithConnection {
 		float SCALE = 1000.0f;
 		
 		return Math.round(v*SCALE)/SCALE;
-	}
-	
-	
-	public void updateGUI() {
-		if(controlPanel==null) return;
-		
-		controlPanel.angleA.setText(Float.toString(roundOff(motionFuture.arms[0].angle)));
-		controlPanel.angleB.setText(Float.toString(roundOff(motionFuture.arms[1].angle)));
-		controlPanel.angleC.setText(Float.toString(roundOff(motionFuture.arms[2].angle)));
-		controlPanel.xPos.setText(Float.toString(roundOff(motionNow.fingerPosition.x)));
-		controlPanel.yPos.setText(Float.toString(roundOff(motionNow.fingerPosition.y)));
-		controlPanel.zPos.setText(Float.toString(roundOff(motionNow.fingerPosition.z)));
 	}
 	
 	
@@ -663,5 +667,9 @@ extends RobotWithConnection {
 	public void moveZ(float dir) {
 		zDir=dir;
 		disableFK();
+	}
+	
+	public boolean isHomed() {
+		return isHomed;
 	}
 }

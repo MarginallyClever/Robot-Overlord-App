@@ -28,12 +28,6 @@ extends RobotWithConnection
 	 */
 	private static final long serialVersionUID = 1816224308642132316L;
 	
-	static final int AXIS_X = 0;
-	static final int AXIS_Y = 1;
-	static final int AXIS_Z = 2;
-	static final int AXIS_U = 3;
-	static final int AXIS_V = 4;
-	static final int AXIS_W = 5;
 	
 	// machine ID
 	protected long robotUID;
@@ -41,14 +35,14 @@ extends RobotWithConnection
 	public static final String ROBOT_NAME = "Stewart Platorm 2";
 	
 	// machine dimensions
-	static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
-	static final float BASE_TO_SHOULDER_Y   =( 2.150f);
-	static final float BASE_TO_SHOULDER_Z   =( 6.610f);
-	static final float BICEP_LENGTH         =( 5.000f);
-	static final float FOREARM_LENGTH       =(16.750f);
-	static final float WRIST_TO_FINGER_X    =( 7.635f);
-	static final float WRIST_TO_FINGER_Y    =( 0.553f);
-	static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
+	public static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
+	public static final float BASE_TO_SHOULDER_Y   =( 2.150f);
+	public static final float BASE_TO_SHOULDER_Z   =( 6.610f);
+	public static final float BICEP_LENGTH         =( 5.000f);
+	public static final float FOREARM_LENGTH       =(16.750f);
+	public static final float WRIST_TO_FINGER_X    =( 7.635f);
+	public static final float WRIST_TO_FINGER_Y    =( 0.553f);
+	public static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
 	
 	// calibration settings
 	protected float HOME_X;
@@ -72,7 +66,7 @@ extends RobotWithConnection
 	protected Cylinder [] volumes;
 
 	// networking information
-	protected boolean isPortConfirmed=false;
+	protected boolean isPortConfirmed;
 
 	// visual models of robot
 	protected transient Model modelTop;
@@ -80,21 +74,17 @@ extends RobotWithConnection
 	protected transient Model modelBase;
 	
 	// this should be come a list w/ rollback
-	protected RotaryStewartPlatform2MotionState motionNow = new RotaryStewartPlatform2MotionState();
-	protected RotaryStewartPlatform2MotionState motionFuture = new RotaryStewartPlatform2MotionState();
+	protected RotaryStewartPlatform2MotionState motionNow;
+	protected RotaryStewartPlatform2MotionState motionFuture;
 
 	// convenience
 	boolean hasArmMoved;
 	
 	// keyboard history
-	protected float xDir = 0.0f;
-	protected float yDir = 0.0f;
-	protected float zDir = 0.0f;
-	protected float uDir = 0.0f;
-	protected float vDir = 0.0f;
-	protected float wDir = 0.0f;
+	protected float xDir, yDir, zDir;
+	protected float uDir, vDir, wDir;
 	
-	private boolean just_testing_dont_get_uid=false;
+	private boolean justTestingDontGetUID=false;
 
 	// visual model for controlling robot
 	protected transient RotaryStewartPlatform2ControlPanel rspPanel;
@@ -106,10 +96,26 @@ extends RobotWithConnection
 		setDisplayName(ROBOT_NAME);
 
 		commandSequence = new UndoManager();
+		motionNow = new RotaryStewartPlatform2MotionState();
+		motionFuture = new RotaryStewartPlatform2MotionState();
 		
-		// load the visuals
-		setupModels();
+		setupBoundingVolumes();
+		setupVisualModels();
+		setHome(new Vector3f(0,0,0));
 		
+		// set up the initial state of the machine
+		isPortConfirmed=false;
+		hasArmMoved = false;
+		xDir = 0.0f;
+		yDir = 0.0f;
+		zDir = 0.0f;
+		uDir = 0.0f;
+		vDir = 0.0f;
+		wDir = 0.0f;
+	}
+	
+ 	
+ 	public void setupBoundingVolumes() {
 		// set up bounding volumes
 		volumes = new Cylinder[6];
 		for(int i=0;i<volumes.length;++i) {
@@ -121,25 +127,20 @@ extends RobotWithConnection
 		volumes[3].setRadius(1.15f);
 		volumes[4].setRadius(1.2f);
 		volumes[5].setRadius(1.0f*0.575f);
-
-		// set up the initial state of the machine
-		motionNow.rotateBase(0,0);
-		motionNow.updateIK();
-		motionFuture.set(motionNow);
-		moveIfAble();
-		hasArmMoved = false;
-	}
-	
+ 		
+ 	}
 	
 	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
 	
 	
-	public void setHome(Vector3f newhome) {
-		HOME_X=newhome.x;
-		HOME_Y=newhome.y;
-		HOME_Z=newhome.z;
-		motionFuture.rotateBase(0f,0f);
-		motionFuture.moveBase(new Vector3f(0,0,0));
+	public void setHome(Vector3f newHome) {
+		HOME_X=newHome.x;
+		HOME_Y=newHome.y;
+		HOME_Z=newHome.z;
+		motionNow.moveBase(newHome);
+		motionNow.rotateBase(0,0);
+		motionNow.updateIK();
+		motionFuture.set(motionNow);
 		moveIfAble();
 	}
 
@@ -161,7 +162,7 @@ extends RobotWithConnection
 	}
 	
 
-	protected void setupModels() {
+	protected void setupVisualModels() {
 		modelTop = Model.loadModel("/StewartPlatform.zip:top.STL",0.1f);
 		modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL",0.1f);
 		modelBase = Model.loadModel("/StewartPlatform.zip:base.STL",0.1f);
@@ -170,7 +171,7 @@ extends RobotWithConnection
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupModels();
+    	setupVisualModels();
         inputStream.defaultReadObject();
     }
 
@@ -254,8 +255,6 @@ extends RobotWithConnection
 			hasArmMoved=true;
 			finalizeMove();
 			if(rspPanel!=null) rspPanel.update();
-		} else {
-			motionFuture.set(motionNow);
 		}
 	}
 	
@@ -330,26 +329,14 @@ extends RobotWithConnection
 
 	@Override
 	public void finalizeMove() {
-		// copy motion_future to motion_now
+		if(!hasArmMoved) return;
+		
 		motionNow.set(motionFuture);
 		
-		if(hasArmMoved) {
-			if(motionNow.isHomed && motionNow.isFollowMode ) {
-				hasArmMoved=false;
-				sendChangeToRealMachine();
-				if(rspPanel!=null) rspPanel.update();
-			}
-			
-			// TODO: update text fields when the cursor moves.  right now this causes inter-thread damage and crashes the app
-			/*
-			if(view_px!=null) {	        
-				view_px.getField().setText(Float.toString(motion_now.finger_tip.x));
-				viewPy.getField().setText(Float.toString(motion_now.finger_tip.y));
-				viewPz.getField().setText(Float.toString(motion_now.finger_tip.z));
-				viewRx.getField().setText(Float.toString(motion_now.iku));
-				viewRy.getField().setText(Float.toString(motion_now.ikv));
-				viewRz.getField().setText(Float.toString(motion_now.ikw));
-			}*/
+		if(motionNow.isHomed && motionNow.isFollowMode ) {
+			hasArmMoved=false;
+			sendChangeToRealMachine();
+			if(rspPanel!=null) rspPanel.update();
 		}
 	}
 	
@@ -552,7 +539,7 @@ extends RobotWithConnection
 	private long getNewRobotUID() {
 		long new_uid = 0;
 
-		if(just_testing_dont_get_uid==true) {
+		if(justTestingDontGetUID==true) {
 			try {
 				// Send data
 				URL url = new URL("https://marginallyclever.com/stewart_platform_getuid.php");
@@ -649,16 +636,19 @@ extends RobotWithConnection
 		this.sendLineToRobot("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
 		motionFuture.rotationAngleU=0;
-		motionFuture.rotationAngleU=0;
-		motionFuture.rotationAngleU=0;
+		motionFuture.rotationAngleV=0;
+		motionFuture.rotationAngleW=0;
 		motionFuture.isHomed=true;
 		motionFuture.updateIK();
 		motionNow.set(motionFuture);
-		motionNow.updateIK();
 		
 		if(rspPanel!=null) rspPanel.update();
 		
 		//finalizeMove();
 		//this.sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
+	}
+	
+	public boolean isHomed() {
+		return motionNow.isHomed;
 	}
 }
