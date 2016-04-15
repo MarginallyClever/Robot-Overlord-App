@@ -10,6 +10,7 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.Model;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 
 /**
@@ -247,16 +248,16 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	}
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list=null;
 		
 		if(getAttachedTo()==null) {
 			// only show position when not attached.
-			list = super.getControlPanels();
+			list = super.getControlPanels(gui);
 		}
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		armToolGripperControlPanel = new EvilMinionToolGripperControlPanel(this);
+		armToolGripperControlPanel = new EvilMinionToolGripperControlPanel(gui,this);
 		list.add(armToolGripperControlPanel);
 		updateGUI();
 		

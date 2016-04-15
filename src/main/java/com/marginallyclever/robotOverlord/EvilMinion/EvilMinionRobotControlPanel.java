@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class EvilMinionRobotControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -60,7 +61,7 @@ public class EvilMinionRobotControlPanel extends JPanel implements ActionListene
 	}
 
 
-	public EvilMinionRobotControlPanel(EvilMinionRobot arm) {
+	public EvilMinionRobotControlPanel(RobotOverlord gui,EvilMinionRobot arm) {
 		super();
 
 		JPanel p;

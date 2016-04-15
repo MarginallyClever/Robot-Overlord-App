@@ -18,6 +18,7 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.Model;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.RobotWithConnection;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 
@@ -1603,11 +1604,11 @@ implements ActionListener {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		spideePanel = new SpideeControlPanel(this);
+		spideePanel = new SpideeControlPanel(gui,this);
 		list.add(spideePanel);
 		//updateGUI();
 		

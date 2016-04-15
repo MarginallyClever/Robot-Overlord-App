@@ -3,7 +3,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.ObjectInWorld;
-
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.jogamp.opengl.GL2
 ;
 
@@ -47,11 +47,11 @@ public class Camera extends ObjectInWorld {
 	}
 
 	
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		cameraPanel = new CameraControlPanel(this);
+		cameraPanel = new CameraControlPanel(gui,this);
 		list.add(cameraPanel);
 		
 		return list;

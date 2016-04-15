@@ -23,6 +23,7 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1970631551615654640L;
+	
 	//comms	
 	protected transient AbstractConnectionManager connectionManager;
 	protected transient String[] portsDetected=null;
@@ -71,8 +72,8 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	
 
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		list.add(getMenu());
 		
 		return list;
@@ -198,6 +199,14 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 		
 	}
 	
+	/**
+	 * tell the robot to move within it's work envelope relative to the robot's current position in the envelope.
+	 * @param axis the index of the axis on which to move
+	 * @param direction which direction along the axis
+	 */
+	public void move(int axis,int direction) {
+		
+	}
 	
 	/**
 	 * Take the next line from the file and send it to the robot, if permitted. 

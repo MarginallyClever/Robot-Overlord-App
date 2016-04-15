@@ -39,11 +39,11 @@ public class LoadGCodeGenerator implements GcodeGenerator {
 		//fc.addChoosableFileFilter(filterImage);
 		//fc.addChoosableFileFilter(filterDXF);
 		fc.addChoosableFileFilter(filterGCODE);
-	    if(fc.showOpenDialog(gui.GetMainFrame()) == JFileChooser.APPROVE_OPTION) {
+	    if(fc.showOpenDialog(gui.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
 	    	String selectedFile=fc.getSelectedFile().getAbsolutePath();
 
 			// open the file automatically to save a click.
-			gui.OpenFile(selectedFile);
+			gui.openFile(selectedFile);
 	    }
 	}
 }

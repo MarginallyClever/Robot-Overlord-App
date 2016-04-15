@@ -19,9 +19,8 @@ public class DeltaRobot3MotionState {
 	public Vector3f base_right = new Vector3f();
 
 	// rotating entire robot
-	float base_pan=0;
-	float base_tilt=0;
-
+	float basePan=0;
+	float baseTilt=0;
 
 
 	public class DeltaRobot3Arm {
@@ -63,8 +62,8 @@ public class DeltaRobot3MotionState {
 		base_forward.set(other.base_forward);
 		base_up.set(other.base_up);
 		base_right.set(other.base_right);
-		base_pan = other.base_pan;
-		base_tilt = other.base_tilt;
+		basePan = other.basePan;
+		baseTilt = other.baseTilt;
 	}
 
 
@@ -208,8 +207,8 @@ public class DeltaRobot3MotionState {
 
 
 	public void rotateBase(float pan,float tilt) {
-		this.base_pan=pan;
-		this.base_tilt=tilt;
+		this.basePan=pan;
+		this.baseTilt=tilt;
 
 		pan = (float)Math.toRadians(pan);
 		tilt = (float)Math.toRadians(tilt);

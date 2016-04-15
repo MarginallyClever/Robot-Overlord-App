@@ -17,6 +17,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class SpideeControlPanel extends JPanel implements ChangeListener, ActionListener, ItemListener {
 	/**
@@ -55,7 +56,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		return b;
 	}
 	
-	SpideeControlPanel(Spidee robot) {
+	SpideeControlPanel(RobotOverlord gui,Spidee robot) {
 		this.robot = robot;
 
 		this.setLayout(new GridBagLayout());

@@ -32,6 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
@@ -61,7 +64,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	// select picking
 	static final int SELECT_BUFFER_SIZE=256;
 	protected IntBuffer selectBuffer = null;
-	protected boolean pickNow=false;
+	protected boolean pickNow;
 	protected double pickX, pickY;
 	
 	static final long serialVersionUID=1;
@@ -87,6 +90,8 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     /// quit the application
 	protected JMenuItem buttonQuit;
 	
+	protected JMenuItem buttonUndo, buttonRedo;
+	
 	
 	/// The main frame of the GUI
     protected JFrame frame; 
@@ -111,16 +116,20 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
 
-	protected GLU glu = new GLU();
+	protected GLU glu;
 	
-
-	public JFrame GetMainFrame() {
-		return frame;
-	}
+	// undo/redo system
+	private UndoManager commandSequence;
+	private UndoHelper undoHelper;
 	
 	
-	protected RobotOverlord() {
+ 	protected RobotOverlord() {
 		prefs = Preferences.userRoot().node("Evil Overlord");
+		
+		commandSequence = new UndoManager();
+		undoHelper = new UndoHelper(this);
+		
+		glu = new GLU();
 /*
 		try {
 			String s = getPath(this.getClass());
@@ -131,8 +140,6 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 			System.out.println("failed to enumerate");
 		}
 */
-		
-		LoadConfig();
 		
         frame = new JFrame( APP_TITLE ); 
         frame.setSize( 1224, 768 );
@@ -163,7 +170,6 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         caps.setHardwareAccelerated(true);
         caps.setNumSamples(4);
         glCanvas = new GLJPanel(caps);
-
         animator.add(glCanvas);
         glCanvas.addGLEventListener(this);
         glCanvas.addMouseListener(this);
@@ -176,9 +182,10 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
         splitLeftRight.add(contextMenu);
 
         world = new World();
+        pickNow=false;
         pickCamera();
 
-        updateMenu();
+        buildMenu();
         
 //		frame.addKeyListener(this);
 //		glCanvas.addMouseListener(this);
@@ -207,6 +214,22 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 
         last_time = start_time = System.currentTimeMillis();
     }
+	
+
+	public JFrame getMainFrame() {
+		return frame;
+	}
+	
+	
+	public UndoManager getUndoManager() {
+		return commandSequence;
+	}
+	
+	
+	public UndoHelper getUndoHelper() {
+		return undoHelper;
+	}
+	
 	
 	public void setContextMenu(JPanel panel,String title) {
 		JPanel container = new JPanel(new GridBagLayout());
@@ -288,7 +311,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 	void saveWorldDialog() {
 		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showSaveDialog(this.GetMainFrame());
+		int returnVal = fc.showSaveDialog(this.getMainFrame());
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             saveWorldToFile(fc.getSelectedFile().getAbsolutePath());
 		}
@@ -296,7 +319,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 	void loadWorldDialog() {
 		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showOpenDialog(this.GetMainFrame());
+		int returnVal = fc.showOpenDialog(this.getMainFrame());
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             loadWorldFromFile(fc.getSelectedFile().getAbsolutePath());
 		}
@@ -357,8 +380,8 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		catch(ClassNotFoundException e) {}
 	}
 	*/
-		
-	public void updateMenu() {
+	
+	public void buildMenu() {
 		mainMenu.removeAll();
 		
         JMenu menu = new JMenu(APP_TITLE);
@@ -390,12 +413,31 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	        buttonQuit.getAccessibleContext().setAccessibleDescription("Goodbye...");
 	        buttonQuit.addActionListener(this);
 	        menu.add(buttonQuit);
-        
+       
         mainMenu.add(menu);
         
-        mainMenu.add(world.updateMenu());
-        
+        JMenu menuEdit = new JMenu("Edit");
+    	buttonUndo = new JMenuItem("Undo",KeyEvent.VK_Z);
+    	buttonUndo.addActionListener(this);
+    	menuEdit.add(buttonUndo);
+    	buttonRedo = new JMenuItem("Redo",KeyEvent.VK_Y);
+    	buttonRedo.addActionListener(this);
+    	menuEdit.add(buttonRedo);
+        mainMenu.add(menuEdit);
+
+        mainMenu.add(world.buildMenu());
         mainMenu.updateUI();
+        
+        updateMenu();
+	}
+
+
+	public void updateMenu() {
+        buttonUndo.setText(commandSequence.getUndoPresentationName());
+		buttonRedo.setText(commandSequence.getRedoPresentationName());
+		buttonUndo.getParent().validate();
+		buttonUndo.setEnabled(commandSequence.canUndo());
+	    buttonRedo.setEnabled(commandSequence.canRedo());
     }
 	
 	
@@ -473,89 +515,38 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 			System.exit(0);
 			return;
 		}
-		
-		/*
-		if(GeneratorMenuAction(e)) {
-			return;
-		}
-		
-		// Draw
-		if( subject == buttonStart ) {
-			world.robot0.Start();
-			return;
-		}
-		if( subject == buttonStartAt ) {
-			int lineNumber =getStartingLineNumber();
-			if(lineNumber>=0) {
-				world.robot0.StartAt(lineNumber);
-			}
-			return;
-			
-		}
-		if( subject == buttonPause ) {
-			world.robot0.Pause();
-		}
-		if( subject == buttonHalt ) {
-			world.robot0.Halt();
-			return;
-		}
-		*/
+
+		if( subject == buttonRedo ) redo();
+		if( subject == buttonUndo ) undo();
 	}
 	
-
-	/**
-	 * open a dialog to ask for the line number.
-	 * @return true if "ok" is pressed, false if the window is closed any other way.
-	 *//*
-	private int getStartingLineNumber() {
-		int lineNumber=-1;
-		
-		// TODO replace with a more elegant dialog.  See Makelangelo converters for examples.
-		JPanel driver = new JPanel(new GridBagLayout());		
-		JTextField starting_line = new JTextField("0",8);
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridwidth=2;	c.gridx=0;  c.gridy=0;  driver.add(new JLabel("Start at line"),c);
-		c.gridwidth=2;	c.gridx=2;  c.gridy=0;  driver.add(starting_line,c);
-			    	    
-	    int result = JOptionPane.showConfirmDialog(null, driver, "Start at line", 
-	    		JOptionPane.OK_CANCEL_OPTION,
-	    		JOptionPane.PLAIN_MESSAGE);
-	    if (result == JOptionPane.OK_OPTION) {
-			lineNumber=Integer.decode(starting_line.getText());
-	    }
-	    
-		return lineNumber;
-	}*/
-
-	protected void LoadConfig() {
-		GetRecentFiles();
-	}
-
-	protected void SaveConfig() {
-		GetRecentFiles();
+	public void undo() {
+		try {
+			commandSequence.undo();
+		} catch (CannotUndoException ex) {
+			ex.printStackTrace();
+		} finally {
+			updateMenu();
+		}
 	}
 	
-	/*
-	protected boolean GeneratorMenuAction(ActionEvent e) {
-		Object subject = e.getSource();
-		
-        for(int i=0;i<generators.length;++i) {
-        	if(subject==generatorButtons[i]) {
-        		generators[i].Generate();
-        		updateMenu();
-        		return true;
-        	}
+	
+	public void redo() {
+		try {
+			commandSequence.redo();
+		} catch (CannotRedoException ex) {
+			ex.printStackTrace();
+		} finally {
+			updateMenu();
 		}
-		return false;
 	}
-	*/
 	
 	
 	/**
 	 * changes the order of the recent files list in the File submenu, saves the updated prefs, and refreshes the menus.
 	 * @param filename the file to push to the top of the list.
 	 */
-	public void UpdateRecentFiles(String filename) {
+	public void updateRecentFiles(String filename) {
 		int cnt = recentFiles.length;
 		String [] newFiles = new String[cnt];
 		
@@ -583,7 +574,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	}
 	
 	// A file failed to load.  Remove it from recent files, refresh the menu bar.
-	public void RemoveRecentFile(String filename) {
+	public void removeRecentFile(String filename) {
 		int i;
 		for(i=0;i<recentFiles.length-1;++i) {
 			if(recentFiles[i]==filename) {
@@ -604,20 +595,12 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		
 		updateMenu();
 	}
-	
-	// Load recent files from prefs
-	public void GetRecentFiles() {
-		int i;
-		for(i=0;i<recentFiles.length;++i) {
-			recentFiles[i] = prefs.get("recent-files-"+i, recentFiles[i]);
-		}
-	}
 
 	/**
 	 * Open a gcode file to run on a robot.  This doesn't make sense if there's more than one robot!
 	 * @param filename the file to open
 	 */
-	public void OpenFile(String filename) {
+	public void openFile(String filename) {
 		
 	}
 

@@ -5,6 +5,7 @@ import javax.vecmath.Vector3f;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.RobotWithConnection;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 
@@ -239,12 +240,12 @@ extends RobotWithConnection {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm3Panel = new Arm3ControlPanel(this);
+		arm3Panel = new Arm3ControlPanel(gui,this);
 		list.add(arm3Panel);
 		updateGUI();
 /*

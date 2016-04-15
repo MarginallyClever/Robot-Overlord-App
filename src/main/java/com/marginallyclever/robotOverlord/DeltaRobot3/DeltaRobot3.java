@@ -12,9 +12,6 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.*;
@@ -76,15 +73,12 @@ extends RobotWithConnection {
 	private double speed;
 	private boolean isHomed = false;
 	private boolean haveArmsMoved = false;
-
-	protected transient UndoManager commandSequence;
 	
 
 	public DeltaRobot3() {
 		super();
 		setDisplayName(ROBOT_NAME);
 
-		commandSequence = new UndoManager();
 		motionNow = new DeltaRobot3MotionState();
 		motionFuture = new DeltaRobot3MotionState();
 		
@@ -146,26 +140,6 @@ extends RobotWithConnection {
 		motionFuture.set(motionNow);
 
 		moveIfAble();
-	}
-	
-	
-	public void undo() {
-		try {
-			commandSequence.undo();
-		} catch (CannotUndoException ex) {
-			ex.printStackTrace();
-		} finally {
-			controlPanel.update();
-		}
-	}
-	public void redo() {
-		try {
-			commandSequence.redo();
-		} catch (CannotRedoException ex) {
-			ex.printStackTrace();
-		} finally {
-			controlPanel.update();
-		}
 	}
 	
 
@@ -606,12 +580,12 @@ extends RobotWithConnection {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		controlPanel = new DeltaRobot3ControlPanel(this);
+		controlPanel = new DeltaRobot3ControlPanel(gui,this);
 		list.add(controlPanel);
 		if(controlPanel!=null) controlPanel.update();
 /*
@@ -639,36 +613,24 @@ extends RobotWithConnection {
 		return speed;
 	}
 	
-	public void moveA(float dir) {
-		aDir=dir;
-		enableFK();
-	}
-
-	public void moveB(float dir) {
-		bDir=dir;
-		enableFK();
-	}
-
-	public void moveC(float dir) {
-		cDir=dir;
-		enableFK();
-	}
-
-	public void moveX(float dir) {
-		xDir=dir;
-		disableFK();
-	}
-
-	public void moveY(float dir) {
-		yDir=dir;
-		disableFK();
-	}
-
-	public void moveZ(float dir) {
-		zDir=dir;
-		disableFK();
+	public void move(int axis,int direction) {
+		switch(axis) {
+		case RobotMoveCommand.AXIS_A: moveA(direction); break;
+		case RobotMoveCommand.AXIS_B: moveB(direction); break;
+		case RobotMoveCommand.AXIS_C: moveC(direction); break;
+		case RobotMoveCommand.AXIS_X: moveX(direction); break;
+		case RobotMoveCommand.AXIS_Y: moveY(direction); break;
+		case RobotMoveCommand.AXIS_Z: moveZ(direction); break;
+		}
 	}
 	
+	private void moveA(float dir) {		aDir=dir;		enableFK();		}
+	private void moveB(float dir) {		bDir=dir;		enableFK();		}
+	private void moveC(float dir) {		cDir=dir;		enableFK();		}
+	private void moveX(float dir) {		xDir=dir;		disableFK();	}
+	private void moveY(float dir) {		yDir=dir;		disableFK();	}
+	private void moveZ(float dir) {		zDir=dir;		disableFK();	}	
+
 	public boolean isHomed() {
 		return isHomed;
 	}
