@@ -12,9 +12,6 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.*;
@@ -89,13 +86,11 @@ extends RobotWithConnection
 	// visual model for controlling robot
 	protected transient RotaryStewartPlatform2ControlPanel rspPanel;
 
-	protected transient UndoManager commandSequence;
 
  	public RotaryStewartPlatform2() {
 		super();
 		setDisplayName(ROBOT_NAME);
 
-		commandSequence = new UndoManager();
 		motionNow = new RotaryStewartPlatform2MotionState();
 		motionFuture = new RotaryStewartPlatform2MotionState();
 		
@@ -175,57 +170,24 @@ extends RobotWithConnection
         inputStream.defaultReadObject();
     }
 
-	public void moveX(float dir) {
-		xDir=dir;
-	}
-
-	public void moveY(float dir) {
-		yDir=dir;
-	}
-
-	public void moveZ(float dir) {
-		zDir=dir;
-	}
-
-	public void moveU(float dir) {
-		uDir=dir;
-	}
-
-	public void moveV(float dir) {
-		vDir=dir;
-	}
-
-	public void moveW(float dir) {
-		wDir=dir;
-	}
-	
-	public void undo() {
-		try {
-			commandSequence.undo();
-		} catch (CannotUndoException ex) {
-			ex.printStackTrace();
-		} finally {
-			rspPanel.update();
-		}
-	}
-	public void redo() {
-		try {
-			commandSequence.redo();
-		} catch (CannotRedoException ex) {
-			ex.printStackTrace();
-		} finally {
-			rspPanel.update();
-		}
-	}
-    
-
 	public void setSpeed(float newSpeed) {
 		motionNow.setSpeed(newSpeed);
 	}
 	public float getSpeed() {
 		return motionNow.getSpeed();
 	}
-	
+
+	public void move(int axis,int direction) {
+		switch(axis) {
+		case RobotMoveCommand.AXIS_X:  xDir=direction;  break;
+		case RobotMoveCommand.AXIS_Y:  yDir=direction;  break;
+		case RobotMoveCommand.AXIS_Z:  zDir=direction;  break;
+		case RobotMoveCommand.AXIS_U:  uDir=direction;  break;
+		case RobotMoveCommand.AXIS_V:  vDir=direction;  break;
+		case RobotMoveCommand.AXIS_W:  wDir=direction;  break;
+		}
+	}
+
 	
 	public void updateFK(float delta) {}
 
@@ -599,11 +561,11 @@ extends RobotWithConnection
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 
-		rspPanel = new RotaryStewartPlatform2ControlPanel(this);
+		rspPanel = new RotaryStewartPlatform2ControlPanel(gui,this);
 		list.add(rspPanel);
 		rspPanel.update();
 		

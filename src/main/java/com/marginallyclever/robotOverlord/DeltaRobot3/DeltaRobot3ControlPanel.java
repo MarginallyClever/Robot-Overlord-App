@@ -13,7 +13,10 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.robotOverlord.RobotMoveButton;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotMoveCommand;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -26,30 +29,26 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	private JLabel uid;
 	private JButton goHome;
 
-	private final double [] speedOptions = {0.1, 0.2, 0.5, 
-			                                1, 2, 5, 
-			                                10, 20, 50};
+	private final double [] speedOptions = {0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50};
 	private JLabel speedNow;
 	private JSlider speedControl;
 	
-	private JButton arm5Apos;
-	private JButton arm5Aneg;
-	private JButton arm5Bpos;
-	private JButton arm5Bneg;
-	private JButton arm5Cpos;
-	private JButton arm5Cneg;
+	private RobotMoveButton arm5Apos;
+	private RobotMoveButton arm5Aneg;
+	private RobotMoveButton arm5Bpos;
+	private RobotMoveButton arm5Bneg;
+	private RobotMoveButton arm5Cpos;
+	private RobotMoveButton arm5Cneg;
 	public JLabel angleA,angleB,angleC;
 	
-	private JButton arm5Xpos;
-	private JButton arm5Xneg;
-	private JButton arm5Ypos;
-	private JButton arm5Yneg;
-	private JButton arm5Zpos;
-	private JButton arm5Zneg;
+	private RobotMoveButton arm5Xpos;
+	private RobotMoveButton arm5Xneg;
+	private RobotMoveButton arm5Ypos;
+	private RobotMoveButton arm5Yneg;
+	private RobotMoveButton arm5Zpos;
+	private RobotMoveButton arm5Zneg;
 
 	public JLabel xPos,yPos,zPos;
-	
-	private JButton undoButton, redoButton;
 	
 	
 	private JButton createButton(String name) {
@@ -59,7 +58,7 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	}
 
 
-	public DeltaRobot3ControlPanel(DeltaRobot3 deltaRobot) {
+	public DeltaRobot3ControlPanel(RobotOverlord gui,DeltaRobot3 deltaRobot) {
 		super();
 		
 		robot = deltaRobot;
@@ -85,59 +84,43 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		homePanel.getContentPane().add(goHome);
 		
 		//CollapsiblePanel fkPanel = 
-				createFKPanel();
+				createFKPanel(gui);
 		//this.add(fkPanel,con1);
 		//con1.gridy++;
 
-		CollapsiblePanel ikPanel = createIKPanel();
+		CollapsiblePanel ikPanel = createIKPanel(gui);
 		this.add(ikPanel, con1);
 		con1.gridy++;
-		
-		
-		// undo/redo panel
-		CollapsiblePanel urPanel = new CollapsiblePanel("History");
-		this.add(urPanel, con1);
-		con1.gridy++;
-
-		JPanel p = new JPanel(new GridLayout(1,2));
-		urPanel.getContentPane().add(p);
-		
-		p.add(undoButton = createButton("Undo"));
-		p.add(redoButton = createButton("Redo"));
 	}
 
-	protected CollapsiblePanel createFKPanel() {
+	protected CollapsiblePanel createFKPanel(RobotOverlord gui) {
 		CollapsiblePanel cp = new CollapsiblePanel("Forward Kinematics");
 		
 		JPanel p = new JPanel(new GridLayout(3,3));
 		cp.getContentPane().add(p);
 
-		// used for FK
-		angleA = new JLabel("0.00");
-		angleB = new JLabel("0.00");
-		angleC = new JLabel("0.00");
-
-		p.add(arm5Apos = createButton("A+"));		p.add(angleA);		p.add(arm5Aneg = createButton("A-"));
-		p.add(arm5Bpos = createButton("B+"));		p.add(angleB);		p.add(arm5Bneg = createButton("B-"));
-		p.add(arm5Cpos = createButton("C+"));		p.add(angleC);		p.add(arm5Cneg = createButton("C-"));
+		p.add(arm5Apos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_A, 1, "A+"));		p.add(angleA = new JLabel("0.00"));
+		p.add(arm5Aneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_A,-1, "A-"));		
+		p.add(arm5Bpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_B, 1, "B+"));		p.add(angleB = new JLabel("0.00"));
+		p.add(arm5Bneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_B,-1, "B-"));		
+		p.add(arm5Cpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_C, 1, "C+"));		p.add(angleC = new JLabel("0.00"));
+		p.add(arm5Cneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_C,-1, "C-"));
 
 		return cp;
 	}
 	
-	protected CollapsiblePanel createIKPanel() {
+	protected CollapsiblePanel createIKPanel(RobotOverlord gui) {
 		CollapsiblePanel cp = new CollapsiblePanel("Inverse Kinematics");
 		
 		JPanel p = new JPanel(new GridLayout(3,3));
 		cp.getContentPane().add(p);
-
-		// used for IK
-		xPos = new JLabel("0.00");
-		yPos = new JLabel("0.00");
-		zPos = new JLabel("0.00");
 		
-		p.add(arm5Xpos = createButton("X+"));		p.add(xPos);		p.add(arm5Xneg = createButton("X-"));
-		p.add(arm5Ypos = createButton("Y+"));		p.add(yPos);		p.add(arm5Yneg = createButton("Y-"));
-		p.add(arm5Zpos = createButton("Z+"));		p.add(zPos);		p.add(arm5Zneg = createButton("Z-"));
+		p.add(arm5Xpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_X, 1, "X+"));		p.add(xPos = new JLabel("0.00"));
+		p.add(arm5Xneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_X,-1, "X-"));		
+		p.add(arm5Ypos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Y, 1, "Y+"));		p.add(yPos = new JLabel("0.00"));
+		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Y,-1, "Y-"));		
+		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Z, 1, "Z+"));		p.add(zPos = new JLabel("0.00"));
+		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Z,-1, "Z-"));
 		
 		return cp;
 	}
@@ -199,23 +182,7 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
-		if( subject == goHome   ) robot.goHome();
-		if( subject == arm5Apos ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_A, 1));
-		if( subject == arm5Aneg ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_A,-1));
-		if( subject == arm5Bpos ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_B, 1));
-		if( subject == arm5Bneg ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_B,-1));
-		if( subject == arm5Cpos ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_C, 1));
-		if( subject == arm5Cneg ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_C,-1));
-		
-		if( subject == arm5Xpos ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_X, 1));
-		if( subject == arm5Xneg ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_X,-1));
-		if( subject == arm5Ypos ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_Y, 1));
-		if( subject == arm5Yneg ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_Y,-1));
-		if( subject == arm5Zpos ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_Z, 1));
-		if( subject == arm5Zneg ) robot.commandSequence.addEdit(new DeltaRobot3MoveCommand(robot,DeltaRobot3MoveCommand.AXIS_Z,-1));
-		
-		if( subject == redoButton ) robot.redo();
-		if( subject == undoButton ) robot.undo();
+		if( subject == goHome ) robot.goHome();
 	}
 	
 	
@@ -254,11 +221,5 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		arm5Yneg.setEnabled(robot.isHomed());
 		arm5Zpos.setEnabled(robot.isHomed());
 		arm5Zneg.setEnabled(robot.isHomed());
-		
-		undoButton.setText(robot.commandSequence.getUndoPresentationName());
-	    redoButton.setText(robot.commandSequence.getRedoPresentationName());
-	    undoButton.getParent().validate();
-	    undoButton.setEnabled(robot.commandSequence.canUndo());
-	    redoButton.setEnabled(robot.commandSequence.canRedo());
 	}
 }

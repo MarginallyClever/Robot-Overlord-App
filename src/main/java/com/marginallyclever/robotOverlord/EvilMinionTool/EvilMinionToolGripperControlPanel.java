@@ -13,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class EvilMinionToolGripperControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -34,7 +35,7 @@ public class EvilMinionToolGripperControlPanel extends JPanel implements ActionL
 	}
 	
 	
-	public EvilMinionToolGripperControlPanel(EvilMinionToolGripper tool) {
+	public EvilMinionToolGripperControlPanel(RobotOverlord gui,EvilMinionToolGripper tool) {
 		super();
 		
 		this.tool = tool;

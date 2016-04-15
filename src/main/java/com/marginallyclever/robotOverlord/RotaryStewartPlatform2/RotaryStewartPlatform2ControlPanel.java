@@ -14,6 +14,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotMoveButton;
+import com.marginallyclever.robotOverlord.RobotMoveCommand;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class RotaryStewartPlatform2ControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -21,14 +24,12 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	 */
 	private static final long serialVersionUID = 257878994328366520L;
 
-	private RotaryStewartPlatform2 robot=null;
+	private RotaryStewartPlatform2 robot;
 
 	private JLabel uid;
 	private JButton goHome;
 	
-	private final float [] speedOptions = {0.1f, 0.2f, 0.5f, 
-			                                1, 2, 5, 
-			                                10, 20, 50};
+	private final float [] speedOptions = {0.1f, 0.2f, 0.5f, 1, 2, 5, 10, 20, 50};
 	private JLabel speedNow;
 	private JSlider speedControl;
 
@@ -47,24 +48,15 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	private JButton arm5Wpos;
 	private JButton arm5Wneg;
 	public JLabel uPos,vPos,wPos;
-	
-	private JButton undoButton, redoButton;
 
 	
-	private JButton createButton(String name) {
-		JButton b = new JButton(name);
-		b.addActionListener(this);
-		return b;
-	}
-	
-
-	public RotaryStewartPlatform2ControlPanel(RotaryStewartPlatform2 arm) {
+	public RotaryStewartPlatform2ControlPanel(RobotOverlord gui,RotaryStewartPlatform2 robot) {
 		super();
+
+		this.robot = robot;
 
 		JPanel p;
 		
-		robot = arm;
-
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
@@ -75,7 +67,8 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		con1.anchor=GridBagConstraints.NORTH;
 		
 		// home button
-		goHome = createButton("Find Home");
+		goHome = new JButton("Find Home");
+		goHome.addActionListener(this);
 		this.add(goHome,con1);
 		con1.gridy++;
 
@@ -101,24 +94,18 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		vPos = new JLabel("0.00");
 		wPos = new JLabel("0.00");
 
-		p.add(arm5Upos = createButton("U+"));		p.add(uPos);		p.add(arm5Uneg = createButton("U-"));
-		p.add(arm5Vpos = createButton("V+"));		p.add(vPos);		p.add(arm5Vneg = createButton("V-"));
-		p.add(arm5Wpos = createButton("W+"));		p.add(wPos);		p.add(arm5Wneg = createButton("W-"));
-		p.add(arm5Xpos = createButton("X+"));		p.add(xPos);		p.add(arm5Xneg = createButton("X-"));
-		p.add(arm5Ypos = createButton("Y+"));		p.add(yPos);		p.add(arm5Yneg = createButton("Y-"));
-		p.add(arm5Zpos = createButton("Z+"));		p.add(zPos);		p.add(arm5Zneg = createButton("Z-"));
-		
-		
-		// undo/redo panel
-		CollapsiblePanel urPanel = new CollapsiblePanel("History");
-		this.add(urPanel, con1);
-		con1.gridy++;
-
-		p = new JPanel(new GridLayout(1,2));
-		urPanel.getContentPane().add(p);
-		
-		p.add(undoButton = createButton("Undo"));
-		p.add(redoButton = createButton("Redo"));
+		p.add(arm5Upos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_U, 1,"U+"));		p.add(uPos);
+		p.add(arm5Uneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_U,-1,"U-"));		
+		p.add(arm5Vpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_V, 1,"V+"));		p.add(vPos);
+		p.add(arm5Vneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_V,-1,"V-"));		
+		p.add(arm5Wpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_W, 1,"W+"));		p.add(wPos);
+		p.add(arm5Wneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_W,-1,"W-"));		
+		p.add(arm5Xpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_X, 1,"X+"));		p.add(xPos);
+		p.add(arm5Xneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_X,-1,"X-"));		
+		p.add(arm5Ypos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Y, 1,"Y+"));		p.add(yPos);
+		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Y,-1,"Y-"));		
+		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Z, 1,"Z+"));		p.add(zPos);
+		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Z,-1,"Z-"));
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -182,22 +169,6 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		Object subject = e.getSource();			
 		
 		if( subject == goHome   ) robot.goHome();
-		if( subject == arm5Upos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_U, 1.0f));
-		if( subject == arm5Uneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_U,-1.0f));
-		if( subject == arm5Vpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_V, 1.0f));
-		if( subject == arm5Vneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_V,-1.0f));
-		if( subject == arm5Wpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_W, 1.0f));
-		if( subject == arm5Wneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_W,-1.0f));
-		
-		if( subject == arm5Xpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_X, 1.0f));
-		if( subject == arm5Xneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_X,-1.0f));
-		if( subject == arm5Ypos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Y, 1.0f));
-		if( subject == arm5Yneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Y,-1.0f));
-		if( subject == arm5Zpos ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Z, 1.0f));
-		if( subject == arm5Zneg ) robot.commandSequence.addEdit(new RotaryStewartPlatform2MoveCommand(robot,RotaryStewartPlatform2MoveCommand.AXIS_Z,-1.0f));
-		
-		if( subject == redoButton ) robot.redo();
-		if( subject == undoButton ) robot.undo();
 	}
 	
 	
@@ -233,12 +204,5 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		arm5Yneg.setEnabled(robot.isHomed());
 		arm5Zpos.setEnabled(robot.isHomed());
 		arm5Zneg.setEnabled(robot.isHomed());
-		
-		
-		undoButton.setText(robot.commandSequence.getUndoPresentationName());
-	    redoButton.setText(robot.commandSequence.getRedoPresentationName());
-	    undoButton.getParent().validate();
-	    undoButton.setEnabled(robot.commandSequence.canUndo());
-	    redoButton.setEnabled(robot.commandSequence.canRedo());
 	}
 }

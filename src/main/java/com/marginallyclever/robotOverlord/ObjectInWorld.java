@@ -58,10 +58,10 @@ public class ObjectInWorld implements ActionListener, Serializable {
 		}
 	}
 	*/
-	public ArrayList<JPanel> getControlPanels() {
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		oiwPanel = new CollapsiblePanel("Position");
+		oiwPanel = new CollapsiblePanel("Move Origin");
 		JPanel contents = oiwPanel.getContentPane();
 		
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -100,16 +100,18 @@ public class ObjectInWorld implements ActionListener, Serializable {
 		return list;
 	}
 	
+	
 	public JPanel buildPanel(RobotOverlord gui) {
 		JPanel sum = new JPanel();
 		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
 		
-		ArrayList<JPanel> list = getControlPanels();
+		ArrayList<JPanel> list = getControlPanels(gui);
 		Iterator<JPanel> pi = list.iterator();
 		while(pi.hasNext()) {
 			JPanel p = pi.next();
 			sum.add(p);
 		}
+		
 		return sum;
 	}
 	

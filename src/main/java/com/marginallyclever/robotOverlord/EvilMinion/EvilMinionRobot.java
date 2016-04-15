@@ -142,16 +142,16 @@ extends RobotWithConnection {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels() {
-		ArrayList<JPanel> list = super.getControlPanels();
+	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getControlPanels(gui);
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm5Panel = new EvilMinionRobotControlPanel(this);
+		arm5Panel = new EvilMinionRobotControlPanel(gui,this);
 		list.add(arm5Panel);
 		updateGUI();
 
-		ArrayList<JPanel> toolList = tool.getControlPanels();
+		ArrayList<JPanel> toolList = tool.getControlPanels(gui);
 		Iterator<JPanel> iter = toolList.iterator();
 		while(iter.hasNext()) {
 			list.add(iter.next());

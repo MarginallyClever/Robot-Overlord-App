@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.world;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,12 +8,7 @@ import java.util.ServiceLoader;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLProfile;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -24,7 +17,6 @@ import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
 import com.marginallyclever.robotOverlord.LightObject;
-import com.marginallyclever.robotOverlord.ModelInWorld;
 import com.marginallyclever.robotOverlord.ObjectInWorld;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
@@ -40,7 +32,7 @@ import com.marginallyclever.robotOverlord.communications.SerialConnectionManager
  *
  */
 public class World
-implements ActionListener, Serializable {
+implements Serializable {
 
 	/**
 	 * 
@@ -50,7 +42,7 @@ implements ActionListener, Serializable {
 	protected transient AbstractConnectionManager connectionManager = new SerialConnectionManager();
 	
 	protected transient JMenu worldMenu;
-	protected transient JMenuItem buttonAddModel;
+	protected transient AddModelToWorldButton buttonAddModel;
 	protected transient boolean areTexturesLoaded=false;
 	
 	// world contents
@@ -69,6 +61,7 @@ implements ActionListener, Serializable {
 	
 	protected List<AddRobotToWorldButton> addRobotButtons = null;
 
+	
 	public World() {
 		camera = new Camera();		
 		light0 = new LightObject();
@@ -81,20 +74,7 @@ implements ActionListener, Serializable {
 		pickUp=new Vector3f();
 		pickRay=new Vector3f();
 	}
-
 	
-	protected void addModel(JFrame mainFrame) {
-		JFileChooser fc = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("STL files", "STL", "abc");
-		fc.setFileFilter(filter);
-		int returnVal = fc.showOpenDialog(mainFrame);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String filename = fc.getSelectedFile().getAbsolutePath();
-    		ModelInWorld m = new ModelInWorld();
-    		m.setFilename( filename );
-    		objects.add(m);
-		}
-	}
 
     public void setup( GL2 gl2 ) {
 		gl2.glDepthFunc(GL2.GL_LESS);
@@ -162,18 +142,7 @@ implements ActionListener, Serializable {
 	}
 	
 	
-	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();
-
-		if( subject == buttonAddModel ) {
-			JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(buttonAddModel);
-			addModel(topFrame);
-			return;
-		}
-	}
-	
-	
-    public JMenu updateMenu() {
+    public JMenu buildMenu() {
     	worldMenu = new JMenu("World");
 		
 		// service load the robot types available.
@@ -189,9 +158,8 @@ implements ActionListener, Serializable {
 
     	worldMenu.addSeparator();
     	
-    	buttonAddModel = new JMenuItem("Add Model");
+    	buttonAddModel = new AddModelToWorldButton(this,"Add Model");
     	worldMenu.add(buttonAddModel);
-    	buttonAddModel.addActionListener(this);
     	
     	return worldMenu;
     }

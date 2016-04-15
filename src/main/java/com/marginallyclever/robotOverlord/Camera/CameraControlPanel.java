@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class CameraControlPanel extends JPanel implements ActionListener {
 	/**
@@ -39,7 +40,7 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		return b;
 	}
 
-	public CameraControlPanel(Camera cam) {
+	public CameraControlPanel(RobotOverlord gui,Camera cam) {
 		super();
 		
 		camera=cam;

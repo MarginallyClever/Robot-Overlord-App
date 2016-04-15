@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -56,7 +57,7 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 	}
 
 
-	public Arm3ControlPanel(Arm3 arm) {
+	public Arm3ControlPanel(RobotOverlord gui,Arm3 arm) {
 		super();
 
 		JPanel p;
