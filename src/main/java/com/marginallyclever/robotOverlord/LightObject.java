@@ -20,6 +20,6 @@ public class LightObject extends ObjectInWorld {
 		gl2.glLightfv(i, GL2.GL_POSITION, position,0);
 	    gl2.glLightfv(i, GL2.GL_AMBIENT, ambient,0);
 	    gl2.glLightfv(i, GL2.GL_DIFFUSE, diffuse,0);
-	    gl2.glLightfv(i, GL2.GL_DIFFUSE, specular,0);
+	    gl2.glLightfv(i, GL2.GL_SPECULAR, specular,0);
 	}
 }

@@ -82,7 +82,7 @@ implements Serializable {
 		gl2.glDepthMask(true);
 
     	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
-        //gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
+        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
         gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
         
         gl2.glEnable(GL2.GL_BLEND);
@@ -212,7 +212,7 @@ implements Serializable {
         
         gl2.glDisable(GL2.GL_CULL_FACE);
 		//gl2.glEnable(GL2.GL_CULL_FACE);
-		//gl2.glCullFace(GL2.GL_BACK);
+		gl2.glCullFace(GL2.GL_BACK);
 
 			
 		gl2.glPushMatrix();
@@ -235,7 +235,7 @@ implements Serializable {
 			gl2.glDisable(GL2.GL_LIGHTING);
 			PrimitiveSolids.drawGrid(gl2,50,5);
 			gl2.glEnable(GL2.GL_LIGHTING);
-			
+
 			// draw!
 			io = objects.iterator();
 			while(io.hasNext()) {
