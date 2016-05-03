@@ -36,6 +36,8 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 	private JButton arm5Dneg;
 	private JButton arm5Epos;
 	private JButton arm5Eneg;
+	private JButton arm5Fpos;
+	private JButton arm5Fneg;
 	
 	private JButton arm5Xpos;
 	private JButton arm5Xneg;
@@ -45,8 +47,7 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 	private JButton arm5Zneg;
 	
 	public JLabel xPos,yPos,zPos;
-	public JLabel a1,b1,c1,d1,e1;
-	public JLabel a2,b2,c2,d2,e2;
+	public JLabel a1,b1,c1,d1,e1,f1;
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
@@ -94,15 +95,10 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 		c1 = new JLabel("0.00");
 		d1 = new JLabel("0.00");
 		e1 = new JLabel("0.00");
-		// used for ik testing
-		a2 = new JLabel("0.00");
-		b2 = new JLabel("0.00");
-		c2 = new JLabel("0.00");
-		d2 = new JLabel("0.00");
-		e2 = new JLabel("0.00");
+		f1 = new JLabel("0.00");
 
 		
-		p = new JPanel(new GridLayout(5,3));
+		p = new JPanel(new GridLayout(6,3));
 		fkPanel.getContentPane().add(p);
 		con1.gridy++;
 
@@ -126,6 +122,10 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 		p.add(arm5Epos = createButton("E+"));
 		p.add(e1);
 		p.add(arm5Eneg = createButton("E-"));
+
+		p.add(arm5Fpos = createButton("F+"));
+		p.add(f1);
+		p.add(arm5Fneg = createButton("F-"));
 
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
 		this.add(ikPanel, con1);
@@ -212,6 +212,8 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 		if( subject == arm5Dneg ) robotArm.moveD(-1);
 		if( subject == arm5Epos ) robotArm.moveE(1);
 		if( subject == arm5Eneg ) robotArm.moveE(-1);
+		if( subject == arm5Fpos ) robotArm.moveF(1);
+		if( subject == arm5Fneg ) robotArm.moveF(-1);
 		
 		if( subject == arm5Xpos ) robotArm.moveX(1);
 		if( subject == arm5Xneg ) robotArm.moveX(-1);
