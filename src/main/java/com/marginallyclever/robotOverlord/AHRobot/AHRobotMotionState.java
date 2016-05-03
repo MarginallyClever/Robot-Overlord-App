@@ -15,6 +15,7 @@ class AHRobotMotionState implements Serializable {
 	 */
 	private static final long serialVersionUID = 1012199745425607761L;
 	// angle of rotation
+	float angleF = 0;
 	float angleE = 0;
 	float angleD = 0;
 	float angleC = 0;
@@ -59,6 +60,7 @@ class AHRobotMotionState implements Serializable {
 	
 	
 	void set(AHRobotMotionState other) {
+		angleF = other.angleF;
 		angleE = other.angleE;
 		angleD = other.angleD;
 		angleC = other.angleC;
@@ -159,10 +161,10 @@ class AHRobotMotionState implements Serializable {
 		ee = capRotation(ee);
 		ik_angleE = (float)Math.toDegrees(ee);
 
-		ik_shoulder.set(0,0,(float)(AHRobot.ANCHOR_ADJUST_Y+AHRobot.ANCHOR_TO_SHOULDER_Y));
+		ik_shoulder.set(0,0,(float)(AHRobot.ANCHOR_ADJUST_Z+AHRobot.ANCHOR_TO_SHOULDER_Z));
 		ik_boom.set((float)AHRobot.SHOULDER_TO_BOOM_X*(float)Math.cos(ee),
 					(float)AHRobot.SHOULDER_TO_BOOM_X*(float)Math.sin(ee),
-					(float)AHRobot.SHOULDER_TO_BOOM_Y);
+					(float)AHRobot.SHOULDER_TO_BOOM_Z);
 		ik_boom.add(ik_shoulder);
 		
 		// Find wrist 
@@ -272,98 +274,87 @@ class AHRobotMotionState implements Serializable {
 	 * @param state
 	 */
 	protected void forwardKinematics() {
+		double f = Math.toRadians(angleF);
 		double e = Math.toRadians(angleE);
 		double d = Math.toRadians(180-angleD);
 		double c = Math.toRadians(angleC+180);
-		double b = Math.toRadians(180-angleB);
+		double b = Math.toRadians(angleB);
 		double a = Math.toRadians(angleA);
 		
-		Vector3f v0 = new Vector3f(0,0,(float)(AHRobot.ANCHOR_ADJUST_Y+AHRobot.ANCHOR_TO_SHOULDER_Y));
-		Vector3f v1 = new Vector3f((float)AHRobot.SHOULDER_TO_BOOM_X*(float)Math.cos(e),
-									(float)AHRobot.SHOULDER_TO_BOOM_X*(float)Math.sin(e),
-									(float)AHRobot.SHOULDER_TO_BOOM_Y);
-		Vector3f planar = new Vector3f((float)Math.cos(e),(float)Math.sin(e),0);
-		planar.normalize();
-		Vector3f planeNormal = new Vector3f(-v1.y,v1.x,0);
-		planeNormal.normalize();
+		Vector3f originToShoulder = new Vector3f(0,0,(float)AHRobot.ANCHOR_ADJUST_Z+(float)AHRobot.ANCHOR_TO_SHOULDER_Z);
+		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
+		Vector3f up = new Vector3f(0,0,1);
 		Vector3f planarRight = new Vector3f();
-		planarRight.cross(planar, planeNormal);
+		planarRight.cross(facingDirection, up);
 		planarRight.normalize();
 
-		// anchor to shoulder
-		shoulder.set(v0);
-		
-		// shoulder to boom
-		v1.add(v0);
-		boom.set(v1);
+		shoulder.set(originToShoulder);
+		boom.set(originToShoulder);
 		
 		// boom to elbow
-		v0.set(v1);
-		v1.set(planar);
-		v1.scale( (float)( AHRobot.BOOM_TO_STICK_Y * Math.cos(d) ) );
+		Vector3f toElbow = new Vector3f(facingDirection);
+		float n = (float)AHRobot.SHOULDER_TO_BOOM_Z+(float)AHRobot.BOOM_TO_STICK_Y;
+		toElbow.scale( -(float)( n * Math.cos(-e) ) );
 		Vector3f v2 = new Vector3f();
-		v2.set(planarRight);
-		v2.scale( (float)( AHRobot.BOOM_TO_STICK_Y * Math.sin(d) ) );
-		v1.add(v2);
-		v1.add(v0);
+		v2.set(up);
+		v2.scale( -(float)( n * Math.sin(-e) ) );
+		toElbow.add(v2);
+		toElbow.add(originToShoulder);
 		
-		elbow.set(v1);
+		elbow.set(toElbow);
 		
 		// elbow to wrist
-		planar.set(v0);
-		planar.sub(v1);
-		planar.normalize();
-		planarRight.cross(planar, planeNormal);
-		planarRight.normalize();
-		v0.set(v1);
+		Vector3f towardsWrist = new Vector3f(toElbow);
+		towardsWrist.sub(originToShoulder);
+		towardsWrist.normalize();
+		Vector3f towardsWristOrtho = new Vector3f();
+		towardsWristOrtho.cross(towardsWrist, planarRight);
+		towardsWristOrtho.normalize();
 
-		v1.set(planar);
-		v1.scale( (float)( AHRobot.STICK_TO_WRIST_X * Math.cos(c) ) );
-		v2.set(planarRight);
-		v2.scale( (float)( AHRobot.STICK_TO_WRIST_X * Math.sin(c) ) );
+		n = -14.6855f-5.7162f-2.4838f;
+		Vector3f v1 = new Vector3f(towardsWrist);
+		v2.set(towardsWrist);
+		v1.scale( (float)( n * Math.cos(d) ) );
+		v2.set(towardsWristOrtho);
+		v2.scale( (float)( n * Math.sin(d) ) );
 		v1.add(v2);
-		v1.add(v0);
+		v1.add(toElbow);
 		
 		wrist.set(v1);
 
 		// wrist to finger
-		planar.set(v0);
-		planar.sub(v1);
-		planar.normalize();
-		planarRight.cross(planar, planeNormal);
-		planarRight.normalize();
-		v0.set(v1);
+		Vector3f towardsFinger = new Vector3f(v1);
+		towardsFinger.sub(toElbow);
+		towardsFinger.normalize();
 
-		v1.set(planar);
-		v1.scale( (float)( AHRobot.WRIST_TO_TOOL_X * Math.cos(b) ) );
+		v1.set(towardsWristOrtho);
+		v1.scale( (float)Math.cos(c) );
 		v2.set(planarRight);
-		v2.scale( (float)( AHRobot.WRIST_TO_TOOL_X * Math.sin(b) ) );
+		v2.scale( (float)Math.sin(c) );
 		v1.add(v2);
-		v1.add(v0);
 
-		fingerPosition.set(v1);
+		Vector3f wristX = new Vector3f(v1);
+		v1.add(wrist);
 
 		// finger rotation
-		planarRight.set(planeNormal);
-		planeNormal.set(v1);
-		planeNormal.sub(v0);
-		planeNormal.normalize();
-		planar.cross(planeNormal,planarRight);
-		v0.set(v1);
+		Vector3f orthoWrist = new Vector3f();
+		orthoWrist.cross(towardsWrist,wristX);
 
-		v1.set(planar);
-		v1.scale( (float)( AHRobot.WRIST_TO_TOOL_Y * Math.cos(a-b) ) );
-		v2.set(planarRight);
-		v2.scale( (float)( AHRobot.WRIST_TO_TOOL_Y * Math.sin(a-b) ) );
+		v1.set(orthoWrist);
+		v1.scale( (float)( Math.cos(b) ) );
+		v2.set(wristX);
+		v2.scale( (float)( Math.sin(b) ) );
 		v1.add(v2);
-		v1.normalize();
-		
-		v0.set(fingerPosition);
-		v0.sub(wrist);
 
-		fingerForward.set(planeNormal);
+		fingerPosition.set(v1);
+		n = AHRobot.WRIST_TO_TOOL_Y;
+		n = (float)AHRobot.WRIST_TO_TOOL_X;
+		fingerPosition.scale(n);
+		fingerPosition.add(wrist);
+
+		fingerForward.set(v1);
 		
-		fingerRight.cross(v1, planeNormal);
+		fingerRight.cross(v1, orthoWrist);
 		fingerRight.normalize();
 	}
 }

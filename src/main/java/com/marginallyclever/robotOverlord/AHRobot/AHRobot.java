@@ -32,18 +32,17 @@ extends RobotWithConnection {
 	public final static String ROBOT_NAME = "Andreas Holldorfer Arm";
 	
 	// machine dimensions from design software
-	public final static double ANCHOR_ADJUST_Y = 0.64;
-	public final static double ANCHOR_TO_SHOULDER_Y = 3.27;
-	public final static double SHOULDER_TO_PINION_X = -15;
-	public final static double SHOULDER_TO_PINION_Y = -2.28;
-	public final static double SHOULDER_TO_BOOM_X = 8;
-	public final static double SHOULDER_TO_BOOM_Y = 7;
-	public final static double BOOM_TO_STICK_Y = 37;
+	public final static double ANCHOR_ADJUST_Z = 2.7;
+	public final static double ANCHOR_TO_SHOULDER_Z = 24.5;
+
+	public final static double SHOULDER_TO_BOOM_X = -0.476;
+	public final static double SHOULDER_TO_BOOM_Z = 13.9744;
+	public final static double BOOM_TO_STICK_Y = 8.547;
 	public final static double STICK_TO_WRIST_X = -40.0;
 	public final static double WRIST_TO_PINION_X = 5;
 	public final static double WRIST_TO_PINION_Z = 1.43;
-	public final static float WRIST_TO_TOOL_X = -6.29f;
-	public final static float WRIST_TO_TOOL_Y = 1.0f;
+	public final static float WRIST_TO_TOOL_X = -5f;
+	public final static float WRIST_TO_TOOL_Y = 0.0f;
 	
 	// model files
 	private transient Model anchor = null;
@@ -69,6 +68,7 @@ extends RobotWithConnection {
 	protected float cDir = 0.0f;
 	protected float dDir = 0.0f;
 	protected float eDir = 0.0f;
+	protected float fDir = 0.0f;
 
 	protected float xDir = 0.0f;
 	protected float yDir = 0.0f;
@@ -80,8 +80,8 @@ extends RobotWithConnection {
 	protected double speed=2;
 
 	// visual debugging
-	protected boolean isRenderFKOn=false;
-	protected boolean isRenderIKOn=false;
+	protected boolean isRenderFKOn=true;
+	protected boolean isRenderIKOn=true;
 
 	// gui
 	protected transient AHRobotControlPanel arm5Panel=null;
@@ -207,6 +207,11 @@ extends RobotWithConnection {
 		enableFK();
 	}
 
+	public void moveF(float dir) {
+		fDir=dir;
+		enableFK();
+	}
+
 	public void moveX(float dir) {
 		xDir=dir;
 		disableFK();
@@ -328,12 +333,19 @@ extends RobotWithConnection {
 
 		motionFuture.set(motionNow);
 		
+		float dF = motionFuture.angleF;
 		float dE = motionFuture.angleE;
 		float dD = motionFuture.angleD;
 		float dC = motionFuture.angleC;
 		float dB = motionFuture.angleB;
 		float dA = motionFuture.angleA;
 
+		if (fDir!=0) {
+			dF += velabe * fDir;
+			changed=true;
+			fDir=0;
+		}
+		
 		if (eDir!=0) {
 			dE += velabe * eDir;
 			changed=true;
@@ -371,6 +383,7 @@ extends RobotWithConnection {
 			motionFuture.angleC=dC;
 			motionFuture.angleD=dD;
 			motionFuture.angleE=dE;
+			motionFuture.angleF=dF;
 			if(motionFuture.checkAngleLimits()) {
 				motionFuture.forwardKinematics();
 				isRenderIKOn=false;
@@ -412,12 +425,7 @@ extends RobotWithConnection {
 		arm5Panel.c1.setText(Float.toString(roundOff(motionNow.angleC)));
 		arm5Panel.d1.setText(Float.toString(roundOff(motionNow.angleD)));
 		arm5Panel.e1.setText(Float.toString(roundOff(motionNow.angleE)));
-		
-		arm5Panel.a2.setText(Float.toString(roundOff(motionNow.ik_angleA)));
-		arm5Panel.b2.setText(Float.toString(roundOff(motionNow.ik_angleB)));
-		arm5Panel.c2.setText(Float.toString(roundOff(motionNow.ik_angleC)));
-		arm5Panel.d2.setText(Float.toString(roundOff(motionNow.ik_angleD)));
-		arm5Panel.e2.setText(Float.toString(roundOff(motionNow.ik_angleE)));
+		arm5Panel.f1.setText(Float.toString(roundOff(motionNow.angleF)));
 
 		if( tool != null ) tool.updateGUI();
 	}
@@ -442,6 +450,9 @@ extends RobotWithConnection {
 		}
 		if(motionFuture.angleE!=motionNow.angleE) {
 			str+=" E"+roundOff(motionFuture.angleE);
+		}
+		if(motionFuture.angleF!=motionNow.angleF) {
+			str+=" F"+roundOff(motionFuture.angleF);
 		}
 		
 		if(str.length()>0) {
@@ -477,7 +488,7 @@ extends RobotWithConnection {
 				gl2.glTranslatef(position.x, position.y, position.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
-/*
+
 			if(isRenderFKOn) {
 				gl2.glPushMatrix();
 				gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -492,7 +503,7 @@ extends RobotWithConnection {
 				renderIK(gl2);
 				gl2.glEnable(GL2.GL_DEPTH_TEST);
 				gl2.glPopMatrix();
-			}*/
+			}
 		gl2.glPopMatrix();
 	}
 	
@@ -554,7 +565,7 @@ extends RobotWithConnection {
 		fr.set(motionNow.fingerPosition);
 		fr.add(motionNow.fingerRight);
 		
-		setColor(gl2,1,1,1,1);
+		setColor(gl2,0,0,0,1);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		
 		gl2.glVertex3d(0,0,0);
@@ -562,21 +573,24 @@ extends RobotWithConnection {
 		gl2.glVertex3d(motionNow.boom.x,motionNow.boom.y,motionNow.boom.z);
 		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
 		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
-		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		setColor(gl2,1,0,0,1);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);/*
+		setColor(gl2,0,0,0,1);
 		gl2.glVertex3d(ff.x,ff.y,ff.z);
+		setColor(gl2,1,1,1,1);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glVertex3d(fr.x,fr.y,fr.z);
-
+*/
 		gl2.glEnd();
 
-
+/*
 		// finger tip
 		setColor(gl2,1,0.8f,0,1);
 		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
 		setColor(gl2,0,0.8f,1,1);
 		PrimitiveSolids.drawStar(gl2, ff );
 		setColor(gl2,0,0,1,1);
-		PrimitiveSolids.drawStar(gl2, fr );
+		PrimitiveSolids.drawStar(gl2, fr );*/
 	
 		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
@@ -594,40 +608,38 @@ extends RobotWithConnection {
 		//gl2.glRotated(90, 1, 0, 0);
 
 		setColor(gl2,0,0,0,1);
-		gl2.glTranslated(0, 0, 2.7);
+		gl2.glTranslated(0, 0, ANCHOR_ADJUST_Z);
 		anchor.render(gl2);
 
-		// shoulder (E)
+		// shoulder
 		setColor(gl2,1,0,0,1);
-		gl2.glTranslated(0, 0, 24.5);
-		gl2.glRotated(motionNow.angleE,0,0,1);
+		gl2.glTranslated(0, 0, ANCHOR_TO_SHOULDER_Z);
+		gl2.glRotated(motionNow.angleF,0,0,1);
 		shoulder.render(gl2);
-
-		timer++;
 		
-		// boom (D)
+		// boom
 		setColor(gl2,0,0,1,1);
-		gl2.glRotated(180+motionNow.angleD, 0, 1, 0);
+		gl2.glRotated(180+motionNow.angleE, 0, 1, 0);
 		gl2.glRotated(90, 1, 0, 0);
-		gl2.glTranslated(13.9744,-0.476, 0);
+		gl2.glTranslated(SHOULDER_TO_BOOM_Z,SHOULDER_TO_BOOM_X, 0);
 		gl2.glPushMatrix();
 			boom.render(gl2);
 		gl2.glPopMatrix();
-
-		// stick (C)
+		
+		// stick
 		setColor(gl2,1,0,1,1);
-		gl2.glTranslated(8.547,0, 0);
+		gl2.glTranslated(BOOM_TO_STICK_Y,0, 0);
 		//drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
-		gl2.glRotated(motionNow.angleC, 0, 0, 1);
+		gl2.glRotated(motionNow.angleD, 0, 0, 1);
 		gl2.glTranslated(5.7162,0.3917,0.3488);
 		gl2.glPushMatrix();
 			stick.render(gl2);
 		gl2.glPopMatrix();
-
+		
 		// wrist
 		setColor(gl2,0,1,0,1);
 		gl2.glTranslated(0, -0.4474,-0.1229);
-		gl2.glRotated(motionNow.angleB,1,0,0);
+		gl2.glRotated(motionNow.angleC,1,0,0);
 		gl2.glRotated(90, 0, 1, 0);
 		gl2.glTranslated(0, 0, 2.4838);
 		gl2.glPushMatrix();
@@ -638,14 +650,14 @@ extends RobotWithConnection {
 		setColor(gl2,0.5f,0.5f,0.5f,1);
 		gl2.glTranslated(0,0,14.6855);
 		gl2.glRotated(90,0,1,0);
-		gl2.glRotated(motionNow.angleA,0,0,1);
+		gl2.glRotated(motionNow.angleB,0,0,1);
 		gl2.glPushMatrix();
 			hand.render(gl2);
 		gl2.glPopMatrix();
 		
 		gl2.glRotated(180, 0, 0, 1);
-		gl2.glTranslated(-5, 0, 0);
-		gl2.glRotated(timer, 1, 0, 0);
+		gl2.glTranslated(WRIST_TO_TOOL_X, 0, 0);
+		gl2.glRotated(motionNow.angleA, 1, 0, 0);
 		if(tool!=null) {
 			tool.render(gl2);
 		}
