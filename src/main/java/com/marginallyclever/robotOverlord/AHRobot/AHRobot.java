@@ -282,20 +282,20 @@ extends RobotWithConnection {
 			Vector3f or = new Vector3f(right);
 			Vector3f ou = new Vector3f(up);
 			
-			motionFuture.iku+=ru*dp;
-			motionFuture.ikv+=rv*dp;
-			motionFuture.ikw+=rw*dp;
+			motionFuture.ikU+=ru*dp;
+			motionFuture.ikV+=rv*dp;
+			motionFuture.ikW+=rw*dp;
 			
 			Vector3f result;
 
-			result = rotateAroundAxis(forward,of,motionFuture.iku);  // TODO rotating around itself has no effect.
-			result = rotateAroundAxis(result,or,motionFuture.ikv);
-			result = rotateAroundAxis(result,ou,motionFuture.ikw);
+			result = rotateAroundAxis(forward,of,motionFuture.ikU);  // TODO rotating around itself has no effect.
+			result = rotateAroundAxis(result,or,motionFuture.ikV);
+			result = rotateAroundAxis(result,ou,motionFuture.ikW);
 			motionFuture.fingerForward.set(result);
 
-			result = rotateAroundAxis(right,of,motionFuture.iku);
-			result = rotateAroundAxis(result,or,motionFuture.ikv);
-			result = rotateAroundAxis(result,ou,motionFuture.ikw);
+			result = rotateAroundAxis(right,of,motionFuture.ikU);
+			result = rotateAroundAxis(result,or,motionFuture.ikV);
+			result = rotateAroundAxis(result,ou,motionFuture.ikW);
 			motionFuture.fingerRight.set(result);
 			
 			//changed=true;
@@ -559,11 +559,13 @@ extends RobotWithConnection {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		Vector3f ff = new Vector3f();
-		ff.set(motionNow.fingerPosition);
-		ff.add(motionNow.fingerForward);
+		ff.set(motionNow.fingerForward);
+		ff.scale(5);
+		ff.add(motionNow.fingerPosition);
 		Vector3f fr = new Vector3f();
-		fr.set(motionNow.fingerPosition);
-		fr.add(motionNow.fingerRight);
+		fr.set(motionNow.fingerRight);
+		fr.scale(5);
+		fr.add(motionNow.fingerPosition);
 		
 		setColor(gl2,0,0,0,1);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
@@ -574,13 +576,13 @@ extends RobotWithConnection {
 		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
 		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
 		setColor(gl2,1,0,0,1);
-		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);/*
-		setColor(gl2,0,0,0,1);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glVertex3d(ff.x,ff.y,ff.z);
+		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		setColor(gl2,1,1,1,1);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glVertex3d(fr.x,fr.y,fr.z);
-*/
+
 		gl2.glEnd();
 
 /*
@@ -597,6 +599,7 @@ extends RobotWithConnection {
 	}
 	
 	int timer = 0;
+	boolean once=false;
 	
 	/**
 	 * Draw the physical model according to the angle values in the motionNow state.
@@ -604,9 +607,6 @@ extends RobotWithConnection {
 	 */
 	protected void renderModels(GL2 gl2) {
 		// anchor
-		// this rotation is here because the anchor model was built facing the wrong way.
-		//gl2.glRotated(90, 1, 0, 0);
-
 		setColor(gl2,0,0,0,1);
 		gl2.glTranslated(0, 0, ANCHOR_ADJUST_Z);
 		anchor.render(gl2);
@@ -623,7 +623,7 @@ extends RobotWithConnection {
 		gl2.glRotated(90, 1, 0, 0);
 		gl2.glTranslated(SHOULDER_TO_BOOM_Z,SHOULDER_TO_BOOM_X, 0);
 		gl2.glPushMatrix();
-			boom.render(gl2);
+		boom.render(gl2);
 		gl2.glPopMatrix();
 		
 		// stick
@@ -633,7 +633,7 @@ extends RobotWithConnection {
 		gl2.glRotated(motionNow.angleD, 0, 0, 1);
 		gl2.glTranslated(5.7162,0.3917,0.3488);
 		gl2.glPushMatrix();
-			stick.render(gl2);
+		stick.render(gl2);
 		gl2.glPopMatrix();
 		
 		// wrist
@@ -643,7 +643,7 @@ extends RobotWithConnection {
 		gl2.glRotated(90, 0, 1, 0);
 		gl2.glTranslated(0, 0, 2.4838);
 		gl2.glPushMatrix();
-			wrist.render(gl2);
+		wrist.render(gl2);
 		gl2.glPopMatrix();
 		
 		// tool holder
@@ -652,7 +652,7 @@ extends RobotWithConnection {
 		gl2.glRotated(90,0,1,0);
 		gl2.glRotated(motionNow.angleB,0,0,1);
 		gl2.glPushMatrix();
-			hand.render(gl2);
+		hand.render(gl2);
 		gl2.glPopMatrix();
 		
 		gl2.glRotated(180, 0, 0, 1);
@@ -661,6 +661,8 @@ extends RobotWithConnection {
 		if(tool!=null) {
 			tool.render(gl2);
 		}
+		
+		once=true;
 	}
 	
 	

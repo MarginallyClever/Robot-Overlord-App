@@ -28,9 +28,9 @@ class AHRobotMotionState implements Serializable {
 	public Vector3f fingerForward = new Vector3f();
 	public Vector3f fingerRight = new Vector3f();
 	// finger rotation
-	public float iku=0;
-	public float ikv=0;
-	public float ikw=0;
+	public float ikU=0;
+	public float ikV=0;
+	public float ikW=0;
 	// joint locations relative to base
 	Vector3f wrist = new Vector3f();
 	Vector3f elbow = new Vector3f();
@@ -52,6 +52,7 @@ class AHRobotMotionState implements Serializable {
 	Vector3f ik_elbow = new Vector3f();
 	Vector3f ik_boom = new Vector3f();
 	Vector3f ik_shoulder = new Vector3f();
+	float ik_angleF = 0;
 	float ik_angleE = 0;
 	float ik_angleD = 0;
 	float ik_angleC = 0;
@@ -67,9 +68,9 @@ class AHRobotMotionState implements Serializable {
 		angleB = other.angleB;
 		angleA = other.angleA;
 		angleServo = other.angleServo;
-		iku=other.iku;
-		ikv=other.ikv;
-		ikw=other.ikw;
+		ikU=other.ikU;
+		ikV=other.ikV;
+		ikW=other.ikW;
 		fingerForward.set(other.fingerForward);
 		fingerRight.set(other.fingerRight);
 		fingerPosition.set(other.fingerPosition);
@@ -89,6 +90,7 @@ class AHRobotMotionState implements Serializable {
 		ik_angleC = other.ik_angleC;
 		ik_angleD = other.ik_angleD;
 		ik_angleE = other.ik_angleE;
+		ik_angleF = other.ik_angleF;
 
 		ik_wrist.set(other.ik_wrist);
 		ik_elbow.set(other.ik_elbow);
@@ -254,6 +256,7 @@ class AHRobotMotionState implements Serializable {
 		aa = capRotation(aa);
 		ik_angleA = (float)Math.toDegrees(aa);
 		
+		angleF=ik_angleF;
 		angleA=ik_angleA;
 		angleB=ik_angleB;
 		angleC=ik_angleC;
@@ -279,7 +282,7 @@ class AHRobotMotionState implements Serializable {
 		double d = Math.toRadians(180-angleD);
 		double c = Math.toRadians(angleC+180);
 		double b = Math.toRadians(angleB);
-		double a = Math.toRadians(angleA);
+		//double a = Math.toRadians(angleA);
 		
 		Vector3f originToShoulder = new Vector3f(0,0,(float)AHRobot.ANCHOR_ADJUST_Z+(float)AHRobot.ANCHOR_TO_SHOULDER_Z);
 		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
@@ -293,68 +296,64 @@ class AHRobotMotionState implements Serializable {
 		
 		// boom to elbow
 		Vector3f toElbow = new Vector3f(facingDirection);
-		float n = (float)AHRobot.SHOULDER_TO_BOOM_Z+(float)AHRobot.BOOM_TO_STICK_Y;
-		toElbow.scale( -(float)( n * Math.cos(-e) ) );
-		Vector3f v2 = new Vector3f();
-		v2.set(up);
-		v2.scale( -(float)( n * Math.sin(-e) ) );
+		toElbow.scale( -(float)Math.cos(-e) );
+		Vector3f v2 = new Vector3f(up);
+		v2.scale( -(float)Math.sin(-e) );
 		toElbow.add(v2);
-		toElbow.add(originToShoulder);
+		float n = (float)AHRobot.SHOULDER_TO_BOOM_Z+(float)AHRobot.BOOM_TO_STICK_Y;
+		toElbow.scale(n);
 		
 		elbow.set(toElbow);
+		elbow.add(originToShoulder);
 		
 		// elbow to wrist
-		Vector3f towardsWrist = new Vector3f(toElbow);
-		towardsWrist.sub(originToShoulder);
-		towardsWrist.normalize();
-		Vector3f towardsWristOrtho = new Vector3f();
-		towardsWristOrtho.cross(towardsWrist, planarRight);
-		towardsWristOrtho.normalize();
+		Vector3f towardsElbowOrtho = new Vector3f();
+		towardsElbowOrtho.cross(toElbow, planarRight);
+		towardsElbowOrtho.normalize();
 
+		Vector3f elbowToWrist = new Vector3f(toElbow);
+		elbowToWrist.normalize();
+		elbowToWrist.scale( (float)Math.cos(d) );
+		v2.set(towardsElbowOrtho);
+		v2.scale( (float)Math.sin(d) );
+		elbowToWrist.add(v2);
 		n = -14.6855f-5.7162f-2.4838f;
-		Vector3f v1 = new Vector3f(towardsWrist);
-		v2.set(towardsWrist);
-		v1.scale( (float)( n * Math.cos(d) ) );
-		v2.set(towardsWristOrtho);
-		v2.scale( (float)( n * Math.sin(d) ) );
-		v1.add(v2);
-		v1.add(toElbow);
+		elbowToWrist.scale(n);
 		
-		wrist.set(v1);
+		wrist.set(elbowToWrist);
+		wrist.add(elbow);
 
 		// wrist to finger
-		Vector3f towardsFinger = new Vector3f(v1);
-		towardsFinger.sub(toElbow);
+		Vector3f wristOrthoBeforeUlnaRotation = new Vector3f();
+		wristOrthoBeforeUlnaRotation.cross(elbowToWrist, planarRight);
+		wristOrthoBeforeUlnaRotation.normalize();
+		Vector3f wristOrthoAfterRotation = new Vector3f(wristOrthoBeforeUlnaRotation);
+		
+		wristOrthoAfterRotation.scale( (float)Math.cos(-c) );
+		v2.set(planarRight);
+		v2.scale( (float)Math.sin(-c) );
+		wristOrthoAfterRotation.add(v2);
+		wristOrthoAfterRotation.normalize();
+
+		Vector3f towardsFinger = new Vector3f();
+
+		towardsFinger.set(elbowToWrist);
+		towardsFinger.normalize();
+		towardsFinger.scale( (float)( Math.cos(-b) ) );
+		v2.set(wristOrthoAfterRotation);
+		v2.scale( (float)( Math.sin(-b) ) );
+		towardsFinger.add(v2);
 		towardsFinger.normalize();
 
-		v1.set(towardsWristOrtho);
-		v1.scale( (float)Math.cos(c) );
-		v2.set(planarRight);
-		v2.scale( (float)Math.sin(c) );
-		v1.add(v2);
-
-		Vector3f wristX = new Vector3f(v1);
-		v1.add(wrist);
-
-		// finger rotation
-		Vector3f orthoWrist = new Vector3f();
-		orthoWrist.cross(towardsWrist,wristX);
-
-		v1.set(orthoWrist);
-		v1.scale( (float)( Math.cos(b) ) );
-		v2.set(wristX);
-		v2.scale( (float)( Math.sin(b) ) );
-		v1.add(v2);
-
-		fingerPosition.set(v1);
-		n = AHRobot.WRIST_TO_TOOL_Y;
+		fingerPosition.set(towardsFinger);
 		n = (float)AHRobot.WRIST_TO_TOOL_X;
 		fingerPosition.scale(n);
 		fingerPosition.add(wrist);
 
-		fingerForward.set(v1);
-		
-		fingerRight.cross(v1, orthoWrist);
+		// finger rotation
+		fingerRight.cross(elbowToWrist,wristOrthoAfterRotation);
 		fingerRight.normalize();
+
+		fingerForward.set(towardsFinger);
 	}
 }

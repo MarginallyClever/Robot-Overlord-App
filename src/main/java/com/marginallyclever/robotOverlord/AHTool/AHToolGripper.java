@@ -46,7 +46,7 @@ public class AHToolGripper extends AHTool {
 	}
 	
 	protected void setupModels() {
-		modelAdapter = Model.loadModelBinary("/Gripper/Adapter.stl",0.1f);
+		modelAdapter = Model.loadModel("/Gripper/Adapter.stl",0.1f);
 		modelMain = Model.loadModel("/Gripper/Main.stl",0.1f);
 		modelRearbar = Model.loadModel("/Gripper/Rearbar.stl",0.1f);
 		modelFrontbar = Model.loadModel("/Gripper/Frontbar.stl",0.1f);
