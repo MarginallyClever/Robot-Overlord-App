@@ -8,9 +8,10 @@ import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.robotOverlord.Model;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 
 /**
@@ -46,15 +47,15 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	}
 	
 	protected void setupModels() {
-		modelAdapter = Model.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
-		modelMain = Model.createModelFromFilename("/Gripper/Main.stl",0.1f);
-		modelRearbar = Model.createModelFromFilename("/Gripper/Rearbar.stl",0.1f);
-		modelFrontbar = Model.createModelFromFilename("/Gripper/Frontbar.stl",0.1f);
-		modelLeftGear = Model.createModelFromFilename("/Gripper/LeftGear.stl",0.1f);
-		modelRightGear = Model.createModelFromFilename("/Gripper/RightGear.stl",0.1f);
-		modelBase = Model.createModelFromFilename("/Gripper/Base.stl",0.1f);
-		modelGripper = Model.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
-		modelServo = Model.createModelFromFilename("/Spidee.zip:SG5010.stl");
+		modelAdapter = ModelFactory.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
+		modelMain = ModelFactory.createModelFromFilename("/Gripper/Main.stl",0.1f);
+		modelRearbar = ModelFactory.createModelFromFilename("/Gripper/Rearbar.stl",0.1f);
+		modelFrontbar = ModelFactory.createModelFromFilename("/Gripper/Frontbar.stl",0.1f);
+		modelLeftGear = ModelFactory.createModelFromFilename("/Gripper/LeftGear.stl",0.1f);
+		modelRightGear = ModelFactory.createModelFromFilename("/Gripper/RightGear.stl",0.1f);
+		modelBase = ModelFactory.createModelFromFilename("/Gripper/Base.stl",0.1f);
+		modelGripper = ModelFactory.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
+		modelServo = ModelFactory.createModelFromFilename("/Spidee.zip:SG5010.stl");
 	}
 
     private void readObject(ObjectInputStream inputStream)

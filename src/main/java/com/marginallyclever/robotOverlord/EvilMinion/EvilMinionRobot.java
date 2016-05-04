@@ -7,6 +7,8 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.EvilMinionTool.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -122,15 +124,15 @@ extends RobotWithConnection {
 	
 
 	protected void setupModels() {
-		anchor = Model.createModelFromFilename("/ArmParts.zip:anchor.STL",0.1f);
-		shoulder = Model.createModelFromFilename("/ArmParts.zip:shoulder1.STL",0.1f);
-		shoulderPinion = Model.createModelFromFilename("/ArmParts.zip:shoulder_pinion.STL",0.1f);
-		boom = Model.createModelFromFilename("/ArmParts.zip:boom.STL",0.1f);
-		stick = Model.createModelFromFilename("/ArmParts.zip:stick.STL",0.1f);
-		wristBone = Model.createModelFromFilename("/ArmParts.zip:wrist_bone.STL",0.1f);
-		wristEnd = Model.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
-		wristInterior = Model.createModelFromFilename("/ArmParts.zip:wrist_interior.STL",0.1f);
-		wristPinion = Model.createModelFromFilename("/ArmParts.zip:wrist_pinion.STL",0.1f);
+		anchor = ModelFactory.createModelFromFilename("/ArmParts.zip:anchor.STL",0.1f);
+		shoulder = ModelFactory.createModelFromFilename("/ArmParts.zip:shoulder1.STL",0.1f);
+		shoulderPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:shoulder_pinion.STL",0.1f);
+		boom = ModelFactory.createModelFromFilename("/ArmParts.zip:boom.STL",0.1f);
+		stick = ModelFactory.createModelFromFilename("/ArmParts.zip:stick.STL",0.1f);
+		wristBone = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_bone.STL",0.1f);
+		wristEnd = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
+		wristInterior = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_interior.STL",0.1f);
+		wristPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_pinion.STL",0.1f);
 	}
 
     private void readObject(ObjectInputStream inputStream)

@@ -7,6 +7,8 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.AHTool.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -119,12 +121,12 @@ extends RobotWithConnection {
 	
 
 	protected void setupModels() {
-		anchor = Model.createModelFromFilename("/AH/rotBaseCase-smooth.stl",0.1f);
-		shoulder = Model.createModelFromFilename("/AH/Shoulder_r1-smooth.stl",0.1f);
-		boom = Model.createModelFromFilename("/AH/Elbow-smooth.stl",0.1f);
-		stick = Model.createModelFromFilename("/AH/Forearm-smooth.stl",0.1f);
-		wrist = Model.createModelFromFilename("/AH/Wrist_r1-smooth.stl",0.1f);
-		hand = Model.createModelFromFilename("/AH/WristRot-smooth.stl",0.1f);
+		anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase-smooth.stl",0.1f);
+		shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1-smooth.stl",0.1f);
+		boom = ModelFactory.createModelFromFilename("/AH/Elbow-smooth.stl",0.1f);
+		stick = ModelFactory.createModelFromFilename("/AH/Forearm-smooth.stl",0.1f);
+		wrist = ModelFactory.createModelFromFilename("/AH/Wrist_r1-smooth.stl",0.1f);
+		hand = ModelFactory.createModelFromFilename("/AH/WristRot-smooth.stl",0.1f);
 	}
 
 	

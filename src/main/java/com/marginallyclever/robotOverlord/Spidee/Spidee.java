@@ -16,11 +16,11 @@ import java.util.prefs.Preferences;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
-
-import com.marginallyclever.robotOverlord.Model;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.RobotWithConnection;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 import java.io.BufferedReader;
 
@@ -278,12 +278,12 @@ implements ActionListener {
 	}
 	
 	protected void setupModels() {
-		  modelThigh = Model.createModelFromFilename( "/Spidee.zip:thigh.stl");
-		  modelBody = Model.createModelFromFilename( "/Spidee.zip:body.stl");
-		  modelShoulderLeft = Model.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
-		  modelShoulderRight = Model.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
-		  modelShinLeft = Model.createModelFromFilename( "/Spidee.zip:shin_left.stl");
-		  modelShinRight = Model.createModelFromFilename( "/Spidee.zip:shin_right.stl");
+		  modelThigh = ModelFactory.createModelFromFilename( "/Spidee.zip:thigh.stl");
+		  modelBody = ModelFactory.createModelFromFilename( "/Spidee.zip:body.stl");
+		  modelShoulderLeft = ModelFactory.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
+		  modelShoulderRight = ModelFactory.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
+		  modelShinLeft = ModelFactory.createModelFromFilename( "/Spidee.zip:shin_left.stl");
+		  modelShinRight = ModelFactory.createModelFromFilename( "/Spidee.zip:shin_right.stl");
 	}
 
     private void readObject(ObjectInputStream inputStream)
