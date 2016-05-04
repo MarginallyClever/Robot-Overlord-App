@@ -83,6 +83,9 @@ public class Model implements Serializable {
 		ZipEntry entry;
 		InputStreamReader isr;
 		BufferedReader stream;
+		
+		boolean isSTL2=fname.endsWith(".stl2");
+		
 		try {
 			// check if the file is binary or ASCII
 			zipFile = new ZipInputStream(getInputStream(zipName));
@@ -108,7 +111,7 @@ public class Model implements Serializable {
 		    while((entry = zipFile.getNextEntry())!=null) {
 		        if( entry.getName().equals(fname) ) {
 			        if(isBinary) {
-				        loadFromStreamBinary(zipFile);
+				        loadFromStreamBinary(zipFile,isSTL2);
 			        } else {
 				        stream = new BufferedReader(isr);
 			        	initialize(stream);
@@ -124,7 +127,7 @@ public class Model implements Serializable {
 			    while((entry = zipFile.getNextEntry())!=null) {
 			        if( entry.getName().equals(fname) ) {
 				        stream = new BufferedReader(isr);
-				        loadFromStream(stream);
+				        loadFromStream(stream,isSTL2);
 				        break;
 			        }
 			    }
@@ -138,6 +141,8 @@ public class Model implements Serializable {
 	
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	private void loadFromFile(String fname) {
+		boolean isSTL2=fname.endsWith(".stl2");
+		
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
@@ -148,13 +153,13 @@ public class Model implements Serializable {
 			isBinary = !binaryCheck.toString().equalsIgnoreCase("SOLID");
 		
 			if(isBinary) {
-				loadFromStreamBinary(getInputStream(fname));
+				loadFromStreamBinary(getInputStream(fname),isSTL2);
 			} else {
 				br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
 			    initialize(br);
 			    br.close();
 				br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
-			    loadFromStream(br);   
+			    loadFromStream(br,isSTL2);   
 			}
 		}
 		catch(IOException e) {
@@ -187,59 +192,88 @@ public class Model implements Serializable {
 		normals = FloatBuffer.allocate(totalBufferSize);  // num_triangles * normal per triangle (1) * float per point		
 	}
 	
-	private void loadFromStream(BufferedReader br) throws IOException {
+	private void loadFromStream(BufferedReader br,boolean isSTL2) throws IOException {
 		String line;
 		int j;
-		
-		j=0;
+		float x,y,z,len;
 		String facet_normal = "facet normal ";
 		String vertex = "vertex ";
-		while( ( line = br.readLine() ) != null ) {
-			line = line.trim();
-			if( line.startsWith(facet_normal) ) {
-				line = line.substring(facet_normal.length());
-			} else if( line.startsWith(vertex) ) {
-				line = line.substring(vertex.length());
-			} else {
-				continue;
-			}
-			line = line.trim();
-			String c[] = line.split(" ");
-			float x=0,y=0,z=0;
-			try {
-				x=Float.parseFloat(c[0]);
-				y=Float.parseFloat(c[1]);
-				z=Float.parseFloat(c[2]);
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-			if(j==0) {
-				float len = (float)Math.sqrt(x*x+y*y+z*z);
-				x/=len;
-				y/=len;
-				z/=len;
-				
-				normals.put(x);
-				normals.put(y);
-				normals.put(z);
-				
-				normals.put(x);
-				normals.put(y);
-				normals.put(z);
-				
-				normals.put(x);
-				normals.put(y);
-				normals.put(z);
-			} else {
-				vertices.put(x*loadScale);
-				vertices.put(y*loadScale);
-				vertices.put(z*loadScale);
-			}
-			j = (j+1)%4;
-		}
 		
-	    isLoaded=true;
+		try {
+			j=0;
+			while( ( line = br.readLine() ) != null ) {
+				line = line.trim();
+				if( line.startsWith(facet_normal) ) {
+					line = line.substring(facet_normal.length());
+				} else if( line.startsWith(vertex) ) {
+					line = line.substring(vertex.length());
+				} else {
+					continue;
+				}
+				line = line.trim();
+				String c[] = line.split(" ");
+				if(j==0) {
+					x=Float.parseFloat(c[0]);
+					y=Float.parseFloat(c[1]);
+					z=Float.parseFloat(c[2]);
+					len = length(x,y,z);
+					x/=len;
+					y/=len;
+					z/=len;
+					
+					normals.put(x);
+					normals.put(y);
+					normals.put(z);
+					
+					if(!isSTL2) {
+						normals.put(x);
+						normals.put(y);
+						normals.put(z);
+						
+						normals.put(x);
+						normals.put(y);
+						normals.put(z);
+					} else {
+						x=Float.parseFloat(c[0]);
+						y=Float.parseFloat(c[1]);
+						z=Float.parseFloat(c[2]);
+						len = length(x,y,z);
+						x/=len;
+						y/=len;
+						z/=len;
+						
+						normals.put(x);
+						normals.put(y);
+						normals.put(z);
+
+						x=Float.parseFloat(c[0]);
+						y=Float.parseFloat(c[1]);
+						z=Float.parseFloat(c[2]);
+						len = length(x,y,z);
+						x/=len;
+						y/=len;
+						z/=len;
+						
+						normals.put(x);
+						normals.put(y);
+						normals.put(z);
+					}
+				} else {
+					x=Float.parseFloat(c[0]);
+					y=Float.parseFloat(c[1]);
+					z=Float.parseFloat(c[2]);
+					
+					vertices.put(x*loadScale);
+					vertices.put(y*loadScale);
+					vertices.put(z*loadScale);
+				}
+				j = (j+1)%4;
+			}
+		    isLoaded=true;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void saveToStreamAsBinary(OutputStream os) throws IOException {
@@ -268,7 +302,14 @@ public class Model implements Serializable {
 	    	dataBuffer.putFloat(normals.get(k++));
 	    	dataBuffer.putFloat(normals.get(k++));
 	    	dataBuffer.putFloat(normals.get(k++));
-	    	k+=6;
+
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	dataBuffer.putFloat(normals.get(k++));
+
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	dataBuffer.putFloat(normals.get(k++));
 
 	    	dataBuffer.putFloat(vertices.get(j++));
 	    	dataBuffer.putFloat(vertices.get(j++));
@@ -289,7 +330,7 @@ public class Model implements Serializable {
 	}
 	
 	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
-	private void loadFromStreamBinary(InputStream is) throws IOException {
+	private void loadFromStreamBinary(InputStream is,boolean isSTL2) throws IOException {
 		int j;
 
 	    byte[] headerInfo=new byte[80];             // Header data
@@ -301,7 +342,10 @@ public class Model implements Serializable {
 	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
 	    numTriangles = dataBuffer.getInt();
 
-	    byte[] tempInfo = new byte[50*numTriangles];     // Each face has 50 bytes of data
+	    int byteCount = 50;
+	    if(isSTL2) byteCount = 74;
+	    
+	    byte[] tempInfo = new byte[byteCount*numTriangles];     // Each face has 50 bytes of data
         is.read(tempInfo);                         // We get the rest of the file
         dataBuffer = ByteBuffer.wrap(tempInfo);    // Now we have all the data in this ByteBuffer
         dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -320,13 +364,29 @@ public class Model implements Serializable {
 			normals.put(y);
 			normals.put(z);
 			
-			normals.put(x);
-			normals.put(y);
-			normals.put(z);
-			
-			normals.put(x);
-			normals.put(y);
-			normals.put(z);
+			if(!isSTL2) {
+				normals.put(x);
+				normals.put(y);
+				normals.put(z);
+				
+				normals.put(x);
+				normals.put(y);
+				normals.put(z);
+			} else {
+				x=dataBuffer.getFloat();
+				y=dataBuffer.getFloat();
+				z=dataBuffer.getFloat();
+				normals.put(x);
+				normals.put(y);
+				normals.put(z);
+
+				x=dataBuffer.getFloat();
+				y=dataBuffer.getFloat();
+				z=dataBuffer.getFloat();
+				normals.put(x);
+				normals.put(y);
+				normals.put(z);
+			}
 
 			x=dataBuffer.getFloat();
 			y=dataBuffer.getFloat();

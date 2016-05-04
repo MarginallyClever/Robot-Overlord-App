@@ -121,12 +121,12 @@ extends RobotWithConnection {
 	
 
 	protected void setupModels() {
-		anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase-smooth.stl",0.1f);
-		shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1-smooth.stl",0.1f);
-		boom = ModelFactory.createModelFromFilename("/AH/Elbow-smooth.stl",0.1f);
-		stick = ModelFactory.createModelFromFilename("/AH/Forearm-smooth.stl",0.1f);
-		wrist = ModelFactory.createModelFromFilename("/AH/Wrist_r1-smooth.stl",0.1f);
-		hand = ModelFactory.createModelFromFilename("/AH/WristRot-smooth.stl",0.1f);
+		anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase-smooth.stl2",0.1f);
+		shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1-smooth.stl2",0.1f);
+		boom = ModelFactory.createModelFromFilename("/AH/Elbow-smooth.stl2",0.1f);
+		stick = ModelFactory.createModelFromFilename("/AH/Forearm-smooth.stl2",0.1f);
+		wrist = ModelFactory.createModelFromFilename("/AH/Wrist_r1-smooth.stl2",0.1f);
+		hand = ModelFactory.createModelFromFilename("/AH/WristRot-smooth.stl2",0.1f);
 	}
 
 	
