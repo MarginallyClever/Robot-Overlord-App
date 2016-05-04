@@ -46,15 +46,15 @@ public class AHToolGripper extends AHTool {
 	}
 	
 	protected void setupModels() {
-		modelAdapter = Model.loadModel("/Gripper/Adapter.stl",0.1f);
-		modelMain = Model.loadModel("/Gripper/Main.stl",0.1f);
-		modelRearbar = Model.loadModel("/Gripper/Rearbar.stl",0.1f);
-		modelFrontbar = Model.loadModel("/Gripper/Frontbar.stl",0.1f);
-		modelLeftGear = Model.loadModel("/Gripper/LeftGear.stl",0.1f);
-		modelRightGear = Model.loadModel("/Gripper/RightGear.stl",0.1f);
-		modelBase = Model.loadModel("/Gripper/Base.stl",0.1f);
-		modelGripper = Model.loadModel("/Gripper/Gripper.stl",0.1f);
-		modelServo = Model.loadModel("/Spidee.zip:SG5010.stl");
+		modelAdapter = Model.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
+		modelMain = Model.createModelFromFilename("/Gripper/Main.stl",0.1f);
+		modelRearbar = Model.createModelFromFilename("/Gripper/Rearbar.stl",0.1f);
+		modelFrontbar = Model.createModelFromFilename("/Gripper/Frontbar.stl",0.1f);
+		modelLeftGear = Model.createModelFromFilename("/Gripper/LeftGear.stl",0.1f);
+		modelRightGear = Model.createModelFromFilename("/Gripper/RightGear.stl",0.1f);
+		modelBase = Model.createModelFromFilename("/Gripper/Base.stl",0.1f);
+		modelGripper = Model.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
+		modelServo = Model.createModelFromFilename("/Spidee.zip:SG5010.stl");
 	}
 
     private void readObject(ObjectInputStream inputStream)

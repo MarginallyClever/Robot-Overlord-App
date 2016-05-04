@@ -119,12 +119,12 @@ extends RobotWithConnection {
 	
 
 	protected void setupModels() {
-		anchor = Model.loadModel("/AH/rotBaseCase.stl",0.1f);
-		shoulder = Model.loadModel("/AH/Shoulder_r1.stl",0.1f);
-		boom = Model.loadModel("/AH/Elbow.stl",0.1f);
-		stick = Model.loadModel("/AH/Forearm.stl",0.1f);
-		wrist = Model.loadModel("/AH/Wrist_r1.stl",0.1f);
-		hand = Model.loadModel("/AH/WristRot.stl",0.1f);
+		anchor = Model.createModelFromFilename("/AH/rotBaseCase-smooth.stl",0.1f);
+		shoulder = Model.createModelFromFilename("/AH/Shoulder_r1-smooth.stl",0.1f);
+		boom = Model.createModelFromFilename("/AH/Elbow-smooth.stl",0.1f);
+		stick = Model.createModelFromFilename("/AH/Forearm-smooth.stl",0.1f);
+		wrist = Model.createModelFromFilename("/AH/Wrist_r1-smooth.stl",0.1f);
+		hand = Model.createModelFromFilename("/AH/WristRot-smooth.stl",0.1f);
 	}
 
 	

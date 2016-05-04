@@ -31,7 +31,7 @@ public class ModelInWorld extends ObjectInWorld {
 	
 	public void render(GL2 gl2) {
 		if( model==null && filename != null ) {
-			model = Model.loadModel(filename);
+			model = Model.createModelFromFilename(filename);
 		}
 		if( model==null ) return;
 		

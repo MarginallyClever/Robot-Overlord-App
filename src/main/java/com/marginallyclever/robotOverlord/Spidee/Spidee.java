@@ -278,12 +278,12 @@ implements ActionListener {
 	}
 	
 	protected void setupModels() {
-		  modelThigh = Model.loadModel( "/Spidee.zip:thigh.stl");
-		  modelBody = Model.loadModel( "/Spidee.zip:body.stl");
-		  modelShoulderLeft = Model.loadModel( "/Spidee.zip:shoulder_left.stl");
-		  modelShoulderRight = Model.loadModel( "/Spidee.zip:shoulder_right.stl");
-		  modelShinLeft = Model.loadModel( "/Spidee.zip:shin_left.stl");
-		  modelShinRight = Model.loadModel( "/Spidee.zip:shin_right.stl");
+		  modelThigh = Model.createModelFromFilename( "/Spidee.zip:thigh.stl");
+		  modelBody = Model.createModelFromFilename( "/Spidee.zip:body.stl");
+		  modelShoulderLeft = Model.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
+		  modelShoulderRight = Model.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
+		  modelShinLeft = Model.createModelFromFilename( "/Spidee.zip:shin_left.stl");
+		  modelShinRight = Model.createModelFromFilename( "/Spidee.zip:shin_right.stl");
 	}
 
     private void readObject(ObjectInputStream inputStream)

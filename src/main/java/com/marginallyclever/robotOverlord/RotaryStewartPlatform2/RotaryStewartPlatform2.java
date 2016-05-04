@@ -158,9 +158,9 @@ extends RobotWithConnection
 	
 
 	protected void setupVisualModels() {
-		modelTop = Model.loadModel("/StewartPlatform.zip:top.STL",0.1f);
-		modelArm = Model.loadModel("/StewartPlatform.zip:arm.STL",0.1f);
-		modelBase = Model.loadModel("/StewartPlatform.zip:base.STL",0.1f);
+		modelTop = Model.createModelFromFilename("/StewartPlatform.zip:top.STL",0.1f);
+		modelArm = Model.createModelFromFilename("/StewartPlatform.zip:arm.STL",0.1f);
+		modelBase = Model.createModelFromFilename("/StewartPlatform.zip:base.STL",0.1f);
 	}
 
     private void readObject(ObjectInputStream inputStream)

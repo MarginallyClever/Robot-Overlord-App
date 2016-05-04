@@ -110,9 +110,9 @@ extends RobotWithConnection {
 
 	
 	private void setupModels() {
-		modelTop = Model.loadModel("/DeltaRobot3.zip:top.STL",0.1f);
-		modelArm = Model.loadModel("/DeltaRobot3.zip:arm.STL",0.1f);
-		modelBase = Model.loadModel("/DeltaRobot3.zip:base.STL",0.1f);
+		modelTop = Model.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
+		modelArm = Model.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
+		modelBase = Model.createModelFromFilename("/DeltaRobot3.zip:base.STL",0.1f);
 	}
 	
 	
