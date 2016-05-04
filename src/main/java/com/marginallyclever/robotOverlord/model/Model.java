@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.model;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,8 +10,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.nio.ByteBuffer;
@@ -20,66 +18,40 @@ import java.nio.CharBuffer;
 
 import com.jogamp.opengl.GL2;
 
-
+/**
+ * contains the vertex, normal, and texture data for a 3D model.
+ * @author dan royer
+ *
+ */
 public class Model implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7136313382885361812L;
 
-	private static LinkedList<Model> modelPool = new LinkedList<Model>();
-	
 	public final static int NUM_BUFFERS=2;  // verts, normals
 	
-	protected transient String name = null;
+	protected transient String sourceName = null;
 	protected transient int numTriangles;
 	protected transient FloatBuffer vertices;
 	protected transient FloatBuffer normals;
+	protected transient FloatBuffer textureCoordinates;
 	protected transient int VBO[] = null;
 	protected transient boolean isLoaded = false;
 	protected transient boolean isBinary = false;
 	protected transient float loadScale=1.0f;
 
 	
-	private Model() {}
-	private Model(String filename) {
-		name = filename;
+	public Model() {}
+
+	
+	public void setSourceName(String sourceName) {
+		this.sourceName = sourceName;
+	}
+	public String getSourceName() {
+		return sourceName;
 	}
 
-	/**
-	 * save as createModelFromFilename, and scales the model on load.
-	 * @param sourceName
-	 * @param loadScale
-	 * @return the Model instance.
-	 */
-	public static Model createModelFromFilename(String sourceName,float loadScale) {
-		Model m = createModelFromFilename(sourceName);
-		m.loadScale = loadScale;
-		return m;
-	}
-
-	/**
-	 * Model factory makes sure to only load one instance of each source file.  The instance returned might not yet be loaded.
-	 * @param sourceName
-	 * @param loadScale
-	 * @return the Model instance.
-	 */
-	public static Model createModelFromFilename(String sourceName) {
-		// find the existing model in the pool
-		Iterator<Model> iter = modelPool.iterator();
-		while(iter.hasNext()) {
-			Model m = iter.next();
-			if(m.name.equals(sourceName)) {
-				return m;
-			}
-		}
-		
-		Model m = new Model(sourceName);
-		modelPool.add(m);
-		return m;
-	}
-	
-	
 	public boolean isLoaded() {
 		return isLoaded;
 	}
@@ -88,13 +60,13 @@ public class Model implements Serializable {
 	public void load() {
 		if(isLoaded) return;
 		
-		File f = new File(name);
+		File f = new File(sourceName);
 		int index = f.getName().lastIndexOf(":");
 		if(index==-1) {
-			loadFromFile(name);
+			loadFromFile(sourceName);
 		} else {
-			index = name.lastIndexOf(":");
-			loadFromZip(name.substring(0, index), name.substring(index+1,name.length()));
+			index = sourceName.lastIndexOf(":");
+			loadFromZip(sourceName.substring(0, index), sourceName.substring(index+1,sourceName.length()));
 		}
 	}
 	

@@ -16,6 +16,8 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 public class RotaryStewartPlatform2
 extends RobotWithConnection  
@@ -158,9 +160,9 @@ extends RobotWithConnection
 	
 
 	protected void setupVisualModels() {
-		modelTop = Model.createModelFromFilename("/StewartPlatform.zip:top.STL",0.1f);
-		modelArm = Model.createModelFromFilename("/StewartPlatform.zip:arm.STL",0.1f);
-		modelBase = Model.createModelFromFilename("/StewartPlatform.zip:base.STL",0.1f);
+		modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL",0.1f);
+		modelArm = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL",0.1f);
+		modelBase = ModelFactory.createModelFromFilename("/StewartPlatform.zip:base.STL",0.1f);
 	}
 
     private void readObject(ObjectInputStream inputStream)

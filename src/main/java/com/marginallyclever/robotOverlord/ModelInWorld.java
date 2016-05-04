@@ -1,6 +1,8 @@
 package com.marginallyclever.robotOverlord;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 
 public class ModelInWorld extends ObjectInWorld {
@@ -31,7 +33,7 @@ public class ModelInWorld extends ObjectInWorld {
 	
 	public void render(GL2 gl2) {
 		if( model==null && filename != null ) {
-			model = Model.createModelFromFilename(filename);
+			model = ModelFactory.createModelFromFilename(filename);
 		}
 		if( model==null ) return;
 		

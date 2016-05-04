@@ -1,10 +1,10 @@
 package com.marginallyclever.robotOverlord.EvilMinionTool;
 
 import com.jogamp.opengl.GL2;
-
-import com.marginallyclever.robotOverlord.Model;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.EvilMinion.EvilMinionRobot;
+import com.marginallyclever.robotOverlord.model.Model;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 public abstract class EvilMinionTool extends PhysicalObject {
 	/**
@@ -26,7 +26,7 @@ public abstract class EvilMinionTool extends PhysicalObject {
 	
 	public void render(GL2 gl2) {
 		if( visibleShape==null && shapeFile!=null ) {
-			visibleShape = Model.createModelFromFilename(shapeFile);
+			visibleShape = ModelFactory.createModelFromFilename(shapeFile);
 		}
 		if( visibleShape.isLoaded()==false ) return;
 
