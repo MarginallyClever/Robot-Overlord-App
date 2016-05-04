@@ -26,7 +26,7 @@ public abstract class AHTool extends PhysicalObject {
 	
 	public void render(GL2 gl2) {
 		if( visibleShape==null && shapeFile!=null ) {
-			visibleShape = Model.loadModel(shapeFile);
+			visibleShape = Model.createModelFromFilename(shapeFile);
 		}
 		if( visibleShape.isLoaded()==false ) return;
 

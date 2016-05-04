@@ -46,13 +46,25 @@ public class Model implements Serializable {
 		name = filename;
 	}
 
-	public static Model loadModel(String sourceName,float loadScale) {
-		Model m = loadModel(sourceName);
+	/**
+	 * save as createModelFromFilename, and scales the model on load.
+	 * @param sourceName
+	 * @param loadScale
+	 * @return the Model instance.
+	 */
+	public static Model createModelFromFilename(String sourceName,float loadScale) {
+		Model m = createModelFromFilename(sourceName);
 		m.loadScale = loadScale;
 		return m;
 	}
-	
-	public static Model loadModel(String sourceName) {
+
+	/**
+	 * Model factory makes sure to only load one instance of each source file.  The instance returned might not yet be loaded.
+	 * @param sourceName
+	 * @param loadScale
+	 * @return the Model instance.
+	 */
+	public static Model createModelFromFilename(String sourceName) {
 		// find the existing model in the pool
 		Iterator<Model> iter = modelPool.iterator();
 		while(iter.hasNext()) {
@@ -73,7 +85,9 @@ public class Model implements Serializable {
 	}
 
 
-	private void load() {
+	public void load() {
+		if(isLoaded) return;
+		
 		File f = new File(name);
 		int index = f.getName().lastIndexOf(":");
 		if(index==-1) {
@@ -258,11 +272,12 @@ public class Model implements Serializable {
 	
 	public void saveToStreamAsBinary(OutputStream os) throws IOException {
 		byte[] info = new byte[80];
-	    info[0]='S';
-	    info[1]='O';
-	    info[2]='L';
-	    info[3]='I';
+		for(int k=0;k<80;++k) info[k]=' ';
+	    info[0]='M';
+	    info[1]='C';
+	    info[2]='R';
 	    info[4]='D';
+	    info[5]='R';
 	    os.write(info);
 
 		ByteBuffer dataBuffer = ByteBuffer.allocate(4);
@@ -270,22 +285,18 @@ public class Model implements Serializable {
 	    dataBuffer.putInt(numTriangles);
 	    os.write(dataBuffer.array());
 
-	    dataBuffer = ByteBuffer.allocate(50);
+	    dataBuffer = ByteBuffer.allocate(74);
 	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
-	    int i,j=0;
+	    vertices.rewind();
+	    normals.rewind();
+	    
+	    int i,j=0,k=0;
 	    for(i=0;i<numTriangles;++i) {
 	    	dataBuffer.rewind();
-	    	dataBuffer.putFloat(normals.get(i*3+0));
-	    	dataBuffer.putFloat(normals.get(i*3+1));
-	    	dataBuffer.putFloat(normals.get(i*3+2));
-	    	
-	    	dataBuffer.putFloat(normals.get(i*3+0));
-	    	dataBuffer.putFloat(normals.get(i*3+1));
-	    	dataBuffer.putFloat(normals.get(i*3+2));
-	    	
-	    	dataBuffer.putFloat(normals.get(i*3+0));
-	    	dataBuffer.putFloat(normals.get(i*3+1));
-	    	dataBuffer.putFloat(normals.get(i*3+2));
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	dataBuffer.putFloat(normals.get(k++));
+	    	k+=6;
 
 	    	dataBuffer.putFloat(vertices.get(j++));
 	    	dataBuffer.putFloat(vertices.get(j++));
@@ -397,11 +408,9 @@ public class Model implements Serializable {
 	
 	public void render(GL2 gl2) {
 		if(isLoaded==false) {
-			this.load();
-			if(isLoaded) {
-				createBuffers(gl2);
-				updateBuffers(gl2);
-			}
+			load();
+			createBuffers(gl2);
+			updateBuffers(gl2);
 		}
 		if(VBO==null) return;
 		
@@ -422,7 +431,6 @@ public class Model implements Serializable {
 		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
 	}
 
-	
 	private float lengthDifferenceSquared(float p1x,float p1y,float p1z,float p2x,float p2y,float p2z) {
 		float dx = p2x-p1x;
 		float dy = p2y-p1y;
@@ -441,18 +449,16 @@ public class Model implements Serializable {
 	
 	/**
 	 * Smooth normals.  Find points within vertexEpsilon of each other, sharing normals within normalEpsilon of each other, and then 
-	 * @param gl2
 	 * @param vertexEpsilon
 	 * @param normalEpsilon
 	 */
-	public void smoothNormals(GL2 gl2,float vertexEpsilon,float normalEpsilon) {
+	public void smoothNormals(float vertexEpsilon,float normalEpsilon) {
 		float vertexEpsilonSquared = vertexEpsilon * vertexEpsilon;
 		float normalEpsilonSquared = normalEpsilon * normalEpsilon;
-		
-		ArrayList<Integer> indexList = new ArrayList<Integer>();
-		boolean [] skip = new boolean[numTriangles*3];
 
 		int numVertexes = numTriangles*3;
+		ArrayList<Integer> indexList = new ArrayList<Integer>();
+		boolean [] skip = new boolean[numVertexes];
 
 		int i,j;
 		for(i=0;i<numVertexes;++i) {
@@ -515,19 +521,15 @@ public class Model implements Serializable {
 				}
 			}
 		}
-
-		updateBuffers(gl2);
 	}
-	
 	
 	/**
 	 * Translate all the vertexes by a given amount
-	 * @param gl2
 	 * @param dx amount to translate on X axis
 	 * @param dy amount to translate on Y axis
 	 * @param dz amount to translate on Z axis
 	 */
-	public void adjustOrigin(GL2 gl2,float dx,float dy,float dz) {
+	public void adjustOrigin(float dx,float dy,float dz) {
 		int numVertexes = numTriangles*3;
 
 		int i,j;
@@ -538,7 +540,5 @@ public class Model implements Serializable {
 			float py = vertices.get(j+1);	vertices.put(j+1, py+dy);
 			float pz = vertices.get(j+2);	vertices.put(j+2, pz+dz);
 		}
-		
-		updateBuffers(gl2);
 	}
 }

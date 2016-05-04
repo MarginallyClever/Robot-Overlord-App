@@ -122,15 +122,15 @@ extends RobotWithConnection {
 	
 
 	protected void setupModels() {
-		anchor = Model.loadModel("/ArmParts.zip:anchor.STL",0.1f);
-		shoulder = Model.loadModel("/ArmParts.zip:shoulder1.STL",0.1f);
-		shoulderPinion = Model.loadModel("/ArmParts.zip:shoulder_pinion.STL",0.1f);
-		boom = Model.loadModel("/ArmParts.zip:boom.STL",0.1f);
-		stick = Model.loadModel("/ArmParts.zip:stick.STL",0.1f);
-		wristBone = Model.loadModel("/ArmParts.zip:wrist_bone.STL",0.1f);
-		wristEnd = Model.loadModel("/ArmParts.zip:wrist_end.STL",0.1f);
-		wristInterior = Model.loadModel("/ArmParts.zip:wrist_interior.STL",0.1f);
-		wristPinion = Model.loadModel("/ArmParts.zip:wrist_pinion.STL",0.1f);
+		anchor = Model.createModelFromFilename("/ArmParts.zip:anchor.STL",0.1f);
+		shoulder = Model.createModelFromFilename("/ArmParts.zip:shoulder1.STL",0.1f);
+		shoulderPinion = Model.createModelFromFilename("/ArmParts.zip:shoulder_pinion.STL",0.1f);
+		boom = Model.createModelFromFilename("/ArmParts.zip:boom.STL",0.1f);
+		stick = Model.createModelFromFilename("/ArmParts.zip:stick.STL",0.1f);
+		wristBone = Model.createModelFromFilename("/ArmParts.zip:wrist_bone.STL",0.1f);
+		wristEnd = Model.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
+		wristInterior = Model.createModelFromFilename("/ArmParts.zip:wrist_interior.STL",0.1f);
+		wristPinion = Model.createModelFromFilename("/ArmParts.zip:wrist_pinion.STL",0.1f);
 	}
 
     private void readObject(ObjectInputStream inputStream)
