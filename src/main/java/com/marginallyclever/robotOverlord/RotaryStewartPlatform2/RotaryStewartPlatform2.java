@@ -208,7 +208,7 @@ extends RobotWithConnection
 		if(vDir!=0) {	motionFuture.rotationAngleV += vDir;	changed=true;  vDir=0;  }
 		if(wDir!=0) {	motionFuture.rotationAngleW += wDir;	changed=true;  wDir=0;  }
 
-		if(changed==true) {
+		if(changed) {
 			moveIfAble();
 		}
 	}
@@ -505,7 +505,7 @@ extends RobotWithConnection
 	private long getNewRobotUID() {
 		long new_uid = 0;
 
-		if(justTestingDontGetUID==true) {
+		if(justTestingDontGetUID) {
 			try {
 				// Send data
 				URL url = new URL("https://marginallyclever.com/stewart_platform_getuid.php");
@@ -585,7 +585,7 @@ extends RobotWithConnection
 
 	
 	private void sendChangeToRealMachine() {
-		if(isPortConfirmed()==false) return;
+		if(!isPortConfirmed()) return;
 		
 		this.sendLineToRobot("G0 X"+roundOff(motionNow.fingerPosition.x)
 		          +" Y"+roundOff(motionNow.fingerPosition.y)

@@ -87,7 +87,7 @@ public class Camera extends ObjectInWorld {
 	
 	
 	public void mouseDragged(MouseEvent e) {
-		if (mouseRButtonDown==true) {
+		if (mouseRButtonDown) {
 	        int x = e.getXOnScreen();
 	        int y = e.getYOnScreen();
 			pan  += x - prevMouseX;

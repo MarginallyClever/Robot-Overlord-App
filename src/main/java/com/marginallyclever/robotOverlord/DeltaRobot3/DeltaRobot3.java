@@ -250,7 +250,7 @@ extends RobotWithConnection {
 		
 		// if not continuous, set *Dir to zero.
 		
-		if(changed==true) {
+		if(changed) {
 			if(motionFuture.checkAngleLimits()) {
 				motionFuture.updateFK();
 				haveArmsMoved=true;
