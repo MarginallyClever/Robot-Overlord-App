@@ -142,7 +142,7 @@ class AHRobotMotionState implements Serializable {
 	 * @return false if successful, true if the IK solution cannot be found.
 	 */
 	protected boolean inverseKinematics() {
-		double aa,bb,cc,dd,ee;
+		double aa,bb,cc,dd,ee,ff;
 		
 		Vector3f v0 = new Vector3f();
 		Vector3f v1 = new Vector3f();

@@ -9,6 +9,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -56,7 +58,7 @@ import com.marginallyclever.robotOverlord.world.World;
  *
  */
 public class RobotOverlord 
-implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
+implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, WindowListener
 {
 	static final String APP_TITLE = "Robot Overlord";
 	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
@@ -94,9 +96,10 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 	
 	/// The main frame of the GUI
-    protected JFrame frame; 
+    protected JFrame mainFrame; 
+    
     /// The animator keeps things moving
-    protected Animator animator = new Animator();
+    private Animator animator;
     
     /* timing for animations */
     protected long start_time;
@@ -141,29 +144,15 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 		}
 */
 		
-        frame = new JFrame( APP_TITLE ); 
-        frame.setSize( 1224, 768 );
-        frame.setLayout(new java.awt.BorderLayout());
+        mainFrame = new JFrame( APP_TITLE ); 
+        mainFrame.setSize( 1224, 768 );
+        mainFrame.setLayout(new java.awt.BorderLayout());
 
         mainMenu = new JMenuBar();
-        frame.setJMenuBar(mainMenu);
+        mainFrame.setJMenuBar(mainMenu);
 
-        
-        final Animator animator = new Animator();
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent e) {
-              // Run this on another thread than the AWT event queue to
-              // make sure the call to Animator.stop() completes before
-              // exiting
-              new Thread(new Runnable() {
-                  public void run() {
-                    animator.stop();
-                    System.exit(0);
-                  }
-                }).start();
-            }
-          });
-        
+      	animator = new Animator();
+        mainFrame.addWindowListener(this);
 
         GLCapabilities caps = new GLCapabilities(null);
         caps.setSampleBuffers(true);
@@ -207,9 +196,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
             }
         });
 */
-        frame.add(splitLeftRight);
-        frame.validate();
-        frame.setVisible(true);
+        mainFrame.add(splitLeftRight);
+        mainFrame.validate();
+        mainFrame.setVisible(true);
         animator.start();
 
         last_time = start_time = System.currentTimeMillis();
@@ -217,7 +206,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	
 
 	public JFrame getMainFrame() {
-		return frame;
+		return mainFrame;
 	}
 	
 	
@@ -441,7 +430,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
     }
 	
 	
-	public void CheckForUpdate() {
+	public void checkForUpdate() {
 		String updateURL = "https://github.com/MarginallyClever/Robot-Overlord/releases/latest";
 		try {
 			URL github = new URL(updateURL);
@@ -485,42 +474,28 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 		
-		if( subject == buttonNew ) {
-			this.newWorld();
-			return;
-		}
-		if( subject == buttonLoad ) {
-			this.loadWorldDialog();
-			return;
-		}
-		if( subject == buttonSave ) {
-			this.saveWorldDialog();
-			return;
-		}
-		if( subject == buttonAbout ) {
-			JOptionPane.showMessageDialog(null,"<html><body>"
-					+"<h1>"+APP_TITLE+" "+VERSION+"</h1>"
-					+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
-					+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
-					+"<p>To get the latest version please visit<br><a href='"+APP_URL+"'>"+APP_URL+"</a></p><br>"
-					+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
-					+"</body></html>");
-			return;
-		}
-		if( subject == buttonCheckForUpdate ) {
-			CheckForUpdate();
-			return;
-		}
-		if( subject == buttonQuit ) {
-			System.exit(0);
-			return;
-		}
-
-		if( subject == buttonRedo ) redo();
-		if( subject == buttonUndo ) undo();
+		if( subject == buttonNew ) this.newWorld();
+		else if( subject == buttonLoad ) this.loadWorldDialog();
+		else if( subject == buttonSave ) this.saveWorldDialog();
+		else if( subject == buttonAbout ) doAbout();
+		else if( subject == buttonCheckForUpdate ) checkForUpdate();
+		else if( subject == buttonQuit ) onClose();
+		else if( subject == buttonRedo ) redo();
+		else if( subject == buttonUndo ) undo();
 	}
+
+	private void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>"+APP_TITLE+" "+VERSION+"</h1>"
+				+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>To get the latest version please visit<br><a href='"+APP_URL+"'>"+APP_URL+"</a></p><br>"
+				+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
+				+"</body></html>");
+	}
+
 	
-	public void undo() {
+	private void undo() {
 		try {
 			commandSequence.undo();
 		} catch (CannotUndoException ex) {
@@ -531,7 +506,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	}
 	
 	
-	public void redo() {
+	private void redo() {
 		try {
 			commandSequence.redo();
 		} catch (CannotRedoException ex) {
@@ -792,4 +767,55 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener
 	        }
 	    });
 	}
+
+
+	@Override
+	public void windowActivated(WindowEvent arg0) {}
+
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {}
+
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		onClose();
+	}
+	
+	private void onClose() {
+        int result = JOptionPane.showConfirmDialog(
+                mainFrame,
+                "Please confirm",
+                "Are you sure you want to quit?",
+                JOptionPane.YES_NO_OPTION);
+
+        if (result == JOptionPane.YES_OPTION) {
+        	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        	// Run this on another thread than the AWT event queue to
+	        // make sure the call to Animator.stop() completes before
+	        // exiting
+	        new Thread(new Runnable() {
+	            public void run() {
+	              animator.stop();
+	              System.exit(0);
+	            }
+	          }).start();
+        }
+	}
+
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {}
+
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {}
+
+
+	@Override
+	public void windowIconified(WindowEvent arg0) {}
+
+
+	@Override
+	public void windowOpened(WindowEvent arg0) {}
 }
