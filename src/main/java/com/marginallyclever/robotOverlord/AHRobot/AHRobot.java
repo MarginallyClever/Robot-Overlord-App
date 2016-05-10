@@ -447,7 +447,7 @@ extends RobotWithConnection {
 	public void updateGUI() {
 		Vector3f v = new Vector3f();
 		v.set(motionNow.fingerPosition);
-		v.add(position);
+		v.add(getPosition());
 		arm5Panel.xPos.setText(Float.toString(roundOff(v.x)));
 		arm5Panel.yPos.setText(Float.toString(roundOff(v.y)));
 		arm5Panel.zPos.setText(Float.toString(roundOff(v.z)));
@@ -520,7 +520,8 @@ extends RobotWithConnection {
 			// TODO rotate model
 			
 			gl2.glPushMatrix();
-				gl2.glTranslatef(position.x, position.y, position.z);
+				Vector3f p = getPosition();
+				gl2.glTranslatef(p.x, p.y, p.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
 
