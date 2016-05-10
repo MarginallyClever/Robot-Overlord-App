@@ -94,26 +94,23 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 	
 	protected JMenuItem buttonUndo, buttonRedo;
 	
-	
-	/// The main frame of the GUI
-    protected JFrame mainFrame; 
-    
     /// The animator keeps things moving
     private Animator animator;
     
-    /* timing for animations */
-    protected long start_time;
-    protected long last_time;
-
-    private float frame_delay=0;
-    private float frame_length=1.0f/30.0f;
+    // timing for animations
+    protected long startTime;
+    protected long lastTime;
+    private float frameDelay=0;
+    private float frameLength=1.0f/30.0f;
     
 	// settings
     protected Preferences prefs;
 	protected String[] recentFiles = {"","","","","","","","","",""};
 
-	protected boolean checkStackSize=false;
-	
+	protected boolean checkStackSize;
+
+	/// The main frame of the GUI
+    protected JFrame mainFrame; 
 	// the main view
 	protected Splitter splitLeftRight;
 	protected GLJPanel glCanvas;
@@ -131,6 +128,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 		
 		commandSequence = new UndoManager();
 		undoHelper = new UndoHelper(this);
+		checkStackSize=false;
 		
 		glu = new GLU();
 /*
@@ -201,7 +199,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
         mainFrame.setVisible(true);
         animator.start();
 
-        last_time = start_time = System.currentTimeMillis();
+        lastTime = startTime = System.currentTimeMillis();
     }
 	
 
@@ -618,22 +616,21 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
     
     
     @Override
-    public void dispose( GLAutoDrawable drawable ) {
-    }
+    public void dispose( GLAutoDrawable drawable ) {}
     
     
     @Override
     public void display( GLAutoDrawable drawable ) {
         long now_time = System.currentTimeMillis();
-        float dt = (now_time - last_time)*0.001f;
-    	last_time = now_time;
+        float dt = (now_time - lastTime)*0.001f;
+    	lastTime = now_time;
     	//System.out.println(dt);
     	
 		// Clear The Screen And The Depth Buffer
     	GL2 gl2 = drawable.getGL().getGL2();
         
-    	if(frame_delay<frame_length) {
-    		frame_delay+=dt;
+    	if(frameDelay<frameLength) {
+    		frameDelay+=dt;
     	} else {
     		if(checkStackSize) {
 	    		IntBuffer v = IntBuffer.allocate(1);
@@ -642,9 +639,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
     		}		
 	        // draw the world
     		if( world !=null ) {
-    			world.render( gl2, frame_length );
+    			world.render( gl2, frameLength );
     		}
-	        frame_delay-=frame_length;
+	        frameDelay-=frameLength;
 
 	        if(pickNow) {
 		        pickNow=false;
@@ -657,7 +654,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 				System.out.println(" end = "+v.get(0));
     		}
     	}
-    	frame_delay+=dt;
+    	frameDelay+=dt;
     }
 
     
