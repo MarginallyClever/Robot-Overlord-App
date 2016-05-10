@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
+import javax.vecmath.Vector3f;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -36,10 +38,12 @@ public class ModelInWorld extends ObjectInWorld {
 			model = ModelFactory.createModelFromFilename(filename);
 		}
 		if( model==null ) return;
+
+		Vector3f p = getPosition();
 		
 		this.setColor(gl2,1,1,1,1);
 		gl2.glPushMatrix();
-			gl2.glTranslatef(position.x, position.y, position.z);
+			gl2.glTranslatef(p.x, p.y, p.z);
 			model.render(gl2);
 		gl2.glPopMatrix();
 	}

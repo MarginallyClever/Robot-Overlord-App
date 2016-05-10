@@ -39,9 +39,9 @@ public class Camera extends ObjectInWorld {
 	public Camera() {
 		super();
 		
-		displayName="Camera";
+		setDisplayName("Camera");
 				
-		position.set(0,40,-20);
+		setPosition(new Vector3f(0,40,-20));
 		pan=0;
 		tilt=90;
 	}
@@ -166,7 +166,10 @@ public class Camera extends ObjectInWorld {
 		if(changed) {
 			direction.normalize();
 			direction.scale(vel);
-			position.add(direction);
+
+			Vector3f p = getPosition();
+			p.add(direction);
+			setPosition(p);
 		}	
 	}
 	
@@ -174,7 +177,8 @@ public class Camera extends ObjectInWorld {
 		// move camera
 		gl2.glRotatef(tilt, -1, 0, 0);
 		gl2.glRotatef(pan,0,0,1);
-		gl2.glTranslatef(position.x,position.y,position.z);
+		Vector3f p = getPosition();
+		gl2.glTranslatef(p.x,p.y,p.z);
 	}
 
 

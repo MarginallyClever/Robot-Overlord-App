@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.robotOverlord.Log;
-
 /**
  * A snapshot in time of the robot in a given position.  Can run forward or inverse kinematics to calcualte the joint angles and/or the tool position.
  * @author danroyer

@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.BoxLayout;
@@ -29,23 +28,23 @@ public class ObjectInWorld implements ActionListener, Serializable {
 	 */
 	private static final long serialVersionUID = 2461060493057258044L;
 	
-	protected List<ObjectInWorld> children;
-	protected Vector3f position;
-	protected String displayName;
-	protected int pickName;
+	private Vector3f position;
+	private Vector3f xAxis,yAxis,zAxis;
+	
+	private String displayName;
+	private int pickName;
 	
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
-	static protected int pickNameCounter=1;
+	static private int pickNameCounter=1;
 	
 	private transient CollapsiblePanel oiwPanel;
-	protected transient JTextField fieldX,fieldY,fieldZ;
+	private transient JTextField fieldX,fieldY,fieldZ;
 	
 	//protected transient EvilOverlord gui;
 	
 	
 	public ObjectInWorld() {
 		pickName = pickNameCounter++;
-		children = new ArrayList<ObjectInWorld>();
 		position = new Vector3f();
 	}
 	/*
@@ -179,12 +178,12 @@ public class ObjectInWorld implements ActionListener, Serializable {
 	}
 
 
-	public Vector3f getPosition() {
-		return position;
-	}
-
-	
-	public void setPosition(Vector3f pos) {
-		position.set(pos);
-	}
+	public Vector3f getPosition() {		return position;	}
+	public Vector3f getXAxis() {		return xAxis;	}
+	public Vector3f getYAxis() {		return yAxis;	}
+	public Vector3f getZAxis() {		return zAxis;	}
+	public void setPosition(Vector3f pos) {		position.set(pos);	}
+	public void setXAxis(Vector3f pos) {		xAxis.set(pos);	}
+	public void setYAxis(Vector3f pos) {		yAxis.set(pos);	}
+	public void setZAxis(Vector3f pos) {		zAxis.set(pos);	}
 }

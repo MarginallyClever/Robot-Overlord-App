@@ -633,7 +633,9 @@ implements ActionListener {
 		super.render(gl2);
 		gl2.glPushName(getPickName());
 		gl2.glPushMatrix();
-		gl2.glTranslated(position.x, position.y, position.z);
+
+		Vector3f p = getPosition();
+		gl2.glTranslated(p.x, p.y, p.z);
 		Draw_Head(gl2);
 		Draw_Legs(gl2);
 		Draw_Body(gl2);
@@ -1598,7 +1600,7 @@ implements ActionListener {
 				e.printStackTrace();
 			}
 
-			displayName="Evil Minion #"+robotUID;
+			setDisplayName("Evil Minion #"+robotUID);
 		}
 	}
 

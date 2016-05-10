@@ -306,7 +306,8 @@ extends RobotWithConnection {
 		//RebuildShoulders(motion_now);
 		
 		gl2.glPushMatrix();
-		gl2.glTranslated(position.x, position.y, position.z+2);
+		Vector3f p = getPosition();
+		gl2.glTranslated(p.x, p.y, p.z+2);
 		
 		//motion_now.moveBase(new Vector3f(0,0,0));
 		

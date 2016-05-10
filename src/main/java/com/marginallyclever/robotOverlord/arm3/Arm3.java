@@ -263,7 +263,7 @@ extends RobotWithConnection {
 		Vector3f v = new Vector3f();
 		v.set(motionNow.fingerPosition);
 		// TODO rotate fingerPosition before adding position
-		v.add(position);
+		v.add(getPosition());
 		arm3Panel.xPos.setText(Float.toString(roundOff(v.x)));
 		arm3Panel.yPos.setText(Float.toString(roundOff(v.y)));
 		arm3Panel.zPos.setText(Float.toString(roundOff(v.z)));
