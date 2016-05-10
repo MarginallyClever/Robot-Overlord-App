@@ -29,9 +29,9 @@ extends RobotWithConnection {
 	 */
 	private static final long serialVersionUID = -3644731265897692399L;
 	// machine ID
-	protected long robotUID;
-	protected final static String hello = "HELLO WORLD! I AM AHROBOT #";
-	public final static String ROBOT_NAME = "Andreas Holldorfer Arm";
+	private long robotUID;
+	private final static String hello = "HELLO WORLD! I AM AHROBOT #";
+	private final static String ROBOT_NAME = "Andreas Holldorfer Arm";
 	
 	// machine dimensions from design software
 	public final static double ANCHOR_ADJUST_Z = 2.7;
@@ -41,9 +41,6 @@ extends RobotWithConnection {
 	public final static double SHOULDER_TO_BOOM_Z = 13.9744;
 	public final static double BOOM_TO_STICK_Y = 8.547;
 	public final static double SHOULDER_TO_ELBOW = 13.9744 + 8.547;
-	public final static double STICK_TO_WRIST_X = -40.0;
-	public final static double WRIST_TO_PINION_X = 5;
-	public final static double WRIST_TO_PINION_Z = 1.43;
 	public final static float WRIST_TO_TOOL_X = 5f;
 	public final static float ELBOW_TO_WRIST = -14.6855f-5.7162f-2.4838f;
 	
@@ -59,35 +56,36 @@ extends RobotWithConnection {
 	private AHTool tool = null;
 	
 	// collision volumes
-	Cylinder [] volumes = new Cylinder[6];
+	private Cylinder [] volumes = new Cylinder[6];
 
 	// motion states
-	protected AHRobotMotionState motionNow = new AHRobotMotionState();
-	protected AHRobotMotionState motionFuture = new AHRobotMotionState();
+	private AHRobotMotionState motionNow = new AHRobotMotionState();
+	private AHRobotMotionState motionFuture = new AHRobotMotionState();
 	
 	// keyboard history
-	protected float aDir = 0.0f;
-	protected float bDir = 0.0f;
-	protected float cDir = 0.0f;
-	protected float dDir = 0.0f;
-	protected float eDir = 0.0f;
-	protected float fDir = 0.0f;
+	private float aDir = 0.0f;
+	private float bDir = 0.0f;
+	private float cDir = 0.0f;
+	private float dDir = 0.0f;
+	private float eDir = 0.0f;
+	private float fDir = 0.0f;
 
-	protected float xDir = 0.0f;
-	protected float yDir = 0.0f;
-	protected float zDir = 0.0f;
-	protected float uDir = 0.0f;
-	protected float vDir = 0.0f;
-	protected float wDir = 0.0f;
+	private float xDir = 0.0f;
+	private float yDir = 0.0f;
+	private float zDir = 0.0f;
+	private float uDir = 0.0f;
+	private float vDir = 0.0f;
+	private float wDir = 0.0f;
 
 	// machine logic states
-	protected boolean armMoved = false;
-	protected boolean isPortConfirmed=false;
-	protected double speed=2;
+	private boolean armMoved = false;
+	private boolean isPortConfirmed=false;
+	private double speed=2;
 
 	// visual debugging
-	protected boolean isRenderFKOn=true;
-	protected boolean isRenderIKOn=true;
+	private boolean isRenderFKOn=true;
+	private boolean isRenderIKOn=true;
+	private boolean isRenderDebugOn=false;
 
 	// gui
 	protected transient AHRobotControlPanel arm5Panel=null;
@@ -449,7 +447,6 @@ extends RobotWithConnection {
 	public void updateGUI() {
 		Vector3f v = new Vector3f();
 		v.set(motionNow.fingerPosition);
-		// TODO rotate fingerPosition before adding position
 		v.add(position);
 		arm5Panel.xPos.setText(Float.toString(roundOff(v.x)));
 		arm5Panel.yPos.setText(Float.toString(roundOff(v.y)));
@@ -527,20 +524,23 @@ extends RobotWithConnection {
 				renderModels(gl2);
 			gl2.glPopMatrix();
 
-			if(isRenderFKOn) {
-				gl2.glPushMatrix();
-				gl2.glDisable(GL2.GL_DEPTH_TEST);
-				renderFK(gl2);
-				gl2.glEnable(GL2.GL_DEPTH_TEST);
-				gl2.glPopMatrix();
-			}
-			
-			if(isRenderIKOn) {
-				gl2.glPushMatrix();
-				gl2.glDisable(GL2.GL_DEPTH_TEST);
-				renderIK(gl2);
-				gl2.glEnable(GL2.GL_DEPTH_TEST);
-				gl2.glPopMatrix();
+			if(isRenderDebugOn) {
+				if(isRenderFKOn) {
+					gl2.glPushMatrix();
+					gl2.glDisable(GL2.GL_DEPTH_TEST);
+					renderFK(gl2);
+					gl2.glEnable(GL2.GL_DEPTH_TEST);
+					gl2.glPopMatrix();
+				}
+				
+				isRenderIKOn=false;
+				if(isRenderIKOn) {
+					gl2.glPushMatrix();
+					gl2.glDisable(GL2.GL_DEPTH_TEST);
+					renderIK(gl2);
+					gl2.glEnable(GL2.GL_DEPTH_TEST);
+					gl2.glPopMatrix();
+				}
 			}
 		gl2.glPopMatrix();
 	}
@@ -584,7 +584,7 @@ extends RobotWithConnection {
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glVertex3d(fr.x,fr.y,fr.z);
 		gl2.glEnd();
-		
+		/*
 		// finger tip
 		setColor(gl2,1,0.8f,0,1);
 		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
@@ -653,7 +653,7 @@ extends RobotWithConnection {
 						motionNow.ikWrist.y+v1.y*10,
 						motionNow.ikWrist.z+v1.z*10);
 
-		gl2.glEnd();
+		gl2.glEnd();*/
 		/*
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glColor3f(0,1,1);
