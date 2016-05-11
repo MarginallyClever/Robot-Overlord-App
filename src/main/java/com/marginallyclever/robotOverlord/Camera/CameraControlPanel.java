@@ -101,22 +101,22 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		Object subject = e.getSource();		
 
 		if( subject == buttonFlyUp ) {
-			camera.move_ud= ( camera.move_ud==1 ) ? 0 : 1;
+			camera.move_up= ( camera.move_up==1 ) ? 0 : 1;
 		}
 		if( subject == buttonFlyDown ) {
-			camera.move_ud= ( camera.move_ud==-1 ) ? 0 : -1;
+			camera.move_up= ( camera.move_up==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonFlyLeft ) {
-			camera.move_lr= ( camera.move_lr==1 ) ? 0 : 1;
+			camera.move_left= ( camera.move_left==1 ) ? 0 : 1;
 		}
 		if( subject == buttonFlyRight ) {
-			camera.move_lr= ( camera.move_lr==-1 ) ? 0 : -1;
+			camera.move_left= ( camera.move_left==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonFlyForward ) {
-			camera.move_fb= ( camera.move_fb==1 ) ? 0 : 1;
+			camera.move_forward= ( camera.move_forward==1 ) ? 0 : 1;
 		}
 		if( subject == buttonFlyBackward ) {
-			camera.move_fb= ( camera.move_fb==-1 ) ? 0 : -1;
+			camera.move_forward= ( camera.move_forward==-1 ) ? 0 : -1;
 		}
 		if( subject == buttonLookDown ) {
 			camera.tilt_dir= ( camera.tilt_dir==-1 ) ? 0 : -1;	
@@ -131,4 +131,6 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 			camera.pan_dir= ( camera.pan_dir==1 ) ? 0 : 1;
 		}
 	}
+	
+	public void updateFields() {}
 }

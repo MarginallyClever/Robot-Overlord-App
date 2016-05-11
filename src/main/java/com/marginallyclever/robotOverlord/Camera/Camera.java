@@ -7,6 +7,8 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.jogamp.opengl.GL2
 ;
 
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -29,9 +31,13 @@ public class Camera extends ObjectInWorld {
 
 	protected int pan_dir=0;
 	protected int tilt_dir=0;
-	protected int move_ud=0;
-	protected int move_lr=0;
-	protected int move_fb=0;
+	
+	protected int move_up=0;
+	protected int move_left=0;
+	protected int move_forward=0;
+	protected int move_down=0;
+	protected int move_right=0;
+	protected int move_back=0;
 	
 	CameraControlPanel cameraPanel;
 	
@@ -59,8 +65,8 @@ public class Camera extends ObjectInWorld {
 	
 	
 	public void mousePressed(MouseEvent e) {
-        prevMouseX = e.getX();
-        prevMouseY = e.getY();
+        prevMouseX = e.getXOnScreen();
+        prevMouseY = e.getYOnScreen();
         if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
         	mouseRButtonDown = true;
         }
@@ -73,44 +79,57 @@ public class Camera extends ObjectInWorld {
         }
 	}
 	
+	public void lostFocus() {
+		move_forward=0;
+		move_left=0;
+		move_up=0;
+	}
+	
 	
 	public void mouseDragged(MouseEvent e) {
 		if (mouseRButtonDown==true) {
-	        int x = e.getX();
-	        int y = e.getY();
+	        int x = e.getXOnScreen();
+	        int y = e.getYOnScreen();
 			pan  += x - prevMouseX;
 			tilt -= y - prevMouseY;
-			prevMouseX = x;
-			prevMouseY = y;
+			mouseRButtonDown=false;
+			try {
+				new Robot().mouseMove(prevMouseX, prevMouseY);
+			} catch (AWTException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			mouseRButtonDown=true;
+		    
 			if(tilt < 1) tilt=1;
 			if(tilt > 179) tilt= 179;
 		}
 	}
 	
 	
-	public void keyPressed(KeyEvent e) {/*
+	public void keyPressed(KeyEvent e) {
         int kc = e.getKeyCode();
         switch(kc) {
-        case KeyEvent.VK_W: wDown=true;  break;
-        case KeyEvent.VK_A: aDown=true;  break;
-        case KeyEvent.VK_S: sDown=true;  break;
-        case KeyEvent.VK_D: dDown=true;  break;
-        case KeyEvent.VK_Q: qDown=true;  break;
-        case KeyEvent.VK_E: eDown=true;  break;
-        }*/
+        case KeyEvent.VK_W: move_forward=1;  break;
+        case KeyEvent.VK_A: move_left	=1;  break;
+        case KeyEvent.VK_S: move_back	=1;  break;
+        case KeyEvent.VK_D: move_right	=1;  break;
+        case KeyEvent.VK_Q: move_down	=1;  break;
+        case KeyEvent.VK_E: move_up		=1;  break;
+        }
 	}
 	
 	
-	public void keyReleased(KeyEvent e) {/*
+	public void keyReleased(KeyEvent e) {
         int kc = e.getKeyCode();
         switch(kc) {
-        case KeyEvent.VK_W: wDown=false;  break;
-        case KeyEvent.VK_A: aDown=false;  break;
-        case KeyEvent.VK_S: sDown=false;  break;
-        case KeyEvent.VK_D: dDown=false;  break;
-        case KeyEvent.VK_Q: qDown=false;  break;
-        case KeyEvent.VK_E: eDown=false;  break;
-        }*/
+        case KeyEvent.VK_W: move_forward=0;  break;
+        case KeyEvent.VK_A: move_left	=0;  break;
+        case KeyEvent.VK_S: move_back	=0;  break;
+        case KeyEvent.VK_D: move_right	=0;  break;
+        case KeyEvent.VK_Q: move_down	=0;  break;
+        case KeyEvent.VK_E: move_up		=0;  break;
+        }
 	}
 	
 	
@@ -142,6 +161,7 @@ public class Camera extends ObjectInWorld {
 		// which way do we want to move?
 		float delta = 1;
 		
+		int move_fb = move_forward - move_back;
 		if(move_fb!=0) {
 			// forward/back
 			temp.set(forward);
@@ -149,13 +169,15 @@ public class Camera extends ObjectInWorld {
 			direction.add(temp);
 			changed = true;
 		}
+		int move_lr = move_right - move_left;
 		if(move_lr!=0) {
 			// strafe left/right
 			temp.set(right);
-			temp.scale(-delta * move_lr);
+			temp.scale(delta * move_lr);
 			direction.add(temp);
 			changed = true;
 		}
+		int move_ud = move_up - move_down;
 		if(move_ud!=0) {
 			// strafe up/down
 			temp.set(up);

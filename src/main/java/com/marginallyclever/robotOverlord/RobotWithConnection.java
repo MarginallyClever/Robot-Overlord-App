@@ -108,8 +108,6 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-		
 		Object subject = e.getSource();
 		
 		if(subject==buttonRescan) {
