@@ -285,26 +285,29 @@ extends RobotWithConnection {
 		float ru=motionFuture.ikU;
 		float rv=motionFuture.ikV;
 		float rw=motionFuture.ikW;
+		boolean hasTurned=false;
 
 		if (uDir!=0) {
 			ru += uDir * dp;
 			changed=true;
+			hasTurned=true;
 			uDir=0;
 		}
 		if (vDir!=0) {
 			rv += vDir * dp;
 			changed=true;
+			hasTurned=true;
 			vDir=0;
 		}
 		if (wDir!=0) {
 			rw += wDir * dp;
 			changed=true;
+			hasTurned=true;
 			wDir=0;
 		}
 
 
-		if(rw!=0 || rv!=0 || ru!=0 )
-		{
+		if(hasTurned) {
 			// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
 			// More complex arms start from the same assumption.
 			Vector3f forward = new Vector3f(0,0,1);

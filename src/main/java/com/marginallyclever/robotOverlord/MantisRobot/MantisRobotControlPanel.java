@@ -226,14 +226,14 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
-		if( subject == arm5Apos ) robotArm.moveA(1);
-		if( subject == arm5Aneg ) robotArm.moveA(-1);
+		if( subject == arm5Apos ) robotArm.moveA(-1);
+		if( subject == arm5Aneg ) robotArm.moveA(1);
 		if( subject == arm5Bpos ) robotArm.moveB(1);
 		if( subject == arm5Bneg ) robotArm.moveB(-1);
 		if( subject == arm5Cpos ) robotArm.moveC(1);
 		if( subject == arm5Cneg ) robotArm.moveC(-1);
-		if( subject == arm5Dpos ) robotArm.moveD(1);
-		if( subject == arm5Dneg ) robotArm.moveD(-1);
+		if( subject == arm5Dpos ) robotArm.moveD(-1);
+		if( subject == arm5Dneg ) robotArm.moveD(1);
 		if( subject == arm5Epos ) robotArm.moveE(1);
 		if( subject == arm5Eneg ) robotArm.moveE(-1);
 		if( subject == arm5Fpos ) robotArm.moveF(1);
