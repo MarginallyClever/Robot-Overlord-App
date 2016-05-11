@@ -16,6 +16,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.RobotWithConnection;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
@@ -66,6 +67,12 @@ implements ActionListener {
 
 	public static final int BUTTONS_MAX =21;
 
+	
+	private Material matBody = new Material();
+	private Material matHead = new Material();
+	private Material matLeg1 = new Material();
+	private Material matThigh = new Material();
+	private Material matShin = new Material();
 	
 	public static enum MoveModes {
 	  MOVE_MODE_CALIBRATE,
@@ -273,7 +280,13 @@ implements ActionListener {
 
 		standing_radius = prefs.getFloat( "standing_radius", 21.0f );
 		standing_height = prefs.getFloat( "standing_height", 5.5f );
-		  
+
+		matHead.setDiffuseColor(1.0f,0.8f,0.0f,1.0f);
+		matLeg1.setDiffuseColor(0,1,0,1);
+		matThigh.setDiffuseColor(1,0,0,1);
+		matShin.setDiffuseColor(0,0,1,1);
+
+
 		paused=false;
 	}
 	
@@ -660,7 +673,7 @@ implements ActionListener {
 		m.put(10,body.up.z);
 		m.put(15,1);
 
-		setColor(gl2,1,1,1,1);
+		matBody.render(gl2);
 	    gl2.glTranslatef(body.pos.x + 7.5f * body.up.x,
 	                 body.pos.y + 7.5f * body.up.y,
 	                 body.pos.z + 7.5f * body.up.z );
@@ -675,13 +688,14 @@ implements ActionListener {
 	void Draw_Head(GL2 gl2) {
 	  int i;
 
+	  matHead.render(gl2);
+	  
 	  gl2.glPushMatrix();
 	  // head
 	  Vector3f v=new Vector3f(body.forward);
 	  v.scale(10);
 	  v.add(body.pos);
 	  gl2.glTranslatef(v.x,v.y,v.z);
-	  setColor(gl2,1.0f,0.8f,0.0f,1.0f);
 	  gl2.glBegin(GL2.GL_LINE_LOOP);
 	  for(i=0;i<32;++i) {
 	    float x=i*((float)Math.PI*2.0f)/32.0f;
@@ -707,13 +721,14 @@ implements ActionListener {
 	void Draw_Legs(GL2 gl2) {
 	    int i;
 	    FloatBuffer m = FloatBuffer.allocate(16);
-
+	    
 	    for(i=0;i<6;++i) {
 	      SpideeLeg leg = legs[i];
 	      leg.render(gl2,i);
 
+		  matLeg1.render(gl2);
+		    
 	      gl2.glPushMatrix();
-	      setColor(gl2,0,1,0,1);
 	      gl2.glTranslatef(leg.pan_joint.pos.x,
 	                   		leg.pan_joint.pos.y,
 	                   		leg.pan_joint.pos.z);
@@ -768,8 +783,8 @@ implements ActionListener {
 	      gl2.glPopMatrix();
 
 	      // thigh
+	      matThigh.render(gl2);
 	      gl2.glPushMatrix();
-	      setColor(gl2,1,0,0,1);
 	      gl2.glTranslatef(leg.tilt_joint.pos.x,
 		                   leg.tilt_joint.pos.y,
 		                   leg.tilt_joint.pos.z);
@@ -805,7 +820,6 @@ implements ActionListener {
 	      gl2.glPopMatrix();
 	      
 	      gl2.glPushMatrix();
-	      setColor(gl2,1,0,0,1);
 	      gl2.glTranslatef(leg.tilt_joint.pos.x,
 		                   leg.tilt_joint.pos.y,
 		                   leg.tilt_joint.pos.z);
@@ -841,8 +855,8 @@ implements ActionListener {
 	      gl2.glPopMatrix();
 
 	      // shin
+	      matShin.render(gl2);
 	      gl2.glPushMatrix();
-	      setColor(gl2,0,0,1,1);
 	      gl2.glTranslatef(leg.knee_joint.pos.x,
 	                   leg.knee_joint.pos.y,
 	                   leg.knee_joint.pos.z);

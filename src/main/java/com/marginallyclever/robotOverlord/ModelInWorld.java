@@ -41,7 +41,7 @@ public class ModelInWorld extends ObjectInWorld {
 
 		Vector3f p = getPosition();
 		
-		this.setColor(gl2,1,1,1,1);
+		material.render(gl2);
 		gl2.glPushMatrix();
 			gl2.glTranslatef(p.x, p.y, p.z);
 			model.render(gl2);

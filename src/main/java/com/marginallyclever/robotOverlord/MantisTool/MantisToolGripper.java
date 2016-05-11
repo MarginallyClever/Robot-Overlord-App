@@ -8,6 +8,7 @@ import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -40,7 +41,13 @@ public class MantisToolGripper extends MantisTool {
 	protected transient Model modelBase = null;
 	protected transient Model modelGripper = null;
 	protected transient Model modelServo = null;
-	
+
+	protected transient Material matServo = new Material();
+	protected transient Material matDefault = new Material();
+	protected transient Material matBase = new Material();
+	protected transient Material matMain = new Material();
+	protected transient Material matAdapter = new Material();
+
 	
 	public MantisToolGripper() {
 		setupModels();
@@ -56,6 +63,12 @@ public class MantisToolGripper extends MantisTool {
 		modelBase = ModelFactory.createModelFromFilename("/Gripper/Base.stl",0.1f);
 		modelGripper = ModelFactory.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
 		modelServo = ModelFactory.createModelFromFilename("/Spidee.zip:SG5010.stl");
+
+		matServo.setDiffuseColor(0.2f,0.2f,0.2f,1);
+		matDefault.setDiffuseColor(0.8f,0.8f,0.8f,1);
+		matBase.setDiffuseColor(0.8f,0.8f,0.8f,1);
+		matMain.setDiffuseColor(0.8f,0.8f,0.8f,1);
+		matAdapter.setDiffuseColor(1,0,1,1);
 	}
 
     private void readObject(ObjectInputStream inputStream)
@@ -80,34 +93,37 @@ public class MantisToolGripper extends MantisTool {
 		
 		double c = Math.cos(Math.toRadians(angleAdjusted));
 		double s = Math.sin(Math.toRadians(angleAdjusted));
-		
+
+	
 		// frame
 		gl2.glPushMatrix();
 		
 		gl2.glTranslated(-1,0,0);
 		gl2.glPushMatrix();
-		this.setColor(gl2, 1,0,1,1);
 		gl2.glRotatef(90,0,0,1);
 		gl2.glTranslated(-1.375,-0.725,-1.9);
+		matAdapter.render(gl2);
 		modelAdapter.render(gl2);
 		gl2.glPopMatrix();
 
-		this.setColor(gl2, 0.8f,0.8f,0.8f,1);
 		gl2.glTranslated(-0.41,-0.45,-0.2);
+		matBase.render(gl2);
 		modelBase.render(gl2);
 		gl2.glTranslated(-5.3,0,0);
+		matMain.render(gl2);
 		modelMain.render(gl2);
 
 		// servo
-		this.setColor(gl2, 0.2f,0.2f,0.2f,1);
 		gl2.glPushMatrix();
 		gl2.glRotatef(-90,1,0,0);
 		gl2.glRotatef(-90,0,1,0);
 		gl2.glTranslated(2.4,-2.25,-3.55);
+		matServo.render(gl2);
 		modelServo.render(gl2);
 		gl2.glPopMatrix();
 
-		this.setColor(gl2, 0.8f,0.8f,0.8f,1);
+		matDefault.render(gl2);
+
 		// left
 		//this.setColor(gl2, 1,0,0,1);
 		// gear

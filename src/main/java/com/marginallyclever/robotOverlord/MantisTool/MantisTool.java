@@ -15,7 +15,7 @@ public abstract class MantisTool extends PhysicalObject {
 	protected String shapeFile = null;
 	protected MantisRobot attachedTo=null;
 
-	
+		
 	public void attachTo(MantisRobot robot) {
 		attachedTo=robot;
 	}
@@ -30,6 +30,7 @@ public abstract class MantisTool extends PhysicalObject {
 		}
 		if( visibleShape.isLoaded()==false ) return;
 
+		material.render(gl2);
 		visibleShape.render(gl2);
 	}
 	
