@@ -154,9 +154,10 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 */
 		
         mainFrame = new JFrame( APP_TITLE ); 
+    	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setSize( 1224, 768 );
         mainFrame.setLayout(new java.awt.BorderLayout());
-
+    	
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
 
