@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.AHRobot;
+package com.marginallyclever.robotOverlord.MantisRobot;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-class AHRobotMotionState implements Serializable {
+class MantisRobotMotionState implements Serializable {
 	/**
 	 * 
 	 */
@@ -57,7 +57,7 @@ class AHRobotMotionState implements Serializable {
 	Vector3f ikBase = new Vector3f();
 	
 	
-	void set(AHRobotMotionState other) {
+	void set(MantisRobotMotionState other) {
 		angleF = other.angleF;
 		angleE = other.angleE;
 		angleD = other.angleD;
@@ -140,14 +140,14 @@ class AHRobotMotionState implements Serializable {
 		
 		// find the wrist position
 		Vector3f towardsFinger = new Vector3f(fingerForward);
-		n = (float)AHRobot.WRIST_TO_TOOL_X;
+		n = (float)MantisRobot.WRIST_TO_TOOL_X;
 		towardsFinger.scale(n);
 		
 		ikWrist = new Vector3f(fingerPosition);
 		ikWrist.sub(towardsFinger);
 		
 		ikBase = new Vector3f(0,0,0);
-		ikShoulder = new Vector3f(0,0,(float)(AHRobot.ANCHOR_ADJUST_Z + AHRobot.ANCHOR_TO_SHOULDER_Z));
+		ikShoulder = new Vector3f(0,0,(float)(MantisRobot.ANCHOR_ADJUST_Z + MantisRobot.ANCHOR_TO_SHOULDER_Z));
 
 		// Find the facingDirection and planeNormal vectors.
 		Vector3f facingDirection = new Vector3f(ikWrist.x,ikWrist.y,0);
@@ -168,8 +168,8 @@ class AHRobotMotionState implements Serializable {
 		Vector3f v0 = new Vector3f(ikWrist);
 		v0.sub(ikShoulder);
 		float d = v0.length();
-		float R = (float)Math.abs(AHRobot.SHOULDER_TO_ELBOW);
-		float r = (float)Math.abs(AHRobot.ELBOW_TO_WRIST);
+		float R = (float)Math.abs(MantisRobot.SHOULDER_TO_ELBOW);
+		float r = (float)Math.abs(MantisRobot.ELBOW_TO_WRIST);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
@@ -280,7 +280,7 @@ class AHRobotMotionState implements Serializable {
 		double b = Math.toRadians(angleB);
 		double a = Math.toRadians(angleA);
 		
-		Vector3f originToShoulder = new Vector3f(0,0,(float)AHRobot.ANCHOR_ADJUST_Z+(float)AHRobot.ANCHOR_TO_SHOULDER_Z);
+		Vector3f originToShoulder = new Vector3f(0,0,(float)MantisRobot.ANCHOR_ADJUST_Z+(float)MantisRobot.ANCHOR_TO_SHOULDER_Z);
 		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
 		Vector3f up = new Vector3f(0,0,1);
 		Vector3f planarRight = new Vector3f();
@@ -296,7 +296,7 @@ class AHRobotMotionState implements Serializable {
 		Vector3f v2 = new Vector3f(up);
 		v2.scale( -(float)Math.sin(-e) );
 		toElbow.add(v2);
-		float n = (float)AHRobot.SHOULDER_TO_ELBOW;
+		float n = (float)MantisRobot.SHOULDER_TO_ELBOW;
 		toElbow.scale(n);
 		
 		elbow.set(toElbow);
@@ -313,7 +313,7 @@ class AHRobotMotionState implements Serializable {
 		v2.set(towardsElbowOrtho);
 		v2.scale( (float)Math.sin(d) );
 		elbowToWrist.add(v2);
-		n = AHRobot.ELBOW_TO_WRIST;
+		n = MantisRobot.ELBOW_TO_WRIST;
 		elbowToWrist.scale(n);
 		
 		wrist.set(elbowToWrist);
@@ -342,7 +342,7 @@ class AHRobotMotionState implements Serializable {
 		towardsFinger.normalize();
 
 		fingerPosition.set(towardsFinger);
-		n = (float)AHRobot.WRIST_TO_TOOL_X;
+		n = (float)MantisRobot.WRIST_TO_TOOL_X;
 		fingerPosition.scale(n);
 		fingerPosition.add(wrist);
 

@@ -1,26 +1,26 @@
-package com.marginallyclever.robotOverlord.AHTool;
+package com.marginallyclever.robotOverlord.MantisTool;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.PhysicalObject;
-import com.marginallyclever.robotOverlord.AHRobot.AHRobot;
+import com.marginallyclever.robotOverlord.MantisRobot.MantisRobot;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
-public abstract class AHTool extends PhysicalObject {
+public abstract class MantisTool extends PhysicalObject {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5418173275880663460L;
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
-	protected AHRobot attachedTo=null;
+	protected MantisRobot attachedTo=null;
 
 	
-	public void attachTo(AHRobot robot) {
+	public void attachTo(MantisRobot robot) {
 		attachedTo=robot;
 	}
 	
-	public AHRobot getAttachedTo() {
+	public MantisRobot getAttachedTo() {
 		return attachedTo;
 	}
 	

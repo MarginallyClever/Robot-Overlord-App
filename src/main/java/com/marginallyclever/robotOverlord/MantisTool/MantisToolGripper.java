@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.AHTool;
+package com.marginallyclever.robotOverlord.MantisTool;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,7 +19,7 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
  * @author danroyer
  *
  */
-public class AHToolGripper extends AHTool {
+public class MantisToolGripper extends MantisTool {
 	/**
 	 * 
 	 */
@@ -29,7 +29,7 @@ public class AHToolGripper extends AHTool {
 	protected float angleMin=120;
 	protected float angle = angleMin;
 	protected float servoDir = 0.0f;
-	protected AHToolGripperControlPanel armToolGripperControlPanel=null;
+	protected MantisToolGripperControlPanel armToolGripperControlPanel=null;
 
 	protected transient Model modelAdapter = null;
 	protected transient Model modelMain = null;
@@ -42,7 +42,7 @@ public class AHToolGripper extends AHTool {
 	protected transient Model modelServo = null;
 	
 	
-	public AHToolGripper() {
+	public MantisToolGripper() {
 		setupModels();
 	}
 	
@@ -258,7 +258,7 @@ public class AHToolGripper extends AHTool {
 		}
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		armToolGripperControlPanel = new AHToolGripperControlPanel(gui,this);
+		armToolGripperControlPanel = new MantisToolGripperControlPanel(gui,this);
 		list.add(armToolGripperControlPanel);
 		updateGUI();
 		

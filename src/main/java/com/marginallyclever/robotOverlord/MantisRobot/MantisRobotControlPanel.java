@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.AHRobot;
+package com.marginallyclever.robotOverlord.MantisRobot;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,7 +16,7 @@ import javax.swing.event.ChangeListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
-public class AHRobotControlPanel extends JPanel implements ActionListener, ChangeListener {
+public class MantisRobotControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * Serial version UID
 	 */
@@ -59,7 +59,7 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 	private JLabel uid;
 	private JSlider speedControl;
 	
-	private AHRobot robotArm=null;
+	private MantisRobot robotArm=null;
 	
 	
 	private JButton createButton(String name) {
@@ -69,7 +69,7 @@ public class AHRobotControlPanel extends JPanel implements ActionListener, Chang
 	}
 
 
-	public AHRobotControlPanel(RobotOverlord gui,AHRobot arm) {
+	public MantisRobotControlPanel(RobotOverlord gui,MantisRobot arm) {
 		super();
 
 		JPanel p;

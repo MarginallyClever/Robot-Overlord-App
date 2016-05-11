@@ -1,11 +1,11 @@
-package com.marginallyclever.robotOverlord.AHRobot;
+package com.marginallyclever.robotOverlord.MantisRobot;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.*;
-import com.marginallyclever.robotOverlord.AHTool.*;
+import com.marginallyclever.robotOverlord.MantisTool.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-public class AHRobot
+public class MantisRobot
 extends RobotWithConnection {
 	/**
 	 * 
@@ -31,7 +31,7 @@ extends RobotWithConnection {
 	// machine ID
 	private long robotUID;
 	private final static String hello = "HELLO WORLD! I AM AHROBOT #";
-	private final static String ROBOT_NAME = "Andreas Holldorfer Arm";
+	private final static String ROBOT_NAME = "Mantis 6DOF arm";
 	
 	// machine dimensions from design software
 	public final static double ANCHOR_ADJUST_Z = 2.7;
@@ -53,14 +53,14 @@ extends RobotWithConnection {
 	private transient Model hand = null;
 
 	// currently attached tool
-	private AHTool tool = null;
+	private MantisTool tool = null;
 	
 	// collision volumes
 	private Cylinder [] volumes = new Cylinder[6];
 
 	// motion states
-	private AHRobotMotionState motionNow = new AHRobotMotionState();
-	private AHRobotMotionState motionFuture = new AHRobotMotionState();
+	private MantisRobotMotionState motionNow = new MantisRobotMotionState();
+	private MantisRobotMotionState motionFuture = new MantisRobotMotionState();
 	
 	// keyboard history
 	private float aDir = 0.0f;
@@ -88,10 +88,10 @@ extends RobotWithConnection {
 	private boolean isRenderDebugOn=false;
 
 	// gui
-	protected transient AHRobotControlPanel arm5Panel=null;
+	protected transient MantisRobotControlPanel arm5Panel=null;
 	
 	
-	public AHRobot() {
+	public MantisRobot() {
 		super();
 		
 		setupModels();
@@ -117,7 +117,7 @@ extends RobotWithConnection {
 		motionNow.inverseKinematics();
 		motionFuture.inverseKinematics();
 		
-		tool = new AHToolGripper();
+		tool = new MantisToolGripper();
 		tool.attachTo(this);
 	}
 	
@@ -146,7 +146,7 @@ extends RobotWithConnection {
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm5Panel = new AHRobotControlPanel(gui,this);
+		arm5Panel = new MantisRobotControlPanel(gui,this);
 		list.add(arm5Panel);
 		updateGUI();
 
