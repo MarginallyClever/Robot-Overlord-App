@@ -1,16 +1,21 @@
 package com.marginallyclever.robotOverlord;
 
 
+import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -58,7 +63,7 @@ import com.marginallyclever.robotOverlord.world.World;
  *
  */
 public class RobotOverlord 
-implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, WindowListener
+implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
 {
 	static final String APP_TITLE = "Robot Overlord";
 	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
@@ -122,6 +127,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 	private UndoManager commandSequence;
 	private UndoHelper undoHelper;
 	
+	private boolean isMouseIn;
+	private boolean hasLeftDragDeadZone;
+	private int cursorStartX,cursorStartY;
 	
  	protected RobotOverlord() {
 		prefs = Preferences.userRoot().node("Evil Overlord");
@@ -129,6 +137,9 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 		commandSequence = new UndoManager();
 		undoHelper = new UndoHelper(this);
 		checkStackSize=false;
+		
+		isMouseIn=false;
+		hasLeftDragDeadZone=false;
 		
 		glu = new GLU();
 /*
@@ -174,9 +185,7 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 
         buildMenu();
         
-//		frame.addKeyListener(this);
-//		glCanvas.addMouseListener(this);
-//		glCanvas.addMouseMotionListener(this);
+		glCanvas.addKeyListener(this);
 //		frame.setFocusable(true);
 //		frame.requestFocusInWindow();
 /*
@@ -734,23 +743,74 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		pickX=e.getX();
-		pickY=e.getY();
-		pickNow=true;
+		// if they dragged the cursor around before unclicking, don't pick.
+		if (e.getClickCount() == 2) {
+			pickX=e.getX();
+			pickY=e.getY();
+			pickNow=true;
+		}
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {
+		hasLeftDragDeadZone=false;
+		cursorStartX=this.mainFrame.getWidth()/2;
+		cursorStartY=this.mainFrame.getHeight()/2;
+
+		hideCursor();
+		
+		world.getCamera().mousePressed(e);
+	}
+	
+	private void hideCursor() {
+		// Hide cursor
+		// Transparent 16 x 16 pixel cursor image.
+		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+		// Create a new blank cursor.
+		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+		    cursorImg, new Point(0, 0), "blank cursor");
+		// Set the blank cursor to the JFrame.
+		glCanvas.setCursor(blankCursor);
+	}
+	
+	private void showCursor() {
+		glCanvas.setCursor(Cursor.getDefaultCursor());
+	}
+	
 	@Override
-	public void mouseReleased(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {
+		world.getCamera().mouseReleased(e);
+		showCursor();
+	}
 	@Override
-	public void mouseEntered(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {
+		isMouseIn=true;
+		glCanvas.requestFocus();
+	}
 	@Override
-	public void mouseExited(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {
+		isMouseIn=false;
+		world.getCamera().lostFocus();
+	}
 
 
+	public static final int DRAG_DEAD_ZONE = 10;
+	
 	@Override
-	public void mouseDragged(MouseEvent e) {}
+	public void mouseDragged(MouseEvent e) {		
+		int x = e.getX();
+		int y = e.getY();
+		
+		if(hasLeftDragDeadZone) {
+			if(Math.abs(cursorStartX - x) > DRAG_DEAD_ZONE ||
+					Math.abs(cursorStartY - y ) > DRAG_DEAD_ZONE ) {
+				hasLeftDragDeadZone = true;
+			}
+		}
+		
+		world.getCamera().mouseDragged(e);
+	}
+	
 	@Override
 	public void mouseMoved(MouseEvent e) {}
 	
@@ -815,4 +875,27 @@ implements ActionListener, MouseListener, MouseMotionListener, GLEventListener, 
 
 	@Override
 	public void windowOpened(WindowEvent arg0) {}
+
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		if(isMouseIn) {
+			world.getCamera().keyPressed(e);
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		if(isMouseIn) {
+			world.getCamera().keyReleased(e);
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
