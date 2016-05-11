@@ -198,7 +198,7 @@ implements Serializable {
 		gl2.glLoadIdentity();
 
 		// background color
-    	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
+    	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
     	// Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
         if (GLProfile.isAWTAvailable() &&
@@ -207,7 +207,7 @@ implements Serializable {
             ((com.jogamp.opengl.awt.GLJPanel) gl2).shouldPreserveColorBufferIfTranslucent()) {
           gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         } else {
-          gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+          gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         }
         
         gl2.glDisable(GL2.GL_CULL_FACE);
