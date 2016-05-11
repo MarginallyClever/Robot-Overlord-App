@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLProfile;
 import javax.swing.JMenu;
 import javax.vecmath.Vector3f;
 
@@ -201,6 +200,7 @@ implements Serializable {
     	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
     	// Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
+		/*
         if (GLProfile.isAWTAvailable() &&
             (gl2 instanceof com.jogamp.opengl.awt.GLJPanel) &&
             !((com.jogamp.opengl.awt.GLJPanel) gl2).isOpaque() &&
@@ -208,7 +208,8 @@ implements Serializable {
           gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         } else {
           gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
-        }
+        }*/
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         
         gl2.glDisable(GL2.GL_CULL_FACE);
 		//gl2.glEnable(GL2.GL_CULL_FACE);

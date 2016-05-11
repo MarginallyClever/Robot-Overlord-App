@@ -54,10 +54,17 @@ extends RobotWithConnection {
 	private transient Model boom = null;
 	private transient Model stick = null;
 	private transient Model wristBone = null;
-	private transient Model wristEnd = null;
+	private transient Model hand = null;
 	private transient Model wristInterior = null;
 	private transient Model wristPinion = null;
 
+	private Material matAnchor		= new Material();
+	private Material matShoulder	= new Material();
+	private Material matBoom		= new Material();
+	private Material matStick		= new Material();
+	private Material matWrist		= new Material();
+	private Material matHand		= new Material();
+	
 	// currently attached tool
 	private EvilMinionTool tool = null;
 	
@@ -117,6 +124,13 @@ extends RobotWithConnection {
 		motionFuture.forwardKinematics();
 		motionNow.inverseKinematics();
 		motionFuture.inverseKinematics();
+
+		matAnchor.setDiffuseColor(0,0,0,1);
+		matShoulder.setDiffuseColor(1,0,0,1);
+		matBoom.setDiffuseColor(0,0,1,1);
+		matStick.setDiffuseColor(1,0,1,1);
+		matWrist.setDiffuseColor(0,1,0,1);
+		matHand.setDiffuseColor(0.5f,0.5f,0.5f,1);
 		
 		tool = new EvilMinionToolGripper();
 		tool.attachTo(this);
@@ -130,7 +144,7 @@ extends RobotWithConnection {
 		boom = ModelFactory.createModelFromFilename("/ArmParts.zip:boom.STL",0.1f);
 		stick = ModelFactory.createModelFromFilename("/ArmParts.zip:stick.STL",0.1f);
 		wristBone = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_bone.STL",0.1f);
-		wristEnd = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
+		hand = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
 		wristInterior = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_interior.STL",0.1f);
 		wristPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_pinion.STL",0.1f);
 	}
@@ -521,7 +535,8 @@ extends RobotWithConnection {
 		fr.set(motionNow.fingerPosition);
 		fr.add(motionNow.fingerRight);
 		
-		setColor(gl2,1,0,0,1);
+		
+		gl2.glColor4f(1,0,0,1);
 
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		gl2.glVertex3d(0,0,0);
@@ -536,7 +551,7 @@ extends RobotWithConnection {
 		gl2.glEnd();
 
 		// finger tip
-		setColor(gl2,1,0.8f,0,1);
+		gl2.glColor4f(1,0.8f,0,1);
 		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
 		PrimitiveSolids.drawStar(gl2, ff );
 		PrimitiveSolids.drawStar(gl2, fr );
@@ -562,7 +577,7 @@ extends RobotWithConnection {
 		fr.set(motionNow.fingerPosition);
 		fr.add(motionNow.fingerRight);
 		
-		setColor(gl2,1,1,1,1);
+		gl2.glColor4f(1,1,1,1);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		
 		gl2.glVertex3d(0,0,0);
@@ -577,14 +592,10 @@ extends RobotWithConnection {
 
 		gl2.glEnd();
 
-
 		// finger tip
-		setColor(gl2,1,0.8f,0,1);
-		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
-		setColor(gl2,0,0.8f,1,1);
-		PrimitiveSolids.drawStar(gl2, ff );
-		setColor(gl2,0,0,1,1);
-		PrimitiveSolids.drawStar(gl2, fr );
+		gl2.glColor4f(1,0.8f,0,1);		PrimitiveSolids.drawStar(gl2, motionNow.fingerPosition );
+		gl2.glColor4f(0,0.8f,1,1);		PrimitiveSolids.drawStar(gl2, ff );
+		gl2.glColor4f(0,0,1,1);			PrimitiveSolids.drawStar(gl2, fr );
 	
 		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
@@ -597,7 +608,7 @@ extends RobotWithConnection {
 	 */
 	protected void renderModels(GL2 gl2) {
 		// anchor
-		setColor(gl2,1,1,1,1);
+		matAnchor.render(gl2);
 		// this rotation is here because the anchor model was built facing the wrong way.
 		gl2.glRotated(90, 1, 0, 0);
 		
@@ -605,13 +616,12 @@ extends RobotWithConnection {
 		anchor.render(gl2);
 
 		// shoulder (E)
-		setColor(gl2,1,0,0,1);
+		matShoulder.render(gl2);
 		gl2.glTranslated(0, ANCHOR_TO_SHOULDER_Y, 0);
 		gl2.glRotated(motionNow.angleE,0,1,0);
 		shoulder.render(gl2);
 
 		// shoulder pinion
-		setColor(gl2,0,1,0,1);
 		gl2.glPushMatrix();
 			gl2.glTranslated(SHOULDER_TO_PINION_X, SHOULDER_TO_PINION_Y, 0);
 			double anchor_gear_ratio = 80.0/8.0;
@@ -620,7 +630,7 @@ extends RobotWithConnection {
 		gl2.glPopMatrix();
 
 		// boom (D)
-		setColor(gl2,0,0,1,1);
+		matBoom.render(gl2);
 		gl2.glTranslated(SHOULDER_TO_BOOM_X,SHOULDER_TO_BOOM_Y, 0);
 		gl2.glRotated(90-motionNow.angleD,0,0,1);
 		gl2.glPushMatrix();
@@ -629,7 +639,7 @@ extends RobotWithConnection {
 		gl2.glPopMatrix();
 
 		// stick (C)
-		setColor(gl2,1,0,1,1);
+		matStick.render(gl2);
 		gl2.glTranslated(0.0, BOOM_TO_STICK_Y, 0);
 		gl2.glRotated(90+motionNow.angleC,0,0,1);
 		gl2.glPushMatrix();
@@ -641,7 +651,7 @@ extends RobotWithConnection {
 		gl2.glTranslated(STICK_TO_WRIST_X, 0.0, 0);
 
 		// Gear A
-		setColor(gl2,1,1,0,1);
+		
 		gl2.glPushMatrix();
 			gl2.glRotated(180+motionNow.angleA-motionNow.angleB*2.0,0,0,1);
 			gl2.glRotated(90, 1, 0, 0);
@@ -649,7 +659,6 @@ extends RobotWithConnection {
 		gl2.glPopMatrix();
 
 		// Gear B
-		setColor(gl2,0,0.5f,1,1);
 		gl2.glPushMatrix();
 			gl2.glRotated(180-motionNow.angleB*2.0-motionNow.angleA,0,0,1);
 			gl2.glRotated(-90, 1, 0, 0);
@@ -659,17 +668,17 @@ extends RobotWithConnection {
 		gl2.glPushMatrix();  // wrist
 
 			gl2.glRotated(-motionNow.angleB+180,0,0,1);
-			
+
+			matWrist.render(gl2);
 			// wrist bone
-			setColor(gl2,0.5f,0.5f,0.5f,1);
 			wristBone.render(gl2);
 			
 			// tool holder
 			gl2.glRotated(motionNow.angleA,1,0,0);
 
-			setColor(gl2,0,1,0,1);
 			gl2.glPushMatrix();
-				wristEnd.render(gl2);
+				matHand.render(gl2);
+				hand.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glTranslated(-6, 0, 0);
@@ -680,7 +689,6 @@ extends RobotWithConnection {
 		gl2.glPopMatrix();  // wrist
 
 		// pinion B
-		setColor(gl2,0,0.5f,1,1);
 		gl2.glPushMatrix();
 			gl2.glTranslated(WRIST_TO_PINION_X, 0, -WRIST_TO_PINION_Z);
 			gl2.glRotated((motionNow.angleB*2+motionNow.angleA)*24.0/8.0, 0,0,1);
@@ -688,7 +696,6 @@ extends RobotWithConnection {
 		gl2.glPopMatrix();
 
 		// pinion A
-		setColor(gl2,1,1,0,1);
 		gl2.glPushMatrix();
 			gl2.glTranslated(WRIST_TO_PINION_X, 0, WRIST_TO_PINION_Z);
 			gl2.glScaled(1,1,-1);
