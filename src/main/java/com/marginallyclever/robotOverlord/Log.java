@@ -1,9 +1,9 @@
 package com.marginallyclever.robotOverlord;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +60,7 @@ public class Log {
 	 * @param msg
 	 */
 	public static void write(String msg) {
-		try (Writer fileWriter = new FileWriter("log.html", true)) {
+		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.html", true), StandardCharsets.UTF_8)) {
 			PrintWriter logToFile = new PrintWriter(fileWriter);
 			logToFile.write(msg);
 			logToFile.flush();

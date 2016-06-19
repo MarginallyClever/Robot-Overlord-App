@@ -26,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
@@ -445,7 +446,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 			HttpURLConnection conn = (HttpURLConnection) github.openConnection();
 			conn.setInstanceFollowRedirects(false);  //you still need to handle redirect manully.
 			HttpURLConnection.setFollowRedirects(false);
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
 
 			String inputLine;
 			if ((inputLine = in.readLine()) != null) {
