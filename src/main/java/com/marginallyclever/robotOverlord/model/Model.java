@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.FloatBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -89,7 +90,7 @@ public class Model implements Serializable {
 		try {
 			// check if the file is binary or ASCII
 			zipFile = new ZipInputStream(getInputStream(zipName));
-			isr = new InputStreamReader(zipFile);
+			isr = new InputStreamReader(zipFile, StandardCharsets.UTF_8);
 			
 		    while((entry = zipFile.getNextEntry())!=null) {
 		        if( entry.getName().equals(fname) ) {
@@ -106,7 +107,7 @@ public class Model implements Serializable {
 		    
 		    // now load the file enough to initialize
 			zipFile = new ZipInputStream(getInputStream(zipName));
-			isr = new InputStreamReader(zipFile);
+			isr = new InputStreamReader(zipFile, StandardCharsets.UTF_8);
 			
 		    while((entry = zipFile.getNextEntry())!=null) {
 		        if( entry.getName().equals(fname) ) {
@@ -122,7 +123,7 @@ public class Model implements Serializable {
 
 		    if(!isBinary) {
 				zipFile = new ZipInputStream(getInputStream(zipName));
-				isr = new InputStreamReader(zipFile);
+				isr = new InputStreamReader(zipFile, StandardCharsets.UTF_8);
 				
 			    while((entry = zipFile.getNextEntry())!=null) {
 			        if( entry.getName().equals(fname) ) {
