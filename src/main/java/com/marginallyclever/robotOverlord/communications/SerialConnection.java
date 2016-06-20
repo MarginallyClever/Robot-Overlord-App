@@ -4,6 +4,7 @@ import jssc.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import javax.swing.JScrollPane;
@@ -73,7 +74,7 @@ implements SerialPortEventListener, AbstractConnection {
             	int len = events.getEventValue();
 				byte [] buffer = serialPort.readBytes(len);
 				if( len>0 ) {
-					rawInput = new String(buffer,0,len);
+					rawInput = new String(buffer,0,len, StandardCharsets.UTF_8);
 //					Log(rawInput);
 					inputBuffer+=rawInput;
 					// each line ends with a \n.
@@ -113,7 +114,7 @@ implements SerialPortEventListener, AbstractConnection {
 			}
 			log(command+NL);
 			line+=NL;
-			serialPort.writeBytes(line.getBytes());
+			serialPort.writeBytes(line.getBytes(StandardCharsets.UTF_8));
 			waitingForCue=true;
 		}
 		catch(IndexOutOfBoundsException e1) {}
