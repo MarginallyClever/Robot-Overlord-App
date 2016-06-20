@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -100,9 +101,9 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 			String outputFile = System.getProperty("user.dir") + "/" + "TEMP.NGC";
 			System.out.println("output file = "+outputFile);
 			OutputStream output = new FileOutputStream(outputFile);
-			output.write(new String("G28\n").getBytes());
-			output.write(new String("G90\n").getBytes());
-			output.write(new String("G54 X-30 Z-"+tool_offset_z+"\n").getBytes());
+			output.write(new String("G28\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G90\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G54 X-30 Z-"+tool_offset_z+"\n").getBytes(StandardCharsets.UTF_8));
 			
 			turtle_x=0;
 			turtle_y=0;
@@ -111,32 +112,32 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 			turtle_step = (float)((xmax-xmin) / (Math.pow(2, order)));
 
 			// Draw bounding box
-			output.write(new String("G90\n").getBytes());
-			output.write(new String("G0 Z"+z_up+"\n").getBytes());
-			output.write(new String("G0 X"+xmax+" Y"+ymax+"\n").getBytes());
-			output.write(new String("G0 Z"+z_down+"\n").getBytes());
-			output.write(new String("G0 X"+xmax+" Y"+ymin+"\n").getBytes());
-			output.write(new String("G0 X"+xmin+" Y"+ymin+"\n").getBytes());
-			output.write(new String("G0 X"+xmin+" Y"+ymax+"\n").getBytes());
-			output.write(new String("G0 X"+xmax+" Y"+ymax+"\n").getBytes());
-			output.write(new String("G0 Z"+z_up+"\n").getBytes());
+			output.write(new String("G90\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 Z"+z_up+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 X"+xmax+" Y"+ymax+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 Z"+z_down+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 X"+xmax+" Y"+ymin+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 X"+xmin+" Y"+ymin+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 X"+xmin+" Y"+ymax+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 X"+xmax+" Y"+ymax+"\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 Z"+z_up+"\n").getBytes(StandardCharsets.UTF_8));
 
 			// move to starting position
-			output.write(new String("G91\n").getBytes());
-			output.write(new String("G0 X"+(-turtle_step/2)+" Y"+(-turtle_step/2)+"\n").getBytes());
+			output.write(new String("G91\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 X"+(-turtle_step/2)+" Y"+(-turtle_step/2)+"\n").getBytes(StandardCharsets.UTF_8));
 						
 			// do the curve
-			output.write(new String("G90\n").getBytes());
-			output.write(new String("G0 Z"+z_down+"\n").getBytes());
+			output.write(new String("G90\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 Z"+z_down+"\n").getBytes(StandardCharsets.UTF_8));
 			
-			output.write(new String("G91\n").getBytes());
+			output.write(new String("G91\n").getBytes(StandardCharsets.UTF_8));
 			hilbert(output,order);
 			
-			output.write(new String("G90\n").getBytes());
-			output.write(new String("G0 Z"+z_up+"\n").getBytes());
+			output.write(new String("G90\n").getBytes(StandardCharsets.UTF_8));
+			output.write(new String("G0 Z"+z_up+"\n").getBytes(StandardCharsets.UTF_8));
 
 			// finish up
-			output.write(new String("G28\n").getBytes());
+			output.write(new String("G28\n").getBytes(StandardCharsets.UTF_8));
 			
         	output.flush();
 	        output.close();
@@ -197,6 +198,6 @@ public class HilbertCurveGenerator implements GcodeGenerator {
     	//turtle_x += turtle_dx * distance;
     	//turtle_y += turtle_dy * distance;
     	//output.write(new String("G0 X"+(turtle_x)+" Y"+(turtle_y)+"\n").getBytes());
-    	output.write(new String("G0 X"+(turtle_dx*turtle_step)+" Y"+(turtle_dy*turtle_step)+"\n").getBytes());
+    	output.write(new String("G0 X"+(turtle_dx*turtle_step)+" Y"+(turtle_dy*turtle_step)+"\n").getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
@@ -510,9 +511,9 @@ extends RobotWithConnection
 				URL url = new URL("https://marginallyclever.com/stewart_platform_getuid.php");
 				URLConnection conn = url.openConnection();
 				try (
-						final InputStream connectionInputStream = conn.getInputStream();
-						final Reader inputStreamReader = new InputStreamReader(connectionInputStream);
-						final BufferedReader rd = new BufferedReader(inputStreamReader)
+                        final InputStream connectionInputStream = conn.getInputStream();
+                        final Reader inputStreamReader = new InputStreamReader(connectionInputStream, StandardCharsets.UTF_8);
+                        final BufferedReader rd = new BufferedReader(inputStreamReader)
 						) {
 					String line = rd.readLine();
 					new_uid = Long.parseLong(line);
