@@ -369,6 +369,7 @@ public class CollapsiblePanel extends JPanel {
             int compHeight = component.getPreferredSize().height;
 
             switch (titlePosition) {
+                case BELOW_TOP:
                 case ABOVE_TOP:
                     insets.top += compHeight + TEXT_SPACING;
                     break;
@@ -376,17 +377,12 @@ public class CollapsiblePanel extends JPanel {
                 case DEFAULT_POSITION:
                     insets.top += Math.max(compHeight, borderInsets.top) - borderInsets.top;
                     break;
-                case BELOW_TOP:
-                    insets.top += compHeight + TEXT_SPACING;
-                    break;
+                case BELOW_BOTTOM:
                 case ABOVE_BOTTOM:
                     insets.bottom += compHeight + TEXT_SPACING;
                     break;
                 case BOTTOM:
                     insets.bottom += Math.max(compHeight, borderInsets.bottom) - borderInsets.bottom;
-                    break;
-                case BELOW_BOTTOM:
-                    insets.bottom += compHeight + TEXT_SPACING;
                     break;
             }
             return insets;
