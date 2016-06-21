@@ -548,7 +548,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 
 		// update prefs
 		for(i=0;i<cnt;++i) {
-			if( recentFiles[i]==null ) recentFiles[i] = new String("");
+			if( recentFiles[i]==null ) recentFiles[i] = "";
 			if( recentFiles[i].isEmpty()==false ) {
 				prefs.put("recent-files-"+i, recentFiles[i]);
 			}
