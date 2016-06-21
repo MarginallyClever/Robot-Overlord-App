@@ -248,6 +248,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 				name="SMALL_" + Character.toUpperCase(letter);
 			} else {
 				switch(letter) {
+				case '�':
 				case ' ':  name="SPACE";  break;
 				case '!':  name="EXCLAMATION";  break;
 				case '"':  name="DOUBLEQ";  break;
@@ -281,7 +282,6 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 				case '}':  name="B3CLOSE";  break;
 				case '~':  name="TILDE";  break;
 				case '\\':  name="BSLASH";  break;
-				case '�':  name="SPACE";  break;
 				default: name=Character.toString(letter);  break;
 				}
 			}
@@ -314,9 +314,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 		        		String gap="";
 		        		while (st.hasMoreTokens()) {
 		        			String c=st.nextToken();
-		        			if(c.startsWith("G")) {
-		        				output.write(gap+c);
-		        			} else if(c.startsWith("X")) {
+		        			if(c.startsWith("X")) {
 				        		// translate coordinates
 		        				float x = Float.parseFloat(c.substring(1));  // cm to mm
 		        				output.write(gap+"X"+SX(x));

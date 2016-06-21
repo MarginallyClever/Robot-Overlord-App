@@ -321,11 +321,7 @@ implements ActionListener {
 		  Vector3f r = new Vector3f(0,0,0);
 		  int i;
 		  for(i=0;i<6;++i) {
-		    if(legs[i].ankle_joint.pos.z<=0) {
-		      p.add(legs[i].ankle_joint.pos);
-		    } else {
-		      p.add(legs[i].ankle_joint.pos);
-		    }
+		    p.add(legs[i].ankle_joint.pos);
 		    if(i<3) r.sub(legs[i].ankle_joint.pos);
 		    else    r.add(legs[i].ankle_joint.pos);
 		  }
