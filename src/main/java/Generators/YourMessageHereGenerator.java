@@ -385,7 +385,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 	}
 	
 	public void TextFindCharsPerLine(float width) {
-		chars_per_line=(int)Math.floor( (float)(width - padding*2.0f) / (float)(letter_width+kerning) );
+		chars_per_line=(int)Math.floor( (width - padding*2.0f) / (letter_width+kerning) );
 		//System.out.println("MAX="+chars_per_line);
 	}
 	
