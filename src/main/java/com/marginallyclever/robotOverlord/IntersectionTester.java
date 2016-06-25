@@ -75,8 +75,8 @@ public class IntersectionTester {
 	    }
 
 	    // finally do the division to get sc and tc
-	    sc = ((float)Math.abs(sN) < SMALL_NUM ? 0.0f : sN / sD);
-	    tc = ((float)Math.abs(tN) < SMALL_NUM ? 0.0f : tN / tD);
+	    sc = Math.abs(sN) < SMALL_NUM ? 0.0f : sN / sD;
+	    tc = Math.abs(tN) < SMALL_NUM ? 0.0f : tN / tD;
 
 	    // get the difference of the two closest points
 	    //Vector   dP = w + (sc * u) - (tc * v);  // =  L1(sc) - L2(tc)

@@ -205,14 +205,14 @@ public class PrimitiveSolids {
 				for(int k=-grid_size;k<=grid_size;k+=grid_space) {
 					v = (float)(Math.abs(k));
 					u = (float)(Math.abs(i));
-					w = (grid_size*grid_size)-(float)(u*u+v*v);
+					w = (grid_size*grid_size) - (u*u+v*v);
 					gl2.glColor4f(0.2f,0.2f,0.2f,w/(grid_size*grid_size*2.5f));
 					
 					gl2.glVertex3f(i,k           ,0);
 					gl2.glVertex3f(i,k+grid_space,0);					
 
 					u = (float)(Math.abs(j));
-					w = (grid_size*grid_size)-(float)(u*u+v*v);
+					w = (grid_size*grid_size)-(u*u+v*v);
 					gl2.glColor4f(0.2f,0.2f,0.2f,w/(grid_size*grid_size*2.5f));
 
 					gl2.glVertex3f(k           ,j,0);
