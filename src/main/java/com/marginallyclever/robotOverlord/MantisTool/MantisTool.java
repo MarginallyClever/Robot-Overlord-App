@@ -28,7 +28,7 @@ public abstract class MantisTool extends PhysicalObject {
 		if( visibleShape==null && shapeFile!=null ) {
 			visibleShape = ModelFactory.createModelFromFilename(shapeFile);
 		}
-		if( visibleShape.isLoaded()==false ) return;
+		if(!visibleShape.isLoaded()) return;
 
 		material.render(gl2);
 		visibleShape.render(gl2);

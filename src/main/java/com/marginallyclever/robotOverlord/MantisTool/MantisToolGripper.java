@@ -253,7 +253,7 @@ public class MantisToolGripper extends MantisTool {
 			servoDir=0;
 		}
 		
-		if(changed==true) {
+		if(changed) {
 			if(dS<angleMin) dS=angleMin;
 			if(dS>angleMax) dS=angleMax;
 			angle = dS;

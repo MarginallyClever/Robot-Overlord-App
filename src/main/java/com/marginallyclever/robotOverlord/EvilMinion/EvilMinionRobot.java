@@ -319,11 +319,11 @@ extends RobotWithConnection {
 		}
 		
 		//if(changed==true && motionFuture.movePermitted()) {
-		if(changed==true) {
+		if(changed) {
 			motionFuture.fingerPosition.x = dX;
 			motionFuture.fingerPosition.y = dY;
 			motionFuture.fingerPosition.z = dZ;
-			if(motionFuture.inverseKinematics()==false) return;
+			if(!motionFuture.inverseKinematics()) return;
 			if(motionFuture.checkAngleLimits()) {
 			//if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
 				armMoved=true;
@@ -331,7 +331,7 @@ extends RobotWithConnection {
 				isRenderFKOn=false;
 
 				sendChangeToRealMachine();
-				if(this.isPortConfirmed()==false) {
+				if(!this.isPortConfirmed()) {
 					// live data from the sensors will update motionNow, so only do this if we're unconnected.
 					motionNow.set(motionFuture);
 				}
@@ -387,7 +387,7 @@ extends RobotWithConnection {
 		}
 		
 
-		if(changed==true) {
+		if(changed) {
 			motionFuture.angleA=dA;
 			motionFuture.angleB=dB;
 			motionFuture.angleC=dC;
@@ -400,7 +400,7 @@ extends RobotWithConnection {
 				armMoved=true;
 				
 				sendChangeToRealMachine();
-				if(this.isPortConfirmed()==false) {
+				if(!this.isPortConfirmed()) {
 					// live data from the sensors will update motionNow, so only do this if we're unconnected.
 					motionNow.set(motionFuture);
 				}
@@ -446,7 +446,7 @@ extends RobotWithConnection {
 	
 	
 	protected void sendChangeToRealMachine() {
-		if(isPortConfirmed==false) return;
+		if(!isPortConfirmed) return;
 		
 		
 		String str="";

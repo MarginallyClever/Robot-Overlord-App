@@ -102,9 +102,9 @@ class EvilMinionRobotMotionState implements Serializable {
 
 		// check far limit
 		// seems doable
-		if(inverseKinematics()==false) return false;
+		if(!inverseKinematics()) return false;
 		// angle are good?
-		if(checkAngleLimits()==false) return false;
+		if(!checkAngleLimits()) return false;
 
 		// OK
 		return true;

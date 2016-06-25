@@ -121,7 +121,7 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 		Object subject = e.getSource();
 		
 		if(subject == connectionComboBox) {
-			if(ignoreSelectionEvents==false && e.getStateChange()==ItemEvent.SELECTED) {
+			if(!ignoreSelectionEvents && e.getStateChange()==ItemEvent.SELECTED) {
 				if(connectionComboBox.getSelectedIndex()==0) {
 					// disconnect
 					if(connection!=null) {
@@ -210,7 +210,7 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	 * Take the next line from the file and send it to the robot, if permitted. 
 	 */
 	public void sendFileCommand() {
-		if(running==false || paused==true || fileOpened==false || linesProcessed>=linesTotal) return;
+		if(!running || paused || !fileOpened || linesProcessed>=linesTotal) return;
 		
 		String line;
 		do {			
@@ -254,7 +254,7 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	
 	public void pause() {
 		if(running) {
-			if(paused==true) {
+			if(paused) {
 				paused=false;
 				// TODO: if the robot is not ready to unpause, this might fail and the program would appear to hang.
 				sendFileCommand();

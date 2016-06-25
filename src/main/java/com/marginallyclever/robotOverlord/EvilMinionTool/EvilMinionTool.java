@@ -28,7 +28,7 @@ public abstract class EvilMinionTool extends PhysicalObject {
 		if( visibleShape==null && shapeFile!=null ) {
 			visibleShape = ModelFactory.createModelFromFilename(shapeFile);
 		}
-		if( visibleShape.isLoaded()==false ) return;
+		if(!visibleShape.isLoaded()) return;
 
 		visibleShape.render(gl2);
 	}

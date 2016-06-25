@@ -72,9 +72,9 @@ public class Arm3MotionState {
 		if(temp.length() < Arm3.BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
 
 		// seems doable
-		if(IK()==false) return false;
+		if(!IK()) return false;
 		// angle are good?
-		if(CheckAngleLimits()==false) return false;
+		if(!CheckAngleLimits()) return false;
 
 		// OK
 		return true;

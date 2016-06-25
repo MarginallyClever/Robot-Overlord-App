@@ -165,7 +165,7 @@ implements Serializable {
     
 	
 	public void render(GL2 gl2, float delta ) {
-		if(isSetup==false) {
+		if(!isSetup) {
 			setup(gl2);
 			isSetup=true;
 		}
