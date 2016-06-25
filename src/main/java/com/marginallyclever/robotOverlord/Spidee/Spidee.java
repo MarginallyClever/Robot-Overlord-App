@@ -1160,7 +1160,7 @@ implements ActionListener {
 
 	  // turn
 	  if( turn_direction != 0 ) {
-	    turn_direction= (float)Math.max( Math.min( turn_direction, 180*dt ), -180*dt );
+	    turn_direction= Math.max( Math.min( turn_direction, 180*dt ), -180*dt );
 	    float turn = (float)Math.toRadians(turn_direction * turn_stride_length) * dt * move_body_scale / 6.0f;
 
 	    float c= (float)Math.cos( turn );
@@ -1283,8 +1283,8 @@ implements ActionListener {
 
 	  float x1 = gc1 - (float)Math.floor( gc1 );
 	  float x2 = gc2 - (float)Math.floor( gc2 );
-	  float step1 = (float)Math.max( 0, x1 );
-	  float step2 = (float)Math.max( 0, x2 );
+	  float step1 = Math.max( 0, x1 );
+	  float step2 = Math.max( 0, x2 );
 	  int leg1 = (int)Math.floor( gc1 ) % 3;
 	  int leg2 = (int)Math.floor( gc2 ) % 3;
 

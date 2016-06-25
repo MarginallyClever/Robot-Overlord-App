@@ -220,8 +220,8 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		    RotaryStewartPlatform2Arm arm = this.arms[i];
 		    
 		    // project wrist position onto plane of bicep (wop)
-		    ortho.x=(float)Math.cos((int)(i/2)*Math.PI*2.0f/3.0f);
-		    ortho.y=(float)Math.sin((int)(i/2)*Math.PI*2.0f/3.0f);
+		    ortho.x=(float)Math.cos((i/2)*Math.PI*2.0f/3.0f);
+		    ortho.y=(float)Math.sin((i/2)*Math.PI*2.0f/3.0f);
 		    ortho.z=0;
 		    
 		    //w = arm.wrist - arm.shoulder
