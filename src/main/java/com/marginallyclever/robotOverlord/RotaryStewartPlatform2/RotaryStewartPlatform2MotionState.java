@@ -393,9 +393,9 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		if(temp.length() < BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
 */
 		// angle are good?
-		if(checkAngleLimits()==false) return false;
+		if(!checkAngleLimits()) return false;
 		// seems doable
-		if(updateIK()==false) return false;
+		if(!updateIK()) return false;
 
 		// OK
 		return true;

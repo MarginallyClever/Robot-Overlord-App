@@ -174,7 +174,7 @@ extends RobotWithConnection {
 			zDir=0;
 		}
 
-		if(changed==true) {
+		if(changed) {
 			if(motionFuture.movePermitted()) {
 				if(!motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f)) {
 					arm_moved=true;
@@ -208,7 +208,7 @@ extends RobotWithConnection {
 			aDir=0;
 		}
 
-		if(changed==true) {
+		if(changed) {
 			if(motionFuture.CheckAngleLimits()) {
 				motionFuture.FK();
 				arm_moved=true;
@@ -781,7 +781,7 @@ extends RobotWithConnection {
 			isPortConfirmed=true;
 			
 			// we are not homed and we have not begun to home
-			if(HOME_AUTOMATICALLY_ON_STARTUP==true) {
+			if(HOME_AUTOMATICALLY_ON_STARTUP) {
 				// this should be sent by a human when they are ready
 				sendLineToRobot("G28");
 				motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.

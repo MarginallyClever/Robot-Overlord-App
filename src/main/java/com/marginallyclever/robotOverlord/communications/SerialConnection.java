@@ -88,7 +88,7 @@ implements SerialPortEventListener, AbstractConnection {
 							waitingForCue=false;
 						}
 					}
-					if(waitingForCue==false) {
+					if(!waitingForCue) {
 						sendQueuedCommand();
 					}
 				}
@@ -126,7 +126,7 @@ implements SerialPortEventListener, AbstractConnection {
 	}
 	
 	public boolean readyForCommands() {
-		return waitingForCue==false;
+		return !waitingForCue;
 	}
 	
 	

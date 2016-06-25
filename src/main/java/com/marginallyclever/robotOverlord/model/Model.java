@@ -440,7 +440,7 @@ public class Model implements Serializable {
 	}
 	
 	public void render(GL2 gl2) {
-		if(isLoaded==false) {
+		if(!isLoaded) {
 			load();
 			createBuffers(gl2);
 			updateBuffers(gl2);
