@@ -907,7 +907,7 @@ extends RobotWithConnection {
 		
 		if( isPortConfirmed ) {
 			if(line.startsWith("A")) {
-				String items[] = line.split(" ");
+				String[] items = line.split(" ");
 				if(items.length>=5) {
 					for(int i=0;i<items.length;++i) {
 						if(items[i].startsWith("A")) {

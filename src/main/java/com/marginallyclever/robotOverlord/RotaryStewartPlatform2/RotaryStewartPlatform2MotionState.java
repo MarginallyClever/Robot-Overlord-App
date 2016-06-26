@@ -14,7 +14,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	// angle of rotation
-	protected RotaryStewartPlatform2Arm arms[];
+	protected RotaryStewartPlatform2Arm[] arms;
 
 	// Relative to base unless otherwise noted.
 	public Vector3f relative = new Vector3f();

@@ -37,7 +37,7 @@ public class Model implements Serializable {
 	protected transient FloatBuffer vertices;
 	protected transient FloatBuffer normals;
 	protected transient FloatBuffer textureCoordinates;
-	protected transient int VBO[] = null;
+	protected transient int[] VBO = null;
 	protected transient boolean isLoaded = false;
 	protected transient boolean isBinary = false;
 	protected transient float loadScale=1.0f;
@@ -212,7 +212,7 @@ public class Model implements Serializable {
 					continue;
 				}
 				line = line.trim();
-				String c[] = line.split(" ");
+				String[] c = line.split(" ");
 				if(j==0) {
 					x=Float.parseFloat(c[0]);
 					y=Float.parseFloat(c[1]);

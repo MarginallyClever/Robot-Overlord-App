@@ -89,9 +89,9 @@ implements Serializable {
 
         // add a settings toggle for this option, it really slows down older machines.
         gl2.glEnable(GL2.GL_MULTISAMPLE);
-        
-        int buf[] = new int[1];
-        int sbuf[] = new int[1];
+
+        int[] buf = new int[1];
+        int[] sbuf = new int[1];
         gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
         gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
         

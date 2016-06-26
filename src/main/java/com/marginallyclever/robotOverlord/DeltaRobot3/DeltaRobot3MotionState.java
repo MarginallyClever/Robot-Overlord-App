@@ -5,7 +5,7 @@ import javax.vecmath.Vector3f;
 
 public class DeltaRobot3MotionState {
 	// angle of rotation
-	DeltaRobot3Arm arms[];
+	DeltaRobot3Arm[] arms;
 
 	public static final int NUM_ARMS = 3;
 
