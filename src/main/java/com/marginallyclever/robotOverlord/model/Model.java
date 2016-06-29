@@ -425,7 +425,7 @@ public class Model implements Serializable {
 	
 	private void updateBuffers(GL2 gl2) {
 		int totalBufferSize = numTriangles*3*3;
-		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+		int s= Float.SIZE/8;  // bits per float / bits per byte = bytes per float
 
 		// bind a buffer
 		vertices.rewind();

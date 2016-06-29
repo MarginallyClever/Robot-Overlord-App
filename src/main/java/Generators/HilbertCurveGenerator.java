@@ -188,7 +188,7 @@ public class HilbertCurveGenerator implements GcodeGenerator {
     	double newx =  Math.cos(n) * turtle_dx + Math.sin(n) * turtle_dy;
     	double newy = -Math.sin(n) * turtle_dx + Math.cos(n) * turtle_dy;
     	double len = Math.sqrt(newx*newx + newy*newy);
-    	assert(len>0);
+    	assert len>0;
     	turtle_dx = (float)(newx/len);
     	turtle_dy = (float)(newy/len);
     }

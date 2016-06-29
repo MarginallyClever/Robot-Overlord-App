@@ -172,8 +172,8 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 
 			TextCreateMessageNow(text,output);
 
-			output.write(("G90;\n"));
-			output.write(("G0 Z15 F"+feed_rate_rapid+";\n"));
+			output.write("G90;\n");
+			output.write("G0 Z15 F"+feed_rate_rapid+";\n");
 			
         	output.flush();
 	        output.close();
@@ -412,7 +412,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 			xmin = posx - w;
 			break;
 		default:
-			assert(false);
+			assert false;
 		}
 		
 		switch(align_vertical) {
@@ -429,7 +429,7 @@ public class YourMessageHereGenerator implements GcodeGenerator {
 			ymin = posy - h;
 			break;
 		default:
-			assert(false);
+			assert false;
 		}
 		/*
 		System.out.println(num_lines + " lines");

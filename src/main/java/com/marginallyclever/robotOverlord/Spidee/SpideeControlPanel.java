@@ -199,43 +199,43 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		  buttons[BUTTONS_0]         = (int) Input.GetSingleton().GetAxisState("spidee","recenter");
 */
 		if( subject == buttonWalkUp ) {
-			robot.buttons[Spidee.BUTTONS_Z_POS] = (robot.buttons[Spidee.BUTTONS_Z_POS]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_Z_POS] = robot.buttons[Spidee.BUTTONS_Z_POS]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_Z_NEG] = 0;
 		}
 		if( subject == buttonWalkDown ) {
-			robot.buttons[Spidee.BUTTONS_Z_NEG] = (robot.buttons[Spidee.BUTTONS_Z_NEG]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_Z_NEG] = robot.buttons[Spidee.BUTTONS_Z_NEG]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_Z_POS] = 0;
 		}
 		if( subject == buttonWalkLeft ) {
-			robot.buttons[Spidee.BUTTONS_X_POS] = (robot.buttons[Spidee.BUTTONS_X_POS]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_X_POS] = robot.buttons[Spidee.BUTTONS_X_POS]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_X_NEG] = 0;
 		}
 		if( subject == buttonWalkRight ) {
-			robot.buttons[Spidee.BUTTONS_X_NEG] = (robot.buttons[Spidee.BUTTONS_X_NEG]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_X_NEG] = robot.buttons[Spidee.BUTTONS_X_NEG]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_X_POS] = 0;
 		}
 		if( subject == buttonWalkForward ) {
-			robot.buttons[Spidee.BUTTONS_Y_POS] = (robot.buttons[Spidee.BUTTONS_Y_POS]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_Y_POS] = robot.buttons[Spidee.BUTTONS_Y_POS]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_Y_NEG] = 0;
 		}
 		if( subject == buttonWalkBackward ) {
-			robot.buttons[Spidee.BUTTONS_Y_NEG] = (robot.buttons[Spidee.BUTTONS_Y_NEG]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_Y_NEG] = robot.buttons[Spidee.BUTTONS_Y_NEG]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_Y_POS] = 0;
 		}
 		if( subject == buttonTurnDown ) {
-			robot.buttons[Spidee.BUTTONS_X_ROT_NEG] = (robot.buttons[Spidee.BUTTONS_X_ROT_NEG]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_X_ROT_NEG] = robot.buttons[Spidee.BUTTONS_X_ROT_NEG]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_X_ROT_POS] = 0;	
 		}
 		if( subject == buttonTurnUp ) {
-			robot.buttons[Spidee.BUTTONS_X_ROT_POS] = (robot.buttons[Spidee.BUTTONS_X_ROT_POS]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_X_ROT_POS] = robot.buttons[Spidee.BUTTONS_X_ROT_POS]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_X_ROT_NEG] = 0;
 		}
 		if( subject == buttonTurnLeft ) {
-			robot.buttons[Spidee.BUTTONS_Z_ROT_POS] = (robot.buttons[Spidee.BUTTONS_Z_ROT_POS]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_Z_ROT_POS] = robot.buttons[Spidee.BUTTONS_Z_ROT_POS]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_Z_ROT_NEG] = 0;
 		}
 		if( subject == buttonTurnRight ) {
-			robot.buttons[Spidee.BUTTONS_Z_ROT_NEG] = (robot.buttons[Spidee.BUTTONS_Z_ROT_NEG]==1? 0:1);
+			robot.buttons[Spidee.BUTTONS_Z_ROT_NEG] = robot.buttons[Spidee.BUTTONS_Z_ROT_NEG]==1? 0:1;
 			robot.buttons[Spidee.BUTTONS_Z_ROT_POS] = 0;
 		}
 	}

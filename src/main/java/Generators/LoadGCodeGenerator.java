@@ -31,7 +31,7 @@ public class LoadGCodeGenerator implements GcodeGenerator {
 		//String filename = (recentFiles[0].length()>0) ? filename=recentFiles[0] : "";
 		String filename="";
 
-		FileFilter filterGCODE = new FileNameExtensionFilter(("GCode"), "ngc");
+		FileFilter filterGCODE = new FileNameExtensionFilter("GCode", "ngc");
 		//FileFilter filterImage = new FileNameExtensionFilter(("Image"), "jpg", "jpeg", "png", "wbmp", "bmp", "gif");
 		//FileFilter filterDXF   = new FileNameExtensionFilter(("DXF"), "dxf");
 		 

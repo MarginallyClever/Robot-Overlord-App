@@ -944,7 +944,7 @@ extends RobotWithConnection {
 		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
 		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
 		
-		float a = (-u*x - v*y - w*z);
+		float a = -u*x - v*y - w*z;
 
 		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,

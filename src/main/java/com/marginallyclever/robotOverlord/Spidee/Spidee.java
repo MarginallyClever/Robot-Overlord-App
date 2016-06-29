@@ -1025,7 +1025,7 @@ implements ActionListener {
 	  int strafe_direction = buttons[BUTTONS_X_POS]
 	                       - buttons[BUTTONS_X_NEG];
 
-	  boolean update=( turn_direction != 0 || walk_direction != 0 || strafe_direction != 0 );
+	  boolean update= turn_direction != 0 || walk_direction != 0 || strafe_direction != 0;
 
 	  // zero stance width
 	  if(buttons[BUTTONS_1]>0) {  // widen stance
@@ -1073,8 +1073,8 @@ implements ActionListener {
 	    turn_direction = (int)Math.max(Math.min( (float)turn_direction, 180*dt), -180*dt );
 	    float turn = (float)Math.toRadians(turn_direction * turn_stride_length) * dt * move_body_scale / 6.0f;
 
-	    float c=( (float)Math.cos( turn ) );
-	    float s=( (float)Math.sin( turn ) );
+	    float c= (float)Math.cos( turn );
+	    float s= (float)Math.sin( turn );
 
 	    for(i=0;i<6;++i) {
 	      SpideeLeg leg = legs[i];
@@ -1253,8 +1253,8 @@ implements ActionListener {
 
 	  Update_Gait_Target(dt,1.0f/6.0f);
 
-	  float step=( gait_cycle - (float)Math.floor( gait_cycle ) );
-	  int leg_to_move=( (int)Math.floor( gait_cycle ) % 6 );
+	  float step= gait_cycle - (float)Math.floor( gait_cycle );
+	  int leg_to_move= (int)Math.floor( gait_cycle ) % 6;
 
 	  // put all feet down except the "active" leg(s).
 	  int i;
@@ -1330,8 +1330,8 @@ implements ActionListener {
 
 	  Update_Gait_Target(dt,0.5f);
 
-	  float step=( gait_cycle - (float)Math.floor( gait_cycle ) );
-	  int leg_to_move=( (int)Math.floor( gait_cycle ) % 2 );
+	  float step= gait_cycle - (float)Math.floor( gait_cycle );
+	  int leg_to_move= (int)Math.floor( gait_cycle ) % 2;
 
 	  // put all feet down except the "active" leg(s).
 	  int i;
@@ -1411,8 +1411,8 @@ implements ActionListener {
 	    ds.sub( body.pos );
 	    Vector3f df = new Vector3f( leg.ankle_joint.pos );
 	    df.sub( body.pos );
-	    float dfl=( df.length() );
-	    float dsl=( ds.length() );
+	    float dfl= df.length();
+	    float dsl= ds.length();
 
 	    ds.z = 0;
 	    ds.normalize();
@@ -1532,7 +1532,7 @@ implements ActionListener {
 	    float knee_angle = (float)Math.atan2( y, x );
 
 	    // translate the angles into the servo range, 0...255 over 0...PI.
-	    final float scale = ( 255.0f / (float)Math.PI );
+	    final float scale = 255.0f / (float)Math.PI;
 	    if( i < 3 ) pan_angle = -pan_angle;
 	    float p = leg.pan_joint .zero - pan_angle  * leg.pan_joint .scale * scale;
 	    float t = leg.tilt_joint.zero + tilt_angle * leg.tilt_joint.scale * scale;

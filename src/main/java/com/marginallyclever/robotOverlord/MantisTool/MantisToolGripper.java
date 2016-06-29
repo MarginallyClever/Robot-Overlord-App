@@ -165,7 +165,7 @@ public class MantisToolGripper extends MantisTool {
 		gl2.glPopMatrix();
 		// gripper
 		gl2.glPushMatrix();
-		gl2.glTranslated(5.575-2.935+5.55,(-1.395-1.38),0);
+		gl2.glTranslated(5.575-2.935+5.55, -1.395-1.38, 0);
 		gl2.glRotatef(180,0,0,1);
 		d = 2.965;
 		gl2.glTranslated(c*-d,-s*-d,0);

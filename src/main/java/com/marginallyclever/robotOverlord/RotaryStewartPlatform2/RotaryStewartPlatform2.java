@@ -35,14 +35,14 @@ extends RobotWithConnection
 	public static final String ROBOT_NAME = "Stewart Platorm 2";
 	
 	// machine dimensions
-	public static final float BASE_TO_SHOULDER_X   =( 8.093f);  // measured in solidworks, relative to base origin
-	public static final float BASE_TO_SHOULDER_Y   =( 2.150f);
-	public static final float BASE_TO_SHOULDER_Z   =( 6.610f);
-	public static final float BICEP_LENGTH         =( 5.000f);
-	public static final float FOREARM_LENGTH       =(16.750f);
-	public static final float WRIST_TO_FINGER_X    =( 7.635f);
-	public static final float WRIST_TO_FINGER_Y    =( 0.553f);
-	public static final float WRIST_TO_FINGER_Z    =(-0.870f);  // measured in solidworks, relative to finger origin
+	public static final float BASE_TO_SHOULDER_X   = 8.093f;  // measured in solidworks, relative to base origin
+	public static final float BASE_TO_SHOULDER_Y   = 2.150f;
+	public static final float BASE_TO_SHOULDER_Z   = 6.610f;
+	public static final float BICEP_LENGTH         = 5.000f;
+	public static final float FOREARM_LENGTH       = 16.750f;
+	public static final float WRIST_TO_FINGER_X    = 7.635f;
+	public static final float WRIST_TO_FINGER_Y    = 0.553f;
+	public static final float WRIST_TO_FINGER_Z    = -0.870f;  // measured in solidworks, relative to finger origin
 	
 	// calibration settings
 	protected float HOME_X;
@@ -278,7 +278,7 @@ extends RobotWithConnection
 		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
 		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
 		
-		float a = (-u*x - v*y - w*z);
+		float a = -u*x - v*y - w*z;
 
 		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,

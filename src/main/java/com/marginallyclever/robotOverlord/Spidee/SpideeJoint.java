@@ -10,7 +10,7 @@ public class SpideeJoint extends SpideeLocation implements Serializable {
 	 */
 	private static final long serialVersionUID = 5055658323708862756L;
 
-	public static final int ANGLE_HISTORY_LENGTH = (30*3);
+	public static final int ANGLE_HISTORY_LENGTH = 30*3;
 	
 	  float angle;
 	  int last_angle;

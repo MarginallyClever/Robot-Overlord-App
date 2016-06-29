@@ -33,14 +33,14 @@ extends RobotWithConnection {
 	public final static String ROBOT_NAME = "Delta Robot 3";
 	
 	//machine dimensions & calibration
-	static final float BASE_TO_SHOULDER_X   =( 0.0f);  // measured in solidworks, relative to base origin
-	static final float BASE_TO_SHOULDER_Y   =( 3.77f);
-	static final float BASE_TO_SHOULDER_Z   =(18.9f);
-	static final float BICEP_LENGTH         =( 5.000f);
-	static final float FOREARM_LENGTH       =(16.50f);
-	static final float WRIST_TO_FINGER_X    =( 0.0f);
-	static final float WRIST_TO_FINGER_Y    =( 1.724f);
-	static final float WRIST_TO_FINGER_Z    =( 0.5f);  // measured in solidworks, relative to finger origin
+	static final float BASE_TO_SHOULDER_X   = 0.0f;  // measured in solidworks, relative to base origin
+	static final float BASE_TO_SHOULDER_Y   = 3.77f;
+	static final float BASE_TO_SHOULDER_Z   = 18.9f;
+	static final float BICEP_LENGTH         = 5.000f;
+	static final float FOREARM_LENGTH       = 16.50f;
+	static final float WRIST_TO_FINGER_X    = 0.0f;
+	static final float WRIST_TO_FINGER_Y    = 1.724f;
+	static final float WRIST_TO_FINGER_Z    = 0.5f;  // measured in solidworks, relative to finger origin
 	
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
@@ -133,7 +133,7 @@ extends RobotWithConnection {
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
-		float aa=(motionNow.arms[0].elbow.y-motionNow.arms[0].wrist.y);
+		float aa= motionNow.arms[0].elbow.y-motionNow.arms[0].wrist.y;
 		float cc=FOREARM_LENGTH;
 		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
 		aa=motionNow.arms[0].elbow.x-motionNow.arms[0].wrist.x;
@@ -222,7 +222,7 @@ extends RobotWithConnection {
 		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
 		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
 		
-		float a = (-u*x - v*y - w*z);
+		float a = -u*x - v*y - w*z;
 
 		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,

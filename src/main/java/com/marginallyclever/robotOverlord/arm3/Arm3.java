@@ -26,11 +26,11 @@ extends RobotWithConnection {
 	protected final static String hello = "HELLO WORLD! I AM ARM3 #";
 	
 	//machine dimensions
-	final static public float BASE_TO_SHOULDER_X   =(5.37f);  // measured in solidworks
-	final static public float BASE_TO_SHOULDER_Z   =(9.55f);  // measured in solidworks
-	final static public float SHOULDER_TO_ELBOW    =(25.0f);
-	final static public float ELBOW_TO_WRIST       =(25.0f);
-	final static public float WRIST_TO_FINGER      =(4.0f);
+	final static public float BASE_TO_SHOULDER_X   = 5.37f;  // measured in solidworks
+	final static public float BASE_TO_SHOULDER_Z   = 9.55f;  // measured in solidworks
+	final static public float SHOULDER_TO_ELBOW    = 25.0f;
+	final static public float ELBOW_TO_WRIST       = 25.0f;
+	final static public float WRIST_TO_FINGER      = 4.0f;
 	final static public float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
 	
 	static public float HOME_X = 13.05f;
@@ -767,7 +767,7 @@ extends RobotWithConnection {
 		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
 		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
 		
-		float a = (-u*x - v*y - w*z);
+		float a = -u*x - v*y - w*z;
 
 		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
