@@ -103,7 +103,7 @@ public class HilbertCurveGenerator implements GcodeGenerator {
 			OutputStream output = new FileOutputStream(outputFile);
 			output.write("G28\n".getBytes(StandardCharsets.UTF_8));
 			output.write("G90\n".getBytes(StandardCharsets.UTF_8));
-			output.write("G54 X-30 Z-"+tool_offset_z+"\n".getBytes(StandardCharsets.UTF_8));
+			output.write(("G54 X-30 Z-"+tool_offset_z+"\n").getBytes(StandardCharsets.UTF_8));
 			
 			turtle_x=0;
 			turtle_y=0;
