@@ -844,8 +844,8 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	private void onClose() {
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
-                "Please confirm",
                 "Are you sure you want to quit?",
+                "Exit",
                 JOptionPane.YES_NO_OPTION);
 
         if (result == JOptionPane.YES_OPTION) {
@@ -858,7 +858,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	              animator.stop();
 	              System.exit(0);
 	            }
-	          }).start();
+	        }).start();
         }
 	}
 

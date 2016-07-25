@@ -4,12 +4,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
@@ -18,7 +18,7 @@ import com.marginallyclever.robotOverlord.communications.AbstractConnectionManag
 
 
 public class RobotWithConnection extends PhysicalObject
-implements AbstractConnectionListener, ActionListener, ItemListener {
+implements AbstractConnectionListener, ActionListener {
 	/**
 	 * 
 	 */
@@ -31,8 +31,6 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	protected transient boolean isReadyToReceive;
 	
 	protected transient CollapsiblePanel connectionPanel=null;
-	protected transient JPanel connectionList=null;
-	protected transient JComboBox<String> connectionComboBox=null;
 
 	// sending file to the robot
 	private boolean running;
@@ -41,16 +39,9 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	private long linesProcessed;
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
-	
-	private transient boolean ignoreSelectionEvents=false;
 
 	// connect/rescan/disconnect dialog options
-	protected transient JButton buttonRescan;
-
-	
-	public boolean isRunning() { return running; }
-	public boolean isPaused() { return paused; }
-	public boolean isFileOpen() { return fileOpened; }
+	protected transient JButton buttonConnect;
 	
 	
 	public RobotWithConnection() {
@@ -71,6 +62,11 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	}
 	
 
+	public boolean isRunning() { return running; }
+	public boolean isPaused() { return paused; }
+	public boolean isFileOpen() { return fileOpened; }
+	
+	
 	@Override
 	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getControlPanels(gui);
@@ -92,15 +88,10 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
 		
-		connectionList = new JPanel(new GridLayout(0,1));
-		rescanConnections();
-		
-        buttonRescan = new JButton("Rescan");
-        buttonRescan.addActionListener(this);
+        buttonConnect = new JButton("Connect");
+        buttonConnect.addActionListener(this);
 
-        contents.add(connectionList,con1);
-		con1.gridy++;
-		contents.add(buttonRescan,con1);
+		contents.add(buttonConnect,con1);
 		con1.gridy++;
 
 	    return connectionPanel;
@@ -110,65 +101,45 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 		
-		if(subject==buttonRescan) {
-			rescanConnections();
+		if(subject==buttonConnect) {
+			if(connection!=null) {
+				closeConnection();
+			} else {
+				openConnection();
+			}
 			return;
 		}
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		Object subject = e.getSource();
-		
-		if(subject == connectionComboBox) {
-			if(!ignoreSelectionEvents && e.getStateChange()==ItemEvent.SELECTED) {
-				if(connectionComboBox.getSelectedIndex()==0) {
-					// disconnect
-					if(connection!=null) {
-						connection.close();
-						connection=null;
-					}
-					rescanConnections();
-					return;
-				} else {
-					// close previous connection
-					if(connection!=null) {
-						connection.close();
-						connection=null;
-					}
-					
-					String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
-					connection = connectionManager.openConnection(connectionName);
-					// don't blow up if the connection failed
-					if(connection!=null) {
-						connection.addListener(this);
-					} else {
-						System.out.println("Failed to open connection.");
-					}
-					rescanConnections();
-					return;
-				}
-			}
-		}
+	
+	protected void closeConnection() {
+		this.setConnection(null);
+		buttonConnect.setText("Connect");
 	}
 	
-	public void rescanConnections() {
-		ignoreSelectionEvents=true;
-	    connectionComboBox = new JComboBox<String>();
-        connectionComboBox.addItemListener(this);
+	protected void openConnection() {
+		JPanel connectionList = new JPanel(new GridLayout(0, 1));
+		connectionList.add(new JLabel("Connect"));
+		
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTH;
+
+		JComboBox<String> connectionComboBox = new JComboBox<String>();
         connectionList.removeAll();
         connectionList.add(connectionComboBox);
 	    
-        connectionComboBox.addItem("No connection"); // index 0
-	    connectionComboBox.setSelectedIndex(0);
-	    
 	    String recentConnection = "";
-	    if(connection!=null) {
-	    	recentConnection = connection.getRecentConnection();
+	    if(getConnection()!=null) {
+	    	recentConnection = getConnection().getRecentConnection();
 	    }
 
-	    if(connectionManager!=null) {
-			portsDetected = connectionManager.listConnections();
+	    if( connectionManager != null ) {
+			String [] portsDetected = connectionManager.listConnections();
 			int i;
 		    for(i=0;i<portsDetected.length;++i) {
 		    	connectionComboBox.addItem(portsDetected[i]);
@@ -177,9 +148,32 @@ implements AbstractConnectionListener, ActionListener, ItemListener {
 		    	}
 		    }
 	    }
-        ignoreSelectionEvents=false;
+        
+		int result = JOptionPane.showConfirmDialog(null, connectionList, "Connect to...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (result == JOptionPane.OK_OPTION) {
+			String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
+			setConnection( connectionManager.openConnection(connectionName) );
+			buttonConnect.setText("Disconnect");
+		}
 	}
 	
+	public AbstractConnection getConnection() {
+		return this.connection;
+	}
+	
+	public void setConnection(AbstractConnection con) {
+		if(this.connection!=null) {
+			if( this.connection == con ) return;
+			this.connection.removeListener(this);
+			this.connection.close();
+		}
+		
+		this.connection = con;
+		
+		if( this.connection != null ) {
+			this.connection.addListener(this);
+		}
+	}
 	
 	@Override
 	public void connectionReady(AbstractConnection arg0) {

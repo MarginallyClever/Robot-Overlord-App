@@ -1,6 +1,8 @@
 package com.marginallyclever.robotOverlord;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +39,7 @@ public class Log {
 	
 	/**
 	 * wipe the log file
-	 * @author danroyer
+	 * @author dan royer
 	 */
 	public static void clear() {
 		Path p = FileSystems.getDefault().getPath("log.html");
