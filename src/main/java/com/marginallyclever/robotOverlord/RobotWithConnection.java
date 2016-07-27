@@ -130,7 +130,6 @@ implements AbstractConnectionListener, ActionListener {
 		con1.anchor=GridBagConstraints.NORTH;
 
 		JComboBox<String> connectionComboBox = new JComboBox<String>();
-        connectionList.removeAll();
         connectionList.add(connectionComboBox);
 	    
 	    String recentConnection = "";
@@ -148,7 +147,7 @@ implements AbstractConnectionListener, ActionListener {
 		    	}
 		    }
 	    }
-        
+        //TODO change showConfirmDialog(null... to showConfirmDialog(root window of app...
 		int result = JOptionPane.showConfirmDialog(null, connectionList, "Connect to...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());

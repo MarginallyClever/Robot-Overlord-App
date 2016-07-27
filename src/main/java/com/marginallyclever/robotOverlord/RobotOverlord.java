@@ -4,6 +4,7 @@ package com.marginallyclever.robotOverlord;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -27,8 +28,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 import java.util.prefs.Preferences;
 
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -84,21 +90,27 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 
 	// menus
     /// main menu bar
-	protected JMenuBar mainMenu;
+	protected transient JMenuBar mainMenu;
 	/// load a new world
-	protected JMenuItem buttonNew;
+	protected transient JMenuItem buttonNew;
     /// show the load level dialog
-	protected JMenuItem buttonLoad;
+	protected transient JMenuItem buttonLoad;
     /// show the save level dialog
-	protected JMenuItem buttonSave;
+	protected transient JMenuItem buttonSave;
     /// show the about dialog
-	protected JMenuItem buttonAbout;
+	protected transient JMenuItem buttonAbout;
     /// check the version against github and notify the user if they wer up to date or not
-	protected JMenuItem buttonCheckForUpdate;
+	protected transient JMenuItem buttonCheckForUpdate;
     /// quit the application
-	protected JMenuItem buttonQuit;
+	protected transient JMenuItem buttonQuit;
 	
-	protected JMenuItem buttonUndo, buttonRedo;
+	protected transient JMenuItem buttonUndo, buttonRedo;
+	
+	// add object to world
+	protected transient JMenuItem buttonSelectAndAddObject;
+	// remove object from world
+	protected transient JMenuItem buttonSelectAndRemoveObject;
+	
 	
     /// The animator keeps things moving
     private Animator animator;
@@ -226,6 +238,11 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	
 	public UndoHelper getUndoHelper() {
 		return undoHelper;
+	}
+	
+
+	public void setContextMenu(ObjectInWorld o) {
+		setContextMenu(o.buildPanel(this),o.getDisplayName());
 	}
 	
 	
@@ -423,9 +440,18 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
     	menuEdit.add(buttonRedo);
         mainMenu.add(menuEdit);
 
-        mainMenu.add(world.buildMenu());
+        // world menu
+        JMenu menuWorld = new JMenu("World");
+    	buttonSelectAndAddObject = new JMenuItem("Add object");
+    	buttonSelectAndRemoveObject = new JMenuItem("Remove object");    	
+    	menuWorld.add(buttonSelectAndAddObject);
+    	menuWorld.add(buttonSelectAndRemoveObject);
+    	buttonSelectAndAddObject.addActionListener(this);
+    	buttonSelectAndRemoveObject.addActionListener(this);
+    	mainMenu.add(menuWorld);
+    	
+    	// done
         mainMenu.updateUI();
-        
         updateMenu();
 	}
 
@@ -491,7 +517,100 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 		else if( subject == buttonQuit ) onClose();
 		else if( subject == buttonRedo ) redo();
 		else if( subject == buttonUndo ) undo();
+		else if( subject == buttonSelectAndAddObject ) selectAndAddObject();
+		else if( subject == buttonSelectAndRemoveObject ) selectAndRemoveObject();
 	}
+	
+	
+    /**
+     * select from a list of all object types.  An instance of that type is then added to the world.
+     */
+    public void selectAndAddObject() {
+		JPanel additionList = new JPanel(new GridLayout(0, 1));
+		
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTH;
+
+		JComboBox<String> additionComboBox = new JComboBox<String>();
+		additionList.add(additionComboBox);
+		
+		// service load the types available.
+		ServiceLoader<ObjectInWorld> loaders = ServiceLoader.load(ObjectInWorld.class);
+		Iterator<ObjectInWorld> i = loaders.iterator();
+		while(i.hasNext()) {
+			ObjectInWorld lft = i.next();
+			additionComboBox.addItem(lft.getDisplayName());
+		}
+
+        
+		int result = JOptionPane.showConfirmDialog(this.mainFrame, additionList, "Add...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (result == JOptionPane.OK_OPTION) {
+			String objectTypeName = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
+
+			i = loaders.iterator();
+			while(i.hasNext()) {
+				ObjectInWorld lft = i.next();
+				String name = lft.getDisplayName();
+				if(name.equals(objectTypeName)) {
+					ObjectInWorld newInstance = null;
+
+					try {
+						newInstance = lft.getClass().newInstance();
+					} catch (InstantiationException | IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					world.addObject(newInstance);
+					setContextMenu(newInstance);
+					
+					return;
+				}
+			}
+			// TODO catch selected an item to load, then couldn't find object class?!  Should be impossible.
+		}
+    }
+    
+    /**
+     * select from a list of all objects in the world.  the selected object is then removed and destroyed.
+     */
+    public void selectAndRemoveObject() {
+		JPanel additionList = new JPanel(new GridLayout(0, 1));
+		
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTH;
+
+		JComboBox<String> removeComboBox = new JComboBox<String>();
+		additionList.add(removeComboBox);
+		
+		// service load the types available.
+		List<String> names = world.namesOfAllObjects();
+		Iterator<String> i = names.iterator();
+		while(i.hasNext()) {
+			String name = i.next();
+			removeComboBox.addItem(name);
+		}
+
+        
+		int result = JOptionPane.showConfirmDialog(this.mainFrame, additionList, "Remove...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (result == JOptionPane.OK_OPTION) {
+			String targetName = removeComboBox.getItemAt(removeComboBox.getSelectedIndex());
+			ObjectInWorld obj = world.findObjectWithName(targetName);
+			world.removeObject(obj);
+	    	pickCamera();
+	    	return;
+		}
+    }
 
 	private void doAbout() {
 		JOptionPane.showMessageDialog(null,"<html><body>"
@@ -724,7 +843,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
     			if(names>0) {
         			int name = selectBuffer.get(index++);
     				ObjectInWorld newObject = world.pickObjectWithName(name);
-    				setContextMenu(newObject.buildPanel(this),newObject.getDisplayName());
+    				setContextMenu(newObject);
    					pickFound=true;
                 	return;
         		}
@@ -739,7 +858,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	public void pickCamera() {
 		Camera camera = world.getCamera();
 		if(camera!=null) {
-			setContextMenu(camera.buildPanel(this),camera.getDisplayName());
+			setContextMenu(camera);
 		}
 	}
 

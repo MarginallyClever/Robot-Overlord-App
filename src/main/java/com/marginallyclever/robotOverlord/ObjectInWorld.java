@@ -45,6 +45,8 @@ public class ObjectInWorld implements Serializable {
 		pickName = pickNameCounter++;
 		position = new Vector3f();
 	}
+	
+	
 	/*
 	public void setGUI(EvilOverlord gui) {
 		this.gui = gui;
@@ -55,6 +57,8 @@ public class ObjectInWorld implements Serializable {
 		}
 	}
 	*/
+	
+	
 	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		

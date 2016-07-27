@@ -4,10 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ServiceLoader;
 
 import com.jogamp.opengl.GL2;
-import javax.swing.JMenu;
+
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -19,7 +18,6 @@ import com.marginallyclever.robotOverlord.LightObject;
 import com.marginallyclever.robotOverlord.ObjectInWorld;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.RobotWithConnection;
 import com.marginallyclever.robotOverlord.Camera.Camera;
 import com.marginallyclever.robotOverlord.EvilMinion.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
@@ -39,11 +37,9 @@ implements Serializable {
 	private static final long serialVersionUID = -2405142728731535038L;
 
 	protected transient AbstractConnectionManager connectionManager = new SerialConnectionManager();
-	
-	protected transient JMenu worldMenu;
-	protected transient AddModelToWorldButton buttonAddModel;
+
 	protected transient boolean areTexturesLoaded=false;
-	
+
 	// world contents
 	protected ArrayList<ObjectInWorld> objects = new ArrayList<ObjectInWorld>();
 	protected Camera camera = null;
@@ -57,8 +53,6 @@ implements Serializable {
 	protected transient Vector3f pickUp = null;
 	protected transient Vector3f pickRay = null;
 	protected transient boolean isSetup = false;
-	
-	protected List<AddRobotToWorldButton> addRobotButtons = null;
 
 	
 	public World() {
@@ -139,30 +133,6 @@ implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	
-	
-    public JMenu buildMenu() {
-    	worldMenu = new JMenu("World");
-		
-		// service load the robot types available.
-		addRobotButtons = new ArrayList<AddRobotToWorldButton>();
-		ServiceLoader<RobotWithConnection> loaders = ServiceLoader.load(RobotWithConnection.class);
-		Iterator<RobotWithConnection> i = loaders.iterator();
-		while(i.hasNext()) {
-			RobotWithConnection lft = i.next();
-			AddRobotToWorldButton button = new AddRobotToWorldButton(this,lft,"Add "+lft.getDisplayName());
-			addRobotButtons.add(button);
-			worldMenu.add(button);
-		}
-
-    	worldMenu.addSeparator();
-    	
-    	buttonAddModel = new AddModelToWorldButton(this,"Add Model");
-    	worldMenu.add(buttonAddModel);
-    	
-    	return worldMenu;
-    }
-    
 	
 	public void render(GL2 gl2, float delta ) {
 		if(!isSetup) {
@@ -420,12 +390,38 @@ implements Serializable {
 		return newObject;
 	}
 
-
 	
-	public void addRobot(RobotWithConnection r) {
-		r.setConnectionManager(connectionManager);
-		objects.add(r);
+	public void addObject(ObjectInWorld o) {
+		objects.add(o);
 	}
+	
+	public void removeObject(ObjectInWorld o) {
+		objects.remove(o);
+	}
+	
+	public List<String> namesOfAllObjects() {
+		ArrayList<String> list = new ArrayList<String>();
+		
+		Iterator<ObjectInWorld> i = this.objects.iterator();
+		while(i.hasNext()) {
+			String s = i.next().getDisplayName();
+			list.add(s);
+		}
+		
+		return list;
+	}
+	
+	public ObjectInWorld findObjectWithName(String name) {
+		Iterator<ObjectInWorld> i = this.objects.iterator();
+		while(i.hasNext()) {
+			ObjectInWorld o = i.next();
+			String objectName = o.getDisplayName();
+			if(name.equals(objectName)) return o; 
+		}
+		
+		return null;
+	}
+	
 	
 	public Camera getCamera() {
 		return camera;
