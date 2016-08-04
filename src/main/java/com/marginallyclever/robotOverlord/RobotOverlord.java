@@ -391,6 +391,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 
 	public void updateMenu() {
+        if(buttonUndo==null || buttonRedo==null) return;
+        
         buttonUndo.setText(commandSequence.getUndoPresentationName());
 		buttonRedo.setText(commandSequence.getRedoPresentationName());
 		buttonUndo.getParent().validate();

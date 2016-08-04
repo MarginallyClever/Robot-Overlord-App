@@ -108,6 +108,7 @@ public class ActionSelectFile extends JPanel implements ActionListener {
 	public void addChangeListener(ChangeListener arg0) {
 		changeListeners.add(arg0);
 	}
+	
 	public void removeChangeListner(ChangeListener arg0) {
 		changeListeners.remove(arg0);
 	}
