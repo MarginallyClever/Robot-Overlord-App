@@ -55,10 +55,10 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 		additionList.add(additionComboBox);
 		
 		// service load the types available.
-		ServiceLoader<ObjectInWorld> loaders = ServiceLoader.load(ObjectInWorld.class);
-		Iterator<ObjectInWorld> i = loaders.iterator();
+		ServiceLoader<Entity> loaders = ServiceLoader.load(Entity.class);
+		Iterator<Entity> i = loaders.iterator();
 		while(i.hasNext()) {
-			ObjectInWorld lft = i.next();
+			Entity lft = i.next();
 			additionComboBox.addItem(lft.getDisplayName());
 		}
 
@@ -69,10 +69,10 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 
 			i = loaders.iterator();
 			while(i.hasNext()) {
-				ObjectInWorld lft = i.next();
+				Entity lft = i.next();
 				String name = lft.getDisplayName();
 				if(name.equals(objectTypeName)) {
-					ObjectInWorld newInstance = null;
+					Entity newInstance = null;
 
 					try {
 						newInstance = lft.getClass().newInstance();

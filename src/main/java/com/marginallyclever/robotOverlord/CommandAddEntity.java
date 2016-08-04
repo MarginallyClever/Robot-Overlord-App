@@ -9,11 +9,11 @@ public class CommandAddEntity extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ObjectInWorld entity;
-	private ObjectInWorld previouslyPickedEntity;	
+	private Entity entity;
+	private Entity previouslyPickedEntity;	
 	private RobotOverlord ro;
 	
-	public CommandAddEntity(RobotOverlord ro,ObjectInWorld entity) {
+	public CommandAddEntity(RobotOverlord ro,Entity entity) {
 		this.entity = entity;
 		this.ro = ro;
 		addNow();

@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 import com.jogamp.opengl.GL2;
 
-public class LightObject extends ObjectInWorld {
+public class LightObject extends Entity {
 	/**
 	 * 
 	 */

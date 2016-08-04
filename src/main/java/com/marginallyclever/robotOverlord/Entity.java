@@ -18,7 +18,7 @@ import javax.vecmath.Vector3f;
  * @author danroyer
  *
  */
-public class ObjectInWorld implements Serializable {
+public class Entity implements Serializable {
 	/**
 	 * 
 	 */
@@ -33,7 +33,7 @@ public class ObjectInWorld implements Serializable {
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static private int pickNameCounter=1;
 	
-	private transient ObjectInWorldPanel oiwPanel;
+	private transient EntityPanel oiwPanel;
 	protected Material material = new Material();
 	
 	
@@ -41,28 +41,16 @@ public class ObjectInWorld implements Serializable {
 	//protected transient EvilOverlord gui;
 	
 	
-	public ObjectInWorld() {
+	public Entity() {
 		pickName = pickNameCounter++;
 		position = new Vector3f();
 	}
 	
 	
-	/*
-	public void setGUI(EvilOverlord gui) {
-		this.gui = gui;
-		
-		Iterator<ObjectInWorld> iter = children.iterator();
-		while(iter.hasNext()) {
-			iter.next().setGUI(gui);
-		}
-	}
-	*/
-	
-	
 	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		oiwPanel = new ObjectInWorldPanel(gui,this);
+		oiwPanel = new EntityPanel(gui,this);
 		list.add(oiwPanel);
 
 		return list;

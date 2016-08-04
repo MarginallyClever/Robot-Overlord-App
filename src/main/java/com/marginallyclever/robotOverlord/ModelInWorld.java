@@ -10,7 +10,7 @@ import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 
-public class ModelInWorld extends ObjectInWorld {
+public class ModelInWorld extends Entity {
 	/**
 	 * 
 	 */
