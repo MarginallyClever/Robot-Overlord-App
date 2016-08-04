@@ -21,7 +21,7 @@ public class ModelInWorld extends ObjectInWorld {
 	protected transient ModelInWorldPanel modelPanel;
 	
 	// model render scale
-	protected float scaleX, scaleY, scaleZ;
+	protected float scaleX=1, scaleY=1, scaleZ=1;
 	
 	
 	public ModelInWorld() {}
@@ -87,7 +87,7 @@ public class ModelInWorld extends ObjectInWorld {
 		material.render(gl2);
 		gl2.glPushMatrix();
 			gl2.glTranslatef(p.x, p.y, p.z);
-			gl2.glScaled(scaleX, scaleY, scaleZ);
+			//gl2.glScaled(scaleX, scaleY, scaleZ);
 			model.render(gl2);
 		gl2.glPopMatrix();
 	}
