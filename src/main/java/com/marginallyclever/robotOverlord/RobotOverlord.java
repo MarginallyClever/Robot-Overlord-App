@@ -63,7 +63,7 @@ import com.marginallyclever.robotOverlord.world.World;
  *
  */
 public class RobotOverlord 
-implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
+implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
 {
 	static final String APP_TITLE = "Robot Overlord";
 	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
@@ -87,12 +87,6 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
     // main menu bar
 	protected transient JMenuBar mainMenu;
 	protected transient JMenuItem buttonUndo,buttonRedo;
-	
-	// add object to world
-	protected transient JMenuItem buttonSelectAndAddObject;
-	// remove object from world
-	protected transient JMenuItem buttonSelectAndRemoveObject;
-	
 	
     // The animator keeps things moving
     private Animator animator;
@@ -226,6 +220,11 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	public void setContextMenu(ObjectInWorld object) {
 		pickObject=object;
 		setContextMenu(object.buildPanel(this),object.getDisplayName());
+	}
+	
+
+	public World getWorld() {
+		return world;
 	}
 	
 	
@@ -384,12 +383,8 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
         mainMenu.add(menu);
 
         menu = new JMenu("World");
-    	buttonSelectAndAddObject = new JMenuItem("Add...");
-    	buttonSelectAndRemoveObject = new JMenuItem("Remove...");    	
-    	menu.add(buttonSelectAndAddObject);
-    	menu.add(buttonSelectAndRemoveObject);
-    	buttonSelectAndAddObject.addActionListener(this);
-    	buttonSelectAndRemoveObject.addActionListener(this);
+    	menu.add(new ActionAddEntity(this));
+    	menu.add(new ActionRemoveEntity(this));
     	mainMenu.add(menu);
     	
     	// done
@@ -404,105 +399,6 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 		buttonUndo.getParent().validate();
 		buttonUndo.setEnabled(commandSequence.canUndo());
 	    buttonRedo.setEnabled(commandSequence.canRedo());
-    }
-	
-	
-	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();
-
-		if( subject == buttonSelectAndAddObject ) selectAndAddObject();
-		else if( subject == buttonSelectAndRemoveObject ) selectAndRemoveObject();
-	}
-	
-	
-    /**
-     * select from a list of all object types.  An instance of that type is then added to the world.
-     */
-    public void selectAndAddObject() {
-		JPanel additionList = new JPanel(new GridLayout(0, 1));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-
-		JComboBox<String> additionComboBox = new JComboBox<String>();
-		additionList.add(additionComboBox);
-		
-		// service load the types available.
-		ServiceLoader<ObjectInWorld> loaders = ServiceLoader.load(ObjectInWorld.class);
-		Iterator<ObjectInWorld> i = loaders.iterator();
-		while(i.hasNext()) {
-			ObjectInWorld lft = i.next();
-			additionComboBox.addItem(lft.getDisplayName());
-		}
-
-        
-		int result = JOptionPane.showConfirmDialog(this.mainFrame, additionList, "Add...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-			String objectTypeName = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
-
-			i = loaders.iterator();
-			while(i.hasNext()) {
-				ObjectInWorld lft = i.next();
-				String name = lft.getDisplayName();
-				if(name.equals(objectTypeName)) {
-					ObjectInWorld newInstance = null;
-
-					try {
-						newInstance = lft.getClass().newInstance();
-					} catch (InstantiationException | IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					world.addObject(newInstance);
-					setContextMenu(newInstance);
-					
-					return;
-				}
-			}
-			// TODO catch selected an item to load, then couldn't find object class?!  Should be impossible.
-		}
-    }
-    
-    /**
-     * select from a list of all objects in the world.  the selected object is then removed and destroyed.
-     */
-    public void selectAndRemoveObject() {
-		JPanel additionList = new JPanel(new GridLayout(0, 1));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-
-		JComboBox<String> removeComboBox = new JComboBox<String>();
-		additionList.add(removeComboBox);
-		
-		// service load the types available.
-		List<String> names = world.namesOfAllObjects();
-		Iterator<String> i = names.iterator();
-		while(i.hasNext()) {
-			String name = i.next();
-			removeComboBox.addItem(name);
-		}
-
-        
-		int result = JOptionPane.showConfirmDialog(this.mainFrame, additionList, "Remove...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-			String targetName = removeComboBox.getItemAt(removeComboBox.getSelectedIndex());
-			ObjectInWorld obj = world.findObjectWithName(targetName);
-			world.removeObject(obj);
-	    	pickCamera();
-	    	return;
-		}
     }
 
 	
