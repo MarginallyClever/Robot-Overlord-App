@@ -71,9 +71,10 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	
 	// select picking
 	static final int SELECT_BUFFER_SIZE=256;
-	protected IntBuffer selectBuffer = null;
-	protected boolean pickNow;
-	protected double pickX, pickY;
+	protected transient IntBuffer selectBuffer = null;
+	protected transient boolean pickNow;
+	protected transient double pickX, pickY;
+	protected transient ObjectInWorld pickObject; 
 	
 	static final long serialVersionUID=1;
 	// used for checking the application version with the github release, for "there is a new version available!" notification
@@ -222,8 +223,9 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	}
 	
 
-	public void setContextMenu(ObjectInWorld o) {
-		setContextMenu(o.buildPanel(this),o.getDisplayName());
+	public void setContextMenu(ObjectInWorld object) {
+		pickObject=object;
+		setContextMenu(object.buildPanel(this),object.getDisplayName());
 	}
 	
 	
@@ -381,7 +383,6 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
         menu.add(buttonRedo = new ActionRedo(this));
         mainMenu.add(menu);
 
-        // world menu
         menu = new JMenu("World");
     	buttonSelectAndAddObject = new JMenuItem("Add...");
     	buttonSelectAndRemoveObject = new JMenuItem("Remove...");    	
@@ -715,17 +716,22 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
         	int i;
         	for(i=0;i<hits;++i) {
         		int names=selectBuffer.get(index++);
-//                float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-//                float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+        		//float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+        		//float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
         		selectBuffer.get(index++); // near z
         		selectBuffer.get(index++); // far z
-//                System.out.println("zMin:"+z1);
-//                System.out.println("zMaz:"+z2);
-//    			System.out.println("names:"+names);
+        		//System.out.println("zMin:"+z1);
+        		//System.out.println("zMaz:"+z2);
+        		//System.out.println("names:"+names);
     			if(names>0) {
         			int name = selectBuffer.get(index++);
     				ObjectInWorld newObject = world.pickObjectWithName(name);
-    				setContextMenu(newObject);
+    				if(newObject == pickObject) {
+    					pickCamera();
+    				} else {
+    					setContextMenu(newObject);
+    				}
+    				
    					pickFound=true;
                 	return;
         		}
