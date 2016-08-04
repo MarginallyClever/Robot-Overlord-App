@@ -6,12 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ServiceLoader;
 
 import javax.swing.JComboBox;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.event.UndoableEditEvent;
 
 /**
  * Display an About dialog box
@@ -26,8 +26,8 @@ public class ActionRemoveEntity extends JMenuItem implements ActionListener {
 	protected RobotOverlord ro;
 	
 	public ActionRemoveEntity(RobotOverlord ro) {
-		super("Add...");
-        getAccessibleContext().setAccessibleDescription("Add an entity to the world.");
+		super("Remove...");
+        getAccessibleContext().setAccessibleDescription("Remove an entity from the world.");
 		this.ro = ro;
 		addActionListener(this);
 	}
@@ -38,7 +38,7 @@ public class ActionRemoveEntity extends JMenuItem implements ActionListener {
 	
 	
     /**
-     * select from a list of all objects in the world.  the selected object is then removed and destroyed.
+     * Select from a list of all objects in the world.  The selected object is then removed and destroyed.
      */
     public void selectAndRemoveObject() {
 		JPanel additionList = new JPanel(new GridLayout(0, 1));
@@ -66,9 +66,10 @@ public class ActionRemoveEntity extends JMenuItem implements ActionListener {
 		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, "Remove...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			String targetName = removeComboBox.getItemAt(removeComboBox.getSelectedIndex());
-			ObjectInWorld obj = ro.getWorld().findObjectWithName(targetName);
-			ro.getWorld().removeObject(obj);
-	    	ro.pickCamera();
+			ObjectInWorld targetInstance = ro.getWorld().findObjectWithName(targetName);
+
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandRemoveEntity(ro,targetInstance) ) );
+
 	    	return;
 		}
     }

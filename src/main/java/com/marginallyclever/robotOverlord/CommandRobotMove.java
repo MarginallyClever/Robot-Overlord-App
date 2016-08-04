@@ -7,7 +7,7 @@ import javax.swing.undo.CannotUndoException;
 import com.marginallyclever.robotOverlord.RobotWithConnection;
 
 
-public class RobotMoveCommand extends AbstractUndoableEdit {
+public class CommandRobotMove extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -37,7 +37,7 @@ public class RobotMoveCommand extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public RobotMoveCommand(RobotWithConnection robot,int axis,int direction) {
+	public CommandRobotMove(RobotWithConnection robot,int axis,int direction) {
 		this.robot = robot;
 		this.axis = axis;
 		this.direction = direction;
@@ -58,15 +58,15 @@ public class RobotMoveCommand extends AbstractUndoableEdit {
 	public String getPresentationName() {
 		String name = "Move ";
 		switch(axis) {
-		case RobotMoveCommand.AXIS_X: name+=" X";  break;
-		case RobotMoveCommand.AXIS_Y: name+=" Y";  break;
-		case RobotMoveCommand.AXIS_Z: name+=" Z";  break;
-		case RobotMoveCommand.AXIS_A: name+=" A";  break;
-		case RobotMoveCommand.AXIS_B: name+=" B";  break;
-		case RobotMoveCommand.AXIS_C: name+=" C";  break;
-		case RobotMoveCommand.AXIS_U: name+=" U";  break;
-		case RobotMoveCommand.AXIS_V: name+=" V";  break;
-		case RobotMoveCommand.AXIS_W: name+=" W";  break;
+		case CommandRobotMove.AXIS_X: name+=" X";  break;
+		case CommandRobotMove.AXIS_Y: name+=" Y";  break;
+		case CommandRobotMove.AXIS_Z: name+=" Z";  break;
+		case CommandRobotMove.AXIS_A: name+=" A";  break;
+		case CommandRobotMove.AXIS_B: name+=" B";  break;
+		case CommandRobotMove.AXIS_C: name+=" C";  break;
+		case CommandRobotMove.AXIS_U: name+=" U";  break;
+		case CommandRobotMove.AXIS_V: name+=" V";  break;
+		case CommandRobotMove.AXIS_W: name+=" W";  break;
 		}
 		if(direction>0) name += "+";
 		name += Float.toString(direction);

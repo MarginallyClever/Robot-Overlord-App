@@ -11,6 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.event.UndoableEditEvent;
 
 /**
  * Display an About dialog box
@@ -80,8 +81,7 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 						e.printStackTrace();
 					}
 
-					ro.getWorld().addObject(newInstance);
-					ro.setContextMenu(newInstance);
+					ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandAddEntity(ro,newInstance) ) );
 					
 					return;
 				}

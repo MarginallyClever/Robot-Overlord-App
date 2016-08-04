@@ -28,6 +28,6 @@ public class RobotMoveButton extends JButton implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		undoHelper.undoableEditHappened(new UndoableEditEvent(this,new RobotMoveCommand( robot, axis, direction ) ) );
+		undoHelper.undoableEditHappened(new UndoableEditEvent(this,new CommandRobotMove( robot, axis, direction ) ) );
 	}
 }

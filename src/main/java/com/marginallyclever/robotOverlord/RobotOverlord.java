@@ -4,11 +4,8 @@ package com.marginallyclever.robotOverlord;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
@@ -23,12 +20,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 import java.util.prefs.Preferences;
 
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -225,6 +218,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	public World getWorld() {
 		return world;
+	}
+	
+	public ObjectInWorld getPickedEntity() {
+		return pickObject;
 	}
 	
 	

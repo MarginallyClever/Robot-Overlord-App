@@ -16,7 +16,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotMoveButton;
-import com.marginallyclever.robotOverlord.RobotMoveCommand;
+import com.marginallyclever.robotOverlord.CommandRobotMove;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class RotaryStewartPlatform2ControlPanel extends JPanel implements ActionListener, ChangeListener {
@@ -96,18 +96,18 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		vPos = new JLabel("0.00");
 		wPos = new JLabel("0.00");
 
-		p.add(arm5Upos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_U, 1,"U+"));		p.add(uPos);
-		p.add(arm5Uneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_U,-1,"U-"));		
-		p.add(arm5Vpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_V, 1,"V+"));		p.add(vPos);
-		p.add(arm5Vneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_V,-1,"V-"));		
-		p.add(arm5Wpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_W, 1,"W+"));		p.add(wPos);
-		p.add(arm5Wneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_W,-1,"W-"));		
-		p.add(arm5Xpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_X, 1,"X+"));		p.add(xPos);
-		p.add(arm5Xneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_X,-1,"X-"));		
-		p.add(arm5Ypos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Y, 1,"Y+"));		p.add(yPos);
-		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Y,-1,"Y-"));		
-		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Z, 1,"Z+"));		p.add(zPos);
-		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Z,-1,"Z-"));
+		p.add(arm5Upos = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_U, 1,"U+"));		p.add(uPos);
+		p.add(arm5Uneg = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_U,-1,"U-"));		
+		p.add(arm5Vpos = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_V, 1,"V+"));		p.add(vPos);
+		p.add(arm5Vneg = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_V,-1,"V-"));		
+		p.add(arm5Wpos = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_W, 1,"W+"));		p.add(wPos);
+		p.add(arm5Wneg = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_W,-1,"W-"));		
+		p.add(arm5Xpos = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_X, 1,"X+"));		p.add(xPos);
+		p.add(arm5Xneg = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_X,-1,"X-"));		
+		p.add(arm5Ypos = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_Y, 1,"Y+"));		p.add(yPos);
+		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_Y,-1,"Y-"));		
+		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_Z, 1,"Z+"));		p.add(zPos);
+		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot,CommandRobotMove.AXIS_Z,-1,"Z-"));
 		
 		about = new JButton("About this robot");
 		about.addActionListener(this);
