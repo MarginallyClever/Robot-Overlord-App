@@ -377,6 +377,8 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 		mainMenu.add(menu);
         
         menu = new JMenu("Edit");
+        menu.add(buttonUndo = new ActionUndo(this));
+        menu.add(buttonRedo = new ActionRedo(this));
         mainMenu.add(menu);
 
         // world menu
