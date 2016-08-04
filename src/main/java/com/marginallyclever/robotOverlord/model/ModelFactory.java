@@ -13,6 +13,8 @@ public class ModelFactory {
 	 * @return the Model instance.
 	 */
 	public static Model createModelFromFilename(String sourceName) {
+		if(sourceName == null || sourceName.trim().length()==0) return null;
+		
 		// find the existing model in the pool
 		Iterator<Model> iter = ModelFactory.modelPool.iterator();
 		while(iter.hasNext()) {

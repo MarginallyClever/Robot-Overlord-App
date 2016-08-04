@@ -4,18 +4,19 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-public class CommandRemoveEntity extends AbstractUndoableEdit {
+public class CommandSelectFile extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Entity entity;	
-	private RobotOverlord ro;
+	private ActionSelectFile actionSelectFile;
+	private String oldFilename,newFilename;
 	
-	public CommandRemoveEntity(RobotOverlord ro,Entity entity) {
-		this.entity = entity;
-		this.ro = ro;
-		removeNow();
+	public CommandSelectFile(ActionSelectFile actionSelectFile,String newFilename) {
+		this.actionSelectFile = actionSelectFile;
+		this.newFilename = newFilename;
+		this.oldFilename = actionSelectFile.getFilename();
+		setFilename(newFilename);
 	}
 	
 	@Override
@@ -30,7 +31,7 @@ public class CommandRemoveEntity extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "Remove "+entity.getDisplayName();
+		return "choose file";
 	}
 
 
@@ -46,21 +47,15 @@ public class CommandRemoveEntity extends AbstractUndoableEdit {
 
 	@Override
 	public void redo() throws CannotRedoException {
-		removeNow();
+		setFilename(newFilename);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		addNow();
+		setFilename(oldFilename);
 	}
 
-	private void addNow() {
-		ro.getWorld().addObject(entity);
-		ro.setContextMenu(entity);
-	}
-	
-	private void removeNow() {
-		ro.getWorld().removeObject(entity);
-		ro.pickCamera();
+	private void setFilename(String filename) {
+		actionSelectFile.setFilename(filename);
 	}
 }

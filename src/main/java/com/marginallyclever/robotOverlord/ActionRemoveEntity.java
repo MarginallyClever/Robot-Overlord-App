@@ -66,7 +66,7 @@ public class ActionRemoveEntity extends JMenuItem implements ActionListener {
 		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, "Remove...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			String targetName = removeComboBox.getItemAt(removeComboBox.getSelectedIndex());
-			ObjectInWorld targetInstance = ro.getWorld().findObjectWithName(targetName);
+			Entity targetInstance = ro.getWorld().findObjectWithName(targetName);
 
 			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandRemoveEntity(ro,targetInstance) ) );
 

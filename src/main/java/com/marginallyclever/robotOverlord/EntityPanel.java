@@ -10,21 +10,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.vecmath.Vector3f;
 
-public class ObjectInWorldPanel extends JPanel implements ActionListener {
+public class EntityPanel extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private ObjectInWorld oiw;
+	private Entity entity;
 
 	private transient JTextField fieldX,fieldY,fieldZ;
 	
-	public ObjectInWorldPanel(RobotOverlord gui,ObjectInWorld oiw) {
+	public EntityPanel(RobotOverlord gui,Entity entity) {
 		super();
 		
-		this.oiw = oiw;
-
+		this.entity = entity;
 
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -47,7 +46,7 @@ public class ObjectInWorldPanel extends JPanel implements ActionListener {
 		con1.anchor=GridBagConstraints.CENTER;
 		
 		JLabel x=new JLabel("X",JLabel.CENTER);
-		fieldX = new JTextField(Float.toString(oiw.getPosition().x));
+		fieldX = new JTextField(Float.toString(entity.getPosition().x));
 		x.setLabelFor(fieldX);
 		fieldX.addActionListener(this);
 		con1.weightx=0.25;  con1.gridx=0; contents.add(x,con1);
@@ -55,7 +54,7 @@ public class ObjectInWorldPanel extends JPanel implements ActionListener {
 		con1.gridy++;
 		
 		JLabel y=new JLabel("Y",JLabel.CENTER);
-		fieldY = new JTextField(Float.toString(oiw.getPosition().y));
+		fieldY = new JTextField(Float.toString(entity.getPosition().y));
 		y.setLabelFor(fieldY);
 		fieldY.addActionListener(this);
 		con1.weightx=0.25;  con1.gridx=0; contents.add(y,con1);
@@ -63,7 +62,7 @@ public class ObjectInWorldPanel extends JPanel implements ActionListener {
 		con1.gridy++;
 		
 		JLabel z=new JLabel("Z",JLabel.CENTER);
-		fieldZ = new JTextField(Float.toString(oiw.getPosition().z));
+		fieldZ = new JTextField(Float.toString(entity.getPosition().z));
 		z.setLabelFor(fieldZ);
 		fieldZ.addActionListener(this);
 		con1.weightx=0.25;  con1.gridx=0; contents.add(z,con1);
@@ -76,9 +75,9 @@ public class ObjectInWorldPanel extends JPanel implements ActionListener {
 	
 
 	public void updateFields() {
-		fieldX.setText(Float.toString(oiw.getPosition().x));
-		fieldY.setText(Float.toString(oiw.getPosition().y));
-		fieldZ.setText(Float.toString(oiw.getPosition().z));
+		fieldX.setText(Float.toString(entity.getPosition().x));
+		fieldY.setText(Float.toString(entity.getPosition().y));
+		fieldZ.setText(Float.toString(entity.getPosition().z));
 	}
 
 
@@ -89,27 +88,27 @@ public class ObjectInWorldPanel extends JPanel implements ActionListener {
 		if(source == fieldX) {
 			try {
 				float f = Float.parseFloat(fieldX.getText());
-				Vector3f pos = oiw.getPosition();
+				Vector3f pos = entity.getPosition();
 				pos.x = f;
-				oiw.setPosition(pos);
+				entity.setPosition(pos);
 			} catch(NumberFormatException e) {}
 		}
 		
 		if(source == fieldY) {
 			try {
 				float f = Float.parseFloat(fieldY.getText());
-				Vector3f pos = oiw.getPosition();
+				Vector3f pos = entity.getPosition();
 				pos.y = f;
-				oiw.setPosition(pos);
+				entity.setPosition(pos);
 			} catch(NumberFormatException e) {}
 		}
 		
 		if(source == fieldZ) {
 			try {
 				float f = Float.parseFloat(fieldZ.getText());
-				Vector3f pos = oiw.getPosition();
+				Vector3f pos = entity.getPosition();
 				pos.z = f;
-				oiw.setPosition(pos);
+				entity.setPosition(pos);
 			} catch(NumberFormatException e) {}
 		}
 	}

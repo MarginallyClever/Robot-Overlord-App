@@ -67,7 +67,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected transient IntBuffer selectBuffer = null;
 	protected transient boolean pickNow;
 	protected transient double pickX, pickY;
-	protected transient ObjectInWorld pickObject; 
+	protected transient Entity pickObject; 
 	
 	static final long serialVersionUID=1;
 	// used for checking the application version with the github release, for "there is a new version available!" notification
@@ -210,7 +210,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 
-	public void setContextMenu(ObjectInWorld object) {
+	public void setContextMenu(Entity object) {
 		pickObject=object;
 		setContextMenu(object.buildPanel(this),object.getDisplayName());
 	}
@@ -220,7 +220,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		return world;
 	}
 	
-	public ObjectInWorld getPickedEntity() {
+	public Entity getPickedEntity() {
 		return pickObject;
 	}
 	
@@ -618,7 +618,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         		//System.out.println("names:"+names);
     			if(names>0) {
         			int name = selectBuffer.get(index++);
-    				ObjectInWorld newObject = world.pickObjectWithName(name);
+    				Entity newObject = world.pickObjectWithName(name);
     				if(newObject == pickObject) {
     					pickCamera();
     				} else {

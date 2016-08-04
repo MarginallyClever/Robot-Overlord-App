@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.Camera;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.robotOverlord.ObjectInWorld;
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.jogamp.opengl.GL2
 ;
@@ -14,7 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 
-public class Camera extends ObjectInWorld {
+public class Camera extends Entity {
 	/**
 	 * 
 	 */

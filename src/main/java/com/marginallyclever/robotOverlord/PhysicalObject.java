@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
 
-public abstract class PhysicalObject extends ObjectInWorld {
+public abstract class PhysicalObject extends Entity {
 
 	/**
 	 * 

@@ -15,7 +15,7 @@ import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
 import com.marginallyclever.robotOverlord.LightObject;
-import com.marginallyclever.robotOverlord.ObjectInWorld;
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.Camera.Camera;
@@ -41,7 +41,7 @@ implements Serializable {
 	protected transient boolean areTexturesLoaded=false;
 
 	// world contents
-	protected ArrayList<ObjectInWorld> objects = new ArrayList<ObjectInWorld>();
+	protected ArrayList<Entity> objects = new ArrayList<Entity>();
 	protected Camera camera = null;
 	protected LightObject light0;
 	protected LightObject light1;
@@ -142,9 +142,9 @@ implements Serializable {
 		
 		setupLights();
 		
-		Iterator<ObjectInWorld> io = objects.iterator();
+		Iterator<Entity> io = objects.iterator();
 		while(io.hasNext()) {
-			ObjectInWorld obj = io.next();
+			Entity obj = io.next();
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
 				po.prepareMove(delta);
@@ -156,7 +156,7 @@ implements Serializable {
 		// Finalize the moves that don't collide
 		io = objects.iterator();
 		while(io.hasNext()) {
-			ObjectInWorld obj = io.next();
+			Entity obj = io.next();
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
 				po.finalizeMove();
@@ -210,7 +210,7 @@ implements Serializable {
 			// draw!
 			io = objects.iterator();
 			while(io.hasNext()) {
-				ObjectInWorld obj = io.next();
+				Entity obj = io.next();
 				gl2.glPushName(obj.getPickName());
 				obj.render(gl2);
 				gl2.glPopName();
@@ -369,16 +369,16 @@ implements Serializable {
 	}
 
 	
-	public ObjectInWorld pickObjectWithName(int pickName) {
-		ObjectInWorld newObject=null;
+	public Entity pickObjectWithName(int pickName) {
+		Entity newObject=null;
 		if(pickName==0) {
 			// Hit nothing!  Default to camera controls
 			newObject=camera;
 		} else {
 			// scan all objects in world to find the one with the pickName.
-			Iterator<ObjectInWorld> iter = objects.iterator();
+			Iterator<Entity> iter = objects.iterator();
 			while(iter.hasNext()) {
-				ObjectInWorld obj = iter.next();
+				Entity obj = iter.next();
 				if( obj.getPickName()==pickName ) {
 					// found!
 					newObject=obj;
@@ -391,18 +391,18 @@ implements Serializable {
 	}
 
 	
-	public void addObject(ObjectInWorld o) {
+	public void addObject(Entity o) {
 		objects.add(o);
 	}
 	
-	public void removeObject(ObjectInWorld o) {
+	public void removeObject(Entity o) {
 		objects.remove(o);
 	}
 	
 	public List<String> namesOfAllObjects() {
 		ArrayList<String> list = new ArrayList<String>();
 		
-		Iterator<ObjectInWorld> i = this.objects.iterator();
+		Iterator<Entity> i = this.objects.iterator();
 		while(i.hasNext()) {
 			String s = i.next().getDisplayName();
 			list.add(s);
@@ -411,10 +411,10 @@ implements Serializable {
 		return list;
 	}
 	
-	public ObjectInWorld findObjectWithName(String name) {
-		Iterator<ObjectInWorld> i = this.objects.iterator();
+	public Entity findObjectWithName(String name) {
+		Iterator<Entity> i = this.objects.iterator();
 		while(i.hasNext()) {
-			ObjectInWorld o = i.next();
+			Entity o = i.next();
 			String objectName = o.getDisplayName();
 			if(name.equals(objectName)) return o; 
 		}
