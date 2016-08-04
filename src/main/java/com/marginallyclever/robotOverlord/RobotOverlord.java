@@ -81,27 +81,15 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	protected double pickX, pickY;
 	
 	static final long serialVersionUID=1;
-	/// used for checking the application version with the github release, for "there is a new version available!" notification
+	// used for checking the application version with the github release, for "there is a new version available!" notification
 	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 
-    /// the world within the simulator and all that it contains.
+    // the world within the simulator and all that it contains.
 	protected World world = null;
 
 	// menus
-    /// main menu bar
+    // main menu bar
 	protected transient JMenuBar mainMenu;
-	/// load a new world
-	protected transient JMenuItem buttonNew;
-    /// show the load level dialog
-	protected transient JMenuItem buttonLoad;
-    /// show the save level dialog
-	protected transient JMenuItem buttonSave;
-    /// show the about dialog
-	protected transient JMenuItem buttonAbout;
-    /// check the version against github and notify the user if they wer up to date or not
-	protected transient JMenuItem buttonCheckForUpdate;
-    /// quit the application
-	protected transient JMenuItem buttonQuit;
 	
 	protected transient JMenuItem buttonUndo, buttonRedo;
 	
@@ -111,7 +99,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	protected transient JMenuItem buttonSelectAndRemoveObject;
 	
 	
-    /// The animator keeps things moving
+    // The animator keeps things moving
     private Animator animator;
     
     // timing for animations
@@ -126,7 +114,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 
 	protected boolean checkStackSize;
 
-	/// The main frame of the GUI
+	// The main frame of the GUI
     protected JFrame mainFrame; 
 	// the main view
 	protected Splitter splitLeftRight;
@@ -323,23 +311,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 		}
 	}
 	
-	void saveWorldDialog() {
-		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showSaveDialog(this.getMainFrame());
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            saveWorldToFile(fc.getSelectedFile().getAbsolutePath());
-		}
-	}
-	
-	void loadWorldDialog() {
-		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showOpenDialog(this.getMainFrame());
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            loadWorldFromFile(fc.getSelectedFile().getAbsolutePath());
-		}
-	}
-	
-	void newWorld() {
+	public void newWorld() {
 		this.world = new World();
 		pickCamera();
 		updateMenu();
@@ -398,37 +370,15 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	public void buildMenu() {
 		mainMenu.removeAll();
 		
-        JMenu menu = new JMenu(APP_TITLE);
-        
-        	buttonNew = new JMenuItem("New",KeyEvent.VK_N);
-        	buttonNew.addActionListener(this);
-	        menu.add(buttonNew);
-        	
-        	buttonLoad = new JMenuItem("Load...",KeyEvent.VK_L);
-        	buttonLoad.addActionListener(this);
-	        menu.add(buttonLoad);
-
-        	buttonSave = new JMenuItem("Save As...",KeyEvent.VK_S);
-        	buttonSave.addActionListener(this);
-	        menu.add(buttonSave);
-
-	        menu.add(new JSeparator());
-	        
-            buttonAbout = new JMenuItem("About",KeyEvent.VK_A);
-	        buttonAbout.getAccessibleContext().setAccessibleDescription("About this program");
-	        buttonAbout.addActionListener(this);
-	        menu.add(buttonAbout);
-	        
-	        buttonCheckForUpdate = new JMenuItem("Check for update",KeyEvent.VK_U);
-	        buttonCheckForUpdate.addActionListener(this);
-	        menu.add(buttonCheckForUpdate);
-	        
-	        buttonQuit = new JMenuItem("Quit",KeyEvent.VK_Q);
-	        buttonQuit.getAccessibleContext().setAccessibleDescription("Goodbye...");
-	        buttonQuit.addActionListener(this);
-	        menu.add(buttonQuit);
-       
-        mainMenu.add(menu);
+		JMenu menu = new JMenu(APP_TITLE);
+		menu.add(new ActionNew(this));        	
+		menu.add(new ActionLoad(this));
+		menu.add(new ActionSaveAs(this));
+		menu.add(new JSeparator());
+		menu.add(new ActionAbout(this));
+		menu.add(new ActionCheckForUpdate(this));
+		menu.add(new ActionQuit(this));
+		mainMenu.add(menu);
         
         JMenu menuEdit = new JMenu("Edit");
     	buttonUndo = new JMenuItem("Undo",KeyEvent.VK_Z);
@@ -441,8 +391,8 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 
         // world menu
         JMenu menuWorld = new JMenu("World");
-    	buttonSelectAndAddObject = new JMenuItem("Add object");
-    	buttonSelectAndRemoveObject = new JMenuItem("Remove object");    	
+    	buttonSelectAndAddObject = new JMenuItem("Add...");
+    	buttonSelectAndRemoveObject = new JMenuItem("Remove...");    	
     	menuWorld.add(buttonSelectAndAddObject);
     	menuWorld.add(buttonSelectAndRemoveObject);
     	buttonSelectAndAddObject.addActionListener(this);
@@ -464,57 +414,10 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
     }
 	
 	
-	public void checkForUpdate() {
-		String updateURL = "https://github.com/MarginallyClever/Robot-Overlord/releases/latest";
-		try {
-			URL github = new URL(updateURL);
-			HttpURLConnection conn = (HttpURLConnection) github.openConnection();
-			conn.setInstanceFollowRedirects(false);  //you still need to handle redirect manully.
-			HttpURLConnection.setFollowRedirects(false);
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-
-			String inputLine;
-			if ((inputLine = in.readLine()) != null) {
-				// parse the URL in the text-only redirect
-				String matchStart = "<a href=\"";
-				String matchEnd = "\">";
-				int start = inputLine.indexOf(matchStart);
-				int end = inputLine.indexOf(matchEnd);
-				if (start != -1 && end != -1) {
-					inputLine = inputLine.substring(start + matchStart.length(), end);
-					// parse the last part of the redirect URL, which contains the release tag (which is the VERSION)
-					inputLine = inputLine.substring(inputLine.lastIndexOf("/") + 1);
-
-					System.out.println("last release: " + inputLine);
-					System.out.println("your VERSION: " + VERSION);
-					//System.out.println(inputLine.compareTo(VERSION));
-
-					if (inputLine.compareTo(VERSION) > 0) {
-						JOptionPane.showMessageDialog(null, "A new version of this software is available.  The latest version is "+inputLine+"\n"
-								+"Please visit http://www.marginallyclever.com/ to get the new hotness.");
-					} else {
-						JOptionPane.showMessageDialog(null, "This version is up to date.");
-					}
-				}
-			} else {
-				throw new Exception();
-			}
-			in.close();
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Sorry, I failed.  Please visit "+updateURL+" to check yourself.");
-		}
-	}
-	
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
-		
-		if( subject == buttonNew ) this.newWorld();
-		else if( subject == buttonLoad ) this.loadWorldDialog();
-		else if( subject == buttonSave ) this.saveWorldDialog();
-		else if( subject == buttonAbout ) doAbout();
-		else if( subject == buttonCheckForUpdate ) checkForUpdate();
-		else if( subject == buttonQuit ) onClose();
-		else if( subject == buttonRedo ) redo();
+
+		if( subject == buttonRedo ) redo();
 		else if( subject == buttonUndo ) undo();
 		else if( subject == buttonSelectAndAddObject ) selectAndAddObject();
 		else if( subject == buttonSelectAndRemoveObject ) selectAndRemoveObject();
@@ -610,16 +513,6 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	    	return;
 		}
     }
-
-	private void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
-				+"<h1>"+APP_TITLE+" "+VERSION+"</h1>"
-				+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
-				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
-				+"<p>To get the latest version please visit<br><a href='"+APP_URL+"'>"+APP_URL+"</a></p><br>"
-				+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
-				+"</body></html>");
-	}
 
 	
 	private void undo() {
@@ -956,10 +849,10 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
-		onClose();
+		confirmClose();
 	}
 	
-	private void onClose() {
+	public void confirmClose() {
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
                 "Are you sure you want to quit?",
