@@ -17,6 +17,10 @@ import javax.swing.JOptionPane;
  *
  */
 public class ActionCheckForUpdate extends JMenuItem implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
 	public ActionCheckForUpdate(RobotOverlord ro) {
