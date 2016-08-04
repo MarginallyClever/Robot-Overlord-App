@@ -2,25 +2,21 @@ package com.marginallyclever.robotOverlord;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3f;
 
-public class EntityPanel extends JPanel implements ActionListener {
+public class EntityPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
 	private Entity entity;
-
-	private transient JTextField fieldX,fieldY,fieldZ;
+	private transient ActionSelectNumber fieldX,fieldY,fieldZ;
 	
-	public EntityPanel(RobotOverlord gui,Entity entity) {
+	public EntityPanel(RobotOverlord ro,Entity entity) {
 		super();
 		
 		this.entity = entity;
@@ -34,7 +30,7 @@ public class EntityPanel extends JPanel implements ActionListener {
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Move Origin");
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("Move");
 		this.add(oiwPanel,c);
 		JPanel contents = oiwPanel.getContentPane();
 		
@@ -45,71 +41,33 @@ public class EntityPanel extends JPanel implements ActionListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 		
-		JLabel x=new JLabel("X",JLabel.CENTER);
-		fieldX = new JTextField(Float.toString(entity.getPosition().x));
-		x.setLabelFor(fieldX);
-		fieldX.addActionListener(this);
-		con1.weightx=0.25;  con1.gridx=0; contents.add(x,con1);
-		con1.weightx=0.75;  con1.gridx=1; contents.add(fieldX,con1);
+		contents.add(fieldX = new ActionSelectNumber(ro,"X",entity.getPosition().x),con1);
 		con1.gridy++;
-		
-		JLabel y=new JLabel("Y",JLabel.CENTER);
-		fieldY = new JTextField(Float.toString(entity.getPosition().y));
-		y.setLabelFor(fieldY);
-		fieldY.addActionListener(this);
-		con1.weightx=0.25;  con1.gridx=0; contents.add(y,con1);
-		con1.weightx=0.75;  con1.gridx=1; contents.add(fieldY,con1);
+		contents.add(fieldY = new ActionSelectNumber(ro,"Y",entity.getPosition().x),con1);
 		con1.gridy++;
-		
-		JLabel z=new JLabel("Z",JLabel.CENTER);
-		fieldZ = new JTextField(Float.toString(entity.getPosition().z));
-		z.setLabelFor(fieldZ);
-		fieldZ.addActionListener(this);
-		con1.weightx=0.25;  con1.gridx=0; contents.add(z,con1);
-		con1.weightx=0.75;  con1.gridx=1; contents.add(fieldZ,con1);
+		contents.add(fieldZ = new ActionSelectNumber(ro,"Z",entity.getPosition().x),con1);
 		con1.gridy++;
-	
-		// update the field values;
-		updateFields();
+
+		fieldX.addChangeListener(this);
+		fieldY.addChangeListener(this);
+		fieldZ.addChangeListener(this);
 	}
 	
 
 	public void updateFields() {
-		fieldX.setText(Float.toString(entity.getPosition().x));
-		fieldY.setText(Float.toString(entity.getPosition().y));
-		fieldZ.setText(Float.toString(entity.getPosition().z));
+		fieldX.setValue(entity.getPosition().x);
+		fieldY.setValue(entity.getPosition().y);
+		fieldZ.setValue(entity.getPosition().z);
 	}
 
 
 	@Override
-	public void actionPerformed(ActionEvent event) {
-		Object source = event.getSource();
-		
-		if(source == fieldX) {
-			try {
-				float f = Float.parseFloat(fieldX.getText());
-				Vector3f pos = entity.getPosition();
-				pos.x = f;
-				entity.setPosition(pos);
-			} catch(NumberFormatException e) {}
-		}
-		
-		if(source == fieldY) {
-			try {
-				float f = Float.parseFloat(fieldY.getText());
-				Vector3f pos = entity.getPosition();
-				pos.y = f;
-				entity.setPosition(pos);
-			} catch(NumberFormatException e) {}
-		}
-		
-		if(source == fieldZ) {
-			try {
-				float f = Float.parseFloat(fieldZ.getText());
-				Vector3f pos = entity.getPosition();
-				pos.z = f;
-				entity.setPosition(pos);
-			} catch(NumberFormatException e) {}
-		}
+	public void stateChanged(ChangeEvent e) {
+		// TODO Auto-generated method stub
+		Vector3f pos = entity.getPosition();
+		pos.x = fieldX.getValue();
+		pos.y = fieldY.getValue();
+		pos.z = fieldZ.getValue();
+		entity.setPosition(pos);
 	}
 }

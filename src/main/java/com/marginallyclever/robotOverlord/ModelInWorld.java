@@ -68,19 +68,6 @@ public class ModelInWorld extends Entity {
 		if( model==null && filename != null ) {
 			model = ModelFactory.createModelFromFilename(filename);
 		}
-		if( model==null ) {
-			// draw placeholder
-			gl2.glColor3f(1, 0, 0);
-			PrimitiveSolids.drawBox(gl2,  10.0f, 0.1f, 0.1f);
-			gl2.glColor3f(0, 1, 0);
-			PrimitiveSolids.drawBox(gl2,   0.1f,10.0f, 0.1f);
-			gl2.glColor3f(0, 0, 1);
-			gl2.glPushMatrix();
-			gl2.glTranslatef(0, 0, -5);
-			PrimitiveSolids.drawBox(gl2,   0.1f, 0.1f,10.0f);
-			gl2.glPopMatrix();
-			return;
-		}
 
 		Vector3f p = getPosition();
 		
@@ -88,7 +75,20 @@ public class ModelInWorld extends Entity {
 		gl2.glPushMatrix();
 			gl2.glTranslatef(p.x, p.y, p.z);
 			//gl2.glScaled(scaleX, scaleY, scaleZ);
-			model.render(gl2);
+			if( model==null ) {
+				// draw placeholder
+				gl2.glColor3f(1, 0, 0);
+				PrimitiveSolids.drawBox(gl2,  10.0f, 0.1f, 0.1f);
+				gl2.glColor3f(0, 1, 0);
+				PrimitiveSolids.drawBox(gl2,   0.1f,10.0f, 0.1f);
+				gl2.glColor3f(0, 0, 1);
+				gl2.glPushMatrix();
+				gl2.glTranslatef(0, 0, -5);
+				PrimitiveSolids.drawBox(gl2,   0.1f, 0.1f,10.0f);
+				gl2.glPopMatrix();
+			} else {
+				model.render(gl2);
+			}
 		gl2.glPopMatrix();
 	}
 }

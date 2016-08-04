@@ -33,7 +33,7 @@ public class Entity implements Serializable {
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static private int pickNameCounter=1;
 	
-	private transient EntityPanel oiwPanel;
+	private transient EntityPanel entityPanel;
 	protected Material material = new Material();
 	
 	
@@ -50,8 +50,8 @@ public class Entity implements Serializable {
 	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		oiwPanel = new EntityPanel(gui,this);
-		list.add(oiwPanel);
+		entityPanel = new EntityPanel(gui,this);
+		list.add(entityPanel);
 
 		return list;
 	}
@@ -96,8 +96,8 @@ public class Entity implements Serializable {
 	public Vector3f getXAxis() {		return xAxis;	}
 	public Vector3f getYAxis() {		return yAxis;	}
 	public Vector3f getZAxis() {		return zAxis;	}
-	public void setPosition(Vector3f pos) {		position.set(pos);  if(oiwPanel!=null) oiwPanel.updateFields();	}
-	public void setXAxis(Vector3f pos) {		xAxis.set(pos);  if(oiwPanel!=null) oiwPanel.updateFields();	}
-	public void setYAxis(Vector3f pos) {		yAxis.set(pos);  if(oiwPanel!=null) oiwPanel.updateFields();	}
-	public void setZAxis(Vector3f pos) {		zAxis.set(pos);  if(oiwPanel!=null) oiwPanel.updateFields();	}
+	public void setPosition(Vector3f pos) {		position.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
+	public void setXAxis(Vector3f pos) {		xAxis.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
+	public void setYAxis(Vector3f pos) {		yAxis.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
+	public void setZAxis(Vector3f pos) {		zAxis.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
 }
