@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -48,6 +49,8 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	private RobotMoveButton arm5Zpos;
 	private RobotMoveButton arm5Zneg;
 
+	private JButton about;
+	
 	public JLabel xPos,yPos,zPos;
 	
 	
@@ -90,6 +93,10 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 
 		CollapsiblePanel ikPanel = createIKPanel(gui);
 		this.add(ikPanel, con1);
+		con1.gridy++;
+		
+		about = createButton("About this robot");
+		this.add(about, con1);
 		con1.gridy++;
 	}
 
@@ -162,12 +169,10 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		return speedPanel;
 	}
 
-	
 	protected void setSpeed(double speed) {
 		robot.setSpeed(speed);
 		speedNow.setText(Double.toString(robot.getSpeed()));
 	}
-	
 	
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
@@ -177,14 +182,21 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		}
 	}
 	
-	
-	// arm5 controls
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
 		if( subject == goHome ) robot.goHome();
+		if( subject == about ) doAbout();
 	}
 	
+	protected void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>Delta Robot 3</h1>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>A three armed, three axis manipulator.  Marginally Clever Robot's first Delta predates the Kossel/Rostock 3D printer.</p><br>"
+				+"<p><a href='https://www.marginallyclever.com/product/delta-robot-v3/'>Click here for more details</a>.</p>"
+				+"</body></html>");
+	}
 	
 	public void setUID(long id) {
 		if(uid!=null) {
@@ -192,13 +204,11 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		}
 	}
 
-
 	protected float roundOff(float v) {
 		float SCALE = 1000.0f;
 		
 		return Math.round(v*SCALE)/SCALE;
 	}
-	
 	
 	public void update() {
 		angleA.setText(Float.toString(roundOff(robot.motionNow.arms[0].angle)));

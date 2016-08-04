@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -43,6 +44,7 @@ public class EvilMinionRobotControlPanel extends JPanel implements ActionListene
 	private JButton arm5Yneg;
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
+	private JButton about;
 	
 	public JLabel xPos,yPos,zPos;
 	public JLabel a1,b1,c1,d1,e1;
@@ -145,6 +147,10 @@ public class EvilMinionRobotControlPanel extends JPanel implements ActionListene
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
+		
+		about = createButton("About this robot");
+		this.add(about, con1);
+		con1.gridy++;
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -219,6 +225,16 @@ public class EvilMinionRobotControlPanel extends JPanel implements ActionListene
 		if( subject == arm5Yneg ) robotArm.moveY(-1);
 		if( subject == arm5Zpos ) robotArm.moveZ(1);
 		if( subject == arm5Zneg ) robotArm.moveZ(-1);
+		if( subject == about ) doAbout();
+	}
+	
+	protected void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>Evil Minion</h1>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>A five axis manipulator.  Marginally Clever Robot's third prototype robot arm.</p><br>"
+				+"<p><a href='https://www.marginallyclever.com/product/evil-minion-5-axis-arm/'>Click here for more details</a>.</p>"
+				+"</body></html>");
 	}
 	
 	
