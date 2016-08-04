@@ -16,7 +16,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.RobotMoveButton;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.RobotMoveCommand;
+import com.marginallyclever.robotOverlord.CommandRobotMove;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, ChangeListener {
@@ -106,12 +106,12 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		JPanel p = new JPanel(new GridLayout(3,3));
 		cp.getContentPane().add(p);
 
-		p.add(arm5Apos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_A, 1, "A+"));		p.add(angleA = new JLabel("0.00"));
-		p.add(arm5Aneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_A,-1, "A-"));		
-		p.add(arm5Bpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_B, 1, "B+"));		p.add(angleB = new JLabel("0.00"));
-		p.add(arm5Bneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_B,-1, "B-"));		
-		p.add(arm5Cpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_C, 1, "C+"));		p.add(angleC = new JLabel("0.00"));
-		p.add(arm5Cneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_C,-1, "C-"));
+		p.add(arm5Apos = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_A, 1, "A+"));		p.add(angleA = new JLabel("0.00"));
+		p.add(arm5Aneg = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_A,-1, "A-"));		
+		p.add(arm5Bpos = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_B, 1, "B+"));		p.add(angleB = new JLabel("0.00"));
+		p.add(arm5Bneg = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_B,-1, "B-"));		
+		p.add(arm5Cpos = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_C, 1, "C+"));		p.add(angleC = new JLabel("0.00"));
+		p.add(arm5Cneg = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_C,-1, "C-"));
 
 		return cp;
 	}
@@ -122,12 +122,12 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		JPanel p = new JPanel(new GridLayout(3,3));
 		cp.getContentPane().add(p);
 		
-		p.add(arm5Xpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_X, 1, "X+"));		p.add(xPos = new JLabel("0.00"));
-		p.add(arm5Xneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_X,-1, "X-"));		
-		p.add(arm5Ypos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Y, 1, "Y+"));		p.add(yPos = new JLabel("0.00"));
-		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Y,-1, "Y-"));		
-		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Z, 1, "Z+"));		p.add(zPos = new JLabel("0.00"));
-		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot, RobotMoveCommand.AXIS_Z,-1, "Z-"));
+		p.add(arm5Xpos = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_X, 1, "X+"));		p.add(xPos = new JLabel("0.00"));
+		p.add(arm5Xneg = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_X,-1, "X-"));		
+		p.add(arm5Ypos = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_Y, 1, "Y+"));		p.add(yPos = new JLabel("0.00"));
+		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_Y,-1, "Y-"));		
+		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_Z, 1, "Z+"));		p.add(zPos = new JLabel("0.00"));
+		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot, CommandRobotMove.AXIS_Z,-1, "Z-"));
 		
 		return cp;
 	}

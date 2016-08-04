@@ -182,12 +182,12 @@ extends RobotWithConnection
 
 	public void move(int axis,int direction) {
 		switch(axis) {
-		case RobotMoveCommand.AXIS_X:  xDir=direction;  break;
-		case RobotMoveCommand.AXIS_Y:  yDir=direction;  break;
-		case RobotMoveCommand.AXIS_Z:  zDir=direction;  break;
-		case RobotMoveCommand.AXIS_U:  uDir=direction;  break;
-		case RobotMoveCommand.AXIS_V:  vDir=direction;  break;
-		case RobotMoveCommand.AXIS_W:  wDir=direction;  break;
+		case CommandRobotMove.AXIS_X:  xDir=direction;  break;
+		case CommandRobotMove.AXIS_Y:  yDir=direction;  break;
+		case CommandRobotMove.AXIS_Z:  zDir=direction;  break;
+		case CommandRobotMove.AXIS_U:  uDir=direction;  break;
+		case CommandRobotMove.AXIS_V:  vDir=direction;  break;
+		case CommandRobotMove.AXIS_W:  wDir=direction;  break;
 		}
 	}
 
