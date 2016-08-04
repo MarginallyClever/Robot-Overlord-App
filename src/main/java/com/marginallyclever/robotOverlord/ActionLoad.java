@@ -14,6 +14,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  */
 public class ActionLoad extends JMenuItem implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
 	public ActionLoad(RobotOverlord ro) {

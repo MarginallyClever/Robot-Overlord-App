@@ -17,24 +17,18 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.IntBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.prefs.Preferences;
 
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -74,6 +68,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	static final String APP_TITLE = "Robot Overlord";
 	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
+	
 	// select picking
 	static final int SELECT_BUFFER_SIZE=256;
 	protected IntBuffer selectBuffer = null;
@@ -90,8 +85,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	// menus
     // main menu bar
 	protected transient JMenuBar mainMenu;
-	
-	protected transient JMenuItem buttonUndo, buttonRedo;
+	protected transient JMenuItem buttonUndo,buttonRedo;
 	
 	// add object to world
 	protected transient JMenuItem buttonSelectAndAddObject;
@@ -370,7 +364,9 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	public void buildMenu() {
 		mainMenu.removeAll();
 		
-		JMenu menu = new JMenu(APP_TITLE);
+		JMenu menu;
+		
+		menu = new JMenu(APP_TITLE);
 		menu.add(new ActionNew(this));        	
 		menu.add(new ActionLoad(this));
 		menu.add(new ActionSaveAs(this));
@@ -380,24 +376,18 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 		menu.add(new ActionQuit(this));
 		mainMenu.add(menu);
         
-        JMenu menuEdit = new JMenu("Edit");
-    	buttonUndo = new JMenuItem("Undo",KeyEvent.VK_Z);
-    	buttonUndo.addActionListener(this);
-    	menuEdit.add(buttonUndo);
-    	buttonRedo = new JMenuItem("Redo",KeyEvent.VK_Y);
-    	buttonRedo.addActionListener(this);
-    	menuEdit.add(buttonRedo);
-        mainMenu.add(menuEdit);
+        menu = new JMenu("Edit");
+        mainMenu.add(menu);
 
         // world menu
-        JMenu menuWorld = new JMenu("World");
+        menu = new JMenu("World");
     	buttonSelectAndAddObject = new JMenuItem("Add...");
     	buttonSelectAndRemoveObject = new JMenuItem("Remove...");    	
-    	menuWorld.add(buttonSelectAndAddObject);
-    	menuWorld.add(buttonSelectAndRemoveObject);
+    	menu.add(buttonSelectAndAddObject);
+    	menu.add(buttonSelectAndRemoveObject);
     	buttonSelectAndAddObject.addActionListener(this);
     	buttonSelectAndRemoveObject.addActionListener(this);
-    	mainMenu.add(menuWorld);
+    	mainMenu.add(menu);
     	
     	// done
         mainMenu.updateUI();
@@ -417,9 +407,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();
 
-		if( subject == buttonRedo ) redo();
-		else if( subject == buttonUndo ) undo();
-		else if( subject == buttonSelectAndAddObject ) selectAndAddObject();
+		if( subject == buttonSelectAndAddObject ) selectAndAddObject();
 		else if( subject == buttonSelectAndRemoveObject ) selectAndRemoveObject();
 	}
 	
@@ -515,7 +503,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
     }
 
 	
-	private void undo() {
+	public void undo() {
 		try {
 			commandSequence.undo();
 		} catch (CannotUndoException ex) {
@@ -526,7 +514,7 @@ implements ActionListener, MouseListener, MouseMotionListener, KeyListener, GLEv
 	}
 	
 	
-	private void redo() {
+	public void redo() {
 		try {
 			commandSequence.redo();
 		} catch (CannotRedoException ex) {
