@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -48,6 +49,7 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	private JButton arm5Wpos;
 	private JButton arm5Wneg;
 	public JLabel uPos,vPos,wPos;
+	private JButton about;
 
 	
 	public RotaryStewartPlatform2ControlPanel(RobotOverlord gui,RotaryStewartPlatform2 robot) {
@@ -106,6 +108,11 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		p.add(arm5Yneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Y,-1,"Y-"));		
 		p.add(arm5Zpos = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Z, 1,"Z+"));		p.add(zPos);
 		p.add(arm5Zneg = new RobotMoveButton(gui.getUndoHelper(), robot,RobotMoveCommand.AXIS_Z,-1,"Z-"));
+		
+		about = new JButton("About this robot");
+		about.addActionListener(this);
+		this.add(about, con1);
+		con1.gridy++;
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -168,13 +175,23 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
-		if( subject == goHome   ) robot.goHome();
+		if( subject == goHome ) robot.goHome();
+		if( subject == about ) doAbout();
+	}
+	
+	protected void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>Rotary Stewart Platform 2</h1>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>A six axis manipulator.</p><br>"
+				+"<p><a href='https://www.marginallyclever.com/product/rotary-stewart-platform-v2/'>Click here for more details</a>.</p>"
+				+"</body></html>");
 	}
 	
 	
 	public void setUID(long id) {
 		if(uid!=null) {
-			uid.setText("Evil Minion #"+Long.toString(id));
+			uid.setText("Rotary Stewart Platform #"+Long.toString(id));
 		}
 	}
 	

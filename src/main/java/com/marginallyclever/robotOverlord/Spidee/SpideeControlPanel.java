@@ -11,6 +11,7 @@ import java.awt.event.ItemListener;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -48,6 +49,8 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 
 	private JButton buttonResetLegs;
 	private JComboBox<String> moveModeControl;
+	
+	private JButton about;
 	
 	
 	private JButton createButton(String name) {
@@ -131,6 +134,10 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		p1 = p2.getContentPane();
 		buttonResetLegs = createButton("Reset legs");
 		p1.add(buttonResetLegs);
+		
+		about = createButton("About this robot");
+		this.add(about, con1);
+		con1.gridy++;
 	}
 	
 	private CollapsiblePanel createSpeedPanel() {
@@ -238,6 +245,17 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 			robot.buttons[Spidee.BUTTONS_Z_ROT_NEG] = (robot.buttons[Spidee.BUTTONS_Z_ROT_NEG]==1? 0:1);
 			robot.buttons[Spidee.BUTTONS_Z_ROT_POS] = 0;
 		}
+		
+		if( subject == about ) doAbout();
+	}
+	
+	protected void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>SPIDEE-1</h1>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>A six legged walking robot.</p><br>"
+				+"<p><a href='https://www.facebook.com/SPIDEEONE/'>Click here for more details</a>.</p>"
+				+"</body></html>");
 	}
 
 	@Override

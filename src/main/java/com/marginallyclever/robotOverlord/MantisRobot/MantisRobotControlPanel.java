@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -58,6 +59,8 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
+	
+	private JButton about;
 	
 	private MantisRobot robotArm=null;
 	
@@ -169,6 +172,11 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 		p.add(arm5Wpos = createButton("W+"));
 		p.add(wPos);
 		p.add(arm5Wneg = createButton("W-"));
+		
+		
+		about = createButton("About this robot");
+		this.add(about, con1);
+		con1.gridy++;
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -252,6 +260,18 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 		if( subject == arm5Vneg ) robotArm.moveV(-1);
 		if( subject == arm5Wpos ) robotArm.moveW(1);
 		if( subject == arm5Wneg ) robotArm.moveW(-1);
+		
+		if( subject == about ) doAbout();
+	}
+	
+	protected void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>MANTIS</h1>"
+				+"<p>Created by Andreas Hölldorfer (https://hackaday.io/4ndreas).</p><br>"
+				+"<p>Programmed by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>A five axis manipulator.</p><br>"
+				+"<p><a href='https://hackaday.io/project/3800/'>Click here for more details</a>.</p>"
+				+"</body></html>");
 	}
 	
 	
