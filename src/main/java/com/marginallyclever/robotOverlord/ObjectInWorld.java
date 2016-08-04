@@ -34,7 +34,7 @@ public class ObjectInWorld implements Serializable {
 	static private int pickNameCounter=1;
 	
 	private transient ObjectInWorldPanel oiwPanel;
-	protected Material material;
+	protected Material material = new Material();
 	
 	
 	
