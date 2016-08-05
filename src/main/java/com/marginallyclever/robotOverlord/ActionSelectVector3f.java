@@ -14,22 +14,26 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.vecmath.Vector3f;
 
-public class ActionSelectNumber extends JPanel implements DocumentListener {
+public class ActionSelectVector3f extends JPanel implements DocumentListener {
 	/**
 	 * 
 	 */
+	private static final float EPSILON = 0.001f;
 	private static final long serialVersionUID = 1L;
-	private JTextField textField;
+	private JTextField fieldX,fieldY,fieldZ;
 	private RobotOverlord ro;
 	private DecimalFormat df;
-	private float value;
+	private Vector3f value;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
-	public ActionSelectNumber(RobotOverlord ro,String labelName,float defaultValue) {
+	public ActionSelectVector3f(RobotOverlord ro,String labelName,Vector3f defaultValue) {
 		super();
 		this.ro = ro;
+		
+		value = new Vector3f(defaultValue);
 		
 		allowSetText=true;
 		df = new DecimalFormat("0.00");
@@ -42,42 +46,48 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.NONE;
 		con1.anchor=GridBagConstraints.WEST;
-		
+
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
+		this.add(label,con1);
+		con1.gridy++;
 	
-		textField = new JTextField(15);
-		textField.setText(df.format(defaultValue));
-		textField.getDocument().addDocumentListener(this);
-		label.setLabelFor(textField);
-		
+		fieldX = addField("X",defaultValue.x,con1);
+		fieldY = addField("Y",defaultValue.y,con1);
+		fieldZ = addField("Z",defaultValue.z,con1);
+	}
+	
+	private JTextField addField(String labelName,float defaultValue,GridBagConstraints con1) {
+		JLabel label = new JLabel(labelName);
+		JTextField f = new JTextField(15);
+		f.setText(df.format(defaultValue));
+		f.getDocument().addDocumentListener(this);
+		label.setLabelFor(f);
 		con1.weightx=0.250;
 		con1.gridx=0;
 		this.add(label,con1);
-
 		con1.weightx=0.750;
 		con1.gridx=1;
-		this.add(textField,con1);
+		this.add(f,con1);
+		con1.gridy++;
+		return f;
 	}
 	
 	public void setDecimalFormat(DecimalFormat df) {
 		this.df = df;
 	}
 	
-	public float getValue() {
+	public Vector3f getValue() {
 		return value;
 	}
 	
-	public void setValue(float v) {
-		if(value==v) return;
-		value = v;
+	public void setValue(Vector3f v) {
+		if(value.epsilonEquals(v, EPSILON)) return;
 		
-		String x;
-		if(df != null) x = df.format(v);
-		else x = Float.toString(v);
+		value.set(v);		
+		setField(fieldX,v.x);
+		setField(fieldY,v.y);
+		setField(fieldZ,v.z);
 		if(allowSetText) {
-			allowSetText=false;
-			textField.setText(x);
-			allowSetText=true;
 			this.updateUI();
 		}
 		
@@ -85,6 +95,25 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 		Iterator<ChangeListener> i = changeListeners.iterator();
 		while(i.hasNext()) {
 			i.next().stateChanged(arg0);
+		}
+	}
+	
+	private void setField(JTextField field,float value) {
+		String x;
+		if(df != null) x = df.format(value);
+		else x = Float.toString(value);
+		if(allowSetText) {
+			allowSetText=false;
+			field.setText(x);
+			allowSetText=true;
+		}		
+	}
+	
+	private float getField(String value,float original) {
+		try {
+			return Float.parseFloat(value);
+		} catch(NumberFormatException e) {
+			return original;
 		}
 	}
 	
@@ -100,15 +129,14 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 	public void changedUpdate(DocumentEvent arg0) {
 		if(allowSetText==false) return;
 		
-		float newNumber;
-		try {
-			newNumber = Float.parseFloat(textField.getText());
-		} catch(NumberFormatException e) {
-			return;
-		}
-		if(newNumber != value) {
+		Vector3f newValue = new Vector3f();
+		newValue.x = getField(fieldX.getText(),value.x);
+		newValue.y = getField(fieldY.getText(),value.y);
+		newValue.z = getField(fieldZ.getText(),value.z);
+
+		if(!newValue.epsilonEquals(value, EPSILON)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectNumber(this, newNumber) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectVector3f(this, newValue) ) );
 			allowSetText=true;
 		}
 	}
