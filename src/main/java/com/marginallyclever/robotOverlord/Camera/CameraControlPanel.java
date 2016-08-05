@@ -95,41 +95,19 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		c.gridy++;
 	}
 
-
-	// arm5 controls
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();		
 
-		if( subject == buttonFlyUp ) {
-			camera.move_up= ( camera.move_up==1 ) ? 0 : 1;
-		}
-		if( subject == buttonFlyDown ) {
-			camera.move_up= ( camera.move_up==-1 ) ? 0 : -1;
-		}
-		if( subject == buttonFlyLeft ) {
-			camera.move_left= ( camera.move_left==1 ) ? 0 : 1;
-		}
-		if( subject == buttonFlyRight ) {
-			camera.move_left= ( camera.move_left==-1 ) ? 0 : -1;
-		}
-		if( subject == buttonFlyForward ) {
-			camera.move_forward= ( camera.move_forward==1 ) ? 0 : 1;
-		}
-		if( subject == buttonFlyBackward ) {
-			camera.move_forward= ( camera.move_forward==-1 ) ? 0 : -1;
-		}
-		if( subject == buttonLookDown ) {
-			camera.tilt_dir= ( camera.tilt_dir==-1 ) ? 0 : -1;	
-		}
-		if( subject == buttonLookUp ) {
-			camera.tilt_dir= ( camera.tilt_dir==1 ) ? 0 : 1;
-		}
-		if( subject == buttonLookLeft ) {
-			camera.pan_dir= ( camera.pan_dir==-1 ) ? 0 : -1;
-		}
-		if( subject == buttonLookRight ) {
-			camera.pan_dir= ( camera.pan_dir==1 ) ? 0 : 1;
-		}
+		if( subject == buttonFlyUp			) {	camera.move_up     = ( camera.move_up     == 1 ) ? 0 :  1;		}
+		if( subject == buttonFlyDown		) {	camera.move_up     = ( camera.move_up     ==-1 ) ? 0 : -1;		}
+		if( subject == buttonFlyLeft		) {	camera.move_left   = ( camera.move_left   == 1 ) ? 0 :  1;		}
+		if( subject == buttonFlyRight		) {	camera.move_left   = ( camera.move_left   ==-1 ) ? 0 : -1;		}
+		if( subject == buttonFlyForward		) {	camera.move_forward= ( camera.move_forward== 1 ) ? 0 :  1;		}
+		if( subject == buttonFlyBackward	) {	camera.move_forward= ( camera.move_forward==-1 ) ? 0 : -1;		}
+		if( subject == buttonLookDown		) {	camera.tilt_dir    = ( camera.tilt_dir    ==-1 ) ? 0 : -1;		}
+		if( subject == buttonLookUp			) {	camera.tilt_dir    = ( camera.tilt_dir    == 1 ) ? 0 :  1;		}
+		if( subject == buttonLookLeft		) {	camera.pan_dir     = ( camera.pan_dir     ==-1 ) ? 0 : -1;		}
+		if( subject == buttonLookRight		) {	camera.pan_dir     = ( camera.pan_dir     == 1 ) ? 0 :  1;		}
 	}
 	
 	public void updateFields() {}

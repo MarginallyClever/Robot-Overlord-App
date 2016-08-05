@@ -71,7 +71,6 @@ public class ModelInWorld extends Entity {
 
 		Vector3f p = getPosition();
 		
-		material.render(gl2);
 		gl2.glPushMatrix();
 			gl2.glTranslatef(p.x, p.y, p.z);
 			//gl2.glScaled(scaleX, scaleY, scaleZ);
@@ -87,6 +86,7 @@ public class ModelInWorld extends Entity {
 				PrimitiveSolids.drawBox(gl2,   0.1f, 0.1f,10.0f);
 				gl2.glPopMatrix();
 			} else {
+				material.render(gl2);
 				model.render(gl2);
 			}
 		gl2.glPopMatrix();

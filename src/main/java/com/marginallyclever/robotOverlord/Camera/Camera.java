@@ -158,14 +158,12 @@ public class Camera extends Entity {
 		float vel = 10f * dt;
 		boolean changed = false;
 		
-		// which way do we want to move?
-		float delta = 1;
 		
 		int move_fb = move_forward - move_back;
 		if(move_fb!=0) {
 			// forward/back
 			temp.set(forward);
-			temp.scale(delta * move_fb);
+			temp.scale(move_fb);
 			direction.add(temp);
 			changed = true;
 		}
@@ -173,7 +171,7 @@ public class Camera extends Entity {
 		if(move_lr!=0) {
 			// strafe left/right
 			temp.set(right);
-			temp.scale(delta * move_lr);
+			temp.scale(move_lr);
 			direction.add(temp);
 			changed = true;
 		}
@@ -181,7 +179,7 @@ public class Camera extends Entity {
 		if(move_ud!=0) {
 			// strafe up/down
 			temp.set(up);
-			temp.scale(-delta * move_ud);
+			temp.scale(-move_ud);
 			direction.add(temp);
 			changed = true;
 		}

@@ -14,7 +14,7 @@ public class EntityPanel extends JPanel implements ChangeListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	private Entity entity;
-	private transient ActionSelectNumber fieldX,fieldY,fieldZ;
+	private transient ActionSelectVector3f position;
 	
 	public EntityPanel(RobotOverlord ro,Entity entity) {
 		super();
@@ -41,33 +41,25 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 		
-		contents.add(fieldX = new ActionSelectNumber(ro,"X",entity.getPosition().x),con1);
-		con1.gridy++;
-		contents.add(fieldY = new ActionSelectNumber(ro,"Y",entity.getPosition().x),con1);
-		con1.gridy++;
-		contents.add(fieldZ = new ActionSelectNumber(ro,"Z",entity.getPosition().x),con1);
+		contents.add(position = new ActionSelectVector3f(ro,"Position",entity.getPosition()),con1);
 		con1.gridy++;
 
-		fieldX.addChangeListener(this);
-		fieldY.addChangeListener(this);
-		fieldZ.addChangeListener(this);
+		position.addChangeListener(this);
 	}
 	
-
+	
 	public void updateFields() {
-		fieldX.setValue(entity.getPosition().x);
-		fieldY.setValue(entity.getPosition().y);
-		fieldZ.setValue(entity.getPosition().z);
+		Vector3f pos = entity.getPosition();
+		position.setValue(pos);
 	}
-
-
+	
+	
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
 		Vector3f pos = entity.getPosition();
-		pos.x = fieldX.getValue();
-		pos.y = fieldY.getValue();
-		pos.z = fieldZ.getValue();
-		entity.setPosition(pos);
+		Vector3f newPos = position.getValue();
+		if(!newPos.equals(pos)) {
+			entity.setPosition(newPos);
+		}
 	}
 }
