@@ -7,7 +7,7 @@ import com.marginallyclever.robotOverlord.arm3.Arm3Dimensions;
 
 public class UArmDimensions extends Arm3Dimensions {
 	// name
-	final protected String ROBOT_NAME = "uArm";
+	final protected String ROBOT_NAME = "uArm / Lite Arm i2";
 	// expected firmware starting message
 	final protected static String HELLO = "HELLO WORLD! I AM UARM #";
 	// expected firmware version
@@ -18,7 +18,7 @@ public class UArmDimensions extends Arm3Dimensions {
 	final protected float BASE_TO_SHOULDER_Z   =(5.864f);
 	final protected float SHOULDER_TO_ELBOW    =(14.843125f);
 	final protected float ELBOW_TO_WRIST       =(15.940625f);
-	final protected float WRIST_TO_FINGER      =(2.0f);
+	final protected float WRIST_TO_FINGER      =(5.735f);
 	final protected float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
 	
 	// When the robot is homed, what are the XYZ coordinates of the finger tip?
