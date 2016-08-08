@@ -10,12 +10,14 @@ public class Arm3MotionState {
 	public float angleC = 0;
 
 	// robot arm coordinates.  Relative to base unless otherwise noted.
-	public Vector3f fingerPosition = new Vector3f(Arm3.HOME_X,Arm3.HOME_Y,Arm3.HOME_Z);
-	public Vector3f fingerForward = new Vector3f(Arm3.HOME_FORWARD_X,Arm3.HOME_FORWARD_Y,Arm3.HOME_FORWARD_Z);
-	public Vector3f fingerRight = new Vector3f(Arm3.HOME_RIGHT_X,Arm3.HOME_RIGHT_Y,Arm3.HOME_RIGHT_Z);
+	public Vector3f fingerPosition;
+	public Vector3f fingerForward;
+	public Vector3f fingerRight;
+
 	public float iku=0;
 	public float ikv=0;
 	public float ikw=0;
+	
 	public Vector3f wrist = new Vector3f();
 	public Vector3f elbow = new Vector3f();
 	public Vector3f shoulder = new Vector3f();
@@ -30,6 +32,14 @@ public class Arm3MotionState {
 	public float base_pan=0;
 	public float base_tilt=0;
 	
+	protected Arm3Dimensions dimensions;
+	
+	public Arm3MotionState(Arm3Dimensions arg0) {
+		dimensions = arg0;
+		fingerPosition = arg0.getHomePosition();
+		fingerForward = arg0.getHomeForward();
+		fingerRight = arg0.getHomeRight();
+	}
 	
 	public void set(Arm3MotionState other) {
 		angleA = other.angleA;
@@ -50,6 +60,7 @@ public class Arm3MotionState {
 		base_right.set(other.base_right);
 		base_pan = other.base_pan;
 		base_tilt = other.base_tilt;
+		dimensions = other.dimensions;
 	}
 	
 	
@@ -69,7 +80,7 @@ public class Arm3MotionState {
 		temp.sub(this.shoulder);
 		if(temp.length() > 50) return false;
 		// check near limit
-		if(temp.length() < Arm3.BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
+		if(temp.length() < dimensions.getBaseToShoulderMinimumLimit()) return false;
 
 		// seems doable
 		if(!IK()) return false;
@@ -119,7 +130,7 @@ public class Arm3MotionState {
 	    // the finger (attachment point for the tool) is a short distance in "front" of the wrist joint
 	    Vector3f finger = new Vector3f(this.fingerPosition);
 		this.wrist.set(this.fingerForward);
-		this.wrist.scale(-Arm3.WRIST_TO_FINGER);
+		this.wrist.scale(-dimensions.getWristToFinger());
 		this.wrist.add(finger);
 				
 	    // use intersection of circles to find two possible elbow points.
@@ -129,16 +140,16 @@ public class Arm3MotionState {
 	    arm_plane.normalize();
 	
 	    this.shoulder.set(arm_plane);
-	    this.shoulder.scale(Arm3.BASE_TO_SHOULDER_X);
-	    this.shoulder.z = Arm3.BASE_TO_SHOULDER_Z;
+	    this.shoulder.scale(dimensions.getBaseToShoulderX());
+	    this.shoulder.z = dimensions.getBaseToShoulderZ();
 	    
 	    // use intersection of circles to find elbow
 	    Vector3f es = new Vector3f(this.wrist);
 	    es.sub(this.shoulder);
 	    float d = es.length();
-	    float r1=Arm3.ELBOW_TO_WRIST;  // circle 1 centers on wrist
-	    float r0=Arm3.SHOULDER_TO_ELBOW;  // circle 0 centers on shoulder
-	    if( d > Arm3.ELBOW_TO_WRIST + Arm3.SHOULDER_TO_ELBOW ) {
+	    float r1=dimensions.getElbowToWrist();  // circle 1 centers on wrist
+	    float r0=dimensions.getShoulderToElbow();  // circle 0 centers on shoulder
+	    if( d > dimensions.getElbowToWrist() + dimensions.getShoulderToElbow() ) {
 	      // The points are impossibly far apart, no solution can be found.
 	      return false;  // should this throw an error because it's called from the constructor?
 	    }
@@ -195,18 +206,18 @@ public class Arm3MotionState {
 		Vector3f arm_plane = new Vector3f((float)Math.cos(Math.toRadians(this.angleA)),
 					  					  (float)Math.sin(Math.toRadians(this.angleA)),
 					  					  0);
-		this.shoulder.set(arm_plane.x*Arm3.BASE_TO_SHOULDER_X,
-						   arm_plane.y*Arm3.BASE_TO_SHOULDER_X,
-						   Arm3.BASE_TO_SHOULDER_Z);
+		this.shoulder.set(arm_plane.x*dimensions.getBaseToShoulderX(),
+						   arm_plane.y*dimensions.getBaseToShoulderX(),
+						   dimensions.getBaseToShoulderZ());
 		
-		this.elbow.set(arm_plane.x*(float)Math.cos(-Math.toRadians(this.angleB))*Arm3.SHOULDER_TO_ELBOW,
-						arm_plane.y*(float)Math.cos(-Math.toRadians(this.angleB))*Arm3.SHOULDER_TO_ELBOW,
-									(float)Math.sin(-Math.toRadians(this.angleB))*Arm3.SHOULDER_TO_ELBOW);
+		this.elbow.set(arm_plane.x*(float)Math.cos(-Math.toRadians(this.angleB))*dimensions.getShoulderToElbow(),
+						arm_plane.y*(float)Math.cos(-Math.toRadians(this.angleB))*dimensions.getShoulderToElbow(),
+									(float)Math.sin(-Math.toRadians(this.angleB))*dimensions.getShoulderToElbow());
 		this.elbow.add(this.shoulder);
 
-		this.wrist.set(arm_plane.x*(float)Math.cos(Math.toRadians(this.angleC))*-Arm3.ELBOW_TO_WRIST,
-				 		arm_plane.y*(float)Math.cos(Math.toRadians(this.angleC))*-Arm3.ELBOW_TO_WRIST,
-				 					(float)Math.sin(Math.toRadians(this.angleC))*-Arm3.ELBOW_TO_WRIST);
+		this.wrist.set(arm_plane.x*(float)Math.cos(Math.toRadians(this.angleC))*-dimensions.getElbowToWrist(),
+				 		arm_plane.y*(float)Math.cos(Math.toRadians(this.angleC))*-dimensions.getElbowToWrist(),
+				 					(float)Math.sin(Math.toRadians(this.angleC))*-dimensions.getElbowToWrist());
 		this.wrist.add(this.elbow);
 		
 		// build the axies around which we will rotate the tip
@@ -218,7 +229,7 @@ public class Arm3MotionState {
 		axis.normalize();
 
 		this.fingerPosition.set(arm_plane);
-		this.fingerPosition.scale(Arm3.WRIST_TO_FINGER);
+		this.fingerPosition.scale(dimensions.getWristToFinger());
 		this.fingerPosition.add(this.wrist);
 
 		this.fingerForward.set(this.fingerPosition);

@@ -190,15 +190,6 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		}
 	}
 	
-	protected void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
-				+"<h1>Arm3</h1>"
-				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
-				+"<p>A three axis robot arm, modelled after the ABB model IRB 460.</p><br>"
-				+"<p><a href='https://www.marginallyclever.com/product/arm3'>Click here for more details</a>.</p>"
-				+"</body></html>");
-	}
-	
 	
 	// respond to buttons
 	public void actionPerformed(ActionEvent e) {
@@ -218,7 +209,7 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		if( subject == arm5Zpos ) robotArm.moveZ(1);
 		if( subject == arm5Zneg ) robotArm.moveZ(-1);
 
-		if( subject == about ) doAbout();
+		if( subject == about ) robotArm.doAbout();
 	}
 	
 	
