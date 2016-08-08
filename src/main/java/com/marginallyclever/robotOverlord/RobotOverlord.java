@@ -48,6 +48,8 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.Animator;
 import com.marginallyclever.robotOverlord.PropertiesFileHelper;
 import com.marginallyclever.robotOverlord.Camera.Camera;
+import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
+import com.marginallyclever.robotOverlord.communications.SerialConnectionManager;
 import com.marginallyclever.robotOverlord.world.World;
 
 /**
@@ -69,7 +71,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected transient double pickX, pickY;
 	protected transient Entity pickObject; 
 	
-	static final long serialVersionUID=1;
+	protected transient SerialConnectionManager connectionManager;
+	
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 
@@ -113,6 +116,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	private boolean hasLeftDragDeadZone;
 	private int cursorStartX,cursorStartY;
 	
+	
  	protected RobotOverlord() {
 		prefs = Preferences.userRoot().node("Evil Overlord");
 		
@@ -122,6 +126,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		
 		isMouseIn=false;
 		hasLeftDragDeadZone=false;
+		
+		connectionManager = new SerialConnectionManager();
 		
 		glu = new GLU();
 /*
@@ -195,6 +201,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     }
 	
 
+ 	public AbstractConnectionManager getConnectionManager() {
+ 		return connectionManager;
+ 	}
+ 	
 	public JFrame getMainFrame() {
 		return mainFrame;
 	}
