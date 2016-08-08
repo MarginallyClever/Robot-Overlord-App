@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -40,13 +41,15 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
 	
+	// finger tip position relative to the base of the robot.
 	public JLabel xPos,yPos,zPos;
-	public JLabel a1,b1,c1,d1,e1;
-	public JLabel a2,b2,c2,d2,e2;
+	
+	public JLabel labelFK1,labelFK2,labelFK3,d1,e1;
+	public JLabel labelIK1,labelIK2,labelIK3,d2,e2;
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
-	
+	protected JButton about;
 	private Arm3 robotArm=null;
 	
 	
@@ -86,13 +89,13 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		zPos = new JLabel("0.00");
 		
 		// used for fk testing
-		a1 = new JLabel("0.00");
-		b1 = new JLabel("0.00");
-		c1 = new JLabel("0.00");
+		labelFK1 = new JLabel("0.00");
+		labelFK2 = new JLabel("0.00");
+		labelFK3 = new JLabel("0.00");
 		// used for ik testing
-		a2 = new JLabel("0.00");
-		b2 = new JLabel("0.00");
-		c2 = new JLabel("0.00");
+		labelIK1 = new JLabel("0.00");
+		labelIK2 = new JLabel("0.00");
+		labelIK3 = new JLabel("0.00");
 
 		
 		p = new JPanel(new GridLayout(3,3));
@@ -100,16 +103,16 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		con1.gridy++;
 
 		p.add(arm5Apos = createButton("A+"));
-		p.add(a1);
+		p.add(labelFK1);
 		p.add(arm5Aneg = createButton("A-"));
 
 		con1.gridy++;
 		p.add(arm5Bpos = createButton("B+"));
-		p.add(b1);
+		p.add(labelFK2);
 		p.add(arm5Bneg = createButton("B-"));
 
 		p.add(arm5Cpos = createButton("C+"));
-		p.add(c1);
+		p.add(labelFK3);
 		p.add(arm5Cneg = createButton("C-"));
 
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
@@ -130,6 +133,10 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
+		
+		about = createButton("About this robot");
+		this.add(about, con1);
+		con1.gridy++;
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -176,14 +183,24 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 	
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
+		
 		if( subject == speedControl ) {
 			int i=speedControl.getValue();
 			setSpeed(speedOptions[i]);
 		}
 	}
 	
+	protected void doAbout() {
+		JOptionPane.showMessageDialog(null,"<html><body>"
+				+"<h1>Arm3</h1>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<p>A three axis robot arm, modelled after the ABB model IRB 460.</p><br>"
+				+"<p><a href='https://www.marginallyclever.com/product/arm3'>Click here for more details</a>.</p>"
+				+"</body></html>");
+	}
 	
-	// arm5 controls
+	
+	// respond to buttons
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
@@ -200,12 +217,14 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		if( subject == arm5Yneg ) robotArm.moveY(-1);
 		if( subject == arm5Zpos ) robotArm.moveZ(1);
 		if( subject == arm5Zneg ) robotArm.moveZ(-1);
+
+		if( subject == about ) doAbout();
 	}
 	
 	
 	public void setUID(long id) {
 		if(uid!=null) {
-			uid.setText("Arm3 #"+Long.toString(id));
+			uid.setText(robotArm.getDisplayName()+" #"+Long.toString(id));
 		}
 	}
 }
