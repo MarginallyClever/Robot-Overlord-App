@@ -22,43 +22,13 @@ extends RobotWithConnection {
 	 */
 	private static final long serialVersionUID = -5065086783049069206L;
 
-	// name
-	final static public String ROBOT_NAME = "Arm3";
-	// expected firmware starting message
-	final protected static String hello = "HELLO WORLD! I AM ARM3 #";
-	// expected firmware version
-	final protected static int firmwareVersion = 1;
-	
-	// Machine dimensions
-	final static public float BASE_TO_SHOULDER_X   =(5.37f);  // measured in solidworks
-	final static public float BASE_TO_SHOULDER_Z   =(9.55f);  // measured in solidworks
-	final static public float SHOULDER_TO_ELBOW    =(25.0f);
-	final static public float ELBOW_TO_WRIST       =(25.0f);
-	final static public float WRIST_TO_FINGER      =(4.0f);
-	final static public float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
-	
-	// When the robot is homed, what are the XYZ coordinates of the finger tip?
-	static public float HOME_X = 13.05f;
-	static public float HOME_Y = 0;
-	static public float HOME_Z = 22.2f;
-
-	static public float HOME_RIGHT_X = 0;
-	static public float HOME_RIGHT_Y = 0;
-	static public float HOME_RIGHT_Z = -1;
-
-	static public float HOME_FORWARD_X = 1;
-	static public float HOME_FORWARD_Y = 0;
-	static public float HOME_FORWARD_Z = 0;
-	
-	// Dangerous!
-	boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
-	
 	// Collision volumes
-	Cylinder [] volumes = new Cylinder[6];
+	protected Cylinder [] volumes = new Cylinder[6];
 	
 	// motion now and in the future for looking-ahead
-	protected Arm3MotionState motionNow = new Arm3MotionState();
-	protected Arm3MotionState motionFuture = new Arm3MotionState();
+	protected Arm3MotionState motionNow;
+	protected Arm3MotionState motionFuture;
+	protected Arm3Dimensions armSettings;
 	
 	// keyboard history
 	protected float aDir = 0.0f;
@@ -80,23 +50,23 @@ extends RobotWithConnection {
 
 	
 	
-	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
-	
-	
-	public void setHome(Vector3f newhome) {
-		HOME_X=newhome.x;
-		HOME_Y=newhome.y;
-		HOME_Z=newhome.z;
-		RotateBase(0f,0f);
-		MoveBase(new Vector3f(0,0,0));
-		finalizeMove();
-	}
-	
-	
 	public Arm3() {
 		super();
+		setupDimensions(new Arm3Dimensions());
+	}
+	
+	public Arm3(Arm3Dimensions arg0) {
+		super();
+		setupDimensions(arg0);
+	}
+	
+	protected void setupDimensions(Arm3Dimensions arg0) {
+		armSettings = arg0;
 
-		setDisplayName(ROBOT_NAME);
+		motionNow = new Arm3MotionState(arg0);
+		motionFuture = new Arm3MotionState(arg0);
+		
+		setDisplayName(armSettings.getName());
 		
 		// set up bounding volumes
 		for(int i=0;i<volumes.length;++i) {
@@ -112,6 +82,11 @@ extends RobotWithConnection {
 		RotateBase(0,0);
 		motionNow.IK();
 		motionFuture.IK();
+	}
+	
+
+	public Vector3f getHome() {
+		return armSettings.getHomePosition();
 	}
 	
 	
@@ -298,6 +273,8 @@ extends RobotWithConnection {
 	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
+		Vector3f p = this.getPosition();
+		gl2.glTranslatef(p.x,p.y,p.z);
 /*
 		gl2.glTranslatef(motionNow.base.x, motionNow.base.y, motionNow.base.z);
 		gl2.glRotatef(motionNow.base_pan, motionNow.base_up.x,motionNow.base_up.y,motionNow.base_up.z);
@@ -402,8 +379,8 @@ extends RobotWithConnection {
 		Vector3f ffn = new Vector3f(ulna_forward);
 
 		Vector3f right_unrotated;
-		Vector3f forward = new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
-		Vector3f right = new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+		Vector3f forward = armSettings.getHomeForward();
+		Vector3f right = armSettings.getHomeRight();
 		Vector3f up = new Vector3f();
 		
 		up.cross(forward,right);
@@ -485,10 +462,10 @@ extends RobotWithConnection {
 	}
 	
 	protected void drawFK(GL2 gl2) {
-		Vector3f a0 = new Vector3f(BASE_TO_SHOULDER_X,0,BASE_TO_SHOULDER_Z);
-		Vector3f a1 = new Vector3f(0,0,SHOULDER_TO_ELBOW);
-		Vector3f a2 = new Vector3f(0,0,ELBOW_TO_WRIST);
-		Vector3f a3 = new Vector3f(0,0,WRIST_TO_FINGER);
+		Vector3f a0 = new Vector3f(armSettings.getBaseToShoulderX(),0,armSettings.getBaseToShoulderZ());
+		Vector3f a1 = new Vector3f(0,0,armSettings.getShoulderToElbow());
+		Vector3f a2 = new Vector3f(0,0,armSettings.getElbowToWrist());
+		Vector3f a3 = new Vector3f(0,0,armSettings.getWristToFinger());
 
 		// base 
 		gl2.glPushMatrix();
@@ -498,7 +475,7 @@ extends RobotWithConnection {
 		gl2.glColor3f(1,1,1);
 		gl2.glRotatef(motionNow.angleA,0,0,1);
 		gl2.glColor3f(0,0,1);
-		PrimitiveSolids.drawBox(gl2,4,BASE_TO_SHOULDER_X*2,BASE_TO_SHOULDER_Z);
+		PrimitiveSolids.drawBox(gl2,4,armSettings.getBaseToShoulderX()*2,armSettings.getBaseToShoulderZ());
 
 		// shoulder
 		gl2.glTranslatef(a0.x,a0.y,a0.z);
@@ -512,7 +489,7 @@ extends RobotWithConnection {
 		gl2.glPushMatrix();
 		gl2.glTranslatef(a1.x/2,a1.y/2,a1.z/2);
 		gl2.glRotatef(90,1,0,0);
-		PrimitiveSolids.drawCylinder(gl2, SHOULDER_TO_ELBOW/2.0f, 3.0f*0.575f);
+		PrimitiveSolids.drawCylinder(gl2, armSettings.getShoulderToElbow()/2.0f, 3.0f*0.575f);
 		gl2.glPopMatrix();
 
 		// elbow
@@ -527,7 +504,7 @@ extends RobotWithConnection {
 		gl2.glPushMatrix();
 		gl2.glTranslatef(a2.x/2,a2.y/2,a2.z/2);
 		gl2.glRotatef(90,1,0,0);
-		PrimitiveSolids.drawCylinder(gl2, ELBOW_TO_WRIST/2.0f, 1.15f);
+		PrimitiveSolids.drawCylinder(gl2, armSettings.getElbowToWrist()/2.0f, 1.15f);
 		gl2.glPopMatrix();
 
 		// wrist
@@ -542,7 +519,7 @@ extends RobotWithConnection {
 		gl2.glPushMatrix();
 		gl2.glTranslatef(a3.x/2,a3.y/3,a3.z/2);
 		gl2.glRotatef(90,1,0,0);
-		PrimitiveSolids.drawCylinder(gl2, WRIST_TO_FINGER/2.0f, 1.0f*0.575f);
+		PrimitiveSolids.drawCylinder(gl2, armSettings.getWristToFinger()/2.0f, 1.0f*0.575f);
 		gl2.glPopMatrix();
 
 		gl2.glTranslatef(a3.x,a3.y,a3.z);	
@@ -555,10 +532,12 @@ extends RobotWithConnection {
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glColor3f(1,0,1);  // magenta
 		gl2.glVertex3f(0,0,0);
-		gl2.glVertex3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+		Vector3f hf=armSettings.getHomeForward();
+		Vector3f hr=armSettings.getHomeRight();
+		gl2.glVertex3f(hr.x,hr.y,hr.z);
 		gl2.glColor3f(0,1,0);  // green
 		gl2.glVertex3f(0,0,0);
-		gl2.glVertex3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
+		gl2.glVertex3f(hf.x,hf.y,hf.z);
 		gl2.glEnd();
 		gl2.glEnable(GL2.GL_LIGHTING);
 		// TODO draw tool here
@@ -614,15 +593,15 @@ extends RobotWithConnection {
 			
 			gl2.glTranslatef(a3.x,a3.y,a3.z);	
 
-			// draw finger tip orientation
+			// draw finger tip orientation			
 			gl2.glRotatef(-90,0,1,0);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,0,1);  // magenta
 			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(HOME_RIGHT_X*5,HOME_RIGHT_Y*5,HOME_RIGHT_Z*5);
+			gl2.glVertex3f(hr.x*5,hr.y*5,hr.z*5);
 			gl2.glColor3f(0,1,0);  // green
 			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
+			gl2.glVertex3f(hf.x,hf.y,hf.z);
 			gl2.glEnd();
 			
 			// TODO draw tool here
@@ -642,7 +621,7 @@ extends RobotWithConnection {
 		gl2.glTranslatef(motionNow.base.x, motionNow.base.y, motionNow.base.z);
 		gl2.glRotatef(motionNow.angleA,0,0,1);
 		gl2.glColor3f(0,0,1);
-		PrimitiveSolids.drawBox(gl2,4,BASE_TO_SHOULDER_X*2,BASE_TO_SHOULDER_Z);
+		PrimitiveSolids.drawBox(gl2,4,armSettings.getBaseToShoulderX()*2,armSettings.getBaseToShoulderZ());
 		gl2.glPopMatrix();
 		
 		//gl2.glDisable(GL2.GL_LIGHTING);
@@ -786,16 +765,18 @@ extends RobotWithConnection {
 	
 	@Override
 	public void dataAvailable(AbstractConnection arg0,String line) {
-		if(line.contains(hello)) {
+		if(line.contains(armSettings.getHello())) {
 			isPortConfirmed=true;
 			
 			// we are not homed and we have not begun to home
-			if(HOME_AUTOMATICALLY_ON_STARTUP) {
+			if(armSettings.getHomeAutomaticallyOnStartup()) {
 				// this should be sent by a human when they are ready
 				sendLineToRobot("G28");
-				motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+				motionFuture.fingerPosition.set(armSettings.getHomePosition());  // HOME_* should match values in robot firmware.
 				motionFuture.IK();
-				sendLineToRobot("G92 X"+HOME_X+" Y"+HOME_Y+" Z"+HOME_Z);
+				sendLineToRobot("G92 X"+motionFuture.fingerPosition.x
+										+" Y"+motionFuture.fingerPosition.y
+										+" Z"+motionFuture.fingerPosition.z);
 				follow_mode=true;
 			}
 		}
@@ -808,5 +789,9 @@ extends RobotWithConnection {
 	}
 	public void setSpeed(double s) {
 		speed=s;
+	}
+	
+	public void doAbout() {
+		armSettings.doAbout();
 	}
 }
