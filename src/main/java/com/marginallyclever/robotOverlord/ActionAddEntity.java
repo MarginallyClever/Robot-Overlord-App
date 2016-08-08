@@ -81,6 +81,10 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 						e.printStackTrace();
 					}
 
+					if(newInstance instanceof RobotWithConnection ) {
+						((RobotWithConnection) newInstance).setConnectionManager(ro.getConnectionManager());
+					}
+					
 					ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandAddEntity(ro,newInstance) ) );
 					
 					return;

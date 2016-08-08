@@ -22,9 +22,9 @@ public class UArmDimensions extends Arm3Dimensions {
 	final protected float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
 	
 	// When the robot is homed, what are the XYZ coordinates of the finger tip?
-	final protected float HOME_X = 13.05f;
+	final protected float HOME_X = 19.0f+BASE_TO_SHOULDER_X;
 	final protected float HOME_Y = 0;
-	final protected float HOME_Z = 22.2f;
+	final protected float HOME_Z = 5.864f;
 	
 	// Dangerous!
 	final boolean HOME_AUTOMATICALLY_ON_STARTUP = true;

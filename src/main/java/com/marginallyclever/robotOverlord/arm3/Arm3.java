@@ -775,8 +775,8 @@ extends RobotWithConnection {
 				motionFuture.fingerPosition.set(armSettings.getHomePosition());  // HOME_* should match values in robot firmware.
 				motionFuture.IK();
 				sendLineToRobot("G92 X"+motionFuture.fingerPosition.x
-										+" Y"+motionFuture.fingerPosition.y
-										+" Z"+motionFuture.fingerPosition.z);
+								+" Y"+motionFuture.fingerPosition.y
+								+" Z"+motionFuture.fingerPosition.z);
 				follow_mode=true;
 			}
 		}
