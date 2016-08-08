@@ -22,10 +22,14 @@ extends RobotWithConnection {
 	 */
 	private static final long serialVersionUID = -5065086783049069206L;
 
+	// name
 	final static public String ROBOT_NAME = "Arm3";
-	protected final static String hello = "HELLO WORLD! I AM ARM3 #";
+	// expected firmware starting message
+	final protected static String hello = "HELLO WORLD! I AM ARM3 #";
+	// expected firmware version
+	final protected static int firmwareVersion = 1;
 	
-	//machine dimensions
+	// Machine dimensions
 	final static public float BASE_TO_SHOULDER_X   =(5.37f);  // measured in solidworks
 	final static public float BASE_TO_SHOULDER_Z   =(9.55f);  // measured in solidworks
 	final static public float SHOULDER_TO_ELBOW    =(25.0f);
@@ -33,13 +37,11 @@ extends RobotWithConnection {
 	final static public float WRIST_TO_FINGER      =(4.0f);
 	final static public float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
 	
+	// When the robot is homed, what are the XYZ coordinates of the finger tip?
 	static public float HOME_X = 13.05f;
 	static public float HOME_Y = 0;
 	static public float HOME_Z = 22.2f;
-	static public float HOME_A = 0;
-	static public float HOME_B = 0;
-	static public float HOME_C = 0;
-	
+
 	static public float HOME_RIGHT_X = 0;
 	static public float HOME_RIGHT_Y = 0;
 	static public float HOME_RIGHT_Z = -1;
@@ -47,16 +49,17 @@ extends RobotWithConnection {
 	static public float HOME_FORWARD_X = 1;
 	static public float HOME_FORWARD_Y = 0;
 	static public float HOME_FORWARD_Z = 0;
-
+	
+	// Dangerous!
 	boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
+	
+	// Collision volumes
 	Cylinder [] volumes = new Cylinder[6];
 	
+	// motion now and in the future for looking-ahead
 	protected Arm3MotionState motionNow = new Arm3MotionState();
 	protected Arm3MotionState motionFuture = new Arm3MotionState();
 	
-	boolean follow_mode = false;
-	boolean arm_moved = false;
-
 	// keyboard history
 	protected float aDir = 0.0f;
 	protected float bDir = 0.0f;
@@ -67,6 +70,8 @@ extends RobotWithConnection {
 	protected float zDir = 0.0f;
 	
 	protected double speed=2;
+	boolean follow_mode = false;
+	boolean arm_moved = false;
 	
 	protected boolean isPortConfirmed=false;
 	
@@ -245,7 +250,7 @@ extends RobotWithConnection {
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm3Panel = new Arm3ControlPanel(gui,this);
+		arm3Panel = createArm3ControlPanel(gui);
 		list.add(arm3Panel);
 		updateGUI();
 /*
@@ -259,6 +264,10 @@ extends RobotWithConnection {
 	}
 	
 	
+	protected Arm3ControlPanel createArm3ControlPanel(RobotOverlord gui) {
+		return new Arm3ControlPanel(gui,this);
+	}
+	
 	public void updateGUI() {
 		Vector3f v = new Vector3f();
 		v.set(motionNow.fingerPosition);
@@ -268,13 +277,13 @@ extends RobotWithConnection {
 		arm3Panel.yPos.setText(Float.toString(roundOff(v.y)));
 		arm3Panel.zPos.setText(Float.toString(roundOff(v.z)));
 
-		arm3Panel.a1.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm3Panel.b1.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm3Panel.c1.setText(Float.toString(roundOff(motionNow.angleC)));
+		arm3Panel.labelFK1.setText(Float.toString(roundOff(motionNow.angleA)));
+		arm3Panel.labelFK2.setText(Float.toString(roundOff(motionNow.angleB)));
+		arm3Panel.labelFK3.setText(Float.toString(roundOff(motionNow.angleC)));
 		
-		arm3Panel.a2.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm3Panel.b2.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm3Panel.c2.setText(Float.toString(roundOff(motionNow.angleC)));
+		arm3Panel.labelIK1.setText(Float.toString(roundOff(motionNow.angleA)));
+		arm3Panel.labelIK2.setText(Float.toString(roundOff(motionNow.angleB)));
+		arm3Panel.labelIK3.setText(Float.toString(roundOff(motionNow.angleC)));
 
 		//if( tool != null ) tool.updateGUI();
 	}
