@@ -45,7 +45,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.robotOverlord.PropertiesFileHelper;
 import com.marginallyclever.robotOverlord.Camera.Camera;
 import com.marginallyclever.robotOverlord.world.World;
@@ -82,7 +82,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected transient JMenuItem buttonUndo,buttonRedo;
 	
     // The animator keeps things moving
-    private Animator animator;
+    private FPSAnimator animator;
     
     // timing for animations
     protected long startTime;
@@ -143,7 +143,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
 
-      	animator = new Animator();
+      	animator = new FPSAnimator(30);
         mainFrame.addWindowListener(this);
 
         GLCapabilities caps = new GLCapabilities(null);
