@@ -1,10 +1,12 @@
 package com.marginallyclever.robotOverlord.actions;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
@@ -23,6 +25,7 @@ public class ActionUndo extends JMenuItem implements ActionListener {
 	public ActionUndo(RobotOverlord ro) {
 		super("Undo",KeyEvent.VK_Z);
 		this.ro = ro;
+		this.setAccelerator(KeyStroke.getKeyStroke('Z', Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask()));
 		addActionListener(this);
 	}
 
