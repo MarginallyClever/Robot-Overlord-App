@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 /**
  * Checks online for a new version of Robot Overlord

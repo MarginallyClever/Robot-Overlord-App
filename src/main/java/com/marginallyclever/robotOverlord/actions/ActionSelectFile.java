@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,6 +16,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.CommandSelectFile;
 
 public class ActionSelectFile extends JPanel implements ActionListener {
 	/**

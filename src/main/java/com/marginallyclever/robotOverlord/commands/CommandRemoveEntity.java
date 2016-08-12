@@ -1,23 +1,24 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.commands;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import javax.vecmath.Vector3f;
 
-public class CommandSelectVector3f extends AbstractUndoableEdit {
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+
+public class CommandRemoveEntity extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ActionSelectVector3f actionSelectVector3f;
-	private Vector3f oldValue,newValue;
+	private Entity entity;	
+	private RobotOverlord ro;
 	
-	public CommandSelectVector3f(ActionSelectVector3f actionSelectVector3f,Vector3f newValue) {
-		this.actionSelectVector3f = actionSelectVector3f;
-		this.newValue = new Vector3f(newValue);
-		this.oldValue = new Vector3f(actionSelectVector3f.getValue());
-		setValue(newValue);
+	public CommandRemoveEntity(RobotOverlord ro,Entity entity) {
+		this.entity = entity;
+		this.ro = ro;
+		removeNow();
 	}
 	
 	@Override
@@ -32,7 +33,7 @@ public class CommandSelectVector3f extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "change xyz";
+		return "Remove "+entity.getDisplayName();
 	}
 
 
@@ -48,15 +49,21 @@ public class CommandSelectVector3f extends AbstractUndoableEdit {
 
 	@Override
 	public void redo() throws CannotRedoException {
-		setValue(newValue);
+		removeNow();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		setValue(oldValue);
+		addNow();
 	}
 
-	private void setValue(Vector3f value) {
-		actionSelectVector3f.setValue(value);
+	private void addNow() {
+		ro.getWorld().addEntity(entity);
+		ro.setContextMenu(entity);
+	}
+	
+	private void removeNow() {
+		ro.getWorld().removeEntity(entity);
+		ro.pickCamera();
 	}
 }

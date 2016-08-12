@@ -8,6 +8,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.marginallyclever.robotOverlord.actions.ActionSelectFile;
+
 public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	/**
 	 * 

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.*;
+import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;

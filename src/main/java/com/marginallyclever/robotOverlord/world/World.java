@@ -41,7 +41,7 @@ implements Serializable {
 	protected transient boolean areTexturesLoaded=false;
 
 	// world contents
-	protected ArrayList<Entity> objects = new ArrayList<Entity>();
+	protected ArrayList<Entity> entities = new ArrayList<Entity>();
 	protected Camera camera = null;
 	protected LightObject light0;
 	protected LightObject light1;
@@ -142,7 +142,7 @@ implements Serializable {
 		
 		setupLights();
 		
-		Iterator<Entity> io = objects.iterator();
+		Iterator<Entity> io = entities.iterator();
 		while(io.hasNext()) {
 			Entity obj = io.next();
 			if(obj instanceof PhysicalObject) {
@@ -154,7 +154,7 @@ implements Serializable {
 		//TODO do collision test here
 		
 		// Finalize the moves that don't collide
-		io = objects.iterator();
+		io = entities.iterator();
 		while(io.hasNext()) {
 			Entity obj = io.next();
 			if(obj instanceof PhysicalObject) {
@@ -208,7 +208,7 @@ implements Serializable {
 			gl2.glEnable(GL2.GL_LIGHTING);
 
 			// draw!
-			io = objects.iterator();
+			io = entities.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
 				gl2.glPushName(obj.getPickName());
@@ -376,7 +376,7 @@ implements Serializable {
 			newObject=camera;
 		} else {
 			// scan all objects in world to find the one with the pickName.
-			Iterator<Entity> iter = objects.iterator();
+			Iterator<Entity> iter = entities.iterator();
 			while(iter.hasNext()) {
 				Entity obj = iter.next();
 				if( obj.getPickName()==pickName ) {
@@ -391,18 +391,22 @@ implements Serializable {
 	}
 
 	
-	public void addObject(Entity o) {
-		objects.add(o);
+	public void addEntity(Entity o) {
+		entities.add(o);
 	}
 	
-	public void removeObject(Entity o) {
-		objects.remove(o);
+	public void removeEntity(Entity o) {
+		entities.remove(o);
+	}
+	
+	public boolean hasEntity(Entity o) {
+		return entities.contains(o);
 	}
 	
 	public List<String> namesOfAllObjects() {
 		ArrayList<String> list = new ArrayList<String>();
 		
-		Iterator<Entity> i = this.objects.iterator();
+		Iterator<Entity> i = this.entities.iterator();
 		while(i.hasNext()) {
 			String s = i.next().getDisplayName();
 			list.add(s);
@@ -412,7 +416,7 @@ implements Serializable {
 	}
 	
 	public Entity findObjectWithName(String name) {
-		Iterator<Entity> i = this.objects.iterator();
+		Iterator<Entity> i = this.entities.iterator();
 		while(i.hasNext()) {
 			Entity o = i.next();
 			String objectName = o.getDisplayName();

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,6 +15,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Vector3f;
+
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.CommandSelectVector3f;
 
 public class ActionSelectVector3f extends JPanel implements DocumentListener {
 	/**

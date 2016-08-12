@@ -8,6 +8,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.actions.ActionRemoveMe;
+import com.marginallyclever.robotOverlord.actions.ActionSelectVector3f;
+
 public class EntityPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
@@ -30,6 +33,11 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
 
+		if(ro.getWorld().hasEntity(entity)) {
+			this.add(new ActionRemoveMe(ro,entity),c);
+			c.gridy++;
+		}
+		
 		CollapsiblePanel oiwPanel = new CollapsiblePanel("Move");
 		this.add(oiwPanel,c);
 		JPanel contents = oiwPanel.getContentPane();
@@ -43,7 +51,6 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		
 		contents.add(position = new ActionSelectVector3f(ro,"Position",entity.getPosition()),con1);
 		con1.gridy++;
-
 		position.addChangeListener(this);
 	}
 	
@@ -56,10 +63,14 @@ public class EntityPanel extends JPanel implements ChangeListener {
 	
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		Vector3f pos = entity.getPosition();
-		Vector3f newPos = position.getValue();
-		if(!newPos.equals(pos)) {
-			entity.setPosition(newPos);
+		Object subject = e.getSource();
+		
+		if( subject==position ) {
+			Vector3f pos = entity.getPosition();
+			Vector3f newPos = position.getValue();
+			if(!newPos.equals(pos)) {
+				entity.setPosition(newPos);
+			}
 		}
 	}
 }

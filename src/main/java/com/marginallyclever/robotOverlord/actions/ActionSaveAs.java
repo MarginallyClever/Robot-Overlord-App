@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,20 +8,22 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.marginallyclever.robotOverlord.RobotOverlord;
+
 /**
- * Load the world from a file
+ * Save the world state to a file.
  * @author Admin
  *
  */
-public class ActionLoad extends JMenuItem implements ActionListener {
+public class ActionSaveAs extends JMenuItem implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
-	public ActionLoad(RobotOverlord ro) {
-		super("Load...",KeyEvent.VK_L);
+	public ActionSaveAs(RobotOverlord ro) {
+		super("Save As...",KeyEvent.VK_S);
 		this.ro = ro;
 		addActionListener(this);
 	}
@@ -32,7 +34,7 @@ public class ActionLoad extends JMenuItem implements ActionListener {
 		fc.setFileFilter(filter);
 		int returnVal = fc.showSaveDialog(ro.getMainFrame());
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            ro.loadWorldFromFile(fc.getSelectedFile().getAbsolutePath());
+            ro.saveWorldToFile(fc.getSelectedFile().getAbsolutePath());
 		}
 	}
 }
