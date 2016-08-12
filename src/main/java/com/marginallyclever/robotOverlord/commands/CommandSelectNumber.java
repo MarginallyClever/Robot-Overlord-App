@@ -13,11 +13,13 @@ public class CommandSelectNumber extends AbstractUndoableEdit {
 	private static final long serialVersionUID = 1L;
 	private ActionSelectNumber actionSelectNumber;
 	private float oldValue,newValue;
+	private String label;
 	
-	public CommandSelectNumber(ActionSelectNumber actionSelectNumber,float newValue) {
+	public CommandSelectNumber(ActionSelectNumber actionSelectNumber,String label,float newValue) {
 		this.actionSelectNumber = actionSelectNumber;
 		this.newValue = newValue;
 		this.oldValue = actionSelectNumber.getValue();
+		this.label = label;
 		setValue(newValue);
 	}
 	
@@ -33,7 +35,7 @@ public class CommandSelectNumber extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "change number";
+		return "change "+label;
 	}
 
 

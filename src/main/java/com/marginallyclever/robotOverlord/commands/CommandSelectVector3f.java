@@ -14,9 +14,11 @@ public class CommandSelectVector3f extends AbstractUndoableEdit {
 	private static final long serialVersionUID = 1L;
 	private ActionSelectVector3f actionSelectVector3f;
 	private Vector3f oldValue,newValue;
+	private String label;
 	
-	public CommandSelectVector3f(ActionSelectVector3f actionSelectVector3f,Vector3f newValue) {
+	public CommandSelectVector3f(ActionSelectVector3f actionSelectVector3f,String label,Vector3f newValue) {
 		this.actionSelectVector3f = actionSelectVector3f;
+		this.label = label;
 		this.newValue = new Vector3f(newValue);
 		this.oldValue = new Vector3f(actionSelectVector3f.getValue());
 		setValue(newValue);
@@ -34,7 +36,7 @@ public class CommandSelectVector3f extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "change xyz";
+		return "change "+label;
 	}
 
 

@@ -33,7 +33,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Source file");
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("Model");
 		this.add(oiwPanel,c);
 		JPanel contents = oiwPanel.getContentPane();
 		

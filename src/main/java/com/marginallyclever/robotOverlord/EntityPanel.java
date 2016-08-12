@@ -46,16 +46,16 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 
-		contents.add(setName=new ActionSelectString(ro,"Name",entity.getDisplayName()), con1);
-		con1.gridy++;
-		setName.addChangeListener(this);
-		
 		if(ro.getWorld().hasEntity(entity)) {
-			contents.add(new ActionRemoveMe(ro,entity),c);
+			contents.add(new ActionRemoveMe(ro,entity),con1);
 			con1.gridy++;
 		}
 		
-		contents.add(setPosition = new ActionSelectVector3f(ro,"Position",entity.getPosition()),con1);
+		contents.add(setName=new ActionSelectString(ro,"name",entity.getDisplayName()), con1);
+		con1.gridy++;
+		setName.addChangeListener(this);
+		
+		contents.add(setPosition = new ActionSelectVector3f(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;
 		setPosition.addChangeListener(this);
 	}
