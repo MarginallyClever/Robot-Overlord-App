@@ -7,7 +7,7 @@ import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
-import com.marginallyclever.robotOverlord.robot.RobotWithConnection;
+import com.marginallyclever.robotOverlord.robot.Robot;
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 
 public class Arm3 
-extends RobotWithConnection {
+extends Robot {
 	/**
 	 * serial version id
 	 */

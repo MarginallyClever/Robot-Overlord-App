@@ -22,12 +22,12 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
-import com.marginallyclever.robotOverlord.robot.RobotWithConnection;
+import com.marginallyclever.robotOverlord.robot.Robot;
 
 import java.io.BufferedReader;
 
 public class Spidee 
-extends RobotWithConnection 
+extends Robot 
 implements ActionListener {
 	/**
 	 * 

@@ -9,7 +9,7 @@ import com.marginallyclever.robotOverlord.EvilMinionTool.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
-import com.marginallyclever.robotOverlord.robot.RobotWithConnection;
+import com.marginallyclever.robotOverlord.robot.Robot;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 
 public class EvilMinionRobot
-extends RobotWithConnection {
+extends Robot {
 	/**
 	 * 
 	 */
