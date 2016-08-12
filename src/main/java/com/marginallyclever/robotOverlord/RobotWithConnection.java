@@ -77,7 +77,7 @@ implements AbstractConnectionListener, ActionListener {
 
 
 	protected JPanel getMenu() {
-		connectionPanel = new CollapsiblePanel("Connection");
+		connectionPanel = new CollapsiblePanel("Robot with connection");
 		JPanel contents =connectionPanel.getContentPane();
 		
 		GridBagConstraints con1 = new GridBagConstraints();

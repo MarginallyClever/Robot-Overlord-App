@@ -23,7 +23,6 @@ import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -243,9 +242,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		c.gridx=0;
 		c.fill=GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.NORTHWEST;
-        container.add(new JLabel(title,JLabel.CENTER),c);
-        c.gridy++;
-        container.add(new JSeparator(),c);
 		c.weighty=1;
 		c.gridy++;
         container.add(panel,c);
