@@ -1,8 +1,9 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.robot;
 
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 
 /**

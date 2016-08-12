@@ -4,7 +4,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import com.marginallyclever.robotOverlord.RobotWithConnection;
+import com.marginallyclever.robotOverlord.robot.RobotWithConnection;
 
 
 public class CommandRobotMove extends AbstractUndoableEdit {
