@@ -1,21 +1,25 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.commands;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-public class CommandRemoveEntity extends AbstractUndoableEdit {
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+
+public class CommandAddEntity extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Entity entity;	
+	private Entity entity;
+	private Entity previouslyPickedEntity;	
 	private RobotOverlord ro;
 	
-	public CommandRemoveEntity(RobotOverlord ro,Entity entity) {
+	public CommandAddEntity(RobotOverlord ro,Entity entity) {
 		this.entity = entity;
 		this.ro = ro;
-		removeNow();
+		addNow();
 	}
 	
 	@Override
@@ -30,7 +34,7 @@ public class CommandRemoveEntity extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "Remove "+entity.getDisplayName();
+		return "Add "+entity.getDisplayName();
 	}
 
 
@@ -46,21 +50,22 @@ public class CommandRemoveEntity extends AbstractUndoableEdit {
 
 	@Override
 	public void redo() throws CannotRedoException {
-		removeNow();
+		addNow();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		addNow();
+		removeNow();
 	}
 
 	private void addNow() {
-		ro.getWorld().addObject(entity);
+		ro.getWorld().addEntity(entity);
+		previouslyPickedEntity = ro.getPickedEntity(); 
 		ro.setContextMenu(entity);
 	}
 	
 	private void removeNow() {
-		ro.getWorld().removeObject(entity);
-		ro.pickCamera();
+		ro.getWorld().removeEntity(entity);
+		ro.setContextMenu(previouslyPickedEntity);
 	}
 }

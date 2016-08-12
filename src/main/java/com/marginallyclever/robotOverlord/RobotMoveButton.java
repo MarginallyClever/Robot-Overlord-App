@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
+
 public class RobotMoveButton extends JButton implements ActionListener {
 	/**
 	 * 

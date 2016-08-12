@@ -48,6 +48,15 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.robotOverlord.PropertiesFileHelper;
 import com.marginallyclever.robotOverlord.Camera.Camera;
+import com.marginallyclever.robotOverlord.actions.ActionAbout;
+import com.marginallyclever.robotOverlord.actions.ActionAddEntity;
+import com.marginallyclever.robotOverlord.actions.ActionCheckForUpdate;
+import com.marginallyclever.robotOverlord.actions.ActionLoad;
+import com.marginallyclever.robotOverlord.actions.ActionNew;
+import com.marginallyclever.robotOverlord.actions.ActionQuit;
+import com.marginallyclever.robotOverlord.actions.ActionRedo;
+import com.marginallyclever.robotOverlord.actions.ActionSaveAs;
+import com.marginallyclever.robotOverlord.actions.ActionUndo;
 import com.marginallyclever.robotOverlord.world.World;
 
 /**
@@ -58,8 +67,8 @@ import com.marginallyclever.robotOverlord.world.World;
 public class RobotOverlord 
 implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
 {
-	static final String APP_TITLE = "Robot Overlord";
-	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
+	static final public String APP_TITLE = "Robot Overlord";
+	static final public String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
 	
 	// select picking
@@ -245,7 +254,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	void loadWorldFromFile(String filename) {
+	public void loadWorldFromFile(String filename) {
 		FileInputStream fin=null;
 		ObjectInputStream objectIn=null;
 		try {
@@ -279,7 +288,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 
 	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	void saveWorldToFile(String filename) {
+	public void saveWorldToFile(String filename) {
 		FileOutputStream fout=null;
 		ObjectOutputStream objectOut=null;
 		try {
@@ -381,7 +390,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
         menu = new JMenu("World");
     	menu.add(new ActionAddEntity(this));
-    	menu.add(new ActionRemoveEntity(this));
+    	//menu.add(new ActionRemoveEntity(this));
     	mainMenu.add(menu);
     	
     	// done
