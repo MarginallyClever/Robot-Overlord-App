@@ -27,6 +27,7 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 	private RobotOverlord ro;
 	private DecimalFormat df;
 	private float value;
+	private String label;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
@@ -37,6 +38,8 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 		allowSetText=true;
 		df = new DecimalFormat("0.00");
 		df.setGroupingUsed(false);
+		
+		this.label = labelName;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -111,7 +114,7 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 		}
 		if(newNumber != value) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectNumber(this, newNumber) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectNumber(this, label, newNumber) ) );
 			allowSetText=true;
 		}
 	}

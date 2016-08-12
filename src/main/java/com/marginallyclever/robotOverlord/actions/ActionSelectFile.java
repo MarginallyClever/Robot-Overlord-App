@@ -27,12 +27,14 @@ public class ActionSelectFile extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JTextField fieldX;
 	private RobotOverlord ro;
+	private String label;
 	private FileNameExtensionFilter filter;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	
 	public ActionSelectFile(RobotOverlord ro,String labelName,String defaultValue) {
 		super();
 		this.ro = ro;
+		this.label = labelName;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -85,7 +87,7 @@ public class ActionSelectFile extends JPanel implements ActionListener {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			System.out.println("You chose to open this file: " + newFilename);
 
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectFile(this, newFilename) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectFile(this, label, newFilename) ) );
 		}
 	}
 

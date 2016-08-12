@@ -13,9 +13,11 @@ public class CommandSelectString extends AbstractUndoableEdit {
 	private static final long serialVersionUID = 1L;
 	private ActionSelectString actionSelectString;
 	private String oldValue,newValue;
+	private String label;
 	
-	public CommandSelectString(ActionSelectString actionSelectString,String newValue) {
+	public CommandSelectString(ActionSelectString actionSelectString,String label,String newValue) {
 		this.actionSelectString = actionSelectString;
+		this.label = label;
 		this.newValue = newValue;
 		this.oldValue = actionSelectString.getValue();
 		setValue(newValue);
@@ -33,7 +35,7 @@ public class CommandSelectString extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "change text";
+		return "change "+label;
 	}
 
 

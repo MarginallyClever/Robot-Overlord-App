@@ -25,6 +25,7 @@ public class ActionSelectString extends JPanel implements DocumentListener {
 	private JTextField textField;
 	private RobotOverlord ro;
 	private String value;
+	private String label;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
@@ -34,6 +35,7 @@ public class ActionSelectString extends JPanel implements DocumentListener {
 		
 		allowSetText=true;
 		value=defaultValue;
+		this.label = labelName;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -45,18 +47,15 @@ public class ActionSelectString extends JPanel implements DocumentListener {
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
-		textField = new JTextField(15);
+		textField = new JTextField(25);
 		textField.setText(defaultValue);
 		textField.getDocument().addDocumentListener(this);
 		label.setLabelFor(textField);
 		
-		con1.weightx=0.250;
-		con1.gridx=0;
 		this.add(label,con1);
-
-		con1.weightx=0.750;
-		con1.gridx=1;
+		con1.gridy++;
 		this.add(textField,con1);
+		con1.gridy++;
 	}
 	
 	public String getValue() {
@@ -96,7 +95,7 @@ public class ActionSelectString extends JPanel implements DocumentListener {
 		String newValue = textField.getText();
 		if(!newValue.equals(value)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectString(this, newValue) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectString(this, label, newValue) ) );
 			allowSetText=true;
 		}
 	}
