@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.robot;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.robotOverlord.UndoHelper;
 import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
 
 public class RobotMoveButton extends JButton implements ActionListener {
