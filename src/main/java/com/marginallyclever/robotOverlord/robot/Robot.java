@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.communications.AbstractConnectionListe
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
 
 
-public class RobotWithConnection extends PhysicalObject
+public class Robot extends PhysicalObject
 implements AbstractConnectionListener, ActionListener {
 	/**
 	 * 
@@ -42,12 +42,13 @@ implements AbstractConnectionListener, ActionListener {
 	private long linesProcessed;
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
+	private RobotProgram program;
 
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonConnect;
 	
 	
-	public RobotWithConnection() {
+	public Robot() {
 		super();
 		isReadyToReceive=false;
 		linesTotal=0;
@@ -55,6 +56,7 @@ implements AbstractConnectionListener, ActionListener {
 		fileOpened=false;
 		paused=true;
 		running=false;
+		program=new RobotProgram();
 	}
 	
 	public AbstractConnectionManager getConnectionManager() {

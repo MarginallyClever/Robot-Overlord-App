@@ -4,7 +4,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import com.marginallyclever.robotOverlord.robot.RobotWithConnection;
+import com.marginallyclever.robotOverlord.robot.Robot;
 
 
 public class CommandRobotMove extends AbstractUndoableEdit {
@@ -27,7 +27,7 @@ public class CommandRobotMove extends AbstractUndoableEdit {
 	public static final int AXIS_B = 7;
 	public static final int AXIS_C = 8;
 	
-	private RobotWithConnection robot;
+	private Robot robot;
 	private int axis;
 	private int direction;
 	
@@ -37,7 +37,7 @@ public class CommandRobotMove extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public CommandRobotMove(RobotWithConnection robot,int axis,int direction) {
+	public CommandRobotMove(Robot robot,int axis,int direction) {
 		this.robot = robot;
 		this.axis = axis;
 		this.direction = direction;

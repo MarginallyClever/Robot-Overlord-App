@@ -15,12 +15,12 @@ public class RobotMoveButton extends JButton implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private RobotWithConnection robot;
+	private Robot robot;
 	private int axis;
 	private int direction;
 	private UndoHelper undoHelper;
 	
-	public RobotMoveButton(UndoHelper undoHelper,RobotWithConnection robot,int axis,int direction,String buttonText) {
+	public RobotMoveButton(UndoHelper undoHelper,Robot robot,int axis,int direction,String buttonText) {
 		super(buttonText);
 		this.robot = robot;
 		this.axis = axis;
