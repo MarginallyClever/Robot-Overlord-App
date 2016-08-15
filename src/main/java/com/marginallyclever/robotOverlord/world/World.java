@@ -323,6 +323,8 @@ implements Serializable {
 			
 		gl2.glPopMatrix();
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
+
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
 	}
 
 	
