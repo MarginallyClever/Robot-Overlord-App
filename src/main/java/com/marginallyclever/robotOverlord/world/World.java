@@ -96,22 +96,22 @@ implements Serializable {
 
     protected void setupLights() {
     	light0.index=0;
-	    light0.position=new float[]{  0.0f,0.0f,1.0f,0.0f};
+	    light0.position=new float[]{  0.0f,0.0f,10.0f,0.0f};
 	    light0.ambient =new float[]{  0.0f, 0.0f,0.0f,1.0f};
     	light0.diffuse =new float[]{255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f};  // noon
 	    light0.specular=new float[]{  0.0f, 0.0f,0.0f,1.0f};
     	
     	light1.index=1;
-	    light1.position=new float[]{-1.0f,-1.0f,1.0f,0.0f};
+	    light1.position=new float[]{-10.0f,-10.0f,10.0f,0.0f};
 	    light1.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
 	    light1.diffuse =new float[]{ 1.0f, 1.0f,1.0f,1.0f};
-	    light1.specular=new float[]{ 1.0f, 1.0f,1.0f,1.0f};
+	    light1.specular=new float[]{ 0.0f, 0.0f,0.0f,1.0f};
 	    
     	light2.index=2;
-	    light2.position=new float[]{  1.0f, 1.0f,1.0f,0.0f};
+	    light2.position=new float[]{  10.0f, 10.0f,10.0f,0.0f};
 	    light2.ambient =new float[]{   0.0f, 0.0f,0.0f,1.0f};
 	    light2.diffuse =new float[]{ 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f,1.0f};  // metal halide
-	    light2.specular=new float[]{   1.0f, 1.0f,1.0f,1.0f};
+	    light2.specular=new float[]{   0.0f, 0.0f,0.0f,1.0f};
     }
     
 	
@@ -120,12 +120,12 @@ implements Serializable {
 		
 		// World background texture
 		try {
-			t0 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-pos.png"), true, "png");
-			t1 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-neg.png"), true, "png");
-			t2 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-pos.png"), true, "png");
-			t3 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-neg.png"), true, "png");
-			t4 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-pos.png"), true, "png");
-			t5 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-neg.png"), true, "png");
+			t0 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-pos.png"), false, "png");
+			t1 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-neg.png"), false, "png");
+			t2 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-pos.png"), false, "png");
+			t3 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-neg.png"), false, "png");
+			t4 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-pos.png"), false, "png");
+			t5 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-neg.png"), false, "png");
 			//System.out.println(">>> All textures loaded OK");
 			areTexturesLoaded=true;
 		}
@@ -323,8 +323,6 @@ implements Serializable {
 			
 		gl2.glPopMatrix();
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
-
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
 	}
 
 	
