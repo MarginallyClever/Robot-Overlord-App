@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.arm3.uArm;
 
 import javax.vecmath.Vector3f;
 
-import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.arm3.Arm3;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -48,7 +47,9 @@ public class UArm extends Arm3 {
 		gl2.glTranslatef(p.x,p.y,p.z);
 
 		// draw models
-		material.setDiffuseColor(1, 1, 0.5f, 1);
+		material.setDiffuseColor(247.0f/255.0f,
+				233.0f/255.0f,
+				215.0f/255.0f, 1);
 		material.render(gl2);
 		
 		base.render(gl2);
