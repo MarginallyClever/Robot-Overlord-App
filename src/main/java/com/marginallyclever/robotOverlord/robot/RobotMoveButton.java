@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.robot;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,18 +6,21 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.robotOverlord.UndoHelper;
+import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
+
 public class RobotMoveButton extends JButton implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private RobotWithConnection robot;
+	private Robot robot;
 	private int axis;
 	private int direction;
 	private UndoHelper undoHelper;
 	
-	public RobotMoveButton(UndoHelper undoHelper,RobotWithConnection robot,int axis,int direction,String buttonText) {
+	public RobotMoveButton(UndoHelper undoHelper,Robot robot,int axis,int direction,String buttonText) {
 		super(buttonText);
 		this.robot = robot;
 		this.axis = axis;

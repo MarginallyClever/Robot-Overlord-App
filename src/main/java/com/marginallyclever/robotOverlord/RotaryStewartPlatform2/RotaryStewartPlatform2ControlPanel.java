@@ -15,9 +15,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.RobotMoveButton;
-import com.marginallyclever.robotOverlord.CommandRobotMove;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
+import com.marginallyclever.robotOverlord.robot.RobotMoveButton;
 
 public class RotaryStewartPlatform2ControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**

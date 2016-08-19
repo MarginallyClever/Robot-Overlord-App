@@ -67,21 +67,21 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		robotArm = arm;
 
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.weightx=1;
+		c.weighty=1;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		c.anchor=GridBagConstraints.NORTH;
+		
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("Arm");
+		this.add(oiwPanel,c);
+		JPanel contents = oiwPanel.getContentPane();
 
 		CollapsiblePanel speedPanel = createSpeedPanel();
-		this.add(speedPanel,con1);
-		con1.gridy++;
 
 		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
-		this.add(fkPanel,con1);
-		con1.gridy++;
 		
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
@@ -99,13 +99,11 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		
 		p = new JPanel(new GridLayout(3,3));
 		fkPanel.getContentPane().add(p);
-		con1.gridy++;
 
 		p.add(arm5Apos = createButton("A+"));
 		p.add(labelFK1);
 		p.add(arm5Aneg = createButton("A-"));
 
-		con1.gridy++;
 		p.add(arm5Bpos = createButton("B+"));
 		p.add(labelFK2);
 		p.add(arm5Bneg = createButton("B-"));
@@ -114,10 +112,8 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(labelFK3);
 		p.add(arm5Cneg = createButton("C-"));
 
-		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
-		this.add(ikPanel, con1);
-		con1.gridy++;
 
+		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
 		p = new JPanel(new GridLayout(3,3));
 		ikPanel.getContentPane().add(p);
 
@@ -132,9 +128,22 @@ public class Arm3ControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
-		
+
+		// put the panels together
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.CENTER;
+		contents.add(speedPanel,con1);
+		con1.gridy++;
+		contents.add(fkPanel,con1);
+		con1.gridy++;
+		contents.add(ikPanel, con1);
+		con1.gridy++;
 		about = createButton("About this robot");
-		this.add(about, con1);
+		contents.add(about, con1);
 		con1.gridy++;
 	}
 	

@@ -1,8 +1,11 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.commands;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class CommandRemoveEntity extends AbstractUndoableEdit {
 	/**
@@ -55,12 +58,12 @@ public class CommandRemoveEntity extends AbstractUndoableEdit {
 	}
 
 	private void addNow() {
-		ro.getWorld().addObject(entity);
+		ro.getWorld().addEntity(entity);
 		ro.setContextMenu(entity);
 	}
 	
 	private void removeNow() {
-		ro.getWorld().removeObject(entity);
+		ro.getWorld().removeEntity(entity);
 		ro.pickCamera();
 	}
 }

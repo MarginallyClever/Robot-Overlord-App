@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -17,6 +17,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.CommandSelectFile;
+
 public class ActionSelectFile extends JPanel implements ActionListener {
 	/**
 	 * 
@@ -24,12 +27,14 @@ public class ActionSelectFile extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JTextField fieldX;
 	private RobotOverlord ro;
+	private String label;
 	private FileNameExtensionFilter filter;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	
 	public ActionSelectFile(RobotOverlord ro,String labelName,String defaultValue) {
 		super();
 		this.ro = ro;
+		this.label = labelName;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -82,7 +87,7 @@ public class ActionSelectFile extends JPanel implements ActionListener {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			System.out.println("You chose to open this file: " + newFilename);
 
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectFile(this, newFilename) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectFile(this, label, newFilename) ) );
 		}
 	}
 

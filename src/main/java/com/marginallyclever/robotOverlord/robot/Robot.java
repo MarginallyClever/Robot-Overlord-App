@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.robot;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
@@ -12,12 +12,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.PhysicalObject;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionListener;
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
 
 
-public class RobotWithConnection extends PhysicalObject
+public class Robot extends PhysicalObject
 implements AbstractConnectionListener, ActionListener {
 	/**
 	 * 
@@ -39,12 +42,13 @@ implements AbstractConnectionListener, ActionListener {
 	private long linesProcessed;
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
+	private RobotProgram program;
 
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonConnect;
 	
 	
-	public RobotWithConnection() {
+	public Robot() {
 		super();
 		isReadyToReceive=false;
 		linesTotal=0;
@@ -52,6 +56,7 @@ implements AbstractConnectionListener, ActionListener {
 		fileOpened=false;
 		paused=true;
 		running=false;
+		program=new RobotProgram();
 	}
 	
 	public AbstractConnectionManager getConnectionManager() {
@@ -77,7 +82,7 @@ implements AbstractConnectionListener, ActionListener {
 
 
 	protected JPanel getMenu() {
-		connectionPanel = new CollapsiblePanel("Connection");
+		connectionPanel = new CollapsiblePanel("Robot with connection");
 		JPanel contents =connectionPanel.getContentPane();
 		
 		GridBagConstraints con1 = new GridBagConstraints();

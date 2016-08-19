@@ -23,7 +23,6 @@ import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -45,9 +44,18 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.robotOverlord.PropertiesFileHelper;
 import com.marginallyclever.robotOverlord.Camera.Camera;
+import com.marginallyclever.robotOverlord.actions.ActionAbout;
+import com.marginallyclever.robotOverlord.actions.ActionAddEntity;
+import com.marginallyclever.robotOverlord.actions.ActionCheckForUpdate;
+import com.marginallyclever.robotOverlord.actions.ActionLoad;
+import com.marginallyclever.robotOverlord.actions.ActionNew;
+import com.marginallyclever.robotOverlord.actions.ActionQuit;
+import com.marginallyclever.robotOverlord.actions.ActionRedo;
+import com.marginallyclever.robotOverlord.actions.ActionSaveAs;
+import com.marginallyclever.robotOverlord.actions.ActionUndo;
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
 import com.marginallyclever.robotOverlord.communications.SerialConnectionManager;
 import com.marginallyclever.robotOverlord.world.World;
@@ -60,8 +68,8 @@ import com.marginallyclever.robotOverlord.world.World;
 public class RobotOverlord 
 implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
 {
-	static final String APP_TITLE = "Robot Overlord";
-	static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
+	static final public String APP_TITLE = "Robot Overlord";
+	static final public String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
 	
 	// select picking
@@ -85,7 +93,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected transient JMenuItem buttonUndo,buttonRedo;
 	
     // The animator keeps things moving
-    private Animator animator;
+    private FPSAnimator animator;
     
     // timing for animations
     protected long startTime;
@@ -149,7 +157,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
 
-      	animator = new Animator();
+      	animator = new FPSAnimator(30);
         mainFrame.addWindowListener(this);
 
         GLCapabilities caps = new GLCapabilities(null);
@@ -244,9 +252,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		c.gridx=0;
 		c.fill=GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.NORTHWEST;
-        container.add(new JLabel(title,JLabel.CENTER),c);
-        c.gridy++;
-        container.add(new JSeparator(),c);
 		c.weighty=1;
 		c.gridy++;
         container.add(panel,c);
@@ -255,7 +260,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	void loadWorldFromFile(String filename) {
+	public void loadWorldFromFile(String filename) {
 		FileInputStream fin=null;
 		ObjectInputStream objectIn=null;
 		try {
@@ -289,7 +294,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 
 	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	void saveWorldToFile(String filename) {
+	public void saveWorldToFile(String filename) {
 		FileOutputStream fout=null;
 		ObjectOutputStream objectOut=null;
 		try {
@@ -391,7 +396,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
         menu = new JMenu("World");
     	menu.add(new ActionAddEntity(this));
-    	menu.add(new ActionRemoveEntity(this));
+    	//menu.add(new ActionRemoveEntity(this));
     	mainMenu.add(menu);
     	
     	// done

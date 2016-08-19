@@ -1,21 +1,26 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.commands;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import javax.vecmath.Vector3f;
 
-public class CommandSelectNumber extends AbstractUndoableEdit {
+import com.marginallyclever.robotOverlord.actions.ActionSelectVector3f;
+
+public class CommandSelectVector3f extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ActionSelectNumber actionSelectNumber;
-	private float oldValue,newValue;
+	private ActionSelectVector3f actionSelectVector3f;
+	private Vector3f oldValue,newValue;
+	private String label;
 	
-	public CommandSelectNumber(ActionSelectNumber actionSelectNumber,float newValue) {
-		this.actionSelectNumber = actionSelectNumber;
-		this.newValue = newValue;
-		this.oldValue = actionSelectNumber.getValue();
+	public CommandSelectVector3f(ActionSelectVector3f actionSelectVector3f,String label,Vector3f newValue) {
+		this.actionSelectVector3f = actionSelectVector3f;
+		this.label = label;
+		this.newValue = new Vector3f(newValue);
+		this.oldValue = new Vector3f(actionSelectVector3f.getValue());
 		setValue(newValue);
 	}
 	
@@ -31,7 +36,7 @@ public class CommandSelectNumber extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "change number";
+		return "change "+label;
 	}
 
 
@@ -55,7 +60,7 @@ public class CommandSelectNumber extends AbstractUndoableEdit {
 		setValue(oldValue);
 	}
 
-	private void setValue(float value) {
-		actionSelectNumber.setValue(value);
+	private void setValue(Vector3f value) {
+		actionSelectVector3f.setValue(value);
 	}
 }

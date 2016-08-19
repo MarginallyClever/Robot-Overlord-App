@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,6 +16,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.CommandSelectVector3f;
+
 public class ActionSelectVector3f extends JPanel implements DocumentListener {
 	/**
 	 * 
@@ -26,6 +29,7 @@ public class ActionSelectVector3f extends JPanel implements DocumentListener {
 	private RobotOverlord ro;
 	private DecimalFormat df;
 	private Vector3f value;
+	private String label;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
@@ -34,6 +38,7 @@ public class ActionSelectVector3f extends JPanel implements DocumentListener {
 		this.ro = ro;
 		
 		value = new Vector3f(defaultValue);
+		this.label = labelName;
 		
 		allowSetText=true;
 		df = new DecimalFormat("0.00");
@@ -136,7 +141,7 @@ public class ActionSelectVector3f extends JPanel implements DocumentListener {
 
 		if(!newValue.epsilonEquals(value, EPSILON)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectVector3f(this, newValue) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandSelectVector3f(this, label, newValue) ) );
 			allowSetText=true;
 		}
 	}

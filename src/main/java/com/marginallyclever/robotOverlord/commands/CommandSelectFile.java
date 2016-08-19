@@ -1,8 +1,10 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.commands;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+
+import com.marginallyclever.robotOverlord.actions.ActionSelectFile;
 
 public class CommandSelectFile extends AbstractUndoableEdit {
 	/**
@@ -11,11 +13,13 @@ public class CommandSelectFile extends AbstractUndoableEdit {
 	private static final long serialVersionUID = 1L;
 	private ActionSelectFile actionSelectFile;
 	private String oldFilename,newFilename;
+	private String label;
 	
-	public CommandSelectFile(ActionSelectFile actionSelectFile,String newFilename) {
+	public CommandSelectFile(ActionSelectFile actionSelectFile,String label,String newFilename) {
 		this.actionSelectFile = actionSelectFile;
 		this.newFilename = newFilename;
 		this.oldFilename = actionSelectFile.getFilename();
+		this.label = label;
 		setFilename(newFilename);
 	}
 	
@@ -31,7 +35,7 @@ public class CommandSelectFile extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return "choose file";
+		return "choose "+label;
 	}
 
 
