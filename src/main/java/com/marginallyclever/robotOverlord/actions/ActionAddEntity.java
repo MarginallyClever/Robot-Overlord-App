@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.actions;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
@@ -12,6 +12,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
+
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.CommandAddEntity;
+import com.marginallyclever.robotOverlord.robot.Robot;
 
 /**
  * Display an About dialog box
@@ -81,8 +86,8 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 						e.printStackTrace();
 					}
 
-					if(newInstance instanceof RobotWithConnection ) {
-						((RobotWithConnection) newInstance).setConnectionManager(ro.getConnectionManager());
+					if(newInstance instanceof Robot ) {
+						((Robot) newInstance).setConnectionManager(ro.getConnectionManager());
 					}
 					
 					ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandAddEntity(ro,newInstance) ) );

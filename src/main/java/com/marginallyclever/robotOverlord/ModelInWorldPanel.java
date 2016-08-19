@@ -8,6 +8,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.marginallyclever.robotOverlord.actions.ActionSelectFile;
+
 public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
@@ -31,7 +33,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Source file");
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("Model");
 		this.add(oiwPanel,c);
 		JPanel contents = oiwPanel.getContentPane();
 		

@@ -6,3 +6,4 @@ com.marginallyclever.robotOverlord.Spidee.Spidee
 com.marginallyclever.robotOverlord.arm3.Arm3
 com.marginallyclever.robotOverlord.arm3.uArm.UArm
 com.marginallyclever.robotOverlord.ModelInWorld
+com.marginallyclever.robotOverlord.Waypoint

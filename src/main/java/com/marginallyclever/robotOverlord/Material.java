@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.util.texture.Texture;
 
 public class Material {
 	public float[] diffuse		= {1.00f,1.00f,1.00f,1.00f};
@@ -8,6 +9,7 @@ public class Material {
 	public float[] emission 	= {0.01f,0.01f,0.01f,1.00f};
 	public float[] ambient		= {0.01f,0.01f,0.01f,1.00f};
 	private float shininess		= 10.0f;
+	private Texture texture     = null;
 	
 	public Material() {}
 	
@@ -18,6 +20,12 @@ public class Material {
 	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
 	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, shininess);
 	    gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT );
+	    if(texture==null) {
+			gl2.glDisable(GL2.GL_TEXTURE_2D);
+	    } else {
+			gl2.glEnable(GL2.GL_TEXTURE_2D);
+	    	texture.bind(gl2);
+	    }
 	}
 	
 
@@ -50,5 +58,12 @@ public class Material {
 		ambient[1]=g;
 		ambient[2]=b;
 		ambient[3]=a;
+	}
+	
+	public void setTexture(Texture arg0) {
+		texture = arg0;
+	}
+	public Texture getTexture() {
+		return texture;
 	}
 }
