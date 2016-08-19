@@ -40,14 +40,13 @@ extends RobotWithConnection {
 	protected float zDir = 0.0f;
 	
 	protected double speed=2;
-	boolean follow_mode = false;
-	boolean arm_moved = false;
+	boolean followMode = false;
+	boolean armHasMoved = false;
 	
 	protected boolean isPortConfirmed=false;
 	
 	protected Arm3ControlPanel arm3Panel=null;
 	protected boolean draw_simple=false;
-
 	
 	
 	public Arm3() {
@@ -157,7 +156,7 @@ extends RobotWithConnection {
 		if(changed) {
 			if(motionFuture.movePermitted()) {
 				if(!motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f)) {
-					arm_moved=true;
+					armHasMoved=true;
 					updateGUI();
 				}
 			} else {
@@ -171,19 +170,19 @@ extends RobotWithConnection {
 		boolean changed=false;
 
 		if (cDir!=0) {
-			motionFuture.angleC += speed * cDir;
+			motionFuture.angleElbow += speed * cDir;
 			changed=true;
 			cDir=0;
 		}
 		
 		if(bDir!=0) {
-			motionFuture.angleB += speed * bDir;
+			motionFuture.angleShoulder += speed * bDir;
 			changed=true;
 			bDir=0;
 		}
 		
 		if(aDir!=0) {
-			motionFuture.angleA += speed * aDir;
+			motionFuture.angleBase += speed * aDir;
 			changed=true;
 			aDir=0;
 		}
@@ -191,7 +190,7 @@ extends RobotWithConnection {
 		if(changed) {
 			if(motionFuture.CheckAngleLimits()) {
 				motionFuture.FK();
-				arm_moved=true;
+				armHasMoved=true;
 				updateGUI();
 			} else {
 				motionFuture.set(motionNow);
@@ -211,10 +210,13 @@ extends RobotWithConnection {
 		// copy motionFuture to motionNow
 		motionNow.set(motionFuture);
 		
-		if(arm_moved) {
-			if( this.isReadyToReceive ) {
-				arm_moved=false;
+		if( isReadyToReceive && armHasMoved ) {
+			String command = armSettings.reportMove(motionFuture);
+			if(command.trim().length()>0) {
+				sendLineToRobot(command);
 			}
+
+			armHasMoved=false;
 		}
 	}
 
@@ -252,13 +254,13 @@ extends RobotWithConnection {
 		arm3Panel.yPos.setText(Float.toString(roundOff(v.y)));
 		arm3Panel.zPos.setText(Float.toString(roundOff(v.z)));
 
-		arm3Panel.labelFK1.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm3Panel.labelFK2.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm3Panel.labelFK3.setText(Float.toString(roundOff(motionNow.angleC)));
+		arm3Panel.labelFK1.setText(Float.toString(roundOff(motionNow.angleBase)));
+		arm3Panel.labelFK2.setText(Float.toString(roundOff(motionNow.angleShoulder)));
+		arm3Panel.labelFK3.setText(Float.toString(roundOff(motionNow.angleElbow)));
 		
-		arm3Panel.labelIK1.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm3Panel.labelIK2.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm3Panel.labelIK3.setText(Float.toString(roundOff(motionNow.angleC)));
+		arm3Panel.labelIK1.setText(Float.toString(roundOff(motionNow.angleBase)));
+		arm3Panel.labelIK2.setText(Float.toString(roundOff(motionNow.angleShoulder)));
+		arm3Panel.labelIK3.setText(Float.toString(roundOff(motionNow.angleElbow)));
 
 		//if( tool != null ) tool.updateGUI();
 	}
@@ -473,13 +475,13 @@ extends RobotWithConnection {
 		gl2.glRotatef(motionNow.base_pan, motionNow.base_up.x,motionNow.base_up.y,motionNow.base_up.z);
 		
 		gl2.glColor3f(1,1,1);
-		gl2.glRotatef(motionNow.angleA,0,0,1);
+		gl2.glRotatef(motionNow.angleBase,0,0,1);
 		gl2.glColor3f(0,0,1);
 		PrimitiveSolids.drawBox(gl2,4,armSettings.getBaseToShoulderX()*2,armSettings.getBaseToShoulderZ());
 
 		// shoulder
 		gl2.glTranslatef(a0.x,a0.y,a0.z);
-		gl2.glRotatef(90+motionNow.angleB,0,1,0);
+		gl2.glRotatef(90+motionNow.angleShoulder,0,1,0);
 		gl2.glColor3f(0,1,0);
 		PrimitiveSolids.drawCylinder(gl2,3.2f,3.2f);
 		
@@ -494,7 +496,7 @@ extends RobotWithConnection {
 
 		// elbow
 		gl2.glTranslatef(a1.x,a1.y,a1.z);
-		gl2.glRotatef(180-motionNow.angleC-motionNow.angleB,0,1,0);
+		gl2.glRotatef(180-motionNow.angleElbow-motionNow.angleShoulder,0,1,0);
 		gl2.glColor3f(0,1,0);
 		PrimitiveSolids.drawCylinder(gl2,2.2f,2.2f);
 		gl2.glColor3f(0,0,1);
@@ -509,7 +511,7 @@ extends RobotWithConnection {
 
 		// wrist
 		gl2.glTranslatef(a2.x,a2.y,a2.z);
-		gl2.glRotatef(-180+motionNow.angleC,0,1,0);
+		gl2.glRotatef(-180+motionNow.angleElbow,0,1,0);
 		gl2.glColor3f(0,1,0);
 		PrimitiveSolids.drawCylinder(gl2,1.2f,1.2f);
 		gl2.glColor3f(0,0,1);
@@ -553,7 +555,7 @@ extends RobotWithConnection {
 			gl2.glRotatef(motionNow.base_pan, motionNow.base_up.x,motionNow.base_up.y,motionNow.base_up.z);
 			
 			gl2.glColor3f(1,1,1);
-			gl2.glRotatef(motionNow.angleA,0,0,1);
+			gl2.glRotatef(motionNow.angleBase,0,0,1);
 
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glVertex3f(0,0,0);
@@ -562,7 +564,7 @@ extends RobotWithConnection {
 
 			// shoulder
 			gl2.glTranslatef(a0.x,a0.y,a0.z);
-			gl2.glRotatef(90+motionNow.angleB,0,1,0);
+			gl2.glRotatef(90+motionNow.angleShoulder,0,1,0);
 			
 			// bicep
 			gl2.glColor3f(0,0,1);
@@ -573,7 +575,7 @@ extends RobotWithConnection {
 	
 			// elbow
 			gl2.glTranslatef(a1.x,a1.y,a1.z);
-			gl2.glRotatef(180-motionNow.angleC-motionNow.angleB,0,1,0);
+			gl2.glRotatef(180-motionNow.angleElbow-motionNow.angleShoulder,0,1,0);
 	
 			// ulna
 			gl2.glBegin(GL2.GL_LINES);
@@ -583,7 +585,7 @@ extends RobotWithConnection {
 	
 			// wrist
 			gl2.glTranslatef(a2.x,a2.y,a2.z);
-			gl2.glRotatef(-180+motionNow.angleC,0,1,0);
+			gl2.glRotatef(-180+motionNow.angleElbow,0,1,0);
 			
 			// finger tip
 			gl2.glBegin(GL2.GL_LINES);
@@ -619,7 +621,7 @@ extends RobotWithConnection {
 		
 		gl2.glPushMatrix();
 		gl2.glTranslatef(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-		gl2.glRotatef(motionNow.angleA,0,0,1);
+		gl2.glRotatef(motionNow.angleBase,0,0,1);
 		gl2.glColor3f(0,0,1);
 		PrimitiveSolids.drawBox(gl2,4,armSettings.getBaseToShoulderX()*2,armSettings.getBaseToShoulderZ());
 		gl2.glPopMatrix();
@@ -764,8 +766,10 @@ extends RobotWithConnection {
 
 	
 	@Override
-	public void dataAvailable(AbstractConnection arg0,String line) {
-		if(line.contains(armSettings.getHello())) {
+	public void dataAvailable(AbstractConnection arg0,String data) {
+		super.dataAvailable(arg0, data);
+		
+		if(data.contains(armSettings.getHello())) {
 			isPortConfirmed=true;
 			
 			// we are not homed and we have not begun to home
@@ -777,16 +781,16 @@ extends RobotWithConnection {
 				sendLineToRobot("G92 X"+motionFuture.fingerPosition.x
 								+" Y"+motionFuture.fingerPosition.y
 								+" Z"+motionFuture.fingerPosition.z);
-				follow_mode=true;
+				followMode=true;
 			}
 		}
 	}
-
-
+	
 	public double getSpeed() {
 		// TODO Auto-generated method stub
 		return speed;
 	}
+	
 	public void setSpeed(double s) {
 		speed=s;
 	}

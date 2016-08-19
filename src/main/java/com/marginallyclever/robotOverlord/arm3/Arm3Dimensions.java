@@ -72,4 +72,10 @@ public class Arm3Dimensions {
 				+"<p><a href='https://www.marginallyclever.com/product/arm3'>Click here for more details</a>.</p>"
 				+"</body></html>");
 	}
+	
+	public String reportMove(Arm3MotionState arg0) {
+		// TODO finish me, either with FK or IK values.
+		// GO Xx Yy Zz
+		return "";
+	}
 }

@@ -1,9 +1,12 @@
 package com.marginallyclever.robotOverlord.arm3.uArm;
 
+import java.text.DecimalFormat;
+
 import javax.swing.JOptionPane;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.arm3.Arm3Dimensions;
+import com.marginallyclever.robotOverlord.arm3.Arm3MotionState;
 
 public class UArmDimensions extends Arm3Dimensions {
 	// name
@@ -22,12 +25,19 @@ public class UArmDimensions extends Arm3Dimensions {
 	final protected float BASE_TO_SHOULDER_MINIMUM_LIMIT = 7.5f;
 	
 	// When the robot is homed, what are the XYZ coordinates of the finger tip?
-	final protected float HOME_X = 19.0f+BASE_TO_SHOULDER_X;
+	final protected float HOME_X = 19.0f+BASE_TO_SHOULDER_X+WRIST_TO_FINGER;
 	final protected float HOME_Y = 0;
 	final protected float HOME_Z = 5.864f;
+
+	protected DecimalFormat df;
 	
 	// Dangerous!
 	final boolean HOME_AUTOMATICALLY_ON_STARTUP = true;
+	
+	public UArmDimensions() {
+		df = new DecimalFormat("0.00");
+		df.setGroupingUsed(false);
+	}
 	
 	@Override
 	public String getName() {		return ROBOT_NAME;	}
@@ -59,5 +69,15 @@ public class UArmDimensions extends Arm3Dimensions {
 				+"<p>A three axis robot arm, modelled after the ABB model IRB 460.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/uarm'>Click here for more details</a>.</p>"
 				+"</body></html>");
+	}
+
+	@Override
+	public String reportMove(Arm3MotionState arg0) {
+		float x = arg0.angleBase    +(         90.0f);
+		float y = arg0.angleShoulder+(54.54f  +90.0f);
+		float z = 180.0f-(arg0.angleElbow-(130.673f-90.0f));
+		
+		
+		return "G0 X"+df.format(x)+" Y"+df.format(y)+" Z"+df.format(z)+"\n";
 	}
 }
