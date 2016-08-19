@@ -5,9 +5,9 @@ import javax.vecmath.Vector3f;
 
 public class Arm3MotionState {
 	// angle of rotation
-	public float angleA = 0;
-	public float angleB = 0;
-	public float angleC = 0;
+	public float angleBase = 0;
+	public float angleShoulder = 0;
+	public float angleElbow = 0;
 
 	// robot arm coordinates.  Relative to base unless otherwise noted.
 	public Vector3f fingerPosition;
@@ -42,9 +42,9 @@ public class Arm3MotionState {
 	}
 	
 	public void set(Arm3MotionState other) {
-		angleA = other.angleA;
-		angleB = other.angleB;
-		angleC = other.angleC;
+		angleBase = other.angleBase;
+		angleShoulder = other.angleShoulder;
+		angleElbow = other.angleElbow;
 		iku=other.iku;
 		ikv=other.ikv;
 		ikw=other.ikw;
@@ -194,30 +194,30 @@ public class Arm3MotionState {
 		a0 = (float) Math.atan2(this.wrist.y,this.wrist.x);
 		
 		// all angles are in radians, I want degrees
-		this.angleA=(float)Math.toDegrees(a0);
-		this.angleB=(float)Math.toDegrees(a1);
-		this.angleC=(float)Math.toDegrees(a2);
+		this.angleBase=(float)Math.toDegrees(a0);
+		this.angleShoulder=(float)Math.toDegrees(a1);
+		this.angleElbow=(float)Math.toDegrees(a2);
 
 		return true;
 	}
 	
 	
 	protected void FK() {
-		Vector3f arm_plane = new Vector3f((float)Math.cos(Math.toRadians(this.angleA)),
-					  					  (float)Math.sin(Math.toRadians(this.angleA)),
+		Vector3f arm_plane = new Vector3f((float)Math.cos(Math.toRadians(this.angleBase)),
+					  					  (float)Math.sin(Math.toRadians(this.angleBase)),
 					  					  0);
 		this.shoulder.set(arm_plane.x*dimensions.getBaseToShoulderX(),
 						   arm_plane.y*dimensions.getBaseToShoulderX(),
 						   dimensions.getBaseToShoulderZ());
 		
-		this.elbow.set(arm_plane.x*(float)Math.cos(-Math.toRadians(this.angleB))*dimensions.getShoulderToElbow(),
-						arm_plane.y*(float)Math.cos(-Math.toRadians(this.angleB))*dimensions.getShoulderToElbow(),
-									(float)Math.sin(-Math.toRadians(this.angleB))*dimensions.getShoulderToElbow());
+		this.elbow.set(arm_plane.x*(float)Math.cos(-Math.toRadians(this.angleShoulder))*dimensions.getShoulderToElbow(),
+						arm_plane.y*(float)Math.cos(-Math.toRadians(this.angleShoulder))*dimensions.getShoulderToElbow(),
+									(float)Math.sin(-Math.toRadians(this.angleShoulder))*dimensions.getShoulderToElbow());
 		this.elbow.add(this.shoulder);
 
-		this.wrist.set(arm_plane.x*(float)Math.cos(Math.toRadians(this.angleC))*-dimensions.getElbowToWrist(),
-				 		arm_plane.y*(float)Math.cos(Math.toRadians(this.angleC))*-dimensions.getElbowToWrist(),
-				 					(float)Math.sin(Math.toRadians(this.angleC))*-dimensions.getElbowToWrist());
+		this.wrist.set(arm_plane.x*(float)Math.cos(Math.toRadians(this.angleElbow))*-dimensions.getElbowToWrist(),
+				 		arm_plane.y*(float)Math.cos(Math.toRadians(this.angleElbow))*-dimensions.getElbowToWrist(),
+				 					(float)Math.sin(Math.toRadians(this.angleElbow))*-dimensions.getElbowToWrist());
 		this.wrist.add(this.elbow);
 		
 		// build the axies around which we will rotate the tip

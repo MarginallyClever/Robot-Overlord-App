@@ -160,34 +160,36 @@ implements AbstractConnectionListener, ActionListener {
 		return this.connection;
 	}
 	
-	public void setConnection(AbstractConnection con) {
-		if(this.connection!=null) {
-			if( this.connection == con ) return;
-			this.connection.removeListener(this);
-			this.connection.close();
+	public void setConnection(AbstractConnection arg0) {
+		if(connection!=null) {
+			if( connection == arg0 ) return;
+			connection.removeListener(this);
+			connection.close();
 		}
 		
-		this.connection = con;
+		connection = arg0;
 		
-		if( this.connection != null ) {
-			this.connection.addListener(this);
+		if( connection != null ) {
+			connection.addListener(this);
 		}
 	}
 	
 	@Override
-	public void connectionReady(AbstractConnection arg0) {
-		if(arg0==connection && connection!=null) isReadyToReceive=true;
-		
-		if(isReadyToReceive) {
-			isReadyToReceive=false;
-			sendFileCommand();
-		}
-	}
+	public void connectionReady(AbstractConnection arg0) {}
 
 	
 	@Override
 	public void dataAvailable(AbstractConnection arg0,String data) {
+		if(arg0==connection && connection!=null) {
+			if(data.startsWith(">")) {
+				isReadyToReceive=true;
+			}
+		}
 		
+		if(isReadyToReceive) {
+			sendFileCommand();
+		}
+		System.out.println(data);
 	}
 	
 	/**
@@ -196,7 +198,8 @@ implements AbstractConnectionListener, ActionListener {
 	 * @param direction which direction along the axis
 	 */
 	public void move(int axis,int direction) {
-		
+
+		isReadyToReceive=false;
 	}
 	
 	/**
@@ -214,6 +217,8 @@ implements AbstractConnectionListener, ActionListener {
 			// loop until we find a line that gets sent to the robot, at which point we'll
 			// pause for the robot to respond.  Also stop at end of file.
 		} while(!sendLineToRobot(line) && linesProcessed<linesTotal);
+
+		isReadyToReceive=false;
 		
 		if(linesProcessed==linesTotal) {
 			// end of file
