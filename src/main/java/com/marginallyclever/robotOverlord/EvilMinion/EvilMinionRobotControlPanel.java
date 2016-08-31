@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class EvilMinionRobotControlPanel extends JPanel implements ActionListener, ChangeListener {
@@ -229,12 +229,13 @@ public class EvilMinionRobotControlPanel extends JPanel implements ActionListene
 	}
 	
 	protected void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
+		HTMLDialogBox box = new HTMLDialogBox();
+		box.display(this.getRootPane(), "<html><body>"
 				+"<h1>Evil Minion</h1>"
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A five axis manipulator.  Marginally Clever Robot's third prototype robot arm.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/evil-minion-5-axis-arm/'>Click here for more details</a>.</p>"
-				+"</body></html>");
+				+"</body></html>", "About "+this.robotArm.getDisplayName());
 	}
 	
 	

@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 public class MantisRobotControlPanel extends JPanel implements ActionListener, ChangeListener {
@@ -62,7 +62,7 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	
 	private JButton about;
 	
-	private MantisRobot robotArm=null;
+	private MantisRobot robot=null;
 	
 	
 	private JButton createButton(String name) {
@@ -72,12 +72,12 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	}
 
 
-	public MantisRobotControlPanel(RobotOverlord gui,MantisRobot arm) {
+	public MantisRobotControlPanel(RobotOverlord gui,MantisRobot robot) {
 		super();
 
 		JPanel p;
 		
-		robotArm = arm;
+		this.robot = robot;
 
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -180,7 +180,7 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
-		double speed=robotArm.getSpeed();
+		double speed=robot.getSpeed();
 		int speedIndex;
 		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
 			if( speedOptions[speedIndex] >= speed )
@@ -217,8 +217,8 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	}
 
 	protected void setSpeed(double speed) {
-		robotArm.setSpeed(speed);
-		speedNow.setText(Double.toString(robotArm.getSpeed()));
+		robot.setSpeed(speed);
+		speedNow.setText(Double.toString(robot.getSpeed()));
 	}
 	
 	public void stateChanged(ChangeEvent e) {
@@ -234,44 +234,45 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
-		if( subject == arm5Apos ) robotArm.moveA(-1);
-		if( subject == arm5Aneg ) robotArm.moveA(1);
-		if( subject == arm5Bpos ) robotArm.moveB(1);
-		if( subject == arm5Bneg ) robotArm.moveB(-1);
-		if( subject == arm5Cpos ) robotArm.moveC(1);
-		if( subject == arm5Cneg ) robotArm.moveC(-1);
-		if( subject == arm5Dpos ) robotArm.moveD(-1);
-		if( subject == arm5Dneg ) robotArm.moveD(1);
-		if( subject == arm5Epos ) robotArm.moveE(1);
-		if( subject == arm5Eneg ) robotArm.moveE(-1);
-		if( subject == arm5Fpos ) robotArm.moveF(1);
-		if( subject == arm5Fneg ) robotArm.moveF(-1);
+		if( subject == arm5Apos ) robot.moveA(-1);
+		if( subject == arm5Aneg ) robot.moveA(1);
+		if( subject == arm5Bpos ) robot.moveB(1);
+		if( subject == arm5Bneg ) robot.moveB(-1);
+		if( subject == arm5Cpos ) robot.moveC(1);
+		if( subject == arm5Cneg ) robot.moveC(-1);
+		if( subject == arm5Dpos ) robot.moveD(-1);
+		if( subject == arm5Dneg ) robot.moveD(1);
+		if( subject == arm5Epos ) robot.moveE(1);
+		if( subject == arm5Eneg ) robot.moveE(-1);
+		if( subject == arm5Fpos ) robot.moveF(1);
+		if( subject == arm5Fneg ) robot.moveF(-1);
 		
-		if( subject == arm5Xpos ) robotArm.moveX(1);
-		if( subject == arm5Xneg ) robotArm.moveX(-1);
-		if( subject == arm5Ypos ) robotArm.moveY(1);
-		if( subject == arm5Yneg ) robotArm.moveY(-1);
-		if( subject == arm5Zpos ) robotArm.moveZ(1);
-		if( subject == arm5Zneg ) robotArm.moveZ(-1);
+		if( subject == arm5Xpos ) robot.moveX(1);
+		if( subject == arm5Xneg ) robot.moveX(-1);
+		if( subject == arm5Ypos ) robot.moveY(1);
+		if( subject == arm5Yneg ) robot.moveY(-1);
+		if( subject == arm5Zpos ) robot.moveZ(1);
+		if( subject == arm5Zneg ) robot.moveZ(-1);
 		
-		if( subject == arm5Upos ) robotArm.moveU(1);
-		if( subject == arm5Uneg ) robotArm.moveU(-1);
-		if( subject == arm5Vpos ) robotArm.moveV(1);
-		if( subject == arm5Vneg ) robotArm.moveV(-1);
-		if( subject == arm5Wpos ) robotArm.moveW(1);
-		if( subject == arm5Wneg ) robotArm.moveW(-1);
+		if( subject == arm5Upos ) robot.moveU(1);
+		if( subject == arm5Uneg ) robot.moveU(-1);
+		if( subject == arm5Vpos ) robot.moveV(1);
+		if( subject == arm5Vneg ) robot.moveV(-1);
+		if( subject == arm5Wpos ) robot.moveW(1);
+		if( subject == arm5Wneg ) robot.moveW(-1);
 		
 		if( subject == about ) doAbout();
 	}
 	
 	protected void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
+		HTMLDialogBox box = new HTMLDialogBox();
+		box.display(this.getRootPane(), "<html><body>"
 				+"<h1>MANTIS</h1>"
 				+"<p>Created by Andreas Hölldorfer (https://hackaday.io/4ndreas).</p><br>"
 				+"<p>Programmed by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A five axis manipulator.</p><br>"
 				+"<p><a href='https://hackaday.io/project/3800/'>Click here for more details</a>.</p>"
-				+"</body></html>");
+				+"</body></html>", "About "+this.robot.getDisplayName());
 	}
 	
 	

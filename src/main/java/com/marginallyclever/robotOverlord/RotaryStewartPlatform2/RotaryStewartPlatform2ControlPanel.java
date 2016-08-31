@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
 import com.marginallyclever.robotOverlord.robot.RobotMoveButton;
@@ -60,6 +60,18 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		JPanel p;
 		
 		this.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.weightx=1;
+		c.weighty=1;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		c.anchor=GridBagConstraints.NORTH;
+		
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("Stewart Platform");
+		this.add(oiwPanel,c);
+		JPanel contents = oiwPanel.getContentPane();
+		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
@@ -67,23 +79,25 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
+
+		
 		
 		// home button
 		goHome = new JButton("Find Home");
 		goHome.addActionListener(this);
-		this.add(goHome,con1);
+		contents.add(goHome,con1);
 		con1.gridy++;
 
 
 		// speed panel
 		CollapsiblePanel speedPanel = createSpeedPanel();
-		this.add(speedPanel,con1);
+		contents.add(speedPanel,con1);
 		con1.gridy++;
 
 		
 		// ik panel
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
-		this.add(ikPanel, con1);
+		contents.add(ikPanel, con1);
 		con1.gridy++;
 
 		p = new JPanel(new GridLayout(7,3));
@@ -111,7 +125,7 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 		
 		about = new JButton("About this robot");
 		about.addActionListener(this);
-		this.add(about, con1);
+		contents.add(about, con1);
 		con1.gridy++;
 	}
 	
@@ -180,12 +194,13 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	}
 	
 	protected void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
+		HTMLDialogBox box = new HTMLDialogBox();
+		box.display(this.getRootPane(), "<html><body>"
 				+"<h1>Rotary Stewart Platform 2</h1>"
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A six axis manipulator.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/rotary-stewart-platform-v2/'>Click here for more details</a>.</p>"
-				+"</body></html>");
+				+"</body></html>", "About "+robot.getDisplayName());
 	}
 	
 	
