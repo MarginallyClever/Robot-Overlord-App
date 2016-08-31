@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
 import com.marginallyclever.robotOverlord.robot.RobotMoveButton;
@@ -67,6 +67,18 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		robot = deltaRobot;
 
 		this.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.weightx=1;
+		c.weighty=1;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		c.anchor=GridBagConstraints.NORTH;
+		
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("Delta Robot");
+		this.add(oiwPanel,c);
+		JPanel contents = oiwPanel.getContentPane();
+
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
@@ -74,13 +86,13 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
-
+		
 		CollapsiblePanel speedPanel = createSpeedPanel();
-		this.add(speedPanel,con1);
+		contents.add(speedPanel,con1);
 		con1.gridy++;
 
 		CollapsiblePanel homePanel = new CollapsiblePanel("Calibration");
-		this.add(homePanel,con1);
+		contents.add(homePanel,con1);
 		con1.gridy++;
 
 		goHome=createButton("Find Home");
@@ -92,11 +104,11 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 		//con1.gridy++;
 
 		CollapsiblePanel ikPanel = createIKPanel(gui);
-		this.add(ikPanel, con1);
+		contents.add(ikPanel, con1);
 		con1.gridy++;
 		
 		about = createButton("About this robot");
-		this.add(about, con1);
+		contents.add(about, con1);
 		con1.gridy++;
 	}
 
@@ -190,12 +202,13 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	}
 	
 	protected void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
+		HTMLDialogBox box = new HTMLDialogBox();
+		box.display(this.getRootPane(), "<html><body>"
 				+"<h1>Delta Robot 3</h1>"
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A three armed, three axis manipulator.  Marginally Clever Robot's first Delta predates the Kossel/Rostock 3D printer.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/delta-robot-v3/'>Click here for more details</a>.</p>"
-				+"</body></html>");
+				+"</body></html>", "About "+robot.getDisplayName());
 	}
 	
 	public void setUID(long id) {

@@ -2,9 +2,9 @@ package com.marginallyclever.robotOverlord.arm3.uArm;
 
 import java.text.DecimalFormat;
 
-import javax.swing.JOptionPane;
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.arm3.Arm3Dimensions;
 import com.marginallyclever.robotOverlord.arm3.Arm3MotionState;
 
@@ -62,13 +62,14 @@ public class UArmDimensions extends Arm3Dimensions {
 	
 	@Override
 	public void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
+		HTMLDialogBox box = new HTMLDialogBox();
+		box.display(null, "<html><body>"
 				+"<h1>uArm</h1>"
 				+"<p>Created by uFactory.</p><br>"
 				+"<p>Code for Robot Overlord by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A three axis robot arm, modelled after the ABB model IRB 460.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/uarm'>Click here for more details</a>.</p>"
-				+"</body></html>");
+				+"</body></html>", "About "+this.getName());
 	}
 
 	@Override

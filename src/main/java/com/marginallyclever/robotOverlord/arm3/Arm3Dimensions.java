@@ -1,7 +1,8 @@
 package com.marginallyclever.robotOverlord.arm3;
 
-import javax.swing.JOptionPane;
 import javax.vecmath.Vector3f;
+
+import com.marginallyclever.robotOverlord.HTMLDialogBox;
 
 public class Arm3Dimensions {
 	// name
@@ -65,12 +66,13 @@ public class Arm3Dimensions {
 	public float getBaseToShoulderMinimumLimit() { return BASE_TO_SHOULDER_MINIMUM_LIMIT;	}
 	
 	public void doAbout() {
-		JOptionPane.showMessageDialog(null,"<html><body>"
+		HTMLDialogBox box = new HTMLDialogBox();
+		box.display(null, "<html><body>"
 				+"<h1>Arm3</h1>"
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A three axis robot arm, modelled after the ABB model IRB 460.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/arm3'>Click here for more details</a>.</p>"
-				+"</body></html>");
+				+"</body></html>", "About "+this.getName());
 	}
 	
 	public String reportMove(Arm3MotionState arg0) {
