@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.EvilMinionTool;
+package com.marginallyclever.robotOverlord.mantisRobot.tool;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
  * @author danroyer
  *
  */
-public class EvilMinionToolGripper extends EvilMinionTool {
+public class MantisToolGripper extends MantisTool {
 	/**
 	 * 
 	 */
@@ -30,7 +30,7 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	protected float angleMin=120;
 	protected float angle = angleMin;
 	protected float servoDir = 0.0f;
-	protected EvilMinionToolGripperControlPanel armToolGripperControlPanel=null;
+	protected MantisToolGripperControlPanel armToolGripperControlPanel=null;
 
 	protected transient Model modelAdapter = null;
 	protected transient Model modelMain = null;
@@ -42,18 +42,14 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	protected transient Model modelGripper = null;
 	protected transient Model modelServo = null;
 
-	protected transient Material matAdapter = new Material();
-	protected transient Material matMain = new Material();
-	protected transient Material matRearbar = new Material();
-	protected transient Material matFrontbar = new Material();
-	protected transient Material matLeftGear = new Material();
-	protected transient Material matRightGear = new Material();
-	protected transient Material matBase = new Material();
-	protected transient Material matGripper = new Material();
 	protected transient Material matServo = new Material();
+	protected transient Material matDefault = new Material();
+	protected transient Material matBase = new Material();
+	protected transient Material matMain = new Material();
+	protected transient Material matAdapter = new Material();
+
 	
-	
-	public EvilMinionToolGripper() {
+	public MantisToolGripper() {
 		setupModels();
 	}
 	
@@ -68,17 +64,11 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		modelGripper = ModelFactory.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
 		modelServo = ModelFactory.createModelFromFilename("/Spidee.zip:SG5010.stl");
 
-		matAdapter.setDiffuseColor(1,0,1,1);
-		matMain.setDiffuseColor(0.8f,0.8f,0.8f,1);
-
-		matMain.setDiffuseColor(0.8f,0.8f,0.8f,1);
-		matRearbar.setDiffuseColor(0.8f,0.8f,0.8f,1);
-		matFrontbar.setDiffuseColor(0.8f,0.8f,0.8f,1);
-		matLeftGear.setDiffuseColor(0.8f,0.8f,0.8f,1);
-		matRightGear.setDiffuseColor(0.8f,0.8f,0.8f,1);
-		matBase.setDiffuseColor(0.8f,0.8f,0.8f,1);
-		matGripper.setDiffuseColor(0.8f,0.8f,0.8f,1);
 		matServo.setDiffuseColor(0.2f,0.2f,0.2f,1);
+		matDefault.setDiffuseColor(0.8f,0.8f,0.8f,1);
+		matBase.setDiffuseColor(0.8f,0.8f,0.8f,1);
+		matMain.setDiffuseColor(0.8f,0.8f,0.8f,1);
+		matAdapter.setDiffuseColor(1,0,1,1);
 	}
 
     private void readObject(ObjectInputStream inputStream)
@@ -103,7 +93,8 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		
 		double c = Math.cos(Math.toRadians(angleAdjusted));
 		double s = Math.sin(Math.toRadians(angleAdjusted));
-		
+
+	
 		// frame
 		gl2.glPushMatrix();
 		
@@ -131,6 +122,8 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		modelServo.render(gl2);
 		gl2.glPopMatrix();
 
+		matDefault.render(gl2);
+
 		// left
 		//this.setColor(gl2, 1,0,0,1);
 		// gear
@@ -138,7 +131,6 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		gl2.glTranslated(2.615,1.415,-0.5);
 		gl2.glRotated(angleAdjusted,0,0,1);
 		gl2.glTranslated(-2.615,1.415,0.5);
-		matLeftGear.render(gl2);
 		modelLeftGear.render(gl2);
 		gl2.glPopMatrix();
 		// gripper
@@ -282,7 +274,7 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 		}
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		armToolGripperControlPanel = new EvilMinionToolGripperControlPanel(gui,this);
+		armToolGripperControlPanel = new MantisToolGripperControlPanel(gui,this);
 		list.add(armToolGripperControlPanel);
 		updateGUI();
 		

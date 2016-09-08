@@ -1,26 +1,26 @@
-package com.marginallyclever.robotOverlord.MantisTool;
+package com.marginallyclever.robotOverlord.evilMinion.tool;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.PhysicalObject;
-import com.marginallyclever.robotOverlord.MantisRobot.MantisRobot;
+import com.marginallyclever.robotOverlord.evilMinion.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
-public abstract class MantisTool extends PhysicalObject {
+public abstract class EvilMinionTool extends PhysicalObject {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5418173275880663460L;
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
-	protected MantisRobot attachedTo=null;
+	protected EvilMinionRobot attachedTo=null;
 
-		
-	public void attachTo(MantisRobot robot) {
+	
+	public void attachTo(EvilMinionRobot robot) {
 		attachedTo=robot;
 	}
 	
-	public MantisRobot getAttachedTo() {
+	public EvilMinionRobot getAttachedTo() {
 		return attachedTo;
 	}
 	
@@ -30,7 +30,6 @@ public abstract class MantisTool extends PhysicalObject {
 		}
 		if(!visibleShape.isLoaded()) return;
 
-		material.render(gl2);
 		visibleShape.render(gl2);
 	}
 	

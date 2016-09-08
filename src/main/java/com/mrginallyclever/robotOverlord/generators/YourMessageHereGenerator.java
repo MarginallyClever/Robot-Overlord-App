@@ -1,4 +1,4 @@
-package Generators;
+package com.mrginallyclever.robotOverlord.generators;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
