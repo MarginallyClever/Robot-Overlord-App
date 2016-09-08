@@ -134,7 +134,7 @@ extends Robot {
 	protected void updateIK(float delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
-		float dp = (float)speed * delta;
+		float dp = (float)speed;// * delta;
 		
 		if (xDir!=0) {
 			motionFuture.fingerPosition.x += xDir * dp;
