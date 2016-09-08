@@ -38,6 +38,10 @@ public class UArm extends Arm3 {
 		wristTendon2 = ModelFactory.createModelFromFilename("/LiteArm/LiteArm_Forearm_Top.stl",2.54f);
 		elbow = ModelFactory.createModelFromFilename("/LiteArm/LiteArm_Elbow.stl",2.54f);
 		
+		bicep.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
+		elbowHorn.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
+		forearm.adjustOrigin(-4.0334f*2.54f,0,-8.3535f*2.54f);
+		
 		material.setDiffuseColor(1, 0.8f, 1, 1);
 	}
 
@@ -55,10 +59,25 @@ public class UArm extends Arm3 {
 		base.render(gl2);
 		gl2.glRotatef(this.motionNow.angleBase+180, 0,0,1);
 		shoulder.render(gl2);
+
+		gl2.glPushMatrix();
+		gl2.glTranslated(-0.6718f*2.54f, 0, 3.5625f*2.54f);
+		gl2.glRotatef(-this.motionNow.angleShoulder-45, 0, 1, 0);
 		bicep.render(gl2);
-		forearm.render(gl2);
-		wrist.render(gl2);
+		gl2.glPopMatrix();
+		gl2.glPushMatrix();
+		gl2.glTranslated(-0.6718f*2.54f, 0, 3.5625f*2.54f);
+		gl2.glRotatef(this.motionNow.angleElbow-180+45, 0, 1, 0);
 		elbowHorn.render(gl2);
+		gl2.glPopMatrix();
+
+		gl2.glPushMatrix();
+		gl2.glTranslated(4.0334f*2.54f,0,8.3535f*2.54f);
+		gl2.glRotatef(this.motionNow.angleElbow-180+45, 0, 1, 0);
+		forearm.render(gl2);
+		gl2.glPopMatrix();
+
+		//wrist.render(gl2);
 		//forearmTendon.render(gl2);
 		//wristTendon1.render(gl2);
 		//wristTendon2.render(gl2);
@@ -68,4 +87,5 @@ public class UArm extends Arm3 {
 		
 		super.render(gl2);
 	}
+	boolean once=false;
 }

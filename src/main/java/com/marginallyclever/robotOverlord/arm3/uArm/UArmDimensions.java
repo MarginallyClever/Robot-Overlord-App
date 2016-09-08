@@ -75,10 +75,13 @@ public class UArmDimensions extends Arm3Dimensions {
 	@Override
 	public String reportMove(Arm3MotionState arg0) {
 		float x = arg0.angleBase    +(         90.0f);
-		float y = arg0.angleShoulder+(54.54f  +90.0f);
+		float y = (-arg0.angleShoulder)+(54.54f-30);
 		float z = 180.0f-(arg0.angleElbow-(130.673f-90.0f));
-		
-		
+
+		System.out.println("Y="+y+" : "+df.format(y));
+		if(y<0) y=0;
+		if(y>180) y=180;
+				
 		return "G0 X"+df.format(x)+" Y"+df.format(y)+" Z"+df.format(z)+"\n";
 	}
 }

@@ -41,9 +41,12 @@ public class Model implements Serializable {
 	protected transient boolean isLoaded = false;
 	protected transient boolean isBinary = false;
 	protected transient float loadScale=1.0f;
+	protected float adjustX,adjustY,adjustZ;
 
 	
-	public Model() {}
+	public Model() {
+		adjustX=adjustY=adjustZ=0;
+	}
 
 	
 	public void setSourceName(String sourceName) {
@@ -58,6 +61,15 @@ public class Model implements Serializable {
 	}
 
 
+	public void unload(GL2 gl2) {
+		if(!isLoaded) return;
+		if(VBO == null) return;
+		isLoaded=false;
+		gl2.glDeleteBuffers(NUM_BUFFERS, VBO,0);
+		VBO=null;
+	}
+	
+	
 	public void load() {
 		if(isLoaded) return;
 		
@@ -424,7 +436,19 @@ public class Model implements Serializable {
 	}
 	
 	private void updateBuffers(GL2 gl2) {
-		int totalBufferSize = numTriangles*3*3;
+		int numVertexes = numTriangles*3;
+		int i,j=0;
+		for(i=0;i<numVertexes;++i) {
+			float px = vertices.get(j+0);
+			float py = vertices.get(j+1);
+			float pz = vertices.get(j+2);
+			vertices.put(j+0, px+adjustX);
+			vertices.put(j+1, py+adjustY);
+			vertices.put(j+2, pz+adjustZ);
+			j+=3;
+		}
+	
+		int totalBufferSize = numVertexes*3;
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
 
 		// bind a buffer
@@ -563,15 +587,8 @@ public class Model implements Serializable {
 	 * @param dz amount to translate on Z axis
 	 */
 	public void adjustOrigin(float dx,float dy,float dz) {
-		int numVertexes = numTriangles*3;
-
-		int i,j;
-		for(i=0;i<numVertexes;++i) {
-			j=i*3;
-
-			float px = vertices.get(j+0);	vertices.put(j+0, px+dx);
-			float py = vertices.get(j+1);	vertices.put(j+1, py+dy);
-			float pz = vertices.get(j+2);	vertices.put(j+2, pz+dz);
-		}
+		adjustX=dx;
+		adjustY=dy;
+		adjustZ=dz;
 	}
 }
