@@ -96,22 +96,23 @@ implements Serializable {
 
     protected void setupLights() {
     	light0.index=0;
-	    light0.position=new float[]{  0.0f,0.0f,10.0f,0.0f};
-	    light0.ambient =new float[]{  0.0f, 0.0f,0.0f,1.0f};
-    	light0.diffuse =new float[]{255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f};  // noon
-	    light0.specular=new float[]{  0.0f, 0.0f,0.0f,1.0f};
+    	light0.setPosition(new Vector3f(0,0,10));
+    	light0.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
+    	light0.setDiffuse(255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
+	    light0.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
     	
     	light1.index=1;
-	    light1.position=new float[]{-10.0f,-10.0f,10.0f,0.0f};
-	    light1.ambient =new float[]{ 0.0f, 0.0f,0.0f,1.0f};
-	    light1.diffuse =new float[]{ 1.0f, 1.0f,1.0f,1.0f};
-	    light1.specular=new float[]{ 0.0f, 0.0f,0.0f,1.0f};
+    	light0.setPosition(new Vector3f(-10,-10,10));
+	    light1.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
+    	light1.setDiffuse( 1.0f, 1.0f,1.0f,1.0f);
+	    light1.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
 	    
     	light2.index=2;
-	    light2.position=new float[]{  10.0f, 10.0f,10.0f,0.0f};
-	    light2.ambient =new float[]{   0.0f, 0.0f,0.0f,1.0f};
-	    light2.diffuse =new float[]{ 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f,1.0f};  // metal halide
-	    light2.specular=new float[]{   0.0f, 0.0f,0.0f,1.0f};
+    	light2.setPosition(new Vector3f(10,10,10));
+	    light2.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
+    	light2.setDiffuse( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f,1.0f);  // metal halide
+	    light2.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
+    	light2.setDirectional(false);
     }
     
 	

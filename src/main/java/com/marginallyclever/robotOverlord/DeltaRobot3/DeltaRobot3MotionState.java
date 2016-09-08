@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.DeltaRobot3;
+package com.marginallyclever.robotOverlord.deltaRobot3;
 
 import javax.vecmath.Vector3f;
 

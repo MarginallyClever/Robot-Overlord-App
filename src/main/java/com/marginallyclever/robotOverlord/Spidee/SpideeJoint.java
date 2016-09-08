@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.Spidee;
+package com.marginallyclever.robotOverlord.spidee;
 
 import java.io.Serializable;
 

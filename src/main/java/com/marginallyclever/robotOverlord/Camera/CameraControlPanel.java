@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.Camera;
+package com.marginallyclever.robotOverlord.camera;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
