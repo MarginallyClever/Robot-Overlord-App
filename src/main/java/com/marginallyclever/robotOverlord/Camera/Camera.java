@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.Camera;
+package com.marginallyclever.robotOverlord.camera;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 

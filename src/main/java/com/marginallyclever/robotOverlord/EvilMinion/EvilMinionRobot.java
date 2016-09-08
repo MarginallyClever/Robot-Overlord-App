@@ -1,12 +1,12 @@
-package com.marginallyclever.robotOverlord.EvilMinion;
+package com.marginallyclever.robotOverlord.evilMinion;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.*;
-import com.marginallyclever.robotOverlord.EvilMinionTool.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
+import com.marginallyclever.robotOverlord.evilMinion.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;

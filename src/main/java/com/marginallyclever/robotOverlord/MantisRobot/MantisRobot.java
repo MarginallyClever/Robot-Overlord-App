@@ -1,12 +1,12 @@
-package com.marginallyclever.robotOverlord.MantisRobot;
+package com.marginallyclever.robotOverlord.mantisRobot;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 
 import com.marginallyclever.robotOverlord.*;
-import com.marginallyclever.robotOverlord.MantisTool.*;
 import com.marginallyclever.robotOverlord.communications.AbstractConnection;
+import com.marginallyclever.robotOverlord.mantisRobot.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;

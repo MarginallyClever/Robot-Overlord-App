@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.MantisRobot;
+package com.marginallyclever.robotOverlord.mantisRobot;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

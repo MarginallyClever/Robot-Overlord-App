@@ -1,8 +1,8 @@
-com.marginallyclever.robotOverlord.DeltaRobot3.DeltaRobot3
-com.marginallyclever.robotOverlord.MantisRobot.MantisRobot
-com.marginallyclever.robotOverlord.EvilMinion.EvilMinionRobot
-com.marginallyclever.robotOverlord.RotaryStewartPlatform2.RotaryStewartPlatform2
-com.marginallyclever.robotOverlord.Spidee.Spidee
+com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
+com.marginallyclever.robotOverlord.mantisRobot.MantisRobot
+com.marginallyclever.robotOverlord.evilMinion.EvilMinionRobot
+com.marginallyclever.robotOverlord.rotaryStewartPlatform2.RotaryStewartPlatform2
+com.marginallyclever.robotOverlord.spidee.Spidee
 com.marginallyclever.robotOverlord.arm3.Arm3
 com.marginallyclever.robotOverlord.arm3.uArm.UArm
 com.marginallyclever.robotOverlord.ModelInWorld

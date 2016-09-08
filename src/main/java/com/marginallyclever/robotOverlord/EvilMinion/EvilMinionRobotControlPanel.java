@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.EvilMinion;
+package com.marginallyclever.robotOverlord.evilMinion;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
