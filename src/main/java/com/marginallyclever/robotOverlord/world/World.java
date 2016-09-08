@@ -18,10 +18,10 @@ import com.marginallyclever.robotOverlord.LightObject;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.Camera.Camera;
-import com.marginallyclever.robotOverlord.EvilMinion.EvilMinionRobot;
+import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
 import com.marginallyclever.robotOverlord.communications.SerialConnectionManager;
+import com.marginallyclever.robotOverlord.evilMinion.EvilMinionRobot;
 
 /**
  * Container for all the visible objects in the world.

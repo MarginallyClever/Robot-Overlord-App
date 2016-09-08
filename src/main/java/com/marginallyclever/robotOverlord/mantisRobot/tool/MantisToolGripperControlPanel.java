@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.EvilMinionTool;
+package com.marginallyclever.robotOverlord.mantisRobot.tool;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,7 +15,7 @@ import javax.swing.event.ChangeListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
-public class EvilMinionToolGripperControlPanel extends JPanel implements ActionListener, ChangeListener {
+public class MantisToolGripperControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
@@ -25,7 +25,7 @@ public class EvilMinionToolGripperControlPanel extends JPanel implements ActionL
 	private JButton arm5ServoClose;
 	public JLabel servo;
 	
-	EvilMinionToolGripper tool;
+	MantisToolGripper tool;
 	
 	
 	private JButton createButton(String name) {
@@ -35,7 +35,7 @@ public class EvilMinionToolGripperControlPanel extends JPanel implements ActionL
 	}
 	
 	
-	public EvilMinionToolGripperControlPanel(RobotOverlord gui,EvilMinionToolGripper tool) {
+	public MantisToolGripperControlPanel(RobotOverlord gui,MantisToolGripper tool) {
 		super();
 		
 		this.tool = tool;
