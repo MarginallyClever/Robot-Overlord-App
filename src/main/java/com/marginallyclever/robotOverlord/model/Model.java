@@ -39,7 +39,7 @@ public class Model implements Serializable {
 	protected transient FloatBuffer textureCoordinates;
 	protected transient int VBO[] = null;
 	protected transient boolean isLoaded = false;
-	protected transient boolean isBinary = false;
+	protected transient boolean isASCII = false;
 	protected transient float loadScale=1.0f;
 	protected float adjustX,adjustY,adjustZ;
 
@@ -110,7 +110,7 @@ public class Model implements Serializable {
 					CharBuffer binaryCheck = CharBuffer.allocate(5);
 					stream.read(binaryCheck);
 					binaryCheck.rewind();
-					isBinary = !binaryCheck.toString().equalsIgnoreCase("SOLID");
+					isASCII = !binaryCheck.toString().equalsIgnoreCase("SOLID");
 					break;
 		        }
 		    }
@@ -123,7 +123,7 @@ public class Model implements Serializable {
 			
 		    while((entry = zipFile.getNextEntry())!=null) {
 		        if( entry.getName().equals(fname) ) {
-			        if(isBinary) {
+			        if(isASCII) {
 				        loadFromStreamBinary(zipFile,isSTL2);
 			        } else {
 				        stream = new BufferedReader(isr);
@@ -133,7 +133,7 @@ public class Model implements Serializable {
 		        }
 		    }
 
-		    if(!isBinary) {
+		    if(!isASCII) {
 				zipFile = new ZipInputStream(getInputStream(zipName));
 				isr = new InputStreamReader(zipFile, StandardCharsets.UTF_8);
 				
@@ -159,13 +159,14 @@ public class Model implements Serializable {
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
-			CharBuffer binaryCheck = CharBuffer.allocate(5);
+			CharBuffer binaryCheck = CharBuffer.allocate(80);
+			br.read(binaryCheck);
 			br.read(binaryCheck);
 			br.close();
 			binaryCheck.rewind();
-			isBinary = !binaryCheck.toString().equalsIgnoreCase("SOLID");
+			isASCII = binaryCheck.toString().toLowerCase().startsWith("facet");
 		
-			if(isBinary) {
+			if(!isASCII) {
 				loadFromStreamBinary(getInputStream(fname),isSTL2);
 			} else {
 				br = new BufferedReader(new InputStreamReader(getInputStream(fname),"UTF-8"));
@@ -473,15 +474,15 @@ public class Model implements Serializable {
 		
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
 		gl2.glEnableClientState(GL2.GL_NORMAL_ARRAY);
-
+		
 		// Bind the vertex buffer to work with
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
 		gl2.glVertexPointer(3, GL2.GL_FLOAT, 0, 0);
-	      
+	    
 		// Bind the normal buffer to work with
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
 		gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
-  
+		
 		gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, numTriangles*3);
 		//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, num_triangles*3);
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
