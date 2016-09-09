@@ -96,7 +96,7 @@ implements Serializable {
 
     protected void setupLights() {
     	light0.index=0;
-    	light0.setPosition(new Vector3f(0,0,10));
+    	light0.setPosition(new Vector3f(0,0,30));
     	light0.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
     	light0.setDiffuse(255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
 	    light0.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
@@ -108,11 +108,11 @@ implements Serializable {
 	    light1.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
 	    
     	light2.index=2;
-    	light2.setPosition(new Vector3f(10,10,10));
+    	light2.setPosition(new Vector3f(30,30,30));
 	    light2.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
     	light2.setDiffuse( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f,1.0f);  // metal halide
 	    light2.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
-    	light2.setDirectional(false);
+    	light2.setDirectional(true);
     }
     
 	
