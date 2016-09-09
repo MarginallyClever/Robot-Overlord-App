@@ -138,10 +138,20 @@ If you like this project, please support us by buying Marginally Clever products
       <artifactId>maven-install-plugin</artifactId>
       <version>2.5.2</version>
     </plugin>
-    <plugin>
-      <artifactId>maven-jar-plugin</artifactId>
-      <version>2.6</version>
-    </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <SplashScreen-Image>splash.png</SplashScreen-Image>
+            </manifestEntries>
+            <manifest>
+              <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
     <plugin>
       <artifactId>maven-resources-plugin</artifactId>
       <version>2.7</version>
@@ -155,9 +165,40 @@ If you like this project, please support us by buying Marginally Clever products
       <version>2.18.1</version>
     </plugin>
     <!-- End of plugins defined originally only in Super POM  -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoreNonCompile>${maven-dependency-plugin.ignoreNonCompile}</ignoreNonCompile>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>enforce-java</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>${minimum.java.version}</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+    </dependency>
     <dependency>
       <groupId>org.scream3r</groupId>
         <artifactId>jssc</artifactId>
@@ -194,6 +235,16 @@ If you like this project, please support us by buying Marginally Clever products
       <artifactId>junit</artifactId>
       <version>4.12</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>JSON-java</artifactId>
+      <version>2015-06-04</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>15.0</version>
     </dependency>
   </dependencies>
   <properties>

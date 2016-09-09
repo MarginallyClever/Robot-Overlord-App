@@ -20,6 +20,11 @@ import com.marginallyclever.robotOverlord.communications.AbstractConnectionListe
 import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
 
 
+/**
+ * A robot visible with a physical presence in the World.  Assumed to have an AbstractConnection to a machine in real life.  
+ * @author Dan Royer
+ *
+ */
 public class Robot extends PhysicalObject
 implements AbstractConnectionListener, ActionListener {
 	/**
