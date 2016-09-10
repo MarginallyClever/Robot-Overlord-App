@@ -2,11 +2,11 @@ package com.marginallyclever.robotOverlord.arm3;
 
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.communications.AbstractConnection;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;

@@ -13,7 +13,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-
+/**
+ * Camera in the world.  Has no physical presence.  Has location and direction.
+ * @author Dan Royer
+ *
+ */
 public class Camera extends Entity {
 	/**
 	 * 

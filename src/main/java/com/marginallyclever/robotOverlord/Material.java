@@ -10,6 +10,7 @@ public class Material {
 	public float[] ambient		= {0.01f,0.01f,0.01f,1.00f};
 	private float shininess		= 10.0f;
 	private Texture texture     = null;
+	private boolean isLit		= true;
 	
 	public Material() {}
 	
@@ -20,6 +21,8 @@ public class Material {
 	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
 	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, shininess);
 	    gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT );
+	    if(isLit()) gl2.glEnable(GL2.GL_LIGHTING);
+	    else gl2.glDisable(GL2.GL_LIGHTING);
 	    if(texture==null) {
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 	    } else {
@@ -65,5 +68,13 @@ public class Material {
 	}
 	public Texture getTexture() {
 		return texture;
+	}
+
+	public boolean isLit() {
+		return isLit;
+	}
+
+	public void setLit(boolean isLit) {
+		this.isLit = isLit;
 	}
 }
