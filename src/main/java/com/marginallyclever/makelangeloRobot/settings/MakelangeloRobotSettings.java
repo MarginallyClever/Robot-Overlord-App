@@ -658,7 +658,7 @@ public final class MakelangeloRobotSettings {
 		return hardwareProperties;
 	}
 
-	public void setHardwareVersion(int hardwareVersion) {
+	public void setHardwareVersion(int version) {
 		int newVersion = -1;
 
 		try {
@@ -667,9 +667,9 @@ public final class MakelangeloRobotSettings {
 			Iterator<MakelangeloHardwareProperties> i = knownHardware.iterator();
 			while(i.hasNext()) {
 				MakelangeloHardwareProperties hw = i.next();
-				if(hw.getVersion()==hardwareVersion) {
+				if(hw.getVersion()==version) {
 					hardwareProperties = hw.getClass().newInstance();
-					newVersion = hardwareVersion;
+					newVersion = version;
 				};
 			}
 		} catch(Exception e) {
@@ -683,8 +683,12 @@ public final class MakelangeloRobotSettings {
 			hardwareProperties = new Makelangelo2Properties();
 		}
 		
+		hardwareVersion = newVersion;
+		
 		if(!hardwareProperties.canChangeMachineSize()) {
 			this.setMachineSize(hardwareProperties.getWidth()*0.1f, hardwareProperties.getHeight()*0.1f);
 		}
+		
+		saveConfigToLocal();
 	}
 }
