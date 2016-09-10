@@ -8,16 +8,16 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.marginallyclever.communications.AbstractConnection;
+import com.marginallyclever.communications.AbstractConnectionListener;
+import com.marginallyclever.communications.AbstractConnectionManager;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.communications.AbstractConnection;
-import com.marginallyclever.robotOverlord.communications.AbstractConnectionListener;
-import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
+import com.marginallyclever.robotOverlord.Translator;
 
 
 /**
@@ -98,7 +98,7 @@ implements AbstractConnectionListener, ActionListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
 		
-        buttonConnect = new JButton("Connect");
+        buttonConnect = new JButton(Translator.get("ButtonConnect"));
         buttonConnect.addActionListener(this);
 
 		contents.add(buttonConnect,con1);
@@ -124,12 +124,12 @@ implements AbstractConnectionListener, ActionListener {
 	
 	protected void closeConnection() {
 		this.setConnection(null);
-		buttonConnect.setText("Connect");
+		buttonConnect.setText(Translator.get("ButtonConnect"));
 	}
 	
 	protected void openConnection() {
 		JPanel connectionList = new JPanel(new GridLayout(0, 1));
-		connectionList.add(new JLabel("Connect"));
+		buttonConnect.setText(Translator.get("ButtonDisconnect"));
 		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
@@ -162,7 +162,6 @@ implements AbstractConnectionListener, ActionListener {
 		if (result == JOptionPane.OK_OPTION) {
 			String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
 			setConnection( connectionManager.openConnection(connectionName) );
-			buttonConnect.setText("Disconnect");
 		}
 	}
 	

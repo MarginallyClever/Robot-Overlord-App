@@ -45,7 +45,10 @@ import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.robotOverlord.PropertiesFileHelper;
+import com.marginallyclever.communications.AbstractConnectionManager;
+import com.marginallyclever.communications.SerialConnectionManager;
+import com.marginallyclever.robotOverlord.SoundSystem;
+import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.actions.ActionAbout;
 import com.marginallyclever.robotOverlord.actions.ActionAddEntity;
 import com.marginallyclever.robotOverlord.actions.ActionCheckForUpdate;
@@ -56,9 +59,8 @@ import com.marginallyclever.robotOverlord.actions.ActionRedo;
 import com.marginallyclever.robotOverlord.actions.ActionSaveAs;
 import com.marginallyclever.robotOverlord.actions.ActionUndo;
 import com.marginallyclever.robotOverlord.camera.Camera;
-import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
-import com.marginallyclever.robotOverlord.communications.SerialConnectionManager;
 import com.marginallyclever.robotOverlord.world.World;
+import com.marginallyclever.util.PropertiesFileHelper;
 
 /**
  * MainGUI is the root window object.
@@ -127,6 +129,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
  	protected RobotOverlord() {
 		prefs = Preferences.userRoot().node("Evil Overlord");
+
+		Translator.start();
+		SoundSystem.start();
 		
 		commandSequence = new UndoManager();
 		undoHelper = new UndoHelper(this);

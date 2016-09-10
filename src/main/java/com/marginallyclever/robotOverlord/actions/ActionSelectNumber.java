@@ -34,6 +34,8 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 	public ActionSelectNumber(RobotOverlord ro,String labelName,float defaultValue) {
 		super();
 		this.ro = ro;
+
+		//this.setBorder(BorderFactory.createLineBorder(new Color(255,0,0)));
 		
 		allowSetText=true;
 		df = new DecimalFormat("0.00");
@@ -43,11 +45,6 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.NONE;
-		con1.anchor=GridBagConstraints.WEST;
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
@@ -55,11 +52,17 @@ public class ActionSelectNumber extends JPanel implements DocumentListener {
 		textField.setText(df.format(defaultValue));
 		textField.getDocument().addDocumentListener(this);
 		label.setLabelFor(textField);
-		
+
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.NONE;
+		con1.anchor=GridBagConstraints.WEST;
 		con1.weightx=0.250;
 		con1.gridx=0;
 		this.add(label,con1);
 
+		con1.anchor=GridBagConstraints.EAST;
 		con1.weightx=0.750;
 		con1.gridx=1;
 		this.add(textField,con1);

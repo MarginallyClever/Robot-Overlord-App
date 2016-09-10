@@ -11,6 +11,8 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+import com.marginallyclever.communications.AbstractConnectionManager;
+import com.marginallyclever.communications.SerialConnectionManager;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
@@ -19,8 +21,6 @@ import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.camera.Camera;
-import com.marginallyclever.robotOverlord.communications.AbstractConnectionManager;
-import com.marginallyclever.robotOverlord.communications.SerialConnectionManager;
 import com.marginallyclever.robotOverlord.evilMinion.EvilMinionRobot;
 
 /**

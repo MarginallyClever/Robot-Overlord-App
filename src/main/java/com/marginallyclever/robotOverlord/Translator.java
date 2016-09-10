@@ -28,8 +28,8 @@ import javax.swing.JPanel;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.marginallyclever.robotOverlord.util.MarginallyCleverTranslationXmlFileHelper;
-import com.marginallyclever.robotOverlord.util.PreferencesHelper;
+import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
+import com.marginallyclever.util.PreferencesHelper;
 
 /**
  * MultilingualSupport is the translation engine.  You ask for a string it finds the matching string in the currently selected language.

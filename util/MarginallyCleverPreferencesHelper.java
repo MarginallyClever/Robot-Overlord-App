@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import com.marginallyclever.makelangelo.Log;
+import com.marginallyclever.robotOverlord.Log;
 import com.marginallyclever.makelangelo.PreferencesHelper;
 
 /**
