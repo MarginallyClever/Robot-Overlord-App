@@ -53,7 +53,6 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
 		if(e.getSource()==actionSelectFile) {
 			model.setFilename(actionSelectFile.getFilename());
 		}

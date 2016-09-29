@@ -81,17 +81,14 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 
 					try {
 						newInstance = lft.getClass().newInstance();
+						if(newInstance instanceof Robot ) {
+							((Robot) newInstance).setConnectionManager(ro.getConnectionManager());
+						}
+						
+						ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandAddEntity(ro,newInstance) ) );
 					} catch (InstantiationException | IllegalAccessException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-					if(newInstance instanceof Robot ) {
-						((Robot) newInstance).setConnectionManager(ro.getConnectionManager());
-					}
-					
-					ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandAddEntity(ro,newInstance) ) );
-					
 					return;
 				}
 			}

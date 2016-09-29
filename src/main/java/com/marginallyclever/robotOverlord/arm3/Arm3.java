@@ -786,7 +786,6 @@ extends Robot {
 	}
 	
 	public double getSpeed() {
-		// TODO Auto-generated method stub
 		return speed;
 	}
 	
