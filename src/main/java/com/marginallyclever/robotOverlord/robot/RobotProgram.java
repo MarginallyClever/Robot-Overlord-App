@@ -10,11 +10,9 @@ import java.util.List;
  */
 public class RobotProgram {
 	List<RobotInstruction> instructions;
-	int currentIndex;
 	
 	public RobotProgram() {
 		instructions = new ArrayList<RobotInstruction>();
-		currentIndex=0;
 	}
 	
 	/**
@@ -34,38 +32,15 @@ public class RobotProgram {
 		instructions.add(index, element);
 	}
 	
+	public void removeInstruction(int index) {
+		instructions.remove(index);
+	}
+	
 	public int size() {
 		return instructions.size();
 	}
 	
 	public RobotInstruction get(int index) {
 		return instructions.get(index);
-	}
-	
-	public RobotInstruction getCurrentInstruction() {
-		return get(currentIndex);
-	}
-	
-	public void setCurrentInstruction(int index) {
-		assert( index >= 0 );
-		assert( index < instructions.size() );
-		currentIndex = index;
-	}
-	
-	public int getCurrentIndex() {
-		return currentIndex;
-	}
-	
-	public boolean hasNext() {
-		return currentIndex < instructions.size();
-	}
-	
-	public RobotInstruction next() {
-		if(currentIndex >= instructions.size() ) return null;
-
-		RobotInstruction i = getCurrentInstruction();
-		currentIndex++;
-		
-		return i;
 	}
 }

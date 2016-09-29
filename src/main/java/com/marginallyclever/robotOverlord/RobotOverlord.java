@@ -803,7 +803,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
 		if(isMouseIn) {
 			world.getCamera().keyPressed(e);
 		}
@@ -811,15 +810,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
 		if(isMouseIn) {
 			world.getCamera().keyReleased(e);
 		}
 	}
 
 	@Override
-	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void keyTyped(KeyEvent arg0) {}
 }

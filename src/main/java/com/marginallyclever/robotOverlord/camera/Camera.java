@@ -100,7 +100,6 @@ public class Camera extends Entity {
 			try {
 				new Robot().mouseMove(prevMouseX, prevMouseY);
 			} catch (AWTException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			mouseRButtonDown=true;
