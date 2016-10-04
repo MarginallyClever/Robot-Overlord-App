@@ -34,7 +34,7 @@ public class Entity implements Serializable {
 	static private int pickNameCounter=1;
 	
 	private transient EntityPanel entityPanel;
-	protected Material material = new Material();
+	protected Material material;
 	
 	
 	
@@ -44,6 +44,7 @@ public class Entity implements Serializable {
 	public Entity() {
 		pickName = pickNameCounter++;
 		position = new Vector3f();
+		material = new Material();
 	}
 	
 	
