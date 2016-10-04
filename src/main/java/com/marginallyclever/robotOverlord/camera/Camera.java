@@ -3,6 +3,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.jogamp.opengl.GL2
 ;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  *
  */
-public class Camera extends Entity {
+public class Camera extends PhysicalObject {
 	/**
 	 * 
 	 */

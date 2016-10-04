@@ -41,11 +41,9 @@ implements Serializable {
 	protected transient boolean areTexturesLoaded=false;
 
 	// world contents
-	protected ArrayList<Entity> entities = new ArrayList<Entity>();
-	protected Camera camera = null;
-	protected LightObject light0;
-	protected LightObject light1;
-	protected LightObject light2;
+	protected ArrayList<Entity> entities;
+	protected Camera camera;
+	protected LightObject light0, light1, light2;
 	protected transient Texture t0,t1,t2,t3,t4,t5;
 
 	protected transient Vector3f pickForward = null;
@@ -56,16 +54,17 @@ implements Serializable {
 
 	
 	public World() {
-		camera = new Camera();		
-		light0 = new LightObject();
-		light1 = new LightObject();
-		light2 = new LightObject();
 		areTexturesLoaded=false;
-
 		pickForward=new Vector3f();
 		pickRight=new Vector3f();
 		pickUp=new Vector3f();
 		pickRay=new Vector3f();
+		
+		entities = new ArrayList<Entity>();
+		addEntity(camera = new Camera());
+		addEntity(light0 = new LightObject());
+		addEntity(light1 = new LightObject());
+		addEntity(light2 = new LightObject());
 	}
 	
 
@@ -141,8 +140,6 @@ implements Serializable {
 			isSetup=true;
 		}
 		
-		setupLights();
-		
 		Iterator<Entity> io = entities.iterator();
 		while(io.hasNext()) {
 			Entity obj = io.next();
@@ -182,36 +179,36 @@ implements Serializable {
         }*/
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         
-        gl2.glDisable(GL2.GL_CULL_FACE);
-		//gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glCullFace(GL2.GL_BACK);
 
 			
 		gl2.glPushMatrix();
-			camera.update(delta);
 			camera.render(gl2);
 			
-			drawSkyCube(gl2);
-			
-			 // Enable lighting
-			gl2.glShadeModel(GL2.GL_SMOOTH);
-			gl2.glEnable(GL2.GL_LIGHTING);
-			gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-			gl2.glColorMaterial( GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE );
-			
-			light0.render(gl2);
-			light1.render(gl2);
-			light2.render(gl2);
-			
-		    // draw grid
 			gl2.glDisable(GL2.GL_LIGHTING);
+
+	        gl2.glDisable(GL2.GL_CULL_FACE);
+			drawSkyCube(gl2);
+	        gl2.glEnable(GL2.GL_CULL_FACE);
+			
 			PrimitiveSolids.drawGrid(gl2,50,5);
-			gl2.glEnable(GL2.GL_LIGHTING);
+
+			// lights
+			io = entities.iterator();
+			while(io.hasNext()) {
+				Entity obj = io.next();
+				if(obj instanceof LightObject) {
+					obj.render(gl2);
+				}
+			}
 
 			// draw!
 			io = entities.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
+				if(obj instanceof LightObject) continue;
+				if(obj instanceof Camera) continue;
+				
 				gl2.glPushName(obj.getPickName());
 				obj.render(gl2);
 				gl2.glPopName();
