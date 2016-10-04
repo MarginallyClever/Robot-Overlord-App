@@ -104,14 +104,14 @@ implements Serializable {
     	light1.index=1;
     	light0.setPosition(new Vector3f(-10,-10,10));
 	    light1.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
-    	light1.setDiffuse( 1.0f, 1.0f,1.0f,1.0f);
-	    light1.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
+    	light1.setDiffuse(  1.0f, 1.0f,1.0f,1.0f);
+	    light1.setSpecular( 0.0f, 0.0f,0.0f,1.0f);
 	    
     	light2.index=2;
     	light2.setPosition(new Vector3f(30,30,30));
-	    light2.setAmbient(  0.0f, 0.0f,0.0f,1.0f);
+	    light2.setAmbient(          0.0f, 0.0f,0.0f,1.0f);
     	light2.setDiffuse( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f,1.0f);  // metal halide
-	    light2.setSpecular(  0.0f, 0.0f,0.0f,1.0f);
+	    light2.setSpecular(         0.0f, 0.0f,0.0f,1.0f);
     	light2.setDirectional(true);
     }
     

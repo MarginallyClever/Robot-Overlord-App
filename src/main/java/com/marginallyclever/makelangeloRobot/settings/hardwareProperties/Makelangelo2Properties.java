@@ -229,9 +229,10 @@ public class Makelangelo2Properties implements MakelangeloHardwareProperties {
 		
 		gl2.glPopMatrix();
 		
-		// gondola
+		// pen holder
+		// TODO make this look like a v2 pen holder.
 		gl2.glPushMatrix();
-		gl2.glTranslated(0,0,0.25);
+		gl2.glTranslated(0,0,0.5);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
 		gl2.glColor3f(0, 0, 1);
 		float f;
