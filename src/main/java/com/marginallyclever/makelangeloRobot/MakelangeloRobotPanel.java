@@ -1,5 +1,6 @@
 package com.marginallyclever.makelangeloRobot;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -120,6 +121,11 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 		con1.gridy++;
 		this.add(statusBar = new StatusBar(), con1);
 		con1.gridy++;
+
+		about = new JButton(Translator.get("About this robot"));
+		this.add(about,con1);
+		con1.gridy++;
+		about.addActionListener(this);
 		
 		// lastly, set the button states
 		updateButtonAccess();
@@ -333,15 +339,24 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 			mainPanel.add(feedRateControl,cMain);
 			cMain.gridy++;
 			feedRateControl.setLayout(new GridBagLayout());
+			feedRateControl.setBorder(BorderFactory.createLineBorder(new Color(255,0,0)));
 			GridBagConstraints c = new GridBagConstraints();
 			feedRateTxt = new ActionSelectNumber(gui,Translator.get("Speed"),(float)robot.getSettings().getCurrentFeedRate());
-			feedRateTxt.setPreferredSize(new Dimension(100,20));
+			//feedRateTxt.setPreferredSize(new Dimension(100,20));
 			setFeedRate = new JButton(Translator.get("Set"));
 			setFeedRate.addActionListener(this);
 
-			c.gridx=4;  c.gridy=0;  feedRateControl.add(feedRateTxt,c);
-			c.gridx=5;  c.gridy=0;  feedRateControl.add(new JLabel(Translator.get("Rate")),c);
-			c.gridx=6;  c.gridy=0;  feedRateControl.add(setFeedRate,c);
+			c.anchor=GridBagConstraints.WEST;
+			c.gridwidth=4;
+			c.gridx=1;
+			c.gridy=0;
+			feedRateControl.add(feedRateTxt,c);
+			
+			c.anchor=GridBagConstraints.EAST;
+			c.gridwidth=1;
+			c.gridx=5;
+			c.gridy=0;
+			feedRateControl.add(setFeedRate,c);
 		}
 		{
 			// quick drive to corners
@@ -394,10 +409,6 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 	
 			con1.gridy++;
 		}
-
-		about = new JButton(Translator.get("About this robot"));
-		mainPanel.add(about,cMain);
-		about.addActionListener(this);
 		
 		return drivePanel;
 	}

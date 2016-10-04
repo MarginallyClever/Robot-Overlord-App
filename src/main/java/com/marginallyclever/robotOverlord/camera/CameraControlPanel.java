@@ -13,6 +13,11 @@ import javax.swing.JPanel;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
+/**
+ * Context sensitive GUI for the camera 
+ * @author Dan Royer
+ *
+ */
 public class CameraControlPanel extends JPanel implements ActionListener {
 	/**
 	 * 

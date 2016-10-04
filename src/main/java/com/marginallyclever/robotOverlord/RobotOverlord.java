@@ -549,21 +549,20 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     @Override
     public void display( GLAutoDrawable drawable ) {
-        long now_time = System.currentTimeMillis();
-        float dt = (now_time - lastTime)*0.001f;
-    	lastTime = now_time;
+        long nowTime = System.currentTimeMillis();
+        float dt = (nowTime - lastTime)*0.001f;
+    	lastTime = nowTime;
     	//System.out.println(dt);
     	
 		// Clear The Screen And The Depth Buffer
     	GL2 gl2 = drawable.getGL().getGL2();
-        
-    	if(frameDelay<frameLength) {
-    		frameDelay+=dt;
-    	} else {
+
+    	frameDelay+=dt;
+    	if(frameDelay>frameLength) {
     		if(checkStackSize) {
 	    		IntBuffer v = IntBuffer.allocate(1);
 	    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
-	    		System.out.print("start = "+v.get(0));
+	    		System.out.print("stack depth start = "+v.get(0));
     		}		
 	        // draw the world
     		if( world !=null ) {
@@ -579,10 +578,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     		if(checkStackSize) {
 	    		IntBuffer v = IntBuffer.allocate(1);
 				gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
-				System.out.println(" end = "+v.get(0));
+				System.out.println("stack depth end = "+v.get(0));
     		}
     	}
-    	frameDelay+=dt;
     }
 
     

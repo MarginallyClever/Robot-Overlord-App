@@ -78,6 +78,11 @@
 		<value>Is landscape?</value>
 		<hint>Paper settings dialog</hint>
 	</string>
+	<string>
+		<key>GoPaperBorder</key>
+		<value>Border</value>
+		<hint>Trace edge of paper with pen holder</hint>
+	</string>
 	
 	<string>
 		<key>InvertLeft</key>
@@ -394,6 +399,11 @@
 	<string>
 		<key>GoHome</key>
 		<value>Go home</value>
+		<hint>manual driving dialog</hint>
+	</string>
+	<string>
+		<key>FindHome</key>
+		<value>Find home</value>
 		<hint>manual driving dialog</hint>
 	</string>
 

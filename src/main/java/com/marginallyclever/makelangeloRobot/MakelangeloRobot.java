@@ -686,7 +686,6 @@ public class MakelangeloRobot extends Robot {
 	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		gl2.glScaled(0.1f, 0.1f, 0.1f);
 		Vector3f p = this.getPosition();
 		gl2.glTranslated(p.x, p.y, p.z);
 		gl2.glRotated(90, 1,0,0);
@@ -754,7 +753,7 @@ public class MakelangeloRobot extends Robot {
 
 		// paper
 		gl2.glPushMatrix();
-		gl2.glTranslated(0, 0, 0.04f);
+		gl2.glTranslated(0, 0, 0.25f);
 		gl2.glColor3f(1,1,1);
 		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 		gl2.glVertex2d(settings.getPaperLeft(), settings.getPaperTop());
