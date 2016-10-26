@@ -2,11 +2,9 @@ package com.marginallyclever.robotOverlord.camera;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.jogamp.opengl.GL2
-;
+import com.jogamp.opengl.GL2;
 
 import java.awt.AWTException;
 import java.awt.Robot;

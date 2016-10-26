@@ -1,8 +1,5 @@
 package com.marginallyclever.robotOverlord.robot;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * RobotProgramWalker keeps track of the robot's current position in a RobotProgram.  Several robots might be following the same program.
  * This keeps them from stepping on each other.
