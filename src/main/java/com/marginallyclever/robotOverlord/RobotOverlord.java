@@ -59,7 +59,6 @@ import com.marginallyclever.robotOverlord.actions.ActionRedo;
 import com.marginallyclever.robotOverlord.actions.ActionSaveAs;
 import com.marginallyclever.robotOverlord.actions.ActionUndo;
 import com.marginallyclever.robotOverlord.camera.Camera;
-import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.world.World;
 import com.marginallyclever.util.PropertiesFileHelper;
 

@@ -47,7 +47,7 @@ implements AbstractConnectionListener, ActionListener {
 	private long linesProcessed;
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
-	private RobotProgram program;
+	//private RobotProgram program;
 
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonConnect;
@@ -61,7 +61,7 @@ implements AbstractConnectionListener, ActionListener {
 		fileOpened=false;
 		paused=true;
 		running=false;
-		program=new RobotProgram();
+		//program=new RobotProgram();
 	}
 	
 	public AbstractConnectionManager getConnectionManager() {
