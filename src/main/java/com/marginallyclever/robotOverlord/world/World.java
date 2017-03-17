@@ -183,6 +183,7 @@ implements Serializable {
 
 			
 		gl2.glPushMatrix();
+			camera.update(delta);  // this is ugly.  What if there is more than one camera?
 			camera.render(gl2);
 			
 			gl2.glDisable(GL2.GL_LIGHTING);

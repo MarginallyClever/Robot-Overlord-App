@@ -115,9 +115,13 @@ extends Robot {
 
 	
 	private void setupModels() {
-		modelTop = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
-		modelArm = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
-		modelBase = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:base.STL",0.1f);
+		try {
+			modelTop = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
+			modelArm = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
+			modelBase = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:base.STL",0.1f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

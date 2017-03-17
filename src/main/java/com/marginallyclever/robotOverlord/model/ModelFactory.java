@@ -1,7 +1,12 @@
 package com.marginallyclever.robotOverlord.model;
 
+import java.io.BufferedInputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ServiceLoader;
+
+import com.marginallyclever.convenience.FileAccess;
+
 
 public class ModelFactory {
 	static LinkedList<Model> modelPool = new LinkedList<Model>();
@@ -12,7 +17,7 @@ public class ModelFactory {
 	 * @param loadScale
 	 * @return the Model instance.
 	 */
-	public static Model createModelFromFilename(String sourceName) {
+	public static Model createModelFromFilename(String sourceName) throws Exception {
 		if(sourceName == null || sourceName.trim().length()==0) return null;
 		
 		// find the existing model in the pool
@@ -24,9 +29,31 @@ public class ModelFactory {
 			}
 		}
 		
-		Model m = new Model();
-		m.setSourceName(sourceName);
-		modelPool.add(m);
+		Model m=null;
+		
+		// not in pool.  Find a serviceLoader that can load this file type.
+		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
+		Iterator<ModelLoadAndSave> i = loaders.iterator();
+		while(i.hasNext()) {
+			ModelLoadAndSave loader = i.next();
+			if(loader.canLoad() && loader.canLoad(sourceName)) {
+				try {
+					BufferedInputStream stream = FileAccess.open(sourceName);
+					m = loader.load(stream);
+					m.setSourceName(sourceName);
+					// Maybe add a m.setSaveAndLoader(loader); ?
+					modelPool.add(m);
+					break;
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if(m==null) {
+			throw new Exception("No loader found for "+sourceName);
+		}
+		
 		return m;
 	}
 
@@ -36,9 +63,9 @@ public class ModelFactory {
 	 * @param loadScale
 	 * @return the Model instance.
 	 */
-	public static Model createModelFromFilename(String sourceName,float loadScale) {
+	public static Model createModelFromFilename(String sourceName,float loadScale) throws Exception {
 		Model m = createModelFromFilename(sourceName);
-		m.loadScale = loadScale;
+		if(m!=null) m.loadScale = loadScale;
 		return m;
 	}
 }
