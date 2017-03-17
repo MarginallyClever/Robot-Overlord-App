@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.model;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -32,8 +30,8 @@ public class ModelSmoother {/*
 			Model m = ModelFactory.createModelFromFilename(inName);
 			smoothNormals(m,vertexEpsilon,normalEpsilon);
 			
-			File file = new File(outName);
-			FileOutputStream fos = new FileOutputStream(file);
+			//File file = new File(outName);
+			//FileOutputStream fos = new FileOutputStream(file);
 			//m.getModelLoadAndSave().saveToStreamAsBinary(fos);
 		} catch(Exception e) {
 			e.printStackTrace();
