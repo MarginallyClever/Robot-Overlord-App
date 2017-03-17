@@ -292,12 +292,17 @@ implements ActionListener {
 	}
 	
 	protected void setupModels() {
-		  modelThigh = ModelFactory.createModelFromFilename( "/Spidee.zip:thigh.stl");
-		  modelBody = ModelFactory.createModelFromFilename( "/Spidee.zip:body.stl");
-		  modelShoulderLeft = ModelFactory.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
-		  modelShoulderRight = ModelFactory.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
-		  modelShinLeft = ModelFactory.createModelFromFilename( "/Spidee.zip:shin_left.stl");
-		  modelShinRight = ModelFactory.createModelFromFilename( "/Spidee.zip:shin_right.stl");
+		try {
+			modelThigh = ModelFactory.createModelFromFilename( "/Spidee.zip:thigh.stl");
+			modelBody = ModelFactory.createModelFromFilename( "/Spidee.zip:body.stl");
+			modelShoulderLeft = ModelFactory.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
+			modelShoulderRight = ModelFactory.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
+			modelShinLeft = ModelFactory.createModelFromFilename( "/Spidee.zip:shin_left.stl");
+			modelShinRight = ModelFactory.createModelFromFilename( "/Spidee.zip:shin_right.stl");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
     private void readObject(ObjectInputStream inputStream)

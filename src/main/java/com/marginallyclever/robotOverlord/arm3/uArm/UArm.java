@@ -27,17 +27,20 @@ public class UArm extends Arm3 {
 	public UArm() {
 		super(new UArmDimensions());
 
-		base = ModelFactory.createModelFromFilename("/uArm/1.STL",0.1f);
-		shoulder = ModelFactory.createModelFromFilename("/uArm/2.STL",0.1f);
-		elbowHorn = ModelFactory.createModelFromFilename("/uArm/4.STL",0.1f);
-		forearmTendon = ModelFactory.createModelFromFilename("/uArm/6.STL",0.1f);
-		bicep = ModelFactory.createModelFromFilename("/uArm/3.STL",0.1f);
-		forearm = ModelFactory.createModelFromFilename("/uArm/9.STL",0.1f);
-		wrist = ModelFactory.createModelFromFilename("/uArm/10.STL",0.1f);
-		wristTendon1 = ModelFactory.createModelFromFilename("/uArm/5.STL",0.1f);
-		wristTendon2 = ModelFactory.createModelFromFilename("/uArm/8.STL",0.1f);
-		elbow = ModelFactory.createModelFromFilename("/uArm/7.STL",0.1f);
-		
+		try {
+			base = ModelFactory.createModelFromFilename("/uArm/1.STL",0.1f);
+			shoulder = ModelFactory.createModelFromFilename("/uArm/2.STL",0.1f);
+			elbowHorn = ModelFactory.createModelFromFilename("/uArm/4.STL",0.1f);
+			forearmTendon = ModelFactory.createModelFromFilename("/uArm/6.STL",0.1f);
+			bicep = ModelFactory.createModelFromFilename("/uArm/3.STL",0.1f);
+			forearm = ModelFactory.createModelFromFilename("/uArm/9.STL",0.1f);
+			wrist = ModelFactory.createModelFromFilename("/uArm/10.STL",0.1f);
+			wristTendon1 = ModelFactory.createModelFromFilename("/uArm/5.STL",0.1f);
+			wristTendon2 = ModelFactory.createModelFromFilename("/uArm/8.STL",0.1f);
+			elbow = ModelFactory.createModelFromFilename("/uArm/7.STL",0.1f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		//bicep.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
 		//elbowHorn.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
 		//forearm.adjustOrigin(-4.0334f*2.54f,0,-8.3535f*2.54f);

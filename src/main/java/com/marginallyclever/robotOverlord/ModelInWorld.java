@@ -66,7 +66,11 @@ public class ModelInWorld extends Entity {
 	
 	public void render(GL2 gl2) {
 		if( model==null && filename != null ) {
-			model = ModelFactory.createModelFromFilename(filename);
+			try {
+				model = ModelFactory.createModelFromFilename(filename);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		Vector3f p = getPosition();

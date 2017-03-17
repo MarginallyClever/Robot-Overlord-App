@@ -58,16 +58,19 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	}
 	
 	protected void setupModels() {
-		modelAdapter = ModelFactory.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
-		modelMain = ModelFactory.createModelFromFilename("/Gripper/Main.stl",0.1f);
-		modelRearbar = ModelFactory.createModelFromFilename("/Gripper/Rearbar.stl",0.1f);
-		modelFrontbar = ModelFactory.createModelFromFilename("/Gripper/Frontbar.stl",0.1f);
-		modelLeftGear = ModelFactory.createModelFromFilename("/Gripper/LeftGear.stl",0.1f);
-		modelRightGear = ModelFactory.createModelFromFilename("/Gripper/RightGear.stl",0.1f);
-		modelBase = ModelFactory.createModelFromFilename("/Gripper/Base.stl",0.1f);
-		modelGripper = ModelFactory.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
-		modelServo = ModelFactory.createModelFromFilename("/Spidee.zip:SG5010.stl");
-
+		try {
+			modelAdapter = ModelFactory.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
+			modelMain = ModelFactory.createModelFromFilename("/Gripper/Main.stl",0.1f);
+			modelRearbar = ModelFactory.createModelFromFilename("/Gripper/Rearbar.stl",0.1f);
+			modelFrontbar = ModelFactory.createModelFromFilename("/Gripper/Frontbar.stl",0.1f);
+			modelLeftGear = ModelFactory.createModelFromFilename("/Gripper/LeftGear.stl",0.1f);
+			modelRightGear = ModelFactory.createModelFromFilename("/Gripper/RightGear.stl",0.1f);
+			modelBase = ModelFactory.createModelFromFilename("/Gripper/Base.stl",0.1f);
+			modelGripper = ModelFactory.createModelFromFilename("/Gripper/Gripper.stl",0.1f);
+			modelServo = ModelFactory.createModelFromFilename("/Spidee.zip:SG5010.stl");
+		}  catch(Exception e) {
+			e.printStackTrace();
+		}
 		matAdapter.setDiffuseColor(1,0,1,1);
 		matMain.setDiffuseColor(0.8f,0.8f,0.8f,1);
 

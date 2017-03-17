@@ -138,12 +138,16 @@ extends Robot {
 	
 
 	protected void setupModels() {
-		anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase-smooth.stl2",0.1f);
-		shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1-smooth.stl2",0.1f);
-		boom = ModelFactory.createModelFromFilename("/AH/Elbow-smooth.stl2",0.1f);
-		stick = ModelFactory.createModelFromFilename("/AH/Forearm-smooth.stl2",0.1f);
-		wrist = ModelFactory.createModelFromFilename("/AH/Wrist_r1-smooth.stl2",0.1f);
-		hand = ModelFactory.createModelFromFilename("/AH/WristRot-smooth.stl2",0.1f);
+		try {
+			anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase.stl",0.1f);
+			shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1.stl",0.1f);
+			boom = ModelFactory.createModelFromFilename("/AH/Elbow.stl",0.1f);
+			stick = ModelFactory.createModelFromFilename("/AH/Forearm.stl",0.1f);
+			wrist = ModelFactory.createModelFromFilename("/AH/Wrist_r1.stl",0.1f);
+			hand = ModelFactory.createModelFromFilename("/AH/WristRot.stl",0.1f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	

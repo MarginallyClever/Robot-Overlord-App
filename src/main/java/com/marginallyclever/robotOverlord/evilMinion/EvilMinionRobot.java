@@ -139,15 +139,19 @@ extends Robot {
 	
 
 	protected void setupModels() {
-		anchor = ModelFactory.createModelFromFilename("/ArmParts.zip:anchor.STL",0.1f);
-		shoulder = ModelFactory.createModelFromFilename("/ArmParts.zip:shoulder1.STL",0.1f);
-		shoulderPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:shoulder_pinion.STL",0.1f);
-		boom = ModelFactory.createModelFromFilename("/ArmParts.zip:boom.STL",0.1f);
-		stick = ModelFactory.createModelFromFilename("/ArmParts.zip:stick.STL",0.1f);
-		wristBone = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_bone.STL",0.1f);
-		hand = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
-		wristInterior = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_interior.STL",0.1f);
-		wristPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_pinion.STL",0.1f);
+		try {
+			anchor = ModelFactory.createModelFromFilename("/ArmParts.zip:anchor.STL",0.1f);
+			shoulder = ModelFactory.createModelFromFilename("/ArmParts.zip:shoulder1.STL",0.1f);
+			shoulderPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:shoulder_pinion.STL",0.1f);
+			boom = ModelFactory.createModelFromFilename("/ArmParts.zip:boom.STL",0.1f);
+			stick = ModelFactory.createModelFromFilename("/ArmParts.zip:stick.STL",0.1f);
+			wristBone = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_bone.STL",0.1f);
+			hand = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_end.STL",0.1f);
+			wristInterior = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_interior.STL",0.1f);
+			wristPinion = ModelFactory.createModelFromFilename("/ArmParts.zip:wrist_pinion.STL",0.1f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
     private void readObject(ObjectInputStream inputStream)
