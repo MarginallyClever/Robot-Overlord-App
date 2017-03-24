@@ -45,7 +45,7 @@ import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.communications.ConnectionManager;
+import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.actions.ActionAbout;
@@ -80,7 +80,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected transient double pickX, pickY;
 	protected transient Entity pickObject; 
 	
-	protected transient ConnectionManager connectionManager;
+	protected transient NetworkConnectionManager connectionManager;
 	
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
@@ -139,7 +139,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		isMouseIn=false;
 		hasLeftDragDeadZone=false;
 		
-		connectionManager = new ConnectionManager();
+		connectionManager = new NetworkConnectionManager();
 		
 		glu = new GLU();
 /*
@@ -213,7 +213,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     }
 	
 
- 	public ConnectionManager getConnectionManager() {
+ 	public NetworkConnectionManager getConnectionManager() {
  		return connectionManager;
  	}
  	
