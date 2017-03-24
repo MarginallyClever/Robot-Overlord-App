@@ -49,11 +49,9 @@ public class MantisToolGripper extends MantisTool {
 	protected transient Material matAdapter = new Material();
 
 	
-	public MantisToolGripper() {
-		setupModels();
-	}
+	public MantisToolGripper() {}
 	
-	protected void setupModels() {
+	protected void loadModels(GL2 gl2) {
 		try {
 			modelAdapter = ModelFactory.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
 			modelMain = ModelFactory.createModelFromFilename("/Gripper/Main.stl",0.1f);
@@ -77,12 +75,14 @@ public class MantisToolGripper extends MantisTool {
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupModels();
         inputStream.defaultReadObject();
     }   
 	
 	
 	public void render(GL2 gl2) {
+		if(modelServo==null) {
+			loadModels(gl2);
+		}
 		//gl2.glPushMatrix();
 		//renderWires(gl2);
 		//gl2.glPopMatrix();
