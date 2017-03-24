@@ -104,35 +104,38 @@ public class Model implements Serializable {
 			vertices.put(j++, pz*loadScale+adjustZ);
 		}
 		
-		normals = FloatBuffer.allocate(normalArray.size());
-		fi = normalArray.iterator();
-		while(fi.hasNext()) {
-			normals.put(fi.next().floatValue());
-		}
 		
-		texCoords = FloatBuffer.allocate(texCoordArray.size());
-		fi = texCoordArray.iterator();
-		while(fi.hasNext()) {
-			texCoords.put(fi.next().floatValue());
-		}
 
-		int totalBufferSize = numVertexes*3;
+		int totalBufferSize = numVertexes;
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
-
+		
 		// bind a buffer
 		vertices.rewind();
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
 	    // Write out vertex buffer to the currently bound VBO.
-	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*s, vertices, GL2.GL_STATIC_DRAW);
+	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, vertices, GL2.GL_STATIC_DRAW);
 
 		if(hasNormals) {
 		    // repeat for normals
+			normals = FloatBuffer.allocate(normalArray.size());
+			fi = normalArray.iterator();
+			while(fi.hasNext()) {
+				normals.put(fi.next().floatValue());
+			}
+			
 			normals.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*s, normals, GL2.GL_STATIC_DRAW);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, normals, GL2.GL_STATIC_DRAW);
 		}
+		
 		if(hasTextureCoordinates) {
 		    // repeat for textures
+			texCoords = FloatBuffer.allocate(texCoordArray.size());
+			fi = texCoordArray.iterator();
+			while(fi.hasNext()) {
+				texCoords.put(fi.next().floatValue());
+			}
+			
 		    texCoords.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[2]);
 		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*2*s, texCoords, GL2.GL_STATIC_DRAW);

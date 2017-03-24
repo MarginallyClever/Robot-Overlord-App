@@ -53,11 +53,9 @@ public class EvilMinionToolGripper extends EvilMinionTool {
 	protected transient Material matServo = new Material();
 	
 	
-	public EvilMinionToolGripper() {
-		setupModels();
-	}
+	public EvilMinionToolGripper() {}
 	
-	protected void setupModels() {
+	protected void loadModels(GL2 gl2) {
 		try {
 			modelAdapter = ModelFactory.createModelFromFilename("/Gripper/Adapter.stl",0.1f);
 			modelMain = ModelFactory.createModelFromFilename("/Gripper/Main.stl",0.1f);
@@ -87,12 +85,14 @@ public class EvilMinionToolGripper extends EvilMinionTool {
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupModels();
         inputStream.defaultReadObject();
     }   
 	
 	
 	public void render(GL2 gl2) {
+		if(modelServo==null) {
+			loadModels(gl2);
+		}
 		//gl2.glPushMatrix();
 		//renderWires(gl2);
 		//gl2.glPopMatrix();

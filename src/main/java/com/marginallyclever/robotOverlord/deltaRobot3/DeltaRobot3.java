@@ -299,6 +299,8 @@ extends Robot {
 	
 	
 	public void render(GL2 gl2) {
+		super.render(gl2);
+		
 		int i;
 
 		boolean draw_finger_star=true;
