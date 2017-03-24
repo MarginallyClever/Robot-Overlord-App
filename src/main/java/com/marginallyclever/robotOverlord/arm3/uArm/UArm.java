@@ -27,6 +27,15 @@ public class UArm extends Arm3 {
 	public UArm() {
 		super(new UArmDimensions());
 
+		//bicep.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
+		//elbowHorn.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
+		//forearm.adjustOrigin(-4.0334f*2.54f,0,-8.3535f*2.54f);
+		
+		material.setDiffuseColor(1, 0.8f, 1, 1);
+	}
+
+	@Override
+	protected void loadModels(GL2 gl2) {
 		try {
 			base = ModelFactory.createModelFromFilename("/uArm/1.STL",0.1f);
 			shoulder = ModelFactory.createModelFromFilename("/uArm/2.STL",0.1f);
@@ -41,15 +50,13 @@ public class UArm extends Arm3 {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		//bicep.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
-		//elbowHorn.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
-		//forearm.adjustOrigin(-4.0334f*2.54f,0,-8.3535f*2.54f);
-		
-		material.setDiffuseColor(1, 0.8f, 1, 1);
 	}
-
+	
 	// TODO clean up all the magic number bullshit.
+	@Override
 	public void render(GL2 gl2) {
+		super.render(gl2);
+		
 		gl2.glPushMatrix();
 		Vector3f p = this.getPosition();
 		gl2.glTranslatef(p.x,p.y,p.z);

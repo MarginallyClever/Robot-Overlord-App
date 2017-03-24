@@ -102,8 +102,6 @@ extends Robot {
 	public MantisRobot() {
 		super();
 		
-		setupModels();
-		
 		setDisplayName(ROBOT_NAME);
 		
 		// set up bounding volumes
@@ -137,7 +135,8 @@ extends Robot {
 	}
 	
 
-	protected void setupModels() {
+	@Override
+	protected void loadModels(GL2 gl2) {
 		try {
 			anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase.stl",0.1f);
 			shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1.stl",0.1f);
@@ -154,7 +153,6 @@ extends Robot {
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupModels();
         inputStream.defaultReadObject();
     }
 
@@ -538,6 +536,8 @@ extends Robot {
 	
 	
 	public void render(GL2 gl2) {
+		super.render(gl2);
+		
 		gl2.glPushMatrix();
 			// TODO rotate model
 			

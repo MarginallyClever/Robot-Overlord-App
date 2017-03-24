@@ -88,43 +88,41 @@ implements ActionListener {
 	  MOVE_MODE_MAX
 	};
 
-	  SpideeLocation body = new SpideeLocation();
-	  SpideeLocation target = new SpideeLocation();
-	  SpideeLeg [] legs = new SpideeLeg[6];
+  SpideeLocation body = new SpideeLocation();
+  SpideeLocation target = new SpideeLocation();
+  SpideeLeg [] legs = new SpideeLeg[6];
 
-	  public int [] buttons = new int[BUTTONS_MAX];
-	  
-	  float body_radius;
-	  float standing_radius;  // Distance from center of body to foot on ground in body-relative XY plane.  Used for motion planning
-	  float standing_height;  // How high the body should "ride" when walking
-	  float turn_stride_length;  // how far to move a foot when turning
-	  float stride_length;  // how far to move a step when walking
-	  float stride_height;  // how far to lift a foot
-	  float max_leg_length;
+  public int [] buttons = new int[BUTTONS_MAX];
+  
+  float body_radius;
+  float standing_radius;  // Distance from center of body to foot on ground in body-relative XY plane.  Used for motion planning
+  float standing_height;  // How high the body should "ride" when walking
+  float turn_stride_length;  // how far to move a foot when turning
+  float stride_length;  // how far to move a step when walking
+  float stride_height;  // how far to lift a foot
+  float max_leg_length;
 
-	  MoveModes move_mode;  // What is the bot's current agenda?
-	  float gait_cycle;
+  MoveModes move_mode;  // What is the bot's current agenda?
+  float gait_cycle;
 
-	  float speed_scale;
-	  boolean paused;
-	  boolean render_meshes = true;
+  float speed_scale;
+  boolean paused;
+  boolean render_meshes = true;
 
-	  // models
-	  protected transient Model modelThigh = null;
-	  protected transient Model modelBody = null;
-	  protected transient Model modelShoulderLeft = null;
-	  protected transient Model modelShoulderRight = null;
-	  protected transient Model modelShinLeft = null;
-	  protected transient Model modelShinRight = null;
-	  
-	  protected transient SpideeControlPanel spideePanel;
+  // models
+  protected transient Model modelThigh = null;
+  protected transient Model modelBody = null;
+  protected transient Model modelShoulderLeft = null;
+  protected transient Model modelShoulderRight = null;
+  protected transient Model modelShinLeft = null;
+  protected transient Model modelShinRight = null;
+  
+  protected transient SpideeControlPanel spideePanel;
 	  
 	
 	public Spidee() {
 		super();
 		setDisplayName("Spidee");
-
-		setupModels();
 		
 		int i;
 		for(i=0;i<6;++i) {
@@ -290,8 +288,9 @@ implements ActionListener {
 
 		paused=false;
 	}
-	
-	protected void setupModels() {
+
+	@Override
+	protected void loadModels(GL2 gl2) {
 		try {
 			modelThigh = ModelFactory.createModelFromFilename( "/Spidee.zip:thigh.stl");
 			modelBody = ModelFactory.createModelFromFilename( "/Spidee.zip:body.stl");
@@ -308,7 +307,6 @@ implements ActionListener {
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupModels();
         inputStream.defaultReadObject();
     }   
 	

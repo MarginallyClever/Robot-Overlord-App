@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.marginallyclever.communications.NetworkConnectionManager;
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
@@ -48,7 +49,7 @@ implements NetworkConnectionListener, ActionListener {
 
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonConnect;
-	
+	private boolean modelsLoaded;
 	
 	public Robot() {
 		super();
@@ -58,6 +59,7 @@ implements NetworkConnectionListener, ActionListener {
 		fileOpened=false;
 		paused=true;
 		running=false;
+		modelsLoaded=false;
 		//program=new RobotProgram();
 	}
 	
@@ -234,7 +236,18 @@ implements NetworkConnectionListener, ActionListener {
 			}
 		}
 	}
+	
+	// Must be called by subclass to loadModels on render.
+	public void render(GL2 gl2) {
+		if(!modelsLoaded) {
+			loadModels(gl2);
+			modelsLoaded=true;
+		}
+	}
 
+	// stub to be overridden by subclasses.
+	protected void loadModels(GL2 gl2) {}
+	
 	/**
 	 * Processes a single instruction meant for the robot.
 	 * @param line

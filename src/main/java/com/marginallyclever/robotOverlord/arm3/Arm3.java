@@ -273,6 +273,8 @@ extends Robot {
 	
 	
 	public void render(GL2 gl2) {
+		super.render(gl2);
+		
 		gl2.glPushMatrix();
 		Vector3f p = this.getPosition();
 		gl2.glTranslatef(p.x,p.y,p.z);
