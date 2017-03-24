@@ -100,9 +100,9 @@ public class PrimitiveSolids {
 		gl2.glNormal3f(0,-1,0);
 		for(i=0;i<=c;++i) {
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3f((float)Math.sin(ratio)*radius,
+			gl2.glVertex3f((float)Math.cos(ratio)*radius,
 							-thickness,
-							(float)Math.cos(ratio)*radius);
+							(float)Math.sin(ratio)*radius);
 		}
 		gl2.glEnd();
 
@@ -128,10 +128,10 @@ public class PrimitiveSolids {
 		gl2.glBegin(GL2.GL_QUADS);
 		// bottom
 		gl2.glNormal3f( 0, 0,-1);
-		gl2.glVertex3f(-width,-depth,0);
-		gl2.glVertex3f( width,-depth,0);
-		gl2.glVertex3f( width, depth,0);
 		gl2.glVertex3f(-width, depth,0);
+		gl2.glVertex3f( width, depth,0);
+		gl2.glVertex3f( width,-depth,0);
+		gl2.glVertex3f(-width,-depth,0);
 
 		// top
 		gl2.glNormal3f( 0, 0, 1);
@@ -155,16 +155,16 @@ public class PrimitiveSolids {
 		gl2.glVertex3f( width,-depth,0);
 
 		gl2.glNormal3f( 1, 0, 0);
-		gl2.glVertex3f( width,-depth,0);
-		gl2.glVertex3f( width,-depth,height);
-		gl2.glVertex3f( width, depth,height);
 		gl2.glVertex3f( width, depth,0);
+		gl2.glVertex3f( width, depth,height);
+		gl2.glVertex3f( width,-depth,height);
+		gl2.glVertex3f( width,-depth,0);
 	
 		gl2.glNormal3f(-1, 0, 0);
-		gl2.glVertex3f(-width, depth,height);
 		gl2.glVertex3f(-width,-depth,height);
-		gl2.glVertex3f(-width,-depth,0);
+		gl2.glVertex3f(-width, depth,height);
 		gl2.glVertex3f(-width, depth,0);
+		gl2.glVertex3f(-width,-depth,0);
 
 		gl2.glEnd();
 		
