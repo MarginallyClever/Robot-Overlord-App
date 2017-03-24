@@ -100,7 +100,6 @@ extends Robot
 		motionFuture = new RotaryStewartPlatform2MotionState();
 		
 		setupBoundingVolumes();
-		setupVisualModels();
 		setHome(new Vector3f(0,0,0));
 		
 		// set up the initial state of the machine
@@ -162,7 +161,8 @@ extends Robot
 	}
 	
 
-	protected void setupVisualModels() {
+	@Override
+	protected void loadModels(GL2 gl2) {
 		try {
 			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL",0.1f);
 			modelArm = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL",0.1f);
@@ -175,7 +175,6 @@ extends Robot
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupVisualModels();
         inputStream.defaultReadObject();
     }
 
@@ -313,6 +312,8 @@ extends Robot
 	
 	
 	public void render(GL2 gl2) {
+		super.render(gl2);
+		
 		int i;
 
 		boolean draw_finger_star=false;

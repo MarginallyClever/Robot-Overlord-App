@@ -88,7 +88,6 @@ extends Robot {
 		motionFuture = new DeltaRobot3MotionState();
 		
 		setupBoundingVolumes();
-		setupModels();
 		setHome(new Vector3f(0,0,0));
 		
 		isPortConfirmed=false;
@@ -114,7 +113,8 @@ extends Robot {
 	}
 
 	
-	private void setupModels() {
+	@Override
+	protected void loadModels(GL2 gl2) {
 		try {
 			modelTop = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
 			modelArm = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
@@ -155,8 +155,7 @@ extends Robot {
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
-    	setupModels();
-        inputStream.defaultReadObject();
+    	inputStream.defaultReadObject();
     }
 	
 	
