@@ -36,6 +36,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.makelangeloRobot.ImageManipulator;
 import com.marginallyclever.robotOverlord.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -160,44 +161,9 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 	}
 	
 	protected void openConnection() {
-		JPanel connectionList = new JPanel(new GridLayout(0, 1));
-		connectionList.add(new JLabel(Translator.get("MenuConnect")));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-
-		JComboBox<String> connectionComboBox = new JComboBox<String>();
-        connectionComboBox.addItemListener(this);
-        connectionList.removeAll();
-        connectionList.add(connectionComboBox);
-	    
-	    String recentConnection = "";
-	    if(robot.getConnection()!=null) {
-	    	recentConnection = robot.getConnection().getRecentConnection();
-	    }
-
-	    if(gui.getConnectionManager()!=null) {
-			String [] portsDetected = gui.getConnectionManager().listConnections();
-			int i;
-		    for(i=0;i<portsDetected.length;++i) {
-		    	connectionComboBox.addItem(portsDetected[i]);
-		    	if(recentConnection.equals(portsDetected[i])) {
-		    		connectionComboBox.setSelectedIndex(i+1);
-		    	}
-		    }
-	    }
-        
-		int result = JOptionPane.showConfirmDialog(this.getRootPane(), connectionList, getName(), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-			String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
-			robot.setConnection( gui.getConnectionManager().openConnection(connectionName) );
-			//updateMachineNumberPanel();
-			//updateButtonAccess();
+		NetworkConnection nc = gui.getConnectionManager().requestNewConnection(this.getRootPane());
+		if(nc!=null) {
+			robot.setConnection(nc);
 		}
 	}
 	
