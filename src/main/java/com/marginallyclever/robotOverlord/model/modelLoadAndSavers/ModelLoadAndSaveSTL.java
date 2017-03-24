@@ -178,7 +178,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 		final String facet_normal = "facet normal ";
 		final String vertex = "vertex ";
 
-		int lineCount=0;
+		//int lineCount=0;
 		
 		while( ( line = br.readLine() ) != null ) {
 			line = line.trim();
@@ -209,7 +209,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 				//System.out.println("STL format reading unsupported line ("+lineCount+"): "+line);
 				continue;
 			}
-			++lineCount;
+			//++lineCount;
 		}
 		model.hasNormals=true;
 	}
