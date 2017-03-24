@@ -275,27 +275,29 @@ extends Robot {
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		
-		gl2.glPushMatrix();
-		Vector3f p = this.getPosition();
-		gl2.glTranslatef(p.x,p.y,p.z);
-/*
-		gl2.glTranslatef(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-		gl2.glRotatef(motionNow.base_pan, motionNow.base_up.x,motionNow.base_up.y,motionNow.base_up.z);
- 		// for debugging difference between FK and IK
-		gl2.glDisable(GL2.GL_LIGHTING);
-		gl2.glColor3d(1,1,1);
-		PrimitiveSolids.drawStar(gl2,motionNow.finger_tip,5);
-		PrimitiveSolids.drawStar(gl2,motionNow.elbow,10);
-		PrimitiveSolids.drawStar(gl2,motionNow.shoulder,15);
-		gl2.glEnable(GL2.GL_LIGHTING);
-*/
-		//drawBounds(gl2);
-		
-		// these two should always match!
-		drawFK(gl2);
-		//drawIK(gl2);
-		
-		gl2.glPopMatrix();
+		if(this.getClass() == Arm3.class) {
+			gl2.glPushMatrix();
+			Vector3f p = this.getPosition();
+			gl2.glTranslatef(p.x,p.y,p.z);
+	
+	//		gl2.glTranslatef(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+	//		gl2.glRotatef(motionNow.base_pan, motionNow.base_up.x,motionNow.base_up.y,motionNow.base_up.z);
+	 		// for debugging difference between FK and IK
+	//		gl2.glDisable(GL2.GL_LIGHTING);
+	//		gl2.glColor3d(1,1,1);
+	//		PrimitiveSolids.drawStar(gl2,motionNow.finger_tip,5);
+	//		PrimitiveSolids.drawStar(gl2,motionNow.elbow,10);
+	//		PrimitiveSolids.drawStar(gl2,motionNow.shoulder,15);
+	//		gl2.glEnable(GL2.GL_LIGHTING);
+	
+			//drawBounds(gl2);
+			
+			// these two should always match!
+			drawFK(gl2);
+			//drawIK(gl2);
+			
+			gl2.glPopMatrix();
+		}
 	}
 	
 	
