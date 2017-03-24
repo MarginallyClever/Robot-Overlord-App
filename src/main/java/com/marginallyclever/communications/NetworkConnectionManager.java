@@ -17,11 +17,11 @@ import com.marginallyclever.robotOverlord.Translator;
  * @author dan royer
  *
  */
-public class ConnectionManager {
+public class NetworkConnectionManager {
 	private SerialTransportLayer serial;
 	private TCPTransportLayer tcp;
 	
-	public ConnectionManager() {
+	public NetworkConnectionManager() {
 		serial = new SerialTransportLayer();
 		tcp = new TCPTransportLayer();
 	}

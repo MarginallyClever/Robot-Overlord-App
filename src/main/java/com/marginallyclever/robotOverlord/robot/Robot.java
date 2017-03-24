@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import com.marginallyclever.communications.ConnectionManager;
+import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
@@ -30,7 +30,7 @@ implements NetworkConnectionListener, ActionListener {
 	private static final long serialVersionUID = 1970631551615654640L;
 	
 	//comms	
-	protected transient ConnectionManager connectionManager;
+	protected transient NetworkConnectionManager connectionManager;
 	protected transient String[] portsDetected=null;
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
@@ -61,10 +61,10 @@ implements NetworkConnectionListener, ActionListener {
 		//program=new RobotProgram();
 	}
 	
-	public ConnectionManager getConnectionManager() {
+	public NetworkConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
-	public void setConnectionManager(ConnectionManager connectionManager) {
+	public void setConnectionManager(NetworkConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 	}
 	
