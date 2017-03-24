@@ -11,8 +11,7 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import com.marginallyclever.communications.AbstractConnectionManager;
-import com.marginallyclever.communications.SerialConnectionManager;
+import com.marginallyclever.communications.ConnectionManager;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
@@ -36,7 +35,7 @@ implements Serializable {
 	 */
 	private static final long serialVersionUID = -2405142728731535038L;
 
-	protected transient AbstractConnectionManager connectionManager = new SerialConnectionManager();
+	protected transient ConnectionManager connectionManager = new ConnectionManager();
 
 	protected transient boolean areTexturesLoaded=false;
 

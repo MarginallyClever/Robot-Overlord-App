@@ -1,19 +1,16 @@
 package com.marginallyclever.robotOverlord.robot;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import com.marginallyclever.communications.AbstractConnection;
-import com.marginallyclever.communications.AbstractConnectionListener;
-import com.marginallyclever.communications.AbstractConnectionManager;
+import com.marginallyclever.communications.ConnectionManager;
+import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -21,21 +18,21 @@ import com.marginallyclever.robotOverlord.Translator;
 
 
 /**
- * A robot visible with a physical presence in the World.  Assumed to have an AbstractConnection to a machine in real life.  
+ * A robot visible with a physical presence in the World.  Assumed to have an NetworkConnection to a machine in real life.  
  * @author Dan Royer
  *
  */
 public class Robot extends PhysicalObject
-implements AbstractConnectionListener, ActionListener {
+implements NetworkConnectionListener, ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1970631551615654640L;
 	
 	//comms	
-	protected transient AbstractConnectionManager connectionManager;
+	protected transient ConnectionManager connectionManager;
 	protected transient String[] portsDetected=null;
-	protected transient AbstractConnection connection;
+	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
 	
 	protected transient CollapsiblePanel connectionPanel=null;
@@ -64,10 +61,10 @@ implements AbstractConnectionListener, ActionListener {
 		//program=new RobotProgram();
 	}
 	
-	public AbstractConnectionManager getConnectionManager() {
+	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
-	public void setConnectionManager(AbstractConnectionManager connectionManager) {
+	public void setConnectionManager(ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 	}
 	
@@ -123,57 +120,27 @@ implements AbstractConnectionListener, ActionListener {
 
 	
 	protected void closeConnection() {
-		this.setConnection(null);
 		buttonConnect.setText(Translator.get("ButtonConnect"));
+		connection.closeConnection();
+		connection.removeListener(this);
+		connection=null;
 	}
 	
 	protected void openConnection() {
-		JPanel connectionList = new JPanel(new GridLayout(0, 1));
-		buttonConnect.setText(Translator.get("ButtonDisconnect"));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-
-		JComboBox<String> connectionComboBox = new JComboBox<String>();
-        connectionList.add(connectionComboBox);
-	    
-	    String recentConnection = "";
-	    if(getConnection()!=null) {
-	    	recentConnection = getConnection().getRecentConnection();
-	    }
-
-	    if( connectionManager != null ) {
-			String [] portsDetected = connectionManager.listConnections();
-			int i;
-		    for(i=0;i<portsDetected.length;++i) {
-		    	connectionComboBox.addItem(portsDetected[i]);
-		    	if(recentConnection.equals(portsDetected[i])) {
-		    		connectionComboBox.setSelectedIndex(i+1);
-		    	}
-		    }
-	    }
-        //TODO change showConfirmDialog(null... to showConfirmDialog(root window of app...
-		int result = JOptionPane.showConfirmDialog(null, connectionList, "Connect to...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-			String connectionName = connectionComboBox.getItemAt(connectionComboBox.getSelectedIndex());
-			setConnection( connectionManager.openConnection(connectionName) );
+		NetworkConnection s = connectionManager.requestNewConnection(null);
+		if(s!=null) {
+			buttonConnect.setText(Translator.get("ButtonDisconnect"));
+			setConnection(s);
 		}
 	}
 	
-	public AbstractConnection getConnection() {
+	public NetworkConnection getConnection() {
 		return this.connection;
 	}
 	
-	public void setConnection(AbstractConnection arg0) {
-		if(connection!=null) {
-			if( connection == arg0 ) return;
-			connection.removeListener(this);
-			connection.close();
+	public void setConnection(NetworkConnection arg0) {
+		if(connection!=null && connection!=arg0) {
+			closeConnection();
 		}
 		
 		connection = arg0;
@@ -182,13 +149,10 @@ implements AbstractConnectionListener, ActionListener {
 			connection.addListener(this);
 		}
 	}
-	
-	@Override
-	public void connectionReady(AbstractConnection arg0) {}
 
 	
 	@Override
-	public void dataAvailable(AbstractConnection arg0,String data) {
+	public void dataAvailable(NetworkConnection arg0,String data) {
 		if(arg0==connection && connection!=null) {
 			if(data.startsWith(">")) {
 				isReadyToReceive=true;
@@ -299,6 +263,18 @@ implements AbstractConnectionListener, ActionListener {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public void lineError(NetworkConnection arg0, int lineNumber) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendBufferEmpty(NetworkConnection arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 /*

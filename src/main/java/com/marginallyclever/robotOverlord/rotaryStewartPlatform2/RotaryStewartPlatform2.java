@@ -15,7 +15,7 @@ import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.communications.AbstractConnection;
+import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -477,7 +477,7 @@ extends Robot
 
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
-	public void dataAvailable(AbstractConnection arg0,String line) {
+	public void dataAvailable(NetworkConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();

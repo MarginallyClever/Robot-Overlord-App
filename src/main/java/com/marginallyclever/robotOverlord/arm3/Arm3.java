@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.arm3;
 
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.communications.AbstractConnection;
+import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
@@ -765,7 +765,7 @@ extends Robot {
 
 	
 	@Override
-	public void dataAvailable(AbstractConnection arg0,String data) {
+	public void dataAvailable(NetworkConnection arg0,String data) {
 		super.dataAvailable(arg0, data);
 		
 		if(data.contains(armSettings.getHello())) {
