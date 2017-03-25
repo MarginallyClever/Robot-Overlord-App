@@ -13,6 +13,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -213,13 +214,12 @@ public class RotaryStewartPlatform2ControlPanel extends JPanel implements Action
 	public void update() { 
 		// TODO rotate fingerPosition before adding position
 
-		xPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.fingerPosition.x)));
-		yPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.fingerPosition.y)));
-		zPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.fingerPosition.z)));
-
-		uPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleU)));
-		vPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleV)));
-		wPos.setText(Float.toString(RotaryStewartPlatform2.roundOff(robot.motionNow.rotationAngleW)));
+		xPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.x)));
+		yPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.y)));
+		zPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.z)));
+		uPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleU)));
+		vPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleV)));
+		wPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleW)));
 
 		//if( tool != null ) tool.updateGUI();
 		

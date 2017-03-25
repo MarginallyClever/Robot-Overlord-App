@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -583,23 +584,16 @@ extends Robot
 		return list;
 	}
 	
-
-	static protected float roundOff(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
-
 	
 	private void sendChangeToRealMachine() {
 		if(!isPortConfirmed()) return;
 		
-		this.sendLineToRobot("G0 X"+roundOff(motionNow.fingerPosition.x)
-		          +" Y"+roundOff(motionNow.fingerPosition.y)
-		          +" Z"+roundOff(motionNow.fingerPosition.z)
-		          +" U"+roundOff(motionNow.rotationAngleU)
-		          +" V"+roundOff(motionNow.rotationAngleV)
-		          +" W"+roundOff(motionNow.rotationAngleW)
+		this.sendLineToRobot("G0 X"+MathHelper.roundOff3(motionNow.fingerPosition.x)
+		          +" Y"+MathHelper.roundOff3(motionNow.fingerPosition.y)
+		          +" Z"+MathHelper.roundOff3(motionNow.fingerPosition.z)
+		          +" U"+MathHelper.roundOff3(motionNow.rotationAngleU)
+		          +" V"+MathHelper.roundOff3(motionNow.rotationAngleV)
+		          +" W"+MathHelper.roundOff3(motionNow.rotationAngleW)
 		          );
 	}
 	
