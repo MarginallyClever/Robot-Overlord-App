@@ -75,6 +75,9 @@ extends Robot
 	protected transient Model modelTop;
 	protected transient Model modelArm;
 	protected transient Model modelBase;
+	protected transient Material matTop = new Material();
+	protected transient Material matArm = new Material();
+	protected transient Material matBase = new Material();
 	
 	// this should be come a list w/ rollback
 	protected RotaryStewartPlatform2MotionState motionNow;
@@ -168,6 +171,22 @@ extends Robot
 			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL",0.1f);
 			modelArm = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL",0.1f);
 			modelBase = ModelFactory.createModelFromFilename("/StewartPlatform.zip:base.STL",0.1f);
+			matBase.setDiffuseColor(
+					37.0f/255.0f,
+					110.0f/255.0f,
+					94.0f/255.0f,
+					1.0f);
+			matArm.setDiffuseColor(
+					68.0f/255.0f,
+					137.0f/255.0f,
+					122.0f/255.0f,
+					1.0f);
+			matTop.setDiffuseColor(
+					110.0f/255.0f,
+					164.0f/255.0f,
+					152.0f/255.0f,
+					1.0f);
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -333,8 +352,8 @@ extends Robot
 		
 		if(draw_stl) {
 			// base
+			matBase.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z+0.6f);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(90, 1, 0, 0);
@@ -342,8 +361,8 @@ extends Robot
 			gl2.glPopMatrix();
 			
 			// arms
+			matArm.render(gl2);
 			for(i=0;i<3;++i) {
-				gl2.glColor3f(0.9f,0.9f,0.9f);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motionNow.arms[i*2+0].shoulder.x,
 						         motionNow.arms[i*2+0].shoulder.y,
@@ -354,7 +373,6 @@ extends Robot
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 	
-				gl2.glColor3f(0.9f,0.9f,0.9f);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motionNow.arms[i*2+1].shoulder.x,
 						         motionNow.arms[i*2+1].shoulder.y,
@@ -366,8 +384,8 @@ extends Robot
 				gl2.glPopMatrix();
 			}
 			//top
+			matTop.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z+motionNow.relative.z);
 			gl2.glRotatef(motionNow.rotationAngleU, 1, 0, 0);
 			gl2.glRotatef(motionNow.rotationAngleV, 0, 1, 0);
