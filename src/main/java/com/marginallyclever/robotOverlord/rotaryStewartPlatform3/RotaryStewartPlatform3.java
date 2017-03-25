@@ -183,7 +183,7 @@ extends Robot
 			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform3.zip:top.stl",0.1f);
 			modelBicep = ModelFactory.createModelFromFilename("/StewartPlatform3.zip:bicep.stl",0.1f);
 			modelBase = ModelFactory.createModelFromFilename("/StewartPlatform3.zip:base.stl",0.1f);
-			modelForearm = ModelFactory.createModelFromFilename(/*"/StewartPlatform3.zip:*/"/forearm.stl",0.1f);
+			modelForearm = ModelFactory.createModelFromFilename("/StewartPlatform3.zip:forearm.stl",0.1f);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
