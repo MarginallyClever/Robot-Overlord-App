@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.glu.GLU;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;

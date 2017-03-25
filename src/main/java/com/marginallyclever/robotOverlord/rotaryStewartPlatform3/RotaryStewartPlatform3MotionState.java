@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.Log;
-import com.marginallyclever.robotOverlord.rotaryStewartPlatform2.RotaryStewartPlatform2;
 
 
 public class RotaryStewartPlatform3MotionState implements Serializable {
