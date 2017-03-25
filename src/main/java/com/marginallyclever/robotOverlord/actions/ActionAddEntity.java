@@ -55,7 +55,7 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
-
+		
 		JComboBox<String> additionComboBox = new JComboBox<String>();
 		additionList.add(additionComboBox);
 		
