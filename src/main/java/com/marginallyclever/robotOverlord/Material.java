@@ -23,8 +23,11 @@ public class Material {
 	    gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT_AND_DIFFUSE );
 		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 		gl2.glShadeModel(GL2.GL_SMOOTH);
-	    if(isLit()) gl2.glEnable(GL2.GL_LIGHTING);
-	    else gl2.glDisable(GL2.GL_LIGHTING);
+	    if(isLit()) {
+	    	gl2.glEnable(GL2.GL_LIGHTING);
+	    } else {
+	    	gl2.glDisable(GL2.GL_LIGHTING);
+	    }
 	    if(texture==null) {
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 	    } else {

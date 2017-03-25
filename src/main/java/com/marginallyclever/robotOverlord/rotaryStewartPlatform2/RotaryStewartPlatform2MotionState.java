@@ -74,7 +74,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
-		float aa=(this.arms[0].elbow.y-this.arms[0].wrist.y);
+		float aa=RotaryStewartPlatform2.BICEP_LENGTH-(RotaryStewartPlatform2.BASE_TO_SHOULDER_Y-RotaryStewartPlatform2.WRIST_TO_FINGER_Y);
 		float cc=RotaryStewartPlatform2.FOREARM_LENGTH;
 		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
 		aa=this.arms[0].elbow.x-this.arms[0].wrist.x;
