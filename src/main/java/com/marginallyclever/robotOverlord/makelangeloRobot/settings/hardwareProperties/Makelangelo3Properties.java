@@ -38,8 +38,8 @@ public class Makelangelo3Properties extends Makelangelo2Properties {
 
 	/**
 	 * paint the controller and the LCD panel
-	 * @param gl2
-	 * @param settings
+	 * @param gl2 the opengl context to call when rendering this hardware
+	 * @param settings device specific settings 
 	 */
 	protected void paintControlBox(GL2 gl2,MakelangeloRobotSettings settings) {
 		double cy = settings.getLimitTop();

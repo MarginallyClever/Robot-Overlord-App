@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.evilMinion.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -250,7 +251,7 @@ extends Robot {
 	
 	/**
 	 * update the desired finger location
-	 * @param delta
+	 * @param delta time since the last update.  usually ~1/30s.
 	 */
 	protected void updateIK(float delta) {
 		boolean changed=false;
@@ -307,14 +308,14 @@ extends Robot {
 			
 			Vector3f result;
 
-			result = rotateAroundAxis(forward,of,motionFuture.iku);  // TODO rotating around itself has no effect.
-			result = rotateAroundAxis(result,or,motionFuture.ikv);
-			result = rotateAroundAxis(result,ou,motionFuture.ikw);
+			result = MathHelper.rotateAroundAxis(forward,of,motionFuture.iku);  // TODO rotating around itself has no effect.
+			result = MathHelper.rotateAroundAxis(result,or,motionFuture.ikv);
+			result = MathHelper.rotateAroundAxis(result,ou,motionFuture.ikw);
 			motionFuture.fingerForward.set(result);
 
-			result = rotateAroundAxis(right,of,motionFuture.iku);
-			result = rotateAroundAxis(result,or,motionFuture.ikv);
-			result = rotateAroundAxis(result,ou,motionFuture.ikw);
+			result = MathHelper.rotateAroundAxis(right,of,motionFuture.iku);
+			result = MathHelper.rotateAroundAxis(result,or,motionFuture.ikv);
+			result = MathHelper.rotateAroundAxis(result,ou,motionFuture.ikw);
 			motionFuture.fingerRight.set(result);
 			
 			//changed=true;
@@ -526,7 +527,7 @@ extends Robot {
 
 	/**
 	 * Visualize the inverse kinematics calculations
-	 * @param gl2
+	 * @param gl2 openGL render context
 	 */
 	protected void renderIK(GL2 gl2) {
 		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -568,7 +569,7 @@ extends Robot {
 	
 	/**
 	 * Draw the arm without calling glRotate to prove forward kinematics are correct.
-	 * @param gl2
+	 * @param gl2 openGL render context
 	 */
 	protected void renderFK(GL2 gl2) {
 		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -609,7 +610,7 @@ extends Robot {
 	
 	/**
 	 * Draw the physical model according to the angle values in the motionNow state.
-	 * @param gl2
+	 * @param gl2 openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
 		// anchor
@@ -918,41 +919,6 @@ extends Robot {
 		out.add(tempz);
 				
 		return out;
-	}
-	
-		
-	/**
-	 * Rotate the point xyz around the line passing through abc with direction uvw following the right hand rule for rotation
-	 * http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html
-	 * Special case where abc=0
-	 * @param vec
-	 * @param axis
-	 * @param angle
-	 * @return
-	 */
-	public static Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,double angle) {
-		float C = (float)Math.cos(angle);
-		float S = (float)Math.sin(angle);
-		float x = vec.x;
-		float y = vec.y;
-		float z = vec.z;
-		float u = axis.x;
-		float v = axis.y;
-		float w = axis.z;
-		
-		// (a*( v*v + w*w) - u*(b*v + c*w - u*x - v*y - w*z))(1.0-C)+x*C+(-c*v + b*w - w*y + v*z)*S
-		// (b*( u*u + w*w) - v*(a*v + c*w - u*x - v*y - w*z))(1.0-C)+y*C+( c*u - a*w + w*x - u*z)*S
-		// (c*( u*u + v*v) - w*(a*v + b*v - u*x - v*y - w*z))(1.0-C)+z*C+(-b*u + a*v - v*x + u*y)*S
-		// but a=b=c=0 so
-		// x' = ( -u*(- u*x - v*y - w*z)) * (1.0-C) + x*C + ( - w*y + v*z)*S
-		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
-		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
-		
-		float a = (-u*x - v*y - w*z);
-
-		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
-							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
-							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
 	}
 	
 

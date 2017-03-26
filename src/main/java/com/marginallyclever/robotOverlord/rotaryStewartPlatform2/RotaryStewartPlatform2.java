@@ -75,6 +75,9 @@ extends Robot
 	protected transient Model modelTop;
 	protected transient Model modelArm;
 	protected transient Model modelBase;
+	protected transient Material matTop = new Material();
+	protected transient Material matArm = new Material();
+	protected transient Material matBase = new Material();
 	
 	// this should be come a list w/ rollback
 	protected RotaryStewartPlatform2MotionState motionNow;
@@ -168,6 +171,22 @@ extends Robot
 			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL",0.1f);
 			modelArm = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL",0.1f);
 			modelBase = ModelFactory.createModelFromFilename("/StewartPlatform.zip:base.STL",0.1f);
+			matBase.setDiffuseColor(
+					37.0f/255.0f,
+					110.0f/255.0f,
+					94.0f/255.0f,
+					1.0f);
+			matArm.setDiffuseColor(
+					68.0f/255.0f,
+					137.0f/255.0f,
+					122.0f/255.0f,
+					1.0f);
+			matTop.setDiffuseColor(
+					110.0f/255.0f,
+					164.0f/255.0f,
+					152.0f/255.0f,
+					1.0f);
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -243,53 +262,19 @@ extends Robot
 		
 		Vector3f result;
 
-		result = rotateAroundAxis(forward,of,Math.toRadians(motionFuture.rotationAngleU));  // TODO rotating around itself has no effect.
-		result = rotateAroundAxis(result,or,Math.toRadians(motionFuture.rotationAngleV));
-		result = rotateAroundAxis(result,ou,Math.toRadians(motionFuture.rotationAngleW));
+		result = MathHelper.rotateAroundAxis(forward,of,(float)Math.toRadians(motionFuture.rotationAngleU));  // TODO rotating around itself has no effect.
+		result = MathHelper.rotateAroundAxis(result,or,(float)Math.toRadians(motionFuture.rotationAngleV));
+		result = MathHelper.rotateAroundAxis(result,ou,(float)Math.toRadians(motionFuture.rotationAngleW));
 		motionFuture.finger_forward.set(result);
 
-		result = rotateAroundAxis(right,of,Math.toRadians(motionFuture.rotationAngleU));
-		result = rotateAroundAxis(result,or,Math.toRadians(motionFuture.rotationAngleV));
-		result = rotateAroundAxis(result,ou,Math.toRadians(motionFuture.rotationAngleW));
+		result = MathHelper.rotateAroundAxis(right,of,(float)Math.toRadians(motionFuture.rotationAngleU));
+		result = MathHelper.rotateAroundAxis(result,or,(float)Math.toRadians(motionFuture.rotationAngleV));
+		result = MathHelper.rotateAroundAxis(result,ou,(float)Math.toRadians(motionFuture.rotationAngleW));
 		motionFuture.finger_left.set(result);
 		
 		motionFuture.finger_up.cross(motionFuture.finger_forward,motionFuture.finger_left);
 	}
 	
-		
-	/**
-	 * Rotate the point xyz around the line passing through abc with direction uvw
-	 * http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html
-	 * Special case where abc=0
-	 * @param vec
-	 * @param axis
-	 * @param angle_radians in radians
-	 * @return
-	 */
-	static public Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,double angle_radians) {
-		float C = (float)Math.cos(angle_radians);
-		float S = (float)Math.sin(angle_radians);
-		float x = vec.x;
-		float y = vec.y;
-		float z = vec.z;
-		float u = axis.x;
-		float v = axis.y;
-		float w = axis.z;
-		
-		// (a*( v*v + w*w) - u*(b*v + c*w - u*x - v*y - w*z))(1.0-C)+x*C+(-c*v + b*w - w*y + v*z)*S
-		// (b*( u*u + w*w) - v*(a*v + c*w - u*x - v*y - w*z))(1.0-C)+y*C+( c*u - a*w + w*x - u*z)*S
-		// (c*( u*u + v*v) - w*(a*v + b*v - u*x - v*y - w*z))(1.0-C)+z*C+(-b*u + a*v - v*x + u*y)*S
-		// but a=b=c=0 so
-		// x' = ( -u*(- u*x - v*y - w*z)) * (1.0-C) + x*C + ( - w*y + v*z)*S
-		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
-		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
-		
-		float a = (-u*x - v*y - w*z);
-
-		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
-							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
-							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
-	}
 
 	
 	@Override
@@ -333,8 +318,8 @@ extends Robot
 		
 		if(draw_stl) {
 			// base
+			matBase.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z+0.6f);
 			gl2.glRotatef(90, 0, 0, 1);
 			gl2.glRotatef(90, 1, 0, 0);
@@ -342,8 +327,8 @@ extends Robot
 			gl2.glPopMatrix();
 			
 			// arms
+			matArm.render(gl2);
 			for(i=0;i<3;++i) {
-				gl2.glColor3f(0.9f,0.9f,0.9f);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motionNow.arms[i*2+0].shoulder.x,
 						         motionNow.arms[i*2+0].shoulder.y,
@@ -354,7 +339,6 @@ extends Robot
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 	
-				gl2.glColor3f(0.9f,0.9f,0.9f);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motionNow.arms[i*2+1].shoulder.x,
 						         motionNow.arms[i*2+1].shoulder.y,
@@ -366,8 +350,8 @@ extends Robot
 				gl2.glPopMatrix();
 			}
 			//top
+			matTop.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glColor3f(1, 0.8f, 0.6f);
 			gl2.glTranslatef(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z+motionNow.relative.z);
 			gl2.glRotatef(motionNow.rotationAngleU, 1, 0, 0);
 			gl2.glRotatef(motionNow.rotationAngleV, 0, 1, 0);

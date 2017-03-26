@@ -26,7 +26,7 @@ public class ColorPalette {
 
   /**
    * add a color to the palette.  Does not check for duplicates.
-   * @param c
+   * @param c an RGB color value
    */
   public void addColor(ColorRGB c) {
     colors.add(c);
@@ -59,8 +59,8 @@ public class ColorPalette {
 
   /**
    * get the color at a given index.
-   * @param index
-   * @return
+   * @param index which color to return
+   * @return the color at index
    */
   public ColorRGB getColor(int index) throws IndexOutOfBoundsException {
     return colors.get(index);
@@ -114,9 +114,10 @@ public class ColorPalette {
    * The yellow color (Y) is calculated from the blue (B') and black (K) colors:
    * Y = (1-B'-K) / (1-K)
    * see http://www.rapidtables.com/convert/color/rgb-to-cmyk.htm
-   * @param r in the range 0...255
-   * @param g in the range 0...255
-   * @param b in the range 0...255
+   * @param r red in the range 0...255
+   * @param g green in the range 0...255
+   * @param b blue in the range 0...255
+   * @return [C,M,Y,K]
    */
   public double[] convertRGBtoCMYK(double r,double g,double b) {
 	  r/=255;
@@ -140,10 +141,11 @@ public class ColorPalette {
    * The blue color (B) is calculated from the yellow (Y) and black (K) colors:
    * B = 255 × (1-Y) × (1-K)
    * see http://www.rapidtables.com/convert/color/cmyk-to-rgb.htm
-   * @param c
-   * @param m
-   * @param y
-   * @param k
+   * @param c cyan value (0..1)
+   * @param m magenta value (0..1)
+   * @param y yellow value (0..1)
+   * @param k key (black) value (0..1)
+   * @return [R,G,B]
    */
   public double[] convertCMYKtoRGB(double c,double m,double y,double k) {
 	  double r = 255 * (1-c)*(1-k);

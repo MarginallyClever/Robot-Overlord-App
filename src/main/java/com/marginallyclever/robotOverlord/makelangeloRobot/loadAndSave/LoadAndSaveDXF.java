@@ -125,12 +125,12 @@ public class LoadAndSaveDXF extends ImageManipulator implements LoadAndSaveFileT
 
 	/**
 	 * Put every entity into a bucket.
-	 * @param doc
-	 * @param grid
-	 * @param groups
+	 * @param doc the DXF document from which data is being pulled
+	 * @param layer the layer in the document
+	 * @param grid the grid of buckets where elements are being placed
 	 */
 	@SuppressWarnings("unchecked")
-	protected void sortEntitiesIntoBucketsAndGroups(DXFDocument doc,DXFLayer layer,DXFBucketGrid grid,List<DXFGroup> groups) {
+	protected void sortEntitiesIntoBucketsAndGroups(DXFDocument doc,DXFLayer layer,DXFBucketGrid grid) {
 		Log.message("Sorting layer "+layer.getName()+" into buckets...");
 
 			Iterator<String> entityTypeIter = (Iterator<String>) layer.getDXFEntityTypeIterator();
@@ -186,8 +186,8 @@ public class LoadAndSaveDXF extends ImageManipulator implements LoadAndSaveFileT
 	
 	/**
 	 * 
-	 * @param in
-	 * @param robot
+	 * @param in the stream from which data is arriving
+	 * @param robot the instance of robot that will receive the data
 	 * @return true if load is successful.
 	 */
 	@SuppressWarnings("unchecked")
@@ -272,7 +272,7 @@ public class LoadAndSaveDXF extends ImageManipulator implements LoadAndSaveFileT
 				DXFBucketGrid grid = new DXFBucketGrid(15,15,topLeft,bottomRight);
 				List<DXFGroup> groups = new LinkedList<DXFGroup>();
 
-				sortEntitiesIntoBucketsAndGroups(doc,layer,grid,groups);
+				sortEntitiesIntoBucketsAndGroups(doc,layer,grid);
 
 				//DXFGroup infillGroup=null;
 				if(shouldInfillOnLoad) {

@@ -123,9 +123,6 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
 
   /**
    * http://stackoverflow.com/a/24249709
-   *
-   * @param name
-   * @return
    */
   @NotNull
   @Override
@@ -150,8 +147,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
   /**
    * FIXME - Pure hack to get around erasure.
    *
-   * @param abstractPreference
-   * @return
+   * @return true if removed
    * @throws ReflectiveOperationException
    */
   private boolean getIsRemoved(AbstractPreferences abstractPreference) throws ReflectiveOperationException {
@@ -266,8 +262,8 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
   }
 
   /**
-   * @param file
-   * @param p
+   * @param file where to store preferences
+   * @param p property to store
    * @throws IOException
    */
   private void storePreferencesInFile(File file, Properties p) throws IOException, BackingStoreException {
@@ -294,17 +290,11 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
     sb.append(name()).append('.');
   }
 
-  /**
-   * @return
-   */
   @Override
   public Map<String, Preferences> getChildren() {
     return new TreeMap<>(children);
   }
 
-  /**
-   * @return
-   */
   @Override
   public Map<String, String> getRoot() {
     return new TreeMap<>(root);

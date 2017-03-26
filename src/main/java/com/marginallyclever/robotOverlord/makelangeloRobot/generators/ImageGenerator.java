@@ -18,7 +18,9 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 public abstract class ImageGenerator extends ImageManipulator implements MakelangeloRobotDecorator {
 	/**
 	 * @return true if generate succeeded.
-	 * @param dest the file where the results will be saved.
+	 * @param gui ??
+	 * @param out where to write the gcode
+	 * @throws IOException if writing fails.
 	 */
 	public boolean generate(RobotOverlord gui,Writer out) throws IOException {
 		return false;

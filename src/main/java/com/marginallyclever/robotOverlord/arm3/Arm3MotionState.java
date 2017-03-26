@@ -3,6 +3,11 @@ package com.marginallyclever.robotOverlord.arm3;
 import javax.vecmath.Vector3f;
 
 
+/**
+ * Describes the state of the robot at a given location.  This is so that states can be compared, rejected, etc for collision detection.
+ * @author Dan Royer
+ *
+ */
 public class Arm3MotionState {
 	// angle of rotation
 	public float angleBase = 0;
@@ -116,9 +121,7 @@ public class Arm3MotionState {
 	
 	/**
 	 * Convert cartesian XYZ to robot motor steps.
-	 * @input cartesian coordinates relative to the base
-	 * @input results where to put resulting angles after the IK calculation
-	 * @return 0 if successful, 1 if the IK solution cannot be found.
+	 * @return true if successful, false if the IK solution cannot be found.
 	 */
 	protected boolean IK() {
 		float a0,a1,a2;
@@ -238,6 +241,6 @@ public class Arm3MotionState {
 		
 		this.fingerRight.set(up); 
 		this.fingerRight.scale(-1);
-		//this.finger_right = RotateAroundAxis(this.finger_right, axis,-this.angle_3/RAD2DEG);
+		//this.finger_right = MathHelper.rotateAroundAxis(this.finger_right, axis,-this.angle_3/RAD2DEG);
 	}
 }
