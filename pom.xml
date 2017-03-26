@@ -6,7 +6,7 @@
   <artifactId>Robot-Overlord</artifactId>
   <version>v1.4.2</version>
   <name>Robot Overlord</name>
-  <description>A friendly 3D user interface for driving all Marginally Clever robots. 
+  <description>A friendly 3D user interface for controlling robots. 
   
 If you like this project, please support us by buying Marginally Clever products.</description>
 
@@ -66,7 +66,7 @@ If you like this project, please support us by buying Marginally Clever products
   </prerequisites>
   
   <build>
-    <sourceDirectory>java/src</sourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
     <!--
     See: http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html
     and http://stackoverflow.com/a/3697482
@@ -124,6 +124,20 @@ If you like this project, please support us by buying Marginally Clever products
           </execution>
         </executions>
       </plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+    	    <configuration>
+          	</configuration>
+			<executions>
+				<execution>
+					<id>javadoc:jar</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
     
     <!-- Beginning of plugins defined originally only in Super POM  -->
     <plugin>

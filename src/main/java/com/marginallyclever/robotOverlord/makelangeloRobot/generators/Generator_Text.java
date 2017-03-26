@@ -598,7 +598,7 @@ public class Generator_Text extends ImageGenerator {
 				case '\\':
 					name = "BSLASH";
 					break;
-				case '…':
+				case 0x2026:  // elipsis '…'
 					name = "SPACE";
 					break;
 				default:

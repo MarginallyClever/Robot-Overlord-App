@@ -15,7 +15,7 @@ import com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot;
 public interface LoadAndSaveFileType {
 	/**
 	 * Just what it sounds like.
-	 * @return
+	 * @return the filenames which this type can load or save
 	 */
 	public FileNameExtensionFilter getFileNameFilter();
 
@@ -47,14 +47,16 @@ public interface LoadAndSaveFileType {
 	
 	/**
 	 * attempt to load a file into the system from a given stream
-	 * @param filename
+	 * @param inputStream the source of the data.
+	 * @param robot the makelangelo to which the data will be loaded.
 	 * @return true if load successful.
 	 */
 	public boolean load(InputStream inputStream,MakelangeloRobot robot);
 	
 	/**
 	 * attempt to save makelangelo instructions to a given stream
-	 * @param filename
+	 * @param outputStream where to write the data
+	 * @param robot the makelangelo from which data is being pulled.
 	 * @return true if save successful.
 	 */
 	public boolean save(OutputStream outputStream,MakelangeloRobot robot);

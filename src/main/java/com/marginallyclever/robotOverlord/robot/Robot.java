@@ -31,7 +31,6 @@ implements NetworkConnectionListener, ActionListener {
 	private static final long serialVersionUID = 1970631551615654640L;
 	
 	//comms	
-	protected transient NetworkConnectionManager connectionManager;
 	protected transient String[] portsDetected=null;
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
@@ -61,13 +60,6 @@ implements NetworkConnectionListener, ActionListener {
 		running=false;
 		modelsLoaded=false;
 		//program=new RobotProgram();
-	}
-	
-	public NetworkConnectionManager getConnectionManager() {
-		return connectionManager;
-	}
-	public void setConnectionManager(NetworkConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
 	}
 	
 
@@ -129,7 +121,7 @@ implements NetworkConnectionListener, ActionListener {
 	}
 	
 	protected void openConnection() {
-		NetworkConnection s = connectionManager.requestNewConnection(null);
+		NetworkConnection s = NetworkConnectionManager.requestNewConnection(null);
 		if(s!=null) {
 			buttonConnect.setText(Translator.get("ButtonDisconnect"));
 			setConnection(s);
@@ -249,7 +241,7 @@ implements NetworkConnectionListener, ActionListener {
 	protected void loadModels(GL2 gl2) {}
 	
 	/**
-	 * Processes a single instruction meant for the robot.
+	 * Pr)ocesses a single instruction meant for the robot.
 	 * @param line
 	 * @return true if the command is sent to the robot.
 	 */

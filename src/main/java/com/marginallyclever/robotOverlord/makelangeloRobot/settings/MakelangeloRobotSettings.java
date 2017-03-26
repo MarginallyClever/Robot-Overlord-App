@@ -20,7 +20,7 @@ import com.marginallyclever.util.PreferencesHelper;
 
 
 /**
- * TODO move tool names into translations & add a color palette system for quantizing colors
+ * TODO move tool names into translations and add a color palette system for quantizing colors
  * All the hardware settings for a single Makelangelo robot.
  * @author Dan Royer
  */
@@ -101,9 +101,7 @@ public final class MakelangeloRobotSettings {
 	
 	/**
 	 * These values should match https://github.com/marginallyclever/makelangelo-firmware/firmware_rumba/configure.h
-	 *
-	 * @param translator
-	 * @param robot
+	 * @param robot the instance of the robot using these settings.
 	 */
 	public MakelangeloRobotSettings(MakelangeloRobot robot) {
 		// set up number format

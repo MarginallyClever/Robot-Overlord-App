@@ -245,8 +245,9 @@ public class Makelangelo2Properties implements MakelangeloHardwareProperties {
 
 
 	/**
-	 * draw calibration point
-	 * @param gl2
+	 * Draw calibration point
+	 * @param gl2 the OpenGL render context
+	 * @param settings settings being used by this robot
 	 */
 	protected void paintCalibrationPoint(GL2 gl2,MakelangeloRobotSettings settings) {
 		gl2.glColor3f(0.8f,0.8f,0.8f);

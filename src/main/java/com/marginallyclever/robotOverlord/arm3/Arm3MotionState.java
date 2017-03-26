@@ -238,6 +238,6 @@ public class Arm3MotionState {
 		
 		this.fingerRight.set(up); 
 		this.fingerRight.scale(-1);
-		//this.finger_right = RotateAroundAxis(this.finger_right, axis,-this.angle_3/RAD2DEG);
+		//this.finger_right = MathHelper.rotateAroundAxis(this.finger_right, axis,-this.angle_3/RAD2DEG);
 	}
 }

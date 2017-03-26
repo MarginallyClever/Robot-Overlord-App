@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.Log;
 
 
@@ -132,9 +133,7 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 	
 	/**
 	 * Convert cartesian XYZ to robot motor steps.
-	 * @input cartesian coordinates relative to the base
-	 * @input results where to put resulting angles after the IK calculation
-	 * @return 0 if successful, 1 if the IK solution cannot be found.
+	 * @return true if successful, false if the IK solution cannot be found.
 	 */
 	public boolean updateIK() {
 		try {
@@ -155,17 +154,17 @@ public class RotaryStewartPlatform2MotionState implements Serializable {
 		this.finger_up     .set(0,0,1);
 
 		// roll, pitch, then yaw
-		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),Math.toRadians(this.rotationAngleU));
-		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),Math.toRadians(this.rotationAngleV));
-		this.finger_forward = RotaryStewartPlatform2.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),Math.toRadians(this.rotationAngleW));
+		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),(float)Math.toRadians(this.rotationAngleU));
+		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),(float)Math.toRadians(this.rotationAngleV));
+		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),(float)Math.toRadians(this.rotationAngleW));
 
-		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),Math.toRadians(this.rotationAngleU));
-		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),Math.toRadians(this.rotationAngleV));
-		this.finger_up      = RotaryStewartPlatform2.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),Math.toRadians(this.rotationAngleW));
+		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),(float)Math.toRadians(this.rotationAngleU));
+		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),(float)Math.toRadians(this.rotationAngleV));
+		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),(float)Math.toRadians(this.rotationAngleW));
 
-		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),Math.toRadians(this.rotationAngleU));
-		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),Math.toRadians(this.rotationAngleV));
-		this.finger_left    = RotaryStewartPlatform2.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),Math.toRadians(this.rotationAngleW));
+		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),(float)Math.toRadians(this.rotationAngleU));
+		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),(float)Math.toRadians(this.rotationAngleV));
+		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),(float)Math.toRadians(this.rotationAngleW));
 	}
 
 	protected void updateIKWrists() {

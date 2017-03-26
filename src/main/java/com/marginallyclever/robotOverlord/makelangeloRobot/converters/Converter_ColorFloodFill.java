@@ -124,10 +124,12 @@ public class Converter_ColorFloodFill extends ImageConverter {
 
 
 	/**
-	 * queue-based flood fill
-	 *
-	 * @param colorIndex
-	 * @throws IOException
+	 * queue-based flood fill begining from the starting location
+	 * @param colorIndex red,green,blue,etc
+	 * @param x starting location
+	 * @param y starting location
+	 * @param osw where to write the flood fill instructions
+	 * @throws IOException failure to write
 	 */
 	protected void floodFillBlob(int colorIndex, float x, float y, Writer osw) throws IOException {
 		LinkedList<Point> pointsToVisit = new LinkedList<>();
