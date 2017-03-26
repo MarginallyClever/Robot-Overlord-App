@@ -20,6 +20,7 @@ public abstract class ImageConverter extends ImageManipulator implements Makelan
 	 * @param img the <code>java.awt.image.BufferedImage</code> this filter is using as source material.
 	 * @param out where to write the converted image.
 	 * @return true if conversion succeeded.
+	 * @throws IOException if write fails
 	 */
 	public boolean convert(TransformedImage img,Writer out) throws IOException {
 		return false;

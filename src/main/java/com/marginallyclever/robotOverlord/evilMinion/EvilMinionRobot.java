@@ -527,7 +527,7 @@ extends Robot {
 
 	/**
 	 * Visualize the inverse kinematics calculations
-	 * @param gl2
+	 * @param gl2 openGL render context
 	 */
 	protected void renderIK(GL2 gl2) {
 		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -569,7 +569,7 @@ extends Robot {
 	
 	/**
 	 * Draw the arm without calling glRotate to prove forward kinematics are correct.
-	 * @param gl2
+	 * @param gl2 openGL render context
 	 */
 	protected void renderFK(GL2 gl2) {
 		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -610,7 +610,7 @@ extends Robot {
 	
 	/**
 	 * Draw the physical model according to the angle values in the motionNow state.
-	 * @param gl2
+	 * @param gl2 openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
 		// anchor
