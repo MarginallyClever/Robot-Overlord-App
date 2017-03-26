@@ -414,8 +414,8 @@ public class MakelangeloRobot extends Robot {
 
 	/**
 	 * removes comments, processes commands robot doesn't handle, add checksum information.
-	 *
 	 * @param line command to send
+	 * @param lineNumber the line number associated with this line 
 	 */
 	public void tweakAndSendLine(String line, int lineNumber) {
 		if (getConnection() == null || !isPortConfirmed() || !isRunning()) return;
@@ -611,8 +611,9 @@ public class MakelangeloRobot extends Robot {
 	}
 
 	/**
-	 * @param x relative position in mm
-	 * @param y relative position in mm
+	 * tell makelangelo to move relative to current tool position.
+	 * @param dx relative position in mm
+	 * @param dy relative position in mm
 	 */
 	public void movePenRelative(float dx,float dy) {
 		sendLineToRobot("G91");  // set relative mode

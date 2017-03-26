@@ -15,6 +15,7 @@ public class ModelFactory {
 	 * Model factory makes sure to only load one instance of each source file.  Loads all the data immediately.
 	 * @param sourceName file from which to load.  may be filename.ext or zipfile.zip:filename.ext
 	 * @return the Model instance.
+	 * @throws Exception if file cannot be read successfully
 	 */
 	public static Model createModelFromFilename(String sourceName) throws Exception {
 		if(sourceName == null || sourceName.trim().length()==0) return null;
@@ -61,6 +62,7 @@ public class ModelFactory {
 	 * @param sourceName file from which to load.  may be filename.ext or zipfile.zip:filename.ext
 	 * @param loadScale scale the model file by this value (1 is no scale) on load.
 	 * @return the Model instance.
+	 * @throws Exception if file cannot be read successfully
 	 */
 	public static Model createModelFromFilename(String sourceName,float loadScale) throws Exception {
 		Model m = createModelFromFilename(sourceName);

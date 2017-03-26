@@ -18,6 +18,7 @@ import com.marginallyclever.robotOverlord.makelangeloRobot.settings.MakelangeloR
 public abstract class ImageConverter extends ImageManipulator implements MakelangeloRobotDecorator {
 	/**
 	 * @param img the <code>java.awt.image.BufferedImage</code> this filter is using as source material.
+	 * @param out where to write the converted image.
 	 * @return true if conversion succeeded.
 	 */
 	public boolean convert(TransformedImage img,Writer out) throws IOException {

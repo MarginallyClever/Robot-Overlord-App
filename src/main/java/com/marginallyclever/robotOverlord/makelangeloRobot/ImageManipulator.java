@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.makelangeloRobot.settings.MakelangeloR
 
 /**
  * shared methods for image manipulation (generating, converting, or filtering)
- * @author Dan
+ * @author Dan Royer
  */
 public abstract class ImageManipulator {	
 	// pen position optimizing
@@ -53,9 +53,8 @@ public abstract class ImageManipulator {
 
 	/**
 	 * insert the machine-specific preamble at the start of the gcode file.
-	 * @param img
-	 * @param out
-	 * @throws IOException
+	 * @param out where to write
+	 * @throws IOException failure to write
 	 */
 	public void imageStart(Writer out) throws IOException {
 		//out.write(machine.getGCodeConfig() + ";\n");

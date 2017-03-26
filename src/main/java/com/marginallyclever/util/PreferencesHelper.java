@@ -142,6 +142,7 @@ public final class PreferencesHelper {
 
 	/**
 	 * @param preferenceNode Preference node to log key value pairs for.
+	 * @throws BackingStoreException on failure to store
 	 */
 	public static <P extends Preferences> void logKeyValuesForPreferenceNode(P preferenceNode) throws BackingStoreException {
 		final String[] keys = preferenceNode.keys();
@@ -177,6 +178,7 @@ public final class PreferencesHelper {
 	 * Recursively clears all the preferences (key-value associations) for a given node and its children.
 	 *
 	 * @param preferenceNode Preference node that you want recursively cleared of all key value pairs.
+	 * @throws BackingStoreException on failure to store
 	 * @see <a href="http://stackoverflow.com/a/6411855"></a>
 	 */
 	private static <P extends Preferences> void clearAll(P preferenceNode) throws BackingStoreException {

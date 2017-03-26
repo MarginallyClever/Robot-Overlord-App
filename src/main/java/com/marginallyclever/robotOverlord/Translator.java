@@ -159,8 +159,8 @@ public final class Translator {
 
 	/**
 	 * Scan folder for language files.
-	 * @see http://stackoverflow.com/questions/1429172/how-do-i-list-the-files-inside-a-jar-file
 	 * @throws IllegalStateException No language files found
+	 * @see <a href='http://stackoverflow.com/questions/1429172/how-do-i-list-the-files-inside-a-jar-file'>http://stackoverflow.com/questions/1429172/how-do-i-list-the-files-inside-a-jar-file</a>
 	 */
 	static public void loadLanguages() {
 		try {
@@ -237,8 +237,9 @@ public final class Translator {
 	}
 
 	/**
-	 * @param key
-	 * @return the translated value for key
+	 * Get a translated value for a key.
+	 * @param key the key to search for
+	 * @return the translated string
 	 */
 	static public String get(String key) {
 		String value = null;

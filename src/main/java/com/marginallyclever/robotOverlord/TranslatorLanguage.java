@@ -21,7 +21,8 @@ public class TranslatorLanguage {
 
 
 	/**
-	 * @param language_file
+	 * Load an XML file which contains key/value pairs for a given translation.
+	 * @param language_file the source file
 	 */
 	public void loadFromString(String language_file) {
 		final DocumentBuilder db = getDocumentBuilder();
@@ -43,16 +44,16 @@ public class TranslatorLanguage {
 	}
 
 	/**
-	 * @param defaultLanguageFileFallback
+	 * @param stream XML source of the translated strings
 	 */
-	public void loadFromInputStream(InputStream defaultLanguageFileFallback) {
+	public void loadFromInputStream(InputStream stream) {
 		final DocumentBuilder db = getDocumentBuilder();
 		if (db == null) {
 			return;
 		}
 		Document dom = null;
 		try {
-			dom = db.parse(defaultLanguageFileFallback);
+			dom = db.parse(stream);
 		} catch (SAXException | IOException e) {
 			Log.error( e.getMessage() );
 		}

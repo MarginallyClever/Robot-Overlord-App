@@ -195,10 +195,10 @@ implements NetworkConnectionListener, ActionListener {
 
 	
 	/**
-	 * stop sending commands to the robot.
-	 * @todo add an e-stop command?
+	 * Stop sending commands to the robot.
 	 */
 	public void halt() {
+		// TODO add an e-stop command?
 		running=false;
 		paused=false;
 	    linesProcessed=0;
@@ -242,7 +242,7 @@ implements NetworkConnectionListener, ActionListener {
 	
 	/**
 	 * Pr)ocesses a single instruction meant for the robot.
-	 * @param line
+	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
 	public boolean sendLineToRobot(String line) {

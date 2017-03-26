@@ -37,9 +37,13 @@ public class ModelSmoother {/*
 	}
 
 	/**
-	 * Smooth normals.  Find points within vertexEpsilon of each other, sharing normals within normalEpsilon of each other, and then 
-	 * @param vertexEpsilon
-	 * @param normalEpsilon
+	 * Smooth normals.  Find points within vertexEpsilon of each other, sharing normals within normalEpsilon 
+	 * of each other, and then smooths the nromals (makes them the same, an average of the normals considered).
+	 * Note: Modified the original model.
+	 * 
+	 * @param model the model containing the data to smooth. 
+	 * @param vertexEpsilon how close should points be to be considered one and the same.  typically ~0.001
+	 * @param normalEpsilon how close should normals be to be merged. 0...2 larger values more smoothing.
 	 */
 	public static void smoothNormals(Model model,float vertexEpsilon,float normalEpsilon) {
 		float vertexEpsilonSquared = vertexEpsilon * vertexEpsilon;

@@ -3,6 +3,11 @@ package com.marginallyclever.robotOverlord.deltaRobot3;
 import javax.vecmath.Vector3f;
 
 
+/**
+ * MotionState captures the physical state of a robot at a moment in time.
+ * @author Dan Royer
+ *
+ */
 public class DeltaRobot3MotionState {
 	// angle of rotation
 	DeltaRobot3Arm arms[];
@@ -73,9 +78,7 @@ public class DeltaRobot3MotionState {
 
 	/**
 	 * Convert cartesian XYZ to robot motor steps.
-	 * @input cartesian coordinates relative to the base
-	 * @input results where to put resulting angles after the IK calculation
-	 * @return 0 if successful, 1 if the IK solution cannot be found.
+	 * @return true if successful, false if the IK solution cannot be found.
 	 */
 	public boolean updateIK() {
 		try {
