@@ -91,7 +91,7 @@ public final class SerialConnection implements SerialPortEventListener, NetworkC
 
 	/**
 	 * Check if the robot reports an error and if so what line number.
-	 * @line the message from the robot to be parsed
+	 * @param line the message from the robot to be parsed
 	 * @return -1 if there was no error, otherwise the line number containing the error.
 	 */
 	protected int errorReported(String line) {

@@ -88,21 +88,21 @@ public class Converter_ColorFloodFill extends ImageConverter {
 
 
 	/**
-	 * sample the pixels from x0,y0 (top left) to x1,y1 (bottom right) and average the color.
+	 * Sample the pixels from x0,y0 (top left) to x1,y1 (bottom right) and average the color.
 	 *
-	 * @param x2
-	 * @param y2
-	 * @param f
-	 * @param g
+	 * @param x0 top left x
+	 * @param y0 top left y
+	 * @param x1 bottom right x
+	 * @param y1 bottom right y
 	 * @return the average color in the region.  if nothing is sampled, return white.
 	 */
-	protected ColorRGB takeImageSampleBlock(float x2, float y2, float f, float g) {
+	protected ColorRGB takeImageSampleBlock(float x0, float y0, float x1, float y1) {
 		// point sampling
 		ColorRGB value = new ColorRGB(0, 0, 0);
 		int sum = 0;
 
-		for (float y = y2; y < g; ++y) {
-			for (float x = x2; x < f; ++x) {
+		for (float y = y0; y < y1; ++y) {
+			for (float x = x0; x < x1; ++x) {
 				if(isInsidePaperMargins(x, y) && imgChanged.canSampleAt(x, y)) {
 					value.add(new ColorRGB(imgChanged.sample1x1(x, y)));
 					++sum;
@@ -177,6 +177,7 @@ public class Converter_ColorFloodFill extends ImageConverter {
 	 * find blobs of color in the original image.  Send that to the flood fill system.
 	 *
 	 * @param colorIndex index into the list of colors at the top of the class
+	 * @param osw where to write the flood fill instructions
 	 * @throws IOException
 	 */
 	void scanForContiguousBlocks(int colorIndex, Writer osw) throws IOException {
@@ -222,6 +223,7 @@ public class Converter_ColorFloodFill extends ImageConverter {
 	 * create horizontal lines across the image.  Raise and lower the pen to darken the appropriate areas
 	 *
 	 * @param img the image to convert.
+	 * @param out where to write the instructions
 	 */
 	public boolean convert(TransformedImage img,Writer out) throws IOException {
 		Filter_GaussianBlur blur = new Filter_GaussianBlur(1);

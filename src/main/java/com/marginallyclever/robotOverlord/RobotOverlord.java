@@ -591,7 +591,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
      * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
      * https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java
      * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
-     * @param gl2
+     * @param gl2 the openGL render context
      */
     protected void pickIntoWorld(GL2 gl2) {
     	// set up the buffer that will hold the names found under the cursor in furthest to closest.

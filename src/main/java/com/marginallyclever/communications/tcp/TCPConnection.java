@@ -124,7 +124,7 @@ public final class TCPConnection implements Runnable, NetworkConnection {
 	
 	/**
 	 * Check if the robot reports an error and if so what line number.
-	 *
+	 * @param line the message from the robot to be parsed
 	 * @return -1 if there was no error, otherwise the line number containing the error.
 	 */
 	protected int errorReported(String line) {

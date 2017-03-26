@@ -251,7 +251,7 @@ extends Robot {
 	
 	/**
 	 * update the desired finger location
-	 * @param delta
+	 * @param delta time since the last update.  usually ~1/30s.
 	 */
 	protected void updateIK(float delta) {
 		boolean changed=false;

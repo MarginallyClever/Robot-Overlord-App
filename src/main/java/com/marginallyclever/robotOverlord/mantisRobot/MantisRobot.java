@@ -768,7 +768,7 @@ extends Robot {
 	
 	/**
 	 * Draw the physical model according to the angle values in the motionNow state.
-	 * @param gl2
+	 * @param gl2 the openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
 		// anchor
@@ -1044,7 +1044,9 @@ extends Robot {
 	
 
 	/**
-	 * based on http://www.exampledepot.com/egs/java.net/Post.html
+	 * Query the web server for a new robot UID.  
+	 * @return the new UID if successful.  0 on failure.
+	 * @see <a href='http://www.exampledepot.com/egs/java.net/Post.html'>http://www.exampledepot.com/egs/java.net/Post.html</a>
 	 */
 	private long getNewRobotUID() {
 		long new_uid = 0;

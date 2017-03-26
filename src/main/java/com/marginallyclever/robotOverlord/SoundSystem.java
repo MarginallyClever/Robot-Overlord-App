@@ -45,8 +45,9 @@ public class SoundSystem {
 
 	/**
 	 * Adjust sound preferences
+	 * @param owner the parent frame
 	 */
-	static protected void adjust(final Frame owner, Translator translator) {
+	static protected void adjust(final Frame owner) {
 		final JDialog driver = new JDialog(owner, Translator.get("MenuSoundsTitle"), true);
 		driver.setLayout(new GridBagLayout());
 		
