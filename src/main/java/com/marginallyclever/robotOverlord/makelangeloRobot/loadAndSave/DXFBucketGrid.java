@@ -18,8 +18,8 @@ public class DXFBucketGrid {
 	
 	/**
 	 * 
-	 * @param cellsWide >0
-	 * @param cellsHigh >0
+	 * @param cellsWide a value greater than zero.
+	 * @param cellsHigh a value greater than zero.
 	 * @param topLeft smallest X and smallest Y value
 	 * @param bottomRight largest X and largest Y value
 	 */
@@ -162,7 +162,8 @@ public class DXFBucketGrid {
 	
 	/**
 	 * Find the non-empty bucket nearest to point p.  If p is null, pick the first non-empty bucket.
-	 * @param p
+	 * @param p the point to test
+	 * @param epsilon the margin of error?
 	 * @return the selected bucket
 	 */
 	protected DXFBucket findNonEmptyBucket(Point p,double epsilon) {
@@ -181,12 +182,16 @@ public class DXFBucketGrid {
 				if(!bucket.contents.isEmpty()) {
 					if(bestBucket==null) {
 						bestBucket = bucket;
-						double dx = (bestBucket.topLeft.getX() + bestBucket.bottomRight.getX())/2;
-						double dy = (bestBucket.topLeft.getY() + bestBucket.bottomRight.getY())/2;
+						double cx = (bestBucket.topLeft.getX() + bestBucket.bottomRight.getX())/2;
+						double cy = (bestBucket.topLeft.getY() + bestBucket.bottomRight.getY())/2;
+						double dx = cx - p.getX();
+						double dy = cy - p.getY();
 						bestD = dx*dx + dy*dy; 	
 					} else {
-						double dx = (bestBucket.topLeft.getX() + bestBucket.bottomRight.getX())/2;
-						double dy = (bestBucket.topLeft.getY() + bestBucket.bottomRight.getY())/2;
+						double cx = (bestBucket.topLeft.getX() + bestBucket.bottomRight.getX())/2;
+						double cy = (bestBucket.topLeft.getY() + bestBucket.bottomRight.getY())/2;
+						double dx = cx - p.getX();
+						double dy = cy - p.getY();
 						double d = dx*dx + dy*dy; 	
 						if(bestD>d) {
 							bestD=d;

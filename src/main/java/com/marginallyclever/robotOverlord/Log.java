@@ -20,12 +20,9 @@ import org.slf4j.LoggerFactory;
  * static log methods available everywhere
  * @author danroyer
  * @since 7.3.0
+ * @see org.slf4j.Logger
  */
 public class Log {
-	/**
-	 * logging
-	 * @see org.slf4j.Logger
-	 */
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
 
@@ -58,7 +55,7 @@ public class Log {
 
 	/**
 	 * Appends a message to the log file
-	 * @param msg
+	 * @param msg HTML to put in the log file
 	 */
 	public static void write(String msg) {
 		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.html", true), StandardCharsets.UTF_8)) {
@@ -76,9 +73,9 @@ public class Log {
 
 
 	/**
-	 * turns milliseconds into h:m:s
-	 * @param millis
-	 * @return
+	 * Turns milliseconds into h:m:s
+	 * @param millis milliseconds
+	 * @return human-redable string
 	 */
 	public static String millisecondsToHumanReadable(long millis) {
 		long s = millis / 1000;
@@ -107,7 +104,7 @@ public class Log {
 
 	/**
 	 * Appends a message to the log file.  Color will be red.
-	 * @param message
+	 * @param message append text as red HTML
 	 */
 	public static void error(String message) {
 		write("red",message);
@@ -115,7 +112,7 @@ public class Log {
 
 	/**
 	 * Appends a message to the log file.  Color will be green.
-	 * @param message
+	 * @param message append text as green HTML
 	 */
 	public static void message(String message) {
 		write("green",message);		

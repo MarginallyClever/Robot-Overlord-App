@@ -11,11 +11,16 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.JTextComponent;
 
-
+/**
+ * Display a message dialog box with HTML inside.
+ * @author Dan Royer
+ *
+ */
 public class HTMLDialogBox {
 	/**
+	 * Turns HTML into a clickable dialog text component.
 	 * @param html String of valid HTML.
-	 * @return a
+	 * @return a JTextComponent with the HTML inside.
 	 */
 	public JTextComponent createHyperlinkListenableJEditorPane(String html) {
 		final JEditorPane bottomText = new JEditorPane();
@@ -44,7 +49,10 @@ public class HTMLDialogBox {
 
 
 	/**
-	 * Display the about dialog.
+	 * Display a message dialog box with HTML inside.
+	 * @param parent the parent component
+	 * @param html the HTML to put in the dialog box
+	 * @param title the title of the dialog box
 	 */
 	public void display(Component parent,String html,String title) {
 		final JTextComponent bottomText = createHyperlinkListenableJEditorPane(html);

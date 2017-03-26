@@ -6,12 +6,8 @@ public class IntersectionTester {
 	static final float SMALL_NUM = 0.001f;
 	/**
 	 * test intersection of two cylinders.  From http://geomalgorithms.com/a07-_distance.html
-	 * @param a1 one end of cylinder a
-	 * @param a2 other end of cylinder a
-	 * @param ar radius of cylinder a
-	 * @param b1 one end of cylinder b
-	 * @param b2 other end of cylinder b
-	 * @param br radius of cylinder b
+	 * @param cA cylinder A
+	 * @param cB cylinder B
 	 * @return true if intersect
 	 */
 	static public boolean CylinderCylinder(Cylinder cA,Cylinder cB) {

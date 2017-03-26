@@ -16,7 +16,6 @@ import javax.swing.event.UndoableEditEvent;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.CommandAddEntity;
-import com.marginallyclever.robotOverlord.robot.Robot;
 
 /**
  * Display an About dialog box
@@ -55,7 +54,7 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
-
+		
 		JComboBox<String> additionComboBox = new JComboBox<String>();
 		additionList.add(additionComboBox);
 		
@@ -81,9 +80,6 @@ public class ActionAddEntity extends JMenuItem implements ActionListener {
 
 					try {
 						newInstance = lft.getClass().newInstance();
-						if(newInstance instanceof Robot ) {
-							((Robot) newInstance).setConnectionManager(ro.getConnectionManager());
-						}
 						
 						ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new CommandAddEntity(ro,newInstance) ) );
 					} catch (InstantiationException | IllegalAccessException e) {
