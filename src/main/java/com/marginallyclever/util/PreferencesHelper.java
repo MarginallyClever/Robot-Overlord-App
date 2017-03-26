@@ -141,6 +141,7 @@ public final class PreferencesHelper {
 
 
 	/**
+	 * @param P an extension of Preferences
 	 * @param preferenceNode Preference node to log key value pairs for.
 	 * @throws BackingStoreException on failure to store
 	 */
@@ -153,6 +154,7 @@ public final class PreferencesHelper {
 
 
 	/**
+	 * @param P an extension of Preferences
 	 * @param sourcePreferenceNode      Preference node to be copied from.
 	 * @param destinationPreferenceNode Preference node to be copied to.
 	 */
@@ -177,6 +179,7 @@ public final class PreferencesHelper {
 	/**
 	 * Recursively clears all the preferences (key-value associations) for a given node and its children.
 	 *
+	 * @param P an extension of Preferences
 	 * @param preferenceNode Preference node that you want recursively cleared of all key value pairs.
 	 * @throws BackingStoreException on failure to store
 	 * @see <a href="http://stackoverflow.com/a/6411855"></a>
@@ -267,6 +270,7 @@ public final class PreferencesHelper {
 	}
 
 	/**
+	 * @param P an extension of Preferences
 	 * @param properties Properties to be logged.
 	 */
 	public static <P extends Properties> void logPropertiesNode(P properties) {

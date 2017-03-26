@@ -117,7 +117,7 @@ public class ColorPalette {
    * @param r red in the range 0...255
    * @param g green in the range 0...255
    * @param b blue in the range 0...255
-   * returns CMYK as an array of four doubles.
+   * @return [C,M,Y,K]
    */
   public double[] convertRGBtoCMYK(double r,double g,double b) {
 	  r/=255;
@@ -145,6 +145,7 @@ public class ColorPalette {
    * @param m magenta value (0..1)
    * @param y yellow value (0..1)
    * @param k key (black) value (0..1)
+   * @return [R,G,B]
    */
   public double[] convertCMYKtoRGB(double c,double m,double y,double k) {
 	  double r = 255 * (1-c)*(1-k);
