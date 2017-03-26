@@ -26,7 +26,7 @@ public class PanelAdjustPaper
 extends JPanel
 implements ActionListener, PropertyChangeListener, ChangeListener {
 	/**
-	 * 
+	 * auto-generated serialVersionUID
 	 */
 	private static final long serialVersionUID = 519519372661103125L;
 
@@ -37,6 +37,11 @@ implements ActionListener, PropertyChangeListener, ChangeListener {
 	private JCheckBox isLandscape;
 	private boolean beingModified;
 	
+	/**
+	 * Convenience class for managing paper sizes. 
+	 * @author Dan Royer
+	 *
+	 */
 	class PaperSize {
 		public String name;
 		public int width;
@@ -179,7 +184,9 @@ implements ActionListener, PropertyChangeListener, ChangeListener {
 
 	/**
 	 * Must match commonPaperSizes
-	 * @return
+	 * @param pw paper width
+	 * @param ph paper height
+	 * @return the index into commonPaperSizes of the current choice.  0 if no match found. 
 	 */
 	public int getCurrentPaperSizeChoice(double pw,double ph) {
 		int i;

@@ -37,6 +37,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.robotOverlord.makelangeloRobot.ImageManipulator;
 import com.marginallyclever.robotOverlord.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -161,7 +162,7 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 	}
 	
 	protected void openConnection() {
-		NetworkConnection nc = gui.getConnectionManager().requestNewConnection(this.getRootPane());
+		NetworkConnection nc = NetworkConnectionManager.requestNewConnection(this.getRootPane());
 		if(nc!=null) {
 			robot.setConnection(nc);
 		}

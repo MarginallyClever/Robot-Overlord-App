@@ -13,25 +13,20 @@ import com.marginallyclever.communications.tcp.TCPTransportLayer;
 import com.marginallyclever.robotOverlord.Translator;
 
 /**
- * handles requests between the UI and the various transport layers 
- * @author dan royer
+ * Handles requests between the UI and the various transport layers 
+ * @author Dan Royer
  *
  */
 public class NetworkConnectionManager {
-	private SerialTransportLayer serial;
-	private TCPTransportLayer tcp;
+	static private SerialTransportLayer serial = new SerialTransportLayer();
+	static private TCPTransportLayer tcp = new TCPTransportLayer();
 	
-	public NetworkConnectionManager() {
-		serial = new SerialTransportLayer();
-		tcp = new TCPTransportLayer();
-	}
-
 	/**
 	 * create a GUI to give the user transport layer options.
 	 * @param parent the root gui component
 	 * @return a new connection or null.
 	 */
-	public NetworkConnection requestNewConnection(Component parent) {
+	static public NetworkConnection requestNewConnection(Component parent) {
 		JPanel top = new JPanel();
 		top.setLayout(new GridLayout(0,1));
 		JTabbedPane tabs = new JTabbedPane();

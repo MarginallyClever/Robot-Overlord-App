@@ -26,8 +26,9 @@ public interface MakelangeloHardwareProperties {
 	public float getHeight();
 	
 	/**
-	 * custom look & feel for each version
-	 * @param gl2
+	 * custom look and feel for each version
+	 * @param gl2 the opengl context to call when rendering this hardware
+	 * @param robot the instance of the robot that has these hardware properties
 	 */
 	public void render(GL2 gl2,MakelangeloRobot robot);
 	
