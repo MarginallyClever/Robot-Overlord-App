@@ -128,6 +128,7 @@ If you like this project, please support us by buying Marginally Clever products
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
     	    <configuration>
+    	    	<destDir>${basedir}/docs</destDir>
           	</configuration>
 			<executions>
 				<execution>
