@@ -268,12 +268,12 @@ public class MantisToolGripper extends MantisTool {
 	}
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list=null;
 		
 		if(getAttachedTo()==null) {
 			// only show position when not attached.
-			list = super.getControlPanels(gui);
+			list = super.getContextPanel(gui);
 		}
 		if(list==null) list = new ArrayList<JPanel>();
 		

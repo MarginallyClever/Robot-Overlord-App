@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.actions.ActionSelectNumber;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot;
 
 
@@ -22,11 +22,11 @@ public class DrawingTool_Pen extends DrawingTool implements ActionListener {
 	protected JDialog dialog;
 	protected JPanel panel;
 	
-	protected ActionSelectNumber penDiameter;
-	protected ActionSelectNumber penFeedRate;
-	protected ActionSelectNumber penUp;
-	protected ActionSelectNumber penDown;
-	protected ActionSelectNumber penZRate;
+	protected UserCommandSelectNumber penDiameter;
+	protected UserCommandSelectNumber penFeedRate;
+	protected UserCommandSelectNumber penUp;
+	protected UserCommandSelectNumber penDown;
+	protected UserCommandSelectNumber penZRate;
 
 	protected JButton buttonTestUp;
 	protected JButton buttonTestDown;
@@ -67,11 +67,11 @@ public class DrawingTool_Pen extends DrawingTool implements ActionListener {
 	    JPanel p = new JPanel(new GridBagLayout());
 	    panel.add(p);
 	    
-		penDiameter = new ActionSelectNumber(gui,Translator.get("penToolDiameter"),getDiameter());
-		penFeedRate = new ActionSelectNumber(gui,Translator.get("penToolMaxFeedRate"),feedRateXY);
-		penUp = new ActionSelectNumber(gui,Translator.get("penToolUp"),zOff);
-		penDown = new ActionSelectNumber(gui,Translator.get("penToolDown"),zOn);
-		penZRate = new ActionSelectNumber(gui,Translator.get("penToolLiftSpeed"),zRate);
+		penDiameter = new UserCommandSelectNumber(gui,Translator.get("penToolDiameter"),getDiameter());
+		penFeedRate = new UserCommandSelectNumber(gui,Translator.get("penToolMaxFeedRate"),feedRateXY);
+		penUp = new UserCommandSelectNumber(gui,Translator.get("penToolUp"),zOff);
+		penDown = new UserCommandSelectNumber(gui,Translator.get("penToolDown"),zOn);
+		penZRate = new UserCommandSelectNumber(gui,Translator.get("penToolLiftSpeed"),zRate);
 		buttonTestUp = new JButton(Translator.get("penToolTest"));
 		buttonTestDown = new JButton(Translator.get("penToolTest"));
 

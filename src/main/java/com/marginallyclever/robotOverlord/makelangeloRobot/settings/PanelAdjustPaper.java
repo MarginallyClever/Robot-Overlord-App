@@ -19,7 +19,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.actions.ActionSelectNumber;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot;
 
 public class PanelAdjustPaper
@@ -33,7 +33,7 @@ implements ActionListener, PropertyChangeListener, ChangeListener {
 	protected MakelangeloRobot robot;
 
 	private JComboBox<String> paperSizes;
-	private ActionSelectNumber pw, ph;
+	private UserCommandSelectNumber pw, ph;
 	private JCheckBox isLandscape;
 	private boolean beingModified;
 	
@@ -132,12 +132,12 @@ implements ActionListener, PropertyChangeListener, ChangeListener {
 		c.gridwidth=3;
 		d.gridwidth=1;
 		d.weightx=0;
-		pw = new ActionSelectNumber(gui,Translator.get("Width"),0);
+		pw = new UserCommandSelectNumber(gui,Translator.get("Width"),0);
 		c.gridx=0;  c.gridy=y;  p.add(pw,c);
 		d.gridx=3;  d.gridy=y;  p.add(new JLabel(Translator.get("Millimeters")),d);
 		y++;
 		
-		ph = new ActionSelectNumber(gui,Translator.get("Height"),0);
+		ph = new UserCommandSelectNumber(gui,Translator.get("Height"),0);
 		c.gridx=0;  c.gridy=y;  p.add(ph,c);
 		d.gridx=3;  d.gridy=y;  p.add(new JLabel(Translator.get("Millimeters")),d);
 		y++;

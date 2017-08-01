@@ -32,8 +32,8 @@ public class ModelInWorld extends Entity {
 	}
 	
 	
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		modelPanel = new ModelInWorldPanel(gui,this);

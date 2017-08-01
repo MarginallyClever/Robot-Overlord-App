@@ -44,7 +44,6 @@ implements NetworkConnectionListener, ActionListener {
 	private long linesProcessed;
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
-	//private RobotProgram program;
 
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonConnect;
@@ -69,8 +68,8 @@ implements NetworkConnectionListener, ActionListener {
 	
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
 		list.add(getMenu());
 		
 		return list;
@@ -280,6 +279,26 @@ implements NetworkConnectionListener, ActionListener {
 	public void sendBufferEmpty(NetworkConnection arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	/**
+	 * confirm that this RobotKeyframe is valid (robot is not in an impossible state)
+	 * @param the RobotKeyframe to validate
+	 * @return true if the state is valid
+	 */
+	public boolean isKeyframeValid(RobotKeyframe arg0) {
+		return false;
+	}
+	
+	/**
+	 * interpolate between two keyframes.
+	 * @param a starting state
+	 * @param b ending state
+	 * @param scale value from 0 to 1, inclusive.
+	 * @return the interpolated keyframe = (b-a)*scale + a
+	 */
+	public RobotKeyframe interpolateKeyframes(RobotKeyframe a,RobotKeyframe b,float scale) {
+		return a;//( b - a ) * scale + a;
 	}
 	
 /*

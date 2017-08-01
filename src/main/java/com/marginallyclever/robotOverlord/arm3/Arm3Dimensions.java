@@ -75,7 +75,7 @@ public class Arm3Dimensions {
 				+"</body></html>", "About "+this.getName());
 	}
 	
-	public String reportMove(Arm3MotionState arg0) {
+	public String reportMove(Arm3Keyframe arg0) {
 		// TODO finish me, either with FK or IK values.
 		// GO Xx Yy Zz
 		return "";

@@ -26,8 +26,8 @@ extends Robot {
 	protected Cylinder [] volumes = new Cylinder[6];
 	
 	// motion now and in the future for looking-ahead
-	protected Arm3MotionState motionNow;
-	protected Arm3MotionState motionFuture;
+	protected Arm3Keyframe motionNow;
+	protected Arm3Keyframe motionFuture;
 	protected Arm3Dimensions armSettings;
 	
 	// keyboard history
@@ -62,8 +62,8 @@ extends Robot {
 	protected void setupDimensions(Arm3Dimensions arg0) {
 		armSettings = arg0;
 
-		motionNow = new Arm3MotionState(arg0);
-		motionFuture = new Arm3MotionState(arg0);
+		motionNow = new Arm3Keyframe(arg0);
+		motionFuture = new Arm3Keyframe(arg0);
 		
 		setDisplayName(armSettings.getName());
 		
@@ -79,8 +79,8 @@ extends Robot {
 		volumes[5].setRadius(1.0f*0.575f);
 		
 		RotateBase(0,0);
-		motionNow.IK();
-		motionFuture.IK();
+		IK(motionNow);
+		IK(motionFuture);
 	}
 	
 
@@ -154,7 +154,7 @@ extends Robot {
 		}
 
 		if(changed) {
-			if(motionFuture.movePermitted()) {
+			if(movePermitted(motionFuture)) {
 				if(!motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f)) {
 					armHasMoved=true;
 					updateGUI();
@@ -188,8 +188,8 @@ extends Robot {
 		}
 
 		if(changed) {
-			if(motionFuture.CheckAngleLimits()) {
-				motionFuture.FK();
+			if(CheckAngleLimits(motionFuture)) {
+				FK(motionFuture);
 				armHasMoved=true;
 				updateGUI();
 			} else {
@@ -222,8 +222,8 @@ extends Robot {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
@@ -746,7 +746,7 @@ extends Robot {
 				// this should be sent by a human when they are ready
 				sendLineToRobot("G28");
 				motionFuture.fingerPosition.set(armSettings.getHomePosition());  // HOME_* should match values in robot firmware.
-				motionFuture.IK();
+				IK(motionFuture);
 				sendLineToRobot("G92 X"+motionFuture.fingerPosition.x
 								+" Y"+motionFuture.fingerPosition.y
 								+" Z"+motionFuture.fingerPosition.z);
@@ -765,5 +765,181 @@ extends Robot {
 	
 	public void doAbout() {
 		armSettings.doAbout();
+	}
+	
+	
+	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
+	public boolean movePermitted(Arm3Keyframe keyframe) {
+		// don't hit floor
+		if(keyframe.fingerPosition.z<0.25f) {
+			return false;
+		}
+		// don't hit ceiling
+		if(keyframe.fingerPosition.z>50.0f) {
+			return false;
+		}
+
+		// check far limit
+		Vector3f temp = new Vector3f(keyframe.fingerPosition);
+		temp.sub(keyframe.shoulder);
+		if(temp.length() > 50) return false;
+		// check near limit
+		if(temp.length() < keyframe.dimensions.getBaseToShoulderMinimumLimit()) return false;
+
+		// seems doable
+		if(!IK(keyframe)) return false;
+		// angle are good?
+		if(!CheckAngleLimits(keyframe)) return false;
+
+		// OK
+		return true;
+	}
+	
+	
+	protected boolean CheckAngleLimits(Arm3Keyframe keyframe) {/*
+		// machine specific limits
+		if (keyframe.angle_0 < -180) return false;
+		if (keyframe.angle_0 >  180) return false;
+		if (keyframe.angle_2 <  -20) return false;
+		if (keyframe.angle_2 >  180) return false;
+		if (keyframe.angle_1 < -150) return false;
+		if (keyframe.angle_1 >   80) return false;
+		if (keyframe.angle_1 < -keyframe.angle_2+ 10) return false;
+		if (keyframe.angle_1 > -keyframe.angle_2+170) return false;
+
+		if (keyframe.angle_3 < -180) return false;
+		if (keyframe.angle_3 >  180) return false;
+		if (keyframe.angle_4 < -180) return false;
+		if (keyframe.angle_4 >  180) return false;
+		if (keyframe.angle_5 < -180) return false;
+		if (keyframe.angle_5 >  180) return false;*/
+		
+		return true;
+	}
+	
+	
+	/**
+	 * Convert cartesian XYZ to robot motor steps.
+	 * @return true if successful, false if the IK solution cannot be found.
+	 */
+	protected boolean IK(Arm3Keyframe keyframe) {
+		float a0,a1,a2;
+		// if we know the position of the wrist relative to the shoulder
+		// we can use intersection of circles to find the elbow.
+		// once we know the elbow position we can find the angle of each joint.
+		// each angle can be converted to motor steps.
+
+	    // the finger (attachment point for the tool) is a short distance in "front" of the wrist joint
+	    Vector3f finger = new Vector3f(keyframe.fingerPosition);
+		keyframe.wrist.set(keyframe.fingerForward);
+		keyframe.wrist.scale(-keyframe.dimensions.getWristToFinger());
+		keyframe.wrist.add(finger);
+				
+	    // use intersection of circles to find two possible elbow points.
+	    // the two circles are the bicep (shoulder-elbow) and the ulna (elbow-wrist)
+	    // the distance between circle centers is d  
+	    Vector3f arm_plane = new Vector3f(keyframe.wrist.x,keyframe.wrist.y,0);
+	    arm_plane.normalize();
+	
+	    keyframe.shoulder.set(arm_plane);
+	    keyframe.shoulder.scale(keyframe.dimensions.getBaseToShoulderX());
+	    keyframe.shoulder.z = keyframe.dimensions.getBaseToShoulderZ();
+	    
+	    // use intersection of circles to find elbow
+	    Vector3f es = new Vector3f(keyframe.wrist);
+	    es.sub(keyframe.shoulder);
+	    float d = es.length();
+	    float r1=keyframe.dimensions.getElbowToWrist();  // circle 1 centers on wrist
+	    float r0=keyframe.dimensions.getShoulderToElbow();  // circle 0 centers on shoulder
+	    if( d > keyframe.dimensions.getElbowToWrist() + keyframe.dimensions.getShoulderToElbow() ) {
+	      // The points are impossibly far apart, no solution can be found.
+	      return false;  // should this throw an error because it's called from the constructor?
+	    }
+	    float a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
+	    // find the midpoint
+	    Vector3f mid=new Vector3f(es);
+	    mid.scale(a/d);
+	    mid.add(keyframe.shoulder);
+
+	    // with a and r0 we can find h, the distance from midpoint to the intersections.
+	    float h=(float)Math.sqrt(r0*r0-a*a);
+	    // the distance h on a line orthogonal to n and plane_normal gives us the two intersections.
+		Vector3f n = new Vector3f(-arm_plane.y,arm_plane.x,0);
+		n.normalize();
+		Vector3f r = new Vector3f();
+		r.cross(n, es);  // check this!
+		r.normalize();
+		r.scale(h);
+
+		keyframe.elbow.set(mid);
+		keyframe.elbow.sub(r);
+		//Vector3f.add(mid, s, elbow);
+
+		
+		// find the angle between elbow-shoulder and the horizontal
+		Vector3f bicep_forward = new Vector3f(keyframe.elbow);
+		bicep_forward.sub(keyframe.shoulder);		  
+		bicep_forward.normalize();
+		float ax = bicep_forward.dot(arm_plane);
+		float ay = bicep_forward.z;
+		a1 = (float) -Math.atan2(ay,ax);
+
+		// find the angle between elbow-wrist and the horizontal
+		Vector3f ulna_forward = new Vector3f(keyframe.elbow);
+		ulna_forward.sub(keyframe.wrist);
+		ulna_forward.normalize();
+		float bx = ulna_forward.dot(arm_plane);
+		float by = ulna_forward.z;
+		a2 = (float) Math.atan2(by,bx);
+
+		// find the angle of the base
+		a0 = (float) Math.atan2(keyframe.wrist.y,keyframe.wrist.x);
+		
+		// all angles are in radians, I want degrees
+		keyframe.angleBase=(float)Math.toDegrees(a0);
+		keyframe.angleShoulder=(float)Math.toDegrees(a1);
+		keyframe.angleElbow=(float)Math.toDegrees(a2);
+
+		return true;
+	}
+	
+	
+	protected void FK(Arm3Keyframe keyframe) {
+		Vector3f arm_plane = new Vector3f((float)Math.cos(Math.toRadians(keyframe.angleBase)),
+					  					  (float)Math.sin(Math.toRadians(keyframe.angleBase)),
+					  					  0);
+		keyframe.shoulder.set(arm_plane.x*keyframe.dimensions.getBaseToShoulderX(),
+						      arm_plane.y*keyframe.dimensions.getBaseToShoulderX(),
+						      			  keyframe.dimensions.getBaseToShoulderZ());
+		
+		keyframe.elbow.set(arm_plane.x*(float)Math.cos(-Math.toRadians(keyframe.angleShoulder))*keyframe.dimensions.getShoulderToElbow(),
+						   arm_plane.y*(float)Math.cos(-Math.toRadians(keyframe.angleShoulder))*keyframe.dimensions.getShoulderToElbow(),
+									   (float)Math.sin(-Math.toRadians(keyframe.angleShoulder))*keyframe.dimensions.getShoulderToElbow());
+		keyframe.elbow.add(keyframe.shoulder);
+
+		keyframe.wrist.set(arm_plane.x*(float)Math.cos(Math.toRadians(keyframe.angleElbow))*-keyframe.dimensions.getElbowToWrist(),
+				 		   arm_plane.y*(float)Math.cos(Math.toRadians(keyframe.angleElbow))*-keyframe.dimensions.getElbowToWrist(),
+				 					   (float)Math.sin(Math.toRadians(keyframe.angleElbow))*-keyframe.dimensions.getElbowToWrist());
+		keyframe.wrist.add(keyframe.elbow);
+		
+		// build the axies around which we will rotate the tip
+		Vector3f fn = new Vector3f();
+		Vector3f up = new Vector3f(0,0,1);
+		fn.cross(arm_plane,up);
+		Vector3f axis = new Vector3f(keyframe.wrist);
+		axis.sub(keyframe.elbow);
+		axis.normalize();
+
+		keyframe.fingerPosition.set(arm_plane);
+		keyframe.fingerPosition.scale(keyframe.dimensions.getWristToFinger());
+		keyframe.fingerPosition.add(keyframe.wrist);
+
+		keyframe.fingerForward.set(keyframe.fingerPosition);
+		keyframe.fingerForward.sub(keyframe.wrist);
+		keyframe.fingerForward.normalize();
+		
+		keyframe.fingerRight.set(up); 
+		keyframe.fingerRight.scale(-1);
+		//keyframe.finger_right = MathHelper.rotateAroundAxis(keyframe.finger_right, axis,-keyframe.angle_3/RAD2DEG);
 	}
 }

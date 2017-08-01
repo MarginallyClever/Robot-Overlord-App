@@ -17,7 +17,7 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.robotOverlord.*;
-import com.marginallyclever.robotOverlord.commands.CommandRobotMove;
+import com.marginallyclever.robotOverlord.actions.UndoableActionRobotMove;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
@@ -43,6 +43,8 @@ extends Robot {
 	static final float WRIST_TO_FINGER_X    =( 0.0f);
 	static final float WRIST_TO_FINGER_Y    =( 1.724f);
 	static final float WRIST_TO_FINGER_Z    =( 0.5f);  // measured in solidworks, relative to finger origin
+
+	public static final int NUM_ARMS = 3;
 	
 	protected float HOME_X = 0.0f;
 	protected float HOME_Y = 0.0f;
@@ -61,8 +63,8 @@ extends Robot {
 	protected transient Model modelBase;
 	
 	// motion state testing
-	protected DeltaRobot3MotionState motionNow;
-	protected DeltaRobot3MotionState motionFuture;
+	protected DeltaRobot3Keyframe motionNow;
+	protected DeltaRobot3Keyframe motionFuture;
 
 	// control panel
 	protected transient DeltaRobot3ControlPanel controlPanel;
@@ -84,8 +86,8 @@ extends Robot {
 		super();
 		setDisplayName(ROBOT_NAME);
 
-		motionNow = new DeltaRobot3MotionState();
-		motionFuture = new DeltaRobot3MotionState();
+		motionNow = new DeltaRobot3Keyframe();
+		motionFuture = new DeltaRobot3Keyframe();
 		
 		setupBoundingVolumes();
 		setHome(new Vector3f(0,0,0));
@@ -103,7 +105,7 @@ extends Robot {
 
 	protected void setupBoundingVolumes() {
 		// set up bounding volumes
-		volumes = new Cylinder[DeltaRobot3MotionState.NUM_ARMS];
+		volumes = new Cylinder[NUM_ARMS];
 		for(int i=0;i<volumes.length;++i) {
 			volumes[i] = new Cylinder();
 		}
@@ -132,10 +134,10 @@ extends Robot {
 		HOME_X=newHome.x;
 		HOME_Y=newHome.y;
 		HOME_Z=newHome.z;
-		motionNow.rotateBase(0f,0f);
-		motionNow.moveBase(newHome);
-		motionNow.rebuildShoulders();
-		motionNow.updateIKWrists();
+		rotateBase(motionNow,0f,0f);
+		moveBase(motionNow,newHome);
+		rebuildShoulders(motionNow);
+		updateIKWrists(motionNow);
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
@@ -190,7 +192,7 @@ extends Robot {
 	
 	
 	public void moveIfAble() {
-		if(motionFuture.movePermitted()) {
+		if(movePermitted(motionFuture)) {
 			haveArmsMoved=true;
 			finalizeMove();
 			if(controlPanel!=null) controlPanel.update();
@@ -204,7 +206,7 @@ extends Robot {
 		boolean changed=false;
 		int i;
 		
-		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
+		for(i=0;i<NUM_ARMS;++i) {
 			motionFuture.arms[i].angle = motionNow.arms[i].angle;
 		}
 		
@@ -221,8 +223,8 @@ extends Robot {
 		// if not continuous, set *Dir to zero.
 		
 		if(changed) {
-			if(motionFuture.checkAngleLimits()) {
-				motionFuture.updateFK();
+			if(checkAngleLimits(motionFuture)) {
+				updateFK(motionFuture);
 				haveArmsMoved=true;
 			}
 		}
@@ -299,14 +301,14 @@ extends Robot {
 			//gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z);
 			
 			// arms
-			for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
+			for(i=0;i<NUM_ARMS;++i) {
 				setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 				gl2.glPushMatrix();
 				gl2.glTranslatef(motionNow.arms[i].shoulder.x,
 						         motionNow.arms[i].shoulder.y,
 						         motionNow.arms[i].shoulder.z);
 				gl2.glRotatef(90,0,1,0);  // model oriented wrong direction
-				gl2.glRotatef(60-i*(360.0f/DeltaRobot3MotionState.NUM_ARMS), 1, 0, 0);
+				gl2.glRotatef(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
 				gl2.glTranslatef(0, 0, 0.125f*2.54f);  // model origin wrong
 				gl2.glRotatef(180-motionNow.arms[i].angle,0,0,1);
 				modelArm.render(gl2);
@@ -329,7 +331,7 @@ extends Robot {
 		Vector3f b = new Vector3f();
 		Vector3f ortho = new Vector3f();
 		
-		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
+		for(i=0;i<NUM_ARMS;++i) {
 			//gl2.glBegin(GL2.GL_LINES);
 			//gl2.glColor3f(1,0,0);
 			//gl2.glVertex3f(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
@@ -368,7 +370,7 @@ extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		// debug info
 		gl2.glPushMatrix();
-		for(i=0;i<DeltaRobot3MotionState.NUM_ARMS;++i) {
+		for(i=0;i<NUM_ARMS;++i) {
 			gl2.glColor3f(1,1,1);
 			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].shoulder,5);
 			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].elbow,3);			
@@ -451,7 +453,7 @@ extends Robot {
 		isHomed=false;
 		this.sendLineToRobot("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-		motionFuture.updateIK();
+		updateIK(motionFuture);
 		motionNow.set(motionFuture);
 		haveArmsMoved=true;
 		finalizeMove();
@@ -556,8 +558,8 @@ extends Robot {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
@@ -591,12 +593,12 @@ extends Robot {
 	
 	public void move(int axis,int direction) {
 		switch(axis) {
-		case CommandRobotMove.AXIS_A: moveA(direction); break;
-		case CommandRobotMove.AXIS_B: moveB(direction); break;
-		case CommandRobotMove.AXIS_C: moveC(direction); break;
-		case CommandRobotMove.AXIS_X: moveX(direction); break;
-		case CommandRobotMove.AXIS_Y: moveY(direction); break;
-		case CommandRobotMove.AXIS_Z: moveZ(direction); break;
+		case UndoableActionRobotMove.AXIS_A: moveA(direction); break;
+		case UndoableActionRobotMove.AXIS_B: moveB(direction); break;
+		case UndoableActionRobotMove.AXIS_C: moveC(direction); break;
+		case UndoableActionRobotMove.AXIS_X: moveX(direction); break;
+		case UndoableActionRobotMove.AXIS_Y: moveY(direction); break;
+		case UndoableActionRobotMove.AXIS_Z: moveZ(direction); break;
 		}
 	}
 	
@@ -609,5 +611,270 @@ extends Robot {
 
 	public boolean isHomed() {
 		return isHomed;
+	}
+
+	
+	public boolean updateFK(DeltaRobot3Keyframe keyframe) {
+		return true;
+	}
+
+	/**
+	 * Convert cartesian XYZ to robot motor steps.
+	 * @return true if successful, false if the IK solution cannot be found.
+	 */
+	public boolean updateIK(DeltaRobot3Keyframe keyframe) {
+		try {
+			updateIKWrists(keyframe);
+			updateIKShoulderAngles(keyframe);
+		}
+		catch(AssertionError e) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	protected void updateIKWrists(DeltaRobot3Keyframe keyframe) {
+		Vector3f n1 = new Vector3f(),o1 = new Vector3f(),temp = new Vector3f();
+		float c,s;
+		int i;
+		for(i=0;i<NUM_ARMS;++i) {
+			DeltaRobot3Arm arma=keyframe.arms[i];
+
+			c=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			s=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+
+			//n1 = n* c + o*s;
+			n1.set(keyframe.base_forward);
+			n1.scale(c);
+			temp.set(keyframe.base_right);
+			temp.scale(s);
+			n1.add(temp);
+			n1.normalize();
+			//o1 = n*-s + o*c;
+			o1.set(keyframe.base_forward);
+			o1.scale(-s);
+			temp.set(keyframe.base_right);
+			temp.scale(c);
+			o1.add(temp);
+			o1.normalize();
+			//n1.scale(-1);
+
+
+			//arma.wrist = this.finger_tip + n1*T2W_X + this.base_up*T2W_Z - o1*T2W_Y;
+			//armb.wrist = this.finger_tip + n1*T2W_X + this.base_up*T2W_Z + o1*T2W_Y;
+			arma.wrist.set(n1);
+			arma.wrist.scale(DeltaRobot3.WRIST_TO_FINGER_X);
+			arma.wrist.add(keyframe.fingerPosition);
+			temp.set(keyframe.base_up);
+			temp.scale(DeltaRobot3.WRIST_TO_FINGER_Z);
+			arma.wrist.add(temp);
+			temp.set(o1);
+			temp.scale(DeltaRobot3.WRIST_TO_FINGER_Y);
+			arma.wrist.sub(temp);
+		}
+	}
+	
+
+	protected void updateIKShoulderAngles(DeltaRobot3Keyframe keyframe) throws AssertionError {
+		Vector3f ortho = new Vector3f(),w = new Vector3f(),wop = new Vector3f(),temp = new Vector3f(),r = new Vector3f();
+		float a,b,d,r1,r0,hh,y,x;
+
+		int i;
+		for(i=0;i<NUM_ARMS;++i) {
+			DeltaRobot3Arm arm = keyframe.arms[i];
+
+			// project wrist position onto plane of bicep (wop)
+			ortho.x=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			ortho.y=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			ortho.z=0;
+
+			//w = arm.wrist - arm.shoulder
+			w.set(arm.wrist);
+			w.sub(arm.shoulder);
+
+			//a=w | ortho;
+			a = w.dot( ortho );
+			//wop = w - (ortho * a);
+			temp.set(ortho);
+			temp.scale(a);
+			wop.set(w);
+			wop.sub(temp);
+
+			// we need to find wop-elbow to calculate the angle at the shoulder.
+			// wop-elbow is not the same as wrist-elbow.
+			b=(float)Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH-a*a);
+			if(Float.isNaN(b)) throw new AssertionError();
+
+			// use intersection of circles to find elbow point.
+			//a = (r0r0 - r1r1 + d*d ) / (2*d) 
+			r1=b;  // circle 1 centers on wrist
+			r0=DeltaRobot3.BICEP_LENGTH;  // circle 0 centers on shoulder
+			d=wop.length();
+			// distance along wop to the midpoint between the two possible intersections
+			a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
+
+			// now find the midpoint
+			// normalize wop
+			//wop /= d;
+			wop.scale(1.0f/d);
+			//temp=arm.shoulder+(wop*a);
+			temp.set(wop);
+			temp.scale(a);
+			temp.add(arm.shoulder);
+			// with a and r0 we can find h, the distance from midpoint to intersections.
+			hh=(float)Math.sqrt(r0*r0-a*a);
+			if(Float.isNaN(hh)) throw new AssertionError();
+			// get a normal to the line wop in the plane orthogonal to ortho
+			r.cross(ortho,wop);
+			r.scale(hh);
+			arm.elbow.set(temp);
+			//if(i%2==0) arm.elbow.add(r);
+			//else
+				arm.elbow.sub(r);
+
+			temp.sub(arm.elbow,arm.shoulder);
+			y=-temp.z;
+			temp.z=0;
+			x=temp.length();
+			// use atan2 to find theta
+			if( ( arm.shoulderToElbow.dot( temp ) ) < 0 ) x=-x;
+			arm.angle= (float)Math.toDegrees(Math.atan2(-y,x));
+		}
+	}
+
+
+	public void moveBase(DeltaRobot3Keyframe keyframe,Vector3f dp) {
+		keyframe.base.set(dp);
+		rebuildShoulders(keyframe);
+	}
+
+
+	public void rotateBase(DeltaRobot3Keyframe keyframe,float pan,float tilt) {
+		keyframe.basePan=pan;
+		keyframe.baseTilt=tilt;
+
+		pan = (float)Math.toRadians(pan);
+		tilt = (float)Math.toRadians(tilt);
+		keyframe.base_forward.y = (float)Math.sin(pan) * (float)Math.cos(tilt);
+		keyframe.base_forward.x = (float)Math.cos(pan) * (float)Math.cos(tilt);
+		keyframe.base_forward.z =                        (float)Math.sin(tilt);
+		keyframe.base_forward.normalize();
+
+		keyframe.base_up.set(0,0,1);
+
+		keyframe.base_right.cross(keyframe.base_up,keyframe.base_forward);
+		keyframe.base_right.normalize();
+		keyframe.base_up.cross(keyframe.base_forward,keyframe.base_right);
+		keyframe.base_up.normalize();
+
+		rebuildShoulders(keyframe);
+	}
+
+	
+	protected void rebuildShoulders(DeltaRobot3Keyframe keyframe) {
+		Vector3f n1=new Vector3f(),o1=new Vector3f(),temp=new Vector3f();
+		float c,s;
+		int i;
+		for(i=0;i<3;++i) {
+			DeltaRobot3Arm arma=keyframe.arms[i];
+
+			c=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			s=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+
+			//n1 = n* c + o*s;
+			n1.set(keyframe.base_forward);
+			n1.scale(c);
+			temp.set(keyframe.base_right);
+			temp.scale(s);
+			n1.add(temp);
+			n1.normalize();
+			//o1 = n*-s + o*c;
+			o1.set(keyframe.base_forward);
+			o1.scale(-s);
+			temp.set(keyframe.base_right);
+			temp.scale(c);
+			o1.add(temp);
+			o1.normalize();
+			//n1.scale(-1);
+
+
+			//		    arma.shoulder = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*BASE_TO_SHOULDER_Y;
+			arma.shoulder.set(n1);
+			arma.shoulder.scale(DeltaRobot3.BASE_TO_SHOULDER_X);
+			temp.set(keyframe.base_up);
+			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Z);
+			arma.shoulder.add(temp);
+			temp.set(o1);
+			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Y);
+			arma.shoulder.sub(temp);
+			arma.shoulder.add(keyframe.base);
+
+			//		    arma.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
+			arma.elbow.set(n1);
+			arma.elbow.scale(DeltaRobot3.BASE_TO_SHOULDER_X);
+			temp.set(keyframe.base_up);
+			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Z);
+			arma.elbow.add(temp);
+			temp.set(o1);
+			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Y+DeltaRobot3.BICEP_LENGTH);
+			arma.elbow.sub(temp);
+			//arma.shoulder.add(this.base);		    
+
+			arma.shoulderToElbow.set(o1);
+			arma.shoulderToElbow.scale(-1);
+		}
+	}
+
+
+	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
+	public boolean movePermitted(DeltaRobot3Keyframe keyframe) {/*
+		// don't hit floor
+		if(state.finger_tip.z<0.25f) {
+			return false;
+		}
+		// don't hit ceiling
+		if(state.finger_tip.z>50.0f) {
+			return false;
+		}
+
+		// check far limit
+		Vector3f temp = new Vector3f(state.finger_tip);
+		temp.sub(state.shoulder);
+		if(temp.length() > 50) return false;
+		// check near limit
+		if(temp.length() < BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
+	 */
+		// angle are good?
+		if(!checkAngleLimits(keyframe)) return false;
+		// seems doable
+		if(!updateIK(keyframe)) return false;
+
+		// OK
+		return true;
+	}
+
+
+	public boolean checkAngleLimits(DeltaRobot3Keyframe keyframe) {
+		// machine specific limits
+		/*
+		if (state.angle_0 < -180) return false;
+		if (state.angle_0 >  180) return false;
+		if (state.angle_2 <  -20) return false;
+		if (state.angle_2 >  180) return false;
+		if (state.angle_1 < -150) return false;
+		if (state.angle_1 >   80) return false;
+		if (state.angle_1 < -state.angle_2+ 10) return false;
+		if (state.angle_1 > -state.angle_2+170) return false;
+
+		if (state.angle_3 < -180) return false;
+		if (state.angle_3 >  180) return false;
+		if (state.angle_4 < -180) return false;
+		if (state.angle_4 >  180) return false;
+		if (state.angle_5 < -180) return false;
+		if (state.angle_5 >  180) return false;
+		 */	
+		return true;
 	}
 }

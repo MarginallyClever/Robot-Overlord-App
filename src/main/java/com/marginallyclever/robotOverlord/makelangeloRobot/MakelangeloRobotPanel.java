@@ -43,7 +43,7 @@ import com.marginallyclever.robotOverlord.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.actions.ActionSelectNumber;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.makelangeloRobot.generators.ImageGenerator;
 import com.marginallyclever.robotOverlord.makelangeloRobot.loadAndSave.LoadAndSaveFileType;
 import com.marginallyclever.robotOverlord.makelangeloRobot.loadAndSave.LoadAndSaveGCode;
@@ -85,7 +85,7 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 	private JButton goPaperBorder,penUp,penDown;
 
 	// speed
-	private ActionSelectNumber feedRateTxt;
+	private UserCommandSelectNumber feedRateTxt;
 	private JButton setFeedRate;
 	private JButton toggleEngagedMotor;
 
@@ -308,7 +308,7 @@ public class MakelangeloRobotPanel extends JPanel implements ActionListener, Ite
 			feedRateControl.setLayout(new GridBagLayout());
 			feedRateControl.setBorder(BorderFactory.createLineBorder(new Color(255,0,0)));
 			GridBagConstraints c = new GridBagConstraints();
-			feedRateTxt = new ActionSelectNumber(gui,Translator.get("Speed"),(float)robot.getSettings().getCurrentFeedRate());
+			feedRateTxt = new UserCommandSelectNumber(gui,Translator.get("Speed"),(float)robot.getSettings().getCurrentFeedRate());
 			//feedRateTxt.setPreferredSize(new Dimension(100,20));
 			setFeedRate = new JButton(Translator.get("Set"));
 			setFeedRate.addActionListener(this);

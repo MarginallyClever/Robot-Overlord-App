@@ -48,16 +48,16 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.actions.ActionAbout;
-import com.marginallyclever.robotOverlord.actions.ActionAddEntity;
-import com.marginallyclever.robotOverlord.actions.ActionCheckForUpdate;
-import com.marginallyclever.robotOverlord.actions.ActionLoad;
-import com.marginallyclever.robotOverlord.actions.ActionNew;
-import com.marginallyclever.robotOverlord.actions.ActionQuit;
-import com.marginallyclever.robotOverlord.actions.ActionRedo;
-import com.marginallyclever.robotOverlord.actions.ActionSaveAs;
-import com.marginallyclever.robotOverlord.actions.ActionUndo;
 import com.marginallyclever.robotOverlord.camera.Camera;
+import com.marginallyclever.robotOverlord.commands.UserCommandAbout;
+import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
+import com.marginallyclever.robotOverlord.commands.UserCommandCheckForUpdate;
+import com.marginallyclever.robotOverlord.commands.UserCommandLoad;
+import com.marginallyclever.robotOverlord.commands.UserCommandNew;
+import com.marginallyclever.robotOverlord.commands.UserCommandQuit;
+import com.marginallyclever.robotOverlord.commands.UserCommandRedo;
+import com.marginallyclever.robotOverlord.commands.UserCommandSaveAs;
+import com.marginallyclever.robotOverlord.commands.UserCommandUndo;
 import com.marginallyclever.robotOverlord.world.World;
 import com.marginallyclever.util.PropertiesFileHelper;
 
@@ -129,6 +129,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
  	protected RobotOverlord() {
 		prefs = Preferences.userRoot().node("Evil Overlord");
 
+		System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
+		
 		Translator.start();
 		SoundSystem.start();
 		
@@ -232,9 +234,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 
-	public void setContextMenu(Entity object) {
+	public void setContextPanel(Entity object) {
 		pickObject=object;
-		setContextMenu(object.buildPanel(this),object.getDisplayName());
+		setContextPanel(object.getAllContextPanels(this),object.getDisplayName());
 	}
 	
 
@@ -247,7 +249,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 	
-	public void setContextMenu(JPanel panel,String title) {
+	public void setContextPanel(JPanel panel,String title) {
 		JPanel container = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.weighty=0;
@@ -384,22 +386,22 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		JMenu menu;
 		
 		menu = new JMenu(APP_TITLE);
-		menu.add(new ActionNew(this));        	
-		menu.add(new ActionLoad(this));
-		menu.add(new ActionSaveAs(this));
+		menu.add(new UserCommandNew(this));        	
+		menu.add(new UserCommandLoad(this));
+		menu.add(new UserCommandSaveAs(this));
 		menu.add(new JSeparator());
-		menu.add(new ActionAbout(this));
-		menu.add(new ActionCheckForUpdate(this));
-		menu.add(new ActionQuit(this));
+		menu.add(new UserCommandAbout(this));
+		menu.add(new UserCommandCheckForUpdate(this));
+		menu.add(new UserCommandQuit(this));
 		mainMenu.add(menu);
         
         menu = new JMenu("Edit");
-        menu.add(buttonUndo = new ActionUndo(this));
-        menu.add(buttonRedo = new ActionRedo(this));
+        menu.add(buttonUndo = new UserCommandUndo(this));
+        menu.add(buttonRedo = new UserCommandRedo(this));
         mainMenu.add(menu);
 
         menu = new JMenu("World");
-    	menu.add(new ActionAddEntity(this));
+    	menu.add(new UserCommandAddEntity(this));
     	//menu.add(new ActionRemoveEntity(this));
     	mainMenu.add(menu);
     	
@@ -507,13 +509,33 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     @Override
     public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
     	GL2 gl2 = drawable.getGL().getGL2();
+    	// turn on vsync
         gl2.setSwapInterval(1);
 
+        // set up the projection matrix
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 		setPerspectiveMatrix();
+
+		// set opengl options
+		gl2.glDepthFunc(GL2.GL_LESS);
+		gl2.glEnable(GL2.GL_DEPTH_TEST);
+		gl2.glDepthMask(true);
+
+    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
+        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
+        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
         
-        world.setup( gl2 );
+        gl2.glEnable(GL2.GL_BLEND);
+        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+
+        // TODO add a settings toggle for this option, it really slows down older machines.
+        gl2.glEnable(GL2.GL_MULTISAMPLE);
+        
+        int buf[] = new int[1];
+        int sbuf[] = new int[1];
+        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
+        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
     }
     
     
@@ -553,7 +575,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	lastTime = nowTime;
     	//System.out.println(dt);
     	
-		// Clear The Screen And The Depth Buffer
     	GL2 gl2 = drawable.getGL().getGL2();
 
     	frameDelay+=dt;
@@ -641,7 +662,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     				if(newObject == pickObject) {
     					pickCamera();
     				} else {
-    					setContextMenu(newObject);
+    					setContextPanel(newObject);
     				}
     				
    					pickFound=true;
@@ -658,7 +679,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	public void pickCamera() {
 		Camera camera = world.getCamera();
 		if(camera!=null) {
-			setContextMenu(camera);
+			setContextPanel(camera);
 		}
 	}
 
@@ -775,7 +796,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	        new Thread(new Runnable() {
 	            public void run() {
 	              animator.stop();
-	              System.exit(0);
+	              mainFrame.dispose();
 	            }
 	        }).start();
         }

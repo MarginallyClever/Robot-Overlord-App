@@ -6,7 +6,7 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.arm3.Arm3Dimensions;
-import com.marginallyclever.robotOverlord.arm3.Arm3MotionState;
+import com.marginallyclever.robotOverlord.arm3.Arm3Keyframe;
 
 public class UArmDimensions extends Arm3Dimensions {
 	// name
@@ -73,7 +73,7 @@ public class UArmDimensions extends Arm3Dimensions {
 	}
 
 	@Override
-	public String reportMove(Arm3MotionState arg0) {
+	public String reportMove(Arm3Keyframe arg0) {
 		float x = arg0.angleBase    +(         90.0f);
 		float y = (-arg0.angleShoulder)+(54.54f-30);
 		float z = 180.0f-(arg0.angleElbow-(130.673f-90.0f));

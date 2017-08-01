@@ -28,7 +28,7 @@ import javax.swing.JTextArea;
 import com.marginallyclever.robotOverlord.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.actions.ActionSelectNumber;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 
 
 public class Generator_Text extends ImageGenerator {
@@ -135,7 +135,7 @@ public class Generator_Text extends ImageGenerator {
 	@Override
 	public boolean generate(RobotOverlord gui,Writer out) throws IOException {
 		final JTextArea text = new JTextArea(lastMessage, 6, 60);
-		final ActionSelectNumber size = new ActionSelectNumber(gui,Translator.get("FontSize"),lastSize);
+		final UserCommandSelectNumber size = new UserCommandSelectNumber(gui,Translator.get("FontSize"),lastSize);
 		final JComboBox<String> fontChoices = new JComboBox<String>(fontNames);
 		fontChoices.setSelectedIndex(lastFont);
 		

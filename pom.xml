@@ -103,11 +103,13 @@ If you like this project, please support us by buying Marginally Clever products
     <plugin>
       <artifactId>maven-assembly-plugin</artifactId>
       <configuration>
+        <!--
         <archive>
           <manifest>
             <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
           </manifest>
         </archive>
+        -->
           <descriptors>
             <descriptor>src/main/assembly/application.xml</descriptor>
           </descriptors>
@@ -161,9 +163,11 @@ If you like this project, please support us by buying Marginally Clever products
             <manifestEntries>
               <SplashScreen-Image>splash.png</SplashScreen-Image>
             </manifestEntries>
+            <!--
             <manifest>
               <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
             </manifest>
+            -->
           </archive>
         </configuration>
       </plugin>
