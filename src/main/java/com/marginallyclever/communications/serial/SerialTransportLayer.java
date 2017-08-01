@@ -52,6 +52,7 @@ public class SerialTransportLayer implements TransportLayer {
 		try {
 			serialConnection.openConnection(connectionName);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 

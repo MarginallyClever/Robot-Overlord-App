@@ -143,7 +143,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		
 		connectionManager = new NetworkConnectionManager();
 		
-		glu = new GLU();
+		glu = GLU.createGLU();
 /*
 		try {
 			String s = getPath(this.getClass());
