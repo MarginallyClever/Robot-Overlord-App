@@ -510,49 +510,49 @@ implements ActionListener {
 	}
 
 	void Move_Send_Serial() {
-		  // send updates to hexapod?
+		// send updates to hexapod?
 		ByteBuffer buffer = ByteBuffer.allocate(64);
-		  int used=0;
+		int used=0;
 
-		  int i;
-		  for(i=0;i<6;++i) {
-		    SpideeLeg leg=legs[i];
+		int i;
+		for(i=0;i<6;++i) {
+			SpideeLeg leg=legs[i];
 
-		    // update pan
-		    leg.pan_joint.angle=Math.max(Math.min(leg.pan_joint.angle,(float)leg.pan_joint.angle_max),(float)leg.pan_joint.angle_min);
-		    if(leg.pan_joint.last_angle!=(int)leg.pan_joint.angle)
-		    {
-		      leg.pan_joint.last_angle=(int)leg.pan_joint.angle;
-		      buffer.put(used++,(byte)leg.pan_joint.servo_address);
-		      buffer.put(used++,(byte)leg.pan_joint.angle);
-		      //Log3("%d=%d ",buffer[used-2],buffer[used-1]);
-		    }
+			// update pan
+			leg.pan_joint.angle=Math.max(Math.min(leg.pan_joint.angle,(float)leg.pan_joint.angle_max),(float)leg.pan_joint.angle_min);
+			if(leg.pan_joint.last_angle!=(int)leg.pan_joint.angle)
+			{
+				leg.pan_joint.last_angle=(int)leg.pan_joint.angle;
+				buffer.put(used++,(byte)leg.pan_joint.servo_address);
+				buffer.put(used++,(byte)leg.pan_joint.angle);
+				//Log3("%d=%d ",buffer[used-2],buffer[used-1]);
+			}
 
-		    // update tilt
-		    leg.tilt_joint.angle=Math.max(Math.min(leg.tilt_joint.angle,(float)leg.tilt_joint.angle_max),(float)leg.tilt_joint.angle_min);
-		    if(leg.tilt_joint.last_angle!=(int)leg.tilt_joint.angle)
-		    {
-		      leg.tilt_joint.last_angle=(int)leg.tilt_joint.angle;
-		      buffer.put(used++,(byte)leg.tilt_joint.servo_address);
-		      buffer.put(used++,(byte)leg.tilt_joint.angle);
-		      //Log3("%d=%d ",buffer[used-2],buffer[used-1]);
-		    }
+			// update tilt
+			leg.tilt_joint.angle=Math.max(Math.min(leg.tilt_joint.angle,(float)leg.tilt_joint.angle_max),(float)leg.tilt_joint.angle_min);
+			if(leg.tilt_joint.last_angle!=(int)leg.tilt_joint.angle)
+			{
+				leg.tilt_joint.last_angle=(int)leg.tilt_joint.angle;
+				buffer.put(used++,(byte)leg.tilt_joint.servo_address);
+				buffer.put(used++,(byte)leg.tilt_joint.angle);
+				//Log3("%d=%d ",buffer[used-2],buffer[used-1]);
+			}
 
-		    // update knee
-		    leg.knee_joint.angle=Math.max(Math.min(leg.knee_joint.angle,(float)leg.knee_joint.angle_max),(float)leg.knee_joint.angle_min);
-		    if(leg.knee_joint.last_angle!=(int)leg.knee_joint.angle)
-		    {
-		      leg.knee_joint.last_angle=(int)leg.knee_joint.angle;
-		      buffer.put(used++,(byte)leg.knee_joint.servo_address);
-		      buffer.put(used++,(byte)leg.knee_joint.angle);
-		      //Log3("%d=%d ",buffer[used-2],buffer[used-1]);
-		    }
-		  }
-
-		  if(used>0) {
-		    Instruct('U',buffer);
-		  }
+			// update knee
+			leg.knee_joint.angle=Math.max(Math.min(leg.knee_joint.angle,(float)leg.knee_joint.angle_max),(float)leg.knee_joint.angle_min);
+			if(leg.knee_joint.last_angle!=(int)leg.knee_joint.angle)
+			{
+				leg.knee_joint.last_angle=(int)leg.knee_joint.angle;
+				buffer.put(used++,(byte)leg.knee_joint.servo_address);
+				buffer.put(used++,(byte)leg.knee_joint.angle);
+				//Log3("%d=%d ",buffer[used-2],buffer[used-1]);
+			}
 		}
+
+		if(used>0) {
+			instruct('U',buffer);
+		}
+	}
 
 	void Teleport( Vector3f newpos ) {
 		// move a robot to a new position, update all joints.
@@ -595,7 +595,7 @@ implements ActionListener {
 			  buffer.put(i,(byte)buttons[i]);
 		  }
 		  buffer.rewind();
-		  Instruct('I',buffer);
+		  instruct('I',buffer);
 
 		/*if(Input.GetSingleton().GetButtonState("spidee","connect") == Input.ButtonState.RELEASED ) {
 	      open=comm.IsOpen();
@@ -911,7 +911,6 @@ implements ActionListener {
 	}
 	
 
-
 	// send the calibration data to the robot
 	void SendZeros() {
 	  System.out.print("Sending Zeros...\n");
@@ -930,9 +929,8 @@ implements ActionListener {
 	  }
 
 	  zeros.rewind();
-	  Instruct('W',zeros);
+	  instruct('W',zeros);
 	}
-
 
 
 	public void Reset_Position() {
@@ -949,12 +947,23 @@ implements ActionListener {
 	  }
 
 	  buffer.rewind();
-	  Instruct('U',buffer);
+	  instruct('U',buffer);
 	}
 
 	
-	void Instruct(char code,ByteBuffer buf) {
+	void instruct(char code,ByteBuffer buf) {
+		if( connection==null ) return;
+		if( !isPortConfirmed ) return;
+		
 		//throw new NotImplementedException();
+		String line = code + buf.toString();
+		
+		// send relevant part of line to the robot
+		try{
+			connection.sendMessage(line);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 
