@@ -8,19 +8,25 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3f;
 
-import com.marginallyclever.robotOverlord.actions.ActionRemoveMe;
-import com.marginallyclever.robotOverlord.actions.ActionSelectString;
-import com.marginallyclever.robotOverlord.actions.ActionSelectVector3f;
+import com.marginallyclever.robotOverlord.commands.UserCommandRemoveMe;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectString;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
 
+/**
+ * The user interface for an {@link Entity}.
+ * @author Dan Royer
+ *
+ */
 public class EntityPanel extends JPanel implements ChangeListener {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private Entity entity;
-	private transient ActionSelectVector3f setPosition;
-	private transient ActionSelectString setName;
-	
+	private transient UserCommandSelectVector3f setPosition;
+	private transient UserCommandSelectString setName;
+
+	/**
+	 * @param ro the application instance
+	 * @param entity The entity controlled by this panel
+	 */
 	public EntityPanel(RobotOverlord ro,Entity entity) {
 		super();
 		
@@ -47,26 +53,34 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		con1.anchor=GridBagConstraints.CENTER;
 
 		if(ro.getWorld().hasEntity(entity)) {
-			contents.add(new ActionRemoveMe(ro,entity),con1);
+			contents.add(new UserCommandRemoveMe(ro,entity),con1);
 			con1.gridy++;
 		}
 		
-		contents.add(setName=new ActionSelectString(ro,"name",entity.getDisplayName()), con1);
+		contents.add(setName=new UserCommandSelectString(ro,"name",entity.getDisplayName()), con1);
 		con1.gridy++;
 		setName.addChangeListener(this);
 		
-		contents.add(setPosition = new ActionSelectVector3f(ro,"position",entity.getPosition()),con1);
+		contents.add(setPosition = new UserCommandSelectVector3f(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;
 		setPosition.addChangeListener(this);
 	}
 	
 	
+	/**
+	 * Call by an {@link Entity} when it's details change so that they are reflected on the panel.
+	 * This might be better as a listener pattern.
+	 */
 	public void updateFields() {
 		Vector3f pos = entity.getPosition();
 		setPosition.setValue(pos);
 	}
 	
 	
+	/**
+	 * Called by the UI when the user presses buttons on the panel.
+	 * @param e the {@link ChangeEvent} details
+	 */
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();

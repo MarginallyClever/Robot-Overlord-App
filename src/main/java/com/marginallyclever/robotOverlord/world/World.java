@@ -12,6 +12,7 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.communications.NetworkConnectionManager;
+import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
@@ -19,8 +20,8 @@ import com.marginallyclever.robotOverlord.LightObject;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.arm5.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.camera.Camera;
-import com.marginallyclever.robotOverlord.evilMinion.EvilMinionRobot;
 
 /**
  * Container for all the visible objects in the world.
@@ -67,26 +68,11 @@ implements Serializable {
 	}
 	
 
-    public void setup( GL2 gl2 ) {
-		gl2.glDepthFunc(GL2.GL_LESS);
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthMask(true);
-
-    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
-        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-        
-        gl2.glEnable(GL2.GL_BLEND);
-        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-
-        // add a settings toggle for this option, it really slows down older machines.
-        gl2.glEnable(GL2.GL_MULTISAMPLE);
-        
-        int buf[] = new int[1];
-        int sbuf[] = new int[1];
-        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
-        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
-        
+	/**
+	 * sets some render options at the
+	 * @param gl2 the openGL render context
+	 */
+    protected void setup( GL2 gl2 ) {
 		setupLights();
 		loadTextures(gl2);
     }
@@ -117,14 +103,14 @@ implements Serializable {
 	void loadTextures( GL2 gl2 ) {
 		if(areTexturesLoaded) return;
 		
-		// World background texture
+		// World background skybox texture
 		try {
-			t0 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-pos.png"), false, "png");
-			t1 = TextureIO.newTexture(this.getClass().getResource("/images/cube-x-neg.png"), false, "png");
-			t2 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-pos.png"), false, "png");
-			t3 = TextureIO.newTexture(this.getClass().getResource("/images/cube-y-neg.png"), false, "png");
-			t4 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-pos.png"), false, "png");
-			t5 = TextureIO.newTexture(this.getClass().getResource("/images/cube-z-neg.png"), false, "png");
+			t0 = TextureIO.newTexture(FileAccess.open("/images/cube-x-pos.png"), false, "png");
+			t1 = TextureIO.newTexture(FileAccess.open("/images/cube-x-neg.png"), false, "png");
+			t2 = TextureIO.newTexture(FileAccess.open("/images/cube-y-pos.png"), false, "png");
+			t3 = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
+			t4 = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
+			t5 = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
 			//System.out.println(">>> All textures loaded OK");
 			areTexturesLoaded=true;
 		}
@@ -162,6 +148,8 @@ implements Serializable {
 
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
+
+		// Clear the screen and depth buffer
 
 		// background color
     	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);

@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 /**
  * Camera in the world.  Has no physical presence.  Has location and direction.
+ * 
  * @author Dan Royer
- *
  */
 public class Camera extends PhysicalObject {
 	/**
@@ -56,8 +56,8 @@ public class Camera extends PhysicalObject {
 	}
 
 	
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		cameraPanel = new CameraControlPanel(gui,this);

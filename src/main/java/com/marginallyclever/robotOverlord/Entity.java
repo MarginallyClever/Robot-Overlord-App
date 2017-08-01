@@ -1,8 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
-import java.io.Reader;
 import java.io.Serializable;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -14,7 +12,7 @@ import javax.vecmath.Vector3f;
 
 
 /**
- * an object in the world that can have a gui interface
+ * An object in the world that can have a user interface
  * @author danroyer
  *
  */
@@ -37,10 +35,6 @@ public class Entity implements Serializable {
 	protected Material material;
 	
 	
-	
-	//protected transient EvilOverlord gui;
-	
-	
 	public Entity() {
 		pickName = pickNameCounter++;
 		position = new Vector3f();
@@ -48,7 +42,13 @@ public class Entity implements Serializable {
 	}
 	
 	
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
+	/**
+	 * Get the {@link EntityPanel} for this class' superclass, then the EntityPanel for this class, and so on.
+	 * 
+	 * @param gui the main application instance.
+	 * @return the list of EntityPanels 
+	 */
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
 		entityPanel = new EntityPanel(gui,this);
@@ -58,11 +58,19 @@ public class Entity implements Serializable {
 	}
 	
 	
-	public JPanel buildPanel(RobotOverlord gui) {
+	/**
+	 * Get all the {@link EntityPanel}s for this {@link Entity}.  
+	 * <p>
+	 * If this class is derived from Entity, get the panels for the derived Entities, too.  Normally this is called by {@link RobotOverlord}.
+	 * 
+	 * @param gui the main application instance.
+	 * @return an ArrayList of all the panels for this Entity and all derived classes.
+	 */
+	public JPanel getAllContextPanels(RobotOverlord gui) {
 		JPanel sum = new JPanel();
 		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
 		
-		ArrayList<JPanel> list = getControlPanels(gui);
+		ArrayList<JPanel> list = getContextPanel(gui);
 		Iterator<JPanel> pi = list.iterator();
 		while(pi.hasNext()) {
 			JPanel p = pi.next();
@@ -89,8 +97,6 @@ public class Entity implements Serializable {
 	
 	
 	public void render(GL2 gl2) {}
-	public void save(Writer writer) {}
-	public void load(Reader reader) {}
 	
 
 	public Vector3f getPosition() {		return position;	}

@@ -24,14 +24,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
+/**
+ * Robot Overlord simulation of Andreas Hoelldorfer's MANTIS 5DOF robot arm.
+ * 
+ * @author Dan Royer <dan @ marinallyclever.com>
+ * @see <a href='https://hackaday.io/project/3800-3d-printable-robot-arm'>MANTIS on Hackaday.io</a>
+ */
 public class MantisRobot
 extends Robot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3644731265897692399L;
-	// machine ID
-	private long robotUID;
+
 	private final static String hello = "HELLO WORLD! I AM AHROBOT #";
 	private final static String ROBOT_NAME = "Mantis 6DOF arm";
 	
@@ -45,14 +50,16 @@ extends Robot {
 	public final static double SHOULDER_TO_ELBOW = 13.9744 + 8.547;
 	public final static float WRIST_TO_TOOL_X = 5f;
 	public final static float ELBOW_TO_WRIST = -14.6855f-5.7162f-2.4838f;
-	
+
+	public final static float EPSILON = 0.00001f;
+
 	// model files
-	private transient Model anchor = null;
-	private transient Model shoulder = null;
-	private transient Model boom = null;
-	private transient Model stick = null;
-	private transient Model wrist = null;
-	private transient Model hand = null;
+	private transient Model anchorModel = null;
+	private transient Model shoulderModel = null;
+	private transient Model boomModel = null;
+	private transient Model stickModel = null;
+	private transient Model wristModel = null;
+	private transient Model handModel = null;
 
 	private Material matAnchor		= new Material();
 	private Material matShoulder	= new Material();
@@ -60,6 +67,9 @@ extends Robot {
 	private Material matStick		= new Material();
 	private Material matWrist		= new Material();
 	private Material matHand		= new Material();
+
+	// machine ID
+	private long robotUID;
 	
 	// currently attached tool
 	private MantisTool tool = null;
@@ -68,8 +78,8 @@ extends Robot {
 	private Cylinder [] volumes = new Cylinder[6];
 
 	// motion states
-	private MantisRobotMotionState motionNow = new MantisRobotMotionState();
-	private MantisRobotMotionState motionFuture = new MantisRobotMotionState();
+	private MantisRobotKeyframe motionNow = new MantisRobotKeyframe();
+	private MantisRobotKeyframe motionFuture = new MantisRobotKeyframe();
 	
 	// keyboard history
 	private float aDir = 0.0f;
@@ -117,12 +127,12 @@ extends Robot {
 		volumes[5].setRadius(1.0f*0.575f);
 		
 		rotateBase(0,0);
-		motionNow.checkAngleLimits();
-		motionFuture.checkAngleLimits();
-		motionNow.forwardKinematics();
-		motionFuture.forwardKinematics();
-		motionNow.inverseKinematics();
-		motionFuture.inverseKinematics();
+		checkAngleLimits(motionNow);
+		checkAngleLimits(motionFuture);
+		forwardKinematics(motionNow);
+		forwardKinematics(motionFuture);
+		inverseKinematics(motionNow);
+		inverseKinematics(motionFuture);
 
 		matAnchor.setDiffuseColor(0,0,0,1);
 		matShoulder.setDiffuseColor(1,0,0,1);
@@ -139,12 +149,12 @@ extends Robot {
 	@Override
 	protected void loadModels(GL2 gl2) {
 		try {
-			anchor = ModelFactory.createModelFromFilename("/AH/rotBaseCase.stl",0.1f);
-			shoulder = ModelFactory.createModelFromFilename("/AH/Shoulder_r1.stl",0.1f);
-			boom = ModelFactory.createModelFromFilename("/AH/Elbow.stl",0.1f);
-			stick = ModelFactory.createModelFromFilename("/AH/Forearm.stl",0.1f);
-			wrist = ModelFactory.createModelFromFilename("/AH/Wrist_r1.stl",0.1f);
-			hand = ModelFactory.createModelFromFilename("/AH/WristRot.stl",0.1f);
+			anchorModel = ModelFactory.createModelFromFilename("/AH/rotBaseCase.stl",0.1f);
+			shoulderModel = ModelFactory.createModelFromFilename("/AH/Shoulder_r1.stl",0.1f);
+			boomModel = ModelFactory.createModelFromFilename("/AH/Elbow.stl",0.1f);
+			stickModel = ModelFactory.createModelFromFilename("/AH/Forearm.stl",0.1f);
+			wristModel = ModelFactory.createModelFromFilename("/AH/Wrist_r1.stl",0.1f);
+			handModel = ModelFactory.createModelFromFilename("/AH/WristRot.stl",0.1f);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -159,8 +169,8 @@ extends Robot {
 
 	
 	@Override
-	public ArrayList<JPanel> getControlPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getControlPanels(gui);
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
@@ -168,7 +178,7 @@ extends Robot {
 		list.add(arm5Panel);
 		updateGUI();
 
-		ArrayList<JPanel> toolList = tool.getControlPanels(gui);
+		ArrayList<JPanel> toolList = tool.getContextPanel(gui);
 		Iterator<JPanel> iter = toolList.iterator();
 		while(iter.hasNext()) {
 			list.add(iter.next());
@@ -360,8 +370,8 @@ extends Robot {
 			motionFuture.fingerPosition.x = dX;
 			motionFuture.fingerPosition.y = dY;
 			motionFuture.fingerPosition.z = dZ;
-			if(!motionFuture.inverseKinematics()) return;
-			if(motionFuture.checkAngleLimits()) {
+			if(!inverseKinematics(motionFuture)) return;
+			if(checkAngleLimits(motionFuture)) {
 			//if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
 				armMoved=true;
 				isRenderIKOn=true;
@@ -438,8 +448,8 @@ extends Robot {
 			motionFuture.angleD=dD;
 			motionFuture.angleE=dE;
 			motionFuture.angleF=dF;
-			if(motionFuture.checkAngleLimits()) {
-				motionFuture.forwardKinematics();
+			if(checkAngleLimits(motionFuture)) {
+				forwardKinematics(motionFuture);
 				isRenderIKOn=false;
 				isRenderFKOn=true;
 				armMoved=true;
@@ -774,13 +784,13 @@ extends Robot {
 		// anchor
 		matAnchor.render(gl2);
 		gl2.glTranslated(0, 0, ANCHOR_ADJUST_Z);
-		anchor.render(gl2);
+		anchorModel.render(gl2);
 
 		// shoulder
 		matShoulder.render(gl2);
 		gl2.glTranslated(0, 0, ANCHOR_TO_SHOULDER_Z);
 		gl2.glRotated(motionNow.angleF,0,0,1);
-		shoulder.render(gl2);
+		shoulderModel.render(gl2);
 		
 		// boom
 		matBoom.render(gl2);
@@ -788,7 +798,7 @@ extends Robot {
 		gl2.glRotated(90, 1, 0, 0);
 		gl2.glTranslated(SHOULDER_TO_BOOM_Z,SHOULDER_TO_BOOM_X, 0);
 		gl2.glPushMatrix();
-		boom.render(gl2);
+		boomModel.render(gl2);
 		gl2.glPopMatrix();
 		
 		// stick
@@ -798,7 +808,7 @@ extends Robot {
 		gl2.glRotated(motionNow.angleD, 0, 0, 1);
 		gl2.glTranslated(5.7162,0.3917,0.3488);
 		gl2.glPushMatrix();
-		stick.render(gl2);
+		stickModel.render(gl2);
 		gl2.glPopMatrix();
 		
 		// wrist
@@ -808,7 +818,7 @@ extends Robot {
 		gl2.glRotated(90, 0, 1, 0);
 		gl2.glTranslated(0, 0, 2.4838);
 		gl2.glPushMatrix();
-		wrist.render(gl2);
+		wristModel.render(gl2);
 		gl2.glPopMatrix();
 		
 		// tool holder
@@ -817,7 +827,7 @@ extends Robot {
 		gl2.glRotated(90,0,1,0);
 		gl2.glRotated(180+motionNow.angleB,0,0,1);
 		gl2.glPushMatrix();
-		hand.render(gl2);
+		handModel.render(gl2);
 		gl2.glPopMatrix();
 		
 		gl2.glRotated(180, 0, 0, 1);
@@ -948,7 +958,7 @@ extends Robot {
 						}
 					}
 					
-					motionFuture.forwardKinematics();
+					forwardKinematics(motionFuture);
 					motionNow.set(motionFuture);
 					updateGUI();
 				}
@@ -1075,5 +1085,275 @@ extends Robot {
 			this.sendLineToRobot("UID " + new_uid);
 		}
 		return new_uid;
+	}
+	
+	
+	// TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
+	public boolean movePermitted(MantisRobotKeyframe keyframe) {
+		// don't hit floor?
+		// don't hit ceiling?
+
+		// check far limit
+		// seems doable
+		if(!inverseKinematics(keyframe)) return false;
+		// angle are good?
+		if(!checkAngleLimits(keyframe)) return false;
+
+		// OK
+		return true;
+	}
+	
+	
+	protected boolean checkAngleLimits(MantisRobotKeyframe keyframe) {/*
+		// machine specific limits
+		//a
+		//if (angleA < -180) return false;
+		//if (angleA >  180) return false;
+		//b
+		if (angleB <      72.90) angleB = 72.90f;
+		if (angleB >  360-72.90) angleB = 360-72.90f;
+		//c
+		if (angleC <   50.57) angleC = 50.57f;
+		if (angleC >  160.31) angleC = 160.31f;
+		//d
+		if (angleD <   87.85) angleD = 87.85f;
+		if (angleD >  173.60) angleD = 173.60f;
+		//e
+		//if (angleE < 180-165) return false;
+		//if (angleE > 180+165) return false;
+*/
+		return true;
+	}
+	
+	
+	/**
+	 * Find the arm joint angles that would put the finger at the desired location.
+	 * @return false if successful, true if the IK solution cannot be found.
+	 */
+	protected boolean inverseKinematics(MantisRobotKeyframe keyframe) {
+		float n;
+		double ee;
+		float xx,yy;
+		
+		// rotation at finger, bend at wrist, rotation between wrist and elbow, then bends down to base.
+		
+		// find the wrist position
+		Vector3f towardsFinger = new Vector3f(keyframe.fingerForward);
+		n = (float)MantisRobot.WRIST_TO_TOOL_X;
+		towardsFinger.scale(n);
+		
+		keyframe.ikWrist = new Vector3f(keyframe.fingerPosition);
+		keyframe.ikWrist.sub(towardsFinger);
+		
+		keyframe.ikBase = new Vector3f(0,0,0);
+		keyframe.ikShoulder = new Vector3f(0,0,(float)(MantisRobot.ANCHOR_ADJUST_Z + MantisRobot.ANCHOR_TO_SHOULDER_Z));
+
+		// Find the facingDirection and planeNormal vectors.
+		Vector3f facingDirection = new Vector3f(keyframe.ikWrist.x,keyframe.ikWrist.y,0);
+		if(Math.abs(keyframe.ikWrist.x)<EPSILON && Math.abs(keyframe.ikWrist.y)<EPSILON) {
+			// Wrist is directly above shoulder, makes calculations hard.
+			// TODO figure this out.  Use previous state to guess elbow?
+			return false;
+		}
+		facingDirection.normalize();
+		Vector3f up = new Vector3f(0,0,1);
+		Vector3f planarRight = new Vector3f();
+		planarRight.cross(facingDirection, up);
+		planarRight.normalize();
+		
+		// Find elbow by using intersection of circles.
+		// http://mathworld.wolfram.com/Circle-CircleIntersection.html
+		// x = (dd-rr+RR) / (2d)
+		Vector3f v0 = new Vector3f(keyframe.ikWrist);
+		v0.sub(keyframe.ikShoulder);
+		float d = v0.length();
+		float R = (float)Math.abs(MantisRobot.SHOULDER_TO_ELBOW);
+		float r = (float)Math.abs(MantisRobot.ELBOW_TO_WRIST);
+		if( d > R+r ) {
+			// impossibly far away
+			return false;
+		}
+		float x = (d*d - r*r + R*R ) / (2*d);
+		if( x > R ) {
+			// would cause Math.sqrt(a negative number)
+			return false;
+		}
+		v0.normalize();
+		keyframe.ikElbow.set(v0);
+		keyframe.ikElbow.scale(x);
+		keyframe.ikElbow.add(keyframe.ikShoulder);
+		// v1 is now at the intersection point between ik_wrist and ik_boom
+		Vector3f v1 = new Vector3f();
+		float a = (float)( Math.sqrt( R*R - x*x ) );
+		v1.cross(planarRight, v0);
+		v1.scale(a);
+		keyframe.ikElbow.add(v1);
+
+		// angleF is the base
+		// all the joint locations are now known.  find the angles.
+		ee = Math.atan2(facingDirection.y, facingDirection.x);
+		ee = MathHelper.capRotation(ee);
+		keyframe.angleF = 180+(float)Math.toDegrees(ee);
+
+		// angleE is the shoulder
+		Vector3f towardsElbow = new Vector3f(keyframe.ikElbow);
+		towardsElbow.sub(keyframe.ikShoulder);
+		towardsElbow.normalize();
+		xx = (float)towardsElbow.z;
+		yy = facingDirection.dot(towardsElbow);
+		ee = Math.atan2(yy, xx);
+		ee = MathHelper.capRotation(ee);
+		keyframe.angleE = 90-(float)Math.toDegrees(ee);
+
+		// angleD is the elbow
+		Vector3f towardsWrist = new Vector3f(keyframe.ikWrist);
+		towardsWrist.sub(keyframe.ikElbow);
+		towardsWrist.normalize();
+		xx = (float)towardsElbow.dot(towardsWrist);
+		v1.cross(planarRight,towardsElbow);
+		yy = towardsWrist.dot(v1);
+		ee = Math.atan2(yy, xx);
+		ee = MathHelper.capRotation(ee);
+		keyframe.angleD = -(float)Math.toDegrees(ee);
+		
+		// angleC is the ulna rotation
+		v0.set(towardsWrist);
+		v0.normalize();
+		v1.cross(v0,planarRight);
+		v1.normalize();
+		Vector3f towardsFingerAdj = new Vector3f(keyframe.fingerForward);
+		float tf = v0.dot(towardsFingerAdj);
+		if(tf>=1-EPSILON) {
+			// cannot calculate angle, leave as was
+			return false;
+		}
+		// can calculate angle
+		v0.scale(tf);
+		towardsFingerAdj.sub(v0);
+		towardsFingerAdj.normalize();
+		xx = planarRight.dot(towardsFingerAdj);
+		yy = v1.dot(towardsFingerAdj);
+		ee = Math.atan2(yy, xx);
+		ee = MathHelper.capRotation(ee);
+		keyframe.angleC = (float)Math.toDegrees(ee)+90;
+		
+		// angleB is the wrist bend
+		v0.set(towardsWrist);
+		v0.normalize();
+		xx = v0.dot(towardsFinger);
+		yy = towardsFingerAdj.dot(towardsFinger);
+		ee = Math.atan2(yy, xx);
+		ee = MathHelper.capRotation(ee);
+		keyframe.angleB = (float)Math.toDegrees(ee);
+		
+		// angleA is the hand rotation
+		v0.cross(towardsFingerAdj,towardsWrist);
+		v0.normalize();
+		v1.cross(v0, towardsFinger);
+		v1.normalize();
+		
+		xx = v0.dot(keyframe.fingerRight);
+		yy = v1.dot(keyframe.fingerRight);
+		ee = Math.atan2(yy, xx);
+		ee = MathHelper.capRotation(ee);
+		keyframe.angleA = (float)Math.toDegrees(ee);
+
+		return true;
+	}
+	
+	/**
+	 * Calculate the finger location from the angles at each joint
+	 * @param state
+	 */
+	protected void forwardKinematics(MantisRobotKeyframe keyframe) {
+		double f = Math.toRadians(keyframe.angleF);
+		double e = Math.toRadians(keyframe.angleE);
+		double d = Math.toRadians(180-keyframe.angleD);
+		double c = Math.toRadians(keyframe.angleC+180);
+		double b = Math.toRadians(keyframe.angleB);
+		double a = Math.toRadians(keyframe.angleA);
+		
+		Vector3f originToShoulder = new Vector3f(0,0,(float)MantisRobot.ANCHOR_ADJUST_Z+(float)MantisRobot.ANCHOR_TO_SHOULDER_Z);
+		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
+		Vector3f up = new Vector3f(0,0,1);
+		Vector3f planarRight = new Vector3f();
+		planarRight.cross(facingDirection, up);
+		planarRight.normalize();
+
+		keyframe.shoulder.set(originToShoulder);
+		keyframe.boom.set(originToShoulder);
+		
+		// boom to elbow
+		Vector3f toElbow = new Vector3f(facingDirection);
+		toElbow.scale( -(float)Math.cos(-e) );
+		Vector3f v2 = new Vector3f(up);
+		v2.scale( -(float)Math.sin(-e) );
+		toElbow.add(v2);
+		float n = (float)MantisRobot.SHOULDER_TO_ELBOW;
+		toElbow.scale(n);
+		
+		keyframe.elbow.set(toElbow);
+		keyframe.elbow.add(keyframe.shoulder);
+		
+		// elbow to wrist
+		Vector3f towardsElbowOrtho = new Vector3f();
+		towardsElbowOrtho.cross(toElbow, planarRight);
+		towardsElbowOrtho.normalize();
+
+		Vector3f elbowToWrist = new Vector3f(toElbow);
+		elbowToWrist.normalize();
+		elbowToWrist.scale( (float)Math.cos(d) );
+		v2.set(towardsElbowOrtho);
+		v2.scale( (float)Math.sin(d) );
+		elbowToWrist.add(v2);
+		n = MantisRobot.ELBOW_TO_WRIST;
+		elbowToWrist.scale(n);
+		
+		keyframe.wrist.set(elbowToWrist);
+		keyframe.wrist.add(keyframe.elbow);
+
+		// wrist to finger
+		Vector3f wristOrthoBeforeUlnaRotation = new Vector3f();
+		wristOrthoBeforeUlnaRotation.cross(elbowToWrist, planarRight);
+		wristOrthoBeforeUlnaRotation.normalize();
+		Vector3f wristOrthoAfterRotation = new Vector3f(wristOrthoBeforeUlnaRotation);
+		
+		wristOrthoAfterRotation.scale( (float)Math.cos(-c) );
+		v2.set(planarRight);
+		v2.scale( (float)Math.sin(-c) );
+		wristOrthoAfterRotation.add(v2);
+		wristOrthoAfterRotation.normalize();
+
+		Vector3f towardsFinger = new Vector3f();
+
+		towardsFinger.set(elbowToWrist);
+		towardsFinger.normalize();
+		towardsFinger.scale( (float)( Math.cos(-b) ) );
+		v2.set(wristOrthoAfterRotation);
+		v2.scale( (float)( Math.sin(-b) ) );
+		towardsFinger.add(v2);
+		towardsFinger.normalize();
+
+		keyframe.fingerPosition.set(towardsFinger);
+		n = (float)MantisRobot.WRIST_TO_TOOL_X;
+		keyframe.fingerPosition.scale(n);
+		keyframe.fingerPosition.add(keyframe.wrist);
+
+		// finger rotation
+		Vector3f v0 = new Vector3f();
+		Vector3f v1 = new Vector3f();
+		v0.cross(towardsFinger,wristOrthoAfterRotation);
+		v0.normalize();
+		v1.cross(v0,towardsFinger);
+		v1.normalize();
+		
+		keyframe.fingerRight.set(v0);
+		keyframe.fingerRight.scale((float)Math.cos(a));
+		v2.set(v1);
+		v2.scale((float)Math.sin(a));
+		keyframe.fingerRight.add(v2);
+
+		keyframe.fingerForward.set(towardsFinger);
+		keyframe.fingerForward.normalize();
 	}
 }

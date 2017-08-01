@@ -19,8 +19,6 @@ com.marginallyclever.robotOverlord.makelangeloRobot.imageFilters
 com.marginallyclever.robotOverlord.makelangeloRobot.loadAndSave
 com.marginallyclever.robotOverlord.makelangeloRobot.settings
 com.marginallyclever.robotOverlord.makelangeloRobot.settings.hardwareProperties
-com.marginallyclever.robotOverlord.mantisRobot
-com.marginallyclever.robotOverlord.mantisRobot.tool
 com.marginallyclever.robotOverlord.model
 com.marginallyclever.robotOverlord.model.modelLoadAndSavers
 com.marginallyclever.robotOverlord.robot

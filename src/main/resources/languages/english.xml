@@ -31,6 +31,42 @@
 	
 	
 	<string>
+		<key>Undo </key>
+		<value>Undo </value>
+		<hint></hint>
+	</string>
+	
+	<string>
+		<key>Redo </key>
+		<value>Redo </value>
+	</string>
+	
+	<string>
+		<key>change </key>
+		<value>change </value>
+	</string>
+	
+	<string>
+		<key>Add </key>
+		<value>Add </value>
+	</string>
+	
+	<string>
+		<key>Remove </key>
+		<value>Remove </value>
+	</string>
+	
+	<string>
+		<key>Move </key>
+		<value>Move </value>
+	</string>
+	
+	<string>
+		<key>choose </key>
+		<value>choose </value>
+	</string>
+	
+	<string>
 		<key>Cancel</key>
 		<value>Cancel</value>
 		<hint>used in many places</hint>
@@ -268,8 +304,8 @@
 		<hint>file open dialog</hint>
 	</string>
 	<string>
-		<key>FileTypeDXF</key>
-		<value>DXF R12 for images (dxf)</value>
+		<key>FileTypeSVG</key>
+		<value>Scaleable Vector Graphics 1.1 (svg)</value>
 		<hint>file open dialog</hint>
 	</string>
 

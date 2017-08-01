@@ -18,7 +18,7 @@ import javax.swing.SwingConstants;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.actions.ActionSelectNumber;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot;
 
 public class PanelAdjustMachine extends JPanel implements ActionListener, PropertyChangeListener {
@@ -29,12 +29,12 @@ public class PanelAdjustMachine extends JPanel implements ActionListener, Proper
 
 	protected MakelangeloRobot robot;
 
-	protected ActionSelectNumber machineWidth, machineHeight;
+	protected UserCommandSelectNumber machineWidth, machineHeight;
 	protected JLabel totalBeltNeeded;
 	protected JLabel totalServoNeeded;
 	protected JLabel totalStepperNeeded;
-	protected ActionSelectNumber acceleration;
-	protected ActionSelectNumber pulleyDiameter;
+	protected UserCommandSelectNumber acceleration;
+	protected UserCommandSelectNumber pulleyDiameter;
 	protected JCheckBox flipForGlass;
 
 
@@ -69,8 +69,8 @@ public class PanelAdjustMachine extends JPanel implements ActionListener, Proper
 		float w = (float)robot.getSettings().getLimitWidth() * 10;
 		float h = (float)robot.getSettings().getLimitHeight() * 10;
 		
-		machineWidth = new ActionSelectNumber(gui,Translator.get("MachineWidth"),w);
-		machineHeight = new ActionSelectNumber(gui,Translator.get("MachineHeight"),h);
+		machineWidth = new UserCommandSelectNumber(gui,Translator.get("MachineWidth"),w);
+		machineHeight = new UserCommandSelectNumber(gui,Translator.get("MachineHeight"),h);
 		Dimension s = machineHeight.getPreferredSize();
 		s.width = 80;
 
@@ -138,7 +138,7 @@ public class PanelAdjustMachine extends JPanel implements ActionListener, Proper
 		float left = (float)Math.floor(robot.getSettings().getPulleyDiameter() * 10.0 * 1000.0) / 1000.0f;
 
 		// pulley diameter
-		pulleyDiameter = new ActionSelectNumber(gui,Translator.get("AdjustPulleySize"),left);
+		pulleyDiameter = new UserCommandSelectNumber(gui,Translator.get("AdjustPulleySize"),left);
 		if(robot.getSettings().getHardwareProperties().canChangePulleySize()) {
 			y = 2;
 			c.weightx = 0;
@@ -161,7 +161,7 @@ public class PanelAdjustMachine extends JPanel implements ActionListener, Proper
 		// acceleration
 		JPanel accelerationPanel = new JPanel(new GridBagLayout());
 		this.add(accelerationPanel);
-		acceleration = new ActionSelectNumber(gui,Translator.get("AdjustAcceleration"),(float)robot.getSettings().getAcceleration());
+		acceleration = new UserCommandSelectNumber(gui,Translator.get("AdjustAcceleration"),(float)robot.getSettings().getAcceleration());
 		s = acceleration.getPreferredSize();
 		s.width = 80;
 		acceleration.setPreferredSize(s);

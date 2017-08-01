@@ -8,7 +8,7 @@ import com.marginallyclever.robotOverlord.model.Model;
 
 /**
  * Segmented robots should be made of RobotBodyParts.  Each part has a location, an orientation, a model, and linkages to other body parts.
- * @author Admin
+ * @author Dan Royer
  *
  */
 public class RobotBodyPart {

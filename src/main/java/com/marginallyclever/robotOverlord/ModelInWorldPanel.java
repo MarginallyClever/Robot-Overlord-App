@@ -8,7 +8,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.marginallyclever.robotOverlord.actions.ActionSelectFile;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
 
 public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	/**
@@ -17,7 +17,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 
 	private ModelInWorld model;
-	private ActionSelectFile actionSelectFile;
+	private UserCommandSelectFile userCommandSelectFile;
 	
 	public ModelInWorldPanel(RobotOverlord ro,ModelInWorld model) {
 		super();
@@ -44,17 +44,17 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 
-		actionSelectFile = new ActionSelectFile(ro,"Filename",model.getFilename());
-		actionSelectFile.setFileFilter(new FileNameExtensionFilter("STL files", "STL"));
-		actionSelectFile.addChangeListener(this);
-		contents.add(actionSelectFile,con1);
+		userCommandSelectFile = new UserCommandSelectFile(ro,"Filename",model.getFilename());
+		userCommandSelectFile.setFileFilter(new FileNameExtensionFilter("STL files", "STL"));
+		userCommandSelectFile.addChangeListener(this);
+		contents.add(userCommandSelectFile,con1);
 		con1.gridy++;
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		if(e.getSource()==actionSelectFile) {
-			model.setFilename(actionSelectFile.getFilename());
+		if(e.getSource()==userCommandSelectFile) {
+			model.setFilename(userCommandSelectFile.getFilename());
 		}
 	}
 }

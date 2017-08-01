@@ -2,18 +2,33 @@ package com.marginallyclever.convenience;
 
 import javax.vecmath.Vector3f;
 
+/**
+ * Math methods.
+ * @author Dan Royer
+ *
+ */
 public class MathHelper {
+	/**
+	 * @return Square of length of vector (dx,dy,dz) 
+	 */
 	public static float lengthSquared(float dx,float dy,float dz) {
 		return dx*dx+dy*dy+dz*dz;
 	}
 	
 	
+	/**
+	 * @return Length of vector (dx,dy,dz) 
+	 */
 	public static float length(float dx,float dy,float dz) {
 		return (float)Math.sqrt(lengthSquared(dx,dy,dz));
 	}
 
 	
-	// round off to 3 decimal places
+	/**
+	 * Round a float off to 3 decimal places.
+	 * @param v a value
+	 * @return Value rounded off to 3 decimal places
+	 */
 	public static float roundOff3(float v) {
 		float SCALE = 1000.0f;
 		
@@ -53,5 +68,16 @@ public class MathHelper {
 		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
 							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
+	}
+	
+	/**
+	 * Prevent angle arg0 from leaving the range 0...2PI
+	 * @param arg0
+	 * @return
+	 */
+	static public double capRotation(double arg0) {
+		while(arg0<0        ) arg0 += Math.PI*2;
+		while(arg0>Math.PI*2) arg0 -= Math.PI*2;
+		return arg0;
 	}
 }

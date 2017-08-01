@@ -11,17 +11,23 @@ import java.util.zip.ZipInputStream;
 
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
+/**
+ * Methods to make loading files from disk or jar resource easier.
+ * 
+ * @author Dan Royer
+ */
 public class FileAccess {
 
-	public static InputStream getInputStream(String fname) throws IOException {
-		InputStream s = ModelFactory.class.getResourceAsStream(fname);
-		if( s==null ) {
-			s = new FileInputStream(new File(fname));
-		}
-		return s;
-	}
-	
-	
+	/**
+	 * Open a file.  open() looks in three places:<br>
+	 *  - The file may be contained inside a zip, as indicated by the filename "zipname:filename".<br>
+	 *  - The file may be a resource inside a jar file.
+	 *  - The file may be on disk.
+	 *     
+	 * @param filename The file to open
+	 * @return BufferedInputStream to the file contents
+	 * @throws IOException file open failure
+	 */
 	public static BufferedInputStream open(String filename) throws IOException {
 		int index = filename.lastIndexOf(":");
 		int index2 = filename.lastIndexOf(":\\");  // hack for windows file system
@@ -30,6 +36,15 @@ public class FileAccess {
 		} else {
 			return new BufferedInputStream(getInputStream(filename));
 		}
+	}
+	
+	
+	private static InputStream getInputStream(String fname) throws IOException {
+		InputStream s = ModelFactory.class.getResourceAsStream(fname);
+		if( s==null ) {
+			s = new FileInputStream(new File(fname));
+		}
+		return s;
 	}
 	
 	
