@@ -270,7 +270,7 @@ public class MantisRobotControlPanel extends JPanel implements ActionListener, C
 				+"<h1>MANTIS</h1>"
 				+"<p>Created by Andreas Hölldorfer (https://hackaday.io/4ndreas).</p><br>"
 				+"<p>Programmed by Dan Royer (dan@marginallyclever.com).</p><br>"
-				+"<p>A five axis manipulator.</p><br>"
+				+"<p>A six axis manipulator.</p><br>"
 				+"<p><a href='https://hackaday.io/project/3800/'>Click here for more details</a>.</p>"
 				+"</body></html>", "About "+this.robot.getDisplayName());
 	}
