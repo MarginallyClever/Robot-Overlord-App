@@ -6,7 +6,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.*;
-import com.marginallyclever.robotOverlord.mantisRobot.MantisRobot;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
