@@ -46,14 +46,21 @@ public class ThorControlPanel extends JPanel implements ActionListener, ChangeLi
 	private JButton arm5Yneg;
 	private JButton arm5Zpos;
 	private JButton arm5Zneg;
-	private JButton about;
 	
-	public JLabel xPos,yPos,zPos;
+	private JButton arm5Upos;
+	private JButton arm5Uneg;
+	private JButton arm5Vpos;
+	private JButton arm5Vneg;
+	private JButton arm5Wpos;
+	private JButton arm5Wneg;
+	
+	public JLabel xPos,yPos,zPos,uPos,vPos,wPos;
 	public JLabel a1,b1,c1,d1,e1,f1;
-	public JLabel a2,b2,c2,d2,e2,f2;
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
+	
+	private JButton about;
 	
 	private ThorRobot robotArm=null;
 	
@@ -92,21 +99,14 @@ public class ThorControlPanel extends JPanel implements ActionListener, ChangeLi
 		xPos = new JLabel("0.00");
 		yPos = new JLabel("0.00");
 		zPos = new JLabel("0.00");
-		// used for fk testing
+		
+		// used for fk
 		a1 = new JLabel("0.00");
 		b1 = new JLabel("0.00");
 		c1 = new JLabel("0.00");
 		d1 = new JLabel("0.00");
 		e1 = new JLabel("0.00");
 		f1 = new JLabel("0.00");
-		// used for ik testing
-		a2 = new JLabel("0.00");
-		b2 = new JLabel("0.00");
-		c2 = new JLabel("0.00");
-		d2 = new JLabel("0.00");
-		e2 = new JLabel("0.00");
-		f2 = new JLabel("0.00");
-
 		
 		p = new JPanel(new GridLayout(6,3));
 		fkPanel.getContentPane().add(p);
@@ -141,7 +141,15 @@ public class ThorControlPanel extends JPanel implements ActionListener, ChangeLi
 		this.add(ikPanel, con1);
 		con1.gridy++;
 
-		p = new JPanel(new GridLayout(3,3));
+		// used for ik 
+		xPos = new JLabel("0.00");
+		yPos = new JLabel("0.00");
+		zPos = new JLabel("0.00");
+		uPos = new JLabel("0.00");
+		vPos = new JLabel("0.00");
+		wPos = new JLabel("0.00");
+		
+		p = new JPanel(new GridLayout(6,3));
 		ikPanel.getContentPane().add(p);
 
 		p.add(arm5Xpos = createButton("X+"));
@@ -155,6 +163,18 @@ public class ThorControlPanel extends JPanel implements ActionListener, ChangeLi
 		p.add(arm5Zpos = createButton("Z+"));
 		p.add(zPos);
 		p.add(arm5Zneg = createButton("Z-"));
+
+		p.add(arm5Upos = createButton("U+"));
+		p.add(uPos);
+		p.add(arm5Uneg = createButton("U-"));
+
+		p.add(arm5Vpos = createButton("V+"));
+		p.add(vPos);
+		p.add(arm5Vneg = createButton("V-"));
+
+		p.add(arm5Wpos = createButton("W+"));
+		p.add(wPos);
+		p.add(arm5Wneg = createButton("W-"));
 		
 		about = createButton("About this robot");
 		this.add(about, con1);
@@ -235,6 +255,14 @@ public class ThorControlPanel extends JPanel implements ActionListener, ChangeLi
 		if( subject == arm5Yneg ) robotArm.moveY(-1);
 		if( subject == arm5Zpos ) robotArm.moveZ(1);
 		if( subject == arm5Zneg ) robotArm.moveZ(-1);
+		
+		if( subject == arm5Upos ) robotArm.moveU(1);
+		if( subject == arm5Uneg ) robotArm.moveU(-1);
+		if( subject == arm5Vpos ) robotArm.moveV(1);
+		if( subject == arm5Vneg ) robotArm.moveV(-1);
+		if( subject == arm5Wpos ) robotArm.moveW(1);
+		if( subject == arm5Wneg ) robotArm.moveW(-1);
+		
 		if( subject == about ) doAbout();
 	}
 	
