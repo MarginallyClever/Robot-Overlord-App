@@ -15,6 +15,7 @@ class ThorKeyframe implements RobotKeyframe {
 	 */
 	private static final long serialVersionUID = 1012199745425607761L;
 	// angle of rotation
+	float angleF = 0;
 	float angleE = 0;
 	float angleD = 0;
 	float angleC = 0;
@@ -33,7 +34,7 @@ class ThorKeyframe implements RobotKeyframe {
 	// joint locations relative to base
 	Vector3f wrist = new Vector3f();
 	Vector3f elbow = new Vector3f();
-	Vector3f boom = new Vector3f();
+	Vector3f bicep = new Vector3f();
 	Vector3f shoulder = new Vector3f();
 	
 	public Vector3f anchorPosition = new Vector3f();  // relative to world
@@ -49,8 +50,9 @@ class ThorKeyframe implements RobotKeyframe {
 	// inverse kinematics visualizations
 	Vector3f ik_wrist = new Vector3f();
 	Vector3f ik_elbow = new Vector3f();
-	Vector3f ik_boom = new Vector3f();
+	Vector3f ik_bicep = new Vector3f();
 	Vector3f ik_shoulder = new Vector3f();
+	float ik_angleF = 0;
 	float ik_angleE = 0;
 	float ik_angleD = 0;
 	float ik_angleC = 0;
@@ -59,6 +61,7 @@ class ThorKeyframe implements RobotKeyframe {
 	
 	
 	void set(ThorKeyframe other) {
+		angleF = other.angleF;
 		angleE = other.angleE;
 		angleD = other.angleD;
 		angleC = other.angleC;
@@ -73,7 +76,7 @@ class ThorKeyframe implements RobotKeyframe {
 		fingerPosition.set(other.fingerPosition);
 		wrist.set(other.wrist);
 		elbow.set(other.elbow);
-		boom.set(other.boom);
+		bicep.set(other.bicep);
 		shoulder.set(other.shoulder);
 		anchorPosition.set(other.anchorPosition);
 		baseForward.set(other.baseForward);
@@ -81,16 +84,17 @@ class ThorKeyframe implements RobotKeyframe {
 		baseRight.set(other.baseRight);
 		base_pan = other.base_pan;
 		base_tilt = other.base_tilt;
-		
+
 		ik_angleA = other.ik_angleA;
 		ik_angleB = other.ik_angleB;
 		ik_angleC = other.ik_angleC;
 		ik_angleD = other.ik_angleD;
 		ik_angleE = other.ik_angleE;
+		ik_angleF = other.ik_angleF;
 
 		ik_wrist.set(other.ik_wrist);
 		ik_elbow.set(other.ik_elbow);
-		ik_boom.set(other.ik_boom);
+		ik_bicep.set(other.ik_bicep);
 		ik_shoulder.set(other.ik_shoulder);
 	}
 }
