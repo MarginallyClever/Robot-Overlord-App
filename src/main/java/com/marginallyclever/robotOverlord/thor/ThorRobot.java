@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 
 
@@ -51,6 +52,7 @@ extends Robot {
         Global position (X,Y,Z): 0,0,137
         Rotation axis: Y
         Rotation axis local position: 0,0,65
+        
     Articulation 3
         Global position (X,Y,Z): 0,0,295
         Rotation axis: Y
@@ -67,11 +69,11 @@ extends Robot {
         Art 6 Rotation axis local position: 0,0,0
 	 */
 	public final static double ANCHOR_TO_SHOULDER = 4.9;
-	public final static double SHOULDER_TO_BICEP = 13.7-6.5;
-	public final static double BICEP_TO_ELBOW = 29.5-6.4;
-	public final static double ELBOW_TO_ULNA = 37.7-0.5;
-	public final static double ULNA_TO_WRIST = 51.0-4.7;
-	public final static float WRIST_TO_TOOL = 0;
+	public final static double SHOULDER_TO_BICEP = 20.2;
+	public final static double BICEP_TO_ELBOW = 16;
+	public final static double ELBOW_TO_ULNA = 0;
+	public final static double ULNA_TO_WRIST = 19.5;
+	public final static double WRIST_TO_TOOL = 6.715;
 	
 	// model files
 	private transient Model anchorModel = null;
@@ -148,13 +150,13 @@ extends Robot {
 		inverseKinematics(motionNow);
 		inverseKinematics(motionFuture);
 
-		matAnchor  .setDiffuseColor(0,0,0,1);
+		matAnchor  .setDiffuseColor(1,0,0,1);
 		matShoulder.setDiffuseColor(1,0,0,1);
-		matBicep   .setDiffuseColor(0,0,1,1);
-		matElbow   .setDiffuseColor(1,0,1,1);
-		matUlna    .setDiffuseColor(1,1,0,1);
-		matWrist   .setDiffuseColor(0,1,0,1);
-		matHand    .setDiffuseColor(0,1,1,1);
+		matBicep   .setDiffuseColor(1,0,0,1);
+		matElbow   .setDiffuseColor(1,0,0,1);
+		matUlna    .setDiffuseColor(1,0,0,1);
+		matWrist   .setDiffuseColor(1,0,0,1);
+		matHand    .setDiffuseColor(1,1,0,1);
 		
 		tool = new ThorToolGripper();
 		tool.attachTo(this);
@@ -171,6 +173,13 @@ extends Robot {
 			ulnaModel = ModelFactory.createModelFromFilename("/Thor/Art4Thor.stl",0.1f);
 			wristModel = ModelFactory.createModelFromFilename("/Thor/Art5.stl",0.1f);
 			handModel = ModelFactory.createModelFromFilename("/Thor/Art6.stl",0.1f);
+
+			shoulderModel.adjustOrigin(0, 0, 4.9f);
+			bicepModel.adjustOrigin(0, 0, -6.5f);
+			elbowModel.adjustOrigin(0, 0, -6.5f);
+			ulnaModel.adjustOrigin(0, 0, 1.26f);
+			wristModel.adjustOrigin(0,0,-4.7f);
+			handModel.adjustOrigin(0,0,-1.4f);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -632,56 +641,76 @@ extends Robot {
 	
 	/**
 	 * Draw the physical model according to the angle values in the motionNow state.
+	 * 
+    Base
+        Global position (X,Y,Z): 0,0,0
+        Rotation axis: None
+        Rotation axis local position: None
+    Articulation 1
+        Global position (X,Y,Z): 0,0,49
+        Rotation axis: Z
+        Rotation axis local position: 0,0,0
+    Articulation 2
+        Global position (X,Y,Z): 0,0,137
+        Rotation axis: Y
+        Rotation axis local position: 0,0,65
+    Articulation 3
+        Global position (X,Y,Z): 0,0,295
+        Rotation axis: Y
+        Rotation axis local position: 0,0,64
+        
+    Articulation 4
+        Global position (X,Y,Z): 0,0,377,5
+        Rotation axis: Z
+        Rotation axis local position: 0,0,0
+    Articulation 5&6
+        Global position (X,Y,Z): 0,0,510
+        Art 5 Rotation axis: Y
+        Art 5 Rotation axis local position: 0,0,47
+        Art 6 Rotation axis: Z
+        Art 6 Rotation axis local position: 0,0,0
 	 * @param gl2 openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
-		// anchor
 		matAnchor.render(gl2);
-		// this rotation is here because the anchor model was built facing the wrong way.
-		
 		anchorModel.render(gl2);
 
-		// shoulder (E)
-		matShoulder.render(gl2);
-		gl2.glTranslated(0, 0, ANCHOR_TO_SHOULDER);
+		double t = Calendar.getInstance().get(Calendar.MILLISECOND)*0.001;
+		
 		//gl2.glRotated(motionNow.angleE,0,0,1);
+		matShoulder.render(gl2);
 		shoulderModel.render(gl2);
 
-		// shoulder pinion
 		gl2.glTranslated(0, 0, SHOULDER_TO_BICEP);
 		//gl2.glRotated(motionNow.angleE*anchor_gear_ratio,0,1,0);
 		matBicep.render(gl2);
 		bicepModel.render(gl2);
 
-		// boom (D)
 		gl2.glTranslated(0,0,BICEP_TO_ELBOW);
-		//gl2.glRotated(90-motionNow.angleD,0,0,1);
+		//gl2.glRotated(90-motionNow.angleD,0,1,0);
 		matElbow.render(gl2);
 		elbowModel.render(gl2);
 
-		// stick (C)
-		matUlna.render(gl2);
 		gl2.glTranslated(0,0,ELBOW_TO_ULNA);
 		//gl2.glRotated(90+motionNow.angleC,0,0,1);
+		matUlna.render(gl2);
 		ulnaModel.render(gl2);
 
-		//gl2.glRotated(-motionNow.angleB+180,0,0,1);
-
 		gl2.glTranslated(0,0,ULNA_TO_WRIST);
+		//gl2.glRotated(-motionNow.angleB+180,0,1,0);
 		matWrist.render(gl2);
 		wristModel.render(gl2);
-			
+
 		// tool holder
+		gl2.glTranslated(0,0,WRIST_TO_TOOL);
+		gl2.glRotated(t*360,0,0,1);
 		matHand.render(gl2);
 		handModel.render(gl2);
-			
-		gl2.glTranslated(0,0,WRIST_TO_TOOL);
+
 		//gl2.glTranslated(-6, 0, 0);
 		if(tool!=null) {
-			tool.render(gl2);
+			//tool.render(gl2);
 		}
-
-		gl2.glPopMatrix();  // wrist
 	}
 	
 	
@@ -1001,7 +1030,7 @@ extends Robot {
 		
 		// Find wrist 
 		keyframe.ik_wrist.set(keyframe.fingerForward);
-		keyframe.ik_wrist.scale(ThorRobot.WRIST_TO_TOOL);
+		keyframe.ik_wrist.scale((float)ThorRobot.WRIST_TO_TOOL);
 		keyframe.ik_wrist.add(keyframe.fingerPosition);
 				
 		// Find elbow by using intersection of circles.
