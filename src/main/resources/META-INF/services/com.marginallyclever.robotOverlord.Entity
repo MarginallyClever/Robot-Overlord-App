@@ -2,6 +2,7 @@ com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
 com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot
 com.marginallyclever.robotOverlord.mantisRobot.MantisRobot
 com.marginallyclever.robotOverlord.arm5.EvilMinionRobot
+com.marginallyclever.robotOverlord.thor.ThorRobot
 com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
 com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
 com.marginallyclever.robotOverlord.spidee.Spidee

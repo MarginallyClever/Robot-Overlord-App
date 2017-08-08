@@ -114,8 +114,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected Splitter splitLeftRight;
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
-
-	protected GLU glu;
 	
 	// undo/redo system
 	private UndoManager commandSequence;
@@ -124,6 +122,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	private boolean isMouseIn;
 	private boolean hasLeftDragDeadZone;
 	private int cursorStartX,cursorStartY;
+	
+	private GLU glu;
 	
 	
  	protected RobotOverlord() {
@@ -142,8 +142,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		hasLeftDragDeadZone=false;
 		
 		connectionManager = new NetworkConnectionManager();
-		
-		glu = GLU.createGLU();
 /*
 		try {
 			String s = getPath(this.getClass());
@@ -560,7 +558,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
                 gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
             } catch (Exception e) {e.printStackTrace();}
         }
-
+        glu = GLU.createGLU(gl);
     }
     
     
