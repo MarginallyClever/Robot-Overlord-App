@@ -42,12 +42,12 @@ public class MathHelper {
 	 * Special case where abc=0
 	 * @param vec the vector to rotate
 	 * @param axis the axis around which to rotate
-	 * @param angle the amount in radians to rotate
+	 * @param radians the angle in radians to rotate
 	 * @return the new vector
 	 */
-	static public Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,float angle) {
-		float C = (float)Math.cos(angle);
-		float S = (float)Math.sin(angle);
+	static public Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,float radians) {
+		float C = (float)Math.cos(radians);
+		float S = (float)Math.sin(radians);
 		float x = vec.x;
 		float y = vec.y;
 		float z = vec.z;

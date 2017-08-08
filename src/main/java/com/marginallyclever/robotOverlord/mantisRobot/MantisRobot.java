@@ -354,14 +354,14 @@ extends Robot {
 			
 			Vector3f result;
 
-			result = MathHelper.rotateAroundAxis(forward,of,motionFuture.ikU);  // TODO rotating around itself has no effect.
-			result = MathHelper.rotateAroundAxis(result,or,motionFuture.ikV);
-			result = MathHelper.rotateAroundAxis(result,ou,motionFuture.ikW);
+			result = MathHelper.rotateAroundAxis(forward,of,(float)Math.toRadians(motionFuture.ikU));  // TODO rotating around itself has no effect.
+			result = MathHelper.rotateAroundAxis(result ,or,(float)Math.toRadians(motionFuture.ikV));
+			result = MathHelper.rotateAroundAxis(result ,ou,(float)Math.toRadians(motionFuture.ikW));
 			motionFuture.fingerForward.set(result);
 
-			result = MathHelper.rotateAroundAxis(right,of,motionFuture.ikU);
-			result = MathHelper.rotateAroundAxis(result,or,motionFuture.ikV);
-			result = MathHelper.rotateAroundAxis(result,ou,motionFuture.ikW);
+			result = MathHelper.rotateAroundAxis(right ,of,(float)Math.toRadians(motionFuture.ikU));
+			result = MathHelper.rotateAroundAxis(result,or,(float)Math.toRadians(motionFuture.ikV));
+			result = MathHelper.rotateAroundAxis(result,ou,(float)Math.toRadians(motionFuture.ikW));
 			motionFuture.fingerRight.set(result);
 		}
 		

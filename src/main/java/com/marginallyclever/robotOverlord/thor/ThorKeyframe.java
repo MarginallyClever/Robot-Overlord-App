@@ -28,9 +28,9 @@ class ThorKeyframe implements RobotKeyframe {
 	public Vector3f fingerForward = new Vector3f();
 	public Vector3f fingerRight = new Vector3f();
 	// finger rotation
-	public float iku=0;
-	public float ikv=0;
-	public float ikw=0;
+	public float ikU=0;
+	public float ikV=0;
+	public float ikW=0;
 	// joint locations relative to base
 	Vector3f wrist = new Vector3f();
 	Vector3f elbow = new Vector3f();
@@ -48,10 +48,10 @@ class ThorKeyframe implements RobotKeyframe {
 	float base_tilt=0;
 
 	// inverse kinematics visualizations
-	Vector3f ik_wrist = new Vector3f();
-	Vector3f ik_elbow = new Vector3f();
-	Vector3f ik_bicep = new Vector3f();
-	Vector3f ik_shoulder = new Vector3f();
+	public Vector3f ikWrist = new Vector3f();
+	public Vector3f ikElbow = new Vector3f();
+	public Vector3f ikShoulder = new Vector3f();
+	public Vector3f ikBase = new Vector3f();
 	float ik_angleF = 0;
 	float ik_angleE = 0;
 	float ik_angleD = 0;
@@ -68,9 +68,9 @@ class ThorKeyframe implements RobotKeyframe {
 		angleB = other.angleB;
 		angleA = other.angleA;
 		angleServo = other.angleServo;
-		iku=other.iku;
-		ikv=other.ikv;
-		ikw=other.ikw;
+		ikU=other.ikU;
+		ikV=other.ikV;
+		ikW=other.ikW;
 		fingerForward.set(other.fingerForward);
 		fingerRight.set(other.fingerRight);
 		fingerPosition.set(other.fingerPosition);
@@ -92,9 +92,9 @@ class ThorKeyframe implements RobotKeyframe {
 		ik_angleE = other.ik_angleE;
 		ik_angleF = other.ik_angleF;
 
-		ik_wrist.set(other.ik_wrist);
-		ik_elbow.set(other.ik_elbow);
-		ik_bicep.set(other.ik_bicep);
-		ik_shoulder.set(other.ik_shoulder);
+		ikWrist.set(other.ikWrist);
+		ikElbow.set(other.ikElbow);
+		ikShoulder.set(other.ikShoulder);
+		ikBase.set(other.ikBase);
 	}
 }
