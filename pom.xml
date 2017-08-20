@@ -263,6 +263,7 @@ If you like this project, please support us by buying Marginally Clever products
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
+      <version>20150729</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains</groupId>
