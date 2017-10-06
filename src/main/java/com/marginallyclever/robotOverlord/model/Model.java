@@ -18,6 +18,10 @@ public class Model implements Serializable {
 	 */
 	private static final long serialVersionUID = 7136313382885361812L;
 
+	enum RenderStyles {
+	
+	};
+	
 	public final static int NUM_BUFFERS=3;  // verts, normals, textureCoordinates
 	
 	protected transient String sourceName;
@@ -25,6 +29,7 @@ public class Model implements Serializable {
 	public ArrayList<Float> vertexArray = new ArrayList<Float>();
 	public ArrayList<Float> normalArray = new ArrayList<Float>();
 	public ArrayList<Float> texCoordArray = new ArrayList<Float>();
+	public int renderStyle; 
 	
 	protected transient FloatBuffer vertices;
 	protected transient FloatBuffer normals;
@@ -47,6 +52,7 @@ public class Model implements Serializable {
 		sourceName=null;
 		hasNormals=false;
 		hasTextureCoordinates=false;
+		renderStyle = GL2.GL_TRIANGLES;
 	}
 
 	
@@ -169,7 +175,7 @@ public class Model implements Serializable {
 			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
 		}
 		
-		gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, vertexArray.size()/3);
+		gl2.glDrawArrays(renderStyle, 0, vertexArray.size()/3);
 		//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, vertexArray.size()/3);
 		
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
