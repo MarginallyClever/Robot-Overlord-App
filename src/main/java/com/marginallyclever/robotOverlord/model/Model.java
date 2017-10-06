@@ -17,10 +17,6 @@ public class Model implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 7136313382885361812L;
-
-	enum RenderStyles {
-	
-	};
 	
 	public final static int NUM_BUFFERS=3;  // verts, normals, textureCoordinates
 	
@@ -175,8 +171,12 @@ public class Model implements Serializable {
 			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
 		}
 		
-		gl2.glDrawArrays(renderStyle, 0, vertexArray.size()/3);
-		//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, vertexArray.size()/3);
+		int count=vertexArray.size()/3;
+		if(renderStyle==GL2.GL_POINTS) {
+			count*=3;
+		}
+		gl2.glDrawArrays(renderStyle, 0, count);
+		//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, count);
 		
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
 		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
