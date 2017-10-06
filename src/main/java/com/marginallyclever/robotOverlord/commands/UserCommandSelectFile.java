@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionSelectFile;
@@ -33,7 +33,7 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 	private JTextField fieldX;
 	private RobotOverlord ro;
 	private String label;
-	private FileNameExtensionFilter filter;
+	private LinkedList<FileFilter> filters = new LinkedList<FileFilter>();
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	
 	public UserCommandSelectFile(RobotOverlord ro,String labelName,String defaultValue) {
@@ -85,7 +85,14 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 	
 	public void selectFile() {
 		JFileChooser chooser = new JFileChooser();
-		if(filter!=null) chooser.setFileFilter(filter);
+		if(filters.size()==0) return;  // @TODO: fail!
+		if(filters.size()==1) chooser.setFileFilter(filters.get(0));
+		else {
+			Iterator<FileFilter> i = filters.iterator();
+			while(i.hasNext()) {
+				chooser.addChoosableFileFilter( i.next());
+			}
+		}
 		int returnVal = chooser.showOpenDialog(ro.getMainFrame());
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
@@ -95,8 +102,13 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 		}
 	}
 
-	public void setFileFilter(FileNameExtensionFilter filter) {
-		this.filter = filter;
+	public void setFileFilter(FileFilter arg0) {
+		this.filters.clear();
+		this.filters.add(arg0);
+	}
+	
+	public void addChoosableFileFilter(FileFilter arg0) {
+		this.filters.add(arg0);
 	}
 
 	public String getFilename() {

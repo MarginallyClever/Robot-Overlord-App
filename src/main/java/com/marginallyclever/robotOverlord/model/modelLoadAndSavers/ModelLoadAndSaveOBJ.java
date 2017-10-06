@@ -17,7 +17,11 @@ import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
  */
 // see https://en.wikipedia.org/wiki/Wavefront_.obj_file
 public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
-
+	@Override
+	public String getEnglishName() { return "Wavefront Object File (OBJ)"; }
+	@Override
+	public String getValidExtensions() { return "obj"; }
+	
 	@Override
 	public boolean canLoad(String filename) {
 		boolean result = filename.toLowerCase().endsWith(".obj");

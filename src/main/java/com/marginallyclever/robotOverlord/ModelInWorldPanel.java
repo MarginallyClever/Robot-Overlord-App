@@ -2,6 +2,8 @@ package com.marginallyclever.robotOverlord;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -9,6 +11,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
+import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
 
 public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	/**
@@ -45,8 +48,16 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		con1.anchor=GridBagConstraints.CENTER;
 
 		userCommandSelectFile = new UserCommandSelectFile(ro,"Filename",model.getFilename());
-		userCommandSelectFile.setFileFilter(new FileNameExtensionFilter("STL files", "STL"));
+		// Find all the serviceLoaders for loading files.
+		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
+		Iterator<ModelLoadAndSave> i = loaders.iterator();
+		while(i.hasNext()) {
+			ModelLoadAndSave loader = i.next();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions());
+			userCommandSelectFile.addChoosableFileFilter(filter);
+		}
 		userCommandSelectFile.addChangeListener(this);
+		
 		contents.add(userCommandSelectFile,con1);
 		con1.gridy++;
 	}
