@@ -16,6 +16,10 @@ import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
 
 public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 	@Override
+	public String getEnglishName() { return "3D printing file (STL)"; }
+	@Override
+	public String getValidExtensions() { return "stl"; }
+	@Override
 	public boolean canLoad() {	return true;	}
 	@Override
 	public boolean canSave() {	return false;	}
