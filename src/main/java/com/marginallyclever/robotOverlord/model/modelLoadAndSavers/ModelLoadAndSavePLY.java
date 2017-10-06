@@ -17,13 +17,13 @@ import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
 // see https://en.wikipedia.org/wiki/Wavefront_.obj_file
 public class ModelLoadAndSavePLY implements ModelLoadAndSave {
 	@Override
-	public String getEnglishName() { return "3D scanner data (PLY)"; }
+	public String getEnglishName() { return "3D scanner data (CSV)"; }
 	@Override
-	public String getValidExtensions() { return "ply"; }
+	public String getValidExtensions() { return "csv"; }
 
 	@Override
 	public boolean canLoad(String filename) {
-		boolean result = filename.toLowerCase().endsWith(".ply");
+		boolean result = filename.toLowerCase().endsWith(".csv");
 		return result;
 	}
 
@@ -35,7 +35,7 @@ public class ModelLoadAndSavePLY implements ModelLoadAndSave {
 	@Override
 	public Model load(BufferedInputStream inputStream) throws Exception {
 		Model model = new Model();
-		model.renderStyle = GL2.GL_TRIANGLES;
+		model.renderStyle = GL2.GL_POINTS;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
 		String line;
