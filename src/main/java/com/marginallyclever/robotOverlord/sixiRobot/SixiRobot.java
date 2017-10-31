@@ -116,7 +116,6 @@ extends Robot {
 	// gui
 	protected transient SixiRobotControlPanel arm5Panel=null;
 	
-	
 	public SixiRobot() {
 		super();
 		
@@ -143,18 +142,17 @@ extends Robot {
 
 		matFloor   .setDiffuseColor(1,0,0,1);
 		matAnchor  .setDiffuseColor(0,1,0,1);
-		matShoulder.setDiffuseColor(0,0,0,1);
-		matBicep   .setDiffuseColor(1,0,0,1);
-		matElbow   .setDiffuseColor(0.75f,0.75f,0.75f,1);
-		matForearm .setDiffuseColor(    0,    0,    1,1);
-		matWrist   .setDiffuseColor(0.75f,0.75f,0.75f,1);
-		matHand    .setDiffuseColor(0.75f,0.75f,0.75f,1);
+		matShoulder.setDiffuseColor(1,0,0,1);
+		matBicep   .setDiffuseColor(0,1,0,1);
+		matElbow   .setDiffuseColor(1,0,0,1);
+		matForearm .setDiffuseColor(0,1,0,1);
+		matWrist   .setDiffuseColor(1,0,0,1);
+		matHand    .setDiffuseColor(0,1,0,1);
 		
 		tool = new SixiToolGripper();
 		tool.attachTo(this);
 	}
 	
-
 	@Override
 	protected void loadModels(GL2 gl2) {
 		try {
@@ -179,14 +177,12 @@ extends Robot {
 		}
 	}
 
-	
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
     {
         inputStream.defaultReadObject();
     }
 
-	
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
@@ -206,11 +202,9 @@ extends Robot {
 		return list;
 	}
 	
-	
 	public boolean isPortConfirmed() {
 		return isPortConfirmed;
 	}
-	
 	
 	private void enableFK() {		
 		xDir=0;
@@ -233,6 +227,7 @@ extends Robot {
 	public void setSpeed(double newSpeed) {
 		speed=newSpeed;
 	}
+	
 	public double getSpeed() {
 		return speed;
 	}
@@ -297,8 +292,6 @@ extends Robot {
 		disableFK();
 	}
 
-	
-	
 	/**
 	 * update the desired finger location
 	 * @param delta the time since the last update.  Typically ~1/30s
@@ -408,7 +401,6 @@ extends Robot {
 		}
 	}
 	
-	
 	protected void updateFK(float delta) {
 		boolean changed=false;
 		float velcd=(float)speed; // * delta
@@ -485,14 +477,11 @@ extends Robot {
 		}
 	}
 
-	
 	protected float roundOff(float v) {
 		float SCALE = 1000.0f;
 		
 		return Math.round(v*SCALE)/SCALE;
 	}
-	
-
 	
 	public void updateGUI() {
 		Vector3f v = new Vector3f();
@@ -514,8 +503,7 @@ extends Robot {
 
 		if( tool != null ) tool.updateGUI();
 	}
-	
-	
+
 	protected void sendChangeToRealMachine() {
 		if(!isPortConfirmed) return;
 		
@@ -564,20 +552,20 @@ extends Robot {
 		}
 	}
 	
-	
+	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		
 		gl2.glPushMatrix();
 			// TODO rotate model
+			Vector3f p = getPosition();
+			gl2.glTranslatef(p.x, p.y, p.z);
 			
 			gl2.glPushMatrix();
-				Vector3f p = getPosition();
-				gl2.glTranslatef(p.x, p.y, p.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
 
-			isRenderDebugOn=true;
+			isRenderDebugOn=false;
 			if(isRenderDebugOn) {
 				if(isRenderFKOn) {
 					gl2.glPushMatrix();
@@ -587,7 +575,6 @@ extends Robot {
 					gl2.glPopMatrix();
 				}
 				
-				isRenderIKOn=true;
 				if(isRenderIKOn) {
 					gl2.glPushMatrix();
 					gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -599,7 +586,6 @@ extends Robot {
 		gl2.glPopMatrix();
 	}
 	
-
 	/**
 	 * Visualize the inverse kinematics calculations
 	 * @param gl2 the OpenGL render context
@@ -622,10 +608,10 @@ extends Robot {
 
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		gl2.glVertex3d(0,0,0);
-		gl2.glVertex3d(motionNow.ikBase.x,motionNow.ikBase.y,motionNow.ikBase.z);
-		gl2.glVertex3d(motionNow.ikShoulder.x,motionNow.ikShoulder.y,motionNow.ikShoulder.z);
-		gl2.glVertex3d(motionNow.ikElbow.x,motionNow.ikElbow.y,motionNow.ikElbow.z);
-		gl2.glVertex3d(motionNow.ikWrist.x,motionNow.ikWrist.y,motionNow.ikWrist.z);
+		gl2.glVertex3d(motionNow.base.x,motionNow.base.y,motionNow.base.z);
+		gl2.glVertex3d(motionNow.shoulder.x,motionNow.shoulder.y,motionNow.shoulder.z);
+		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
+		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 		gl2.glEnd();
 
@@ -745,7 +731,6 @@ extends Robot {
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 	}
 	
-	
 	/**
 	 * Draw the arm without calling glRotate to prove forward kinematics are correct.
 	 * @param gl2 the OpenGL render context
@@ -755,6 +740,9 @@ extends Robot {
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
 
+		gl2.glPushMatrix();
+		gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z);
+		
 		Vector3f ff = new Vector3f();
 		ff.set(motionNow.fingerForward);
 		ff.scale(5);
@@ -768,7 +756,7 @@ extends Robot {
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		gl2.glVertex3d(0,0,0);
 		gl2.glVertex3d(motionNow.shoulder.x,motionNow.shoulder.y,motionNow.shoulder.z);
-		gl2.glVertex3d(motionNow.boom.x,motionNow.boom.y,motionNow.boom.z);
+		//gl2.glVertex3d(motionNow.bicep.x,motionNow.bicep.y,motionNow.bicep.z);
 		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
 		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
 		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
@@ -791,18 +779,25 @@ extends Robot {
 	
 		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+
+		gl2.glPopMatrix();
 	}
-	
-	int timer = 0;
-	boolean once=false;
-	
+		
 	/**
 	 * Draw the physical model according to the angle values in the motionNow state.
 	 * @param gl2 the openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
 		gl2.glTranslated(0, 0, FLOOR_ADJUST);
-		
+
+		matFloor   .setDiffuseColor(1.0f,0.0f,0.0f,1);
+		matAnchor  .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		matShoulder.setDiffuseColor(1.0f,0.0f,0.0f,1);
+		matBicep   .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		matElbow   .setDiffuseColor(1.0f,0.0f,0.0f,1);
+		matForearm .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		matWrist   .setDiffuseColor(1.0f,0.0f,0.0f,1);
+		matHand    .setDiffuseColor(0.5f,0.5f,0.5f,1);
 		// floor
 		matFloor.render(gl2);
 		floorModel.render(gl2);
@@ -841,7 +836,7 @@ extends Robot {
 		// wrist
 		matWrist.render(gl2);
 		gl2.glTranslated(0, 0, ELBOW_TO_WRIST_Z);
-		gl2.glRotated(motionNow.angleB-ADJUST_ELBOW_ANGLE,1,0,0);
+		gl2.glRotated(motionNow.angleB+ADJUST_ELBOW_ANGLE,1,0,0);
 		wristModel.render(gl2);
 		
 		// hand
@@ -857,15 +852,11 @@ extends Robot {
 		if(tool!=null) {
 			tool.render(gl2);
 		}
-		
-		once=true;
 	}
-	
 	
 	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w) {
 		drawMatrix(gl2,p,u,v,w,1);
 	}
-	
 	
 	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w,float scale) {
 		gl2.glPushMatrix();
@@ -883,12 +874,9 @@ extends Robot {
 		gl2.glPopMatrix();
 	}
 	
-	
 	protected void drawBounds(GL2 gl2) {
 		throw new UnsupportedOperationException();
 	}
-	
-	
 	
 	private double parseNumber(String str) {
 		float f=0;
@@ -901,17 +889,14 @@ extends Robot {
 		
 		return f;
 	}
-	
 
 	public void setModeAbsolute() {
 		if(connection!=null) this.sendLineToRobot("G90");
 	}
 	
-	
 	public void setModeRelative() {
 		if(connection!=null) this.sendLineToRobot("G91");
 	}
-	
 	
 	@Override
 	// override this method to check that the software is connected to the right type of robot.
@@ -987,12 +972,10 @@ extends Robot {
 			}
 		}
 	}
-	
 
 	public void moveBase(Vector3f dp) {
 		motionFuture.anchorPosition.set(dp);
 	}
-	
 	
 	public void rotateBase(float pan,float tilt) {
 		motionFuture.basePan=pan;
@@ -1010,7 +993,6 @@ extends Robot {
 		motionFuture.baseUp.cross(motionFuture.baseRight, motionFuture.baseForward);
 		motionFuture.baseUp.normalize();
 	}
-	
 	
 	public BoundingVolume [] getBoundingVolumes() {
 		// shoulder joint
@@ -1053,7 +1035,6 @@ extends Robot {
 		return volumes;
 	}
 	
-	
 	Vector3f getWorldCoordinatesFor(Vector3f in) {
 		Vector3f out = new Vector3f(motionFuture.anchorPosition);
 		
@@ -1071,7 +1052,6 @@ extends Robot {
 				
 		return out;
 	}
-	
 
 	/**
 	 * Query the web server for a new robot UID.  
@@ -1107,7 +1087,6 @@ extends Robot {
 		return new_uid;
 	}
 	
-	
 	// TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
 	public boolean movePermitted(SixiRobotKeyframe keyframe) {
 		// don't hit floor?
@@ -1122,7 +1101,6 @@ extends Robot {
 		// OK
 		return true;
 	}
-	
 	
 	protected boolean checkAngleLimits(SixiRobotKeyframe keyframe) {/*
 		// machine specific limits
@@ -1145,7 +1123,6 @@ extends Robot {
 		return true;
 	}
 	
-	
 	/**
 	 * Find the arm joint angles that would put the finger at the desired location.
 	 * @return false if successful, true if the IK solution cannot be found.
@@ -1162,15 +1139,15 @@ extends Robot {
 		n = (float)SixiRobot.WRIST_TO_TOOL_Z;
 		towardsFinger.scale(n);
 		
-		keyframe.ikWrist = new Vector3f(keyframe.fingerPosition);
-		keyframe.ikWrist.sub(towardsFinger);
+		keyframe.wrist = new Vector3f(keyframe.fingerPosition);
+		keyframe.wrist.sub(towardsFinger);
 		
-		keyframe.ikBase = new Vector3f(0,0,0);
-		keyframe.ikShoulder = new Vector3f(0,0,(float)(FLOOR_ADJUST + FLOOR_TO_SHOULDER));
+		keyframe.base = new Vector3f(0,0,0);
+		keyframe.shoulder = new Vector3f(0,0,(float)(FLOOR_ADJUST + FLOOR_TO_SHOULDER));
 
 		// Find the facingDirection and planeNormal vectors.
-		Vector3f facingDirection = new Vector3f(keyframe.ikWrist.x,keyframe.ikWrist.y,0);
-		if(Math.abs(keyframe.ikWrist.x)<EPSILON && Math.abs(keyframe.ikWrist.y)<EPSILON) {
+		Vector3f facingDirection = new Vector3f(keyframe.wrist.x,keyframe.wrist.y,0);
+		if(Math.abs(keyframe.wrist.x)<EPSILON && Math.abs(keyframe.wrist.y)<EPSILON) {
 			// Wrist is directly above shoulder, makes calculations hard.
 			// TODO figure this out.  Use previous state to guess elbow?
 			return false;
@@ -1184,8 +1161,8 @@ extends Robot {
 		// Find elbow by using intersection of circles.
 		// http://mathworld.wolfram.com/Circle-CircleIntersection.html
 		// x = (dd-rr+RR) / (2d)
-		Vector3f v0 = new Vector3f(keyframe.ikWrist);
-		v0.sub(keyframe.ikShoulder);
+		Vector3f v0 = new Vector3f(keyframe.wrist);
+		v0.sub(keyframe.shoulder);
 		float d = v0.length();
 		float R = (float)Math.abs(SixiRobot.SHOULDER_TO_ELBOW);
 		float r = (float)Math.abs(SixiRobot.ELBOW_TO_WRIST);
@@ -1199,15 +1176,15 @@ extends Robot {
 			return false;
 		}
 		v0.normalize();
-		keyframe.ikElbow.set(v0);
-		keyframe.ikElbow.scale(x);
-		keyframe.ikElbow.add(keyframe.ikShoulder);
+		keyframe.elbow.set(v0);
+		keyframe.elbow.scale(x);
+		keyframe.elbow.add(keyframe.shoulder);
 		// v1 is now at the intersection point between ik_wrist and ik_boom
 		Vector3f v1 = new Vector3f();
 		float a = (float)( Math.sqrt( R*R - x*x ) );
 		v1.cross(planarRight, v0);
 		v1.scale(a);
-		keyframe.ikElbow.add(v1);
+		keyframe.elbow.add(v1);
 
 		// angleF is the base
 		// all the joint locations are now known.  find the angles.
@@ -1216,8 +1193,8 @@ extends Robot {
 		keyframe.angleF = (float)Math.toDegrees(ee);
 
 		// angleE is the shoulder
-		Vector3f towardsElbow = new Vector3f(keyframe.ikElbow);
-		towardsElbow.sub(keyframe.ikShoulder);
+		Vector3f towardsElbow = new Vector3f(keyframe.elbow);
+		towardsElbow.sub(keyframe.shoulder);
 		towardsElbow.normalize();
 		xx = (float)towardsElbow.z;
 		yy = facingDirection.dot(towardsElbow);
@@ -1226,8 +1203,8 @@ extends Robot {
 		keyframe.angleE = 90+(float)Math.toDegrees(ee);
 		
 		// angleD is the elbow
-		Vector3f towardsWrist = new Vector3f(keyframe.ikWrist);
-		towardsWrist.sub(keyframe.ikElbow);
+		Vector3f towardsWrist = new Vector3f(keyframe.wrist);
+		towardsWrist.sub(keyframe.elbow);
 		towardsWrist.normalize();
 		xx = (float)towardsElbow.dot(towardsWrist);
 		v1.cross(planarRight,towardsElbow);
@@ -1264,7 +1241,7 @@ extends Robot {
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleB = (float)(Math.toDegrees(ee)+ADJUST_ELBOW_ANGLE);
+		keyframe.angleB = (float)(Math.toDegrees(ee)-ADJUST_ELBOW_ANGLE);
 		
 		// angleA is the hand rotation
 		v0.cross(towardsFingerAdj,towardsWrist);
@@ -1301,7 +1278,7 @@ extends Robot {
 		planarRight.normalize();
 
 		keyframe.shoulder.set(originToShoulder);
-		keyframe.boom.set(originToShoulder);
+		keyframe.bicep.set(originToShoulder);
 		
 		// boom to elbow
 		Vector3f toElbow = new Vector3f(facingDirection);

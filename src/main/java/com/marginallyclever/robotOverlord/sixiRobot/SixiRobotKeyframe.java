@@ -35,8 +35,9 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	// joint locations relative to base
 	public Vector3f wrist = new Vector3f();
 	public Vector3f elbow = new Vector3f();
-	public Vector3f boom = new Vector3f();
+	public Vector3f bicep = new Vector3f();
 	public Vector3f shoulder = new Vector3f();
+	public Vector3f base = new Vector3f();
 	
 	public Vector3f anchorPosition = new Vector3f();  // relative to world
 	// base orientation, affects entire arm
@@ -47,13 +48,6 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	// rotating entire robot
 	public float basePan=0;
 	public float baseTilt=0;
-
-	// inverse kinematics visualizations
-	public Vector3f ikWrist = new Vector3f();
-	public Vector3f ikElbow = new Vector3f();
-	public Vector3f ikShoulder = new Vector3f();
-	public Vector3f ikBase = new Vector3f();
-	
 	
 	void set(SixiRobotKeyframe other) {
 		angleF = other.angleF;
@@ -71,7 +65,7 @@ class SixiRobotKeyframe implements RobotKeyframe {
 		fingerPosition.set(other.fingerPosition);
 		wrist.set(other.wrist);
 		elbow.set(other.elbow);
-		boom.set(other.boom);
+		bicep.set(other.bicep);
 		shoulder.set(other.shoulder);
 		anchorPosition.set(other.anchorPosition);
 		baseForward.set(other.baseForward);
@@ -80,9 +74,9 @@ class SixiRobotKeyframe implements RobotKeyframe {
 		basePan = other.basePan;
 		baseTilt = other.baseTilt;
 
-		ikWrist.set(other.ikWrist);
-		ikElbow.set(other.ikElbow);
-		ikShoulder.set(other.ikShoulder);
-		ikBase.set(other.ikBase);
+		wrist.set(other.wrist);
+		elbow.set(other.elbow);
+		shoulder.set(other.shoulder);
+		base.set(other.base);
 	}
 }
