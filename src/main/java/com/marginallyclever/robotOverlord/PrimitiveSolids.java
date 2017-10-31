@@ -193,32 +193,31 @@ public class PrimitiveSolids {
 	}
 
 	
+	/**
+	 * Draw a gride of lines in the current color
+	 * @param gl2 the render context
+	 * @param grid_size the dimensions of the grid, from -grid_size to grid_size.
+	 * @param grid_space the distance between lines on the grid.
+	 */
 	static public void drawGrid(GL2 gl2,int grid_size,int grid_space) {
-		gl2.glNormal3f(0,0,1);
+		gl2.glNormal3f(0,0,0);
 
 	    gl2.glEnable (GL2.GL_BLEND);
 	    gl2.glBlendFunc (GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		gl2.glBegin(GL2.GL_LINES);
-		float u,v,w;
+		
 		for(int i=-grid_size;i<=grid_size;i+=grid_space) {
-			for(int j=-grid_size;j<=grid_size;j+=grid_space) {
-				for(int k=-grid_size;k<=grid_size;k+=grid_space) {
-					v = (float)(Math.abs(k));
-					u = (float)(Math.abs(i));
-					w = (grid_size*grid_size) - (u*u+v*v);
-					gl2.glColor4f(0.2f,0.2f,0.2f,w/(grid_size*grid_size*2.5f));
-					
-					gl2.glVertex3f(i,k           ,0);
-					gl2.glVertex3f(i,k+grid_space,0);					
+				float f = 0.5f-((float)Math.abs(i)/(float)(grid_size))*0.5f;
+				gl2.glColor4f(0.2f,0.2f,0.2f,0f);	gl2.glVertex2f(i,-grid_size);
+				gl2.glColor4f(0.2f,0.2f,0.2f,f);	gl2.glVertex2f(i, 0        );
+				gl2.glColor4f(0.2f,0.2f,0.2f,f);	gl2.glVertex2f(i, 0        );
+				gl2.glColor4f(0.2f,0.2f,0.2f,0f);	gl2.glVertex2f(i, grid_size);
 
-					u = (float)(Math.abs(j));
-					w = (grid_size*grid_size)-(u*u+v*v);
-					gl2.glColor4f(0.2f,0.2f,0.2f,w/(grid_size*grid_size*2.5f));
-
-					gl2.glVertex3f(k           ,j,0);
-					gl2.glVertex3f(k+grid_space,j,0);					
-				}
-			}
+				gl2.glColor4f(0.2f,0.2f,0.2f,0f);	gl2.glVertex2f(-grid_size,i);
+				gl2.glColor4f(0.2f,0.2f,0.2f,f);	gl2.glVertex2f( 0        ,i);
+				gl2.glColor4f(0.2f,0.2f,0.2f,f);	gl2.glVertex2f( 0        ,i);
+				gl2.glColor4f(0.2f,0.2f,0.2f,0f);	gl2.glVertex2f( grid_size,i);
+			//}
 		}
 		gl2.glEnd();
 	}

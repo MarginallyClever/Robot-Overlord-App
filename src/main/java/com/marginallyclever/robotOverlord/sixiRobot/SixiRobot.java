@@ -40,16 +40,20 @@ extends Robot {
 	private final static String ROBOT_NAME = "Sixi 6DOF arm";
 	
 	// machine dimensions from design software
-	public final static double ANCHOR_ADJUST_Z = 2.7;
-	public final static double ANCHOR_TO_SHOULDER_Z = 24.5;
+	public final static double FLOOR_ADJUST = 0.8;
+	public final static double FLOOR_TO_SHOULDER = 25;
+	public final static double SHOULDER_TO_ELBOW_Y = -5;
+	public final static double SHOULDER_TO_ELBOW_Z = 25;
+	public final static double ELBOW_TO_WRIST_Y = 5;
+	public final static double ELBOW_TO_WRIST_Z = 20;
+	public final static double WRIST_TO_TOOL_Z = 5;
+	
+	public final static double SHOULDER_TO_ELBOW = Math.sqrt(SHOULDER_TO_ELBOW_Z*SHOULDER_TO_ELBOW_Z + SHOULDER_TO_ELBOW_Y*SHOULDER_TO_ELBOW_Y);
+	public final static double ELBOW_TO_WRIST = Math.sqrt(ELBOW_TO_WRIST_Z*ELBOW_TO_WRIST_Z + ELBOW_TO_WRIST_Y*ELBOW_TO_WRIST_Y); 
 
-	public final static double SHOULDER_TO_BOOM_X = -0.476;
-	public final static double SHOULDER_TO_BOOM_Z = 13.9744;
-	public final static double BOOM_TO_STICK_Y = 8.547;
-	public final static double SHOULDER_TO_ELBOW = 13.9744 + 8.547;
-	public final static float WRIST_TO_TOOL_X = 5f;
-	public final static float ELBOW_TO_WRIST = -14.6855f-5.7162f-2.4838f;
-
+	public final static double ADJUST_SHOULDER_ANGLE = -11.309932;
+	public final static double ADJUST_ELBOW_ANGLE = -14.036243;
+	
 	public final static float EPSILON = 0.00001f;
 
 	// model files
@@ -107,7 +111,7 @@ extends Robot {
 	// visual debugging
 	private boolean isRenderFKOn=true;
 	private boolean isRenderIKOn=true;
-	private boolean isRenderDebugOn=false;
+	private boolean isRenderDebugOn=true;
 
 	// gui
 	protected transient SixiRobotControlPanel arm5Panel=null;
@@ -573,6 +577,7 @@ extends Robot {
 				renderModels(gl2);
 			gl2.glPopMatrix();
 
+			isRenderDebugOn=true;
 			if(isRenderDebugOn) {
 				if(isRenderFKOn) {
 					gl2.glPushMatrix();
@@ -582,7 +587,7 @@ extends Robot {
 					gl2.glPopMatrix();
 				}
 				
-				isRenderIKOn=false;
+				isRenderIKOn=true;
 				if(isRenderIKOn) {
 					gl2.glPushMatrix();
 					gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -796,6 +801,8 @@ extends Robot {
 	 * @param gl2 the openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
+		gl2.glTranslated(0, 0, FLOOR_ADJUST);
+		
 		// floor
 		matFloor.render(gl2);
 		floorModel.render(gl2);
@@ -806,46 +813,45 @@ extends Robot {
 
 		// shoulder
 		matShoulder.render(gl2);
-		gl2.glRotated(motionNow.angleF,0,0,1);
+		gl2.glRotated(90+motionNow.angleF,0,0,1);
 		shoulderModel.render(gl2);
 		
 		// bicep
 		matBicep.render(gl2);
-		gl2.glTranslated( 0, 0, 25);
-		gl2.glRotated(motionNow.angleE, 1, 0, 0);
-//		gl2.glRotated(90, 1, 0, 0);
+		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER);
+		
+		gl2.glRotated(-90+motionNow.angleE+(float)ADJUST_SHOULDER_ANGLE, 1, 0, 0);
 		bicepModel.render(gl2);
 
 		// elbow
-		//gl2.glTranslated(BOOM_TO_STICK_Y,0, 0);
 		//drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
-		gl2.glTranslated(0,-5,25);
-		gl2.glRotated(motionNow.angleD, 1, 0, 0);
+		gl2.glTranslated(0,SHOULDER_TO_ELBOW_Y,SHOULDER_TO_ELBOW_Z);
+		gl2.glRotated(-motionNow.angleD+(float)(-154.7), 1, 0, 0);
 		matElbow.render(gl2);
 		elbowModel.render(gl2);
-		
-		gl2.glTranslated(0,5,0);
+
+		gl2.glTranslated(0,ELBOW_TO_WRIST_Y,0);
 		gl2.glRotated(motionNow.angleC,0,0,1);
 		gl2.glPushMatrix();
-		gl2.glTranslated(0,-5,0);
+		gl2.glTranslated(0,-ELBOW_TO_WRIST_Y,0);
 		matForearm.render(gl2);
 		forearmModel.render(gl2);
 		gl2.glPopMatrix();
 		
 		// wrist
 		matWrist.render(gl2);
-		gl2.glTranslated(0, 0, 20);
-		gl2.glRotated(motionNow.angleB,1,0,0);
+		gl2.glTranslated(0, 0, ELBOW_TO_WRIST_Z);
+		gl2.glRotated(motionNow.angleB-ADJUST_ELBOW_ANGLE,1,0,0);
 		wristModel.render(gl2);
 		
 		// hand
 		matWrist.setDiffuseColor(1, 1, 0, 1);
 		matHand.setDiffuseColor(1,1,1,1);
 		matHand.render(gl2);
-		gl2.glRotated(180+motionNow.angleA,0,0,1);
+		gl2.glRotated(-motionNow.angleA,0,0,1);
 		handModel.render(gl2);
 		
-		gl2.glTranslated(0,0,5);
+		gl2.glTranslated(0,0,WRIST_TO_TOOL_Z);
 		gl2.glRotated(90, 0, 1, 0);
 		
 		if(tool!=null) {
@@ -1153,14 +1159,14 @@ extends Robot {
 		
 		// find the wrist position
 		Vector3f towardsFinger = new Vector3f(keyframe.fingerForward);
-		n = (float)SixiRobot.WRIST_TO_TOOL_X;
+		n = (float)SixiRobot.WRIST_TO_TOOL_Z;
 		towardsFinger.scale(n);
 		
 		keyframe.ikWrist = new Vector3f(keyframe.fingerPosition);
 		keyframe.ikWrist.sub(towardsFinger);
 		
 		keyframe.ikBase = new Vector3f(0,0,0);
-		keyframe.ikShoulder = new Vector3f(0,0,(float)(SixiRobot.ANCHOR_ADJUST_Z + SixiRobot.ANCHOR_TO_SHOULDER_Z));
+		keyframe.ikShoulder = new Vector3f(0,0,(float)(FLOOR_ADJUST + FLOOR_TO_SHOULDER));
 
 		// Find the facingDirection and planeNormal vectors.
 		Vector3f facingDirection = new Vector3f(keyframe.ikWrist.x,keyframe.ikWrist.y,0);
@@ -1207,7 +1213,7 @@ extends Robot {
 		// all the joint locations are now known.  find the angles.
 		ee = Math.atan2(facingDirection.y, facingDirection.x);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleF = 180+(float)Math.toDegrees(ee);
+		keyframe.angleF = (float)Math.toDegrees(ee);
 
 		// angleE is the shoulder
 		Vector3f towardsElbow = new Vector3f(keyframe.ikElbow);
@@ -1217,8 +1223,8 @@ extends Robot {
 		yy = facingDirection.dot(towardsElbow);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleE = 90-(float)Math.toDegrees(ee);
-
+		keyframe.angleE = 90+(float)Math.toDegrees(ee);
+		
 		// angleD is the elbow
 		Vector3f towardsWrist = new Vector3f(keyframe.ikWrist);
 		towardsWrist.sub(keyframe.ikElbow);
@@ -1228,7 +1234,7 @@ extends Robot {
 		yy = towardsWrist.dot(v1);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleD = -(float)Math.toDegrees(ee);
+		keyframe.angleD = 180+(float)Math.toDegrees(ee);
 		
 		// angleC is the ulna rotation
 		v0.set(towardsWrist);
@@ -1249,7 +1255,7 @@ extends Robot {
 		yy = v1.dot(towardsFingerAdj);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleC = (float)Math.toDegrees(ee)+90;
+		keyframe.angleC = (float)Math.toDegrees(ee)-90;
 		
 		// angleB is the wrist bend
 		v0.set(towardsWrist);
@@ -1258,7 +1264,7 @@ extends Robot {
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleB = (float)Math.toDegrees(ee);
+		keyframe.angleB = (float)(Math.toDegrees(ee)+ADJUST_ELBOW_ANGLE);
 		
 		// angleA is the hand rotation
 		v0.cross(towardsFingerAdj,towardsWrist);
@@ -1287,7 +1293,7 @@ extends Robot {
 		double b = Math.toRadians(keyframe.angleB);
 		double a = Math.toRadians(keyframe.angleA);
 		
-		Vector3f originToShoulder = new Vector3f(0,0,(float)SixiRobot.ANCHOR_ADJUST_Z+(float)SixiRobot.ANCHOR_TO_SHOULDER_Z);
+		Vector3f originToShoulder = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER+SixiRobot.FLOOR_ADJUST));
 		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
 		Vector3f up = new Vector3f(0,0,1);
 		Vector3f planarRight = new Vector3f();
@@ -1320,7 +1326,7 @@ extends Robot {
 		v2.set(towardsElbowOrtho);
 		v2.scale( (float)Math.sin(d) );
 		elbowToWrist.add(v2);
-		n = SixiRobot.ELBOW_TO_WRIST;
+		n = (float)SixiRobot.ELBOW_TO_WRIST;
 		elbowToWrist.scale(n);
 		
 		keyframe.wrist.set(elbowToWrist);
@@ -1349,7 +1355,7 @@ extends Robot {
 		towardsFinger.normalize();
 
 		keyframe.fingerPosition.set(towardsFinger);
-		n = (float)SixiRobot.WRIST_TO_TOOL_X;
+		n = (float)SixiRobot.WRIST_TO_TOOL_Z;
 		keyframe.fingerPosition.scale(n);
 		keyframe.fingerPosition.add(keyframe.wrist);
 
