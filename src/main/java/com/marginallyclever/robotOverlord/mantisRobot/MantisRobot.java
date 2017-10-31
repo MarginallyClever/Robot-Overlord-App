@@ -551,10 +551,10 @@ extends Robot {
 		
 		gl2.glPushMatrix();
 			// TODO rotate model
+			Vector3f p = getPosition();
+			gl2.glTranslatef(p.x, p.y, p.z);
 			
 			gl2.glPushMatrix();
-				Vector3f p = getPosition();
-				gl2.glTranslatef(p.x, p.y, p.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
 
