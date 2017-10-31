@@ -179,7 +179,7 @@ implements Serializable {
 			drawSkyCube(gl2);
 	        gl2.glEnable(GL2.GL_CULL_FACE);
 			
-			PrimitiveSolids.drawGrid(gl2,50,5);
+			PrimitiveSolids.drawGrid(gl2,200,5);
 
 			// lights
 			io = entities.iterator();
