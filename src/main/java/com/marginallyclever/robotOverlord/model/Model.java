@@ -37,11 +37,12 @@ public class Model implements Serializable {
 	
 	public transient float loadScale;
 	
-	protected float adjustX,adjustY,adjustZ;
+	// origin adjust
+	protected float orginX,originY,originZ;
 
 	
 	public Model() {
-		adjustX=adjustY=adjustZ=0;
+		orginX=originY=originZ=0;
 		isLoaded=false;
 		loadScale=1.0f;
 		VBO = null;
@@ -101,9 +102,9 @@ public class Model implements Serializable {
 			float px = fi.next().floatValue();
 			float py = fi.next().floatValue();
 			float pz = fi.next().floatValue();
-			vertices.put(j++, px*loadScale+adjustX);
-			vertices.put(j++, py*loadScale+adjustY);
-			vertices.put(j++, pz*loadScale+adjustZ);
+			vertices.put(j++, px*loadScale+orginX);
+			vertices.put(j++, py*loadScale+originY);
+			vertices.put(j++, pz*loadScale+originZ);
 		}
 		
 		
@@ -191,9 +192,9 @@ public class Model implements Serializable {
 	 * @param dz amount to translate on Z axis
 	 */
 	public void adjustOrigin(float dx,float dy,float dz) {
-		adjustX=dx;
-		adjustY=dy;
-		adjustZ=dz;
+		orginX=dx;
+		originY=dy;
+		originZ=dz;
 	}
 	
 	public void addNormal(float x,float y,float z) {
