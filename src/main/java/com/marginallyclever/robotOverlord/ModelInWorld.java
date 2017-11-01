@@ -57,6 +57,12 @@ public class ModelInWorld extends Entity {
 	public float getScaleX() {		return scaleX;	}
 	public float getScaleY() {		return scaleY;	}
 	public float getScaleZ() {		return scaleZ;	}
+	public Vector3f getScale() {	return new Vector3f(scaleX,scaleY,scaleZ);	}
+	public void setScale(Vector3f arg0) {
+		scaleX=arg0.x;
+		scaleY=arg0.y;
+		scaleZ=arg0.z;
+	}
 	
 	@Override
 	public String getDisplayName() {
@@ -76,8 +82,12 @@ public class ModelInWorld extends Entity {
 		Vector3f p = getPosition();
 		
 		gl2.glPushMatrix();
+			material.render(gl2);
+		
 			gl2.glTranslatef(p.x, p.y, p.z);
-			//gl2.glScaled(scaleX, scaleY, scaleZ);
+			gl2.glScalef(scaleX, scaleY, scaleZ);
+			gl2.glEnable(gl2.GL_NORMALIZE);
+			
 			if( model==null ) {
 				// draw placeholder
 				final float size=10;
@@ -91,7 +101,6 @@ public class ModelInWorld extends Entity {
 				PrimitiveSolids.drawBox(gl2,   0.1f, 0.1f,size);
 				gl2.glPopMatrix();
 			} else {
-				material.render(gl2);
 				model.render(gl2);
 			}
 		gl2.glPopMatrix();

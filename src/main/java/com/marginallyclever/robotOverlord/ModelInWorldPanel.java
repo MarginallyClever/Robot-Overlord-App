@@ -9,8 +9,10 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.vecmath.Vector3f;
 
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
 import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
 
 public class ModelInWorldPanel extends JPanel implements ChangeListener {
@@ -21,6 +23,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 
 	private ModelInWorld model;
 	private UserCommandSelectFile userCommandSelectFile;
+	private UserCommandSelectVector3f scaleParam;
 	
 	public ModelInWorldPanel(RobotOverlord ro,ModelInWorld model) {
 		super();
@@ -57,9 +60,15 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 			userCommandSelectFile.addChoosableFileFilter(filter);
 		}
 		userCommandSelectFile.addChangeListener(this);
-		
 		contents.add(userCommandSelectFile,con1);
 		con1.gridy++;
+		
+		
+		scaleParam = new UserCommandSelectVector3f(ro,"Scale",new Vector3f(1,1,1));
+		scaleParam.addChangeListener(this);
+		contents.add(scaleParam,con1);
+		con1.gridy++;
+		
 	}
 
 	@Override
@@ -67,5 +76,17 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		if(e.getSource()==userCommandSelectFile) {
 			model.setFilename(userCommandSelectFile.getFilename());
 		}
+		if(e.getSource()==scaleParam) {
+			model.setScale(scaleParam.getValue());
+		}
+	}
+	
+	/**
+	 * Call by an {@link Entity} when it's details change so that they are reflected on the panel.
+	 * This might be better as a listener pattern.
+	 */
+	public void updateFields() {
+		Vector3f pos = model.getScale();
+		scaleParam.setValue(pos);
 	}
 }
