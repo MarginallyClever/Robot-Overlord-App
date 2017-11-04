@@ -16,12 +16,12 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	private static final long serialVersionUID = 1012199745425607761L;
 	
 	// angle of rotation
-	float angleF = 0;
-	float angleE = 0;
-	float angleD = 0;
-	float angleC = 0;
-	float angleB = 0;
-	float angleA = 0;
+	float angle0 = 0;
+	float angle1 = 0;
+	float angle2 = 0;
+	float angle3 = 0;
+	float angle4 = 0;
+	float angle5 = 0;
 	float angleServo = 120;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
@@ -50,12 +50,12 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	public float baseTilt=0;
 	
 	void set(SixiRobotKeyframe other) {
-		angleF = other.angleF;
-		angleE = other.angleE;
-		angleD = other.angleD;
-		angleC = other.angleC;
-		angleB = other.angleB;
-		angleA = other.angleA;
+		angle0 = other.angle0;
+		angle1 = other.angle1;
+		angle2 = other.angle2;
+		angle3 = other.angle3;
+		angle4 = other.angle4;
+		angle5 = other.angle5;
 		angleServo = other.angleServo;
 		ikU=other.ikU;
 		ikV=other.ikV;
