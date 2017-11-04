@@ -41,7 +41,7 @@ extends Robot {
 	
 	// machine dimensions from design software
 	public final static double FLOOR_ADJUST = 0.8;
-	public final static double FLOOR_TO_SHOULDER = 25;
+	public final static double FLOOR_TO_SHOULDER = 25.8;
 	public final static double SHOULDER_TO_ELBOW_Y = -5;
 	public final static double SHOULDER_TO_ELBOW_Z = 25;
 	public final static double ELBOW_TO_WRIST_Y = 5;
@@ -57,23 +57,14 @@ extends Robot {
 	public final static float EPSILON = 0.00001f;
 
 	// model files
-	private transient Model floorModel = null;
-	private transient Model anchorModel = null;
-	private transient Model shoulderModel = null;
-	private transient Model bicepModel = null;
-	private transient Model elbowModel = null;
-	private transient Model forearmModel = null;
-	private transient Model wristModel = null;
-	private transient Model handModel = null;
-
-	private Material matFloor		= new Material();
-	private Material matAnchor		= new Material();
-	private Material matShoulder	= new Material();
-	private Material matBicep		= new Material();
-	private Material matElbow		= new Material();
-	private Material matForearm		= new Material();
-	private Material matWrist		= new Material();
-	private Material matHand		= new Material();
+	private transient Model floorModel    = null;	private Material floorMat		= new Material();
+	private transient Model anchorModel   = null;	private Material anchorMat		= new Material();
+	private transient Model shoulderModel = null;	private Material shoulderMat	= new Material();
+	private transient Model bicepModel    = null;	private Material bicepMat		= new Material();
+	private transient Model elbowModel    = null;	private Material elbowMat		= new Material();
+	private transient Model forearmModel  = null;	private Material forearmMat		= new Material();
+	private transient Model wristModel    = null;	private Material wristMat		= new Material();
+	private transient Model handModel     = null;	private Material handMat		= new Material();
 
 	// machine ID
 	private long robotUID;
@@ -114,7 +105,7 @@ extends Robot {
 	private boolean isRenderDebugOn=true;
 
 	// gui
-	protected transient SixiRobotControlPanel arm5Panel=null;
+	protected transient SixiRobotControlPanel armPanel=null;
 	
 	public SixiRobot() {
 		super();
@@ -140,14 +131,14 @@ extends Robot {
 		inverseKinematics(motionNow);
 		inverseKinematics(motionFuture);
 
-		matFloor   .setDiffuseColor(1,0,0,1);
-		matAnchor  .setDiffuseColor(0,1,0,1);
-		matShoulder.setDiffuseColor(1,0,0,1);
-		matBicep   .setDiffuseColor(0,1,0,1);
-		matElbow   .setDiffuseColor(1,0,0,1);
-		matForearm .setDiffuseColor(0,1,0,1);
-		matWrist   .setDiffuseColor(1,0,0,1);
-		matHand    .setDiffuseColor(0,1,0,1);
+		floorMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
+		anchorMat  .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		shoulderMat.setDiffuseColor(1.0f,0.0f,0.0f,1);
+		bicepMat   .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		elbowMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
+		forearmMat .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		wristMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
+		handMat    .setDiffuseColor(0.5f,0.5f,0.5f,1);
 		
 		tool = new SixiToolGripper();
 		tool.attachTo(this);
@@ -167,7 +158,7 @@ extends Robot {
 			
 			bicepModel.adjustOrigin(0, 0, -25);
 			elbowModel.adjustOrigin(0, 5, -50);
-			forearmModel.adjustOrigin(0, 5, -50);
+			forearmModel.adjustOrigin(0, 5-(float)ELBOW_TO_WRIST_Y, -50);
 			wristModel.adjustOrigin(0, 0, -70);
 			handModel.adjustOrigin(0, 0, -70);
 			
@@ -189,8 +180,8 @@ extends Robot {
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		arm5Panel = new SixiRobotControlPanel(gui,this);
-		list.add(arm5Panel);
+		armPanel = new SixiRobotControlPanel(gui,this);
+		list.add(armPanel);
 		updateGUI();
 
 		ArrayList<JPanel> toolList = tool.getContextPanel(gui);
@@ -408,57 +399,57 @@ extends Robot {
 
 		motionFuture.set(motionNow);
 		
-		float dF = motionFuture.angleF;
-		float dE = motionFuture.angleE;
-		float dD = motionFuture.angleD;
-		float dC = motionFuture.angleC;
-		float dB = motionFuture.angleB;
-		float dA = motionFuture.angleA;
+		float d0 = motionFuture.angle0;
+		float d1 = motionFuture.angle1;
+		float d2 = motionFuture.angle2;
+		float d3 = motionFuture.angle3;
+		float d4 = motionFuture.angle4;
+		float d5 = motionFuture.angle5;
 
 		if (fDir!=0) {
-			dF += velabe * fDir;
+			d0 += velabe * fDir;
 			changed=true;
 			fDir=0;
 		}
 		
 		if (eDir!=0) {
-			dE += velabe * eDir;
+			d1 += velabe * eDir;
 			changed=true;
 			eDir=0;
 		}
 		
 		if (dDir!=0) {
-			dD += velcd * dDir;
+			d2 += velcd * dDir;
 			changed=true;
 			dDir=0;
 		}
 
 		if (cDir!=0) {
-			dC += velcd * cDir;
+			d3 += velcd * cDir;
 			changed=true;
 			cDir=0;
 		}
 		
 		if(bDir!=0) {
-			dB += velabe * bDir;
+			d4 += velabe * bDir;
 			changed=true;
 			bDir=0;
 		}
 		
 		if(aDir!=0) {
-			dA += velabe * aDir;
+			d5 += velabe * aDir;
 			changed=true;
 			aDir=0;
 		}
 		
 
 		if(changed) {
-			motionFuture.angleA=dA;
-			motionFuture.angleB=dB;
-			motionFuture.angleC=dC;
-			motionFuture.angleD=dD;
-			motionFuture.angleE=dE;
-			motionFuture.angleF=dF;
+			motionFuture.angle5=d5;
+			motionFuture.angle4=d4;
+			motionFuture.angle3=d3;
+			motionFuture.angle2=d2;
+			motionFuture.angle1=d1;
+			motionFuture.angle0=d0;
 			if(checkAngleLimits(motionFuture)) {
 				forwardKinematics(motionFuture);
 				isRenderIKOn=false;
@@ -487,19 +478,19 @@ extends Robot {
 		Vector3f v = new Vector3f();
 		v.set(motionNow.fingerPosition);
 		v.add(getPosition());
-		arm5Panel.xPos.setText(Float.toString(roundOff(v.x)));
-		arm5Panel.yPos.setText(Float.toString(roundOff(v.y)));
-		arm5Panel.zPos.setText(Float.toString(roundOff(v.z)));
-		arm5Panel.uPos.setText(Float.toString(roundOff(motionNow.ikU)));
-		arm5Panel.vPos.setText(Float.toString(roundOff(motionNow.ikV)));
-		arm5Panel.wPos.setText(Float.toString(roundOff(motionNow.ikW)));
+		armPanel.xPos.setText(Float.toString(roundOff(v.x)));
+		armPanel.yPos.setText(Float.toString(roundOff(v.y)));
+		armPanel.zPos.setText(Float.toString(roundOff(v.z)));
+		armPanel.uPos.setText(Float.toString(roundOff(motionNow.ikU)));
+		armPanel.vPos.setText(Float.toString(roundOff(motionNow.ikV)));
+		armPanel.wPos.setText(Float.toString(roundOff(motionNow.ikW)));
 
-		arm5Panel.a1.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm5Panel.b1.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm5Panel.c1.setText(Float.toString(roundOff(motionNow.angleC)));
-		arm5Panel.d1.setText(Float.toString(roundOff(motionNow.angleD)));
-		arm5Panel.e1.setText(Float.toString(roundOff(motionNow.angleE)));
-		arm5Panel.f1.setText(Float.toString(roundOff(motionNow.angleF)));
+		armPanel.angle5.setText(Float.toString(roundOff(motionNow.angle5)));
+		armPanel.angle4.setText(Float.toString(roundOff(motionNow.angle4)));
+		armPanel.angle3.setText(Float.toString(roundOff(motionNow.angle3)));
+		armPanel.angle2.setText(Float.toString(roundOff(motionNow.angle2)));
+		armPanel.angle1.setText(Float.toString(roundOff(motionNow.angle1)));
+		armPanel.angle0.setText(Float.toString(roundOff(motionNow.angle0)));
 
 		if( tool != null ) tool.updateGUI();
 	}
@@ -507,27 +498,13 @@ extends Robot {
 	protected void sendChangeToRealMachine() {
 		if(!isPortConfirmed) return;
 		
-		
 		String str="";
-		if(motionFuture.angleA!=motionNow.angleA) {
-			str+=" A"+roundOff(motionFuture.angleA);
-		}
-		if(motionFuture.angleB!=motionNow.angleB) {
-			str+=" B"+roundOff(motionFuture.angleB);
-		}
-		if(motionFuture.angleC!=motionNow.angleC) {
-			str+=" C"+roundOff(motionFuture.angleC);
-		}
-		if(motionFuture.angleD!=motionNow.angleD) {
-			str+=" D"+roundOff(motionFuture.angleD);
-		}
-		if(motionFuture.angleE!=motionNow.angleE) {
-			str+=" E"+roundOff(motionFuture.angleE);
-		}
-		if(motionFuture.angleF!=motionNow.angleF) {
-			str+=" F"+roundOff(motionFuture.angleF);
-		}
-		
+		if(motionFuture.angle5!=motionNow.angle5) str+=" A"+roundOff(motionFuture.angle5);
+		if(motionFuture.angle4!=motionNow.angle4) str+=" B"+roundOff(motionFuture.angle4);
+		if(motionFuture.angle3!=motionNow.angle3) str+=" C"+roundOff(motionFuture.angle3);
+		if(motionFuture.angle2!=motionNow.angle2) str+=" D"+roundOff(motionFuture.angle2);
+		if(motionFuture.angle1!=motionNow.angle1) str+=" E"+roundOff(motionFuture.angle1);
+		if(motionFuture.angle0!=motionNow.angle0) str+=" F"+roundOff(motionFuture.angle0);
 		if(str.length()>0) {
 			this.sendLineToRobot("R0"+str);
 		}
@@ -560,11 +537,8 @@ extends Robot {
 			// TODO rotate model
 			Vector3f p = getPosition();
 			gl2.glTranslatef(p.x, p.y, p.z);
+			renderModels(gl2);
 			
-			gl2.glPushMatrix();
-				renderModels(gl2);
-			gl2.glPopMatrix();
-
 			isRenderDebugOn=false;
 			if(isRenderDebugOn) {
 				if(isRenderFKOn) {
@@ -790,66 +764,53 @@ extends Robot {
 	protected void renderModels(GL2 gl2) {
 		gl2.glTranslated(0, 0, FLOOR_ADJUST);
 
-		matFloor   .setDiffuseColor(1.0f,0.0f,0.0f,1);
-		matAnchor  .setDiffuseColor(0.5f,0.5f,0.5f,1);
-		matShoulder.setDiffuseColor(1.0f,0.0f,0.0f,1);
-		matBicep   .setDiffuseColor(0.5f,0.5f,0.5f,1);
-		matElbow   .setDiffuseColor(1.0f,0.0f,0.0f,1);
-		matForearm .setDiffuseColor(0.5f,0.5f,0.5f,1);
-		matWrist   .setDiffuseColor(1.0f,0.0f,0.0f,1);
-		matHand    .setDiffuseColor(0.5f,0.5f,0.5f,1);
 		// floor
-		matFloor.render(gl2);
+		floorMat.render(gl2);
 		floorModel.render(gl2);
 		
 		// anchor
-		matAnchor.render(gl2);
+		anchorMat.render(gl2);
 		anchorModel.render(gl2);
 
 		// shoulder
-		matShoulder.render(gl2);
-		gl2.glRotated(90+motionNow.angleF,0,0,1);
+		gl2.glRotated(90+motionNow.angle0,0,0,1);
+		shoulderMat.render(gl2);
 		shoulderModel.render(gl2);
 		
 		// bicep
-		matBicep.render(gl2);
 		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER);
-		
-		gl2.glRotated(-90+motionNow.angleE+(float)ADJUST_SHOULDER_ANGLE, 1, 0, 0);
+		gl2.glRotated(-90+motionNow.angle1+(float)ADJUST_SHOULDER_ANGLE, 1, 0, 0);
+		bicepMat.render(gl2);
 		bicepModel.render(gl2);
 
 		// elbow
 		//drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
 		gl2.glTranslated(0,SHOULDER_TO_ELBOW_Y,SHOULDER_TO_ELBOW_Z);
-		gl2.glRotated(-motionNow.angleD+(float)(-154.7), 1, 0, 0);
-		matElbow.render(gl2);
+		gl2.glRotated(-motionNow.angle2+(float)(-154.7), 1, 0, 0);
+		elbowMat.render(gl2);
 		elbowModel.render(gl2);
 
 		gl2.glTranslated(0,ELBOW_TO_WRIST_Y,0);
-		gl2.glRotated(motionNow.angleC,0,0,1);
-		gl2.glPushMatrix();
-		gl2.glTranslated(0,-ELBOW_TO_WRIST_Y,0);
-		matForearm.render(gl2);
+		gl2.glRotated(motionNow.angle3,0,0,1);
+		forearmMat.render(gl2);
 		forearmModel.render(gl2);
-		gl2.glPopMatrix();
 		
 		// wrist
-		matWrist.render(gl2);
 		gl2.glTranslated(0, 0, ELBOW_TO_WRIST_Z);
-		gl2.glRotated(motionNow.angleB+ADJUST_ELBOW_ANGLE,1,0,0);
+		gl2.glRotated(motionNow.angle4+ADJUST_ELBOW_ANGLE,1,0,0);
+		wristMat.render(gl2);
 		wristModel.render(gl2);
 		
 		// hand
-		matWrist.setDiffuseColor(1, 1, 0, 1);
-		matHand.setDiffuseColor(1,1,1,1);
-		matHand.render(gl2);
-		gl2.glRotated(-motionNow.angleA,0,0,1);
+		gl2.glRotated(-motionNow.angle5,0,0,1);
+		handMat.render(gl2);
 		handModel.render(gl2);
 		
-		gl2.glTranslated(0,0,WRIST_TO_TOOL_Z);
-		gl2.glRotated(90, 0, 1, 0);
-		
+		// tool
 		if(tool!=null) {
+			gl2.glTranslated(0,0,WRIST_TO_TOOL_Z);
+			gl2.glRotated(90, 0, 1, 0);
+			// tool has its own material.
 			tool.render(gl2);
 		}
 	}
@@ -916,7 +877,7 @@ extends Robot {
 				} else {
 					robotUID = uid;
 				}
-				arm5Panel.setUID(robotUID);
+				armPanel.setUID(robotUID);
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -932,33 +893,33 @@ extends Robot {
 					for(int i=0;i<items.length;++i) {
 						if(items[i].startsWith("A")) {
 							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angleA != v) {
-								motionFuture.angleA = v;
-								arm5Panel.a1.setText(Float.toString(roundOff(v)));
+							if(motionFuture.angle5 != v) {
+								motionFuture.angle5 = v;
+								armPanel.angle5.setText(Float.toString(roundOff(v)));
 							}
 						} else if(items[i].startsWith("B")) {
 							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angleB != v) {
-								motionFuture.angleB = v;
-								arm5Panel.b1.setText(Float.toString(roundOff(v)));
+							if(motionFuture.angle4 != v) {
+								motionFuture.angle4 = v;
+								armPanel.angle4.setText(Float.toString(roundOff(v)));
 							}
 						} else if(items[i].startsWith("C")) {
 							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angleC != v) {
-								motionFuture.angleC = v;
-								arm5Panel.c1.setText(Float.toString(roundOff(v)));
+							if(motionFuture.angle3 != v) {
+								motionFuture.angle3 = v;
+								armPanel.angle3.setText(Float.toString(roundOff(v)));
 							}
 						} else if(items[i].startsWith("D")) {
 							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angleD != v) {
-								motionFuture.angleD = v;
-								arm5Panel.d1.setText(Float.toString(roundOff(v)));
+							if(motionFuture.angle2 != v) {
+								motionFuture.angle2 = v;
+								armPanel.angle2.setText(Float.toString(roundOff(v)));
 							}
 						} else if(items[i].startsWith("E")) {
 							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angleE != v) {
-								motionFuture.angleE = v;
-								arm5Panel.e1.setText(Float.toString(roundOff(v)));
+							if(motionFuture.angle1 != v) {
+								motionFuture.angle1 = v;
+								armPanel.angle1.setText(Float.toString(roundOff(v)));
 							}
 						}
 					}
@@ -1143,7 +1104,7 @@ extends Robot {
 		keyframe.wrist.sub(towardsFinger);
 		
 		keyframe.base = new Vector3f(0,0,0);
-		keyframe.shoulder = new Vector3f(0,0,(float)(FLOOR_ADJUST + FLOOR_TO_SHOULDER));
+		keyframe.shoulder = new Vector3f(0,0,(float)(FLOOR_TO_SHOULDER));
 
 		// Find the facingDirection and planeNormal vectors.
 		Vector3f facingDirection = new Vector3f(keyframe.wrist.x,keyframe.wrist.y,0);
@@ -1190,7 +1151,7 @@ extends Robot {
 		// all the joint locations are now known.  find the angles.
 		ee = Math.atan2(facingDirection.y, facingDirection.x);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleF = (float)Math.toDegrees(ee);
+		keyframe.angle0 = (float)Math.toDegrees(ee);
 
 		// angleE is the shoulder
 		Vector3f towardsElbow = new Vector3f(keyframe.elbow);
@@ -1200,7 +1161,7 @@ extends Robot {
 		yy = facingDirection.dot(towardsElbow);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleE = 90+(float)Math.toDegrees(ee);
+		keyframe.angle1 = 90+(float)Math.toDegrees(ee);
 		
 		// angleD is the elbow
 		Vector3f towardsWrist = new Vector3f(keyframe.wrist);
@@ -1211,7 +1172,7 @@ extends Robot {
 		yy = towardsWrist.dot(v1);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleD = 180+(float)Math.toDegrees(ee);
+		keyframe.angle2 = 180+(float)Math.toDegrees(ee);
 		
 		// angleC is the ulna rotation
 		v0.set(towardsWrist);
@@ -1232,7 +1193,7 @@ extends Robot {
 		yy = v1.dot(towardsFingerAdj);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleC = (float)Math.toDegrees(ee)-90;
+		keyframe.angle3 = (float)Math.toDegrees(ee)-90;
 		
 		// angleB is the wrist bend
 		v0.set(towardsWrist);
@@ -1241,7 +1202,7 @@ extends Robot {
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleB = (float)(Math.toDegrees(ee)-ADJUST_ELBOW_ANGLE);
+		keyframe.angle4 = (float)(Math.toDegrees(ee)-ADJUST_ELBOW_ANGLE);
 		
 		// angleA is the hand rotation
 		v0.cross(towardsFingerAdj,towardsWrist);
@@ -1253,7 +1214,7 @@ extends Robot {
 		yy = v1.dot(keyframe.fingerRight);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotation(ee);
-		keyframe.angleA = (float)Math.toDegrees(ee);
+		keyframe.angle5 = (float)Math.toDegrees(ee);
 
 		return true;
 	}
@@ -1263,14 +1224,14 @@ extends Robot {
 	 * @param state
 	 */
 	protected void forwardKinematics(SixiRobotKeyframe keyframe) {
-		double f = Math.toRadians(keyframe.angleF);
-		double e = Math.toRadians(keyframe.angleE);
-		double d = Math.toRadians(180-keyframe.angleD);
-		double c = Math.toRadians(keyframe.angleC+180);
-		double b = Math.toRadians(keyframe.angleB);
-		double a = Math.toRadians(keyframe.angleA);
+		double f = Math.toRadians(keyframe.angle0);
+		double e = Math.toRadians(keyframe.angle1);
+		double d = Math.toRadians(180-keyframe.angle2);
+		double c = Math.toRadians(keyframe.angle3+180);
+		double b = Math.toRadians(keyframe.angle4);
+		double a = Math.toRadians(keyframe.angle5);
 		
-		Vector3f originToShoulder = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER+SixiRobot.FLOOR_ADJUST));
+		Vector3f originToShoulder = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER));
 		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
 		Vector3f up = new Vector3f(0,0,1);
 		Vector3f planarRight = new Vector3f();
