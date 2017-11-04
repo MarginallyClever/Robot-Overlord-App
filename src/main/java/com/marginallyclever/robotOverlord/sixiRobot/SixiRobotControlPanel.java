@@ -55,7 +55,7 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	private JButton arm5Wneg;
 	
 	public JLabel xPos,yPos,zPos,uPos,vPos,wPos;
-	public JLabel a1,b1,c1,d1,e1,f1;
+	public JLabel angle5,angle4,angle3,angle2,angle1,angle0;
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
@@ -97,12 +97,12 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		con1.gridy++;
 		
 		// used for fk 
-		a1 = new JLabel("0.00");
-		b1 = new JLabel("0.00");
-		c1 = new JLabel("0.00");
-		d1 = new JLabel("0.00");
-		e1 = new JLabel("0.00");
-		f1 = new JLabel("0.00");
+		angle5 = new JLabel("0.00");
+		angle4 = new JLabel("0.00");
+		angle3 = new JLabel("0.00");
+		angle2 = new JLabel("0.00");
+		angle1 = new JLabel("0.00");
+		angle0 = new JLabel("0.00");
 
 		
 		p = new JPanel(new GridLayout(6,3));
@@ -110,28 +110,28 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		con1.gridy++;
 
 		p.add(arm5Apos = createButton("A+"));
-		p.add(a1);
+		p.add(angle5);
 		p.add(arm5Aneg = createButton("A-"));
 
 		con1.gridy++;
 		p.add(arm5Bpos = createButton("B+"));
-		p.add(b1);
+		p.add(angle4);
 		p.add(arm5Bneg = createButton("B-"));
 
 		p.add(arm5Cpos = createButton("C+"));
-		p.add(c1);
+		p.add(angle3);
 		p.add(arm5Cneg = createButton("C-"));
 
 		p.add(arm5Dpos = createButton("D+"));
-		p.add(d1);
+		p.add(angle2);
 		p.add(arm5Dneg = createButton("D-"));
 
 		p.add(arm5Epos = createButton("E+"));
-		p.add(e1);
+		p.add(angle1);
 		p.add(arm5Eneg = createButton("E-"));
 
 		p.add(arm5Fpos = createButton("F+"));
-		p.add(f1);
+		p.add(angle0);
 		p.add(arm5Fneg = createButton("F-"));
 
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
@@ -267,11 +267,9 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	protected void doAbout() {
 		HTMLDialogBox box = new HTMLDialogBox();
 		box.display(this.getRootPane(), "<html><body>"
-				+"<h1>MANTIS</h1>"
-				+"<p>Created by Andreas Hölldorfer (https://hackaday.io/4ndreas).</p><br>"
-				+"<p>Programmed by Dan Royer (dan@marginallyclever.com).</p><br>"
+				+"<h1>SIXI</h1>"
+				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A six axis manipulator.</p><br>"
-				+"<p><a href='https://hackaday.io/project/3800/'>Click here for more details</a>.</p>"
 				+"</body></html>", "About "+this.robot.getDisplayName());
 	}
 	
