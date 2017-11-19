@@ -1,6 +1,7 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.convenience;
 import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.Cylinder;
 
 
 public class PrimitiveSolids {
@@ -178,18 +179,30 @@ public class PrimitiveSolids {
 	
 	
 	static public void drawStar(GL2 gl2,Vector3f p,float size) {
+		// save the current color
+		double [] params = new double[4];
+		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
+		
+		// save the lighting mode
+		byte [] data = new byte[1];
+		gl2.glGetBooleanv(GL2.GL_LIGHTING, data, 0);
+		gl2.glDisable(GL2.GL_LIGHTING);
+
 		size/=2.0f;
+		
 		gl2.glPushMatrix();
 		gl2.glTranslatef(p.x, p.y, p.z);
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3f(-size, 0, 0);
-		gl2.glVertex3f(size, 0, 0);
-		gl2.glVertex3f(0, -size, 0);
-		gl2.glVertex3f(0, size, 0);
-		gl2.glVertex3f(0, 0, -size);
-		gl2.glVertex3f(0, 0, size);
+		gl2.glColor3d(1, 0, 0);		gl2.glVertex3f(-size, 0, 0);		gl2.glVertex3f(size, 0, 0);
+		gl2.glColor3d(0, 1, 0);		gl2.glVertex3f(0, -size, 0);		gl2.glVertex3f(0, size, 0);
+		gl2.glColor3d(0, 0, 1);		gl2.glVertex3f(0, 0, -size);		gl2.glVertex3f(0, 0, size);
 		gl2.glEnd();
 		gl2.glPopMatrix();
+		
+		// restore lighting
+		if(data[0]!=0) gl2.glEnable(GL2.GL_LIGHTING);
+		// restore color
+		gl2.glColor4dv(params,0);
 	}
 
 	
