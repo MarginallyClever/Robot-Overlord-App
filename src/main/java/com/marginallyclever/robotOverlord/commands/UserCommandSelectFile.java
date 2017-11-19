@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -30,6 +31,7 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static String lastPath=null;
 	private JTextField fieldX;
 	private RobotOverlord ro;
 	private String label;
@@ -93,10 +95,12 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 				chooser.addChoosableFileFilter( i.next());
 			}
 		}
+		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
 		int returnVal = chooser.showOpenDialog(ro.getMainFrame());
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			System.out.println("You chose to open this file: " + newFilename);
+			lastPath = chooser.getSelectedFile().getParent();
 
 			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectFile(this, label, newFilename) ) );
 		}
