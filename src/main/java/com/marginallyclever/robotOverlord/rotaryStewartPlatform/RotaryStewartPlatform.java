@@ -17,6 +17,7 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.actions.UndoableActionRobotMove;
 import com.marginallyclever.robotOverlord.model.Model;

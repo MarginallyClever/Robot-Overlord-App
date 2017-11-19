@@ -3,8 +3,8 @@ package com.marginallyclever.robotOverlord.makelangeloRobot.settings.hardwarePro
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot;
 import com.marginallyclever.robotOverlord.makelangeloRobot.settings.MakelangeloRobotSettings;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
-import com.marginallyclever.robotOverlord.PrimitiveSolids;
 
 public class Makelangelo2Properties implements MakelangeloHardwareProperties {
 	public final static float PEN_HOLDER_RADIUS=6; //cm

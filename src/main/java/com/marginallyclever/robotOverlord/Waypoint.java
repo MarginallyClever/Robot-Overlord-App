@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.PrimitiveSolids;
 
 
 public class Waypoint extends Entity {
