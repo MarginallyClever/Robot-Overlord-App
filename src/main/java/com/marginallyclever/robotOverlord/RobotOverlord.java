@@ -78,7 +78,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected transient IntBuffer selectBuffer = null;
 	protected transient boolean pickNow;
 	protected transient double pickX, pickY;
-	protected transient Entity pickObject; 
+	protected transient Entity pickedEntity; 
 	
 	protected transient NetworkConnectionManager connectionManager;
 	
@@ -232,18 +232,12 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 
-	public void setContextPanel(Entity object) {
-		pickObject=object;
-		setContextPanel(object.getAllContextPanels(this),object.getDisplayName());
-	}
-	
-
 	public World getWorld() {
 		return world;
 	}
 	
 	public Entity getPickedEntity() {
-		return pickObject;
+		return pickedEntity;
 	}
 	
 	
@@ -641,43 +635,61 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         // get the picking results and return the render mode to the default 
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
-        boolean pickFound=false;
-        if(hits!=0) {
-        	int index=0;
-        	int i;
-        	for(i=0;i<hits;++i) {
-        		int names=selectBuffer.get(index++);
-        		//float z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-        		//float z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-        		selectBuffer.get(index++); // near z
-        		selectBuffer.get(index++); // far z
-        		//System.out.println("zMin:"+z1);
-        		//System.out.println("zMaz:"+z2);
-        		//System.out.println("names:"+names);
-    			if(names>0) {
-        			int name = selectBuffer.get(index++);
-    				Entity newObject = world.pickObjectWithName(name);
-    				if(newObject == pickObject) {
-    					pickCamera();
-    				} else {
-    					setContextPanel(newObject);
-    				}
-    				
-   					pickFound=true;
-                	return;
+		System.out.println("\n"+hits+" PICKS");
+        float z1,z2, zMinBest = Float.MAX_VALUE;
+    	int i, j, index=0, nameCount, pickName;
+    	Entity newlyPickedEntity = null;
+    	
+    	for(i=0;i<hits;++i) {
+    		nameCount=selectBuffer.get(index++);
+    		z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		System.out.print("  names="+nameCount+" zMin="+z1+" zMax="+z2);
+    		String add=": ";
+			for(j=0;j<nameCount-1;++j) {
+    			pickName = selectBuffer.get(index++);
+        		System.out.print(add+pickName);
+        		add=", ";
+			}
+			if(nameCount>0) {
+				pickName = selectBuffer.get(index++);
+        		System.out.print(add+pickName);
+        		if(zMinBest > z1) {
+        			zMinBest = z1;
+        			
+        			newlyPickedEntity = world.pickObjectWithName(pickName);
         		}
-        	}
-        }
-        if(!pickFound) {
+    		}
+    		System.out.println();
+    	}
+
+    	if(newlyPickedEntity==null) {
+			//System.out.println(" NO PICK");
+    		unPick();
         	pickCamera();
-        }
-        
+        } else if(newlyPickedEntity!=pickedEntity) {
+			//System.out.print(" PICKED");
+			unPick();
+			pickEntity(newlyPickedEntity);
+		}
     }
 	
+	public void pickEntity(Entity arg0) {
+		pickedEntity=arg0;
+		setContextPanel(arg0.getAllContextPanels(this),arg0.getDisplayName());
+	}
+	
+    public void unPick() {
+		if(pickedEntity!=null) {
+			pickedEntity.unPick();
+			pickedEntity=null;
+		}
+    }
+    
 	public void pickCamera() {
 		Camera camera = world.getCamera();
 		if(camera!=null) {
-			setContextPanel(camera);
+			pickEntity(camera);
 		}
 	}
 
@@ -828,6 +840,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	public void keyReleased(KeyEvent e) {
 		if(isMouseIn) {
 			world.getCamera().keyReleased(e);
+		}
+		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
+			System.out.print(" REVERT TO CAMERA");
+			unPick();
+			pickCamera();
 		}
 	}
 

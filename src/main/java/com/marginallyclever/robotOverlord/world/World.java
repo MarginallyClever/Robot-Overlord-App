@@ -13,13 +13,13 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
 import com.marginallyclever.robotOverlord.LightObject;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
-import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.arm5.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.camera.Camera;
 
@@ -365,7 +365,7 @@ implements Serializable {
 			Iterator<Entity> iter = entities.iterator();
 			while(iter.hasNext()) {
 				Entity obj = iter.next();
-				if( obj.getPickName()==pickName ) {
+				if( obj.hasPickName(pickName) ) {
 					// found!
 					newObject=obj;
 					break;

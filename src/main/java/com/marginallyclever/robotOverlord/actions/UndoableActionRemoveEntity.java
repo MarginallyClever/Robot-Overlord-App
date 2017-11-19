@@ -65,7 +65,7 @@ public class UndoableActionRemoveEntity extends AbstractUndoableEdit {
 
 	private void addNow() {
 		ro.getWorld().addEntity(entity);
-		ro.setContextPanel(entity);
+		ro.pickEntity(entity);
 	}
 	
 	private void removeNow() {
