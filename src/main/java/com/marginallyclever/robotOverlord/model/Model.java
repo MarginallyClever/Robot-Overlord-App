@@ -5,6 +5,8 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.vecmath.Vector3f;
+
 import com.jogamp.opengl.GL2;
 
 /**
@@ -35,14 +37,15 @@ public class Model implements Serializable {
 	public transient boolean hasNormals;
 	public transient boolean hasTextureCoordinates;
 	
-	public transient float loadScale;
+	protected transient float loadScale;
+	public transient boolean isDirty;
 	
 	// origin adjust
-	protected float orginX,originY,originZ;
+	protected Vector3f adjustOrigin;
 
 	
 	public Model() {
-		orginX=originY=originZ=0;
+		adjustOrigin = new Vector3f();
 		isLoaded=false;
 		loadScale=1.0f;
 		VBO = null;
@@ -50,11 +53,13 @@ public class Model implements Serializable {
 		hasNormals=false;
 		hasTextureCoordinates=false;
 		renderStyle = GL2.GL_TRIANGLES;
+		isDirty=false;
 	}
 
 	
 	public void setSourceName(String sourceName) {
 		this.sourceName = sourceName;
+		isDirty=true;
 	}
 
 	
@@ -82,9 +87,6 @@ public class Model implements Serializable {
 	}
 	
 	
-
-	
-	
 	private void createBuffers(GL2 gl2) {
 		VBO = new int[NUM_BUFFERS];
 		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
@@ -102,9 +104,9 @@ public class Model implements Serializable {
 			float px = fi.next().floatValue();
 			float py = fi.next().floatValue();
 			float pz = fi.next().floatValue();
-			vertices.put(j++, px*loadScale+orginX);
-			vertices.put(j++, py*loadScale+originY);
-			vertices.put(j++, pz*loadScale+originZ);
+			vertices.put(j++, px*loadScale+(float)adjustOrigin.x);
+			vertices.put(j++, py*loadScale+(float)adjustOrigin.y);
+			vertices.put(j++, pz*loadScale+(float)adjustOrigin.z);
 		}
 		
 		
@@ -152,6 +154,10 @@ public class Model implements Serializable {
 			updateBuffers(gl2);
 			isLoaded=true;
 		}
+		if(isDirty) {
+			updateBuffers(gl2);
+			isDirty=false;
+		}
 		if(VBO==null) return;
 		
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
@@ -191,10 +197,25 @@ public class Model implements Serializable {
 	 * @param dy amount to translate on Y axis
 	 * @param dz amount to translate on Z axis
 	 */
-	public void adjustOrigin(float dx,float dy,float dz) {
-		orginX=dx;
-		originY=dy;
-		originZ=dz;
+	public void adjustOrigin(Vector3f arg0) {
+		if(!adjustOrigin.epsilonEquals(arg0, 0.01f)) {
+			adjustOrigin = new Vector3f(arg0);
+			isDirty=true;
+		}
+	}
+	
+	public Vector3f getAdjustOrigin() {
+		return new Vector3f(adjustOrigin);
+	}
+	
+	public void setScale(float arg0) {
+		if(loadScale!=arg0) {
+			loadScale=arg0;
+			isDirty=true;
+		}
+	}
+	public float getScale() {
+		return loadScale;
 	}
 	
 	public void addNormal(float x,float y,float z) {

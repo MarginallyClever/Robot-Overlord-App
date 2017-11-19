@@ -5,6 +5,7 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.sixiRobot.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -156,11 +157,11 @@ extends Robot {
 			wristModel = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
 			handModel = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
 			
-			bicepModel.adjustOrigin(0, 0, -25);
-			elbowModel.adjustOrigin(0, 5, -50);
-			forearmModel.adjustOrigin(0, 5-(float)ELBOW_TO_WRIST_Y, -50);
-			wristModel.adjustOrigin(0, 0, -70);
-			handModel.adjustOrigin(0, 0, -70);
+			bicepModel  .adjustOrigin(new Vector3f(0, 0, -25));
+			elbowModel  .adjustOrigin(new Vector3f(0, 5, -50));
+			forearmModel.adjustOrigin(new Vector3f(0, 5-(float)ELBOW_TO_WRIST_Y, -50));
+			wristModel  .adjustOrigin(new Vector3f(0, 0, -70));
+			handModel   .adjustOrigin(new Vector3f(0, 0, -70));
 			
 			System.out.println("Sixi loaded OK");
 		} catch(Exception e) {

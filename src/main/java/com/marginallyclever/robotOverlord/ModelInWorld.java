@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
@@ -21,10 +22,15 @@ public class ModelInWorld extends Entity {
 	protected transient ModelInWorldPanel modelPanel;
 	
 	// model render scale
-	protected float scaleX=1, scaleY=1, scaleZ=1;
+	protected float scale=1;
+	// model adjusted origin
+	protected Vector3f originAdjust;
 	
 	
-	public ModelInWorld() {}
+	public ModelInWorld() {
+		super();
+		originAdjust = new Vector3f();
+	}
 
 	
 	public String getFilename() {
@@ -51,17 +57,26 @@ public class ModelInWorld extends Entity {
 		}
 	}
 
-	public void setScaleX(float arg0) {		scaleX=arg0;	}
-	public void setScaleY(float arg0) {		scaleY=arg0;	}
-	public void setScaleZ(float arg0) {		scaleZ=arg0;	}
-	public float getScaleX() {		return scaleX;	}
-	public float getScaleY() {		return scaleY;	}
-	public float getScaleZ() {		return scaleZ;	}
-	public Vector3f getScale() {	return new Vector3f(scaleX,scaleY,scaleZ);	}
-	public void setScale(Vector3f arg0) {
-		scaleX=arg0.x;
-		scaleY=arg0.y;
-		scaleZ=arg0.z;
+	public void setScale(float arg0) {
+		scale=arg0;
+		if(model!=null) {
+			model.setScale(arg0);
+		}
+	}
+	
+	public float getScale() {
+		return scale;
+	}
+
+	public void adjustOrigin(float x,float y,float z) {
+		originAdjust.x=x;
+		originAdjust.y=y;
+		originAdjust.z=z;
+		if(model!=null) model.adjustOrigin(originAdjust);
+	}
+	
+	public Vector3f getAdjustOrigin() {
+		return new Vector3f(originAdjust);
 	}
 	
 	@Override
@@ -74,6 +89,8 @@ public class ModelInWorld extends Entity {
 		if( model==null && filename != null ) {
 			try {
 				model = ModelFactory.createModelFromFilename(filename);
+				model.setScale(scale);
+				model.adjustOrigin(originAdjust);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -82,27 +99,21 @@ public class ModelInWorld extends Entity {
 		Vector3f p = getPosition();
 		
 		gl2.glPushMatrix();
-			material.render(gl2);
 		
-			gl2.glTranslatef(p.x, p.y, p.z);
-			gl2.glScalef(scaleX, scaleY, scaleZ);
-			gl2.glEnable(gl2.GL_NORMALIZE);
-			
-			if( model==null ) {
-				// draw placeholder
-				final float size=10;
-				gl2.glColor3f(1, 0, 0);
-				PrimitiveSolids.drawBox(gl2,  size, 0.1f, 0.1f);
-				gl2.glColor3f(0, 1, 0);
-				PrimitiveSolids.drawBox(gl2,   0.1f,size, 0.1f);
-				gl2.glColor3f(0, 0, 1);
-				gl2.glPushMatrix();
-				gl2.glTranslatef(0, 0, -size/2);
-				PrimitiveSolids.drawBox(gl2,   0.1f, 0.1f,size);
-				gl2.glPopMatrix();
-			} else {
-				model.render(gl2);
-			}
+		gl2.glTranslatef(p.x, p.y, p.z);
+		
+		// TODO: this should probably be an option that can be toggled.
+		// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.
+		gl2.glEnable(GL2.GL_NORMALIZE);
+
+		if( model==null ) {
+			// draw placeholder
+			PrimitiveSolids.drawStar(gl2,new Vector3f(0,0,0),10f);
+		} else {
+			material.render(gl2);
+			model.render(gl2);
+		}
+		
 		gl2.glPopMatrix();
 	}
 }

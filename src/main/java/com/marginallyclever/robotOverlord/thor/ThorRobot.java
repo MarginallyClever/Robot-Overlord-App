@@ -5,6 +5,7 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -161,12 +162,12 @@ public class ThorRobot extends Robot {
 			wristModel = ModelFactory.createModelFromFilename("/Thor/Art5.stl", 0.1f);
 			handModel = ModelFactory.createModelFromFilename("/Thor/Art6.stl", 0.1f);
 
-			shoulderModel.adjustOrigin(0, 0, 4.9f);
-			bicepModel.adjustOrigin(0, 0, -6.5f);
-			elbowModel.adjustOrigin(0, 0, -6.5f);
-			ulnaModel.adjustOrigin(0, 0, 1.26f);
-			wristModel.adjustOrigin(0, 0, -4.7f);
-			handModel.adjustOrigin(0, 0, -1.4f);
+			shoulderModel.adjustOrigin(new Vector3f(0, 0,  4.9f ));
+			bicepModel   .adjustOrigin(new Vector3f(0, 0, -6.5f ));
+			elbowModel   .adjustOrigin(new Vector3f(0, 0, -6.5f ));
+			ulnaModel    .adjustOrigin(new Vector3f(0, 0,  1.26f));
+			wristModel   .adjustOrigin(new Vector3f(0, 0, -4.7f ));
+			handModel    .adjustOrigin(new Vector3f(0, 0, -1.4f ));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
