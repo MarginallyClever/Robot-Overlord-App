@@ -5,6 +5,7 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.mantisRobot.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;

@@ -4,9 +4,9 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
-import com.marginallyclever.robotOverlord.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.jogamp.opengl.GL2;
