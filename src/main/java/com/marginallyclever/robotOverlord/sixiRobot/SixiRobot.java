@@ -41,7 +41,7 @@ extends Robot {
 	private final static String ROBOT_NAME = "Sixi 6DOF arm";
 	
 	// machine dimensions from design software
-	public final static double FLOOR_ADJUST = 0.8;
+	public final static double FLOOR_ADJUST = 0.75538;
 	public final static double FLOOR_TO_SHOULDER = 25.8;
 	public final static double SHOULDER_TO_ELBOW_Y = -5;
 	public final static double SHOULDER_TO_ELBOW_Z = 25;
@@ -52,8 +52,9 @@ extends Robot {
 	public final static double SHOULDER_TO_ELBOW = Math.sqrt(SHOULDER_TO_ELBOW_Z*SHOULDER_TO_ELBOW_Z + SHOULDER_TO_ELBOW_Y*SHOULDER_TO_ELBOW_Y);
 	public final static double ELBOW_TO_WRIST = Math.sqrt(ELBOW_TO_WRIST_Z*ELBOW_TO_WRIST_Z + ELBOW_TO_WRIST_Y*ELBOW_TO_WRIST_Y); 
 
-	public final static double ADJUST_SHOULDER_ANGLE = -11.309932;
-	public final static double ADJUST_ELBOW_ANGLE = -14.036243;
+	public static double ADJUST_SHOULDER_ANGLE = -11.309932-90;
+	public static double ADJUST_ELBOW_ANGLE = -159.384472;
+	public static double ADJUST_WRIST_ANGLE = 0;//-14.036243;
 	
 	public final static float EPSILON = 0.00001f;
 
@@ -125,10 +126,12 @@ extends Robot {
 		volumes[5].setRadius(1.0f*0.575f);
 		
 		rotateBase(0,0);
+		motionNow.set(motionFuture);
 		checkAngleLimits(motionNow);
 		checkAngleLimits(motionFuture);
-		motionNow.angle1=90;
-		motionNow.angle2=180;
+		motionNow.angle1=90.0f+11.3f;
+		motionNow.angle2=180.0f+14.036243467926468f;
+		motionNow.angle4=15f;
 		forwardKinematics(motionNow);
 		forwardKinematics(motionFuture);
 		//inverseKinematics(motionNow);
@@ -573,21 +576,16 @@ extends Robot {
 		boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		
-		Vector3f ff = new Vector3f();
-		ff.set(motionNow.fingerForward);
-		ff.scale(5);
-		ff.add(motionNow.fingerPosition);
-		Vector3f fr = new Vector3f();
-		fr.set(motionNow.fingerRight);
-		fr.scale(15);
-		fr.add(motionNow.fingerPosition);
+
+		gl2.glPushMatrix();
+		gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);
 		
 		gl2.glColor4f(1,0,0,1);
 
 		gl2.glBegin(GL2.GL_LINE_STRIP);
 		gl2.glVertex3d(0,0,0);
-		gl2.glVertex3d(motionNow.base.x,motionNow.base.y,motionNow.base.z);
 		gl2.glVertex3d(motionNow.shoulder.x,motionNow.shoulder.y,motionNow.shoulder.z);
 		gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
 		gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
@@ -595,13 +593,48 @@ extends Robot {
 		gl2.glEnd();
 
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor4f(0,0.8f,1,1);
-		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
-		gl2.glVertex3d(ff.x,ff.y,ff.z);
-
-		gl2.glColor4f(0,0,1,1);
-		gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
-		gl2.glVertex3d(fr.x,fr.y,fr.z);
+		{
+			Vector3f ff = new Vector3f();
+			ff.set(motionNow.fingerForward);
+			ff.scale(5);
+			ff.add(motionNow.fingerPosition);
+			gl2.glColor4f(0,0.8f,1,1);
+			gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+			gl2.glVertex3d(ff.x,ff.y,ff.z);
+		}
+		{
+			Vector3f fr = new Vector3f();
+			fr.set(motionNow.fingerRight);
+			fr.scale(15);
+			fr.add(motionNow.fingerPosition);
+			gl2.glColor4f(0,0,1,1);
+			gl2.glVertex3d(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+			gl2.glVertex3d(fr.x,fr.y,fr.z);
+		}
+		{
+			Vector3f fe = new Vector3f();
+			fe.set(motionNow.baseRight);
+			fe.scale(25);
+			fe.add(motionNow.wrist);
+			gl2.glVertex3d(motionNow.wrist.x,motionNow.wrist.y,motionNow.wrist.z);
+			gl2.glVertex3d(fe.x,fe.y,fe.z);
+		}
+		{
+			Vector3f fe = new Vector3f();
+			fe.set(motionNow.baseRight);
+			fe.scale(25);
+			fe.add(motionNow.elbow);
+			gl2.glVertex3d(motionNow.elbow.x,motionNow.elbow.y,motionNow.elbow.z);
+			gl2.glVertex3d(fe.x,fe.y,fe.z);
+		}
+		{
+			Vector3f fe = new Vector3f();
+			fe.set(motionNow.baseRight);
+			fe.scale(25);
+			fe.add(motionNow.shoulder);
+			gl2.glVertex3d(motionNow.shoulder.x,motionNow.shoulder.y,motionNow.shoulder.z);
+			gl2.glVertex3d(fe.x,fe.y,fe.z);
+		}
 		gl2.glEnd();
 		/*
 		// finger tip
@@ -706,6 +739,9 @@ extends Robot {
 						motionNow.ikWrist.z+motionNow.fingerForward.z*10);
 		gl2.glEnd();
 		*/
+
+		gl2.glPopMatrix();
+		
 		if(lightOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(matCoOn) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 	}
@@ -720,7 +756,7 @@ extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		gl2.glPushMatrix();
-		gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z);
+		gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);
 		
 		Vector3f ff = new Vector3f();
 		ff.set(motionNow.fingerForward);
@@ -769,6 +805,8 @@ extends Robot {
 	protected void renderModels(GL2 gl2) {
 		gl2.glTranslated(0, 0, FLOOR_ADJUST);
 
+		ADJUST_ELBOW_ANGLE = -154.7f;//(180-(11.309932f*2));//26.56505117707799);
+		
 		// floor
 		floorMat.render(gl2);
 		floorModel.render(gl2);
@@ -784,14 +822,14 @@ extends Robot {
 		
 		// bicep
 		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER);
-		gl2.glRotated(-90+motionNow.angle1+(float)ADJUST_SHOULDER_ANGLE, 1, 0, 0);
+		gl2.glRotated(motionNow.angle1+(float)ADJUST_SHOULDER_ANGLE, 1, 0, 0);
 		bicepMat.render(gl2);
 		bicepModel.render(gl2);
 
 		// elbow
 		//drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
 		gl2.glTranslated(0,SHOULDER_TO_ELBOW_Y,SHOULDER_TO_ELBOW_Z);
-		gl2.glRotated(-motionNow.angle2+(float)(-154.7), 1, 0, 0);
+		gl2.glRotated(-motionNow.angle2+ADJUST_ELBOW_ANGLE, 1, 0, 0);
 		elbowMat.render(gl2);
 		elbowModel.render(gl2);
 
@@ -802,7 +840,7 @@ extends Robot {
 		
 		// wrist
 		gl2.glTranslated(0, 0, ELBOW_TO_WRIST_Z);
-		gl2.glRotated(motionNow.angle4+ADJUST_ELBOW_ANGLE,1,0,0);
+		gl2.glRotated(motionNow.angle4+ADJUST_WRIST_ANGLE+15,1,0,0);
 		wristMat.render(gl2);
 		wristModel.render(gl2);
 		
@@ -943,13 +981,16 @@ extends Robot {
 		motionFuture.anchorPosition.set(dp);
 	}
 	
-	public void rotateBase(float pan,float tilt) {
+	public void rotateBase(double pan,double tilt) {
 		motionFuture.basePan=pan;
 		motionFuture.baseTilt=tilt;
 		
-		motionFuture.baseForward.y = (float)Math.sin(pan * Math.PI/180.0) * (float)Math.cos(tilt * Math.PI/180.0);
-		motionFuture.baseForward.x = (float)Math.cos(pan * Math.PI/180.0) * (float)Math.cos(tilt * Math.PI/180.0);
-		motionFuture.baseForward.z =                                        (float)Math.sin(tilt * Math.PI/180.0);
+		pan = Math.toRadians(pan);
+		tilt = Math.toRadians(tilt);
+		
+		motionFuture.baseForward.y = (float)Math.sin(pan) * (float)Math.cos(tilt);
+		motionFuture.baseForward.x = (float)Math.cos(pan) * (float)Math.cos(tilt);
+		motionFuture.baseForward.z =                        (float)Math.sin(tilt);
 		motionFuture.baseForward.normalize();
 		
 		motionFuture.baseUp.set(0,0,1);
@@ -1207,7 +1248,7 @@ extends Robot {
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
 		//ee = MathHelper.capRotationRadians(ee);
-		keyframe.angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-ADJUST_ELBOW_ANGLE);
+		keyframe.angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-ADJUST_WRIST_ANGLE);
 		
 		// angleA is the hand rotation
 		v0.cross(towardsFingerAdj,towardsWrist);
