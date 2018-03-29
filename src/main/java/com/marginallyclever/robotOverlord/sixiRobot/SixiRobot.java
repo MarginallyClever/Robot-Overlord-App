@@ -127,10 +127,12 @@ extends Robot {
 		rotateBase(0,0);
 		checkAngleLimits(motionNow);
 		checkAngleLimits(motionFuture);
+		motionNow.angle1=90;
+		motionNow.angle2=180;
 		forwardKinematics(motionNow);
 		forwardKinematics(motionFuture);
-		inverseKinematics(motionNow);
-		inverseKinematics(motionFuture);
+		//inverseKinematics(motionNow);
+		//inverseKinematics(motionFuture);
 
 		floorMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		anchorMat  .setDiffuseColor(0.5f,0.5f,0.5f,1);
@@ -140,7 +142,7 @@ extends Robot {
 		forearmMat .setDiffuseColor(0.5f,0.5f,0.5f,1);
 		wristMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		handMat    .setDiffuseColor(0.5f,0.5f,0.5f,1);
-		
+				
 		tool = new SixiToolGripper();
 		tool.attachTo(this);
 	}
@@ -538,9 +540,11 @@ extends Robot {
 			// TODO rotate model
 			Vector3f p = getPosition();
 			gl2.glTranslatef(p.x, p.y, p.z);
+			gl2.glPushMatrix();
 			renderModels(gl2);
+			gl2.glPopMatrix();
 			
-			isRenderDebugOn=false;
+			isRenderDebugOn=true;
 			if(isRenderDebugOn) {
 				if(isRenderFKOn) {
 					gl2.glPushMatrix();
@@ -1292,7 +1296,7 @@ extends Robot {
 		v2.scale( (float)( Math.sin(-b) ) );
 		towardsFinger.add(v2);
 		towardsFinger.normalize();
-
+		
 		keyframe.fingerPosition.set(towardsFinger);
 		n = (float)SixiRobot.WRIST_TO_TOOL_Z;
 		keyframe.fingerPosition.scale(n);
