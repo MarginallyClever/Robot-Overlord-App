@@ -23,9 +23,10 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	 */
 	private static final long serialVersionUID = 257878994328366520L;
 
-	private final double [] speedOptions = {0.1, 0.2, 0.5, 
-			                                1, 2, 5, 
-			                                10, 20, 50};
+	private final double [] speedOptions = {0.01, 0.05,
+											0.1, 0.5, 
+			                                1, 5, 
+			                                10, 50};
 	
 	private JButton arm5Apos;
 	private JButton arm5Aneg;
