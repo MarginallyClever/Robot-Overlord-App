@@ -46,8 +46,8 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	public Vector3f baseRight = new Vector3f();
 	
 	// rotating entire robot
-	public float basePan=0;
-	public float baseTilt=0;
+	public double basePan=0;
+	public double baseTilt=0;
 	
 	void set(SixiRobotKeyframe other) {
 		angle0 = other.angle0;
