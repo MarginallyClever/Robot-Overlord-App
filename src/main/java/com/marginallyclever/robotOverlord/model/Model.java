@@ -20,21 +20,24 @@ public class Model implements Serializable {
 	 */
 	private static final long serialVersionUID = 7136313382885361812L;
 	
-	public final static int NUM_BUFFERS=3;  // verts, normals, textureCoordinates
+	public final static int NUM_BUFFERS=4;  // verts, normals, textureCoordinates
 	
 	protected transient String sourceName;
 	protected transient boolean isLoaded;
 	public ArrayList<Float> vertexArray = new ArrayList<Float>();
 	public ArrayList<Float> normalArray = new ArrayList<Float>();
+	public ArrayList<Float> colorArray = new ArrayList<Float>();
 	public ArrayList<Float> texCoordArray = new ArrayList<Float>();
 	public int renderStyle; 
 	
 	protected transient FloatBuffer vertices;
 	protected transient FloatBuffer normals;
+	protected transient FloatBuffer colors;
 	protected transient FloatBuffer texCoords;
 	protected transient int VBO[];
 
 	public transient boolean hasNormals;
+	public transient boolean hasColors;
 	public transient boolean hasTextureCoordinates;
 	
 	protected transient float loadScale;
@@ -51,6 +54,7 @@ public class Model implements Serializable {
 		VBO = null;
 		sourceName=null;
 		hasNormals=false;
+		hasColors=false;
 		hasTextureCoordinates=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
@@ -113,13 +117,15 @@ public class Model implements Serializable {
 
 		int totalBufferSize = numVertexes;
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+		int vboIndex=0;
 		
 		// bind a buffer
 		vertices.rewind();
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 	    // Write out vertex buffer to the currently bound VBO.
 	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, vertices, GL2.GL_STATIC_DRAW);
-
+	    vboIndex++;
+	    
 		if(hasNormals) {
 		    // repeat for normals
 			normals = FloatBuffer.allocate(normalArray.size());
@@ -129,8 +135,23 @@ public class Model implements Serializable {
 			}
 			
 			normals.rewind();
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, normals, GL2.GL_STATIC_DRAW);
+		    vboIndex++;
+		}
+
+		if(hasColors) {
+		    // repeat for normals
+			colors = FloatBuffer.allocate(colorArray.size());
+			fi = colorArray.iterator();
+			while(fi.hasNext()) {
+				colors.put(fi.next().floatValue());
+			}
+			
+			colors.rewind();
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, colors, GL2.GL_STATIC_DRAW);
+		    vboIndex++;
 		}
 		
 		if(hasTextureCoordinates) {
@@ -142,8 +163,9 @@ public class Model implements Serializable {
 			}
 			
 		    texCoords.rewind();
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[2]);
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*2*s, texCoords, GL2.GL_STATIC_DRAW);
+		    vboIndex++;
 		}
 	}
 	
@@ -160,21 +182,28 @@ public class Model implements Serializable {
 		}
 		if(VBO==null) return;
 		
+		int vboIndex=0;
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
 		// Bind the vertex buffer to work with
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 		gl2.glVertexPointer(3, GL2.GL_FLOAT, 0, 0);
 	    
 		if(hasNormals) {
 			gl2.glEnableClientState(GL2.GL_NORMAL_ARRAY);
 			// Bind the normal buffer to work with
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[1]);
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
+			gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
+		}
+		if(hasColors) {
+			gl2.glEnableClientState(GL2.GL_COLOR_ARRAY);
+			// Bind the clor buffer to work with
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
 		}
 		if(hasTextureCoordinates) {
 			gl2.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
 			// Bind the texture buffer to work with
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[2]);
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
 		}
 		
@@ -187,6 +216,7 @@ public class Model implements Serializable {
 		
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
 		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
+		gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
 		gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
 	}
 	
