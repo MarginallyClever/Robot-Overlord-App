@@ -53,7 +53,7 @@ extends Robot {
 	public final static double ELBOW_TO_WRIST = Math.sqrt(ELBOW_TO_WRIST_Z*ELBOW_TO_WRIST_Z + ELBOW_TO_WRIST_Y*ELBOW_TO_WRIST_Y); 
 
 	public static double ADJUST_SHOULDER_ANGLE = -11.309932-90;
-	public static double ADJUST_ELBOW_ANGLE = -159.384472;
+	public static double ADJUST_ELBOW_ANGLE = -154.7f;
 	public static double ADJUST_WRIST_ANGLE = 0;//-14.036243;
 	
 	public final static float EPSILON = 0.00001f;
@@ -804,8 +804,6 @@ extends Robot {
 	 */
 	protected void renderModels(GL2 gl2) {
 		gl2.glTranslated(0, 0, FLOOR_ADJUST);
-
-		ADJUST_ELBOW_ANGLE = -154.7f;//(180-(11.309932f*2));//26.56505117707799);
 		
 		// floor
 		floorMat.render(gl2);
