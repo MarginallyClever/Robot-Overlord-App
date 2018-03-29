@@ -71,13 +71,26 @@ public class MathHelper {
 	}
 	
 	/**
-	 * Prevent angle arg0 from leaving the range 0...2PI
+	 * Prevent angle arg0 from leaving the range 0...2PI.  outside that range it wraps, like a modulus.
 	 * @param arg0
-	 * @return
+	 * @return adjusted value
 	 */
-	static public double capRotation(double arg0) {
-		while(arg0<0        ) arg0 += Math.PI*2;
-		while(arg0>Math.PI*2) arg0 -= Math.PI*2;
+	static public double capRotationRadians(double arg0) {
+		final double limit = Math.PI*2.0;
+		while(arg0<0    ) arg0 += limit;
+		while(arg0>limit) arg0 -= limit;
+		return arg0;
+	}
+	
+	/**
+	 * Prevent angle arg0 from leaving the range 0...360.  outside that range it wraps, like a modulus.
+	 * @param arg0
+	 * @return adjusted value
+	 */
+	static public double capRotationDegrees(double arg0) {
+		final double limit = 360;
+		while(arg0<0    ) arg0 += limit;
+		while(arg0>limit) arg0 -= limit;
 		return arg0;
 	}
 }
