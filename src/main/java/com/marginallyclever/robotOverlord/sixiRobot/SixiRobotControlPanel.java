@@ -109,30 +109,30 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		fkPanel.getContentPane().add(p);
 		con1.gridy++;
 
-		p.add(arm5Apos = createButton("A+"));
+		p.add(arm5Apos = createButton("A5+"));
 		p.add(angle5);
-		p.add(arm5Aneg = createButton("A-"));
+		p.add(arm5Aneg = createButton("A5-"));
 
 		con1.gridy++;
-		p.add(arm5Bpos = createButton("B+"));
+		p.add(arm5Bpos = createButton("A4+"));
 		p.add(angle4);
-		p.add(arm5Bneg = createButton("B-"));
+		p.add(arm5Bneg = createButton("A4-"));
 
-		p.add(arm5Cpos = createButton("C+"));
+		p.add(arm5Cpos = createButton("A3+"));
 		p.add(angle3);
-		p.add(arm5Cneg = createButton("C-"));
+		p.add(arm5Cneg = createButton("A3-"));
 
-		p.add(arm5Dpos = createButton("D+"));
+		p.add(arm5Dpos = createButton("A2+"));
 		p.add(angle2);
-		p.add(arm5Dneg = createButton("D-"));
+		p.add(arm5Dneg = createButton("A2-"));
 
-		p.add(arm5Epos = createButton("E+"));
+		p.add(arm5Epos = createButton("A1+"));
 		p.add(angle1);
-		p.add(arm5Eneg = createButton("E-"));
+		p.add(arm5Eneg = createButton("A1-"));
 
-		p.add(arm5Fpos = createButton("F+"));
+		p.add(arm5Fpos = createButton("A0+"));
 		p.add(angle0);
-		p.add(arm5Fneg = createButton("F-"));
+		p.add(arm5Fneg = createButton("A0-"));
 
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
 		this.add(ikPanel, con1);
@@ -234,14 +234,14 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
-		if( subject == arm5Apos ) robot.moveA(-1);
-		if( subject == arm5Aneg ) robot.moveA(1);
+		if( subject == arm5Apos ) robot.moveA(1);
+		if( subject == arm5Aneg ) robot.moveA(-1);
 		if( subject == arm5Bpos ) robot.moveB(1);
 		if( subject == arm5Bneg ) robot.moveB(-1);
 		if( subject == arm5Cpos ) robot.moveC(1);
 		if( subject == arm5Cneg ) robot.moveC(-1);
-		if( subject == arm5Dpos ) robot.moveD(-1);
-		if( subject == arm5Dneg ) robot.moveD(1);
+		if( subject == arm5Dpos ) robot.moveD(1);
+		if( subject == arm5Dneg ) robot.moveD(-1);
 		if( subject == arm5Epos ) robot.moveE(1);
 		if( subject == arm5Eneg ) robot.moveE(-1);
 		if( subject == arm5Fpos ) robot.moveF(1);
