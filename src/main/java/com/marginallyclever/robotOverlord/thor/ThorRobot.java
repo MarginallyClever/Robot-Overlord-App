@@ -1055,7 +1055,7 @@ public class ThorRobot extends Robot {
 		// angleF is the base
 		// all the joint locations are now known.  find the angles.
 		ee = Math.atan2(facingDirection.y, facingDirection.x);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.angleF = (float)Math.toDegrees(ee);
 
 		// angleE is the shoulder
@@ -1065,7 +1065,7 @@ public class ThorRobot extends Robot {
 		xx = (float)towardsElbow.z;
 		yy = facingDirection.dot(towardsElbow);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.angleE = (float)Math.toDegrees(ee);
 
 		// angleD is the elbow
@@ -1076,7 +1076,7 @@ public class ThorRobot extends Robot {
 		v1.cross(planarRight,towardsElbow);
 		yy = towardsWrist.dot(v1);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.angleD = -(float)Math.toDegrees(ee);
 		
 		// angleC is the ulna rotation
@@ -1097,7 +1097,7 @@ public class ThorRobot extends Robot {
 		xx = planarRight.dot(towardsFingerAdj);
 		yy = v1.dot(towardsFingerAdj);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.angleC = (float)Math.toDegrees(ee)-90;
 		
 		// angleB is the wrist bend
@@ -1106,7 +1106,7 @@ public class ThorRobot extends Robot {
 		xx = v0.dot(towardsFinger);
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.angleB = (float)Math.toDegrees(ee);
 		
 		// angleA is the hand rotation
@@ -1118,7 +1118,7 @@ public class ThorRobot extends Robot {
 		xx = v0.dot(keyframe.fingerRight);
 		yy = v1.dot(keyframe.fingerRight);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.angleA = (float)Math.toDegrees(ee);
 
 		return true;

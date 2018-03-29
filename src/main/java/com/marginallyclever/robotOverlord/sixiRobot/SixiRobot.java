@@ -1155,8 +1155,8 @@ extends Robot {
 		// angleF is the base
 		// all the joint locations are now known.  find the angles.
 		ee = Math.atan2(facingDirection.y, facingDirection.x);
-		ee = MathHelper.capRotation(ee);
-		keyframe.angle0 = (float)Math.toDegrees(ee);
+		//ee = MathHelper.capRotationRadians(ee);
+		keyframe.angle0 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee));
 
 		// angleE is the shoulder
 		Vector3f towardsElbow = new Vector3f(keyframe.elbow);
@@ -1165,8 +1165,8 @@ extends Robot {
 		xx = (float)towardsElbow.z;
 		yy = facingDirection.dot(towardsElbow);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
-		keyframe.angle1 = 90+(float)Math.toDegrees(ee);
+		//ee = MathHelper.capRotationRadians(ee);
+		keyframe.angle1 = (float)MathHelper.capRotationDegrees(90+Math.toDegrees(ee));
 		
 		// angleD is the elbow
 		Vector3f towardsWrist = new Vector3f(keyframe.wrist);
@@ -1176,8 +1176,8 @@ extends Robot {
 		v1.cross(planarRight,towardsElbow);
 		yy = towardsWrist.dot(v1);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
-		keyframe.angle2 = 180+(float)Math.toDegrees(ee);
+		//ee = MathHelper.capRotationRadians(ee);
+		keyframe.angle2 = (float)MathHelper.capRotationDegrees(180+Math.toDegrees(ee));
 		
 		// angleC is the ulna rotation
 		v0.set(towardsWrist);
@@ -1197,8 +1197,8 @@ extends Robot {
 		xx = planarRight.dot(towardsFingerAdj);
 		yy = v1.dot(towardsFingerAdj);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
-		keyframe.angle3 = (float)Math.toDegrees(ee)-90;
+		//ee = MathHelper.capRotationRadians(ee);
+		keyframe.angle3 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-90);
 		
 		// angleB is the wrist bend
 		v0.set(towardsWrist);
@@ -1206,8 +1206,8 @@ extends Robot {
 		xx = v0.dot(towardsFinger);
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
-		keyframe.angle4 = (float)(Math.toDegrees(ee)-ADJUST_ELBOW_ANGLE);
+		//ee = MathHelper.capRotationRadians(ee);
+		keyframe.angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-ADJUST_ELBOW_ANGLE);
 		
 		// angleA is the hand rotation
 		v0.cross(towardsFingerAdj,towardsWrist);
@@ -1218,8 +1218,8 @@ extends Robot {
 		xx = v0.dot(keyframe.fingerRight);
 		yy = v1.dot(keyframe.fingerRight);
 		ee = Math.atan2(yy, xx);
-		ee = MathHelper.capRotation(ee);
-		keyframe.angle5 = (float)Math.toDegrees(ee);
+		//ee = MathHelper.capRotationRadians(ee);
+		keyframe.angle5 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee));
 
 		return true;
 	}

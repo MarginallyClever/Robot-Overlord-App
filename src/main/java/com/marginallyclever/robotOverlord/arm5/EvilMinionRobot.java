@@ -1017,7 +1017,7 @@ extends Robot {
 		
 		// Find E
 		ee = Math.atan2(planar.y, planar.x);
-		ee = MathHelper.capRotation(ee);
+		ee = MathHelper.capRotationRadians(ee);
 		keyframe.ik_angleE = (float)Math.toDegrees(ee);
 
 		keyframe.ik_shoulder.set(0,0,(float)(EvilMinionRobot.ANCHOR_ADJUST_Y+EvilMinionRobot.ANCHOR_TO_SHOULDER_Y));
@@ -1069,7 +1069,7 @@ extends Robot {
 		x = -planar.dot(v0);
 		float y = planeRight.dot(v0);
 		dd = Math.atan2(y,x);
-		dd = MathHelper.capRotation(dd);
+		dd = MathHelper.capRotationRadians(dd);
 		keyframe.ik_angleD = (float)Math.toDegrees(dd);
 		
 		// find elbow angle (C)
@@ -1082,7 +1082,7 @@ extends Robot {
 		x = -planar.dot(v0);
 		y = planeRight.dot(v0);
 		cc = Math.atan2(y,x);
-		cc = MathHelper.capRotation(cc);
+		cc = MathHelper.capRotationRadians(cc);
 		keyframe.ik_angleC = (float)Math.toDegrees(cc);
 		
 		// find wrist angle (B)
@@ -1096,7 +1096,7 @@ extends Robot {
 		x = -planar.dot(v0);
 		y = -planeRight.dot(v0);
 		bb = Math.atan2(y,x);
-		bb = MathHelper.capRotation(bb);
+		bb = MathHelper.capRotationRadians(bb);
 		keyframe.ik_angleB = (float)Math.toDegrees(bb);
 		
 		// find wrist rotation (A)
@@ -1110,7 +1110,7 @@ extends Robot {
 		x = v2.dot(v0);
 		y = -v1.dot(v0);
 		aa = Math.atan2(y,x)-bb-Math.PI/2.0;
-		aa = MathHelper.capRotation(aa);
+		aa = MathHelper.capRotationRadians(aa);
 		keyframe.ik_angleA = (float)Math.toDegrees(aa);
 		
 		keyframe.angleA=keyframe.ik_angleA;
