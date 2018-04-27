@@ -37,7 +37,7 @@ extends Robot {
 	 */
 	private static final long serialVersionUID = -3644731265897692399L;
 
-	private final static String hello = "HELLO WORLD! I AM SIXI #";
+	private final static String hello = "HELLO WORLD! I AM ARM6 #";
 	private final static String ROBOT_NAME = "Sixi 6DOF arm";
 	
 	// machine dimensions from design software
