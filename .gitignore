@@ -1,8 +1,7 @@
 /target/*-*
-
+/target/
 !/target/classes/
 /target/classes/com
-/target/classes/languages
 /target/classes/META-INF
 
 /html/
@@ -11,16 +10,6 @@
 
 *.class
 
-
-
-*.tmp
-
-java/Arm3.jar
-
-log.html
-temp.ngc
-/target/
-
-log.html
-log.html
-log.html
+**/*.tmp
+**/log.*
+**/temp.ngc
