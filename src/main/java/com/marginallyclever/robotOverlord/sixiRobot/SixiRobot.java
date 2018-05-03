@@ -1075,7 +1075,7 @@ extends Robot {
 		ulnaPlaneZ.normalize();
 		
 		// I have wristToFinger.  I need wristToFinger projected on the plane elbow-space XY to calculate the angle. 
-		float tf = elbowPlaneZ.dot(keyframe.fingerForward);
+		float tf = elbowPlaneZ.dot(wristToFinger);
 		// v0 and keyframe.fingerForward are normal length.  if they dot to nearly 1, they are colinear.
 		// if they are colinear then I have no reference to calculate the angle of the ulna rotation.
 		if(tf>=1-EPSILON) {
@@ -1084,7 +1084,7 @@ extends Robot {
 
 		Vector3f projectionAmount = new Vector3f(elbowPlaneZ);
 		projectionAmount.scale(tf);
-		ulnaPlaneX.set(motionNow.fingerForward);
+		ulnaPlaneX.set(wristToFinger);
 		ulnaPlaneX.sub(projectionAmount);
 		ulnaPlaneX.normalize();
 		ulnaPlaneY.cross(ulnaPlaneX,ulnaPlaneZ);
@@ -1094,14 +1094,15 @@ extends Robot {
 		// Compare projected vector to previous frame's projected vector. if the direction is reversed, flip it. 
 
 		// wrist matrix
-		Vector3f wristPlaneZ = new Vector3f(motionNow.fingerForward);
+		Vector3f wristPlaneZ = new Vector3f(wristToFinger);
 		wristPlaneZ.normalize();
 		Vector3f wristPlaneY = new Vector3f(ulnaPlaneY);
 		Vector3f wristPlaneX = new Vector3f();
 		wristPlaneX.cross(wristPlaneY,wristPlaneZ);
 		wristPlaneX.normalize();
 
-		// find the angles.
+		
+		// find the angles
 
 		// shoulder
 		ee = Math.atan2(shoulderPlaneX.y, shoulderPlaneX.x);
@@ -1154,16 +1155,20 @@ extends Robot {
 			if(gl2!=null) drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,elbowPlaneZ);
 			if(gl2!=null) drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ);
 			if(gl2!=null) drawMatrix2(gl2,shoulderPosition,bicepPlaneX,shoulderPlaneY,bicepPlaneZ);
-			/*
-			gl2.glTranslated(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
-			gl2.glBegin(GL2.GL_LINES);
+			
+			//gl2.glTranslated(keyframe.fingerPosition.x, keyframe.fingerPosition.y, keyframe.fingerPosition.z);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glColor3f(1,1,1);
-			gl2.glVertex3d(0,0,0);
-			gl2.glVertex3d(v1.x,v1.y,v1.z);
-			gl2.glColor3f(0,0,0);
-			gl2.glVertex3d(0,0,0);
-			gl2.glVertex3d(v2.x,v2.y,v2.z);
-			gl2.glEnd();*/
+			gl2.glVertex3d(
+					keyframe.fingerPosition.x,
+					keyframe.fingerPosition.y,
+					keyframe.fingerPosition.z);
+			gl2.glVertex3d(
+					keyframe.fingerPosition.x-projectionAmount.x,
+					keyframe.fingerPosition.y-projectionAmount.y,
+					keyframe.fingerPosition.z-projectionAmount.z);
+			gl2.glVertex3d(wristPosition.x,wristPosition.y,wristPosition.z);
+			gl2.glEnd();
 		} else {
 			keyframe.base = new Vector3f(0,0,0);
 			keyframe.shoulder.set(shoulderPosition);
