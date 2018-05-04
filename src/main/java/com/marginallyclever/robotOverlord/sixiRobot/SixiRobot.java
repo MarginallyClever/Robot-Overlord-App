@@ -55,11 +55,9 @@ extends Robot {
 	public final static double SHOULDER_TO_ELBOW = Math.sqrt(SHOULDER_TO_ELBOW_Z*SHOULDER_TO_ELBOW_Z + SHOULDER_TO_ELBOW_Y*SHOULDER_TO_ELBOW_Y);
 	public final static double ELBOW_TO_WRIST = Math.sqrt(ELBOW_TO_WRIST_Z*ELBOW_TO_WRIST_Z + ELBOW_TO_WRIST_Y*ELBOW_TO_WRIST_Y); 
 
-	public static double ADJUST_SHOULDER_ANGLE = -90;  // -11.309932
 	public static double ADJUST_WRIST_ELBOW_ANGLE = 14.036243;
 	public static double ADJUST_SHOULDER_ELBOW_ANGLE = 11.309932;
 	//public static double ADJUST_ULNA_ELBOW_ANGLE = 26.56505117707799;
-	public static double ADJUST_WRIST_ANGLE = 14.036243;
 	
 	public final static float EPSILON = 0.00001f;
 	
@@ -591,7 +589,7 @@ extends Robot {
 		
 		// bicep
 		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER);
-		gl2.glRotated(motionNow.angle1+ADJUST_SHOULDER_ANGLE, 1, 0, 0);
+		gl2.glRotated(motionNow.angle1-90, 1, 0, 0);
 		bicepMat.render(gl2);
 		bicepModel.render(gl2);
 
@@ -1120,7 +1118,7 @@ extends Robot {
 		v1.cross(shoulderPlaneY,shoulderToElbow);
 		yy = elbowToWrist.dot(v1);
 		ee = Math.atan2(yy, xx);
-		angle2 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)+180-ADJUST_SHOULDER_ELBOW_ANGLE-ADJUST_WRIST_ANGLE);
+		angle2 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)+180-ADJUST_SHOULDER_ELBOW_ANGLE-ADJUST_WRIST_ELBOW_ANGLE);
 		
 		// ulna rotation
 		xx = shoulderPlaneY.dot(ulnaPlaneX);  // shoulderPlaneY is the same as elbowPlaneY
@@ -1203,10 +1201,6 @@ extends Robot {
 		Vector3f vx = new Vector3f();
 		Vector3f vz = new Vector3f();
 
-		if(gl2!=null) {
-			gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
-		}
-		
 		Vector3f shoulderPosition = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER));
 		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
 		Vector3f shoulderPlaneX = new Vector3f((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
@@ -1236,8 +1230,9 @@ extends Robot {
 		elbowPosition.add(shoulderToElbow);
 
 		if(gl2!=null) {
-			drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
-			
+			gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
+
+			// shoulder to elbow
 			gl2.glPushMatrix();
 			gl2.glTranslated(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
@@ -1271,8 +1266,7 @@ extends Robot {
 		ulnaPosition.add(elbowToUlna);
 
 		if(gl2!=null) {
-			drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
-			
+			// elbow to ulna
 			gl2.glPushMatrix();
 			gl2.glTranslated(elbowPosition.x, elbowPosition.y, elbowPosition.z);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
@@ -1298,8 +1292,6 @@ extends Robot {
 		ulnaPlaneY.cross(ulnaPlaneX, ulnaPlaneZ);
 		ulnaPlaneY.normalize();
 
-		if(gl2!=null) drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);
-
 		Vector3f ulnaToWrist = new Vector3f(ulnaPlaneZ);
 		ulnaToWrist.scale((float)SixiRobot.ULNA_TO_WRIST_Z);
 		Vector3f wristPosition = new Vector3f(ulnaPosition);
@@ -1320,8 +1312,6 @@ extends Robot {
 		Vector3f wristPlaneX = new Vector3f();
 		wristPlaneX.cross(wristPlaneY,wristPlaneZ);
 		wristPlaneX.normalize();
-
-		if(gl2!=null) drawMatrix(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ);
 		
 		// finger rotation
 		Vector3f fingerPlaneY = new Vector3f();
@@ -1336,8 +1326,13 @@ extends Robot {
 		Vector3f fingerPosition = new Vector3f(wristPosition);
 		fingerPosition.add(wristToFinger);
 
-		if(gl2!=null) drawMatrix(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
-
+		if(gl2!=null) {
+			drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
+			drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
+			drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);
+			drawMatrix(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ);
+			drawMatrix(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
+		}
 		if(renderMode==false) {
 			keyframe.shoulder.set(shoulderPosition);
 			keyframe.bicep.set(shoulderPosition);
