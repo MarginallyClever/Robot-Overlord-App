@@ -1139,7 +1139,7 @@ extends Robot {
 		yy = wristPlaneX.dot(keyframe.fingerRight);
 		ee = Math.atan2(yy, xx);
 		angle5 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-90);
-
+		
 		if(renderMode) {
 			// get elbow to ulna
 			v1.set(elbowPlaneX);	v1.scale((float)SixiRobot.ELBOW_TO_ULNA_Y);
