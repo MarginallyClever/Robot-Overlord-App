@@ -130,22 +130,25 @@ extends Robot {
 		motionNow.set(motionFuture);
 		checkAngleLimits(motionNow);
 		checkAngleLimits(motionFuture);
-		motionNow.angle1=90.0f+11.3f;
-		motionNow.angle2=180.0f+14.036243467926468f;
-		motionNow.angle4=15f;
+		motionNow.angle0=0f;
+		motionNow.angle1=0f;
+		motionNow.angle2=188f;
+		motionNow.angle3=0f;
+		motionNow.angle4=-90f;
+		motionNow.angle5=0f;
 		forwardKinematics(motionNow,false,null);
 		forwardKinematics(motionFuture,false,null);
 		//inverseKinematics(motionNow);
 		//inverseKinematics(motionFuture);
 
 		floorMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
-		anchorMat  .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		anchorMat  .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		shoulderMat.setDiffuseColor(1.0f,0.0f,0.0f,1);
-		bicepMat   .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		bicepMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		elbowMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
-		forearmMat .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		forearmMat .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		wristMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
-		handMat    .setDiffuseColor(0.5f,0.5f,0.5f,1);
+		handMat    .setDiffuseColor(1.0f,0.0f,0.0f,1);
 				
 		tool = new SixiToolGripper();
 		tool.attachTo(this);
@@ -155,9 +158,9 @@ extends Robot {
 	protected void loadModels(GL2 gl2) {
 		try {
 			floorModel = ModelFactory.createModelFromFilename("/Sixi/floor.stl",0.1f);
-			anchorModel = ModelFactory.createModelFromFilename("/Sixi/anchor.stl",0.1f);
-			shoulderModel = ModelFactory.createModelFromFilename("/Sixi/shoulder.stl",0.1f);
-			bicepModel = ModelFactory.createModelFromFilename("/Sixi/bicep.stl",0.1f);
+			anchorModel = ModelFactory.createModelFromFilename("/Sixi/anchorDecimated.stl",0.1f);
+			shoulderModel = ModelFactory.createModelFromFilename("/Sixi/shoulderDecimated.stl",0.1f);
+			bicepModel = ModelFactory.createModelFromFilename("/Sixi/bicepDecimated.stl",0.1f);
 			elbowModel = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
 			forearmModel = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
 			wristModel = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
@@ -350,10 +353,8 @@ extends Robot {
 			// More complex arms start from the same assumption.
 			Vector3f forward = new Vector3f(0,0,1);
 			Vector3f right = new Vector3f(1,0,0);
-			Vector3f up = new Vector3f();
-			
-			up.cross(forward,right);
-			
+			Vector3f up = new Vector3f(0,1,0);
+
 			Vector3f of = new Vector3f(forward);
 			Vector3f or = new Vector3f(right);
 			Vector3f ou = new Vector3f(up);
@@ -540,6 +541,9 @@ extends Robot {
 			// TODO rotate model
 			Vector3f p = getPosition();
 			gl2.glTranslatef(p.x, p.y, p.z);
+
+			gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
+			
 			gl2.glPushMatrix();
 			renderModels(gl2);
 			gl2.glPopMatrix();
@@ -572,11 +576,18 @@ extends Robot {
 	 * @param gl2 the openGL render context
 	 */
 	protected void renderModels(GL2 gl2) {
-		gl2.glTranslated(0, 0, FLOOR_ADJUST);
-		
 		// floor
 		floorMat.render(gl2);
 		floorModel.render(gl2);
+
+		floorMat   .setShininess(2);
+		anchorMat  .setShininess(2);
+		shoulderMat.setShininess(2);
+		bicepMat   .setShininess(2);
+		elbowMat   .setShininess(2);
+		forearmMat .setShininess(2);
+		wristMat   .setShininess(2);
+		handMat    .setShininess(2);
 		
 		// anchor
 		anchorMat.render(gl2);
@@ -584,11 +595,14 @@ extends Robot {
 
 		// shoulder
 		gl2.glRotated(90+motionNow.angle0,0,0,1);
+		//shoulderMat.setSpecularColor(0, 0, 0, 1);
+		//shoulderMat.setDiffuseColor(1, 0, 0, 1);
+		//shoulderMat.setShininess(50);
 		shoulderMat.render(gl2);
 		shoulderModel.render(gl2);
 		
 		// bicep
-		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER);
+		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER-FLOOR_ADJUST);
 		gl2.glRotated(motionNow.angle1-90, 1, 0, 0);
 		bicepMat.render(gl2);
 		bicepModel.render(gl2);
@@ -965,9 +979,6 @@ extends Robot {
 	protected boolean inverseKinematics(SixiRobotKeyframe keyframe,boolean renderMode,GL2 gl2) {
 		double ee;
 		float n, xx, yy, angle0,angle1,angle2,angle3,angle4,angle5;
-		if(gl2!=null) {
-			gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
-		}
 		
 		// rotation at finger, bend at wrist, rotation between wrist and elbow, then bends down to base.
 
@@ -987,7 +998,7 @@ extends Robot {
 		
 		// I also need part of the base/shoulder to work from the other end of the problem.
 		// if I have the wrist and the shoulder then I can make reasonable guesses about the elbow.
-		Vector3f shoulderPosition = new Vector3f(0,0,(float)(FLOOR_TO_SHOULDER));
+		Vector3f shoulderPosition = new Vector3f(0,0,(float)(FLOOR_TO_SHOULDER-FLOOR_ADJUST));
 		
 		// Find the facingDirection and planeNormal vectors.
 		if(Math.abs(wristPosition.x)<EPSILON && Math.abs(wristPosition.y)<EPSILON) {
@@ -1201,7 +1212,7 @@ extends Robot {
 		Vector3f vx = new Vector3f();
 		Vector3f vz = new Vector3f();
 
-		Vector3f shoulderPosition = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER));
+		Vector3f shoulderPosition = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER-FLOOR_ADJUST));
 		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
 		Vector3f shoulderPlaneX = new Vector3f((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
 		Vector3f shoulderPlaneY = new Vector3f();
@@ -1230,8 +1241,6 @@ extends Robot {
 		elbowPosition.add(shoulderToElbow);
 
 		if(gl2!=null) {
-			gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
-
 			// shoulder to elbow
 			gl2.glPushMatrix();
 			gl2.glTranslated(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
@@ -1279,7 +1288,6 @@ extends Robot {
 		}
 		
 		// get matrix of ulna rotation
-		Vector3f ulnaPlaneY = new Vector3f();
 		Vector3f ulnaPlaneZ = new Vector3f(nvx);
 		ulnaPlaneZ.add(nvz);
 		ulnaPlaneZ.normalize();
@@ -1289,6 +1297,7 @@ extends Robot {
 		ulnaPlaneX.add(vx);
 		ulnaPlaneX.add(vz);
 		ulnaPlaneX.normalize();
+		Vector3f ulnaPlaneY = new Vector3f();
 		ulnaPlaneY.cross(ulnaPlaneX, ulnaPlaneZ);
 		ulnaPlaneY.normalize();
 
@@ -1325,7 +1334,26 @@ extends Robot {
 		fingerPlaneY.cross(fingerPlaneZ, fingerPlaneX);
 		Vector3f fingerPosition = new Vector3f(wristPosition);
 		fingerPosition.add(wristToFinger);
-
+/*
+		// find the UVW rotations for the finger direction
+		Vector3f forward = new Vector3f(0,0,1);
+		Vector3f right = new Vector3f(1,0,0);
+		Vector3f up = new Vector3f(0,1,0);
+		
+		Vector3f newForward = new Vector3f(fingerPlaneZ);
+				
+		float lenW = up.dot(fingerPlaneZ);
+		if(Math.abs(lenW)>1-EPSILON) {
+			// straight up or straight down
+		} else {
+			Vector3f planeOffsetW = new Vector3f(up);
+			planeOffsetW.scale(lenW);
+			newForward.sub(planeOffsetW);
+			
+			float dotX = 
+			keyframe.ikW = 0;
+		}		
+*/
 		if(gl2!=null) {
 			drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
 			drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
@@ -1338,7 +1366,7 @@ extends Robot {
 			keyframe.bicep.set(shoulderPosition);
 			keyframe.elbow.set(elbowPosition);
 			keyframe.wrist.set(wristPosition);
-			keyframe.fingerPosition.set(fingerPosition);
+			keyframe.fingerPosition.set(fingerPosition);  // xyz values used in inverse kinematics
 			keyframe.fingerRight.set(fingerPlaneX);
 			keyframe.fingerForward.set(fingerPlaneZ);
 		}
