@@ -1,21 +1,15 @@
 package com.marginallyclever.robotOverlord.robot;
 
-import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.Translator;
 
 
 /**
@@ -23,8 +17,7 @@ import com.marginallyclever.robotOverlord.Translator;
  * @author Dan Royer
  *
  */
-public class Robot extends PhysicalObject
-implements NetworkConnectionListener, ActionListener {
+public class Robot extends PhysicalObject implements NetworkConnectionListener {
 	/**
 	 * 
 	 */
@@ -34,8 +27,7 @@ implements NetworkConnectionListener, ActionListener {
 	protected transient String[] portsDetected=null;
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
-	
-	protected transient CollapsiblePanel connectionPanel=null;
+
 
 	// sending file to the robot
 	private boolean running;
@@ -45,9 +37,10 @@ implements NetworkConnectionListener, ActionListener {
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 
-	// connect/rescan/disconnect dialog options
-	protected transient JButton buttonConnect;
 	private boolean modelsLoaded;
+	
+	protected transient RobotPanel robotPanel=null;
+	
 	
 	public Robot() {
 		super();
@@ -70,50 +63,13 @@ implements NetworkConnectionListener, ActionListener {
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
-		list.add(getMenu());
+		if(robotPanel == null) robotPanel = new RobotPanel(gui,this);
+		list.add(robotPanel);
 		
 		return list;
 	}
-
-
-	protected JPanel getMenu() {
-		connectionPanel = new CollapsiblePanel("Robot with connection");
-		JPanel contents =connectionPanel.getContentPane();
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-		
-        buttonConnect = new JButton(Translator.get("ButtonConnect"));
-        buttonConnect.addActionListener(this);
-
-		contents.add(buttonConnect,con1);
-		con1.gridy++;
-
-	    return connectionPanel;
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();
-		
-		if(subject==buttonConnect) {
-			if(connection!=null) {
-				closeConnection();
-			} else {
-				openConnection();
-			}
-			return;
-		}
-	}
-
 	
 	protected void closeConnection() {
-		buttonConnect.setText(Translator.get("ButtonConnect"));
 		connection.closeConnection();
 		connection.removeListener(this);
 		connection=null;
@@ -122,7 +78,6 @@ implements NetworkConnectionListener, ActionListener {
 	protected void openConnection() {
 		NetworkConnection s = NetworkConnectionManager.requestNewConnection(null);
 		if(s!=null) {
-			buttonConnect.setText(Translator.get("ButtonDisconnect"));
 			setConnection(s);
 		}
 	}
