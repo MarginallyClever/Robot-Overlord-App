@@ -21,7 +21,10 @@ public class Material {
 	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
 	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, shininess);
 	    gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT_AND_DIFFUSE );
-		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+	    
+	    boolean isColorEnabled = gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
+		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+		
 		gl2.glShadeModel(GL2.GL_SMOOTH);
 	    if(isLit()) {
 	    	gl2.glEnable(GL2.GL_LIGHTING);
@@ -34,7 +37,20 @@ public class Material {
 			gl2.glEnable(GL2.GL_TEXTURE_2D);
 	    	texture.bind(gl2);
 	    }
+	    
+	    if(isColorEnabled) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 	}
+	
+
+	public void setShininess(float arg0) {
+		if(arg0>128) arg0=128;
+		if(arg0<0) arg0=0;
+		shininess = arg0;
+	}
+	public float getShininess() {
+		return shininess;
+	}
+	
 	
 
 	public void setDiffuseColor(float r,float g,float b,float a) {
