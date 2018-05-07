@@ -105,7 +105,7 @@ extends Robot {
 	private double speed=2;
 
 	// visual debugging
-	private boolean isRenderDebugOn=true;
+	private boolean showDebug=false;
 
 	// gui
 	protected transient SixiRobotControlPanel armPanel=null;
@@ -130,16 +130,8 @@ extends Robot {
 		motionNow.set(motionFuture);
 		checkAngleLimits(motionNow);
 		checkAngleLimits(motionFuture);
-		motionNow.angle0=0f;
-		motionNow.angle1=0f;
-		motionNow.angle2=188f;
-		motionNow.angle3=0f;
-		motionNow.angle4=-90f;
-		motionNow.angle5=0f;
-		forwardKinematics(motionNow,false,null);
-		forwardKinematics(motionFuture,false,null);
-		//inverseKinematics(motionNow);
-		//inverseKinematics(motionFuture);
+		
+		setToHomePosition();
 
 		floorMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		anchorMat  .setDiffuseColor(1.0f,0.0f,0.0f,1);
@@ -161,8 +153,8 @@ extends Robot {
 			anchorModel = ModelFactory.createModelFromFilename("/Sixi/anchorDecimated.stl",0.1f);
 			shoulderModel = ModelFactory.createModelFromFilename("/Sixi/shoulderDecimated.stl",0.1f);
 			bicepModel = ModelFactory.createModelFromFilename("/Sixi/bicepDecimated.stl",0.1f);
-			elbowModel = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
-			forearmModel = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
+			elbowModel = ModelFactory.createModelFromFilename("/Sixi/elbowDecimated.stl",0.1f);
+			forearmModel = ModelFactory.createModelFromFilename("/Sixi/forearmDecimated.stl",0.1f);
 			wristModel = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
 			handModel = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
 			
@@ -293,6 +285,30 @@ extends Robot {
 		disableFK();
 	}
 
+	public void toggleDebug() {
+		showDebug=!showDebug;
+	}
+	
+	public void findHome() {
+		// send home command
+		if(connection!=null) this.sendLineToRobot("G28");
+		setToHomePosition();
+		updateGUI();
+	}
+
+	protected void setToHomePosition() {
+		motionNow.angle0=0f;
+		motionNow.angle1=0f;
+		motionNow.angle2=188f;
+		motionNow.angle3=0f;
+		motionNow.angle4=-90f;
+		motionNow.angle5=0f;
+		forwardKinematics(motionNow,false,null);
+		forwardKinematics(motionFuture,false,null);
+		//inverseKinematics(motionNow);
+		//inverseKinematics(motionFuture);
+	}
+	
 	/**
 	 * update the desired finger location
 	 * @param delta the time since the last update.  Typically ~1/30s
@@ -548,8 +564,7 @@ extends Robot {
 			renderModels(gl2);
 			gl2.glPopMatrix();
 			
-			isRenderDebugOn=true;
-			if(isRenderDebugOn) {
+			if(showDebug) {
 				gl2.glDisable(GL2.GL_DEPTH_TEST);
 				boolean lightOn= gl2.glIsEnabled(GL2.GL_LIGHTING);
 				boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
@@ -1084,13 +1099,14 @@ extends Robot {
 		ulnaPlaneZ.normalize();
 		
 		// I have wristToFinger.  I need wristToFinger projected on the plane elbow-space XY to calculate the angle. 
-		float tf = elbowPlaneZ.dot(wristToFinger);
+		float tf = elbowPlaneZ.dot(keyframe.fingerForward);
 		// v0 and keyframe.fingerForward are normal length.  if they dot to nearly 1, they are colinear.
 		// if they are colinear then I have no reference to calculate the angle of the ulna rotation.
 		if(tf>=1-EPSILON) {
 			return false;
 		}
 
+		tf = elbowPlaneZ.dot(wristToFinger);
 		Vector3f projectionAmount = new Vector3f(elbowPlaneZ);
 		projectionAmount.scale(tf);
 		ulnaPlaneX.set(wristToFinger);
@@ -1149,7 +1165,7 @@ extends Robot {
 		ee = Math.atan2(yy, xx);
 		angle5 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-90);
 		
-		if(renderMode) {
+		if(gl2!=null) {
 			// get elbow to ulna
 			v1.set(elbowPlaneX);	v1.scale((float)SixiRobot.ELBOW_TO_ULNA_Y);
 			v2.set(elbowPlaneZ);	v2.scale((float)SixiRobot.ELBOW_TO_ULNA_Z);
@@ -1159,11 +1175,11 @@ extends Robot {
 			Vector3f ulnaPosition = new Vector3f(elbowPosition);
 			ulnaPosition.add(elbowToUlna);
 			
-			if(gl2!=null) drawMatrix2(gl2,keyframe.fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
-			if(gl2!=null) drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,2);
-			if(gl2!=null) drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,elbowPlaneZ);
-			if(gl2!=null) drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ);
-			if(gl2!=null) drawMatrix2(gl2,shoulderPosition,bicepPlaneX,shoulderPlaneY,bicepPlaneZ);
+			drawMatrix2(gl2,keyframe.fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
+			drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,2);
+			drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,elbowPlaneZ);
+			drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ);
+			drawMatrix2(gl2,shoulderPosition,bicepPlaneX,shoulderPlaneY,bicepPlaneZ);
 			
 			//gl2.glTranslated(keyframe.fingerPosition.x, keyframe.fingerPosition.y, keyframe.fingerPosition.z);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
@@ -1178,7 +1194,8 @@ extends Robot {
 					keyframe.fingerPosition.z-projectionAmount.z);
 			gl2.glVertex3d(wristPosition.x,wristPosition.y,wristPosition.z);
 			gl2.glEnd();
-		} else {
+		}
+		if(!renderMode) {
 			keyframe.base = new Vector3f(0,0,0);
 			keyframe.shoulder.set(shoulderPosition);
 			keyframe.elbow.set(elbowPosition);
@@ -1241,11 +1258,18 @@ extends Robot {
 		elbowPosition.add(shoulderToElbow);
 
 		if(gl2!=null) {
+			gl2.glColor3f(0,0,0);
+			
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			gl2.glVertex3d(0,0,0);
+			gl2.glVertex3d(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
+			gl2.glEnd();
+			
+			gl2.glPopMatrix();
 			// shoulder to elbow
 			gl2.glPushMatrix();
 			gl2.glTranslated(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
-			gl2.glColor3f(0,0,0);
 			gl2.glVertex3d(0,0,0);
 			gl2.glVertex3d(vz.x,vz.y,vz.z);
 			gl2.glVertex3d(vx.x+vz.x,vx.y+vz.y,vx.z+vz.z);
@@ -1355,6 +1379,13 @@ extends Robot {
 		}		
 */
 		if(gl2!=null) {
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			gl2.glColor3f(0,0,0);
+			gl2.glVertex3d(ulnaPosition.x, ulnaPosition.y, ulnaPosition.z);
+			gl2.glVertex3d(wristPosition.x, wristPosition.y, wristPosition.z);
+			gl2.glVertex3d(fingerPosition.x, fingerPosition.y, fingerPosition.z);
+			gl2.glEnd();
+			
 			drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
 			drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
 			drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);

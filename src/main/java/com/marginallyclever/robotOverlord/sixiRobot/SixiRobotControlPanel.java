@@ -27,33 +27,35 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 											0.1, 0.5, 
 			                                1, 5, 
 			                                10, 50};
+
+	private JButton showDebug;
+	private JButton findHome;
 	
-	private JButton arm5Apos;
-	private JButton arm5Aneg;
-	private JButton arm5Bpos;
-	private JButton arm5Bneg;
-	private JButton arm5Cpos;
-	private JButton arm5Cneg;
-	private JButton arm5Dpos;
-	private JButton arm5Dneg;
-	private JButton arm5Epos;
-	private JButton arm5Eneg;
-	private JButton arm5Fpos;
-	private JButton arm5Fneg;
+	private JButton fk5pos;
+	private JButton fk5neg;
+	private JButton fk4pos;
+	private JButton fk4neg;
+	private JButton fk3pos;
+	private JButton fk3neg;
+	private JButton fk2pos;
+	private JButton fk2neg;
+	private JButton fk1pos;
+	private JButton fk1neg;
+	private JButton fk0pos;
+	private JButton fk0neg;
 	
-	private JButton arm5Xpos;
-	private JButton arm5Xneg;
-	private JButton arm5Ypos;
-	private JButton arm5Yneg;
-	private JButton arm5Zpos;
-	private JButton arm5Zneg;
-	
-	private JButton arm5Upos;
-	private JButton arm5Uneg;
-	private JButton arm5Vpos;
-	private JButton arm5Vneg;
-	private JButton arm5Wpos;
-	private JButton arm5Wneg;
+	private JButton ikXpos;
+	private JButton ikXneg;
+	private JButton ikYpos;
+	private JButton ikYneg;
+	private JButton ikZpos;
+	private JButton ikZneg;
+	private JButton ikUpos;
+	private JButton ikUneg;
+	private JButton ikVpos;
+	private JButton ikVneg;
+	private JButton ikWpos;
+	private JButton ikWneg;
 	
 	public JLabel xPos,yPos,zPos,uPos,vPos,wPos;
 	public JLabel angle5,angle4,angle3,angle2,angle1,angle0;
@@ -93,91 +95,43 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		this.add(speedPanel,con1);
 		con1.gridy++;
 
+		// used for fk 
 		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
 		this.add(fkPanel,con1);
 		con1.gridy++;
-		
-		// used for fk 
-		angle5 = new JLabel("0.00");
-		angle4 = new JLabel("0.00");
-		angle3 = new JLabel("0.00");
-		angle2 = new JLabel("0.00");
-		angle1 = new JLabel("0.00");
-		angle0 = new JLabel("0.00");
-
-		
 		p = new JPanel(new GridLayout(6,3));
 		fkPanel.getContentPane().add(p);
-		con1.gridy++;
-
-		p.add(arm5Apos = createButton("A5+"));
-		p.add(angle5);
-		p.add(arm5Aneg = createButton("A5-"));
-
-		con1.gridy++;
-		p.add(arm5Bpos = createButton("A4+"));
-		p.add(angle4);
-		p.add(arm5Bneg = createButton("A4-"));
-
-		p.add(arm5Cpos = createButton("A3+"));
-		p.add(angle3);
-		p.add(arm5Cneg = createButton("A3-"));
-
-		p.add(arm5Dpos = createButton("A2+"));
-		p.add(angle2);
-		p.add(arm5Dneg = createButton("A2-"));
-
-		p.add(arm5Epos = createButton("A1+"));
-		p.add(angle1);
-		p.add(arm5Eneg = createButton("A1-"));
-
-		p.add(arm5Fpos = createButton("A0+"));
-		p.add(angle0);
-		p.add(arm5Fneg = createButton("A0-"));
-
+		
+		p.add(fk5pos = createButton("A5+"));		p.add(angle5 = new JLabel("0.00"));		p.add(fk5neg = createButton("A5-"));
+		p.add(fk4pos = createButton("A4+"));		p.add(angle4 = new JLabel("0.00"));		p.add(fk4neg = createButton("A4-"));
+		p.add(fk3pos = createButton("A3+"));		p.add(angle3 = new JLabel("0.00"));		p.add(fk3neg = createButton("A3-"));
+		p.add(fk2pos = createButton("A2+"));		p.add(angle2 = new JLabel("0.00"));		p.add(fk2neg = createButton("A2-"));
+		p.add(fk1pos = createButton("A1+"));		p.add(angle1 = new JLabel("0.00"));		p.add(fk1neg = createButton("A1-"));
+		p.add(fk0pos = createButton("A0+"));		p.add(angle0 = new JLabel("0.00"));		p.add(fk0neg = createButton("A0-"));
+		
+		// used for ik 
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
 		this.add(ikPanel, con1);
 		con1.gridy++;
-
-		// used for ik 
-		xPos = new JLabel("0.00");
-		yPos = new JLabel("0.00");
-		zPos = new JLabel("0.00");
-		uPos = new JLabel("0.00");
-		vPos = new JLabel("0.00");
-		wPos = new JLabel("0.00");
-		
 		p = new JPanel(new GridLayout(6,3));
 		ikPanel.getContentPane().add(p);
 		
-		p.add(arm5Xpos = createButton("X+"));
-		p.add(xPos);
-		p.add(arm5Xneg = createButton("X-"));
+		p.add(ikXpos = createButton("X+"));		p.add(xPos = new JLabel("0.00"));		p.add(ikXneg = createButton("X-"));
+		p.add(ikYpos = createButton("Y+"));		p.add(yPos = new JLabel("0.00"));		p.add(ikYneg = createButton("Y-"));
+		p.add(ikZpos = createButton("Z+"));		p.add(zPos = new JLabel("0.00"));		p.add(ikZneg = createButton("Z-"));
+		p.add(ikUpos = createButton("U+"));		p.add(uPos = new JLabel("0.00"));		p.add(ikUneg = createButton("U-"));
+		p.add(ikVpos = createButton("V+"));		p.add(vPos = new JLabel("0.00"));		p.add(ikVneg = createButton("V-"));
+		p.add(ikWpos = createButton("W+"));		p.add(wPos = new JLabel("0.00"));		p.add(ikWneg = createButton("W-"));
 
-		p.add(arm5Ypos = createButton("Y+"));
-		p.add(yPos);
-		p.add(arm5Yneg = createButton("Y-"));
-
-		p.add(arm5Zpos = createButton("Z+"));
-		p.add(zPos);
-		p.add(arm5Zneg = createButton("Z-"));
-
-		p.add(arm5Upos = createButton("U+"));
-		p.add(uPos);
-		p.add(arm5Uneg = createButton("U-"));
-
-		p.add(arm5Vpos = createButton("V+"));
-		p.add(vPos);
-		p.add(arm5Vneg = createButton("V-"));
-
-		p.add(arm5Wpos = createButton("W+"));
-		p.add(wPos);
-		p.add(arm5Wneg = createButton("W-"));
-		
-		
-		about = createButton("About this robot");
-		this.add(about, con1);
+		CollapsiblePanel miscPanel = new CollapsiblePanel("Misc");
+		this.add(miscPanel, con1);
 		con1.gridy++;
+		p = new JPanel(new GridLayout(3,1));
+		miscPanel.getContentPane().add(p);
+		
+		p.add(showDebug = createButton("Toggle debug view"));
+		p.add(findHome = createButton("Find Home"));
+		p.add(about = createButton("About this robot"));
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -235,33 +189,35 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		
-		if( subject == arm5Apos ) robot.moveA(1);
-		if( subject == arm5Aneg ) robot.moveA(-1);
-		if( subject == arm5Bpos ) robot.moveB(1);
-		if( subject == arm5Bneg ) robot.moveB(-1);
-		if( subject == arm5Cpos ) robot.moveC(1);
-		if( subject == arm5Cneg ) robot.moveC(-1);
-		if( subject == arm5Dpos ) robot.moveD(1);
-		if( subject == arm5Dneg ) robot.moveD(-1);
-		if( subject == arm5Epos ) robot.moveE(1);
-		if( subject == arm5Eneg ) robot.moveE(-1);
-		if( subject == arm5Fpos ) robot.moveF(1);
-		if( subject == arm5Fneg ) robot.moveF(-1);
+		if( subject == fk5pos ) robot.moveA(1);
+		if( subject == fk5neg ) robot.moveA(-1);
+		if( subject == fk4pos ) robot.moveB(1);
+		if( subject == fk4neg ) robot.moveB(-1);
+		if( subject == fk3pos ) robot.moveC(1);
+		if( subject == fk3neg ) robot.moveC(-1);
+		if( subject == fk2pos ) robot.moveD(1);
+		if( subject == fk2neg ) robot.moveD(-1);
+		if( subject == fk1pos ) robot.moveE(1);
+		if( subject == fk1neg ) robot.moveE(-1);
+		if( subject == fk0pos ) robot.moveF(1);
+		if( subject == fk0neg ) robot.moveF(-1);
 		
-		if( subject == arm5Xpos ) robot.moveX(1);
-		if( subject == arm5Xneg ) robot.moveX(-1);
-		if( subject == arm5Ypos ) robot.moveY(1);
-		if( subject == arm5Yneg ) robot.moveY(-1);
-		if( subject == arm5Zpos ) robot.moveZ(1);
-		if( subject == arm5Zneg ) robot.moveZ(-1);
+		if( subject == ikXpos ) robot.moveX(1);
+		if( subject == ikXneg ) robot.moveX(-1);
+		if( subject == ikYpos ) robot.moveY(1);
+		if( subject == ikYneg ) robot.moveY(-1);
+		if( subject == ikZpos ) robot.moveZ(1);
+		if( subject == ikZneg ) robot.moveZ(-1);
 		
-		if( subject == arm5Upos ) robot.moveU(1);
-		if( subject == arm5Uneg ) robot.moveU(-1);
-		if( subject == arm5Vpos ) robot.moveV(1);
-		if( subject == arm5Vneg ) robot.moveV(-1);
-		if( subject == arm5Wpos ) robot.moveW(1);
-		if( subject == arm5Wneg ) robot.moveW(-1);
+		if( subject == ikUpos ) robot.moveU(1);
+		if( subject == ikUneg ) robot.moveU(-1);
+		if( subject == ikVpos ) robot.moveV(1);
+		if( subject == ikVneg ) robot.moveV(-1);
+		if( subject == ikWpos ) robot.moveW(1);
+		if( subject == ikWneg ) robot.moveW(-1);
 		
+		if( subject == findHome ) robot.findHome();
+		if( subject == showDebug ) robot.toggleDebug();
 		if( subject == about ) doAbout();
 	}
 	
