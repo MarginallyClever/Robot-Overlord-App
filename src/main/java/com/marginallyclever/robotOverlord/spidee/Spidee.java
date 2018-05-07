@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.spidee;
 
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,8 +26,7 @@ import com.marginallyclever.robotOverlord.robot.Robot;
 import java.io.BufferedReader;
 
 public class Spidee 
-extends Robot 
-implements ActionListener {
+extends Robot {
 	/**
 	 * 
 	 */
