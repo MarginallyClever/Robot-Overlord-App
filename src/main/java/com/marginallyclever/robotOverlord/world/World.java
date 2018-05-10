@@ -20,6 +20,7 @@ import com.marginallyclever.robotOverlord.IntersectionTester;
 import com.marginallyclever.robotOverlord.LightObject;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.arm5.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.camera.Camera;
 
@@ -416,5 +417,9 @@ implements Serializable {
 	
 	public Camera getCamera() {
 		return camera;
+	}
+	
+	public WorldControlPanel getControlPanel(RobotOverlord gui) {
+		return new WorldControlPanel(gui,this);
 	}
 }

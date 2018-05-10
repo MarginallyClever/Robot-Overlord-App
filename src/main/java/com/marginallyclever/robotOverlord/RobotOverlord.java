@@ -50,7 +50,6 @@ import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.commands.UserCommandAbout;
-import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.commands.UserCommandCheckForUpdate;
 import com.marginallyclever.robotOverlord.commands.UserCommandLoad;
 import com.marginallyclever.robotOverlord.commands.UserCommandNew;
@@ -71,22 +70,20 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 {
 	static final public String APP_TITLE = "Robot Overlord";
 	static final public String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-	
-	
+	// used for checking the application version with the github release, for "there is a new version available!" notification
+	final static public String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 	// select picking
-	static final int SELECT_BUFFER_SIZE=256;
+	static final public int SELECT_BUFFER_SIZE=256;
+	static final public int DEFAULT_FRAMES_PER_SECOND = 30;
+	
+	protected transient NetworkConnectionManager connectionManager;
+	protected World world;
+
+	// select picking
 	protected transient IntBuffer selectBuffer = null;
 	protected transient boolean pickNow;
 	protected transient double pickX, pickY;
 	protected transient Entity pickedEntity; 
-	
-	protected transient NetworkConnectionManager connectionManager;
-	
-	// used for checking the application version with the github release, for "there is a new version available!" notification
-	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
-
-    // the world within the simulator and all that it contains.
-	protected World world = null;
 
 	// menus
     // main menu bar
@@ -99,8 +96,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     // timing for animations
     protected long startTime;
     protected long lastTime;
-    private float frameDelay=0;
-    private float frameLength=1.0f/30.0f;
+    private float frameDelay;
+    private float frameLength;
     
 	// settings
     protected Preferences prefs;
@@ -118,11 +115,13 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	// undo/redo system
 	private UndoManager commandSequence;
 	private UndoHelper undoHelper;
-	
+
+	// mouse steering controls
 	private boolean isMouseIn;
 	private boolean hasLeftDragDeadZone;
 	private int cursorStartX,cursorStartY;
 	
+	// opengl rendering context
 	private GLU glu;
 	
 	
@@ -161,7 +160,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
 
-      	animator = new FPSAnimator(30);
+        frameDelay=0;
+        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
+      	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
+      	
         mainFrame.addWindowListener(this);
 
         GLCapabilities caps = new GLCapabilities(null);
@@ -181,10 +183,13 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         splitLeftRight.add(contextMenu);
 
         world = new World();
-        pickNow=false;
-        pickCamera();
 
         buildMenu();
+        
+        pickNow = false;
+        selectBuffer = null;
+        pickedEntity = null;
+        pickNothing();
         
 		glCanvas.addKeyListener(this);
 //		frame.setFocusable(true);
@@ -391,11 +396,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         menu.add(buttonUndo = new UserCommandUndo(this));
         menu.add(buttonRedo = new UserCommandRedo(this));
         mainMenu.add(menu);
-
-        menu = new JMenu("World");
-    	menu.add(new UserCommandAddEntity(this));
-    	//menu.add(new ActionRemoveEntity(this));
-    	mainMenu.add(menu);
     	
     	// done
         mainMenu.updateUI();
@@ -666,7 +666,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	if(newlyPickedEntity==null) {
 			//System.out.println(" NO PICK");
     		unPick();
-        	pickCamera();
+    		pickNothing();
         } else if(newlyPickedEntity!=pickedEntity) {
 			//System.out.print(" PICKED");
 			unPick();
@@ -684,6 +684,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			pickedEntity.unPick();
 			pickedEntity=null;
 		}
+    }
+    
+    public void pickNothing() {
+    	pickedEntity=null;
+    	setContextPanel(world.getControlPanel(this),Translator.get("Everything"));
     }
     
 	public void pickCamera() {
@@ -844,7 +849,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
 			System.out.print(" REVERT TO CAMERA");
 			unPick();
-			pickCamera();
+			pickNothing();
 		}
 	}
 
