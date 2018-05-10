@@ -1456,12 +1456,12 @@ extends Robot {
 			gl2.glVertex3d(fingerPosition.x, fingerPosition.y, fingerPosition.z);
 			gl2.glEnd();
 
-			//drawMatrix(gl2,fingerPosition,globalForward,globalRight,globalUp,5);
-			//drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
-			//drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
-			//drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);
-			//drawMatrix(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ);
-			//drawMatrix(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
+			drawMatrix(gl2,fingerPosition,globalForward,globalRight,globalUp,5);
+			drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
+			drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
+			drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);
+			drawMatrix(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ);
+			drawMatrix(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
 		}
 		if(renderMode==false) {
 			keyframe.shoulder.set(shoulderPosition);
