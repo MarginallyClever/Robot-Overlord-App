@@ -17,12 +17,12 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
-import com.marginallyclever.robotOverlord.LightObject;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.arm5.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.camera.Camera;
+import com.marginallyclever.robotOverlord.light.Light;
 
 /**
  * Container for all the visible objects in the world.
@@ -44,7 +44,7 @@ implements Serializable {
 	// world contents
 	protected ArrayList<Entity> entities;
 	protected Camera camera;
-	protected LightObject light0, light1, light2;
+	protected Light light0, light1, light2;
 	protected transient Texture t0,t1,t2,t3,t4,t5;
 
 	protected transient Vector3f pickForward = null;
@@ -63,9 +63,9 @@ implements Serializable {
 		
 		entities = new ArrayList<Entity>();
 		addEntity(camera = new Camera());
-		addEntity(light0 = new LightObject());
-		addEntity(light1 = new LightObject());
-		addEntity(light2 = new LightObject());
+		addEntity(light0 = new Light());
+		addEntity(light1 = new Light());
+		addEntity(light2 = new Light());
 	}
 	
 
@@ -123,9 +123,9 @@ implements Serializable {
 	public void render(GL2 gl2, float delta ) {
 		if(!isSetup) {
 			setup(gl2);
+			setupLights();
 			isSetup=true;
 		}
-		setupLights();
 		
 		Iterator<Entity> io = entities.iterator();
 		while(io.hasNext()) {
@@ -187,7 +187,7 @@ implements Serializable {
 			io = entities.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
-				if(obj instanceof LightObject) {
+				if(obj instanceof Light) {
 					obj.render(gl2);
 				}
 			}
@@ -196,7 +196,7 @@ implements Serializable {
 			io = entities.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
-				if(obj instanceof LightObject) continue;
+				if(obj instanceof Light) continue;
 				if(obj instanceof Camera) continue;
 				
 				gl2.glPushName(obj.getPickName());
