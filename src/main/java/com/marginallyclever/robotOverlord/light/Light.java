@@ -1,10 +1,15 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.light;
 
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
-public class LightObject extends Entity {
+public class Light extends Entity {
 	/**
 	 * 
 	 */
@@ -16,12 +21,25 @@ public class LightObject extends Entity {
 	private float[] ambient={0.0f,0.0f,0.0f,1f};
 	private float[] diffuse={1f,1f,1f,1f};
 	private float[] specular={0.5f,0.5f,0.5f,1f};
-    
-	public LightObject() {
+	private LightControlPanel lightPanel;
+	
+	public Light() {
 		super();
 		
 		setDisplayName("Light");
 	}
+
+	
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		lightPanel = new LightControlPanel(gui,this);
+		list.add(lightPanel);
+		
+		return list;
+	}
+	
 	
 	public void render(GL2 gl2) {
 		int i = GL2.GL_LIGHT0+index;
@@ -69,6 +87,7 @@ public class LightObject extends Entity {
 		diffuse[1]=g;
 		diffuse[2]=b;
 		diffuse[3]=a;
+		if(lightPanel!=null) lightPanel.updateFields();
 	}
 
 	public void setAmbient(float r,float g,float b,float a) {
@@ -76,6 +95,7 @@ public class LightObject extends Entity {
 		ambient[1]=g;
 		ambient[2]=b;
 		ambient[3]=a;
+		if(lightPanel!=null) lightPanel.updateFields();
 	}
 
 	public void setSpecular(float r,float g,float b,float a) {
@@ -83,5 +103,18 @@ public class LightObject extends Entity {
 		specular[1]=g;
 		specular[2]=b;
 		specular[3]=a;
+		if(lightPanel!=null) lightPanel.updateFields();
+	}
+    
+	public float[] getDiffuseColor() {
+		return diffuse.clone();
+	}
+
+	public float[] getAmbientColor() {
+		return ambient.clone();
+	}
+	
+	public float[] getSpecular() {
+		return specular.clone();
 	}
 }
