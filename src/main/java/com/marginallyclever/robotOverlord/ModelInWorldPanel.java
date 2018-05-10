@@ -26,7 +26,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	private UserCommandSelectNumber setScale;
 	private UserCommandSelectVector3f setOrigin;
 	
-	public ModelInWorldPanel(RobotOverlord ro,ModelInWorld model) {
+	public ModelInWorldPanel(RobotOverlord gui,ModelInWorld model) {
 		super();
 		
 		this.model = model;
@@ -51,7 +51,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 
-		userCommandSelectFile = new UserCommandSelectFile(ro,"Filename",model.getFilename());
+		userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getFilename());
 		// Find all the serviceLoaders for loading files.
 		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
 		Iterator<ModelLoadAndSave> i = loaders.iterator();
@@ -65,12 +65,12 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		con1.gridy++;
 		
 		
-		setScale = new UserCommandSelectNumber(ro,"Scale",model.getScale());
+		setScale = new UserCommandSelectNumber(gui,"Scale",model.getScale());
 		setScale.addChangeListener(this);
 		contents.add(setScale,con1);
 		con1.gridy++;
 
-		setOrigin = new UserCommandSelectVector3f(ro,"Adjust origin",model.getAdjustOrigin());
+		setOrigin = new UserCommandSelectVector3f(gui,"Adjust origin",model.getAdjustOrigin());
 		setOrigin.addChangeListener(this);
 		contents.add(setOrigin,con1);
 		con1.gridy++;
