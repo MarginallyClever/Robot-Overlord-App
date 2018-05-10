@@ -7,8 +7,8 @@ import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
@@ -22,7 +22,7 @@ import com.marginallyclever.robotOverlord.actions.UndoableActionAddEntity;
  * @author Dan Royer
  *
  */
-public class UserCommandAddEntity extends JMenuItem implements ActionListener {
+public class UserCommandAddEntity extends JButton implements ActionListener {
 	/**
 	 * 
 	 */
