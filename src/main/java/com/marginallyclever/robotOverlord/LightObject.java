@@ -17,6 +17,11 @@ public class LightObject extends Entity {
 	private float[] diffuse={1f,1f,1f,1f};
 	private float[] specular={0.5f,0.5f,0.5f,1f};
     
+	public LightObject() {
+		super();
+		
+		setDisplayName("Light");
+	}
 	
 	public void render(GL2 gl2) {
 		int i = GL2.GL_LIGHT0+index;
