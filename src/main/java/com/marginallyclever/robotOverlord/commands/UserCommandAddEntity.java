@@ -13,9 +13,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionAddEntity;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 /**
  * Display an Add Entity dialog box.  If an entity is selected and "ok" is pressed, add that Entity to the world. 
@@ -60,11 +60,15 @@ public class UserCommandAddEntity extends JButton implements ActionListener {
 		
 		// service load the types available.
 		ServiceLoader<Entity> loaders = ServiceLoader.load(Entity.class);
+		int loadedEntityTypes=0;
 		Iterator<Entity> i = loaders.iterator();
 		while(i.hasNext()) {
 			Entity lft = i.next();
 			additionComboBox.addItem(lft.getDisplayName());
+			++loadedEntityTypes;
 		}
+		
+		assert(loadedEntityTypes!=0);
 
         
 		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, "Add...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

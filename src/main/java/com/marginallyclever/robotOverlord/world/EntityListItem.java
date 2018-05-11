@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.world;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Translator;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 public class EntityListItem {
 	public Entity entity;

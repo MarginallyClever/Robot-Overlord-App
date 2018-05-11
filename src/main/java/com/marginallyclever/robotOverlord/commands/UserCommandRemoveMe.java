@@ -6,9 +6,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionRemoveEntity;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 /**
  * Click this button to delete the active entity

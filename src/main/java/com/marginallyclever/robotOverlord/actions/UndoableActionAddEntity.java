@@ -4,9 +4,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 /**
  * An undoable action to add an {@link Entity} to the world.

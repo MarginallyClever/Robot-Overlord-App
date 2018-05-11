@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.robot.Robot;
 
-public class RobotPanel extends JPanel implements ActionListener, ChangeListener {
+public class RobotControlPanel extends JPanel implements ActionListener, ChangeListener {
 
 	/**
 	 * 
@@ -22,16 +22,12 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 	private static final long serialVersionUID = 4719253861336378906L;
 	// connect/rescan/disconnect dialog options
 	protected transient JButton buttonConnect;
-	protected transient CollapsiblePanel connectionPanel=null;
 	
 	private Robot robot=null;
 
-	public RobotPanel(RobotOverlord gui,Robot robot) {
+	public RobotControlPanel(RobotOverlord gui,Robot robot) {
 		this.robot = robot; 
 
-		connectionPanel = new CollapsiblePanel("Robot with connection");
-		JPanel contents =connectionPanel.getContentPane();
-		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
@@ -39,10 +35,10 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
-		
+
         buttonConnect = createButton(Translator.get("ButtonConnect"));
 
-		contents.add(buttonConnect,con1);
+		this.add(buttonConnect,con1);
 		con1.gridy++;
 	}
 	

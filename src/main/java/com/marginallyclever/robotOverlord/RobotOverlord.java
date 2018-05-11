@@ -57,6 +57,7 @@ import com.marginallyclever.robotOverlord.commands.UserCommandQuit;
 import com.marginallyclever.robotOverlord.commands.UserCommandRedo;
 import com.marginallyclever.robotOverlord.commands.UserCommandSaveAs;
 import com.marginallyclever.robotOverlord.commands.UserCommandUndo;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.world.World;
 import com.marginallyclever.util.PropertiesFileHelper;
 

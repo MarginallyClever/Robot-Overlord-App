@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.entity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,6 +8,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3f;
 
+import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandRemoveMe;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectString;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
@@ -17,7 +19,7 @@ import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
  * @author Dan Royer
  *
  */
-public class EntityPanel extends JPanel implements ChangeListener {
+public class EntityControlPanel extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 	private Entity entity;
 	private transient UserCommandSelectVector3f setPosition;
@@ -27,7 +29,7 @@ public class EntityPanel extends JPanel implements ChangeListener {
 	 * @param ro the application instance
 	 * @param entity The entity controlled by this panel
 	 */
-	public EntityPanel(RobotOverlord ro,Entity entity) {
+	public EntityControlPanel(RobotOverlord ro,Entity entity) {
 		super();
 		
 		this.entity = entity;

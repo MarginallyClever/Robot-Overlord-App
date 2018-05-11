@@ -39,7 +39,7 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 
 	private boolean modelsLoaded;
 	
-	protected transient RobotPanel robotPanel=null;
+	protected transient RobotControlPanel robotPanel=null;
 	
 	
 	public Robot() {
@@ -63,7 +63,7 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
-		if(robotPanel == null) robotPanel = new RobotPanel(gui,this);
+		if(robotPanel == null) robotPanel = new RobotControlPanel(gui,this);
 		list.add(robotPanel);
 		
 		return list;
