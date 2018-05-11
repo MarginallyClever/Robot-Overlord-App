@@ -1379,7 +1379,7 @@ extends Robot {
 			double dotY = globalForward.dot(projectedForward);
 			double ikWrad = Math.atan2(dotX, dotY);
 			double ikW = Math.toDegrees(MathHelper.capRotationRadians(ikWrad));
-			if(renderMode && showDebug) System.out.print("W"+ikW+"\t");
+			//if(renderMode && showDebug) System.out.print("W"+ikW+"\t");
 			keyframe.ikW = (float)ikW;
 
 			// Turn the vectors to remove the effect of W rotation.
@@ -1403,7 +1403,7 @@ extends Robot {
 			double dotY = globalForward.dot(projectedForward);
 			double ikVrad = Math.atan2(-dotX, dotY);
 			double ikV = Math.toDegrees(MathHelper.capRotationRadians(ikVrad));
-			if(renderMode && showDebug) System.out.print("V"+ikV+"\t");
+			//if(renderMode && showDebug) System.out.print("V"+ikV+"\t");
 			keyframe.ikV = (float)ikV;
 			
 			// Turn the vectors to remove the effect of V rotation.
@@ -1420,7 +1420,7 @@ extends Robot {
 		double dotY = globalUp.dot(projectedForward);
 		double ikUrad = Math.atan2(dotX, -dotY);
 		double ikU = Math.toDegrees(MathHelper.capRotationRadians(ikUrad));
-		if(renderMode && showDebug) System.out.print("U"+ikU+"\n");
+		//if(renderMode && showDebug) System.out.print("U"+ikU+"\n");
 		keyframe.ikU = (float)ikU;
 		
 		//newForward = MathHelper.rotateAroundAxis(newForward, globalForward, (float)-ikUrad);
