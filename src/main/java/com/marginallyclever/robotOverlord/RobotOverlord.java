@@ -637,8 +637,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
 		//System.out.println("\n"+hits+" PICKS");
-        float z1;
-        //float z2;
+        float z1, z2;
         float zMinBest = Float.MAX_VALUE;
     	int i, j, index=0, nameCount, pickName;
     	Entity newlyPickedEntity = null;
@@ -646,7 +645,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	for(i=0;i<hits;++i) {
     		nameCount=selectBuffer.get(index++);
     		z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    		//z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
     		//System.out.print("  names="+nameCount+" zMin="+z1+" zMax="+z2);
     		//String add=": ";
 			for(j=0;j<nameCount-1;++j) {
