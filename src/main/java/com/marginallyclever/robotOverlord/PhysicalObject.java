@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 public abstract class PhysicalObject extends Entity {
 

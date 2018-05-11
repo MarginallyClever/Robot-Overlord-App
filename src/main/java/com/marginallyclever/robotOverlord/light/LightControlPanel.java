@@ -7,10 +7,10 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectColorRGBA;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 /**
  * Context sensitive GUI for the camera 

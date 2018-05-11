@@ -1,10 +1,12 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.Material;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -31,7 +33,7 @@ public class Entity implements Serializable {
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static private int pickNameCounter=1;
 	
-	private transient EntityPanel entityPanel;
+	private transient EntityControlPanel entityPanel;
 	protected Material material;
 	
 	
@@ -43,7 +45,7 @@ public class Entity implements Serializable {
 	
 	
 	/**
-	 * Get the {@link EntityPanel} for this class' superclass, then the EntityPanel for this class, and so on.
+	 * Get the {@link EntityControlPanel} for this class' superclass, then the EntityPanel for this class, and so on.
 	 * 
 	 * @param gui the main application instance.
 	 * @return the list of EntityPanels 
@@ -51,7 +53,7 @@ public class Entity implements Serializable {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		entityPanel = new EntityPanel(gui,this);
+		entityPanel = new EntityControlPanel(gui,this);
 		list.add(entityPanel);
 
 		return list;
@@ -59,7 +61,7 @@ public class Entity implements Serializable {
 	
 	
 	/**
-	 * Get all the {@link EntityPanel}s for this {@link Entity}.  
+	 * Get all the {@link EntityControlPanel}s for this {@link Entity}.  
 	 * <p>
 	 * If this class is derived from Entity, get the panels for the derived Entities, too.  Normally this is called by {@link RobotOverlord}.
 	 * 

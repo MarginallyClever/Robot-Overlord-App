@@ -13,6 +13,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
 
 public class ModelInWorldPanel extends JPanel implements ChangeListener {

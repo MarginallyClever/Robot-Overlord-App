@@ -6,8 +6,8 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 public class Light extends Entity {
 	/**

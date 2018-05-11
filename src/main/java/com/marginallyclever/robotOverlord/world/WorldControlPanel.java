@@ -18,9 +18,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
 public class WorldControlPanel extends JPanel implements ChangeListener, ActionListener {
 	/**

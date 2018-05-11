@@ -193,11 +193,10 @@ extends Robot {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		armPanel = new SixiRobotControlPanel(gui,this);
+		if(armPanel == null) armPanel = new SixiRobotControlPanel(gui,this);
 		list.add(armPanel);
-		updateGUI();
+		
+		//updateGUI();
 
 		ArrayList<JPanel> toolList = tool.getContextPanel(gui);
 		Iterator<JPanel> iter = toolList.iterator();
