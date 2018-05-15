@@ -66,14 +66,14 @@ extends Robot {
 	public final static float EPSILON = 0.00001f;
 	
 	// model files
-	private transient Model floorModel    = null;	private Material floorMat		= new Material();
-	private transient Model anchorModel   = null;	private Material anchorMat		= new Material();
-	private transient Model shoulderModel = null;	private Material shoulderMat	= new Material();
-	private transient Model bicepModel    = null;	private Material bicepMat		= new Material();
-	private transient Model elbowModel    = null;	private Material elbowMat		= new Material();
-	private transient Model forearmModel  = null;	private Material forearmMat		= new Material();
-	private transient Model wristModel    = null;	private Material wristMat		= new Material();
-	private transient Model handModel     = null;	private Material handMat		= new Material();
+	private transient Model floorModel    = null;	private transient Material floorMat		= new Material();
+	private transient Model anchorModel   = null;	private transient Material anchorMat	= new Material();
+	private transient Model shoulderModel = null;	private transient Material shoulderMat	= new Material();
+	private transient Model bicepModel    = null;	private transient Material bicepMat		= new Material();
+	private transient Model elbowModel    = null;	private transient Material elbowMat		= new Material();
+	private transient Model forearmModel  = null;	private transient Material forearmMat	= new Material();
+	private transient Model wristModel    = null;	private transient Material wristMat		= new Material();
+	private transient Model handModel     = null;	private transient Material handMat		= new Material();
 
 	// machine ID
 	private long robotUID;
