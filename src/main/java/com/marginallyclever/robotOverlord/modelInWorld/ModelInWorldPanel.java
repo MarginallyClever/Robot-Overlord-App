@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.modelInWorld;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,6 +10,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.marginallyclever.robotOverlord.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;

@@ -1,10 +1,11 @@
 package com.marginallyclever.robotOverlord.sixiRobot.tool;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.sixiRobot.SixiRobot;
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 public abstract class SixiTool extends PhysicalObject {
 	/**
@@ -14,8 +15,13 @@ public abstract class SixiTool extends PhysicalObject {
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
 	protected SixiRobot attachedTo=null;
-
+	protected Material material = null;
 		
+	public SixiTool() {
+		super();
+		material = new Material();
+	}
+	
 	public void attachTo(SixiRobot robot) {
 		attachedTo=robot;
 	}

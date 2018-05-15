@@ -305,6 +305,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			fout = new FileOutputStream(filename);
 			objectOut = new ObjectOutputStream(fout);
 			objectOut.writeObject(world);
+		} catch(java.io.NotSerializableException e) {
+			System.out.println("World can't be serialized.");
+			e.printStackTrace();
 		} catch(IOException e) {
 			System.out.println("World save failed.");
 			e.printStackTrace();

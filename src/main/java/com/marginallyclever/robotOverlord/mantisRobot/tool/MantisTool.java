@@ -1,10 +1,11 @@
 package com.marginallyclever.robotOverlord.mantisRobot.tool;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.PhysicalObject;
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.mantisRobot.MantisRobot;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 public abstract class MantisTool extends PhysicalObject {
 	/**
@@ -14,8 +15,14 @@ public abstract class MantisTool extends PhysicalObject {
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
 	protected MantisRobot attachedTo=null;
+	protected Material material = null;
 
-		
+
+	public MantisTool() {
+		super();
+		material = new Material();
+	}
+	
 	public void attachTo(MantisRobot robot) {
 		attachedTo=robot;
 	}

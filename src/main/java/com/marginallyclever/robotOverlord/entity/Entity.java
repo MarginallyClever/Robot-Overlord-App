@@ -5,16 +5,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
 
 
 /**
- * An object in the world that can have a user interface
+ * An object in the world that can have a user interface.  Does not require physical presence.
  * @author danroyer
  *
  */
@@ -24,9 +22,6 @@ public class Entity implements Serializable {
 	 */
 	private static final long serialVersionUID = 2461060493057258044L;
 	
-	private Vector3f position;
-	private Vector3f xAxis,yAxis,zAxis;
-	
 	private String displayName;
 	private int pickName;
 	
@@ -34,13 +29,10 @@ public class Entity implements Serializable {
 	static private int pickNameCounter=1;
 	
 	private transient EntityControlPanel entityPanel;
-	protected Material material;
 	
 	
 	public Entity() {
 		pickName = pickNameCounter++;
-		position = new Vector3f();
-		material = new Material();
 	}
 	
 	
@@ -103,14 +95,4 @@ public class Entity implements Serializable {
 	public void unPick() {}
 	
 	public void render(GL2 gl2) {}
-	
-
-	public Vector3f getPosition() {		return position;	}
-	public Vector3f getXAxis() {		return xAxis;	}
-	public Vector3f getYAxis() {		return yAxis;	}
-	public Vector3f getZAxis() {		return zAxis;	}
-	public void setPosition(Vector3f pos) {		position.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
-	public void setXAxis(Vector3f pos) {		xAxis.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
-	public void setYAxis(Vector3f pos) {		yAxis.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
-	public void setZAxis(Vector3f pos) {		zAxis.set(pos);  if(entityPanel!=null) entityPanel.updateFields();	}
 }

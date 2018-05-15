@@ -8,8 +8,8 @@ import com.marginallyclever.communications.NetworkConnectionManager;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
-import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 
 /**

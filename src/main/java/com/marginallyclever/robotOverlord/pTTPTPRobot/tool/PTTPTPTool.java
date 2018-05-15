@@ -1,10 +1,11 @@
 package com.marginallyclever.robotOverlord.pTTPTPRobot.tool;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.PhysicalObject;
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.pTTPTPRobot.PTTPTPRobot;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 public abstract class PTTPTPTool extends PhysicalObject {
 	/**
@@ -14,8 +15,14 @@ public abstract class PTTPTPTool extends PhysicalObject {
 	protected Model visibleShape = null;
 	protected String shapeFile = null;
 	protected PTTPTPRobot attachedTo=null;
+	private Material material = null;
 
-		
+
+	public PTTPTPTool() {
+		super();
+		material = new Material();
+	}
+	
 	public void attachTo(PTTPTPRobot robot) {
 		attachedTo=robot;
 	}

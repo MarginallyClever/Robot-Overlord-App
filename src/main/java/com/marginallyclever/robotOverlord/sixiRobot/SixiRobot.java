@@ -784,44 +784,48 @@ extends Robot {
 		if( isPortConfirmed ) {
 			if(line.startsWith("A")) {
 				String items[] = line.split(" ");
-				if(items.length>=5) {
-					for(int i=0;i<items.length;++i) {
-						if(items[i].startsWith("A")) {
-							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angle5 != v) {
-								motionFuture.angle5 = v;
-								armPanel.angle5.setText(Float.toString(roundOff(v)));
-							}
-						} else if(items[i].startsWith("B")) {
-							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angle4 != v) {
-								motionFuture.angle4 = v;
-								armPanel.angle4.setText(Float.toString(roundOff(v)));
-							}
-						} else if(items[i].startsWith("C")) {
-							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angle3 != v) {
-								motionFuture.angle3 = v;
-								armPanel.angle3.setText(Float.toString(roundOff(v)));
-							}
-						} else if(items[i].startsWith("D")) {
-							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angle2 != v) {
-								motionFuture.angle2 = v;
-								armPanel.angle2.setText(Float.toString(roundOff(v)));
-							}
-						} else if(items[i].startsWith("E")) {
-							float v = (float)parseNumber(items[i].substring(1));
-							if(motionFuture.angle1 != v) {
-								motionFuture.angle1 = v;
-								armPanel.angle1.setText(Float.toString(roundOff(v)));
+				try {
+					if(items.length>=5) {
+						for(int i=0;i<items.length;++i) {
+							if(items[i].startsWith("A")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle5 != v) {
+									motionFuture.angle5 = v;
+									armPanel.angle5.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("B")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle4 != v) {
+									motionFuture.angle4 = v;
+									armPanel.angle4.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("C")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle3 != v) {
+									motionFuture.angle3 = v;
+									armPanel.angle3.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("D")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle2 != v) {
+									motionFuture.angle2 = v;
+									armPanel.angle2.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("E")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle1 != v) {
+									motionFuture.angle1 = v;
+									armPanel.angle1.setText(Float.toString(roundOff(v)));
+								}
 							}
 						}
+						
+						forwardKinematics(motionFuture,false,null);
+						motionNow.set(motionFuture);
+						updateGUI();
 					}
-					
-					forwardKinematics(motionFuture,false,null);
-					motionNow.set(motionFuture);
-					updateGUI();
+				} catch(java.lang.NumberFormatException e) {
+					System.out.print("*** "+line);
 				}
 			} else {
 				System.out.print("*** "+line);
