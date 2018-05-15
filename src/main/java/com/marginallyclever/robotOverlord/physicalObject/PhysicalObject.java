@@ -18,7 +18,7 @@ public abstract class PhysicalObject extends Entity {
 
 	private Vector3f position;
 	private Vector3f xAxis,yAxis,zAxis;
-	private PhysicalObjectControlPanel physicalObjectControlPanel;
+	private transient PhysicalObjectControlPanel physicalObjectControlPanel;
 	
 	public PhysicalObject() {
 		super();

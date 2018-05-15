@@ -11,5 +11,5 @@ com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
 com.marginallyclever.robotOverlord.spidee.Spidee
 com.marginallyclever.robotOverlord.arm3.Arm3
 com.marginallyclever.robotOverlord.arm3.uArm.UArm
-com.marginallyclever.robotOverlord.ModelInWorld
+com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld
 com.marginallyclever.robotOverlord.Waypoint
