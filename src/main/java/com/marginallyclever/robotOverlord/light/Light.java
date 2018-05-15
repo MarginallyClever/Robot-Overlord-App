@@ -7,9 +7,9 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
-public class Light extends Entity {
+public class Light extends PhysicalObject {
 	/**
 	 * 
 	 */

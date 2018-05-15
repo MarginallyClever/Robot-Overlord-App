@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.arm3.uArm;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.arm3.Arm3;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -23,6 +24,7 @@ public class UArm extends Arm3 {
 	private transient Model wristTendon1 = null;
 	private transient Model wristTendon2 = null;
 	private transient Model forearmTendon = null;
+	private Material material = null;
 	
 	public UArm() {
 		super(new UArmDimensions());
@@ -30,7 +32,7 @@ public class UArm extends Arm3 {
 		//bicep.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
 		//elbowHorn.adjustOrigin(0.6718f*2.54f, 0, -3.5625f*2.54f);
 		//forearm.adjustOrigin(-4.0334f*2.54f,0,-8.3535f*2.54f);
-		
+		material = new Material();
 		material.setDiffuseColor(1, 0.8f, 1, 1);
 	}
 

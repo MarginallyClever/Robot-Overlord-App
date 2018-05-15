@@ -1,10 +1,10 @@
 package com.marginallyclever.robotOverlord.thor.tool;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.PhysicalObject;
 import com.marginallyclever.robotOverlord.thor.ThorRobot;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 public abstract class ThorTool extends PhysicalObject {
 	/**

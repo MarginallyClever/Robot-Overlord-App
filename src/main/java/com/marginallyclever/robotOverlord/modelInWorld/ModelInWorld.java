@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.modelInWorld;
 
 import java.util.ArrayList;
 
@@ -7,12 +7,14 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.Material;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 
-public class ModelInWorld extends Entity {
+public class ModelInWorld extends PhysicalObject {
 	/**
 	 * 
 	 */
@@ -21,6 +23,7 @@ public class ModelInWorld extends Entity {
 	protected String filename = null;
 	protected transient Model model;
 	protected transient ModelInWorldPanel modelPanel;
+	protected transient Material material;
 	
 	// model render scale
 	protected float scale=1;
@@ -31,6 +34,7 @@ public class ModelInWorld extends Entity {
 	public ModelInWorld() {
 		super();
 		originAdjust = new Vector3f();
+		material = new Material();
 	}
 
 	
@@ -45,7 +49,9 @@ public class ModelInWorld extends Entity {
 		
 		modelPanel = new ModelInWorldPanel(gui,this);
 		list.add(modelPanel);
-
+		
+		//list.add(material.getContextPanel());
+		
 		return list;
 	}
 

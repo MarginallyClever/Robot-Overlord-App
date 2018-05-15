@@ -4,10 +4,10 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
 
-public class Waypoint extends Entity {
+public class Waypoint extends PhysicalObject {
 	/**
 	 * 
 	 */
