@@ -113,9 +113,10 @@ extends Robot {
 	private float wDir = 0.0f;
 
 	// machine logic states
-	private boolean armMoved = false;
-	private boolean isPortConfirmed=false;
-	private double speed=2;
+	private boolean armMoved 		= false;
+	private boolean isPortConfirmed	= false;
+	private double stepSize			= 2;
+	private double feedRate			= 1000;
 
 	// visual debugging
 	private boolean showDebug=false;
@@ -250,12 +251,30 @@ extends Robot {
 		fDir=0;
 	}
 
-	public void setSpeed(double newSpeed) {
-		speed=newSpeed;
+	/**
+	 * 
+	 * @param arg0 any value >= 0
+	 */
+	public void setStepSize(double arg0) {
+		if(arg0<0) return;
+		stepSize=arg0;
 	}
 	
-	public double getSpeed() {
-		return speed;
+	public double getStepSize() {
+		return stepSize;
+	}
+
+	/**
+	 * 
+	 * @param arg0 any value >= 0
+	 */
+	public void setFeedRate(double arg0) {
+		if(arg0<0) return;
+		feedRate=arg0;
+	}
+	
+	public double getFeedRate() {
+		return feedRate;
 	}
 	
 	public void moveA(float dir) {
@@ -349,7 +368,7 @@ extends Robot {
 	protected void updateIK(float delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
-		final float vel=(float)speed;
+		final float vel=(float)stepSize;
 		float dp = vel;// * delta;
 
 		float dX=motionFuture.fingerPosition.x;
@@ -442,8 +461,8 @@ extends Robot {
 	
 	protected void updateFK(float delta) {
 		boolean changed=false;
-		float velcd=(float)speed; // * delta
-		float velabe=(float)speed; // * delta
+		float velcd=(float)stepSize; // * delta
+		float velabe=(float)stepSize; // * delta
 
 		motionFuture.set(motionNow);
 		
@@ -552,6 +571,7 @@ extends Robot {
 		if(motionFuture.angle4!=motionNow.angle4) str+=" V"+roundOff(motionFuture.angle4);
 		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+roundOff(motionFuture.angle5);
 		if(str.length()>0) {
+			str+=" F"+roundOff((float)feedRate);
 			this.sendLineToRobot("G0"+str);
 		}
 	}

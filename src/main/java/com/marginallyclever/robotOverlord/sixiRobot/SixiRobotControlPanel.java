@@ -16,6 +16,7 @@ import javax.swing.event.ChangeListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 
 public class SixiRobotControlPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
@@ -23,7 +24,7 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	 */
 	private static final long serialVersionUID = 257878994328366520L;
 
-	private final double [] speedOptions = {0.01, 0.05,
+	private final double [] stepSizeOptions = {0.01, 0.05,
 											0.1, 0.5, 
 			                                1, 5, 
 			                                10, 50};
@@ -57,10 +58,11 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	
 	public JLabel xPos,yPos,zPos,uPos,vPos,wPos;
 	public JLabel angle5,angle4,angle3,angle2,angle1,angle0;
-	private JLabel speedNow;
+	private JLabel stepSizeNow;
 	private JLabel uid;
-	private JSlider speedControl;
-
+	private JSlider stepSizeControl;
+	private UserCommandSelectNumber feedRateControl;
+	
 	private JButton showDebug;
 	private JButton findHome;
 	private JButton where;
@@ -92,9 +94,13 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTH;
 
-		CollapsiblePanel speedPanel = createSpeedPanel();
+		CollapsiblePanel speedPanel = createStepSizePanel();
 		this.add(speedPanel,con1);
 		con1.gridy++;
+
+		this.add(feedRateControl = new UserCommandSelectNumber(gui,"Feed rate",(float)robot.getFeedRate()),con1);
+		con1.gridy++;
+		feedRateControl.addChangeListener(this);
 
 		// used for fk 
 		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
@@ -136,19 +142,19 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		p.add(about = createButton("About this robot"));
 	}
 	
-	protected CollapsiblePanel createSpeedPanel() {
-		double speed=robot.getSpeed();
-		int speedIndex;
-		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
-			if( speedOptions[speedIndex] >= speed )
+	protected CollapsiblePanel createStepSizePanel() {
+		double stepSize = robot.getStepSize();
+		int stepSizeIndex;
+		for(stepSizeIndex=0;stepSizeIndex<stepSizeOptions.length;++stepSizeIndex) {
+			if( stepSizeOptions[stepSizeIndex] >= stepSize )
 				break;
 		}
-		speedNow = new JLabel(Double.toString(speedOptions[speedIndex]),JLabel.CENTER);
-		java.awt.Dimension dim = speedNow.getPreferredSize();
+		stepSizeNow = new JLabel(Double.toString(stepSizeOptions[stepSizeIndex]),JLabel.CENTER);
+		java.awt.Dimension dim = stepSizeNow.getPreferredSize();
 		dim.width = 50;
-		speedNow.setPreferredSize(dim);
+		stepSizeNow.setPreferredSize(dim);
 
-		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
+		CollapsiblePanel speedPanel = new CollapsiblePanel("Step size");
 		
 		GridBagConstraints con2 = new GridBagConstraints();
 		con2.gridx=0;
@@ -157,32 +163,35 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		con2.anchor=GridBagConstraints.NORTHWEST;
 		con2.weighty=1;
 		con2.weightx=0.25;
-		speedPanel.getContentPane().add(speedNow,con2);
+		speedPanel.getContentPane().add(stepSizeNow,con2);
 
-		speedControl = new JSlider(0,speedOptions.length-1,speedIndex);
-		speedControl.addChangeListener(this);
-		speedControl.setMajorTickSpacing(speedOptions.length-1);
-		speedControl.setMinorTickSpacing(1);
-		speedControl.setPaintTicks(true);
+		stepSizeControl = new JSlider(0,stepSizeOptions.length-1,stepSizeIndex);
+		stepSizeControl.addChangeListener(this);
+		stepSizeControl.setMajorTickSpacing(stepSizeOptions.length-1);
+		stepSizeControl.setMinorTickSpacing(1);
+		stepSizeControl.setPaintTicks(true);
 		con2.anchor=GridBagConstraints.NORTHEAST;
 		con2.fill=GridBagConstraints.HORIZONTAL;
 		con2.weightx=0.75;
 		con2.gridx=1;
-		speedPanel.getContentPane().add(speedControl,con2);
+		speedPanel.getContentPane().add(stepSizeControl,con2);
 		
 		return speedPanel;
 	}
 
 	protected void setSpeed(double speed) {
-		robot.setSpeed(speed);
-		speedNow.setText(Double.toString(robot.getSpeed()));
+		robot.setStepSize(speed);
+		stepSizeNow.setText(Double.toString(robot.getStepSize()));
 	}
 	
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
-		if( subject == speedControl ) {
-			int i=speedControl.getValue();
-			setSpeed(speedOptions[i]);
+		if( subject == stepSizeControl ) {
+			int i=stepSizeControl.getValue();
+			setSpeed(stepSizeOptions[i]);
+		}
+		if( subject == feedRateControl ) {
+			robot.setFeedRate(feedRateControl.getValue());
 		}
 	}
 	
