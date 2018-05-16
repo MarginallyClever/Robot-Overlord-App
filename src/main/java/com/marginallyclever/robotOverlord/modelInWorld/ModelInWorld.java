@@ -23,7 +23,7 @@ public class ModelInWorld extends PhysicalObject {
 	protected String filename = null;
 	protected transient Model model;
 	protected transient ModelInWorldPanel modelPanel;
-	protected transient Material material;
+	protected Material material;
 	
 	// model render scale
 	protected float scale=1;
