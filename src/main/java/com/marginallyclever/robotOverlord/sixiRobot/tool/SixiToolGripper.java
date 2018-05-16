@@ -246,7 +246,7 @@ public class SixiToolGripper extends SixiTool {
 		if(getAttachedTo()==null) return;
 		
 		boolean changed=false;
-		float vel=(float)getAttachedTo().getSpeed(); // * delta
+		float vel=(float)getAttachedTo().getStepSize(); // * delta
 		
 		float dS = angle;
 		
