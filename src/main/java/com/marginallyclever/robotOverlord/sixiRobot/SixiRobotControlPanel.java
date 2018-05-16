@@ -28,8 +28,6 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 			                                1, 5, 
 			                                10, 50};
 
-	private JButton showDebug;
-	private JButton findHome;
 	
 	private JButton fk5pos;
 	private JButton fk5neg;
@@ -62,7 +60,10 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	private JLabel speedNow;
 	private JLabel uid;
 	private JSlider speedControl;
-	
+
+	private JButton showDebug;
+	private JButton findHome;
+	private JButton where;
 	private JButton about;
 	
 	private SixiRobot robot=null;
@@ -126,11 +127,12 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		CollapsiblePanel miscPanel = new CollapsiblePanel("Misc");
 		this.add(miscPanel, con1);
 		con1.gridy++;
-		p = new JPanel(new GridLayout(3,1));
+		p = new JPanel(new GridLayout(4,1));
 		miscPanel.getContentPane().add(p);
 		
 		p.add(showDebug = createButton("Toggle debug view"));
 		p.add(findHome = createButton("Find Home"));
+		p.add(where = createButton("Where"));
 		p.add(about = createButton("About this robot"));
 	}
 	
@@ -218,7 +220,12 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		
 		if( subject == findHome ) robot.findHome();
 		if( subject == showDebug ) robot.toggleDebug();
+		if( subject == where ) doWhere();
 		if( subject == about ) doAbout();
+	}
+	
+	protected void doWhere() {
+		robot.sendLineToRobot("M114");
 	}
 	
 	protected void doAbout() {
