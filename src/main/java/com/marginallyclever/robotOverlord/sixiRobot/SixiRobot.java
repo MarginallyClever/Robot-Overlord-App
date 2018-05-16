@@ -66,14 +66,23 @@ extends Robot {
 	public final static float EPSILON = 0.00001f;
 	
 	// model files
-	private transient Model floorModel    = null;	private transient Material floorMat		= new Material();
-	private transient Model anchorModel   = null;	private transient Material anchorMat	= new Material();
-	private transient Model shoulderModel = null;	private transient Material shoulderMat	= new Material();
-	private transient Model bicepModel    = null;	private transient Material bicepMat		= new Material();
-	private transient Model elbowModel    = null;	private transient Material elbowMat		= new Material();
-	private transient Model forearmModel  = null;	private transient Material forearmMat	= new Material();
-	private transient Model wristModel    = null;	private transient Material wristMat		= new Material();
-	private transient Model handModel     = null;	private transient Material handMat		= new Material();
+	private Model floorModel    = null;
+	private Model anchorModel   = null;
+	private Model shoulderModel = null;
+	private Model bicepModel    = null;
+	private Model elbowModel    = null;
+	private Model forearmModel  = null;
+	private Model wristModel    = null;
+	private Model handModel     = null;
+
+	private Material floorMat		= null;
+	private Material anchorMat		= null;
+	private Material shoulderMat	= null;
+	private Material bicepMat		= null;
+	private Material elbowMat		= null;
+	private Material forearmMat		= null;
+	private Material wristMat		= null;
+	private Material handMat		= null;
 
 	// machine ID
 	private long robotUID;
@@ -136,6 +145,21 @@ extends Robot {
 		checkAngleLimits(motionFuture);
 		
 		setToHomePosition();
+		setupMaterials();
+		
+		tool = new SixiToolGripper();
+		tool.attachTo(this);
+	}
+	
+	protected void setupMaterials() {
+		floorMat	= new Material();
+		anchorMat	= new Material();
+		shoulderMat	= new Material();
+		bicepMat	= new Material();
+		elbowMat	= new Material();
+		forearmMat	= new Material();
+		wristMat	= new Material();
+		handMat		= new Material();
 
 		floorMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		anchorMat  .setDiffuseColor(1.0f,0.0f,0.0f,1);
@@ -154,22 +178,19 @@ extends Robot {
 		forearmMat .setShininess(2);
 		wristMat   .setShininess(2);
 		handMat    .setShininess(2);
-		
-		tool = new SixiToolGripper();
-		tool.attachTo(this);
 	}
 	
 	@Override
 	protected void loadModels(GL2 gl2) {
 		try {
-			floorModel = ModelFactory.createModelFromFilename("/Sixi/floor.stl",0.1f);
-			anchorModel = ModelFactory.createModelFromFilename("/Sixi/anchor.stl",0.1f);
+			floorModel    = ModelFactory.createModelFromFilename("/Sixi/floor.stl",0.1f);
+			anchorModel   = ModelFactory.createModelFromFilename("/Sixi/anchor.stl",0.1f);
 			shoulderModel = ModelFactory.createModelFromFilename("/Sixi/shoulder.stl",0.1f);
-			bicepModel = ModelFactory.createModelFromFilename("/Sixi/bicep.stl",0.1f);
-			elbowModel = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
-			forearmModel = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
-			wristModel = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
-			handModel = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
+			bicepModel    = ModelFactory.createModelFromFilename("/Sixi/bicep.stl",0.1f);
+			elbowModel    = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
+			forearmModel  = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
+			wristModel    = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
+			handModel     = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
 			
 			bicepModel  .adjustOrigin(new Vector3f(0, 0, -25));
 			elbowModel  .adjustOrigin(new Vector3f(0, 5, -50));

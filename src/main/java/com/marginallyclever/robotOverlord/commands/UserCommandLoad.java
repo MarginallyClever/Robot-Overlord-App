@@ -32,7 +32,7 @@ public class UserCommandLoad extends JMenuItem implements ActionListener {
 		JFileChooser fc = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("RO files", "RO");
 		fc.setFileFilter(filter);
-		int returnVal = fc.showSaveDialog(ro.getMainFrame());
+		int returnVal = fc.showOpenDialog(ro.getMainFrame());
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             ro.loadWorldFromFile(fc.getSelectedFile().getAbsolutePath());
 		}

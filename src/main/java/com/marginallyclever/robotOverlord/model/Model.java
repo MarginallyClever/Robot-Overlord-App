@@ -22,12 +22,12 @@ public class Model implements Serializable {
 	
 	public final static int NUM_BUFFERS=4;  // verts, normals, textureCoordinates
 	
-	protected transient String sourceName;
+	protected String sourceName;
 	protected transient boolean isLoaded;
-	public ArrayList<Float> vertexArray = new ArrayList<Float>();
-	public ArrayList<Float> normalArray = new ArrayList<Float>();
-	public ArrayList<Float> colorArray = new ArrayList<Float>();
-	public ArrayList<Float> texCoordArray = new ArrayList<Float>();
+	public transient ArrayList<Float> vertexArray;
+	public transient ArrayList<Float> normalArray;
+	public transient ArrayList<Float> colorArray;
+	public transient ArrayList<Float> texCoordArray;
 	public int renderStyle; 
 	
 	protected transient FloatBuffer vertices;
@@ -48,11 +48,16 @@ public class Model implements Serializable {
 
 	
 	public Model() {
-		adjustOrigin = new Vector3f();
+		sourceName=null;
 		isLoaded=false;
+		vertexArray = new ArrayList<Float>();
+		normalArray = new ArrayList<Float>();
+		colorArray = new ArrayList<Float>();
+		texCoordArray = new ArrayList<Float>();
+		
+		adjustOrigin = new Vector3f();
 		loadScale=1.0f;
 		VBO = null;
-		sourceName=null;
 		hasNormals=false;
 		hasColors=false;
 		hasTextureCoordinates=false;

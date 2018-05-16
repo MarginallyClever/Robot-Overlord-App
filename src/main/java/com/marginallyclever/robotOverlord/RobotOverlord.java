@@ -640,7 +640,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
 		//System.out.println("\n"+hits+" PICKS");
-        float z1, z2;
+        float z1;
+		@SuppressWarnings("unused")
+		float z2;
         float zMinBest = Float.MAX_VALUE;
     	int i, j, index=0, nameCount, pickName;
     	Entity newlyPickedEntity = null;

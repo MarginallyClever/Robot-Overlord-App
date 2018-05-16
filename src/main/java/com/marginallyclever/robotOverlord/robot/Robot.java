@@ -37,7 +37,7 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 
-	private boolean modelsLoaded;
+	private transient boolean modelsLoaded;
 	
 	protected transient RobotControlPanel robotPanel=null;
 	
