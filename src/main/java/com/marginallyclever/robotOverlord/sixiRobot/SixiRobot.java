@@ -545,14 +545,14 @@ extends Robot {
 		if(!isPortConfirmed) return;
 		
 		String str="";
-		if(motionFuture.angle5!=motionNow.angle5) str+=" A"+roundOff(motionFuture.angle5);
-		if(motionFuture.angle4!=motionNow.angle4) str+=" B"+roundOff(motionFuture.angle4);
-		if(motionFuture.angle3!=motionNow.angle3) str+=" C"+roundOff(motionFuture.angle3);
-		if(motionFuture.angle2!=motionNow.angle2) str+=" D"+roundOff(motionFuture.angle2);
-		if(motionFuture.angle1!=motionNow.angle1) str+=" E"+roundOff(motionFuture.angle1);
-		if(motionFuture.angle0!=motionNow.angle0) str+=" F"+roundOff(motionFuture.angle0);
+		if(motionFuture.angle0!=motionNow.angle0) str+=" X"+roundOff(motionFuture.angle0);
+		if(motionFuture.angle1!=motionNow.angle1) str+=" Y"+roundOff(motionFuture.angle1);
+		if(motionFuture.angle2!=motionNow.angle2) str+=" Z"+roundOff(motionFuture.angle2);
+		if(motionFuture.angle3!=motionNow.angle3) str+=" U"+roundOff(motionFuture.angle3);
+		if(motionFuture.angle4!=motionNow.angle4) str+=" V"+roundOff(motionFuture.angle4);
+		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+roundOff(motionFuture.angle5);
 		if(str.length()>0) {
-			this.sendLineToRobot("R0"+str);
+			this.sendLineToRobot("G0"+str);
 		}
 	}
 	
@@ -803,7 +803,7 @@ extends Robot {
 		}
 		
 		if( isPortConfirmed ) {
-			if(line.startsWith("A")) {
+			if(line.startsWith("A") && !line.startsWith("As")) {
 				String items[] = line.split(" ");
 				try {
 					if(items.length>=5) {
