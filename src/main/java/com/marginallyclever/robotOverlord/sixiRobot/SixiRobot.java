@@ -349,15 +349,16 @@ extends Robot {
 	}
 
 	protected void setToHomePosition() {
-		motionNow.angle0=0f;
+		motionNow.angle0=-45f;
 		motionNow.angle1=0f;
 		motionNow.angle2=188f;
 		motionNow.angle3=0f;
 		motionNow.angle4=-90f;
 		motionNow.angle5=0f;
 		forwardKinematics(motionNow,false,null);
-		forwardKinematics(motionFuture,false,null);
 		//inverseKinematics(motionNow);
+		motionFuture.set(motionNow);
+		//forwardKinematics(motionFuture,false,null);
 		//inverseKinematics(motionFuture);
 	}
 	
