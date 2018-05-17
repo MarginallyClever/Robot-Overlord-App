@@ -77,15 +77,20 @@ public final class SerialConnection implements SerialPortEventListener, NetworkC
 		closeConnection();
 
 		// open the port
-		serialPort = new SerialPort(portName);
-		serialPort.openPort();// Open serial port
-		serialPort.setParams(BAUD_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-		serialPort.addEventListener(this);
-
-		connectionName = portName;
-		portOpened = true;
-		waitingForCue = true;
-
+		try {
+			serialPort = new SerialPort(portName);
+			serialPort.openPort();// Open serial port
+			serialPort.setParams(BAUD_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+			serialPort.addEventListener(this);
+	
+			connectionName = portName;
+			portOpened = true;
+			waitingForCue = true;
+		}
+		catch(jssc.SerialPortException e) {
+			// TODO display this more gracefully?
+			Log.error(e.getLocalizedMessage());
+		}
 	}
 
 
