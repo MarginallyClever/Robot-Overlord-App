@@ -37,7 +37,8 @@ public abstract class PhysicalObject extends Entity {
 	 * @return the list of physicalObjectControlPanels 
 	 */
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = new ArrayList<JPanel>();
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		if(list==null) list = new ArrayList<JPanel>();
 
 		physicalObjectControlPanel = new PhysicalObjectControlPanel(gui,this);
 		list.add(physicalObjectControlPanel);
