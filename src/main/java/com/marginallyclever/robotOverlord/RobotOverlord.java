@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -178,6 +179,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         glCanvas.addMouseMotionListener(this);
         
         contextMenu = new JScrollPane();
+        Dimension minimumSize = new Dimension(300,300);
+        contextMenu.setMinimumSize(minimumSize);
+        glCanvas.setMinimumSize(minimumSize);
 
         splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
         splitLeftRight.add(glCanvas);
@@ -565,6 +569,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     
     @Override
+    /**
+     * draw the 3d scene
+     */
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
         float dt = (nowTime - lastTime)*0.001f;
