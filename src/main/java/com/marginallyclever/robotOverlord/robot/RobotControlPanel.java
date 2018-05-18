@@ -30,10 +30,10 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=1;
+		con1.weightx=0;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
+		con1.anchor=GridBagConstraints.CENTER;
 
         buttonConnect = createButton(Translator.get("ButtonConnect"));
 

@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -85,14 +86,17 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		
 		this.robot = robot;
 
-		this.setLayout(new GridBagLayout());
+		this.setBorder(new EmptyBorder(0,0,0,0));
+		
+		GridBagLayout layout = new GridBagLayout();
+		this.setLayout(layout);
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=1;
+		con1.weightx=0;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
+		con1.anchor=GridBagConstraints.CENTER;
 
 		CollapsiblePanel speedPanel = createStepSizePanel();
 		this.add(speedPanel,con1);
