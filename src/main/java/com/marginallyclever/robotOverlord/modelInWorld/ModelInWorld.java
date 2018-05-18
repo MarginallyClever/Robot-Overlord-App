@@ -47,7 +47,8 @@ public class ModelInWorld extends PhysicalObject {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		modelPanel = new ModelInWorldPanel(gui,this);
+		//if(modelPanel == null)
+			modelPanel = new ModelInWorldPanel(gui,this);
 		list.add(modelPanel);
 		
 		//list.add(material.getContextPanel());

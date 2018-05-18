@@ -37,8 +37,8 @@ public class EntityControlPanel extends JPanel implements ChangeListener {
 		c.gridy=0;
 		c.weightx=1;
 		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
+		c.anchor=GridBagConstraints.CENTER;
 		
 		CollapsiblePanel oiwPanel = new CollapsiblePanel("Entity");
 		this.add(oiwPanel,c);
