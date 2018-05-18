@@ -52,7 +52,7 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
-		textField = new JTextField(25);
+		textField = new JTextField(20);
 		textField.setText(defaultValue);
 		textField.getDocument().addDocumentListener(this);
 		label.setLabelFor(textField);
