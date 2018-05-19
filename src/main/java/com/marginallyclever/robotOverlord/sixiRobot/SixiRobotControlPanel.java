@@ -64,6 +64,7 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	private JSlider stepSizeControl;
 	private UserCommandSelectNumber feedRateControl;
 	
+	private JButton runScript;
 	private JButton showDebug;
 	private JButton findHome;
 	private JButton where;
@@ -137,9 +138,10 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		CollapsiblePanel miscPanel = new CollapsiblePanel("Misc");
 		this.add(miscPanel, con1);
 		con1.gridy++;
-		p = new JPanel(new GridLayout(4,1));
+		p = new JPanel(new GridLayout(5,1));
 		miscPanel.getContentPane().add(p);
 		
+		p.add(runScript = createButton("Run script"));
 		p.add(showDebug = createButton("Toggle debug view"));
 		p.add(findHome = createButton("Find Home"));
 		p.add(where = createButton("Where"));
@@ -232,9 +234,14 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		if( subject == ikWneg ) robot.moveW(-1);
 		
 		if( subject == findHome ) robot.findHome();
+		if( subject == runScript ) runScript();
 		if( subject == showDebug ) robot.toggleDebug();
 		if( subject == where ) doWhere();
 		if( subject == about ) doAbout();
+	}
+	
+	protected void runScript() {
+		robot.sendLineToRobot("D4 ACT0.NGC");
 	}
 	
 	protected void doWhere() {
