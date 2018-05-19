@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.sixiRobot;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -88,19 +89,21 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		this.robot = robot;
 
 		this.setBorder(new EmptyBorder(0,0,0,0));
+		this.setBackground(Color.RED);
 		
 		GridBagLayout layout = new GridBagLayout();
 		this.setLayout(layout);
+		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=0;
+		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.CENTER;
+		//con1.anchor=GridBagConstraints.CENTER;
 
-		CollapsiblePanel speedPanel = createStepSizePanel();
-		this.add(speedPanel,con1);
+		CollapsiblePanel stepSizePanel = createStepSizePanel();
+		this.add(stepSizePanel,con1);
 		con1.gridy++;
 
 		this.add(feedRateControl = new UserCommandSelectNumber(gui,"Feed rate",(float)robot.getFeedRate()),con1);
