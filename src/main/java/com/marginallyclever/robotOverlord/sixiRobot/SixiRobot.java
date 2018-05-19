@@ -1310,7 +1310,6 @@ extends Robot {
 			gl2.glVertex3d(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
 			gl2.glEnd();
 			
-			gl2.glPopMatrix();
 			// shoulder to elbow
 			gl2.glPushMatrix();
 			gl2.glTranslated(shoulderPosition.x, shoulderPosition.y, shoulderPosition.z);
