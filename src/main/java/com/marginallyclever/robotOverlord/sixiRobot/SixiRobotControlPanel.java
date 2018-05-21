@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.sixiRobot;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -89,10 +88,7 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		this.robot = robot;
 
 		this.setBorder(new EmptyBorder(0,0,0,0));
-		this.setBackground(Color.RED);
-		
-		GridBagLayout layout = new GridBagLayout();
-		this.setLayout(layout);
+		this.setLayout(new GridBagLayout());
 		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
@@ -244,6 +240,8 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	}
 	
 	protected void runScript() {
+		// TODO list script files on SD card, let user pick one?
+		// TODO auto-select the last used script?
 		robot.sendLineToRobot("D4 ACT0.NGC");
 	}
 	
