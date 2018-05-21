@@ -20,12 +20,12 @@ import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.robotOverlord.CommandLineOptions;
 import com.marginallyclever.robotOverlord.makelangeloRobot.GCodeFile;
 import com.marginallyclever.robotOverlord.Log;
-import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.marginallyclever.robotOverlord.makelangeloRobot.settings.MakelangeloRobotSettings;
+import com.marginallyclever.robotOverlord.material.Material;
 
 /**
  * MakelangeloRobot is the Controller for a physical robot, following a Model-View-Controller design pattern.  It also contains non-persistent Model data.  
