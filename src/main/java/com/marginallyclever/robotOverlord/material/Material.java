@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.robotOverlord.material;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,14 +6,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
 
 import org.junit.Test;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
+import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class Material implements Serializable {
+
+public class Material extends Entity {
 	
 	/**
 	 * 
@@ -27,8 +34,25 @@ public class Material implements Serializable {
 	private float shininess		= 10.0f;
 	private Texture texture     = null;
 	private boolean isLit		= true;
+	private String textureFilename = new String();
+	private transient boolean textureDirty;
+	private transient MaterialControlPanel materialPanel;
 	
-	public Material() {}
+	
+	public Material() {
+		textureDirty=true;
+	}
+	
+	
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		materialPanel = new MaterialControlPanel(gui,this);
+		list.add(materialPanel);
+		
+		return list;
+	}
 	
 	public void render(GL2 gl2) {
 		gl2.glColor4f(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
@@ -47,6 +71,19 @@ public class Material implements Serializable {
 	    } else {
 	    	gl2.glDisable(GL2.GL_LIGHTING);
 	    }
+
+		if(textureDirty) {
+			// texture has changed, load the new texture.
+			try {
+				if(textureFilename == null || textureFilename.length()==0) texture = null;
+				else {
+					texture = TextureIO.newTexture(FileAccess.open(textureFilename), false, textureFilename.substring(textureFilename.lastIndexOf('.')+1));
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			textureDirty=false;
+		}
 	    if(texture==null) {
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 	    } else {
@@ -99,12 +136,31 @@ public class Material implements Serializable {
 		ambient[2]=b;
 		ambient[3]=a;
 	}
-	
-	public void setTexture(Texture arg0) {
-		texture = arg0;
+    
+	public float[] getDiffuseColor() {
+		return diffuse.clone();
 	}
-	public Texture getTexture() {
-		return texture;
+
+	public float[] getAmbientColor() {
+		return ambient.clone();
+	}
+	
+	public float[] getSpecular() {
+		return specular.clone();
+	}
+	
+	
+	public void setTextureFilename(String arg0) {
+		if(arg0==null) arg0 = new String();
+		if(textureFilename==null) textureFilename =  new String();
+		if(arg0.equals(textureFilename)) {
+			return;
+		}
+		textureFilename = arg0;
+		textureDirty = true;
+	}
+	public String getTextureFilename() {
+		return textureFilename;
 	}
 
 	public boolean isLit() {
@@ -168,10 +224,10 @@ public class Material implements Serializable {
 			// Read an object in from object store, and cast it to a GameWorld
 			m2 = (Material) objectIn.readObject();
 		} catch(IOException e) {
-			System.out.println("World load failed (file io).");
+			System.out.println("Material load failed (file io).");
 			e.printStackTrace();
 		} catch(ClassNotFoundException e) {
-			System.out.println("World load failed (class not found)");
+			System.out.println("Material load failed (class not found)");
 			e.printStackTrace();
 		} finally {
 			if(objectIn!=null) {
