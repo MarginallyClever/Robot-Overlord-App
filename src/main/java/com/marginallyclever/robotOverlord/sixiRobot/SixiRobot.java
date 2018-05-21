@@ -6,6 +6,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.*;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.sixiRobot.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -444,16 +445,18 @@ extends Robot {
 			motionFuture.fingerPosition.x = dX;
 			motionFuture.fingerPosition.y = dY;
 			motionFuture.fingerPosition.z = dZ;
-			if(!inverseKinematics(motionFuture,false,null)) return;
+			if(!inverseKinematics(motionFuture,false,null)) {
+				return;
+			}
 			if(checkAngleLimits(motionFuture)) {
 			//if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
 				armMoved=true;
 
 				sendChangeToRealMachine();
-				if(!this.isPortConfirmed()) {
+				//if(!this.isPortConfirmed()) {
 					// live data from the sensors will update motionNow, so only do this if we're unconnected.
 					motionNow.set(motionFuture);
-				}
+				//}
 				updateGUI();
 			} else {
 				motionFuture.set(motionNow);
@@ -524,10 +527,10 @@ extends Robot {
 				armMoved=true;
 				
 				sendChangeToRealMachine();
-				if(!this.isPortConfirmed()) {
+				//if(!this.isPortConfirmed()) {
 					// live data from the sensors will update motionNow, so only do this if we're unconnected.
 					motionNow.set(motionFuture);
-				}
+				//}
 				updateGUI();
 			} else {
 				motionFuture.set(motionNow);
@@ -574,6 +577,7 @@ extends Robot {
 		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+roundOff(motionFuture.angle5);
 		if(str.length()>0) {
 			str+=" F"+roundOff((float)feedRate);
+			System.out.println(str);
 			this.sendLineToRobot("G0"+str);
 		}
 	}
@@ -1010,24 +1014,34 @@ extends Robot {
 	
 	protected boolean checkAngleLimits(SixiRobotKeyframe keyframe) {
 		// machine specific limits
-		if( keyframe.angle0 >  180 ) return false;
-		if( keyframe.angle0 < -180 ) return false;
+		if( keyframe.angle0 > 180 ) keyframe.angle0 -= 360;
+		if( keyframe.angle0 <-180 ) keyframe.angle0 += 360;
 		
-		if( keyframe.angle1 >  180 ) return false;
-		if( keyframe.angle1 <    0 ) return false;
+		if( keyframe.angle0 >  180 ) { System.out.println("angle0 top "+keyframe.angle0);  return false; }
+		if( keyframe.angle0 < -180 ) { System.out.println("angle0 bottom "+keyframe.angle0);  return false; }
 		
-		if( keyframe.angle2 >  188 ) return false;
-		if( keyframe.angle2 <    8 ) return false;
+		if( keyframe.angle1 >  180 ) { System.out.println("angle1 top "+keyframe.angle1);  return false; }
+		if( keyframe.angle1 <    0 ) { System.out.println("angle1 bottom "+keyframe.angle1);  return false; }
 		
-		if( keyframe.angle3 >  180 ) return false;
-		if( keyframe.angle3 < -180 ) return false;
+		if( keyframe.angle2 >  188 ) { System.out.println("angle2 top "+keyframe.angle2);  return false; }
+		if( keyframe.angle2 <    8 ) { System.out.println("angle2 bottom "+keyframe.angle2);  return false; }
 		
-		if( keyframe.angle4 >   90 ) return false;
-		if( keyframe.angle4 <  -90 ) return false;
+		if( keyframe.angle3 >  180 ) { System.out.println("angle3 top "+keyframe.angle3);  return false; }
+		if( keyframe.angle3 < -180 ) { System.out.println("angle3 bottom "+keyframe.angle3);  return false; }
+
+		if( keyframe.angle4 > 270 ) keyframe.angle4 -= 360;
+		if( keyframe.angle4 <-270 ) keyframe.angle4 += 360;
 		
-		if( keyframe.angle5 >  180 ) return false;
-		if( keyframe.angle5 < -180 ) return false;
+		if( keyframe.angle4 >   90 ) { System.out.println("angle4 top "+keyframe.angle4);  return false; }
+		if( keyframe.angle4 <  -90 ) { System.out.println("angle4 bottom "+keyframe.angle4);  return false; }
+
+		if( keyframe.angle5 > 180 ) keyframe.angle5 -= 360;
+		if( keyframe.angle5 <-180 ) keyframe.angle5 += 360;
 		
+		if( keyframe.angle5 >  180 ) { System.out.println("angle5 top "+keyframe.angle5);  return false; }
+		if( keyframe.angle5 < -180 ) { System.out.println("angle5 bottom "+keyframe.angle5);  return false; }
+
+		System.out.println("Angles OK");
 		return true;
 	}
 	
@@ -1055,12 +1069,10 @@ extends Robot {
 		
 		Vector3f wristPosition = new Vector3f(keyframe.fingerPosition);
 		wristPosition.sub(wristToFinger);
-		
-		// I also need part of the base/shoulder to work from the other end of the problem.
-		// if I have the wrist and the shoulder then I can make reasonable guesses about the elbow.
+
+		// figure out the shoulder matrix
 		Vector3f shoulderPosition = new Vector3f(0,0,(float)(FLOOR_TO_SHOULDER));
 		
-		// Find the facingDirection and planeNormal vectors.
 		if(Math.abs(wristPosition.x)<EPSILON && Math.abs(wristPosition.y)<EPSILON) {
 			// Wrist is directly above shoulder, makes calculations hard.
 			// TODO figure this out.  Use previous state to guess elbow?
@@ -1097,8 +1109,28 @@ extends Robot {
 		Vector3f v1 = new Vector3f();
 		float a = (float)( Math.sqrt( R*R - x*x ) );
 		v1.cross(shoulderPlaneY, shoulderToWrist);
+		Vector3f v1neg = new Vector3f(v1);
+		// find both possible intersections of circles
 		v1.scale(a);
-		elbowPosition.add(v1);
+		v1neg.scale(-a);
+		v1.add(elbowPosition);
+		v1neg.add(elbowPosition);
+		// the closer of the two circles to the previous elbow position is probably the more desirable of the two.
+		{
+			Vector3f test1 = new Vector3f(keyframe.elbow);
+			test1.sub(v1);
+			float test1LenSquared = test1.lengthSquared();
+
+			Vector3f test1neg = new Vector3f(keyframe.elbow);
+			test1neg.sub(v1neg);
+			float test1negLenSquared = test1neg.lengthSquared();
+			
+			if(test1LenSquared < test1negLenSquared) {
+				elbowPosition.set(v1);				
+			} else {
+				elbowPosition.set(v1neg);
+			}
+		}
 
 		// All the joint locations are now known.
 		// Now I have to build some matrices to find the correct angles because the sixi has those L shaped bones.
@@ -1196,13 +1228,39 @@ extends Robot {
 		xx = shoulderPlaneY.dot(ulnaPlaneX);  // shoulderPlaneY is the same as elbowPlaneY
 		yy = elbowPlaneX   .dot(ulnaPlaneX);
 		ee = Math.atan2(yy, xx);
-		angle3 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)+90);
+		double ee1 = Math.atan2(yy, xx);
+		double ee2 = Math.atan2(-yy, -xx);
+		float angle3a = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee1)+90);
+		float angle3b = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee2)+90);
+		if(angle3a> 180) angle3a-=360;
+		if(angle3a<-180) angle3a+=360;
+		if(angle3b> 180) angle3b-=360;
+		if(angle3b<-180) angle3b+=360;
+		float ada = Math.abs(angle3a - keyframe.angle3);
+		float adb = Math.abs(angle3b - keyframe.angle3);
+		boolean flipWrist = false;
+		if( ada < adb ) {
+			angle3 = angle3a;
+		} else {
+			angle3 = angle3b;
+			flipWrist=true;
+		}
+		//angle3 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)+90);
+		//System.out.println(angle3a + "\t"+angle3b + "\t" + keyframe.angle3);
 		
 		// wrist
 		xx = ulnaPlaneX.dot(wristToFinger);
 		yy = ulnaPlaneZ.dot(wristToFinger);
 		ee = Math.atan2(yy, xx);
 		angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-90);
+		if(flipWrist) {
+			angle4 = -angle4;
+		}
+		if( angle4 > 270 ) angle4 -= 360;
+		if( angle4 <-270 ) angle4 += 360;
+		if(Math.abs(angle4 - keyframe.angle4)>90) {
+			System.out.println("angle4 jump "+angle4+" vs "+keyframe.angle4);
+		}
 		
 		// hand		
 		xx = wristPlaneY.dot(keyframe.fingerRight);
