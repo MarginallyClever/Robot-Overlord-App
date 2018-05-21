@@ -7,8 +7,8 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
@@ -47,11 +47,10 @@ public class ModelInWorld extends PhysicalObject {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		//if(modelPanel == null)
-			modelPanel = new ModelInWorldPanel(gui,this);
+		modelPanel = new ModelInWorldPanel(gui,this);
 		list.add(modelPanel);
 		
-		//list.add(material.getContextPanel());
+		list.addAll(material.getContextPanel(gui));
 		
 		return list;
 	}
