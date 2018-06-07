@@ -93,4 +93,30 @@ public class MathHelper {
 		while(arg0>limit) arg0 -= limit;
 		return arg0;
 	}
+	
+	/**
+	 * greatest common divider
+	 * @param a
+	 * @param b
+	 * @return greatest common divider
+	 */
+	static public long gcd(long a, long b) {
+		long temp;
+	    while (b > 0) {
+	        temp = b;
+	        b = a % b; // % is remainder
+	        a = temp;
+	    }
+	    return a;
+	}
+	
+	/**
+	 * least common multiplier
+	 * @param a
+	 * @param b
+	 * @return least common multiplier
+	 */
+	static public long lcm(long a, long b) {
+	    return a * (b / gcd(a, b));
+	}
 }
