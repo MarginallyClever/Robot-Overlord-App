@@ -1006,25 +1006,27 @@ extends Robot {
 		// OK
 		return true;
 	}
-	
-	protected boolean checkAngleLimits(SixiRobotKeyframe keyframe) {/*
-		// machine specific limits
-		//a
-		//if (angleA < -180) return false;
-		//if (angleA >  180) return false;
-		//b
-		if (angleB <      72.90) angleB = 72.90f;
-		if (angleB >  360-72.90) angleB = 360-72.90f;
-		//c
-		if (angleC <   50.57) angleC = 50.57f;
-		if (angleC >  160.31) angleC = 160.31f;
-		//d
-		if (angleD <   87.85) angleD = 87.85f;
-		if (angleD >  173.60) angleD = 173.60f;
-		//e
-		//if (angleE < 180-165) return false;
-		//if (angleE > 180+165) return false;
-*/
+
+	// machine specific limits
+	protected boolean checkAngleLimits(SixiRobotKeyframe keyframe) {
+		if (keyframe.angle0 <  -90) return false;
+		if (keyframe.angle0 >  265) return false;
+		
+		if (keyframe.angle1 <    0) return false;
+		if (keyframe.angle1 >  180) return false;
+		
+		if (keyframe.angle2 <    5) return false;
+		if (keyframe.angle2 >  188) return false;
+		
+		if (keyframe.angle3 <    0) return false;
+		if (keyframe.angle3 >  355) return false;
+		
+		if (keyframe.angle4 <  -90) return false;
+		if (keyframe.angle4 >   90) return false;
+		
+		if (keyframe.angle5 <    0) return false;
+		if (keyframe.angle5 >  355) return false;
+
 		return true;
 	}
 	
