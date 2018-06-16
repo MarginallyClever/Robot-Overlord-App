@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -63,6 +64,7 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 	private JSlider stepSizeControl;
 	private UserCommandSelectNumber feedRateControl;
 	
+	private JButton runScript;
 	private JButton showDebug;
 	private JButton findHome;
 	private JButton where;
@@ -85,17 +87,19 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		
 		this.robot = robot;
 
+		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
+		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
 		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
+		//con1.anchor=GridBagConstraints.CENTER;
 
-		CollapsiblePanel speedPanel = createStepSizePanel();
-		this.add(speedPanel,con1);
+		CollapsiblePanel stepSizePanel = createStepSizePanel();
+		this.add(stepSizePanel,con1);
 		con1.gridy++;
 
 		this.add(feedRateControl = new UserCommandSelectNumber(gui,"Feed rate",(float)robot.getFeedRate()),con1);
@@ -133,9 +137,10 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		CollapsiblePanel miscPanel = new CollapsiblePanel("Misc");
 		this.add(miscPanel, con1);
 		con1.gridy++;
-		p = new JPanel(new GridLayout(4,1));
+		p = new JPanel(new GridLayout(5,1));
 		miscPanel.getContentPane().add(p);
 		
+		p.add(runScript = createButton("Run script"));
 		p.add(showDebug = createButton("Toggle debug view"));
 		p.add(findHome = createButton("Find Home"));
 		p.add(where = createButton("Where"));
@@ -228,9 +233,16 @@ public class SixiRobotControlPanel extends JPanel implements ActionListener, Cha
 		if( subject == ikWneg ) robot.moveW(-1);
 		
 		if( subject == findHome ) robot.findHome();
+		if( subject == runScript ) runScript();
 		if( subject == showDebug ) robot.toggleDebug();
 		if( subject == where ) doWhere();
 		if( subject == about ) doAbout();
+	}
+	
+	protected void runScript() {
+		// TODO list script files on SD card, let user pick one?
+		// TODO auto-select the last used script?
+		robot.sendLineToRobot("D4 ACT0.NGC");
 	}
 	
 	protected void doWhere() {

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.pTTPTPRobot.tool;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.Material;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.pTTPTPRobot.PTTPTPRobot;

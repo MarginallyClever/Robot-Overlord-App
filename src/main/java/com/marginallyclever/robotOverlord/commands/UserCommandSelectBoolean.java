@@ -2,39 +2,39 @@ package com.marginallyclever.robotOverlord.commands;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.actions.UndoableActionSelectString;
+import com.marginallyclever.robotOverlord.actions.UndoableActionSelectBoolean;
 
 /**
- * Panel to alter a string parameter.  There is currently no way to limit the length of strings.
+ * Panel to alter a boolean parameter.  There is currently no way to limit the length of strings.
  * @author Dan Royer
  *
  */
-public class UserCommandSelectString extends JPanel implements DocumentListener {
+public class UserCommandSelectBoolean extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JTextField textField;
+	private JCheckBox checkboxField;
 	private RobotOverlord ro;
-	private String value;
+	private boolean value;
 	private String label;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
-	public UserCommandSelectString(RobotOverlord ro,String labelName,String defaultValue) {
+	public UserCommandSelectBoolean(RobotOverlord ro,String labelName,boolean defaultValue) {
 		super();
 		this.ro = ro;
 		
@@ -52,28 +52,28 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
-		textField = new JTextField(20);
-		textField.setText(defaultValue);
-		textField.getDocument().addDocumentListener(this);
-		label.setLabelFor(textField);
+		checkboxField = new JCheckBox();
+		checkboxField.setSelected(defaultValue);
+		checkboxField.addActionListener(this);
+		label.setLabelFor(checkboxField);
 		
 		this.add(label,con1);
 		con1.gridy++;
-		this.add(textField,con1);
+		this.add(checkboxField,con1);
 		con1.gridy++;
 	}
 	
-	public String getValue() {
+	public boolean getValue() {
 		return value;
 	}
 	
-	public void setValue(String v) {
-		if(value.equals(v)) return;
+	public void setValue(boolean v) {
+		if(value == v) return;
 		value = v;
 		
 		if(allowSetText) {
 			allowSetText=false;
-			textField.setText(v);
+			checkboxField.setSelected(v);
 			allowSetText=true;
 			this.updateUI();
 		}
@@ -94,24 +94,11 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 	}
 
 	@Override
-	public void changedUpdate(DocumentEvent arg0) {
-		if(allowSetText==false) return;
-		
-		String newValue = textField.getText();
-		if(!newValue.equals(value)) {
-			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectString(this, label, newValue) ) );
-			allowSetText=true;
+	public void actionPerformed(ActionEvent e) {
+		boolean newValue = checkboxField.isSelected();
+		if(newValue == value) {
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectBoolean(this, label, newValue) ) );
 		}
-	}
-
-	@Override
-	public void insertUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
+		
 	}
 }

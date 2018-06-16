@@ -88,9 +88,8 @@ public class MathHelper {
 	 * @return adjusted value
 	 */
 	static public double capRotationDegrees(double arg0) {
-		final double limit = 360;
-		while(arg0<0    ) arg0 += limit;
-		while(arg0>limit) arg0 -= limit;
+		while(arg0<0  ) arg0 += 360;
+		while(arg0>360) arg0 -= 360;
 		return arg0;
 	}
 	
