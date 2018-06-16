@@ -9,8 +9,8 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 

@@ -58,7 +58,7 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 		fieldX.setText(defaultValue);
 		label.setLabelFor(fieldX);
 
-		JButton choose = new JButton("Choose...");
+		JButton choose = new JButton("...");
 		choose.addActionListener(this);
 
 		con1.weightx=1.0;
@@ -74,6 +74,7 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 		
 		con1.weightx=0;
 		con1.gridx=1;
+		con1.ipadx=-20;
 		this.add(choose,con1);
 		con1.gridy++;
 	}

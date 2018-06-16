@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2;
 import javax.vecmath.Vector3f;
 
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.*;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 

@@ -3,8 +3,8 @@ package com.marginallyclever.robotOverlord.arm3.uArm;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.Material;
 import com.marginallyclever.robotOverlord.arm3.Arm3;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 

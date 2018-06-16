@@ -2,8 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 
 import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
@@ -152,7 +151,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			System.out.println("failed to enumerate");
 		}
 */
-		
         mainFrame = new JFrame( APP_TITLE ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setSize( 1224, 768 );
@@ -178,6 +176,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         glCanvas.addMouseMotionListener(this);
         
         contextMenu = new JScrollPane();
+        Dimension minimumSize = new Dimension(300,300);
+        contextMenu.setMinimumSize(minimumSize);
+        glCanvas.setMinimumSize(minimumSize);
 
         splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
         splitLeftRight.add(glCanvas);
@@ -248,19 +249,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
 	
 	public void setContextPanel(JPanel panel,String title) {
-		JPanel container = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.weighty=0;
-		c.weightx=1;
-		c.gridy=0;
-		c.gridx=0;
-		c.fill=GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.weighty=1;
-		c.gridy++;
-        container.add(panel,c);
-        
-        contextMenu.setViewportView(container);
+		contextMenu.setViewportView(panel);
 	}
 	
 	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
@@ -565,6 +554,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     
     @Override
+    /**
+     * draw the 3d scene
+     */
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
         float dt = (nowTime - lastTime)*0.001f;
