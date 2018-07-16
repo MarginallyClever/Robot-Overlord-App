@@ -270,6 +270,20 @@ If you like this project, please support us by buying Marginally Clever products
       <artifactId>annotations</artifactId>
       <version>15.0</version>
     </dependency>
+    
+	<!-- https://mvnrepository.com/artifact/org.tensorflow/tensorflow -->
+	<dependency>
+ 	   <groupId>org.tensorflow</groupId>
+ 	   <artifactId>tensorflow</artifactId>
+ 	   <version>1.9.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow_jni_gpu -->
+	<dependency>
+		<groupId>org.tensorflow</groupId>
+		<artifactId>libtensorflow_jni_gpu</artifactId>
+		<version>1.9.0</version>
+	</dependency>
+	
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
