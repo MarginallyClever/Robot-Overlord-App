@@ -50,6 +50,7 @@ import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.commands.UserCommandAbout;
 import com.marginallyclever.robotOverlord.commands.UserCommandCheckForUpdate;
+import com.marginallyclever.robotOverlord.commands.UserCommandForums;
 import com.marginallyclever.robotOverlord.commands.UserCommandLoad;
 import com.marginallyclever.robotOverlord.commands.UserCommandNew;
 import com.marginallyclever.robotOverlord.commands.UserCommandQuit;
@@ -380,8 +381,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		menu.add(new UserCommandLoad(this));
 		menu.add(new UserCommandSaveAs(this));
 		menu.add(new JSeparator());
+		menu.add(new UserCommandForums(this));
 		menu.add(new UserCommandAbout(this));
 		menu.add(new UserCommandCheckForUpdate(this));
+		menu.add(new JSeparator());
 		menu.add(new UserCommandQuit(this));
 		mainMenu.add(menu);
         
