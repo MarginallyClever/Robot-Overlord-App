@@ -2,8 +2,6 @@ package com.marginallyclever.robotOverlord.material;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -18,8 +16,6 @@ import com.marginallyclever.robotOverlord.commands.UserCommandSelectColorRGBA;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
-
 /**
  * Context sensitive GUI for the camera 
  * @author Dan Royer
