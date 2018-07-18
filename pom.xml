@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>com.marginallyclever</groupId>
@@ -88,6 +90,26 @@ If you like this project, please support us by buying Marginally Clever products
         </resource>
     </resources>
     <plugins>
+		<plugin>
+			<artifactId>maven-enforcer-plugin</artifactId>
+			<version>1.0.1</version>
+			<executions>
+				<execution>
+					<id>enforce-default</id>
+					<goals>
+						<goal>enforce</goal>
+					</goals>
+					<configuration>
+						<rules>
+							<requireMavenVersion>
+								<version>[${maven.minimum.version},)</version>
+								<message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
+							</requireMavenVersion>
+						</rules>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
@@ -113,8 +135,8 @@ If you like this project, please support us by buying Marginally Clever products
           <descriptors>
             <descriptor>src/main/assembly/application.xml</descriptor>
           </descriptors>
-        </configuration>
-        <executions>
+      </configuration>
+      <executions>
           <execution>
             <id>make-assembly</id>
             <!-- this is used for inheritance merges -->
@@ -124,9 +146,9 @@ If you like this project, please support us by buying Marginally Clever products
               <goal>single</goal>
             </goals>
           </execution>
-        </executions>
-      </plugin>
-		<plugin>
+      </executions>
+    </plugin>
+	<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
     	    <configuration>
@@ -140,7 +162,7 @@ If you like this project, please support us by buying Marginally Clever products
 					</goals>
 				</execution>
 			</executions>
-		</plugin>
+    </plugin>
     
     <!-- Beginning of plugins defined originally only in Super POM  -->
     <plugin>
@@ -212,6 +234,7 @@ If you like this project, please support us by buying Marginally Clever products
       </plugin>
     </plugins>
   </build>
+
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>
@@ -284,13 +307,43 @@ If you like this project, please support us by buying Marginally Clever products
 		<version>1.9.0</version>
 	</dependency>
 	
+	<!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core -->
+	<dependency>
+    	<groupId>org.deeplearning4j</groupId>
+    	<artifactId>deeplearning4j-core</artifactId>
+    	<version>1.0.0-beta</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.nd4j/nd4j-native-platform -->
+	<dependency>
+		<groupId>org.nd4j</groupId>
+		<artifactId>nd4j-native-platform</artifactId>
+		<version>1.0.0-beta</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.datavec/datavec-api -->
+	<dependency>
+    	<groupId>org.datavec</groupId>
+    	<artifactId>datavec-api</artifactId>
+    	<version>1.0.0-beta</version>
+	</dependency>
+	
+	
+	
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <minimum.maven.version>3</minimum.maven.version>
+    <minimum.maven.version>3.3.1</minimum.maven.version>
     <minimum.java.version>1.8</minimum.java.version>
     <jogl.version>2.3.2</jogl.version>
     <maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
+    
+	<!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
+	<nd4j.backend>nd4j-native-platform</nd4j.backend>
+	<!--<nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend>-->
+	<nd4j.version>1.0.0-beta</nd4j.version>
+	<dl4j.version>1.0.0-beta</dl4j.version>
+	<datavec.version>1.0.0-beta</datavec.version>
+	<arbiter.version>1.0.0-beta</arbiter.version>
+	<rl4j.version>1.0.0-beta</rl4j.version>
   </properties>
 
   <repositories>
