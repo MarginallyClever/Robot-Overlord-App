@@ -2,6 +2,9 @@ package com.marginallyclever.robotOverlord.sixiRobot;
 
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
+
+import org.junit.Test;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
@@ -13,6 +16,9 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,10 +58,24 @@ extends Robot {
 	public final static double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;
 	public final static double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;
 	public final static double WRIST_TO_TOOL_Z = 5;
-	
+
 	public final static double SHOULDER_TO_ELBOW = Math.sqrt(SHOULDER_TO_ELBOW_Z*SHOULDER_TO_ELBOW_Z + SHOULDER_TO_ELBOW_Y*SHOULDER_TO_ELBOW_Y);
 	public final static double ELBOW_TO_WRIST = Math.sqrt(ELBOW_TO_WRIST_Z*ELBOW_TO_WRIST_Z + ELBOW_TO_WRIST_Y*ELBOW_TO_WRIST_Y); 
 
+	// joint limits
+	public final static float MIN_ANGLE_0 = -90;
+	public final static float MAX_ANGLE_0 = 265;
+	public final static float MIN_ANGLE_1 =   0;
+	public final static float MAX_ANGLE_1 = 180;
+	public final static float MIN_ANGLE_2 =   5;
+	public final static float MAX_ANGLE_2 = 188;
+	public final static float MIN_ANGLE_3 =   0;
+	public final static float MAX_ANGLE_3 = 355;
+	public final static float MIN_ANGLE_4 = -90;
+	public final static float MAX_ANGLE_4 =  90;
+	public final static float MIN_ANGLE_5 =   0;
+	public final static float MAX_ANGLE_5 = 355;
+	
 	private final static Vector3f globalForward = new Vector3f(0,0,1);
 	private final static Vector3f globalRight = new Vector3f(1,0,0);
 	private final static Vector3f globalUp = new Vector3f(0,1,0);
@@ -1014,25 +1034,106 @@ extends Robot {
 
 	// machine specific limits
 	protected boolean checkAngleLimits(SixiRobotKeyframe keyframe) {
-		if (keyframe.angle0 <  -90) { System.out.println("angle0 top "+keyframe.angle0);	return false; }
-		if (keyframe.angle0 >  265) { System.out.println("angle0 bottom "+keyframe.angle0);	return false; }
+		if (keyframe.angle0 <  MIN_ANGLE_0) { System.out.println("angle0 top "+keyframe.angle0);	return false; }
+		if (keyframe.angle0 >  MAX_ANGLE_0) { System.out.println("angle0 bottom "+keyframe.angle0);	return false; }
 		
-		if (keyframe.angle1 <    0) { System.out.println("angle1 top "+keyframe.angle1);	return false; }
-		if (keyframe.angle1 >  180) { System.out.println("angle1 bottom "+keyframe.angle1);	return false; }
+		if (keyframe.angle1 <  MIN_ANGLE_1) { System.out.println("angle1 top "+keyframe.angle1);	return false; }
+		if (keyframe.angle1 >  MAX_ANGLE_1) { System.out.println("angle1 bottom "+keyframe.angle1);	return false; }
 		
-		if (keyframe.angle2 <    5) { System.out.println("angle2 top "+keyframe.angle2);	return false; }
-		if (keyframe.angle2 >  188) { System.out.println("angle2 bottom "+keyframe.angle2);	return false; }
+		if (keyframe.angle2 <  MIN_ANGLE_2) { System.out.println("angle2 top "+keyframe.angle2);	return false; }
+		if (keyframe.angle2 >  MAX_ANGLE_2) { System.out.println("angle2 bottom "+keyframe.angle2);	return false; }
 		
-		if (keyframe.angle3 <    0) { System.out.println("angle3 top "+keyframe.angle3);	return false; }
-		if (keyframe.angle3 >  355) { System.out.println("angle3 bottom "+keyframe.angle3);	return false; }
+		if (keyframe.angle3 <  MIN_ANGLE_3) { System.out.println("angle3 top "+keyframe.angle3);	return false; }
+		if (keyframe.angle3 >  MAX_ANGLE_3) { System.out.println("angle3 bottom "+keyframe.angle3);	return false; }
 		
-		if (keyframe.angle4 <  -90) { System.out.println("angle4 top "+keyframe.angle4);	return false; }
-		if (keyframe.angle4 >   90) { System.out.println("angle4 bottom "+keyframe.angle4);	return false; }
+		if (keyframe.angle4 <  MIN_ANGLE_4) { System.out.println("angle4 top "+keyframe.angle4);	return false; }
+		if (keyframe.angle4 >  MAX_ANGLE_4) { System.out.println("angle4 bottom "+keyframe.angle4);	return false; }
 		
-		if (keyframe.angle5 <    0) { System.out.println("angle5 top "+keyframe.angle5);	return false; }
-		if (keyframe.angle5 >  355) { System.out.println("angle5 bottom "+keyframe.angle5);	return false; }
+		if (keyframe.angle5 <  MIN_ANGLE_5) { System.out.println("angle5 top "+keyframe.angle5);	return false; }
+		if (keyframe.angle5 >  MAX_ANGLE_5) { System.out.println("angle5 bottom "+keyframe.angle5);	return false; }
 
 		return true;
+	}
+	
+	/**
+	 * Generate a table of FK angles and matching IK values for training a neural network.
+	 */
+	@Test
+	public void generateBigData() {
+		SixiRobotKeyframe keyframe = new SixiRobotKeyframe();
+		float a0,a1,a2,a3,a4,a5;
+		float px,py,pz,iku,ikv,ikw;
+		final float stepSize = 15f;
+		
+		try {
+			//DataOutputStream writer = new DataOutputStream(new FileOutputStream("FK2IK.csv"));
+			FileWriter writer = new FileWriter("FK2IK.csv");
+
+			for(a0=MIN_ANGLE_0;a0<MAX_ANGLE_0;a0+=stepSize) {
+				for(a1=MIN_ANGLE_1;a1<MAX_ANGLE_1;a1+=stepSize) {
+					for(a2=MIN_ANGLE_2;a2<MAX_ANGLE_2;a2+=stepSize) {
+						for(a3=MIN_ANGLE_3;a3<MAX_ANGLE_3;a3+=stepSize) {
+							for(a4=MIN_ANGLE_4;a4<MAX_ANGLE_4;a4+=stepSize) {
+								for(a5=MIN_ANGLE_5;a5<MAX_ANGLE_5;a5+=stepSize) {
+									keyframe.angle0=a0;
+									keyframe.angle1=a1;
+									keyframe.angle2=a2;
+									keyframe.angle3=a3;
+									keyframe.angle4=a4;
+									keyframe.angle5=a5;
+									forwardKinematics(keyframe,false,null);
+									px = keyframe.fingerPosition.getX();
+									py = keyframe.fingerPosition.getY();
+									pz = keyframe.fingerPosition.getZ();
+									iku = keyframe.ikU;
+									ikv = keyframe.ikV;
+									ikw = keyframe.ikW;
+
+									StringBuilder sb = new StringBuilder();
+									sb.append(a0).append(",");
+									sb.append(a1).append(",");
+									sb.append(a2).append(",");
+									sb.append(a3).append(",");
+									sb.append(a4).append(",");
+									sb.append(a5).append(",");
+									
+									sb.append(px).append(",");
+									sb.append(py).append(",");
+									sb.append(pz).append(",");
+									sb.append(iku).append(",");
+									sb.append(ikv).append(",");
+									sb.append(ikw).append("\n");
+									writer.append(sb.toString());
+/*
+									writer.writeFloat(a0);
+									writer.writeFloat(a1);
+									writer.writeFloat(a2);
+									writer.writeFloat(a3);
+									writer.writeFloat(a4);
+									writer.writeFloat(a5);
+									writer.writeFloat(px);
+									writer.writeFloat(py);
+									writer.writeFloat(pz);
+									writer.writeFloat(iku);
+									writer.writeFloat(ikv);
+									writer.writeFloat(ikw);*/
+								}
+								try {
+									Thread.sleep(1);
+								} catch (InterruptedException e) {}
+							}
+							//System.out.println(a0+"\t"+a1+"\t"+a2+"\t"+a3);
+						}
+					}
+				}
+				int progress = (int)(10000.0f*(a0-MIN_ANGLE_0)/(MAX_ANGLE_0-MIN_ANGLE_0));
+				System.out.println("** "+((float)progress/100.0f)+"% **");
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
