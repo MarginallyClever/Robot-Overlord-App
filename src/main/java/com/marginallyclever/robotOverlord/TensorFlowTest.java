@@ -1,10 +1,10 @@
 package com.marginallyclever.robotOverlord;
 
 import org.junit.Test;
-import org.tensorflow.*;
+//import org.tensorflow.*;
 
 public class TensorFlowTest {
-	
+	/*
 	@Test
 	public void testHello() throws Exception {
 	    try (Graph graph = new Graph()) {
@@ -24,5 +24,5 @@ public class TensorFlowTest {
 	    		System.out.println(new String(output.bytesValue(), "UTF-8"));
 	    	}
 	    }
-	}
+	}*/
 }
