@@ -8,6 +8,7 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -99,11 +100,15 @@ public class DL4JTest {
 	// https://www.opencodez.com/java/deeplearaning4j.htm ?
 	@Test
 	public void testFirstDL4J() throws Exception {
+		int totalRecords = 25878528;
+		
 		final int numInputs = 6;
-	    int numOutputs = 6; // Number of possible outcomes (e.g. labels 0 through 9).
-	    int batchSize = 128; // How many examples to fetch with each step.
+		final int numOutputs = 6; // Number of possible outcomes (e.g. labels 0 through 9).
+		final int numHiddenNodes=6;
+	    
+		final int batchSize = 128; // How many examples to fetch with each step.
 	    int rngSeed = 123; // This random-number generator applies a seed to ensure that the same initial weights are used when training. We’ll explain why this matters later.
-	    int numEpochs = 15; // An epoch is a complete pass through a given dataset.
+	    int numEpochs = 150;//totalRecords/batchSize; // An epoch is a complete pass through a given dataset.
 	    
 		//DataSetIterator mnistTrain = new MnistDataSetIterator(batchSize, true, rngSeed);
 		//DataSetIterator mnistTest = new MnistDataSetIterator(batchSize, false, rngSeed);
@@ -135,22 +140,22 @@ public class DL4JTest {
 	            .seed(rngSeed)
 	            .l2(1e-4)
 	            .weightInit(WeightInit.XAVIER)
-	            .activation(Activation.TANH)
+	            .activation(Activation.IDENTITY)
 	            .updater(new Nesterovs(0.006,0.9))
 	            .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
 	            .list()
 	            .layer(0, new DenseLayer.Builder()
 	                    .nIn(numInputs) // Number of input data points.
-	                    .nOut(12) // Number of output data points.
-	                    .activation(Activation.IDENTITY) // Activation function.
-	                    .weightInit(WeightInit.XAVIER) // Weight initialization.
+	                    .nOut(numHiddenNodes) // Number of output data points.
 	                    .build())
-	            .layer(1, new DenseLayer.Builder().nIn(12).nOut(12).build() )
-	            .layer(2, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
-	                    .nIn(12)
+	            .layer(1, new DenseLayer.Builder()
+	            		.nIn(numHiddenNodes)
+	            		.nOut(numHiddenNodes)
+	            		.build())
+	            .layer(2, new OutputLayer.Builder(LossFunction.MSE)
+	                    .nIn(numHiddenNodes)
 	                    .nOut(numOutputs)
-	                    .activation(Activation.SOFTMAX)
-	                    .weightInit(WeightInit.XAVIER)
+	                    .activation(Activation.IDENTITY)
 	                    .build())
 	            .pretrain(false)
 	            .backprop(true)
@@ -164,13 +169,19 @@ public class DL4JTest {
             model.fit(trainingData);
             System.out.println("*** Completed epoch "+i+" ***");
         }
-
+        
+/*
         System.out.println("Evaluate model....");
-        Evaluation eval = new Evaluation(3);
+        Evaluation eval = new Evaluation(6);
         INDArray output = model.output(testData.getFeatures());
-        model.save(new File("FK2IK.nn"));
-        eval.eval(testData.getLabels(), output);
-        System.out.println(eval.stats());
+*/
+        DataSetIterator iter = new ListDataSetIterator(testData.asList(),batchSize);
+        iter.reset();
+        INDArray output = model.output(iter.next(),false);
+        //model.save(new File("FK2IK.nn"));
+        System.out.println(output.toString());
+        //model.eval(testData.getLabels(), output);
+        //System.out.println(eval.stats());
         System.out.println("****************Example finished********************");
 	}
 }
