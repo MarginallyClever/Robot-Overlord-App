@@ -1064,6 +1064,7 @@ extends Robot {
 		float a0,a1,a2,a3,a4,a5;
 		float px,py,pz,iku,ikv,ikw;
 		final float stepSize = 15f;
+		int totalRecords=0;
 		
 		try {
 			//DataOutputStream writer = new DataOutputStream(new FileOutputStream("FK2IK.csv"));
@@ -1117,18 +1118,20 @@ extends Robot {
 									writer.writeFloat(iku);
 									writer.writeFloat(ikv);
 									writer.writeFloat(ikw);*/
+									++totalRecords;
 								}
 								try {
 									Thread.sleep(1);
 								} catch (InterruptedException e) {}
 							}
-							//System.out.println(a0+"\t"+a1+"\t"+a2+"\t"+a3);
+							System.out.println(a0+"\t"+a1+"\t"+a2+"\t"+a3);
 						}
 					}
 				}
 				int progress = (int)(10000.0f*(a0-MIN_ANGLE_0)/(MAX_ANGLE_0-MIN_ANGLE_0));
 				System.out.println("** "+((float)progress/100.0f)+"% **");
 			}
+			System.out.println("== Done ("+totalRecords+" total records. ==");
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
