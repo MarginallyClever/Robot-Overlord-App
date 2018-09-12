@@ -116,7 +116,7 @@ public class DL4JTest {
 	    
         //Second: the RecordReaderDataSetIterator handles conversion to DataSet objects, ready for use in neural network
 	    // DR our data has 6 inputs and then 6 outputs 
-        DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,6,11,batchSize,false);
+        DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,batchSize,6,11,true);
         
         DataSet allData = iterator.next();
         allData.shuffle();
