@@ -9,8 +9,6 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.marginallyclever.robotOverlord.model.ModelFactory;
-
 /**
  * Methods to make loading files from disk or jar resource easier.
  * 
@@ -40,7 +38,7 @@ public class FileAccess {
 	
 	
 	private static InputStream getInputStream(String fname) throws IOException {
-		InputStream s = ModelFactory.class.getResourceAsStream(fname);
+		InputStream s = FileAccess.class.getResourceAsStream(fname);
 		if( s==null ) {
 			s = new FileInputStream(new File(fname));
 		}
