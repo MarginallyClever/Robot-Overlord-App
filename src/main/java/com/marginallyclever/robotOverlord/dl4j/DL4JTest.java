@@ -169,7 +169,6 @@ public class DL4JTest {
             model.fit(trainingData);
             System.out.println("*** Completed epoch "+i+" ***");
         }
-        
 /*
         System.out.println("Evaluate model....");
         Evaluation eval = new Evaluation(6);
@@ -177,7 +176,7 @@ public class DL4JTest {
 */
         DataSetIterator iter = new ListDataSetIterator(testData.asList(),batchSize);
         iter.reset();
-        INDArray output = model.output(iter.next(),false);
+        INDArray output = model.output(iter,false);
         //model.save(new File("FK2IK.nn"));
         System.out.println(output.toString());
         //model.eval(testData.getLabels(), output);
