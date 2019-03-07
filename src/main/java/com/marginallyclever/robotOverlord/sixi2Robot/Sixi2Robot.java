@@ -1254,9 +1254,11 @@ extends Robot {
 		
 		Vector3f shoulderToElbow = new Vector3f(elbowPosition);
 		shoulderToElbow.sub(shoulderPosition);
-		Vector3f shoulderToElbowNormalized = new Vector3f(shoulderToElbow);
-		shoulderToElbowNormalized.normalize();
+		Vector3f bicepPlaneZ = new Vector3f(shoulderToElbow);
+		bicepPlaneZ.normalize();
 
+		if(gl2!=null) drawMatrix2(gl2,shoulderPosition,shoulderPlaneX,shoulderPlaneY,shoulderPlaneZ);
+		
 		Vector3f elbowToWrist = new Vector3f(wristPosition);
 		elbowToWrist.sub(elbowPosition);
 		elbowToWrist.normalize();
@@ -1281,10 +1283,13 @@ extends Robot {
 		if( angle1 <-270 ) angle1 += 360;
 
 		Vector3f bicepPlaneX = new Vector3f();
-		bicepPlaneX.cross(shoulderToElbowNormalized,shoulderPlaneY);
+		Vector3f bicepPlaneY = new Vector3f(shoulderPlaneY);
+		bicepPlaneX.cross(bicepPlaneZ,bicepPlaneY);
 
+		if(gl2!=null) drawMatrix2(gl2,elbowPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
+		
 		// elbow
-		xx = elbowToWrist.dot(shoulderToElbowNormalized);
+		xx = elbowToWrist.dot(bicepPlaneZ);
 		yy = elbowToWrist.dot(bicepPlaneX);
 		ee = Math.atan2(yy, xx);
 		double angle2rad=-(ee-aa);
@@ -1296,15 +1301,16 @@ extends Robot {
 		// the same code that was used in forward kinematics
 		// get the matrix at the elbow
 		Vector3f nvx = new Vector3f(bicepPlaneX);	nvx.scale((float)Math.cos(angle2rad));
-		Vector3f nvz = new Vector3f(shoulderToElbowNormalized);	nvz.scale((float)Math.sin(angle2rad));
+		Vector3f nvz = new Vector3f(bicepPlaneZ);	nvz.scale((float)Math.sin(angle2rad));
 		Vector3f elbowPlaneX = new Vector3f(nvx);
 		elbowPlaneX.add(nvz);
 		elbowPlaneX.normalize();
 
 		Vector3f elbowPlaneZ = new Vector3f();
-		elbowPlaneZ.cross(shoulderPlaneY,elbowPlaneX);
-
-		//if(gl2!=null) drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ,20);
+		Vector3f elbowPlaneY = new Vector3f(bicepPlaneY);
+		elbowPlaneZ.cross(elbowPlaneY,elbowPlaneX);
+		
+		if(gl2!=null) drawMatrix2(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
 		
 		// get elbow to ulna
 		nvx.set(elbowPlaneX);	nvx.scale(-(float)Sixi2Robot.ELBOW_TO_ULNA_Y);
@@ -1314,24 +1320,18 @@ extends Robot {
 		Vector3f ulnaPosition = new Vector3f(mid);
 		ulnaPosition.add(nvx);
 
-		if(gl2!=null) drawMatrix2(gl2,ulnaPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ,20);
+		//if(gl2!=null) drawMatrix2(gl2,ulnaPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ,20);
 
 		v1.cross(elbowToWrist,shoulderPlaneY);
 		v1.normalize(); 
 		Vector3f v2 = new Vector3f();
 		v2.cross(shoulderPlaneY,v1);
 		v2.normalize();  // normalized version of elbowToWrist 
-
-		v1.set(shoulderToElbow);
-		v1.normalize();
-		Vector3f bicepPlaneZ = new Vector3f(v1);
-		//Vector3f bicepPlaneX = new Vector3f();
-		//bicepPlaneX.cross(bicepPlaneZ,shoulderPlaneY);
 		
 		// ulna matrix
-		Vector3f ulnaPlaneZ = new Vector3f(elbowPlaneZ);
+		Vector3f ulnaPlaneX = new Vector3f(elbowPlaneX);
 		Vector3f ulnaPlaneY = new Vector3f();
-		Vector3f ulnaPlaneX = new Vector3f();
+		Vector3f ulnaPlaneZ = new Vector3f();
 		
 		// I have wristToFinger.  I need wristToFinger projected on the plane elbow-space XY to calculate the angle. 
 		float tf = elbowPlaneZ.dot(keyframe.fingerForward);
@@ -1341,15 +1341,17 @@ extends Robot {
 			return false;
 		}
 
-		tf = elbowPlaneZ.dot(wristToFinger);
-		Vector3f projectionAmount = new Vector3f(elbowPlaneZ);
+		tf = elbowPlaneX.dot(wristToFinger);
+		Vector3f projectionAmount = new Vector3f(elbowPlaneX);
 		projectionAmount.scale(tf);
-		ulnaPlaneX.set(wristToFinger);
-		ulnaPlaneX.sub(projectionAmount);
-		ulnaPlaneX.normalize();
+		ulnaPlaneZ.set(wristToFinger);
+		ulnaPlaneZ.sub(projectionAmount);
+		ulnaPlaneZ.normalize();
 		ulnaPlaneY.cross(ulnaPlaneX,ulnaPlaneZ);
 		ulnaPlaneY.normalize();
-		
+
+		if(gl2!=null) drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ,20);
+
 		// TODO wrist may be bending backward.  As it passes the middle a singularity can occur.
 		// Compare projected vector to previous frame's projected vector. if the direction is reversed, flip it. 
 
@@ -1361,7 +1363,8 @@ extends Robot {
 		wristPlaneX.normalize();
 		wristPlaneY.cross(wristPlaneZ,wristPlaneX);
 		wristPlaneY.normalize();
-
+		
+		if(gl2!=null) drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,20);
 		
 		// find the angles pt 2
 		
@@ -1393,7 +1396,7 @@ extends Robot {
 		xx = ulnaPlaneX.dot(fingerPlaneZ);
 		yy = ulnaPlaneZ.dot(fingerPlaneZ);
 		ee = Math.atan2(yy, xx);
-		angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee-bb));
+		angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee));
 
 		//System.out.print(xx+"\t"+yy+"\t"+ee+"\t"+aa+"\t"+bb+"\t"+angle4+"\n");
 		
@@ -1418,9 +1421,6 @@ extends Robot {
 		if(gl2!=null) {			
 			//drawMatrix2(gl2,keyframe.fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ);
 			//drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,20);
-			drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,elbowPlaneZ);
-			drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ);
-			drawMatrix2(gl2,shoulderPosition,bicepPlaneX,shoulderPlaneY,bicepPlaneZ);
 			
 			//gl2.glTranslated(keyframe.fingerPosition.x, keyframe.fingerPosition.y, keyframe.fingerPosition.z);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
