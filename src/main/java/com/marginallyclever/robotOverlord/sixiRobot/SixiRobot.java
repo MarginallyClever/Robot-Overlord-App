@@ -1144,7 +1144,7 @@ extends Robot {
 	 */
 	protected boolean inverseKinematics(SixiRobotKeyframe keyframe,boolean renderMode,GL2 gl2) {
 		double ee;
-		float n, xx, yy, angle0,angle1,angle2,angle3,angle4,angle5;
+		float xx, yy, angle0,angle1,angle2,angle3,angle4,angle5;
 		
 		// rotation at finger, bend at wrist, rotation between wrist and elbow, then bends down to base.
 
@@ -1156,8 +1156,7 @@ extends Robot {
 
 		// find the wrist position
 		Vector3f wristToFinger = new Vector3f(fingerPlaneZ);
-		n = (float)SixiRobot.WRIST_TO_TOOL_Z;
-		wristToFinger.scale(n);
+		wristToFinger.scale((float)SixiRobot.WRIST_TO_TOOL_Z);
 		
 		Vector3f wristPosition = new Vector3f(keyframe.fingerPosition);
 		wristPosition.sub(wristToFinger);
@@ -1233,12 +1232,9 @@ extends Robot {
 		Vector3f v2 = new Vector3f();
 		v2.cross(v1,shoulderPlaneY);
 		v2.normalize();  // normalized version of elbowToWrist 
-		
-		Vector3f nvx = new Vector3f();
-		Vector3f nvy = new Vector3f();
 
-		nvx.set(v1);	nvx.scale((float)Math.cos(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
-		nvy.set(v2);	nvy.scale((float)Math.sin(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
+		Vector3f nvx = new Vector3f(v1);	nvx.scale((float)Math.cos(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
+		Vector3f nvy = new Vector3f(v2);	nvy.scale((float)Math.sin(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
 		Vector3f elbowPlaneX = new Vector3f(nvx);
 		Vector3f elbowPlaneZ = new Vector3f();
 		elbowPlaneX.add(nvy);
@@ -1419,11 +1415,6 @@ extends Robot {
 		double angle4rad = Math.toRadians(keyframe.angle4);
 		double angle5rad = Math.toRadians(-keyframe.angle5);
 
-		Vector3f nvx = new Vector3f();
-		Vector3f nvz = new Vector3f();
-		Vector3f vx = new Vector3f();
-		Vector3f vz = new Vector3f();
-
 		Vector3f shoulderPosition = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER-FLOOR_ADJUST));
 		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
 		Vector3f shoulderPlaneX = new Vector3f((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
@@ -1432,8 +1423,8 @@ extends Robot {
 		shoulderPlaneY.normalize();
 
 		// get rotation at bicep
-		nvx.set(shoulderPlaneX);	nvx.scale((float)Math.cos(angle1rad));
-		nvz.set(shoulderPlaneZ);	nvz.scale((float)Math.sin(angle1rad));
+		Vector3f nvx = new Vector3f(shoulderPlaneX);	nvx.scale((float)Math.cos(angle1rad));
+		Vector3f nvz = new Vector3f(shoulderPlaneZ);	nvz.scale((float)Math.sin(angle1rad));
 
 		Vector3f bicepPlaneY = new Vector3f(shoulderPlaneY);
 		Vector3f bicepPlaneZ = new Vector3f(nvx);
@@ -1444,8 +1435,8 @@ extends Robot {
 		bicepPlaneX.normalize();
 
 		// shoulder to elbow
-		vx.set(bicepPlaneX);	vx.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Y);
-		vz.set(bicepPlaneZ);	vz.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Z);
+		Vector3f vx = new Vector3f(bicepPlaneX);	vx.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Y);
+		Vector3f vz = new Vector3f(bicepPlaneZ);	vz.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Z);
 		Vector3f shoulderToElbow = new Vector3f();
 		shoulderToElbow.add(vx);
 		shoulderToElbow.add(vz);
@@ -1506,9 +1497,7 @@ extends Robot {
 		}
 		
 		// get matrix of ulna rotation
-		Vector3f ulnaPlaneZ = new Vector3f(nvx);
-		ulnaPlaneZ.add(nvz);
-		ulnaPlaneZ.normalize();
+		Vector3f ulnaPlaneZ = new Vector3f(elbowPlaneZ);
 		Vector3f ulnaPlaneX = new Vector3f();
 		vx.set(elbowPlaneX);	vx.scale((float)Math.cos(angle3rad));
 		vz.set(elbowPlaneY);	vz.scale((float)Math.sin(angle3rad));
