@@ -1250,7 +1250,7 @@ extends Robot {
 		// The bone between elbow and wrist is L shaped.  
 		// The angles of the triangle implied by the L are important.
 		double aa=Math.atan(Math.abs(ELBOW_TO_WRIST_Y/ELBOW_TO_WRIST_Z));
-		double bb=(Math.PI/2)-aa;
+		//double bb=(Math.PI/2)-aa;
 		
 		Vector3f shoulderToElbow = new Vector3f(elbowPosition);
 		shoulderToElbow.sub(shoulderPosition);

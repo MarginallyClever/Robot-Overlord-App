@@ -26,7 +26,6 @@ import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.junit.Test;
@@ -100,7 +99,7 @@ public class DL4JTest {
 	// https://www.opencodez.com/java/deeplearaning4j.htm ?
 	@Test
 	public void testFirstDL4J() throws Exception {
-		int totalRecords = 25878528;
+		//int totalRecords = 25878528;
 		
 		final int numInputs = 6;
 		final int numOutputs = 6; // Number of possible outcomes (e.g. labels 0 through 9).
