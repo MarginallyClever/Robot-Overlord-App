@@ -284,7 +284,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 	protected void doAbout() {
 		HTMLDialogBox box = new HTMLDialogBox();
 		box.display(this.getRootPane(), "<html><body>"
-				+"<h1>SIXI</h1>"
+				+"<h1>SIXI 2 Robot Arm</h1>"
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A six axis manipulator.</p><br>"
 				+"</body></html>", "About "+this.robot.getDisplayName());
