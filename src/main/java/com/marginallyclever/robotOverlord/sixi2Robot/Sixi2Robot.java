@@ -686,7 +686,7 @@ extends Robot {
 		// shoulder
 
 		gl2.glTranslated( 0, 0, FLOOR_TO_SHOULDER_MODEL);
-		gl2.glRotated(-90+motionNow.angle0,0,0,1);
+		gl2.glRotated(-90-motionNow.angle0,0,0,1);
 		gl2.glRotated(90,1,0,0);
 		//shoulderMat.setSpecularColor(0, 0, 0, 1);
 		//shoulderMat.setDiffuseColor(1, 0, 0, 1);
@@ -705,7 +705,7 @@ extends Robot {
 		gl2.glTranslated(0, SHOULDER_TO_ELBOW_Z, 0);
 		gl2.glRotated(180,1,0,0);
 		gl2.glRotated(180,0,0,1);
-		gl2.glRotated(motionNow.angle2,1,0,0);
+		gl2.glRotated(-motionNow.angle2,1,0,0);
 		forearmMat.render(gl2);
 		forearmModel.render(gl2);
 		
@@ -721,7 +721,7 @@ extends Robot {
 		picassoBoxModel.render(gl2);
 
 		// hand
-		gl2.glRotated(-motionNow.angle5,0,0,1);
+		gl2.glRotated(motionNow.angle5,0,0,1);
 		handMat.render(gl2);
 		handModel.render(gl2);
 		/*
@@ -1449,12 +1449,12 @@ extends Robot {
 			keyframe.shoulder.set(shoulderPosition);
 			keyframe.elbow.set(elbowPosition);
 			keyframe.wrist.set(wristPosition);
-			keyframe.angle0 = angle0;
+			keyframe.angle0 = -angle0;
 			keyframe.angle1 = angle1;
-			keyframe.angle2 = angle2;
+			keyframe.angle2 = -angle2;
 			keyframe.angle3 = angle3;
 			keyframe.angle4 = angle4;
-			keyframe.angle5 = angle5;
+			keyframe.angle5 = -angle5;
 		}
 
 		return true;
@@ -1466,12 +1466,12 @@ extends Robot {
 	 * @param renderMode don't apply math, just visualize the intermediate results
 	 */
 	protected void forwardKinematics(Sixi2RobotKeyframe keyframe,boolean renderMode,GL2 gl2) {
-		double angle0rad = Math.toRadians(keyframe.angle0);
+		double angle0rad = Math.toRadians(-keyframe.angle0);
 		double angle1rad = Math.toRadians(90+keyframe.angle1);
-		double angle2rad = Math.toRadians(keyframe.angle2);
+		double angle2rad = Math.toRadians(-keyframe.angle2);
 		double angle3rad = Math.toRadians(keyframe.angle3);
 		double angle4rad = Math.toRadians(180-keyframe.angle4);
-		double angle5rad = Math.toRadians(keyframe.angle5);
+		double angle5rad = Math.toRadians(-keyframe.angle5);
 
 
 		Vector3f shoulderPosition = new Vector3f(0,0,(float)(Sixi2Robot.FLOOR_TO_SHOULDER));
