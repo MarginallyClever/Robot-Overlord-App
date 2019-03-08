@@ -74,26 +74,26 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 			} else if(line.startsWith("f ")) {
 				// face
 				String[] tokens = line.split("\\s+");
-				System.out.println("face len="+tokens.length);
+				//System.out.println("face len="+tokens.length);
 				int index;
 				for(int i=1;i<tokens.length;++i) {
 					String [] subTokens = tokens[i].split("/");
 					// vertex data
-					index = Integer.parseInt(subTokens[0]);
+					index = Integer.parseInt(subTokens[0])-1;
 					model.addVertex(
 							vertexArray.get(index*3+0),
 							vertexArray.get(index*3+1),
 							vertexArray.get(index*3+2));
 					// texture data (if any)
 					if(subTokens.length>1 && subTokens[1].length()>0) {
-						index = Integer.parseInt(subTokens[1]);
+						index = Integer.parseInt(subTokens[1])-1;
 						model.addTexCoord(
 								texCoordArray.get(index*3+0),
 								texCoordArray.get(index*3+1));
 					}
 					// normal data (if any)
 					if(subTokens.length>2 && subTokens[2].length()>0) {
-						index = Integer.parseInt(subTokens[2]);
+						index = Integer.parseInt(subTokens[2])-1;
 						model.addNormal(
 								normalArray.get(index*3+0),
 								normalArray.get(index*3+1),
