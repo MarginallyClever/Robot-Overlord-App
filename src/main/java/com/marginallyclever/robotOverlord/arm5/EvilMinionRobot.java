@@ -713,28 +713,6 @@ extends Robot {
 	}
 	
 	
-	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w) {
-		drawMatrix(gl2,p,u,v,w,1);
-	}
-	
-	
-	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w,float scale) {
-		gl2.glPushMatrix();
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		gl2.glTranslatef(p.x, p.y, p.z);
-		gl2.glScalef(scale, scale, scale);
-		
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3f(1,1,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(u.x,u.y,u.z);
-		gl2.glColor3f(0,1,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(v.x,v.y,v.z);
-		gl2.glColor3f(1,0,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(w.x,w.y,w.z);
-		gl2.glEnd();
-		
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glPopMatrix();
-	}
-	
-	
 	protected void drawBounds(GL2 gl2) {
 		throw new UnsupportedOperationException();
 	}

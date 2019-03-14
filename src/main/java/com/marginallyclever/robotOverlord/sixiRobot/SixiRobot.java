@@ -8,6 +8,7 @@ import org.junit.Test;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.sixiRobot.tool.*;
@@ -684,7 +685,7 @@ extends Robot {
 		bicepModel.render(gl2);
 
 		// elbow
-		//drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
+		//MatrixHelper.MatrixHelper.drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
 		gl2.glTranslated(0,-SHOULDER_TO_ELBOW_Y,SHOULDER_TO_ELBOW_Z);
 		gl2.glRotated(-motionNow.angle2+180, 1, 0, 0);
 		elbowMat.render(gl2);
@@ -715,85 +716,6 @@ extends Robot {
 		}
 	}
 	
-	/**
-	 * @see drawMatrix(gl2,p,u,v,w,1)
-	 * @param gl2
-	 * @param p
-	 * @param u
-	 * @param v
-	 * @param w
-	 */
-	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w) {
-		drawMatrix(gl2,p,u,v,w,1);
-	}
-	
-	/**
-	 * Draw the three vectors of a matrix at a point
-	 * @param gl2 render context
-	 * @param p position at which to draw
-	 * @param u in yellow (1,1,0)
-	 * @param v in teal (0,1,1)
-	 * @param w in magenta (1,0,1)
-	 * @param scale nominally 1
-	 */
-	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w,float scale) {
-		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-			
-		gl2.glPushMatrix();
-			gl2.glTranslatef(p.x, p.y, p.z);
-			gl2.glScalef(scale, scale, scale);
-			
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(1,1,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(u.x,u.y,u.z);  // 1,1,0 = yellow
-			gl2.glColor3f(0,1,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(v.x,v.y,v.z);  // 0,1,1 = teal 
-			gl2.glColor3f(1,0,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(w.x,w.y,w.z);  // 1,0,1 = magenta
-			gl2.glEnd();
-
-		gl2.glPopMatrix();
-		
-		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
-	}
-
-	/**
-	 * @see drawMatrix(gl2,p,u,v,w,1)
-	 * @param gl2
-	 * @param p
-	 * @param u
-	 * @param v
-	 * @param w
-	 */
-	protected void drawMatrix2(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w) {
-		drawMatrix2(gl2,p,u,v,w,1);
-	}
-	
-	/**
-	 * Draw the three vectors of a matrix at a point
-	 * @param gl2 render context
-	 * @param p position at which to draw
-	 * @param u in red
-	 * @param v in green
-	 * @param w in blue
-	 * @param scale nominally 1
-	 */
-	protected void drawMatrix2(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w,float scale) {
-		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-			
-		gl2.glPushMatrix();
-			gl2.glTranslatef(p.x, p.y, p.z);
-			gl2.glScalef(scale, scale, scale);
-			
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(1,0,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(u.x,u.y,u.z);  // 1,0,0 = red
-			gl2.glColor3f(0,1,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(v.x,v.y,v.z);  // 0,1,0 = green 
-			gl2.glColor3f(0,0,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(w.x,w.y,w.z);  // 0,0,1 = blue
-			gl2.glEnd();
-
-		gl2.glPopMatrix();
-		
-		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
-	}
 	
 	protected void drawBounds(GL2 gl2) {
 		throw new UnsupportedOperationException();
@@ -1366,11 +1288,11 @@ extends Robot {
 			Vector3f ulnaPosition = new Vector3f(elbowPosition);
 			ulnaPosition.add(elbowToUlna);
 			
-			drawMatrix2(gl2,keyframe.fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
-			drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,2);
-			drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,elbowPlaneZ);
-			drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ);
-			drawMatrix2(gl2,shoulderPosition,bicepPlaneX,shoulderPlaneY,bicepPlaneZ);
+			MatrixHelper.drawMatrix2(gl2,keyframe.fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
+			MatrixHelper.drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,2);
+			MatrixHelper.drawMatrix2(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,elbowPlaneZ);
+			MatrixHelper.drawMatrix2(gl2,elbowPosition,elbowPlaneX,shoulderPlaneY,elbowPlaneZ);
+			MatrixHelper.drawMatrix2(gl2,shoulderPosition,bicepPlaneX,shoulderPlaneY,bicepPlaneZ);
 			
 			//gl2.glTranslated(keyframe.fingerPosition.x, keyframe.fingerPosition.y, keyframe.fingerPosition.z);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
@@ -1642,12 +1564,12 @@ extends Robot {
 			gl2.glVertex3d(fingerPosition.x, fingerPosition.y, fingerPosition.z);
 			gl2.glEnd();
 
-			drawMatrix(gl2,fingerPosition,globalForward,globalRight,globalUp,5);
-			drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
-			drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
-			drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);
-			drawMatrix(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ);
-			drawMatrix(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
+			MatrixHelper.drawMatrix(gl2,fingerPosition,globalForward,globalRight,globalUp,5);
+			MatrixHelper.drawMatrix(gl2,shoulderPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
+			MatrixHelper.drawMatrix(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
+			MatrixHelper.drawMatrix(gl2,ulnaPosition,ulnaPlaneX,ulnaPlaneY,ulnaPlaneZ);
+			MatrixHelper.drawMatrix(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ);
+			MatrixHelper.drawMatrix(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
 		}
 		if(renderMode==false) {
 			keyframe.shoulder.set(shoulderPosition);

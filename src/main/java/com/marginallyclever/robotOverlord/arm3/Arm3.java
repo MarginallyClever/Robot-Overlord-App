@@ -4,6 +4,7 @@ import javax.vecmath.Vector3f;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
@@ -313,7 +314,7 @@ extends Robot {
 	    Vector3f base_u = new Vector3f(1,0,0);
 	    Vector3f base_v = new Vector3f(0,1,0);
 	    Vector3f base_w = new Vector3f(0,0,1);
-	    drawMatrix(gl2,motionNow.base,base_u,base_v,base_w);
+	    MatrixHelper.drawMatrix(gl2,motionNow.base,base_u,base_v,base_w);
 
 	    Vector3f arm_plane = new Vector3f(motionNow.wrist.x,motionNow.wrist.y,0);
 	    arm_plane.normalize();
@@ -328,7 +329,7 @@ extends Robot {
 		shoulder_w.normalize();
 		Vector3f shoulder_u = new Vector3f();
 		shoulder_u.cross(shoulder_v,shoulder_w);
-	    drawMatrix(gl2,motionNow.shoulder,shoulder_u,shoulder_v,shoulder_w);
+	    MatrixHelper.drawMatrix(gl2,motionNow.shoulder,shoulder_u,shoulder_v,shoulder_w);
 		
 		Vector3f elbow_v = new Vector3f(arm_plane_normal);
 		elbow_v.scale(-1);
@@ -337,7 +338,7 @@ extends Robot {
 		elbow_w.normalize();
 		Vector3f elbow_u = new Vector3f();
 		elbow_u.cross(elbow_v,elbow_w);
-	    drawMatrix(gl2,motionNow.elbow,elbow_u,elbow_v,elbow_w);
+	    MatrixHelper.drawMatrix(gl2,motionNow.elbow,elbow_u,elbow_v,elbow_w);
 
 	    
 		Vector3f ulna_w = new Vector3f(motionNow.wrist);
@@ -351,16 +352,16 @@ extends Robot {
 		ulna_v.scale(-1);
 		Vector3f ulna_u = new Vector3f();
 		ulna_u.cross(ulna_v,ulna_w);
-	    drawMatrix(gl2,ulna_p,ulna_u,ulna_v,ulna_w);
+	    MatrixHelper.drawMatrix(gl2,ulna_p,ulna_u,ulna_v,ulna_w);
 
 	    Vector3f wrist_u = new Vector3f(ulna_u);
 	    Vector3f wrist_v = new Vector3f(ulna_v);
 	    Vector3f wrist_w = new Vector3f(ulna_w);
-	    drawMatrix(gl2,motionNow.wrist,wrist_u,wrist_v,wrist_w);
+	    MatrixHelper.drawMatrix(gl2,motionNow.wrist,wrist_u,wrist_v,wrist_w);
 
 	    Vector3f finger_up = new Vector3f();
 	    finger_up.cross(motionNow.fingerForward,motionNow.fingerRight);
-	    drawMatrix(gl2,motionNow.fingerPosition,motionNow.fingerForward,motionNow.fingerRight,finger_up);
+	    MatrixHelper.drawMatrix(gl2,motionNow.fingerPosition,motionNow.fingerForward,motionNow.fingerRight,finger_up);
 
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glBegin(GL2.GL_LINES);
@@ -446,27 +447,7 @@ extends Robot {
 		gl2.glPopMatrix();
 	}
 
-	
-	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w) {
-		drawMatrix(gl2,p,u,v,w,1);
-	}
-	
-	protected void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w,float scale) {
-		gl2.glPushMatrix();
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		gl2.glTranslatef(p.x, p.y, p.z);
-		gl2.glScalef(scale, scale, scale);
-		
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3f(1,1,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(u.x,u.y,u.z);
-		gl2.glColor3f(0,1,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(v.x,v.y,v.z);
-		gl2.glColor3f(1,0,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3f(w.x,w.y,w.z);
-		gl2.glEnd();
-		
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glPopMatrix();
-	}
-	
+
 	protected void drawFK(GL2 gl2) {
 		Vector3f a0 = new Vector3f(armSettings.getBaseToShoulderX(),0,armSettings.getBaseToShoulderZ());
 		Vector3f a1 = new Vector3f(0,0,armSettings.getShoulderToElbow());
