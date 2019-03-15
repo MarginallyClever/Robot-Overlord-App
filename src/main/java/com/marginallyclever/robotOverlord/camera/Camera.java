@@ -42,6 +42,9 @@ public class Camera extends PhysicalObject {
 	protected int move_right=0;
 	protected int move_back=0;
 	
+	protected int canvasWidth,canvasHeight;
+	
+	
 	CameraControlPanel cameraPanel;
 	
 	
@@ -67,6 +70,26 @@ public class Camera extends PhysicalObject {
 	}
 	
 	
+	public int getCanvasWidth() {
+		return canvasWidth;
+	}
+
+
+	public void setCanvasWidth(int canvasWidth) {
+		this.canvasWidth = canvasWidth;
+	}
+
+
+	public int getCanvasHeight() {
+		return canvasHeight;
+	}
+
+
+	public void setCanvasHeight(int canvasHeight) {
+		this.canvasHeight = canvasHeight;
+	}
+
+
 	public void mousePressed(MouseEvent e) {
         prevMouseX = e.getXOnScreen();
         prevMouseY = e.getYOnScreen();
@@ -216,5 +239,13 @@ public class Camera extends PhysicalObject {
 
 	public Vector3f getRight() {
 		return right;
+	}
+	
+	public float getPan() {
+		return pan;
+	}
+	
+	public float getTilt() {
+		return tilt;
 	}
 }
