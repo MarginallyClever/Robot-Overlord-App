@@ -55,6 +55,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 	private JLabel uid;
 	private JSlider stepSizeControl;
 	private UserCommandSelectNumber feedRateControl;
+	private UserCommandSelectNumber accelerationControl;
 	
 	private JButton runScript;
 	private JButton showDebug;
@@ -99,13 +100,13 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		//con1.anchor=GridBagConstraints.CENTER;
 
+		CollapsiblePanel speedPanel = createSpeedPanel(gui);
+		this.add(speedPanel,con1);
+		con1.gridy++;
+
 		CollapsiblePanel stepSizePanel = createStepSizePanel();
 		this.add(stepSizePanel,con1);
 		con1.gridy++;
-
-		this.add(feedRateControl = new UserCommandSelectNumber(gui,"Feed rate",(float)robot.getFeedRate()),con1);
-		con1.gridy++;
-		feedRateControl.addChangeListener(this);
 
 		// used for fk 
 		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
@@ -157,7 +158,42 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		p.add(about = createButton("About this robot"));
 	}
 	
+	protected CollapsiblePanel createSpeedPanel(RobotOverlord gui) {
+		CollapsiblePanel speedPanel = new CollapsiblePanel("Limits");
+		
+		GridBagConstraints con2 = new GridBagConstraints();
+		con2.gridx=0;
+		con2.gridy=0;
+		con2.fill=GridBagConstraints.HORIZONTAL;
+		con2.anchor=GridBagConstraints.NORTHWEST;
+		con2.weighty=1;
+		con2.weightx=0.25;
+
+		feedRateControl = new UserCommandSelectNumber(gui,"Speed",(float)robot.getFeedRate());
+		feedRateControl.addChangeListener(this);
+		speedPanel.getContentPane().add(feedRateControl,con2);
+		con2.gridy++;
+
+		accelerationControl = new UserCommandSelectNumber(gui,"Acceleration",(float)robot.getAcceleration());
+		accelerationControl.addChangeListener(this);
+		speedPanel.getContentPane().add(accelerationControl,con2);
+		con2.gridy++;
+		
+		return speedPanel;
+	}
+	
+	
 	protected CollapsiblePanel createStepSizePanel() {
+		CollapsiblePanel stepSizePanel = new CollapsiblePanel("Step size");
+		
+		GridBagConstraints con2 = new GridBagConstraints();
+		con2.gridx=0;
+		con2.gridy=0;
+		con2.fill=GridBagConstraints.HORIZONTAL;
+		con2.anchor=GridBagConstraints.NORTHWEST;
+		con2.weighty=1;
+		con2.weightx=0.25;
+		
 		double stepSize = robot.getStepSize();
 		int stepSizeIndex;
 		for(stepSizeIndex=0;stepSizeIndex<stepSizeOptions.length;++stepSizeIndex) {
@@ -168,17 +204,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		java.awt.Dimension dim = stepSizeNow.getPreferredSize();
 		dim.width = 50;
 		stepSizeNow.setPreferredSize(dim);
-
-		CollapsiblePanel speedPanel = new CollapsiblePanel("Step size");
-		
-		GridBagConstraints con2 = new GridBagConstraints();
-		con2.gridx=0;
-		con2.gridy=0;
-		con2.fill=GridBagConstraints.HORIZONTAL;
-		con2.anchor=GridBagConstraints.NORTHWEST;
-		con2.weighty=1;
-		con2.weightx=0.25;
-		speedPanel.getContentPane().add(stepSizeNow,con2);
+		stepSizePanel.getContentPane().add(stepSizeNow,con2);
 
 		stepSizeControl = new JSlider(0,stepSizeOptions.length-1,stepSizeIndex);
 		stepSizeControl.addChangeListener(this);
@@ -189,9 +215,9 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		con2.fill=GridBagConstraints.HORIZONTAL;
 		con2.weightx=0.75;
 		con2.gridx=1;
-		speedPanel.getContentPane().add(stepSizeControl,con2);
+		stepSizePanel.getContentPane().add(stepSizeControl,con2);
 		
-		return speedPanel;
+		return stepSizePanel;
 	}
 
 	protected void setSpeed(double speed) {
@@ -210,6 +236,10 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		if( subject == feedRateControl ) {
 			robot.setFeedRate(feedRateControl.getValue());
 		}
+		if( subject == accelerationControl ) {
+			robot.setAcceleration(accelerationControl.getValue());
+		}
+		
 		{
 			if( subject == fk0 ) {
 				robot.setFKAxis(0,fk0.getValue());
