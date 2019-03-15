@@ -8,6 +8,8 @@ import javax.vecmath.Vector3f;
  *
  */
 public class MathHelper {
+	public final static float EPSILON = 0.00001f;
+	
 	/**
 	 * @return Square of length of vector (dx,dy,dz) 
 	 */
@@ -117,5 +119,58 @@ public class MathHelper {
 	 */
 	static public long lcm(long a, long b) {
 	    return a * (b / gcd(a, b));
+	}
+
+	
+	// for floats
+	static public float interpolate(float a,float b,double t) {
+		return (b-a)*(float)t + a;
+	}
+
+	// for doubles
+	static public double interpolate(double a,double b,double t) {
+		return (b-a)*t + a;
+	}
+
+	
+	// this is a lerp.  for normals you'd want a slerp
+	static public Vector3f interpolate(Vector3f a,Vector3f b,double t) {
+		Vector3f n = new Vector3f(b);
+		n.sub(a);
+		n.scale((float)t);
+		n.add(a);
+		
+		return n;
+	}
+	
+	// https://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
+	static public Vector3f slerp(Vector3f a,Vector3f b,double t) {
+		
+		// Dot product - the cosine of the angle between 2 vectors.
+		float dot = a.dot(b);
+		// Clamp it to be in the range of Acos()
+		// This may be unnecessary, but floating point
+		// precision can be a fickle mistress.
+		dot = Math.min(Math.max(dot, -1.0f), 1.0f);
+		
+		// Acos(dot) returns the angle between start and end,
+		// And multiplying that by percent returns the angle between
+		// start and the final result.
+		float theta = (float)Math.acos(dot)*(float)t;
+		//Vector3f n b - a*dot;
+		Vector3f n = new Vector3f(b);
+		Vector3f aCopy = new Vector3f(a);
+		aCopy.scale(dot);
+		n.sub(aCopy);
+		// n.Normalize();
+		n.normalize();
+		// Orthonormal basis
+		// The final result.
+		//return ((start*Math.cos(theta)) + (n*Math.sin(theta)));
+		a.scale((float)Math.cos(theta));
+	    n.scale((float)Math.sin(theta));
+	    n.add(a);
+		
+		return n;
 	}
 }
