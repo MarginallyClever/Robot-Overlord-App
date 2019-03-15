@@ -576,9 +576,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	    		System.out.print("stack depth start = "+v.get(0));
     		}		
 	        // draw the world
-    		if( world !=null ) {
-    			world.render( gl2, frameLength );
-    		}
+   			world.render( gl2, frameLength );
+    		
 	        frameDelay-=frameLength;
 
 	        if(pickNow) {
@@ -597,6 +596,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     protected void setPerspectiveMatrix() {
         glu.gluPerspective(60, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 1.0f, 1000.0f);
+        world.getCamera().setCanvasWidth(glCanvas.getSurfaceWidth());
+        world.getCamera().setCanvasHeight(glCanvas.getSurfaceHeight());
     }
     
     /**
