@@ -23,6 +23,7 @@ import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.viewCube.ViewCube;
 
 /**
  * Container for all the visible objects in the world.
@@ -41,6 +42,10 @@ implements Serializable {
 
 	protected transient boolean areTexturesLoaded=false;
 
+	public final static Vector3f forward = new Vector3f(0,0,1);
+	public final static Vector3f right = new Vector3f(1,0,0);
+	public final static Vector3f up = new Vector3f(0,1,0);
+	
 	// world contents
 	protected ArrayList<Entity> entities;
 	protected Camera camera;
@@ -73,9 +78,9 @@ implements Serializable {
 	 * sets some render options at the
 	 * @param gl2 the openGL render context
 	 */
-    protected void setup( GL2 gl2 ) {
+    protected void setup() {
 		setupLights();
-		loadTextures(gl2);
+		loadTextures();
     }
     
 
@@ -101,7 +106,7 @@ implements Serializable {
     }
     
 	
-	void loadTextures( GL2 gl2 ) {
+	void loadTextures() {
 		if(areTexturesLoaded) return;
 		
 		// World background skybox texture
@@ -122,7 +127,7 @@ implements Serializable {
 	
 	public void render(GL2 gl2, float delta ) {
 		if(!isSetup) {
-			setup(gl2);
+			setup();
 			setupLights();
 			isSetup=true;
 		}
@@ -148,13 +153,10 @@ implements Serializable {
 			}
 		}
 
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
-		gl2.glLoadIdentity();
-
 		// Clear the screen and depth buffer
 
 		// background color
-    	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 0.0f);
+    	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 1.0f);
     	// Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
 		/*
@@ -166,20 +168,24 @@ implements Serializable {
         } else {
           gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         }*/
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+    	gl2.glDrawBuffer(GL2.GL_BACK);
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
         
 		gl2.glCullFace(GL2.GL_BACK);
 
-			
+		// DRAW THE WORLD
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+		gl2.glLoadIdentity();
+		
 		gl2.glPushMatrix();
 			camera.update(delta);  // this is ugly.  What if there is more than one camera?
 			camera.render(gl2);
 			
 			gl2.glDisable(GL2.GL_LIGHTING);
 
-	        gl2.glDisable(GL2.GL_CULL_FACE);
-			drawSkyCube(gl2);
-	        gl2.glEnable(GL2.GL_CULL_FACE);
+	        //gl2.glDisable(GL2.GL_CULL_FACE);
+			//drawSkyCube(gl2);
+	        //gl2.glEnable(GL2.GL_CULL_FACE);
 			
 			PrimitiveSolids.drawGrid(gl2,200,5);
 
@@ -206,6 +212,18 @@ implements Serializable {
 	
 			showPickingTest(gl2);
 			
+		gl2.glPopMatrix();
+		
+		// DRAW THE HUD
+
+		gl2.glPushMatrix();
+			camera.render(gl2);
+			
+	        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+			gl2.glLoadIdentity();
+	
+			ViewCube cube = new ViewCube();
+			cube.render(gl2,getCamera());
 		gl2.glPopMatrix();
 	}
 
