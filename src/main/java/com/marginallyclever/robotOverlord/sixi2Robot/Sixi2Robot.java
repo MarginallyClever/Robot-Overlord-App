@@ -6,7 +6,6 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.lines.LineControlPoint;
 import com.marginallyclever.robotOverlord.material.Material;
@@ -15,6 +14,7 @@ import com.marginallyclever.robotOverlord.world.World;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -76,6 +76,7 @@ extends Robot {
 	public final static float MIN_ANGLE_5 = -90;
 	public final static float MAX_ANGLE_5 =  90;
 	
+	
 	// model files
 	//private Model floorModel    = null;
 	private Model anchorModel   = null;
@@ -106,10 +107,11 @@ extends Robot {
 	// collision volumes
 	private Cylinder [] volumes = new Cylinder[6];
 
-	// motion states
+	// motion state of the arm right now
 	private Sixi2RobotKeyframe motionNow = new Sixi2RobotKeyframe();
+	// motion state in the near future, if valid.
 	private Sixi2RobotKeyframe motionFuture = new Sixi2RobotKeyframe();
-	
+		
 	// keyboard history
 	private float aDir = 0.0f;
 	private float bDir = 0.0f;
@@ -140,7 +142,7 @@ extends Robot {
 	
 	public Sixi2Robot() {
 		super();
-		
+
 		setDisplayName(ROBOT_NAME);
 		
 		// set up bounding volumes
@@ -637,11 +639,8 @@ extends Robot {
 		}
 	}
 	
-	LineControlPoint lcp = new LineControlPoint();
-	
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
+	public void testLineControlPointRender(GL2 gl2) {
+		LineControlPoint lcp = new LineControlPoint();
 		
 		lcp.position.p0.x=0;
 		lcp.position.p0.y=0;
@@ -666,7 +665,36 @@ extends Robot {
 		lcp.position.p2.z=Math.min(Math.max(lcp.position.p2.z, 0), 20);
 
 		lcp.render(gl2);
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		if(!isModelLoaded) {
+			this.keyframeAdd();
+			this.keyframeAdd();
+			this.keyframeAdd();
+			this.keyframeAdd();
+			this.keyframeAdd();
+	/*
+			k.fingerPosition.x+=  5;	k.fingerPosition.y+=  0;	k.inverseKinematics(false, null);	keyframes.set(0,k);
+			k.fingerPosition.x+=  0;	k.fingerPosition.y+= 10;	k.inverseKinematics(false, null);	keyframes.set(1,k);
+			k.fingerPosition.x+=-10;	k.fingerPosition.y+=  0;	k.inverseKinematics(false, null);	keyframes.set(2,k);
+			k.fingerPosition.x+=  0;	k.fingerPosition.y+=-10;	k.inverseKinematics(false, null);	keyframes.set(3,k);
+			k.fingerPosition.x+=  5;	k.fingerPosition.y+=  0;	k.inverseKinematics(false, null);	keyframes.set(4,k);
+	*/
+			Sixi2RobotKeyframe k;
 
+			k = (Sixi2RobotKeyframe)getKeyframe(0); 	k.forwardKinematics(false, null);	 													//keyframes.set(0,k);
+			k = (Sixi2RobotKeyframe)getKeyframe(1);		k.forwardKinematics(false, null);	k.fingerPosition.x+=10;								k.inverseKinematics(false, null);	//keyframes.set(0,k);
+			k = (Sixi2RobotKeyframe)getKeyframe(2); 	k.forwardKinematics(false, null);	k.fingerPosition.x+=10;	k.fingerPosition.y+=10;		k.inverseKinematics(false, null);	//keyframes.set(0,k);
+			k = (Sixi2RobotKeyframe)getKeyframe(3); 	k.forwardKinematics(false, null);							k.fingerPosition.y+=10;		k.inverseKinematics(false, null);	//keyframes.set(0,k);
+
+		}
+
+		super.render(gl2);
+
+		//testLineControlPointRender();
+		
 		gl2.glPushMatrix();
 			// TODO rotate model
 			Vector3f p = getPosition();
@@ -1099,5 +1127,10 @@ extends Robot {
 		
 		  
 		enableFK();
+	}
+	
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new Sixi2RobotKeyframe();
 	}
 }
