@@ -21,13 +21,13 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	private static final long serialVersionUID = 1012199745425607761L;
 	
 	// angle of rotation
-	float angle0 = 0;
-	float angle1 = 0;
-	float angle2 = 0;
-	float angle3 = 0;
-	float angle4 = 0;
-	float angle5 = 0;
-	float angleServo = 120;
+	float angle0;
+	float angle1;
+	float angle2;
+	float angle3;
+	float angle4;
+	float angle5;
+	float angleServo;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
 	public Vector3f fingerPosition = new Vector3f();
@@ -53,6 +53,21 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	// rotating entire robot
 	public double basePan=0;
 	public double baseTilt=0;
+	
+	public String additionalInstructions;
+	
+	public Sixi2RobotKeyframe() {
+		super();
+
+		angle0 = 0;
+		angle1 = 0;
+		angle2 = 0;
+		angle3 = 0;
+		angle4 = 0;
+		angle5 = 0;
+		angleServo = 120;
+	}
+	
 	
 	void set(Sixi2RobotKeyframe other) {
 		angle0 = other.angle0;
@@ -115,7 +130,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// rotating entire robot
 		basePan = MathHelper.interpolate(a.basePan,b.basePan,t);
 
-		// @TODO a linear interpolation of the joint positions would be wrong.
+		// A linear interpolation of the joint positions would be wrong.
 		// they should be calculated from the inverse kinematics.
 		inverseKinematics(false,null);
 	}
@@ -132,18 +147,19 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	}
 	
 	/**
-	 * visualize the change between two keyframes
+	 * visualize the change between this keyframe and another
 	 */
-	static public void renderInterpolation(GL2 gl2,Sixi2RobotKeyframe a,Sixi2RobotKeyframe b) {
+	@Override
+	public void renderInterpolation(GL2 gl2,RobotKeyframe arg1) {
+		Sixi2RobotKeyframe b = (Sixi2RobotKeyframe)arg1;
 		LineControlPoint lcp = new LineControlPoint();
 		
-		lcp.position.p0.set(a.fingerPosition);
-		lcp.position.p1.set(a.fingerPosition);  // @TODO add control handles!
-		lcp.position.p2.set(b.fingerPosition);	// @TODO add control handles!
-		lcp.position.p2.set(b.fingerPosition);
+		lcp.position.p0.set(this.fingerPosition);
+		lcp.position.p1.set(this.fingerPosition);  // TODO add control handles!
+		lcp.position.p2.set(b.fingerPosition);	// TODO add control handles!
+		lcp.position.p3.set(b.fingerPosition);
 
 		lcp.render(gl2);
-
 	}
 	
 	
