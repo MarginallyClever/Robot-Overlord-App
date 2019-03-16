@@ -28,7 +28,7 @@ public class ViewCube {
 			t3 = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
 			t4 = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
 			t5 = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
-			//System.out.println(">>> All textures loaded OK");
+			//System.out.println(">>> ViewCube textures loaded OK");
 			areTexturesLoaded=true;
 		}
 		catch(Exception e) {
