@@ -58,6 +58,7 @@ implements Serializable {
 	protected transient Vector3f pickRay = null;
 	protected transient boolean isSetup = false;
 
+	protected transient ViewCube viewCube;
 	
 	public World() {
 		areTexturesLoaded=false;
@@ -71,6 +72,8 @@ implements Serializable {
 		addEntity(light0 = new Light());
 		addEntity(light1 = new Light());
 		addEntity(light2 = new Light());
+		
+		viewCube = new ViewCube();
 	}
 	
 
@@ -222,8 +225,7 @@ implements Serializable {
 	        gl2.glMatrixMode(GL2.GL_MODELVIEW);
 			gl2.glLoadIdentity();
 	
-			ViewCube cube = new ViewCube();
-			cube.render(gl2,getCamera());
+			viewCube.render(gl2,getCamera());
 		gl2.glPopMatrix();
 	}
 
