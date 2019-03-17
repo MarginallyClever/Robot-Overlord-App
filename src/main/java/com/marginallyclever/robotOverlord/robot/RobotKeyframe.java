@@ -28,5 +28,5 @@ public interface RobotKeyframe extends Serializable {
 	/**
 	 * visualize the change between two keyframes
 	 */
-	public void renderInterpolation(GL2 gl2,RobotKeyframe b);
+	public void renderInterpolation(GL2 gl2,RobotKeyframe arg1);
 }
