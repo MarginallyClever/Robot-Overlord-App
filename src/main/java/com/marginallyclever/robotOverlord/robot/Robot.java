@@ -1,6 +1,8 @@
 package com.marginallyclever.robotOverlord.robot;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -17,7 +19,7 @@ import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
  * @author Dan Royer
  *
  */
-public class Robot extends PhysicalObject implements NetworkConnectionListener {
+public abstract class Robot extends PhysicalObject implements NetworkConnectionListener {
 	/**
 	 * 
 	 */
@@ -28,6 +30,17 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
 
+	// animation settings
+	protected transient LinkedList<RobotKeyframe> keyframes = new LinkedList<RobotKeyframe>();
+	protected int keyframe_index;
+	protected float keyframe_t;
+	
+	public enum AnimationBehavior {
+		ANIMATE_ONCE,
+		ANIMATE_LOOP,
+	};
+	public AnimationBehavior animationBehavior;
+	public float animationSpeed=1.0f;
 
 	// sending file to the robot
 	private boolean running;
@@ -37,7 +50,9 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 
-	private transient boolean modelsLoaded;
+
+	
+	protected transient boolean isModelLoaded;
 	
 	protected transient RobotControlPanel robotPanel=null;
 	
@@ -50,8 +65,8 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 		fileOpened=false;
 		paused=true;
 		running=false;
-		modelsLoaded=false;
-		//program=new RobotProgram();
+		isModelLoaded=false;
+		animationBehavior=AnimationBehavior.ANIMATE_LOOP;
 	}
 	
 
@@ -185,12 +200,36 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 	
 	// Must be called by subclass to loadModels on render.
 	public void render(GL2 gl2) {
-		if(!modelsLoaded) {
+		if(!isModelLoaded) {
 			loadModels(gl2);
-			modelsLoaded=true;
+			isModelLoaded=true;
 		}
+		
+		renderKeyframes(gl2);
 	}
 
+	/**
+	 * Draw each of the individual keyframes and any {@renderInterpolation} that might exist between them.
+	 * @param gl2 the render context
+	 */
+	protected void renderKeyframes(GL2 gl2) {
+		Iterator<RobotKeyframe> i = keyframes.iterator();
+		RobotKeyframe current;
+		RobotKeyframe next=null;
+		while(i.hasNext()) {
+			current = next;
+			next = i.next();
+			if(current != null && next!=null) {
+				current.render(gl2);
+				// TODO this shouldn't be the base type
+				current.renderInterpolation(gl2, next);
+			}
+		}
+		if(next!=null) {
+			next.render(gl2);
+		}
+	}
+	
 	// stub to be overridden by subclasses.
 	protected void loadModels(GL2 gl2) {}
 	
@@ -235,27 +274,6 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 		// TODO Auto-generated method stub
 		
 	}
-
-	/**
-	 * confirm that this RobotKeyframe is valid (robot is not in an impossible state)
-	 * @param the RobotKeyframe to validate
-	 * @return true if the state is valid
-	 */
-	public boolean isKeyframeValid(RobotKeyframe arg0) {
-		return false;
-	}
-	
-	/**
-	 * interpolate between two keyframes.
-	 * @param a starting state
-	 * @param b ending state
-	 * @param scale value from 0 to 1, inclusive.
-	 * @return the interpolated keyframe = (b-a)*scale + a
-	 */
-	public RobotKeyframe interpolateKeyframes(RobotKeyframe a,RobotKeyframe b,float scale) {
-		return a;//( b - a ) * scale + a;
-	}
-	
 /*
 	// pull the last connected port from prefs
 	private void loadRecentPortFromPreferences() {
@@ -269,4 +287,100 @@ public class Robot extends PhysicalObject implements NetworkConnectionListener {
 		//UpdateMenuBar();
 	}
 */
+
+	public abstract RobotKeyframe createKeyframe();
+	
+	public void keyframeAdd() {
+		keyframes.add(keyframe_index, createKeyframe());
+	}
+	
+	public void keyframeDelete() {
+		keyframes.remove(keyframe_index);
+		if(keyframe_index>keyframes.size()) keyframe_index = keyframes.size()-1;
+	}
+	
+	public float getKeyframeT() {
+		return keyframe_t;
+	}
+	public void setKeyframeT(float arg0) {
+		keyframe_t=Math.min(Math.max(arg0, 0),1);
+	}
+	
+	public int getKeyframeSize() {
+		return keyframes.size();
+	}
+	public int getKeyframeIndex() {
+		return keyframe_index;
+	}
+	public void setKeyframeIndex(int arg0) {
+		keyframe_index=Math.min(Math.max(arg0, 0),keyframes.size()-1);
+	}
+	
+	public RobotKeyframe getKeyframeNow() {
+		int size=getKeyframeSize();
+		if(keyframe_index>=size-1) {
+			// last keyframe, nowhere to interpolate towards.
+			return keyframes.getLast();
+		} else {
+			RobotKeyframe now = createKeyframe();
+			RobotKeyframe a = keyframes.get(keyframe_index);
+			RobotKeyframe b = keyframes.get(keyframe_index+1);
+			now.interpolate(a, b, keyframe_t);
+			return now;
+		}
+	}
+	
+	public RobotKeyframe getKeyframe(int arg0) {
+		return keyframes.get(arg0);
+	}
+	
+	public void setKeyframe(int index,RobotKeyframe element) {
+		keyframes.set(index, element);
+	}
+	
+	@Override
+	public void prepareMove(float dt) {
+		animate(dt);
+	}
+	
+	protected void animate(float dt) {
+		keyframe_t+=dt*animationSpeed;
+		if(animationSpeed>0) {
+			if(keyframe_t>1) {
+				keyframe_t-=1;
+				++keyframe_index;
+				int size=getKeyframeSize();
+				if(keyframe_index>size-1) {
+					switch(animationBehavior) {
+					case ANIMATE_ONCE:
+						keyframe_index = size-1;
+						keyframe_t=0;
+						// TODO set the panel button to paused
+						break;
+					case ANIMATE_LOOP:
+						keyframe_index=0;
+						break;
+					}
+				}
+			}
+		} else if(animationSpeed<0) {
+			if(keyframe_t<0) {
+				keyframe_t+=1;
+				--keyframe_index;
+				if(keyframe_index<0) {
+					switch(animationBehavior) {
+					case ANIMATE_ONCE:
+						keyframe_index = 0;
+						keyframe_t=0;
+						animationSpeed=0;
+						// TODO set the panel buttonAnimatePlayPause to paused
+						break;
+					case ANIMATE_LOOP:
+						keyframe_index+=getKeyframeSize();
+						break;
+					}
+				}
+			}
+		}
+	}
 }
