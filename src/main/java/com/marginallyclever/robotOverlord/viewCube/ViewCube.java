@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.viewCube;
 
-import javax.vecmath.Vector3f;
-
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;

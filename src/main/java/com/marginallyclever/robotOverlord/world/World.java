@@ -128,7 +128,12 @@ implements Serializable {
 		}
 	}
 	
-	public void render(GL2 gl2, float delta ) {
+	/**
+	 * 
+	 * @param gl2 render context
+	 * @param delta ms since last render
+	 */
+	public void render(GL2 gl2, float delta) {
 		if(!isSetup) {
 			setup();
 			setupLights();
