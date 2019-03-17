@@ -99,6 +99,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		shoulder.set(other.shoulder);
 		base.set(other.base);
 	}
+	
 	/**
 	 * Fill this instance with the interpolated value of (b-a)*t+a, where t={0..1}.  
 	 *  The valid values are: {@fingerPosition}, {@fingerForward}, {@fingerRight}, {@ikU}, {@ikV}, {@ikW},
@@ -118,9 +119,9 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		fingerRight.set(MathHelper.slerp(a.fingerRight,b.fingerRight,t));
 
 		// finger rotation, in degrees
-		ikU = MathHelper.interpolate(a.ikU,b.ikU,t);
-		ikV = MathHelper.interpolate(a.ikV,b.ikV,t);
-		ikW = MathHelper.interpolate(a.ikW,b.ikW,t);
+		//ikU = MathHelper.interpolate(a.ikU,b.ikU,t);
+		//ikV = MathHelper.interpolate(a.ikV,b.ikV,t);
+		//ikW = MathHelper.interpolate(a.ikW,b.ikW,t);
 		
 		anchorPosition = MathHelper.interpolate(a.anchorPosition,b.anchorPosition,t);
 		baseForward = MathHelper.slerp(a.baseForward,b.baseForward,t);
@@ -133,6 +134,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// A linear interpolation of the joint positions would be wrong.
 		// they should be calculated from the inverse kinematics.
 		inverseKinematics(false,null);
+		//forwardKinematics(false,null);
 	}
 	
 	/**

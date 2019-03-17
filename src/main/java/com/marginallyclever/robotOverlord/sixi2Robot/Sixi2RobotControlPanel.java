@@ -91,7 +91,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 
 		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
-		
+
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
@@ -99,7 +99,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		//con1.anchor=GridBagConstraints.CENTER;
-
+		
 		CollapsiblePanel speedPanel = createSpeedPanel(gui);
 		this.add(speedPanel,con1);
 		con1.gridy++;
