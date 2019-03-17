@@ -7,7 +7,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.*;
-import com.marginallyclever.robotOverlord.lines.LineControlPoint;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.sixi2Robot.tool.*;
 import com.marginallyclever.robotOverlord.world.World;
@@ -622,6 +621,7 @@ extends Robot {
 	
 	@Override
 	public void prepareMove(float delta) {
+		super.prepareMove(delta);
 		updateIK(delta);
 		updateFK(delta);
 		if(tool != null) tool.update(delta);
@@ -629,6 +629,12 @@ extends Robot {
 
 	@Override
 	public void finalizeMove() {
+		if(getKeyframeSize()>0&&animationSpeed!=0) {
+			motionFuture.set((Sixi2RobotKeyframe)getKeyframeNow());
+
+			//System.out.println(keyframe_index+":"+keyframe_t+"\t"+motionFuture.fingerRight);
+		}
+		
 		// copy motion_future to motion_now
 		motionNow.set(motionFuture);
 		
@@ -638,9 +644,10 @@ extends Robot {
 			}
 		}
 	}
-	
+
+	/*
+	LineControlPoint lcp = new LineControlPoint();
 	public void testLineControlPointRender(GL2 gl2) {
-		LineControlPoint lcp = new LineControlPoint();
 		
 		lcp.position.p0.x=0;
 		lcp.position.p0.y=0;
@@ -666,7 +673,7 @@ extends Robot {
 
 		lcp.render(gl2);
 	}
-	
+	*/
 	@Override
 	public void render(GL2 gl2) {
 		if(!isModelLoaded) {
@@ -675,25 +682,41 @@ extends Robot {
 			this.keyframeAdd();
 			this.keyframeAdd();
 			this.keyframeAdd();
-	/*
-			k.fingerPosition.x+=  5;	k.fingerPosition.y+=  0;	k.inverseKinematics(false, null);	keyframes.set(0,k);
-			k.fingerPosition.x+=  0;	k.fingerPosition.y+= 10;	k.inverseKinematics(false, null);	keyframes.set(1,k);
-			k.fingerPosition.x+=-10;	k.fingerPosition.y+=  0;	k.inverseKinematics(false, null);	keyframes.set(2,k);
-			k.fingerPosition.x+=  0;	k.fingerPosition.y+=-10;	k.inverseKinematics(false, null);	keyframes.set(3,k);
-			k.fingerPosition.x+=  5;	k.fingerPosition.y+=  0;	k.inverseKinematics(false, null);	keyframes.set(4,k);
-	*/
+
 			Sixi2RobotKeyframe k;
-
-			k = (Sixi2RobotKeyframe)getKeyframe(0); 	k.forwardKinematics(false, null);	 													//keyframes.set(0,k);
-			k = (Sixi2RobotKeyframe)getKeyframe(1);		k.forwardKinematics(false, null);	k.fingerPosition.x+=10;								k.inverseKinematics(false, null);	//keyframes.set(0,k);
-			k = (Sixi2RobotKeyframe)getKeyframe(2); 	k.forwardKinematics(false, null);	k.fingerPosition.x+=10;	k.fingerPosition.y+=10;		k.inverseKinematics(false, null);	//keyframes.set(0,k);
-			k = (Sixi2RobotKeyframe)getKeyframe(3); 	k.forwardKinematics(false, null);							k.fingerPosition.y+=10;		k.inverseKinematics(false, null);	//keyframes.set(0,k);
-
+			
+			k = (Sixi2RobotKeyframe)getKeyframe(0);
+			k.forwardKinematics(false, null);
+			//keyframes.set(0,k);
+			
+			k = (Sixi2RobotKeyframe)getKeyframe(1);
+			k.forwardKinematics(false, null);
+			k.fingerPosition.z-=10;
+			k.inverseKinematics(false, null);
+			//keyframes.set(0,k);
+			
+			k = (Sixi2RobotKeyframe)getKeyframe(2);
+			k.forwardKinematics(false, null);
+			k.fingerPosition.y+=10;
+			k.fingerPosition.z-=10;
+			k.inverseKinematics(false, null);
+			//keyframes.set(0,k);
+			
+			k = (Sixi2RobotKeyframe)getKeyframe(3);
+			k.forwardKinematics(false, null);
+			k.fingerPosition.y+=10;
+			k.inverseKinematics(false, null);
+			//keyframes.set(0,k);
+			
+			k = (Sixi2RobotKeyframe)getKeyframe(4);
+			k.forwardKinematics(false, null);	 													//keyframes.set(0,k);
 		}
 
 		super.render(gl2);
 
-		//testLineControlPointRender();
+		//motionNow.inverseKinematics(false,null);
+		
+		//testLineControlPointRender(gl2);
 		
 		gl2.glPushMatrix();
 			// TODO rotate model
