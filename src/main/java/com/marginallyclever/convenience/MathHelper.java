@@ -143,33 +143,42 @@ public class MathHelper {
 		return n;
 	}
 	
-	// https://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
+	// https://en.wikipedia.org/wiki/Slerp
 	static public Vector3f slerp(Vector3f a,Vector3f b,double t) {
 		
 		// Dot product - the cosine of the angle between 2 vectors.
 		float dot = a.dot(b);
-		// Clamp it to be in the range of Acos()
-		// This may be unnecessary, but floating point
-		// precision can be a fickle mistress.
-		dot = Math.min(Math.max(dot, -1.0f), 1.0f);
+		//dot = Math.min(Math.max(dot, -1.0f), 1.0f);
+		if(dot<0) {
+			b.scale(-1);
+			dot = -dot;
+		}
+		if(Math.abs(dot)>=1-MathHelper.EPSILON) {
+			Vector3f n = new Vector3f(b);
+			n.sub(a);
+			n.scale((float)t);
+			n.add(a);
+			n.normalize();
+			
+			return n;
+		}
 		
 		// Acos(dot) returns the angle between start and end,
 		// And multiplying that by percent returns the angle between
 		// start and the final result.
-		float theta = (float)Math.acos(dot)*(float)t;
+		double theta_0 = Math.acos(dot);
+		double theta = theta_0*t;
+		double sin_theta = Math.sin(theta);
+		double sin_theta_0 = Math.sin(theta_0);
+		double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;
+		double s1 = sin_theta / sin_theta_0;
+		
 		//Vector3f n b - a*dot;
-		Vector3f n = new Vector3f(b);
-		Vector3f aCopy = new Vector3f(a);
-		aCopy.scale(dot);
-		n.sub(aCopy);
-		// n.Normalize();
+		a.scale((float)s0);
+		b.scale((float)s1);
+		Vector3f n = new Vector3f(a);
+		n.add(b);
 		n.normalize();
-		// Orthonormal basis
-		// The final result.
-		//return ((start*Math.cos(theta)) + (n*Math.sin(theta)));
-		a.scale((float)Math.cos(theta));
-	    n.scale((float)Math.sin(theta));
-	    n.add(a);
 		
 		return n;
 	}
