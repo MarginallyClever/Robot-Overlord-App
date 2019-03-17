@@ -2,8 +2,11 @@ package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
 
 import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.Log;
+import com.marginallyclever.robotOverlord.lines.LineControlPoint;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 
@@ -407,5 +410,42 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 		if(Math.abs(rotationAngleW)>RotaryStewartPlatform.LIMIT_W) return false;
 	
 		return true;
+	}
+
+
+	@Override
+	public void interpolate(RobotKeyframe arg0, RobotKeyframe arg1, float t) {
+		// TODO Auto-generated method stub
+		RotaryStewartPlatformKeyframe a = (RotaryStewartPlatformKeyframe)arg0;
+		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
+		
+		fingerPosition = MathHelper.interpolate(a.fingerPosition, b.fingerPosition, t);
+		rotationAngleU = MathHelper.interpolate(a.rotationAngleU, b.rotationAngleU, t);
+		rotationAngleV = MathHelper.interpolate(a.rotationAngleV, b.rotationAngleV, t);
+		rotationAngleW = MathHelper.interpolate(a.rotationAngleW, b.rotationAngleW, t);
+		updateIK();
+	}
+
+
+	@Override
+	public void render(GL2 gl2) {
+		Vector3f fingerRight = new Vector3f();
+		fingerRight.cross(finger_forward,finger_up);
+		MatrixHelper.drawMatrix(gl2,fingerPosition,finger_forward,fingerRight,finger_up);
+	}
+
+
+	@Override
+	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
+		LineControlPoint lcp = new LineControlPoint();
+		
+		lcp.position.p0.set(this.fingerPosition);
+		lcp.position.p1.set(this.fingerPosition);  // TODO add control handles!
+		lcp.position.p2.set(b.fingerPosition);	// TODO add control handles!
+		lcp.position.p3.set(b.fingerPosition);
+
+		lcp.render(gl2);
+		
 	}
 };

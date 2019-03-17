@@ -24,6 +24,7 @@ import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 public class RotaryStewartPlatform extends Robot {
 	/**
@@ -292,8 +293,9 @@ public class RotaryStewartPlatform extends Robot {
 
 	@Override
 	public void prepareMove(float delta) {
-		updateFK(delta);
+		super.prepareMove(delta);
 		updateIK(delta);
+		updateFK(delta);
 	}
 
 	@Override
@@ -614,5 +616,10 @@ public class RotaryStewartPlatform extends Robot {
 
 	public boolean isHomed() {
 		return motionNow.isHomed;
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new RotaryStewartPlatformKeyframe(dimensions);
 	}
 }
