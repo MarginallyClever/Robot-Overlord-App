@@ -625,6 +625,7 @@ extends Robot {
 		updateIK(delta);
 		updateFK(delta);
 		if(tool != null) tool.update(delta);
+		updateGUI();
 	}
 
 	@Override
@@ -871,35 +872,41 @@ extends Robot {
 				try {
 					if(items.length>=5) {
 						for(int i=0;i<items.length;++i) {
-							if(items[i].startsWith("A")) {
+							if(items[i].startsWith("X")) {
 								float v = (float)parseNumber(items[i].substring(1));
-								if(motionFuture.angle5 != v) {
-									motionFuture.angle5 = v;
-									armPanel.angle5.setText(Float.toString(roundOff(v)));
+								if(motionFuture.angle1 != v) {
+									motionFuture.angle1 = v;
+									armPanel.angle1.setText(Float.toString(roundOff(v)));
 								}
-							} else if(items[i].startsWith("B")) {
-								float v = (float)parseNumber(items[i].substring(1));
-								if(motionFuture.angle4 != v) {
-									motionFuture.angle4 = v;
-									armPanel.angle4.setText(Float.toString(roundOff(v)));
-								}
-							} else if(items[i].startsWith("C")) {
-								float v = (float)parseNumber(items[i].substring(1));
-								if(motionFuture.angle3 != v) {
-									motionFuture.angle3 = v;
-									armPanel.angle3.setText(Float.toString(roundOff(v)));
-								}
-							} else if(items[i].startsWith("D")) {
+							} else if(items[i].startsWith("Y")) {
 								float v = (float)parseNumber(items[i].substring(1));
 								if(motionFuture.angle2 != v) {
 									motionFuture.angle2 = v;
 									armPanel.angle2.setText(Float.toString(roundOff(v)));
 								}
-							} else if(items[i].startsWith("E")) {
+							} else if(items[i].startsWith("Z")) {
 								float v = (float)parseNumber(items[i].substring(1));
-								if(motionFuture.angle1 != v) {
-									motionFuture.angle1 = v;
-									armPanel.angle1.setText(Float.toString(roundOff(v)));
+								if(motionFuture.angle3 != v) {
+									motionFuture.angle3 = v;
+									armPanel.angle3.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("U")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle3 != v) {
+									motionFuture.angle3 = v;
+									armPanel.angle3.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("V")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle4 != v) {
+									motionFuture.angle4 = v;
+									armPanel.angle4.setText(Float.toString(roundOff(v)));
+								}
+							} else if(items[i].startsWith("W")) {
+								float v = (float)parseNumber(items[i].substring(1));
+								if(motionFuture.angle5 != v) {
+									motionFuture.angle5 = v;
+									armPanel.angle5.setText(Float.toString(roundOff(v)));
 								}
 							}
 						}
