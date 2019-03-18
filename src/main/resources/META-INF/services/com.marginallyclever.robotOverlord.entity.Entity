@@ -1,16 +1,16 @@
-com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
-com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot
-com.marginallyclever.robotOverlord.mantisRobot.MantisRobot
-com.marginallyclever.robotOverlord.sixiRobot.SixiRobot
+#com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
+#com.marginallyclever.robotOverlord.makelangeloRobot.MakelangeloRobot
+#com.marginallyclever.robotOverlord.mantisRobot.MantisRobot
+#com.marginallyclever.robotOverlord.sixiRobot.SixiRobot
 com.marginallyclever.robotOverlord.sixi2Robot.Sixi2Robot
-com.marginallyclever.robotOverlord.pTTPTPRobot.PTTPTPRobot
+#com.marginallyclever.robotOverlord.pTTPTPRobot.PTTPTPRobot
 
-com.marginallyclever.robotOverlord.arm5.EvilMinionRobot
-com.marginallyclever.robotOverlord.thor.ThorRobot
+#com.marginallyclever.robotOverlord.arm5.EvilMinionRobot
+#com.marginallyclever.robotOverlord.thor.ThorRobot
 com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
-com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
-com.marginallyclever.robotOverlord.spidee.Spidee
-com.marginallyclever.robotOverlord.arm3.Arm3
-com.marginallyclever.robotOverlord.arm3.uArm.UArm
+#com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
+#com.marginallyclever.robotOverlord.spidee.Spidee
+#com.marginallyclever.robotOverlord.arm3.Arm3
+#com.marginallyclever.robotOverlord.arm3.uArm.UArm
 com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld
 com.marginallyclever.robotOverlord.Waypoint
