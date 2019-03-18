@@ -1,5 +1,9 @@
 package com.marginallyclever.robotOverlord.robot;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -97,9 +101,11 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		}
 	}
 	
+	
 	public NetworkConnection getConnection() {
 		return this.connection;
 	}
+	
 	
 	public void setConnection(NetworkConnection arg0) {
 		if(connection!=null && connection!=arg0) {
@@ -134,7 +140,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @param direction which direction along the axis
 	 */
 	public void move(int axis,int direction) {
-
 		isReadyToReceive=false;
 	}
 	
@@ -291,7 +296,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	public abstract RobotKeyframe createKeyframe();
 	
 	public void keyframeAdd() {
-		keyframes.add(keyframe_index, createKeyframe());
+		keyframes.add(keyframe_index+1, createKeyframe());
 	}
 	
 	public void keyframeDelete() {
@@ -314,6 +319,43 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	public void setKeyframeIndex(int arg0) {
 		keyframe_index=Math.min(Math.max(arg0, 0),keyframes.size()-1);
+	}
+	
+	public void saveKeyframes(String filePath) {
+		try {
+			 
+            FileOutputStream fileOut = new FileOutputStream(filePath);
+            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeInt(keyframes.size());
+            Iterator<RobotKeyframe> i = keyframes.iterator();
+            while(i.hasNext()) {
+            	Object serObj = i.next();
+            	objectOut.writeObject(serObj);
+            }
+            objectOut.close();
+            System.out.println("Keyframes saved.");
+ 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+	}
+	
+	public void loadKeyframes(String filePath) {
+		try {
+			keyframes.clear();
+			
+            FileInputStream fileIn = new FileInputStream(filePath);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+            int size = objectIn.readInt();
+            for(int i=0;i<size;++i) {
+            	keyframes.push((RobotKeyframe)objectIn.readObject());
+            }
+            objectIn.close();
+            System.out.println("Keyframes loaded.");
+ 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 	}
 	
 	public RobotKeyframe getKeyframeNow() {
