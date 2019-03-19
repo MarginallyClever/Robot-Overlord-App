@@ -129,10 +129,11 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		p.getContentPane().add(buttonKeyframeLast =createButton(Translator.get(">|")),con2);	con2.gridx++;
 
 		con2.gridy++;
+		con2.gridx=0;
 		con2.gridwidth=2;
 		con2.weightx=0.5;
-		p.getContentPane().add(buttonKeyframeAdd    =createButton(Translator.get("+")),con2);	con2.gridx++;
-		p.getContentPane().add(buttonKeyframeDelete =createButton(Translator.get("-")),con2);	con2.gridx++;
+		p.getContentPane().add(buttonKeyframeAdd    =createButton(Translator.get("+")),con2);	con2.gridx+=2;
+		p.getContentPane().add(buttonKeyframeDelete =createButton(Translator.get("-")),con2);	con2.gridx+=2;
 	}
 	
 	private JButton createButton(String name) {
@@ -184,7 +185,7 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 			robot.setKeyframeT(0);
 		}
 		if(subject == buttonKeyframeAdd) {
-			robot.keyframeAdd();
+			robot.keyframeAddNow();
 		}
 		if(subject == buttonKeyframeDelete) {
 			robot.keyframeDelete();
