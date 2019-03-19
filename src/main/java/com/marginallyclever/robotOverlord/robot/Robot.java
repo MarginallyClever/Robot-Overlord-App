@@ -71,6 +71,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		running=false;
 		isModelLoaded=false;
 		animationBehavior=AnimationBehavior.ANIMATE_LOOP;
+		keyframes.add(createKeyframe());
 	}
 	
 
@@ -294,14 +295,32 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 */
 
 	public abstract RobotKeyframe createKeyframe();
-	
+
+	public void keyframeAddNow() {
+		int i = (keyframes.size()>0)? keyframe_index+1 : 0;
+		RobotKeyframe newKey = getKeyframeNow();
+		if(keyframes.size()>0) {
+			keyframes.add(i, newKey);
+		} else {
+			keyframes.push(newKey);
+		}
+		keyframe_index=i;
+		keyframe_t=0;
+	}
+
 	public void keyframeAdd() {
-		keyframes.add(keyframe_index+1, createKeyframe());
+		int i = (keyframes.size()>0)? keyframe_index+1 : 0;
+		
+		keyframes.add(i, createKeyframe());
 	}
 	
 	public void keyframeDelete() {
+		if(keyframes.size()==0) return;
+		
 		keyframes.remove(keyframe_index);
-		if(keyframe_index>keyframes.size()) keyframe_index = keyframes.size()-1;
+		if(keyframe_index>0 && keyframe_index>=keyframes.size()) {
+			keyframe_index = keyframes.size()-1;
+		}
 	}
 	
 	public float getKeyframeT() {
@@ -360,7 +379,9 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	
 	public RobotKeyframe getKeyframeNow() {
 		int size=getKeyframeSize();
-		if(keyframe_index>=size-1) {
+		if(size==0) {
+			
+		} else if(keyframe_index>=size-1) {
 			// last keyframe, nowhere to interpolate towards.
 			return keyframes.getLast();
 		} else {
