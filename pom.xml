@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -206,11 +206,82 @@ If you like this project, please support us by buying Marginally Clever products
       <version>2.18.1</version>
     </plugin>
     <!-- End of plugins defined originally only in Super POM  -->
-      <plugin>
+    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
           <ignoreNonCompile>${maven-dependency-plugin.ignoreNonCompile}</ignoreNonCompile>
         </configuration>
+        <executions>
+            <execution>
+    	    	<id>unpack jinput windows</id>
+          		<phase>compile</phase>
+				<goals>
+           			<goal>unpack</goal>
+          		</goals>
+          		<configuration>
+            		<skip>false</skip>
+            		<artifactItems>
+              			<artifactItem>
+                			<groupId>net.java.jinput</groupId>
+                			<artifactId>jinput-platform</artifactId>
+							<version>${jinput.version}</version>
+                			<classifier>natives-windows</classifier>
+                			<type>jar</type>
+                			<overWrite>true</overWrite>
+		 					<outputDirectory>${project.build.directory}/lib</outputDirectory>
+                			<!-- or somewhere else -->
+          					<includes>**/*.dll</includes>
+           				</artifactItem>
+           			</artifactItems>
+      			</configuration>
+        	</execution>
+        	<execution>
+          		<id>unpack jinput linux</id>
+          		<phase>compile</phase>
+          		<goals>
+            		<goal>unpack</goal>
+          		</goals>
+          		<configuration>
+            		<skip>false</skip>
+            		<artifactItems>
+              			<artifactItem>
+                			<groupId>net.java.jinput</groupId>
+                			<artifactId>jinput-platform</artifactId>
+							<version>${jinput.version}</version>
+                			<classifier>natives-linux</classifier>
+                			<type>jar</type>
+                			<overWrite>true</overWrite>
+                			<outputDirectory>${project.build.directory}/lib</outputDirectory>
+                		<includes>**/*.so</includes>
+              		</artifactItem>
+            	</artifactItems>
+          	</configuration>
+        </execution>
+        <execution>
+          	<id>unpack jinput osx</id>
+          	<phase>compile</phase>
+          	<goals>
+            	<goal>unpack</goal>
+          	</goals>
+          	<configuration>
+            	<skip>false</skip>
+            	<artifactItems>
+              		<artifactItem>
+                		<groupId>net.java.jinput</groupId>
+                		<artifactId>jinput-platform</artifactId>
+						<version>${jinput.version}</version>
+                		<classifier>natives-osx</classifier>
+                		<type>jar</type>
+                		<overWrite>true</overWrite>
+                		<outputDirectory>${project.build.directory}/lib</outputDirectory>
+                		<includes>**/*.dylib,**/*.jnilib</includes>
+              		</artifactItem>
+            	</artifactItems>
+          	</configuration>
+        </execution>
+    
+      </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -327,6 +398,41 @@ If you like this project, please support us by buying Marginally Clever products
     	<version>1.0.0-beta2</version>
 	</dependency>
 	
+	<!-- joystick support -->
+        <dependency>
+            <groupId>net.java.jinput</groupId>
+            <artifactId>jinput</artifactId>
+            <version>${jinput.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.jutils</groupId>
+            <artifactId>jutils</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.jinput</groupId>
+            <artifactId>jinput-platform</artifactId>
+            <version>${jinput.version}</version>
+            <classifier>natives-windows</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.jinput</groupId>
+            <artifactId>jinput-platform</artifactId>
+            <version>${jinput.version}</version>
+            <classifier>natives-linux</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.jinput</groupId>
+            <artifactId>jinput-platform</artifactId>
+            <version>${jinput.version}</version>
+            <classifier>natives-osx</classifier>
+            <scope>provided</scope>
+        </dependency>
+	
 	
 	
   </dependencies>
@@ -335,6 +441,7 @@ If you like this project, please support us by buying Marginally Clever products
     <minimum.maven.version>3.3.1</minimum.maven.version>
     <minimum.java.version>1.8</minimum.java.version>
     <jogl.version>2.3.2</jogl.version>
+    <jinput.version>2.0.7</jinput.version>
     <maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
     
 	<!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
