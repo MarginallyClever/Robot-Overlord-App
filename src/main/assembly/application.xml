@@ -11,7 +11,7 @@
   </formats>
 
   <dependencySets>
-    <!-- Unpack everything that isn't a JOGL or GlueGen library -->
+    <!-- Unpack everything that isn't a JOGL or GlueGen or jinput library -->
     <dependencySet>
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
@@ -26,6 +26,8 @@
           <exclude>libnativewindow_macosx.*</exclude>
           <exclude>libnativewindow_x11.*</exclude>
           <exclude>libnewt.*</exclude>
+          <exclude>jinput.*</exclude>
+          <exclude>libjinput.*</exclude>
         </excludes>
       </unpackOptions>
     </dependencySet>
@@ -38,9 +40,10 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-linux-amd64</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-linux-amd64</include>
+        <include>net.java.jinput:jinput-platform:jar:natives-linux</include>
       </includes>
       <unpackOptions>
-        <includes><include>*.so</include></includes>
+        <includes><include>*.dll</include></includes>
       </unpackOptions>
     </dependencySet>
 
@@ -52,6 +55,7 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-linux-i586</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-linux-i586</include>
+        <include>net.java.jinput:jinput-platform:jar:natives-linux</include>
       </includes>
       <unpackOptions>
         <includes><include>*.so</include></includes>
@@ -66,6 +70,7 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-windows-amd64</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-windows-amd64</include>
+        <include>net.java.jinput:jinput-platform:jar:natives-windows</include>
       </includes>
       <unpackOptions>
         <includes><include>*.dll</include></includes>
@@ -80,6 +85,7 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-windows-i586</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-windows-i586</include>
+        <include>net.java.jinput:jinput-platform:jar:natives-windows</include>
       </includes>
       <unpackOptions>
         <includes><include>*.dll</include></includes>
@@ -94,6 +100,7 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-macosx-universal</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-macosx-universal</include>
+        <include>net.java.jinput:jinput-platform:jar:natives-osx</include>
       </includes>
       <unpackOptions>
         <includes><include>*.jnilib</include></includes>

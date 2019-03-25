@@ -9,17 +9,17 @@
   <version>v1.4.2</version>
   <name>Robot Overlord</name>
   <description>A friendly 3D user interface for controlling robots. 
-  
-If you like this project, please support us by buying Marginally Clever products.</description>
 
-  <url>http://www.marginallyclever.com/</url>
-  
-  <issueManagement>
-  	<url>github.com/MarginallyClever/Robot-Overlord/issues</url>
-    <system>GitHub Issues</system>
-  </issueManagement>
+    If you like this project, please support us by buying Marginally Clever products.</description>
 
-  <licenses>
+    <url>http://www.marginallyclever.com/</url>
+
+    <issueManagement>
+     <url>github.com/MarginallyClever/Robot-Overlord/issues</url>
+     <system>GitHub Issues</system>
+   </issueManagement>
+
+   <licenses>
     <license>
       <name>GPLv2</name>
       <url>http://opensource.org/licenses/GPL-2.0</url>
@@ -72,238 +72,169 @@ If you like this project, please support us by buying Marginally Clever products
     <!--
     See: http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html
     and http://stackoverflow.com/a/3697482
-    -->
+  -->
     <resources>
-        <resource>
-          <directory>src/main/resources</directory>
-          <filtering>true</filtering>
-          <includes>
-            <include>**/*.properties</include>
-          </includes>
-        </resource>
-        <resource>
-          <directory>src/main/resources</directory>
-          <filtering>false</filtering>
-          <excludes>
-            <exclude>**/*.properties</exclude>
-          </excludes>
-        </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*.properties</exclude>
+        </excludes>
+      </resource>
     </resources>
-    <plugins>
-		<plugin>
-			<artifactId>maven-enforcer-plugin</artifactId>
-			<version>1.0.1</version>
-			<executions>
-				<execution>
-					<id>enforce-default</id>
-					<goals>
-						<goal>enforce</goal>
-					</goals>
-					<configuration>
-						<rules>
-							<requireMavenVersion>
-								<version>[${maven.minimum.version},)</version>
-								<message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
-							</requireMavenVersion>
-						</rules>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.0.1</version>
+          <executions>
+            <execution>
+              <id>enforce-default</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>[${maven.minimum.version},)</version>
+                    <message>********** Minimum Maven Version is ${maven.minimum.version}. Please upgrade Maven before continuing (run "mvn --version" to check). **********</message>
+                  </requireMavenVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.3</version>
+          <configuration>
+            <source>${minimum.java.version}</source>
+            <target>${minimum.java.version}</target>
+            <compilerArgs>
+              <compilerArg>-Xlint:unchecked</compilerArg>
+              <compilerArg>-Xlint:deprecation</compilerArg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>2.5.5</version>
+          <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+                </manifest>
+              </archive>
+            <descriptors>
+              <descriptor>${project.basedir}/src/main/assembly/application.xml</descriptor>
+            </descriptors>
+          </configuration>
+          <executions>
+            <execution>
+              <id>make-assembly</id>
+              <!-- this is used for inheritance merges -->
+              <phase>package</phase>
+              <!-- bind to the packaging phase -->
+              <goals>
+                <goal>single</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.3</version>
+          <configuration>
+            <destDir>${basedir}/docs</destDir>
+          </configuration>
+          <executions>
+            <execution>
+              <id>javadoc:jar</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Beginning of plugins defined originally only in Super POM  -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.6.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.6</version>
+          <configuration>
+            <archive>
+              <manifestEntries>
+                <SplashScreen-Image>splash.png</SplashScreen-Image>
+              </manifestEntries>
+                <!--
+                <manifest>
+                  <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+                </manifest>
+              -->
+            </archive>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.7</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.4</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.18.1</version>
+        </plugin>
+        <!-- End of plugins defined originally only in Super POM  -->
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
-      <configuration>
-        <source>${minimum.java.version}</source>
-        <target>${minimum.java.version}</target>
-          <compilerArgs>
-            <compilerArg>-Xlint:unchecked</compilerArg>
-            <compilerArg>-Xlint:deprecation</compilerArg>
-          </compilerArgs>
-      </configuration>
-    </plugin>
-    <plugin>
-      <artifactId>maven-assembly-plugin</artifactId>
-      <configuration>
-        <!--
-        <archive>
-          <manifest>
-            <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
-          </manifest>
-        </archive>
-        -->
-          <descriptors>
-            <descriptor>src/main/assembly/application.xml</descriptor>
-          </descriptors>
-      </configuration>
-      <executions>
-          <execution>
-            <id>make-assembly</id>
-            <!-- this is used for inheritance merges -->
-            <phase>package</phase>
-            <!-- bind to the packaging phase -->
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-      </executions>
-    </plugin>
-	<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-    	    <configuration>
-    	    	<destDir>${basedir}/docs</destDir>
-          	</configuration>
-			<executions>
-				<execution>
-					<id>javadoc:jar</id>
-					<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
-    </plugin>
-    
-    <!-- Beginning of plugins defined originally only in Super POM  -->
-    <plugin>
-      <artifactId>maven-clean-plugin</artifactId>
-      <version>2.6.1</version>
-    </plugin>
-    <plugin>
-      <artifactId>maven-deploy-plugin</artifactId>
-      <version>2.8.2</version>
-    </plugin>
-    <plugin>
-      <artifactId>maven-install-plugin</artifactId>
-      <version>2.5.2</version>
-    </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <SplashScreen-Image>splash.png</SplashScreen-Image>
-            </manifestEntries>
-            <!--
-            <manifest>
-              <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
-            </manifest>
-            -->
-          </archive>
-        </configuration>
-      </plugin>
-    <plugin>
-      <artifactId>maven-resources-plugin</artifactId>
-      <version>2.7</version>
-    </plugin>
-    <plugin>
-      <artifactId>maven-site-plugin</artifactId>
-      <version>3.4</version>
-    </plugin>
-    <plugin>
-      <artifactId>maven-surefire-plugin</artifactId>
-      <version>2.18.1</version>
-    </plugin>
-    <!-- End of plugins defined originally only in Super POM  -->
-    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.10</version>
         <configuration>
           <ignoreNonCompile>${maven-dependency-plugin.ignoreNonCompile}</ignoreNonCompile>
         </configuration>
-        <executions>
+      </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>1.4</version>
+          <executions>
             <execution>
-    	    	<id>unpack jinput windows</id>
-          		<phase>compile</phase>
-				<goals>
-           			<goal>unpack</goal>
-          		</goals>
-          		<configuration>
-            		<skip>false</skip>
-            		<artifactItems>
-              			<artifactItem>
-                			<groupId>net.java.jinput</groupId>
-                			<artifactId>jinput-platform</artifactId>
-							<version>${jinput.version}</version>
-                			<classifier>natives-windows</classifier>
-                			<type>jar</type>
-                			<overWrite>true</overWrite>
-		 					<outputDirectory>${project.build.directory}/lib</outputDirectory>
-                			<!-- or somewhere else -->
-          					<includes>**/*.dll</includes>
-           				</artifactItem>
-           			</artifactItems>
-      			</configuration>
-        	</execution>
-        	<execution>
-          		<id>unpack jinput linux</id>
-          		<phase>compile</phase>
-          		<goals>
-            		<goal>unpack</goal>
-          		</goals>
-          		<configuration>
-            		<skip>false</skip>
-            		<artifactItems>
-              			<artifactItem>
-                			<groupId>net.java.jinput</groupId>
-                			<artifactId>jinput-platform</artifactId>
-							<version>${jinput.version}</version>
-                			<classifier>natives-linux</classifier>
-                			<type>jar</type>
-                			<overWrite>true</overWrite>
-                			<outputDirectory>${project.build.directory}/lib</outputDirectory>
-                		<includes>**/*.so</includes>
-              		</artifactItem>
-            	</artifactItems>
-          	</configuration>
-        </execution>
-        <execution>
-          	<id>unpack jinput osx</id>
-          	<phase>compile</phase>
-          	<goals>
-            	<goal>unpack</goal>
-          	</goals>
-          	<configuration>
-            	<skip>false</skip>
-            	<artifactItems>
-              		<artifactItem>
-                		<groupId>net.java.jinput</groupId>
-                		<artifactId>jinput-platform</artifactId>
-						<version>${jinput.version}</version>
-                		<classifier>natives-osx</classifier>
-                		<type>jar</type>
-                		<overWrite>true</overWrite>
-                		<outputDirectory>${project.build.directory}/lib</outputDirectory>
-                		<includes>**/*.dylib,**/*.jnilib</includes>
-              		</artifactItem>
-            	</artifactItems>
-          	</configuration>
-        </execution>
-    
-      </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <id>enforce-java</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireJavaVersion>
-                  <version>${minimum.java.version}</version>
-                </requireJavaVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+              <id>enforce-java</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireJavaVersion>
+                    <version>${minimum.java.version}</version>
+                  </requireJavaVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <dependencies>
@@ -314,8 +245,8 @@ If you like this project, please support us by buying Marginally Clever products
     </dependency>
     <dependency>
       <groupId>org.scream3r</groupId>
-        <artifactId>jssc</artifactId>
-        <version>2.8.0</version>
+      <artifactId>jssc</artifactId>
+      <version>2.8.0</version>
     </dependency>
     <dependency>
       <groupId>org.jogamp.gluegen</groupId>
@@ -345,8 +276,8 @@ If you like this project, please support us by buying Marginally Clever products
     </dependency>
     <dependency>
       <groupId>javax.vecmath</groupId>
-	  <artifactId>vecmath</artifactId>
-	  <version>1.5.2</version>
+      <artifactId>vecmath</artifactId>
+      <version>1.5.2</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -364,77 +295,51 @@ If you like this project, please support us by buying Marginally Clever products
       <artifactId>annotations</artifactId>
       <version>15.0</version>
     </dependency>
-    
-	<!-- https://mvnrepository.com/artifact/org.tensorflow/tensorflow -->
-	<!--
-	<dependency>
- 	   <groupId>org.tensorflow</groupId>
- 	   <artifactId>tensorflow</artifactId>
- 	   <version>1.9.0</version>
-	</dependency>-->
-	<!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow_jni_gpu -->
-	<!--<dependency>
-		<groupId>org.tensorflow</groupId>
-		<artifactId>libtensorflow_jni_gpu</artifactId>
-		<version>1.9.0</version>
-	</dependency>-->
-	
-	<!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core -->
-	<dependency>
-    	<groupId>org.deeplearning4j</groupId>
-    	<artifactId>deeplearning4j-core</artifactId>
-    	<version>1.0.0-beta2</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.nd4j/nd4j-native-platform -->
-	<dependency>
-		<groupId>org.nd4j</groupId>
-		<artifactId>nd4j-native-platform</artifactId>
-		<version>1.0.0-beta2</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.datavec/datavec-api -->
-	<dependency>
-    	<groupId>org.datavec</groupId>
-    	<artifactId>datavec-api</artifactId>
-    	<version>1.0.0-beta2</version>
-	</dependency>
-	
-	<!-- joystick support -->
-        <dependency>
-            <groupId>net.java.jinput</groupId>
-            <artifactId>jinput</artifactId>
-            <version>${jinput.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.jutils</groupId>
-            <artifactId>jutils</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.jinput</groupId>
-            <artifactId>jinput-platform</artifactId>
-            <version>${jinput.version}</version>
-            <classifier>natives-windows</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.jinput</groupId>
-            <artifactId>jinput-platform</artifactId>
-            <version>${jinput.version}</version>
-            <classifier>natives-linux</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.jinput</groupId>
-            <artifactId>jinput-platform</artifactId>
-            <version>${jinput.version}</version>
-            <classifier>natives-osx</classifier>
-            <scope>provided</scope>
-        </dependency>
-	
-	
-	
+
+    <!-- https://mvnrepository.com/artifact/org.tensorflow/tensorflow -->
+  	<!--
+  	<dependency>
+   	   <groupId>org.tensorflow</groupId>
+   	   <artifactId>tensorflow</artifactId>
+   	   <version>1.9.0</version>
+      </dependency>-->
+      <!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow_jni_gpu -->
+  	<!--<dependency>
+  		<groupId>org.tensorflow</groupId>
+  		<artifactId>libtensorflow_jni_gpu</artifactId>
+  		<version>1.9.0</version>
+  	</dependency>-->
+  	
+  	<!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core -->
+  	<dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-core</artifactId>
+      <version>1.0.0-beta2</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.nd4j/nd4j-native-platform -->
+    <dependency>
+      <groupId>org.nd4j</groupId>
+      <artifactId>nd4j-native-platform</artifactId>
+      <version>1.0.0-beta2</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.datavec/datavec-api -->
+    <dependency>
+     <groupId>org.datavec</groupId>
+     <artifactId>datavec-api</artifactId>
+     <version>1.0.0-beta2</version>
+    </dependency>
+
+    <!-- joystick support -->
+    <dependency>
+      <groupId>net.java.jinput</groupId>
+      <artifactId>jinput</artifactId>
+      <version>${jinput.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.jutils</groupId>
+      <artifactId>jutils</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -443,15 +348,15 @@ If you like this project, please support us by buying Marginally Clever products
     <jogl.version>2.3.2</jogl.version>
     <jinput.version>2.0.7</jinput.version>
     <maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
-    
-	<!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
-	<nd4j.backend>nd4j-native-platform</nd4j.backend>
-	<!--<nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend>-->
-	<nd4j.version>1.0.0-beta</nd4j.version>
-	<dl4j.version>1.0.0-beta</dl4j.version>
-	<datavec.version>1.0.0-beta</datavec.version>
-	<arbiter.version>1.0.0-beta</arbiter.version>
-	<rl4j.version>1.0.0-beta</rl4j.version>
+
+    <!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
+    <nd4j.backend>nd4j-native-platform</nd4j.backend>
+    <!--<nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend>-->
+    <nd4j.version>1.0.0-beta</nd4j.version>
+    <dl4j.version>1.0.0-beta</dl4j.version>
+    <datavec.version>1.0.0-beta</datavec.version>
+    <arbiter.version>1.0.0-beta</arbiter.version>
+    <rl4j.version>1.0.0-beta</rl4j.version>
   </properties>
 
   <repositories>
