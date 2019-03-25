@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
 public class WorldControlPanel extends JPanel implements ChangeListener, ActionListener {
@@ -32,6 +33,8 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 	private World world;
 	protected JList<?> entityList;
 	protected UserCommandAddEntity addButton;
+	protected transient UserCommandSelectNumber gridWidth;
+	protected transient UserCommandSelectNumber gridHeight;
 
 	public WorldControlPanel(RobotOverlord gui,World world) {
 		super();
@@ -39,7 +42,7 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		this.gui = gui;
 		this.world = world;
 
-		// TODO display a list of all the elements in the world.
+		// A list of all the elements in the world.
 		// TODO add a search feature?
 		updateEntityList();
 	}
@@ -85,6 +88,11 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		        }
 		    }
 		});
+		
+		this.add(gridWidth=new UserCommandSelectNumber(gui,"Grid Width",80),c);
+		c.gridy++;
+		this.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",30),c);
+		c.gridy++;
 	}
 	
 	@Override

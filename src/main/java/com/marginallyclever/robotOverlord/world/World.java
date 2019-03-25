@@ -60,6 +60,8 @@ implements Serializable {
 
 	protected transient ViewCube viewCube;
 	
+	protected transient WorldControlPanel worldControlPanel;
+	
 	public World() {
 		areTexturesLoaded=false;
 		pickForward=new Vector3f();
@@ -191,11 +193,12 @@ implements Serializable {
 			
 			gl2.glDisable(GL2.GL_LIGHTING);
 
-	        //gl2.glDisable(GL2.GL_CULL_FACE);
 			//drawSkyCube(gl2);
-	        //gl2.glEnable(GL2.GL_CULL_FACE);
 			
-			PrimitiveSolids.drawGrid(gl2,200,5);
+			PrimitiveSolids.drawGrid(gl2,
+					(int)worldControlPanel.gridWidth.getValue(),
+					(int)worldControlPanel.gridHeight.getValue(),
+					1);
 
 			// lights
 			io = entities.iterator();
@@ -276,6 +279,8 @@ implements Serializable {
 	// Draw background
 	protected void drawSkyCube(GL2 gl2) {
 		if(!areTexturesLoaded) return;
+
+        //gl2.glDisable(GL2.GL_CULL_FACE);
 		
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
@@ -336,6 +341,7 @@ implements Serializable {
 			
 		gl2.glPopMatrix();
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
+        //gl2.glEnable(GL2.GL_CULL_FACE);
 	}
 
 	
@@ -445,6 +451,7 @@ implements Serializable {
 	}
 	
 	public WorldControlPanel getControlPanel(RobotOverlord gui) {
-		return new WorldControlPanel(gui,this);
+		if(worldControlPanel==null) worldControlPanel = new WorldControlPanel(gui,this); 
+		return worldControlPanel;
 	}
 }
