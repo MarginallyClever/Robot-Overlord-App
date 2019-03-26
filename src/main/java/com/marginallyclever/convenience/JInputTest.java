@@ -8,7 +8,14 @@ import net.java.games.input.ControllerEnvironment;
 
 public class JInputTest {
 	@Test
+	public void reportJavaLibraryPath() {
+		String property = System.getProperty("java.library.path");
+		System.out.println("java.library.path="+property.replace(";","\n  "));
+	}
+	
+	@Test
 	public void testControllers() {
+		
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
         for(int i =0;i<ca.length;i++){
             System.out.println("Controller:"+ca[i].getName());
