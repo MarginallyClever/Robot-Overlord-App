@@ -117,21 +117,36 @@
           <configuration>
             <source>${minimum.java.version}</source>
             <target>${minimum.java.version}</target>
+            <encoding>UTF-8</encoding>
             <compilerArgs>
               <compilerArg>-Xlint:unchecked</compilerArg>
               <compilerArg>-Xlint:deprecation</compilerArg>
             </compilerArgs>
           </configuration>
         </plugin>
+                    <plugin>
+                            <groupId>com.googlecode.mavennatives</groupId>
+                            <artifactId>maven-nativedependencies-plugin</artifactId>
+                            <version>0.0.6</version>
+                            <executions>
+                                    <execution>
+                                            <id>unpacknatives</id>
+                                            <phase>generate-resources</phase>
+                                            <goals>
+                                                    <goal>copy</goal>
+                                            </goals>
+                                    </execution>
+                            </executions>
+                    </plugin>
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>2.5.5</version>
           <configuration>
-              <archive>
-                <manifest>
-                  <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
-                </manifest>
-              </archive>
+            <archive>
+              <manifest>
+                <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+              </manifest>
+            </archive>
             <descriptors>
               <descriptor>${project.basedir}/src/main/assembly/application.xml</descriptor>
             </descriptors>
@@ -188,6 +203,7 @@
                 <!--
                 <manifest>
                   <mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+                  <addClasspath>true</addClasspath>
                 </manifest>
               -->
             </archive>
@@ -303,7 +319,7 @@
    	   <artifactId>tensorflow</artifactId>
    	   <version>1.9.0</version>
       </dependency>-->
-      <!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow_jni_gpu -->
+    <!-- https://mvnrepository.com/artifact/org.tensorflow/libtensorflow_jni_gpu -->
   	<!--<dependency>
   		<groupId>org.tensorflow</groupId>
   		<artifactId>libtensorflow_jni_gpu</artifactId>
@@ -339,6 +355,12 @@
       <groupId>net.java.jutils</groupId>
       <artifactId>jutils</artifactId>
       <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.jinput</groupId>
+      <artifactId>jinput-platform</artifactId>
+      <version>${jinput.version}</version>
+      <type>pom</type>
     </dependency>
   </dependencies>
   <properties>
