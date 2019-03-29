@@ -11,6 +11,9 @@
 *.class
 
 **/*.tmp
-**/log.*
 **/temp.ngc
-.settings/*
+
+**/log.*
+log.html
+
+.settings/*.*
