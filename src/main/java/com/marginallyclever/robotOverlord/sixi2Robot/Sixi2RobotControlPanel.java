@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.sixi2Robot;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -11,9 +12,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.vecmath.Vector3f;
 
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
@@ -34,14 +37,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 
 	
 	public JSlider fk0,fk1,fk2,fk3,fk4,fk5;
-/*
-	private JButton fk5pos, fk5neg;
-	private JButton fk4pos, fk4neg;
-	private JButton fk3pos, fk3neg;
-	private JButton fk2pos, fk2neg;
-	private JButton fk1pos, fk1neg;
-	private JButton fk0pos, fk0neg;
-*/
+
 	private JButton ikXpos, ikXneg;
 	private JButton ikYpos, ikYneg;
 	private JButton ikZpos, ikZneg;
@@ -57,10 +53,7 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 	private UserCommandSelectNumber feedRateControl;
 	private UserCommandSelectNumber accelerationControl;
 	
-	private JButton runScript;
 	private JButton showDebug;
-	private JButton findHome;
-	private JButton where;
 	private JButton about;
 	
 	private Sixi2Robot robot=null;
@@ -112,20 +105,18 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		CollapsiblePanel fkPanel = new CollapsiblePanel("Forward Kinematics");
 		this.add(fkPanel,con1);
 		con1.gridy++;
-		p = new JPanel(new SpringLayout());
+		SpringLayout layout;
+		layout = new SpringLayout();
+		p = new JPanel(layout);
 		fkPanel.getContentPane().add(p);
-		//p.add(fk5pos = createButton("A5+"));		p.add(angle5 = new JLabel("0.00"));		p.add(fk5neg = createButton("A5-"));
-		//p.add(fk4pos = createButton("A4+"));		p.add(angle4 = new JLabel("0.00"));		p.add(fk4neg = createButton("A4-"));
-		//p.add(fk3pos = createButton("A3+"));		p.add(angle3 = new JLabel("0.00"));		p.add(fk3neg = createButton("A3-"));
-		//p.add(fk2pos = createButton("A2+"));		p.add(angle2 = new JLabel("0.00"));		p.add(fk2neg = createButton("A2-"));
-		//p.add(fk1pos = createButton("A1+"));		p.add(angle1 = new JLabel("0.00"));		p.add(fk1neg = createButton("A1-"));
-		//p.add(fk0pos = createButton("A0+"));		p.add(angle0 = new JLabel("0.00"));		p.add(fk0neg = createButton("A0-"));
-		p.add(new JLabel("J0"));		p.add(fk0=createSlider());		p.add(angle0 = new JLabel("0.00"));
-		p.add(new JLabel("J1"));		p.add(fk1=createSlider());		p.add(angle1 = new JLabel("0.00"));
-		p.add(new JLabel("J2"));		p.add(fk2=createSlider());		p.add(angle2 = new JLabel("0.00"));
-		p.add(new JLabel("J3"));		p.add(fk3=createSlider());		p.add(angle3 = new JLabel("0.00"));
-		p.add(new JLabel("J4"));		p.add(fk4=createSlider());		p.add(angle4 = new JLabel("0.00"));
-		p.add(new JLabel("J5"));		p.add(fk5=createSlider());		p.add(angle5 = new JLabel("0.00"));
+		
+		p.add(new JLabel("J0"));		p.add(fk0=createSlider());		p.add(angle0 = createLabel("0.00"));
+		p.add(new JLabel("J1"));		p.add(fk1=createSlider());		p.add(angle1 = createLabel("0.00"));
+		p.add(new JLabel("J2"));		p.add(fk2=createSlider());		p.add(angle2 = createLabel("0.00"));
+		p.add(new JLabel("J3"));		p.add(fk3=createSlider());		p.add(angle3 = createLabel("0.00"));
+		p.add(new JLabel("J4"));		p.add(fk4=createSlider());		p.add(angle4 = createLabel("0.00"));
+		p.add(new JLabel("J5"));		p.add(fk5=createSlider());		p.add(angle5 = createLabel("0.00"));
+				
 		SpringUtilities.makeCompactGrid(p,
                 6, 3, //rows, cols
                 5, 5, //initialX, initialY
@@ -135,27 +126,46 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
 		this.add(ikPanel, con1);
 		con1.gridy++;
-		p = new JPanel(new GridLayout(6,3));
+		p = new JPanel(new SpringLayout());
 		ikPanel.getContentPane().add(p);
 		
-		p.add(ikXpos = createButton("X+"));		p.add(xPos = new JLabel("0.00"));		p.add(ikXneg = createButton("X-"));
-		p.add(ikYpos = createButton("Y+"));		p.add(yPos = new JLabel("0.00"));		p.add(ikYneg = createButton("Y-"));
-		p.add(ikZpos = createButton("Z+"));		p.add(zPos = new JLabel("0.00"));		p.add(ikZneg = createButton("Z-"));
-		p.add(ikUpos = createButton("U+"));		p.add(uPos = new JLabel("0.00"));		p.add(ikUneg = createButton("U-"));
-		p.add(ikVpos = createButton("V+"));		p.add(vPos = new JLabel("0.00"));		p.add(ikVneg = createButton("V-"));
-		p.add(ikWpos = createButton("W+"));		p.add(wPos = new JLabel("0.00"));		p.add(ikWneg = createButton("W-"));
+		p.add(ikXpos = createButton("X+"));		p.add(xPos = createLabel("0.00"));		p.add(ikXneg = createButton("X-"));
+		p.add(ikYpos = createButton("Y+"));		p.add(yPos = createLabel("0.00"));		p.add(ikYneg = createButton("Y-"));
+		p.add(ikZpos = createButton("Z+"));		p.add(zPos = createLabel("0.00"));		p.add(ikZneg = createButton("Z-"));
+		p.add(ikUpos = createButton("U+"));		p.add(uPos = createLabel("0.00"));		p.add(ikUneg = createButton("U-"));
+		p.add(ikVpos = createButton("V+"));		p.add(vPos = createLabel("0.00"));		p.add(ikVneg = createButton("V-"));
+		p.add(ikWpos = createButton("W+"));		p.add(wPos = createLabel("0.00"));		p.add(ikWneg = createButton("W-"));
 
+		SpringUtilities.makeCompactGrid(p,
+                6, 3, //rows, cols
+                5, 5, //initialX, initialY
+                5, 5);//xPad, yPad
+		
 		CollapsiblePanel miscPanel = new CollapsiblePanel("Misc");
 		this.add(miscPanel, con1);
 		con1.gridy++;
-		p = new JPanel(new GridLayout(5,1));
+		p = new JPanel(new GridLayout(2,1));
 		miscPanel.getContentPane().add(p);
 		
-		p.add(runScript = createButton("Run script"));
 		p.add(showDebug = createButton("Toggle debug view"));
-		p.add(findHome = createButton("Find Home"));
-		p.add(where = createButton("Where"));
 		p.add(about = createButton("About this robot"));
+		
+		updateFKPanel();
+		updateIKPanel();
+	}
+	
+	protected JLabel createLabel(String arg0) {
+		JLabel newLabel = new JLabel(arg0, SwingConstants.RIGHT);
+		Dimension s = newLabel.getPreferredSize();
+		s.width = 80;
+		newLabel.setMinimumSize(s);
+		newLabel.setSize(s);
+		
+		s = newLabel.getPreferredSize();
+		s.width = 110;
+		newLabel.setMaximumSize(s);
+		
+		return newLabel;
 	}
 	
 	protected CollapsiblePanel createSpeedPanel(RobotOverlord gui) {
@@ -225,8 +235,6 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		stepSizeNow.setText(Double.toString(robot.getStepSize()));
 	}
 	
-	public int drivenIndex=-1;
-	
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
 		if( subject == stepSizeControl ) {
@@ -241,75 +249,38 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		}
 		
 		{
-			if( subject == fk0 ) {
-				robot.setFKAxis(0,fk0.getValue());
-			}
-			if( subject == fk1 ) {
-				robot.setFKAxis(1,fk1.getValue());
-			}
-			if( subject == fk2 ) {
-				robot.setFKAxis(2,fk2.getValue());
-			}
-			if( subject == fk3 ) {
-				robot.setFKAxis(3,fk3.getValue());
-			}
-			if( subject == fk4 ) {
-				robot.setFKAxis(4,fk4.getValue());
-			}
-			if( subject == fk5 ) {
-				robot.setFKAxis(5,fk5.getValue());
-			}
+			if( subject == fk0 ) {  robot.setFKAxis(0,fk0.getValue());  angle0.setText(formatFloat(fk0.getValue()));  }
+			if( subject == fk1 ) {  robot.setFKAxis(1,fk1.getValue());  angle1.setText(formatFloat(fk1.getValue()));  }
+			if( subject == fk2 ) {  robot.setFKAxis(2,fk2.getValue());  angle2.setText(formatFloat(fk2.getValue()));  }
+			if( subject == fk3 ) {  robot.setFKAxis(3,fk3.getValue());  angle3.setText(formatFloat(fk3.getValue()));  }
+			if( subject == fk4 ) {  robot.setFKAxis(4,fk4.getValue());  angle4.setText(formatFloat(fk4.getValue()));  }
+			if( subject == fk5 ) {  robot.setFKAxis(5,fk5.getValue());  angle5.setText(formatFloat(fk5.getValue()));  }
 		}
 	}
 	
 	
 	// arm5 controls
 	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();			
-		/*
-		if( subject == fk5pos ) robot.moveA(1);
-		if( subject == fk5neg ) robot.moveA(-1);
-		if( subject == fk4pos ) robot.moveB(1);
-		if( subject == fk4neg ) robot.moveB(-1);
-		if( subject == fk3pos ) robot.moveC(1);
-		if( subject == fk3neg ) robot.moveC(-1);
-		if( subject == fk2pos ) robot.moveD(1);
-		if( subject == fk2neg ) robot.moveD(-1);
-		if( subject == fk1pos ) robot.moveE(1);
-		if( subject == fk1neg ) robot.moveE(-1);
-		if( subject == fk0pos ) robot.moveF(1);
-		if( subject == fk0neg ) robot.moveF(-1);
-		*/
-		if( subject == ikXpos ) robot.moveX(1);
-		if( subject == ikXneg ) robot.moveX(-1);
-		if( subject == ikYpos ) robot.moveY(1);
-		if( subject == ikYneg ) robot.moveY(-1);
-		if( subject == ikZpos ) robot.moveZ(1);
-		if( subject == ikZneg ) robot.moveZ(-1);
+		Object subject = e.getSource();		
 		
-		if( subject == ikUpos ) robot.moveU(1);
-		if( subject == ikUneg ) robot.moveU(-1);
-		if( subject == ikVpos ) robot.moveV(1);
-		if( subject == ikVneg ) robot.moveV(-1);
-		if( subject == ikWpos ) robot.moveW(1);
-		if( subject == ikWneg ) robot.moveW(-1);
+		if( subject == ikXpos ) robot.move(Sixi2Robot.Axis.X, 1);
+		if( subject == ikXneg ) robot.move(Sixi2Robot.Axis.X,-1);
+		if( subject == ikYpos ) robot.move(Sixi2Robot.Axis.Y, 1);
+		if( subject == ikYneg ) robot.move(Sixi2Robot.Axis.Y,-1);
+		if( subject == ikZpos ) robot.move(Sixi2Robot.Axis.Z, 1);
+		if( subject == ikZneg ) robot.move(Sixi2Robot.Axis.Z,-1);
 		
-		if( subject == findHome ) robot.findHome();
-		if( subject == runScript ) runScript();
+		if( subject == ikUpos ) robot.move(Sixi2Robot.Axis.U, 1);
+		if( subject == ikUneg ) robot.move(Sixi2Robot.Axis.U,-1);
+		if( subject == ikVpos ) robot.move(Sixi2Robot.Axis.V, 1);
+		if( subject == ikVneg ) robot.move(Sixi2Robot.Axis.V,-1);
+		if( subject == ikWpos ) robot.move(Sixi2Robot.Axis.W, 1);
+		if( subject == ikWneg ) robot.move(Sixi2Robot.Axis.W,-1);
+		
 		if( subject == showDebug ) robot.toggleDebug();
-		if( subject == where ) doWhere();
 		if( subject == about ) doAbout();
 	}
 	
-	protected void runScript() {
-		// TODO list script files on SD card, let user pick one?
-		// TODO auto-select the last used script?
-		robot.sendLineToRobot("D4 ACT0.NGC");
-	}
-	
-	protected void doWhere() {
-		robot.sendLineToRobot("M114");
-	}
 	
 	protected void doAbout() {
 		HTMLDialogBox box = new HTMLDialogBox();
@@ -325,5 +296,80 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		if(uid!=null) {
 			uid.setText("Evil Minion #"+Long.toString(id));
 		}
+	}
+	
+	protected void keyframeEditSetEnable(boolean enabled) {
+		feedRateControl.setEnabled(enabled);
+		accelerationControl.setEnabled(enabled);
+		
+		fk0.setEnabled(enabled);
+		fk1.setEnabled(enabled);
+		fk2.setEnabled(enabled);
+		fk3.setEnabled(enabled);
+		fk4.setEnabled(enabled);
+		fk5.setEnabled(enabled);
+
+		ikXpos.setEnabled(enabled);
+		ikYpos.setEnabled(enabled);
+		ikZpos.setEnabled(enabled);
+		ikUpos.setEnabled(enabled);
+		ikVpos.setEnabled(enabled);
+		ikWpos.setEnabled(enabled);
+		
+		ikXneg.setEnabled(enabled);
+		ikYneg.setEnabled(enabled);
+		ikZneg.setEnabled(enabled);
+		ikUneg.setEnabled(enabled);
+		ikVneg.setEnabled(enabled);
+		ikWneg.setEnabled(enabled);
+
+		xPos.setEnabled(enabled);
+		yPos.setEnabled(enabled);
+		zPos.setEnabled(enabled);
+		uPos.setEnabled(enabled);
+		vPos.setEnabled(enabled);
+		wPos.setEnabled(enabled);
+		
+		angle5.setEnabled(enabled);
+		angle4.setEnabled(enabled);
+		angle3.setEnabled(enabled);
+		angle2.setEnabled(enabled);
+		angle1.setEnabled(enabled);
+		angle0.setEnabled(enabled);
+		
+		stepSizeNow.setEnabled(enabled);
+		stepSizeControl.setEnabled(enabled);
+		feedRateControl.setEnabled(enabled);
+		accelerationControl.setEnabled(enabled);
+	}
+	
+	protected String formatFloat(float arg0) {
+		//return Float.toString(roundOff(arg0));
+		return String.format("%.3f", arg0);
+	}
+
+	public void updateFKPanel() {
+		Sixi2RobotKeyframe motionNow = (Sixi2RobotKeyframe)robot.getKeyframeNow();
+		
+		this.fk0.setValue((int)motionNow.angle0);	this.angle0.setText(formatFloat(motionNow.angle0));
+		this.fk1.setValue((int)motionNow.angle1);	this.angle1.setText(formatFloat(motionNow.angle1));
+		this.fk2.setValue((int)motionNow.angle2);	this.angle2.setText(formatFloat(motionNow.angle2));
+		this.fk3.setValue((int)motionNow.angle3);	this.angle3.setText(formatFloat(motionNow.angle3));
+		this.fk4.setValue((int)motionNow.angle4);	this.angle4.setText(formatFloat(motionNow.angle4));
+		this.fk5.setValue((int)motionNow.angle5);	this.angle5.setText(formatFloat(motionNow.angle5));
+	}
+	
+	public void updateIKPanel() {
+		Sixi2RobotKeyframe motionNow = (Sixi2RobotKeyframe)robot.getKeyframeNow();
+		
+		Vector3f v = new Vector3f();
+		v.set(motionNow.fingerPosition);
+		v.add(robot.getPosition());
+		this.xPos.setText(formatFloat(v.x));
+		this.yPos.setText(formatFloat(v.y));
+		this.zPos.setText(formatFloat(v.z));
+		this.uPos.setText(formatFloat(motionNow.ikU));
+		this.vPos.setText(formatFloat(motionNow.ikV));
+		this.wPos.setText(formatFloat(motionNow.ikW));
 	}
 }

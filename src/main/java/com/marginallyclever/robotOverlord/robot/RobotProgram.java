@@ -8,6 +8,7 @@ import java.util.List;
  * @author danroyer
  *
  */
+@Deprecated
 public class RobotProgram {
 	List<RobotKeyframe> keyframes;
 	

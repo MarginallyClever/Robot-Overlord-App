@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.arm5;
 
 import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
@@ -92,5 +93,26 @@ class EvilMinionKeyframe implements RobotKeyframe {
 		ik_elbow.set(other.ik_elbow);
 		ik_boom.set(other.ik_boom);
 		ik_shoulder.set(other.ik_shoulder);
+	}
+
+
+	@Override
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void render(GL2 gl2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 }

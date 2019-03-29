@@ -13,6 +13,7 @@ import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.pTTPTPRobot.tool.*;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -1292,5 +1293,10 @@ extends Robot {
 
 		keyframe.fingerForward.set(towardsFinger);
 		keyframe.fingerForward.normalize();
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new PTTPTPRobotKeyframe();
 	}
 }

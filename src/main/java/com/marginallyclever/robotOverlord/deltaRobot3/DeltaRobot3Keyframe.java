@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.deltaRobot3;
 
 import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 
@@ -53,5 +54,23 @@ public class DeltaRobot3Keyframe implements RobotKeyframe {
 		base_right.set(other.base_right);
 		basePan = other.basePan;
 		baseTilt = other.baseTilt;
+	}
+
+	@Override
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void render(GL2 gl2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 };

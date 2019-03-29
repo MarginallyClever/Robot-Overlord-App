@@ -56,6 +56,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	
 	public String additionalInstructions;
 	
+	
 	public Sixi2RobotKeyframe() {
 		super();
 
@@ -112,6 +113,14 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		Sixi2RobotKeyframe a = (Sixi2RobotKeyframe)arg0;
 		Sixi2RobotKeyframe b = (Sixi2RobotKeyframe)arg1;
 		
+		if(t==0) {
+			this.set(a);
+			return;
+		} else if(t==1) {
+			this.set(b);
+			return;
+		}
+		
 		angleServo = MathHelper.interpolate(a.angleServo,b.angleServo,t);
 		
 		fingerPosition.set(MathHelper.interpolate(a.fingerPosition,b.fingerPosition,t));
@@ -135,6 +144,27 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// they should be calculated from the inverse kinematics.
 		inverseKinematics(false,null);
 		//forwardKinematics(false,null);
+	}
+	
+	public void rotateFinger(float u,float v,float w) {
+		// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
+		// More complex arms start from the same assumption.
+		this.ikU=u;
+		this.ikV=v;
+		this.ikW=w;
+
+		// Rotating around itself has no effect, so just skip it
+		//Vector3f result = MathHelper.rotateAroundAxis(World.forward,World.forward,(float)Math.toRadians(motionFuture.ikU));
+		Vector3f result = new Vector3f(World.forward);
+
+		result = MathHelper.rotateAroundAxis(result     ,World.right  ,(float)Math.toRadians(this.ikV));
+		result = MathHelper.rotateAroundAxis(result     ,World.up     ,(float)Math.toRadians(this.ikW));
+		this.fingerForward.set(result);
+
+		result = MathHelper.rotateAroundAxis(World.right,World.forward,(float)Math.toRadians(this.ikU));
+		result = MathHelper.rotateAroundAxis(result     ,World.right  ,(float)Math.toRadians(this.ikV));
+		result = MathHelper.rotateAroundAxis(result     ,World.up     ,(float)Math.toRadians(this.ikW));
+		this.fingerRight.set(result);
 	}
 	
 	/**
@@ -475,9 +505,10 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 			return false;
 		}
 		shoulderToWrist.normalize();
-		Vector3f elbowPosition = new Vector3f(shoulderToWrist);
-		elbowPosition.scale(x);
-		elbowPosition.add(shoulderPosition);
+		
+		Vector3f elbowMidpoint = new Vector3f(shoulderToWrist);
+		elbowMidpoint.scale(x);
+		elbowMidpoint.add(shoulderPosition);
 
 		Vector3f v1 = new Vector3f();
 		float a = (float)( Math.sqrt( R*R - x*x ) );
@@ -486,22 +517,50 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// find both possible intersections of circles
 		v1.scale(a);
 		v1neg.scale(-a);
-		v1.add(elbowPosition);
-		v1neg.add(elbowPosition);
-		// the closer of the two circles to the previous elbow position is probably the more desirable of the two.
-		{
-			Vector3f test1 = new Vector3f(elbow);
-			test1.sub(v1);
-			float test1LenSquared = test1.lengthSquared();
+		v1.add(elbowMidpoint);
+		v1neg.add(elbowMidpoint);
 
-			Vector3f test1neg = new Vector3f(elbow);
-			test1neg.sub(v1neg);
-			float test1negLenSquared = test1neg.lengthSquared();
+		if(gl2!=null) {			
+			//MatrixHelper.drawMatrix2(gl2,fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ);
+			//MatrixHelper.drawMatrix2(gl2,wristPosition,wristPlaneX,wristPlaneY,wristPlaneZ,20);
 			
-			if(test1LenSquared < test1negLenSquared) {
-				elbowPosition.set(v1);				
+			//gl2.glTranslated(fingerPosition.x, fingerPosition.y, fingerPosition.z);
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glColor3f(1,0,1);
+			gl2.glVertex3d(elbowMidpoint.x,elbowMidpoint.y,elbowMidpoint.z);
+			gl2.glVertex3d(v1.x,v1.y,v1.z);
+
+			gl2.glColor3f(0,1,1);
+			gl2.glVertex3d(elbowMidpoint.x,elbowMidpoint.y,elbowMidpoint.z);
+			gl2.glVertex3d(v1neg.x,v1neg.y,v1neg.z);
+			gl2.glEnd();
+		}
+
+		Vector3f elbowPosition = new Vector3f();
+		{
+			if(v1.z<shoulderPosition.z) {
+				elbowPosition.set(v1neg);
+			} else if(v1neg.z<shoulderPosition.z) {
+				elbowPosition.set(v1);
+			} else if(v1neg.z<v1.z) {
+				elbowPosition.set(v1);
 			} else {
 				elbowPosition.set(v1neg);
+				/*
+				// the closer of the two circles to the previous elbow position is probably the more desirable of the two.
+				Vector3f test1 = new Vector3f(elbow);
+				test1.sub(v1);
+				float test1LenSquared = test1.lengthSquared();
+	
+				Vector3f test1neg = new Vector3f(elbow);
+				test1neg.sub(v1neg);
+				float test1negLenSquared = test1neg.lengthSquared();
+				
+				if(test1LenSquared < test1negLenSquared) {
+					elbowPosition.set(v1);				
+				} else {
+					elbowPosition.set(v1neg);
+				}*/
 			}
 		}
 
@@ -726,25 +785,25 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	}
 
 	// machine specific limits
-	public boolean checkAngleLimits() {/*
-		if (angle0 <  MIN_ANGLE_0) { System.out.println("angle0 top "+angle0);	return false; }
-		if (angle0 >  MAX_ANGLE_0) { System.out.println("angle0 bottom "+angle0);	return false; }
+	public boolean checkAngleLimits() {
+		if (angle0 <  Sixi2Robot.MIN_ANGLE_0) { System.out.println("angle0 top "   +angle0);	return false; }
+		if (angle0 >  Sixi2Robot.MAX_ANGLE_0) { System.out.println("angle0 bottom "+angle0);	return false; }
 		
-		if (angle1 <  MIN_ANGLE_1) { System.out.println("angle1 top "+angle1);	return false; }
-		if (angle1 >  MAX_ANGLE_1) { System.out.println("angle1 bottom "+angle1);	return false; }
+		if (angle1 <  Sixi2Robot.MIN_ANGLE_1) { System.out.println("angle1 top "   +angle1);	return false; }
+		if (angle1 >  Sixi2Robot.MAX_ANGLE_1) { System.out.println("angle1 bottom "+angle1);	return false; }
 		
-		if (angle2 <  MIN_ANGLE_2) { System.out.println("angle2 top "+angle2);	return false; }
-		if (angle2 >  MAX_ANGLE_2) { System.out.println("angle2 bottom "+angle2);	return false; }
+		if (angle2 <  Sixi2Robot.MIN_ANGLE_2) { System.out.println("angle2 top "   +angle2);	return false; }
+		if (angle2 >  Sixi2Robot.MAX_ANGLE_2) { System.out.println("angle2 bottom "+angle2);	return false; }
 		
-		if (angle3 <  MIN_ANGLE_3) { System.out.println("angle3 top "+angle3);	return false; }
-		if (angle3 >  MAX_ANGLE_3) { System.out.println("angle3 bottom "+angle3);	return false; }
+		if (angle3 <  Sixi2Robot.MIN_ANGLE_3) { System.out.println("angle3 top "   +angle3);	return false; }
+		if (angle3 >  Sixi2Robot.MAX_ANGLE_3) { System.out.println("angle3 bottom "+angle3);	return false; }
 		
-		if (angle4 <  MIN_ANGLE_4) { System.out.println("angle4 top "+angle4);	return false; }
-		if (angle4 >  MAX_ANGLE_4) { System.out.println("angle4 bottom "+angle4);	return false; }
+		if (angle4 <  Sixi2Robot.MIN_ANGLE_4) { System.out.println("angle4 top "   +angle4);	return false; }
+		if (angle4 >  Sixi2Robot.MAX_ANGLE_4) { System.out.println("angle4 bottom "+angle4);	return false; }
 		
-		if (angle5 <  MIN_ANGLE_5) { System.out.println("angle5 top "+angle5);	return false; }
-		if (angle5 >  MAX_ANGLE_5) { System.out.println("angle5 bottom "+angle5);	return false; }
-*/
+		if (angle5 <  Sixi2Robot.MIN_ANGLE_5) { System.out.println("angle5 top "   +angle5);	return false; }
+		if (angle5 >  Sixi2Robot.MAX_ANGLE_5) { System.out.println("angle5 bottom "+angle5);	return false; }
+
 		return true;
 	}
 }

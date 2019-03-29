@@ -12,6 +12,7 @@ import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -1199,5 +1200,11 @@ extends Robot {
 		
 		keyframe.fingerRight.cross(v1, planeNormal);
 		keyframe.fingerRight.normalize();
+	}
+
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new EvilMinionKeyframe();
 	}
 }

@@ -86,7 +86,9 @@ public class RotaryStewartPlatform extends Robot {
 
 	public RotaryStewartPlatform() {
 		super();
-		dimensions = new RotaryStewartPlatform2Dimensions();
+		if(dimensions==null) {
+			dimensions = new RotaryStewartPlatform2Dimensions();
+		}
 		setDisplayName(dimensions.ROBOT_NAME);
 
 		motionNow = new RotaryStewartPlatformKeyframe(dimensions);
@@ -620,6 +622,10 @@ public class RotaryStewartPlatform extends Robot {
 
 	@Override
 	public RobotKeyframe createKeyframe() {
+		if(dimensions==null) {
+			dimensions = new RotaryStewartPlatform2Dimensions();
+		}
+
 		return new RotaryStewartPlatformKeyframe(dimensions);
 	}
 }

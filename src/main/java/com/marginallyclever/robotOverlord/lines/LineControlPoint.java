@@ -3,8 +3,6 @@ package com.marginallyclever.robotOverlord.lines;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.math.Quaternion;
-import com.marginallyclever.convenience.MatrixHelper;
 
 /**
  * 3D Bezier curve implementation
@@ -23,12 +21,16 @@ public class LineControlPoint {
 	 * @param gl2
 	 */
 	public void render(GL2 gl2) {
-		Vector3f u,v,w;
+		//Vector3f u,v,w;
 		
 		//MatrixHelper.drawMatrix(gl2, position.interpolate(0), u, v, w);
 		//MatrixHelper.drawMatrix(gl2, position.interpolate(1), u, v, w);
+		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		boolean isCM =  gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
+		boolean isDepth =  gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 
-		gl2.glDisable(gl2.GL_LIGHTING);
+		gl2.glEnable(GL2.GL_DEPTH_TEST);
+		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		
 		//*
@@ -51,7 +53,8 @@ public class LineControlPoint {
 		}
 		gl2.glEnd();
 		
-		gl2.glEnable(gl2.GL_LIGHTING);
-		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		if(isCM) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+		if(!isDepth) gl2.glDisable(GL2.GL_DEPTH_TEST);
 	}
 }

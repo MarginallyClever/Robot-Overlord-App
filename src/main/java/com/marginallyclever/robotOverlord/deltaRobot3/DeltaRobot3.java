@@ -22,6 +22,7 @@ import com.marginallyclever.robotOverlord.actions.UndoableActionRobotMove;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 public class DeltaRobot3
 extends Robot {
@@ -877,5 +878,11 @@ extends Robot {
 		if (state.angle_5 >  180) return false;
 		 */	
 		return true;
+	}
+
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new DeltaRobot3Keyframe();
 	}
 }

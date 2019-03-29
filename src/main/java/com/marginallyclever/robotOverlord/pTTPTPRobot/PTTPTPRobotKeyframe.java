@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.pTTPTPRobot;
 
 import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
@@ -78,5 +79,23 @@ class PTTPTPRobotKeyframe implements RobotKeyframe {
 		elbow.set(other.elbow);
 		shoulder.set(other.shoulder);
 		base.set(other.base);
+	}
+
+	@Override
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void render(GL2 gl2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 }
