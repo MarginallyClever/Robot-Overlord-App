@@ -29,8 +29,8 @@ public class MatrixHelper {
 	 * @param scale nominally 1
 	 */
 	public static void drawMatrix(GL2 gl2,Vector3f p,Vector3f u,Vector3f v,Vector3f w,float scale) {
-		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
+		//boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		//gl2.glDisable(GL2.GL_DEPTH_TEST);
 			
 		gl2.glPushMatrix();
 			gl2.glTranslatef(p.x, p.y, p.z);
@@ -44,7 +44,7 @@ public class MatrixHelper {
 
 		gl2.glPopMatrix();
 		
-		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
 
 	/**

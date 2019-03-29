@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.mantisRobot;
 
 import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
@@ -84,5 +85,26 @@ class MantisRobotKeyframe implements RobotKeyframe {
 		ikElbow.set(other.ikElbow);
 		ikShoulder.set(other.ikShoulder);
 		ikBase.set(other.ikBase);
+	}
+
+
+	@Override
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void render(GL2 gl2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 }

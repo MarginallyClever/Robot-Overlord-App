@@ -35,16 +35,18 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	protected transient boolean isReadyToReceive;
 
 	// animation settings
-	protected transient LinkedList<RobotKeyframe> keyframes = new LinkedList<RobotKeyframe>();
-	protected int keyframe_index;
-	protected float keyframe_t;
+	// TODO non-transient name of keyframe file for robot
+	protected transient LinkedList<RobotKeyframe> keyframes;
+	protected transient int keyframe_index;
+	protected transient float keyframe_t;
+	protected transient boolean isDrawingKeyframes;
 	
 	public enum AnimationBehavior {
 		ANIMATE_ONCE,
 		ANIMATE_LOOP,
 	};
 	public AnimationBehavior animationBehavior;
-	public float animationSpeed=1.0f;
+	public float animationSpeed;
 
 	// sending file to the robot
 	private boolean running;
@@ -70,7 +72,11 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		paused=true;
 		running=false;
 		isModelLoaded=false;
+		
 		animationBehavior=AnimationBehavior.ANIMATE_LOOP;
+		animationSpeed=0.0f;
+		keyframes = new LinkedList<RobotKeyframe>();
+		// there must always be at least one keyframe
 		keyframes.add(createKeyframe());
 	}
 	
@@ -211,7 +217,9 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			isModelLoaded=true;
 		}
 		
-		renderKeyframes(gl2);
+		if(isDrawingKeyframes) {
+			renderKeyframes(gl2);
+		}
 	}
 
 	/**
@@ -227,12 +235,14 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			next = i.next();
 			if(current != null && next!=null) {
 				current.render(gl2);
-				// TODO this shouldn't be the base type
 				current.renderInterpolation(gl2, next);
 			}
 		}
 		if(next!=null) {
 			next.render(gl2);
+			if(animationBehavior==AnimationBehavior.ANIMATE_LOOP) {
+				next.renderInterpolation(gl2, keyframes.getFirst());
+			}
 		}
 	}
 	
@@ -296,26 +306,29 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 
 	public abstract RobotKeyframe createKeyframe();
 
-	public void keyframeAddNow() {
-		int i = (keyframes.size()>0)? keyframe_index+1 : 0;
+	public RobotKeyframe keyframeAddNow() {
+		int newIndex = keyframe_index+1;
 		RobotKeyframe newKey = getKeyframeNow();
-		if(keyframes.size()>0) {
-			keyframes.add(i, newKey);
-		} else {
-			keyframes.push(newKey);
-		}
-		keyframe_index=i;
+		keyframes.add(newIndex, newKey);
+		keyframe_index=newIndex;
 		keyframe_t=0;
+		
+		return newKey;
 	}
 
-	public void keyframeAdd() {
+	public RobotKeyframe keyframeAdd() {
 		int i = (keyframes.size()>0)? keyframe_index+1 : 0;
+		RobotKeyframe newKey = createKeyframe();
+		keyframes.add(i, newKey);
+		keyframe_index = i;
+		keyframe_t=0;
 		
-		keyframes.add(i, createKeyframe());
+		return newKey;
 	}
 	
 	public void keyframeDelete() {
-		if(keyframes.size()==0) return;
+		// there must always be at least one keyframe
+		if(keyframes.size()<=1) return;
 		
 		keyframes.remove(keyframe_index);
 		if(keyframe_index>0 && keyframe_index>=keyframes.size()) {
@@ -377,13 +390,20 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
         }
 	}
 	
+	public void updatePose() {}
+	
 	public RobotKeyframe getKeyframeNow() {
 		int size=getKeyframeSize();
-		if(size==0) {
-			
-		} else if(keyframe_index>=size-1) {
-			// last keyframe, nowhere to interpolate towards.
-			return keyframes.getLast();
+		if(keyframe_index>=size-1) {
+			if(animationBehavior==AnimationBehavior.ANIMATE_LOOP) {
+				RobotKeyframe now = createKeyframe();
+				RobotKeyframe a = keyframes.get(size-1);
+				RobotKeyframe b = keyframes.get(0);
+				now.interpolate(a, b, keyframe_t);
+				return now;
+			} else {
+				return keyframes.get(size-1);
+			}
 		} else {
 			RobotKeyframe now = createKeyframe();
 			RobotKeyframe a = keyframes.get(keyframe_index);
@@ -418,7 +438,8 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 					case ANIMATE_ONCE:
 						keyframe_index = size-1;
 						keyframe_t=0;
-						// TODO set the panel button to paused
+						animationSpeed=0;
+						// TODO set the panel buttonAnimatePlayPause to paused
 						break;
 					case ANIMATE_LOOP:
 						keyframe_index=0;
@@ -445,5 +466,27 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 				}
 			}
 		}
+	}
+
+	public void setIsDrawingKeyframes( boolean arg0 ) {
+		isDrawingKeyframes=arg0;
+	}
+	
+	public boolean getIsDrawingKeyframes() {
+		return isDrawingKeyframes;
+	}
+
+
+	public float getAnimationSpeed() {
+		return animationSpeed;
+	}
+
+	/**
+	 * Adjust animation speed and disable GUI elements (when animation speed !=0)
+	 * @param animationSpeed
+	 */
+	public void setAnimationSpeed(float animationSpeed) {
+		this.animationSpeed = animationSpeed;
+		robotPanel.keyframeEditSetEnable(animationSpeed==0);
 	}
 }

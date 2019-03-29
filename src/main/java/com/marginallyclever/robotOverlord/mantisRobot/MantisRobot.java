@@ -5,7 +5,6 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.mantisRobot.tool.*;
@@ -13,6 +12,7 @@ import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,8 +33,7 @@ import java.util.Iterator;
  * @author Dan Royer <dan @ marinallyclever.com>
  * @see <a href='https://hackaday.io/project/3800-3d-printable-robot-arm'>MANTIS on Hackaday.io</a>
  */
-public class MantisRobot
-extends Robot {
+public class MantisRobot extends Robot {
 	/**
 	 * 
 	 */
@@ -1336,5 +1335,11 @@ extends Robot {
 
 		keyframe.fingerForward.set(towardsFinger);
 		keyframe.fingerForward.normalize();
+	}
+
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new MantisRobotKeyframe();
 	}
 }

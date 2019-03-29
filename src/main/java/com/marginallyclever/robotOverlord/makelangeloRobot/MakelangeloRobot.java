@@ -24,6 +24,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.makelangeloRobot.settings.MakelangeloRobotSettings;
 import com.marginallyclever.robotOverlord.material.Material;
 
@@ -817,5 +818,10 @@ public class MakelangeloRobot extends Robot {
 	
 	public void doAbout() {
 		getSettings().getHardwareProperties().doAbout();
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new MakelangeloKeyframe();
 	}
 }

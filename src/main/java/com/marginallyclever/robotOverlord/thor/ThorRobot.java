@@ -11,6 +11,7 @@ import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.thor.tool.ThorTool;
 import com.marginallyclever.robotOverlord.thor.tool.ThorToolGripper;
 
@@ -1196,5 +1197,10 @@ public class ThorRobot extends Robot {
 
 		keyframe.fingerForward.set(towardsFinger);
 		keyframe.fingerForward.normalize();
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new ThorKeyframe();
 	}
 }

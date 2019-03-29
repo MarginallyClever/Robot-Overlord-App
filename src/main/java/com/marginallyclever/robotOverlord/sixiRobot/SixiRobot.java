@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.sixiRobot.tool.*;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -1580,5 +1581,10 @@ extends Robot {
 			keyframe.fingerRight.set(fingerPlaneX);
 			keyframe.fingerForward.set(fingerPlaneZ);
 		}
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new SixiRobotKeyframe();
 	}
 }

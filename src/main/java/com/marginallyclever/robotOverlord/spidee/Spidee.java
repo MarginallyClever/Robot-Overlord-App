@@ -22,6 +22,7 @@ import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 import java.io.BufferedReader;
 
@@ -1640,6 +1641,12 @@ extends Robot {
 		//updateGUI();
 		
 		return list;
+	}
+
+	
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return new SpideeKeyframe();
 	}
 }
 

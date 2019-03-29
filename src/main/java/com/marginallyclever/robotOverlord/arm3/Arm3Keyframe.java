@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.arm3;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 
@@ -74,5 +73,23 @@ public class Arm3Keyframe implements RobotKeyframe {
 		base_pan = other.base_pan;
 		base_tilt = other.base_tilt;
 		dimensions = other.dimensions;
+	}
+
+	@Override
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void render(GL2 gl2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 }

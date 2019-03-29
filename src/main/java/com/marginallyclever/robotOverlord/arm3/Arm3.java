@@ -10,14 +10,14 @@ import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 
 import java.util.ArrayList;
 
 
-public class Arm3 
-extends Robot {
+public class Arm3 extends Robot {
 	/**
 	 * serial version id
 	 */
@@ -922,5 +922,11 @@ extends Robot {
 		keyframe.fingerRight.set(up); 
 		keyframe.fingerRight.scale(-1);
 		//keyframe.finger_right = MathHelper.rotateAroundAxis(keyframe.finger_right, axis,-keyframe.angle_3/RAD2DEG);
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		// TODO Auto-generated method stub
+		return new Arm3Keyframe(armSettings);
 	}
 }

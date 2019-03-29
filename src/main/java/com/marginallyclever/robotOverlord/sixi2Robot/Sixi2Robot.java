@@ -5,11 +5,10 @@ import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.sixi2Robot.tool.*;
-import com.marginallyclever.robotOverlord.world.World;
+
 import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.robot.Robot;
@@ -34,8 +33,7 @@ import java.util.Iterator;
  * 
  * @author Dan Royer <dan @ marinallyclever.com>
  */
-public class Sixi2Robot
-extends Robot {
+public class Sixi2Robot extends Robot {
 	/**
 	 * 
 	 */
@@ -75,6 +73,9 @@ extends Robot {
 	public final static float MIN_ANGLE_5 = -90;
 	public final static float MAX_ANGLE_5 =  90;
 	
+	public enum Axis {
+		X,Y,Z,U,V,W,
+	};
 	
 	// model files
 	//private Model floorModel    = null;
@@ -110,21 +111,6 @@ extends Robot {
 	private Sixi2RobotKeyframe motionNow = new Sixi2RobotKeyframe();
 	// motion state in the near future, if valid.
 	private Sixi2RobotKeyframe motionFuture = new Sixi2RobotKeyframe();
-		
-	// keyboard history
-	private float aDir = 0.0f;
-	private float bDir = 0.0f;
-	private float cDir = 0.0f;
-	private float dDir = 0.0f;
-	private float eDir = 0.0f;
-	private float fDir = 0.0f;
-
-	private float xDir = 0.0f;
-	private float yDir = 0.0f;
-	private float zDir = 0.0f;
-	private float uDir = 0.0f;
-	private float vDir = 0.0f;
-	private float wDir = 0.0f;
 
 	// machine logic states
 	private boolean armMoved 		= false;
@@ -141,7 +127,7 @@ extends Robot {
 	
 	public Sixi2Robot() {
 		super();
-
+		
 		setDisplayName(ROBOT_NAME);
 		
 		// set up bounding volumes
@@ -156,11 +142,9 @@ extends Robot {
 		volumes[5].setRadius(1.0f*0.575f);
 		
 		rotateBase(0,0);
-		motionNow.set(motionFuture);
-		motionNow.checkAngleLimits();
-		motionFuture.checkAngleLimits();
 		
 		setToHomePosition();
+		
 		setupMaterials();
 		
 		tool = new Sixi2ToolGripper();
@@ -168,34 +152,28 @@ extends Robot {
 	}
 	
 	protected void setupMaterials() {
-		//floorMat	= new Material();
-		anchorMat	= new Material();
-		shoulderMat	= new Material();
-		bicepMat	= new Material();
-		//elbowMat	= new Material();
-		forearmMat	= new Material();
+		anchorMat	  = new Material();
+		shoulderMat	  = new Material();
+		bicepMat	  = new Material();
+		forearmMat	  = new Material();
 		tuningForkMat = new Material();
-		picassoBoxMat	= new Material();
-		handMat		= new Material();
+		picassoBoxMat = new Material();
+		handMat		  = new Material();
 
-		//floorMat   .setDiffuseColor(1.0f,0.0f,0.0f,1);
 		float r=1;
 		float g= 217f/255f;
 		float b= 33f/255f;
 		anchorMat  .setDiffuseColor(r,g,b,1);
 		shoulderMat.setDiffuseColor(r,g,b,1);
 		bicepMat   .setDiffuseColor(r,g,b,1);
-		//elbowMat   .setDiffuseColor(r,g,b,1);
 		forearmMat .setDiffuseColor(r,g,b,1);
 		tuningForkMat   .setDiffuseColor(r,g,b,1);
 		picassoBoxMat   .setDiffuseColor(r,g,b,1);
 		handMat    .setDiffuseColor(r,g,b,1);
 
-		//floorMat   .setShininess(10);
 		anchorMat  .setShininess(10);
 		shoulderMat.setShininess(10);
 		bicepMat   .setShininess(10);
-		//elbowMat   .setShininess(10);
 		forearmMat .setShininess(10);
 		tuningForkMat   .setShininess(10);
 		picassoBoxMat   .setShininess(10);
@@ -205,24 +183,19 @@ extends Robot {
 	@Override
 	protected void loadModels(GL2 gl2) {
 		try {
-			//floorModel      = ModelFactory.createModelFromFilename("/Sixi2/floor.stl",0.1f);
 			anchorModel     = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
 			shoulderModel   = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
 			bicepModel      = ModelFactory.createModelFromFilename("/Sixi2/bicep.stl",0.1f);
-			//elbowModel      = ModelFactory.createModelFromFilename("/Sixi2/elbow.stl",0.1f);
 			forearmModel    = ModelFactory.createModelFromFilename("/Sixi2/forearm.stl",0.1f);
 			tuningForkModel = ModelFactory.createModelFromFilename("/Sixi2/tuningFork.stl",0.1f);
 			picassoBoxModel = ModelFactory.createModelFromFilename("/Sixi2/picassoBox.stl",0.1f);
 			handModel       = ModelFactory.createModelFromFilename("/Sixi2/hand.stl",0.1f);
 			
-			bicepModel  .adjustOrigin(new Vector3f(-1.82f, 9, 0));
-			//elbowModel  .adjustOrigin(new Vector3f(0, 0, 0));
-			forearmModel.adjustOrigin(new Vector3f(0, (float)ELBOW_TO_WRIST_Z, (float)ELBOW_TO_WRIST_Y));
-			tuningForkModel  .adjustOrigin(new Vector3f(0, 0, 0));
-			picassoBoxModel  .adjustOrigin(new Vector3f(0, 0, 0));
-			handModel   .adjustOrigin(new Vector3f(0, 0, 0));
-			
-			System.out.println("Sixi 2 loaded OK");
+			bicepModel  	.adjustOrigin(new Vector3f(-1.82f, 9, 0));
+			forearmModel	.adjustOrigin(new Vector3f(0, (float)ELBOW_TO_WRIST_Z, (float)ELBOW_TO_WRIST_Y));
+			tuningForkModel	.adjustOrigin(new Vector3f(0, 0, 0));
+			picassoBoxModel	.adjustOrigin(new Vector3f(0, 0, 0));
+			handModel		.adjustOrigin(new Vector3f(0, 0, 0));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -255,24 +228,6 @@ extends Robot {
 	
 	public boolean isPortConfirmed() {
 		return isPortConfirmed;
-	}
-	
-	private void enableFK() {		
-		xDir=0;
-		yDir=0;
-		zDir=0;
-		uDir=0;
-		vDir=0;
-		wDir=0;
-	}
-	
-	private void disableFK() {	
-		aDir=0;
-		bDir=0;
-		cDir=0;
-		dDir=0;
-		eDir=0;
-		fDir=0;
 	}
 
 	/**
@@ -308,67 +263,64 @@ extends Robot {
 	public double getAcceleration() {
 		return acceleration;
 	}
+
+	protected void guaranteeKeyframeHere() {
+		// if we are not at a keyframe
+		if(keyframe_t!=0) {
+			// Add a keyframe here (and set the current animation time to the new keyframe)
+			keyframeAddNow();
+		}
+	}
 	
-	public void moveA(float dir) {
-		aDir=dir;
-		enableFK();
+	public void move(Axis arg0,float dir) {
+		if(getAnimationSpeed()!=0) return;
+		
+		guaranteeKeyframeHere();
+
+		// we are not moving.  Check for updates from the user (processed in updateIK and updateFK)
+		// and record them to the current keyframe.
+		Sixi2RobotKeyframe kfNow = (Sixi2RobotKeyframe)getKeyframe(keyframe_index);
+		kfNow.forwardKinematics(false, null);
+		
+		switch(arg0) {
+		case X:  kfNow.fingerPosition.x+=dir*(float)stepSize;  break;
+		case Y:  kfNow.fingerPosition.y+=dir*(float)stepSize;  break;
+		case Z:  kfNow.fingerPosition.z+=dir*(float)stepSize;  break;
+		case U:  kfNow.ikU+=dir;  break;
+		case V:  kfNow.ikV+=dir;  break;
+		case W:  kfNow.ikW+=dir;  break;
+		}
+
+		kfNow.rotateFinger(kfNow.ikU, kfNow.ikV, kfNow.ikW);
+		kfNow.inverseKinematics(false, null);
+		updatePose();
+		armPanel.updateFKPanel();
 	}
 
-	public void moveB(float dir) {
-		bDir=dir;
-		enableFK();
-	}
+	public void setFKAxis(int jointNumber,float angle) {
+		if(getAnimationSpeed()!=0) return;
 
-	public void moveC(float dir) {
-		cDir=dir;
-		enableFK();
-	}
+		guaranteeKeyframeHere();
 
-	public void moveD(float dir) {
-		dDir=dir;
-		enableFK();
+		// we are not moving.  Check for updates from the user (processed in updateIK and updateFK)
+		// and record them to the current keyframe.
+		Sixi2RobotKeyframe kfNow = (Sixi2RobotKeyframe)getKeyframe(keyframe_index);
+		kfNow.inverseKinematics(false, null);
+		
+		switch(jointNumber) {
+		case 0: kfNow.angle0=angle;  break;
+		case 1: kfNow.angle1=angle;  break;
+		case 2: kfNow.angle2=angle;  break;
+		case 3: kfNow.angle3=angle;  break;
+		case 4: kfNow.angle4=angle;  break;
+		case 5: kfNow.angle5=angle;  break;
+		}
+		
+		kfNow.forwardKinematics(false, null);
+		updatePose();
+		armPanel.updateIKPanel();
 	}
-
-	public void moveE(float dir) {
-		eDir=dir;
-		enableFK();
-	}
-
-	public void moveF(float dir) {
-		fDir=dir;
-		enableFK();
-	}
-
-	public void moveX(float dir) {
-		xDir=dir;
-		disableFK();
-	}
-
-	public void moveY(float dir) {
-		yDir=dir;
-		disableFK();
-	}
-
-	public void moveZ(float dir) {
-		zDir=dir;
-		disableFK();
-	}
-
-	public void moveU(float dir) {
-		uDir=dir;
-		disableFK();
-	}
-
-	public void moveV(float dir) {
-		vDir=dir;
-		disableFK();
-	}
-
-	public void moveW(float dir) {
-		wDir=dir;
-		disableFK();
-	}
-
+	
 	public void toggleDebug() {
 		showDebug=!showDebug;
 	}
@@ -388,10 +340,8 @@ extends Robot {
 		motionNow.angle4=0f;
 		motionNow.angle5=0f;
 		motionNow.forwardKinematics(false,null);
-		//motionNow.inverseKinematics();
+		motionNow.inverseKinematics(false,null);
 		motionFuture.set(motionNow);
-		//forwardKinematics(motionFuture,false,null);
-		//inverseKinematics(motionFuture);
 	}
 	
 	/**
@@ -399,172 +349,37 @@ extends Robot {
 	 * @param delta the time since the last update.  Typically ~1/30s
 	 */
 	protected void updateIK(float delta) {
-		boolean changed=false;
-		motionFuture.fingerPosition.set(motionNow.fingerPosition);
-		final float vel=(float)stepSize;
-		float dp = vel;// * delta;
-
-		float dX=motionFuture.fingerPosition.x;
-		float dY=motionFuture.fingerPosition.y;
-		float dZ=motionFuture.fingerPosition.z;
-		
-		if (xDir!=0) {
-			dX += xDir * dp;
-			changed=true;
-			xDir=0;
-		}		
-		if (yDir!=0) {
-			dY += yDir * dp;
-			changed=true;
-			yDir=0;
+		if(!motionFuture.inverseKinematics(false,null)) {
+			return;
 		}
-		if (zDir!=0) {
-			dZ += zDir * dp;
-			changed=true;
-			zDir=0;
-		}
-		// rotations
-		float ru=motionFuture.ikU;
-		float rv=motionFuture.ikV;
-		float rw=motionFuture.ikW;
-		boolean hasTurned=false;
+		if(motionFuture.checkAngleLimits()) {
+		//if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
+			armMoved=true;
 
-		if (uDir!=0) {
-			ru += uDir * dp;
-			changed=true;
-			hasTurned=true;
-			uDir=0;
-		}
-		if (vDir!=0) {
-			rv += vDir * dp;
-			changed=true;
-			hasTurned=true;
-			vDir=0;
-		}
-		if (wDir!=0) {
-			rw += wDir * dp;
-			changed=true;
-			hasTurned=true;
-			wDir=0;
-		}
-
-
-		if(hasTurned) {
-			// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
-			// More complex arms start from the same assumption.
-			motionFuture.ikU=ru;
-			motionFuture.ikV=rv;
-			motionFuture.ikW=rw;
-
-			// Rotating around itself has no effect, so just skip it
-			//Vector3f result = MathHelper.rotateAroundAxis(World.forward,World.forward,(float)Math.toRadians(motionFuture.ikU));
-			Vector3f result = new Vector3f(World.forward);
-
-			result = MathHelper.rotateAroundAxis(result     ,World.right  ,(float)Math.toRadians(motionFuture.ikV));
-			result = MathHelper.rotateAroundAxis(result     ,World.up     ,(float)Math.toRadians(motionFuture.ikW));
-			motionFuture.fingerForward.set(result);
-
-			result = MathHelper.rotateAroundAxis(World.right,World.forward,(float)Math.toRadians(motionFuture.ikU));
-			result = MathHelper.rotateAroundAxis(result     ,World.right  ,(float)Math.toRadians(motionFuture.ikV));
-			result = MathHelper.rotateAroundAxis(result     ,World.up     ,(float)Math.toRadians(motionFuture.ikW));
-			motionFuture.fingerRight.set(result);
-		}
-		
-		//if(changed==true && motionFuture.movePermitted()) {
-		if(changed) {
-			motionFuture.fingerPosition.x = dX;
-			motionFuture.fingerPosition.y = dY;
-			motionFuture.fingerPosition.z = dZ;
-			if(!motionFuture.inverseKinematics(false,null)) {
-				return;
-			}
-			if(motionFuture.checkAngleLimits()) {
-			//if(motionNow.fingerPosition.epsilonEquals(motionFuture.fingerPosition,0.1f) == false) {
-				armMoved=true;
-
-				sendChangeToRealMachine();
-				//if(!this.isPortConfirmed()) {
-					// live data from the sensors will update motionNow, so only do this if we're unconnected.
-					motionNow.set(motionFuture);
-				//}
-				updateGUI();
-			} else {
-				motionFuture.set(motionNow);
-			}
+			sendChangeToRealMachine();
+			//if(!this.isPortConfirmed()) {
+				// live data from the sensors will update motionNow, so only do this if we're unconnected.
+				motionNow.set(motionFuture);
+			//}
+			updateGUI();
+		} else {
+			motionFuture.set(motionNow);
 		}
 	}
 	
 	protected void updateFK(float delta) {
-		boolean changed=false;
-		float velcd=(float)stepSize; // * delta
-		float velabe=(float)stepSize; // * delta
-
-		motionFuture.set(motionNow);
-		
-		float d0 = motionFuture.angle0;
-		float d1 = motionFuture.angle1;
-		float d2 = motionFuture.angle2;
-		float d3 = motionFuture.angle3;
-		float d4 = motionFuture.angle4;
-		float d5 = motionFuture.angle5;
-
-		if (fDir!=0) {
-			d0 += velabe * fDir;
-			changed=true;
-			fDir=0;
-		}
-		
-		if (eDir!=0) {
-			d1 += velabe * eDir;
-			changed=true;
-			eDir=0;
-		}
-		
-		if (dDir!=0) {
-			d2 += velcd * dDir;
-			changed=true;
-			dDir=0;
-		}
-
-		if (cDir!=0) {
-			d3 += velcd * cDir;
-			changed=true;
-			cDir=0;
-		}
-		
-		if(bDir!=0) {
-			d4 += velabe * bDir;
-			changed=true;
-			bDir=0;
-		}
-		
-		if(aDir!=0) {
-			d5 += velabe * aDir;
-			changed=true;
-			aDir=0;
-		}
-		
-
-		if(changed) {
-			motionFuture.angle5=d5;
-			motionFuture.angle4=d4;
-			motionFuture.angle3=d3;
-			motionFuture.angle2=d2;
-			motionFuture.angle1=d1;
-			motionFuture.angle0=d0;
-			if(motionFuture.checkAngleLimits()) {
-				motionFuture.forwardKinematics(false,null);
-				armMoved=true;
-				
-				sendChangeToRealMachine();
-				//if(!this.isPortConfirmed()) {
-					// live data from the sensors will update motionNow, so only do this if we're unconnected.
-					motionNow.set(motionFuture);
-				//}
-				updateGUI();
-			} else {
-				motionFuture.set(motionNow);
-			}
+		if(motionFuture.checkAngleLimits()) {
+			motionFuture.forwardKinematics(false,null);
+			armMoved=true;
+			
+			sendChangeToRealMachine();
+			//if(!this.isPortConfirmed()) {
+				// live data from the sensors will update motionNow, so only do this if we're unconnected.
+				motionNow.set(motionFuture);
+			//}
+			updateGUI();
+		} else {
+			motionFuture.set(motionNow);
 		}
 	}
 
@@ -575,31 +390,9 @@ extends Robot {
 	}
 	
 	public void updateGUI() {
-		if(armPanel.drivenIndex!=-1) {
-			return;
-		}
-		armPanel.drivenIndex=1;
-		
-		Vector3f v = new Vector3f();
-		v.set(motionNow.fingerPosition);
-		v.add(getPosition());
-		armPanel.xPos.setText(Float.toString(roundOff(v.x)));
-		armPanel.yPos.setText(Float.toString(roundOff(v.y)));
-		armPanel.zPos.setText(Float.toString(roundOff(v.z)));
-		armPanel.uPos.setText(Float.toString(roundOff(motionNow.ikU)));
-		armPanel.vPos.setText(Float.toString(roundOff(motionNow.ikV)));
-		armPanel.wPos.setText(Float.toString(roundOff(motionNow.ikW)));
-
-		armPanel.fk0.setValue((int)motionNow.angle0);	armPanel.angle0.setText(Float.toString(roundOff(motionNow.angle0)));
-		armPanel.fk1.setValue((int)motionNow.angle1);	armPanel.angle1.setText(Float.toString(roundOff(motionNow.angle1)));
-		armPanel.fk2.setValue((int)motionNow.angle2);	armPanel.angle2.setText(Float.toString(roundOff(motionNow.angle2)));
-		armPanel.fk3.setValue((int)motionNow.angle3);	armPanel.angle3.setText(Float.toString(roundOff(motionNow.angle3)));
-		armPanel.fk4.setValue((int)motionNow.angle4);	armPanel.angle4.setText(Float.toString(roundOff(motionNow.angle4)));
-		armPanel.fk5.setValue((int)motionNow.angle5);	armPanel.angle5.setText(Float.toString(roundOff(motionNow.angle5)));
-		
-		if( tool != null ) tool.updateGUI();
-
-		armPanel.drivenIndex=-1;
+		//armPanel.updateFKPanel();
+		//armPanel.updateIKPanel();
+		//if( tool != null ) tool.updateGUI();
 	}
 
 	protected void sendChangeToRealMachine() {
@@ -622,20 +415,34 @@ extends Robot {
 	@Override
 	public void prepareMove(float delta) {
 		super.prepareMove(delta);
-		updateIK(delta);
-		updateFK(delta);
-		if(tool != null) tool.update(delta);
-		updateGUI();
+		
+		if(getAnimationSpeed()!=0) 
+		{
+			// we are moving.  set the future keyframe to the interpolated value from the animation.
+			Sixi2RobotKeyframe key = (Sixi2RobotKeyframe)getKeyframeNow(); 
+			motionFuture.set(key);
+			//System.out.println(keyframe_index+":"+keyframe_t+"\t"+motionFuture.fingerRight);
+
+			armPanel.updateFKPanel();
+			armPanel.updateIKPanel();
+
+			if(tool != null) {
+				//tool.update(delta);
+				//tool.updateGUI();
+			}
+		}
 	}
+	
 
 	@Override
+	public void updatePose() {
+		Sixi2RobotKeyframe key = (Sixi2RobotKeyframe)getKeyframeNow(); 
+		motionNow.set(key);
+		motionFuture.set(key);
+	}
+	
+	@Override
 	public void finalizeMove() {
-		if(getKeyframeSize()>0&&animationSpeed!=0) {
-			motionFuture.set((Sixi2RobotKeyframe)getKeyframeNow());
-
-			//System.out.println(keyframe_index+":"+keyframe_t+"\t"+motionFuture.fingerRight);
-		}
-		
 		// copy motion_future to motion_now
 		motionNow.set(motionFuture);
 		
@@ -646,71 +453,49 @@ extends Robot {
 		}
 	}
 
-	/*
-	LineControlPoint lcp = new LineControlPoint();
-	public void testLineControlPointRender(GL2 gl2) {
+	protected void demoKeyframes() {
+		setToHomePosition();
 		
-		lcp.position.p0.x=0;
-		lcp.position.p0.y=0;
-		lcp.position.p0.z=0;
-
-		lcp.position.p3.x=10;
-		lcp.position.p3.y=10;
-		lcp.position.p3.z=10;
-
-		lcp.position.p1.x+=Math.random()-0.5;
-		lcp.position.p1.y+=Math.random()-0.5;
-		lcp.position.p1.z+=Math.random()-0.5;
-		lcp.position.p1.x=Math.min(Math.max(lcp.position.p1.x, -10), 10);
-		lcp.position.p1.y=Math.min(Math.max(lcp.position.p1.y, -10), 10);
-		lcp.position.p1.z=Math.min(Math.max(lcp.position.p1.z, -10), 10);
+		this.keyframes.clear();
 		
-		lcp.position.p2.x+=Math.random()-0.5;
-		lcp.position.p2.y+=Math.random()-0.5;
-		lcp.position.p2.z+=Math.random()-0.5;
-		lcp.position.p2.x=Math.min(Math.max(lcp.position.p2.x, 0), 20);
-		lcp.position.p2.y=Math.min(Math.max(lcp.position.p2.y, 0), 20);
-		lcp.position.p2.z=Math.min(Math.max(lcp.position.p2.z, 0), 20);
+		this.keyframeAdd();
 
-		lcp.render(gl2);
+		Sixi2RobotKeyframe k;
+		
+		k = (Sixi2RobotKeyframe)getKeyframe(0);
+		k.set(motionNow);
+
+		this.keyframeAdd();
+		k = (Sixi2RobotKeyframe)getKeyframe(1);
+		k.set(motionNow);
+		k.fingerPosition.z-=10;
+		k.inverseKinematics(false, null);
+
+		this.keyframeAdd();
+		k = (Sixi2RobotKeyframe)getKeyframe(2);
+		k.set(motionNow);
+		k.fingerPosition.y+=10;
+		k.fingerPosition.z-=10;
+		k.inverseKinematics(false, null);
+
+		this.keyframeAdd();
+		k = (Sixi2RobotKeyframe)getKeyframe(3);
+		k.set(motionNow);
+		k.fingerPosition.y+=10;
+		k.inverseKinematics(false, null);
+
+		this.keyframeAdd();
+		k = (Sixi2RobotKeyframe)getKeyframe(4);
+		k.set(motionNow);
+		k.fingerPosition.x+=10;
+		k.inverseKinematics(false, null);
 	}
-	*/
+	
+	
 	@Override
 	public void render(GL2 gl2) {
 		if(!isModelLoaded) {
-			this.keyframeAdd();
-			this.keyframeAdd();
-			this.keyframeAdd();
-			this.keyframeAdd();
-			this.keyframeAdd();
-
-			Sixi2RobotKeyframe k;
-			
-			k = (Sixi2RobotKeyframe)getKeyframe(0);
-			k.forwardKinematics(false, null);
-			//keyframes.set(0,k);
-			
-			k = (Sixi2RobotKeyframe)getKeyframe(1);
-			k.forwardKinematics(false, null);
-			k.fingerPosition.z-=10;
-			k.inverseKinematics(false, null);
-			//keyframes.set(0,k);
-			
-			k = (Sixi2RobotKeyframe)getKeyframe(2);
-			k.forwardKinematics(false, null);
-			k.fingerPosition.y+=10;
-			k.fingerPosition.z-=10;
-			k.inverseKinematics(false, null);
-			//keyframes.set(0,k);
-			
-			k = (Sixi2RobotKeyframe)getKeyframe(3);
-			k.forwardKinematics(false, null);
-			k.fingerPosition.y+=10;
-			k.inverseKinematics(false, null);
-			//keyframes.set(0,k);
-			
-			k = (Sixi2RobotKeyframe)getKeyframe(4);
-			k.forwardKinematics(false, null);	 													//keyframes.set(0,k);
+			demoKeyframes();
 		}
 
 		super.render(gl2);
@@ -1140,27 +925,14 @@ extends Robot {
 		}
 	}
 	
-	public void setFKAxis(int axis,float angle) {
-		if(armPanel.drivenIndex!=-1) return;
-		
-		//System.out.println("setFKAxis "+axis);
-		float dir;
-		//	System.out.println("angle="+angle+"\tfuture="+motionFuture.angle0+"\tdir="+dir);
-		switch(axis) {
-		case 0: dir=angle-motionFuture.angle0; fDir=dir;  break;
-		case 1: dir=angle-motionFuture.angle1; eDir=dir;  break;
-		case 2: dir=angle-motionFuture.angle2; dDir=dir;  break;
-		case 3: dir=angle-motionFuture.angle3; cDir=dir;  break;
-		case 4: dir=angle-motionFuture.angle4; bDir=dir;  break;
-		case 5: dir=angle-motionFuture.angle5; aDir=dir;  break;
-		}
-		
-		  
-		enableFK();
-	}
-	
 	@Override
 	public RobotKeyframe createKeyframe() {
 		return new Sixi2RobotKeyframe();
+	}
+	
+	@Override
+	public void setAnimationSpeed(float animationSpeed) {
+		super.setAnimationSpeed(animationSpeed);
+		armPanel.keyframeEditSetEnable(animationSpeed==0);
 	}
 }
