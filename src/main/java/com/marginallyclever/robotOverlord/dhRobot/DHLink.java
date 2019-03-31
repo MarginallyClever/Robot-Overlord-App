@@ -25,15 +25,24 @@ public class DHLink {
 	// computed matrix based on the D-H parameters
 	public Matrix4d pose;
 	
+	// 3D model to render at this link
 	public Model model;
 	
+	public int readOnlyFlags;
+	
+	public final static int READ_ONLY_D=1,
+				READ_ONLY_THETA=1<<1,
+				READ_ONLY_R=1<<2,
+				READ_ONLY_ALPHA=1<<3;
 	
 	public DHLink() {
+		readOnlyFlags=0;
 		d=0;
 		theta=0;
 		r=0;
 		alpha=0;
 		pose = new Matrix4d();
+		model=null;
 	}
 	
 	/**
