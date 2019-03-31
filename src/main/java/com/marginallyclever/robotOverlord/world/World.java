@@ -58,6 +58,8 @@ implements Serializable {
 	protected transient Vector3f pickRay = null;
 	protected transient boolean isSetup = false;
 
+	public int gridWidth, gridHeight;
+	
 	protected transient ViewCube viewCube;
 	
 	protected transient WorldControlPanel worldControlPanel;
@@ -68,6 +70,9 @@ implements Serializable {
 		pickRight=new Vector3f();
 		pickUp=new Vector3f();
 		pickRay=new Vector3f();
+		
+		gridWidth = (int)(25.4*8);
+		gridHeight = (int)(25.4*3);
 		
 		entities = new ArrayList<Entity>();
 		addEntity(camera = new Camera());
@@ -195,10 +200,7 @@ implements Serializable {
 
 			//drawSkyCube(gl2);
 			
-			PrimitiveSolids.drawGrid(gl2,
-					(int)worldControlPanel.gridWidth.getValue(),
-					(int)worldControlPanel.gridHeight.getValue(),
-					1);
+			PrimitiveSolids.drawGrid(gl2,gridWidth,gridHeight,1);
 
 			// lights
 			io = entities.iterator();
@@ -412,6 +414,7 @@ implements Serializable {
 	
 	public void addEntity(Entity o) {
 		entities.add(o);
+		worldControlPanel.updateEntityList();
 	}
 	
 	public void removeEntity(Entity o) {
