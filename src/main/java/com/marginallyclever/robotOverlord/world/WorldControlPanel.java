@@ -89,16 +89,21 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		    }
 		});
 		
-		this.add(gridWidth=new UserCommandSelectNumber(gui,"Grid Width",80),c);
+		this.add(gridWidth=new UserCommandSelectNumber(gui,"Grid Width",world.gridWidth),c);
 		c.gridy++;
-		this.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",30),c);
+		this.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",world.gridHeight),c);
 		c.gridy++;
 	}
 	
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		// TODO Auto-generated method stub
-		
+		if(e.getSource() == gridWidth) {
+			world.gridWidth = (int)gridWidth.getValue();
+		}
+		if(e.getSource() == gridHeight) {
+			world.gridWidth = (int)gridWidth.getValue();
+		}
 	}
 
 	@Override
