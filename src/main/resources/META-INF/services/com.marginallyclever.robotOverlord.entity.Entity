@@ -5,6 +5,8 @@
 com.marginallyclever.robotOverlord.sixi2Robot.Sixi2Robot
 #com.marginallyclever.robotOverlord.pTTPTPRobot.PTTPTPRobot
 
+com.marginallyclever.robotOverlord.dhRobot.DHRobot
+
 #com.marginallyclever.robotOverlord.arm5.EvilMinionRobot
 #com.marginallyclever.robotOverlord.thor.ThorRobot
 com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
