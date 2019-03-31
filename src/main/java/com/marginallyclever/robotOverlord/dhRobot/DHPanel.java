@@ -44,6 +44,11 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 			theta = new UserCommandSelectNumber(gui,k+" theta",(float)link.theta);
 			r     = new UserCommandSelectNumber(gui,k+" r",(float)link.r);
 			alpha = new UserCommandSelectNumber(gui,k+" alpha",(float)link.alpha);
+
+			d		.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_D		)!=0);
+			theta	.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_THETA	)!=0);
+			r		.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_R		)!=0);
+			alpha	.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_ALPHA	)!=0);
 		}
 	};
 	
@@ -75,12 +80,12 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		//con1.anchor=GridBagConstraints.CENTER;
 
-		this.add(numLinks = new UserCommandSelectNumber(gui,"links",robot.links.size()),con1);
-		con1.gridy++;
+		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
+		//con1.gridy++;
+		//numLinks.addChangeListener(this);
 		
-		numLinks.addChangeListener(this);
-		this.add(new JSeparator(JSeparator.VERTICAL), con1);
-		con1.gridy++;
+		//this.add(new JSeparator(JSeparator.VERTICAL), con1);
+		//con1.gridy++;
 		
 		int k=0;
 		Iterator<DHLink> i = robot.links.iterator();
@@ -89,15 +94,18 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 			DHLinkPanel e = new DHLinkPanel(link,k++);
 			linkPanels.add(e);
 
-			this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);
-			this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);
-			this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);
-			this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);
+			if((link.readOnlyFlags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
+			if((link.readOnlyFlags & DHLink.READ_ONLY_THETA	)==0) {	this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
+			if((link.readOnlyFlags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
+			if((link.readOnlyFlags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
 		}
 		
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
 		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;
 		this.add(endz=new JLabel("Z="), con1);	con1.gridy++;
+
+		robot.refreshPose();
+		updateEnd();
 	}
 	
 	

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
@@ -32,34 +33,50 @@ public class DHRobot extends Robot {
 	DHKeyframe poseNow;
 	DHPanel panel;
 	Point3d end;
+	Vector3f endX;
+	Vector3f endY;
+	Vector3f endZ;
 	
 	public DHRobot() {
 		super();
 		setDisplayName("DH Robot");
 		links = new LinkedList<DHLink>();
 		end = new Point3d();
+		endX = new Vector3f();
+		endY = new Vector3f();
+		endZ = new Vector3f();
 		
 		// setup sixi2 as default.
 		setNumLinks(8);
-		// pan
+		// roll
 		links.get(0).d=13.44;
-		links.get(0).theta=90;
+		links.get(0).theta=-90;
+		links.get(0).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// tilt
 		links.get(1).alpha=-20;
+		links.get(1).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		// tilt
 		links.get(2).d=44.55;
-		links.get(2).alpha=90;
-		
+		links.get(2).alpha=30;
+		links.get(2).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		// interim point
 		links.get(3).d=4.7201;
-
+		links.get(3).alpha=90;
+		links.get(3).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		// roll
 		links.get(4).d=28.805;
-		links.get(4).theta=40;
-		links.get(4).alpha=0;
+		links.get(4).theta=30;
+		links.get(4).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		// tilt
+		links.get(5).d=11.8;
+		links.get(5).alpha=50;
+		links.get(5).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		// roll
+		links.get(6).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
-		links.get(6).d=11.8;
-		links.get(6).alpha=50;
-		links.get(7).d=8.9527;
-		links.get(7).alpha=50;
+		links.get(7).d=3.9527;
+		links.get(7).alpha=0;
+		links.get(7).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
@@ -76,8 +93,15 @@ public class DHRobot extends Robot {
 			double ULNA_TO_WRIST_Z = 0;
 			double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;
 			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;
+			double WRIST_TO_HAND = 8.9527;
+
+
+			links.get(0).model.adjustOrigin(new Vector3f(0, 5.150f, 0));
+			links.get(1).model.adjustOrigin(new Vector3f(0, 8.140f-13.44f, 0));
 			links.get(2).model.adjustOrigin(new Vector3f(-1.82f, 9, 0));
 			links.get(3).model.adjustOrigin(new Vector3f(0, (float)ELBOW_TO_WRIST_Z, (float)ELBOW_TO_WRIST_Y));
+			links.get(5).model.adjustOrigin(new Vector3f(0, 0, (float)ULNA_TO_WRIST_Y));
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,8 +122,6 @@ public class DHRobot extends Robot {
 		panel = new DHPanel(gui,this);
 		list.add(panel);
 		
-		//updateGUI();
-		
 		return list;
 	}
 	
@@ -109,8 +131,8 @@ public class DHRobot extends Robot {
 
 		// draw models
 		float r=1;
-		float g= 217f/255f;
-		float b= 33f/255f;
+		float g=217f/255f;
+		float b=33f/255f;
 		Material mat = new Material();
 		mat.setDiffuseColor(r,g,b,1);
 		mat.render(gl2);
@@ -118,16 +140,16 @@ public class DHRobot extends Robot {
 		gl2.glPushMatrix();
 		while(i.hasNext()) {
 			DHLink link = i.next();
-			if(link.model!=null) {
-				renderLinkModel(gl2,link);
-			}
+			renderLinkModel(gl2,link);
 		}
 		gl2.glPopMatrix();
 
-		// draw FK
+		// Draw FK
 		gl2.glPushMatrix();
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
+		gl2.glDisable(GL2.GL_LIGHTING);
 
 		i = links.iterator();
 		while(i.hasNext()) {
@@ -136,11 +158,12 @@ public class DHRobot extends Robot {
 		}
 		MatrixHelper.drawMatrix(gl2, 
 				new Vector3f(0,0,0),
-				new Vector3f(1,0,0),
-				new Vector3f(0,1,0),
-				new Vector3f(0,0,1));
+				new Vector3f(3,0,0),
+				new Vector3f(0,3,0),
+				new Vector3f(0,0,3));
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 	}
 	
@@ -162,6 +185,9 @@ public class DHRobot extends Robot {
 		
 		// use cumulative matrix to find end position in world coordinates
 		pose.transform(new Point3d(0,0,0), end);
+		pose.transform(new Vector3f(1,0,0), endX);
+		pose.transform(new Vector3f(0,1,0), endY);
+		pose.transform(new Vector3f(0,0,1), endZ);
 	}
 	
 	/**
@@ -191,16 +217,13 @@ public class DHRobot extends Robot {
 		mat[13] = pose.m13;
 		mat[14] = pose.m23;
 		mat[15] = pose.m33;
-
+		
 		gl2.glPushMatrix();
 		if(link==links.get(0)) {
 			gl2.glRotated(90, 1, 0, 0);
-			gl2.glTranslated(0, 5.150, 0);
 		}
 		if(link==links.get(1)) {
-			gl2.glRotated(180, 0, 0, 1);
 			gl2.glRotated(90, 1, 0, 0);
-			gl2.glTranslated(0, 8.140-13.44, 0);
 		}
 		if(link==links.get(2)) {
 			gl2.glRotated(90, 1, 0, 0);
@@ -208,20 +231,20 @@ public class DHRobot extends Robot {
 		if(link==links.get(3)) {
 			gl2.glRotated(90, 1, 0, 0);
 			gl2.glRotated(180, 0, 1, 0);
-			//gl2.glRotated(-9.306006, 1, 0, 0);
-		}
-		if(link==links.get(4)) {
-			
 		}
 		if(link==links.get(5)) {
 			gl2.glRotated(180, 0, 1, 0);
-			
 		}
 		if(link==links.get(6)) {
-			//gl2.glRotated(90, 1, 0, 0);
+			gl2.glRotated(180, 0, 1, 0);
+		}
+		if(link==links.get(7)) {
+			gl2.glRotated(180, 0, 1, 0);
 		}
 		
-		link.model.render(gl2);
+		if(link.model!=null) {
+			link.model.render(gl2);
+		}
 		gl2.glPopMatrix();
 		
 		// inverse camera matrix has already been applied, multiply by that to position the link in the world.
