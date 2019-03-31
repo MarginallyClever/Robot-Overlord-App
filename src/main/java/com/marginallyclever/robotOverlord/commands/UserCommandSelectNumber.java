@@ -136,4 +136,12 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 	public void removeUpdate(DocumentEvent arg0) {
 		changedUpdate(arg0);
 	}
+	
+	public boolean isReadOnly() {
+		return this.textField.isEditable();
+	}
+	
+	public void setReadOnly(boolean arg0) {
+		this.textField.setEditable(!arg0);
+	}
 }
