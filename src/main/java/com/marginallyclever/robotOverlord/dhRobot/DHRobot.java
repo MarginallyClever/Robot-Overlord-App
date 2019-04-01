@@ -75,7 +75,6 @@ public class DHRobot extends Robot {
 		links.get(6).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
 		links.get(7).d=3.9527;
-		links.get(7).alpha=0;
 		links.get(7).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
 		try {
@@ -94,7 +93,6 @@ public class DHRobot extends Robot {
 			double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;
 			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;
 			double WRIST_TO_HAND = 8.9527;
-
 
 			links.get(0).model.adjustOrigin(new Vector3f(0, 5.150f, 0));
 			links.get(1).model.adjustOrigin(new Vector3f(0, 8.140f-13.44f, 0));
@@ -127,6 +125,10 @@ public class DHRobot extends Robot {
 	
 	@Override
 	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+		Vector3f position = this.getPosition();
+		gl2.glTranslatef(position.x, position.y, position.z);
+		
 		Iterator<DHLink> i = links.iterator();
 
 		// draw models
@@ -165,6 +167,8 @@ public class DHRobot extends Robot {
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
+
+		gl2.glPopMatrix();
 	}
 	
 	/**
@@ -181,6 +185,7 @@ public class DHRobot extends Robot {
 			link.refreshPoseMatrix();
 			// find cumulative matrix
 			pose.mul(link.pose);
+			link.poseCumulative.set(pose);
 		}
 		
 		// use cumulative matrix to find end position in world coordinates
@@ -188,6 +193,11 @@ public class DHRobot extends Robot {
 		pose.transform(new Vector3f(1,0,0), endX);
 		pose.transform(new Vector3f(0,1,0), endY);
 		pose.transform(new Vector3f(0,0,1), endZ);
+		
+		Vector3f position = this.getPosition(); 
+		end.x += position.x;
+		end.y += position.y;
+		end.z += position.z;
 	}
 	
 	/**
@@ -219,6 +229,7 @@ public class DHRobot extends Robot {
 		mat[15] = pose.m33;
 		
 		gl2.glPushMatrix();
+		// TODO all of these rotations should be applied to the model once on load, or pre-processed before application start.
 		if(link==links.get(0)) {
 			gl2.glRotated(90, 1, 0, 0);
 		}
@@ -316,5 +327,12 @@ public class DHRobot extends Robot {
 			oldSize++;
 			links.push(new DHLink());
 		}
+	}
+
+	@Override
+	public void setPosition(Vector3f pos) {
+		super.setPosition(pos);
+		refreshPose();
+		if(panel!=null) panel.updateEnd();
 	}
 }

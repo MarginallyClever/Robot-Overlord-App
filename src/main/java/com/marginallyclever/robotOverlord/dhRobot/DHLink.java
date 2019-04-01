@@ -24,16 +24,21 @@ public class DHLink {
 	
 	// computed matrix based on the D-H parameters
 	public Matrix4d pose;
-	
+
+	// computed matrix based on the D-H parameters
+	public Matrix4d poseCumulative;
+
 	// 3D model to render at this link
 	public Model model;
 	
+	// any combination of the READ_ONLY_* flags, used to control the GUI.
 	public int readOnlyFlags;
 	
-	public final static int READ_ONLY_D=1,
-				READ_ONLY_THETA=1<<1,
-				READ_ONLY_R=1<<2,
-				READ_ONLY_ALPHA=1<<3;
+	public final static int READ_ONLY_D		= 1;
+	public final static int READ_ONLY_THETA	= 1<<1;
+	public final static int READ_ONLY_R		= 1<<2;
+	public final static int READ_ONLY_ALPHA	= 1<<3;
+	
 	
 	public DHLink() {
 		readOnlyFlags=0;
@@ -42,6 +47,7 @@ public class DHLink {
 		r=0;
 		alpha=0;
 		pose = new Matrix4d();
+		poseCumulative = new Matrix4d();
 		model=null;
 	}
 	
