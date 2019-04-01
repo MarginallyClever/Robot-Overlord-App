@@ -32,50 +32,44 @@ public class DHRobot extends Robot {
 	LinkedList<DHLink> links;
 	DHKeyframe poseNow;
 	DHPanel panel;
-	Point3d end;
-	Vector3f endX;
-	Vector3f endY;
-	Vector3f endZ;
+	Matrix4d endMatrix;
 	
 	public DHRobot() {
 		super();
 		setDisplayName("DH Robot");
 		links = new LinkedList<DHLink>();
-		end = new Point3d();
-		endX = new Vector3f();
-		endY = new Vector3f();
-		endZ = new Vector3f();
+		endMatrix = new Matrix4d();
 		
 		// setup sixi2 as default.
 		setNumLinks(8);
 		// roll
 		links.get(0).d=13.44;
 		links.get(0).theta=-90;
-		links.get(0).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// tilt
 		links.get(1).alpha=-20;
-		links.get(1).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		// tilt
 		links.get(2).d=44.55;
 		links.get(2).alpha=30;
-		links.get(2).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		// interim point
 		links.get(3).d=4.7201;
 		links.get(3).alpha=90;
-		links.get(3).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
 		links.get(4).d=28.805;
 		links.get(4).theta=30;
-		links.get(4).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// tilt
 		links.get(5).d=11.8;
 		links.get(5).alpha=50;
-		links.get(5).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		// roll
-		links.get(6).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
 		links.get(7).d=3.9527;
-		links.get(7).readOnlyFlags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
@@ -92,7 +86,7 @@ public class DHRobot extends Robot {
 			double ULNA_TO_WRIST_Z = 0;
 			double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;
 			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;
-			double WRIST_TO_HAND = 8.9527;
+			//double WRIST_TO_HAND = 8.9527;
 
 			links.get(0).model.adjustOrigin(new Vector3f(0, 5.150f, 0));
 			links.get(1).model.adjustOrigin(new Vector3f(0, 8.140f-13.44f, 0));
@@ -158,15 +152,16 @@ public class DHRobot extends Robot {
 			DHLink link = i.next();
 			renderLinkPose(gl2,link);
 		}
+		gl2.glPopMatrix();
 		MatrixHelper.drawMatrix(gl2, 
-				new Vector3f(0,0,0),
-				new Vector3f(3,0,0),
-				new Vector3f(0,3,0),
-				new Vector3f(0,0,3));
+				new Vector3f((float)endMatrix.m03,(float)endMatrix.m13,(float)endMatrix.m23),
+				new Vector3f((float)endMatrix.m00,(float)endMatrix.m10,(float)endMatrix.m20),
+				new Vector3f((float)endMatrix.m01,(float)endMatrix.m11,(float)endMatrix.m21),
+				new Vector3f((float)endMatrix.m02,(float)endMatrix.m12,(float)endMatrix.m22)
+				);
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
-		gl2.glPopMatrix();
 
 		gl2.glPopMatrix();
 	}
@@ -175,8 +170,7 @@ public class DHRobot extends Robot {
 	 * Update the pose matrix of each DH link and also use forward kinematics to find the {@end} position.
 	 */
 	public void refreshPose() {
-		Matrix4d pose = new Matrix4d();
-		pose.setIdentity();
+		endMatrix.setIdentity();
 		
 		Iterator<DHLink> i = links.iterator();
 		while(i.hasNext()) {
@@ -184,20 +178,9 @@ public class DHRobot extends Robot {
 			// update matrix
 			link.refreshPoseMatrix();
 			// find cumulative matrix
-			pose.mul(link.pose);
-			link.poseCumulative.set(pose);
+			endMatrix.mul(link.pose);
+			link.poseCumulative.set(endMatrix);
 		}
-		
-		// use cumulative matrix to find end position in world coordinates
-		pose.transform(new Point3d(0,0,0), end);
-		pose.transform(new Vector3f(1,0,0), endX);
-		pose.transform(new Vector3f(0,1,0), endY);
-		pose.transform(new Vector3f(0,0,1), endZ);
-		
-		Vector3f position = this.getPosition(); 
-		end.x += position.x;
-		end.y += position.y;
-		end.z += position.z;
 	}
 	
 	/**
@@ -329,6 +312,10 @@ public class DHRobot extends Robot {
 		}
 	}
 
+	/**
+	 * Adjust the world transform of the robot
+	 * @param pos the new world position for the local origin of the robot.
+	 */
 	@Override
 	public void setPosition(Vector3f pos) {
 		super.setPosition(pos);

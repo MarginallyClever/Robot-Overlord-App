@@ -20,9 +20,9 @@ public class DHLinkPanel {
 		r     = new UserCommandSelectNumber(gui,k+" r",(float)link.r);
 		alpha = new UserCommandSelectNumber(gui,k+" alpha",(float)link.alpha);
 
-		d		.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_D		)!=0);
-		theta	.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_THETA	)!=0);
-		r		.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_R		)!=0);
-		alpha	.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_ALPHA	)!=0);
+		d		.setReadOnly((link.flags & DHLink.READ_ONLY_D		)!=0);
+		theta	.setReadOnly((link.flags & DHLink.READ_ONLY_THETA	)!=0);
+		r		.setReadOnly((link.flags & DHLink.READ_ONLY_R		)!=0);
+		alpha	.setReadOnly((link.flags & DHLink.READ_ONLY_ALPHA	)!=0);
 	}
 };
