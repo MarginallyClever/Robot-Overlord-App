@@ -6,8 +6,6 @@ import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.jogamp.opengl.GL2;
@@ -46,13 +44,18 @@ public class DHRobot extends Robot {
 		links.get(0).d=13.44;
 		links.get(0).theta=-90;
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(0).angleMin=-160;
+		links.get(0).angleMax=160;
 		// tilt
 		links.get(1).alpha=-20;
 		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(2).angleMin=-72;
 		// tilt
 		links.get(2).d=44.55;
 		links.get(2).alpha=30;
 		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(2).angleMin=83.369;
+		links.get(2).angleMax=86;
 		// interim point
 		links.get(3).d=4.7201;
 		links.get(3).alpha=90;
