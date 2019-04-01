@@ -70,10 +70,10 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 			DHLinkPanel e = new DHLinkPanel(gui,link,k++);
 			linkPanels.add(e);
 
-			if((link.readOnlyFlags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
-			if((link.readOnlyFlags & DHLink.READ_ONLY_THETA	)==0) {	this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
-			if((link.readOnlyFlags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
-			if((link.readOnlyFlags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
 		}
 		
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
@@ -133,9 +133,9 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 	 * Pull the latest arm end world coordinates into the panel.
 	 */
 	public void updateEnd() {
-		endx.setText("X="+formatDouble(robot.end.x));
-		endy.setText("Y="+formatDouble(robot.end.y));
-		endz.setText("Z="+formatDouble(robot.end.z));
+		endx.setText("X="+formatDouble(robot.endMatrix.m03));
+		endy.setText("Y="+formatDouble(robot.endMatrix.m13));
+		endz.setText("Z="+formatDouble(robot.endMatrix.m23));
 		
 		DHIKSolveRTTRTR solver = new DHIKSolveRTTRTR();
 		solver.solve(robot);
