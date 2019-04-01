@@ -414,7 +414,7 @@ implements Serializable {
 	
 	public void addEntity(Entity o) {
 		entities.add(o);
-		worldControlPanel.updateEntityList();
+		if(worldControlPanel!=null) worldControlPanel.updateEntityList();
 	}
 	
 	public void removeEntity(Entity o) {
