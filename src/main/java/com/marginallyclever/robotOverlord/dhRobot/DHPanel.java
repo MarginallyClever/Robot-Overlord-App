@@ -9,13 +9,11 @@ import java.util.Iterator;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectBoolean;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 
 /**
@@ -29,28 +27,6 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	class DHLinkPanel {
-		public DHLink link;
-		public UserCommandSelectBoolean isRotation;
-		public UserCommandSelectNumber d;
-		public UserCommandSelectNumber theta;
-		public UserCommandSelectNumber r;
-		public UserCommandSelectNumber alpha;
-		
-		public DHLinkPanel(DHLink link,int k) {
-			this.link=link;
-			isRotation = new UserCommandSelectBoolean(gui,k+" Rotation?",true);
-			d     = new UserCommandSelectNumber(gui,k+" d",(float)link.d);
-			theta = new UserCommandSelectNumber(gui,k+" theta",(float)link.theta);
-			r     = new UserCommandSelectNumber(gui,k+" r",(float)link.r);
-			alpha = new UserCommandSelectNumber(gui,k+" alpha",(float)link.alpha);
-
-			d		.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_D		)!=0);
-			theta	.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_THETA	)!=0);
-			r		.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_R		)!=0);
-			alpha	.setReadOnly((link.readOnlyFlags & DHLink.READ_ONLY_ALPHA	)!=0);
-		}
-	};
 	
 	protected DHRobot robot;
 	protected RobotOverlord gui;
@@ -91,7 +67,7 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 		Iterator<DHLink> i = robot.links.iterator();
 		while(i.hasNext()) {
 			DHLink link = i.next();
-			DHLinkPanel e = new DHLinkPanel(link,k++);
+			DHLinkPanel e = new DHLinkPanel(gui,link,k++);
 			linkPanels.add(e);
 
 			if((link.readOnlyFlags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
@@ -156,10 +132,13 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * Pull the latest arm end world coordinates into the panel.
 	 */
-	protected void updateEnd() {
+	public void updateEnd() {
 		endx.setText("X="+formatDouble(robot.end.x));
 		endy.setText("Y="+formatDouble(robot.end.y));
 		endz.setText("Z="+formatDouble(robot.end.z));
+		
+		DHIKSolveRTTRTR solver = new DHIKSolveRTTRTR();
+		solver.solve(robot);
 	}
 	
 	@Override
