@@ -32,16 +32,21 @@ public class DHLink {
 	public Model model;
 	
 	// any combination of the READ_ONLY_* flags, used to control the GUI.
-	public int readOnlyFlags;
+	public int flags;
 	
 	public final static int READ_ONLY_D		= 1;
 	public final static int READ_ONLY_THETA	= 1<<1;
 	public final static int READ_ONLY_R		= 1<<2;
 	public final static int READ_ONLY_ALPHA	= 1<<3;
 	
+	public double angleMin,angleMax;
+	public double maxVelocity;
+	public double maxAcceleration;
+	public double maxTorque;
+		
 	
 	public DHLink() {
-		readOnlyFlags=0;
+		flags=0;
 		d=0;
 		theta=0;
 		r=0;
@@ -49,6 +54,11 @@ public class DHLink {
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		model=null;
+		angleMin=-90;
+		angleMax=90;
+		maxVelocity=Double.MAX_VALUE;
+		maxAcceleration=Double.MAX_VALUE;
+		maxTorque=Double.MAX_VALUE;
 	}
 	
 	/**
