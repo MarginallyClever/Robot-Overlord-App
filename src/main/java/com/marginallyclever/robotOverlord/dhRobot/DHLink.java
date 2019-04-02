@@ -1,7 +1,10 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.model.Model;
 
 /**
@@ -43,7 +46,10 @@ public class DHLink {
 	public double maxVelocity;
 	public double maxAcceleration;
 	public double maxTorque;
-		
+
+	// Changes visual quality of angle range curve.  Must be a whole number >=2
+	public final static double ANGLE_RANGE_STEPS=20;
+
 	
 	public DHLink() {
 		flags=0;
@@ -89,5 +95,148 @@ public class DHLink {
 		pose.m31 = 0;
 		pose.m32 = 0;
 		pose.m33 = 1;
+	}
+
+	/**
+	 * Render the model in a D-H chain.  
+	 * Changes the current render matrix!  Clean up after yourself!  
+	 * @param gl2 the render context
+	 */
+	public void renderModel(GL2 gl2) {
+		// swap between Java's Matrix4d and OpenGL's matrix.
+		Matrix4d pose = this.pose;
+		
+		double[] mat = new double[16];
+		mat[ 0] = pose.m00;
+		mat[ 1] = pose.m10;
+		mat[ 2] = pose.m20;
+		mat[ 3] = pose.m30;
+		mat[ 4] = pose.m01;
+		mat[ 5] = pose.m11;
+		mat[ 6] = pose.m21;
+		mat[ 7] = pose.m31;
+		mat[ 8] = pose.m02;
+		mat[ 9] = pose.m12;
+		mat[10] = pose.m22;
+		mat[11] = pose.m32;
+		mat[12] = pose.m03;
+		mat[13] = pose.m13;
+		mat[14] = pose.m23;
+		mat[15] = pose.m33;
+		
+		gl2.glPushMatrix();
+		if(this.model!=null) {
+			this.model.render(gl2);
+		}
+		gl2.glPopMatrix();
+		
+		// inverse camera matrix has already been applied, multiply by that to position the link in the world.
+		gl2.glMultMatrixd(mat, 0);
+	}
+
+	/**
+	 * Render one link in a D-H chain.  
+	 * Changes the current render matrix!  Clean up after yourself!  
+	 * @param gl2 the render context
+	 */
+	public void renderPose(GL2 gl2) {
+		// swap between Java's Matrix4d and OpenGL's matrix.
+		Matrix4d pose = this.pose;
+		
+		double[] mat = new double[16];
+		mat[ 0] = pose.m00;
+		mat[ 1] = pose.m10;
+		mat[ 2] = pose.m20;
+		mat[ 3] = pose.m30;
+		mat[ 4] = pose.m01;
+		mat[ 5] = pose.m11;
+		mat[ 6] = pose.m21;
+		mat[ 7] = pose.m31;
+		mat[ 8] = pose.m02;
+		mat[ 9] = pose.m12;
+		mat[10] = pose.m22;
+		mat[11] = pose.m32;
+		mat[12] = pose.m03;
+		mat[13] = pose.m13;
+		mat[14] = pose.m23;
+		mat[15] = pose.m33;
+
+		MatrixHelper.drawMatrix(gl2, 
+				new Vector3f(0,0,0),
+				new Vector3f(1,0,0),
+				new Vector3f(0,1,0),
+				new Vector3f(0,0,1));
+
+		// draw the bone for this joint
+		gl2.glPushMatrix();
+			gl2.glRotated(this.theta,0,0,1);
+			gl2.glColor3f(1, 0, 0);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glVertex3d(0, 0, this.d);
+			gl2.glVertex3d(this.r, 0, this.d);
+			gl2.glEnd();
+		gl2.glPopMatrix();
+		
+		// draw the angle range
+		double k;
+		
+		gl2.glColor3f(0, 0, 0);
+		gl2.glPushMatrix();
+			gl2.glTranslated(this.r, 0, this.d);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			gl2.glVertex3d(0, 0, 0);
+			if((flags & READ_ONLY_THETA)==0) {
+				// display the curve around z (in the xy plane)
+				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
+					double j=(angleMax-angleMin)*(k/ANGLE_RANGE_STEPS)+angleMin;
+					gl2.glVertex3d(
+							Math.cos(Math.toRadians(j-90))*10, 
+							Math.sin(Math.toRadians(j-90))*10, 
+							0);
+				}
+				gl2.glVertex3d(0, 0, 0);
+				setAngleColorByRange(gl2);
+				gl2.glVertex3d(0, 0, 0);
+				gl2.glVertex3d(
+						Math.cos(Math.toRadians(this.theta-90))*10, 
+						Math.sin(Math.toRadians(this.theta-90))*10, 
+						0);
+			}
+			if((flags & READ_ONLY_ALPHA)==0) {
+				// display the curve around x (in the yz plane)
+				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
+					double j=(angleMax-angleMin)*(k/ANGLE_RANGE_STEPS)+angleMin;
+					gl2.glVertex3d(
+							0,
+							Math.cos(Math.toRadians(j+90))*10,
+							Math.sin(Math.toRadians(j+90))*10);
+				}
+				gl2.glVertex3d(0, 0, 0);
+				setAngleColorByRange(gl2);
+				gl2.glVertex3d(0, 0, 0);
+				gl2.glVertex3d(
+						0,
+						Math.cos(Math.toRadians(this.alpha+90))*10,
+						Math.sin(Math.toRadians(this.alpha+90))*10);
+			}
+			gl2.glEnd();
+		gl2.glPopMatrix();
+
+		// inverse camera matrix has already been applied, multiply by that to position the link in the world.
+		gl2.glMultMatrixd(mat, 0);
+	}
+	
+	/**
+	 * color the angle line green in the safe zone, red near the limits
+	 * @param gl2 the render context
+	 */
+	protected void setAngleColorByRange(GL2 gl2) {
+		double range = angleMax-angleMin;
+		double halfRange = range/2;
+		double midRange = angleMax-halfRange;
+		double safety = Math.abs(this.alpha-midRange)/halfRange;
+		safety*=safety*safety;  // cubed
+		gl2.glColor3d(safety,1-safety,0);
 	}
 }
