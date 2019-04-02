@@ -1,8 +1,5 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
-import java.util.Iterator;
-
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -49,7 +46,7 @@ public class DHIKSolveRTTRTR {
 				link7.poseCumulative.m12,
 				link7.poseCumulative.m22);
 		Point3d p5 = new Point3d(n7z);
-		p5.scaleAdd(-link7.d,p7);
+		p5.scaleAdd(-link6.d,p7);
 
 		// Work forward to get p1 position
 		Point3d p1 = new Point3d(0,0,link0.d);
@@ -63,7 +60,7 @@ public class DHIKSolveRTTRTR {
 			System.out.println(
 					"p7="+p7+"\t"+
 					"n7z="+n7z+"\t"+
-					"d5="+link7.d+"\t"+
+					"d6="+link6.d+"\t"+
 					"p5="+p5+"\t"+
 					"p5c="+p5confirm+"\t"+
 					"p1="+p1+"\t"
