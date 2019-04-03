@@ -1,7 +1,11 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
+import java.util.Iterator;
+
 import javax.vecmath.Vector3f;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 public class DHRSixi2 extends DHRobot {
@@ -96,5 +100,31 @@ public class DHRSixi2 extends DHRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+			Vector3f position = this.getPosition();
+			gl2.glTranslatef(position.x, position.y, position.z);
+			
+			// Draw models
+			float r=1;
+			float g=217f/255f;
+			float b=33f/255f;
+			Material mat = new Material();
+			mat.setDiffuseColor(r,g,b,1);
+			mat.render(gl2);
+			
+			gl2.glPushMatrix();
+				Iterator<DHLink> i = links.iterator();
+				while(i.hasNext()) {
+					DHLink link = i.next();
+					link.renderModel(gl2);
+				}
+			gl2.glPopMatrix();
+		gl2.glPopMatrix();
+		
+		super.render(gl2);
 	}
 }
