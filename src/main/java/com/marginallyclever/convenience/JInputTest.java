@@ -15,7 +15,6 @@ public class JInputTest {
 	
 	@Test
 	public void testControllers() {
-		
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
         for(int i =0;i<ca.length;i++){
             System.out.println("Controller:"+ca[i].getName());
