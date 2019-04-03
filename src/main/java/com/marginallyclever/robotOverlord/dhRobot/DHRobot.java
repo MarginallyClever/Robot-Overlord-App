@@ -11,7 +11,6 @@ import javax.vecmath.Vector3f;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
@@ -26,11 +25,31 @@ public abstract class DHRobot extends Robot {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * {@value links} a list of DHLinks describing the kinematic chain.
+	 */
 	LinkedList<DHLink> links;
+	
+	/**
+	 * {@value poseNow} keyframe describing the current pose of the kinematic chain.
+	 */
 	DHKeyframe poseNow;
+	
+	/**
+	 * {@value panel} the GUI panel for controlling this robot.
+	 */
 	DHPanel panel;
+	
+	/**
+	 * {@value endMatrix} the world frame pose of the last link in the kinematic chain.
+	 */
 	Matrix4d endMatrix;
+	
+	/**
+	 * {@value drawSkeleton} true if the skeleton should be visualized on screen.  Default is false.
+	 */
 	boolean drawSkeleton;
+	
 	
 	public DHRobot() {
 		super();
@@ -66,57 +85,39 @@ public abstract class DHRobot extends Robot {
 	
 	@Override
 	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
-		Vector3f position = this.getPosition();
-		gl2.glTranslatef(position.x, position.y, position.z);
-		
-		Iterator<DHLink> i = links.iterator();
+		if(!drawSkeleton) return;
 
-		// Draw models
-		float r=1;
-		float g=217f/255f;
-		float b=33f/255f;
-		Material mat = new Material();
-		mat.setDiffuseColor(r,g,b,1);
-		mat.render(gl2);
-		
-		gl2.glPushMatrix();
-		while(i.hasNext()) {
-			DHLink link = i.next();
-			link.renderModel(gl2);
-		}
-		gl2.glPopMatrix();
+		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_DEPTH_TEST);
+		gl2.glDisable(GL2.GL_LIGHTING);
 
-		// Draw skeleton
-		if(drawSkeleton) {
+		gl2.glPushMatrix();
+			Vector3f position = this.getPosition();
+			gl2.glTranslatef(position.x, position.y, position.z);
+			
 			gl2.glPushMatrix();
-			boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			gl2.glDisable(GL2.GL_LIGHTING);
-	
-			i = links.iterator();
-			while(i.hasNext()) {
-				DHLink link = i.next();
-				link.renderPose(gl2);
-			}
+				Iterator<DHLink> i = links.iterator();
+				while(i.hasNext()) {
+					DHLink link = i.next();
+					link.renderPose(gl2);
+				}
 			gl2.glPopMatrix();
+			
 			MatrixHelper.drawMatrix(gl2, 
 					new Vector3f((float)endMatrix.m03,(float)endMatrix.m13,(float)endMatrix.m23),
 					new Vector3f((float)endMatrix.m00,(float)endMatrix.m10,(float)endMatrix.m20),
 					new Vector3f((float)endMatrix.m01,(float)endMatrix.m11,(float)endMatrix.m21),
 					new Vector3f((float)endMatrix.m02,(float)endMatrix.m12,(float)endMatrix.m22)
 					);
-			
-			if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-			if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
-	
-			gl2.glPopMatrix();
-		}
+
+		gl2.glPopMatrix();
+		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 	}
 	
 	/**
-	 * Update the pose matrix of each DH link and also use forward kinematics to find the {@end} position.
+	 * Update the pose matrix of each DH link, then use forward kinematics to find the end position.
 	 */
 	public void refreshPose() {
 		endMatrix.setIdentity();
