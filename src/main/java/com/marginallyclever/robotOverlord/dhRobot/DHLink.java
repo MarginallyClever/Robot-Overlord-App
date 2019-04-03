@@ -67,6 +67,22 @@ public class DHLink {
 		maxTorque=Double.MAX_VALUE;
 	}
 	
+	public DHLink(DHLink arg0) { 
+		flags = arg0.flags;
+		d = arg0.d;
+		theta=arg0.theta;
+		r=arg0.r;
+		alpha=arg0.alpha;
+		pose = new Matrix4d(arg0.pose);
+		poseCumulative = new Matrix4d(arg0.poseCumulative);
+		model=arg0.model;
+		angleMin=arg0.angleMin;
+		angleMax=arg0.angleMax;
+		maxVelocity=arg0.maxVelocity;
+		maxAcceleration=arg0.maxAcceleration;
+		maxTorque=arg0.maxTorque;
+	} 
+	
 	/**
 	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
 	 */
