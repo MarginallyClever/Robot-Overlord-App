@@ -6,16 +6,15 @@ import java.util.LinkedList;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector4d;
 
 /**
- * Solves IK for a RTTRTR robot
+ * Solves Inverse Kinematics for a RTTRTR robot.  It is assumed the first three joints position the end effector
+ * and the last three joints orient the end effector.
  * @author Dan Royer
- * @see 
  * @see https://www.youtube.com/watch?v=V_6diIcQl0U
  * @see https://www.youtube.com/watch?v=74tbl9q2_qI
  */
-public class DHIKSolveRTTRTR {
+public class DHIKSolveRTTRTR implements DHIKSolver {
 	public double theta0;
 	public double alpha1;
 	public double alpha2;
@@ -40,9 +39,11 @@ public class DHIKSolveRTTRTR {
 	
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
-	 * @param robot
+	 * The solution will be stored in the derived class' public values.
+	 * @param robot The DHRobot to solve.  it's link7.poseCumulative should have the world-space pose of the end effector.
 	 */
 	@SuppressWarnings("unused")
+	@Override
 	public void solve(DHRobot robot) {
 		solutionFlag = ONE_SOLUTION;
 		
