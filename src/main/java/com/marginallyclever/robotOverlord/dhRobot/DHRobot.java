@@ -67,7 +67,12 @@ public abstract class DHRobot extends Robot {
 	 * Override this method with your robot's setup.
 	 */
 	public abstract void setupLinks();
-	
+	/**
+	 * Override this method to return the correct solver for your type of robot.
+	 * @return the IK solver for a specific type of robot.
+	 */
+	public abstract DHIKSolver getSolverIK();
+
 	@Override
 	public RobotKeyframe createKeyframe() {
 		return new DHKeyframe();
