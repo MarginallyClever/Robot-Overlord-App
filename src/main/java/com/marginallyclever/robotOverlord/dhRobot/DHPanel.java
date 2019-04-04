@@ -99,30 +99,24 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 		}
 		boolean isDirty=false;
 		Iterator<DHLinkPanel> i = linkPanels.iterator();
-		int j=0;
 		while(i.hasNext()) {
 			DHLinkPanel e = i.next();
 			if(source == e.d) {
 				e.link.d = e.d.getValue();
-				//System.out.println(j + " dirty d");
 				isDirty=true;
 			}
 			if(source == e.theta) {
 				e.link.theta = e.theta.getValue();
-				//System.out.println(j + " dirty theta");
 				isDirty=true;
 			}
 			if(source == e.r) {
 				e.link.r = e.r.getValue();
-				//System.out.println(j + " dirty r");
 				isDirty=true;
 			}
 			if(source == e.alpha) {
 				e.link.alpha = e.alpha.getValue();
-				//System.out.println(j + " dirty alpha");
 				isDirty=true;
 			}
-			++j;
 		}
 		if(isDirty) {
 			robot.refreshPose();
@@ -144,7 +138,7 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 		endy.setText("Y="+formatDouble(robot.endMatrix.m13));
 		endz.setText("Z="+formatDouble(robot.endMatrix.m23));
 		
-		DHIKSolveRTTRTR solver = new DHIKSolveRTTRTR();
+		DHIKSolver solver = robot.getSolverIK();
 		solver.solve(robot);
 	}
 	
