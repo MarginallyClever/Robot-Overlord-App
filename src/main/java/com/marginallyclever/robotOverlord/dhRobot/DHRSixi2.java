@@ -127,4 +127,8 @@ public class DHRSixi2 extends DHRobot {
 		
 		super.render(gl2);
 	}
+	
+	public DHIKSolver getSolverIK() {
+		return new DHIKSolveRTTRTR();
+	}
 }
