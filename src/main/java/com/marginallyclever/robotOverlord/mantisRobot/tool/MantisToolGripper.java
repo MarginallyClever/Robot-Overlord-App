@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -147,7 +147,7 @@ public class MantisToolGripper extends MantisTool {
 		// bar
 		gl2.glPushMatrix();
 		gl2.glTranslated(0.7, 0.51,0);
-		PrimitiveSolids.drawStar(gl2,new Vector3f(0,0,0));
+		PrimitiveSolids.drawStar(gl2,new Vector3d(0,0,0));
 		gl2.glRotated(angleAdjusted+175,0,0,1);
 		gl2.glTranslated(4.6, 0.5, 0);
 		gl2.glScaled(1,1,-1);
@@ -179,7 +179,7 @@ public class MantisToolGripper extends MantisTool {
 		// bar
 		gl2.glPushMatrix();
 		gl2.glTranslated(0.7, -0.51,0);
-		PrimitiveSolids.drawStar(gl2,new Vector3f(0,0,0));
+		PrimitiveSolids.drawStar(gl2,new Vector3d(0,0,0));
 		gl2.glRotated(-angleAdjusted+175,0,0,1);
 		gl2.glTranslated(4.6, 0.5, 0);
 		gl2.glScaled(1,1,-1);

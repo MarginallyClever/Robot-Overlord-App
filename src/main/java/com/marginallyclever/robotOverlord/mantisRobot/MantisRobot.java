@@ -1,11 +1,12 @@
 package com.marginallyclever.robotOverlord.mantisRobot;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.mantisRobot.tool.*;
 import com.marginallyclever.robotOverlord.material.Material;
@@ -286,15 +287,15 @@ public class MantisRobot extends Robot {
 	 * update the desired finger location
 	 * @param delta the time since the last update.  Typically ~1/30s
 	 */
-	protected void updateIK(float delta) {
+	protected void updateIK(double delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		final float vel=(float)speed;
 		float dp = vel;// * delta;
 
-		float dX=motionFuture.fingerPosition.x;
-		float dY=motionFuture.fingerPosition.y;
-		float dZ=motionFuture.fingerPosition.z;
+		double dX=motionFuture.fingerPosition.x;
+		double dY=motionFuture.fingerPosition.y;
+		double dZ=motionFuture.fingerPosition.z;
 		
 		if (xDir!=0) {
 			dX += xDir * dp;
@@ -312,9 +313,9 @@ public class MantisRobot extends Robot {
 			zDir=0;
 		}
 		// rotations
-		float ru=motionFuture.ikU;
-		float rv=motionFuture.ikV;
-		float rw=motionFuture.ikW;
+		double ru=motionFuture.ikU;
+		double rv=motionFuture.ikV;
+		double rw=motionFuture.ikW;
 		boolean hasTurned=false;
 
 		if (uDir!=0) {
@@ -340,30 +341,30 @@ public class MantisRobot extends Robot {
 		if(hasTurned) {
 			// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
 			// More complex arms start from the same assumption.
-			Vector3f forward = new Vector3f(0,0,1);
-			Vector3f right = new Vector3f(1,0,0);
-			Vector3f up = new Vector3f();
+			Vector3d forward = new Vector3d(0,0,1);
+			Vector3d right = new Vector3d(1,0,0);
+			Vector3d up = new Vector3d();
 			
 			up.cross(forward,right);
 			
-			Vector3f of = new Vector3f(forward);
-			Vector3f or = new Vector3f(right);
-			Vector3f ou = new Vector3f(up);
+			Vector3d of = new Vector3d(forward);
+			Vector3d or = new Vector3d(right);
+			Vector3d ou = new Vector3d(up);
 			
 			motionFuture.ikU=ru;
 			motionFuture.ikV=rv;
 			motionFuture.ikW=rw;
 			
-			Vector3f result;
+			Vector3d result;
 
-			result = MathHelper.rotateAroundAxis(forward,of,(float)Math.toRadians(motionFuture.ikU));  // TODO rotating around itself has no effect.
-			result = MathHelper.rotateAroundAxis(result ,or,(float)Math.toRadians(motionFuture.ikV));
-			result = MathHelper.rotateAroundAxis(result ,ou,(float)Math.toRadians(motionFuture.ikW));
+			result = MathHelper.rotateAroundAxis(forward,of,Math.toRadians(motionFuture.ikU));  // TODO rotating around itself has no effect.
+			result = MathHelper.rotateAroundAxis(result ,or,Math.toRadians(motionFuture.ikV));
+			result = MathHelper.rotateAroundAxis(result ,ou,Math.toRadians(motionFuture.ikW));
 			motionFuture.fingerForward.set(result);
 
-			result = MathHelper.rotateAroundAxis(right ,of,(float)Math.toRadians(motionFuture.ikU));
-			result = MathHelper.rotateAroundAxis(result,or,(float)Math.toRadians(motionFuture.ikV));
-			result = MathHelper.rotateAroundAxis(result,ou,(float)Math.toRadians(motionFuture.ikW));
+			result = MathHelper.rotateAroundAxis(right ,of,Math.toRadians(motionFuture.ikU));
+			result = MathHelper.rotateAroundAxis(result,or,Math.toRadians(motionFuture.ikV));
+			result = MathHelper.rotateAroundAxis(result,ou,Math.toRadians(motionFuture.ikW));
 			motionFuture.fingerRight.set(result);
 		}
 		
@@ -392,19 +393,19 @@ public class MantisRobot extends Robot {
 	}
 	
 	
-	protected void updateFK(float delta) {
+	protected void updateFK(double delta) {
 		boolean changed=false;
 		float velcd=(float)speed; // * delta
 		float velabe=(float)speed; // * delta
 
 		motionFuture.set(motionNow);
 		
-		float dF = motionFuture.angleF;
-		float dE = motionFuture.angleE;
-		float dD = motionFuture.angleD;
-		float dC = motionFuture.angleC;
-		float dB = motionFuture.angleB;
-		float dA = motionFuture.angleA;
+		double dF = motionFuture.angleF;
+		double dE = motionFuture.angleE;
+		double dD = motionFuture.angleD;
+		double dC = motionFuture.angleC;
+		double dB = motionFuture.angleB;
+		double dA = motionFuture.angleA;
 
 		if (fDir!=0) {
 			dF += velabe * fDir;
@@ -467,33 +468,24 @@ public class MantisRobot extends Robot {
 			}
 		}
 	}
-
-	
-	protected float roundOff(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
-	
-
 	
 	public void updateGUI() {
-		Vector3f v = new Vector3f();
+		Vector3d v = new Vector3d();
 		v.set(motionNow.fingerPosition);
 		v.add(getPosition());
-		arm5Panel.xPos.setText(Float.toString(roundOff(v.x)));
-		arm5Panel.yPos.setText(Float.toString(roundOff(v.y)));
-		arm5Panel.zPos.setText(Float.toString(roundOff(v.z)));
-		arm5Panel.uPos.setText(Float.toString(roundOff(motionNow.ikU)));
-		arm5Panel.vPos.setText(Float.toString(roundOff(motionNow.ikV)));
-		arm5Panel.wPos.setText(Float.toString(roundOff(motionNow.ikW)));
+		arm5Panel.xPos.setText(Double.toString(MathHelper.roundOff3(v.x)));
+		arm5Panel.yPos.setText(Double.toString(MathHelper.roundOff3(v.y)));
+		arm5Panel.zPos.setText(Double.toString(MathHelper.roundOff3(v.z)));
+		arm5Panel.uPos.setText(Double.toString(MathHelper.roundOff3(motionNow.ikU)));
+		arm5Panel.vPos.setText(Double.toString(MathHelper.roundOff3(motionNow.ikV)));
+		arm5Panel.wPos.setText(Double.toString(MathHelper.roundOff3(motionNow.ikW)));
 
-		arm5Panel.a1.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm5Panel.b1.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm5Panel.c1.setText(Float.toString(roundOff(motionNow.angleC)));
-		arm5Panel.d1.setText(Float.toString(roundOff(motionNow.angleD)));
-		arm5Panel.e1.setText(Float.toString(roundOff(motionNow.angleE)));
-		arm5Panel.f1.setText(Float.toString(roundOff(motionNow.angleF)));
+		arm5Panel.a1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleA)));
+		arm5Panel.b1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleB)));
+		arm5Panel.c1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleC)));
+		arm5Panel.d1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleD)));
+		arm5Panel.e1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleE)));
+		arm5Panel.f1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleF)));
 
 		if( tool != null ) tool.updateGUI();
 	}
@@ -505,22 +497,22 @@ public class MantisRobot extends Robot {
 		
 		String str="";
 		if(motionFuture.angleA!=motionNow.angleA) {
-			str+=" A"+roundOff(motionFuture.angleA);
+			str+=" A"+MathHelper.roundOff3(motionFuture.angleA);
 		}
 		if(motionFuture.angleB!=motionNow.angleB) {
-			str+=" B"+roundOff(motionFuture.angleB);
+			str+=" B"+MathHelper.roundOff3(motionFuture.angleB);
 		}
 		if(motionFuture.angleC!=motionNow.angleC) {
-			str+=" C"+roundOff(motionFuture.angleC);
+			str+=" C"+MathHelper.roundOff3(motionFuture.angleC);
 		}
 		if(motionFuture.angleD!=motionNow.angleD) {
-			str+=" D"+roundOff(motionFuture.angleD);
+			str+=" D"+MathHelper.roundOff3(motionFuture.angleD);
 		}
 		if(motionFuture.angleE!=motionNow.angleE) {
-			str+=" E"+roundOff(motionFuture.angleE);
+			str+=" E"+MathHelper.roundOff3(motionFuture.angleE);
 		}
 		if(motionFuture.angleF!=motionNow.angleF) {
-			str+=" F"+roundOff(motionFuture.angleF);
+			str+=" F"+MathHelper.roundOff3(motionFuture.angleF);
 		}
 		
 		if(str.length()>0) {
@@ -529,7 +521,7 @@ public class MantisRobot extends Robot {
 	}
 	
 	@Override
-	public void prepareMove(float delta) {
+	public void prepareMove(double delta) {
 		updateIK(delta);
 		updateFK(delta);
 		if(tool != null) tool.update(delta);
@@ -553,8 +545,8 @@ public class MantisRobot extends Robot {
 		
 		gl2.glPushMatrix();
 			// TODO rotate model
-			Vector3f p = getPosition();
-			gl2.glTranslatef(p.x, p.y, p.z);
+			Vector3d p = getPosition();
+			gl2.glTranslated(p.x, p.y, p.z);
 			
 			gl2.glPushMatrix();
 				renderModels(gl2);
@@ -591,11 +583,11 @@ public class MantisRobot extends Robot {
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
-		Vector3f ff = new Vector3f();
+		Vector3d ff = new Vector3d();
 		ff.set(motionNow.fingerForward);
 		ff.scale(5);
 		ff.add(motionNow.fingerPosition);
-		Vector3f fr = new Vector3f();
+		Vector3d fr = new Vector3d();
 		fr.set(motionNow.fingerRight);
 		fr.scale(15);
 		fr.add(motionNow.fingerPosition);
@@ -630,29 +622,29 @@ public class MantisRobot extends Robot {
 		PrimitiveSolids.drawStar(gl2, fr );
 		
 
-		Vector3f towardsElbow = new Vector3f(motionNow.ikElbow);
+		Vector3d towardsElbow = new Vector3d(motionNow.ikElbow);
 		towardsElbow.sub(motionNow.ikShoulder);
 		towardsElbow.normalize();
 		
-		Vector3f v0 = new Vector3f();
-		Vector3f v1 = new Vector3f();
+		Vector3d v0 = new Vector3d();
+		Vector3d v1 = new Vector3d();
 
-		Vector3f facingDirection = new Vector3f(motionNow.ikWrist.x,motionNow.ikWrist.y,0);
+		Vector3d facingDirection = new Vector3d(motionNow.ikWrist.x,motionNow.ikWrist.y,0);
 		facingDirection.normalize();
-		Vector3f up = new Vector3f(0,0,1);
-		Vector3f planarRight = new Vector3f();
+		Vector3d up = new Vector3d(0,0,1);
+		Vector3d planarRight = new Vector3d();
 		planarRight.cross(facingDirection, up);
 		planarRight.normalize();
 		// angleC is the ulna rotation
-		Vector3f towardsWrist = new Vector3f(motionNow.ikWrist);
+		Vector3d towardsWrist = new Vector3d(motionNow.ikWrist);
 		towardsWrist.sub(motionNow.ikElbow);
 		
 		v0.set(towardsWrist);
 		v0.normalize();
 		v1.cross(planarRight,v0);
 		v1.normalize();
-		Vector3f towardsFinger = new Vector3f(motionNow.fingerForward);
-		Vector3f towardsFingerAdj = new Vector3f(motionNow.fingerForward);
+		Vector3d towardsFinger = new Vector3d(motionNow.fingerForward);
+		Vector3d towardsFingerAdj = new Vector3d(motionNow.fingerForward);
 		towardsFingerAdj.normalize();
 		float tf = v0.dot(towardsFingerAdj);
 		// can calculate angle
@@ -737,11 +729,11 @@ public class MantisRobot extends Robot {
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
 
-		Vector3f ff = new Vector3f();
+		Vector3d ff = new Vector3d();
 		ff.set(motionNow.fingerForward);
 		ff.scale(5);
 		ff.add(motionNow.fingerPosition);
-		Vector3f fr = new Vector3f();
+		Vector3d fr = new Vector3d();
 		fr.set(motionNow.fingerRight);
 		fr.scale(15);
 		fr.add(motionNow.fingerPosition);
@@ -806,7 +798,7 @@ public class MantisRobot extends Robot {
 		// stick
 		matStick.render(gl2);
 		gl2.glTranslated(BOOM_TO_STICK_Y,0, 0);
-		//MatrixHelper.drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
+		//MatrixHelper.drawMatrix(gl2,new Vector3d(0,0,0),new Vector3d(1,0,0),new Vector3d(0,1,0),new Vector3d(0,0,1),10);
 		gl2.glRotated(motionNow.angleD, 0, 0, 1);
 		gl2.glTranslated(5.7162,0.3917,0.3488);
 		gl2.glPushMatrix();
@@ -846,20 +838,6 @@ public class MantisRobot extends Robot {
 	
 	protected void drawBounds(GL2 gl2) {
 		throw new UnsupportedOperationException();
-	}
-	
-	
-	
-	private double parseNumber(String str) {
-		float f=0;
-		try {
-			f = Float.parseFloat(str);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return f;
 	}
 	
 
@@ -906,34 +884,34 @@ public class MantisRobot extends Robot {
 				if(items.length>=5) {
 					for(int i=0;i<items.length;++i) {
 						if(items[i].startsWith("A")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleA != v) {
 								motionFuture.angleA = v;
-								arm5Panel.a1.setText(Float.toString(roundOff(v)));
+								arm5Panel.a1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("B")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleB != v) {
 								motionFuture.angleB = v;
-								arm5Panel.b1.setText(Float.toString(roundOff(v)));
+								arm5Panel.b1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("C")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleC != v) {
 								motionFuture.angleC = v;
-								arm5Panel.c1.setText(Float.toString(roundOff(v)));
+								arm5Panel.c1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("D")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleD != v) {
 								motionFuture.angleD = v;
-								arm5Panel.d1.setText(Float.toString(roundOff(v)));
+								arm5Panel.d1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("E")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleE != v) {
 								motionFuture.angleE = v;
-								arm5Panel.e1.setText(Float.toString(roundOff(v)));
+								arm5Panel.e1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						}
 					}
@@ -949,7 +927,7 @@ public class MantisRobot extends Robot {
 	}
 	
 
-	public void moveBase(Vector3f dp) {
+	public void moveBase(Vector3d dp) {
 		motionFuture.anchorPosition.set(dp);
 	}
 	
@@ -958,9 +936,9 @@ public class MantisRobot extends Robot {
 		motionFuture.basePan=pan;
 		motionFuture.baseTilt=tilt;
 		
-		motionFuture.baseForward.y = (float)Math.sin(pan * Math.PI/180.0) * (float)Math.cos(tilt * Math.PI/180.0);
-		motionFuture.baseForward.x = (float)Math.cos(pan * Math.PI/180.0) * (float)Math.cos(tilt * Math.PI/180.0);
-		motionFuture.baseForward.z =                                        (float)Math.sin(tilt * Math.PI/180.0);
+		motionFuture.baseForward.y = Math.sin(pan * Math.PI/180.0) * Math.cos(tilt * Math.PI/180.0);
+		motionFuture.baseForward.x = Math.cos(pan * Math.PI/180.0) * Math.cos(tilt * Math.PI/180.0);
+		motionFuture.baseForward.z =                                        Math.sin(tilt * Math.PI/180.0);
 		motionFuture.baseForward.normalize();
 		
 		motionFuture.baseUp.set(0,0,1);
@@ -974,10 +952,10 @@ public class MantisRobot extends Robot {
 	
 	public BoundingVolume [] getBoundingVolumes() {
 		// shoulder joint
-		Vector3f t1=new Vector3f(motionFuture.baseRight);
+		Vector3d t1=new Vector3d(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.shoulder);
-		Vector3f t2=new Vector3f(motionFuture.baseRight);
+		Vector3d t2=new Vector3d(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.shoulder);
 		volumes[0].SetP1(getWorldCoordinatesFor(t1));
@@ -1014,18 +992,18 @@ public class MantisRobot extends Robot {
 	}
 	
 	
-	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.anchorPosition);
+	Vector3d getWorldCoordinatesFor(Vector3d in) {
+		Vector3d out = new Vector3d(motionFuture.anchorPosition);
 		
-		Vector3f tempx = new Vector3f(motionFuture.baseForward);
+		Vector3d tempx = new Vector3d(motionFuture.baseForward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.baseRight);
+		Vector3d tempy = new Vector3d(motionFuture.baseRight);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.baseUp);
+		Vector3d tempz = new Vector3d(motionFuture.baseUp);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -1111,49 +1089,47 @@ public class MantisRobot extends Robot {
 	 * @return false if successful, true if the IK solution cannot be found.
 	 */
 	protected boolean inverseKinematics(MantisRobotKeyframe keyframe) {
-		float n;
-		double ee;
-		float xx,yy;
+		double n, ee, xx,yy;
 		
 		// rotation at finger, bend at wrist, rotation between wrist and elbow, then bends down to base.
 		
 		// find the wrist position
-		Vector3f towardsFinger = new Vector3f(keyframe.fingerForward);
-		n = (float)MantisRobot.WRIST_TO_TOOL_X;
+		Vector3d towardsFinger = new Vector3d(keyframe.fingerForward);
+		n = MantisRobot.WRIST_TO_TOOL_X;
 		towardsFinger.scale(n);
 		
-		keyframe.ikWrist = new Vector3f(keyframe.fingerPosition);
+		keyframe.ikWrist = new Vector3d(keyframe.fingerPosition);
 		keyframe.ikWrist.sub(towardsFinger);
 		
-		keyframe.ikBase = new Vector3f(0,0,0);
-		keyframe.ikShoulder = new Vector3f(0,0,(float)(MantisRobot.ANCHOR_ADJUST_Z + MantisRobot.ANCHOR_TO_SHOULDER_Z));
+		keyframe.ikBase = new Vector3d(0,0,0);
+		keyframe.ikShoulder = new Vector3d(0,0,(float)(MantisRobot.ANCHOR_ADJUST_Z + MantisRobot.ANCHOR_TO_SHOULDER_Z));
 
 		// Find the facingDirection and planeNormal vectors.
-		Vector3f facingDirection = new Vector3f(keyframe.ikWrist.x,keyframe.ikWrist.y,0);
+		Vector3d facingDirection = new Vector3d(keyframe.ikWrist.x,keyframe.ikWrist.y,0);
 		if(Math.abs(keyframe.ikWrist.x)<EPSILON && Math.abs(keyframe.ikWrist.y)<EPSILON) {
 			// Wrist is directly above shoulder, makes calculations hard.
 			// TODO figure this out.  Use previous state to guess elbow?
 			return false;
 		}
 		facingDirection.normalize();
-		Vector3f up = new Vector3f(0,0,1);
-		Vector3f planarRight = new Vector3f();
+		Vector3d up = new Vector3d(0,0,1);
+		Vector3d planarRight = new Vector3d();
 		planarRight.cross(facingDirection, up);
 		planarRight.normalize();
 		
 		// Find elbow by using intersection of circles.
 		// http://mathworld.wolfram.com/Circle-CircleIntersection.html
 		// x = (dd-rr+RR) / (2d)
-		Vector3f v0 = new Vector3f(keyframe.ikWrist);
+		Vector3d v0 = new Vector3d(keyframe.ikWrist);
 		v0.sub(keyframe.ikShoulder);
-		float d = v0.length();
-		float R = (float)Math.abs(MantisRobot.SHOULDER_TO_ELBOW);
-		float r = (float)Math.abs(MantisRobot.ELBOW_TO_WRIST);
+		double d = v0.length();
+		double R = Math.abs(MantisRobot.SHOULDER_TO_ELBOW);
+		double r = Math.abs(MantisRobot.ELBOW_TO_WRIST);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
 		}
-		float x = (d*d - r*r + R*R ) / (2*d);
+		double x = (d*d - r*r + R*R ) / (2*d);
 		if( x > R ) {
 			// would cause Math.sqrt(a negative number)
 			return false;
@@ -1163,7 +1139,7 @@ public class MantisRobot extends Robot {
 		keyframe.ikElbow.scale(x);
 		keyframe.ikElbow.add(keyframe.ikShoulder);
 		// v1 is now at the intersection point between ik_wrist and ik_boom
-		Vector3f v1 = new Vector3f();
+		Vector3d v1 = new Vector3d();
 		float a = (float)( Math.sqrt( R*R - x*x ) );
 		v1.cross(planarRight, v0);
 		v1.scale(a);
@@ -1173,20 +1149,20 @@ public class MantisRobot extends Robot {
 		// all the joint locations are now known.  find the angles.
 		ee = Math.atan2(facingDirection.y, facingDirection.x);
 		ee = MathHelper.capRotationRadians(ee);
-		keyframe.angleF = 180+(float)Math.toDegrees(ee);
+		keyframe.angleF = 180+Math.toDegrees(ee);
 
 		// angleE is the shoulder
-		Vector3f towardsElbow = new Vector3f(keyframe.ikElbow);
+		Vector3d towardsElbow = new Vector3d(keyframe.ikElbow);
 		towardsElbow.sub(keyframe.ikShoulder);
 		towardsElbow.normalize();
 		xx = (float)towardsElbow.z;
 		yy = facingDirection.dot(towardsElbow);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotationRadians(ee);
-		keyframe.angleE = 90-(float)Math.toDegrees(ee);
+		keyframe.angleE = 90-Math.toDegrees(ee);
 
 		// angleD is the elbow
-		Vector3f towardsWrist = new Vector3f(keyframe.ikWrist);
+		Vector3d towardsWrist = new Vector3d(keyframe.ikWrist);
 		towardsWrist.sub(keyframe.ikElbow);
 		towardsWrist.normalize();
 		xx = (float)towardsElbow.dot(towardsWrist);
@@ -1194,15 +1170,15 @@ public class MantisRobot extends Robot {
 		yy = towardsWrist.dot(v1);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotationRadians(ee);
-		keyframe.angleD = -(float)Math.toDegrees(ee);
+		keyframe.angleD = -Math.toDegrees(ee);
 		
 		// angleC is the ulna rotation
 		v0.set(towardsWrist);
 		v0.normalize();
 		v1.cross(v0,planarRight);
 		v1.normalize();
-		Vector3f towardsFingerAdj = new Vector3f(keyframe.fingerForward);
-		float tf = v0.dot(towardsFingerAdj);
+		Vector3d towardsFingerAdj = new Vector3d(keyframe.fingerForward);
+		double tf = v0.dot(towardsFingerAdj);
 		if(tf>=1-EPSILON) {
 			// cannot calculate angle, leave as was
 			return false;
@@ -1215,7 +1191,7 @@ public class MantisRobot extends Robot {
 		yy = v1.dot(towardsFingerAdj);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotationRadians(ee);
-		keyframe.angleC = (float)Math.toDegrees(ee)+90;
+		keyframe.angleC = Math.toDegrees(ee)+90;
 		
 		// angleB is the wrist bend
 		v0.set(towardsWrist);
@@ -1224,7 +1200,7 @@ public class MantisRobot extends Robot {
 		yy = towardsFingerAdj.dot(towardsFinger);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotationRadians(ee);
-		keyframe.angleB = (float)Math.toDegrees(ee);
+		keyframe.angleB = Math.toDegrees(ee);
 		
 		// angleA is the hand rotation
 		v0.cross(towardsFingerAdj,towardsWrist);
@@ -1236,7 +1212,7 @@ public class MantisRobot extends Robot {
 		yy = v1.dot(keyframe.fingerRight);
 		ee = Math.atan2(yy, xx);
 		ee = MathHelper.capRotationRadians(ee);
-		keyframe.angleA = (float)Math.toDegrees(ee);
+		keyframe.angleA = Math.toDegrees(ee);
 
 		return true;
 	}
@@ -1253,10 +1229,10 @@ public class MantisRobot extends Robot {
 		double b = Math.toRadians(keyframe.angleB);
 		double a = Math.toRadians(keyframe.angleA);
 		
-		Vector3f originToShoulder = new Vector3f(0,0,(float)MantisRobot.ANCHOR_ADJUST_Z+(float)MantisRobot.ANCHOR_TO_SHOULDER_Z);
-		Vector3f facingDirection = new Vector3f((float)Math.cos(f),(float)Math.sin(f),0);
-		Vector3f up = new Vector3f(0,0,1);
-		Vector3f planarRight = new Vector3f();
+		Vector3d originToShoulder = new Vector3d(0,0,(float)MantisRobot.ANCHOR_ADJUST_Z+(float)MantisRobot.ANCHOR_TO_SHOULDER_Z);
+		Vector3d facingDirection = new Vector3d(Math.cos(f),Math.sin(f),0);
+		Vector3d up = new Vector3d(0,0,1);
+		Vector3d planarRight = new Vector3d();
 		planarRight.cross(facingDirection, up);
 		planarRight.normalize();
 
@@ -1264,10 +1240,10 @@ public class MantisRobot extends Robot {
 		keyframe.boom.set(originToShoulder);
 		
 		// boom to elbow
-		Vector3f toElbow = new Vector3f(facingDirection);
-		toElbow.scale( -(float)Math.cos(-e) );
-		Vector3f v2 = new Vector3f(up);
-		v2.scale( -(float)Math.sin(-e) );
+		Vector3d toElbow = new Vector3d(facingDirection);
+		toElbow.scale( -Math.cos(-e) );
+		Vector3d v2 = new Vector3d(up);
+		v2.scale( -Math.sin(-e) );
 		toElbow.add(v2);
 		float n = (float)MantisRobot.SHOULDER_TO_ELBOW;
 		toElbow.scale(n);
@@ -1276,15 +1252,15 @@ public class MantisRobot extends Robot {
 		keyframe.elbow.add(keyframe.shoulder);
 		
 		// elbow to wrist
-		Vector3f towardsElbowOrtho = new Vector3f();
+		Vector3d towardsElbowOrtho = new Vector3d();
 		towardsElbowOrtho.cross(toElbow, planarRight);
 		towardsElbowOrtho.normalize();
 
-		Vector3f elbowToWrist = new Vector3f(toElbow);
+		Vector3d elbowToWrist = new Vector3d(toElbow);
 		elbowToWrist.normalize();
-		elbowToWrist.scale( (float)Math.cos(d) );
+		elbowToWrist.scale( Math.cos(d) );
 		v2.set(towardsElbowOrtho);
-		v2.scale( (float)Math.sin(d) );
+		v2.scale( Math.sin(d) );
 		elbowToWrist.add(v2);
 		n = MantisRobot.ELBOW_TO_WRIST;
 		elbowToWrist.scale(n);
@@ -1293,18 +1269,18 @@ public class MantisRobot extends Robot {
 		keyframe.wrist.add(keyframe.elbow);
 
 		// wrist to finger
-		Vector3f wristOrthoBeforeUlnaRotation = new Vector3f();
+		Vector3d wristOrthoBeforeUlnaRotation = new Vector3d();
 		wristOrthoBeforeUlnaRotation.cross(elbowToWrist, planarRight);
 		wristOrthoBeforeUlnaRotation.normalize();
-		Vector3f wristOrthoAfterRotation = new Vector3f(wristOrthoBeforeUlnaRotation);
+		Vector3d wristOrthoAfterRotation = new Vector3d(wristOrthoBeforeUlnaRotation);
 		
-		wristOrthoAfterRotation.scale( (float)Math.cos(-c) );
+		wristOrthoAfterRotation.scale( Math.cos(-c) );
 		v2.set(planarRight);
-		v2.scale( (float)Math.sin(-c) );
+		v2.scale( Math.sin(-c) );
 		wristOrthoAfterRotation.add(v2);
 		wristOrthoAfterRotation.normalize();
 
-		Vector3f towardsFinger = new Vector3f();
+		Vector3d towardsFinger = new Vector3d();
 
 		towardsFinger.set(elbowToWrist);
 		towardsFinger.normalize();
@@ -1320,17 +1296,17 @@ public class MantisRobot extends Robot {
 		keyframe.fingerPosition.add(keyframe.wrist);
 
 		// finger rotation
-		Vector3f v0 = new Vector3f();
-		Vector3f v1 = new Vector3f();
+		Vector3d v0 = new Vector3d();
+		Vector3d v1 = new Vector3d();
 		v0.cross(towardsFinger,wristOrthoAfterRotation);
 		v0.normalize();
 		v1.cross(v0,towardsFinger);
 		v1.normalize();
 		
 		keyframe.fingerRight.set(v0);
-		keyframe.fingerRight.scale((float)Math.cos(a));
+		keyframe.fingerRight.scale(Math.cos(a));
 		v2.set(v1);
-		v2.scale((float)Math.sin(a));
+		v2.scale(Math.sin(a));
 		keyframe.fingerRight.add(v2);
 
 		keyframe.fingerForward.set(towardsFinger);

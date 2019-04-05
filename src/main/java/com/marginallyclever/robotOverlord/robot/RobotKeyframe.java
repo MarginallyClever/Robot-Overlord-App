@@ -18,7 +18,7 @@ public interface RobotKeyframe extends Serializable {
 	 * @param b The keyframe at t=1.
 	 * @param t {0..1}
 	 */
-	public void interpolate(RobotKeyframe a,RobotKeyframe b,float t);
+	public void interpolate(RobotKeyframe a,RobotKeyframe b,double t);
 	
 	/**
 	 * visualize this keyframe

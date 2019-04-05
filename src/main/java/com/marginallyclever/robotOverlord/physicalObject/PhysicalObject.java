@@ -3,7 +3,8 @@ package com.marginallyclever.robotOverlord.physicalObject;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -16,17 +17,13 @@ public abstract class PhysicalObject extends Entity {
 	 */
 	private static final long serialVersionUID = -1804941485489224976L;
 
-	private Vector3f position;
-	private Vector3f xAxis,yAxis,zAxis;
+	private Matrix4d pose;
 	private transient PhysicalObjectControlPanel physicalObjectControlPanel;
 	
 	public PhysicalObject() {
 		super();
 		
-		position = new Vector3f();
-		xAxis = new Vector3f();
-		yAxis = new Vector3f();
-		zAxis = new Vector3f();
+		pose = new Matrix4d();
 	}
 	
 	
@@ -47,17 +44,42 @@ public abstract class PhysicalObject extends Entity {
 	}
 
 	// set up the future motion state of the physical object
-	public void prepareMove(float dt) {}
+	public void prepareMove(double dt) {}
 	
 	// apply the future motion state - make the future into the present
 	public void finalizeMove() {}
 
-	public Vector3f getPosition() {		return position;	}
-	public Vector3f getXAxis() {		return xAxis;	}
-	public Vector3f getYAxis() {		return yAxis;	}
-	public Vector3f getZAxis() {		return zAxis;	}
-	public void setPosition(Vector3f pos) {		position.set(pos);  if(physicalObjectControlPanel!=null) physicalObjectControlPanel.updateFields();	}
-	public void setXAxis(Vector3f pos) {		xAxis.set(pos);  if(physicalObjectControlPanel!=null) physicalObjectControlPanel.updateFields();	}
-	public void setYAxis(Vector3f pos) {		yAxis.set(pos);  if(physicalObjectControlPanel!=null) physicalObjectControlPanel.updateFields();	}
-	public void setZAxis(Vector3f pos) {		zAxis.set(pos);  if(physicalObjectControlPanel!=null) physicalObjectControlPanel.updateFields();	}
+	public Vector3d getPosition() {
+		// Matrix4d has a setTranslation, but not a getTranslation?  Thanks.
+		return new Vector3d(pose.m03,pose.m13,pose.m23);
+	}
+	public void setPosition(Vector3d pos) {
+		pose.setTranslation(pos);
+		if(physicalObjectControlPanel!=null) {
+			physicalObjectControlPanel.updateFields();
+		}
+	}
+	
+	public Matrix4d getPose() {
+		return pose;
+	}
+	public void setPose(Matrix4d arg0) {
+		pose.set(arg0);
+		if(physicalObjectControlPanel!=null) {
+			physicalObjectControlPanel.updateFields();	
+		}
+	}
+	public void setRotation(Matrix4d arg0) {
+		Vector3d trans = getPosition();
+		pose.set(arg0);
+		pose.setTranslation(trans);
+		if(physicalObjectControlPanel!=null) {
+			physicalObjectControlPanel.updateFields();	
+		}
+	}
+	public Matrix4d getRotation() {
+		Matrix4d mat = new Matrix4d(pose);
+		mat.setTranslation(new Vector3d(0,0,0));
+		return mat;		
+	}
 }

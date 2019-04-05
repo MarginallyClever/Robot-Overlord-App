@@ -1,11 +1,12 @@
 package com.marginallyclever.robotOverlord.arm5;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.arm5.tool.*;
 import com.marginallyclever.robotOverlord.material.Material;
@@ -256,15 +257,15 @@ extends Robot {
 	 * update the desired finger location
 	 * @param delta time since the last update.  usually ~1/30s.
 	 */
-	protected void updateIK(float delta) {
+	protected void updateIK(double delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
-		final float vel=(float)speed;
-		float dp = vel;// * delta;
+		final double vel=speed;
+		double dp = vel;// * delta;
 
-		float dX=motionFuture.fingerPosition.x;
-		float dY=motionFuture.fingerPosition.y;
-		float dZ=motionFuture.fingerPosition.z;
+		double dX=motionFuture.fingerPosition.x;
+		double dY=motionFuture.fingerPosition.y;
+		double dZ=motionFuture.fingerPosition.z;
 		
 		if (xDir!=0) {
 			dX += xDir * dp;
@@ -295,21 +296,21 @@ extends Robot {
 		{
 			// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
 			// More complex arms start from the same assumption.
-			Vector3f forward = new Vector3f(0,0,1);
-			Vector3f right = new Vector3f(1,0,0);
-			Vector3f up = new Vector3f();
+			Vector3d forward = new Vector3d(0,0,1);
+			Vector3d right = new Vector3d(1,0,0);
+			Vector3d up = new Vector3d();
 			
 			up.cross(forward,right);
 			
-			Vector3f of = new Vector3f(forward);
-			Vector3f or = new Vector3f(right);
-			Vector3f ou = new Vector3f(up);
+			Vector3d of = new Vector3d(forward);
+			Vector3d or = new Vector3d(right);
+			Vector3d ou = new Vector3d(up);
 			
 			motionFuture.iku+=ru*dp;
 			motionFuture.ikv+=rv*dp;
 			motionFuture.ikw+=rw*dp;
 			
-			Vector3f result;
+			Vector3d result;
 
 			result = MathHelper.rotateAroundAxis(forward,of,motionFuture.iku);  // TODO rotating around itself has no effect.
 			result = MathHelper.rotateAroundAxis(result,or,motionFuture.ikv);
@@ -349,18 +350,18 @@ extends Robot {
 	}
 	
 	
-	protected void updateFK(float delta) {
+	protected void updateFK(double delta) {
 		boolean changed=false;
-		float velcd=(float)speed; // * delta
-		float velabe=(float)speed; // * delta
+		double velcd=speed; // * delta
+		double velabe=speed; // * delta
 
 		motionFuture.set(motionNow);
 		
-		float dE = motionFuture.angleE;
-		float dD = motionFuture.angleD;
-		float dC = motionFuture.angleC;
-		float dB = motionFuture.angleB;
-		float dA = motionFuture.angleA;
+		double dE = motionFuture.angleE;
+		double dD = motionFuture.angleD;
+		double dC = motionFuture.angleC;
+		double dB = motionFuture.angleB;
+		double dA = motionFuture.angleA;
 
 		if (eDir!=0) {
 			dE += velabe * eDir;
@@ -418,34 +419,26 @@ extends Robot {
 	}
 
 	
-	protected float roundOff(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
-	
-
-	
 	public void updateGUI() {
-		Vector3f v = new Vector3f();
+		Vector3d v = new Vector3d();
 		v.set(motionNow.fingerPosition);
 		// TODO rotate fingerPosition before adding position
 		v.add(getPosition());
-		arm5Panel.xPos.setText(Float.toString(roundOff(v.x)));
-		arm5Panel.yPos.setText(Float.toString(roundOff(v.y)));
-		arm5Panel.zPos.setText(Float.toString(roundOff(v.z)));
+		arm5Panel.xPos.setText(Double.toString(MathHelper.roundOff3(v.x)));
+		arm5Panel.yPos.setText(Double.toString(MathHelper.roundOff3(v.y)));
+		arm5Panel.zPos.setText(Double.toString(MathHelper.roundOff3(v.z)));
 
-		arm5Panel.a1.setText(Float.toString(roundOff(motionNow.angleA)));
-		arm5Panel.b1.setText(Float.toString(roundOff(motionNow.angleB)));
-		arm5Panel.c1.setText(Float.toString(roundOff(motionNow.angleC)));
-		arm5Panel.d1.setText(Float.toString(roundOff(motionNow.angleD)));
-		arm5Panel.e1.setText(Float.toString(roundOff(motionNow.angleE)));
+		arm5Panel.a1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleA)));
+		arm5Panel.b1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleB)));
+		arm5Panel.c1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleC)));
+		arm5Panel.d1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleD)));
+		arm5Panel.e1.setText(Double.toString(MathHelper.roundOff3(motionNow.angleE)));
 		
-		arm5Panel.a2.setText(Float.toString(roundOff(motionNow.ik_angleA)));
-		arm5Panel.b2.setText(Float.toString(roundOff(motionNow.ik_angleB)));
-		arm5Panel.c2.setText(Float.toString(roundOff(motionNow.ik_angleC)));
-		arm5Panel.d2.setText(Float.toString(roundOff(motionNow.ik_angleD)));
-		arm5Panel.e2.setText(Float.toString(roundOff(motionNow.ik_angleE)));
+		arm5Panel.a2.setText(Double.toString(MathHelper.roundOff3(motionNow.ik_angleA)));
+		arm5Panel.b2.setText(Double.toString(MathHelper.roundOff3(motionNow.ik_angleB)));
+		arm5Panel.c2.setText(Double.toString(MathHelper.roundOff3(motionNow.ik_angleC)));
+		arm5Panel.d2.setText(Double.toString(MathHelper.roundOff3(motionNow.ik_angleD)));
+		arm5Panel.e2.setText(Double.toString(MathHelper.roundOff3(motionNow.ik_angleE)));
 
 		if( tool != null ) tool.updateGUI();
 	}
@@ -457,19 +450,19 @@ extends Robot {
 		
 		String str="";
 		if(motionFuture.angleA!=motionNow.angleA) {
-			str+=" A"+roundOff(motionFuture.angleA);
+			str+=" A"+MathHelper.roundOff3(motionFuture.angleA);
 		}
 		if(motionFuture.angleB!=motionNow.angleB) {
-			str+=" B"+roundOff(motionFuture.angleB);
+			str+=" B"+MathHelper.roundOff3(motionFuture.angleB);
 		}
 		if(motionFuture.angleC!=motionNow.angleC) {
-			str+=" C"+roundOff(motionFuture.angleC);
+			str+=" C"+MathHelper.roundOff3(motionFuture.angleC);
 		}
 		if(motionFuture.angleD!=motionNow.angleD) {
-			str+=" D"+roundOff(motionFuture.angleD);
+			str+=" D"+MathHelper.roundOff3(motionFuture.angleD);
 		}
 		if(motionFuture.angleE!=motionNow.angleE) {
-			str+=" E"+roundOff(motionFuture.angleE);
+			str+=" E"+MathHelper.roundOff3(motionFuture.angleE);
 		}
 		
 		if(str.length()>0) {
@@ -478,7 +471,7 @@ extends Robot {
 	}
 	
 	@Override
-	public void prepareMove(float delta) {
+	public void prepareMove(double delta) {
 		updateIK(delta);
 		updateFK(delta);
 		if(tool != null) tool.update(delta);
@@ -504,8 +497,8 @@ extends Robot {
 			// TODO rotate model
 			
 			gl2.glPushMatrix();
-				Vector3f p = getPosition();
-				gl2.glTranslatef(p.x, p.y, p.z);
+				Vector3d p = getPosition();
+				gl2.glTranslated(p.x, p.y, p.z);
 				renderModels(gl2);
 			gl2.glPopMatrix();
 
@@ -537,10 +530,10 @@ extends Robot {
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
-		Vector3f ff = new Vector3f();
+		Vector3d ff = new Vector3d();
 		ff.set(motionNow.fingerPosition);
 		ff.add(motionNow.fingerForward);
-		Vector3f fr = new Vector3f();
+		Vector3d fr = new Vector3d();
 		fr.set(motionNow.fingerPosition);
 		fr.add(motionNow.fingerRight);
 		
@@ -579,10 +572,10 @@ extends Robot {
 		boolean matCoOn= gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_LIGHTING);
 
-		Vector3f ff = new Vector3f();
+		Vector3d ff = new Vector3d();
 		ff.set(motionNow.fingerPosition);
 		ff.add(motionNow.fingerForward);
-		Vector3f fr = new Vector3f();
+		Vector3d fr = new Vector3d();
 		fr.set(motionNow.fingerPosition);
 		fr.add(motionNow.fingerRight);
 		
@@ -718,20 +711,6 @@ extends Robot {
 		throw new UnsupportedOperationException();
 	}
 	
-	
-	
-	private double parseNumber(String str) {
-		float f=0;
-		try {
-			f = Float.parseFloat(str);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return f;
-	}
-	
 
 	public void setModeAbsolute() {
 		if(connection!=null) this.sendLineToRobot("G90");
@@ -776,34 +755,34 @@ extends Robot {
 				if(items.length>=5) {
 					for(int i=0;i<items.length;++i) {
 						if(items[i].startsWith("A")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleA != v) {
 								motionFuture.angleA = v;
-								arm5Panel.a1.setText(Float.toString(roundOff(v)));
+								arm5Panel.a1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("B")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleB != v) {
 								motionFuture.angleB = v;
-								arm5Panel.b1.setText(Float.toString(roundOff(v)));
+								arm5Panel.b1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("C")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleC != v) {
 								motionFuture.angleC = v;
-								arm5Panel.c1.setText(Float.toString(roundOff(v)));
+								arm5Panel.c1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("D")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleD != v) {
 								motionFuture.angleD = v;
-								arm5Panel.d1.setText(Float.toString(roundOff(v)));
+								arm5Panel.d1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						} else if(items[i].startsWith("E")) {
-							float v = (float)parseNumber(items[i].substring(1));
+							double v = StringHelper.parseNumber(items[i].substring(1));
 							if(motionFuture.angleE != v) {
 								motionFuture.angleE = v;
-								arm5Panel.e1.setText(Float.toString(roundOff(v)));
+								arm5Panel.e1.setText(Double.toString(MathHelper.roundOff3(v)));
 							}
 						}
 					}
@@ -819,7 +798,7 @@ extends Robot {
 	}
 	
 
-	public void moveBase(Vector3f dp) {
+	public void moveBase(Vector3d dp) {
 		motionFuture.anchorPosition.set(dp);
 	}
 	
@@ -844,10 +823,10 @@ extends Robot {
 	
 	public BoundingVolume [] getBoundingVolumes() {
 		// shoulder joint
-		Vector3f t1=new Vector3f(motionFuture.baseRight);
+		Vector3d t1=new Vector3d(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.shoulder);
-		Vector3f t2=new Vector3f(motionFuture.baseRight);
+		Vector3d t2=new Vector3d(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.shoulder);
 		volumes[0].SetP1(getWorldCoordinatesFor(t1));
@@ -884,18 +863,18 @@ extends Robot {
 	}
 	
 	
-	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.anchorPosition);
+	Vector3d getWorldCoordinatesFor(Vector3d in) {
+		Vector3d out = new Vector3d(motionFuture.anchorPosition);
 		
-		Vector3f tempx = new Vector3f(motionFuture.baseForward);
+		Vector3d tempx = new Vector3d(motionFuture.baseForward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.baseRight);
+		Vector3d tempy = new Vector3d(motionFuture.baseRight);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.baseUp);
+		Vector3d tempz = new Vector3d(motionFuture.baseUp);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -981,12 +960,12 @@ extends Robot {
 	protected boolean inverseKinematics(EvilMinionKeyframe keyframe) {
 		double aa,bb,cc,dd,ee;
 		
-		Vector3f v0 = new Vector3f();
-		Vector3f v1 = new Vector3f();
-		Vector3f v2 = new Vector3f();
-		Vector3f planar = new Vector3f();
-		Vector3f planeNormal = new Vector3f();
-		Vector3f planeRight = new Vector3f(0,0,1);
+		Vector3d v0 = new Vector3d();
+		Vector3d v1 = new Vector3d();
+		Vector3d v2 = new Vector3d();
+		Vector3d planar = new Vector3d();
+		Vector3d planeNormal = new Vector3d();
+		Vector3d planeRight = new Vector3d(0,0,1);
 
 		// Finger position is never on x=y=0 line, so this is safe.
 		planar.set(keyframe.fingerPosition);
@@ -1016,9 +995,9 @@ extends Robot {
 		// x = (dd-rr+RR) / (2d)
 		v0.set(keyframe.ik_wrist);
 		v0.sub(keyframe.ik_boom);
-		float d = v0.length();
-		float R = (float)Math.abs(EvilMinionRobot.BOOM_TO_STICK_Y);
-		float r = (float)Math.abs(EvilMinionRobot.STICK_TO_WRIST_X);
+		double d = v0.length();
+		double R = (float)Math.abs(EvilMinionRobot.BOOM_TO_STICK_Y);
+		double r = (float)Math.abs(EvilMinionRobot.STICK_TO_WRIST_X);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
@@ -1028,7 +1007,7 @@ extends Robot {
 			return false;
 		}*/
 		
-		float x = (d*d - r*r + R*R ) / (2*d);
+		double x = (d*d - r*r + R*R ) / (2*d);
 		if( x > R ) {
 			// would cause Math.sqrt(a negative number)
 			return false;
@@ -1047,7 +1026,7 @@ extends Robot {
 		v0.set(keyframe.ik_elbow);
 		v0.sub(keyframe.ik_boom);
 		x = -planar.dot(v0);
-		float y = planeRight.dot(v0);
+		double y = planeRight.dot(v0);
 		dd = Math.atan2(y,x);
 		dd = MathHelper.capRotationRadians(dd);
 		keyframe.ik_angleD = (float)Math.toDegrees(dd);
@@ -1113,15 +1092,15 @@ extends Robot {
 		double b = Math.toRadians(180-keyframe.angleB);
 		double a = Math.toRadians(keyframe.angleA);
 		
-		Vector3f v0 = new Vector3f(0,0,(float)(EvilMinionRobot.ANCHOR_ADJUST_Y+EvilMinionRobot.ANCHOR_TO_SHOULDER_Y));
-		Vector3f v1 = new Vector3f((float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.cos(e),
+		Vector3d v0 = new Vector3d(0,0,(float)(EvilMinionRobot.ANCHOR_ADJUST_Y+EvilMinionRobot.ANCHOR_TO_SHOULDER_Y));
+		Vector3d v1 = new Vector3d((float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.cos(e),
 									(float)EvilMinionRobot.SHOULDER_TO_BOOM_X*(float)Math.sin(e),
 									(float)EvilMinionRobot.SHOULDER_TO_BOOM_Y);
-		Vector3f planar = new Vector3f((float)Math.cos(e),(float)Math.sin(e),0);
+		Vector3d planar = new Vector3d((float)Math.cos(e),(float)Math.sin(e),0);
 		planar.normalize();
-		Vector3f planeNormal = new Vector3f(-v1.y,v1.x,0);
+		Vector3d planeNormal = new Vector3d(-v1.y,v1.x,0);
 		planeNormal.normalize();
-		Vector3f planarRight = new Vector3f();
+		Vector3d planarRight = new Vector3d();
 		planarRight.cross(planar, planeNormal);
 		planarRight.normalize();
 
@@ -1136,7 +1115,7 @@ extends Robot {
 		v0.set(v1);
 		v1.set(planar);
 		v1.scale( (float)( EvilMinionRobot.BOOM_TO_STICK_Y * Math.cos(d) ) );
-		Vector3f v2 = new Vector3f();
+		Vector3d v2 = new Vector3d();
 		v2.set(planarRight);
 		v2.scale( (float)( EvilMinionRobot.BOOM_TO_STICK_Y * Math.sin(d) ) );
 		v1.add(v2);

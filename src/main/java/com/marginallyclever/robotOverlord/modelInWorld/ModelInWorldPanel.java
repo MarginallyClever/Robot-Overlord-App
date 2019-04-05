@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3d;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.model.ModelLoadAndSave;
 
@@ -27,7 +27,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	private ModelInWorld model;
 	private UserCommandSelectFile userCommandSelectFile;
 	private UserCommandSelectNumber setScale;
-	private UserCommandSelectVector3f setOrigin;
+	private UserCommandSelectVector3d setOrigin;
 	
 	public ModelInWorldPanel(RobotOverlord gui,ModelInWorld model) {
 		super();
@@ -73,7 +73,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		contents.add(setScale,con1);
 		con1.gridy++;
 
-		setOrigin = new UserCommandSelectVector3f(gui,"Adjust origin",model.getAdjustOrigin());
+		setOrigin = new UserCommandSelectVector3d(gui,"Adjust origin",model.getAdjustOrigin());
 		setOrigin.addChangeListener(this);
 		contents.add(setOrigin,con1);
 		con1.gridy++;
@@ -88,7 +88,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 			model.setScale(setScale.getValue());
 		}
 		if(e.getSource()==setOrigin) {
-			model.adjustOrigin(setOrigin.getValue().x, setOrigin.getValue().y, setOrigin.getValue().z);
+			model.adjustOrigin(setOrigin.getValue());
 		}
 	}
 	

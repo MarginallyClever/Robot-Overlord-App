@@ -2,15 +2,15 @@ package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
 
 import java.io.Serializable;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 public class RotaryStewartPlatformArm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public Vector3f shoulder = new Vector3f();
-	public Vector3f elbow = new Vector3f();
-	public Vector3f shoulderToElbow = new Vector3f();
-	public Vector3f wrist = new Vector3f();
+	public Vector3d shoulder = new Vector3d();
+	public Vector3d elbow = new Vector3d();
+	public Vector3d shoulderToElbow = new Vector3d();
+	public Vector3d wrist = new Vector3d();
 	public float angle=0;
 
 

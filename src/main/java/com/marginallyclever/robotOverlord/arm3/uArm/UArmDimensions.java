@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.arm3.uArm;
 
 import java.text.DecimalFormat;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.arm3.Arm3Dimensions;
@@ -46,7 +46,7 @@ public class UArmDimensions extends Arm3Dimensions {
 	@Override
 	public boolean getHomeAutomaticallyOnStartup() {	return HOME_AUTOMATICALLY_ON_STARTUP;	}
 	@Override
-	public Vector3f getHomePosition() {		return new Vector3f(HOME_X,HOME_Y,HOME_Z);	}
+	public Vector3d getHomePosition() {		return new Vector3d(HOME_X,HOME_Y,HOME_Z);	}
 	@Override
 	public float getBaseToShoulderX() {	return BASE_TO_SHOULDER_X;	}
 	@Override
@@ -74,9 +74,9 @@ public class UArmDimensions extends Arm3Dimensions {
 
 	@Override
 	public String reportMove(Arm3Keyframe arg0) {
-		float x = arg0.angleBase    +(         90.0f);
-		float y = (-arg0.angleShoulder)+(54.54f-30);
-		float z = 180.0f-(arg0.angleElbow-(130.673f-90.0f));
+		double x = arg0.angleBase    +(         90.0f);
+		double y = (-arg0.angleShoulder)+(54.54f-30);
+		double z = 180.0f-(arg0.angleElbow-(130.673f-90.0f));
 
 		System.out.println("Y="+y+" : "+df.format(y));
 		if(y<0) y=0;

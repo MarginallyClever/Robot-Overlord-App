@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.deltaRobot3;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
@@ -21,17 +21,17 @@ public class DeltaRobot3Keyframe implements RobotKeyframe {
 	public DeltaRobot3Arm arms[];
 
 	// Relative to base
-	public Vector3f fingerPosition = new Vector3f(0,0,0);
+	public Vector3d fingerPosition = new Vector3d(0,0,0);
 
 	// base orientation, affects entire arm
-	public Vector3f base = new Vector3f();  // relative to world
-	public Vector3f base_forward = new Vector3f();
-	public Vector3f base_up = new Vector3f();
-	public Vector3f base_right = new Vector3f();
+	public Vector3d base = new Vector3d();  // relative to world
+	public Vector3d base_forward = new Vector3d();
+	public Vector3d base_up = new Vector3d();
+	public Vector3d base_right = new Vector3d();
 
 	// rotating entire robot
-	public float basePan=0;
-	public float baseTilt=0;
+	public double basePan=0;
+	public double baseTilt=0;
 
 
 	public DeltaRobot3Keyframe() {
@@ -57,7 +57,7 @@ public class DeltaRobot3Keyframe implements RobotKeyframe {
 	}
 
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
 		// TODO Auto-generated method stub
 		
 	}

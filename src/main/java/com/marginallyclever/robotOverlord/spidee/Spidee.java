@@ -9,12 +9,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.FloatBuffer;
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -93,13 +94,13 @@ extends Robot {
 
   public int [] buttons = new int[BUTTONS_MAX];
   
-  float body_radius;
-  float standing_radius;  // Distance from center of body to foot on ground in body-relative XY plane.  Used for motion planning
-  float standing_height;  // How high the body should "ride" when walking
-  float turn_stride_length;  // how far to move a foot when turning
-  float stride_length;  // how far to move a step when walking
-  float stride_height;  // how far to lift a foot
-  float max_leg_length;
+  double body_radius;
+  double standing_radius;  // Distance from center of body to foot on ground in body-relative XY plane.  Used for motion planning
+  double standing_height;  // How high the body should "ride" when walking
+  double turn_stride_length;  // how far to move a foot when turning
+  double stride_length;  // how far to move a step when walking
+  double stride_height;  // how far to lift a foot
+  double max_leg_length;
 
   MoveModes move_mode;  // What is the bot's current agenda?
   float gait_cycle;
@@ -149,10 +150,10 @@ extends Robot {
 		legs[5].name="LF";
 
 		target.forward.set(body.pos);
-		target.forward.add(new Vector3f(0,1,0));
+		target.forward.add(new Vector3d(0,1,0));
 		  
 		target.up.set(body.pos);
-		target.up.add(new Vector3f(0,0,1));
+		target.up.add(new Vector3d(0,0,1));
 
 		move_mode = MoveModes.MOVE_MODE_CALIBRATE;
 		speed_scale = 1.0f;
@@ -167,9 +168,9 @@ extends Robot {
 		    
 		    leg.active=false;
 
-		    float x = (i+1)*(float)Math.PI*2.0f/8.0f;
+		    double x = (i+1)*Math.PI*2.0f/8.0f;
 		    //float y = leg.facing_angle*DEG2RAD;
-		    leg.pan_joint.forward.set((float)Math.sin(x),(float)Math.cos(x),0);
+		    leg.pan_joint.forward.set(Math.sin(x),Math.cos(x),0);
 		    leg.pan_joint.forward.normalize();
 		    leg.pan_joint.up.set( body.up );
 		    
@@ -200,8 +201,8 @@ extends Robot {
 		    leg.pan_joint.relative.z += 2.0f;
 		    leg.tilt_joint.relative.set(leg.pan_joint.forward);
 		    leg.tilt_joint.relative.scale(2.232f);
-		    Vector3f a = new Vector3f(leg.pan_joint.forward);
-		    Vector3f b = new Vector3f(leg.pan_joint.up);
+		    Vector3d a = new Vector3d(leg.pan_joint.forward);
+		    Vector3d b = new Vector3d(leg.pan_joint.up);
 		    a.scale(5.5f);
 		    b.scale(5.5f);
 		    leg.knee_joint.relative.set(a);
@@ -317,10 +318,10 @@ extends Robot {
 	}
 	
 	
-	void Center_Body_Around_Feet(float dt) {
+	void Center_Body_Around_Feet(double dt) {
 		  // center the body around the feet
-		  Vector3f p = new Vector3f(0,0,0);
-		  Vector3f r = new Vector3f(0,0,0);
+		  Vector3d p = new Vector3d(0,0,0);
+		  Vector3d r = new Vector3d(0,0,0);
 		  int i;
 		  for(i=0;i<6;++i) {
 		    if(legs[i].ankle_joint.pos.z<=0) {
@@ -334,7 +335,7 @@ extends Robot {
 
 		  p.scale(1.0f/6.0f);
 		  r.scale(1.0f/6.0f);
-		  Vector3f dp = new Vector3f( p.x - body.pos.x, p.y-body.pos.y,0 );
+		  Vector3d dp = new Vector3d( p.x - body.pos.x, p.y-body.pos.y,0 );
 		  dp.scale(0.5f);
 		  body.pos.add(dp);
 		  // zero body height
@@ -347,7 +348,7 @@ extends Robot {
 		  target.forward.cross(target.left, target.up);
 	}
 	
-	void Translate_Body(float dt) {
+	void Translate_Body(double dt) {
 		// IK test - moving body
 
 		float a=(float)buttons[BUTTONS_X_NEG]
@@ -361,9 +362,9 @@ extends Robot {
 		float c1=Math.max(Math.min(c,MAX_VEL),-MAX_VEL);  // raise/lower body
 
 
-		Vector3f forward = new Vector3f( body.forward );
+		Vector3d forward = new Vector3d( body.forward );
 		forward.scale(b1);
-		Vector3f t2 = new Vector3f(body.left);
+		Vector3d t2 = new Vector3d(body.left);
 		t2.scale(a1);
 		forward.sub(t2);
 
@@ -378,11 +379,11 @@ extends Robot {
 		}
 	}
 	
-	void Translate_Body_Towards(Vector3f point,float dt) {
-	  Vector3f dp = new Vector3f(point);
+	void Translate_Body_Towards(Vector3d point,float dt) {
+	  Vector3d dp = new Vector3d(point);
 	  dp.sub( body.pos );
 	  
-	  float dpl = dp.length();
+	  double dpl = dp.length();
 	  if( dpl > dt ) {
 	    dp.normalize();
 	    dp.scale( dt );
@@ -398,7 +399,7 @@ extends Robot {
 	  }
 	}
 	
-	void Angle_Body(float dt) {
+	void Angle_Body(double dt) {
 		// IK test - moving body
 
 		float a = buttons[BUTTONS_X_ROT_NEG] - buttons[BUTTONS_X_ROT_POS];
@@ -410,27 +411,27 @@ extends Robot {
 		//System.out.println(""+a1+"\t"+b1+"\t"+c1);
 
 		if( a1 !=0 || b1 != 0 ) {
-			Vector3f forward=new Vector3f( body.forward );
+			Vector3d forward=new Vector3d( body.forward );
 			forward.scale( a1 );
-			Vector3f sideways=new Vector3f( body.left );
+			Vector3d sideways=new Vector3d( body.left );
 			sideways.scale( -b1 );
 			forward.add( sideways );
 			forward.normalize();
-			forward.scale((float)Math.toRadians(turn_stride_length) * dt / 3.0f);
+			forward.scale(Math.toRadians(turn_stride_length) * dt / 3.0f);
 			target.up.add( forward );
 			target.up.normalize();
 		}
 
 		if( c1 != 0 ) {
-			Vector3f left = new Vector3f( target.left );
-			left.scale(c1 * (float)Math.toRadians(turn_stride_length) * dt / 6.0f);
+			Vector3d left = new Vector3d( target.left );
+			left.scale(c1 * Math.toRadians(turn_stride_length) * dt / 6.0f);
 			target.forward.add( left );
 			target.forward.normalize();
 			target.left.cross(target.up, target.forward);
 		}
 	}
 	
-	void Move_Body(float dt) {
+	void Move_Body(double dt) {
 	  Translate_Body(dt);
 	  Angle_Body(dt);
 
@@ -439,7 +440,7 @@ extends Robot {
 	  }
 	}
 	
-	void Stand_Up(float dt) {
+	void Stand_Up(double dt) {
 	  int i;
 	  int onfloor = 0;
 	  float scale = 2.0f;
@@ -450,7 +451,7 @@ extends Robot {
 	    else ++onfloor;
 
 	    // contract - put feet closer to shoulders
-	    Vector3f df = new Vector3f(legs[i].ankle_joint.pos);
+	    Vector3d df = new Vector3d(legs[i].ankle_joint.pos);
 	    df.sub(body.pos);
 	    df.z=0;
 	    if(df.length()>standing_radius) {
@@ -465,7 +466,7 @@ extends Robot {
 	    if( body.pos.z < standing_height ) body.pos.z+=2*scale*dt;
 
 	    for(i=0;i<6;++i) {
-	      Vector3f ds = new Vector3f( legs[i].pan_joint.pos );
+	      Vector3d ds = new Vector3d( legs[i].pan_joint.pos );
 	      ds.sub( body.pos );
 	      ds.normalize();
 	      ds.scale(standing_radius);
@@ -476,7 +477,7 @@ extends Robot {
 	  }
 	}
 
-	boolean Sit_Down(float dt) {
+	boolean Sit_Down(double dt) {
 	  int i;
 	  int legup=0;
 	  float scale=1.0f;
@@ -487,7 +488,7 @@ extends Robot {
 	    for( i = 0; i < 6; ++i ) {
 
 	      // raise feet
-	      Vector3f ls = new Vector3f( legs[i].ankle_joint.pos );
+	      Vector3d ls = new Vector3d( legs[i].ankle_joint.pos );
 	      ls.sub( legs[i].pan_joint.pos );
 	      if( ls.length() < 16 ) {
 	        ls.z=0;
@@ -553,7 +554,7 @@ extends Robot {
 		}
 	}
 
-	void Teleport( Vector3f newpos ) {
+	void Teleport( Vector3d newpos ) {
 		// move a robot to a new position, update all joints.
 		newpos.sub( body.pos );
 		body.pos.add( newpos );
@@ -569,7 +570,7 @@ extends Robot {
 	}
 	
 	@Override
-	public void prepareMove(float dt) {
+	public void prepareMove(double dt) {
 		/*
 		  boolean open=comm.IsOpen();
 		  comm.Update(dt);
@@ -650,7 +651,7 @@ extends Robot {
 		gl2.glPushName(getPickName());
 		gl2.glPushMatrix();
 
-		Vector3f p = getPosition();
+		Vector3d p = getPosition();
 		gl2.glTranslated(p.x, p.y, p.z);
 		Draw_Head(gl2);
 		Draw_Legs(gl2);
@@ -663,7 +664,7 @@ extends Robot {
 	void Draw_Body(GL2 gl2) {
 		gl2.glPushMatrix();
 
-		FloatBuffer m=FloatBuffer.allocate(16);
+		DoubleBuffer m=DoubleBuffer.allocate(16);
 
 		m.put( 0,-body.left.x);
 		m.put( 1,-body.left.y);
@@ -677,10 +678,10 @@ extends Robot {
 		m.put(15,1);
 
 		matBody.render(gl2);
-	    gl2.glTranslatef(body.pos.x + 7.5f * body.up.x,
+	    gl2.glTranslated(body.pos.x + 7.5f * body.up.x,
 	                 body.pos.y + 7.5f * body.up.y,
 	                 body.pos.z + 7.5f * body.up.z );
-	    gl2.glMultMatrixf(m);
+	    gl2.glMultMatrixd(m);
 	    gl2.glRotatef(180,0,1,0);
 	    modelBody.render(gl2);
 
@@ -695,26 +696,26 @@ extends Robot {
 	  
 	  gl2.glPushMatrix();
 	  // head
-	  Vector3f v=new Vector3f(body.forward);
+	  Vector3d v=new Vector3d(body.forward);
 	  v.scale(10);
 	  v.add(body.pos);
-	  gl2.glTranslatef(v.x,v.y,v.z);
+	  gl2.glTranslated(v.x,v.y,v.z);
 	  gl2.glBegin(GL2.GL_LINE_LOOP);
 	  for(i=0;i<32;++i) {
-	    float x=i*((float)Math.PI*2.0f)/32.0f;
-	    gl2.glVertex3f((float)Math.sin(x)*0.5f,(float)Math.cos(x)*0.5f,0.0f);
+		double x=i*(Math.PI*2.0f)/32.0f;
+	    gl2.glVertex3d(Math.sin(x)*0.5f,Math.cos(x)*0.5f,0.0f);
 	  }
 	  gl2.glEnd();
 	  gl2.glBegin(GL2.GL_LINE_LOOP);
 	  for(i=0;i<32;++i) {
-	    float x=i*((float)Math.PI*2.0f)/32.0f;
-	    gl2.glVertex3f((float)Math.sin(x)*0.5f,0.0f,(float)Math.cos(x)*0.5f);
+		double x=i*(Math.PI*2.0f)/32.0f;
+	    gl2.glVertex3d(Math.sin(x)*0.5f,0.0f,Math.cos(x)*0.5f);
 	  }
 	  gl2.glEnd();
 	  gl2.glBegin(GL2.GL_LINE_LOOP);
 	  for(i=0;i<32;++i) {
-	    float x=i*((float)Math.PI*2.0f)/32.0f;
-	    gl2.glVertex3f(0.0f,(float)Math.sin(x)*0.5f,(float)Math.cos(x)*0.5f);
+		double x=i*(Math.PI*2.0f)/32.0f;
+	    gl2.glVertex3d(0.0f,Math.sin(x)*0.5f,Math.cos(x)*0.5f);
 	  }
 	  gl2.glEnd();
 	  gl2.glPopMatrix();
@@ -723,7 +724,7 @@ extends Robot {
 
 	void Draw_Legs(GL2 gl2) {
 	    int i;
-	    FloatBuffer m = FloatBuffer.allocate(16);
+	    DoubleBuffer m = DoubleBuffer.allocate(16);
 	    
 	    for(i=0;i<6;++i) {
 	      SpideeLeg leg = legs[i];
@@ -732,18 +733,18 @@ extends Robot {
 		  matLeg1.render(gl2);
 		    
 	      gl2.glPushMatrix();
-	      gl2.glTranslatef(leg.pan_joint.pos.x,
+	      gl2.glTranslated(leg.pan_joint.pos.x,
 	                   		leg.pan_joint.pos.y,
 	                   		leg.pan_joint.pos.z);
-	      gl2.glTranslatef(leg.pan_joint.up.x*2.5f,
+	      gl2.glTranslated(leg.pan_joint.up.x*2.5f,
 	                   		leg.pan_joint.up.y*2.5f,
 	                   		leg.pan_joint.up.z*2.5f);
 
 	      if(i<3) {
-	        gl2.glTranslatef(leg.pan_joint.forward.x*-1.0f,
+	        gl2.glTranslated(leg.pan_joint.forward.x*-1.0f,
 	                     leg.pan_joint.forward.y*-1.0f,
 	                     leg.pan_joint.forward.z*-1.0f);
-	        gl2.glTranslatef(leg.pan_joint.left.x*-1.0f,
+	        gl2.glTranslated(leg.pan_joint.left.x*-1.0f,
 	                     leg.pan_joint.left.y*-1.0f,
 	                     leg.pan_joint.left.z*-1.0f);
 	        m.put( 0,-leg.pan_joint.left.x);
@@ -756,10 +757,10 @@ extends Robot {
 	        m.put( 9,leg.pan_joint.forward.y);
 	        m.put(10,leg.pan_joint.forward.z);
 	      } else {
-	        gl2.glTranslatef(leg.pan_joint.forward.x*1.3f,
+	        gl2.glTranslated(leg.pan_joint.forward.x*1.3f,
 	                     leg.pan_joint.forward.y*1.3f,
 	                     leg.pan_joint.forward.z*1.3f);
-	        gl2.glTranslatef(leg.pan_joint.left.x*1.1f,
+	        gl2.glTranslated(leg.pan_joint.left.x*1.1f,
 	                     leg.pan_joint.left.y*1.1f,
 	                     leg.pan_joint.left.z*1.1f);
 	        
@@ -780,7 +781,7 @@ extends Robot {
 	      m.put(13,0);
 	      m.put(14,0);
 	      m.put(15,1);
-	      gl2.glMultMatrixf(m);
+	      gl2.glMultMatrixd(m);
 	      if(i<3) modelShoulderLeft.render(gl2);
 	      else    modelShoulderRight.render(gl2);
 	      gl2.glPopMatrix();
@@ -788,16 +789,16 @@ extends Robot {
 	      // thigh
 	      matThigh.render(gl2);
 	      gl2.glPushMatrix();
-	      gl2.glTranslatef(leg.tilt_joint.pos.x,
+	      gl2.glTranslated(leg.tilt_joint.pos.x,
 		                   leg.tilt_joint.pos.y,
 		                   leg.tilt_joint.pos.z);
-	      gl2.glTranslatef(leg.pan_joint.left.x*2.0f,
+	      gl2.glTranslated(leg.pan_joint.left.x*2.0f,
 		                   leg.pan_joint.left.y*2.0f,
 		                   leg.pan_joint.left.z*2.0f);
-	      gl2.glTranslatef(leg.pan_joint.forward.x*1.0f,
+	      gl2.glTranslated(leg.pan_joint.forward.x*1.0f,
 		                   leg.pan_joint.forward.y*1.0f,
 		                   leg.pan_joint.forward.z*1.0f);
-	      gl2.glTranslatef(leg.pan_joint.up.x*0.5f,
+	      gl2.glTranslated(leg.pan_joint.up.x*0.5f,
 		                   leg.pan_joint.up.y*0.5f,
 		                   leg.pan_joint.up.z*0.5f);
 
@@ -818,21 +819,21 @@ extends Robot {
 	      m.put(14,0);
 	      m.put(15,1);
 	        
-	      gl2.glMultMatrixf(m);
+	      gl2.glMultMatrixd(m);
 	      modelThigh.render(gl2);	      
 	      gl2.glPopMatrix();
 	      
 	      gl2.glPushMatrix();
-	      gl2.glTranslatef(leg.tilt_joint.pos.x,
+	      gl2.glTranslated(leg.tilt_joint.pos.x,
 		                   leg.tilt_joint.pos.y,
 		                   leg.tilt_joint.pos.z);
-	      gl2.glTranslatef(leg.tilt_joint.left.x*-2.0f,
+	      gl2.glTranslated(leg.tilt_joint.left.x*-2.0f,
 		                   leg.tilt_joint.left.y*-2.0f,
 		                   leg.tilt_joint.left.z*-2.0f);
-	      gl2.glTranslatef(leg.tilt_joint.forward.x*0.8f,
+	      gl2.glTranslated(leg.tilt_joint.forward.x*0.8f,
 		                   leg.tilt_joint.forward.y*0.8f,
 		                   leg.tilt_joint.forward.z*0.8f);
-	      gl2.glTranslatef(leg.tilt_joint.up.x*0.5f,
+	      gl2.glTranslated(leg.tilt_joint.up.x*0.5f,
 		                   leg.tilt_joint.up.y*0.5f,
 		                   leg.tilt_joint.up.z*0.5f);
 
@@ -853,19 +854,19 @@ extends Robot {
 	      m.put(14,0);
 	      m.put(15,1);
 		    
-	      gl2.glMultMatrixf(m);
+	      gl2.glMultMatrixd(m);
 	      modelThigh.render(gl2);
 	      gl2.glPopMatrix();
 
 	      // shin
 	      matShin.render(gl2);
 	      gl2.glPushMatrix();
-	      gl2.glTranslatef(leg.knee_joint.pos.x,
+	      gl2.glTranslated(leg.knee_joint.pos.x,
 	                   leg.knee_joint.pos.y,
 	                   leg.knee_joint.pos.z);
 
 	      if(i<3) {
-	        gl2.glTranslatef(leg.knee_joint.forward.x*-0.75f,
+	        gl2.glTranslated(leg.knee_joint.forward.x*-0.75f,
 	                     	 leg.knee_joint.forward.y*-0.75f,
 	                     	 leg.knee_joint.forward.z*-0.75f);
 	        m.put( 0,-leg.knee_joint.forward.x);
@@ -878,10 +879,10 @@ extends Robot {
 	        m.put( 9,leg.knee_joint.up.y);
 	        m.put(10,leg.knee_joint.up.z);
 	      } else {
-	        gl2.glTranslatef(leg.knee_joint.up.x*2.0f,
+	        gl2.glTranslated(leg.knee_joint.up.x*2.0f,
 	                     	 leg.knee_joint.up.y*2.0f,
 	                     	 leg.knee_joint.up.z*2.0f);
-	        gl2.glTranslatef(leg.knee_joint.forward.x*-0.75f,
+	        gl2.glTranslated(leg.knee_joint.forward.x*-0.75f,
 	                     	 leg.knee_joint.forward.y*-0.75f,
 	                     	 leg.knee_joint.forward.z*-0.75f);
 	        m.put( 0,-leg.knee_joint.forward.x);
@@ -902,7 +903,7 @@ extends Robot {
 	      m.put(14,0);
 	      m.put(15,1);
 		    
-	      gl2.glMultMatrixf(m);
+	      gl2.glMultMatrixd(m);
 	      if(i<3) modelShinLeft.render(gl2);
 	      else    modelShinRight.render(gl2);
 	      gl2.glPopMatrix();
@@ -975,7 +976,7 @@ extends Robot {
 	}
 
 
-	void Move_Calibrate(float dt) {
+	void Move_Calibrate(double dt) {
 		// turn active legs on and off.
 		float a=0, b=0, c=0;
 /*TODO finish me
@@ -1028,7 +1029,7 @@ extends Robot {
 	}
 
 
-	void Update_Gait_Target(float dt,float move_body_scale) {
+	void Update_Gait_Target(double dt,double move_body_scale) {
 	  int turn_direction = buttons[BUTTONS_Z_ROT_POS]
 	                     - buttons[BUTTONS_Z_ROT_NEG];
 	  int walk_direction = buttons[BUTTONS_Y_NEG]
@@ -1070,7 +1071,7 @@ extends Robot {
 
 	  for(i=0;i<6;++i) {
 	    SpideeLeg leg = legs[i];
-	    Vector3f ds = new Vector3f( leg.pan_joint.pos );
+	    Vector3d ds = new Vector3d( leg.pan_joint.pos );
 	    ds.sub( body.pos );
 	    ds.normalize();
 	    ds.scale( standing_radius );
@@ -1082,14 +1083,13 @@ extends Robot {
 	  // turn
 	  if( turn_direction != 0 ) {
 	    turn_direction = (int)Math.max(Math.min( (float)turn_direction, 180*dt), -180*dt );
-	    float turn = (float)Math.toRadians(turn_direction * turn_stride_length) * dt * move_body_scale / 6.0f;
-
-	    float c=( (float)Math.cos( turn ) );
-	    float s=( (float)Math.sin( turn ) );
+	    double turn = Math.toRadians(turn_direction * turn_stride_length) * dt * move_body_scale / 6.0f;
+	    double c=( Math.cos( turn ) );
+	    double s=( Math.sin( turn ) );
 
 	    for(i=0;i<6;++i) {
 	      SpideeLeg leg = legs[i];
-	      Vector3f df= new Vector3f( leg.npoc );
+	      Vector3d df= new Vector3d( leg.npoc );
 	      df.sub( body.pos );
 	      df.z = 0;
 	      leg.npoc.x = df.x *  c + df.y * -s;
@@ -1097,7 +1097,7 @@ extends Robot {
 	      leg.npoc.add(body.pos);
 	    }
 
-	    Vector3f df= new Vector3f( body.forward );
+	    Vector3d df= new Vector3d( body.forward );
 	    df.z = 0;
 	    target.forward.x = df.x *  c + df.y * -s;
 	    target.forward.y = df.x *  s + df.y *  c;
@@ -1106,7 +1106,7 @@ extends Robot {
 	    }
 
 	  // translate
-	  Vector3f dir= new Vector3f(0,0,0);
+	  Vector3d dir= new Vector3d(0,0,0);
 
 	  if(   walk_direction > 0 ) dir.add(body.forward);  // forward
 	  if(   walk_direction < 0 ) dir.sub(body.forward);  // backward
@@ -1118,7 +1118,7 @@ extends Robot {
 		  dir.normalize();
 	  }
 
-	  Vector3f p = new Vector3f(0,0,0);
+	  Vector3d p = new Vector3d(0,0,0);
 //	  float zi=0;
 	  
 	  for(i=0;i<6;++i) {
@@ -1127,14 +1127,14 @@ extends Robot {
 	    leg.npoc.y+= dir.y * ( stride_length*dt );
 	    leg.npoc.z=0;
 
-	    Vector3f ptemp= new Vector3f(leg.ankle_joint.pos);
+	    Vector3d ptemp= new Vector3d(leg.ankle_joint.pos);
 	    if(leg.on_ground) {
 //	    	++zi;
 		} else ptemp.z=0;
 	    p.add(ptemp);
 	  }
 
-	  Vector3f t= new Vector3f(dir);
+	  Vector3d t= new Vector3d(dir);
 	  t.scale( stride_length*dt * move_body_scale / 6.0f );
 	  //*
 	  body.pos.add(t);
@@ -1149,18 +1149,18 @@ extends Robot {
 
 
 
-	void Update_Gait_Target_Goto(Vector3f destination,float dt,float move_body_scale) {
-		Vector3f dp = new Vector3f(destination);
+	void Update_Gait_Target_Goto(Vector3d destination,float dt,float move_body_scale) {
+		Vector3d dp = new Vector3d(destination);
 		dp.sub(body.pos);
-	  float turn_direction = dp.dot( body.left );
-	  float walk_direction = dp.dot( body.forward );
-	  float strafe_direction = dp.dot( body.left );
+	  double turn_direction = dp.dot( body.left );
+	  double walk_direction = dp.dot( body.forward );
+	  double strafe_direction = dp.dot( body.left );
 
 	  int i;
 
 	  for(i=0;i<6;++i) {
 	    SpideeLeg leg = legs[i];
-	    Vector3f ds = new Vector3f( leg.pan_joint.pos );
+	    Vector3d ds = new Vector3d( leg.pan_joint.pos );
 	    ds.sub( body.pos );
 	    ds.normalize();
 	    ds.scale(standing_radius);
@@ -1172,14 +1172,14 @@ extends Robot {
 	  // turn
 	  if( turn_direction != 0 ) {
 	    turn_direction= Math.max( Math.min( turn_direction, 180*dt ), -180*dt );
-	    float turn = (float)Math.toRadians(turn_direction * turn_stride_length) * dt * move_body_scale / 6.0f;
+	    double turn = Math.toRadians(turn_direction * turn_stride_length) * dt * move_body_scale / 6.0f;
 
-	    float c= (float)Math.cos( turn );
-	    float s= (float)Math.sin( turn );
+	    double c= Math.cos( turn );
+	    double s= Math.sin( turn );
 
 	    for(i=0;i<6;++i) {
 	      SpideeLeg leg = legs[i];
-	      Vector3f df = new Vector3f( leg.npoc );
+	      Vector3d df = new Vector3d( leg.npoc );
 	      df.sub( body.pos );
 	      df.z = 0;
 	      leg.npoc.x = df.x *  c + df.y * -s;
@@ -1187,7 +1187,7 @@ extends Robot {
 	      leg.npoc.add( body.pos );
 	    }
 
-	    Vector3f df = new Vector3f( body.forward );
+	    Vector3d df = new Vector3d( body.forward );
 	    df.z = 0;
 	    target.forward.x = df.x *  c + df.y * -s;
 	    target.forward.y = df.x *  s + df.y *  c;
@@ -1196,7 +1196,7 @@ extends Robot {
 	  }
 
 	  // translate
-	  Vector3f dir = new Vector3f(0,0,0);
+	  Vector3d dir = new Vector3d(0,0,0);
 
 	  if( walk_direction > 0 ) dir.add(body.forward);  // forward
 	  if( walk_direction < 0 ) dir.sub(body.forward);  // backward
@@ -1205,28 +1205,28 @@ extends Robot {
 
 	  dir.z=0;
 	  dir.normalize();
-	  Vector3f p = new Vector3f(0,0,0);
+	  Vector3d p = new Vector3d(0,0,0);
 	  float zi=0;
 
 	  for(i=0;i<6;++i) {
 	    SpideeLeg leg = legs[i];
-	    Vector3f t = new Vector3f(dir);
+	    Vector3d t = new Vector3d(dir);
 	    t.scale(stride_length*dt);
 	    leg.npoc.add(t);
 	    leg.npoc.z=0;
 
-	    Vector3f ptemp = new Vector3f(leg.ankle_joint.pos);
+	    Vector3d ptemp = new Vector3d(leg.ankle_joint.pos);
 	    if(leg.on_ground) ++zi;
 	    else ptemp.z=0;
 	    p.add(ptemp);
 	  }
 
 	  //body.pos += dir * ( stride_length*dt * move_body_scale / 6.0f );
-	  float z=p.z;
+	  double z=p.z;
 	  p.scale(1.0f/6.0f);
 	  if(zi>0) p.z=z/zi;
 
-	  Vector3f t = new Vector3f(body.up);
+	  Vector3d t = new Vector3d(body.up);
 	  t.scale(standing_height);
 	  body.pos.set(p);
 	  body.pos.add(t);
@@ -1241,14 +1241,14 @@ extends Robot {
 	}
 
 
-	void Update_Gait_Leg(int leg_index,float step,float dt) {
+	void Update_Gait_Leg(int leg_index,double step,double dt) {
 	  SpideeLeg leg=legs[leg_index];
-	  float step_adj = ( step <= 0.5f ) ? step : 1 - step;
-	  step_adj = (float)Math.sin( step_adj * Math.PI );
+	  double step_adj = ( step <= 0.5f ) ? step : 1 - step;
+	  step_adj = Math.sin( step_adj * Math.PI );
 
 	  // if we do nothing else, robot will march in place.
 
-	  Vector3f dp = new Vector3f( leg.npoc );
+	  Vector3d dp = new Vector3d( leg.npoc );
 	  dp.sub( leg.ankle_joint.pos );
 	  dp.z=0;
 	  dp.scale( step );
@@ -1259,12 +1259,12 @@ extends Robot {
 
 
 
-	void Ripple_Gait(float dt) {
+	void Ripple_Gait(double dt) {
 	  gait_cycle+=dt;
 
 	  Update_Gait_Target(dt,1.0f/6.0f);
 
-	  float step=( gait_cycle - (float)Math.floor( gait_cycle ) );
+	  double step=( gait_cycle - Math.floor( gait_cycle ) );
 	  int leg_to_move=( (int)Math.floor( gait_cycle ) % 6 );
 
 	  // put all feet down except the "active" leg(s).
@@ -1284,18 +1284,18 @@ extends Robot {
 	}
 
 
-	void Wave_Gait(float dt) {
+	void Wave_Gait(double dt) {
 	  gait_cycle+=dt;
 
 	  Update_Gait_Target(dt,2.0f/6.0f);
 
-	  float gc1=gait_cycle+0.5f;
-	  float gc2=gait_cycle;
+	  double gc1=gait_cycle+0.5f;
+	  double gc2=gait_cycle;
 
-	  float x1 = gc1 - (float)Math.floor( gc1 );
-	  float x2 = gc2 - (float)Math.floor( gc2 );
-	  float step1 = Math.max( 0, x1 );
-	  float step2 = Math.max( 0, x2 );
+	  double x1 = gc1 - Math.floor( gc1 );
+	  double x2 = gc2 - Math.floor( gc2 );
+	  double step1 = Math.max( 0, x1 );
+	  double step2 = Math.max( 0, x2 );
 	  int leg1 = (int)Math.floor( gc1 ) % 3;
 	  int leg2 = (int)Math.floor( gc2 ) % 3;
 
@@ -1336,12 +1336,12 @@ extends Robot {
 
 
 
-	void Tripod_Gait(float dt) {
+	void Tripod_Gait(double dt) {
 	  gait_cycle+=dt;
 
 	  Update_Gait_Target(dt,0.5f);
 
-	  float step=( gait_cycle - (float)Math.floor( gait_cycle ) );
+	  double step=( gait_cycle - Math.floor( gait_cycle ) );
 	  int leg_to_move=( (int)Math.floor( gait_cycle ) % 2 );
 
 	  // put all feet down except the "active" leg(s).
@@ -1362,10 +1362,10 @@ extends Robot {
 
 
 
-	void Move_Apply_Physics(float dt) {
+	void Move_Apply_Physics(double dt) {
 	  int i;
 
-	  //Vector3f gravity=new Vector3f(0,0,-0.00980f*dt);
+	  //Vector3d gravity=new Vector3d(0,0,-0.00980f*dt);
 	  //body.pos+=gravity;
 
 	  for(i=0;i<6;++i) {
@@ -1391,7 +1391,7 @@ extends Robot {
 
 
 
-	void Move_Apply_Constraints(float dt) {
+	void Move_Apply_Constraints(double dt) {
 	  int i;
 	  float scale=0.5f;
 
@@ -1407,9 +1407,9 @@ extends Robot {
 	    SpideeLeg leg=legs[i];
 	    // keep shoulders locked in relative position
 	    leg.pan_joint.pos.set( body.pos );
-	    Vector3f F=new Vector3f(body.forward);
-	    Vector3f L=new Vector3f(body.left);
-	    Vector3f U=new Vector3f(body.up);
+	    Vector3d F=new Vector3d(body.forward);
+	    Vector3d L=new Vector3d(body.left);
+	    Vector3d U=new Vector3d(body.up);
 	    F.scale(leg.pan_joint.relative.y);
 	    L.scale(leg.pan_joint.relative.x);
 	    U.scale(leg.pan_joint.relative.z);
@@ -1418,12 +1418,12 @@ extends Robot {
 	    leg.pan_joint.pos.add(U);
 	    
 	    // make sure feet can not come under the body or get too far from the shoulder
-	    Vector3f ds = new Vector3f( leg.pan_joint.pos );
+	    Vector3d ds = new Vector3d( leg.pan_joint.pos );
 	    ds.sub( body.pos );
-	    Vector3f df = new Vector3f( leg.ankle_joint.pos );
+	    Vector3d df = new Vector3d( leg.ankle_joint.pos );
 	    df.sub( body.pos );
-	    float dfl=( df.length() );
-	    float dsl=( ds.length() );
+	    double dfl=( df.length() );
+	    double dsl=( ds.length() );
 
 	    ds.z = 0;
 	    ds.normalize();
@@ -1459,9 +1459,9 @@ extends Robot {
 	    leg.tilt_joint.pos.add(df); 
 
 	    // zero the knee/foot distance
-	    Vector3f a = new Vector3f(leg.knee_joint.pos);
+	    Vector3d a = new Vector3d(leg.knee_joint.pos);
 	    a.sub(leg.ankle_joint.pos);
-	    float kf = a.length() - leg.ankle_joint.relative.length();
+	    double kf = a.length() - leg.ankle_joint.relative.length();
 	    if(Math.abs(kf)>0.001) {
 	      a.normalize();
 	      a.scale(kf*scale);
@@ -1479,7 +1479,7 @@ extends Robot {
 	    // zero the tilt/knee distance
 	    a.set( leg.knee_joint.pos );
 	    a.sub( leg.tilt_joint.pos );
-	    float kt = a.length() - leg.knee_joint.relative.length();
+	    double kt = a.length() - leg.knee_joint.relative.length();
 	    if(Math.abs(kt)>0.001) {
 	      a.normalize();
 	      a.scale(kt);
@@ -1492,7 +1492,7 @@ extends Robot {
 	    leg.tilt_joint.left.set( leg.pan_joint.left );
 	    a.set( leg.knee_joint.pos );
 	    a.sub( leg.tilt_joint.pos );
-	    Vector3f b = new Vector3f();
+	    Vector3d b = new Vector3d();
 	    b.cross( a, leg.tilt_joint.left );
 	    leg.tilt_joint.forward.set(a );
 	    leg.tilt_joint.forward.sub( b );
@@ -1517,37 +1517,37 @@ extends Robot {
 
 	void Move_Calculate_Angles() {
 	  int i,j;
-	  float x,y;
+	  double x,y;
 	  for(i=0;i<6;++i) {
 	    SpideeLeg leg=legs[i];
 
 	    // find the pan angle
-	    Vector3f sf= new Vector3f( leg.pan_joint.pos );
+	    Vector3d sf= new Vector3d( leg.pan_joint.pos );
 	    sf.sub( body.pos );
 	    sf.normalize();
-	    Vector3f sl=new Vector3f();
+	    Vector3d sl=new Vector3d();
 	    sl.cross( body.up, sf );
 
 	    x = leg.pan_joint.forward.dot(sf);
 	    y = leg.pan_joint.forward.dot(sl);
-	    float pan_angle = (float)Math.atan2( y, x );
+	    double pan_angle = Math.atan2( y, x );
 
 	    // find the tilt angle
 	    x = leg.tilt_joint.forward.dot(leg.pan_joint.forward);
 	    y = leg.tilt_joint.forward.dot(leg.pan_joint.up     );
-	    float tilt_angle = (float)Math.atan2( y, x );
+	    double tilt_angle = Math.atan2( y, x );
 
 	    // find the knee angle
 	    x = leg.knee_joint.forward.dot(leg.tilt_joint.forward);
 	    y = leg.knee_joint.forward.dot(leg.tilt_joint.up     );
-	    float knee_angle = (float)Math.atan2( y, x );
+	    double knee_angle = Math.atan2( y, x );
 
 	    // translate the angles into the servo range, 0...255 over 0...PI.
-	    final float scale = ( 255.0f / (float)Math.PI );
+	    final double scale = ( 255.0f / Math.PI );
 	    if( i < 3 ) pan_angle = -pan_angle;
-	    float p = leg.pan_joint .zero - pan_angle  * leg.pan_joint .scale * scale;
-	    float t = leg.tilt_joint.zero + tilt_angle * leg.tilt_joint.scale * scale;
-	    float k = leg.knee_joint.zero - knee_angle * leg.knee_joint.scale * scale;
+	    double p = leg.pan_joint .zero - pan_angle  * leg.pan_joint .scale * scale;
+	    double t = leg.tilt_joint.zero + tilt_angle * leg.tilt_joint.scale * scale;
+	    double k = leg.knee_joint.zero - knee_angle * leg.knee_joint.scale * scale;
 	    leg.pan_joint .angle = p;
 	    leg.tilt_joint.angle = t;
 	    leg.knee_joint.angle = k;

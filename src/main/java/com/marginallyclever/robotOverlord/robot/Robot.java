@@ -46,7 +46,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		ANIMATE_LOOP,
 	};
 	public AnimationBehavior animationBehavior;
-	public float animationSpeed;
+	public double animationSpeed;
 
 	// sending file to the robot
 	private boolean running;
@@ -422,11 +422,11 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	
 	@Override
-	public void prepareMove(float dt) {
+	public void prepareMove(double dt) {
 		animate(dt);
 	}
 	
-	protected void animate(float dt) {
+	protected void animate(double dt) {
 		keyframe_t+=dt*animationSpeed;
 		if(animationSpeed>0) {
 			if(keyframe_t>1) {
@@ -477,7 +477,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 
 
-	public float getAnimationSpeed() {
+	public double getAnimationSpeed() {
 		return animationSpeed;
 	}
 
@@ -485,7 +485,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * Adjust animation speed and disable GUI elements (when animation speed !=0)
 	 * @param animationSpeed
 	 */
-	public void setAnimationSpeed(float animationSpeed) {
+	public void setAnimationSpeed(double animationSpeed) {
 		this.animationSpeed = animationSpeed;
 		robotPanel.keyframeEditSetEnable(animationSpeed==0);
 	}

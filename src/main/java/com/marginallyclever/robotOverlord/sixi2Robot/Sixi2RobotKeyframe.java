@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.sixi2Robot;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
@@ -21,34 +21,34 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	private static final long serialVersionUID = 1012199745425607761L;
 	
 	// angle of rotation
-	float angle0;
-	float angle1;
-	float angle2;
-	float angle3;
-	float angle4;
-	float angle5;
-	float angleServo;
+	double angle0;
+	double angle1;
+	double angle2;
+	double angle3;
+	double angle4;
+	double angle5;
+	double angleServo;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
-	public Vector3f fingerPosition = new Vector3f();
-	public Vector3f fingerForward = new Vector3f();
-	public Vector3f fingerRight = new Vector3f();
+	public Vector3d fingerPosition = new Vector3d();
+	public Vector3d fingerForward = new Vector3d();
+	public Vector3d fingerRight = new Vector3d();
 	// finger rotation, in degrees
-	public float ikU=0;
-	public float ikV=0;
-	public float ikW=0;
+	public double ikU=0;
+	public double ikV=0;
+	public double ikW=0;
 	// joint locations relative to base
-	public Vector3f wrist = new Vector3f();
-	public Vector3f elbow = new Vector3f();
-	public Vector3f bicep = new Vector3f();
-	public Vector3f shoulder = new Vector3f();
-	public Vector3f base = new Vector3f();
+	public Vector3d wrist = new Vector3d();
+	public Vector3d elbow = new Vector3d();
+	public Vector3d bicep = new Vector3d();
+	public Vector3d shoulder = new Vector3d();
+	public Vector3d base = new Vector3d();
 	
-	public Vector3f anchorPosition = new Vector3f();  // relative to world
+	public Vector3d anchorPosition = new Vector3d();  // relative to world
 	// base orientation, affects entire arm
-	public Vector3f baseForward = new Vector3f();
-	public Vector3f baseUp = new Vector3f();
-	public Vector3f baseRight = new Vector3f();
+	public Vector3d baseForward = new Vector3d();
+	public Vector3d baseUp = new Vector3d();
+	public Vector3d baseRight = new Vector3d();
 	
 	// rotating entire robot
 	public double basePan=0;
@@ -109,7 +109,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	 * @param b The keyframe at t=1.
 	 * @param t {0..1}
 	 */
-	public void interpolate(RobotKeyframe arg0,RobotKeyframe arg1,float t) {
+	public void interpolate(RobotKeyframe arg0,RobotKeyframe arg1,double t) {
 		Sixi2RobotKeyframe a = (Sixi2RobotKeyframe)arg0;
 		Sixi2RobotKeyframe b = (Sixi2RobotKeyframe)arg1;
 		
@@ -146,7 +146,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		//forwardKinematics(false,null);
 	}
 	
-	public void rotateFinger(float u,float v,float w) {
+	public void rotateFinger(double u,double v,double w) {
 		// On a 3-axis robot when homed the forward axis of the finger tip is pointing downward.
 		// More complex arms start from the same assumption.
 		this.ikU=u;
@@ -154,8 +154,8 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		this.ikW=w;
 
 		// Rotating around itself has no effect, so just skip it
-		//Vector3f result = MathHelper.rotateAroundAxis(World.forward,World.forward,(float)Math.toRadians(motionFuture.ikU));
-		Vector3f result = new Vector3f(World.forward);
+		//Vector3d result = MathHelper.rotateAroundAxis(World.forward,World.forward,(float)Math.toRadians(motionFuture.ikU));
+		Vector3d result = new Vector3d(World.forward);
 
 		result = MathHelper.rotateAroundAxis(result     ,World.right  ,(float)Math.toRadians(this.ikV));
 		result = MathHelper.rotateAroundAxis(result     ,World.up     ,(float)Math.toRadians(this.ikW));
@@ -171,7 +171,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	 * visualize this keyframe
 	 */
 	public void render(GL2 gl2) {
-		Vector3f fingerUp = new Vector3f();
+		Vector3d fingerUp = new Vector3d();
 		fingerUp.cross(fingerRight,fingerForward);
 		MatrixHelper.drawMatrix(gl2,fingerPosition,fingerForward,fingerRight,fingerUp);
 		
@@ -209,32 +209,32 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		double angle5rad = Math.toRadians(-angle5);
 
 
-		Vector3f shoulderPosition = new Vector3f(0,0,(float)(Sixi2Robot.FLOOR_TO_SHOULDER));
-		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
-		Vector3f shoulderPlaneX = new Vector3f((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
-		Vector3f shoulderPlaneY = new Vector3f();
+		Vector3d shoulderPosition = new Vector3d(0,0,(float)(Sixi2Robot.FLOOR_TO_SHOULDER));
+		Vector3d shoulderPlaneZ = new Vector3d(0,0,1);
+		Vector3d shoulderPlaneX = new Vector3d((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
+		Vector3d shoulderPlaneY = new Vector3d();
 		shoulderPlaneY.cross(shoulderPlaneX, shoulderPlaneZ);
 		shoulderPlaneY.normalize();
 
 		// get rotation at bicep
-		Vector3f nvx = new Vector3f(shoulderPlaneX);	nvx.scale((float)Math.cos(angle1rad));
-		Vector3f nvz = new Vector3f(shoulderPlaneZ);	nvz.scale((float)Math.sin(angle1rad));
+		Vector3d nvx = new Vector3d(shoulderPlaneX);	nvx.scale((float)Math.cos(angle1rad));
+		Vector3d nvz = new Vector3d(shoulderPlaneZ);	nvz.scale((float)Math.sin(angle1rad));
 
-		Vector3f bicepPlaneY = new Vector3f(shoulderPlaneY);
-		Vector3f bicepPlaneZ = new Vector3f(nvx);
+		Vector3d bicepPlaneY = new Vector3d(shoulderPlaneY);
+		Vector3d bicepPlaneZ = new Vector3d(nvx);
 		bicepPlaneZ.add(nvz);
 		bicepPlaneZ.normalize();
-		Vector3f bicepPlaneX = new Vector3f();
+		Vector3d bicepPlaneX = new Vector3d();
 		bicepPlaneX.cross(bicepPlaneZ,bicepPlaneY);
 		bicepPlaneX.normalize();
 
 		// shoulder to elbow
-		Vector3f vx = new Vector3f(bicepPlaneX);	vx.scale((float)Sixi2Robot.SHOULDER_TO_ELBOW_Y);
-		Vector3f vz = new Vector3f(bicepPlaneZ);	vz.scale((float)Sixi2Robot.SHOULDER_TO_ELBOW_Z);
-		Vector3f shoulderToElbow = new Vector3f();
+		Vector3d vx = new Vector3d(bicepPlaneX);	vx.scale((float)Sixi2Robot.SHOULDER_TO_ELBOW_Y);
+		Vector3d vz = new Vector3d(bicepPlaneZ);	vz.scale((float)Sixi2Robot.SHOULDER_TO_ELBOW_Z);
+		Vector3d shoulderToElbow = new Vector3d();
 		shoulderToElbow.add(vx);
 		shoulderToElbow.add(vz);
-		Vector3f elbowPosition = new Vector3f(shoulderPosition);
+		Vector3d elbowPosition = new Vector3d(shoulderPosition);
 		elbowPosition.add(shoulderToElbow);
 
 		if(gl2!=null) {
@@ -260,18 +260,18 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		nvx.set(bicepPlaneZ);	nvx.scale((float)Math.cos(angle2rad));
 		nvz.set(bicepPlaneX);	nvz.scale((float)Math.sin(angle2rad));
 
-		Vector3f elbowPlaneY = new Vector3f(shoulderPlaneY);
-		Vector3f elbowPlaneZ = new Vector3f(nvx);
+		Vector3d elbowPlaneY = new Vector3d(shoulderPlaneY);
+		Vector3d elbowPlaneZ = new Vector3d(nvx);
 		elbowPlaneZ.add(nvz);
 		elbowPlaneZ.normalize();
-		Vector3f elbowPlaneX = new Vector3f();
+		Vector3d elbowPlaneX = new Vector3d();
 		elbowPlaneX.cross(elbowPlaneZ,elbowPlaneY);
 		elbowPlaneX.normalize();
 
 		// get elbow to ulna
 		vx.set(elbowPlaneX);	vx.scale((float)Sixi2Robot.ELBOW_TO_ULNA_Y);
 		vz.set(elbowPlaneZ);	vz.scale((float)Sixi2Robot.ELBOW_TO_ULNA_Z);
-		Vector3f ulnaPosition = new Vector3f(elbowPosition);
+		Vector3d ulnaPosition = new Vector3d(elbowPosition);
 		ulnaPosition.add(vx);
 		ulnaPosition.add(vz);
 
@@ -289,49 +289,49 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		}
 
 		// get matrix of ulna rotation
-		Vector3f ulnaPlaneZ = new Vector3f(elbowPlaneX);
-		Vector3f ulnaPlaneX = new Vector3f();
+		Vector3d ulnaPlaneZ = new Vector3d(elbowPlaneX);
+		Vector3d ulnaPlaneX = new Vector3d();
 		vx.set(elbowPlaneZ);	vx.scale((float)Math.cos(angle3rad));
 		vz.set(elbowPlaneY);	vz.scale((float)Math.sin(angle3rad));
 		ulnaPlaneX.add(vx);
 		ulnaPlaneX.add(vz);
 		ulnaPlaneX.normalize();
-		Vector3f ulnaPlaneY = new Vector3f();
+		Vector3d ulnaPlaneY = new Vector3d();
 		ulnaPlaneY.cross(ulnaPlaneX, ulnaPlaneZ);
 		ulnaPlaneY.normalize();
 
-		Vector3f ulnaToWrist = new Vector3f(ulnaPlaneZ);
+		Vector3d ulnaToWrist = new Vector3d(ulnaPlaneZ);
 		ulnaToWrist.scale((float)Sixi2Robot.ULNA_TO_WRIST_Y);
-		Vector3f wristPosition = new Vector3f(ulnaPosition);
+		Vector3d wristPosition = new Vector3d(ulnaPosition);
 		wristPosition.add(ulnaToWrist);
 
 		// wrist to finger
 		vx.set(ulnaPlaneZ);		vx.scale((float)Math.cos(angle4rad));
 		vz.set(ulnaPlaneX);		vz.scale((float)Math.sin(angle4rad));
-		Vector3f wristToFingerNormalized = new Vector3f();
+		Vector3d wristToFingerNormalized = new Vector3d();
 		wristToFingerNormalized.add(vx);
 		wristToFingerNormalized.add(vz);
 		wristToFingerNormalized.normalize();
-		Vector3f wristToFinger = new Vector3f(wristToFingerNormalized);
+		Vector3d wristToFinger = new Vector3d(wristToFingerNormalized);
 		wristToFinger.scale((float)Sixi2Robot.WRIST_TO_TOOL_Z);
 		
-		Vector3f wristPlaneY = new Vector3f(ulnaPlaneX);
-		Vector3f wristPlaneZ = new Vector3f(wristToFingerNormalized);
-		Vector3f wristPlaneX = new Vector3f();
+		Vector3d wristPlaneY = new Vector3d(ulnaPlaneX);
+		Vector3d wristPlaneZ = new Vector3d(wristToFingerNormalized);
+		Vector3d wristPlaneX = new Vector3d();
 		wristPlaneX.cross(wristPlaneY,wristPlaneZ);
 		wristPlaneX.normalize();
 
 		// finger rotation
-		Vector3f fingerPlaneY = new Vector3f();
-		Vector3f fingerPlaneZ = new Vector3f(wristPlaneZ);
-		Vector3f fingerPlaneX = new Vector3f();
+		Vector3d fingerPlaneY = new Vector3d();
+		Vector3d fingerPlaneZ = new Vector3d(wristPlaneZ);
+		Vector3d fingerPlaneX = new Vector3d();
 		vx.set(wristPlaneX);	vx.scale((float)Math.cos(angle5rad));
 		vz.set(wristPlaneY);	vz.scale((float)Math.sin(angle5rad));
 		fingerPlaneX.add(vx);
 		fingerPlaneX.add(vz);
 		fingerPlaneX.normalize();
 		fingerPlaneY.cross(fingerPlaneZ, fingerPlaneX);
-		Vector3f fingerPositionNew = new Vector3f(wristPosition);
+		Vector3d fingerPositionNew = new Vector3d(wristPosition);
 		fingerPositionNew.add(wristToFinger);
 
 		// find the UVW rotations for the finger direction
@@ -339,9 +339,9 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// since we roll U, then V, then W... we have to solve backwards.  First find W, then V, then U.
 		
 		// Project fingerPlaneZ onto the XY plane (newForward) and find the rotation around World.up
-		Vector3f newForward = new Vector3f(fingerPlaneZ);
-		Vector3f newRight = new Vector3f(fingerPlaneY);
-		float lenW;
+		Vector3d newForward = new Vector3d(fingerPlaneZ);
+		Vector3d newRight = new Vector3d(fingerPlaneY);
+		double lenW;
 		double ikUnew=ikU;
 		double ikVnew=ikV;
 		double ikWnew=ikW;
@@ -350,9 +350,9 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		if(Math.abs(lenW)>1-MathHelper.EPSILON) {
 			// TODO special case straight along the axis, one way or the other.
 		} else {
-			Vector3f planeOffsetW = new Vector3f(World.up);
+			Vector3d planeOffsetW = new Vector3d(World.up);
 			planeOffsetW.scale(lenW);
-			Vector3f projectedForward = new Vector3f(newForward);
+			Vector3d projectedForward = new Vector3d(newForward);
 			projectedForward.sub(planeOffsetW);
 			projectedForward.normalize();
 
@@ -372,9 +372,9 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		if(Math.abs(lenW)>1-MathHelper.EPSILON) {
 			// TODO special case straight along the axis, one way or the other.
 		} else {
-			Vector3f planeOffsetW = new Vector3f(World.right);
+			Vector3d planeOffsetW = new Vector3d(World.right);
 			planeOffsetW.scale(lenW);
-			Vector3f projectedForward = new Vector3f(newForward);
+			Vector3d projectedForward = new Vector3d(newForward);
 			projectedForward.sub(planeOffsetW);
 			projectedForward.normalize();
 
@@ -390,7 +390,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		}
 		
 		// now repeat, solving for U.  Since newForward started pointing along World.forward, it's probably going to say 1.
-		Vector3f projectedForward = new Vector3f(newRight);
+		Vector3d projectedForward = new Vector3d(newRight);
 		projectedForward.normalize();
 
 		double dotX = World.right.dot(projectedForward); 
@@ -458,62 +458,62 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 	 */
 	public boolean inverseKinematics(boolean renderMode,GL2 gl2) {
 		double ee;
-		float xx, yy, angle0new,angle1new,angle2new,angle3new,angle4new,angle5new;
+		double xx, yy, angle0new,angle1new,angle2new,angle3new,angle4new,angle5new;
 		
 		// rotation at finger, bend at picasso box, rotation of tuning fork, then bends down to base.
 		// get the finger position
-		Vector3f fingerPlaneZ = new Vector3f(fingerForward);
-		Vector3f fingerPlaneX = new Vector3f(fingerRight);
-		Vector3f fingerPlaneY = new Vector3f();
+		Vector3d fingerPlaneZ = new Vector3d(fingerForward);
+		Vector3d fingerPlaneX = new Vector3d(fingerRight);
+		Vector3d fingerPlaneY = new Vector3d();
 		fingerPlaneY.cross(fingerPlaneZ, fingerPlaneX);
 
 		// find the wrist position
-		Vector3f wristToFinger = new Vector3f(fingerPlaneZ);
+		Vector3d wristToFinger = new Vector3d(fingerPlaneZ);
 		wristToFinger.scale((float)Sixi2Robot.WRIST_TO_TOOL_Z);
-		Vector3f wristPosition = new Vector3f(fingerPosition);
+		Vector3d wristPosition = new Vector3d(fingerPosition);
 		wristPosition.sub(wristToFinger);
 
 		// figure out the shoulder matrix
-		Vector3f shoulderPosition = new Vector3f(0,0,(float)(Sixi2Robot.FLOOR_TO_SHOULDER));
+		Vector3d shoulderPosition = new Vector3d(0,0,(float)(Sixi2Robot.FLOOR_TO_SHOULDER));
 		
 		if(Math.abs(wristPosition.x)<MathHelper.EPSILON && Math.abs(wristPosition.y)<MathHelper.EPSILON) {
 			// Wrist is directly above shoulder, makes calculations hard.
 			// TODO figure this out.  Use previous state to guess elbow?
 			return false;
 		}
-		Vector3f shoulderPlaneX = new Vector3f(wristPosition.x,wristPosition.y,0);
+		Vector3d shoulderPlaneX = new Vector3d(wristPosition.x,wristPosition.y,0);
 		shoulderPlaneX.normalize();
-		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
-		Vector3f shoulderPlaneY = new Vector3f();
+		Vector3d shoulderPlaneZ = new Vector3d(0,0,1);
+		Vector3d shoulderPlaneY = new Vector3d();
 		shoulderPlaneY.cross(shoulderPlaneX, shoulderPlaneZ);
 		shoulderPlaneY.normalize();
 
 		// Find elbow by using intersection of circles (http://mathworld.wolfram.com/Circle-CircleIntersection.html)
 		// x = (dd-rr+RR) / (2d)
-		Vector3f shoulderToWrist = new Vector3f(wristPosition);
+		Vector3d shoulderToWrist = new Vector3d(wristPosition);
 		shoulderToWrist.sub(shoulderPosition);
-		float d = shoulderToWrist.length();
-		float R = (float)Math.abs(Sixi2Robot.SHOULDER_TO_ELBOW);
-		float r = (float)Math.abs(Sixi2Robot.ELBOW_TO_WRIST);
+		double d = shoulderToWrist.length();
+		double R = Math.abs(Sixi2Robot.SHOULDER_TO_ELBOW);
+		double r = Math.abs(Sixi2Robot.ELBOW_TO_WRIST);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
 		}
-		float x = (d*d - r*r + R*R ) / (2*d);
+		double x = (d*d - r*r + R*R ) / (2*d);
 		if( x > R ) {
 			// would cause sqrt(-something)
 			return false;
 		}
 		shoulderToWrist.normalize();
 		
-		Vector3f elbowMidpoint = new Vector3f(shoulderToWrist);
+		Vector3d elbowMidpoint = new Vector3d(shoulderToWrist);
 		elbowMidpoint.scale(x);
 		elbowMidpoint.add(shoulderPosition);
 
-		Vector3f v1 = new Vector3f();
-		float a = (float)( Math.sqrt( R*R - x*x ) );
+		Vector3d v1 = new Vector3d();
+		double a = Math.sqrt( R*R - x*x );
 		v1.cross(shoulderPlaneY, shoulderToWrist);
-		Vector3f v1neg = new Vector3f(v1);
+		Vector3d v1neg = new Vector3d(v1);
 		// find both possible intersections of circles
 		v1.scale(a);
 		v1neg.scale(-a);
@@ -536,7 +536,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 			gl2.glEnd();
 		}
 
-		Vector3f elbowPosition = new Vector3f();
+		Vector3d elbowPosition = new Vector3d();
 		{
 			if(v1.z<shoulderPosition.z) {
 				elbowPosition.set(v1neg);
@@ -548,11 +548,11 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 				elbowPosition.set(v1neg);
 				/*
 				// the closer of the two circles to the previous elbow position is probably the more desirable of the two.
-				Vector3f test1 = new Vector3f(elbow);
+				Vector3d test1 = new Vector3d(elbow);
 				test1.sub(v1);
 				float test1LenSquared = test1.lengthSquared();
 	
-				Vector3f test1neg = new Vector3f(elbow);
+				Vector3d test1neg = new Vector3d(elbow);
 				test1neg.sub(v1neg);
 				float test1negLenSquared = test1neg.lengthSquared();
 				
@@ -576,14 +576,14 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		double aa=Math.atan(Math.abs(Sixi2Robot.ELBOW_TO_WRIST_Y/Sixi2Robot.ELBOW_TO_WRIST_Z));
 		//double bb=(Math.PI/2)-aa;
 		
-		Vector3f shoulderToElbow = new Vector3f(elbowPosition);
+		Vector3d shoulderToElbow = new Vector3d(elbowPosition);
 		shoulderToElbow.sub(shoulderPosition);
-		Vector3f bicepPlaneZ = new Vector3f(shoulderToElbow);
+		Vector3d bicepPlaneZ = new Vector3d(shoulderToElbow);
 		bicepPlaneZ.normalize();
 
 		if(gl2!=null) MatrixHelper.drawMatrix2(gl2,shoulderPosition,shoulderPlaneX,shoulderPlaneY,shoulderPlaneZ);
 		
-		Vector3f elbowToWrist = new Vector3f(wristPosition);
+		Vector3d elbowToWrist = new Vector3d(wristPosition);
 		elbowToWrist.sub(elbowPosition);
 		elbowToWrist.normalize();
 
@@ -598,7 +598,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		if( angle0new <-270 ) angle0new += 360;
 		
 		// bicep
-		xx = (float)shoulderToElbow.z;
+		xx = shoulderToElbow.z;
 		yy = shoulderPlaneX.dot(shoulderToElbow);
 		ee = Math.atan2(yy, xx);
 		angle1new = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee));
@@ -606,8 +606,8 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		if( angle1new > 270 ) angle1new -= 360;
 		if( angle1new <-270 ) angle1new += 360;
 
-		Vector3f bicepPlaneX = new Vector3f();
-		Vector3f bicepPlaneY = new Vector3f(shoulderPlaneY);
+		Vector3d bicepPlaneX = new Vector3d();
+		Vector3d bicepPlaneY = new Vector3d(shoulderPlaneY);
 		bicepPlaneX.cross(bicepPlaneZ,bicepPlaneY);
 
 		if(gl2!=null) MatrixHelper.drawMatrix2(gl2,elbowPosition,bicepPlaneX,bicepPlaneY,bicepPlaneZ);
@@ -624,14 +624,14 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 
 		// the same code that was used in forward kinematics
 		// get the matrix at the elbow
-		Vector3f nvx = new Vector3f(bicepPlaneX);	nvx.scale((float)Math.cos(angle2rad));
-		Vector3f nvz = new Vector3f(bicepPlaneZ);	nvz.scale((float)Math.sin(angle2rad));
-		Vector3f elbowPlaneX = new Vector3f(nvx);
+		Vector3d nvx = new Vector3d(bicepPlaneX);	nvx.scale((float)Math.cos(angle2rad));
+		Vector3d nvz = new Vector3d(bicepPlaneZ);	nvz.scale((float)Math.sin(angle2rad));
+		Vector3d elbowPlaneX = new Vector3d(nvx);
 		elbowPlaneX.add(nvz);
 		elbowPlaneX.normalize();
 
-		Vector3f elbowPlaneZ = new Vector3f();
-		Vector3f elbowPlaneY = new Vector3f(bicepPlaneY);
+		Vector3d elbowPlaneZ = new Vector3d();
+		Vector3d elbowPlaneY = new Vector3d(bicepPlaneY);
 		elbowPlaneZ.cross(elbowPlaneY,elbowPlaneX);
 		
 		if(gl2!=null) MatrixHelper.drawMatrix2(gl2,elbowPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ);
@@ -639,26 +639,26 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// get elbow to ulna
 		nvx.set(elbowPlaneX);	nvx.scale(-(float)Sixi2Robot.ELBOW_TO_ULNA_Y);
 		nvz.set(elbowPlaneZ);	nvz.scale((float)Sixi2Robot.ELBOW_TO_ULNA_Z);
-		Vector3f mid = new Vector3f(elbowPosition);
+		Vector3d mid = new Vector3d(elbowPosition);
 		mid.add(nvz);
-		Vector3f ulnaPosition = new Vector3f(mid);
+		Vector3d ulnaPosition = new Vector3d(mid);
 		ulnaPosition.add(nvx);
 
 		//if(gl2!=null) MatrixHelper.drawMatrix2(gl2,ulnaPosition,elbowPlaneX,elbowPlaneY,elbowPlaneZ,20);
 
 		v1.cross(elbowToWrist,shoulderPlaneY);
 		v1.normalize(); 
-		Vector3f v2 = new Vector3f();
+		Vector3d v2 = new Vector3d();
 		v2.cross(shoulderPlaneY,v1);
 		v2.normalize();  // normalized version of elbowToWrist 
 		
 		// ulna matrix
-		Vector3f ulnaPlaneX = new Vector3f(elbowPlaneX);
-		Vector3f ulnaPlaneY = new Vector3f();
-		Vector3f ulnaPlaneZ = new Vector3f();
+		Vector3d ulnaPlaneX = new Vector3d(elbowPlaneX);
+		Vector3d ulnaPlaneY = new Vector3d();
+		Vector3d ulnaPlaneZ = new Vector3d();
 		
 		// I have wristToFinger.  I need wristToFinger projected on the plane elbow-space XY to calculate the angle. 
-		float tf = elbowPlaneZ.dot(fingerForward);
+		double tf = elbowPlaneZ.dot(fingerForward);
 		// v0 and fingerForward are normal length.  if they dot to nearly 1, they are colinear.
 		// if they are colinear then I have no reference to calculate the angle of the ulna rotation.
 		if(tf>=1-MathHelper.EPSILON) {
@@ -666,7 +666,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		}
 
 		tf = elbowPlaneX.dot(wristToFinger);
-		Vector3f projectionAmount = new Vector3f(elbowPlaneX);
+		Vector3d projectionAmount = new Vector3d(elbowPlaneX);
 		projectionAmount.scale(tf);
 		ulnaPlaneZ.set(wristToFinger);
 		ulnaPlaneZ.sub(projectionAmount);
@@ -680,9 +680,9 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		// Compare projected vector to previous frame's projected vector. if the direction is reversed, flip it. 
 
 		// wrist matrix
-		Vector3f wristPlaneZ = new Vector3f(wristToFinger);
-		Vector3f wristPlaneX = new Vector3f(ulnaPlaneY);
-		Vector3f wristPlaneY = new Vector3f();
+		Vector3d wristPlaneZ = new Vector3d(wristToFinger);
+		Vector3d wristPlaneX = new Vector3d(ulnaPlaneY);
+		Vector3d wristPlaneY = new Vector3d();
 		wristPlaneZ.normalize();
 		wristPlaneX.normalize();
 		wristPlaneY.cross(wristPlaneZ,wristPlaneX);
@@ -704,8 +704,8 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 		if(angle3a<-180) angle3a+=360;
 		if(angle3b> 180) angle3b-=360;
 		if(angle3b<-180) angle3b+=360;
-		float ada = Math.abs(angle3a - angle3);
-		float adb = Math.abs(angle3b - angle3);
+		double ada = Math.abs(angle3a - angle3);
+		double adb = Math.abs(angle3b - angle3);
 		boolean flipWrist = false;
 		if( ada < adb ) {
 			angle3new = angle3a;
@@ -769,7 +769,7 @@ class Sixi2RobotKeyframe implements RobotKeyframe {
 			System.out.print(angle4+"/"+angle4+"\t");
 			System.out.print(angle5+"/"+angle5+"\n");
 			//*/
-			base = new Vector3f(0,0,0);
+			base = new Vector3d(0,0,0);
 			shoulder.set(shoulderPosition);
 			elbow.set(elbowPosition);
 			wrist.set(wristPosition);

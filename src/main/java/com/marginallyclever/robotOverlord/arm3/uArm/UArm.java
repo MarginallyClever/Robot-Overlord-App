@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.arm3.uArm;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.arm3.Arm3;
@@ -60,8 +60,8 @@ public class UArm extends Arm3 {
 		super.render(gl2);
 		
 		gl2.glPushMatrix();
-		Vector3f p = this.getPosition();
-		gl2.glTranslatef(p.x,p.y,p.z);
+		Vector3d p = this.getPosition();
+		gl2.glTranslated(p.x,p.y,p.z);
 
 		// draw models
 		material.setDiffuseColor(0.75f*247.0f/255.0f,
@@ -73,26 +73,26 @@ public class UArm extends Arm3 {
 		base.render(gl2);
 		
 		// shoulder
-		gl2.glRotatef(this.motionNow.angleBase, 0,0,1);
+		gl2.glRotated(this.motionNow.angleBase, 0,0,1);
 		gl2.glPushMatrix();
-		gl2.glRotatef(-90, 1,0,0);
+		gl2.glRotated(-90, 1,0,0);
 		gl2.glTranslated(-8.05, -5.325, 2.75);
 		shoulder.render(gl2);
 		gl2.glPopMatrix();
 
 		// bicep
 		gl2.glPushMatrix();
-		gl2.glRotatef(-90, 1,0,0);
+		gl2.glRotated(-90, 1,0,0);
 		gl2.glTranslated(2.1,-7.9,2.0);
-		gl2.glRotatef(-90+this.motionNow.angleShoulder, 0, 0, 1);
+		gl2.glRotated(-90+this.motionNow.angleShoulder, 0, 0, 1);
 		bicep.render(gl2);
 		gl2.glPopMatrix();
 
 		// elbow motor
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
+		gl2.glRotated(90, 1,0,0);
 		gl2.glTranslated(2.1,7.9,2.0);
-		gl2.glRotatef(this.motionNow.angleElbow-90, 0, 0, 1);
+		gl2.glRotated(this.motionNow.angleElbow-90, 0, 0, 1);
 		elbowHorn.render(gl2);
 		gl2.glPopMatrix();
 
@@ -106,16 +106,16 @@ public class UArm extends Arm3 {
 		foreY = 7.9f + fc*14.75f;
 		foreZ = -0.850f;
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
-		gl2.glRotatef(180, 0,1,0);
+		gl2.glRotated(90, 1,0,0);
+		gl2.glRotated(180, 0,1,0);
 		gl2.glTranslated(foreX,foreY,foreZ);
-		gl2.glRotatef(180-this.motionNow.angleElbow, 0, 0, 1);
+		gl2.glRotated(180-this.motionNow.angleElbow, 0, 0, 1);
 		forearm.render(gl2);
 		gl2.glPopMatrix();
 
 		// elbow
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
+		gl2.glRotated(90, 1,0,0);
 		fs = (float)Math.sin(-r);
 		fc = (float)Math.cos(-r);
 		foreX = -2.1f + fs*14.75f;
@@ -125,14 +125,14 @@ public class UArm extends Arm3 {
 				foreY,
 				foreZ);
 		gl2.glTranslated(4.2, 2.4, -1.53);
-		gl2.glRotatef(180, 0, 0, 1);
+		gl2.glRotated(180, 0, 0, 1);
 		elbow.render(gl2);
 		gl2.glPopMatrix();
 		
 		
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
-		gl2.glRotatef(180, 0,1,0);
+		gl2.glRotated(90, 1,0,0);
+		gl2.glRotated(180, 0,1,0);
 		fs = (float)Math.sin(r);
 		fc = (float)Math.cos(r);
 		foreX = -2.1f + fs*14.75f;
@@ -152,7 +152,7 @@ public class UArm extends Arm3 {
 		gl2.glPopMatrix();
 		
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
+		gl2.glRotated(90, 1,0,0);
 		r = Math.toRadians(90-this.motionNow.angleElbow);
 		fs = (float)Math.sin(r);
 		fc = (float)Math.cos(r);
@@ -162,19 +162,19 @@ public class UArm extends Arm3 {
 		gl2.glTranslated(foreX,
 				foreY,
 				foreZ);
-		gl2.glRotatef(-180-this.motionNow.angleShoulder, 0,0,1);
+		gl2.glRotated(-180-this.motionNow.angleShoulder, 0,0,1);
 		forearmTendon.render(gl2);
 		gl2.glPopMatrix();
 		
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
+		gl2.glRotated(90, 1,0,0);
 		gl2.glTranslated(-1.34,10.275,-3.15);
-		gl2.glRotatef(-180-this.motionNow.angleShoulder, 0,0,1);
+		gl2.glRotated(-180-this.motionNow.angleShoulder, 0,0,1);
 		wristTendon1.render(gl2);
 		gl2.glPopMatrix();
 		
 		gl2.glPushMatrix();
-		gl2.glRotatef(90, 1,0,0);
+		gl2.glRotated(90, 1,0,0);
 		r = Math.toRadians(90+this.motionNow.angleShoulder);
 		fs = (float)Math.sin(r);
 		fc = (float)Math.cos(r);
@@ -184,7 +184,7 @@ public class UArm extends Arm3 {
 		gl2.glTranslated(foreX,
 				foreY,
 				foreZ);
-		gl2.glRotatef(+this.motionNow.angleElbow, 0,0,1);
+		gl2.glRotated(+this.motionNow.angleElbow, 0,0,1);
 		wristTendon2.render(gl2);
 		gl2.glPopMatrix();
 		

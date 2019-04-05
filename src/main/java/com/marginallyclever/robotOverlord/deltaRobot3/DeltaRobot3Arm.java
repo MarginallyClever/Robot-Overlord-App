@@ -1,14 +1,14 @@
 package com.marginallyclever.robotOverlord.deltaRobot3;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 public class DeltaRobot3Arm {
-	Vector3f shoulder = new Vector3f();
-	Vector3f elbow = new Vector3f();
-	Vector3f shoulderToElbow = new Vector3f();
-	Vector3f wrist = new Vector3f();
+	Vector3d shoulder = new Vector3d();
+	Vector3d elbow = new Vector3d();
+	Vector3d shoulderToElbow = new Vector3d();
+	Vector3d wrist = new Vector3d();
 
-	float angle=0;
+	double angle=0;
 
 
 	public void set(DeltaRobot3Arm other) {

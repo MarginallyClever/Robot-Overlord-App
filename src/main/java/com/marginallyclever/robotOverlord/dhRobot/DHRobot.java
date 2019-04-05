@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -98,8 +98,8 @@ public abstract class DHRobot extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		gl2.glPushMatrix();
-			Vector3f position = this.getPosition();
-			gl2.glTranslatef(position.x, position.y, position.z);
+			Vector3d position = this.getPosition();
+			gl2.glTranslated(position.x, position.y, position.z);
 			
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
@@ -110,10 +110,10 @@ public abstract class DHRobot extends Robot {
 			gl2.glPopMatrix();
 			
 			MatrixHelper.drawMatrix(gl2, 
-					new Vector3f((float)endMatrix.m03,(float)endMatrix.m13,(float)endMatrix.m23),
-					new Vector3f((float)endMatrix.m00,(float)endMatrix.m10,(float)endMatrix.m20),
-					new Vector3f((float)endMatrix.m01,(float)endMatrix.m11,(float)endMatrix.m21),
-					new Vector3f((float)endMatrix.m02,(float)endMatrix.m12,(float)endMatrix.m22)
+					new Vector3d((float)endMatrix.m03,(float)endMatrix.m13,(float)endMatrix.m23),
+					new Vector3d((float)endMatrix.m00,(float)endMatrix.m10,(float)endMatrix.m20),
+					new Vector3d((float)endMatrix.m01,(float)endMatrix.m11,(float)endMatrix.m21),
+					new Vector3d((float)endMatrix.m02,(float)endMatrix.m12,(float)endMatrix.m22)
 					);
 
 		gl2.glPopMatrix();
@@ -161,7 +161,7 @@ public abstract class DHRobot extends Robot {
 	 * @param pos the new world position for the local origin of the robot.
 	 */
 	@Override
-	public void setPosition(Vector3f pos) {
+	public void setPosition(Vector3d pos) {
 		super.setPosition(pos);
 		refreshPose();
 		if(panel!=null) panel.updateEnd();

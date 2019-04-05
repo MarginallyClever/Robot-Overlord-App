@@ -1,10 +1,12 @@
 package com.marginallyclever.robotOverlord.sixi2Robot;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.sixi2Robot.tool.*;
@@ -191,11 +193,11 @@ public class Sixi2Robot extends Robot {
 			picassoBoxModel = ModelFactory.createModelFromFilename("/Sixi2/picassoBox.stl",0.1f);
 			handModel       = ModelFactory.createModelFromFilename("/Sixi2/hand.stl",0.1f);
 			
-			bicepModel  	.adjustOrigin(new Vector3f(-1.82f, 9, 0));
-			forearmModel	.adjustOrigin(new Vector3f(0, (float)ELBOW_TO_WRIST_Z, (float)ELBOW_TO_WRIST_Y));
-			tuningForkModel	.adjustOrigin(new Vector3f(0, 0, 0));
-			picassoBoxModel	.adjustOrigin(new Vector3f(0, 0, 0));
-			handModel		.adjustOrigin(new Vector3f(0, 0, 0));
+			bicepModel  	.adjustOrigin(new Vector3d(-1.82, 9, 0));
+			forearmModel	.adjustOrigin(new Vector3d(0, ELBOW_TO_WRIST_Z, ELBOW_TO_WRIST_Y));
+			tuningForkModel	.adjustOrigin(new Vector3d(0, 0, 0));
+			picassoBoxModel	.adjustOrigin(new Vector3d(0, 0, 0));
+			handModel		.adjustOrigin(new Vector3d(0, 0, 0));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -382,12 +384,6 @@ public class Sixi2Robot extends Robot {
 			motionFuture.set(motionNow);
 		}
 	}
-
-	protected float roundOff(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
 	
 	public void updateGUI() {
 		//armPanel.updateFKPanel();
@@ -399,21 +395,21 @@ public class Sixi2Robot extends Robot {
 		if(!isPortConfirmed) return;
 		
 		String str="";
-		if(motionFuture.angle0!=motionNow.angle0) str+=" X"+roundOff(motionFuture.angle0);
-		if(motionFuture.angle1!=motionNow.angle1) str+=" Y"+roundOff(motionFuture.angle1);
-		if(motionFuture.angle2!=motionNow.angle2) str+=" Z"+roundOff(motionFuture.angle2);
-		if(motionFuture.angle3!=motionNow.angle3) str+=" U"+roundOff(motionFuture.angle3);
-		if(motionFuture.angle4!=motionNow.angle4) str+=" V"+roundOff(motionFuture.angle4);
-		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+roundOff(motionFuture.angle5);
+		if(motionFuture.angle0!=motionNow.angle0) str+=" X"+MathHelper.roundOff3(motionFuture.angle0);
+		if(motionFuture.angle1!=motionNow.angle1) str+=" Y"+MathHelper.roundOff3(motionFuture.angle1);
+		if(motionFuture.angle2!=motionNow.angle2) str+=" Z"+MathHelper.roundOff3(motionFuture.angle2);
+		if(motionFuture.angle3!=motionNow.angle3) str+=" U"+MathHelper.roundOff3(motionFuture.angle3);
+		if(motionFuture.angle4!=motionNow.angle4) str+=" V"+MathHelper.roundOff3(motionFuture.angle4);
+		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+MathHelper.roundOff3(motionFuture.angle5);
 		if(str.length()>0) {
-			str+=" F"+roundOff((float)feedRate) + " A"+roundOff((float)acceleration);
+			str+=" F"+MathHelper.roundOff3((float)feedRate) + " A"+MathHelper.roundOff3((float)acceleration);
 			System.out.println(str);
 			this.sendLineToRobot("G0"+str);
 		}
 	}
 	
 	@Override
-	public void prepareMove(float delta) {
+	public void prepareMove(double delta) {
 		super.prepareMove(delta);
 		
 		if(getAnimationSpeed()!=0) 
@@ -506,8 +502,8 @@ public class Sixi2Robot extends Robot {
 		
 		gl2.glPushMatrix();
 			// TODO rotate model
-			Vector3f p = getPosition();
-			gl2.glTranslatef(p.x, p.y, p.z);
+			Vector3d p = getPosition();
+			gl2.glTranslated(p.x, p.y, p.z);
 
 			//gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
 			
@@ -603,18 +599,6 @@ public class Sixi2Robot extends Robot {
 	protected void drawBounds(GL2 gl2) {
 		throw new UnsupportedOperationException();
 	}
-	
-	private double parseNumber(String str) {
-		float f=0;
-		try {
-			f = Float.parseFloat(str);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return f;
-	}
 
 	public void setModeAbsolute() {
 		if(connection!=null) this.sendLineToRobot("G90");
@@ -658,40 +642,40 @@ public class Sixi2Robot extends Robot {
 					if(items.length>=5) {
 						for(int i=0;i<items.length;++i) {
 							if(items[i].startsWith("X")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle1 != v) {
 									motionFuture.angle1 = v;
-									armPanel.angle1.setText(Float.toString(roundOff(v)));
+									armPanel.angle1.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("Y")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle2 != v) {
 									motionFuture.angle2 = v;
-									armPanel.angle2.setText(Float.toString(roundOff(v)));
+									armPanel.angle2.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("Z")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle3 != v) {
 									motionFuture.angle3 = v;
-									armPanel.angle3.setText(Float.toString(roundOff(v)));
+									armPanel.angle3.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("U")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle3 != v) {
 									motionFuture.angle3 = v;
-									armPanel.angle3.setText(Float.toString(roundOff(v)));
+									armPanel.angle3.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("V")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle4 != v) {
 									motionFuture.angle4 = v;
-									armPanel.angle4.setText(Float.toString(roundOff(v)));
+									armPanel.angle4.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("W")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle5 != v) {
 									motionFuture.angle5 = v;
-									armPanel.angle5.setText(Float.toString(roundOff(v)));
+									armPanel.angle5.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							}
 						}
@@ -709,7 +693,7 @@ public class Sixi2Robot extends Robot {
 		}
 	}
 
-	public void moveBase(Vector3f dp) {
+	public void moveBase(Vector3d dp) {
 		motionFuture.anchorPosition.set(dp);
 	}
 	
@@ -735,10 +719,10 @@ public class Sixi2Robot extends Robot {
 	
 	public BoundingVolume [] getBoundingVolumes() {
 		// shoulder joint
-		Vector3f t1=new Vector3f(motionFuture.baseRight);
+		Vector3d t1=new Vector3d(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.shoulder);
-		Vector3f t2=new Vector3f(motionFuture.baseRight);
+		Vector3d t2=new Vector3d(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.shoulder);
 		volumes[0].SetP1(getWorldCoordinatesFor(t1));
@@ -774,18 +758,18 @@ public class Sixi2Robot extends Robot {
 		return volumes;
 	}
 	
-	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.anchorPosition);
+	Vector3d getWorldCoordinatesFor(Vector3d in) {
+		Vector3d out = new Vector3d(motionFuture.anchorPosition);
 		
-		Vector3f tempx = new Vector3f(motionFuture.baseForward);
+		Vector3d tempx = new Vector3d(motionFuture.baseForward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.baseRight);
+		Vector3d tempy = new Vector3d(motionFuture.baseRight);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.baseUp);
+		Vector3d tempz = new Vector3d(motionFuture.baseUp);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -847,9 +831,8 @@ public class Sixi2Robot extends Robot {
 	//@Test
 	public void generateBigData() {
 		Sixi2RobotKeyframe keyframe = new Sixi2RobotKeyframe();
-		float a0,a1,a2,a3,a4,a5;
-		float px,py,pz,iku,ikv,ikw;
-		final float stepSize = 15f;
+		double a0,a1,a2,a3,a4,a5, px,py,pz,iku,ikv,ikw;
+		final double stepSize = 15f;
 		int totalRecords=0;
 		
 		try {
@@ -931,7 +914,7 @@ public class Sixi2Robot extends Robot {
 	}
 	
 	@Override
-	public void setAnimationSpeed(float animationSpeed) {
+	public void setAnimationSpeed(double animationSpeed) {
 		super.setAnimationSpeed(animationSpeed);
 		armPanel.keyframeEditSetEnable(animationSpeed==0);
 	}

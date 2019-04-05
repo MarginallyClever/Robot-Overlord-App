@@ -13,6 +13,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -216,20 +217,14 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 			uid.setText(DeltaRobot3.ROBOT_NAME+" #"+Long.toString(id));
 		}
 	}
-
-	protected float roundOff(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
 	
 	public void update() {
-		angleA.setText(Float.toString(roundOff(robot.motionNow.arms[0].angle)));
-		angleB.setText(Float.toString(roundOff(robot.motionNow.arms[1].angle)));
-		angleC.setText(Float.toString(roundOff(robot.motionNow.arms[2].angle)));
-		xPos.setText(Float.toString(roundOff(robot.motionNow.fingerPosition.x)));
-		yPos.setText(Float.toString(roundOff(robot.motionNow.fingerPosition.y)));
-		zPos.setText(Float.toString(roundOff(robot.motionNow.fingerPosition.z)));
+		angleA.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.arms[0].angle)));
+		angleB.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.arms[1].angle)));
+		angleC.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.arms[2].angle)));
+		xPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.x)));
+		yPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.y)));
+		zPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.z)));
 		
 		arm5Apos.setEnabled(robot.isHomed());
 		arm5Aneg.setEnabled(robot.isHomed());

@@ -131,7 +131,7 @@ public class RotaryStewartPlatformControlPanel extends JPanel implements ActionL
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
-		float speed=robot.getSpeed();
+		double speed=robot.getSpeed();
 		int speedIndex;
 		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
 			if( speedOptions[speedIndex] >= speed )
@@ -169,7 +169,7 @@ public class RotaryStewartPlatformControlPanel extends JPanel implements ActionL
 
 	protected void setSpeed(float speed) {
 		robot.setSpeed(speed);
-		speedNow.setText(Float.toString(robot.getSpeed()));
+		speedNow.setText(Double.toString(robot.getSpeed()));
 	}
 	
 	protected float getSpeed() {
@@ -214,12 +214,12 @@ public class RotaryStewartPlatformControlPanel extends JPanel implements ActionL
 	public void update() { 
 		// TODO rotate fingerPosition before adding position
 
-		xPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.x)));
-		yPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.y)));
-		zPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.z)));
-		uPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleU)));
-		vPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleV)));
-		wPos.setText(Float.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleW)));
+		xPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.x)));
+		yPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.y)));
+		zPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.z)));
+		uPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleU)));
+		vPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleV)));
+		wPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.rotationAngleW)));
 
 		//if( tool != null ) tool.updateGUI();
 		

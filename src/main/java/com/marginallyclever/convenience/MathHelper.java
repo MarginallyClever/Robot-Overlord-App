@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 /**
  * Math methods.
@@ -8,7 +8,7 @@ import javax.vecmath.Vector3f;
  *
  */
 public class MathHelper {
-	public final static float EPSILON = 0.00001f;
+	public final static double EPSILON = 0.00001f;
 	
 	/**
 	 * @return Square of length of vector (dx,dy,dz) 
@@ -37,7 +37,35 @@ public class MathHelper {
 		return Math.round(v*SCALE)/SCALE;
 	}
 	
+
+	/**
+	 * @return Square of length of vector (dx,dy,dz) 
+	 */
+	public static double lengthSquared(double dx,double dy,double dz) {
+		return dx*dx+dy*dy+dz*dz;
+	}
+	
+	
+	/**
+	 * @return Length of vector (dx,dy,dz) 
+	 */
+	public static double length(double dx,double dy,double dz) {
+		return (float)Math.sqrt(lengthSquared(dx,dy,dz));
+	}
+
+	
+	/**
+	 * Round a double off to 3 decimal places.
+	 * @param v a value
+	 * @return Value rounded off to 3 decimal places
+	 */
+	public static double roundOff3(double v) {
+		float SCALE = 1000.0f;
 		
+		return Math.round(v*SCALE)/SCALE;
+	}
+	
+	
 	/**
 	 * Rotate the point xyz around the line passing through abc with direction uvw
 	 * http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html
@@ -47,15 +75,15 @@ public class MathHelper {
 	 * @param radians the angle in radians to rotate
 	 * @return the new vector
 	 */
-	static public Vector3f rotateAroundAxis(Vector3f vec,Vector3f axis,float radians) {
-		float C = (float)Math.cos(radians);
-		float S = (float)Math.sin(radians);
-		float x = vec.x;
-		float y = vec.y;
-		float z = vec.z;
-		float u = axis.x;
-		float v = axis.y;
-		float w = axis.z;
+	static public Vector3d rotateAroundAxis(Vector3d vec,Vector3d axis,double radians) {
+		double C = Math.cos(radians);
+		double S = Math.sin(radians);
+		double x = vec.x;
+		double y = vec.y;
+		double z = vec.z;
+		double u = axis.x;
+		double v = axis.y;
+		double w = axis.z;
 		
 		// (a*( v*v + w*w) - u*(b*v + c*w - u*x - v*y - w*z))(1.0-C)+x*C+(-c*v + b*w - w*y + v*z)*S
 		// (b*( u*u + w*w) - v*(a*v + c*w - u*x - v*y - w*z))(1.0-C)+y*C+( c*u - a*w + w*x - u*z)*S
@@ -65,9 +93,9 @@ public class MathHelper {
 		// y' = ( -v*(- u*x - v*y - w*z)) * (1.0-C) + y*C + ( + w*x - u*z)*S
 		// z' = ( -w*(- u*x - v*y - w*z)) * (1.0-C) + z*C + ( - v*x + u*y)*S
 		
-		float a = (-u*x - v*y - w*z);
+		double a = (-u*x - v*y - w*z);
 
-		return new Vector3f( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
+		return new Vector3d( (-u*a) * (1.0f-C) + x*C + ( -w*y + v*z)*S,
 							 (-v*a) * (1.0f-C) + y*C + (  w*x - u*z)*S,
 							 (-w*a) * (1.0f-C) + z*C + ( -v*x + u*y)*S);
 	}
@@ -134,8 +162,8 @@ public class MathHelper {
 
 	
 	// this is a lerp.  for normals you'd want a slerp
-	static public Vector3f interpolate(Vector3f a,Vector3f b,double t) {
-		Vector3f n = new Vector3f(b);
+	static public Vector3d interpolate(Vector3d a,Vector3d b,double t) {
+		Vector3d n = new Vector3d(b);
 		n.sub(a);
 		n.scale((float)t);
 		n.add(a);
@@ -144,19 +172,19 @@ public class MathHelper {
 	}
 	
 	// https://en.wikipedia.org/wiki/Slerp
-	static public Vector3f slerp(Vector3f a,Vector3f b,double t) {
+	static public Vector3d slerp(Vector3d a,Vector3d b,double t) {
 		
 		// Dot product - the cosine of the angle between 2 vectors.
-		float dot = a.dot(b);
+		double dot = a.dot(b);
 		//dot = Math.min(Math.max(dot, -1.0f), 1.0f);
 		if(dot<0) {
 			b.scale(-1);
 			dot = -dot;
 		}
 		if(Math.abs(dot)>=1-MathHelper.EPSILON) {
-			Vector3f n = new Vector3f(b);
+			Vector3d n = new Vector3d(b);
 			n.sub(a);
-			n.scale((float)t);
+			n.scale(t);
 			n.add(a);
 			n.normalize();
 			
@@ -173,10 +201,10 @@ public class MathHelper {
 		double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;
 		double s1 = sin_theta / sin_theta_0;
 		
-		//Vector3f n b - a*dot;
-		a.scale((float)s0);
-		b.scale((float)s1);
-		Vector3f n = new Vector3f(a);
+		//Vector3d n b - a*dot;
+		a.scale(s0);
+		b.scale(s1);
+		Vector3d n = new Vector3d(a);
 		n.add(b);
 		n.normalize();
 		

@@ -34,9 +34,6 @@ public class DHIKSolveRTTRTR implements DHIKSolver {
 	
 	public static final double EPSILON = 0.00001;
 	
-	
-	public DHIKSolveRTTRTR() {}
-	
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
 	 * The solution will be stored in the derived class' public values.

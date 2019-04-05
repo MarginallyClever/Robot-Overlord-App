@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
 
 import com.jogamp.opengl.GL2;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.material.Material;
@@ -29,7 +29,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		motionFuture = new RotaryStewartPlatformKeyframe(dimensions);
 		
 		setupBoundingVolumes();
-		setHome(new Vector3f(0,0,0));
+		setHome(new Vector3d(0,0,0));
 		
 		// set up the initial state of the machine
 		isPortConfirmed=false;
@@ -75,15 +75,15 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		boolean draw_stl=true;
 		
 		gl2.glPushMatrix();
-		Vector3f p = getPosition();
+		Vector3d p = getPosition();
 		gl2.glTranslated(p.x, p.y, p.z);
 
 		if(draw_stl) {
 			// base
 			matBase.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glTranslatef(0, 0, dimensions.BASE_ADJUST_Z);
-			gl2.glRotatef(60, 0, 0, 1);
+			gl2.glTranslated(0, 0, dimensions.BASE_ADJUST_Z);
+			gl2.glRotated(60, 0, 0, 1);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 
@@ -91,37 +91,37 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 			matBicep.render(gl2);
 			for(i=0;i<3;++i) {
 				gl2.glPushMatrix();
-				gl2.glTranslatef(motionNow.arms[i*2+0].shoulder.x,
+				gl2.glTranslated(motionNow.arms[i*2+0].shoulder.x,
 						         motionNow.arms[i*2+0].shoulder.y,
 						         motionNow.arms[i*2+0].shoulder.z);
-				gl2.glRotatef(120.0f*i, 0, 0, 1);
-				gl2.glTranslatef(0, 0, dimensions.BASE_ADJUST_Z);
-				gl2.glRotatef(90, 0, 0, 1);
-				gl2.glRotatef(90, 1, 0, 0);
-				gl2.glRotatef(180-motionNow.arms[i*2+0].angle,0,0,1);
+				gl2.glRotated(120.0f*i, 0, 0, 1);
+				gl2.glTranslated(0, 0, dimensions.BASE_ADJUST_Z);
+				gl2.glRotated(90, 0, 0, 1);
+				gl2.glRotated(90, 1, 0, 0);
+				gl2.glRotated(180-motionNow.arms[i*2+0].angle,0,0,1);
 				modelBicep.render(gl2);
 				gl2.glPopMatrix();
 	
 				gl2.glPushMatrix();
-				gl2.glTranslatef(motionNow.arms[i*2+1].shoulder.x,
+				gl2.glTranslated(motionNow.arms[i*2+1].shoulder.x,
 						         motionNow.arms[i*2+1].shoulder.y,
 						         motionNow.arms[i*2+1].shoulder.z);
-				gl2.glRotatef(120.0f*i, 0, 0, 1);
-				gl2.glTranslatef(0, 0, dimensions.BASE_ADJUST_Z);
-				gl2.glRotatef(90, 0, 0, 1);
-				gl2.glRotatef(90, 1, 0, 0);
-				gl2.glRotatef(+motionNow.arms[i*2+1].angle,0,0,1);
+				gl2.glRotated(120.0f*i, 0, 0, 1);
+				gl2.glTranslated(0, 0, dimensions.BASE_ADJUST_Z);
+				gl2.glRotated(90, 0, 0, 1);
+				gl2.glRotated(90, 1, 0, 0);
+				gl2.glRotated(+motionNow.arms[i*2+1].angle,0,0,1);
 				modelBicep.render(gl2);
 				gl2.glPopMatrix();
 			}
 			//top
 			matTop.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glTranslatef(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z+motionNow.relative.z+dimensions.BASE_ADJUST_Z);
-			gl2.glRotatef(motionNow.rotationAngleU, 1, 0, 0);
-			gl2.glRotatef(motionNow.rotationAngleV, 0, 1, 0);
-			gl2.glRotatef(motionNow.rotationAngleW, 0, 0, 1);
-			gl2.glRotatef(-30, 0, 0, 1);
+			gl2.glTranslated(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z+motionNow.relative.z+dimensions.BASE_ADJUST_Z);
+			gl2.glRotated(motionNow.rotationAngleU, 1, 0, 0);
+			gl2.glRotated(motionNow.rotationAngleV, 0, 1, 0);
+			gl2.glRotated(motionNow.rotationAngleW, 0, 0, 1);
+			gl2.glRotated(-30, 0, 0, 1);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
@@ -129,17 +129,17 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		// draw the forearms
 		matForearm.render(gl2);
 		for(i=0;i<6;++i) {
-			Vector3f a=new Vector3f(
+			Vector3d a=new Vector3d(
 					motionNow.arms[i].wrist.x-motionNow.arms[i].elbow.x,
 					motionNow.arms[i].wrist.y-motionNow.arms[i].elbow.y,
 					motionNow.arms[i].wrist.z-motionNow.arms[i].elbow.z
 					);
-			Vector3f b=new Vector3f(
+			Vector3d b=new Vector3d(
 					motionNow.arms[i].elbow.x,
 					motionNow.arms[i].elbow.y,
 					motionNow.arms[i].elbow.z
 					);
-			Vector3f c=new Vector3f();
+			Vector3d c=new Vector3d();
 			a.normalize();
 			b.normalize();
 			c.cross(a, b);
@@ -147,7 +147,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 			//b.cross(a, c);
 			c.normalize();
 			b.cross(a, c);
-			float [] m = new float[16];
+			double [] m = new double[16];
 			m[ 0]=c.x;		m[ 1]=c.y;		m[ 2]=c.z;		m[ 3]=0;
 			m[ 4]=b.x;		m[ 5]=b.y;		m[ 6]=b.z;		m[ 7]=0;
 			m[ 8]=a.x;		m[ 9]=a.y;		m[10]=a.z;		m[11]=0;
@@ -157,15 +157,15 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 			m[15]=1;
 			
 			gl2.glPushMatrix();
-			gl2.glMultMatrixf(m, 0);
+			gl2.glMultMatrixd(m, 0);
 			if(i%2==0) {
-				gl2.glRotatef(40,0,0,1);
-				//gl2.glRotatef((i/2)*120,0,0,1);
-				//gl2.glTranslatef(-1,-0.5f,0);
+				gl2.glRotated(40,0,0,1);
+				//gl2.glRotated((i/2)*120,0,0,1);
+				//gl2.glTranslated(-1,-0.5f,0);
 			} else {
-				gl2.glRotatef(-40,0,0,1);
-				//gl2.glRotatef((i/2)*120,0,0,1);
-				//gl2.glTranslatef(0,1,0);
+				gl2.glRotated(-40,0,0,1);
+				//gl2.glRotated((i/2)*120,0,0,1);
+				//gl2.glTranslated(0,1,0);
 			}
 			modelForearm.render(gl2);
 			gl2.glPopMatrix();
@@ -174,7 +174,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		// debug info
 		gl2.glPushMatrix();
-		gl2.glTranslatef(0, 0, dimensions.BASE_ADJUST_Z);
+		gl2.glTranslated(0, 0, dimensions.BASE_ADJUST_Z);
 		for(i=0;i<6;++i) {
 			gl2.glColor3f(1,1,1);
 			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].shoulder,15);
@@ -184,17 +184,17 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 			if(draw_shoulder_to_elbow) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0,1,0);
-				gl2.glVertex3f(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
+				gl2.glVertex3d(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
 				gl2.glColor3f(0,0,1);
-				gl2.glVertex3f(motionNow.arms[i].shoulder.x,motionNow.arms[i].shoulder.y,motionNow.arms[i].shoulder.z);
+				gl2.glVertex3d(motionNow.arms[i].shoulder.x,motionNow.arms[i].shoulder.y,motionNow.arms[i].shoulder.z);
 				gl2.glEnd();
 			}
 			if(draw_elbow_to_wrist) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0,1,0);
-				gl2.glVertex3f(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
+				gl2.glVertex3d(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
 				gl2.glColor3f(0,0,1);
-				gl2.glVertex3f(motionNow.arms[i].wrist.x,motionNow.arms[i].wrist.y,motionNow.arms[i].wrist.z);
+				gl2.glVertex3d(motionNow.arms[i].wrist.x,motionNow.arms[i].wrist.y,motionNow.arms[i].wrist.z);
 				gl2.glEnd();
 			}
 		}
@@ -204,21 +204,21 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 	 		// draw finger orientation
 			float s=20;
 			gl2.glPushMatrix();
-			gl2.glTranslatef(motionNow.relative.x+motionNow.fingerPosition.x,
+			gl2.glTranslated(motionNow.relative.x+motionNow.fingerPosition.x,
 					motionNow.relative.y+motionNow.fingerPosition.y,
 					motionNow.relative.z+motionNow.fingerPosition.z+dimensions.BASE_ADJUST_Z);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,1,1);
-			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(motionNow.finger_forward.x*s,
+			gl2.glVertex3d(0,0,0);
+			gl2.glVertex3d(motionNow.finger_forward.x*s,
 					       motionNow.finger_forward.y*s,
 					       motionNow.finger_forward.z*s);
-			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(motionNow.finger_up.x*s,
+			gl2.glVertex3d(0,0,0);
+			gl2.glVertex3d(motionNow.finger_up.x*s,
 					       motionNow.finger_up.y*s,
 					       motionNow.finger_up.z*s);
-			gl2.glVertex3f(0,0,0);
-			gl2.glVertex3f(motionNow.finger_left.x*s,
+			gl2.glVertex3d(0,0,0);
+			gl2.glVertex3d(motionNow.finger_left.x*s,
 					       motionNow.finger_left.y*s,
 					       motionNow.finger_left.z*s);
 			
@@ -232,18 +232,18 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,0,0);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.baseForward.x*s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x+motionNow.baseForward.x*s,
 					       motionNow.base.y+motionNow.baseForward.y*s,
 					       motionNow.base.z+motionNow.baseForward.z*s);
 			gl2.glColor3f(0,1,0);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.baseUp.x*s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x+motionNow.baseUp.x*s,
 				       motionNow.base.y+motionNow.baseUp.y*s,
 				       motionNow.base.z+motionNow.baseUp.z*s);
 			gl2.glColor3f(0,0,1);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.finger_left.x*s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x+motionNow.finger_left.x*s,
 				       motionNow.base.y+motionNow.finger_left.y*s,
 				       motionNow.base.z+motionNow.finger_left.z*s);
 			

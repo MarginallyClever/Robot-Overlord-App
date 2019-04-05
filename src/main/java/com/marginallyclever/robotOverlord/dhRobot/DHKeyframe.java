@@ -14,7 +14,7 @@ public class DHKeyframe implements RobotKeyframe {
 	public DHKeyframe() {}
 	
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
 		// TODO Auto-generated method stub
 		
 	}
