@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.thor;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
@@ -16,49 +16,49 @@ class ThorKeyframe implements RobotKeyframe {
 	 */
 	private static final long serialVersionUID = 1012199745425607761L;
 	// angle of rotation
-	float angleF = 0;
-	float angleE = 0;
-	float angleD = 0;
-	float angleC = 0;
-	float angleB = 0;
-	float angleA = 0;
-	float angleServo = 120;
+	double angleF = 0;
+	double angleE = 0;
+	double angleD = 0;
+	double angleC = 0;
+	double angleB = 0;
+	double angleA = 0;
+	double angleServo = 120;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
-	public Vector3f fingerPosition = new Vector3f();
-	public Vector3f fingerForward = new Vector3f();
-	public Vector3f fingerRight = new Vector3f();
+	public Vector3d fingerPosition = new Vector3d();
+	public Vector3d fingerForward = new Vector3d();
+	public Vector3d fingerRight = new Vector3d();
 	// finger rotation
-	public float ikU=0;
-	public float ikV=0;
-	public float ikW=0;
+	public double ikU=0;
+	public double ikV=0;
+	public double ikW=0;
 	// joint locations relative to base
-	Vector3f wrist = new Vector3f();
-	Vector3f elbow = new Vector3f();
-	Vector3f bicep = new Vector3f();
-	Vector3f shoulder = new Vector3f();
+	Vector3d wrist = new Vector3d();
+	Vector3d elbow = new Vector3d();
+	Vector3d bicep = new Vector3d();
+	Vector3d shoulder = new Vector3d();
 	
-	public Vector3f anchorPosition = new Vector3f();  // relative to world
+	public Vector3d anchorPosition = new Vector3d();  // relative to world
 	// base orientation, affects entire arm
-	public Vector3f baseForward = new Vector3f();
-	public Vector3f baseUp = new Vector3f();
-	public Vector3f baseRight = new Vector3f();
+	public Vector3d baseForward = new Vector3d();
+	public Vector3d baseUp = new Vector3d();
+	public Vector3d baseRight = new Vector3d();
 	
 	// rotating entire robot
-	float base_pan=0;
-	float base_tilt=0;
+	double base_pan=0;
+	double base_tilt=0;
 
 	// inverse kinematics visualizations
-	public Vector3f ikWrist = new Vector3f();
-	public Vector3f ikElbow = new Vector3f();
-	public Vector3f ikShoulder = new Vector3f();
-	public Vector3f ikBase = new Vector3f();
-	float ik_angleF = 0;
-	float ik_angleE = 0;
-	float ik_angleD = 0;
-	float ik_angleC = 0;
-	float ik_angleB = 0;
-	float ik_angleA = 0;
+	public Vector3d ikWrist = new Vector3d();
+	public Vector3d ikElbow = new Vector3d();
+	public Vector3d ikShoulder = new Vector3d();
+	public Vector3d ikBase = new Vector3d();
+	double ik_angleF = 0;
+	double ik_angleE = 0;
+	double ik_angleD = 0;
+	double ik_angleC = 0;
+	double ik_angleB = 0;
+	double ik_angleA = 0;
 	
 	
 	void set(ThorKeyframe other) {
@@ -101,7 +101,7 @@ class ThorKeyframe implements RobotKeyframe {
 
 
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
 		// TODO Auto-generated method stub
 		
 	}

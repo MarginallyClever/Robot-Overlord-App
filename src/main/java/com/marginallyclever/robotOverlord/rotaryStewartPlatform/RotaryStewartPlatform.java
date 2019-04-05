@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
@@ -36,22 +36,22 @@ public class RotaryStewartPlatform extends Robot {
 	protected long robotUID;
 
 	// calibration settings
-	protected float HOME_X;
-	protected float HOME_Y;
-	protected float HOME_Z;
-	protected float HOME_A;
-	protected float HOME_B;
-	protected float HOME_C;
-	protected float HOME_RIGHT_X;
-	protected float HOME_RIGHT_Y;
-	protected float HOME_RIGHT_Z;
-	protected float HOME_FORWARD_X;
-	protected float HOME_FORWARD_Y;
-	protected float HOME_FORWARD_Z;
+	protected double HOME_X;
+	protected double HOME_Y;
+	protected double HOME_Z;
+	protected double HOME_A;
+	protected double HOME_B;
+	protected double HOME_C;
+	protected double HOME_RIGHT_X;
+	protected double HOME_RIGHT_Y;
+	protected double HOME_RIGHT_Z;
+	protected double HOME_FORWARD_X;
+	protected double HOME_FORWARD_Y;
+	protected double HOME_FORWARD_Z;
 
-	static final float LIMIT_U = 15;
-	static final float LIMIT_V = 15;
-	static final float LIMIT_W = 15;
+	static final double LIMIT_U = 15;
+	static final double LIMIT_V = 15;
+	static final double LIMIT_W = 15;
 
 	// volumes for collision detection (not being used yet)
 	protected Cylinder[] volumes;
@@ -75,8 +75,8 @@ public class RotaryStewartPlatform extends Robot {
 	protected boolean hasArmMoved;
 
 	// keyboard history
-	protected float xDir, yDir, zDir;
-	protected float uDir, vDir, wDir;
+	protected double xDir, yDir, zDir;
+	protected double uDir, vDir, wDir;
 
 	protected boolean justTestingDontGetUID = false;
 
@@ -95,7 +95,7 @@ public class RotaryStewartPlatform extends Robot {
 		motionFuture = new RotaryStewartPlatformKeyframe(dimensions);
 
 		setupBoundingVolumes();
-		setHome(new Vector3f(0, 0, 0));
+		setHome(new Vector3d(0, 0, 0));
 
 		// set up the initial state of the machine
 		isPortConfirmed = false;
@@ -123,11 +123,11 @@ public class RotaryStewartPlatform extends Robot {
 
 	}
 
-	public Vector3f getHome() {
-		return new Vector3f(HOME_X, HOME_Y, HOME_Z);
+	public Vector3d getHome() {
+		return new Vector3d(HOME_X, HOME_Y, HOME_Z);
 	}
 
-	public void setHome(Vector3f newHome) {
+	public void setHome(Vector3d newHome) {
 		HOME_X = newHome.x;
 		HOME_Y = newHome.y;
 		HOME_Z = newHome.z;
@@ -174,11 +174,11 @@ public class RotaryStewartPlatform extends Robot {
 		inputStream.defaultReadObject();
 	}
 
-	public void setSpeed(float newSpeed) {
+	public void setSpeed(double newSpeed) {
 		motionNow.setSpeed(newSpeed);
 	}
 
-	public float getSpeed() {
+	public double getSpeed() {
 		return motionNow.getSpeed();
 	}
 
@@ -205,10 +205,10 @@ public class RotaryStewartPlatform extends Robot {
 		}
 	}
 
-	public void updateFK(float delta) {
+	public void updateFK(double delta) {
 	}
 
-	protected void updateIK(float delta) {
+	protected void updateIK(double delta) {
 		boolean changed = false;
 		motionFuture.set(motionNow);
 
@@ -262,39 +262,39 @@ public class RotaryStewartPlatform extends Robot {
 	}
 
 	public void rotateFinger() {
-		Vector3f forward = new Vector3f(HOME_FORWARD_X, HOME_FORWARD_Y, HOME_FORWARD_Z);
-		Vector3f right = new Vector3f(HOME_RIGHT_X, HOME_RIGHT_Y, HOME_RIGHT_Z);
-		Vector3f up = new Vector3f();
+		Vector3d forward = new Vector3d(HOME_FORWARD_X, HOME_FORWARD_Y, HOME_FORWARD_Z);
+		Vector3d right = new Vector3d(HOME_RIGHT_X, HOME_RIGHT_Y, HOME_RIGHT_Z);
+		Vector3d up = new Vector3d();
 
 		up.cross(forward, right);
 
-		Vector3f of = new Vector3f(forward);
-		Vector3f or = new Vector3f(right);
-		Vector3f ou = new Vector3f(up);
+		Vector3d of = new Vector3d(forward);
+		Vector3d or = new Vector3d(right);
+		Vector3d ou = new Vector3d(up);
 
-		Vector3f result;
+		Vector3d result;
 
-		result = MathHelper.rotateAroundAxis(forward, of, (float) Math.toRadians(motionFuture.rotationAngleU)); // TODO
+		result = MathHelper.rotateAroundAxis(forward, of, Math.toRadians(motionFuture.rotationAngleU)); // TODO
 																												// rotating
 																												// around
 																												// itself
 																												// has
 																												// no
 																												// effect.
-		result = MathHelper.rotateAroundAxis(result, or, (float) Math.toRadians(motionFuture.rotationAngleV));
-		result = MathHelper.rotateAroundAxis(result, ou, (float) Math.toRadians(motionFuture.rotationAngleW));
+		result = MathHelper.rotateAroundAxis(result, or, Math.toRadians(motionFuture.rotationAngleV));
+		result = MathHelper.rotateAroundAxis(result, ou, Math.toRadians(motionFuture.rotationAngleW));
 		motionFuture.finger_forward.set(result);
 
-		result = MathHelper.rotateAroundAxis(right, of, (float) Math.toRadians(motionFuture.rotationAngleU));
-		result = MathHelper.rotateAroundAxis(result, or, (float) Math.toRadians(motionFuture.rotationAngleV));
-		result = MathHelper.rotateAroundAxis(result, ou, (float) Math.toRadians(motionFuture.rotationAngleW));
+		result = MathHelper.rotateAroundAxis(right, of, Math.toRadians(motionFuture.rotationAngleU));
+		result = MathHelper.rotateAroundAxis(result, or, Math.toRadians(motionFuture.rotationAngleV));
+		result = MathHelper.rotateAroundAxis(result, ou, Math.toRadians(motionFuture.rotationAngleW));
 		motionFuture.finger_left.set(result);
 
 		motionFuture.finger_up.cross(motionFuture.finger_forward, motionFuture.finger_left);
 	}
 
 	@Override
-	public void prepareMove(float delta) {
+	public void prepareMove(double delta) {
 		super.prepareMove(delta);
 		updateIK(delta);
 		updateFK(delta);
@@ -331,16 +331,16 @@ public class RotaryStewartPlatform extends Robot {
 		// RebuildShoulders(motion_now);
 
 		gl2.glPushMatrix();
-		Vector3f p = getPosition();
+		Vector3d p = getPosition();
 		gl2.glTranslated(p.x, p.y, p.z);
 
 		if (draw_stl) {
 			// base
 			matBase.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glTranslatef(0, 0, dimensions.BASE_TO_SHOULDER_Z + 0.6f);
-			gl2.glRotatef(90, 0, 0, 1);
-			gl2.glRotatef(90, 1, 0, 0);
+			gl2.glTranslated(0, 0, dimensions.BASE_TO_SHOULDER_Z + 0.6f);
+			gl2.glRotated(90, 0, 0, 1);
+			gl2.glRotated(90, 1, 0, 0);
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 
@@ -348,34 +348,34 @@ public class RotaryStewartPlatform extends Robot {
 			matBicep.render(gl2);
 			for (i = 0; i < 3; ++i) {
 				gl2.glPushMatrix();
-				gl2.glTranslatef(motionNow.arms[i * 2 + 0].shoulder.x, motionNow.arms[i * 2 + 0].shoulder.y,
+				gl2.glTranslated(motionNow.arms[i * 2 + 0].shoulder.x, motionNow.arms[i * 2 + 0].shoulder.y,
 						motionNow.arms[i * 2 + 0].shoulder.z);
-				gl2.glRotatef(120.0f * i, 0, 0, 1);
-				gl2.glRotatef(90, 0, 1, 0);
-				gl2.glRotatef(180 - motionNow.arms[i * 2 + 0].angle, 0, 0, 1);
+				gl2.glRotated(120.0f * i, 0, 0, 1);
+				gl2.glRotated(90, 0, 1, 0);
+				gl2.glRotated(180 - motionNow.arms[i * 2 + 0].angle, 0, 0, 1);
 				modelBicep.render(gl2);
 
 				gl2.glPopMatrix();
 
 				gl2.glPushMatrix();
-				gl2.glTranslatef(motionNow.arms[i * 2 + 1].shoulder.x, motionNow.arms[i * 2 + 1].shoulder.y,
+				gl2.glTranslated(motionNow.arms[i * 2 + 1].shoulder.x, motionNow.arms[i * 2 + 1].shoulder.y,
 						motionNow.arms[i * 2 + 1].shoulder.z);
-				gl2.glRotatef(120.0f * i, 0, 0, 1);
-				gl2.glRotatef(90, 0, 1, 0);
-				gl2.glRotatef(+motionNow.arms[i * 2 + 1].angle, 0, 0, 1);
+				gl2.glRotated(120.0f * i, 0, 0, 1);
+				gl2.glRotated(90, 0, 1, 0);
+				gl2.glRotated(+motionNow.arms[i * 2 + 1].angle, 0, 0, 1);
 				modelBicep.render(gl2);
 				gl2.glPopMatrix();
 			}
 			// top
 			matTop.render(gl2);
 			gl2.glPushMatrix();
-			gl2.glTranslatef(motionNow.fingerPosition.x, motionNow.fingerPosition.y,
+			gl2.glTranslated(motionNow.fingerPosition.x, motionNow.fingerPosition.y,
 					motionNow.fingerPosition.z + motionNow.relative.z);
-			gl2.glRotatef(motionNow.rotationAngleU, 1, 0, 0);
-			gl2.glRotatef(motionNow.rotationAngleV, 0, 1, 0);
-			gl2.glRotatef(motionNow.rotationAngleW, 0, 0, 1);
-			gl2.glRotatef(90, 0, 0, 1);
-			gl2.glRotatef(180, 1, 0, 0);
+			gl2.glRotated(motionNow.rotationAngleU, 1, 0, 0);
+			gl2.glRotated(motionNow.rotationAngleV, 0, 1, 0);
+			gl2.glRotated(motionNow.rotationAngleW, 0, 0, 1);
+			gl2.glRotated(90, 0, 0, 1);
+			gl2.glRotated(180, 1, 0, 0);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
@@ -388,9 +388,9 @@ public class RotaryStewartPlatform extends Robot {
 		for (i = 0; i < 6; ++i) {
 			// gl2.glBegin(GL2.GL_LINES);
 			// gl2.glColor3f(1,0,0);
-			// gl2.glVertex3f(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
+			// gl2.glVertex3d(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
 			// gl2.glColor3f(0,1,0);
-			// gl2.glVertex3f(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
+			// gl2.glVertex3d(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
 			// gl2.glEnd();
 			tube.SetP1(motionNow.arms[i].wrist);
 			tube.SetP2(motionNow.arms[i].elbow);
@@ -412,9 +412,9 @@ public class RotaryStewartPlatform extends Robot {
 			if (draw_shoulder_to_elbow) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0, 1, 0);
-				gl2.glVertex3f(motionNow.arms[i].elbow.x, motionNow.arms[i].elbow.y, motionNow.arms[i].elbow.z);
+				gl2.glVertex3d(motionNow.arms[i].elbow.x, motionNow.arms[i].elbow.y, motionNow.arms[i].elbow.z);
 				gl2.glColor3f(0, 0, 1);
-				gl2.glVertex3f(motionNow.arms[i].shoulder.x, motionNow.arms[i].shoulder.y,
+				gl2.glVertex3d(motionNow.arms[i].shoulder.x, motionNow.arms[i].shoulder.y,
 						motionNow.arms[i].shoulder.z);
 				gl2.glEnd();
 			}
@@ -423,19 +423,19 @@ public class RotaryStewartPlatform extends Robot {
 
 		if (draw_finger_star) {
 			// draw finger orientation
-			float s = 2;
+			double s = 2;
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1, 1, 1);
-			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3f(motionNow.fingerPosition.x + motionNow.finger_forward.x * s,
+			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3d(motionNow.fingerPosition.x + motionNow.finger_forward.x * s,
 					motionNow.fingerPosition.y + motionNow.finger_forward.y * s,
 					motionNow.fingerPosition.z + motionNow.finger_forward.z * s);
-			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3f(motionNow.fingerPosition.x + motionNow.finger_up.x * s,
+			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3d(motionNow.fingerPosition.x + motionNow.finger_up.x * s,
 					motionNow.fingerPosition.y + motionNow.finger_up.y * s,
 					motionNow.fingerPosition.z + motionNow.finger_up.z * s);
-			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3f(motionNow.fingerPosition.x + motionNow.finger_left.x * s,
+			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3d(motionNow.fingerPosition.x + motionNow.finger_left.x * s,
 					motionNow.fingerPosition.y + motionNow.finger_left.y * s,
 					motionNow.fingerPosition.z + motionNow.finger_left.z * s);
 
@@ -444,20 +444,20 @@ public class RotaryStewartPlatform extends Robot {
 
 		if (draw_base_star) {
 			// draw finger orientation
-			float s = 2;
+			double s = 2;
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1, 0, 0);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x + motionNow.baseForward.x * s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x + motionNow.baseForward.x * s,
 					motionNow.base.y + motionNow.baseForward.y * s, motionNow.base.z + motionNow.baseForward.z * s);
 			gl2.glColor3f(0, 1, 0);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x + motionNow.baseUp.x * s, motionNow.base.y + motionNow.baseUp.y * s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x + motionNow.baseUp.x * s, motionNow.base.y + motionNow.baseUp.y * s,
 					motionNow.base.z + motionNow.baseUp.z * s);
 			gl2.glColor3f(0, 0, 1);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x + motionNow.finger_left.x * s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x + motionNow.finger_left.x * s,
 					motionNow.base.y + motionNow.finger_left.y * s, motionNow.base.z + motionNow.finger_left.z * s);
 
 			gl2.glEnd();
@@ -551,18 +551,18 @@ public class RotaryStewartPlatform extends Robot {
 		return volumes;
 	}
 
-	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.base);
+	Vector3d getWorldCoordinatesFor(Vector3d in) {
+		Vector3d out = new Vector3d(motionFuture.base);
 
-		Vector3f tempx = new Vector3f(motionFuture.baseForward);
+		Vector3d tempx = new Vector3d(motionFuture.baseForward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.baseRight);
+		Vector3d tempy = new Vector3d(motionFuture.baseRight);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.baseUp);
+		Vector3d tempz = new Vector3d(motionFuture.baseUp);
 		tempz.scale(in.z);
 		out.add(tempz);
 

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
@@ -20,31 +20,31 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	public RotaryStewartPlatformArm arms[];
 
 	// Relative to base unless otherwise noted.
-	public Vector3f relative = new Vector3f();
-	public Vector3f fingerPosition = new Vector3f(0,0,0);
-	public Vector3f finger_forward = new Vector3f();
-	public Vector3f finger_up = new Vector3f();
-	public Vector3f finger_left = new Vector3f();
+	public Vector3d relative = new Vector3d();
+	public Vector3d fingerPosition = new Vector3d(0,0,0);
+	public Vector3d finger_forward = new Vector3d();
+	public Vector3d finger_up = new Vector3d();
+	public Vector3d finger_left = new Vector3d();
 	// rotating the finger tip
-	public float rotationAngleU=0;
-	public float rotationAngleV=0;
-	public float rotationAngleW=0;
+	public double rotationAngleU=0;
+	public double rotationAngleV=0;
+	public double rotationAngleW=0;
 	
-	public Vector3f base = new Vector3f();  // relative to world
+	public Vector3d base = new Vector3d();  // relative to world
 	// base orientation, affects entire arm
-	public Vector3f baseForward = new Vector3f();
-	public Vector3f baseUp = new Vector3f();
-	public Vector3f baseRight = new Vector3f();
+	public Vector3d baseForward = new Vector3d();
+	public Vector3d baseUp = new Vector3d();
+	public Vector3d baseRight = new Vector3d();
 	
 	// rotating entire robot
-	public float basePan=0;
-	public float baseTilt=0;
+	public double basePan=0;
+	public double baseTilt=0;
 
 	public boolean isHomed;
 	public boolean isHoming;
 	public boolean isFollowMode;
 
-	public float speed;
+	public double speed;
 
 	public RotaryStewartPlatform2Dimensions dimensions;
 	
@@ -58,12 +58,12 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 		
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
-		float aa=dimensions.BICEP_LENGTH-(dimensions.BASE_TO_SHOULDER_Y-dimensions.WRIST_TO_FINGER_Y);
-		float cc=dimensions.FOREARM_LENGTH;
-		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		double aa=dimensions.BICEP_LENGTH-(dimensions.BASE_TO_SHOULDER_Y-dimensions.WRIST_TO_FINGER_Y);
+		double cc=dimensions.FOREARM_LENGTH;
+		double bb=(float)Math.sqrt((cc*cc)-(aa*aa));
 		aa=this.arms[0].elbow.x-this.arms[0].wrist.x;
 		cc=bb;
-		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		bb=Math.sqrt((cc*cc)-(aa*aa));
 		this.relative.set(0,0,bb+dimensions.BASE_TO_SHOULDER_Z-dimensions.WRIST_TO_FINGER_Z);
 		this.fingerPosition.set(0,0,0);
 		this.isHomed = false;
@@ -104,10 +104,10 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	 
 	
 
-	public void setSpeed(float newSpeed) {
+	public void setSpeed(double newSpeed) {
 		speed=newSpeed;
 	}
-	public float getSpeed() {
+	public double getSpeed() {
 		return speed;
 	}
 	
@@ -139,21 +139,21 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 		this.finger_up     .set(0,0,1);
 
 		// roll, pitch, then yaw
-		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3f(1,0,0),(float)Math.toRadians(this.rotationAngleU));
-		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3f(0,1,0),(float)Math.toRadians(this.rotationAngleV));
-		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3f(0,0,1),(float)Math.toRadians(this.rotationAngleW));
+		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3d(1,0,0),(float)Math.toRadians(this.rotationAngleU));
+		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3d(0,1,0),(float)Math.toRadians(this.rotationAngleV));
+		this.finger_forward = MathHelper.rotateAroundAxis(this.finger_forward,new Vector3d(0,0,1),(float)Math.toRadians(this.rotationAngleW));
 
-		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3f(1,0,0),(float)Math.toRadians(this.rotationAngleU));
-		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3f(0,1,0),(float)Math.toRadians(this.rotationAngleV));
-		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3f(0,0,1),(float)Math.toRadians(this.rotationAngleW));
+		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3d(1,0,0),(float)Math.toRadians(this.rotationAngleU));
+		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3d(0,1,0),(float)Math.toRadians(this.rotationAngleV));
+		this.finger_up      = MathHelper.rotateAroundAxis(this.finger_up,     new Vector3d(0,0,1),(float)Math.toRadians(this.rotationAngleW));
 
-		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3f(1,0,0),(float)Math.toRadians(this.rotationAngleU));
-		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3f(0,1,0),(float)Math.toRadians(this.rotationAngleV));
-		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3f(0,0,1),(float)Math.toRadians(this.rotationAngleW));
+		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3d(1,0,0),(float)Math.toRadians(this.rotationAngleU));
+		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3d(0,1,0),(float)Math.toRadians(this.rotationAngleV));
+		this.finger_left    = MathHelper.rotateAroundAxis(this.finger_left,   new Vector3d(0,0,1),(float)Math.toRadians(this.rotationAngleW));
 	}
 
 	protected void updateIKWrists() {
-		  Vector3f n1 = new Vector3f(),o1 = new Vector3f(),temp = new Vector3f();
+		  Vector3d n1 = new Vector3d(),o1 = new Vector3d(),temp = new Vector3d();
 		  float c,s;
 		  int i;
 		  for(i=0;i<3;++i) {
@@ -196,73 +196,73 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	}
 	
 	protected void updateIKShoulderAngles() throws AssertionError {
-		Vector3f ortho = new Vector3f(),w = new Vector3f(),wop = new Vector3f(),temp = new Vector3f(),r = new Vector3f();
-		  float a,b,d,r1,r0,hh,y,x;
-		  
-		  int i;
-		  for(i=0;i<6;++i) {
-		    RotaryStewartPlatformArm arm = this.arms[i];
-		    
-		    // project wrist position onto plane of bicep (wop)
-		    ortho.x=(float)Math.cos((i/2)*Math.PI*2.0f/3.0f);
-		    ortho.y=(float)Math.sin((i/2)*Math.PI*2.0f/3.0f);
-		    ortho.z=0;
-		    
-		    //w = arm.wrist - arm.shoulder
-		    w.set(arm.wrist);
-		    w.sub(arm.shoulder);
-		    
-		    //a=w | ortho;
-		    a = w.dot( ortho );
-		    //wop = w - (ortho * a);
-		    temp.set(ortho);
-		    temp.scale(a);
-		    wop.set(w);
-		    wop.sub(temp);
+		Vector3d ortho = new Vector3d(),w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
+		double a,b,d,r1,r0,hh,y,x;
 
-		    // we need to find wop-elbow to calculate the angle at the shoulder.
-		    // wop-elbow is not the same as wrist-elbow.
-		    b=(float)Math.sqrt(dimensions.FOREARM_LENGTH*dimensions.FOREARM_LENGTH-a*a);
-		    if(Float.isNaN(b)) throw new AssertionError();
+		int i;
+		for(i=0;i<6;++i) {
+			RotaryStewartPlatformArm arm = this.arms[i];
 
-		    // use intersection of circles to find elbow point.
-		    //a = (r0r0 - r1r1 + d*d ) / (2*d) 
-		    r1=b;  // circle 1 centers on wrist
-		    r0=dimensions.BICEP_LENGTH;  // circle 0 centers on shoulder
-		    d=wop.length();
-		    // distance along wop to the midpoint between the two possible intersections
-		    a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
+			// project wrist position onto plane of bicep (wop)
+			ortho.x=(float)Math.cos((i/2)*Math.PI*2.0f/3.0f);
+			ortho.y=(float)Math.sin((i/2)*Math.PI*2.0f/3.0f);
+			ortho.z=0;
 
-		    // now find the midpoint
-		    // normalize wop
-		    //wop /= d;
-		    wop.scale(1.0f/d);
-		    //temp=arm.shoulder+(wop*a);
-		    temp.set(wop);
-		    temp.scale(a);
-		    temp.add(arm.shoulder);
-		    // with a and r0 we can find h, the distance from midpoint to intersections.
-		    hh=(float)Math.sqrt(r0*r0-a*a);
-		    if(Float.isNaN(hh)) throw new AssertionError();
-		    // get a normal to the line wop in the plane orthogonal to ortho
-		    r.cross(ortho,wop);
-		    r.scale(hh);
-		    arm.elbow.set(temp);
-		    if(i%2==0) arm.elbow.add(r);
-		    else       arm.elbow.sub(r);
+			//w = arm.wrist - arm.shoulder
+			w.set(arm.wrist);
+			w.sub(arm.shoulder);
 
-		    temp.sub(arm.elbow,arm.shoulder);
-		    y=-temp.z;
-		    temp.z=0;
-		    x=temp.length();
-		    // use atan2 to find theta
-		    if( ( arm.shoulderToElbow.dot( temp ) ) < 0 ) x=-x;
-		    arm.angle= (float)Math.toDegrees(Math.atan2(-y,x));
-		  }
+			//a=w | ortho;
+			a = w.dot( ortho );
+			//wop = w - (ortho * a);
+			temp.set(ortho);
+			temp.scale(a);
+			wop.set(w);
+			wop.sub(temp);
+
+			// we need to find wop-elbow to calculate the angle at the shoulder.
+			// wop-elbow is not the same as wrist-elbow.
+			b=Math.sqrt(dimensions.FOREARM_LENGTH*dimensions.FOREARM_LENGTH-a*a);
+			if(Double.isNaN(b)) throw new AssertionError();
+
+			// use intersection of circles to find elbow point.
+			//a = (r0r0 - r1r1 + d*d ) / (2*d) 
+			r1=b;  // circle 1 centers on wrist
+			r0=dimensions.BICEP_LENGTH;  // circle 0 centers on shoulder
+			d=wop.length();
+			// distance along wop to the midpoint between the two possible intersections
+			a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
+
+			// now find the midpoint
+			// normalize wop
+			//wop /= d;
+			wop.scale(1.0f/d);
+			//temp=arm.shoulder+(wop*a);
+			temp.set(wop);
+			temp.scale(a);
+			temp.add(arm.shoulder);
+			// with a and r0 we can find h, the distance from midpoint to intersections.
+			hh=Math.sqrt(r0*r0-a*a);
+			if(Double.isNaN(hh)) throw new AssertionError();
+			// get a normal to the line wop in the plane orthogonal to ortho
+			r.cross(ortho,wop);
+			r.scale(hh);
+			arm.elbow.set(temp);
+			if(i%2==0) arm.elbow.add(r);
+			else       arm.elbow.sub(r);
+
+			temp.sub(arm.elbow,arm.shoulder);
+			y=-temp.z;
+			temp.z=0;
+			x=temp.length();
+			// use atan2 to find theta
+			if( ( arm.shoulderToElbow.dot( temp ) ) < 0 ) x=-x;
+			arm.angle= (float)Math.toDegrees(Math.atan2(-y,x));
+		}
 	}
 
 
-	public void moveBase(Vector3f dp) {
+	public void moveBase(Vector3d dp) {
 		base.set(dp);
 		rebuildShoulders();
 	}
@@ -294,7 +294,7 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	}
 	
 	protected void rebuildShoulders() {
-		  Vector3f n1=new Vector3f(),o1=new Vector3f(),temp=new Vector3f();
+		  Vector3d n1=new Vector3d(),o1=new Vector3d(),temp=new Vector3d();
 		  float c,s;
 		  int i;
 		  for(i=0;i<3;++i) {
@@ -370,7 +370,7 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 		}
 
 		// check far limit
-		Vector3f temp = new Vector3f(state.finger_tip);
+		Vector3d temp = new Vector3d(state.finger_tip);
 		temp.sub(state.shoulder);
 		if(temp.length() > 50) return false;
 		// check near limit
@@ -414,7 +414,7 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 
 
 	@Override
-	public void interpolate(RobotKeyframe arg0, RobotKeyframe arg1, float t) {
+	public void interpolate(RobotKeyframe arg0, RobotKeyframe arg1, double t) {
 		// TODO Auto-generated method stub
 		RotaryStewartPlatformKeyframe a = (RotaryStewartPlatformKeyframe)arg0;
 		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
@@ -429,7 +429,7 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 
 	@Override
 	public void render(GL2 gl2) {
-		Vector3f fingerRight = new Vector3f();
+		Vector3d fingerRight = new Vector3d();
 		fingerRight.cross(finger_forward,finger_up);
 		MatrixHelper.drawMatrix(gl2,fingerPosition,finger_forward,fingerRight,finger_up);
 	}

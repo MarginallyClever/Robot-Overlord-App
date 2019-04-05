@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.spidee;
 import java.io.Serializable;
 
 import com.jogamp.opengl.GL2;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 public class SpideeLeg implements Serializable {
 	  /**
@@ -18,8 +18,8 @@ public class SpideeLeg implements Serializable {
 	  SpideeJoint knee_joint = new SpideeJoint();
 	  SpideeJoint ankle_joint = new SpideeJoint();
 
-	  Vector3f lpoc = new Vector3f();  // last point of contact on the ground
-	  Vector3f npoc = new Vector3f();  // next point of contact on the ground
+	  Vector3d lpoc = new Vector3d();  // last point of contact on the ground
+	  Vector3d npoc = new Vector3d();  // next point of contact on the ground
 
 	  float facing_angle;   // angle relative to body in resting state
 
@@ -45,29 +45,29 @@ public class SpideeLeg implements Serializable {
 				  colors[color_index*3+2]);
 		  // last point of contact
 		  gl2.glBegin(GL2.GL_LINE_LOOP);
-		  gl2.glVertex3f(lpoc.x+0.5f, lpoc.y-0.5f, 0);
-		  gl2.glVertex3f(lpoc.x+0.5f, lpoc.y+0.5f, 0);
-		  gl2.glVertex3f(lpoc.x-0.5f, lpoc.y+0.5f, 0);
-		  gl2.glVertex3f(lpoc.x-0.5f, lpoc.y-0.5f, 0);
+		  gl2.glVertex3d(lpoc.x+0.5f, lpoc.y-0.5f, 0);
+		  gl2.glVertex3d(lpoc.x+0.5f, lpoc.y+0.5f, 0);
+		  gl2.glVertex3d(lpoc.x-0.5f, lpoc.y+0.5f, 0);
+		  gl2.glVertex3d(lpoc.x-0.5f, lpoc.y-0.5f, 0);
 		  gl2.glEnd();
 		  gl2.glBegin(GL2.GL_LINES);
-		  gl2.glVertex3f(npoc.x-1.0f, npoc.y, 0);
-		  gl2.glVertex3f(npoc.x+1.0f, npoc.y, 0);
-		  gl2.glVertex3f(npoc.x, npoc.y-1.0f, 0);
-		  gl2.glVertex3f(npoc.x, npoc.y+1.0f, 0);
+		  gl2.glVertex3d(npoc.x-1.0f, npoc.y, 0);
+		  gl2.glVertex3d(npoc.x+1.0f, npoc.y, 0);
+		  gl2.glVertex3d(npoc.x, npoc.y-1.0f, 0);
+		  gl2.glVertex3d(npoc.x, npoc.y+1.0f, 0);
 		  gl2.glEnd();
 
 		  // next point of contact
 		  gl2.glBegin(GL2.GL_LINE_LOOP);
-		  gl2.glVertex3f(npoc.x+0.75f, npoc.y-0.75f, 0);
-		  gl2.glVertex3f(npoc.x+0.75f, npoc.y+0.75f, 0);
-		  gl2.glVertex3f(npoc.x-0.75f, npoc.y+0.75f, 0);
-		  gl2.glVertex3f(npoc.x-0.75f, npoc.y-0.75f, 0);
+		  gl2.glVertex3d(npoc.x+0.75f, npoc.y-0.75f, 0);
+		  gl2.glVertex3d(npoc.x+0.75f, npoc.y+0.75f, 0);
+		  gl2.glVertex3d(npoc.x-0.75f, npoc.y+0.75f, 0);
+		  gl2.glVertex3d(npoc.x-0.75f, npoc.y-0.75f, 0);
 		  gl2.glEnd();
 
 		  gl2.glBegin(GL2.GL_LINES);
-		  gl2.glVertex3f(ankle_joint.pos.x,ankle_joint.pos.y,ankle_joint.pos.z);
-		  gl2.glVertex3f(ankle_joint.pos.x,ankle_joint.pos.y,0);
+		  gl2.glVertex3d(ankle_joint.pos.x,ankle_joint.pos.y,ankle_joint.pos.z);
+		  gl2.glVertex3d(ankle_joint.pos.x,ankle_joint.pos.y,0);
 		  gl2.glEnd();
 
 		  pan_joint.Draw(gl2,2);

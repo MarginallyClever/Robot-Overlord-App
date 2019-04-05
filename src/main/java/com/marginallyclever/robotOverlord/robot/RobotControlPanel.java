@@ -217,14 +217,14 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		}
 
 		if (subject == buttonAnimateFastForward) {
-			float aSpeed = robot.getAnimationSpeed();
+			double aSpeed = robot.getAnimationSpeed();
 			robot.setAnimationSpeed(aSpeed <= 0 ? 1 : aSpeed + 1);
 		}
 		if (subject == buttonAnimatePlayPause) {
 			robot.setAnimationSpeed(robot.getAnimationSpeed() == 0 ? 1 : 0);
 		}
 		if (subject == buttonAnimateReverse) {
-			float aSpeed = robot.getAnimationSpeed();
+			double aSpeed = robot.getAnimationSpeed();
 			robot.setAnimationSpeed(aSpeed >= 0 ? -1 : aSpeed - 1);
 		}
 

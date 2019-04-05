@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
@@ -684,7 +684,7 @@ public class MakelangeloRobot extends Robot {
 	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		Vector3f p = this.getPosition();
+		Vector3d p = this.getPosition();
 		gl2.glTranslated(p.x, p.y, p.z);
 		gl2.glRotated(90, 1,0,0);
 		gl2.glTranslated(0,this.getSettings().getLimitHeight()/2.0f,0);

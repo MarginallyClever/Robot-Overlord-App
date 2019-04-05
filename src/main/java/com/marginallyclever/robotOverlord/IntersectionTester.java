@@ -1,5 +1,5 @@
 package com.marginallyclever.robotOverlord;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 
 public class IntersectionTester {
@@ -11,17 +11,17 @@ public class IntersectionTester {
 	 * @return true if intersect
 	 */
 	static public boolean CylinderCylinder(Cylinder cA,Cylinder cB) {
-	    Vector3f   u = new Vector3f(cA.GetP2());  u.sub(cA.GetP1());
-	    Vector3f   v = new Vector3f(cB.GetP2());  v.sub(cB.GetP1());
-	    Vector3f   w = new Vector3f(cA.GetP1());  w.sub(cB.GetP1());
-	    float    a = u.dot(u);         // always >= 0
-	    float    b = u.dot(v);
-	    float    c = v.dot(v);         // always >= 0
-	    float    d = u.dot(w);
-	    float    e = v.dot(w);
-	    float    D = a*c - b*b;        // always >= 0
-	    float    sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
-	    float    tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
+	    Vector3d   u = new Vector3d(cA.GetP2());  u.sub(cA.GetP1());
+	    Vector3d   v = new Vector3d(cB.GetP2());  v.sub(cB.GetP1());
+	    Vector3d   w = new Vector3d(cA.GetP1());  w.sub(cB.GetP1());
+	    double    a = u.dot(u);         // always >= 0
+	    double    b = u.dot(v);
+	    double    c = v.dot(v);         // always >= 0
+	    double    d = u.dot(w);
+	    double    e = v.dot(w);
+	    double    D = a*c - b*b;        // always >= 0
+	    double    sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
+	    double    tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
 
 	    // compute the line parameters of the two closest points
 	    if (D < SMALL_NUM) { // the lines are almost parallel
@@ -78,7 +78,7 @@ public class IntersectionTester {
 	    //Vector   dP = w + (sc * u) - (tc * v);  // =  L1(sc) - L2(tc)
 	    u.scale(sc);
 	    v.scale(tc);
-	    Vector3f dP = new Vector3f(w);
+	    Vector3d dP = new Vector3d(w);
 	    dP.add(u);
 	    dP.sub(v);
 
@@ -94,25 +94,25 @@ public class IntersectionTester {
 	 * @param dv relative velocities
 	 * @return time
 	 */
-	static float CPATime(Vector3f dp,Vector3f dv) {
-		float dv2 = dv.dot(dv);
+	static double CPATime(Vector3d dp,Vector3d dv) {
+		double dv2 = dv.dot(dv);
 		if(dv2 < SMALL_NUM) return 0;  // parallel, all times are the same.
 		return -dv.dot(dp) / dv2;
 	}
 	
-	static float CPADistance(Vector3f a,Vector3f b,Vector3f da,Vector3f db) {
+	static double CPADistance(Vector3d a,Vector3d b,Vector3d da,Vector3d db) {
 		// find CPA time
-		Vector3f dp = new Vector3f(b);
+		Vector3d dp = new Vector3d(b);
 		dp.sub(a);
-		Vector3f dv = new Vector3f(db);
+		Vector3d dv = new Vector3d(db);
 		db.sub(da);		
-		float t = CPATime(dp,dv);
+		double t = CPATime(dp,dv);
 
 		// get both points
-		Vector3f pa = new Vector3f(da);
+		Vector3d pa = new Vector3d(da);
 		pa.scale(t);
 		pa.add(a);
-		Vector3f pb = new Vector3f(db);
+		Vector3d pb = new Vector3d(db);
 		pb.scale(t);
 		pb.add(b);
 		// find difference

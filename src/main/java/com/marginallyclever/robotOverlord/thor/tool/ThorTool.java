@@ -39,5 +39,5 @@ public abstract class ThorTool extends PhysicalObject {
 	
 	public void updateGUI() {}
 	
-	public void update(float dt) {}
+	public void update(double dt) {}
 }

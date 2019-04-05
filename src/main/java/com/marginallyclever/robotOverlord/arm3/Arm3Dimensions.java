@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.arm3;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 
@@ -46,16 +46,16 @@ public class Arm3Dimensions {
 	}
 
 	public boolean getHomeAutomaticallyOnStartup() {	return HOME_AUTOMATICALLY_ON_STARTUP;	}
-	public Vector3f getHomePosition() {
-		return new Vector3f(HOME_X,HOME_Y,HOME_Z);
+	public Vector3d getHomePosition() {
+		return new Vector3d(HOME_X,HOME_Y,HOME_Z);
 	}
 	
-	public Vector3f getHomeForward() {
-		return new Vector3f(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
+	public Vector3d getHomeForward() {
+		return new Vector3d(HOME_FORWARD_X,HOME_FORWARD_Y,HOME_FORWARD_Z);
 	}
 	
-	public Vector3f getHomeRight() {
-		return new Vector3f(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
+	public Vector3d getHomeRight() {
+		return new Vector3d(HOME_RIGHT_X,HOME_RIGHT_Y,HOME_RIGHT_Z);
 	}
 
 	public float getBaseToShoulderX() {	return BASE_TO_SHOULDER_X;	}

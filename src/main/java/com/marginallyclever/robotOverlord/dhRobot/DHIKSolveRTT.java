@@ -6,16 +6,15 @@ import javax.vecmath.Vector3d;
 /**
  * Solves IK for a RTT robot
  * @author Dan Royer
+ * TODO test and finish
  */
-public class DHIKSolveRTT {
+public class DHIKSolveRTT implements DHIKSolver {
 	public double theta0;
 	public double alpha1;
 	public double alpha2;
 	
-	public DHIKSolveRTT() {}
-	
 	/**
-	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
+	 * Starting from a known local origin and a known local hand position (link 4 cumulativePose), calculate the angles for the given pose.
 	 * @param robot
 	 */
 	@SuppressWarnings("unused")
@@ -25,55 +24,28 @@ public class DHIKSolveRTT {
 		DHLink link2 = robot.links.get(2);
 		DHLink link3 = robot.links.get(3);
 		DHLink link4 = robot.links.get(4);
-		DHLink link5 = robot.links.get(5);
-		DHLink link6 = robot.links.get(6);
-		DHLink link7 = robot.links.get(7);
 
-		//link7.poseCumulative.set(robot.endMatrix);
+		//link4.poseCumulative.set(robot.endMatrix);
 		
-		Vector3d p7 = new Vector3d(
-				link7.poseCumulative.m03,
-				link7.poseCumulative.m13,
-				link7.poseCumulative.m23);
-		
-		// Work backward to get link5 position
-		Vector3d n7z = new Vector3d(
-				link7.poseCumulative.m02,
-				link7.poseCumulative.m12,
-				link7.poseCumulative.m22);
-		Point3d p5 = new Point3d(n7z);
-		p5.scaleAdd(-link6.d,p7);
+		Vector3d p4 = new Vector3d(
+				link4.poseCumulative.m03,
+				link4.poseCumulative.m13,
+				link4.poseCumulative.m23);
 
 		// Work forward to get p1 position
 		Point3d p1 = new Point3d(0,0,link0.d);
-
-		Vector3d p5confirm = new Vector3d(
-				link5.poseCumulative.m03,
-				link5.poseCumulative.m13,
-				link5.poseCumulative.m23);
-		
-		if(false) {
-			System.out.println(
-					"p7="+p7+"\t"+
-					"n7z="+n7z+"\t"+
-					"d6="+link6.d+"\t"+
-					"p5="+p5+"\t"+
-					"p5c="+p5confirm+"\t"+
-					"p1="+p1+"\t"
-					);
-		}
 		
 		// (1) theta0 = atan(y07/x07);
-		theta0 = Math.toDegrees(Math.atan2(p7.x,-p7.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
+		theta0 = Math.toDegrees(Math.atan2(p4.x,-p4.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
 		if(false) System.out.println("t0="+theta0+"\t");
 		
-		// (2) C=z15
-		double c = p5.z - p1.z;
+		// (2) C=z14
+		double c = p4.z - p1.z;
 		if(false) System.out.println("c="+c+"\t");
 		
 		// (3) 
-		double x15 = p5.x-p1.x;
-		double y15 = p5.y-p1.y;
+		double x15 = p4.x-p1.x;
+		double y15 = p4.y-p1.y;
 		double d = Math.sqrt(x15*x15 + y15*y15);
 		if(false) System.out.println("d="+d+"\t");
 		
@@ -83,13 +55,13 @@ public class DHIKSolveRTT {
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
 		double a = link2.d;
-		double b2 = link4.d+link5.d;
+		double b2 = link4.d;
 		double b1 = link3.d;
 		double b = Math.sqrt(b2*b2+b1*b1);
 		if(false) System.out.println("b="+b+"\t");
 		
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2*a*e) );
-		if(true) System.out.println("phi="+Math.toDegrees(phi)+"\t");
+		if(false) System.out.println("phi="+Math.toDegrees(phi)+"\t");
 		
 		// (6) rho = atan2(d,c)
 		double rho = Math.atan2(d,c);
@@ -115,6 +87,8 @@ public class DHIKSolveRTT {
 		// (10) alpha2 - phi3-phi4
 		alpha2 = Math.toDegrees(phi3 - phi4);
 		if(false) System.out.println("alpha2="+alpha2+"\t");
+		
+		if(true) System.out.println("solution={"+theta0+","+alpha1+","+alpha2+"}");
 	}
 	
 	protected String formatDouble(double arg0) {

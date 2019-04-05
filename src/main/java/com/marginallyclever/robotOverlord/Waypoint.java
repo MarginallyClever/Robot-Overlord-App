@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -25,9 +25,9 @@ public class Waypoint extends PhysicalObject {
 	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			Vector3f p = this.getPosition();
+			Vector3d p = this.getPosition();
 			final float size=2;
-			gl2.glTranslatef(p.x, p.y, p.z);
+			gl2.glTranslated(p.x, p.y, p.z);
 			// draw placeholder
 			gl2.glColor3f(1, 0, 0);
 			PrimitiveSolids.drawBox(gl2,  size, 0.1f, 0.1f);

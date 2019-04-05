@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.camera;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
@@ -24,9 +24,9 @@ public class Camera extends PhysicalObject {
 	private static final long serialVersionUID = -7511310951758205827L;
 	
 	/** position of camera */
-	protected Vector3f forward = new Vector3f(0,1,0);
-	protected Vector3f up = new Vector3f(0,0,1);
-	protected Vector3f right = new Vector3f(1,0,0);
+	protected Vector3d forward = new Vector3d(0,1,0);
+	protected Vector3d up = new Vector3d(0,0,1);
+	protected Vector3d right = new Vector3d(1,0,0);
 	protected int prevMouseX, prevMouseY;
 	protected boolean mouseRButtonDown = false;
 	// angles
@@ -53,7 +53,7 @@ public class Camera extends PhysicalObject {
 		
 		setDisplayName("Camera");
 				
-		setPosition(new Vector3f(0,40,-20));
+		setPosition(new Vector3d(0,40,-20));
 		pan=0;
 		tilt=90;
 	}
@@ -178,8 +178,8 @@ public class Camera extends PhysicalObject {
 		up.normalize();
 
 		// move the camera
-		Vector3f temp = new Vector3f();
-		Vector3f direction = new Vector3f(0,0,0);
+		Vector3d temp = new Vector3d();
+		Vector3d direction = new Vector3d(0,0,0);
 		float vel = 10f * dt;
 		boolean changed = false;
 		
@@ -212,7 +212,7 @@ public class Camera extends PhysicalObject {
 			direction.normalize();
 			direction.scale(vel);
 
-			Vector3f p = getPosition();
+			Vector3d p = getPosition();
 			p.add(direction);
 			setPosition(p);
 		}	
@@ -222,22 +222,22 @@ public class Camera extends PhysicalObject {
 		// move camera
 		gl2.glRotatef(tilt, -1, 0, 0);
 		gl2.glRotatef(pan,0,0,1);
-		Vector3f p = getPosition();
-		gl2.glTranslatef(p.x,p.y,p.z);
+		Vector3d p = getPosition();
+		gl2.glTranslated(p.x,p.y,p.z);
 	}
 
 
-	public Vector3f getForward() {
+	public Vector3d getForward() {
 		return forward;
 	}
 
 
-	public Vector3f getUp() {
+	public Vector3d getUp() {
 		return up;
 	}
 
 
-	public Vector3f getRight() {
+	public Vector3d getRight() {
 		return right;
 	}
 	

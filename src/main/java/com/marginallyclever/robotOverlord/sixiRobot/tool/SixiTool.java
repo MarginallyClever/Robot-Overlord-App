@@ -46,5 +46,5 @@ public abstract class SixiTool extends PhysicalObject {
 	
 	public void updateGUI() {}
 	
-	public void update(float dt) {}
+	public void update(double dt) {}
 }

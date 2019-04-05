@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.sixiRobot;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import org.junit.Test;
 
@@ -9,6 +9,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.sixiRobot.tool.*;
@@ -76,9 +77,9 @@ extends Robot {
 	public final static float MIN_ANGLE_5 =   0;
 	public final static float MAX_ANGLE_5 = 355;
 	
-	private final static Vector3f globalForward = new Vector3f(0,0,1);
-	private final static Vector3f globalRight = new Vector3f(1,0,0);
-	private final static Vector3f globalUp = new Vector3f(0,1,0);
+	private final static Vector3d globalForward = new Vector3d(0,0,1);
+	private final static Vector3d globalRight = new Vector3d(1,0,0);
+	private final static Vector3d globalUp = new Vector3d(0,1,0);
 	
 	public static double ADJUST_WRIST_ELBOW_ANGLE = 14.036243;
 	public static double ADJUST_SHOULDER_ELBOW_ANGLE = 11.309932;
@@ -214,11 +215,11 @@ extends Robot {
 			wristModel    = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
 			handModel     = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
 			
-			bicepModel  .adjustOrigin(new Vector3f(0, 0, -25));
-			elbowModel  .adjustOrigin(new Vector3f(0, 5, -50));
-			forearmModel.adjustOrigin(new Vector3f(0, 0, -50));
-			wristModel  .adjustOrigin(new Vector3f(0, 0, -70));
-			handModel   .adjustOrigin(new Vector3f(0, 0, -70));
+			bicepModel  .adjustOrigin(new Vector3d(0, 0, -25));
+			elbowModel  .adjustOrigin(new Vector3d(0, 5, -50));
+			forearmModel.adjustOrigin(new Vector3d(0, 0, -50));
+			wristModel  .adjustOrigin(new Vector3d(0, 0, -70));
+			handModel   .adjustOrigin(new Vector3d(0, 0, -70));
 			
 			System.out.println("Sixi loaded OK");
 		} catch(Exception e) {
@@ -388,15 +389,15 @@ extends Robot {
 	 * update the desired finger location
 	 * @param delta the time since the last update.  Typically ~1/30s
 	 */
-	protected void updateIK(float delta) {
+	protected void updateIK(double delta) {
 		boolean changed=false;
 		motionFuture.fingerPosition.set(motionNow.fingerPosition);
 		final float vel=(float)stepSize;
 		float dp = vel;// * delta;
 
-		float dX=motionFuture.fingerPosition.x;
-		float dY=motionFuture.fingerPosition.y;
-		float dZ=motionFuture.fingerPosition.z;
+		double dX=motionFuture.fingerPosition.x;
+		double dY=motionFuture.fingerPosition.y;
+		double dZ=motionFuture.fingerPosition.z;
 		
 		if (xDir!=0) {
 			dX += xDir * dp;
@@ -414,9 +415,9 @@ extends Robot {
 			zDir=0;
 		}
 		// rotations
-		float ru=motionFuture.ikU;
-		float rv=motionFuture.ikV;
-		float rw=motionFuture.ikW;
+		double ru=motionFuture.ikU;
+		double rv=motionFuture.ikV;
+		double rw=motionFuture.ikW;
 		boolean hasTurned=false;
 
 		if (uDir!=0) {
@@ -447,8 +448,8 @@ extends Robot {
 			motionFuture.ikW=rw;
 
 			// Rotating around itself has no effect, so just skip it
-			//Vector3f result = MathHelper.rotateAroundAxis(globalForward,globalForward,(float)Math.toRadians(motionFuture.ikU));
-			Vector3f result = new Vector3f(globalForward);
+			//Vector3d result = MathHelper.rotateAroundAxis(globalForward,globalForward,(float)Math.toRadians(motionFuture.ikU));
+			Vector3d result = new Vector3d(globalForward);
 
 			result = MathHelper.rotateAroundAxis(result     ,globalRight  ,(float)Math.toRadians(motionFuture.ikV));
 			result = MathHelper.rotateAroundAxis(result     ,globalUp     ,(float)Math.toRadians(motionFuture.ikW));
@@ -484,19 +485,19 @@ extends Robot {
 		}
 	}
 	
-	protected void updateFK(float delta) {
+	protected void updateFK(double delta) {
 		boolean changed=false;
-		float velcd=(float)stepSize; // * delta
-		float velabe=(float)stepSize; // * delta
+		double velcd  = stepSize; // * delta
+		double velabe = stepSize; // * delta
 
 		motionFuture.set(motionNow);
 		
-		float d0 = motionFuture.angle0;
-		float d1 = motionFuture.angle1;
-		float d2 = motionFuture.angle2;
-		float d3 = motionFuture.angle3;
-		float d4 = motionFuture.angle4;
-		float d5 = motionFuture.angle5;
+		double d0 = motionFuture.angle0;
+		double d1 = motionFuture.angle1;
+		double d2 = motionFuture.angle2;
+		double d3 = motionFuture.angle3;
+		double d4 = motionFuture.angle4;
+		double d5 = motionFuture.angle5;
 
 		if (fDir!=0) {
 			d0 += velabe * fDir;
@@ -557,30 +558,24 @@ extends Robot {
 			}
 		}
 	}
-
-	protected float roundOff(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
 	
 	public void updateGUI() {
-		Vector3f v = new Vector3f();
+		Vector3d v = new Vector3d();
 		v.set(motionNow.fingerPosition);
 		v.add(getPosition());
-		armPanel.xPos.setText(Float.toString(roundOff(v.x)));
-		armPanel.yPos.setText(Float.toString(roundOff(v.y)));
-		armPanel.zPos.setText(Float.toString(roundOff(v.z)));
-		armPanel.uPos.setText(Float.toString(roundOff(motionNow.ikU)));
-		armPanel.vPos.setText(Float.toString(roundOff(motionNow.ikV)));
-		armPanel.wPos.setText(Float.toString(roundOff(motionNow.ikW)));
+		armPanel.xPos.setText(Double.toString(MathHelper.roundOff3(v.x)));
+		armPanel.yPos.setText(Double.toString(MathHelper.roundOff3(v.y)));
+		armPanel.zPos.setText(Double.toString(MathHelper.roundOff3(v.z)));
+		armPanel.uPos.setText(Double.toString(MathHelper.roundOff3(motionNow.ikU)));
+		armPanel.vPos.setText(Double.toString(MathHelper.roundOff3(motionNow.ikV)));
+		armPanel.wPos.setText(Double.toString(MathHelper.roundOff3(motionNow.ikW)));
 
-		armPanel.angle5.setText(Float.toString(roundOff(motionNow.angle5)));
-		armPanel.angle4.setText(Float.toString(roundOff(motionNow.angle4)));
-		armPanel.angle3.setText(Float.toString(roundOff(motionNow.angle3)));
-		armPanel.angle2.setText(Float.toString(roundOff(motionNow.angle2)));
-		armPanel.angle1.setText(Float.toString(roundOff(motionNow.angle1)));
-		armPanel.angle0.setText(Float.toString(roundOff(motionNow.angle0)));
+		armPanel.angle5.setText(Double.toString(MathHelper.roundOff3(motionNow.angle5)));
+		armPanel.angle4.setText(Double.toString(MathHelper.roundOff3(motionNow.angle4)));
+		armPanel.angle3.setText(Double.toString(MathHelper.roundOff3(motionNow.angle3)));
+		armPanel.angle2.setText(Double.toString(MathHelper.roundOff3(motionNow.angle2)));
+		armPanel.angle1.setText(Double.toString(MathHelper.roundOff3(motionNow.angle1)));
+		armPanel.angle0.setText(Double.toString(MathHelper.roundOff3(motionNow.angle0)));
 
 		if( tool != null ) tool.updateGUI();
 	}
@@ -589,21 +584,21 @@ extends Robot {
 		if(!isPortConfirmed) return;
 		
 		String str="";
-		if(motionFuture.angle0!=motionNow.angle0) str+=" X"+roundOff(motionFuture.angle0);
-		if(motionFuture.angle1!=motionNow.angle1) str+=" Y"+roundOff(motionFuture.angle1);
-		if(motionFuture.angle2!=motionNow.angle2) str+=" Z"+roundOff(motionFuture.angle2);
-		if(motionFuture.angle3!=motionNow.angle3) str+=" U"+roundOff(motionFuture.angle3);
-		if(motionFuture.angle4!=motionNow.angle4) str+=" V"+roundOff(motionFuture.angle4);
-		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+roundOff(motionFuture.angle5);
+		if(motionFuture.angle0!=motionNow.angle0) str+=" X"+MathHelper.roundOff3(motionFuture.angle0);
+		if(motionFuture.angle1!=motionNow.angle1) str+=" Y"+MathHelper.roundOff3(motionFuture.angle1);
+		if(motionFuture.angle2!=motionNow.angle2) str+=" Z"+MathHelper.roundOff3(motionFuture.angle2);
+		if(motionFuture.angle3!=motionNow.angle3) str+=" U"+MathHelper.roundOff3(motionFuture.angle3);
+		if(motionFuture.angle4!=motionNow.angle4) str+=" V"+MathHelper.roundOff3(motionFuture.angle4);
+		if(motionFuture.angle5!=motionNow.angle5) str+=" W"+MathHelper.roundOff3(motionFuture.angle5);
 		if(str.length()>0) {
-			str+=" F"+roundOff((float)feedRate);
+			str+=" F"+MathHelper.roundOff3((float)feedRate);
 			System.out.println(str);
 			this.sendLineToRobot("G0"+str);
 		}
 	}
 	
 	@Override
-	public void prepareMove(float delta) {
+	public void prepareMove(double delta) {
 		updateIK(delta);
 		updateFK(delta);
 		if(tool != null) tool.update(delta);
@@ -627,8 +622,8 @@ extends Robot {
 		
 		gl2.glPushMatrix();
 			// TODO rotate model
-			Vector3f p = getPosition();
-			gl2.glTranslatef(p.x, p.y, p.z);
+			Vector3d p = getPosition();
+			gl2.glTranslated(p.x, p.y, p.z);
 
 			gl2.glTranslated(motionNow.base.x,motionNow.base.y,motionNow.base.z+FLOOR_ADJUST);	
 			
@@ -686,7 +681,7 @@ extends Robot {
 		bicepModel.render(gl2);
 
 		// elbow
-		//MatrixHelper.MatrixHelper.drawMatrix(gl2,new Vector3f(0,0,0),new Vector3f(1,0,0),new Vector3f(0,1,0),new Vector3f(0,0,1),10);
+		//MatrixHelper.MatrixHelper.drawMatrix(gl2,new Vector3d(0,0,0),new Vector3d(1,0,0),new Vector3d(0,1,0),new Vector3d(0,0,1),10);
 		gl2.glTranslated(0,-SHOULDER_TO_ELBOW_Y,SHOULDER_TO_ELBOW_Z);
 		gl2.glRotated(-motionNow.angle2+180, 1, 0, 0);
 		elbowMat.render(gl2);
@@ -720,18 +715,6 @@ extends Robot {
 	
 	protected void drawBounds(GL2 gl2) {
 		throw new UnsupportedOperationException();
-	}
-	
-	private double parseNumber(String str) {
-		float f=0;
-		try {
-			f = Float.parseFloat(str);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return f;
 	}
 
 	public void setModeAbsolute() {
@@ -776,34 +759,34 @@ extends Robot {
 					if(items.length>=5) {
 						for(int i=0;i<items.length;++i) {
 							if(items[i].startsWith("A")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle5 != v) {
 									motionFuture.angle5 = v;
-									armPanel.angle5.setText(Float.toString(roundOff(v)));
+									armPanel.angle5.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("B")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle4 != v) {
 									motionFuture.angle4 = v;
-									armPanel.angle4.setText(Float.toString(roundOff(v)));
+									armPanel.angle4.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("C")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle3 != v) {
 									motionFuture.angle3 = v;
-									armPanel.angle3.setText(Float.toString(roundOff(v)));
+									armPanel.angle3.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("D")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle2 != v) {
 									motionFuture.angle2 = v;
-									armPanel.angle2.setText(Float.toString(roundOff(v)));
+									armPanel.angle2.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							} else if(items[i].startsWith("E")) {
-								float v = (float)parseNumber(items[i].substring(1));
+								double v = StringHelper.parseNumber(items[i].substring(1));
 								if(motionFuture.angle1 != v) {
 									motionFuture.angle1 = v;
-									armPanel.angle1.setText(Float.toString(roundOff(v)));
+									armPanel.angle1.setText(Double.toString(MathHelper.roundOff3(v)));
 								}
 							}
 						}
@@ -821,7 +804,7 @@ extends Robot {
 		}
 	}
 
-	public void moveBase(Vector3f dp) {
+	public void moveBase(Vector3d dp) {
 		motionFuture.anchorPosition.set(dp);
 	}
 	
@@ -847,10 +830,10 @@ extends Robot {
 	
 	public BoundingVolume [] getBoundingVolumes() {
 		// shoulder joint
-		Vector3f t1=new Vector3f(motionFuture.baseRight);
+		Vector3d t1=new Vector3d(motionFuture.baseRight);
 		t1.scale(volumes[0].getRadius()/2);
 		t1.add(motionFuture.shoulder);
-		Vector3f t2=new Vector3f(motionFuture.baseRight);
+		Vector3d t2=new Vector3d(motionFuture.baseRight);
 		t2.scale(-volumes[0].getRadius()/2);
 		t2.add(motionFuture.shoulder);
 		volumes[0].SetP1(getWorldCoordinatesFor(t1));
@@ -886,18 +869,18 @@ extends Robot {
 		return volumes;
 	}
 	
-	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.anchorPosition);
+	Vector3d getWorldCoordinatesFor(Vector3d in) {
+		Vector3d out = new Vector3d(motionFuture.anchorPosition);
 		
-		Vector3f tempx = new Vector3f(motionFuture.baseForward);
+		Vector3d tempx = new Vector3d(motionFuture.baseForward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.baseRight);
+		Vector3d tempy = new Vector3d(motionFuture.baseRight);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.baseUp);
+		Vector3d tempz = new Vector3d(motionFuture.baseUp);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -982,9 +965,9 @@ extends Robot {
 	@Test
 	public void generateBigData() {
 		SixiRobotKeyframe keyframe = new SixiRobotKeyframe();
-		float a0,a1,a2,a3,a4,a5;
-		float px,py,pz,iku,ikv,ikw;
-		final float stepSize = 15f;
+		double a0,a1,a2,a3,a4,a5;
+		double px,py,pz,iku,ikv,ikw;
+		final double stepSize = 15;
 		int totalRecords=0;
 		
 		try {
@@ -1066,64 +1049,63 @@ extends Robot {
 	 * @param renderMode don't apply math, just visualize the intermediate results
 	 */
 	protected boolean inverseKinematics(SixiRobotKeyframe keyframe,boolean renderMode,GL2 gl2) {
-		double ee;
-		float xx, yy, angle0,angle1,angle2,angle3,angle4,angle5;
+		double ee, xx, yy, angle0,angle1,angle2,angle3,angle4,angle5;
 		
 		// rotation at finger, bend at wrist, rotation between wrist and elbow, then bends down to base.
 
 		// get the finger position
-		Vector3f fingerPlaneZ = new Vector3f(keyframe.fingerForward);
-		Vector3f fingerPlaneX = new Vector3f(keyframe.fingerRight);
-		Vector3f fingerPlaneY = new Vector3f();
+		Vector3d fingerPlaneZ = new Vector3d(keyframe.fingerForward);
+		Vector3d fingerPlaneX = new Vector3d(keyframe.fingerRight);
+		Vector3d fingerPlaneY = new Vector3d();
 		fingerPlaneY.cross(fingerPlaneZ, fingerPlaneX);
 
 		// find the wrist position
-		Vector3f wristToFinger = new Vector3f(fingerPlaneZ);
+		Vector3d wristToFinger = new Vector3d(fingerPlaneZ);
 		wristToFinger.scale((float)SixiRobot.WRIST_TO_TOOL_Z);
 		
-		Vector3f wristPosition = new Vector3f(keyframe.fingerPosition);
+		Vector3d wristPosition = new Vector3d(keyframe.fingerPosition);
 		wristPosition.sub(wristToFinger);
 
 		// figure out the shoulder matrix
-		Vector3f shoulderPosition = new Vector3f(0,0,(float)(FLOOR_TO_SHOULDER));
+		Vector3d shoulderPosition = new Vector3d(0,0,(float)(FLOOR_TO_SHOULDER));
 		
 		if(Math.abs(wristPosition.x)<EPSILON && Math.abs(wristPosition.y)<EPSILON) {
 			// Wrist is directly above shoulder, makes calculations hard.
 			// TODO figure this out.  Use previous state to guess elbow?
 			return false;
 		}
-		Vector3f shoulderPlaneX = new Vector3f(wristPosition.x,wristPosition.y,0);
+		Vector3d shoulderPlaneX = new Vector3d(wristPosition.x,wristPosition.y,0);
 		shoulderPlaneX.normalize();
-		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
-		Vector3f shoulderPlaneY = new Vector3f();
+		Vector3d shoulderPlaneZ = new Vector3d(0,0,1);
+		Vector3d shoulderPlaneY = new Vector3d();
 		shoulderPlaneY.cross(shoulderPlaneX, shoulderPlaneZ);
 		shoulderPlaneY.normalize();
 
 		// Find elbow by using intersection of circles (http://mathworld.wolfram.com/Circle-CircleIntersection.html)
 		// x = (dd-rr+RR) / (2d)
-		Vector3f shoulderToWrist = new Vector3f(wristPosition);
+		Vector3d shoulderToWrist = new Vector3d(wristPosition);
 		shoulderToWrist.sub(shoulderPosition);
-		float d = shoulderToWrist.length();
-		float R = (float)Math.abs(SixiRobot.SHOULDER_TO_ELBOW);
-		float r = (float)Math.abs(SixiRobot.ELBOW_TO_WRIST);
+		double d = shoulderToWrist.length();
+		double R = (float)Math.abs(SixiRobot.SHOULDER_TO_ELBOW);
+		double r = (float)Math.abs(SixiRobot.ELBOW_TO_WRIST);
 		if( d > R+r ) {
 			// impossibly far away
 			return false;
 		}
-		float x = (d*d - r*r + R*R ) / (2*d);
+		double x = (d*d - r*r + R*R ) / (2*d);
 		if( x > R ) {
 			// would cause sqrt(-something)
 			return false;
 		}
 		shoulderToWrist.normalize();
-		Vector3f elbowPosition = new Vector3f(shoulderToWrist);
+		Vector3d elbowPosition = new Vector3d(shoulderToWrist);
 		elbowPosition.scale(x);
 		elbowPosition.add(shoulderPosition);
 		// v1 is now at the intersection point between ik_wrist and ik_boom
-		Vector3f v1 = new Vector3f();
+		Vector3d v1 = new Vector3d();
 		float a = (float)( Math.sqrt( R*R - x*x ) );
 		v1.cross(shoulderPlaneY, shoulderToWrist);
-		Vector3f v1neg = new Vector3f(v1);
+		Vector3d v1neg = new Vector3d(v1);
 		// find both possible intersections of circles
 		v1.scale(a);
 		v1neg.scale(-a);
@@ -1131,13 +1113,13 @@ extends Robot {
 		v1neg.add(elbowPosition);
 		// the closer of the two circles to the previous elbow position is probably the more desirable of the two.
 		{
-			Vector3f test1 = new Vector3f(keyframe.elbow);
+			Vector3d test1 = new Vector3d(keyframe.elbow);
 			test1.sub(v1);
-			float test1LenSquared = test1.lengthSquared();
+			double test1LenSquared = test1.lengthSquared();
 
-			Vector3f test1neg = new Vector3f(keyframe.elbow);
+			Vector3d test1neg = new Vector3d(keyframe.elbow);
 			test1neg.sub(v1neg);
-			float test1negLenSquared = test1neg.lengthSquared();
+			double test1negLenSquared = test1neg.lengthSquared();
 			
 			if(test1LenSquared < test1negLenSquared) {
 				elbowPosition.set(v1);				
@@ -1148,24 +1130,24 @@ extends Robot {
 
 		// All the joint locations are now known.
 		// Now I have to build some matrices to find the correct angles because the sixi has those L shaped bones.
-		Vector3f elbowToWrist = new Vector3f(wristPosition);
+		Vector3d elbowToWrist = new Vector3d(wristPosition);
 		elbowToWrist.sub(elbowPosition);
 		elbowToWrist.normalize();
 		v1.cross(elbowToWrist,shoulderPlaneY);
-		Vector3f v2 = new Vector3f();
+		Vector3d v2 = new Vector3d();
 		v2.cross(v1,shoulderPlaneY);
 		v2.normalize();  // normalized version of elbowToWrist 
 
-		Vector3f nvx = new Vector3f(v1);	nvx.scale((float)Math.cos(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
-		Vector3f nvy = new Vector3f(v2);	nvy.scale((float)Math.sin(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
-		Vector3f elbowPlaneX = new Vector3f(nvx);
-		Vector3f elbowPlaneZ = new Vector3f();
+		Vector3d nvx = new Vector3d(v1);	nvx.scale((float)Math.cos(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
+		Vector3d nvy = new Vector3d(v2);	nvy.scale((float)Math.sin(Math.toRadians(ADJUST_WRIST_ELBOW_ANGLE)));
+		Vector3d elbowPlaneX = new Vector3d(nvx);
+		Vector3d elbowPlaneZ = new Vector3d();
 		elbowPlaneX.add(nvy);
 		elbowPlaneX.normalize();
 		elbowPlaneZ.cross(shoulderPlaneY,elbowPlaneX);
 
 
-		Vector3f shoulderToElbow = new Vector3f(elbowPosition);
+		Vector3d shoulderToElbow = new Vector3d(elbowPosition);
 		shoulderToElbow.sub(shoulderPosition);
 		shoulderToElbow.normalize();
 		
@@ -1174,20 +1156,20 @@ extends Robot {
 		v2.cross(shoulderPlaneY,v1);
 		nvx.set(v1);	nvx.scale((float)Math.cos(Math.toRadians(ADJUST_SHOULDER_ELBOW_ANGLE)));
 		nvy.set(v2);	nvy.scale((float)Math.sin(Math.toRadians(ADJUST_SHOULDER_ELBOW_ANGLE)));
-		Vector3f bicepPlaneZ = new Vector3f(nvx);
-		Vector3f bicepPlaneX = new Vector3f();
+		Vector3d bicepPlaneZ = new Vector3d(nvx);
+		Vector3d bicepPlaneX = new Vector3d();
 		bicepPlaneZ.add(nvy);
 		bicepPlaneZ.normalize();
 		bicepPlaneX.cross(bicepPlaneZ,shoulderPlaneY);
 		
 		// ulna matrix
-		Vector3f ulnaPlaneZ = new Vector3f(elbowPlaneZ);
-		Vector3f ulnaPlaneY = new Vector3f();
-		Vector3f ulnaPlaneX = new Vector3f();
+		Vector3d ulnaPlaneZ = new Vector3d(elbowPlaneZ);
+		Vector3d ulnaPlaneY = new Vector3d();
+		Vector3d ulnaPlaneX = new Vector3d();
 		ulnaPlaneZ.normalize();
 		
 		// I have wristToFinger.  I need wristToFinger projected on the plane elbow-space XY to calculate the angle. 
-		float tf = elbowPlaneZ.dot(keyframe.fingerForward);
+		double tf = elbowPlaneZ.dot(keyframe.fingerForward);
 		// v0 and keyframe.fingerForward are normal length.  if they dot to nearly 1, they are colinear.
 		// if they are colinear then I have no reference to calculate the angle of the ulna rotation.
 		if(tf>=1-EPSILON) {
@@ -1195,7 +1177,7 @@ extends Robot {
 		}
 
 		tf = elbowPlaneZ.dot(wristToFinger);
-		Vector3f projectionAmount = new Vector3f(elbowPlaneZ);
+		Vector3d projectionAmount = new Vector3d(elbowPlaneZ);
 		projectionAmount.scale(tf);
 		ulnaPlaneX.set(wristToFinger);
 		ulnaPlaneX.sub(projectionAmount);
@@ -1207,10 +1189,10 @@ extends Robot {
 		// Compare projected vector to previous frame's projected vector. if the direction is reversed, flip it. 
 
 		// wrist matrix
-		Vector3f wristPlaneZ = new Vector3f(wristToFinger);
+		Vector3d wristPlaneZ = new Vector3d(wristToFinger);
 		wristPlaneZ.normalize();
-		Vector3f wristPlaneY = new Vector3f(ulnaPlaneY);
-		Vector3f wristPlaneX = new Vector3f();
+		Vector3d wristPlaneY = new Vector3d(ulnaPlaneY);
+		Vector3d wristPlaneX = new Vector3d();
 		wristPlaneX.cross(wristPlaneY,wristPlaneZ);
 		wristPlaneX.normalize();
 
@@ -1241,14 +1223,14 @@ extends Robot {
 		ee = Math.atan2(yy, xx);
 		double ee1 = Math.atan2(yy, xx);
 		double ee2 = Math.atan2(-yy, -xx);
-		float angle3a = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee1)+90);
-		float angle3b = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee2)+90);
+		double angle3a = MathHelper.capRotationDegrees(Math.toDegrees(ee1)+90);
+		double angle3b = MathHelper.capRotationDegrees(Math.toDegrees(ee2)+90);
 		if(angle3a> 180) angle3a-=360;
 		if(angle3a<-180) angle3a+=360;
 		if(angle3b> 180) angle3b-=360;
 		if(angle3b<-180) angle3b+=360;
-		float ada = Math.abs(angle3a - keyframe.angle3);
-		float adb = Math.abs(angle3b - keyframe.angle3);
+		double ada = Math.abs(angle3a - keyframe.angle3);
+		double adb = Math.abs(angle3b - keyframe.angle3);
 		boolean flipWrist = false;
 		if( ada < adb ) {
 			angle3 = angle3a;
@@ -1263,7 +1245,7 @@ extends Robot {
 		xx = ulnaPlaneX.dot(wristToFinger);
 		yy = ulnaPlaneZ.dot(wristToFinger);
 		ee = Math.atan2(yy, xx);
-		angle4 = (float)MathHelper.capRotationDegrees(Math.toDegrees(ee)-90);
+		angle4 = MathHelper.capRotationDegrees(Math.toDegrees(ee)-90);
 		if(flipWrist) {
 			angle4 = -angle4;
 		}
@@ -1283,10 +1265,10 @@ extends Robot {
 			// get elbow to ulna
 			v1.set(elbowPlaneX);	v1.scale((float)SixiRobot.ELBOW_TO_ULNA_Y);
 			v2.set(elbowPlaneZ);	v2.scale((float)SixiRobot.ELBOW_TO_ULNA_Z);
-			Vector3f elbowToUlna = new Vector3f();
+			Vector3d elbowToUlna = new Vector3d();
 			elbowToUlna.add(v1);
 			elbowToUlna.add(v2);
-			Vector3f ulnaPosition = new Vector3f(elbowPosition);
+			Vector3d ulnaPosition = new Vector3d(elbowPosition);
 			ulnaPosition.add(elbowToUlna);
 			
 			MatrixHelper.drawMatrix2(gl2,keyframe.fingerPosition,fingerPlaneX,fingerPlaneY,fingerPlaneZ,3);
@@ -1310,7 +1292,7 @@ extends Robot {
 			gl2.glEnd();
 		}
 		if(!renderMode) {
-			keyframe.base = new Vector3f(0,0,0);
+			keyframe.base = new Vector3d(0,0,0);
 			keyframe.shoulder.set(shoulderPosition);
 			keyframe.elbow.set(elbowPosition);
 			keyframe.wrist.set(wristPosition);
@@ -1338,32 +1320,32 @@ extends Robot {
 		double angle4rad = Math.toRadians(keyframe.angle4);
 		double angle5rad = Math.toRadians(-keyframe.angle5);
 
-		Vector3f shoulderPosition = new Vector3f(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER-FLOOR_ADJUST));
-		Vector3f shoulderPlaneZ = new Vector3f(0,0,1);
-		Vector3f shoulderPlaneX = new Vector3f((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
-		Vector3f shoulderPlaneY = new Vector3f();
+		Vector3d shoulderPosition = new Vector3d(0,0,(float)(SixiRobot.FLOOR_TO_SHOULDER-FLOOR_ADJUST));
+		Vector3d shoulderPlaneZ = new Vector3d(0,0,1);
+		Vector3d shoulderPlaneX = new Vector3d((float)Math.cos(angle0rad),(float)Math.sin(angle0rad),0);
+		Vector3d shoulderPlaneY = new Vector3d();
 		shoulderPlaneY.cross(shoulderPlaneX, shoulderPlaneZ);
 		shoulderPlaneY.normalize();
 
 		// get rotation at bicep
-		Vector3f nvx = new Vector3f(shoulderPlaneX);	nvx.scale((float)Math.cos(angle1rad));
-		Vector3f nvz = new Vector3f(shoulderPlaneZ);	nvz.scale((float)Math.sin(angle1rad));
+		Vector3d nvx = new Vector3d(shoulderPlaneX);	nvx.scale((float)Math.cos(angle1rad));
+		Vector3d nvz = new Vector3d(shoulderPlaneZ);	nvz.scale((float)Math.sin(angle1rad));
 
-		Vector3f bicepPlaneY = new Vector3f(shoulderPlaneY);
-		Vector3f bicepPlaneZ = new Vector3f(nvx);
+		Vector3d bicepPlaneY = new Vector3d(shoulderPlaneY);
+		Vector3d bicepPlaneZ = new Vector3d(nvx);
 		bicepPlaneZ.add(nvz);
 		bicepPlaneZ.normalize();
-		Vector3f bicepPlaneX = new Vector3f();
+		Vector3d bicepPlaneX = new Vector3d();
 		bicepPlaneX.cross(bicepPlaneZ,bicepPlaneY);
 		bicepPlaneX.normalize();
 
 		// shoulder to elbow
-		Vector3f vx = new Vector3f(bicepPlaneX);	vx.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Y);
-		Vector3f vz = new Vector3f(bicepPlaneZ);	vz.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Z);
-		Vector3f shoulderToElbow = new Vector3f();
+		Vector3d vx = new Vector3d(bicepPlaneX);	vx.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Y);
+		Vector3d vz = new Vector3d(bicepPlaneZ);	vz.scale((float)SixiRobot.SHOULDER_TO_ELBOW_Z);
+		Vector3d shoulderToElbow = new Vector3d();
 		shoulderToElbow.add(vx);
 		shoulderToElbow.add(vz);
-		Vector3f elbowPosition = new Vector3f(shoulderPosition);
+		Vector3d elbowPosition = new Vector3d(shoulderPosition);
 		elbowPosition.add(shoulderToElbow);
 
 		if(gl2!=null) {
@@ -1389,21 +1371,21 @@ extends Robot {
 		nvx.set(bicepPlaneZ);	nvx.scale((float)Math.cos(angle2rad));
 		nvz.set(bicepPlaneX);	nvz.scale((float)Math.sin(angle2rad));
 
-		Vector3f elbowPlaneY = new Vector3f(shoulderPlaneY);
-		Vector3f elbowPlaneZ = new Vector3f(nvx);
+		Vector3d elbowPlaneY = new Vector3d(shoulderPlaneY);
+		Vector3d elbowPlaneZ = new Vector3d(nvx);
 		elbowPlaneZ.add(nvz);
 		elbowPlaneZ.normalize();
-		Vector3f elbowPlaneX = new Vector3f();
+		Vector3d elbowPlaneX = new Vector3d();
 		elbowPlaneX.cross(elbowPlaneZ,elbowPlaneY);
 		elbowPlaneX.normalize();
 
 		// get elbow to ulna
 		vx.set(elbowPlaneX);	vx.scale((float)SixiRobot.ELBOW_TO_ULNA_Y);
 		vz.set(elbowPlaneZ);	vz.scale((float)SixiRobot.ELBOW_TO_ULNA_Z);
-		Vector3f elbowToUlna = new Vector3f();
+		Vector3d elbowToUlna = new Vector3d();
 		elbowToUlna.add(vx);
 		elbowToUlna.add(vz);
-		Vector3f ulnaPosition = new Vector3f(elbowPosition);
+		Vector3d ulnaPosition = new Vector3d(elbowPosition);
 		ulnaPosition.add(elbowToUlna);
 
 		if(gl2!=null) {
@@ -1420,49 +1402,49 @@ extends Robot {
 		}
 		
 		// get matrix of ulna rotation
-		Vector3f ulnaPlaneZ = new Vector3f(elbowPlaneZ);
-		Vector3f ulnaPlaneX = new Vector3f();
+		Vector3d ulnaPlaneZ = new Vector3d(elbowPlaneZ);
+		Vector3d ulnaPlaneX = new Vector3d();
 		vx.set(elbowPlaneX);	vx.scale((float)Math.cos(angle3rad));
 		vz.set(elbowPlaneY);	vz.scale((float)Math.sin(angle3rad));
 		ulnaPlaneX.add(vx);
 		ulnaPlaneX.add(vz);
 		ulnaPlaneX.normalize();
-		Vector3f ulnaPlaneY = new Vector3f();
+		Vector3d ulnaPlaneY = new Vector3d();
 		ulnaPlaneY.cross(ulnaPlaneX, ulnaPlaneZ);
 		ulnaPlaneY.normalize();
 
-		Vector3f ulnaToWrist = new Vector3f(ulnaPlaneZ);
+		Vector3d ulnaToWrist = new Vector3d(ulnaPlaneZ);
 		ulnaToWrist.scale((float)SixiRobot.ULNA_TO_WRIST_Z);
-		Vector3f wristPosition = new Vector3f(ulnaPosition);
+		Vector3d wristPosition = new Vector3d(ulnaPosition);
 		wristPosition.add(ulnaToWrist);
 		
 		// wrist to finger
 		vx.set(ulnaPlaneZ);		vx.scale((float)Math.cos(angle4rad));
 		vz.set(ulnaPlaneX);		vz.scale((float)Math.sin(angle4rad));
-		Vector3f wristToFingerNormalized = new Vector3f();
+		Vector3d wristToFingerNormalized = new Vector3d();
 		wristToFingerNormalized.add(vx);
 		wristToFingerNormalized.add(vz);
 		wristToFingerNormalized.normalize();
-		Vector3f wristToFinger = new Vector3f(wristToFingerNormalized);
+		Vector3d wristToFinger = new Vector3d(wristToFingerNormalized);
 		wristToFinger.scale((float)SixiRobot.WRIST_TO_TOOL_Z);
 		
-		Vector3f wristPlaneY = new Vector3f(ulnaPlaneY);
-		Vector3f wristPlaneZ = new Vector3f(wristToFingerNormalized);
-		Vector3f wristPlaneX = new Vector3f();
+		Vector3d wristPlaneY = new Vector3d(ulnaPlaneY);
+		Vector3d wristPlaneZ = new Vector3d(wristToFingerNormalized);
+		Vector3d wristPlaneX = new Vector3d();
 		wristPlaneX.cross(wristPlaneY,wristPlaneZ);
 		wristPlaneX.normalize();
 		
 		// finger rotation
-		Vector3f fingerPlaneY = new Vector3f();
-		Vector3f fingerPlaneZ = new Vector3f(wristPlaneZ);
-		Vector3f fingerPlaneX = new Vector3f();
+		Vector3d fingerPlaneY = new Vector3d();
+		Vector3d fingerPlaneZ = new Vector3d(wristPlaneZ);
+		Vector3d fingerPlaneX = new Vector3d();
 		vx.set(wristPlaneX);	vx.scale((float)Math.cos(angle5rad));
 		vz.set(wristPlaneY);	vz.scale((float)Math.sin(angle5rad));
 		fingerPlaneX.add(vx);
 		fingerPlaneX.add(vz);
 		fingerPlaneX.normalize();
 		fingerPlaneY.cross(fingerPlaneZ, fingerPlaneX);
-		Vector3f fingerPosition = new Vector3f(wristPosition);
+		Vector3d fingerPosition = new Vector3d(wristPosition);
 		fingerPosition.add(wristToFinger);
 
 		// find the UVW rotations for the finger direction
@@ -1470,18 +1452,18 @@ extends Robot {
 		// since we roll U, then V, then W... we have to solve backwards.  First find W, then V, then U.
 		
 		// Project fingerPlaneZ onto the XY plane (newForward) and find the rotation around globalUp
-		Vector3f newForward = new Vector3f(fingerPlaneZ);
-		Vector3f newRight = new Vector3f(fingerPlaneY);
-		float lenW;
+		Vector3d newForward = new Vector3d(fingerPlaneZ);
+		Vector3d newRight = new Vector3d(fingerPlaneY);
+		double lenW;
 		
 		// 
 		lenW = globalUp.dot(newForward);
 		if(Math.abs(lenW)>1-EPSILON) {
 			// TODO special case straight along the axis, one way or the other.
 		} else {
-			Vector3f planeOffsetW = new Vector3f(globalUp);
+			Vector3d planeOffsetW = new Vector3d(globalUp);
 			planeOffsetW.scale(lenW);
-			Vector3f projectedForward = new Vector3f(newForward);
+			Vector3d projectedForward = new Vector3d(newForward);
 			projectedForward.sub(planeOffsetW);
 			projectedForward.normalize();
 
@@ -1503,9 +1485,9 @@ extends Robot {
 		if(Math.abs(lenW)>1-EPSILON) {
 			// TODO special case straight along the axis, one way or the other.
 		} else {
-			Vector3f planeOffsetW = new Vector3f(globalRight);
+			Vector3d planeOffsetW = new Vector3d(globalRight);
 			planeOffsetW.scale(lenW);
-			Vector3f projectedForward = new Vector3f(newForward);
+			Vector3d projectedForward = new Vector3d(newForward);
 			projectedForward.sub(planeOffsetW);
 			projectedForward.normalize();
 
@@ -1523,7 +1505,7 @@ extends Robot {
 		}
 		
 		// now repeat, solving for U.  Since newForward started pointing along globalForward, it's probably going to say 1.
-		Vector3f projectedForward = new Vector3f(newRight);
+		Vector3d projectedForward = new Vector3d(newRight);
 		projectedForward.normalize();
 
 		double dotX = globalRight.dot(projectedForward); 

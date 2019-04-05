@@ -16,9 +16,10 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.SpringUtilities;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.HTMLDialogBox;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -249,12 +250,12 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		}
 		
 		{
-			if( subject == fk0 ) {  robot.setFKAxis(0,fk0.getValue());  angle0.setText(formatFloat(fk0.getValue()));  }
-			if( subject == fk1 ) {  robot.setFKAxis(1,fk1.getValue());  angle1.setText(formatFloat(fk1.getValue()));  }
-			if( subject == fk2 ) {  robot.setFKAxis(2,fk2.getValue());  angle2.setText(formatFloat(fk2.getValue()));  }
-			if( subject == fk3 ) {  robot.setFKAxis(3,fk3.getValue());  angle3.setText(formatFloat(fk3.getValue()));  }
-			if( subject == fk4 ) {  robot.setFKAxis(4,fk4.getValue());  angle4.setText(formatFloat(fk4.getValue()));  }
-			if( subject == fk5 ) {  robot.setFKAxis(5,fk5.getValue());  angle5.setText(formatFloat(fk5.getValue()));  }
+			if( subject == fk0 ) {  robot.setFKAxis(0,fk0.getValue());  angle0.setText(StringHelper.formatDouble(fk0.getValue()));  }
+			if( subject == fk1 ) {  robot.setFKAxis(1,fk1.getValue());  angle1.setText(StringHelper.formatDouble(fk1.getValue()));  }
+			if( subject == fk2 ) {  robot.setFKAxis(2,fk2.getValue());  angle2.setText(StringHelper.formatDouble(fk2.getValue()));  }
+			if( subject == fk3 ) {  robot.setFKAxis(3,fk3.getValue());  angle3.setText(StringHelper.formatDouble(fk3.getValue()));  }
+			if( subject == fk4 ) {  robot.setFKAxis(4,fk4.getValue());  angle4.setText(StringHelper.formatDouble(fk4.getValue()));  }
+			if( subject == fk5 ) {  robot.setFKAxis(5,fk5.getValue());  angle5.setText(StringHelper.formatDouble(fk5.getValue()));  }
 		}
 	}
 	
@@ -342,34 +343,28 @@ public class Sixi2RobotControlPanel extends JPanel implements ActionListener, Ch
 		feedRateControl.setEnabled(enabled);
 		accelerationControl.setEnabled(enabled);
 	}
-	
-	protected String formatFloat(float arg0) {
-		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
-	}
 
 	public void updateFKPanel() {
 		Sixi2RobotKeyframe motionNow = (Sixi2RobotKeyframe)robot.getKeyframeNow();
 		
-		this.fk0.setValue((int)motionNow.angle0);	this.angle0.setText(formatFloat(motionNow.angle0));
-		this.fk1.setValue((int)motionNow.angle1);	this.angle1.setText(formatFloat(motionNow.angle1));
-		this.fk2.setValue((int)motionNow.angle2);	this.angle2.setText(formatFloat(motionNow.angle2));
-		this.fk3.setValue((int)motionNow.angle3);	this.angle3.setText(formatFloat(motionNow.angle3));
-		this.fk4.setValue((int)motionNow.angle4);	this.angle4.setText(formatFloat(motionNow.angle4));
-		this.fk5.setValue((int)motionNow.angle5);	this.angle5.setText(formatFloat(motionNow.angle5));
+		this.fk0.setValue((int)motionNow.angle0);	this.angle0.setText(StringHelper.formatDouble(motionNow.angle0));
+		this.fk1.setValue((int)motionNow.angle1);	this.angle1.setText(StringHelper.formatDouble(motionNow.angle1));
+		this.fk2.setValue((int)motionNow.angle2);	this.angle2.setText(StringHelper.formatDouble(motionNow.angle2));
+		this.fk3.setValue((int)motionNow.angle3);	this.angle3.setText(StringHelper.formatDouble(motionNow.angle3));
+		this.fk4.setValue((int)motionNow.angle4);	this.angle4.setText(StringHelper.formatDouble(motionNow.angle4));
+		this.fk5.setValue((int)motionNow.angle5);	this.angle5.setText(StringHelper.formatDouble(motionNow.angle5));
 	}
 	
 	public void updateIKPanel() {
 		Sixi2RobotKeyframe motionNow = (Sixi2RobotKeyframe)robot.getKeyframeNow();
 		
-		Vector3f v = new Vector3f();
-		v.set(motionNow.fingerPosition);
+		Vector3d v = new Vector3d(motionNow.fingerPosition);
 		v.add(robot.getPosition());
-		this.xPos.setText(formatFloat(v.x));
-		this.yPos.setText(formatFloat(v.y));
-		this.zPos.setText(formatFloat(v.z));
-		this.uPos.setText(formatFloat(motionNow.ikU));
-		this.vPos.setText(formatFloat(motionNow.ikV));
-		this.wPos.setText(formatFloat(motionNow.ikW));
+		this.xPos.setText(StringHelper.formatDouble(v.x));
+		this.yPos.setText(StringHelper.formatDouble(v.y));
+		this.zPos.setText(StringHelper.formatDouble(v.z));
+		this.uPos.setText(StringHelper.formatDouble(motionNow.ikU));
+		this.vPos.setText(StringHelper.formatDouble(motionNow.ikV));
+		this.wPos.setText(StringHelper.formatDouble(motionNow.ikW));
 	}
 }

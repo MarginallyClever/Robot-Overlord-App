@@ -1,5 +1,5 @@
 package com.marginallyclever.convenience;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.Cylinder;
 
@@ -8,23 +8,23 @@ public class PrimitiveSolids {
 	static public void drawCylinder(GL2 gl2,Cylinder tube) {
 		/*
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3f(tube.GetP1().x, tube.GetP1().y, tube.GetP1().z);
-		gl2.glVertex3f(tube.GetP2().x, tube.GetP2().y, tube.GetP2().z);
+		gl2.glVertex3d(tube.GetP1().x, tube.GetP1().y, tube.GetP1().z);
+		gl2.glVertex3d(tube.GetP2().x, tube.GetP2().y, tube.GetP2().z);
 		gl2.glEnd();
 		*/
 
-		Vector3f tx = new Vector3f();
-		Vector3f ty = new Vector3f();
-		Vector3f t1 = new Vector3f();
-		Vector3f t2 = new Vector3f();
-		Vector3f n = new Vector3f();
+		Vector3d tx = new Vector3d();
+		Vector3d ty = new Vector3d();
+		Vector3d t1 = new Vector3d();
+		Vector3d t2 = new Vector3d();
+		Vector3d n = new Vector3d();
 		
 		int i;
 		int c=10;
 		
 		// left
 		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3f(-tube.GetN().x,-tube.GetN().y,-tube.GetN().z);
+		gl2.glNormal3d(-tube.GetN().x,-tube.GetN().y,-tube.GetN().z);
 		for(i=0;i<=c;++i) {
 			tx.set(tube.GetR());
 			ty.set(tube.GetF());
@@ -35,12 +35,12 @@ public class PrimitiveSolids {
 			t1.set(tube.GetP1());
 			t1.add(tx);
 			t1.add(ty);
-			gl2.glVertex3f(t1.x,t1.y,t1.z);
+			gl2.glVertex3d(t1.x,t1.y,t1.z);
 		}
 		gl2.glEnd();
 		// right
 		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3f(tube.GetN().x,tube.GetN().y,tube.GetN().z);
+		gl2.glNormal3d(tube.GetN().x,tube.GetN().y,tube.GetN().z);
 		for(i=0;i<=c;++i) {
 			tx.set(tube.GetR());
 			ty.set(tube.GetF());
@@ -51,7 +51,7 @@ public class PrimitiveSolids {
 			t1.set(tube.GetP2());
 			t1.add(tx);
 			t1.add(ty);
-			gl2.glVertex3f(t1.x,t1.y,t1.z);
+			gl2.glVertex3d(t1.x,t1.y,t1.z);
 		}
 		gl2.glEnd();
 
@@ -72,10 +72,10 @@ public class PrimitiveSolids {
 			t2.add(ty);
 			n.set(t2);
 			n.normalize();
-			gl2.glNormal3f(n.x,n.y,n.z);
+			gl2.glNormal3d(n.x,n.y,n.z);
 			t2.add(tube.GetP2());
-			gl2.glVertex3f(t1.x,t1.y,t1.z);
-			gl2.glVertex3f(t2.x,t2.y,t2.z);
+			gl2.glVertex3d(t1.x,t1.y,t1.z);
+			gl2.glVertex3d(t2.x,t2.y,t2.z);
 			
 		}
 		gl2.glEnd();
@@ -91,7 +91,7 @@ public class PrimitiveSolids {
 		gl2.glNormal3f(0,1,0);
 		for(i=0;i<=c;++i) {
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3f((float)Math.sin(ratio)*radius,
+			gl2.glVertex3d((float)Math.sin(ratio)*radius,
 							thickness,
 							(float)Math.cos(ratio)*radius);
 		}
@@ -101,7 +101,7 @@ public class PrimitiveSolids {
 		gl2.glNormal3f(0,-1,0);
 		for(i=0;i<=c;++i) {
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3f((float)Math.cos(ratio)*radius,
+			gl2.glVertex3d((float)Math.cos(ratio)*radius,
 							-thickness,
 							(float)Math.sin(ratio)*radius);
 		}
@@ -115,8 +115,8 @@ public class PrimitiveSolids {
 			float b=thickness;
 			float d=(float)Math.cos(ratio)*radius;
 			gl2.glNormal3f(a,0,d);
-			gl2.glVertex3f(a,b,d);
-			gl2.glVertex3f(a,-b,d);
+			gl2.glVertex3d(a,b,d);
+			gl2.glVertex3d(a,-b,d);
 		}
 		gl2.glEnd();
 	}
@@ -129,43 +129,43 @@ public class PrimitiveSolids {
 		gl2.glBegin(GL2.GL_QUADS);
 		// bottom
 		gl2.glNormal3f( 0, 0,-1);
-		gl2.glVertex3f(-width, depth,0);
-		gl2.glVertex3f( width, depth,0);
-		gl2.glVertex3f( width,-depth,0);
-		gl2.glVertex3f(-width,-depth,0);
+		gl2.glVertex3d(-width, depth,0);
+		gl2.glVertex3d( width, depth,0);
+		gl2.glVertex3d( width,-depth,0);
+		gl2.glVertex3d(-width,-depth,0);
 
 		// top
 		gl2.glNormal3f( 0, 0, 1);
-		gl2.glVertex3f( width, depth,height);
-		gl2.glVertex3f(-width, depth,height);
-		gl2.glVertex3f(-width,-depth,height);
-		gl2.glVertex3f( width,-depth,height);
+		gl2.glVertex3d( width, depth,height);
+		gl2.glVertex3d(-width, depth,height);
+		gl2.glVertex3d(-width,-depth,height);
+		gl2.glVertex3d( width,-depth,height);
 
 		
 		// side
 		gl2.glNormal3f( 0, 1, 0);
-		gl2.glVertex3f(-width, depth,height);
-		gl2.glVertex3f( width, depth,height);
-		gl2.glVertex3f( width, depth,0);
-		gl2.glVertex3f(-width, depth,0);
+		gl2.glVertex3d(-width, depth,height);
+		gl2.glVertex3d( width, depth,height);
+		gl2.glVertex3d( width, depth,0);
+		gl2.glVertex3d(-width, depth,0);
 		
 		gl2.glNormal3f( 0,-1, 0);
-		gl2.glVertex3f( width,-depth,height);
-		gl2.glVertex3f(-width,-depth,height);
-		gl2.glVertex3f(-width,-depth,0);
-		gl2.glVertex3f( width,-depth,0);
+		gl2.glVertex3d( width,-depth,height);
+		gl2.glVertex3d(-width,-depth,height);
+		gl2.glVertex3d(-width,-depth,0);
+		gl2.glVertex3d( width,-depth,0);
 
 		gl2.glNormal3f( 1, 0, 0);
-		gl2.glVertex3f( width, depth,0);
-		gl2.glVertex3f( width, depth,height);
-		gl2.glVertex3f( width,-depth,height);
-		gl2.glVertex3f( width,-depth,0);
+		gl2.glVertex3d( width, depth,0);
+		gl2.glVertex3d( width, depth,height);
+		gl2.glVertex3d( width,-depth,height);
+		gl2.glVertex3d( width,-depth,0);
 	
 		gl2.glNormal3f(-1, 0, 0);
-		gl2.glVertex3f(-width,-depth,height);
-		gl2.glVertex3f(-width, depth,height);
-		gl2.glVertex3f(-width, depth,0);
-		gl2.glVertex3f(-width,-depth,0);
+		gl2.glVertex3d(-width,-depth,height);
+		gl2.glVertex3d(-width, depth,height);
+		gl2.glVertex3d(-width, depth,0);
+		gl2.glVertex3d(-width,-depth,0);
 
 		gl2.glEnd();
 		
@@ -173,12 +173,12 @@ public class PrimitiveSolids {
 	}
 	
 
-	static public void drawStar(GL2 gl2,Vector3f p) {
+	static public void drawStar(GL2 gl2,Vector3d p) {
 		drawStar(gl2,p,1.0f);
 	}
 	
 	
-	static public void drawStar(GL2 gl2,Vector3f p,float size) {
+	static public void drawStar(GL2 gl2,Vector3d p,double size) {
 		// save the current color
 		double [] params = new double[4];
 		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
@@ -191,11 +191,11 @@ public class PrimitiveSolids {
 		size/=2.0f;
 		
 		gl2.glPushMatrix();
-		gl2.glTranslatef(p.x, p.y, p.z);
+		gl2.glTranslated(p.x, p.y, p.z);
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1, 0, 0);		gl2.glVertex3f(-size, 0, 0);		gl2.glVertex3f(size, 0, 0);
-		gl2.glColor3d(0, 1, 0);		gl2.glVertex3f(0, -size, 0);		gl2.glVertex3f(0, size, 0);
-		gl2.glColor3d(0, 0, 1);		gl2.glVertex3f(0, 0, -size);		gl2.glVertex3f(0, 0, size);
+		gl2.glColor3d(1, 0, 0);		gl2.glVertex3d(-size, 0, 0);		gl2.glVertex3d(size, 0, 0);
+		gl2.glColor3d(0, 1, 0);		gl2.glVertex3d(0, -size, 0);		gl2.glVertex3d(0, size, 0);
+		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(0, 0, -size);		gl2.glVertex3d(0, 0, size);
 		gl2.glEnd();
 		gl2.glPopMatrix();
 		

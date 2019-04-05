@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -178,10 +178,10 @@ public class DHLink {
 		mat[15] = pose.m33;
 
 		MatrixHelper.drawMatrix(gl2, 
-				new Vector3f(0,0,0),
-				new Vector3f(1,0,0),
-				new Vector3f(0,1,0),
-				new Vector3f(0,0,1));
+				new Vector3d(0,0,0),
+				new Vector3d(1,0,0),
+				new Vector3d(0,1,0),
+				new Vector3d(0,0,1));
 
 		// draw the bone for this joint
 		gl2.glPushMatrix();

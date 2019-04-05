@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.arm5;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
@@ -16,42 +16,42 @@ class EvilMinionKeyframe implements RobotKeyframe {
 	 */
 	private static final long serialVersionUID = 1012199745425607761L;
 	// angle of rotation
-	float angleE = 0;
-	float angleD = 0;
-	float angleC = 0;
-	float angleB = 0;
-	float angleA = 0;
-	float angleServo = 120;
+	double angleE = 0;
+	double angleD = 0;
+	double angleC = 0;
+	double angleB = 0;
+	double angleA = 0;
+	double angleServo = 120;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
-	public Vector3f fingerPosition = new Vector3f();
-	public Vector3f fingerForward = new Vector3f();
-	public Vector3f fingerRight = new Vector3f();
+	public Vector3d fingerPosition = new Vector3d();
+	public Vector3d fingerForward = new Vector3d();
+	public Vector3d fingerRight = new Vector3d();
 	// finger rotation
-	public float iku=0;
-	public float ikv=0;
-	public float ikw=0;
+	public double iku=0;
+	public double ikv=0;
+	public double ikw=0;
 	// joint locations relative to base
-	Vector3f wrist = new Vector3f();
-	Vector3f elbow = new Vector3f();
-	Vector3f boom = new Vector3f();
-	Vector3f shoulder = new Vector3f();
+	Vector3d wrist = new Vector3d();
+	Vector3d elbow = new Vector3d();
+	Vector3d boom = new Vector3d();
+	Vector3d shoulder = new Vector3d();
 	
-	public Vector3f anchorPosition = new Vector3f();  // relative to world
+	public Vector3d anchorPosition = new Vector3d();  // relative to world
 	// base orientation, affects entire arm
-	public Vector3f baseForward = new Vector3f();
-	public Vector3f baseUp = new Vector3f();
-	public Vector3f baseRight = new Vector3f();
+	public Vector3d baseForward = new Vector3d();
+	public Vector3d baseUp = new Vector3d();
+	public Vector3d baseRight = new Vector3d();
 	
 	// rotating entire robot
-	float base_pan=0;
-	float base_tilt=0;
+	double base_pan=0;
+	double base_tilt=0;
 
 	// inverse kinematics visualizations
-	Vector3f ik_wrist = new Vector3f();
-	Vector3f ik_elbow = new Vector3f();
-	Vector3f ik_boom = new Vector3f();
-	Vector3f ik_shoulder = new Vector3f();
+	Vector3d ik_wrist = new Vector3d();
+	Vector3d ik_elbow = new Vector3d();
+	Vector3d ik_boom = new Vector3d();
+	Vector3d ik_shoulder = new Vector3d();
 	float ik_angleE = 0;
 	float ik_angleD = 0;
 	float ik_angleC = 0;
@@ -97,7 +97,7 @@ class EvilMinionKeyframe implements RobotKeyframe {
 
 
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
 		// TODO Auto-generated method stub
 		
 	}

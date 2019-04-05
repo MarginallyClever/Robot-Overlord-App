@@ -3,33 +3,33 @@ package com.marginallyclever.robotOverlord.actions;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3d;
 
 /**
- * Undoable action to select a Vector3f.
+ * Undoable action to select a Vector3d.
  * <p>
- * Some Entities have Vector3f (x,y,z) parameters.  This class ensures changing those parameters is undoable.
+ * Some Entities have Vector3d (x,y,z) parameters.  This class ensures changing those parameters is undoable.
  *  
  * @author Dan Royer
  *
  */
-public class UndoableActionSelectVector3f extends AbstractUndoableEdit {
+public class UndoableActionSelectVector3d extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private UserCommandSelectVector3f actionSelectVector3f;
-	private Vector3f oldValue,newValue;
+	private UserCommandSelectVector3d actionSelectVector3d;
+	private Vector3d oldValue,newValue;
 	private String label;
 	
-	public UndoableActionSelectVector3f(UserCommandSelectVector3f actionSelectVector3f,String label,Vector3f newValue) {
-		this.actionSelectVector3f = actionSelectVector3f;
+	public UndoableActionSelectVector3d(UserCommandSelectVector3d actionSelectVector3d,String label,Vector3d newValue) {
+		this.actionSelectVector3d = actionSelectVector3d;
 		this.label = label;
-		this.newValue = new Vector3f(newValue);
-		this.oldValue = new Vector3f(actionSelectVector3f.getValue());
+		this.newValue = new Vector3d(newValue);
+		this.oldValue = new Vector3d(actionSelectVector3d.getValue());
 		setValue(newValue);
 	}
 	
@@ -69,7 +69,7 @@ public class UndoableActionSelectVector3f extends AbstractUndoableEdit {
 		setValue(oldValue);
 	}
 
-	private void setValue(Vector3f value) {
-		actionSelectVector3f.setValue(value);
+	private void setValue(Vector3d value) {
+		actionSelectVector3d.setValue(value);
 	}
 }

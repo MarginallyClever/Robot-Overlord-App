@@ -7,7 +7,8 @@ import java.util.List;
 
 import com.jogamp.opengl.GL2;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
@@ -42,9 +43,11 @@ implements Serializable {
 
 	protected transient boolean areTexturesLoaded=false;
 
-	public final static Vector3f forward = new Vector3f(0,0,1);
-	public final static Vector3f right = new Vector3f(1,0,0);
-	public final static Vector3f up = new Vector3f(0,1,0);
+	public final static Matrix4d pose = new Matrix4d();
+	// TODO lose these junk vectors that don't match assumptions, anyhow.
+	public final static Vector3d forward = new Vector3d(0,0,1);
+	public final static Vector3d right = new Vector3d(1,0,0);
+	public final static Vector3d up = new Vector3d(0,1,0);
 	
 	// world contents
 	protected ArrayList<Entity> entities;
@@ -52,10 +55,10 @@ implements Serializable {
 	protected Light light0, light1, light2;
 	protected transient Texture t0,t1,t2,t3,t4,t5;
 
-	protected transient Vector3f pickForward = null;
-	protected transient Vector3f pickRight = null;
-	protected transient Vector3f pickUp = null;
-	protected transient Vector3f pickRay = null;
+	protected transient Vector3d pickForward = null;
+	protected transient Vector3d pickRight = null;
+	protected transient Vector3d pickUp = null;
+	protected transient Vector3d pickRay = null;
 	protected transient boolean isSetup = false;
 
 	public int gridWidth, gridHeight;
@@ -65,11 +68,13 @@ implements Serializable {
 	protected transient WorldControlPanel worldControlPanel;
 	
 	public World() {
+		pose.setIdentity();
+		
 		areTexturesLoaded=false;
-		pickForward=new Vector3f();
-		pickRight=new Vector3f();
-		pickUp=new Vector3f();
-		pickRay=new Vector3f();
+		pickForward=new Vector3d();
+		pickRight=new Vector3d();
+		pickUp=new Vector3d();
+		pickRay=new Vector3d();
 		
 		gridWidth = (int)(25.4*8);
 		gridHeight = (int)(25.4*3);
@@ -96,19 +101,19 @@ implements Serializable {
 
     protected void setupLights() {
     	light0.index=0;
-    	light0.setPosition(new Vector3f(0,0,30));
+    	light0.setPosition(new Vector3d(0,0,30));
     	light0.setAmbient(         0.0f,          0.0f,          0.0f, 1.0f);
     	light0.setDiffuse(255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
 	    light0.setSpecular(        1.0f,          1.0f,          1.0f, 1.0f);
     	
     	light1.index=1;
-    	light0.setPosition(new Vector3f(-10,-10,10));
+    	light0.setPosition(new Vector3d(-10,-10,10));
 	    light1.setAmbient(  0.0f, 0.0f, 0.0f, 1.0f);
     	light1.setDiffuse(  1.0f, 1.0f, 1.0f, 1.0f);
 	    light1.setSpecular( 0.0f, 0.0f, 0.0f, 1.0f);
 	    
     	light2.index=2;
-    	light2.setPosition(new Vector3f(30,30,30));
+    	light2.setPosition(new Vector3d(30,30,30));
 	    light2.setAmbient(          0.0f,          0.0f,          0.0f, 1.0f);
     	light2.setDiffuse( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f, 1.0f);  // metal halide
 	    light2.setSpecular(         0.0f,          0.0f,          0.0f, 1.0f);
@@ -246,7 +251,7 @@ implements Serializable {
 		gl2.glPushMatrix();
 		gl2.glDisable(GL2.GL_LIGHTING);
 
-		Vector3f forward = new Vector3f();
+		Vector3d forward = new Vector3d();
 		forward.set(pickForward);
 		forward.scale(10);
 		forward.sub(camera.getPosition());
@@ -290,7 +295,7 @@ implements Serializable {
 		gl2.glEnable(GL2.GL_TEXTURE_2D);
 		gl2.glPushMatrix();
 			gl2.glColor3f(1, 1, 1);
-			Vector3f p = camera.getPosition();
+			Vector3d p = camera.getPosition();
 			gl2.glTranslated(-p.x,-p.y,-p.z);
 
 			t0.bind(gl2);
@@ -372,11 +377,11 @@ implements Serializable {
 		pickRight.scale(-1);
 		pickUp.set(camera.getUp());
 		
-		Vector3f vy = new Vector3f();
+		Vector3d vy = new Vector3d();
 		vy.set(pickUp);
 		vy.scale((float)-screenY*10);
 
-		Vector3f vx = new Vector3f();
+		Vector3d vx = new Vector3d();
 		vx.set(pickRight);
 		vx.scale((float)screenX*10);
 

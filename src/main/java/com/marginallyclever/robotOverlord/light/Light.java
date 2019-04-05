@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.light;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -75,11 +75,11 @@ public class Light extends PhysicalObject {
 	}
 	
 	@Override
-	public void setPosition(Vector3f p) {
+	public void setPosition(Vector3d p) {
 		super.setPosition(p);
-		position[0] = p.x;
-		position[1] = p.y;
-		position[2] = p.z;
+		position[0] = (float)p.x;
+		position[1] = (float)p.y;
+		position[2] = (float)p.z;
 	}
 	
 	public void setDiffuse(float r,float g,float b,float a) {

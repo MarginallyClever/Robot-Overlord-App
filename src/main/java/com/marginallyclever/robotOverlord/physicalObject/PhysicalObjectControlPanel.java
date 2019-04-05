@@ -6,11 +6,11 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3d;
 
 /**
  * The user interface for an {@link Entity}.
@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3f;
 public class PhysicalObjectControlPanel extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 	private PhysicalObject entity;
-	private transient UserCommandSelectVector3f setPosition;
+	private transient UserCommandSelectVector3d setPosition;
 
 	/**
 	 * @param ro the application instance
@@ -51,7 +51,7 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 		
-		contents.add(setPosition = new UserCommandSelectVector3f(ro,"position",entity.getPosition()),con1);
+		contents.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;
 		setPosition.addChangeListener(this);
 	}
@@ -62,8 +62,7 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 	 * This might be better as a listener pattern.
 	 */
 	public void updateFields() {
-		Vector3f pos = entity.getPosition();
-		setPosition.setValue(pos);
+		setPosition.setValue(entity.getPosition());
 	}
 	
 	
@@ -76,8 +75,8 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 		Object subject = e.getSource();
 		
 		if( subject==setPosition ) {
-			Vector3f pos = entity.getPosition();
-			Vector3f newPos = setPosition.getValue();
+			Vector3d pos = entity.getPosition();
+			Vector3d newPos = setPosition.getValue();
 			if(!newPos.equals(pos)) {
 				entity.setPosition(newPos);
 			}

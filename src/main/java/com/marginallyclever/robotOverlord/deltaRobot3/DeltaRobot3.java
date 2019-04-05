@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -48,9 +48,9 @@ extends Robot {
 
 	public static final int NUM_ARMS = 3;
 	
-	protected float HOME_X = 0.0f;
-	protected float HOME_Y = 0.0f;
-	protected float HOME_Z = 3.98f;
+	protected double HOME_X = 0.0f;
+	protected double HOME_Y = 0.0f;
+	protected double HOME_Z = 3.98f;
 	
 	static final float LIMIT_U=15;
 	static final float LIMIT_V=15;
@@ -92,7 +92,7 @@ extends Robot {
 		motionFuture = new DeltaRobot3Keyframe();
 		
 		setupBoundingVolumes();
-		setHome(new Vector3f(0,0,0));
+		setHome(new Vector3d(0,0,0));
 		
 		isPortConfirmed=false;
 		speed=2;
@@ -129,10 +129,10 @@ extends Robot {
 	}
 	
 	
-	public Vector3f getHome() {  return new Vector3f(HOME_X,HOME_Y,HOME_Z);  }
+	public Vector3d getHome() {  return new Vector3d(HOME_X,HOME_Y,HOME_Z);  }
 	
 	
-	public void setHome(Vector3f newHome) {
+	public void setHome(Vector3d newHome) {
 		HOME_X=newHome.x;
 		HOME_Y=newHome.y;
 		HOME_Z=newHome.z;
@@ -143,12 +143,12 @@ extends Robot {
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
-		float aa=(motionNow.arms[0].elbow.y-motionNow.arms[0].wrist.y);
-		float cc=FOREARM_LENGTH;
-		float bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		double aa=(motionNow.arms[0].elbow.y-motionNow.arms[0].wrist.y);
+		double cc=FOREARM_LENGTH;
+		double bb=Math.sqrt((cc*cc)-(aa*aa));
 		aa=motionNow.arms[0].elbow.x-motionNow.arms[0].wrist.x;
 		cc=bb;
-		bb=(float)Math.sqrt((cc*cc)-(aa*aa));
+		bb=Math.sqrt((cc*cc)-(aa*aa));
 		motionNow.fingerPosition.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
 		motionFuture.set(motionNow);
 
@@ -177,7 +177,7 @@ extends Robot {
 	}
 
 
-	protected void updateIK(float delta) {
+	protected void updateIK(double delta) {
 		boolean changed=false;
 		motionFuture.set(motionNow);
 		
@@ -204,7 +204,7 @@ extends Robot {
 	}
 	
 	
-	protected void updateFK(float delta) {
+	protected void updateFK(double delta) {
 		boolean changed=false;
 		int i;
 		
@@ -233,7 +233,7 @@ extends Robot {
 	}
 	
 	@Override
-	public void prepareMove(float delta) {
+	public void prepareMove(double delta) {
 		updateIK(delta);
 		updateFK(delta);
 	}
@@ -283,10 +283,10 @@ extends Robot {
 		//RebuildShoulders(motion_now);
 		
 		gl2.glPushMatrix();
-		Vector3f p = getPosition();
+		Vector3d p = getPosition();
 		gl2.glTranslated(p.x, p.y, p.z+2);
 		
-		//motion_now.moveBase(new Vector3f(0,0,0));
+		//motion_now.moveBase(new Vector3d(0,0,0));
 		
 		if(draw_stl) {
 			// base
@@ -300,26 +300,26 @@ extends Robot {
 			modelBase.render(gl2);
 			gl2.glPopMatrix();
 
-			//gl2.glTranslatef(0, 0, BASE_TO_SHOULDER_Z);
+			//gl2.glTranslated(0, 0, BASE_TO_SHOULDER_Z);
 			
 			// arms
 			for(i=0;i<NUM_ARMS;++i) {
 				setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 				gl2.glPushMatrix();
-				gl2.glTranslatef(motionNow.arms[i].shoulder.x,
+				gl2.glTranslated(motionNow.arms[i].shoulder.x,
 						         motionNow.arms[i].shoulder.y,
 						         motionNow.arms[i].shoulder.z);
-				gl2.glRotatef(90,0,1,0);  // model oriented wrong direction
-				gl2.glRotatef(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
-				gl2.glTranslatef(0, 0, 0.125f*2.54f);  // model origin wrong
-				gl2.glRotatef(180-motionNow.arms[i].angle,0,0,1);
+				gl2.glRotated(90,0,1,0);  // model oriented wrong direction
+				gl2.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
+				gl2.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
+				gl2.glRotated(180-motionNow.arms[i].angle,0,0,1);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
 			//top
 			gl2.glPushMatrix();
 			setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
-			gl2.glTranslatef(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+			gl2.glTranslated(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
 			modelTop.render(gl2);
 			gl2.glPopMatrix();
 		}
@@ -329,19 +329,19 @@ extends Robot {
 		Cylinder tube = new Cylinder();
 		gl2.glColor3f(0.8f,0.8f,0.8f);
 		tube.setRadius(0.15f);
-		Vector3f a = new Vector3f();
-		Vector3f b = new Vector3f();
-		Vector3f ortho = new Vector3f();
+		Vector3d a = new Vector3d();
+		Vector3d b = new Vector3d();
+		Vector3d ortho = new Vector3d();
 		
 		for(i=0;i<NUM_ARMS;++i) {
 			//gl2.glBegin(GL2.GL_LINES);
 			//gl2.glColor3f(1,0,0);
-			//gl2.glVertex3f(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
+			//gl2.glVertex3d(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
 			//gl2.glColor3f(0,1,0);
-			//gl2.glVertex3f(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
+			//gl2.glVertex3d(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
 			//gl2.glEnd();
-			ortho.x=(float)Math.cos((float)i*Math.PI*2.0/3.0f);
-			ortho.y=(float)Math.sin((float)i*Math.PI*2.0/3.0f);
+			ortho.x=Math.cos((float)i*Math.PI*2.0/3.0f);
+			ortho.y=Math.sin((float)i*Math.PI*2.0/3.0f);
 			ortho.z=0;
 			a.set(motionNow.arms[i].wrist);
 			b.set(ortho);
@@ -381,9 +381,9 @@ extends Robot {
 			if(draw_shoulder_to_elbow) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0,1,0);
-				gl2.glVertex3f(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
+				gl2.glVertex3d(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
 				gl2.glColor3f(0,0,1);
-				gl2.glVertex3f(motionNow.arms[i].shoulder.x,motionNow.arms[i].shoulder.y,motionNow.arms[i].shoulder.z);
+				gl2.glVertex3d(motionNow.arms[i].shoulder.x,motionNow.arms[i].shoulder.y,motionNow.arms[i].shoulder.z);
 				gl2.glEnd();
 			}
 		}
@@ -394,16 +394,16 @@ extends Robot {
 			float s=2;
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,1,1);
-			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3f(motionNow.fingerPosition.x+motionNow.base_forward.x*s,
+			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3d(motionNow.fingerPosition.x+motionNow.base_forward.x*s,
 					       motionNow.fingerPosition.y+motionNow.base_forward.y*s,
 					       motionNow.fingerPosition.z+motionNow.base_forward.z*s);
-			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3f(motionNow.fingerPosition.x+motionNow.base_up.x*s,
+			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3d(motionNow.fingerPosition.x+motionNow.base_up.x*s,
 				       motionNow.fingerPosition.y+motionNow.base_up.y*s,
 				       motionNow.fingerPosition.z+motionNow.base_up.z*s);
-			gl2.glVertex3f(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3f(motionNow.fingerPosition.x+motionNow.base_right.x*s,
+			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
+			gl2.glVertex3d(motionNow.fingerPosition.x+motionNow.base_right.x*s,
 				       motionNow.fingerPosition.y+motionNow.base_right.y*s,
 				       motionNow.fingerPosition.z+motionNow.base_right.z*s);
 			
@@ -416,18 +416,18 @@ extends Robot {
 			gl2.glDisable(GL2.GL_DEPTH_TEST);
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(1,0,0);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.base_forward.x*s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x+motionNow.base_forward.x*s,
 					       motionNow.base.y+motionNow.base_forward.y*s,
 					       motionNow.base.z+motionNow.base_forward.z*s);
 			gl2.glColor3f(0,1,0);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.base_up.x*s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x+motionNow.base_up.x*s,
 				       motionNow.base.y+motionNow.base_up.y*s,
 				       motionNow.base.z+motionNow.base_up.z*s);
 			gl2.glColor3f(0,0,1);
-			gl2.glVertex3f(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3f(motionNow.base.x+motionNow.base_right.x*s,
+			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
+			gl2.glVertex3d(motionNow.base.x+motionNow.base_right.x*s,
 				       motionNow.base.y+motionNow.base_right.y*s,
 				       motionNow.base.z+motionNow.base_right.z*s);
 			
@@ -540,18 +540,18 @@ extends Robot {
 	}
 	
 	
-	Vector3f getWorldCoordinatesFor(Vector3f in) {
-		Vector3f out = new Vector3f(motionFuture.base);
+	Vector3d getWorldCoordinatesFor(Vector3d in) {
+		Vector3d out = new Vector3d(motionFuture.base);
 		
-		Vector3f tempx = new Vector3f(motionFuture.base_forward);
+		Vector3d tempx = new Vector3d(motionFuture.base_forward);
 		tempx.scale(in.x);
 		out.add(tempx);
 
-		Vector3f tempy = new Vector3f(motionFuture.base_right);
+		Vector3d tempy = new Vector3d(motionFuture.base_right);
 		tempy.scale(-in.y);
 		out.add(tempy);
 
-		Vector3f tempz = new Vector3f(motionFuture.base_up);
+		Vector3d tempz = new Vector3d(motionFuture.base_up);
 		tempz.scale(in.z);
 		out.add(tempz);
 				
@@ -638,14 +638,14 @@ extends Robot {
 
 
 	protected void updateIKWrists(DeltaRobot3Keyframe keyframe) {
-		Vector3f n1 = new Vector3f(),o1 = new Vector3f(),temp = new Vector3f();
-		float c,s;
+		Vector3d n1 = new Vector3d(),o1 = new Vector3d(),temp = new Vector3d();
+		double c,s;
 		int i;
 		for(i=0;i<NUM_ARMS;++i) {
 			DeltaRobot3Arm arma=keyframe.arms[i];
 
-			c=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			s=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
 			//n1 = n* c + o*s;
 			n1.set(keyframe.base_forward);
@@ -680,16 +680,16 @@ extends Robot {
 	
 
 	protected void updateIKShoulderAngles(DeltaRobot3Keyframe keyframe) throws AssertionError {
-		Vector3f ortho = new Vector3f(),w = new Vector3f(),wop = new Vector3f(),temp = new Vector3f(),r = new Vector3f();
-		float a,b,d,r1,r0,hh,y,x;
+		Vector3d ortho = new Vector3d(),w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
+		double a,b,d,r1,r0,hh,y,x;
 
 		int i;
 		for(i=0;i<NUM_ARMS;++i) {
 			DeltaRobot3Arm arm = keyframe.arms[i];
 
 			// project wrist position onto plane of bicep (wop)
-			ortho.x=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			ortho.y=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			ortho.x=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			ortho.y=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 			ortho.z=0;
 
 			//w = arm.wrist - arm.shoulder
@@ -706,8 +706,8 @@ extends Robot {
 
 			// we need to find wop-elbow to calculate the angle at the shoulder.
 			// wop-elbow is not the same as wrist-elbow.
-			b=(float)Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH-a*a);
-			if(Float.isNaN(b)) throw new AssertionError();
+			b=Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH-a*a);
+			if(Double.isNaN(b)) throw new AssertionError();
 
 			// use intersection of circles to find elbow point.
 			//a = (r0r0 - r1r1 + d*d ) / (2*d) 
@@ -726,8 +726,8 @@ extends Robot {
 			temp.scale(a);
 			temp.add(arm.shoulder);
 			// with a and r0 we can find h, the distance from midpoint to intersections.
-			hh=(float)Math.sqrt(r0*r0-a*a);
-			if(Float.isNaN(hh)) throw new AssertionError();
+			hh=Math.sqrt(r0*r0-a*a);
+			if(Double.isNaN(hh)) throw new AssertionError();
 			// get a normal to the line wop in the plane orthogonal to ortho
 			r.cross(ortho,wop);
 			r.scale(hh);
@@ -742,26 +742,26 @@ extends Robot {
 			x=temp.length();
 			// use atan2 to find theta
 			if( ( arm.shoulderToElbow.dot( temp ) ) < 0 ) x=-x;
-			arm.angle= (float)Math.toDegrees(Math.atan2(-y,x));
+			arm.angle= Math.toDegrees(Math.atan2(-y,x));
 		}
 	}
 
 
-	public void moveBase(DeltaRobot3Keyframe keyframe,Vector3f dp) {
+	public void moveBase(DeltaRobot3Keyframe keyframe,Vector3d dp) {
 		keyframe.base.set(dp);
 		rebuildShoulders(keyframe);
 	}
 
 
-	public void rotateBase(DeltaRobot3Keyframe keyframe,float pan,float tilt) {
+	public void rotateBase(DeltaRobot3Keyframe keyframe,double pan,double tilt) {
 		keyframe.basePan=pan;
 		keyframe.baseTilt=tilt;
 
-		pan = (float)Math.toRadians(pan);
-		tilt = (float)Math.toRadians(tilt);
-		keyframe.base_forward.y = (float)Math.sin(pan) * (float)Math.cos(tilt);
-		keyframe.base_forward.x = (float)Math.cos(pan) * (float)Math.cos(tilt);
-		keyframe.base_forward.z =                        (float)Math.sin(tilt);
+		pan = Math.toRadians(pan);
+		tilt = Math.toRadians(tilt);
+		keyframe.base_forward.y = Math.sin(pan) * Math.cos(tilt);
+		keyframe.base_forward.x = Math.cos(pan) * Math.cos(tilt);
+		keyframe.base_forward.z =                 Math.sin(tilt);
 		keyframe.base_forward.normalize();
 
 		keyframe.base_up.set(0,0,1);
@@ -776,14 +776,14 @@ extends Robot {
 
 	
 	protected void rebuildShoulders(DeltaRobot3Keyframe keyframe) {
-		Vector3f n1=new Vector3f(),o1=new Vector3f(),temp=new Vector3f();
-		float c,s;
+		Vector3d n1=new Vector3d(),o1=new Vector3d(),temp=new Vector3d();
+		double c,s;
 		int i;
 		for(i=0;i<3;++i) {
 			DeltaRobot3Arm arma=keyframe.arms[i];
 
-			c=(float)Math.cos( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			s=(float)Math.sin( (float)Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
 			//n1 = n* c + o*s;
 			n1.set(keyframe.base_forward);
@@ -842,7 +842,7 @@ extends Robot {
 		}
 
 		// check far limit
-		Vector3f temp = new Vector3f(state.finger_tip);
+		Vector3d temp = new Vector3d(state.finger_tip);
 		temp.sub(state.shoulder);
 		if(temp.length() > 50) return false;
 		// check near limit

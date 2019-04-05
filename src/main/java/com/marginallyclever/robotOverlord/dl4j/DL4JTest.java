@@ -173,7 +173,8 @@ public class DL4JTest {
         Evaluation eval = new Evaluation(6);
         INDArray output = model.output(testData.getFeatures());
 */
-        DataSetIterator iter = new ListDataSetIterator(testData.asList(),batchSize);
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		DataSetIterator iter = new ListDataSetIterator(testData.asList(),batchSize);
         iter.reset();
         INDArray output = model.output(iter,false);
         //model.save(new File("FK2IK.nn"));

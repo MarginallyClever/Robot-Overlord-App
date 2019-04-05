@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord;
 import java.io.Serializable;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 
 public class Cylinder extends BoundingVolume implements Serializable {
@@ -9,18 +9,18 @@ public class Cylinder extends BoundingVolume implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 8806336753074032506L;
-	private Vector3f p1 = new Vector3f(0,0,0);
-	private Vector3f p2 = new Vector3f(0,0,0);
-	private Vector3f n = new Vector3f(0,0,0);
-	private Vector3f f = new Vector3f(0,0,0);
-	private Vector3f r = new Vector3f(0,0,0);
+	private Vector3d p1 = new Vector3d(0,0,0);
+	private Vector3d p2 = new Vector3d(0,0,0);
+	private Vector3d n = new Vector3d(0,0,0);
+	private Vector3d f = new Vector3d(0,0,0);
+	private Vector3d r = new Vector3d(0,0,0);
 	private float radius=1.0f;
 	
-	public void SetP1(Vector3f src) {
+	public void SetP1(Vector3d src) {
 		p1.set(src);
 		UpdateVectors();
 	}
-	public void SetP2(Vector3f src) {
+	public void SetP2(Vector3d src) {
 		p2.set(src);
 		UpdateVectors();
 	}
@@ -32,20 +32,20 @@ public class Cylinder extends BoundingVolume implements Serializable {
 		return radius;
 	}
 	
-	public Vector3f GetP1() {
+	public Vector3d GetP1() {
 		return p1;
 	}
 	
-	public Vector3f GetP2() {
+	public Vector3d GetP2() {
 		return p2;
 	}
-	public Vector3f GetN() {
+	public Vector3d GetN() {
 		return n;
 	}
-	public Vector3f GetF() {
+	public Vector3d GetF() {
 		return f;
 	}
-	public Vector3f GetR() {
+	public Vector3d GetR() {
 		return r;
 	}
 	

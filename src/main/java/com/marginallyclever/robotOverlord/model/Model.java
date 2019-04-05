@@ -5,9 +5,9 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 
@@ -46,8 +46,8 @@ public class Model implements Serializable {
 	public transient boolean isDirty;
 	
 	// display correction matrix
-	protected Vector3f adjustOrigin;
-	protected Vector3f adjustRotation;
+	protected Vector3d adjustOrigin;
+	protected Vector3d adjustRotation;
 
 	
 	public Model() {
@@ -58,8 +58,8 @@ public class Model implements Serializable {
 		colorArray = new ArrayList<Float>();
 		texCoordArray = new ArrayList<Float>();
 		
-		adjustOrigin = new Vector3f();
-		adjustRotation = new Vector3f();
+		adjustOrigin = new Vector3d();
+		adjustRotation = new Vector3d();
 		loadScale=1.0f;
 		VBO = null;
 		hasNormals=false;
@@ -111,10 +111,10 @@ public class Model implements Serializable {
 		Iterator<Float> fi;
 		int j=0;
 
-		Matrix4f rot = new Matrix4f();
-		Matrix4f rotX = new Matrix4f();
-		Matrix4f rotY = new Matrix4f();
-		Matrix4f rotZ = new Matrix4f();
+		Matrix4d rot = new Matrix4d();
+		Matrix4d rotX = new Matrix4d();
+		Matrix4d rotY = new Matrix4d();
+		Matrix4d rotZ = new Matrix4d();
 		rot.setIdentity();
 		rotX.rotX((float)Math.toRadians(adjustRotation.x));
 		rotY.rotY((float)Math.toRadians(adjustRotation.y));
@@ -122,21 +122,21 @@ public class Model implements Serializable {
 		rot.set(rotX);
 		rot.mul(rotY);
 		rot.mul(rotZ);
-		Matrix4f pose = new Matrix4f(rot);
+		Matrix4d pose = new Matrix4d(rot);
 		pose.setScale(loadScale);
 		pose.setTranslation(adjustOrigin);
 		
 		vertices = FloatBuffer.allocate(vertexArray.size());
 		fi = vertexArray.iterator();
-		Point3f p = new Point3f();
+		Point3d p = new Point3d();
 		while(fi.hasNext()) {
 			p.x = fi.next().floatValue();
 			p.y = fi.next().floatValue();
 			p.z = fi.next().floatValue();
 			pose.transform(p);
-			vertices.put(j++, p.x);
-			vertices.put(j++, p.y);
-			vertices.put(j++, p.z);
+			vertices.put(j++, (float)p.x);
+			vertices.put(j++, (float)p.y);
+			vertices.put(j++, (float)p.z);
 		}
 
 		int totalBufferSize = numVertexes;
@@ -160,9 +160,9 @@ public class Model implements Serializable {
 				p.y = fi.next().floatValue();
 				p.z = fi.next().floatValue();
 				rot.transform(p);
-				normals.put(j++, p.x);
-				normals.put(j++, p.y);
-				normals.put(j++, p.z);
+				normals.put(j++, (float)p.x);
+				normals.put(j++, (float)p.y);
+				normals.put(j++, (float)p.z);
 			}
 			
 			normals.rewind();
@@ -256,14 +256,14 @@ public class Model implements Serializable {
 	 * Translate all the vertexes by a given amount
 	 * @param arg0 amount to translate on X, Y, and Z.
 	 */
-	public void adjustOrigin(Vector3f arg0) {
+	public void adjustOrigin(Vector3d arg0) {
 		if(!adjustOrigin.epsilonEquals(arg0, 0.01f)) {
 			adjustOrigin.set(arg0);
 			isDirty=true;
 		}
 	}
 	
-	public Vector3f getAdjustOrigin() {
+	public Vector3d getAdjustOrigin() {
 		return adjustOrigin;
 	}
 
@@ -271,14 +271,14 @@ public class Model implements Serializable {
 	 * Rotate all the vertexes by a given amount
 	 * @param arg0 amount in degrees to rotate around X,Y, and then Z. 
 	 */
-	public void adjustRotation(Vector3f arg0) {
+	public void adjustRotation(Vector3d arg0) {
 		if(!adjustRotation.epsilonEquals(arg0, 0.01f)) {
 			adjustRotation.set(arg0);
 			isDirty=true;
 		}
 	}
 	
-	public Vector3f getAdjustRotation() {
+	public Vector3d getAdjustRotation() {
 		return adjustRotation;
 	}
 	

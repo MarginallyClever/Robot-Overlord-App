@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.sixiRobot;
 
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
@@ -17,34 +17,34 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	private static final long serialVersionUID = 1012199745425607761L;
 	
 	// angle of rotation
-	float angle0 = 0;
-	float angle1 = 0;
-	float angle2 = 0;
-	float angle3 = 0;
-	float angle4 = 0;
-	float angle5 = 0;
-	float angleServo = 120;
+	double angle0 = 0;
+	double angle1 = 0;
+	double angle2 = 0;
+	double angle3 = 0;
+	double angle4 = 0;
+	double angle5 = 0;
+	double angleServo = 120;
 	
 	// robot arm coordinates.  Relative to base unless otherwise noted.
-	public Vector3f fingerPosition = new Vector3f();
-	public Vector3f fingerForward = new Vector3f();
-	public Vector3f fingerRight = new Vector3f();
+	public Vector3d fingerPosition = new Vector3d();
+	public Vector3d fingerForward = new Vector3d();
+	public Vector3d fingerRight = new Vector3d();
 	// finger rotation, in degrees
-	public float ikU=0;
-	public float ikV=0;
-	public float ikW=0;
+	public double ikU=0;
+	public double ikV=0;
+	public double ikW=0;
 	// joint locations relative to base
-	public Vector3f wrist = new Vector3f();
-	public Vector3f elbow = new Vector3f();
-	public Vector3f bicep = new Vector3f();
-	public Vector3f shoulder = new Vector3f();
-	public Vector3f base = new Vector3f();
+	public Vector3d wrist = new Vector3d();
+	public Vector3d elbow = new Vector3d();
+	public Vector3d bicep = new Vector3d();
+	public Vector3d shoulder = new Vector3d();
+	public Vector3d base = new Vector3d();
 	
-	public Vector3f anchorPosition = new Vector3f();  // relative to world
+	public Vector3d anchorPosition = new Vector3d();  // relative to world
 	// base orientation, affects entire arm
-	public Vector3f baseForward = new Vector3f();
-	public Vector3f baseUp = new Vector3f();
-	public Vector3f baseRight = new Vector3f();
+	public Vector3d baseForward = new Vector3d();
+	public Vector3d baseUp = new Vector3d();
+	public Vector3d baseRight = new Vector3d();
 	
 	// rotating entire robot
 	public double basePan=0;
@@ -82,7 +82,7 @@ class SixiRobotKeyframe implements RobotKeyframe {
 	}
 
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, float t) {
+	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
 		// TODO Auto-generated method stub
 		
 	}

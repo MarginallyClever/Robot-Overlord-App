@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.modelInWorld;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -28,12 +28,12 @@ public class ModelInWorld extends PhysicalObject {
 	// model render scale
 	protected float scale=1;
 	// model adjusted origin
-	protected Vector3f originAdjust;
+	protected Vector3d originAdjust;
 	
 	
 	public ModelInWorld() {
 		super();
-		originAdjust = new Vector3f();
+		originAdjust = new Vector3d();
 		material = new Material();
 	}
 
@@ -75,15 +75,20 @@ public class ModelInWorld extends PhysicalObject {
 		return scale;
 	}
 
-	public void adjustOrigin(float x,float y,float z) {
+	public void adjustOrigin(double x,double y,double z) {
 		originAdjust.x=x;
 		originAdjust.y=y;
 		originAdjust.z=z;
 		if(model!=null) model.adjustOrigin(originAdjust);
 	}
+
+	public void adjustOrigin(Vector3d arg0) {
+		originAdjust.set(arg0);;
+		if(model!=null) model.adjustOrigin(originAdjust);
+	}
 	
-	public Vector3f getAdjustOrigin() {
-		return new Vector3f(originAdjust);
+	public Vector3d getAdjustOrigin() {
+		return new Vector3d(originAdjust);
 	}
 	
 	@Override
@@ -103,11 +108,11 @@ public class ModelInWorld extends PhysicalObject {
 			}
 		}
 
-		Vector3f p = getPosition();
+		Vector3d p = getPosition();
 		
 		gl2.glPushMatrix();
 		
-		gl2.glTranslatef(p.x, p.y, p.z);
+		gl2.glTranslated(p.x, p.y, p.z);
 		
 		// TODO: this should probably be an option that can be toggled.
 		// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.
@@ -115,7 +120,7 @@ public class ModelInWorld extends PhysicalObject {
 
 		if( model==null ) {
 			// draw placeholder
-			PrimitiveSolids.drawStar(gl2,new Vector3f(0,0,0),10f);
+			PrimitiveSolids.drawStar(gl2,new Vector3d(0,0,0),10f);
 		} else {
 			material.render(gl2);
 			model.render(gl2);

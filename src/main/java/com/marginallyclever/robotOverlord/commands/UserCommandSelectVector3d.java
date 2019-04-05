@@ -14,17 +14,17 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.actions.UndoableActionSelectVector3f;
+import com.marginallyclever.robotOverlord.actions.UndoableActionSelectVector3d;
 
 /**
- * Panel to alter a Vector3f parameter (three float values).
+ * Panel to alter a Vector3d parameter (three float values).
  * @author Dan Royer
  *
  */
-public class UserCommandSelectVector3f extends JPanel implements DocumentListener {
+public class UserCommandSelectVector3d extends JPanel implements DocumentListener {
 	/**
 	 * 
 	 */
@@ -33,16 +33,16 @@ public class UserCommandSelectVector3f extends JPanel implements DocumentListene
 	private JTextField fieldX,fieldY,fieldZ;
 	private RobotOverlord ro;
 	private DecimalFormat df;
-	private Vector3f value;
+	private Vector3d value;
 	private String label;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
-	public UserCommandSelectVector3f(RobotOverlord ro,String labelName,Vector3f defaultValue) {
+	public UserCommandSelectVector3d(RobotOverlord ro,String labelName,Vector3d defaultValue) {
 		super();
 		this.ro = ro;
 		
-		value = new Vector3f(defaultValue);
+		value = new Vector3d(defaultValue);
 		this.label = labelName;
 		
 		allowSetText=true;
@@ -66,7 +66,7 @@ public class UserCommandSelectVector3f extends JPanel implements DocumentListene
 		fieldZ = addField("Z",defaultValue.z,con1);
 	}
 	
-	private JTextField addField(String labelName,float defaultValue,GridBagConstraints con1) {
+	private JTextField addField(String labelName,double defaultValue,GridBagConstraints con1) {
 		JLabel label = new JLabel(labelName);
 		JTextField f = new JTextField(15);
 		f.setText(df.format(defaultValue));
@@ -86,11 +86,11 @@ public class UserCommandSelectVector3f extends JPanel implements DocumentListene
 		this.df = df;
 	}
 	
-	public Vector3f getValue() {
+	public Vector3d getValue() {
 		return value;
 	}
 	
-	public void setValue(Vector3f v) {
+	public void setValue(Vector3d v) {
 		if(value.epsilonEquals(v, EPSILON)) return;
 		
 		value.set(v);		
@@ -108,10 +108,10 @@ public class UserCommandSelectVector3f extends JPanel implements DocumentListene
 		}
 	}
 	
-	private void setField(JTextField field,float value) {
+	private void setField(JTextField field,double value) {
 		String x;
 		if(df != null) x = df.format(value);
-		else x = Float.toString(value);
+		else x = Double.toString(value);
 		if(allowSetText) {
 			allowSetText=false;
 			field.setText(x);
@@ -119,9 +119,9 @@ public class UserCommandSelectVector3f extends JPanel implements DocumentListene
 		}		
 	}
 	
-	private float getField(String value,float original) {
+	private double getField(String value,double original) {
 		try {
-			return Float.parseFloat(value);
+			return Double.parseDouble(value);
 		} catch(NumberFormatException e) {
 			return original;
 		}
@@ -139,14 +139,14 @@ public class UserCommandSelectVector3f extends JPanel implements DocumentListene
 	public void changedUpdate(DocumentEvent arg0) {
 		if(allowSetText==false) return;
 		
-		Vector3f newValue = new Vector3f();
+		Vector3d newValue = new Vector3d();
 		newValue.x = getField(fieldX.getText(),value.x);
 		newValue.y = getField(fieldY.getText(),value.y);
 		newValue.z = getField(fieldZ.getText(),value.z);
 
 		if(!newValue.epsilonEquals(value, EPSILON)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectVector3f(this, label, newValue) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectVector3d(this, label, newValue) ) );
 			allowSetText=true;
 		}
 	}
