@@ -1,18 +1,23 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
+import com.marginallyclever.robotOverlord.world.World;
 
 /**
  * A robot designed using D-H parameters.
@@ -178,7 +183,40 @@ public abstract class DHRobot extends Robot {
 	 * Detach the active tool if there is one.
 	 */
 	public void toggleATC() {
+		if(dhTool!=null) {
+			// we have a tool, release it.
+			removeTool();
+			return;
+		}
+		
+		// we have no tool.  Look out into the world...
+		Entity p=parent;
+		while(p!=null) {
+			if(p instanceof World) {
+				break;
+			}
+		}
+		if(p==null || !(p instanceof World)) {
+			// World not found.  The toggle!  It does nothing!
+		}
+
+		// Request from the world "is there a tool at the position of the end effector"?
+		World world = (World)p;
+		
+		Point3d target = new Point3d(this.endMatrix.m03,this.endMatrix.m13,this.endMatrix.m23);
+		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,10);
+
+		// If there is a tool, attach to it.
+		Iterator<PhysicalObject> iter = list.iterator();
+		while(iter.hasNext()) {
+			PhysicalObject po = iter.next();
+			if(po instanceof DHTool) {
+				// probably the only one we'll find.
+				addTool((DHTool)po);
+			}
+		}
 	}
+	
 	
 	public void addTool(DHTool arg0) {
 		removeTool();
