@@ -7,7 +7,8 @@
 #com.marginallyclever.robotOverlord.dhRobot.DHRobot
 com.marginallyclever.robotOverlord.dhRobot.DHRSixi2
 #com.marginallyclever.robotOverlord.dhRobot.DHRArm3
-com.marginallyclever.robotOverlord.dhRobot.DHRUArm
+com.marginallyclever.robotOverlord.dhRobot.DHR_GMF_M100
+#com.marginallyclever.robotOverlord.dhRobot.DHRUArm
 
 #com.marginallyclever.robotOverlord.arm5.EvilMinionRobot
 #com.marginallyclever.robotOverlord.thor.ThorRobot
