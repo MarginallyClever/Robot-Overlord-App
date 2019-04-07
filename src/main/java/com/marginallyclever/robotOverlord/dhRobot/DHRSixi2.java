@@ -22,24 +22,23 @@ public class DHRSixi2 extends DHRobot {
 	
 	@Override
 	public void setupLinks() {
-		// setup sixi2 as default.
 		setNumLinks(8);
 		// roll
 		links.get(0).d=13.44;
 		links.get(0).theta=0;
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).angleMin=-120;
-		links.get(0).angleMax=120;
+		links.get(0).rangeMin=-120;
+		links.get(0).rangeMax=120;
 		// tilt
 		links.get(1).alpha=0;
 		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(2).angleMin=-72;
+		links.get(1).rangeMin=-72;
 		// tilt
 		links.get(2).d=44.55;
 		links.get(2).alpha=0;
 		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(2).angleMin=-83.369;
-		links.get(2).angleMax=86;
+		links.get(2).rangeMin=-83.369;
+		links.get(2).rangeMax=86;
 		// interim point
 		links.get(3).d=4.7201;
 		links.get(3).alpha=0;
@@ -48,20 +47,20 @@ public class DHRSixi2 extends DHRobot {
 		links.get(4).d=28.805;
 		links.get(4).theta=0;
 		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).angleMin=-90;
-		links.get(4).angleMax=90;
+		links.get(4).rangeMin=-90;
+		links.get(4).rangeMax=90;
 
 		// tilt
 		links.get(5).d=11.8;
 		links.get(5).alpha=0;
 		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(5).angleMin=-90;
-		links.get(5).angleMax=90;
+		links.get(5).rangeMin=-90;
+		links.get(5).rangeMax=90;
 		// roll
 		links.get(6).d=3.9527;
 		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(6).angleMin=-90;
-		links.get(6).angleMax=90;
+		links.get(6).rangeMin=-90;
+		links.get(6).rangeMax=90;
 		
 		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 

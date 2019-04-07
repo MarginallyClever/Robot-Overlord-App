@@ -40,18 +40,17 @@ public class DHRUArm extends DHRobot {
 	
 	@Override
 	public void setupLinks() {
-		// setup sixi2 as default.
 		setNumLinks(5);
 		// roll
 		links.get(0).d=2.75;
 		links.get(0).theta=0;
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).angleMin=-160;
-		links.get(0).angleMax=160;
+		links.get(0).rangeMin=-160;
+		links.get(0).rangeMax=160;
 		// tilt
 		links.get(1).alpha=0;
 		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(2).angleMin=-72;
+		links.get(1).rangeMin=-72;
 		// tilt
 		links.get(2).d=15.0;
 		links.get(2).alpha=0;

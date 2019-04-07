@@ -42,7 +42,8 @@ public class DHLink {
 	public final static int READ_ONLY_R		= 1<<2;
 	public final static int READ_ONLY_ALPHA	= 1<<3;
 	
-	public double angleMin,angleMax;
+	public double rangeMin,rangeMax;
+	
 	public double maxVelocity;
 	public double maxAcceleration;
 	public double maxTorque;
@@ -60,8 +61,8 @@ public class DHLink {
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		model=null;
-		angleMin=-90;
-		angleMax=90;
+		rangeMin=-90;
+		rangeMax=90;
 		maxVelocity=Double.MAX_VALUE;
 		maxAcceleration=Double.MAX_VALUE;
 		maxTorque=Double.MAX_VALUE;
@@ -76,8 +77,8 @@ public class DHLink {
 		pose = new Matrix4d(arg0.pose);
 		poseCumulative = new Matrix4d(arg0.poseCumulative);
 		model=arg0.model;
-		angleMin=arg0.angleMin;
-		angleMax=arg0.angleMax;
+		rangeMin=arg0.rangeMin;
+		rangeMax=arg0.rangeMax;
 		maxVelocity=arg0.maxVelocity;
 		maxAcceleration=arg0.maxAcceleration;
 		maxTorque=arg0.maxTorque;
@@ -205,7 +206,7 @@ public class DHLink {
 			if((flags & READ_ONLY_THETA)==0) {
 				// display the curve around z (in the xy plane)
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
-					double j=(angleMax-angleMin)*(k/ANGLE_RANGE_STEPS)+angleMin;
+					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
 							Math.cos(Math.toRadians(j-90))*10, 
 							Math.sin(Math.toRadians(j-90))*10, 
@@ -222,7 +223,7 @@ public class DHLink {
 			if((flags & READ_ONLY_ALPHA)==0) {
 				// display the curve around x (in the yz plane)
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
-					double j=(angleMax-angleMin)*(k/ANGLE_RANGE_STEPS)+angleMin;
+					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
 							0,
 							Math.cos(Math.toRadians(j+90))*10,
@@ -248,9 +249,9 @@ public class DHLink {
 	 * @param gl2 the render context
 	 */
 	protected void setAngleColorByRange(GL2 gl2) {
-		double range = angleMax-angleMin;
+		double range = rangeMax-rangeMin;
 		double halfRange = range/2;
-		double midRange = angleMax-halfRange;
+		double midRange = rangeMax-halfRange;
 		double safety = Math.abs(this.alpha-midRange)/halfRange;
 		safety*=safety*safety;  // cubed
 		gl2.glColor3d(safety,1-safety,0);
