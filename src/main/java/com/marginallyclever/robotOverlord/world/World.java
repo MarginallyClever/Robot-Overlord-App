@@ -8,6 +8,7 @@ import java.util.List;
 import com.jogamp.opengl.GL2;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -31,7 +32,7 @@ import com.marginallyclever.robotOverlord.viewCube.ViewCube;
  * @author danroyer
  *
  */
-public class World
+public class World extends Entity
 implements Serializable {
 
 	/**
@@ -50,7 +51,6 @@ implements Serializable {
 	public final static Vector3d up = new Vector3d(0,1,0);
 	
 	// world contents
-	protected ArrayList<Entity> entities;
 	protected Camera camera;
 	protected Light light0, light1, light2;
 	protected transient Texture t0,t1,t2,t3,t4,t5;
@@ -79,7 +79,7 @@ implements Serializable {
 		gridWidth = (int)(25.4*8);
 		gridHeight = (int)(25.4*3);
 		
-		entities = new ArrayList<Entity>();
+		children = new ArrayList<Entity>();
 		addEntity(camera = new Camera());
 		addEntity(light0 = new Light());
 		addEntity(light1 = new Light());
@@ -152,7 +152,7 @@ implements Serializable {
 			isSetup=true;
 		}
 		
-		Iterator<Entity> io = entities.iterator();
+		Iterator<Entity> io = children.iterator();
 		while(io.hasNext()) {
 			Entity obj = io.next();
 			if(obj instanceof PhysicalObject) {
@@ -164,7 +164,7 @@ implements Serializable {
 		//TODO do collision test here
 		
 		// Finalize the moves that don't collide
-		io = entities.iterator();
+		io = children.iterator();
 		while(io.hasNext()) {
 			Entity obj = io.next();
 			if(obj instanceof PhysicalObject) {
@@ -208,7 +208,7 @@ implements Serializable {
 			PrimitiveSolids.drawGrid(gl2,gridWidth,gridHeight,1);
 
 			// lights
-			io = entities.iterator();
+			io = children.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
 				if(obj instanceof Light) {
@@ -217,7 +217,7 @@ implements Serializable {
 			}
 
 			// draw!
-			io = entities.iterator();
+			io = children.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
 				if(obj instanceof Light) continue;
@@ -402,7 +402,7 @@ implements Serializable {
 			newObject=camera;
 		} else {
 			// scan all objects in world to find the one with the pickName.
-			Iterator<Entity> iter = entities.iterator();
+			Iterator<Entity> iter = children.iterator();
 			while(iter.hasNext()) {
 				Entity obj = iter.next();
 				if( obj.hasPickName(pickName) ) {
@@ -418,22 +418,22 @@ implements Serializable {
 
 	
 	public void addEntity(Entity o) {
-		entities.add(o);
+		children.add(o);
 		if(worldControlPanel!=null) worldControlPanel.updateEntityList();
 	}
 	
 	public void removeEntity(Entity o) {
-		entities.remove(o);
+		children.remove(o);
 	}
 	
 	public boolean hasEntity(Entity o) {
-		return entities.contains(o);
+		return children.contains(o);
 	}
 	
 	public List<String> namesOfAllObjects() {
 		ArrayList<String> list = new ArrayList<String>();
 		
-		Iterator<Entity> i = this.entities.iterator();
+		Iterator<Entity> i = this.children.iterator();
 		while(i.hasNext()) {
 			String s = i.next().getDisplayName();
 			list.add(s);
@@ -443,7 +443,7 @@ implements Serializable {
 	}
 	
 	public Entity findObjectWithName(String name) {
-		Iterator<Entity> i = this.entities.iterator();
+		Iterator<Entity> i = this.children.iterator();
 		while(i.hasNext()) {
 			Entity o = i.next();
 			String objectName = o.getDisplayName();
@@ -461,5 +461,38 @@ implements Serializable {
 	public WorldControlPanel getControlPanel(RobotOverlord gui) {
 		if(worldControlPanel==null) worldControlPanel = new WorldControlPanel(gui,this); 
 		return worldControlPanel;
+	}
+	
+	/**
+	 * Find all Entities within epsilon mm of pose.
+	 * TODO Much optimization could be done here to reduce the search time.
+	 * @param target the center of the cube around which to search.   
+	 * @param epsilon the cube is of size epsilon * epsilon * epsilon mm.
+	 * @return a list of found PhysicalObjects
+	 */
+	public List<PhysicalObject> findPhysicalObjectsNear(Point3d target,double epsilon) {
+		epsilon/=2;
+		
+		List<PhysicalObject> found = new ArrayList<PhysicalObject>();
+		
+		// check all children
+		Iterator<Entity> iter = children.iterator();
+		while(iter.hasNext()) {
+			Entity e = iter.next();
+			if(e instanceof PhysicalObject) {
+				// is physical, therefore has position
+				PhysicalObject po = (PhysicalObject)e;
+				Point3d pop = new Point3d(po.getPosition());
+				pop.sub(target);
+				if(Math.abs(pop.x)<=epsilon||
+					Math.abs(pop.y)<=epsilon||
+					Math.abs(pop.z)<=epsilon) {
+					// in range!
+					found.add(po);
+				}
+			}
+		}
+		
+		return found;
 	}
 }
