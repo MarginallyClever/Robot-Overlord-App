@@ -16,11 +16,6 @@ public class DHLinkPanel {
 	public DHLink link;
 
 	/**
-	 * {@value #isRotation} true if this a rotary joint, false if this is a translation joint. 
-	 */
-	public UserCommandSelectBoolean isRotation;
-
-	/**
 	 * {@value #d} the displayed value for link.d
 	 */
 	public UserCommandSelectNumber d;
@@ -41,12 +36,19 @@ public class DHLinkPanel {
 	public UserCommandSelectNumber alpha;
 	
 	public DHLinkPanel(RobotOverlord gui,DHLink link,int k) {
+		setup(gui,link,Integer.toString(k));
+	}
+	
+	public DHLinkPanel(RobotOverlord gui,DHLink link,String linkName) {
+		setup(gui,link,linkName);
+	}
+	
+	protected void setup(RobotOverlord gui,DHLink link,String linkName) {
 		this.link=link;
-		isRotation = new UserCommandSelectBoolean(gui,k+" Rotation?",true);
-		d     = new UserCommandSelectNumber(gui,k+" d",(float)link.d);
-		theta = new UserCommandSelectNumber(gui,k+" theta",(float)link.theta);
-		r     = new UserCommandSelectNumber(gui,k+" r",(float)link.r);
-		alpha = new UserCommandSelectNumber(gui,k+" alpha",(float)link.alpha);
+		d     		= new UserCommandSelectNumber (gui,linkName+" d"		,(float)link.d		);
+		theta 		= new UserCommandSelectNumber (gui,linkName+" theta"	,(float)link.theta	);
+		r     		= new UserCommandSelectNumber (gui,linkName+" r"		,(float)link.r		);
+		alpha 		= new UserCommandSelectNumber (gui,linkName+" alpha"	,(float)link.alpha	);
 
 		d		.setReadOnly((link.flags & DHLink.READ_ONLY_D		)!=0);
 		theta	.setReadOnly((link.flags & DHLink.READ_ONLY_THETA	)!=0);

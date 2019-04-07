@@ -38,12 +38,17 @@ public abstract class DHRobot extends Robot {
 	/**
 	 * {@value panel} the GUI panel for controlling this robot.
 	 */
-	DHPanel panel;
+	DHRobotPanel panel;
 	
 	/**
 	 * {@value endMatrix} the world frame pose of the last link in the kinematic chain.
 	 */
 	Matrix4d endMatrix;
+	
+	/**
+	 * {@value dhTool} a DHTool current attached to the arm.
+	 */
+	DHTool dhTool;
 	
 	/**
 	 * {@value drawSkeleton} true if the skeleton should be visualized on screen.  Default is false.
@@ -67,6 +72,7 @@ public abstract class DHRobot extends Robot {
 	 * Override this method with your robot's setup.
 	 */
 	public abstract void setupLinks();
+	
 	/**
 	 * Override this method to return the correct solver for your type of robot.
 	 * @return the IK solver for a specific type of robot.
@@ -82,7 +88,7 @@ public abstract class DHRobot extends Robot {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
-		panel = new DHPanel(gui,this);
+		panel = new DHRobotPanel(gui,this);
 		list.add(panel);
 		
 		return list;
@@ -165,5 +171,29 @@ public abstract class DHRobot extends Robot {
 		super.setPosition(pos);
 		refreshPose();
 		if(panel!=null) panel.updateEnd();
+	}
+
+	/**
+	 * Attach the nearest tool
+	 * Detach the active tool if there is one.
+	 */
+	public void toggleATC() {
+	}
+	
+	public void addTool(DHTool arg0) {
+		removeTool();
+		dhTool = arg0;
+		arg0.heldBy = this;
+	}
+	
+	public void removeTool() {
+		if(dhTool!=null) {
+			dhTool.heldBy = null;
+		}
+		dhTool = null;
+	}
+	
+	public DHTool getCurrentTool() {
+		return dhTool;
 	}
 }
