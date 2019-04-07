@@ -24,6 +24,10 @@ public class Entity implements Serializable {
 	
 	private String displayName;
 	private int pickName;
+
+	protected ArrayList<Entity> children;
+	protected Entity parent;
+	
 	
 	// unique ids for all objects in the world.  zero is reserved to indicate no object.
 	static private int pickNameCounter=1;
@@ -95,4 +99,37 @@ public class Entity implements Serializable {
 	public void unPick() {}
 	
 	public void render(GL2 gl2) {}
+	
+	
+	public void addChild(Entity e) {
+		children.add(e);
+	}
+	
+	public void removeChild(Entity e) {
+		int n=0;
+		Iterator<Entity> i = children.iterator();
+		while(i.hasNext()) {
+			if(i==e) {
+				children.remove(n);
+				return;
+			}
+			++n;
+		}
+	}
+	
+	public ArrayList<Entity> getChildren() {
+		return children;
+	}
+	
+	public void removeParent() {
+		parent=null;
+	}
+
+	public Entity getParent() {
+		return parent;
+	}
+	
+	public void setParent(Entity e) {
+		parent = e;
+	}
 }
