@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -21,7 +22,7 @@ import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
  * @author Dan Royer
  *
  */
-public class DHPanel extends JPanel implements ActionListener, ChangeListener {
+public class DHRobotPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
@@ -34,9 +35,10 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
 	public JLabel endx,endy,endz;
+	public JButton toggleATC;
 	
 	
-	public DHPanel(RobotOverlord gui,DHRobot robot) {
+	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
 		this.robot = robot;
 		this.gui = gui;
 		linkPanels = new ArrayList<DHLinkPanel>();
@@ -75,6 +77,10 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 			if((link.flags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
 			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
 		}
+		
+		this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
+		con1.gridy++;
+		toggleATC.addActionListener(this);
 		
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
 		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;
@@ -144,8 +150,14 @@ public class DHPanel extends JPanel implements ActionListener, ChangeListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
+		Object source = event.getSource();
+		if(source == toggleATC) {
+			// TODO get the tool from somewhere?  Find the tool in the world adjacent to the end effector
+			
+			robot.toggleATC();
+			buildPanel();
+			this.invalidate();
+		}
 	}
 
 }
