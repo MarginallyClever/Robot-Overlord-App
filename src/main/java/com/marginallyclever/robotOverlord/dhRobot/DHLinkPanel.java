@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectBoolean;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 
 /**

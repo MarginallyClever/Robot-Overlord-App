@@ -64,7 +64,7 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		c.gridy++;
 
 		// (re)create the entity list
-		Iterator<Entity> ie = world.entities.iterator();
+		Iterator<Entity> ie = world.getChildren().iterator();
 		List<EntityListItem> localEntityList = new ArrayList<EntityListItem>(); 
 		while(ie.hasNext()) {
 			Entity e = ie.next();

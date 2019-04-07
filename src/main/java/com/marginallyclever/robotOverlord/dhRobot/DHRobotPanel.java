@@ -150,10 +150,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Object source = event.getSource();
+		Object source = e.getSource();
 		if(source == toggleATC) {
 			// TODO get the tool from somewhere?  Find the tool in the world adjacent to the end effector
-			
 			robot.toggleATC();
 			buildPanel();
 			this.invalidate();
