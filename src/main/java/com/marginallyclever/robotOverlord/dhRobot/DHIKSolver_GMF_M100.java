@@ -7,8 +7,9 @@ import javax.vecmath.Vector4d;
 import com.marginallyclever.convenience.StringHelper;
 
 /**
- * Solves Inverse Kinematics for a robot arm.  Assumptions differ with each specific implementation.
+ * Solves Inverse Kinematics for a FANUC GMF M-100 robot arm.
  * @author Dan Royer
+ * @see http://www.robotix.co.uk/products/fanuc/robot/m_series/m100.htm
  */
 public class DHIKSolver_GMF_M100 implements DHIKSolver {
 	public double theta0;
