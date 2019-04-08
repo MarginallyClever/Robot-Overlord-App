@@ -39,13 +39,12 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-linux-amd64</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-linux-amd64</include>
-        <include>net.java.jinput:jinput-platform:jar:natives-linux</include>
       </includes>
       <unpackOptions>
         <includes><include>*.dll</include></includes>
       </unpackOptions>
     </dependencySet>
-
+        
     <dependencySet>
       <outputDirectory>/natives/linux-i586/</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
@@ -54,7 +53,6 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-linux-i586</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-linux-i586</include>
-        <include>net.java.jinput:jinput-platform:jar:natives-linux</include>
       </includes>
       <unpackOptions>
         <includes><include>*.so</include></includes>
@@ -69,7 +67,6 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-windows-amd64</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-windows-amd64</include>
-        <include>net.java.jinput:jinput-platform:jar:natives-windows</include>
       </includes>
       <unpackOptions>
         <includes><include>*.dll</include></includes>
@@ -84,7 +81,6 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-windows-i586</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-windows-i586</include>
-        <include>net.java.jinput:jinput-platform:jar:natives-windows</include>
       </includes>
       <unpackOptions>
         <includes><include>*.dll</include></includes>
@@ -99,6 +95,47 @@
       <includes>
         <include>org.jogamp.gluegen:gluegen-rt:jar:natives-macosx-universal</include>
         <include>org.jogamp.jogl:jogl-all:jar:natives-macosx-universal</include>
+      </includes>
+      <unpackOptions>
+        <includes><include>*.jnilib</include></includes>
+      </unpackOptions>
+    </dependencySet>
+    
+
+	<!-- jinput stuff -->
+	
+    <dependencySet>
+      <outputDirectory>/natives/linux/</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <scope>runtime</scope>
+      <unpack>true</unpack>
+      <includes>
+        <include>net.java.jinput:jinput-platform:jar:natives-linux</include>
+      </includes>
+      <unpackOptions>
+        <includes><include>*.dll</include></includes>
+      </unpackOptions>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>/natives/windows/</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <scope>runtime</scope>
+      <unpack>true</unpack>
+      <includes>
+        <include>net.java.jinput:jinput-platform:jar:natives-windows</include>
+      </includes>
+      <unpackOptions>
+        <includes><include>*.dll</include></includes>
+      </unpackOptions>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>/natives/osx/</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <scope>runtime</scope>
+      <unpack>true</unpack>
+      <includes>
         <include>net.java.jinput:jinput-platform:jar:natives-osx</include>
       </includes>
       <unpackOptions>
