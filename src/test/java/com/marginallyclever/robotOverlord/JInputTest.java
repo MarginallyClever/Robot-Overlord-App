@@ -1,4 +1,4 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.robotOverlord;
 
 import org.junit.Test;
 
@@ -11,6 +11,8 @@ public class JInputTest {
 	public void reportJavaLibraryPath() {
 		String property = System.getProperty("java.library.path");
 		System.out.println("java.library.path="+property.replace(";","\n  "));
+		
+		System.out.println("Working Directory = " + System.getProperty("user.dir"));
 	}
 	
 	@Test
@@ -24,11 +26,12 @@ public class JInputTest {
             Component[] components = ca[i].getComponents();
             System.out.println("Component Count: "+components.length);
             for(int j=0;j<components.length;j++){
-                System.out.println("	Component "+j+": "+components[j].getName());
-                System.out.println("    Identifier: "+ components[j].getIdentifier().getName());
-                System.out.print("    Type: ");
-                System.out.print(components[j].isRelative() ? "Relative" : "Absolute");
-                System.out.print(components[j].isAnalog()? "Analog" : "Digital");
+                System.out.print("\tComponent "+j+": "+components[j].getName());
+                System.out.print("\tIdentifier: "+ components[j].getIdentifier().getName());
+                System.out.print("\tType: ");
+                System.out.print(components[j].isRelative() ? "Relative " : "Absolute ");
+                System.out.print(components[j].isAnalog()? "Analog " : "Digital ");
+                System.out.println();
             }
         }
 	}
