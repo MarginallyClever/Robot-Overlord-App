@@ -96,6 +96,9 @@ public class Entity implements Serializable {
 	public boolean hasPickName(int name) {
 		return pickName==name;
 	}
+	
+	public void pick() {}
+	
 	public void unPick() {}
 	
 	public void render(GL2 gl2) {}
