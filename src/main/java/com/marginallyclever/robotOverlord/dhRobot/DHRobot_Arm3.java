@@ -7,6 +7,11 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.material.Material;
 
+/**
+ * DHRobot version of Arm3, a palletizing robot I built long ago.  Incomplete!
+ * @author Dan Royer
+ *
+ */
 public class DHRobot_Arm3 extends DHRobot {
 	/**
 	 * 
@@ -16,7 +21,7 @@ public class DHRobot_Arm3 extends DHRobot {
 
 	public DHRobot_Arm3() {
 		super();
-		setDisplayName("DHRArm3");
+		setDisplayName("Arm3");
 	}
 	
 	@Override
