@@ -133,6 +133,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		
 		Translator.start();
 		SoundSystem.start();
+		InputManager.start();
 		
 		commandSequence = new UndoManager();
 		undoHelper = new UndoHelper(this);
@@ -558,13 +559,20 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     @Override
     /**
-     * draw the 3d scene
+     * Draw the 3D scene.  Called ~30/s and a good place to also poll input.
      */
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
         float dt = (nowTime - lastTime)*0.001f;
     	lastTime = nowTime;
     	//System.out.println(dt);
+    	
+    	InputManager.update();
+    	if(pickedEntity!=null) {
+    		if(pickedEntity instanceof InputListener) {
+    			((InputListener)pickedEntity).inputUpdate();
+    		}
+    	}
     	
     	GL2 gl2 = drawable.getGL().getGL2();
 
