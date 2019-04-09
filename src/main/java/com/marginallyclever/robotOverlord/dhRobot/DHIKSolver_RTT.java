@@ -8,7 +8,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * TODO test and finish
  */
-public class DHIKSolveRTT implements DHIKSolver {
+public class DHIKSolver_RTT implements DHIKSolver {
 	public double theta0;
 	public double alpha1;
 	public double alpha2;

@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
  * @author Dan Royer
  * @see https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
-public class DHRUArm extends DHRobot {
+public class DHR_UArm extends DHRobot {
 	/**
 	 * 
 	 */
@@ -33,7 +33,7 @@ public class DHRUArm extends DHRobot {
 	private transient Model forearmTendon = null;
 	*/
 
-	public DHRUArm() {
+	public DHR_UArm() {
 		super();
 		setDisplayName("DHRUArm");
 	}
@@ -124,6 +124,6 @@ public class DHRUArm extends DHRobot {
 	}
 	
 	public DHIKSolver getSolverIK() {
-		return new DHIKSolveRTT();
+		return new DHIKSolver_RTT();
 	}
 }
