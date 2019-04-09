@@ -12,14 +12,14 @@ import com.marginallyclever.robotOverlord.material.Material;
  * @author Dan Royer
  *
  */
-public class DHR_GMF_M100 extends DHRobot {
+public class DHRobot_GMF_M100 extends DHRobot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 
-	public DHR_GMF_M100() {
+	public DHRobot_GMF_M100() {
 		super();
 		setDisplayName("GMF M-100");
 	}

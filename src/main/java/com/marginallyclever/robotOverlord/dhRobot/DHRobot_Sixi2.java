@@ -16,16 +16,16 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
-public class DHR_Sixi2 extends DHRobot implements InputListener {
+public class DHRobot_Sixi2 extends DHRobot implements InputListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	public Matrix4d targetPose;
 
-	public DHR_Sixi2() {
+	public DHRobot_Sixi2() {
 		super();
-		setDisplayName("DHRSixi2");
+		setDisplayName("Sixi 2");
 	}
 	
 	@Override
