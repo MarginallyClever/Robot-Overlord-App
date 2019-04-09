@@ -137,7 +137,8 @@ public class DHIKSolver_RTTRTR implements DHIKSolver {
 				
 		// angle of triangle j3-j2-j5 is ph4.
 		// b2^2 = b^+b1^2-2*b*b1*cos(phi4)
-		double phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2*b1*b) );
+		double phi4=0;
+		if(b1!=0) phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2*b1*b) );
 		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) alpha2 - phi3-phi4

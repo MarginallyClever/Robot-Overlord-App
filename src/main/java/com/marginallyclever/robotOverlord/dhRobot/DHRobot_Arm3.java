@@ -7,14 +7,14 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.material.Material;
 
-public class DHR_Arm3 extends DHRobot {
+public class DHRobot_Arm3 extends DHRobot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 
-	public DHR_Arm3() {
+	public DHRobot_Arm3() {
 		super();
 		setDisplayName("DHRArm3");
 	}
