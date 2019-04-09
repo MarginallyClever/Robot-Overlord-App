@@ -16,14 +16,14 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
-public class DHRSixi2 extends DHRobot implements InputListener {
+public class DHR_Sixi2 extends DHRobot implements InputListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	public Matrix4d targetPose;
 
-	public DHRSixi2() {
+	public DHR_Sixi2() {
 		super();
 		setDisplayName("DHRSixi2");
 	}
@@ -176,7 +176,7 @@ public class DHRSixi2 extends DHRobot implements InputListener {
 	}
 	
 	public DHIKSolver getSolverIK() {
-		return new DHIKSolveRTTRTR();
+		return new DHIKSolver_RTTRTR();
 	}
 
 	@Override
@@ -188,64 +188,63 @@ public class DHRSixi2 extends DHRobot implements InputListener {
 		double deadzone=0.1;
 		
         for(int i=0;i<ca.length;i++){
-        	if(ca[i].getType()==Controller.Type.STICK) {
-            	Component[] components = ca[i].getComponents();
-                for(int j=0;j<components.length;j++){
-                	if(!components[j].isAnalog()) continue;
+        	if(ca[i].getType()!=Controller.Type.STICK) continue;
 
-                	if(components[j].getIdentifier()==Identifier.Axis.Z) {
-                		// right analog stick, + is right -1 is left
-                		double v = components[j].getPollData();
-                		if(Math.abs(v)<deadzone) continue;
-                		isDirty=true;
-                		Matrix4d temp = new Matrix4d();
-                		temp.rotY(v*scaleTurn);
-                		targetPose.mul(temp);
-                	}
-                	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
-                		// right analog stick, + is down -1 is up
-                		double v = components[j].getPollData();
-                		if(Math.abs(v)<deadzone) continue;
-                		isDirty=true;
-                		Matrix4d temp = new Matrix4d();
-                		temp.rotX(v*scaleTurn);
-                		targetPose.mul(temp);
-                	}
-                	
-                	if(components[j].getIdentifier()==Identifier.Axis.RY) {
-                		// right trigger, +1 is pressed -1 is unpressed
-                		double v = components[j].getPollData();
-                		if(Math.abs(v)<-1+deadzone) continue;
-                		isDirty=true;
-                		targetPose.m23-=((v+1)/2)*scale;
-                	}
-                	if(components[j].getIdentifier()==Identifier.Axis.RX) {
-                		// left trigger, +1 is pressed -1 is unpressed
-                		double v = components[j].getPollData();
-                		if(Math.abs(v)<-1+deadzone) continue;
-                		isDirty=true;
-                		targetPose.m23+=((v+1)/2)*scale;
-                	}
-                	if(components[j].getIdentifier()==Identifier.Axis.X) {
-                		// left analog stick, +1 is right -1 is left
-                		double v = components[j].getPollData();
-                		if(Math.abs(v)<deadzone) continue;
-                		isDirty=true;
-                		targetPose.m13+=v*scale;
-                	}
-                	if(components[j].getIdentifier()==Identifier.Axis.Y) {
-                		// left analog stick, -1 is up +1 is down
-                		double v = components[j].getPollData();
-                		if(Math.abs(v)<deadzone) continue;
-                		isDirty=true;
-                		targetPose.m03+=v*scale;
-                	}
-                	/*System.out.print("\t"+components[j].getName()+
-                			":"+(components[j].isAnalog()?"Abs":"Rel")+
-                			":"+(components[j].isAnalog()?"An":"Di")+
-                   			":"+(components[j].getPollData()));*/
-                	
-                }
+        	Component[] components = ca[i].getComponents();
+            for(int j=0;j<components.length;j++){
+            	if(!components[j].isAnalog()) continue;
+
+            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
+            		// right analog stick, + is right -1 is left
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		Matrix4d temp = new Matrix4d();
+            		temp.rotY(v*scaleTurn);
+            		targetPose.mul(temp);
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
+            		// right analog stick, + is down -1 is up
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		Matrix4d temp = new Matrix4d();
+            		temp.rotX(v*scaleTurn);
+            		targetPose.mul(temp);
+            	}
+            	
+            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
+            		// right trigger, +1 is pressed -1 is unpressed
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<-1+deadzone) continue;
+            		isDirty=true;
+            		targetPose.m23-=((v+1)/2)*scale;
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
+            		// left trigger, +1 is pressed -1 is unpressed
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<-1+deadzone) continue;
+            		isDirty=true;
+            		targetPose.m23+=((v+1)/2)*scale;
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.X) {
+            		// left analog stick, +1 is right -1 is left
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		targetPose.m13+=v*scale;
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
+            		// left analog stick, -1 is up +1 is down
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		targetPose.m03+=v*scale;
+            	}
+            	/*System.out.print("\t"+components[j].getName()+
+            			":"+(components[j].isAnalog()?"Abs":"Rel")+
+            			":"+(components[j].isAnalog()?"An":"Di")+
+               			":"+(components[j].getPollData()));*/
         	}
         }
 
@@ -253,9 +252,10 @@ public class DHRSixi2 extends DHRobot implements InputListener {
         	// set the new target pose
         	this.links.get(7).poseCumulative.set(targetPose);
         	// attempt to solve IK
-        	DHIKSolveRTTRTR solver = (DHIKSolveRTTRTR)this.getSolverIK();
+        	DHIKSolver_RTTRTR solver = (DHIKSolver_RTTRTR)this.getSolverIK();
         	solver.solve(this);
-        	if(solver.solutionFlag==DHIKSolveRTTRTR.ONE_SOLUTION) {
+        	if(solver.solutionFlag==DHIKSolver_RTTRTR.ONE_SOLUTION) {
+        		// solved!  update robot pose with fk.
 	        	this.links.get(0).theta = solver.theta0;
 	        	this.links.get(1).alpha = solver.alpha1;
 	        	this.links.get(2).alpha = solver.alpha2;

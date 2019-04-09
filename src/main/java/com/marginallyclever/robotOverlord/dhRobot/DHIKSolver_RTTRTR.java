@@ -14,7 +14,7 @@ import javax.vecmath.Vector3d;
  * @see https://www.youtube.com/watch?v=V_6diIcQl0U
  * @see https://www.youtube.com/watch?v=74tbl9q2_qI
  */
-public class DHIKSolveRTTRTR implements DHIKSolver {
+public class DHIKSolver_RTTRTR implements DHIKSolver {
 	public double theta0;
 	public double alpha1;
 	public double alpha2;

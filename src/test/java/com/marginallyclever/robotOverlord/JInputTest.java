@@ -19,19 +19,18 @@ public class JInputTest {
 	public void testControllers() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
         for(int i =0;i<ca.length;i++){
-            System.out.println("Controller:"+ca[i].getName());
-            System.out.println("Type: "+ca[i].getType().toString());
+            Component[] components = ca[i].getComponents();
+
+            System.out.println("Controller:"+ca[i].getName()+" "+ca[i].getType().toString());
+            System.out.println("Component Count: "+components.length);
 
             // Get this controllers components (buttons and axis)
-            Component[] components = ca[i].getComponents();
-            System.out.println("Component Count: "+components.length);
             for(int j=0;j<components.length;j++){
-                System.out.print("\tComponent "+j+": "+components[j].getName());
-                System.out.print("\tIdentifier: "+ components[j].getIdentifier().getName());
-                System.out.print("\tType: ");
+                System.out.print("\t"+j+": "+components[j].getName());
+                System.out.print(" \""+ components[j].getIdentifier().getName()+"\" (");
                 System.out.print(components[j].isRelative() ? "Relative " : "Absolute ");
                 System.out.print(components[j].isAnalog()? "Analog " : "Digital ");
-                System.out.println();
+                System.out.println(")");
             }
         }
 	}
