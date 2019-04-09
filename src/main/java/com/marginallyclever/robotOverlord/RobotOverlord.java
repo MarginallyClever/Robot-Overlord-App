@@ -685,6 +685,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     }
 	
 	public void pickEntity(Entity arg0) {
+		arg0.pick();
 		pickedEntity=arg0;
 		setContextPanel(arg0.getAllContextPanels(this),arg0.getDisplayName());
 	}
