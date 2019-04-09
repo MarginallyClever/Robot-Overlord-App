@@ -212,7 +212,7 @@ public class DHIKSolveRTTRTR implements DHIKSolver {
 		Matrix4d r47 = new Matrix4d();
 		r47.mul(r04inv,r07);
 
-		if(true) System.out.println("r47="+r47);
+		if(false) System.out.println("r47="+r47);
 		
 		// with r47 we can find alpha5
 		double a5 = Math.acos(r47.m22);
@@ -229,7 +229,7 @@ public class DHIKSolveRTTRTR implements DHIKSolver {
 			System.out.println("p4o="+p4original);
 			System.out.println("p4c="+p4cloned);
 		}
-		if(true) {
+		if(false) {
 			System.out.println(
 					"r36.m22="+r47.m22+"\t"+
 					"a5="+a5+"\t"+
@@ -265,7 +265,7 @@ public class DHIKSolveRTTRTR implements DHIKSolver {
 		double t4 = Math.acos(r47.m12/Math.sin(a5));
 		theta4 = 180-Math.toDegrees(t4);  // TODO explain why we need 180- here
 		
-		if(true) System.out.println(
+		if(false) System.out.println(
 				"r47.m20="+formatDouble(r47.m20)+"\t"+
 				"t6="+formatDouble(t6)+"\t"+
 				"theta6="+formatDouble(theta6)+"\t"+
@@ -274,7 +274,7 @@ public class DHIKSolveRTTRTR implements DHIKSolver {
 				"t4="+formatDouble(t4)+"\t"+
 				"theta4="+formatDouble(theta4)+"\t");
 
-		if(true) System.out.println("result={"
+		if(false) System.out.println("result={"
 					+formatDouble(theta0)+","
 					+formatDouble(alpha1)+","
 					+formatDouble(alpha2)+","
