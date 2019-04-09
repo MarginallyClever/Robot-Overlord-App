@@ -16,6 +16,12 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
+/**
+ * D-H robot modified for Andreas Hoelldorfer's MANTIS
+ * @author Dan Royer
+ * @see https://hackaday.io/project/3800-3d-printable-robot-arm
+ *
+ */
 public class DHRobot_Mantis extends DHRobot implements InputListener {
 	/**
 	 * 
@@ -54,11 +60,11 @@ public class DHRobot_Mantis extends DHRobot implements InputListener {
 		this.links.get(2).rangeMin=-83.369;
 		this.links.get(2).rangeMax=86;
 		// interim point
-		this.links.get(3).d=0;
+		this.links.get(3).d=0.001;  // TODO explain why this couldn't just be zero.  Solver hates it for some reason.
 		this.links.get(3).alpha=90;
 		this.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
-		this.links.get(4).d=14.6855f-5.7162f-2.4838f-3.7;
+		this.links.get(4).d=8.547;
 		this.links.get(4).theta=0;
 		this.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		this.links.get(4).rangeMin=-90;
@@ -105,15 +111,19 @@ public class DHRobot_Mantis extends DHRobot implements InputListener {
 	}
 	
 	@Override
+	public void pick() {
+		this.refreshPose();
+		targetPose.set(endMatrix);
+		drawSkeleton=true;
+	}
+	
+	@Override
+	public void unPick() {
+		drawSkeleton=false;
+	}
+	
+	@Override
 	public void render(GL2 gl2) {
-		this.links.get(0).d=24.5+2.7;
-		this.links.get(1).d=0;
-		this.links.get(2).d=13.9744 + 8.547;
-		this.links.get(3).alpha=90;
-		this.links.get(3).d=0.001;
-		this.links.get(4).d=8.547;
-		this.links.get(5).d=14.6855f;
-		this.links.get(6).d=5.0;
 		
 		Material material = new Material();
 		
@@ -122,9 +132,9 @@ public class DHRobot_Mantis extends DHRobot implements InputListener {
 			gl2.glTranslated(position.x, position.y, position.z);
 			
 			// Draw models
-			float r=0.25f;
-			float g=0.25f;
-			float b=0.25f;
+			float r=0.5f;
+			float g=0.5f;
+			float b=0.5f;
 			material.setDiffuseColor(r,g,b,1);
 			material.render(gl2);
 			
@@ -135,41 +145,44 @@ public class DHRobot_Mantis extends DHRobot implements InputListener {
 					link.renderModel(gl2);
 				}
 			gl2.glPopMatrix();
-		gl2.glPopMatrix();
 		
-		// draw targetPose
-		gl2.glPushMatrix();
+			if(drawSkeleton) {
+				// draw targetPose
+				gl2.glPushMatrix();
+				
+				double[] mat = new double[16];
+				mat[ 0] = targetPose.m00;
+				mat[ 1] = targetPose.m10;
+				mat[ 2] = targetPose.m20;
+				mat[ 3] = targetPose.m30;
+				mat[ 4] = targetPose.m01;
+				mat[ 5] = targetPose.m11;
+				mat[ 6] = targetPose.m21;
+				mat[ 7] = targetPose.m31;
+				mat[ 8] = targetPose.m02;
+				mat[ 9] = targetPose.m12;
+				mat[10] = targetPose.m22;
+				mat[11] = targetPose.m32;
+				mat[12] = targetPose.m03;
+				mat[13] = targetPose.m13;
+				mat[14] = targetPose.m23;
+				mat[15] = targetPose.m33;
+				gl2.glMultMatrixd(mat, 0);
 		
-		double[] mat = new double[16];
-		mat[ 0] = targetPose.m00;
-		mat[ 1] = targetPose.m10;
-		mat[ 2] = targetPose.m20;
-		mat[ 3] = targetPose.m30;
-		mat[ 4] = targetPose.m01;
-		mat[ 5] = targetPose.m11;
-		mat[ 6] = targetPose.m21;
-		mat[ 7] = targetPose.m31;
-		mat[ 8] = targetPose.m02;
-		mat[ 9] = targetPose.m12;
-		mat[10] = targetPose.m22;
-		mat[11] = targetPose.m32;
-		mat[12] = targetPose.m03;
-		mat[13] = targetPose.m13;
-		mat[14] = targetPose.m23;
-		mat[15] = targetPose.m33;
-		gl2.glMultMatrixd(mat, 0);
+				boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+				boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+				gl2.glDisable(GL2.GL_DEPTH_TEST);
+				gl2.glDisable(GL2.GL_LIGHTING);
+				MatrixHelper.drawMatrix(gl2, 
+						new Vector3d(0,0,0),
+						new Vector3d(1,0,0),
+						new Vector3d(0,1,0),
+						new Vector3d(0,0,1));
+				if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+				if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+				gl2.glPopMatrix();
+			}
 
-		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		MatrixHelper.drawMatrix(gl2, 
-				new Vector3d(0,0,0),
-				new Vector3d(1,0,0),
-				new Vector3d(0,1,0),
-				new Vector3d(0,0,1));
-		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 		
 		super.render(gl2);

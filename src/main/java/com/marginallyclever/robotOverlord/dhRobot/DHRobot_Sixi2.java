@@ -114,6 +114,18 @@ public class DHRobot_Sixi2 extends DHRobot implements InputListener {
 	}
 	
 	@Override
+	public void pick() {
+		this.refreshPose();
+		targetPose.set(endMatrix);
+		drawSkeleton=true;
+	}
+	
+	@Override
+	public void unPick() {
+		drawSkeleton=false;
+	}
+	
+	@Override
 	public void render(GL2 gl2) {		
 		Material material = new Material();
 		
@@ -135,41 +147,44 @@ public class DHRobot_Sixi2 extends DHRobot implements InputListener {
 					link.renderModel(gl2);
 				}
 			gl2.glPopMatrix();
-		gl2.glPopMatrix();
 		
-		// draw targetPose
-		gl2.glPushMatrix();
+			if(drawSkeleton) {
+				// draw targetPose
+				gl2.glPushMatrix();
+				
+				double[] mat = new double[16];
+				mat[ 0] = targetPose.m00;
+				mat[ 1] = targetPose.m10;
+				mat[ 2] = targetPose.m20;
+				mat[ 3] = targetPose.m30;
+				mat[ 4] = targetPose.m01;
+				mat[ 5] = targetPose.m11;
+				mat[ 6] = targetPose.m21;
+				mat[ 7] = targetPose.m31;
+				mat[ 8] = targetPose.m02;
+				mat[ 9] = targetPose.m12;
+				mat[10] = targetPose.m22;
+				mat[11] = targetPose.m32;
+				mat[12] = targetPose.m03;
+				mat[13] = targetPose.m13;
+				mat[14] = targetPose.m23;
+				mat[15] = targetPose.m33;
+				gl2.glMultMatrixd(mat, 0);
 		
-		double[] mat = new double[16];
-		mat[ 0] = targetPose.m00;
-		mat[ 1] = targetPose.m10;
-		mat[ 2] = targetPose.m20;
-		mat[ 3] = targetPose.m30;
-		mat[ 4] = targetPose.m01;
-		mat[ 5] = targetPose.m11;
-		mat[ 6] = targetPose.m21;
-		mat[ 7] = targetPose.m31;
-		mat[ 8] = targetPose.m02;
-		mat[ 9] = targetPose.m12;
-		mat[10] = targetPose.m22;
-		mat[11] = targetPose.m32;
-		mat[12] = targetPose.m03;
-		mat[13] = targetPose.m13;
-		mat[14] = targetPose.m23;
-		mat[15] = targetPose.m33;
-		gl2.glMultMatrixd(mat, 0);
+				boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+				boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+				gl2.glDisable(GL2.GL_DEPTH_TEST);
+				gl2.glDisable(GL2.GL_LIGHTING);
+				MatrixHelper.drawMatrix(gl2, 
+						new Vector3d(0,0,0),
+						new Vector3d(1,0,0),
+						new Vector3d(0,1,0),
+						new Vector3d(0,0,1));
+				if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+				if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+				gl2.glPopMatrix();
+			}
 
-		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		MatrixHelper.drawMatrix(gl2, 
-				new Vector3d(0,0,0),
-				new Vector3d(1,0,0),
-				new Vector3d(0,1,0),
-				new Vector3d(0,0,1));
-		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 		
 		super.render(gl2);
@@ -263,6 +278,8 @@ public class DHRobot_Sixi2 extends DHRobot implements InputListener {
 	        	this.links.get(5).alpha = solver.alpha5;
 	        	this.links.get(6).theta = solver.theta6;
         	}
+        	// if a solution was found we must update the pose.
+        	// if a solution was not found we must remove the new target pose.
         	this.refreshPose();
         }
 	}
