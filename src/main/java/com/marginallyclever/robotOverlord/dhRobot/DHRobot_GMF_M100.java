@@ -21,7 +21,7 @@ public class DHRobot_GMF_M100 extends DHRobot {
 
 	public DHRobot_GMF_M100() {
 		super();
-		setDisplayName("GMF M-100");
+		setDisplayName("FANUC GMF M-100");
 	}
 	
 	@Override
