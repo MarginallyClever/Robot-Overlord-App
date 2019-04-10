@@ -7,6 +7,8 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.StringHelper;
+
 /**
  * Solves Inverse Kinematics for a RTTRTR robot.  It is assumed the first three joints position the end effector
  * and the last three joints orient the end effector.
@@ -14,7 +16,7 @@ import javax.vecmath.Vector3d;
  * @see https://www.youtube.com/watch?v=V_6diIcQl0U
  * @see https://www.youtube.com/watch?v=74tbl9q2_qI
  */
-public class DHIKSolver_RTTRTR implements DHIKSolver {
+public class DHIKSolver_RTTRTR extends DHIKSolver {
 	public double theta0;
 	public double alpha1;
 	public double alpha2;
@@ -24,15 +26,6 @@ public class DHIKSolver_RTTRTR implements DHIKSolver {
 	public double theta6;
 	// link 7 is the final output that we started with.
 
-	/**
-	 * {@value #solutionFlag} Can be either NO_SOLUTIONS, ONE_SOLUTION, or MANY_SOLUTIONS.
-	 */
-	public int solutionFlag;
-	public static final int NO_SOLUTIONS=0;
-	public static final int ONE_SOLUTION=1;
-	public static final int MANY_SOLUTIONS=2;
-	
-	public static final double EPSILON = 0.00001;
 	
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
@@ -249,12 +242,12 @@ public class DHIKSolver_RTTRTR implements DHIKSolver {
 			double t6 = Math.acos(r47.m00);
 			theta6 = Math.toDegrees(t6);
 			if(true) System.out.println(
-					"t0="+formatDouble(theta0)+"\t"+
-					"a1="+formatDouble(alpha1)+"\t"+
-					"a2="+formatDouble(alpha2)+"\t"+
-					"t4="+formatDouble(theta4)+"\t"+
-					"a5="+formatDouble(alpha5)+"\t"+
-					"t6="+formatDouble(theta6)+"\t");
+					"t0="+StringHelper.formatDouble(theta0)+"\t"+
+					"a1="+StringHelper.formatDouble(alpha1)+"\t"+
+					"a2="+StringHelper.formatDouble(alpha2)+"\t"+
+					"t4="+StringHelper.formatDouble(theta4)+"\t"+
+					"a5="+StringHelper.formatDouble(alpha5)+"\t"+
+					"t6="+StringHelper.formatDouble(theta6)+"\t");
 			return;
 		}
 		
@@ -267,21 +260,21 @@ public class DHIKSolver_RTTRTR implements DHIKSolver {
 		theta4 = 180-Math.toDegrees(t4);  // TODO explain why we need 180- here
 		
 		if(false) System.out.println(
-				"r47.m20="+formatDouble(r47.m20)+"\t"+
-				"t6="+formatDouble(t6)+"\t"+
-				"theta6="+formatDouble(theta6)+"\t"+
-				"Math.sin(a5)="+formatDouble(Math.sin(a5))+"\t"+
-				"r47.m12="+formatDouble(r47.m12)+"\t"+
-				"t4="+formatDouble(t4)+"\t"+
-				"theta4="+formatDouble(theta4)+"\t");
+				"r47.m20="+StringHelper.formatDouble(r47.m20)+"\t"+
+				"t6="+StringHelper.formatDouble(t6)+"\t"+
+				"theta6="+StringHelper.formatDouble(theta6)+"\t"+
+				"Math.sin(a5)="+StringHelper.formatDouble(Math.sin(a5))+"\t"+
+				"r47.m12="+StringHelper.formatDouble(r47.m12)+"\t"+
+				"t4="+StringHelper.formatDouble(t4)+"\t"+
+				"theta4="+StringHelper.formatDouble(theta4)+"\t");
 
 		if(false) System.out.println("result={"
-					+formatDouble(theta0)+","
-					+formatDouble(alpha1)+","
-					+formatDouble(alpha2)+","
-					+formatDouble(theta4)+","
-					+formatDouble(alpha5)+","
-					+formatDouble(theta6)+"}\t");
+					+StringHelper.formatDouble(theta0)+","
+					+StringHelper.formatDouble(alpha1)+","
+					+StringHelper.formatDouble(alpha2)+","
+					+StringHelper.formatDouble(theta4)+","
+					+StringHelper.formatDouble(alpha5)+","
+					+StringHelper.formatDouble(theta6)+"}\t");
 	}
 	
 	/**
@@ -351,11 +344,8 @@ public class DHIKSolver_RTTRTR implements DHIKSolver {
 		//System.out.println("C="+C+"\t"+"D="+D+"\t"+"p1="+phi1+"\t"+"a1="+alpha1+"\t"+"a2="+alpha2+"\t");
 		
 		
-		//System.out.println("t0="+formatDouble(theta0)+"\ta1="+formatDouble(alpha1)+"\ta2="+formatDouble(alpha2)+"\t");
-	}
-	
-	protected String formatDouble(double arg0) {
-		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
+		//System.out.println("t0="+StringHelper.formatDouble(theta0)+"\ta1="
+		//					+StringHelper.formatDouble(alpha1)+"\ta2="
+		//					+StringHelper.formatDouble(alpha2)+"\t");
 	}
 }
