@@ -8,7 +8,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * TODO test and finish
  */
-public class DHIKSolver_RTT implements DHIKSolver {
+public class DHIKSolver_RTT extends DHIKSolver {
 	public double theta0;
 	public double alpha1;
 	public double alpha2;
@@ -89,10 +89,5 @@ public class DHIKSolver_RTT implements DHIKSolver {
 		if(false) System.out.println("alpha2="+alpha2+"\t");
 		
 		if(true) System.out.println("solution={"+theta0+","+alpha1+","+alpha2+"}");
-	}
-	
-	protected String formatDouble(double arg0) {
-		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
 	}
 }
