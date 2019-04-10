@@ -78,7 +78,8 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		super.render(gl2);
 	}
 	
+	@Override
 	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_GMF_M100();
+		return new DHIKSolver_Cylindrical();
 	}
 }
