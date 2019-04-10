@@ -12,6 +12,7 @@ import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotOverlord.InputListener;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
@@ -19,12 +20,17 @@ import com.marginallyclever.robotOverlord.robot.Robot;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.world.World;
 
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Component.Identifier;
+
 /**
  * A robot designed using D-H parameters.
  * @author Dan Royer
  *
  */
-public abstract class DHRobot extends Robot {
+public abstract class DHRobot extends Robot implements InputListener {
 	/**
 	 * 
 	 */
@@ -49,6 +55,11 @@ public abstract class DHRobot extends Robot {
 	 * {@value endMatrix} the world frame pose of the last link in the kinematic chain.
 	 */
 	Matrix4d endMatrix;
+
+	/**
+	 * {@value targetPose} the pose the IK is trying to move towards.
+	 */
+	public Matrix4d targetPose;
 	
 	/**
 	 * {@value dhTool} a DHTool current attached to the arm.
@@ -66,7 +77,9 @@ public abstract class DHRobot extends Robot {
 		setDisplayName("DHRobot");
 		links = new LinkedList<DHLink>();
 		endMatrix = new Matrix4d();
-		drawSkeleton=true;
+		targetPose = new Matrix4d();
+		
+		drawSkeleton=false;
 		
 		setupLinks();
 		
@@ -233,5 +246,96 @@ public abstract class DHRobot extends Robot {
 	
 	public DHTool getCurrentTool() {
 		return dhTool;
+	}
+	
+	@Override
+	public void inputUpdate() {
+		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		boolean isDirty=false;
+		double scale=1.0;
+		double scaleTurn=0.15;
+		double deadzone=0.1;
+		
+        for(int i=0;i<ca.length;i++){
+        	if(ca[i].getType()!=Controller.Type.STICK) continue;
+
+        	Component[] components = ca[i].getComponents();
+            for(int j=0;j<components.length;j++){
+            	if(!components[j].isAnalog()) continue;
+
+            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
+            		// right analog stick, + is right -1 is left
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		Matrix4d temp = new Matrix4d();
+            		temp.rotY(v*scaleTurn);
+            		targetPose.mul(temp);
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
+            		// right analog stick, + is down -1 is up
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		Matrix4d temp = new Matrix4d();
+            		temp.rotX(v*scaleTurn);
+            		targetPose.mul(temp);
+            	}
+            	
+            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
+            		// right trigger, +1 is pressed -1 is unpressed
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<-1+deadzone) continue;
+            		isDirty=true;
+            		targetPose.m23-=((v+1)/2)*scale;
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
+            		// left trigger, +1 is pressed -1 is unpressed
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<-1+deadzone) continue;
+            		isDirty=true;
+            		targetPose.m23+=((v+1)/2)*scale;
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.X) {
+            		// left analog stick, +1 is right -1 is left
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		targetPose.m13+=v*scale;
+            	}
+            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
+            		// left analog stick, -1 is up +1 is down
+            		double v = components[j].getPollData();
+            		if(Math.abs(v)<deadzone) continue;
+            		isDirty=true;
+            		targetPose.m03+=v*scale;
+            	}
+            	/*System.out.print("\t"+components[j].getName()+
+            			":"+(components[j].isAnalog()?"Abs":"Rel")+
+            			":"+(components[j].isAnalog()?"An":"Di")+
+               			":"+(components[j].getPollData()));*/
+        	}
+        }
+        
+        if(isDirty) {
+        	// set the new target pose
+        	this.links.get(7).poseCumulative.set(targetPose);
+        	// attempt to solve IK
+        	DHIKSolver solver = this.getSolverIK();
+        	solver.solve(this);
+        	
+        	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+        		// Solved!  update robot pose with fk.
+	        	this.links.get(0).theta = solver.theta0;
+	        	this.links.get(1).alpha = solver.alpha1;
+	        	this.links.get(2).alpha = solver.alpha2;
+	        	this.links.get(4).theta = solver.theta4;
+	        	this.links.get(5).alpha = solver.alpha5;
+	        	this.links.get(6).theta = solver.theta6;
+        	}
+        	// if a solution was found we must update the pose.
+        	// if a solution was not found we must remove the new target pose.
+        	this.refreshPose();
+        }
 	}
 }
