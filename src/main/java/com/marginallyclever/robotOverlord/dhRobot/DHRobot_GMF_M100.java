@@ -22,6 +22,8 @@ public class DHRobot_GMF_M100 extends DHRobot {
 	public DHRobot_GMF_M100() {
 		super();
 		setDisplayName("FANUC GMF M-100");
+		//only here until there are models to render.
+		drawSkeleton=true;
 	}
 	
 	@Override
@@ -81,5 +83,19 @@ public class DHRobot_GMF_M100 extends DHRobot {
 	@Override
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_Cylindrical();
+	}
+	
+	@Override
+	public void pick() {
+		this.refreshPose();
+		targetPose.set(endMatrix);
+		//disabled until there are models to render.
+		//drawSkeleton=true;
+	}
+	
+	@Override
+	public void unPick() {
+		//disabled until there are models to render.
+		//drawSkeleton=false;
 	}
 }

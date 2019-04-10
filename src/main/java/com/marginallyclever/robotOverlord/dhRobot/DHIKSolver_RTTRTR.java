@@ -17,24 +17,28 @@ import com.marginallyclever.convenience.StringHelper;
  * @see https://www.youtube.com/watch?v=74tbl9q2_qI
  */
 public class DHIKSolver_RTTRTR extends DHIKSolver {
-	public double theta0;
-	public double alpha1;
-	public double alpha2;
+	//public double theta0,alpha1,alpha2;
 	// link 3 is a dummy to draw the skeleton correctly.
-	public double theta4;
-	public double alpha5;
-	public double theta6;
+	//public double theta4,alpha5,theta6;
 	// link 7 is the final output that we started with.
 
-	
+
+	/**
+	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
+	 */
+	public int getSolutionSize() {
+		return 6;
+	}
+
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
-	 * The solution will be stored in the derived class' public values.
-	 * @param robot The DHRobot to solve.  it's link7.poseCumulative should have the world-space pose of the end effector.
+	 * @param robot The DHRobot description. 
+	 * @param targetPose the pose that robot is attempting to reach in this solution.
+	 * @param keyframe store the computed solution in keyframe.
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot) {
+	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
 		solutionFlag = ONE_SOLUTION;
 		
 		DHLink link0 = robot.links.get(0);
@@ -45,19 +49,18 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		DHLink link5 = robot.links.get(5);
 		DHLink link6 = robot.links.get(6);
 		DHLink link7 = robot.links.get(7);
-
-		//link7.poseCumulative.set(robot.endMatrix);
 		
 		Point3d p7 = new Point3d(
-				link7.poseCumulative.m03,
-				link7.poseCumulative.m13,
-				link7.poseCumulative.m23);
+				targetPose.m03,
+				targetPose.m13,
+				targetPose.m23);
+		//p7.sub(robot.getPosition());
 		
 		// Work backward to get link5 position
 		Vector3d n7z = new Vector3d(
-				link7.poseCumulative.m02,
-				link7.poseCumulative.m12,
-				link7.poseCumulative.m22);
+				targetPose.m02,
+				targetPose.m12,
+				targetPose.m22);
 		Point3d p5 = new Point3d(n7z);
 		p5.scaleAdd(-link6.d,p7);
 
@@ -80,8 +83,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		}
 		
 		// (1) theta0 = atan(y07/x07);
-		theta0 = Math.toDegrees(Math.atan2(p5.x,-p5.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
-		if(false) System.out.println("theta0="+theta0+"\t");
+		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p5.x,-p5.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
+		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) C=z15
 		double c = p5.z - p1.z;
@@ -117,8 +120,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) alpha1 = phi-rho
-		alpha1 = Math.toDegrees(rho - phi);
-		if(false) System.out.println("alpha1="+alpha1+"\t");
+		keyframe.fkValues[1] = Math.toDegrees(rho - phi);
+		if(false) System.out.println("alpha1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
 		double omega = Math.acos( (a*a-b*b-e*e) / (-2*b*e) );
@@ -135,8 +138,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) alpha2 - phi3-phi4
-		alpha2 = Math.toDegrees(phi3 - phi4);
-		if(false) System.out.println("alpha2="+alpha2+"\t");
+		keyframe.fkValues[2] = Math.toDegrees(phi3 - phi4);
+		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		// FIRST HALF DONE
 		
@@ -150,11 +153,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			clonedLinks.add(new DHLink(originalLink));  // deep clone
 		}
 		
-		clonedLinks.get(0).theta = theta0;
+		clonedLinks.get(0).theta = keyframe.fkValues[0];
 		clonedLinks.get(0).refreshPoseMatrix();
-		clonedLinks.get(1).alpha = alpha1;
+		clonedLinks.get(1).alpha = keyframe.fkValues[1];
 		clonedLinks.get(1).refreshPoseMatrix();
-		clonedLinks.get(2).alpha = alpha2;
+		clonedLinks.get(2).alpha = keyframe.fkValues[2];
 		clonedLinks.get(2).refreshPoseMatrix();
 		clonedLinks.get(3).refreshPoseMatrix();
 		clonedLinks.get(4).theta = 0;
@@ -189,16 +192,18 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// out of reach
 			solutionFlag = NO_SOLUTIONS;
 			if(true) System.out.println("NO_SOLUTIONS (2) "+h+" vs "+maximumReach);
-			theta4=alpha5=theta6=0;
+			keyframe.fkValues[3]=
+			keyframe.fkValues[4]=
+			keyframe.fkValues[5]=0;
 			return;
 		}
 		
-		// We have found matrix r04 and we started with r07 (link7.poseCumulative).
+		// We have found matrix r04 and we started with r07 (targetPose).
 		// We can get r47 = r04inv * r07 
 		r04.setTranslation(new Vector3d(0,0,0));
 
 		Matrix4d r07 = new Matrix4d();
-		r07.set(link7.poseCumulative);
+		r07.set(targetPose);
 		r07.setTranslation(new Vector3d(0,0,0));
 
 		Matrix4d r04inv = new Matrix4d();
@@ -210,7 +215,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		// with r47 we can find alpha5
 		double a5 = Math.acos(r47.m22);
-		alpha5 = Math.toDegrees(a5);
+		keyframe.fkValues[4] = Math.toDegrees(a5);
 		if(false) {
 			Vector3d p4original = new Vector3d(
 					link4.poseCumulative.m03,
@@ -227,7 +232,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			System.out.println(
 					"r36.m22="+r47.m22+"\t"+
 					"a5="+a5+"\t"+
-					"alpha5="+alpha5+"\t");
+					"alpha5="+keyframe.fkValues[4]+"\t");
 		}
 		
 		// if (alpha5 % 180) == 0 then we have the singularity.
@@ -238,114 +243,43 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// singularity!
 			solutionFlag = MANY_SOLUTIONS;
 			if(true) System.out.println("MANY_SOLUTIONS");
-			theta4 = 0;
+			keyframe.fkValues[3] = 0;
 			double t6 = Math.acos(r47.m00);
-			theta6 = Math.toDegrees(t6);
+			keyframe.fkValues[5] = Math.toDegrees(t6);
 			if(true) System.out.println(
-					"t0="+StringHelper.formatDouble(theta0)+"\t"+
-					"a1="+StringHelper.formatDouble(alpha1)+"\t"+
-					"a2="+StringHelper.formatDouble(alpha2)+"\t"+
-					"t4="+StringHelper.formatDouble(theta4)+"\t"+
-					"a5="+StringHelper.formatDouble(alpha5)+"\t"+
-					"t6="+StringHelper.formatDouble(theta6)+"\t");
+					"t0="+StringHelper.formatDouble(keyframe.fkValues[0])+"\t"+
+					"a1="+StringHelper.formatDouble(keyframe.fkValues[1])+"\t"+
+					"a2="+StringHelper.formatDouble(keyframe.fkValues[2])+"\t"+
+					"t4="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t"+
+					"a5="+StringHelper.formatDouble(keyframe.fkValues[4])+"\t"+
+					"t6="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
 			return;
 		}
 		
 		// no singularity, so we can continue to solve for theta4 and theta6.
 		
 		double t6 = Math.acos(-r47.m20/Math.sin(a5));
-		theta6 = Math.toDegrees(t6)-90;  // TODO explain why we need -90 here
+		keyframe.fkValues[5] = Math.toDegrees(t6)-90;  // TODO explain why we need -90 here
 		
 		double t4 = Math.acos(r47.m12/Math.sin(a5));
-		theta4 = 180-Math.toDegrees(t4);  // TODO explain why we need 180- here
+		keyframe.fkValues[3] = 180-Math.toDegrees(t4);  // TODO explain why we need 180- here
+		
 		
 		if(false) System.out.println(
 				"r47.m20="+StringHelper.formatDouble(r47.m20)+"\t"+
 				"t6="+StringHelper.formatDouble(t6)+"\t"+
-				"theta6="+StringHelper.formatDouble(theta6)+"\t"+
+				"theta6="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t"+
 				"Math.sin(a5)="+StringHelper.formatDouble(Math.sin(a5))+"\t"+
 				"r47.m12="+StringHelper.formatDouble(r47.m12)+"\t"+
 				"t4="+StringHelper.formatDouble(t4)+"\t"+
-				"theta4="+StringHelper.formatDouble(theta4)+"\t");
+				"theta4="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t");
 
 		if(false) System.out.println("result={"
-					+StringHelper.formatDouble(theta0)+","
-					+StringHelper.formatDouble(alpha1)+","
-					+StringHelper.formatDouble(alpha2)+","
-					+StringHelper.formatDouble(theta4)+","
-					+StringHelper.formatDouble(alpha5)+","
-					+StringHelper.formatDouble(theta6)+"}\t");
-	}
-	
-	/**
-	 * Assuming all link poses are known, calculate the angles for a given pose.
-	 * @param robot
-	 */
-	public void solveOld(DHRobot robot) {
-		DHLink link0 = robot.links.get(0);
-		DHLink link1 = robot.links.get(1);
-		DHLink link2 = robot.links.get(2);
-		DHLink link3 = robot.links.get(3);
-		//DHLink link4 = robot.links.get(4);
-		DHLink link5 = robot.links.get(5);
-		//DHLink link6 = robot.links.get(6);
-
-		Point3d p0 = new Point3d();
-		Point3d p1 = new Point3d();
-		Point3d p2 = new Point3d();
-		Point3d p3 = new Point3d();
-		//Point3d p4 = new Point3d();
-		Point3d p5 = new Point3d();
-		link0.poseCumulative.transform(new Point3d(0,0,0),p0);
-		link1.poseCumulative.transform(new Point3d(0,0,0),p1);
-		link2.poseCumulative.transform(new Point3d(0,0,0),p2);
-		link3.poseCumulative.transform(new Point3d(0,0,0),p3);
-		//link4.poseCumulative.transform(new Point3d(0,0,0),p4);
-		link5.poseCumulative.transform(new Point3d(0,0,0),p5);
-		//System.out.println("p0="+p0+"\tp1="+p1+"\tp2="+p2+"\tp4="+p4+"\tp5="+p5);
-		
-		//(1) theta0 = tan(x05/y05)
-		double x05 = p5.x - p0.x;
-		double y05 = p5.y - p0.y;
-		theta0 = Math.toDegrees(Math.atan2(x05,-y05));  // TODO explain why this is -y05 instead of y05
-		//System.out.println("t0="+theta0+"\t");
-		
-		//(2) A = sqrt(x12^2 + y12^2)
-		double x12 = p2.x - p1.x;
-		double y12 = p2.y - p1.y;
-		double A = Math.sqrt(x12*x12 + y12*y12);
-		// Correct sign of A with dot product
-		double dot = x05*x12 + y05*x12;
-		if(dot<0) A=-A;
-		
-		//(3) B = z12
-		double B = p2.z-p1.z;
-
-		//(4)
-		alpha1 = Math.toDegrees(Math.atan2(A,B));
-		//System.out.println("A="+A+"\t"+"B="+B+"\t"+"a1="+alpha1+"\t");
-		
-		//(5) C = z23
-		double C = p3.z-p2.z; 
-
-		//(6) D = sqrt(x23^2 + y23^2)
-		double x23 = p3.x-p2.x;
-		double y23 = p3.y-p2.y;
-		double D = Math.sqrt(x23*x23 + y23*y23);
-		// Correct sign of D
-		dot = x05*x23 + y05*x23;
-		if(dot<0) D=-D;
-		
-		//(7) phi1 = atan(C,D)
-		double phi1 = Math.toDegrees(Math.atan2(D,C));
-
-		//(8) alpha2 = alpha1 - phi1
-		alpha2 = phi1-alpha1;	// TODO why is this backwards?
-		//System.out.println("C="+C+"\t"+"D="+D+"\t"+"p1="+phi1+"\t"+"a1="+alpha1+"\t"+"a2="+alpha2+"\t");
-		
-		
-		//System.out.println("t0="+StringHelper.formatDouble(theta0)+"\ta1="
-		//					+StringHelper.formatDouble(alpha1)+"\ta2="
-		//					+StringHelper.formatDouble(alpha2)+"\t");
+					+StringHelper.formatDouble(keyframe.fkValues[0])+","
+					+StringHelper.formatDouble(keyframe.fkValues[1])+","
+					+StringHelper.formatDouble(keyframe.fkValues[2])+","
+					+StringHelper.formatDouble(keyframe.fkValues[3])+","
+					+StringHelper.formatDouble(keyframe.fkValues[4])+","
+					+StringHelper.formatDouble(keyframe.fkValues[5])+"}\t");
 	}
 }

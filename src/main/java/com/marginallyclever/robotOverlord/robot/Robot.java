@@ -304,6 +304,10 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 */
 
+	/**
+	 * Each robot implementation should customize the keframe as needed. 
+	 * @return an instance derived from RobotKeyframe
+	 */
 	public abstract RobotKeyframe createKeyframe();
 
 	public RobotKeyframe keyframeAddNow() {

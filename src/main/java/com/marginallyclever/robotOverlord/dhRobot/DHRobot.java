@@ -97,10 +97,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 */
 	public abstract DHIKSolver getSolverIK();
 
-	@Override
-	public RobotKeyframe createKeyframe() {
-		return new DHKeyframe();
-	}
 
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
@@ -249,6 +245,11 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 	
 	@Override
+	public RobotKeyframe createKeyframe() {
+		return new DHKeyframe(getSolverIK().getSolutionSize());
+	}
+	
+	@Override
 	public void inputUpdate() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
@@ -318,24 +319,33 @@ public abstract class DHRobot extends Robot implements InputListener {
         }
         
         if(isDirty) {
-        	// set the new target pose
-        	this.links.get(7).poseCumulative.set(targetPose);
         	// attempt to solve IK
         	DHIKSolver solver = this.getSolverIK();
-        	solver.solve(this);
+        	DHKeyframe keyframe = (DHKeyframe)createKeyframe();
+        	solver.solve(this,targetPose,keyframe);
         	
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
         		// Solved!  update robot pose with fk.
-	        	this.links.get(0).theta = solver.theta0;
-	        	this.links.get(1).alpha = solver.alpha1;
-	        	this.links.get(2).alpha = solver.alpha2;
-	        	this.links.get(4).theta = solver.theta4;
-	        	this.links.get(5).alpha = solver.alpha5;
-	        	this.links.get(6).theta = solver.theta6;
+        		this.setPose(keyframe);
         	}
-        	// if a solution was found we must update the pose.
-        	// if a solution was not found we must remove the new target pose.
-        	this.refreshPose();
         }
+	}
+	
+	/**
+	 * Set the robot's FK values to the keyframe values and then refresh the pose.
+	 * @param keyframe
+	 */
+	public void setPose(DHKeyframe keyframe) {
+		Iterator<DHLink> i = this.links.iterator();
+		int j=0;
+		while(i.hasNext()) {
+			DHLink link = i.next();
+			if((link.flags & DHLink.READ_ONLY_THETA)==0) link.theta = keyframe.fkValues[j++];
+			if((link.flags & DHLink.READ_ONLY_D    )==0) link.d     = keyframe.fkValues[j++];
+			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) link.alpha = keyframe.fkValues[j++];
+			if((link.flags & DHLink.READ_ONLY_R    )==0) link.r     = keyframe.fkValues[j++];
+		}
+		
+    	this.refreshPose();
 	}
 }

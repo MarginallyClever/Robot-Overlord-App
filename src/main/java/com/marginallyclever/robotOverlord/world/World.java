@@ -80,10 +80,10 @@ implements Serializable {
 		gridHeight = (int)(25.4*3);
 		
 		children = new ArrayList<Entity>();
-		addEntity(camera = new Camera());
 		addEntity(light0 = new Light());
 		addEntity(light1 = new Light());
 		addEntity(light2 = new Light());
+		addEntity(camera = new Camera());
 		
 		viewCube = new ViewCube();
 	}

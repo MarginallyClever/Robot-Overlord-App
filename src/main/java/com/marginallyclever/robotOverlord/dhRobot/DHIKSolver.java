@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
+import javax.vecmath.Matrix4d;
+
 /**
  * Solves Inverse Kinematics for a robot arm.  Assumptions differ with each specific implementation.
  * @author Dan Royer
@@ -16,10 +18,17 @@ public abstract class DHIKSolver {
 	 */
 	public int solutionFlag=DHIKSolver.NO_SOLUTIONS;
 	
-		
+	
+	/**
+	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
+	 */
+	public abstract int getSolutionSize();
+	
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
-	 * @param robot The DHRobot to solve.  Requirements for this robot differ with each solution.
+	 * @param robot The DHRobot description. 
+	 * @param targetPose the pose that robot is attempting to reach in this solution.
+	 * @param keyframe store the computed solution in keyframe.
 	 */
-	public abstract void solve(DHRobot robot);
+	public abstract void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe);
 }
