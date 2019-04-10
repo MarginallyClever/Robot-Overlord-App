@@ -8,7 +8,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
-import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 
 public class DHRobot_Sixi2 extends DHRobot {
@@ -184,10 +183,5 @@ public class DHRobot_Sixi2 extends DHRobot {
 	
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTTRTR();
-	}
-	
-	@Override
-	public RobotKeyframe createKeyframe() {
-		return new DHKeyframe();
 	}
 }

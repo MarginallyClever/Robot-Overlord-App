@@ -14,6 +14,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 
@@ -129,23 +130,21 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			updateEnd();
 		}
 	}
-
-	
-	protected String formatDouble(double arg0) {
-		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
-	}
 	
 	/**
 	 * Pull the latest arm end world coordinates into the panel.
 	 */
 	public void updateEnd() {
-		endx.setText("X="+formatDouble(robot.endMatrix.m03));
-		endy.setText("Y="+formatDouble(robot.endMatrix.m13));
-		endz.setText("Z="+formatDouble(robot.endMatrix.m23));
+		// report end effector position
+		endx.setText("X="+StringHelper.formatDouble(robot.endMatrix.m03));
+		endy.setText("Y="+StringHelper.formatDouble(robot.endMatrix.m13));
+		endz.setText("Z="+StringHelper.formatDouble(robot.endMatrix.m23));
 		
+		// run the IK solver to see if IK solver works.
 		DHIKSolver solver = robot.getSolverIK();
-		solver.solve(robot);
+		DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
+		solver.solve(robot,robot.endMatrix,keyframe);
+		// report the keyframe results here
 	}
 	
 	@Override
