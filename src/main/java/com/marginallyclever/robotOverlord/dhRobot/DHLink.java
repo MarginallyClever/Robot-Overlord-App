@@ -140,9 +140,11 @@ public class DHLink {
 		
 		// draw the angle range
 		double k;
+		final double scale=10;
 		
 		gl2.glColor3f(0, 0, 0);
 		gl2.glPushMatrix();
+			gl2.glScaled(scale, scale, scale);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
 			if((flags & READ_ONLY_THETA)==0) {
@@ -150,16 +152,16 @@ public class DHLink {
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
 					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
-							Math.cos(Math.toRadians(j))*10, 
-							Math.sin(Math.toRadians(j))*10, 
+							Math.cos(Math.toRadians(j)), 
+							Math.sin(Math.toRadians(j)), 
 							0);
 				}
 				gl2.glVertex3d(0, 0, 0);
 				setAngleColorByRange(gl2);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(
-						Math.cos(Math.toRadians(this.theta))*10, 
-						Math.sin(Math.toRadians(this.theta))*10, 
+						Math.cos(Math.toRadians(this.theta)), 
+						Math.sin(Math.toRadians(this.theta)), 
 						0);
 			}
 			if((flags & READ_ONLY_ALPHA)==0) {
@@ -168,16 +170,16 @@ public class DHLink {
 					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
 							0,
-							Math.cos(Math.toRadians(j))*10,
-							Math.sin(Math.toRadians(j))*10);
+							Math.cos(Math.toRadians(j)),
+							Math.sin(Math.toRadians(j)));
 				}
 				gl2.glVertex3d(0, 0, 0);
 				setAngleColorByRange(gl2);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(
 						0,
-						Math.cos(Math.toRadians(this.alpha))*10,
-						Math.sin(Math.toRadians(this.alpha))*10);
+						Math.cos(Math.toRadians(this.alpha)),
+						Math.sin(Math.toRadians(this.alpha)));
 			}
 			gl2.glEnd();
 		gl2.glPopMatrix();
