@@ -427,7 +427,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	
 	@Override
 	public void prepareMove(double dt) {
-		animate(dt);
+		super.prepareMove(dt);
 	}
 	
 	protected void animate(double dt) {
