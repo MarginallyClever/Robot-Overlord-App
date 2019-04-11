@@ -11,7 +11,8 @@ com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi2
 com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi1
 #com.marginallyclever.robotOverlord.dhRobot.DHRobot_Arm3
 #com.marginallyclever.robotOverlord.dhRobot.DHRobot_UArm
-com.marginallyclever.robotOverlord.dhRobot.DHTool_Sixi2Gripper
+#com.marginallyclever.robotOverlord.dhRobot.DHTool_Sixi2Gripper
+com.marginallyclever.robotOverlord.dhRobot.DHRobot_SCARA_NM
 
 #com.marginallyclever.robotOverlord.arm5.EvilMinionRobot
 #com.marginallyclever.robotOverlord.thor.ThorRobot
