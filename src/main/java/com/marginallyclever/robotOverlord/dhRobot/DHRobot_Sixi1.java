@@ -6,7 +6,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
@@ -16,7 +15,6 @@ public class DHRobot_Sixi1 extends DHRobot {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public Matrix4d targetPose;
 
 	public DHRobot_Sixi1() {
 		super();
@@ -24,9 +22,7 @@ public class DHRobot_Sixi1 extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
-		targetPose = new Matrix4d();
-		
+	public void setupLinks() {		
 		setNumLinks(8);
 		// roll
 		links.get(0).d=25;
@@ -110,7 +106,6 @@ public class DHRobot_Sixi1 extends DHRobot {
 			e.printStackTrace();
 		}
 		this.refreshPose();
-		targetPose.set(endMatrix);
 	}
 	
 	@Override
@@ -147,43 +142,6 @@ public class DHRobot_Sixi1 extends DHRobot {
 					link.renderModel(gl2);
 				}
 			gl2.glPopMatrix();
-		
-			if(drawSkeleton) {
-				// draw targetPose
-				gl2.glPushMatrix();
-				
-				double[] mat = new double[16];
-				mat[ 0] = targetPose.m00;
-				mat[ 1] = targetPose.m10;
-				mat[ 2] = targetPose.m20;
-				mat[ 3] = targetPose.m30;
-				mat[ 4] = targetPose.m01;
-				mat[ 5] = targetPose.m11;
-				mat[ 6] = targetPose.m21;
-				mat[ 7] = targetPose.m31;
-				mat[ 8] = targetPose.m02;
-				mat[ 9] = targetPose.m12;
-				mat[10] = targetPose.m22;
-				mat[11] = targetPose.m32;
-				mat[12] = targetPose.m03;
-				mat[13] = targetPose.m13;
-				mat[14] = targetPose.m23;
-				mat[15] = targetPose.m33;
-				gl2.glMultMatrixd(mat, 0);
-		
-				boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-				boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-				gl2.glDisable(GL2.GL_DEPTH_TEST);
-				gl2.glDisable(GL2.GL_LIGHTING);
-				MatrixHelper.drawMatrix(gl2, 
-						new Vector3d(0,0,0),
-						new Vector3d(1,0,0),
-						new Vector3d(0,1,0),
-						new Vector3d(0,0,1));
-				if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-				if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
-				gl2.glPopMatrix();
-			}
 
 		gl2.glPopMatrix();
 		
