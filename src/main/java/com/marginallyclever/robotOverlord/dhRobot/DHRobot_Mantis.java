@@ -2,11 +2,9 @@ package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.Iterator;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
