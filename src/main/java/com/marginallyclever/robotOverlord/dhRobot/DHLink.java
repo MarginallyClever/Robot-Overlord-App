@@ -93,25 +93,10 @@ public class DHLink {
 		double st = Math.sin(Math.toRadians(theta));
 		double sa = Math.sin(Math.toRadians(alpha));
 		
-		pose.m00 = ct;
-		pose.m01 = -st*ca;
-		pose.m02 = st*sa;
-		pose.m03 = r*ct;
-		
-		pose.m10 = st;
-		pose.m11 = ct*ca;
-		pose.m12 = -ct*sa;
-		pose.m13 = r*st;
-		
-		pose.m20 = 0;
-		pose.m21 = sa;
-		pose.m22 = ca;
-		pose.m23 = d;
-		
-		pose.m30 = 0;
-		pose.m31 = 0;
-		pose.m32 = 0;
-		pose.m33 = 1;
+		pose.m00 = ct;		pose.m01 = -st*ca;		pose.m02 = st*sa;		pose.m03 = r*ct;
+		pose.m10 = st;		pose.m11 = ct*ca;		pose.m12 = -ct*sa;		pose.m13 = r*st;
+		pose.m20 = 0;		pose.m21 = sa;			pose.m22 = ca;			pose.m23 = d;
+		pose.m30 = 0;		pose.m31 = 0;			pose.m32 = 0;			pose.m33 = 1;
 	}
 
 	/**
@@ -120,35 +105,14 @@ public class DHLink {
 	 * @param gl2 the render context
 	 */
 	public void renderModel(GL2 gl2) {
-		// swap between Java's Matrix4d and OpenGL's matrix.
-		Matrix4d pose = this.pose;
-		
-		double[] mat = new double[16];
-		mat[ 0] = pose.m00;
-		mat[ 1] = pose.m10;
-		mat[ 2] = pose.m20;
-		mat[ 3] = pose.m30;
-		mat[ 4] = pose.m01;
-		mat[ 5] = pose.m11;
-		mat[ 6] = pose.m21;
-		mat[ 7] = pose.m31;
-		mat[ 8] = pose.m02;
-		mat[ 9] = pose.m12;
-		mat[10] = pose.m22;
-		mat[11] = pose.m32;
-		mat[12] = pose.m03;
-		mat[13] = pose.m13;
-		mat[14] = pose.m23;
-		mat[15] = pose.m33;
 		
 		gl2.glPushMatrix();
 		if(this.model!=null) {
 			this.model.render(gl2);
 		}
 		gl2.glPopMatrix();
-		
-		// inverse camera matrix has already been applied, multiply by that to position the link in the world.
-		gl2.glMultMatrixd(mat, 0);
+
+		applyMatrix(gl2);
 	}
 
 	/**
@@ -157,27 +121,6 @@ public class DHLink {
 	 * @param gl2 the render context
 	 */
 	public void renderPose(GL2 gl2) {
-		// swap between Java's Matrix4d and OpenGL's matrix.
-		Matrix4d pose = this.pose;
-		
-		double[] mat = new double[16];
-		mat[ 0] = pose.m00;
-		mat[ 1] = pose.m10;
-		mat[ 2] = pose.m20;
-		mat[ 3] = pose.m30;
-		mat[ 4] = pose.m01;
-		mat[ 5] = pose.m11;
-		mat[ 6] = pose.m21;
-		mat[ 7] = pose.m31;
-		mat[ 8] = pose.m02;
-		mat[ 9] = pose.m12;
-		mat[10] = pose.m22;
-		mat[11] = pose.m32;
-		mat[12] = pose.m03;
-		mat[13] = pose.m13;
-		mat[14] = pose.m23;
-		mat[15] = pose.m33;
-
 		MatrixHelper.drawMatrix(gl2, 
 				new Vector3d(0,0,0),
 				new Vector3d(1,0,0),
@@ -190,8 +133,8 @@ public class DHLink {
 			gl2.glColor3f(1, 0, 0);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
-			gl2.glVertex3d(0, 0, this.d);
-			gl2.glVertex3d(this.r, 0, this.d);
+			gl2.glVertex3d(0, 0, d);
+			gl2.glVertex3d(r, 0, d);
 			gl2.glEnd();
 		gl2.glPopMatrix();
 		
@@ -200,7 +143,6 @@ public class DHLink {
 		
 		gl2.glColor3f(0, 0, 0);
 		gl2.glPushMatrix();
-			gl2.glTranslated(this.r, 0, this.d);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
 			if((flags & READ_ONLY_THETA)==0) {
@@ -208,16 +150,16 @@ public class DHLink {
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
 					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
-							Math.cos(Math.toRadians(j-90))*10, 
-							Math.sin(Math.toRadians(j-90))*10, 
+							Math.cos(Math.toRadians(j))*10, 
+							Math.sin(Math.toRadians(j))*10, 
 							0);
 				}
 				gl2.glVertex3d(0, 0, 0);
 				setAngleColorByRange(gl2);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(
-						Math.cos(Math.toRadians(this.theta-90))*10, 
-						Math.sin(Math.toRadians(this.theta-90))*10, 
+						Math.cos(Math.toRadians(this.theta))*10, 
+						Math.sin(Math.toRadians(this.theta))*10, 
 						0);
 			}
 			if((flags & READ_ONLY_ALPHA)==0) {
@@ -226,21 +168,45 @@ public class DHLink {
 					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
 							0,
-							Math.cos(Math.toRadians(j+90))*10,
-							Math.sin(Math.toRadians(j+90))*10);
+							Math.cos(Math.toRadians(j))*10,
+							Math.sin(Math.toRadians(j))*10);
 				}
 				gl2.glVertex3d(0, 0, 0);
 				setAngleColorByRange(gl2);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(
 						0,
-						Math.cos(Math.toRadians(this.alpha+90))*10,
-						Math.sin(Math.toRadians(this.alpha+90))*10);
+						Math.cos(Math.toRadians(this.alpha))*10,
+						Math.sin(Math.toRadians(this.alpha))*10);
 			}
 			gl2.glEnd();
 		gl2.glPopMatrix();
 
-		// inverse camera matrix has already been applied, multiply by that to position the link in the world.
+		applyMatrix(gl2);
+	}
+	
+	public void applyMatrix(GL2 gl2) {
+		// swap between Java's Matrix4d and OpenGL's matrix.
+		Matrix4d pose = this.pose;
+		
+		double[] mat = new double[16];
+		mat[ 0] = pose.m00;
+		mat[ 1] = pose.m10;
+		mat[ 2] = pose.m20;
+		mat[ 3] = pose.m30;
+		mat[ 4] = pose.m01;
+		mat[ 5] = pose.m11;
+		mat[ 6] = pose.m21;
+		mat[ 7] = pose.m31;
+		mat[ 8] = pose.m02;
+		mat[ 9] = pose.m12;
+		mat[10] = pose.m22;
+		mat[11] = pose.m32;
+		mat[12] = pose.m03;
+		mat[13] = pose.m13;
+		mat[14] = pose.m23;
+		mat[15] = pose.m33;
+		
 		gl2.glMultMatrixd(mat, 0);
 	}
 	
