@@ -5,6 +5,7 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
@@ -144,5 +145,24 @@ public class DHRobot_Sixi2 extends DHRobot {
 	
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTTRTR();
+	}
+	
+	public void sendPoseToRobot(DHKeyframe keyframe) {
+		final double SCALE_0=-1;
+		final double SCALE_1=-1;
+		final double SCALE_2=-1;
+		final double SCALE_3=-1;
+		final double SCALE_4=1;
+		final double SCALE_5=1;
+
+		sendLineToRobot("G0"
+    		+" X"+StringHelper.formatDouble(keyframe.fkValues[0]*SCALE_0)
+    		+" Y"+StringHelper.formatDouble(keyframe.fkValues[1]*SCALE_1)
+    		+" Z"+StringHelper.formatDouble(keyframe.fkValues[2]*SCALE_2)
+    		//+" U"+StringHelper.formatDouble(keyframe.fkValues[3]*SCALE_3)
+    		//+" V"+StringHelper.formatDouble(keyframe.fkValues[4]*SCALE_4)
+    		//+" W"+StringHelper.formatDouble(keyframe.fkValues[5]*SCALE_5)
+			);
+
 	}
 }

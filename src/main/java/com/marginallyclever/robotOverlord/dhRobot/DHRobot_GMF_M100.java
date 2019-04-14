@@ -98,4 +98,6 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		//disabled until there are models to render.
 		//drawSkeleton=false;
 	}
+
+	public void sendPoseToRobot(DHKeyframe keyframe) {}
 }

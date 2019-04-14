@@ -126,4 +126,6 @@ public class DHRobot_UArm extends DHRobot {
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTT();
 	}
+
+	public void sendPoseToRobot(DHKeyframe keyframe) {}
 }
