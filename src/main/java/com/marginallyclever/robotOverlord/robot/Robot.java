@@ -288,7 +288,8 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	@Override
 	public void sendBufferEmpty(NetworkConnection arg0) {
 		// TODO Auto-generated method stub
-		
+
+		isReadyToReceive=true;
 	}
 /*
 	// pull the last connected port from prefs
