@@ -6,7 +6,19 @@ import net.java.games.input.ControllerEnvironment;
 
 public class InputManager {
 	static public void start() {
+		//describeAllControllersAndInputs();
+	}
+	
+	static public void update() {
+		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
+        for(int i =0;i<ca.length;i++){
+        	if(!ca[i].poll()) {
+        		// 
+        	}
+        }
+	}
 
+	static public void describeAllControllersAndInputs() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
         for(int i =0;i<ca.length;i++){
             System.out.print("Controller:"+ca[i].getName()+" ("+ca[i].getType().toString()+")");
@@ -19,15 +31,6 @@ public class InputManager {
             			":"+(components[j].isAnalog()?"An":"Di")
             				);
             }
-        }
-	}
-	
-	static public void update() {
-		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
-        for(int i =0;i<ca.length;i++){
-        	if(!ca[i].poll()) {
-        		// 
-        	}
         }
 	}
 }
