@@ -151,4 +151,6 @@ public class DHRobot_Sixi1 extends DHRobot {
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTTRTR();
 	}
+
+	public void sendPoseToRobot(DHKeyframe keyframe) {}
 }
