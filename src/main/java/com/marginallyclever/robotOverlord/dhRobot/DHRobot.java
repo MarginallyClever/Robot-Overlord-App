@@ -60,6 +60,11 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 * {@value targetPose} the pose the IK is trying to move towards.
 	 */
 	public Matrix4d targetPose;
+
+	/**
+	 * {@value targetPose} the pose the IK would solve when the robot is at "home" position.
+	 */
+	public Matrix4d homePose;
 	
 	/**
 	 * {@value dhTool} a DHTool current attached to the arm.
@@ -77,12 +82,16 @@ public abstract class DHRobot extends Robot implements InputListener {
 		links = new LinkedList<DHLink>();
 		endMatrix = new Matrix4d();
 		targetPose = new Matrix4d();
+		homePose = new Matrix4d();
 		
 		drawSkeleton=false;
 		
 		setupLinks();
 		
 		refreshPose();
+
+		homePose.set(endMatrix);
+		targetPose.set(endMatrix);
 	}
 	
 	/**
@@ -266,10 +275,21 @@ public abstract class DHRobot extends Robot implements InputListener {
         	solver.solve(this,targetPose,keyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
         		// Solved!  update robot pose with fk.
-        		this.setPose(keyframe);
+        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
+        			sendPoseToRobot(keyframe);
+        			isReadyToReceive=false;
+        		} else {
+            		this.setPose(keyframe);
+        		}
         	}
         }
 	}
+	
+	/**
+	 * Robot is connected and ready to receive.  Send the current FK values to the robot.
+	 * @param keyframe
+	 */
+	public abstract void sendPoseToRobot(DHKeyframe keyframe);
 	
 	public void drawTargetPose(GL2 gl2) {
 		gl2.glPushMatrix();
@@ -310,7 +330,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public boolean directDrive() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
-		double scale=1.0;
+		double scale=0.1;
 		double scaleTurn=0.15;
 		double deadzone=0.1;
 		
@@ -319,54 +339,73 @@ public abstract class DHRobot extends Robot implements InputListener {
 
         	Component[] components = ca[i].getComponents();
             for(int j=0;j<components.length;j++){
-            	if(!components[j].isAnalog()) continue;
-
-            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
-            		// right analog stick, + is right -1 is left
-            		double v = components[j].getPollData();
-            		if(Math.abs(v)<deadzone) continue;
-            		isDirty=true;
-            		Matrix4d temp = new Matrix4d();
-            		temp.rotY(v*scaleTurn);
-            		targetPose.mul(temp);
-            	}
-            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
-            		// right analog stick, + is down -1 is up
-            		double v = components[j].getPollData();
-            		if(Math.abs(v)<deadzone) continue;
-            		isDirty=true;
-            		Matrix4d temp = new Matrix4d();
-            		temp.rotX(v*scaleTurn);
-            		targetPose.mul(temp);
-            	}
-            	
-            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
-            		// right trigger, +1 is pressed -1 is unpressed
-            		double v = components[j].getPollData();
-            		if(Math.abs(v)<-1+deadzone) continue;
-            		isDirty=true;
-            		targetPose.m23-=((v+1)/2)*scale;
-            	}
-            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
-            		// left trigger, +1 is pressed -1 is unpressed
-            		double v = components[j].getPollData();
-            		if(Math.abs(v)<-1+deadzone) continue;
-            		isDirty=true;
-            		targetPose.m23+=((v+1)/2)*scale;
-            	}
-            	if(components[j].getIdentifier()==Identifier.Axis.X) {
-            		// left analog stick, +1 is right -1 is left
-            		double v = components[j].getPollData();
-            		if(Math.abs(v)<deadzone) continue;
-            		isDirty=true;
-            		targetPose.m13+=v*scale;
-            	}
-            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
-            		// left analog stick, -1 is up +1 is down
-            		double v = components[j].getPollData();
-            		if(Math.abs(v)<deadzone) continue;
-            		isDirty=true;
-            		targetPose.m03+=v*scale;
+            	if(!components[j].isAnalog()) {
+        			if(components[j].getPollData()==1) {
+        				if(components[j].getIdentifier()==Identifier.Button._0) {
+        					// square
+            			}
+        				if(components[j].getIdentifier()==Identifier.Button._1) {
+        					// x
+        					this.toggleATC();
+        				}
+        				if(components[j].getIdentifier()==Identifier.Button._2) {
+           					// circle
+        					//System.out.print(components[j].getPollData()+"\t");
+        				}
+        				if(components[j].getIdentifier()==Identifier.Button._3) {
+           					// triangle
+                			targetPose.set(homePose);
+                			isDirty=true;
+        				}
+            		}
+            	} else {
+	            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
+	            		// right analog stick, + is right -1 is left
+	            		double v = components[j].getPollData();
+	            		if(Math.abs(v)<deadzone) continue;
+	            		isDirty=true;
+	            		Matrix4d temp = new Matrix4d();
+	            		temp.rotY(v*scaleTurn);
+	            		targetPose.mul(temp);
+	            	}
+	            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
+	            		// right analog stick, + is down -1 is up
+	            		double v = components[j].getPollData();
+	            		if(Math.abs(v)<deadzone) continue;
+	            		isDirty=true;
+	            		Matrix4d temp = new Matrix4d();
+	            		temp.rotX(v*scaleTurn);
+	            		targetPose.mul(temp);
+	            	}
+	            	
+	            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
+	            		// right trigger, +1 is pressed -1 is unpressed
+	            		double v = components[j].getPollData();
+	            		if(Math.abs(v)<-1+deadzone) continue;
+	            		isDirty=true;
+	            		targetPose.m23-=((v+1)/2)*scale;
+	            	}
+	            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
+	            		// left trigger, +1 is pressed -1 is unpressed
+	            		double v = components[j].getPollData();
+	            		if(Math.abs(v)<-1+deadzone) continue;
+	            		isDirty=true;
+	            		targetPose.m23+=((v+1)/2)*scale;
+	            	}
+	            	if(components[j].getIdentifier()==Identifier.Axis.X) {
+	            		// left analog stick, +1 is right -1 is left
+	            		double v = components[j].getPollData();
+	            		if(Math.abs(v)<deadzone) continue;
+	            		isDirty=true;
+	            		targetPose.m13+=v*scale;
+	            	}
+	            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
+	            		// left analog stick, -1 is up +1 is down
+	            		double v = components[j].getPollData();
+	            		if(Math.abs(v)<deadzone) continue;
+	            		isDirty=true;
+	            		targetPose.m03+=v*scale;
+	            	}
             	}
             	/*System.out.print("\t"+components[j].getName()+
             			":"+(components[j].isAnalog()?"Abs":"Rel")+
