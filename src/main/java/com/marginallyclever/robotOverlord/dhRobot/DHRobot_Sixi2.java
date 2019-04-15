@@ -148,12 +148,14 @@ public class DHRobot_Sixi2 extends DHRobot {
 	}
 	
 	public void sendPoseToRobot(DHKeyframe keyframe) {
+		// If the wiring on the robot is revesed, these parameters must be flipped.
+		// This is a software solution to a hardware problem.
 		final double SCALE_0=-1;
 		final double SCALE_1=-1;
 		final double SCALE_2=-1;
-		final double SCALE_3=-1;
-		final double SCALE_4=1;
-		final double SCALE_5=1;
+		//final double SCALE_3=-1;
+		//final double SCALE_4=1;
+		//final double SCALE_5=1;
 
 		sendLineToRobot("G0"
     		+" X"+StringHelper.formatDouble(keyframe.fkValues[0]*SCALE_0)
