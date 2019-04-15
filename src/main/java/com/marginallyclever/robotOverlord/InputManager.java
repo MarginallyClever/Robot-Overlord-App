@@ -13,7 +13,7 @@ public class InputManager {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
         for(int i =0;i<ca.length;i++){
         	if(!ca[i].poll()) {
-        		// 
+        		// TODO poll failed, device disconnected?
         	}
         }
 	}
