@@ -85,7 +85,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 		homePose = new Matrix4d();
 		
 		drawSkeleton=false;
-		
 		setupLinks();
 		
 		refreshPose();
@@ -274,12 +273,14 @@ public abstract class DHRobot extends Robot implements InputListener {
         	DHKeyframe keyframe = (DHKeyframe)createKeyframe();
         	solver.solve(this,targetPose,keyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-        		// Solved!  update robot pose with fk.
-        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
-        			sendPoseToRobot(keyframe);
-        			isReadyToReceive=false;
-        		} else {
-            		this.setPose(keyframe);
+        		if(keyframeAnglesAreOK(keyframe)) {
+	        		// Solved!  update robot pose with fk.
+	        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
+	        			sendPoseToRobot(keyframe);
+	        			isReadyToReceive=false;
+	        		} else {
+	            		this.setPose(keyframe);
+	        		}
         		}
         	}
         }
@@ -415,6 +416,41 @@ public abstract class DHRobot extends Robot implements InputListener {
         }
         
         return isDirty;
+	}
+
+	/**
+	 * Perform a sanity check.  Make sure the angles in the keyframe are within the joint range limits. 
+	 * @param keyframe
+	 * @return
+	 */
+	public boolean keyframeAnglesAreOK(DHKeyframe keyframe) {
+		Iterator<DHLink> i = this.links.iterator();
+		int j=0;
+		while(i.hasNext()) {
+			DHLink link = i.next();
+			if((link.flags & DHLink.READ_ONLY_THETA)==0) { 
+				double v = keyframe.fkValues[j++];
+				if(link.rangeMax<v) return false;
+				if(link.rangeMin>v) return false;
+			}
+			if((link.flags & DHLink.READ_ONLY_D    )==0) {
+				double v = keyframe.fkValues[j++];
+				if(link.rangeMax<v) return false;
+				if(link.rangeMin>v) return false;
+			}
+			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) {
+				double v = keyframe.fkValues[j++];
+				if(link.rangeMax<v) return false;
+				if(link.rangeMin>v) return false;
+			}
+			if((link.flags & DHLink.READ_ONLY_R    )==0) {
+				double v = keyframe.fkValues[j++];
+				if(link.rangeMax<v) return false;
+				if(link.rangeMin>v) return false;
+			}
+		}
+		
+    	return true;
 	}
 	
 	/**
