@@ -16,9 +16,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public boolean isFirstTime;
+	
 	public DHRobot_Sixi2() {
 		super();
 		setDisplayName("Sixi 2");
+		isFirstTime=true;
 	}
 	
 	@Override
@@ -64,7 +67,11 @@ public class DHRobot_Sixi2 extends DHRobot {
 		links.get(6).rangeMax=90;
 		
 		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-
+		
+		this.refreshPose();
+	}
+	
+	public void setupModels() {
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
 			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
@@ -100,7 +107,6 @@ public class DHRobot_Sixi2 extends DHRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.refreshPose();
 	}
 	
 	@Override
@@ -116,7 +122,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 	}
 	
 	@Override
-	public void render(GL2 gl2) {		
+	public void render(GL2 gl2) {
+		if( isFirstTime ) {
+			isFirstTime=false;
+			setupModels();
+		}
+		
 		Material material = new Material();
 		
 		gl2.glPushMatrix();
@@ -143,12 +154,14 @@ public class DHRobot_Sixi2 extends DHRobot {
 		super.render(gl2);
 	}
 	
+	@Override
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTTRTR();
 	}
 	
+	@Override
 	public void sendPoseToRobot(DHKeyframe keyframe) {
-		// If the wiring on the robot is revesed, these parameters must be flipped.
+		// If the wiring on the robot is reversed, these parameters must also be reversed.
 		// This is a software solution to a hardware problem.
 		final double SCALE_0=-1;
 		final double SCALE_1=-1;

@@ -18,11 +18,12 @@ public class DHRobot_SCARA_NM extends DHRobot {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	public boolean isFirstTime;
 
 	public DHRobot_SCARA_NM() {
 		super();
 		setDisplayName("SCARA NM");
+		isFirstTime=true;
 	}
 	
 	@Override
@@ -37,6 +38,7 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(0).rangeMin=-40;
 		links.get(0).rangeMax=240;
+		
 		// roll
 		links.get(1).d=0;
 		links.get(1).r=13.0;
@@ -66,8 +68,11 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(4).rangeMin=0;
 		links.get(4).rangeMax=0;
+		
+		this.refreshPose();
+	}
 
-		// load models here
+	public void setupModels() {
 		try {
 			if(links.get(0).model==null) links.get(0).model = ModelFactory.createModelFromFilename("/SCARA_NM/Scara_base.stl",0.1f);
 			if(links.get(1).model==null) links.get(1).model = ModelFactory.createModelFromFilename("/SCARA_NM/Scara_arm1.stl",0.1f);
@@ -86,13 +91,15 @@ public class DHRobot_SCARA_NM extends DHRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		this.refreshPose();
-		targetPose.set(endMatrix);
 	}
 	
 	@Override
-	public void render(GL2 gl2) {		
+	public void render(GL2 gl2) {
+		if( isFirstTime ) {
+			isFirstTime=false;
+			setupModels();
+		}
+		
 		gl2.glPushMatrix();
 			Vector3d position = this.getPosition();
 			gl2.glTranslated(position.x, position.y, position.z);
