@@ -292,6 +292,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 */
 	public abstract void sendPoseToRobot(DHKeyframe keyframe);
 	
+	
 	public void drawTargetPose(GL2 gl2) {
 		gl2.glPushMatrix();
 		
@@ -328,6 +329,10 @@ public abstract class DHRobot extends Robot implements InputListener {
 		gl2.glPopMatrix();
 	}
 	
+	/**
+	 * Read HID device to move target pose.  Currently hard-coded to PS4 joystick values. 
+	 * @return true if targetPose changes.
+	 */
 	public boolean directDrive() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
@@ -428,7 +433,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		int j=0;
 		while(i.hasNext()) {
 			DHLink link = i.next();
-			if((link.flags & DHLink.READ_ONLY_THETA)==0) { 
+			if((link.flags & DHLink.READ_ONLY_THETA)==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v) return false;
 				if(link.rangeMin>v) return false;
