@@ -143,12 +143,13 @@ public class DHLink {
 		final double scale=10;
 		
 		gl2.glColor3f(0, 0, 0);
-		gl2.glPushMatrix();
-			gl2.glScaled(scale, scale, scale);
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			gl2.glVertex3d(0, 0, 0);
 			if((flags & READ_ONLY_THETA)==0) {
 				// display the curve around z (in the xy plane)
+				gl2.glPushMatrix();
+				gl2.glTranslated(0, 0, d);
+				gl2.glScaled(scale, scale, scale);
+				gl2.glBegin(GL2.GL_LINE_STRIP);
+				gl2.glVertex3d(0, 0, 0);
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
 					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
@@ -163,9 +164,16 @@ public class DHLink {
 						Math.cos(Math.toRadians(this.theta)), 
 						Math.sin(Math.toRadians(this.theta)), 
 						0);
+				gl2.glEnd();
+				gl2.glPopMatrix();
 			}
 			if((flags & READ_ONLY_ALPHA)==0) {
 				// display the curve around x (in the yz plane)
+				gl2.glPushMatrix();
+				gl2.glTranslated(r, 0, d);
+				gl2.glScaled(scale, scale, scale);
+				gl2.glBegin(GL2.GL_LINE_STRIP);
+				gl2.glVertex3d(0, 0, 0);
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
 					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 					gl2.glVertex3d(
@@ -180,9 +188,9 @@ public class DHLink {
 						0,
 						Math.cos(Math.toRadians(this.alpha)),
 						Math.sin(Math.toRadians(this.alpha)));
+				gl2.glEnd();
+				gl2.glPopMatrix();
 			}
-			gl2.glEnd();
-		gl2.glPopMatrix();
 
 		applyMatrix(gl2);
 	}
