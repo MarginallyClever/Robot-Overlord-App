@@ -17,6 +17,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	private static final long serialVersionUID = 1L;
 
 	public boolean isFirstTime;
+	public Material material;
 	
 	public DHRobot_Sixi2() {
 		super();
@@ -72,6 +73,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 	}
 	
 	public void setupModels() {
+		material = new Material();
+		float r=1;
+		float g=217f/255f;
+		float b=33f/255f;
+		material.setDiffuseColor(r,g,b,1);
+		
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
 			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
@@ -128,18 +135,13 @@ public class DHRobot_Sixi2 extends DHRobot {
 			setupModels();
 		}
 		
-		Material material = new Material();
+		material.render(gl2);
 		
 		gl2.glPushMatrix();
 			Vector3d position = this.getPosition();
 			gl2.glTranslated(position.x, position.y, position.z);
 			
 			// Draw models
-			float r=1;
-			float g=217f/255f;
-			float b=33f/255f;
-			material.setDiffuseColor(r,g,b,1);
-			material.render(gl2);
 			
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
