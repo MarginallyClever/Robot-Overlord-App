@@ -10,7 +10,8 @@ import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 /**
- * Unfinished UArm implementation of DHRobot.  Incomplete!
+ * Unfinished UArm implementation of DHRobot.
+ * TODO Finish me!
  * @author Dan Royer
  * @see https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
@@ -35,7 +36,7 @@ public class DHRobot_UArm extends DHRobot {
 
 	public DHRobot_UArm() {
 		super();
-		setDisplayName("DHRUArm");
+		setDisplayName("UArm");
 	}
 	
 	@Override
