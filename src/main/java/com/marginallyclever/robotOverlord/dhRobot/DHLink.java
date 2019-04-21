@@ -167,10 +167,26 @@ public class DHLink {
 				gl2.glEnd();
 				gl2.glPopMatrix();
 			}
+			if((flags & READ_ONLY_D)==0) {
+				// display the prismatic nature of d
+				gl2.glPushMatrix();
+				gl2.glBegin(GL2.GL_LINES);
+				gl2.glVertex3d(0,  1, this.rangeMin);
+				gl2.glVertex3d(0, -1, this.rangeMin);
+				gl2.glVertex3d(0,  0, this.rangeMin);
+				gl2.glVertex3d(0,  0, this.rangeMax);
+				gl2.glVertex3d(0,  1, this.rangeMax);
+				gl2.glVertex3d(0, -1, this.rangeMax);
+				gl2.glVertex3d(0,  1, d);
+				gl2.glVertex3d(0, -1, d);
+				gl2.glEnd();
+				gl2.glPopMatrix();
+			}
 			if((flags & READ_ONLY_ALPHA)==0) {
 				// display the curve around x (in the yz plane)
 				gl2.glPushMatrix();
 				gl2.glTranslated(r, 0, d);
+				gl2.glRotated(this.theta, 0, 0, 1);
 				gl2.glScaled(scale, scale, scale);
 				gl2.glBegin(GL2.GL_LINE_STRIP);
 				gl2.glVertex3d(0, 0, 0);
@@ -188,6 +204,23 @@ public class DHLink {
 						0,
 						Math.cos(Math.toRadians(this.alpha)),
 						Math.sin(Math.toRadians(this.alpha)));
+				gl2.glEnd();
+				gl2.glPopMatrix();
+			}
+			if((flags & READ_ONLY_R)==0) {
+				// display the prismatic nature of r
+				gl2.glPushMatrix();
+				gl2.glTranslated(0, 0, d);
+				gl2.glRotated(this.theta, 0, 0, 1);
+				gl2.glBegin(GL2.GL_LINES);
+				gl2.glVertex3d(this.rangeMin,  1, 0);
+				gl2.glVertex3d(this.rangeMin, -1, 0);
+				gl2.glVertex3d(this.rangeMin,  0, 0);
+				gl2.glVertex3d(this.rangeMax,  0, 0);
+				gl2.glVertex3d(this.rangeMax,  1, 0);
+				gl2.glVertex3d(this.rangeMax, -1, 0);
+				gl2.glVertex3d(            r,  1, 0);
+				gl2.glVertex3d(            r, -1, 0);
 				gl2.glEnd();
 				gl2.glPopMatrix();
 			}
