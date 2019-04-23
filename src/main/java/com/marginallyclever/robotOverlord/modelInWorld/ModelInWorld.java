@@ -29,11 +29,13 @@ public class ModelInWorld extends PhysicalObject {
 	protected float scale=1;
 	// model adjusted origin
 	protected Vector3d originAdjust;
+	protected Vector3d rotationAdjust;
 	
 	
 	public ModelInWorld() {
 		super();
 		originAdjust = new Vector3d();
+		rotationAdjust = new Vector3d();
 		material = new Material();
 	}
 
@@ -89,6 +91,22 @@ public class ModelInWorld extends PhysicalObject {
 	
 	public Vector3d getAdjustOrigin() {
 		return new Vector3d(originAdjust);
+	}
+
+	public void adjustRotation(double x,double y,double z) {
+		rotationAdjust.x=x;
+		rotationAdjust.y=y;
+		rotationAdjust.z=z;
+		if(model!=null) model.adjustOrigin(rotationAdjust);
+	}
+
+	public void adjustRotation(Vector3d arg0) {
+		rotationAdjust.set(arg0);;
+		if(model!=null) model.adjustRotation(rotationAdjust);
+	}
+	
+	public Vector3d getAdjustRotation() {
+		return new Vector3d(rotationAdjust);
 	}
 	
 	@Override

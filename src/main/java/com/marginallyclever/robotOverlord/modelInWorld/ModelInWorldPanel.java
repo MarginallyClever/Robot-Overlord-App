@@ -28,6 +28,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	private UserCommandSelectFile userCommandSelectFile;
 	private UserCommandSelectNumber setScale;
 	private UserCommandSelectVector3d setOrigin;
+	private UserCommandSelectVector3d setRotation;
 	
 	public ModelInWorldPanel(RobotOverlord gui,ModelInWorld model) {
 		super();
@@ -77,6 +78,11 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		setOrigin.addChangeListener(this);
 		contents.add(setOrigin,con1);
 		con1.gridy++;
+
+		setRotation = new UserCommandSelectVector3d(gui,"Adjust rotation",model.getAdjustOrigin());
+		setRotation.addChangeListener(this);
+		contents.add(setRotation,con1);
+		con1.gridy++;
 	}
 
 	@Override
@@ -90,6 +96,9 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		if(e.getSource()==setOrigin) {
 			model.adjustOrigin(setOrigin.getValue());
 		}
+		if(e.getSource()==setRotation) {
+			model.adjustRotation(setRotation.getValue());
+		}
 	}
 	
 	/**
@@ -99,5 +108,6 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	public void updateFields() {
 		setScale.setValue(model.scale);
 		setOrigin.setValue(model.getAdjustOrigin());
+		setRotation.setValue(model.getAdjustRotation());
 	}
 }
