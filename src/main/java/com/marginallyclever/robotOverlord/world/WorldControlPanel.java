@@ -93,6 +93,8 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		c.gridy++;
 		this.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",world.gridHeight),c);
 		c.gridy++;
+		gridWidth.addChangeListener(this);
+		gridHeight.addChangeListener(this);
 	}
 	
 	@Override
