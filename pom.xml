@@ -271,7 +271,7 @@
       <version>${jogl.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.kabeja</groupId>
+      <groupId>net.sourceforge</groupId>
       <artifactId>kabeja</artifactId>
       <version>0.4</version>
     </dependency>
@@ -295,7 +295,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
-      <scope>test</scope>
+      <!--  <scope>test</scope>-->
     </dependency>
     <dependency>
       <groupId>org.json</groupId>
