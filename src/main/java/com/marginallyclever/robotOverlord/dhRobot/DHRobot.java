@@ -11,6 +11,7 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.InputListener;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -86,7 +87,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		drawSkeleton=false;
 		setupLinks();
-		
+		poseNow = (DHKeyframe)createKeyframe();
 		refreshPose();
 
 		homePose.set(endMatrix);
@@ -275,11 +276,26 @@ public abstract class DHRobot extends Robot implements InputListener {
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
         		if(keyframeAnglesAreOK(keyframe)) {
 	        		// Solved!  update robot pose with fk.
-	        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
-	        			sendPoseToRobot(keyframe);
-	        			isReadyToReceive=false;
+	        		if(connection!=null && connection.isOpen()) {
+	        			if(isReadyToReceive) {
+	        				// If the sum of the absolute difference of each joint is smaller than some epsilon, don't send it to the robot.
+	        				double sum=0;
+	        				//String message="";
+	        				for(int i=0;i<keyframe.fkValues.length;++i) {
+	        					double v = Math.abs(poseNow.fkValues[i]-keyframe.fkValues[i]);
+	        					sum += v;
+	        					//message += (long)(v*1000)+" \t";
+	        				}
+        					//System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
+	        				if(sum>0.01) {
+	        					// update the live connected robot, which will come back through dataAvailable() to update the pose.
+		        				sendPoseToRobot(keyframe);
+		        				isReadyToReceive=false;
+	        				}
+		        		}
 	        		} else {
-	            		this.setPose(keyframe);
+	        			// no connected robot, update the pose directly.
+	            		this.setRobotPose(keyframe);
 	        		}
         		}
         	}
@@ -336,7 +352,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public boolean directDrive() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
-		double scale=0.1;
+		double scale=0.4;
 		double scaleTurn=0.15;
 		double deadzone=0.1;
 		
@@ -466,11 +482,15 @@ public abstract class DHRobot extends Robot implements InputListener {
     	return true;
 	}
 	
+	
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
 	 * @param keyframe
 	 */
-	public void setPose(DHKeyframe keyframe) {
+	public void setRobotPose(DHKeyframe keyframe) {
+		if(poseNow!=keyframe) {
+			poseNow.set(keyframe);
+		}
 		Iterator<DHLink> i = this.links.iterator();
 		int j=0;
 		while(i.hasNext()) {
@@ -482,5 +502,15 @@ public abstract class DHRobot extends Robot implements InputListener {
 		}
 		
     	this.refreshPose();
+	}
+	
+	/**
+	 * Get the robot's FK values to the keyframe.
+	 * @param keyframe
+	 */
+	public DHKeyframe getRobotPose() {
+		DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
+		keyframe.set(poseNow);
+		return keyframe;
 	}
 }
