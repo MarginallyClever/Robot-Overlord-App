@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import javax.swing.JPanel;
 
 import com.marginallyclever.communications.NetworkConnectionManager;
+import com.marginallyclever.convenience.AnsiColors;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
@@ -104,7 +105,8 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	protected void openConnection() {
 		NetworkConnection s = NetworkConnectionManager.requestNewConnection(null);
 		if(s!=null) {
-			setConnection(s);
+			connection = s;
+			connection.addListener(this);
 		}
 	}
 	
@@ -113,19 +115,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		return this.connection;
 	}
 	
-	
-	public void setConnection(NetworkConnection arg0) {
-		if(connection!=null && connection!=arg0) {
-			closeConnection();
-		}
-		
-		connection = arg0;
-		
-		if( connection != null ) {
-			connection.addListener(this);
-		}
-	}
-
 	
 	@Override
 	public void dataAvailable(NetworkConnection arg0,String data) {
@@ -138,8 +127,10 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		if(isReadyToReceive) {
 			sendFileCommand();
 		}
-		System.out.println(data);
+		
+		System.out.print(AnsiColors.GREEN+data+AnsiColors.RESET);
 	}
+	
 	
 	/**
 	 * tell the robot to move within it's work envelope relative to the robot's current position in the envelope.
@@ -147,8 +138,10 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @param direction which direction along the axis
 	 */
 	public void move(int axis,int direction) {
+		//TODO something is missing here
 		isReadyToReceive=false;
 	}
+	
 	
 	/**
 	 * Take the next line from the file and send it to the robot, if permitted. 
