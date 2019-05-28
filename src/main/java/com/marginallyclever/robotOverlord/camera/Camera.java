@@ -180,7 +180,7 @@ public class Camera extends PhysicalObject {
 		// move the camera
 		Vector3d temp = new Vector3d();
 		Vector3d direction = new Vector3d(0,0,0);
-		float vel = 10f * dt;
+		float vel = 20f * dt;
 		boolean changed = false;
 		
 		
