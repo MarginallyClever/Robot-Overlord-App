@@ -26,14 +26,25 @@ public class DHKeyframe implements RobotKeyframe {
 
 	public DHKeyframe(int size) {
 		fkValues=new double[size];
+		poseIK = new Matrix4d();
 	}
 	
-	public DHKeyframe() {}
+	public DHKeyframe() {
+		poseIK = new Matrix4d();
+	}
 	
 	@Override
 	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
-		// TODO Auto-generated method stub
-		
+		DHKeyframe dha = (DHKeyframe)a;
+		DHKeyframe dhb = (DHKeyframe)b;
+		if(this.fkValues.length == dha.fkValues.length && 
+			dha.fkValues.length == dhb.fkValues.length) {
+			for(int i=0;i<this.fkValues.length;++i) {
+				double c=dha.fkValues[i];
+				double d=dhb.fkValues[i];
+				this.fkValues[i] = (d-c)*t+c; 
+			}
+		}
 	}
 
 	@Override
@@ -44,6 +55,18 @@ public class DHKeyframe implements RobotKeyframe {
 	@Override
 	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public void set(DHKeyframe arg0) {
+		assert(arg0!=null);
+		assert(arg0.fkValues.length>0);
+		if(fkValues==null || fkValues.length!=arg0.fkValues.length) {
+			fkValues = new double[arg0.fkValues.length];
+		}
+		for(int i=0;i<arg0.fkValues.length;++i) {
+			fkValues[i] = arg0.fkValues[i];
+		}
+		poseIK.set(arg0.poseIK);
+		time=arg0.time;
 	}
 }
