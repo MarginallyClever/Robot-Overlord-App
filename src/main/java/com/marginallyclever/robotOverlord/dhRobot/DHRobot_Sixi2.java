@@ -5,6 +5,8 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -16,13 +18,32 @@ public class DHRobot_Sixi2 extends DHRobot {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private static double ADJUST0 = -180;
+	private static double ADJUST1 = 90;
+	private static double ADJUST2 = -70;
+	private static double ADJUST3 = 180+20;
+	private static double ADJUST4 = -135;
+	private static double ADJUST5 = -60;
+
+	private static double SCALE_0=-1;
+	private static double SCALE_1=1;
+	private static double SCALE_2=1;
+	private static double SCALE_3=-1;
+	private static double SCALE_4=-1;
+	private static double SCALE_5=-1;
+
 	public boolean isFirstTime;
 	public Material material;
+	public Material materialGhost;
+	public boolean once = false;
+	
+	DHKeyframe receivedKeyframe;
 	
 	public DHRobot_Sixi2() {
 		super();
 		setDisplayName("Sixi 2");
 		isFirstTime=true;
+		receivedKeyframe = (DHKeyframe)createKeyframe();
 	}
 	
 	@Override
@@ -74,10 +95,10 @@ public class DHRobot_Sixi2 extends DHRobot {
 	
 	public void setupModels() {
 		material = new Material();
-		float r=1;
-		float g=217f/255f;
-		float b=33f/255f;
-		material.setDiffuseColor(r,g,b,1);
+		material.setDiffuseColor(1,217f/255f,33f/255f,1);
+		
+		materialGhost = new Material();
+		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.5f);
 		
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
@@ -142,7 +163,6 @@ public class DHRobot_Sixi2 extends DHRobot {
 			gl2.glTranslated(position.x, position.y, position.z);
 			
 			// Draw models
-			
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
 				while(i.hasNext()) {
@@ -155,6 +175,38 @@ public class DHRobot_Sixi2 extends DHRobot {
 		
 		super.render(gl2);
 	}
+
+	@Override
+	public void drawTargetPose(GL2 gl2) {
+		// is there a valid ghost pose?
+    	DHIKSolver solver = this.getSolverIK();
+    	DHKeyframe keyframe = (DHKeyframe)createKeyframe();
+    	solver.solve(this,targetPose,keyframe);
+    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+    		// save the live pose
+    		DHKeyframe saveKeyframe = this.getRobotPose();
+    		// set the ghost pose
+    		this.setRobotPose(keyframe);
+    		// draw the ghost pose
+    		materialGhost.render(gl2);
+    		gl2.glPushMatrix();
+				Vector3d position = this.getPosition();
+				gl2.glTranslated(position.x, position.y, position.z);
+				
+				// Draw models
+				gl2.glPushMatrix();
+					Iterator<DHLink> i = links.iterator();
+					while(i.hasNext()) {
+						DHLink link = i.next();
+						link.renderModel(gl2);
+					}
+				gl2.glPopMatrix();
+			gl2.glPopMatrix();
+			// reset the live pose
+			this.setRobotPose(saveKeyframe);
+    	}
+    	super.drawTargetPose(gl2);
+	}
 	
 	@Override
 	public DHIKSolver getSolverIK() {
@@ -163,23 +215,98 @@ public class DHRobot_Sixi2 extends DHRobot {
 	
 	@Override
 	public void sendPoseToRobot(DHKeyframe keyframe) {
+		if(once == false) {
+			once = true;
+			//sendLineToRobot("D18");
+		}
+		
+		double [] fk = new double[6];
+
+		fk[0] =(keyframe.fkValues[0]-ADJUST0)/SCALE_0;
+		fk[1] =(keyframe.fkValues[1]-ADJUST1)/SCALE_1;
+		fk[2] =(keyframe.fkValues[2]-ADJUST2)/SCALE_2;
+		fk[3] =(keyframe.fkValues[3]-ADJUST3)/SCALE_3;
+		fk[4] =(keyframe.fkValues[4]-ADJUST4)/SCALE_4;
+		fk[5] =(keyframe.fkValues[5]-ADJUST5)/SCALE_5;
+				
+		for(int i=0;i<keyframe.fkValues.length;++i) {
+			double v = fk[i];
+			while(v<0) v+=360;
+			while(v>360) v-=360;
+			fk[i]=v;
+		}
+
+		String message = "G0"
+	    		+" X"+(StringHelper.formatDouble(fk[0]))
+	    		+" Y"+(StringHelper.formatDouble(fk[1]))
+	    		+" Z"+(StringHelper.formatDouble(fk[2]))
+	    		//+" U"+(StringHelper.formatDouble(fk[3]))
+	    		//+" V"+(StringHelper.formatDouble(fk[4]))
+	    		//+" W"+(StringHelper.formatDouble(fk[5]))
+	    		;
+				
+		System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
+		
 		// If the wiring on the robot is reversed, these parameters must also be reversed.
 		// This is a software solution to a hardware problem.
-		final double SCALE_0=-1;
-		final double SCALE_1=-1;
-		final double SCALE_2=-1;
-		//final double SCALE_3=-1;
-		//final double SCALE_4=1;
-		//final double SCALE_5=1;
+		sendLineToRobot(message);
+	}
 
-		sendLineToRobot("G0"
-    		+" X"+StringHelper.formatDouble(keyframe.fkValues[0]*SCALE_0)
-    		+" Y"+StringHelper.formatDouble(keyframe.fkValues[1]*SCALE_1)
-    		+" Z"+StringHelper.formatDouble(keyframe.fkValues[2]*SCALE_2)
-    		//+" U"+StringHelper.formatDouble(keyframe.fkValues[3]*SCALE_3)
-    		//+" V"+StringHelper.formatDouble(keyframe.fkValues[4]*SCALE_4)
-    		//+" W"+StringHelper.formatDouble(keyframe.fkValues[5]*SCALE_5)
-			);
+	/**
+	 * read D17 values from sixi robot
+	 */
+	@Override
+	public void dataAvailable(NetworkConnection arg0,String data) {
+		if(data.contains("D17")) {
+			if(data.startsWith(">")) {
+				data=data.substring(1).trim();
+			}
+			if(data.startsWith("D17")) {
+				String [] dataParts = data.split("\\s");
+				if(dataParts.length==7) {
+					try {
+						// original message from robot
+						System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+						
+						receivedKeyframe.fkValues[0]=Double.parseDouble(dataParts[1])*SCALE_0+ADJUST0;
+						receivedKeyframe.fkValues[1]=Double.parseDouble(dataParts[2])*SCALE_1+ADJUST1;
+						receivedKeyframe.fkValues[2]=Double.parseDouble(dataParts[3])*SCALE_2+ADJUST2;
+						receivedKeyframe.fkValues[3]=Double.parseDouble(dataParts[4])*SCALE_3+ADJUST3;
+						receivedKeyframe.fkValues[4]=Double.parseDouble(dataParts[5])*SCALE_4+ADJUST4;
+						receivedKeyframe.fkValues[5]=Double.parseDouble(dataParts[6])*SCALE_5+ADJUST5;
+						
+						for(int i=0;i<receivedKeyframe.fkValues.length;++i) {
+							double v = receivedKeyframe.fkValues[i];
+							while(v<-180) v+=360;
+							while(v> 180) v-=360;
+							receivedKeyframe.fkValues[i]=v;
+						}
+						/*
+						String message = "D17"
+					    		+" X"+(StringHelper.formatDouble((receivedKeyframe.fkValues[0])))
+					    		+" Y"+(StringHelper.formatDouble((receivedKeyframe.fkValues[1])))
+					    		+" Z"+(StringHelper.formatDouble((receivedKeyframe.fkValues[2])))
+					    		+" U"+(StringHelper.formatDouble((receivedKeyframe.fkValues[3])))
+					    		+" V"+(StringHelper.formatDouble((receivedKeyframe.fkValues[4])))
+					    		+" W"+(StringHelper.formatDouble((receivedKeyframe.fkValues[5])));
 
+						// angles after adjusting for scale and offset.
+						System.out.println(AnsiColors.PURPLE+message+AnsiColors.RESET);
+						*/
+						
+						/*
+						//smoothing to new position
+						DHKeyframe inter = (DHKeyframe)createKeyframe();
+						inter.interpolate(poseNow,receivedKeyframe, 0.5);
+						this.setRobotPose(inter);
+						/*/
+						this.setRobotPose(receivedKeyframe);
+						//*/
+					} catch(Exception e) {}
+				}
+			}
+			return;
+		}
+		super.dataAvailable(arg0, data);
 	}
 }
