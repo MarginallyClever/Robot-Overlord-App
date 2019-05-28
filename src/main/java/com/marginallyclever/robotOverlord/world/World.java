@@ -76,7 +76,7 @@ implements Serializable {
 		pickUp=new Vector3d();
 		pickRay=new Vector3d();
 		
-		gridWidth = (int)(25.4*8);
+		gridWidth = (int)(25.4*6);
 		gridHeight = (int)(25.4*3);
 		
 		children = new ArrayList<Entity>();
