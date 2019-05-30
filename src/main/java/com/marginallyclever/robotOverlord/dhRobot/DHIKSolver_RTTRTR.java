@@ -264,14 +264,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double t4 = Math.acos(r47.m12/Math.sin(a5));
 		keyframe.fkValues[3] = 180-Math.toDegrees(t4);  // TODO explain why we need 180- here
 		
-		// correct fkValues to be within 0...360
-		for(int i=0;i<keyframe.fkValues.length;++i) {
-			double v = keyframe.fkValues[i];
-			while(v<-180) v+=360;
-			while(v>180) v-=360;
-			keyframe.fkValues[i]=v;
-		}
-		
 		if(false) System.out.println(
 				"r47.m20="+StringHelper.formatDouble(r47.m20)+"\t"+
 				"t6="+StringHelper.formatDouble(t6)+"\t"+
