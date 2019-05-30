@@ -11,7 +11,6 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.InputListener;
 import com.marginallyclever.robotOverlord.RobotOverlord;
