@@ -77,8 +77,8 @@ public class Entity implements Serializable {
 		
 		return sum;
 	}
-	
-	
+
+
 	public String getDisplayName() {
 		return displayName;
 	}
