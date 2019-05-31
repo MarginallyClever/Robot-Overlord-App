@@ -60,15 +60,15 @@ public class UserCommandAddEntity extends JButton implements ActionListener {
 		
 		// service load the types available.
 		ServiceLoader<Entity> loaders = ServiceLoader.load(Entity.class);
-		int loadedEntityTypes=0;
+		int loadedTypes=0;
 		Iterator<Entity> i = loaders.iterator();
 		while(i.hasNext()) {
 			Entity lft = i.next();
 			additionComboBox.addItem(lft.getDisplayName());
-			++loadedEntityTypes;
+			++loadedTypes;
 		}
 		
-		assert(loadedEntityTypes!=0);
+		assert(loadedTypes!=0);
 
         
 		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, "Add...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
