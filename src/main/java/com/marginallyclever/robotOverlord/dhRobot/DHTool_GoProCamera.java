@@ -17,8 +17,8 @@ public class DHTool_GoProCamera extends DHTool {
 	
 	public DHTool_GoProCamera() {
 		super();
-		dhLinkEquivalent.d=80;  // 8cm
-		dhLinkEquivalent.r=500;  // 50cm
+		dhLinkEquivalent.d=8;  // cm
+		dhLinkEquivalent.r=50;  // cm
 		dhLinkEquivalent.refreshPoseMatrix();
 		setDisplayName("GoPro Camera");
 	}

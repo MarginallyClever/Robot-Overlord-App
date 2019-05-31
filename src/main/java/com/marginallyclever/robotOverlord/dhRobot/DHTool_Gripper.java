@@ -22,6 +22,8 @@ public class DHTool_Gripper extends DHTool {
 	
 	public DHTool_Gripper() {
 		super();
+		dhLinkEquivalent.d=15;  // cm
+		dhLinkEquivalent.refreshPoseMatrix();
 		setDisplayName("Gripper");
 		// setup dhLinkEquivalent
 	}

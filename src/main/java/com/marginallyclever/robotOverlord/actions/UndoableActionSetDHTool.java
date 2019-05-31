@@ -67,12 +67,10 @@ public class UndoableActionSetDHTool extends AbstractUndoableEdit {
 	}
 
 	private void addNow() {
-		robot.removeTool();
-		robot.addTool(newTool);
+		robot.setTool(newTool);
 	}
 	
 	private void removeNow() {
-		robot.removeTool();
-		robot.addTool(previousTool);
+		robot.setTool(previousTool);
 	}
 }

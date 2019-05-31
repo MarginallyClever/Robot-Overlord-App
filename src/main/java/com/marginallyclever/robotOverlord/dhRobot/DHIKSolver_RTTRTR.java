@@ -50,26 +50,28 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		DHLink link6 = robot.links.get(6);
 		DHLink link7 = robot.links.get(7);
 		
-		Point3d p7 = new Point3d(
-				targetPose.m03,
-				targetPose.m13,
-				targetPose.m23);
-		//p7.sub(robot.getPosition());
-		
-		Vector3d n7z = new Vector3d(
-				targetPose.m02,
-				targetPose.m12,
-				targetPose.m22);
+		Matrix4d targetPoseAdj = new Matrix4d(targetPose);
 		
 		if(robot.dhTool!=null) {
 			// there is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist Z axis and wrist position.
-			Matrix4d toolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
-			toolPose.invert();
-			toolPose.transform(p7);
-			toolPose.transform(n7z);
+			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
+			Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
+			inverseToolPose.invert();
+			targetPoseAdj.mul(inverseToolPose);
 		}
 		
+		Point3d p7 = new Point3d(
+				targetPoseAdj.m03,
+				targetPoseAdj.m13,
+				targetPoseAdj.m23);
+		//p7.sub(robot.getPosition());
+		
+		Vector3d n7z = new Vector3d(
+				targetPoseAdj.m02,
+				targetPoseAdj.m12,
+				targetPoseAdj.m22);
+
 		// Work backward to get link5 position
 		Point3d p5 = new Point3d(n7z);
 		p5.scaleAdd(-link6.d,p7);
@@ -119,7 +121,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		if( e > a+b ) {
 			solutionFlag = NO_SOLUTIONS;
-			if(true) System.out.println("NO_SOLUTIONS (1) "+e+" vs "+(a+b));
+			if(true) System.out.println("NO SOLUTIONS (1) "+e+" vs "+(a+b));
 			return;
 		}
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2*a*e) );
@@ -201,20 +203,21 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if( h>maximumReach ) {
 			// out of reach
 			solutionFlag = NO_SOLUTIONS;
-			if(true) System.out.println("NO_SOLUTIONS (2) "+h+" vs "+maximumReach);
+			if(true) System.out.println("NO SOLUTIONS (2) "+h+" vs "+maximumReach);
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
 			return;
 		}
 		
-		// We have found matrix r04 and we started with r07 (targetPose).
+		// We have found matrix r04 and we started with r07 (targetPoseAdj).
 		// We can get r47 = r04inv * r07 
 		r04.setTranslation(new Vector3d(0,0,0));
 
 		Matrix4d r07 = new Matrix4d();
-		r07.set(targetPose);
+		r07.set(targetPoseAdj);
 		r07.setTranslation(new Vector3d(0,0,0));
+
 
 		Matrix4d r04inv = new Matrix4d();
 		r04inv.invert(r04);
@@ -252,7 +255,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(Math.abs(a5copy)<EPSILON*EPSILON) {
 			// singularity!
 			solutionFlag = MANY_SOLUTIONS;
-			if(true) System.out.println("MANY_SOLUTIONS");
+			if(true) System.out.println("MANY SOLUTIONS");
 			keyframe.fkValues[3] = 0;
 			double t6 = Math.acos(r47.m00);
 			keyframe.fkValues[5] = Math.toDegrees(t6);

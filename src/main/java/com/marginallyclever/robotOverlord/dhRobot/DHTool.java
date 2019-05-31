@@ -33,6 +33,9 @@ public class DHTool extends ModelInWorld {
 	
 	public DHTool() {
 		dhLinkEquivalent = new DHLink();
+		dhLinkEquivalent.rangeMin=0;
+		dhLinkEquivalent.rangeMax=0;
+		dhLinkEquivalent.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
 		dhLinkEquivalent.refreshPoseMatrix();
 		setDisplayName("No Tool");
 	}
@@ -40,6 +43,5 @@ public class DHTool extends ModelInWorld {
 	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
-		dhLinkEquivalent.renderPose(gl2);
 	}
 }

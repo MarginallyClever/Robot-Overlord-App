@@ -130,7 +130,7 @@ public class DHLink {
 		// draw the bone for this joint
 		gl2.glPushMatrix();
 			gl2.glRotated(this.theta,0,0,1);
-			gl2.glColor3f(1, 0, 0);
+			gl2.glColor3f(1, 0, 0);  // red
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
 			gl2.glVertex3d(0, 0, d);

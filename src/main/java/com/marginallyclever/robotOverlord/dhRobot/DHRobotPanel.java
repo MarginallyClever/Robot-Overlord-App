@@ -142,6 +142,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 * Pull the latest arm end world coordinates into the panel.
 	 */
 	public void updateEnd() {
+		updateActiveTool(robot.getCurrentTool());
 		// report end effector position
 		endx.setText("X="+StringHelper.formatDouble(robot.endMatrix.m03));
 		endy.setText("Y="+StringHelper.formatDouble(robot.endMatrix.m13));
@@ -162,7 +163,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			// TODO get the tool from somewhere?  Find the tool in the world adjacent to the end effector
 			selectTool();
 			
-			robot.toggleATC();
+			//robot.toggleATC();
 			buildPanel();
 			this.invalidate();
 		}
@@ -209,9 +210,14 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 				if(name.equals(objectTypeName)) {
 					DHTool newInstance = null;
 
+					if(robot.getCurrentTool()!=null 
+						&& lft.getClass() == robot.getCurrentTool().getClass()) {
+						// setting the tool we're already set to?  Get outta here...
+						return;
+					}
 					try {
 						newInstance = lft.getClass().newInstance();
-						// create an undoable command to add this entity.
+						// create an undoable command to set the tool.
 						ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSetDHTool(robot,newInstance) ) );
 					} catch (InstantiationException | IllegalAccessException e) {
 						e.printStackTrace();
@@ -219,14 +225,14 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 					return;
 				}
 			}
-			// TODO catch selected an item to load, then couldn't find object class?!  Should be impossible.
 		}
 	}
 	
 	/**
 	 * Called by the robot to update the panel status
 	 */
-	public void setActiveTool(DHTool arg0) {
-		activeTool.setText("Tool="+(arg0==null?"null":arg0.getDisplayName()));
+	public void updateActiveTool(DHTool arg0) {
+		String name = (arg0==null) ? "null" : arg0.getDisplayName();
+		activeTool.setText("Tool="+name);
 	}
 }

@@ -58,7 +58,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	Matrix4d endMatrix;
 
 	/**
-	 * {@value targetPose} the pose the IK is trying to move towards.
+	 * {@value targetPose} the pose the IK is trying to move towards.  Includes the tool held by the robot. 
 	 */
 	public Matrix4d targetPose;
 
@@ -180,6 +180,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 			link.poseCumulative.set(endMatrix);
 		}
 		if(dhTool!=null) {
+			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			endMatrix.mul(dhTool.dhLinkEquivalent.pose);
 			dhTool.dhLinkEquivalent.poseCumulative.set(endMatrix);
 		}
@@ -248,21 +249,32 @@ public abstract class DHRobot extends Robot implements InputListener {
 			PhysicalObject po = iter.next();
 			if(po instanceof DHTool) {
 				// probably the only one we'll find.
-				addTool((DHTool)po);
+				setTool((DHTool)po);
 			}
 		}
 	}
 	
 	
-	public void addTool(DHTool arg0) {
+	public void setTool(DHTool arg0) {
 		removeTool();
 		dhTool = arg0;
-		arg0.heldBy = this;
-		this.panel.setActiveTool(dhTool);
+		if(arg0!=null) {
+			// add the tool offset to the targetPose.
+			Matrix4d toolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
+			targetPose.mul(toolPose);
+			// tell the tool it is being held.
+			arg0.heldBy = this;
+		}
+		this.panel.updateActiveTool(dhTool);
 	}
 	
 	public void removeTool() {
 		if(dhTool!=null) {
+			// subtract the tool offset from the targetPose.
+			Matrix4d inverseToolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
+			inverseToolPose.invert();
+			targetPose.mul(inverseToolPose);
+			// tell the tool it is no longer held.
 			dhTool.heldBy = null;
 		}
 		dhTool = null;
@@ -355,9 +367,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		MatrixHelper.drawMatrix(gl2, 
 				new Vector3d(0,0,0),
-				new Vector3d(1,0,0),
-				new Vector3d(0,1,0),
-				new Vector3d(0,0,1));
+				new Vector3d(5,0,0),
+				new Vector3d(0,5,0),
+				new Vector3d(0,0,5));
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
@@ -386,7 +398,7 @@ public abstract class DHRobot extends Robot implements InputListener {
             			}
         				if(components[j].getIdentifier()==Identifier.Button._1) {
         					// x
-        					this.toggleATC();
+        					//this.toggleATC();
         				}
         				if(components[j].getIdentifier()==Identifier.Button._2) {
            					// circle
