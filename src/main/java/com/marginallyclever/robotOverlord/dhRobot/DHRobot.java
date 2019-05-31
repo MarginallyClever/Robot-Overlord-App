@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -76,6 +77,13 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 */
 	boolean drawSkeleton;
 	
+	/**
+	 * {@value poseHistory} records DHIKSolver.getSolutionSize() wide showing the robot's pose over time.
+	 */
+	Queue<double[]> poseHistory;
+	
+	public static final int POSE_HISTORY_LENGTH = 500; 
+	
 	
 	public DHRobot() {
 		super();
@@ -91,6 +99,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 
 		homePose.set(endMatrix);
 		targetPose.set(endMatrix);
+		
+		poseHistory = new LinkedList<double[]>();
+		dhTool = new DHTool();  // default tool = no tool
 	}
 	
 	/**
@@ -134,6 +145,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 					DHLink link = i.next();
 					link.renderPose(gl2);
 				}
+				if(dhTool!=null) {
+					dhTool.dhLinkEquivalent.renderPose(gl2);
+				}
 			gl2.glPopMatrix();
 			
 			MatrixHelper.drawMatrix(gl2, 
@@ -164,6 +178,10 @@ public abstract class DHRobot extends Robot implements InputListener {
 			// find cumulative matrix
 			endMatrix.mul(link.pose);
 			link.poseCumulative.set(endMatrix);
+		}
+		if(dhTool!=null) {
+			endMatrix.mul(dhTool.dhLinkEquivalent.pose);
+			dhTool.dhLinkEquivalent.poseCumulative.set(endMatrix);
 		}
 	}
 	
@@ -240,6 +258,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		removeTool();
 		dhTool = arg0;
 		arg0.heldBy = this;
+		this.panel.setActiveTool(dhTool);
 	}
 	
 	public void removeTool() {
@@ -499,6 +518,12 @@ public abstract class DHRobot extends Robot implements InputListener {
 			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) link.alpha = keyframe.fkValues[j++];
 			if((link.flags & DHLink.READ_ONLY_R    )==0) link.r     = keyframe.fkValues[j++];
 		}
+
+		// Record the pose history.  Might be useful in future.
+		if(poseHistory.size()>=POSE_HISTORY_LENGTH) {
+			poseHistory.remove();
+		}
+		poseHistory.add(keyframe.fkValues);
 		
     	this.refreshPose();
 	}
