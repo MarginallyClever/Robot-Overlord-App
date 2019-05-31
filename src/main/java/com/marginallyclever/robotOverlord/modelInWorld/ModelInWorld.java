@@ -37,6 +37,7 @@ public class ModelInWorld extends PhysicalObject {
 		originAdjust = new Vector3d();
 		rotationAdjust = new Vector3d();
 		material = new Material();
+		setDisplayName("Model");
 	}
 
 	
@@ -107,11 +108,6 @@ public class ModelInWorld extends PhysicalObject {
 	
 	public Vector3d getAdjustRotation() {
 		return new Vector3d(rotationAdjust);
-	}
-	
-	@Override
-	public String getDisplayName() {
-		return "Model";
 	}
 	
 	
