@@ -56,11 +56,21 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 				targetPose.m23);
 		//p7.sub(robot.getPosition());
 		
-		// Work backward to get link5 position
 		Vector3d n7z = new Vector3d(
 				targetPose.m02,
 				targetPose.m12,
 				targetPose.m22);
+		
+		if(robot.dhTool!=null) {
+			// there is a transform between the wrist and the tool tip.
+			// use the inverse to calculate the wrist Z axis and wrist position.
+			Matrix4d toolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
+			toolPose.invert();
+			toolPose.transform(p7);
+			toolPose.transform(n7z);
+		}
+		
+		// Work backward to get link5 position
 		Point3d p5 = new Point3d(n7z);
 		p5.scaleAdd(-link6.d,p7);
 
