@@ -27,7 +27,19 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 	 */
 	@Override
 	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
-		Matrix4d m4 = new Matrix4d(targetPose);
+
+		Matrix4d targetPoseAdj = new Matrix4d(targetPose);
+		
+		if(robot.dhTool!=null) {
+			// there is a transform between the wrist and the tool tip.
+			// use the inverse to calculate the wrist Z axis and wrist position.
+			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
+			Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
+			inverseToolPose.invert();
+			targetPoseAdj.mul(inverseToolPose);
+		}
+		
+		Matrix4d m4 = new Matrix4d(targetPoseAdj);
 
 		keyframe.fkValues[0] = m4.m23;
 		keyframe.fkValues[1] = m4.m03;
