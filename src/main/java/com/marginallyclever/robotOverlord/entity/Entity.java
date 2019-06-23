@@ -29,8 +29,10 @@ public class Entity implements Serializable {
 	protected Entity parent;
 	
 	
-	// unique ids for all objects in the world.  zero is reserved to indicate no object.
-	static private int pickNameCounter=1;
+	// unique ids for all objects in the world.  
+	// zero is reserved to indicate no object.
+	// first 9 are reserved for MotionHelper.
+	static private int pickNameCounter=10;
 	
 	private transient EntityControlPanel entityPanel;
 	
