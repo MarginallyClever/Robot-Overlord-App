@@ -39,7 +39,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe,DHKeyframe oldKeyframe) {
+	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
 		solutionFlag = ONE_SOLUTION;
 		
 		DHLink link0 = robot.links.get(0);

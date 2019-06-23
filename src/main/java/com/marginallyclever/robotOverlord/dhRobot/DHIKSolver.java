@@ -31,17 +31,5 @@ public abstract class DHIKSolver {
 	 * @param targetPose the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.
 	 */
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
-		solve(robot,targetPose,keyframe,null);
-	};
-	
-	/**
-	 * Starting from a known local origin and a known local hand position ({@DHrobot.endMatrix}), 
-	 * calculate the angles for the given pose.
-	 * @param robot The DHRobot description. 
-	 * @param targetPose the pose that robot is attempting to reach in this solution.
-	 * @param keyframe store the computed solution in keyframe.
-	 * @param oldKeyframe a hint about the previous position, to prevent instantaneous flips.
-	 */
-	public abstract void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe,DHKeyframe oldKeyframe);
+	public abstract void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe);
 }
