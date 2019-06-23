@@ -20,10 +20,10 @@ public class DHRobot_Sixi2 extends DHRobot {
 
 	private static double ADJUST0 = -180;
 	private static double ADJUST1 = 90;
-	private static double ADJUST2 = -70;
-	private static double ADJUST3 = 180+20;
+	private static double ADJUST2 = -65;
+	private static double ADJUST3 = 180+35;
 	private static double ADJUST4 = -135;
-	private static double ADJUST5 = -60;
+	private static double ADJUST5 = -90+30;
 
 	private static double SCALE_0=-1;
 	private static double SCALE_1=1;
@@ -73,8 +73,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		links.get(4).d=28.805;
 		links.get(4).theta=0;
 		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).rangeMin=-90;
-		links.get(4).rangeMax=90;
+		links.get(4).rangeMin=-170;
+		links.get(4).rangeMax=170;
 
 		// tilt
 		links.get(5).d=11.8;
@@ -85,8 +85,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		// roll
 		links.get(6).d=3.9527;
 		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(6).rangeMin=-90;
-		links.get(6).rangeMax=90;
+		links.get(6).rangeMin=-170;
+		links.get(6).rangeMax=170;
 		
 		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
@@ -180,7 +180,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	public void drawTargetPose(GL2 gl2) {
 		// is there a valid ghost pose?
     	DHIKSolver solver = this.getSolverIK();
-    	DHKeyframe keyframe = (DHKeyframe)createKeyframe();
+    	DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
     	solver.solve(this,targetPose,keyframe);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// save the live pose
@@ -217,7 +217,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	public void sendPoseToRobot(DHKeyframe keyframe) {
 		if(once == false) {
 			once = true;
-			//sendLineToRobot("D18");
+			sendLineToRobot("D20");
 		}
 		
 		double [] fk = new double[6];
@@ -240,15 +240,13 @@ public class DHRobot_Sixi2 extends DHRobot {
 	    		+" X"+(StringHelper.formatDouble(fk[0]))
 	    		+" Y"+(StringHelper.formatDouble(fk[1]))
 	    		+" Z"+(StringHelper.formatDouble(fk[2]))
-	    		//+" U"+(StringHelper.formatDouble(fk[3]))
-	    		//+" V"+(StringHelper.formatDouble(fk[4]))
-	    		//+" W"+(StringHelper.formatDouble(fk[5]))
+	    		+" U"+(StringHelper.formatDouble(fk[3]))
+	    		+" V"+(StringHelper.formatDouble(fk[4]))
+	    		+" W"+(StringHelper.formatDouble(fk[5]))
 	    		;
 				
-		System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
+		//System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
 		
-		// If the wiring on the robot is reversed, these parameters must also be reversed.
-		// This is a software solution to a hardware problem.
 		sendLineToRobot(message);
 	}
 
@@ -261,12 +259,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 			if(data.startsWith(">")) {
 				data=data.substring(1).trim();
 			}
+			 ADJUST5 = -90+30;
 			if(data.startsWith("D17")) {
 				String [] dataParts = data.split("\\s");
-				if(dataParts.length==7) {
+				if(dataParts.length>=7) {
 					try {
 						// original message from robot
-						System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 						
 						receivedKeyframe.fkValues[0]=Double.parseDouble(dataParts[1])*SCALE_0+ADJUST0;
 						receivedKeyframe.fkValues[1]=Double.parseDouble(dataParts[2])*SCALE_1+ADJUST1;
@@ -274,6 +272,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 						receivedKeyframe.fkValues[3]=Double.parseDouble(dataParts[4])*SCALE_3+ADJUST3;
 						receivedKeyframe.fkValues[4]=Double.parseDouble(dataParts[5])*SCALE_4+ADJUST4;
 						receivedKeyframe.fkValues[5]=Double.parseDouble(dataParts[6])*SCALE_5+ADJUST5;
+						
 						
 						for(int i=0;i<receivedKeyframe.fkValues.length;++i) {
 							double v = receivedKeyframe.fkValues[i];
@@ -291,8 +290,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 					    		+" W"+(StringHelper.formatDouble((receivedKeyframe.fkValues[5])));
 
 						// angles after adjusting for scale and offset.
-						System.out.println(AnsiColors.PURPLE+message+AnsiColors.RESET);
-						*/
+						System.out.println(AnsiColors.PURPLE+data+"\t>>\t"+message+AnsiColors.RESET);
+						//*/
+						System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 						
 						/*
 						//smoothing to new position
