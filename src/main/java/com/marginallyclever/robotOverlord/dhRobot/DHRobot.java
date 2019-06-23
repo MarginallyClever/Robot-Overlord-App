@@ -70,19 +70,30 @@ public abstract class DHRobot extends Robot implements InputListener {
 	/**
 	 * {@value dhTool} a DHTool current attached to the arm.
 	 */
-	DHTool dhTool;
+	protected  DHTool dhTool;
 	
 	/**
 	 * {@value drawSkeleton} true if the skeleton should be visualized on screen.  Default is false.
 	 */
-	boolean drawSkeleton;
+	protected boolean drawSkeleton;
 	
 	/**
 	 * {@value poseHistory} records DHIKSolver.getSolutionSize() wide showing the robot's pose over time.
 	 */
-	Queue<double[]> poseHistory;
+	protected Queue<double[]> poseHistory;
 	
 	public static final int POSE_HISTORY_LENGTH = 500; 
+	
+	/**
+	 * The solver for this type of robot
+	 */
+	protected DHIKSolver solver;
+	
+	/**
+	 * Used by inputUpdate to solve pose and instruct robot where to go.
+	 */
+	protected DHKeyframe solutionKeyframe;
+	protected DHKeyframe oldSolutionKeyframe;
 	
 	
 	public DHRobot() {
@@ -94,7 +105,13 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		drawSkeleton=false;
 		setupLinks();
+
+		solver = this.getSolverIK();
+		
 		poseNow = (DHKeyframe)createKeyframe();
+		
+		solutionKeyframe = (DHKeyframe)createKeyframe();
+		
 		refreshPose();
 
 		homePose.set(endMatrix);
@@ -284,6 +301,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 		return dhTool;
 	}
 	
+	/**
+	 * Note: Is called by Robot constructor, so .
+	 */
 	@Override
 	public RobotKeyframe createKeyframe() {
 		return new DHKeyframe(getSolverIK().getSolutionSize());
@@ -300,32 +320,33 @@ public abstract class DHRobot extends Robot implements InputListener {
         
         if(isDirty) {
         	// attempt to solve IK
-        	DHIKSolver solver = this.getSolverIK();
-        	DHKeyframe keyframe = (DHKeyframe)createKeyframe();
-        	solver.solve(this,targetPose,keyframe);
+        	solver.solve(this,targetPose,solutionKeyframe,oldSolutionKeyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-        		if(keyframeAnglesAreOK(keyframe)) {
+        		if(keyframeAnglesAreOK(solutionKeyframe)) {
 	        		// Solved!  update robot pose with fk.
+        			if(oldSolutionKeyframe ==null) oldSolutionKeyframe = (DHKeyframe)createKeyframe();
+        			oldSolutionKeyframe.set(solutionKeyframe);
+        			
 	        		if(connection!=null && connection.isOpen()) {
 	        			if(isReadyToReceive) {
 	        				// If the sum of the absolute difference of each joint is smaller than some epsilon, don't send it to the robot.
 	        				double sum=0;
 	        				//String message="";
-	        				for(int i=0;i<keyframe.fkValues.length;++i) {
-	        					double v = Math.abs(poseNow.fkValues[i]-keyframe.fkValues[i]);
+	        				for(int i=0;i<solutionKeyframe.fkValues.length;++i) {
+	        					double v = Math.abs(poseNow.fkValues[i]-solutionKeyframe.fkValues[i]);
 	        					sum += v;
 	        					//message += (long)(v*1000)+" \t";
 	        				}
         					//System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
 	        				if(sum>0.01) {
 	        					// update the live connected robot, which will come back through dataAvailable() to update the pose.
-		        				sendPoseToRobot(keyframe);
+		        				sendPoseToRobot(solutionKeyframe);
 		        				isReadyToReceive=false;
 	        				}
 		        		}
 	        		} else {
 	        			// no connected robot, update the pose directly.
-	            		this.setRobotPose(keyframe);
+	            		this.setRobotPose(solutionKeyframe);
 	        		}
         		}
         	}
@@ -549,4 +570,10 @@ public abstract class DHRobot extends Robot implements InputListener {
 		keyframe.set(poseNow);
 		return keyframe;
 	}
+	/*
+	@Override
+	public boolean hasPickName(int name) {
+		// if any of the DHLinks have this pick name, return true.
+		return pickName==name;
+	}*/
 }
