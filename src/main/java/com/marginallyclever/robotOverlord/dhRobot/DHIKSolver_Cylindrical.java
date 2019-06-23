@@ -29,7 +29,7 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
+	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe,DHKeyframe oldKeyframe) {
 		DHLink link4 = robot.links.getLast();
 
 		Matrix4d targetPoseAdj = new Matrix4d(targetPose);
