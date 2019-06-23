@@ -82,9 +82,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	// select picking
 	protected transient IntBuffer selectBuffer = null;
-	protected transient boolean pickNow;
+	protected transient boolean pickNow,handlePickNow;
 	protected transient double pickX, pickY;
 	protected transient Entity pickedEntity; 
+	protected transient int pickedHandle;
 
 	// menus
     // main menu bar
@@ -119,8 +120,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	// mouse steering controls
 	private boolean isMouseIn;
-	private boolean hasLeftDragDeadZone;
-	private int cursorStartX,cursorStartY;
+	private int cursorStartX, cursorStartY;
+	private int cursorPreviousX, cursorPreviousY;
 	
 	// opengl rendering context
 	private GLU glu;
@@ -140,7 +141,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		checkStackSize=false;
 		
 		isMouseIn=false;
-		hasLeftDragDeadZone=false;
 		
 		connectionManager = new NetworkConnectionManager();
 /*
@@ -191,7 +191,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         buildMenu();
         
         pickNow = false;
-        selectBuffer = null;
+        handlePickNow = false;
+        selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         pickedEntity = null;
         pickNothing();
         
@@ -588,10 +589,27 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     		
 	        frameDelay-=frameLength;
 
+	        int pickName = 0;
+	        if(pickNow||handlePickNow) {
+	        	pickName = findItemUnderCursor(gl2);
+	        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+	        }
 	        if(pickNow) {
+	        	// double click action to pick the object under the cursor
 		        pickNow=false;
-		        pickIntoWorld(gl2);
+		        pickIntoWorld(pickName);
     		}
+	        if(handlePickNow) {
+	        	//System.out.println("pickedHandle="+pickedHandle);
+	        	if(pickedHandle==0) {
+		        	// single click to try and drag a handle
+		        	if(pickName>0 && pickName<10) {
+		        		//System.out.println("new pickedHandle="+pickName);
+		        		pickedHandle=pickName;
+		        	}
+	        	}
+	        	handlePickNow=false;
+	        }
 			
     		if(checkStackSize) {
 	    		IntBuffer v = IntBuffer.allocate(1);
@@ -614,9 +632,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
      * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
      * @param gl2 the openGL render context
      */
-    protected void pickIntoWorld(GL2 gl2) {
+    protected int findItemUnderCursor(GL2 gl2) {
     	// set up the buffer that will hold the names found under the cursor in furthest to closest.
-        selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         gl2.glSelectBuffer(SELECT_BUFFER_SIZE, selectBuffer);
         // change the render mode
 		gl2.glRenderMode( GL2.GL_SELECT );
@@ -639,23 +656,28 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPopMatrix();
         gl2.glFlush();
+        //gl2.glPushName(0);
 
         // get the picking results and return the render mode to the default 
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
-		//System.out.println("\n"+hits+" PICKS");
+        //gl2.glPopName();
+
+		//System.out.println("\n"+hits+" PICKS @ "+pickX+","+pickY);
         float z1;
-		@SuppressWarnings("unused")
-		float z2;
+		//float z2;
+		
         float zMinBest = Float.MAX_VALUE;
-    	int i, j, index=0, nameCount, pickName;
-    	Entity newlyPickedEntity = null;
+    	int i, j, index=0, nameCount, pickName, bestPickName=0;
     	
     	for(i=0;i<hits;++i) {
     		nameCount=selectBuffer.get(index++);
     		z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    		z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    		//System.out.print("  names="+nameCount+" zMin="+z1+" zMax="+z2);
+    		
+    		//z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		index++;
+    		
+    		//System.out.print("  names="+nameCount+" zMin="+z1);//+" zMax="+z2);
     		//String add=": ";
 			for(j=0;j<nameCount-1;++j) {
     			pickName = selectBuffer.get(index++);
@@ -667,12 +689,17 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         		//System.out.print(add+pickName);
         		if(zMinBest > z1) {
         			zMinBest = z1;
-        			newlyPickedEntity = world.pickObjectWithName(pickName);
+        			bestPickName = pickName;
         		}
     		}
     		//System.out.println();
     	}
-
+    	return bestPickName;
+    }
+    
+    public void pickIntoWorld(int pickName) {
+    	Entity newlyPickedEntity = world.pickObjectWithName(pickName);
+    	
     	if(newlyPickedEntity==null) {
 			//System.out.println(" NO PICK");
     		unPick();
@@ -687,6 +714,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	public void pickEntity(Entity arg0) {
 		arg0.pick();
 		pickedEntity=arg0;
+		pickedHandle=0;
 		setContextPanel(arg0.getAllContextPanels(this),arg0.getDisplayName());
 	}
 	
@@ -694,6 +722,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		if(pickedEntity!=null) {
 			pickedEntity.unPick();
 			pickedEntity=null;
+			pickedHandle=0;
 		}
     }
     
@@ -721,11 +750,14 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		hasLeftDragDeadZone=false;
-		cursorStartX=this.mainFrame.getWidth()/2;
-		cursorStartY=this.mainFrame.getHeight()/2;
+		cursorPreviousX=cursorStartX=this.mainFrame.getWidth()/2;
+		cursorPreviousY=cursorStartY=this.mainFrame.getHeight()/2;
 
 		hideCursor();
+		pickX=e.getX();
+		pickY=e.getY();
+		handlePickNow=true;
+		pickedHandle=0;
 		
 		world.getCamera().mousePressed(e);
 	}
@@ -750,33 +782,37 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		world.getCamera().mouseReleased(e);
 		showCursor();
 	}
+	
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		isMouseIn=true;
 		glCanvas.requestFocus();
 	}
+	
 	@Override
 	public void mouseExited(MouseEvent e) {
 		isMouseIn=false;
 		world.getCamera().lostFocus();
 	}
-
-
-	public static final int DRAG_DEAD_ZONE = 10;
 	
 	@Override
-	public void mouseDragged(MouseEvent e) {		
-		int x = e.getX();
-		int y = e.getY();
-		
-		if(hasLeftDragDeadZone) {
-			if(Math.abs(cursorStartX - x) > DRAG_DEAD_ZONE ||
-					Math.abs(cursorStartY - y ) > DRAG_DEAD_ZONE ) {
-				hasLeftDragDeadZone = true;
+	public void mouseDragged(MouseEvent e) {
+		if(pickedHandle>0) {
+			int x = e.getX();
+			int y = e.getY();
+			
+			int dx = x-cursorPreviousX;
+			int dy = y-cursorPreviousY;
+
+			cursorPreviousX=x;
+			cursorPreviousY=y;
+			
+			if(pickedEntity!=null) {
+				
 			}
+		} else {	
+			world.getCamera().mouseDragged(e);
 		}
-		
-		world.getCamera().mouseDragged(e);
 	}
 	
 	@Override
