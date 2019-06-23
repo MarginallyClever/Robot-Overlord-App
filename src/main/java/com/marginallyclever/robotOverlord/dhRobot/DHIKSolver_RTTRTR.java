@@ -35,10 +35,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 * @param robot The DHRobot description. 
 	 * @param targetPose the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.
+	 * @param oldKeyframe a hint about the previous position, to prevent instantaneous flips
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
+	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe,DHKeyframe oldKeyframe) {
 		solutionFlag = ONE_SOLUTION;
 		
 		DHLink link0 = robot.links.get(0);
@@ -95,7 +96,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		}
 		
 		// (1) theta0 = atan(y07/x07);
-		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p5.x,-p5.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
+		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p5.x,-p5.y));
 		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) C=z15
@@ -143,10 +144,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double phi3 = phi+omega;
 		if(false) System.out.println("phi3="+Math.toDegrees(phi3)+"\t");
 				
-		// angle of triangle j3-j2-j5 is ph4.
+		// angle of triangle j3-j2-j5 is phi4.
 		// b2^2 = b^+b1^2-2*b*b1*cos(phi4)
-		double phi4=0;
-		if(b1!=0) phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2*b1*b) );
+		double phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2.0*b1*b) );
 		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) alpha2 - phi3-phi4
@@ -183,6 +183,19 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		r04.mul(clonedLinks.get(3).pose);		clonedLinks.get(3).poseCumulative.set(r04);
 		r04.mul(clonedLinks.get(4).pose);		clonedLinks.get(4).poseCumulative.set(r04);
 
+		if(false) {
+			Vector3d p4original = new Vector3d(
+					link4.poseCumulative.m03,
+					link4.poseCumulative.m13,
+					link4.poseCumulative.m23);
+			Vector3d p4cloned = new Vector3d(
+					clonedLinks.get(4).poseCumulative.m03,
+					clonedLinks.get(4).poseCumulative.m13,
+					clonedLinks.get(4).poseCumulative.m23);
+			System.out.println("p4o="+p4original);
+			System.out.println("p4c="+p4cloned);
+		}
+		
 		// endMatrix is now at j4, but the rotation is unknown.
 		Point3d p4 = new Point3d(0,0,0);
 		r04.transform(p4);
@@ -200,8 +213,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("g="+g+"\t");
 		if(false) System.out.println("h="+h+"\t");
 		
-		if( h>maximumReach ) {
-			// out of reach
+		if( h-maximumReach > EPSILON ) {
+			// out of reach, including rounding error
 			solutionFlag = NO_SOLUTIONS;
 			if(true) System.out.println("NO SOLUTIONS (2) "+h+" vs "+maximumReach);
 			keyframe.fkValues[3]=
@@ -227,20 +240,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("r47="+r47);
 		
 		// with r47 we can find alpha5
-		double a5 = Math.acos(r47.m22);
-		keyframe.fkValues[4] = Math.toDegrees(a5);
-		if(false) {
-			Vector3d p4original = new Vector3d(
-					link4.poseCumulative.m03,
-					link4.poseCumulative.m13,
-					link4.poseCumulative.m23);
-			Vector3d p4cloned = new Vector3d(
-					clonedLinks.get(4).poseCumulative.m03,
-					clonedLinks.get(4).poseCumulative.m13,
-					clonedLinks.get(4).poseCumulative.m23);
-			System.out.println("p4o="+p4original);
-			System.out.println("p4c="+p4cloned);
-		}
+		double a5 = -Math.acos(r47.m22);
+		
 		if(false) {
 			System.out.println(
 					"r36.m22="+r47.m22+"\t"+
@@ -252,14 +253,14 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double a5copy = a5;
 		while(a5copy>= Math.PI) a5copy-=Math.PI;
 		while(a5copy<=-Math.PI) a5copy+=Math.PI;
-		if(Math.abs(a5copy)<EPSILON*EPSILON) {
+		if(Math.abs(a5copy)<EPSILON) {
 			// singularity!
 			solutionFlag = MANY_SOLUTIONS;
 			if(true) System.out.println("MANY SOLUTIONS");
 			keyframe.fkValues[3] = 0;
 			double t6 = Math.acos(r47.m00);
 			keyframe.fkValues[5] = Math.toDegrees(t6);
-			if(true) System.out.println(
+			if(false) System.out.println(
 					"t0="+StringHelper.formatDouble(keyframe.fkValues[0])+"\t"+
 					"a1="+StringHelper.formatDouble(keyframe.fkValues[1])+"\t"+
 					"a2="+StringHelper.formatDouble(keyframe.fkValues[2])+"\t"+
@@ -271,11 +272,28 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		// no singularity, so we can continue to solve for theta4 and theta6.
 		
-		double t6 = Math.acos(-r47.m20/Math.sin(a5));
-		keyframe.fkValues[5] = Math.toDegrees(t6)-90;  // TODO explain why we need -90 here
+		// https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
+		double r22=r47.m22;
 		
-		double t4 = Math.acos(r47.m12/Math.sin(a5));
-		keyframe.fkValues[3] = 180-Math.toDegrees(t4);  // TODO explain why we need 180- here
+		double a5pos = Math.atan2( Math.sqrt(1-r22*r22),r22);
+		double a5neg = Math.atan2(-Math.sqrt(1-r22*r22),r22);
+		if(false) System.out.println("5="+a5+"\tpos="+a5pos+"\tneg="+a5neg);
+		
+		double s5 = Math.sin(a5);
+		double t4,t6;
+		if(s5>0) {
+			a5 = a5pos;
+			t4 = Math.atan2(r47.m12,r47.m02);
+			t6 = Math.atan2(r47.m21,-r47.m20);
+		} else {
+			a5 = a5neg;
+			t4 = Math.atan2(-r47.m12,-r47.m02);
+			t6 = Math.atan2(-r47.m21,r47.m20);
+		}
+
+		keyframe.fkValues[3] = Math.toDegrees(t4)-90;
+		keyframe.fkValues[4] = -Math.toDegrees(a5);
+		keyframe.fkValues[5] = Math.toDegrees(t6);
 		
 		if(false) System.out.println(
 				"r47.m20="+StringHelper.formatDouble(r47.m20)+"\t"+
