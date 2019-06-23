@@ -9,6 +9,8 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+
+
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
@@ -93,7 +95,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 * Used by inputUpdate to solve pose and instruct robot where to go.
 	 */
 	protected DHKeyframe solutionKeyframe;
-	protected DHKeyframe oldSolutionKeyframe;
 	
 	
 	public DHRobot() {
@@ -320,12 +321,10 @@ public abstract class DHRobot extends Robot implements InputListener {
         
         if(isDirty) {
         	// attempt to solve IK
-        	solver.solve(this,targetPose,solutionKeyframe,oldSolutionKeyframe);
+        	solver.solve(this,targetPose,solutionKeyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
         		if(keyframeAnglesAreOK(solutionKeyframe)) {
 	        		// Solved!  update robot pose with fk.
-        			if(oldSolutionKeyframe ==null) oldSolutionKeyframe = (DHKeyframe)createKeyframe();
-        			oldSolutionKeyframe.set(solutionKeyframe);
         			
 	        		if(connection!=null && connection.isOpen()) {
 	        			if(isReadyToReceive) {
