@@ -149,9 +149,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		endz.setText("Z="+StringHelper.formatDouble(robot.endMatrix.m23));
 		
 		// run the IK solver to see if solution works.
-		DHIKSolver solver = robot.getSolverIK();
-		DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
-		solver.solve(robot,robot.endMatrix,keyframe);
+		//DHIKSolver solver = robot.getSolverIK();
+		//DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
+		//solver.solve(robot,robot.endMatrix,keyframe);
 		
 		// report the keyframe results here
 	}
