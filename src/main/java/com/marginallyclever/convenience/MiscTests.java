@@ -27,32 +27,26 @@ public class MiscTests {
 	@Test
 	public void solveLinearEquations() {
 		// we have 6 linear equation and six unknowns
-		// p0 = a + b*t0 + c*t0*t0 + d*t0*t0*t0
-		// pf = a + b*tf + c*tf*tf + d*tf*tf*tf
-		// v0 =     b    + 2c*t0   + 3d*t0*t0
-		// vf =     b    + 2c*tf   + 3d*tf*tf
-		// a0 =          + 2c      + 6d*t0 + 12e*t0*t0 + 20f*t0*t0*t0
-		// af =          + 2c      + 6d*tf + 12e*tf*tf + 20f*tf*tf*tf
+		// p0 = a + b*t0 +  c*t0^2 +  d*t0^3 +  e*t0^4 +   f*t0^5
+		// pf = a + b*tf +  c*tf^2 +  d*tf^3 +  e*tf^4 +   f*tf^5
+		// v0 =     b    + 2c*t0   + 3d*t0^2 + 4e*t0^3 +  5f*t0^4
+		// vf =     b    + 2c*tf   + 3d*tf^2 + 4e*tf^3 +  5f*tf^4
+		// a0 =          + 2c      + 6d*t0   + 12e*t0^2 + 20f*t0^3
+		// af =          + 2c      + 6d*tf   + 12e*tf^2 + 20f*tf^3
 		// or expressed as a matrix, Q = M*N
-		// [p0]=[ 1 t0 t0^2     1      0      0][a]
-		// [pf]=[ 1 tf tf^2     1      0      0][b]
-		// [v0]=[ 0  1  2t0 3t0^2      0      0][c]
-		// [vf]=[ 0  1  2tf 3tf^2      0      0][d]
-		// [a0]=[ 0  0    2   6t0 12t0^2 20t0^3][e]
-		// [af]=[ 0  0    2   6tf 12tf^2 20tf^3][f]
+		// [p0]=[ 1 t0  t0^2  t0^3   t0^4   t0^5][a]
+		// [pf]=[ 1 tf  tf^2  tf^3   tf^4   tf^5][b]
+		// [v0]=[ 0  1 2t0   3t0^2  4t0^3  5t0^4][c]
+		// [vf]=[ 0  1 2tf   3tf^2  4tf^3  5tf^4][d]
+		// [a0]=[ 0  0 2     6t0   12t0^2 20t0^3][e]
+		// [af]=[ 0  0 2     6tf   12tf^2 20tf^3][f]
 		// I know Q and M.  I can Q * inverse(M) to get N.
 		// then I can solve the original polynomials for any t betwen t0 and tf.
 		
-		double t0=0,tf=1;
+		double t0=0,tf=100;
 		double p0=0,pf=90;
 		double v0=0,vf=0;
 		double a0=0,af=0;
-	
-		double[][] m = buildMatrix(t0,tf);
-		MatrixOperations.printMatrix(m, 1);
-		double[][] mInv=MatrixOperations.invertMatrix(m);
-		MatrixOperations.printMatrix(mInv, 1);
-		
 
 		double[] q = new double[6];
 		q[0]=p0;
@@ -62,7 +56,14 @@ public class MiscTests {
 		q[4]=a0;
 		q[5]=af;
 		
+		long start = System.currentTimeMillis();
+		
+		double[][] m = buildMatrix(t0,tf);
+		double[][] mInv=MatrixOperations.invertMatrix(m);
 		double[] n = MatrixOperations.multiply(mInv,q);
+
+		long end = System.currentTimeMillis();
+		
 		double a=n[0];
 		double b=n[1];
 		double c=n[2];
@@ -70,34 +71,49 @@ public class MiscTests {
 		double e=n[4];
 		double f=n[5];
 
-		System.out.println("p\tv\ta");
+		System.out.println("time="+(end-start)+"ms");
+		//MatrixOperations.printMatrix(m, 1);
+		//MatrixOperations.printMatrix(mInv, 1);
+		System.out.println("t\tp\tv\ta\t"+a+"\t"+b+"\t"+c+"\t"+d+"\t"+e+"\t"+f);
 		for(double t=t0;t<=tf;t++) {
-			// pt = a + b*t + c*t*t + d*t*t*t
-			// vt =     b    + 2c*t   + 3d*t*t
-			// at =          + 2c      + 6d*t + 12e*t*t + 20f*t*t*t
+			// p0 = a + b*t0 +  c*t0^2 +  d*t0^3 +   e*t0^4 +   f*t0^5
+			// v0 =     b    + 2c*t0   + 3d*t0^2 +  4e*t0^3 +  5f*t0^4
+			// a0 =          + 2c      + 6d*t0   + 12e*t0^2 + 20f*t0^3
 			double t2=t*t;
 			double t3=t*t*t;
-			double pt = a * b*t +   c*t2 +   d*t3;
-			double vt =     b   + 2*c    + 3*d*t2;
+			double t4=t*t*t*t;
+			double t5=t*t*t*t*t;
+			double pt = a * b*t +   c*t2 +   d*t3 +    e*t4 +    f*t5;
+			double vt =     b   + 2*c*t  + 3*d*t2 +  4*e*t3 +  5*f*t4;
 			double at =         + 2*c    + 6*d*t  + 12*e*t2 + 20*f*t3;
-			System.out.println(pt+"\t"+vt+"\t"+at);
+			System.out.println(t+"\t"+pt+"\t"+vt+"\t"+at);
 		}
 	}
 	
 	public double[][] buildMatrix(double t0,double tf) {
 		double t02 = t0*t0;
 		double tf2 = tf*tf;
-		double t03 = t0*t0*t0;
-		double tf3 = tf*tf*tf;
+		double t03 = t02*t0;
+		double tf3 = tf2*tf;
+		double t04 = t03*t0;
+		double tf4 = tf3*tf;
+		double t05 = t04*t0;
+		double tf5 = tf4*tf;
 
 		double [][] matrix = new double[6][6];
-		
-		matrix[0][0]=1;	matrix[0][1]=t0;	matrix[0][2]=t02;	matrix[0][3]=1;		matrix[0][4]=0;			matrix[0][5]=0;
-		matrix[1][0]=1;	matrix[1][1]=tf;	matrix[1][2]=tf2;	matrix[1][3]=1;		matrix[1][4]=0;			matrix[1][5]=0;
-		matrix[2][0]=0;	matrix[2][1]=1;		matrix[2][2]=2*t0;	matrix[2][3]=3*t02;	matrix[2][4]=0;			matrix[2][5]=0;
-		matrix[3][0]=0;	matrix[3][1]=1;		matrix[3][2]=2*tf;	matrix[3][3]=3*tf2;	matrix[3][4]=0;			matrix[3][5]=0;
-		matrix[4][0]=0;	matrix[4][0]=0;		matrix[4][2]=2;		matrix[4][3]=6*t0;	matrix[4][4]=12*t02;	matrix[4][5]=20*t03;
-		matrix[5][0]=0;	matrix[5][0]=0;		matrix[5][2]=2;		matrix[5][3]=6*tf;	matrix[5][4]=12*tf2;	matrix[5][5]=20*tf3;
+
+		// [p0]=[ 1 t0  t0^2  t0^3   t0^4   t0^5][a]
+		// [pf]=[ 1 tf  tf^2  tf^3   tf^4   tf^5][b]
+		// [v0]=[ 0  1 2t0   3t0^2  4t0^3  5t0^4][c]
+		// [vf]=[ 0  1 2tf   3tf^2  4tf^3  5tf^4][d]
+		// [a0]=[ 0  0 2     6t0   12t0^2 20t0^3][e]
+		// [af]=[ 0  0 2     6tf   12tf^2 20tf^3][f]
+		matrix[0][0]=1;	matrix[0][1]=t0;	matrix[0][2]=  t02;	matrix[0][3]=  t03;	matrix[0][4]=   t04;	matrix[0][5]=   t05;
+		matrix[1][0]=1;	matrix[1][1]=tf;	matrix[1][2]=  tf2;	matrix[1][3]=  tf3;	matrix[1][4]=   tf4;	matrix[1][5]=   tf5;
+		matrix[2][0]=0;	matrix[2][1]= 1;	matrix[2][2]=2*t0;	matrix[2][3]=3*t02;	matrix[2][4]= 4*t03;	matrix[2][5]= 5*t04;
+		matrix[3][0]=0;	matrix[3][1]= 1;	matrix[3][2]=2*tf;	matrix[3][3]=3*tf2;	matrix[3][4]= 4*tf3;	matrix[3][5]= 5*tf4;
+		matrix[4][0]=0;	matrix[4][1]= 0;	matrix[4][2]=2;		matrix[4][3]=6*t0;	matrix[4][4]=12*t02;	matrix[4][5]=20*t03;
+		matrix[5][0]=0;	matrix[5][1]= 0;	matrix[5][2]=2;		matrix[5][3]=6*tf;	matrix[5][4]=12*tf2;	matrix[5][5]=20*tf3;
 		
 		return matrix;
 	}
