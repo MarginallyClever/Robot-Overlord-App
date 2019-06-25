@@ -203,6 +203,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 						DHLink link = i.next();
 						link.renderModel(gl2);
 					}
+					if(dhTool!=null) {
+						dhTool.render(gl2);
+					}
 				gl2.glPopMatrix();
 			gl2.glPopMatrix();
 			// reset the live pose
