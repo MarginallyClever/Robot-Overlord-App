@@ -471,9 +471,9 @@ public abstract class DHRobot extends Robot implements InputListener {
         				if(components[j].getIdentifier()==Identifier.Button._4) {
     	            		// right analog stick, + is right -1 is left
     	            		isDirty=true;
-    	            		double v = 4;
-    	            		if(dhTool!=null) {
-    	            			v/=dhTool.dhLinkEquivalent.r;
+    	            		double v = scaleTurn;
+    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r!=0) {
+    	            			v=4/dhTool.dhLinkEquivalent.r;
     	            		}
     	            		Matrix4d temp = new Matrix4d();
     	            		temp.rotZ(v*scaleTurn);
@@ -482,9 +482,9 @@ public abstract class DHRobot extends Robot implements InputListener {
         				if(components[j].getIdentifier()==Identifier.Button._5) {
     	            		// right analog stick, + is right -1 is left
     	            		isDirty=true;
-    	            		double v = 4;
-    	            		if(dhTool!=null) {
-    	            			v/=dhTool.dhLinkEquivalent.r;
+    	            		double v = scaleTurn;
+    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r!=0) {
+    	            			v=4/dhTool.dhLinkEquivalent.r;
     	            		}
     	            		Matrix4d temp = new Matrix4d();
     	            		temp.rotZ(v*-scaleTurn);
