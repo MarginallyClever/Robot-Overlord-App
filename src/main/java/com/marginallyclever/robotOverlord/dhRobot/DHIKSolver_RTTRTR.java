@@ -55,11 +55,20 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		if(robot.dhTool!=null) {
 			// there is a transform between the wrist and the tool tip.
-			// use the inverse to calculate the wrist Z axis and wrist position.
+			// use the inverse to calculate the wrist transform.
 			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
 			inverseToolPose.invert();
-			targetPoseAdj.mul(inverseToolPose);
+			//targetPoseAdj.mul(inverseToolPose);
+
+			double t=1.0;
+			targetPoseAdj.m03+=targetPoseAdj.m01 * robot.dhTool.dhLinkEquivalent.r*t;
+			targetPoseAdj.m13+=targetPoseAdj.m11 * robot.dhTool.dhLinkEquivalent.r*t;
+			targetPoseAdj.m23+=targetPoseAdj.m21 * robot.dhTool.dhLinkEquivalent.r*t;
+
+			targetPoseAdj.m03-=targetPoseAdj.m02 * robot.dhTool.dhLinkEquivalent.d*t;
+			targetPoseAdj.m13-=targetPoseAdj.m12 * robot.dhTool.dhLinkEquivalent.d*t;
+			targetPoseAdj.m23-=targetPoseAdj.m22 * robot.dhTool.dhLinkEquivalent.d*t;
 		}
 		
 		Point3d p7 = new Point3d(
