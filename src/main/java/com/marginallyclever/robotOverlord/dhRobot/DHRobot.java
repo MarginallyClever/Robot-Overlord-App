@@ -106,7 +106,8 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		drawSkeleton=false;
 		setupLinks();
-
+		calculateJacobians();
+		
 		solver = this.getSolverIK();
 		
 		poseNow = (DHKeyframe)createKeyframe();
@@ -120,6 +121,40 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		poseHistory = new LinkedList<double[]>();
 		dhTool = new DHTool();  // default tool = no tool
+	}
+	
+	/**
+	 * @see https://arxiv.org/ftp/arxiv/papers/1707/1707.04821.pdf
+	 */
+	public void calculateJacobians() {
+		// pose was refreshed at the end of setupLinks()
+		Vector3d P = new Vector3d(
+				endMatrix.m03,
+				endMatrix.m13,
+				endMatrix.m23);
+		
+		Vector3d [][] a = new Vector3d[2][links.size()];
+		int j=0;
+		Iterator<DHLink> i = links.iterator();
+		while(i.hasNext()) {
+			DHLink link = i.next();
+			Vector3d v = new Vector3d(
+					link.poseCumulative.m03,
+					link.poseCumulative.m13,
+					link.poseCumulative.m23);
+			Vector3d z = new Vector3d(
+					link.poseCumulative.m02,
+					link.poseCumulative.m12,
+					link.poseCumulative.m22);
+			Vector3d temp=new Vector3d();
+			temp.set(P);
+			temp.sub(v);
+			Vector3d result = new Vector3d();
+			result.cross(z, temp);
+			a[0][j]=result;
+			a[1][j]=z;
+			++j;
+		}
 	}
 	
 	/**
@@ -168,14 +203,14 @@ public abstract class DHRobot extends Robot implements InputListener {
 				}
 			gl2.glPopMatrix();
 			
-			MatrixHelper.drawMatrix(gl2, 
+			MatrixHelper.drawMatrix2(gl2, 
 					new Vector3d((float)endMatrix.m03,(float)endMatrix.m13,(float)endMatrix.m23),
 					new Vector3d((float)endMatrix.m00,(float)endMatrix.m10,(float)endMatrix.m20),
 					new Vector3d((float)endMatrix.m01,(float)endMatrix.m11,(float)endMatrix.m21),
 					new Vector3d((float)endMatrix.m02,(float)endMatrix.m12,(float)endMatrix.m22)
 					);
-
 		gl2.glPopMatrix();
+		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		
@@ -198,7 +233,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 			link.poseCumulative.set(endMatrix);
 		}
 		if(dhTool!=null) {
+			// update matrix
 			dhTool.dhLinkEquivalent.refreshPoseMatrix();
+			// find cumulative matrix
 			endMatrix.mul(dhTool.dhLinkEquivalent.pose);
 			dhTool.dhLinkEquivalent.poseCumulative.set(endMatrix);
 		}
@@ -278,6 +315,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		dhTool = arg0;
 		if(arg0!=null) {
 			// add the tool offset to the targetPose.
+			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d toolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
 			targetPose.mul(toolPose);
 			// tell the tool it is being held.
@@ -289,6 +327,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public void removeTool() {
 		if(dhTool!=null) {
 			// subtract the tool offset from the targetPose.
+			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d inverseToolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
 			inverseToolPose.invert();
 			targetPose.mul(inverseToolPose);
@@ -337,7 +376,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	        					//message += (long)(v*1000)+" \t";
 	        				}
         					//System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
-	        				if(sum>0.01) {
+	        				if(sum>0.01) {  // mm?
 	        					// update the live connected robot, which will come back through dataAvailable() to update the pose.
 		        				sendPoseToRobot(solutionKeyframe);
 		        				isReadyToReceive=false;
@@ -362,36 +401,36 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public void drawTargetPose(GL2 gl2) {
 		gl2.glPushMatrix();
 		
-		double[] mat = new double[16];
-		mat[ 0] = targetPose.m00;
-		mat[ 1] = targetPose.m10;
-		mat[ 2] = targetPose.m20;
-		mat[ 3] = targetPose.m30;
-		mat[ 4] = targetPose.m01;
-		mat[ 5] = targetPose.m11;
-		mat[ 6] = targetPose.m21;
-		mat[ 7] = targetPose.m31;
-		mat[ 8] = targetPose.m02;
-		mat[ 9] = targetPose.m12;
-		mat[10] = targetPose.m22;
-		mat[11] = targetPose.m32;
-		mat[12] = targetPose.m03;
-		mat[13] = targetPose.m13;
-		mat[14] = targetPose.m23;
-		mat[15] = targetPose.m33;
-		gl2.glMultMatrixd(mat, 0);
-
-		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		MatrixHelper.drawMatrix(gl2, 
-				new Vector3d(0,0,0),
-				new Vector3d(5,0,0),
-				new Vector3d(0,5,0),
-				new Vector3d(0,0,5));
-		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+			double[] mat = new double[16];
+			mat[ 0] = targetPose.m00;
+			mat[ 1] = targetPose.m10;
+			mat[ 2] = targetPose.m20;
+			mat[ 3] = targetPose.m30;
+			mat[ 4] = targetPose.m01;
+			mat[ 5] = targetPose.m11;
+			mat[ 6] = targetPose.m21;
+			mat[ 7] = targetPose.m31;
+			mat[ 8] = targetPose.m02;
+			mat[ 9] = targetPose.m12;
+			mat[10] = targetPose.m22;
+			mat[11] = targetPose.m32;
+			mat[12] = targetPose.m03;
+			mat[13] = targetPose.m13;
+			mat[14] = targetPose.m23;
+			mat[15] = targetPose.m33;
+			gl2.glMultMatrixd(mat, 0);
+	
+			boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+			gl2.glDisable(GL2.GL_DEPTH_TEST);
+			gl2.glDisable(GL2.GL_LIGHTING);
+			MatrixHelper.drawMatrix(gl2, 
+					new Vector3d(0,0,0),
+					new Vector3d(5,0,0),
+					new Vector3d(0,5,0),
+					new Vector3d(0,0,5));
+			if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+			if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 	}
 	
@@ -402,9 +441,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public boolean directDrive() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
-		double scale=0.4;
-		double scaleTurn=0.15;
-		double deadzone=0.1;
+		final double scale=0.4;
+		final double scaleTurn=0.15;
+		final double DEADZONE=0.1;
 		
         for(int i=0;i<ca.length;i++){
         	if(ca[i].getType()!=Controller.Type.STICK) continue;
@@ -429,12 +468,34 @@ public abstract class DHRobot extends Robot implements InputListener {
                 			targetPose.set(homePose);
                 			isDirty=true;
         				}
+        				if(components[j].getIdentifier()==Identifier.Button._4) {
+    	            		// right analog stick, + is right -1 is left
+    	            		isDirty=true;
+    	            		double v = 4;
+    	            		if(dhTool!=null) {
+    	            			v/=dhTool.dhLinkEquivalent.r;
+    	            		}
+    	            		Matrix4d temp = new Matrix4d();
+    	            		temp.rotZ(v*scaleTurn);
+    	            		targetPose.mul(temp);
+        				}
+        				if(components[j].getIdentifier()==Identifier.Button._5) {
+    	            		// right analog stick, + is right -1 is left
+    	            		isDirty=true;
+    	            		double v = 4;
+    	            		if(dhTool!=null) {
+    	            			v/=dhTool.dhLinkEquivalent.r;
+    	            		}
+    	            		Matrix4d temp = new Matrix4d();
+    	            		temp.rotZ(v*-scaleTurn);
+    	            		targetPose.mul(temp);
+        				}
             		}
             	} else {
 	            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
 	            		// right analog stick, + is right -1 is left
 	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<deadzone) continue;
+	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		Matrix4d temp = new Matrix4d();
 	            		temp.rotY(v*scaleTurn);
@@ -443,7 +504,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
 	            		// right analog stick, + is down -1 is up
 	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<deadzone) continue;
+	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		Matrix4d temp = new Matrix4d();
 	            		temp.rotX(v*scaleTurn);
@@ -453,28 +514,28 @@ public abstract class DHRobot extends Robot implements InputListener {
 	            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
 	            		// right trigger, +1 is pressed -1 is unpressed
 	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<-1+deadzone) continue;
+	            		if(Math.abs(v)<-1+DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m23-=((v+1)/2)*scale;
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
 	            		// left trigger, +1 is pressed -1 is unpressed
 	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<-1+deadzone) continue;
+	            		if(Math.abs(v)<-1+DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m23+=((v+1)/2)*scale;
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.X) {
 	            		// left analog stick, +1 is right -1 is left
 	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<deadzone) continue;
+	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m13+=v*scale;
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
 	            		// left analog stick, -1 is up +1 is down
 	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<deadzone) continue;
+	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m03+=v*scale;
 	            	}
@@ -486,6 +547,9 @@ public abstract class DHRobot extends Robot implements InputListener {
         	}
         }
         
+        if(dhTool!=null) {
+        	isDirty |= dhTool.directDrive();
+        }
         return isDirty;
 	}
 
