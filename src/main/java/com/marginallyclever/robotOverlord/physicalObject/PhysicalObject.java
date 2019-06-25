@@ -53,6 +53,7 @@ public abstract class PhysicalObject extends Entity {
 		// Matrix4d has a setTranslation, but not a getTranslation?  Thanks.
 		return new Vector3d(pose.m03,pose.m13,pose.m23);
 	}
+	
 	public void setPosition(Vector3d pos) {
 		pose.setTranslation(pos);
 		if(physicalObjectControlPanel!=null) {
