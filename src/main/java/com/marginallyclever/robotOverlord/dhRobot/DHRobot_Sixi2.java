@@ -85,8 +85,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		// roll
 		links.get(6).d=3.9527;
 		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(6).rangeMin=-170;
-		links.get(6).rangeMax=170;
+		links.get(6).rangeMin=-180;
+		links.get(6).rangeMax=180;
 		
 		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
@@ -168,6 +168,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 				while(i.hasNext()) {
 					DHLink link = i.next();
 					link.renderModel(gl2);
+				}
+				if(dhTool!=null) {
+					dhTool.render(gl2);
 				}
 			gl2.glPopMatrix();
 		
