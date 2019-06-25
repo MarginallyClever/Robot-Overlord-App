@@ -61,14 +61,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			inverseToolPose.invert();
 			//targetPoseAdj.mul(inverseToolPose);
 
-			double t=1.0;
-			targetPoseAdj.m03+=targetPoseAdj.m01 * robot.dhTool.dhLinkEquivalent.r*t;
-			targetPoseAdj.m13+=targetPoseAdj.m11 * robot.dhTool.dhLinkEquivalent.r*t;
-			targetPoseAdj.m23+=targetPoseAdj.m21 * robot.dhTool.dhLinkEquivalent.r*t;
+			targetPoseAdj.m03+=targetPoseAdj.m01 * robot.dhTool.dhLinkEquivalent.r;
+			targetPoseAdj.m13+=targetPoseAdj.m11 * robot.dhTool.dhLinkEquivalent.r;
+			targetPoseAdj.m23+=targetPoseAdj.m21 * robot.dhTool.dhLinkEquivalent.r;
 
-			targetPoseAdj.m03-=targetPoseAdj.m02 * robot.dhTool.dhLinkEquivalent.d*t;
-			targetPoseAdj.m13-=targetPoseAdj.m12 * robot.dhTool.dhLinkEquivalent.d*t;
-			targetPoseAdj.m23-=targetPoseAdj.m22 * robot.dhTool.dhLinkEquivalent.d*t;
+			targetPoseAdj.m03-=targetPoseAdj.m02 * robot.dhTool.dhLinkEquivalent.d;
+			targetPoseAdj.m13-=targetPoseAdj.m12 * robot.dhTool.dhLinkEquivalent.d;
+			targetPoseAdj.m23-=targetPoseAdj.m22 * robot.dhTool.dhLinkEquivalent.d;
 		}
 		
 		Point3d p7 = new Point3d(
