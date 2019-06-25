@@ -44,4 +44,12 @@ public class DHTool extends ModelInWorld {
 	public void render(GL2 gl2) {
 		super.render(gl2);
 	}
+	
+	/**
+	 * use the HID to control the tool.
+	 * @return true if the robot's pose has been affected.
+	 */
+	public boolean directDrive() {
+		return false;		
+	}
 }
