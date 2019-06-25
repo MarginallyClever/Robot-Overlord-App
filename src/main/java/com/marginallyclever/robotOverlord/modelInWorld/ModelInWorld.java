@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.modelInWorld;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -122,11 +123,32 @@ public class ModelInWorld extends PhysicalObject {
 			}
 		}
 
-		Vector3d p = getPosition();
 		
 		gl2.glPushMatrix();
+
+		//Vector3d p = getPosition();
+		//gl2.glTranslated(p.x, p.y, p.z);
+		Matrix4d poPose = this.getPose();
+
+		double[] mat = new double[16];
+		mat[ 0] = poPose.m00;
+		mat[ 1] = poPose.m10;
+		mat[ 2] = poPose.m20;
+		mat[ 3] = poPose.m30;
+		mat[ 4] = poPose.m01;
+		mat[ 5] = poPose.m11;
+		mat[ 6] = poPose.m21;
+		mat[ 7] = poPose.m31;
+		mat[ 8] = poPose.m02;
+		mat[ 9] = poPose.m12;
+		mat[10] = poPose.m22;
+		mat[11] = poPose.m32;
+		mat[12] = poPose.m03;
+		mat[13] = poPose.m13;
+		mat[14] = poPose.m23;
+		mat[15] = poPose.m33;
 		
-		gl2.glTranslated(p.x, p.y, p.z);
+		gl2.glMultMatrixd(mat, 0);	
 		
 		// TODO: this should probably be an option that can be toggled.
 		// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.
