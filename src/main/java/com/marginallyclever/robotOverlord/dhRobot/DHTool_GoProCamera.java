@@ -32,10 +32,10 @@ public class DHTool_GoProCamera extends DHTool {
 		dhLinkEquivalent.refreshPoseMatrix();
 		setDisplayName("GoPro Camera");
 		
-		setFilename("/gopro.stl");
+		setFilename("/Sixi2/gopro/gopro.stl");
 		setScale(0.1f);
 		// adjust the model's position and rotation.
-		this.setPosition(new Vector3d(0,0,dhLinkEquivalent.d));
+		this.setPosition(new Vector3d(0,0,0.6));
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
 		m.rotX(Math.toRadians(90));
