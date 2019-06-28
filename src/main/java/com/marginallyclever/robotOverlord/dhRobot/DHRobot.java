@@ -348,7 +348,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 	
 	/**
-	 * Note: Is called by Robot constructor, so .
+	 * Note: Is called by Robot constructor, so it must use getSolverIK().
 	 */
 	@Override
 	public RobotKeyframe createKeyframe() {
