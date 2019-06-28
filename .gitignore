@@ -1,12 +1,12 @@
-target/archive-tmp/**
-target/dependency-maven-plugin-markers/**
-target/generated-sources/**
-target/generated-test-sources/**
-target/javadoc-bundle-options/**
-target/maven-archiver/**
-target/maven-status/**
-target/surefire-reports/**
-target/test-classes/**
+/target/archive-tmp/**
+/target/dependency-maven-plugin-markers/**
+/target/generated-sources/**
+/target/generated-test-sources/**
+/target/javadoc-bundle-options/**
+/target/maven-archiver/**
+/target/maven-status/**
+/target/surefire-reports/**
+/target/test-classes/**
 /target/classes/com/**
 /target/classes/META-INF/**
 
