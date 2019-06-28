@@ -66,48 +66,45 @@ public class DHTool_Gripper extends DHTool {
 			}			
 		}
 
-		if(this.model!=null) {
+		//render gripper model
+		if(this.model==null) return;
+		if(linkage==null) return;
+		if(finger==null) return;
+		
+		gl2.glPushMatrix();
+		gl2.glRotated(90, 0, 0, 1);
+		
 			gl2.glPushMatrix();
 			gl2.glTranslated(0, -0.91, 4.1);
 			gl2.glRotated(180, 0, 1, 0);
 			this.model.render(gl2);
 			gl2.glPopMatrix();
-		}
 		
-		//render gripper model
-		gl2.glPushMatrix();
-		gl2.glTranslated(2.7/2, 0, 4.1);
-		gl2.glRotated(this.gripperServoAngle, 0, 1, 0);
-		if(linkage!=null) {
+			gl2.glPushMatrix();
+			gl2.glTranslated(2.7/2, 0, 4.1);
+			gl2.glRotated(this.gripperServoAngle, 0, 1, 0);
 			linkage.render(gl2);
-		}
-		gl2.glPopMatrix();
-		
-		gl2.glPushMatrix();
-		gl2.glTranslated(1.1/2, 0, 5.9575);
-		gl2.glRotated(this.gripperServoAngle, 0, 1, 0);
-		if(linkage!=null) {
+			gl2.glPopMatrix();
+			
+			gl2.glPushMatrix();
+			gl2.glTranslated(1.1/2, 0, 5.9575);
+			gl2.glRotated(this.gripperServoAngle, 0, 1, 0);
 			linkage.render(gl2);
-		}
-		gl2.glPopMatrix();
-		
-		gl2.glPushMatrix();
-		gl2.glTranslated(-2.7/2, 0, 4.1);
-		gl2.glRotated(-this.gripperServoAngle, 0, 1, 0);
-		if(linkage!=null) {
+			gl2.glPopMatrix();
+			
+			gl2.glPushMatrix();
+			gl2.glTranslated(-2.7/2, 0, 4.1);
+			gl2.glRotated(-this.gripperServoAngle, 0, 1, 0);
 			linkage.render(gl2);
-		}
-		gl2.glPopMatrix();
-		
-		gl2.glPushMatrix();
-		gl2.glTranslated(-1.1/2, 0, 5.9575);
-		gl2.glRotated(-this.gripperServoAngle, 0, 1, 0);
-		if(linkage!=null) {
+			gl2.glPopMatrix();
+			
+			gl2.glPushMatrix();
+			gl2.glTranslated(-1.1/2, 0, 5.9575);
+			gl2.glRotated(-this.gripperServoAngle, 0, 1, 0);
 			linkage.render(gl2);
-		}
-		gl2.glPopMatrix();
-		
-		if(finger!=null) {
+			
+			gl2.glPopMatrix();
+
 			double c=Math.cos(Math.toRadians(gripperServoAngle));
 			double s=Math.sin(Math.toRadians(gripperServoAngle));
 			gl2.glPushMatrix();
@@ -122,7 +119,8 @@ public class DHTool_Gripper extends DHTool {
 			gl2.glScaled(-1,1,-1);
 			finger.render(gl2);
 			gl2.glPopMatrix();
-		}
+		
+		gl2.glPopMatrix();
 	}
 
 	/**
@@ -134,7 +132,6 @@ public class DHTool_Gripper extends DHTool {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
-		final double scaleDolly=0.4;
 		
         for(int i=0;i<ca.length;i++){
         	if(ca[i].getType()!=Controller.Type.STICK) continue;
@@ -142,30 +139,21 @@ public class DHTool_Gripper extends DHTool {
         	Component[] components = ca[i].getComponents();
             for(int j=0;j<components.length;j++){
             	if(!components[j].isAnalog()) {
-
-    				if(components[j].getIdentifier()==Identifier.Axis.POV) {
-    					// D-pad buttons
-    					float pollData = components[j].getPollData();
-    					if(pollData ==Component.POV.DOWN) {
-        					// L1 - dolly in
-        					if(dhLinkEquivalent.r>1) {
-        						dhLinkEquivalent.r-=scaleDolly;
-        					}
-    					} else if(pollData ==Component.POV.UP) {
-        					// R1 - dolly out
-        					dhLinkEquivalent.r+=scaleDolly;
-    					} else if(pollData ==Component.POV.LEFT) {
+        			if(components[j].getPollData()==1) {
+        				if(components[j].getIdentifier()==Identifier.Button._8) {  // share button
         					// close grip
         					if(gripperServoAngle>0) {
         						gripperServoAngle-=scaleGrip;
         					}
-    					} else if(pollData ==Component.POV.RIGHT) {
+        				}
+        				if(components[j].getIdentifier()==Identifier.Button._9) {  // option button
         					// open grip
         					if(gripperServoAngle<70) {
         						gripperServoAngle+=scaleGrip;
         					}
-    					}
-    				}
+        				}
+        				//System.out.print(" B"+components[j].getIdentifier().getName());
+            		}
             	}
         	}
         }
