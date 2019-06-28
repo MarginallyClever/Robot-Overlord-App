@@ -446,10 +446,21 @@ public abstract class DHRobot extends Robot implements InputListener {
 		final double DEADZONE=0.1;
 		
         for(int i=0;i<ca.length;i++){
-        	if(ca[i].getType()!=Controller.Type.STICK) continue;
+        	//System.out.println(ca[i].getType());
+        	if(ca[i].getType()!=Controller.Type.STICK) {
+        		continue;
+        	}
 
         	Component[] components = ca[i].getComponents();
             for(int j=0;j<components.length;j++){
+            	/*
+            	System.out.println("\t"+components[j].getName()+
+            			":"+components[j].getIdentifier().getName()+
+            			":"+(components[j].isAnalog()?"Abs":"Rel")+
+            			":"+(components[j].isAnalog()?"Analog":"Digital")+
+            			":"+(components[j].getDeadZone())+
+               			":"+(components[j].getPollData()));*/
+            	
             	if(!components[j].isAnalog()) {
         			if(components[j].getPollData()==1) {
         				if(components[j].getIdentifier()==Identifier.Button._0) {
@@ -540,10 +551,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	            		targetPose.m03+=v*scale;
 	            	}
             	}
-            	/*System.out.print("\t"+components[j].getName()+
-            			":"+(components[j].isAnalog()?"Abs":"Rel")+
-            			":"+(components[j].isAnalog()?"An":"Di")+
-               			":"+(components[j].getPollData()));*/
         	}
         }
         
