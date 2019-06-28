@@ -34,7 +34,7 @@ public class DHLink {
 	// 3D model to render at this link
 	public Model model;
 	
-	// any combination of the READ_ONLY_* flags, used to control the GUI.
+	// Any combination of the READ_ONLY_* flags, used to control the GUI.
 	public int flags;
 	
 	public final static int READ_ONLY_D		= 1;
@@ -44,9 +44,9 @@ public class DHLink {
 	
 	public double rangeMin,rangeMax;
 	
-	public double maxVelocity;
-	public double maxAcceleration;
-	public double maxTorque;
+	public double maxVelocity;	// not used yet
+	public double maxAcceleration;	// not used yet
+	public double maxTorque;	// not used yet
 
 	// Changes visual quality of angle range curve.  Must be a whole number >=2
 	public final static double ANGLE_RANGE_STEPS=20;
