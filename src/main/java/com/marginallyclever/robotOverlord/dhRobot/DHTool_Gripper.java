@@ -133,7 +133,8 @@ public class DHTool_Gripper extends DHTool {
 	public boolean directDrive() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
-		final double scale=1.8;
+		final double scaleGrip=1.8;
+		final double scaleDolly=0.4;
 		
         for(int i=0;i<ca.length;i++){
         	if(ca[i].getType()!=Controller.Type.STICK) continue;
@@ -141,21 +142,30 @@ public class DHTool_Gripper extends DHTool {
         	Component[] components = ca[i].getComponents();
             for(int j=0;j<components.length;j++){
             	if(!components[j].isAnalog()) {
-        			if(components[j].getPollData()==1) {
-        				if(components[j].getIdentifier()==Identifier.Button._8) {
+
+    				if(components[j].getIdentifier()==Identifier.Axis.POV) {
+    					// D-pad buttons
+    					float pollData = components[j].getPollData();
+    					if(pollData ==Component.POV.DOWN) {
+        					// L1 - dolly in
+        					if(dhLinkEquivalent.r>1) {
+        						dhLinkEquivalent.r-=scaleDolly;
+        					}
+    					} else if(pollData ==Component.POV.UP) {
+        					// R1 - dolly out
+        					dhLinkEquivalent.r+=scaleDolly;
+    					} else if(pollData ==Component.POV.LEFT) {
         					// close grip
         					if(gripperServoAngle>0) {
-        						gripperServoAngle-=scale;
+        						gripperServoAngle-=scaleGrip;
         					}
-        				}
-        				if(components[j].getIdentifier()==Identifier.Button._9) {
+    					} else if(pollData ==Component.POV.RIGHT) {
         					// open grip
         					if(gripperServoAngle<70) {
-        						gripperServoAngle+=scale;
+        						gripperServoAngle+=scaleGrip;
         					}
-        				}
-        				//System.out.print(" B"+components[j].getIdentifier().getName());
-            		}
+    					}
+    				}
             	}
         	}
         }
