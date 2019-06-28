@@ -65,6 +65,11 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public Matrix4d targetPose;
 
 	/**
+	 * {@value oldPose} the last valid pose.  Used in case the IK solver fails to solve the targetPose. 
+	 */
+	public Matrix4d oldPose;
+
+	/**
 	 * {@value targetPose} the pose the IK would solve when the robot is at "home" position.
 	 */
 	public Matrix4d homePose;
@@ -102,6 +107,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		links = new LinkedList<DHLink>();
 		endMatrix = new Matrix4d();
 		targetPose = new Matrix4d();
+		oldPose = new Matrix4d();
 		homePose = new Matrix4d();
 		
 		drawSkeleton=false;
@@ -353,6 +359,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public void inputUpdate() {		
         boolean isDirty=false;
         
+        oldPose.set(targetPose);
         if(animationSpeed==0) {
         	// if we are in direct drive mode
         	isDirty=directDrive();
@@ -386,7 +393,11 @@ public abstract class DHRobot extends Robot implements InputListener {
 	        			// no connected robot, update the pose directly.
 	            		this.setRobotPose(solutionKeyframe);
 	        		}
-        		}
+        		} else {
+            		targetPose.set(oldPose);
+            	}
+        	} else {
+        		targetPose.set(oldPose);
         	}
         }
 	}
@@ -442,8 +453,8 @@ public abstract class DHRobot extends Robot implements InputListener {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
 		final double scale=0.4;
+		final double scaleDolly=0.4;
 		final double scaleTurn=0.15;
-		final double DEADZONE=0.1;
 		
         for(int i=0;i<ca.length;i++){
         	//System.out.println(ca[i].getType());
@@ -481,7 +492,7 @@ public abstract class DHRobot extends Robot implements InputListener {
     	            		// right analog stick, + is right -1 is left
     	            		isDirty=true;
     	            		double v = scaleTurn;
-    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r!=0) {
+    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
     	            			v=4/dhTool.dhLinkEquivalent.r;
     	            		}
     	            		Matrix4d temp = new Matrix4d();
@@ -492,7 +503,7 @@ public abstract class DHRobot extends Robot implements InputListener {
     	            		// right analog stick, + is right -1 is left
     	            		isDirty=true;
     	            		double v = scaleTurn;
-    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r!=0) {
+    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
     	            			v=4/dhTool.dhLinkEquivalent.r;
     	            		}
     	            		Matrix4d temp = new Matrix4d();
@@ -500,11 +511,36 @@ public abstract class DHRobot extends Robot implements InputListener {
     	            		targetPose.mul(temp);
         				}
             		}
+    				
+    				if(components[j].getIdentifier()==Identifier.Axis.POV) {
+    					// D-pad buttons
+    					float pollData = components[j].getPollData();
+    					if(pollData ==Component.POV.DOWN) {
+        					// L1 - dolly in
+        					dhTool.dhLinkEquivalent.d-=scaleDolly;
+        					if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
+    					} else if(pollData ==Component.POV.UP) {
+        					// R1 - dolly out
+    						dhTool.dhLinkEquivalent.d+=scaleDolly;
+    					} else if(pollData ==Component.POV.LEFT) {
+        					// L1 - pan up
+        					dhTool.dhLinkEquivalent.r-=scale;
+        					if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
+    					} else if(pollData ==Component.POV.RIGHT) {
+        					// R1 - pan down
+        					dhTool.dhLinkEquivalent.r+=scale;
+    					}
+    				}
             	} else {
+            		double v = components[j].getPollData();
+            		final double DEADZONE=0.1;
+            		double deadzone = DEADZONE;//components[j].getDeadZone();
+            		if(v>deadzone) v-=deadzone;
+            		else if(v<-deadzone) v+=deadzone;
+            		else continue;  // inside dead zone, ignore.
+            		
 	            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
 	            		// right analog stick, + is right -1 is left
-	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		Matrix4d temp = new Matrix4d();
 	            		temp.rotY(v*scaleTurn);
@@ -512,8 +548,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
 	            		// right analog stick, + is down -1 is up
-	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		Matrix4d temp = new Matrix4d();
 	            		temp.rotX(v*scaleTurn);
@@ -522,29 +556,21 @@ public abstract class DHRobot extends Robot implements InputListener {
 	            	
 	            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
 	            		// right trigger, +1 is pressed -1 is unpressed
-	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<-1+DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m23-=((v+1)/2)*scale;
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
 	            		// left trigger, +1 is pressed -1 is unpressed
-	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<-1+DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m23+=((v+1)/2)*scale;
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.X) {
 	            		// left analog stick, +1 is right -1 is left
-	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m13+=v*scale;
 	            	}
 	            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
 	            		// left analog stick, -1 is up +1 is down
-	            		double v = components[j].getPollData();
-	            		if(Math.abs(v)<DEADZONE) continue;
 	            		isDirty=true;
 	            		targetPose.m03+=v*scale;
 	            	}
@@ -571,28 +597,28 @@ public abstract class DHRobot extends Robot implements InputListener {
 			if((link.flags & DHLink.READ_ONLY_THETA)==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK theta "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					//System.out.println("FK theta "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
 			if((link.flags & DHLink.READ_ONLY_D    )==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK D "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					//System.out.println("FK D "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
 			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK alpha "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					//System.out.println("FK alpha "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
 			if((link.flags & DHLink.READ_ONLY_R    )==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK R "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					//System.out.println("FK R "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
@@ -627,6 +653,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		poseHistory.add(keyframe.fkValues);
 		
     	this.refreshPose();
+    	if(this.panel!=null) this.panel.updateEnd();
 	}
 	
 	/**
