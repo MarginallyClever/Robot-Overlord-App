@@ -152,8 +152,17 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		//DHIKSolver solver = robot.getSolverIK();
 		//DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
 		//solver.solve(robot,robot.endMatrix,keyframe);
-		
+
 		// report the keyframe results here
+		Iterator<DHLinkPanel> i = linkPanels.iterator();
+		while(i.hasNext()) {
+			DHLinkPanel linkPanel = i.next();
+			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.d    .setValue((float)linkPanel.link.d    ,false);
+			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.theta.setValue((float)linkPanel.link.theta,false);
+			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.r    .setValue((float)linkPanel.link.r    ,false);
+			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.alpha.setValue((float)linkPanel.link.alpha,false);
+		}
+		
 	}
 	
 	@Override
