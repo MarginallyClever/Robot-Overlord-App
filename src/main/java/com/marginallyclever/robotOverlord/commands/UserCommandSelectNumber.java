@@ -82,6 +82,10 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 	}
 	
 	public void setValue(float v) {
+		setValue(v,true);
+	}
+	
+	public void setValue(float v,boolean sendChange) {
 		if(value==v) return;
 		value = v;
 		
@@ -95,10 +99,12 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 			this.updateUI();
 		}
 		
-		ChangeEvent arg0 = new ChangeEvent(this);
-		Iterator<ChangeListener> i = changeListeners.iterator();
-		while(i.hasNext()) {
-			i.next().stateChanged(arg0);
+		if(sendChange) {
+			ChangeEvent arg0 = new ChangeEvent(this);
+			Iterator<ChangeListener> i = changeListeners.iterator();
+			while(i.hasNext()) {
+				i.next().stateChanged(arg0);
+			}
 		}
 	}
 	
