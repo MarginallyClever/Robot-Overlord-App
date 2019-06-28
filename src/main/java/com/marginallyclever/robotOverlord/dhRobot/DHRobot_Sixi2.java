@@ -80,8 +80,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		links.get(5).d=11.8;
 		links.get(5).alpha=0;
 		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(5).rangeMin=-90;
-		links.get(5).rangeMax=90;
+		links.get(5).rangeMin=-120;
+		links.get(5).rangeMax=120;
 		// roll
 		links.get(6).d=3.9527;
 		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
@@ -101,13 +101,13 @@ public class DHRobot_Sixi2 extends DHRobot {
 		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.5f);
 		
 		try {
-			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
-			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
-			links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep.stl",0.1f);
-			links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm.stl",0.1f);
-			links.get(5).model = ModelFactory.createModelFromFilename("/Sixi2/tuningFork.stl",0.1f);
-			links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox.stl",0.1f);
-			links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand.stl",0.1f);
+			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor2.stl",0.1f);
+			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder2.stl",0.1f);
+			links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep2.stl",0.1f);
+			links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm2.stl",0.1f);
+			links.get(5).model = ModelFactory.createModelFromFilename("/Sixi2/tuningFork2.stl",0.1f);
+			links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox2.stl",0.1f);
+			links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand2.stl",0.1f);
 
 			double ELBOW_TO_ULNA_Y = -28.805f;
 			double ELBOW_TO_ULNA_Z = 4.7201f;
