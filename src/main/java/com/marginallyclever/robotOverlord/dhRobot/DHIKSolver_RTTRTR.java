@@ -130,7 +130,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		if( e > a+b ) {
 			solutionFlag = NO_SOLUTIONS;
-			if(true) System.out.println("NO SOLUTIONS (1) "+e+" vs "+(a+b));
+			if(false) System.out.println("NO SOLUTIONS (1) "+e+" vs "+(a+b));
 			return;
 		}
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2*a*e) );
@@ -224,7 +224,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if( h-maximumReach > EPSILON ) {
 			// out of reach, including rounding error
 			solutionFlag = NO_SOLUTIONS;
-			if(true) System.out.println("NO SOLUTIONS (2) "+h+" vs "+maximumReach);
+			if(false) System.out.println("NO SOLUTIONS (2) "+h+" vs "+maximumReach);
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
@@ -264,7 +264,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(Math.abs(a5copy)<EPSILON) {
 			// singularity!
 			solutionFlag = MANY_SOLUTIONS;
-			if(true) System.out.println("MANY SOLUTIONS");
+			if(false) System.out.println("MANY SOLUTIONS");
 			keyframe.fkValues[3] = 0;
 			double t6 = Math.acos(r47.m00);
 			keyframe.fkValues[5] = Math.toDegrees(t6);
