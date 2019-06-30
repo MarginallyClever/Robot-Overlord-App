@@ -2,18 +2,7 @@ package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -95,11 +84,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 */
 	protected boolean drawSkeleton;
 	
-	/**
-	 * {@value poseHistory} records DHIKSolver.getSolutionSize() wide showing the robot's pose over time.
-	 */
-	protected Queue<double[]> poseHistory;
-	
 	public static final int POSE_HISTORY_LENGTH = 500; 
 	
 	/**
@@ -111,14 +95,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 * Used by inputUpdate to solve pose and instruct robot where to go.
 	 */
 	protected DHKeyframe solutionKeyframe;
-
-	protected boolean isRecording;
-	protected boolean isPlaying;
-	protected FileOutputStream recordOutput;
-	protected FileInputStream recordInput;
-    ObjectOutputStream oout;
-    ObjectInputStream iin;
 	
+	protected DHRobotRecording record;
+
 	public DHRobot() {
 		super();
 		links = new LinkedList<DHLink>();
@@ -142,8 +121,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 		homePose.set(endMatrix);
 		targetPose.set(endMatrix);
 		
-		poseHistory = new LinkedList<double[]>();
 		dhTool = new DHTool();  // default tool = no tool
+		
+		record = new DHRobotRecording();
 	}
 	
 	/**
@@ -378,54 +358,58 @@ public abstract class DHRobot extends Robot implements InputListener {
 	@Override
 	public void inputUpdate() {		
         boolean isDirty=false;
+
+        //if(record.isRecording||record.isPlaying) System.out.println();
+        
+    	try {
+	        if(record.isRecording) {
+	        	//System.out.print("R"+count1+","+isDirty);
+	        	count1++;
+	        	record.objectOutputStream.writeLong(count1);
+	        	record.objectOutputStream.writeBoolean(isDirty);
+	        } else if(record.isPlaying) {
+	        	if(record.recordInput.available()==0) {
+	        		System.out.println("** EOF **");
+	        		setPlaying(false);
+	        		return;
+	        	}
+	        	count2++;
+	        	long frameCount=record.objectInputStream.readLong();
+	        	if(frameCount!=count2) {
+	        		throw new IOException("framecount="+frameCount+", count2="+count2);
+	        	}
+	        	isDirty = record.objectInputStream.readBoolean();
+	        	//System.out.print("P"+count2+","+isDirty);
+	        }
+		} catch (IOException e) {
+			record.stop();
+			e.printStackTrace();
+			return;
+		} 
     	
         oldPose.set(targetPose);
-        if(!isPlaying() && animationSpeed==0) {
+        if(animationSpeed==0) {
         	// if we are in direct drive mode
         	isDirty=directDrive();
         }
         
-        if(isRecording()||isPlaying()) System.out.println();
-        
-    	try {
-	        if(isRecording()) {
-	        	System.out.print("R"+count1+","+isDirty);
-	        	count1++;
-				oout.writeLong(count1);
-				oout.writeBoolean(isDirty);
-	        } else if(isPlaying()) {
-	        	count2++;
-	        	long frameCount=iin.readLong();
-	        	assert(frameCount==count2);
-	        	isDirty = iin.readBoolean();
-	        	System.out.print("P"+count2+","+isDirty);
-	        }
-		} catch (IOException e) {
-	        if(isRecording()) setRecording(false);
-			if(isPlaying) setPlaying(false);
-			e.printStackTrace();
-			return;
-		} 
         
         if(isDirty) {
 	    	try {
-    	        if(isRecording()) {
-    	        	System.out.print(targetPose.m03+","+targetPose.m13+","+targetPose.m23+"\t");
-    	        	oout.writeObject(targetPose);
-    	        } else if(isPlaying()) {
-    	        	Matrix4d readMatrix = (Matrix4d)iin.readObject();
-    	        	targetPose.set(readMatrix);
-    	        	System.out.print(targetPose.m03+","+targetPose.m13+","+targetPose.m23+"\t");
+    	        if(record.isRecording) {
+    	        	record.objectOutputStream.writeUnshared(targetPose);
+    	        } else if(record.isPlaying) {
+    	        	targetPose.set((Matrix4d)record.objectInputStream.readObject());
 	    		}
 			} catch (IOException e) {
-		        if(isRecording()) setRecording(false);
-				if(isPlaying) setPlaying(false);
+				record.stop();
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
+				record.stop();
 				e.printStackTrace();
 			}
 	    	
-        	// attempt to solve IK
+        	// Attempt to solve IK
         	solver.solve(this,targetPose,solutionKeyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
         		//if(isRecording()||isPlaying()) System.out.print("one"+"\t");
@@ -519,6 +503,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 		final double scaleDolly=0.4;
 		final double scaleTurn=0.15;
 		
+		int dR=0;
+		int dD=0;
+		
         for(int i=0;i<ca.length;i++){
         	//System.out.println(ca[i].getType());
         	if(ca[i].getType()!=Controller.Type.STICK) continue;
@@ -580,18 +567,16 @@ public abstract class DHRobot extends Robot implements InputListener {
     					float pollData = components[j].getPollData();
     					if(pollData ==Component.POV.DOWN) {
         					// L1 - dolly in
-        					dhTool.dhLinkEquivalent.d-=scaleDolly;
-        					if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
+    						dD=-1;
     					} else if(pollData ==Component.POV.UP) {
         					// R1 - dolly out
-    						dhTool.dhLinkEquivalent.d+=scaleDolly;
+    						dD=1;
     					} else if(pollData ==Component.POV.LEFT) {
         					// L1 - pan up
-        					dhTool.dhLinkEquivalent.r-=scale;
-        					if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
+    						dR=-1;
     					} else if(pollData ==Component.POV.RIGHT) {
         					// R1 - pan down
-        					dhTool.dhLinkEquivalent.r+=scale;
+    						dR=1;
     					}
     				}
             	} else {
@@ -640,10 +625,29 @@ public abstract class DHRobot extends Robot implements InputListener {
             	}
         	}
         }
-        
-        if(dhTool!=null) {
-        	isDirty |= dhTool.directDrive();
+
+        try {
+	        if(record.isRecording) {
+	        	record.objectOutputStream.writeInt(dD);
+	        	record.objectOutputStream.writeInt(dR);
+	        } else if(record.isPlaying) {
+	        	dD = record.objectInputStream.readInt();
+	        	dR = record.objectInputStream.readInt();
+	        }
+        } catch(IOException e) {
+        	record.stop();
+        	return false;
         }
+
+		dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
+		if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
+		dhTool.dhLinkEquivalent.r+=dR*scale;
+		if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
+		
+        if(dhTool!=null) {
+        	isDirty |= dhTool.directDrive(record);
+        }
+        
         return isDirty;
 	}
 
@@ -709,12 +713,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 			if((link.flags & DHLink.READ_ONLY_R    )==0) link.r     = keyframe.fkValues[j++];
 		}
 
-		// Record the pose history.  Might be useful in future.
-		if(poseHistory.size()>=POSE_HISTORY_LENGTH) {
-			poseHistory.remove();
-		}
-		poseHistory.add(keyframe.fkValues);
-		
     	this.refreshPose();
     	if(this.panel!=null) this.panel.updateEnd();
 	}
@@ -730,71 +728,21 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 
 	public boolean isRecording() {
-		return isRecording;
+		return record.isRecording;
 	}
 
 	public void setRecording(boolean newIsRecording) {
-		if(isPlaying==true) return;
-		if(isRecording==newIsRecording) return;
-		
-		if(isRecording) {
-			try {
-				oout.flush();
-				recordOutput.flush();
-				recordOutput.close();
-			} catch(Exception e) {
-				System.out.println("Recording end failed.");
-			}
-		} else {
-			count1=0;
-			String directory = System.getProperty("user.home");  
-			String fileName = "recording.ro";  
-			String absolutePath = directory + File.separator + fileName;
-			System.out.println("Recording to "+absolutePath);
-			try {
-				recordOutput = new FileOutputStream(absolutePath);
-			    oout = new ObjectOutputStream(recordOutput);
-			} catch(Exception e) {
-				System.out.println("Recording start failed.");
-				return;
-			}
-		}
-		isRecording = newIsRecording;
-		if(panel!=null) panel.buttonRecord.setText(isRecording?"Stop":"Record");
+		count1=0;
+		if(panel!=null) panel.buttonRecord.setText(isRecording()?"Stop":"Record");
 	}
 
 	public boolean isPlaying() {
-		return isPlaying;
+		return record.isPlaying;
 	}
 
 	public void setPlaying(boolean newIsPlaying) {
-		if(isPlaying==newIsPlaying) return;
-		if(isRecording==true) return;
-		
-		if(isPlaying) {
-			try {
-				recordInput.close();
-			} catch(Exception e) {
-				System.out.println("Playback end failed.");
-			}
-		} else {
-			count2=0;
-			String directory = System.getProperty("user.home");  
-			String fileName = "recording.ro";  
-			String absolutePath = directory + File.separator + fileName;
-
-			System.out.println("Playback from "+absolutePath);
-			try {
-				recordInput = new FileInputStream(absolutePath);
-				iin = new ObjectInputStream(recordInput);
-
-			} catch(Exception e) {
-				System.out.println("Playback start failed.");
-				return;
-			}
-		}
-
-		isPlaying = newIsPlaying;
-		if(panel!=null) panel.buttonPlay.setText(isPlaying?"Stop":"Play");
+		count2=0;
+		record.setPlaying(newIsPlaying);
+		if(panel!=null) panel.buttonPlay.setText(isPlaying()?"Stop":"Play");
 	}
 }

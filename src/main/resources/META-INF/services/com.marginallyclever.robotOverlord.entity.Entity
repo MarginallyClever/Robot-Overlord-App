@@ -5,6 +5,7 @@
 #com.marginallyclever.robotOverlord.sixi2Robot.Sixi2Robot
 
 #com.marginallyclever.robotOverlord.dhRobot.DHRobot
+com.marginallyclever.robotOverlord.MotionHelper
 com.marginallyclever.robotOverlord.dhRobot.DHRobot_GMF_M100
 com.marginallyclever.robotOverlord.dhRobot.DHRobot_Mantis
 com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi2

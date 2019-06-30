@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
+import java.io.IOException;
+
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -128,10 +130,13 @@ public class DHTool_Gripper extends DHTool {
 	 * @return true if targetPose changes.
 	 */
 	@Override
-	public boolean directDrive() {
+	public boolean directDrive(DHRobotRecording record) {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
+		
+		boolean openGrip=false;
+		boolean closeGrip=true;
 		
         for(int i=0;i<ca.length;i++){
         	if(ca[i].getType()!=Controller.Type.STICK) continue;
@@ -141,21 +146,39 @@ public class DHTool_Gripper extends DHTool {
             	if(!components[j].isAnalog()) {
         			if(components[j].getPollData()==1) {
         				if(components[j].getIdentifier()==Identifier.Button._8) {  // share button
-        					// close grip
-        					if(gripperServoAngle>0) {
-        						gripperServoAngle-=scaleGrip;
-        					}
+        					closeGrip=true;
         				}
         				if(components[j].getIdentifier()==Identifier.Button._9) {  // option button
-        					// open grip
-        					if(gripperServoAngle<70) {
-        						gripperServoAngle+=scaleGrip;
-        					}
+        					openGrip=true;
         				}
         				//System.out.print(" B"+components[j].getIdentifier().getName());
             		}
             	}
         	}
+        }
+
+        try {
+	        if(record.isRecording) {
+	        	record.objectOutputStream.writeBoolean(openGrip);
+	        	record.objectOutputStream.writeBoolean(closeGrip);
+	        } else if(record.isPlaying) {
+	        	openGrip = record.objectInputStream.readBoolean();
+	        	closeGrip = record.objectInputStream.readBoolean();
+	        }
+        } catch(IOException e) {
+        	record.stop();
+        	return false;
+        }
+        
+        if(openGrip) {
+			if(gripperServoAngle<70) {
+				gripperServoAngle+=scaleGrip;
+			}
+        }
+        if(closeGrip) {
+			if(gripperServoAngle>0) {
+				gripperServoAngle-=scaleGrip;
+			}
         }
         //System.out.println();
         return isDirty;

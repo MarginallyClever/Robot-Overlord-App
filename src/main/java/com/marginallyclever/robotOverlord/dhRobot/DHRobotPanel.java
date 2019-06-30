@@ -233,7 +233,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 					if(robot.getCurrentTool()!=null 
 						&& lft.getClass() == robot.getCurrentTool().getClass()) {
-						// setting the tool we're already set to?  Get outta here...
+						// we're already using that tool.
 						return;
 					}
 					try {

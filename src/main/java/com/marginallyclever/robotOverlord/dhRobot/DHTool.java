@@ -47,9 +47,10 @@ public class DHTool extends ModelInWorld {
 	
 	/**
 	 * use the HID to control the tool.
+	 * @param record place to record or playback actions.
 	 * @return true if the robot's pose has been affected.
 	 */
-	public boolean directDrive() {
+	public boolean directDrive(DHRobotRecording record) {
 		return false;		
 	}
 }
