@@ -82,7 +82,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	// select picking
 	protected transient IntBuffer selectBuffer = null;
-	protected transient boolean pickNow,handlePickNow;
+	protected transient boolean pickNow;
 	protected transient double pickX, pickY;
 	protected transient Entity pickedEntity; 
 	protected transient int pickedHandle;
@@ -191,7 +191,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         buildMenu();
         
         pickNow = false;
-        handlePickNow = false;
         selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         pickedEntity = null;
         pickNothing();
@@ -590,25 +589,19 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	        frameDelay-=frameLength;
 
 	        int pickName = 0;
-	        if(pickNow||handlePickNow) {
+	        if(pickNow) {
 	        	pickName = findItemUnderCursor(gl2);
 	        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-	        }
-	        if(pickNow) {
+
 	        	// double click action to pick the object under the cursor
 		        pickNow=false;
-		        pickIntoWorld(pickName);
-    		}
-	        if(handlePickNow) {
 	        	//System.out.println("pickedHandle="+pickedHandle);
-	        	if(pickedHandle==0) {
-		        	// single click to try and drag a handle
-		        	if(pickName>0 && pickName<10) {
-		        		//System.out.println("new pickedHandle="+pickName);
-		        		pickedHandle=pickName;
-		        	}
+	        	if(pickedHandle==0 && pickName>0 && pickName<10) {
+	        		//System.out.println("new pickedHandle="+pickName);
+	        		pickedHandle=pickName;
+	        	} else {
+	        		pickIntoWorld(pickName);
 	        	}
-	        	handlePickNow=false;
 	        }
 			
     		if(checkStackSize) {
@@ -700,12 +693,12 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     public void pickIntoWorld(int pickName) {
     	Entity newlyPickedEntity = world.pickObjectWithName(pickName);
     	
-    	if(newlyPickedEntity==null) {
-			//System.out.println(" NO PICK");
+    	if(newlyPickedEntity==null || newlyPickedEntity == pickedEntity) {
+			System.out.println(" NO PICK");
     		unPick();
     		pickNothing();
-        } else if(newlyPickedEntity!=pickedEntity) {
-			//System.out.print(" PICKED");
+        } else {
+			System.out.print(" PICKED");
 			unPick();
 			pickEntity(newlyPickedEntity);
 		}
@@ -756,7 +749,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		hideCursor();
 		pickX=e.getX();
 		pickY=e.getY();
-		handlePickNow=true;
 		pickedHandle=0;
 		
 		world.getCamera().mousePressed(e);
