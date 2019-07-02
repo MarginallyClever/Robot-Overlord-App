@@ -90,10 +90,17 @@ public class DHRobot_Thor extends DHRobot {
 			links.get(6).model = ModelFactory.createModelFromFilename("/Thor/Thor5.stl",0.1f);
 			links.get(7).model = ModelFactory.createModelFromFilename("/Thor/Thor6.stl",0.1f);
 
-			links.get(1).model.adjustOrigin(new Vector3d(0,0,-20.2));
+			links.get(1).model.adjustOrigin(new Vector3d(0,0,-15.35));
+			links.get(1).model.adjustRotation(new Vector3d(0,0,90));
+			links.get(2).model.adjustOrigin(new Vector3d(0,0,-6.5));
 			links.get(2).model.adjustRotation(new Vector3d(0,0,90));
 			links.get(3).model.adjustRotation(new Vector3d(90,0,90));
+			links.get(3).model.adjustOrigin(new Vector3d(0,6,0));
+			links.get(5).model.adjustOrigin(new Vector3d(0,0,0));
 			links.get(5).model.adjustRotation(new Vector3d(0,0,90));
+			links.get(6).model.adjustOrigin(new Vector3d(0,0,-4.75));
+			links.get(6).model.adjustRotation(new Vector3d(0,0,90));
+			links.get(7).model.adjustOrigin(new Vector3d(0,0,0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,6 +126,7 @@ public class DHRobot_Thor extends DHRobot {
 			setupModels();
 		}
 
+		
 		material.render(gl2);
 		
 		gl2.glPushMatrix();
