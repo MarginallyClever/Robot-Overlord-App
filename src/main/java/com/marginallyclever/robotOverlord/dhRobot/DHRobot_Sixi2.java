@@ -220,7 +220,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	}
 	
 	@Override
-	public void sendPoseToRobot(DHKeyframe keyframe) {
+	public void sendNewStateToRobot(DHKeyframe keyframe) {
 		if(once == false) {
 			once = true;
 			sendLineToRobot("D20");

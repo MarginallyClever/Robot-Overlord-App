@@ -149,7 +149,7 @@ public class DHRobot_Cartesian extends DHRobot {
 	}
 	
 	@Override
-	public void sendPoseToRobot(DHKeyframe keyframe) {
+	public void sendNewStateToRobot(DHKeyframe keyframe) {
 		// If the wiring on the robot is reversed, these parameters must also be reversed.
 		// This is a software solution to a hardware problem.
 		final double SCALE_0=-1;

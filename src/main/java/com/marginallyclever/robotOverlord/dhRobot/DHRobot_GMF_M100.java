@@ -99,5 +99,5 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		//drawSkeleton=false;
 	}
 
-	public void sendPoseToRobot(DHKeyframe keyframe) {}
+	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

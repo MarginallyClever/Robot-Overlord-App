@@ -162,5 +162,5 @@ public class DHRobot_Phybot extends DHRobot {
 		return new DHIKSolver_RTTRTR();
 	}
 
-	public void sendPoseToRobot(DHKeyframe keyframe) {}
+	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

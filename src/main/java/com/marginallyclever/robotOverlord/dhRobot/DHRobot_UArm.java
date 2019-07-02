@@ -128,5 +128,5 @@ public class DHRobot_UArm extends DHRobot {
 		return new DHIKSolver_RTT();
 	}
 
-	public void sendPoseToRobot(DHKeyframe keyframe) {}
+	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

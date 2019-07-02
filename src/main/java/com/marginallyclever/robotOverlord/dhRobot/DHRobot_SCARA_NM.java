@@ -143,5 +143,5 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		drawSkeleton=false;
 	}
 
-	public void sendPoseToRobot(DHKeyframe keyframe) {}
+	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

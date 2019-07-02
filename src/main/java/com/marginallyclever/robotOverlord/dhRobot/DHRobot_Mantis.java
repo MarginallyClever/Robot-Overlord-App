@@ -143,5 +143,5 @@ public class DHRobot_Mantis extends DHRobot {
 		return new DHIKSolver_RTTRTR();
 	}
 
-	public void sendPoseToRobot(DHKeyframe keyframe) {}
+	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }
