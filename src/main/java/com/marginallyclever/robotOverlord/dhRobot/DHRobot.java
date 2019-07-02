@@ -2,14 +2,12 @@ package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-
 
 import javax.vecmath.Point3d;
 
@@ -98,6 +96,11 @@ public abstract class DHRobot extends Robot implements InputListener {
 	
 	protected DHRobotRecording record;
 
+	// A record of the state of the human input device
+	public final static int MAX_KEYS = 20;
+	public double [] keyState = new double[MAX_KEYS];
+	
+
 	public DHRobot() {
 		super();
 		links = new LinkedList<DHLink>();
@@ -123,7 +126,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		dhTool = new DHTool();  // default tool = no tool
 		
-		record = new DHRobotRecording();
+		record = new DHRobotRecording(this);
 	}
 	
 	/**
@@ -351,99 +354,202 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public RobotKeyframe createKeyframe() {
 		return new DHKeyframe(getSolverIK().getSolutionSize());
 	}
+
+	/**
+	 * @return true if targetPose changes.
+	 */
+	public boolean driveFromKeyState() {
+		boolean isDirty=false;
+		final double scale=0.4;
+		final double scaleDolly=0.4;
+		final double scaleTurn=0.15;
+		
+		if(keyState[0]==1) {}  // square
+		if(keyState[1]==1) {  // X
+			//this.toggleATC();
+		}
+		if(keyState[2]==1) {}  // circle
+		if(keyState[3]==1) {// triangle
+			targetPose.set(homePose);
+			isDirty=true;
+		}
+		if(keyState[4]==1) {  // R1
+    		isDirty=true;
+    		double v = 1;
+    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
+    			v/=dhTool.dhLinkEquivalent.r;
+    		}
+    		Matrix4d temp = new Matrix4d();
+    		temp.rotZ(v*scaleTurn);
+    		targetPose.mul(temp);
+    	}
+		if(keyState[5]==1) {  // L1
+    		isDirty=true;
+    		double v = 1;
+    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
+    			v/=dhTool.dhLinkEquivalent.r;
+    		}
+    		Matrix4d temp = new Matrix4d();
+    		temp.rotZ(-v*scaleTurn);
+    		targetPose.mul(temp);
+		}
+		
+		int dD=(int)keyState[8];
+		if(dD!=0) {
+			dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
+			if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
+			isDirty=true;
+		}		
+		int dR=(int)keyState[9];
+		if(dR!=0) {
+			dhTool.dhLinkEquivalent.r+=dR*scale;
+			if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
+			isDirty=true;
+		}
+		
+		if(keyState[10]!=0) {  // right stick, right/left
+			// right analog stick, + is right -1 is left
+    		isDirty=true;
+    		Matrix4d temp = new Matrix4d();
+    		temp.rotY(keyState[10]*scaleTurn);
+    		targetPose.mul(temp);
+		}
+		if(keyState[11]!=0) {  // right stick, down/up
+    		isDirty=true;
+    		Matrix4d temp = new Matrix4d();
+    		temp.rotX(keyState[11]*scaleTurn);
+    		targetPose.mul(temp);
+    	}
+		if(keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
+    		isDirty=true;
+    		targetPose.m23-=((keyState[12]+1)/2)*scale;
+		}
+		if(keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
+    		isDirty=true;
+    		targetPose.m23+=((keyState[13]+1)/2)*scale;
+		}
+		if(keyState[14]!=0) {  // left stick, right/left
+    		isDirty=true;
+    		targetPose.m13+=keyState[14]*scale;
+		}
+		if(keyState[15]!=0) {  // left stick, down/up
+    		isDirty=true;
+    		targetPose.m03+=keyState[15]*scale;
+		}
+
+        if(dhTool!=null) {
+        	isDirty |= dhTool.directDrive(keyState);
+        }
+        
+        return isDirty;
+	}
 	
-	long count1=0;
-	long count2=0;
+	
+	protected void processHumanInput() {
+		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		
+		for(int i=0;i<keyState.length;++i) {
+			keyState[i]=0;
+		}
+		
+        for(int i=0;i<ca.length;i++){
+        	//System.out.println(ca[i].getType());
+        	if(ca[i].getType()!=Controller.Type.STICK) continue;
+
+        	Component[] components = ca[i].getComponents();
+            for(int j=0;j<components.length;j++){
+            	/*
+            	System.out.println("\t"+components[j].getName()+
+            			":"+components[j].getIdentifier().getName()+
+            			":"+(components[j].isAnalog()?"Abs":"Rel")+
+            			":"+(components[j].isAnalog()?"Analog":"Digital")+
+            			":"+(components[j].getDeadZone())+
+               			":"+(components[j].getPollData()));*/
+            	if(!components[j].isAnalog()) {
+        			if(components[j].getPollData()==1) {
+        				if(components[j].getIdentifier()==Identifier.Button._0) keyState[0] = 1;  // square
+        				if(components[j].getIdentifier()==Identifier.Button._1) keyState[1] = 1;  // x
+        				if(components[j].getIdentifier()==Identifier.Button._2) keyState[2] = 1;  // circle
+        				if(components[j].getIdentifier()==Identifier.Button._3) keyState[3] = 1;  // triangle
+        				if(components[j].getIdentifier()==Identifier.Button._4) keyState[4] = 1;  // L1?
+        				if(components[j].getIdentifier()==Identifier.Button._5) keyState[5] = 1;  // R1?
+        				if(components[j].getIdentifier()==Identifier.Button._8) keyState[6] = 1;  // share button
+        				if(components[j].getIdentifier()==Identifier.Button._9) keyState[7] = 1;  // option button
+            		}
+    				if(components[j].getIdentifier()==Identifier.Axis.POV) {
+    					// D-pad buttons
+    					float pollData = components[j].getPollData();
+							 if(pollData == Component.POV.DOWN ) keyState[8] = -1;
+						else if(pollData == Component.POV.UP   ) keyState[8] =  1;
+    					else if(pollData == Component.POV.LEFT ) keyState[9] = -1;
+    					else if(pollData == Component.POV.RIGHT) keyState[9] =  1;
+    				}
+            	} else {
+            		double v = components[j].getPollData();
+            		final double DEADZONE=0.1;
+            		double deadzone = DEADZONE;  // components[j].getDeadZone() is very small?
+            			 if(v> deadzone) v=(v-deadzone)/(1.0-deadzone);  // scale 0....1
+            		else if(v<-deadzone) v=(v+deadzone)/(1.0-deadzone);  // scale 0...-1
+            		else continue;  // inside dead zone, ignore.
+            		
+	            	if(components[j].getIdentifier()==Identifier.Axis.Z ) keyState[10]=v;  // right analog stick, + is right -1 is left
+	            	if(components[j].getIdentifier()==Identifier.Axis.RZ) keyState[11]=v;  // right analog stick, + is down -1 is up
+	            	if(components[j].getIdentifier()==Identifier.Axis.RY) keyState[12]=v;  // R2, +1 is pressed -1 is unpressed
+	            	if(components[j].getIdentifier()==Identifier.Axis.RX) keyState[13]=v;  // L2, +1 is pressed -1 is unpressed
+	            	if(components[j].getIdentifier()==Identifier.Axis.X ) keyState[14]=v;  // left analog stick, +1 is right -1 is left
+	            	if(components[j].getIdentifier()==Identifier.Axis.Y ) keyState[15]=v;  // left analog stick, -1 is up +1 is down
+            	}
+        	}
+        }
+	}
 	
 	@Override
 	public void inputUpdate() {		
         boolean isDirty=false;
 
-        //if(record.isRecording||record.isPlaying) System.out.println();
-        
-    	try {
-	        if(record.isRecording) {
-	        	//System.out.print("R"+count1+","+isDirty);
-	        	count1++;
-	        	record.objectOutputStream.writeLong(count1);
-	        	record.objectOutputStream.writeBoolean(isDirty);
-	        } else if(record.isPlaying) {
-	        	if(record.recordInput.available()==0) {
-	        		System.out.println("** EOF **");
-	        		setPlaying(false);
-	        		return;
-	        	}
-	        	count2++;
-	        	long frameCount=record.objectInputStream.readLong();
-	        	if(frameCount!=count2) {
-	        		throw new IOException("framecount="+frameCount+", count2="+count2);
-	        	}
-	        	isDirty = record.objectInputStream.readBoolean();
-	        	//System.out.print("P"+count2+","+isDirty);
-	        }
-		} catch (IOException e) {
-			record.stop();
-			e.printStackTrace();
-			return;
-		} 
+        record.step();
     	
+        // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
         oldPose.set(targetPose);
+
+        // update the keyState array based on input devices.
+        processHumanInput();
+        
+        // manage the keyState
+        record.manageArrayOfDoubles(keyState);
+        // apply the keyState
+
         if(animationSpeed==0) {
         	// if we are in direct drive mode
-        	isDirty=directDrive();
+        	isDirty=driveFromKeyState();
         }
         
+        isDirty = record.manageBoolean(isDirty);
         
         if(isDirty) {
-	    	try {
-    	        if(record.isRecording) {
-    	        	record.objectOutputStream.writeUnshared(targetPose);
-    	        } else if(record.isPlaying) {
-    	        	targetPose.set((Matrix4d)record.objectInputStream.readObject());
-	    		}
-			} catch (IOException e) {
-				record.stop();
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				record.stop();
-				e.printStackTrace();
-			}
+        	record.manageMatrix4d(targetPose);
 	    	
         	// Attempt to solve IK
         	solver.solve(this,targetPose,solutionKeyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-        		//if(isRecording()||isPlaying()) System.out.print("one"+"\t");
+        		// Solved!  Are angles OK for this robot?
         		if(keyframeAnglesAreOK(solutionKeyframe)) {
-	        		// Solved!  update robot pose with fk.
-        			//if(isRecording()||isPlaying()) System.out.print("ok"+"\t");
-        			
-	        		if(connection!=null && connection.isOpen()) {
-	        			if(isReadyToReceive) {
-	        				// If the sum of the absolute difference of each joint is smaller than some epsilon, don't send it to the robot.
-	        				double sum=0;
-	        				//String message="";
-	        				for(int i=0;i<solutionKeyframe.fkValues.length;++i) {
-	        					double v = Math.abs(poseNow.fkValues[i]-solutionKeyframe.fkValues[i]);
-	        					sum += v;
-	        					//message += (long)(v*1000)+" \t";
-	        				}
-        					//System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
-	        				if(sum>0.01) {  // mm?
-	        					// update the live connected robot, which will come back through dataAvailable() to update the pose.
-		        				sendPoseToRobot(solutionKeyframe);
-		        				isReadyToReceive=false;
-	        				}
-		        		}
+	        		// Yes!  Are we connected to a live robot?        			
+	        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
+	        			// Send our internal data to the robot.  Each robot probably has its own post-processor.
+        				sendNewStateToRobot(solutionKeyframe);
+        				// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
+        				isReadyToReceive=false;
 	        		} else {
-	        			// no connected robot, update the pose directly.
+	        			// No connected robot, update the pose directly.
 	            		this.setRobotPose(solutionKeyframe);
 	        		}
         		} else {
-        			//if(isRecording()||isPlaying()) System.out.print("bad"+"\t");
+        			// Bad angles, robot out of permitted range.
             		targetPose.set(oldPose);
             	}
         	} else {
-        		//if(isRecording()||isPlaying()) System.out.print("old"+solver.solutionFlag+"\t");
+        		// No valid IK solution.
         		targetPose.set(oldPose);
         	}
         }
@@ -451,9 +557,10 @@ public abstract class DHRobot extends Robot implements InputListener {
 	
 	/**
 	 * Robot is connected and ready to receive.  Send the current FK values to the robot.
+	 * Post-process translate the FK values and send them, along with tool state, etc. 
 	 * @param keyframe
 	 */
-	public abstract void sendPoseToRobot(DHKeyframe keyframe);
+	public abstract void sendNewStateToRobot(DHKeyframe keyframe);
 	
 	
 	public void drawTargetPose(GL2 gl2) {
@@ -492,164 +599,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 		gl2.glPopMatrix();
 	}
 	
-	/**
-	 * Read HID device to move target pose.  Currently hard-coded to PS4 joystick values. 
-	 * @return true if targetPose changes.
-	 */
-	public boolean directDrive() {
-		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		boolean isDirty=false;
-		final double scale=0.4;
-		final double scaleDolly=0.4;
-		final double scaleTurn=0.15;
-		
-		int dR=0;
-		int dD=0;
-		
-        for(int i=0;i<ca.length;i++){
-        	//System.out.println(ca[i].getType());
-        	if(ca[i].getType()!=Controller.Type.STICK) continue;
-
-        	Component[] components = ca[i].getComponents();
-            for(int j=0;j<components.length;j++){
-            	/*
-            	System.out.println("\t"+components[j].getName()+
-            			":"+components[j].getIdentifier().getName()+
-            			":"+(components[j].isAnalog()?"Abs":"Rel")+
-            			":"+(components[j].isAnalog()?"Analog":"Digital")+
-            			":"+(components[j].getDeadZone())+
-               			":"+(components[j].getPollData()));*/
-            	
-            	if(!components[j].isAnalog()) {
-        			if(components[j].getPollData()==1) {
-        				if(components[j].getIdentifier()==Identifier.Button._0) {
-        					// square
-            			}
-        				if(components[j].getIdentifier()==Identifier.Button._1) {
-        					// x
-        					//this.toggleATC();
-        				}
-        				if(components[j].getIdentifier()==Identifier.Button._2) {
-           					// circle
-        					//System.out.print(components[j].getPollData()+"\t");
-        				}
-        				if(components[j].getIdentifier()==Identifier.Button._3) {
-           					// triangle
-                			targetPose.set(homePose);
-                			isDirty=true;
-        				}
-        				if(components[j].getIdentifier()==Identifier.Button._4) {
-    	            		// right analog stick, + is right -1 is left
-    	            		isDirty=true;
-    	            		double v = scaleTurn;
-    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-    	            			v=4/dhTool.dhLinkEquivalent.r;
-    	            		}
-    	            		Matrix4d temp = new Matrix4d();
-    	            		temp.rotZ(v*scaleTurn);
-    	            		targetPose.mul(temp);
-        				}
-        				if(components[j].getIdentifier()==Identifier.Button._5) {
-    	            		// right analog stick, + is right -1 is left
-    	            		isDirty=true;
-    	            		double v = scaleTurn;
-    	            		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-    	            			v=4/dhTool.dhLinkEquivalent.r;
-    	            		}
-    	            		Matrix4d temp = new Matrix4d();
-    	            		temp.rotZ(v*-scaleTurn);
-    	            		targetPose.mul(temp);
-        				}
-            		}
-    				
-    				if(components[j].getIdentifier()==Identifier.Axis.POV) {
-    					// D-pad buttons
-    					float pollData = components[j].getPollData();
-    					if(pollData ==Component.POV.DOWN) {
-        					// L1 - dolly in
-    						dD=-1;
-    					} else if(pollData ==Component.POV.UP) {
-        					// R1 - dolly out
-    						dD=1;
-    					} else if(pollData ==Component.POV.LEFT) {
-        					// L1 - pan up
-    						dR=-1;
-    					} else if(pollData ==Component.POV.RIGHT) {
-        					// R1 - pan down
-    						dR=1;
-    					}
-    				}
-            	} else {
-            		double v = components[j].getPollData();
-            		final double DEADZONE=0.1;
-            		double deadzone = DEADZONE;//components[j].getDeadZone();
-            		if(v>deadzone) v-=deadzone;
-            		else if(v<-deadzone) v+=deadzone;
-            		else continue;  // inside dead zone, ignore.
-            		
-	            	if(components[j].getIdentifier()==Identifier.Axis.Z) {
-	            		// right analog stick, + is right -1 is left
-	            		isDirty=true;
-	            		Matrix4d temp = new Matrix4d();
-	            		temp.rotY(v*scaleTurn);
-	            		targetPose.mul(temp);
-	            	}
-	            	if(components[j].getIdentifier()==Identifier.Axis.RZ) {
-	            		// right analog stick, + is down -1 is up
-	            		isDirty=true;
-	            		Matrix4d temp = new Matrix4d();
-	            		temp.rotX(v*scaleTurn);
-	            		targetPose.mul(temp);
-	            	}
-	            	
-	            	if(components[j].getIdentifier()==Identifier.Axis.RY) {
-	            		// right trigger, +1 is pressed -1 is unpressed
-	            		isDirty=true;
-	            		targetPose.m23-=((v+1)/2)*scale;
-	            	}
-	            	if(components[j].getIdentifier()==Identifier.Axis.RX) {
-	            		// left trigger, +1 is pressed -1 is unpressed
-	            		isDirty=true;
-	            		targetPose.m23+=((v+1)/2)*scale;
-	            	}
-	            	if(components[j].getIdentifier()==Identifier.Axis.X) {
-	            		// left analog stick, +1 is right -1 is left
-	            		isDirty=true;
-	            		targetPose.m13+=v*scale;
-	            	}
-	            	if(components[j].getIdentifier()==Identifier.Axis.Y) {
-	            		// left analog stick, -1 is up +1 is down
-	            		isDirty=true;
-	            		targetPose.m03+=v*scale;
-	            	}
-            	}
-        	}
-        }
-
-        try {
-	        if(record.isRecording) {
-	        	record.objectOutputStream.writeInt(dD);
-	        	record.objectOutputStream.writeInt(dR);
-	        } else if(record.isPlaying) {
-	        	dD = record.objectInputStream.readInt();
-	        	dR = record.objectInputStream.readInt();
-	        }
-        } catch(IOException e) {
-        	record.stop();
-        	return false;
-        }
-
-		dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
-		if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
-		dhTool.dhLinkEquivalent.r+=dR*scale;
-		if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
-		
-        if(dhTool!=null) {
-        	isDirty |= dhTool.directDrive(record);
-        }
-        
-        return isDirty;
-	}
 
 	/**
 	 * Perform a sanity check.  Make sure the angles in the keyframe are within the joint range limits. 
@@ -732,8 +681,8 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 
 	public void setRecording(boolean newIsRecording) {
-		count1=0;
-		if(panel!=null) panel.buttonRecord.setText(isRecording()?"Stop":"Record");
+		record.setRecording(newIsRecording);
+		if(panel!=null) panel.buttonRecord.setText("Stop");
 	}
 
 	public boolean isPlaying() {
@@ -741,8 +690,14 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 
 	public void setPlaying(boolean newIsPlaying) {
-		count2=0;
 		record.setPlaying(newIsPlaying);
-		if(panel!=null) panel.buttonPlay.setText(isPlaying()?"Stop":"Play");
+		if(panel!=null) panel.buttonPlay.setText("Stop");
+	}
+	
+	public void recordingHasStopped() {
+		if(panel!=null) panel.buttonRecord.setText("Record");
+	}
+	public void playingHasStopped() {
+		if(panel!=null) panel.buttonPlay.setText("Play");
 	}
 }
