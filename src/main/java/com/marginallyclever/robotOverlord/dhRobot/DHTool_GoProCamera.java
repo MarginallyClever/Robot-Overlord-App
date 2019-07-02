@@ -15,8 +15,8 @@ public class DHTool_GoProCamera extends DHTool {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = 4493219249970529745L;
+
 	public DHTool_GoProCamera() {
 		super();
 		dhLinkEquivalent.d=8;  // cm
@@ -39,10 +39,5 @@ public class DHTool_GoProCamera extends DHTool {
 		m2.rotY(Math.toRadians(90));
 		m.mul(m2);
 		this.setRotation(m);
-	}
-	
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
 	}
 }

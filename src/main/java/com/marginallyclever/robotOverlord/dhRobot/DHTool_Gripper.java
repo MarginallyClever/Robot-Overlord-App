@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
-import java.io.IOException;
-
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -9,10 +7,6 @@ import com.marginallyclever.robotOverlord.model.Model;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
-import net.java.games.input.Component.Identifier;
 
 /**
  * DHTool is a model that has a DHLink equivalence.
@@ -24,12 +18,12 @@ public class DHTool_Gripper extends DHTool {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = 127023987907031123L;
+
 	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
-	PhysicalObject subjectBeingHeld;
+	private transient PhysicalObject subjectBeingHeld;
 	
 	private double gripperServoAngle=90;
 	
@@ -130,57 +124,23 @@ public class DHTool_Gripper extends DHTool {
 	 * @return true if targetPose changes.
 	 */
 	@Override
-	public boolean directDrive(DHRobotRecording record) {
-		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
+	public boolean directDrive(double [] keyState) {
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
 		
-		boolean openGrip=false;
-		boolean closeGrip=true;
-		
-        for(int i=0;i<ca.length;i++){
-        	if(ca[i].getType()!=Controller.Type.STICK) continue;
-
-        	Component[] components = ca[i].getComponents();
-            for(int j=0;j<components.length;j++){
-            	if(!components[j].isAnalog()) {
-        			if(components[j].getPollData()==1) {
-        				if(components[j].getIdentifier()==Identifier.Button._8) {  // share button
-        					closeGrip=true;
-        				}
-        				if(components[j].getIdentifier()==Identifier.Button._9) {  // option button
-        					openGrip=true;
-        				}
-        				//System.out.print(" B"+components[j].getIdentifier().getName());
-            		}
-            	}
-        	}
-        }
-
-        try {
-	        if(record.isRecording) {
-	        	record.objectOutputStream.writeBoolean(openGrip);
-	        	record.objectOutputStream.writeBoolean(closeGrip);
-	        } else if(record.isPlaying) {
-	        	openGrip = record.objectInputStream.readBoolean();
-	        	closeGrip = record.objectInputStream.readBoolean();
-	        }
-        } catch(IOException e) {
-        	record.stop();
-        	return false;
-        }
-        
-        if(openGrip) {
+        if(keyState[6]==1) {
 			if(gripperServoAngle<70) {
 				gripperServoAngle+=scaleGrip;
+				isDirty=true;
 			}
         }
-        if(closeGrip) {
+        if(keyState[7]==1) {
 			if(gripperServoAngle>0) {
 				gripperServoAngle-=scaleGrip;
+				isDirty=true;
 			}
         }
-        //System.out.println();
+
         return isDirty;
 	}
 }
