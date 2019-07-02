@@ -3,8 +3,6 @@ package com.marginallyclever.robotOverlord.dhRobot;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.jogamp.opengl.GL2;
-
 /**
  * DHTool is a model that has a DHLink equivalence.
  * In this way it can perform transforms and have sub-links.
