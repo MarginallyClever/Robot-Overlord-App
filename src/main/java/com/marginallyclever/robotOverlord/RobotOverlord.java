@@ -694,11 +694,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	Entity newlyPickedEntity = world.pickObjectWithName(pickName);
     	
     	if(newlyPickedEntity==null || newlyPickedEntity == pickedEntity) {
-			System.out.println(" NO PICK");
+			//System.out.println(" NO PICK");
     		unPick();
     		pickNothing();
         } else {
-			System.out.print(" PICKED");
+			//System.out.print(" PICKED");
 			unPick();
 			pickEntity(newlyPickedEntity);
 		}
