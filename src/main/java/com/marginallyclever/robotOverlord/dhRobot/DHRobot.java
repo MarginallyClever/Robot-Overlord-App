@@ -239,11 +239,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 			link.poseCumulative.set(endMatrix);
 		}
 		if(dhTool!=null) {
-			// update matrix
-			dhTool.dhLinkEquivalent.refreshPoseMatrix();
-			// find cumulative matrix
-			endMatrix.mul(dhTool.dhLinkEquivalent.pose);
-			dhTool.dhLinkEquivalent.poseCumulative.set(endMatrix);
+			dhTool.refreshPose(endMatrix);
 		}
 	}
 	
@@ -319,6 +315,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public void setTool(DHTool arg0) {
 		removeTool();
 		dhTool = arg0;
+		dhTool.setParent(this);
 		if(arg0!=null) {
 			// add the tool offset to the targetPose.
 			dhTool.dhLinkEquivalent.refreshPoseMatrix();
@@ -339,6 +336,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 			targetPose.mul(inverseToolPose);
 			// tell the tool it is no longer held.
 			dhTool.heldBy = null;
+			dhTool.setParent(null);
 		}
 		dhTool = null;
 	}
@@ -422,11 +420,11 @@ public abstract class DHRobot extends Robot implements InputListener {
     	}
 		if(keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetPose.m23-=((keyState[12]+1)/2)*scale;
+    		targetPose.m23+=((keyState[12]+1)/2)*scale;
 		}
 		if(keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetPose.m23+=((keyState[13]+1)/2)*scale;
+    		targetPose.m23-=((keyState[13]+1)/2)*scale;
 		}
 		if(keyState[14]!=0) {  // left stick, right/left
     		isDirty=true;
