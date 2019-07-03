@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
-import com.jogamp.opengl.GL2;
+import javax.vecmath.Matrix4d;
+
 import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
@@ -40,11 +41,6 @@ public class DHTool extends ModelInWorld {
 		setDisplayName("No Tool");
 	}
 	
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
-	}
-	
 	/**
 	 * use the keyState to control the tool.
 	 * @param keyState record of human input to drive the tool this frame.
@@ -52,5 +48,13 @@ public class DHTool extends ModelInWorld {
 	 */
 	public boolean directDrive(double [] keyState) {
 		return false;		
+	}
+	
+	public void refreshPose(Matrix4d endMatrix) {
+		// update matrix
+		dhLinkEquivalent.refreshPoseMatrix();
+		// find cumulative matrix
+		endMatrix.mul(dhLinkEquivalent.pose);
+		dhLinkEquivalent.poseCumulative.set(endMatrix);
 	}
 }
