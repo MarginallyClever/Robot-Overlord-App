@@ -24,6 +24,7 @@ public abstract class PhysicalObject extends Entity {
 		super();
 		
 		pose = new Matrix4d();
+		pose.setIdentity();
 	}
 	
 	
