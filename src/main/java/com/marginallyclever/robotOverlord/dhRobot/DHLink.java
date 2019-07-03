@@ -158,12 +158,19 @@ public class DHLink {
 							0);
 				}
 				gl2.glVertex3d(0, 0, 0);
+				gl2.glEnd();
 				setAngleColorByRange(gl2);
+				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glVertex3d(0, 0, 0);
-				gl2.glVertex3d(
-						Math.cos(Math.toRadians(this.theta)), 
-						Math.sin(Math.toRadians(this.theta)), 
-						0);
+				double mid=(rangeMax+rangeMin)/2;
+				double steps = Math.floor(Math.abs(mid-theta));
+				for(k=0;k<steps;++k) {
+					double j = (theta-mid)*(k/steps)+mid;
+					gl2.glVertex3d(
+							Math.cos(Math.toRadians(j)), 
+							Math.sin(Math.toRadians(j)), 
+							0);
+				}
 				gl2.glEnd();
 				gl2.glPopMatrix();
 			}
@@ -198,13 +205,26 @@ public class DHLink {
 							Math.sin(Math.toRadians(j)));
 				}
 				gl2.glVertex3d(0, 0, 0);
+				gl2.glEnd();
 				setAngleColorByRange(gl2);
+				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+				gl2.glVertex3d(0, 0, 0);
+				double mid=(rangeMax+rangeMin)/2;
+				double steps = Math.floor(Math.abs(mid-alpha));
+				for(k=0;k<steps;++k) {
+					double j = (alpha-mid)*(k/steps)+mid;
+					gl2.glVertex3d(0,
+							Math.cos(Math.toRadians(j)), 
+							Math.sin(Math.toRadians(j))
+							);
+				}
+				gl2.glEnd();/*
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(
 						0,
 						Math.cos(Math.toRadians(this.alpha)),
 						Math.sin(Math.toRadians(this.alpha)));
-				gl2.glEnd();
+				gl2.glEnd();*/
 				gl2.glPopMatrix();
 			}
 			if((flags & READ_ONLY_R)==0) {
@@ -258,11 +278,14 @@ public class DHLink {
 	 * @param gl2 the render context
 	 */
 	protected void setAngleColorByRange(GL2 gl2) {
-		double range = rangeMax-rangeMin;
-		double halfRange = range/2;
-		double midRange = rangeMax-halfRange;
-		double safety = Math.abs(this.alpha-midRange)/halfRange;
-		safety*=safety*safety;  // cubed
-		gl2.glColor3d(safety,1-safety,0);
+		double a=0;
+		if((flags & READ_ONLY_THETA)==0) a=theta;
+		else a=alpha;
+		
+		double halfRange = (rangeMax-rangeMin)/2;
+		double midRange = (rangeMax+rangeMin)/2;
+		double safety = Math.abs(a-midRange)/halfRange;
+		safety*=safety*safety;  // squared
+		gl2.glColor4d(safety,1-safety,0,0.5);
 	}
 }
