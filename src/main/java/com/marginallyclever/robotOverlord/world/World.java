@@ -70,6 +70,8 @@ implements Serializable {
 	public World() {
 		pose.setIdentity();
 		
+		setDisplayName("World");
+		
 		areTexturesLoaded=false;
 		pickForward=new Vector3d();
 		pickRight=new Vector3d();
@@ -417,8 +419,9 @@ implements Serializable {
 	}
 
 	
-	public void addEntity(Entity o) {
-		children.add(o);
+	public void addEntity(Entity entity) {
+		children.add(entity);
+		entity.setParent(this);
 		if(worldControlPanel!=null) worldControlPanel.updateEntityList();
 	}
 	
@@ -467,12 +470,13 @@ implements Serializable {
 	 * Find all Entities within epsilon mm of pose.
 	 * TODO Much optimization could be done here to reduce the search time.
 	 * @param target the center of the cube around which to search.   
-	 * @param epsilon the cube is of size epsilon * epsilon * epsilon mm.
+	 * @param radius the maximum distance to search for entities.
 	 * @return a list of found PhysicalObjects
 	 */
-	public List<PhysicalObject> findPhysicalObjectsNear(Point3d target,double epsilon) {
-		epsilon/=2;
+	public List<PhysicalObject> findPhysicalObjectsNear(Point3d target,double radius) {
+		radius/=2;
 		
+		//System.out.println("Finding within "+epsilon+" of " + target);
 		List<PhysicalObject> found = new ArrayList<PhysicalObject>();
 		
 		// check all children
@@ -482,11 +486,11 @@ implements Serializable {
 			if(e instanceof PhysicalObject) {
 				// is physical, therefore has position
 				PhysicalObject po = (PhysicalObject)e;
-				Point3d pop = new Point3d(po.getPosition());
+				Vector3d pop = new Vector3d(po.getPosition());
+				//System.out.println("  Checking "+po.getDisplayName()+" at "+pop);
 				pop.sub(target);
-				if(Math.abs(pop.x)<=epsilon||
-					Math.abs(pop.y)<=epsilon||
-					Math.abs(pop.z)<=epsilon) {
+				if(pop.length()<=radius) {
+					//System.out.println("  in range!");
 					// in range!
 					found.add(po);
 				}
