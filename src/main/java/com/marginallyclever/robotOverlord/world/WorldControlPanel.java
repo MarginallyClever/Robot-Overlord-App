@@ -104,7 +104,7 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 			world.gridWidth = (int)gridWidth.getValue();
 		}
 		if(e.getSource() == gridHeight) {
-			world.gridWidth = (int)gridWidth.getValue();
+			world.gridHeight = (int)gridHeight.getValue();
 		}
 	}
 
