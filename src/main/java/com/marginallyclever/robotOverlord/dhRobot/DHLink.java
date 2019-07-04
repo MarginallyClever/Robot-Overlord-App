@@ -148,6 +148,7 @@ public class DHLink {
 				gl2.glPushMatrix();
 				gl2.glTranslated(0, 0, d);
 				gl2.glScaled(scale, scale, scale);
+				gl2.glColor4d(0,0,0,0.35);
 				gl2.glBegin(GL2.GL_LINE_STRIP);
 				gl2.glVertex3d(0, 0, 0);
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
@@ -195,6 +196,7 @@ public class DHLink {
 				gl2.glTranslated(r, 0, d);
 				gl2.glRotated(this.theta, 0, 0, 1);
 				gl2.glScaled(scale, scale, scale);
+				gl2.glColor4d(0,0,0,0.35);
 				gl2.glBegin(GL2.GL_LINE_STRIP);
 				gl2.glVertex3d(0, 0, 0);
 				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
