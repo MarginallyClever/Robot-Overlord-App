@@ -1,9 +1,9 @@
 package com.marginallyclever.convenience;
 
 /**
- * Ansi codes for color console output. 
+ * Ansi codes for color console output.
+ * See also https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println 
  * @author Dan Royer
- * @see https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
  */
 public class AnsiColors {
     // Reset

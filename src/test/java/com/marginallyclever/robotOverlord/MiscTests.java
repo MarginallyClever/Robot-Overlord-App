@@ -1,9 +1,11 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.robotOverlord;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 
 import org.junit.Test;
+
+import com.marginallyclever.convenience.MatrixOperations;
 
 public class MiscTests {
 	@Test

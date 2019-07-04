@@ -58,12 +58,12 @@ public class CollapsiblePanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-		public interface CollapeListener extends java.util.EventListener {
+		public interface CollapseListener extends java.util.EventListener {
                 public void collaped();
                 public void expanded();
         }
 
-        Vector<CollapeListener> collapeListeners;
+        Vector<CollapseListener> collapseListeners;
 
     //Border
     CollapsableTitledBorder border; // includes upper left component and line type
@@ -128,19 +128,19 @@ public class CollapsiblePanel extends JPanel {
         add(titleComponent, BorderLayout.CENTER);
         add(panel, BorderLayout.CENTER);
 
-        collapeListeners = new Vector<CollapeListener>();
+        collapseListeners = new Vector<CollapseListener>();
 
         setCollapsed(collapsed);
 
         placeTitleComponent();
     }
 
-    public void addCollapeListener(CollapeListener collapeListener) {
-            this.collapeListeners.add(collapeListener);
+    public void addCollapeListener(CollapseListener collapeListener) {
+            this.collapseListeners.add(collapeListener);
     }
 
-    public boolean removeCollapeListener(CollapeListener collapeListener) {
-            return this.collapeListeners.remove(collapeListener);
+    public boolean removeCollapeListener(CollapseListener collapeListener) {
+            return this.collapseListeners.remove(collapeListener);
     }
 
     /**
@@ -184,7 +184,7 @@ public class CollapsiblePanel extends JPanel {
             arrow.setIcon(iconArrow[COLLAPSED]);
             border = new CollapsableTitledBorder(collapsedBorderLine, titleComponent);
 
-            for(CollapeListener collapeListener : collapeListeners) {
+            for(CollapseListener collapeListener : collapseListeners) {
                     collapeListener.collaped();
             }
 
@@ -194,7 +194,7 @@ public class CollapsiblePanel extends JPanel {
             arrow.setIcon(iconArrow[EXPANDED]);
             border = new CollapsableTitledBorder(expandedBorderLine, titleComponent);
 
-            for(CollapeListener collapeListener : collapeListeners) {
+            for(CollapseListener collapeListener : collapseListeners) {
                     collapeListener.expanded();
             }
 

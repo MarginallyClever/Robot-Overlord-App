@@ -11,6 +11,9 @@ public class MathHelper {
 	public final static double EPSILON = 0.00001f;
 	
 	/**
+	 * @param dx x component
+	 * @param dy y component
+	 * @param dz z component
 	 * @return Square of length of vector (dx,dy,dz) 
 	 */
 	public static float lengthSquared(float dx,float dy,float dz) {
@@ -19,6 +22,9 @@ public class MathHelper {
 	
 	
 	/**
+	 * @param dx x component
+	 * @param dy y component
+	 * @param dz z component
 	 * @return Length of vector (dx,dy,dz) 
 	 */
 	public static float length(float dx,float dy,float dz) {
@@ -39,6 +45,9 @@ public class MathHelper {
 	
 
 	/**
+	 * @param dx x component
+	 * @param dy y component
+	 * @param dz z component
 	 * @return Square of length of vector (dx,dy,dz) 
 	 */
 	public static double lengthSquared(double dx,double dy,double dz) {
@@ -47,6 +56,9 @@ public class MathHelper {
 	
 	
 	/**
+	 * @param dx x component
+	 * @param dy y component
+	 * @param dz z component
 	 * @return Length of vector (dx,dy,dz) 
 	 */
 	public static double length(double dx,double dy,double dz) {

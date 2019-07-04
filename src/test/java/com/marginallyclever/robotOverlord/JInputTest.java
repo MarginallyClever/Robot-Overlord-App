@@ -45,7 +45,7 @@ public class JInputTest {
 	/**
 	 * Figure out which input just changed.  Requires human input.
 	 */
-	@Test
+	//@Test
 	public void detectSingleInputChange() {
 		int i,j,k;
 		
@@ -100,7 +100,7 @@ public class JInputTest {
 	/**
 	 * Figure out which input just changed.  Requires human input.
 	 */
-	@Test
+	//@Test
 	public void detectSingleInputChangeB() {
 		int i,j;
 		
