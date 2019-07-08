@@ -48,8 +48,10 @@ public class Model implements Serializable {
 	// display correction matrix
 	protected Vector3d adjustOrigin;
 	protected Vector3d adjustRotation;
-
 	
+	// bounding limits
+	protected Point3d boundBottom, boundTop;
+
 	public Model() {
 		sourceName=null;
 		isLoaded=false;
@@ -58,6 +60,8 @@ public class Model implements Serializable {
 		colorArray = new ArrayList<Float>();
 		texCoordArray = new ArrayList<Float>();
 		
+		boundTop = new Point3d();
+		boundBottom = new Point3d();
 		adjustOrigin = new Vector3d();
 		adjustRotation = new Vector3d();
 		loadScale=1.0f;
@@ -105,12 +109,17 @@ public class Model implements Serializable {
 		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
 	}
 	
-	
+	/**
+	 * Regenerate the optimized rendering buffers for the fixed function pipeline.
+	 * Also recalculate the bounding box.
+	 * @param gl2
+	 */
 	private void updateBuffers(GL2 gl2) {
 		int numVertexes = vertexArray.size()/3;
 		Iterator<Float> fi;
 		int j=0;
 
+		// generate the pose matrix
 		Matrix4d rot = new Matrix4d();
 		Matrix4d rotX = new Matrix4d();
 		Matrix4d rotY = new Matrix4d();
@@ -137,6 +146,14 @@ public class Model implements Serializable {
 			vertices.put(j++, (float)p.x);
 			vertices.put(j++, (float)p.y);
 			vertices.put(j++, (float)p.z);
+			
+			// also recalculate the bounding limits			
+			if(boundBottom.x>p.x) boundBottom.x=p.x;
+			if(boundBottom.y>p.y) boundBottom.y=p.y;
+			if(boundBottom.z>p.z) boundBottom.z=p.z;
+			if(boundTop.x<p.x) boundTop.x=p.x;
+			if(boundTop.y<p.y) boundTop.y=p.y;
+			if(boundTop.z<p.z) boundTop.z=p.z;
 		}
 
 		int totalBufferSize = numVertexes;
@@ -308,30 +325,59 @@ public class Model implements Serializable {
 	}
 	
 	/**
-	 * Calculate the minimum bounding box to contain this STL file.
+	 * Force recalculation of the the minimum bounding box to contain this STL file.
+	 * Done automatically every time updateBuffers() is called.
+	 * Meaningless if there is no vertexArray of points.
 	 * @param bottom the minimum xyz
 	 * @param top the maximum xyz
-	 * @return true if the calculation is done.  false if there is now vertexArray.
 	 */
-	public boolean findBounds(Point3d bottom,Point3d top) {
-		if(vertexArray == null) return false;
+	public void findBounds() {
+		if(vertexArray == null) return;
 
-		bottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-		top.set(Double.MIN_VALUE,Double.MIN_VALUE,Double.MIN_VALUE);
+		boundBottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
+		boundTop.set(Double.MIN_VALUE,Double.MIN_VALUE,Double.MIN_VALUE);
+
+		// generate the pose matrix
+		Matrix4d rot = new Matrix4d();
+		Matrix4d rotX = new Matrix4d();
+		Matrix4d rotY = new Matrix4d();
+		Matrix4d rotZ = new Matrix4d();
+		rot.setIdentity();
+		rotX.rotX((float)Math.toRadians(adjustRotation.x));
+		rotY.rotY((float)Math.toRadians(adjustRotation.y));
+		rotZ.rotZ((float)Math.toRadians(adjustRotation.z));
+		rot.set(rotX);
+		rot.mul(rotY);
+		rot.mul(rotZ);
+		Matrix4d pose = new Matrix4d(rot);
+		pose.setScale(loadScale);
+		pose.setTranslation(adjustOrigin);
 		
+		// transform and calculate
 		Iterator<Float> fi = vertexArray.iterator();
+		Point3d p = new Point3d();
 		while(fi.hasNext()) {
-			double x = fi.next().floatValue();
-			double y = fi.next().floatValue();
-			double z = fi.next().floatValue();
+			p.x = fi.next().floatValue();
+			p.y = fi.next().floatValue();
+			p.z = fi.next().floatValue();
+			pose.transform(p);
 			
-			if(bottom.x>x) bottom.x=x;
-			if(bottom.y>y) bottom.y=y;
-			if(bottom.z>z) bottom.z=z;
-			if(top.x<x) top.x=x;
-			if(top.y<y) top.y=y;
-			if(top.z<z) top.z=z;
+			if(boundBottom.x>p.x) boundBottom.x=p.x;
+			if(boundBottom.y>p.y) boundBottom.y=p.y;
+			if(boundBottom.z>p.z) boundBottom.z=p.z;
+			if(boundTop.x<p.x) boundTop.x=p.x;
+			if(boundTop.y<p.y) boundTop.y=p.y;
+			if(boundTop.z<p.z) boundTop.z=p.z;
 		}
-		return true;
+	}
+
+	
+	public Point3d getBoundBottom() {
+		return boundBottom;
+	}
+
+
+	public Point3d getBoundTop() {
+		return boundTop;
 	}
 }
