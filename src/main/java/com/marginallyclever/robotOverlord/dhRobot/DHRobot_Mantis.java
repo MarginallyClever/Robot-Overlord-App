@@ -99,17 +99,6 @@ public class DHRobot_Mantis extends DHRobot {
 		this.refreshPose();
 	}
 	
-	@Override
-	public void pick() {
-		this.refreshPose();
-		targetPose.set(endMatrix);
-		drawAsSelected=true;
-	}
-	
-	@Override
-	public void unPick() {
-		drawAsSelected=false;
-	}
 	
 	@Override
 	public void render(GL2 gl2) {

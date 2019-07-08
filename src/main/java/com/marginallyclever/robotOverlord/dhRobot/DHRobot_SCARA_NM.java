@@ -129,19 +129,6 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		return new DHIKSolver_SCARA();
 	}
 	
-	@Override
-	public void pick() {
-		this.refreshPose();
-		targetPose.set(endMatrix);
-		//disabled until there are models to render.
-		drawAsSelected=true;
-	}
-	
-	@Override
-	public void unPick() {
-		//disabled until there are models to render.
-		drawAsSelected=false;
-	}
 
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

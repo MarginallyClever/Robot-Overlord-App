@@ -712,4 +712,16 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public void playingHasStopped() {
 		if(panel!=null) panel.buttonPlay.setText("Play");
 	}
+	
+	@Override
+	public void pick() {
+		this.refreshPose();
+		targetPose.set(endMatrix);
+		drawAsSelected=true;
+	}
+	
+	@Override
+	public void unPick() {
+		drawAsSelected=false;
+	}
 }

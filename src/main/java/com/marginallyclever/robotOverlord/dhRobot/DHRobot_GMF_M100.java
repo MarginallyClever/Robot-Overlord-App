@@ -85,19 +85,6 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		return new DHIKSolver_Cylindrical();
 	}
 	
-	@Override
-	public void pick() {
-		this.refreshPose();
-		targetPose.set(endMatrix);
-		//disabled until there are models to render.
-		//drawSkeleton=true;
-	}
-	
-	@Override
-	public void unPick() {
-		//disabled until there are models to render.
-		//drawSkeleton=false;
-	}
 
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

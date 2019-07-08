@@ -116,7 +116,7 @@ public class DHLink {
 	}
 
 	/**
-	 * Render one link in a D-H chain.  
+	 * Render the "bone" for one link in a D-H chain.  
 	 * Changes the current render matrix!  Clean up after yourself!  
 	 * @param gl2 the render context
 	 */
@@ -127,7 +127,6 @@ public class DHLink {
 				new Vector3d(0,1,0),
 				new Vector3d(0,0,1));
 
-		// draw the bone for this joint
 		gl2.glPushMatrix();
 			gl2.glRotated(theta,0,0,1);
 			gl2.glColor3f(1, 0, 0);  // red
@@ -140,7 +139,7 @@ public class DHLink {
 	}
 	
 	/**
-	 * Render one link in a D-H chain.  
+	 * Render the min/max/current angle for one link in a D-H chain.  
 	 * Changes the current render matrix!  Clean up after yourself!  
 	 * @param gl2 the render context
 	 */

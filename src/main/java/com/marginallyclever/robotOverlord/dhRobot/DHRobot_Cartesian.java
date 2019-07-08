@@ -78,18 +78,6 @@ public class DHRobot_Cartesian extends DHRobot {
 	}
 	
 	@Override
-	public void pick() {
-		this.refreshPose();
-		targetPose.set(endMatrix);
-		drawAsSelected=true;
-	}
-	
-	@Override
-	public void unPick() {
-		drawAsSelected=false;
-	}
-	
-	@Override
 	public void render(GL2 gl2) {
 		if( isFirstTime ) {
 			isFirstTime=false;
