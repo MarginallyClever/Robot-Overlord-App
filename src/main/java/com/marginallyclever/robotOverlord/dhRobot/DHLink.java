@@ -105,7 +105,6 @@ public class DHLink {
 	 * @param gl2 the render context
 	 */
 	public void renderModel(GL2 gl2) {
-		
 		gl2.glPushMatrix();
 		if(this.model!=null) {
 			this.model.render(gl2);
