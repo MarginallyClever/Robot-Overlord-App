@@ -306,4 +306,32 @@ public class Model implements Serializable {
 		texCoordArray.add(x);
 		texCoordArray.add(y);
 	}
+	
+	/**
+	 * Calculate the minimum bounding box to contain this STL file.
+	 * @param bottom the minimum xyz
+	 * @param top the maximum xyz
+	 * @return true if the calculation is done.  false if there is now vertexArray.
+	 */
+	public boolean findBounds(Point3d bottom,Point3d top) {
+		if(vertexArray == null) return false;
+
+		bottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
+		top.set(Double.MIN_VALUE,Double.MIN_VALUE,Double.MIN_VALUE);
+		
+		Iterator<Float> fi = vertexArray.iterator();
+		while(fi.hasNext()) {
+			double x = fi.next().floatValue();
+			double y = fi.next().floatValue();
+			double z = fi.next().floatValue();
+			
+			if(bottom.x>x) bottom.x=x;
+			if(bottom.y>y) bottom.y=y;
+			if(bottom.z>z) bottom.z=z;
+			if(top.x<x) top.x=x;
+			if(top.y<y) top.y=y;
+			if(top.z<z) top.z=z;
+		}
+		return true;
+	}
 }
