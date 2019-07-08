@@ -5,15 +5,19 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -29,7 +33,7 @@ import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
  * @author Dan Royer
  *
  */
-public class DHRobotPanel extends JPanel implements ActionListener, ChangeListener {
+public class DHRobotPanel extends JPanel implements ActionListener, ChangeListener, ItemListener {
 	/**
 	 * 
 	 */
@@ -46,6 +50,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	
 	public JButton buttonRecord;
 	public JButton buttonPlay;
+	
+	public JCheckBox showBones;
+	public JCheckBox showAngleMinMax;
+	public JCheckBox showPhysics;
 	
 	
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
@@ -71,9 +79,30 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
 		//con1.gridy++;
 		//numLinks.addChangeListener(this);
+
+		this.add(new JSeparator(JSeparator.VERTICAL), con1);
+		con1.gridy++;
 		
-		//this.add(new JSeparator(JSeparator.VERTICAL), con1);
-		//con1.gridy++;
+		this.add(showBones=new JCheckBox(),con1);
+		showBones.setText("Show D-H bones");
+		showBones.addItemListener(this);
+		showBones.setSelected(robot.showBones);
+		con1.gridy++;
+		
+		this.add(showAngleMinMax=new JCheckBox(),con1);
+		showAngleMinMax.setText("Show angle min/max");
+		showAngleMinMax.addItemListener(this);
+		showAngleMinMax.setSelected(robot.showAngles);
+		con1.gridy++;
+		
+		this.add(showPhysics=new JCheckBox(),con1);
+		showPhysics.setText("Show physics model");
+		showPhysics.addItemListener(this);
+		showPhysics.setSelected(robot.showPhysics);
+		con1.gridy++;
+		
+		this.add(new JSeparator(JSeparator.VERTICAL), con1);
+		con1.gridy++;
 		
 		int k=0;
 		Iterator<DHLink> i = robot.links.iterator();
@@ -255,5 +284,20 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public void updateActiveTool(DHTool arg0) {
 		String name = (arg0==null) ? "null" : arg0.getDisplayName();
 		activeTool.setText("Tool="+name);
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		// for checkboxes
+		Object source = e.getItemSelectable();
+		if(source == showAngleMinMax) {
+			robot.showAngles=!robot.showAngles;
+		}
+		if(source == showPhysics) {
+			robot.showPhysics=!robot.showPhysics;
+		}
+		if(source == showBones) {
+			robot.showBones=!robot.showBones;
+		}
 	}
 }

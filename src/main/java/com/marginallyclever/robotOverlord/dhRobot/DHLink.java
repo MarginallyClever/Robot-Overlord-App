@@ -120,7 +120,7 @@ public class DHLink {
 	 * Changes the current render matrix!  Clean up after yourself!  
 	 * @param gl2 the render context
 	 */
-	public void renderPose(GL2 gl2) {
+	public void renderBones(GL2 gl2) {
 		MatrixHelper.drawMatrix(gl2, 
 				new Vector3d(0,0,0),
 				new Vector3d(1,0,0),
@@ -129,7 +129,7 @@ public class DHLink {
 
 		// draw the bone for this joint
 		gl2.glPushMatrix();
-			gl2.glRotated(this.theta,0,0,1);
+			gl2.glRotated(theta,0,0,1);
 			gl2.glColor3f(1, 0, 0);  // red
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
@@ -137,117 +137,122 @@ public class DHLink {
 			gl2.glVertex3d(r, 0, d);
 			gl2.glEnd();
 		gl2.glPopMatrix();
-		
+	}
+	
+	/**
+	 * Render one link in a D-H chain.  
+	 * Changes the current render matrix!  Clean up after yourself!  
+	 * @param gl2 the render context
+	 */
+	public void renderAngles(GL2 gl2) {
 		// draw the angle range
 		double k;
 		final double scale=10;
 		
 		gl2.glColor3f(0, 0, 0);
-			if((flags & READ_ONLY_THETA)==0) {
-				// display the curve around z (in the xy plane)
-				gl2.glPushMatrix();
-				gl2.glTranslated(0, 0, d);
-				gl2.glScaled(scale, scale, scale);
-				gl2.glColor4d(0,0,0,0.35);
-				gl2.glBegin(GL2.GL_LINE_STRIP);
-				gl2.glVertex3d(0, 0, 0);
-				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
-					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
-					gl2.glVertex3d(
-							Math.cos(Math.toRadians(j)), 
-							Math.sin(Math.toRadians(j)), 
-							0);
-				}
-				gl2.glVertex3d(0, 0, 0);
-				gl2.glEnd();
-				setAngleColorByRange(gl2);
-				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glVertex3d(0, 0, 0);
-				double mid=(rangeMax+rangeMin)/2;
-				double steps = Math.floor(Math.abs(mid-theta));
-				for(k=0;k<steps;++k) {
-					double j = (theta-mid)*(k/steps)+mid;
-					gl2.glVertex3d(
-							Math.cos(Math.toRadians(j)), 
-							Math.sin(Math.toRadians(j)), 
-							0);
-				}
-				gl2.glEnd();
-				gl2.glPopMatrix();
+		if((flags & READ_ONLY_THETA)==0) {
+			// display the curve around z (in the xy plane)
+			gl2.glPushMatrix();
+			gl2.glTranslated(0, 0, d);
+			gl2.glScaled(scale, scale, scale);
+			gl2.glColor4d(0,0,0,0.35);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			gl2.glVertex3d(0, 0, 0);
+			for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
+				double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
+				gl2.glVertex3d(
+						Math.cos(Math.toRadians(j)), 
+						Math.sin(Math.toRadians(j)), 
+						0);
 			}
-			if((flags & READ_ONLY_D)==0) {
-				// display the prismatic nature of d
-				gl2.glPushMatrix();
-				gl2.glBegin(GL2.GL_LINES);
-				gl2.glVertex3d(0,  1, this.rangeMin);
-				gl2.glVertex3d(0, -1, this.rangeMin);
-				gl2.glVertex3d(0,  0, this.rangeMin);
-				gl2.glVertex3d(0,  0, this.rangeMax);
-				gl2.glVertex3d(0,  1, this.rangeMax);
-				gl2.glVertex3d(0, -1, this.rangeMax);
-				gl2.glVertex3d(0,  1, d);
-				gl2.glVertex3d(0, -1, d);
-				gl2.glEnd();
-				gl2.glPopMatrix();
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glEnd();
+			setAngleColorByRange(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glVertex3d(0, 0, 0);
+			double mid=(rangeMax+rangeMin)/2;
+			double steps = Math.floor(Math.abs(mid-theta));
+			for(k=0;k<steps;++k) {
+				double j = (theta-mid)*(k/steps)+mid;
+				gl2.glVertex3d(
+						Math.cos(Math.toRadians(j)), 
+						Math.sin(Math.toRadians(j)), 
+						0);
 			}
-			if((flags & READ_ONLY_ALPHA)==0) {
-				// display the curve around x (in the yz plane)
-				gl2.glPushMatrix();
-				gl2.glTranslated(r, 0, d);
-				gl2.glRotated(this.theta, 0, 0, 1);
-				gl2.glScaled(scale, scale, scale);
-				gl2.glColor4d(0,0,0,0.35);
-				gl2.glBegin(GL2.GL_LINE_STRIP);
-				gl2.glVertex3d(0, 0, 0);
-				for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
-					double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
-					gl2.glVertex3d(
-							0,
-							Math.cos(Math.toRadians(j)),
-							Math.sin(Math.toRadians(j)));
-				}
-				gl2.glVertex3d(0, 0, 0);
-				gl2.glEnd();
-				setAngleColorByRange(gl2);
-				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glVertex3d(0, 0, 0);
-				double mid=(rangeMax+rangeMin)/2;
-				double steps = Math.floor(Math.abs(mid-alpha));
-				for(k=0;k<steps;++k) {
-					double j = (alpha-mid)*(k/steps)+mid;
-					gl2.glVertex3d(0,
-							Math.cos(Math.toRadians(j)), 
-							Math.sin(Math.toRadians(j))
-							);
-				}
-				gl2.glEnd();/*
-				gl2.glVertex3d(0, 0, 0);
+			gl2.glEnd();
+			gl2.glPopMatrix();
+		}
+		if((flags & READ_ONLY_D)==0) {
+			// display the prismatic nature of d
+			gl2.glPushMatrix();
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glVertex3d(0,  1, this.rangeMin);
+			gl2.glVertex3d(0, -1, this.rangeMin);
+			gl2.glVertex3d(0,  0, this.rangeMin);
+			gl2.glVertex3d(0,  0, this.rangeMax);
+			gl2.glVertex3d(0,  1, this.rangeMax);
+			gl2.glVertex3d(0, -1, this.rangeMax);
+			gl2.glVertex3d(0,  1, d);
+			gl2.glVertex3d(0, -1, d);
+			gl2.glEnd();
+			gl2.glPopMatrix();
+		}
+		if((flags & READ_ONLY_ALPHA)==0) {
+			// display the curve around x (in the yz plane)
+			gl2.glPushMatrix();
+			gl2.glTranslated(r, 0, d);
+			gl2.glRotated(this.theta, 0, 0, 1);
+			gl2.glScaled(scale, scale, scale);
+			gl2.glColor4d(0,0,0,0.35);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			gl2.glVertex3d(0, 0, 0);
+			for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
+				double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
 				gl2.glVertex3d(
 						0,
-						Math.cos(Math.toRadians(this.alpha)),
-						Math.sin(Math.toRadians(this.alpha)));
-				gl2.glEnd();*/
-				gl2.glPopMatrix();
+						Math.cos(Math.toRadians(j)),
+						Math.sin(Math.toRadians(j)));
 			}
-			if((flags & READ_ONLY_R)==0) {
-				// display the prismatic nature of r
-				gl2.glPushMatrix();
-				gl2.glTranslated(0, 0, d);
-				gl2.glRotated(this.theta, 0, 0, 1);
-				gl2.glBegin(GL2.GL_LINES);
-				gl2.glVertex3d(this.rangeMin,  1, 0);
-				gl2.glVertex3d(this.rangeMin, -1, 0);
-				gl2.glVertex3d(this.rangeMin,  0, 0);
-				gl2.glVertex3d(this.rangeMax,  0, 0);
-				gl2.glVertex3d(this.rangeMax,  1, 0);
-				gl2.glVertex3d(this.rangeMax, -1, 0);
-				gl2.glVertex3d(            r,  1, 0);
-				gl2.glVertex3d(            r, -1, 0);
-				gl2.glEnd();
-				gl2.glPopMatrix();
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glEnd();
+			setAngleColorByRange(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glVertex3d(0, 0, 0);
+			double mid=(rangeMax+rangeMin)/2;
+			double steps = Math.floor(Math.abs(mid-alpha));
+			for(k=0;k<steps;++k) {
+				double j = (alpha-mid)*(k/steps)+mid;
+				gl2.glVertex3d(0,
+						Math.cos(Math.toRadians(j)), 
+						Math.sin(Math.toRadians(j))
+						);
 			}
-
-		applyMatrix(gl2);
+			gl2.glEnd();/*
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glVertex3d(
+					0,
+					Math.cos(Math.toRadians(this.alpha)),
+					Math.sin(Math.toRadians(this.alpha)));
+			gl2.glEnd();*/
+			gl2.glPopMatrix();
+		}
+		if((flags & READ_ONLY_R)==0) {
+			// display the prismatic nature of r
+			gl2.glPushMatrix();
+			gl2.glTranslated(0, 0, d);
+			gl2.glRotated(this.theta, 0, 0, 1);
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glVertex3d(this.rangeMin,  1, 0);
+			gl2.glVertex3d(this.rangeMin, -1, 0);
+			gl2.glVertex3d(this.rangeMin,  0, 0);
+			gl2.glVertex3d(this.rangeMax,  0, 0);
+			gl2.glVertex3d(this.rangeMax,  1, 0);
+			gl2.glVertex3d(this.rangeMax, -1, 0);
+			gl2.glVertex3d(            r,  1, 0);
+			gl2.glVertex3d(            r, -1, 0);
+			gl2.glEnd();
+			gl2.glPopMatrix();
+		}
 	}
 	
 	public void applyMatrix(GL2 gl2) {

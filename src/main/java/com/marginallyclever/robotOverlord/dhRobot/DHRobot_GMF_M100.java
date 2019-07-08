@@ -23,7 +23,7 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		super();
 		setDisplayName("FANUC GMF M-100");
 		//only here until there are models to render.
-		drawSkeleton=true;
+		drawAsSelected=true;
 	}
 	
 	@Override

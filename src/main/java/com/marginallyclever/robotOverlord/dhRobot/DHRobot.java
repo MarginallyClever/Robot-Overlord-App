@@ -80,7 +80,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	/**
 	 * {@value drawSkeleton} true if the skeleton should be visualized on screen.  Default is false.
 	 */
-	protected boolean drawSkeleton;
+	protected boolean drawAsSelected;
 	
 	public static final int POSE_HISTORY_LENGTH = 500; 
 	
@@ -100,16 +100,25 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public final static int MAX_KEYS = 20;
 	public double [] keyState = new double[MAX_KEYS];
 	
+	public boolean showBones;
+	public boolean showPhysics;
+	public boolean showAngles;
+	
 
 	public DHRobot() {
 		super();
+		
+		showBones=false;
+		showPhysics=false;
+		showAngles=true;
+		
 		links = new LinkedList<DHLink>();
 		endMatrix = new Matrix4d();
 		targetPose = new Matrix4d();
 		oldPose = new Matrix4d();
 		homePose = new Matrix4d();
 		
-		drawSkeleton=false;
+		drawAsSelected=false;
 		setupLinks();
 		calculateJacobians();
 		
@@ -130,7 +139,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 	
 	/**
-	 * @see https://arxiv.org/ftp/arxiv/papers/1707/1707.04821.pdf
+	 * This is not how jacobians are calculated.
+	 * Jacobian is a matrix of equations, not a single solution.
+	 * See also https://arxiv.org/ftp/arxiv/papers/1707/1707.04821.pdf
 	 */
 	public void calculateJacobians() {
 		// pose was refreshed at the end of setupLinks()
@@ -187,7 +198,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	
 	@Override
 	public void render(GL2 gl2) {
-		if(!drawSkeleton) return;
+		if(!drawAsSelected) return;
 
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -202,10 +213,13 @@ public abstract class DHRobot extends Robot implements InputListener {
 				Iterator<DHLink> i = links.iterator();
 				while(i.hasNext()) {
 					DHLink link = i.next();
-					link.renderPose(gl2);
+					if(showBones) link.renderBones(gl2);
+					if(showAngles) link.renderAngles(gl2);
+					link.applyMatrix(gl2);
 				}
 				if(dhTool!=null) {
-					dhTool.dhLinkEquivalent.renderPose(gl2);
+					if(showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
+					if(showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);
 				}
 			gl2.glPopMatrix();
 			

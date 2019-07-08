@@ -134,13 +134,13 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		this.refreshPose();
 		targetPose.set(endMatrix);
 		//disabled until there are models to render.
-		drawSkeleton=true;
+		drawAsSelected=true;
 	}
 	
 	@Override
 	public void unPick() {
 		//disabled until there are models to render.
-		drawSkeleton=false;
+		drawAsSelected=false;
 	}
 
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
