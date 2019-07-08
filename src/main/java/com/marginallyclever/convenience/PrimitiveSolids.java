@@ -1,4 +1,5 @@
 package com.marginallyclever.convenience;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.Cylinder;
@@ -169,6 +170,59 @@ public class PrimitiveSolids {
 
 		gl2.glEnd();
 		
+		gl2.glPopMatrix();
+	}
+
+	static public void drawBox(GL2 gl2,Point3d bottom,Point3d top) {
+		double x0=bottom.x;
+		double y0=bottom.y;
+		double z0=bottom.z;
+		double x1=top.x;
+		double y1=top.y;
+		double z1=top.z;
+
+		gl2.glPushMatrix();
+			gl2.glBegin(GL2.GL_QUADS);
+				// bottom
+				gl2.glNormal3f( 0, 0,-1);
+				gl2.glVertex3d(x0,y1,z0);
+				gl2.glVertex3d(x1,y1,z0);
+				gl2.glVertex3d(x1,y0,z0);
+				gl2.glVertex3d(x0,y0,z0);
+		
+				// top
+				gl2.glNormal3f( 0, 0, 1);
+				gl2.glVertex3d(x1,y1,z1);
+				gl2.glVertex3d(x0,y1,z1);
+				gl2.glVertex3d(x0,y0,z1);
+				gl2.glVertex3d(x1,y0,z1);
+		
+				
+				// side
+				gl2.glNormal3f( 0, 1, 0);
+				gl2.glVertex3d(x0,y1,z1);
+				gl2.glVertex3d(x1,y1,z1);
+				gl2.glVertex3d(x1,y1,z0);
+				gl2.glVertex3d(x0,y1,z0);
+				
+				gl2.glNormal3f( 0,-1, 0);
+				gl2.glVertex3d(x1,y0,z1);
+				gl2.glVertex3d(x0,y0,z1);
+				gl2.glVertex3d(x0,y0,z0);
+				gl2.glVertex3d(x1,y0,z0);
+		
+				gl2.glNormal3f( 1, 0, 0);
+				gl2.glVertex3d(x1,y1,z0);
+				gl2.glVertex3d(x1,y1,z1);
+				gl2.glVertex3d(x1,y0,z1);
+				gl2.glVertex3d(x1,y0,z0);
+			
+				gl2.glNormal3f(-1, 0, 0);
+				gl2.glVertex3d(x0,y0,z1);
+				gl2.glVertex3d(x0,y1,z1);
+				gl2.glVertex3d(x0,y1,z0);
+				gl2.glVertex3d(x0,y0,z0);
+			gl2.glEnd();
 		gl2.glPopMatrix();
 	}
 	
