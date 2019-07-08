@@ -13,6 +13,7 @@ import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.InputListener;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -100,17 +101,16 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public final static int MAX_KEYS = 20;
 	public double [] keyState = new double[MAX_KEYS];
 	
-	public boolean showBones;
-	public boolean showPhysics;
-	public boolean showAngles;
-	
+	protected boolean showBones;
+	protected boolean showPhysics;
+	protected boolean showAngles;
 
 	public DHRobot() {
 		super();
 		
-		showBones=false;
-		showPhysics=false;
-		showAngles=true;
+		setShowBones(false);
+		setShowPhysics(false);
+		setShowAngles(true);
 		
 		links = new LinkedList<DHLink>();
 		endMatrix = new Matrix4d();
@@ -125,7 +125,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 		solver = this.getSolverIK();
 		
 		poseNow = (DHKeyframe)createKeyframe();
-		
 		solutionKeyframe = (DHKeyframe)createKeyframe();
 		
 		refreshPose();
@@ -215,6 +214,10 @@ public abstract class DHRobot extends Robot implements InputListener {
 					DHLink link = i.next();
 					if(showBones) link.renderBones(gl2);
 					if(showAngles) link.renderAngles(gl2);
+					if(showPhysics && link.model !=null) {
+						gl2.glColor4d(1,0,0.8,0.15);
+						PrimitiveSolids.drawBox(gl2,link.model.getBoundBottom(),link.model.getBoundTop());
+					}
 					link.applyMatrix(gl2);
 				}
 				if(dhTool!=null) {
@@ -723,5 +726,45 @@ public abstract class DHRobot extends Robot implements InputListener {
 	@Override
 	public void unPick() {
 		drawAsSelected=false;
+	}
+	
+
+	public boolean isShowBones() {
+		return showBones;
+	}
+
+	public void setShowBones(boolean showBones) {
+		this.showBones = showBones;
+		if(panel!=null) panel.setShowBones(showBones);
+	}
+
+	public void setShowBonesPassive(boolean showBones) {
+		this.showBones = showBones;
+	}
+
+	public boolean isShowPhysics() {
+		return showPhysics;
+	}
+
+	public void setShowPhysics(boolean showPhysics) {
+		this.showPhysics = showPhysics;
+		if(panel!=null) panel.setShowPhysics(showPhysics);
+	}
+
+	public void setShowPhysicsPassive(boolean showPhysics) {
+		this.showPhysics = showPhysics;
+	}
+
+	public boolean isShowAngles() {
+		return showAngles;
+	}
+
+	public void setShowAngles(boolean showAngles) {
+		this.showAngles = showAngles;
+		if(panel!=null) panel.setShowAngles(showAngles);
+	}
+
+	public void setShowAnglesPassive(boolean showAngles) {
+		this.showAngles = showAngles;
 	}
 }

@@ -291,13 +291,25 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		// for checkboxes
 		Object source = e.getItemSelectable();
 		if(source == showAngleMinMax) {
-			robot.showAngles=!robot.showAngles;
+			robot.setShowAnglesPassive(!robot.isShowAngles());
 		}
 		if(source == showPhysics) {
-			robot.showPhysics=!robot.showPhysics;
+			robot.setShowPhysicsPassive(!robot.isShowPhysics());
 		}
 		if(source == showBones) {
-			robot.showBones=!robot.showBones;
+			robot.setShowBonesPassive(!robot.isShowBones());
 		}
+	}
+
+	public void setShowBones(boolean arg0) {
+		showBones.setSelected(arg0);
+	}
+
+	public void setShowPhysics(boolean arg0) {
+		showPhysics.setSelected(arg0);
+	}
+
+	public void setShowAngles(boolean arg0) {
+		showAngleMinMax.setSelected(arg0);
 	}
 }
