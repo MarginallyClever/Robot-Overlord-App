@@ -89,7 +89,7 @@ public class DHTool_Gripper extends DHTool {
 		}
 
 		//render gripper model
-		if(this.model==null) return;
+		if(model==null) return;
 		if(linkage==null) return;
 		if(finger==null) return;
 

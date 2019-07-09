@@ -134,6 +134,9 @@ public class Model implements Serializable {
 		Matrix4d pose = new Matrix4d(rot);
 		pose.setScale(loadScale);
 		pose.setTranslation(adjustOrigin);
+
+		boundBottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
+		boundTop.set(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 		
 		vertices = FloatBuffer.allocate(vertexArray.size());
 		fi = vertexArray.iterator();
@@ -335,7 +338,7 @@ public class Model implements Serializable {
 		if(vertexArray == null) return;
 
 		boundBottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-		boundTop.set(Double.MIN_VALUE,Double.MIN_VALUE,Double.MIN_VALUE);
+		boundTop.set(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 
 		// generate the pose matrix
 		Matrix4d rot = new Matrix4d();

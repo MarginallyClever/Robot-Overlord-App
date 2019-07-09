@@ -86,19 +86,19 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		this.add(showBones=new JCheckBox(),con1);
 		showBones.setText("Show D-H bones");
 		showBones.addItemListener(this);
-		showBones.setSelected(robot.showBones);
+		showBones.setSelected(robot.isShowBones());
 		con1.gridy++;
 		
 		this.add(showAngleMinMax=new JCheckBox(),con1);
 		showAngleMinMax.setText("Show angle min/max");
 		showAngleMinMax.addItemListener(this);
-		showAngleMinMax.setSelected(robot.showAngles);
+		showAngleMinMax.setSelected(robot.isShowAngles());
 		con1.gridy++;
 		
 		this.add(showPhysics=new JCheckBox(),con1);
 		showPhysics.setText("Show physics model");
 		showPhysics.addItemListener(this);
-		showPhysics.setSelected(robot.showPhysics);
+		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
 		
 		this.add(new JSeparator(JSeparator.VERTICAL), con1);
