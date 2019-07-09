@@ -104,6 +104,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	protected boolean showBones;
 	protected boolean showPhysics;
 	protected boolean showAngles;
+	protected int hitBox1,hitBox2;
 
 	public DHRobot() {
 		super();
@@ -119,6 +120,8 @@ public abstract class DHRobot extends Robot implements InputListener {
 		homePose = new Matrix4d();
 		
 		drawAsSelected=false;
+		hitBox1=-1;
+		hitBox2=-1;
 		setupLinks();
 		calculateJacobians();
 		
@@ -210,19 +213,33 @@ public abstract class DHRobot extends Robot implements InputListener {
 			
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
+				int j=0;
 				while(i.hasNext()) {
 					DHLink link = i.next();
 					if(showBones) link.renderBones(gl2);
 					if(showAngles) link.renderAngles(gl2);
-					if(showPhysics && link.model !=null) {
-						gl2.glColor4d(1,0,0.8,0.15);
-						PrimitiveSolids.drawBox(gl2,link.model.getBoundBottom(),link.model.getBoundTop());
+					if(showPhysics && link.model != null) {
+						if(j==hitBox1 || j==hitBox2) {
+							gl2.glColor4d(1,0,0.8,0.15);
+						} else {
+							gl2.glColor4d(1,0.8,0,0.15);
+						}
+						PrimitiveSolids.drawBox(gl2,
+								link.model.getBoundBottom(),
+								link.model.getBoundTop());
 					}
 					link.applyMatrix(gl2);
+					++j;
 				}
 				if(dhTool!=null) {
 					if(showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
-					if(showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);
+					if(showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);/*
+					if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
+						gl2.glColor4d(1,0,0.8,0.15);
+						PrimitiveSolids.drawBox(gl2,
+								dhTool.dhLinkEquivalent.model.getBoundBottom(),
+								dhTool.dhLinkEquivalent.model.getBoundTop());
+					}*/
 				}
 			gl2.glPopMatrix();
 			
@@ -251,9 +268,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 			DHLink link = i.next();
 			// update matrix
 			link.refreshPoseMatrix();
+			link.poseCumulative.set(endMatrix);
 			// find cumulative matrix
 			endMatrix.mul(link.pose);
-			link.poseCumulative.set(endMatrix);
 		}
 		if(dhTool!=null) {
 			dhTool.refreshPose(endMatrix);
@@ -548,7 +565,7 @@ public abstract class DHRobot extends Robot implements InputListener {
         	solver.solve(this,targetPose,solutionKeyframe);
         	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
         		// Solved!  Are angles OK for this robot?
-        		if(keyframeAnglesAreOK(solutionKeyframe)) {
+        		if(sanityCheck(solutionKeyframe)) {
 	        		// Yes!  Are we connected to a live robot?        			
 	        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
 	        			// Send our internal data to the robot.  Each robot probably has its own post-processor.
@@ -560,7 +577,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	            		this.setRobotPose(solutionKeyframe);
 	        		}
         		} else {
-        			// Bad angles, robot out of permitted range.
+        			// failed sanity check
             		targetPose.set(oldPose);
             	}
         	} else {
@@ -615,6 +632,150 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 	
 
+	public boolean sanityCheck(DHKeyframe keyframe) {
+		if(!keyframeAnglesAreOK(keyframe)) return false;
+		if(!selfCollision(keyframe)) return false;
+		return true;
+	}
+
+	/**
+	 * Test physical bounds of link N against all links <N-1 and all links >N+1
+	 * We're using separating Axis Theorem.  See https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
+	 * @param keyframe the angles at time of test
+	 * @return true if there are no collisions
+	 */
+	public boolean selfCollision(DHKeyframe keyframe) {
+		boolean noCollision=true;
+		// save the live pose
+		DHKeyframe saveKeyframe = this.getRobotPose();
+		// set the test pose
+		this.setRobotPose(keyframe);
+
+		hitBox1=-1;
+		hitBox2=-1;
+		
+		int size=links.size();
+		for(int i=0;i<size;++i) {
+			if(links.get(i).model==null) continue;
+			
+			for(int j=i+3;j<size;++j) {
+				if(links.get(j).model==null) continue;
+				
+				if(hasIntersection(links.get(i),links.get(j))) {
+					//System.out.println("Intersect "+i+"/"+j+" (1)!");
+					hitBox1=i;
+					hitBox2=j;
+					noCollision=false;
+					break;
+				}/*
+				if(hasIntersection(links.get(j),links.get(i))) {
+					System.out.println("Intersect "+i+"/"+j+" (2)!");
+					hitBox1=i;
+					hitBox2=j;
+					noCollision=false;
+					break;
+				}*/
+			}
+			if(noCollision==false) {
+				break;
+			}
+		}
+
+		// set the live pose
+		this.setRobotPose(saveKeyframe);
+		
+		return noCollision;
+	}
+	
+	
+	protected boolean hasIntersection(DHLink a,DHLink b) {
+		// get the normals for the box of A, which happen to be the three vectors of the matrix for this joint pose.
+		Vector3d [] n = new Vector3d[3];
+		n[0] = new Vector3d(a.poseCumulative.m00,a.poseCumulative.m10,a.poseCumulative.m20);
+		n[1] = new Vector3d(a.poseCumulative.m01,a.poseCumulative.m11,a.poseCumulative.m21);
+		n[2] = new Vector3d(a.poseCumulative.m02,a.poseCumulative.m12,a.poseCumulative.m22);
+		//System.out.println("matrix="+a.poseCumulative);
+		
+		//System.out.println("Acorners=");
+		Point3d [] aCorners = getCornersForLink(a);
+		//System.out.println("Bcorners=");
+		Point3d [] bCorners = getCornersForLink(b);
+
+		//String [] axis = {"X","Y","Z"};
+		
+		for(int i=0;i<n.length;++i) {
+			// SATTest the normals of A against the 8 points of box A.
+			// SATTest the normals of A against the 8 points of box B.
+			// points of each box are a combination of the box's top/bottom values.
+			double [] aLim = SATTest(n[i],aCorners);
+			double [] bLim = SATTest(n[i],bCorners);
+			//System.out.println("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" : "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
+
+			// if the two box projections do not overlap then there is no chance of a collision.
+			if(!overlaps(aLim[0],aLim[1],bLim[0],bLim[1])) {
+				//System.out.println("Miss");
+				return false;
+			}
+		}
+		
+		// intersect!
+		//System.out.println("Hit");
+		return true;
+	}
+	
+	/**
+	 * find the 8 corners of the bounding box and transform them into world space.
+	 * @param link the link that contains both the model bounds and the poseCumulative.
+	 * @return the 8 transformed Point3d.
+	 */
+	protected Point3d [] getCornersForLink(DHLink link) {
+		Point3d [] p = new Point3d[8];
+
+		Point3d b=link.model.getBoundBottom();
+		Point3d t=link.model.getBoundTop();
+		
+		p[0]=new Point3d(b.x,b.y,b.z);
+		p[1]=new Point3d(b.x,b.y,t.z);
+		p[2]=new Point3d(b.x,t.y,b.z);
+		p[3]=new Point3d(b.x,t.y,t.z);
+		p[4]=new Point3d(t.x,b.y,b.z);
+		p[5]=new Point3d(t.x,b.y,t.z);
+		p[6]=new Point3d(t.x,t.y,b.z);
+		p[7]=new Point3d(t.x,t.y,t.z);
+
+		for(int i=0;i<p.length;++i) {
+			//System.out.print("\t"+p[i]);
+			link.poseCumulative.transform(p[i]);
+			//System.out.println(" >> "+p[i]);
+		}
+		
+		return p;
+	}
+	
+	protected boolean isBetween(double val,double bottom,double top) {
+		return bottom <= val && val <= top;
+	}
+
+	protected boolean overlaps(double a0,double a1,double b0,double b1) {
+		return isBetween(b0,a0,a1) || isBetween(a0,b0,b1); 		
+	}
+	
+	protected double [] SATTest(Vector3d normal,Point3d [] corners) {
+		double [] values = new double[2];
+		values[0]= Double.MAX_VALUE;  // min value
+		values[1]=-Double.MAX_VALUE;  // max value
+		
+		for(int i=0;i<corners.length;++i) {
+			double dotProduct = corners[i].x * normal.x
+							  + corners[i].y * normal.y
+							  + corners[i].z * normal.z;
+			if(values[0]>dotProduct) values[0]=dotProduct;
+			if(values[1]<dotProduct) values[1]=dotProduct;
+		}
+		
+		return values;
+	}
+	
 	/**
 	 * Perform a sanity check.  Make sure the angles in the keyframe are within the joint range limits. 
 	 * @param keyframe
