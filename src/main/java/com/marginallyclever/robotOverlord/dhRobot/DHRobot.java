@@ -789,28 +789,28 @@ public abstract class DHRobot extends Robot implements InputListener {
 			if((link.flags & DHLink.READ_ONLY_THETA)==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					//System.out.println("FK theta "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					System.out.println("FK theta "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
 			if((link.flags & DHLink.READ_ONLY_D    )==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					//System.out.println("FK D "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					System.out.println("FK D "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
 			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					//System.out.println("FK alpha "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					System.out.println("FK alpha "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}
 			if((link.flags & DHLink.READ_ONLY_R    )==0) {
 				double v = keyframe.fkValues[j++];
 				if(link.rangeMax<v || link.rangeMin>v) {
-					//System.out.println("FK R "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+					System.out.println("FK R "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
 					return false;
 				}
 			}

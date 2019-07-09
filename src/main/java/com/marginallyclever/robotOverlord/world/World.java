@@ -20,7 +20,6 @@ import com.marginallyclever.robotOverlord.BoundingVolume;
 import com.marginallyclever.robotOverlord.Cylinder;
 import com.marginallyclever.robotOverlord.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.arm5.EvilMinionRobot;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.light.Light;
@@ -351,23 +350,6 @@ implements Serializable {
 		gl2.glPopMatrix();
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
         //gl2.glEnable(GL2.GL_CULL_FACE);
-	}
-
-	
-	boolean willCollide(EvilMinionRobot a,EvilMinionRobot b) {
-		//Get the cylinders for each robot
-		BoundingVolume [] from = a.getBoundingVolumes();
-		BoundingVolume [] to = b.getBoundingVolumes();
-		// test cylinder/cylinder intersection
-		for(int i=0;i<from.length;++i) {
-			for(int j=0;j<to.length;++j) {
-				if(IntersectionTester.CylinderCylinder((Cylinder)from[i],(Cylinder)to[i])) {
-					return true;
-				}
-			}
-		}
-		// if there is any hit, return true.
-		return false;
 	}
 
 

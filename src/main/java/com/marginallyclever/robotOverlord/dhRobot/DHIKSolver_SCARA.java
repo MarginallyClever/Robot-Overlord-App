@@ -74,7 +74,7 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 		Point3d p2 = new Point3d(Math.cos(phi),Math.sin(phi),p3.z);
 		
 		// the height
-		keyframe.fkValues[2]=p3.z-p4.z;
+		keyframe.fkValues[2]=-(p3.z-p4.z);
 		
 		// the rotation at the end effector
 		Vector4d relativeX = new Vector4d(p3.x-p2.x,p3.y-p2.y,0,0);
@@ -92,7 +92,7 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 		
 		this.solutionFlag = DHIKSolver.ONE_SOLUTION;
 		
-		if(true) {
+		if(false) {
 			System.out.println("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
 								keyframe.fkValues[1]+","+
 								keyframe.fkValues[2]+","+

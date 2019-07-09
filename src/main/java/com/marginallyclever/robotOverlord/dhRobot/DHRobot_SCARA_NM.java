@@ -48,12 +48,12 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		links.get(1).rangeMin=-120;
 		links.get(1).rangeMax=120;
 		// slide
-		links.get(2).d=-18.5+7.574;
+		links.get(2).d=-12;
 		links.get(2).theta=0;
 		links.get(2).alpha=0;
 		links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(2).rangeMin=-18.5;
-		links.get(2).rangeMax=-18.5+7.574;
+		links.get(2).rangeMin=-10.92600+7.574;
+		links.get(2).rangeMax=-10.92600;//-18.5+7.574;
 		// roll
 		links.get(3).d=0;
 		links.get(3).theta=0;
@@ -95,6 +95,8 @@ public class DHRobot_SCARA_NM extends DHRobot {
 	
 	@Override
 	public void render(GL2 gl2) {
+		links.get(2).rangeMax=-10.92600+7.574;
+		links.get(2).rangeMin=-10.92600-0.5;//-18.5+7.574;
 		if( isFirstTime ) {
 			isFirstTime=false;
 			setupModels();
