@@ -86,5 +86,6 @@ public class DHRobot_GMF_M100 extends DHRobot {
 	}
 	
 
+	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

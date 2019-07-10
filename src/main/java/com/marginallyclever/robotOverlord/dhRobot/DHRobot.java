@@ -406,24 +406,28 @@ public abstract class DHRobot extends Robot implements InputListener {
 			isDirty=true;
 		}
 		if(keyState[4]==1) {  // R1
-    		isDirty=true;
-    		double v = 1;
-    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-    			v/=dhTool.dhLinkEquivalent.r;
-    		}
-    		Matrix4d temp = new Matrix4d();
-    		temp.rotZ(v*scaleTurn);
-    		targetPose.mul(temp);
+			if(canEERotateZ()) {
+	    		isDirty=true;
+	    		double v = 1;
+	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
+	    			v/=dhTool.dhLinkEquivalent.r;
+	    		}
+	    		Matrix4d temp = new Matrix4d();
+	    		temp.rotZ(v*scaleTurn);
+	    		targetPose.mul(temp);
+			}
     	}
 		if(keyState[5]==1) {  // L1
-    		isDirty=true;
-    		double v = 1;
-    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-    			v/=dhTool.dhLinkEquivalent.r;
-    		}
-    		Matrix4d temp = new Matrix4d();
-    		temp.rotZ(-v*scaleTurn);
-    		targetPose.mul(temp);
+			if(canEERotateZ()) {
+	    		isDirty=true;
+	    		double v = 1;
+	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
+	    			v/=dhTool.dhLinkEquivalent.r;
+	    		}
+	    		Matrix4d temp = new Matrix4d();
+	    		temp.rotZ(-v*scaleTurn);
+	    		targetPose.mul(temp);
+			}
 		}
 		
 		int dD=(int)keyState[8];
@@ -441,16 +445,20 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		if(keyState[10]!=0) {  // right stick, right/left
 			// right analog stick, + is right -1 is left
-    		isDirty=true;
-    		Matrix4d temp = new Matrix4d();
-    		temp.rotY(keyState[10]*scaleTurn);
-    		targetPose.mul(temp);
+			if(canEERotateY()) {
+	    		isDirty=true;
+	    		Matrix4d temp = new Matrix4d();
+	    		temp.rotY(keyState[10]*scaleTurn);
+	    		targetPose.mul(temp);
+			}
 		}
 		if(keyState[11]!=0) {  // right stick, down/up
-    		isDirty=true;
-    		Matrix4d temp = new Matrix4d();
-    		temp.rotX(keyState[11]*scaleTurn);
-    		targetPose.mul(temp);
+			if(canEERotateX()) {
+	    		isDirty=true;
+	    		Matrix4d temp = new Matrix4d();
+	    		temp.rotX(keyState[11]*scaleTurn);
+	    		targetPose.mul(temp);
+			}
     	}
 		if(keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
     		isDirty=true;
@@ -927,5 +935,15 @@ public abstract class DHRobot extends Robot implements InputListener {
 
 	public void setShowAnglesPassive(boolean showAngles) {
 		this.showAngles = showAngles;
+	}
+	
+	protected boolean canEERotateX() {
+		return true;
+	}
+	protected boolean canEERotateY() {
+		return true;
+	}
+	protected boolean canEERotateZ() {
+		return true;
 	}
 }

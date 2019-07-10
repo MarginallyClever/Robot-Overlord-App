@@ -127,10 +127,12 @@ public class DHRobot_Mantis extends DHRobot {
 		
 		super.render(gl2);
 	}
-	
+
+	@Override
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTTRTR();
 	}
 
+	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

@@ -159,10 +159,21 @@ public class DHRobot_UArm extends DHRobot {
 		
 		super.render(gl2);
 	}
-	
+
+	@Override
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTT();
 	}
 
+	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
+
+	@Override
+	public boolean canEERotateX() {
+		return false;
+	}
+	@Override
+	public boolean canEERotateY() {
+		return false;
+	}
 }

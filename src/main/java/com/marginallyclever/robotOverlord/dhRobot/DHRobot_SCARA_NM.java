@@ -132,5 +132,15 @@ public class DHRobot_SCARA_NM extends DHRobot {
 	}
 	
 
+	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
+	
+	@Override
+	public boolean canEERotateX() {
+		return false;
+	}
+	@Override
+	public boolean canEERotateY() {
+		return false;
+	}
 }
