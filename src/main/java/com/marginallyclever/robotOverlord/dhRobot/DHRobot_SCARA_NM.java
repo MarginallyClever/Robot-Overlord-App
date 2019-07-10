@@ -48,7 +48,7 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		links.get(1).rangeMin=-120;
 		links.get(1).rangeMax=120;
 		// slide
-		links.get(2).d=-12;
+		links.get(2).d=-8;
 		links.get(2).theta=0;
 		links.get(2).alpha=0;
 		links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
