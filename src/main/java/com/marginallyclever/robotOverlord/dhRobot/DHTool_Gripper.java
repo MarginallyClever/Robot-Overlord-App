@@ -8,6 +8,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.light.Light;
@@ -147,11 +148,11 @@ public class DHTool_Gripper extends DHTool {
 	 * @return true if targetPose changes.
 	 */
 	@Override
-	public boolean directDrive(double [] keyState) {
+	public boolean directDrive() {
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
 		
-		if(keyState[2]==1 && !wasGripping) { // circle
+		if(InputManager.keyState[2]==1 && !wasGripping) { // circle
 			wasGripping=true;
 			//System.out.println("Circle");
 			// grab release
@@ -177,15 +178,15 @@ public class DHTool_Gripper extends DHTool {
 				subjectBeingHeld=null;
 			}
 		}
-		if(keyState[2]==0) wasGripping=false;
+		if(InputManager.keyState[2]==0) wasGripping=false;
 		
-        if(keyState[6]==1) {
+        if(InputManager.keyState[6]==1) {
 			if(gripperServoAngle<70) {
 				gripperServoAngle+=scaleGrip;
 				isDirty=true;
 			}
         }
-        if(keyState[7]==1) {
+        if(InputManager.keyState[7]==1) {
 			if(gripperServoAngle>0) {
 				gripperServoAngle-=scaleGrip;
 				isDirty=true;

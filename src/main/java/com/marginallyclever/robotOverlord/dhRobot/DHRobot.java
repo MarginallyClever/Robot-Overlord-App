@@ -16,6 +16,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.InputListener;
+import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
@@ -97,10 +98,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	protected DHKeyframe solutionKeyframe;
 	
 	protected DHRobotRecording record;
-
-	// A record of the state of the human input device
-	public final static int MAX_KEYS = 20;
-	public double [] keyState = new double[MAX_KEYS];
 	
 	protected boolean showBones;  // show D-H representation of each link
 	protected boolean showPhysics;  // show bounding boxes of each link
@@ -400,16 +397,16 @@ public abstract class DHRobot extends Robot implements InputListener {
 		final double scaleDolly=0.4;
 		final double scaleTurn=0.15;
 		
-		if(keyState[0]==1) {}  // square
-		if(keyState[1]==1) {  // X
+		if(InputManager.keyState[0]==1) {}  // square
+		if(InputManager.keyState[1]==1) {  // X
 			//this.toggleATC();
 		}
-		if(keyState[2]==1) {}  // circle
-		if(keyState[3]==1) {// triangle
+		if(InputManager.keyState[2]==1) {}  // circle
+		if(InputManager.keyState[3]==1) {// triangle
 			targetPose.set(homePose);
 			isDirty=true;
 		}
-		if(keyState[4]==1) {  // R1
+		if(InputManager.keyState[4]==1) {  // R1
 			if(canTargetPoseRotateZ()) {
 	    		isDirty=true;
 	    		double vv = 1;
@@ -429,7 +426,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    		}
 			}
     	}
-		if(keyState[5]==1) {  // L1
+		if(InputManager.keyState[5]==1) {  // L1
 			if(canTargetPoseRotateZ()) {
 	    		isDirty=true;
 	    		double vv = 1;
@@ -450,25 +447,25 @@ public abstract class DHRobot extends Robot implements InputListener {
 			}
 		}
 		
-		int dD=(int)keyState[8];
+		int dD=(int)InputManager.keyState[8];
 		if(dD!=0) {
 			dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
 			if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
 			isDirty=true;
 		}		
-		int dR=(int)keyState[9];
+		int dR=(int)InputManager.keyState[9];
 		if(dR!=0) {
 			dhTool.dhLinkEquivalent.r+=dR*scale;
 			if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
 			isDirty=true;
 		}
 		
-		if(keyState[10]!=0) {  // right stick, right/left
+		if(InputManager.keyState[10]!=0) {  // right stick, right/left
 			// right analog stick, + is right -1 is left
 			if(canTargetPoseRotateY()) {
 	    		isDirty=true;
 	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotY(keyState[10]*scaleTurn);
+	    		temp.rotY(InputManager.keyState[10]*scaleTurn);
 	    		if(rotateOnWorldAxies) {
 	    			Vector4d v=new Vector4d();
 	    			targetPose.getColumn(3, v);
@@ -480,11 +477,11 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    		}
 			}
 		}
-		if(keyState[11]!=0) {  // right stick, down/up
+		if(InputManager.keyState[11]!=0) {  // right stick, down/up
 			if(canTargetPoseRotateX()) {
 	    		isDirty=true;
 	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotX(keyState[11]*scaleTurn);
+	    		temp.rotX(InputManager.keyState[11]*scaleTurn);
 	    		if(rotateOnWorldAxies) {
 	    			Vector4d v=new Vector4d();
 	    			targetPose.getColumn(3, v);
@@ -510,88 +507,31 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    		}
 			}
     	}
-		if(keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
+		if(InputManager.keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetPose.m23+=((keyState[12]+1)/2)*scale;
+    		targetPose.m23+=((InputManager.keyState[12]+1)/2)*scale;
 		}
-		if(keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
+		if(InputManager.keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetPose.m23-=((keyState[13]+1)/2)*scale;
+    		targetPose.m23-=((InputManager.keyState[13]+1)/2)*scale;
 		}
-		if(keyState[14]!=0) {  // left stick, right/left
+		if(InputManager.keyState[14]!=0) {  // left stick, right/left
     		isDirty=true;
-    		targetPose.m13+=keyState[14]*scale;
+    		targetPose.m13+=InputManager.keyState[14]*scale;
 		}
-		if(keyState[15]!=0) {  // left stick, down/up
+		if(InputManager.keyState[15]!=0) {  // left stick, down/up
     		isDirty=true;
-    		targetPose.m03+=keyState[15]*scale;
+    		targetPose.m03+=InputManager.keyState[15]*scale;
 		}
 
         if(dhTool!=null) {
-        	isDirty |= dhTool.directDrive(keyState);
+        	isDirty |= dhTool.directDrive();
         }
         
         return isDirty;
 	}
 	
 	
-	protected void processHumanInput() {
-		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		
-		for(int i=0;i<keyState.length;++i) {
-			keyState[i]=0;
-		}
-		
-        for(int i=0;i<ca.length;i++){
-        	//System.out.println(ca[i].getType());
-        	if(ca[i].getType()!=Controller.Type.STICK) continue;
-
-        	Component[] components = ca[i].getComponents();
-            for(int j=0;j<components.length;j++){
-            	/*
-            	System.out.println("\t"+components[j].getName()+
-            			":"+components[j].getIdentifier().getName()+
-            			":"+(components[j].isAnalog()?"Abs":"Rel")+
-            			":"+(components[j].isAnalog()?"Analog":"Digital")+
-            			":"+(components[j].getDeadZone())+
-               			":"+(components[j].getPollData()));*/
-            	if(!components[j].isAnalog()) {
-        			if(components[j].getPollData()==1) {
-        				if(components[j].getIdentifier()==Identifier.Button._0) keyState[0] = 1;  // square
-        				if(components[j].getIdentifier()==Identifier.Button._1) keyState[1] = 1;  // x
-        				if(components[j].getIdentifier()==Identifier.Button._2) keyState[2] = 1;  // circle
-        				if(components[j].getIdentifier()==Identifier.Button._3) keyState[3] = 1;  // triangle
-        				if(components[j].getIdentifier()==Identifier.Button._4) keyState[4] = 1;  // L1?
-        				if(components[j].getIdentifier()==Identifier.Button._5) keyState[5] = 1;  // R1?
-        				if(components[j].getIdentifier()==Identifier.Button._8) keyState[6] = 1;  // share button
-        				if(components[j].getIdentifier()==Identifier.Button._9) keyState[7] = 1;  // option button
-            		}
-    				if(components[j].getIdentifier()==Identifier.Axis.POV) {
-    					// D-pad buttons
-    					float pollData = components[j].getPollData();
-							 if(pollData == Component.POV.DOWN ) keyState[8] = -1;
-						else if(pollData == Component.POV.UP   ) keyState[8] =  1;
-    					else if(pollData == Component.POV.LEFT ) keyState[9] = -1;
-    					else if(pollData == Component.POV.RIGHT) keyState[9] =  1;
-    				}
-            	} else {
-            		double v = components[j].getPollData();
-            		final double DEADZONE=0.1;
-            		double deadzone = DEADZONE;  // components[j].getDeadZone() is very small?
-            			 if(v> deadzone) v=(v-deadzone)/(1.0-deadzone);  // scale 0....1
-            		else if(v<-deadzone) v=(v+deadzone)/(1.0-deadzone);  // scale 0...-1
-            		else continue;  // inside dead zone, ignore.
-            		
-	            	if(components[j].getIdentifier()==Identifier.Axis.Z ) keyState[10]=v;  // right analog stick, + is right -1 is left
-	            	if(components[j].getIdentifier()==Identifier.Axis.RZ) keyState[11]=v;  // right analog stick, + is down -1 is up
-	            	if(components[j].getIdentifier()==Identifier.Axis.RY) keyState[12]=v;  // R2, +1 is pressed -1 is unpressed
-	            	if(components[j].getIdentifier()==Identifier.Axis.RX) keyState[13]=v;  // L2, +1 is pressed -1 is unpressed
-	            	if(components[j].getIdentifier()==Identifier.Axis.X ) keyState[14]=v;  // left analog stick, +1 is right -1 is left
-	            	if(components[j].getIdentifier()==Identifier.Axis.Y ) keyState[15]=v;  // left analog stick, -1 is up +1 is down
-            	}
-        	}
-        }
-	}
 	
 	@Override
 	public void inputUpdate() {		

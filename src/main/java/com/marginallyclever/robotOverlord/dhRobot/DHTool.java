@@ -46,7 +46,7 @@ public class DHTool extends ModelInWorld {
 	 * @param keyState record of human input to drive the tool this frame.
 	 * @return true if the robot's pose has been affected.
 	 */
-	public boolean directDrive(double [] keyState) {
+	public boolean directDrive() {
 		return false;		
 	}
 	
