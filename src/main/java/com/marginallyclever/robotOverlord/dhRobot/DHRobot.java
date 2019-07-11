@@ -8,7 +8,7 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-
+import javax.vecmath.Vector4d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
@@ -105,6 +105,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 	protected boolean showPhysics;
 	protected boolean showAngles;
 	protected int hitBox1,hitBox2;
+	boolean rotateOnWorldAxies=true;
 
 	public DHRobot() {
 		super();
@@ -112,6 +113,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		setShowBones(false);
 		setShowPhysics(false);
 		setShowAngles(true);
+		rotateOnWorldAxies=false;
 		
 		links = new LinkedList<DHLink>();
 		endMatrix = new Matrix4d();
@@ -406,27 +408,41 @@ public abstract class DHRobot extends Robot implements InputListener {
 			isDirty=true;
 		}
 		if(keyState[4]==1) {  // R1
-			if(canEERotateZ()) {
+			if(canTargetPoseRotateZ()) {
 	    		isDirty=true;
-	    		double v = 1;
+	    		double vv = 1;
 	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-	    			v/=dhTool.dhLinkEquivalent.r;
+	    			vv/=dhTool.dhLinkEquivalent.r;
 	    		}
 	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotZ(v*scaleTurn);
-	    		targetPose.mul(temp);
+	    		temp.rotZ(vv*scaleTurn);
+	    		if(rotateOnWorldAxies) {
+	    			Vector4d v=new Vector4d();
+	    			targetPose.getColumn(3, v);
+	    			targetPose.setTranslation(new Vector3d(0,0,0));
+	    			targetPose.mul(temp,targetPose);
+	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		}
+	    		else                   targetPose.mul(temp);
 			}
     	}
 		if(keyState[5]==1) {  // L1
-			if(canEERotateZ()) {
+			if(canTargetPoseRotateZ()) {
 	    		isDirty=true;
-	    		double v = 1;
+	    		double vv = 1;
 	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-	    			v/=dhTool.dhLinkEquivalent.r;
+	    			vv/=dhTool.dhLinkEquivalent.r;
 	    		}
 	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotZ(-v*scaleTurn);
-	    		targetPose.mul(temp);
+	    		temp.rotZ(-vv*scaleTurn);
+	    		if(rotateOnWorldAxies) {
+	    			Vector4d v=new Vector4d();
+	    			targetPose.getColumn(3, v);
+	    			targetPose.setTranslation(new Vector3d(0,0,0));
+	    			targetPose.mul(temp,targetPose);
+	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		}
+	    		else                   targetPose.mul(temp);
 			}
 		}
 		
@@ -445,19 +461,33 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		if(keyState[10]!=0) {  // right stick, right/left
 			// right analog stick, + is right -1 is left
-			if(canEERotateY()) {
+			if(canTargetPoseRotateY()) {
 	    		isDirty=true;
 	    		Matrix4d temp = new Matrix4d();
 	    		temp.rotY(keyState[10]*scaleTurn);
-	    		targetPose.mul(temp);
+	    		if(rotateOnWorldAxies) {
+	    			Vector4d v=new Vector4d();
+	    			targetPose.getColumn(3, v);
+	    			targetPose.setTranslation(new Vector3d(0,0,0));
+	    			targetPose.mul(temp,targetPose);
+	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		}
+	    		else                   targetPose.mul(temp);
 			}
 		}
 		if(keyState[11]!=0) {  // right stick, down/up
-			if(canEERotateX()) {
+			if(canTargetPoseRotateX()) {
 	    		isDirty=true;
 	    		Matrix4d temp = new Matrix4d();
 	    		temp.rotX(keyState[11]*scaleTurn);
-	    		targetPose.mul(temp);
+	    		if(rotateOnWorldAxies) {
+	    			Vector4d v=new Vector4d();
+	    			targetPose.getColumn(3, v);
+	    			targetPose.setTranslation(new Vector3d(0,0,0));
+	    			targetPose.mul(temp,targetPose);
+	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		}
+	    		else                   targetPose.mul(temp);
 			}
     	}
 		if(keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
@@ -937,13 +967,13 @@ public abstract class DHRobot extends Robot implements InputListener {
 		this.showAngles = showAngles;
 	}
 	
-	protected boolean canEERotateX() {
+	protected boolean canTargetPoseRotateX() {
 		return true;
 	}
-	protected boolean canEERotateY() {
+	protected boolean canTargetPoseRotateY() {
 		return true;
 	}
-	protected boolean canEERotateZ() {
+	protected boolean canTargetPoseRotateZ() {
 		return true;
 	}
 }

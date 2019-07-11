@@ -99,11 +99,11 @@ public class DHRobot_Arm3 extends DHRobot {
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 	
 	@Override
-	public boolean canEERotateX() {
+	public boolean canTargetPoseRotateX() {
 		return false;
 	}
 	@Override
-	public boolean canEERotateY() {
+	public boolean canTargetPoseRotateY() {
 		return false;
 	}
 }

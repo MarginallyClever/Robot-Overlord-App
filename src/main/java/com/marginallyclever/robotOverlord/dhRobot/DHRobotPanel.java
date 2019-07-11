@@ -54,6 +54,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public JCheckBox showBones;
 	public JCheckBox showAngleMinMax;
 	public JCheckBox showPhysics;
+	public JCheckBox rotateOnWorldAxies;
 	
 	
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
@@ -100,6 +101,14 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		showPhysics.addItemListener(this);
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
+		
+		this.add(rotateOnWorldAxies=new JCheckBox(),con1);
+		rotateOnWorldAxies.setText("Absolute rotation");
+		rotateOnWorldAxies.addItemListener(this);
+		rotateOnWorldAxies.setSelected(robot.rotateOnWorldAxies);
+		con1.gridy++;
+		
+		
 		
 		this.add(new JSeparator(JSeparator.VERTICAL), con1);
 		con1.gridy++;
@@ -298,6 +307,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		if(source == showBones) {
 			robot.setShowBonesPassive(!robot.isShowBones());
+		}
+		if(source == rotateOnWorldAxies) {
+			robot.rotateOnWorldAxies = !robot.rotateOnWorldAxies;
 		}
 	}
 

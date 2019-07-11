@@ -129,10 +129,8 @@ public class DHRobot_UArm extends DHRobot {
 		}
 		links.get(2).rangeMin=20;
 		links.get(2).rangeMax=165;
-
-
 		
-		// TODO calculate me in the solver
+		// TODO calculate me in the solver?
 		links.get(3).alpha=90-links.get(1).alpha-links.get(2).alpha;
 		this.refreshPose();
 		
@@ -169,11 +167,11 @@ public class DHRobot_UArm extends DHRobot {
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 
 	@Override
-	public boolean canEERotateX() {
+	public boolean canTargetPoseRotateX() {
 		return false;
 	}
 	@Override
-	public boolean canEERotateY() {
+	public boolean canTargetPoseRotateY() {
 		return false;
 	}
 }
