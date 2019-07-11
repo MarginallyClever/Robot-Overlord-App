@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JPanel;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector4d;
@@ -101,11 +102,12 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public final static int MAX_KEYS = 20;
 	public double [] keyState = new double[MAX_KEYS];
 	
-	protected boolean showBones;
-	protected boolean showPhysics;
-	protected boolean showAngles;
-	protected int hitBox1,hitBox2;
-	boolean rotateOnWorldAxies=true;
+	protected boolean showBones;  // show D-H representation of each link
+	protected boolean showPhysics;  // show bounding boxes of each link
+	protected boolean showAngles;  // show current angle and limit of each link
+	boolean rotateOnWorldAxies;  // which style of rotation?
+	
+	protected int hitBox1, hitBox2;
 
 	public DHRobot() {
 		super();
@@ -422,8 +424,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    			targetPose.setTranslation(new Vector3d(0,0,0));
 	    			targetPose.mul(temp,targetPose);
 	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		} else {
+	    			targetPose.mul(temp);
 	    		}
-	    		else                   targetPose.mul(temp);
 			}
     	}
 		if(keyState[5]==1) {  // L1
@@ -441,8 +444,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    			targetPose.setTranslation(new Vector3d(0,0,0));
 	    			targetPose.mul(temp,targetPose);
 	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		} else {
+	    			targetPose.mul(temp);
 	    		}
-	    		else                   targetPose.mul(temp);
 			}
 		}
 		
@@ -471,8 +475,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    			targetPose.setTranslation(new Vector3d(0,0,0));
 	    			targetPose.mul(temp,targetPose);
 	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		} else {
+	    			targetPose.mul(temp);
 	    		}
-	    		else                   targetPose.mul(temp);
 			}
 		}
 		if(keyState[11]!=0) {  // right stick, down/up
@@ -486,8 +491,23 @@ public abstract class DHRobot extends Robot implements InputListener {
 	    			targetPose.setTranslation(new Vector3d(0,0,0));
 	    			targetPose.mul(temp,targetPose);
 	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    		} else {
+	    			targetPose.mul(temp);
+	    			/*
+		    		// experiment to improve rotation
+					Matrix4d temp2 = new Matrix4d(links.get(links.size()-2).poseCumulative);
+		    		temp2.setTranslation(new Vector3d(0,0,0));
+		    		Matrix4d iMat = new Matrix4d(temp2);
+		    		iMat.invert();
+	    			temp2.mul(temp,temp2);
+	    			Vector4d v=new Vector4d();
+	    			targetPose.getColumn(3, v);
+	    			targetPose.setTranslation(new Vector3d(0,0,0));
+	    			targetPose.mul(iMat,targetPose);
+	    			targetPose.mul(temp2,targetPose);
+	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			*/
 	    		}
-	    		else                   targetPose.mul(temp);
 			}
     	}
 		if(keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
@@ -634,6 +654,37 @@ public abstract class DHRobot extends Robot implements InputListener {
 	
 	
 	public void drawTargetPose(GL2 gl2) {
+/*
+		// experiment to improve rotation.  
+		Matrix4d temp = new Matrix4d();
+		final double scaleTurn=0.15;
+		temp.rotX(1*scaleTurn);
+		
+    		Matrix4d temp2 = new Matrix4d(links.get(links.size()-2).poseCumulative);
+    		//MatrixHelper.drawMatrix(gl2, temp2,15);
+    		Vector4d v2=new Vector4d();
+			temp2.getColumn(3, v2);
+    		temp2.setTranslation(new Vector3d(0,0,0));
+    		Matrix4d iMat = new Matrix4d(temp2);
+    		iMat.invert();
+			temp2.mul(temp,temp2);
+			temp2.setTranslation(new Vector3d(v2.x,v2.y,v2.z));
+			//MatrixHelper.drawMatrix(gl2, temp2,10);
+    		temp2.setTranslation(new Vector3d(0,0,0));
+			
+			Vector4d v=new Vector4d();
+			Matrix4d temp3 = new Matrix4d(targetPose);
+			MatrixHelper.drawMatrix(gl2, temp3,10);
+			temp3.getColumn(3, v);
+			temp3.setTranslation(new Vector3d(0,0,0));
+			temp3.mul(iMat);
+			temp3.mul(temp2);
+			temp3.setTranslation(new Vector3d(v.x,v.y,v.z));
+
+			MatrixHelper.drawMatrix(gl2, temp3,5);
+		*/
+		
+		
 		gl2.glPushMatrix();
 		
 			double[] mat = new double[16];
