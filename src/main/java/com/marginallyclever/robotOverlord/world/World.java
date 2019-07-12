@@ -16,9 +16,6 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.BoundingVolume;
-import com.marginallyclever.robotOverlord.Cylinder;
-import com.marginallyclever.robotOverlord.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -27,9 +24,8 @@ import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.viewCube.ViewCube;
 
 /**
- * Container for all the visible objects in the world.
+ * Container for all the visible objects in a scene.
  * @author danroyer
- *
  */
 public class World extends Entity
 implements Serializable {
@@ -141,12 +137,8 @@ implements Serializable {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param gl2 render context
-	 * @param delta ms since last render
-	 */
-	public void render(GL2 gl2, float delta) {
+	@Override
+	public void update(double delta) {
 		if(!isSetup) {
 			setup();
 			setupLights();
@@ -162,7 +154,7 @@ implements Serializable {
 			}
 		}
 		
-		//TODO do collision test here
+		//TODO collision test
 		
 		// Finalize the moves that don't collide
 		io = children.iterator();
@@ -174,6 +166,15 @@ implements Serializable {
 			}
 		}
 
+		camera.update(delta);  // this is ugly.  What if there is more than one camera?
+	}
+	
+	/**
+	 * 
+	 * @param gl2 render context
+	 * @param delta ms since last render
+	 */
+	public void render(GL2 gl2) {
 		// Clear the screen and depth buffer
 
 		// background color
@@ -199,7 +200,6 @@ implements Serializable {
 		gl2.glLoadIdentity();
 		
 		gl2.glPushMatrix();
-			camera.update(delta);  // this is ugly.  What if there is more than one camera?
 			camera.render(gl2);
 			
 			gl2.glDisable(GL2.GL_LIGHTING);
@@ -209,7 +209,7 @@ implements Serializable {
 			PrimitiveSolids.drawGrid(gl2,gridWidth,gridHeight,1);
 
 			// lights
-			io = children.iterator();
+			Iterator<Entity> io = children.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
 				if(obj instanceof Light) {

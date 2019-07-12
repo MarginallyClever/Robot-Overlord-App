@@ -103,6 +103,7 @@ public class Entity implements Serializable {
 	
 	public void unPick() {}
 	
+	public void update(double dt) {}
 	public void render(GL2 gl2) {}
 	
 	

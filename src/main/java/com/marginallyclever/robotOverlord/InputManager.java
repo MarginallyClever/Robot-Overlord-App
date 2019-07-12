@@ -11,9 +11,7 @@ public class InputManager {
 	
 	public static double [] keyState = new double[MAX_KEYS];
 	
-	static public void start() {
-		//describeAllControllersAndInputs();
-	}
+	static public void start() {}
 	
 	static public void update() {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -29,7 +27,7 @@ public class InputManager {
         		// TODO poll failed, device disconnected?
         		return;
         	}
-        	
+
         	//System.out.println(ca[i].getType());
         	if(ca[i].getType()!=Controller.Type.STICK) {
         		// currently we ignore all but joysticks.
@@ -80,22 +78,6 @@ public class InputManager {
 	            	if(components[j].getIdentifier()==Identifier.Axis.Y ) keyState[15]=v;  // left analog stick, -1 is up +1 is down
             	}
         	}
-        }
-	}
-	
-	static public void describeAllControllersAndInputs() {
-		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
-        for(int i =0;i<ca.length;i++){
-            System.out.print("Controller:"+ca[i].getName()+" ("+ca[i].getType().toString()+")");
-            if(ca[i].getType()==Controller.Type.UNKNOWN) continue;
-            
-            Component[] components = ca[i].getComponents();
-            for(int j=0;j<components.length;j++){
-            	System.out.println("\t"+components[j].getName()+
-            			":"+(components[j].isAnalog()?"Abs":"Rel")+
-            			":"+(components[j].isAnalog()?"An":"Di")
-            				);
-            }
         }
 	}
 }

@@ -158,7 +158,7 @@ public class Camera extends PhysicalObject {
 	}
 	
 	
-	public void update(float dt) {
+	public void update(double dt) {
 		pan += pan_dir*10*dt;
 		tilt += tilt_dir*10*dt;
 		
@@ -180,7 +180,7 @@ public class Camera extends PhysicalObject {
 		// move the camera
 		Vector3d temp = new Vector3d();
 		Vector3d direction = new Vector3d(0,0,0);
-		float vel = 20f * dt;
+		double vel = 20.0 * dt;
 		boolean changed = false;
 		
 		

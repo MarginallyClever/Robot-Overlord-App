@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,9 +9,10 @@ import java.io.ObjectOutputStream;
 
 import javax.vecmath.Matrix4d;
 
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
-public class DHRobotRecording {
-	
+
+public class RecordingManager {
 	public boolean isRecording;
 	public boolean isPlaying;
 	
@@ -30,7 +31,7 @@ public class DHRobotRecording {
 	// for callbacks
 	protected DHRobot robot;
 
-	DHRobotRecording(DHRobot arg0) {
+	public RecordingManager(DHRobot arg0) {
 		robot = arg0;
 	}
 	

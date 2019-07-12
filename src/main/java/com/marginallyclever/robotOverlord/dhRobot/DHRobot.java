@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JPanel;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector4d;
@@ -15,6 +14,7 @@ import javax.vecmath.Point3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.RecordingManager;
 import com.marginallyclever.robotOverlord.InputListener;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -23,11 +23,6 @@ import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.world.World;
-
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
-import net.java.games.input.Component.Identifier;
 
 /**
  * A robot designed using D-H parameters.
@@ -97,14 +92,14 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 */
 	protected DHKeyframe solutionKeyframe;
 	
-	protected DHRobotRecording record;
+	protected RecordingManager recording;
 	
 	protected boolean showBones;  // show D-H representation of each link
 	protected boolean showPhysics;  // show bounding boxes of each link
 	protected boolean showAngles;  // show current angle and limit of each link
 	boolean rotateOnWorldAxies;  // which style of rotation?
 	
-	protected int hitBox1, hitBox2;
+	protected int hitBox1, hitBox2;  // display which hitboxes are colliding
 
 	public DHRobot() {
 		super();
@@ -138,7 +133,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		
 		dhTool = new DHTool();  // default tool = no tool
 		
-		record = new DHRobotRecording(this);
+		recording = new RecordingManager(this);
 	}
 	
 	/**
@@ -158,7 +153,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 		Iterator<DHLink> i = links.iterator();
 		while(i.hasNext()) {
 			DHLink link = i.next();
-			Vector3d v = new Vector3d(
+			Vector3d linkP = new Vector3d(
 					link.poseCumulative.m03,
 					link.poseCumulative.m13,
 					link.poseCumulative.m23);
@@ -167,8 +162,7 @@ public abstract class DHRobot extends Robot implements InputListener {
 					link.poseCumulative.m12,
 					link.poseCumulative.m22);
 			Vector3d temp=new Vector3d();
-			temp.set(P);
-			temp.sub(v);
+			temp.sub(P,linkP);
 			Vector3d result = new Vector3d();
 			result.cross(z, temp);
 			a[0][j]=result;
@@ -221,9 +215,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 					if(showAngles) link.renderAngles(gl2);
 					if(showPhysics && link.model != null) {
 						if(j==hitBox1 || j==hitBox2) {
-							gl2.glColor4d(1,0,0.8,0.15);
+							gl2.glColor4d(1,0  ,0.8,0.15);
 						} else {
-							gl2.glColor4d(1,0.8,0,0.15);
+							gl2.glColor4d(1,0.8,0  ,0.15);
 						}
 						PrimitiveSolids.drawBox(gl2,
 								link.model.getBoundBottom(),
@@ -537,27 +531,23 @@ public abstract class DHRobot extends Robot implements InputListener {
 	public void inputUpdate() {		
         boolean isDirty=false;
 
-        record.step();
+        recording.step();
+        
+        // manage the keyState
+        recording.manageArrayOfDoubles(InputManager.keyState);
+        // apply the keyState
     	
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
         oldPose.set(targetPose);
-
-        // update the keyState array based on input devices.
-        processHumanInput();
-        
-        // manage the keyState
-        record.manageArrayOfDoubles(keyState);
-        // apply the keyState
 
         if(animationSpeed==0) {
         	// if we are in direct drive mode
         	isDirty=driveFromKeyState();
         }
         
-        isDirty = record.manageBoolean(isDirty);
-        
+        isDirty = recording.manageBoolean(isDirty);
         if(isDirty) {
-        	record.manageMatrix4d(targetPose);
+        	recording.manageMatrix4d(targetPose);
 	    	
         	// Attempt to solve IK
         	solver.solve(this,targetPose,solutionKeyframe);
@@ -882,20 +872,20 @@ public abstract class DHRobot extends Robot implements InputListener {
 	}
 
 	public boolean isRecording() {
-		return record.isRecording;
+		return recording.isRecording;
 	}
 
 	public void setRecording(boolean newIsRecording) {
-		record.setRecording(newIsRecording);
+		recording.setRecording(newIsRecording);
 		if(panel!=null) panel.buttonRecord.setText("Stop");
 	}
 
 	public boolean isPlaying() {
-		return record.isPlaying;
+		return recording.isPlaying;
 	}
 
 	public void setPlaying(boolean newIsPlaying) {
-		record.setPlaying(newIsPlaying);
+		recording.setPlaying(newIsPlaying);
 		if(panel!=null) panel.buttonPlay.setText("Stop");
 	}
 	

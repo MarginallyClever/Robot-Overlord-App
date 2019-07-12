@@ -98,8 +98,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     // timing for animations
     protected long startTime;
     protected long lastTime;
-    private float frameDelay;
-    private float frameLength;
+    private double frameDelay;
+    private double frameLength;
     
 	// settings
     protected Preferences prefs;
@@ -163,7 +163,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
-      	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
+      	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
       	
         mainFrame.addWindowListener(this);
 
@@ -559,57 +559,64 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     @Override
     /**
-     * Draw the 3D scene.  Called ~30/s and a good place to also poll input.
+     * Draw the 3D scene.  Called ~30/s. Also does other update tasks and polls input.
      */
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
-        float dt = (nowTime - lastTime)*0.001f;
+        double dt = (nowTime - lastTime)*0.001;
     	lastTime = nowTime;
     	//System.out.println(dt);
     	
-    	InputManager.update();
-    	if(pickedEntity!=null) {
-    		if(pickedEntity instanceof InputListener) {
-    			((InputListener)pickedEntity).inputUpdate();
-    		}
-    	}
-    	
-    	GL2 gl2 = drawable.getGL().getGL2();
-
+    	// UPDATE STEP
     	frameDelay+=dt;
     	if(frameDelay>frameLength) {
-    		if(checkStackSize) {
-	    		IntBuffer v = IntBuffer.allocate(1);
-	    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
-	    		System.out.print("stack depth start = "+v.get(0));
-    		}		
-	        // draw the world
-   			world.render( gl2, frameLength );
-    		
-	        frameDelay-=frameLength;
-
-	        int pickName = 0;
-	        if(pickNow) {
-	        	pickName = findItemUnderCursor(gl2);
-	        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-
-	        	// double click action to pick the object under the cursor
-		        pickNow=false;
-	        	//System.out.println("pickedHandle="+pickedHandle);
-	        	if(pickedHandle==0 && pickName>0 && pickName<10) {
-	        		//System.out.println("new pickedHandle="+pickName);
-	        		pickedHandle=pickName;
-	        	} else {
-	        		pickIntoWorld(pickName);
-	        	}
-	        }
-			
-    		if(checkStackSize) {
-	    		IntBuffer v = IntBuffer.allocate(1);
-				gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
-				System.out.println("stack depth end = "+v.get(0));
-    		}
+   			frameDelay-=frameLength;
+   			
+	    	InputManager.update();
+	
+	    	if(pickedEntity!=null) {
+	    		if(pickedEntity instanceof InputListener) {
+	    			((InputListener)pickedEntity).inputUpdate();
+	    		}
+	    	}
+    	
+   			world.update( frameLength );
     	}
+
+    	// RENDER STEP
+
+    	GL2 gl2 = drawable.getGL().getGL2();
+
+		if(checkStackSize) {
+    		IntBuffer v = IntBuffer.allocate(1);
+    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
+    		System.out.print("stack depth start = "+v.get(0));
+		}	
+		
+        // draw the world
+		world.render( gl2 );
+		
+        int pickName = 0;
+        if(pickNow) {
+        	pickName = findItemUnderCursor(gl2);
+        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+
+        	// double click action to pick the object under the cursor
+	        pickNow=false;
+        	//System.out.println("pickedHandle="+pickedHandle);
+        	if(pickedHandle==0 && pickName>0 && pickName<10) {
+        		//System.out.println("new pickedHandle="+pickName);
+        		pickedHandle=pickName;
+        	} else {
+        		pickIntoWorld(pickName);
+        	}
+        }
+		
+		if(checkStackSize) {
+    		IntBuffer v = IntBuffer.allocate(1);
+			gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
+			System.out.println("stack depth end = "+v.get(0));
+		}
     }
 
     
@@ -643,7 +650,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		setPerspectiveMatrix();
 
         // render in selection mode, without advancing time in the simulation.
-        world.render( gl2, 0 );
+        world.render( gl2 );
 
         // return the projection matrix to it's old state.
         gl2.glMatrixMode(GL2.GL_PROJECTION);
