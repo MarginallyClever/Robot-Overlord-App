@@ -46,10 +46,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
 	public JLabel endx,endy,endz,activeTool;
-	public JButton toggleATC;
-	
-	public JButton buttonRecord;
-	public JButton buttonPlay;
+	public JButton buttonSetTool;
 	
 	public JCheckBox showBones;
 	public JCheckBox showAngleMinMax;
@@ -127,12 +124,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		this.add(buttonRecord=new JButton("Record")  , con1);	con1.gridy++;
-		this.add(buttonPlay  =new JButton("Play")    , con1);	con1.gridy++;
-		this.add(toggleATC   =new JButton("Set tool"), con1);	con1.gridy++;
-		buttonRecord.addActionListener(this);
-		buttonPlay.addActionListener(this);
-		toggleATC.addActionListener(this);
+		this.add(buttonSetTool=new JButton("Set tool"), con1);	con1.gridy++;
+		buttonSetTool.addActionListener(this);
 		
 		this.add(activeTool=new JLabel("Tool=") ,con1);  con1.gridy++; 
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
@@ -212,13 +205,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if(source == buttonRecord) {
-			robot.setRecording(!robot.isRecording());
-		}
-		if(source == buttonPlay && !robot.isRecording()) {
-			robot.setPlaying(!robot.isPlaying());
-		}
-		if(source == toggleATC) {
+		if(source == buttonSetTool) {
 			// TODO get the tool from somewhere?  Find the tool in the world adjacent to the end effector
 			selectTool();
 			

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
 
@@ -13,34 +14,34 @@ import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 
 public class RecordingManager {
-	public boolean isRecording;
-	public boolean isPlaying;
+	static protected boolean isRecording;
+	static protected boolean isPlaying;
 	
-	public FileOutputStream recordOutput;
-	public ObjectOutputStream objectOutputStream;
+	static public FileOutputStream recordOutput;
+	static public ObjectOutputStream objectOutputStream;
 
-	public FileInputStream recordInput;
-	public ObjectInputStream objectInputStream;
+	static public FileInputStream recordInput;
+	static public ObjectInputStream objectInputStream;
 
 	// number of frames recorded
-	protected long count1=0;
+	static protected long count1=0;
 	
 	// number of frames played back
-	protected long count2=0;
+	static protected long count2=0;
 	
-	// for callbacks
-	protected DHRobot robot;
-
-	public RecordingManager(DHRobot arg0) {
-		robot = arg0;
+	static public RecordingManagerPanel panel;
+	
+	static public RecordingManagerPanel getPanel(RobotOverlord arg0) {
+		if(panel==null) panel = new RecordingManagerPanel(arg0);
+		return panel;
 	}
 	
-	public void stop() {
+	static public void stop() {
         if(isRecording) setRecording(false);
 		if(isPlaying) setPlaying(false);
 	}
 	
-	public void setRecording(boolean newIsRecording) {
+	static public void setRecording(boolean newIsRecording) {
 		if(isPlaying==true) return;
 		if(isRecording==newIsRecording) return;
 		
@@ -52,7 +53,8 @@ public class RecordingManager {
 			} catch(Exception e) {
 				System.out.println("Recording end failed.");
 			}
-	    	robot.recordingHasStopped();
+
+			if(panel!=null) panel.buttonRecord.setText("Record");
 		} else {
 			count1=0;
 
@@ -67,11 +69,12 @@ public class RecordingManager {
 				System.out.println("Recording start failed.");
 				return;
 			}
+			if(panel!=null) panel.buttonRecord.setText("Stop");
 		}
 		isRecording = newIsRecording;
 	}
 	
-	public void setPlaying(boolean newIsPlaying) {
+	static public void setPlaying(boolean newIsPlaying) {
 		if(isPlaying==newIsPlaying) return;
 		if(isRecording==true) return;
 		
@@ -81,7 +84,8 @@ public class RecordingManager {
 			} catch(Exception e) {
 				System.out.println("Playback end failed.");
 			}
-	    	robot.playingHasStopped();
+			
+			if(panel!=null) panel.buttonPlay.setText("Play");
 		} else {
 			count2=0;
 
@@ -98,12 +102,13 @@ public class RecordingManager {
 				System.out.println("Playback start failed.");
 				return;
 			}
+			if(panel!=null) panel.buttonPlay.setText("Stop");
 		}
 
 		isPlaying = newIsPlaying;
 	}
 	
-	public void step() {
+	static public void step() {
 		//if(isRecording||isPlaying) System.out.println();
 
     	try {
@@ -130,7 +135,7 @@ public class RecordingManager {
 		}
 	}
 	
-	public boolean manageBoolean(boolean arg0) {
+	static public boolean manageBoolean(boolean arg0) {
 		try {
 			if(isRecording) objectOutputStream.writeBoolean(arg0);
 			else if(isPlaying) arg0 = objectInputStream.readBoolean();
@@ -141,7 +146,7 @@ public class RecordingManager {
 		return arg0;
 	}
 	
-	public int manageInt(int arg0) {
+	static public int manageInt(int arg0) {
 		try {
 			if(isRecording) objectOutputStream.writeInt(arg0);
 			else if(isPlaying) arg0 = objectInputStream.readInt();
@@ -152,7 +157,7 @@ public class RecordingManager {
 		return arg0;
 	}
 	
-	public long manageLong(long arg0) {
+	static public long manageLong(long arg0) {
 		try {
 			if(isRecording) objectOutputStream.writeLong(arg0);
 			else if(isPlaying) arg0 = objectInputStream.readLong();
@@ -163,7 +168,7 @@ public class RecordingManager {
 		return arg0;
 	}
 	
-	public double manageDouble(double arg0) {
+	static public double manageDouble(double arg0) {
 		try {
 			if(isRecording) objectOutputStream.writeDouble(arg0);
 			else if(isPlaying) arg0 = objectInputStream.readDouble();
@@ -174,7 +179,7 @@ public class RecordingManager {
 		return arg0;
 	}
 	
-	public void manageMatrix4d(Matrix4d arg0) {
+	static public void manageMatrix4d(Matrix4d arg0) {
 		try {
 			if(isRecording) objectOutputStream.writeUnshared(arg0);
 			else if(isPlaying) arg0.set((Matrix4d)objectInputStream.readUnshared());
@@ -187,7 +192,7 @@ public class RecordingManager {
 		}
 	}
 	
-	public void manageArrayOfDoubles(double [] arg0) {
+	static public void manageArrayOfDoubles(double [] arg0) {
 		try {
 			if(isRecording) {
 	        	for(int i=0;i<arg0.length;++i) {
@@ -202,5 +207,12 @@ public class RecordingManager {
     		e.printStackTrace();
 			stop();
 		}
+	}
+	protected static boolean isRecording() {
+		return isRecording;
+	}
+
+	protected static boolean isPlaying() {
+		return isPlaying;
 	}
 }

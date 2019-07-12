@@ -15,7 +15,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RecordingManager;
-import com.marginallyclever.robotOverlord.InputListener;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -29,7 +28,7 @@ import com.marginallyclever.robotOverlord.world.World;
  * @author Dan Royer
  *
  */
-public abstract class DHRobot extends Robot implements InputListener {
+public abstract class DHRobot extends Robot {
 	/**
 	 * 
 	 */
@@ -92,8 +91,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 	 */
 	protected DHKeyframe solutionKeyframe;
 	
-	protected RecordingManager recording;
-	
 	protected boolean showBones;  // show D-H representation of each link
 	protected boolean showPhysics;  // show bounding boxes of each link
 	protected boolean showAngles;  // show current angle and limit of each link
@@ -132,8 +129,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 		targetPose.set(endMatrix);
 		
 		dhTool = new DHTool();  // default tool = no tool
-		
-		recording = new RecordingManager(this);
 	}
 	
 	/**
@@ -528,13 +523,9 @@ public abstract class DHRobot extends Robot implements InputListener {
 	
 	
 	@Override
-	public void inputUpdate() {		
+	public void update(double dt) {		
         boolean isDirty=false;
-
-        recording.step();
         
-        // manage the keyState
-        recording.manageArrayOfDoubles(InputManager.keyState);
         // apply the keyState
     	
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
@@ -545,9 +536,9 @@ public abstract class DHRobot extends Robot implements InputListener {
         	isDirty=driveFromKeyState();
         }
         
-        isDirty = recording.manageBoolean(isDirty);
+        isDirty = RecordingManager.manageBoolean(isDirty);
         if(isDirty) {
-        	recording.manageMatrix4d(targetPose);
+        	RecordingManager.manageMatrix4d(targetPose);
 	    	
         	// Attempt to solve IK
         	solver.solve(this,targetPose,solutionKeyframe);
@@ -869,31 +860,6 @@ public abstract class DHRobot extends Robot implements InputListener {
 		DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
 		keyframe.set(poseNow);
 		return keyframe;
-	}
-
-	public boolean isRecording() {
-		return recording.isRecording;
-	}
-
-	public void setRecording(boolean newIsRecording) {
-		recording.setRecording(newIsRecording);
-		if(panel!=null) panel.buttonRecord.setText("Stop");
-	}
-
-	public boolean isPlaying() {
-		return recording.isPlaying;
-	}
-
-	public void setPlaying(boolean newIsPlaying) {
-		recording.setPlaying(newIsPlaying);
-		if(panel!=null) panel.buttonPlay.setText("Stop");
-	}
-	
-	public void recordingHasStopped() {
-		if(panel!=null) panel.buttonRecord.setText("Record");
-	}
-	public void playingHasStopped() {
-		if(panel!=null) panel.buttonPlay.setText("Play");
 	}
 	
 	@Override
