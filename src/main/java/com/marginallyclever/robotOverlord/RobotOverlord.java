@@ -557,10 +557,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     public void dispose( GLAutoDrawable drawable ) {}
     
     
-    @Override
     /**
      * Draw the 3D scene.  Called ~30/s. Also does other update tasks and polls input.
      */
+    @Override
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
         double dt = (nowTime - lastTime)*0.001;
@@ -568,6 +568,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	//System.out.println(dt);
     	
     	// UPDATE STEP
+    	
     	frameDelay+=dt;
     	if(frameDelay>frameLength) {
    			frameDelay-=frameLength;
@@ -593,8 +594,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     		System.out.print("stack depth start = "+v.get(0));
 		}	
 		
-        // draw the world
-		world.render( gl2 );
+		world.render(gl2);
 		
         int pickName = 0;
         if(pickNow) {
@@ -650,7 +650,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		setPerspectiveMatrix();
 
         // render in selection mode, without advancing time in the simulation.
-        world.render( gl2 );
+        world.render(gl2);
 
         // return the projection matrix to it's old state.
         gl2.glMatrixMode(GL2.GL_PROJECTION);

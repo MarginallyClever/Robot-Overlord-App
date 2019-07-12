@@ -30,7 +30,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 */
 	private static final long serialVersionUID = 1970631551615654640L;
 	
-	//comms	
+	// comms	
 	protected transient String[] portsDetected=null;
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
@@ -57,8 +57,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	private boolean fileOpened;
 	private ArrayList<String> gcode;
 
-
-	
 	protected transient boolean isModelLoaded;
 	
 	protected transient RobotControlPanel robotPanel=null;
