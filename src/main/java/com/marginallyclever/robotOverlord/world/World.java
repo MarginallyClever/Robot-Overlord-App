@@ -138,23 +138,27 @@ implements Serializable {
 	}
 	
 	@Override
-	public void update(double delta) {
+	public void update(double dt) {
 		if(!isSetup) {
 			setup();
 			setupLights();
 			isSetup=true;
 		}
+
+		// calls update on all entities and sub-entities
+		super.update(dt);
 		
 		Iterator<Entity> io = children.iterator();
 		while(io.hasNext()) {
 			Entity obj = io.next();
+			
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
-				po.prepareMove(delta);
+				po.prepareMove(dt);
 			}
 		}
 		
-		//TODO collision test
+		// TODO collision test
 		
 		// Finalize the moves that don't collide
 		io = children.iterator();
@@ -165,8 +169,6 @@ implements Serializable {
 				po.finalizeMove();
 			}
 		}
-
-		camera.update(delta);  // this is ugly.  What if there is more than one camera?
 	}
 	
 	/**

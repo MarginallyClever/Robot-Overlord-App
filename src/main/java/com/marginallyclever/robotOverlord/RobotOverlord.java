@@ -100,7 +100,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     protected long lastTime;
     private double frameDelay;
     private double frameLength;
-    
+	
 	// settings
     protected Preferences prefs;
 	protected String[] recentFiles = {"","","","","","","","","",""};
@@ -187,7 +187,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         splitLeftRight.add(contextMenu);
 
         world = new World();
-
+		
         buildMenu();
         
         pickNow = false;
@@ -574,12 +574,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
    			frameDelay-=frameLength;
    			
 	    	InputManager.update();
-	
-	    	if(pickedEntity!=null) {
-	    		if(pickedEntity instanceof InputListener) {
-	    			((InputListener)pickedEntity).inputUpdate();
-	    		}
-	    	}
+
+   	        // if playing, read the input from the recording
+	    	// if recording, write the input changes to the recording
+	    	RecordingManager.step();
+	    	RecordingManager.manageArrayOfDoubles(InputManager.keyState);
     	
    			world.update( frameLength );
     	}

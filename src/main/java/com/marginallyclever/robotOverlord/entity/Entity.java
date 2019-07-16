@@ -38,6 +38,7 @@ public class Entity implements Serializable {
 	
 	
 	public Entity() {
+		children = new ArrayList<Entity>();
 		pickName = pickNameCounter++;
 	}
 	
@@ -103,7 +104,15 @@ public class Entity implements Serializable {
 	
 	public void unPick() {}
 	
-	public void update(double dt) {}
+	
+	public void update(double dt) {
+		Iterator<Entity> i = children.iterator();
+		while(i.hasNext()) {
+			Entity e=i.next();
+			e.update(dt);
+		}
+	}
+	
 	public void render(GL2 gl2) {}
 	
 	
