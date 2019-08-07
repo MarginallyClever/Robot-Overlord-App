@@ -45,7 +45,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
-	public JLabel endx,endy,endz,activeTool;
+	public JLabel endx,endy,endz,activeTool,gcodeLabel;
 	public JButton buttonSetTool;
 	
 	public JCheckBox showBones;
@@ -131,6 +131,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
 		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;
 		this.add(endz=new JLabel("Z="), con1);	con1.gridy++;
+		this.add(gcodeLabel=new JLabel("Gcode="), con1); con1.gridy++;
 
 		robot.refreshPose();
 		updateEnd();
@@ -184,6 +185,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		endx.setText("X="+StringHelper.formatDouble(robot.endMatrix.m03));
 		endy.setText("Y="+StringHelper.formatDouble(robot.endMatrix.m13));
 		endz.setText("Z="+StringHelper.formatDouble(robot.endMatrix.m23));
+		endx.setText("Rx="+StringHelper.formatDouble(robot.endMatrix.m03));
+		endy.setText("Ry="+StringHelper.formatDouble(robot.endMatrix.m13));
+		endz.setText("Rz="+StringHelper.formatDouble(robot.endMatrix.m23));
+		gcodeLabel.setText("Gcode="+robot.generateGCode());
 		
 		// run the IK solver to see if solution works.
 		//DHIKSolver solver = robot.getSolverIK();

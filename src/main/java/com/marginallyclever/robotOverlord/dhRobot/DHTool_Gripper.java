@@ -242,4 +242,15 @@ public class DHTool_Gripper extends DHTool {
 		}
 		return null;
 	}
+	
+	public double getAdjustableValue() {
+		return gripperServoAngle;
+	}
+	
+	public void parseGCode(String str) {
+		int index = str.indexOf('T');
+		if(index == -1) return;
+		
+		gripperServoAngle = Double.parseDouble(str.substring(index+1));
+	}
 }

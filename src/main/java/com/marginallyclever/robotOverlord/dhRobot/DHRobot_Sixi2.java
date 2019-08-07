@@ -1,12 +1,15 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.Iterator;
+import java.util.StringTokenizer;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.AnsiColors;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -18,6 +21,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	// translate the values between the robot and the software
 	private static double ADJUST0 = -180;
 	private static double ADJUST1 = 90;
 	private static double ADJUST2 = -65;
@@ -25,11 +29,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 	private static double ADJUST4 = -135;
 	private static double ADJUST5 = -90+30;
 
+	// scale the values between the robot and the software
 	private static double SCALE_0=-1;
 	private static double SCALE_1=1;
 	private static double SCALE_2=1;
 	private static double SCALE_3=-1;
-	private static double SCALE_4=-1;
+	private static double SCALE_4=1;
 	private static double SCALE_5=-1;
 
 	public boolean isFirstTime;
@@ -254,7 +259,13 @@ public class DHRobot_Sixi2 extends DHRobot {
 			if(data.startsWith(">")) {
 				data=data.substring(1).trim();
 			}
-			 ADJUST5 = -90+30;
+			ADJUST0 = -160;
+			ADJUST1 = 90;
+			ADJUST2 = -65;
+			ADJUST3 = 180+35;
+			ADJUST4 = -135-90;
+			ADJUST5 = -90+30;
+
 			if(data.startsWith("D17")) {
 				String [] dataParts = data.split("\\s");
 				if(dataParts.length>=7) {
@@ -303,5 +314,53 @@ public class DHRobot_Sixi2 extends DHRobot {
 			return;
 		}
 		super.dataAvailable(arg0, data);
+	}
+	
+	public String generateGCode() {
+		Matrix3d m1 = new Matrix3d();
+		Vector3d t1 = new Vector3d();
+		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
+		endMatrix.get(m1, t1);
+		
+		Vector3d e1 = MatrixHelper.matrixToEuler(m1);
+		
+		String message = "G0 "
+				+" X"+StringHelper.formatDouble(t1.x)
+				+" Y"+StringHelper.formatDouble(t1.y)
+				+" Z"+StringHelper.formatDouble(t1.z)
+				+" I"+StringHelper.formatDouble(e1.x)
+				+" J"+StringHelper.formatDouble(e1.y)
+				+" K"+StringHelper.formatDouble(e1.z)
+				;
+		if(dhTool!=null) {
+			message += " T"+StringHelper.formatDouble(dhTool.getAdjustableValue());
+		}
+		return message;
+	}
+	
+	public void parseGCode(String str) {
+		Vector3d t1 = new Vector3d();
+		Vector3d e1 = new Vector3d();
+		
+		StringTokenizer tokens = new StringTokenizer(str);
+		while(tokens.hasMoreTokens()) {
+			String token = tokens.nextToken();
+			
+			switch(token.charAt(0)) {
+			case 'X':  t1.x = Double.parseDouble(token.substring(1));  break;
+			case 'Y':  t1.y = Double.parseDouble(token.substring(1));  break;
+			case 'Z':  t1.z = Double.parseDouble(token.substring(1));  break;
+			case 'I':  e1.x = Double.parseDouble(token.substring(1));  break;
+			case 'J':  e1.y = Double.parseDouble(token.substring(1));  break;
+			case 'K':  e1.z = Double.parseDouble(token.substring(1));  break;
+			default:  break;
+			}
+		}
+		Matrix3d m1 = MatrixHelper.eulerToMatrix(e1);
+		endMatrix.set(m1, t1, 1.0);
+
+		if(dhTool!=null) {
+			dhTool.parseGCode(str);
+		}
 	}
 }

@@ -20,17 +20,18 @@ public class DHTool extends ModelInWorld {
 	/**
 	 * A DHLink representation of this tool for kinematic solving.
 	 */
-	DHLink dhLinkEquivalent;
+	public DHLink dhLinkEquivalent;
 	
 	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
-	PhysicalObject subjectBeingHeld;
+	public PhysicalObject subjectBeingHeld;
 	
 	/**
 	 * Who, if anyone, is holding this tool?
 	 */
-	DHRobot heldBy;
+	public DHRobot heldBy;
+	
 	
 	public DHTool() {
 		dhLinkEquivalent = new DHLink();
@@ -57,4 +58,10 @@ public class DHTool extends ModelInWorld {
 		endMatrix.mul(dhLinkEquivalent.pose);
 		dhLinkEquivalent.poseCumulative.set(endMatrix);
 	}
+	
+	public double getAdjustableValue() {
+		return dhLinkEquivalent.getAdjustableValue();
+	}
+	
+	public void parseGCode(String str) {}
 }

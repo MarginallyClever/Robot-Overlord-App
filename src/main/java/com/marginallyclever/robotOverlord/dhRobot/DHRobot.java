@@ -526,8 +526,6 @@ public abstract class DHRobot extends Robot {
 	public void update(double dt) {		
         boolean isDirty=false;
         
-        // apply the keyState
-    	
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
         oldPose.set(targetPose);
 
@@ -923,4 +921,15 @@ public abstract class DHRobot extends Robot {
 	protected boolean canTargetPoseRotateZ() {
 		return true;
 	}
+	
+	/**
+	 * Generate gcode that will allow complete serialization of the robot's state.
+	 * Might require additional gcode for tools held by the robot.
+	 * @return
+	 */
+	public String generateGCode() {
+		return "";
+	}
+	
+	public void parseGCode(String str) {}
 }
