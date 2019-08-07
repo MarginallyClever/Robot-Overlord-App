@@ -37,6 +37,8 @@ public class DHTool_Gripper extends DHTool {
 	private transient Matrix4d heldRelative;
 	
 	private double gripperServoAngle=90;
+	public static final double ANGLE_MAX=70;
+	public static final double ANGLE_MIN=5;
 	
 	private Model linkage;
 	private Model finger;
@@ -181,14 +183,16 @@ public class DHTool_Gripper extends DHTool {
 		if(InputManager.keyState[2]==0) wasGripping=false;
 		
         if(InputManager.keyState[6]==1) {
-			if(gripperServoAngle<70) {
+			if(gripperServoAngle<ANGLE_MAX) {
 				gripperServoAngle+=scaleGrip;
+				if(gripperServoAngle>ANGLE_MAX) gripperServoAngle=ANGLE_MAX;
 				isDirty=true;
 			}
         }
         if(InputManager.keyState[7]==1) {
-			if(gripperServoAngle>5) {
+			if(gripperServoAngle>ANGLE_MIN) {
 				gripperServoAngle-=scaleGrip;
+				if(gripperServoAngle<ANGLE_MIN) gripperServoAngle=ANGLE_MIN;
 				isDirty=true;
 			}
         }
