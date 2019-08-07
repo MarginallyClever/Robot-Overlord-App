@@ -293,4 +293,14 @@ public class DHLink {
 		safety*=safety*safety;  // squared
 		gl2.glColor4d(safety,1-safety,0,0.5);
 	}
+	
+	/**
+	 * In any DHLink there should only be one parameter that changes in value.  Return that value.
+	 */
+	public double getAdjustableValue() {
+		if((flags & READ_ONLY_D    )==0) return d;
+		if((flags & READ_ONLY_THETA)==0) return theta;
+		if((flags & READ_ONLY_R    )==0) return r;
+		return alpha;
+	}
 }
