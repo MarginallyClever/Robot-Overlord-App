@@ -22,7 +22,6 @@ import com.marginallyclever.robotOverlord.world.World;
  * DHTool is a model that has a DHLink equivalence.
  * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
- *
  */
 public class DHTool_Gripper extends DHTool {
 	/**
