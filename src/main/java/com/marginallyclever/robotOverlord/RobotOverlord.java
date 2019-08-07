@@ -590,7 +590,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     @Override
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
-        double dt = (nowTime - lastTime)*0.001;
+        double dt = (nowTime - lastTime)*0.001;  // to seconds
     	lastTime = nowTime;
     	//System.out.println(dt);
     	
