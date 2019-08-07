@@ -111,8 +111,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     protected JFrame mainFrame; 
 	// the main view
 	protected Splitter splitLeftRight;
+	protected Splitter splitUpDown;
+	
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
+	protected SecondaryPanel secondaryPanel;
 	
 	// undo/redo system
 	private UndoManager commandSequence;
@@ -153,49 +156,57 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			System.out.println("failed to enumerate");
 		}
 */
+		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setSize( 1224, 768 );
         mainFrame.setLayout(new java.awt.BorderLayout());
     	
+        // add to the frame a menu bar
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
 
+        // setup the animation system.
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
       	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
-      	
+
+      	// this class listens to the window
         mainFrame.addWindowListener(this);
 
+        // some opengl stuff
         GLCapabilities caps = new GLCapabilities(null);
         caps.setSampleBuffers(true);
         caps.setHardwareAccelerated(true);
         caps.setNumSamples(4);
         glCanvas = new GLJPanel(caps);
         animator.add(glCanvas);
-        glCanvas.addGLEventListener(this);
-        glCanvas.addMouseListener(this);
-        glCanvas.addMouseMotionListener(this);
+        glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
+        glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
+        glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
         
+        // the right hand context-sensitive menu
         contextMenu = new JScrollPane();
         Dimension minimumSize = new Dimension(300,300);
         contextMenu.setMinimumSize(minimumSize);
-        glCanvas.setMinimumSize(minimumSize);
 
-        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
-        splitLeftRight.add(glCanvas);
-        splitLeftRight.add(contextMenu);
+        glCanvas.setMinimumSize(minimumSize);  // not sure what good this does here...
 
+        // this class contains the world.  
         world = new World();
-		
+
+        // now that we have everything built, set up the menus.
         buildMenu();
         
+        // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
         selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         pickedEntity = null;
         pickNothing();
         
+        // keys typed while the focus is on the glcanvas will be heard by this class.  that way we can fly WASD.
 		glCanvas.addKeyListener(this);
+		
 //		frame.setFocusable(true);
 //		frame.requestFocusInWindow();
 /*
@@ -213,11 +224,27 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
             }
         });
 */
-        mainFrame.add(splitLeftRight);
+        // split the mainframe in two vertically
+        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
+        // on the left put the 3D view
+        splitLeftRight.add(glCanvas);
+        // on the right put the context sensitive menu container
+        splitLeftRight.add(contextMenu);
+        
+        // Also split up/down
+        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
+        splitUpDown.add(splitLeftRight);
+        splitUpDown.add(secondaryPanel = new SecondaryPanel());
+        
+		// add the split panel to the main frame
+        mainFrame.add(splitUpDown);
+        // validate (adjust positions of buttons and such) so it can be painted
         mainFrame.validate();
+        // make it visible
         mainFrame.setVisible(true);
+        // start the main application loop.  it will call display() repeatedly.
         animator.start();
-
+        // record the start time of the application, also the end of the core initialization process.
         lastTime = startTime = System.currentTimeMillis();
     }
 	
