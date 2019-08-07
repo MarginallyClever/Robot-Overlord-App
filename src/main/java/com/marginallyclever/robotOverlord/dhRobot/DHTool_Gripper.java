@@ -187,7 +187,7 @@ public class DHTool_Gripper extends DHTool {
 			}
         }
         if(InputManager.keyState[7]==1) {
-			if(gripperServoAngle>0) {
+			if(gripperServoAngle>5) {
 				gripperServoAngle-=scaleGrip;
 				isDirty=true;
 			}
