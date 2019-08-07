@@ -1,7 +1,10 @@
 package com.marginallyclever.convenience;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+
+import org.junit.Test;
 
 import com.jogamp.opengl.GL2;
 
@@ -117,5 +120,100 @@ public class MatrixHelper {
 		gl2.glPopMatrix();
 		
 		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
+	}
+	
+	/**
+	 * Confirms that this matrix is a rotation matrix.  Matrix A * transpose(A) should be the Identity.
+	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * @param mat
+	 * @return
+	 */
+	public static boolean isRotationMatrix(Matrix3d mat) {
+		Matrix3d m1 = new Matrix3d(mat);
+		Matrix3d m2 = new Matrix3d();
+		m2.transpose(m1);
+		m1.mul(m2);
+		m2.setIdentity();
+		return m1.epsilonEquals(m2, 1e-6);
+	}
+	
+	/**
+	 * Convert a matrix to Euler rotations.  There are many valid solutions.
+	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * @param mat the Matrix3d to convert.
+	 * @return a Vector3d resulting radian rotations.  One possible solution.
+	 */
+	public static Vector3d matrixToEuler(Matrix3d mat) {
+		assert(isRotationMatrix(mat));
+		
+		double sy = Math.sqrt(mat.m00*mat.m00 + mat.m10*mat.m10);
+		boolean singular = sy < 1e-6;
+		double x,y,z;
+		if(!singular) {
+			x = Math.atan2( mat.m21,mat.m22);
+			y = Math.atan2(-mat.m20,sy);
+			z = Math.atan2( mat.m10,mat.m00);
+		} else {                   
+			x = Math.atan2(-mat.m12, mat.m11);
+			y = Math.atan2(-mat.m20, sy);
+			z = 0;
+		}
+		return new Vector3d(x,y,z);
+	}
+	
+	/**
+	 * Convert euler rotations to a matrix.  See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * @param v radian rotation values
+	 * @return Matrix3d resulting matrix
+	 */
+	public static Matrix3d eulerToMatrix(Vector3d v) {
+		double c0 = Math.cos(v.x);
+		double s0 = Math.sin(v.x);
+		double c1 = Math.cos(v.y);
+		double s1 = Math.sin(v.y);
+		double c2 = Math.cos(v.z);
+		double s2 = Math.sin(v.z);
+		
+		Matrix3d rX=new Matrix3d( 1,  0, 0,
+								  0,c0,-s0,
+								  0,s0, c0);
+		Matrix3d rY=new Matrix3d(c1,  0,s1,
+								  0,  1, 0,
+								-s1,  0,c1);
+		Matrix3d rZ=new Matrix3d(c2,-s2, 0,
+				                 s2, c2, 0,
+				                  0,  0, 1);
+
+		Matrix3d result = new Matrix3d();
+		Matrix3d interim = new Matrix3d();
+		interim.mul(rY,rX);
+		result.mul(rZ,interim);
+
+		return result;
+	}
+	
+	@Test
+	public void testEulerMatrix() {
+		Vector3d v2;
+		Vector3d v1 = new Vector3d();
+		for(int i=0;i<1000;++i) {
+			v1.x = Math.random() * Math.PI*2.0;
+			v1.y = Math.random() * Math.PI*2.0;
+			v1.z = Math.random() * Math.PI*2.0;
+			
+			Matrix3d a = eulerToMatrix(v1);
+			v2 = matrixToEuler(a);
+			Matrix3d b = eulerToMatrix(v2);
+			
+			boolean test = b.epsilonEquals(a, 1e-6);
+			if(test==false) {
+				System.out.println(i+"a="+a);
+				System.out.println(i+"b="+b);
+				b.sub(a);
+				System.out.println(i+"d="+b);
+			}
+			org.junit.Assert.assertTrue(test);
+		}
+		System.out.println("testEulerMatrix() OK");
 	}
 }
