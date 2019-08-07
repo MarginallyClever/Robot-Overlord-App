@@ -26,7 +26,6 @@ import com.marginallyclever.robotOverlord.world.World;
 /**
  * A robot designed using D-H parameters.
  * @author Dan Royer
- *
  */
 public abstract class DHRobot extends Robot {
 	/**
@@ -534,9 +533,9 @@ public abstract class DHRobot extends Robot {
         	isDirty=driveFromKeyState();
         }
         
-        isDirty = RecordingManager.manageBoolean(isDirty);
+        //isDirty = RecordingManager.manageBoolean(isDirty);
         if(isDirty) {
-        	RecordingManager.manageMatrix4d(targetPose);
+        	//RecordingManager.manageMatrix4d(targetPose);
 	    	
         	// Attempt to solve IK
         	solver.solve(this,targetPose,solutionKeyframe);

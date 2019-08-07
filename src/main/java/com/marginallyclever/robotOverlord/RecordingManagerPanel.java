@@ -34,22 +34,25 @@ public class RecordingManagerPanel extends JPanel implements ActionListener {
 		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-
-		this.add(buttonRecord=new JButton("Record")  , con1);	con1.gridy++;
-		this.add(buttonPlay  =new JButton("Play")    , con1);	con1.gridy++;
-		buttonRecord.addActionListener(this);
-		buttonPlay.addActionListener(this);
+		
+		buttonRecord=new JButton("Record");
+		buttonPlay  =new JButton("Play");
+		
+		//this.add(buttonRecord, con1);	con1.gridy++;
+		//this.add(buttonPlay  , con1);	con1.gridy++;
+		//buttonRecord.addActionListener(this);
+		//buttonPlay.addActionListener(this);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-		if(source == buttonRecord && !RecordingManager.isPlaying()) {
-			RecordingManager.setRecording(!RecordingManager.isRecording());
-		}
-		if(source == buttonPlay && !RecordingManager.isRecording()) {
-			RecordingManager.setPlaying(!RecordingManager.isPlaying());
-		}
+		//Object source = e.getSource();
+		//if(source == buttonRecord && !RecordingManager.isPlaying()) {
+		//	RecordingManager.setRecording(!RecordingManager.isRecording());
+		//}
+		//if(source == buttonPlay && !RecordingManager.isRecording()) {
+		//	RecordingManager.setPlaying(!RecordingManager.isPlaying());
+		//}
 	}
 
 }

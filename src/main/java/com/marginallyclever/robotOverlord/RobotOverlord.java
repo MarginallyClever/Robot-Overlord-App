@@ -604,8 +604,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
    	        // if playing, read the input from the recording
 	    	// if recording, write the input changes to the recording
-	    	RecordingManager.step();
-	    	RecordingManager.manageArrayOfDoubles(InputManager.keyState);
+	    	//RecordingManager.step();
+	    	//RecordingManager.manageArrayOfDoubles(InputManager.keyState);
     	
    			world.update( frameLength );
     	}
