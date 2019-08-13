@@ -220,6 +220,18 @@ public class DHRobot_Sixi2 extends DHRobot {
 			sendLineToRobot("D20");
 		}
 		
+		// TODO move these into firmware so they are customized per-robot
+		ADJUST0 = -140;
+		ADJUST1 = 90;
+		ADJUST2 = -62.5;
+		ADJUST3 = 180+150;
+		ADJUST4 = 135+90;
+		ADJUST5 = 90+30;
+		
+		SCALE_3=-1;
+		SCALE_4=1;
+		SCALE_5=-1;
+		
 		double [] fk = new double[6];
 
 		fk[0] =(keyframe.fkValues[0]-ADJUST0)/SCALE_0;
@@ -228,7 +240,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 		fk[3] =(keyframe.fkValues[3]-ADJUST3)/SCALE_3;
 		fk[4] =(keyframe.fkValues[4]-ADJUST4)/SCALE_4;
 		fk[5] =(keyframe.fkValues[5]-ADJUST5)/SCALE_5;
-				
+		
 		for(int i=0;i<keyframe.fkValues.length;++i) {
 			double v = fk[i];
 			while(v<0) v+=360;
@@ -244,6 +256,11 @@ public class DHRobot_Sixi2 extends DHRobot {
 	    		+" V"+(StringHelper.formatDouble(fk[4]))
 	    		+" W"+(StringHelper.formatDouble(fk[5]))
 	    		;
+		
+		if(dhTool!=null) {
+			double t=dhTool.getAdjustableValue();
+			message += " T"+(180-t);
+		}
 				
 		//System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
 		
@@ -259,12 +276,6 @@ public class DHRobot_Sixi2 extends DHRobot {
 			if(data.startsWith(">")) {
 				data=data.substring(1).trim();
 			}
-			ADJUST0 = -160;
-			ADJUST1 = 90;
-			ADJUST2 = -65;
-			ADJUST3 = 180+35;
-			ADJUST4 = -135-90;
-			ADJUST5 = -90+30;
 
 			if(data.startsWith("D17")) {
 				String [] dataParts = data.split("\\s");
@@ -298,6 +309,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 						// angles after adjusting for scale and offset.
 						System.out.println(AnsiColors.PURPLE+data+"\t>>\t"+message+AnsiColors.RESET);
 						//*/
+						if(data.endsWith("\n")) {
+							data = data.substring(0,data.length()-1);
+						}
 						System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 						
 						/*
@@ -316,6 +330,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 		super.dataAvailable(arg0, data);
 	}
 	
+
+	/**
+	 * End matrix (the pose of the robot arm gripper) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
+	 * where XYZ are translation values and IJK are euler rotations of the matrix.
+	 * @return the text format for the current pose.
+	 */
 	public String generateGCode() {
 		Matrix3d m1 = new Matrix3d();
 		Vector3d t1 = new Vector3d();
@@ -338,6 +358,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 		return message;
 	}
 	
+	/**
+	 * End matrix (the pose of the robot arm gripper) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
+	 * where XYZ are translation values and IJK are euler rotations of the matrix.
+	 * The text, if parsed ok, will set the current end matrix.
+	 * @param str the text format of one pose.
+	 */
 	public void parseGCode(String str) {
 		Vector3d t1 = new Vector3d();
 		Vector3d e1 = new Vector3d();

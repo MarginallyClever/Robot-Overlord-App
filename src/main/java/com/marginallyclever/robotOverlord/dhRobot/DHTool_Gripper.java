@@ -36,8 +36,8 @@ public class DHTool_Gripper extends DHTool {
 	private transient Matrix4d heldRelative;
 	
 	private double gripperServoAngle=90;
-	public static final double ANGLE_MAX=70;
-	public static final double ANGLE_MIN=5;
+	public static final double ANGLE_MAX=55;
+	public static final double ANGLE_MIN=10;
 	
 	private Model linkage;
 	private Model finger;
