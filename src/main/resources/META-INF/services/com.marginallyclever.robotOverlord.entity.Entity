@@ -16,3 +16,6 @@ com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
 #com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
 #com.marginallyclever.robotOverlord.spidee.Spidee
 com.marginallyclever.robotOverlord.Waypoint
+
+#tests
+#com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
