@@ -2,6 +2,7 @@ package com.marginallyclever.convenience;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
 import org.junit.Test;
@@ -215,5 +216,34 @@ public class MatrixHelper {
 			org.junit.Assert.assertTrue(test);
 		}
 		System.out.println("testEulerMatrix() OK");
+	}
+	
+	/**
+	 * Interpolate between two 4d matrixes, (end-start)*i + start where i=[0...1]
+	 * @param start start matrix
+	 * @param end end matrix
+	 * @param alpha double value in the range [0...1]
+	 * @param result where to store the resulting matrix
+	 * @return True if the operation succeeds.  False if the inputs are bad or the operation fails. 
+	 */
+	public boolean interpolate(Matrix4d start,Matrix4d end,double alpha,Matrix4d result) {
+		if(alpha<0 || alpha>1) return false;
+		// spherical interpolation (slerp) between the two matrix orientations
+		Quat4d qStart = new Quat4d();
+		start.get(qStart);
+		Quat4d qEnd = new Quat4d();
+		end.get(qEnd);
+		qStart.interpolate(qEnd, alpha);
+		// linear interpolation between the two matrix translations
+		Vector3d tStart = new Vector3d();
+		start.get(tStart);
+		Vector3d tEnd = new Vector3d();
+		end.get(tEnd);
+		tStart.interpolate(tEnd, alpha);
+		// build the result matrix
+		result.set(qStart);
+		result.setTranslation(tStart);
+		// report ok
+		return true;
 	}
 }
