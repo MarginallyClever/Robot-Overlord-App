@@ -14,7 +14,6 @@ import javax.vecmath.Point3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.RecordingManager;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -520,16 +519,90 @@ public abstract class DHRobot extends Robot {
 	}
 	
 	
+	/**
+	 * Direct Drive Mode means that we're not playing animation of any kind.
+	 * That means no gcode running, no scrubbing on a timeline, or any other kind of external control.
+	 * @return true if we're in direct drive mode. 
+	 */
+	protected boolean inDirectDriveMode() {
+		return animationSpeed==0;
+	}
+	
 	
 	@Override
-	public void update(double dt) {		
+	public void update(double dt) {
+		//update1(dt);
+		update2(dt);
+	}
+	
+	protected void update2(double dt) {
+        // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
+        oldPose.set(targetPose);
+
+        if(inDirectDriveMode()) {
+        	if(driveFromKeyState()) {
+            	// Attempt to solve IK
+            	solver.solve(this,targetPose,solutionKeyframe);
+            	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+            		// Solved!  Are angles OK for this robot?
+            		if(sanityCheck(solutionKeyframe)) {
+    	        		// Yes!  Are we connected to a live robot?        			
+    	        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
+    	        			// Send our internal data to the robot.  Each robot probably has its own post-processor.
+            				sendNewStateToRobot(solutionKeyframe);
+            				// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
+            				isReadyToReceive=false;
+    	        		} else {
+    	        			// No connected robot, update the pose directly.
+    	            		this.setRobotPose(solutionKeyframe);
+    	        		}
+            		} else {
+            			// failed sanity check
+                		targetPose.set(oldPose);
+                	}
+            	} else {
+            		// No valid IK solution.
+            		targetPose.set(oldPose);
+            	}
+        	}
+        } else {
+        	// not in direct drive mode.
+        	// are we playing a gcode file?
+
+        	// The normal process is to send as many commands as fast the brain can handle.
+        	// it will then queue the commands and - where appropriate - optimize speed between commands.
+        	// The Arduino Mega in the Sixi 2 is too slow to calculate IK so they have to be done on the PC.
+        	// The Arduino Mega in the Sixi 2 only understands joint-angle values in the robot arm.
+        	//
+        	// If I send only the (potentially distant) target pose as joint-angle values, the robot will move in large arcs.
+        	// I may need to send several sub-moves, close enough together that the result looks straight.  I don't yet know how small
+        	// those moves will be.
+        	//
+        	// I cannot algorithmically interpolate between joint-angle values in a straight line.
+        	// I can algorithmically interpolate between two matrixes (see com.marginallyclever.convenience.MatrixHelper.interpolate())
+        	// For this reason I store target poses as matrixes in PC instead of joint-angle values.
+        	// 
+        	// Inverse Kinematics (IK) in the PC will then convert a matrix into angle values.
+        	//
+        	// If path-splitting is enabled {
+	        	// I can compare the distance/angle between the two matrixes in the list.
+	        	// If the distance/angle is more than some value, I want to split the movement into sub-commands.
+	        	// Splitting commands means finding the matrix at the split points, which means interpolating between two matrixes.  
+	        	// MatrixHelper.interpolate() can be used here.
+        		// then the list gets bigger to include the intermediate matrixes
+        	// }
+        	// Once I have the list matrixes, I run the IK solver on each matrix, which generates a list of angle values.
+        	// Then I send the matrixes to the robot as fast as it can handle them.
+        }
+	}
+	
+	protected void update1(double dt) {
         boolean isDirty=false;
         
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
         oldPose.set(targetPose);
 
-        if(animationSpeed==0) {
-        	// if we are in direct drive mode
+        if(inDirectDriveMode()) {
         	isDirty=driveFromKeyState();
         }
         
