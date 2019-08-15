@@ -26,13 +26,13 @@ public class DHRobot_UArm extends DHRobot {
 	private transient Model forearm;
 	private transient Model wrist;
 	private transient Model hand;
-
+/*
 	private transient Model linkA1;
 	private transient Model linkA2;
 	private transient Model linkA3;
 	private transient Model linkB1;
 	private transient Model linkB2;
-
+*/
 	public boolean isFirstTime;
 
 	public DHRobot_UArm() {
@@ -90,12 +90,12 @@ public class DHRobot_UArm extends DHRobot {
 			bicep    = ModelFactory.createModelFromFilename("/uArm/bicep.STL",0.1f);
 			forearm  = ModelFactory.createModelFromFilename("/uArm/forearm.STL",0.1f);
 			wrist    = ModelFactory.createModelFromFilename("/uArm/wrist.STL",0.1f);
-			hand     = ModelFactory.createModelFromFilename("/uArm/hand.STL",0.1f);
+			hand     = ModelFactory.createModelFromFilename("/uArm/hand.STL",0.1f);/*
 			linkA1 = ModelFactory.createModelFromFilename("/uArm/linkA1.STL",0.1f);
 			linkA2 = ModelFactory.createModelFromFilename("/uArm/linkA2.STL",0.1f);
 			linkA3 = ModelFactory.createModelFromFilename("/uArm/linkA3.STL",0.1f);
 			linkB1 = ModelFactory.createModelFromFilename("/uArm/linkB1.STL",0.1f);
-			linkB2 = ModelFactory.createModelFromFilename("/uArm/linkB2.STL",0.1f);
+			linkB2 = ModelFactory.createModelFromFilename("/uArm/linkB2.STL",0.1f);*/
 
 			links.get(0).model = base;
 			links.get(1).model = shoulder;
