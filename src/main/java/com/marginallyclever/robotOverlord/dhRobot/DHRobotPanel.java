@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -141,6 +142,12 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		this.add(gcodeLabel=new JLabel("Gcode"), con1); con1.gridy++;
 		this.add(gcodeValue=new JTextField(),con1); con1.gridy++;
 		gcodeValue.setEditable(false);
+		
+		Dimension dim = gcodeValue.getPreferredSize();
+		dim.width=60;
+		gcodeValue.setPreferredSize( dim );
+		gcodeValue.setMaximumSize(dim);
+		
 		gcodeValue.addMouseListener(new MouseAdapter(){
             @Override
             public void mouseClicked(MouseEvent e){
