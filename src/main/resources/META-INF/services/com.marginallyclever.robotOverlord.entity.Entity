@@ -19,3 +19,5 @@ com.marginallyclever.robotOverlord.Waypoint
 
 #tests
 com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
+# sends gcode to a dhrobot
+com.marginallyclever.robotOverlord.dhRobot.DHRobot_Player
