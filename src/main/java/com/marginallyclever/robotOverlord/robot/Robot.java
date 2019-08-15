@@ -241,7 +241,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	protected void loadModels(GL2 gl2) {}
 	
 	/**
-	 * Pr)ocesses a single instruction meant for the robot.
+	 * Processes a single instruction meant for the robot.
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
@@ -484,5 +484,9 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	public void setAnimationSpeed(double animationSpeed) {
 		this.animationSpeed = animationSpeed;
 		robotPanel.keyframeEditSetEnable(animationSpeed==0);
+	}
+	
+	public boolean isReadyToReceive() {
+		return isReadyToReceive;
 	}
 }
