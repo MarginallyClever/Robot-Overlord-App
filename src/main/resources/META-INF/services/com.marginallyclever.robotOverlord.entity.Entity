@@ -18,4 +18,4 @@ com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
 com.marginallyclever.robotOverlord.Waypoint
 
 #tests
-#com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
+com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
