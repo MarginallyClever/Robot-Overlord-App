@@ -22,20 +22,23 @@ public class DHRobot_Sixi2 extends DHRobot {
 	private static final long serialVersionUID = 1L;
 
 	// translate the values between the robot and the software
-	private static double ADJUST0 = -180;
+	// TODO these values are adjusted per-robot and should live in the firmware.
+	private static double ADJUST0 = -140;
 	private static double ADJUST1 = 90;
-	private static double ADJUST2 = -65;
-	private static double ADJUST3 = 180+35;
-	private static double ADJUST4 = -135;
-	private static double ADJUST5 = -90+30;
+	private static double ADJUST2 = -62.5;
+	private static double ADJUST3 = 180+150;
+	private static double ADJUST4 = 135+90;
+	private static double ADJUST5 = 90+30;
 
 	// scale the values between the robot and the software
+	// TODO these values are adjusted per-robot and should live in the firmware.
 	private static double SCALE_0=-1;
 	private static double SCALE_1=1;
 	private static double SCALE_2=1;
 	private static double SCALE_3=-1;
 	private static double SCALE_4=1;
 	private static double SCALE_5=-1;
+	
 
 	public boolean isFirstTime;
 	public Material material;
@@ -220,20 +223,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 			sendLineToRobot("D20");
 		}
 		
-		// TODO move these into firmware so they are customized per-robot
-		ADJUST0 = -140;
-		ADJUST1 = 90;
-		ADJUST2 = -62.5;
-		ADJUST3 = 180+150;
-		ADJUST4 = 135+90;
-		ADJUST5 = 90+30;
-		
-		SCALE_3=-1;
-		SCALE_4=1;
-		SCALE_5=-1;
-		
 		double [] fk = new double[6];
-
+		ADJUST4 = 135;
+		
 		fk[0] =(keyframe.fkValues[0]-ADJUST0)/SCALE_0;
 		fk[1] =(keyframe.fkValues[1]-ADJUST1)/SCALE_1;
 		fk[2] =(keyframe.fkValues[2]-ADJUST2)/SCALE_2;
@@ -254,7 +246,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	    		+" Z"+(StringHelper.formatDouble(fk[2]))
 	    		+" U"+(StringHelper.formatDouble(fk[3]))
 	    		+" V"+(StringHelper.formatDouble(fk[4]))
-	    		+" W"+(StringHelper.formatDouble(fk[5]))
+	    		//+" W"+(StringHelper.formatDouble(fk[5]))
 	    		;
 		
 		if(dhTool!=null) {
@@ -340,11 +332,13 @@ public class DHRobot_Sixi2 extends DHRobot {
 		Matrix3d m1 = new Matrix3d();
 		Vector3d t1 = new Vector3d();
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
-		endMatrix.get(m1, t1);
+		
+		// calculate the matrix for the wrist, not the tool.
+		this.links.get(6).poseCumulative.get(m1, t1);
 		
 		Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
-		String message = "G0 "
+		String message = "G0"
 				+" X"+StringHelper.formatDouble(t1.x)
 				+" Y"+StringHelper.formatDouble(t1.y)
 				+" Z"+StringHelper.formatDouble(t1.z)
