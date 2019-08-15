@@ -356,13 +356,13 @@ public class DHRobot_Sixi2 extends DHRobot {
 	 * End matrix (the pose of the robot arm gripper) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
 	 * where XYZ are translation values and IJK are euler rotations of the matrix.
 	 * The text, if parsed ok, will set the current end matrix.
-	 * @param str the text format of one pose.
+	 * @param line the text format of one pose.
 	 */
-	public void parseGCode(String str) {
+	public void parseGCode(String line) {
 		Vector3d t1 = new Vector3d();
 		Vector3d e1 = new Vector3d();
-		
-		StringTokenizer tokens = new StringTokenizer(str);
+				
+		StringTokenizer tokens = new StringTokenizer(line);
 		while(tokens.hasMoreTokens()) {
 			String token = tokens.nextToken();
 			
@@ -377,10 +377,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 			}
 		}
 		Matrix3d m1 = MatrixHelper.eulerToMatrix(e1);
-		endMatrix.set(m1, t1, 1.0);
+		endPose.set(m1, t1, 1.0);
+		startPose.set(endMatrix);
+		interpolatePoseT=0;
 
 		if(dhTool!=null) {
-			dhTool.parseGCode(str);
+			dhTool.parseGCode(line);
 		}
 	}
 }
