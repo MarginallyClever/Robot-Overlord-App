@@ -115,7 +115,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
-	protected SecondaryPanel secondaryPanel;
+	//protected SecondaryPanel secondaryPanel;
 	
 	// undo/redo system
 	private UndoManager commandSequence;
@@ -232,12 +232,13 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         splitLeftRight.add(contextMenu);
         
         // Also split up/down
-        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
-        splitUpDown.add(splitLeftRight);
-        splitUpDown.add(secondaryPanel = new SecondaryPanel());
+        //splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
+        //splitUpDown.add(splitLeftRight);
+        //splitUpDown.add(secondaryPanel = new SecondaryPanel());
         
 		// add the split panel to the main frame
-        mainFrame.add(splitUpDown);
+        //mainFrame.add(splitUpDown);
+        mainFrame.add(splitLeftRight);
         // validate (adjust positions of buttons and such) so it can be painted
         mainFrame.validate();
         // make it visible
