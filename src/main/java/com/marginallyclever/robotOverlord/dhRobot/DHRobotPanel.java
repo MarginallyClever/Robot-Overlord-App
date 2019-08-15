@@ -3,10 +3,15 @@ package com.marginallyclever.robotOverlord.dhRobot;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -18,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -47,6 +53,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public ArrayList<DHLinkPanel> linkPanels;
 	public JLabel endx,endy,endz,activeTool,gcodeLabel;
 	public JButton buttonSetTool;
+	public JTextField gcodeValue;
 	
 	public JCheckBox showBones;
 	public JCheckBox showAngleMinMax;
@@ -131,7 +138,17 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
 		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;
 		this.add(endz=new JLabel("Z="), con1);	con1.gridy++;
-		this.add(gcodeLabel=new JLabel("Gcode="), con1); con1.gridy++;
+		this.add(gcodeLabel=new JLabel("Gcode"), con1); con1.gridy++;
+		this.add(gcodeValue=new JTextField(),con1); con1.gridy++;
+		gcodeValue.setEditable(false);
+		gcodeValue.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+            	StringSelection stringSelection = new StringSelection(gcodeValue.getText());
+            	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            	clipboard.setContents(stringSelection, null);
+            }
+        });
 
 		robot.refreshPose();
 		updateEnd();
@@ -188,7 +205,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		endx.setText("Rx="+StringHelper.formatDouble(robot.endMatrix.m03));
 		endy.setText("Ry="+StringHelper.formatDouble(robot.endMatrix.m13));
 		endz.setText("Rz="+StringHelper.formatDouble(robot.endMatrix.m23));
-		gcodeLabel.setText("Gcode="+robot.generateGCode());
+		gcodeValue.setText(robot.generateGCode());
 		
 		// run the IK solver to see if solution works.
 		//DHIKSolver solver = robot.getSolverIK();
