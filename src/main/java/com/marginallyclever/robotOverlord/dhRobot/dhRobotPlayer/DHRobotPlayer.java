@@ -1,12 +1,17 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JPanel;
+
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.world.World;
 
@@ -14,7 +19,7 @@ import com.marginallyclever.robotOverlord.world.World;
  * 
  * @author Dan Royer
  */
-public class DHRobot_Player extends Entity {
+public class DHRobotPlayer extends Entity {
 
 	/**
 	 * 
@@ -22,11 +27,46 @@ public class DHRobot_Player extends Entity {
 	private static final long serialVersionUID = 1L;
 	protected DHRobot target;
 	protected BufferedReader gcodeFile;
+	protected DHRobotPlayerPanel panel;
+	protected String fileToPlay;
 	
-	public DHRobot_Player() {
+	protected String getFileToPlay() {
+		return fileToPlay;
+	}
+
+
+	protected void setFileToPlay(String arg0) {
+		if(fileToPlay==null || !fileToPlay.equals(arg0)) {
+			this.fileToPlay = arg0;
+			
+			if(gcodeFile!=null) {
+				try {
+					gcodeFile.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				gcodeFile=null;
+			}
+		}
+	}
+
+
+	public DHRobotPlayer() {
 		super();
 		
 		setDisplayName("DHRobot_Player");
+	}
+	
+
+	@Override
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		
+		panel = new DHRobotPlayerPanel(gui,this);
+		list.add(panel);
+		
+		return list;
 	}
 	
 	@Override
@@ -69,11 +109,12 @@ public class DHRobot_Player extends Entity {
 	
 	protected void openFileNow() {
 		// gcode not yet loaded
+		if(fileToPlay==null) return;
+
 		try {
-			gcodeFile = new BufferedReader(new FileReader("C:\\Users\\Admin\\Desktop\\sixi2test.ngc"));
+			gcodeFile = new BufferedReader(new FileReader(fileToPlay));
 			System.out.println("File opened.");
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
