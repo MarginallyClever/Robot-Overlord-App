@@ -362,7 +362,14 @@ public class DHRobot_Sixi2 extends DHRobot {
 		Vector3d t1 = new Vector3d();
 		Vector3d e1 = new Vector3d();
 				
+		if(line.trim().length()==0) return;
+		
+		if(!( line.startsWith("G0 ") || line.startsWith("G00 ") ) ) return;
+		
 		StringTokenizer tokens = new StringTokenizer(line);
+		if(tokens.countTokens()==0) return;
+		tokens.nextToken();
+		
 		while(tokens.hasMoreTokens()) {
 			String token = tokens.nextToken();
 			
@@ -377,8 +384,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 			}
 		}
 		Matrix3d m1 = MatrixHelper.eulerToMatrix(e1);
+
+		startPose.set(targetPose);
 		endPose.set(m1, t1, 1.0);
-		startPose.set(endMatrix);
 		interpolatePoseT=0;
 
 		if(dhTool!=null) {
