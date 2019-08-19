@@ -31,6 +31,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionSetDHTool;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
@@ -72,42 +73,56 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	
 	protected void buildPanel() {
 		this.removeAll();
-		this.setBorder(new EmptyBorder(0,0,0,0));
+
+
 		this.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx=0;
+		c.gridy=0;
+		c.weightx=1;
+		c.weighty=1;
+		c.anchor=GridBagConstraints.NORTHWEST;
+		c.fill=GridBagConstraints.HORIZONTAL;
+
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("DHRobot");
+		this.add(oiwPanel,c);
+		JPanel contents = oiwPanel.getContentPane();		
+		
+		contents.setBorder(new EmptyBorder(0,0,0,0));
+		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
 		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		//con1.anchor=GridBagConstraints.CENTER;
 
 		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
 		//con1.gridy++;
 		//numLinks.addChangeListener(this);
 
-		this.add(new JSeparator(JSeparator.VERTICAL), con1);
+		contents.add(new JSeparator(JSeparator.VERTICAL), con1);
 		con1.gridy++;
 		
-		this.add(showBones=new JCheckBox(),con1);
+		contents.add(showBones=new JCheckBox(),con1);
 		showBones.setText("Show D-H bones");
 		showBones.addItemListener(this);
 		showBones.setSelected(robot.isShowBones());
 		con1.gridy++;
 		
-		this.add(showAngleMinMax=new JCheckBox(),con1);
+		contents.add(showAngleMinMax=new JCheckBox(),con1);
 		showAngleMinMax.setText("Show angle min/max");
 		showAngleMinMax.addItemListener(this);
 		showAngleMinMax.setSelected(robot.isShowAngles());
 		con1.gridy++;
 		
-		this.add(showPhysics=new JCheckBox(),con1);
+		contents.add(showPhysics=new JCheckBox(),con1);
 		showPhysics.setText("Show physics model");
 		showPhysics.addItemListener(this);
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
 		
-		this.add(rotateOnWorldAxies=new JCheckBox(),con1);
+		contents.add(rotateOnWorldAxies=new JCheckBox(),con1);
 		rotateOnWorldAxies.setText("Absolute rotation");
 		rotateOnWorldAxies.addItemListener(this);
 		rotateOnWorldAxies.setSelected(robot.rotateOnWorldAxies);
@@ -115,7 +130,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		
 		
 		
-		this.add(new JSeparator(JSeparator.VERTICAL), con1);
+		contents.add(new JSeparator(JSeparator.VERTICAL), con1);
 		con1.gridy++;
 		
 		int k=0;
@@ -125,22 +140,22 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
 			linkPanels.add(e);
 
-			if((link.flags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_D		)==0) {	contents.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	contents.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_R		)==0) {	contents.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	contents.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
 		}
 		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		this.add(buttonSetTool=new JButton("Set tool"), con1);	con1.gridy++;
+		contents.add(buttonSetTool=new JButton("Set tool"), con1);	con1.gridy++;
 		buttonSetTool.addActionListener(this);
 		
-		this.add(activeTool=new JLabel("Tool=") ,con1);  con1.gridy++; 
-		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
-		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;
-		this.add(endz=new JLabel("Z="), con1);	con1.gridy++;
-		this.add(gcodeLabel=new JLabel("Gcode"), con1); con1.gridy++;
-		this.add(gcodeValue=new JTextField(),con1); con1.gridy++;
+		contents.add(activeTool=new JLabel("Tool=") ,con1);  con1.gridy++; 
+		contents.add(endx=new JLabel("X="), con1);	con1.gridy++;
+		contents.add(endy=new JLabel("Y="), con1);	con1.gridy++;
+		contents.add(endz=new JLabel("Z="), con1);	con1.gridy++;
+		contents.add(gcodeLabel=new JLabel("Gcode"), con1); con1.gridy++;
+		contents.add(gcodeValue=new JTextField(),con1); con1.gridy++;
 		gcodeValue.setEditable(false);
 		
 		Dimension dim = gcodeValue.getPreferredSize();
