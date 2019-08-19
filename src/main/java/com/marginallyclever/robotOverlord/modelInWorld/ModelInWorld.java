@@ -54,7 +54,8 @@ public class ModelInWorld extends PhysicalObject {
 		modelPanel = new ModelInWorldPanel(gui,this);
 		list.add(modelPanel);
 		
-		list.addAll(material.getContextPanel(gui));
+		ArrayList<JPanel> list2 = material.getContextPanel(gui);
+		list.add(list2.get(list2.size()-1));
 		
 		return list;
 	}
@@ -118,6 +119,7 @@ public class ModelInWorld extends PhysicalObject {
 				model = ModelFactory.createModelFromFilename(filename);
 				model.setScale(scale);
 				model.adjustOrigin(originAdjust);
+				model.adjustRotation(rotationAdjust);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
