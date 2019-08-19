@@ -9,17 +9,18 @@ import java.util.Iterator;
 
 import javax.swing.JPanel;
 
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.world.World;
 
 /**
  * 
  * @author Dan Royer
  */
-public class DHRobotPlayer extends Entity {
+public class DHRobotPlayer extends ModelInWorld {
 
 	/**
 	 * 
@@ -29,6 +30,50 @@ public class DHRobotPlayer extends Entity {
 	protected BufferedReader gcodeFile;
 	protected DHRobotPlayerPanel panel;
 	protected String fileToPlay;
+	
+	protected boolean isCycleStart,isLoop,isSingleBlock;
+
+
+	public boolean isCycleStart() {
+		return isCycleStart;
+	}
+
+	public void setCycleStart(boolean isCycleStart) {
+		this.isCycleStart = isCycleStart;
+	}
+
+	public boolean isLoop() {
+		return isLoop;
+	}
+
+	public void setLoop(boolean isLoop) {
+		this.isLoop = isLoop;
+	}
+
+	public boolean isSingleBlock() {
+		return isSingleBlock;
+	}
+
+	public void setSingleBlock(boolean isSingleBlock) {
+		this.isSingleBlock = isSingleBlock;
+	}
+
+	public DHRobotPlayer() {
+		super();
+		
+		setDisplayName("DHRobotPlayer");
+		isCycleStart=false;
+		isLoop=false;
+		isSingleBlock=false;
+		
+		try {
+			this.model = ModelFactory.createModelFromFilename("/Sixi2/box.stl",0.1f);
+			this.adjustRotation(90, 0, 0);
+			this.adjustOrigin(0,60,0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	protected String getFileToPlay() {
 		return fileToPlay;
@@ -49,13 +94,6 @@ public class DHRobotPlayer extends Entity {
 				gcodeFile=null;
 			}
 		}
-	}
-
-
-	public DHRobotPlayer() {
-		super();
-		
-		setDisplayName("DHRobot_Player");
 	}
 	
 
@@ -93,15 +131,24 @@ public class DHRobotPlayer extends Entity {
 		
 		if(target!=null && gcodeFile!=null) {
 			if((target.getConnection()!=null && target.isReadyToReceive()) || !target.isInterpolating() ) {
-				try {
-					String line = gcodeFile.readLine();
-					if(line==null) {
-						openFileNow();
-					} else {
-						target.parseGCode(line);
+				if(isCycleStart) {
+					if(isSingleBlock) {
+						isCycleStart=false;
+						if(panel!=null) panel.buttonCycleStart.setSelected(false);
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
+					try {
+						String line = gcodeFile.readLine();
+						if(line==null) {
+							if(isLoop) {
+								// restart
+								openFileNow();
+							}
+						} else {
+							target.parseGCode(line);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -118,9 +165,23 @@ public class DHRobotPlayer extends Entity {
 			e.printStackTrace();
 		}
 	}
+	
+	protected void closeFileNow() {
+		try {
+			gcodeFile.close();
+			gcodeFile=null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void stop() {
+		panel.buttonCycleStart.setSelected(false);
+	}
 
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
+	public void reset() {
+		stop();
+		closeFileNow();
+		openFileNow();
 	}
 }
