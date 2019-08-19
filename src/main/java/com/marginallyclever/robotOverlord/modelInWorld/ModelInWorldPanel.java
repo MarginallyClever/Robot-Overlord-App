@@ -79,7 +79,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		contents.add(setOrigin,con1);
 		con1.gridy++;
 
-		setRotation = new UserCommandSelectVector3d(gui,"Adjust rotation",model.getAdjustOrigin());
+		setRotation = new UserCommandSelectVector3d(gui,"Adjust rotation",model.getAdjustRotation());
 		setRotation.addChangeListener(this);
 		contents.add(setRotation,con1);
 		con1.gridy++;
