@@ -58,9 +58,9 @@ public abstract class DHRobot extends Robot {
 	protected Matrix4d targetPose;
 	
 
-	protected Matrix4d startPose = new Matrix4d();
-	protected Matrix4d endPose = new Matrix4d();
-	protected double interpolatePoseT=0;
+	protected Matrix4d startPose;
+	protected Matrix4d endPose;
+	protected double interpolatePoseT;
 
 	/**
 	 * {@value oldPose} the last valid pose.  Used in case the IK solver fails to solve the targetPose. 
@@ -114,6 +114,10 @@ public abstract class DHRobot extends Robot {
 		targetPose = new Matrix4d();
 		oldPose = new Matrix4d();
 		homePose = new Matrix4d();
+		
+		startPose = new Matrix4d();
+		endPose = new Matrix4d();
+		interpolatePoseT=1;
 		
 		drawAsSelected=false;
 		hitBox1=-1;
@@ -237,12 +241,7 @@ public abstract class DHRobot extends Robot {
 				}
 			gl2.glPopMatrix();
 			
-			MatrixHelper.drawMatrix2(gl2, 
-					new Vector3d((float)endMatrix.m03,(float)endMatrix.m13,(float)endMatrix.m23),
-					new Vector3d((float)endMatrix.m00,(float)endMatrix.m10,(float)endMatrix.m20),
-					new Vector3d((float)endMatrix.m01,(float)endMatrix.m11,(float)endMatrix.m21),
-					new Vector3d((float)endMatrix.m02,(float)endMatrix.m12,(float)endMatrix.m22)
-					);
+			MatrixHelper.drawMatrix(gl2, endMatrix, 1.0);
 		gl2.glPopMatrix();
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -543,8 +542,12 @@ public abstract class DHRobot extends Robot {
 	
 	protected void update2(double dt) {
 		if(interpolatePoseT<1) {
-			interpolatePoseT+=dt;
-			if(interpolatePoseT>1) interpolatePoseT=1;
+			interpolatePoseT+=dt*0.25;
+			if(interpolatePoseT>=1) {
+				Matrix4d diff = new Matrix4d(endPose);
+				diff.sub(endMatrix);
+				interpolatePoseT=1;
+			}
 			MatrixHelper.interpolate(startPose, endPose, interpolatePoseT, targetPose);
 		}
 		
