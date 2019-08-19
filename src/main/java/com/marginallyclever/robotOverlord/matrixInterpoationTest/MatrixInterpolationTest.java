@@ -1,5 +1,8 @@
 package com.marginallyclever.robotOverlord.matrixInterpoationTest;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -15,8 +18,8 @@ public class MatrixInterpolationTest extends Entity {
 	private static final long serialVersionUID = 1L;
 
 	public double alpha;
-	public Matrix4d start;
-	public Matrix4d end;
+	public ArrayList<Matrix4d> points;
+	public int index;
 	public Matrix4d result;
 	public double dir;
 	
@@ -26,38 +29,68 @@ public class MatrixInterpolationTest extends Entity {
 		
 		setDisplayName("matrixInterpolationtest");
 
-		start = new Matrix4d();
-		end = new Matrix4d();
+		points = new ArrayList<Matrix4d>();
+		for(int i=0;i<5;++i) {
+			Matrix4d temp = new Matrix4d();
+			temp.set(MatrixHelper.eulerToMatrix(new Vector3d(Math.random()*Math.PI*2, Math.random()*Math.PI*2, Math.random()*Math.PI*2)));
+			temp.setTranslation(new Vector3d(Math.random()*20-10,Math.random()*20-10,Math.random()*20));
+			points.add(temp);
+		}
 		result = new Matrix4d();
 		dir=1;
 		alpha=0;
-
-		start.set(MatrixHelper.eulerToMatrix(new Vector3d(Math.random()*Math.PI*2, Math.random()*Math.PI*2, Math.random()*Math.PI*2)));
-		end  .set(MatrixHelper.eulerToMatrix(new Vector3d(Math.random()*Math.PI*2, Math.random()*Math.PI*2, Math.random()*Math.PI*2)));
-		start.setTranslation(new Vector3d(Math.random()*20-10,Math.random()*20-10,Math.random()*20));
-		end  .setTranslation(new Vector3d(Math.random()*20-10,Math.random()*20-10,Math.random()*20));
 	}
 	
 	@Override
 	public void update(double dt) {
 		alpha+=dir*dt;
 		
+		//pingPong();
+		loop();
+	}
+	
+	public void loop() {
 		if(alpha>1) {
-			alpha=1;
-			dir=-dir;
+			index = (index+1) % points.size();
+			alpha-=1;
+		}
+	}
+	
+	public void pingPong() {
+		if(alpha>1) {
+			index++;
+			if(index>points.size()-2) {
+				index = points.size()-2;
+				dir=-1;
+				alpha=1;
+			} else {
+				alpha-=1;
+			}
 		}
 		if(alpha<0) {
-			alpha=0;
-			dir=-dir;
+			index--;
+			if(index<0) {
+				index=0;
+				dir=1;
+				alpha=0;
+			} else {
+				alpha+=1;
+			}
 		}
 		
 	}
 
 	@Override
 	public void render(GL2 gl2) {
+		Matrix4d start = points.get(index);
+		Matrix4d end = points.get((index+1)%points.size());
+		
 		MatrixHelper.interpolate(start,end,alpha,result);
-		MatrixHelper.drawMatrix(gl2, start, 3);
-		MatrixHelper.drawMatrix(gl2, end, 3);
-		MatrixHelper.drawMatrix(gl2, result, 3);
+		
+		Iterator<Matrix4d> i = points.iterator();
+		while(i.hasNext()) {
+			MatrixHelper.drawMatrix(gl2, i.next(), 3);
+		}
+		MatrixHelper.drawMatrix(gl2, result, 4);
 	}
 }
