@@ -243,7 +243,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.r    .setValue((float)linkPanel.link.r    ,false);
 			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.alpha.setValue((float)linkPanel.link.alpha,false);
 		}
-		
 	}
 	
 	@Override
@@ -283,6 +282,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		while(i.hasNext()) {
 			DHTool lft = i.next();
 			additionComboBox.addItem(lft.getDisplayName());
+			if(robot.getCurrentTool()!=null 
+					&& lft.getClass() == robot.getCurrentTool().getClass()) {
+				additionComboBox.setSelectedIndex(loadedTypes);
+			}
 			++loadedTypes;
 		}
 		
