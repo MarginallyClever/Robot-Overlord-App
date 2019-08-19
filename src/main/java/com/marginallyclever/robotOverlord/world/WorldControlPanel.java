@@ -15,9 +15,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
@@ -55,11 +57,24 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		c.gridx=0;
 		c.gridy=0;
 		c.weightx=1;
-		c.weighty=0;
+		c.weighty=1;
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
+
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("World");
+		this.add(oiwPanel,c);
+		JPanel contents = oiwPanel.getContentPane();		
 		
-		this.add(addButton = new UserCommandAddEntity(gui),c);
+		contents.setBorder(new EmptyBorder(0,0,0,0));
+		contents.setLayout(new GridBagLayout());
+		GridBagConstraints con1 = new GridBagConstraints();
+		con1.gridx=0;
+		con1.gridy=0;
+		con1.weightx=1;
+		con1.weighty=1;
+		con1.fill=GridBagConstraints.HORIZONTAL;
+		
+		contents.add(addButton = new UserCommandAddEntity(gui),c);
 		addButton.addActionListener(this);
 		c.gridy++;
 
@@ -73,7 +88,7 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		entityList = new JList<EntityListItem>(new Vector<EntityListItem>(localEntityList));
 		entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		c.weighty=1;
-		this.add(entityList,c);
+		contents.add(entityList,c);
 		c.gridy++;
 		
 		entityList.addMouseListener(new MouseAdapter() {
@@ -89,9 +104,9 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		    }
 		});
 		
-		this.add(gridWidth=new UserCommandSelectNumber(gui,"Grid Width",world.gridWidth),c);
+		contents.add(gridWidth=new UserCommandSelectNumber(gui,"Grid Width",world.gridWidth),c);
 		c.gridy++;
-		this.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",world.gridHeight),c);
+		contents.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",world.gridHeight),c);
 		c.gridy++;
 		gridWidth.addChangeListener(this);
 		gridHeight.addChangeListener(this);
