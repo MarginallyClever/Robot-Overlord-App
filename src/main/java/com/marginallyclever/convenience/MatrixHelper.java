@@ -168,12 +168,9 @@ public class MatrixHelper {
 	 * @return Matrix3d resulting matrix
 	 */
 	public static Matrix3d eulerToMatrix(Vector3d v) {
-		double c0 = Math.cos(v.x);
-		double s0 = Math.sin(v.x);
-		double c1 = Math.cos(v.y);
-		double s1 = Math.sin(v.y);
-		double c2 = Math.cos(v.z);
-		double s2 = Math.sin(v.z);
+		double c0 = Math.cos(v.x);		double s0 = Math.sin(v.x);
+		double c1 = Math.cos(v.y);		double s1 = Math.sin(v.y);
+		double c2 = Math.cos(v.z);		double s2 = Math.sin(v.z);
 		
 		Matrix3d rX=new Matrix3d( 1,  0, 0,
 								  0,c0,-s0,
@@ -207,6 +204,7 @@ public class MatrixHelper {
 			Matrix3d b = eulerToMatrix(v2);
 			
 			boolean test = b.epsilonEquals(a, 1e-6);
+			assert(test);
 			if(test==false) {
 				System.out.println(i+"a="+a);
 				System.out.println(i+"b="+b);
