@@ -7,7 +7,9 @@ import java.util.Iterator;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
-import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JPanel;
 
 
@@ -69,14 +71,23 @@ public class Entity implements Serializable {
 	 */
 	public JPanel getAllContextPanels(RobotOverlord gui) {
 		JPanel sum = new JPanel();
-		sum.setLayout(new BoxLayout(sum, BoxLayout.PAGE_AXIS));
+		GroupLayout layout = new GroupLayout(sum);
+		sum.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		ParallelGroup h = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
+		SequentialGroup v = layout.createSequentialGroup();
 		
 		ArrayList<JPanel> list = getContextPanel(gui);
 		Iterator<JPanel> pi = list.iterator();
 		while(pi.hasNext()) {
 			JPanel p = pi.next();
-			sum.add(p);
+			v.addComponent(p, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE);
+			h.addComponent(p, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 		}
+
+		layout.setVerticalGroup(v);
+		layout.setHorizontalGroup(h);
 		
 		return sum;
 	}
