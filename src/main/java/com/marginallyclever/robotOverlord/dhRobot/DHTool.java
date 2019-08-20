@@ -62,6 +62,10 @@ public class DHTool extends ModelInWorld {
 	public double getAdjustableValue() {
 		return dhLinkEquivalent.getAdjustableValue();
 	}
+
+	public String generateGCode() {
+		return "";
+	}
 	
 	public void parseGCode(String str) {}
 }

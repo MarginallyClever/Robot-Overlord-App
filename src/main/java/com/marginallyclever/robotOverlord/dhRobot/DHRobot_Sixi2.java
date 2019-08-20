@@ -27,7 +27,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	private static double ADJUST1 = 90;
 	private static double ADJUST2 = -62.5;
 	private static double ADJUST3 = 180+150;
-	private static double ADJUST4 = 135+90;
+	private static double ADJUST4 = 135;
 	private static double ADJUST5 = 90+30;
 
 	// scale the values between the robot and the software
@@ -186,6 +186,8 @@ public class DHRobot_Sixi2 extends DHRobot {
     		// save the live pose
     		DHKeyframe saveKeyframe = this.getRobotPose();
     		// set the ghost pose
+    		DHRobotPanel pTemp = this.panel;
+    		this.panel=null;
     		this.setRobotPose(keyframe);
     		// draw the ghost pose
     		materialGhost.render(gl2);
@@ -207,6 +209,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 			gl2.glPopMatrix();
 			// reset the live pose
 			this.setRobotPose(saveKeyframe);
+			this.panel=pTemp;
     	}
     	super.drawTargetPose(gl2);
 	}
@@ -312,7 +315,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 						inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						this.setRobotPose(inter);
 						/*/
-						this.setRobotPose(receivedKeyframe);
+						//this.setRobotPose(receivedKeyframe);
 						//*/
 					} catch(Exception e) {}
 				}
@@ -333,8 +336,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		Vector3d t1 = new Vector3d();
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
-		// calculate the matrix for the wrist, not the tool.
-		this.links.get(6).poseCumulative.get(m1, t1);
+		// calculate the matrix for the tool.
+		targetPose.get(m1, t1);
 		
 		Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -347,7 +350,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 				+" K"+StringHelper.formatDouble(e1.z)
 				;
 		if(dhTool!=null) {
-			message += " T"+StringHelper.formatDouble(dhTool.getAdjustableValue());
+			message += dhTool.generateGCode();
 		}
 		return message;
 	}

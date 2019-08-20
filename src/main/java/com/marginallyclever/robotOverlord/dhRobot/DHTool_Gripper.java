@@ -2,12 +2,14 @@ package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -245,15 +247,25 @@ public class DHTool_Gripper extends DHTool {
 		}
 		return null;
 	}
-	
-	public double getAdjustableValue() {
-		return gripperServoAngle;
+
+	public String generateGCode() {
+		String message = " T"+StringHelper.formatDouble(this.gripperServoAngle)
+						+ " R"+StringHelper.formatDouble(this.dhLinkEquivalent.r)
+						+ " S"+StringHelper.formatDouble(this.dhLinkEquivalent.d);
+		return message;
 	}
 	
 	public void parseGCode(String str) {
-		int index = str.indexOf('T');
-		if(index == -1) return;
-		
-		gripperServoAngle = Double.parseDouble(str.substring(index+1));
+		StringTokenizer tok = new StringTokenizer(str);
+		while(tok.hasMoreTokens()) {
+			String token = tok.nextToken();
+			try {
+				if(token.startsWith("T")) gripperServoAngle = Double.parseDouble(token.substring(1));
+				if(token.startsWith("R")) dhLinkEquivalent.r = Double.parseDouble(token.substring(1));
+				if(token.startsWith("S")) dhLinkEquivalent.d = Double.parseDouble(token.substring(1));
+			} catch(NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
