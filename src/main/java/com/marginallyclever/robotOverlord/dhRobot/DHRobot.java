@@ -439,13 +439,13 @@ public abstract class DHRobot extends Robot {
 			}
 		}
 		
-		int dD=(int)InputManager.keyState[8];
+		int dD=(int)InputManager.keyState[8];  // dpad up/down
 		if(dD!=0) {
 			dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
 			if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
 			isDirty=true;
-		}		
-		int dR=(int)InputManager.keyState[9];
+		}
+		int dR=(int)InputManager.keyState[9];  // dpad left/right
 		if(dR!=0) {
 			dhTool.dhLinkEquivalent.r+=dR*scale;
 			if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
@@ -745,6 +745,8 @@ public abstract class DHRobot extends Robot {
 		// save the live pose
 		DHKeyframe saveKeyframe = this.getRobotPose();
 		// set the test pose
+		DHRobotPanel pTemp = this.panel;
+		this.panel=null;
 		this.setRobotPose(keyframe);
 
 		hitBox1=-1;
@@ -779,6 +781,7 @@ public abstract class DHRobot extends Robot {
 
 		// set the live pose
 		this.setRobotPose(saveKeyframe);
+		this.panel=pTemp;
 		
 		return noCollision;
 	}
