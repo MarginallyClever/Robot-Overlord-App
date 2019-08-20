@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.awt.Component;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,10 +8,8 @@ import java.util.Iterator;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.ParallelGroup;
-import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JPanel;
+import javax.swing.SpringLayout;
 
 
 /**
@@ -71,23 +70,21 @@ public class Entity implements Serializable {
 	 */
 	public JPanel getAllContextPanels(RobotOverlord gui) {
 		JPanel sum = new JPanel();
-		GroupLayout layout = new GroupLayout(sum);
+		SpringLayout layout = new SpringLayout();
 		sum.setLayout(layout);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		ParallelGroup h = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
-		SequentialGroup v = layout.createSequentialGroup();
-		
 		ArrayList<JPanel> list = getContextPanel(gui);
 		Iterator<JPanel> pi = list.iterator();
+		Component prev = sum;
+		String placement = SpringLayout.NORTH;
 		while(pi.hasNext()) {
 			JPanel p = pi.next();
-			v.addComponent(p, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE);
-			h.addComponent(p, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+			sum.add(p);
+			layout.putConstraint(SpringLayout.NORTH, p, 0, placement, prev);
+			layout.putConstraint(SpringLayout.WEST, p, 0, SpringLayout.WEST, sum);
+			layout.putConstraint(SpringLayout.EAST, p, 0, SpringLayout.EAST, sum);
+			prev = p;
+			placement = SpringLayout.SOUTH;
 		}
-
-		layout.setVerticalGroup(v);
-		layout.setHorizontalGroup(h);
 		
 		return sum;
 	}

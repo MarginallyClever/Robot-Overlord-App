@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.jogamp.opengl.GL2;
 
+import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -19,6 +20,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.viewCube.ViewCube;
@@ -83,6 +85,22 @@ implements Serializable {
 		addEntity(camera = new Camera());
 		
 		viewCube = new ViewCube();
+	}
+	
+	
+	/**
+	 * Get the {@link EntityControlPanel} for this class' superclass, then the EntityPanel for this class, and so on.
+	 * 
+	 * @param gui the main application instance.
+	 * @return the list of EntityPanels 
+	 */
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = new ArrayList<JPanel>();
+		
+		worldControlPanel = new WorldControlPanel(gui,this);
+		list.add(worldControlPanel);
+
+		return list;
 	}
 	
 
@@ -404,9 +422,9 @@ implements Serializable {
 
 	
 	public void addEntity(Entity entity) {
-		children.add(entity);
+		children.add(entity); 
 		entity.setParent(this);
-		if(worldControlPanel!=null) worldControlPanel.updateEntityList();
+		if(worldControlPanel!=null) worldControlPanel.buildPanel();
 	}
 	
 	public void removeEntity(Entity o) {
@@ -444,12 +462,7 @@ implements Serializable {
 	public Camera getCamera() {
 		return camera;
 	}
-	
-	public WorldControlPanel getControlPanel(RobotOverlord gui) {
-		if(worldControlPanel==null) worldControlPanel = new WorldControlPanel(gui,this); 
-		return worldControlPanel;
-	}
-	
+		
 	/**
 	 * Find all Entities within epsilon mm of pose.
 	 * TODO Much optimization could be done here to reduce the search time.

@@ -39,10 +39,11 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 		c.weighty=1;
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
-		
+
 		CollapsiblePanel oiwPanel = new CollapsiblePanel("Physical Object");
 		this.add(oiwPanel,c);
 		JPanel contents = oiwPanel.getContentPane();
+		c.gridy++;
 		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;

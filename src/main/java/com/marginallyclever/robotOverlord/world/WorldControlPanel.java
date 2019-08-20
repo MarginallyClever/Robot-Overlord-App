@@ -46,10 +46,10 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 
 		// A list of all the elements in the world.
 		// TODO add a search feature?
-		updateEntityList();
+		buildPanel();
 	}
 	
-	public void updateEntityList() {
+	public void buildPanel() {
 		this.removeAll();
 
 		this.setLayout(new GridBagLayout());
@@ -87,15 +87,13 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		}
 		entityList = new JList<EntityListItem>(new Vector<EntityListItem>(localEntityList));
 		entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		c.weighty=1;
 		contents.add(entityList,c);
 		c.gridy++;
-		
+
 		entityList.addMouseListener(new MouseAdapter() {
 		    public void mouseClicked(MouseEvent evt) {
 		        JList<?> list = (JList<?>)evt.getSource();
 		        if (evt.getClickCount() == 2) {
-
 		            // Double-click detected
 		            int index = list.locationToIndex(evt.getPoint());
 		            Entity e = localEntityList.get(index).entity;

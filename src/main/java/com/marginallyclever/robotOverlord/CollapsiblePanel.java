@@ -68,7 +68,7 @@ public class CollapsiblePanel extends JPanel {
     //Border
     CollapsableTitledBorder border; // includes upper left component and line type
     //Border collapsedBorderLine = BorderFactory.createEmptyBorder(2, 2, 2, 2); // no border
-    Border collapsedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+    Border collapsedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
     Border expandedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED); // because this is null, default is used, etched lowered border on MAC
 
     //Title
@@ -83,12 +83,12 @@ public class CollapsiblePanel extends JPanel {
     JPanel panel;
 
     //Container State
-    boolean collapsed; // stores curent state of the collapsable panel
+    boolean collapsed; // stores current state of the collapsible panel
 
     /**
-     * Constructor for an option button controlled collapsable panel.
+     * Constructor for an option button controlled collapsible panel.
      * This is useful when a group of options each have unique sub contents. The radio buttons should be created,
-     * grouped, and then used to construct their own collapsable panels. This way choosing a different option in
+     * grouped, and then used to construct their own collapsible panels. This way choosing a different option in
      * the same option group will collapse all unselected options. Expanded panels draw a border around the
      * contents and through the radio button in the fashion of a titled border.
      *

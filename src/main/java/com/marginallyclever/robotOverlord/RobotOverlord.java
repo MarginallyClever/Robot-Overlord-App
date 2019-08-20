@@ -755,7 +755,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     public void pickNothing() {
     	pickedEntity=null;
-    	setContextPanel(world.getControlPanel(this),Translator.get("Everything"));
+    	setContextPanel(world.getAllContextPanels(this),Translator.get("Everything"));
     }
     
 	public void pickCamera() {
