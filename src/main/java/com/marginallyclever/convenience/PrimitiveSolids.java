@@ -238,9 +238,10 @@ public class PrimitiveSolids {
 		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
 		
 		// save the lighting mode
-		byte [] data = new byte[1];
-		gl2.glGetBooleanv(GL2.GL_LIGHTING, data, 0);
+		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
+		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		gl2.glDisable(GL2.GL_DEPTH_TEST);
 
 		size/=2.0f;
 		
@@ -254,7 +255,8 @@ public class PrimitiveSolids {
 		gl2.glPopMatrix();
 		
 		// restore lighting
-		if(data[0]!=0) gl2.glEnable(GL2.GL_LIGHTING);
+		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
+		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		// restore color
 		gl2.glColor4dv(params,0);
 	}
