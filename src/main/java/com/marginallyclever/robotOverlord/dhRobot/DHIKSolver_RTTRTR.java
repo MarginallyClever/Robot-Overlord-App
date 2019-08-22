@@ -57,8 +57,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// there is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
 			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
-			Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
-			inverseToolPose.invert();
+			//Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
+			//inverseToolPose.invert();
 			//targetPoseAdj.mul(inverseToolPose);
 
 			targetPoseAdj.m03+=targetPoseAdj.m01 * robot.dhTool.dhLinkEquivalent.r;
@@ -83,9 +83,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		// Work backward to get link5 position
 		Point3d p5 = new Point3d(n7z);
+		assert((link6.flags & DHLink.READ_ONLY_D)!=0);
 		p5.scaleAdd(-link6.d,p7);
 
 		// Work forward to get p1 position
+		assert((link0.flags & DHLink.READ_ONLY_D)!=0);
 		Point3d p1 = new Point3d(0,0,link0.d);
 
 		if(false) {
@@ -103,13 +105,15 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					);
 		}
 		
-		// (1) theta0 = atan(y07/x07);
-		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p5.x,-p5.y));
+		// p5 is at the center of the wrist.  As long as the wrist is not directly on the same z axis as the base
+		// I can find the angle around j0 to point at the wrist.
+		// (1) theta0 = atan2(y07/x07);
+		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p5.y,p5.x));
 		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) C=z15
-		double c = p5.z - p1.z;
-		if(false) System.out.println("c="+c+"\t");
+		double z15 = p5.z - p1.z;
+		if(false) System.out.println("c="+z15+"\t");
 		
 		// (3) 
 		double x15 = p5.x-p1.x;
@@ -118,10 +122,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("d="+d+"\t");
 		
 		// (4)
-		double e = Math.sqrt(c*c + d*d);
+		double e = Math.sqrt(z15*z15 + d*d);
 		if(false) System.out.println("e="+e+"\t");
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
+		assert((link2.flags & DHLink.READ_ONLY_D)!=0);
+		assert((link3.flags & DHLink.READ_ONLY_D)!=0);
+		assert((link4.flags & DHLink.READ_ONLY_D)!=0);
 		double a = link2.d;
 		double b2 = link4.d+link5.d;
 		double b1 = link3.d;
@@ -133,25 +140,26 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			if(false) System.out.println("NO SOLUTIONS (1) "+e+" vs "+(a+b));
 			return;
 		}
-		double phi = Math.acos( (b*b-a*a-e*e) / (-2*a*e) );
+		
+		double phi = Math.acos( (b*b-a*a-e*e) / (-2.0*a*e) );
 		if(false) System.out.println("phi="+Math.toDegrees(phi)+"\t");
 		
 		// (6) rho = atan2(d,c)
-		double rho = Math.atan2(d,c);
+		double rho = Math.atan2(d,z15);
 		if(false) System.out.println("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) alpha1 = phi-rho
-		keyframe.fkValues[1] = Math.toDegrees(rho - phi);
+		keyframe.fkValues[1] = Math.toDegrees(phi-rho);
 		if(false) System.out.println("alpha1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
-		double omega = Math.acos( (a*a-b*b-e*e) / (-2*b*e) );
+		double omega = Math.acos( (a*a-b*b-e*e) / (-2.0*b*e) );
 		if(false) System.out.println("omega="+Math.toDegrees(omega)+"\t");
-
+		
 		// (9) phi3 = phi + omega
 		double phi3 = phi+omega;
 		if(false) System.out.println("phi3="+Math.toDegrees(phi3)+"\t");
-				
+		
 		// angle of triangle j3-j2-j5 is phi4.
 		// b2^2 = b^+b1^2-2*b*b1*cos(phi4)
 		double phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2.0*b1*b) );
@@ -164,8 +172,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		// FIRST HALF DONE
 		
 		// Now to a partial DHRobot.poseRefresh() to find several joint poses.
-
-		// We don't want to alter the original robot so we'll make a deep clone of the robot.links.
+		// I don't want to alter the original robot so I'll make a deep clone of the robot.links.
 		LinkedList<DHLink> clonedLinks = new LinkedList<DHLink>();
 		Iterator<DHLink> rli = robot.links.iterator();
 		while(rli.hasNext()) {
@@ -241,9 +248,17 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 
 		Matrix4d r04inv = new Matrix4d();
-		r04inv.invert(r04);
+		try {
+			r04inv.invert(r04);
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
 		Matrix4d r47 = new Matrix4d();
 		r47.mul(r04inv,r07);
+		// sometimes the r47.r22 value was ever so slightly out of range [-1...1]
+		if(r47.m22>1) r47.m22=1;
+		if(r47.m22<-1) r47.m22=-1;
 
 		if(false) System.out.println("r47="+r47);
 		
@@ -252,7 +267,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		if(false) {
 			System.out.println(
-					"r36.m22="+r47.m22+"\t"+
+					"r47.m22="+r47.m22+"\t"+
 					"a5="+a5+"\t"+
 					"alpha5="+keyframe.fkValues[4]+"\t");
 		}
@@ -283,26 +298,35 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		// https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
 		double r22=r47.m22;
 		
-		double a5pos = Math.atan2( Math.sqrt(1-r22*r22),r22);
-		double a5neg = Math.atan2(-Math.sqrt(1-r22*r22),r22);
-		if(false) System.out.println("5="+a5+"\tpos="+a5pos+"\tneg="+a5neg);
 		
 		double s5 = Math.sin(a5);
 		double t4,t6;
 		if(s5>0) {
-			a5 = a5pos;
+			a5 = Math.atan2( Math.sqrt(1-r22*r22),r22);
 			t4 = Math.atan2(r47.m12,r47.m02);
 			t6 = Math.atan2(r47.m21,-r47.m20);
-		} else {
-			a5 = a5neg;
+		} else if(s5<0) {
+			a5 = Math.atan2(-Math.sqrt(1-r22*r22),r22);
 			t4 = Math.atan2(-r47.m12,-r47.m02);
 			t6 = Math.atan2(-r47.m21,r47.m20);
+		} else {
+			// only the sum of t4+t6 can be found, not the individual angles.
+			solutionFlag = NO_SOLUTIONS;
+			if(false) System.out.println("NO SOLUTIONS (3)");
+			keyframe.fkValues[3]=
+			keyframe.fkValues[4]=
+			keyframe.fkValues[5]=0;
+			return;
 		}
+		if(false) System.out.println("5="+a5+"\tpos="+a5);
 
 		keyframe.fkValues[3] = Math.toDegrees(t4)-90;
 		keyframe.fkValues[4] = -Math.toDegrees(a5);
 		keyframe.fkValues[5] = Math.toDegrees(t6);
 		
+		if(Double.isNaN(keyframe.fkValues[4])) {
+			System.out.println("NaN fk4");
+		}
 		if(false) System.out.println(
 				"r47.m20="+StringHelper.formatDouble(r47.m20)+"\t"+
 				"t6="+StringHelper.formatDouble(t6)+"\t"+
