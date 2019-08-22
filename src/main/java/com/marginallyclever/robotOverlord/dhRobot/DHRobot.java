@@ -52,6 +52,10 @@ public abstract class DHRobot extends Robot {
 	 */
 	protected Matrix4d endMatrix;
 
+	public Matrix4d getEndMatrix() {
+		return endMatrix;
+	}
+
 	/**
 	 * {@value targetPose} the pose the IK is trying to move towards.  Includes the tool held by the robot. 
 	 */
@@ -177,7 +181,7 @@ public abstract class DHRobot extends Robot {
 	/**
 	 * Override this method with your robot's setup.
 	 */
-	public abstract void setupLinks();
+	protected abstract void setupLinks();
 	
 	/**
 	 * Override this method to return the correct solver for your type of robot.
@@ -206,16 +210,17 @@ public abstract class DHRobot extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		gl2.glPushMatrix();
-			Vector3d position = this.getPosition();
-			gl2.glTranslated(position.x, position.y, position.z);
-			
+			MatrixHelper.applyMatrix(gl2, this.getPose());
+
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
 				int j=0;
 				while(i.hasNext()) {
 					DHLink link = i.next();
 					if(showBones) link.renderBones(gl2);
-					if(showAngles) link.renderAngles(gl2);
+					if(showAngles) {
+						link.renderAngles(gl2);
+					}
 					if(showPhysics && link.model != null) {
 						if(j==hitBox1 || j==hitBox2) {
 							gl2.glColor4d(1,0  ,0.8,0.15);
@@ -239,9 +244,8 @@ public abstract class DHRobot extends Robot {
 								dhTool.dhLinkEquivalent.model.getBoundTop());
 					}*/
 				}
-			gl2.glPopMatrix();
-			
-			MatrixHelper.drawMatrix(gl2, endMatrix, 1.0);
+				gl2.glPopMatrix();
+			MatrixHelper.drawMatrix(gl2, endMatrix, 8.0);
 		gl2.glPopMatrix();
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -572,6 +576,9 @@ public abstract class DHRobot extends Robot {
         		} else {
         			// No connected robot, update the pose directly.
             		this.setRobotPose(solutionKeyframe);
+            		if(!endMatrix.epsilonEquals(targetPose, 1e-6)) {
+            			System.out.println("** Diff! **");
+            		}
         		}
     		} else {
     			// failed sanity check
@@ -661,69 +668,11 @@ public abstract class DHRobot extends Robot {
 	
 	
 	public void drawTargetPose(GL2 gl2) {
-/*
-		// experiment to improve rotation.  
-		Matrix4d temp = new Matrix4d();
-		final double scaleTurn=0.15;
-		temp.rotX(1*scaleTurn);
-		
-    		Matrix4d temp2 = new Matrix4d(links.get(links.size()-2).poseCumulative);
-    		//MatrixHelper.drawMatrix(gl2, temp2,15);
-    		Vector4d v2=new Vector4d();
-			temp2.getColumn(3, v2);
-    		temp2.setTranslation(new Vector3d(0,0,0));
-    		Matrix4d iMat = new Matrix4d(temp2);
-    		iMat.invert();
-			temp2.mul(temp,temp2);
-			temp2.setTranslation(new Vector3d(v2.x,v2.y,v2.z));
-			//MatrixHelper.drawMatrix(gl2, temp2,10);
-    		temp2.setTranslation(new Vector3d(0,0,0));
-			
-			Vector4d v=new Vector4d();
-			Matrix4d temp3 = new Matrix4d(targetPose);
-			MatrixHelper.drawMatrix(gl2, temp3,10);
-			temp3.getColumn(3, v);
-			temp3.setTranslation(new Vector3d(0,0,0));
-			temp3.mul(iMat);
-			temp3.mul(temp2);
-			temp3.setTranslation(new Vector3d(v.x,v.y,v.z));
-
-			MatrixHelper.drawMatrix(gl2, temp3,5);
-		*/
-		
-		
 		gl2.glPushMatrix();
+
+		MatrixHelper.applyMatrix(gl2, this.getPose());
+		MatrixHelper.drawMatrix(gl2, targetPose, 5);
 		
-			double[] mat = new double[16];
-			mat[ 0] = targetPose.m00;
-			mat[ 1] = targetPose.m10;
-			mat[ 2] = targetPose.m20;
-			mat[ 3] = targetPose.m30;
-			mat[ 4] = targetPose.m01;
-			mat[ 5] = targetPose.m11;
-			mat[ 6] = targetPose.m21;
-			mat[ 7] = targetPose.m31;
-			mat[ 8] = targetPose.m02;
-			mat[ 9] = targetPose.m12;
-			mat[10] = targetPose.m22;
-			mat[11] = targetPose.m32;
-			mat[12] = targetPose.m03;
-			mat[13] = targetPose.m13;
-			mat[14] = targetPose.m23;
-			mat[15] = targetPose.m33;
-			gl2.glMultMatrixd(mat, 0);
-	
-			boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			gl2.glDisable(GL2.GL_LIGHTING);
-			MatrixHelper.drawMatrix(gl2, 
-					new Vector3d(0,0,0),
-					new Vector3d(5,0,0),
-					new Vector3d(0,5,0),
-					new Vector3d(0,0,5));
-			if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-			if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 	}
 	
@@ -968,39 +917,39 @@ public abstract class DHRobot extends Robot {
 		return showBones;
 	}
 
-	public void setShowBones(boolean showBones) {
-		this.showBones = showBones;
-		if(panel!=null) panel.setShowBones(showBones);
+	public void setShowBones(boolean arg0) {
+		this.showBones = arg0;
+		if(panel!=null) panel.setShowBones(arg0);
 	}
 
-	public void setShowBonesPassive(boolean showBones) {
-		this.showBones = showBones;
+	public void setShowBonesPassive(boolean arg0) {
+		this.showBones = arg0;
 	}
 
 	public boolean isShowPhysics() {
 		return showPhysics;
 	}
 
-	public void setShowPhysics(boolean showPhysics) {
-		this.showPhysics = showPhysics;
-		if(panel!=null) panel.setShowPhysics(showPhysics);
+	public void setShowPhysics(boolean arg0) {
+		this.showPhysics = arg0;
+		if(panel!=null) panel.setShowPhysics(arg0);
 	}
 
-	public void setShowPhysicsPassive(boolean showPhysics) {
-		this.showPhysics = showPhysics;
+	public void setShowPhysicsPassive(boolean arg0) {
+		this.showPhysics = arg0;
 	}
 
 	public boolean isShowAngles() {
 		return showAngles;
 	}
 
-	public void setShowAngles(boolean showAngles) {
-		this.showAngles = showAngles;
-		if(panel!=null) panel.setShowAngles(showAngles);
+	public void setShowAngles(boolean arg0) {
+		this.showAngles = arg0;
+		if(panel!=null) panel.setShowAngles(arg0);
 	}
 
-	public void setShowAnglesPassive(boolean showAngles) {
-		this.showAngles = showAngles;
+	public void setShowAnglesPassive(boolean arg0) {
+		this.showAngles = arg0;
 	}
 	
 	protected boolean canTargetPoseRotateX() {
@@ -1026,5 +975,13 @@ public abstract class DHRobot extends Robot {
 	
 	public boolean isInterpolating() {
 		return interpolatePoseT>=0 && interpolatePoseT<1;
+	}
+	
+	public int getNumLinks() {
+		return links.size();
+	}
+	
+	public DHLink getLink(int i) {
+		return links.get(i);
 	}
 }
