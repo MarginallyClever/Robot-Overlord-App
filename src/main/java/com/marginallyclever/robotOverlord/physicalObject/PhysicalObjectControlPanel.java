@@ -8,6 +8,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3d;
@@ -21,6 +22,7 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 	private static final long serialVersionUID = 1L;
 	private PhysicalObject entity;
 	private transient UserCommandSelectVector3d setPosition;
+	private transient UserCommandSelectVector3d setRotation;
 
 	/**
 	 * @param ro the application instance
@@ -55,6 +57,12 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 		contents.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;
 		setPosition.addChangeListener(this);
+
+		Vector3d temp = new Vector3d();
+		entity.getRotation(temp);
+		contents.add(setRotation = new UserCommandSelectVector3d(ro,"rotation",temp),con1);
+		con1.gridy++;
+		setRotation.addChangeListener(this);
 	}
 	
 	
@@ -64,6 +72,10 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 	 */
 	public void updateFields() {
 		setPosition.setValue(entity.getPosition());
+		Vector3d temp = new Vector3d();
+		entity.getRotation(temp);
+		temp.scale(180.0/Math.PI);
+		setRotation.setValue(temp);
 	}
 	
 	
@@ -78,8 +90,17 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 		if( subject==setPosition ) {
 			Vector3d pos = entity.getPosition();
 			Vector3d newPos = setPosition.getValue();
-			if(!newPos.equals(pos)) {
+			if(!newPos.epsilonEquals(pos, 1e-4)) {
 				entity.setPosition(newPos);
+			}
+		}
+		if( subject==setRotation ) {
+			Vector3d temp = new Vector3d();
+			entity.getRotation(temp);
+			Vector3d newPos = setRotation.getValue();
+			newPos.scale(Math.PI/180.0);
+			if(!newPos.epsilonEquals(temp, 1e-4)) {
+				entity.setRotation(MatrixHelper.eulerToMatrix(newPos));
 			}
 		}
 	}

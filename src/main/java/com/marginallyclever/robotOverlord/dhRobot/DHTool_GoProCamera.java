@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
-import javax.vecmath.Matrix4d;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -29,10 +29,10 @@ public class DHTool_GoProCamera extends DHTool {
 		setScale(0.1f);
 		// adjust the model's position and rotation.
 		this.setPosition(new Vector3d(0,0,0.6));
-		Matrix4d m = new Matrix4d();
+		Matrix3d m = new Matrix3d();
 		m.setIdentity();
 		m.rotX(Math.toRadians(90));
-		Matrix4d m2 = new Matrix4d();
+		Matrix3d m2 = new Matrix3d();
 		m2.setIdentity();
 		m2.rotY(Math.toRadians(90));
 		m.mul(m2);

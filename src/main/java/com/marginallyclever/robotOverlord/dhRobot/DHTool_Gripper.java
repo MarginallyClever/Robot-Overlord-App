@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -60,10 +61,10 @@ public class DHTool_Gripper extends DHTool {
 		
 		setPosition(new Vector3d(0.91,0,4.1));
 
-		Matrix4d r = new Matrix4d();
+		Matrix3d r = new Matrix3d();
 		r.setIdentity();
 		r.rotX(Math.toRadians(180));
-		Matrix4d r2 = new Matrix4d();
+		Matrix3d r2 = new Matrix3d();
 		r2.setIdentity();
 		r2.rotZ(Math.toRadians(90));
 		r.mul(r2);

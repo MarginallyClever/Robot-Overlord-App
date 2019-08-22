@@ -3,9 +3,11 @@ package com.marginallyclever.robotOverlord.physicalObject;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
@@ -51,8 +53,13 @@ public abstract class PhysicalObject extends Entity {
 	public void finalizeMove() {}
 
 	public Vector3d getPosition() {
-		// Matrix4d has a setTranslation, but not a getTranslation?  Thanks.
 		return new Vector3d(pose.m03,pose.m13,pose.m23);
+	}
+
+	public void getRotation(Vector3d arg0) {
+		Matrix3d temp = new Matrix3d();
+		pose.get(temp);
+		arg0.set(MatrixHelper.matrixToEuler(temp));
 	}
 	
 	public void setPosition(Vector3d pos) {
@@ -71,7 +78,7 @@ public abstract class PhysicalObject extends Entity {
 			physicalObjectControlPanel.updateFields();	
 		}
 	}
-	public void setRotation(Matrix4d arg0) {
+	public void setRotation(Matrix3d arg0) {
 		Vector3d trans = getPosition();
 		pose.set(arg0);
 		pose.setTranslation(trans);
@@ -79,9 +86,8 @@ public abstract class PhysicalObject extends Entity {
 			physicalObjectControlPanel.updateFields();	
 		}
 	}
-	public Matrix4d getRotation() {
-		Matrix4d mat = new Matrix4d(pose);
-		mat.setTranslation(new Vector3d(0,0,0));
-		return mat;		
+	public void getRotation(Matrix4d arg0) {
+		arg0.set(pose);
+		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 }
