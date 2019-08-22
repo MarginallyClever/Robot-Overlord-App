@@ -2,10 +2,22 @@ package com.marginallyclever.robotOverlord;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import org.junit.Test;
 
 import com.marginallyclever.convenience.MatrixOperations;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi2;
 
 public class MiscTests {
 	@Test
@@ -120,4 +132,137 @@ public class MiscTests {
 		return matrix;
 	}
 	
+	
+	static final double ANGLE_STEP_SIZE=10.0000;
+	
+	/**
+	 * Test SHIKSolver_RTTRTR and DHRobot_Sixi2.
+	 * 
+	 * In theory Inverse Kinematics (IK) can be given a matrix that, if solved for one solution, produces a set of values
+	 * that can be fed to Forward Kinematics (FK) which should reproduce the original matrix.
+	 * This test confirms that this theory is true for a wide range of valid angle values in the robot arm.
+	 * Put another way, we use one set of matrix0=FK(angles), keyframe = IK(m0), m1=FK(keyframe), then confirm m1==m0.
+	 * Remember keyframe might not equal angles because IK can produce more than one correct answer for the same matrix.
+	 * 
+	 * The code does not check for collisions.  
+	 * The granularity of the testing is controlled by ANGLE_STEP_SIZE, which has a O^6 effect, so lower it very carefully.
+	 */
+	@Test
+	public void testFK2IK() {
+		System.out.println("testFK2IK()");
+		DHRobot_Sixi2 robot = new DHRobot_Sixi2();
+		int numLinks = robot.getNumLinks();
+		assert(numLinks>0);
+
+		DHIKSolver solver = robot.getSolverIK();
+		DHKeyframe keyframe0 = (DHKeyframe)robot.createKeyframe();
+		DHKeyframe keyframe1 = (DHKeyframe)robot.createKeyframe();
+		Matrix4d m0 = new Matrix4d();
+		Matrix4d m1 = new Matrix4d();
+		
+		// Find the min/max range for each joint
+		DHLink link0 = robot.getLink(0);		double bottom0 = link0.rangeMin;		double top0 = link0.rangeMax;
+		DHLink link1 = robot.getLink(1);		double bottom1 = link1.rangeMin;		double top1 = link1.rangeMax;
+		DHLink link2 = robot.getLink(2);		double bottom2 = link2.rangeMin;		double top2 = link2.rangeMax;
+		// link3 does not bend
+		DHLink link4 = robot.getLink(4);		double bottom4 = link4.rangeMin;		double top4 = link4.rangeMax;
+		DHLink link5 = robot.getLink(5);		double bottom5 = link5.rangeMin;		double top5 = link5.rangeMax;
+		DHLink link6 = robot.getLink(6);		double bottom6 = link6.rangeMin;		double top6 = link6.rangeMax;
+
+		int totalTests = 0;
+		int totalPasses = 0;
+		
+		double x,y,z;
+		double u=(bottom4+top4)/2;
+		double v=(bottom5+top5)/2;
+		double w=(bottom6+top6)/2;
+
+		BufferedWriter out=null;
+		try {
+			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/test.txt")));
+			out.write("x\ty\tz\tu\tv\tw\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\tResult\n");
+
+			// go through the entire range of motion of the sixi 2 robot arm
+			for(x=bottom0;x<top0;x+=ANGLE_STEP_SIZE) {
+				keyframe0.fkValues[0]=x;
+				for(y=bottom1;y<top1;y+=ANGLE_STEP_SIZE) {
+					keyframe0.fkValues[1]=y;
+					for(z=bottom2;z<top2;z+=ANGLE_STEP_SIZE) {
+						keyframe0.fkValues[2]=z;
+						for(u=bottom4;u<top4;u+=ANGLE_STEP_SIZE) 
+						{
+							keyframe0.fkValues[3]=u;
+							for(v=bottom5;v<top5;v+=ANGLE_STEP_SIZE) 
+							{
+								keyframe0.fkValues[4]=v;
+								for(w=bottom6;w<top6;w+=ANGLE_STEP_SIZE) 
+								{
+									keyframe0.fkValues[5]=w;
+									++totalTests;
+									// use forward kinematics to find the endMatrix of the pose
+				            		robot.setRobotPose(keyframe0);
+									m0.set(robot.getEndMatrix());
+									// now generate a set of FK values from the endMatrix m0.
+									solver.solve(robot, m0, keyframe1);
+									if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+										// update the robot pose and get the m1 matrix. 
+					            		robot.setRobotPose(keyframe1);
+					            		m1.set(robot.getEndMatrix());
+					            		
+					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
+					            						+StringHelper.formatDouble(keyframe0.fkValues[1])+"\t"
+					            						+StringHelper.formatDouble(keyframe0.fkValues[2])+"\t"
+				            							+StringHelper.formatDouble(keyframe0.fkValues[3])+"\t"
+				            							+StringHelper.formatDouble(keyframe0.fkValues[4])+"\t"
+				            							+StringHelper.formatDouble(keyframe0.fkValues[5])+"\t"
+				            							+StringHelper.formatDouble(keyframe1.fkValues[0])+"\t"
+					            						+StringHelper.formatDouble(keyframe1.fkValues[1])+"\t"
+					            						+StringHelper.formatDouble(keyframe1.fkValues[2])+"\t"
+				            							+StringHelper.formatDouble(keyframe1.fkValues[3])+"\t"
+				            							+StringHelper.formatDouble(keyframe1.fkValues[4])+"\t"
+				            							+StringHelper.formatDouble(keyframe1.fkValues[5])+"\t";
+					            		
+					            		String error="";
+					            		out.write(message);
+					            		boolean bad=false;
+					            		// it's possible that different fk values are generated but the final matrix is the same.
+
+					            		// compare the m0 and m1 matrixes, which should be identical.
+					            		if(!m1.epsilonEquals(m0, 1e-2)) {
+					            			Matrix4d diff = new Matrix4d();
+					            			diff.sub(m1,m0);
+					            			Vector3d a0 = new Vector3d();
+					            			Vector3d a1 = new Vector3d();
+					            			m0.get(a0);
+					            			m1.get(a1);
+					            			a0.sub(a1);
+					            			error+="Matrix "+StringHelper.formatDouble(a0.length());
+					            			bad=true;
+					            		}
+					            		out.write(error+"\n");
+					            		if(bad==false) {
+					            			++totalPasses;
+					            		}
+									}
+								}
+							}
+						}
+						out.flush();
+					}
+				}
+			}
+			out.write("testFK2IK() total="+totalTests+", passes="+totalPasses+"\n");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(out!=null) out.flush();
+				if(out!=null) out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
 }
