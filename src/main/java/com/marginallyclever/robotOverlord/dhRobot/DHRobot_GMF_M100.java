@@ -27,7 +27,7 @@ public class DHRobot_GMF_M100 extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
+	protected void setupLinks() {
 		setNumLinks(5);
 		// roll
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;

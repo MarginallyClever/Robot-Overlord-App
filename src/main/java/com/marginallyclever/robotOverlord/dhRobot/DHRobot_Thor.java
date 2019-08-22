@@ -26,7 +26,7 @@ public class DHRobot_Thor extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
+	protected void setupLinks() {
 		setNumLinks(8);
 
 		// roll

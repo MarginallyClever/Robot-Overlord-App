@@ -42,7 +42,7 @@ public class DHRobot_UArm extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
+	protected void setupLinks() {
 		setNumLinks(6);
 		// roll
 		links.get(0).d=2.4;

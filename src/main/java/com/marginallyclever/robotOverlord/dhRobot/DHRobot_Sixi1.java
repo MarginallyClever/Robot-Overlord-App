@@ -25,7 +25,7 @@ public class DHRobot_Sixi1 extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {		
+	protected void setupLinks() {		
 		setNumLinks(8);
 		// roll
 		links.get(0).d=25;

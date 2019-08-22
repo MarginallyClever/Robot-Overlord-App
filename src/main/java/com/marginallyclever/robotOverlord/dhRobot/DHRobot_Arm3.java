@@ -25,7 +25,7 @@ public class DHRobot_Arm3 extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
+	protected void setupLinks() {
 		// setup sixi2 as default.
 		setNumLinks(5);
 		// roll

@@ -27,7 +27,7 @@ public class DHRobot_SCARA_NM extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
+	protected void setupLinks() {
 		setNumLinks(5);
 
 		// roll
