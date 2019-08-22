@@ -74,7 +74,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	protected void buildPanel() {
 		this.removeAll();
 
-
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
@@ -334,13 +333,13 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		// for checkboxes
 		Object source = e.getItemSelectable();
 		if(source == showAngleMinMax) {
-			robot.setShowAnglesPassive(!robot.isShowAngles());
+			robot.setShowAnglesPassive(((JCheckBox)source).isSelected());
 		}
 		if(source == showPhysics) {
-			robot.setShowPhysicsPassive(!robot.isShowPhysics());
+			robot.setShowPhysicsPassive(((JCheckBox)source).isSelected());
 		}
 		if(source == showBones) {
-			robot.setShowBonesPassive(!robot.isShowBones());
+			robot.setShowBonesPassive(((JCheckBox)source).isSelected());
 		}
 		if(source == rotateOnWorldAxies) {
 			robot.rotateOnWorldAxies = !robot.rotateOnWorldAxies;
