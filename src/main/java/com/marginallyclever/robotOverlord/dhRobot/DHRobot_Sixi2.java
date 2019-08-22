@@ -55,7 +55,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	}
 	
 	@Override
-	public void setupLinks() {
+	protected void setupLinks() {
 		setNumLinks(8);
 		// roll
 		links.get(0).d=13.44;
@@ -65,6 +65,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 		links.get(0).rangeMax=120;
 		// tilt
 		links.get(1).alpha=0;
+		links.get(1).theta=-90;
 		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(1).rangeMin=-72;
 		// tilt
@@ -117,26 +118,26 @@ public class DHRobot_Sixi2 extends DHRobot {
 			links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox2.stl",0.1f);
 			links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand2.stl",0.1f);
 
-			double ELBOW_TO_ULNA_Y = -28.805f;
-			double ELBOW_TO_ULNA_Z = 4.7201f;
-			double ULNA_TO_WRIST_Y = -11.800f;
+			double ELBOW_TO_ULNA_Y = -28.805;
+			double ELBOW_TO_ULNA_Z = 4.7201;
+			double ULNA_TO_WRIST_Y = -11.800;
 			double ULNA_TO_WRIST_Z = 0;
-			double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;
-			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;
+			double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;  //-40.605
+			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;  // 4.7201
 			//double WRIST_TO_HAND = 8.9527;
 
-			links.get(0).model.adjustOrigin(new Vector3d(0, 0, 5.150f));
-			links.get(1).model.adjustOrigin(new Vector3d(0, 0, 8.140f-13.44f));
-			links.get(2).model.adjustOrigin(new Vector3d(-1.82f, 0, 9));
-			links.get(3).model.adjustOrigin(new Vector3d(0, (float)ELBOW_TO_WRIST_Y, (float)ELBOW_TO_WRIST_Z));
-			links.get(5).model.adjustOrigin(new Vector3d(0, 0, (float)-ULNA_TO_WRIST_Y));
-			links.get(7).model.adjustOrigin(new Vector3d(0,0,-3.9527f));
+			links.get(0).model.adjustOrigin(new Vector3d(0, 0, 5.15));
+			links.get(1).model.adjustOrigin(new Vector3d(0, 0, -5.3));
+			links.get(2).model.adjustOrigin(new Vector3d(-1.82, 0, 9));
+			links.get(3).model.adjustOrigin(new Vector3d(0,ELBOW_TO_WRIST_Y,ELBOW_TO_WRIST_Z));
+			links.get(5).model.adjustOrigin(new Vector3d(0, 0, -ULNA_TO_WRIST_Y));
+			links.get(7).model.adjustOrigin(new Vector3d(0,0,-3.9527));
 
-			links.get(0).model.adjustRotation(new Vector3d(90,90,0));
-			links.get(1).model.adjustRotation(new Vector3d(90,0,0));
+			links.get(0).model.adjustRotation(new Vector3d(90,0,0));
+			links.get(1).model.adjustRotation(new Vector3d(90,90,0));
 			links.get(2).model.adjustRotation(new Vector3d(90,0,0));
-			links.get(3).model.adjustRotation(new Vector3d(90,180,0));
-			links.get(5).model.adjustRotation(new Vector3d(180,0,180));
+			links.get(3).model.adjustRotation(new Vector3d(-90,0,180));
+			links.get(5).model.adjustRotation(new Vector3d(180,0,0));
 			links.get(6).model.adjustRotation(new Vector3d(180,0,180));
 			links.get(7).model.adjustRotation(new Vector3d(180,0,180));
 		} catch (Exception e) {
@@ -152,12 +153,11 @@ public class DHRobot_Sixi2 extends DHRobot {
 			isFirstTime=false;
 			setupModels();
 		}
-		
+
 		material.render(gl2);
-		
+
 		gl2.glPushMatrix();
-			Vector3d position = this.getPosition();
-			gl2.glTranslated(position.x, position.y, position.z);
+			MatrixHelper.applyMatrix(gl2, this.getPose());
 			
 			// Draw models
 			gl2.glPushMatrix();
@@ -192,8 +192,7 @@ public class DHRobot_Sixi2 extends DHRobot {
     		// draw the ghost pose
     		materialGhost.render(gl2);
     		gl2.glPushMatrix();
-				Vector3d position = this.getPosition();
-				gl2.glTranslated(position.x, position.y, position.z);
+				MatrixHelper.applyMatrix(gl2, this.getPose());
 				
 				// Draw models
 				gl2.glPushMatrix();
@@ -336,8 +335,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		Vector3d t1 = new Vector3d();
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
-		// calculate the matrix for the tool.
-		targetPose.get(m1, t1);
+		// get the end matrix, which includes any tool.
+		endMatrix.get(m1, t1);
 		
 		Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -350,6 +349,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 				+" K"+StringHelper.formatDouble(e1.z)
 				;
 		if(dhTool!=null) {
+			// add special tool commands
 			message += dhTool.generateGCode();
 		}
 		return message;
@@ -388,7 +388,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 		}
 		Matrix3d m1 = MatrixHelper.eulerToMatrix(e1);
 
-		startPose.set(targetPose);
+		//startPose.set(targetPose);
+		startPose.set(endMatrix);
 		endPose.set(m1, t1, 1.0);
 		interpolatePoseT=0;
 
