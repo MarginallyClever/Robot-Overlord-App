@@ -101,6 +101,11 @@ public class DHRobotPlayer extends ModelInWorld {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
+		// remove material panel
+		list.remove(list.size()-1);
+		// remove physical object panel
+		list.remove(list.size()-1);
+
 		panel = new DHRobotPlayerPanel(gui,this);
 		list.add(panel);
 		
