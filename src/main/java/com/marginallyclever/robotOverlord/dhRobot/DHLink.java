@@ -13,16 +13,16 @@ import com.marginallyclever.robotOverlord.model.Model;
  * @see https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
 public class DHLink {
-	// offset along previous Z to the common normal
+	// length (mm) along previous Z to the common normal
 	public double d;
 	
-	// angle about previous Z, from old X to new X
+	// angle (degrees) about previous Z, from old X to new X
 	public double theta;
 	
-	// length of the common normal. Assuming a revolute joint, this is the radius about previous Z
+	// length (mm) of the common normal. Assuming a revolute joint, this is the radius about previous Z
 	public double r;
 	
-	// angle about common normal, from old Z axis to new Z axis
+	// angle (degrees) about common normal, from old Z axis to new Z axis
 	public double alpha;
 	
 	// computed matrix based on the D-H parameters
@@ -33,6 +33,14 @@ public class DHLink {
 
 	// 3D model to render at this link
 	public Model model;
+	
+	// dynamics are described in a 4x4 matrix
+	//     [ Ixx Ixy Ixz } XgM ]
+	// J = [ Iyx Iyy Iyz } YgM ]
+	//     [ Izx Izy Izz } ZgM ]
+	//     [ XgM YgM ZgM }  M  ]
+	// where mass M, Ng is the center of mass, and I terms represent the inertia.
+	public Matrix4d inertia;
 	
 	// Any combination of the READ_ONLY_* flags, used to control the GUI.
 	public int flags;
@@ -60,6 +68,7 @@ public class DHLink {
 		alpha=0;
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
+		inertia = new Matrix4d();
 		model=null;
 		rangeMin=-90;
 		rangeMax=90;
@@ -88,6 +97,10 @@ public class DHLink {
 	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
 	 */
 	public void refreshPoseMatrix() {
+		assert(Double.isNaN(theta));
+		assert(Double.isNaN(alpha));
+		assert(Double.isNaN(r));
+		assert(Double.isNaN(d));
 		double ct = Math.cos(Math.toRadians(theta));
 		double ca = Math.cos(Math.toRadians(alpha));
 		double st = Math.sin(Math.toRadians(theta));
