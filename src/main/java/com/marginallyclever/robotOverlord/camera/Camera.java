@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.camera;
 import javax.swing.JPanel;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 
 /**
  * Camera in the world.  Has no physical presence.  Has location and direction.
- * 
+ * TODO confirm the calculated pose matches the forward/up/right values
  * @author Dan Royer
  */
 public class Camera extends PhysicalObject {
@@ -128,6 +129,14 @@ public class Camera extends PhysicalObject {
 		    
 			if(tilt < 1) tilt=1;
 			if(tilt > 179) tilt= 179;
+			
+			Matrix3d a = new Matrix3d();
+			Matrix3d b = new Matrix3d();
+			Matrix3d c = new Matrix3d();
+			a.rotZ(Math.toRadians(pan));
+			b.rotY(Math.toRadians(tilt));
+			c.mul(a,b);
+			setRotation(c);
 		}
 	}
 	
