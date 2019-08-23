@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -115,6 +116,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		Object source = e.getSource();
 		if(source == chooseFile) {
 			JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new FileNameExtensionFilter("GCode (ngc/gcode)","ngc","gcode"));
 			int returnVal = fc.showOpenDialog(ro.getMainFrame());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				String t = fc.getSelectedFile().getAbsolutePath();
