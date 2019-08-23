@@ -322,7 +322,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		keyframe.fkValues[3] = Math.toDegrees(t4)-90;
 		keyframe.fkValues[4] = -Math.toDegrees(a5);
-		keyframe.fkValues[5] = Math.toDegrees(t6);
+		keyframe.fkValues[5] = Math.toDegrees(t6)+90;
 		
 		if(Double.isNaN(keyframe.fkValues[4])) {
 			System.out.println("NaN fk4");
