@@ -61,9 +61,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			//inverseToolPose.invert();
 			//targetPoseAdj.mul(inverseToolPose);
 
-			targetPoseAdj.m03+=targetPoseAdj.m01 * robot.dhTool.dhLinkEquivalent.r;
-			targetPoseAdj.m13+=targetPoseAdj.m11 * robot.dhTool.dhLinkEquivalent.r;
-			targetPoseAdj.m23+=targetPoseAdj.m21 * robot.dhTool.dhLinkEquivalent.r;
+			targetPoseAdj.m03-=targetPoseAdj.m00 * robot.dhTool.dhLinkEquivalent.r;
+			targetPoseAdj.m13-=targetPoseAdj.m10 * robot.dhTool.dhLinkEquivalent.r;
+			targetPoseAdj.m23-=targetPoseAdj.m20 * robot.dhTool.dhLinkEquivalent.r;
 
 			targetPoseAdj.m03-=targetPoseAdj.m02 * robot.dhTool.dhLinkEquivalent.d;
 			targetPoseAdj.m13-=targetPoseAdj.m12 * robot.dhTool.dhLinkEquivalent.d;
@@ -149,7 +149,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) alpha1 = phi-rho
-		keyframe.fkValues[1] = Math.toDegrees(phi-rho);
+		keyframe.fkValues[1] = Math.toDegrees(rho-phi);
 		if(false) System.out.println("alpha1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
@@ -161,7 +161,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("phi3="+Math.toDegrees(phi3)+"\t");
 		
 		// angle of triangle j3-j2-j5 is phi4.
-		// b2^2 = b^+b1^2-2*b*b1*cos(phi4)
+		// b2^2 = b*b + b1*b1 - 2*b*b1 * cos(phi4)
 		double phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2.0*b1*b) );
 		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
 		
@@ -171,7 +171,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		// FIRST HALF DONE
 		
-		// Now to a partial DHRobot.poseRefresh() to find several joint poses.
+		// Now to a partial DHRobot.setRobotPose() up to link5.
 		// I don't want to alter the original robot so I'll make a deep clone of the robot.links.
 		LinkedList<DHLink> clonedLinks = new LinkedList<DHLink>();
 		Iterator<DHLink> rli = robot.links.iterator();
@@ -179,24 +179,24 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			DHLink originalLink = rli.next();
 			clonedLinks.add(new DHLink(originalLink));  // deep clone
 		}
-		
-		clonedLinks.get(0).theta = keyframe.fkValues[0];
-		clonedLinks.get(0).refreshPoseMatrix();
-		clonedLinks.get(1).alpha = keyframe.fkValues[1];
-		clonedLinks.get(1).refreshPoseMatrix();
-		clonedLinks.get(2).alpha = keyframe.fkValues[2];
-		clonedLinks.get(2).refreshPoseMatrix();
-		clonedLinks.get(3).refreshPoseMatrix();
-		clonedLinks.get(4).theta = 0;
-		clonedLinks.get(4).refreshPoseMatrix();
 
 		Matrix4d r04 = new Matrix4d();
 		r04.setIdentity();
-		r04.mul(clonedLinks.get(0).pose);		clonedLinks.get(0).poseCumulative.set(r04);
-		r04.mul(clonedLinks.get(1).pose);		clonedLinks.get(1).poseCumulative.set(r04);
-		r04.mul(clonedLinks.get(2).pose);		clonedLinks.get(2).poseCumulative.set(r04);
-		r04.mul(clonedLinks.get(3).pose);		clonedLinks.get(3).poseCumulative.set(r04);
-		r04.mul(clonedLinks.get(4).pose);		clonedLinks.get(4).poseCumulative.set(r04);
+		
+		clonedLinks.get(0).theta = keyframe.fkValues[0];
+		clonedLinks.get(1).alpha = keyframe.fkValues[1];
+		clonedLinks.get(2).alpha = keyframe.fkValues[2];
+		clonedLinks.get(4).theta = 0;
+
+		rli = clonedLinks.iterator();
+		int j=0;
+		while(rli.hasNext() && j<5) {
+			DHLink link = rli.next();
+			link.refreshPoseMatrix();  
+			link.poseCumulative.set(r04);
+			r04.mul(link.pose);
+			++j;
+		}
 
 		if(false) {
 			Vector3d p4original = new Vector3d(
