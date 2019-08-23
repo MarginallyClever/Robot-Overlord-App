@@ -65,7 +65,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 		links.get(0).rangeMax=120;
 		// tilt
 		links.get(1).alpha=0;
-		links.get(1).theta=-90;
+		links.get(1).theta=90;
 		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(1).rangeMin=-72;
 		// tilt
@@ -133,8 +133,8 @@ public class DHRobot_Sixi2 extends DHRobot {
 			links.get(5).model.adjustOrigin(new Vector3d(0, 0, -ULNA_TO_WRIST_Y));
 			links.get(7).model.adjustOrigin(new Vector3d(0,0,-3.9527));
 
-			links.get(0).model.adjustRotation(new Vector3d(90,0,0));
-			links.get(1).model.adjustRotation(new Vector3d(90,90,0));
+			links.get(0).model.adjustRotation(new Vector3d(90,180,0));
+			links.get(1).model.adjustRotation(new Vector3d(90,-90,0));
 			links.get(2).model.adjustRotation(new Vector3d(90,0,0));
 			links.get(3).model.adjustRotation(new Vector3d(-90,0,180));
 			links.get(5).model.adjustRotation(new Vector3d(180,0,0));
@@ -153,7 +153,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 			isFirstTime=false;
 			setupModels();
 		}
-
+		
 		material.render(gl2);
 
 		gl2.glPushMatrix();
