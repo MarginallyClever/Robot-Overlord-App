@@ -248,9 +248,9 @@ public class PrimitiveSolids {
 		gl2.glPushMatrix();
 		gl2.glTranslated(p.x, p.y, p.z);
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1, 0, 0);		gl2.glVertex3d(-size, 0, 0);		gl2.glVertex3d(size, 0, 0);
-		gl2.glColor3d(0, 1, 0);		gl2.glVertex3d(0, -size, 0);		gl2.glVertex3d(0, size, 0);
-		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(0, 0, -size);		gl2.glVertex3d(0, 0, size);
+		gl2.glColor3d(1, 0, 0);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(size, 0, 0);
+		gl2.glColor3d(0, 1, 0);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, size, 0);
+		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, 0, size);
 		gl2.glEnd();
 		gl2.glPopMatrix();
 		
