@@ -207,7 +207,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         pickedEntity = null;
         pickNothing();
         
-        // keys typed while the focus is on the glcanvas will be heard by this class.  that way we can fly WASD.
+        // Keys typed while the focus is on the glcanvas will be heard by this class.  That way we can fly WASD.
 		glCanvas.addKeyListener(this);
 		
 //		frame.setFocusable(true);
