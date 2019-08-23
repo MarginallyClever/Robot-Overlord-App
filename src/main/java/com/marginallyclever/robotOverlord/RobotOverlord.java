@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.ScrollPaneLayout;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
@@ -187,9 +188,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         
         // the right hand context-sensitive menu
         contextMenu = new JScrollPane();
+        contextMenu.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        contextMenu.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
         Dimension minimumSize = new Dimension(300,300);
         contextMenu.setMinimumSize(minimumSize);
-
         glCanvas.setMinimumSize(minimumSize);  // not sure what good this does here...
 
         // this class contains the world.  
@@ -239,8 +242,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		// add the split panel to the main frame
         //mainFrame.add(splitUpDown);
         mainFrame.add(splitLeftRight);
-        // validate (adjust positions of buttons and such) so it can be painted
-        mainFrame.validate();
         // make it visible
         mainFrame.setVisible(true);
         // start the main application loop.  it will call display() repeatedly.
@@ -277,7 +278,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		return pickedEntity;
 	}
 	
-	
+	/**
+	 * Change the right-side context menu.  contextMenu is already a JScrollPane
+	 * @param panel
+	 * @param title
+	 */
 	public void setContextPanel(JPanel panel,String title) {
 		contextMenu.setViewportView(panel);
 	}
@@ -742,6 +747,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		arg0.pick();
 		pickedEntity=arg0;
 		pickedHandle=0;
+		
 		setContextPanel(arg0.getAllContextPanels(this),arg0.getDisplayName());
 	}
 	

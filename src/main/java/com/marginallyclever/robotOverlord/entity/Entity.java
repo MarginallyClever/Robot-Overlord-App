@@ -1,6 +1,9 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,8 +11,12 @@ import java.util.Iterator;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
+import javax.swing.border.LineBorder;
 
 
 /**
@@ -70,23 +77,19 @@ public class Entity implements Serializable {
 	 */
 	public JPanel getAllContextPanels(RobotOverlord gui) {
 		JPanel sum = new JPanel();
-		SpringLayout layout = new SpringLayout();
+		BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
 		sum.setLayout(layout);
 		ArrayList<JPanel> list = getContextPanel(gui);
 		Iterator<JPanel> pi = list.iterator();
-		Component prev = sum;
-		String placement = SpringLayout.NORTH;
 		while(pi.hasNext()) {
 			JPanel p = pi.next();
 			sum.add(p);
-			layout.putConstraint(SpringLayout.NORTH, p, 0, placement, prev);
-			layout.putConstraint(SpringLayout.WEST, p, 0, SpringLayout.WEST, sum);
-			layout.putConstraint(SpringLayout.EAST, p, 0, SpringLayout.EAST, sum);
-			prev = p;
-			placement = SpringLayout.SOUTH;
 		}
+
+		JPanel b = new JPanel(new BorderLayout());
+		b.add(sum, BorderLayout.PAGE_START);
 		
-		return sum;
+		return b;
 	}
 
 
