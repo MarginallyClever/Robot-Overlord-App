@@ -204,6 +204,8 @@ public abstract class DHRobot extends Robot {
 	public void render(GL2 gl2) {
 		if(!drawAsSelected) return;
 
+		PrimitiveSolids.drawStar(gl2, this.getPosition(),10);
+		
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -265,8 +267,8 @@ public abstract class DHRobot extends Robot {
 			DHLink link = i.next();
 			// update matrix
 			link.refreshPoseMatrix();
-			link.poseCumulative.set(endMatrix);
 			// find cumulative matrix
+			link.poseCumulative.set(endMatrix);
 			endMatrix.mul(link.pose);
 		}
 		if(dhTool!=null) {
@@ -540,7 +542,6 @@ public abstract class DHRobot extends Robot {
 	
 	@Override
 	public void update(double dt) {
-		//update1(dt);
 		update2(dt);
 	}
 	
@@ -576,9 +577,9 @@ public abstract class DHRobot extends Robot {
         		} else {
         			// No connected robot, update the pose directly.
             		this.setRobotPose(solutionKeyframe);
-            		if(!endMatrix.epsilonEquals(targetPose, 1e-6)) {
-            			System.out.println("** Diff! **");
-            		}
+            		//if(!endMatrix.epsilonEquals(targetPose, 1e-6)) {
+            			//System.out.println("** Diff! **");
+            		//}
         		}
     		} else {
     			// failed sanity check
@@ -616,47 +617,6 @@ public abstract class DHRobot extends Robot {
     	// }
     	// Once I have the list matrixes, I run the IK solver on each matrix, which generates a list of angle values.
     	// Then I send the matrixes to the robot as fast as it can handle them.
-	}
-	
-	@Deprecated
-	protected void update1(double dt) {
-        boolean isDirty=false;
-        
-        // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
-        oldPose.set(targetPose);
-
-        if(inDirectDriveMode()) {
-        	isDirty=driveFromKeyState();
-        }
-        
-        //isDirty = RecordingManager.manageBoolean(isDirty);
-        if(isDirty) {
-        	//RecordingManager.manageMatrix4d(targetPose);
-	    	
-        	// Attempt to solve IK
-        	solver.solve(this,targetPose,solutionKeyframe);
-        	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-        		// Solved!  Are angles OK for this robot?
-        		if(sanityCheck(solutionKeyframe)) {
-	        		// Yes!  Are we connected to a live robot?        			
-	        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
-	        			// Send our internal data to the robot.  Each robot probably has its own post-processor.
-        				sendNewStateToRobot(solutionKeyframe);
-        				// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
-        				isReadyToReceive=false;
-	        		} else {
-	        			// No connected robot, update the pose directly.
-	            		this.setRobotPose(solutionKeyframe);
-	        		}
-        		} else {
-        			// failed sanity check
-            		targetPose.set(oldPose);
-            	}
-        	} else {
-        		// No valid IK solution.
-        		targetPose.set(oldPose);
-        	}
-        }
 	}
 	
 	/**
