@@ -84,6 +84,7 @@ public class DHLink {
 		r=arg0.r;
 		alpha=arg0.alpha;
 		pose = new Matrix4d(arg0.pose);
+		inertia = new Matrix4d(arg0.inertia);
 		poseCumulative = new Matrix4d(arg0.poseCumulative);
 		model=arg0.model;
 		rangeMin=arg0.rangeMin;
