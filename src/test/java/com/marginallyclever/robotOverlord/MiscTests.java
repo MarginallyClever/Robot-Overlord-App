@@ -170,6 +170,7 @@ public class MiscTests {
 		DHLink link6 = robot.getLink(6);		double bottom6 = link6.rangeMin;		double top6 = link6.rangeMax;
 
 		int totalTests = 0;
+		int totalOneSolutions = 0;
 		int totalPasses = 0;
 		
 		double x,y,z;
@@ -195,9 +196,10 @@ public class MiscTests {
 							for(v=bottom5;v<top5;v+=ANGLE_STEP_SIZE) 
 							{
 								keyframe0.fkValues[4]=v;
-								for(w=bottom6;w<top6;w+=ANGLE_STEP_SIZE) 
+								//for(w=bottom6;w<top6;w+=ANGLE_STEP_SIZE) 
 								{
 									keyframe0.fkValues[5]=w;
+									
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
 				            		robot.setRobotPose(keyframe0);
@@ -205,6 +207,8 @@ public class MiscTests {
 									// now generate a set of FK values from the endMatrix m0.
 									solver.solve(robot, m0, keyframe1);
 									if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+										++totalOneSolutions;
+										
 										// update the robot pose and get the m1 matrix. 
 					            		robot.setRobotPose(keyframe1);
 					            		m1.set(robot.getEndMatrix());
@@ -236,7 +240,7 @@ public class MiscTests {
 					            			m0.get(a0);
 					            			m1.get(a1);
 					            			a0.sub(a1);
-					            			error+="Matrix "+StringHelper.formatDouble(a0.length());
+					            			error+="Matrix "+a0.length();
 					            			bad=true;
 					            		}
 					            		out.write(error+"\n");
@@ -251,7 +255,7 @@ public class MiscTests {
 					}
 				}
 			}
-			out.write("testFK2IK() total="+totalTests+", passes="+totalPasses+"\n");
+			System.out.println("testFK2IK() total="+totalTests+", one solution="+totalOneSolutions+", passes="+totalPasses);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
