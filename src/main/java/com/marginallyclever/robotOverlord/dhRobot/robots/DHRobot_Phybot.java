@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.robots;
 
 import java.util.Iterator;
 
@@ -6,11 +6,16 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 
-public class DHRobot_Sixi1 extends DHRobot {
+public class DHRobot_Phybot extends DHRobot {
 	/**
 	 * 
 	 */
@@ -18,7 +23,7 @@ public class DHRobot_Sixi1 extends DHRobot {
 	public boolean isFirstTime;
 	public Material material;
 
-	public DHRobot_Sixi1() {
+	public DHRobot_Phybot() {
 		super();
 		setDisplayName("Sixi 1");
 		isFirstTime=true;
@@ -146,12 +151,10 @@ public class DHRobot_Sixi1 extends DHRobot {
 		
 		super.render(gl2);
 	}
-
-	@Override
+	
 	public DHIKSolver getSolverIK() {
 		return new DHIKSolver_RTTRTR();
 	}
 
-	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

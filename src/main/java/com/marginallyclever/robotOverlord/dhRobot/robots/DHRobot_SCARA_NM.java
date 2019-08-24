@@ -1,10 +1,15 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.robots;
 
 import java.util.Iterator;
 
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_SCARA;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 

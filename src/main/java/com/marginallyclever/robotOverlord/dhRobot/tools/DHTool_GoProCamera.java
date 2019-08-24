@@ -1,7 +1,10 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.tools;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
+
+import com.marginallyclever.robotOverlord.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.dhRobot.DHTool;
 
 /**
  * DHTool is a model that has a DHLink equivalence.

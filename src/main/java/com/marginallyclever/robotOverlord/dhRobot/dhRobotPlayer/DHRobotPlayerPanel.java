@@ -7,12 +7,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -21,6 +20,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.Translator;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
  * Control Panel for a DHRobot
@@ -36,12 +38,15 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 	protected DHRobotPlayer player;
 	protected RobotOverlord ro;
 	
-	protected JTextField fileToPlay;
-	protected JButton chooseFile;
+	protected UserCommandSelectFile fileToPlay;
+	
 	protected JButton reset;
 	protected JCheckBox buttonSingleBlock;
 	protected JCheckBox buttonLoop; 
-	protected JCheckBox buttonCycleStart; 
+	protected JCheckBox buttonCycleStart;
+	
+	protected JTextField directCommand;
+	protected JButton directCommandSend;
 
 	public DHRobotPlayerPanel(RobotOverlord gui,DHRobotPlayer arg0) {
 		this.player = arg0;
@@ -64,7 +69,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 
 		CollapsiblePanel oiwPanel = new CollapsiblePanel("DHRobotPlayer");
 		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();		
+		JPanel contents = oiwPanel.getContentPane();
 		
 		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new GridBagLayout());
@@ -74,20 +79,12 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		//con1.anchor=GridBagConstraints.CENTER;
-
-		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
-		//con1.gridy++;
-		//numLinks.addChangeListener(this);
 		
 		contents.add(new JLabel("File to play"), con1);
 		con1.gridy++;
-		contents.add(fileToPlay=new JTextField(""), con1);
+		contents.add(fileToPlay=new UserCommandSelectFile(ro,Translator.get("..."),player.getFileToPlay()), con1);
 		con1.gridy++;
-		fileToPlay.setEditable(false);
-		contents.add(chooseFile=new JButton("..."),con1);
-		con1.gridy++;
-		chooseFile.addActionListener(this);
+		fileToPlay.addChoosableFileFilter(new FileNameExtensionFilter("GCode", "ngc"));
 
 		contents.add(reset = new JButton("Reset"),con1);
 		con1.gridy++;
@@ -95,36 +92,41 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		con1.gridy++;
 		contents.add(buttonLoop = new JCheckBox("Loop at end"),con1);
 		con1.gridy++;
-		contents.add(buttonCycleStart = new JCheckBox("Cycle start"),con1);
+		JButton b = new JButton();
+		b.add(buttonCycleStart = new JCheckBox("Cycle start"));
+		contents.add(b,con1);
 		con1.gridy++; 
 		
 		reset.addActionListener(this);
 		buttonSingleBlock.addItemListener(this);
 		buttonLoop.addItemListener(this);
 		buttonCycleStart.addItemListener(this);
+		fileToPlay.addChangeListener(this);
 		
 		buttonSingleBlock.setSelected(player.isSingleBlock());
 		buttonLoop.setSelected(player.isLoop());
 		buttonCycleStart.setSelected(player.isCycleStart());
-		
-		contents.add(new JSeparator(JSeparator.VERTICAL), con1);
+
+		contents.add(Box.createVerticalGlue(),con1);
 		con1.gridy++;
+		
+		contents.add(new JLabel("Direct command"),con1);
+		con1.gridy++;
+		contents.add(directCommand = new JTextField(),con1);
+		con1.gridy++;
+		contents.add(directCommandSend = new JButton("Send"),con1);
+		con1.gridy++;
+		directCommandSend.addActionListener(this);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if(source == chooseFile) {
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new FileNameExtensionFilter("GCode (ngc/gcode)","ngc","gcode"));
-			int returnVal = fc.showOpenDialog(ro.getMainFrame());
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				String t = fc.getSelectedFile().getAbsolutePath();
-				fileToPlay.setText(t);
-				player.setFileToPlay(t);
-			}
-		}
 		if(source == reset) player.reset();
+		if(source == directCommandSend) {
+			DHRobot t=player.getTarget();
+			if(t!=null) t.parseGCode(directCommand.getText());
+		}
 	}
 
 	@Override
@@ -138,6 +140,9 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		
+		Object source = e.getSource();
+		if(source==fileToPlay) {
+			player.setFileToPlay(fileToPlay.getFilename());
+		}
 	}
 }

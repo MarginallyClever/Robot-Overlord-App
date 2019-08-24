@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.tools;
 
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +13,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.camera.Camera;
+import com.marginallyclever.robotOverlord.dhRobot.DHTool;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.model.Model;
@@ -38,9 +39,14 @@ public class DHTool_Gripper extends DHTool {
 	private transient PhysicalObject subjectBeingHeld;
 	private transient Matrix4d heldRelative;
 	
-	private double gripperServoAngle=90;
+	private double gripperServoAngle;
 	public static final double ANGLE_MAX=55;
 	public static final double ANGLE_MIN=10;
+	
+	private double interpolatePoseT;
+	private double startT,endT;
+	private double startD,endD;
+	private double startR,endR;
 	
 	private Model linkage;
 	private Model finger;
@@ -49,12 +55,17 @@ public class DHTool_Gripper extends DHTool {
 	
 	public DHTool_Gripper() {
 		super();
+		setDisplayName("Gripper");
 		dhLinkEquivalent.d=11.9082;  // cm
 		dhLinkEquivalent.refreshPoseMatrix();
 		
 		heldRelative = new Matrix4d();
 		
-		setDisplayName("Gripper");
+		gripperServoAngle=90;
+		interpolatePoseT=1;
+		startT=endT=gripperServoAngle;
+		startD=endD=dhLinkEquivalent.d;
+		startR=endR=dhLinkEquivalent.r;
 		
 		setFilename("/Sixi2/beerGripper/base.stl");
 		setScale(0.1f);
@@ -261,12 +272,35 @@ public class DHTool_Gripper extends DHTool {
 		while(tok.hasMoreTokens()) {
 			String token = tok.nextToken();
 			try {
-				if(token.startsWith("T")) gripperServoAngle = Double.parseDouble(token.substring(1));
-				if(token.startsWith("R")) dhLinkEquivalent.r = Double.parseDouble(token.substring(1));
-				if(token.startsWith("S")) dhLinkEquivalent.d = Double.parseDouble(token.substring(1));
+				if(token.startsWith("T")) {
+					startT = gripperServoAngle;
+					endT = Double.parseDouble(token.substring(1));
+				}
+				if(token.startsWith("R")) {
+					startR = dhLinkEquivalent.r;
+					endR = Double.parseDouble(token.substring(1));
+				}
+				if(token.startsWith("S")) {
+					startD = dhLinkEquivalent.d;
+					endD = Double.parseDouble(token.substring(1));
+				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
 			}
+		}
+		interpolatePoseT=0;
+	}
+	
+	public void interpolate(double dt) {
+		if(interpolatePoseT<1) {
+			interpolatePoseT+=dt;
+			if(interpolatePoseT>=1) {
+				interpolatePoseT=1;
+			}
+			gripperServoAngle  = (endT-startT)*interpolatePoseT + startT;
+			dhLinkEquivalent.r = (endR-startR)*interpolatePoseT + startR;
+			dhLinkEquivalent.d = (endD-startD)*interpolatePoseT + startD;
+			dhLinkEquivalent.refreshPoseMatrix();
 		}
 	}
 }

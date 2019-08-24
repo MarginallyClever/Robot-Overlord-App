@@ -210,6 +210,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		if(isDirty) {
 			robot.refreshPose();
+			robot.setTargetPose(robot.getEndMatrix());
 			updateEnd();
 		}
 	}

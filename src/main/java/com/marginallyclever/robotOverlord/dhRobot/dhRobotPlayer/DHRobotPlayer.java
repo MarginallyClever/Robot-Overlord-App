@@ -189,4 +189,8 @@ public class DHRobotPlayer extends ModelInWorld {
 		closeFileNow();
 		openFileNow();
 	}
+	
+	public DHRobot getTarget() {
+		return target;
+	}
 }

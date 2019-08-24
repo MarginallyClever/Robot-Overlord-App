@@ -17,7 +17,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi2;
+import com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi2;
 
 public class MiscTests {
 	@Test

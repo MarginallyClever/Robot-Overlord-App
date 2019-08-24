@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.robots;
 
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -11,6 +11,12 @@ import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobotPanel;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
@@ -28,7 +34,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	private static double ADJUST2 = -62.5;
 	private static double ADJUST3 = 180+150;
 	private static double ADJUST4 = 135;
-	private static double ADJUST5 = 90+30;
+	private static double ADJUST5 = 90;
 
 	// scale the values between the robot and the software
 	// TODO these values are adjusted per-robot and should live in the firmware.
@@ -36,7 +42,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 	private static double SCALE_1=1;
 	private static double SCALE_2=1;
 	private static double SCALE_3=-1;
-	private static double SCALE_4=1;
+	private static double SCALE_4=-1;
 	private static double SCALE_5=-1;
 	
 
@@ -226,7 +232,12 @@ public class DHRobot_Sixi2 extends DHRobot {
 		}
 		
 		double [] fk = new double[6];
-		ADJUST4 = 135;
+		ADJUST0 = -140;
+		ADJUST1 = 90;
+		ADJUST2 = -65.5; // 66-271=
+		ADJUST3 = -145;
+		ADJUST4 = 235;
+		ADJUST5 = 90+50;
 		
 		fk[0] =(keyframe.fkValues[0]-ADJUST0)/SCALE_0;
 		fk[1] =(keyframe.fkValues[1]-ADJUST1)/SCALE_1;
@@ -248,9 +259,11 @@ public class DHRobot_Sixi2 extends DHRobot {
 	    		+" Z"+(StringHelper.formatDouble(fk[2]))
 	    		+" U"+(StringHelper.formatDouble(fk[3]))
 	    		+" V"+(StringHelper.formatDouble(fk[4]))
-	    		//+" W"+(StringHelper.formatDouble(fk[5]))
+	    		+" W"+(StringHelper.formatDouble(fk[5]))
 	    		;
-		
+		String message2 = ""
+	    		;
+
 		if(dhTool!=null) {
 			double t=dhTool.getAdjustableValue();
 			message += " T"+(180-t);
@@ -258,6 +271,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 				
 		//System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
 		
+		System.out.println(AnsiColors.GREEN+message+AnsiColors.RED+message2+AnsiColors.RESET);
 		sendLineToRobot(message);
 	}
 
@@ -303,9 +317,7 @@ public class DHRobot_Sixi2 extends DHRobot {
 						// angles after adjusting for scale and offset.
 						System.out.println(AnsiColors.PURPLE+data+"\t>>\t"+message+AnsiColors.RESET);
 						//*/
-						if(data.endsWith("\n")) {
-							data = data.substring(0,data.length()-1);
-						}
+						data = data.replace('\n', ' ');
 						System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 						
 						/*
@@ -344,9 +356,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 				+" X"+StringHelper.formatDouble(t1.x)
 				+" Y"+StringHelper.formatDouble(t1.y)
 				+" Z"+StringHelper.formatDouble(t1.z)
-				+" I"+StringHelper.formatDouble(e1.x)
-				+" J"+StringHelper.formatDouble(e1.y)
-				+" K"+StringHelper.formatDouble(e1.z)
+				+" I"+StringHelper.formatDouble(Math.toDegrees(e1.x))
+				+" J"+StringHelper.formatDouble(Math.toDegrees(e1.y))
+				+" K"+StringHelper.formatDouble(Math.toDegrees(e1.z))
 				;
 		if(dhTool!=null) {
 			// add special tool commands
@@ -380,9 +392,9 @@ public class DHRobot_Sixi2 extends DHRobot {
 			case 'X':  t1.x = Double.parseDouble(token.substring(1));  break;
 			case 'Y':  t1.y = Double.parseDouble(token.substring(1));  break;
 			case 'Z':  t1.z = Double.parseDouble(token.substring(1));  break;
-			case 'I':  e1.x = Double.parseDouble(token.substring(1));  break;
-			case 'J':  e1.y = Double.parseDouble(token.substring(1));  break;
-			case 'K':  e1.z = Double.parseDouble(token.substring(1));  break;
+			case 'I':  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+			case 'J':  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+			case 'K':  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
 			default:  break;
 			}
 		}

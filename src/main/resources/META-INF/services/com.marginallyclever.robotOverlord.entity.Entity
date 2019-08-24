@@ -1,16 +1,15 @@
 #com.marginallyclever.robotOverlord.dhRobot.DHRobot
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_GMF_M100
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_Mantis
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi2
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_Sixi1
-#com.marginallyclever.robotOverlord.dhRobot.DHRobot_Arm3
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_UArm
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_SCARA_NM
-com.marginallyclever.robotOverlord.dhRobot.DHRobot_Thor
-#com.marginallyclever.robotOverlord.dhRobot.DHRobot_Cartesian
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_GMF_M100
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Mantis
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi2
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi1
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Arm3
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_UArm
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_SCARA_NM
+com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Thor
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Cartesian
 
 #com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
-com.marginallyclever.robotOverlord.MotionHelper
 com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld
 com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
 #com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
@@ -18,6 +17,10 @@ com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
 com.marginallyclever.robotOverlord.Waypoint
 
 #tests
-com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
+#com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
+
+#??
+#com.marginallyclever.robotOverlord.MotionHelper
+
 # sends gcode to a dhrobot
 com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer

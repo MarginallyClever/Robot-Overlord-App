@@ -35,7 +35,7 @@ public abstract class DHRobot extends Robot {
 	/**
 	 * {@value links} a list of DHLinks describing the kinematic chain.
 	 */
-	protected LinkedList<DHLink> links;
+	public LinkedList<DHLink> links;
 	
 	/**
 	 * {@value poseNow} keyframe describing the current pose of the kinematic chain.
@@ -79,7 +79,7 @@ public abstract class DHRobot extends Robot {
 	/**
 	 * {@value dhTool} a DHTool current attached to the arm.
 	 */
-	protected DHTool dhTool;
+	public DHTool dhTool;
 	
 	/**
 	 * {@value drawSkeleton} true if the skeleton should be visualized on screen.  Default is false.
@@ -544,17 +544,23 @@ public abstract class DHRobot extends Robot {
 	public void update(double dt) {
 		update2(dt);
 	}
-	
-	protected void update2(double dt) {
+
+	protected void interpolate(double dt) {
 		if(interpolatePoseT<1) {
-			interpolatePoseT+=dt*0.25;
+			interpolatePoseT+=dt;
 			if(interpolatePoseT>=1) {
-				Matrix4d diff = new Matrix4d(endPose);
-				diff.sub(endMatrix);
 				interpolatePoseT=1;
 			}
 			MatrixHelper.interpolate(startPose, endPose, interpolatePoseT, targetPose);
 		}
+		
+		if(dhTool!=null) {
+			dhTool.interpolate(dt);
+		}
+	}
+	
+	protected void update2(double dt) {
+		interpolate(dt*0.25);
 		
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
         oldPose.set(targetPose);
@@ -584,10 +590,12 @@ public abstract class DHRobot extends Robot {
     		} else {
     			// failed sanity check
         		targetPose.set(oldPose);
+        		System.out.println("Insane solution");
         	}
     	} else {
     		// No valid IK solution.
     		targetPose.set(oldPose);
+    		System.out.println("No solution");
         }
 
     	// not in direct drive mode.
@@ -943,5 +951,13 @@ public abstract class DHRobot extends Robot {
 	
 	public DHLink getLink(int i) {
 		return links.get(i);
+	}
+	
+	public void setTargetPose(Matrix4d pose) {
+		targetPose.set(pose);
+	}
+	
+	public Matrix4d getTargetPose() {
+		return new Matrix4d(targetPose);
 	}
 }

@@ -1,8 +1,11 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.solvers;
 
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
  * Solves Inverse Kinematics for cartesian robots like 3D printers and milling machines.

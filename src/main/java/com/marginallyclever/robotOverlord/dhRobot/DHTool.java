@@ -68,4 +68,6 @@ public class DHTool extends ModelInWorld {
 	}
 	
 	public void parseGCode(String str) {}
+	
+	public void interpolate(double dt) {}
 }
