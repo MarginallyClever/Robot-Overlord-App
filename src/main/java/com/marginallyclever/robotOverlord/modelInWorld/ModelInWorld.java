@@ -100,7 +100,7 @@ public class ModelInWorld extends PhysicalObject {
 		rotationAdjust.x=x;
 		rotationAdjust.y=y;
 		rotationAdjust.z=z;
-		if(model!=null) model.adjustOrigin(rotationAdjust);
+		if(model!=null) model.adjustRotation(rotationAdjust);
 	}
 
 	public void adjustRotation(Vector3d arg0) {
