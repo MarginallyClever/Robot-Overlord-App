@@ -21,11 +21,11 @@ import com.marginallyclever.robotOverlord.world.World;
  * @author Dan Royer
  */
 public class DHRobotPlayer extends ModelInWorld {
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	protected DHRobot target;
 	protected BufferedReader gcodeFile;
 	protected DHRobotPlayerPanel panel;
