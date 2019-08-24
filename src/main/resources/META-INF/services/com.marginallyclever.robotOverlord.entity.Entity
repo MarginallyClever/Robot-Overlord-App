@@ -1,26 +1,33 @@
-#com.marginallyclever.robotOverlord.dhRobot.DHRobot
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_GMF_M100
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Mantis
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi2
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi1
+# DHRobots
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_GMF_M100
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Mantis
+com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi1
 #com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Arm3
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_UArm
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_SCARA_NM
-com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Thor
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_UArm
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_SCARA_NM
+#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Thor
 #com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Cartesian
 
+# sends gcode to a dhrobot
+com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer
+
+#other robots
 #com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
-com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld
-com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
+#com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
 #com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
 #com.marginallyclever.robotOverlord.spidee.Spidee
-com.marginallyclever.robotOverlord.Waypoint
+
+#other objects
+com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld
+com.marginallyclever.robotOverlord.camera.Camera
+com.marginallyclever.robotOverlord.light.Light
 
 #tests
 #com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
 
 #??
+# meant to be grab handles for moving objects by dragging on screen as in Fusion360.
 #com.marginallyclever.robotOverlord.MotionHelper
-
-# sends gcode to a dhrobot
-com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer
+# visualization of a robot pose 
+#com.marginallyclever.robotOverlord.Waypoint
