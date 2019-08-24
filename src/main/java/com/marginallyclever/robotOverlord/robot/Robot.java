@@ -94,13 +94,13 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		return list;
 	}
 	
-	protected void closeConnection() {
+	public void closeConnection() {
 		connection.closeConnection();
 		connection.removeListener(this);
 		connection=null;
 	}
 	
-	protected void openConnection() {
+	public void openConnection() {
 		NetworkConnection s = NetworkConnectionManager.requestNewConnection(null);
 		if(s!=null) {
 			connection = s;
