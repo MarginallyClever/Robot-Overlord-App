@@ -1,8 +1,10 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots;
+package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
@@ -11,6 +13,7 @@ import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
@@ -21,7 +24,7 @@ import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 
 
-public class DHRobot_Sixi2 extends DHRobot {
+public class Sixi2 extends DHRobot {
 	/**
 	 * 
 	 */
@@ -52,12 +55,24 @@ public class DHRobot_Sixi2 extends DHRobot {
 	public boolean once = false;
 	
 	DHKeyframe receivedKeyframe;
+	protected Sixi2Panel sixi2Panel;
 	
-	public DHRobot_Sixi2() {
+	
+	public Sixi2() {
 		super();
 		setDisplayName("Sixi 2");
 		isFirstTime=true;
 		receivedKeyframe = (DHKeyframe)createKeyframe();
+	}
+	
+	@Override
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		
+		sixi2Panel = new Sixi2Panel(gui,this);
+		list.add(sixi2Panel);
+		
+		return list;
 	}
 	
 	@Override
