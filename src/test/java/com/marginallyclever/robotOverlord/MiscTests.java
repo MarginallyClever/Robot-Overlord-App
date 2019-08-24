@@ -17,7 +17,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
-import com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi2;
+import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 
 public class MiscTests {
 	@Test
@@ -150,7 +150,7 @@ public class MiscTests {
 	@Test
 	public void testFK2IK() {
 		System.out.println("testFK2IK()");
-		DHRobot_Sixi2 robot = new DHRobot_Sixi2();
+		Sixi2 robot = new Sixi2();
 		int numLinks = robot.getNumLinks();
 		assert(numLinks>0);
 
