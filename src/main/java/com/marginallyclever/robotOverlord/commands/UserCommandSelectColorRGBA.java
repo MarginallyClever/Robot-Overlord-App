@@ -67,7 +67,7 @@ public class UserCommandSelectColorRGBA extends JPanel implements DocumentListen
 	}
 	
 	private JTextField addField(String labelName,float defaultValue,GridBagConstraints con1) {
-		JLabel label = new JLabel(labelName);
+		JLabel label = new JLabel(labelName, JLabel.TRAILING);
 		JTextField f = new JTextField(15);
 		f.setText(df.format(defaultValue));
 		f.getDocument().addDocumentListener(this);
