@@ -30,31 +30,19 @@ public class Sixi2 extends DHRobot {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	// translate the values between the robot and the software
-	// TODO these values are adjusted per-robot and should live in the firmware.
-	private static double ADJUST0 = -140;
-	private static double ADJUST1 = 90;
-	private static double ADJUST2 = -62.5;
-	private static double ADJUST3 = 180+150;
-	private static double ADJUST4 = 135;
-	private static double ADJUST5 = 90;
-
-	// scale the values between the robot and the software
-	// TODO these values are adjusted per-robot and should live in the firmware.
-	private static double SCALE_0=-1;
-	private static double SCALE_1=1;
-	private static double SCALE_2=1;
-	private static double SCALE_3=-1;
-	private static double SCALE_4=-1;
-	private static double SCALE_5=-1;
+	// translate & scale the values between the robot and the software to get matching motion.
+	// these values are adjusted per-robot 
+	// TODO these values should live in the firmware.
+	private double [] adjust = new double[6];
+	private double [] scale  = new double[6];
 	
-
 	public boolean isFirstTime;
 	public Material material;
 	public Material materialGhost;
 	public boolean once = false;
 	
 	DHKeyframe receivedKeyframe;
+	DHKeyframe receivedAdjKeyframe;
 	protected Sixi2Panel sixi2Panel;
 	
 	
@@ -63,7 +51,24 @@ public class Sixi2 extends DHRobot {
 		setDisplayName("Sixi 2");
 		isFirstTime=true;
 		receivedKeyframe = (DHKeyframe)createKeyframe();
+		receivedAdjKeyframe = (DHKeyframe)createKeyframe();
+
+		// defaults
+		// TODO serialize these for each GUID
+		adjust[0] = -139.530;
+		adjust[1] =  -92.110;
+		adjust[2] =   66.010;
+		adjust[3] =  -55.900;
+		adjust[4] = -128.450;
+		adjust[5] =  145.830;
+		scale[0] = -1;
+		scale[1] =  1;
+		scale[2] =  1;
+		scale[3] = -1;
+		scale[4] = -1;
+		scale[5] = -1;
 	}
+	
 	
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
@@ -246,20 +251,13 @@ public class Sixi2 extends DHRobot {
 			sendLineToRobot("D20");
 		}
 		
-		double [] fk = new double[6];
-		ADJUST0 = -140;
-		ADJUST1 = 90;
-		ADJUST2 = -65.5; // 66-271=
-		ADJUST3 = -145;
-		ADJUST4 = 235;
-		ADJUST5 = 90+50;
-		
-		fk[0] =(keyframe.fkValues[0]-ADJUST0)/SCALE_0;
-		fk[1] =(keyframe.fkValues[1]-ADJUST1)/SCALE_1;
-		fk[2] =(keyframe.fkValues[2]-ADJUST2)/SCALE_2;
-		fk[3] =(keyframe.fkValues[3]-ADJUST3)/SCALE_3;
-		fk[4] =(keyframe.fkValues[4]-ADJUST4)/SCALE_4;
-		fk[5] =(keyframe.fkValues[5]-ADJUST5)/SCALE_5;
+		double [] fk = new double[6];		
+		fk[0] = keyframe.fkValues[0] * scale[0] + adjust[0];
+		fk[1] = keyframe.fkValues[1] * scale[1] + adjust[1];
+		fk[2] = keyframe.fkValues[2] * scale[2] + adjust[2];
+		fk[3] = keyframe.fkValues[3] * scale[3] + adjust[3];
+		fk[4] = keyframe.fkValues[4] * scale[4] + adjust[4];
+		fk[5] = keyframe.fkValues[5] * scale[5] + adjust[5];
 		
 		for(int i=0;i<keyframe.fkValues.length;++i) {
 			double v = fk[i];
@@ -294,6 +292,7 @@ public class Sixi2 extends DHRobot {
 	 * read D17 values from sixi robot
 	 */
 	@Override
+	@SuppressWarnings("unused")
 	public void dataAvailable(NetworkConnection arg0,String data) {
 		if(data.contains("D17")) {
 			if(data.startsWith(">")) {
@@ -306,13 +305,12 @@ public class Sixi2 extends DHRobot {
 					try {
 						// original message from robot
 						
-						receivedKeyframe.fkValues[0]=Double.parseDouble(dataParts[1])*SCALE_0+ADJUST0;
-						receivedKeyframe.fkValues[1]=Double.parseDouble(dataParts[2])*SCALE_1+ADJUST1;
-						receivedKeyframe.fkValues[2]=Double.parseDouble(dataParts[3])*SCALE_2+ADJUST2;
-						receivedKeyframe.fkValues[3]=Double.parseDouble(dataParts[4])*SCALE_3+ADJUST3;
-						receivedKeyframe.fkValues[4]=Double.parseDouble(dataParts[5])*SCALE_4+ADJUST4;
-						receivedKeyframe.fkValues[5]=Double.parseDouble(dataParts[6])*SCALE_5+ADJUST5;
-						
+						receivedKeyframe.fkValues[0]=Double.parseDouble(dataParts[1]);
+						receivedKeyframe.fkValues[1]=Double.parseDouble(dataParts[2]);
+						receivedKeyframe.fkValues[2]=Double.parseDouble(dataParts[3]);
+						receivedKeyframe.fkValues[3]=Double.parseDouble(dataParts[4]);
+						receivedKeyframe.fkValues[4]=Double.parseDouble(dataParts[5]);
+						receivedKeyframe.fkValues[5]=Double.parseDouble(dataParts[6]);
 						
 						for(int i=0;i<receivedKeyframe.fkValues.length;++i) {
 							double v = receivedKeyframe.fkValues[i];
@@ -320,29 +318,44 @@ public class Sixi2 extends DHRobot {
 							while(v> 180) v-=360;
 							receivedKeyframe.fkValues[i]=v;
 						}
-						/*
-						String message = "D17"
-					    		+" X"+(StringHelper.formatDouble((receivedKeyframe.fkValues[0])))
-					    		+" Y"+(StringHelper.formatDouble((receivedKeyframe.fkValues[1])))
-					    		+" Z"+(StringHelper.formatDouble((receivedKeyframe.fkValues[2])))
-					    		+" U"+(StringHelper.formatDouble((receivedKeyframe.fkValues[3])))
-					    		+" V"+(StringHelper.formatDouble((receivedKeyframe.fkValues[4])))
-					    		+" W"+(StringHelper.formatDouble((receivedKeyframe.fkValues[5])));
-
-						// angles after adjusting for scale and offset.
-						System.out.println(AnsiColors.PURPLE+data+"\t>>\t"+message+AnsiColors.RESET);
-						//*/
-						data = data.replace('\n', ' ');
-						System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+						receivedAdjKeyframe.fkValues[0] = ( receivedKeyframe.fkValues[0] - adjust[0] ) * scale[0];
+						receivedAdjKeyframe.fkValues[1] = ( receivedKeyframe.fkValues[1] - adjust[1] ) * scale[1];
+						receivedAdjKeyframe.fkValues[2] = ( receivedKeyframe.fkValues[2] - adjust[2] ) * scale[2];
+						receivedAdjKeyframe.fkValues[3] = ( receivedKeyframe.fkValues[3] - adjust[3] ) * scale[3];
+						receivedAdjKeyframe.fkValues[4] = ( receivedKeyframe.fkValues[4] - adjust[4] ) * scale[4];
+						receivedAdjKeyframe.fkValues[5] = ( receivedKeyframe.fkValues[5] - adjust[5] ) * scale[5];
 						
-						/*
+						if(false) {
+							String message = "D17 A"
+						    		+" X"+(StringHelper.formatDouble((receivedKeyframe.fkValues[0])))
+						    		+" Y"+(StringHelper.formatDouble((receivedKeyframe.fkValues[1])))
+						    		+" Z"+(StringHelper.formatDouble((receivedKeyframe.fkValues[2])))
+						    		+" U"+(StringHelper.formatDouble((receivedKeyframe.fkValues[3])))
+						    		+" V"+(StringHelper.formatDouble((receivedKeyframe.fkValues[4])))
+						    		+" W"+(StringHelper.formatDouble((receivedKeyframe.fkValues[5])));
+							System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
+						}
+						if(false) {
+							// angles after adjusting for scale and offset.
+							String message = "D17 B"
+						    		+" X"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[0])))
+						    		+" Y"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[1])))
+						    		+" Z"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[2])))
+						    		+" U"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[3])))
+						    		+" V"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[4])))
+						    		+" W"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[5])));
+							System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
+						}
+						//data = data.replace('\n', ' ');
+						//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+
 						//smoothing to new position
-						DHKeyframe inter = (DHKeyframe)createKeyframe();
-						inter.interpolate(poseNow,receivedKeyframe, 0.5);
-						this.setRobotPose(inter);
-						/*/
-						//this.setRobotPose(receivedKeyframe);
-						//*/
+						//DHKeyframe inter = (DHKeyframe)createKeyframe();
+						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
+						//this.setRobotPose(inter);
+
+						//this.setRobotPose(receivedAdjKeyframe);
+
 					} catch(Exception e) {}
 				}
 			}
