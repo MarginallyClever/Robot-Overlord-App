@@ -46,7 +46,8 @@ public class Sixi2Calibrator extends JPanel implements ActionListener {
 			invert[i]=new JCheckBox("invert");
 			jogNeg[i]=new JButton("-");
 			jogPos[i]=new JButton("+");
-			offset[i]=new JTextField("");
+			offset[i]=new JTextField(StringHelper.formatDouble(robot.adjust[i]));
+			invert[i].setSelected(robot.scale[i]==-1);
 			
 			this.add(invert[i]);
 			this.add(jogNeg[i]);

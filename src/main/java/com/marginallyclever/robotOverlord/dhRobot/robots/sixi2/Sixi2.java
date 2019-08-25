@@ -33,8 +33,8 @@ public class Sixi2 extends DHRobot {
 	// translate & scale the values between the robot and the software to get matching motion.
 	// these values are adjusted per-robot 
 	// TODO these values should live in the firmware.
-	private double [] adjust = new double[6];
-	private double [] scale  = new double[6];
+	public double [] adjust = new double[6];
+	public double [] scale  = new double[6];
 	
 	public boolean isFirstTime;
 	public Material material;
@@ -55,18 +55,18 @@ public class Sixi2 extends DHRobot {
 
 		// defaults
 		// TODO serialize these for each GUID
-		adjust[0] = -139.530;
-		adjust[1] =  -92.110;
-		adjust[2] =   66.010;
-		adjust[3] =  -55.900;
-		adjust[4] = -128.450;
-		adjust[5] =  145.830;
+		adjust[0] = 220;//-139.530;
+		adjust[1] = 266;// -92.110;
+		adjust[2] =  67;//  66.010;
+		adjust[3] = 314;// -55.900;
+		adjust[4] = 232;//-128.450;
+		adjust[5] = 141;// 145.830;
 		scale[0] = -1;
-		scale[1] =  1;
-		scale[2] =  1;
-		scale[3] = -1;
-		scale[4] = -1;
-		scale[5] = -1;
+		scale[1] = 1;
+		scale[2] = 1;
+		scale[3] = 1;
+		scale[4] = 1;
+		scale[5] = 1;
 	}
 	
 	
@@ -261,7 +261,7 @@ public class Sixi2 extends DHRobot {
 		
 		for(int i=0;i<keyframe.fkValues.length;++i) {
 			double v = fk[i];
-			while(v<0) v+=360;
+			while(v<  0) v+=360;
 			while(v>360) v-=360;
 			fk[i]=v;
 		}
@@ -312,18 +312,19 @@ public class Sixi2 extends DHRobot {
 						receivedKeyframe.fkValues[4]=Double.parseDouble(dataParts[5]);
 						receivedKeyframe.fkValues[5]=Double.parseDouble(dataParts[6]);
 						
-						for(int i=0;i<receivedKeyframe.fkValues.length;++i) {
-							double v = receivedKeyframe.fkValues[i];
-							while(v<-180) v+=360;
-							while(v> 180) v-=360;
-							receivedKeyframe.fkValues[i]=v;
-						}
 						receivedAdjKeyframe.fkValues[0] = ( receivedKeyframe.fkValues[0] - adjust[0] ) * scale[0];
 						receivedAdjKeyframe.fkValues[1] = ( receivedKeyframe.fkValues[1] - adjust[1] ) * scale[1];
 						receivedAdjKeyframe.fkValues[2] = ( receivedKeyframe.fkValues[2] - adjust[2] ) * scale[2];
 						receivedAdjKeyframe.fkValues[3] = ( receivedKeyframe.fkValues[3] - adjust[3] ) * scale[3];
 						receivedAdjKeyframe.fkValues[4] = ( receivedKeyframe.fkValues[4] - adjust[4] ) * scale[4];
 						receivedAdjKeyframe.fkValues[5] = ( receivedKeyframe.fkValues[5] - adjust[5] ) * scale[5];
+						
+						for(int i=0;i<receivedAdjKeyframe.fkValues.length;++i) {
+							double v = receivedAdjKeyframe.fkValues[i];
+							while(v<-180) v+=360;
+							while(v> 180) v-=360;
+							receivedAdjKeyframe.fkValues[i]=v;
+						}
 						
 						if(false) {
 							String message = "D17 A"
