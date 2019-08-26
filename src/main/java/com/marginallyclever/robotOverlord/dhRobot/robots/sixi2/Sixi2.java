@@ -30,19 +30,12 @@ public class Sixi2 extends DHRobot {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	// translate & scale the values between the robot and the software to get matching motion.
-	// these values are adjusted per-robot 
-	// TODO these values should live in the firmware.
-	public double [] adjust = new double[6];
-	public double [] scale  = new double[6];
-	
 	public boolean isFirstTime;
 	public Material material;
 	public Material materialGhost;
 	public boolean once = false;
 	
 	DHKeyframe receivedKeyframe;
-	DHKeyframe receivedAdjKeyframe;
 	protected Sixi2Panel sixi2Panel;
 	
 	
@@ -51,22 +44,6 @@ public class Sixi2 extends DHRobot {
 		setDisplayName("Sixi 2");
 		isFirstTime=true;
 		receivedKeyframe = (DHKeyframe)createKeyframe();
-		receivedAdjKeyframe = (DHKeyframe)createKeyframe();
-
-		// defaults
-		// TODO serialize these for each GUID
-		adjust[0] = 220;//-139.530;
-		adjust[1] = 266;// -92.110;
-		adjust[2] =  67;//  66.010;
-		adjust[3] = 314;// -55.900;
-		adjust[4] = 232;//-128.450;
-		adjust[5] = 141;// 145.830;
-		scale[0] = -1;
-		scale[1] = 1;
-		scale[2] = 1;
-		scale[3] = 1;
-		scale[4] = 1;
-		scale[5] = 1;
 	}
 	
 	
@@ -248,33 +225,17 @@ public class Sixi2 extends DHRobot {
 	public void sendNewStateToRobot(DHKeyframe keyframe) {
 		if(once == false) {
 			once = true;
+			// turn off error flags in firmware
 			sendLineToRobot("D20");
 		}
 		
-		double [] fk = new double[6];		
-		fk[0] = keyframe.fkValues[0] * scale[0] + adjust[0];
-		fk[1] = keyframe.fkValues[1] * scale[1] + adjust[1];
-		fk[2] = keyframe.fkValues[2] * scale[2] + adjust[2];
-		fk[3] = keyframe.fkValues[3] * scale[3] + adjust[3];
-		fk[4] = keyframe.fkValues[4] * scale[4] + adjust[4];
-		fk[5] = keyframe.fkValues[5] * scale[5] + adjust[5];
-		
-		for(int i=0;i<keyframe.fkValues.length;++i) {
-			double v = fk[i];
-			while(v<  0) v+=360;
-			while(v>360) v-=360;
-			fk[i]=v;
-		}
-
 		String message = "G0"
-	    		+" X"+(StringHelper.formatDouble(fk[0]))
-	    		+" Y"+(StringHelper.formatDouble(fk[1]))
-	    		+" Z"+(StringHelper.formatDouble(fk[2]))
-	    		+" U"+(StringHelper.formatDouble(fk[3]))
-	    		+" V"+(StringHelper.formatDouble(fk[4]))
-	    		+" W"+(StringHelper.formatDouble(fk[5]))
-	    		;
-		String message2 = ""
+	    		+" X"+(StringHelper.formatDouble(keyframe.fkValues[0]))
+	    		+" Y"+(StringHelper.formatDouble(keyframe.fkValues[1]))
+	    		+" Z"+(StringHelper.formatDouble(keyframe.fkValues[2]))
+	    		+" U"+(StringHelper.formatDouble(keyframe.fkValues[3]))
+	    		+" V"+(StringHelper.formatDouble(keyframe.fkValues[4]))
+	    		+" W"+(StringHelper.formatDouble(keyframe.fkValues[5]))
 	    		;
 
 		if(dhTool!=null) {
@@ -284,7 +245,7 @@ public class Sixi2 extends DHRobot {
 				
 		//System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
 		
-		System.out.println(AnsiColors.GREEN+message+AnsiColors.RED+message2+AnsiColors.RESET);
+		System.out.println(AnsiColors.GREEN+message+AnsiColors.RESET);
 		sendLineToRobot(message);
 	}
 
@@ -303,49 +264,22 @@ public class Sixi2 extends DHRobot {
 				String [] dataParts = data.split("\\s");
 				if(dataParts.length>=7) {
 					try {
-						// original message from robot
-						
 						receivedKeyframe.fkValues[0]=Double.parseDouble(dataParts[1]);
 						receivedKeyframe.fkValues[1]=Double.parseDouble(dataParts[2]);
 						receivedKeyframe.fkValues[2]=Double.parseDouble(dataParts[3]);
 						receivedKeyframe.fkValues[3]=Double.parseDouble(dataParts[4]);
 						receivedKeyframe.fkValues[4]=Double.parseDouble(dataParts[5]);
 						receivedKeyframe.fkValues[5]=Double.parseDouble(dataParts[6]);
-						
-						receivedAdjKeyframe.fkValues[0] = ( receivedKeyframe.fkValues[0] - adjust[0] ) * scale[0];
-						receivedAdjKeyframe.fkValues[1] = ( receivedKeyframe.fkValues[1] - adjust[1] ) * scale[1];
-						receivedAdjKeyframe.fkValues[2] = ( receivedKeyframe.fkValues[2] - adjust[2] ) * scale[2];
-						receivedAdjKeyframe.fkValues[3] = ( receivedKeyframe.fkValues[3] - adjust[3] ) * scale[3];
-						receivedAdjKeyframe.fkValues[4] = ( receivedKeyframe.fkValues[4] - adjust[4] ) * scale[4];
-						receivedAdjKeyframe.fkValues[5] = ( receivedKeyframe.fkValues[5] - adjust[5] ) * scale[5];
-						
-						for(int i=0;i<receivedAdjKeyframe.fkValues.length;++i) {
-							double v = receivedAdjKeyframe.fkValues[i];
-							while(v<-180) v+=360;
-							while(v> 180) v-=360;
-							receivedAdjKeyframe.fkValues[i]=v;
-						}
-						
+
 						if(false) {
-							String message = "D17 A"
-						    		+" X"+(StringHelper.formatDouble((receivedKeyframe.fkValues[0])))
-						    		+" Y"+(StringHelper.formatDouble((receivedKeyframe.fkValues[1])))
-						    		+" Z"+(StringHelper.formatDouble((receivedKeyframe.fkValues[2])))
-						    		+" U"+(StringHelper.formatDouble((receivedKeyframe.fkValues[3])))
-						    		+" V"+(StringHelper.formatDouble((receivedKeyframe.fkValues[4])))
-						    		+" W"+(StringHelper.formatDouble((receivedKeyframe.fkValues[5])));
+							String message = "D17 "
+						    		+" X"+(StringHelper.formatDouble(receivedKeyframe.fkValues[0]))
+						    		+" Y"+(StringHelper.formatDouble(receivedKeyframe.fkValues[1]))
+						    		+" Z"+(StringHelper.formatDouble(receivedKeyframe.fkValues[2]))
+						    		+" U"+(StringHelper.formatDouble(receivedKeyframe.fkValues[3]))
+						    		+" V"+(StringHelper.formatDouble(receivedKeyframe.fkValues[4]))
+						    		+" W"+(StringHelper.formatDouble(receivedKeyframe.fkValues[5]));
 							System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
-						}
-						if(false) {
-							// angles after adjusting for scale and offset.
-							String message = "D17 B"
-						    		+" X"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[0])))
-						    		+" Y"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[1])))
-						    		+" Z"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[2])))
-						    		+" U"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[3])))
-						    		+" V"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[4])))
-						    		+" W"+(StringHelper.formatDouble((receivedAdjKeyframe.fkValues[5])));
-							System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
 						}
 						//data = data.replace('\n', ' ');
 						//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
