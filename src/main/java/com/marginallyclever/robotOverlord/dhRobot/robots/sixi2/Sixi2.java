@@ -202,6 +202,9 @@ public class Sixi2 extends DHRobot {
 					Iterator<DHLink> i = links.iterator();
 					while(i.hasNext()) {
 						DHLink link = i.next();
+						if(showAngles) {
+							link.renderAngles(gl2);
+						}
 						link.renderModel(gl2);
 					}
 					if(dhTool!=null) {
@@ -243,9 +246,7 @@ public class Sixi2 extends DHRobot {
 			message += " T"+(180-t);
 		}
 				
-		//System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
-		
-		System.out.println(AnsiColors.GREEN+message+AnsiColors.RESET);
+		System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
 		sendLineToRobot(message);
 	}
 
@@ -289,7 +290,7 @@ public class Sixi2 extends DHRobot {
 						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						//this.setRobotPose(inter);
 
-						//this.setRobotPose(receivedAdjKeyframe);
+						this.setRobotPose(receivedKeyframe);
 
 					} catch(Exception e) {}
 				}
@@ -368,8 +369,13 @@ public class Sixi2 extends DHRobot {
 		endPose.set(m1, t1, 1.0);
 		interpolatePoseT=0;
 
+		// changing the target pose will direct the live robot to that position.
+		targetPose.set(endPose);
+
 		if(dhTool!=null) {
 			dhTool.parseGCode(line);
 		}
+		
+		moveToTargetPose();
 	}
 }
