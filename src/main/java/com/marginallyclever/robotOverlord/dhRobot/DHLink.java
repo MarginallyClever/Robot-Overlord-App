@@ -161,6 +161,9 @@ public class DHLink {
 		double k;
 		final double scale=10;
 		
+		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		
 		gl2.glColor3f(0, 0, 0);
 		if((flags & READ_ONLY_THETA)==0) {
 			// display the curve around z (in the xy plane)
@@ -265,6 +268,7 @@ public class DHLink {
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
+		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 	}
 	
 	public void applyMatrix(GL2 gl2) {
