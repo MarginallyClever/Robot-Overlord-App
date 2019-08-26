@@ -202,7 +202,7 @@ public abstract class DHRobot extends Robot {
 	
 	@Override
 	public void render(GL2 gl2) {
-		if(!drawAsSelected) return;
+		//if(!drawAsSelected) return;
 
 		PrimitiveSolids.drawStar(gl2, this.getPosition(),10);
 		
@@ -248,6 +248,7 @@ public abstract class DHRobot extends Robot {
 				}
 				gl2.glPopMatrix();
 			MatrixHelper.drawMatrix(gl2, endMatrix, 8.0);
+			MatrixHelper.drawMatrix2(gl2, targetPose, 6.0);
 		gl2.glPopMatrix();
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -396,7 +397,7 @@ public abstract class DHRobot extends Robot {
 		final double scaleTurn=0.15;
 		
 		if(InputManager.keyState[0]==1) {}  // square
-		if(InputManager.keyState[1]==1) {  // X
+		if(InputManager.keyState[16]==1) {  // X
 			//this.toggleATC();
 		}
 		if(InputManager.keyState[2]==1) {}  // circle
@@ -525,6 +526,14 @@ public abstract class DHRobot extends Robot {
         if(dhTool!=null) {
         	isDirty |= dhTool.directDrive();
         }
+
+		if(InputManager.keyState[1]!=0) {  // x - commit move!
+			moveToTargetPose();
+		}
+		
+		if(InputManager.keyState[2]!=0) {  // circle - reset targetpose to endmatrix.
+			targetPose.set(endMatrix);
+		}
         
         return isDirty;
 	}
@@ -536,7 +545,7 @@ public abstract class DHRobot extends Robot {
 	 * @return true if we're in direct drive mode. 
 	 */
 	protected boolean inDirectDriveMode() {
-		return animationSpeed==0;
+		return interpolatePoseT>=1.0;
 	}
 	
 	
@@ -551,7 +560,16 @@ public abstract class DHRobot extends Robot {
 			if(interpolatePoseT>=1) {
 				interpolatePoseT=1;
 			}
-			MatrixHelper.interpolate(startPose, endPose, interpolatePoseT, targetPose);
+			// changing the end matrix will only move the simulated version.
+			MatrixHelper.interpolate(startPose, endPose, interpolatePoseT, endMatrix);
+			
+	    	solver.solve(this,endMatrix,solutionKeyframe);
+	    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+	    		// Solved!  Are angles OK for this robot?
+	    		if(sanityCheck(solutionKeyframe)) {
+            		this.setRobotPose(solutionKeyframe);
+	    		}
+	    	}
 		}
 		
 		if(dhTool!=null) {
@@ -566,38 +584,25 @@ public abstract class DHRobot extends Robot {
         oldPose.set(targetPose);
 
         if(inDirectDriveMode()) {
-        	if(driveFromKeyState());
+        	driveFromKeyState();
         }
-        
+
     	// Attempt to solve IK
     	solver.solve(this,targetPose,solutionKeyframe);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// Solved!  Are angles OK for this robot?
     		if(sanityCheck(solutionKeyframe)) {
-        		// Yes!  Are we connected to a live robot?        			
-        		if(connection!=null && connection.isOpen() && isReadyToReceive) {
-        			// Send our internal data to the robot.  Each robot probably has its own post-processor.
-    				sendNewStateToRobot(solutionKeyframe);
-    				// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
-    				isReadyToReceive=false;
-        		} else {
-        			// No connected robot, update the pose directly.
-            		this.setRobotPose(solutionKeyframe);
-            		//if(!endMatrix.epsilonEquals(targetPose, 1e-6)) {
-            			//System.out.println("** Diff! **");
-            		//}
-        		}
-    		} else {
-    			// failed sanity check
-        		targetPose.set(oldPose);
-        		System.out.println("Insane solution");
-        	}
-    	} else {
-    		// No valid IK solution.
-    		targetPose.set(oldPose);
-    		System.out.println("No solution");
-        }
-
+    			// targetPose is valid
+			} else {
+				// failed sanity check
+				targetPose.set(oldPose);
+				System.out.println("Insane solution");
+			}
+		} else {
+			// No valid IK solution.
+			targetPose.set(oldPose);
+			System.out.println("No solution");
+		}
     	// not in direct drive mode.
     	// are we playing a gcode file?
 
@@ -625,6 +630,22 @@ public abstract class DHRobot extends Robot {
     	// }
     	// Once I have the list matrixes, I run the IK solver on each matrix, which generates a list of angle values.
     	// Then I send the matrixes to the robot as fast as it can handle them.
+	}
+	
+	public void moveToTargetPose() {
+		// Yes!  Are we connected to a live robot?        			
+		if(connection!=null && connection.isOpen() && isReadyToReceive) {
+			// Send our internal data to the robot.  Each robot probably has its own post-processor.
+			sendNewStateToRobot(solutionKeyframe);
+			// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
+			isReadyToReceive=false;
+		} else {
+			// No connected robot, update the pose directly.
+    		//this.setRobotPose(solutionKeyframe);
+			startPose.set(endMatrix);
+			endPose.set(targetPose);
+			interpolatePoseT=0;
+		}
 	}
 	
 	/**
@@ -871,7 +892,7 @@ public abstract class DHRobot extends Robot {
 	@Override
 	public void pick() {
 		this.refreshPose();
-		targetPose.set(endMatrix);
+		//targetPose.set(endMatrix);
 		drawAsSelected=true;
 	}
 	
