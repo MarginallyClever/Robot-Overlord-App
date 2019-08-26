@@ -133,7 +133,7 @@ public class MiscTests {
 	}
 	
 	
-	static final double ANGLE_STEP_SIZE=10.0000;
+	static final double ANGLE_STEP_SIZE=30.0000;
 	
 	/**
 	 * Test SHIKSolver_RTTRTR and DHRobot_Sixi2.
@@ -147,7 +147,7 @@ public class MiscTests {
 	 * The code does not check for collisions.  
 	 * The granularity of the testing is controlled by ANGLE_STEP_SIZE, which has a O^6 effect, so lower it very carefully.
 	 */
-	@Test
+	//@Test
 	public void testFK2IK() {
 		System.out.println("testFK2IK()");
 		Sixi2 robot = new Sixi2();
@@ -190,14 +190,11 @@ public class MiscTests {
 					keyframe0.fkValues[1]=y;
 					for(z=bottom2;z<top2;z+=ANGLE_STEP_SIZE) {
 						keyframe0.fkValues[2]=z;
-						for(u=bottom4;u<top4;u+=ANGLE_STEP_SIZE) 
-						{
+						for(u=bottom4;u<top4;u+=ANGLE_STEP_SIZE) {
 							keyframe0.fkValues[3]=u;
-							for(v=bottom5;v<top5;v+=ANGLE_STEP_SIZE) 
-							{
+							for(v=bottom5;v<top5;v+=ANGLE_STEP_SIZE) {
 								keyframe0.fkValues[4]=v;
-								//for(w=bottom6;w<top6;w+=ANGLE_STEP_SIZE) 
-								{
+								for(w=bottom6;w<top6;w+=ANGLE_STEP_SIZE) {
 									keyframe0.fkValues[5]=w;
 									
 									++totalTests;
