@@ -42,7 +42,7 @@ public class InputManager {
             			":"+(components[j].isAnalog()?"Abs":"Rel")+
             			":"+(components[j].isAnalog()?"Analog":"Digital")+
             			":"+(components[j].getDeadZone())+
-               			":"+(components[j].getPollData()));*/
+               			":"+(components[j].getPollData()));//*/
             	if(!components[j].isAnalog()) {
         			if(components[j].getPollData()==1) {
         				if(components[j].getIdentifier()==Identifier.Button._0) keyState[0] = 1;  // square
@@ -53,6 +53,7 @@ public class InputManager {
         				if(components[j].getIdentifier()==Identifier.Button._5) keyState[5] = 1;  // R1?
         				if(components[j].getIdentifier()==Identifier.Button._8) keyState[6] = 1;  // share button
         				if(components[j].getIdentifier()==Identifier.Button._9) keyState[7] = 1;  // option button
+        				if(components[j].getIdentifier()==Identifier.Button._13) keyState[16] = 1;  // touch pad
             		}
     				if(components[j].getIdentifier()==Identifier.Axis.POV) {
     					// D-pad buttons
