@@ -38,6 +38,7 @@ public class MatrixHelper {
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
+	
 	/**
 	 * @see drawMatrix(gl2,p,u,v,w,1)
 	 * @param gl2
