@@ -50,31 +50,31 @@ public abstract class DHRobot extends Robot {
 	/**
 	 * {@value endMatrix} the world frame matrix4d of the last link in the kinematic chain.
 	 */
-	protected Matrix4d endMatrix;
+	protected Matrix4d liveMatrix;
 
-	public Matrix4d getEndMatrix() {
-		return endMatrix;
+	public Matrix4d getLiveMatrix() {
+		return liveMatrix;
 	}
 
 	/**
-	 * {@value targetPose} the pose the IK is trying to move towards.  Includes the tool held by the robot. 
+	 * {@value targetMatrix} the pose the IK is trying to move towards.  Includes the tool held by the robot. 
 	 */
-	protected Matrix4d targetPose;
+	protected Matrix4d targetMatrix;
 	
 
-	protected Matrix4d startPose;
-	protected Matrix4d endPose;
+	protected Matrix4d startMatrix;
+	protected Matrix4d endMatrix;
 	protected double interpolatePoseT;
 
 	/**
 	 * {@value oldPose} the last valid pose.  Used in case the IK solver fails to solve the targetPose. 
 	 */
-	protected Matrix4d oldPose;
+	protected Matrix4d oldMatrix;
 
 	/**
 	 * {@value homePose} the pose the IK would solve when the robot is at "home" position.
 	 */
-	protected Matrix4d homePose;
+	protected Matrix4d homeMatrix;
 	
 	/**
 	 * {@value dhTool} a DHTool current attached to the arm.
@@ -114,13 +114,12 @@ public abstract class DHRobot extends Robot {
 		rotateOnWorldAxies=false;
 		
 		links = new LinkedList<DHLink>();
+		liveMatrix = new Matrix4d();
+		targetMatrix = new Matrix4d();
+		oldMatrix = new Matrix4d();
+		homeMatrix = new Matrix4d();
+		startMatrix = new Matrix4d();
 		endMatrix = new Matrix4d();
-		targetPose = new Matrix4d();
-		oldPose = new Matrix4d();
-		homePose = new Matrix4d();
-		
-		startPose = new Matrix4d();
-		endPose = new Matrix4d();
 		interpolatePoseT=1;
 		
 		drawAsSelected=false;
@@ -136,8 +135,8 @@ public abstract class DHRobot extends Robot {
 		
 		refreshPose();
 
-		homePose.set(endMatrix);
-		targetPose.set(endMatrix);
+		homeMatrix.set(liveMatrix);
+		targetMatrix.set(liveMatrix);
 		
 		dhTool = new DHTool();  // default tool = no tool
 	}
@@ -151,9 +150,9 @@ public abstract class DHRobot extends Robot {
 	public void calculateJacobians() {
 		// pose was refreshed at the end of setupLinks()
 		Vector3d P = new Vector3d(
-				endMatrix.m03,
-				endMatrix.m13,
-				endMatrix.m23);
+				liveMatrix.m03,
+				liveMatrix.m13,
+				liveMatrix.m23);
 		
 		Vector3d [][] a = new Vector3d[2][links.size()];
 		int j=0;
@@ -247,8 +246,8 @@ public abstract class DHRobot extends Robot {
 					}*/
 				}
 				gl2.glPopMatrix();
-			MatrixHelper.drawMatrix(gl2, endMatrix, 8.0);
-			MatrixHelper.drawMatrix2(gl2, targetPose, 6.0);
+			MatrixHelper.drawMatrix(gl2, liveMatrix, 8.0);
+			MatrixHelper.drawMatrix2(gl2, targetMatrix, 6.0);
 		gl2.glPopMatrix();
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -261,7 +260,7 @@ public abstract class DHRobot extends Robot {
 	 * Update the pose matrix of each DH link, then use forward kinematics to find the end position.
 	 */
 	public void refreshPose() {
-		endMatrix.setIdentity();
+		liveMatrix.setIdentity();
 		
 		Iterator<DHLink> i = links.iterator();
 		while(i.hasNext()) {
@@ -269,11 +268,11 @@ public abstract class DHRobot extends Robot {
 			// update matrix
 			link.refreshPoseMatrix();
 			// find cumulative matrix
-			link.poseCumulative.set(endMatrix);
-			endMatrix.mul(link.pose);
+			link.poseCumulative.set(liveMatrix);
+			liveMatrix.mul(link.pose);
 		}
 		if(dhTool!=null) {
-			dhTool.refreshPose(endMatrix);
+			dhTool.refreshPose(liveMatrix);
 		}
 	}
 	
@@ -331,7 +330,7 @@ public abstract class DHRobot extends Robot {
 		// Request from the world "is there a tool at the position of the end effector"?
 		World world = (World)p;
 		
-		Point3d target = new Point3d(this.endMatrix.m03,this.endMatrix.m13,this.endMatrix.m23);
+		Point3d target = new Point3d(this.liveMatrix.m03,this.liveMatrix.m13,this.liveMatrix.m23);
 		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,10);
 
 		// If there is a tool, attach to it.
@@ -354,7 +353,7 @@ public abstract class DHRobot extends Robot {
 			// add the tool offset to the targetPose.
 			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d toolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
-			targetPose.mul(toolPose);
+			targetMatrix.mul(toolPose);
 			// tell the tool it is being held.
 			arg0.heldBy = this;
 		}
@@ -367,7 +366,7 @@ public abstract class DHRobot extends Robot {
 			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d inverseToolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
 			inverseToolPose.invert();
-			targetPose.mul(inverseToolPose);
+			targetMatrix.mul(inverseToolPose);
 			// tell the tool it is no longer held.
 			dhTool.heldBy = null;
 			dhTool.setParent(null);
@@ -402,7 +401,7 @@ public abstract class DHRobot extends Robot {
 		}
 		if(InputManager.keyState[2]==1) {}  // circle
 		if(InputManager.keyState[3]==1) {// triangle
-			targetPose.set(homePose);
+			targetMatrix.set(homeMatrix);
 			isDirty=true;
 		}
 		if(InputManager.keyState[4]==1) {  // R1
@@ -416,12 +415,12 @@ public abstract class DHRobot extends Robot {
 	    		temp.rotZ(vv*scaleTurn);
 	    		if(rotateOnWorldAxies) {
 	    			Vector4d v=new Vector4d();
-	    			targetPose.getColumn(3, v);
-	    			targetPose.setTranslation(new Vector3d(0,0,0));
-	    			targetPose.mul(temp,targetPose);
-	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			targetMatrix.getColumn(3, v);
+	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
+	    			targetMatrix.mul(temp,targetMatrix);
+	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
 	    		} else {
-	    			targetPose.mul(temp);
+	    			targetMatrix.mul(temp);
 	    		}
 			}
     	}
@@ -436,12 +435,12 @@ public abstract class DHRobot extends Robot {
 	    		temp.rotZ(-vv*scaleTurn);
 	    		if(rotateOnWorldAxies) {
 	    			Vector4d v=new Vector4d();
-	    			targetPose.getColumn(3, v);
-	    			targetPose.setTranslation(new Vector3d(0,0,0));
-	    			targetPose.mul(temp,targetPose);
-	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			targetMatrix.getColumn(3, v);
+	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
+	    			targetMatrix.mul(temp,targetMatrix);
+	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
 	    		} else {
-	    			targetPose.mul(temp);
+	    			targetMatrix.mul(temp);
 	    		}
 			}
 		}
@@ -467,12 +466,12 @@ public abstract class DHRobot extends Robot {
 	    		temp.rotY(InputManager.keyState[10]*scaleTurn);
 	    		if(rotateOnWorldAxies) {
 	    			Vector4d v=new Vector4d();
-	    			targetPose.getColumn(3, v);
-	    			targetPose.setTranslation(new Vector3d(0,0,0));
-	    			targetPose.mul(temp,targetPose);
-	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			targetMatrix.getColumn(3, v);
+	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
+	    			targetMatrix.mul(temp,targetMatrix);
+	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
 	    		} else {
-	    			targetPose.mul(temp);
+	    			targetMatrix.mul(temp);
 	    		}
 			}
 		}
@@ -483,12 +482,12 @@ public abstract class DHRobot extends Robot {
 	    		temp.rotX(InputManager.keyState[11]*scaleTurn);
 	    		if(rotateOnWorldAxies) {
 	    			Vector4d v=new Vector4d();
-	    			targetPose.getColumn(3, v);
-	    			targetPose.setTranslation(new Vector3d(0,0,0));
-	    			targetPose.mul(temp,targetPose);
-	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			targetMatrix.getColumn(3, v);
+	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
+	    			targetMatrix.mul(temp,targetMatrix);
+	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
 	    		} else {
-	    			targetPose.mul(temp);
+	    			targetMatrix.mul(temp);
 	    			/*
 		    		// experiment to improve rotation
 					Matrix4d temp2 = new Matrix4d(links.get(links.size()-2).poseCumulative);
@@ -508,19 +507,19 @@ public abstract class DHRobot extends Robot {
     	}
 		if(InputManager.keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetPose.m23+=((InputManager.keyState[12]+1)/2)*scale;
+    		targetMatrix.m23+=((InputManager.keyState[12]+1)/2)*scale;
 		}
 		if(InputManager.keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetPose.m23-=((InputManager.keyState[13]+1)/2)*scale;
+    		targetMatrix.m23-=((InputManager.keyState[13]+1)/2)*scale;
 		}
 		if(InputManager.keyState[14]!=0) {  // left stick, right/left
     		isDirty=true;
-    		targetPose.m13+=InputManager.keyState[14]*scale;
+    		targetMatrix.m13+=InputManager.keyState[14]*scale;
 		}
 		if(InputManager.keyState[15]!=0) {  // left stick, down/up
     		isDirty=true;
-    		targetPose.m03+=InputManager.keyState[15]*scale;
+    		targetMatrix.m03+=InputManager.keyState[15]*scale;
 		}
 
         if(dhTool!=null) {
@@ -532,7 +531,7 @@ public abstract class DHRobot extends Robot {
 		}
 		
 		if(InputManager.keyState[2]!=0) {  // circle - reset targetpose to endmatrix.
-			targetPose.set(endMatrix);
+			targetMatrix.set(liveMatrix);
 		}
         
         return isDirty;
@@ -561,9 +560,9 @@ public abstract class DHRobot extends Robot {
 				interpolatePoseT=1;
 			}
 			// changing the end matrix will only move the simulated version.
-			MatrixHelper.interpolate(startPose, endPose, interpolatePoseT, endMatrix);
+			MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
 			
-	    	solver.solve(this,endMatrix,solutionKeyframe);
+	    	solver.solve(this,liveMatrix,solutionKeyframe);
 	    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
 	    		// Solved!  Are angles OK for this robot?
 	    		if(sanityCheck(solutionKeyframe)) {
@@ -581,26 +580,26 @@ public abstract class DHRobot extends Robot {
 		interpolate(dt*0.25);
 		
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
-        oldPose.set(targetPose);
+        oldMatrix.set(targetMatrix);
 
         if(inDirectDriveMode()) {
         	driveFromKeyState();
         }
 
     	// Attempt to solve IK
-    	solver.solve(this,targetPose,solutionKeyframe);
+    	solver.solve(this,targetMatrix,solutionKeyframe);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// Solved!  Are angles OK for this robot?
     		if(sanityCheck(solutionKeyframe)) {
     			// targetPose is valid
 			} else {
 				// failed sanity check
-				targetPose.set(oldPose);
+				targetMatrix.set(oldMatrix);
 				System.out.println("Insane solution");
 			}
 		} else {
 			// No valid IK solution.
-			targetPose.set(oldPose);
+			targetMatrix.set(oldMatrix);
 			System.out.println("No solution");
 		}
     	// not in direct drive mode.
@@ -642,8 +641,8 @@ public abstract class DHRobot extends Robot {
 		} else {
 			// No connected robot, update the pose directly.
     		//this.setRobotPose(solutionKeyframe);
-			startPose.set(endMatrix);
-			endPose.set(targetPose);
+			startMatrix.set(liveMatrix);
+			endMatrix.set(targetMatrix);
 			interpolatePoseT=0;
 		}
 	}
@@ -660,7 +659,7 @@ public abstract class DHRobot extends Robot {
 		gl2.glPushMatrix();
 
 		MatrixHelper.applyMatrix(gl2, this.getPose());
-		MatrixHelper.drawMatrix(gl2, targetPose, 5);
+		MatrixHelper.drawMatrix(gl2, targetMatrix, 5);
 		
 		gl2.glPopMatrix();
 	}
@@ -891,8 +890,7 @@ public abstract class DHRobot extends Robot {
 	
 	@Override
 	public void pick() {
-		this.refreshPose();
-		//targetPose.set(endMatrix);
+		//this.refreshPose();
 		drawAsSelected=true;
 	}
 	
@@ -975,10 +973,10 @@ public abstract class DHRobot extends Robot {
 	}
 	
 	public void setTargetPose(Matrix4d pose) {
-		targetPose.set(pose);
+		targetMatrix.set(pose);
 	}
 	
 	public Matrix4d getTargetPose() {
-		return new Matrix4d(targetPose);
+		return new Matrix4d(targetMatrix);
 	}
 }

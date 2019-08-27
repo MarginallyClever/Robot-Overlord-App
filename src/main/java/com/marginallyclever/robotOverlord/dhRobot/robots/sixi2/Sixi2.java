@@ -184,7 +184,7 @@ public class Sixi2 extends DHRobot {
 		// is there a valid ghost pose?
     	DHIKSolver solver = this.getSolverIK();
     	DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
-    	solver.solve(this,targetPose,keyframe);
+    	solver.solve(this,targetMatrix,keyframe);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// save the live pose
     		DHKeyframe saveKeyframe = this.getRobotPose();
@@ -312,7 +312,7 @@ public class Sixi2 extends DHRobot {
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
 		// get the end matrix, which includes any tool.
-		endMatrix.get(m1, t1);
+		liveMatrix.get(m1, t1);
 		
 		Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -365,12 +365,12 @@ public class Sixi2 extends DHRobot {
 		Matrix3d m1 = MatrixHelper.eulerToMatrix(e1);
 
 		//startPose.set(targetPose);
-		startPose.set(endMatrix);
-		endPose.set(m1, t1, 1.0);
+		startMatrix.set(liveMatrix);
+		endMatrix.set(m1, t1, 1.0);
 		interpolatePoseT=0;
 
 		// changing the target pose will direct the live robot to that position.
-		targetPose.set(endPose);
+		targetMatrix.set(endMatrix);
 
 		if(dhTool!=null) {
 			dhTool.parseGCode(line);

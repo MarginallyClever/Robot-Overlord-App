@@ -200,7 +200,7 @@ public class MiscTests {
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
 				            		robot.setRobotPose(keyframe0);
-									m0.set(robot.getEndMatrix());
+									m0.set(robot.getLiveMatrix());
 									// now generate a set of FK values from the endMatrix m0.
 									solver.solve(robot, m0, keyframe1);
 									if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
@@ -208,7 +208,7 @@ public class MiscTests {
 										
 										// update the robot pose and get the m1 matrix. 
 					            		robot.setRobotPose(keyframe1);
-					            		m1.set(robot.getEndMatrix());
+					            		m1.set(robot.getLiveMatrix());
 					            		
 					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
 					            						+StringHelper.formatDouble(keyframe0.fkValues[1])+"\t"
