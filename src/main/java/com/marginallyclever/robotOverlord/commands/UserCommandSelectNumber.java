@@ -53,7 +53,7 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
-		textField = new JTextField(15);
+		textField = new JTextField(8);
 		textField.setText(df.format(defaultValue));
 		textField.getDocument().addDocumentListener(this);
 		label.setLabelFor(textField);
