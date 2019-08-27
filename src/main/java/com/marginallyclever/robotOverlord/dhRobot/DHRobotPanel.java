@@ -25,11 +25,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -54,6 +57,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
 	public JLabel endx,endy,endz,activeTool,gcodeLabel;
+	public JButton buttonCommit;
 	public JButton buttonSetTool;
 	public JTextField gcodeValue;
 	
@@ -99,9 +103,30 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
 		//con1.gridy++;
 		//numLinks.addChangeListener(this);
+		
+		SpringLayout layout = new SpringLayout();
+		JPanel linkContents = new JPanel(layout);
+		linkContents.setBorder(new BevelBorder(BevelBorder.LOWERED));
+		int k=0;
+		Iterator<DHLink> i = robot.links.iterator();
+		while(i.hasNext()) {
+			DHLink link = i.next();
+			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
+			linkPanels.add(e);
 
-		contents.add(new JSeparator(JSeparator.VERTICAL), con1);
+			if((link.flags & DHLink.READ_ONLY_D		)==0) {	linkContents.add(e.d    ,con1);		linkContents.add(e.valueD    ,con1);	e.d    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	linkContents.add(e.theta,con1);		linkContents.add(e.valueTheta,con1);	e.theta.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_R		)==0) {	linkContents.add(e.r    ,con1);		linkContents.add(e.valueR    ,con1);	e.r    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	linkContents.add(e.alpha,con1);		linkContents.add(e.valueAlpha,con1);	e.alpha.addChangeListener(this);	}
+		}
+		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
+		
+		contents.add(linkContents,con1); con1.gridy++;
+
+		contents.add(buttonCommit=new JButton("Commit"),con1);
+		buttonCommit.addItemListener(this);
 		con1.gridy++;
+		
 		
 		contents.add(showBones=new JCheckBox(),con1);
 		showBones.setText("Show D-H bones");
@@ -127,27 +152,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		rotateOnWorldAxies.setSelected(robot.rotateOnWorldAxies);
 		con1.gridy++;
 		
-		
-		
-		contents.add(new JSeparator(JSeparator.VERTICAL), con1);
-		con1.gridy++;
-		
-		int k=0;
-		Iterator<DHLink> i = robot.links.iterator();
-		while(i.hasNext()) {
-			DHLink link = i.next();
-			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
-			linkPanels.add(e);
-
-			if((link.flags & DHLink.READ_ONLY_D		)==0) {	contents.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	contents.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_R		)==0) {	contents.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	contents.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
-		}
-		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		contents.add(buttonSetTool=new JButton("Set tool"), con1);	con1.gridy++;
+		contents.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
+		con1.gridy++;
 		
 		contents.add(activeTool=new JLabel("Tool=") ,con1);  con1.gridy++; 
 		contents.add(endx=new JLabel("X="), con1);	con1.gridy++;
@@ -187,6 +195,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 				return;
 			}
 		}
+
 		boolean isDirty=false;
 		Iterator<DHLinkPanel> i = linkPanels.iterator();
 		while(i.hasNext()) {
@@ -210,7 +219,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		if(isDirty) {
 			robot.refreshPose();
-			robot.setTargetPose(robot.getEndMatrix());
+			robot.setTargetPose(robot.getLiveMatrix());
 			updateEnd();
 		}
 	}
@@ -221,12 +230,12 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public void updateEnd() {
 		updateActiveTool(robot.getCurrentTool());
 		// report end effector position
-		endx.setText("X="+StringHelper.formatDouble(robot.endMatrix.m03));
-		endy.setText("Y="+StringHelper.formatDouble(robot.endMatrix.m13));
-		endz.setText("Z="+StringHelper.formatDouble(robot.endMatrix.m23));
-		endx.setText("Rx="+StringHelper.formatDouble(robot.endMatrix.m03));
-		endy.setText("Ry="+StringHelper.formatDouble(robot.endMatrix.m13));
-		endz.setText("Rz="+StringHelper.formatDouble(robot.endMatrix.m23));
+		endx.setText("X="+StringHelper.formatDouble(robot.liveMatrix.m03));
+		endy.setText("Y="+StringHelper.formatDouble(robot.liveMatrix.m13));
+		endz.setText("Z="+StringHelper.formatDouble(robot.liveMatrix.m23));
+		endx.setText("Rx="+StringHelper.formatDouble(robot.liveMatrix.m03));
+		endy.setText("Ry="+StringHelper.formatDouble(robot.liveMatrix.m13));
+		endz.setText("Rz="+StringHelper.formatDouble(robot.liveMatrix.m23));
 		gcodeValue.setText(robot.generateGCode());
 		
 		// run the IK solver to see if solution works.
@@ -238,10 +247,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		Iterator<DHLinkPanel> i = linkPanels.iterator();
 		while(i.hasNext()) {
 			DHLinkPanel linkPanel = i.next();
-			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.d    .setValue((float)linkPanel.link.d    ,false);
-			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.theta.setValue((float)linkPanel.link.theta,false);
-			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.r    .setValue((float)linkPanel.link.r    ,false);
-			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.alpha.setValue((float)linkPanel.link.alpha,false);
+			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(linkPanel.link.d    ));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(linkPanel.link.theta));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(linkPanel.link.r    ));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(linkPanel.link.alpha));
 		}
 	}
 	
@@ -255,6 +264,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			//robot.toggleATC();
 			buildPanel();
 			this.invalidate();
+		}
+		if(source == buttonCommit) {
+			robot.moveToTargetPose();
 		}
 	}
 
