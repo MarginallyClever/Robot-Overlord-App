@@ -4,6 +4,10 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 public class SpideeKeyframe implements RobotKeyframe {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
