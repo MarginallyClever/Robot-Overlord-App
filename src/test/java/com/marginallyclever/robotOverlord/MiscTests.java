@@ -266,4 +266,136 @@ public class MiscTests {
 			}
 		}
 	}
+
+	/**
+	 * Plot points along the workspace boundary for the sixi robot in the XZ plane.
+	 */
+	@Test
+	public void plotXZ() {
+		System.out.println("plotXZ()");
+		Sixi2 robot = new Sixi2();
+		int numLinks = robot.getNumLinks();
+		assert(numLinks>0);
+
+		// Find the min/max range for each joint
+		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  double mid2 = (top2+bottom2)/2;
+		// link3 does not bend
+		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+
+		double ANGLE_STEP_SIZE2=1;
+		
+		double x=mid0;
+		double y=bottom1;
+		double z=bottom2;
+		double u=bottom4;
+		double v=bottom5;
+		double w=bottom6;
+
+		BufferedWriter out=null;
+		try {
+			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/plotxz.csv")));
+			//out.write("X\tY\tZ\n");
+
+			// go through the entire range of motion of the sixi 2 robot arm
+			//for(w=bottom6;w<mid6;w+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			for(v=bottom5;v<mid5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			//for(u=bottom4;u<mid4;u+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			//for(z=bottom2;z<mid2;z+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			for(y=bottom1;y<mid1;y+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			// skip j0 to keep things on the XZ plane.
+			for(;y<top1;y+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			for(;z<top2;z+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			//for(;u<top4;u+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			for(;v<top5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			//for(w=mid6;w<top6;w+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(out!=null) out.flush();
+				if(out!=null) out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Plot points along the workspace boundary for the sixi robot in the XZ plane.
+	 */
+	@Test
+	public void plotXY() {
+		System.out.println("plotXY()");
+		Sixi2 robot = new Sixi2();
+		int numLinks = robot.getNumLinks();
+		assert(numLinks>0);
+
+		// Find the min/max range for each joint
+		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  double mid2 = (top2+bottom2)/2;
+		// link3 does not bend
+		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+
+		double ANGLE_STEP_SIZE2=1;
+		
+		// stretch arm forward as much as possible.
+		double x=bottom0;
+		double y=top1;
+		double z=bottom2;
+		double u=mid4;
+		double v=mid5;
+		double w=mid6;
+
+		BufferedWriter out=null;
+		try {
+			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/plotxy.csv")));
+			// go through the entire range of motion of the sixi 2 robot arm
+			for(x=bottom0;x<mid0;x+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			// do not move the other joints
+			for(x=mid0;x<top0;x+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(out!=null) out.flush();
+				if(out!=null) out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	public void plot(double x,double y,double z,double u,double v,double w,BufferedWriter out,Sixi2 robot) throws IOException {
+		DHKeyframe keyframe0 = (DHKeyframe)robot.createKeyframe();
+		Matrix4d m0 = new Matrix4d();
+		
+		keyframe0.fkValues[0]=x;
+		keyframe0.fkValues[1]=y;
+		keyframe0.fkValues[2]=z;
+		keyframe0.fkValues[3]=u;
+		keyframe0.fkValues[4]=v;
+		keyframe0.fkValues[5]=w;
+					
+		// use forward kinematics to find the endMatrix of the pose
+		robot.setRobotPose(keyframe0);
+		m0.set(robot.getLiveMatrix());
+		
+		String message = StringHelper.formatDouble(m0.m03)+"\t"
+						+StringHelper.formatDouble(m0.m13)+"\t"
+						+StringHelper.formatDouble(m0.m23)+"\n";
+   		out.write(message);
+	}
 }
