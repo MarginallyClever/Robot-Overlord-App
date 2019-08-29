@@ -70,6 +70,6 @@ public class UndoableActionRemoveEntity extends AbstractUndoableEdit {
 	
 	private void removeNow() {
 		ro.getWorld().removeEntity(entity);
-		ro.pickCamera();
+		ro.pickNothing();
 	}
 }

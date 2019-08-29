@@ -350,7 +350,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
 	public void newWorld() {
 		this.world = new World();
-		pickCamera();
+		pickNothing();
 		updateMenu();
 	}
 	
