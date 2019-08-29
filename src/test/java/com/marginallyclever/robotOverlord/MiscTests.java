@@ -270,7 +270,7 @@ public class MiscTests {
 	/**
 	 * Plot points along the workspace boundary for the sixi robot in the XZ plane.
 	 */
-	@Test
+	//@Test
 	public void plotXZ() {
 		System.out.println("plotXZ()");
 		Sixi2 robot = new Sixi2();
@@ -280,11 +280,11 @@ public class MiscTests {
 		// Find the min/max range for each joint
 		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
 		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  //double mid2 = (top2+bottom2)/2;
+		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;//double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
-		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  //double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;//double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
 		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;  //double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;//double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
 
 		BufferedWriter out=null;
 		try {
@@ -329,7 +329,7 @@ public class MiscTests {
 	/**
 	 * Plot points along the workspace boundary for the sixi robot in the XY plane.
 	 */
-	@Test
+	//@Test
 	public void plotXY() {
 		System.out.println("plotXY()");
 		Sixi2 robot = new Sixi2();
@@ -337,9 +337,9 @@ public class MiscTests {
 		assert(numLinks>0);
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  //double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  //double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  //double mid2 = (top2+bottom2)/2;
+		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;//double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.getLink(1);/*double bottom1 = link1.rangeMin;*/double top1 = link1.rangeMax;//double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;//double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
 		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
 		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
