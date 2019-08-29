@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.matrixInterpoationTest;
+package com.marginallyclever.robotOverlord.matrixInterpolationTest;
 
 import java.util.ArrayList;
 import java.util.Iterator;

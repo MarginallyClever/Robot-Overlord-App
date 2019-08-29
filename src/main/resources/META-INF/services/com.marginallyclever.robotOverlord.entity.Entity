@@ -24,7 +24,7 @@ com.marginallyclever.robotOverlord.camera.Camera
 com.marginallyclever.robotOverlord.light.Light
 
 #tests
-#com.marginallyclever.robotOverlord.matrixInterpoationTest.MatrixInterpolationTest
+#com.marginallyclever.robotOverlord.matrixInterpolationTest.MatrixInterpolationTest
 
 #??
 # meant to be grab handles for moving objects by dragging on screen as in Fusion360.
