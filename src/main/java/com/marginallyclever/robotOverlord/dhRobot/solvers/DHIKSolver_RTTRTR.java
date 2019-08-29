@@ -141,7 +141,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		if( e > a+b ) {
 			solutionFlag = NO_SOLUTIONS;
-			if(false) System.out.println("NO SOLUTIONS (1) "+e+" vs "+(a+b));
+			if(false) System.out.println("NO SOLUTIONS (1)");
 			return;
 		}
 		
@@ -235,7 +235,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if( h-maximumReach > EPSILON ) {
 			// out of reach, including rounding error
 			solutionFlag = NO_SOLUTIONS;
-			if(false) System.out.println("NO SOLUTIONS (2) "+h+" vs "+maximumReach);
+			if(false) System.out.println("NO SOLUTIONS (2)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
@@ -314,7 +314,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			t4 = Math.atan2(-r47.m12,-r47.m02);
 			t6 = Math.atan2(-r47.m21,r47.m20);
 		} else {
-			// only the sum of t4+t6 can be found, not the individual angles.
+			// Only the sum of t4+t6 can be found, not the individual angles.
 			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (3)");
 			keyframe.fkValues[3]=
