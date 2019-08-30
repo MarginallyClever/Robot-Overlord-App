@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -289,7 +290,7 @@ public class MiscTests {
 		BufferedWriter out=null;
 		try {
 			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/plotxz.csv")));
-			//out.write("X\tY\tZ\n");
+			out.write("X\tY\tZ\n");
 
 			// go through the entire range of motion of the sixi 2 robot arm
 			double ANGLE_STEP_SIZE2=1;
@@ -350,6 +351,7 @@ public class MiscTests {
 		BufferedWriter out=null;
 		try {
 			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/plotxy.csv")));
+			out.write("X\tY\tZ\n");
 
 			// go through the entire range of motion of the sixi 2 robot arm
 			// stretch arm forward as much as possible.
@@ -382,7 +384,19 @@ public class MiscTests {
 		}
 	}
 	
-	public void plot(double x,double y,double z,double u,double v,double w,BufferedWriter out,Sixi2 robot) throws IOException {
+	/**
+	 * Used by plotXY() and plotXZ()
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param u
+	 * @param v
+	 * @param w
+	 * @param out
+	 * @param robot
+	 * @throws IOException
+	 */
+	private void plot(double x,double y,double z,double u,double v,double w,BufferedWriter out,Sixi2 robot) throws IOException {
 		DHKeyframe keyframe0 = (DHKeyframe)robot.createKeyframe();
 		Matrix4d m0 = new Matrix4d();
 		
@@ -401,5 +415,127 @@ public class MiscTests {
 						+StringHelper.formatDouble(m0.m13)+"\t"
 						+StringHelper.formatDouble(m0.m23)+"\n";
    		out.write(message);
+	}
+	
+	/**
+	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
+	 * https://robotacademy.net.au/lesson/velocity-of-6-joint-robot-arm-translation/
+	 * https://robotacademy.net.au/lesson/velocity-of-6-joint-robot-arm-rotation/
+	 */
+	@Test
+	public void approximateJacobianMatrix() {
+		System.out.println("approximateJacobianMatrix()");
+		Sixi2 robot = new Sixi2();
+
+		// Find the min/max range for each joint
+		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  double mid2 = (top2+bottom2)/2;
+		// link3 does not bend
+		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+
+		BufferedWriter out=null;
+		try {
+			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jacobian.csv")));
+
+			// go through the entire range of motion of the sixi 2 robot arm
+			double ANGLE_STEP_SIZE2=0.5;
+			double x=mid0+0;
+			double y=mid1+0;
+			double z=mid2+0;
+			double u=mid4+0;
+			double v=mid5+30;
+			double w=mid6+0;
+
+			double [] anglesA = {x,y,z,u,v,w};
+			double [] anglesB = {x,y,z,u,v,w};
+			
+			double [] jacobian = new double[6*6];
+			Matrix4d dm = new Matrix4d();
+			int i,j;
+			
+			for(i=0;i<6;++i) {
+				for(j=0;j<6;++j) {
+					anglesB[j]=anglesA[j];
+				}
+				anglesB[i]+=ANGLE_STEP_SIZE2;
+
+				// use anglesA to get the hand matrix
+				// use anglesB to get the hand matrix after a tiiiiny adjustment on one axis.
+				Matrix4d m0 = computeMatrix(anglesA[0],anglesA[1],anglesA[2],anglesA[3],anglesA[4],anglesA[5],robot);
+				Matrix4d m1 = computeMatrix(anglesB[0],anglesB[1],anglesB[2],anglesB[3],anglesB[4],anglesB[5],robot);
+				
+				// use the finite difference in the two matrixes
+				// aka the approximate the rate of change (aka the integral, aka the velocity)
+				// in one column of the jacobian matrix at this position.
+				dm.m00=(m1.m00-m0.m00)/ANGLE_STEP_SIZE2;
+				dm.m01=(m1.m01-m0.m01)/ANGLE_STEP_SIZE2;
+				dm.m02=(m1.m02-m0.m02)/ANGLE_STEP_SIZE2;
+				dm.m03=(m1.m03-m0.m03)/ANGLE_STEP_SIZE2;
+				dm.m10=(m1.m10-m0.m10)/ANGLE_STEP_SIZE2;
+				dm.m11=(m1.m11-m0.m11)/ANGLE_STEP_SIZE2;
+				dm.m12=(m1.m12-m0.m12)/ANGLE_STEP_SIZE2;
+				dm.m13=(m1.m13-m0.m13)/ANGLE_STEP_SIZE2;
+				dm.m20=(m1.m20-m0.m20)/ANGLE_STEP_SIZE2;
+				dm.m21=(m1.m21-m0.m21)/ANGLE_STEP_SIZE2;
+				dm.m22=(m1.m22-m0.m22)/ANGLE_STEP_SIZE2;
+				dm.m23=(m1.m23-m0.m23)/ANGLE_STEP_SIZE2;
+				dm.m30=(m1.m30-m0.m30)/ANGLE_STEP_SIZE2;
+				dm.m31=(m1.m31-m0.m31)/ANGLE_STEP_SIZE2;
+				dm.m32=(m1.m32-m0.m32)/ANGLE_STEP_SIZE2;
+				dm.m33=(m1.m33-m0.m33)/ANGLE_STEP_SIZE2;
+				
+				jacobian[i*6+0]=dm.m03;
+				jacobian[i*6+1]=dm.m13;
+				jacobian[i*6+2]=dm.m23;
+				
+				// find the rotational part
+				dm.m03=0;
+				dm.m13=0;
+				dm.m23=0;
+				dm.transpose();
+				//[  0 -Wz  Wy]
+				//[ Wz   0 -Wx]
+				//[-Wy  Wx   0]
+				
+				jacobian[i*6+0]=dm.m12;
+				jacobian[i*6+1]=dm.m20;
+				jacobian[i*6+2]=dm.m01;
+			}
+			
+			for(i=0;i<6;++i) {
+				for(j=0;j<6;++j) {
+					out.write(jacobian[i*6+j]+"\t");
+				}
+				out.write("\n");
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(out!=null) out.flush();
+				if(out!=null) out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	private Matrix4d computeMatrix(double x,double y,double z,double u,double v,double w,Sixi2 robot) {
+		DHKeyframe keyframe0 = (DHKeyframe)robot.createKeyframe();
+		keyframe0.fkValues[0]=x;
+		keyframe0.fkValues[1]=y;
+		keyframe0.fkValues[2]=z;
+		keyframe0.fkValues[3]=u;
+		keyframe0.fkValues[4]=v;
+		keyframe0.fkValues[5]=w;
+		
+		// use forward kinematics to find the endMatrix of the pose
+		robot.setRobotPose(keyframe0);
+		return new Matrix4d(robot.getLiveMatrix());
 	}
 }
