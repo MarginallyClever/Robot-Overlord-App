@@ -140,28 +140,36 @@ public class DHRobotPlayer extends ModelInWorld {
 			openFileNow();
 		}
 		
-		if(target!=null && gcodeFile!=null) {
-			if((target.getConnection()!=null && target.isReadyToReceive()) || !target.isInterpolating() ) {
-				if(isCycleStart) {
-					if(isSingleBlock) {
-						isCycleStart=false;
-						if(panel!=null) panel.buttonCycleStart.setSelected(false);
+		if(target==null || gcodeFile==null) return;
+		
+		if((target.getConnection()!=null && target.isReadyToReceive()) || 
+			(target.getConnection()==null && !target.isInterpolating()) ) {
+			if(!isCycleStart) return;
+			
+			if(isSingleBlock) {
+				isCycleStart=false;
+				if(panel!=null) panel.buttonCycleStart.setSelected(false);
+			}
+			try {
+				String line="";
+				do {
+					// read in a line
+					line = gcodeFile.readLine();
+					// eat blank lines
+				} while(line!=null && line.trim().isEmpty());
+				if(line==null) {
+					// end of file!
+					if(isLoop) {
+						// restart
+						openFileNow();
 					}
-					try {
-						String line = gcodeFile.readLine();
-						if(line==null) {
-							if(isLoop) {
-								// restart
-								openFileNow();
-							}
-						} else {
-							target.parseGCode(line);
-							poses.add(target.getTargetPose());
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+				} else {
+					// found a non-empty line
+					target.parseGCode(line);
+					poses.add(target.getTargetPose());
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}

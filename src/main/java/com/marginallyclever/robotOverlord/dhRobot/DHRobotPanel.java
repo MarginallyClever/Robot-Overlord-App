@@ -23,7 +23,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.BevelBorder;
@@ -31,7 +30,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
@@ -56,7 +58,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
-	public JLabel endx,endy,endz,activeTool,gcodeLabel;
+	public JLabel activeTool,gcodeLabel;
 	public JButton buttonCommit;
 	public JButton buttonSetTool;
 	public JTextField gcodeValue;
@@ -65,6 +67,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public JCheckBox showAngleMinMax;
 	public JCheckBox showPhysics;
 	public JCheckBox rotateOnWorldAxies;
+	
+	public UserCommandSelectNumber x,y,z,rx,ry,rz;
+	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
 	
 	
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
@@ -114,19 +119,31 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
 			linkPanels.add(e);
 
-			if((link.flags & DHLink.READ_ONLY_D		)==0) {	linkContents.add(e.d    ,con1);		linkContents.add(e.valueD    ,con1);	e.d    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	linkContents.add(e.theta,con1);		linkContents.add(e.valueTheta,con1);	e.theta.addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_R		)==0) {	linkContents.add(e.r    ,con1);		linkContents.add(e.valueR    ,con1);	e.r    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	linkContents.add(e.alpha,con1);		linkContents.add(e.valueAlpha,con1);	e.alpha.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_D		)==0) {	linkContents.add(e.d    );	linkContents.add(e.valueD    );	e.d    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	linkContents.add(e.theta);	linkContents.add(e.valueTheta);	e.theta.addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_R		)==0) {	linkContents.add(e.r    );	linkContents.add(e.valueR    );	e.r    .addChangeListener(this);	}
+			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}
 		}
 		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
-		
-		contents.add(linkContents,con1); con1.gridy++;
+		contents.add(linkContents,con1);
+		con1.gridy++;
 
-		contents.add(buttonCommit=new JButton("Commit"),con1);
+		buttonCommit=new JButton("Commit");
+		//contents.add(buttonCommit,con1);
 		buttonCommit.addItemListener(this);
 		con1.gridy++;
-		
+
+		layout = new SpringLayout();
+		linkContents = new JPanel(layout);
+		linkContents.add(valuex=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(valuey=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(valuez=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(valuerx=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(valuery=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(valuerz=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
+		contents.add(linkContents,con1);
+		con1.gridy++;
 		
 		contents.add(showBones=new JCheckBox(),con1);
 		showBones.setText("Show D-H bones");
@@ -158,9 +175,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		con1.gridy++;
 		
 		contents.add(activeTool=new JLabel("Tool=") ,con1);  con1.gridy++; 
-		contents.add(endx=new JLabel("X="), con1);	con1.gridy++;
-		contents.add(endy=new JLabel("Y="), con1);	con1.gridy++;
-		contents.add(endz=new JLabel("Z="), con1);	con1.gridy++;
 		contents.add(gcodeLabel=new JLabel("Gcode"), con1); con1.gridy++;
 		contents.add(gcodeValue=new JTextField(),con1); con1.gridy++;
 		gcodeValue.setEditable(false);
@@ -230,12 +244,15 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public void updateEnd() {
 		updateActiveTool(robot.getCurrentTool());
 		// report end effector position
-		endx.setText("X="+StringHelper.formatDouble(robot.liveMatrix.m03));
-		endy.setText("Y="+StringHelper.formatDouble(robot.liveMatrix.m13));
-		endz.setText("Z="+StringHelper.formatDouble(robot.liveMatrix.m23));
-		endx.setText("Rx="+StringHelper.formatDouble(robot.liveMatrix.m03));
-		endy.setText("Ry="+StringHelper.formatDouble(robot.liveMatrix.m13));
-		endz.setText("Rz="+StringHelper.formatDouble(robot.liveMatrix.m23));
+		Matrix3d m = new Matrix3d();
+		robot.liveMatrix.get(m);
+		Vector3d v = MatrixHelper.matrixToEuler(m);
+		valuex.setText("X="+StringHelper.formatDouble(robot.liveMatrix.m03));
+		valuey.setText("Y="+StringHelper.formatDouble(robot.liveMatrix.m13));
+		valuez.setText("Z="+StringHelper.formatDouble(robot.liveMatrix.m23));
+		valuerx.setText("Rx="+StringHelper.formatDouble(Math.toDegrees(v.x)));
+		valuery.setText("Ry="+StringHelper.formatDouble(Math.toDegrees(v.y)));
+		valuerz.setText("Rz="+StringHelper.formatDouble(Math.toDegrees(v.z)));
 		gcodeValue.setText(robot.generateGCode());
 		
 		// run the IK solver to see if solution works.

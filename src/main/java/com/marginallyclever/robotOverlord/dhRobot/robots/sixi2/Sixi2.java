@@ -62,7 +62,6 @@ public class Sixi2 extends DHRobot {
 		setNumLinks(8);
 		// roll
 		links.get(0).d=13.44;
-		links.get(0).theta=0;
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(0).rangeMin=-120;
 		links.get(0).rangeMax=120;
@@ -73,7 +72,6 @@ public class Sixi2 extends DHRobot {
 		links.get(1).rangeMin=-72;
 		// tilt
 		links.get(2).d=44.55;
-		links.get(2).alpha=0;
 		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(2).rangeMin=-83.369;
 		links.get(2).rangeMax=86;
@@ -83,14 +81,12 @@ public class Sixi2 extends DHRobot {
 		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
 		links.get(4).d=28.805;
-		links.get(4).theta=0;
 		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(4).rangeMin=-170;
 		links.get(4).rangeMax=170;
 
 		// tilt
 		links.get(5).d=11.8;
-		links.get(5).alpha=0;
 		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(5).rangeMin=-120;
 		links.get(5).rangeMax=120;
@@ -248,6 +244,7 @@ public class Sixi2 extends DHRobot {
 				
 		System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
 		sendLineToRobot(message);
+		isReadyToReceive=false;
 	}
 
 	/**
@@ -283,7 +280,6 @@ public class Sixi2 extends DHRobot {
 							System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
 						}
 						//data = data.replace('\n', ' ');
-						//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 
 						//smoothing to new position
 						//DHKeyframe inter = (DHKeyframe)createKeyframe();
@@ -296,6 +292,9 @@ public class Sixi2 extends DHRobot {
 				}
 			}
 			return;
+		} else {
+			data=data.replace("\n", "");
+			System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 		}
 		super.dataAvailable(arg0, data);
 	}
@@ -338,44 +337,56 @@ public class Sixi2 extends DHRobot {
 	 * @param line the text format of one pose.
 	 */
 	public void parseGCode(String line) {
-		Vector3d t1 = new Vector3d();
-		Vector3d e1 = new Vector3d();
-				
 		if(line.trim().length()==0) return;
-		
-		if(!( line.startsWith("G0 ") || line.startsWith("G00 ") ) ) return;
-		
+
 		StringTokenizer tokens = new StringTokenizer(line);
 		if(tokens.countTokens()==0) return;
 		tokens.nextToken();
 		
-		while(tokens.hasMoreTokens()) {
-			String token = tokens.nextToken();
-			
-			switch(token.charAt(0)) {
-			case 'X':  t1.x = Double.parseDouble(token.substring(1));  break;
-			case 'Y':  t1.y = Double.parseDouble(token.substring(1));  break;
-			case 'Z':  t1.z = Double.parseDouble(token.substring(1));  break;
-			case 'I':  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-			case 'J':  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-			case 'K':  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-			default:  break;
+		if( line.startsWith("G4 ") || line.startsWith("G04 ") ) {
+			// dwell
+
+			while(tokens.hasMoreTokens()) {
+				String token = tokens.nextToken();
+				switch(token.charAt(0)) {
+				case 'S':  dwellTime += 1000 * Double.parseDouble(token.substring(1));  break;  // seconds
+				case 'P':  dwellTime +=        Double.parseDouble(token.substring(1));  break;  // milliseconds
+				default:  break;
+				}
 			}
 		}
-		Matrix3d m1 = MatrixHelper.eulerToMatrix(e1);
+		if( line.startsWith("G0 ") || line.startsWith("G00 ") ) {
+			Vector3d t1 = new Vector3d();
+			Matrix3d m1 = new Matrix3d();
+			targetMatrix.get(m1,t1);
+			Vector3d e1 = MatrixHelper.matrixToEuler(m1);
+			
+			while(tokens.hasMoreTokens()) {
+				String token = tokens.nextToken();
+				
+				switch(token.charAt(0)) {
+				case 'X':  t1.x = Double.parseDouble(token.substring(1));  break;
+				case 'Y':  t1.y = Double.parseDouble(token.substring(1));  break;
+				case 'Z':  t1.z = Double.parseDouble(token.substring(1));  break;
+				case 'I':  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+				case 'J':  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+				case 'K':  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+				case 'F':  this.sendLineToRobot("G0 F"+token.substring(1));  break;
+				case 'A':  this.sendLineToRobot("G0 A"+token.substring(1));  break;
+				default:  break;
+				}
+			}
+			m1 = MatrixHelper.eulerToMatrix(e1);
+	
+			// changing the target pose will direct the live robot to that position.
+			targetMatrix.set(m1);
+			targetMatrix.setTranslation(t1);
+			
+			if(dhTool!=null) {
+				dhTool.parseGCode(line);
+			}
 
-		//startPose.set(targetPose);
-		startMatrix.set(liveMatrix);
-		endMatrix.set(m1, t1, 1.0);
-		interpolatePoseT=0;
-
-		// changing the target pose will direct the live robot to that position.
-		targetMatrix.set(endMatrix);
-
-		if(dhTool!=null) {
-			dhTool.parseGCode(line);
+			moveToTargetPose();
 		}
-		
-		moveToTargetPose();
 	}
 }

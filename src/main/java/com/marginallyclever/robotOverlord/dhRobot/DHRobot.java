@@ -104,6 +104,9 @@ public abstract class DHRobot extends Robot {
 	boolean rotateOnWorldAxies;  // which style of rotation?
 	
 	protected int hitBox1, hitBox2;  // display which hitboxes are colliding
+	
+	// to simulate dwell behavior
+	protected double dwellTime;
 
 	public DHRobot() {
 		super();
@@ -139,6 +142,7 @@ public abstract class DHRobot extends Robot {
 		targetMatrix.set(liveMatrix);
 		
 		dhTool = new DHTool();  // default tool = no tool
+		dwellTime=0;
 	}
 	
 	/**
@@ -554,21 +558,29 @@ public abstract class DHRobot extends Robot {
 	}
 
 	protected void interpolate(double dt) {
-		if(interpolatePoseT<1) {
-			interpolatePoseT+=dt;
-			if(interpolatePoseT>=1) {
-				interpolatePoseT=1;
+		if(dwellTime>0) {
+			dwellTime-=dt;
+		}
+		if(dwellTime<=0) {
+			if(interpolatePoseT<1) {
+				interpolatePoseT+=dt;
+				if(interpolatePoseT>=1) {
+					interpolatePoseT=1;
+				}
+				
+				if(connection==null || !connection.isOpen()) {
+					// changing the end matrix will only move the simulated version of the "live" robot.
+					MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
+					
+			    	solver.solve(this,liveMatrix,solutionKeyframe);
+			    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+			    		// Solved!  Are angles OK for this robot?
+			    		if(sanityCheck(solutionKeyframe)) {
+		            		this.setRobotPose(solutionKeyframe);
+			    		}
+			    	}
+				}
 			}
-			// changing the end matrix will only move the simulated version.
-			MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
-			
-	    	solver.solve(this,liveMatrix,solutionKeyframe);
-	    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-	    		// Solved!  Are angles OK for this robot?
-	    		if(sanityCheck(solutionKeyframe)) {
-            		this.setRobotPose(solutionKeyframe);
-	    		}
-	    	}
 		}
 		
 		if(dhTool!=null) {
@@ -586,7 +598,7 @@ public abstract class DHRobot extends Robot {
         	driveFromKeyState();
         }
 
-    	// Attempt to solve IK
+    	// Attempt to solve IK for the targetMatrix.  This only drives the simulated arm.
     	solver.solve(this,targetMatrix,solutionKeyframe);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// Solved!  Are angles OK for this robot?
@@ -595,12 +607,12 @@ public abstract class DHRobot extends Robot {
 			} else {
 				// failed sanity check
 				targetMatrix.set(oldMatrix);
-				System.out.println("Insane solution");
+				//System.out.println("Insane solution");
 			}
 		} else {
 			// No valid IK solution.
 			targetMatrix.set(oldMatrix);
-			System.out.println("No solution");
+			//System.out.println("No solution");
 		}
     	// not in direct drive mode.
     	// are we playing a gcode file?
@@ -632,19 +644,25 @@ public abstract class DHRobot extends Robot {
 	}
 	
 	public void moveToTargetPose() {
-		// Yes!  Are we connected to a live robot?        			
-		if(connection!=null && connection.isOpen() && isReadyToReceive) {
-			// Send our internal data to the robot.  Each robot probably has its own post-processor.
-			sendNewStateToRobot(solutionKeyframe);
-			// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
-			isReadyToReceive=false;
-		} else {
-			// No connected robot, update the pose directly.
-    		//this.setRobotPose(solutionKeyframe);
-			startMatrix.set(liveMatrix);
-			endMatrix.set(targetMatrix);
-			interpolatePoseT=0;
-		}
+    	solver.solve(this,targetMatrix,solutionKeyframe);
+    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+    		// Solved!  Are angles OK for this robot?
+    		if(sanityCheck(solutionKeyframe)) {
+				// Yes!  Are we connected to a live robot?        			
+				if(connection!=null && connection.isOpen() && isReadyToReceive) {
+					// Send our internal data to the robot.  Each robot probably has its own post-processor.
+					sendNewStateToRobot(solutionKeyframe);
+					// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
+					isReadyToReceive=false;
+				} else {
+					// No connected robot, update the pose directly.
+		    		//this.setRobotPose(solutionKeyframe);
+					startMatrix.set(liveMatrix);
+					endMatrix.set(targetMatrix);
+					interpolatePoseT=0;
+				}
+    		}
+    	}
 	}
 	
 	/**
