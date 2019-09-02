@@ -28,8 +28,8 @@ public abstract class DHIKSolver {
 	 * Starting from a known local origin and a known local hand position ({@DHrobot.endMatrix}), 
 	 * calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
-	 * @param targetPose the pose that robot is attempting to reach in this solution.
+	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.
 	 */
-	public abstract void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe);
+	public abstract void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe);
 }
