@@ -41,9 +41,14 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 * @param keyframe store the computed solution in keyframe.
 	 * @param oldKeyframe a hint about the previous position, to prevent instantaneous flips
 	 */
+	@Override
+	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+		solveWithSuggestion(robot,targetMatrix,keyframe,null);
+	}
+	
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
+	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
 		solutionFlag = ONE_SOLUTION;
 		
 		DHLink link0 = robot.links.get(0);
@@ -55,7 +60,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		DHLink link6 = robot.links.get(6);
 		DHLink link7 = robot.links.get(7);
 		
-		Matrix4d targetPoseAdj = new Matrix4d(targetPose);
+		Matrix4d targetMatrixAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {
 			// there is a transform between the wrist and the tool tip.
@@ -65,25 +70,25 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			//inverseToolPose.invert();
 			//targetPoseAdj.mul(inverseToolPose);
 
-			targetPoseAdj.m03-=targetPoseAdj.m00 * robot.dhTool.dhLinkEquivalent.r;
-			targetPoseAdj.m13-=targetPoseAdj.m10 * robot.dhTool.dhLinkEquivalent.r;
-			targetPoseAdj.m23-=targetPoseAdj.m20 * robot.dhTool.dhLinkEquivalent.r;
+			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLinkEquivalent.r;
+			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLinkEquivalent.r;
+			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLinkEquivalent.r;
 
-			targetPoseAdj.m03-=targetPoseAdj.m02 * robot.dhTool.dhLinkEquivalent.d;
-			targetPoseAdj.m13-=targetPoseAdj.m12 * robot.dhTool.dhLinkEquivalent.d;
-			targetPoseAdj.m23-=targetPoseAdj.m22 * robot.dhTool.dhLinkEquivalent.d;
+			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLinkEquivalent.d;
+			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLinkEquivalent.d;
+			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLinkEquivalent.d;
 		}
 		
 		Point3d p7 = new Point3d(
-				targetPoseAdj.m03,
-				targetPoseAdj.m13,
-				targetPoseAdj.m23);
+				targetMatrixAdj.m03,
+				targetMatrixAdj.m13,
+				targetMatrixAdj.m23);
 		//p7.sub(robot.getPosition());
 		
 		Vector3d n7z = new Vector3d(
-				targetPoseAdj.m02,
-				targetPoseAdj.m12,
-				targetPoseAdj.m22);
+				targetMatrixAdj.m02,
+				targetMatrixAdj.m12,
+				targetMatrixAdj.m22);
 
 		// Work backward to get link5 position
 		Point3d p5 = new Point3d(n7z);
@@ -140,6 +145,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("b="+b+"\t");
 
 		if( e > a+b ) {
+			// target matrix impossibly far away
 			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (1)");
 			return;
@@ -247,7 +253,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		r04.setTranslation(new Vector3d(0,0,0));
 
 		Matrix4d r07 = new Matrix4d();
-		r07.set(targetPoseAdj);
+		r07.set(targetMatrixAdj);
 		r07.setTranslation(new Vector3d(0,0,0));
 
 
@@ -272,8 +278,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) {
 			System.out.println(
 					"r47.m22="+r47.m22+"\t"+
-					"a5="+a5+"\t"+
-					"alpha5="+keyframe.fkValues[4]+"\t");
+					"a5="+a5+"\t");
 		}
 		
 		// if (alpha5 % 180) == 0 then we have the singularity.

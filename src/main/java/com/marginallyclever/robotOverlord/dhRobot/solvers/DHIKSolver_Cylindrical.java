@@ -28,15 +28,15 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
-	 * @param targetPose the pose that robot is attempting to reach in this solution.
+	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
+	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		DHLink link4 = robot.links.getLast();
 
-		Matrix4d targetPoseAdj = new Matrix4d(targetPose);
+		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {
 			// there is a transform between the wrist and the tool tip.
@@ -83,4 +83,7 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 								StringHelper.formatDouble(keyframe.fkValues[3])+"}");
 		}
 	}
+	
+	
+	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {}
 }

@@ -32,4 +32,14 @@ public abstract class DHIKSolver {
 	 * @param keyframe store the computed solution in keyframe.
 	 */
 	public abstract void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe);
+	
+	/**
+	 * Starting from a known local origin and a known local hand position ({@DHrobot.endMatrix}), 
+	 * calculate the angles for the given pose.
+	 * @param robot The DHRobot description. 
+	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
+	 * @param keyframe store the computed solution in keyframe.
+	 * @param suggestion suggested values if there is an ambiguity.
+	 */
+	public abstract void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion);
 }

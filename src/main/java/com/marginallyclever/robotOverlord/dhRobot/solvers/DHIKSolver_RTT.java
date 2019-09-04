@@ -27,19 +27,19 @@ public class DHIKSolver_RTT extends DHIKSolver {
 	/**
 	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
-	 * @param targetPose the pose that robot is attempting to reach in this solution.
+	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetPose,DHKeyframe keyframe) {
+	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		DHLink link0 = robot.links.get(0);
 		DHLink link1 = robot.links.get(1);
 		DHLink link2 = robot.links.get(2);
 		DHLink link3 = robot.links.get(3);
 		DHLink link4 = robot.links.get(4);
 
-		Matrix4d targetPoseAdj = new Matrix4d(targetPose);
+		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {
 			// there is a transform between the wrist and the tool tip.
@@ -113,4 +113,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 		
 		if(true) System.out.println("solution={"+keyframe.fkValues[0]+","+keyframe.fkValues[1]+","+keyframe.fkValues[2]+"}");
 	}
+	
+	
+	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {}
 }
