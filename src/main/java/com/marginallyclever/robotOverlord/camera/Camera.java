@@ -1,8 +1,10 @@
 package com.marginallyclever.robotOverlord.camera;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.jogamp.opengl.GL2;
@@ -54,9 +56,9 @@ public class Camera extends PhysicalObject {
 		
 		setDisplayName("Camera");
 				
-		setPosition(new Vector3d(0,40,-20));
-		pan=0;
-		tilt=90;
+		setPosition(new Vector3d(0,100,-65));
+		pan=12;
+		tilt=76;
 	}
 
 	
@@ -134,8 +136,9 @@ public class Camera extends PhysicalObject {
 			Matrix3d b = new Matrix3d();
 			Matrix3d c = new Matrix3d();
 			a.rotZ(Math.toRadians(pan));
-			b.rotY(Math.toRadians(tilt));
-			c.mul(a,b);
+			b.rotX(Math.toRadians(-tilt+90));
+			c.mul(b,a);
+			c.transpose();
 			setRotation(c);
 		}
 	}
