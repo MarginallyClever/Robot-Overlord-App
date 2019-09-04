@@ -5,6 +5,12 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.Component.Identifier;
 
+/**
+ * Poll devices and store events we care about in keystate.
+ * Eventually keystate should be expanded to hold all input events.
+ * @author dan royer
+ *
+ */
 public class InputManager {
 	// A record of the state of the human input device
 	public static final int MAX_KEYS = 20;
