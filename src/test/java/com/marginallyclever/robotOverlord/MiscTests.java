@@ -474,72 +474,72 @@ public class MiscTests {
 	 * Use Jacobian matrixes to find angular velocity over time.
 	 */
 	@Test
-public void angularVelocityOverTime() {
-	System.out.println("angularVelocityOverTime()");
-	Sixi2 robot = new Sixi2();
-
-	BufferedWriter out=null;
-	try {
-		out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/avot.csv")));
-		out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
-		
-		DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
-		DHIKSolver solver = robot.getSolverIK();
-
-		// set force
-		double [] force = {0,3,0,0,0,0};
-
-		// set position
-		Matrix4d m = robot.getLiveMatrix();
-		m.m13=-20;
-		m.m23-=5;
-		solver.solve(robot, m, keyframe);
-		robot.setRobotPose(keyframe);
-		
-		float TIME_STEP=0.030f;
-		int j;
-		int safety=0;
-		// until we get to position or something has gone wrong
-		while(m.m13<20 && safety<10000) {
-			safety++;
-			m = robot.getLiveMatrix();
+	public void angularVelocityOverTime() {
+		System.out.println("angularVelocityOverTime()");
+		Sixi2 robot = new Sixi2();
+	
+		BufferedWriter out=null;
+		try {
+			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/avot.csv")));
+			out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
+			
+			DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
+			DHIKSolver solver = robot.getSolverIK();
+	
+			// set force
+			double [] force = {0,3,0,0,0,0};
+	
+			// set position
+			Matrix4d m = robot.getLiveMatrix();
+			m.m13=-20;
+			m.m23-=5;
 			solver.solve(robot, m, keyframe);
-			if(solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
-				// sane solution
-				double [][] jacobian = approximateJacobian(robot,keyframe);
-				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
-				
-				out.write(m.m03+"\t"+m.m13+"\t"+m.m23+"\t");
-				double [] jvot = new double[6];
-				for(j=0;j<6;++j) {
-					for(int k=0;k<6;++k) {
-						jvot[j]+=inverseJacobian[k][j]*force[k];
+			robot.setRobotPose(keyframe);
+			
+			float TIME_STEP=0.030f;
+			int j;
+			int safety=0;
+			// until we get to position or something has gone wrong
+			while(m.m13<20 && safety<10000) {
+				safety++;
+				m = robot.getLiveMatrix();
+				solver.solve(robot, m, keyframe);
+				if(solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
+					// sane solution
+					double [][] jacobian = approximateJacobian(robot,keyframe);
+					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
+					
+					out.write(m.m03+"\t"+m.m13+"\t"+m.m23+"\t");
+					double [] jvot = new double[6];
+					for(j=0;j<6;++j) {
+						for(int k=0;k<6;++k) {
+							jvot[j]+=inverseJacobian[k][j]*force[k];
+						}
+						out.write(Math.toDegrees(jvot[j])+"\t");
+						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*TIME_STEP;
 					}
-					out.write(Math.toDegrees(jvot[j])+"\t");
-					keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*TIME_STEP;
+					out.write("\n");
+					robot.setRobotPose(keyframe);
+				} else {
+					m.m03+=force[0]*TIME_STEP;
+					m.m13+=force[1]*TIME_STEP;
+					m.m23+=force[2]*TIME_STEP;
 				}
-				out.write("\n");
-				robot.setRobotPose(keyframe);
-			} else {
-				m.m03+=force[0]*TIME_STEP;
-				m.m13+=force[1]*TIME_STEP;
-				m.m23+=force[2]*TIME_STEP;
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(out!=null) out.flush();
+				if(out!=null) out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
-		
 	}
-	catch(Exception e) {
-		e.printStackTrace();
-	}
-	finally {
-		try {
-			if(out!=null) out.flush();
-			if(out!=null) out.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
-}
 	
 
 	/**
