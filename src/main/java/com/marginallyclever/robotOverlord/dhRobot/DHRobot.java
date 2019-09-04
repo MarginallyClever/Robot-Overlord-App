@@ -16,6 +16,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.robot.Robot;
@@ -206,7 +207,35 @@ public abstract class DHRobot extends Robot {
 	@Override
 	public void render(GL2 gl2) {
 		//if(!drawAsSelected) return;
-
+		
+		// get the camera
+		World world = getWorld();
+		Camera cam=null;
+		if(world!=null) {
+			// find the camera
+			Iterator<Entity> iter = world.getChildren().iterator();
+			while(iter.hasNext()) {
+				Entity e = iter.next();
+				if(e instanceof Camera) {
+					// probably the only one we'll find.
+					cam = (Camera)e;
+				}
+			}
+		}
+		if(cam!=null) {/*
+			gl2.glPushMatrix();
+			Matrix4d mat = new Matrix4d(cam.getMatrix());
+			Vector3d camPos = cam.getPosition();
+			mat.setTranslation(new Vector3d(0,0,0));
+			gl2.glTranslated(-camPos.x,-camPos.y,-camPos.z);
+			gl2.glTranslated(
+					mat.m01*50,
+					mat.m11*50,
+					mat.m21*50);
+			MatrixHelper.drawMatrix(gl2, mat,20);
+			gl2.glPopMatrix();//*/
+		}
+		
 		PrimitiveSolids.drawStar(gl2, this.getPosition(),10);
 		
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
@@ -215,7 +244,7 @@ public abstract class DHRobot extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getPose());
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());
 
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
@@ -252,6 +281,13 @@ public abstract class DHRobot extends Robot {
 				gl2.glPopMatrix();
 			MatrixHelper.drawMatrix(gl2, liveMatrix, 8.0);
 			MatrixHelper.drawMatrix2(gl2, targetMatrix, 6.0);
+
+			if(cam!=null) {
+				//Matrix4d mat = new Matrix4d(cam.getMatrix());
+				//Vector3d camPos = cam.getPosition();
+				//mat.setTranslation(new Vector3d(targetMatrix.m03,targetMatrix.m13,targetMatrix.m23));
+				//MatrixHelper.drawMatrix(gl2, mat,20);
+			}
 		gl2.glPopMatrix();
 		
 		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -321,31 +357,32 @@ public abstract class DHRobot extends Robot {
 		}
 		
 		// we have no tool.  Look out into the world...
+		World world = getWorld();
+		if(world!=null) {
+			// Request from the world "is there a tool at the position of the end effector"?
+			Point3d target = new Point3d(this.liveMatrix.m03,this.liveMatrix.m13,this.liveMatrix.m23);
+			List<PhysicalObject> list = world.findPhysicalObjectsNear(target,10);
+	
+			// If there is a tool, attach to it.
+			Iterator<PhysicalObject> iter = list.iterator();
+			while(iter.hasNext()) {
+				PhysicalObject po = iter.next();
+				if(po instanceof DHTool) {
+					// probably the only one we'll find.
+					setTool((DHTool)po);
+				}
+			}
+		}
+	}
+	
+	protected World getWorld() {
 		Entity p=parent;
 		while(p!=null) {
 			if(p instanceof World) {
-				break;
+				return (World)p;
 			}
 		}
-		if(p==null || !(p instanceof World)) {
-			// World not found.  The toggle!  It does nothing!
-		}
-
-		// Request from the world "is there a tool at the position of the end effector"?
-		World world = (World)p;
-		
-		Point3d target = new Point3d(this.liveMatrix.m03,this.liveMatrix.m13,this.liveMatrix.m23);
-		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,10);
-
-		// If there is a tool, attach to it.
-		Iterator<PhysicalObject> iter = list.iterator();
-		while(iter.hasNext()) {
-			PhysicalObject po = iter.next();
-			if(po instanceof DHTool) {
-				// probably the only one we'll find.
-				setTool((DHTool)po);
-			}
-		}
+		return null;
 	}
 	
 	
@@ -394,6 +431,22 @@ public abstract class DHRobot extends Robot {
 	 * @return true if targetPose changes.
 	 */
 	public boolean driveFromKeyState() {
+		// we have no tool.  Look out into the world...
+		World world = getWorld();
+		Camera cam=null;
+		if(world!=null) {
+			// find the camera
+			Iterator<Entity> iter = world.getChildren().iterator();
+			while(iter.hasNext()) {
+				Entity e = iter.next();
+				if(e instanceof Camera) {
+					// probably the only one we'll find.
+					cam = (Camera)e;
+				}
+			}
+		}
+		//if(cam==null) return false;
+		
 		boolean isDirty=false;
 		final double scale=0.4;
 		final double scaleDolly=0.4;
@@ -407,46 +460,6 @@ public abstract class DHRobot extends Robot {
 		if(InputManager.keyState[3]==1) {// triangle
 			targetMatrix.set(homeMatrix);
 			isDirty=true;
-		}
-		if(InputManager.keyState[4]==1) {  // R1
-			if(canTargetPoseRotateZ()) {
-	    		isDirty=true;
-	    		double vv = 1;
-	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-	    			vv/=dhTool.dhLinkEquivalent.r;
-	    		}
-	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotZ(vv*scaleTurn);
-	    		if(rotateOnWorldAxies) {
-	    			Vector4d v=new Vector4d();
-	    			targetMatrix.getColumn(3, v);
-	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
-	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
-	    		} else {
-	    			targetMatrix.mul(temp);
-	    		}
-			}
-    	}
-		if(InputManager.keyState[5]==1) {  // L1
-			if(canTargetPoseRotateZ()) {
-	    		isDirty=true;
-	    		double vv = 1;
-	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-	    			vv/=dhTool.dhLinkEquivalent.r;
-	    		}
-	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotZ(-vv*scaleTurn);
-	    		if(rotateOnWorldAxies) {
-	    			Vector4d v=new Vector4d();
-	    			targetMatrix.getColumn(3, v);
-	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
-	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
-	    		} else {
-	    			targetMatrix.mul(temp);
-	    		}
-			}
 		}
 		
 		int dD=(int)InputManager.keyState[8];  // dpad up/down
@@ -462,6 +475,28 @@ public abstract class DHRobot extends Robot {
 			isDirty=true;
 		}
 		
+		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
+		if(InputManager.keyState[4] != InputManager.keyState[5]) {  // L1 xor R1
+			if(canTargetPoseRotateZ()) {
+	    		isDirty=true;
+	    		double vv = (InputManager.keyState[4]==1) ? 1 : -1;
+	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
+	    			vv/=dhTool.dhLinkEquivalent.r;
+	    		}
+	    		Matrix4d temp = new Matrix4d();
+	    		temp.rotZ(vv*scaleTurn);
+	    		if(rotateOnWorldAxies) {
+	    			Vector3d trans=new Vector3d();
+	    			targetMatrix.get(trans);
+	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
+	    			targetMatrix.mul(temp,targetMatrix);
+	    			targetMatrix.setTranslation(trans);
+	    		} else {
+	    			targetMatrix.mul(temp);
+	    		}
+			}
+    	}
+		
 		if(InputManager.keyState[10]!=0) {  // right stick, right/left
 			// right analog stick, + is right -1 is left
 			if(canTargetPoseRotateY()) {
@@ -469,11 +504,11 @@ public abstract class DHRobot extends Robot {
 	    		Matrix4d temp = new Matrix4d();
 	    		temp.rotY(InputManager.keyState[10]*scaleTurn);
 	    		if(rotateOnWorldAxies) {
-	    			Vector4d v=new Vector4d();
-	    			targetMatrix.getColumn(3, v);
+	    			Vector3d trans=new Vector3d();
+	    			targetMatrix.get(trans);
 	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
 	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			targetMatrix.setTranslation(trans);
 	    		} else {
 	    			targetMatrix.mul(temp);
 	    		}
@@ -485,45 +520,55 @@ public abstract class DHRobot extends Robot {
 	    		Matrix4d temp = new Matrix4d();
 	    		temp.rotX(InputManager.keyState[11]*scaleTurn);
 	    		if(rotateOnWorldAxies) {
-	    			Vector4d v=new Vector4d();
-	    			targetMatrix.getColumn(3, v);
+	    			Vector3d trans=new Vector3d();
+	    			targetMatrix.get(trans);
 	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
 	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(new Vector3d(v.x,v.y,v.z));
+	    			targetMatrix.setTranslation(trans);
 	    		} else {
 	    			targetMatrix.mul(temp);
-	    			/*
-		    		// experiment to improve rotation
-					Matrix4d temp2 = new Matrix4d(links.get(links.size()-2).poseCumulative);
-		    		temp2.setTranslation(new Vector3d(0,0,0));
-		    		Matrix4d iMat = new Matrix4d(temp2);
-		    		iMat.invert();
-	    			temp2.mul(temp,temp2);
-	    			Vector4d v=new Vector4d();
-	    			targetPose.getColumn(3, v);
-	    			targetPose.setTranslation(new Vector3d(0,0,0));
-	    			targetPose.mul(iMat,targetPose);
-	    			targetPose.mul(temp2,targetPose);
-	    			targetPose.setTranslation(new Vector3d(v.x,v.y,v.z));
-	    			*/
 	    		}
 			}
     	}
 		if(InputManager.keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetMatrix.m23+=((InputManager.keyState[12]+1)/2)*scale;
+    		Vector4d v = new Vector4d();
+    		if(cam!=null) v.set(cam.getForward());
+    		else v.set(0,0,1,0);
+    		v.scale(((InputManager.keyState[12]+1)/2)*scale);
+    		targetMatrix.m03+=v.x;
+    		targetMatrix.m13+=v.y;
+    		targetMatrix.m23+=v.z;
 		}
 		if(InputManager.keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		targetMatrix.m23-=((InputManager.keyState[13]+1)/2)*scale;
+    		Vector4d v = new Vector4d();
+    		if(cam!=null) v.set(cam.getForward());
+    		else v.set(0,0,1,0);
+    		v.scale(((InputManager.keyState[13]+1)/2)*-scale);
+    		targetMatrix.m03+=v.x;
+    		targetMatrix.m13+=v.y;
+    		targetMatrix.m23+=v.z;
 		}
 		if(InputManager.keyState[14]!=0) {  // left stick, right/left
     		isDirty=true;
-    		targetMatrix.m13+=InputManager.keyState[14]*scale;
+    		Vector4d v = new Vector4d();
+    		if(cam!=null) v.set(cam.getRight());
+    		else v.set(0,1,0,0);
+    		v.scale(InputManager.keyState[14]*-scale);
+    		targetMatrix.m03+=v.x;
+    		targetMatrix.m13+=v.y;
+    		targetMatrix.m23+=v.z;
 		}
 		if(InputManager.keyState[15]!=0) {  // left stick, down/up
     		isDirty=true;
-    		targetMatrix.m03+=InputManager.keyState[15]*scale;
+    		Vector4d v = new Vector4d();
+    		if(cam!=null) v.set(cam.getUp());
+    		else v.set(0,1,0,0);
+    		v.scale(InputManager.keyState[15]*-scale);
+    		targetMatrix.m03+=v.x;
+    		targetMatrix.m13+=v.y;
+    		targetMatrix.m23+=v.z;
 		}
 
         if(dhTool!=null) {
@@ -551,11 +596,6 @@ public abstract class DHRobot extends Robot {
 		return interpolatePoseT>=1.0;
 	}
 	
-	
-	@Override
-	public void update(double dt) {
-		update2(dt);
-	}
 
 	protected void interpolate(double dt) {
 		if(dwellTime>0) {
@@ -576,6 +616,23 @@ public abstract class DHRobot extends Robot {
 			    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
 			    		// Solved!  Are angles OK for this robot?
 			    		if(sanityCheck(solutionKeyframe)) {
+			    			/*
+			    			if(this instanceof Sixi2) {
+			    				// sane solution
+			    				DHKeyframe keyframe = (DHKeyframe)createKeyframe();
+			    				double [][] jacobian = ((Sixi2)this).approximateJacobian(keyframe);
+			    				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
+			    				
+			    				double [] jvot = new double[6];
+			    				int j,k;
+			    				for(j=0;j<6;++j) {
+			    					for(k=0;k<6;++k) {
+			    						jvot[j]+=inverseJacobian[k][j]*force[k];
+			    					}
+			    					keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*dt;
+			    				}
+			    				setRobotPose(keyframe);
+			    			}*/
 		            		this.setRobotPose(solutionKeyframe);
 			    		}
 			    	}
@@ -587,8 +644,10 @@ public abstract class DHRobot extends Robot {
 			dhTool.interpolate(dt);
 		}
 	}
+
 	
-	protected void update2(double dt) {
+	@Override
+	public void update(double dt) {
 		interpolate(dt*0.25);
 		
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
@@ -676,7 +735,7 @@ public abstract class DHRobot extends Robot {
 	public void drawTargetPose(GL2 gl2) {
 		gl2.glPushMatrix();
 
-		MatrixHelper.applyMatrix(gl2, this.getPose());
+		MatrixHelper.applyMatrix(gl2, this.getMatrix());
 		MatrixHelper.drawMatrix(gl2, targetMatrix, 5);
 		
 		gl2.glPopMatrix();
