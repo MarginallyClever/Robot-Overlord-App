@@ -19,14 +19,14 @@ public abstract class PhysicalObject extends Entity {
 	 */
 	private static final long serialVersionUID = -1804941485489224976L;
 
-	private Matrix4d pose;
+	private Matrix4d matrix;
 	private transient PhysicalObjectControlPanel physicalObjectControlPanel;
 	
 	public PhysicalObject() {
 		super();
 		
-		pose = new Matrix4d();
-		pose.setIdentity();
+		matrix = new Matrix4d();
+		matrix.setIdentity();
 	}
 	
 	
@@ -53,41 +53,41 @@ public abstract class PhysicalObject extends Entity {
 	public void finalizeMove() {}
 
 	public Vector3d getPosition() {
-		return new Vector3d(pose.m03,pose.m13,pose.m23);
+		return new Vector3d(matrix.m03,matrix.m13,matrix.m23);
 	}
 
 	public void getRotation(Vector3d arg0) {
 		Matrix3d temp = new Matrix3d();
-		pose.get(temp);
+		matrix.get(temp);
 		arg0.set(MatrixHelper.matrixToEuler(temp));
 	}
 	
 	public void setPosition(Vector3d pos) {
-		pose.setTranslation(pos);
+		matrix.setTranslation(pos);
 		if(physicalObjectControlPanel!=null) {
 			physicalObjectControlPanel.updateFields();
 		}
 	}
 	
-	public Matrix4d getPose() {
-		return pose;
+	public Matrix4d getMatrix() {
+		return matrix;
 	}
-	public void setPose(Matrix4d arg0) {
-		pose.set(arg0);
+	public void setMatrix(Matrix4d arg0) {
+		matrix.set(arg0);
 		if(physicalObjectControlPanel!=null) {
 			physicalObjectControlPanel.updateFields();	
 		}
 	}
 	public void setRotation(Matrix3d arg0) {
 		Vector3d trans = getPosition();
-		pose.set(arg0);
-		pose.setTranslation(trans);
+		matrix.set(arg0);
+		matrix.setTranslation(trans);
 		if(physicalObjectControlPanel!=null) {
 			physicalObjectControlPanel.updateFields();	
 		}
 	}
 	public void getRotation(Matrix4d arg0) {
-		arg0.set(pose);
+		arg0.set(matrix);
 		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 }

@@ -184,7 +184,7 @@ public class DHRobotPlayer extends ModelInWorld {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2,target.getPose());
+		MatrixHelper.applyMatrix(gl2,target.getMatrix());
 		
 		Matrix4d p0 = poses.get(0);
 		MatrixHelper.drawMatrix(gl2, p0, 1);

@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -155,7 +156,7 @@ public class Sixi2 extends DHRobot {
 		material.render(gl2);
 
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getPose());
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());
 			
 			// Draw models
 			gl2.glPushMatrix();
@@ -190,7 +191,7 @@ public class Sixi2 extends DHRobot {
     		// draw the ghost pose
     		materialGhost.render(gl2);
     		gl2.glPushMatrix();
-				MatrixHelper.applyMatrix(gl2, this.getPose());
+				MatrixHelper.applyMatrix(gl2, this.getMatrix());
 				
 				// Draw models
 				gl2.glPushMatrix();
@@ -387,5 +388,71 @@ public class Sixi2 extends DHRobot {
 
 			moveToTargetPose();
 		}
+	}
+
+	/**
+	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
+	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
+	 */
+	public double [][] approximateJacobian(DHKeyframe keyframe) {
+		double [][] jacobian = new double[6][6];
+		
+		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
+		
+		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
+
+		// use anglesA to get the hand matrix
+		setRobotPose(keyframe);
+		Matrix4d T = new Matrix4d(getLiveMatrix());
+		
+		// for all joints
+		int i,j;
+		for(i=0;i<6;++i) {
+			// use anglesB to get the hand matrix after a tiiiiny adjustment on one joint.
+			for(j=0;j<6;++j) {
+				keyframe2.fkValues[j]=keyframe.fkValues[j];
+			}
+			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
+
+			setRobotPose(keyframe2);
+			Matrix4d Tnew = new Matrix4d(getLiveMatrix());
+			
+			// use the finite difference in the two matrixes
+			// aka the approximate the rate of change (aka the integral, aka the velocity)
+			// in one column of the jacobian matrix at this position.
+			Matrix4d dT = new Matrix4d();
+			dT.sub(Tnew,T);
+			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
+			
+			jacobian[i][0]=dT.m03;
+			jacobian[i][1]=dT.m13;
+			jacobian[i][2]=dT.m23;
+
+			// find the rotation part
+			// these initialT and initialTd were found in the comments on
+			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
+			// and used to confirm that our skew-symmetric matrix match theirs.
+			Matrix3d T3 = new Matrix3d(
+					T.m00,T.m01,T.m02,
+					T.m10,T.m11,T.m12,
+					T.m20,T.m21,T.m22);
+			Matrix3d dT3 = new Matrix3d(
+					dT.m00,dT.m01,dT.m02,
+					dT.m10,dT.m11,dT.m12,
+					dT.m20,dT.m21,dT.m22);
+			Matrix3d skewSymmetric = new Matrix3d();
+			
+			T3.transpose();  // inverse of a rotation matrix is its transpose
+			skewSymmetric.mul(dT3,T3);
+			
+			jacobian[i][3]=skewSymmetric.m12;
+			jacobian[i][4]=skewSymmetric.m20;
+			jacobian[i][5]=skewSymmetric.m01;
+		}
+		
+		// return the live matrix where it was
+		setRobotPose(keyframe);
+		
+		return jacobian;
 	}
 }

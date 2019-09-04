@@ -127,7 +127,7 @@ public class ModelInWorld extends PhysicalObject {
 		
 		gl2.glPushMatrix();
 
-		MatrixHelper.applyMatrix(gl2, this.getPose());
+		MatrixHelper.applyMatrix(gl2, this.getMatrix());
 		
 		// TODO: this should probably be an option that can be toggled.
 		// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.

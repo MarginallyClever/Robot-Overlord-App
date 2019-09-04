@@ -178,7 +178,7 @@ public class DHTool_Gripper extends DHTool {
 				subjectBeingHeld = findObjectNear(10);
 				if(subjectBeingHeld != null) {
 					// find the relative transform so that its angle doesn't change?
-					Matrix4d held = new Matrix4d(subjectBeingHeld.getPose());
+					Matrix4d held = new Matrix4d(subjectBeingHeld.getMatrix());
 					Matrix4d iEnd = new Matrix4d(dhLinkEquivalent.poseCumulative);
 					iEnd.invert();
 					heldRelative.mul(iEnd,held);
@@ -218,7 +218,7 @@ public class DHTool_Gripper extends DHTool {
 		if(subjectBeingHeld!=null) {
 			Matrix4d finalPose = new Matrix4d();
 			finalPose.mul(endMatrix,heldRelative);
-			subjectBeingHeld.setPose(finalPose);
+			subjectBeingHeld.setMatrix(finalPose);
 		}
 	}
 	
