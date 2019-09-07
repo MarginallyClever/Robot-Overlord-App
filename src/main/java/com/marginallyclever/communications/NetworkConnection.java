@@ -17,6 +17,8 @@ public interface NetworkConnection {
 	public void reconnect() throws Exception;
 
 	public boolean isOpen();
+	
+	public void update();
 
 	public String getRecentConnection();
 

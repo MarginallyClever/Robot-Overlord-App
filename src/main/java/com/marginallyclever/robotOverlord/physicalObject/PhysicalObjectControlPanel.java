@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3d;
 
 /**
- * The user interface for an {@link Entity}.
+ * The user interface for an Entity.
  * @author Dan Royer
  *
  */
@@ -60,6 +60,7 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 
 		Vector3d temp = new Vector3d();
 		entity.getRotation(temp);
+		temp.scale(180/Math.PI);
 		contents.add(setRotation = new UserCommandSelectVector3d(ro,"rotation",temp),con1);
 		con1.gridy++;
 		setRotation.addChangeListener(this);
@@ -67,7 +68,7 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 	
 	
 	/**
-	 * Call by an {@link Entity} when it's details change so that they are reflected on the panel.
+	 * Call by an Entity when it's details change so that they are reflected on the panel.
 	 * This might be better as a listener pattern.
 	 */
 	public void updateFields() {

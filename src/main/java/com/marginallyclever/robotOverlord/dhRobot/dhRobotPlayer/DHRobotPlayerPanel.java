@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -17,11 +16,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
@@ -47,6 +50,10 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 	
 	protected JTextField directCommand;
 	protected JButton directCommandSend;
+	
+	protected UserCommandSelectNumber userHeight;
+	protected JButton setHeight;
+	protected JButton firstPosition;
 
 	public DHRobotPlayerPanel(RobotOverlord gui,DHRobotPlayer arg0) {
 		this.player = arg0;
@@ -92,9 +99,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		con1.gridy++;
 		contents.add(buttonLoop = new JCheckBox("Loop at end"),con1);
 		con1.gridy++;
-		JButton b = new JButton();
-		b.add(buttonCycleStart = new JCheckBox("Cycle start"));
-		contents.add(b,con1);
+		contents.add(buttonCycleStart = new JCheckBox("Cycle start"),con1);
 		con1.gridy++; 
 		
 		reset.addActionListener(this);
@@ -107,9 +112,6 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		buttonLoop.setSelected(player.isLoop());
 		buttonCycleStart.setSelected(player.isCycleStart());
 
-		contents.add(Box.createVerticalGlue(),con1);
-		con1.gridy++;
-		
 		contents.add(new JLabel("Direct command"),con1);
 		con1.gridy++;
 		contents.add(directCommand = new JTextField(),con1);
@@ -117,6 +119,16 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		contents.add(directCommandSend = new JButton("Send"),con1);
 		con1.gridy++;
 		directCommandSend.addActionListener(this);
+		
+		contents.add(userHeight=new UserCommandSelectNumber(ro,"Height (cm)",187),con1);
+		con1.gridy++;
+		contents.add(setHeight=new JButton("3..2..1..Go!"),con1);
+		con1.gridy++;
+		contents.add(firstPosition=new JButton("First position"),con1);
+		con1.gridy++;
+		setHeight.addActionListener(this);
+		firstPosition.addActionListener(this);
+		userHeight.addChangeListener(this);
 	}
 	
 	@Override
@@ -125,7 +137,15 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		if(source == reset) player.reset();
 		if(source == directCommandSend) {
 			DHRobot t=player.getTarget();
-			if(t!=null) t.parseGCode(directCommand.getText());
+			if(t!=null) {
+				t.parseGCode(directCommand.getText());
+			}
+		}
+		if(source == firstPosition) {
+			goToFirstPosition();
+		}
+		if(source == setHeight) {
+			setHeight(userHeight.getValue());
 		}
 	}
 
@@ -136,8 +156,65 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		if(source==buttonSingleBlock) player.setSingleBlock	(buttonSingleBlock	.isSelected());
 		if(source==buttonLoop		) player.setLoop		(buttonLoop			.isSelected());
 		if(source==buttonCycleStart	) player.setCycleStart	(buttonCycleStart	.isSelected());
+		if(source==userHeight) setHeight(userHeight.getValue());
 	}
 
+	
+	Vector3d p1 = new Vector3d(24.641,8.929,28.765);
+	
+	
+	protected void setHeight(double height_cm) {
+		DHRobot target=player.getTarget();
+		if(target==null) return;
+		
+		double z = height_cm-71.0-13;  // subtract table height and top of head.
+		double y = -30;
+		double x = 70;
+		
+		Vector3d eyes = new Vector3d(x,y,z);  // remove height of table
+/*
+		// how close can we get to that position and still be solvable?
+		DHIKSolver solver = target.getSolverIK();
+		DHKeyframe keyframe = (DHKeyframe)target.createKeyframe();
+		Matrix4d m = new Matrix4d(target.getLiveMatrix());
+
+    	solver.solveWithSuggestion(this,liveMatrix,keyframe,target.getRobotPose());
+    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+*/
+		if(height_cm<p1.z-20 || height_cm>p1.z+170) {
+			userHeight.setValue((float)(p1.z+71));
+			return;
+		}
+		
+		System.out.println(">>>> "+height_cm);
+		
+		for(double t=0;t<=1;t+=0.05) {
+			Vector3d c = MathHelper.interpolate(p1, eyes, t);
+			String msg = "G0"
+					+" X"+StringHelper.formatDouble(c.x)
+					+" Y"+StringHelper.formatDouble(c.y)
+					+" Z"+StringHelper.formatDouble(c.z)
+					+"";
+			//System.out.println(">>>> "+msg);
+			target.parseGCode(msg);
+		}
+	}
+	
+	
+	protected void goToFirstPosition() {
+		DHRobot target=player.getTarget();
+		String msg = "G0"
+				+" X"+StringHelper.formatDouble(p1.x)
+				+" Y"+StringHelper.formatDouble(p1.y)
+				+" Z"+StringHelper.formatDouble(p1.z)
+				+" I72.623 J-8.924 K66.369 T90.000 R0.000 S11.908 F80 A8";
+		if(target!=null) {
+			//System.out.println(">>>> "+msg);
+			target.parseGCode(msg);
+		}
+	}
+	
+	
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		Object source = e.getSource();

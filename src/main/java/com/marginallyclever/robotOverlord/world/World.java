@@ -8,6 +8,7 @@ import java.util.List;
 import com.jogamp.opengl.GL2;
 
 import javax.swing.JPanel;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -19,8 +20,11 @@ import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
+import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer;
+import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
+import com.marginallyclever.robotOverlord.gridEntity.GridEntity;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.viewCube.ViewCube;
@@ -57,10 +61,9 @@ implements Serializable {
 	protected transient Vector3d pickUp = null;
 	protected transient Vector3d pickRay = null;
 	protected transient boolean isSetup = false;
-
-	public int gridWidth, gridHeight;
 	
 	protected transient ViewCube viewCube;
+	protected transient GridEntity grid;
 	
 	protected transient WorldControlPanel worldControlPanel;
 	
@@ -75,16 +78,37 @@ implements Serializable {
 		pickUp=new Vector3d();
 		pickRay=new Vector3d();
 		
-		gridWidth = (int)(25.4*6);
-		gridHeight = (int)(25.4*3);
+		DHRobotPlayer player;
+		Sixi2 sixi;
 		
-		children = new ArrayList<Entity>();
+		addEntity(grid = new GridEntity());
 		addEntity(light0 = new Light());
 		addEntity(light1 = new Light());
 		addEntity(light2 = new Light());
 		addEntity(camera = new Camera());
-		
+		addEntity(sixi=new Sixi2());
+		addEntity(player=new DHRobotPlayer());
+	
 		viewCube = new ViewCube();
+
+		// adjust grid
+		grid.width = (int)(2.54*6*12);
+		grid.height = (int)(2.54*30);
+		// adjust camera
+		camera.setPosition(new Vector3d(0,100,-65));
+		camera.setPan(52);
+		camera.setTilt(76);
+		// adjust some lighting
+		light0.setDisplayName("light0");	light0.setAmbient(0.01f, 0.01f, 0.01f, 0.01f);	light0.setDiffuse(0.50f, 0.50f, 0.50f, 1);
+		light1.setDisplayName("light1");	light1.setAmbient(0.00f, 0.00f, 0.00f, 0.00f);	light0.setDiffuse(0.75f, 0.75f, 0.75f, 1);
+		light2.setDisplayName("light2");	light2.setAmbient(0.00f, 0.00f, 0.00f, 0.00f);	light0.setDiffuse(0.25f, 0.25f, 0.25f, 1);
+		
+		player.setPosition(new Vector3d(60,25,0));
+		sixi.setPosition(new Vector3d(78,-25,0));
+		Matrix3d m=new Matrix3d();
+		m.rotZ(Math.toRadians(-90));
+		sixi.setRotation(m);
+		player.setRotation(m);
 	}
 	
 	
@@ -104,11 +128,7 @@ implements Serializable {
 	}
 	
 
-	/**
-	 * sets some render options at the
-	 * @param gl2 the openGL render context
-	 */
-    protected void setup() {
+	protected void setup() {
 		setupLights();
 		loadTextures();
     }
@@ -190,9 +210,7 @@ implements Serializable {
 	}
 	
 	/**
-	 * 
 	 * @param gl2 render context
-	 * @param delta ms since last render
 	 */
 	public void render(GL2 gl2) {
 		// Clear the screen and depth buffer
@@ -226,8 +244,6 @@ implements Serializable {
 
 			//drawSkyCube(gl2);
 			
-			PrimitiveSolids.drawGrid(gl2,gridWidth,gridHeight,1);
-
 			// lights
 			Iterator<Entity> io = children.iterator();
 			while(io.hasNext()) {

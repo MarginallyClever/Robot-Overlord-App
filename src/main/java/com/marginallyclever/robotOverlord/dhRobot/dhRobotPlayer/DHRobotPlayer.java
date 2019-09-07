@@ -74,8 +74,7 @@ public class DHRobotPlayer extends ModelInWorld {
 		try {
 			this.model = ModelFactory.createModelFromFilename("/Sixi2/box.stl",0.1f);
 			this.adjustRotation(90, 0, 0);
-			this.adjustOrigin(0,60,0);
-			this.material.setDiffuseColor(1, 1, 0, 1);
+			this.adjustOrigin(0,0,0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -217,6 +216,7 @@ public class DHRobotPlayer extends ModelInWorld {
 	}
 	
 	protected void closeFileNow() {
+		if(gcodeFile==null) return;
 		try {
 			gcodeFile.close();
 			gcodeFile=null;

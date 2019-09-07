@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
@@ -17,8 +18,8 @@ import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
  * Solves Inverse Kinematics for a RTTRTR robot.  It is assumed the first three joints position the end effector
  * and the last three joints orient the end effector.
  * @author Dan Royer
- * @see https://www.youtube.com/watch?v=V_6diIcQl0U
- * @see https://www.youtube.com/watch?v=74tbl9q2_qI
+ * See https://www.youtube.com/watch?v=V_6diIcQl0U
+ * See https://www.youtube.com/watch?v=74tbl9q2_qI
  */
 public class DHIKSolver_RTTRTR extends DHIKSolver {
 	//public double theta0,alpha1,alpha2;
@@ -34,18 +35,18 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		return 6;
 	}
 
-	/**
-	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
-	 * @param robot The DHRobot description. 
-	 * @param targetPose the pose that robot is attempting to reach in this solution.
-	 * @param keyframe store the computed solution in keyframe.
-	 * @param oldKeyframe a hint about the previous position, to prevent instantaneous flips
-	 */
 	@Override
 	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		solveWithSuggestion(robot,targetMatrix,keyframe,null);
 	}
 	
+	/**
+	 * Starting from a known local origin and a known local hand position, calculate the angles for the given pose.
+	 * @param robot The DHRobot description. 
+	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
+	 * @param keyframe store the computed solution in keyframe.
+	 * @param suggestion a hint about the previous position, to prevent instantaneous flips
+	 */
 	@SuppressWarnings("unused")
 	@Override
 	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
@@ -66,9 +67,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// there is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
 			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
-			//Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
-			//inverseToolPose.invert();
-			//targetPoseAdj.mul(inverseToolPose);
 
 			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLinkEquivalent.r;
 			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLinkEquivalent.r;
@@ -82,9 +80,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		Point3d p7 = new Point3d(
 				targetMatrixAdj.m03,
 				targetMatrixAdj.m13,
-				targetMatrixAdj.m23);
-		//p7.sub(robot.getPosition());
-		
+				targetMatrixAdj.m23);		
 		Vector3d n7z = new Vector3d(
 				targetMatrixAdj.m02,
 				targetMatrixAdj.m12,
@@ -117,7 +113,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		// p5 is at the center of the wrist.  As long as the wrist is not directly on the same z axis as the base
 		// I can find the angle around j0 to point at the wrist.
 		// (1) theta0 = atan2(y07/x07);
-		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p5.y,p5.x));
+		keyframe.fkValues[0] = MathHelper.capRotationDegrees(Math.toDegrees(Math.atan2(p5.y,p5.x)),0);
 		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) C=z15
@@ -159,7 +155,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) alpha1 = phi-rho
-		keyframe.fkValues[1] = Math.toDegrees(rho-phi);
+		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(rho-phi),0);
 		if(false) System.out.println("alpha1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
@@ -176,7 +172,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) alpha2 - phi3-phi4
-		keyframe.fkValues[2] = Math.toDegrees(phi3 - phi4);
+		keyframe.fkValues[2] = MathHelper.capRotationDegrees(Math.toDegrees(phi3 - phi4),0);
 		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		// FIRST HALF DONE
@@ -239,7 +235,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("h="+h+"\t");
 		
 		if( h-maximumReach > EPSILON ) {
-			// out of reach, including rounding error
+			// out of reach
 			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (2)");
 			keyframe.fkValues[3]=
@@ -287,11 +283,18 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		while(a5copy<=-Math.PI) a5copy+=Math.PI;
 		if(Math.abs(a5copy)<EPSILON) {
 			// singularity!
-			solutionFlag = MANY_SOLUTIONS;
-			if(false) System.out.println("MANY SOLUTIONS");
-			keyframe.fkValues[3] = 0;
+			if(suggestion!=null) {
+				if(true) System.out.println("ONE SOLUTION (MAYBE 1)");
+				solutionFlag = ONE_SOLUTION;
+				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],0);
+			} else {
+				if(true) System.out.println("MANY SOLUTIONS");
+				solutionFlag = MANY_SOLUTIONS;
+				keyframe.fkValues[3] = 0;
+			}
 			double t6 = Math.acos(r47.m00);
-			keyframe.fkValues[5] = Math.toDegrees(t6);
+			keyframe.fkValues[4] = 0;
+			keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t6),0);
 			if(false) System.out.println(
 					"t0="+StringHelper.formatDouble(keyframe.fkValues[0])+"\t"+
 					"a1="+StringHelper.formatDouble(keyframe.fkValues[1])+"\t"+
@@ -311,28 +314,49 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double s5 = Math.sin(a5);
 		double t4,t6;
 		if(s5>0) {
+			//if(true) System.out.println("A");
 			a5 = Math.atan2( Math.sqrt(1-r22*r22),r22);
 			t4 = Math.atan2(r47.m12,r47.m02);
 			t6 = Math.atan2(r47.m21,-r47.m20);
 		} else if(s5<0) {
+			//if(true) System.out.println("B");
 			a5 = Math.atan2(-Math.sqrt(1-r22*r22),r22);
 			t4 = Math.atan2(-r47.m12,-r47.m02);
 			t6 = Math.atan2(-r47.m21,r47.m20);
 		} else {
 			// Only the sum of t4+t6 can be found, not the individual angles.
+			// this is the same as if(Math.abs(a5copy)<EPSILON) above, so this should
+			// be unreachable.
 			solutionFlag = NO_SOLUTIONS;
-			if(false) System.out.println("NO SOLUTIONS (3)");
+			if(true) System.out.println("NO SOLUTIONS (3)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
 			return;
 		}
+		
 		if(false) System.out.println("5="+a5+"\tpos="+a5);
 
-		keyframe.fkValues[3] = Math.toDegrees(t4)-90;
-		keyframe.fkValues[4] = -Math.toDegrees(a5);
-		keyframe.fkValues[5] = Math.toDegrees(t6)+90;
-		
+		keyframe.fkValues[3] = MathHelper.capRotationDegrees(Math.toDegrees(t4)-90,0);
+		keyframe.fkValues[4] = MathHelper.capRotationDegrees(-Math.toDegrees(a5),0);
+		keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t6)+90,0);
+
+		/*if(suggestion!=null) {
+			if(Math.abs(suggestion.fkValues[3]-keyframe.fkValues[3])>20) {
+				// probably a flip in the joint
+				System.out.println(
+						suggestion.fkValues[3]+"/"+keyframe.fkValues[3]+"\t"+
+						suggestion.fkValues[4]+"/"+keyframe.fkValues[4]+"\t"+
+						suggestion.fkValues[5]+"/"+keyframe.fkValues[5]
+						);
+				t4-=Math.PI;
+				a5=-a5;
+				t6+=Math.PI;
+				keyframe.fkValues[3] = MathHelper.capRotationDegrees(Math.toDegrees(t4)-90,0);
+				keyframe.fkValues[4] = MathHelper.capRotationDegrees(-Math.toDegrees(a5),0);
+				keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t6)+90,0);
+			}
+		}*/
 		if(Double.isNaN(keyframe.fkValues[4])) {
 			System.out.println("NaN fk4");
 		}

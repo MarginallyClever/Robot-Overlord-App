@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 /**
  * Solves Inverse Kinematics for a cylindrical, serially-linked robot like the FANUC GMF M-100 robot arm.
  * @author Dan Royer
- * @see http://www.robotix.co.uk/products/fanuc/robot/m_series/m100.htm
+ * See http://www.robotix.co.uk/products/fanuc/robot/m_series/m100.htm
  */
 public class DHIKSolver_Cylindrical extends DHIKSolver {
 	//public double theta0,d1,d2,theta3;
@@ -26,7 +26,7 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 	}
 
 	/**
-	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
+	 * Starting from a known local origin and a known local hand position, calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
 	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.

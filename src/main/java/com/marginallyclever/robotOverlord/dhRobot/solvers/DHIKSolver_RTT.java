@@ -25,7 +25,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 	}
 
 	/**
-	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
+	 * Starting from a known local origin and a known local hand position, calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
 	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.

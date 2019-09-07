@@ -136,6 +136,17 @@ public class MathHelper {
 	}
 	
 	/**
+	 * Prevent angle arg0 from leaving the range 0...360.  outside that range it wraps, like a modulus.
+	 * @param arg0
+	 * @return adjusted value
+	 */
+	static public double capRotationDegrees(double arg0,double centerPoint) {
+		while(arg0<centerPoint-180) arg0 += 360;
+		while(arg0>centerPoint+180) arg0 -= 360;
+		return arg0;
+	}
+	
+	/**
 	 * greatest common divider
 	 * @param a
 	 * @param b
@@ -162,18 +173,36 @@ public class MathHelper {
 	}
 
 	
-	// for floats
+	/**
+	 * interpolate from a to b
+	 * @param a
+	 * @param b
+	 * @param t [0...1]
+	 * @return
+	 */
 	static public float interpolate(float a,float b,double t) {
 		return (b-a)*(float)t + a;
 	}
 
-	// for doubles
+	/**
+	 * interpolate from a to b
+	 * @param a
+	 * @param b
+	 * @param t [0...1]
+	 * @return
+	 */
 	static public double interpolate(double a,double b,double t) {
 		return (b-a)*t + a;
 	}
 
 	
-	// this is a lerp.  for normals you'd want a slerp
+	/**
+	 * interpolate from a to b
+	 * @param a
+	 * @param b
+	 * @param t [0...1]
+	 * @return
+	 */
 	static public Vector3d interpolate(Vector3d a,Vector3d b,double t) {
 		Vector3d n = new Vector3d(b);
 		n.sub(a);

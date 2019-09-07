@@ -54,12 +54,12 @@ public class Light extends PhysicalObject {
 	    gl2.glLightfv(i, GL2.GL_SPECULAR, specular,0);
 	}
 
-	public void enable() {
-		enabled=true;
+	public void setEnable(boolean arg0) {
+		enabled=arg0;
 	}
 
-	public void disable() {
-		enabled=false;
+	public boolean getEnabled() {
+		return enabled;
 	}
 	
 	public boolean isDirectional() {

@@ -39,7 +39,7 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 	public UserCommandSelectNumber(RobotOverlord ro,String labelName,float defaultValue) {
 		super();
 		this.ro = ro;
-
+		
 		//this.setBorder(BorderFactory.createLineBorder(new Color(255,0,0)));
 		
 		allowSetText=true;
@@ -54,9 +54,9 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
 		textField = new JTextField(8);
-		textField.setText(df.format(defaultValue));
 		textField.getDocument().addDocumentListener(this);
 		label.setLabelFor(textField);
+		setValue(defaultValue);
 
 		con1.gridx=0;
 		con1.gridy=0;

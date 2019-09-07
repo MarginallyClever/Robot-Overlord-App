@@ -11,12 +11,10 @@ import com.jogamp.opengl.GL2;
 
 public class MatrixHelper {	
 	/**
-	 * @see drawMatrix(gl2,p,u,v,w,1)
+	 * See drawMatrix(gl2,p,u,v,w,1)
 	 * @param gl2
-	 * @param p
-	 * @param u
-	 * @param v
-	 * @param w
+	 * @param m
+	 * @param scale
 	 */
 	public static void drawMatrix(GL2 gl2,Matrix4d m,double scale) {
 		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
@@ -40,12 +38,10 @@ public class MatrixHelper {
 	}
 	
 	/**
-	 * @see drawMatrix(gl2,p,u,v,w,1)
+	 * See drawMatrix(gl2,p,u,v,w,1)
 	 * @param gl2
-	 * @param p
-	 * @param u
-	 * @param v
-	 * @param w
+	 * @param m
+	 * @param scale
 	 */
 	public static void drawMatrix2(GL2 gl2,Matrix4d m,double scale) {
 		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
@@ -70,7 +66,7 @@ public class MatrixHelper {
 
 	
 	/**
-	 * @see drawMatrix(gl2,p,u,v,w,1)
+	 * See drawMatrix(gl2,p,u,v,w,1)
 	 */
 	public static void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
 		drawMatrix(gl2,p,u,v,w,1);
@@ -97,7 +93,7 @@ public class MatrixHelper {
 
 	/**
 	 * Same as drawMatrix, but with alternate colors
-	 * @see drawMatrix(gl2,p,u,v,w,1)
+	 * See drawMatrix(gl2,p,u,v,w,1)
 	 * @param gl2
 	 * @param p
 	 * @param u

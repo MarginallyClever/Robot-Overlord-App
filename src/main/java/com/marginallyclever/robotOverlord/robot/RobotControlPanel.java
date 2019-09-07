@@ -51,8 +51,7 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		this.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.setLayout(new GridBagLayout());
 
-		CollapsiblePanel p;
-		GridBagConstraints con1, con2;
+		GridBagConstraints con1;
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -77,7 +76,10 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		buttonConnect = createButton(Translator.get("ButtonConnect"));
 		contents.add(buttonConnect, con1);
 		con1.gridy++;
-
+/*
+		CollapsiblePanel p;
+		GridBagConstraints con2;
+		
 		p = new CollapsiblePanel("Animate");
 		contents.add(p, con1);
 		con1.gridy++;
@@ -139,7 +141,7 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		p.getContentPane().add(buttonKeyframeAdd = createButton(Translator.get("+")), con2);
 		con2.gridx += con2.gridwidth;
 		p.getContentPane().add(buttonKeyframeDelete = createButton(Translator.get("-")), con2);
-		con2.gridx += con2.gridwidth;
+		con2.gridx += con2.gridwidth;*/
 	}
 
 	private JButton createButton(String name) {
@@ -174,7 +176,7 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 				}
 			}
 			return;
-		}
+		}/*
 		if (subject == buttonKeyframeFirst) {
 			robot.setKeyframeIndex(0);
 			robot.setKeyframeT(0);
@@ -229,6 +231,7 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 		}
 
 		System.out.println("K" + robot.getKeyframeIndex() + "\tT" + robot.getKeyframeT());
+		*/
 	}
 
 	protected void keyframeEditSetEnable(boolean isEnabled) {

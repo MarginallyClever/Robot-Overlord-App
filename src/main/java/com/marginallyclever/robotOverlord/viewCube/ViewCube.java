@@ -1,12 +1,10 @@
 package com.marginallyclever.robotOverlord.viewCube;
 
-import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.camera.Camera;
 
 public class ViewCube {
@@ -37,7 +35,6 @@ public class ViewCube {
 		}
 	}
 	public void render(GL2 gl2,Camera cam) {
-
 		if(!isSetup) {
 			loadTextures();
 			isSetup=true;
@@ -58,14 +55,24 @@ public class ViewCube {
 		
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		gl2.glPushMatrix();
+		
 			gl2.glColor3f(1, 1, 1);
 			//Vector3f p = camera.getPosition();
 			//gl2.glTranslated(-p.x,-p.y,-p.z);
 
-			gl2.glTranslated(cam.getCanvasWidth()-40,+40,-50);
+			gl2.glTranslated(cam.getCanvasWidth()-55,+55,-50);
 			gl2.glRotatef(-cam.getTilt(), -1, 0, 0);
 			gl2.glRotatef(-cam.getPan(),0,0,1);
-			gl2.glScalef(2, 2, 2);
+			gl2.glScalef(3, -3, 3);
+		
+			gl2.glPushMatrix();
+			gl2.glTranslated(-10.4,-10.4,-10.4);
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glColor3d(1, 0, 0);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(25, 0, 0);
+			gl2.glColor3d(0, 1, 0);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, 25, 0);
+			gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, 0, 25);
+			gl2.glEnd();
+			gl2.glPopMatrix();
 
 			gl2.glEnable(GL2.GL_TEXTURE_2D);
 			gl2.glColor4d(1,1,1,1);
@@ -87,18 +94,18 @@ public class ViewCube {
 
 			t2.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, -10);
 			gl2.glEnd();
 
 			t3.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
+				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
+				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, -10);
 			gl2.glEnd();
 
 			t4.bind(gl2);
@@ -120,50 +127,49 @@ public class ViewCube {
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 			
 			// draw the edges
-			gl2.glColor4d(0,0,0,0.75);
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-			gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
-			gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
-			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
-			gl2.glEnd();
-
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
-			gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
-			gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
-			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
-			gl2.glEnd();
-
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
-			gl2.glEnd();
-
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
-			gl2.glEnd();
-
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, 10);
-			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-			gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10, 10, 10);
-			gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, 10);
-			gl2.glEnd();
-
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
-			gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, -10);
-			gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10,-10, -10);
-			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, -10);
-			gl2.glEnd();
+			gl2.glColor4d(0,0,0,0.5);
 			
-			PrimitiveSolids.drawStar(gl2, new Vector3d(-10,-10,-10), 50);
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			gl2.glVertex3d(-10, 10, 10);
+			gl2.glVertex3d(-10, -10, 10);
+			gl2.glVertex3d(-10, -10, -10);
+			gl2.glVertex3d(-10, 10, -10);
+			gl2.glEnd();
+
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			gl2.glVertex3d(10, -10, 10);
+			gl2.glVertex3d(10, 10, 10);
+			gl2.glVertex3d(10, 10, -10);
+			gl2.glVertex3d(10, -10, -10);
+			gl2.glEnd();
+
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+				gl2.glVertex3d(-10, 10, 10);
+				gl2.glVertex3d(10, 10, 10);
+				gl2.glVertex3d(10, 10, -10);
+				gl2.glVertex3d(-10, 10, -10);
+			gl2.glEnd();
+
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+				gl2.glVertex3d(10, -10, 10);
+				gl2.glVertex3d(-10, -10, 10);
+				gl2.glVertex3d(-10, -10, -10);
+				gl2.glVertex3d(10, -10, -10);
+			gl2.glEnd();
+
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			gl2.glVertex3d(-10,-10, 10);
+			gl2.glVertex3d(-10, 10, 10);
+			gl2.glVertex3d( 10, 10, 10);
+			gl2.glVertex3d( 10,-10, 10);
+			gl2.glEnd();
+
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			gl2.glVertex3d(-10, 10, -10);
+			gl2.glVertex3d( 10, 10, -10);
+			gl2.glVertex3d( 10,-10, -10);
+			gl2.glVertex3d(-10,-10, -10);
+			gl2.glEnd();
 			
 		gl2.glPopMatrix();
 

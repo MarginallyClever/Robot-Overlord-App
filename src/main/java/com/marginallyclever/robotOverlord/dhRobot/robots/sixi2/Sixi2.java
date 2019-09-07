@@ -180,7 +180,8 @@ public class Sixi2 extends DHRobot {
 		// is there a valid ghost pose?
     	DHIKSolver solver = this.getSolverIK();
     	DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
-    	solver.solve(this,targetMatrix,keyframe);
+    	//solver.solve(this,targetMatrix,keyframe);
+    	solver.solveWithSuggestion(this,targetMatrix,keyframe,poseNow);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// save the live pose
     		DHKeyframe saveKeyframe = this.getRobotPose();

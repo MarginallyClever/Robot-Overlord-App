@@ -10,6 +10,7 @@ import javax.swing.event.ChangeListener;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
+import com.marginallyclever.robotOverlord.commands.UserCommandSelectBoolean;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectColorRGBA;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
@@ -25,6 +26,7 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = 8529190569816182683L;
 	
 	private Light light;
+	private UserCommandSelectBoolean chooseEnabled;
 	private UserCommandSelectColorRGBA chooseDiffuse;
 	private UserCommandSelectColorRGBA chooseAmbient;
 	private UserCommandSelectColorRGBA chooseSpecular;
@@ -63,6 +65,8 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.CENTER;
 
+		contents.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),c);
+		c.gridy++;
 		contents.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuseColor()),c);
 		c.gridy++;
 		contents.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbientColor()),c);
@@ -70,6 +74,7 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 		contents.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),light.getSpecular()),c);
 		c.gridy++;
 
+		chooseEnabled.addChangeListener(this);
 		chooseDiffuse.addChangeListener(this);
 		chooseAmbient.addChangeListener(this);
 		chooseSpecular.addChangeListener(this);
@@ -79,7 +84,8 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 	 * Call by an {@link Entity} when it's details change so that they are reflected on the panel.
 	 * This might be better as a listener pattern.
 	 */
-	public void updateFields() {		
+	public void updateFields() {
+		chooseEnabled.setValue(light.getEnabled());
 		chooseDiffuse.setValue(light.getDiffuseColor());
 		chooseAmbient.setValue(light.getAmbientColor());
 		chooseSpecular.setValue(light.getSpecular());
@@ -87,7 +93,9 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 	
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
+		if(e.getSource()==chooseEnabled) {
+			light.setEnable(chooseEnabled.getValue());
+		}
 		if(e.getSource()==chooseDiffuse) {
 			float[] v = chooseDiffuse.getValue();
 			light.setDiffuse(v[0],v[1],v[2],v[3]);

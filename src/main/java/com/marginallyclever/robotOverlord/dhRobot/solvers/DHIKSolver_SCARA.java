@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 /**
  * Solves Inverse Kinematics for a SCARA, serially-linked robot.
  * @author Dan Royer
- * @see https://www.youtube.com/watch?v=xdOe4_WYzgU
+ * See https://www.youtube.com/watch?v=xdOe4_WYzgU
  */
 public class DHIKSolver_SCARA extends DHIKSolver {
 	//public double theta0,d1,d2,theta3;
@@ -26,7 +26,7 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 	}
 
 	/**
-	 * Starting from a known local origin and a known local hand position (link 6 {@DHrobot.endMatrix}), calculate the angles for the given pose.
+	 * Starting from a known local origin and a known local hand position, calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
 	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.

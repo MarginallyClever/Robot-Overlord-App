@@ -309,4 +309,7 @@ public final class TCPConnection implements Runnable, NetworkConnection {
 	public TransportLayer getTransportLayer() {
 		return this.transportLayer;
 	}
+	
+	@Override
+	public void update() {}
 }

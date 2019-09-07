@@ -288,4 +288,11 @@ public final class SerialConnection implements SerialPortEventListener, NetworkC
 	public TransportLayer getTransportLayer() {
 		return this.transportLayer;
 	}
+	
+	@Override
+	public void update() {
+		if(isOpen() && waitingForCue==false) {
+			sendQueuedCommand();
+		}
+	}
 }

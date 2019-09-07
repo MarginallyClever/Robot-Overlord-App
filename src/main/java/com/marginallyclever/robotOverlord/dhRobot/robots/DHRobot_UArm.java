@@ -17,7 +17,7 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
 /**
  * Unfinished UArm implementation of DHRobot.
  * @author Dan Royer
- * @see https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
+ * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
 public class DHRobot_UArm extends DHRobot {
 	/**

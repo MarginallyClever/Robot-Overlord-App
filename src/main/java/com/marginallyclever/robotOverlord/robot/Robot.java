@@ -214,7 +214,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 
 	/**
-	 * Draw each of the individual keyframes and any {@renderInterpolation} that might exist between them.
+	 * Draw each of the individual keyframes and any renderInterpolation that might exist between them.
 	 * @param gl2 the render context
 	 */
 	protected void renderKeyframes(GL2 gl2) {
@@ -387,6 +387,16 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	
 	public void updatePose() {}
+	
+	
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		if(connection!=null) {
+			connection.update();
+		}
+	}
+	
 	
 	public RobotKeyframe getKeyframeNow() {
 		int size=getKeyframeSize();

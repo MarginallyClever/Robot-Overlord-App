@@ -14,29 +14,19 @@ import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
  *
  */
 public class DHLinkPanel {
-	/**
-	 * {@value #link} the DHLink referenced by this DHLinkPanel
-	 */
+	// the DHLink referenced by this DHLinkPanel
 	public DHLink link;
 
-	/**
-	 * {@value #d} the displayed value for link.d
-	 */
+	// the displayed value for link.d
 	public UserCommandSelectNumber d;
 
-	/**
-	 * {@value #theta} the displayed value for link.theta
-	 */
+	// the displayed value for link.theta
 	public UserCommandSelectNumber theta;
 
-	/**
-	 * {@value #r} the displayed value for link.r
-	 */
+	// the displayed value for link.r
 	public UserCommandSelectNumber r;
 
-	/**
-	 * {@value #alpha} the displayed value for link.alpha
-	 */
+	// the displayed value for link.alpha
 	public UserCommandSelectNumber alpha;
 	
 	public JLabel valueD;

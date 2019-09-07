@@ -13,9 +13,7 @@ public abstract class DHIKSolver {
 	public static final int ONE_SOLUTION=1;
 	public static final int MANY_SOLUTIONS=2;
 
-	/**
-	 * {@value #solutionFlag} Can be either NO_SOLUTIONS, ONE_SOLUTION, or MANY_SOLUTIONS.
-	 */
+	// Can be either NO_SOLUTIONS, ONE_SOLUTION, or MANY_SOLUTIONS.
 	public int solutionFlag=DHIKSolver.NO_SOLUTIONS;
 	
 	
@@ -25,7 +23,7 @@ public abstract class DHIKSolver {
 	public abstract int getSolutionSize();
 	
 	/**
-	 * Starting from a known local origin and a known local hand position ({@DHrobot.endMatrix}), 
+	 * Starting from a known local origin and a known local hand position, 
 	 * calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
 	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
@@ -34,7 +32,7 @@ public abstract class DHIKSolver {
 	public abstract void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe);
 	
 	/**
-	 * Starting from a known local origin and a known local hand position ({@DHrobot.endMatrix}), 
+	 * Starting from a known local origin and a known local hand position, 
 	 * calculate the angles for the given pose.
 	 * @param robot The DHRobot description. 
 	 * @param targetMatrix the pose that robot is attempting to reach in this solution.

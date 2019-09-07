@@ -38,7 +38,7 @@ public class MiscTests {
     }
 	
 	/**
-	 * @see https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
+	 * See https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
 	 */
 	@Test
 	public void solveLinearEquations() {

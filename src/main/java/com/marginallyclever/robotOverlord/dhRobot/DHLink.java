@@ -10,7 +10,7 @@ import com.marginallyclever.robotOverlord.model.Model;
 /**
  * Denavit–Hartenberg parameters
  * @author Dan Royer
- * @see https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
+ * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
 public class DHLink {
 	// length (mm) along previous Z to the common normal

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * static log methods available everywhere
  * @author danroyer
  * @since 7.3.0
- * @see org.slf4j.Logger
+ * See org.slf4j.Logger
  */
 public class Log {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);

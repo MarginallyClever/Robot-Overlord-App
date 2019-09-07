@@ -7,7 +7,7 @@ import com.jogamp.opengl.GL2;
 /**
  * 3D Bezier curve implementation
  * @author Dan Royer
- * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+ * See https://en.wikipedia.org/wiki/B%C3%A9zier_curve
  *
  */
 public class LineControlPoint {

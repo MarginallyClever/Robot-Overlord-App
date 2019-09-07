@@ -331,8 +331,6 @@ public class Model implements Serializable {
 	 * Force recalculation of the the minimum bounding box to contain this STL file.
 	 * Done automatically every time updateBuffers() is called.
 	 * Meaningless if there is no vertexArray of points.
-	 * @param bottom the minimum xyz
-	 * @param top the maximum xyz
 	 */
 	public void findBounds() {
 		if(vertexArray == null) return;

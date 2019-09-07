@@ -16,16 +16,13 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class WorldControlPanel extends JPanel implements ChangeListener, ActionListener {
+public class WorldControlPanel extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
@@ -35,8 +32,6 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 	private World world;
 	protected JList<?> entityList;
 	protected UserCommandAddEntity addButton;
-	protected transient UserCommandSelectNumber gridWidth;
-	protected transient UserCommandSelectNumber gridHeight;
 
 	public WorldControlPanel(RobotOverlord gui,World world) {
 		super();
@@ -101,26 +96,8 @@ public class WorldControlPanel extends JPanel implements ChangeListener, ActionL
 		        }
 		    }
 		});
-		
-		contents.add(gridWidth=new UserCommandSelectNumber(gui,"Grid Width",world.gridWidth),c);
-		c.gridy++;
-		contents.add(gridHeight=new UserCommandSelectNumber(gui,"Grid Depth",world.gridHeight),c);
-		c.gridy++;
-		gridWidth.addChangeListener(this);
-		gridHeight.addChangeListener(this);
 	}
 	
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
-		if(e.getSource() == gridWidth) {
-			world.gridWidth = (int)gridWidth.getValue();
-		}
-		if(e.getSource() == gridHeight) {
-			world.gridHeight = (int)gridHeight.getValue();
-		}
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub

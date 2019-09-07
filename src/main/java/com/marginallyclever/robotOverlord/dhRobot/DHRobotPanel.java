@@ -67,6 +67,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public JCheckBox showAngleMinMax;
 	public JCheckBox showPhysics;
 	public JCheckBox rotateOnWorldAxies;
+	public JCheckBox immediateDriving;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
@@ -169,6 +170,12 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		rotateOnWorldAxies.setSelected(robot.rotateOnWorldAxies);
 		con1.gridy++;
 		
+		contents.add(immediateDriving=new JCheckBox(),con1);
+		immediateDriving.setText("Immediate driving");
+		immediateDriving.addItemListener(this);
+		immediateDriving.setSelected(robot.immediateDriving);
+		con1.gridy++;
+		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 		contents.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
@@ -255,11 +262,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		valuerz.setText("Rz="+StringHelper.formatDouble(Math.toDegrees(v.z)));
 		gcodeValue.setText(robot.generateGCode());
 		
-		// run the IK solver to see if solution works.
-		//DHIKSolver solver = robot.getSolverIK();
-		//DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
-		//solver.solve(robot,robot.endMatrix,keyframe);
-
 		// report the keyframe results here
 		Iterator<DHLinkPanel> i = linkPanels.iterator();
 		while(i.hasNext()) {
@@ -373,6 +375,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		if(source == rotateOnWorldAxies) {
 			robot.rotateOnWorldAxies = !robot.rotateOnWorldAxies;
+		}
+		if(source == immediateDriving) {
+			robot.immediateDriving = !robot.immediateDriving;
 		}
 	}
 

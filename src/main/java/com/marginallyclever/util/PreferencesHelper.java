@@ -54,7 +54,7 @@ public final class PreferencesHelper {
 	/**
 	 * Machine preference node path, used to store things such as paper height and width, invert left and right motors,
 	 * etc.
-	 * @see com.marginallyclever.makelangeloRobot.settings.MakelangeloRobotSettings
+	 * See com.marginallyclever.makelangeloRobot.settings.MakelangeloRobotSettings
 	 */
 	private static final String MACHINES_PATH_NAME = "Machines";
 
@@ -66,7 +66,7 @@ public final class PreferencesHelper {
 	/**
 	 * Initializes {@link CLASS_TO_PREFERENCE_NODE_MAP}.
 	 *
-	 * @see <a href="http://stackoverflow.com/a/507658">How can I Initialize a static Map?</a>
+	 * See <a href="http://stackoverflow.com/a/507658">How can I Initialize a static Map?</a>
 	 */
 	static {
 		final Map<MakelangeloPreferenceKey, ? super Preferences> initialMap = new HashMap<>();
@@ -111,7 +111,7 @@ public final class PreferencesHelper {
 
 	/**
 	 * Enumeration used when getting a specific preference node.
-	 * @see #getPreferenceNode(MakelangeloPreferenceKey)
+	 * See #getPreferenceNode(MakelangeloPreferenceKey)
 	 */
 	public enum MakelangeloPreferenceKey {
 		GRAPHICS,
@@ -184,7 +184,7 @@ public final class PreferencesHelper {
 	 * @param <P> an extension of Preferences
 	 * @param preferenceNode Preference node that you want recursively cleared of all key value pairs.
 	 * @throws BackingStoreException on failure to store
-	 * @see <a href="http://stackoverflow.com/a/6411855"></a>
+	 * See <a href="http://stackoverflow.com/a/6411855"></a>
 	 */
 	private static <P extends Preferences> void clearAll(P preferenceNode) throws BackingStoreException {
 		final String[] childrenNames = preferenceNode.childrenNames();

@@ -1,10 +1,8 @@
 package com.marginallyclever.robotOverlord.camera;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.jogamp.opengl.GL2;
@@ -44,6 +42,7 @@ public class Camera extends PhysicalObject {
 	protected int move_down=0;
 	protected int move_right=0;
 	protected int move_back=0;
+	protected int move_run=0;
 	
 	protected int canvasWidth,canvasHeight;
 	
@@ -55,10 +54,6 @@ public class Camera extends PhysicalObject {
 		super();
 		
 		setDisplayName("Camera");
-				
-		setPosition(new Vector3d(0,100,-65));
-		pan=12;
-		tilt=76;
 	}
 
 	
@@ -117,10 +112,10 @@ public class Camera extends PhysicalObject {
 	
 	public void mouseDragged(MouseEvent e) {
 		if (mouseRButtonDown) {
-	        int x = e.getXOnScreen();
-	        int y = e.getYOnScreen();
-			pan  += x - prevMouseX;
-			tilt -= y - prevMouseY;
+	        int dx = e.getXOnScreen()-prevMouseX;
+	        int dy = e.getYOnScreen()-prevMouseY;
+			setPan(getPan()+dx);
+			setTilt(getTilt()-dy);
 			mouseRButtonDown=false;
 			try {
 				new Robot().mouseMove(prevMouseX, prevMouseY);
@@ -129,9 +124,6 @@ public class Camera extends PhysicalObject {
 			}
 			mouseRButtonDown=true;
 		    
-			if(tilt < 1) tilt=1;
-			if(tilt > 179) tilt= 179;
-			
 			Matrix3d a = new Matrix3d();
 			Matrix3d b = new Matrix3d();
 			Matrix3d c = new Matrix3d();
@@ -153,6 +145,7 @@ public class Camera extends PhysicalObject {
         case KeyEvent.VK_D: move_right	=1;  break;
         case KeyEvent.VK_Q: move_down	=1;  break;
         case KeyEvent.VK_E: move_up		=1;  break;
+        case KeyEvent.VK_SHIFT: move_run=1;  break;
         }
 	}
 	
@@ -166,6 +159,7 @@ public class Camera extends PhysicalObject {
         case KeyEvent.VK_D: move_right	=0;  break;
         case KeyEvent.VK_Q: move_down	=0;  break;
         case KeyEvent.VK_E: move_up		=0;  break;
+        case KeyEvent.VK_SHIFT: move_run=0;  break;
         }
 	}
 	
@@ -195,6 +189,7 @@ public class Camera extends PhysicalObject {
 		double vel = 20.0 * dt;
 		boolean changed = false;
 		
+		int runSpeed = (move_run==1)?3:1;
 		
 		int move_fb = move_forward - move_back;
 		if(move_fb!=0) {
@@ -222,7 +217,7 @@ public class Camera extends PhysicalObject {
 		}
 		if(changed) {
 			direction.normalize();
-			direction.scale(vel);
+			direction.scale(vel*runSpeed);
 
 			Vector3d p = getPosition();
 			p.add(direction);
@@ -259,5 +254,16 @@ public class Camera extends PhysicalObject {
 	
 	public float getTilt() {
 		return tilt;
+	}
+	
+	public void setPan(float arg0) {
+		pan=arg0;
+	}
+	
+	public void setTilt(float arg0) {
+		tilt=arg0;
+	    
+		if(tilt < 1) tilt=1;
+		if(tilt > 179) tilt= 179;
 	}
 }

@@ -17,7 +17,7 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
 /**
  * D-H robot modified for Andreas Hoelldorfer's MANTIS
  * @author Dan Royer
- * @see https://hackaday.io/project/3800-3d-printable-robot-arm
+ * See https://hackaday.io/project/3800-3d-printable-robot-arm
  *
  */
 public class DHRobot_Mantis extends DHRobot {

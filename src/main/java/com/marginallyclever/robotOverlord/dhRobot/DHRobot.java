@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JPanel;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector4d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
@@ -33,70 +33,48 @@ public abstract class DHRobot extends Robot {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * {@value links} a list of DHLinks describing the kinematic chain.
-	 */
+	// a list of DHLinks describing the kinematic chain.
 	public LinkedList<DHLink> links;
 	
-	/**
-	 * {@value poseNow} keyframe describing the current pose of the kinematic chain.
-	 */
+	// keyframe describing the current pose of the kinematic chain.
 	protected DHKeyframe poseNow;
 	
-	/**
-	 * {@value panel} the GUI panel for controlling this robot.
-	 */
+	// the GUI panel for controlling this robot.
 	protected DHRobotPanel panel;
 	
-	/**
-	 * {@value endMatrix} the world frame matrix4d of the last link in the kinematic chain.
-	 */
+	// the world frame matrix4d of the last link in the kinematic chain.
 	protected Matrix4d liveMatrix;
 
 	public Matrix4d getLiveMatrix() {
 		return liveMatrix;
 	}
 
-	/**
-	 * {@value targetMatrix} the pose the IK is trying to move towards.  Includes the tool held by the robot. 
-	 */
+	// the matrix the IK is trying to move towards.  Includes the tool held by the robot.
 	protected Matrix4d targetMatrix;
-	
 
+	// interpolation values
 	protected Matrix4d startMatrix;
 	protected Matrix4d endMatrix;
 	protected double interpolatePoseT;
 
-	/**
-	 * {@value oldPose} the last valid pose.  Used in case the IK solver fails to solve the targetPose. 
-	 */
+	// the last valid matrix.  Used in case the IK solver fails to solve the targetPose.
 	protected Matrix4d oldMatrix;
 
-	/**
-	 * {@value homePose} the pose the IK would solve when the robot is at "home" position.
-	 */
+	// the matrix the IK would solve when the robot is at "home" position.
 	protected Matrix4d homeMatrix;
 	
-	/**
-	 * {@value dhTool} a DHTool current attached to the arm.
-	 */
+	// a DHTool attached to the arm.
 	public DHTool dhTool;
 	
-	/**
-	 * {@value drawSkeleton} true if the skeleton should be visualized on screen.  Default is false.
-	 */
+	// true if the skeleton should be visualized on screen.  Default is false.
 	protected boolean drawAsSelected;
 	
 	public static final int POSE_HISTORY_LENGTH = 500; 
 	
-	/**
-	 * The solver for this type of robot
-	 */
+	// The solver for this type of robot
 	protected DHIKSolver solver;
 	
-	/**
-	 * Used by inputUpdate to solve pose and instruct robot where to go.
-	 */
+	// Used by inputUpdate to solve pose and instruct robot where to go.
 	protected DHKeyframe solutionKeyframe;
 	
 	protected boolean showBones;  // show D-H representation of each link
@@ -105,6 +83,8 @@ public abstract class DHRobot extends Robot {
 	boolean rotateOnWorldAxies;  // which style of rotation?
 	
 	protected int hitBox1, hitBox2;  // display which hitboxes are colliding
+	
+	protected boolean immediateDriving;
 	
 	// to simulate dwell behavior
 	protected double dwellTime;
@@ -127,10 +107,10 @@ public abstract class DHRobot extends Robot {
 		interpolatePoseT=1;
 		
 		drawAsSelected=false;
+		immediateDriving=false;
 		hitBox1=-1;
 		hitBox2=-1;
 		setupLinks();
-		calculateJacobians();
 		
 		solver = this.getSolverIK();
 		
@@ -144,42 +124,6 @@ public abstract class DHRobot extends Robot {
 		
 		dhTool = new DHTool();  // default tool = no tool
 		dwellTime=0;
-	}
-	
-	/**
-	 * This is NOT how jacobians are calculated.
-	 * Jacobian is a matrix of equations, not a single solution.
-	 * See also https://arxiv.org/ftp/arxiv/papers/1707/1707.04821.pdf
-	 */
-	@Deprecated
-	public void calculateJacobians() {
-		// pose was refreshed at the end of setupLinks()
-		Vector3d P = new Vector3d(
-				liveMatrix.m03,
-				liveMatrix.m13,
-				liveMatrix.m23);
-		
-		Vector3d [][] a = new Vector3d[2][links.size()];
-		int j=0;
-		Iterator<DHLink> i = links.iterator();
-		while(i.hasNext()) {
-			DHLink link = i.next();
-			Vector3d linkP = new Vector3d(
-					link.poseCumulative.m03,
-					link.poseCumulative.m13,
-					link.poseCumulative.m23);
-			Vector3d z = new Vector3d(
-					link.poseCumulative.m02,
-					link.poseCumulative.m12,
-					link.poseCumulative.m22);
-			Vector3d temp=new Vector3d();
-			temp.sub(P,linkP);
-			Vector3d result = new Vector3d();
-			result.cross(z, temp);
-			a[0][j]=result;
-			a[1][j]=z;
-			++j;
-		}
 	}
 	
 	/**
@@ -236,8 +180,6 @@ public abstract class DHRobot extends Robot {
 			gl2.glPopMatrix();//*/
 		}
 		
-		PrimitiveSolids.drawStar(gl2, this.getPosition(),10);
-		
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -245,6 +187,8 @@ public abstract class DHRobot extends Robot {
 
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+
+			PrimitiveSolids.drawStar(gl2, new Vector3d(0,0,0),10);
 
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
@@ -345,6 +289,7 @@ public abstract class DHRobot extends Robot {
 		if(panel!=null) panel.updateEnd();
 	}
 
+	
 	/**
 	 * Attach the nearest tool
 	 * Detach the active tool if there is one.
@@ -375,6 +320,7 @@ public abstract class DHRobot extends Robot {
 		}
 	}
 	
+	
 	protected World getWorld() {
 		Entity p=parent;
 		while(p!=null) {
@@ -401,6 +347,7 @@ public abstract class DHRobot extends Robot {
 		this.panel.updateActiveTool(dhTool);
 	}
 	
+	
 	public void removeTool() {
 		if(dhTool!=null) {
 			// subtract the tool offset from the targetPose.
@@ -415,9 +362,11 @@ public abstract class DHRobot extends Robot {
 		dhTool = null;
 	}
 	
+	
 	public DHTool getCurrentTool() {
 		return dhTool;
 	}
+	
 	
 	/**
 	 * Note: Is called by Robot constructor, so it must use getSolverIK().
@@ -427,6 +376,7 @@ public abstract class DHRobot extends Robot {
 		return new DHKeyframe(getSolverIK().getSolutionSize());
 	}
 
+	
 	/**
 	 * @return true if targetPose changes.
 	 */
@@ -532,40 +482,55 @@ public abstract class DHRobot extends Robot {
     	}
 		if(InputManager.keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		Vector4d v = new Vector4d();
+    		Point3d v = new Point3d();
     		if(cam!=null) v.set(cam.getForward());
-    		else v.set(0,0,1,0);
+    		else v.set(0,0,1);
     		v.scale(((InputManager.keyState[12]+1)/2)*scale);
+			Matrix3d m = new Matrix3d();
+			this.getMatrix().get(m);
+			m.invert();
+			m.transform(v);
     		targetMatrix.m03+=v.x;
     		targetMatrix.m13+=v.y;
     		targetMatrix.m23+=v.z;
 		}
 		if(InputManager.keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
     		isDirty=true;
-    		Vector4d v = new Vector4d();
+    		Point3d v = new Point3d();
     		if(cam!=null) v.set(cam.getForward());
-    		else v.set(0,0,1,0);
+    		else v.set(0,0,1);
     		v.scale(((InputManager.keyState[13]+1)/2)*-scale);
+			Matrix3d m = new Matrix3d();
+			this.getMatrix().get(m);
+			m.invert();
+			m.transform(v);
     		targetMatrix.m03+=v.x;
     		targetMatrix.m13+=v.y;
     		targetMatrix.m23+=v.z;
 		}
 		if(InputManager.keyState[14]!=0) {  // left stick, right/left
     		isDirty=true;
-    		Vector4d v = new Vector4d();
+    		Point3d v = new Point3d();
     		if(cam!=null) v.set(cam.getRight());
-    		else v.set(0,1,0,0);
+    		else v.set(0,1,0);
     		v.scale(InputManager.keyState[14]*-scale);
+			Matrix3d m = new Matrix3d();
+			this.getMatrix().get(m);
+			m.invert();
+			m.transform(v);
     		targetMatrix.m03+=v.x;
     		targetMatrix.m13+=v.y;
     		targetMatrix.m23+=v.z;
 		}
 		if(InputManager.keyState[15]!=0) {  // left stick, down/up
     		isDirty=true;
-    		Vector4d v = new Vector4d();
+    		Point3d v = new Point3d();
     		if(cam!=null) v.set(cam.getUp());
-    		else v.set(0,1,0,0);
+    		else v.set(0,1,0);
     		v.scale(InputManager.keyState[15]*-scale);
+			Matrix3d m = new Matrix3d();
+			this.getMatrix().get(m);
+			m.transform(v);
     		targetMatrix.m03+=v.x;
     		targetMatrix.m13+=v.y;
     		targetMatrix.m23+=v.z;
@@ -575,7 +540,7 @@ public abstract class DHRobot extends Robot {
         	isDirty |= dhTool.directDrive();
         }
 
-		if(InputManager.keyState[1]!=0) {  // x - commit move!
+		if(InputManager.keyState[1]!=0 || immediateDriving) {  // x - commit move!
 			moveToTargetPose();
 		}
 		
@@ -593,7 +558,7 @@ public abstract class DHRobot extends Robot {
 	 * @return true if we're in direct drive mode. 
 	 */
 	protected boolean inDirectDriveMode() {
-		return interpolatePoseT>=1.0;
+		return interpolatePoseT>=1.0 ;
 	}
 	
 
@@ -612,7 +577,7 @@ public abstract class DHRobot extends Robot {
 					// changing the end matrix will only move the simulated version of the "live" robot.
 					MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
 					
-			    	solver.solve(this,liveMatrix,solutionKeyframe);
+			    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
 			    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
 			    		// Solved!  Are angles OK for this robot?
 			    		if(sanityCheck(solutionKeyframe)) {
@@ -648,7 +613,10 @@ public abstract class DHRobot extends Robot {
 	
 	@Override
 	public void update(double dt) {
+		super.update(dt);
+		
 		interpolate(dt*0.25);
+		//interpolate(dt);
 		
         // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
         oldMatrix.set(targetMatrix);
@@ -658,7 +626,7 @@ public abstract class DHRobot extends Robot {
         }
 
     	// Attempt to solve IK for the targetMatrix.  This only drives the simulated arm.
-    	solver.solve(this,targetMatrix,solutionKeyframe);
+    	solver.solveWithSuggestion(this,targetMatrix,solutionKeyframe,poseNow);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// Solved!  Are angles OK for this robot?
     		if(sanityCheck(solutionKeyframe)) {
@@ -703,12 +671,13 @@ public abstract class DHRobot extends Robot {
 	}
 	
 	public void moveToTargetPose() {
-    	solver.solve(this,targetMatrix,solutionKeyframe);
+    	//solver.solve(this,targetMatrix,solutionKeyframe);
+    	solver.solveWithSuggestion(this,targetMatrix,solutionKeyframe,poseNow);
     	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
     		// Solved!  Are angles OK for this robot?
     		if(sanityCheck(solutionKeyframe)) {
 				// Yes!  Are we connected to a live robot?        			
-				if(connection!=null && connection.isOpen() && isReadyToReceive) {
+				if(connection!=null && connection.isOpen() /*&& isReadyToReceive*/) {
 					// Send our internal data to the robot.  Each robot probably has its own post-processor.
 					sendNewStateToRobot(solutionKeyframe);
 					// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
@@ -720,7 +689,11 @@ public abstract class DHRobot extends Robot {
 					endMatrix.set(targetMatrix);
 					interpolatePoseT=0;
 				}
-    		}
+    		} else {
+        		System.out.println("moveToTargetPose() insane");
+        	}
+    	} else {
+    		System.out.println("moveToTargetPose() impossible");
     	}
 	}
 	
@@ -749,7 +722,7 @@ public abstract class DHRobot extends Robot {
 	}
 
 	/**
-	 * Test physical bounds of link N against all links <N-1 and all links >N+1
+	 * Test physical bounds of link N against all links &lt;N-1 and all links &gt;N+1
 	 * We're using separating Axis Theorem.  See https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
@@ -957,7 +930,6 @@ public abstract class DHRobot extends Robot {
 	
 	/**
 	 * Get the robot's FK values to the keyframe.
-	 * @param keyframe
 	 */
 	public DHKeyframe getRobotPose() {
 		DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
