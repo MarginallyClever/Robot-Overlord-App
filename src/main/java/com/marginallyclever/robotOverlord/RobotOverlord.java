@@ -123,8 +123,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	// mouse steering controls
 	private boolean isMouseIn;
-	private int cursorStartX, cursorStartY;
-	private int cursorPreviousX, cursorPreviousY;
+	//private int cursorStartX, cursorStartY;
+	//private int cursorPreviousX, cursorPreviousY;
 	
 	// opengl rendering context
 	private GLU glu;
@@ -605,7 +605,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	if(frameDelay>frameLength) {
    			frameDelay-=frameLength;
    			
-	    	InputManager.update();
+	    	InputManager.update(isMouseIn);
 
    	        // if playing, read the input from the recording
 	    	// if recording, write the input changes to the recording
@@ -782,15 +782,13 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		cursorPreviousX=cursorStartX=this.mainFrame.getWidth()/2;
-		cursorPreviousY=cursorStartY=this.mainFrame.getHeight()/2;
+		//cursorPreviousX=cursorStartX=this.mainFrame.getWidth()/2;
+		//cursorPreviousY=cursorStartY=this.mainFrame.getHeight()/2;
 
 		hideCursor();
 		pickX=e.getX();
 		pickY=e.getY();
 		pickedHandle=0;
-		
-		world.getCamera().mousePressed(e);
 	}
 	
 	private void hideCursor() {
@@ -810,7 +808,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		world.getCamera().mouseReleased(e);
 		showCursor();
 	}
 	
@@ -823,26 +820,18 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	@Override
 	public void mouseExited(MouseEvent e) {
 		isMouseIn=false;
-		world.getCamera().lostFocus();
 	}
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(pickedHandle>0) {
-			int x = e.getX();
-			int y = e.getY();
+			//int x = e.getX();
+			//int y = e.getY();
 			
-			int dx = x-cursorPreviousX;
-			int dy = y-cursorPreviousY;
-
-			cursorPreviousX=x;
-			cursorPreviousY=y;
-			
-			if(pickedEntity!=null) {
-				
-			}
-		} else {	
-			world.getCamera().mouseDragged(e);
+			//int dx = x-cursorPreviousX;
+			//int dy = y-cursorPreviousY;
+			//cursorPreviousX=x;
+			//cursorPreviousY=y;
 		}
 	}
 	
@@ -863,12 +852,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	@Override
 	public void windowActivated(WindowEvent arg0) {}
-
-
 	@Override
 	public void windowClosed(WindowEvent arg0) {}
-
-
+	
+	
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		confirmClose();
@@ -898,32 +885,17 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {}
-
-
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {}
-
-
 	@Override
 	public void windowIconified(WindowEvent arg0) {}
-
-
 	@Override
 	public void windowOpened(WindowEvent arg0) {}
-
-
 	@Override
-	public void keyPressed(KeyEvent e) {
-		if(isMouseIn) {
-			world.getCamera().keyPressed(e);
-		}
-	}
+	public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if(isMouseIn) {
-			world.getCamera().keyReleased(e);
-		}
 		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
 			System.out.print(" REVERT TO CAMERA");
 			unPick();

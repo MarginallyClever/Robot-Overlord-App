@@ -221,26 +221,40 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		Iterator<DHLinkPanel> i = linkPanels.iterator();
 		while(i.hasNext()) {
 			DHLinkPanel e = i.next();
-			if(source == e.d) {
-				e.link.d = e.d.getValue();
-				isDirty=true;
-			}
-			if(source == e.theta) {
-				e.link.theta = e.theta.getValue();
-				isDirty=true;
-			}
-			if(source == e.r) {
-				e.link.r = e.r.getValue();
-				isDirty=true;
-			}
-			if(source == e.alpha) {
-				e.link.alpha = e.alpha.getValue();
-				isDirty=true;
-			}
+			if(source == e.d    ) isDirty=true;
+			if(source == e.theta) isDirty=true;
+			if(source == e.r    ) isDirty=true;
+			if(source == e.alpha) isDirty=true;
 		}
 		if(isDirty) {
+			i = linkPanels.iterator();
+			
+			double [] arr = new double[linkPanels.size()*4];
+			int j=0;
+			
+			while(i.hasNext()) {
+				DHLinkPanel e = i.next();
+				arr[j++]=e.link.d    ;
+				arr[j++]=e.link.theta;
+				arr[j++]=e.link.r    ;
+				arr[j++]=e.link.alpha;
+				e.link.d = e.d.getValue();
+				e.link.theta = e.theta.getValue();
+				e.link.r = e.r.getValue();
+				e.link.alpha = e.alpha.getValue();
+			}
 			robot.refreshPose();
-			robot.setTargetPose(robot.getLiveMatrix());
+			robot.setTargetMatrix(robot.getLiveMatrix());
+			j=0;
+			i = linkPanels.iterator();
+			while(i.hasNext()) {
+				DHLinkPanel e = i.next();
+				e.link.d    =arr[j++];
+				e.link.theta=arr[j++];
+				e.link.r    =arr[j++];
+				e.link.alpha=arr[j++];
+			}
+			robot.refreshPose();
 			updateEnd();
 		}
 	}
@@ -263,14 +277,22 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		gcodeValue.setText(robot.generateGCode());
 		
 		// report the keyframe results here
+		int j=0;
 		Iterator<DHLinkPanel> i = linkPanels.iterator();
 		while(i.hasNext()) {
+			DHLink link = robot.getLink(j++);
 			DHLinkPanel linkPanel = i.next();
-			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(linkPanel.link.d    ));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(linkPanel.link.theta));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(linkPanel.link.r    ));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(linkPanel.link.alpha));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(link.d    ));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(link.theta));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(link.r    ));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.alpha));
 		}
+	}
+	
+	public void updateGhostEnd() {
+		// TODO adjust the desired angles values to match ghost angle values 
+		// I don't currently store the ghost values when they are calculated,
+		// which is becoming a problem.
 	}
 	
 	@Override

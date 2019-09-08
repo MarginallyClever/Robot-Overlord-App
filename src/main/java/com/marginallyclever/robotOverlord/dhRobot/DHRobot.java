@@ -45,10 +45,6 @@ public abstract class DHRobot extends Robot {
 	// the world frame matrix4d of the last link in the kinematic chain.
 	protected Matrix4d liveMatrix;
 
-	public Matrix4d getLiveMatrix() {
-		return liveMatrix;
-	}
-
 	// the matrix the IK is trying to move towards.  Includes the tool held by the robot.
 	protected Matrix4d targetMatrix;
 
@@ -285,8 +281,9 @@ public abstract class DHRobot extends Robot {
 	@Override
 	public void setPosition(Vector3d pos) {
 		super.setPosition(pos);
-		refreshPose();
-		if(panel!=null) panel.updateEnd();
+		
+		//refreshPose();
+		//if(panel!=null) panel.updateEnd();
 	}
 
 	
@@ -402,23 +399,23 @@ public abstract class DHRobot extends Robot {
 		final double scaleDolly=0.4;
 		final double scaleTurn=0.15;
 		
-		if(InputManager.keyState[0]==1) {}  // square
-		if(InputManager.keyState[16]==1) {  // X
+		if(InputManager.isOn(InputManager.STICK_SQUARE)) {}
+		if(InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
 			//this.toggleATC();
 		}
-		if(InputManager.keyState[2]==1) {}  // circle
-		if(InputManager.keyState[3]==1) {// triangle
+		if(InputManager.isOn(InputManager.STICK_SQUARE)) {}
+		if(InputManager.isOn(InputManager.STICK_TRIANGLE)) {
 			targetMatrix.set(homeMatrix);
 			isDirty=true;
 		}
 		
-		int dD=(int)InputManager.keyState[8];  // dpad up/down
+		int dD=(int)InputManager.rawValue(InputManager.STICK_DPADY);
 		if(dD!=0) {
 			dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
 			if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
 			isDirty=true;
 		}
-		int dR=(int)InputManager.keyState[9];  // dpad left/right
+		int dR=(int)InputManager.rawValue(InputManager.STICK_DPADX);  // dpad left/right
 		if(dR!=0) {
 			dhTool.dhLinkEquivalent.r+=dR*scale;
 			if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
@@ -426,131 +423,186 @@ public abstract class DHRobot extends Robot {
 		}
 		
 		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
-		if(InputManager.keyState[4] != InputManager.keyState[5]) {  // L1 xor R1
+		if(InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
 			if(canTargetPoseRotateZ()) {
 	    		isDirty=true;
-	    		double vv = (InputManager.keyState[4]==1) ? 1 : -1;
-	    		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-	    			vv/=dhTool.dhLinkEquivalent.r;
-	    		}
-	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotZ(vv*scaleTurn);
-	    		if(rotateOnWorldAxies) {
-	    			Vector3d trans=new Vector3d();
-	    			targetMatrix.get(trans);
-	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
-	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(trans);
-	    		} else {
-	    			targetMatrix.mul(temp);
-	    		}
+	    		rollZ(cam,InputManager.isOn(InputManager.STICK_L1) ? scaleTurn : -scaleTurn);
 			}
     	}
 		
-		if(InputManager.keyState[10]!=0) {  // right stick, right/left
-			// right analog stick, + is right -1 is left
+		if(InputManager.rawValue(InputManager.STICK_RX)!=0) {
 			if(canTargetPoseRotateY()) {
 	    		isDirty=true;
-	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotY(InputManager.keyState[10]*scaleTurn);
-	    		if(rotateOnWorldAxies) {
-	    			Vector3d trans=new Vector3d();
-	    			targetMatrix.get(trans);
-	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
-	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(trans);
-	    		} else {
-	    			targetMatrix.mul(temp);
-	    		}
+	    		rollY(cam,InputManager.rawValue(InputManager.STICK_RX)*scaleTurn);
 			}
 		}
-		if(InputManager.keyState[11]!=0) {  // right stick, down/up
+		if(InputManager.rawValue(InputManager.STICK_RY)!=0) {
 			if(canTargetPoseRotateX()) {
 	    		isDirty=true;
-	    		Matrix4d temp = new Matrix4d();
-	    		temp.rotX(InputManager.keyState[11]*scaleTurn);
-	    		if(rotateOnWorldAxies) {
-	    			Vector3d trans=new Vector3d();
-	    			targetMatrix.get(trans);
-	    			targetMatrix.setTranslation(new Vector3d(0,0,0));
-	    			targetMatrix.mul(temp,targetMatrix);
-	    			targetMatrix.setTranslation(trans);
-	    		} else {
-	    			targetMatrix.mul(temp);
-	    		}
+	    		rollX(cam,InputManager.rawValue(InputManager.STICK_RY)*scaleTurn);
 			}
     	}
-		if(InputManager.keyState[12]!=-1) {  // r2, +1 is pressed -1 is unpressed
+		if(InputManager.rawValue(InputManager.STICK_R2)!=-1) {
     		isDirty=true;
-    		Point3d v = new Point3d();
-    		if(cam!=null) v.set(cam.getForward());
-    		else v.set(0,0,1);
-    		v.scale(((InputManager.keyState[12]+1)/2)*scale);
-			Matrix3d m = new Matrix3d();
-			this.getMatrix().get(m);
-			m.invert();
-			m.transform(v);
-    		targetMatrix.m03+=v.x;
-    		targetMatrix.m13+=v.y;
-    		targetMatrix.m23+=v.z;
+    		pullZ(cam,((InputManager.rawValue(InputManager.STICK_R2)+1)/2)*scale);
 		}
-		if(InputManager.keyState[13]!=-1) { // l2, +1 is pressed -1 is unpressed
+		if(InputManager.rawValue(InputManager.STICK_L2)!=-1) {
     		isDirty=true;
-    		Point3d v = new Point3d();
-    		if(cam!=null) v.set(cam.getForward());
-    		else v.set(0,0,1);
-    		v.scale(((InputManager.keyState[13]+1)/2)*-scale);
-			Matrix3d m = new Matrix3d();
-			this.getMatrix().get(m);
-			m.invert();
-			m.transform(v);
-    		targetMatrix.m03+=v.x;
-    		targetMatrix.m13+=v.y;
-    		targetMatrix.m23+=v.z;
+    		pullZ(cam,((InputManager.rawValue(InputManager.STICK_L2)+1)/2)*-scale);
 		}
-		if(InputManager.keyState[14]!=0) {  // left stick, right/left
+		if(InputManager.rawValue(InputManager.STICK_LX)!=0) {
     		isDirty=true;
-    		Point3d v = new Point3d();
-    		if(cam!=null) v.set(cam.getRight());
-    		else v.set(0,1,0);
-    		v.scale(InputManager.keyState[14]*-scale);
-			Matrix3d m = new Matrix3d();
-			this.getMatrix().get(m);
-			m.invert();
-			m.transform(v);
-    		targetMatrix.m03+=v.x;
-    		targetMatrix.m13+=v.y;
-    		targetMatrix.m23+=v.z;
+    		pullX(cam,InputManager.rawValue(InputManager.STICK_LX)*-scale);
 		}
-		if(InputManager.keyState[15]!=0) {  // left stick, down/up
+		if(InputManager.rawValue(InputManager.STICK_LY)!=0) {
     		isDirty=true;
-    		Point3d v = new Point3d();
-    		if(cam!=null) v.set(cam.getUp());
-    		else v.set(0,1,0);
-    		v.scale(InputManager.keyState[15]*-scale);
-			Matrix3d m = new Matrix3d();
-			this.getMatrix().get(m);
-			m.transform(v);
-    		targetMatrix.m03+=v.x;
-    		targetMatrix.m13+=v.y;
-    		targetMatrix.m23+=v.z;
+    		pullY(cam,InputManager.rawValue(InputManager.STICK_LY)*-scale);
 		}
-
+		
+		if(InputManager.isOn(InputManager.MOUSE_LEFT)) {
+			if(InputManager.isOn(InputManager.KEY_LSHIFT) ||
+				InputManager.isOn(InputManager.KEY_RSHIFT)) {
+				if(InputManager.rawValue(InputManager.MOUSE_X)!=0) {
+					if(canTargetPoseRotateX()) {
+			    		isDirty=true;
+			    		rollX(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_X)));
+					}
+				}
+				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
+					if(canTargetPoseRotateY()) {
+			    		isDirty=true;
+			    		rollY(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_Y)));
+					}
+				}
+			} else if(InputManager.isOn(InputManager.KEY_LALT) ||
+					InputManager.isOn(InputManager.KEY_RALT)) {
+				if(InputManager.rawValue(InputManager.MOUSE_X)!=0) {
+					if(canTargetPoseRotateZ()) {
+						isDirty=true;
+			    		rollZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_X)));
+					}
+				}
+			} else if(InputManager.isOn(InputManager.KEY_LCONTROL) ||
+					InputManager.isOn(InputManager.KEY_RCONTROL)) {
+				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
+					dhTool.dhLinkEquivalent.d+=InputManager.rawValue(InputManager.MOUSE_Y)*scaleDolly;
+					if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
+					isDirty=true;
+				}
+			} else {
+				if(InputManager.rawValue(InputManager.MOUSE_X)!=0) {
+		    		isDirty=true;
+		    		pullX(cam,InputManager.rawValue(InputManager.MOUSE_X)*-scale*0.5);
+				}
+				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
+		    		isDirty=true;
+		    		pullY(cam,InputManager.rawValue(InputManager.MOUSE_Y)*-scale*0.5);
+				}
+			}
+		}
+		
         if(dhTool!=null) {
         	isDirty |= dhTool.directDrive();
         }
 
-		if(InputManager.keyState[1]!=0 || immediateDriving) {  // x - commit move!
+		if( InputManager.isOn(InputManager.KEY_RETURN) ||
+			InputManager.isOn(InputManager.STICK_X) || 
+			immediateDriving) {
+			// commit move!
 			moveToTargetPose();
 		}
 		
-		if(InputManager.keyState[2]!=0) {  // circle - reset targetpose to endmatrix.
+		if(InputManager.isOn(InputManager.KEY_DELETE) ||
+			InputManager.isOn(InputManager.STICK_TRIANGLE)) {
+			// reset targetpose to endmatrix.
 			targetMatrix.set(liveMatrix);
 		}
         
         return isDirty;
 	}
+
+	protected void rollX(Camera cam,double amount) {
+		Matrix4d temp = new Matrix4d();
+		temp.rotX(amount);
+		if(rotateOnWorldAxies) {
+			Vector3d trans=new Vector3d();
+			targetMatrix.get(trans);
+			targetMatrix.setTranslation(new Vector3d(0,0,0));
+			targetMatrix.mul(temp,targetMatrix);
+			targetMatrix.setTranslation(trans);
+		} else {
+			targetMatrix.mul(temp);
+		}
+	}
+	protected void rollY(Camera cam,double amount) {
+		Matrix4d temp = new Matrix4d();
+		temp.rotY(amount);
+		if(rotateOnWorldAxies) {
+			Vector3d trans=new Vector3d();
+			targetMatrix.get(trans);
+			targetMatrix.setTranslation(new Vector3d(0,0,0));
+			targetMatrix.mul(temp,targetMatrix);
+			targetMatrix.setTranslation(trans);
+		} else {
+			targetMatrix.mul(temp);
+		}
+	}
+	protected void rollZ(Camera cam,double amount) {
+		double vv = amount;
+		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
+			vv/=dhTool.dhLinkEquivalent.r;
+		}
+		Matrix4d temp = new Matrix4d();
+		temp.rotZ(vv);
+		if(rotateOnWorldAxies) {
+			Vector3d trans=new Vector3d();
+			targetMatrix.get(trans);
+			targetMatrix.setTranslation(new Vector3d(0,0,0));
+			targetMatrix.mul(temp,targetMatrix);
+			targetMatrix.setTranslation(trans);
+		} else {
+			targetMatrix.mul(temp);
+		}
+	}
 	
+	protected void pullX(Camera cam,double amount) {
+		Point3d v = new Point3d();
+		if(cam!=null) v.set(cam.getRight());
+		else v.set(0,1,0);
+		v.scale(amount);
+		Matrix3d m = new Matrix3d();
+		this.getMatrix().get(m);
+		m.invert();
+		m.transform(v);
+		targetMatrix.m03+=v.x;
+		targetMatrix.m13+=v.y;
+		targetMatrix.m23+=v.z;
+	}
+	protected void pullY(Camera cam,double amount) {
+		Point3d v = new Point3d();
+		if(cam!=null) v.set(cam.getUp());
+		else v.set(0,1,0);
+		v.scale(amount);
+		Matrix3d m = new Matrix3d();
+		this.getMatrix().get(m);
+		m.transform(v);
+		targetMatrix.m03+=v.x;
+		targetMatrix.m13+=v.y;
+		targetMatrix.m23+=v.z;
+	}
+	protected void pullZ(Camera cam,double amount) {
+		Point3d v = new Point3d();
+		if(cam!=null) v.set(cam.getForward());
+		else v.set(0,0,1);
+		v.scale(amount);
+		Matrix3d m = new Matrix3d();
+		this.getMatrix().get(m);
+		m.invert();
+		m.transform(v);
+		targetMatrix.m03+=v.x;
+		targetMatrix.m13+=v.y;
+		targetMatrix.m23+=v.z;
+	}
 	
 	/**
 	 * Direct Drive Mode means that we're not playing animation of any kind.
@@ -622,7 +674,9 @@ public abstract class DHRobot extends Robot {
         oldMatrix.set(targetMatrix);
 
         if(inDirectDriveMode()) {
-        	driveFromKeyState();
+        	if(driveFromKeyState()) {
+        		panel.updateGhostEnd();
+        	}
         }
 
     	// Attempt to solve IK for the targetMatrix.  This only drives the simulated arm.
@@ -1021,11 +1075,19 @@ public abstract class DHRobot extends Robot {
 		return links.get(i);
 	}
 	
-	public void setTargetPose(Matrix4d pose) {
-		targetMatrix.set(pose);
+	public void setTargetMatrix(Matrix4d m) {
+		targetMatrix.set(m);
 	}
 	
-	public Matrix4d getTargetPose() {
+	public Matrix4d getTargetMatrix() {
 		return new Matrix4d(targetMatrix);
+	}
+
+	public Matrix4d getLiveMatrix() {
+		return new Matrix4d(liveMatrix);
+	}
+	
+	public void setLiveMatrix(Matrix4d m) {
+		liveMatrix.set(m);
 	}
 }

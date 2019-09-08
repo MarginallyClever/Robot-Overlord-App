@@ -165,7 +165,7 @@ public class DHRobotPlayer extends ModelInWorld {
 				} else {
 					// found a non-empty line
 					target.parseGCode(line);
-					poses.add(target.getTargetPose());
+					poses.add(target.getTargetMatrix());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

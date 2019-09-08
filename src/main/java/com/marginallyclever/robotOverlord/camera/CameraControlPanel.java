@@ -1,16 +1,10 @@
 package com.marginallyclever.robotOverlord.camera;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 /**
@@ -25,7 +19,7 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 8529190569816182683L;
 	
 	private Camera camera=null;
-	
+	/*
 	private JButton buttonFlyUp;
 	private JButton buttonFlyDown;
 	private JButton buttonFlyLeft;
@@ -44,12 +38,13 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		b.addActionListener(this);
 		return b;
 	}
-
+*/
+	
 	public CameraControlPanel(RobotOverlord gui,Camera cam) {
 		super();
 		
 		camera=cam;
-
+/*
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
@@ -60,7 +55,6 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		c.fill=GridBagConstraints.HORIZONTAL;
 
 		JPanel p;
-
 		CollapsiblePanel p2 = new CollapsiblePanel("Fly");
 		JPanel p1 = p2.getContentPane();
 		p1.setLayout(new GridLayout(0,1));
@@ -97,12 +91,14 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 			p1.add(new JLabel(""));
 			p1.add(buttonLookDown = createButton("Down"));
 		this.add(p2,c);
-		c.gridy++;
+		c.gridy++;*/
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		Object subject = e.getSource();		
-
+	
+	public void actionPerformed(ActionEvent e) {	
+		/*
+		Object subject = e.getSource();	
+ // TODO cleanup
 		if( subject == buttonFlyUp			) {	camera.move_up     = ( camera.move_up     == 1 ) ? 0 :  1;		}
 		if( subject == buttonFlyDown		) {	camera.move_up     = ( camera.move_up     ==-1 ) ? 0 : -1;		}
 		if( subject == buttonFlyLeft		) {	camera.move_left   = ( camera.move_left   == 1 ) ? 0 :  1;		}
@@ -112,8 +108,9 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		if( subject == buttonLookDown		) {	camera.tilt_dir    = ( camera.tilt_dir    ==-1 ) ? 0 : -1;		}
 		if( subject == buttonLookUp			) {	camera.tilt_dir    = ( camera.tilt_dir    == 1 ) ? 0 :  1;		}
 		if( subject == buttonLookLeft		) {	camera.pan_dir     = ( camera.pan_dir     ==-1 ) ? 0 : -1;		}
-		if( subject == buttonLookRight		) {	camera.pan_dir     = ( camera.pan_dir     == 1 ) ? 0 :  1;		}
+		if( subject == buttonLookRight		) {	camera.pan_dir     = ( camera.pan_dir     == 1 ) ? 0 :  1;		}*/
 	}
+	
 	
 	public void updateFields() {}
 }
