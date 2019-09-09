@@ -506,6 +506,7 @@ public abstract class DHRobot extends Robot {
         }
 
 		if( InputManager.isOn(InputManager.KEY_RETURN) ||
+			InputManager.isOn(InputManager.KEY_ENTER) ||
 			InputManager.isOn(InputManager.STICK_X) || 
 			immediateDriving) {
 			// commit move!
@@ -675,7 +676,7 @@ public abstract class DHRobot extends Robot {
 
         if(inDirectDriveMode()) {
         	if(driveFromKeyState()) {
-        		panel.updateGhostEnd();
+        		if(panel!=null) panel.updateGhostEnd();
         	}
         }
 

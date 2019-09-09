@@ -49,8 +49,10 @@ public class InputManager {
 	public static final int KEY_RCONTROL=29;
 	public static final int KEY_LCONTROL=30;
 	public static final int KEY_BACKSPACE=31;
+
+	public static final int KEY_ENTER    =32;
 	
-	public static final int MAX_KEYS = 32;
+	public static final int MAX_KEYS = 33;
 
 	protected static double [] keyStateOld = new double[MAX_KEYS];
 	protected static double [] keyState = new double[MAX_KEYS];
@@ -195,7 +197,7 @@ public class InputManager {
     				if(components[j].getIdentifier()==Identifier.Key.RCONTROL) keyState[KEY_RCONTROL] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.LCONTROL) keyState[KEY_LCONTROL] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.BACK    ) keyState[KEY_BACKSPACE] = 1;
-    				
+    				if(components[j].getIdentifier()==Identifier.Key.NUMPADENTER) keyState[KEY_ENTER] = 1;
     			}
         	}
         }

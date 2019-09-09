@@ -61,7 +61,7 @@ public class JInputTest {
 	        float [] stateNew = new float[totalComponents];
 	
 	        // get initial state
-	        InputManager.update();
+	        InputManager.update(true);
 	        k=0;
 	        for(i=0;i<totalControllers;i++) {
 	            Component[] components = ca[i].getComponents();
@@ -73,7 +73,7 @@ public class JInputTest {
 	
 	        while(true) {
 	        	// get the latest state
-	            InputManager.update();
+	            InputManager.update(true);
 	            ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 	            if(ca.length != totalControllers) {
 	            	// uh oh!  devide added/removed!  restart!
@@ -106,7 +106,7 @@ public class JInputTest {
 		
         while(true) {
         	// get the latest state
-            InputManager.update();
+            InputManager.update(true);
 			Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
             for(i=0;i<ca.length;i++) {
                 Component[] components = ca[i].getComponents();
