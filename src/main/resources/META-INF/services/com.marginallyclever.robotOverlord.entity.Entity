@@ -11,6 +11,8 @@ com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2
 
 # sends gcode to a dhrobot
 com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer
+# joystick controller
+com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick
 
 #other robots
 #com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
