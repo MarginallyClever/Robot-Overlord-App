@@ -108,7 +108,7 @@ public class DHRobotPlayer extends ModelInWorld {
 		
 		// remove material panel
 		list.remove(list.size()-1);
-		// remove physical object panel
+		// remove model panel
 		list.remove(list.size()-1);
 
 		panel = new DHRobotPlayerPanel(gui,this);
@@ -116,23 +116,27 @@ public class DHRobotPlayer extends ModelInWorld {
 		
 		return list;
 	}
+
+	// TODO this is trash.  if robot is deleted this link would do what, exactly?
+	// should probably be a subscription model.
+	protected DHRobot findRobot() {
+		Entity w = this.getParent(); 
+		if(w instanceof World) {
+			Iterator<Entity> entities = w.getChildren().iterator();
+			while(entities.hasNext()) {
+				Entity e = entities.next();
+				if(e instanceof DHRobot) {
+					return (DHRobot)e;
+				}
+			}
+		}
+		return null;
+	}
 	
 	@Override
 	public void update(double dt) {
 		if(target==null) {
-			// no target found.
-			Entity w = this.getParent(); 
-			if(w instanceof World) {
-				Iterator<Entity> entities = w.getChildren().iterator();
-				while(entities.hasNext()) {
-					Entity e = entities.next();
-					if(e instanceof DHRobot) {
-						target=(DHRobot)e;
-						System.out.println("Target found.");
-						break;
-					}
-				}
-			}
+			target = findRobot();
 		}
 		
 		if(gcodeFile==null) {
