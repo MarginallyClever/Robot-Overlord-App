@@ -6,9 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -24,7 +27,6 @@ import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
@@ -51,10 +53,14 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 	protected JTextField directCommand;
 	protected JButton directCommandSend;
 	
-	protected UserCommandSelectNumber userHeight;
+	protected JComboBox<String> userHeight;
 	protected JButton setHeight;
 	protected JButton firstPosition;
 
+	protected static final int START_HEIGHT_IN=4*12;
+	protected static final int END_HEIGHT_IN=7*12;
+	
+	
 	public DHRobotPlayerPanel(RobotOverlord gui,DHRobotPlayer arg0) {
 		this.player = arg0;
 		this.ro = gui;
@@ -120,15 +126,28 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		con1.gridy++;
 		directCommandSend.addActionListener(this);
 		
-		contents.add(userHeight=new UserCommandSelectNumber(ro,"Height (cm)",187),con1);
+		ArrayList<String> heightArrayList = new ArrayList<String>();
+		for(int i=START_HEIGHT_IN;i<END_HEIGHT_IN;++i) {
+			int f = i/12;
+			int in = i%12;
+			int cm = (int)((double)i*2.54);
+			heightArrayList.add(""+f+"'"+in+"\" ("+cm+"cm)");
+		}
+		// Converting ArrayList<String> to String[] found at 
+		// http://www.codebind.com/java-tutorials/java-example-arraylist-string-array/
+		Object [] heightObjectList = heightArrayList.toArray();
+		String [] heightArray = Arrays.copyOf(heightObjectList,heightObjectList.length,String[].class);
+		
+		contents.add(userHeight=new JComboBox<String>(heightArray),con1);
 		con1.gridy++;
 		contents.add(setHeight=new JButton("3..2..1..Go!"),con1);
 		con1.gridy++;
 		contents.add(firstPosition=new JButton("First position"),con1);
 		con1.gridy++;
+		
 		setHeight.addActionListener(this);
 		firstPosition.addActionListener(this);
-		userHeight.addChangeListener(this);
+		userHeight.addActionListener(this);
 	}
 	
 	@Override
@@ -145,7 +164,8 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 			goToFirstPosition();
 		}
 		if(source == setHeight) {
-			setHeight(userHeight.getValue());
+			int index = userHeight.getSelectedIndex();
+			setHeight((int)((float)(START_HEIGHT_IN+index)*2.54f));
 		}
 	}
 
@@ -156,7 +176,6 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		if(source==buttonSingleBlock) player.setSingleBlock	(buttonSingleBlock	.isSelected());
 		if(source==buttonLoop		) player.setLoop		(buttonLoop			.isSelected());
 		if(source==buttonCycleStart	) player.setCycleStart	(buttonCycleStart	.isSelected());
-		if(source==userHeight) setHeight(userHeight.getValue());
 	}
 
 	
@@ -172,21 +191,12 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		double x = 70;
 		
 		Vector3d eyes = new Vector3d(x,y,z);  // remove height of table
-/*
-		// how close can we get to that position and still be solvable?
-		DHIKSolver solver = target.getSolverIK();
-		DHKeyframe keyframe = (DHKeyframe)target.createKeyframe();
-		Matrix4d m = new Matrix4d(target.getLiveMatrix());
 
-    	solver.solveWithSuggestion(this,liveMatrix,keyframe,target.getRobotPose());
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-*/
-		if(height_cm<p1.z-20 || height_cm>p1.z+170) {
-			userHeight.setValue((float)(p1.z+71));
-			return;
-		}
+		// How close can we get to that position and still be solvable?
+		// Who cares!  Send them all and some might not work out.  *shrug*
 		
-		System.out.println(">>>> "+height_cm);
+		//if(height_cm<p1.z-20 || height_cm>p1.z+170) return;
+		//System.out.println(">>>> "+height_cm);
 		
 		for(double t=0;t<=1;t+=0.05) {
 			Vector3d c = MathHelper.interpolate(p1, eyes, t);
@@ -207,7 +217,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 				+" X"+StringHelper.formatDouble(p1.x)
 				+" Y"+StringHelper.formatDouble(p1.y)
 				+" Z"+StringHelper.formatDouble(p1.z)
-				+" I72.623 J-8.924 K66.369 T90.000 R0.000 S11.908 F80 A8";
+				+" I72.623 J-8.924 K66.369 T90.000 R0.000 S11.908 F80 A100";
 		if(target!=null) {
 			//System.out.println(">>>> "+msg);
 			target.parseGCode(msg);
