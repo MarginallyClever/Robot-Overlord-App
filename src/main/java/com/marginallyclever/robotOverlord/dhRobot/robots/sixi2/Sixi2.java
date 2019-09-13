@@ -19,7 +19,6 @@ import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobotPanel;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -186,9 +185,8 @@ public class Sixi2 extends DHRobot {
     		// save the live pose
     		DHKeyframe saveKeyframe = this.getRobotPose();
     		// set the ghost pose
-    		DHRobotPanel pTemp = this.panel;
-    		this.panel=null;
-    		this.setRobotPose(keyframe);
+    		this.setDisablePanel(true);
+    		this.setLivePose(keyframe);
     		// draw the ghost pose
     		materialGhost.render(gl2);
     		gl2.glPushMatrix();
@@ -210,8 +208,8 @@ public class Sixi2 extends DHRobot {
 				gl2.glPopMatrix();
 			gl2.glPopMatrix();
 			// reset the live pose
-			this.setRobotPose(saveKeyframe);
-			this.panel=pTemp;
+			this.setLivePose(saveKeyframe);
+			this.setDisablePanel(false);
     	}
     	super.drawTargetPose(gl2);
 	}
@@ -287,7 +285,7 @@ public class Sixi2 extends DHRobot {
 						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						//this.setRobotPose(inter);
 
-						this.setRobotPose(receivedKeyframe);
+						this.setLivePose(receivedKeyframe);
 
 					} catch(Exception e) {}
 				}
@@ -403,7 +401,7 @@ public class Sixi2 extends DHRobot {
 		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
 
 		// use anglesA to get the hand matrix
-		setRobotPose(keyframe);
+		setLivePose(keyframe);
 		Matrix4d T = new Matrix4d(getLiveMatrix());
 		
 		// for all joints
@@ -415,7 +413,7 @@ public class Sixi2 extends DHRobot {
 			}
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
-			setRobotPose(keyframe2);
+			setLivePose(keyframe2);
 			Matrix4d Tnew = new Matrix4d(getLiveMatrix());
 			
 			// use the finite difference in the two matrixes
@@ -452,7 +450,7 @@ public class Sixi2 extends DHRobot {
 		}
 		
 		// return the live matrix where it was
-		setRobotPose(keyframe);
+		setLivePose(keyframe);
 		
 		return jacobian;
 	}

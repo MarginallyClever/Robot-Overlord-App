@@ -41,7 +41,8 @@ public abstract class DHRobot extends Robot {
 	
 	// the GUI panel for controlling this robot.
 	protected DHRobotPanel panel;
-	
+	protected boolean disablePanel;
+
 	// the world frame matrix4d of the last link in the kinematic chain.
 	protected Matrix4d liveMatrix;
 
@@ -65,8 +66,6 @@ public abstract class DHRobot extends Robot {
 	// true if the skeleton should be visualized on screen.  Default is false.
 	protected boolean drawAsSelected;
 	
-	public static final int POSE_HISTORY_LENGTH = 500; 
-	
 	// The solver for this type of robot
 	protected DHIKSolver solver;
 	
@@ -87,6 +86,8 @@ public abstract class DHRobot extends Robot {
 
 	public DHRobot() {
 		super();
+		
+		disablePanel=false;
 		
 		setShowBones(false);
 		setShowPhysics(false);
@@ -651,7 +652,7 @@ public abstract class DHRobot extends Robot {
 			    				}
 			    				setRobotPose(keyframe);
 			    			}*/
-		            		this.setRobotPose(solutionKeyframe);
+		            		this.setLivePose(solutionKeyframe);
 			    		}
 			    	}
 				}
@@ -787,9 +788,8 @@ public abstract class DHRobot extends Robot {
 		// save the live pose
 		DHKeyframe saveKeyframe = this.getRobotPose();
 		// set the test pose
-		DHRobotPanel pTemp = this.panel;
-		this.panel=null;
-		this.setRobotPose(keyframe);
+		this.setDisablePanel(true);
+		this.setLivePose(keyframe);
 
 		hitBox1=-1;
 		hitBox2=-1;
@@ -822,8 +822,8 @@ public abstract class DHRobot extends Robot {
 		}
 
 		// set the live pose
-		this.setRobotPose(saveKeyframe);
-		this.panel=pTemp;
+		this.setLivePose(saveKeyframe);
+		this.setDisablePanel(false);
 		
 		return noCollision;
 	}
@@ -965,7 +965,7 @@ public abstract class DHRobot extends Robot {
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
 	 * @param keyframe
 	 */
-	public void setRobotPose(DHKeyframe keyframe) {
+	public void setLivePose(DHKeyframe keyframe) {
 		if(poseNow!=keyframe) {
 			poseNow.set(keyframe);
 		}
@@ -980,7 +980,9 @@ public abstract class DHRobot extends Robot {
 		}
 
     	this.refreshPose();
-    	if(this.panel!=null) this.panel.updateEnd();
+    	if(panel!=null && !isDisablePanel()) {
+    		panel.updateEnd();
+    	}
 	}
 	
 	/**
@@ -1090,5 +1092,13 @@ public abstract class DHRobot extends Robot {
 	
 	public void setLiveMatrix(Matrix4d m) {
 		liveMatrix.set(m);
+	}
+	
+	public boolean isDisablePanel() {
+		return disablePanel;
+	}
+
+	public void setDisablePanel(boolean disablePanel) {
+		this.disablePanel = disablePanel;
 	}
 }
