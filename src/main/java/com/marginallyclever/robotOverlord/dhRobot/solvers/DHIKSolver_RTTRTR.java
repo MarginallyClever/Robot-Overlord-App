@@ -60,11 +60,17 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		DHLink link5 = robot.links.get(5);
 		DHLink link6 = robot.links.get(6);
 		DHLink link7 = robot.links.get(7);
+
+		assert((link0.flags & DHLink.READ_ONLY_D)!=0);
+		assert((link2.flags & DHLink.READ_ONLY_D)!=0);
+		assert((link3.flags & DHLink.READ_ONLY_D)!=0);
+		assert((link4.flags & DHLink.READ_ONLY_D)!=0);
+		assert((link6.flags & DHLink.READ_ONLY_D)!=0);
 		
 		Matrix4d targetMatrixAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {
-			// there is a transform between the wrist and the tool tip.
+			// There is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
 			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
 
@@ -88,11 +94,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		// Work backward to get link5 position
 		Point3d p5 = new Point3d(n7z);
-		assert((link6.flags & DHLink.READ_ONLY_D)!=0);
 		p5.scaleAdd(-link6.d,p7);
 
 		// Work forward to get p1 position
-		assert((link0.flags & DHLink.READ_ONLY_D)!=0);
 		Point3d p1 = new Point3d(0,0,link0.d);
 
 		if(false) {
@@ -117,7 +121,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) C=z15
-		double z15 = p5.z - p1.z;
+		double z15 = p5.z-p1.z;
 		if(false) System.out.println("c="+z15+"\t");
 		
 		// (3) 
@@ -131,9 +135,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("e="+e+"\t");
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
-		assert((link2.flags & DHLink.READ_ONLY_D)!=0);
-		assert((link3.flags & DHLink.READ_ONLY_D)!=0);
-		assert((link4.flags & DHLink.READ_ONLY_D)!=0);
 		double a = link2.d;
 		double b2 = link4.d+link5.d;
 		double b1 = link3.d;
@@ -252,18 +253,21 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		r07.set(targetMatrixAdj);
 		r07.setTranslation(new Vector3d(0,0,0));
 
-
-		Matrix4d r04inv = new Matrix4d();
-		try {
-			r04inv.invert(r04);
-		}
-		catch(Exception ex) {
-			ex.printStackTrace();
-		}
+		// r04 is a rotation matrix.  The inverse of a rotation matrix is its transpose.
+		Matrix4d r04inv = new Matrix4d(r04);
+		r04inv.transpose();
+		//Matrix4d r04inv = new Matrix4d();
+		//try {
+		//	r04inv.invert(r04);
+		//}
+		//catch(Exception ex) {
+		//	ex.printStackTrace();
+		//}
+		
 		Matrix4d r47 = new Matrix4d();
 		r47.mul(r04inv,r07);
 		// sometimes the r47.r22 value was ever so slightly out of range [-1...1]
-		if(r47.m22>1) r47.m22=1;
+		if(r47.m22> 1) r47.m22= 1;
 		if(r47.m22<-1) r47.m22=-1;
 
 		if(false) System.out.println("r47="+r47);
@@ -309,8 +313,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		// https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
 		double r22=r47.m22;
-		
-		
 		double s5 = Math.sin(a5);
 		double t4,t6;
 		if(s5>0) {
