@@ -244,7 +244,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 				e.link.alpha = e.alpha.getValue();
 			}
 			robot.refreshPose();
-			robot.setTargetMatrix(robot.getLiveMatrix());
+			robot.interpolationQueue.offer(robot.getLiveMatrix());
 			j=0;
 			i = linkPanels.iterator();
 			while(i.hasNext()) {
