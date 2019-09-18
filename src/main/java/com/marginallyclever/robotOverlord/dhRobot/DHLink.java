@@ -98,10 +98,10 @@ public class DHLink {
 	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
 	 */
 	public void refreshPoseMatrix() {
-		assert(Double.isNaN(theta));
-		assert(Double.isNaN(alpha));
-		assert(Double.isNaN(r));
-		assert(Double.isNaN(d));
+		assert(!Double.isNaN(theta));
+		assert(!Double.isNaN(alpha));
+		assert(!Double.isNaN(r));
+		assert(!Double.isNaN(d));
 		double ct = Math.cos(Math.toRadians(theta));
 		double ca = Math.cos(Math.toRadians(alpha));
 		double st = Math.sin(Math.toRadians(theta));
