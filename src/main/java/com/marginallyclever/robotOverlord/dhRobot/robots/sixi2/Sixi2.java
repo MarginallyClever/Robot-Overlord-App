@@ -86,6 +86,7 @@ public class Sixi2 extends DHRobot {
 
 		// tilt
 		links.get(5).d=11.8;
+		links.get(5).alpha=25;
 		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(5).rangeMin=-120;
 		links.get(5).rangeMax=120;
@@ -96,8 +97,6 @@ public class Sixi2 extends DHRobot {
 		links.get(6).rangeMax=180;
 		
 		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		
-		this.refreshPose();
 	}
 	
 	public void setupModels() {
