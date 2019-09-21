@@ -201,7 +201,7 @@ public class MiscTests {
 									
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
-				            		robot.setRobotPose(keyframe0);
+				            		robot.setLivePose(keyframe0);
 									m0.set(robot.getLiveMatrix());
 									// now generate a set of FK values from the endMatrix m0.
 									solver.solve(robot, m0, keyframe1);
@@ -209,7 +209,7 @@ public class MiscTests {
 										++totalOneSolutions;
 										
 										// update the robot pose and get the m1 matrix. 
-					            		robot.setRobotPose(keyframe1);
+					            		robot.setLivePose(keyframe1);
 					            		m1.set(robot.getLiveMatrix());
 					            		
 					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
@@ -409,7 +409,7 @@ public class MiscTests {
 		keyframe0.fkValues[5]=w;
 					
 		// use forward kinematics to find the endMatrix of the pose
-		robot.setRobotPose(keyframe0);
+		robot.setLivePose(keyframe0);
 		m0.set(robot.getLiveMatrix());
 		
 		String message = StringHelper.formatDouble(m0.m03)+"\t"
@@ -494,7 +494,7 @@ public class MiscTests {
 			m.m13=-20;
 			m.m23-=5;
 			solver.solve(robot, m, keyframe);
-			robot.setRobotPose(keyframe);
+			robot.setLivePose(keyframe);
 			
 			float TIME_STEP=0.030f;
 			int j;
@@ -519,7 +519,7 @@ public class MiscTests {
 						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*TIME_STEP;
 					}
 					out.write("\n");
-					robot.setRobotPose(keyframe);
+					robot.setLivePose(keyframe);
 				} else {
 					m.m03+=force[0]*TIME_STEP;
 					m.m13+=force[1]*TIME_STEP;
@@ -639,7 +639,7 @@ public class MiscTests {
 		keyframe.fkValues[4]=jointAngles[4];
 		keyframe.fkValues[5]=jointAngles[5];
 		
-		robot.setRobotPose(keyframe);
+		robot.setLivePose(keyframe);
 		return new Matrix4d(robot.getLiveMatrix());
 	}
 }
