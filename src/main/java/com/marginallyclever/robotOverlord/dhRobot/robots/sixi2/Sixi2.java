@@ -61,16 +61,16 @@ public class Sixi2 extends DHRobot {
 	@Override
 	protected void setupLinks() {
 		setNumLinks(8);
-		// roll
+		// roll anchor
 		links.get(0).d=13.44;
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(0).rangeMin=-120;
 		links.get(0).rangeMax=120;
-		// tilt
+		// tilt shoulder
 		links.get(1).theta=90;
 		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(1).rangeMin=-72;
-		// tilt
+		// tilt elbow
 		links.get(2).d=44.55;
 		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(2).rangeMin=-83.369;
@@ -79,18 +79,18 @@ public class Sixi2 extends DHRobot {
 		links.get(3).d=4.7201;
 		links.get(3).alpha=90;
 		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		// roll
+		// roll ulna
 		links.get(4).d=28.805;
 		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).rangeMin=-170;
-		links.get(4).rangeMax=170;
+		links.get(4).rangeMin=-175;
+		links.get(4).rangeMax=175;
 
-		// tilt
+		// tilt picassobox
 		links.get(5).d=11.8;
 		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(5).rangeMin=-120;
 		links.get(5).rangeMax=120;
-		// roll
+		// roll hand
 		links.get(6).d=3.9527;
 		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(6).rangeMin=-180;
@@ -136,11 +136,10 @@ public class Sixi2 extends DHRobot {
 			links.get(1).model.adjustRotation(new Vector3d(90,-90,0));
 			links.get(2).model.adjustRotation(new Vector3d(90,0,0));
 			links.get(3).model.adjustRotation(new Vector3d(-90,0,180));
-			links.get(5).model.adjustRotation(new Vector3d(180,0,0));
+			links.get(5).model.adjustRotation(new Vector3d(0,180,0));
 			links.get(6).model.adjustRotation(new Vector3d(180,0,180));
 			links.get(7).model.adjustRotation(new Vector3d(180,0,180));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -188,7 +187,7 @@ public class Sixi2 extends DHRobot {
     		// set the ghost pose
     		DHRobotPanel pTemp = this.panel;
     		this.panel=null;
-    		this.setRobotPose(keyframe);
+    		this.setLivePose(keyframe);
     		// draw the ghost pose
     		materialGhost.render(gl2);
     		gl2.glPushMatrix();
@@ -210,7 +209,7 @@ public class Sixi2 extends DHRobot {
 				gl2.glPopMatrix();
 			gl2.glPopMatrix();
 			// reset the live pose
-			this.setRobotPose(saveKeyframe);
+			this.setLivePose(saveKeyframe);
 			this.panel=pTemp;
     	}
     	super.drawTargetPose(gl2);
@@ -287,7 +286,7 @@ public class Sixi2 extends DHRobot {
 						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						//this.setRobotPose(inter);
 
-						this.setRobotPose(receivedKeyframe);
+						this.setLivePose(receivedKeyframe);
 
 					} catch(Exception e) {}
 				}
@@ -403,7 +402,7 @@ public class Sixi2 extends DHRobot {
 		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
 
 		// use anglesA to get the hand matrix
-		setRobotPose(keyframe);
+		setLivePose(keyframe);
 		Matrix4d T = new Matrix4d(getLiveMatrix());
 		
 		// for all joints
@@ -415,7 +414,7 @@ public class Sixi2 extends DHRobot {
 			}
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
-			setRobotPose(keyframe2);
+			setLivePose(keyframe2);
 			Matrix4d Tnew = new Matrix4d(getLiveMatrix());
 			
 			// use the finite difference in the two matrixes
@@ -452,7 +451,7 @@ public class Sixi2 extends DHRobot {
 		}
 		
 		// return the live matrix where it was
-		setRobotPose(keyframe);
+		setLivePose(keyframe);
 		
 		return jacobian;
 	}
