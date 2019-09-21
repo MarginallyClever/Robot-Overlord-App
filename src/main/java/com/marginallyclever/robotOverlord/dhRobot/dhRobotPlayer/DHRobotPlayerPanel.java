@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -140,6 +141,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		con1.gridy++;
 		contents.add(firstPosition=new JButton("First position"),con1);
 		con1.gridy++;
+		
 		setHeight.addActionListener(this);
 		firstPosition.addActionListener(this);
 		userHeight.addActionListener(this);
@@ -192,16 +194,12 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		double x = p2.y;
 		
 		Vector3d eyes = new Vector3d(x,y,z);  // remove height of table
-/*
-		// how close can we get to that position and still be solvable?
-		DHIKSolver solver = target.getSolverIK();
-		DHKeyframe keyframe = (DHKeyframe)target.createKeyframe();
-		Matrix4d m = new Matrix4d(target.getLiveMatrix());
 
-    	solver.solveWithSuggestion(this,liveMatrix,keyframe,target.getRobotPose());
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-*/
-		System.out.println(">>>> "+height_cm);
+		// How close can we get to that position and still be solvable?
+		// Who cares!  Send them all and some might not work out.  *shrug*
+		
+		//if(height_cm<p1.z-20 || height_cm>p1.z+170) return;
+		//System.out.println(">>>> "+height_cm);
 		
 		for(double t=0;t<=1;t+=0.05) {
 			Vector3d c = MathHelper.interpolate(p1, eyes, t);

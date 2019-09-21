@@ -19,7 +19,6 @@ import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobotPanel;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -87,6 +86,7 @@ public class Sixi2 extends DHRobot {
 
 		// tilt picassobox
 		links.get(5).d=11.8;
+		links.get(5).alpha=25;
 		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		links.get(5).rangeMin=-120;
 		links.get(5).rangeMax=120;
@@ -97,8 +97,6 @@ public class Sixi2 extends DHRobot {
 		links.get(6).rangeMax=180;
 		
 		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		
-		this.refreshPose();
 	}
 	
 	public void setupModels() {
@@ -185,8 +183,7 @@ public class Sixi2 extends DHRobot {
     		// save the live pose
     		DHKeyframe saveKeyframe = this.getRobotPose();
     		// set the ghost pose
-    		DHRobotPanel pTemp = this.panel;
-    		this.panel=null;
+    		this.setDisablePanel(true);
     		this.setLivePose(keyframe);
     		// draw the ghost pose
     		materialGhost.render(gl2);
@@ -210,7 +207,7 @@ public class Sixi2 extends DHRobot {
 			gl2.glPopMatrix();
 			// reset the live pose
 			this.setLivePose(saveKeyframe);
-			this.panel=pTemp;
+			this.setDisablePanel(false);
     	}
     	super.drawTargetPose(gl2);
 	}

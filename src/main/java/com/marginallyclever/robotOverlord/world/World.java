@@ -98,11 +98,7 @@ implements Serializable {
 		camera.setPosition(new Vector3d(0,100,-65));
 		camera.setPan(52);
 		camera.setTilt(76);
-		// adjust some lighting
-		light0.setDisplayName("light0");	light0.setAmbient(0.01f, 0.01f, 0.01f, 0.01f);	light0.setDiffuse(0.50f, 0.50f, 0.50f, 1);
-		light1.setDisplayName("light1");	light1.setAmbient(0.00f, 0.00f, 0.00f, 0.00f);	light0.setDiffuse(0.75f, 0.75f, 0.75f, 1);
-		light2.setDisplayName("light2");	light2.setAmbient(0.00f, 0.00f, 0.00f, 0.00f);	light0.setDiffuse(0.25f, 0.25f, 0.25f, 1);
-		
+
 		player.setPosition(new Vector3d(60,25,0));
 		sixi.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
@@ -135,18 +131,21 @@ implements Serializable {
     
 
     protected void setupLights() {
+		light0.setDisplayName("light0");
     	light0.index=0;
     	light0.setPosition(new Vector3d(0,0,30));
     	light0.setAmbient(         0.0f,          0.0f,          0.0f, 1.0f);
     	light0.setDiffuse(255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
 	    light0.setSpecular(        1.0f,          1.0f,          1.0f, 1.0f);
-    	
+
+		light1.setDisplayName("light1");
     	light1.index=1;
     	light0.setPosition(new Vector3d(-10,-10,10));
 	    light1.setAmbient(  0.0f, 0.0f, 0.0f, 1.0f);
     	light1.setDiffuse(  1.0f, 1.0f, 1.0f, 1.0f);
 	    light1.setSpecular( 0.0f, 0.0f, 0.0f, 1.0f);
-	    
+
+		light2.setDisplayName("light2");
     	light2.index=2;
     	light2.setPosition(new Vector3d(30,30,30));
 	    light2.setAmbient(          0.0f,          0.0f,          0.0f, 1.0f);

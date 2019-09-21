@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.dhRobot;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -17,6 +18,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
+import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.robot.Robot;
@@ -41,7 +43,8 @@ public abstract class DHRobot extends Robot {
 	
 	// the GUI panel for controlling this robot.
 	protected DHRobotPanel panel;
-	
+	protected boolean disablePanel;
+
 	// the world frame matrix4d of the last link in the kinematic chain.
 	protected Matrix4d liveMatrix;
 
@@ -52,6 +55,7 @@ public abstract class DHRobot extends Robot {
 	protected Matrix4d startMatrix;
 	protected Matrix4d endMatrix;
 	protected double interpolatePoseT;
+	protected Queue<Matrix4d> interpolationQueue = new LinkedList<Matrix4d>();
 
 	// the last valid matrix.  Used in case the IK solver fails to solve the targetPose.
 	protected Matrix4d oldMatrix;
@@ -64,8 +68,6 @@ public abstract class DHRobot extends Robot {
 	
 	// true if the skeleton should be visualized on screen.  Default is false.
 	protected boolean drawAsSelected;
-	
-	public static final int POSE_HISTORY_LENGTH = 500; 
 	
 	// The solver for this type of robot
 	protected DHIKSolver solver;
@@ -81,13 +83,14 @@ public abstract class DHRobot extends Robot {
 	protected int hitBox1, hitBox2;  // display which hitboxes are colliding
 	
 	protected boolean immediateDriving;
-	protected boolean disablePanel;
 	
 	// to simulate dwell behavior
 	protected double dwellTime;
 
 	public DHRobot() {
 		super();
+		
+		disablePanel=false;
 		
 		setShowBones(false);
 		setShowPhysics(false);
@@ -109,13 +112,15 @@ public abstract class DHRobot extends Robot {
 		hitBox2=-1;
 		setupLinks();
 		
-		solver = this.getSolverIK();
+		solver = getSolverIK();
+
+		refreshPose();
 		
 		poseNow = (DHKeyframe)createKeyframe();
 		solutionKeyframe = (DHKeyframe)createKeyframe();
 		
-		refreshPose();
-
+		extractKeyframeFromLinks(poseNow);
+		
 		homeMatrix.set(liveMatrix);
 		targetMatrix.set(liveMatrix);
 		
@@ -513,6 +518,7 @@ public abstract class DHRobot extends Robot {
         }
 
 		if( InputManager.isOn(InputManager.KEY_RETURN) ||
+			InputManager.isOn(InputManager.KEY_ENTER) ||
 			InputManager.isOn(InputManager.STICK_X) || 
 			immediateDriving) {
 			// commit move!
@@ -617,51 +623,83 @@ public abstract class DHRobot extends Robot {
 	 * @return true if we're in direct drive mode. 
 	 */
 	protected boolean inDirectDriveMode() {
-		return interpolatePoseT>=1.0 ;
+		return true;//interpolatePoseT>=1.0 ;
 	}
 	
 
 	protected void interpolate(double dt) {
 		if(dwellTime>0) {
 			dwellTime-=dt;
+			return;
 		}
-		if(dwellTime<=0) {
-			if(interpolatePoseT<1) {
-				interpolatePoseT+=dt;
-				if(interpolatePoseT>=1) {
-					interpolatePoseT=1;
-				}
-				
-				if(connection==null || !connection.isOpen()) {
-					// changing the end matrix will only move the simulated version of the "live" robot.
-					MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
-					
-			    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
-			    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-			    		// Solved!  Are angles OK for this robot?
-			    		if(sanityCheck(solutionKeyframe)) {
-			    			/*
-			    			if(this instanceof Sixi2) {
-			    				// sane solution
-			    				DHKeyframe keyframe = (DHKeyframe)createKeyframe();
-			    				double [][] jacobian = ((Sixi2)this).approximateJacobian(keyframe);
-			    				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
-			    				
-			    				double [] jvot = new double[6];
-			    				int j,k;
-			    				for(j=0;j<6;++j) {
-			    					for(k=0;k<6;++k) {
-			    						jvot[j]+=inverseJacobian[k][j]*force[k];
-			    					}
-			    					keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*dt;
-			    				}
-			    				setRobotPose(keyframe);
-			    			}*/
-		            		this.setLivePose(solutionKeyframe);
-			    		}
-			    	}
-				}
+/*
+		if(interpolatePoseT==1 && interpolationQueue.isEmpty()) return;
+		if(interpolatePoseT<1) {
+			interpolatePoseT+=dt;
+		}
+		if(interpolatePoseT>=1) {
+			if(interpolationQueue.isEmpty()) {
+				// will reach final position and stop.
+				interpolatePoseT=1;
+			} else {
+				// pop one element from the queue and continue.
+				startMatrix.set(liveMatrix);
+				endMatrix.set(interpolationQueue.poll());
+				interpolatePoseT--;
 			}
+		}*/
+
+		
+		if(interpolationQueue.isEmpty()) return;
+		
+		if(connection==null || !connection.isOpen()) {
+			// changing the end matrix will only move the simulated version of the "live" robot.
+			//MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
+			
+	    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
+	    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+	    		// Solved!  Are angles OK for this robot?
+	    		if(sanityCheck(solutionKeyframe)) {
+	    			//*
+	    			if(this instanceof Sixi2) {
+	    				endMatrix.set(interpolationQueue.peek());
+	    				// sane solution
+	    				DHKeyframe keyframe = (DHKeyframe)createKeyframe();
+	    				keyframe.set(solutionKeyframe);
+	    				double [][] jacobian = ((Sixi2)this).approximateJacobian(keyframe);
+	    				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
+	    				double [] force = {
+	    						endMatrix.m03-liveMatrix.m03,
+	    						endMatrix.m13-liveMatrix.m13,
+	    						endMatrix.m23-liveMatrix.m23,
+	    						0,0,0};
+	    				double df = Math.sqrt(
+	    						force[0]*force[0]
+	    						+force[1]*force[1]
+	    						+force[2]*force[2]
+	    						//+force[3]*force[3]
+	    						//+force[4]*force[4]
+	    						//+force[5]*force[5]
+	    								);
+	    				if(df>0.01) {
+		    				double [] jvot = new double[6];
+		    				int j,k;
+		    				for(j=0;j<6;++j) {
+		    					for(k=0;k<6;++k) {
+		    						jvot[j]+=inverseJacobian[k][j]*force[k];
+		    					}
+		    					if(!Double.isNaN(jvot[j])) {
+		    						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*dt;
+		    					}
+		    				}
+		    				setLivePose(keyframe);
+	    				} else {
+	    					interpolationQueue.poll();
+	    				}
+	    			}//*/
+            		//setLivePose(solutionKeyframe);
+	    		}
+	    	}
 		}
 		
 		if(dhTool!=null) {
@@ -746,9 +784,7 @@ public abstract class DHRobot extends Robot {
 				} else {
 					// No connected robot, update the pose directly.
 		    		//this.setRobotPose(solutionKeyframe);
-					startMatrix.set(liveMatrix);
-					endMatrix.set(targetMatrix);
-					interpolatePoseT=0;
+					interpolationQueue.offer(targetMatrix);
 				}
     		} else {
         		System.out.println("moveToTargetPose() insane");
@@ -793,8 +829,7 @@ public abstract class DHRobot extends Robot {
 		// save the live pose
 		DHKeyframe saveKeyframe = this.getRobotPose();
 		// set the test pose
-		DHRobotPanel pTemp = this.panel;
-		this.panel=null;
+		this.setDisablePanel(true);
 		this.setLivePose(keyframe);
 
 		hitBox1=-1;
@@ -829,7 +864,7 @@ public abstract class DHRobot extends Robot {
 
 		// set the live pose
 		this.setLivePose(saveKeyframe);
-		this.panel=pTemp;
+		this.setDisablePanel(false);
 		
 		return noCollision;
 	}
@@ -986,7 +1021,21 @@ public abstract class DHRobot extends Robot {
 		}
 
     	this.refreshPose();
-    	if(this.panel!=null && disablePanel==false) this.panel.updateEnd();
+    	if(panel!=null && !isDisablePanel()) {
+    		panel.updateEnd();
+    	}
+	}
+	
+	protected void extractKeyframeFromLinks(DHKeyframe keyframe) {
+		Iterator<DHLink> i = this.links.iterator();
+		int j=0;
+		while(i.hasNext()) {
+			DHLink link = i.next();
+			if((link.flags & DHLink.READ_ONLY_THETA)==0) keyframe.fkValues[j++] = link.theta;
+			if((link.flags & DHLink.READ_ONLY_D    )==0) keyframe.fkValues[j++] = link.d    ;
+			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) keyframe.fkValues[j++] = link.alpha;
+			if((link.flags & DHLink.READ_ONLY_R    )==0) keyframe.fkValues[j++] = link.r    ;
+		}
 	}
 	
 	/**
