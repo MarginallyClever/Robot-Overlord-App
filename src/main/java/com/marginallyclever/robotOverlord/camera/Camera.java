@@ -117,7 +117,7 @@ public class Camera extends PhysicalObject {
 			setRotation(c);
 		}
 		if(InputManager.isOn(InputManager.MOUSE_MIDDLE)) {
-			double move_fb = InputManager.rawValue(InputManager.MOUSE_Z)*3;
+			double move_fb = InputManager.rawValue(InputManager.MOUSE_Y)*3;
 			
 			if(move_fb!=0) {
 				// forward/back
@@ -143,7 +143,34 @@ public class Camera extends PhysicalObject {
 				changed = true;
 			}
 		}
+		{
+			double move_fb = (InputManager.rawValue(InputManager.KEY_W)-InputManager.rawValue(InputManager.KEY_S));
+			if(move_fb!=0) {
+				// forward/back
+				temp.set(forward);
+				temp.scale(move_fb*runSpeed);
+				direction.add(temp);
+				changed = true;
+			}
+			double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
+			if(move_lr!=0) {
+				// strafe left/right
+				temp.set(right);
+				temp.scale(move_lr*runSpeed);
+				direction.add(temp);
+				changed = true;
+			}
+			double move_ud = InputManager.rawValue(InputManager.KEY_Q)-InputManager.rawValue(InputManager.KEY_E);
+			if(move_ud!=0) {
+				// strafe up/down
+				temp.set(up);
+				temp.scale(move_ud*runSpeed);
+				direction.add(temp);
+				changed = true;
+			}
+		}
 		if(changed) {
+			runSpeed=3;
 			//direction.normalize();
 			direction.scale(vel*runSpeed);
 
