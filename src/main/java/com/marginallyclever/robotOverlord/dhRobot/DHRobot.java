@@ -81,6 +81,7 @@ public abstract class DHRobot extends Robot {
 	protected int hitBox1, hitBox2;  // display which hitboxes are colliding
 	
 	protected boolean immediateDriving;
+	protected boolean disablePanel;
 	
 	// to simulate dwell behavior
 	protected double dwellTime;
@@ -482,6 +483,12 @@ public abstract class DHRobot extends Robot {
 			    		rollZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_X)));
 					}
 				}
+				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
+					if(canTargetPoseRotateZ()) {
+						isDirty=true;
+			    		pullZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_Y)*3));
+					}
+				}
 			} else if(InputManager.isOn(InputManager.KEY_LCONTROL) ||
 					InputManager.isOn(InputManager.KEY_RCONTROL)) {
 				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
@@ -650,7 +657,7 @@ public abstract class DHRobot extends Robot {
 			    				}
 			    				setRobotPose(keyframe);
 			    			}*/
-		            		this.setRobotPose(solutionKeyframe);
+		            		this.setLivePose(solutionKeyframe);
 			    		}
 			    	}
 				}
@@ -675,7 +682,7 @@ public abstract class DHRobot extends Robot {
 
         if(inDirectDriveMode()) {
         	if(driveFromKeyState()) {
-        		panel.updateGhostEnd();
+        		if(panel!=null) panel.updateGhostEnd();
         	}
         }
 
@@ -788,7 +795,7 @@ public abstract class DHRobot extends Robot {
 		// set the test pose
 		DHRobotPanel pTemp = this.panel;
 		this.panel=null;
-		this.setRobotPose(keyframe);
+		this.setLivePose(keyframe);
 
 		hitBox1=-1;
 		hitBox2=-1;
@@ -821,7 +828,7 @@ public abstract class DHRobot extends Robot {
 		}
 
 		// set the live pose
-		this.setRobotPose(saveKeyframe);
+		this.setLivePose(saveKeyframe);
 		this.panel=pTemp;
 		
 		return noCollision;
@@ -964,7 +971,7 @@ public abstract class DHRobot extends Robot {
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
 	 * @param keyframe
 	 */
-	public void setRobotPose(DHKeyframe keyframe) {
+	public void setLivePose(DHKeyframe keyframe) {
 		if(poseNow!=keyframe) {
 			poseNow.set(keyframe);
 		}
@@ -979,7 +986,7 @@ public abstract class DHRobot extends Robot {
 		}
 
     	this.refreshPose();
-    	if(this.panel!=null) this.panel.updateEnd();
+    	if(this.panel!=null && disablePanel==false) this.panel.updateEnd();
 	}
 	
 	/**
@@ -1089,5 +1096,17 @@ public abstract class DHRobot extends Robot {
 	
 	public void setLiveMatrix(Matrix4d m) {
 		liveMatrix.set(m);
+	}
+
+	public Matrix4d getHomeMatrix() {
+		return new Matrix4d(homeMatrix);
+	}
+
+	public boolean isDisablePanel() {
+		return disablePanel;
+	}
+
+	public void setDisablePanel(boolean disablePanel) {
+		this.disablePanel = disablePanel;
 	}
 }
