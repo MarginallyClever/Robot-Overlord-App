@@ -109,7 +109,7 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 				
 				for(int i=0;i<6;++i) {
 					double d = StringHelper.parseNumber(tokenizer.nextToken());
-					keyframe.fkValues[i]=Math.max(Math.min(d,360),0);
+					keyframe.fkValues[i]=Math.max(Math.min(d,180),-180);
 				}
 			}
 		}
