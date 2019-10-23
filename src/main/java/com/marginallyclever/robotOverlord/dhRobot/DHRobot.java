@@ -622,12 +622,30 @@ public abstract class DHRobot extends Robot {
 	
 
 	protected void interpolate(double dt) {
+		// do not simulate movement when connected to a live robot.
+		if(connection!=null && connection.isOpen()) return;
+		
 		if(dwellTime>0) {
 			dwellTime-=dt;
 			return;
 		}
+
+		final int INTERPOLATION_STYLE_STRAIGHT=0;
+		final int INTERPOLATION_STYLE_JACOBIAN=1;
+		int interpolationStyle = INTERPOLATION_STYLE_STRAIGHT;
 		
-		/*
+		switch(interpolationStyle) {
+		case INTERPOLATION_STYLE_STRAIGHT:  interpolateStraight(dt);  break;
+		case INTERPOLATION_STYLE_JACOBIAN:  interpolateJacobian(dt);  break;
+		}
+	}
+	
+	
+	/**
+	 * interpolation between two matrixes linearly, and update kinematics while you're at it.
+	 * @param dt
+	 */
+	protected void interpolateStraight(double dt) {
 		if(interpolatePoseT==1 && interpolationQueue.isEmpty()) return;
 		if(interpolatePoseT<1) {
 			interpolatePoseT+=dt;
@@ -642,58 +660,78 @@ public abstract class DHRobot extends Robot {
 				endMatrix.set(interpolationQueue.poll());
 				interpolatePoseT--;
 			}
-		}*/
+		}
 		
 		if(interpolationQueue.isEmpty()) return;
 		
-		if(connection==null || !connection.isOpen()) {
-			// changing the end matrix will only move the simulated version of the "live" robot.
-			//MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
-			
-	    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
-	    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-	    		// Solved!  Are angles OK for this robot?
-	    		if(sanityCheck(solutionKeyframe)) {
-	    			//*
-	    			if(this instanceof Sixi2) {
-	    				endMatrix.set(interpolationQueue.peek());
-	    				// sane solution
-	    				DHKeyframe keyframe = (DHKeyframe)createKeyframe();
-	    				keyframe.set(solutionKeyframe);
-	    				double [][] jacobian = ((Sixi2)this).approximateJacobian(keyframe);
-	    				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
-	    				double [] force = {
-	    						endMatrix.m03-liveMatrix.m03,
-	    						endMatrix.m13-liveMatrix.m13,
-	    						endMatrix.m23-liveMatrix.m23,
-	    						0,0,0};
-	    				double df = Math.sqrt(
-	    						force[0]*force[0]
-	    						+force[1]*force[1]
-	    						+force[2]*force[2]
-	    						//+force[3]*force[3]
-	    						//+force[4]*force[4]
-	    						//+force[5]*force[5]
-	    								);
-	    				if(df>0.01) {
-		    				double [] jvot = new double[6];
-		    				int j,k;
-		    				for(j=0;j<6;++j) {
-		    					for(k=0;k<6;++k) {
-		    						jvot[j]+=inverseJacobian[k][j]*force[k];
-		    					}
-		    					if(!Double.isNaN(jvot[j])) {
-		    						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*dt;
-		    					}
-		    				}
-		    				setLivePose(keyframe);
-	    				} else {
-	    					interpolationQueue.poll();
+		// changing the end matrix will only move the simulated version of the "live" robot.
+		MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
+		
+    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
+    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+    		// Solved!  Are angles OK for this robot?
+    		if(sanityCheck(solutionKeyframe)) {
+        		setLivePose(solutionKeyframe);
+    		}
+    	}
+	
+		if(dhTool!=null) {
+			dhTool.interpolate(dt);
+		}
+	}
+	
+
+	/**
+	 * interpolation between two matrixes using jacobians, and update kinematics while you're at it.
+	 * @param dt
+	 */
+	protected void interpolateJacobian(double dt) {
+		if(interpolationQueue.isEmpty()) return;
+		
+		// changing the end matrix will only move the simulated version of the "live" robot.
+		MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
+		
+    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
+    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+    		// Solved!  Are angles OK for this robot?
+    		if(sanityCheck(solutionKeyframe)) {
+    			if(this instanceof Sixi2) {
+    				endMatrix.set(interpolationQueue.peek());
+    				// sane solution
+    				DHKeyframe keyframe = (DHKeyframe)createKeyframe();
+    				keyframe.set(solutionKeyframe);
+    				double [][] jacobian = ((Sixi2)this).approximateJacobian(keyframe);
+    				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
+    				double [] force = {
+    						endMatrix.m03-liveMatrix.m03,
+    						endMatrix.m13-liveMatrix.m13,
+    						endMatrix.m23-liveMatrix.m23,
+    						0,0,0};
+    				double df = Math.sqrt(
+    						force[0]*force[0]
+    						+force[1]*force[1]
+    						+force[2]*force[2]
+    						+force[3]*force[3]
+    						+force[4]*force[4]
+    						+force[5]*force[5]
+    								);
+    				if(df>0.01) {
+	    				double [] jvot = new double[6];
+	    				int j,k;
+	    				for(j=0;j<6;++j) {
+	    					for(k=0;k<6;++k) {
+	    						jvot[j]+=inverseJacobian[k][j]*force[k];
+	    					}
+	    					if(!Double.isNaN(jvot[j])) {
+	    						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*dt;
+	    					}
 	    				}
-	    			}//*/
-            		//setLivePose(solutionKeyframe);
-	    		}
-	    	}
+	    				setLivePose(keyframe);
+    				} else {
+    					interpolationQueue.poll();
+    				}
+    			}
+    		}
 		}
 		
 		if(dhTool!=null) {
