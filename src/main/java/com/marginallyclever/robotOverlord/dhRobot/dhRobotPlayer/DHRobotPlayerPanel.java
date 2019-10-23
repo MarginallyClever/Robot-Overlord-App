@@ -57,8 +57,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 	protected JButton setHeight;
 	protected JButton firstPosition;
 
-	protected static final int START_HEIGHT_IN=4*12;
-	protected static final int END_HEIGHT_IN=7*12;
+	protected int START_HEIGHT = 12*4;
 	
 	
 	public DHRobotPlayerPanel(RobotOverlord gui,DHRobotPlayer arg0) {
@@ -126,17 +125,15 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		con1.gridy++;
 		directCommandSend.addActionListener(this);
 		
-		ArrayList<String> heightArrayList = new ArrayList<String>();
-		for(int i=START_HEIGHT_IN;i<END_HEIGHT_IN;++i) {
-			int f = i/12;
-			int in = i%12;
-			int cm = (int)((double)i*2.54);
-			heightArrayList.add(""+f+"'"+in+"\" ("+cm+"cm)");
+		ArrayList<String> heights = new ArrayList<String>();
+		for(int i=START_HEIGHT;i<12*7;++i) {
+			int inches = i%12;
+			int feet = i/12;
+			int cm = (int)(i*2.54);
+			heights.add(new String(""+feet+"'"+inches+"\" ("+cm+"cm)"));
 		}
-		// Converting ArrayList<String> to String[] found at 
-		// http://www.codebind.com/java-tutorials/java-example-arraylist-string-array/
-		Object [] heightObjectList = heightArrayList.toArray();
-		String [] heightArray = Arrays.copyOf(heightObjectList,heightObjectList.length,String[].class);
+		
+		String[] heightArray = heights.toArray(new String[1]);
 		
 		contents.add(userHeight=new JComboBox<String>(heightArray),con1);
 		con1.gridy++;
@@ -164,8 +161,8 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 			goToFirstPosition();
 		}
 		if(source == setHeight) {
-			int index = userHeight.getSelectedIndex();
-			setHeight((int)((float)(START_HEIGHT_IN+index)*2.54f));
+			int height = (int)((userHeight.getSelectedIndex()+START_HEIGHT)*2.54);
+			setHeight(height);
 		}
 	}
 
@@ -178,17 +175,23 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		if(source==buttonCycleStart	) player.setCycleStart	(buttonCycleStart	.isSelected());
 	}
 
-	
-	Vector3d p1 = new Vector3d(24.641,8.929,28.765);
+	//Vector3d p1 = new Vector3d(9.144,0.554,37.670);  // first position 1: G0 X9.144 Y0.554 Z37.670 I157.906 J-9.010 K68.404
+	// first position 2: G0 X8.663 Y1.309 Z38.386 I160.996 J-13.178 K59.727
+
+	// first position 3: G0 X19.915 Y-1.603 Z56.819 I-7.493 J-3.974 K-68.714
+	Vector3d p1 = new Vector3d(19.915,-1.603,56.819);
+	// end position: G0 X65.662 Y11.137 Z61.554 I-20.775 J-4.898 K-80.431
+	Vector3d p2 = new Vector3d(65.662,11.137,0);  
 	
 	
 	protected void setHeight(double height_cm) {
+		p2 = new Vector3d(11.137,80.662,0);  
 		DHRobot target=player.getTarget();
 		if(target==null) return;
 		
-		double z = height_cm-71.0-13;  // subtract table height and top of head.
-		double y = -30;
-		double x = 70;
+		double z = height_cm-71.0-10;  // subtract table height and top of head.
+		double y = p2.x;
+		double x = p2.y;
 		
 		Vector3d eyes = new Vector3d(x,y,z);  // remove height of table
 
@@ -212,12 +215,14 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 	
 	
 	protected void goToFirstPosition() {
+		p1 = new Vector3d(5,1,36.819);
 		DHRobot target=player.getTarget();
 		String msg = "G0"
 				+" X"+StringHelper.formatDouble(p1.x)
 				+" Y"+StringHelper.formatDouble(p1.y)
 				+" Z"+StringHelper.formatDouble(p1.z)
-				+" I72.623 J-8.924 K66.369 T90.000 R0.000 S11.908 F80 A100";
+				+" I-7.493 J-3.974 K-68.714"
+				+" T90.000 R0.000 S11.908 F50 A100";
 		if(target!=null) {
 			//System.out.println(">>>> "+msg);
 			target.parseGCode(msg);

@@ -488,6 +488,12 @@ public abstract class DHRobot extends Robot {
 			    		rollZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_X)));
 					}
 				}
+				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
+					if(canTargetPoseRotateZ()) {
+						isDirty=true;
+			    		pullZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_Y)*3));
+					}
+				}
 			} else if(InputManager.isOn(InputManager.KEY_LCONTROL) ||
 					InputManager.isOn(InputManager.KEY_RCONTROL)) {
 				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
@@ -1178,7 +1184,11 @@ public abstract class DHRobot extends Robot {
 	public void setLiveMatrix(Matrix4d m) {
 		liveMatrix.set(m);
 	}
-	
+
+	public Matrix4d getHomeMatrix() {
+		return new Matrix4d(homeMatrix);
+	}
+
 	public boolean isDisablePanel() {
 		return disablePanel;
 	}

@@ -32,6 +32,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	protected RobotOverlord ro;
 
 	public JButton buttonCalibrate;
+	public JButton goHome;
 	
 	
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
@@ -67,8 +68,13 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.fill=GridBagConstraints.HORIZONTAL;
 
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		contents.add(buttonCalibrate=new JButton("Calibrate"), con1);	con1.gridy++;
+		contents.add(buttonCalibrate=new JButton("Calibrate"), con1);
+		con1.gridy++;
 		buttonCalibrate.addActionListener(this);
+
+		contents.add(goHome=new JButton("Go Home"), con1);
+		con1.gridy++;
+		goHome.addActionListener(this);
 	}
 	
 	@Override
@@ -83,6 +89,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			// run the calibration app
 			Sixi2Calibrator calibrator = new Sixi2Calibrator(ro.getMainFrame(),robot);
 			calibrator.run();
+		}
+		if(source==goHome) {
+			robot.setTargetMatrix(robot.getHomeMatrix());
 		}
 	}
 

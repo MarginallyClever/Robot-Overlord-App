@@ -49,10 +49,17 @@ public class InputManager {
 	public static final int KEY_RCONTROL=29;
 	public static final int KEY_LCONTROL=30;
 	public static final int KEY_BACKSPACE=31;
-
-	public static final int KEY_ENTER    =32;
+	public static final int KEY_W=32;
+	public static final int KEY_A=33;
+	public static final int KEY_S=34;
+	public static final int KEY_D=35;
+	public static final int KEY_Q=36;
+	public static final int KEY_E=37;
 	
-	public static final int MAX_KEYS = 33;
+	public static final int KEY_ENTER    =38;
+	
+	public static final int MAX_KEYS 	 =39;
+	
 
 	protected static double [] keyStateOld = new double[MAX_KEYS];
 	protected static double [] keyState = new double[MAX_KEYS];
@@ -197,6 +204,12 @@ public class InputManager {
     				if(components[j].getIdentifier()==Identifier.Key.RCONTROL) keyState[KEY_RCONTROL] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.LCONTROL) keyState[KEY_LCONTROL] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.BACK    ) keyState[KEY_BACKSPACE] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.Q    ) keyState[KEY_Q] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.E    ) keyState[KEY_E] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.W    ) keyState[KEY_W] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.A    ) keyState[KEY_A] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.S    ) keyState[KEY_S] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.D    ) keyState[KEY_D] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.NUMPADENTER) keyState[KEY_ENTER] = 1;
     			}
         	}
