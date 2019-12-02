@@ -20,6 +20,7 @@ import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
+import com.marginallyclever.robotOverlord.camera.CameraMount;
 import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -53,6 +54,7 @@ implements Serializable {
 	
 	// world contents
 	protected Camera camera;
+	protected CameraMount freeCamera;
 	protected Light light0, light1, light2;
 	protected transient Texture t0,t1,t2,t3,t4,t5;
 
@@ -229,22 +231,24 @@ implements Serializable {
         }*/
     	gl2.glDrawBuffer(GL2.GL_BACK);
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
-        
 		gl2.glCullFace(GL2.GL_BACK);
 
 		// DRAW THE WORLD
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
-		
+
 		gl2.glPushMatrix();
 			camera.render(gl2);
+			
+
+			Iterator<Entity> io;
 			
 			gl2.glDisable(GL2.GL_LIGHTING);
 
 			//drawSkyCube(gl2);
 			
 			// lights
-			Iterator<Entity> io = children.iterator();
+			io = children.iterator();
 			while(io.hasNext()) {
 				Entity obj = io.next();
 				if(obj instanceof Light) {
@@ -267,9 +271,8 @@ implements Serializable {
 			showPickingTest(gl2);
 			
 		gl2.glPopMatrix();
-		
+	
 		// DRAW THE HUD
-
 		gl2.glPushMatrix();
 			camera.render(gl2);
 			
@@ -510,5 +513,10 @@ implements Serializable {
 		}
 		
 		return found;
+	}
+
+
+	public static Matrix4d getPose() {
+		return new Matrix4d(pose);
 	}
 }
