@@ -10,7 +10,7 @@ import com.marginallyclever.robotOverlord.camera.Camera;
 public class ViewCube {
 	protected transient boolean isSetup = false;
 	protected transient boolean areTexturesLoaded = false;
-	protected transient Texture t0,t1,t2,t3,t4,t5;
+	protected transient Texture t0,t1,t2,t3,t4,t5,shadow;
 	
     public ViewCube() {
 		areTexturesLoaded=false;
@@ -27,6 +27,7 @@ public class ViewCube {
 			t3 = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
 			t4 = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
 			t5 = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
+			shadow = TextureIO.newTexture(FileAccess.open("/images/shadow.png"), false, "png");
 			//System.out.println(">>> ViewCube textures loaded OK");
 			areTexturesLoaded=true;
 		}
@@ -123,6 +124,20 @@ public class ViewCube {
 			gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10,-10, -10);
 			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, -10);
 			gl2.glEnd();
+
+			gl2.glEnable(GL2.GL_CULL_FACE);
+			gl2.glCullFace(GL2.GL_BACK);
+			gl2.glBlendFunc(GL2.GL_SRC_ALPHA,GL2.GL_ONE_MINUS_SRC_ALPHA);
+			shadow.bind(gl2);
+			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glNormal3d(0,0,-1);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-15, 15, -10.01);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-15,-15, -10.01);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 15,-15, -10.01);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 15, 15, -10.01);
+			gl2.glEnd();
+			gl2.glDisable(GL2.GL_CULL_FACE);
+			gl2.glCullFace(GL2.GL_NONE);
 
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 			
