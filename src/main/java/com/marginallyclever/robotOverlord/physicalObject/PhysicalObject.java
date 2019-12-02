@@ -19,7 +19,7 @@ public abstract class PhysicalObject extends Entity {
 	 */
 	private static final long serialVersionUID = -1804941485489224976L;
 
-	private Matrix4d matrix;
+	protected Matrix4d matrix;
 	private transient PhysicalObjectControlPanel physicalObjectControlPanel;
 	
 	public PhysicalObject() {
