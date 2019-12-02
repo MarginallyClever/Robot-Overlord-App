@@ -105,7 +105,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.5.5</version>
+          <!-- <version>2.5.5</version> -->
           <configuration>
             <archive>
               <manifestEntries>
@@ -207,7 +207,7 @@
         <!-- End of plugins defined originally only in Super POM  -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.10</version>
+          <!--<version>2.10</version> -->
         <configuration>
           <ignoreNonCompile>${maven-dependency-plugin.ignoreNonCompile}</ignoreNonCompile>
         </configuration>
