@@ -66,11 +66,19 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public JCheckBox showBones;
 	public JCheckBox showAngleMinMax;
 	public JCheckBox showPhysics;
-	public JCheckBox rotateOnWorldAxies;
+	public JComboBox<String> frameOfReferenceSelection;
 	public JCheckBox immediateDriving;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
+
+	
+	// enumerate these?
+	String[] framesOfReference = {
+			"World", //0
+			"Camera", //1
+			"Finger tip"//2
+			};
 	
 	
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
@@ -164,10 +172,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
 		
-		contents.add(rotateOnWorldAxies=new JCheckBox(),con1);
-		rotateOnWorldAxies.setText("Absolute rotation");
-		rotateOnWorldAxies.addItemListener(this);
-		rotateOnWorldAxies.setSelected(robot.rotateOnWorldAxies);
+		contents.add(new JLabel("Frame of Reference") ,con1);  con1.gridy++;
+		contents.add(frameOfReferenceSelection=new JComboBox<String>(framesOfReference),con1);
+		frameOfReferenceSelection.addActionListener(this);
+		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 		
 		contents.add(immediateDriving=new JCheckBox(),con1);
@@ -309,6 +317,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		if(source == buttonCommit) {
 			robot.moveToTargetPose();
 		}
+		if(source == frameOfReferenceSelection) {
+			int s = frameOfReferenceSelection.getSelectedIndex();
+			robot.setFrameOfReference(s);
+		}
 	}
 
 	/**
@@ -394,9 +406,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		if(source == showBones) {
 			robot.setShowBonesPassive(((JCheckBox)source).isSelected());
-		}
-		if(source == rotateOnWorldAxies) {
-			robot.rotateOnWorldAxies = !robot.rotateOnWorldAxies;
 		}
 		if(source == immediateDriving) {
 			robot.immediateDriving = !robot.immediateDriving;

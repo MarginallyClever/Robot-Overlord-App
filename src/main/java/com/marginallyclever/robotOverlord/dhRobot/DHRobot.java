@@ -27,6 +27,7 @@ import com.marginallyclever.robotOverlord.world.World;
 
 /**
  * A robot designed using D-H parameters.
+ * 
  * @author Dan Royer
  */
 public abstract class DHRobot extends Robot {
@@ -34,13 +35,13 @@ public abstract class DHRobot extends Robot {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	// a list of DHLinks describing the kinematic chain.
 	public LinkedList<DHLink> links;
-	
+
 	// keyframe describing the current pose of the kinematic chain.
 	protected DHKeyframe poseNow;
-	
+
 	// the GUI panel for controlling this robot.
 	protected DHRobotPanel panel;
 	protected boolean disablePanel;
@@ -48,7 +49,8 @@ public abstract class DHRobot extends Robot {
 	// the world frame matrix4d of the last link in the kinematic chain.
 	protected Matrix4d liveMatrix;
 
-	// the matrix the IK is trying to move towards.  Includes the tool held by the robot.
+	// the matrix the IK is trying to move towards. Includes the tool held by the
+	// robot.
 	protected Matrix4d targetMatrix;
 
 	// interpolation values
@@ -57,46 +59,47 @@ public abstract class DHRobot extends Robot {
 	protected double interpolatePoseT;
 	protected Queue<Matrix4d> interpolationQueue = new LinkedList<Matrix4d>();
 
-	// the last valid matrix.  Used in case the IK solver fails to solve the targetPose.
+	// the last valid matrix. Used in case the IK solver fails to solve the
+	// targetPose.
 	protected Matrix4d oldMatrix;
 
 	// the matrix the IK would solve when the robot is at "home" position.
 	protected Matrix4d homeMatrix;
-	
+
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
-	
-	// true if the skeleton should be visualized on screen.  Default is false.
+
+	// true if the skeleton should be visualized on screen. Default is false.
 	protected boolean drawAsSelected;
-	
+
 	// The solver for this type of robot
 	protected DHIKSolver solver;
-	
+
 	// Used by inputUpdate to solve pose and instruct robot where to go.
 	protected DHKeyframe solutionKeyframe;
-	
-	protected boolean showBones;  // show D-H representation of each link
-	protected boolean showPhysics;  // show bounding boxes of each link
-	protected boolean showAngles;  // show current angle and limit of each link
-	boolean rotateOnWorldAxies;  // which style of rotation?
-	
-	protected int hitBox1, hitBox2;  // display which hitboxes are colliding
-	
+
+	protected boolean showBones; // show D-H representation of each link
+	protected boolean showPhysics; // show bounding boxes of each link
+	protected boolean showAngles; // show current angle and limit of each link
+	protected int frameOfReferenceIndex; // which style of rotation?
+
+	protected int hitBox1, hitBox2; // display which hitboxes are colliding
+
 	protected boolean immediateDriving;
-	
+
 	// to simulate dwell behavior
 	protected double dwellTime;
 
 	public DHRobot() {
 		super();
-		
-		disablePanel=false;
-		
+
+		disablePanel = false;
+
 		setShowBones(false);
 		setShowPhysics(false);
 		setShowAngles(true);
-		rotateOnWorldAxies=false;
-		
+		frameOfReferenceIndex = 2;
+
 		links = new LinkedList<DHLink>();
 		liveMatrix = new Matrix4d();
 		targetMatrix = new Matrix4d();
@@ -104,84 +107,81 @@ public abstract class DHRobot extends Robot {
 		homeMatrix = new Matrix4d();
 		startMatrix = new Matrix4d();
 		endMatrix = new Matrix4d();
-		interpolatePoseT=1;
-		
-		drawAsSelected=false;
-		immediateDriving=false;
-		hitBox1=-1;
-		hitBox2=-1;
+		interpolatePoseT = 1;
+
+		drawAsSelected = false;
+		immediateDriving = false;
+		hitBox1 = -1;
+		hitBox2 = -1;
 		setupLinks();
-		
+
 		solver = getSolverIK();
 
 		refreshPose();
-		
-		poseNow = (DHKeyframe)createKeyframe();
-		solutionKeyframe = (DHKeyframe)createKeyframe();
-		
+
+		poseNow = (DHKeyframe) createKeyframe();
+		solutionKeyframe = (DHKeyframe) createKeyframe();
+
 		extractKeyframeFromLinks(poseNow);
-		
+
 		homeMatrix.set(liveMatrix);
 		targetMatrix.set(liveMatrix);
-		
-		dhTool = new DHTool();  // default tool = no tool
-		dwellTime=0;
+
+		dhTool = new DHTool(); // default tool = no tool
+		dwellTime = 0;
 	}
-	
+
 	/**
 	 * Override this method with your robot's setup.
 	 */
 	protected abstract void setupLinks();
-	
+
 	/**
 	 * Override this method to return the correct solver for your type of robot.
+	 * 
 	 * @return the IK solver for a specific type of robot.
 	 */
 	public abstract DHIKSolver getSolverIK();
 
-
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
-		
-		panel = new DHRobotPanel(gui,this);
+
+		panel = new DHRobotPanel(gui, this);
 		list.add(panel);
-		
+
 		return list;
 	}
-	
+
 	@Override
 	public void render(GL2 gl2) {
-		//if(!drawAsSelected) return;
-		
+		// if(!drawAsSelected) return;
+
 		// get the camera
 		World world = getWorld();
-		Camera cam=null;
-		if(world!=null) {
+		Camera cam = null;
+		if (world != null) {
 			// find the camera
 			Iterator<Entity> iter = world.getChildren().iterator();
-			while(iter.hasNext()) {
+			while (iter.hasNext()) {
 				Entity e = iter.next();
-				if(e instanceof Camera) {
+				if (e instanceof Camera) {
 					// probably the only one we'll find.
-					cam = (Camera)e;
+					cam = (Camera) e;
 				}
 			}
 		}
-		if(cam!=null) {/*
-			gl2.glPushMatrix();
-			Matrix4d mat = new Matrix4d(cam.getMatrix());
-			Vector3d camPos = cam.getPosition();
-			mat.setTranslation(new Vector3d(0,0,0));
-			gl2.glTranslated(-camPos.x,-camPos.y,-camPos.z);
-			gl2.glTranslated(
-					mat.m01*50,
-					mat.m11*50,
-					mat.m21*50);
-			MatrixHelper.drawMatrix(gl2, mat,20);
-			gl2.glPopMatrix();//*/
+		if (cam != null) {
+			// gl2.glPushMatrix();
+			// Matrix4d mat = new Matrix4d(cam.getMatrix());
+			// Vector3d camPos = cam.getPosition();
+			// mat.setTranslation(new Vector3d(0,0,0));
+			// gl2.glTranslated(-camPos.x,-camPos.y,-camPos.z);
+			// gl2.glTranslated( mat.m01*50, mat.m11*50, mat.m21*50);
+			// MatrixHelper.drawMatrix(gl2, mat,20);
+			// gl2.glPopMatrix();
 		}
-		
+
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -190,66 +190,79 @@ public abstract class DHRobot extends Robot {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, this.getMatrix());
 
-			PrimitiveSolids.drawStar(gl2, new Vector3d(0,0,0),10);
-
+			PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 10);
+	
 			gl2.glPushMatrix();
 				Iterator<DHLink> i = links.iterator();
-				int j=0;
-				while(i.hasNext()) {
+				int j = 0;
+				while (i.hasNext()) {
 					DHLink link = i.next();
-					if(showBones) link.renderBones(gl2);
-					if(showAngles) {
+					if (showBones)
+						link.renderBones(gl2);
+					if (showAngles) {
 						link.renderAngles(gl2);
 					}
-					if(showPhysics && link.model != null) {
-						if(j==hitBox1 || j==hitBox2) {
-							gl2.glColor4d(1,0  ,0.8,0.15);
+					if (showPhysics && link.model != null) {
+						if (j == hitBox1 || j == hitBox2) {
+							gl2.glColor4d(1, 0, 0.8, 0.15);
 						} else {
-							gl2.glColor4d(1,0.8,0  ,0.15);
+							gl2.glColor4d(1, 0.8, 0, 0.15);
 						}
-						PrimitiveSolids.drawBox(gl2,
-								link.model.getBoundBottom(),
-								link.model.getBoundTop());
+						PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
 					}
 					link.applyMatrix(gl2);
 					++j;
 				}
-				if(dhTool!=null) {
-					if(showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
-					if(showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);/*
-					if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
-						gl2.glColor4d(1,0,0.8,0.15);
-						PrimitiveSolids.drawBox(gl2,
-								dhTool.dhLinkEquivalent.model.getBoundBottom(),
-								dhTool.dhLinkEquivalent.model.getBoundTop());
-					}*/
+				
+				if (dhTool != null) {
+					if (showBones)
+						dhTool.dhLinkEquivalent.renderBones(gl2);
+					if (showAngles)
+						dhTool.dhLinkEquivalent.renderAngles(gl2);
+					//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
+					//	 gl2.glColor4d(1,0,0.8,0.15);
+					//	 PrimitiveSolids.drawBox(gl2,
+					//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
+					//		 dhTool.dhLinkEquivalent.model.getBoundTop());
+					//}
 				}
-				gl2.glPopMatrix();
+			gl2.glPopMatrix();
 			MatrixHelper.drawMatrix(gl2, liveMatrix, 8.0);
 			MatrixHelper.drawMatrix2(gl2, targetMatrix, 6.0);
-
-			if(cam!=null) {
-				//Matrix4d mat = new Matrix4d(cam.getMatrix());
-				//Vector3d camPos = cam.getPosition();
-				//mat.setTranslation(new Vector3d(targetMatrix.m03,targetMatrix.m13,targetMatrix.m23));
-				//MatrixHelper.drawMatrix(gl2, mat,20);
+	
+			if (cam != null) {
+				// Matrix4d mat = new Matrix4d(cam.getMatrix());
+				// Vector3d camPos = cam.getPosition();
+				// mat.setTranslation(new
+				// Vector3d(targetMatrix.m03,targetMatrix.m13,targetMatrix.m23));
+				// MatrixHelper.drawMatrix(gl2, mat,20);
 			}
 		gl2.glPopMatrix();
+
+		Matrix4d st = new Matrix4d();
+		st.set(showTimeBefore);
+		MatrixHelper.drawMatrix(gl2, st, 30.0);
+		st.set(showTimeAfter);
+		MatrixHelper.drawMatrix2(gl2, st, 20.0);
 		
-		if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		
+		if (isDepth)
+			gl2.glEnable(GL2.GL_DEPTH_TEST);
+		if (isLit)
+			gl2.glEnable(GL2.GL_LIGHTING);
+
 		drawTargetPose(gl2);
 	}
-	
+
 	/**
-	 * Update the pose matrix of each DH link, then use forward kinematics to find the end position.
+	 * Update the pose matrix of each DH link, then use forward kinematics to find
+	 * the end position.
 	 */
 	public void refreshPose() {
 		liveMatrix.setIdentity();
-		
+
 		Iterator<DHLink> i = links.iterator();
-		while(i.hasNext()) {
+		while (i.hasNext()) {
 			DHLink link = i.next();
 			// update matrix
 			link.refreshPoseMatrix();
@@ -257,24 +270,26 @@ public abstract class DHRobot extends Robot {
 			link.poseCumulative.set(liveMatrix);
 			liveMatrix.mul(link.pose);
 		}
-		if(dhTool!=null) {
+		if (dhTool != null) {
 			dhTool.refreshPose(liveMatrix);
 		}
 	}
-	
+
 	/**
 	 * Adjust the number of links in this robot
+	 * 
 	 * @param newSize must be greater than 0
 	 */
 	public void setNumLinks(int newSize) {
-		if(newSize<1) newSize=1;
-		
+		if (newSize < 1)
+			newSize = 1;
+
 		int oldSize = links.size();
-		while(oldSize>newSize) {
+		while (oldSize > newSize) {
 			oldSize--;
 			links.pop();
 		}
-		while(oldSize<newSize) {
+		while (oldSize < newSize) {
 			oldSize++;
 			links.push(new DHLink());
 		}
@@ -282,64 +297,61 @@ public abstract class DHRobot extends Robot {
 
 	/**
 	 * Adjust the world transform of the robot
+	 * 
 	 * @param pos the new world position for the local origin of the robot.
 	 */
 	@Override
 	public void setPosition(Vector3d pos) {
 		super.setPosition(pos);
-		
-		//refreshPose();
-		//if(panel!=null) panel.updateEnd();
+
+		// refreshPose();
+		// if(panel!=null) panel.updateEnd();
 	}
 
-	
 	/**
-	 * Attach the nearest tool
-	 * Detach the active tool if there is one.
+	 * Attach the nearest tool Detach the active tool if there is one.
 	 */
 	public void toggleATC() {
-		if(dhTool!=null) {
+		if (dhTool != null) {
 			// we have a tool, release it.
 			removeTool();
 			return;
 		}
-		
-		// we have no tool.  Look out into the world...
+
+		// we have no tool. Look out into the world...
 		World world = getWorld();
-		if(world!=null) {
+		if (world != null) {
 			// Request from the world "is there a tool at the position of the end effector"?
-			Point3d target = new Point3d(this.liveMatrix.m03,this.liveMatrix.m13,this.liveMatrix.m23);
-			List<PhysicalObject> list = world.findPhysicalObjectsNear(target,10);
-	
+			Point3d target = new Point3d(this.liveMatrix.m03, this.liveMatrix.m13, this.liveMatrix.m23);
+			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
+
 			// If there is a tool, attach to it.
 			Iterator<PhysicalObject> iter = list.iterator();
-			while(iter.hasNext()) {
+			while (iter.hasNext()) {
 				PhysicalObject po = iter.next();
-				if(po instanceof DHTool) {
+				if (po instanceof DHTool) {
 					// probably the only one we'll find.
-					setTool((DHTool)po);
+					setTool((DHTool) po);
 				}
 			}
 		}
 	}
-	
-	
+
 	protected World getWorld() {
-		Entity p=parent;
-		while(p!=null) {
-			if(p instanceof World) {
-				return (World)p;
+		Entity p = parent;
+		while (p != null) {
+			if (p instanceof World) {
+				return (World) p;
 			}
 		}
 		return null;
 	}
-	
-	
+
 	public void setTool(DHTool arg0) {
 		removeTool();
 		dhTool = arg0;
 		dhTool.setParent(this);
-		if(arg0!=null) {
+		if (arg0 != null) {
 			// add the tool offset to the targetPose.
 			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d toolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
@@ -349,10 +361,9 @@ public abstract class DHRobot extends Robot {
 		}
 		this.panel.updateActiveTool(dhTool);
 	}
-	
-	
+
 	public void removeTool() {
-		if(dhTool!=null) {
+		if (dhTool != null) {
 			// subtract the tool offset from the targetPose.
 			dhTool.dhLinkEquivalent.refreshPoseMatrix();
 			Matrix4d inverseToolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
@@ -364,13 +375,11 @@ public abstract class DHRobot extends Robot {
 		}
 		dhTool = null;
 	}
-	
-	
+
 	public DHTool getCurrentTool() {
 		return dhTool;
 	}
-	
-	
+
 	/**
 	 * Note: Is called by Robot constructor, so it must use getSolverIK().
 	 */
@@ -379,523 +388,581 @@ public abstract class DHRobot extends Robot {
 		return new DHKeyframe(getSolverIK().getSolutionSize());
 	}
 
-	
+	public Vector3d getForward(Matrix3d frameOfReference) {
+		return new Vector3d(frameOfReference.m20, frameOfReference.m21, frameOfReference.m22);
+	}
+
+	public Vector3d getUp(Matrix3d frameOfReference) {
+		return new Vector3d(frameOfReference.m10, frameOfReference.m11, frameOfReference.m12);
+	}
+
+	public Vector3d getRight(Matrix3d frameOfReference) {
+		return new Vector3d(frameOfReference.m00, frameOfReference.m01, frameOfReference.m02);
+	}
+
 	/**
+	 * move the finger tip of the arm if the InputManager says so. The direction and
+	 * torque of the movement is controlled by a frame of reference.
+	 * 
 	 * @return true if targetPose changes.
 	 */
-	public boolean driveFromKeyState() {
-		// we have no tool.  Look out into the world...
-		World world = getWorld();
-		Camera cam=null;
-		if(world!=null) {
-			// find the camera
-			Iterator<Entity> iter = world.getChildren().iterator();
-			while(iter.hasNext()) {
-				Entity e = iter.next();
-				if(e instanceof Camera) {
-					// probably the only one we'll find.
-					cam = (Camera)e;
-				}
-			}
+	public boolean driveFromKeyState(Matrix3d frameOfReference,double dt) {
+		boolean isDirty = false;
+		final double scale = 10*dt;
+		final double scaleDolly = 10*dt;
+		final double scaleTurnRadians = Math.toRadians(10)*dt;
+
+		if (InputManager.isOn(InputManager.STICK_SQUARE)) {
 		}
-		//if(cam==null) return false;
-		
-		boolean isDirty=false;
-		final double scale=0.4;
-		final double scaleDolly=0.4;
-		final double scaleTurn=0.15;
-		
-		if(InputManager.isOn(InputManager.STICK_SQUARE)) {}
-		if(InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
-			//this.toggleATC();
+		if (InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
+			// this.toggleATC();
 		}
-		if(InputManager.isOn(InputManager.STICK_SQUARE)) {}
-		if(InputManager.isOn(InputManager.STICK_TRIANGLE)) {
+		if (InputManager.isOn(InputManager.STICK_SQUARE)) {
+		}
+		if (InputManager.isOn(InputManager.STICK_TRIANGLE)) {
 			targetMatrix.set(homeMatrix);
-			isDirty=true;
+			isDirty = true;
 		}
-		
-		int dD=(int)InputManager.rawValue(InputManager.STICK_DPADY);
-		if(dD!=0) {
-			dhTool.dhLinkEquivalent.d+=dD*scaleDolly;
-			if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
-			isDirty=true;
+
+		int dD = (int) InputManager.rawValue(InputManager.STICK_DPADY);
+		if (dD != 0) {
+			dhTool.dhLinkEquivalent.d += dD * scaleDolly;
+			if (dhTool.dhLinkEquivalent.d < 0)
+				dhTool.dhLinkEquivalent.d = 0;
+			isDirty = true;
 		}
-		int dR=(int)InputManager.rawValue(InputManager.STICK_DPADX);  // dpad left/right
-		if(dR!=0) {
-			dhTool.dhLinkEquivalent.r+=dR*scale;
-			if(dhTool.dhLinkEquivalent.r<0) dhTool.dhLinkEquivalent.r=0;
-			isDirty=true;
+		int dR = (int) InputManager.rawValue(InputManager.STICK_DPADX); // dpad left/right
+		if (dR != 0) {
+			dhTool.dhLinkEquivalent.r += dR * scale;
+			if (dhTool.dhLinkEquivalent.r < 0)
+				dhTool.dhLinkEquivalent.r = 0;
+			isDirty = true;
 		}
-		
+
 		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
-		if(InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
-			if(canTargetPoseRotateZ()) {
-	    		isDirty=true;
-	    		rollZ(cam,InputManager.isOn(InputManager.STICK_L1) ? scaleTurn : -scaleTurn);
-			}
-    	}
-		
-		if(InputManager.rawValue(InputManager.STICK_RX)!=0) {
-			if(canTargetPoseRotateY()) {
-	    		isDirty=true;
-	    		rollY(cam,InputManager.rawValue(InputManager.STICK_RX)*scaleTurn);
+		if (InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
+			if (canTargetPoseRotateZ()) {
+				isDirty = true;
+				double vv = scaleTurnRadians;
+				if (dhTool != null && dhTool.dhLinkEquivalent.r > 1) {
+					vv /= dhTool.dhLinkEquivalent.r;
+				}
+
+				rollZ(frameOfReference, InputManager.isOn(InputManager.STICK_L1) ? vv : -vv);
 			}
 		}
-		if(InputManager.rawValue(InputManager.STICK_RY)!=0) {
-			if(canTargetPoseRotateX()) {
-	    		isDirty=true;
-	    		rollX(cam,InputManager.rawValue(InputManager.STICK_RY)*scaleTurn);
+
+		if (InputManager.rawValue(InputManager.STICK_RX) != 0) {
+			if (canTargetPoseRotateY()) {
+				isDirty = true;
+				rollY(frameOfReference, InputManager.rawValue(InputManager.STICK_RX) * scaleTurnRadians);
 			}
-    	}
-		if(InputManager.rawValue(InputManager.STICK_R2)!=-1) {
-    		isDirty=true;
-    		pullZ(cam,((InputManager.rawValue(InputManager.STICK_R2)+1)/2)*scale);
 		}
-		if(InputManager.rawValue(InputManager.STICK_L2)!=-1) {
-    		isDirty=true;
-    		pullZ(cam,((InputManager.rawValue(InputManager.STICK_L2)+1)/2)*-scale);
+		if (InputManager.rawValue(InputManager.STICK_RY) != 0) {
+			if (canTargetPoseRotateX()) {
+				isDirty = true;
+				rollX(frameOfReference, InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
+			}
 		}
-		if(InputManager.rawValue(InputManager.STICK_LX)!=0) {
-    		isDirty=true;
-    		pullX(cam,InputManager.rawValue(InputManager.STICK_LX)*-scale);
+		if (InputManager.rawValue(InputManager.STICK_R2) != -1) {
+			isDirty = true;
+			dollyForward(getForward(frameOfReference), ((InputManager.rawValue(InputManager.STICK_R2) + 1) / 2) * scale);
 		}
-		if(InputManager.rawValue(InputManager.STICK_LY)!=0) {
-    		isDirty=true;
-    		pullY(cam,InputManager.rawValue(InputManager.STICK_LY)*-scale);
+		if (InputManager.rawValue(InputManager.STICK_L2) != -1) {
+			isDirty = true;
+			dollyForward(getForward(frameOfReference), ((InputManager.rawValue(InputManager.STICK_L2) + 1) / 2) * -scale);
 		}
-		
-		if(InputManager.isOn(InputManager.MOUSE_LEFT)) {
-			if(InputManager.isOn(InputManager.KEY_LSHIFT) ||
-				InputManager.isOn(InputManager.KEY_RSHIFT)) {
-				if(InputManager.rawValue(InputManager.MOUSE_X)!=0) {
-					if(canTargetPoseRotateX()) {
-			    		isDirty=true;
-			    		rollX(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_X)));
+		if (InputManager.rawValue(InputManager.STICK_LX) != 0) {
+			isDirty = true;
+			truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.STICK_LX) * -scale);
+		}
+		if (InputManager.rawValue(InputManager.STICK_LY) != 0) {
+			isDirty = true;
+			pedestalUp(getUp(frameOfReference), InputManager.rawValue(InputManager.STICK_LY) * -scale);
+		}
+
+		if (InputManager.isOn(InputManager.MOUSE_LEFT)) {
+			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
+				if (InputManager.isOn(InputManager.KEY_LALT) || InputManager.isOn(InputManager.KEY_RALT)) {
+					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
+						if (canTargetPoseRotateZ()) {
+							isDirty = true;
+							rollZ(frameOfReference, InputManager.rawValue(InputManager.MOUSE_X) * scaleTurnRadians );
+						}
+					}
+				} else {
+					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
+						if (canTargetPoseRotateX()) {
+							isDirty = true;
+							rollY(frameOfReference, InputManager.rawValue(InputManager.MOUSE_X) * scaleTurnRadians );
+						}
+					}
+					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
+						if (canTargetPoseRotateY()) {
+							isDirty = true;
+							rollX(frameOfReference, InputManager.rawValue(InputManager.MOUSE_Y) * scaleTurnRadians );
+						}
 					}
 				}
-				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
-					if(canTargetPoseRotateY()) {
-			    		isDirty=true;
-			    		rollY(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_Y)));
-					}
-				}
-			} else if(InputManager.isOn(InputManager.KEY_LALT) ||
-					InputManager.isOn(InputManager.KEY_RALT)) {
-				if(InputManager.rawValue(InputManager.MOUSE_X)!=0) {
-					if(canTargetPoseRotateZ()) {
-						isDirty=true;
-			    		rollZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_X)));
-					}
-				}
-				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
-					if(canTargetPoseRotateZ()) {
-						isDirty=true;
-			    		pullZ(cam,Math.toRadians(InputManager.rawValue(InputManager.MOUSE_Y)*3));
-					}
-				}
-			} else if(InputManager.isOn(InputManager.KEY_LCONTROL) ||
-					InputManager.isOn(InputManager.KEY_RCONTROL)) {
-				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
-					dhTool.dhLinkEquivalent.d+=InputManager.rawValue(InputManager.MOUSE_Y)*scaleDolly;
-					if(dhTool.dhLinkEquivalent.d<0) dhTool.dhLinkEquivalent.d=0;
-					isDirty=true;
+			} else if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
+				if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
+					dhTool.dhLinkEquivalent.d += InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
+					if (dhTool.dhLinkEquivalent.d < 0)
+						dhTool.dhLinkEquivalent.d = 0;
+					isDirty = true;
 				}
 			} else {
-				if(InputManager.rawValue(InputManager.MOUSE_X)!=0) {
-		    		isDirty=true;
-		    		pullX(cam,InputManager.rawValue(InputManager.MOUSE_X)*-scale*0.5);
-				}
-				if(InputManager.rawValue(InputManager.MOUSE_Y)!=0) {
-		    		isDirty=true;
-		    		pullY(cam,InputManager.rawValue(InputManager.MOUSE_Y)*-scale*0.5);
+				if (InputManager.isOn(InputManager.KEY_LALT) || InputManager.isOn(InputManager.KEY_RALT)) {
+					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
+						if (canTargetPoseRotateZ()) {
+							isDirty = true;
+							dollyForward(getForward(frameOfReference), InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly);
+						}
+					}
+				} else { 
+					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
+						isDirty = true;
+						truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.MOUSE_X) * -scale * 0.5);
+					}
+					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
+						isDirty = true;
+						pedestalUp(getUp(frameOfReference), InputManager.rawValue(InputManager.MOUSE_Y) * -scale * 0.5);
+					}
 				}
 			}
 		}
-		
-        if(dhTool!=null) {
-        	isDirty |= dhTool.directDrive();
-        }
 
-		if( InputManager.isOn(InputManager.KEY_RETURN) ||
-			InputManager.isOn(InputManager.KEY_ENTER) ||
-			InputManager.isOn(InputManager.STICK_X) || 
-			immediateDriving) {
+		if (dhTool != null) {
+			isDirty |= dhTool.directDrive();
+		}
+
+		if (InputManager.isOn(InputManager.KEY_RETURN) 
+				|| InputManager.isOn(InputManager.KEY_ENTER)
+				|| InputManager.isOn(InputManager.STICK_X) 
+				|| immediateDriving) {
 			// commit move!
 			moveToTargetPose();
 		}
-		
-		if(InputManager.isOn(InputManager.KEY_DELETE) ||
-			InputManager.isOn(InputManager.STICK_TRIANGLE)) {
+
+		if (InputManager.isOn(InputManager.KEY_DELETE) || InputManager.isOn(InputManager.STICK_TRIANGLE)) {
 			// reset targetpose to endmatrix.
 			targetMatrix.set(liveMatrix);
 		}
-        
-        return isDirty;
+
+		return isDirty;
 	}
 
-	protected void rollX(Camera cam,double amount) {
-		Matrix4d temp = new Matrix4d();
-		temp.rotX(amount);
-		if(rotateOnWorldAxies) {
-			Vector3d trans=new Vector3d();
-			targetMatrix.get(trans);
-			targetMatrix.setTranslation(new Vector3d(0,0,0));
-			targetMatrix.mul(temp,targetMatrix);
-			targetMatrix.setTranslation(trans);
-		} else {
-			targetMatrix.mul(temp);
-		}
+	protected void rotationInternal(Matrix3d frameOfReference,Matrix3d rotation) {
+		// multiply robot origin by target matrix to get target matrix in world space.
+		Matrix3d robotPose = new Matrix3d();
+		this.getMatrix().get(robotPose);
+
+		Matrix3d targetMatrixRobotSpace = new Matrix3d();
+		targetMatrix.get(targetMatrixRobotSpace);
+		
+		Matrix3d targetMatrixWorldSpace = new Matrix3d();
+		targetMatrixWorldSpace.mul(robotPose,targetMatrixRobotSpace);
+		
+		// invert frame of reference to transform world target matrix into frame of reference space.
+		Matrix3d invFOR = new Matrix3d(frameOfReference);
+		invFOR.invert();
+		Matrix3d targetMatrixFORSpace = new Matrix3d();
+		targetMatrixFORSpace.mul(targetMatrixWorldSpace,invFOR);
+		
+		// apply transform about the origin,
+		Matrix3d targetMatrixFORSpaceAfterTransform = new Matrix3d();
+		//rotation.setIdentity();
+		targetMatrixFORSpaceAfterTransform.mul(targetMatrixFORSpace,rotation);
+		
+		// remove the frame of reference
+		Matrix3d targetMatrixWorldSpaceAfterTransform = new Matrix3d();
+		targetMatrixWorldSpaceAfterTransform.mul(frameOfReference,targetMatrixFORSpaceAfterTransform);
+
+
+		Matrix3d invRobotPose = new Matrix3d(robotPose);
+		invRobotPose.invert();
+		
+		Matrix3d targetMatrixRobotSpaceAfterTransform = new Matrix3d();
+		targetMatrixRobotSpaceAfterTransform.mul(invRobotPose,targetMatrixWorldSpaceAfterTransform);
+		
+		// done!
+		Vector3d tempPosition = new Vector3d();
+		targetMatrix.get(tempPosition);
+		targetMatrix.set(targetMatrixRobotSpaceAfterTransform);
+		targetMatrix.setTranslation(tempPosition);
 	}
-	protected void rollY(Camera cam,double amount) {
-		Matrix4d temp = new Matrix4d();
-		temp.rotY(amount);
-		if(rotateOnWorldAxies) {
-			Vector3d trans=new Vector3d();
-			targetMatrix.get(trans);
-			targetMatrix.setTranslation(new Vector3d(0,0,0));
-			targetMatrix.mul(temp,targetMatrix);
-			targetMatrix.setTranslation(trans);
-		} else {
-			targetMatrix.mul(temp);
-		}
+
+	protected void rollX(Matrix3d frameOfReference,double angRadians) {
+		// apply transform about the origin,
+		Matrix3d temp = new Matrix3d();
+		temp.rotX(angRadians);
+		rotationInternal(frameOfReference,temp);
 	}
-	protected void rollZ(Camera cam,double amount) {
-		double vv = amount;
-		if(dhTool!=null && dhTool.dhLinkEquivalent.r>1) {
-			vv/=dhTool.dhLinkEquivalent.r;
-		}
-		Matrix4d temp = new Matrix4d();
-		temp.rotZ(vv);
-		if(rotateOnWorldAxies) {
-			Vector3d trans=new Vector3d();
-			targetMatrix.get(trans);
-			targetMatrix.setTranslation(new Vector3d(0,0,0));
-			targetMatrix.mul(temp,targetMatrix);
-			targetMatrix.setTranslation(trans);
-		} else {
-			targetMatrix.mul(temp);
-		}
+
+	protected void rollY(Matrix3d frameOfReference,double angRadians) {
+		// apply transform about the origin,
+		Matrix3d temp = new Matrix3d();
+		temp.rotY(angRadians);
+		rotationInternal(frameOfReference,temp);
 	}
-	
-	protected void pullX(Camera cam,double amount) {
-		Point3d v = new Point3d();
-		if(cam!=null) v.set(cam.getRight());
-		else v.set(0,1,0);
-		v.scale(amount);
+	protected void rollZ(Matrix3d frameOfReference,double angRadians) {
+		Matrix3d temp = new Matrix3d();
+		temp.rotZ(angRadians);
+		rotationInternal(frameOfReference,temp);
+	}
+
+	protected void truckRight(Vector3d right, double amount) {
 		Matrix3d m = new Matrix3d();
 		this.getMatrix().get(m);
 		m.invert();
-		m.transform(v);
-		targetMatrix.m03+=v.x;
-		targetMatrix.m13+=v.y;
-		targetMatrix.m23+=v.z;
+		m.transform(right);
+		
+		targetMatrix.m03 += right.x*amount;
+		targetMatrix.m13 += right.y*amount;
+		targetMatrix.m23 += right.z*amount;
 	}
-	protected void pullY(Camera cam,double amount) {
-		Point3d v = new Point3d();
-		if(cam!=null) v.set(cam.getUp());
-		else v.set(0,1,0);
-		v.scale(amount);
-		Matrix3d m = new Matrix3d();
-		this.getMatrix().get(m);
-		m.transform(v);
-		targetMatrix.m03+=v.x;
-		targetMatrix.m13+=v.y;
-		targetMatrix.m23+=v.z;
-	}
-	protected void pullZ(Camera cam,double amount) {
-		Point3d v = new Point3d();
-		if(cam!=null) v.set(cam.getForward());
-		else v.set(0,0,1);
-		v.scale(amount);
+
+	protected void pedestalUp(Vector3d up, double amount) {
 		Matrix3d m = new Matrix3d();
 		this.getMatrix().get(m);
 		m.invert();
-		m.transform(v);
-		targetMatrix.m03+=v.x;
-		targetMatrix.m13+=v.y;
-		targetMatrix.m23+=v.z;
+		m.transform(up);
+		
+		targetMatrix.m03 += up.x*amount;
+		targetMatrix.m13 += up.y*amount;
+		targetMatrix.m23 += up.z*amount;
 	}
-	
+
+	protected void dollyForward(Vector3d forward, double amount) {
+		Matrix3d m = new Matrix3d();
+		this.getMatrix().get(m);
+		m.invert();
+		m.transform(forward);
+		
+		targetMatrix.m03 += forward.x*amount;
+		targetMatrix.m13 += forward.y*amount;
+		targetMatrix.m23 += forward.z*amount;
+	}
+
 	/**
-	 * Direct Drive Mode means that we're not playing animation of any kind.
-	 * That means no gcode running, no scrubbing on a timeline, or any other kind of external control.
-	 * @return true if we're in direct drive mode. 
+	 * Direct Drive Mode means that we're not playing animation of any kind. That
+	 * means no gcode running, no scrubbing on a timeline, or any other kind of
+	 * external control.
+	 * 
+	 * @return true if we're in direct drive mode.
 	 */
 	protected boolean inDirectDriveMode() {
-		return true;//interpolatePoseT>=1.0 ;
+		return true;// interpolatePoseT>=1.0 ;
 	}
-	
 
 	protected void interpolate(double dt) {
 		// do not simulate movement when connected to a live robot.
-		if(connection!=null && connection.isOpen()) return;
-		
-		if(dwellTime>0) {
-			dwellTime-=dt;
+		if (connection != null && connection.isOpen())
+			return;
+
+		if (dwellTime > 0) {
+			dwellTime -= dt;
 			return;
 		}
 
-		final int INTERPOLATION_STYLE_STRAIGHT=0;
-		final int INTERPOLATION_STYLE_JACOBIAN=1;
+		final int INTERPOLATION_STYLE_STRAIGHT = 0;
+		final int INTERPOLATION_STYLE_JACOBIAN = 1;
 		int interpolationStyle = INTERPOLATION_STYLE_STRAIGHT;
-		
-		switch(interpolationStyle) {
-		case INTERPOLATION_STYLE_STRAIGHT:  interpolateStraight(dt);  break;
-		case INTERPOLATION_STYLE_JACOBIAN:  interpolateJacobian(dt);  break;
+
+		switch (interpolationStyle) {
+		case INTERPOLATION_STYLE_STRAIGHT:
+			interpolateStraight(dt);
+			break;
+		case INTERPOLATION_STYLE_JACOBIAN:
+			interpolateJacobian(dt);
+			break;
 		}
 	}
-	
-	
+
 	/**
-	 * interpolation between two matrixes linearly, and update kinematics while you're at it.
+	 * interpolation between two matrixes linearly, and update kinematics while
+	 * you're at it.
+	 * 
 	 * @param dt
 	 */
 	protected void interpolateStraight(double dt) {
-		if(interpolatePoseT==1 && interpolationQueue.isEmpty()) return;
-		if(interpolatePoseT<1) {
-			interpolatePoseT+=dt;
+		double timeSpan = 1000.0/5.0;
+		if (interpolatePoseT == 1 && interpolationQueue.isEmpty())
+			return;
+		if (interpolatePoseT < 1) {
+			interpolatePoseT += dt*timeSpan;
 		}
-		if(interpolatePoseT>=1) {
-			if(interpolationQueue.isEmpty()) {
+		if (interpolatePoseT >= 1) {
+			if (interpolationQueue.isEmpty()) {
 				// will reach final position and stop.
-				interpolatePoseT=1;
+				interpolatePoseT = 1;
 			} else {
+				System.out.println("interpolationQueue.size()="+interpolationQueue.size());
 				// pop one element from the queue and continue.
 				startMatrix.set(liveMatrix);
 				endMatrix.set(interpolationQueue.poll());
 				interpolatePoseT--;
 			}
 		}
-		
-		if(interpolationQueue.isEmpty()) return;
-		
-		// changing the end matrix will only move the simulated version of the "live" robot.
+
+		if (interpolationQueue.isEmpty())
+			return;
+
+		// changing the end matrix will only move the simulated version of the "live"
+		// robot.
 		MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
-		
-    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-    		// Solved!  Are angles OK for this robot?
-    		if(sanityCheck(solutionKeyframe)) {
-        		setLivePose(solutionKeyframe);
-    		}
-    	}
-	
-		if(dhTool!=null) {
+
+		solver.solveWithSuggestion(this, liveMatrix, solutionKeyframe, poseNow);
+		if (solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
+			// Solved! Are angles OK for this robot?
+			if (sanityCheck(solutionKeyframe)) {
+				setLivePose(solutionKeyframe);
+			}
+		}
+
+		if (dhTool != null) {
 			dhTool.interpolate(dt);
 		}
 	}
-	
 
 	/**
-	 * interpolation between two matrixes using jacobians, and update kinematics while you're at it.
+	 * interpolation between two matrixes using jacobians, and update kinematics
+	 * while you're at it.
+	 * 
 	 * @param dt
 	 */
 	protected void interpolateJacobian(double dt) {
-		if(interpolationQueue.isEmpty()) return;
-		
-		// changing the end matrix will only move the simulated version of the "live" robot.
+		if (interpolationQueue.isEmpty())
+			return;
+
+		// changing the end matrix will only move the simulated version of the "live"
+		// robot.
 		MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT, liveMatrix);
-		
-    	solver.solveWithSuggestion(this,liveMatrix,solutionKeyframe,poseNow);
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-    		// Solved!  Are angles OK for this robot?
-    		if(sanityCheck(solutionKeyframe)) {
-    			if(this instanceof Sixi2) {
-    				endMatrix.set(interpolationQueue.peek());
-    				// sane solution
-    				DHKeyframe keyframe = (DHKeyframe)createKeyframe();
-    				keyframe.set(solutionKeyframe);
-    				double [][] jacobian = ((Sixi2)this).approximateJacobian(keyframe);
-    				double [][] inverseJacobian = MatrixHelper.invert(jacobian);
-    				double [] force = {
-    						endMatrix.m03-liveMatrix.m03,
-    						endMatrix.m13-liveMatrix.m13,
-    						endMatrix.m23-liveMatrix.m23,
-    						0,0,0};
-    				double df = Math.sqrt(
-    						force[0]*force[0]
-    						+force[1]*force[1]
-    						+force[2]*force[2]
-    						+force[3]*force[3]
-    						+force[4]*force[4]
-    						+force[5]*force[5]
-    								);
-    				if(df>0.01) {
-	    				double [] jvot = new double[6];
-	    				int j,k;
-	    				for(j=0;j<6;++j) {
-	    					for(k=0;k<6;++k) {
-	    						jvot[j]+=inverseJacobian[k][j]*force[k];
-	    					}
-	    					if(!Double.isNaN(jvot[j])) {
-	    						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*dt;
-	    					}
-	    				}
-	    				setLivePose(keyframe);
-    				} else {
-    					interpolationQueue.poll();
-    				}
-    			}
-    		}
+
+		solver.solveWithSuggestion(this, liveMatrix, solutionKeyframe, poseNow);
+		if (solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
+			// Solved! Are angles OK for this robot?
+			if (sanityCheck(solutionKeyframe)) {
+				if (this instanceof Sixi2) {
+					endMatrix.set(interpolationQueue.peek());
+					// sane solution
+					DHKeyframe keyframe = (DHKeyframe) createKeyframe();
+					keyframe.set(solutionKeyframe);
+					double[][] jacobian = ((Sixi2) this).approximateJacobian(keyframe);
+					double[][] inverseJacobian = MatrixHelper.invert(jacobian);
+					double[] force = { endMatrix.m03 - liveMatrix.m03, endMatrix.m13 - liveMatrix.m13,
+							endMatrix.m23 - liveMatrix.m23, 0, 0, 0 };
+					double df = Math.sqrt(
+							force[0] * force[0] + 
+							force[1] * force[1] + 
+							force[2] * force[2] +
+							force[3] * force[3] +
+							force[4] * force[4] +
+							force[5] * force[5]);
+					if (df > 0.01) {
+						double[] jvot = new double[6];
+						int j, k;
+						for (j = 0; j < 6; ++j) {
+							for (k = 0; k < 6; ++k) {
+								jvot[j] += inverseJacobian[k][j] * force[k];
+							}
+							if (!Double.isNaN(jvot[j])) {
+								keyframe.fkValues[j] += Math.toDegrees(jvot[j]) * dt;
+							}
+						}
+						setLivePose(keyframe);
+					} else {
+						interpolationQueue.poll();
+					}
+				}
+			}
 		}
-		
-		if(dhTool!=null) {
+
+		if (dhTool != null) {
 			dhTool.interpolate(dt);
 		}
 	}
 
+	Matrix3d showTimeBefore = new Matrix3d();
+	Matrix3d showTimeAfter = new Matrix3d();
+	
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		
-		interpolate(dt*0.25);
-		//interpolate(dt);
-		
-        // If the move is illegal then I need a way to rewind.  Keep the old pose for rewinding.
-        oldMatrix.set(targetMatrix);
 
-        if(inDirectDriveMode()) {
-        	if(driveFromKeyState()) {
-        		if(panel!=null) panel.updateGhostEnd();
-        	}
-        }
+		interpolate(dt * 0.25);
+		// interpolate(dt);
 
-    	// Attempt to solve IK for the targetMatrix.  This only drives the simulated arm.
-    	solver.solveWithSuggestion(this,targetMatrix,solutionKeyframe,poseNow);
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-    		// Solved!  Are angles OK for this robot?
-    		if(sanityCheck(solutionKeyframe)) {
-    			// targetPose is valid
+		// If the move is illegal then I need a way to rewind. Keep the old pose for
+		// rewinding.
+		oldMatrix.set(targetMatrix);
+
+		if (inDirectDriveMode()) {
+			Matrix4d frameOfRef;
+			switch(frameOfReferenceIndex) {
+			case 2:
+				// use the robot's finger tip as the frame of reference
+				frameOfRef = new Matrix4d(targetMatrix);
+				{
+					frameOfRef = new Matrix4d(this.targetMatrix);
+					Matrix4d robotPose = new Matrix4d(this.getMatrix());
+					frameOfRef.mul(robotPose,frameOfRef);
+					frameOfRef.invert();
+				}
+				break;
+			case 1:
+				// use the camera as the frame of reference.
+				// first find the camera.
+				World world = getWorld();
+				Camera cam = null;
+				if (world != null) {
+					// find the camera
+					Iterator<Entity> iter = world.getChildren().iterator();
+					while (iter.hasNext()) {
+						Entity e = iter.next();
+						if (e instanceof Camera) {
+							// probably the only one we'll find.
+							cam = (Camera) e;
+						}
+					}
+				}
+				
+				{
+					frameOfRef = new Matrix4d(cam.getMatrix());
+					frameOfRef.invert();
+				}
+				break;
+			case 0:
+			default:
+				// use the world as the frame of reference.
+				{
+					frameOfRef = new Matrix4d(World.getPose());
+				}
+				break;
+			}
+
+			Matrix3d rotationOnly = new Matrix3d();
+			frameOfRef.get(rotationOnly);
+			if (driveFromKeyState(rotationOnly,dt)) {
+				if (panel != null)
+					panel.updateGhostEnd();
+			}
+		}
+
+		// Attempt to solve IK for the targetMatrix. This only drives the simulated arm.
+		solver.solveWithSuggestion(this, targetMatrix, solutionKeyframe, poseNow);
+		if (solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
+			// Solved! Are angles OK for this robot?
+			if (sanityCheck(solutionKeyframe)) {
+				// targetPose is valid
 			} else {
 				// failed sanity check
 				targetMatrix.set(oldMatrix);
-				//System.out.println("Insane solution");
+				// System.out.println("Insane solution");
 			}
 		} else {
 			// No valid IK solution.
 			targetMatrix.set(oldMatrix);
-			//System.out.println("No solution");
+			// System.out.println("No solution");
 		}
-    	// not in direct drive mode.
-    	// are we playing a gcode file?
-
-    	// The normal process is to send as many commands as fast the brain can handle.
-    	// it will then queue the commands and - where appropriate - optimize speed between commands.
-    	// The Arduino Mega in the Sixi 2 is too slow to calculate IK so they have to be done on the PC.
-    	// The Arduino Mega in the Sixi 2 only understands joint-angle values in the robot arm.
-    	//
-    	// If I send only the (potentially distant) target pose as joint-angle values, the robot will move in large arcs.
-    	// I may need to send several sub-moves, close enough together that the result looks straight.  I don't yet know how small
-    	// those moves will be.
-    	//
-    	// I cannot algorithmically interpolate between joint-angle values in a straight line.
-    	// I can algorithmically interpolate between two matrixes (see com.marginallyclever.convenience.MatrixHelper.interpolate())
-    	// For this reason I store target poses as matrixes in PC instead of joint-angle values.
-    	// 
-    	// Inverse Kinematics (IK) in the PC will then convert a matrix into angle values.
-    	//
-    	// If path-splitting is enabled {
-        	// I can compare the distance/angle between the two matrixes in the list.
-        	// If the distance/angle is more than some value, I want to split the movement into sub-commands.
-        	// Splitting commands means finding the matrix at the split points, which means interpolating between two matrixes.  
-        	// MatrixHelper.interpolate() can be used here.
-    		// then the list gets bigger to include the intermediate matrixes
-    	// }
-    	// Once I have the list matrixes, I run the IK solver on each matrix, which generates a list of angle values.
-    	// Then I send the matrixes to the robot as fast as it can handle them.
 	}
-	
+
 	public void moveToTargetPose() {
-    	//solver.solve(this,targetMatrix,solutionKeyframe);
-    	solver.solveWithSuggestion(this,targetMatrix,solutionKeyframe,poseNow);
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-    		// Solved!  Are angles OK for this robot?
-    		if(sanityCheck(solutionKeyframe)) {
-				// Yes!  Are we connected to a live robot?        			
-				if(connection!=null && connection.isOpen() /*&& isReadyToReceive*/) {
-					// Send our internal data to the robot.  Each robot probably has its own post-processor.
+		// solver.solve(this,targetMatrix,solutionKeyframe);
+		solver.solveWithSuggestion(this, targetMatrix, solutionKeyframe, poseNow);
+		if (solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
+			// Solved! Are angles OK for this robot?
+			if (sanityCheck(solutionKeyframe)) {
+				// Yes! Are we connected to a live robot?
+				if (connection != null && connection.isOpen() /* && isReadyToReceive */) {
+					// Send our internal data to the robot. Each robot probably has its own
+					// post-processor.
 					sendNewStateToRobot(solutionKeyframe);
-					// We'll let the robot set isReadyToReceive true when it can.  This prevents flooding the robot with data.
-					isReadyToReceive=false;
+					// We'll let the robot set isReadyToReceive true when it can. This prevents
+					// flooding the robot with data.
+					isReadyToReceive = false;
 				} else {
 					// No connected robot, update the pose directly.
-		    		//this.setRobotPose(solutionKeyframe);
+					// this.setRobotPose(solutionKeyframe);
+					System.out.println("Offer "+interpolationQueue.size());
 					interpolationQueue.offer(targetMatrix);
 				}
-    		} else {
-        		System.out.println("moveToTargetPose() insane");
-        	}
-    	} else {
-    		System.out.println("moveToTargetPose() impossible");
-    	}
+			} else {
+				System.out.println("moveToTargetPose() insane");
+			}
+		} else {
+			System.out.println("moveToTargetPose() impossible");
+		}
 	}
-	
+
 	/**
-	 * Robot is connected and ready to receive.  Send the current FK values to the robot.
-	 * Post-process translate the FK values and send them, along with tool state, etc. 
+	 * Robot is connected and ready to receive. Send the current FK values to the
+	 * robot. Post-process translate the FK values and send them, along with tool
+	 * state, etc.
+	 * 
 	 * @param keyframe
 	 */
 	public abstract void sendNewStateToRobot(DHKeyframe keyframe);
-	
-	
+
 	public void drawTargetPose(GL2 gl2) {
 		gl2.glPushMatrix();
 
 		MatrixHelper.applyMatrix(gl2, this.getMatrix());
 		MatrixHelper.drawMatrix(gl2, targetMatrix, 5);
-		
+
 		gl2.glPopMatrix();
 	}
-	
 
 	public boolean sanityCheck(DHKeyframe keyframe) {
-		if(!keyframeAnglesAreOK(keyframe)) return false;
-		if(!selfCollision(keyframe)) return false;
+		if (!keyframeAnglesAreOK(keyframe))
+			return false;
+		if (!selfCollision(keyframe))
+			return false;
 		return true;
 	}
 
 	/**
-	 * Test physical bounds of link N against all links &lt;N-1 and all links &gt;N+1
-	 * We're using separating Axis Theorem.  See https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
+	 * Test physical bounds of link N against all links &lt;N-1 and all links
+	 * &gt;N+1 We're using separating Axis Theorem. See
+	 * https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
+	 * 
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
 	 */
 	public boolean selfCollision(DHKeyframe keyframe) {
-		boolean noCollision=true;
+		boolean noCollision = true;
 		// save the live pose
 		DHKeyframe saveKeyframe = this.getRobotPose();
 		// set the test pose
 		this.setDisablePanel(true);
 		this.setLivePose(keyframe);
 
-		hitBox1=-1;
-		hitBox2=-1;
-		
-		int size=links.size();
-		for(int i=0;i<size;++i) {
-			if(links.get(i).model==null) continue;
-			
-			for(int j=i+3;j<size;++j) {
-				if(links.get(j).model==null) continue;
-				
-				if(hasIntersection(links.get(i),links.get(j))) {
-					//System.out.println("Intersect "+i+"/"+j+" (1)!");
-					hitBox1=i;
-					hitBox2=j;
-					noCollision=false;
+		hitBox1 = -1;
+		hitBox2 = -1;
+
+		int size = links.size();
+		for (int i = 0; i < size; ++i) {
+			if (links.get(i).model == null)
+				continue;
+
+			for (int j = i + 3; j < size; ++j) {
+				if (links.get(j).model == null)
+					continue;
+
+				if (hasIntersection(links.get(i), links.get(j))) {
+					// System.out.println("Intersect "+i+"/"+j+" (1)!");
+					hitBox1 = i;
+					hitBox2 = j;
+					noCollision = false;
 					break;
-				}/*
-				if(hasIntersection(links.get(j),links.get(i))) {
-					System.out.println("Intersect "+i+"/"+j+" (2)!");
-					hitBox1=i;
-					hitBox2=j;
-					noCollision=false;
-					break;
-				}*/
+				} /*
+					 * if(hasIntersection(links.get(j),links.get(i))) {
+					 * System.out.println("Intersect "+i+"/"+j+" (2)!"); hitBox1=i; hitBox2=j;
+					 * noCollision=false; break; }
+					 */
 			}
-			if(noCollision==false) {
+			if (noCollision == false) {
 				break;
 			}
 		}
@@ -903,199 +970,214 @@ public abstract class DHRobot extends Robot {
 		// set the live pose
 		this.setLivePose(saveKeyframe);
 		this.setDisablePanel(false);
-		
+
 		return noCollision;
 	}
-	
-	
-	protected boolean hasIntersection(DHLink a,DHLink b) {
-		// get the normals for the box of A, which happen to be the three vectors of the matrix for this joint pose.
-		Vector3d [] n = new Vector3d[3];
-		n[0] = new Vector3d(a.poseCumulative.m00,a.poseCumulative.m10,a.poseCumulative.m20);
-		n[1] = new Vector3d(a.poseCumulative.m01,a.poseCumulative.m11,a.poseCumulative.m21);
-		n[2] = new Vector3d(a.poseCumulative.m02,a.poseCumulative.m12,a.poseCumulative.m22);
-		//System.out.println("matrix="+a.poseCumulative);
-		
-		//System.out.println("Acorners=");
-		Point3d [] aCorners = getCornersForLink(a);
-		//System.out.println("Bcorners=");
-		Point3d [] bCorners = getCornersForLink(b);
 
-		//String [] axis = {"X","Y","Z"};
-		
-		for(int i=0;i<n.length;++i) {
+	protected boolean hasIntersection(DHLink a, DHLink b) {
+		// get the normals for the box of A, which happen to be the three vectors of the
+		// matrix for this joint pose.
+		Vector3d[] n = new Vector3d[3];
+		n[0] = new Vector3d(a.poseCumulative.m00, a.poseCumulative.m10, a.poseCumulative.m20);
+		n[1] = new Vector3d(a.poseCumulative.m01, a.poseCumulative.m11, a.poseCumulative.m21);
+		n[2] = new Vector3d(a.poseCumulative.m02, a.poseCumulative.m12, a.poseCumulative.m22);
+		// System.out.println("matrix="+a.poseCumulative);
+
+		// System.out.println("Acorners=");
+		Point3d[] aCorners = getCornersForLink(a);
+		// System.out.println("Bcorners=");
+		Point3d[] bCorners = getCornersForLink(b);
+
+		// String [] axis = {"X","Y","Z"};
+
+		for (int i = 0; i < n.length; ++i) {
 			// SATTest the normals of A against the 8 points of box A.
 			// SATTest the normals of A against the 8 points of box B.
 			// points of each box are a combination of the box's top/bottom values.
-			double [] aLim = SATTest(n[i],aCorners);
-			double [] bLim = SATTest(n[i],bCorners);
-			//System.out.println("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" : "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
+			double[] aLim = SATTest(n[i], aCorners);
+			double[] bLim = SATTest(n[i], bCorners);
+			// System.out.println("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
+			// "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
 
-			// if the two box projections do not overlap then there is no chance of a collision.
-			if(!overlaps(aLim[0],aLim[1],bLim[0],bLim[1])) {
-				//System.out.println("Miss");
+			// if the two box projections do not overlap then there is no chance of a
+			// collision.
+			if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
+				// System.out.println("Miss");
 				return false;
 			}
 		}
-		
+
 		// intersect!
-		//System.out.println("Hit");
+		// System.out.println("Hit");
 		return true;
 	}
-	
+
 	/**
 	 * find the 8 corners of the bounding box and transform them into world space.
-	 * @param link the link that contains both the model bounds and the poseCumulative.
+	 * 
+	 * @param link the link that contains both the model bounds and the
+	 *             poseCumulative.
 	 * @return the 8 transformed Point3d.
 	 */
-	protected Point3d [] getCornersForLink(DHLink link) {
-		Point3d [] p = new Point3d[8];
+	protected Point3d[] getCornersForLink(DHLink link) {
+		Point3d[] p = new Point3d[8];
 
-		Point3d b=link.model.getBoundBottom();
-		Point3d t=link.model.getBoundTop();
-		
-		p[0]=new Point3d(b.x,b.y,b.z);
-		p[1]=new Point3d(b.x,b.y,t.z);
-		p[2]=new Point3d(b.x,t.y,b.z);
-		p[3]=new Point3d(b.x,t.y,t.z);
-		p[4]=new Point3d(t.x,b.y,b.z);
-		p[5]=new Point3d(t.x,b.y,t.z);
-		p[6]=new Point3d(t.x,t.y,b.z);
-		p[7]=new Point3d(t.x,t.y,t.z);
+		Point3d b = link.model.getBoundBottom();
+		Point3d t = link.model.getBoundTop();
 
-		for(int i=0;i<p.length;++i) {
-			//System.out.print("\t"+p[i]);
+		p[0] = new Point3d(b.x, b.y, b.z);
+		p[1] = new Point3d(b.x, b.y, t.z);
+		p[2] = new Point3d(b.x, t.y, b.z);
+		p[3] = new Point3d(b.x, t.y, t.z);
+		p[4] = new Point3d(t.x, b.y, b.z);
+		p[5] = new Point3d(t.x, b.y, t.z);
+		p[6] = new Point3d(t.x, t.y, b.z);
+		p[7] = new Point3d(t.x, t.y, t.z);
+
+		for (int i = 0; i < p.length; ++i) {
+			// System.out.print("\t"+p[i]);
 			link.poseCumulative.transform(p[i]);
-			//System.out.println(" >> "+p[i]);
+			// System.out.println(" >> "+p[i]);
 		}
-		
+
 		return p;
 	}
-	
-	protected boolean isBetween(double val,double bottom,double top) {
+
+	protected boolean isBetween(double val, double bottom, double top) {
 		return bottom <= val && val <= top;
 	}
 
-	protected boolean overlaps(double a0,double a1,double b0,double b1) {
-		return isBetween(b0,a0,a1) || isBetween(a0,b0,b1); 		
+	protected boolean overlaps(double a0, double a1, double b0, double b1) {
+		return isBetween(b0, a0, a1) || isBetween(a0, b0, b1);
 	}
-	
-	protected double [] SATTest(Vector3d normal,Point3d [] corners) {
-		double [] values = new double[2];
-		values[0]= Double.MAX_VALUE;  // min value
-		values[1]=-Double.MAX_VALUE;  // max value
-		
-		for(int i=0;i<corners.length;++i) {
-			double dotProduct = corners[i].x * normal.x
-							  + corners[i].y * normal.y
-							  + corners[i].z * normal.z;
-			if(values[0]>dotProduct) values[0]=dotProduct;
-			if(values[1]<dotProduct) values[1]=dotProduct;
+
+	protected double[] SATTest(Vector3d normal, Point3d[] corners) {
+		double[] values = new double[2];
+		values[0] = Double.MAX_VALUE; // min value
+		values[1] = -Double.MAX_VALUE; // max value
+
+		for (int i = 0; i < corners.length; ++i) {
+			double dotProduct = corners[i].x * normal.x + corners[i].y * normal.y + corners[i].z * normal.z;
+			if (values[0] > dotProduct)
+				values[0] = dotProduct;
+			if (values[1] < dotProduct)
+				values[1] = dotProduct;
 		}
-		
+
 		return values;
 	}
-	
+
 	/**
-	 * Perform a sanity check.  Make sure the angles in the keyframe are within the joint range limits. 
+	 * Perform a sanity check. Make sure the angles in the keyframe are within the
+	 * joint range limits.
+	 * 
 	 * @param keyframe
 	 * @return
 	 */
 	public boolean keyframeAnglesAreOK(DHKeyframe keyframe) {
 		Iterator<DHLink> i = this.links.iterator();
-		int j=0;
-		while(i.hasNext()) {
+		int j = 0;
+		while (i.hasNext()) {
 			DHLink link = i.next();
-			if((link.flags & DHLink.READ_ONLY_THETA)==0) {
+			if ((link.flags & DHLink.READ_ONLY_THETA) == 0) {
 				double v = keyframe.fkValues[j++];
-				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK theta "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+				if (link.rangeMax < v || link.rangeMin > v) {
+					System.out.println(
+							"FK theta " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 					return false;
 				}
 			}
-			if((link.flags & DHLink.READ_ONLY_D    )==0) {
+			if ((link.flags & DHLink.READ_ONLY_D) == 0) {
 				double v = keyframe.fkValues[j++];
-				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK D "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+				if (link.rangeMax < v || link.rangeMin > v) {
+					System.out.println("FK D " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 					return false;
 				}
 			}
-			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) {
+			if ((link.flags & DHLink.READ_ONLY_ALPHA) == 0) {
 				double v = keyframe.fkValues[j++];
-				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK alpha "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+				if (link.rangeMax < v || link.rangeMin > v) {
+					System.out.println(
+							"FK alpha " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 					return false;
 				}
 			}
-			if((link.flags & DHLink.READ_ONLY_R    )==0) {
+			if ((link.flags & DHLink.READ_ONLY_R) == 0) {
 				double v = keyframe.fkValues[j++];
-				if(link.rangeMax<v || link.rangeMin>v) {
-					System.out.println("FK R "+j+":"+v+" out ("+link.rangeMin+" to "+link.rangeMax+")");
+				if (link.rangeMax < v || link.rangeMin > v) {
+					System.out.println("FK R " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 					return false;
 				}
 			}
 		}
-		
-    	return true;
+
+		return true;
 	}
-	
-	
+
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
+	 * 
 	 * @param keyframe
 	 */
 	public void setLivePose(DHKeyframe keyframe) {
-		if(poseNow!=keyframe) {
+		if (poseNow != keyframe) {
 			poseNow.set(keyframe);
 		}
 		Iterator<DHLink> i = this.links.iterator();
-		int j=0;
-		while(i.hasNext()) {
+		int j = 0;
+		while (i.hasNext()) {
 			DHLink link = i.next();
-			if((link.flags & DHLink.READ_ONLY_THETA)==0) link.theta = keyframe.fkValues[j++];
-			if((link.flags & DHLink.READ_ONLY_D    )==0) link.d     = keyframe.fkValues[j++];
-			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) link.alpha = keyframe.fkValues[j++];
-			if((link.flags & DHLink.READ_ONLY_R    )==0) link.r     = keyframe.fkValues[j++];
+			if ((link.flags & DHLink.READ_ONLY_THETA) == 0)
+				link.theta = keyframe.fkValues[j++];
+			if ((link.flags & DHLink.READ_ONLY_D) == 0)
+				link.d = keyframe.fkValues[j++];
+			if ((link.flags & DHLink.READ_ONLY_ALPHA) == 0)
+				link.alpha = keyframe.fkValues[j++];
+			if ((link.flags & DHLink.READ_ONLY_R) == 0)
+				link.r = keyframe.fkValues[j++];
 		}
 
-    	this.refreshPose();
-    	if(panel!=null && !isDisablePanel()) {
-    		panel.updateEnd();
-    	}
-	}
-	
-	protected void extractKeyframeFromLinks(DHKeyframe keyframe) {
-		Iterator<DHLink> i = this.links.iterator();
-		int j=0;
-		while(i.hasNext()) {
-			DHLink link = i.next();
-			if((link.flags & DHLink.READ_ONLY_THETA)==0) keyframe.fkValues[j++] = link.theta;
-			if((link.flags & DHLink.READ_ONLY_D    )==0) keyframe.fkValues[j++] = link.d    ;
-			if((link.flags & DHLink.READ_ONLY_ALPHA)==0) keyframe.fkValues[j++] = link.alpha;
-			if((link.flags & DHLink.READ_ONLY_R    )==0) keyframe.fkValues[j++] = link.r    ;
+		this.refreshPose();
+		if (panel != null && !isDisablePanel()) {
+			panel.updateEnd();
 		}
 	}
-	
+
+	protected void extractKeyframeFromLinks(DHKeyframe keyframe) {
+		Iterator<DHLink> i = this.links.iterator();
+		int j = 0;
+		while (i.hasNext()) {
+			DHLink link = i.next();
+			if ((link.flags & DHLink.READ_ONLY_THETA) == 0)
+				keyframe.fkValues[j++] = link.theta;
+			if ((link.flags & DHLink.READ_ONLY_D) == 0)
+				keyframe.fkValues[j++] = link.d;
+			if ((link.flags & DHLink.READ_ONLY_ALPHA) == 0)
+				keyframe.fkValues[j++] = link.alpha;
+			if ((link.flags & DHLink.READ_ONLY_R) == 0)
+				keyframe.fkValues[j++] = link.r;
+		}
+	}
+
 	/**
 	 * Get the robot's FK values to the keyframe.
 	 */
 	public DHKeyframe getRobotPose() {
-		DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
+		DHKeyframe keyframe = (DHKeyframe) this.createKeyframe();
 		keyframe.set(poseNow);
 		return keyframe;
 	}
-	
+
 	@Override
 	public void pick() {
-		//this.refreshPose();
-		drawAsSelected=true;
+		// this.refreshPose();
+		drawAsSelected = true;
 	}
-	
+
 	@Override
 	public void unPick() {
-		drawAsSelected=false;
+		drawAsSelected = false;
 	}
-	
 
 	public boolean isShowBones() {
 		return showBones;
@@ -1103,7 +1185,8 @@ public abstract class DHRobot extends Robot {
 
 	public void setShowBones(boolean arg0) {
 		this.showBones = arg0;
-		if(panel!=null) panel.setShowBones(arg0);
+		if (panel != null)
+			panel.setShowBones(arg0);
 	}
 
 	public void setShowBonesPassive(boolean arg0) {
@@ -1116,7 +1199,8 @@ public abstract class DHRobot extends Robot {
 
 	public void setShowPhysics(boolean arg0) {
 		this.showPhysics = arg0;
-		if(panel!=null) panel.setShowPhysics(arg0);
+		if (panel != null)
+			panel.setShowPhysics(arg0);
 	}
 
 	public void setShowPhysicsPassive(boolean arg0) {
@@ -1129,50 +1213,55 @@ public abstract class DHRobot extends Robot {
 
 	public void setShowAngles(boolean arg0) {
 		this.showAngles = arg0;
-		if(panel!=null) panel.setShowAngles(arg0);
+		if (panel != null)
+			panel.setShowAngles(arg0);
 	}
 
 	public void setShowAnglesPassive(boolean arg0) {
 		this.showAngles = arg0;
 	}
-	
+
 	protected boolean canTargetPoseRotateX() {
 		return true;
 	}
+
 	protected boolean canTargetPoseRotateY() {
 		return true;
 	}
+
 	protected boolean canTargetPoseRotateZ() {
 		return true;
 	}
-	
+
 	/**
 	 * Generate gcode that will allow complete serialization of the robot's state.
 	 * Might require additional gcode for tools held by the robot.
+	 * 
 	 * @return
 	 */
 	public String generateGCode() {
 		return "";
 	}
-	
-	public void parseGCode(String str) {}
-	
-	public boolean isInterpolating() {
-		return interpolatePoseT>=0 && interpolatePoseT<1;
+
+	public void parseGCode(String str) {
 	}
-	
+
+	public boolean isInterpolating() {
+		return interpolatePoseT >= 0 && interpolatePoseT < 1;
+	}
+
 	public int getNumLinks() {
 		return links.size();
 	}
-	
+
 	public DHLink getLink(int i) {
 		return links.get(i);
 	}
-	
+
 	public void setTargetMatrix(Matrix4d m) {
 		targetMatrix.set(m);
 	}
-	
+
 	public Matrix4d getTargetMatrix() {
 		return new Matrix4d(targetMatrix);
 	}
@@ -1180,7 +1269,7 @@ public abstract class DHRobot extends Robot {
 	public Matrix4d getLiveMatrix() {
 		return new Matrix4d(liveMatrix);
 	}
-	
+
 	public void setLiveMatrix(Matrix4d m) {
 		liveMatrix.set(m);
 	}
@@ -1195,5 +1284,15 @@ public abstract class DHRobot extends Robot {
 
 	public void setDisablePanel(boolean disablePanel) {
 		this.disablePanel = disablePanel;
+	}
+	
+	public void setFrameOfReference(int v) {
+		if(v<0) v=0;
+		if(v>2) v=2;
+		frameOfReferenceIndex=v;
+	}
+	
+	public int getFrameOfReference() {
+		return frameOfReferenceIndex;
 	}
 }
