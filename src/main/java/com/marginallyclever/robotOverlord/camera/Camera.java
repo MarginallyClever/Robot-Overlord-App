@@ -2,8 +2,10 @@ package com.marginallyclever.robotOverlord.camera;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
@@ -23,11 +25,13 @@ public class Camera extends PhysicalObject {
 	private static final long serialVersionUID = -7511310951758205827L;
 	
 	/** position of camera */
-	protected Vector3d forward = new Vector3d(0,1,0);
+	protected Vector3d forward = new Vector3d(1,0,0);
 	protected Vector3d up = new Vector3d(0,0,1);
-	protected Vector3d right = new Vector3d(1,0,0);
+	protected Vector3d left = new Vector3d(0,1,0);
 	// angles
 	protected float pan, tilt;
+	
+	protected CameraMount mount;
 	
 	protected int canvasWidth, canvasHeight;
 	
@@ -74,19 +78,26 @@ public class Camera extends PhysicalObject {
 	
 	public void update(double dt) {
 		if(tilt < 1) tilt=1;
-		if(tilt > 179) tilt= 179;
+		if(tilt > 179) tilt=179;
 
-		// calculate new vectors for translation based on pan/tilt angles
-		forward.y = (float)Math.sin(Math.toRadians(-pan-90)) * (float)Math.cos(Math.toRadians(90-tilt));
-		forward.x = (float)Math.cos(Math.toRadians(-pan-90)) * (float)Math.cos(Math.toRadians(90-tilt));
-		forward.z =                                            (float)Math.sin(Math.toRadians(90-tilt));
+		Matrix3d a = new Matrix3d();
+		Matrix3d b = new Matrix3d();
+		Matrix3d c = new Matrix3d();
+		a.rotZ(Math.toRadians(pan));
+		b.rotX(Math.toRadians(-tilt));
+		c.mul(b,a);
 		
-		up.set(0,0,1);
+		forward.x=c.m20;
+		forward.y=c.m21;
+		forward.z=c.m22;
 
-		right.cross(forward, up);
-		right.normalize();
-		up.cross(right, forward);
-		up.normalize();
+		left.x=-c.m00;
+		left.y=-c.m01;
+		left.z=-c.m02;
+
+		up.x=c.m10;
+		up.y=c.m11;
+		up.z=c.m12;
 
 		// move the camera
 		Vector3d temp = new Vector3d();
@@ -107,11 +118,8 @@ public class Camera extends PhysicalObject {
 			} catch (AWTException e1) {
 				e1.printStackTrace();
 			}*/
-			Matrix3d a = new Matrix3d();
-			Matrix3d b = new Matrix3d();
-			Matrix3d c = new Matrix3d();
 			a.rotZ(Math.toRadians(pan));
-			b.rotX(Math.toRadians(-tilt+90));
+			b.rotX(Math.toRadians(-tilt));
 			c.mul(b,a);
 			c.transpose();
 			setRotation(c);
@@ -129,8 +137,8 @@ public class Camera extends PhysicalObject {
 			double move_lr = InputManager.rawValue(InputManager.MOUSE_X);
 			if(move_lr!=0) {
 				// strafe left/right
-				temp.set(right);
-				temp.scale(move_lr);
+				temp.set(left);
+				temp.scale(-move_lr);
 				direction.add(temp);
 				changed = true;
 			}
@@ -138,7 +146,7 @@ public class Camera extends PhysicalObject {
 			if(move_ud!=0) {
 				// strafe up/down
 				temp.set(up);
-				temp.scale(move_ud);
+				temp.scale(-move_ud);
 				direction.add(temp);
 				changed = true;
 			}
@@ -155,12 +163,12 @@ public class Camera extends PhysicalObject {
 			double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
 			if(move_lr!=0) {
 				// strafe left/right
-				temp.set(right);
+				temp.set(left);
 				temp.scale(move_lr*runSpeed);
 				direction.add(temp);
 				changed = true;
 			}
-			double move_ud = InputManager.rawValue(InputManager.KEY_Q)-InputManager.rawValue(InputManager.KEY_E);
+			double move_ud = InputManager.rawValue(InputManager.KEY_E)-InputManager.rawValue(InputManager.KEY_Q);
 			if(move_ud!=0) {
 				// strafe up/down
 				temp.set(up);
@@ -180,12 +188,31 @@ public class Camera extends PhysicalObject {
 		}	
 	}
 	
+	// OpenGL camera: -Z=forward, +X=right, +Y=up
 	public void render(GL2 gl2) {
-		// move camera
-		gl2.glRotatef(tilt, -1, 0, 0);
-		gl2.glRotatef(pan,0,0,1);
 		Vector3d p = getPosition();
-		gl2.glTranslated(p.x,p.y,p.z);
+		
+		Matrix4d c = new Matrix4d(matrix);
+		c.setTranslation(new Vector3d(0,0,0));
+/*
+		Matrix4d a = new Matrix4d();
+		Matrix4d b = new Matrix4d();
+		Matrix4d c = new Matrix4d();
+		a.rotZ(Math.toRadians(pan));
+		b.rotX(Math.toRadians(-tilt));
+		c.mul(b,a);
+		c.transpose();*/
+		
+		p.scale(-1);
+		Matrix4d mFinal = c;
+		mFinal.setTranslation(p);
+		mFinal.invert();
+		MatrixHelper.applyMatrix(gl2, mFinal);
+		
+		//c.m03=0;
+		//c.m13=0;
+		//c.m23=0;
+		//MatrixHelper.drawMatrix(gl2, c, 4);
 	}
 
 
@@ -200,7 +227,7 @@ public class Camera extends PhysicalObject {
 
 
 	public Vector3d getRight() {
-		return right;
+		return left;
 	}
 	
 	public float getPan() {
