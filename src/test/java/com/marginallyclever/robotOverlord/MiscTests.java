@@ -14,7 +14,6 @@ import javax.vecmath.Vector3d;
 import org.junit.Test;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.MatrixOperations;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
@@ -75,8 +74,8 @@ public class MiscTests {
 		long start = System.currentTimeMillis();
 		
 		double[][] m = buildMatrix(t0,tf);
-		double[][] mInv=MatrixOperations.invertMatrix(m);
-		double[] n = MatrixOperations.multiply(mInv,q);
+		double[][] mInv=MatrixHelper.invertMatrix(m);
+		double[] n = MatrixHelper.multiply(mInv,q);
 
 		long end = System.currentTimeMillis();
 		
