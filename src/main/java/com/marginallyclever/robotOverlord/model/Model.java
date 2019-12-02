@@ -124,7 +124,6 @@ public class Model implements Serializable {
 		Matrix4d rotX = new Matrix4d();
 		Matrix4d rotY = new Matrix4d();
 		Matrix4d rotZ = new Matrix4d();
-		rot.setIdentity();
 		rotX.rotX((float)Math.toRadians(adjustRotation.x));
 		rotY.rotY((float)Math.toRadians(adjustRotation.y));
 		rotZ.rotZ((float)Math.toRadians(adjustRotation.z));
