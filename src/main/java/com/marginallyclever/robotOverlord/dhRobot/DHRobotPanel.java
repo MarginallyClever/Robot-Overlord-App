@@ -66,8 +66,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public JCheckBox showBones;
 	public JCheckBox showAngleMinMax;
 	public JCheckBox showPhysics;
-	public JComboBox<String> frameOfReferenceSelection;
 	public JCheckBox immediateDriving;
+	public JComboBox<String> frameOfReferenceSelection;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
@@ -172,16 +172,16 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
 		
-		contents.add(new JLabel("Frame of Reference") ,con1);  con1.gridy++;
-		contents.add(frameOfReferenceSelection=new JComboBox<String>(framesOfReference),con1);
-		frameOfReferenceSelection.addActionListener(this);
-		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
-		con1.gridy++;
-		
 		contents.add(immediateDriving=new JCheckBox(),con1);
 		immediateDriving.setText("Immediate driving");
 		immediateDriving.addItemListener(this);
 		immediateDriving.setSelected(robot.immediateDriving);
+		con1.gridy++;
+		
+		contents.add(new JLabel("Frame of Reference") ,con1);  con1.gridy++;
+		contents.add(frameOfReferenceSelection=new JComboBox<String>(framesOfReference),con1);
+		frameOfReferenceSelection.addActionListener(this);
+		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
