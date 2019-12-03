@@ -76,10 +76,7 @@ public class Camera extends PhysicalObject {
 		this.canvasHeight = canvasHeight;
 	}
 	
-	public void update(double dt) {
-		if(tilt < 1) tilt=1;
-		if(tilt > 179) tilt=179;
-
+	private void updateMatrix() {
 		Matrix3d a = new Matrix3d();
 		Matrix3d b = new Matrix3d();
 		Matrix3d c = new Matrix3d();
@@ -98,7 +95,14 @@ public class Camera extends PhysicalObject {
 		up.x=c.m10;
 		up.y=c.m11;
 		up.z=c.m12;
-
+		
+		c.transpose();
+		setRotation(c);
+	}
+	
+	public void update(double dt) {
+		updateMatrix();
+		
 		// move the camera
 		Vector3d temp = new Vector3d();
 		Vector3d direction = new Vector3d(0,0,0);
@@ -107,76 +111,42 @@ public class Camera extends PhysicalObject {
 
 		int runSpeed = 1;//(move_run==1)?3:1;
 
+		// pan/tilt
 		if (InputManager.isOn(InputManager.MOUSE_RIGHT)) {
 	        int dx = (int)(InputManager.rawValue(InputManager.MOUSE_X)*0.5);
 	        int dy = (int)(InputManager.rawValue(InputManager.MOUSE_Y)*0.5);
 			setPan(getPan()+dx);
 			setTilt(getTilt()-dy);
-			/*
-			try {
-				new Robot().mouseMove(prevMouseX, prevMouseY);
-			} catch (AWTException e1) {
-				e1.printStackTrace();
-			}*/
-			a.rotZ(Math.toRadians(pan));
-			b.rotX(Math.toRadians(-tilt));
-			c.mul(b,a);
-			c.transpose();
-			setRotation(c);
+
+			updateMatrix();
 		}
-		if(InputManager.isOn(InputManager.MOUSE_MIDDLE)) {
-			double move_fb = InputManager.rawValue(InputManager.MOUSE_Y)*3;
-			
-			if(move_fb!=0) {
-				// forward/back
-				temp.set(forward);
-				temp.scale(move_fb);
-				direction.add(temp);
-				changed = true;
-			}
-			double move_lr = InputManager.rawValue(InputManager.MOUSE_X);
-			if(move_lr!=0) {
-				// strafe left/right
-				temp.set(left);
-				temp.scale(-move_lr);
-				direction.add(temp);
-				changed = true;
-			}
-			double move_ud = InputManager.rawValue(InputManager.MOUSE_Y);
-			if(move_ud!=0) {
-				// strafe up/down
-				temp.set(up);
-				temp.scale(-move_ud);
-				direction.add(temp);
-				changed = true;
-			}
+
+		// linear moves
+		double move_fb = (InputManager.rawValue(InputManager.KEY_W)-InputManager.rawValue(InputManager.KEY_S));
+		if(move_fb!=0) {
+			// forward/back
+			temp.set(forward);
+			temp.scale(move_fb*runSpeed);
+			direction.add(temp);
+			changed = true;
 		}
-		{
-			double move_fb = (InputManager.rawValue(InputManager.KEY_W)-InputManager.rawValue(InputManager.KEY_S));
-			if(move_fb!=0) {
-				// forward/back
-				temp.set(forward);
-				temp.scale(move_fb*runSpeed);
-				direction.add(temp);
-				changed = true;
-			}
-			double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
-			if(move_lr!=0) {
-				// strafe left/right
-				temp.set(left);
-				temp.scale(move_lr*runSpeed);
-				direction.add(temp);
-				changed = true;
-			}
-			double move_ud = InputManager.rawValue(InputManager.KEY_E)-InputManager.rawValue(InputManager.KEY_Q);
-			if(move_ud!=0) {
-				// strafe up/down
-				temp.set(up);
-				temp.scale(move_ud*runSpeed);
-				direction.add(temp);
-				changed = true;
-			}
+		double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
+		if(move_lr!=0) {
+			// strafe left/right
+			temp.set(left);
+			temp.scale(move_lr*runSpeed);
+			direction.add(temp);
+			changed = true;
 		}
+		double move_ud = InputManager.rawValue(InputManager.KEY_E)-InputManager.rawValue(InputManager.KEY_Q);
+		if(move_ud!=0) {
+			// strafe up/down
+			temp.set(up);
+			temp.scale(move_ud*runSpeed);
+			direction.add(temp);
+			changed = true;
+		}
+		
 		if(changed) {
 			runSpeed=3;
 			//direction.normalize();
