@@ -49,6 +49,7 @@ import com.marginallyclever.robotOverlord.SoundSystem;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.commands.UserCommandAbout;
+import com.marginallyclever.robotOverlord.commands.UserCommandAboutControls;
 import com.marginallyclever.robotOverlord.commands.UserCommandCheckForUpdate;
 import com.marginallyclever.robotOverlord.commands.UserCommandForums;
 import com.marginallyclever.robotOverlord.commands.UserCommandLoad;
@@ -69,8 +70,9 @@ import com.marginallyclever.util.PropertiesFileHelper;
 public class RobotOverlord 
 implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
 {
-	static final public String APP_TITLE = "Robot Overlord";
-	static final public String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
+	public static final String APP_TITLE = "Robot Overlord";
+	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
+	
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	final static public String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 	// select picking
@@ -90,6 +92,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	// menus
     // main menu bar
 	protected transient JMenuBar mainMenu;
+	// edit menu
 	protected transient JMenuItem buttonUndo,buttonRedo;
 	
     // The animator keeps things moving
@@ -198,7 +201,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         world = new World();
 
         // now that we have everything built, set up the menus.
-        buildMenu();
+        buildMainMenu();
         
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
@@ -404,7 +407,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	*/
 	
-	public void buildMenu() {
+	public void buildMainMenu() {
 		mainMenu.removeAll();
 		
 		JMenu menu;
@@ -414,16 +417,19 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		menu.add(new UserCommandLoad(this));
 		menu.add(new UserCommandSaveAs(this));
 		menu.add(new JSeparator());
-		menu.add(new UserCommandForums(this));
-		menu.add(new UserCommandAbout(this));
-		menu.add(new UserCommandCheckForUpdate(this));
-		menu.add(new JSeparator());
 		menu.add(new UserCommandQuit(this));
 		mainMenu.add(menu);
         
         menu = new JMenu("Edit");
         menu.add(buttonUndo = new UserCommandUndo(this));
         menu.add(buttonRedo = new UserCommandRedo(this));
+        mainMenu.add(menu);
+
+        menu = new JMenu("Help");
+        menu.add(new UserCommandAboutControls(this));
+		menu.add(new UserCommandForums(this));
+		menu.add(new UserCommandCheckForUpdate(this));
+		menu.add(new UserCommandAbout(this));
         mainMenu.add(menu);
     	
     	// done
