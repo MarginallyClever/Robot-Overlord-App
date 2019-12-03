@@ -300,16 +300,24 @@ public class DHLink {
 	 * color the angle line green in the safe zone, red near the limits
 	 * @param gl2 the render context
 	 */
-	protected void setAngleColorByRange(GL2 gl2) {
+	public void setAngleColorByRange(GL2 gl2) {
 		double a=0;
 		if((flags & READ_ONLY_THETA)==0) a=theta;
 		else a=alpha;
 		
 		double halfRange = (rangeMax-rangeMin)/2;
 		double midRange = (rangeMax+rangeMin)/2;
-		double safety = Math.abs(a-midRange)/halfRange;
+		float safety = (float)(Math.abs(a-midRange)/halfRange);
 		safety*=safety*safety;  // squared
-		gl2.glColor4d(safety,1-safety,0,0.5);
+		//gl2.glColor4d(safety,1-safety,0,0.5);
+//		float [] diffuse = {safety,1-safety,0,0};
+		float [] original = new float[4];
+		
+		gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
+		original[0]+=safety;
+		
+		gl2.glColor4f(original[0],original[1],original[2],original[3]);
+		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
 	}
 	
 	/**
