@@ -19,7 +19,7 @@ public class UserCommandForums extends JMenuItem implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final String FORUM_URL = "https://www.marginallyclever.com/forums/";
+	private final String FORUM_URL = "https://www.marginallyclever.com/learn/forum/forum/sixi-robot-arm/";
 	protected RobotOverlord ro;
 	
 	public UserCommandForums(RobotOverlord ro) {
