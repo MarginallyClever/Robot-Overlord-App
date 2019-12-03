@@ -474,7 +474,7 @@ public abstract class DHRobot extends Robot {
 		}
 		if (InputManager.rawValue(InputManager.STICK_LX) != 0) {
 			isDirty = true;
-			truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.STICK_LX) * -scale);
+			truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.STICK_LX) * scale);
 		}
 		if (InputManager.rawValue(InputManager.STICK_LY) != 0) {
 			isDirty = true;
@@ -522,7 +522,7 @@ public abstract class DHRobot extends Robot {
 				} else { 
 					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
 						isDirty = true;
-						truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.MOUSE_X) * -scale * 0.5);
+						truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5);
 					}
 					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
 						isDirty = true;
