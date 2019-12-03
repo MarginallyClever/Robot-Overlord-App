@@ -195,13 +195,14 @@ public class Sixi2 extends DHRobot {
 					Iterator<DHLink> i = links.iterator();
 					while(i.hasNext()) {
 						DHLink link = i.next();
-						if(showAngles) {
-							link.renderAngles(gl2);
-						}
+						//if(showAngles) link.renderAngles(gl2);
 						link.renderModel(gl2);
+			    		materialGhost.render(gl2);
+						link.setAngleColorByRange(gl2);
 					}
 					if(dhTool!=null) {
 						dhTool.render(gl2);
+						dhTool.dhLinkEquivalent.renderAngles(gl2);
 					}
 				gl2.glPopMatrix();
 			gl2.glPopMatrix();
