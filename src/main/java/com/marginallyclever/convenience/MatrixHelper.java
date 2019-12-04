@@ -615,4 +615,27 @@ public class MatrixHelper {
 
 		System.out.println ();
 	}
+
+	
+	// create a matrix with a matching y vector and a z that points at   
+	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
+		Vector3d forward = new Vector3d();
+		Vector3d right = new Vector3d();
+		Vector3d up = new Vector3d(0,0,1);
+		
+		forward.sub(to,from);
+		forward.normalize();
+		right.cross(up, forward);
+		right.normalize();
+		up.cross(forward, right);
+		up.normalize();
+
+		Matrix4d lookAt = new Matrix4d(
+				right.x,up.x,forward.x,0,
+				right.y,up.y,forward.y,0,
+				right.z,up.z,forward.z,0,
+				0,0,0,1);
+		
+		return lookAt;
+	}
 }
