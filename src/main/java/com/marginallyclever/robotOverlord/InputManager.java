@@ -57,8 +57,9 @@ public class InputManager {
 	public static final int KEY_E=37;
 	
 	public static final int KEY_ENTER    =38;
-	
-	public static final int MAX_KEYS 	 =39;
+	public static final int KEY_TAB      =39;
+	// must be biggest number!
+	public static final int MAX_KEYS 	 =40;
 	
 
 	protected static double [] keyStateOld = new double[MAX_KEYS];
@@ -211,6 +212,7 @@ public class InputManager {
     				if(components[j].getIdentifier()==Identifier.Key.S    ) keyState[KEY_S] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.D    ) keyState[KEY_D] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.NUMPADENTER) keyState[KEY_ENTER] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.TAB) keyState[KEY_TAB] = 1;
     			}
         	}
         }
