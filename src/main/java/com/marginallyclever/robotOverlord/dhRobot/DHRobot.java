@@ -82,6 +82,9 @@ public abstract class DHRobot extends Robot {
 	protected boolean showPhysics; // show bounding boxes of each link
 	protected boolean showAngles; // show current angle and limit of each link
 	protected int frameOfReferenceIndex; // which style of rotation?
+	public static final int FRAME_WORLD = 0;
+	public static final int FRAME_CAMERA = 1;
+	public static final int FRAME_FINGER = 2;
 
 	protected int hitBox1, hitBox2; // display which hitboxes are colliding
 
@@ -200,7 +203,7 @@ public abstract class DHRobot extends Robot {
 					if (showBones)
 						link.renderBones(gl2);
 					if (showAngles) {
-						link.renderAngles(gl2);
+						//link.renderAngles(gl2);
 					}
 					if (showPhysics && link.model != null) {
 						if (j == hitBox1 || j == hitBox2) {
@@ -335,16 +338,6 @@ public abstract class DHRobot extends Robot {
 				}
 			}
 		}
-	}
-
-	protected World getWorld() {
-		Entity p = parent;
-		while (p != null) {
-			if (p instanceof World) {
-				return (World) p;
-			}
-		}
-		return null;
 	}
 
 	public void setTool(DHTool arg0) {
@@ -552,38 +545,32 @@ public abstract class DHRobot extends Robot {
 		return isDirty;
 	}
 
+	public Matrix4d getTargetMatrixWorldSpace() {
+		Matrix4d targetMatrixWorldSpace = new Matrix4d();
+		targetMatrixWorldSpace.mul(this.getMatrix(),targetMatrix);
+		return targetMatrixWorldSpace; 
+	}
+	
 	protected void rotationInternal(Matrix3d frameOfReference,Matrix3d rotation) {
 		// multiply robot origin by target matrix to get target matrix in world space.
-		Matrix3d robotPose = new Matrix3d();
-		this.getMatrix().get(robotPose);
-
-		Matrix3d targetMatrixRobotSpace = new Matrix3d();
-		targetMatrix.get(targetMatrixRobotSpace);
-		
-		Matrix3d targetMatrixWorldSpace = new Matrix3d();
-		targetMatrixWorldSpace.mul(robotPose,targetMatrixRobotSpace);
 		
 		// invert frame of reference to transform world target matrix into frame of reference space.
-		Matrix3d invFOR = new Matrix3d(frameOfReference);
-		invFOR.invert();
-		Matrix3d targetMatrixFORSpace = new Matrix3d();
-		targetMatrixFORSpace.mul(targetMatrixWorldSpace,invFOR);
+		Matrix3d FOR = new Matrix3d(frameOfReference);
+		Matrix3d m0 = new Matrix3d();
+		this.getMatrix().get(m0);
+		m0.invert();
+		FOR.mul(m0);
 		
-		// apply transform about the origin,
-		Matrix3d targetMatrixFORSpaceAfterTransform = new Matrix3d();
-		//rotation.setIdentity();
-		targetMatrixFORSpaceAfterTransform.mul(targetMatrixFORSpace,rotation);
+		Matrix3d ifor = new Matrix3d(FOR);
+		ifor.invert();
 		
-		// remove the frame of reference
-		Matrix3d targetMatrixWorldSpaceAfterTransform = new Matrix3d();
-		targetMatrixWorldSpaceAfterTransform.mul(frameOfReference,targetMatrixFORSpaceAfterTransform);
+		Matrix3d targetMatrixRobotSpaceAfterTransform = new Matrix3d(ifor);
+		targetMatrixRobotSpaceAfterTransform.mul(rotation);
+		targetMatrixRobotSpaceAfterTransform.mul(FOR);
 
-
-		Matrix3d invRobotPose = new Matrix3d(robotPose);
-		invRobotPose.invert();
-		
-		Matrix3d targetMatrixRobotSpaceAfterTransform = new Matrix3d();
-		targetMatrixRobotSpaceAfterTransform.mul(invRobotPose,targetMatrixWorldSpaceAfterTransform);
+		Matrix3d m1 = new Matrix3d();
+		targetMatrix.get(m1);
+		targetMatrixRobotSpaceAfterTransform.mul(m1);
 		
 		// done!
 		Vector3d tempPosition = new Vector3d();
@@ -801,44 +788,23 @@ public abstract class DHRobot extends Robot {
 		if (inDirectDriveMode()) {
 			Matrix4d frameOfRef;
 			switch(frameOfReferenceIndex) {
-			case 2:
+			case FRAME_FINGER:
 				// use the robot's finger tip as the frame of reference
-				frameOfRef = new Matrix4d(targetMatrix);
-				{
-					frameOfRef = new Matrix4d(this.targetMatrix);
-					Matrix4d robotPose = new Matrix4d(this.getMatrix());
-					frameOfRef.mul(robotPose,frameOfRef);
-					frameOfRef.invert();
-				}
+				frameOfRef = getTargetMatrixWorldSpace();
+				frameOfRef.invert();
 				break;
-			case 1:
+			case FRAME_CAMERA:
 				// use the camera as the frame of reference.
-				// first find the camera.
-				World world = getWorld();
-				Camera cam = null;
-				if (world != null) {
-					// find the camera
-					Iterator<Entity> iter = world.getChildren().iterator();
-					while (iter.hasNext()) {
-						Entity e = iter.next();
-						if (e instanceof Camera) {
-							// probably the only one we'll find.
-							cam = (Camera) e;
-						}
-					}
-				}
-				
-				{
-					frameOfRef = new Matrix4d(cam.getMatrix());
-					frameOfRef.invert();
-				}
+				frameOfRef = new Matrix4d(getWorld().getCamera().getMatrix());
+				frameOfRef.m03=0;
+				frameOfRef.m13=0;
+				frameOfRef.m23=0;
+				//frameOfRef.invert();
 				break;
-			case 0:
+			case FRAME_WORLD:
 			default:
 				// use the world as the frame of reference.
-				{
-					frameOfRef = new Matrix4d(World.getPose());
-				}
+				frameOfRef = new Matrix4d(World.getPose());
 				break;
 			}
 
