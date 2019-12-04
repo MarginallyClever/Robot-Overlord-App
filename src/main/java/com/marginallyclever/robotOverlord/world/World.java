@@ -17,10 +17,13 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.DragBall;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -69,6 +72,8 @@ implements Serializable {
 	
 	protected transient WorldControlPanel worldControlPanel;
 	
+	DragBall ball;
+	
 	public World() {
 		pose.setIdentity();
 		
@@ -97,7 +102,7 @@ implements Serializable {
 		grid.width = (int)(2.54*6*12);
 		grid.height = (int)(2.54*30);
 		// adjust camera
-		camera.setPosition(new Vector3d(0,100,-65));
+		camera.setPosition(new Vector3d(0,-100,65));
 		camera.setPan(52);
 		camera.setTilt(76);
 
@@ -107,6 +112,9 @@ implements Serializable {
 		m.rotZ(Math.toRadians(-90));
 		sixi.setRotation(m);
 		player.setRotation(m);
+		
+		ball = new DragBall();
+		ball.setParent(this);
 	}
 	
 	
@@ -240,7 +248,6 @@ implements Serializable {
 		gl2.glPushMatrix();
 			camera.render(gl2);
 			
-
 			Iterator<Entity> io;
 			
 			gl2.glDisable(GL2.GL_LIGHTING);
@@ -262,6 +269,28 @@ implements Serializable {
 				Entity obj = io.next();
 				if(obj instanceof Light) continue;
 				if(obj instanceof Camera) continue;
+				if(obj instanceof Sixi2) {
+					Sixi2 sixi = (Sixi2)obj; 
+					Matrix4d m = sixi.getTargetMatrixWorldSpace();
+					Vector3d trans = new Vector3d(m.m03,m.m13,m.m23);
+					
+					switch(sixi.getFrameOfReference()) {
+					case DHRobot.FRAME_WORLD:
+						m.set(getPose());
+						m.setTranslation(trans);
+						break;
+					case DHRobot.FRAME_CAMERA:
+						m.set(getCamera().getMatrix());
+						//m.set(MatrixHelper.lookAt(getCamera().getPosition(),trans));
+						m.setTranslation(trans);
+						break;
+					case DHRobot.FRAME_FINGER:
+						break;
+					}
+					
+					MatrixHelper.drawMatrix(gl2, m, 20);
+					ball.setMatrix(m);
+				}
 				
 				gl2.glPushName(obj.getPickName());
 				obj.render(gl2);
@@ -269,7 +298,9 @@ implements Serializable {
 			}
 	
 			showPickingTest(gl2);
-			
+
+			ball.render(gl2);
+
 		gl2.glPopMatrix();
 	
 		// DRAW THE HUD
