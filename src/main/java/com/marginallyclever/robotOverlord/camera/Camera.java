@@ -24,17 +24,17 @@ public class Camera extends PhysicalObject {
 	 */
 	private static final long serialVersionUID = -7511310951758205827L;
 	
-	/** position of camera */
+	// orientation
 	protected Vector3d forward = new Vector3d(1,0,0);
-	protected Vector3d up = new Vector3d(0,0,1);
 	protected Vector3d left = new Vector3d(0,1,0);
+	protected Vector3d up = new Vector3d(0,0,1);
+	
 	// angles
 	protected float pan, tilt;
 	
 	protected CameraMount mount;
 	
 	protected int canvasWidth, canvasHeight;
-	
 	
 	CameraControlPanel cameraPanel;
 	
@@ -83,10 +83,6 @@ public class Camera extends PhysicalObject {
 		a.rotZ(Math.toRadians(pan));
 		b.rotX(Math.toRadians(-tilt));
 		c.mul(b,a);
-		
-		forward.x=c.m20;
-		forward.y=c.m21;
-		forward.z=c.m22;
 
 		left.x=-c.m00;
 		left.y=-c.m01;
@@ -95,6 +91,10 @@ public class Camera extends PhysicalObject {
 		up.x=c.m10;
 		up.y=c.m11;
 		up.z=c.m12;
+		
+		forward.x=c.m20;
+		forward.y=c.m21;
+		forward.z=c.m22;
 		
 		c.transpose();
 		setRotation(c);
@@ -122,7 +122,7 @@ public class Camera extends PhysicalObject {
 		}
 
 		// linear moves
-		double move_fb = (InputManager.rawValue(InputManager.KEY_W)-InputManager.rawValue(InputManager.KEY_S));
+		double move_fb = (InputManager.rawValue(InputManager.KEY_S)-InputManager.rawValue(InputManager.KEY_W));
 		if(move_fb!=0) {
 			// forward/back
 			temp.set(forward);
@@ -130,7 +130,7 @@ public class Camera extends PhysicalObject {
 			direction.add(temp);
 			changed = true;
 		}
-		double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
+		double move_lr = InputManager.rawValue(InputManager.KEY_A)-InputManager.rawValue(InputManager.KEY_D);
 		if(move_lr!=0) {
 			// strafe left/right
 			temp.set(left);
@@ -173,7 +173,6 @@ public class Camera extends PhysicalObject {
 		c.mul(b,a);
 		c.transpose();*/
 		
-		p.scale(-1);
 		Matrix4d mFinal = c;
 		mFinal.setTranslation(p);
 		mFinal.invert();
