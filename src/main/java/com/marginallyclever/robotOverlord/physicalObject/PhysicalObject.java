@@ -11,6 +11,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
+import com.marginallyclever.robotOverlord.world.World;
 
 public abstract class PhysicalObject extends Entity {
 
@@ -89,5 +90,15 @@ public abstract class PhysicalObject extends Entity {
 	public void getRotation(Matrix4d arg0) {
 		arg0.set(matrix);
 		arg0.setTranslation(new Vector3d(0,0,0));
+	}
+
+	protected World getWorld() {
+		Entity p = parent;
+		while (p != null) {
+			if (p instanceof World) {
+				return (World) p;
+			}
+		}
+		return null;
 	}
 }
