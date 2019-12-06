@@ -177,12 +177,13 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		immediateDriving.addItemListener(this);
 		immediateDriving.setSelected(robot.immediateDriving);
 		con1.gridy++;
-		
+		/*
 		contents.add(new JLabel("Frame of Reference") ,con1);  con1.gridy++;
 		contents.add(frameOfReferenceSelection=new JComboBox<String>(framesOfReference),con1);
 		frameOfReferenceSelection.addActionListener(this);
 		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
+		*/
 		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 		contents.add(buttonSetTool=new JButton("Set tool"), con1);
@@ -317,10 +318,11 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		if(source == buttonCommit) {
 			robot.moveToTargetPose();
 		}
+		/*
 		if(source == frameOfReferenceSelection) {
 			int s = frameOfReferenceSelection.getSelectedIndex();
 			robot.setFrameOfReference(s);
-		}
+		}*/
 	}
 
 	/**
