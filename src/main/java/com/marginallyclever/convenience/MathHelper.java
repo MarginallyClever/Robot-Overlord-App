@@ -1,5 +1,6 @@
 package com.marginallyclever.convenience;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -274,8 +275,16 @@ public class MathHelper {
 		}
 	}
 	
-	// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-	static public boolean rayBoxIntersection(final Vector3d rayPoint,final Vector3d rayNormal,final Vector3d boxMin,final Vector3d boxMax) {
+	/**
+	 * find distance to box, if hit.
+	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+	 * @param rayPoint 
+	 * @param rayNormal direction of ray
+	 * @param boxMin
+	 * @param boxMax
+	 * @return >=0 for hit, negative numbers for hits behind camera and no hit.
+	 */
+	static public double rayBoxIntersection(final Vector3d rayPoint,final Vector3d rayNormal,final Point3d boxMin,final Point3d boxMax) {
 	    double tmin = (boxMin.x - rayPoint.x) / rayNormal.x; 
 	    double tmax = (boxMax.x - rayPoint.x) / rayNormal.x; 
 	 
@@ -295,7 +304,7 @@ public class MathHelper {
 	    }
 	 
 	    if ((tmin > tymax) || (tymin > tmax)) 
-	        return false; 
+	        return -1; 
 	 
 	    if (tymin > tmin) 
 	        tmin = tymin; 
@@ -313,14 +322,14 @@ public class MathHelper {
 	    }
 	 
 	    if ((tmin > tzmax) || (tzmin > tmax)) 
-	        return false; 
+	        return -1; 
 	 
 	    if (tzmin > tmin) 
 	        tmin = tzmin; 
 	 
-	    if (tzmax < tmax) 
-	        tmax = tzmax; 
+	    //if (tzmax < tmax) 
+	    //    tmax = tzmax; 
 	 
-	    return true; 
+	    return tmin; 
 	}
 }
