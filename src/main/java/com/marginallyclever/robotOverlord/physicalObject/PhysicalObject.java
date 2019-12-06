@@ -98,6 +98,7 @@ public abstract class PhysicalObject extends Entity {
 			if (p instanceof World) {
 				return (World) p;
 			}
+			p=p.getParent();
 		}
 		return null;
 	}
