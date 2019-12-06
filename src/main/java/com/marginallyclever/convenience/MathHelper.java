@@ -251,4 +251,26 @@ public class MathHelper {
 		
 		return n;
 	}
+	
+	/**
+	 * 
+	 * @param planePoint point on plane
+	 * @param planeNormal normal of plane
+	 * @param rayPoint origin of ray
+	 * @param rayNormal direction of ray
+	 * @return Double.POSITIVE_INFINITY if no collision (orthogonal).  otherwise, distance to plane.
+	 */
+	static public double rayPlaneIntersection(final Vector3d planePoint,final Vector3d planeNormal,final Vector3d rayPoint,final Vector3d rayNormal) {
+		Vector3d dp = new Vector3d(planePoint);
+		dp.sub(rayPoint);
+
+		double denominator = rayNormal.dot(planeNormal);
+		if(denominator==0) {
+			// rays are orthogonal, never collide.
+			return Double.POSITIVE_INFINITY;
+		} else {
+			double numerator = dp.dot(planeNormal);
+			return numerator/denominator;
+		}
+	}
 }
