@@ -41,9 +41,6 @@ public class Camera extends PhysicalObject {
 	
 	CameraControlPanel cameraPanel;
 
-	private int pickName;
-	
-	
 	public Camera() {
 		super();
 		
@@ -51,7 +48,6 @@ public class Camera extends PhysicalObject {
 		
 		isPressed=false;
 		fov=60;
-		pickName=0;
 	}
 
 	
@@ -267,16 +263,5 @@ public class Camera extends PhysicalObject {
 	
 	public boolean isPressed() {
 		return isPressed;
-	}
-
-
-	public void setPickName(int arg0) {
-		System.out.println("camera.setPickName="+arg0);
-		pickName=arg0;
-	}
-
-
-	public int getPickName() {
-		return pickName;
 	}
 }
