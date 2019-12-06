@@ -273,4 +273,54 @@ public class MathHelper {
 			return numerator/denominator;
 		}
 	}
+	
+	// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+	static public boolean rayBoxIntersection(final Vector3d rayPoint,final Vector3d rayNormal,final Vector3d boxMin,final Vector3d boxMax) {
+	    double tmin = (boxMin.x - rayPoint.x) / rayNormal.x; 
+	    double tmax = (boxMax.x - rayPoint.x) / rayNormal.x; 
+	 
+	    if (tmin > tmax) {
+	    	double temp = tmin;
+	    	tmin=tmax;
+	    	tmax=temp;
+	    }
+	 
+	    double tymin = (boxMin.y - rayPoint.y) / rayNormal.y; 
+	    double tymax = (boxMax.y - rayPoint.y) / rayNormal.y; 
+	 
+	    if (tymin > tymax) {
+	    	double temp = tymin;
+	    	tymin=tymax;
+	    	tymax=temp;
+	    }
+	 
+	    if ((tmin > tymax) || (tymin > tmax)) 
+	        return false; 
+	 
+	    if (tymin > tmin) 
+	        tmin = tymin; 
+	 
+	    if (tymax < tmax) 
+	        tmax = tymax; 
+	 
+	    double tzmin = (boxMin.z - rayPoint.z) / rayNormal.z; 
+	    double tzmax = (boxMax.z - rayPoint.z) / rayNormal.z; 
+	 
+	    if (tzmin > tzmax) {
+	    	double temp = tzmin;
+	    	tzmin=tzmax;
+	    	tzmax=temp;
+	    }
+	 
+	    if ((tmin > tzmax) || (tzmin > tmax)) 
+	        return false; 
+	 
+	    if (tzmin > tmin) 
+	        tmin = tzmin; 
+	 
+	    if (tzmax < tmax) 
+	        tmax = tzmax; 
+	 
+	    return true; 
+	}
 }
