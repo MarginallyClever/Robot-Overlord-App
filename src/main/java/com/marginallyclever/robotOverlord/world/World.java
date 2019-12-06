@@ -17,13 +17,10 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.DragBall;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -72,8 +69,6 @@ implements Serializable {
 	
 	protected transient WorldControlPanel worldControlPanel;
 	
-	DragBall ball;
-	
 	public World() {
 		pose.setIdentity();
 		
@@ -86,14 +81,14 @@ implements Serializable {
 		pickRay=new Vector3d();
 		
 		DHRobotPlayer player;
-		Sixi2 sixi;
+		Sixi2 sixi2;
 		
 		addEntity(grid = new GridEntity());
 		addEntity(light0 = new Light());
 		addEntity(light1 = new Light());
 		addEntity(light2 = new Light());
 		addEntity(camera = new Camera());
-		addEntity(sixi=new Sixi2());
+		addEntity(sixi2=new Sixi2());
 		addEntity(player=new DHRobotPlayer());
 	
 		viewCube = new ViewCube();
@@ -103,18 +98,16 @@ implements Serializable {
 		grid.height = (int)(2.54*30);
 		// adjust camera
 		camera.setPosition(new Vector3d(0,-100,65));
-		camera.setPan(52);
+		//camera.setPan(52);
 		camera.setTilt(76);
 
 		player.setPosition(new Vector3d(60,25,0));
-		sixi.setPosition(new Vector3d(78,-25,0));
+		//sixi2.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
-		m.rotZ(Math.toRadians(-90));
-		sixi.setRotation(m);
+		m.setIdentity();
+		//m.rotZ(Math.toRadians(-90));
+		sixi2.setRotation(m);
 		player.setRotation(m);
-		
-		ball = new DragBall();
-		ball.setParent(this);
 	}
 	
 	
@@ -225,7 +218,8 @@ implements Serializable {
 		// Clear the screen and depth buffer
 
 		// background color
-    	gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 1.0f);
+    	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 1.0f);
+		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
     	// Special handling for the case where the GLJPanel is translucent
         // and wants to be composited with other Java 2D content
 		/*
@@ -269,28 +263,6 @@ implements Serializable {
 				Entity obj = io.next();
 				if(obj instanceof Light) continue;
 				if(obj instanceof Camera) continue;
-				if(obj instanceof Sixi2) {
-					Sixi2 sixi = (Sixi2)obj; 
-					Matrix4d m = sixi.getTargetMatrixWorldSpace();
-					Vector3d trans = new Vector3d(m.m03,m.m13,m.m23);
-					
-					switch(sixi.getFrameOfReference()) {
-					case DHRobot.FRAME_WORLD:
-						m.set(getPose());
-						m.setTranslation(trans);
-						break;
-					case DHRobot.FRAME_CAMERA:
-						m.set(getCamera().getMatrix());
-						//m.set(MatrixHelper.lookAt(getCamera().getPosition(),trans));
-						m.setTranslation(trans);
-						break;
-					case DHRobot.FRAME_FINGER:
-						break;
-					}
-					
-					MatrixHelper.drawMatrix(gl2, m, 20);
-					ball.setMatrix(m);
-				}
 				
 				gl2.glPushName(obj.getPickName());
 				obj.render(gl2);
@@ -298,8 +270,6 @@ implements Serializable {
 			}
 	
 			showPickingTest(gl2);
-
-			ball.render(gl2);
 
 		gl2.glPopMatrix();
 	
@@ -419,32 +389,6 @@ implements Serializable {
 		gl2.glPopMatrix();
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
         //gl2.glEnable(GL2.GL_CULL_FACE);
-	}
-
-
-	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
-	public void rayPick(double screenX, double screenY) {
-		pickForward.set(camera.getForward());
-		pickForward.scale(-1);
-		pickRight.set(camera.getRight());
-		pickRight.scale(-1);
-		pickUp.set(camera.getUp());
-		
-		Vector3d vy = new Vector3d();
-		vy.set(pickUp);
-		vy.scale((float)-screenY*10);
-
-		Vector3d vx = new Vector3d();
-		vx.set(pickRight);
-		vx.scale((float)screenX*10);
-
-		pickRay.set(pickForward);
-		pickRay.scale(10);
-		pickRay.add(vx);
-		pickRay.add(vy);
-		pickRay.normalize();
-
-		// TODO traverse the world and find the object that intersects the ray
 	}
 
 	
