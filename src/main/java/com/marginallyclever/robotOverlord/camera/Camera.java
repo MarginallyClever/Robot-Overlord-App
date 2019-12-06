@@ -26,7 +26,7 @@ public class Camera extends PhysicalObject {
 	
 	// orientation
 	protected Vector3d forward = new Vector3d(1,0,0);
-	protected Vector3d left = new Vector3d(0,1,0);
+	protected Vector3d right = new Vector3d(0,1,0);
 	protected Vector3d up = new Vector3d(0,0,1);
 	
 	// angles
@@ -35,14 +35,23 @@ public class Camera extends PhysicalObject {
 	protected CameraMount mount;
 	
 	protected int canvasWidth, canvasHeight;
+	protected double minZ, maxZ,fov;
+	protected int cursorX,cursorY;
+	protected boolean isPressed;
 	
 	CameraControlPanel cameraPanel;
+
+	private int pickName;
 	
 	
 	public Camera() {
 		super();
 		
 		setDisplayName("Camera");
+		
+		isPressed=false;
+		fov=60;
+		pickName=0;
 	}
 
 	
@@ -84,9 +93,9 @@ public class Camera extends PhysicalObject {
 		b.rotX(Math.toRadians(-tilt));
 		c.mul(b,a);
 
-		left.x=-c.m00;
-		left.y=-c.m01;
-		left.z=-c.m02;
+		right.x=c.m00;
+		right.y=c.m01;
+		right.z=c.m02;
 
 		up.x=c.m10;
 		up.y=c.m11;
@@ -126,15 +135,15 @@ public class Camera extends PhysicalObject {
 		if(move_fb!=0) {
 			// forward/back
 			temp.set(forward);
-			temp.scale(move_fb*runSpeed);
+			temp.scale(move_fb);
 			direction.add(temp);
 			changed = true;
 		}
-		double move_lr = InputManager.rawValue(InputManager.KEY_A)-InputManager.rawValue(InputManager.KEY_D);
+		double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
 		if(move_lr!=0) {
 			// strafe left/right
-			temp.set(left);
-			temp.scale(move_lr*runSpeed);
+			temp.set(right);
+			temp.scale(move_lr);
 			direction.add(temp);
 			changed = true;
 		}
@@ -142,7 +151,7 @@ public class Camera extends PhysicalObject {
 		if(move_ud!=0) {
 			// strafe up/down
 			temp.set(up);
-			temp.scale(move_ud*runSpeed);
+			temp.scale(move_ud);
 			direction.add(temp);
 			changed = true;
 		}
@@ -164,24 +173,11 @@ public class Camera extends PhysicalObject {
 		
 		Matrix4d c = new Matrix4d(matrix);
 		c.setTranslation(new Vector3d(0,0,0));
-/*
-		Matrix4d a = new Matrix4d();
-		Matrix4d b = new Matrix4d();
-		Matrix4d c = new Matrix4d();
-		a.rotZ(Math.toRadians(pan));
-		b.rotX(Math.toRadians(-tilt));
-		c.mul(b,a);
-		c.transpose();*/
-		
+
 		Matrix4d mFinal = c;
 		mFinal.setTranslation(p);
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);
-		
-		//c.m03=0;
-		//c.m13=0;
-		//c.m23=0;
-		//MatrixHelper.drawMatrix(gl2, c, 4);
 	}
 
 
@@ -196,7 +192,7 @@ public class Camera extends PhysicalObject {
 
 
 	public Vector3d getRight() {
-		return left;
+		return right;
 	}
 	
 	public float getPan() {
@@ -216,5 +212,71 @@ public class Camera extends PhysicalObject {
 	    
 		if(tilt < 1) tilt=1;
 		if(tilt > 179) tilt= 179;
+	}
+	
+	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
+	public Vector3d rayPick() {		
+		Vector3d vy = new Vector3d();
+		vy.set(up);
+		vy.scale(cursorY);
+
+		Vector3d vx = new Vector3d();
+		vx.set(right);
+		vx.scale(+cursorX);
+		
+		Vector3d pickRay = new Vector3d(forward);
+		pickRay.scale(-canvasHeight*Math.sin(Math.toRadians(fov)));
+		pickRay.add(vx);
+		pickRay.add(vy);
+		pickRay.normalize();
+
+		return pickRay;
+	}
+
+
+	public void setMinZ(double d) {
+		minZ=d;
+	}
+
+
+	public void setMaxZ(double d) {
+		maxZ=d;
+	}
+
+
+	public void setFOV(double d) {
+		fov=d;
+	}
+
+
+	public void setCursor(int x,int y) {
+		cursorX= x - canvasWidth/2;
+		cursorY= canvasHeight/2 - y;
+        //System.out.println("X"+cursorX+" Y"+cursorY);
+	}
+
+
+	public void pressed() {
+		isPressed=true;
+	}
+
+
+	public void released() {
+		isPressed=false;
+	}
+	
+	public boolean isPressed() {
+		return isPressed;
+	}
+
+
+	public void setPickName(int arg0) {
+		System.out.println("camera.setPickName="+arg0);
+		pickName=arg0;
+	}
+
+
+	public int getPickName() {
+		return pickName;
 	}
 }
