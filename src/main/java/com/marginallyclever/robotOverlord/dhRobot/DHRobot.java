@@ -13,8 +13,10 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.DragBall;
 import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
@@ -93,6 +95,8 @@ public abstract class DHRobot extends Robot {
 	// to simulate dwell behavior
 	protected double dwellTime;
 
+	protected DragBall ball;
+	
 	public DHRobot() {
 		super();
 
@@ -101,7 +105,7 @@ public abstract class DHRobot extends Robot {
 		setShowBones(false);
 		setShowPhysics(false);
 		setShowAngles(true);
-		frameOfReferenceIndex = 2;
+		frameOfReferenceIndex = 0;
 
 		links = new LinkedList<DHLink>();
 		liveMatrix = new Matrix4d();
@@ -132,6 +136,9 @@ public abstract class DHRobot extends Robot {
 
 		dhTool = new DHTool(); // default tool = no tool
 		dwellTime = 0;
+		
+		ball = new DragBall();
+		ball.setParent(this);
 	}
 
 	/**
@@ -161,29 +168,7 @@ public abstract class DHRobot extends Robot {
 		// if(!drawAsSelected) return;
 
 		// get the camera
-		World world = getWorld();
-		Camera cam = null;
-		if (world != null) {
-			// find the camera
-			Iterator<Entity> iter = world.getChildren().iterator();
-			while (iter.hasNext()) {
-				Entity e = iter.next();
-				if (e instanceof Camera) {
-					// probably the only one we'll find.
-					cam = (Camera) e;
-				}
-			}
-		}
-		if (cam != null) {
-			// gl2.glPushMatrix();
-			// Matrix4d mat = new Matrix4d(cam.getMatrix());
-			// Vector3d camPos = cam.getPosition();
-			// mat.setTranslation(new Vector3d(0,0,0));
-			// gl2.glTranslated(-camPos.x,-camPos.y,-camPos.z);
-			// gl2.glTranslated( mat.m01*50, mat.m11*50, mat.m21*50);
-			// MatrixHelper.drawMatrix(gl2, mat,20);
-			// gl2.glPopMatrix();
-		}
+		Camera cam = getWorld().getCamera();
 
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -230,8 +215,8 @@ public abstract class DHRobot extends Robot {
 					//}
 				}
 			gl2.glPopMatrix();
-			MatrixHelper.drawMatrix(gl2, liveMatrix, 8.0);
-			MatrixHelper.drawMatrix2(gl2, targetMatrix, 6.0);
+			//MatrixHelper.drawMatrix(gl2, liveMatrix, 8.0);
+			//MatrixHelper.drawMatrix2(gl2, targetMatrix, 6.0);
 	
 			if (cam != null) {
 				// Matrix4d mat = new Matrix4d(cam.getMatrix());
@@ -242,19 +227,26 @@ public abstract class DHRobot extends Robot {
 			}
 		gl2.glPopMatrix();
 
-		Matrix4d st = new Matrix4d();
-		st.set(showTimeBefore);
-		MatrixHelper.drawMatrix(gl2, st, 30.0);
-		st.set(showTimeAfter);
-		MatrixHelper.drawMatrix2(gl2, st, 20.0);
-		
-		
 		if (isDepth)
 			gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if (isLit)
 			gl2.glEnable(GL2.GL_LIGHTING);
 
 		drawTargetPose(gl2);
+		
+		if(drawAsSelected) {
+			gl2.glDisable(GL2.GL_DEPTH_TEST);
+			gl2.glDisable(GL2.GL_LIGHTING);
+			if(inDirectDriveMode()) {
+				if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
+					ball.renderRotation(gl2);
+				} else {
+					ball.renderTranslation(gl2);
+				}
+			}
+			if (isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		}
 	}
 
 	/**
@@ -381,16 +373,19 @@ public abstract class DHRobot extends Robot {
 		return new DHKeyframe(getSolverIK().getSolutionSize());
 	}
 
-	public Vector3d getForward(Matrix3d frameOfReference) {
-		return new Vector3d(frameOfReference.m20, frameOfReference.m21, frameOfReference.m22);
+	public Vector3d getForward() {
+		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		return new Vector3d(frameOfReference.m00, frameOfReference.m10, frameOfReference.m20);
 	}
 
-	public Vector3d getUp(Matrix3d frameOfReference) {
-		return new Vector3d(frameOfReference.m10, frameOfReference.m11, frameOfReference.m12);
+	public Vector3d getRight() {
+		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		return new Vector3d(frameOfReference.m01, frameOfReference.m11, frameOfReference.m21);
 	}
 
-	public Vector3d getRight(Matrix3d frameOfReference) {
-		return new Vector3d(frameOfReference.m00, frameOfReference.m01, frameOfReference.m02);
+	public Vector3d getUp() {
+		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		return new Vector3d(frameOfReference.m02, frameOfReference.m12, frameOfReference.m22);
 	}
 
 	/**
@@ -399,22 +394,21 @@ public abstract class DHRobot extends Robot {
 	 * 
 	 * @return true if targetPose changes.
 	 */
-	public boolean driveFromKeyState(Matrix3d frameOfReference,double dt) {
+	public boolean driveFromKeyState(double dt) {
 		boolean isDirty = false;
 		final double scale = 10*dt;
 		final double scaleDolly = 10*dt;
 		final double scaleTurnRadians = Math.toRadians(10)*dt;
 
-		if (InputManager.isOn(InputManager.STICK_SQUARE)) {
-		}
-		if (InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
-			// this.toggleATC();
-		}
-		if (InputManager.isOn(InputManager.STICK_SQUARE)) {
-		}
+		//if (InputManager.isOn(InputManager.STICK_SQUARE)) {}
+		//if (InputManager.isOn(InputManager.STICK_CIRCLE)) {}
+		//if (InputManager.isOn(InputManager.STICK_X)) {}
 		if (InputManager.isOn(InputManager.STICK_TRIANGLE)) {
 			targetMatrix.set(homeMatrix);
 			isDirty = true;
+		}
+		if (InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
+			// this.toggleATC();
 		}
 
 		int dD = (int) InputManager.rawValue(InputManager.STICK_DPADY);
@@ -431,7 +425,7 @@ public abstract class DHRobot extends Robot {
 				dhTool.dhLinkEquivalent.r = 0;
 			isDirty = true;
 		}
-
+/*
 		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
 		if (InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
 			if (canTargetPoseRotateZ()) {
@@ -456,46 +450,38 @@ public abstract class DHRobot extends Robot {
 				isDirty = true;
 				rollX(frameOfReference, InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
 			}
-		}
+		}*/
 		if (InputManager.rawValue(InputManager.STICK_R2) != -1) {
 			isDirty = true;
-			dollyForward(getForward(frameOfReference), ((InputManager.rawValue(InputManager.STICK_R2) + 1) / 2) * scale);
+			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_R2) + 1) / 2) * scale);
 		}
 		if (InputManager.rawValue(InputManager.STICK_L2) != -1) {
 			isDirty = true;
-			dollyForward(getForward(frameOfReference), ((InputManager.rawValue(InputManager.STICK_L2) + 1) / 2) * -scale);
+			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_L2) + 1) / 2) * -scale);
 		}
 		if (InputManager.rawValue(InputManager.STICK_LX) != 0) {
 			isDirty = true;
-			truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.STICK_LX) * scale);
+			translate(getRight(), InputManager.rawValue(InputManager.STICK_LX) * scale);
 		}
 		if (InputManager.rawValue(InputManager.STICK_LY) != 0) {
 			isDirty = true;
-			pedestalUp(getUp(frameOfReference), InputManager.rawValue(InputManager.STICK_LY) * -scale);
+			translate(getUp(), InputManager.rawValue(InputManager.STICK_LY) * -scale);
 		}
+		
 
 		if (InputManager.isOn(InputManager.MOUSE_LEFT)) {
 			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
-				if (InputManager.isOn(InputManager.KEY_LALT) || InputManager.isOn(InputManager.KEY_RALT)) {
-					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
-						if (canTargetPoseRotateZ()) {
-							isDirty = true;
-							rollZ(frameOfReference, InputManager.rawValue(InputManager.MOUSE_X) * scaleTurnRadians );
+				if(ball.wasPressed) {
+					double da=ball.angleRadNow - ball.angleRadSaved;
+
+					if(da!=0) {
+						switch(ball.nearestPlaneSaved) {
+						case 0 : if(canTargetPoseRotateX()) rollX(da);	break;
+						case 1 : if(canTargetPoseRotateY()) rollY(da);	break;
+						default: if(canTargetPoseRotateZ()) rollZ(da);	break;
 						}
 					}
-				} else {
-					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
-						if (canTargetPoseRotateX()) {
-							isDirty = true;
-							rollY(frameOfReference, InputManager.rawValue(InputManager.MOUSE_X) * scaleTurnRadians );
-						}
-					}
-					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
-						if (canTargetPoseRotateY()) {
-							isDirty = true;
-							rollX(frameOfReference, InputManager.rawValue(InputManager.MOUSE_Y) * scaleTurnRadians );
-						}
-					}
+					isDirty = true;
 				}
 			} else if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
 				if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
@@ -505,22 +491,26 @@ public abstract class DHRobot extends Robot {
 					isDirty = true;
 				}
 			} else {
-				if (InputManager.isOn(InputManager.KEY_LALT) || InputManager.isOn(InputManager.KEY_RALT)) {
-					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
-						if (canTargetPoseRotateZ()) {
-							isDirty = true;
-							dollyForward(getForward(frameOfReference), InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly);
+				if(ball.wasPressed) {
+					double dx = InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5;
+					double dy = InputManager.rawValue(InputManager.MOUSE_Y) * -scale * 0.5;
+					double da=0;
+					
+					switch(ball.majorAxisSlideDirection) {
+					case DragBall.SLIDE_XPOS:  da= dx;	break;
+					case DragBall.SLIDE_XNEG:  da=-dx;  break;
+					case DragBall.SLIDE_YPOS:  da= dy;  break;
+					case DragBall.SLIDE_YNEG:  da=-dy;  break;
+					}
+					
+					if(da!=0) {
+						switch(ball.majorAxisSaved) {
+						case 1 : translate(getForward(), da);	break;
+						case 2 : translate(getRight()  , da);	break;
+						default: translate(getUp()     , da);	break;
 						}
 					}
-				} else { 
-					if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
-						isDirty = true;
-						truckRight(getRight(frameOfReference), InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5);
-					}
-					if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
-						isDirty = true;
-						pedestalUp(getUp(frameOfReference), InputManager.rawValue(InputManager.MOUSE_Y) * -scale * 0.5);
-					}
+					isDirty = true;
 				}
 			}
 		}
@@ -551,11 +541,11 @@ public abstract class DHRobot extends Robot {
 		return targetMatrixWorldSpace; 
 	}
 	
-	protected void rotationInternal(Matrix3d frameOfReference,Matrix3d rotation) {
+	protected void rotationInternal(Matrix3d rotation) {
 		// multiply robot origin by target matrix to get target matrix in world space.
 		
 		// invert frame of reference to transform world target matrix into frame of reference space.
-		Matrix3d FOR = new Matrix3d(frameOfReference);
+		Matrix3d FOR = new Matrix3d(ball.FORSaved);
 		Matrix3d m0 = new Matrix3d();
 		this.getMatrix().get(m0);
 		m0.invert();
@@ -568,8 +558,8 @@ public abstract class DHRobot extends Robot {
 		targetMatrixRobotSpaceAfterTransform.mul(rotation);
 		targetMatrixRobotSpaceAfterTransform.mul(FOR);
 
-		Matrix3d m1 = new Matrix3d();
-		targetMatrix.get(m1);
+		Matrix3d m1 = new Matrix3d(ball.targetMatrixSaved);
+		//targetMatrix.get(m1);
 		targetMatrixRobotSpaceAfterTransform.mul(m1);
 		
 		// done!
@@ -579,56 +569,29 @@ public abstract class DHRobot extends Robot {
 		targetMatrix.setTranslation(tempPosition);
 	}
 
-	protected void rollX(Matrix3d frameOfReference,double angRadians) {
+	protected void rollX(double angRadians) {
 		// apply transform about the origin,
 		Matrix3d temp = new Matrix3d();
 		temp.rotX(angRadians);
-		rotationInternal(frameOfReference,temp);
+		rotationInternal(temp);
 	}
 
-	protected void rollY(Matrix3d frameOfReference,double angRadians) {
+	protected void rollY(double angRadians) {
 		// apply transform about the origin,
 		Matrix3d temp = new Matrix3d();
 		temp.rotY(angRadians);
-		rotationInternal(frameOfReference,temp);
+		rotationInternal(temp);
 	}
-	protected void rollZ(Matrix3d frameOfReference,double angRadians) {
+	protected void rollZ(double angRadians) {
 		Matrix3d temp = new Matrix3d();
 		temp.rotZ(angRadians);
-		rotationInternal(frameOfReference,temp);
+		rotationInternal(temp);
 	}
 
-	protected void truckRight(Vector3d right, double amount) {
-		Matrix3d m = new Matrix3d();
-		this.getMatrix().get(m);
-		m.invert();
-		m.transform(right);
-		
-		targetMatrix.m03 += right.x*amount;
-		targetMatrix.m13 += right.y*amount;
-		targetMatrix.m23 += right.z*amount;
-	}
-
-	protected void pedestalUp(Vector3d up, double amount) {
-		Matrix3d m = new Matrix3d();
-		this.getMatrix().get(m);
-		m.invert();
-		m.transform(up);
-		
-		targetMatrix.m03 += up.x*amount;
-		targetMatrix.m13 += up.y*amount;
-		targetMatrix.m23 += up.z*amount;
-	}
-
-	protected void dollyForward(Vector3d forward, double amount) {
-		Matrix3d m = new Matrix3d();
-		this.getMatrix().get(m);
-		m.invert();
-		m.transform(forward);
-		
-		targetMatrix.m03 += forward.x*amount;
-		targetMatrix.m13 += forward.y*amount;
-		targetMatrix.m23 += forward.z*amount;
+	protected void translate(Vector3d v, double amount) {
+		targetMatrix.m03 += v.x*amount;
+		targetMatrix.m13 += v.y*amount;
+		targetMatrix.m23 += v.z*amount;
 	}
 
 	/**
@@ -770,9 +733,6 @@ public abstract class DHRobot extends Robot {
 		}
 	}
 
-	Matrix3d showTimeBefore = new Matrix3d();
-	Matrix3d showTimeAfter = new Matrix3d();
-	
 	
 	@Override
 	public void update(double dt) {
@@ -785,7 +745,10 @@ public abstract class DHRobot extends Robot {
 		// rewinding.
 		oldMatrix.set(targetMatrix);
 
-		if (inDirectDriveMode()) {
+		if (inDirectDriveMode() && drawAsSelected) {
+			Matrix4d m = this.getTargetMatrixWorldSpace();
+			Vector3d trans = new Vector3d(m.m03,m.m13,m.m23);
+			
 			Matrix4d frameOfRef;
 			switch(frameOfReferenceIndex) {
 			case FRAME_FINGER:
@@ -795,22 +758,36 @@ public abstract class DHRobot extends Robot {
 				break;
 			case FRAME_CAMERA:
 				// use the camera as the frame of reference.
-				frameOfRef = new Matrix4d(getWorld().getCamera().getMatrix());
+				frameOfRef = new Matrix4d(MatrixHelper.lookAt(trans, getWorld().getCamera().getPosition()));
+				
+				//frameOfRef = new Matrix4d(getWorld().getCamera().getMatrix());
 				frameOfRef.m03=0;
 				frameOfRef.m13=0;
 				frameOfRef.m23=0;
-				//frameOfRef.invert();
+
+				m.set(frameOfRef);
+				m.setTranslation(trans);
 				break;
 			case FRAME_WORLD:
 			default:
 				// use the world as the frame of reference.
 				frameOfRef = new Matrix4d(World.getPose());
+				m.set(frameOfRef);
+				m.setTranslation(trans);
 				break;
 			}
 
-			Matrix3d rotationOnly = new Matrix3d();
-			frameOfRef.get(rotationOnly);
-			if (driveFromKeyState(rotationOnly,dt)) {
+			ball.setMatrix(m);
+			targetMatrix.get(ball.targetMatrixToSave);
+			frameOfRef.get(ball.FORToSave);
+
+			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
+				ball.updateRotation(dt);
+			} else {
+				ball.updateTranslation(dt);
+			}
+			
+			if (driveFromKeyState(dt)) {
 				if (panel != null)
 					panel.updateGhostEnd();
 			}
@@ -873,10 +850,8 @@ public abstract class DHRobot extends Robot {
 
 	public void drawTargetPose(GL2 gl2) {
 		gl2.glPushMatrix();
-
-		MatrixHelper.applyMatrix(gl2, this.getMatrix());
-		MatrixHelper.drawMatrix(gl2, targetMatrix, 5);
-
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			MatrixHelper.drawMatrix(gl2, targetMatrix,5);
 		gl2.glPopMatrix();
 	}
 
