@@ -1,10 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
 
-import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
@@ -12,7 +9,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -636,9 +632,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         int pickName = 0;
         if(pickNow) {
         	pickName = findItemUnderCursor(gl2);
-        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-
-        	// double click action to pick the object under the cursor
+        	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+    		
 	        pickNow=false;
         	//System.out.println("pickedHandle="+pickedHandle);
         	if(pickedHandle==0 && pickName>0 && pickName<10) {
@@ -659,8 +654,12 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     
     protected void setPerspectiveMatrix() {
         glu.gluPerspective(60, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 5.0f, 2000.0f);
-        world.getCamera().setCanvasWidth(glCanvas.getSurfaceWidth());
-        world.getCamera().setCanvasHeight(glCanvas.getSurfaceHeight());
+        Camera cam =world.getCamera();
+        cam.setCanvasWidth(glCanvas.getSurfaceWidth());
+        cam.setCanvasHeight(glCanvas.getSurfaceHeight());
+        cam.setMinZ(5.0);
+        cam.setMaxZ(2000.0);
+        cam.setFOV(60.0);
     }
     
     /**
@@ -689,7 +688,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         // render in selection mode, without advancing time in the simulation.
         world.render(gl2);
 
-        // return the projection matrix to it's old state.
+        // return the projection matrix to its old state.
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPopMatrix();
         gl2.glFlush();
@@ -739,22 +738,27 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	
     	if(newlyPickedEntity==null || newlyPickedEntity == pickedEntity) {
 			//System.out.println(" NO PICK");
-    		unPick();
     		pickNothing();
         } else {
 			//System.out.print(" PICKED");
-			unPick();
 			pickEntity(newlyPickedEntity);
 		}
     }
 	
 	public void pickEntity(Entity arg0) {
+		unPick();
 		arg0.pick();
 		pickedEntity=arg0;
 		pickedHandle=0;
 		
 		setContextPanel(arg0.getAllContextPanels(this),arg0.getDisplayName());
 	}
+    
+    public void pickNothing() {
+		unPick();
+    	pickedEntity=null;
+    	setContextPanel(world.getAllContextPanels(this),Translator.get("Everything"));
+    }
 	
     public void unPick() {
 		if(pickedEntity!=null) {
@@ -762,11 +766,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			pickedEntity=null;
 			pickedHandle=0;
 		}
-    }
-    
-    public void pickNothing() {
-    	pickedEntity=null;
-    	setContextPanel(world.getAllContextPanels(this),Translator.get("Everything"));
     }
     
 	public void pickCamera() {
@@ -795,9 +794,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		pickX=e.getX();
 		pickY=e.getY();
 		pickedHandle=0;
+		
+		world.getCamera().pressed();
 	}
 	
-	private void hideCursor() {
+	private void hideCursor() {/*
 		// Hide cursor
 		// Transparent 16 x 16 pixel cursor image.
 		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
@@ -805,16 +806,17 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
 		    cursorImg, new Point(0, 0), "blank cursor");
 		// Set the blank cursor to the JFrame.
-		glCanvas.setCursor(blankCursor);
+		glCanvas.setCursor(blankCursor);*/
 	}
 	
 	private void showCursor() {
-		glCanvas.setCursor(Cursor.getDefaultCursor());
+		//glCanvas.setCursor(Cursor.getDefaultCursor());
 	}
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		showCursor();
+		world.getCamera().released();
 	}
 	
 	@Override
@@ -830,6 +832,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
+        Camera cam = world.getCamera();
+        cam.setCursor(e.getX(),e.getY());
+        
 		if(pickedHandle>0) {
 			//int x = e.getX();
 			//int y = e.getY();
@@ -842,7 +847,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 	@Override
-	public void mouseMoved(MouseEvent e) {}
+	public void mouseMoved(MouseEvent e) {
+        Camera cam = world.getCamera();
+        cam.setCursor(e.getX(),e.getY());
+	}
 	
 
 	public static void main(String[] argv) {
@@ -888,6 +896,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         }
 	}
 
+	public int getPickedHandle() {
+		return pickedHandle;
+	}
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {}
