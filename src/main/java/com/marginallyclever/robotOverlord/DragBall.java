@@ -454,8 +454,7 @@ public class DragBall extends PhysicalObject {
 		Vector3d p2 = new Vector3d(cam.getPosition());
 		p2.sub(pos);
 		p2.normalize();
-		Vector3d ray=new Vector3d(cam.rayPick());
-		
+
 		int majorAxisIndex = wasPressed? majorAxisSaved : majorAxisToSave;
 		float r = (majorAxisIndex==1)?1:0.25f;
 		float g = (majorAxisIndex==2)?1:0.25f;
@@ -465,6 +464,7 @@ public class DragBall extends PhysicalObject {
 		Vector3d nx = new Vector3d(FOR.m00,FOR.m10,FOR.m20);
 		Vector3d ny = new Vector3d(FOR.m01,FOR.m11,FOR.m21);
 		Vector3d nz = new Vector3d(FOR.m02,FOR.m12,FOR.m22);
+		// should we hide an axis if it points almost the same direction as the camera?
 		boolean drawX = (Math.abs(nx.dot(p2))<0.95);
 		boolean drawY = (Math.abs(ny.dot(p2))<0.95);
 		boolean drawZ = (Math.abs(nz.dot(p2))<0.95);

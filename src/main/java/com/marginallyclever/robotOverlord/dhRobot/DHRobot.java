@@ -13,7 +13,6 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.DragBall;
@@ -21,7 +20,6 @@ import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.robot.Robot;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
@@ -398,7 +396,6 @@ public abstract class DHRobot extends Robot {
 		boolean isDirty = false;
 		final double scale = 10*dt;
 		final double scaleDolly = 10*dt;
-		final double scaleTurnRadians = Math.toRadians(10)*dt;
 
 		//if (InputManager.isOn(InputManager.STICK_SQUARE)) {}
 		//if (InputManager.isOn(InputManager.STICK_CIRCLE)) {}
@@ -450,7 +447,7 @@ public abstract class DHRobot extends Robot {
 				isDirty = true;
 				rollX(frameOfReference, InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
 			}
-		}*/
+		}
 		if (InputManager.rawValue(InputManager.STICK_R2) != -1) {
 			isDirty = true;
 			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_R2) + 1) / 2) * scale);
@@ -466,7 +463,7 @@ public abstract class DHRobot extends Robot {
 		if (InputManager.rawValue(InputManager.STICK_LY) != 0) {
 			isDirty = true;
 			translate(getUp(), InputManager.rawValue(InputManager.STICK_LY) * -scale);
-		}
+		}*/
 		
 
 		if (InputManager.isOn(InputManager.MOUSE_LEFT)) {
