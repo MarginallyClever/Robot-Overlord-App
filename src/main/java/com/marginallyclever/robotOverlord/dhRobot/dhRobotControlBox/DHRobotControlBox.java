@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer;
+package com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

@@ -21,7 +21,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
-import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotControlBox;
+import com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox.DHRobotControlBox;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;

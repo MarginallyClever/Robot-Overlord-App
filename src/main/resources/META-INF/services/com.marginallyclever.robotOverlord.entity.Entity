@@ -10,7 +10,7 @@ com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2
 #com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Cartesian
 
 # sends gcode to a dhrobot
-com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotControlBox
+com.marginallyclever.robotOverlord.dhRobot.DHRobotControlBox.DHRobotControlBox
 # joystick controller
 com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick
 
