@@ -23,7 +23,7 @@ import com.marginallyclever.robotOverlord.world.World;
  * 
  * @author Dan Royer
  */
-public class DHRobotPlayer extends ModelInWorld {
+public class DHRobotControlBox extends ModelInWorld {
 	/**
 	 * 
 	 */
@@ -31,7 +31,7 @@ public class DHRobotPlayer extends ModelInWorld {
 	
 	protected DHRobot target;
 	protected BufferedReader gcodeFile;
-	protected DHRobotPlayerPanel panel;
+	protected DHRobotControlBoxPanel panel;
 	protected String fileToPlay;
 	
 	protected boolean isCycleStart,isLoop,isSingleBlock;
@@ -63,7 +63,7 @@ public class DHRobotPlayer extends ModelInWorld {
 		this.isSingleBlock = isSingleBlock;
 	}
 
-	public DHRobotPlayer() {
+	public DHRobotControlBox() {
 		super();
 		
 		setDisplayName("DHRobotPlayer");
@@ -111,7 +111,7 @@ public class DHRobotPlayer extends ModelInWorld {
 		// remove model panel
 		list.remove(list.size()-1);
 
-		panel = new DHRobotPlayerPanel(gui,this);
+		panel = new DHRobotControlBoxPanel(gui,this);
 		list.add(panel);
 		
 		return list;

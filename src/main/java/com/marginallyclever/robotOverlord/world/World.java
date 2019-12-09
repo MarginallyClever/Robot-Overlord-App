@@ -21,7 +21,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
-import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotPlayer;
+import com.marginallyclever.robotOverlord.dhRobot.dhRobotPlayer.DHRobotControlBox;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
@@ -80,7 +80,7 @@ implements Serializable {
 		pickUp=new Vector3d();
 		pickRay=new Vector3d();
 		
-		DHRobotPlayer player;
+		DHRobotControlBox player;
 		Sixi2 sixi2;
 		
 		addEntity(grid = new GridEntity());
@@ -89,7 +89,7 @@ implements Serializable {
 		addEntity(light2 = new Light());
 		addEntity(camera = new Camera());
 		addEntity(sixi2=new Sixi2());
-		addEntity(player=new DHRobotPlayer());
+		addEntity(player=new DHRobotControlBox());
 	
 		viewCube = new ViewCube();
 

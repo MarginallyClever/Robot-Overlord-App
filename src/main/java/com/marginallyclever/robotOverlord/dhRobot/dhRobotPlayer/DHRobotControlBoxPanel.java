@@ -6,11 +6,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -32,24 +38,26 @@ import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
  * @author Dan Royer
  *
  */
-public class DHRobotPlayerPanel extends JPanel implements ActionListener, ChangeListener, ItemListener {
+public class DHRobotControlBoxPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected DHRobotPlayer player;
+	protected DHRobotControlBox player;
 	protected RobotOverlord ro;
 	
 	protected UserCommandSelectFile fileToPlay;
 	
 	protected JButton reset;
-	protected JCheckBox buttonSingleBlock;
-	protected JCheckBox buttonLoop; 
-	protected JCheckBox buttonCycleStart;
+	protected JButton buttonSingleBlock;
+	protected JButton buttonLoop; 
+	protected JButton buttonCycleStart;
 	
 	protected JTextField directCommand;
 	protected JButton directCommandSend;
+	protected JButton saveLivePositionToFile;
+	protected JButton loadFileToLivePosition;
 	
 	protected JComboBox<String> userHeight;
 	protected JButton setHeight;
@@ -57,8 +65,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 
 	protected int START_HEIGHT = 12*4;
 	
-	
-	public DHRobotPlayerPanel(RobotOverlord gui,DHRobotPlayer arg0) {
+	public DHRobotControlBoxPanel(RobotOverlord gui,DHRobotControlBox arg0) {
 		this.player = arg0;
 		this.ro = gui;
 		
@@ -67,7 +74,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 	
 	protected void buildPanel() {
 		this.removeAll();
-
+		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
@@ -77,7 +84,7 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("DHRobotPlayer");
+		CollapsiblePanel oiwPanel = new CollapsiblePanel("DHRobotControlBox");
 		this.add(oiwPanel,c);
 		JPanel contents = oiwPanel.getContentPane();
 		
@@ -98,23 +105,34 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 
 		contents.add(reset = new JButton("Reset"),con1);
 		con1.gridy++;
-		contents.add(buttonSingleBlock = new JCheckBox("Single block"),con1);
+		contents.add(buttonSingleBlock = new JButton("[ ] Single block"),con1);
 		con1.gridy++;
-		contents.add(buttonLoop = new JCheckBox("Loop at end"),con1);
+		contents.add(buttonLoop = new JButton("[ ] Loop at end"),con1);
 		con1.gridy++;
-		contents.add(buttonCycleStart = new JCheckBox("Cycle start"),con1);
+		contents.add(buttonCycleStart = new JButton("[ ] Cycle start"),con1);
 		con1.gridy++; 
 		
 		reset.addActionListener(this);
-		buttonSingleBlock.addItemListener(this);
-		buttonLoop.addItemListener(this);
-		buttonCycleStart.addItemListener(this);
+		buttonSingleBlock.addActionListener(this);
+		buttonLoop.addActionListener(this);
+		buttonCycleStart.addActionListener(this);
 		fileToPlay.addChangeListener(this);
 		
 		buttonSingleBlock.setSelected(player.isSingleBlock());
 		buttonLoop.setSelected(player.isLoop());
 		buttonCycleStart.setSelected(player.isCycleStart());
 
+		contents.add(new JLabel(" "),con1);
+		con1.gridy++;
+		contents.add(saveLivePositionToFile = new JButton("Save as G30"),con1);
+		con1.gridy++;
+		saveLivePositionToFile.addActionListener(this);
+		contents.add(loadFileToLivePosition = new JButton("Go to G30"),con1);
+		con1.gridy++;
+		loadFileToLivePosition.addActionListener(this);
+		
+		contents.add(new JLabel(" "),con1);
+		con1.gridy++;
 		contents.add(new JLabel("Direct command"),con1);
 		con1.gridy++;
 		contents.add(directCommand = new JTextField(),con1);
@@ -132,7 +150,11 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		}
 		
 		String[] heightArray = heights.toArray(new String[1]);
-		
+
+		contents.add(new JLabel(" "),con1);
+		con1.gridy++;
+		contents.add(new JLabel("Selfie mode"),con1);
+		con1.gridy++;
 		contents.add(userHeight=new JComboBox<String>(heightArray),con1);
 		con1.gridy++;
 		contents.add(setHeight=new JButton("3..2..1..Go!"),con1);
@@ -143,12 +165,43 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 		setHeight.addActionListener(this);
 		firstPosition.addActionListener(this);
 		userHeight.addActionListener(this);
+		
+		updateLabels();
+	}
+	
+	protected void updateLabels() {
+		buttonSingleBlock.setText("["+(player.isSingleBlock()?"X":" ")+"] Single block");
+		buttonLoop.setText("["+(player.isLoop()?"X":" ")+"] Loop at end");
+		buttonCycleStart.setText("["+(player.isCycleStart()?"X":" ")+"] Cycle start");
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if(source == reset) player.reset();
+		
+		if(source == reset) {
+			player.reset();
+			updateLabels();
+		}
+		if(source==buttonSingleBlock) {
+			player.setSingleBlock(!player.isSingleBlock());
+			updateLabels();
+		}
+		if(source==buttonLoop) {
+			player.setLoop(!player.isLoop());
+			updateLabels();
+		}
+		if(source==buttonCycleStart) {
+			player.setCycleStart(player.isCycleStart());
+			updateLabels();
+		}
+		
+		if(source == saveLivePositionToFile) {
+			saveLivePositionToFile();
+		}
+		if(source == loadFileToLivePosition) {
+			loadFileToLivePosition();
+		}
 		if(source == directCommandSend) {
 			DHRobot t=player.getTarget();
 			if(t!=null) {
@@ -162,15 +215,31 @@ public class DHRobotPlayerPanel extends JPanel implements ActionListener, Change
 			int height = (int)((userHeight.getSelectedIndex()+START_HEIGHT)*2.54);
 			setHeight(height);
 		}
+
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		// for checkboxes
-		Object source = e.getItemSelectable();
-		if(source==buttonSingleBlock) player.setSingleBlock	(buttonSingleBlock	.isSelected());
-		if(source==buttonLoop		) player.setLoop		(buttonLoop			.isSelected());
-		if(source==buttonCycleStart	) player.setCycleStart	(buttonCycleStart	.isSelected());
+	
+	public void saveLivePositionToFile() {
+		DHRobot t=player.getTarget();
+		String gcode = t.generateGCode();
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter("G30.ngc"));
+		    writer.write(gcode);
+		    writer.close();
+		} catch(IOException e) {
+			JOptionPane.showConfirmDialog(null, "Failed to write G30.ngc");
+		}
+	}
+	
+	public void loadFileToLivePosition() {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("G30.ngc"));
+			String gcode=reader.readLine();
+			reader.close();
+			player.getTarget().sendLineToRobot(gcode);
+		} catch(IOException e) {
+			JOptionPane.showConfirmDialog(null, "Failed to read G30.ngc");
+		}
 	}
 
 	//Vector3d p1 = new Vector3d(9.144,0.554,37.670);  // first position 1: G0 X9.144 Y0.554 Z37.670 I157.906 J-9.010 K68.404
