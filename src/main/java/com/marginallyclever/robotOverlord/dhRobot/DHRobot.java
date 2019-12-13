@@ -487,6 +487,12 @@ public abstract class DHRobot extends Robot {
 						dhTool.dhLinkEquivalent.d = 0;
 					isDirty = true;
 				}
+				if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
+					dhTool.dhLinkEquivalent.r += InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
+					if (dhTool.dhLinkEquivalent.r < 0)
+						dhTool.dhLinkEquivalent.r = 0;
+					isDirty = true;
+				}
 			} else {
 				if(ball.wasPressed) {
 					double dx = InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5;
