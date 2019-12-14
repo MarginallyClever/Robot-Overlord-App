@@ -25,3 +25,4 @@ log.html
 .settings/**
 /target/
 G30.ngc
+*.prefs
