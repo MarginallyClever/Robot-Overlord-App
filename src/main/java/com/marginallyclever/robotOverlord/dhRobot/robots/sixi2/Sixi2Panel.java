@@ -8,18 +8,16 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
-import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
  * Control Panel for a DHRobot
@@ -40,6 +38,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JButton goHome;
 	public JButton goRest;
 	public JSlider gripperOpening;
+	public JSlider feedrate;
+	public JLabel  feedrateValue;
 	
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
 		this.robot = robot;
@@ -86,6 +86,17 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.gridy++;
 		goRest.addActionListener(this);
 
+		contents.add(feedrate=new JSlider(),con1);
+		con1.gridy++;
+		feedrate.setMaximum(80);
+		feedrate.setMinimum(1);
+		feedrate.setMinorTickSpacing(1);
+		feedrate.setValue(20);
+		feedrate.addChangeListener(this);
+		contents.add(feedrateValue=new JLabel(),con1);
+		feedrateValue.setText(Double.toString(feedrate.getValue()));
+		con1.gridy++;
+
 		contents.add(gripperOpening=new JSlider(),con1);
 		con1.gridy++;
 		gripperOpening.setMaximum(130);
@@ -98,6 +109,11 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	@Override
 	public void stateChanged(ChangeEvent event) {
 		Object source = event.getSource();
+		if(source == feedrate) {
+			int v = feedrate.getValue();
+			robot.setFeedrate(v);
+			feedrateValue.setText(Double.toString(v));
+		}
 		if(source == gripperOpening) {
 			int v = gripperOpening.getValue();
 			robot.parseGCode("G0 T"+v);

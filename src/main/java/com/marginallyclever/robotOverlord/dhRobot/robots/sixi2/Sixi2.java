@@ -34,6 +34,8 @@ public class Sixi2 extends DHRobot {
 	public Material material;
 	public Material materialGhost;
 	public boolean once = false;
+	protected double feedrate;
+	protected double acceleration;
 	
 	DHKeyframe receivedKeyframe;
 	protected Sixi2Panel sixi2Panel;
@@ -227,13 +229,15 @@ public class Sixi2 extends DHRobot {
 		}
 		
 		String message = "G0"
-	    		+" X"+(StringHelper.formatDouble(keyframe.fkValues[0]))
-	    		+" Y"+(StringHelper.formatDouble(keyframe.fkValues[1]))
-	    		+" Z"+(StringHelper.formatDouble(keyframe.fkValues[2]))
-	    		+" U"+(StringHelper.formatDouble(keyframe.fkValues[3]))
-	    		+" V"+(StringHelper.formatDouble(keyframe.fkValues[4]))
-	    		+" W"+(StringHelper.formatDouble(keyframe.fkValues[5]))
-	    		;
+			    		+" X"+(StringHelper.formatDouble(keyframe.fkValues[0]))
+			    		+" Y"+(StringHelper.formatDouble(keyframe.fkValues[1]))
+			    		+" Z"+(StringHelper.formatDouble(keyframe.fkValues[2]))
+			    		+" U"+(StringHelper.formatDouble(keyframe.fkValues[3]))
+			    		+" V"+(StringHelper.formatDouble(keyframe.fkValues[4]))
+			    		+" W"+(StringHelper.formatDouble(keyframe.fkValues[5]))
+			    		+" F"+(StringHelper.formatDouble(feedrate))
+			    	    +" A"+(StringHelper.formatDouble(acceleration))
+			    	    ;
 
 		if(dhTool!=null) {
 			double t=dhTool.getAdjustableValue();
@@ -312,7 +316,7 @@ public class Sixi2 extends DHRobot {
 		// get the end matrix, which includes any tool.
 		liveMatrix.get(m1, t1);
 		
-		Vector3d e1 = MatrixHelper.matrixToEuler(m1);
+		//Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
 		String message = "G0"
 				+" X"+StringHelper.formatDouble(t1.x)
@@ -321,6 +325,8 @@ public class Sixi2 extends DHRobot {
 				//+" I"+StringHelper.formatDouble(Math.toDegrees(e1.x))
 				//+" J"+StringHelper.formatDouble(Math.toDegrees(e1.y))
 				//+" K"+StringHelper.formatDouble(Math.toDegrees(e1.z))
+				+" F"+StringHelper.formatDouble(feedrate)
+				+" A"+StringHelper.formatDouble(acceleration)
 				;
 		if(dhTool!=null) {
 			// add special tool commands
@@ -371,8 +377,8 @@ public class Sixi2 extends DHRobot {
 				//case 'I':  isDirty=true;  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
 				//case 'J':  isDirty=true;  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
 				//case 'K':  isDirty=true;  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				case 'F':  isDirty=true;  this.sendLineToRobot("G0 F"+token.substring(1));  break;
-				case 'A':  isDirty=true;  this.sendLineToRobot("G0 A"+token.substring(1));  break;
+				case 'F':  isDirty=true;  feedrate = Double.parseDouble(token.substring(1));  break;
+				case 'A':  isDirty=true;  acceleration = Double.parseDouble(token.substring(1));  break;
 				default:  break;
 				}
 			}
@@ -456,5 +462,25 @@ public class Sixi2 extends DHRobot {
 		setLivePose(keyframe);
 		
 		return jacobian;
+	}
+
+
+	public double getFeedrate() {
+		return feedrate;
+	}
+
+
+	public void setFeedrate(double feedrate) {
+		this.feedrate = feedrate;
+	}
+
+
+	public double getAcceleration() {
+		return acceleration;
+	}
+
+
+	public void setAcceleration(double acceleration) {
+		this.acceleration = acceleration;
 	}
 }
