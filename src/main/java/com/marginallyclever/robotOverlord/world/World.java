@@ -28,6 +28,7 @@ import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.gridEntity.GridEntity;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick;
 import com.marginallyclever.robotOverlord.viewCube.ViewCube;
 
 /**
@@ -90,6 +91,7 @@ implements Serializable {
 		addEntity(camera = new Camera());
 		addEntity(sixi2=new Sixi2());
 		addEntity(player=new DHRobotControlBox());
+		addEntity(new SixiJoystick());
 	
 		viewCube = new ViewCube();
 
