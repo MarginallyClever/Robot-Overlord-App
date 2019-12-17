@@ -8,13 +8,17 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
  * Control Panel for a DHRobot
@@ -33,6 +37,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 	public JButton buttonCalibrate;
 	public JButton goHome;
+	public JButton goRest;
 	
 	
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
@@ -75,6 +80,10 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		contents.add(goHome=new JButton("Go Home"), con1);
 		con1.gridy++;
 		goHome.addActionListener(this);
+		
+		contents.add(goRest=new JButton("Go Rest"), con1);
+		con1.gridy++;
+		goRest.addActionListener(this);
 	}
 	
 	@Override
@@ -91,7 +100,11 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			calibrator.run();
 		}
 		if(source==goHome) {
-			robot.setTargetMatrix(robot.getHomeMatrix());
+			robot.parseGCode("G0 X0 Y0 Z0 U0 V0 W0");
+		}
+		if(source==goRest) {
+			JOptionPane.showMessageDialog(null, "Not implemented yet.");
+			//robot.parseGCode("G0 X0 Y0 Z0 U0 V0 W0");
 		}
 	}
 
