@@ -46,6 +46,8 @@ public class Sixi2 extends DHRobot {
 		setDisplayName("Sixi 2");
 		isFirstTime=true;
 		receivedKeyframe = (DHKeyframe)createKeyframe();
+		feedrate=40;
+		acceleration=20;
 	}
 	
 	

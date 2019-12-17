@@ -40,6 +40,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JSlider gripperOpening;
 	public JSlider feedrate;
 	public JLabel  feedrateValue;
+	public JSlider acceleration;
+	public JLabel  accelerationValue;
+	
 	
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
 		this.robot = robot;
@@ -91,10 +94,21 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		feedrate.setMaximum(80);
 		feedrate.setMinimum(1);
 		feedrate.setMinorTickSpacing(1);
-		feedrate.setValue(20);
+		feedrate.setValue((int)robot.getFeedrate());
 		feedrate.addChangeListener(this);
 		contents.add(feedrateValue=new JLabel(),con1);
-		feedrateValue.setText(Double.toString(feedrate.getValue()));
+		feedrateValue.setText(Integer.toString(feedrate.getValue()));
+		con1.gridy++;
+
+		contents.add(acceleration=new JSlider(),con1);
+		con1.gridy++;
+		acceleration.setMaximum(50);
+		acceleration.setMinimum(1);
+		acceleration.setMinorTickSpacing(1);
+		acceleration.setValue((int)robot.getAcceleration()*10);
+		acceleration.addChangeListener(this);
+		contents.add(accelerationValue=new JLabel(),con1);
+		accelerationValue.setText(Integer.toString(acceleration.getValue()));
 		con1.gridy++;
 
 		contents.add(gripperOpening=new JSlider(),con1);
@@ -113,6 +127,11 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			int v = feedrate.getValue();
 			robot.setFeedrate(v);
 			feedrateValue.setText(Double.toString(v));
+		}
+		if(source == acceleration) {
+			double v = acceleration.getValue();
+			robot.setAcceleration(v/10);
+			accelerationValue.setText(Double.toString(v));
 		}
 		if(source == gripperOpening) {
 			int v = gripperOpening.getValue();
