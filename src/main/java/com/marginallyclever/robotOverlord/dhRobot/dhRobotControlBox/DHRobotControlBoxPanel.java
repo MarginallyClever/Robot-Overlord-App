@@ -205,6 +205,7 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 		if(source == directCommandSend) {
 			DHRobot t=player.getTarget();
 			if(t!=null) {
+				//JOptionPane.showMessageDialog(null, directCommand.getText());
 				t.parseGCode(directCommand.getText());
 			}
 		}
@@ -226,8 +227,9 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 			BufferedWriter writer = new BufferedWriter(new FileWriter("G30.ngc"));
 		    writer.write(gcode);
 		    writer.close();
+			//JOptionPane.showMessageDialog(null, "wrote "+gcode);
 		} catch(IOException e) {
-			JOptionPane.showConfirmDialog(null, "Failed to write G30.ngc");
+			JOptionPane.showMessageDialog(null, "Failed to write G30.ngc");
 		}
 	}
 	
@@ -236,9 +238,10 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 			BufferedReader reader = new BufferedReader(new FileReader("G30.ngc"));
 			String gcode=reader.readLine();
 			reader.close();
-			player.getTarget().sendLineToRobot(gcode);
+			//JOptionPane.showMessageDialog(null, "read "+gcode);
+			player.getTarget().parseGCode(gcode);
 		} catch(IOException e) {
-			JOptionPane.showConfirmDialog(null, "Failed to read G30.ngc");
+			JOptionPane.showMessageDialog(null, "Failed to read G30.ngc");
 		}
 	}
 

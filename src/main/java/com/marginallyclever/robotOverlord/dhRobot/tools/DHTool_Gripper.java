@@ -115,33 +115,35 @@ public class DHTool_Gripper extends DHTool {
 		gl2.glRotated(90, 0, 0, 1);
 			// model rendered by super
 		
+		double v = -180-this.gripperServoAngle;
+		
 			gl2.glPushMatrix();
 			gl2.glTranslated(2.7/2, 0, 4.1);
-			gl2.glRotated(this.gripperServoAngle, 0, 1, 0);
+			gl2.glRotated(v, 0, 1, 0);
 			linkage.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glPushMatrix();
 			gl2.glTranslated(1.1/2, 0, 5.9575);
-			gl2.glRotated(this.gripperServoAngle, 0, 1, 0);
+			gl2.glRotated(v, 0, 1, 0);
 			linkage.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glPushMatrix();
 			gl2.glTranslated(-2.7/2, 0, 4.1);
-			gl2.glRotated(-this.gripperServoAngle, 0, 1, 0);
+			gl2.glRotated(-v, 0, 1, 0);
 			linkage.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glPushMatrix();
 			gl2.glTranslated(-1.1/2, 0, 5.9575);
-			gl2.glRotated(-this.gripperServoAngle, 0, 1, 0);
+			gl2.glRotated(-v, 0, 1, 0);
 			linkage.render(gl2);
 			
 			gl2.glPopMatrix();
 
-			double c=Math.cos(Math.toRadians(gripperServoAngle));
-			double s=Math.sin(Math.toRadians(gripperServoAngle));
+			double c=Math.cos(Math.toRadians(v));
+			double s=Math.sin(Math.toRadians(v));
 			gl2.glPushMatrix();
 			gl2.glTranslated(-2.7/2-s*4.1, 0, 4.1+c*4.1);
 			gl2.glScaled(1,1,-1);
@@ -287,6 +289,7 @@ public class DHTool_Gripper extends DHTool {
 				e.printStackTrace();
 			}
 		}
+		gripperServoAngle=endT;
 		interpolatePoseT=0;
 	}
 	
@@ -301,5 +304,9 @@ public class DHTool_Gripper extends DHTool {
 			dhLinkEquivalent.d = (endD-startD)*interpolatePoseT + startD;
 			dhLinkEquivalent.refreshPoseMatrix();
 		}
+	}
+	
+	public double getAdjustableValue() {
+		return gripperServoAngle;
 	}
 }

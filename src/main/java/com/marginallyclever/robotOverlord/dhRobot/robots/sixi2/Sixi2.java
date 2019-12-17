@@ -237,7 +237,8 @@ public class Sixi2 extends DHRobot {
 
 		if(dhTool!=null) {
 			double t=dhTool.getAdjustableValue();
-			message += " T"+(180-t);
+			message += " T"+(t);
+			System.out.println("Servo="+t);
 		}
 				
 		System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
@@ -317,9 +318,9 @@ public class Sixi2 extends DHRobot {
 				+" X"+StringHelper.formatDouble(t1.x)
 				+" Y"+StringHelper.formatDouble(t1.y)
 				+" Z"+StringHelper.formatDouble(t1.z)
-				+" I"+StringHelper.formatDouble(Math.toDegrees(e1.x))
-				+" J"+StringHelper.formatDouble(Math.toDegrees(e1.y))
-				+" K"+StringHelper.formatDouble(Math.toDegrees(e1.z))
+				//+" I"+StringHelper.formatDouble(Math.toDegrees(e1.x))
+				//+" J"+StringHelper.formatDouble(Math.toDegrees(e1.y))
+				//+" K"+StringHelper.formatDouble(Math.toDegrees(e1.z))
 				;
 		if(dhTool!=null) {
 			// add special tool commands
@@ -358,27 +359,30 @@ public class Sixi2 extends DHRobot {
 			Matrix3d m1 = new Matrix3d();
 			targetMatrix.get(m1,t1);
 			Vector3d e1 = MatrixHelper.matrixToEuler(m1);
+			boolean isDirty=false;
 			
 			while(tokens.hasMoreTokens()) {
 				String token = tokens.nextToken();
 				
 				switch(token.charAt(0)) {
-				case 'X':  t1.x = Double.parseDouble(token.substring(1));  break;
-				case 'Y':  t1.y = Double.parseDouble(token.substring(1));  break;
-				case 'Z':  t1.z = Double.parseDouble(token.substring(1));  break;
-				case 'I':  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				case 'J':  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				case 'K':  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				case 'F':  this.sendLineToRobot("G0 F"+token.substring(1));  break;
-				case 'A':  this.sendLineToRobot("G0 A"+token.substring(1));  break;
+				case 'X':  isDirty=true;  t1.x = Double.parseDouble(token.substring(1));  break;
+				case 'Y':  isDirty=true;  t1.y = Double.parseDouble(token.substring(1));  break;
+				case 'Z':  isDirty=true;  t1.z = Double.parseDouble(token.substring(1));  break;
+				//case 'I':  isDirty=true;  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+				//case 'J':  isDirty=true;  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+				//case 'K':  isDirty=true;  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
+				case 'F':  isDirty=true;  this.sendLineToRobot("G0 F"+token.substring(1));  break;
+				case 'A':  isDirty=true;  this.sendLineToRobot("G0 A"+token.substring(1));  break;
 				default:  break;
 				}
 			}
-			m1 = MatrixHelper.eulerToMatrix(e1);
-	
-			// changing the target pose will direct the live robot to that position.
-			targetMatrix.set(m1);
-			targetMatrix.setTranslation(t1);
+			
+			if(isDirty) {
+				m1 = MatrixHelper.eulerToMatrix(e1);
+				// changing the target pose will direct the live robot to that position.
+				targetMatrix.set(m1);
+				targetMatrix.setTranslation(t1);
+			}
 			
 			if(dhTool!=null) {
 				dhTool.parseGCode(line);

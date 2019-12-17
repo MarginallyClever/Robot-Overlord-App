@@ -9,6 +9,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -33,7 +34,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 	public JButton buttonCalibrate;
 	public JButton goHome;
-	
+	public JSlider gripperOpening;
 	
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
 		this.robot = robot;
@@ -75,11 +76,23 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		contents.add(goHome=new JButton("Go Home"), con1);
 		con1.gridy++;
 		goHome.addActionListener(this);
+		
+		contents.add(gripperOpening=new JSlider(),con1);
+		con1.gridy++;
+		gripperOpening.setMaximum(130);
+		gripperOpening.setMinimum(80);
+		gripperOpening.setMinorTickSpacing(5);
+		gripperOpening.setValue((int)robot.dhTool.getAdjustableValue());
+		gripperOpening.addChangeListener(this);
 	}
 	
 	@Override
 	public void stateChanged(ChangeEvent event) {
-		//Object source = event.getSource();
+		Object source = event.getSource();
+		if(source == gripperOpening) {
+			int v = gripperOpening.getValue();
+			robot.parseGCode("G0 T"+v);
+		}
 	}
 	
 	@Override

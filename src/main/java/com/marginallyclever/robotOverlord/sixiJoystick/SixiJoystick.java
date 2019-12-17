@@ -16,7 +16,6 @@ import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
-import com.marginallyclever.robotOverlord.world.World;
 
 public class SixiJoystick extends ModelInWorld implements NetworkConnectionListener {
 	/**
@@ -73,14 +72,11 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
 	// should probably be a subscription model.
 	protected DHRobot findRobot() {
-		Entity w = this.getParent(); 
-		if(w instanceof World) {
-			Iterator<Entity> entities = w.getChildren().iterator();
-			while(entities.hasNext()) {
-				Entity e = entities.next();
-				if(e instanceof DHRobot) {
-					return (DHRobot)e;
-				}
+		Iterator<Entity> entities = getWorld().getChildren().iterator();
+		while(entities.hasNext()) {
+			Entity e = entities.next();
+			if(e instanceof DHRobot) {
+				return (DHRobot)e;
 			}
 		}
 		return null;
