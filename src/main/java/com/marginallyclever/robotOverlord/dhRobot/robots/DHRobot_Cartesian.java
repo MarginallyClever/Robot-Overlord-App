@@ -5,9 +5,6 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
-import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_Cartesian;
@@ -30,34 +27,34 @@ public class DHRobot_Cartesian extends DHRobot {
 	public Material material;
 	
 	public DHRobot_Cartesian() {
-		super();
+		super(new DHIKSolver_Cartesian());
 		setDisplayName("Cartesian");
 		isFirstTime=true;
 	}
 	
 	@Override
-	protected void setupLinks() {
-		setNumLinks(4);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(4);
 		// roll
-		links.get(0).d=0;
-		links.get(0).alpha=90;
-		links.get(0).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
-		links.get(0).rangeMin=0;
-		links.get(0).rangeMax=25;
+		robot.links.get(0).d=0;
+		robot.links.get(0).alpha=90;
+		robot.links.get(0).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
+		robot.links.get(0).rangeMin=0;
+		robot.links.get(0).rangeMax=25;
 		// tilt
-		links.get(1).alpha=90;
-		links.get(1).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
-		links.get(1).rangeMin=0;
-		links.get(1).rangeMax=21;
+		robot.links.get(1).alpha=90;
+		robot.links.get(1).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
+		robot.links.get(1).rangeMin=0;
+		robot.links.get(1).rangeMax=21;
 		// tilt
-		links.get(2).alpha=90;
-		links.get(2).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
-		links.get(2).rangeMin=0+8.422;
-		links.get(2).rangeMax=21+8.422;
+		robot.links.get(2).alpha=90;
+		robot.links.get(2).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
+		robot.links.get(2).rangeMin=0+8.422;
+		robot.links.get(2).rangeMax=21+8.422;
 		
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
-		this.refreshPose();
+		robot.refreshPose();
 	}
 	
 	public void setupModels() {
@@ -135,12 +132,7 @@ public class DHRobot_Cartesian extends DHRobot {
 		
 		super.render(gl2);
 	}
-	
-	@Override
-	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_Cartesian();
-	}
-	
+/*
 	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {
 		// If the wiring on the robot is reversed, these parameters must also be reversed.
@@ -160,6 +152,6 @@ public class DHRobot_Cartesian extends DHRobot {
     		//+" V"+StringHelper.formatDouble(keyframe.fkValues[4]*SCALE_4)
     		//+" W"+StringHelper.formatDouble(keyframe.fkValues[5]*SCALE_5)
 			);
-
 	}
+*/
 }

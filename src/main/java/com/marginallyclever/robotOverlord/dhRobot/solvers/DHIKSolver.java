@@ -1,26 +1,29 @@
-package com.marginallyclever.robotOverlord.dhRobot;
+package com.marginallyclever.robotOverlord.dhRobot.solvers;
 
 import javax.vecmath.Matrix4d;
+
+import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
  * Solves Inverse Kinematics for a robot arm.  Assumptions differ with each specific implementation.
  * @author Dan Royer
  */
-public abstract class DHIKSolver {
+public class DHIKSolver {
 	public static final double EPSILON = 0.00001;
 
-	public static final int NO_SOLUTIONS=0;
-	public static final int ONE_SOLUTION=1;
-	public static final int MANY_SOLUTIONS=2;
-
-	// Can be either NO_SOLUTIONS, ONE_SOLUTION, or MANY_SOLUTIONS.
-	public int solutionFlag=DHIKSolver.NO_SOLUTIONS;
-	
+	public enum SolutionType {
+		NO_SOLUTIONS,
+		ONE_SOLUTION,
+		MANY_SOLUTIONS,
+	}
 	
 	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
 	 */
-	public abstract int getSolutionSize();
+	public int getSolutionSize() {
+		return 1;
+	}
 	
 	/**
 	 * Starting from a known local origin and a known local hand position, 
@@ -29,7 +32,11 @@ public abstract class DHIKSolver {
 	 * @param targetMatrix the pose that robot is attempting to reach in this solution.
 	 * @param keyframe store the computed solution in keyframe.
 	 */
-	public abstract void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe);
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+		keyframe.fkValues[0]=0;
+		// default action do nothing.
+		return SolutionType.NO_SOLUTIONS;
+	}
 	
 	/**
 	 * Starting from a known local origin and a known local hand position, 
@@ -39,5 +46,7 @@ public abstract class DHIKSolver {
 	 * @param keyframe store the computed solution in keyframe.
 	 * @param suggestion suggested values if there is an ambiguity.
 	 */
-	public abstract void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion);
+	public SolutionType solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
+		return solve(robot,targetMatrix,keyframe);
+	}
 }

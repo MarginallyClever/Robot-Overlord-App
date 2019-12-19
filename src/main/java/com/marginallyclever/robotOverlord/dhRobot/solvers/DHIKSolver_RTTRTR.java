@@ -9,7 +9,6 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
@@ -36,8 +35,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	}
 
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
-		solveWithSuggestion(robot,targetMatrix,keyframe,null);
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+		return solveWithSuggestion(robot,targetMatrix,keyframe,null);
 	}
 	
 	/**
@@ -49,9 +48,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
-		solutionFlag = ONE_SOLUTION;
-		
+	public SolutionType solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
 		DHLink link0 = robot.links.get(0);
 		DHLink link1 = robot.links.get(1);
 		DHLink link2 = robot.links.get(2);
@@ -143,9 +140,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		if( e > a+b ) {
 			// target matrix impossibly far away
-			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (1)");
-			return;
+			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2.0*a*e) );
@@ -237,12 +233,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		if( h-maximumReach > EPSILON ) {
 			// out of reach
-			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (2)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
-			return;
+			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		// We have found matrix r04 and we started with r07 (targetPoseAdj).
@@ -287,15 +282,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		while(a5copy<=-Math.PI) a5copy+=Math.PI;
 		if(Math.abs(a5copy)<EPSILON) {
 			// singularity!
-			if(suggestion!=null) {
-				if(true) System.out.println("ONE SOLUTION (MAYBE 1)");
-				solutionFlag = ONE_SOLUTION;
-				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],0);
-			} else {
-				if(true) System.out.println("MANY SOLUTIONS");
-				solutionFlag = MANY_SOLUTIONS;
-				keyframe.fkValues[3] = 0;
-			}
 			double t6 = Math.acos(r47.m00);
 			keyframe.fkValues[4] = 0;
 			keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t6),0);
@@ -306,7 +292,15 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					"t4="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t"+
 					"a5="+StringHelper.formatDouble(keyframe.fkValues[4])+"\t"+
 					"t6="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
-			return;
+			if(suggestion!=null) {
+				if(true) System.out.println("ONE SOLUTION (MAYBE 1)");
+				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],0);
+				return SolutionType.ONE_SOLUTION;
+			} else {
+				if(true) System.out.println("MANY SOLUTIONS");
+				keyframe.fkValues[3] = 0;
+				return SolutionType.MANY_SOLUTIONS;
+			}
 		}
 		
 		// no singularity, so we can continue to solve for theta4 and theta6.
@@ -329,12 +323,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// Only the sum of t4+t6 can be found, not the individual angles.
 			// this is the same as if(Math.abs(a5copy)<EPSILON) above, so this should
 			// be unreachable.
-			solutionFlag = NO_SOLUTIONS;
 			if(true) System.out.println("NO SOLUTIONS (3)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
-			return;
+			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		if(false) System.out.println("5="+a5+"\tpos="+a5);
@@ -378,5 +371,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					+StringHelper.formatDouble(keyframe.fkValues[3])+","
 					+StringHelper.formatDouble(keyframe.fkValues[4])+","
 					+StringHelper.formatDouble(keyframe.fkValues[5])+"}\t");
+		
+		return SolutionType.ONE_SOLUTION;
 	}
 }

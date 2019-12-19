@@ -5,8 +5,6 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
-import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_Cylindrical;
@@ -25,38 +23,38 @@ public class DHRobot_GMF_M100 extends DHRobot {
 
 
 	public DHRobot_GMF_M100() {
-		super();
+		super(new DHIKSolver_Cylindrical());
 		setDisplayName("FANUC GMF M-100");
 		//only here until there are models to render.
 		drawAsSelected=true;
 	}
 	
 	@Override
-	protected void setupLinks() {
-		setNumLinks(5);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(5);
 		// roll
-		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).rangeMin=-120;
-		links.get(0).rangeMax=120;
+		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).rangeMin=-120;
+		robot.links.get(0).rangeMax=120;
 		// slide
-		links.get(1).alpha=90;
-		links.get(1).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(1).rangeMin=0;
-		links.get(1).rangeMin=1300;
+		robot.links.get(1).alpha=90;
+		robot.links.get(1).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(1).rangeMin=0;
+		robot.links.get(1).rangeMin=1300;
 		// slide
-		links.get(2).alpha=90;
-		links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(2).rangeMin=0;
-		links.get(2).rangeMax=1100;
+		robot.links.get(2).alpha=90;
+		robot.links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(2).rangeMin=0;
+		robot.links.get(2).rangeMax=1100;
 		// roll
-		links.get(3).theta=0;
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(3).rangeMin=-90;
-		links.get(3).rangeMax=90;
+		robot.links.get(3).theta=0;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).rangeMin=-90;
+		robot.links.get(3).rangeMax=90;
 
-		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
-		// load models here
+		robot.refreshPose();
 	}
 	
 	@Override
@@ -84,13 +82,4 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		
 		super.render(gl2);
 	}
-	
-	@Override
-	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_Cylindrical();
-	}
-	
-
-	@Override
-	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }

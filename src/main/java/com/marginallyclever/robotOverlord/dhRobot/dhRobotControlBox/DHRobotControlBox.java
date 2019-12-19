@@ -1,11 +1,16 @@
 package com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
@@ -17,6 +22,7 @@ import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.world.World;
 
 /**
@@ -35,6 +41,18 @@ public class DHRobotControlBox extends ModelInWorld {
 	protected String fileToPlay;
 	
 	protected boolean isCycleStart,isLoop,isSingleBlock;
+	
+	protected transient LinkedList<RobotKeyframe> keyframes;
+	protected transient int keyframe_index;
+	protected transient float keyframe_t;
+	protected transient boolean isDrawingKeyframes;
+	
+	public enum AnimationBehavior {
+		ANIMATE_ONCE,
+		ANIMATE_LOOP,
+	};
+	public AnimationBehavior animationBehavior;
+	public double animationSpeed;
 	
 	protected ArrayList<Matrix4d> poses = new ArrayList<Matrix4d>();
 
@@ -70,6 +88,10 @@ public class DHRobotControlBox extends ModelInWorld {
 		isCycleStart=false;
 		isLoop=false;
 		isSingleBlock=false;
+		
+		animationBehavior=AnimationBehavior.ANIMATE_LOOP;
+		animationSpeed=0.0f;
+		keyframes = new LinkedList<RobotKeyframe>();
 		
 		try {
 			this.model = ModelFactory.createModelFromFilename("/Sixi2/box.stl",0.1f);
@@ -204,6 +226,119 @@ public class DHRobotControlBox extends ModelInWorld {
 		gl2.glPopMatrix();
 		
 		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+
+		
+		if(isDrawingKeyframes) {
+			renderKeyframes(gl2);
+		}
+	}
+
+	/**
+	 * Draw each of the individual keyframes and any renderInterpolation that might exist between them.
+	 * @param gl2 the render context
+	 */
+	protected void renderKeyframes(GL2 gl2) {
+		Iterator<RobotKeyframe> i = keyframes.iterator();
+		RobotKeyframe current;
+		RobotKeyframe next=null;
+		while(i.hasNext()) {
+			current = next;
+			next = i.next();
+			if(current != null && next!=null) {
+				current.render(gl2);
+				current.renderInterpolation(gl2, next);
+			}
+		}
+		if(next!=null) {
+			next.render(gl2);
+			if(animationBehavior==AnimationBehavior.ANIMATE_LOOP) {
+				next.renderInterpolation(gl2, keyframes.getFirst());
+			}
+		}
+	}
+
+	public RobotKeyframe keyframeAddNow() {
+		int newIndex = keyframe_index+1;
+		RobotKeyframe newKey = getKeyframeNow();
+		keyframes.add(newIndex, newKey);
+		keyframe_index=newIndex;
+		keyframe_t=0;
+		
+		return newKey;
+	}
+
+	public RobotKeyframe keyframeAdd() {
+		if(target==null) return null;
+		RobotKeyframe newKey = target.createKeyframe();
+		keyframes.add(newKey);
+		keyframe_index = keyframes.size()-1;
+		keyframe_t=0;
+		
+		return newKey;
+	}
+	
+	public void keyframeDelete() {
+		// there must always be at least one keyframe
+		if(keyframes.size()<=1) return;
+		
+		keyframes.remove(keyframe_index);
+		if(keyframe_index>0 && keyframe_index>=keyframes.size()) {
+			keyframe_index = keyframes.size()-1;
+		}
+	}
+	
+	public float getKeyframeT() {
+		return keyframe_t;
+	}
+	public void setKeyframeT(float arg0) {
+		keyframe_t=Math.min(Math.max(arg0, 0),1);
+	}
+	
+	public int getKeyframeSize() {
+		return keyframes.size();
+	}
+	public int getKeyframeIndex() {
+		return keyframe_index;
+	}
+	public void setKeyframeIndex(int arg0) {
+		keyframe_index=Math.min(Math.max(arg0, 0),keyframes.size()-1);
+	}
+	
+	public void saveKeyframes(String filePath) {
+		try {
+			 
+            FileOutputStream fileOut = new FileOutputStream(filePath);
+            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeInt(keyframes.size());
+            Iterator<RobotKeyframe> i = keyframes.iterator();
+            while(i.hasNext()) {
+            	Object serObj = i.next();
+            	objectOut.writeObject(serObj);
+            }
+            objectOut.close();
+            System.out.println("Keyframes saved.");
+ 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+	}
+	
+	public void loadKeyframes(String filePath) {
+		try {
+			keyframes.clear();
+			
+            FileInputStream fileIn = new FileInputStream(filePath);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+            int size = objectIn.readInt();
+            for(int i=0;i<size;++i) {
+            	keyframes.push((RobotKeyframe)objectIn.readObject());
+            }
+            objectIn.close();
+            System.out.println("Keyframes loaded.");
+ 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 	}
 	
 	protected void openFileNow() {
@@ -241,5 +376,102 @@ public class DHRobotControlBox extends ModelInWorld {
 	
 	public DHRobot getTarget() {
 		return target;
+	}
+
+	
+	public void setIsDrawingKeyframes( boolean arg0 ) {
+		isDrawingKeyframes=arg0;
+	}
+	
+	public boolean getIsDrawingKeyframes() {
+		return isDrawingKeyframes;
+	}
+
+
+	public double getAnimationSpeed() {
+		return animationSpeed;
+	}
+
+	/**
+	 * Adjust animation speed and disable GUI elements (when animation speed !=0)
+	 * @param animationSpeed
+	 */
+	public void setAnimationSpeed(double animationSpeed) {
+		this.animationSpeed = animationSpeed;
+		panel.keyframeEditSetEnable(animationSpeed==0);
+	}
+	
+	protected void animate(double dt) {
+		keyframe_t+=dt*animationSpeed;
+		if(animationSpeed>0) {
+			if(keyframe_t>1) {
+				keyframe_t-=1;
+				++keyframe_index;
+				int size=getKeyframeSize();
+				if(keyframe_index>size-1) {
+					switch(animationBehavior) {
+					case ANIMATE_ONCE:
+						keyframe_index = size-1;
+						keyframe_t=0;
+						animationSpeed=0;
+						// TODO set the panel buttonAnimatePlayPause to paused
+						break;
+					case ANIMATE_LOOP:
+						keyframe_index=0;
+						break;
+					}
+				}
+			}
+		} else if(animationSpeed<0) {
+			if(keyframe_t<0) {
+				keyframe_t+=1;
+				--keyframe_index;
+				if(keyframe_index<0) {
+					switch(animationBehavior) {
+					case ANIMATE_ONCE:
+						keyframe_index = 0;
+						keyframe_t=0;
+						animationSpeed=0;
+						// TODO set the panel buttonAnimatePlayPause to paused
+						break;
+					case ANIMATE_LOOP:
+						keyframe_index+=getKeyframeSize();
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	public RobotKeyframe getKeyframe(int arg0) {
+		return keyframes.get(arg0);
+	}
+	
+	public void setKeyframe(int index,RobotKeyframe element) {
+		keyframes.set(index, element);
+	}
+	
+	
+	private RobotKeyframe getKeyframeNow() {
+		if( target==null ) return null;
+		
+		int size=getKeyframeSize();
+		if(keyframe_index>=size-1) {
+			if(animationBehavior==AnimationBehavior.ANIMATE_LOOP) {
+				RobotKeyframe now = target.createKeyframe();
+				RobotKeyframe a = keyframes.get(size-1);
+				RobotKeyframe b = keyframes.get(0);
+				now.interpolate(a, b, keyframe_t);
+				return now;
+			} else {
+				return keyframes.get(size-1);
+			}
+		} else {
+			RobotKeyframe now = target.createKeyframe();
+			RobotKeyframe a = keyframes.get(keyframe_index);
+			RobotKeyframe b = keyframes.get(keyframe_index+1);
+			now.interpolate(a, b, keyframe_t);
+			return now;
+		}
 	}
 }

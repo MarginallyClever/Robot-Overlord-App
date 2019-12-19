@@ -622,9 +622,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
     	GL2 gl2 = drawable.getGL().getGL2();
 
 		if(checkStackSize) {
-    		IntBuffer v = IntBuffer.allocate(1);
-    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
-    		System.out.print("stack depth start = "+v.get(0));
+    		IntBuffer stackDepth = IntBuffer.allocate(1);
+    		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
+    		System.out.print("stack depth start = "+stackDepth.get(0));
 		}	
 		
 		world.render(gl2);
@@ -645,9 +645,9 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         }
 		
 		if(checkStackSize) {
-    		IntBuffer v = IntBuffer.allocate(1);
-			gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,v);
-			System.out.println("stack depth end = "+v.get(0));
+    		IntBuffer stackDepth = IntBuffer.allocate(1);
+			gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
+			System.out.println("stack depth end = "+stackDepth.get(0));
 		}
     }
 

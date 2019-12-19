@@ -59,12 +59,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
 	public JLabel activeTool,gcodeLabel;
-	public JButton buttonCommit;
 	public JButton buttonSetTool;
 	public JTextField gcodeValue;
 	
 	public JCheckBox showBones;
-	public JCheckBox showAngleMinMax;
 	public JCheckBox showPhysics;
 	public JCheckBox immediateDriving;
 	public JComboBox<String> frameOfReferenceSelection;
@@ -137,11 +135,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		contents.add(linkContents,con1);
 		con1.gridy++;
 
-		buttonCommit=new JButton("Commit");
-		//contents.add(buttonCommit,con1);
-		buttonCommit.addItemListener(this);
-		con1.gridy++;
-
 		layout = new SpringLayout();
 		linkContents = new JPanel(layout);
 		linkContents.add(valuex=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
@@ -158,12 +151,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		showBones.setText("Show D-H bones");
 		showBones.addItemListener(this);
 		showBones.setSelected(robot.isShowBones());
-		con1.gridy++;
-		
-		contents.add(showAngleMinMax=new JCheckBox(),con1);
-		showAngleMinMax.setText("Show angle min/max");
-		showAngleMinMax.addItemListener(this);
-		showAngleMinMax.setSelected(robot.isShowAngles());
 		con1.gridy++;
 		
 		contents.add(showPhysics=new JCheckBox(),con1);
@@ -315,14 +302,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			buildPanel();
 			this.invalidate();
 		}
-		if(source == buttonCommit) {
-			robot.moveToTargetPose();
-		}
-		/*
-		if(source == frameOfReferenceSelection) {
-			int s = frameOfReferenceSelection.getSelectedIndex();
-			robot.setFrameOfReference(s);
-		}*/
 	}
 
 	/**
@@ -400,9 +379,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public void itemStateChanged(ItemEvent e) {
 		// for checkboxes
 		Object source = e.getItemSelectable();
-		if(source == showAngleMinMax) {
-			robot.setShowAnglesPassive(((JCheckBox)source).isSelected());
-		}
 		if(source == showPhysics) {
 			robot.setShowPhysicsPassive(((JCheckBox)source).isSelected());
 		}
@@ -420,9 +396,5 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 	public void setShowPhysics(boolean arg0) {
 		showPhysics.setSelected(arg0);
-	}
-
-	public void setShowAngles(boolean arg0) {
-		showAngleMinMax.setSelected(arg0);
 	}
 }

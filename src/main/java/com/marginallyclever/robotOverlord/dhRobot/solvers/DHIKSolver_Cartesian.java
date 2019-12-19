@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.dhRobot.solvers;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
@@ -29,8 +28,7 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 	 * @param keyframe store the computed solution in keyframe.
 	 */
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
-
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {
@@ -47,16 +45,13 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 		keyframe.fkValues[0] = m4.m23;
 		keyframe.fkValues[1] = m4.m03;
 		keyframe.fkValues[2] = m4.m13;
-		
-		this.solutionFlag = DHIKSolver.ONE_SOLUTION;
+	 
 		
 		if(true) {
 			System.out.println("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
 					StringHelper.formatDouble(keyframe.fkValues[1])+","+
 					StringHelper.formatDouble(keyframe.fkValues[2])+"}");
 		}
+		return SolutionType.ONE_SOLUTION;
 	}
-	
-	
-	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {}
 }

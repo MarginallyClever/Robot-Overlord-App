@@ -5,9 +5,6 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
-import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
@@ -25,56 +22,56 @@ public class DHRobot_Thor extends DHRobot {
 	public Material material;
 	
 	public DHRobot_Thor() {
-		super();
+		super(new DHIKSolver_RTTRTR());
 		setDisplayName("Thor");
 		isFirstTime=true;
 	}
 	
 	@Override
-	protected void setupLinks() {
-		setNumLinks(8);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(8);
 
 		// roll
-		links.get(0).d=20.2;
-		links.get(0).theta=0;
-		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).rangeMin=-120;
-		links.get(0).rangeMax=120;
+		robot.links.get(0).d=20.2;
+		robot.links.get(0).theta=0;
+		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).rangeMin=-120;
+		robot.links.get(0).rangeMax=120;
 		// tilt
-		links.get(1).d=0.0;
-		links.get(1).alpha=0;
-		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(1).rangeMin=-72;
+		robot.links.get(1).d=0.0;
+		robot.links.get(1).alpha=0;
+		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).rangeMin=-72;
 		// tilt
-		links.get(2).d=16.0;
-		links.get(2).alpha=0;
-		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(2).rangeMin=-83.369;
-		links.get(2).rangeMax=86;
+		robot.links.get(2).d=16.0;
+		robot.links.get(2).alpha=0;
+		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).rangeMin=-83.369;
+		robot.links.get(2).rangeMax=86;
 		// interim point
-		links.get(3).d=0.001;
-		links.get(3).alpha=90;
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).d=0.001;
+		robot.links.get(3).alpha=90;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
-		links.get(4).d=1.4;
-		links.get(4).theta=0;
-		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).rangeMin=-90;
-		links.get(4).rangeMax=90;
+		robot.links.get(4).d=1.4;
+		robot.links.get(4).theta=0;
+		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).rangeMin=-90;
+		robot.links.get(4).rangeMax=90;
 
 		// tilt
-		links.get(5).d=18.1;
-		links.get(5).alpha=0;
-		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(5).rangeMin=-90;
-		links.get(5).rangeMax=90;
+		robot.links.get(5).d=18.1;
+		robot.links.get(5).alpha=0;
+		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(5).rangeMin=-90;
+		robot.links.get(5).rangeMax=90;
 		// roll
-		links.get(6).d=5.35;
-		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(6).rangeMin=-90;
-		links.get(6).rangeMax=90;
+		robot.links.get(6).d=5.35;
+		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(6).rangeMin=-90;
+		robot.links.get(6).rangeMax=90;
 		
-		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
 		this.refreshPose();
 	}
@@ -140,12 +137,7 @@ public class DHRobot_Thor extends DHRobot {
 		
 		super.render(gl2);
 	}
-	
-	@Override
-	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_RTTRTR();
-	}
-	
+	/*
 	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {
 		// If the wiring on the robot is reversed, these parameters must also be reversed.
@@ -166,5 +158,5 @@ public class DHRobot_Thor extends DHRobot {
     		//+" W"+StringHelper.formatDouble(keyframe.fkValues[5]*SCALE_5)
 			);
 
-	}
+	}*/
 }

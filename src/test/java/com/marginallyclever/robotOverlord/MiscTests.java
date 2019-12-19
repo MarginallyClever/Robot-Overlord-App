@@ -15,10 +15,10 @@ import org.junit.Test;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
 
 public class MiscTests {
 	@Test
@@ -200,15 +200,14 @@ public class MiscTests {
 									
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
-				            		robot.setLivePose(keyframe0);
+				            		robot.setPoseFK(keyframe0);
 									m0.set(robot.getLiveMatrix());
 									// now generate a set of FK values from the endMatrix m0.
-									solver.solve(robot, m0, keyframe1);
-									if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
+									if(solver.solve(robot, m0, keyframe1)==DHIKSolver.SolutionType.ONE_SOLUTION) {
 										++totalOneSolutions;
 										
 										// update the robot pose and get the m1 matrix. 
-					            		robot.setLivePose(keyframe1);
+					            		robot.setPoseFK(keyframe1);
 					            		m1.set(robot.getLiveMatrix());
 					            		
 					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
@@ -408,7 +407,7 @@ public class MiscTests {
 		keyframe0.fkValues[5]=w;
 					
 		// use forward kinematics to find the endMatrix of the pose
-		robot.setLivePose(keyframe0);
+		robot.setPoseFK(keyframe0);
 		m0.set(robot.getLiveMatrix());
 		
 		String message = StringHelper.formatDouble(m0.m03)+"\t"
@@ -493,7 +492,7 @@ public class MiscTests {
 			m.m13=-20;
 			m.m23-=5;
 			solver.solve(robot, m, keyframe);
-			robot.setLivePose(keyframe);
+			robot.setPoseFK(keyframe);
 			
 			float TIME_STEP=0.030f;
 			int j;
@@ -502,8 +501,7 @@ public class MiscTests {
 			while(m.m13<20 && safety<10000) {
 				safety++;
 				m = robot.getLiveMatrix();
-				solver.solve(robot, m, keyframe);
-				if(solver.solutionFlag == DHIKSolver.ONE_SOLUTION) {
+				if(solver.solve(robot, m, keyframe) == DHIKSolver.SolutionType.ONE_SOLUTION) {
 					// sane solution
 					double [][] jacobian = approximateJacobian(robot,keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
@@ -518,7 +516,7 @@ public class MiscTests {
 						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*TIME_STEP;
 					}
 					out.write("\n");
-					robot.setLivePose(keyframe);
+					robot.setPoseFK(keyframe);
 				} else {
 					m.m03+=force[0]*TIME_STEP;
 					m.m13+=force[1]*TIME_STEP;
@@ -638,7 +636,7 @@ public class MiscTests {
 		keyframe.fkValues[4]=jointAngles[4];
 		keyframe.fkValues[5]=jointAngles[5];
 		
-		robot.setLivePose(keyframe);
+		robot.setPoseFK(keyframe);
 		return new Matrix4d(robot.getLiveMatrix());
 	}
 }

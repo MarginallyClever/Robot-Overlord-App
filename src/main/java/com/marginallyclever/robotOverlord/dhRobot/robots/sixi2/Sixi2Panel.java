@@ -9,7 +9,6 @@ import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
@@ -129,11 +128,12 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			calibrator.run();
 		}
 		if(source==goHome) {
-			robot.parseGCode("G0 X0 Y0 Z0 U0 V0 W0");
+			robot.ghost.setPoseFK(robot.homeKey);
+			robot.ghost.setTargetMatrix(robot.ghost.getLiveMatrix());
 		}
 		if(source==goRest) {
-			JOptionPane.showMessageDialog(null, "Not implemented yet.");
-			//robot.parseGCode("G0 X0 Y0 Z0 U0 V0 W0");
+			robot.ghost.setPoseFK(robot.restKey);
+			robot.ghost.setTargetMatrix(robot.ghost.getLiveMatrix());
 		}
 	}
 

@@ -5,8 +5,6 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
-import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_SCARA;
@@ -26,55 +24,55 @@ public class DHRobot_SCARA_NM extends DHRobot {
 	public boolean isFirstTime;
 
 	public DHRobot_SCARA_NM() {
-		super();
+		super(new DHIKSolver_SCARA());
 		setDisplayName("SCARA NM");
 		isFirstTime=true;
 	}
 	
 	@Override
-	protected void setupLinks() {
-		setNumLinks(5);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(5);
 
 		// roll
-		links.get(0).d=13.784;
-		links.get(0).r=15;
-		links.get(0).theta=0;
-		links.get(0).alpha=0;
-		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).rangeMin=-40;
-		links.get(0).rangeMax=240;
+		robot.links.get(0).d=13.784;
+		robot.links.get(0).r=15;
+		robot.links.get(0).theta=0;
+		robot.links.get(0).alpha=0;
+		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).rangeMin=-40;
+		robot.links.get(0).rangeMax=240;
 		
 		// roll
-		links.get(1).d=0;
-		links.get(1).r=13.0;
-		links.get(1).theta=0;
-		links.get(1).alpha=0;
-		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;		
-		links.get(1).rangeMin=-120;
-		links.get(1).rangeMax=120;
+		robot.links.get(1).d=0;
+		robot.links.get(1).r=13.0;
+		robot.links.get(1).theta=0;
+		robot.links.get(1).alpha=0;
+		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;		
+		robot.links.get(1).rangeMin=-120;
+		robot.links.get(1).rangeMax=120;
 		// slide
-		links.get(2).d=-8;
-		links.get(2).theta=0;
-		links.get(2).alpha=0;
-		links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(2).rangeMin=-10.92600+7.574;
-		links.get(2).rangeMax=-10.92600;//-18.5+7.574;
+		robot.links.get(2).d=-8;
+		robot.links.get(2).theta=0;
+		robot.links.get(2).alpha=0;
+		robot.links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(2).rangeMin=-10.92600+7.574;
+		robot.links.get(2).rangeMax=-10.92600;//-18.5+7.574;
 		// roll
-		links.get(3).d=0;
-		links.get(3).theta=0;
-		links.get(3).alpha=0;
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(3).rangeMin=-180;
-		links.get(3).rangeMax=180;
+		robot.links.get(3).d=0;
+		robot.links.get(3).theta=0;
+		robot.links.get(3).alpha=0;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).rangeMin=-180;
+		robot.links.get(3).rangeMax=180;
 
-		links.get(4).d=0;
-		links.get(4).theta=0;
-		links.get(4).alpha=0;
-		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).rangeMin=0;
-		links.get(4).rangeMax=0;
+		robot.links.get(4).d=0;
+		robot.links.get(4).theta=0;
+		robot.links.get(4).alpha=0;
+		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).rangeMin=0;
+		robot.links.get(4).rangeMax=0;
 		
-		this.refreshPose();
+		robot.refreshPose();
 	}
 
 	public void setupModels() {
@@ -130,16 +128,7 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		
 		super.render(gl2);
 	}
-	
-	@Override
-	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_SCARA();
-	}
-	
 
-	@Override
-	public void sendNewStateToRobot(DHKeyframe keyframe) {}
-	
 	@Override
 	public boolean canTargetPoseRotateX() {
 		return false;

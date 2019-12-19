@@ -5,7 +5,6 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector4d;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
@@ -33,7 +32,7 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		DHLink link4 = robot.links.getLast();
 
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
@@ -74,16 +73,12 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 		
 		keyframe.fkValues[3] = Math.toDegrees(-Math.atan2(rY,rX));
 		
-		this.solutionFlag = DHIKSolver.ONE_SOLUTION;
-		
 		if(false) {
 			System.out.println("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
 								keyframe.fkValues[1]+","+
 								keyframe.fkValues[2]+","+
 								StringHelper.formatDouble(keyframe.fkValues[3])+"}");
 		}
+		return SolutionType.ONE_SOLUTION;
 	}
-	
-	
-	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {}
 }

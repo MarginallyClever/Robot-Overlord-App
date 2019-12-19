@@ -1,12 +1,6 @@
 package com.marginallyclever.robotOverlord.robot;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -34,20 +28,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
 
-	// animation settings
-	// TODO non-transient name of keyframe file for robot
-	protected transient LinkedList<RobotKeyframe> keyframes;
-	protected transient int keyframe_index;
-	protected transient float keyframe_t;
-	protected transient boolean isDrawingKeyframes;
-	
-	public enum AnimationBehavior {
-		ANIMATE_ONCE,
-		ANIMATE_LOOP,
-	};
-	public AnimationBehavior animationBehavior;
-	public double animationSpeed;
-
 	// sending file to the robot
 	private boolean running;
 	private boolean paused;
@@ -70,12 +50,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		paused=true;
 		running=false;
 		isModelLoaded=false;
-		
-		animationBehavior=AnimationBehavior.ANIMATE_LOOP;
-		animationSpeed=0.0f;
-		keyframes = new LinkedList<RobotKeyframe>();
-		// there must always be at least one keyframe
-		keyframes.add(createKeyframe());
 	}
 	
 
@@ -206,34 +180,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			loadModels(gl2);
 			isModelLoaded=true;
 		}
-		
-		if(isDrawingKeyframes) {
-			renderKeyframes(gl2);
-		}
-	}
-
-	/**
-	 * Draw each of the individual keyframes and any renderInterpolation that might exist between them.
-	 * @param gl2 the render context
-	 */
-	protected void renderKeyframes(GL2 gl2) {
-		Iterator<RobotKeyframe> i = keyframes.iterator();
-		RobotKeyframe current;
-		RobotKeyframe next=null;
-		while(i.hasNext()) {
-			current = next;
-			next = i.next();
-			if(current != null && next!=null) {
-				current.render(gl2);
-				current.renderInterpolation(gl2, next);
-			}
-		}
-		if(next!=null) {
-			next.render(gl2);
-			if(animationBehavior==AnimationBehavior.ANIMATE_LOOP) {
-				next.renderInterpolation(gl2, keyframes.getFirst());
-			}
-		}
 	}
 	
 	// stub to be overridden by subclasses.
@@ -300,90 +246,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @return an instance derived from RobotKeyframe
 	 */
 	public abstract RobotKeyframe createKeyframe();
-
-	public RobotKeyframe keyframeAddNow() {
-		int newIndex = keyframe_index+1;
-		RobotKeyframe newKey = getKeyframeNow();
-		keyframes.add(newIndex, newKey);
-		keyframe_index=newIndex;
-		keyframe_t=0;
-		
-		return newKey;
-	}
-
-	public RobotKeyframe keyframeAdd() {
-		int i = (keyframes.size()>0)? keyframe_index+1 : 0;
-		RobotKeyframe newKey = createKeyframe();
-		keyframes.add(i, newKey);
-		keyframe_index = i;
-		keyframe_t=0;
-		
-		return newKey;
-	}
-	
-	public void keyframeDelete() {
-		// there must always be at least one keyframe
-		if(keyframes.size()<=1) return;
-		
-		keyframes.remove(keyframe_index);
-		if(keyframe_index>0 && keyframe_index>=keyframes.size()) {
-			keyframe_index = keyframes.size()-1;
-		}
-	}
-	
-	public float getKeyframeT() {
-		return keyframe_t;
-	}
-	public void setKeyframeT(float arg0) {
-		keyframe_t=Math.min(Math.max(arg0, 0),1);
-	}
-	
-	public int getKeyframeSize() {
-		return keyframes.size();
-	}
-	public int getKeyframeIndex() {
-		return keyframe_index;
-	}
-	public void setKeyframeIndex(int arg0) {
-		keyframe_index=Math.min(Math.max(arg0, 0),keyframes.size()-1);
-	}
-	
-	public void saveKeyframes(String filePath) {
-		try {
-			 
-            FileOutputStream fileOut = new FileOutputStream(filePath);
-            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-            objectOut.writeInt(keyframes.size());
-            Iterator<RobotKeyframe> i = keyframes.iterator();
-            while(i.hasNext()) {
-            	Object serObj = i.next();
-            	objectOut.writeObject(serObj);
-            }
-            objectOut.close();
-            System.out.println("Keyframes saved.");
- 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-	}
-	
-	public void loadKeyframes(String filePath) {
-		try {
-			keyframes.clear();
-			
-            FileInputStream fileIn = new FileInputStream(filePath);
-            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-            int size = objectIn.readInt();
-            for(int i=0;i<size;++i) {
-            	keyframes.push((RobotKeyframe)objectIn.readObject());
-            }
-            objectIn.close();
-            System.out.println("Keyframes loaded.");
- 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-	}
 	
 	public void updatePose() {}
 	
@@ -396,103 +258,9 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		}
 	}
 	
-	
-	public RobotKeyframe getKeyframeNow() {
-		int size=getKeyframeSize();
-		if(keyframe_index>=size-1) {
-			if(animationBehavior==AnimationBehavior.ANIMATE_LOOP) {
-				RobotKeyframe now = createKeyframe();
-				RobotKeyframe a = keyframes.get(size-1);
-				RobotKeyframe b = keyframes.get(0);
-				now.interpolate(a, b, keyframe_t);
-				return now;
-			} else {
-				return keyframes.get(size-1);
-			}
-		} else {
-			RobotKeyframe now = createKeyframe();
-			RobotKeyframe a = keyframes.get(keyframe_index);
-			RobotKeyframe b = keyframes.get(keyframe_index+1);
-			now.interpolate(a, b, keyframe_t);
-			return now;
-		}
-	}
-	
-	public RobotKeyframe getKeyframe(int arg0) {
-		return keyframes.get(arg0);
-	}
-	
-	public void setKeyframe(int index,RobotKeyframe element) {
-		keyframes.set(index, element);
-	}
-	
 	@Override
 	public void prepareMove(double dt) {
 		super.prepareMove(dt);
-	}
-	
-	protected void animate(double dt) {
-		keyframe_t+=dt*animationSpeed;
-		if(animationSpeed>0) {
-			if(keyframe_t>1) {
-				keyframe_t-=1;
-				++keyframe_index;
-				int size=getKeyframeSize();
-				if(keyframe_index>size-1) {
-					switch(animationBehavior) {
-					case ANIMATE_ONCE:
-						keyframe_index = size-1;
-						keyframe_t=0;
-						animationSpeed=0;
-						// TODO set the panel buttonAnimatePlayPause to paused
-						break;
-					case ANIMATE_LOOP:
-						keyframe_index=0;
-						break;
-					}
-				}
-			}
-		} else if(animationSpeed<0) {
-			if(keyframe_t<0) {
-				keyframe_t+=1;
-				--keyframe_index;
-				if(keyframe_index<0) {
-					switch(animationBehavior) {
-					case ANIMATE_ONCE:
-						keyframe_index = 0;
-						keyframe_t=0;
-						animationSpeed=0;
-						// TODO set the panel buttonAnimatePlayPause to paused
-						break;
-					case ANIMATE_LOOP:
-						keyframe_index+=getKeyframeSize();
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	public void setIsDrawingKeyframes( boolean arg0 ) {
-		isDrawingKeyframes=arg0;
-	}
-	
-	public boolean getIsDrawingKeyframes() {
-		return isDrawingKeyframes;
-	}
-
-
-	public double getAnimationSpeed() {
-		return animationSpeed;
-	}
-
-	/**
-	 * Adjust animation speed and disable GUI elements (when animation speed !=0)
-	 * @param animationSpeed
-	 */
-	public void setAnimationSpeed(double animationSpeed) {
-		this.animationSpeed = animationSpeed;
-		robotPanel.keyframeEditSetEnable(animationSpeed==0);
 	}
 	
 	public boolean isReadyToReceive() {

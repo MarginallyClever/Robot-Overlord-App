@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -14,14 +15,16 @@ import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.DragBall;
+import com.marginallyclever.robotOverlord.InputManager;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.world.World;
 
 
 public class Sixi2 extends DHRobot {
@@ -31,7 +34,7 @@ public class Sixi2 extends DHRobot {
 	private static final long serialVersionUID = 1L;
 
 	public boolean isFirstTime;
-	public Material material;
+	public Material materialLive;
 	public Material materialGhost;
 	public boolean once = false;
 	protected double feedrate;
@@ -40,12 +43,44 @@ public class Sixi2 extends DHRobot {
 	DHKeyframe receivedKeyframe;
 	protected Sixi2Panel sixi2Panel;
 	
+	// contains a ghost
+	public DHRobot ghost;
+
+	protected DragBall ball;
+	protected DHKeyframe homeKey;
+	protected DHKeyframe restKey;
+	
 	
 	public Sixi2() {
-		super();
+		super(new DHIKSolver_RTTRTR());
 		setDisplayName("Sixi 2");
+
+		// create one copy of the DH links for the ghost robot
+		ghost = new DHRobot(new DHIKSolver_RTTRTR(),this);
+
 		isFirstTime=true;
 		receivedKeyframe = (DHKeyframe)createKeyframe();
+
+		homeKey = (DHKeyframe)createKeyframe();
+		getPoseFK(homeKey);
+
+		restKey = (DHKeyframe)createKeyframe();
+		restKey.fkValues[0]=0;
+		restKey.fkValues[1]=-60;
+		restKey.fkValues[2]=85;
+		restKey.fkValues[3]=0;
+		restKey.fkValues[4]=20;
+		restKey.fkValues[5]=0;
+		
+		ball = new DragBall();
+		ball.setParent(this);
+		
+
+		materialLive = new Material();
+		materialLive.setDiffuseColor(1,217f/255f,33f/255f,1);
+		
+		materialGhost = new Material();
+		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.5f);
 	}
 	
 	
@@ -60,62 +95,58 @@ public class Sixi2 extends DHRobot {
 	}
 	
 	@Override
-	protected void setupLinks() {
-		setNumLinks(8);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(8);
 		// roll anchor
-		links.get(0).d=13.44;
-		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).rangeMin=-120;
-		links.get(0).rangeMax=120;
+		robot.links.get(0).d=13.44;
+		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).rangeMin=-120;
+		robot.links.get(0).rangeMax=120;
 		// tilt shoulder
-		links.get(1).theta=90;
-		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(1).rangeMin=-72;
+		robot.links.get(1).theta=90;
+		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).rangeMin=-72;
 		// tilt elbow
-		links.get(2).d=44.55;
-		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(2).rangeMin=-83.369;
-		links.get(2).rangeMax=86;
+		robot.links.get(2).d=44.55;
+		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).rangeMin=-83.369;
+		robot.links.get(2).rangeMax=86;
 		// interim point
-		links.get(3).d=4.7201;
-		links.get(3).alpha=90;
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).d=4.7201;
+		robot.links.get(3).alpha=90;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll ulna
-		links.get(4).d=28.805;
-		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).rangeMin=-175;
-		links.get(4).rangeMax=175;
+		robot.links.get(4).d=28.805;
+		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).rangeMin=-175;
+		robot.links.get(4).rangeMax=175;
 
 		// tilt picassobox
-		links.get(5).d=11.8;
-		links.get(5).alpha=25;
-		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(5).rangeMin=-120;
-		links.get(5).rangeMax=120;
+		robot.links.get(5).d=11.8;
+		robot.links.get(5).alpha=25;
+		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(5).rangeMin=-120;
+		robot.links.get(5).rangeMax=120;
 		// roll hand
-		links.get(6).d=3.9527;
-		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(6).rangeMin=-180;
-		links.get(6).rangeMax=180;
+		robot.links.get(6).d=3.9527;
+		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(6).rangeMin=-180;
+		robot.links.get(6).rangeMax=180;
 		
-		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		
+		robot.refreshPose();
 	}
 	
-	public void setupModels() {
-		material = new Material();
-		material.setDiffuseColor(1,217f/255f,33f/255f,1);
-		
-		materialGhost = new Material();
-		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.5f);
-		
+	public void setupModels(DHRobot robot) {
 		try {
-			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor2.stl",0.1f);
-			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder2.stl",0.1f);
-			links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep2.stl",0.1f);
-			links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm2.stl",0.1f);
-			links.get(5).model = ModelFactory.createModelFromFilename("/Sixi2/tuningFork2.stl",0.1f);
-			links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox2.stl",0.1f);
-			links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand2.stl",0.1f);
+			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor2.stl",0.1f);
+			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder2.stl",0.1f);
+			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep2.stl",0.1f);
+			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm2.stl",0.1f);
+			robot.links.get(5).model = ModelFactory.createModelFromFilename("/Sixi2/tuningFork2.stl",0.1f);
+			robot.links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox2.stl",0.1f);
+			robot.links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand2.stl",0.1f);
 
 			double ELBOW_TO_ULNA_Y = -28.805;
 			double ELBOW_TO_ULNA_Z = 4.7201;
@@ -125,20 +156,20 @@ public class Sixi2 extends DHRobot {
 			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;  // 4.7201
 			//double WRIST_TO_HAND = 8.9527;
 
-			links.get(0).model.adjustOrigin(new Vector3d(0, 0, 5.15));
-			links.get(1).model.adjustOrigin(new Vector3d(0, 0, -5.3));
-			links.get(2).model.adjustOrigin(new Vector3d(-1.82, 0, 9));
-			links.get(3).model.adjustOrigin(new Vector3d(0,ELBOW_TO_WRIST_Y,ELBOW_TO_WRIST_Z));
-			links.get(5).model.adjustOrigin(new Vector3d(0, 0, -ULNA_TO_WRIST_Y));
-			links.get(7).model.adjustOrigin(new Vector3d(0,0,-3.9527));
+			robot.links.get(0).model.adjustOrigin(new Vector3d(0, 0, 5.15));
+			robot.links.get(1).model.adjustOrigin(new Vector3d(0, 0, -5.3));
+			robot.links.get(2).model.adjustOrigin(new Vector3d(-1.82, 0, 9));
+			robot.links.get(3).model.adjustOrigin(new Vector3d(0,ELBOW_TO_WRIST_Y,ELBOW_TO_WRIST_Z));
+			robot.links.get(5).model.adjustOrigin(new Vector3d(0, 0, -ULNA_TO_WRIST_Y));
+			robot.links.get(7).model.adjustOrigin(new Vector3d(0,0,-3.9527));
 
-			links.get(0).model.adjustRotation(new Vector3d(90,180,0));
-			links.get(1).model.adjustRotation(new Vector3d(90,-90,0));
-			links.get(2).model.adjustRotation(new Vector3d(90,0,0));
-			links.get(3).model.adjustRotation(new Vector3d(-90,0,180));
-			links.get(5).model.adjustRotation(new Vector3d(0,180,0));
-			links.get(6).model.adjustRotation(new Vector3d(180,0,180));
-			links.get(7).model.adjustRotation(new Vector3d(180,0,180));
+			robot.links.get(0).model.adjustRotation(new Vector3d(90,180,0));
+			robot.links.get(1).model.adjustRotation(new Vector3d(90,-90,0));
+			robot.links.get(2).model.adjustRotation(new Vector3d(90,0,0));
+			robot.links.get(3).model.adjustRotation(new Vector3d(-90,0,180));
+			robot.links.get(5).model.adjustRotation(new Vector3d(0,180,0));
+			robot.links.get(6).model.adjustRotation(new Vector3d(180,0,180));
+			robot.links.get(7).model.adjustRotation(new Vector3d(180,0,180));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -149,10 +180,12 @@ public class Sixi2 extends DHRobot {
 	public void render(GL2 gl2) {
 		if( isFirstTime ) {
 			isFirstTime=false;
-			setupModels();
+			setupModels(this);
+			setupModels(ghost);
 		}
-		
-		material.render(gl2);
+
+		// draw the live robot
+		materialLive.render(gl2);
 
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, this.getMatrix());
@@ -171,56 +204,54 @@ public class Sixi2 extends DHRobot {
 		
 		gl2.glPopMatrix();
 		
+		// then draw the target pose, aka the ghost.
 		super.render(gl2);
 	}
 
 	@Override
 	public void drawTargetPose(GL2 gl2) {
-		// is there a valid ghost pose?
-    	DHIKSolver solver = this.getSolverIK();
-    	DHKeyframe keyframe = (DHKeyframe)this.createKeyframe();
-    	//solver.solve(this,targetMatrix,keyframe);
-    	solver.solveWithSuggestion(this,targetMatrix,keyframe,poseNow);
-    	if(solver.solutionFlag==DHIKSolver.ONE_SOLUTION) {
-    		// save the live pose
-    		DHKeyframe saveKeyframe = this.getRobotPose();
-    		// set the ghost pose
-    		this.setDisablePanel(true);
-    		this.setLivePose(keyframe);
-    		// draw the ghost pose
-    		materialGhost.render(gl2);
-    		gl2.glPushMatrix();
-				MatrixHelper.applyMatrix(gl2, this.getMatrix());
-				
-				// Draw models
-				gl2.glPushMatrix();
-					Iterator<DHLink> i = links.iterator();
-					while(i.hasNext()) {
-						DHLink link = i.next();
-						//if(showAngles) link.renderAngles(gl2);
-						link.renderModel(gl2);
-			    		materialGhost.render(gl2);
-						link.setAngleColorByRange(gl2);
-					}
-					if(dhTool!=null) {
-						dhTool.render(gl2);
-						dhTool.dhLinkEquivalent.renderAngles(gl2);
-					}
-				gl2.glPopMatrix();
+		// draw the ghost pose
+		materialGhost.render(gl2);
+		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			
+			// Draw models
+			gl2.glPushMatrix();
+				Iterator<DHLink> i = ghost.links.iterator();
+				while(i.hasNext()) {
+					DHLink link = i.next();
+					//if(showAngles) link.renderAngles(gl2);
+					link.renderModel(gl2);
+		    		materialGhost.render(gl2);
+		    		link.setAngleColorByRange(gl2);
+				}
+				if(ghost.dhTool!=null) {
+					ghost.dhTool.render(gl2);
+					ghost.dhTool.dhLinkEquivalent.renderAngles(gl2);
+				}
 			gl2.glPopMatrix();
-			// reset the live pose
-			this.setLivePose(saveKeyframe);
-			this.setDisablePanel(false);
-    	}
+		gl2.glPopMatrix();
+		
+		if(drawAsSelected && inDirectDriveMode()) {
+    		IntBuffer depthFunc = IntBuffer.allocate(1);
+			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
+			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+			gl2.glDepthFunc(GL2.GL_ALWAYS);
+			gl2.glDisable(GL2.GL_LIGHTING);
+			
+			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
+				ball.renderRotation(gl2);
+			} else {
+				ball.renderTranslation(gl2);
+			}
+			gl2.glDepthFunc(depthFunc.get(0));
+			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		}
+		
     	super.drawTargetPose(gl2);
 	}
 	
-	@Override
-	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_RTTRTR();
-	}
 	
-	@Override
 	public void sendNewStateToRobot(DHKeyframe keyframe) {
 		if(once == false) {
 			once = true;
@@ -244,7 +275,7 @@ public class Sixi2 extends DHRobot {
 			message += " T"+(t);
 			System.out.println("Servo="+t);
 		}
-				
+		
 		System.out.println(AnsiColors.RED+message+AnsiColors.RESET);
 		sendLineToRobot(message);
 		isReadyToReceive=false;
@@ -289,7 +320,7 @@ public class Sixi2 extends DHRobot {
 						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						//this.setRobotPose(inter);
 
-						this.setLivePose(receivedKeyframe);
+						setPoseFK(receivedKeyframe);
 
 					} catch(Exception e) {}
 				}
@@ -313,8 +344,8 @@ public class Sixi2 extends DHRobot {
 		Vector3d t1 = new Vector3d();
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
-		// get the end matrix, which includes any tool.
-		liveMatrix.get(m1, t1);
+		// get the end matrix, which includes any tool, of the ghost.
+		ghost.links.getLast().poseCumulative.get(m1, t1);
 		
 		//Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -338,7 +369,7 @@ public class Sixi2 extends DHRobot {
 	/**
 	 * End matrix (the pose of the robot arm gripper) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
 	 * where XYZ are translation values and IJK are euler rotations of the matrix.
-	 * The text, if parsed ok, will set the current end matrix.
+	 * The text, if parsed ok, will set the current end matrix of the ghost.
 	 * @param line the text format of one pose.
 	 */
 	public void parseGCode(String line) {
@@ -384,17 +415,17 @@ public class Sixi2 extends DHRobot {
 			}
 			
 			if(isDirty) {
+				// changing the target pose of the ghost
 				m1 = MatrixHelper.eulerToMatrix(e1);
-				// changing the target pose will direct the live robot to that position.
-				targetMatrix.set(m1);
-				targetMatrix.setTranslation(t1);
+				Matrix4d m2=new Matrix4d();
+				m2.set(m1);
+				m2.setTranslation(t1);
+				ghost.setTargetMatrix(m2);
 			}
 			
-			if(dhTool!=null) {
-				dhTool.parseGCode(line);
+			if(ghost.dhTool!=null) {
+				ghost.dhTool.parseGCode(line);
 			}
-
-			moveToTargetPose();
 		}
 	}
 
@@ -410,7 +441,7 @@ public class Sixi2 extends DHRobot {
 		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
 
 		// use anglesA to get the hand matrix
-		setLivePose(keyframe);
+		setPoseFK(keyframe);
 		Matrix4d T = new Matrix4d(getLiveMatrix());
 		
 		// for all joints
@@ -422,7 +453,7 @@ public class Sixi2 extends DHRobot {
 			}
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
-			setLivePose(keyframe2);
+			setPoseFK(keyframe2);
 			Matrix4d Tnew = new Matrix4d(getLiveMatrix());
 			
 			// use the finite difference in the two matrixes
@@ -459,7 +490,7 @@ public class Sixi2 extends DHRobot {
 		}
 		
 		// return the live matrix where it was
-		setLivePose(keyframe);
+		setPoseFK(keyframe);
 		
 		return jacobian;
 	}
@@ -483,4 +514,301 @@ public class Sixi2 extends DHRobot {
 	public void setAcceleration(double acceleration) {
 		this.acceleration = acceleration;
 	}
+
+	public Matrix4d getGhostTargetMatrixWorldSpace() {
+		Matrix4d targetMatrixWorldSpace = new Matrix4d();
+		targetMatrixWorldSpace.mul(this.getMatrix(),ghost.getTargetMatrix());
+		return targetMatrixWorldSpace; 
+	}
+
+	/**
+	 * move the finger tip of the arm if the InputManager says so. The direction and
+	 * torque of the movement is controlled by a frame of reference.
+	 * 
+	 * @return true if targetPose changes.
+	 */
+	public boolean driveFromKeyState(double dt) {
+		Matrix4d m = getGhostTargetMatrixWorldSpace();
+		Vector3d trans = new Vector3d(m.m03,m.m13,m.m23);
+		
+		Matrix4d frameOfRef;
+		switch(frameOfReferenceIndex) {
+		case FRAME_FINGER:
+			// use the robot's finger tip as the frame of reference
+			frameOfRef = getGhostTargetMatrixWorldSpace();
+			frameOfRef.invert();
+			break;
+		case FRAME_CAMERA:
+			// use the camera as the frame of reference.
+			frameOfRef = new Matrix4d(MatrixHelper.lookAt(trans, getWorld().getCamera().getPosition()));
+			
+			//frameOfRef = new Matrix4d(getWorld().getCamera().getMatrix());
+			frameOfRef.m03=0;
+			frameOfRef.m13=0;
+			frameOfRef.m23=0;
+
+			m.set(frameOfRef);
+			m.setTranslation(trans);
+			break;
+		case FRAME_WORLD:
+		default:
+			// use the world as the frame of reference.
+			frameOfRef = new Matrix4d(World.getPose());
+			m.set(frameOfRef);
+			m.setTranslation(trans);
+			break;
+		}
+
+		ball.setMatrix(m);
+		ghost.getTargetMatrix().get(ball.targetMatrixToSave);
+		frameOfRef.get(ball.FORToSave);
+
+		if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
+			ball.updateRotation(dt);
+		} else {
+			ball.updateTranslation(dt);
+		}
+		
+		boolean isDirty = false;
+		final double scale = 10*dt;
+		final double scaleDolly = 10*dt;
+
+		//if (InputManager.isOn(InputManager.STICK_SQUARE)) {}
+		//if (InputManager.isOn(InputManager.STICK_CIRCLE)) {}
+		//if (InputManager.isOn(InputManager.STICK_X)) {}
+		if (InputManager.isOn(InputManager.STICK_TRIANGLE)) {
+			ghost.setPoseFK(homeKey);
+			ghost.setTargetMatrix(ghost.getLiveMatrix());
+			isDirty = true;
+		}
+		if (InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
+			// this.toggleATC();
+		}
+
+		int dD = (int) InputManager.rawValue(InputManager.STICK_DPADY);
+		if (dD != 0) {
+			dhTool.dhLinkEquivalent.d += dD * scaleDolly;
+			if (dhTool.dhLinkEquivalent.d < 0)
+				dhTool.dhLinkEquivalent.d = 0;
+			isDirty = true;
+		}
+		int dR = (int) InputManager.rawValue(InputManager.STICK_DPADX); // dpad left/right
+		if (dR != 0) {
+			dhTool.dhLinkEquivalent.r += dR * scale;
+			if (dhTool.dhLinkEquivalent.r < 0)
+				dhTool.dhLinkEquivalent.r = 0;
+			isDirty = true;
+		}
+/*
+		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
+		if (InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
+			if (canTargetPoseRotateZ()) {
+				isDirty = true;
+				double vv = scaleTurnRadians;
+				if (dhTool != null && dhTool.dhLinkEquivalent.r > 1) {
+					vv /= dhTool.dhLinkEquivalent.r;
+				}
+
+				rollZ(frameOfReference, InputManager.isOn(InputManager.STICK_L1) ? vv : -vv);
+			}
+		}
+
+		if (InputManager.rawValue(InputManager.STICK_RX) != 0) {
+			if (canTargetPoseRotateY()) {
+				isDirty = true;
+				rollY(frameOfReference, InputManager.rawValue(InputManager.STICK_RX) * scaleTurnRadians);
+			}
+		}
+		if (InputManager.rawValue(InputManager.STICK_RY) != 0) {
+			if (canTargetPoseRotateX()) {
+				isDirty = true;
+				rollX(frameOfReference, InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
+			}
+		}
+		if (InputManager.rawValue(InputManager.STICK_R2) != -1) {
+			isDirty = true;
+			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_R2) + 1) / 2) * scale);
+		}
+		if (InputManager.rawValue(InputManager.STICK_L2) != -1) {
+			isDirty = true;
+			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_L2) + 1) / 2) * -scale);
+		}
+		if (InputManager.rawValue(InputManager.STICK_LX) != 0) {
+			isDirty = true;
+			translate(getRight(), InputManager.rawValue(InputManager.STICK_LX) * scale);
+		}
+		if (InputManager.rawValue(InputManager.STICK_LY) != 0) {
+			isDirty = true;
+			translate(getUp(), InputManager.rawValue(InputManager.STICK_LY) * -scale);
+		}*/
+		
+
+		if (InputManager.isOn(InputManager.MOUSE_LEFT)) {
+			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
+				if(ball.wasPressed) {
+					double da=ball.angleRadNow - ball.angleRadSaved;
+
+					if(da!=0) {
+						switch(ball.nearestPlaneSaved) {
+						case 0 : if(canTargetPoseRotateX()) rollX(da);	break;
+						case 1 : if(canTargetPoseRotateY()) rollY(da);	break;
+						default: if(canTargetPoseRotateZ()) rollZ(da);	break;
+						}
+					}
+					isDirty = true;
+				}
+			} else if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
+				if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
+					dhTool.dhLinkEquivalent.d += InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
+					if (dhTool.dhLinkEquivalent.d < 0)
+						dhTool.dhLinkEquivalent.d = 0;
+					isDirty = true;
+				}
+				if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
+					dhTool.dhLinkEquivalent.r += InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
+					if (dhTool.dhLinkEquivalent.r < 0)
+						dhTool.dhLinkEquivalent.r = 0;
+					isDirty = true;
+				}
+			} else {
+				if(ball.wasPressed) {
+					double dx = InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5;
+					double dy = InputManager.rawValue(InputManager.MOUSE_Y) * -scale * 0.5;
+					double da=0;
+					
+					switch(ball.majorAxisSlideDirection) {
+					case DragBall.SLIDE_XPOS:  da= dx;	break;
+					case DragBall.SLIDE_XNEG:  da=-dx;  break;
+					case DragBall.SLIDE_YPOS:  da= dy;  break;
+					case DragBall.SLIDE_YNEG:  da=-dy;  break;
+					}
+					
+					if(da!=0) {
+						switch(ball.majorAxisSaved) {
+						case 1 : translate(getForward(), da);	break;
+						case 2 : translate(getRight()  , da);	break;
+						default: translate(getUp()     , da);	break;
+						}
+					}
+					isDirty = true;
+				}
+			}
+		}
+
+		if (dhTool != null) {
+			isDirty |= dhTool.directDrive();
+		}
+
+		if (InputManager.isReleased(InputManager.KEY_RETURN) 
+				|| InputManager.isReleased(InputManager.KEY_ENTER)
+				|| InputManager.isReleased(InputManager.STICK_X) 
+				|| immediateDriving) {
+			// commit move!
+			if(connection != null && connection.isOpen()) {
+				DHKeyframe key = (DHKeyframe)createKeyframe();
+				ghost.getPoseFK(key);
+				sendNewStateToRobot(key);
+			} else {
+				interpolationQueue.offer(ghost.getTargetMatrix());
+			}
+		}
+
+		if (InputManager.isOn(InputManager.KEY_DELETE) || InputManager.isOn(InputManager.STICK_TRIANGLE)) {
+			// reset targetpose to endmatrix.
+			ghost.setTargetMatrix(liveMatrix);
+		}
+
+		return isDirty;
+	}
+
+	public Vector3d getForward() {
+		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		return new Vector3d(frameOfReference.m00, frameOfReference.m10, frameOfReference.m20);
+	}
+
+	public Vector3d getRight() {
+		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		return new Vector3d(frameOfReference.m01, frameOfReference.m11, frameOfReference.m21);
+	}
+
+	public Vector3d getUp() {
+		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		return new Vector3d(frameOfReference.m02, frameOfReference.m12, frameOfReference.m22);
+	}
+	
+	protected void rotationInternal(Matrix3d rotation) {
+		// multiply robot origin by target matrix to get target matrix in world space.
+		
+		// invert frame of reference to transform world target matrix into frame of reference space.
+		Matrix3d FOR = new Matrix3d(ball.FORSaved);
+		Matrix3d robotRoot = new Matrix3d();
+		this.getMatrix().get(robotRoot);
+		robotRoot.invert();
+		FOR.mul(robotRoot);
+		
+		Matrix3d ifor = new Matrix3d(FOR);
+		ifor.invert();
+		
+		Matrix3d targetMatrixRobotSpaceAfterTransform = new Matrix3d(ifor);
+		targetMatrixRobotSpaceAfterTransform.mul(rotation);
+		targetMatrixRobotSpaceAfterTransform.mul(FOR);
+
+		Matrix3d m1 = new Matrix3d(ball.targetMatrixSaved);
+		targetMatrixRobotSpaceAfterTransform.mul(m1);
+		
+		// done!
+		Vector3d tempPosition = new Vector3d();
+		ghost.getTargetMatrix().get(tempPosition);
+		Matrix4d m = new Matrix4d();
+		m.set(targetMatrixRobotSpaceAfterTransform);
+		m.setTranslation(tempPosition);
+		ghost.setTargetMatrix(m);
+	}
+
+	protected void rollX(double angRadians) {
+		// apply transform about the origin,
+		Matrix3d temp = new Matrix3d();
+		temp.rotX(angRadians);
+		rotationInternal(temp);
+	}
+
+	protected void rollY(double angRadians) {
+		// apply transform about the origin,
+		Matrix3d temp = new Matrix3d();
+		temp.rotY(angRadians);
+		rotationInternal(temp);
+	}
+	protected void rollZ(double angRadians) {
+		Matrix3d temp = new Matrix3d();
+		temp.rotZ(angRadians);
+		rotationInternal(temp);
+	}
+
+	protected void translate(Vector3d v, double amount) {
+		Matrix4d m = ghost.getTargetMatrix();
+		m.m03 += v.x*amount;
+		m.m13 += v.y*amount;
+		m.m23 += v.z*amount;
+		ghost.setTargetMatrix(m);
+	}
+	
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+
+		if(connection==null || connection.isOpen()) {
+			this.interpolate(dt * 0.25);
+		}
+		
+		// If the move is illegal then I need a way to rewind. Keep the old pose for
+		// rewinding.
+
+		if (inDirectDriveMode() && drawAsSelected) {
+			if (driveFromKeyState(dt)) {
+				if (panel != null)
+					panel.updateGhostEnd();
+			}
+		}
+	}
+
 }

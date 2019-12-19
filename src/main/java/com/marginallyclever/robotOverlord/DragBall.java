@@ -237,11 +237,14 @@ public class DragBall extends PhysicalObject {
 			}
 			gl2.glEnd();
 			
-			int plane = wasPressed? nearestPlaneSaved : nearestPlane;
+			int majorPlaneSaved = wasPressed? nearestPlaneSaved : nearestPlane;
+			float r = (majorPlaneSaved==0)?1:0.25f;
+			float g = (majorPlaneSaved==1)?1:0.25f;
+			float b = (majorPlaneSaved==2)?1:0.25f;
 				
 			//x
 			inOutin=0;
-			gl2.glColor3d(plane==0?1:0.25, 0, 0);
+			gl2.glColor3d(r, 0, 0);
 			for(double n=0;n<Math.PI*4;n+=stepSize) {
 				v.set(0,Math.cos(n),Math.sin(n));
 				cm.transform(v, v1);
@@ -266,7 +269,7 @@ public class DragBall extends PhysicalObject {
 			
 			//y
 			inOutin=0;
-			gl2.glColor3d(0, plane==1?1:0.5, 0);
+			gl2.glColor3d(0, g, 0);
 			for(double n=0;n<Math.PI*4;n+=stepSize) {
 				v.set(Math.cos(n), 0, Math.sin(n));
 				cm.transform(v, v1);
@@ -291,7 +294,7 @@ public class DragBall extends PhysicalObject {
 			
 			//z
 			inOutin=0;
-			gl2.glColor3d(0, 0, plane==2?1:0.15);
+			gl2.glColor3d(0, 0, b);
 			for(double n=0;n<Math.PI*4;n+=Math.PI/40) {
 				v.set(Math.cos(n), Math.sin(n),0);
 				cm.transform(v, v1);
@@ -312,9 +315,8 @@ public class DragBall extends PhysicalObject {
 					}
 				}
 			}
-			
 			gl2.glEnd();
-		gl2.glPopMatrix();
+			gl2.glPopMatrix();
 	}
 	
 

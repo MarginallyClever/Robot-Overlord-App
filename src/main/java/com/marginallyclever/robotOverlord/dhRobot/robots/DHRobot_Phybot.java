@@ -6,10 +6,10 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
@@ -25,56 +25,56 @@ public class DHRobot_Phybot extends DHRobot {
 
 	public DHRobot_Phybot() {
 		super();
-		setDisplayName("Sixi 1");
+		setDisplayName("Phybot");
 		isFirstTime=true;
 	}
 	
 	@Override
-	protected void setupLinks() {		
-		setNumLinks(8);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(8);
 		// roll
-		links.get(0).d=25;
-		links.get(0).theta=0;
-		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(0).rangeMin=-120;
-		links.get(0).rangeMax=120;
+		robot.links.get(0).d=25;
+		robot.links.get(0).theta=0;
+		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).rangeMin=-120;
+		robot.links.get(0).rangeMax=120;
 		// tilt
-		links.get(1).alpha=0;
-		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(1).rangeMin=-72;
+		robot.links.get(1).alpha=0;
+		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).rangeMin=-72;
 		// tilt
-		links.get(2).d=25;
-		links.get(2).alpha=0;
-		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(2).rangeMin=-83.369;
-		links.get(2).rangeMax=86;
+		robot.links.get(2).d=25;
+		robot.links.get(2).alpha=0;
+		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).rangeMin=-83.369;
+		robot.links.get(2).rangeMax=86;
 
 		// interim point
-		links.get(3).d=5;
-		links.get(3).alpha=90;
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).d=5;
+		robot.links.get(3).alpha=90;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
-		links.get(4).d=10;
-		links.get(4).theta=0;
-		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(4).rangeMin=-90;
-		links.get(4).rangeMax=90;
+		robot.links.get(4).d=10;
+		robot.links.get(4).theta=0;
+		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).rangeMin=-90;
+		robot.links.get(4).rangeMax=90;
 
 		// tilt
-		links.get(5).d=10;
-		links.get(5).alpha=0;
-		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		links.get(5).rangeMin=-90;
-		links.get(5).rangeMax=90;
+		robot.links.get(5).d=10;
+		robot.links.get(5).alpha=0;
+		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(5).rangeMin=-90;
+		robot.links.get(5).rangeMax=90;
 		// roll
-		links.get(6).d=3.9527;
-		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		links.get(6).rangeMin=-90;
-		links.get(6).rangeMax=90;
+		robot.links.get(6).d=3.9527;
+		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(6).rangeMin=-90;
+		robot.links.get(6).rangeMax=90;
 		
-		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
-		this.refreshPose();
+		robot.refreshPose();
 	}
 	
 	public void setupModels() {

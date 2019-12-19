@@ -4,7 +4,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
@@ -32,7 +31,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		DHLink link0 = robot.links.get(0);
 		DHLink link1 = robot.links.get(1);
 		DHLink link2 = robot.links.get(2);
@@ -112,8 +111,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		if(true) System.out.println("solution={"+keyframe.fkValues[0]+","+keyframe.fkValues[1]+","+keyframe.fkValues[2]+"}");
+		
+		return SolutionType.ONE_SOLUTION;
 	}
-	
-	
-	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {}
 }

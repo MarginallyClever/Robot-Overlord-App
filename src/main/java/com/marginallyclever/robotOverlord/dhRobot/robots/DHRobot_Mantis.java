@@ -5,8 +5,6 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
-import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
@@ -25,60 +23,67 @@ public class DHRobot_Mantis extends DHRobot {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	private transient boolean isFirstTime;
+	
 	public DHRobot_Mantis() {
-		super();
+		super(new DHIKSolver_RTTRTR());
 		setDisplayName("Mantis");
+		isFirstTime=true;
 	}
 	
 	@Override
-	protected void setupLinks() {
-		setNumLinks(8);
+	protected void setupLinks(DHRobot robot) {
+		robot.setNumLinks(8);
 
 		// roll
-		//this.links.get(0).d=13.44;
-		this.links.get(0).d=24.5+2.7;
-		this.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		this.links.get(0).rangeMin=-120;
-		this.links.get(0).rangeMax=120;
+		//robot.links.get(0).d=13.44;
+		robot.links.get(0).d=24.5+2.7;
+		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).rangeMin=-120;
+		robot.links.get(0).rangeMax=120;
 
 		// tilt
-		this.links.get(1).d=0;
-		this.links.get(1).alpha=0;
-		this.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		this.links.get(1).rangeMin=-72;
+		robot.links.get(1).d=0;
+		robot.links.get(1).alpha=0;
+		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).rangeMin=-72;
 
 		// tilt
-		this.links.get(2).d=13.9744 + 8.547;
-		this.links.get(2).alpha=0;
-		this.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		this.links.get(2).rangeMin=-83.369;
-		this.links.get(2).rangeMax=86;
+		robot.links.get(2).d=13.9744 + 8.547;
+		robot.links.get(2).alpha=0;
+		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).rangeMin=-83.369;
+		robot.links.get(2).rangeMax=86;
 		// interim point
-		this.links.get(3).d=0.001;  // TODO explain why this couldn't just be zero.  Solver hates it for some reason.
-		this.links.get(3).alpha=90;
-		this.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).d=0.001;  // TODO explain why this couldn't just be zero.  Solver hates it for some reason.
+		robot.links.get(3).alpha=90;
+		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
-		this.links.get(4).d=8.547;
-		this.links.get(4).theta=0;
-		this.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		this.links.get(4).rangeMin=-90;
-		this.links.get(4).rangeMax=90;
+		robot.links.get(4).d=8.547;
+		robot.links.get(4).theta=0;
+		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).rangeMin=-90;
+		robot.links.get(4).rangeMax=90;
 
 		// tilt
-		this.links.get(5).d=14.6855f;
-		this.links.get(5).alpha=0;
-		this.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		this.links.get(5).rangeMin=-90;
-		this.links.get(5).rangeMax=90;
+		robot.links.get(5).d=14.6855f;
+		robot.links.get(5).alpha=0;
+		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(5).rangeMin=-90;
+		robot.links.get(5).rangeMax=90;
 		// roll
-		this.links.get(6).d=5.0f;
-		this.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		this.links.get(6).rangeMin=-90;
-		this.links.get(6).rangeMax=90;
+		robot.links.get(6).d=5.0f;
+		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(6).rangeMin=-90;
+		robot.links.get(6).rangeMax=90;
 		
-		this.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
+		robot.refreshPose();
+	}
+
+
+	public void setupModels() {
 		try {
 			this.links.get(0).model = ModelFactory.createModelFromFilename("/AH/rotBaseCase.stl",0.1f);
 			this.links.get(1).model = ModelFactory.createModelFromFilename("/AH/Shoulder_r1.stl",0.1f);
@@ -101,12 +106,15 @@ public class DHRobot_Mantis extends DHRobot {
 			e.printStackTrace();
 		}
 		
-		this.refreshPose();
 	}
 	
 	
 	@Override
 	public void render(GL2 gl2) {
+		if( isFirstTime ) {
+			isFirstTime=false;
+			setupModels();
+		}
 		
 		Material material = new Material();
 		
@@ -133,11 +141,4 @@ public class DHRobot_Mantis extends DHRobot {
 		super.render(gl2);
 	}
 
-	@Override
-	public DHIKSolver getSolverIK() {
-		return new DHIKSolver_RTTRTR();
-	}
-
-	@Override
-	public void sendNewStateToRobot(DHKeyframe keyframe) {}
 }
