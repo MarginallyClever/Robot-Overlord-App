@@ -56,7 +56,7 @@ public class DHTool_Gripper extends DHTool {
 	public DHTool_Gripper() {
 		super();
 		setDisplayName("Gripper");
-		dhLinkEquivalent.d=11.9082;  // cm
+		dhLinkEquivalent.setD(11.9082);  // cm
 		dhLinkEquivalent.refreshPoseMatrix();
 		
 		heldRelative = new Matrix4d();
@@ -64,8 +64,8 @@ public class DHTool_Gripper extends DHTool {
 		gripperServoAngle=90;
 		interpolatePoseT=1;
 		startT=endT=gripperServoAngle;
-		startD=endD=dhLinkEquivalent.d;
-		startR=endR=dhLinkEquivalent.r;
+		startD=endD=dhLinkEquivalent.getD();
+		startR=endR=dhLinkEquivalent.getR();
 		
 		setFilename("/Sixi2/beerGripper/base.stl");
 		setScale(0.1f);
@@ -263,8 +263,8 @@ public class DHTool_Gripper extends DHTool {
 
 	public String generateGCode() {
 		String message = " T"+StringHelper.formatDouble(this.gripperServoAngle)
-						+ " R"+StringHelper.formatDouble(this.dhLinkEquivalent.r)
-						+ " S"+StringHelper.formatDouble(this.dhLinkEquivalent.d);
+						+ " R"+StringHelper.formatDouble(this.dhLinkEquivalent.getR())
+						+ " S"+StringHelper.formatDouble(this.dhLinkEquivalent.getD());
 		return message;
 	}
 	
@@ -278,11 +278,11 @@ public class DHTool_Gripper extends DHTool {
 					endT = Double.parseDouble(token.substring(1));
 				}
 				if(token.startsWith("R")) {
-					startR = dhLinkEquivalent.r;
+					startR = dhLinkEquivalent.getR();
 					endR = Double.parseDouble(token.substring(1));
 				}
 				if(token.startsWith("S")) {
-					startD = dhLinkEquivalent.d;
+					startD = dhLinkEquivalent.getD();
 					endD = Double.parseDouble(token.substring(1));
 				}
 			} catch(NumberFormatException e) {
@@ -299,9 +299,9 @@ public class DHTool_Gripper extends DHTool {
 			if(interpolatePoseT>=1) {
 				interpolatePoseT=1;
 			}
-			gripperServoAngle  = (endT-startT)*interpolatePoseT + startT;
-			dhLinkEquivalent.r = (endR-startR)*interpolatePoseT + startR;
-			dhLinkEquivalent.d = (endD-startD)*interpolatePoseT + startD;
+			gripperServoAngle   =((endT-startT)*interpolatePoseT + startT);
+			dhLinkEquivalent.setR((endR-startR)*interpolatePoseT + startR);
+			dhLinkEquivalent.setD((endD-startD)*interpolatePoseT + startD);
 			dhLinkEquivalent.refreshPoseMatrix();
 		}
 	}
