@@ -40,6 +40,7 @@ import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionSetDHTool;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot.InterpolationStep;
 
 /**
  * Control Panel for a DHRobot
@@ -230,25 +231,28 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			
 			while(i.hasNext()) {
 				DHLinkPanel e = i.next();
-				arr[j++]=e.link.d    ;
-				arr[j++]=e.link.theta;
-				arr[j++]=e.link.r    ;
-				arr[j++]=e.link.alpha;
-				e.link.d = e.d.getValue();
-				e.link.theta = e.theta.getValue();
-				e.link.r = e.r.getValue();
-				e.link.alpha = e.alpha.getValue();
+				arr[j++]=e.link.getD()		;
+				arr[j++]=e.link.getTheta()	;
+				arr[j++]=e.link.getR()		;
+				arr[j++]=e.link.getAlpha()	;
+				e.link.setD		(e.d	.getValue());
+				e.link.setTheta	(e.theta.getValue());
+				e.link.setR		(e.r	.getValue());
+				e.link.setAlpha	(e.alpha.getValue());
 			}
 			robot.refreshPose();
-			robot.interpolationQueue.offer(robot.getLiveMatrix());
+			InterpolationStep s = robot.new InterpolationStep();
+			s.target = robot.getLiveMatrix();
+			s.feedrate = 1;
+			robot.interpolationQueue.offer(s);
 			j=0;
 			i = linkPanels.iterator();
 			while(i.hasNext()) {
 				DHLinkPanel e = i.next();
-				e.link.d    =arr[j++];
-				e.link.theta=arr[j++];
-				e.link.r    =arr[j++];
-				e.link.alpha=arr[j++];
+				e.link.setD		(arr[j++]);
+				e.link.setTheta	(arr[j++]);
+				e.link.setR		(arr[j++]);
+				e.link.setAlpha	(arr[j++]);
 			}
 			robot.refreshPose();
 			updateEnd();
@@ -278,10 +282,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		while(i.hasNext()) {
 			DHLink link = robot.getLink(j++);
 			DHLinkPanel linkPanel = i.next();
-			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(link.d    ));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(link.theta));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(link.r    ));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.alpha));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(link.getD()		));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(link.getTheta()	));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(link.getR()		));
+			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.getAlpha()	));
 		}
 	}
 	
