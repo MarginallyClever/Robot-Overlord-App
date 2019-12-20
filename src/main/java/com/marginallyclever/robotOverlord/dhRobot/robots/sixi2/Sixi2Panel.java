@@ -6,24 +6,32 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.SpringUtilities;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 
 /**
  * Control Panel for a DHRobot
  * @author Dan Royer
  *
  */
-public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener, ItemListener {
+public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener, ItemListener, Observer {
 	/**
 	 * 
 	 */
@@ -36,9 +44,24 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JButton buttonCalibrate;
 	public JButton goHome;
 	public JButton goRest;
-	public JSlider gripperOpening;
-	public JSlider feedrate;
-	public JLabel  feedrateValue;
+	public JSlider feedrate, acceleration, gripperOpening;
+	public JLabel  feedrateValue, accelerationValue, gripperOpeningValue;
+	
+	public class Pair {
+		public JSlider slider;
+		public DHLink  link;
+		public JLabel  label;
+		
+		public Pair(JSlider slider0,DHLink link0,JLabel label0) {
+			slider=slider0;
+			link=link0;
+			label=label0;
+		}
+	}
+	
+	ArrayList<Pair> liveJoints = new ArrayList<Pair>();
+	ArrayList<Pair> ghostJoints = new ArrayList<Pair>();
+	
 	
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
 		this.robot = robot;
@@ -87,22 +110,89 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 		contents.add(feedrate=new JSlider(),con1);
 		con1.gridy++;
+		contents.add(feedrateValue=new JLabel(),con1);
+		con1.gridy++;
 		feedrate.setMaximum(80);
 		feedrate.setMinimum(1);
 		feedrate.setMinorTickSpacing(1);
-		feedrate.setValue(20);
 		feedrate.addChangeListener(this);
-		contents.add(feedrateValue=new JLabel(),con1);
-		feedrateValue.setText(Double.toString(feedrate.getValue()));
+		feedrate.setValue((int)robot.getFeedrate());
+		stateChanged(new ChangeEvent(feedrate));
+
+		contents.add(acceleration=new JSlider(),con1);
 		con1.gridy++;
+		contents.add(accelerationValue=new JLabel(),con1);
+		con1.gridy++;
+		acceleration.setMaximum(120);
+		acceleration.setMinimum(1);
+		acceleration.setMinorTickSpacing(1);
+		acceleration.addChangeListener(this);
+		acceleration.setValue((int)robot.getAcceleration());
+		stateChanged(new ChangeEvent(acceleration));
 
 		contents.add(gripperOpening=new JSlider(),con1);
 		con1.gridy++;
-		gripperOpening.setMaximum(130);
-		gripperOpening.setMinimum(80);
+		contents.add(gripperOpeningValue=new JLabel(),con1);
+		con1.gridy++;
+		gripperOpening.setMaximum(120);
+		gripperOpening.setMinimum(90);
 		gripperOpening.setMinorTickSpacing(5);
-		gripperOpening.setValue((int)robot.dhTool.getAdjustableValue());
 		gripperOpening.addChangeListener(this);
+		gripperOpening.setValue((int)robot.dhTool.getAdjustableValue());
+		stateChanged(new ChangeEvent(gripperOpening));
+		
+		int i;
+		JLabel label;
+
+		CollapsiblePanel livePanel = new CollapsiblePanel("Live");
+		this.add(livePanel,con1);
+		con1.gridy++;
+		contents = livePanel.getContentPane();
+		contents.setBorder(new EmptyBorder(0,0,0,0));
+		contents.setLayout(new SpringLayout());
+		i=0;
+		for( DHLink link : robot.links ) {
+			if(!link.hasAdjustableValue()) continue;
+			JSlider newSlider=new JSlider(
+					JSlider.HORIZONTAL,
+					(int)link.rangeMin,
+					(int)link.rangeMax,
+					(int)link.rangeMin);
+			newSlider.setMinorTickSpacing(5);
+			newSlider.setEnabled(false);
+			contents.add(new JLabel(Integer.toString(i++)));
+			contents.add(newSlider);
+			contents.add(label=new JLabel("0.000",SwingConstants.RIGHT));
+			liveJoints.add(new Pair(newSlider,link,label));
+			link.addObserver(this);
+			newSlider.setValue((int)link.getAdjustableValue());
+		}
+		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
+		
+		CollapsiblePanel ghostPanel = new CollapsiblePanel("Ghost");
+		this.add(ghostPanel,con1);
+		con1.gridy++;
+		contents = ghostPanel.getContentPane();
+		contents.setBorder(new EmptyBorder(0,0,0,0));
+		contents.setLayout(new SpringLayout());
+		i=0;
+		for( DHLink link : robot.ghost.links ) {
+			if(!link.hasAdjustableValue()) continue;
+			JSlider newSlider=new JSlider(
+					JSlider.HORIZONTAL,
+					(int)link.rangeMin,
+					(int)link.rangeMax,
+					(int)link.rangeMin);
+			newSlider.setMinorTickSpacing(5);
+			newSlider.setEnabled(false);
+			contents.add(new JLabel(Integer.toString(i++)));
+			contents.add(newSlider);
+			contents.add(label=new JLabel("0.000",SwingConstants.RIGHT));
+			ghostJoints.add(new Pair(newSlider,link,label));
+			link.addObserver(this);
+			newSlider.setValue((int)link.getAdjustableValue());
+		}
+		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
 	}
 	
 	@Override
@@ -111,11 +201,34 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source == feedrate) {
 			int v = feedrate.getValue();
 			robot.setFeedrate(v);
-			feedrateValue.setText(Double.toString(v));
+			feedrateValue.setText("feedrate = "+StringHelper.formatDouble(v));
+		}
+		if(source == acceleration) {
+			int v = acceleration.getValue();
+			robot.setAcceleration(v);
+			accelerationValue.setText("acceleration = "+StringHelper.formatDouble(v));
 		}
 		if(source == gripperOpening) {
 			int v = gripperOpening.getValue();
 			robot.parseGCode("G0 T"+v);
+			gripperOpeningValue.setText("gripper = "+StringHelper.formatDouble(v));
+		}
+		
+		if(!robot.isDisablePanel()) {
+			for( Pair p : ghostJoints ) {
+				if(p.slider == source) {
+					if(!p.link.hasChanged()) {
+						int v = ((JSlider)source).getValue();
+						p.link.setAdjustableValue(v);
+						p.label.setText(StringHelper.formatDouble(v));
+						robot.setDisablePanel(true);
+						robot.ghost.refreshPose();
+						robot.ghost.setTargetMatrix(robot.ghost.getLiveMatrix());
+						robot.setDisablePanel(false);
+						break;
+					}
+				}
+			}
 		}
 	}
 	
@@ -141,5 +254,25 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public void itemStateChanged(ItemEvent e) {
 		// for checkboxes
 		//Object source = e.getItemSelectable();
+	}
+
+	@Override
+	public void update(Observable arg0, Object arg1) {
+		for( Pair p : liveJoints ) {
+			if(p.link == arg0) {
+				double v = (double)arg1;
+				p.slider.setValue((int)v);
+				p.label.setText(StringHelper.formatDouble(v));
+				break;
+			}
+		}
+		for( Pair p : ghostJoints ) {
+			if(p.link == arg0) {
+				double v = (double)arg1;
+				p.slider.setValue((int)v);
+				p.label.setText(StringHelper.formatDouble(v));
+				break;
+			}
+		}
 	}
 }

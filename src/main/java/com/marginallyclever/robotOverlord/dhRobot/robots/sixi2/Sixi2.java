@@ -88,7 +88,10 @@ public class Sixi2 extends DHRobot {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		
+		// hide the dhrobot panel because we'll replace it with our own.
 		sixi2Panel = new Sixi2Panel(gui,this);
+		
+		list.remove(list.size()-1);
 		list.add(sixi2Panel);
 		
 		return list;
@@ -98,37 +101,37 @@ public class Sixi2 extends DHRobot {
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(8);
 		// roll anchor
-		robot.links.get(0).d=13.44;
+		robot.links.get(0).setD(13.44);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(0).rangeMin=-120;
 		robot.links.get(0).rangeMax=120;
 		// tilt shoulder
-		robot.links.get(1).theta=90;
+		robot.links.get(1).setTheta(90);
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(1).rangeMin=-72;
 		// tilt elbow
-		robot.links.get(2).d=44.55;
+		robot.links.get(2).setD(44.55);
 		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(2).rangeMin=-83.369;
 		robot.links.get(2).rangeMax=86;
 		// interim point
-		robot.links.get(3).d=4.7201;
-		robot.links.get(3).alpha=90;
+		robot.links.get(3).setD(4.7201);
+		robot.links.get(3).setAlpha(90);
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll ulna
-		robot.links.get(4).d=28.805;
+		robot.links.get(4).setD(28.805);
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(4).rangeMin=-175;
 		robot.links.get(4).rangeMax=175;
 
 		// tilt picassobox
-		robot.links.get(5).d=11.8;
-		robot.links.get(5).alpha=25;
+		robot.links.get(5).setD(11.8);
+		robot.links.get(5).setAlpha(25);
 		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(5).rangeMin=-120;
 		robot.links.get(5).rangeMax=120;
 		// roll hand
-		robot.links.get(6).d=3.9527;
+		robot.links.get(6).setD(3.9527);
 		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(6).rangeMin=-180;
 		robot.links.get(6).rangeMax=180;
@@ -238,12 +241,15 @@ public class Sixi2 extends DHRobot {
 			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 			gl2.glDepthFunc(GL2.GL_ALWAYS);
 			gl2.glDisable(GL2.GL_LIGHTING);
-			
+
+			gl2.glPushMatrix();
+				MatrixHelper.applyMatrix(gl2, this.getMatrix());
 			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
 				ball.renderRotation(gl2);
 			} else {
 				ball.renderTranslation(gl2);
 			}
+			gl2.glPopMatrix();
 			gl2.glDepthFunc(depthFunc.get(0));
 			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		}
@@ -345,7 +351,7 @@ public class Sixi2 extends DHRobot {
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
 		// get the end matrix, which includes any tool, of the ghost.
-		ghost.links.getLast().poseCumulative.get(m1, t1);
+		ghost.getLiveMatrix().get(m1, t1);
 		
 		//Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -441,8 +447,9 @@ public class Sixi2 extends DHRobot {
 		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
 
 		// use anglesA to get the hand matrix
-		setPoseFK(keyframe);
-		Matrix4d T = new Matrix4d(getLiveMatrix());
+		DHRobot clone = new DHRobot(this);
+		clone.setPoseFK(keyframe);
+		Matrix4d T = new Matrix4d(clone.getLiveMatrix());
 		
 		// for all joints
 		int i,j;
@@ -453,8 +460,8 @@ public class Sixi2 extends DHRobot {
 			}
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
-			setPoseFK(keyframe2);
-			Matrix4d Tnew = new Matrix4d(getLiveMatrix());
+			clone.setPoseFK(keyframe2);
+			Matrix4d Tnew = new Matrix4d(clone.getLiveMatrix());
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -467,30 +474,54 @@ public class Sixi2 extends DHRobot {
 			jacobian[i][1]=dT.m13;
 			jacobian[i][2]=dT.m23;
 
+
 			// find the rotation part
 			// these initialT and initialTd were found in the comments on
 			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
 			// and used to confirm that our skew-symmetric matrix match theirs.
+			/*
+			double[] initialT = {
+					 0,  0   , 1   ,  0.5963,
+					 0,  1   , 0   , -0.1501,
+					-1,  0   , 0   , -0.01435,
+					 0,  0   , 0   ,  1 };
+			double[] initialTd = {
+					 0, -0.01, 1   ,  0.5978,
+					 0,  1   , 0.01, -0.1441,
+					-1,  0   , 0   , -0.01435,
+					 0,  0   , 0   ,  1 };
+			T.set(initialT);
+			Td.set(initialTd);
+			dT.sub(Td,T);
+			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//*/
+			
+			//System.out.println("T="+T);
+			//System.out.println("Td="+Td);
+			//System.out.println("dT="+dT);
 			Matrix3d T3 = new Matrix3d(
 					T.m00,T.m01,T.m02,
 					T.m10,T.m11,T.m12,
 					T.m20,T.m21,T.m22);
+			//System.out.println("R="+R);
 			Matrix3d dT3 = new Matrix3d(
 					dT.m00,dT.m01,dT.m02,
 					dT.m10,dT.m11,dT.m12,
 					dT.m20,dT.m21,dT.m22);
+			//System.out.println("dT3="+dT3);
 			Matrix3d skewSymmetric = new Matrix3d();
 			
 			T3.transpose();  // inverse of a rotation matrix is its transpose
 			skewSymmetric.mul(dT3,T3);
 			
+			//System.out.println("SS="+skewSymmetric);
+			//[  0 -Wz  Wy]
+			//[ Wz   0 -Wx]
+			//[-Wy  Wx   0]
+			
 			jacobian[i][3]=skewSymmetric.m12;
 			jacobian[i][4]=skewSymmetric.m20;
 			jacobian[i][5]=skewSymmetric.m01;
 		}
-		
-		// return the live matrix where it was
-		setPoseFK(keyframe);
 		
 		return jacobian;
 	}
@@ -587,16 +618,14 @@ public class Sixi2 extends DHRobot {
 
 		int dD = (int) InputManager.rawValue(InputManager.STICK_DPADY);
 		if (dD != 0) {
-			dhTool.dhLinkEquivalent.d += dD * scaleDolly;
-			if (dhTool.dhLinkEquivalent.d < 0)
-				dhTool.dhLinkEquivalent.d = 0;
+			double d =dhTool.dhLinkEquivalent.getD() + dD * scaleDolly; 
+			dhTool.dhLinkEquivalent.setD(Math.max(d, 0));
 			isDirty = true;
 		}
 		int dR = (int) InputManager.rawValue(InputManager.STICK_DPADX); // dpad left/right
 		if (dR != 0) {
-			dhTool.dhLinkEquivalent.r += dR * scale;
-			if (dhTool.dhLinkEquivalent.r < 0)
-				dhTool.dhLinkEquivalent.r = 0;
+			double r =dhTool.dhLinkEquivalent.getR() + dR * scale; 
+			dhTool.dhLinkEquivalent.setR(Math.max(r,0));
 			isDirty = true;
 		}
 /*
@@ -657,20 +686,22 @@ public class Sixi2 extends DHRobot {
 					}
 					isDirty = true;
 				}
-			} else if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
+			}/*
+			 else if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
+				
 				if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
-					dhTool.dhLinkEquivalent.d += InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
-					if (dhTool.dhLinkEquivalent.d < 0)
-						dhTool.dhLinkEquivalent.d = 0;
+					double d = dhTool.dhLinkEquivalent.getD()
+							+ InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
+					dhTool.dhLinkEquivalent.setD(Math.max(d, 0));
 					isDirty = true;
 				}
 				if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
-					dhTool.dhLinkEquivalent.r += InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
-					if (dhTool.dhLinkEquivalent.r < 0)
-						dhTool.dhLinkEquivalent.r = 0;
+					double r = dhTool.dhLinkEquivalent.getR() 
+							+ InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
+					dhTool.dhLinkEquivalent.setR(Math.max(r, 0));
 					isDirty = true;
 				}
-			} else {
+			}*/ else {
 				if(ball.wasPressed) {
 					double dx = InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5;
 					double dy = InputManager.rawValue(InputManager.MOUSE_Y) * -scale * 0.5;
@@ -709,7 +740,10 @@ public class Sixi2 extends DHRobot {
 				ghost.getPoseFK(key);
 				sendNewStateToRobot(key);
 			} else {
-				interpolationQueue.offer(ghost.getTargetMatrix());
+				InterpolationStep s = new InterpolationStep();
+				s.target = ghost.getTargetMatrix();
+				s.feedrate = getFeedrate();
+				interpolationQueue.offer(s);
 			}
 		}
 
@@ -722,17 +756,17 @@ public class Sixi2 extends DHRobot {
 	}
 
 	public Vector3d getForward() {
-		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		Matrix3d frameOfReference = ball.FORSaved;
 		return new Vector3d(frameOfReference.m00, frameOfReference.m10, frameOfReference.m20);
 	}
 
 	public Vector3d getRight() {
-		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		Matrix3d frameOfReference = ball.FORSaved;
 		return new Vector3d(frameOfReference.m01, frameOfReference.m11, frameOfReference.m21);
 	}
 
 	public Vector3d getUp() {
-		Matrix3d frameOfReference = ball.wasPressed ? ball.FORSaved : ball.FORToSave;
+		Matrix3d frameOfReference = ball.FORSaved;
 		return new Vector3d(frameOfReference.m02, frameOfReference.m12, frameOfReference.m22);
 	}
 	
@@ -762,7 +796,9 @@ public class Sixi2 extends DHRobot {
 		Matrix4d m = new Matrix4d();
 		m.set(targetMatrixRobotSpaceAfterTransform);
 		m.setTranslation(tempPosition);
+		setDisablePanel(true);
 		ghost.setTargetMatrix(m);
+		setDisablePanel(false);
 	}
 
 	protected void rollX(double angRadians) {
@@ -789,7 +825,9 @@ public class Sixi2 extends DHRobot {
 		m.m03 += v.x*amount;
 		m.m13 += v.y*amount;
 		m.m23 += v.z*amount;
+		setDisablePanel(true);
 		ghost.setTargetMatrix(m);
+		setDisablePanel(false);
 	}
 	
 	@Override
@@ -797,7 +835,7 @@ public class Sixi2 extends DHRobot {
 		super.update(dt);
 
 		if(connection==null || connection.isOpen()) {
-			this.interpolate(dt * 0.25);
+			this.interpolate(dt);
 		}
 		
 		// If the move is illegal then I need a way to rewind. Keep the old pose for
