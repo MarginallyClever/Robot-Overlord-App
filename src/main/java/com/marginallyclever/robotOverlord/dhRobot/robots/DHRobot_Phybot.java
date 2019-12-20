@@ -33,41 +33,36 @@ public class DHRobot_Phybot extends DHRobot {
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(8);
 		// roll
-		robot.links.get(0).d=25;
-		robot.links.get(0).theta=0;
+		robot.links.get(0).setD(25);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(0).rangeMin=-120;
 		robot.links.get(0).rangeMax=120;
 		// tilt
-		robot.links.get(1).alpha=0;
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(1).rangeMin=-72;
 		// tilt
-		robot.links.get(2).d=25;
-		robot.links.get(2).alpha=0;
+		robot.links.get(2).setD(25);
 		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(2).rangeMin=-83.369;
 		robot.links.get(2).rangeMax=86;
 
 		// interim point
-		robot.links.get(3).d=5;
-		robot.links.get(3).alpha=90;
+		robot.links.get(3).setD(5);
+		robot.links.get(3).setAlpha(90);
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// roll
-		robot.links.get(4).d=10;
-		robot.links.get(4).theta=0;
+		robot.links.get(4).setD(10);
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(4).rangeMin=-90;
 		robot.links.get(4).rangeMax=90;
 
 		// tilt
-		robot.links.get(5).d=10;
-		robot.links.get(5).alpha=0;
+		robot.links.get(5).setD(10);
 		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(5).rangeMin=-90;
 		robot.links.get(5).rangeMax=90;
 		// roll
-		robot.links.get(6).d=3.9527;
+		robot.links.get(6).setD(3.9527);
 		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(6).rangeMin=-90;
 		robot.links.get(6).rangeMax=90;

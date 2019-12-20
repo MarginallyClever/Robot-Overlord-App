@@ -37,17 +37,16 @@ public class DHRobot_GMF_M100 extends DHRobot {
 		robot.links.get(0).rangeMin=-120;
 		robot.links.get(0).rangeMax=120;
 		// slide
-		robot.links.get(1).alpha=90;
+		robot.links.get(1).setAlpha(90);
 		robot.links.get(1).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(1).rangeMin=0;
 		robot.links.get(1).rangeMin=1300;
 		// slide
-		robot.links.get(2).alpha=90;
+		robot.links.get(2).setAlpha(90);
 		robot.links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(2).rangeMin=0;
 		robot.links.get(2).rangeMax=1100;
 		// roll
-		robot.links.get(3).theta=0;
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(3).rangeMin=-90;
 		robot.links.get(3).rangeMax=90;

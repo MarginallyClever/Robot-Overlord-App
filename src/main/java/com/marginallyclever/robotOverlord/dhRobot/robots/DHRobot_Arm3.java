@@ -31,22 +31,22 @@ public class DHRobot_Arm3 extends DHRobot {
 		// setup sixi2 as default.
 		robot.setNumLinks(5);
 		// roll
-		robot.links.get(0).d=13.44;
-		robot.links.get(0).theta=0;
+		robot.links.get(0).setD(13.44);
+		robot.links.get(0).setTheta(0);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(0).rangeMin=-160;
 		robot.links.get(0).rangeMax=160;
 		// tilt
-		robot.links.get(1).alpha=0;
+		robot.links.get(1).setAlpha(0);
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		robot.links.get(2).rangeMin=-72;
 		// tilt
-		robot.links.get(2).d=44.55;
-		robot.links.get(2).alpha=0;
+		robot.links.get(2).setD(44.55);
+		robot.links.get(2).setAlpha(0);
 		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
 		// interim point
-		robot.links.get(3).d=40;
-		robot.links.get(3).alpha=0;
+		robot.links.get(3).setD(40);
+		robot.links.get(3).setAlpha(0);
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		// end effector
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;

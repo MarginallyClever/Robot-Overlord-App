@@ -34,40 +34,27 @@ public class DHRobot_SCARA_NM extends DHRobot {
 		robot.setNumLinks(5);
 
 		// roll
-		robot.links.get(0).d=13.784;
-		robot.links.get(0).r=15;
-		robot.links.get(0).theta=0;
-		robot.links.get(0).alpha=0;
+		robot.links.get(0).setD(13.784);
+		robot.links.get(0).setR(15);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(0).rangeMin=-40;
 		robot.links.get(0).rangeMax=240;
 		
 		// roll
-		robot.links.get(1).d=0;
-		robot.links.get(1).r=13.0;
-		robot.links.get(1).theta=0;
-		robot.links.get(1).alpha=0;
+		robot.links.get(1).setR(13.0);
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;		
 		robot.links.get(1).rangeMin=-120;
 		robot.links.get(1).rangeMax=120;
 		// slide
-		robot.links.get(2).d=-8;
-		robot.links.get(2).theta=0;
-		robot.links.get(2).alpha=0;
+		robot.links.get(2).setD(-8);
 		robot.links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(2).rangeMin=-10.92600+7.574;
 		robot.links.get(2).rangeMax=-10.92600;//-18.5+7.574;
 		// roll
-		robot.links.get(3).d=0;
-		robot.links.get(3).theta=0;
-		robot.links.get(3).alpha=0;
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(3).rangeMin=-180;
 		robot.links.get(3).rangeMax=180;
 
-		robot.links.get(4).d=0;
-		robot.links.get(4).theta=0;
-		robot.links.get(4).alpha=0;
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		robot.links.get(4).rangeMin=0;
 		robot.links.get(4).rangeMax=0;

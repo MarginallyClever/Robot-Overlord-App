@@ -36,23 +36,29 @@ public class DHRobot_Cartesian extends DHRobot {
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(4);
 		// roll
-		robot.links.get(0).d=0;
-		robot.links.get(0).alpha=90;
 		robot.links.get(0).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
 		robot.links.get(0).rangeMin=0;
 		robot.links.get(0).rangeMax=25;
+		robot.links.get(0).setTheta(90);
+		robot.links.get(0).setAlpha(90);
+		robot.links.get(0).rangeMin=0+8.422;
+		robot.links.get(0).rangeMax=21+8.422;
+		
 		// tilt
-		robot.links.get(1).alpha=90;
+		robot.links.get(1).setAlpha(90);
+		robot.links.get(1).setTheta(-90);
 		robot.links.get(1).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
 		robot.links.get(1).rangeMin=0;
 		robot.links.get(1).rangeMax=21;
 		// tilt
-		robot.links.get(2).alpha=90;
+		robot.links.get(2).setAlpha(90);
+		robot.links.get(2).setTheta(90);
 		robot.links.get(2).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
 		robot.links.get(2).rangeMin=0+8.422;
 		robot.links.get(2).rangeMax=21+8.422;
 		
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+
 		
 		robot.refreshPose();
 	}
@@ -63,29 +69,7 @@ public class DHRobot_Cartesian extends DHRobot {
 		float g=0.5f;
 		float b=0.5f;
 		material.setDiffuseColor(r,g,b,1);
-		/*
-		try {
-			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
-			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
-			links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep.stl",0.1f);
-			links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm.stl",0.1f);
-			links.get(5).model = ModelFactory.createModelFromFilename("/Sixi2/tuningFork.stl",0.1f);
-			links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox.stl",0.1f);
-			links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand.stl",0.1f);
 
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-	}
-	
-	@Override
-	public void render(GL2 gl2) {
-		if( isFirstTime ) {
-			isFirstTime=false;
-			setupModels();
-		}
-		
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa0.stl",0.1f);
 			links.get(1).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa1.stl",0.1f);
@@ -95,23 +79,24 @@ public class DHRobot_Cartesian extends DHRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		links.get(0).theta=90;
-		links.get(0).alpha=90;
+		
 		links.get(0).model.adjustRotation(new Vector3d(90,0,0));
 		links.get(0).model.adjustOrigin(new Vector3d(0,27.9,0));
-		links.get(0).rangeMin=0+8.422;
-		links.get(0).rangeMax=21+8.422;
-		links.get(1).theta=-90;
-		links.get(1).alpha=90;
-		links.get(2).theta=90;
-		links.get(2).alpha=90;
 		links.get(1).model.adjustOrigin(new Vector3d(11.2758,-8.422,0));
 		links.get(1).model.adjustRotation(new Vector3d(0,-90,0));
 		links.get(2).model.adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
 		links.get(2).model.adjustRotation(new Vector3d(0,0,90));
 		links.get(3).model.adjustRotation(new Vector3d(-90,0,0));
-		links.get(3).model.adjustOrigin(new Vector3d(0,-31.9,32.2679));
-				
+		links.get(3).model.adjustOrigin(new Vector3d(0,-31.9,32.2679));	
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		if( isFirstTime ) {
+			isFirstTime=false;
+			setupModels();
+		}
+		
 		material.render(gl2);
 		
 		gl2.glPushMatrix();
