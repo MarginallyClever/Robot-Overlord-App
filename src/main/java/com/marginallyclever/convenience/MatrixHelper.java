@@ -234,13 +234,15 @@ public class MatrixHelper {
 		start.get(qStart);
 		Quat4d qEnd = new Quat4d();
 		end.get(qEnd);
-		qStart.interpolate(qEnd, alpha);
+		Quat4d qInter = new Quat4d();
+		qInter.interpolate(qStart, qEnd, alpha);
 		// linear interpolation between the two matrix translations
 		Vector3d tStart = new Vector3d();
 		start.get(tStart);
 		Vector3d tEnd = new Vector3d();
 		end.get(tEnd);
-		tStart.interpolate(tEnd, alpha);
+		Vector3d tInter = new Vector3d();
+		tInter.interpolate(tStart, tEnd, alpha);
 		// build the result matrix
 		result.set(qStart);
 		result.setTranslation(tStart);
