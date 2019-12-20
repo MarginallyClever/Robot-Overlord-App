@@ -446,7 +446,7 @@ public class MiscTests {
 			keyframe.fkValues[4]=mid5;
 			keyframe.fkValues[5]=mid6;
 
-			double [][] jacobian = approximateJacobian(robot,keyframe);
+			double [][] jacobian = robot.approximateJacobian(keyframe);
 			
 			int i,j;
 			for(i=0;i<6;++i) {
@@ -485,7 +485,7 @@ public class MiscTests {
 			DHIKSolver solver = robot.getSolverIK();
 	
 			// set force
-			double [] force = {0,3,0,0,0,0};
+			double [] force = {0,0,3,0,0,0};
 	
 			// set position
 			Matrix4d m = robot.getLiveMatrix();
@@ -494,7 +494,7 @@ public class MiscTests {
 			solver.solve(robot, m, keyframe);
 			robot.setPoseFK(keyframe);
 			
-			float TIME_STEP=0.030f;
+			double dt=0.03f;
 			int j;
 			int safety=0;
 			// until we get to position or something has gone wrong
@@ -503,7 +503,7 @@ public class MiscTests {
 				m = robot.getLiveMatrix();
 				if(solver.solve(robot, m, keyframe) == DHIKSolver.SolutionType.ONE_SOLUTION) {
 					// sane solution
-					double [][] jacobian = approximateJacobian(robot,keyframe);
+					double [][] jacobian = robot.approximateJacobian(keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
 					
 					out.write(m.m03+"\t"+m.m13+"\t"+m.m23+"\t");
@@ -512,15 +512,21 @@ public class MiscTests {
 						for(int k=0;k<6;++k) {
 							jvot[j]+=inverseJacobian[k][j]*force[k];
 						}
-						out.write(Math.toDegrees(jvot[j])+"\t");
-						keyframe.fkValues[j]+=Math.toDegrees(jvot[j])*TIME_STEP;
+
+						out.write(Math.toDegrees(jvot[j])+"\t");	
+						if (!Double.isNaN(jvot[j])) {
+							keyframe.fkValues[j] += Math.toDegrees(jvot[j]) * dt;
+						}
 					}
 					out.write("\n");
-					robot.setPoseFK(keyframe);
+
+					if (robot.sanityCheck(keyframe)) {
+						robot.setPoseFK(keyframe);
+					}
 				} else {
-					m.m03+=force[0]*TIME_STEP;
-					m.m13+=force[1]*TIME_STEP;
-					m.m23+=force[2]*TIME_STEP;
+					m.m03+=force[0]*dt;
+					m.m13+=force[1]*dt;
+					m.m23+=force[2]*dt;
 				}
 			}
 			
@@ -536,107 +542,5 @@ public class MiscTests {
 				e1.printStackTrace();
 			}
 		}
-	}
-	
-
-	/**
-	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
-	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
-	 */
-	public double [][] approximateJacobian(Sixi2 robot,DHKeyframe keyframe) {
-		double [][] jacobian = new double[6][6];
-		
-		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
-		
-		double [] anglesA = keyframe.fkValues;
-		double [] anglesB = new double[6];
-
-		// use anglesA to get the hand matrix
-		Matrix4d T = computeMatrix(anglesA,robot);
-		
-		// for all joints
-		int i,j;
-		for(i=0;i<6;++i) {
-			// use anglesB to get the hand matrix after a tiiiiny adjustment on one joint.
-			for(j=0;j<6;++j) {
-				anglesB[j]=anglesA[j];
-			}
-			anglesB[i]+=ANGLE_STEP_SIZE_DEGREES;
-
-			Matrix4d Tnew = computeMatrix(anglesB,robot);
-			
-			// use the finite difference in the two matrixes
-			// aka the approximate the rate of change (aka the integral, aka the velocity)
-			// in one column of the jacobian matrix at this position.
-			Matrix4d dT = new Matrix4d();
-			dT.sub(Tnew,T);
-			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
-			
-			jacobian[i][0]=dT.m03;
-			jacobian[i][1]=dT.m13;
-			jacobian[i][2]=dT.m23;
-
-			// find the rotation part
-			// these initialT and initialTd were found in the comments on
-			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
-			// and used to confirm that our skew-symmetric matrix match theirs.
-			/*
-			double[] initialT = {
-					 0,  0   , 1   ,  0.5963,
-					 0,  1   , 0   , -0.1501,
-					-1,  0   , 0   , -0.01435,
-					 0,  0   , 0   ,  1 };
-			double[] initialTd = {
-					 0, -0.01, 1   ,  0.5978,
-					 0,  1   , 0.01, -0.1441,
-					-1,  0   , 0   , -0.01435,
-					 0,  0   , 0   ,  1 };
-			T.set(initialT);
-			Td.set(initialTd);
-			dT.sub(Td,T);
-			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//*/
-			
-			//System.out.println("T="+T);
-			//System.out.println("Td="+Td);
-			//System.out.println("dT="+dT);
-			Matrix3d T3 = new Matrix3d(
-					T.m00,T.m01,T.m02,
-					T.m10,T.m11,T.m12,
-					T.m20,T.m21,T.m22);
-			//System.out.println("R="+R);
-			Matrix3d dT3 = new Matrix3d(
-					dT.m00,dT.m01,dT.m02,
-					dT.m10,dT.m11,dT.m12,
-					dT.m20,dT.m21,dT.m22);
-			//System.out.println("dT3="+dT3);
-			Matrix3d skewSymmetric = new Matrix3d();
-			
-			T3.transpose();  // inverse of a rotation matrix is its transpose
-			skewSymmetric.mul(dT3,T3);
-			
-			//System.out.println("SS="+skewSymmetric);
-			//[  0 -Wz  Wy]
-			//[ Wz   0 -Wx]
-			//[-Wy  Wx   0]
-			
-			jacobian[i][3]=skewSymmetric.m12;
-			jacobian[i][4]=skewSymmetric.m20;
-			jacobian[i][5]=skewSymmetric.m01;
-		}
-
-		return jacobian;
-	}
-	
-	private Matrix4d computeMatrix(double [] jointAngles,Sixi2 robot) {
-		DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
-		keyframe.fkValues[0]=jointAngles[0];
-		keyframe.fkValues[1]=jointAngles[1];
-		keyframe.fkValues[2]=jointAngles[2];
-		keyframe.fkValues[3]=jointAngles[3];
-		keyframe.fkValues[4]=jointAngles[4];
-		keyframe.fkValues[5]=jointAngles[5];
-		
-		robot.setPoseFK(keyframe);
-		return new Matrix4d(robot.getLiveMatrix());
 	}
 }
