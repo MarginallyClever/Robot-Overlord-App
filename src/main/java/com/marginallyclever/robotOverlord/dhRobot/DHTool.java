@@ -42,6 +42,11 @@ public class DHTool extends ModelInWorld {
 		setDisplayName("No Tool");
 	}
 	
+	public void set(DHTool b) {
+		dhLinkEquivalent = new DHLink(b.dhLinkEquivalent);
+		setDisplayName(b.getDisplayName());
+	}
+	
 	/**
 	 * use the keyState to control the tool.
 	 * @return true if the robot's pose has been affected.
