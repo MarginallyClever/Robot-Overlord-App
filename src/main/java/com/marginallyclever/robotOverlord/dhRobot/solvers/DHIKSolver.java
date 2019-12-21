@@ -25,6 +25,10 @@ public class DHIKSolver {
 		return 1;
 	}
 	
+	public DHKeyframe createDHKeyframe() {
+		return new DHKeyframe(getSolutionSize());
+	}
+	
 	/**
 	 * Starting from a known local origin and a known local hand position, 
 	 * calculate the angles for the given pose.
