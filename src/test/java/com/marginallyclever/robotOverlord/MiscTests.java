@@ -483,7 +483,7 @@ public class MiscTests {
 		// a new sixi starts with the ghost post in the home position
 		// and the live pose in the rest position.
 	
-		try(BufferedWriter out=new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/avot.csv")))) {
+		try(BufferedWriter out=new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jvot.csv")))) {
 			out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
 			
 			DHKeyframe keyframe = robot.getIKSolver().createDHKeyframe();	
