@@ -2,12 +2,13 @@ package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -21,17 +22,35 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
+import com.marginallyclever.robotOverlord.dhRobot.DHTool;
+import com.marginallyclever.robotOverlord.dhRobot.robots.Matrix4dInterpolator;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.world.World;
 
 
-public class Sixi2 extends DHRobot {
+public class Sixi2 extends Robot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public enum InterpolationStyle {
+	LINEAR,
+	JACOBIAN,
+	};
+
+	public enum Frame {
+	WORLD,
+	CAMERA,
+	SELF,
+	}
+	protected Frame frameOfReferenceIndex; // which style of rotation?
 
 	public boolean isFirstTime;
 	public Material materialLive;
@@ -42,27 +61,57 @@ public class Sixi2 extends DHRobot {
 	
 	DHKeyframe receivedKeyframe;
 	protected Sixi2Panel sixi2Panel;
-	
-	// contains a ghost
+
+	public DHRobot live;
 	public DHRobot ghost;
 
 	protected DragBall ball;
 	protected DHKeyframe homeKey;
 	protected DHKeyframe restKey;
 	
+	protected DHIKSolver solver;
+
+	// true if the skeleton should be visualized on screen. Default is false.
+	protected boolean drawAsSelected;
+
+	// are we trying to drive the robot live?
+	protected boolean immediateDriving;
+	
+	Matrix4dInterpolator interpolator;
+	Matrix4d interpolatedMatrix = new Matrix4d();
+	
 	
 	public Sixi2() {
-		super(new DHIKSolver_RTTRTR());
+		super();
 		setDisplayName("Sixi 2");
-
+		interpolator = new Matrix4dInterpolator();
+		
+		solver = new DHIKSolver_RTTRTR();
+		frameOfReferenceIndex = Frame.WORLD;
+		
 		// create one copy of the DH links for the ghost robot
-		ghost = new DHRobot(new DHIKSolver_RTTRTR(),this);
+		live = new DHRobot();
+		ghost = new DHRobot();
+		
+		setupLinks(live);
+		setupLinks(ghost);
 
+		drawAsSelected = false;
+		immediateDriving = false;
 		isFirstTime=true;
 		receivedKeyframe = (DHKeyframe)createKeyframe();
 
+		feedrate=40;
+		acceleration=20;
+		
 		homeKey = (DHKeyframe)createKeyframe();
-		getPoseFK(homeKey);
+		homeKey.fkValues[0]=0;
+		homeKey.fkValues[1]=0;
+		homeKey.fkValues[2]=0;
+		homeKey.fkValues[3]=0;
+		homeKey.fkValues[4]=20;
+		homeKey.fkValues[5]=0;
+		ghost.setPoseFK(homeKey);
 
 		restKey = (DHKeyframe)createKeyframe();
 		restKey.fkValues[0]=0;
@@ -71,6 +120,7 @@ public class Sixi2 extends DHRobot {
 		restKey.fkValues[3]=0;
 		restKey.fkValues[4]=20;
 		restKey.fkValues[5]=0;
+		live.setPoseFK(restKey);
 		
 		ball = new DragBall();
 		ball.setParent(this);
@@ -78,9 +128,39 @@ public class Sixi2 extends DHRobot {
 
 		materialLive = new Material();
 		materialLive.setDiffuseColor(1,217f/255f,33f/255f,1);
+		materialLive.setLit(true);
 		
 		materialGhost = new Material();
 		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.5f);
+		materialGhost.setLit(false);
+	}
+
+	/**
+	 * Attach the nearest tool Detach the active tool if there is one.
+	 */
+	public void toggleATC() {
+		if (ghost.dhTool != null) {
+			// we have a tool, release it.
+			ghost.removeTool();
+			return;
+		}
+
+		// we have no tool. Look out into the world...
+		World world = getWorld();
+		if (world != null) {
+			// Request from the world "is there a tool at the position of the end effector"?
+			Vector3d target = new Vector3d();
+			ghost.getEndEffectorMatrix().get(target);
+			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
+
+			// If there is a tool, attach to it.
+			for( PhysicalObject po : list ) {
+				if (po instanceof DHTool) {
+					// probably the only one we'll find.
+					ghost.setTool((DHTool) po);
+				}
+			}
+		}
 	}
 	
 	
@@ -90,14 +170,11 @@ public class Sixi2 extends DHRobot {
 		
 		// hide the dhrobot panel because we'll replace it with our own.
 		sixi2Panel = new Sixi2Panel(gui,this);
-		
-		list.remove(list.size()-1);
 		list.add(sixi2Panel);
 		
 		return list;
 	}
 	
-	@Override
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(8);
 		// roll anchor
@@ -183,64 +260,35 @@ public class Sixi2 extends DHRobot {
 	public void render(GL2 gl2) {
 		if( isFirstTime ) {
 			isFirstTime=false;
-			setupModels(this);
+			setupModels(live);
 			setupModels(ghost);
 		}
 
 		// draw the live robot
-		materialLive.render(gl2);
 
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, this.getMatrix());
 			
-			// Draw models
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = links.iterator();
-				while(i.hasNext()) {
-					DHLink link = i.next();
-					link.renderModel(gl2);
-				}
-				if(dhTool!=null) {
-					dhTool.render(gl2);
-				}
-			gl2.glPopMatrix();
-		
-		gl2.glPopMatrix();
-		
-		// then draw the target pose, aka the ghost.
-		super.render(gl2);
-	}
-
-	@Override
-	public void drawTargetPose(GL2 gl2) {
-		// draw the ghost pose
-		materialGhost.render(gl2);
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			// Draw live robot
+			materialLive.render(gl2);
+			live.render(gl2);
 			
-			// Draw models
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = ghost.links.iterator();
-				while(i.hasNext()) {
-					DHLink link = i.next();
-					//if(showAngles) link.renderAngles(gl2);
-					link.renderModel(gl2);
-		    		materialGhost.render(gl2);
-		    		link.setAngleColorByRange(gl2);
-				}
-				if(ghost.dhTool!=null) {
-					ghost.dhTool.render(gl2);
-					ghost.dhTool.dhLinkEquivalent.renderAngles(gl2);
-				}
-			gl2.glPopMatrix();
+			// Draw ghost robot
+			materialGhost.render(gl2);
+			ghost.render(gl2);
 		gl2.glPopMatrix();
+
+		IntBuffer depthFunc = IntBuffer.allocate(1);
+		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
+		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDepthFunc(GL2.GL_ALWAYS);
+		gl2.glDisable(GL2.GL_LIGHTING);
+
+		if(interpolator.isInterpolating()) {
+			MatrixHelper.drawMatrix(gl2, interpolatedMatrix, 15);
+		}
 		
 		if(drawAsSelected && inDirectDriveMode()) {
-    		IntBuffer depthFunc = IntBuffer.allocate(1);
-			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDepthFunc(GL2.GL_ALWAYS);
-			gl2.glDisable(GL2.GL_LIGHTING);
 
 			gl2.glPushMatrix();
 				MatrixHelper.applyMatrix(gl2, this.getMatrix());
@@ -250,11 +298,13 @@ public class Sixi2 extends DHRobot {
 				ball.renderTranslation(gl2);
 			}
 			gl2.glPopMatrix();
-			gl2.glDepthFunc(depthFunc.get(0));
-			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		}
 		
-    	super.drawTargetPose(gl2);
+		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		gl2.glDepthFunc(depthFunc.get(0));
+		
+		// then draw the target pose, aka the ghost.
+		super.render(gl2);
 	}
 	
 	
@@ -276,8 +326,8 @@ public class Sixi2 extends DHRobot {
 			    	    +" A"+(StringHelper.formatDouble(acceleration))
 			    	    ;
 
-		if(dhTool!=null) {
-			double t=dhTool.getAdjustableValue();
+		if(ghost.dhTool!=null) {
+			double t=ghost.dhTool.getAdjustableValue();
 			message += " T"+(t);
 			System.out.println("Servo="+t);
 		}
@@ -326,7 +376,7 @@ public class Sixi2 extends DHRobot {
 						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						//this.setRobotPose(inter);
 
-						setPoseFK(receivedKeyframe);
+						live.setPoseFK(receivedKeyframe);
 
 					} catch(Exception e) {}
 				}
@@ -351,7 +401,7 @@ public class Sixi2 extends DHRobot {
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
 		// get the end matrix, which includes any tool, of the ghost.
-		ghost.getLiveMatrix().get(m1, t1);
+		ghost.getEndEffectorMatrix().get(m1, t1);
 		
 		//Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -365,9 +415,9 @@ public class Sixi2 extends DHRobot {
 				+" F"+StringHelper.formatDouble(feedrate)
 				+" A"+StringHelper.formatDouble(acceleration)
 				;
-		if(dhTool!=null) {
+		if(ghost.dhTool!=null) {
 			// add special tool commands
-			message += dhTool.generateGCode();
+			message += ghost.dhTool.generateGCode();
 		}
 		return message;
 	}
@@ -388,19 +438,23 @@ public class Sixi2 extends DHRobot {
 		if( line.startsWith("G4 ") || line.startsWith("G04 ") ) {
 			// dwell
 
+			double dwellTime=0;
+			
 			while(tokens.hasMoreTokens()) {
 				String token = tokens.nextToken();
 				switch(token.charAt(0)) {
-				case 'S':  dwellTime += 1000 * Double.parseDouble(token.substring(1));  break;  // seconds
-				case 'P':  dwellTime +=        Double.parseDouble(token.substring(1));  break;  // milliseconds
+				case 'S':  dwellTime = 1000 * Double.parseDouble(token.substring(1));  break;  // seconds
+				case 'P':  dwellTime =        Double.parseDouble(token.substring(1));  break;  // milliseconds
 				default:  break;
 				}
 			}
+
+			addInterpolation(dwellTime);
 		}
 		if( line.startsWith("G0 ") || line.startsWith("G00 ") ) {
 			Vector3d t1 = new Vector3d();
 			Matrix3d m1 = new Matrix3d();
-			targetMatrix.get(m1,t1);
+			ghost.getEndEffectorMatrix().get(m1,t1);
 			Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 			boolean isDirty=false;
 			
@@ -419,18 +473,28 @@ public class Sixi2 extends DHRobot {
 				default:  break;
 				}
 			}
+
+			
+			if(ghost.dhTool!=null) {
+				ghost.dhTool.parseGCode(line);
+			}
 			
 			if(isDirty) {
 				// changing the target pose of the ghost
 				m1 = MatrixHelper.eulerToMatrix(e1);
-				Matrix4d m2=new Matrix4d();
-				m2.set(m1);
-				m2.setTranslation(t1);
-				ghost.setTargetMatrix(m2);
-			}
-			
-			if(ghost.dhTool!=null) {
-				ghost.dhTool.parseGCode(line);
+				Matrix4d m=new Matrix4d();
+				m.set(m1);
+				m.setTranslation(t1);
+				
+				DHKeyframe oldPose = (DHKeyframe)createKeyframe();
+				ghost.getPoseFK(oldPose);
+				
+				DHKeyframe newPose = (DHKeyframe)createKeyframe();
+				DHIKSolver.SolutionType s = solver.solveWithSuggestion(ghost, m, newPose,oldPose);
+				if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
+					ghost.setPoseFK(newPose);
+					addInterpolation(getFeedrate());
+				}
 			}
 		}
 	}
@@ -447,9 +511,9 @@ public class Sixi2 extends DHRobot {
 		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
 
 		// use anglesA to get the hand matrix
-		DHRobot clone = new DHRobot(this);
+		DHRobot clone = new DHRobot(live);
 		clone.setPoseFK(keyframe);
-		Matrix4d T = new Matrix4d(clone.getLiveMatrix());
+		Matrix4d T = new Matrix4d(clone.getEndEffectorMatrix());
 		
 		// for all joints
 		int i,j;
@@ -461,7 +525,7 @@ public class Sixi2 extends DHRobot {
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
 			clone.setPoseFK(keyframe2);
-			Matrix4d Tnew = new Matrix4d(clone.getLiveMatrix());
+			Matrix4d Tnew = new Matrix4d(clone.getEndEffectorMatrix());
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -548,7 +612,7 @@ public class Sixi2 extends DHRobot {
 
 	public Matrix4d getGhostTargetMatrixWorldSpace() {
 		Matrix4d targetMatrixWorldSpace = new Matrix4d();
-		targetMatrixWorldSpace.mul(this.getMatrix(),ghost.getTargetMatrix());
+		targetMatrixWorldSpace.mul(getMatrix(),ghost.getEndEffectorMatrix());
 		return targetMatrixWorldSpace; 
 	}
 
@@ -564,12 +628,12 @@ public class Sixi2 extends DHRobot {
 		
 		Matrix4d frameOfRef;
 		switch(frameOfReferenceIndex) {
-		case FRAME_FINGER:
+		case SELF:
 			// use the robot's finger tip as the frame of reference
 			frameOfRef = getGhostTargetMatrixWorldSpace();
 			frameOfRef.invert();
 			break;
-		case FRAME_CAMERA:
+		case CAMERA:
 			// use the camera as the frame of reference.
 			frameOfRef = new Matrix4d(MatrixHelper.lookAt(trans, getWorld().getCamera().getPosition()));
 			
@@ -581,7 +645,7 @@ public class Sixi2 extends DHRobot {
 			m.set(frameOfRef);
 			m.setTranslation(trans);
 			break;
-		case FRAME_WORLD:
+		case WORLD:
 		default:
 			// use the world as the frame of reference.
 			frameOfRef = new Matrix4d(World.getPose());
@@ -591,7 +655,7 @@ public class Sixi2 extends DHRobot {
 		}
 
 		ball.setMatrix(m);
-		ghost.getTargetMatrix().get(ball.targetMatrixToSave);
+		ghost.getEndEffectorMatrix().get(ball.targetMatrixToSave);
 		frameOfRef.get(ball.FORToSave);
 
 		if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
@@ -602,8 +666,8 @@ public class Sixi2 extends DHRobot {
 		
 		boolean isDirty = false;
 		final double scale = 10*dt;
+		/*
 		final double scaleDolly = 10*dt;
-
 		//if (InputManager.isOn(InputManager.STICK_SQUARE)) {}
 		//if (InputManager.isOn(InputManager.STICK_CIRCLE)) {}
 		//if (InputManager.isOn(InputManager.STICK_X)) {}
@@ -628,7 +692,7 @@ public class Sixi2 extends DHRobot {
 			dhTool.dhLinkEquivalent.setR(Math.max(r,0));
 			isDirty = true;
 		}
-/*
+
 		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
 		if (InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
 			if (canTargetPoseRotateZ()) {
@@ -726,8 +790,8 @@ public class Sixi2 extends DHRobot {
 			}
 		}
 
-		if (dhTool != null) {
-			isDirty |= dhTool.directDrive();
+		if (ghost.dhTool != null) {
+			isDirty |= ghost.dhTool.directDrive();
 		}
 
 		if (InputManager.isReleased(InputManager.KEY_RETURN) 
@@ -736,25 +800,31 @@ public class Sixi2 extends DHRobot {
 				|| immediateDriving) {
 			// commit move!
 			if(connection != null && connection.isOpen()) {
+				// TODO this is linear interpolation.  jacobian would send force values to robot.
 				DHKeyframe key = (DHKeyframe)createKeyframe();
 				ghost.getPoseFK(key);
 				sendNewStateToRobot(key);
 			} else {
-				InterpolationStep s = new InterpolationStep();
-				s.target = ghost.getTargetMatrix();
-				s.feedrate = getFeedrate();
-				interpolationQueue.offer(s);
+				addInterpolation(getFeedrate());
 			}
 		}
 
 		if (InputManager.isOn(InputManager.KEY_DELETE) || InputManager.isOn(InputManager.STICK_TRIANGLE)) {
-			// reset targetpose to endmatrix.
-			ghost.setTargetMatrix(liveMatrix);
+			ghost.set(live);
 		}
 
 		return isDirty;
 	}
 
+	public void addInterpolation(double time) {
+		if(!interpolator.isInterpolating()) {
+			// start with the live pose
+			interpolator.offer(live.getEndEffectorMatrix(),0);
+		}
+		// add the latest ghost on the end of the queue
+		interpolator.offer(ghost.getEndEffectorMatrix(),time);
+	}
+	
 	public Vector3d getForward() {
 		Matrix3d frameOfReference = ball.FORSaved;
 		return new Vector3d(frameOfReference.m00, frameOfReference.m10, frameOfReference.m20);
@@ -792,13 +862,11 @@ public class Sixi2 extends DHRobot {
 		
 		// done!
 		Vector3d tempPosition = new Vector3d();
-		ghost.getTargetMatrix().get(tempPosition);
+		ghost.getEndEffectorMatrix().get(tempPosition);
 		Matrix4d m = new Matrix4d();
 		m.set(targetMatrixRobotSpaceAfterTransform);
 		m.setTranslation(tempPosition);
-		setDisablePanel(true);
-		ghost.setTargetMatrix(m);
-		setDisablePanel(false);
+		setTargetMatrix(ghost,m);
 	}
 
 	protected void rollX(double angRadians) {
@@ -821,32 +889,194 @@ public class Sixi2 extends DHRobot {
 	}
 
 	protected void translate(Vector3d v, double amount) {
-		Matrix4d m = ghost.getTargetMatrix();
+		Matrix4d m = ghost.getEndEffectorMatrix();
 		m.m03 += v.x*amount;
 		m.m13 += v.y*amount;
 		m.m23 += v.z*amount;
-		setDisablePanel(true);
-		ghost.setTargetMatrix(m);
-		setDisablePanel(false);
+		setTargetMatrix(ghost,m);
 	}
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
 
+		// do not simulate movement when connected to a live robot.
 		if(connection==null || connection.isOpen()) {
-			this.interpolate(dt);
+			interpolator.update(dt);	
+			if(interpolator.isInterpolating()) {
+				if (live.dhTool != null) {
+					live.dhTool.interpolate(dt);
+				}
+				
+				InterpolationStyle style = InterpolationStyle.LINEAR;
+				switch (style) {
+				case LINEAR:	interpolateLinear(dt);		break;
+				case JACOBIAN:	interpolateJacobian(dt);	break;
+				}
+			}
 		}
-		
-		// If the move is illegal then I need a way to rewind. Keep the old pose for
-		// rewinding.
 
 		if (inDirectDriveMode() && drawAsSelected) {
-			if (driveFromKeyState(dt)) {
-				if (panel != null)
-					panel.updateGhostEnd();
-			}
+			driveFromKeyState(dt);
 		}
 	}
 
+
+	/**
+	 * interpolation between two matrixes linearly, and update kinematics.
+	 * @param dt change in seconds.
+	 */
+	protected void interpolateLinear(double dt) {			
+		// changing the end matrix will only move the simulated version of the "live"
+		// robot.
+		double total = interpolator.getInterpolateTime();
+		double sofar = interpolator.getInterpolatePoseT();
+		double ratio = total>0? sofar/total : 0;
+		MatrixHelper.interpolate(
+				interpolator.getStartMatrix(), 
+				interpolator.getEndMatrix(), 
+				ratio, 
+				interpolatedMatrix);
+		setTargetMatrix(live,interpolatedMatrix);
+	}
+
+	/**
+	 * interpolation between two matrixes using jacobians, and update kinematics
+	 * while you're at it.
+	 * 
+	 * @param dt
+	 */
+	protected void interpolateJacobian(double dt) {	
+		double ratio0 = (interpolator.getInterpolatePoseT()   ) / interpolator.getInterpolateTime();
+		double ratio1 = (interpolator.getInterpolatePoseT()+dt) / interpolator.getInterpolateTime();
+		if(ratio1>1) ratio1=1;
+		// changing the end matrix will only move the simulated version of the "live"
+		// robot.
+		Matrix4d interpolatedMatrix0 = new Matrix4d();
+		Matrix4d interpolatedMatrix1 = new Matrix4d();
+		MatrixHelper.interpolate(interpolator.getStartMatrix(), interpolator.getEndMatrix(), ratio0, interpolatedMatrix0);
+		MatrixHelper.interpolate(interpolator.getStartMatrix(), interpolator.getEndMatrix(), ratio1, interpolatedMatrix1);
+
+		// get the translation force
+		Vector3d p0 = new Vector3d();
+		Vector3d p1 = new Vector3d();
+		Vector3d dp = new Vector3d();
+		interpolatedMatrix0.get(p0);
+		interpolatedMatrix1.get(p1);
+		dp.sub(p1,p0);
+		dp.scale(1.0/dt);
+		
+		// get the rotation force
+		Quat4d q0 = new Quat4d();
+		Quat4d q1 = new Quat4d();
+		Quat4d dq = new Quat4d();
+		interpolatedMatrix0.get(q0);
+		interpolatedMatrix1.get(q1);
+		dq.sub(q1,q0);
+		dq.scale(2/dt);
+		Quat4d w = new Quat4d();
+		w.mulInverse(dq,q0);
+		
+		// sane solution?
+		DHKeyframe newKey = (DHKeyframe)createKeyframe();
+		live.getPoseFK(newKey);
+		double[][] jacobian = ((Sixi2) this).approximateJacobian(newKey);
+		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
+		double[] force = { dp.x,dp.y,dp.z, w.x,w.y,w.z };
+
+		double df = Math.sqrt(
+				force[0] * force[0] + 
+				force[1] * force[1] + 
+				force[2] * force[2] +
+				force[3] * force[3] +
+				force[4] * force[4] +
+				force[5] * force[5]);
+		if (df > 0.01) {
+			double[] jvot = new double[6];
+			int j, k;
+			for (j = 0; j < 6; ++j) {
+				for (k = 0; k < 6; ++k) {
+					jvot[j] += inverseJacobian[k][j] * force[k];
+				}
+				if (!Double.isNaN(jvot[j])) {
+					// simulate a change in the joint velocities
+					newKey.fkValues[j] += Math.toDegrees(jvot[j]) * dt;
+				}
+			}
+			if (live.sanityCheck(newKey)) {
+				live.setPoseFK(newKey);
+			}
+		}
+	}
+	
+	/**
+	 * Direct Drive Mode means that we're not playing animation of any kind. That
+	 * means no gcode running, no scrubbing on a timeline, or any other kind of
+	 * external control.
+	 * 
+	 * @return true if we're in direct drive mode.
+	 */
+	protected boolean inDirectDriveMode() {
+		return true;// interpolatePoseT>=1.0 ;
+	}
+
+
+
+	public void setTargetMatrix(DHRobot r, Matrix4d m) {
+		DHKeyframe oldPose = (DHKeyframe)createKeyframe();
+		r.getPoseFK(oldPose);
+		DHKeyframe newPose = (DHKeyframe)createKeyframe();
+		
+		DHIKSolver.SolutionType s = solver.solveWithSuggestion(r, m, newPose,oldPose);
+		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
+			if (r.sanityCheck(newPose)) {
+				r.setPoseFK(newPose);
+			} else {
+				System.out.println("moveToTargetPose() insane");
+			}
+		} else {
+			System.out.println("moveToTargetPose() impossible");
+		}
+	}
+
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		int size= solver.getSolutionSize();
+		DHKeyframe key = new DHKeyframe(size);
+		
+		// 
+		return key;
+	}
+
+
+	@Override
+	public void pick() {
+		drawAsSelected = true;
+	}
+
+	@Override
+	public void unPick() {
+		drawAsSelected = false;
+	}
+	
+	public void setFrameOfReference(Frame v) {
+		frameOfReferenceIndex=v;
+	}
+	
+	public Frame getFrameOfReference() {
+		return frameOfReferenceIndex;
+	}
+
+	protected boolean canTargetPoseRotateX() {
+		return true;
+	}
+
+	protected boolean canTargetPoseRotateY() {
+		return true;
+	}
+
+	protected boolean canTargetPoseRotateZ() {
+		return true;
+	}
 }
