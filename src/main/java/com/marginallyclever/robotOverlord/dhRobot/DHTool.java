@@ -27,11 +27,6 @@ public class DHTool extends ModelInWorld {
 	 */
 	public PhysicalObject subjectBeingHeld;
 	
-	/**
-	 * Who, if anyone, is holding this tool?
-	 */
-	public DHRobot heldBy;
-	
 	
 	public DHTool() {
 		dhLinkEquivalent = new DHLink();
