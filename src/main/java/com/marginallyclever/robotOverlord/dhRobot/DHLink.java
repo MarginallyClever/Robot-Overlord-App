@@ -48,7 +48,7 @@ public class DHLink extends Observable {
 	public final static int READ_ONLY_R		= 1<<2;
 	public final static int READ_ONLY_ALPHA	= 1<<3;
 	
-	public double rangeMin,rangeMax;
+	protected double rangeMin,rangeMax;
 	
 	public double maxVelocity;	// not used yet
 	public double maxAcceleration;	// not used yet
@@ -120,11 +120,10 @@ public class DHLink extends Observable {
 	 * Changes the current render matrix!  Clean up after yourself!  
 	 * @param gl2 the render context
 	 */
-	public void renderModel(GL2 gl2) {
+	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 		if(model!=null) {
 			model.render(gl2);
-			setAngleColorByRange(gl2);
 		}
 		gl2.glPopMatrix();
 	}
@@ -291,6 +290,8 @@ public class DHLink extends Observable {
 		
 		gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
 		original[0]+=safety;
+		original[1]-=safety;
+		original[2]-=safety;
 		
 		gl2.glColor4f(original[0],original[1],original[2],original[3]);
 		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
@@ -304,10 +305,10 @@ public class DHLink extends Observable {
 	 * In any DHLink there should only be one parameter that changes in value.  Return that value.
 	 */
 	public double getAdjustableValue() {
-		if((flags & READ_ONLY_D    )==0) return d;
-		if((flags & READ_ONLY_THETA)==0) return theta;
-		if((flags & READ_ONLY_R    )==0) return r;
-		return alpha;
+		if((flags & READ_ONLY_D    )==0) return getD();
+		if((flags & READ_ONLY_THETA)==0) return getTheta();
+		if((flags & READ_ONLY_R    )==0) return getR();
+		return getAlpha();
 	}
 	
 	/**
@@ -326,7 +327,8 @@ public class DHLink extends Observable {
 	}
 
 	public void setD(double v) {
-		if(d!=v) setChanged();
+		if(d==v) return;
+		setChanged();
 		this.d = v;
 		notifyObservers(v);
 	}
@@ -336,7 +338,8 @@ public class DHLink extends Observable {
 	}
 
 	public void setTheta(double v) {
-		if(theta!=v) setChanged();
+		if(theta==v) return;
+		setChanged();
 		this.theta = v;
 		notifyObservers(v);
 	}
@@ -346,7 +349,8 @@ public class DHLink extends Observable {
 	}
 
 	public void setR(double v) {
-		if(r!=v) setChanged();
+		if(r==v) return;
+		setChanged();
 		this.r = v;
 		notifyObservers(v);
 	}
@@ -356,8 +360,30 @@ public class DHLink extends Observable {
 	}
 
 	public void setAlpha(double v) {
-		if(alpha!=v) setChanged();
+		if(alpha==v) return;
+		setChanged();
 		this.alpha = v;
 		notifyObservers(v);
+	}
+
+	public double getRangeMin() {
+		return rangeMin;
+	}
+
+	public void setRangeMin(double rangeMin) {
+		this.rangeMin = rangeMin;
+	}
+
+	public double getRangeMax() {
+		return rangeMax;
+	}
+
+	public void setRangeMax(double rangeMax) {
+		this.rangeMax = rangeMax;
+	}
+	
+	public void setRange(double min,double max) {
+		this.rangeMin=min;
+		this.rangeMax=max;
 	}
 }
