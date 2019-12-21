@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.world;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.jogamp.opengl.GL2;
@@ -10,7 +9,6 @@ import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -21,8 +19,8 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
-import com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox.DHRobotControlBox;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2ControlBox;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.gridEntity.GridEntity;
@@ -81,7 +79,7 @@ implements Serializable {
 		pickUp=new Vector3d();
 		pickRay=new Vector3d();
 		
-		DHRobotControlBox player;
+		Sixi2ControlBox player;
 		Sixi2 sixi2;
 		
 		addEntity(grid = new GridEntity());
@@ -90,7 +88,7 @@ implements Serializable {
 		addEntity(light2 = new Light());
 		addEntity(camera = new Camera());
 		addEntity(sixi2=new Sixi2());
-		addEntity(player=new DHRobotControlBox());
+		addEntity(player=new Sixi2ControlBox());
 		addEntity(new SixiJoystick());
 	
 		viewCube = new ViewCube();
@@ -190,10 +188,7 @@ implements Serializable {
 		// calls update on all entities and sub-entities
 		super.update(dt);
 		
-		Iterator<Entity> io = children.iterator();
-		while(io.hasNext()) {
-			Entity obj = io.next();
-			
+		for( Entity obj : children ) {			
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
 				po.prepareMove(dt);
@@ -203,9 +198,7 @@ implements Serializable {
 		// TODO collision test
 		
 		// Finalize the moves that don't collide
-		io = children.iterator();
-		while(io.hasNext()) {
-			Entity obj = io.next();
+		for( Entity obj : children ) {	
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
 				po.finalizeMove();
@@ -244,25 +237,19 @@ implements Serializable {
 		gl2.glPushMatrix();
 			camera.render(gl2);
 			
-			Iterator<Entity> io;
-			
 			gl2.glDisable(GL2.GL_LIGHTING);
 
 			//drawSkyCube(gl2);
 			
 			// lights
-			io = children.iterator();
-			while(io.hasNext()) {
-				Entity obj = io.next();
+			for( Entity obj : children ) {
 				if(obj instanceof Light) {
 					obj.render(gl2);
 				}
 			}
 
 			// draw!
-			io = children.iterator();
-			while(io.hasNext()) {
-				Entity obj = io.next();
+			for( Entity obj : children ) {
 				if(obj instanceof Light) continue;
 				if(obj instanceof Camera) continue;
 				
@@ -401,9 +388,7 @@ implements Serializable {
 			newObject=camera;
 		} else {
 			// scan all objects in world to find the one with the pickName.
-			Iterator<Entity> iter = children.iterator();
-			while(iter.hasNext()) {
-				Entity obj = iter.next();
+			for( Entity obj : children ) {
 				if( obj.hasPickName(pickName) ) {
 					// found!
 					newObject=obj;
@@ -432,10 +417,9 @@ implements Serializable {
 	
 	public List<String> namesOfAllObjects() {
 		ArrayList<String> list = new ArrayList<String>();
-		
-		Iterator<Entity> i = this.children.iterator();
-		while(i.hasNext()) {
-			String s = i.next().getDisplayName();
+
+		for( Entity obj : children ) {
+			String s = obj.getDisplayName();
 			list.add(s);
 		}
 		
@@ -443,11 +427,9 @@ implements Serializable {
 	}
 	
 	public Entity findObjectWithName(String name) {
-		Iterator<Entity> i = this.children.iterator();
-		while(i.hasNext()) {
-			Entity o = i.next();
-			String objectName = o.getDisplayName();
-			if(name.equals(objectName)) return o; 
+		for( Entity obj : children ) {
+			String objectName = obj.getDisplayName();
+			if(name.equals(objectName)) return obj; 
 		}
 		
 		return null;
@@ -465,22 +447,20 @@ implements Serializable {
 	 * @param radius the maximum distance to search for entities.
 	 * @return a list of found PhysicalObjects
 	 */
-	public List<PhysicalObject> findPhysicalObjectsNear(Point3d target,double radius) {
+	public List<PhysicalObject> findPhysicalObjectsNear(Vector3d target,double radius) {
 		radius/=2;
 		
 		//System.out.println("Finding within "+epsilon+" of " + target);
 		List<PhysicalObject> found = new ArrayList<PhysicalObject>();
 		
 		// check all children
-		Iterator<Entity> iter = children.iterator();
-		while(iter.hasNext()) {
-			Entity e = iter.next();
+		for( Entity e : children ) {
 			if(e instanceof PhysicalObject) {
 				// is physical, therefore has position
 				PhysicalObject po = (PhysicalObject)e;
-				Vector3d pop = new Vector3d(po.getPosition());
 				//System.out.println("  Checking "+po.getDisplayName()+" at "+pop);
-				pop.sub(target);
+				Vector3d pop = new Vector3d();
+				pop.sub(po.getPosition(),target);
 				if(pop.length()<=radius) {
 					//System.out.println("  in range!");
 					// in range!
