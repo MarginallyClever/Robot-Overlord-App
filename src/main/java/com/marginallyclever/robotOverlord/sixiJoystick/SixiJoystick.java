@@ -123,7 +123,6 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 
 		lock.lock();
 		target.ghost.setPoseFK(keyframe);
-		target.ghost.setTargetMatrix(target.getLiveMatrix());
 		lock.unlock();
 	}
 }
