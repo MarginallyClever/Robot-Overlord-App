@@ -1,12 +1,10 @@
 package com.marginallyclever.robotOverlord.dhRobot.tools;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -241,16 +239,13 @@ public class DHTool_Gripper extends DHTool {
 		//System.out.println("Asking world...");
 		
 		// World, please tell me who is near my grab point.
+		Vector3d target = new Vector3d();
+		dhLinkEquivalent.poseCumulative.get(target);
 		World world = (World)p;
-		Point3d target = new Point3d(dhLinkEquivalent.poseCumulative.m03,
-									 dhLinkEquivalent.poseCumulative.m13,
-									 dhLinkEquivalent.poseCumulative.m23);
 		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,radius);
 
 		// Check the list for anything that is not this tool and not this robot.
-		Iterator<PhysicalObject> iter = list.iterator();
-		while(iter.hasNext()) {
-			PhysicalObject po = iter.next();
+		for( PhysicalObject po : list ) {
 			if(po==parent) continue;
 			if(po==this) continue;
 			if(po instanceof Light) continue;
