@@ -108,7 +108,7 @@ public class DHRobot_SCARA_NM extends DHRobot {
 				Iterator<DHLink> i = links.iterator();
 				while(i.hasNext()) {
 					DHLink link = i.next();
-					link.renderModel(gl2);
+					link.render(gl2);
 				}
 			gl2.glPopMatrix();
 		gl2.glPopMatrix();

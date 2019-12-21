@@ -138,7 +138,7 @@ public class DHRobot_Phybot extends DHRobot {
 				Iterator<DHLink> i = links.iterator();
 				while(i.hasNext()) {
 					DHLink link = i.next();
-					link.renderModel(gl2);
+					link.render(gl2);
 				}
 			gl2.glPopMatrix();
 
@@ -147,7 +147,7 @@ public class DHRobot_Phybot extends DHRobot {
 		super.render(gl2);
 	}
 	
-	public DHIKSolver getSolverIK() {
+	public DHIKSolver getIKSolver() {
 		return new DHIKSolver_RTTRTR();
 	}
 
