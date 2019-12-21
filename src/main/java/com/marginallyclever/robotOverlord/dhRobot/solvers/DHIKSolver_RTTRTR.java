@@ -289,15 +289,16 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					"t4="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t"+
 					"a5="+StringHelper.formatDouble(keyframe.fkValues[4])+"\t"+
 					"t6="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
+			/*return SolutionType.NO_SOLUTIONS;/*/
 			if(suggestion!=null) {
-				if(true) System.out.println("ONE SOLUTION (MAYBE 1)");
+				if(true) System.out.println("ONE OF MANY SOLUTIONS");
 				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],0);
 				return SolutionType.ONE_SOLUTION;
 			} else {
 				if(true) System.out.println("MANY SOLUTIONS");
 				keyframe.fkValues[3] = 0;
 				return SolutionType.MANY_SOLUTIONS;
-			}
+			}//*/
 		}
 		
 		// no singularity, so we can continue to solve for theta4 and theta6.
