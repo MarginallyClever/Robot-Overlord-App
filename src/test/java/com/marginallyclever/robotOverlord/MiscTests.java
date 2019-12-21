@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -19,6 +18,7 @@ import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 
 public class MiscTests {
 	@Test
@@ -152,23 +152,23 @@ public class MiscTests {
 	public void testFK2IK() {
 		System.out.println("testFK2IK()");
 		Sixi2 robot = new Sixi2();
-		int numLinks = robot.getNumLinks();
+		int numLinks = robot.ghost.getNumLinks();
 		assert(numLinks>0);
 
-		DHIKSolver solver = robot.getSolverIK();
+		DHIKSolver solver = new DHIKSolver_RTTRTR();
 		DHKeyframe keyframe0 = (DHKeyframe)robot.createKeyframe();
 		DHKeyframe keyframe1 = (DHKeyframe)robot.createKeyframe();
 		Matrix4d m0 = new Matrix4d();
 		Matrix4d m1 = new Matrix4d();
 		
 		// Find the min/max range for each joint
-		DHLink link0 = robot.getLink(0);		double bottom0 = link0.rangeMin;		double top0 = link0.rangeMax;
-		DHLink link1 = robot.getLink(1);		double bottom1 = link1.rangeMin;		double top1 = link1.rangeMax;
-		DHLink link2 = robot.getLink(2);		double bottom2 = link2.rangeMin;		double top2 = link2.rangeMax;
+		DHLink link0 = robot.ghost.getLink(0);		double bottom0 = link0.rangeMin;		double top0 = link0.rangeMax;
+		DHLink link1 = robot.ghost.getLink(1);		double bottom1 = link1.rangeMin;		double top1 = link1.rangeMax;
+		DHLink link2 = robot.ghost.getLink(2);		double bottom2 = link2.rangeMin;		double top2 = link2.rangeMax;
 		// link3 does not bend
-		DHLink link4 = robot.getLink(4);		double bottom4 = link4.rangeMin;		double top4 = link4.rangeMax;
-		DHLink link5 = robot.getLink(5);		double bottom5 = link5.rangeMin;		double top5 = link5.rangeMax;
-		DHLink link6 = robot.getLink(6);		double bottom6 = link6.rangeMin;		double top6 = link6.rangeMax;
+		DHLink link4 = robot.ghost.getLink(4);		double bottom4 = link4.rangeMin;		double top4 = link4.rangeMax;
+		DHLink link5 = robot.ghost.getLink(5);		double bottom5 = link5.rangeMin;		double top5 = link5.rangeMax;
+		DHLink link6 = robot.ghost.getLink(6);		double bottom6 = link6.rangeMin;		double top6 = link6.rangeMax;
 
 		int totalTests = 0;
 		int totalOneSolutions = 0;
@@ -200,15 +200,15 @@ public class MiscTests {
 									
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
-				            		robot.setPoseFK(keyframe0);
-									m0.set(robot.getLiveMatrix());
+				            		robot.ghost.setPoseFK(keyframe0);
+									m0.set(robot.ghost.getEndEffectorMatrix());
 									// now generate a set of FK values from the endMatrix m0.
-									if(solver.solve(robot, m0, keyframe1)==DHIKSolver.SolutionType.ONE_SOLUTION) {
+									if(solver.solve(robot.ghost, m0, keyframe1)==DHIKSolver.SolutionType.ONE_SOLUTION) {
 										++totalOneSolutions;
 										
 										// update the robot pose and get the m1 matrix. 
-					            		robot.setPoseFK(keyframe1);
-					            		m1.set(robot.getLiveMatrix());
+					            		robot.ghost.setPoseFK(keyframe1);
+					            		m1.set(robot.ghost.getEndEffectorMatrix());
 					            		
 					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
 					            						+StringHelper.formatDouble(keyframe0.fkValues[1])+"\t"
@@ -274,17 +274,17 @@ public class MiscTests {
 	public void plotXZ() {
 		System.out.println("plotXZ()");
 		Sixi2 robot = new Sixi2();
-		int numLinks = robot.getNumLinks();
+		int numLinks = robot.ghost.getNumLinks();
 		assert(numLinks>0);
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;//double mid2 = (top2+bottom2)/2;
+		DHLink link0 = robot.ghost.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.ghost.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.ghost.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;//double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
-		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;//double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
-		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;//double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+		DHLink link4 = robot.ghost.getLink(4);  double bottom4 = link4.rangeMin;//double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = robot.ghost.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = robot.ghost.getLink(6);  double bottom6 = link6.rangeMin;//double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
 
 		BufferedWriter out=null;
 		try {
@@ -333,17 +333,17 @@ public class MiscTests {
 	public void plotXY() {
 		System.out.println("plotXY()");
 		Sixi2 robot = new Sixi2();
-		int numLinks = robot.getNumLinks();
+		int numLinks = robot.ghost.getNumLinks();
 		assert(numLinks>0);
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;//double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.getLink(1);/*double bottom1 = link1.rangeMin;*/double top1 = link1.rangeMax;//double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;//double mid2 = (top2+bottom2)/2;
+		DHLink link0 = robot.ghost.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;//double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.ghost.getLink(1);/*double bottom1 = link1.rangeMin;*/double top1 = link1.rangeMax;//double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.ghost.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;//double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
-		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
-		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+		DHLink link4 = robot.ghost.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = robot.ghost.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = robot.ghost.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
 
 		double ANGLE_STEP_SIZE2=1;
 		
@@ -407,8 +407,8 @@ public class MiscTests {
 		keyframe0.fkValues[5]=w;
 					
 		// use forward kinematics to find the endMatrix of the pose
-		robot.setPoseFK(keyframe0);
-		m0.set(robot.getLiveMatrix());
+		robot.ghost.setPoseFK(keyframe0);
+		m0.set(robot.ghost.getEndEffectorMatrix());
 		
 		String message = StringHelper.formatDouble(m0.m03)+"\t"
 						+StringHelper.formatDouble(m0.m13)+"\t"
@@ -425,13 +425,13 @@ public class MiscTests {
 		Sixi2 robot = new Sixi2();
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  double mid2 = (top2+bottom2)/2;
+		DHLink link0 = robot.ghost.getLink(0);  double bottom0 = link0.rangeMin;  double top0 = link0.rangeMax;  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = robot.ghost.getLink(1);  double bottom1 = link1.rangeMin;  double top1 = link1.rangeMax;  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = robot.ghost.getLink(2);  double bottom2 = link2.rangeMin;  double top2 = link2.rangeMax;  double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
-		DHLink link4 = robot.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
-		DHLink link5 = robot.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
+		DHLink link4 = robot.ghost.getLink(4);  double bottom4 = link4.rangeMin;  double top4 = link4.rangeMax;  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = robot.ghost.getLink(5);  double bottom5 = link5.rangeMin;  double top5 = link5.rangeMax;  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = robot.ghost.getLink(6);  double bottom6 = link6.rangeMin;  double top6 = link6.rangeMax;  double mid6 = (top6+bottom6)/2;  
 
 		BufferedWriter out=null;
 		try {
@@ -482,17 +482,17 @@ public class MiscTests {
 			out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
 			
 			DHKeyframe keyframe = (DHKeyframe)robot.createKeyframe();
-			DHIKSolver solver = robot.getSolverIK();
+			DHIKSolver solver = new DHIKSolver_RTTRTR();
 	
 			// set force
 			double [] force = {0,0,3,0,0,0};
 	
 			// set position
-			Matrix4d m = robot.getLiveMatrix();
+			Matrix4d m = robot.ghost.getEndEffectorMatrix();
 			m.m13=-20;
 			m.m23-=5;
-			solver.solve(robot, m, keyframe);
-			robot.setPoseFK(keyframe);
+			solver.solve(robot.ghost, m, keyframe);
+			robot.ghost.setPoseFK(keyframe);
 			
 			double dt=0.03f;
 			int j;
@@ -500,8 +500,8 @@ public class MiscTests {
 			// until we get to position or something has gone wrong
 			while(m.m13<20 && safety<10000) {
 				safety++;
-				m = robot.getLiveMatrix();
-				if(solver.solve(robot, m, keyframe) == DHIKSolver.SolutionType.ONE_SOLUTION) {
+				m = robot.ghost.getEndEffectorMatrix();
+				if(solver.solve(robot.ghost, m, keyframe) == DHIKSolver.SolutionType.ONE_SOLUTION) {
 					// sane solution
 					double [][] jacobian = robot.approximateJacobian(keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
@@ -520,8 +520,8 @@ public class MiscTests {
 					}
 					out.write("\n");
 
-					if (robot.sanityCheck(keyframe)) {
-						robot.setPoseFK(keyframe);
+					if (robot.ghost.sanityCheck(keyframe)) {
+						robot.ghost.setPoseFK(keyframe);
 					}
 				} else {
 					m.m03+=force[0]*dt;
