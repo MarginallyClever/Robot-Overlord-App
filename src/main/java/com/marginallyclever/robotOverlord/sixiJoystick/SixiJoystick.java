@@ -95,11 +95,11 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 		try {
 			if(target==null) {
 				target = findRobot();
-				if(target!=null) {
-					 keyframe = (DHKeyframe)target.createKeyframe();
-				}
 			}
 			if(target!=null) {
+				if(keyframe == null) {
+					 keyframe = target.ghost.getIKSolver().createDHKeyframe();
+				}
 				StringTokenizer tokenizer = new StringTokenizer(data);
 				if(tokenizer.countTokens()<6) return;
 				
