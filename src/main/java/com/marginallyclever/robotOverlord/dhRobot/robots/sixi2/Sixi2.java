@@ -14,6 +14,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.AnsiColors;
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.DragBall;
@@ -69,7 +70,7 @@ public class Sixi2 extends Robot {
 	protected DHKeyframe homeKey;
 	protected DHKeyframe restKey;
 	
-	protected DHIKSolver solver;
+	protected DHIKSolver ikSolver;
 
 	// true if the skeleton should be visualized on screen. Default is false.
 	protected boolean drawAsSelected;
@@ -77,8 +78,8 @@ public class Sixi2 extends Robot {
 	// are we trying to drive the robot live?
 	protected boolean immediateDriving;
 	
-	Matrix4dInterpolator interpolator;
-	Matrix4d interpolatedMatrix = new Matrix4d();
+	protected Matrix4dInterpolator interpolator;
+	protected Matrix4d interpolatedMatrix = new Matrix4d();
 	
 	
 	public Sixi2() {
@@ -86,12 +87,15 @@ public class Sixi2 extends Robot {
 		setDisplayName("Sixi 2");
 		interpolator = new Matrix4dInterpolator();
 		
-		solver = new DHIKSolver_RTTRTR();
+		ikSolver = new DHIKSolver_RTTRTR();
 		frameOfReferenceIndex = Frame.WORLD;
 		
 		// create one copy of the DH links for the ghost robot
 		live = new DHRobot();
 		ghost = new DHRobot();
+		
+		live.setIKSolver(ikSolver);
+		ghost.setIKSolver(ikSolver);
 		
 		setupLinks(live);
 		setupLinks(ghost);
@@ -99,12 +103,12 @@ public class Sixi2 extends Robot {
 		drawAsSelected = false;
 		immediateDriving = false;
 		isFirstTime=true;
-		receivedKeyframe = (DHKeyframe)createKeyframe();
+		receivedKeyframe = ikSolver.createDHKeyframe();
 
-		feedrate=40;
+		feedrate=5;
 		acceleration=20;
 		
-		homeKey = (DHKeyframe)createKeyframe();
+		homeKey = ikSolver.createDHKeyframe();
 		homeKey.fkValues[0]=0;
 		homeKey.fkValues[1]=0;
 		homeKey.fkValues[2]=0;
@@ -113,7 +117,7 @@ public class Sixi2 extends Robot {
 		homeKey.fkValues[5]=0;
 		ghost.setPoseFK(homeKey);
 
-		restKey = (DHKeyframe)createKeyframe();
+		restKey = ikSolver.createDHKeyframe();
 		restKey.fkValues[0]=0;
 		restKey.fkValues[1]=-60;
 		restKey.fkValues[2]=85;
@@ -128,11 +132,9 @@ public class Sixi2 extends Robot {
 
 		materialLive = new Material();
 		materialLive.setDiffuseColor(1,217f/255f,33f/255f,1);
-		materialLive.setLit(true);
 		
 		materialGhost = new Material();
-		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.5f);
-		materialGhost.setLit(false);
+		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
 	}
 
 	/**
@@ -150,7 +152,7 @@ public class Sixi2 extends Robot {
 		if (world != null) {
 			// Request from the world "is there a tool at the position of the end effector"?
 			Vector3d target = new Vector3d();
-			ghost.getEndEffectorMatrix().get(target);
+			ghost.getPoseIK().get(target);
 			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
 
 			// If there is a tool, attach to it.
@@ -180,17 +182,15 @@ public class Sixi2 extends Robot {
 		// roll anchor
 		robot.links.get(0).setD(13.44);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(0).rangeMin=-120;
-		robot.links.get(0).rangeMax=120;
+		robot.links.get(0).setRange(-120,120);
 		// tilt shoulder
 		robot.links.get(1).setTheta(90);
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(1).rangeMin=-72;
+		robot.links.get(1).setRangeMin(-72);
 		// tilt elbow
 		robot.links.get(2).setD(44.55);
 		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(2).rangeMin=-83.369;
-		robot.links.get(2).rangeMax=86;
+		robot.links.get(2).setRange(-83.369,86);
 		// interim point
 		robot.links.get(3).setD(4.7201);
 		robot.links.get(3).setAlpha(90);
@@ -198,20 +198,17 @@ public class Sixi2 extends Robot {
 		// roll ulna
 		robot.links.get(4).setD(28.805);
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(4).rangeMin=-175;
-		robot.links.get(4).rangeMax=175;
+		robot.links.get(4).setRange(-175,175);
 
 		// tilt picassobox
 		robot.links.get(5).setD(11.8);
 		robot.links.get(5).setAlpha(25);
 		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(5).rangeMin=-120;
-		robot.links.get(5).rangeMax=120;
+		robot.links.get(5).setRange(-120,125);
 		// roll hand
 		robot.links.get(6).setD(3.9527);
 		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(6).rangeMin=-180;
-		robot.links.get(6).rangeMax=180;
+		robot.links.get(6).setRange(-180,180);
 		
 		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		
@@ -265,17 +262,11 @@ public class Sixi2 extends Robot {
 		}
 
 		// draw the live robot
-
+		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
-			
-			// Draw live robot
-			materialLive.render(gl2);
-			live.render(gl2);
-			
-			// Draw ghost robot
-			materialGhost.render(gl2);
-			ghost.render(gl2);
+			MatrixHelper.applyMatrix(gl2, getMatrix());
+			materialLive .render(gl2);	live .render(gl2);
+			materialGhost.render(gl2);	ghost.render(gl2);
 		gl2.glPopMatrix();
 
 		IntBuffer depthFunc = IntBuffer.allocate(1);
@@ -285,7 +276,7 @@ public class Sixi2 extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		if(interpolator.isInterpolating()) {
-			MatrixHelper.drawMatrix(gl2, interpolatedMatrix, 15);
+			MatrixHelper.drawMatrix2(gl2, interpolatedMatrix, 15);
 		}
 		
 		if(drawAsSelected && inDirectDriveMode()) {
@@ -372,7 +363,7 @@ public class Sixi2 extends Robot {
 						//data = data.replace('\n', ' ');
 
 						//smoothing to new position
-						//DHKeyframe inter = (DHKeyframe)createKeyframe();
+						//DHKeyframe inter = solver.createDHKeyframe();
 						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
 						//this.setRobotPose(inter);
 
@@ -401,7 +392,7 @@ public class Sixi2 extends Robot {
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
 		// get the end matrix, which includes any tool, of the ghost.
-		ghost.getEndEffectorMatrix().get(m1, t1);
+		ghost.getPoseIK().get(m1, t1);
 		
 		//Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -454,7 +445,7 @@ public class Sixi2 extends Robot {
 		if( line.startsWith("G0 ") || line.startsWith("G00 ") ) {
 			Vector3d t1 = new Vector3d();
 			Matrix3d m1 = new Matrix3d();
-			ghost.getEndEffectorMatrix().get(m1,t1);
+			ghost.getPoseIK().get(m1,t1);
 			Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 			boolean isDirty=false;
 			
@@ -486,13 +477,7 @@ public class Sixi2 extends Robot {
 				m.set(m1);
 				m.setTranslation(t1);
 				
-				DHKeyframe oldPose = (DHKeyframe)createKeyframe();
-				ghost.getPoseFK(oldPose);
-				
-				DHKeyframe newPose = (DHKeyframe)createKeyframe();
-				DHIKSolver.SolutionType s = solver.solveWithSuggestion(ghost, m, newPose,oldPose);
-				if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
-					ghost.setPoseFK(newPose);
+				if(ghost.setPoseIK(m)) {
 					addInterpolation(getFeedrate());
 				}
 			}
@@ -503,17 +488,17 @@ public class Sixi2 extends Robot {
 	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
 	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
 	 */
-	public double [][] approximateJacobian(DHKeyframe keyframe) {
+	public double [][] approximateJacobian(DHRobot robot,DHKeyframe keyframe) {
 		double [][] jacobian = new double[6][6];
 		
 		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
 		
-		DHKeyframe keyframe2 = (DHKeyframe)createKeyframe();
+		DHKeyframe keyframe2 = ikSolver.createDHKeyframe();
 
 		// use anglesA to get the hand matrix
-		DHRobot clone = new DHRobot(live);
+		DHRobot clone = new DHRobot(robot);
 		clone.setPoseFK(keyframe);
-		Matrix4d T = new Matrix4d(clone.getEndEffectorMatrix());
+		Matrix4d T = new Matrix4d(clone.getPoseIK());
 		
 		// for all joints
 		int i,j;
@@ -525,7 +510,7 @@ public class Sixi2 extends Robot {
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
 			clone.setPoseFK(keyframe2);
-			Matrix4d Tnew = new Matrix4d(clone.getEndEffectorMatrix());
+			Matrix4d Tnew = new Matrix4d(clone.getPoseIK());
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -612,7 +597,7 @@ public class Sixi2 extends Robot {
 
 	public Matrix4d getGhostTargetMatrixWorldSpace() {
 		Matrix4d targetMatrixWorldSpace = new Matrix4d();
-		targetMatrixWorldSpace.mul(getMatrix(),ghost.getEndEffectorMatrix());
+		targetMatrixWorldSpace.mul(getMatrix(),ghost.getPoseIK());
 		return targetMatrixWorldSpace; 
 	}
 
@@ -655,7 +640,7 @@ public class Sixi2 extends Robot {
 		}
 
 		ball.setMatrix(m);
-		ghost.getEndEffectorMatrix().get(ball.targetMatrixToSave);
+		ghost.getPoseIK().get(ball.targetMatrixToSave);
 		frameOfRef.get(ball.FORToSave);
 
 		if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
@@ -799,13 +784,14 @@ public class Sixi2 extends Robot {
 				|| InputManager.isReleased(InputManager.STICK_X) 
 				|| immediateDriving) {
 			// commit move!
-			if(connection != null && connection.isOpen()) {
-				// TODO this is linear interpolation.  jacobian would send force values to robot.
-				DHKeyframe key = (DHKeyframe)createKeyframe();
+			// if we have a live connection, send it.
+			if(connection!=null&&connection.isOpen()) {
+				DHKeyframe key = ikSolver.createDHKeyframe();
 				ghost.getPoseFK(key);
 				sendNewStateToRobot(key);
 			} else {
-				addInterpolation(getFeedrate());
+				// if we are not driving immediate style
+				addInterpolation(immediateDriving?dt-0.0001:getFeedrate());
 			}
 		}
 
@@ -819,10 +805,10 @@ public class Sixi2 extends Robot {
 	public void addInterpolation(double time) {
 		if(!interpolator.isInterpolating()) {
 			// start with the live pose
-			interpolator.offer(live.getEndEffectorMatrix(),0);
+			interpolator.offer(live.getPoseIK(),0);
 		}
 		// add the latest ghost on the end of the queue
-		interpolator.offer(ghost.getEndEffectorMatrix(),time);
+		interpolator.offer(ghost.getPoseIK(),time);
 	}
 	
 	public Vector3d getForward() {
@@ -862,11 +848,11 @@ public class Sixi2 extends Robot {
 		
 		// done!
 		Vector3d tempPosition = new Vector3d();
-		ghost.getEndEffectorMatrix().get(tempPosition);
+		ghost.getPoseIK().get(tempPosition);
 		Matrix4d m = new Matrix4d();
 		m.set(targetMatrixRobotSpaceAfterTransform);
 		m.setTranslation(tempPosition);
-		setTargetMatrix(ghost,m);
+		ghost.setPoseIK(m);
 	}
 
 	protected void rollX(double angRadians) {
@@ -889,26 +875,28 @@ public class Sixi2 extends Robot {
 	}
 
 	protected void translate(Vector3d v, double amount) {
-		Matrix4d m = ghost.getEndEffectorMatrix();
+		Matrix4d m = ghost.getPoseIK();
 		m.m03 += v.x*amount;
 		m.m13 += v.y*amount;
 		m.m23 += v.z*amount;
-		setTargetMatrix(ghost,m);
+		ghost.setPoseIK(m);
 	}
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
 
-		// do not simulate movement when connected to a live robot.
-		if(connection==null || connection.isOpen()) {
-			interpolator.update(dt);	
-			if(interpolator.isInterpolating()) {
+		if(connection!=null && connection.isOpen()) {
+			// do not simulate movement when connected to a live robot.
+		} else {
+			//if(interpolator.isInterpolating()) 
+			{
+				interpolator.update(dt);	
 				if (live.dhTool != null) {
 					live.dhTool.interpolate(dt);
 				}
 				
-				InterpolationStyle style = InterpolationStyle.LINEAR;
+				InterpolationStyle style = InterpolationStyle.JACOBIAN;
 				switch (style) {
 				case LINEAR:	interpolateLinear(dt);		break;
 				case JACOBIAN:	interpolateJacobian(dt);	break;
@@ -937,7 +925,7 @@ public class Sixi2 extends Robot {
 				interpolator.getEndMatrix(), 
 				ratio, 
 				interpolatedMatrix);
-		setTargetMatrix(live,interpolatedMatrix);
+		live.setPoseIK(interpolatedMatrix);
 	}
 
 	/**
@@ -977,12 +965,12 @@ public class Sixi2 extends Robot {
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
-		// sane solution?
-		DHKeyframe newKey = (DHKeyframe)createKeyframe();
-		live.getPoseFK(newKey);
-		double[][] jacobian = ((Sixi2) this).approximateJacobian(newKey);
+		// assumes live is at a sane solution.
+		DHKeyframe keyframe = ikSolver.createDHKeyframe();
+		live.getPoseFK(keyframe);
+		double[][] jacobian = approximateJacobian(live,keyframe);
 		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-		double[] force = { dp.x,dp.y,dp.z, w.x,w.y,w.z };
+		double[] force = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
 
 		double df = Math.sqrt(
 				force[0] * force[0] + 
@@ -1000,12 +988,19 @@ public class Sixi2 extends Robot {
 				}
 				if (!Double.isNaN(jvot[j])) {
 					// simulate a change in the joint velocities
-					newKey.fkValues[j] += Math.toDegrees(jvot[j]) * dt;
+					double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * dt;
+					v = MathHelper.capRotationDegrees(v,0);
+					keyframe.fkValues[j]=v;
+					System.out.print(v+"\t");
 				}
 			}
-			if (live.sanityCheck(newKey)) {
-				live.setPoseFK(newKey);
+			if (live.sanityCheck(keyframe)) {
+				live.setPoseFK(keyframe);
+				System.out.print("ok");
+			} else {
+				System.out.print("bad");
 			}
+			System.out.println();
 		}
 	}
 	
@@ -1018,35 +1013,6 @@ public class Sixi2 extends Robot {
 	 */
 	protected boolean inDirectDriveMode() {
 		return true;// interpolatePoseT>=1.0 ;
-	}
-
-
-
-	public void setTargetMatrix(DHRobot r, Matrix4d m) {
-		DHKeyframe oldPose = (DHKeyframe)createKeyframe();
-		r.getPoseFK(oldPose);
-		DHKeyframe newPose = (DHKeyframe)createKeyframe();
-		
-		DHIKSolver.SolutionType s = solver.solveWithSuggestion(r, m, newPose,oldPose);
-		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
-			if (r.sanityCheck(newPose)) {
-				r.setPoseFK(newPose);
-			} else {
-				System.out.println("moveToTargetPose() insane");
-			}
-		} else {
-			System.out.println("moveToTargetPose() impossible");
-		}
-	}
-
-
-	@Override
-	public RobotKeyframe createKeyframe() {
-		int size= solver.getSolutionSize();
-		DHKeyframe key = new DHKeyframe(size);
-		
-		// 
-		return key;
 	}
 
 
@@ -1078,5 +1044,20 @@ public class Sixi2 extends Robot {
 
 	protected boolean canTargetPoseRotateZ() {
 		return true;
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		return null;
+	}
+
+
+	/**
+	 * Override this method to return the correct solver for your type of robot.
+	 * 
+	 * @return the IK solver for a specific type of robot.
+	 */
+	public DHIKSolver getIKSolver() {
+		return ikSolver;
 	}
 }
