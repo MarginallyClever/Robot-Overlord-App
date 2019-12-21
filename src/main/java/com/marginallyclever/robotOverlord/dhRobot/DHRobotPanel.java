@@ -1,18 +1,12 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -23,7 +17,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
@@ -40,7 +33,6 @@ import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionSetDHTool;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobot.InterpolationStep;
 
 /**
  * Control Panel for a DHRobot
@@ -59,25 +51,16 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
-	public JLabel activeTool,gcodeLabel;
+	public JLabel activeTool;
 	public JButton buttonSetTool;
-	public JTextField gcodeValue;
 	
 	public JCheckBox showBones;
+	public JCheckBox showAngles;
 	public JCheckBox showPhysics;
-	public JCheckBox immediateDriving;
-	public JComboBox<String> frameOfReferenceSelection;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
 
-	
-	// enumerate these?
-	String[] framesOfReference = {
-			"World", //0
-			"Camera", //1
-			"Finger tip"//2
-			};
 	
 	
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
@@ -160,42 +143,10 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
 		
-		contents.add(immediateDriving=new JCheckBox(),con1);
-		immediateDriving.setText("Immediate driving");
-		immediateDriving.addItemListener(this);
-		immediateDriving.setSelected(robot.immediateDriving);
-		con1.gridy++;
-		/*
-		contents.add(new JLabel("Frame of Reference") ,con1);  con1.gridy++;
-		contents.add(frameOfReferenceSelection=new JComboBox<String>(framesOfReference),con1);
-		frameOfReferenceSelection.addActionListener(this);
-		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
-		con1.gridy++;
-		*/
-		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 		contents.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
 		con1.gridy++;
-		
-		contents.add(activeTool=new JLabel("Tool=") ,con1);  con1.gridy++; 
-		contents.add(gcodeLabel=new JLabel("Gcode"), con1); con1.gridy++;
-		contents.add(gcodeValue=new JTextField(),con1); con1.gridy++;
-		gcodeValue.setEditable(false);
-		
-		Dimension dim = gcodeValue.getPreferredSize();
-		dim.width=60;
-		gcodeValue.setPreferredSize( dim );
-		gcodeValue.setMaximumSize(dim);
-		
-		gcodeValue.addMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseClicked(MouseEvent e){
-            	StringSelection stringSelection = new StringSelection(gcodeValue.getText());
-            	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            	clipboard.setContents(stringSelection, null);
-            }
-        });
 
 		robot.refreshPose();
 		updateEnd();
@@ -241,10 +192,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 				e.link.setAlpha	(e.alpha.getValue());
 			}
 			robot.refreshPose();
-			InterpolationStep s = robot.new InterpolationStep();
-			s.target = robot.getLiveMatrix();
-			s.feedrate = 1;
-			robot.interpolationQueue.offer(s);
 			j=0;
 			i = linkPanels.iterator();
 			while(i.hasNext()) {
@@ -266,15 +213,14 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		updateActiveTool(robot.getCurrentTool());
 		// report end effector position
 		Matrix3d m = new Matrix3d();
-		robot.liveMatrix.get(m);
+		robot.endEffectorMatrix.get(m);
 		Vector3d v = MatrixHelper.matrixToEuler(m);
-		valuex.setText("X="+StringHelper.formatDouble(robot.liveMatrix.m03));
-		valuey.setText("Y="+StringHelper.formatDouble(robot.liveMatrix.m13));
-		valuez.setText("Z="+StringHelper.formatDouble(robot.liveMatrix.m23));
+		valuex.setText("X="+StringHelper.formatDouble(robot.endEffectorMatrix.m03));
+		valuey.setText("Y="+StringHelper.formatDouble(robot.endEffectorMatrix.m13));
+		valuez.setText("Z="+StringHelper.formatDouble(robot.endEffectorMatrix.m23));
 		valuerx.setText("Rx="+StringHelper.formatDouble(Math.toDegrees(v.x)));
 		valuery.setText("Ry="+StringHelper.formatDouble(Math.toDegrees(v.y)));
 		valuerz.setText("Rz="+StringHelper.formatDouble(Math.toDegrees(v.z)));
-		gcodeValue.setText(robot.generateGCode());
 		
 		// report the keyframe results here
 		int j=0;
@@ -384,13 +330,13 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		// for checkboxes
 		Object source = e.getItemSelectable();
 		if(source == showPhysics) {
-			robot.setShowPhysicsPassive(((JCheckBox)source).isSelected());
+			robot.setShowPhysics(((JCheckBox)source).isSelected());
 		}
 		if(source == showBones) {
-			robot.setShowBonesPassive(((JCheckBox)source).isSelected());
+			robot.setShowBones(((JCheckBox)source).isSelected());
 		}
-		if(source == immediateDriving) {
-			robot.immediateDriving = !robot.immediateDriving;
+		if(source == showAngles) {
+			robot.setShowAngles(((JCheckBox)source).isSelected());
 		}
 	}
 

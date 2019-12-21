@@ -1,184 +1,101 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Observable;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Quat4d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.camera.Camera;
-import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
-import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
-import com.marginallyclever.robotOverlord.robot.Robot;
-import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
-import com.marginallyclever.robotOverlord.world.World;
 
 /**
  * A robot designed using D-H parameters.
  * 
  * @author Dan Royer
  */
-public class DHRobot extends Robot {
+public class DHRobot extends Observable implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = -6759482413128098203L;
+	
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links;
 	// The solver for this type of robot
 	protected DHIKSolver solver;
-	
-	// the GUI panel for controlling this robot.
-	protected DHRobotPanel panel;
-	
-	protected boolean disablePanel;
 
-	// the world frame matrix4d of the last link in the kinematic chain.
-	protected Matrix4d liveMatrix;
-	// the matrix the IK is trying to move towards. Includes the tool held by the robot.
-	protected Matrix4d targetMatrix;
-	// the last valid matrix. Used in case the IK solver fails to solve the targetPose.
-	protected Matrix4d oldMatrix;
-	
-	// targetMatrix = (endMatrix - startMatrix) * interpolatePoseT + startMatrix 
-	protected Matrix4d startMatrix;
-	protected Matrix4d endMatrix;
-	protected double interpolatePoseT;
-	protected double interpolateTime;
-	
-	public class InterpolationStep {
-		public Matrix4d target;
-		public double feedrate;
-	};
-	protected Queue<InterpolationStep> interpolationQueue;
+	// the last link in the kinematic chain.
+	protected Matrix4d endEffectorMatrix;
 
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
-
-	// true if the skeleton should be visualized on screen. Default is false.
-	protected boolean drawAsSelected;
-
+	
+	// the GUI panel for controlling this robot.
+	protected DHRobotPanel panel;
+	protected boolean disablePanel;
 
 	protected boolean showBones; // show D-H representation of each link
 	protected boolean showPhysics; // show bounding boxes of each link
 	protected boolean showAngles; // show current angle and limit of each link
 	
-	public enum Frame {
-	FRAME_WORLD,
-	FRAME_CAMERA,
-	FRAME_FINGER,
-	}
-	protected Frame frameOfReferenceIndex; // which style of rotation?
-
-
-	static final int INTERPOLATION_STYLE_LINEAR = 0;
-	static final int INTERPOLATION_STYLE_JACOBIAN = 1;
-	
 	protected int hitBox1, hitBox2; // display which hitboxes are colliding
 
-	protected boolean immediateDriving;
-
-	// to simulate dwell behavior
-	protected double dwellTime;
 
 	public DHRobot() {
 		super();
-		setup(new DHIKSolver(),this);
+		reset();
 	}
 	
-	public DHRobot(DHIKSolver solver0) {
+	public DHRobot(DHRobot b) {
 		super();
-		setup(solver0,this);
+		reset();
+		set(b);
 	}
-	
-	public DHRobot(DHRobot linkDescription) {
-		super();
-		setup(linkDescription.solver,linkDescription);
-	}
-	
-	public DHRobot(DHIKSolver solver0,DHRobot linkDescription) {
-		super();
-		setup(solver0,linkDescription);
-	}
-	
-	protected void setup(DHIKSolver solver0,DHRobot linkDescription) {
-		interpolationQueue = new LinkedList<InterpolationStep>();
 		
-		solver=solver0;
-		
-		disablePanel = false;
+	public void reset() {
+		links = new ArrayList<DHLink>();
 
-		setShowBones(false);
-		setShowPhysics(false);
-		frameOfReferenceIndex = Frame.FRAME_WORLD;
-
-		liveMatrix = new Matrix4d();
-		targetMatrix = new Matrix4d();
-		oldMatrix = new Matrix4d();
-		startMatrix = new Matrix4d();
-		endMatrix = new Matrix4d();
-		interpolatePoseT = 0;
-		interpolateTime = 0;
-
-		drawAsSelected = false;
-		immediateDriving = false;
-		hitBox1 = -1;
-		hitBox2 = -1;
-
+		endEffectorMatrix = new Matrix4d();
+		// set default tool = no tool
 		dhTool = new DHTool();
 		
-		links = new ArrayList<DHLink>();
-		linkDescription.setupLinks(this);
-		refreshPose();
-		
-		if(linkDescription==this) {
-			// use the default solution to set up the live matrix.
-			// assumes the default solution is is the home position.
-			setTargetMatrix(liveMatrix);
-		} else {
-			// assumes everything provided by linkDescription
-			liveMatrix.set(linkDescription.liveMatrix);
-			targetMatrix.set(linkDescription.targetMatrix);
-			oldMatrix.set(linkDescription.oldMatrix);
-			startMatrix.set(linkDescription.startMatrix);
-			endMatrix.set(linkDescription.endMatrix);
-			interpolatePoseT = linkDescription.interpolatePoseT;
-			interpolateTime = linkDescription.interpolateTime;
-		}
+		disablePanel = false;
+		setShowBones(false);
+		setShowPhysics(false);
+		setShowAngles(false);
 
-		// set default tool = no tool
-		if(linkDescription!=this && linkDescription.dhTool!=null) {
-			dhTool.set(linkDescription.dhTool);
-		}
-		
-		dwellTime = 0;
+		hitBox1 = -1;
+		hitBox2 = -1;
 	}
 
-
-	/**
-	 * Override this method to build the D-h linkage in your robot.
-	 * TODO write test DHRobots can be serialized OK.
-	 */
-	protected void setupLinks(DHRobot robot) {
+	public void set(DHRobot b) {
 		// remove any exiting links from other robot to be certain.
-		robot.links.clear();
+		links.clear();
 		// copy my links to the next robot
-		for( DHLink link : links ) {
+		for( DHLink link : b.links ) {
 			// copy my links into the other robot.
-			robot.links.add(new DHLink(link));
+			links.add(new DHLink(link));
 		}
+		
+		endEffectorMatrix.set(b.endEffectorMatrix);
+		dhTool.set(b.dhTool);
+		
+		disablePanel = b.disablePanel;
+		showBones = b.showBones;
+		showPhysics = b.showPhysics;
+		showAngles = b.showAngles;
+		
+		hitBox1 = b.hitBox1;
+		hitBox2 = b.hitBox2;
+		
+		refreshPose();
 	}
 
 
@@ -200,84 +117,57 @@ public class DHRobot extends Robot {
 		solver = solver0;
 	}
 
-	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
-
-		panel = new DHRobotPanel(gui, this);
-		list.add(panel);
-
-		return list;
-	}
-
-	@Override
 	public void render(GL2 gl2) {
-		// if(!drawAsSelected) return;
-
-		// get the camera
-		Camera cam = getWorld().getCamera();
-
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
 
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+		PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 10);
 
-			PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 10);
-	
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = links.iterator();
-				int j = 0;
-				while (i.hasNext()) {
-					DHLink link = i.next();
-					if (showBones)
-						link.renderBones(gl2);
-					if (showAngles) {
-						//link.renderAngles(gl2);
+		gl2.glPushMatrix();
+
+
+		int j = 0;
+			for( DHLink link : links ) {
+				// 3d meshes
+				link.renderModel(gl2);
+				if (showBones) link.renderBones(gl2);
+				if (showAngles) link.renderAngles(gl2);
+				if (showPhysics && link.model != null) {
+					// Draw the bounding box of the model as the physical bounding box
+					// TODO there are better shapes for collision detection?
+					if (j == hitBox1 || j == hitBox2) {
+						// hit
+						gl2.glColor4d(1, 0, 0.8, 0.15);
+					} else {
+						// no hit
+						gl2.glColor4d(1, 0.8, 0, 0.15);
 					}
-					if (showPhysics && link.model != null) {
-						if (j == hitBox1 || j == hitBox2) {
-							gl2.glColor4d(1, 0, 0.8, 0.15);
-						} else {
-							gl2.glColor4d(1, 0.8, 0, 0.15);
-						}
-						PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
-					}
-					MatrixHelper.applyMatrix(gl2,link.pose);
-					++j;
+					PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
 				}
-				
-				if (dhTool != null) {
-					if (showBones)
-						dhTool.dhLinkEquivalent.renderBones(gl2);
-					if (showAngles)
-						dhTool.dhLinkEquivalent.renderAngles(gl2);
-					//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
-					//	 gl2.glColor4d(1,0,0.8,0.15);
-					//	 PrimitiveSolids.drawBox(gl2,
-					//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
-					//		 dhTool.dhLinkEquivalent.model.getBoundTop());
-					//}
-				}
-			gl2.glPopMatrix();
-			//MatrixHelper.drawMatrix(gl2, liveMatrix, 8.0);
-			//MatrixHelper.drawMatrix2(gl2, targetMatrix, 6.0);
-	
-			if (cam != null) {
-				// Matrix4d mat = new Matrix4d(cam.getMatrix());
-				// Vector3d camPos = cam.getPosition();
-				// mat.setTranslation(new
-				// Vector3d(targetMatrix.m03,targetMatrix.m13,targetMatrix.m23));
-				// MatrixHelper.drawMatrix(gl2, mat,20);
+				MatrixHelper.applyMatrix(gl2,link.pose);
+	    		link.setAngleColorByRange(gl2);
+				++j;
+			}
+			
+			if (dhTool != null) {
+				dhTool.render(gl2);
+				if (showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
+				if (showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);
+				//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
+				//	 gl2.glColor4d(1,0,0.8,0.15);
+				//	 PrimitiveSolids.drawBox(gl2,
+				//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
+				//		 dhTool.dhLinkEquivalent.model.getBoundTop());
+				//}
 			}
 		gl2.glPopMatrix();
+		
+		MatrixHelper.drawMatrix(gl2, endEffectorMatrix, 8.0);
 
 		if (isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
-
-		drawTargetPose(gl2);
 	}
 
 	/**
@@ -285,19 +175,17 @@ public class DHRobot extends Robot {
 	 * the end position.
 	 */
 	public void refreshPose() {
-		liveMatrix.setIdentity();
+		endEffectorMatrix.setIdentity();
 
-		Iterator<DHLink> i = links.iterator();
-		while (i.hasNext()) {
-			DHLink link = i.next();
+		for( DHLink link : links ) {
 			// update matrix
 			link.refreshPoseMatrix();
 			// find cumulative matrix
-			link.poseCumulative.set(liveMatrix);
-			liveMatrix.mul(link.pose);
+			link.poseCumulative.set(endEffectorMatrix);
+			endEffectorMatrix.mul(link.pose);
 		}
 		if (dhTool != null) {
-			dhTool.refreshPose(liveMatrix);
+			dhTool.refreshPose(endEffectorMatrix);
 		}
 	}
 
@@ -321,302 +209,18 @@ public class DHRobot extends Robot {
 		}
 	}
 
-	/**
-	 * Adjust the world transform of the robot
-	 * 
-	 * @param pos the new world position for the local origin of the robot.
-	 */
-	@Override
-	public void setPosition(Vector3d pos) {
-		super.setPosition(pos);
-
-		// refreshPose();
-		// if(panel!=null) panel.updateEnd();
-	}
-
-	/**
-	 * Attach the nearest tool Detach the active tool if there is one.
-	 */
-	public void toggleATC() {
-		if (dhTool != null) {
-			// we have a tool, release it.
-			removeTool();
-			return;
-		}
-
-		// we have no tool. Look out into the world...
-		World world = getWorld();
-		if (world != null) {
-			// Request from the world "is there a tool at the position of the end effector"?
-			Point3d target = new Point3d(this.liveMatrix.m03, this.liveMatrix.m13, this.liveMatrix.m23);
-			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
-
-			// If there is a tool, attach to it.
-			Iterator<PhysicalObject> iter = list.iterator();
-			while (iter.hasNext()) {
-				PhysicalObject po = iter.next();
-				if (po instanceof DHTool) {
-					// probably the only one we'll find.
-					setTool((DHTool) po);
-				}
-			}
-		}
-	}
-
 	public void setTool(DHTool arg0) {
-		removeTool();
 		dhTool = arg0;
-		dhTool.setParent(this);
-		if (arg0 != null) {
-			// add the tool offset to the targetPose.
-			dhTool.dhLinkEquivalent.refreshPoseMatrix();
-			Matrix4d toolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
-			targetMatrix.mul(toolPose);
-			// tell the tool it is being held.
-			arg0.heldBy = this;
-		}
 		this.panel.updateActiveTool(dhTool);
 	}
 
 	public void removeTool() {
-		if (dhTool != null) {
-			// subtract the tool offset from the targetPose.
-			dhTool.dhLinkEquivalent.refreshPoseMatrix();
-			Matrix4d inverseToolPose = new Matrix4d(dhTool.dhLinkEquivalent.pose);
-			inverseToolPose.invert();
-			targetMatrix.mul(inverseToolPose);
-			// tell the tool it is no longer held.
-			dhTool.heldBy = null;
-			dhTool.setParent(null);
-		}
 		dhTool = null;
+		this.panel.updateActiveTool(null);
 	}
 
 	public DHTool getCurrentTool() {
 		return dhTool;
-	}
-
-	/**
-	 * Note: Is called by Robot constructor, so it must use getSolverIK().
-	 */
-	@Override
-	public RobotKeyframe createKeyframe() {
-		DHIKSolver s = getSolverIK();
-		int size= s.getSolutionSize();
-		DHKeyframe key = new DHKeyframe(size);
-		
-		// 
-		return key;
-	}
-	
-	/**
-	 * Direct Drive Mode means that we're not playing animation of any kind. That
-	 * means no gcode running, no scrubbing on a timeline, or any other kind of
-	 * external control.
-	 * 
-	 * @return true if we're in direct drive mode.
-	 */
-	protected boolean inDirectDriveMode() {
-		return true;// interpolatePoseT>=1.0 ;
-	}
-
-	protected void interpolate(double dt) {
-		// do not simulate movement when connected to a live robot.
-		if (connection != null && connection.isOpen())
-			return;
-
-		if (dwellTime > 0) {
-			dwellTime -= dt;
-			return;
-		}
-
-		int interpolationStyle = INTERPOLATION_STYLE_LINEAR;
-		switch (interpolationStyle) {
-		case INTERPOLATION_STYLE_LINEAR:
-			interpolateLinear(dt);
-			break;
-		case INTERPOLATION_STYLE_JACOBIAN:
-			interpolateJacobian(dt);
-			break;
-		}
-	}
-
-	/**
-	 * interpolation between two matrixes linearly, and update kinematics while
-	 * you're at it.
-	 * 
-	 * @param dt
-	 */
-	protected void interpolateLinear(double dt) {	
-		if (interpolatePoseT >= interpolateTime) {
-			if(interpolationQueue.isEmpty())
-				return;
-		}
-
-		System.out.println("Interpolating size="+interpolationQueue.size()+" @ "+interpolatePoseT);
-		interpolatePoseT += dt;
-
-		if (interpolatePoseT >= interpolateTime) {
-			if (interpolationQueue.isEmpty()) {
-				// will reach final position and stop.
-				interpolatePoseT = interpolateTime;
-				System.out.println("Interpolating done.");
-			} else {
-				System.out.println("Interpolating next key");
-				System.out.println("interpolationQueue.size()="+interpolationQueue.size());
-				// pop one element from the queue and continue.
-				startMatrix.set(liveMatrix);
-				InterpolationStep s = interpolationQueue.poll();
-				endMatrix.set(s.target);
-				Vector3d p0 = new Vector3d();
-				Vector3d p1 = new Vector3d();
-				Vector3d dp = new Vector3d();
-				startMatrix.get(p0);
-				endMatrix.get(p1);
-				dp.sub(p1,p0);
-				interpolateTime = dp.length() / s.feedrate;
-				interpolatePoseT=0;
-			}
-		}
-
-		
-		if (dhTool != null) {
-			dhTool.interpolate(dt);
-		}
-		
-		// changing the end matrix will only move the simulated version of the "live"
-		// robot.
-		Matrix4d interpolatedMatrix = new Matrix4d();
-		MatrixHelper.interpolate(startMatrix, endMatrix, interpolatePoseT/interpolateTime, interpolatedMatrix);
-		setTargetMatrix(interpolatedMatrix);
-	}
-
-	/**
-	 * interpolation between two matrixes using jacobians, and update kinematics
-	 * while you're at it.
-	 * 
-	 * @param dt
-	 */
-	protected void interpolateJacobian(double dt) {		
-		if (interpolatePoseT >= interpolateTime) {
-			if(interpolationQueue.isEmpty())
-				return;
-		}
-
-		System.out.println("Interpolating size="+interpolationQueue.size()+" @ "+interpolatePoseT);
-		interpolatePoseT += dt;
-
-		if (interpolatePoseT >= interpolateTime) {
-			if (interpolationQueue.isEmpty()) {
-				// will reach final position and stop.
-				interpolatePoseT = interpolateTime;
-				System.out.println("Interpolating done.");
-			} else {
-				System.out.println("Interpolating next key");
-				System.out.println("interpolationQueue.size()="+interpolationQueue.size());
-				// pop one element from the queue and continue.
-				startMatrix.set(liveMatrix);
-				InterpolationStep s = interpolationQueue.poll();
-				endMatrix.set(s.target);
-				Vector3d p0 = new Vector3d();
-				Vector3d p1 = new Vector3d();
-				Vector3d dp = new Vector3d();
-				startMatrix.get(p0);
-				endMatrix.get(p1);
-				dp.sub(p1,p0);
-				interpolateTime = dp.length() / s.feedrate;
-				interpolatePoseT=0;
-			}
-		}
-
-		if (dhTool != null) {
-			dhTool.interpolate(dt);
-		}
-
-		double ratio0 = (interpolatePoseT   ) / interpolateTime;
-		double ratio1 = (interpolatePoseT+dt) / interpolateTime;
-		if(ratio1>1) ratio1=1;
-		// changing the end matrix will only move the simulated version of the "live"
-		// robot.
-		Matrix4d interpolatedMatrix0 = new Matrix4d();
-		Matrix4d interpolatedMatrix1 = new Matrix4d();
-		MatrixHelper.interpolate(startMatrix, endMatrix, ratio0, interpolatedMatrix0);
-		MatrixHelper.interpolate(startMatrix, endMatrix, ratio1, interpolatedMatrix1);
-
-		// get the translation force
-		Vector3d p0 = new Vector3d();
-		Vector3d p1 = new Vector3d();
-		Vector3d dp = new Vector3d();
-		interpolatedMatrix0.get(p0);
-		interpolatedMatrix1.get(p1);
-		dp.sub(p1,p0);
-		dp.scale(1.0/dt);
-		
-		// get the rotation force
-		Quat4d q0 = new Quat4d();
-		Quat4d q1 = new Quat4d();
-		Quat4d dq = new Quat4d();
-		interpolatedMatrix0.get(q0);
-		interpolatedMatrix1.get(q1);
-		dq.sub(q1,q0);
-		dq.scale(2/dt);
-		Quat4d w = new Quat4d();
-		w.mulInverse(dq,q0);
-		
-		if (this instanceof Sixi2) {
-			// sane solution
-			DHKeyframe newKey = (DHKeyframe)createKeyframe();
-			getPoseFK(newKey);
-			double[][] jacobian = ((Sixi2) this).approximateJacobian(newKey);
-			double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-			double[] force = { dp.x,dp.y,dp.z, w.x,w.y,w.z };
-
-			double df = Math.sqrt(
-					force[0] * force[0] + 
-					force[1] * force[1] + 
-					force[2] * force[2] +
-					force[3] * force[3] +
-					force[4] * force[4] +
-					force[5] * force[5]);
-			if (df > 0.01) {
-				double[] jvot = new double[6];
-				int j, k;
-				for (j = 0; j < 6; ++j) {
-					for (k = 0; k < 6; ++k) {
-						jvot[j] += inverseJacobian[k][j] * force[k];
-					}
-					if (!Double.isNaN(jvot[j])) {
-						newKey.fkValues[j] += Math.toDegrees(jvot[j]) * dt;
-					}
-				}
-				if (sanityCheck(newKey)) {
-					setPoseFK(newKey);
-				}
-			} else {
-				interpolationQueue.poll();
-			}
-		}
-
-		if (dhTool != null) {
-			dhTool.interpolate(dt);
-		}
-	}
-
-	/**
-	 * move the finger tip of the arm if the InputManager says so. The direction and
-	 * torque of the movement is controlled by a frame of reference.
-	 * 
-	 * @return true if targetPose changes.
-	 */
-	public boolean driveFromKeyState(double dt) {
-		return false;
-	}
-	
-	public void drawTargetPose(GL2 gl2) {
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
-			MatrixHelper.drawMatrix(gl2, targetMatrix,5);
-		gl2.glPopMatrix();
 	}
 
 	public boolean sanityCheck(DHKeyframe keyframe) {
@@ -823,18 +427,15 @@ public class DHRobot extends Robot {
 	 * @param keyframe
 	 */
 	public void setPoseFK(DHKeyframe keyframe) {
-		Iterator<DHLink> i = this.links.iterator();
-		
 		int stop=keyframe.fkValues.length;
-		
 		int j = 0;
-		while (i.hasNext()) {
-			DHLink link = i.next();
+		
+		for( DHLink link : links ) {
 			if(j==stop) break;
 			link.setAdjustableValue(keyframe.fkValues[j++]);
 		}
 
-		this.refreshPose();
+		refreshPose();
 		if (panel != null && !isDisablePanel()) {
 			panel.updateEnd();
 		}
@@ -846,29 +447,15 @@ public class DHRobot extends Robot {
 	 * @param keyframe to set
 	 */
 	public void getPoseFK(DHKeyframe keyframe) {
-		Iterator<DHLink> i = this.links.iterator();
-		
 		int stop=keyframe.fkValues.length;
-		
 		int j = 0;
-		while (i.hasNext()) {
-			DHLink link = i.next();
+
+		for( DHLink link : links ) {
 			if(j==stop) break;
 			if(link.hasAdjustableValue()) {
 				keyframe.fkValues[j++] = link.getAdjustableValue();
 			}
 		}
-	}
-
-	@Override
-	public void pick() {
-		// this.refreshPose();
-		drawAsSelected = true;
-	}
-
-	@Override
-	public void unPick() {
-		drawAsSelected = false;
 	}
 
 	public boolean isShowBones() {
@@ -881,10 +468,6 @@ public class DHRobot extends Robot {
 			panel.setShowBones(arg0);
 	}
 
-	public void setShowBonesPassive(boolean arg0) {
-		this.showBones = arg0;
-	}
-
 	public boolean isShowPhysics() {
 		return showPhysics;
 	}
@@ -895,45 +478,12 @@ public class DHRobot extends Robot {
 			panel.setShowPhysics(arg0);
 	}
 
-	public void setShowPhysicsPassive(boolean arg0) {
-		this.showPhysics = arg0;
+	public void setShowAngles(boolean arg0) {
+		showAngles = arg0;
 	}
 
 	public boolean isShowAngles() {
 		return showAngles;
-	}
-
-	public void setShowAnglesPassive(boolean arg0) {
-		this.showAngles = arg0;
-	}
-
-	protected boolean canTargetPoseRotateX() {
-		return true;
-	}
-
-	protected boolean canTargetPoseRotateY() {
-		return true;
-	}
-
-	protected boolean canTargetPoseRotateZ() {
-		return true;
-	}
-
-	/**
-	 * Generate gcode that will allow complete serialization of the robot's state.
-	 * Might require additional gcode for tools held by the robot.
-	 * 
-	 * @return
-	 */
-	public String generateGCode() {
-		return "";
-	}
-
-	public void parseGCode(String str) {
-	}
-
-	public boolean isInterpolating() {
-		return interpolatePoseT >= 0 && interpolatePoseT < 1;
 	}
 
 	public int getNumLinks() {
@@ -944,33 +494,12 @@ public class DHRobot extends Robot {
 		return links.get(i);
 	}
 
-	public void setTargetMatrix(Matrix4d m) {
-		DHKeyframe oldPose = (DHKeyframe)createKeyframe();
-		getPoseFK(oldPose);
-		DHKeyframe newPose = (DHKeyframe)createKeyframe();
-		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, newPose,oldPose);
-		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
-			if (sanityCheck(newPose)) {
-				setPoseFK(newPose);
-				targetMatrix.set(m);
-			} else {
-				System.out.println("moveToTargetPose() insane");
-			}
-		} else {
-			System.out.println("moveToTargetPose() impossible");
-		}
-	}
-
-	public Matrix4d getTargetMatrix() {
-		return new Matrix4d(targetMatrix);
-	}
-
-	public Matrix4d getLiveMatrix() {
-		return new Matrix4d(liveMatrix);
+	public Matrix4d getEndEffectorMatrix() {
+		return new Matrix4d(endEffectorMatrix);
 	}
 
 	public void setLiveMatrix(Matrix4d m) {
-		liveMatrix.set(m);
+		endEffectorMatrix.set(m);
 	}
 	
 	public boolean isDisablePanel() {
@@ -979,13 +508,5 @@ public class DHRobot extends Robot {
 
 	public void setDisablePanel(boolean disablePanel) {
 		this.disablePanel = disablePanel;
-	}
-	
-	public void setFrameOfReference(Frame v) {
-		frameOfReferenceIndex=v;
-	}
-	
-	public Frame getFrameOfReference() {
-		return frameOfReferenceIndex;
 	}
 }
