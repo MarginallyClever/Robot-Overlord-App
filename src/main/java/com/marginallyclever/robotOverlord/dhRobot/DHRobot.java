@@ -83,7 +83,7 @@ public class DHRobot extends Observable implements Serializable {
 			// copy my links into the other robot.
 			links.add(new DHLink(link));
 		}
-		
+		solver = b.solver;
 		endEffectorMatrix.set(b.endEffectorMatrix);
 		dhTool.set(b.dhTool);
 		
@@ -104,7 +104,7 @@ public class DHRobot extends Observable implements Serializable {
 	 * 
 	 * @return the IK solver for a specific type of robot.
 	 */
-	public DHIKSolver getSolverIK() {
+	public DHIKSolver getIKSolver() {
 		return solver;
 	}
 
@@ -113,61 +113,74 @@ public class DHRobot extends Observable implements Serializable {
 	 * Set the solver.
 	 * @return the IK solver for a specific type of robot.
 	 */
-	public void setSolverIK(DHIKSolver solver0) {
+	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
 	}
 
 	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+
+		float [] original = new float[4];
+		
+		gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
+		
+		// 3d meshes
+		for( DHLink link : links ) {
+			gl2.glColor4f(original[0],original[1],original[2],original[3]);
+			link.render(gl2);
+			link.setAngleColorByRange(gl2);
+			MatrixHelper.applyMatrix(gl2, link.pose);
+		}
+		gl2.glColor4f(original[0],original[1],original[2],original[3]);
+		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
+
+		if (dhTool != null) {
+			dhTool.render(gl2);
+		}
+		
+		// now simplify look & feel for line drawings.
 		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_LIGHTING);
 
 		PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 10);
 
-		gl2.glPushMatrix();
-
-
 		int j = 0;
-			for( DHLink link : links ) {
-				// 3d meshes
-				link.renderModel(gl2);
-				if (showBones) link.renderBones(gl2);
-				if (showAngles) link.renderAngles(gl2);
-				if (showPhysics && link.model != null) {
-					// Draw the bounding box of the model as the physical bounding box
-					// TODO there are better shapes for collision detection?
-					if (j == hitBox1 || j == hitBox2) {
-						// hit
-						gl2.glColor4d(1, 0, 0.8, 0.15);
-					} else {
-						// no hit
-						gl2.glColor4d(1, 0.8, 0, 0.15);
-					}
-					PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
+		for( DHLink link : links ) {
+			if (showBones) link.renderBones(gl2);
+			if (showAngles) link.renderAngles(gl2);
+			if (showPhysics && link.model != null) {
+				// Draw the bounding box of the model as the physical bounding box
+				// TODO there are better shapes for collision detection?
+				if (j == hitBox1 || j == hitBox2) {
+					// hit
+					gl2.glColor4d(1, 0, 0.8, 0.15);
+				} else {
+					// no hit
+					gl2.glColor4d(1, 0.8, 0, 0.15);
 				}
-				MatrixHelper.applyMatrix(gl2,link.pose);
-	    		link.setAngleColorByRange(gl2);
-				++j;
+				PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
 			}
+			MatrixHelper.applyMatrix(gl2,link.pose);
+			++j;
+		}
 			
-			if (dhTool != null) {
-				dhTool.render(gl2);
-				if (showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
-				if (showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);
-				//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
-				//	 gl2.glColor4d(1,0,0.8,0.15);
-				//	 PrimitiveSolids.drawBox(gl2,
-				//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
-				//		 dhTool.dhLinkEquivalent.model.getBoundTop());
-				//}
-			}
+		if (dhTool != null) {
+			if (showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
+			if (showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);
+			//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
+			//	 gl2.glColor4d(1,0,0.8,0.15);
+			//	 PrimitiveSolids.drawBox(gl2,
+			//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
+			//		 dhTool.dhLinkEquivalent.model.getBoundTop());
+			//}
+		}
 		gl2.glPopMatrix();
 		
 		MatrixHelper.drawMatrix(gl2, endEffectorMatrix, 8.0);
 
 		if (isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		// end simplify
 	}
 
 	/**
@@ -421,6 +434,33 @@ public class DHRobot extends Observable implements Serializable {
 		return true;
 	}
 
+
+	/**
+	 * Find the forward kinematic pose of robot r that would give an end effector matrix matching m.
+	 * If the FK pose is found, set the adjustable values of the links to said pose.
+	 * @param r the DHRobot to set
+	 * @param m the matrix to solve against.
+	 */
+	public boolean setPoseIK(Matrix4d m) {
+		DHKeyframe oldPose = solver.createDHKeyframe();
+		getPoseFK(oldPose);
+		DHKeyframe newPose = solver.createDHKeyframe();
+		
+		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, newPose,oldPose);
+		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
+			if (sanityCheck(newPose)) {
+				setPoseFK(newPose);
+				return true;
+			} else {
+				//System.out.println("setPoseIK() insane");
+			}
+		} else {
+			///System.out.println("setPoseIK() impossible");
+		}
+		return false;
+	}
+
+
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
 	 * 
@@ -432,7 +472,9 @@ public class DHRobot extends Observable implements Serializable {
 		
 		for( DHLink link : links ) {
 			if(j==stop) break;
-			link.setAdjustableValue(keyframe.fkValues[j++]);
+			if(link.hasAdjustableValue()) {
+				link.setAdjustableValue(keyframe.fkValues[j++]);
+			}
 		}
 
 		refreshPose();
@@ -457,7 +499,7 @@ public class DHRobot extends Observable implements Serializable {
 			}
 		}
 	}
-
+	
 	public boolean isShowBones() {
 		return showBones;
 	}
@@ -494,12 +536,8 @@ public class DHRobot extends Observable implements Serializable {
 		return links.get(i);
 	}
 
-	public Matrix4d getEndEffectorMatrix() {
+	public Matrix4d getPoseIK() {
 		return new Matrix4d(endEffectorMatrix);
-	}
-
-	public void setLiveMatrix(Matrix4d m) {
-		endEffectorMatrix.set(m);
 	}
 	
 	public boolean isDisablePanel() {
