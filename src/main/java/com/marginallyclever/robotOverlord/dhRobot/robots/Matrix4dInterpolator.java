@@ -5,8 +5,6 @@ import java.util.Queue;
 
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.convenience.StringHelper;
-
 
 public class Matrix4dInterpolator {
 	// targetMatrix = (endMatrix - startMatrix) * interpolatePoseT + startMatrix
@@ -75,10 +73,10 @@ public class Matrix4dInterpolator {
 		}
 		
 		if(interpolatePoseT < interpolateTime) {
-			System.out.println(
-					"Interpolating "+queue.size()
-					+" @ "+StringHelper.formatDouble(interpolatePoseT)
-					+" / "+StringHelper.formatDouble(interpolateTime));
+			//System.out.println(
+			//		"Interpolating "+queue.size()
+			//		+" @ "+StringHelper.formatDouble(interpolatePoseT)
+			//		+" / "+StringHelper.formatDouble(interpolateTime));
 			interpolatePoseT += dt;
 		}
 		
@@ -86,12 +84,9 @@ public class Matrix4dInterpolator {
 			if (queue.isEmpty()) {
 				// will reach final position and stop.
 				interpolatePoseT = interpolateTime;
-				System.out.println("Interpolating done.");
-				start=null;
-				end=null;
+				//System.out.println("Interpolating done.");
 			} else {
-				System.out.println("Interpolating next key");
-				System.out.println("interpolationQueue.size()="+queue.size());
+				//System.out.println(queue.size()+" keys remain.  Next!");
 				
 				start=end;
 				end=queue.poll();
