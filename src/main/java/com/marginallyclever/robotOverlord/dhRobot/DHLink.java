@@ -127,8 +127,6 @@ public class DHLink extends Observable {
 			setAngleColorByRange(gl2);
 		}
 		gl2.glPopMatrix();
-
-		MatrixHelper.applyMatrix(gl2,this.pose);
 	}
 
 	/**
@@ -328,7 +326,6 @@ public class DHLink extends Observable {
 	}
 
 	public void setD(double v) {
-		v = Math.max(Math.min(v, rangeMax), rangeMin);
 		if(d!=v) setChanged();
 		this.d = v;
 		notifyObservers(v);
@@ -339,7 +336,6 @@ public class DHLink extends Observable {
 	}
 
 	public void setTheta(double v) {
-		v = Math.max(Math.min(v, rangeMax), rangeMin);
 		if(theta!=v) setChanged();
 		this.theta = v;
 		notifyObservers(v);
@@ -350,7 +346,6 @@ public class DHLink extends Observable {
 	}
 
 	public void setR(double v) {
-		v = Math.max(Math.min(v, rangeMax), rangeMin);
 		if(r!=v) setChanged();
 		this.r = v;
 		notifyObservers(v);
@@ -361,7 +356,6 @@ public class DHLink extends Observable {
 	}
 
 	public void setAlpha(double v) {
-		v = Math.max(Math.min(v, rangeMax), rangeMin);
 		if(alpha!=v) setChanged();
 		this.alpha = v;
 		notifyObservers(v);
