@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.matrixInterpolationTest;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -84,13 +83,11 @@ public class MatrixInterpolationTest extends Entity {
 	public void render(GL2 gl2) {
 		Matrix4d start = points.get(index);
 		Matrix4d end = points.get((index+1)%points.size());
-		
 		MatrixHelper.interpolate(start,end,alpha,result);
-		
-		Iterator<Matrix4d> i = points.iterator();
-		while(i.hasNext()) {
-			MatrixHelper.drawMatrix(gl2, i.next(), 3);
-		}
 		MatrixHelper.drawMatrix(gl2, result, 4);
+		
+		for( Matrix4d m : points ) {
+			MatrixHelper.drawMatrix(gl2, m, 3);
+		}
 	}
 }
