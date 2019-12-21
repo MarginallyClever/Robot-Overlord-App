@@ -244,8 +244,8 @@ public class MatrixHelper {
 		Vector3d tInter = new Vector3d();
 		tInter.interpolate(tStart, tEnd, alpha);
 		// build the result matrix
-		result.set(qStart);
-		result.setTranslation(tStart);
+		result.set(qInter);
+		result.setTranslation(tInter);
 		// report ok
 		return true;
 	}
