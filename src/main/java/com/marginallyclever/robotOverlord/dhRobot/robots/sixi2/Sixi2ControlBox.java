@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox;
+package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -18,7 +18,6 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
 import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
@@ -29,15 +28,15 @@ import com.marginallyclever.robotOverlord.world.World;
  * 
  * @author Dan Royer
  */
-public class DHRobotControlBox extends ModelInWorld {
+public class Sixi2ControlBox extends ModelInWorld {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	protected DHRobot target;
+	protected Sixi2 target;
 	protected BufferedReader gcodeFile;
-	protected DHRobotControlBoxPanel panel;
+	protected Sixi2ControlBoxPanel panel;
 	protected String fileToPlay;
 	
 	protected boolean isCycleStart,isLoop,isSingleBlock;
@@ -81,7 +80,7 @@ public class DHRobotControlBox extends ModelInWorld {
 		this.isSingleBlock = isSingleBlock;
 	}
 
-	public DHRobotControlBox() {
+	public Sixi2ControlBox() {
 		super();
 		
 		setDisplayName("DHRobotPlayer");
@@ -133,7 +132,7 @@ public class DHRobotControlBox extends ModelInWorld {
 		// remove model panel
 		list.remove(list.size()-1);
 
-		panel = new DHRobotControlBoxPanel(gui,this);
+		panel = new Sixi2ControlBoxPanel(gui,this);
 		list.add(panel);
 		
 		return list;
@@ -141,14 +140,12 @@ public class DHRobotControlBox extends ModelInWorld {
 
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
 	// should probably be a subscription model.
-	protected DHRobot findRobot() {
+	protected Sixi2 findRobot() {
 		Entity w = this.getParent(); 
 		if(w instanceof World) {
-			Iterator<Entity> entities = w.getChildren().iterator();
-			while(entities.hasNext()) {
-				Entity e = entities.next();
-				if(e instanceof DHRobot) {
-					return (DHRobot)e;
+			for(Entity e : w.getChildren() ) {
+				if(e instanceof Sixi2) {
+					return (Sixi2)e;
 				}
 			}
 		}
@@ -168,7 +165,7 @@ public class DHRobotControlBox extends ModelInWorld {
 		if(target==null || gcodeFile==null) return;
 		
 		if((target.getConnection()!=null && target.isReadyToReceive()) || 
-			(target.getConnection()==null && !target.isInterpolating()) ) {
+			(target.getConnection()==null && !target.interpolator.isInterpolating()) ) {
 			if(!isCycleStart) return;
 			
 			if(isSingleBlock) {
@@ -191,7 +188,7 @@ public class DHRobotControlBox extends ModelInWorld {
 				} else {
 					// found a non-empty line
 					target.parseGCode(line);
-					poses.add(target.getTargetMatrix());
+					poses.add(target.ghost.getEndEffectorMatrix());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -374,7 +371,7 @@ public class DHRobotControlBox extends ModelInWorld {
 		openFileNow();
 	}
 	
-	public DHRobot getTarget() {
+	public Sixi2 getTarget() {
 		return target;
 	}
 

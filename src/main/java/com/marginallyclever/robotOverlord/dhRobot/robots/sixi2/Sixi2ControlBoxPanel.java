@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox;
+package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,20 +29,19 @@ import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
  * Control Panel for a DHRobot
  * @author Dan Royer
  *
  */
-public class DHRobotControlBoxPanel extends JPanel implements ActionListener, ChangeListener {
+public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected DHRobotControlBox player;
+	protected Sixi2ControlBox player;
 	protected RobotOverlord ro;
 	
 	protected UserCommandSelectFile fileToPlay;
@@ -79,7 +78,7 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 
 	protected int START_HEIGHT = 12*4;
 	
-	public DHRobotControlBoxPanel(RobotOverlord gui,DHRobotControlBox arg0) {
+	public Sixi2ControlBoxPanel(RobotOverlord gui,Sixi2ControlBox arg0) {
 		this.player = arg0;
 		this.ro = gui;
 		
@@ -284,7 +283,7 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 			loadFileToLivePosition();
 		}
 		if(source == directCommandSend) {
-			DHRobot t=player.getTarget();
+			Sixi2 t=player.getTarget();
 			if(t!=null) {
 				//JOptionPane.showMessageDialog(null, directCommand.getText());
 				t.parseGCode(directCommand.getText());
@@ -357,7 +356,7 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 
 	
 	public void saveLivePositionToFile() {
-		DHRobot t=player.getTarget();
+		Sixi2 t=player.getTarget();
 		String gcode = t.generateGCode();
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter("G30.ngc"));
@@ -392,7 +391,7 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 	
 	protected void setHeight(double height_cm) {
 		p2 = new Vector3d(11.137,80.662,0);  
-		DHRobot target=player.getTarget();
+		Sixi2 target=player.getTarget();
 		if(target==null) return;
 		
 		double z = height_cm-71.0-10;  // subtract table height and top of head.
@@ -422,7 +421,7 @@ public class DHRobotControlBoxPanel extends JPanel implements ActionListener, Ch
 	
 	protected void goToFirstPosition() {
 		p1 = new Vector3d(5,1,36.819);
-		DHRobot target=player.getTarget();
+		Sixi2 target=player.getTarget();
 		String msg = "G0"
 				+" X"+StringHelper.formatDouble(p1.x)
 				+" Y"+StringHelper.formatDouble(p1.y)
