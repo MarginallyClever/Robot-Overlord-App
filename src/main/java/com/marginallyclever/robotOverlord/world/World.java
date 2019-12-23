@@ -43,7 +43,7 @@ implements Serializable {
 
 	protected transient NetworkConnectionManager connectionManager = new NetworkConnectionManager();
 
-	protected transient boolean areTexturesLoaded=false;
+	protected transient boolean areSkyboxTexturesLoaded=false;
 
 	public final static Matrix4d pose = new Matrix4d();
 	// TODO lose these junk vectors that don't match assumptions, anyhow.
@@ -55,7 +55,12 @@ implements Serializable {
 	protected Camera camera;
 	protected CameraMount freeCamera;
 	protected Light light0, light1, light2;
-	protected transient Texture t0,t1,t2,t3,t4,t5;
+	protected transient Texture skyboxtextureXPos,
+								skyboxtextureXNeg,
+								skyboxtextureYPos,
+								skyboxtextureYNeg,
+								skyboxtextureZPos,
+								skyboxtextureZNeg;
 
 	protected transient Vector3d pickForward = null;
 	protected transient Vector3d pickRight = null;
@@ -73,7 +78,7 @@ implements Serializable {
 		
 		setDisplayName("World");
 		
-		areTexturesLoaded=false;
+		areSkyboxTexturesLoaded=false;
 		pickForward=new Vector3d();
 		pickRight=new Vector3d();
 		pickUp=new Vector3d();
@@ -101,7 +106,8 @@ implements Serializable {
 		//camera.setPan(52);
 		camera.setTilt(76);
 
-		player.setPosition(new Vector3d(60,25,0));
+		player.setPosition(new Vector3d(-35,0,14));
+		player.adjustRotation(0, -90, 0);
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
 		m.setIdentity();
@@ -129,17 +135,20 @@ implements Serializable {
 
 	protected void setup() {
 		setupLights();
-		loadTextures();
+		loadSkyboxTextures();
     }
     
 
     protected void setupLights() {
+    	// TODO these values should saved to a test0.scene file and then not happen here.
+    	
+    	// the custom colors could be in a drop down list. 
 		light0.setDisplayName("light0");
     	light0.index=0;
     	light0.setPosition(new Vector3d(0,0,30));
-    	light0.setAmbient(         0.0f,          0.0f,          0.0f, 1.0f);
-    	light0.setDiffuse(255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
-	    light0.setSpecular(        1.0f,          1.0f,          1.0f, 1.0f);
+    	light0.setAmbient (         0.0f,          0.0f,          0.0f, 1.0f);
+    	light0.setDiffuse (255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
+	    light0.setSpecular(         1.0f,          1.0f,          1.0f, 1.0f);
 
 		light1.setDisplayName("light1");
     	light1.index=1;
@@ -151,26 +160,24 @@ implements Serializable {
 		light2.setDisplayName("light2");
     	light2.index=2;
     	light2.setPosition(new Vector3d(30,30,30));
-	    light2.setAmbient(          0.0f,          0.0f,          0.0f, 1.0f);
-    	light2.setDiffuse( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f, 1.0f);  // metal halide
-	    light2.setSpecular(         0.0f,          0.0f,          0.0f, 1.0f);
+	    light2.setAmbient (          0.0f,          0.0f,          0.0f, 1.0f);
+    	light2.setDiffuse ( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f, 1.0f);  // metal halide
+	    light2.setSpecular(          0.0f,          0.0f,          0.0f, 1.0f);
     	light2.setDirectional(true);
     }
     
 	
-	void loadTextures() {
-		if(areTexturesLoaded) return;
-		
-		// World background skybox texture
+	void loadSkyboxTextures() {
+		if(areSkyboxTexturesLoaded) return;
 		try {
-			t0 = TextureIO.newTexture(FileAccess.open("/images/cube-x-pos.png"), false, "png");
-			t1 = TextureIO.newTexture(FileAccess.open("/images/cube-x-neg.png"), false, "png");
-			t2 = TextureIO.newTexture(FileAccess.open("/images/cube-y-pos.png"), false, "png");
-			t3 = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
-			t4 = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
-			t5 = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
+			skyboxtextureXPos = TextureIO.newTexture(FileAccess.open("/images/cube-x-pos.png"), false, "png");
+			skyboxtextureXNeg = TextureIO.newTexture(FileAccess.open("/images/cube-x-neg.png"), false, "png");
+			skyboxtextureYPos = TextureIO.newTexture(FileAccess.open("/images/cube-y-pos.png"), false, "png");
+			skyboxtextureYNeg = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
+			skyboxtextureZPos = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
+			skyboxtextureZNeg = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
 			//System.out.println(">>> All textures loaded OK");
-			areTexturesLoaded=true;
+			areSkyboxTexturesLoaded=true;
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -239,7 +246,7 @@ implements Serializable {
 			
 			gl2.glDisable(GL2.GL_LIGHTING);
 
-			//drawSkyCube(gl2);
+			//drawSkyBox(gl2);
 			
 			// lights
 			for( Entity obj : children ) {
@@ -313,8 +320,8 @@ implements Serializable {
 	
 
 	// Draw background
-	protected void drawSkyCube(GL2 gl2) {
-		if(!areTexturesLoaded) return;
+	protected void drawSkyBox(GL2 gl2) {
+		if(!areSkyboxTexturesLoaded) return;
 
         //gl2.glDisable(GL2.GL_CULL_FACE);
 		
@@ -327,7 +334,7 @@ implements Serializable {
 			Vector3d p = camera.getPosition();
 			gl2.glTranslated(-p.x,-p.y,-p.z);
 
-			t0.bind(gl2);
+			skyboxtextureXPos.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
@@ -335,7 +342,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
 			gl2.glEnd();
 
-			t1.bind(gl2);
+			skyboxtextureXNeg.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
@@ -343,7 +350,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
 			gl2.glEnd();
 
-			t2.bind(gl2);
+			skyboxtextureYPos.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
@@ -351,7 +358,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
 			gl2.glEnd();
 
-			t3.bind(gl2);
+			skyboxtextureYNeg.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
@@ -359,7 +366,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
 			gl2.glEnd();
 
-			t4.bind(gl2);
+			skyboxtextureZPos.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, 10);
 				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, 10);
@@ -367,7 +374,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, 10);
 			gl2.glEnd();
 
-			t5.bind(gl2);
+			skyboxtextureZNeg.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, -10);
 				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, -10);
