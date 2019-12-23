@@ -806,7 +806,9 @@ public class Sixi2 extends Robot {
 		if(!interpolator.isInterpolating()) {
 			// start with the live pose
 			interpolator.offer(live.getPoseIK(),0);
+			System.out.println("live "+interpolator.getQueueSize());
 		}
+		
 		// add the latest ghost on the end of the queue
 		interpolator.offer(ghost.getPoseIK(),time);
 	}
@@ -934,10 +936,18 @@ public class Sixi2 extends Robot {
 	 * 
 	 * @param dt
 	 */
-	protected void interpolateJacobian(double dt) {	
-		double ratio0 = (interpolator.getInterpolatePoseT()   ) / interpolator.getInterpolateTime();
-		double ratio1 = (interpolator.getInterpolatePoseT()+dt) / interpolator.getInterpolateTime();
+	protected void interpolateJacobian(double dt) {
+		double total = interpolator.getInterpolateTime();
+		
+		if(total==0) {
+			return;
+		}
+
+		double t = interpolator.getInterpolatePoseT();
+		double ratio0 = (t   ) / total;
+		double ratio1 = (t+dt) / total;
 		if(ratio1>1) ratio1=1;
+		
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
 		Matrix4d interpolatedMatrix0 = new Matrix4d();
@@ -945,6 +955,8 @@ public class Sixi2 extends Robot {
 		MatrixHelper.interpolate(interpolator.getStartMatrix(), interpolator.getEndMatrix(), ratio0, interpolatedMatrix0);
 		MatrixHelper.interpolate(interpolator.getStartMatrix(), interpolator.getEndMatrix(), ratio1, interpolatedMatrix1);
 
+		interpolatedMatrix.set(interpolatedMatrix1);
+		
 		// get the translation force
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
@@ -991,7 +1003,7 @@ public class Sixi2 extends Robot {
 					double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * dt;
 					v = MathHelper.capRotationDegrees(v,0);
 					keyframe.fkValues[j]=v;
-					System.out.print(v+"\t");
+					System.out.print(StringHelper.formatDouble(v)+"\t");
 				}
 			}
 			if (live.sanityCheck(keyframe)) {
