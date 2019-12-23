@@ -107,13 +107,13 @@ implements Serializable {
 		camera.setTilt(76);
 
 		player.setPosition(new Vector3d(-35,0,14));
-		player.adjustRotation(0, -90, 0);
+		player.adjustRotation(90, 0, 90);
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
 		m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		sixi2.setRotation(m);
-		player.setRotation(m);
+		//player.setRotation(m);
 	}
 	
 	
