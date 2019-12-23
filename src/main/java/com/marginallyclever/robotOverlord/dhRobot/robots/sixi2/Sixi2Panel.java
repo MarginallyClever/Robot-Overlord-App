@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -28,12 +29,14 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 
 /**
  * Control Panel for a DHRobot
@@ -61,6 +64,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 	public JLabel gcodeLabel;
 	public JTextField gcodeValue;
+	public JPanel ghostPosPanel;
+	public JPanel livePosPanel;
 	
 	
 	public class Pair {
@@ -204,7 +209,10 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		CollapsiblePanel livePanel = new CollapsiblePanel("Live");
 		this.add(livePanel,con1);
 		con1.gridy++;
-		contents = livePanel.getContentPane();
+		livePanel.getContentPane().setLayout(new BoxLayout(livePanel.getContentPane(),BoxLayout.PAGE_AXIS));
+		
+		contents = new JPanel();
+		livePanel.getContentPane().add(contents);
 		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new SpringLayout());
 		i=0;
@@ -223,15 +231,27 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			liveJoints.add(new Pair(newSlider,link,label));
 			link.addObserver(this);
 			newSlider.setValue((int)link.getAdjustableValue());
+			label.setText(StringHelper.formatDouble(link.getAdjustableValue()));
 			label.setMinimumSize(new Dimension(50,16));
 			label.setPreferredSize(label.getMinimumSize());
 		}
 		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
+
+		livePosPanel = new JPanel();
+		livePosPanel.setBorder(new EmptyBorder(0,0,0,0));
+		livePosPanel.setLayout(new SpringLayout());
+		livePanel.getContentPane().add(livePosPanel);
+		updatePosition(robot.ghost,livePosPanel);
 		
+		
+		// ghost panel
 		CollapsiblePanel ghostPanel = new CollapsiblePanel("Ghost");
 		this.add(ghostPanel,con1);
 		con1.gridy++;
-		contents = ghostPanel.getContentPane();
+		ghostPanel.getContentPane().setLayout(new BoxLayout(ghostPanel.getContentPane(),BoxLayout.PAGE_AXIS));
+
+		contents = new JPanel();
+		ghostPanel.getContentPane().add(contents);
 		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new SpringLayout());
 		i=0;
@@ -249,13 +269,35 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			ghostJoints.add(new Pair(newSlider,link,label));
 			link.addObserver(this);
 			newSlider.setValue((int)link.getAdjustableValue());
+			label.setText(StringHelper.formatDouble(link.getAdjustableValue()));
 			label.setMinimumSize(new Dimension(50,16));
 			label.setPreferredSize(label.getMinimumSize());
 			
-			//newSlider.setEnabled(false);
-			newSlider.addChangeListener(this);
+			newSlider.setEnabled(false);
+			//newSlider.addChangeListener(this);
 		}
 		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
+
+		ghostPosPanel = new JPanel();
+		ghostPosPanel.setBorder(new EmptyBorder(0,0,0,0));
+		ghostPosPanel.setLayout(new SpringLayout());
+		ghostPanel.getContentPane().add(ghostPosPanel);
+		updatePosition(robot.ghost,ghostPosPanel);
+
+		gcodeValue.setText(robot.generateGCode());
+	}
+	
+	protected void updatePosition(DHRobot r, JPanel p) {
+		p.removeAll();
+		Vector3d pos = new Vector3d();
+		r.getPoseIK().get(pos);
+		p.add(new JLabel("X"));
+		p.add(new JLabel(StringHelper.formatDouble(pos.x)));
+		p.add(new JLabel("Y"));
+		p.add(new JLabel(StringHelper.formatDouble(pos.y)));
+		p.add(new JLabel("Z"));
+		p.add(new JLabel(StringHelper.formatDouble(pos.z)));
+		SpringUtilities.makeCompactGrid(p, 1, 6, 5, 5, 5, 5);
 	}
 	
 	@Override
@@ -350,5 +392,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 				break;
 			}
 		}
+		updatePosition(robot.live,livePosPanel);
+		updatePosition(robot.ghost,ghostPosPanel);
 	}
 }
