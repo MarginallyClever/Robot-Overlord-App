@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.dhRobot.robots;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.vecmath.Matrix4d;
 
@@ -11,9 +10,9 @@ public class Matrix4dInterpolator {
 	protected Matrix4d targetMatrix;
 	
 	// Time over which to interpolate.  Should reach endMatrix when interpolatePoseT=interpolateTime;
-	protected double interpolateTime;
+	protected double timeTotal;
 	// How far into the interpolation have we reached.
-	protected double interpolatePoseT;
+	protected double timeSoFar;
 	
 	public class InterpolationStep {
 		public Matrix4d target;
@@ -24,7 +23,7 @@ public class Matrix4dInterpolator {
 			time = b.time;
 		}
 	};
-	protected Queue<InterpolationStep> queue;
+	protected LinkedList<InterpolationStep> steps;
 	protected InterpolationStep start;
 	protected InterpolationStep end;
 	
@@ -39,9 +38,9 @@ public class Matrix4dInterpolator {
 	
 	public void reset() {
 		targetMatrix = new Matrix4d();
-		interpolatePoseT = 0;
-		interpolateTime = 0;
-		queue = new LinkedList<InterpolationStep>();
+		timeSoFar = 0;
+		timeTotal = 0;
+		steps = new LinkedList<InterpolationStep>();
 	}
 
 	public void set(Matrix4dInterpolator b) {
@@ -49,51 +48,45 @@ public class Matrix4dInterpolator {
 		start.set(b.start);
 		end.set(b.end);
 		targetMatrix.set(b.targetMatrix);
-		interpolatePoseT = b.interpolatePoseT;
-		interpolateTime = b.interpolateTime;
-		queue.addAll(b.queue);
+		timeSoFar = b.timeSoFar;
+		timeTotal = b.timeTotal;
+		steps.addAll(b.steps);
 	}
 	
 	public void offer(Matrix4d target,double time) {
 		InterpolationStep s = new InterpolationStep();
 		s.target = target;
 		s.time = time;
-		queue.offer(s);
+		steps.offer(s);
 	}
 	
 	public boolean isInterpolating() {
-		return !queue.isEmpty() || ( interpolatePoseT >= 0 && interpolatePoseT < interpolateTime);
+		return !steps.isEmpty() || ( timeSoFar >= 0 && timeSoFar < timeTotal);
 	}
 	
 	public void update(double dt) {
-		if (interpolatePoseT >= interpolateTime) {
-			if (queue.isEmpty()) {
-				return;
-			}
-		}
-		
-		if(interpolatePoseT < interpolateTime) {
+		if(timeSoFar < timeTotal) {
 			//System.out.println(
 			//		"Interpolating "+queue.size()
 			//		+" @ "+StringHelper.formatDouble(interpolatePoseT)
 			//		+" / "+StringHelper.formatDouble(interpolateTime));
-			interpolatePoseT += dt;
+			timeSoFar += dt;
 		}
 		
-		if (interpolatePoseT >= interpolateTime) {
-			if (queue.isEmpty()) {
+		if (timeSoFar >= timeTotal) {
+			if (steps.isEmpty()) {
 				// will reach final position and stop.
-				interpolatePoseT = interpolateTime;
+				timeSoFar = timeTotal;
 				//System.out.println("Interpolating done.");
 			} else {
 				//System.out.println(queue.size()+" keys remain.  Next!");
 				
 				start=end;
-				end=queue.poll();
+				end=steps.poll();
 				if(start==null) start=end;
 				
-				interpolateTime = end.time;
-				interpolatePoseT=0;
+				timeSoFar=0;
+				timeTotal = end.time;
 			}
 		}
 	}
@@ -107,10 +100,14 @@ public class Matrix4dInterpolator {
 	}
 
 	public double getInterpolateTime() {
-		return interpolateTime;
+		return timeTotal;
 	}
 
 	public double getInterpolatePoseT() {
-		return interpolatePoseT;
+		return timeSoFar;
+	}
+	
+	public int getQueueSize() {
+		return steps.size();
 	}
 }
