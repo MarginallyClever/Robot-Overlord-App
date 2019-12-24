@@ -640,4 +640,9 @@ public class MatrixHelper {
 		
 		return lookAt;
 	}
+	
+	public static Vector3d getForward(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
+	public static Vector3d getRight(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
+	public static Vector3d getUp(Matrix4d m) {			return new Vector3d(m.m02, m.m12, m.m22);	}
+	public static Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
 }
