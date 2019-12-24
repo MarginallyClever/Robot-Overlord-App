@@ -439,7 +439,7 @@ public class DHRobot extends Observable implements Serializable {
 	 * Find the forward kinematic pose of robot r that would give an end effector matrix matching m.
 	 * If the FK pose is found, set the adjustable values of the links to said pose.
 	 * @param r the DHRobot to set
-	 * @param m the matrix to solve against.
+	 * @param m the matrix of the finger tip of the robot, relative to the base of the robot.
 	 */
 	public boolean setPoseIK(Matrix4d m) {
 		DHKeyframe oldPose = solver.createDHKeyframe();
