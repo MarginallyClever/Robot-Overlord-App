@@ -280,15 +280,7 @@ public class Sixi2 extends Robot {
 		}
 		
 		if(drawAsSelected && inDirectDriveMode()) {
-
-			gl2.glPushMatrix();
-				MatrixHelper.applyMatrix(gl2, this.getMatrix());
-			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
-				ball.renderRotation(gl2);
-			} else {
-				ball.renderTranslation(gl2);
-			}
-			gl2.glPopMatrix();
+			ball.render(gl2);
 		}
 		
 		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
@@ -610,48 +602,14 @@ public class Sixi2 extends Robot {
 	public boolean driveFromKeyState(double dt) {
 		Matrix4d m = getGhostTargetMatrixWorldSpace();
 		Vector3d trans = new Vector3d(m.m03,m.m13,m.m23);
-		
-		Matrix4d frameOfRef;
-		switch(frameOfReferenceIndex) {
-		case SELF:
-			// use the robot's finger tip as the frame of reference
-			frameOfRef = getGhostTargetMatrixWorldSpace();
-			frameOfRef.invert();
-			break;
-		case CAMERA:
-			// use the camera as the frame of reference.
-			frameOfRef = new Matrix4d(MatrixHelper.lookAt(trans, getWorld().getCamera().getPosition()));
-			
-			//frameOfRef = new Matrix4d(getWorld().getCamera().getMatrix());
-			frameOfRef.m03=0;
-			frameOfRef.m13=0;
-			frameOfRef.m23=0;
 
-			m.set(frameOfRef);
-			m.setTranslation(trans);
-			break;
-		case WORLD:
-		default:
-			// use the world as the frame of reference.
-			frameOfRef = new Matrix4d(World.getPose());
-			m.set(frameOfRef);
-			m.setTranslation(trans);
-			break;
-		}
-
-		ball.setMatrix(m);
-		ghost.getPoseIK().get(ball.targetMatrixToSave);
-		frameOfRef.get(ball.FORToSave);
-
-		if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
-			ball.updateRotation(dt);
-		} else {
-			ball.updateTranslation(dt);
-		}
+		Matrix4d camLookAtSubject = new Matrix4d(MatrixHelper.lookAt(trans, getWorld().getCamera().getPosition()));
+		ball.setSubjectMatrix(getGhostTargetMatrixWorldSpace());
+		ball.setCameraMatrix(camLookAtSubject);	
 		
 		boolean isDirty = false;
-		final double scale = 10*dt;
 		/*
+		final double scale = 10*dt;
 		final double scaleDolly = 10*dt;
 		//if (InputManager.isOn(InputManager.STICK_SQUARE)) {}
 		//if (InputManager.isOn(InputManager.STICK_CIRCLE)) {}
@@ -687,20 +645,20 @@ public class Sixi2 extends Robot {
 					vv /= dhTool.dhLinkEquivalent.r;
 				}
 
-				rollZ(frameOfReference, InputManager.isOn(InputManager.STICK_L1) ? vv : -vv);
+				rollZ(InputManager.isOn(InputManager.STICK_L1) ? vv : -vv);
 			}
 		}
 
 		if (InputManager.rawValue(InputManager.STICK_RX) != 0) {
 			if (canTargetPoseRotateY()) {
 				isDirty = true;
-				rollY(frameOfReference, InputManager.rawValue(InputManager.STICK_RX) * scaleTurnRadians);
+				rollY(InputManager.rawValue(InputManager.STICK_RX) * scaleTurnRadians);
 			}
 		}
 		if (InputManager.rawValue(InputManager.STICK_RY) != 0) {
 			if (canTargetPoseRotateX()) {
 				isDirty = true;
-				rollX(frameOfReference, InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
+				rollX(InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
 			}
 		}
 		if (InputManager.rawValue(InputManager.STICK_R2) != -1) {
@@ -719,66 +677,49 @@ public class Sixi2 extends Robot {
 			isDirty = true;
 			translate(getUp(), InputManager.rawValue(InputManager.STICK_LY) * -scale);
 		}*/
+
+		/* adjust distance to point around which the hand is rotating.
+		if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
+			
+			if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
+				double d = dhTool.dhLinkEquivalent.getD()
+						+ InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
+				dhTool.dhLinkEquivalent.setD(Math.max(d, 0));
+				isDirty = true;
+			}
+			if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
+				double r = dhTool.dhLinkEquivalent.getR() 
+						+ InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
+				dhTool.dhLinkEquivalent.setR(Math.max(r, 0));
+				isDirty = true;
+			}
+		}*/
+
+
+		ball.setRotateMode(InputManager.isOn(InputManager.KEY_LSHIFT)
+						|| InputManager.isOn(InputManager.KEY_RSHIFT));
+
 		
-
+		ball.update(dt);
+		
 		if (InputManager.isOn(InputManager.MOUSE_LEFT)) {
-			if (InputManager.isOn(InputManager.KEY_LSHIFT) || InputManager.isOn(InputManager.KEY_RSHIFT)) {
-				if(ball.wasPressed) {
-					double da=ball.angleRadNow - ball.angleRadSaved;
-
-					if(da!=0) {
-						switch(ball.nearestPlaneSaved) {
-						case 0 : if(canTargetPoseRotateX()) rollX(da);	break;
-						case 1 : if(canTargetPoseRotateY()) rollY(da);	break;
-						default: if(canTargetPoseRotateZ()) rollZ(da);	break;
-						}
-					}
-					isDirty = true;
-				}
-			}/*
-			 else if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
-				
-				if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
-					double d = dhTool.dhLinkEquivalent.getD()
-							+ InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
-					dhTool.dhLinkEquivalent.setD(Math.max(d, 0));
-					isDirty = true;
-				}
-				if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
-					double r = dhTool.dhLinkEquivalent.getR() 
-							+ InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
-					dhTool.dhLinkEquivalent.setR(Math.max(r, 0));
-					isDirty = true;
-				}
-			}*/ else {
-				if(ball.wasPressed) {
-					double dx = InputManager.rawValue(InputManager.MOUSE_X) * scale * 0.5;
-					double dy = InputManager.rawValue(InputManager.MOUSE_Y) * -scale * 0.5;
-					double da=0;
-					
-					switch(ball.majorAxisSlideDirection) {
-					case DragBall.SLIDE_XPOS:  da= dx;	break;
-					case DragBall.SLIDE_XNEG:  da=-dx;  break;
-					case DragBall.SLIDE_YPOS:  da= dy;  break;
-					case DragBall.SLIDE_YNEG:  da=-dy;  break;
-					}
-					
-					if(da!=0) {
-						switch(ball.majorAxisSaved) {
-						case 1 : translate(getForward(), da);	break;
-						case 2 : translate(getRight()  , da);	break;
-						default: translate(getUp()     , da);	break;
-						}
-					}
-					isDirty = true;
-				}
+			if(ball.isActivelyMoving()) {
+				Matrix4d subjectMatrix = new Matrix4d(ball.getResultMatrix());
+				// The ghost only accepts poses in it's frame of reference.
+				// so we have to account for the robot's pose in world space.
+				Matrix4d iRoot = new Matrix4d(this.matrix);
+				//iRoot.invert();
+				subjectMatrix.mul(iRoot);
+				ghost.setPoseIK(subjectMatrix);
+				//System.out.println(MatrixHelper.getPosition(subjectMatrix));
+				isDirty=true;
 			}
 		}
-
+		
 		if (ghost.dhTool != null) {
 			isDirty |= ghost.dhTool.directDrive();
 		}
-
+		
 		if (InputManager.isReleased(InputManager.KEY_RETURN) 
 				|| InputManager.isReleased(InputManager.KEY_ENTER)
 				|| InputManager.isReleased(InputManager.STICK_X) 
@@ -811,77 +752,6 @@ public class Sixi2 extends Robot {
 		
 		// add the latest ghost on the end of the queue
 		interpolator.offer(ghost.getPoseIK(),time);
-	}
-	
-	public Vector3d getForward() {
-		Matrix3d frameOfReference = ball.FORSaved;
-		return new Vector3d(frameOfReference.m00, frameOfReference.m10, frameOfReference.m20);
-	}
-
-	public Vector3d getRight() {
-		Matrix3d frameOfReference = ball.FORSaved;
-		return new Vector3d(frameOfReference.m01, frameOfReference.m11, frameOfReference.m21);
-	}
-
-	public Vector3d getUp() {
-		Matrix3d frameOfReference = ball.FORSaved;
-		return new Vector3d(frameOfReference.m02, frameOfReference.m12, frameOfReference.m22);
-	}
-	
-	protected void rotationInternal(Matrix3d rotation) {
-		// multiply robot origin by target matrix to get target matrix in world space.
-		
-		// invert frame of reference to transform world target matrix into frame of reference space.
-		Matrix3d FOR = new Matrix3d(ball.FORSaved);
-		Matrix3d robotRoot = new Matrix3d();
-		this.getMatrix().get(robotRoot);
-		robotRoot.invert();
-		FOR.mul(robotRoot);
-		
-		Matrix3d ifor = new Matrix3d(FOR);
-		ifor.invert();
-		
-		Matrix3d targetMatrixRobotSpaceAfterTransform = new Matrix3d(ifor);
-		targetMatrixRobotSpaceAfterTransform.mul(rotation);
-		targetMatrixRobotSpaceAfterTransform.mul(FOR);
-
-		Matrix3d m1 = new Matrix3d(ball.targetMatrixSaved);
-		targetMatrixRobotSpaceAfterTransform.mul(m1);
-		
-		// done!
-		Vector3d tempPosition = new Vector3d();
-		ghost.getPoseIK().get(tempPosition);
-		Matrix4d m = new Matrix4d();
-		m.set(targetMatrixRobotSpaceAfterTransform);
-		m.setTranslation(tempPosition);
-		ghost.setPoseIK(m);
-	}
-
-	protected void rollX(double angRadians) {
-		// apply transform about the origin,
-		Matrix3d temp = new Matrix3d();
-		temp.rotX(angRadians);
-		rotationInternal(temp);
-	}
-
-	protected void rollY(double angRadians) {
-		// apply transform about the origin,
-		Matrix3d temp = new Matrix3d();
-		temp.rotY(angRadians);
-		rotationInternal(temp);
-	}
-	protected void rollZ(double angRadians) {
-		Matrix3d temp = new Matrix3d();
-		temp.rotZ(angRadians);
-		rotationInternal(temp);
-	}
-
-	protected void translate(Vector3d v, double amount) {
-		Matrix4d m = ghost.getPoseIK();
-		m.m03 += v.x*amount;
-		m.m13 += v.y*amount;
-		m.m23 += v.z*amount;
-		ghost.setPoseIK(m);
 	}
 	
 	@Override
@@ -1046,15 +916,15 @@ public class Sixi2 extends Robot {
 		return frameOfReferenceIndex;
 	}
 
-	protected boolean canTargetPoseRotateX() {
+	protected boolean canSubjectRotateX() {
 		return true;
 	}
 
-	protected boolean canTargetPoseRotateY() {
+	protected boolean canSubjectRotateY() {
 		return true;
 	}
 
-	protected boolean canTargetPoseRotateZ() {
+	protected boolean canSubjectRotateZ() {
 		return true;
 	}
 

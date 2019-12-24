@@ -17,35 +17,43 @@ public class DragBall extends PhysicalObject {
 	 * 
 	 */
 	private static final long serialVersionUID = 2233212276793302070L;
-	static final public int SLIDE_XPOS=0;
-	static final public int SLIDE_XNEG=1;
-	static final public int SLIDE_YPOS=2;
-	static final public int SLIDE_YNEG=3;
 	
-	public boolean wasPressed;
+	enum SlideDirection {
+	SLIDE_XPOS,
+	SLIDE_XNEG,
+	SLIDE_YPOS,
+	SLIDE_YNEG,
+	};
 	
 	public boolean isHitting;
-	public Vector3d pickPoint;
+	public Vector3d pickPoint;  // the latest point picked on the ball
+	public Vector3d pickPointSaved;  // the point picked when the action began
 	public int nearestPlane;
 	
 	protected double ballSize=0.15f;
 	public double ballSizeScaled=0.15f;
 
-	// for movements
-	public Vector3d pickPointSaved;
-	public Matrix3d targetMatrixSaved;
-	public Matrix3d targetMatrixToSave;
-	public Matrix3d FORSaved;
-	public Matrix3d FORToSave;
+	public boolean isRotateMode;
+	public boolean isActivelyMoving;
+		
+	// matrix of subject when move started
+	protected Matrix4d subjectMatrix;
+	protected Matrix4d cameraMatrix;
+	protected Matrix4d resultMatrix;
+	protected Matrix4d FOR;
 	
 	// for rotations
 	public int nearestPlaneSaved;
-	public double angleRadSaved, angleRadNow, angleRadLast, angleRadChanged;;
+	
+	public double valueSaved;  // original angle when move started
+	public double valueNow;  // current state
+	public double valueLast;  // state last frame 
+	public double valueChanged;  // change this update
 
 	// for translations
 	protected int majorAxisToSave;
 	public int majorAxisSaved;
-	public int majorAxisSlideDirection;
+	public SlideDirection majorAxisSlideDirection;
 	
 	public DragBall() {
 		super();
@@ -54,68 +62,93 @@ public class DragBall extends PhysicalObject {
 		pickPoint=new Vector3d();
 		pickPointSaved=new Vector3d();
 		nearestPlane=-1;
-		wasPressed=false;
-		angleRadChanged=0;
-		targetMatrixSaved=new Matrix3d();
-		targetMatrixToSave=new Matrix3d();
-		FORSaved=new Matrix3d();
-		FORToSave=new Matrix3d();
+		valueChanged=0;
+		
+		subjectMatrix=new Matrix4d();
+		cameraMatrix=new Matrix4d();
+		resultMatrix=new Matrix4d();
+		FOR=new Matrix4d();  // not certain this is needed.
+		FOR.setIdentity();
 		
 		majorAxisToSave=0;
 		majorAxisSaved=0;
+		
+		isRotateMode=false;
+		isActivelyMoving=false;
+	}
+	
+	public void update(double dt) {
+		if(isRotateMode) {
+			updateRotation(dt);
+		} else {
+			updateTranslation(dt);
+		}
+	}
+	
+	public Vector3d getPickPointInBallSpace(Vector3d point) {
+		Matrix4d iMe = new Matrix4d(FOR);
+		iMe.m30=iMe.m31=iMe.m32=0;
+		iMe.invert();
+		Vector3d pickPointInBallSpace = new Vector3d(point);
+		pickPointInBallSpace.sub(this.getPosition());
+		pickPointInBallSpace.normalize();
+		iMe.transform(pickPointInBallSpace);
+		return pickPointInBallSpace;
 	}
 	
 	public void updateRotation(double dt) {
 		Camera cam = getWorld().getCamera();
-		Vector3d ray = cam.rayPick();
-
-		Matrix4d cm=new Matrix4d(cam.getMatrix());
-		cm.invert();
-		cm.mul(matrix);
-		cm.setTranslation(new Vector3d(0,0,0));
-		
-
+		this.setPosition(MatrixHelper.getPosition(subjectMatrix));
 		Vector3d mp = this.getPosition();
 		mp.sub(cam.getPosition());
-		double d = mp.length();
-		ballSizeScaled=ballSize*d;
-		
-		// find a pick point on the ball.
-		isHitting = false;
-		nearestPlane=-1;
-		
-		angleRadNow = angleRadLast;
-		angleRadChanged=0;
-		
-		double Tca = ray.dot(mp);
-		if(Tca>=0) {
-			double d2 = Math.sqrt(d*d - Tca*Tca);
-			if(d2>=0 && d2<=ballSizeScaled) {
-				// hit!
-				isHitting=true;
-				double Thc = Math.sqrt(ballSizeScaled*ballSizeScaled - d2*d2);
-				double t0 = Tca - Thc;
-				//double t1 = Tca + Thc;
-				//System.out.println("d2="+d2);
+		valueNow = valueLast;
+		valueChanged=0;
 
-				pickPoint.set(
-					cam.getPosition().x+ray.x*t0,
-					cam.getPosition().y+ray.y*t0,
-					cam.getPosition().z+ray.z*t0);
-				
-				Matrix4d iMe = new Matrix4d(matrix);
-				matrix.m30=matrix.m31=matrix.m32=0;
-				iMe.invert();
-				Vector3d pickPointInBallSpace = new Vector3d(pickPoint);
-				pickPointInBallSpace.sub(this.getPosition());
-				pickPointInBallSpace.normalize();
-				iMe.transform(pickPointInBallSpace);
+		Vector3d ray = cam.rayPick();
 
-				// which arc is closer to the pick point?
-				if(wasPressed) {
-					// if we are in a move already, do not change the nearest plane!
-					nearestPlane = nearestPlaneSaved;
-				} else {
+		if(!isActivelyMoving) {
+			Matrix4d cm=new Matrix4d(cam.getMatrix());
+			cm.invert();
+			cm.mul(matrix);
+			cm.setTranslation(new Vector3d(0,0,0));
+			
+			double d = mp.length();
+			ballSizeScaled=ballSize*d;
+			
+			// find a pick point on the ball.
+			isHitting = false;
+			
+			double Tca = ray.dot(mp);
+			if(Tca>=0) {
+				double d2 = Math.sqrt(d*d - Tca*Tca);
+				if(d2>=0 && d2<=ballSizeScaled) {
+					
+					// hit!
+					isHitting=true;
+					double Thc = Math.sqrt(ballSizeScaled*ballSizeScaled - d2*d2);
+					double t0 = Tca - Thc;
+					//double t1 = Tca + Thc;
+					//System.out.println("d2="+d2);
+
+					pickPoint.set(
+						cam.getPosition().x+ray.x*t0,
+						cam.getPosition().y+ray.y*t0,
+						cam.getPosition().z+ray.z*t0);
+					pickPointSaved.set(pickPoint);
+					resultMatrix.set(subjectMatrix);
+					this.setPosition(MatrixHelper.getPosition(resultMatrix));
+
+					Vector3d pickPointInBallSpace = getPickPointInBallSpace(pickPoint);
+					switch(nearestPlaneSaved) {
+					case 0 :	valueNow = -Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.z);	break;
+					case 1 :	valueNow = -Math.atan2(pickPointInBallSpace.z, pickPointInBallSpace.x);	break;
+					default:	valueNow =  Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.x);	break;
+					}
+					valueSaved=valueNow;
+					valueLast=valueNow;
+					
+					// nearest plane
+					//System.out.println("x"+dp.x+"\ty"+dp.y+"\tz"+dp.z+"\ta"+valueNow);
 					// if we are not in a move, find the nearest plane.
 					double dx = Math.abs(pickPointInBallSpace.x);
 					double dy = Math.abs(pickPointInBallSpace.y);
@@ -126,33 +159,20 @@ public class DragBall extends PhysicalObject {
 					} else {
 						nearestPlane=(dy<dz) ? 1:2;
 					}
+					nearestPlaneSaved=nearestPlane;
+					
+					// can only turn on while hitting
+					isActivelyMoving=cam.isPressed();
 				}
-		
-				switch(nearestPlane) {
-				case 0 :	angleRadNow = -Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.z);	break;
-				case 1 :	angleRadNow = -Math.atan2(pickPointInBallSpace.z, pickPointInBallSpace.x);	break;
-				default:	angleRadNow = Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.x);	break;
-				}
-				
-				//System.out.println("x"+dp.x+"\ty"+dp.y+"\tz"+dp.z+"\ta"+angleRadNow);
 			}
 		}
 		
-		if(isHitting) {
-			if(cam.isPressed() && !wasPressed) {
-				pickPointSaved.set(pickPoint);
-				targetMatrixSaved.set(targetMatrixToSave);
-				FORSaved.set(FORToSave);
-				
-				nearestPlaneSaved=nearestPlane;
-				angleRadSaved=angleRadNow;
-				angleRadLast=angleRadNow;
-			}
-			// can only turn on while hitting
-			wasPressed=cam.isPressed();
+		// can turn off any time.
+		if(isActivelyMoving && !cam.isPressed()) {
+			isActivelyMoving=false;
 		}
 
-		if(wasPressed) {
+		if(isActivelyMoving) {
 			// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 			Vector3d majorAxis = new Vector3d();
 			switch(nearestPlaneSaved) {
@@ -170,30 +190,182 @@ public class DragBall extends PhysicalObject {
 						cam.getPosition().y+ray.y*t0,
 						cam.getPosition().z+ray.z*t0);
 
-				Matrix4d iMe = new Matrix4d(matrix);
-				matrix.m30=matrix.m31=matrix.m32=0;
-				iMe.invert();
-				Vector3d pickPointInBallSpace = new Vector3d(pickPoint);
-				pickPointInBallSpace.sub(this.getPosition());
-				pickPointInBallSpace.normalize();
-				iMe.transform(pickPointInBallSpace);
-
+				Vector3d pickPointInBallSpace = getPickPointInBallSpace(pickPoint);
 				switch(nearestPlaneSaved) {
-				case 0 :	angleRadNow = -Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.z);	break;
-				case 1 :	angleRadNow = -Math.atan2(pickPointInBallSpace.z, pickPointInBallSpace.x);	break;
-				default:	angleRadNow = Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.x);	break;
+				case 0 :	valueNow = -Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.z);	break;
+				case 1 :	valueNow = -Math.atan2(pickPointInBallSpace.z, pickPointInBallSpace.x);	break;
+				default:	valueNow =  Math.atan2(pickPointInBallSpace.y, pickPointInBallSpace.x);	break;
 				}
+
+				double da=valueNow - valueSaved;
+
+				if(da!=0) {
+					switch(nearestPlaneSaved) {
+					case 0 : rollX(da);	break;
+					case 1 : rollY(da);	break;
+					default: rollZ(da);	break;
+					}
+				}
+				//System.out.println(da);
 				
-				
-				angleRadChanged = angleRadNow-angleRadLast;
-				angleRadLast = angleRadNow;
+				valueChanged = valueNow-valueLast;
+				valueLast = valueNow;
 			}
 		}
+	}
+	
+	public void updateTranslation(double dt) {
+		Camera cam = getWorld().getCamera();
+		this.setPosition(MatrixHelper.getPosition(subjectMatrix));
+		Vector3d mp = this.getPosition();
+		mp.sub(cam.getPosition());
+		valueNow = valueLast;
+		valueChanged=0;
 		
-		// can turn off any time.
-		if(wasPressed && !cam.isPressed()) {
-			wasPressed=false;
+		if(!isActivelyMoving) {
+			double d = mp.length();
+			ballSizeScaled=ballSize*d;
+	
+			Vector3d pos = this.getPosition();
+			
+			// box centers
+			Matrix3d FORToSave = new Matrix3d();
+			FORToSave.setIdentity();
+			Vector3d nx = new Vector3d(FORToSave.m00,FORToSave.m10,FORToSave.m20);
+			Vector3d ny = new Vector3d(FORToSave.m01,FORToSave.m11,FORToSave.m21);
+			Vector3d nz = new Vector3d(FORToSave.m02,FORToSave.m12,FORToSave.m22);
+			
+			Vector3d px = new Vector3d(nx);
+			Vector3d py = new Vector3d(ny);
+			Vector3d pz = new Vector3d(nz);
+			px.scale(ballSizeScaled);
+			py.scale(ballSizeScaled);
+			pz.scale(ballSizeScaled);
+			px.add(pos);
+			py.add(pos);
+			pz.add(pos);
+	
+			// of the three boxes, the closest hit is the one to remember.  
+			majorAxisToSave = 0;
+			double dx = testBoxHit(cam,px);
+			double dy = testBoxHit(cam,py);
+			double dz = testBoxHit(cam,pz);
+			double t0=Double.MAX_VALUE;
+			if(dx>0) {
+				majorAxisToSave=1;
+				t0=dx;
+			}
+			if(dy>0 && dy<t0) {
+				majorAxisToSave=2;
+				t0=dy;
+			}
+			if(dz>0 && dz<t0) {
+				majorAxisToSave=3;
+				t0=dz;
+			}
+			
+			Vector3d ray=new Vector3d(cam.rayPick());
+			pickPoint.set(
+				cam.getPosition().x+ray.x*t0,
+				cam.getPosition().y+ray.y*t0,
+				cam.getPosition().z+ray.z*t0);
+			
+			boolean isHitting = (t0>=0 && majorAxisToSave>0);
+			if(isHitting) {
+				isActivelyMoving=true;
+				pickPointSaved.set(pickPoint);
+				resultMatrix.set(subjectMatrix);
+				
+				majorAxisSaved=majorAxisToSave;
+				nearestPlaneSaved=nearestPlane;
+				valueSaved=0;
+				valueLast=0;
+				valueNow=0;
+				
+				Matrix4d cm=cam.getMatrix();
+				Vector3d cu = new Vector3d(cm.m01,cm.m11,cm.m21);
+				Vector3d cr = new Vector3d(cm.m00,cm.m10,cm.m20);
+				// determine which mouse direction is a positive movement on this axis.
+				double cx,cy;
+				switch(majorAxisSaved) {
+				case 1://x
+					cy=cu.dot(nx);
+					cx=cr.dot(nx);
+					if( Math.abs(cx) > Math.abs(cy) ) {
+						majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
+					} else {
+						majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
+					}
+					break;
+				case 2://y
+					cy=cu.dot(ny);
+					cx=cr.dot(ny);
+					if( Math.abs(cx) > Math.abs(cy) ) {
+						majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
+					} else {
+						majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
+					}
+					break;
+				default://z
+					majorAxisSlideDirection=SlideDirection.SLIDE_YPOS;
+					break;
+				}
+				switch(majorAxisSlideDirection) {
+				case SLIDE_XPOS:  System.out.println("x+");	break;
+				case SLIDE_XNEG:  System.out.println("x-");	break;
+				case SLIDE_YPOS:  System.out.println("y+");	break;
+				case SLIDE_YNEG:  System.out.println("y-");	break;
+				}
+				
+				// if hitting and pressed, begin movement.
+				isActivelyMoving = cam.isPressed();
+			}
 		}
+
+		// can turn off any time.
+		if(isActivelyMoving && !cam.isPressed()) {
+			isActivelyMoving=false;
+		}
+
+		if(isActivelyMoving) {
+			// actively being dragged
+			final double scale = 5.0*dt;  // TODO something better?
+			double dx = InputManager.rawValue(InputManager.MOUSE_X) * scale;
+			double dy = InputManager.rawValue(InputManager.MOUSE_Y) * -scale;
+			
+			switch(majorAxisSlideDirection) {
+			case SLIDE_XPOS:  valueNow+=dx;	break;
+			case SLIDE_XNEG:  valueNow-=dx;	break;
+			case SLIDE_YPOS:  valueNow+=dy;	break;
+			case SLIDE_YNEG:  valueNow-=dy;	break;
+			}
+			
+			if(valueNow!=valueLast) {
+				switch(majorAxisSaved) {
+				case 1 : translate(MatrixHelper.getForward(FOR), valueNow);	break;
+				case 2 : translate(MatrixHelper.getRight  (FOR), valueNow);	break;
+				default: translate(MatrixHelper.getUp     (FOR), valueNow);	break;
+				}
+			}
+			
+			
+			valueChanged = valueNow-valueLast;
+			valueLast = valueNow;
+		}
+	}
+	
+	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+			//MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			//Vector3d v1 = MatrixHelper.getPosition(getSubjectMatrix());
+			//gl2.glTranslated(v1.x, v1.y, v1.z);
+		
+			if(isRotateMode()) {
+				renderRotation(gl2);
+			} else {
+				renderTranslation(gl2);
+			}
+		gl2.glPopMatrix();
 	}
 	
 	public void renderRotation(GL2 gl2) {
@@ -237,7 +409,7 @@ public class DragBall extends PhysicalObject {
 			}
 			gl2.glEnd();
 			
-			int majorPlaneSaved = wasPressed? nearestPlaneSaved : nearestPlane;
+			int majorPlaneSaved = isActivelyMoving? nearestPlaneSaved : nearestPlane;
 			float r = (majorPlaneSaved==0)?1:0.25f;
 			float g = (majorPlaneSaved==1)?1:0.25f;
 			float b = (majorPlaneSaved==2)?1:0.25f;
@@ -316,115 +488,42 @@ public class DragBall extends PhysicalObject {
 				}
 			}
 			gl2.glEnd();
-			gl2.glPopMatrix();
-	}
-	
 
-	public void updateTranslation(double dt) {
-		Camera cam = getWorld().getCamera();
-		Vector3d mp = this.getPosition();
-		mp.sub(cam.getPosition());
-		double d = mp.length();
-		ballSizeScaled=ballSize*d;
+			if(isActivelyMoving) {
+				// the distance moved.
+				Vector3d p1 = getPickPointInBallSpace(pickPoint);
+				Vector3d p2 = getPickPointInBallSpace(pickPointSaved);
 
-
-		Vector3d pos = this.getPosition();
-		
-		// box centers
-		Vector3d nx = new Vector3d(FORToSave.m00,FORToSave.m10,FORToSave.m20);
-		Vector3d ny = new Vector3d(FORToSave.m01,FORToSave.m11,FORToSave.m21);
-		Vector3d nz = new Vector3d(FORToSave.m02,FORToSave.m12,FORToSave.m22);
-		
-		Vector3d px = new Vector3d(nx);
-		Vector3d py = new Vector3d(ny);
-		Vector3d pz = new Vector3d(nz);
-		px.scale(ballSizeScaled);
-		py.scale(ballSizeScaled);
-		pz.scale(ballSizeScaled);
-		px.add(pos);
-		py.add(pos);
-		pz.add(pos);
-
-		majorAxisToSave = 0;
-		double dx = testBoxHit(cam,px);
-		double dy = testBoxHit(cam,py);
-		double dz = testBoxHit(cam,pz);
-		double t0=Double.MAX_VALUE;
-		if(dx>0) {
-			majorAxisToSave=1;
-			t0=dx;
-		}
-		if(dy>0 && dy<t0) {
-			majorAxisToSave=2;
-			t0=dy;
-		}
-		if(dz>0 && dz<t0) {
-			majorAxisToSave=3;
-			t0=dz;
-		}
-		
-		Vector3d ray=new Vector3d(cam.rayPick());
-		pickPoint.set(
-			cam.getPosition().x+ray.x*t0,
-			cam.getPosition().y+ray.y*t0,
-			cam.getPosition().z+ray.z*t0);
-		
-		boolean isHitting = (t0>=0 && majorAxisToSave>0);
-		if(isHitting) {
-			if(cam.isPressed() && !wasPressed) {
-				pickPointSaved.set(pickPoint);
-				targetMatrixSaved.set(targetMatrixToSave);
-				FORSaved.set(FORToSave);
-				
-				majorAxisSaved=majorAxisToSave;
-				
-				Matrix4d cm=cam.getMatrix();
-				Vector3d cu = new Vector3d(cm.m01,cm.m11,cm.m21);
-				Vector3d cr = new Vector3d(cm.m00,cm.m10,cm.m20);
-				// determine which mouse direction is a positive movement on this axis.
-				double cx,cy;
-				switch(majorAxisSaved) {
-				case 1://x
-					cy=cu.dot(nx);
-					cx=cr.dot(nx);
-					if( Math.abs(cx) > Math.abs(cy) ) {
-						majorAxisSlideDirection=(cx>0) ? SLIDE_XPOS : SLIDE_XNEG;
-					} else {
-						majorAxisSlideDirection=(cy>0) ? SLIDE_YPOS : SLIDE_YNEG;
-					}
-					break;
-				case 2://y
-					cy=cu.dot(ny);
-					cx=cr.dot(ny);
-					if( Math.abs(cx) > Math.abs(cy) ) {
-						majorAxisSlideDirection=(cx>0) ? SLIDE_XPOS : SLIDE_XNEG;
-					} else {
-						majorAxisSlideDirection=(cy>0) ? SLIDE_YPOS : SLIDE_YNEG;
-					}
-					break;
-				default://z
-					majorAxisSlideDirection=SLIDE_YPOS;
-					break;
+				Vector3d c = new Vector3d(cm.m03,cm.m13,cm.m23);
+				gl2.glBegin(GL2.GL_LINE_LOOP);
+				gl2.glColor3f(255,255,255);
+				gl2.glVertex3d(c.x,c.y,c.z);
+				Vector3d mid = new Vector3d();
+				double start,end;
+				if(valueNow>valueSaved) {
+					start=valueSaved;
+					end=valueNow;
+				} else {
+					end=valueSaved;
+					start=valueNow;
 				}
-				switch(majorAxisSlideDirection) {
-				case DragBall.SLIDE_XPOS:  System.out.println("x+");	break;
-				case DragBall.SLIDE_XNEG:  System.out.println("x-");	break;
-				case DragBall.SLIDE_YPOS:  System.out.println("y+");	break;
-				case DragBall.SLIDE_YNEG:  System.out.println("y-");	break;
+				System.out.println(start+" "+end+"");
+				double range=end-start;
+				for(double i=0;i<range;i+=0.01) {
+					mid.sub(p2,p1);
+					mid.scale(i/range);
+					mid.add(p1);
+					mid.sub(c);
+					mid.normalize();
+					mid.add(c);
+					gl2.glVertex3d(mid.x,mid.y,mid.z);
 				}
+				gl2.glEnd();
 			}
-			// can only turn on while hitting
-			wasPressed=cam.isPressed();
-		}
-
-		if(wasPressed) {
-			// actively being dragged
-		}
-
-		// can turn off any time.
-		if(wasPressed && !cam.isPressed()) {
-			wasPressed=false;
-		}
+			
+			gl2.glPopMatrix();
+			
+			
 	}
 	
 	protected double testBoxHit(Camera cam,Vector3d n) {
@@ -445,24 +544,23 @@ public class DragBall extends PhysicalObject {
 	
 	public void renderTranslation(GL2 gl2) {
 		Camera cam =getWorld().getCamera();
-		Matrix4d cm=new Matrix4d(cam.getMatrix());
-		cm.setTranslation(pickPoint);
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, cm);
-			PrimitiveSolids.drawStar(gl2, new Vector3d(), 15);
-		gl2.glPopMatrix();
+		//Matrix4d cm=new Matrix4d(cam.getMatrix());
+		//cm.setTranslation(pickPoint);
+		//gl2.glPushMatrix();
+		//	MatrixHelper.applyMatrix(gl2, cm);
+		//	PrimitiveSolids.drawStar(gl2, new Vector3d(), 15);
+		//gl2.glPopMatrix();
 
-		Vector3d pos = this.getPosition();
+		Vector3d pos = isActivelyMoving ? MatrixHelper.getPosition(resultMatrix) : this.getPosition();
 		Vector3d p2 = new Vector3d(cam.getPosition());
 		p2.sub(pos);
 		p2.normalize();
 
-		int majorAxisIndex = wasPressed? majorAxisSaved : majorAxisToSave;
+		int majorAxisIndex = isActivelyMoving ? majorAxisSaved : majorAxisToSave;
 		float r = (majorAxisIndex==1)?1:0.25f;
 		float g = (majorAxisIndex==2)?1:0.25f;
 		float b = (majorAxisIndex==3)?1:0.25f;
 
-		Matrix3d FOR = wasPressed? FORSaved : FORToSave;
 		Vector3d nx = new Vector3d(FOR.m00,FOR.m10,FOR.m20);
 		Vector3d ny = new Vector3d(FOR.m01,FOR.m11,FOR.m21);
 		Vector3d nz = new Vector3d(FOR.m02,FOR.m12,FOR.m22);
@@ -489,6 +587,14 @@ public class DragBall extends PhysicalObject {
 			gl2.glColor3f(0,0,b);
 			drawAxis(gl2,nz,pos);
 		}
+		if(isActivelyMoving) {
+			// the distance moved.
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glColor3f(255,255,255);
+			gl2.glVertex3d(resultMatrix.m03,resultMatrix.m13,resultMatrix.m23);
+			gl2.glVertex3d(subjectMatrix.m03,subjectMatrix.m13,subjectMatrix.m23);
+			gl2.glEnd();
+		}
 	}
 	
 	protected void drawAxis(GL2 gl2,Vector3d n,Vector3d center) {
@@ -507,5 +613,95 @@ public class DragBall extends PhysicalObject {
 		b0.add(n);
 		b1.add(n);
 		PrimitiveSolids.drawBox(gl2, b0,b1);
+	}
+
+	public boolean isRotateMode() {
+		return isRotateMode;
+	}
+
+	public void setRotateMode(boolean isRotateMode) {
+		if(isActivelyMoving) return;
+		// only allow change when not actively moving.
+		this.isRotateMode = isRotateMode;
+	}
+
+	public boolean isActivelyMoving() {
+		return isActivelyMoving;
+	}
+
+	public void setActivelyMoving(boolean isActivelyMoving) {
+		this.isActivelyMoving = isActivelyMoving;
+	}
+
+	public Matrix4d getSubjectMatrix() {
+		return subjectMatrix;
+	}
+
+	public void setSubjectMatrix(Matrix4d subjectMatrix) {
+		if(isActivelyMoving) return;
+		// only allow change when not actively moving.
+		this.subjectMatrix.set(subjectMatrix);
+	}
+
+	public Matrix4d getCameraMatrix() {
+		return cameraMatrix;
+	}
+
+	public void setCameraMatrix(Matrix4d cameraMatrix) {
+		this.cameraMatrix = cameraMatrix;
+	}
+	
+	protected void rotationInternal(Matrix4d rotation) {
+		Matrix4d result = new Matrix4d();
+		
+		// multiply robot origin by target matrix to get target matrix in world space.
+		
+		// invert frame of reference to transform world target matrix into frame of reference space.
+		Matrix4d ifor = new Matrix4d(FOR);
+		ifor.invert();
+
+		Matrix4d subjectMartixRotation = new Matrix4d(subjectMatrix);
+		
+		Matrix4d subjectMatrixAfterRotation = new Matrix4d(ifor);
+		subjectMatrixAfterRotation.mul(rotation);
+		subjectMatrixAfterRotation.mul(FOR);
+		subjectMatrixAfterRotation.mul(subjectMartixRotation);
+
+		Vector3d subjectMatrixPosition = MatrixHelper.getPosition(subjectMatrix);
+
+		result.set(subjectMatrixAfterRotation);
+		result.setTranslation(subjectMatrixPosition);
+		resultMatrix.set(result);
+	}
+
+	protected void rollX(double angRadians) {
+		// apply transform about the origin  change translation to rotate around something else.
+		Matrix4d temp = new Matrix4d();
+		temp.rotX(angRadians);
+		rotationInternal(temp);
+	}
+
+	protected void rollY(double angRadians) {
+		// apply transform about the origin  change translation to rotate around something else.
+		Matrix4d temp = new Matrix4d();
+		temp.rotY(angRadians);
+		rotationInternal(temp);
+	}
+	protected void rollZ(double angRadians) {
+		// apply transform about the origin.  change translation to rotate around something else.
+		Matrix4d temp = new Matrix4d();
+		temp.rotZ(angRadians);
+		rotationInternal(temp);
+	}
+
+	protected void translate(Vector3d v, double amount) {
+		//System.out.println(amount);
+		resultMatrix.m03 = subjectMatrix.m03 + v.x*amount;
+		resultMatrix.m13 = subjectMatrix.m13 + v.y*amount;
+		resultMatrix.m23 = subjectMatrix.m23 + v.z*amount;
+	}
+
+	public Matrix4d getResultMatrix() {
+		return resultMatrix;
 	}
 }
