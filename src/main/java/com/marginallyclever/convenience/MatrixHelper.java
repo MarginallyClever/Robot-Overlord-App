@@ -622,27 +622,27 @@ public class MatrixHelper {
 	// create a matrix with a matching y vector and a z that points at   
 	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
-		Vector3d right = new Vector3d();
+		Vector3d left = new Vector3d();
 		Vector3d up = new Vector3d(0,0,1);
 		
 		forward.sub(to,from);
 		forward.normalize();
-		right.cross(up, forward);
-		right.normalize();
-		up.cross(forward, right);
+		left.cross(up, forward);
+		left.normalize();
+		up.cross(forward, left);
 		up.normalize();
 
 		Matrix4d lookAt = new Matrix4d(
-				right.x,up.x,forward.x,0,
-				right.y,up.y,forward.y,0,
-				right.z,up.z,forward.z,0,
+				forward.x,left.x,up.x,0,
+				forward.y,left.y,up.y,0,
+				forward.z,left.z,up.z,0,
 				0,0,0,1);
 		
 		return lookAt;
 	}
 	
 	public static Vector3d getForward(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
-	public static Vector3d getRight(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
+	public static Vector3d getLeft(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
 	public static Vector3d getUp(Matrix4d m) {			return new Vector3d(m.m02, m.m12, m.m22);	}
 	public static Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
 }
