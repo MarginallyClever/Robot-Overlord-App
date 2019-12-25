@@ -1,53 +1,55 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots;
-
-import java.util.Iterator;
-
-import javax.vecmath.Vector3d;
+package com.marginallyclever.robotOverlord.robots;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_Cylindrical;
 import com.marginallyclever.robotOverlord.material.Material;
+import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
  * FANUC cylindrical coordinate robot GMF M-100
  * @author Dan Royer
  *
  */
-public class DHRobot_GMF_M100 extends DHRobot {
+public class Robot_GMF_M100 extends Robot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	DHRobot live;
 
-
-	public DHRobot_GMF_M100() {
-		super(new DHIKSolver_Cylindrical());
+	public Robot_GMF_M100() {
+		super();
 		setDisplayName("FANUC GMF M-100");
+
+		live = new DHRobot();
+		live.setIKSolver(new DHIKSolver_Cylindrical());
+		setupLinks(live);
 	}
 	
-	@Override
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(5);
 		// roll
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(0).rangeMin=-120;
-		robot.links.get(0).rangeMax=120;
+		robot.links.get(0).setRangeMin(-120);
+		robot.links.get(0).setRangeMax(120);
 		// slide
 		robot.links.get(1).setAlpha(90);
 		robot.links.get(1).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(1).rangeMin=0;
-		robot.links.get(1).rangeMin=1300;
+		robot.links.get(1).setRangeMin(0);
+		robot.links.get(1).setRangeMin(1300);
 		// slide
 		robot.links.get(2).setAlpha(90);
 		robot.links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(2).rangeMin=0;
-		robot.links.get(2).rangeMax=1100;
+		robot.links.get(2).setRangeMin(0);
+		robot.links.get(2).setRangeMax(1100);
 		// roll
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(3).rangeMin=-90;
-		robot.links.get(3).rangeMax=90;
+		robot.links.get(3).setRangeMin(-90);
+		robot.links.get(3).setRangeMax(90);
 
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
@@ -57,9 +59,7 @@ public class DHRobot_GMF_M100 extends DHRobot {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			Vector3d position = this.getPosition();
-			gl2.glTranslated(position.x, position.y, position.z);
-			
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());	
 			// Draw models
 			float r=1;
 			float g=217f/255f;
@@ -67,16 +67,15 @@ public class DHRobot_GMF_M100 extends DHRobot {
 			Material mat = new Material();
 			mat.setDiffuseColor(r,g,b,1);
 			mat.render(gl2);
-			
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = links.iterator();
-				while(i.hasNext()) {
-					DHLink link = i.next();
-					link.render(gl2);
-				}
-			gl2.glPopMatrix();
+			live.render(gl2);
 		gl2.glPopMatrix();
 		
 		super.render(gl2);
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

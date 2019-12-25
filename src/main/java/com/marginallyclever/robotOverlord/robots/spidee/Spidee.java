@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.spidee;
+package com.marginallyclever.robotOverlord.robots.spidee;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.spidee;
+package com.marginallyclever.robotOverlord.robots.spidee;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.robot.RobotKeyframe;

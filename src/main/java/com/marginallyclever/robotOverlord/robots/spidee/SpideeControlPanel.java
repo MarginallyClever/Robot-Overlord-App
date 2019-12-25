@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.spidee;
+package com.marginallyclever.robotOverlord.robots.spidee;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

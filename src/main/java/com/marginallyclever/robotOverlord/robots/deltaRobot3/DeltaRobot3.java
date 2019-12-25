@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.deltaRobot3;
+package com.marginallyclever.robotOverlord.robots.deltaRobot3;
 
 import java.io.BufferedReader;
 import java.io.IOException;

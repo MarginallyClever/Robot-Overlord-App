@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
+package com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform;
 
 import javax.vecmath.Vector3d;
 

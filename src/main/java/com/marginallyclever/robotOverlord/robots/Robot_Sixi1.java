@@ -1,48 +1,52 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots;
-
-import java.util.Iterator;
+package com.marginallyclever.robotOverlord.robots;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 
-public class DHRobot_Sixi1 extends DHRobot {
+public class Robot_Sixi1 extends Robot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public boolean isFirstTime;
-	public Material material;
+	protected boolean isFirstTime;
+	protected Material material;
+	protected DHRobot live;
 
-	public DHRobot_Sixi1() {
-		super(new DHIKSolver_RTTRTR());
+	public Robot_Sixi1() {
+		super();
 		setDisplayName("Sixi 1");
+		live = new DHRobot();
+		live.setIKSolver(new DHIKSolver_RTTRTR());
+		setupLinks(live);
 		isFirstTime=true;
 	}
 	
-	@Override
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(8);
 		// roll
 		robot.links.get(0).setD(25);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(0).rangeMin=-120;
-		robot.links.get(0).rangeMax=120;
+		robot.links.get(0).setRangeMin(-120);
+		robot.links.get(0).setRangeMax(120);
 		// tilt
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(1).rangeMin=-72;
+		robot.links.get(1).setRangeMin(-72);
 		// tilt
 		robot.links.get(2).setD(25);
 		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(2).rangeMin=-83.369;
-		robot.links.get(2).rangeMax=86;
+		robot.links.get(2).setRangeMin(-83.369);
+		robot.links.get(2).setRangeMax(86);
 
 		// interim point
 		robot.links.get(3).setD(5);
@@ -51,26 +55,26 @@ public class DHRobot_Sixi1 extends DHRobot {
 		// roll
 		robot.links.get(4).setD(10);
 		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(4).rangeMin=-90;
-		robot.links.get(4).rangeMax=90;
+		robot.links.get(4).setRangeMin(-90);
+		robot.links.get(4).setRangeMax(90);
 
 		// tilt
 		robot.links.get(5).setD(10);
 		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(5).rangeMin=-90;
-		robot.links.get(5).rangeMax=90;
+		robot.links.get(5).setRangeMin(-90);
+		robot.links.get(5).setRangeMax(90);
 		// roll
 		robot.links.get(6).setD(3.9527);
 		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(6).rangeMin=-90;
-		robot.links.get(6).rangeMax=90;
+		robot.links.get(6).setRangeMin(-90);
+		robot.links.get(6).setRangeMax(90);
 		
 		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
 		robot.refreshPose();
 	}
 	
-	public void setupModels() {
+	public void setupModels(DHRobot robot) {
 		material = new Material();
 		float r=0.75f;
 		float g=0.15f;
@@ -78,21 +82,21 @@ public class DHRobot_Sixi1 extends DHRobot {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi/anchor.stl",0.1f);
-			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi/shoulder.stl",0.1f);
-			links.get(2).model = ModelFactory.createModelFromFilename("/Sixi/bicep.stl",0.1f);
-			links.get(3).model = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
-			links.get(5).model = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
-			links.get(6).model = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
-			links.get(7).model = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
+			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Sixi/anchor.stl",0.1f);
+			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Sixi/shoulder.stl",0.1f);
+			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Sixi/bicep.stl",0.1f);
+			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
+			robot.links.get(5).model = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
+			robot.links.get(6).model = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
+			robot.links.get(7).model = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
 
-			links.get(1).model.adjustOrigin(new Vector3d(0, 0, -25));
-			links.get(2).model.adjustOrigin(new Vector3d(0, -5, -25));
-			links.get(2).model.adjustRotation(new Vector3d(-11.3,0,0));
+			robot.links.get(1).model.adjustOrigin(new Vector3d(0, 0, -25));
+			robot.links.get(2).model.adjustOrigin(new Vector3d(0, -5, -25));
+			robot.links.get(2).model.adjustRotation(new Vector3d(-11.3,0,0));
 			
-			links.get(5).model.adjustOrigin(new Vector3d(0, 0, -60));
-			links.get(6).model.adjustOrigin(new Vector3d(0, 0, -70));
-			links.get(7).model.adjustOrigin(new Vector3d(0, 0, -74));
+			robot.links.get(5).model.adjustOrigin(new Vector3d(0, 0, -60));
+			robot.links.get(6).model.adjustOrigin(new Vector3d(0, 0, -70));
+			robot.links.get(7).model.adjustOrigin(new Vector3d(0, 0, -74));
 
 			Matrix4d rot = new Matrix4d();
 			Matrix4d rotX = new Matrix4d();
@@ -109,8 +113,8 @@ public class DHRobot_Sixi1 extends DHRobot {
 			Vector3d adjustPos = new Vector3d(0, 5, -50);
 			pose.transform(adjustPos);
 			
-			links.get(3).model.adjustOrigin(adjustPos);
-			links.get(3).model.adjustRotation(new Vector3d(90, 0, 0));
+			robot.links.get(3).model.adjustOrigin(adjustPos);
+			robot.links.get(3).model.adjustRotation(new Vector3d(90, 0, 0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,26 +126,21 @@ public class DHRobot_Sixi1 extends DHRobot {
 	public void render(GL2 gl2) {
 		if( isFirstTime ) {
 			isFirstTime=false;
-			setupModels();
+			setupModels(live);
 		}
 
-		material.render(gl2);
-		
 		gl2.glPushMatrix();
-			Vector3d position = this.getPosition();
-			gl2.glTranslated(position.x, position.y, position.z);
-			
-			// Draw models
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = links.iterator();
-				while(i.hasNext()) {
-					DHLink link = i.next();
-					link.render(gl2);
-				}
-			gl2.glPopMatrix();
-
+			MatrixHelper.applyMatrix(gl2, this.matrix);
+			material.render(gl2);
+			live.render(gl2);
 		gl2.glPopMatrix();
 		
 		super.render(gl2);
+	}
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

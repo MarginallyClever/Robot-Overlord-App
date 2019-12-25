@@ -1,15 +1,16 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots;
-
-import java.util.Iterator;
+package com.marginallyclever.robotOverlord.robots;
 
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_Cartesian;
 import com.marginallyclever.robotOverlord.material.Material;
 import com.marginallyclever.robotOverlord.model.ModelFactory;
+import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
  * Cartesian 3 axis CNC robot like 3d printer or milling machine.
@@ -17,7 +18,7 @@ import com.marginallyclever.robotOverlord.model.ModelFactory;
  * @author Dan Royer
  *
  */
-public class DHRobot_Cartesian extends DHRobot {
+public class Robot_Cartesian extends Robot {
 	/**
 	 * 
 	 */
@@ -25,37 +26,41 @@ public class DHRobot_Cartesian extends DHRobot {
 
 	public boolean isFirstTime;
 	public Material material;
-	
-	public DHRobot_Cartesian() {
-		super(new DHIKSolver_Cartesian());
+	DHRobot live;
+	public Robot_Cartesian() {
+		super();
 		setDisplayName("Cartesian");
+
+		live = new DHRobot();
+		live.setIKSolver(new DHIKSolver_Cartesian());
+		setupLinks(live);
+		
 		isFirstTime=true;
 	}
 	
-	@Override
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(4);
 		// roll
 		robot.links.get(0).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
-		robot.links.get(0).rangeMin=0;
-		robot.links.get(0).rangeMax=25;
+		robot.links.get(0).setRangeMin(0);
+		robot.links.get(0).setRangeMax(25);
 		robot.links.get(0).setTheta(90);
 		robot.links.get(0).setAlpha(90);
-		robot.links.get(0).rangeMin=0+8.422;
-		robot.links.get(0).rangeMax=21+8.422;
+		robot.links.get(0).setRangeMin(0+8.422);
+		robot.links.get(0).setRangeMax(21+8.422);
 		
 		// tilt
 		robot.links.get(1).setAlpha(90);
 		robot.links.get(1).setTheta(-90);
 		robot.links.get(1).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
-		robot.links.get(1).rangeMin=0;
-		robot.links.get(1).rangeMax=21;
+		robot.links.get(1).setRangeMin(0);
+		robot.links.get(1).setRangeMax(21);
 		// tilt
 		robot.links.get(2).setAlpha(90);
 		robot.links.get(2).setTheta(90);
 		robot.links.get(2).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
-		robot.links.get(2).rangeMin=0+8.422;
-		robot.links.get(2).rangeMax=21+8.422;
+		robot.links.get(2).setRangeMin(0+8.422);
+		robot.links.get(2).setRangeMax(21+8.422);
 		
 		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 
@@ -63,7 +68,7 @@ public class DHRobot_Cartesian extends DHRobot {
 		robot.refreshPose();
 	}
 	
-	public void setupModels() {
+	public void setupModels(DHRobot robot) {
 		material = new Material();
 		float r=0.5f;
 		float g=0.5f;
@@ -71,48 +76,36 @@ public class DHRobot_Cartesian extends DHRobot {
 		material.setDiffuseColor(r,g,b,1);
 
 		try {
-			links.get(0).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa0.stl",0.1f);
-			links.get(1).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa1.stl",0.1f);
-			links.get(2).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa2.stl",0.1f);
-			links.get(3).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa3.stl",0.1f);
+			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa0.stl",0.1f);
+			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa1.stl",0.1f);
+			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa2.stl",0.1f);
+			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa3.stl",0.1f);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		links.get(0).model.adjustRotation(new Vector3d(90,0,0));
-		links.get(0).model.adjustOrigin(new Vector3d(0,27.9,0));
-		links.get(1).model.adjustOrigin(new Vector3d(11.2758,-8.422,0));
-		links.get(1).model.adjustRotation(new Vector3d(0,-90,0));
-		links.get(2).model.adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
-		links.get(2).model.adjustRotation(new Vector3d(0,0,90));
-		links.get(3).model.adjustRotation(new Vector3d(-90,0,0));
-		links.get(3).model.adjustOrigin(new Vector3d(0,-31.9,32.2679));	
+		robot.links.get(0).model.adjustRotation(new Vector3d(90,0,0));
+		robot.links.get(0).model.adjustOrigin(new Vector3d(0,27.9,0));
+		robot.links.get(1).model.adjustOrigin(new Vector3d(11.2758,-8.422,0));
+		robot.links.get(1).model.adjustRotation(new Vector3d(0,-90,0));
+		robot.links.get(2).model.adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
+		robot.links.get(2).model.adjustRotation(new Vector3d(0,0,90));
+		robot.links.get(3).model.adjustRotation(new Vector3d(-90,0,0));
+		robot.links.get(3).model.adjustOrigin(new Vector3d(0,-31.9,32.2679));	
 	}
 	
 	@Override
 	public void render(GL2 gl2) {
 		if( isFirstTime ) {
 			isFirstTime=false;
-			setupModels();
+			setupModels(live);
 		}
-		
-		material.render(gl2);
-		
+
 		gl2.glPushMatrix();
-			Vector3d position = this.getPosition();
-			gl2.glTranslated(position.x, position.y, position.z);
-			
-			// Draw models
-			
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = links.iterator();
-				while(i.hasNext()) {
-					DHLink link = i.next();
-					link.render(gl2);
-				}
-			gl2.glPopMatrix();
-		
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			material.render(gl2);
+			live.render(gl2);
 		gl2.glPopMatrix();
 		
 		super.render(gl2);
@@ -139,4 +132,10 @@ public class DHRobot_Cartesian extends DHRobot {
 			);
 	}
 */
+
+	@Override
+	public RobotKeyframe createKeyframe() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

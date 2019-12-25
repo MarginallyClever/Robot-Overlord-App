@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
+package com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform;
 
 import java.io.Serializable;
 

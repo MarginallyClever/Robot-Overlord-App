@@ -1,30 +1,32 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots;
-
-import java.util.Iterator;
-
-import javax.vecmath.Vector3d;
+package com.marginallyclever.robotOverlord.robots;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.material.Material;
+import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.robot.RobotKeyframe;
 
 /**
  * DHRobot version of Arm3, a palletizing robot I built long ago.  Incomplete!
  * @author Dan Royer
  *
  */
-public class DHRobot_Arm3 extends DHRobot {
+public class Robot_Arm3 extends Robot {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	DHRobot live;
 
-
-	public DHRobot_Arm3() {
-		super(new DHIKSolver_RTT());
+	public Robot_Arm3() {
+		super();
 		setDisplayName("Arm3");
+		live = new DHRobot();
+		live.setIKSolver(new DHIKSolver_RTT());
+		setupLinks(live);
 	}
 	
 	protected void setupLinks(DHRobot robot) {
@@ -34,12 +36,12 @@ public class DHRobot_Arm3 extends DHRobot {
 		robot.links.get(0).setD(13.44);
 		robot.links.get(0).setTheta(0);
 		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
-		robot.links.get(0).rangeMin=-160;
-		robot.links.get(0).rangeMax=160;
+		robot.links.get(0).setRangeMin(-160);
+		robot.links.get(0).setRangeMax(160);
 		// tilt
 		robot.links.get(1).setAlpha(0);
 		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
-		robot.links.get(2).rangeMin=-72;
+		robot.links.get(2).setRangeMin(-72);
 		// tilt
 		robot.links.get(2).setD(44.55);
 		robot.links.get(2).setAlpha(0);
@@ -69,9 +71,8 @@ public class DHRobot_Arm3 extends DHRobot {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			Vector3d position = this.getPosition();
-			gl2.glTranslated(position.x, position.y, position.z);
-			
+			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+
 			// Draw models
 			float g=1;
 			float r=217f/255f;
@@ -80,24 +81,15 @@ public class DHRobot_Arm3 extends DHRobot {
 			mat.setDiffuseColor(r,g,b,1);
 			mat.render(gl2);
 			
-			gl2.glPushMatrix();
-				Iterator<DHLink> i = links.iterator();
-				while(i.hasNext()) {
-					DHLink link = i.next();
-					link.render(gl2);
-				}
-			gl2.glPopMatrix();
+			live.render(gl2);
 		gl2.glPopMatrix();
 		
 		super.render(gl2);
 	}
 
 	@Override
-	public boolean canTargetPoseRotateX() {
-		return false;
-	}
-	@Override
-	public boolean canTargetPoseRotateY() {
-		return false;
+	public RobotKeyframe createKeyframe() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

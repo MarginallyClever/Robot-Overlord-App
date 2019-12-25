@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.rotaryStewartPlatform;
+package com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform;
 
 public class RotaryStewartPlatform3Dimensions extends RotaryStewartPlatform2Dimensions {
 	public final String ROBOT_NAME = "Stewart Platorm 3";
