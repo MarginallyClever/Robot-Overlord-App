@@ -1,11 +1,11 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots;
+package com.marginallyclever.robotOverlord;
 
 import java.util.LinkedList;
 
 import javax.vecmath.Matrix4d;
 
 
-public class Matrix4dInterpolator {
+public class Matrix4dTurtle {
 	// targetMatrix = (endMatrix - startMatrix) * interpolatePoseT + startMatrix
 	protected Matrix4d targetMatrix;
 	
@@ -27,12 +27,12 @@ public class Matrix4dInterpolator {
 	protected InterpolationStep start;
 	protected InterpolationStep end;
 	
-	public Matrix4dInterpolator() {
+	public Matrix4dTurtle() {
 		super();
 		reset();
 	}
 	
-	public Matrix4dInterpolator(Matrix4dInterpolator b) {
+	public Matrix4dTurtle(Matrix4dTurtle b) {
 		set(b);
 	}
 	
@@ -43,7 +43,7 @@ public class Matrix4dInterpolator {
 		steps = new LinkedList<InterpolationStep>();
 	}
 
-	public void set(Matrix4dInterpolator b) {
+	public void set(Matrix4dTurtle b) {
 		// assumes everything provided by linkDescription
 		start.set(b.start);
 		end.set(b.end);
