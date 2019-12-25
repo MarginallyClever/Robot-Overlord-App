@@ -315,11 +315,13 @@ public class DHLink extends Observable {
 	 * Set the (one) adjustable value, after making sure it is within the range limits.
 	 */
 	public void setAdjustableValue(double v) {
+		System.out.println("Adjust begins");
 		v = Math.max(Math.min(v, rangeMax), rangeMin);
 		if((flags & READ_ONLY_D    )==0) setD(v);
 		if((flags & READ_ONLY_THETA)==0) setTheta(v);
 		if((flags & READ_ONLY_R    )==0) setR(v);
 		if((flags & READ_ONLY_ALPHA)==0) setAlpha(v);
+		System.out.println("Adjust ends");
 	}
 
 	public double getD() {
@@ -371,6 +373,7 @@ public class DHLink extends Observable {
 	}
 
 	public void setRangeMin(double rangeMin) {
+		if(this.rangeMin == rangeMin) return;
 		this.rangeMin = rangeMin;
 	}
 
@@ -379,11 +382,12 @@ public class DHLink extends Observable {
 	}
 
 	public void setRangeMax(double rangeMax) {
+		if(this.rangeMax == rangeMax) return;
 		this.rangeMax = rangeMax;
 	}
 	
-	public void setRange(double min,double max) {
-		this.rangeMin=min;
-		this.rangeMax=max;
+	public void setRange(double rangeMin,double rangeMax) {
+		setRangeMin(rangeMin);
+		setRangeMax(rangeMax);
 	}
 }
