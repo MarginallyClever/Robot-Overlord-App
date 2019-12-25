@@ -37,8 +37,8 @@ public class DragBall extends PhysicalObject {
 	public Vector3d pickPointSaved;  // the point picked when the action began
 	public int nearestPlane;
 	
-	protected double ballSize=0.15f;
-	public double ballSizeScaled=0.15f;
+	protected final double ballSize=0.125f;
+	public double ballSizeScaled;
 
 	public boolean isRotateMode;
 	public boolean isActivelyMoving;
@@ -379,7 +379,7 @@ public class DragBall extends PhysicalObject {
 	}
 	
 	public void renderRotation(GL2 gl2) {
-		double stepSize = Math.PI/20.0;
+		double stepSize = Math.PI/120.0;
 		int inOutin;
 		
 		Vector3d v=new Vector3d();
@@ -399,6 +399,7 @@ public class DragBall extends PhysicalObject {
 			MatrixHelper.applyMatrix(gl2, FOR);
 			gl2.glTranslated(p.x, p.y, p.z);
 			
+			gl2.glLineWidth(2);
 			gl2.glScaled(ballSizeScaled, ballSizeScaled, ballSizeScaled);
 			/*
 			//white
@@ -418,9 +419,9 @@ public class DragBall extends PhysicalObject {
 			gl2.glBegin(GL2.GL_LINE_LOOP);
 			for(double n=0;n<Math.PI*2;n+=stepSize) {
 				gl2.glVertex3d(
-						lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n),
-						lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n),
-						lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n)  );
+						(lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n))*1.01,
+						(lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n))*1.01,
+						(lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n))*1.01  );
 			}
 			gl2.glEnd();
 
@@ -481,7 +482,7 @@ public class DragBall extends PhysicalObject {
 			inOutin=0;
 			gl2.glColor3d(0, 0, b);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
-			for(double n=0;n<Math.PI*4;n+=Math.PI/40) {
+			for(double n=0;n<Math.PI*4;n+=stepSize) {
 				v.set(Math.cos(n), Math.sin(n),0);
 				if(v.dot(MatrixHelper.getForward(lookAt))>0) {
 					if(inOutin==0) inOutin=1;
@@ -501,40 +502,36 @@ public class DragBall extends PhysicalObject {
 			gl2.glEnd();
 
 			if(isActivelyMoving) {
-				// the distance moved.
-				Vector3d p1 = getPickPointInBallSpace(pickPoint);
-				Vector3d p2 = getPickPointInBallSpace(pickPointSaved);
-
+				// display the distance rotated.
 				Vector3d c = new Vector3d(cm.m03,cm.m13,cm.m23);
+				Vector3d mid = new Vector3d();
+				double start=MathHelper.capRotationRadians(valueSaved);
+				double end=MathHelper.capRotationRadians(valueNow);
+				double range=end-start;
+				while(range>Math.PI) range-=Math.PI*2;
+				while(range<-Math.PI) range+=Math.PI*2;
+				double absRange= Math.abs(range);
+				
+				System.out.println(start+" "+end+"");
+
 				gl2.glBegin(GL2.GL_LINE_LOOP);
 				gl2.glColor3f(255,255,255);
 				gl2.glVertex3d(c.x,c.y,c.z);
-				Vector3d mid = new Vector3d();
-				double start,end;
-				if(valueNow>valueSaved) {
-					start=valueSaved;
-					end=valueNow;
-				} else {
-					end=valueSaved;
-					start=valueNow;
-				}
-				System.out.println(start+" "+end+"");
-				double range=end-start;
-				for(double i=0;i<range;i+=0.01) {
-					mid.sub(p2,p1);
-					mid.scale(i/range);
-					mid.add(p1);
-					mid.sub(c);
-					mid.normalize();
+				for(double i=0;i<absRange;i+=0.01) {
+					double n = range * (i/absRange) + start;
+					switch(majorPlaneSaved) {
+					case 0: mid.set(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
+					case 1: mid.set(Math.cos(-n),0,Math.sin(-n));  break;
+					case 2: mid.set(Math.cos(n),Math.sin(n),0);  break;
+					}
 					mid.add(c);
 					gl2.glVertex3d(mid.x,mid.y,mid.z);
 				}
 				gl2.glEnd();
 			}
-			
-			gl2.glPopMatrix();
-			
-			
+
+			gl2.glLineWidth(1);
+		gl2.glPopMatrix();
 	}
 	
 	protected double testBoxHit(Camera cam,Vector3d n) {
@@ -562,6 +559,8 @@ public class DragBall extends PhysicalObject {
 		//	PrimitiveSolids.drawStar(gl2, new Vector3d(), 15);
 		//gl2.glPopMatrix();
 
+		gl2.glLineWidth(2);
+		
 		Vector3d pos = isActivelyMoving ? MatrixHelper.getPosition(resultMatrix) : this.getPosition();
 		Vector3d p2 = new Vector3d(cam.getPosition());
 		p2.sub(pos);
@@ -606,6 +605,7 @@ public class DragBall extends PhysicalObject {
 			gl2.glVertex3d(subjectMatrix.m03,subjectMatrix.m13,subjectMatrix.m23);
 			gl2.glEnd();
 		}
+		gl2.glLineWidth(1);
 	}
 	
 	protected void drawAxis(GL2 gl2,Vector3d n,Vector3d center) {
