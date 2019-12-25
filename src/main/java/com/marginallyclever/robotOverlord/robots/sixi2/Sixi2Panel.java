@@ -328,12 +328,12 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 				for( Pair p : ghostJoints ) {
 					if(p.slider == source) {
 						if(!p.link.hasChanged()) {
-							System.out.println("slider begins");
+							//System.out.println("slider begins");
 							int v = ((JSlider)source).getValue();
 							p.link.setAdjustableValue(v);
 							p.label.setText(StringHelper.formatDouble(v));
 							robot.ghost.refreshPose();
-							System.out.println("slider ends");
+							//System.out.println("slider ends");
 							break;
 						}
 					}
@@ -399,11 +399,11 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			sliderLock.lock();
 			for( Pair p : ghostJoints ) {
 				if(p.link == arg0) {
-					System.out.println("observe begins");
+					//System.out.println("observe begins");
 					double v = (double)arg1;
 					p.slider.setValue((int)v);
 					p.label.setText(StringHelper.formatDouble(v));
-					System.out.println("observe ends");
+					//System.out.println("observe ends");
 					break;
 				}
 			}
