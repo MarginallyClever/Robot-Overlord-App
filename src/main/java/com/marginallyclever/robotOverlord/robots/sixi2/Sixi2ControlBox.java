@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
+package com.marginallyclever.robotOverlord.robots.sixi2;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

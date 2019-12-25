@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
+package com.marginallyclever.robotOverlord.robots.sixi2;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
