@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
+package com.marginallyclever.robotOverlord.robots.sixi2;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -19,12 +19,12 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.DragBall;
 import com.marginallyclever.robotOverlord.InputManager;
+import com.marginallyclever.robotOverlord.Matrix4dTurtle;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.dhRobot.DHTool;
-import com.marginallyclever.robotOverlord.dhRobot.robots.Matrix4dInterpolator;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.material.Material;
@@ -45,13 +45,6 @@ public class Sixi2 extends Robot {
 	LINEAR,
 	JACOBIAN,
 	};
-
-	public enum Frame {
-	WORLD,
-	CAMERA,
-	SELF,
-	}
-	protected Frame frameOfReferenceIndex; // which style of rotation?
 
 	public boolean isFirstTime;
 	public Material materialLive;
@@ -78,17 +71,16 @@ public class Sixi2 extends Robot {
 	// are we trying to drive the robot live?
 	protected boolean immediateDriving;
 	
-	protected Matrix4dInterpolator interpolator;
+	protected Matrix4dTurtle interpolator;
 	protected Matrix4d interpolatedMatrix = new Matrix4d();
 	
 	
 	public Sixi2() {
 		super();
 		setDisplayName("Sixi 2");
-		interpolator = new Matrix4dInterpolator();
+		interpolator = new Matrix4dTurtle();
 		
 		ikSolver = new DHIKSolver_RTTRTR();
-		frameOfReferenceIndex = Frame.WORLD;
 		
 		// create one copy of the DH links for the ghost robot
 		live = new DHRobot();
@@ -710,7 +702,9 @@ public class Sixi2 extends Robot {
 				Matrix4d iRoot = new Matrix4d(this.matrix);
 				//iRoot.invert();
 				subjectMatrix.mul(iRoot);
+				System.out.println("Update begins");
 				ghost.setPoseIK(subjectMatrix);
+				System.out.println("Update ends");
 				//System.out.println(MatrixHelper.getPosition(subjectMatrix));
 				isDirty=true;
 			}
@@ -906,14 +900,6 @@ public class Sixi2 extends Robot {
 	@Override
 	public void unPick() {
 		drawAsSelected = false;
-	}
-	
-	public void setFrameOfReference(Frame v) {
-		frameOfReferenceIndex=v;
-	}
-	
-	public Frame getFrameOfReference() {
-		return frameOfReferenceIndex;
 	}
 
 	protected boolean canSubjectRotateX() {

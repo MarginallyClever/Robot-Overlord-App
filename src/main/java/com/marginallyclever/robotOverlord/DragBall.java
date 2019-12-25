@@ -24,7 +24,14 @@ public class DragBall extends PhysicalObject {
 	SLIDE_YPOS,
 	SLIDE_YNEG,
 	};
-	
+
+	public enum Frame {
+	WORLD,
+	CAMERA,
+	SELF,
+	}
+	protected Frame frameOfReferenceIndex; // which style of rotation?
+
 	public boolean isHitting;
 	public Vector3d pickPoint;  // the latest point picked on the ball
 	public Vector3d pickPointSaved;  // the point picked when the action began
@@ -57,7 +64,8 @@ public class DragBall extends PhysicalObject {
 	
 	public DragBall() {
 		super();
-		
+
+		frameOfReferenceIndex = Frame.WORLD;
 		isHitting=false;
 		pickPoint=new Vector3d();
 		pickPointSaved=new Vector3d();
@@ -111,7 +119,8 @@ public class DragBall extends PhysicalObject {
 			cm.invert();
 			cm.mul(matrix);
 			cm.setTranslation(new Vector3d(0,0,0));
-			
+
+			// ray/sphere intersection
 			double d = mp.length();
 			ballSizeScaled=ballSize*d;
 			
@@ -310,12 +319,13 @@ public class DragBall extends PhysicalObject {
 					majorAxisSlideDirection=SlideDirection.SLIDE_YPOS;
 					break;
 				}
+				/*
 				switch(majorAxisSlideDirection) {
 				case SLIDE_XPOS:  System.out.println("x+");	break;
 				case SLIDE_XNEG:  System.out.println("x-");	break;
 				case SLIDE_YPOS:  System.out.println("y+");	break;
 				case SLIDE_YNEG:  System.out.println("y-");	break;
-				}
+				}*/
 				
 				// if hitting and pressed, begin movement.
 				isActivelyMoving = cam.isPressed();
@@ -343,7 +353,7 @@ public class DragBall extends PhysicalObject {
 			if(valueNow!=valueLast) {
 				switch(majorAxisSaved) {
 				case 1 : translate(MatrixHelper.getForward(FOR), valueNow);	break;
-				case 2 : translate(MatrixHelper.getRight  (FOR), valueNow);	break;
+				case 2 : translate(MatrixHelper.getLeft  (FOR), valueNow);	break;
 				default: translate(MatrixHelper.getUp     (FOR), valueNow);	break;
 				}
 			}
@@ -373,18 +383,22 @@ public class DragBall extends PhysicalObject {
 		int inOutin;
 		
 		Vector3d v=new Vector3d();
-		Vector3d v1=new Vector3d();
 
 		//PrimitiveSolids.drawStar(gl2, pickPoint,0.2*d);
 
+		Matrix4d lookAt = MatrixHelper.lookAt(getWorld().getCamera().getPosition(), this.getPosition());
+		
 		Matrix4d cm=new Matrix4d(getWorld().getCamera().getMatrix());
 		cm.invert();
-		cm.mul(matrix);
+		cm.mul(FOR);
 		cm.setTranslation(new Vector3d(0,0,0));
 		
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.matrix);
+		Vector3d p = this.getPosition();
 
+		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, FOR);
+			gl2.glTranslated(p.x, p.y, p.z);
+			
 			gl2.glScaled(ballSizeScaled, ballSizeScaled, ballSizeScaled);
 			/*
 			//white
@@ -398,17 +412,19 @@ public class DragBall extends PhysicalObject {
 			}
 			gl2.glEnd();
 			*/
+			
 			//grey
 			gl2.glColor4d(0.5,0.5,0.5,1);
 			gl2.glBegin(GL2.GL_LINE_LOOP);
 			for(double n=0;n<Math.PI*2;n+=stepSize) {
 				gl2.glVertex3d(
-						(cm.m00*Math.cos(n) +cm.m10*Math.sin(n))*1.0,
-						(cm.m01*Math.cos(n) +cm.m11*Math.sin(n))*1.0,
-						(cm.m02*Math.cos(n) +cm.m12*Math.sin(n))*1.0  );
+						lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n),
+						lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n),
+						lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n)  );
 			}
 			gl2.glEnd();
-			
+
+
 			int majorPlaneSaved = isActivelyMoving? nearestPlaneSaved : nearestPlane;
 			float r = (majorPlaneSaved==0)?1:0.25f;
 			float g = (majorPlaneSaved==1)?1:0.25f;
@@ -417,20 +433,19 @@ public class DragBall extends PhysicalObject {
 			//x
 			inOutin=0;
 			gl2.glColor3d(r, 0, 0);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=stepSize) {
 				v.set(0,Math.cos(n),Math.sin(n));
-				cm.transform(v, v1);
-				if(v1.z<0 ) {
+				FOR.transform(v);
+				if(v.dot(MatrixHelper.getForward(lookAt))>0) {
 					if(inOutin==0) inOutin=1;
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
 						break;
 					}
-				}
-				if(v1.z>=0) {
+				} else {
 					if(inOutin==1) {
 						inOutin=2;
-						gl2.glBegin(GL2.GL_LINE_STRIP);
 					}
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
@@ -438,24 +453,22 @@ public class DragBall extends PhysicalObject {
 				}
 			}
 			gl2.glEnd();
-			
+
 			//y
 			inOutin=0;
 			gl2.glColor3d(0, g, 0);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=stepSize) {
 				v.set(Math.cos(n), 0, Math.sin(n));
-				cm.transform(v, v1);
-				if(v1.z<0 ) {
+				if(v.dot(MatrixHelper.getForward(lookAt))>0) {
 					if(inOutin==0) inOutin=1;
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
 						break;
 					}
-				}
-				if(v1.z>=0) {
+				} else {
 					if(inOutin==1) {
 						inOutin=2;
-						gl2.glBegin(GL2.GL_LINE_STRIP);
 					}
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
@@ -467,20 +480,18 @@ public class DragBall extends PhysicalObject {
 			//z
 			inOutin=0;
 			gl2.glColor3d(0, 0, b);
+			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=Math.PI/40) {
 				v.set(Math.cos(n), Math.sin(n),0);
-				cm.transform(v, v1);
-				if(v1.z<0 ) {
+				if(v.dot(MatrixHelper.getForward(lookAt))>0) {
 					if(inOutin==0) inOutin=1;
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
 						break;
 					}
-				}
-				if(v1.z>=0) {
+				} else {
 					if(inOutin==1) {
 						inOutin=2;
-						gl2.glBegin(GL2.GL_LINE_STRIP);
 					}
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
@@ -703,5 +714,13 @@ public class DragBall extends PhysicalObject {
 
 	public Matrix4d getResultMatrix() {
 		return resultMatrix;
+	}
+	
+	public void setFrameOfReference(Frame v) {
+		frameOfReferenceIndex=v;
+	}
+	
+	public Frame getFrameOfReference() {
+		return frameOfReferenceIndex;
 	}
 }

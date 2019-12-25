@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobot.robots.sixi2;
+package com.marginallyclever.robotOverlord.robots.sixi2;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -66,6 +67,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JTextField gcodeValue;
 	public JPanel ghostPosPanel;
 	public JPanel livePosPanel;
+	public ReentrantLock sliderLock;
 	
 	
 	public class Pair {
@@ -94,6 +96,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
 		this.robot = robot;
 		this.ro = gui;
+		sliderLock = new ReentrantLock();
 		
 		buildPanel();
 	}
@@ -273,8 +276,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			label.setMinimumSize(new Dimension(50,16));
 			label.setPreferredSize(label.getMinimumSize());
 			
-			newSlider.setEnabled(false);
-			//newSlider.addChangeListener(this);
+			//newSlider.setEnabled(false);
+			newSlider.addChangeListener(this);
 		}
 		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
 
@@ -318,19 +321,27 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			robot.parseGCode("G0 T"+v);
 			gripperOpeningValue.setText("gripper = "+StringHelper.formatDouble(v));
 		}
-		/*
-		for( Pair p : ghostJoints ) {
-			if(p.slider == source) {
-				if(!p.link.hasChanged()) {
-					int v = ((JSlider)source).getValue();
-					p.link.setAdjustableValue(v);
-					p.label.setText(StringHelper.formatDouble(v));
-					robot.ghost.refreshPose();
-					break;
+		
+		//*
+		if(!sliderLock.isLocked()) {
+			sliderLock.lock();
+				for( Pair p : ghostJoints ) {
+					if(p.slider == source) {
+						if(!p.link.hasChanged()) {
+							System.out.println("slider begins");
+							int v = ((JSlider)source).getValue();
+							p.link.setAdjustableValue(v);
+							p.label.setText(StringHelper.formatDouble(v));
+							robot.ghost.refreshPose();
+							System.out.println("slider ends");
+							break;
+						}
+					}
 				}
-			}
+			sliderLock.unlock();
 		}
-		*//*
+		//*/
+		/*
 		if(false) {
 			// test size of labels
 			double w=0,h=0;
@@ -340,7 +351,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 				h=Math.max(h,d.getHeight());
 			}
 			System.out.println("w"+w+"\th"+h);
-		}*/
+		}//*/
 		// live and ghost joints are not updated by the user
 		// because right now that would cause an infinite loop.
 		
@@ -384,13 +395,19 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 				break;
 			}
 		}
-		for( Pair p : ghostJoints ) {
-			if(p.link == arg0) {
-				double v = (double)arg1;
-				p.slider.setValue((int)v);
-				p.label.setText(StringHelper.formatDouble(v));
-				break;
+		if(!sliderLock.isLocked()) {
+			sliderLock.lock();
+			for( Pair p : ghostJoints ) {
+				if(p.link == arg0) {
+					System.out.println("observe begins");
+					double v = (double)arg1;
+					p.slider.setValue((int)v);
+					p.label.setText(StringHelper.formatDouble(v));
+					System.out.println("observe ends");
+					break;
+				}
 			}
+			sliderLock.unlock();
 		}
 		updatePosition(robot.live,livePosPanel);
 		updatePosition(robot.ghost,ghostPosPanel);
