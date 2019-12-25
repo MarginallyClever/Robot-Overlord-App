@@ -1,16 +1,16 @@
 # DHRobots
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_GMF_M100
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Mantis
-com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Sixi1
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Arm3
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_UArm
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_SCARA_NM
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Thor
-#com.marginallyclever.robotOverlord.dhRobot.robots.DHRobot_Cartesian
+#com.marginallyclever.robotOverlord.robots.DHRobot_GMF_M100
+#com.marginallyclever.robotOverlord.robots.DHRobot_Mantis
+com.marginallyclever.robotOverlord.robots.sixi2.Sixi2
+#com.marginallyclever.robotOverlord.robots.DHRobot_Sixi1
+#com.marginallyclever.robotOverlord.robots.DHRobot_Arm3
+#com.marginallyclever.robotOverlord.robots.DHRobot_UArm
+#com.marginallyclever.robotOverlord.robots.DHRobot_SCARA_NM
+#com.marginallyclever.robotOverlord.robots.DHRobot_Thor
+#com.marginallyclever.robotOverlord.robots.DHRobot_Cartesian
 
 # sends gcode to a dhrobot
-com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2ControlBox
+com.marginallyclever.robotOverlord.robots.sixi2.Sixi2ControlBox
 # joystick controller
 com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick
 

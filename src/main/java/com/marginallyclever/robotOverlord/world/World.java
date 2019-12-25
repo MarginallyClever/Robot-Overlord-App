@@ -19,13 +19,13 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
-import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2ControlBox;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.gridEntity.GridEntity;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.robots.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.robots.sixi2.Sixi2ControlBox;
 import com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick;
 import com.marginallyclever.robotOverlord.viewCube.ViewCube;
 

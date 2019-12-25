@@ -13,9 +13,9 @@ import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
-import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.robots.sixi2.Sixi2;
 
 public class SixiJoystick extends ModelInWorld implements NetworkConnectionListener {
 	/**
