@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+@Deprecated
 public class RecordingManagerPanel extends JPanel implements ActionListener {
 	/**
 	 * 
