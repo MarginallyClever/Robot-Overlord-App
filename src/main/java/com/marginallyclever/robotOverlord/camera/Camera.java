@@ -117,9 +117,9 @@ public class Camera extends PhysicalObject {
 		int runSpeed = 1;//(move_run==1)?3:1;
 
 		// pan/tilt
-		if (InputManager.isOn(InputManager.MOUSE_RIGHT)) {
-	        int dx = (int)(InputManager.rawValue(InputManager.MOUSE_X)*0.5);
-	        int dy = (int)(InputManager.rawValue(InputManager.MOUSE_Y)*0.5);
+		if (InputManager.isOn(InputManager.Source.MOUSE_RIGHT)) {
+	        int dx = (int)(InputManager.rawValue(InputManager.Source.MOUSE_X)*0.5);
+	        int dy = (int)(InputManager.rawValue(InputManager.Source.MOUSE_Y)*0.5);
 			setPan(getPan()+dx);
 			setTilt(getTilt()-dy);
 
@@ -128,13 +128,13 @@ public class Camera extends PhysicalObject {
 
 
 		// linear moves
-		double move_fb = InputManager.rawValue(InputManager.KEY_S)-InputManager.rawValue(InputManager.KEY_W);
-		double move_lr = InputManager.rawValue(InputManager.KEY_D)-InputManager.rawValue(InputManager.KEY_A);
-		double move_ud = InputManager.rawValue(InputManager.KEY_E)-InputManager.rawValue(InputManager.KEY_Q);
+		double move_fb = InputManager.rawValue(InputManager.Source.KEY_S)-InputManager.rawValue(InputManager.Source.KEY_W);
+		double move_lr = InputManager.rawValue(InputManager.Source.KEY_D)-InputManager.rawValue(InputManager.Source.KEY_A);
+		double move_ud = InputManager.rawValue(InputManager.Source.KEY_E)-InputManager.rawValue(InputManager.Source.KEY_Q);
 		// middle mouse click + drag to slide
-		if(InputManager.isOn(InputManager.MOUSE_MIDDLE)) {
-			double dx = InputManager.rawValue(InputManager.MOUSE_X);
-			double dy = InputManager.rawValue(InputManager.MOUSE_Y);
+		if(InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
+			double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
+			double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
 			move_lr-=dx*0.25;
 			move_ud+=dy*0.25;
 		}

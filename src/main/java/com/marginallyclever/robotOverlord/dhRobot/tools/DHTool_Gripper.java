@@ -167,7 +167,7 @@ public class DHTool_Gripper extends DHTool {
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
 		
-		if(InputManager.isOn(InputManager.STICK_CIRCLE) && !wasGripping) {
+		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
 			wasGripping=true;
 			// grab release
 			if(subjectBeingHeld==null) {
@@ -192,16 +192,16 @@ public class DHTool_Gripper extends DHTool {
 				subjectBeingHeld=null;
 			}
 		}
-		if(InputManager.isOff(InputManager.STICK_CIRCLE)) wasGripping=false;
+		if(InputManager.isOff(InputManager.Source.STICK_CIRCLE)) wasGripping=false;
 		
-        if(InputManager.isOn(InputManager.STICK_OPTIONS)) {
+        if(InputManager.isOn(InputManager.Source.STICK_OPTIONS)) {
 			if(gripperServoAngle<ANGLE_MAX) {
 				gripperServoAngle+=scaleGrip;
 				if(gripperServoAngle>ANGLE_MAX) gripperServoAngle=ANGLE_MAX;
 				isDirty=true;
 			}
         }
-        if(InputManager.isOn(InputManager.STICK_SHARE)) {
+        if(InputManager.isOn(InputManager.Source.STICK_SHARE)) {
 			if(gripperServoAngle>ANGLE_MIN) {
 				gripperServoAngle-=scaleGrip;
 				if(gripperServoAngle<ANGLE_MIN) gripperServoAngle=ANGLE_MIN;
