@@ -5,6 +5,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
+@Deprecated
 public class MotionHelper extends PhysicalObject {
 	/**
 	 * 
