@@ -1,5 +1,7 @@
-package com.marginallyclever.robotOverlord;
+package com.marginallyclever.convenience;
 import javax.vecmath.Vector3d;
+
+import com.marginallyclever.robotOverlord.Cylinder;
 
 
 public class IntersectionTester {
