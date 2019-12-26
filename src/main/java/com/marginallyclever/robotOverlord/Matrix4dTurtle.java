@@ -3,6 +3,10 @@ package com.marginallyclever.robotOverlord;
 import java.util.LinkedList;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 
 
 public class Matrix4dTurtle {
@@ -53,9 +57,18 @@ public class Matrix4dTurtle {
 		steps.addAll(b.steps);
 	}
 	
-	public void offer(Matrix4d target,double time) {
+	public void offer(Matrix4d target,double feedrate) {
 		InterpolationStep s = new InterpolationStep();
 		s.target = target;
+		double time=0;
+		if(steps.size()>0 && feedrate>0) {
+			InterpolationStep last = steps.getLast();
+			Vector3d pLast = MatrixHelper.getPosition(last.target);
+			Vector3d pNew = MatrixHelper.getPosition(target);
+			pNew.sub(pLast);
+			double distanceToTravel = pNew.length();
+			time = distanceToTravel / feedrate;
+		}
 		s.time = time;
 		steps.offer(s);
 	}
@@ -65,6 +78,8 @@ public class Matrix4dTurtle {
 	}
 	
 	public void update(double dt) {
+		if (steps.isEmpty() && timeSoFar >= timeTotal) return;
+		
 		if(timeSoFar < timeTotal) {
 			//System.out.println(
 			//		"Interpolating "+queue.size()
@@ -91,6 +106,16 @@ public class Matrix4dTurtle {
 		}
 	}
 
+	public void render(GL2 gl2) {
+		if(start!=null) {
+			MatrixHelper.drawMatrix(gl2, start.target, 2);
+		}
+		
+		for(InterpolationStep step : steps ) {
+			MatrixHelper.drawMatrix(gl2, step.target, 2);
+		}
+	}
+	
 	public Matrix4d getStartMatrix() {
 		return start.target;
 	}

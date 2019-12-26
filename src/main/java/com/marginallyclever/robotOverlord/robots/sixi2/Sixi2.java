@@ -268,7 +268,8 @@ public class Sixi2 extends Robot {
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		if(interpolator.isInterpolating()) {
-			MatrixHelper.drawMatrix2(gl2, interpolatedMatrix, 15);
+			interpolator.render(gl2);
+			MatrixHelper.drawMatrix2(gl2, interpolatedMatrix, 2);
 		}
 		
 		if(drawAsSelected && inDirectDriveMode()) {
@@ -592,12 +593,8 @@ public class Sixi2 extends Robot {
 	 * @return true if targetPose changes.
 	 */
 	public boolean driveFromKeyState(double dt) {
-		Matrix4d m = getGhostTargetMatrixWorldSpace();
-		Vector3d trans = new Vector3d(m.m03,m.m13,m.m23);
-
-		Matrix4d camLookAtSubject = new Matrix4d(MatrixHelper.lookAt(trans, getWorld().getCamera().getPosition()));
 		ball.setSubjectMatrix(getGhostTargetMatrixWorldSpace());
-		ball.setCameraMatrix(camLookAtSubject);	
+		ball.setCameraMatrix(getWorld().getCamera().getMatrix());	
 		
 		boolean isDirty = false;
 		/*
@@ -687,24 +684,21 @@ public class Sixi2 extends Robot {
 			}
 		}*/
 
-
-		ball.setRotateMode(InputManager.isOn(InputManager.KEY_LSHIFT)
-						|| InputManager.isOn(InputManager.KEY_RSHIFT));
-
 		
 		ball.update(dt);
 		
-		if (InputManager.isOn(InputManager.MOUSE_LEFT)) {
-			if(ball.isActivelyMoving()) {
+		if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
+			//if(ball.isActivelyMoving())
+			{
 				Matrix4d subjectMatrix = new Matrix4d(ball.getResultMatrix());
 				// The ghost only accepts poses in it's frame of reference.
 				// so we have to account for the robot's pose in world space.
 				Matrix4d iRoot = new Matrix4d(this.matrix);
 				//iRoot.invert();
 				subjectMatrix.mul(iRoot);
-				System.out.println("Update begins");
+				//System.out.println("Update begins");
 				ghost.setPoseIK(subjectMatrix);
-				System.out.println("Update ends");
+				//System.out.println("Update ends");
 				//System.out.println(MatrixHelper.getPosition(subjectMatrix));
 				isDirty=true;
 			}
@@ -714,9 +708,9 @@ public class Sixi2 extends Robot {
 			isDirty |= ghost.dhTool.directDrive();
 		}
 		
-		if (InputManager.isReleased(InputManager.KEY_RETURN) 
-				|| InputManager.isReleased(InputManager.KEY_ENTER)
-				|| InputManager.isReleased(InputManager.STICK_X) 
+		if (InputManager.isReleased(InputManager.Source.KEY_RETURN) 
+				|| InputManager.isReleased(InputManager.Source.KEY_ENTER)
+				|| InputManager.isReleased(InputManager.Source.STICK_X) 
 				|| immediateDriving) {
 			// commit move!
 			// if we have a live connection, send it.
@@ -730,22 +724,25 @@ public class Sixi2 extends Robot {
 			}
 		}
 
-		if (InputManager.isOn(InputManager.KEY_DELETE) || InputManager.isOn(InputManager.STICK_TRIANGLE)) {
+		if (InputManager.isOn(InputManager.Source.KEY_DELETE)
+			|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
 			ghost.set(live);
 		}
 
 		return isDirty;
 	}
 
-	public void addInterpolation(double time) {
+	public void addInterpolation(double feedrate) {
 		if(!interpolator.isInterpolating()) {
+			System.out.println("Offering A");
 			// start with the live pose
 			interpolator.offer(live.getPoseIK(),0);
 			System.out.println("live "+interpolator.getQueueSize());
 		}
 		
+		System.out.println("Offering B");
 		// add the latest ghost on the end of the queue
-		interpolator.offer(ghost.getPoseIK(),time);
+		interpolator.offer(ghost.getPoseIK(),feedrate);
 	}
 	
 	@Override
@@ -762,7 +759,7 @@ public class Sixi2 extends Robot {
 					live.dhTool.interpolate(dt);
 				}
 				
-				InterpolationStyle style = InterpolationStyle.JACOBIAN;
+				InterpolationStyle style = InterpolationStyle.LINEAR;
 				switch (style) {
 				case LINEAR:	interpolateLinear(dt);		break;
 				case JACOBIAN:	interpolateJacobian(dt);	break;
@@ -784,8 +781,8 @@ public class Sixi2 extends Robot {
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
 		double total = interpolator.getInterpolateTime();
-		double sofar = interpolator.getInterpolatePoseT();
-		double ratio = total>0? sofar/total : 0;
+		double t = interpolator.getInterpolatePoseT();
+		double ratio = total>0? t/total : 0;
 		MatrixHelper.interpolate(
 				interpolator.getStartMatrix(), 
 				interpolator.getEndMatrix(), 
