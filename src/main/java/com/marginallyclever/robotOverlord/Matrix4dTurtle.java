@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -10,7 +11,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 
 
-public class Matrix4dTurtle {
+public class Matrix4dTurtle extends Observable {
 	public class InterpolationStep {
 		public Matrix4d targetIK;
 		public double   duration;
@@ -136,10 +137,21 @@ public class Matrix4dTurtle {
 			thisStepSoFar-=thisStepDuration;
 
 			InterpolationStep step = getStepAtTime(playHead);
-			start.set(poseNow,0);
-			end=step;
-			thisStepDuration=end.duration;
+			if(step!=null) {
+				start.set(poseNow,0);
+				end=step;
+				thisStepDuration=end.duration;
+			}
 		}
+		if(playHead>=totalPlayTime) {
+			setPlaying(false);
+			// if we are a looping recording,
+			//setPlayHead(0);
+			//setPlaying(true);
+		}
+		
+		// if we are single block
+		//setPlaying(false);
 	}
 
 	public void render(GL2 gl2) {
