@@ -736,6 +736,9 @@ public class Sixi2 extends Robot {
 		System.out.println("Offering");
 		// add the latest ghost on the end of the queue
 		interpolator.offer(live.getPoseIK(),ghost.getPoseIK(),duration);
+		if(sixi2Panel!=null) {
+			sixi2Panel.scrubber.setMaximum((int)Math.ceil(interpolator.getTotalPlayTime()));
+		}
 	}
 	
 	@Override
@@ -747,7 +750,12 @@ public class Sixi2 extends Robot {
 		} else {
 			//if(interpolator.isInterpolating()) 
 			{
-				interpolator.update(dt,live.getPoseIK());	
+				interpolator.update(dt,live.getPoseIK());
+				if(sixi2Panel!=null && !sixi2Panel.scrubberLock.isLocked()) {
+					sixi2Panel.scrubberLock.lock();
+					sixi2Panel.scrubber.setValue((int)interpolator.getPlayHead());
+					sixi2Panel.scrubberLock.unlock();
+				}
 				if (live.dhTool != null) {
 					live.dhTool.interpolate(dt);
 				}

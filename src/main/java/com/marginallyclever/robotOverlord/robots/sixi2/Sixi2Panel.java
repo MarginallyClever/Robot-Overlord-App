@@ -69,7 +69,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JPanel livePosPanel;
 	public ReentrantLock sliderLock;
 
-	public JButton playNow,pauseNow;
+	public JButton rewindNow,playNow;
+	public JSlider scrubber;
+	public ReentrantLock scrubberLock;
 	
 	
 	public class Pair {
@@ -99,6 +101,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		this.robot = robot;
 		this.ro = gui;
 		sliderLock = new ReentrantLock();
+		scrubberLock = new ReentrantLock();
 		
 		buildPanel();
 	}
@@ -189,12 +192,16 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 */
+		contents.add(rewindNow = new JButton("Rewind"),con1);
+		con1.gridy++;
+		rewindNow.addActionListener(this);
 		contents.add(playNow=new JButton("Play"),con1);
 		con1.gridy++;
 		playNow.addActionListener(this);
-		contents.add(pauseNow=new JButton("Pause"),con1);
+		contents.add(scrubber=new JSlider(),con1);
 		con1.gridy++;
-		pauseNow.addActionListener(this);
+		scrubber.addChangeListener(this);
+		con1.gridy++;
 		
 		
 		contents.add(gcodeLabel=new JLabel("Gcode"), con1);
@@ -349,6 +356,13 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 				}
 			sliderLock.unlock();
 		}
+		if(scrubber==source) {
+			if(!scrubberLock.isLocked()) {
+				scrubberLock.lock();
+				robot.interpolator.setPlayhead(scrubber.getValue());
+				scrubberLock.unlock();
+			}
+		}
 		//*/
 		/*
 		if(false) {
@@ -383,12 +397,16 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source==goRest) {
 			robot.ghost.setPoseFK(robot.restKey);
 		}
-		if(source==playNow) {
+		if(source==rewindNow && !robot.interpolator.isPlaying()) {
 			robot.interpolator.setPlayhead(0);
-			robot.interpolator.setPlaying(true);
 		}
-		if(source==pauseNow) {
-			robot.interpolator.setPlaying(false);
+		if(source==playNow) {
+			if(!robot.interpolator.isPlaying()) {
+				robot.interpolator.setPlaying(true);
+				playNow.setText("Pause");
+			} else {
+				playNow.setText("Play");
+			}
 		}
 	}
 
