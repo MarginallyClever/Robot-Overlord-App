@@ -267,8 +267,8 @@ public class Sixi2 extends Robot {
 		gl2.glDepthFunc(GL2.GL_ALWAYS);
 		gl2.glDisable(GL2.GL_LIGHTING);
 
+		interpolator.render(gl2);
 		if(interpolator.isInterpolating()) {
-			interpolator.render(gl2);
 			MatrixHelper.drawMatrix2(gl2, interpolatedMatrix, 2);
 		}
 		
@@ -732,17 +732,10 @@ public class Sixi2 extends Robot {
 		return isDirty;
 	}
 
-	public void addInterpolation(double feedrate) {
-		if(!interpolator.isInterpolating()) {
-			System.out.println("Offering A");
-			// start with the live pose
-			interpolator.offer(live.getPoseIK(),0);
-			System.out.println("live "+interpolator.getQueueSize());
-		}
-		
-		System.out.println("Offering B");
+	public void addInterpolation(double duration) {
+		System.out.println("Offering");
 		// add the latest ghost on the end of the queue
-		interpolator.offer(ghost.getPoseIK(),feedrate);
+		interpolator.offer(live.getPoseIK(),ghost.getPoseIK(),duration);
 	}
 	
 	@Override
@@ -754,7 +747,7 @@ public class Sixi2 extends Robot {
 		} else {
 			//if(interpolator.isInterpolating()) 
 			{
-				interpolator.update(dt);	
+				interpolator.update(dt,live.getPoseIK());	
 				if (live.dhTool != null) {
 					live.dhTool.interpolate(dt);
 				}
@@ -780,8 +773,8 @@ public class Sixi2 extends Robot {
 	protected void interpolateLinear(double dt) {			
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
-		double total = interpolator.getInterpolateTime();
-		double t = interpolator.getInterpolatePoseT();
+		double total = interpolator.getStepDuration();
+		double t = interpolator.getStepSoFar();
 		double ratio = total>0? t/total : 0;
 		MatrixHelper.interpolate(
 				interpolator.getStartMatrix(), 
@@ -798,13 +791,13 @@ public class Sixi2 extends Robot {
 	 * @param dt
 	 */
 	protected void interpolateJacobian(double dt) {
-		double total = interpolator.getInterpolateTime();
+		double total = interpolator.getStepDuration();
 		
 		if(total==0) {
 			return;
 		}
 
-		double t = interpolator.getInterpolatePoseT();
+		double t = interpolator.getStepSoFar();
 		double ratio0 = (t   ) / total;
 		double ratio1 = (t+dt) / total;
 		if(ratio1>1) ratio1=1;

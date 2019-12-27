@@ -68,6 +68,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JPanel ghostPosPanel;
 	public JPanel livePosPanel;
 	public ReentrantLock sliderLock;
+
+	public JButton playNow,pauseNow;
 	
 	
 	public class Pair {
@@ -187,6 +189,13 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 */
+		contents.add(playNow=new JButton("Play"),con1);
+		con1.gridy++;
+		playNow.addActionListener(this);
+		contents.add(pauseNow=new JButton("Pause"),con1);
+		con1.gridy++;
+		pauseNow.addActionListener(this);
+		
 		
 		contents.add(gcodeLabel=new JLabel("Gcode"), con1);
 		con1.gridy++;
@@ -309,7 +318,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source == feedrate) {
 			int v = feedrate.getValue();
 			robot.setFeedrate(v);
-			feedrateValue.setText("feedrate = "+StringHelper.formatDouble(v));
+			feedrateValue.setText("seconds to move = "+StringHelper.formatDouble(v));
 		}
 		if(source == acceleration) {
 			int v = acceleration.getValue();
@@ -373,6 +382,13 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		}
 		if(source==goRest) {
 			robot.ghost.setPoseFK(robot.restKey);
+		}
+		if(source==playNow) {
+			robot.interpolator.setPlayhead(0);
+			robot.interpolator.setPlaying(true);
+		}
+		if(source==pauseNow) {
+			robot.interpolator.setPlaying(false);
 		}
 	}
 
