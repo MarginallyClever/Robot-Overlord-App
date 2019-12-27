@@ -109,6 +109,21 @@ public class Matrix4dTurtle {
 		return steps.get(steps.size()-1);
 	}
 	
+	/**
+	 * 
+	 * @param t
+	 * @return if steps null, return 0.  else return portion of t remaining at this step.
+	 */
+	public double getSoFarAtTime(double t) {
+		if(steps.isEmpty()) return 0;
+		
+		for( InterpolationStep step : steps) {
+			if(t<=step.duration) return t;
+			t-=step.duration;
+		}
+		return t;
+	}
+	
 	public void update(double dt,Matrix4d poseNow) {
 		if(!isPlaying()) return;
 		
@@ -172,6 +187,7 @@ public class Matrix4dTurtle {
 	}
 	public void setPlayhead(double t) {
 		playHead=t;
+		thisStepSoFar=getSoFarAtTime(t);
 	}
 	
 	public int getQueueSize() {
