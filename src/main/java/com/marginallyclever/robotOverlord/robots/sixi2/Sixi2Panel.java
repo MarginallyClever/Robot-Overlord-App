@@ -192,17 +192,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 */
-		contents.add(rewindNow = new JButton("Rewind"),con1);
-		con1.gridy++;
-		rewindNow.addActionListener(this);
-		contents.add(playNow=new JButton("Play"),con1);
-		con1.gridy++;
-		playNow.addActionListener(this);
-		contents.add(scrubber=new JSlider(),con1);
-		con1.gridy++;
-		scrubber.addChangeListener(this);
-		con1.gridy++;
-		
 		
 		contents.add(gcodeLabel=new JLabel("Gcode"), con1);
 		con1.gridy++;
@@ -304,6 +293,31 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		updatePosition(robot.ghost,ghostPosPanel);
 
 		gcodeValue.setText(robot.generateGCode());
+		
+
+
+		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording");
+		this.add(recordingPanel,con1);
+		con1.gridy++;
+		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));
+		
+		contents = new JPanel();
+		recordingPanel.getContentPane().add(contents);
+		contents.setBorder(new EmptyBorder(0,0,0,0));
+		contents.setLayout(new GridBagLayout());
+		GridBagConstraints con2 = new GridBagConstraints();
+		con2.ipadx=5;
+		con2.ipady=5;
+		con2.gridx=0;	con2.gridy=0;
+		contents.add(rewindNow = new JButton("Rewind"),con2);
+		con2.gridx=1;	con2.gridy=0;
+		contents.add(playNow=new JButton("Play"),con2);
+		con2.gridx=0;	con2.gridy=1;	con2.gridwidth=2;
+		contents.add(scrubber=new JSlider(),con2);
+		
+		rewindNow.addActionListener(this);
+		playNow.addActionListener(this);
+		scrubber.addChangeListener(this);
 	}
 	
 	protected void updatePosition(DHRobot r, JPanel p) {
@@ -359,7 +373,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(scrubber==source) {
 			if(!scrubberLock.isLocked()) {
 				scrubberLock.lock();
-				robot.interpolator.setPlayhead(scrubber.getValue());
+				robot.interpolator.setPlayhead(scrubber.getValue()*0.1);
 				scrubberLock.unlock();
 			}
 		}
@@ -397,16 +411,18 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source==goRest) {
 			robot.ghost.setPoseFK(robot.restKey);
 		}
-		if(source==rewindNow && !robot.interpolator.isPlaying()) {
-			robot.interpolator.setPlayhead(0);
-		}
-		if(source==playNow) {
-			if(!robot.interpolator.isPlaying()) {
+		
+		if(!robot.interpolator.isPlaying()) {
+			if(source==rewindNow) {
+				robot.interpolator.setPlayhead(0);
+			}
+			if(source==playNow) {
 				robot.interpolator.setPlaying(true);
 				playNow.setText("Pause");
-			} else {
-				playNow.setText("Play");
 			}
+		} else {
+			robot.interpolator.setPlaying(false);
+			playNow.setText("Play");
 		}
 	}
 

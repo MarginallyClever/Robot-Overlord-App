@@ -737,7 +737,7 @@ public class Sixi2 extends Robot {
 		// add the latest ghost on the end of the queue
 		interpolator.offer(live.getPoseIK(),ghost.getPoseIK(),duration);
 		if(sixi2Panel!=null) {
-			sixi2Panel.scrubber.setMaximum((int)Math.ceil(interpolator.getTotalPlayTime()));
+			sixi2Panel.scrubber.setMaximum((int)Math.ceil(10*interpolator.getTotalPlayTime()));
 		}
 	}
 	
