@@ -58,7 +58,7 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 				float x=Float.parseFloat(tokens[1]);
 				float y=Float.parseFloat(tokens[2]);
 				float z=Float.parseFloat(tokens[3]);
-				float len = MathHelper.length(x,y,z);
+				float len = (float)MathHelper.length((double)x,(double)y,(double)z);
 				x/=len;
 				y/=len;
 				z/=len;

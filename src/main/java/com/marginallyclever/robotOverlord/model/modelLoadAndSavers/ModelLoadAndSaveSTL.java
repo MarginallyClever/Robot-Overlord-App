@@ -192,7 +192,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 				x=Float.parseFloat(c[0]);
 				y=Float.parseFloat(c[1]);
 				z=Float.parseFloat(c[2]);
-				len = MathHelper.length(x,y,z);
+				len = (float)MathHelper.length((double)x,(double)y,(double)z);
 				x/=len;
 				y/=len;
 				z/=len;
