@@ -11,39 +11,6 @@ import javax.vecmath.Vector3d;
 public class MathHelper {
 	public final static double EPSILON = 0.00001f;
 	
-	/**
-	 * @param dx x component
-	 * @param dy y component
-	 * @param dz z component
-	 * @return Square of length of vector (dx,dy,dz) 
-	 */
-	public static float lengthSquared(float dx,float dy,float dz) {
-		return dx*dx+dy*dy+dz*dz;
-	}
-	
-	
-	/**
-	 * @param dx x component
-	 * @param dy y component
-	 * @param dz z component
-	 * @return Length of vector (dx,dy,dz) 
-	 */
-	public static float length(float dx,float dy,float dz) {
-		return (float)Math.sqrt(lengthSquared(dx,dy,dz));
-	}
-
-	
-	/**
-	 * Round a float off to 3 decimal places.
-	 * @param v a value
-	 * @return Value rounded off to 3 decimal places
-	 */
-	public static float roundOff3(float v) {
-		float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
-	
 
 	/**
 	 * @param dx x component
@@ -64,6 +31,26 @@ public class MathHelper {
 	 */
 	public static double length(double dx,double dy,double dz) {
 		return (float)Math.sqrt(lengthSquared(dx,dy,dz));
+	}
+	
+
+	/**
+	 * @param dx x component
+	 * @param dy y component
+	 * @return Square of length of vector (dx,dy) 
+	 */
+	public static double lengthSquared(double dx,double dy) {
+		return dx*dx+dy*dy;
+	}
+	
+	
+	/**
+	 * @param dx x component
+	 * @param dy y component
+	 * @return Length of vector (dx,dy) 
+	 */
+	public static double length(double dx,double dy) {
+		return (float)Math.sqrt(lengthSquared(dx,dy));
 	}
 
 	
