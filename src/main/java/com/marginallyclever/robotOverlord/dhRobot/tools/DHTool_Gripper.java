@@ -1,12 +1,10 @@
 package com.marginallyclever.robotOverlord.dhRobot.tools;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -56,7 +54,7 @@ public class DHTool_Gripper extends DHTool {
 	public DHTool_Gripper() {
 		super();
 		setDisplayName("Gripper");
-		dhLinkEquivalent.d=11.9082;  // cm
+		dhLinkEquivalent.setD(11.9082);  // cm
 		dhLinkEquivalent.refreshPoseMatrix();
 		
 		heldRelative = new Matrix4d();
@@ -64,8 +62,8 @@ public class DHTool_Gripper extends DHTool {
 		gripperServoAngle=90;
 		interpolatePoseT=1;
 		startT=endT=gripperServoAngle;
-		startD=endD=dhLinkEquivalent.d;
-		startR=endR=dhLinkEquivalent.r;
+		startD=endD=dhLinkEquivalent.getD();
+		startR=endR=dhLinkEquivalent.getR();
 		
 		setFilename("/Sixi2/beerGripper/base.stl");
 		setScale(0.1f);
@@ -169,7 +167,7 @@ public class DHTool_Gripper extends DHTool {
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
 		
-		if(InputManager.isOn(InputManager.STICK_CIRCLE) && !wasGripping) {
+		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
 			wasGripping=true;
 			// grab release
 			if(subjectBeingHeld==null) {
@@ -194,16 +192,16 @@ public class DHTool_Gripper extends DHTool {
 				subjectBeingHeld=null;
 			}
 		}
-		if(InputManager.isOff(InputManager.STICK_CIRCLE)) wasGripping=false;
+		if(InputManager.isOff(InputManager.Source.STICK_CIRCLE)) wasGripping=false;
 		
-        if(InputManager.isOn(InputManager.STICK_OPTIONS)) {
+        if(InputManager.isOn(InputManager.Source.STICK_OPTIONS)) {
 			if(gripperServoAngle<ANGLE_MAX) {
 				gripperServoAngle+=scaleGrip;
 				if(gripperServoAngle>ANGLE_MAX) gripperServoAngle=ANGLE_MAX;
 				isDirty=true;
 			}
         }
-        if(InputManager.isOn(InputManager.STICK_SHARE)) {
+        if(InputManager.isOn(InputManager.Source.STICK_SHARE)) {
 			if(gripperServoAngle>ANGLE_MIN) {
 				gripperServoAngle-=scaleGrip;
 				if(gripperServoAngle<ANGLE_MIN) gripperServoAngle=ANGLE_MIN;
@@ -241,16 +239,13 @@ public class DHTool_Gripper extends DHTool {
 		//System.out.println("Asking world...");
 		
 		// World, please tell me who is near my grab point.
+		Vector3d target = new Vector3d();
+		dhLinkEquivalent.poseCumulative.get(target);
 		World world = (World)p;
-		Point3d target = new Point3d(dhLinkEquivalent.poseCumulative.m03,
-									 dhLinkEquivalent.poseCumulative.m13,
-									 dhLinkEquivalent.poseCumulative.m23);
 		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,radius);
 
 		// Check the list for anything that is not this tool and not this robot.
-		Iterator<PhysicalObject> iter = list.iterator();
-		while(iter.hasNext()) {
-			PhysicalObject po = iter.next();
+		for( PhysicalObject po : list ) {
 			if(po==parent) continue;
 			if(po==this) continue;
 			if(po instanceof Light) continue;
@@ -263,8 +258,8 @@ public class DHTool_Gripper extends DHTool {
 
 	public String generateGCode() {
 		String message = " T"+StringHelper.formatDouble(this.gripperServoAngle)
-						+ " R"+StringHelper.formatDouble(this.dhLinkEquivalent.r)
-						+ " S"+StringHelper.formatDouble(this.dhLinkEquivalent.d);
+						+ " R"+StringHelper.formatDouble(this.dhLinkEquivalent.getR())
+						+ " S"+StringHelper.formatDouble(this.dhLinkEquivalent.getD());
 		return message;
 	}
 	
@@ -278,11 +273,11 @@ public class DHTool_Gripper extends DHTool {
 					endT = Double.parseDouble(token.substring(1));
 				}
 				if(token.startsWith("R")) {
-					startR = dhLinkEquivalent.r;
+					startR = dhLinkEquivalent.getR();
 					endR = Double.parseDouble(token.substring(1));
 				}
 				if(token.startsWith("S")) {
-					startD = dhLinkEquivalent.d;
+					startD = dhLinkEquivalent.getD();
 					endD = Double.parseDouble(token.substring(1));
 				}
 			} catch(NumberFormatException e) {
@@ -299,9 +294,9 @@ public class DHTool_Gripper extends DHTool {
 			if(interpolatePoseT>=1) {
 				interpolatePoseT=1;
 			}
-			gripperServoAngle  = (endT-startT)*interpolatePoseT + startT;
-			dhLinkEquivalent.r = (endR-startR)*interpolatePoseT + startR;
-			dhLinkEquivalent.d = (endD-startD)*interpolatePoseT + startD;
+			gripperServoAngle   =((endT-startT)*interpolatePoseT + startT);
+			dhLinkEquivalent.setR((endR-startR)*interpolatePoseT + startR);
+			dhLinkEquivalent.setD((endD-startD)*interpolatePoseT + startD);
 			dhLinkEquivalent.refreshPoseMatrix();
 		}
 	}

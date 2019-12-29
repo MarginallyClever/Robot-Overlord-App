@@ -30,7 +30,7 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 	private JTextField textField;
 	private RobotOverlord ro;
 	private String value;
-	private String label;
+	private String labelName;
 	private LinkedList<ChangeListener> changeListeners = new LinkedList<ChangeListener>();
 	private boolean allowSetText;
 	
@@ -40,7 +40,7 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		
 		allowSetText=true;
 		value=defaultValue;
-		this.label = labelName;
+		this.labelName = labelName;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
@@ -50,13 +50,13 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		con1.fill=GridBagConstraints.NONE;
 		con1.anchor=GridBagConstraints.WEST;
 		
-		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
 		textField = new JTextField(20);
 		textField.setText(defaultValue);
 		textField.getDocument().addDocumentListener(this);
-		label.setLabelFor(textField);
 		
+		JLabel label=new JLabel(labelName,JLabel.LEFT);
+		label.setLabelFor(textField);
 		this.add(label,con1);
 		con1.gridy++;
 		this.add(textField,con1);
@@ -100,7 +100,7 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		String newValue = textField.getText();
 		if(!newValue.equals(value)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectString(this, label, newValue) ) );
+			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectString(this, labelName, newValue) ) );
 			allowSetText=true;
 		}
 	}

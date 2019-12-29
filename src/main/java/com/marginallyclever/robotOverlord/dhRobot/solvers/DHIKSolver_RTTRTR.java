@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.dhRobot.solvers;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -9,7 +9,6 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
@@ -36,8 +35,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	}
 
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
-		solveWithSuggestion(robot,targetMatrix,keyframe,null);
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+		return solveWithSuggestion(robot,targetMatrix,keyframe,null);
 	}
 	
 	/**
@@ -49,9 +48,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
-		solutionFlag = ONE_SOLUTION;
-		
+	public SolutionType solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
 		DHLink link0 = robot.links.get(0);
 		DHLink link1 = robot.links.get(1);
 		DHLink link2 = robot.links.get(2);
@@ -74,13 +71,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// use the inverse to calculate the wrist transform.
 			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
 
-			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLinkEquivalent.r;
-			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLinkEquivalent.r;
-			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLinkEquivalent.r;
+			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLinkEquivalent.getR();
+			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLinkEquivalent.getR();
+			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLinkEquivalent.getR();
 
-			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLinkEquivalent.d;
-			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLinkEquivalent.d;
-			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLinkEquivalent.d;
+			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLinkEquivalent.getD();
+			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLinkEquivalent.getD();
+			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLinkEquivalent.getD();
 		}
 		
 		Point3d p7 = new Point3d(
@@ -94,10 +91,10 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		// Work backward to get link5 position
 		Point3d p5 = new Point3d(n7z);
-		p5.scaleAdd(-link6.d,p7);
+		p5.scaleAdd(-link6.getD(),p7);
 
 		// Work forward to get p1 position
-		Point3d p1 = new Point3d(0,0,link0.d);
+		Point3d p1 = new Point3d(0,0,link0.getD());
 
 		if(false) {
 			Vector3d p5confirm = new Vector3d(
@@ -107,7 +104,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			System.out.println(
 					"p7="+p7+"\t"+
 					"n7z="+n7z+"\t"+
-					"d6="+link6.d+"\t"+
+					"d6="+link6.getD()+"\t"+
 					"p5="+p5+"\t"+
 					"p5c="+p5confirm+"\t"+
 					"p1="+p1+"\t"
@@ -135,17 +132,16 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("e="+e+"\t");
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
-		double a = link2.d;
-		double b2 = link4.d+link5.d;
-		double b1 = link3.d;
+		double a = link2.getD();
+		double b2 = link4.getD()+link5.getD();
+		double b1 = link3.getD();
 		double b = Math.sqrt(b2*b2+b1*b1);
 		if(false) System.out.println("b="+b+"\t");
 
 		if( e > a+b ) {
 			// target matrix impossibly far away
-			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (1)");
-			return;
+			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2.0*a*e) );
@@ -180,7 +176,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		// Now to a partial DHRobot.setRobotPose() up to link5.
 		// I don't want to alter the original robot so I'll make a deep clone of the robot.links.
-		LinkedList<DHLink> clonedLinks = new LinkedList<DHLink>();
+		ArrayList<DHLink> clonedLinks = new ArrayList<DHLink>();
 		Iterator<DHLink> rli = robot.links.iterator();
 		while(rli.hasNext()) {
 			DHLink originalLink = rli.next();
@@ -190,10 +186,10 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		Matrix4d r04 = new Matrix4d();
 		r04.setIdentity();
 		
-		clonedLinks.get(0).theta = keyframe.fkValues[0];
-		clonedLinks.get(1).alpha = keyframe.fkValues[1];
-		clonedLinks.get(2).alpha = keyframe.fkValues[2];
-		clonedLinks.get(4).theta = 0;
+		clonedLinks.get(0).setTheta(keyframe.fkValues[0]);
+		clonedLinks.get(1).setAlpha(keyframe.fkValues[1]);
+		clonedLinks.get(2).setAlpha(keyframe.fkValues[2]);
+		clonedLinks.get(4).setTheta(0);
 
 		rli = clonedLinks.iterator();
 		int j=0;
@@ -206,15 +202,12 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		}
 
 		if(false) {
-			Vector3d p4original = new Vector3d(
-					link4.poseCumulative.m03,
-					link4.poseCumulative.m13,
-					link4.poseCumulative.m23);
-			Vector3d p4cloned = new Vector3d(
-					clonedLinks.get(4).poseCumulative.m03,
-					clonedLinks.get(4).poseCumulative.m13,
-					clonedLinks.get(4).poseCumulative.m23);
+			Vector3d p4original = new Vector3d();
+			link4.poseCumulative.get(p4original);
 			System.out.println("p4o="+p4original);
+			
+			Vector3d p4cloned = new Vector3d();
+			clonedLinks.get(4).poseCumulative.get(p4cloned);
 			System.out.println("p4c="+p4cloned);
 		}
 		
@@ -223,8 +216,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		r04.transform(p4);
 		
 		// test to see if we are near the singularity (when j6-j4=j4.d+j5.d+j6.d)
-		double f = link5.d;  // aka z45
-		double g = link6.d+link7.d;  // aka z57
+		double f = link5.getD();  // aka z45
+		double g = link6.getD()+link7.getD();  // aka z57
 		double maximumReach = f+g;
 		double h = p4.distance(p7);
 
@@ -237,12 +230,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		if( h-maximumReach > EPSILON ) {
 			// out of reach
-			solutionFlag = NO_SOLUTIONS;
 			if(false) System.out.println("NO SOLUTIONS (2)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
-			return;
+			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		// We have found matrix r04 and we started with r07 (targetPoseAdj).
@@ -287,15 +279,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		while(a5copy<=-Math.PI) a5copy+=Math.PI;
 		if(Math.abs(a5copy)<EPSILON) {
 			// singularity!
-			if(suggestion!=null) {
-				if(true) System.out.println("ONE SOLUTION (MAYBE 1)");
-				solutionFlag = ONE_SOLUTION;
-				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],0);
-			} else {
-				if(true) System.out.println("MANY SOLUTIONS");
-				solutionFlag = MANY_SOLUTIONS;
-				keyframe.fkValues[3] = 0;
-			}
 			double t6 = Math.acos(r47.m00);
 			keyframe.fkValues[4] = 0;
 			keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t6),0);
@@ -306,7 +289,16 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					"t4="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t"+
 					"a5="+StringHelper.formatDouble(keyframe.fkValues[4])+"\t"+
 					"t6="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
-			return;
+			/*return SolutionType.NO_SOLUTIONS;/*/
+			if(suggestion!=null) {
+				if(true) System.out.println("ONE OF MANY SOLUTIONS");
+				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],0);
+				return SolutionType.ONE_SOLUTION;
+			} else {
+				if(true) System.out.println("MANY SOLUTIONS");
+				keyframe.fkValues[3] = 0;
+				return SolutionType.MANY_SOLUTIONS;
+			}//*/
 		}
 		
 		// no singularity, so we can continue to solve for theta4 and theta6.
@@ -329,12 +321,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// Only the sum of t4+t6 can be found, not the individual angles.
 			// this is the same as if(Math.abs(a5copy)<EPSILON) above, so this should
 			// be unreachable.
-			solutionFlag = NO_SOLUTIONS;
 			if(true) System.out.println("NO SOLUTIONS (3)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
-			return;
+			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		if(false) System.out.println("5="+a5+"\tpos="+a5);
@@ -378,5 +369,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					+StringHelper.formatDouble(keyframe.fkValues[3])+","
 					+StringHelper.formatDouble(keyframe.fkValues[4])+","
 					+StringHelper.formatDouble(keyframe.fkValues[5])+"}\t");
+		
+		return SolutionType.ONE_SOLUTION;
 	}
 }

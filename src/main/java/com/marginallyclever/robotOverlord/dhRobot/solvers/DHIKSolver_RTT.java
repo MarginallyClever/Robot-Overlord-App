@@ -4,7 +4,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.dhRobot.DHIKSolver;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
@@ -32,7 +31,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public void solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
+	public SolutionType solve(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe) {
 		DHLink link0 = robot.links.get(0);
 		DHLink link1 = robot.links.get(1);
 		DHLink link2 = robot.links.get(2);
@@ -56,7 +55,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 				targetPoseAdj.m23);
 
 		// Work forward to get p1 position
-		Point3d p1 = new Point3d(0,0,link0.d);
+		Point3d p1 = new Point3d(0,0,link0.getD());
 		
 		// (1) theta0 = atan(y07/x07);
 		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p4.x,-p4.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
@@ -77,9 +76,9 @@ public class DHIKSolver_RTT extends DHIKSolver {
 		if(false) System.out.println("e="+e+"\t");
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
-		double a = link2.d;
-		double b2 = link4.d;
-		double b1 = link3.d;
+		double a = link2.getD();
+		double b2 = link4.getD();
+		double b1 = link3.getD();
 		double b = Math.sqrt(b2*b2+b1*b1);
 		if(false) System.out.println("b="+b+"\t");
 		
@@ -112,8 +111,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		if(true) System.out.println("solution={"+keyframe.fkValues[0]+","+keyframe.fkValues[1]+","+keyframe.fkValues[2]+"}");
+		
+		return SolutionType.ONE_SOLUTION;
 	}
-	
-	
-	public void solveWithSuggestion(DHRobot robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {}
 }

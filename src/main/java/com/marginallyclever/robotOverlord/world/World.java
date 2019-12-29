@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.world;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.jogamp.opengl.GL2;
@@ -10,7 +9,6 @@ import com.jogamp.opengl.GL2;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -21,13 +19,13 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.camera.CameraMount;
-import com.marginallyclever.robotOverlord.dhRobot.dhRobotControlBox.DHRobotControlBox;
-import com.marginallyclever.robotOverlord.dhRobot.robots.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.gridEntity.GridEntity;
 import com.marginallyclever.robotOverlord.light.Light;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.robots.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.robots.sixi2.Sixi2ControlBox;
 import com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick;
 import com.marginallyclever.robotOverlord.viewCube.ViewCube;
 
@@ -45,7 +43,7 @@ implements Serializable {
 
 	protected transient NetworkConnectionManager connectionManager = new NetworkConnectionManager();
 
-	protected transient boolean areTexturesLoaded=false;
+	protected transient boolean areSkyboxTexturesLoaded=false;
 
 	public final static Matrix4d pose = new Matrix4d();
 	// TODO lose these junk vectors that don't match assumptions, anyhow.
@@ -57,7 +55,12 @@ implements Serializable {
 	protected Camera camera;
 	protected CameraMount freeCamera;
 	protected Light light0, light1, light2;
-	protected transient Texture t0,t1,t2,t3,t4,t5;
+	protected transient Texture skyboxtextureXPos,
+								skyboxtextureXNeg,
+								skyboxtextureYPos,
+								skyboxtextureYNeg,
+								skyboxtextureZPos,
+								skyboxtextureZNeg;
 
 	protected transient Vector3d pickForward = null;
 	protected transient Vector3d pickRight = null;
@@ -75,13 +78,13 @@ implements Serializable {
 		
 		setDisplayName("World");
 		
-		areTexturesLoaded=false;
+		areSkyboxTexturesLoaded=false;
 		pickForward=new Vector3d();
 		pickRight=new Vector3d();
 		pickUp=new Vector3d();
 		pickRay=new Vector3d();
 		
-		DHRobotControlBox player;
+		Sixi2ControlBox player;
 		Sixi2 sixi2;
 		
 		addEntity(grid = new GridEntity());
@@ -90,7 +93,7 @@ implements Serializable {
 		addEntity(light2 = new Light());
 		addEntity(camera = new Camera());
 		addEntity(sixi2=new Sixi2());
-		addEntity(player=new DHRobotControlBox());
+		addEntity(player=new Sixi2ControlBox());
 		addEntity(new SixiJoystick());
 	
 		viewCube = new ViewCube();
@@ -103,13 +106,14 @@ implements Serializable {
 		//camera.setPan(52);
 		camera.setTilt(76);
 
-		player.setPosition(new Vector3d(60,25,0));
+		player.setPosition(new Vector3d(-35,0,14));
+		player.adjustRotation(90, 0, 90);
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
 		m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		sixi2.setRotation(m);
-		player.setRotation(m);
+		//player.setRotation(m);
 	}
 	
 	
@@ -131,17 +135,20 @@ implements Serializable {
 
 	protected void setup() {
 		setupLights();
-		loadTextures();
+		loadSkyboxTextures();
     }
     
 
     protected void setupLights() {
+    	// TODO these values should saved to a test0.scene file and then not happen here.
+    	
+    	// the custom colors could be in a drop down list. 
 		light0.setDisplayName("light0");
     	light0.index=0;
     	light0.setPosition(new Vector3d(0,0,30));
-    	light0.setAmbient(         0.0f,          0.0f,          0.0f, 1.0f);
-    	light0.setDiffuse(255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
-	    light0.setSpecular(        1.0f,          1.0f,          1.0f, 1.0f);
+    	light0.setAmbient (         0.0f,          0.0f,          0.0f, 1.0f);
+    	light0.setDiffuse (255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
+	    light0.setSpecular(         1.0f,          1.0f,          1.0f, 1.0f);
 
 		light1.setDisplayName("light1");
     	light1.index=1;
@@ -153,26 +160,24 @@ implements Serializable {
 		light2.setDisplayName("light2");
     	light2.index=2;
     	light2.setPosition(new Vector3d(30,30,30));
-	    light2.setAmbient(          0.0f,          0.0f,          0.0f, 1.0f);
-    	light2.setDiffuse( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f, 1.0f);  // metal halide
-	    light2.setSpecular(         0.0f,          0.0f,          0.0f, 1.0f);
+	    light2.setAmbient (          0.0f,          0.0f,          0.0f, 1.0f);
+    	light2.setDiffuse ( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f, 1.0f);  // metal halide
+	    light2.setSpecular(          0.0f,          0.0f,          0.0f, 1.0f);
     	light2.setDirectional(true);
     }
     
 	
-	void loadTextures() {
-		if(areTexturesLoaded) return;
-		
-		// World background skybox texture
+	void loadSkyboxTextures() {
+		if(areSkyboxTexturesLoaded) return;
 		try {
-			t0 = TextureIO.newTexture(FileAccess.open("/images/cube-x-pos.png"), false, "png");
-			t1 = TextureIO.newTexture(FileAccess.open("/images/cube-x-neg.png"), false, "png");
-			t2 = TextureIO.newTexture(FileAccess.open("/images/cube-y-pos.png"), false, "png");
-			t3 = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
-			t4 = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
-			t5 = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
+			skyboxtextureXPos = TextureIO.newTexture(FileAccess.open("/images/cube-x-pos.png"), false, "png");
+			skyboxtextureXNeg = TextureIO.newTexture(FileAccess.open("/images/cube-x-neg.png"), false, "png");
+			skyboxtextureYPos = TextureIO.newTexture(FileAccess.open("/images/cube-y-pos.png"), false, "png");
+			skyboxtextureYNeg = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
+			skyboxtextureZPos = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
+			skyboxtextureZNeg = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
 			//System.out.println(">>> All textures loaded OK");
-			areTexturesLoaded=true;
+			areSkyboxTexturesLoaded=true;
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -190,10 +195,7 @@ implements Serializable {
 		// calls update on all entities and sub-entities
 		super.update(dt);
 		
-		Iterator<Entity> io = children.iterator();
-		while(io.hasNext()) {
-			Entity obj = io.next();
-			
+		for( Entity obj : children ) {			
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
 				po.prepareMove(dt);
@@ -203,9 +205,7 @@ implements Serializable {
 		// TODO collision test
 		
 		// Finalize the moves that don't collide
-		io = children.iterator();
-		while(io.hasNext()) {
-			Entity obj = io.next();
+		for( Entity obj : children ) {	
 			if(obj instanceof PhysicalObject) {
 				PhysicalObject po = (PhysicalObject)obj;
 				po.finalizeMove();
@@ -244,25 +244,19 @@ implements Serializable {
 		gl2.glPushMatrix();
 			camera.render(gl2);
 			
-			Iterator<Entity> io;
-			
 			gl2.glDisable(GL2.GL_LIGHTING);
 
-			//drawSkyCube(gl2);
+			//drawSkyBox(gl2);
 			
 			// lights
-			io = children.iterator();
-			while(io.hasNext()) {
-				Entity obj = io.next();
+			for( Entity obj : children ) {
 				if(obj instanceof Light) {
 					obj.render(gl2);
 				}
 			}
 
 			// draw!
-			io = children.iterator();
-			while(io.hasNext()) {
-				Entity obj = io.next();
+			for( Entity obj : children ) {
 				if(obj instanceof Light) continue;
 				if(obj instanceof Camera) continue;
 				
@@ -326,8 +320,8 @@ implements Serializable {
 	
 
 	// Draw background
-	protected void drawSkyCube(GL2 gl2) {
-		if(!areTexturesLoaded) return;
+	protected void drawSkyBox(GL2 gl2) {
+		if(!areSkyboxTexturesLoaded) return;
 
         //gl2.glDisable(GL2.GL_CULL_FACE);
 		
@@ -340,7 +334,7 @@ implements Serializable {
 			Vector3d p = camera.getPosition();
 			gl2.glTranslated(-p.x,-p.y,-p.z);
 
-			t0.bind(gl2);
+			skyboxtextureXPos.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
@@ -348,7 +342,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
 			gl2.glEnd();
 
-			t1.bind(gl2);
+			skyboxtextureXNeg.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
@@ -356,7 +350,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
 			gl2.glEnd();
 
-			t2.bind(gl2);
+			skyboxtextureYPos.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
@@ -364,7 +358,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
 			gl2.glEnd();
 
-			t3.bind(gl2);
+			skyboxtextureYNeg.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
@@ -372,7 +366,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
 			gl2.glEnd();
 
-			t4.bind(gl2);
+			skyboxtextureZPos.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, 10);
 				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, 10);
@@ -380,7 +374,7 @@ implements Serializable {
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, 10);
 			gl2.glEnd();
 
-			t5.bind(gl2);
+			skyboxtextureZNeg.bind(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, -10);
 				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, -10);
@@ -401,9 +395,7 @@ implements Serializable {
 			newObject=camera;
 		} else {
 			// scan all objects in world to find the one with the pickName.
-			Iterator<Entity> iter = children.iterator();
-			while(iter.hasNext()) {
-				Entity obj = iter.next();
+			for( Entity obj : children ) {
 				if( obj.hasPickName(pickName) ) {
 					// found!
 					newObject=obj;
@@ -432,10 +424,9 @@ implements Serializable {
 	
 	public List<String> namesOfAllObjects() {
 		ArrayList<String> list = new ArrayList<String>();
-		
-		Iterator<Entity> i = this.children.iterator();
-		while(i.hasNext()) {
-			String s = i.next().getDisplayName();
+
+		for( Entity obj : children ) {
+			String s = obj.getDisplayName();
 			list.add(s);
 		}
 		
@@ -443,11 +434,9 @@ implements Serializable {
 	}
 	
 	public Entity findObjectWithName(String name) {
-		Iterator<Entity> i = this.children.iterator();
-		while(i.hasNext()) {
-			Entity o = i.next();
-			String objectName = o.getDisplayName();
-			if(name.equals(objectName)) return o; 
+		for( Entity obj : children ) {
+			String objectName = obj.getDisplayName();
+			if(name.equals(objectName)) return obj; 
 		}
 		
 		return null;
@@ -465,22 +454,20 @@ implements Serializable {
 	 * @param radius the maximum distance to search for entities.
 	 * @return a list of found PhysicalObjects
 	 */
-	public List<PhysicalObject> findPhysicalObjectsNear(Point3d target,double radius) {
+	public List<PhysicalObject> findPhysicalObjectsNear(Vector3d target,double radius) {
 		radius/=2;
 		
 		//System.out.println("Finding within "+epsilon+" of " + target);
 		List<PhysicalObject> found = new ArrayList<PhysicalObject>();
 		
 		// check all children
-		Iterator<Entity> iter = children.iterator();
-		while(iter.hasNext()) {
-			Entity e = iter.next();
+		for( Entity e : children ) {
 			if(e instanceof PhysicalObject) {
 				// is physical, therefore has position
 				PhysicalObject po = (PhysicalObject)e;
-				Vector3d pop = new Vector3d(po.getPosition());
 				//System.out.println("  Checking "+po.getDisplayName()+" at "+pop);
-				pop.sub(target);
+				Vector3d pop = new Vector3d();
+				pop.sub(po.getPosition(),target);
 				if(pop.length()<=radius) {
 					//System.out.println("  in range!");
 					// in range!

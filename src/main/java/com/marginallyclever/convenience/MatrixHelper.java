@@ -234,16 +234,18 @@ public class MatrixHelper {
 		start.get(qStart);
 		Quat4d qEnd = new Quat4d();
 		end.get(qEnd);
-		qStart.interpolate(qEnd, alpha);
+		Quat4d qInter = new Quat4d();
+		qInter.interpolate(qStart, qEnd, alpha);
 		// linear interpolation between the two matrix translations
 		Vector3d tStart = new Vector3d();
 		start.get(tStart);
 		Vector3d tEnd = new Vector3d();
 		end.get(tEnd);
-		tStart.interpolate(tEnd, alpha);
+		Vector3d tInter = new Vector3d();
+		tInter.interpolate(tStart, tEnd, alpha);
 		// build the result matrix
-		result.set(qStart);
-		result.setTranslation(tStart);
+		result.set(qInter);
+		result.setTranslation(tInter);
 		// report ok
 		return true;
 	}
@@ -620,22 +622,27 @@ public class MatrixHelper {
 	// create a matrix with a matching y vector and a z that points at   
 	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
-		Vector3d right = new Vector3d();
+		Vector3d left = new Vector3d();
 		Vector3d up = new Vector3d(0,0,1);
 		
 		forward.sub(to,from);
 		forward.normalize();
-		right.cross(up, forward);
-		right.normalize();
-		up.cross(forward, right);
+		left.cross(up, forward);
+		left.normalize();
+		up.cross(forward, left);
 		up.normalize();
 
 		Matrix4d lookAt = new Matrix4d(
-				right.x,up.x,forward.x,0,
-				right.y,up.y,forward.y,0,
-				right.z,up.z,forward.z,0,
+				forward.x,left.x,up.x,0,
+				forward.y,left.y,up.y,0,
+				forward.z,left.z,up.z,0,
 				0,0,0,1);
 		
 		return lookAt;
 	}
+	
+	public static Vector3d getForward(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
+	public static Vector3d getLeft(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
+	public static Vector3d getUp(Matrix4d m) {			return new Vector3d(m.m02, m.m12, m.m22);	}
+	public static Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
 }

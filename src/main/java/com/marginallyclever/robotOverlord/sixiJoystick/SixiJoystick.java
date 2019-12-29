@@ -13,9 +13,9 @@ import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
-import com.marginallyclever.robotOverlord.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.robots.sixi2.Sixi2;
 
 public class SixiJoystick extends ModelInWorld implements NetworkConnectionListener {
 	/**
@@ -23,7 +23,7 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 	 */
 	private static final long serialVersionUID = -1645097210021141638L;
 	
-	private DHRobot target;
+	private Sixi2 target;
 	private SixiJoystickPanel panel;
 	private NetworkConnection connection;
 	private ReentrantLock lock;
@@ -71,12 +71,12 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
 	// should probably be a subscription model.
-	protected DHRobot findRobot() {
+	protected Sixi2 findRobot() {
 		Iterator<Entity> entities = getWorld().getChildren().iterator();
 		while(entities.hasNext()) {
 			Entity e = entities.next();
-			if(e instanceof DHRobot) {
-				return (DHRobot)e;
+			if(e instanceof Sixi2) {
+				return (Sixi2)e;
 			}
 		}
 		return null;
@@ -95,11 +95,11 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 		try {
 			if(target==null) {
 				target = findRobot();
-				if(target!=null) {
-					 keyframe = (DHKeyframe)target.createKeyframe();
-				}
 			}
 			if(target!=null) {
+				if(keyframe == null) {
+					 keyframe = target.ghost.getIKSolver().createDHKeyframe();
+				}
 				StringTokenizer tokenizer = new StringTokenizer(data);
 				if(tokenizer.countTokens()<6) return;
 				
@@ -118,20 +118,11 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 
 	@Override
 	public void update(double dt) {
-		if(target!=null) {
-			if(lock.isLocked()) return;
-			lock.lock();
-			try {
-				DHKeyframe saveKeyframe = target.getRobotPose();
-				target.setDisablePanel(true);
-				target.setLivePose(keyframe);
-				target.setTargetMatrix(target.getLiveMatrix());
-				target.setLivePose(saveKeyframe);
-				target.setDisablePanel(false);
-			}
-			finally {
-				lock.unlock();
-			}
-		}
+		if(target==null) return;
+		if(lock.isLocked()) return;
+
+		lock.lock();
+		target.ghost.setPoseFK(keyframe);
+		lock.unlock();
 	}
 }

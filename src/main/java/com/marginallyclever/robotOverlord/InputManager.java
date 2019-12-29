@@ -12,58 +12,78 @@ import net.java.games.input.Component.Identifier;
  *
  */
 public class InputManager {
-	public static final int STICK_SQUARE=0;
-	public static final int STICK_X=1;
-	public static final int STICK_CIRCLE=2;
-	public static final int STICK_TRIANGLE=3;
-	public static final int STICK_L1=4;
-	public static final int STICK_R1=5;
-	public static final int STICK_SHARE=6;
-	public static final int STICK_OPTIONS=7;
+	public enum Source {
+		STICK_SQUARE(0),
+		STICK_X(1),
+		STICK_CIRCLE(2),
+		STICK_TRIANGLE(3),
+		STICK_L1(4),
+		STICK_R1(5),
+		STICK_SHARE(6),
+		STICK_OPTIONS(7),
+	
+		STICK_DPADY(8),
+		STICK_DPADX(9),
+		
+		STICK_RX(10),
+		STICK_RY(11),
+		STICK_R2(12),
+		STICK_L2(13),
+	
+		STICK_LX(14),
+		STICK_LY(15),
+		STICK_TOUCHPAD(16),
+		
+		MOUSE_X(17),
+		MOUSE_Y(18),
+		MOUSE_Z(19),
+		MOUSE_LEFT(20),
+		MOUSE_MIDDLE(21),
+		MOUSE_RIGHT(22),
+		
+		KEY_DELETE(23),
+		KEY_RETURN(24),
+		KEY_LSHIFT(25),
+		KEY_RSHIFT(26),
+		KEY_RALT(27),
+		KEY_LALT(28),
+		KEY_RCONTROL(29),
+		KEY_LCONTROL(30),
+		KEY_BACKSPACE(31),
+		KEY_W(32),
+		KEY_A(33),
+		KEY_S(34),
+		KEY_D(35),
+		KEY_Q(36),
+		KEY_E(37),
+		
+		KEY_ENTER(38),
+		KEY_TAB(39),
+	
+		KEY_1(40),
+		KEY_2(41),
+		KEY_3(42),
+		KEY_4(43),
+		KEY_5(44),
+		KEY_6(45),
+		KEY_7(46),
+		KEY_8(47),
+		KEY_9(48),
+		KEY_0(49),
+		KEY_ESCAPE(50);
+		
+		private final int value;
+		private Source(int v) {
+			value=v;
+		}
+		public int getValue() {
+			return value;
+		}
+	};
+	
 
-	public static final int STICK_DPADY =8;
-	public static final int STICK_DPADX =9;
-	
-	public static final int STICK_RX =10;
-	public static final int STICK_RY =11;
-	public static final int STICK_R2=12;
-	public static final int STICK_L2=13;
-
-	public static final int STICK_LX =14;
-	public static final int STICK_LY =15;
-	public static final int STICK_TOUCHPAD=16;
-	
-	public static final int MOUSE_X = 17;
-	public static final int MOUSE_Y = 18;
-	public static final int MOUSE_Z = 19;
-	public static final int MOUSE_LEFT  =20;
-	public static final int MOUSE_MIDDLE=21;
-	public static final int MOUSE_RIGHT =22;
-	
-	public static final int KEY_DELETE  =23;
-	public static final int KEY_RETURN  =24;
-	public static final int KEY_LSHIFT  =25;
-	public static final int KEY_RSHIFT  =26;
-	public static final int KEY_RALT    =27;
-	public static final int KEY_LALT    =28;
-	public static final int KEY_RCONTROL=29;
-	public static final int KEY_LCONTROL=30;
-	public static final int KEY_BACKSPACE=31;
-	public static final int KEY_W=32;
-	public static final int KEY_A=33;
-	public static final int KEY_S=34;
-	public static final int KEY_D=35;
-	public static final int KEY_Q=36;
-	public static final int KEY_E=37;
-	
-	public static final int KEY_ENTER    =38;
-	public static final int KEY_TAB      =39;
-	// must be biggest number!
-	public static final int MAX_KEYS 	 =40;
-	
-
-	protected static double [] keyStateOld = new double[MAX_KEYS];
-	protected static double [] keyState = new double[MAX_KEYS];
+	protected static double [] keyStateOld = new double[Source.values().length];
+	protected static double [] keyState = new double[Source.values().length];
 	
 	static public void start() {}
 	
@@ -71,7 +91,7 @@ public class InputManager {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 
 		// reset the key states
-		for(int i=0;i<MAX_KEYS;++i) {
+		for(int i=0;i<Source.values().length;++i) {
 			keyStateOld[i]=keyState[i];
 			keyState[i]=0;
 		}
@@ -94,24 +114,24 @@ public class InputManager {
         }
 	}
 	
-	static public boolean isOn(int i) {
-		return keyState[i]==1;
+	static public boolean isOn(Source i) {
+		return keyState[i.getValue()]==1;
 	}
 
-	static public boolean isOff(int i) {
-		return keyState[i]==0;
+	static public boolean isOff(Source i) {
+		return keyState[i.getValue()]==0;
 	}
 	
-	static public boolean isPressed(int i) {
-		return keyState[i]==1 && keyStateOld[i]==0;
+	static public boolean isPressed(Source i) {
+		return keyState[i.getValue()]==1 && keyStateOld[i.getValue()]==0;
 	}
 	
-	static public boolean isReleased(int i) {
-		return keyState[i]==0 && keyStateOld[i]==1;
+	static public boolean isReleased(Source i) {
+		return keyState[i.getValue()]==0 && keyStateOld[i.getValue()]==1;
 	}
 	
-	static public double rawValue(int i) {
-		return keyState[i];
+	static public double rawValue(Source i) {
+		return keyState[i.getValue()];
 	}
 	
 	static public void updateStick(Controller controller) {
@@ -132,32 +152,32 @@ public class InputManager {
         		else if(v<-deadzone) v=(v+deadzone)/(1.0-deadzone);  // scale 0...-1
         		else continue;  // inside dead zone, ignore.
         		
-            	if(components[j].getIdentifier()==Identifier.Axis.Z ) keyState[STICK_RX]=v;  // right analog stick, + is right -1 is left
-            	if(components[j].getIdentifier()==Identifier.Axis.RZ) keyState[STICK_RY]=v;  // right analog stick, + is down -1 is up
-            	if(components[j].getIdentifier()==Identifier.Axis.RY) keyState[STICK_R2]=v;  // R2, +1 is pressed -1 is unpressed
-            	if(components[j].getIdentifier()==Identifier.Axis.RX) keyState[STICK_L2]=v;  // L2, +1 is pressed -1 is unpressed
-            	if(components[j].getIdentifier()==Identifier.Axis.X ) keyState[STICK_LX]=v;  // left analog stick, +1 is right -1 is left
-            	if(components[j].getIdentifier()==Identifier.Axis.Y ) keyState[STICK_LY]=v;  // left analog stick, -1 is up +1 is down
+            	if(components[j].getIdentifier()==Identifier.Axis.Z ) keyState[Source.STICK_RX.getValue()]=v;  // right analog stick, + is right -1 is left
+            	if(components[j].getIdentifier()==Identifier.Axis.RZ) keyState[Source.STICK_RY.getValue()]=v;  // right analog stick, + is down -1 is up
+            	if(components[j].getIdentifier()==Identifier.Axis.RY) keyState[Source.STICK_R2.getValue()]=v;  // R2, +1 is pressed -1 is unpressed
+            	if(components[j].getIdentifier()==Identifier.Axis.RX) keyState[Source.STICK_L2.getValue()]=v;  // L2, +1 is pressed -1 is unpressed
+            	if(components[j].getIdentifier()==Identifier.Axis.X ) keyState[Source.STICK_LX.getValue()]=v;  // left analog stick, +1 is right -1 is left
+            	if(components[j].getIdentifier()==Identifier.Axis.Y ) keyState[Source.STICK_LY.getValue()]=v;  // left analog stick, -1 is up +1 is down
         	} else {
         		// digital
     			if(components[j].getPollData()==1) {
-    				if(components[j].getIdentifier()==Identifier.Button._0) keyState[STICK_SQUARE] = 1;  // square
-    				if(components[j].getIdentifier()==Identifier.Button._1) keyState[STICK_X] = 1;  // x
-    				if(components[j].getIdentifier()==Identifier.Button._2) keyState[STICK_CIRCLE] = 1;  // circle
-    				if(components[j].getIdentifier()==Identifier.Button._3) keyState[STICK_TRIANGLE] = 1;  // triangle
-    				if(components[j].getIdentifier()==Identifier.Button._4) keyState[STICK_L1] = 1;  // L1?
-    				if(components[j].getIdentifier()==Identifier.Button._5) keyState[STICK_R1] = 1;  // R1?
-    				if(components[j].getIdentifier()==Identifier.Button._8) keyState[STICK_SHARE] = 1;  // share button
-    				if(components[j].getIdentifier()==Identifier.Button._9) keyState[STICK_OPTIONS] = 1;  // option button
-    				if(components[j].getIdentifier()==Identifier.Button._13) keyState[STICK_TOUCHPAD] = 1;  // touch pad
+    				if(components[j].getIdentifier()==Identifier.Button._0 ) keyState[Source.STICK_SQUARE	.getValue()] = 1;  // square
+    				if(components[j].getIdentifier()==Identifier.Button._1 ) keyState[Source.STICK_X		.getValue()] = 1;  // x
+    				if(components[j].getIdentifier()==Identifier.Button._2 ) keyState[Source.STICK_CIRCLE	.getValue()] = 1;  // circle
+    				if(components[j].getIdentifier()==Identifier.Button._3 ) keyState[Source.STICK_TRIANGLE	.getValue()] = 1;  // triangle
+    				if(components[j].getIdentifier()==Identifier.Button._4 ) keyState[Source.STICK_L1		.getValue()] = 1;  // L1?
+    				if(components[j].getIdentifier()==Identifier.Button._5 ) keyState[Source.STICK_R1		.getValue()] = 1;  // R1?
+    				if(components[j].getIdentifier()==Identifier.Button._8 ) keyState[Source.STICK_SHARE	.getValue()] = 1;  // share button
+    				if(components[j].getIdentifier()==Identifier.Button._9 ) keyState[Source.STICK_OPTIONS	.getValue()] = 1;  // option button
+    				if(components[j].getIdentifier()==Identifier.Button._13) keyState[Source.STICK_TOUCHPAD	.getValue()] = 1;  // touch pad
         		}
 				if(components[j].getIdentifier()==Identifier.Axis.POV) {
 					// D-pad buttons
 					float pollData = components[j].getPollData();
-						 if(pollData == Component.POV.DOWN ) keyState[STICK_DPADY] = -1;
-					else if(pollData == Component.POV.UP   ) keyState[STICK_DPADY] =  1;
-					else if(pollData == Component.POV.LEFT ) keyState[STICK_DPADX] = -1;
-					else if(pollData == Component.POV.RIGHT) keyState[STICK_DPADX] =  1;
+						 if(pollData == Component.POV.DOWN ) keyState[Source.STICK_DPADY.getValue()] = -1;
+					else if(pollData == Component.POV.UP   ) keyState[Source.STICK_DPADY.getValue()] =  1;
+					else if(pollData == Component.POV.LEFT ) keyState[Source.STICK_DPADX.getValue()] = -1;
+					else if(pollData == Component.POV.RIGHT) keyState[Source.STICK_DPADX.getValue()] =  1;
 				}
         	}
     	}
@@ -176,15 +196,15 @@ public class InputManager {
         	if(components[j].isAnalog()) {
         		double v = components[j].getPollData();
         		
-        		if(components[j].getIdentifier()==Identifier.Axis.X) keyState[MOUSE_X]=v;
-    			if(components[j].getIdentifier()==Identifier.Axis.Y) keyState[MOUSE_Y]=v;
-    			if(components[j].getIdentifier()==Identifier.Axis.Z) keyState[MOUSE_Z]=v;
+        		if(components[j].getIdentifier()==Identifier.Axis.X) keyState[Source.MOUSE_X.getValue()]=v;
+    			if(components[j].getIdentifier()==Identifier.Axis.Y) keyState[Source.MOUSE_Y.getValue()]=v;
+    			if(components[j].getIdentifier()==Identifier.Axis.Z) keyState[Source.MOUSE_Z.getValue()]=v;
         	} else {
         		// digital
     			if(components[j].getPollData()==1) {
-    				if(components[j].getIdentifier()==Identifier.Button.LEFT  ) keyState[MOUSE_LEFT  ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Button.MIDDLE) keyState[MOUSE_MIDDLE] = 1;
-    				if(components[j].getIdentifier()==Identifier.Button.RIGHT ) keyState[MOUSE_RIGHT ] = 1;
+    				if(components[j].getIdentifier()==Identifier.Button.LEFT  ) keyState[Source.MOUSE_LEFT  .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Button.MIDDLE) keyState[Source.MOUSE_MIDDLE.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Button.RIGHT ) keyState[Source.MOUSE_RIGHT .getValue()] = 1;
     			}
         	}
         }
@@ -196,23 +216,36 @@ public class InputManager {
         	if(!components[j].isAnalog()) {
         		// digital
     			if(components[j].getPollData()==1) {
-    				if(components[j].getIdentifier()==Identifier.Key.DELETE  ) keyState[KEY_DELETE  ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.RETURN  ) keyState[KEY_RETURN  ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.LSHIFT  ) keyState[KEY_LSHIFT  ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.RSHIFT  ) keyState[KEY_RSHIFT  ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.RALT    ) keyState[KEY_RALT    ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.LALT    ) keyState[KEY_LALT    ] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.RCONTROL) keyState[KEY_RCONTROL] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.LCONTROL) keyState[KEY_LCONTROL] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.BACK    ) keyState[KEY_BACKSPACE] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.Q    ) keyState[KEY_Q] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.E    ) keyState[KEY_E] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.W    ) keyState[KEY_W] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.A    ) keyState[KEY_A] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.S    ) keyState[KEY_S] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.D    ) keyState[KEY_D] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.NUMPADENTER) keyState[KEY_ENTER] = 1;
-    				if(components[j].getIdentifier()==Identifier.Key.TAB) keyState[KEY_TAB] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.DELETE  ) keyState[Source.KEY_DELETE  .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.RETURN  ) keyState[Source.KEY_RETURN  .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.LSHIFT  ) keyState[Source.KEY_LSHIFT  .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.RSHIFT  ) keyState[Source.KEY_RSHIFT  .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.RALT    ) keyState[Source.KEY_RALT    .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.LALT    ) keyState[Source.KEY_LALT    .getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.RCONTROL) keyState[Source.KEY_RCONTROL.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.LCONTROL) keyState[Source.KEY_LCONTROL.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.BACK    ) keyState[Source.KEY_BACKSPACE.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.Q    ) keyState[Source.KEY_Q.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.E    ) keyState[Source.KEY_E.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.W    ) keyState[Source.KEY_W.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.A    ) keyState[Source.KEY_A.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.S    ) keyState[Source.KEY_S.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.D    ) keyState[Source.KEY_D.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.NUMPADENTER) keyState[Source.KEY_ENTER.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.TAB) keyState[Source.KEY_TAB.getValue()] = 1;
+
+    				if(components[j].getIdentifier()==Identifier.Key._0) keyState[Source.KEY_0.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._1) keyState[Source.KEY_1.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._2) keyState[Source.KEY_2.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._3) keyState[Source.KEY_3.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._4) keyState[Source.KEY_4.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._5) keyState[Source.KEY_5.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._6) keyState[Source.KEY_6.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._7) keyState[Source.KEY_7.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._8) keyState[Source.KEY_8.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key._9) keyState[Source.KEY_9.getValue()] = 1;
+
+    				if(components[j].getIdentifier()==Identifier.Key.ESCAPE) keyState[Source.KEY_ESCAPE.getValue()] = 1;
     			}
         	}
         }

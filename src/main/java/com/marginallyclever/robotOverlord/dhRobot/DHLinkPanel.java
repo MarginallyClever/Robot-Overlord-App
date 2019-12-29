@@ -44,15 +44,15 @@ public class DHLinkPanel {
 	
 	protected void setup(RobotOverlord gui,DHLink link,String linkName) {
 		this.link=link;
-		d     		= new UserCommandSelectNumber (gui,linkName+" d"		,(float)link.d		);
-		theta 		= new UserCommandSelectNumber (gui,linkName+" theta"	,(float)link.theta	);
-		r     		= new UserCommandSelectNumber (gui,linkName+" r"		,(float)link.r		);
-		alpha 		= new UserCommandSelectNumber (gui,linkName+" alpha"	,(float)link.alpha	);
+		d     		= new UserCommandSelectNumber (gui,linkName+" d"		,(float)link.getD()		);
+		theta 		= new UserCommandSelectNumber (gui,linkName+" theta"	,(float)link.getTheta()	);
+		r     		= new UserCommandSelectNumber (gui,linkName+" r"		,(float)link.getR()		);
+		alpha 		= new UserCommandSelectNumber (gui,linkName+" alpha"	,(float)link.getAlpha()	);
 
-		valueD     = new JLabel(StringHelper.formatDouble(link.d    ),JLabel.RIGHT);
-		valueTheta = new JLabel(StringHelper.formatDouble(link.theta),JLabel.RIGHT);
-		valueR     = new JLabel(StringHelper.formatDouble(link.r    ),JLabel.RIGHT);
-		valueAlpha = new JLabel(StringHelper.formatDouble(link.alpha),JLabel.RIGHT);
+		valueD     = new JLabel(StringHelper.formatDouble(link.getD()		),JLabel.RIGHT);
+		valueTheta = new JLabel(StringHelper.formatDouble(link.getTheta()	),JLabel.RIGHT);
+		valueR     = new JLabel(StringHelper.formatDouble(link.getR()		),JLabel.RIGHT);
+		valueAlpha = new JLabel(StringHelper.formatDouble(link.getAlpha()	),JLabel.RIGHT);
 
 		Dimension size = valueD.getPreferredSize();
 		size.width = 60;

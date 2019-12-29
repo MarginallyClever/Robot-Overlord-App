@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import javax.vecmath.Matrix4d;
 
 
+@Deprecated
 public class RecordingManager {
 	static protected boolean isRecording;
 	static protected boolean isPlaying;

@@ -1,14 +1,16 @@
 package com.marginallyclever.robotOverlord.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -16,6 +18,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionSelectVector3d;
 
@@ -49,36 +52,32 @@ public class UserCommandSelectVector3d extends JPanel implements DocumentListene
 		df = new DecimalFormat("0.00");
 		df.setGroupingUsed(false);
 		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.NONE;
-		con1.anchor=GridBagConstraints.WEST;
+		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+
+		JPanel values = new JPanel();
+		this.add(values);
+		values.setBorder(new EmptyBorder(0,0,0,0));
+		values.setLayout(new SpringLayout());
 
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
-		this.add(label,con1);
-		con1.gridy++;
+		label.setAlignmentX(LEFT_ALIGNMENT);
+		values.add(label);
 	
-		fieldX = addField("X",defaultValue.x,con1);
-		fieldY = addField("Y",defaultValue.y,con1);
-		fieldZ = addField("Z",defaultValue.z,con1);
+		fieldX = addField("X",defaultValue.x,values);
+		fieldY = addField("Y",defaultValue.y,values);
+		fieldZ = addField("Z",defaultValue.z,values);
+		SpringUtilities.makeCompactGrid(values, 1, 7, 5, 5, 5, 5);
 	}
 	
-	private JTextField addField(String labelName,double defaultValue,GridBagConstraints con1) {
+	private JTextField addField(String labelName,double defaultValue,JPanel values) {
 		JLabel label = new JLabel(labelName, JLabel.TRAILING);
-		JTextField f = new JTextField(5);
+		JTextField f = new JTextField(4);
 		f.setText(df.format(defaultValue));
+		f.setHorizontalAlignment(JTextField.RIGHT);
 		f.getDocument().addDocumentListener(this);
 		label.setLabelFor(f);
-		con1.weightx=0.250;
-		con1.gridx=0;
-		this.add(label,con1);
-		con1.weightx=0.750;
-		con1.gridx=1;
-		this.add(f,con1);
-		con1.gridy++;
+		values.add(label);
+		values.add(f);
 		return f;
 	}
 	

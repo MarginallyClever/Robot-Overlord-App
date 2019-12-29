@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+@Deprecated
 public class SecondaryPanel extends JPanel implements ActionListener {
 	/**
 	 * 

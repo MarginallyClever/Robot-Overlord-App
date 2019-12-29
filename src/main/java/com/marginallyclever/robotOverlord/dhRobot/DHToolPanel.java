@@ -82,19 +82,19 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 		{
 			DHLinkPanel e = linkPanel;
 			if(source == e.d) {
-				e.link.d = e.d.getValue();
+				e.link.setD(e.d.getValue());
 				isDirty=true;
 			}
 			if(source == e.theta) {
-				e.link.theta = e.theta.getValue();
+				e.link.setTheta(e.theta.getValue());
 				isDirty=true;
 			}
 			if(source == e.r) {
-				e.link.r = e.r.getValue();
+				e.link.setR(e.r.getValue());
 				isDirty=true;
 			}
 			if(source == e.alpha) {
-				e.link.alpha = e.alpha.getValue();
+				e.link.setAlpha(e.alpha.getValue());
 				isDirty=true;
 			}
 		}

@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.dhRobot;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -12,22 +14,18 @@ import com.marginallyclever.robotOverlord.model.Model;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink {
+public class DHLink extends Observable {
 	// length (mm) along previous Z to the common normal
-	public double d;
-	
+	private double d;
 	// angle (degrees) about previous Z, from old X to new X
-	public double theta;
-	
+	private double theta;
 	// length (mm) of the common normal. Assuming a revolute joint, this is the radius about previous Z
-	public double r;
-	
+	private double r;
 	// angle (degrees) about common normal, from old Z axis to new Z axis
-	public double alpha;
+	private double alpha;
 	
 	// computed matrix based on the D-H parameters
 	public Matrix4d pose;
-
 	// computed matrix based on the D-H parameters
 	public Matrix4d poseCumulative;
 
@@ -50,7 +48,7 @@ public class DHLink {
 	public final static int READ_ONLY_R		= 1<<2;
 	public final static int READ_ONLY_ALPHA	= 1<<3;
 	
-	public double rangeMin,rangeMax;
+	protected double rangeMin,rangeMax;
 	
 	public double maxVelocity;	// not used yet
 	public double maxAcceleration;	// not used yet
@@ -77,7 +75,11 @@ public class DHLink {
 		maxTorque=Double.MAX_VALUE;
 	}
 	
-	public DHLink(DHLink arg0) { 
+	public DHLink(DHLink arg0) {
+		set(arg0);
+	} 
+	
+	public void set(DHLink arg0) {
 		flags = arg0.flags;
 		d = arg0.d;
 		theta=arg0.theta;
@@ -92,7 +94,7 @@ public class DHLink {
 		maxVelocity=arg0.maxVelocity;
 		maxAcceleration=arg0.maxAcceleration;
 		maxTorque=arg0.maxTorque;
-	} 
+	}
 	
 	/**
 	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
@@ -118,15 +120,12 @@ public class DHLink {
 	 * Changes the current render matrix!  Clean up after yourself!  
 	 * @param gl2 the render context
 	 */
-	public void renderModel(GL2 gl2) {
+	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		if(this.model!=null) {
-			this.model.render(gl2);
-			setAngleColorByRange(gl2);
+		if(model!=null) {
+			model.render(gl2);
 		}
 		gl2.glPopMatrix();
-
-		applyMatrix(gl2);
 	}
 
 	/**
@@ -272,31 +271,6 @@ public class DHLink {
 		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
 	}
 	
-	public void applyMatrix(GL2 gl2) {
-		// swap between Java's Matrix4d and OpenGL's matrix.
-		Matrix4d pose = this.pose;
-		
-		double[] mat = new double[16];
-		mat[ 0] = pose.m00;
-		mat[ 1] = pose.m10;
-		mat[ 2] = pose.m20;
-		mat[ 3] = pose.m30;
-		mat[ 4] = pose.m01;
-		mat[ 5] = pose.m11;
-		mat[ 6] = pose.m21;
-		mat[ 7] = pose.m31;
-		mat[ 8] = pose.m02;
-		mat[ 9] = pose.m12;
-		mat[10] = pose.m22;
-		mat[11] = pose.m32;
-		mat[12] = pose.m03;
-		mat[13] = pose.m13;
-		mat[14] = pose.m23;
-		mat[15] = pose.m33;
-		
-		gl2.glMultMatrixd(mat, 0);
-	}
-	
 	/**
 	 * color the angle line green in the safe zone, red near the limits
 	 * @param gl2 the render context
@@ -316,18 +290,104 @@ public class DHLink {
 		
 		gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
 		original[0]+=safety;
+		original[1]-=safety;
+		original[2]-=safety;
 		
 		gl2.glColor4f(original[0],original[1],original[2],original[3]);
 		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
+	}
+	
+	public boolean hasAdjustableValue() {
+		return flags != (READ_ONLY_D | READ_ONLY_R | READ_ONLY_THETA | READ_ONLY_ALPHA );
 	}
 	
 	/**
 	 * In any DHLink there should only be one parameter that changes in value.  Return that value.
 	 */
 	public double getAdjustableValue() {
-		if((flags & READ_ONLY_D    )==0) return d;
-		if((flags & READ_ONLY_THETA)==0) return theta;
-		if((flags & READ_ONLY_R    )==0) return r;
+		if((flags & READ_ONLY_D    )==0) return getD();
+		if((flags & READ_ONLY_THETA)==0) return getTheta();
+		if((flags & READ_ONLY_R    )==0) return getR();
+		return getAlpha();
+	}
+	
+	/**
+	 * Set the (one) adjustable value, after making sure it is within the range limits.
+	 */
+	public void setAdjustableValue(double v) {
+		//System.out.println("Adjust begins");
+		v = Math.max(Math.min(v, rangeMax), rangeMin);
+		if((flags & READ_ONLY_D    )==0) setD(v);
+		if((flags & READ_ONLY_THETA)==0) setTheta(v);
+		if((flags & READ_ONLY_R    )==0) setR(v);
+		if((flags & READ_ONLY_ALPHA)==0) setAlpha(v);
+		//System.out.println("Adjust ends");
+	}
+
+	public double getD() {
+		return d;
+	}
+
+	public void setD(double v) {
+		if(d==v) return;
+		setChanged();
+		this.d = v;
+		notifyObservers(v);
+	}
+
+	public double getTheta() {
+		return theta;
+	}
+
+	public void setTheta(double v) {
+		if(theta==v) return;
+		setChanged();
+		this.theta = v;
+		notifyObservers(v);
+	}
+
+	public double getR() {
+		return r;
+	}
+
+	public void setR(double v) {
+		if(r==v) return;
+		setChanged();
+		this.r = v;
+		notifyObservers(v);
+	}
+
+	public double getAlpha() {
 		return alpha;
+	}
+
+	public void setAlpha(double v) {
+		if(alpha==v) return;
+		setChanged();
+		this.alpha = v;
+		notifyObservers(v);
+	}
+
+	public double getRangeMin() {
+		return rangeMin;
+	}
+
+	public void setRangeMin(double rangeMin) {
+		if(this.rangeMin == rangeMin) return;
+		this.rangeMin = rangeMin;
+	}
+
+	public double getRangeMax() {
+		return rangeMax;
+	}
+
+	public void setRangeMax(double rangeMax) {
+		if(this.rangeMax == rangeMax) return;
+		this.rangeMax = rangeMax;
+	}
+	
+	public void setRange(double rangeMin,double rangeMax) {
+		setRangeMin(rangeMin);
+		setRangeMax(rangeMax);
 	}
 }

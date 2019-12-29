@@ -61,11 +61,8 @@ public class Material extends Entity {
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		
 		gl2.glShadeModel(GL2.GL_SMOOTH);
-	    if(isLit()) {
-	    	gl2.glEnable(GL2.GL_LIGHTING);
-	    } else {
-	    	gl2.glDisable(GL2.GL_LIGHTING);
-	    }
+	    if(isLit()) gl2.glEnable(GL2.GL_LIGHTING);
+	    else gl2.glDisable(GL2.GL_LIGHTING);
 
 		if(textureDirty) {
 			// texture has changed, load the new texture.

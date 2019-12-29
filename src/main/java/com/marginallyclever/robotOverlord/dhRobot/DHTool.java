@@ -27,11 +27,6 @@ public class DHTool extends ModelInWorld {
 	 */
 	public PhysicalObject subjectBeingHeld;
 	
-	/**
-	 * Who, if anyone, is holding this tool?
-	 */
-	public DHRobot heldBy;
-	
 	
 	public DHTool() {
 		dhLinkEquivalent = new DHLink();
@@ -40,6 +35,11 @@ public class DHTool extends ModelInWorld {
 		dhLinkEquivalent.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
 		dhLinkEquivalent.refreshPoseMatrix();
 		setDisplayName("No Tool");
+	}
+	
+	public void set(DHTool b) {
+		dhLinkEquivalent = new DHLink(b.dhLinkEquivalent);
+		setDisplayName(b.getDisplayName());
 	}
 	
 	/**
