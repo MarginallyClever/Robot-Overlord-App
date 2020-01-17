@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
@@ -43,6 +44,9 @@ public class GridEntity extends PhysicalObject {
 
 	@Override
 	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, this.matrix);
 		PrimitiveSolids.drawGrid(gl2,(int)width,(int)height,1);
+		gl2.glPopMatrix();
 	}
 }
