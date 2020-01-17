@@ -274,6 +274,7 @@
       <groupId>org.kabeja</groupId>
       <artifactId>kabeja</artifactId>
       <version>0.4</version>
+      <packaging>jar</packaging>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
