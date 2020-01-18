@@ -62,8 +62,8 @@ public class ViewCube {
 			//gl2.glTranslated(-p.x,-p.y,-p.z);
 
 			gl2.glTranslated(cam.getCanvasWidth()-55,+55,-50);
-			gl2.glRotatef(-cam.getTilt(), -1, 0, 0);
-			gl2.glRotatef(-cam.getPan(),0,0,1);
+			gl2.glRotated(-cam.getTilt(), -1, 0, 0);
+			gl2.glRotated(-cam.getPan(),0,0,1);
 			gl2.glScalef(3, -3, 3);
 		
 			gl2.glPushMatrix();

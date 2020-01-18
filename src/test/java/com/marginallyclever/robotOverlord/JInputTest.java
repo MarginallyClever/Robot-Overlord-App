@@ -27,7 +27,7 @@ public class JInputTest {
         for(int i =0;i<ca.length;i++){
             Component[] components = ca[i].getComponents();
 
-            System.out.println("Controller:"+ca[i].getName()+" "+ca[i].getType().toString());
+            System.out.println("Controller "+i+":"+ca[i].getName()+" "+ca[i].getType().toString());
             System.out.println("Component Count: "+components.length);
 
             // Get this controllers components (buttons and axis)

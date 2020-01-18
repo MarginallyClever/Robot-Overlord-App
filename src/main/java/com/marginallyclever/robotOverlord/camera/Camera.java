@@ -30,7 +30,7 @@ public class Camera extends PhysicalObject {
 	protected Vector3d up = new Vector3d(0,0,1);
 	
 	// angles
-	protected float pan, tilt;
+	protected double pan, tilt;
 	
 	protected CameraMount mount;
 	
@@ -118,11 +118,12 @@ public class Camera extends PhysicalObject {
 
 		// pan/tilt
 		if (InputManager.isOn(InputManager.Source.MOUSE_RIGHT)) {
-	        int dx = (int)(InputManager.rawValue(InputManager.Source.MOUSE_X)*0.5);
-	        int dy = (int)(InputManager.rawValue(InputManager.Source.MOUSE_Y)*0.5);
-			setPan(getPan()+dx);
-			setTilt(getTilt()-dy);
-
+	        double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
+	        double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
+	        if(dx!=0 || dy!=0) {
+				setPan(getPan()+dx*0.5);
+				setTilt(getTilt()-dy*0.5);
+	        }
 			updateMatrix();
 		}
 
@@ -201,19 +202,19 @@ public class Camera extends PhysicalObject {
 		return right;
 	}
 	
-	public float getPan() {
+	public double getPan() {
 		return pan;
 	}
 	
-	public float getTilt() {
+	public double getTilt() {
 		return tilt;
 	}
 	
-	public void setPan(float arg0) {
+	public void setPan(double arg0) {
 		pan=arg0;
 	}
 	
-	public void setTilt(float arg0) {
+	public void setTilt(double arg0) {
 		tilt=arg0;
 	    
 		if(tilt < 1) tilt=1;

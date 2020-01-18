@@ -96,6 +96,10 @@ public class InputManager {
 			keyState[i]=0;
 		}
 		
+		int numSticks=0,
+			numMice=0,
+			numKeyboard=0;
+		
         for(int i=0;i<ca.length;i++){
         	// poll all controllers once per frame
         	if(!ca[i].poll()) {
@@ -105,13 +109,21 @@ public class InputManager {
 
         	//System.out.println(ca[i].getType());
         	if(ca[i].getType()==Controller.Type.STICK) {
+        		++numSticks;
 	            updateStick(ca[i]);
         	} else if(ca[i].getType()==Controller.Type.MOUSE) {
-	            if(isMouseIn) updateMouse(ca[i]);
+        		if(numMice==0) {
+    	            if(isMouseIn) updateMouse(ca[i]);
+        		}
+        		++numMice;
         	} else if(ca[i].getType()==Controller.Type.KEYBOARD) {
-        		updateKeyboard(ca[i]);
+        		//if(numKeyboard==0) {
+            		updateKeyboard(ca[i]);
+        		//}
+        		++numKeyboard;
         	}
         }
+        //System.out.println(numSticks+"/"+numMice+"/"+numKeyboard);
 	}
 	
 	static public boolean isOn(Source i) {
