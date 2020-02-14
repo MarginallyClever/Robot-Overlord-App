@@ -20,9 +20,9 @@ public class DHTool_GoProCamera extends DHTool {
 
 	public DHTool_GoProCamera() {
 		super();
-		dhLinkEquivalent.setD(8);  // cm
-		dhLinkEquivalent.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_ALPHA;
-		dhLinkEquivalent.refreshPoseMatrix();
+		dhLink.setD(8);  // cm
+		dhLink.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_ALPHA;
+		dhLink.refreshPoseMatrix();
 		setDisplayName("GoPro Camera");
 		
 		setFilename("/Sixi2/gopro/gopro.stl");

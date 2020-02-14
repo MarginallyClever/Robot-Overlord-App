@@ -188,7 +188,7 @@ public class Sixi2ControlBox extends ModelInWorld {
 				} else {
 					// found a non-empty line
 					target.parseGCode(line);
-					poses.add(target.ghost.getPoseIK());
+					poses.add(target.ghost.getEndEffectorMatrix());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -40,8 +40,8 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 		if(robot.dhTool!=null) {
 			// there is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist Z axis and wrist position.
-			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
-			Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLinkEquivalent.pose);
+			robot.dhTool.dhLink.refreshPoseMatrix();
+			Matrix4d inverseToolPose = new Matrix4d(robot.dhTool.dhLink.pose);
 			inverseToolPose.invert();
 			targetPoseAdj.mul(inverseToolPose);
 		}

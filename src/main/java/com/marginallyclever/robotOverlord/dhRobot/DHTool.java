@@ -20,7 +20,7 @@ public class DHTool extends ModelInWorld {
 	/**
 	 * A DHLink representation of this tool for kinematic solving.
 	 */
-	public DHLink dhLinkEquivalent;
+	public DHLink dhLink;
 	
 	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
@@ -29,16 +29,16 @@ public class DHTool extends ModelInWorld {
 	
 	
 	public DHTool() {
-		dhLinkEquivalent = new DHLink();
-		dhLinkEquivalent.rangeMin=0;
-		dhLinkEquivalent.rangeMax=0;
-		dhLinkEquivalent.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
-		dhLinkEquivalent.refreshPoseMatrix();
+		dhLink = new DHLink();
+		dhLink.rangeMin=0;
+		dhLink.rangeMax=0;
+		dhLink.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
+		dhLink.refreshPoseMatrix();
 		setDisplayName("No Tool");
 	}
 	
 	public void set(DHTool b) {
-		dhLinkEquivalent = new DHLink(b.dhLinkEquivalent);
+		dhLink = new DHLink(b.dhLink);
 		setDisplayName(b.getDisplayName());
 	}
 	
@@ -52,14 +52,20 @@ public class DHTool extends ModelInWorld {
 	
 	public void refreshPose(Matrix4d endMatrix) {
 		// update matrix
-		dhLinkEquivalent.refreshPoseMatrix();
+		dhLink.refreshPoseMatrix();
 		// find cumulative matrix
-		endMatrix.mul(dhLinkEquivalent.pose);
-		dhLinkEquivalent.poseCumulative.set(endMatrix);
+		endMatrix.mul(dhLink.pose);
+		dhLink.poseCumulative.set(endMatrix);
+
+		// set up the physical limits
+		if( dhLink.model != null ) {
+			dhLink.cuboid.setMatrix(dhLink.poseCumulative);
+			dhLink.cuboid.setBounds(dhLink.model.getBoundTop(), dhLink.model.getBoundBottom());
+		}
 	}
 	
 	public double getAdjustableValue() {
-		return dhLinkEquivalent.getAdjustableValue();
+		return dhLink.getAdjustableValue();
 	}
 
 	public String generateGCode() {

@@ -144,7 +144,7 @@ public class Sixi2 extends Robot {
 		if (world != null) {
 			// Request from the world "is there a tool at the position of the end effector"?
 			Vector3d target = new Vector3d();
-			ghost.getPoseIK().get(target);
+			ghost.getEndEffectorMatrix().get(target);
 			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
 
 			// If there is a tool, attach to it.
@@ -377,7 +377,7 @@ public class Sixi2 extends Robot {
 		//assert(endMatrix.get(m1, t1)==1);  // get returns scale, which should be 1.
 		
 		// get the end matrix, which includes any tool, of the ghost.
-		ghost.getPoseIK().get(m1, t1);
+		ghost.getEndEffectorMatrix().get(m1, t1);
 		
 		//Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 		
@@ -430,7 +430,7 @@ public class Sixi2 extends Robot {
 		if( line.startsWith("G0 ") || line.startsWith("G00 ") ) {
 			Vector3d t1 = new Vector3d();
 			Matrix3d m1 = new Matrix3d();
-			ghost.getPoseIK().get(m1,t1);
+			ghost.getEndEffectorMatrix().get(m1,t1);
 			Vector3d e1 = MatrixHelper.matrixToEuler(m1);
 			boolean isDirty=false;
 			
@@ -483,7 +483,7 @@ public class Sixi2 extends Robot {
 		// use anglesA to get the hand matrix
 		DHRobot clone = new DHRobot(robot);
 		clone.setPoseFK(keyframe);
-		Matrix4d T = new Matrix4d(clone.getPoseIK());
+		Matrix4d T = new Matrix4d(clone.getEndEffectorMatrix());
 		
 		// for all joints
 		int i,j;
@@ -495,7 +495,7 @@ public class Sixi2 extends Robot {
 			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 
 			clone.setPoseFK(keyframe2);
-			Matrix4d Tnew = new Matrix4d(clone.getPoseIK());
+			Matrix4d Tnew = new Matrix4d(clone.getEndEffectorMatrix());
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -582,7 +582,7 @@ public class Sixi2 extends Robot {
 
 	public Matrix4d getGhostTargetMatrixWorldSpace() {
 		Matrix4d targetMatrixWorldSpace = new Matrix4d();
-		targetMatrixWorldSpace.mul(getMatrix(),ghost.getPoseIK());
+		targetMatrixWorldSpace.mul(getMatrix(),ghost.getEndEffectorMatrix());
 		return targetMatrixWorldSpace; 
 	}
 
@@ -735,7 +735,7 @@ public class Sixi2 extends Robot {
 	public void addInterpolation(double duration) {
 		System.out.println("Offering");
 		// add the latest ghost on the end of the queue
-		interpolator.offer(live.getPoseIK(),ghost.getPoseIK(),duration);
+		interpolator.offer(live.getEndEffectorMatrix(),ghost.getEndEffectorMatrix(),duration);
 		if(sixi2Panel!=null) {
 			sixi2Panel.scrubber.setMaximum((int)Math.ceil(10*interpolator.getTotalPlayTime()));
 		}
@@ -750,7 +750,7 @@ public class Sixi2 extends Robot {
 		} else {
 			//if(interpolator.isInterpolating()) 
 			{
-				interpolator.update(dt,live.getPoseIK());
+				interpolator.update(dt,live.getEndEffectorMatrix());
 				if(sixi2Panel!=null && !sixi2Panel.scrubberLock.isLocked()) {
 					sixi2Panel.scrubberLock.lock();
 					sixi2Panel.scrubber.setValue((int)interpolator.getPlayHead());
@@ -925,5 +925,25 @@ public class Sixi2 extends Robot {
 	 */
 	public DHIKSolver getIKSolver() {
 		return ikSolver;
+	}
+	
+	@Override
+	public String getStatusMessage() {
+		Matrix4d pose=ghost.getEndEffectorMatrix();
+		Matrix3d m = new Matrix3d();
+		pose.get(m);
+		Vector3d v = MatrixHelper.matrixToEuler(m);
+		String message = 
+				"Base @ "+this.getPosition().toString() + " Tip @ "
+				+" X"+StringHelper.formatDouble(pose.m03)
+				+" Y"+StringHelper.formatDouble(pose.m13)
+				+" Z"+StringHelper.formatDouble(pose.m23)
+				+"RX"+StringHelper.formatDouble(Math.toDegrees(v.x))
+				+"Ry="+StringHelper.formatDouble(Math.toDegrees(v.y))
+				+"Rz="+StringHelper.formatDouble(Math.toDegrees(v.z));
+		if(ball.isActivelyMoving) {
+			message += " "+ball.getStatusMessage();
+		}
+		return message;
 	}
 }

@@ -323,7 +323,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	protected void updatePosition(DHRobot r, JPanel p) {
 		p.removeAll();
 		Vector3d pos = new Vector3d();
-		r.getPoseIK().get(pos);
+		r.getEndEffectorMatrix().get(pos);
 		p.add(new JLabel("X"));
 		p.add(new JLabel(StringHelper.formatDouble(pos.x)));
 		p.add(new JLabel("Y"));

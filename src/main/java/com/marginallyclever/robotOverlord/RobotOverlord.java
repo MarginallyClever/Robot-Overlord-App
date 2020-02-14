@@ -115,6 +115,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	protected GLJPanel glCanvas;
 	protected JScrollPane contextMenu;
 	//protected SecondaryPanel secondaryPanel;
+	protected FooterBar footerBar;
 	
 	// undo/redo system
 	private UndoManager commandSequence;
@@ -233,13 +234,14 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         splitLeftRight.add(contextMenu);
         
         // Also split up/down
-        //splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
-        //splitUpDown.add(splitLeftRight);
+        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
+        splitUpDown.add(splitLeftRight);
         //splitUpDown.add(secondaryPanel = new SecondaryPanel());
+        splitUpDown.add(footerBar = new FooterBar(mainFrame));
         
 		// add the split panel to the main frame
-        //mainFrame.add(splitUpDown);
-        mainFrame.add(splitLeftRight);
+        mainFrame.add(splitUpDown);
+        //mainFrame.add(splitLeftRight);
         // make it visible
         mainFrame.setVisible(true);
         // start the main application loop.  it will call display() repeatedly.
@@ -615,6 +617,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	    	//RecordingManager.manageArrayOfDoubles(InputManager.keyState);
     	
    			world.update( frameLength );
+   			
+   			if( pickedEntity != null ) {
+   				String statusMessage = pickedEntity.getStatusMessage();
+   				footerBar.setStatusLabelText(statusMessage);
+   			}
     	}
 
     	// RENDER STEP

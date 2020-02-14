@@ -8,9 +8,10 @@ import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
@@ -165,8 +166,8 @@ public class DHRobot extends Observable implements Serializable {
 		}
 			
 		if (dhTool != null) {
-			if (showBones) dhTool.dhLinkEquivalent.renderBones(gl2);
-			if (showAngles) dhTool.dhLinkEquivalent.renderAngles(gl2);
+			if (showBones) dhTool.dhLink.renderBones(gl2);
+			if (showAngles) dhTool.dhLink.renderAngles(gl2);
 			//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
 			//	 gl2.glColor4d(1,0,0.8,0.15);
 			//	 PrimitiveSolids.drawBox(gl2,
@@ -196,10 +197,18 @@ public class DHRobot extends Observable implements Serializable {
 			// find cumulative matrix
 			link.poseCumulative.set(endEffectorMatrix);
 			endEffectorMatrix.mul(link.pose);
+
+			// set up the physical limits
+			if( link.model != null ) {
+				link.cuboid.setMatrix(link.poseCumulative);
+				link.cuboid.setBounds(link.model.getBoundTop(), link.model.getBoundBottom());
+			}
 		}
 		if (dhTool != null) {
 			dhTool.refreshPose(endEffectorMatrix);
 		}
+
+		
 	}
 
 	/**
@@ -236,14 +245,18 @@ public class DHRobot extends Observable implements Serializable {
 		return dhTool;
 	}
 
+	/**
+	 * checks that the keyframe is sane that no collisions occur.
+	 * @param keyframe
+	 * @return false if the keyframe is not sane or a collision occurs.
+	 */
 	public boolean sanityCheck(DHKeyframe keyframe) {
-		if (!keyframeAnglesAreOK(keyframe))
-			return false;
-		if (!selfCollision(keyframe))
-			return false;
+		if(!keyframeAnglesAreOK(keyframe))	return false;
+		if(collidesWithSelf(keyframe))		return false;
+		if(collidesWithWorld(keyframe))		return false;
 		return true;
 	}
-
+		
 	/**
 	 * Test physical bounds of link N against all links &lt;N-1 and all links
 	 * &gt;N+1 We're using separating Axis Theorem. See
@@ -252,9 +265,7 @@ public class DHRobot extends Observable implements Serializable {
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
 	 */
-	public boolean selfCollision(DHKeyframe keyframe) {
-		boolean noCollision = true;
-
+	public boolean collidesWithSelf(DHKeyframe keyframe) {
 		// create a clone of the robot
 		DHRobot clone = new DHRobot(this);
 		// move the clone to the keyframe pose
@@ -278,113 +289,59 @@ public class DHRobot extends Observable implements Serializable {
 					// System.out.println("Intersect "+i+"/"+j+" (1)!");
 					hitBox1 = i;
 					hitBox2 = j;
-					noCollision = false;
-					break;
-				} /*
-					 * if(hasIntersection(links.get(j),links.get(i))) {
-					 * System.out.println("Intersect "+i+"/"+j+" (2)!"); hitBox1=i; hitBox2=j;
-					 * noCollision=false; break; }
-					 */
-			}
-			if (noCollision == false) {
-				break;
+					return true;
+				}
 			}
 		}
 
-		return noCollision;
-	}
-
-	protected boolean hasIntersection(DHLink a, DHLink b) {
-		// get the normals for the box of A, which happen to be the three vectors of the
-		// matrix for this joint pose.
-		Vector3d[] n = new Vector3d[3];
-		n[0] = new Vector3d(a.poseCumulative.m00, a.poseCumulative.m10, a.poseCumulative.m20);
-		n[1] = new Vector3d(a.poseCumulative.m01, a.poseCumulative.m11, a.poseCumulative.m21);
-		n[2] = new Vector3d(a.poseCumulative.m02, a.poseCumulative.m12, a.poseCumulative.m22);
-		// System.out.println("matrix="+a.poseCumulative);
-
-		// System.out.println("Acorners=");
-		Point3d[] aCorners = getCornersForLink(a);
-		// System.out.println("Bcorners=");
-		Point3d[] bCorners = getCornersForLink(b);
-
-		// String [] axis = {"X","Y","Z"};
-
-		for (int i = 0; i < n.length; ++i) {
-			// SATTest the normals of A against the 8 points of box A.
-			// SATTest the normals of A against the 8 points of box B.
-			// points of each box are a combination of the box's top/bottom values.
-			double[] aLim = SATTest(n[i], aCorners);
-			double[] bLim = SATTest(n[i], bCorners);
-			// System.out.println("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
-			// "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
-
-			// if the two box projections do not overlap then there is no chance of a
-			// collision.
-			if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
-				// System.out.println("Miss");
-				return false;
-			}
-		}
-
-		// intersect!
-		// System.out.println("Hit");
-		return true;
+		return false;
 	}
 
 	/**
-	 * find the 8 corners of the bounding box and transform them into world space.
+	 * Test physical bounds of all links with the world.
+	 * We're using separating Axis Theorem. See https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
 	 * 
-	 * @param link the link that contains both the model bounds and the
-	 *             poseCumulative.
-	 * @return the 8 transformed Point3d.
+	 * @param keyframe the angles at time of test
+	 * @return true if there are no collisions
 	 */
-	protected Point3d[] getCornersForLink(DHLink link) {
-		Point3d[] p = new Point3d[8];
+	public boolean collidesWithWorld(DHKeyframe keyframe) {
+		// create a clone of the robot
+		DHRobot clone = new DHRobot(this);
+		// move the clone to the keyframe pose
+		clone.setPoseFK(keyframe);
+		
+		// check for collisions
+		hitBox1 = -1;
+		hitBox2 = -1;
 
-		Point3d b = link.model.getBoundBottom();
-		Point3d t = link.model.getBoundTop();
+		int size = clone.links.size();
+		for (int i = 0; i < size; ++i) {
+			if (clone.links.get(i).model == null)
+				continue;
 
-		p[0] = new Point3d(b.x, b.y, b.z);
-		p[1] = new Point3d(b.x, b.y, t.z);
-		p[2] = new Point3d(b.x, t.y, b.z);
-		p[3] = new Point3d(b.x, t.y, t.z);
-		p[4] = new Point3d(t.x, b.y, b.z);
-		p[5] = new Point3d(t.x, b.y, t.z);
-		p[6] = new Point3d(t.x, t.y, b.z);
-		p[7] = new Point3d(t.x, t.y, t.z);
+			for (int j = i + 3; j < size; ++j) {
+				if (clone.links.get(j).model == null)
+					continue;
 
-		for (int i = 0; i < p.length; ++i) {
-			// System.out.print("\t"+p[i]);
-			link.poseCumulative.transform(p[i]);
-			// System.out.println(" >> "+p[i]);
+				if (hasIntersection(clone.links.get(i), clone.links.get(j))) {
+					// System.out.println("Intersect "+i+"/"+j+" (1)!");
+					hitBox1 = i;
+					hitBox2 = j;
+					return true;
+				}
+			}
 		}
 
-		return p;
+		// no hit
+		return false;
 	}
 
-	protected boolean isBetween(double val, double bottom, double top) {
-		return bottom <= val && val <= top;
-	}
-
-	protected boolean overlaps(double a0, double a1, double b0, double b1) {
-		return isBetween(b0, a0, a1) || isBetween(a0, b0, b1);
-	}
-
-	protected double[] SATTest(Vector3d normal, Point3d[] corners) {
-		double[] values = new double[2];
-		values[0] = Double.MAX_VALUE; // min value
-		values[1] = -Double.MAX_VALUE; // max value
-
-		for (int i = 0; i < corners.length; ++i) {
-			double dotProduct = corners[i].x * normal.x + corners[i].y * normal.y + corners[i].z * normal.z;
-			if (values[0] > dotProduct)
-				values[0] = dotProduct;
-			if (values[1] < dotProduct)
-				values[1] = dotProduct;
-		}
-
-		return values;
+	protected boolean hasIntersection(DHLink a, DHLink b) {
+		//Cuboid A = new Cuboid();	A.setMatrix(a.poseCumulative);		A.setBounds(a.model.getBoundTop(),a.model.getBoundBottom());
+		//Cuboid B = new Cuboid();	B.setMatrix(b.poseCumulative);		B.setBounds(b.model.getBoundTop(),b.model.getBoundBottom());
+		//return IntersectionTester.cuboidCuboid(A, B);
+		
+		return IntersectionTester.cuboidCuboid(a.cuboid,b.cuboid);
 	}
 
 	/**
@@ -536,7 +493,7 @@ public class DHRobot extends Observable implements Serializable {
 		return links.get(i);
 	}
 
-	public Matrix4d getPoseIK() {
+	public Matrix4d getEndEffectorMatrix() {
 		return new Matrix4d(endEffectorMatrix);
 	}
 	

@@ -203,14 +203,14 @@ public class MiscTests {
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
 				            		robot.ghost.setPoseFK(keyframe0);
-									m0.set(robot.ghost.getPoseIK());
+									m0.set(robot.ghost.getEndEffectorMatrix());
 									// now generate a set of FK values from the endMatrix m0.
 									if(solver.solve(robot.ghost, m0, keyframe1)==DHIKSolver.SolutionType.ONE_SOLUTION) {
 										++totalOneSolutions;
 										
 										// update the robot pose and get the m1 matrix. 
 					            		robot.ghost.setPoseFK(keyframe1);
-					            		m1.set(robot.ghost.getPoseIK());
+					            		m1.set(robot.ghost.getEndEffectorMatrix());
 					            		
 					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
 					            						+StringHelper.formatDouble(keyframe0.fkValues[1])+"\t"
@@ -413,7 +413,7 @@ public class MiscTests {
 					
 		// use forward kinematics to find the endMatrix of the pose
 		robot.ghost.setPoseFK(keyframe0);
-		m0.set(robot.ghost.getPoseIK());
+		m0.set(robot.ghost.getEndEffectorMatrix());
 		
 		String message = StringHelper.formatDouble(m0.m03)+"\t"
 						+StringHelper.formatDouble(m0.m13)+"\t"
@@ -496,7 +496,7 @@ public class MiscTests {
 			final double [] force = {dp.x,dp.y,dp.z,r.x,r.y,r.z};
 	
 			// set a new position
-			Matrix4d m = robot.ghost.getPoseIK();
+			Matrix4d m = robot.ghost.getEndEffectorMatrix();
 			m.m13=-20;
 			m.m23-=5;
 			
@@ -533,7 +533,7 @@ public class MiscTests {
 					if (robot.ghost.sanityCheck(keyframe)) {
 						// set the pose (eg, move each joints by jvot*dt)
 						robot.ghost.setPoseFK(keyframe);
-						m = robot.ghost.getPoseIK();
+						m = robot.ghost.getEndEffectorMatrix();
 
 						System.out.println("ok");
 						continue;

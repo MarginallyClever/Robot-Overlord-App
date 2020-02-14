@@ -151,4 +151,13 @@ public class Entity implements Serializable {
 	public void setParent(Entity e) {
 		parent = e;
 	}
+	
+	/**
+	 * Do you have a status to report to the GUI?
+	 * Override this with your class' status.
+	 * @return a String.  Cannot be null.  default is "".  
+	 */
+	public String getStatusMessage() {
+		return "";
+	}
 }

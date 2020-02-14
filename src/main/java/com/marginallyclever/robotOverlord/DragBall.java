@@ -8,6 +8,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.camera.Camera;
 import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
 
@@ -835,5 +836,24 @@ public class DragBall extends PhysicalObject {
 	
 	public Frame getFrameOfReference() {
 		return frameOfReferenceIndex;
+	}
+	
+	@Override
+	public String getStatusMessage() {
+		if(isRotateMode) {
+			double start=MathHelper.capRotationRadians(valueSaved);
+			double end=MathHelper.capRotationRadians(valueNow);
+			double range=Math.toDegrees(end-start);
+			range = MathHelper.capRotationDegrees(range);
+			return "turn "+StringHelper.formatDouble(range)+" degrees";
+			
+		} else {  // translate mode
+			double dx=resultMatrix.m03 - subjectMatrix.m03; 
+			double dy=resultMatrix.m13 - subjectMatrix.m13; 
+			double dz=resultMatrix.m23 - subjectMatrix.m23;
+
+			double distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+			return "slide "+StringHelper.formatDouble(distance)+"mm";
+		}
 	}
 }

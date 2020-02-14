@@ -1,4 +1,5 @@
 package com.marginallyclever.convenience;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Cylinder;
@@ -92,17 +93,17 @@ public class IntersectionTester {
 	
 	/**
 	 * Find the time of the closest point of approach
-	 * @param dp distanc between positions
+	 * @param dp distance between positions
 	 * @param dv relative velocities
 	 * @return time
 	 */
-	static double CPATime(Vector3d dp,Vector3d dv) {
+	static protected double CPATime(Vector3d dp,Vector3d dv) {
 		double dv2 = dv.dot(dv);
 		if(dv2 < SMALL_NUM) return 0;  // parallel, all times are the same.
 		return -dv.dot(dp) / dv2;
 	}
 	
-	static double CPADistance(Vector3d a,Vector3d b,Vector3d da,Vector3d db) {
+	static public double CPADistance(Vector3d a,Vector3d b,Vector3d da,Vector3d db) {
 		// find CPA time
 		Vector3d dp = new Vector3d(b);
 		dp.sub(a);
@@ -120,5 +121,62 @@ public class IntersectionTester {
 		// find difference
 		pb.sub(pa);
 		return pb.length();
+	}
+	
+	static public boolean cuboidCuboid(Cuboid a,Cuboid b) {
+		// get the normals for A
+		Vector3d[] n = new Vector3d[3];
+		n[0] = new Vector3d(a.poseWorld.m00, a.poseWorld.m10, a.poseWorld.m20);
+		n[1] = new Vector3d(a.poseWorld.m01, a.poseWorld.m11, a.poseWorld.m21);
+		n[2] = new Vector3d(a.poseWorld.m02, a.poseWorld.m12, a.poseWorld.m22);
+		// System.out.println("aMatrix="+a.poseWorld);
+		
+		a.updatePoints();
+		b.updatePoints();
+
+		for (int i = 0; i < n.length; ++i) {
+			// SATTest the normals of A against the 8 points of box A.
+			// SATTest the normals of A against the 8 points of box B.
+			// points of each box are a combination of the box's top/bottom values.
+			double[] aLim = SATTest(n[i], a.p);
+			double[] bLim = SATTest(n[i], b.p);
+			// System.out.println("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
+			// "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
+
+			// if the two box projections do not overlap then there is no chance of a
+			// collision.
+			if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
+				// System.out.println("Miss");
+				return false;
+			}
+		}
+
+		// intersect!
+		// System.out.println("Hit");
+		return true;
+	}
+	
+	static protected boolean isBetween(double val, double bottom, double top) {
+		return bottom <= val && val <= top;
+	}
+
+	static protected boolean overlaps(double a0, double a1, double b0, double b1) {
+		return isBetween(b0, a0, a1) || isBetween(a0, b0, b1);
+	}
+
+	static protected double[] SATTest(Vector3d normal, Point3d[] corners) {
+		double[] values = new double[2];
+		values[0] = Double.MAX_VALUE; // min value
+		values[1] = -Double.MAX_VALUE; // max value
+
+		for (int i = 0; i < corners.length; ++i) {
+			double dotProduct = corners[i].x * normal.x + corners[i].y * normal.y + corners[i].z * normal.z;
+			if (values[0] > dotProduct)
+				values[0] = dotProduct;
+			if (values[1] < dotProduct)
+				values[1] = dotProduct;
+		}
+
+		return values;
 	}
 }

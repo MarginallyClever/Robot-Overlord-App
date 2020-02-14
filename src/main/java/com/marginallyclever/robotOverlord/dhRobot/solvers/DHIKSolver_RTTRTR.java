@@ -69,15 +69,15 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(robot.dhTool!=null) {
 			// There is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
-			robot.dhTool.dhLinkEquivalent.refreshPoseMatrix();
+			robot.dhTool.dhLink.refreshPoseMatrix();
 
-			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLinkEquivalent.getR();
-			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLinkEquivalent.getR();
-			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLinkEquivalent.getR();
+			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLink.getR();
+			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLink.getR();
+			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLink.getR();
 
-			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLinkEquivalent.getD();
-			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLinkEquivalent.getD();
-			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLinkEquivalent.getD();
+			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLink.getD();
+			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLink.getD();
+			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLink.getD();
 		}
 		
 		Point3d p7 = new Point3d(

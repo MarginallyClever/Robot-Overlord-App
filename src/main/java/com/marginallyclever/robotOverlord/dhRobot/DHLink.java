@@ -6,6 +6,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.model.Model;
 
@@ -31,6 +32,9 @@ public class DHLink extends Observable {
 
 	// 3D model to render at this link
 	public Model model;
+	
+	// World space cuboid for intersection testing
+	public Cuboid cuboid;
 	
 	// dynamics are described in a 4x4 matrix
 	//     [ Ixx Ixy Ixz } XgM ]
@@ -59,35 +63,45 @@ public class DHLink extends Observable {
 
 	
 	public DHLink() {
+		pose = new Matrix4d();
+		poseCumulative = new Matrix4d();
+		inertia = new Matrix4d();
+		cuboid = new Cuboid();
+		
 		flags=0;
 		d=0;
 		theta=0;
 		r=0;
 		alpha=0;
-		pose = new Matrix4d();
-		poseCumulative = new Matrix4d();
-		inertia = new Matrix4d();
 		model=null;
 		rangeMin=-90;
 		rangeMax=90;
 		maxVelocity=Double.MAX_VALUE;
 		maxAcceleration=Double.MAX_VALUE;
 		maxTorque=Double.MAX_VALUE;
+		
 	}
 	
 	public DHLink(DHLink arg0) {
+		pose = new Matrix4d();
+		poseCumulative = new Matrix4d();
+		inertia = new Matrix4d();
+		cuboid = new Cuboid();
+		
 		set(arg0);
 	} 
 	
 	public void set(DHLink arg0) {
+		pose.set(arg0.pose);
+		inertia.set(arg0.inertia);
+		poseCumulative.set(arg0.poseCumulative);
+		cuboid.set(arg0.cuboid);
+
 		flags = arg0.flags;
 		d = arg0.d;
 		theta=arg0.theta;
 		r=arg0.r;
 		alpha=arg0.alpha;
-		pose = new Matrix4d(arg0.pose);
-		inertia = new Matrix4d(arg0.inertia);
-		poseCumulative = new Matrix4d(arg0.poseCumulative);
 		model=arg0.model;
 		rangeMin=arg0.rangeMin;
 		rangeMax=arg0.rangeMax;

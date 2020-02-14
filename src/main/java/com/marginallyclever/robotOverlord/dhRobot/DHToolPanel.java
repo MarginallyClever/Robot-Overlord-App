@@ -35,7 +35,7 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 	public DHToolPanel(RobotOverlord gui,DHTool tool) {
 		this.tool = tool;
 		this.gui = gui;
-		linkPanel = new DHLinkPanel(gui,tool.dhLinkEquivalent,tool.getDisplayName());
+		linkPanel = new DHLinkPanel(gui,tool.dhLink,tool.getDisplayName());
 		
 		buildPanel();
 	}
@@ -60,7 +60,7 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 		//con1.gridy++;
 		
 		int k=0;
-		DHLink link = tool.dhLinkEquivalent;
+		DHLink link = tool.dhLink;
 		DHLinkPanel e = new DHLinkPanel(gui,link,k++);
 		linkPanel = e;
 
