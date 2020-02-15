@@ -14,6 +14,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.AnsiColors;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
@@ -85,6 +86,9 @@ public class Sixi2 extends Robot {
 		// create one copy of the DH links for the ghost robot
 		live = new DHRobot();
 		ghost = new DHRobot();
+		
+		live.setParent(this);
+		ghost.setParent(this);
 		
 		live.setIKSolver(ikSolver);
 		ghost.setIKSolver(ikSolver);
@@ -581,9 +585,7 @@ public class Sixi2 extends Robot {
 	}
 
 	public Matrix4d getGhostTargetMatrixWorldSpace() {
-		Matrix4d targetMatrixWorldSpace = new Matrix4d();
-		targetMatrixWorldSpace.mul(getMatrix(),ghost.getEndEffectorMatrix());
-		return targetMatrixWorldSpace; 
+		return ghost.getEndEffectorMatrix(); 
 	}
 
 	/**
@@ -690,16 +692,18 @@ public class Sixi2 extends Robot {
 		if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
 			//if(ball.isActivelyMoving())
 			{
-				Matrix4d subjectMatrix = new Matrix4d(ball.getResultMatrix());
+				Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
+				
 				// The ghost only accepts poses in it's frame of reference.
 				// so we have to account for the robot's pose in world space.
-				Matrix4d iRoot = new Matrix4d(this.matrix);
+				//Matrix4d iRoot = new Matrix4d(this.matrix);
 				//iRoot.invert();
-				subjectMatrix.mul(iRoot);
+				//worldPose.mul(iRoot);
+				
 				//System.out.println("Update begins");
-				ghost.setPoseIK(subjectMatrix);
+				ghost.setPoseIK(worldPose);
 				//System.out.println("Update ends");
-				//System.out.println(MatrixHelper.getPosition(subjectMatrix));
+				//System.out.println(MatrixHelper.getPosition(worldPose));
 				isDirty=true;
 			}
 		}
@@ -748,7 +752,7 @@ public class Sixi2 extends Robot {
 		if(connection!=null && connection.isOpen()) {
 			// do not simulate movement when connected to a live robot.
 		} else {
-			//if(interpolator.isInterpolating()) 
+			if(interpolator.isInterpolating()) 
 			{
 				interpolator.update(dt,live.getEndEffectorMatrix());
 				if(sixi2Panel!=null && !sixi2Panel.scrubberLock.isLocked()) {
@@ -935,15 +939,45 @@ public class Sixi2 extends Robot {
 		Vector3d v = MatrixHelper.matrixToEuler(m);
 		String message = 
 				"Base @ "+this.getPosition().toString() + " Tip @ "
-				+" X"+StringHelper.formatDouble(pose.m03)
-				+" Y"+StringHelper.formatDouble(pose.m13)
-				+" Z"+StringHelper.formatDouble(pose.m23)
-				+"RX"+StringHelper.formatDouble(Math.toDegrees(v.x))
-				+"Ry="+StringHelper.formatDouble(Math.toDegrees(v.y))
-				+"Rz="+StringHelper.formatDouble(Math.toDegrees(v.z));
+				+" ("+StringHelper.formatDouble(pose.m03)
+				+", "+StringHelper.formatDouble(pose.m13)
+				+", "+StringHelper.formatDouble(pose.m23)
+				+") R("+StringHelper.formatDouble(Math.toDegrees(v.x))
+				+", "+StringHelper.formatDouble(Math.toDegrees(v.y))
+				+", "+StringHelper.formatDouble(Math.toDegrees(v.z))
+				+")";
 		if(ball.isActivelyMoving) {
 			message += " "+ball.getStatusMessage();
 		}
 		return message;
+	}
+
+
+	/**
+	 * 
+	 * @return a list of cuboids, or null.
+	 */
+	@Override
+	public ArrayList<Cuboid> getCuboidList() {
+
+		// get a list of all cuboids
+		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
+		
+		//live.refreshPose();
+		
+		for( DHLink link : this.ghost.links ) {
+			if(link.cuboid != null ) {
+				cuboidList.add(link.cuboid);
+			}
+		}
+
+		return cuboidList;
+	}
+	
+	@Override
+	public void setMatrix(Matrix4d arg0) {
+		super.setMatrix(arg0);
+		live.refreshPose();
+		ghost.refreshPose();
 	}
 }

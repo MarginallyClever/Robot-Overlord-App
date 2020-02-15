@@ -25,7 +25,6 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectFile;
@@ -88,41 +87,31 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 	protected void buildPanel() {
 		this.removeAll();
 		
+		this.setName("Sixi 2 Control Box");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
+		this.setBorder(new EmptyBorder(0,0,0,0));
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("DHRobotControlBox");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();
-		
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
+		con1.weightx=0;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 		
-		contents.add(new JLabel("File to play"), con1);
+		this.add(new JLabel("File to play"), con1);
 		con1.gridy++;
-		contents.add(fileToPlay=new UserCommandSelectFile(ro,Translator.get("..."),player.getFileToPlay()), con1);
+		this.add(fileToPlay=new UserCommandSelectFile(ro,Translator.get("..."),player.getFileToPlay()), con1);
 		con1.gridy++;
 		fileToPlay.addChoosableFileFilter(new FileNameExtensionFilter("GCode", "ngc"));
 
-		contents.add(reset = new JButton("Reset"),con1);
+		this.add(reset = new JButton("Reset"),con1);
 		con1.gridy++;
-		contents.add(buttonSingleBlock = new JButton("[ ] Single block"),con1);
+		this.add(buttonSingleBlock = new JButton("[ ] Single block"),con1);
 		con1.gridy++;
-		contents.add(buttonLoop = new JButton("[ ] Loop at end"),con1);
+		this.add(buttonLoop = new JButton("[ ] Loop at end"),con1);
 		con1.gridy++;
-		contents.add(buttonCycleStart = new JButton("[ ] Cycle start"),con1);
+		this.add(buttonCycleStart = new JButton("[ ] Cycle start"),con1);
 		con1.gridy++; 
 		
 		reset.addActionListener(this);
@@ -135,22 +124,22 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		buttonLoop.setSelected(player.isLoop());
 		buttonCycleStart.setSelected(player.isCycleStart());
 
-		contents.add(new JLabel(" "),con1);
+		this.add(new JLabel(" "),con1);
 		con1.gridy++;
-		contents.add(saveLivePositionToFile = new JButton("Save as G30"),con1);
+		this.add(saveLivePositionToFile = new JButton("Save as G30"),con1);
 		con1.gridy++;
 		saveLivePositionToFile.addActionListener(this);
-		contents.add(loadFileToLivePosition = new JButton("Go to G30"),con1);
+		this.add(loadFileToLivePosition = new JButton("Go to G30"),con1);
 		con1.gridy++;
 		loadFileToLivePosition.addActionListener(this);
 		
-		contents.add(new JLabel(" "),con1);
+		this.add(new JLabel(" "),con1);
 		con1.gridy++;
-		contents.add(new JLabel("Direct command"),con1);
+		this.add(new JLabel("Direct command"),con1);
 		con1.gridy++;
-		contents.add(directCommand = new JTextField(),con1);
+		this.add(directCommand = new JTextField(),con1);
 		con1.gridy++;
-		contents.add(directCommandSend = new JButton("Send"),con1);
+		this.add(directCommandSend = new JButton("Send"),con1);
 		con1.gridy++;
 		directCommandSend.addActionListener(this);
 		
@@ -164,15 +153,17 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		
 		String[] heightArray = heights.toArray(new String[1]);
 
-		contents.add(new JLabel(" "),con1);
+		this.add(new JLabel(" "),con1);
 		con1.gridy++;
-		contents.add(new JLabel("Selfie mode"),con1);
+		this.add(new JLabel("Selfie mode"),con1);
 		con1.gridy++;
-		contents.add(userHeight=new JComboBox<String>(heightArray),con1);
+		this.add(userHeight=new JComboBox<String>(heightArray),con1);
 		con1.gridy++;
-		contents.add(setHeight=new JButton("3..2..1..Go!"),con1);
+		this.add(setHeight=new JButton("3..2..1..Go!"),con1);
 		con1.gridy++;
-		contents.add(firstPosition=new JButton("First position"),con1);
+
+		con1.weighty=1;  // last item gets weight 1.
+		this.add(firstPosition=new JButton("First position"),con1);
 		con1.gridy++;
 		
 		setHeight.addActionListener(this);

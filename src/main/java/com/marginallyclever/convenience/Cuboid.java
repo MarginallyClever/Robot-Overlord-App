@@ -22,6 +22,7 @@ public class Cuboid {
 	
 	public Cuboid() {
 		poseWorld = new Matrix4d();
+		poseWorld.setIdentity();
 		boundTop = new Vector3d();
 		boundBottom = new Vector3d();
 

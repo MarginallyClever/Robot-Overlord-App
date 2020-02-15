@@ -8,7 +8,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectBoolean;
@@ -72,37 +71,28 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 		
 		light=arg0;
 
+		this.setName("Light");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
-
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Light");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();
-		c.gridy++;
 		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weighty=1;
+		con1.weightx=0;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.CENTER;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 
-		contents.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),c);
-		c.gridy++;
-		contents.add(choosePreset = new UserCommandSelectComboBox(gui,Translator.get("Preset"),presetNames,detectPreset(light)),c);
-		c.gridy++;
-		contents.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbientColor()),c);
-		c.gridy++;
-		contents.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),light.getSpecular()),c);
-		c.gridy++;
-		contents.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuseColor()),c);
-		c.gridy++;
+		this.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),con1);
+		con1.gridy++;
+		this.add(choosePreset = new UserCommandSelectComboBox(gui,Translator.get("Preset"),presetNames,detectPreset(light)),con1);
+		con1.gridy++;
+		this.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbientColor()),con1);
+		con1.gridy++;
+		this.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),light.getSpecular()),con1);
+		con1.gridy++;
+		con1.weighty=1;  // last one only
+		this.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuseColor()),con1);
+		con1.gridy++;
 
 		chooseEnabled.addChangeListener(this);
 		chooseDiffuse.addChangeListener(this);

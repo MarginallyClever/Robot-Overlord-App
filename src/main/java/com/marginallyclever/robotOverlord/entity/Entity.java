@@ -1,15 +1,16 @@
 package com.marginallyclever.robotOverlord.entity;
 
-import java.awt.BorderLayout;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
-import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 
 /**
@@ -68,7 +69,8 @@ public class Entity implements Serializable {
 	 * @param gui the main application instance.
 	 * @return an ArrayList of all the panels for this Entity and all derived classes.
 	 */
-	public JPanel getAllContextPanels(RobotOverlord gui) {
+	public JComponent getAllContextPanels(RobotOverlord gui) {
+		/*
 		JPanel sum = new JPanel();
 		BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
 		sum.setLayout(layout);
@@ -76,11 +78,26 @@ public class Entity implements Serializable {
 		Iterator<JPanel> pi = list.iterator();
 		while(pi.hasNext()) {
 			JPanel p = pi.next();
+			
+			CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
+			this.add(oiwPanel,c);
+			JPanel contents = oiwPanel.getContentPane();
+			contents.add(p);
+			
+		
 			sum.add(p);
 		}
 
 		JPanel b = new JPanel(new BorderLayout());
 		b.add(sum, BorderLayout.PAGE_START);
+		*/
+		JTabbedPane b = new JTabbedPane();
+		ArrayList<JPanel> list = getContextPanel(gui);
+		Iterator<JPanel> pi = list.iterator();
+		while(pi.hasNext()) {
+			JPanel p = pi.next();
+			b.addTab(p.getName(), p);
+		}
 		
 		return b;
 	}

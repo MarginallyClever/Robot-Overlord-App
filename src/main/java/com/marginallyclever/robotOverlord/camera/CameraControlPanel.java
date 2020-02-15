@@ -44,6 +44,7 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 		super();
 		
 		camera=cam;
+		this.setName("Camera");
 /*
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();

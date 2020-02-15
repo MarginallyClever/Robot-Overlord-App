@@ -7,6 +7,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -64,35 +65,35 @@ public abstract class PhysicalObject extends Entity {
 	}
 	
 	public void setPosition(Vector3d pos) {
-		matrix.setTranslation(pos);
-		if(physicalObjectControlPanel!=null) {
-			physicalObjectControlPanel.updateFields();
-		}
+		Matrix4d m = new Matrix4d(matrix);
+		m.setTranslation(pos);
+		setMatrix(m);
 	}
 	
 	public Matrix4d getMatrix() {
 		return matrix;
 	}
+	
 	public void setMatrix(Matrix4d arg0) {
 		matrix.set(arg0);
 		if(physicalObjectControlPanel!=null) {
 			physicalObjectControlPanel.updateFields();	
 		}
 	}
+	
 	public void setRotation(Matrix3d arg0) {
-		Vector3d trans = getPosition();
-		matrix.set(arg0);
-		matrix.setTranslation(trans);
-		if(physicalObjectControlPanel!=null) {
-			physicalObjectControlPanel.updateFields();	
-		}
+		Matrix4d m = new Matrix4d();
+		m.set(arg0);
+		m.setTranslation(getPosition());
+		setMatrix(m);
 	}
+	
 	public void getRotation(Matrix4d arg0) {
 		arg0.set(matrix);
 		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 
-	protected World getWorld() {
+	public World getWorld() {
 		Entity p = parent;
 		while (p != null) {
 			if (p instanceof World) {
@@ -100,6 +101,16 @@ public abstract class PhysicalObject extends Entity {
 			}
 			p=p.getParent();
 		}
+		return null;
+	}
+
+
+	/**
+	 * 
+	 * @return a list of cuboids, or null.
+	 */
+	public ArrayList<Cuboid> getCuboidList() {
+		// default is to return empty list.
 		return null;
 	}
 }

@@ -9,7 +9,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
@@ -41,32 +40,23 @@ public class GridEntityControlPanel extends JPanel implements ChangeListener {
 	public void buildPanel() {
 		this.removeAll();
 
+		this.setName("Grid");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
-
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Grid");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();		
+		this.setBorder(new EmptyBorder(0,0,0,0));
 		
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
+		con1.weightx=0;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 		
-		contents.add(gridWidth=new UserCommandSelectNumber(gui,"Width",(float)grid.width),c);
-		c.gridy++;
-		contents.add(gridHeight=new UserCommandSelectNumber(gui,"Depth",(float)grid.height),c);
-		c.gridy++;
+		this.add(gridWidth=new UserCommandSelectNumber(gui,"Width",(float)grid.width),con1);
+		con1.gridy++;
+		con1.weighty=1;  // last item only
+		this.add(gridHeight=new UserCommandSelectNumber(gui,"Depth",(float)grid.height),con1);
+		con1.gridy++;
 		gridWidth.addChangeListener(this);
 		gridHeight.addChangeListener(this);
 	}

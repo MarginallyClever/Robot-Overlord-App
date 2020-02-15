@@ -63,6 +63,7 @@ public class DHLink extends Observable {
 
 	
 	public DHLink() {
+		super();
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
@@ -83,6 +84,7 @@ public class DHLink extends Observable {
 	}
 	
 	public DHLink(DHLink arg0) {
+		super();
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
@@ -93,8 +95,8 @@ public class DHLink extends Observable {
 	
 	public void set(DHLink arg0) {
 		pose.set(arg0.pose);
-		inertia.set(arg0.inertia);
 		poseCumulative.set(arg0.poseCumulative);
+		inertia.set(arg0.inertia);
 		cuboid.set(arg0.cuboid);
 
 		flags = arg0.flags;

@@ -109,50 +109,40 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	protected void buildPanel() {
 		this.removeAll();
 
+		this.setName("Sixi 2");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
+		this.setBorder(new EmptyBorder(0,0,0,0));
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Sixi2");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();		
-		
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
+		con1.weightx=0;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		contents.add(buttonCalibrate=new JButton("Calibrate"), con1);
+		this.add(buttonCalibrate=new JButton("Calibrate"), con1);
 		con1.gridy++;
 		buttonCalibrate.addActionListener(this);
 
-		contents.add(goHome=new JButton("Go Home"), con1);
+		this.add(goHome=new JButton("Go Home"), con1);
 		con1.gridy++;
 		goHome.addActionListener(this);
 
-		contents.add(goRest=new JButton("Go Rest"), con1);
+		this.add(goRest=new JButton("Go Rest"), con1);
 		con1.gridy++;
 		goRest.addActionListener(this);
 		
-		contents.add(immediateDriving=new JCheckBox(),con1);
+		this.add(immediateDriving=new JCheckBox(),con1);
 		con1.gridy++;
 		immediateDriving.setText("Immediate driving");
 		immediateDriving.addItemListener(this);
 		immediateDriving.setSelected(robot.immediateDriving);
 
-		contents.add(feedrate=new JSlider(),con1);
+		this.add(feedrate=new JSlider(),con1);
 		con1.gridy++;
-		contents.add(feedrateValue=new JLabel(),con1);
+		this.add(feedrateValue=new JLabel(),con1);
 		con1.gridy++;
 		feedrate.setMaximum(80);
 		feedrate.setMinimum(1);
@@ -161,9 +151,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		feedrate.setValue((int)robot.getFeedrate());
 		stateChanged(new ChangeEvent(feedrate));
 
-		contents.add(acceleration=new JSlider(),con1);
+		this.add(acceleration=new JSlider(),con1);
 		con1.gridy++;
-		contents.add(accelerationValue=new JLabel(),con1);
+		this.add(accelerationValue=new JLabel(),con1);
 		con1.gridy++;
 		acceleration.setMaximum(120);
 		acceleration.setMinimum(1);
@@ -193,9 +183,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.gridy++;
 */
 		
-		contents.add(gcodeLabel=new JLabel("Gcode"), con1);
+		this.add(gcodeLabel=new JLabel("Gcode"), con1);
 		con1.gridy++;
-		contents.add(gcodeValue=new JTextField(),con1);
+		this.add(gcodeValue=new JTextField(),con1);
 		con1.gridy++;
 		gcodeValue.setEditable(false);
 		Dimension dim = gcodeValue.getPreferredSize();
@@ -219,8 +209,10 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.gridy++;
 		livePanel.getContentPane().setLayout(new BoxLayout(livePanel.getContentPane(),BoxLayout.PAGE_AXIS));
 		
-		contents = new JPanel();
+		// live panel
+		JPanel contents = new JPanel();
 		livePanel.getContentPane().add(contents);
+		
 		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new SpringLayout());
 		i=0;
@@ -258,6 +250,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.gridy++;
 		ghostPanel.getContentPane().setLayout(new BoxLayout(ghostPanel.getContentPane(),BoxLayout.PAGE_AXIS));
 
+		// ghost joints
 		contents = new JPanel();
 		ghostPanel.getContentPane().add(contents);
 		contents.setBorder(new EmptyBorder(0,0,0,0));
@@ -297,6 +290,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 
 		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording");
+		con1.weighty=1;  // last item gets weight 1.
 		this.add(recordingPanel,con1);
 		con1.gridy++;
 		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));

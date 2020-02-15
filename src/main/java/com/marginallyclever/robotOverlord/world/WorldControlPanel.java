@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -47,31 +46,21 @@ public class WorldControlPanel extends JPanel implements ActionListener {
 	public void buildPanel() {
 		this.removeAll();
 
+		this.setName("World");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
+		this.setBorder(new EmptyBorder(0,0,0,0));
 
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("World");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();		
-		
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
+		con1.weightx=0;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 		
-		contents.add(addButton = new UserCommandAddEntity(gui),c);
+		this.add(addButton = new UserCommandAddEntity(gui),con1);
 		addButton.addActionListener(this);
-		c.gridy++;
+		con1.gridy++;
 
 		// (re)create the entity list
 		Iterator<Entity> ie = world.getChildren().iterator();
@@ -82,8 +71,9 @@ public class WorldControlPanel extends JPanel implements ActionListener {
 		}
 		entityList = new JList<EntityListItem>(new Vector<EntityListItem>(localEntityList));
 		entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		contents.add(entityList,c);
-		c.gridy++;
+		con1.weighty=1;  // last item gets weight 1.
+		this.add(entityList,con1);
+		con1.gridy++;
 
 		entityList.addMouseListener(new MouseAdapter() {
 		    public void mouseClicked(MouseEvent evt) {

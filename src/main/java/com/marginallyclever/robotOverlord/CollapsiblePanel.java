@@ -119,7 +119,7 @@ public class CollapsiblePanel extends JPanel {
      * Sets layout, creates the content panel and adds it and the title component to the container,
      * all constructors have this procedure in common.
      */
-    private void commonConstructor () {
+    private void commonConstructor() {
         setLayout(new BorderLayout());
 
         panel = new JPanel();

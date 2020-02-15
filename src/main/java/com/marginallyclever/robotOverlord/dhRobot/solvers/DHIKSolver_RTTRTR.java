@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import com.jogamp.opengl.math.Matrix4;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.dhRobot.DHKeyframe;
@@ -63,6 +64,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		assert((link3.flags & DHLink.READ_ONLY_D)!=0);
 		assert((link4.flags & DHLink.READ_ONLY_D)!=0);
 		assert((link6.flags & DHLink.READ_ONLY_D)!=0);
+
+		Matrix4d iRoot = new Matrix4d(robot.getParentMatrix());
+		iRoot.invert();
 		
 		Matrix4d targetMatrixAdj = new Matrix4d(targetMatrix);
 		
@@ -71,14 +75,22 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// use the inverse to calculate the wrist transform.
 			robot.dhTool.dhLink.refreshPoseMatrix();
 
+			// remove R component (x axis)
 			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLink.getR();
 			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLink.getR();
 			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLink.getR();
-
+			// remove D component (z axis)
 			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLink.getD();
 			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLink.getD();
 			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLink.getD();
 		}
+		
+		Matrix4d link5m = new Matrix4d(link5.poseCumulative);
+		Matrix4d link4m = new Matrix4d(link4.poseCumulative);
+		targetMatrixAdj.mul(iRoot,targetMatrixAdj);
+		link5m.mul(iRoot,link5m);
+		link4m.mul(iRoot,link4m);
+		
 		
 		Point3d p7 = new Point3d(
 				targetMatrixAdj.m03,
@@ -98,9 +110,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		if(false) {
 			Vector3d p5confirm = new Vector3d(
-					link5.poseCumulative.m03,
-					link5.poseCumulative.m13,
-					link5.poseCumulative.m23);
+					link5m.m03,
+					link5m.m13,
+					link5m.m23);
 			System.out.println(
 					"p7="+p7+"\t"+
 					"n7z="+n7z+"\t"+
@@ -203,7 +215,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 
 		if(false) {
 			Vector3d p4original = new Vector3d();
-			link4.poseCumulative.get(p4original);
+			link4m.get(p4original);
 			System.out.println("p4o="+p4original);
 			
 			Vector3d p4cloned = new Vector3d();

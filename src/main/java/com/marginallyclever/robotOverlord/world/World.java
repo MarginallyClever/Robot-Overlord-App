@@ -14,7 +14,9 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.communications.NetworkConnectionManager;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.camera.Camera;
@@ -482,5 +484,33 @@ implements Serializable {
 
 	public static Matrix4d getPose() {
 		return new Matrix4d(pose);
+	}
+
+
+	/**
+	 * @param listA all the cuboids being tested against the world.
+	 * @param ignoreList all the entities in the world to ignore.
+	 * @return true if any cuboid in the cuboidList intersects any cuboid in the world.
+	 */
+	public boolean collisionTest(ArrayList<Cuboid> listA, ArrayList<Entity> ignoreList) {
+		// check all children
+		for( Entity child : children ) {
+			if( ignoreList.contains(child) ) continue;
+			if( !( child instanceof PhysicalObject ) ) continue;
+			ArrayList<Cuboid> listB = ((PhysicalObject)child).getCuboidList();
+			if( listB == null ) continue;
+			
+			// now we have both lists, test them against each other.
+			for( Cuboid a : listA ) {
+				for( Cuboid b : listB ) {
+					if( IntersectionTester.cuboidCuboid( a, b ) ) {
+						return true;
+					}
+				}
+			}
+		}
+
+		// no intersection
+		return false;
 	}
 }

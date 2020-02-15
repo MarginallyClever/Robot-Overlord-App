@@ -4,12 +4,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectVector3d;
 
@@ -32,36 +32,26 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 		super();
 		
 		this.entity = entity;
-
+		this.setName("Physical Object");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
-
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Physical Object");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();
-		c.gridy++;
+		this.setBorder(new EmptyBorder(0,0,0,0));
 		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weighty=1;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.CENTER;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 		
-		contents.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
+		this.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;
 		setPosition.addChangeListener(this);
 
 		Vector3d temp = new Vector3d();
 		entity.getRotation(temp);
 		temp.scale(180/Math.PI);
-		contents.add(setRotation = new UserCommandSelectVector3d(ro,"rotation",temp),con1);
+		con1.weighty=1;  // last item gets weight 1.
+		this.add(setRotation = new UserCommandSelectVector3d(ro,"rotation",temp),con1);
 		con1.gridy++;
 		setRotation.addChangeListener(this);
 	}

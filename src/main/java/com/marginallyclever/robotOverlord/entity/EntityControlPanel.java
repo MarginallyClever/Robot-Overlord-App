@@ -4,10 +4,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.commands.UserCommandRemoveMe;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectString;
@@ -31,32 +31,24 @@ public class EntityControlPanel extends JPanel implements ChangeListener {
 		
 		this.entity = entity;
 
+		this.setName("Entity");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.fill=GridBagConstraints.HORIZONTAL;
-		c.anchor=GridBagConstraints.CENTER;
-		
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Entity");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();
+		this.setBorder(new EmptyBorder(0,0,0,0));
 		
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weighty=1;
+		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.CENTER;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 
 		if(ro.getWorld().hasEntity(entity)) {
-			contents.add(new UserCommandRemoveMe(ro,entity),con1);
+			this.add(new UserCommandRemoveMe(ro,entity),con1);
 			con1.gridy++;
 		}
-		
-		contents.add(setName=new UserCommandSelectString(ro,"name",entity.getDisplayName()), con1);
+
+		con1.weighty=1;  // last item gets weight 1.
+		this.add(setName=new UserCommandSelectString(ro,"name",entity.getDisplayName()), con1);
 		con1.gridy++;
 		setName.addChangeListener(this);
 	}

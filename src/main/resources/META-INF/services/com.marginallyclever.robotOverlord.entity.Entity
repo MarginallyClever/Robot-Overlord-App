@@ -15,10 +15,10 @@ com.marginallyclever.robotOverlord.robots.sixi2.Sixi2ControlBox
 com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick
 
 #other robots
-#com.marginallyclever.robotOverlord.deltaRobot3.DeltaRobot3
-#com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform
-#com.marginallyclever.robotOverlord.rotaryStewartPlatform.RotaryStewartPlatform3
-com.marginallyclever.robotOverlord.spidee.Spidee
+#com.marginallyclever.robotOverlord.robots.deltaRobot3.DeltaRobot3
+#com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform.RotaryStewartPlatform
+#com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform.RotaryStewartPlatform3
+com.marginallyclever.robotOverlord.robots.spidee.Spidee
 
 #other objects
 com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld

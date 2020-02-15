@@ -15,6 +15,10 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.dhRobot.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.robot.Robot;
+import com.marginallyclever.robotOverlord.world.World;
 
 /**
  * A robot designed using D-H parameters.
@@ -48,6 +52,8 @@ public class DHRobot extends Observable implements Serializable {
 	
 	protected int hitBox1, hitBox2; // display which hitboxes are colliding
 
+	protected PhysicalObject parent;
+	
 
 	public DHRobot() {
 		super();
@@ -96,6 +102,8 @@ public class DHRobot extends Observable implements Serializable {
 		hitBox1 = b.hitBox1;
 		hitBox2 = b.hitBox2;
 		
+		parent = b.parent;
+		
 		refreshPose();
 	}
 
@@ -120,76 +128,88 @@ public class DHRobot extends Observable implements Serializable {
 
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-
-		float [] original = new float[4];
-		
-		gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
-		
-		// 3d meshes
-		for( DHLink link : links ) {
-			gl2.glColor4f(original[0],original[1],original[2],original[3]);
-			link.render(gl2);
-			link.setAngleColorByRange(gl2);
-			MatrixHelper.applyMatrix(gl2, link.pose);
-		}
-		gl2.glColor4f(original[0],original[1],original[2],original[3]);
-		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
-
-		if (dhTool != null) {
-			dhTool.render(gl2);
-		}
-		
-		// now simplify look & feel for line drawings.
-		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-
-		PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 10);
-
-		int j = 0;
-		for( DHLink link : links ) {
-			if (showBones) link.renderBones(gl2);
-			if (showAngles) link.renderAngles(gl2);
-			if (showPhysics && link.model != null) {
-				// Draw the bounding box of the model as the physical bounding box
-				// TODO there are better shapes for collision detection?
-				if (j == hitBox1 || j == hitBox2) {
-					// hit
-					gl2.glColor4d(1, 0, 0.8, 0.15);
-				} else {
-					// no hit
-					gl2.glColor4d(1, 0.8, 0, 0.15);
-				}
-				PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
-			}
-			MatrixHelper.applyMatrix(gl2,link.pose);
-			++j;
-		}
+	
+			float [] original = new float[4];
 			
-		if (dhTool != null) {
-			if (showBones) dhTool.dhLink.renderBones(gl2);
-			if (showAngles) dhTool.dhLink.renderAngles(gl2);
-			//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
-			//	 gl2.glColor4d(1,0,0.8,0.15);
-			//	 PrimitiveSolids.drawBox(gl2,
-			//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
-			//		 dhTool.dhLinkEquivalent.model.getBoundTop());
-			//}
-		}
+			gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
+			
+			// 3d meshes
+			for( DHLink link : links ) {
+				gl2.glColor4f(original[0],original[1],original[2],original[3]);
+				link.render(gl2);
+				link.setAngleColorByRange(gl2);
+				MatrixHelper.applyMatrix(gl2, link.pose);
+			}
+			gl2.glColor4f(original[0],original[1],original[2],original[3]);
+			gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
+	
+			if (dhTool != null) {
+				dhTool.render(gl2);
+			}
 		gl2.glPopMatrix();
 		
-		MatrixHelper.drawMatrix(gl2, endEffectorMatrix, 8.0);
+		gl2.glPushMatrix();
+			// now simplify look & feel for line drawings.
+			boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+	
+			
+			int j = 0;
+			for( DHLink link : links ) {
+				if (showBones )	link.renderBones (gl2);
+				if (showAngles)	link.renderAngles(gl2);
+				if (showPhysics) {
+					if( link.model != null) {
+						// Draw the bounding box of the model as the physical bounding box
+						// TODO there are better shapes for collision detection?
+						if (j == hitBox1 || j == hitBox2) {
+							// hit
+							gl2.glColor4d(1, 0, 0.8, 0.15);
+						} else {
+							// no hit
+							gl2.glColor4d(1, 0.8, 0, 0.15);
+						}
+						PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
+					}
+				}
+				MatrixHelper.applyMatrix(gl2,link.pose);
+				++j;
+			}
+				
+			if (dhTool != null) {
+				if (showBones ) dhTool.dhLink.renderBones (gl2);
+				if (showAngles) dhTool.dhLink.renderAngles(gl2);
+				//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
+				//	 gl2.glColor4d(1,0,0.8,0.15);
+				//	 PrimitiveSolids.drawBox(gl2,
+				//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
+				//		 dhTool.dhLinkEquivalent.model.getBoundTop());
+				//}
+			}
+
+			// at the end effector position
+			PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 8);
+		gl2.glPopMatrix();
 
 		if (isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		// end simplify
 	}
 
+	public Matrix4d getParentMatrix() {
+		if( parent == null ) {
+			return new Matrix4d();
+		} else {
+			return parent.getMatrix();
+		}
+	}
+	
 	/**
 	 * Update the pose matrix of each DH link, then use forward kinematics to find
 	 * the end position.
 	 */
 	public void refreshPose() {
-		endEffectorMatrix.setIdentity();
+		endEffectorMatrix.set(getParentMatrix());
 
 		for( DHLink link : links ) {
 			// update matrix
@@ -199,8 +219,8 @@ public class DHRobot extends Observable implements Serializable {
 			endEffectorMatrix.mul(link.pose);
 
 			// set up the physical limits
+			link.cuboid.setMatrix(link.poseCumulative);
 			if( link.model != null ) {
-				link.cuboid.setMatrix(link.poseCumulative);
 				link.cuboid.setBounds(link.model.getBoundTop(), link.model.getBoundBottom());
 			}
 		}
@@ -285,7 +305,9 @@ public class DHRobot extends Observable implements Serializable {
 				if (clone.links.get(j).model == null)
 					continue;
 
-				if (hasIntersection(clone.links.get(i), clone.links.get(j))) {
+				if (IntersectionTester.cuboidCuboid(
+						clone.links.get(i).cuboid,
+						clone.links.get(j).cuboid)) {
 					// System.out.println("Intersect "+i+"/"+j+" (1)!");
 					hitBox1 = i;
 					hitBox2 = j;
@@ -305,43 +327,32 @@ public class DHRobot extends Observable implements Serializable {
 	 * @return true if there are no collisions
 	 */
 	public boolean collidesWithWorld(DHKeyframe keyframe) {
+		if( this.parent == null ) return false;
+
 		// create a clone of the robot
 		DHRobot clone = new DHRobot(this);
 		// move the clone to the keyframe pose
 		clone.setPoseFK(keyframe);
+
+		// get a list of all cuboids
+		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
 		
-		// check for collisions
-		hitBox1 = -1;
-		hitBox2 = -1;
-
-		int size = clone.links.size();
-		for (int i = 0; i < size; ++i) {
-			if (clone.links.get(i).model == null)
-				continue;
-
-			for (int j = i + 3; j < size; ++j) {
-				if (clone.links.get(j).model == null)
-					continue;
-
-				if (hasIntersection(clone.links.get(i), clone.links.get(j))) {
-					// System.out.println("Intersect "+i+"/"+j+" (1)!");
-					hitBox1 = i;
-					hitBox2 = j;
-					return true;
-				}
+		for( DHLink link : clone.links ) {
+			if(link.cuboid != null ) {
+				cuboidList.add(link.cuboid);
 			}
 		}
 
-		// no hit
-		return false;
-	}
-
-	protected boolean hasIntersection(DHLink a, DHLink b) {
-		//Cuboid A = new Cuboid();	A.setMatrix(a.poseCumulative);		A.setBounds(a.model.getBoundTop(),a.model.getBoundBottom());
-		//Cuboid B = new Cuboid();	B.setMatrix(b.poseCumulative);		B.setBounds(b.model.getBoundTop(),b.model.getBoundBottom());
-		//return IntersectionTester.cuboidCuboid(A, B);
+		// make a list of entities to ignore and add the parent.
+		ArrayList<Entity> ignoreList = new ArrayList<Entity>();
+		if(parent instanceof Robot) {
+			// this way robot ghost will not collide with robot live.
+			ignoreList.add(parent);
+		}
 		
-		return IntersectionTester.cuboidCuboid(a.cuboid,b.cuboid);
+		PhysicalObject p = (PhysicalObject)parent;
+		World world = p.getWorld();
+		return world.collisionTest(cuboidList,ignoreList);
 	}
 
 	/**
@@ -503,5 +514,13 @@ public class DHRobot extends Observable implements Serializable {
 
 	public void setDisablePanel(boolean disablePanel) {
 		this.disablePanel = disablePanel;
+	}
+
+	public PhysicalObject getParent() {
+		return parent;
+	}
+
+	public void setParent(PhysicalObject parent) {
+		this.parent = parent;
 	}
 }

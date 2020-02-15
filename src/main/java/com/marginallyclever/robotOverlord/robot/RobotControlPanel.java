@@ -11,7 +11,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Translator;
 import com.marginallyclever.robotOverlord.robot.Robot;
@@ -30,33 +29,22 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 	public RobotControlPanel(RobotOverlord gui, Robot robot) {
 		this.robot = robot;
 
+		this.setName("Robot");
 		this.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1;
-
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.fill = GridBagConstraints.HORIZONTAL;
-
-		CollapsiblePanel robotPanel = new CollapsiblePanel("Robot");
-		this.add(robotPanel, c);
-		JPanel contents = robotPanel.getContentPane();
-
 		con1 = new GridBagConstraints();
 		con1.gridx = 0;
 		con1.gridy = 0;
-		con1.weightx = 1;
-		con1.weighty = 1;
+		con1.weightx = 0;
+		con1.weighty = 0;
 		con1.fill = GridBagConstraints.HORIZONTAL;
-		// con1.anchor=GridBagConstraints.CENTER;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 
 		buttonConnect = createButton(Translator.get("ButtonConnect"));
-		contents.add(buttonConnect, con1);
+		con1.weighty=1;  // last item gets weight 1.
+		this.add(buttonConnect, con1);
 		con1.gridy++;
 	}
 

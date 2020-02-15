@@ -29,7 +29,6 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.actions.UndoableActionSetDHTool;
 import com.marginallyclever.robotOverlord.commands.UserCommandSelectNumber;
@@ -74,27 +73,17 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	protected void buildPanel() {
 		this.removeAll();
 
+		this.setName("DHRobot");
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
-
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("DHRobot");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();		
+		this.setBorder(new EmptyBorder(0,0,0,0));
 		
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
 		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
+		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 
 		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
 		//con1.gridy++;
@@ -116,7 +105,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}
 		}
 		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
-		contents.add(linkContents,con1);
+		this.add(linkContents,con1);
 		con1.gridy++;
 
 		layout = new SpringLayout();
@@ -128,23 +117,24 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		linkContents.add(valuery=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		linkContents.add(valuerz=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
-		contents.add(linkContents,con1);
+		this.add(linkContents,con1);
 		con1.gridy++;
 		
-		contents.add(showBones=new JCheckBox(),con1);
+		this.add(showBones=new JCheckBox(),con1);
 		showBones.setText("Show D-H bones");
 		showBones.addItemListener(this);
 		showBones.setSelected(robot.isShowBones());
 		con1.gridy++;
 		
-		contents.add(showPhysics=new JCheckBox(),con1);
+		this.add(showPhysics=new JCheckBox(),con1);
 		showPhysics.setText("Show physics model");
 		showPhysics.addItemListener(this);
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
 		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		contents.add(buttonSetTool=new JButton("Set tool"), con1);
+		con1.weighty=1;  // last item gets weight=1.
+		this.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
 		con1.gridy++;
 

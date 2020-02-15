@@ -17,12 +17,12 @@ import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -283,7 +283,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	 * @param panel
 	 * @param title
 	 */
-	public void setContextPanel(JPanel panel,String title) {
+	public void setContextPanel(JComponent panel,String title) {
 		contextMenu.setViewportView(panel);
 	}
 	
