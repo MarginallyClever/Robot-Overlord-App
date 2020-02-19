@@ -41,21 +41,25 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.communications.NetworkConnectionManager;
-import com.marginallyclever.robotOverlord.SoundSystem;
-import com.marginallyclever.robotOverlord.Translator;
-import com.marginallyclever.robotOverlord.camera.Camera;
-import com.marginallyclever.robotOverlord.commands.UserCommandAbout;
-import com.marginallyclever.robotOverlord.commands.UserCommandAboutControls;
-import com.marginallyclever.robotOverlord.commands.UserCommandCheckForUpdate;
-import com.marginallyclever.robotOverlord.commands.UserCommandForums;
-import com.marginallyclever.robotOverlord.commands.UserCommandLoad;
-import com.marginallyclever.robotOverlord.commands.UserCommandNew;
-import com.marginallyclever.robotOverlord.commands.UserCommandQuit;
-import com.marginallyclever.robotOverlord.commands.UserCommandRedo;
-import com.marginallyclever.robotOverlord.commands.UserCommandSaveAs;
-import com.marginallyclever.robotOverlord.commands.UserCommandUndo;
+import com.marginallyclever.robotOverlord.engine.translator.Translator;
+import com.marginallyclever.robotOverlord.engine.undoRedo.UndoHelper;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAbout;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAboutControls;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandCheckForUpdate;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandForums;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandLoad;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandNew;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandQuit;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandRedo;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSaveAs;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandUndo;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.world.World;
+import com.marginallyclever.robotOverlord.entity.camera.Camera;
+import com.marginallyclever.robotOverlord.entity.world.World;
+import com.marginallyclever.robotOverlord.uiElements.FooterBar;
+import com.marginallyclever.robotOverlord.uiElements.InputManager;
+import com.marginallyclever.robotOverlord.uiElements.SoundSystem;
+import com.marginallyclever.robotOverlord.uiElements.Splitter;
 import com.marginallyclever.util.PropertiesFileHelper;
 
 /**
@@ -194,8 +198,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         contextMenu.setMinimumSize(minimumSize);
         glCanvas.setMinimumSize(minimumSize);  // not sure what good this does here...
 
-        // this class contains the world.  
         world = new World();
+        world.createDefaultWorld();
 
         // now that we have everything built, set up the menus.
         buildMainMenu();

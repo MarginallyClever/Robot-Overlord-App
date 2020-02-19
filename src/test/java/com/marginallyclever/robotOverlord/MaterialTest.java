@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Test;
 
-import com.marginallyclever.robotOverlord.material.Material;
+import com.marginallyclever.robotOverlord.entity.material.Material;
 
 public class MaterialTest {
 	@Test

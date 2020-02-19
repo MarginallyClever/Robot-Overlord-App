@@ -1,35 +1,36 @@
 # DHRobots
-#com.marginallyclever.robotOverlord.robots.DHRobot_GMF_M100
-#com.marginallyclever.robotOverlord.robots.DHRobot_Mantis
-com.marginallyclever.robotOverlord.robots.sixi2.Sixi2
-#com.marginallyclever.robotOverlord.robots.DHRobot_Sixi1
-#com.marginallyclever.robotOverlord.robots.DHRobot_Arm3
-#com.marginallyclever.robotOverlord.robots.DHRobot_UArm
-#com.marginallyclever.robotOverlord.robots.DHRobot_SCARA_NM
-#com.marginallyclever.robotOverlord.robots.DHRobot_Thor
-#com.marginallyclever.robotOverlord.robots.DHRobot_Cartesian
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_GMF_M100
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Mantis
+com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Sixi1
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Arm3
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_UArm
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_SCARA_NM
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Thor
+#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Cartesian
 
 # sends gcode to a dhrobot
-com.marginallyclever.robotOverlord.robots.sixi2.Sixi2ControlBox
+com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox
 # joystick controller
-com.marginallyclever.robotOverlord.sixiJoystick.SixiJoystick
+com.marginallyclever.robotOverlord.entity.sixiJoystick.SixiJoystick
 
 #other robots
-#com.marginallyclever.robotOverlord.robots.deltaRobot3.DeltaRobot3
-#com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform.RotaryStewartPlatform
-#com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform.RotaryStewartPlatform3
-com.marginallyclever.robotOverlord.robots.spidee.Spidee
+#com.marginallyclever.robotOverlord.entity.robot.deltaRobot3.DeltaRobot3
+#com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform.RotaryStewartPlatform
+#com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform.RotaryStewartPlatform3
+com.marginallyclever.robotOverlord.entity.robot.spidee.Spidee
 
 #other objects
-com.marginallyclever.robotOverlord.modelInWorld.ModelInWorld
-com.marginallyclever.robotOverlord.camera.Camera
-com.marginallyclever.robotOverlord.light.Light
+com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld
+com.marginallyclever.robotOverlord.entity.camera.Camera
+com.marginallyclever.robotOverlord.entity.light.Light
+com.marginallyclever.robotOverlord.entity.physicalObject.boxObject.BoxObject
 
 #tests
-#com.marginallyclever.robotOverlord.matrixInterpolationTest.MatrixInterpolationTest
+#com.marginallyclever.robotOverlord.entity.matrixInterpolationTest.MatrixInterpolationTest
 
 #??
 # meant to be grab handles for moving objects by dragging on screen as in Fusion360.
-#com.marginallyclever.robotOverlord.MotionHelper
+#com.marginallyclever.robotOverlord.entity.MotionHelper
 # visualization of a robot pose 
-#com.marginallyclever.robotOverlord.Waypoint
+#com.marginallyclever.robotOverlord.entity.Waypoint

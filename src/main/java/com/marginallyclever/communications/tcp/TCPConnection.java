@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
-import com.marginallyclever.robotOverlord.Log;
+import com.marginallyclever.robotOverlord.engine.log.Log;
 
 
 /**

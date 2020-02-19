@@ -2,7 +2,6 @@ package com.marginallyclever.convenience;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.Cylinder;
 
 
 public class PrimitiveSolids {
@@ -122,6 +121,13 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 	}
 	
+	/**
+	 * draw box based on depth,width, and height with the origin in the bottom center.
+	 * @param gl2
+	 * @param depth
+	 * @param width
+	 * @param height
+	 */
 	static public void drawBox(GL2 gl2,float depth,float width,float height) {
 		width/=2;
 		depth/=2;
@@ -173,6 +179,12 @@ public class PrimitiveSolids {
 		gl2.glPopMatrix();
 	}
 
+	/**
+	 * draw box based on two corners
+	 * @param gl2
+	 * @param bottom minimum bounds
+	 * @param top maximum bounds
+	 */
 	static public void drawBox(GL2 gl2,Point3d bottom,Point3d top) {
 		double x0=bottom.x;
 		double y0=bottom.y;

@@ -2,8 +2,6 @@ package com.marginallyclever.convenience;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.Cylinder;
-
 
 public class IntersectionTester {
 	static final float SMALL_NUM = 0.001f;
@@ -13,7 +11,7 @@ public class IntersectionTester {
 	 * @param cB cylinder B
 	 * @return true if intersect
 	 */
-	static public boolean CylinderCylinder(Cylinder cA,Cylinder cB) {
+	static public boolean cylinderCylinder(Cylinder cA,Cylinder cB) {
 	    Vector3d   u = new Vector3d(cA.GetP2());  u.sub(cA.GetP1());
 	    Vector3d   v = new Vector3d(cB.GetP2());  v.sub(cB.GetP1());
 	    Vector3d   w = new Vector3d(cA.GetP1());  w.sub(cB.GetP1());
@@ -123,7 +121,20 @@ public class IntersectionTester {
 		return pb.length();
 	}
 	
+	/**
+	 * separation of axies theorem used to find intersection of two arbitrary boxes.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	static public boolean cuboidCuboid(Cuboid a,Cuboid b) {
+		// only does the second test if the first test succeeds.
+		return cuboidCuboidInternal(a,b) &&
+				cuboidCuboidInternal(b,a);
+	}
+	
+	
+	static protected boolean cuboidCuboidInternal(Cuboid a,Cuboid b) {
 		// get the normals for A
 		Vector3d[] n = new Vector3d[3];
 		n[0] = new Vector3d(a.poseWorld.m00, a.poseWorld.m10, a.poseWorld.m20);
@@ -166,15 +177,13 @@ public class IntersectionTester {
 
 	static protected double[] SATTest(Vector3d normal, Point3d[] corners) {
 		double[] values = new double[2];
-		values[0] = Double.MAX_VALUE; // min value
+		values[0] =  Double.MAX_VALUE; // min value
 		values[1] = -Double.MAX_VALUE; // max value
 
 		for (int i = 0; i < corners.length; ++i) {
 			double dotProduct = corners[i].x * normal.x + corners[i].y * normal.y + corners[i].z * normal.z;
-			if (values[0] > dotProduct)
-				values[0] = dotProduct;
-			if (values[1] < dotProduct)
-				values[1] = dotProduct;
+			if (values[0] > dotProduct) values[0] = dotProduct;
+			if (values[1] < dotProduct) values[1] = dotProduct;
 		}
 
 		return values;

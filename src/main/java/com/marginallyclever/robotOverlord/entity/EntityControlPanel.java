@@ -9,8 +9,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.commands.UserCommandRemoveMe;
-import com.marginallyclever.robotOverlord.commands.UserCommandSelectString;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandRemoveMe;
+import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectString;
 
 /**
  * The user interface for an {@link Entity}.

@@ -2,6 +2,8 @@ package com.marginallyclever.robotOverlord;
 
 import org.junit.Test;
 
+import com.marginallyclever.robotOverlord.uiElements.InputManager;
+
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;

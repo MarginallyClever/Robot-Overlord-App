@@ -1,5 +1,0 @@
-# list of all available tools compatible with DHRobot
-
-com.marginallyclever.robotOverlord.dhRobot.DHTool
-com.marginallyclever.robotOverlord.dhRobot.tools.DHTool_GoProCamera
-com.marginallyclever.robotOverlord.dhRobot.tools.DHTool_Gripper

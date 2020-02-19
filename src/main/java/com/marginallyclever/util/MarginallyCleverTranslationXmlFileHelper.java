@@ -1,7 +1,5 @@
 package com.marginallyclever.util;
 
-import static com.marginallyclever.robotOverlord.Translator.WORKING_DIRECTORY;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,7 +22,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.marginallyclever.robotOverlord.Log;
+import com.marginallyclever.robotOverlord.engine.log.Log;
+import com.marginallyclever.robotOverlord.engine.translator.Translator;
 
 /**
  * Helper utility class to aid in loading of language files.
@@ -213,7 +212,7 @@ public final class MarginallyCleverTranslationXmlFileHelper {
   private static URL getLanguagesFolderUrlFromUserDirectory() {
     URL languageFolderUsingUserDirectoryUrl = null;
     try {
-    	File f = new File(WORKING_DIRECTORY);
+    	File f = new File(Translator.WORKING_DIRECTORY);
       languageFolderUsingUserDirectoryUrl = f.toURI().toURL();
     } catch (MalformedURLException e) {
       Log.error( e.getMessage() );

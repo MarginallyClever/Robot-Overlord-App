@@ -1,5 +1,7 @@
 package com.marginallyclever.convenience;
 
+import java.io.Serializable;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -10,7 +12,12 @@ import javax.vecmath.Vector3d;
  * @since 2.1.0
  *
  */
-public class Cuboid {
+public class Cuboid extends BoundingVolume implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6426951750080807468L;
+
 	protected Matrix4d poseWorld;
 
 	protected Vector3d boundTop;  // max limits
@@ -42,9 +49,8 @@ public class Cuboid {
 	}
 	
 	public void updatePoints() {
-		if(!isDirty) return;
-
-		isDirty=false;
+		//if(!isDirty) return;
+		//isDirty=false;
 		
 		p[0].set(boundBottom.x, boundBottom.y, boundBottom.z);
 		p[1].set(boundBottom.x, boundBottom.y, boundTop.z);
@@ -63,11 +69,13 @@ public class Cuboid {
 	}
 
 	public void setBounds(Point3d _boundTop, Point3d _boundBottom) {
-		if(!boundTop.epsilonEquals(_boundTop, 1e-4)) {
+		//if(!boundTop.epsilonEquals(_boundTop, 1e-4)) 
+		{
 			boundTop.set(_boundTop);
 			isDirty=true;
 		}
-		if(!boundBottom.epsilonEquals(_boundBottom, 1e-4)) {
+		//if(!boundBottom.epsilonEquals(_boundBottom, 1e-4))
+		{
 			boundBottom.set(_boundBottom);
 			isDirty=true;
 		}

@@ -19,7 +19,7 @@ import java.util.prefs.Preferences;
 import org.json.JSONObject;
 import org.json.Property;
 
-import com.marginallyclever.robotOverlord.Log;
+import com.marginallyclever.robotOverlord.engine.log.Log;
 
 /**
  * Helper class to be used when accessing preferences.
