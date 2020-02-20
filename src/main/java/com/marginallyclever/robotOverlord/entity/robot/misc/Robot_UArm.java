@@ -19,11 +19,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
 public class Robot_UArm extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private transient Model base;
 	private transient Model shoulder;
 	private transient Model bicep;

@@ -10,7 +10,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,6 +32,10 @@ import javax.swing.JSplitPane;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
+
+import org.json.JSONObject;
+import org.json.simple.parser.ParseException;
+import org.json.simple.parser.JSONParser;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
@@ -290,9 +297,96 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	public void setContextPanel(JComponent panel,String title) {
 		contextMenu.setViewportView(panel);
 	}
+
+	public void saveWorldToFile(String filename) {
+		saveWorldToFileJSON(filename);
+		//saveWorldToFileSerializable(filename);
+	}
 	
-	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
 	public void loadWorldFromFile(String filename) {
+		loadWorldFromFileJSON(filename);
+		//loadWorldFromFileSerializable(filename);
+	}
+	
+	
+	public void saveWorldToFileJSON(String filename) {
+		ObjectOutputStream objectOut=null;
+		try {			
+			JSONObject jWorld = world.toJSON();
+			FileWriter fw = new FileWriter(filename);
+			fw.write(jWorld.toString());
+			fw.flush();
+			fw.close();
+		} catch(IOException e) {
+			System.out.println("World save failed.");
+			e.printStackTrace();
+		} finally {
+			if(objectOut!=null) {
+				try {
+					objectOut.close();
+				} catch(IOException e) {}
+			}
+		}
+	}
+	
+	public void loadWorldFromFileJSON(String filename) {
+		FileReader fr;
+		try {
+			fr = new FileReader(filename);
+			JSONParser parser = new JSONParser();
+			JSONObject jWorld = (JSONObject)parser.parse(fr);
+			world.fromJSON(jWorld);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * See http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
+	 * @param filename
+	 */
+	@Deprecated
+	public void saveWorldToFileSerializable(String filename) {
+		FileOutputStream fout=null;
+		ObjectOutputStream objectOut=null;
+		try {
+			fout = new FileOutputStream(filename);
+			objectOut = new ObjectOutputStream(fout);
+			objectOut.writeObject(world);
+		} catch(java.io.NotSerializableException e) {
+			System.out.println("World can't be serialized.");
+			e.printStackTrace();
+		} catch(IOException e) {
+			System.out.println("World save failed.");
+			e.printStackTrace();
+		} finally {
+			if(objectOut!=null) {
+				try {
+					objectOut.close();
+				} catch(IOException e) {}
+			}
+			if(fout!=null) {
+				try {
+					fout.close();
+				} catch(IOException e) {}
+			}
+		}
+	}
+
+	/**
+	 *  See http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
+	 * @param filename
+	 */
+	@Deprecated
+	public void loadWorldFromFileSerializable(String filename) {
 		FileInputStream fin=null;
 		ObjectInputStream objectIn=null;
 		try {
@@ -325,34 +419,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		}
 	}
 
-	// see http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	public void saveWorldToFile(String filename) {
-		FileOutputStream fout=null;
-		ObjectOutputStream objectOut=null;
-		try {
-			fout = new FileOutputStream(filename);
-			objectOut = new ObjectOutputStream(fout);
-			objectOut.writeObject(world);
-		} catch(java.io.NotSerializableException e) {
-			System.out.println("World can't be serialized.");
-			e.printStackTrace();
-		} catch(IOException e) {
-			System.out.println("World save failed.");
-			e.printStackTrace();
-		} finally {
-			if(objectOut!=null) {
-				try {
-					objectOut.close();
-				} catch(IOException e) {}
-			}
-			if(fout!=null) {
-				try {
-					fout.close();
-				} catch(IOException e) {}
-			}
-		}
-	}
-	
 	public void newWorld() {
 		this.world = new World();
 		pickNothing();

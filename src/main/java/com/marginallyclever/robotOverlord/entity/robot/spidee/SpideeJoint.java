@@ -1,15 +1,12 @@
 package com.marginallyclever.robotOverlord.entity.robot.spidee;
 
-import java.io.Serializable;
+import java.io.IOException;
+import org.json.JSONObject;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.JSONSerializable;
 
-public class SpideeJoint extends SpideeLocation implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5055658323708862756L;
-
+public class SpideeJoint extends SpideeLocation implements JSONSerializable {
 	public static final int ANGLE_HISTORY_LENGTH = (30*3);
 
 	double angle;
@@ -65,5 +62,17 @@ public class SpideeJoint extends SpideeLocation implements Serializable {
 		gl2.glEnd();
 
 		gl2.glPopMatrix();
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

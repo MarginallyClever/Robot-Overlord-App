@@ -1,6 +1,10 @@
 package com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform;
 
+import java.io.IOException;
+
 import javax.vecmath.Vector3d;
+
+import org.json.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
@@ -11,11 +15,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 
 public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	// angle of rotation
 	public RotaryStewartPlatformArm arms[];
 
@@ -446,6 +445,20 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 		lcp.position.p3.set(b.fingerPosition);
 
 		lcp.render(gl2);
+		
+	}
+
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
 		
 	}
 };

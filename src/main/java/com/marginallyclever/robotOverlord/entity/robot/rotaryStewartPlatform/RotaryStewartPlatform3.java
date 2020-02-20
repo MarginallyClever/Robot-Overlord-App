@@ -11,11 +11,6 @@ import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 
 public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8771341196997485169L;
-	
 	protected transient Material matForearm = new Material();
 	protected transient Model modelForearm;
 	protected RotaryStewartPlatform3Dimensions dimensions;

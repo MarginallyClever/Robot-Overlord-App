@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity;
+package com.marginallyclever.robotOverlord.deprecated;
 
 import javax.vecmath.Vector3d;
 
@@ -7,11 +7,6 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 @Deprecated
 public class MotionHelper extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public MotionHelper() {
 		setDisplayName("MotionHelper");
 	}

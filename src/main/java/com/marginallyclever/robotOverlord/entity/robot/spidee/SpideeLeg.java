@@ -1,15 +1,14 @@
 package com.marginallyclever.robotOverlord.entity.robot.spidee;
 
-import java.io.Serializable;
-
+import java.io.IOException;
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.JSONSerializable;
+
 import javax.vecmath.Vector3d;
 
-public class SpideeLeg implements Serializable {
-	  /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3631783587859663314L;
+import org.json.JSONObject;
+
+public class SpideeLeg implements JSONSerializable {
 	String name;
 	  int base_servo_address;
 	  
@@ -76,4 +75,18 @@ public class SpideeLeg implements Serializable {
 
 		  gl2.glEnable(GL2.GL_LIGHTING);
 	  }
+
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }

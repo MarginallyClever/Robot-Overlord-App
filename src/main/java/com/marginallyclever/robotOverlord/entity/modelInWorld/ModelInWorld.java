@@ -17,11 +17,6 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 
 public class ModelInWorld extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 180224086839215506L;
-	
 	protected String filename = null;
 	protected transient Model model;
 	protected transient ModelInWorldPanel modelPanel;

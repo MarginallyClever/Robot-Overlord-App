@@ -1,6 +1,10 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
+import java.io.IOException;
+
 import javax.vecmath.Matrix4d;
+
+import org.json.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -12,11 +16,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class DHKeyframe implements RobotKeyframe {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public double time;
 	
 	public Matrix4d poseIK;
@@ -68,5 +67,17 @@ public class DHKeyframe implements RobotKeyframe {
 		}
 		poseIK.set(arg0.poseIK);
 		time=arg0.time;
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

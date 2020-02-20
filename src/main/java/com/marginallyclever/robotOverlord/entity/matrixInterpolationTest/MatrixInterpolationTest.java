@@ -11,11 +11,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 
 public class MatrixInterpolationTest extends Entity {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public double alpha;
 	public ArrayList<Matrix4d> points;
 	public int index;

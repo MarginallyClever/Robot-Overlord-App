@@ -20,10 +20,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_Mantis extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private transient boolean isFirstTime;
 	DHRobot live;
 	

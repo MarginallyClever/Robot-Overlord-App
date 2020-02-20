@@ -16,11 +16,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 
 public class Material extends Entity {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5412746663260874116L;
-	
 	public float[] diffuse		= {1.00f,1.00f,1.00f,1.00f};
 	public float[] specular 	= {0.85f,0.85f,0.85f,1.00f};
 	public float[] emission 	= {0.01f,0.01f,0.01f,1.00f};

@@ -28,11 +28,6 @@ import java.io.BufferedReader;
 
 public class Spidee 
 extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3568205246113007041L;
-	
 	public static final String hello="HELLO WORLD!  I AM SPIDEE #"; 
 	protected long robotUID=0;
 	

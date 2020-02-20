@@ -1,13 +1,11 @@
 package com.marginallyclever.robotOverlord.uiElements;
 
-import java.io.Serializable;
+import java.io.IOException;
+import org.json.JSONObject;
 
-public class InputToActionGlue implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1995421760741490303L;
+import com.marginallyclever.convenience.JSONSerializable;
 
+public class InputToActionGlue implements JSONSerializable {
 	public String inputControllerName;
 	
 	public String inputComponentName;
@@ -25,5 +23,17 @@ public class InputToActionGlue implements Serializable {
 		inputControllerName = controller;
 		inputComponentName = component;
 		this.isAnalog = isAnalog;
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -18,32 +18,9 @@ public class CameraControlPanel extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 8529190569816182683L;
 	
-	private Camera camera=null;
-	/*
-	private JButton buttonFlyUp;
-	private JButton buttonFlyDown;
-	private JButton buttonFlyLeft;
-	private JButton buttonFlyRight;
-	private JButton buttonFlyForward;
-	private JButton buttonFlyBackward;
-	
-	private JButton buttonLookUp;
-	private JButton buttonLookDown;
-	private JButton buttonLookLeft;
-	private JButton buttonLookRight;
-
-	
-	private JButton createButton(String name) {
-		JButton b = new JButton(name);
-		b.addActionListener(this);
-		return b;
-	}
-*/
-	
 	public CameraControlPanel(RobotOverlord gui,Camera cam) {
 		super();
 		
-		camera=cam;
 		this.setName("Camera");
 /*
 		this.setLayout(new GridBagLayout());

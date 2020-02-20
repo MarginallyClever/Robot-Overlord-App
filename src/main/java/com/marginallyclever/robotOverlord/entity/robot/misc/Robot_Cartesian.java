@@ -19,11 +19,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_Cartesian extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public transient boolean isFirstTime;
 	public Material material;
 	DHRobot live;

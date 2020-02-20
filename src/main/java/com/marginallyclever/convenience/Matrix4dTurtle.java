@@ -1,5 +1,6 @@
 package com.marginallyclever.convenience;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,14 +9,12 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import org.json.JSONObject;
+
 import com.jogamp.opengl.GL2;
 
 
-public class Matrix4dTurtle extends Observable implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6978043252004014704L;
+public class Matrix4dTurtle extends Observable implements JSONSerializable {
 
 	public class InterpolationStep implements Serializable {
 		/**
@@ -230,5 +229,17 @@ public class Matrix4dTurtle extends Observable implements Serializable {
 
 	public double getStepSoFar() {
 		return thisStepSoFar;
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

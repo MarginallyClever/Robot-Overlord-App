@@ -12,11 +12,6 @@ import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 public class GridEntity extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8074503376666625987L;
-	
 	public double width=100;
 	public double height=100;
 	

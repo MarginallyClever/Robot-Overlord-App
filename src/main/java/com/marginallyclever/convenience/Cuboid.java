@@ -1,10 +1,12 @@
 package com.marginallyclever.convenience;
 
-import java.io.Serializable;
+import java.io.IOException;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+
+import org.json.JSONObject;
 
 /**
  * 
@@ -12,12 +14,7 @@ import javax.vecmath.Vector3d;
  * @since 2.1.0
  *
  */
-public class Cuboid extends BoundingVolume implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6426951750080807468L;
-
+public class Cuboid extends BoundingVolume implements JSONSerializable {
 	protected Matrix4d poseWorld;
 
 	protected Vector3d boundTop;  // max limits
@@ -86,6 +83,18 @@ public class Cuboid extends BoundingVolume implements Serializable {
 			poseWorld.set(m);
 			isDirty=true;
 		}
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

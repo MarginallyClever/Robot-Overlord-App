@@ -13,11 +13,6 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
  *
  */
 public class DHTool_GoProCamera extends DHTool {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4493219249970529745L;
-
 	public DHTool_GoProCamera() {
 		super();
 		dhLink.setD(8);  // cm

@@ -19,11 +19,6 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  *
  */
 public class DragBall extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2233212276793302070L;
-	
 	enum SlideDirection {
 	SLIDE_XPOS,
 	SLIDE_XNEG,

@@ -10,11 +10,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 public class Light extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3002135757633709477L;
-	
 	public int index=0;
 	private boolean enabled=true;
 	private float[] position={1,1,1,0};

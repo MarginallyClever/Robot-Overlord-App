@@ -28,11 +28,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 public class DeltaRobot3
 extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7173262402738411169L;
-	
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";

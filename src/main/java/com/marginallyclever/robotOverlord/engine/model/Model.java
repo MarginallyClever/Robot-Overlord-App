@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.model;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,19 +9,17 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import org.json.JSONObject;
+
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.JSONSerializable;
 
 /**
  * contains the vertex, normal, and texture data for a 3D model.
  * @author dan royer
  *
  */
-public class Model implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7136313382885361812L;
-	
+public class Model implements JSONSerializable {
 	public final static int NUM_BUFFERS=4;  // verts, normals, textureCoordinates
 	
 	protected String sourceName;
@@ -379,5 +377,19 @@ public class Model implements Serializable {
 
 	public Point3d getBoundTop() {
 		return boundTop;
+	}
+
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

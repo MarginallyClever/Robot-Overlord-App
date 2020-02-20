@@ -30,11 +30,6 @@ import com.marginallyclever.robotOverlord.entity.world.World;
  * @author Dan Royer
  */
 public class Sixi2ControlBox extends ModelInWorld {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	protected Sixi2 target;
 	protected BufferedReader gcodeFile;
 	protected Sixi2ControlBoxPanel panel;

@@ -13,11 +13,6 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
  */
 public class DHTool extends ModelInWorld {
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	/**
 	 * A DHLink representation of this tool for kinematic solving.
 	 */
 	public DHLink dhLink;

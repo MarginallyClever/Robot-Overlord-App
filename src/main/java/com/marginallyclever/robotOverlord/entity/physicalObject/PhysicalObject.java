@@ -16,11 +16,6 @@ import com.marginallyclever.robotOverlord.entity.world.World;
 
 public abstract class PhysicalObject extends Entity {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1804941485489224976L;
-
 	protected Matrix4d matrix;	// position and orientation
 	protected Cuboid cuboid;	// physical limits
 	

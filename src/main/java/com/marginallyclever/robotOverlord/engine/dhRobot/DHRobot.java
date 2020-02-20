@@ -2,16 +2,19 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.util.List;
 import java.util.Observable;
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import org.json.JSONObject;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
@@ -25,12 +28,7 @@ import com.marginallyclever.robotOverlord.entity.world.World;
  * 
  * @author Dan Royer
  */
-public class DHRobot extends Observable implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6759482413128098203L;
-	
+public class DHRobot extends Observable implements JSONSerializable {
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links;
 	// The solver for this type of robot
@@ -522,5 +520,17 @@ public class DHRobot extends Observable implements Serializable {
 
 	public void setParent(PhysicalObject parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -29,11 +29,6 @@ import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 public class RotaryStewartPlatform extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1816224308642132316L;
-
 	// machine ID
 	protected long robotUID;
 

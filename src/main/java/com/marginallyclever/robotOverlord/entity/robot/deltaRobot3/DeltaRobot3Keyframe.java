@@ -1,6 +1,10 @@
 package com.marginallyclever.robotOverlord.entity.robot.deltaRobot3;
 
+import java.io.IOException;
+
 import javax.vecmath.Vector3d;
+
+import org.json.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -12,11 +16,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class DeltaRobot3Keyframe implements RobotKeyframe {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -772543196787298414L;
-
 	// angle of rotation
 	public DeltaRobot3Arm arms[];
 
@@ -70,6 +69,18 @@ public class DeltaRobot3Keyframe implements RobotKeyframe {
 
 	@Override
 	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

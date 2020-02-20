@@ -1,20 +1,17 @@
 package com.marginallyclever.robotOverlord.engine;
 
 
-import java.io.Serializable;
+import java.io.IOException;
+import org.json.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
 
-public class ViewCube implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2752275265622095986L;
-	
+public class ViewCube implements JSONSerializable {
 	protected transient boolean isSetup = false;
 	protected transient boolean areTexturesLoaded = false;
 	protected transient Texture t0,t1,t2,t3,t4,t5,shadow;
@@ -201,5 +198,17 @@ public class ViewCube implements Serializable {
 		gl2.glPopMatrix();
 
 		//gl2.glEnable(GL2.GL_DEPTH_TEST);
+	}
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

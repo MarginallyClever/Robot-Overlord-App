@@ -18,11 +18,6 @@ import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
 
 public class SixiJoystick extends ModelInWorld implements NetworkConnectionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1645097210021141638L;
-	
 	private Sixi2 target;
 	private SixiJoystickPanel panel;
 	private NetworkConnection connection;

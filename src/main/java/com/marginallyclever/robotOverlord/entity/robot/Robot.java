@@ -19,11 +19,6 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
  *
  */
 public abstract class Robot extends PhysicalObject implements NetworkConnectionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1970631551615654640L;
-	
 	// comms	
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;

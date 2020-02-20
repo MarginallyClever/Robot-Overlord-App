@@ -15,10 +15,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_GMF_M100 extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	DHRobot live;
 
 	public Robot_GMF_M100() {

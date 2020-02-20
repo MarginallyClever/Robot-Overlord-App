@@ -27,11 +27,6 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  */
 public class DHTool_Gripper extends DHTool {
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 127023987907031123L;
-
-	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
 	private transient PhysicalObject subjectBeingHeld;

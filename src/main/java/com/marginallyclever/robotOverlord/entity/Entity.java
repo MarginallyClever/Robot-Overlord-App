@@ -1,15 +1,18 @@
 package com.marginallyclever.robotOverlord.entity;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+
+import org.json.JSONObject;
 
 
 /**
@@ -17,11 +20,7 @@ import javax.swing.JTabbedPane;
  * @author danroyer
  *
  */
-public class Entity implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2461060493057258044L;
+public class Entity implements JSONSerializable {
 	
 	private String displayName;
 	private int pickName;
@@ -175,5 +174,19 @@ public class Entity implements Serializable {
 	 */
 	public String getStatusMessage() {
 		return "";
+	}
+
+
+	@Override
+	public JSONObject toJSON() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

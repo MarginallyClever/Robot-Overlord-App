@@ -9,12 +9,6 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 @Deprecated
 public class Waypoint extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3308765172620128567L;
-
-
 	public Waypoint() {}
 
 		

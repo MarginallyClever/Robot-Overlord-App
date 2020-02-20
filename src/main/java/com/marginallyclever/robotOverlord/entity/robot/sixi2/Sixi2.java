@@ -37,11 +37,6 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
 
 public class Sixi2 extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public enum InterpolationStyle {
 	LINEAR,
 	JACOBIAN,

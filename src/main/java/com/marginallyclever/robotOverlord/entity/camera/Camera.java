@@ -19,11 +19,6 @@ import java.util.ArrayList;
  * @author Dan Royer
  */
 public class Camera extends PhysicalObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7511310951758205827L;
-	
 	// orientation
 	protected Vector3d forward = new Vector3d(1,0,0);
 	protected Vector3d right = new Vector3d(0,1,0);

@@ -15,10 +15,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 
 public class Robot_Sixi1 extends Robot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	protected transient boolean isFirstTime;
 	protected Material material;
 	protected DHRobot live;

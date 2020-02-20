@@ -21,11 +21,6 @@ public class BoxObject extends PhysicalObject {
 	protected BoxObjectPanel boxPanel;
 	protected MaterialControlPanel materialPanel;
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	Material mat;
 	
 	public BoxObject() {

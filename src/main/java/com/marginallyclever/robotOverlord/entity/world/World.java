@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.world;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.ViewCube;
@@ -34,14 +34,7 @@ import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Six
  * Container for all the visible objects in a scene.
  * @author danroyer
  */
-public class World extends Entity
-implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2405142728731535038L;
-
+public class World extends Entity implements JSONSerializable {
 	protected transient NetworkConnectionManager connectionManager = new NetworkConnectionManager();
 
 	protected transient boolean areSkyboxTexturesLoaded;
