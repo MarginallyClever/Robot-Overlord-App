@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.uiElements;
 
 import java.io.IOException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 import com.marginallyclever.convenience.JSONSerializable;
 

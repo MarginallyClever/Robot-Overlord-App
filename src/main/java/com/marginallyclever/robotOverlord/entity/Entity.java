@@ -12,7 +12,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 
 /**
@@ -177,16 +178,37 @@ public class Entity implements JSONSerializable {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
+		JSONObject me = new JSONObject();
+		
+		// get class
+		String className="";
+		Class<?> enclosingClass = getClass().getEnclosingClass();
+		if (enclosingClass != null) {
+			className=enclosingClass.getName();
+		} else {
+			className=getClass().getName();
+		}
+		
+		me.put("class",className);
+		// entity name
+		me.put("displayName", getDisplayName());
+
+		JSONArray entities = new JSONArray();
+		for( Entity e : children ) {
+			entities.add(e.toJSON());
+		}
+		
+		me.put("children", entities);
+
+		return me;
 	}
 
 
 	@Override
 	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
 		
 	}
 }

@@ -9,7 +9,7 @@ import java.util.Iterator;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;

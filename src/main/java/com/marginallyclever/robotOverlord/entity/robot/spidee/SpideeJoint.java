@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.robot.spidee;
 
 import java.io.IOException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.JSONSerializable;

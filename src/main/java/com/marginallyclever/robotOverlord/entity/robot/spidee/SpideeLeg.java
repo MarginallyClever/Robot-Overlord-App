@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.JSONSerializable;
 
 import javax.vecmath.Vector3d;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 public class SpideeLeg implements JSONSerializable {
 	String name;

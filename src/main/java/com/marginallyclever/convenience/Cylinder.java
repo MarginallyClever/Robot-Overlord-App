@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import javax.vecmath.Vector3d;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 
 public class Cylinder extends BoundingVolume implements JSONSerializable {

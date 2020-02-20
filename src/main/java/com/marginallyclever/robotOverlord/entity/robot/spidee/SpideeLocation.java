@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.entity.robot.spidee;
 import java.io.IOException;
 import javax.vecmath.Vector3d;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 import com.marginallyclever.convenience.JSONSerializable;
 

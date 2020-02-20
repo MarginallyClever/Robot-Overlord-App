@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
+import java.util.Date;
 import java.util.prefs.Preferences;
 
 import javax.swing.JComponent;
@@ -33,7 +34,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
@@ -86,7 +87,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	static final public int SELECT_BUFFER_SIZE=256;
 	static final public int DEFAULT_FRAMES_PER_SECOND = 30;
 	
-	protected transient NetworkConnectionManager connectionManager;
 	protected World world;
 
 	// select picking
@@ -139,6 +139,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	
 	// opengl rendering context
 	private GLU glu;
+	protected transient NetworkConnectionManager connectionManager = new NetworkConnectionManager();
 	
 	
  	protected RobotOverlord() {
@@ -308,13 +309,24 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		//loadWorldFromFileSerializable(filename);
 	}
 	
-	
+
+	@SuppressWarnings("unchecked")
 	public void saveWorldToFileJSON(String filename) {
 		ObjectOutputStream objectOut=null;
-		try {			
-			JSONObject jWorld = world.toJSON();
+		try {
+			JSONObject me = new JSONObject();
+
+			// meta data
+			JSONObject meta = new JSONObject();
+			meta.put("version", new String(RobotOverlord.VERSION));
+			meta.put("date", new Date());
+			me.put("meta", meta);
+		
+			// world contents
+			me.put("world", world.toJSON());
+			
 			FileWriter fw = new FileWriter(filename);
-			fw.write(jWorld.toString());
+			fw.write(me.toString());
 			fw.flush();
 			fw.close();
 		} catch(IOException e) {
@@ -328,13 +340,16 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			}
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public void loadWorldFromFileJSON(String filename) {
 		FileReader fr;
 		try {
 			fr = new FileReader(filename);
 			JSONParser parser = new JSONParser();
-			JSONObject jWorld = (JSONObject)parser.parse(fr);
+			JSONObject me = (JSONObject)parser.parse(fr);
+			//JSONObject meta = (JSONObject)me.get("meta");
+			JSONObject jWorld = (JSONObject)me.get("world");
 			world.fromJSON(jWorld);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

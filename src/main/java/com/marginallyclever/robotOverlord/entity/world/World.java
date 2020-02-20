@@ -1,18 +1,19 @@
 package com.marginallyclever.robotOverlord.entity.world;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.jogamp.opengl.GL2;
 
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import org.json.simple.JSONObject;
+
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.IntersectionTester;
@@ -35,8 +36,6 @@ import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Six
  * @author danroyer
  */
 public class World extends Entity implements JSONSerializable {
-	protected transient NetworkConnectionManager connectionManager = new NetworkConnectionManager();
-
 	protected transient boolean areSkyboxTexturesLoaded;
 
 	public final static Matrix4d pose = new Matrix4d();
@@ -533,4 +532,18 @@ public class World extends Entity implements JSONSerializable {
 		// no intersection
 		return false;
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public JSONObject toJSON() {
+		JSONObject me = super.toJSON();
+
+		return me;
+	}
+
+	@Override
+	public void fromJSON(JSONObject arg0) throws IOException {
+		super.fromJSON(arg0);
+	}
+	
 }
