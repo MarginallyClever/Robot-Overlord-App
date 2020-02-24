@@ -1,5 +1,5 @@
 package com.marginallyclever.robotOverlord;
-
+/*
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -29,6 +29,7 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.junit.Test;
+
 
 public class DL4JTest {
 	//@Test
@@ -168,11 +169,11 @@ public class DL4JTest {
             model.fit(trainingData);
             System.out.println("*** Completed epoch "+i+" ***");
         }
-/*
-        System.out.println("Evaluate model....");
-        Evaluation eval = new Evaluation(6);
-        INDArray output = model.output(testData.getFeatures());
-*/
+
+        //System.out.println("Evaluate model....");
+        //Evaluation eval = new Evaluation(6);
+        //INDArray output = model.output(testData.getFeatures());
+
         @SuppressWarnings({ "rawtypes", "unchecked" })
 		DataSetIterator iter = new ListDataSetIterator(testData.asList(),batchSize);
         iter.reset();
@@ -184,3 +185,4 @@ public class DL4JTest {
         System.out.println("****************Example finished********************");
 	}
 }
+*/
