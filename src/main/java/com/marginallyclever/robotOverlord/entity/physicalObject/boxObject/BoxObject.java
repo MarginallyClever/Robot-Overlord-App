@@ -30,7 +30,8 @@ public class BoxObject extends PhysicalObject {
 		mat=new Material();
 	}
 	
-	
+
+	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();

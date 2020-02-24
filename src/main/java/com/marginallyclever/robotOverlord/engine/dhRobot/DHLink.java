@@ -1,16 +1,12 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
-import java.io.IOException;
 import java.util.Observable;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 
@@ -19,7 +15,7 @@ import com.marginallyclever.robotOverlord.engine.model.Model;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends Observable implements JSONSerializable {
+public class DHLink extends Observable {
 	// length (mm) along previous Z to the common normal
 	private double d;
 	// angle (degrees) about previous Z, from old X to new X
@@ -409,17 +405,5 @@ public class DHLink extends Observable implements JSONSerializable {
 	public void setRange(double rangeMin,double rangeMax) {
 		setRangeMin(rangeMin);
 		setRangeMax(rangeMax);
-	}
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

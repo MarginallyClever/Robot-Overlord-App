@@ -42,7 +42,8 @@ public class ModelInWorld extends PhysicalObject {
 		return filename;
 	}
 	
-	
+
+	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
@@ -108,7 +109,8 @@ public class ModelInWorld extends PhysicalObject {
 		return new Vector3d(rotationAdjust);
 	}
 	
-	
+
+	@Override
 	public void render(GL2 gl2) {
 		if( model==null && filename != null ) {
 			try {

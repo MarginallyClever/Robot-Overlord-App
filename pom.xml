@@ -6,7 +6,7 @@
 
   <groupId>com.marginallyclever</groupId>
   <artifactId>Robot-Overlord</artifactId>
-  <version>2.0.0</version>
+  <version>1.6.0</version>
   <name>Robot Overlord</name>
   <description>A friendly 3D user interface for controlling robots. 
 
@@ -205,9 +205,9 @@
           <version>2.18.1</version>
         </plugin>
         <!-- End of plugins defined originally only in Super POM  -->
+          <!--<version>2.10</version> -->
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
-          <!--<version>2.10</version> -->
         <configuration>
           <ignoreNonCompile>${maven-dependency-plugin.ignoreNonCompile}</ignoreNonCompile>
         </configuration>
@@ -263,16 +263,13 @@
     	<scope>system</scope>
     	<systemPath>${project.basedir}/local-maven-repo/jssc-2.9.1.jar</systemPath>
 	</dependency>
-    <dependency>
-      <groupId>org.jogamp.gluegen</groupId>
-      <artifactId>gluegen-rt-main</artifactId>
-      <version>${jogl.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jogamp.jogl</groupId>
-      <artifactId>jogl-all-main</artifactId>
-      <version>${jogl.version}</version>
-    </dependency>
+
+	<dependency>
+	  <groupId>org.jogamp.fat</groupId>
+	  <artifactId>jogamp-fat</artifactId>
+	  <version>2.4.0</version>
+	</dependency>
+	
     <!-- http://kabeja.sourceforge.net/download/download.html -->
     <dependency>
       <groupId>org.kabeja</groupId>
@@ -303,17 +300,28 @@
       <version>4.12</version>
       <!--  <scope>test</scope>-->
     </dependency>
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>20150729</version>
-    </dependency>
-   	<dependency>
-		<groupId>com.googlecode.json-simple</groupId>
-		<artifactId>json-simple</artifactId>
-		<version>1.1.1</version>
-	</dependency>
     
+    <!-- used for some src/main/java/util/PreferencesHelper logging -->
+    <!-- https://mvnrepository.com/artifact/org.json/json -->
+	<dependency>
+	    <groupId>org.json</groupId>
+	    <artifactId>json</artifactId>
+	    <version>20190722</version>
+	</dependency>
+	
+	<!-- Jackson is used for converting java objects to JSON and back. -->
+	<dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-databind</artifactId>
+		<version>${jackson.version}</version>
+	</dependency>
+	<!-- annotations let us ignore transient variables. -->
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-annotations</artifactId>
+	    <version>${jackson-annotations-version}</version>
+	</dependency>
+	
     <dependency>
       <groupId>org.jetbrains</groupId>
       <artifactId>annotations</artifactId>
@@ -375,7 +383,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <minimum.maven.version>3.3.1</minimum.maven.version>
     <minimum.java.version>1.8</minimum.java.version>
-    <jogl.version>2.3.2</jogl.version>
+    <jogl.version>2.4.0</jogl.version>
     <jinput.version>2.0.7</jinput.version>
     <maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
 
@@ -387,6 +395,8 @@
     <datavec.version>1.0.0-beta</datavec.version>
     <arbiter.version>1.0.0-beta</arbiter.version>
     <rl4j.version>1.0.0-beta</rl4j.version>
+    <jackson.version>2.10.0</jackson.version>
+    <jackson-annotations-version>2.10.2</jackson-annotations-version>
   </properties>
 
   <repositories>

@@ -1,11 +1,7 @@
 package com.marginallyclever.robotOverlord.uiElements;
 
-import java.io.IOException;
-import org.json.simple.JSONObject;
 
-import com.marginallyclever.convenience.JSONSerializable;
-
-public class InputToActionGlue implements JSONSerializable {
+public class InputToActionGlue  {
 	public String inputControllerName;
 	
 	public String inputComponentName;
@@ -23,17 +19,5 @@ public class InputToActionGlue implements JSONSerializable {
 		inputControllerName = controller;
 		inputComponentName = component;
 		this.isAnalog = isAnalog;
-	}
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

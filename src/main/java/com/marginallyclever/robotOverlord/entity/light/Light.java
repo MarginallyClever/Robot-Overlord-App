@@ -24,7 +24,8 @@ public class Light extends PhysicalObject {
 		setDisplayName("Light");
 	}
 
-	
+
+	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
@@ -35,7 +36,8 @@ public class Light extends PhysicalObject {
 		return list;
 	}
 	
-	
+
+	@Override
 	public void render(GL2 gl2) {
 		int i = GL2.GL_LIGHT0+index;
 		if(!enabled) {

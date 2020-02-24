@@ -8,6 +8,7 @@ import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceK
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,12 @@ import com.marginallyclever.robotOverlord.engine.log.Log;
  * @author Peter Colapietro
  * @since v7.1.4
  */
-public final class PreferencesHelper {
+public final class PreferencesHelper implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Internal mapping of all Makelangelo preference nodes.
@@ -272,12 +278,10 @@ public final class PreferencesHelper {
 	}
 
 	/**
-	 * @param <P> an extension of Preferences
 	 * @param properties Properties to be logged.
 	 */
 	public static <P extends Properties> void logPropertiesNode(P properties) {
 		final JSONObject jsonObject = Property.toJSONObject(properties);
 		Log.message( jsonObject.toString());
 	}
-
 }

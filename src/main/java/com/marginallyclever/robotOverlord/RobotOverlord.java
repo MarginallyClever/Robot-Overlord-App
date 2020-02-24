@@ -9,16 +9,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
-import java.util.Date;
 import java.util.prefs.Preferences;
 
 import javax.swing.JComponent;
@@ -34,10 +31,11 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
-import org.json.simple.parser.JSONParser;
-
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -310,55 +308,39 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	}
 	
 
-	@SuppressWarnings("unchecked")
+	protected ObjectMapper getObjectMapper() {
+		ObjectMapper om = new ObjectMapper();
+		om.enable(SerializationFeature.INDENT_OUTPUT);/*
+		om.setVisibility(
+					om.getSerializationConfig().
+					getDefaultVisibilityChecker().
+					withFieldVisibility(Visibility.ANY).
+					withGetterVisibility(Visibility.NONE));*/
+		return om;
+	}
+	
 	public void saveWorldToFileJSON(String filename) {
-		ObjectOutputStream objectOut=null;
+		ObjectMapper om = getObjectMapper();
 		try {
-			JSONObject me = new JSONObject();
-
-			// meta data
-			JSONObject meta = new JSONObject();
-			meta.put("version", new String(RobotOverlord.VERSION));
-			meta.put("date", new Date());
-			me.put("meta", meta);
-		
-			// world contents
-			me.put("world", world.toJSON());
-			
-			FileWriter fw = new FileWriter(filename);
-			fw.write(me.toString());
-			fw.flush();
-			fw.close();
-		} catch(IOException e) {
-			System.out.println("World save failed.");
+			om.writeValue(new File(filename), world);
+		} catch (JsonGenerationException e) {
 			e.printStackTrace();
-		} finally {
-			if(objectOut!=null) {
-				try {
-					objectOut.close();
-				} catch(IOException e) {}
-			}
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void loadWorldFromFileJSON(String filename) {
-		FileReader fr;
+		ObjectMapper om = getObjectMapper();
 		try {
-			fr = new FileReader(filename);
-			JSONParser parser = new JSONParser();
-			JSONObject me = (JSONObject)parser.parse(fr);
-			//JSONObject meta = (JSONObject)me.get("meta");
-			JSONObject jWorld = (JSONObject)me.get("world");
-			world.fromJSON(jWorld);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			world = (World)om.readValue(new File(filename), World.class);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

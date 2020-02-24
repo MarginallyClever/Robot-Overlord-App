@@ -170,6 +170,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	
 	// Must be called by subclass to loadModels on render.
+	@Override
 	public void render(GL2 gl2) {
 		if(!isModelLoaded) {
 			loadModels(gl2);

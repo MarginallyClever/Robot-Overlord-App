@@ -1,17 +1,13 @@
 package com.marginallyclever.robotOverlord.engine;
 
 
-import java.io.IOException;
-import org.json.simple.JSONObject;
-
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
 
-public class ViewCube implements JSONSerializable {
+public class ViewCube {
 	protected transient boolean isSetup = false;
 	protected transient boolean areTexturesLoaded = false;
 	protected transient Texture t0,t1,t2,t3,t4,t5,shadow;
@@ -198,17 +194,5 @@ public class ViewCube implements JSONSerializable {
 		gl2.glPopMatrix();
 
 		//gl2.glEnable(GL2.GL_DEPTH_TEST);
-	}
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

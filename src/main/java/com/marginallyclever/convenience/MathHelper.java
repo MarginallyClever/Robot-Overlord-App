@@ -265,11 +265,11 @@ public class MathHelper {
 	/**
 	 * find distance to box, if hit.
 	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-	 * @param rayPoint 
+	 * @param rayPoint start of ray
 	 * @param rayNormal direction of ray
-	 * @param boxMin
-	 * @param boxMax
-	 * @return >=0 for hit, negative numbers for hits behind camera and no hit.
+	 * @param boxMin lower bounds
+	 * @param boxMax upper bounds
+	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
 	 */
 	static public double rayBoxIntersection(final Vector3d rayPoint,final Vector3d rayNormal,final Point3d boxMin,final Point3d boxMax) {
 	    double tmin = (boxMin.x - rayPoint.x) / rayNormal.x; 

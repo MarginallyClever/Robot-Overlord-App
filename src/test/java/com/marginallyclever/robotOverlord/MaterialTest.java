@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 
 public class MaterialTest {
-	@Test
+	//@Test
 	public void testLoadAndSave() {
 		Material m1 = new Material();
 		@SuppressWarnings("unused")

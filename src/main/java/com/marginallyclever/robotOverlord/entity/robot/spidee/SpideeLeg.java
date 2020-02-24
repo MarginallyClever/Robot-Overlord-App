@@ -1,14 +1,11 @@
 package com.marginallyclever.robotOverlord.entity.robot.spidee;
 
-import java.io.IOException;
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.JSONSerializable;
 
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
 
-public class SpideeLeg implements JSONSerializable {
+public class SpideeLeg  {
 	String name;
 	  int base_servo_address;
 	  
@@ -75,18 +72,4 @@ public class SpideeLeg implements JSONSerializable {
 
 		  gl2.glEnable(GL2.GL_LIGHTING);
 	  }
-
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
 }

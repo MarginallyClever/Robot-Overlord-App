@@ -1,10 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
-import java.io.IOException;
-
 import javax.vecmath.Matrix4d;
-
-import org.json.simple.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -67,17 +63,5 @@ public class DHKeyframe implements RobotKeyframe {
 		}
 		poseIK.set(arg0.poseIK);
 		time=arg0.time;
-	}
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

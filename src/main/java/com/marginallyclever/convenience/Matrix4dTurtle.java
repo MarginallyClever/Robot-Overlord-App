@@ -1,7 +1,5 @@
 package com.marginallyclever.convenience;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -9,19 +7,12 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
-
 import com.jogamp.opengl.GL2;
 
 
-public class Matrix4dTurtle extends Observable implements JSONSerializable {
+public class Matrix4dTurtle extends Observable {
 
-	public class InterpolationStep implements Serializable {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -7214489987163121126L;
-		
+	public class InterpolationStep {		
 		public Matrix4d targetIK;
 		public double   duration;
 		
@@ -229,17 +220,5 @@ public class Matrix4dTurtle extends Observable implements JSONSerializable {
 
 	public double getStepSoFar() {
 		return thisStepSoFar;
-	}
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

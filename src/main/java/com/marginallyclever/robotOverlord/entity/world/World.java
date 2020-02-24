@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.world;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
@@ -17,7 +15,6 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.IntersectionTester;
-import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.ViewCube;
@@ -35,18 +32,18 @@ import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Six
  * Container for all the visible objects in a scene.
  * @author danroyer
  */
-public class World extends Entity implements JSONSerializable {
-	protected transient boolean areSkyboxTexturesLoaded;
-
+public class World extends Entity {
 	public final static Matrix4d pose = new Matrix4d();
 	// TODO lose these junk vectors that don't match assumptions, anyhow.
 	public final static Vector3d forward = new Vector3d(0,0,1);
 	public final static Vector3d right = new Vector3d(1,0,0);
 	public final static Vector3d up = new Vector3d(0,1,0);
 	
-	// world contents
 	protected Camera camera = new Camera();
 	//protected CameraMount freeCamera;
+
+	// background, if any
+	protected transient boolean areSkyboxTexturesLoaded;
 	protected transient Texture skyboxtextureXPos,
 								skyboxtextureXNeg,
 								skyboxtextureYPos,
@@ -54,12 +51,17 @@ public class World extends Entity implements JSONSerializable {
 								skyboxtextureZPos,
 								skyboxtextureZNeg;
 
+	// ray picking
+	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient Vector3d pickForward;
 	protected transient Vector3d pickRight;
 	protected transient Vector3d pickUp;
 	protected transient Vector3d pickRay;
-	protected transient boolean isSetup;
 	
+	protected transient boolean isSetup;
+
+	// The box in the top right of the user view that shows your orientation in the world.
+	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCube viewCube;
 	
 	protected transient WorldControlPanel worldControlPanel;
@@ -522,7 +524,7 @@ public class World extends Entity implements JSONSerializable {
 			// now we have both lists, test them against each other.
 			for( Cuboid a : listA ) {
 				for( Cuboid b : listB ) {
-					if( IntersectionTester.cuboidCuboid( a, b ) ) {
+					if( IntersectionTester.cuboidCuboid(a,b) ) {
 						return true;
 					}
 				}
@@ -532,18 +534,4 @@ public class World extends Entity implements JSONSerializable {
 		// no intersection
 		return false;
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public JSONObject toJSON() {
-		JSONObject me = super.toJSON();
-
-		return me;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		super.fromJSON(arg0);
-	}
-	
 }

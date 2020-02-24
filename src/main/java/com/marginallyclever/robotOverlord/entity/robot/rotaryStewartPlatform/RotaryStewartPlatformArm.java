@@ -1,13 +1,10 @@
 package com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform;
 
-import java.io.IOException;
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
 
-import com.marginallyclever.convenience.JSONSerializable;
 
-public class RotaryStewartPlatformArm implements JSONSerializable {
+public class RotaryStewartPlatformArm {
 	public Vector3d shoulder = new Vector3d();
 	public Vector3d elbow = new Vector3d();
 	public Vector3d shoulderToElbow = new Vector3d();
@@ -22,19 +19,5 @@ public class RotaryStewartPlatformArm implements JSONSerializable {
 		wrist.set(other.wrist);
 
 		angle = other.angle;
-	}
-
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

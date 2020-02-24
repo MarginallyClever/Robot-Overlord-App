@@ -1,13 +1,9 @@
 package com.marginallyclever.convenience;
 
-import java.io.IOException;
-
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
 
-
-public class Cylinder extends BoundingVolume implements JSONSerializable {
+public class Cylinder extends BoundingVolume {
 	private Vector3d p1 = new Vector3d(0,0,0);
 	private Vector3d p2 = new Vector3d(0,0,0);
 	private Vector3d n = new Vector3d(0,0,0);
@@ -82,15 +78,5 @@ public class Cylinder extends BoundingVolume implements JSONSerializable {
 		r.normalize();
 		f.cross(n, r);
 		f.normalize();
-	}
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

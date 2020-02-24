@@ -45,7 +45,8 @@ public class Camera extends PhysicalObject {
 		fov=60;
 	}
 
-	
+
+	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
@@ -99,7 +100,8 @@ public class Camera extends PhysicalObject {
 		c.transpose();
 		setRotation(c);
 	}
-	
+
+	@Override
 	public void update(double dt) {
 		updateMatrix();
 		
@@ -170,6 +172,7 @@ public class Camera extends PhysicalObject {
 	}
 	
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
+	@Override
 	public void render(GL2 gl2) {
 		Vector3d p = getPosition();
 		

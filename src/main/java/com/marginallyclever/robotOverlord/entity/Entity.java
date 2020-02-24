@@ -1,19 +1,14 @@
 package com.marginallyclever.robotOverlord.entity;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 
 /**
@@ -21,7 +16,7 @@ import org.json.simple.JSONObject;
  * @author danroyer
  *
  */
-public class Entity implements JSONSerializable {
+public class Entity {
 	
 	private String displayName;
 	private int pickName;
@@ -175,40 +170,5 @@ public class Entity implements JSONSerializable {
 	 */
 	public String getStatusMessage() {
 		return "";
-	}
-
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public JSONObject toJSON() {
-		JSONObject me = new JSONObject();
-		
-		// get class
-		String className="";
-		Class<?> enclosingClass = getClass().getEnclosingClass();
-		if (enclosingClass != null) {
-			className=enclosingClass.getName();
-		} else {
-			className=getClass().getName();
-		}
-		
-		me.put("class",className);
-		// entity name
-		me.put("displayName", getDisplayName());
-
-		JSONArray entities = new JSONArray();
-		for( Entity e : children ) {
-			entities.add(e.toJSON());
-		}
-		
-		me.put("children", entities);
-
-		return me;
-	}
-
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		
 	}
 }

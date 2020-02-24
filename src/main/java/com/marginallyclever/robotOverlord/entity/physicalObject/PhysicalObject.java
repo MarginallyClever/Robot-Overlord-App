@@ -15,7 +15,6 @@ import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
 public abstract class PhysicalObject extends Entity {
-
 	protected Matrix4d matrix;	// position and orientation
 	protected Cuboid cuboid;	// physical limits
 	
@@ -35,6 +34,7 @@ public abstract class PhysicalObject extends Entity {
 	 * @param gui the main application instance.
 	 * @return the list of physicalObjectControlPanels 
 	 */
+	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
@@ -116,7 +116,6 @@ public abstract class PhysicalObject extends Entity {
 		}
 		return null;
 	}
-
 
 	/**
 	 * 

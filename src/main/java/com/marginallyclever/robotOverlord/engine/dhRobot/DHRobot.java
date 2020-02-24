@@ -2,19 +2,15 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.util.List;
 import java.util.Observable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import org.json.simple.JSONObject;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
-import com.marginallyclever.convenience.JSONSerializable;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
@@ -28,7 +24,7 @@ import com.marginallyclever.robotOverlord.entity.world.World;
  * 
  * @author Dan Royer
  */
-public class DHRobot extends Observable implements JSONSerializable {
+public class DHRobot extends Observable {
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links;
 	// The solver for this type of robot
@@ -116,14 +112,11 @@ public class DHRobot extends Observable implements JSONSerializable {
 	}
 
 
-	/**
-	 * Set the solver.
-	 * @return the IK solver for a specific type of robot.
-	 */
 	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
 	}
 
+	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 	
@@ -404,7 +397,6 @@ public class DHRobot extends Observable implements JSONSerializable {
 	/**
 	 * Find the forward kinematic pose of robot r that would give an end effector matrix matching m.
 	 * If the FK pose is found, set the adjustable values of the links to said pose.
-	 * @param r the DHRobot to set
 	 * @param m the matrix of the finger tip of the robot, relative to the base of the robot.
 	 */
 	public boolean setPoseIK(Matrix4d m) {
@@ -520,17 +512,5 @@ public class DHRobot extends Observable implements JSONSerializable {
 
 	public void setParent(PhysicalObject parent) {
 		this.parent = parent;
-	}
-
-	@Override
-	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void fromJSON(JSONObject arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 }

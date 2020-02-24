@@ -1,14 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.robot;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.JSONSerializable;
 
 /**
  * A RobotMotionState is a snapshot of a robot at a moment in time.
  * @author Dan Royer
  *
  */
-public interface RobotKeyframe extends JSONSerializable {
+public interface RobotKeyframe {
 	
 	/**
 	 * Fill this instance with the interpolated value of (b-a)*t+a, where t={0..1}.  
