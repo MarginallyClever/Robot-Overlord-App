@@ -23,14 +23,12 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.entity.world.World;
 
 /**
  * 
  * @author Dan Royer
  */
 public class Sixi2ControlBox extends ModelInWorld {
-	protected Sixi2 target;
 	protected BufferedReader gcodeFile;
 	protected Sixi2ControlBoxPanel panel;
 	protected String fileToPlay;
@@ -134,30 +132,14 @@ public class Sixi2ControlBox extends ModelInWorld {
 		return list;
 	}
 
-	// TODO this is trash.  if robot is deleted this link would do what, exactly?
-	// should probably be a subscription model.
-	protected Sixi2 findRobot() {
-		Entity w = this.getParent(); 
-		if(w instanceof World) {
-			for(Entity e : w.getChildren() ) {
-				if(e instanceof Sixi2) {
-					return (Sixi2)e;
-				}
-			}
-		}
-		return null;
-	}
 	
 	@Override
 	public void update(double dt) {
-		if(target==null) {
-			target = findRobot();
-		}
-		
 		if(gcodeFile==null) {
 			openFileNow();
 		}
-		
+
+		Sixi2 target = getTarget();
 		if(target==null || gcodeFile==null) return;
 		
 		if((target.getConnection()!=null && target.isReadyToReceive()) || 
@@ -197,6 +179,8 @@ public class Sixi2ControlBox extends ModelInWorld {
 		super.render(gl2);
 
 		if(poses.size()==0) return;
+		Sixi2 target = getTarget();
+		if(target==null) return;
 
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
@@ -261,6 +245,7 @@ public class Sixi2ControlBox extends ModelInWorld {
 	}
 
 	public RobotKeyframe keyframeAdd() {
+		Sixi2 target = getTarget();
 		if(target==null) return null;
 		RobotKeyframe newKey = target.createKeyframe();
 		keyframes.add(newKey);
@@ -367,8 +352,13 @@ public class Sixi2ControlBox extends ModelInWorld {
 		openFileNow();
 	}
 	
+	// TODO This is trash.  subscribe to the right target, maybe?
 	public Sixi2 getTarget() {
-		return target;
+		Entity w = this.getParent(); 
+		if(w instanceof Sixi2) {
+			return (Sixi2)w;
+		}
+		return null;
 	}
 
 	
@@ -446,6 +436,7 @@ public class Sixi2ControlBox extends ModelInWorld {
 	
 	
 	private RobotKeyframe getKeyframeNow() {
+		Sixi2 target = getTarget();
 		if( target==null ) return null;
 		
 		int size=getKeyframeSize();

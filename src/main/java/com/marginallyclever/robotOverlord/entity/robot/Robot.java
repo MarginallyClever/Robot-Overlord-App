@@ -176,6 +176,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			loadModels(gl2);
 			isModelLoaded=true;
 		}
+		super.render(gl2);
 	}
 	
 	// stub to be overridden by subclasses.

@@ -26,7 +26,6 @@ import com.marginallyclever.robotOverlord.entity.light.Light;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.physicalObject.boxObject.BoxObject;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox;
 
 /**
  * Container for all the visible objects in a scene.
@@ -96,20 +95,14 @@ public class World extends Entity {
 		//camera.setPan(52);
 		camera.setTilt(76);
 
-		Sixi2ControlBox sixi2ControlBox;
-		addEntity(sixi2ControlBox=new Sixi2ControlBox());
-		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
-		sixi2ControlBox.setModelRotation(90, 0, 90);
-		sixi2ControlBox.setRotation(new Vector3d(0, 0, Math.toRadians(90)));
-
-		Sixi2 sixi2;
-		addEntity(sixi2=new Sixi2());
+		Sixi2 sixi2=new Sixi2();
+		addEntity(sixi2);
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
 		m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		sixi2.setRotation(m);
-		
+
 		// add some collision bounds
 		BoxObject box;
 		box = new BoxObject();

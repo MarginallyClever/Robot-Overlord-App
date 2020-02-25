@@ -28,10 +28,10 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
-import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
+import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox;
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
@@ -43,8 +43,6 @@ public class Sixi2 extends Robot {
 	};
 
 	public transient boolean isFirstTime;
-	public Material materialLive;
-	public Material materialGhost;
 	public boolean once = false;
 	protected double feedrate;
 	protected double acceleration;
@@ -121,11 +119,15 @@ public class Sixi2 extends Robot {
 		ball.setParent(this);
 		
 
-		materialLive = new Material();
-		materialLive.setDiffuseColor(1,217f/255f,33f/255f,1);
+		live.material.setDiffuseColor(1,217f/255f,33f/255f,1);
+		ghost.material.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
 		
-		materialGhost = new Material();
-		materialGhost.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
+		Sixi2ControlBox sixi2ControlBox=new Sixi2ControlBox();
+		this.addChild(sixi2ControlBox);
+		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
+		sixi2ControlBox.setModelRotation(90, 0, 90);
+		sixi2ControlBox.setRotation(new Vector3d(0, 0, Math.toRadians(90)));
+		sixi2ControlBox.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
 	}
 
 	/**
@@ -251,15 +253,11 @@ public class Sixi2 extends Robot {
 			setupModels(live);
 			setupModels(ghost);
 		}
-
-		// draw the live robot
-		ghost.setShowAngles(true);
-		live.setShowAngles(true);
 		
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, getMatrix());
-			materialLive .render(gl2);	live .render(gl2);
-			materialGhost.render(gl2);	ghost.render(gl2);
+			live .render(gl2);
+			ghost.render(gl2);
 		gl2.glPopMatrix();
 
 		IntBuffer depthFunc = IntBuffer.allocate(1);
@@ -368,9 +366,9 @@ public class Sixi2 extends Robot {
 	
 
 	/**
-	 * End matrix (the pose of the robot arm gripper) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
+	 * End matrix (the pose of the robot arm + tool) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
 	 * where XYZ are translation values and IJK are euler rotations of the matrix.
-	 * @return the text format for the current pose.
+	 * @return the text format for the current ghost end matrix.
 	 */
 	public String generateGCode() {
 		Matrix3d m1 = new Matrix3d();
@@ -400,9 +398,9 @@ public class Sixi2 extends Robot {
 	}
 	
 	/**
-	 * End matrix (the pose of the robot arm gripper) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
+	 * End matrix (the pose of the robot arm + tool) is stored on the PC in the text format "G0 X.. Y.. Z.. I.. J.. K.. T..\n"
 	 * where XYZ are translation values and IJK are euler rotations of the matrix.
-	 * The text, if parsed ok, will set the current end matrix of the ghost.
+	 * The text, if parsed ok, will set the current ghost end matrix.
 	 * @param line the text format of one pose.
 	 */
 	public void parseGCode(String line) {

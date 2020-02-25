@@ -13,6 +13,7 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
@@ -44,6 +45,7 @@ public class DHRobot extends Observable {
 	protected int hitBox1, hitBox2; // display which hitboxes are colliding
 
 	protected PhysicalObject parent;
+	public Material material;
 	
 
 	public DHRobot() {
@@ -64,6 +66,7 @@ public class DHRobot extends Observable {
 		// set default tool = no tool
 		dhTool = new DHTool();
 		
+		material = new Material();
 		disablePanel = false;
 		setShowBones(false);
 		setShowPhysics(false);
@@ -115,6 +118,8 @@ public class DHRobot extends Observable {
 
 	
 	public void render(GL2 gl2) {
+		material.render(gl2);
+		
 		gl2.glPushMatrix();
 	
 			float [] original = new float[4];

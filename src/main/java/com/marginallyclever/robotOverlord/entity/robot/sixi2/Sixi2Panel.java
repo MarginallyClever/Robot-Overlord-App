@@ -224,6 +224,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 					(int)link.getRangeMax(),
 					(int)link.getRangeMin());
 			newSlider.setMinorTickSpacing(5);
+			Dimension preferredSize = newSlider.getPreferredSize();
+			preferredSize.width=-1;
+			newSlider.setPreferredSize(preferredSize);
 			newSlider.setEnabled(false);
 			contents.add(new JLabel(Integer.toString(i++)));
 			contents.add(newSlider);
@@ -264,6 +267,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 					(int)link.getRangeMax(),
 					(int)link.getRangeMin());
 			newSlider.setMinorTickSpacing(5);
+			Dimension preferredSize = newSlider.getPreferredSize();
+			preferredSize.width=-1;
+			newSlider.setPreferredSize(preferredSize);
 			contents.add(new JLabel(Integer.toString(i++)));
 			contents.add(newSlider);
 			contents.add(label=new JLabel("0.000",SwingConstants.RIGHT));

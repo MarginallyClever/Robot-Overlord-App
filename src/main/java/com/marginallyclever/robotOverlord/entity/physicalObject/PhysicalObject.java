@@ -7,6 +7,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -26,7 +27,6 @@ public abstract class PhysicalObject extends Entity {
 		cuboid=new Cuboid();
 	}
 	
-	
 	/**
 	 * Get the {@link EntityControlPanel} for this class' superclass, then the physicalObjectControlPanel for this class, and so on.
 	 * 
@@ -44,6 +44,16 @@ public abstract class PhysicalObject extends Entity {
 		return list;
 	}
 
+	@Override
+	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, getMatrix());
+			for(Entity e : children ) {
+				e.render(gl2);
+			}
+		gl2.glPopMatrix();
+	}
+	
 	// set up the future motion state of the physical object
 	public void prepareMove(double dt) {}
 	

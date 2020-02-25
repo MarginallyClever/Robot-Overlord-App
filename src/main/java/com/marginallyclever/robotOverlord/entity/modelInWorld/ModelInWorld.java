@@ -157,4 +157,8 @@ public class ModelInWorld extends PhysicalObject {
 		
 		return super.getCuboidList();
 	}
+	
+	public Material getMaterial() {
+		return material;
+	}
 }

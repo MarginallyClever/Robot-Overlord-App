@@ -1,11 +1,14 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -63,37 +66,44 @@ public class Entity {
 	 * @param gui the main application instance.
 	 * @return an ArrayList of all the panels for this Entity and all derived classes.
 	 */
+	@SuppressWarnings("unused")  // because of the layout settings below
 	public JComponent getAllContextPanels(RobotOverlord gui) {
-		/*
-		JPanel sum = new JPanel();
-		BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
-		sum.setLayout(layout);
 		ArrayList<JPanel> list = getContextPanel(gui);
 		Iterator<JPanel> pi = list.iterator();
-		while(pi.hasNext()) {
-			JPanel p = pi.next();
-			
-			CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
-			this.add(oiwPanel,c);
-			JPanel contents = oiwPanel.getContentPane();
-			contents.add(p);
-			
 		
-			sum.add(p);
-		}
+		if(false) {
+			// single page layout
+			JPanel sum = new JPanel();
+			BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
+			sum.setLayout(layout);
+			while(pi.hasNext()) {
+				JPanel p = pi.next();
+				
+				CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
+				oiwPanel.getContentPane().add(p);
+				sum.add(oiwPanel);
+			}
 
-		JPanel b = new JPanel(new BorderLayout());
-		b.add(sum, BorderLayout.PAGE_START);
-		*/
-		JTabbedPane b = new JTabbedPane();
-		ArrayList<JPanel> list = getContextPanel(gui);
-		Iterator<JPanel> pi = list.iterator();
-		while(pi.hasNext()) {
-			JPanel p = pi.next();
-			b.addTab(p.getName(), p);
+			JPanel b = new JPanel(new BorderLayout());
+			b.add(sum, BorderLayout.PAGE_START);
+			return b;
+		} else {
+			boolean reverseOrderOfTabs = false;
+			// tabbed layout
+			JTabbedPane b = new JTabbedPane();
+			while(pi.hasNext()) {
+				JPanel p = pi.next();
+				
+				if( reverseOrderOfTabs ) {
+					b.insertTab(p.getName(), null, p, null, 0);
+				} else {
+					b.addTab(p.getName(), p);
+				}
+			}
+			b.setSelectedIndex( reverseOrderOfTabs ? 0 : b.getTabCount()-1 );
+			
+			return b;
 		}
-		
-		return b;
 	}
 
 
@@ -121,14 +131,16 @@ public class Entity {
 	
 	
 	public void update(double dt) {
-		Iterator<Entity> i = children.iterator();
-		while(i.hasNext()) {
-			Entity e=i.next();
+		for(Entity e : children ) {
 			e.update(dt);
 		}
 	}
 	
-	public void render(GL2 gl2) {}
+	public void render(GL2 gl2) {
+		for(Entity e : children ) {
+			e.render(gl2);
+		}
+	}
 	
 	
 	public void addChild(Entity e) {
