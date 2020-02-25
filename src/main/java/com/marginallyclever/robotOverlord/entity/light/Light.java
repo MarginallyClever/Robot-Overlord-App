@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
@@ -20,7 +21,6 @@ public class Light extends PhysicalObject {
 	
 	public Light() {
 		super();
-		
 		setDisplayName("Light");
 	}
 
@@ -113,5 +113,14 @@ public class Light extends PhysicalObject {
 	
 	public float[] getSpecular() {
 		return specular.clone();
+	}
+
+	/**
+	 * 
+	 * @return a list of cuboids, or null.
+	 */
+	public ArrayList<Cuboid> getCuboidList() {		
+		// doesn't collide with anything, ever.
+		return null;
 	}
 }

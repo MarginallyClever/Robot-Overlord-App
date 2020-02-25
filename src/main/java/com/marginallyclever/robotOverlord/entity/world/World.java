@@ -86,8 +86,9 @@ public class World extends Entity {
 		// adjust grid
 		GridEntity grid;
 		addEntity(grid = new GridEntity());
-		grid.width = (int)(2.54*6*12);
-		grid.height = (int)(2.54*30);
+		grid.width = 130;
+		grid.height = 70;
+		grid.setPosition(new Vector3d(30,0,-0.5));
 		
 		// adjust default camera
 		addEntity(camera);
@@ -124,7 +125,7 @@ public class World extends Entity {
 		box.width=140;
 		box.height=1;
 		box.depth=80;
-		box.setPosition(new Vector3d(30,0,-1.5));
+		box.setPosition(new Vector3d(30,0,-2.5));
 
 		box = new BoxObject();
 		addEntity(box);
@@ -513,18 +514,26 @@ public class World extends Entity {
 	 * @param ignoreList all the entities in the world to ignore.
 	 * @return true if any cuboid in the cuboidList intersects any cuboid in the world.
 	 */
-	public boolean collisionTest(ArrayList<Cuboid> listA, ArrayList<Entity> ignoreList) {
+	public boolean collisionTest(PhysicalObject a) {
+		ArrayList<Cuboid> listA = a.getCuboidList();
+		
 		// check all children
-		for( Entity child : children ) {
-			if( ignoreList.contains(child) ) continue;
-			if( !( child instanceof PhysicalObject ) ) continue;
-			ArrayList<Cuboid> listB = ((PhysicalObject)child).getCuboidList();
+		for( Entity b : children ) {
+			// we're looking for all physical objects EXCEPT a because
+			// we do not test collide with self
+			if( !( b instanceof PhysicalObject ) || b==a ) continue;
+
+			ArrayList<Cuboid> listB = ((PhysicalObject)b).getCuboidList();
 			if( listB == null ) continue;
 			
 			// now we have both lists, test them against each other.
-			for( Cuboid a : listA ) {
-				for( Cuboid b : listB ) {
-					if( IntersectionTester.cuboidCuboid(a,b) ) {
+			for( Cuboid cuboidA : listA ) {
+				for( Cuboid cuboidB : listB ) {
+					if( IntersectionTester.cuboidCuboid(cuboidA,cuboidB) ) {
+						System.out.println("Collision between "+
+							a.getDisplayName()+
+							" and "+
+							b.getDisplayName());
 						return true;
 					}
 				}

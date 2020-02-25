@@ -17,7 +17,6 @@ import com.marginallyclever.robotOverlord.entity.world.World;
 public abstract class PhysicalObject extends Entity {
 	protected Matrix4d matrix;	// position and orientation
 	protected Cuboid cuboid;	// physical limits
-	
 	private transient PhysicalObjectControlPanel physicalObjectControlPanel;
 	
 	public PhysicalObject() {

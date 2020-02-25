@@ -253,6 +253,8 @@ public class Sixi2 extends Robot {
 		}
 
 		// draw the live robot
+		ghost.setShowAngles(true);
+		live.setShowAngles(true);
 		
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, getMatrix());
@@ -685,7 +687,7 @@ public class Sixi2 extends Robot {
 		ball.update(dt);
 		
 		if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
-			//if(ball.isActivelyMoving())
+			if(ball.isActivelyMoving())
 			{
 				Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
 				

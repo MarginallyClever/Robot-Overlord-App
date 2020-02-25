@@ -11,7 +11,6 @@ import javax.swing.border.EmptyBorder;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 
 /**
  * Control Panel for a DHRobot
@@ -40,21 +39,10 @@ public class SixiJoystickPanel extends JPanel implements ActionListener {
 	protected void buildPanel() {
 		this.removeAll();
 
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
-
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("SixiJoystick");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();		
+		this.setName("Sixi Joystick");		
 		
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
+		this.setBorder(new EmptyBorder(0,0,0,0));
+		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
@@ -63,7 +51,7 @@ public class SixiJoystickPanel extends JPanel implements ActionListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 
 		buttonConnect = new JButton(Translator.get("ButtonConnect"));
-		contents.add(buttonConnect, con1);
+		this.add(buttonConnect, con1);
 		con1.gridy++;
 		buttonConnect.addActionListener(this);
 	}

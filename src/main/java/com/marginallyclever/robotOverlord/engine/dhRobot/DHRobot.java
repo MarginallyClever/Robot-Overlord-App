@@ -9,14 +9,11 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
-import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
 /**
@@ -325,25 +322,9 @@ public class DHRobot extends Observable {
 		// move the clone to the keyframe pose
 		clone.setPoseFK(keyframe);
 
-		// get a list of all cuboids
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-		
-		for( DHLink link : clone.links ) {
-			if(link.cuboid != null ) {
-				cuboidList.add(link.cuboid);
-			}
-		}
-
-		// make a list of entities to ignore and add the parent.
-		ArrayList<Entity> ignoreList = new ArrayList<Entity>();
-		if(parent instanceof Robot) {
-			// this way robot ghost will not collide with robot live.
-			ignoreList.add(parent);
-		}
-		
 		PhysicalObject p = (PhysicalObject)parent;
 		World world = p.getWorld();
-		return world.collisionTest(cuboidList,ignoreList);
+		return world.collisionTest(p);
 	}
 
 	/**
@@ -361,8 +342,7 @@ public class DHRobot extends Observable {
 			if ((link.flags & DHLink.READ_ONLY_THETA) == 0) {
 				double v = keyframe.fkValues[j++];
 				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println(
-							"FK theta " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
+					System.out.println("FK theta " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 					return false;
 				}
 			}
@@ -376,8 +356,7 @@ public class DHRobot extends Observable {
 			if ((link.flags & DHLink.READ_ONLY_ALPHA) == 0) {
 				double v = keyframe.fkValues[j++];
 				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println(
-							"FK alpha " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
+					System.out.println("FK alpha " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 					return false;
 				}
 			}

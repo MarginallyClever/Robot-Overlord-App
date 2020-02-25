@@ -406,4 +406,8 @@ public class DHLink extends Observable {
 		setRangeMin(rangeMin);
 		setRangeMax(rangeMax);
 	}
+
+	public double getRangeCenter() {
+		return (rangeMax+rangeMin)/2.0;
+	}
 }
