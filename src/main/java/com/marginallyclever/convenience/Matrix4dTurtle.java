@@ -14,20 +14,21 @@ public class Matrix4dTurtle extends Observable {
 
 	public class InterpolationStep {		
 		public Matrix4d targetIK;
-		public double   duration;
+		public double duration;
+		
 		
 		public void set(InterpolationStep b) {
 			targetIK.set(b.targetIK);
 			duration = b.duration;
-			
 		}
-		public void set(Matrix4d m,double t) {
-			targetIK = new Matrix4d(m);
-			duration=t;
+		
+		public void set(Matrix4d targetIK,double waitTime) {
+			this.targetIK = new Matrix4d(targetIK);
+			this.duration=waitTime;
 		}
-		public InterpolationStep(Matrix4d m,double t) {
-			targetIK = new Matrix4d(m);
-			duration=t;
+		public InterpolationStep(Matrix4d targetIK,double waitTime) {
+			this.targetIK = new Matrix4d(targetIK);
+			this.duration=waitTime;
 		}
 		public InterpolationStep() {
 			targetIK = new Matrix4d();
@@ -130,7 +131,10 @@ public class Matrix4dTurtle extends Observable {
 		
 		playHead+=dt;
 		if(playHead>totalPlayTime) playHead=totalPlayTime;
-		System.out.println("playing "+playHead+"/"+totalPlayTime);
+		System.out.print("playing "+StringHelper.formatDouble(playHead)
+						+"/"+StringHelper.formatDouble(totalPlayTime)
+						+" ("+(StringHelper.formatDouble(100.0*playHead/totalPlayTime))+"%)"
+						+" aka "+StringHelper.formatDouble(thisStepSoFar));
 
 		thisStepSoFar+=dt;
 		if(thisStepSoFar>=thisStepDuration) {
@@ -138,24 +142,27 @@ public class Matrix4dTurtle extends Observable {
 
 			InterpolationStep step = getStepAtTime(playHead);
 			if(step!=null) {
+				System.out.print("\tstep "+ steps.indexOf(step) +"/"+steps.size());
 				start.set(poseNow,0);
 				end=step;
 				thisStepDuration=end.duration;
 			}
 		}
 		if(playHead>=totalPlayTime) {
+			System.out.print(" END");
 			setPlaying(false);
 			// if we are a looping recording,
 			//setPlayHead(0);
 			//setPlaying(true);
 		}
+		System.out.println();
 		
 		// if we are single block
 		//setPlaying(false);
 	}
 
 	public void render(GL2 gl2) {
-		if(steps.size()<2) return;
+		if(steps.size()==0) return;
 		
 		Vector3d last=null;
 		for(InterpolationStep step : steps ) {
