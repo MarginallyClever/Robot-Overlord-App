@@ -211,23 +211,6 @@ public class World extends Entity {
 
 		// calls update on all entities and sub-entities
 		super.update(dt);
-		
-		for( Entity obj : children ) {			
-			if(obj instanceof PhysicalObject) {
-				PhysicalObject po = (PhysicalObject)obj;
-				po.prepareMove(dt);
-			}
-		}
-		
-		// TODO collision test
-		
-		// Finalize the moves that don't collide
-		for( Entity obj : children ) {	
-			if(obj instanceof PhysicalObject) {
-				PhysicalObject po = (PhysicalObject)obj;
-				po.finalizeMove();
-			}
-		}
 	}
 	
 	/**
@@ -512,8 +495,7 @@ public class World extends Entity {
 		
 		// check all children
 		for( Entity b : children ) {
-			// we're looking for all physical objects EXCEPT a because
-			// we do not test collide with self
+			// we do not test collide with self.  filter for all physical objects EXCEPT a.
 			if( !( b instanceof PhysicalObject ) || b==a ) continue;
 
 			ArrayList<Cuboid> listB = ((PhysicalObject)b).getCuboidList();

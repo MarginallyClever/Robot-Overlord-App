@@ -411,21 +411,30 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source==goRest) {
 			robot.ghost.setPoseFK(robot.restKey);
 		}
+
+		if(source==rewindNow) rewind();
 		
-		if(!robot.interpolator.isPlaying()) {
-			if(source==rewindNow) {
-				robot.interpolator.setPlayhead(0);
-			}
-			if(source==playNow) {
-				robot.interpolator.setPlaying(true);
-				playNow.setText("Pause");
-			}
-		} else {
-			robot.interpolator.setPlaying(false);
-			playNow.setText("Play");
+		if(source==playNow) {
+			if(!robot.interpolator.isPlaying()) play();
+			else stop();
 		}
 	}
 
+	public void play() {
+		robot.interpolator.setPlaying(true);
+		playNow.setText("Pause");
+	}
+	public void rewind() {
+		robot.interpolator.setPlaying(false);
+		robot.interpolator.setPlayhead(0);
+		playNow.setText("Play");
+	}
+	
+	public void stop() {
+		robot.interpolator.setPlaying(false);
+		playNow.setText("Play");
+	}
+	
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		// for checkboxes
@@ -461,5 +470,11 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		}
 		updatePosition(robot.live,livePosPanel);
 		updatePosition(robot.ghost,ghostPosPanel);
+	}
+	
+	public void setScrubHead(int pos) {
+		scrubberLock.lock();
+		scrubber.setValue(pos);
+		scrubberLock.unlock();
 	}
 }

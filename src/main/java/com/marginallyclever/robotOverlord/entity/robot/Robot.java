@@ -214,15 +214,12 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 
 	@Override
 	public void lineError(NetworkConnection arg0, int lineNumber) {
-		// TODO Auto-generated method stub
-		
+		// back up to the line that had an error and send again.
 	}
 
 	@Override
 	public void sendBufferEmpty(NetworkConnection arg0) {
-		// TODO Auto-generated method stub
-
-		isReadyToReceive=true;
+		// just because the buffer is empty does not mean the robot is ready to receive. 
 	}
 /*
 	// pull the last connected port from prefs
@@ -253,11 +250,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 		if(connection!=null) {
 			connection.update();
 		}
-	}
-	
-	@Override
-	public void prepareMove(double dt) {
-		super.prepareMove(dt);
 	}
 	
 	public boolean isReadyToReceive() {

@@ -167,7 +167,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		}
 */
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
-        mainFrame = new JFrame( APP_TITLE ); 
+        mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setSize( 1224, 768 );
         mainFrame.setLayout(new java.awt.BorderLayout());

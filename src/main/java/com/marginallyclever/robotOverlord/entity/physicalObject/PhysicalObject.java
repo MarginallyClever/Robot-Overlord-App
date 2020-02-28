@@ -54,12 +54,6 @@ public abstract class PhysicalObject extends Entity {
 		gl2.glPopMatrix();
 	}
 	
-	// set up the future motion state of the physical object
-	public void prepareMove(double dt) {}
-	
-	// apply the future motion state - make the future into the present
-	public void finalizeMove() {}
-
 	public Vector3d getPosition() {
 		return new Vector3d(matrix.m03,matrix.m13,matrix.m23);
 	}

@@ -291,13 +291,12 @@ public class RotaryStewartPlatform extends Robot {
 	}
 
 	@Override
-	public void prepareMove(double delta) {
-		super.prepareMove(delta);
+	public void update(double delta) {
 		updateIK(delta);
 		updateFK(delta);
+		super.update(delta);
 	}
 
-	@Override
 	public void finalizeMove() {
 		if (!hasArmMoved)
 			return;

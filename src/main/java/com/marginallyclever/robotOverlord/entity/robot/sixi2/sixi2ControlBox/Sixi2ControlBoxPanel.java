@@ -457,7 +457,7 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		// move robot to start of first keyframe
 		player.setKeyframeIndex(0);
 		player.setKeyframeT(0);
-		player.prepareMove(0);
+		player.update(0);
 
 		// wipe out all keyframes
 		player.keyframes.clear();

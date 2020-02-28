@@ -35,8 +35,6 @@ public class Matrix4dTurtle extends Observable {
 		}
 	};
 	protected List<InterpolationStep> steps;
-	protected InterpolationStep start;
-	protected InterpolationStep end;
 	
 	// targetMatrix = (endMatrix - startMatrix) * timeSoFar/timeTotal + startMatrix
 	protected Matrix4d targetMatrix;
@@ -48,37 +46,40 @@ public class Matrix4dTurtle extends Observable {
 	protected transient double thisStepDuration;
 	protected transient double thisStepSoFar;
 	
+	protected transient InterpolationStep thisStepStart;
+	protected transient InterpolationStep thisStepEnd;
+	
 	public Matrix4dTurtle() {
 		super();
-		start=new InterpolationStep();
-		end=new InterpolationStep();
+		thisStepStart=new InterpolationStep();
+		thisStepEnd=new InterpolationStep();
 		reset();
 	}
 	
 	public Matrix4dTurtle(Matrix4dTurtle b) {
 		super();
-		start=new InterpolationStep();
-		end=new InterpolationStep();
+		thisStepStart=new InterpolationStep();
+		thisStepEnd=new InterpolationStep();
 		set(b);
 	}
 	
 	public void reset() {
 		targetMatrix = new Matrix4d();
 		steps = new ArrayList<InterpolationStep>();
-		playHead=0;
-		totalPlayTime=0;
-		isPlaying=false;
+		playHead = 0;
+		totalPlayTime = 0;
+		isPlaying = false;
 	}
 
 	public void set(Matrix4dTurtle b) {
 		// assumes everything provided by linkDescription
-		start.set(b.start);
-		end.set(b.end);
+		thisStepStart.set(b.thisStepStart);
+		thisStepEnd.set(b.thisStepEnd);
 		targetMatrix.set(b.targetMatrix);
 		steps.addAll(b.steps);
-		playHead=b.playHead;
-		totalPlayTime=b.totalPlayTime;
-		isPlaying=b.isPlaying;
+		playHead = b.playHead;
+		totalPlayTime = b.totalPlayTime;
+		isPlaying = b.isPlaying;
 	}
 	
 	public void offer(Matrix4d start,Matrix4d end,double duration) {
@@ -89,7 +90,7 @@ public class Matrix4dTurtle extends Observable {
 		nextStep.duration = duration;
 		steps.add(nextStep);
 		
-		totalPlayTime+=duration;
+		totalPlayTime += duration;
 	}
 	
 	public boolean isInterpolating() {
@@ -130,7 +131,10 @@ public class Matrix4dTurtle extends Observable {
 		if(!isPlaying()) return;
 		
 		playHead+=dt;
-		if(playHead>totalPlayTime) playHead=totalPlayTime;
+		if(playHead>totalPlayTime) {
+			playHead=totalPlayTime;
+			setPlaying(false);
+		}
 		System.out.print("playing "+StringHelper.formatDouble(playHead)
 						+"/"+StringHelper.formatDouble(totalPlayTime)
 						+" ("+(StringHelper.formatDouble(100.0*playHead/totalPlayTime))+"%)"
@@ -143,9 +147,9 @@ public class Matrix4dTurtle extends Observable {
 			InterpolationStep step = getStepAtTime(playHead);
 			if(step!=null) {
 				System.out.print("\tstep "+ steps.indexOf(step) +"/"+steps.size());
-				start.set(poseNow,0);
-				end=step;
-				thisStepDuration=end.duration;
+				thisStepStart.set(poseNow,0);
+				thisStepEnd=step;
+				thisStepDuration=thisStepEnd.duration;
 			}
 		}
 		if(playHead>=totalPlayTime) {
@@ -188,13 +192,13 @@ public class Matrix4dTurtle extends Observable {
 	}
 	
 	public Matrix4d getStartMatrix() {
-		if(start==null) return null;
-		return start.targetIK;
+		if(thisStepStart==null) return null;
+		return thisStepStart.targetIK;
 	}
 
 	public Matrix4d getEndMatrix() {
-		if(end==null) return null;
-		return end.targetIK;
+		if(thisStepEnd==null) return null;
+		return thisStepEnd.targetIK;
 	}
 
 	public double getTotalPlayTime() {
@@ -206,7 +210,10 @@ public class Matrix4dTurtle extends Observable {
 	}
 	public void setPlayhead(double t) {
 		playHead=t;
-		thisStepSoFar=getSoFarAtTime(t);
+		thisStepSoFar=getSoFarAtTime(playHead);
+		InterpolationStep step = getStepAtTime(playHead);
+		thisStepEnd=step;
+		thisStepDuration=thisStepEnd.duration;
 	}
 	
 	public int getQueueSize() {

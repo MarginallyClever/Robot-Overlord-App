@@ -563,8 +563,7 @@ extends Robot {
 		  }
 	}
 	
-	@Override
-	public void prepareMove(double dt) {
+	public void update(double dt) {
 		/*
 		  boolean open=comm.IsOpen();
 		  comm.Update(dt);
@@ -627,9 +626,6 @@ extends Robot {
 		}
 	}
 
-	@Override
-	public void finalizeMove() {}
-	
 	public void setMoveMode(MoveModes mode) {
 		move_mode = mode;
 		

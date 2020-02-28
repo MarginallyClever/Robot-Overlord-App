@@ -1,5 +1,6 @@
 package com.marginallyclever.communications;
 
+import java.util.ArrayList;
 
 /**
  * Created on 4/12/15.
@@ -7,26 +8,57 @@ package com.marginallyclever.communications;
  * @author Peter Colapietro
  * @since v7
  */
-public interface NetworkConnection {
+public abstract class NetworkConnection {
+	// Listeners which should be notified of a change to the percentage.
+	private ArrayList<NetworkConnectionListener> listeners;
+	
+	protected NetworkConnection() {
+		listeners = new ArrayList<NetworkConnectionListener>();
+	}
+	
 	// close this connection
-	public void closeConnection();
+	abstract public void closeConnection();
 
 	// open a connection to a connection
-	public void openConnection(String connectionName) throws Exception;
+	abstract public void openConnection(String connectionName) throws Exception;
 
-	public void reconnect() throws Exception;
+	abstract public void reconnect() throws Exception;
 
-	public boolean isOpen();
+	abstract public boolean isOpen();
 	
-	public void update();
+	abstract public void update();
 
-	public String getRecentConnection();
+	abstract public String getRecentConnection();
 
-	public void sendMessage(String msg) throws Exception;
-
-	public void addListener(NetworkConnectionListener listener);
-
-	public void removeListener(NetworkConnectionListener listener);
+	abstract public void sendMessage(String msg) throws Exception;
 	
-	public TransportLayer getTransportLayer();
+	abstract public TransportLayer getTransportLayer();
+
+
+	public void addListener(NetworkConnectionListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeListener(NetworkConnectionListener listener) {
+		listeners.remove(listener);
+	}
+
+	public void notifyLineError(int lineNumber) {
+		for (NetworkConnectionListener listener : listeners) {
+			listener.lineError(this,lineNumber);
+		}
+	}
+
+	public void notifySendBufferEmpty() {
+		for (NetworkConnectionListener listener : listeners) {
+			listener.sendBufferEmpty(this);
+		}
+	}
+
+	// tell all listeners data has arrived
+	public void notifyDataAvailable(String line) {
+		for (NetworkConnectionListener listener : listeners) {
+			listener.dataAvailable(this,line);
+		}
+	}
 }

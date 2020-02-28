@@ -38,8 +38,8 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
 public class Sixi2 extends Robot {
 	public enum InterpolationStyle {
-	LINEAR,
-	JACOBIAN,
+		LINEAR,
+		JACOBIAN,
 	};
 
 	public transient boolean isFirstTime;
@@ -747,22 +747,28 @@ public class Sixi2 extends Robot {
 		if(connection!=null && connection.isOpen()) {
 			// do not simulate movement when connected to a live robot.
 		} else {
-			if(interpolator.isInterpolating()) 
+			if(interpolator.isPlaying()) 
 			{
 				interpolator.update(dt,live.getEndEffectorMatrix());
-				if(sixi2Panel!=null && !sixi2Panel.scrubberLock.isLocked()) {
-					sixi2Panel.scrubberLock.lock();
-					sixi2Panel.scrubber.setValue((int)interpolator.getPlayHead());
-					sixi2Panel.scrubberLock.unlock();
+				InterpolationStyle style = InterpolationStyle.LINEAR;
+				switch (style) {
+				case LINEAR:	interpolateLinear(dt);		break;
+				case JACOBIAN:	interpolateJacobian(dt);	break;
 				}
 				if (live.dhTool != null) {
 					live.dhTool.interpolate(dt);
 				}
 				
-				InterpolationStyle style = InterpolationStyle.LINEAR;
-				switch (style) {
-				case LINEAR:	interpolateLinear(dt);		break;
-				case JACOBIAN:	interpolateJacobian(dt);	break;
+				if(sixi2Panel!=null && !sixi2Panel.scrubberLock.isLocked()) {
+					sixi2Panel.setScrubHead(10*(int)interpolator.getPlayHead());
+				}
+				if(!interpolator.isPlaying()) {
+					// must have just ended this frame
+					if(sixi2Panel!=null) {
+						sixi2Panel.stop();
+					}
+				} else {
+					
 				}
 			}
 		}

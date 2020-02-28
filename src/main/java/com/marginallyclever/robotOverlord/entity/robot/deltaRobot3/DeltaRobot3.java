@@ -230,13 +230,12 @@ extends Robot {
 	}
 	
 	@Override
-	public void prepareMove(double delta) {
+	public void update(double delta) {
 		updateIK(delta);
 		updateFK(delta);
 	}
 
-	
-	@Override
+
 	public void finalizeMove() {
 		if(!haveArmsMoved) return;		
 
