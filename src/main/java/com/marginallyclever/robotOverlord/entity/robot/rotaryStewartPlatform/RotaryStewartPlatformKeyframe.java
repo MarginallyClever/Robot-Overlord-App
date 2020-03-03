@@ -10,6 +10,7 @@ import com.marginallyclever.robotOverlord.engine.log.Log;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 
+@Deprecated
 public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	// angle of rotation
 	public RotaryStewartPlatformArm arms[];

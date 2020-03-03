@@ -20,7 +20,8 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandMo
 import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.uiElements.HTMLDialogBox;
 
-public class RotaryStewartPlatformControlPanel extends JPanel implements ActionListener, ChangeListener {
+@Deprecated
+public class RotaryStewartPlatformPanel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * Serial version UID
 	 */
@@ -53,7 +54,7 @@ public class RotaryStewartPlatformControlPanel extends JPanel implements ActionL
 	private JButton about;
 
 	
-	public RotaryStewartPlatformControlPanel(RobotOverlord gui,RotaryStewartPlatform robot) {
+	public RotaryStewartPlatformPanel(RobotOverlord gui,RotaryStewartPlatform robot) {
 		super();
 
 		this.robot = robot;

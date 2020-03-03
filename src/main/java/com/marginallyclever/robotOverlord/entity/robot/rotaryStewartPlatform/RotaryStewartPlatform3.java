@@ -10,6 +10,7 @@ import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 
+@Deprecated
 public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 	protected transient Material matForearm = new Material();
 	protected transient Model modelForearm;

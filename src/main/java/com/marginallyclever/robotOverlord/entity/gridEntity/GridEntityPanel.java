@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
 
-public class GridEntityControlPanel extends JPanel implements ChangeListener {
+public class GridEntityPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
@@ -26,7 +26,7 @@ public class GridEntityControlPanel extends JPanel implements ChangeListener {
 	protected transient UserCommandSelectNumber gridWidth;
 	protected transient UserCommandSelectNumber gridHeight;
 
-	public GridEntityControlPanel(RobotOverlord gui,GridEntity grid) {
+	public GridEntityPanel(RobotOverlord gui,GridEntity grid) {
 		super();
 		
 		this.gui = gui;

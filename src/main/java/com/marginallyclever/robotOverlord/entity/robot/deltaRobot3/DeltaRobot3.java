@@ -26,6 +26,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableAction
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
+@Deprecated
 public class DeltaRobot3
 extends Robot {
 	// machine ID
@@ -66,7 +67,7 @@ extends Robot {
 	protected DeltaRobot3Keyframe motionFuture;
 
 	// control panel
-	protected transient DeltaRobot3ControlPanel controlPanel;
+	protected transient DeltaRobot3Panel controlPanel;
 	
 	// keyboard history
 	private float aDir, bDir, cDir;
@@ -241,7 +242,7 @@ extends Robot {
 
 		haveArmsMoved=false;
 		motionNow.set(motionFuture);
-		this.sendLineToRobot("G0 X"+motionNow.fingerPosition.x
+		this.sendCommand("G0 X"+motionNow.fingerPosition.x
 				          +" Y"+motionNow.fingerPosition.y
 				          +" Z"+motionNow.fingerPosition.z
 				          );
@@ -438,18 +439,18 @@ extends Robot {
 	
 
 	public void setModeAbsolute() {
-		if(connection!=null) this.sendLineToRobot("G90");
+		if(connection!=null) this.sendCommand("G90");
 	}
 	
 	
 	public void setModeRelative() {
-		if(connection!=null) this.sendLineToRobot("G91");
+		if(connection!=null) this.sendCommand("G91");
 	}
 
 	
 	public void goHome() {
 		isHomed=false;
-		this.sendLineToRobot("G28");
+		this.sendCommand("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
 		updateIK(motionFuture);
 		motionNow.set(motionFuture);
@@ -519,7 +520,7 @@ extends Robot {
 		if (new_uid != 0) {
 			// make sure a topLevelMachinesPreferenceNode node is created
 			// tell the robot it's new UID.
-			this.sendLineToRobot("UID " + new_uid);
+			this.sendCommand("UID " + new_uid);
 		}
 		return new_uid;
 	}
@@ -561,7 +562,7 @@ extends Robot {
 		
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		controlPanel = new DeltaRobot3ControlPanel(gui,this);
+		controlPanel = new DeltaRobot3Panel(gui,this);
 		list.add(controlPanel);
 		if(controlPanel!=null) controlPanel.update();
 /*

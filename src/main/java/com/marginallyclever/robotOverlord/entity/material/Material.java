@@ -14,8 +14,12 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
 
+/**
+ * Material properties (surface finish, color, texture, etc) of something displayed in the world.
+ * @author Dan Royer
+ *
+ */
 public class Material extends Entity {
-	
 	public float[] diffuse		= {1.00f,1.00f,1.00f,1.00f};
 	public float[] specular 	= {0.85f,0.85f,0.85f,1.00f};
 	public float[] emission 	= {0.01f,0.01f,0.01f,1.00f};
@@ -25,7 +29,8 @@ public class Material extends Entity {
 	private boolean isLit		= true;
 	private String textureFilename = new String();
 	private transient boolean textureDirty;
-	private transient MaterialControlPanel materialPanel;
+	
+	private transient MaterialPanel materialPanel;
 	
 	
 	public Material() {
@@ -37,7 +42,7 @@ public class Material extends Entity {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		materialPanel = new MaterialControlPanel(gui,this);
+		materialPanel = new MaterialPanel(gui,this);
 		list.add(materialPanel);
 		
 		return list;

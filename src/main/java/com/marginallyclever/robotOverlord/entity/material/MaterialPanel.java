@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
  * @author Dan Royer
  *
  */
-public class MaterialControlPanel extends JPanel implements ChangeListener {
+public class MaterialPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
@@ -34,7 +34,7 @@ public class MaterialControlPanel extends JPanel implements ChangeListener {
 	private UserCommandSelectFile chooseTexture;
 	private UserCommandSelectBoolean chooseIsLit;
 
-	public MaterialControlPanel(RobotOverlord gui, Material arg0) {
+	public MaterialPanel(RobotOverlord gui, Material arg0) {
 		super();
 		
 		mat=arg0;

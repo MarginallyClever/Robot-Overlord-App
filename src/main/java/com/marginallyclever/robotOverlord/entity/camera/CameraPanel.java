@@ -12,13 +12,13 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  * @author Dan Royer
  *
  */
-public class CameraControlPanel extends JPanel implements ActionListener {
+public class CameraPanel extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8529190569816182683L;
 	
-	public CameraControlPanel(RobotOverlord gui,Camera cam) {
+	public CameraPanel(RobotOverlord gui,Camera cam) {
 		super();
 		
 		this.setName("Camera");

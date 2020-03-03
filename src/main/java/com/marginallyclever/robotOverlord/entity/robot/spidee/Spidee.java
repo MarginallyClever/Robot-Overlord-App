@@ -1587,7 +1587,7 @@ extends Robot {
 		if (new_uid != 0) {
 			// make sure a topLevelMachinesPreferenceNode node is created
 			// tell the robot it's new UID.
-			this.sendLineToRobot("UID " + new_uid);
+			this.sendCommand("UID " + new_uid);
 		}
 		return new_uid;
 	}
@@ -1598,7 +1598,7 @@ extends Robot {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();
-			this.sendLineToRobot("R1");
+			this.sendCommand("R1");
 			
 			String uidString=line.substring(hello.length()).trim();
 			System.out.println(">>> UID="+uidString);

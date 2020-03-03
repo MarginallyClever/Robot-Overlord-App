@@ -20,7 +20,8 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandMo
 import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.uiElements.HTMLDialogBox;
 
-public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, ChangeListener {
+@Deprecated
+public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeListener {
 	/**
 	 * Serial version UID
 	 */
@@ -62,7 +63,7 @@ public class DeltaRobot3ControlPanel extends JPanel implements ActionListener, C
 	}
 
 
-	public DeltaRobot3ControlPanel(RobotOverlord gui,DeltaRobot3 deltaRobot) {
+	public DeltaRobot3Panel(RobotOverlord gui,DeltaRobot3 deltaRobot) {
 		super();
 		
 		robot = deltaRobot;

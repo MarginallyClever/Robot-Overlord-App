@@ -18,7 +18,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSe
  * @author Dan Royer
  *
  */
-public class PhysicalObjectControlPanel extends JPanel implements ChangeListener {
+public class PhysicalObjectPanel extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 	private PhysicalObject entity;
 	private transient UserCommandSelectVector3d setPosition;
@@ -28,7 +28,7 @@ public class PhysicalObjectControlPanel extends JPanel implements ChangeListener
 	 * @param ro the application instance
 	 * @param entity The entity controlled by this panel
 	 */
-	public PhysicalObjectControlPanel(RobotOverlord ro,PhysicalObject entity) {
+	public PhysicalObjectPanel(RobotOverlord ro,PhysicalObject entity) {
 		super();
 		
 		this.entity = entity;

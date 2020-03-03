@@ -59,7 +59,7 @@ public class DHRobot extends Observable {
 		set(b);
 	}
 		
-	public void reset() {
+	private void reset() {
 		links = new ArrayList<DHLink>();
 
 		endEffectorMatrix = new Matrix4d();
@@ -135,7 +135,7 @@ public class DHRobot extends Observable {
 			}
 			gl2.glColor4f(original[0],original[1],original[2],original[3]);
 			gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
-	
+
 			if (dhTool != null) {
 				dhTool.render(gl2);
 			}
@@ -220,8 +220,6 @@ public class DHRobot extends Observable {
 		if (dhTool != null) {
 			dhTool.refreshPose(endEffectorMatrix);
 		}
-
-		
 	}
 
 	/**

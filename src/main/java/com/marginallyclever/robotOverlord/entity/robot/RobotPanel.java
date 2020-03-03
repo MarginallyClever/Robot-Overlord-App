@@ -15,7 +15,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 
-public class RobotControlPanel extends JPanel implements ActionListener, ChangeListener {
+public class RobotPanel extends JPanel implements ActionListener, ChangeListener {
 
 	/**
 	 * 
@@ -26,7 +26,7 @@ public class RobotControlPanel extends JPanel implements ActionListener, ChangeL
 
 	private Robot robot = null;
 
-	public RobotControlPanel(RobotOverlord gui, Robot robot) {
+	public RobotPanel(RobotOverlord gui, Robot robot) {
 		this.robot = robot;
 
 		this.setName("Robot");

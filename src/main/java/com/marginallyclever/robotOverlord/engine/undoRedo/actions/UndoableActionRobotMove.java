@@ -15,6 +15,8 @@ import com.marginallyclever.robotOverlord.entity.robot.Robot;
  * @author Dan Royer
  *
  */
+@Deprecated
+@SuppressWarnings("unused")
 public class UndoableActionRobotMove extends AbstractUndoableEdit {
 	/**
 	 * 
@@ -102,6 +104,6 @@ public class UndoableActionRobotMove extends AbstractUndoableEdit {
 	}
 	
 	private void moveNow(int n) {
-		robot.move(axis,n);
+		//robot.move(axis,n);
 	}
 }

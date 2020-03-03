@@ -93,7 +93,7 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 			}
 			if(target!=null) {
 				if(keyframe == null) {
-					 keyframe = target.ghost.getIKSolver().createDHKeyframe();
+					 keyframe = target.sim.getIKSolver().createDHKeyframe();
 				}
 				StringTokenizer tokenizer = new StringTokenizer(data);
 				if(tokenizer.countTokens()<6) return;
@@ -117,7 +117,7 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 		if(lock.isLocked()) return;
 
 		lock.lock();
-		target.ghost.setPoseFK(keyframe);
+		target.sim.setPoseFK(keyframe);
 		lock.unlock();
 	}
 }

@@ -33,7 +33,7 @@ public class Entity {
 	// first 9 are reserved for MotionHelper.
 	static private int pickNameCounter=10;
 	
-	private transient EntityControlPanel entityPanel;
+	private transient EntityPanel entityPanel;
 	
 	
 	public Entity() {
@@ -43,7 +43,7 @@ public class Entity {
 	
 	
 	/**
-	 * Get the {@link EntityControlPanel} for this class' superclass, then the EntityPanel for this class, and so on.
+	 * Get the {@link EntityPanel} for this class' superclass, then the EntityPanel for this class, and so on.
 	 * 
 	 * @param gui the main application instance.
 	 * @return the list of EntityPanels 
@@ -51,7 +51,7 @@ public class Entity {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		entityPanel = new EntityControlPanel(gui,this);
+		entityPanel = new EntityPanel(gui,this);
 		list.add(entityPanel);
 
 		return list;
@@ -59,7 +59,7 @@ public class Entity {
 	
 	
 	/**
-	 * Get all the {@link EntityControlPanel}s for this {@link Entity}.  
+	 * Get all the {@link EntityPanel}s for this {@link Entity}.  
 	 * <p>
 	 * If this class is derived from Entity, get the panels for the derived Entities, too.  Normally this is called by {@link RobotOverlord}.
 	 * 

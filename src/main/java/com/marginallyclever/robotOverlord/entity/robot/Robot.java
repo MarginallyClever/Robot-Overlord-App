@@ -26,22 +26,18 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	// sending file to the robot
 	private boolean running;
 	private boolean paused;
-    private long linesTotal;
 	private long linesProcessed;
-	private boolean fileOpened;
 	private ArrayList<String> gcode;
 
 	protected transient boolean isModelLoaded;
 	
-	protected transient RobotControlPanel robotPanel=null;
+	protected transient RobotPanel robotPanel=null;
 	
 	
 	public Robot() {
 		super();
 		isReadyToReceive=false;
-		linesTotal=0;
 		linesProcessed=0;
-		fileOpened=false;
 		paused=true;
 		running=false;
 		isModelLoaded=false;
@@ -50,13 +46,12 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 
 	public boolean isRunning() { return running; }
 	public boolean isPaused() { return paused; }
-	public boolean isFileOpen() { return fileOpened; }
 	
 	
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
-		if(robotPanel == null) robotPanel = new RobotControlPanel(gui,this);
+		if(robotPanel == null) robotPanel = new RobotPanel(gui,this);
 		list.add(robotPanel);
 		
 		return list;
@@ -98,36 +93,26 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	
 	
-	/**
-	 * tell the robot to move within it's work envelope relative to the robot's current position in the envelope.
-	 * @param axis the index of the axis on which to move
-	 * @param direction which direction along the axis
-	 */
-	public void move(int axis,int direction) {
-		//TODO something is missing here
-		isReadyToReceive=false;
-	}
-	
 	
 	/**
 	 * Take the next line from the file and send it to the robot, if permitted. 
 	 */
 	public void sendFileCommand() {
-		if(!running || paused || !fileOpened || linesProcessed>=linesTotal) return;
+		if(!running || paused || linesProcessed>=gcode.size()) return;
 		
 		String line;
 		do {			
 			// are there any more commands?
 			line=gcode.get((int)linesProcessed++).trim();
 			//previewPane.setLinesProcessed(linesProcessed);
-			//statusBar.SetProgress(linesProcessed, linesTotal);
+			//statusBar.SetProgress(linesProcessed, gcode.size());
 			// loop until we find a line that gets sent to the robot, at which point we'll
 			// pause for the robot to respond.  Also stop at end of file.
-		} while(!sendLineToRobot(line) && linesProcessed<linesTotal);
+		} while(!sendCommand(line) && linesProcessed<gcode.size());
 
 		isReadyToReceive=false;
 		
-		if(linesProcessed==linesTotal) {
+		if(linesProcessed==gcode.size()) {
 			// end of file
 			halt();
 		}
@@ -151,7 +136,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	
 	public void startAt(int lineNumber) {
-		if(fileOpened && !running) {
+		if(!running) {
 			linesProcessed=lineNumber;
 			start();
 		}
@@ -187,7 +172,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
-	public boolean sendLineToRobot(String line) {
+	public boolean sendCommand(String line) {
 		if(connection==null) return false;
 
 		// contains a comment?  if so remove it

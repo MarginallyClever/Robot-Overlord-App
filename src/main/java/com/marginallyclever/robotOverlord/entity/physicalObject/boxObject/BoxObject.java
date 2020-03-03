@@ -12,14 +12,14 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.material.Material;
-import com.marginallyclever.robotOverlord.entity.material.MaterialControlPanel;
+import com.marginallyclever.robotOverlord.entity.material.MaterialPanel;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 public class BoxObject extends PhysicalObject {
 	public double width, height, depth;
 	
 	protected BoxObjectPanel boxPanel;
-	protected MaterialControlPanel materialPanel;
+	protected MaterialPanel materialPanel;
 	
 	Material mat;
 	

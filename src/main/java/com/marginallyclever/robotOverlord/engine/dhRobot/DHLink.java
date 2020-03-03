@@ -60,6 +60,9 @@ public class DHLink extends Observable {
 
 	// Changes visual quality of angle range curve.  Must be a whole number >=2
 	public final static double ANGLE_RANGE_STEPS=20;
+	
+	// the gcode letter representing this link
+	protected String letter;
 
 	
 	public DHLink() {
@@ -409,5 +412,13 @@ public class DHLink extends Observable {
 
 	public double getRangeCenter() {
 		return (rangeMax+rangeMin)/2.0;
+	}
+
+	public String getLetter() {
+		return letter;
+	}
+
+	public void setLetter(String letter) {
+		this.letter = letter;
 	}
 }

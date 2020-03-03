@@ -34,7 +34,7 @@ public class Camera extends PhysicalObject {
 	protected int cursorX,cursorY;
 	protected boolean isPressed;
 	
-	CameraControlPanel cameraPanel;
+	CameraPanel cameraPanel;
 
 	public Camera() {
 		super();
@@ -51,7 +51,7 @@ public class Camera extends PhysicalObject {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		cameraPanel = new CameraControlPanel(gui,this);
+		cameraPanel = new CameraPanel(gui,this);
 		list.add(cameraPanel);
 		
 		return list;

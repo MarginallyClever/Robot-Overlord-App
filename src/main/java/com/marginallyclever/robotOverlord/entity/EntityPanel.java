@@ -17,7 +17,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSe
  * @author Dan Royer
  *
  */
-public class EntityControlPanel extends JPanel implements ChangeListener {
+public class EntityPanel extends JPanel implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 	private Entity entity;
 	private transient UserCommandSelectString setName;
@@ -26,7 +26,7 @@ public class EntityControlPanel extends JPanel implements ChangeListener {
 	 * @param ro the application instance
 	 * @param entity The entity controlled by this panel
 	 */
-	public EntityControlPanel(RobotOverlord ro,Entity entity) {
+	public EntityPanel(RobotOverlord ro,Entity entity) {
 		super();
 		
 		this.entity = entity;

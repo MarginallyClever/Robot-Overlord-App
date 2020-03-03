@@ -19,7 +19,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.ViewCube;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
+import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.gridEntity.GridEntity;
 import com.marginallyclever.robotOverlord.entity.light.Light;
@@ -63,7 +63,7 @@ public class World extends Entity {
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCube viewCube;
 	
-	protected transient WorldControlPanel worldControlPanel;
+	protected transient WorldPanel worldControlPanel;
 	
 	public World() {
 		super();
@@ -131,7 +131,7 @@ public class World extends Entity {
 	
 	
 	/**
-	 * Get the {@link EntityControlPanel} for this class' superclass, then the EntityPanel for this class, and so on.
+	 * Get the {@link EntityPanel} for this class' superclass, then the EntityPanel for this class, and so on.
 	 * 
 	 * @param gui the main application instance.
 	 * @return the list of EntityPanels 
@@ -139,7 +139,7 @@ public class World extends Entity {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		worldControlPanel = new WorldControlPanel(gui,this);
+		worldControlPanel = new WorldPanel(gui,this);
 		list.add(worldControlPanel);
 
 		return list;

@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
  * @author Dan Royer
  *
  */
-public class LightControlPanel extends JPanel implements ChangeListener {
+public class LightPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
@@ -66,7 +66,7 @@ public class LightControlPanel extends JPanel implements ChangeListener {
 		return b;
 	}*/
 
-	public LightControlPanel(RobotOverlord gui,Light arg0) {
+	public LightPanel(RobotOverlord gui,Light arg0) {
 		super();
 		
 		light=arg0;

@@ -28,6 +28,7 @@ import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
+@Deprecated
 public class RotaryStewartPlatform extends Robot {
 	// machine ID
 	protected long robotUID;
@@ -78,7 +79,7 @@ public class RotaryStewartPlatform extends Robot {
 	protected boolean justTestingDontGetUID = false;
 
 	// visual model for controlling robot
-	protected transient RotaryStewartPlatformControlPanel rspPanel;
+	protected transient RotaryStewartPlatformPanel rspPanel;
 	protected RotaryStewartPlatform2Dimensions dimensions;
 
 	public RotaryStewartPlatform() {
@@ -467,12 +468,12 @@ public class RotaryStewartPlatform extends Robot {
 
 	public void setModeAbsolute() {
 		if (connection != null)
-			this.sendLineToRobot("G90");
+			this.sendCommand("G90");
 	}
 
 	public void setModeRelative() {
 		if (connection != null)
-			this.sendLineToRobot("G91");
+			this.sendCommand("G91");
 	}
 
 	@Override
@@ -483,7 +484,7 @@ public class RotaryStewartPlatform extends Robot {
 			isPortConfirmed = true;
 			// finalizeMove();
 			setModeAbsolute();
-			this.sendLineToRobot("R1");
+			this.sendCommand("R1");
 
 			String ending = line.substring(dimensions.hello.length());
 			String uidString = ending.substring(ending.indexOf('#') + 1).trim();
@@ -532,7 +533,7 @@ public class RotaryStewartPlatform extends Robot {
 			if (new_uid != 0) {
 				// make sure a topLevelMachinesPreferenceNode node is created
 				// tell the robot it's new UID.
-				this.sendLineToRobot("UID " + new_uid);
+				this.sendCommand("UID " + new_uid);
 			}
 		}
 		return new_uid;
@@ -571,7 +572,7 @@ public class RotaryStewartPlatform extends Robot {
 		if (list == null)
 			list = new ArrayList<JPanel>();
 
-		rspPanel = new RotaryStewartPlatformControlPanel(gui, this);
+		rspPanel = new RotaryStewartPlatformPanel(gui, this);
 		list.add(rspPanel);
 		rspPanel.update();
 
@@ -582,7 +583,7 @@ public class RotaryStewartPlatform extends Robot {
 		if (!isPortConfirmed())
 			return;
 
-		this.sendLineToRobot("G0 X" + MathHelper.roundOff3(motionNow.fingerPosition.x) + " Y"
+		this.sendCommand("G0 X" + MathHelper.roundOff3(motionNow.fingerPosition.x) + " Y"
 				+ MathHelper.roundOff3(motionNow.fingerPosition.y) + " Z"
 				+ MathHelper.roundOff3(motionNow.fingerPosition.z) + " U"
 				+ MathHelper.roundOff3(motionNow.rotationAngleU) + " V" + MathHelper.roundOff3(motionNow.rotationAngleV)
@@ -591,7 +592,7 @@ public class RotaryStewartPlatform extends Robot {
 
 	public void goHome() {
 		motionFuture.isHomed = false;
-		this.sendLineToRobot("G28");
+		this.sendCommand("G28");
 		motionFuture.fingerPosition.set(HOME_X, HOME_Y, HOME_Z); // HOME_*
 																	// should
 																	// match

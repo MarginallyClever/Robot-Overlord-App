@@ -134,7 +134,7 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			robot.sendLineToRobot(commandLineText.getText());
+			robot.sendCommand(commandLineText.getText());
 			commandLineText.setText("");
 		}
 	}
@@ -188,7 +188,7 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 		
 		// logging
 		if (subject == commandLineSend) {
-			robot.sendLineToRobot(commandLineText.getText());
+			robot.sendCommand(commandLineText.getText());
 			commandLineText.setText("");
 		}
 	}

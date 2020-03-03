@@ -12,13 +12,13 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.EntityControlPanel;
+import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
 public abstract class PhysicalObject extends Entity {
 	protected Matrix4d matrix;	// position and orientation
 	protected Cuboid cuboid;	// physical limits
-	private transient PhysicalObjectControlPanel physicalObjectControlPanel;
+	private transient PhysicalObjectPanel physicalObjectControlPanel;
 	
 	public PhysicalObject() {
 		super();
@@ -28,7 +28,7 @@ public abstract class PhysicalObject extends Entity {
 	}
 	
 	/**
-	 * Get the {@link EntityControlPanel} for this class' superclass, then the physicalObjectControlPanel for this class, and so on.
+	 * Get the {@link EntityPanel} for this class' superclass, then the physicalObjectControlPanel for this class, and so on.
 	 * 
 	 * @param gui the main application instance.
 	 * @return the list of physicalObjectControlPanels 
@@ -38,7 +38,7 @@ public abstract class PhysicalObject extends Entity {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 
-		physicalObjectControlPanel = new PhysicalObjectControlPanel(gui,this);
+		physicalObjectControlPanel = new PhysicalObjectPanel(gui,this);
 		list.add(physicalObjectControlPanel);
 
 		return list;

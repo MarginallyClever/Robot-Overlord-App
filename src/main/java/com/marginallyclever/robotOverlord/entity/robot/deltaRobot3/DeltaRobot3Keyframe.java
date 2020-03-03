@@ -11,6 +11,7 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class DeltaRobot3Keyframe implements RobotKeyframe {
 	// angle of rotation
 	public DeltaRobot3Arm arms[];

@@ -17,7 +17,7 @@ public class Light extends PhysicalObject {
 	private float[] ambient={0.0f,0.0f,0.0f,1f};
 	private float[] diffuse={1f,1f,1f,1f};
 	private float[] specular={0.5f,0.5f,0.5f,1f};
-	private LightControlPanel lightPanel;
+	private LightPanel lightPanel;
 	
 	public Light() {
 		super();
@@ -30,7 +30,7 @@ public class Light extends PhysicalObject {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
-		lightPanel = new LightControlPanel(gui,this);
+		lightPanel = new LightPanel(gui,this);
 		list.add(lightPanel);
 		
 		return list;

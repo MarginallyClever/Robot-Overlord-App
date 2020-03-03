@@ -10,6 +10,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRobotMove;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 
+@Deprecated
 public class UserCommandMoveRobot extends JButton implements ActionListener {
 	/**
 	 * 

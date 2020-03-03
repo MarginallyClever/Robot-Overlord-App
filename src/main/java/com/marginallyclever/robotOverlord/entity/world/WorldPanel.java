@@ -21,7 +21,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class WorldControlPanel extends JPanel implements ActionListener {
+public class WorldPanel extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
@@ -32,7 +32,7 @@ public class WorldControlPanel extends JPanel implements ActionListener {
 	protected JList<?> entityList;
 	protected UserCommandAddEntity addButton;
 
-	public WorldControlPanel(RobotOverlord gui,World world) {
+	public WorldPanel(RobotOverlord gui,World world) {
 		super();
 		
 		this.gui = gui;

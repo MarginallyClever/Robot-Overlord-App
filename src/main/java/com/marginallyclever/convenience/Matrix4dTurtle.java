@@ -102,7 +102,7 @@ public class Matrix4dTurtle extends Observable {
 	 * @param t
 	 * @return if steps null, return null.  else return InterpolationStep closest to t.
 	 */
-	public InterpolationStep getStepAtTime(double t) {
+	public InterpolationStep getStepTargetAtTime(double t) {
 		if(steps.isEmpty()) return null;
 		
 		for( InterpolationStep step : steps) {
@@ -144,7 +144,7 @@ public class Matrix4dTurtle extends Observable {
 		if(thisStepSoFar>=thisStepDuration) {
 			thisStepSoFar-=thisStepDuration;
 
-			InterpolationStep step = getStepAtTime(playHead);
+			InterpolationStep step = getStepTargetAtTime(playHead);
 			if(step!=null) {
 				System.out.print("\tstep "+ steps.indexOf(step) +"/"+steps.size());
 				thisStepStart.set(poseNow,0);
@@ -211,9 +211,11 @@ public class Matrix4dTurtle extends Observable {
 	public void setPlayhead(double t) {
 		playHead=t;
 		thisStepSoFar=getSoFarAtTime(playHead);
-		InterpolationStep step = getStepAtTime(playHead);
-		thisStepEnd=step;
-		thisStepDuration=thisStepEnd.duration;
+		InterpolationStep step = getStepTargetAtTime(playHead);
+		if(step!=null) {
+			thisStepEnd=step;
+			thisStepDuration=thisStepEnd.duration;
+		}
 	}
 	
 	public int getQueueSize() {
