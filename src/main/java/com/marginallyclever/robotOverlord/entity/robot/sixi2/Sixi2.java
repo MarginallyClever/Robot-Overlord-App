@@ -17,9 +17,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.DragBall;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -82,10 +80,10 @@ public class Sixi2 extends Robot {
 	
 	public Sixi2() {
 		super();
-		setDisplayName("Sixi 2");
+		setName("Sixi 2");
 		
-		live.setParent(this);
-		sim.setParent(this);
+		addChild(live);
+		addChild(sim);
 		
 		ball = new DragBall();
 		ball.setParent(this);
@@ -140,59 +138,9 @@ public class Sixi2 extends Robot {
 		return list;
 	}
 	
-	public void setupModels(DHRobot robot) {
-		try {
-			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor2.stl",0.1f);
-			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder2.stl",0.1f);
-			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep2.stl",0.1f);
-			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm2.stl",0.1f);
-			robot.links.get(5).model = ModelFactory.createModelFromFilename("/Sixi2/tuningFork2.stl",0.1f);
-			robot.links.get(6).model = ModelFactory.createModelFromFilename("/Sixi2/picassoBox2.stl",0.1f);
-			robot.links.get(7).model = ModelFactory.createModelFromFilename("/Sixi2/hand2.stl",0.1f);
-
-			double ELBOW_TO_ULNA_Y = -28.805;
-			double ELBOW_TO_ULNA_Z = 4.7201;
-			double ULNA_TO_WRIST_Y = -11.800;
-			double ULNA_TO_WRIST_Z = 0;
-			double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;  //-40.605
-			double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;  // 4.7201
-			//double WRIST_TO_HAND = 8.9527;
-
-			robot.links.get(0).model.adjustOrigin(new Vector3d(0, 0, 5.15));
-			robot.links.get(1).model.adjustOrigin(new Vector3d(0, 0, -5.3));
-			robot.links.get(2).model.adjustOrigin(new Vector3d(-1.82, 0, 9));
-			robot.links.get(3).model.adjustOrigin(new Vector3d(0,ELBOW_TO_WRIST_Y,ELBOW_TO_WRIST_Z));
-			robot.links.get(5).model.adjustOrigin(new Vector3d(0, 0, -ULNA_TO_WRIST_Y));
-			robot.links.get(7).model.adjustOrigin(new Vector3d(0,0,-3.9527));
-
-			robot.links.get(0).model.adjustRotation(new Vector3d(90,180,0));
-			robot.links.get(1).model.adjustRotation(new Vector3d(90,-90,0));
-			robot.links.get(2).model.adjustRotation(new Vector3d(90,0,0));
-			robot.links.get(3).model.adjustRotation(new Vector3d(-90,0,180));
-			robot.links.get(5).model.adjustRotation(new Vector3d(0,180,0));
-			robot.links.get(6).model.adjustRotation(new Vector3d(180,0,180));
-			robot.links.get(7).model.adjustRotation(new Vector3d(180,0,180));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	
 	@Override
 	public void render(GL2 gl2) {
-		if(!isModelLoaded) {
-			loadModels(gl2);
-			setupModels(live);
-			setupModels(sim);
-			isModelLoaded=true;
-		}
-		
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, getMatrix());
-			live .render(gl2);
-			sim.render(gl2);
-		gl2.glPopMatrix();
-
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -230,8 +178,8 @@ public class Sixi2 extends Robot {
 	 * @return true if targetPose changes.
 	 */
 	public boolean driveFromKeyState(double dt) {
-		ball.setSubjectMatrix(sim.getEndEffectorMatrix());
-		ball.setCameraMatrix(getWorld().getCamera().getMatrix());	
+		ball.setSubjectMatrix(sim.links.get(sim.getNumLinks()-1).getPoseCumulative());
+		ball.setCameraMatrix(getWorld().getCamera().getPose());	
 		
 		boolean isDirty = false;
 		/*
@@ -452,8 +400,8 @@ public class Sixi2 extends Robot {
 		sim.refreshPose();
 		
 		for( DHLink link : this.sim.links ) {
-			if(link.cuboid != null ) {
-				cuboidList.add(link.cuboid);
+			if(link.getCuboid() != null ) {
+				cuboidList.add(link.getCuboid());
 			}
 		}
 
@@ -461,8 +409,8 @@ public class Sixi2 extends Robot {
 	}
 	
 	@Override
-	public void setMatrix(Matrix4d arg0) {
-		super.setMatrix(arg0);
+	public void setPose(Matrix4d arg0) {
+		super.setPose(arg0);
 		live.refreshPose();
 		sim.refreshPose();
 	}

@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 /**
@@ -11,12 +10,7 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
  * @author Dan Royer
  *
  */
-public class DHTool extends ModelInWorld {
-	/**
-	 * A DHLink representation of this tool for kinematic solving.
-	 */
-	public DHLink dhLink;
-	
+public class DHTool extends DHLink {	
 	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
@@ -24,17 +18,16 @@ public class DHTool extends ModelInWorld {
 	
 	
 	public DHTool() {
-		dhLink = new DHLink();
-		dhLink.rangeMin=0;
-		dhLink.rangeMax=0;
-		dhLink.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
-		dhLink.refreshPoseMatrix();
-		setDisplayName("No Tool");
+		rangeMin=0;
+		rangeMax=0;
+		flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
+		refreshPoseMatrix();
+		setName("No Tool");
 	}
 	
 	public void set(DHTool b) {
-		dhLink = new DHLink(b.dhLink);
-		setDisplayName(b.getDisplayName());
+		super.set(b);
+		setName(b.getName());
 	}
 	
 	/**
@@ -47,20 +40,16 @@ public class DHTool extends ModelInWorld {
 	
 	public void refreshPose(Matrix4d endMatrix) {
 		// update matrix
-		dhLink.refreshPoseMatrix();
+		refreshPoseMatrix();
 		// find cumulative matrix
-		endMatrix.mul(dhLink.pose);
-		dhLink.poseCumulative.set(endMatrix);
+		endMatrix.mul(getPose());
+		poseCumulative.set(endMatrix);
 
 		// set up the physical limits
-		if( dhLink.model != null ) {
-			dhLink.cuboid.setMatrix(dhLink.poseCumulative);
-			dhLink.cuboid.setBounds(dhLink.model.getBoundTop(), dhLink.model.getBoundBottom());
+		cuboid.setPose(poseCumulative);
+		if( getModel() != null ) {
+			cuboid.setBounds(getModel().getBoundsTop(), getModel().getBoundsBottom());
 		}
-	}
-	
-	public double getAdjustableValue() {
-		return dhLink.getAdjustableValue();
 	}
 
 	public String generateGCode() {

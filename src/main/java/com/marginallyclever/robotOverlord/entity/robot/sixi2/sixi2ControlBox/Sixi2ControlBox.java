@@ -18,7 +18,7 @@ public class Sixi2ControlBox extends ModelInWorld {
 	public Sixi2ControlBox() {
 		super();
 		
-		setDisplayName("Sixi2ControlBox");
+		setName("Sixi2ControlBox");
 		
 		try {
 			this.model = ModelFactory.createModelFromFilename("/Sixi2/box.stl",0.1f);

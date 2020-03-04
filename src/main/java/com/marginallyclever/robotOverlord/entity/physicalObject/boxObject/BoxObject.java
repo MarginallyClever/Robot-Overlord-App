@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.entity.material.MaterialPanel;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 public class BoxObject extends PhysicalObject {
-	public double width, height, depth;
+	private double width, height, depth;
 	
 	protected BoxObjectPanel boxPanel;
 	protected MaterialPanel materialPanel;
@@ -25,7 +25,7 @@ public class BoxObject extends PhysicalObject {
 	
 	public BoxObject() {
 		super();
-		setDisplayName("Box");
+		setName("Box");
 		depth=width=height=1;
 		mat=new Material();
 	}
@@ -53,7 +53,7 @@ public class BoxObject extends PhysicalObject {
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			MatrixHelper.applyMatrix(gl2, this.getPose());
 		
 			// TODO this should probably be an option that can be toggled.
 			// It is here to fix scaling of the entire model.  It won't 
@@ -62,7 +62,9 @@ public class BoxObject extends PhysicalObject {
 	
 			// draw placeholder
 			mat.render(gl2);
-			PrimitiveSolids.drawBox(gl2, (float)depth, (float)width, (float)height);
+			//PrimitiveSolids.drawBox(gl2, (float)depth, (float)width, (float)height);
+			cuboid.setPose(getPose());  // TODO should be cumulative pose!
+			PrimitiveSolids.drawBoxWireframe(gl2,cuboid.getBoundsBottom(),cuboid.getBoundsTop());
 		
 		gl2.glPopMatrix();
 	}
@@ -74,10 +76,37 @@ public class BoxObject extends PhysicalObject {
 	 */
 	@Override
 	public ArrayList<Cuboid> getCuboidList() {
+		return super.getCuboidList();
+	}
+
+	private void updateCuboid() {
 		Point3d _boundBottom = new Point3d(-width/2,-depth/2,0);
 		Point3d _boundTop = new Point3d(width/2,depth/2,height);
 		cuboid.setBounds(_boundTop, _boundBottom);
-
-		return super.getCuboidList();
 	}
+
+	public void setWidth(double value) {
+		width=value;
+		updateCuboid();
+	}
+	public void setDepth(double value) {
+		depth=value;
+		updateCuboid();
+	}
+	public void setHeight(double value) {
+		height=value;
+		updateCuboid();
+	}
+
+
+	public void setSize(double w, double h, double d) {
+		width=w;
+		depth=d;
+		height=h;
+		updateCuboid();
+	}
+	
+	public double getWidth() { return width; }
+	public double getDepth() { return depth; }
+	public double getHeight() { return height; }
 }

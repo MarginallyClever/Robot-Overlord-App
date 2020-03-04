@@ -45,13 +45,20 @@ public class Sixi2Sim extends Sixi2Model {
 	  
 	public Sixi2Sim() {
 		super();
+		setName("Sim");
+		
 		poseTarget = new double[6];
 		poseFrom = new double[6];
 		poseLive = new double[6];
 		
 	    readyForCommands=true;
-		material.setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
+	    
+	    // set blue
+	    for( DHLink link : links ) {
+	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
+	    }
 
+	    // the home position
 		homeKey = getIKSolver().createDHKeyframe();
 		homeKey.fkValues[0]=0;
 		homeKey.fkValues[1]=0;
@@ -98,7 +105,7 @@ public class Sixi2Sim extends Sixi2Model {
 	    long tNow=System.currentTimeMillis();
 	    long dtms = arrivalTime - tNow;
 
-	    if(dtms>0) {
+	    if(dtms>=0) {
 	    	// linear interpolation of movement
 	    	float tTotal = arrivalTime - startTime;
 	    	float tPassed = tNow - startTime;
@@ -106,19 +113,20 @@ public class Sixi2Sim extends Sixi2Model {
 
 	    	int i=0;
 	    	for( DHLink n : links ) {
-	    		if( n.getLetter()==null ) continue;
+	    		if( n.getName()==null ) continue;
 	    		n.setAdjustableValue((poseTarget[i] - poseFrom[i]) * tFraction + poseFrom[i]);
 	    		++i;
 	    	}
 	    } else {
 	    	// nothing happening
 	    	// all stop
+	    	/*
 	    	int i=0;
 	    	for( DHLink n : links ) {
-	    		if( n.getLetter()==null ) continue;
+	    		if( n.getName()==null ) continue;
 	    		poseLive[i] = poseTarget[i];
 	    		n.setAdjustableValue(poseTarget[i]);
-	    	}
+	    	}*/
 	    	// ready for new command
 	    	readyForCommands=true;
 	    }

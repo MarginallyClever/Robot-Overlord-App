@@ -206,6 +206,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.gridy++;
 		livePanel.getContentPane().setLayout(new BoxLayout(livePanel.getContentPane(),BoxLayout.PAGE_AXIS));
 		
+		
+		
 		// live panel
 		JPanel contents = new JPanel();
 		livePanel.getContentPane().add(contents);
@@ -321,12 +323,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		p.removeAll();
 		Vector3d pos = new Vector3d();
 		r.getEndEffectorMatrix().get(pos);
-		p.add(new JLabel("X"));
-		p.add(new JLabel(StringHelper.formatDouble(pos.x)));
-		p.add(new JLabel("Y"));
-		p.add(new JLabel(StringHelper.formatDouble(pos.y)));
-		p.add(new JLabel("Z"));
-		p.add(new JLabel(StringHelper.formatDouble(pos.z)));
+		p.add(new JLabel("X"));	 p.add(new JLabel(StringHelper.formatDouble(pos.x)));
+		p.add(new JLabel("Y"));	 p.add(new JLabel(StringHelper.formatDouble(pos.y)));
+		p.add(new JLabel("Z"));	 p.add(new JLabel(StringHelper.formatDouble(pos.z)));
 		SpringUtilities.makeCompactGrid(p, 1, 6, 5, 5, 5, 5);
 	}
 	
@@ -426,10 +425,10 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		robot.interpolator.setPlaying(false);
 		playNow.setText("Play");
 	}
-	
+
+	// for checkboxes
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		// for checkboxes
 		Object source = e.getItemSelectable();
 		if(source == immediateDriving) {
 			robot.toggleControlMode();

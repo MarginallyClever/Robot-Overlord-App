@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.util.List;
-import java.util.Observable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -13,7 +12,9 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
@@ -22,7 +23,7 @@ import com.marginallyclever.robotOverlord.entity.world.World;
  * 
  * @author Dan Royer
  */
-public class DHRobot extends Observable {
+public class DHRobot extends ModelInWorld {
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links;
 	// The solver for this type of robot
@@ -44,7 +45,6 @@ public class DHRobot extends Observable {
 	
 	protected int hitBox1, hitBox2; // display which hitboxes are colliding
 
-	protected PhysicalObject parent;
 	public Material material;
 	
 
@@ -60,6 +60,8 @@ public class DHRobot extends Observable {
 	}
 		
 	private void reset() {
+		setName("DHRobot");
+		
 		links = new ArrayList<DHLink>();
 
 		endEffectorMatrix = new Matrix4d();
@@ -77,17 +79,20 @@ public class DHRobot extends Observable {
 	}
 
 	public void set(DHRobot b) {
+		super.set(b);;
 		// remove any exiting links from other robot to be certain.
-		links.clear();
-		// copy my links to the next robot
-		for( DHLink link : b.links ) {
-			// copy my links into the other robot.
-			links.add(new DHLink(link));
-		}
-		solver = b.solver;
-		endEffectorMatrix.set(b.endEffectorMatrix);
-		dhTool.set(b.dhTool);
+		setNumLinks(b.getNumLinks());
 		
+		solver = b.solver;
+
+		endEffectorMatrix.set(b.endEffectorMatrix);
+		
+		// copy my links to the next robot
+		for(int i=0;i<b.getNumLinks();++i) {
+			links.get(i).set(b.links.get(i));
+		}
+		dhTool.set(b.dhTool);
+
 		disablePanel = b.disablePanel;
 		showBones = b.showBones;
 		showPhysics = b.showPhysics;
@@ -95,8 +100,6 @@ public class DHRobot extends Observable {
 		
 		hitBox1 = b.hitBox1;
 		hitBox2 = b.hitBox2;
-		
-		parent = b.parent;
 		
 		refreshPose();
 	}
@@ -115,9 +118,9 @@ public class DHRobot extends Observable {
 	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
 	}
-
 	
-	public void render(GL2 gl2) {
+	@Deprecated
+	public void renderOld(GL2 gl2) {
 		material.render(gl2);
 		
 		gl2.glPushMatrix();
@@ -129,9 +132,9 @@ public class DHRobot extends Observable {
 			// 3d meshes
 			for( DHLink link : links ) {
 				gl2.glColor4f(original[0],original[1],original[2],original[3]);
+				MatrixHelper.applyMatrix(gl2, link.getPose());
 				link.render(gl2);
 				link.setAngleColorByRange(gl2);
-				MatrixHelper.applyMatrix(gl2, link.pose);
 			}
 			gl2.glColor4f(original[0],original[1],original[2],original[3]);
 			gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
@@ -152,26 +155,22 @@ public class DHRobot extends Observable {
 				if (showAngles)	link.renderAngles(gl2);
 				if (showPhysics) 
 				{
-					if( link.model != null) {
+					if( link.getModel() != null) {
 						// Draw the bounding box of the model as the physical bounding box
 						// TODO there are better shapes for collision detection?
-						if (j == hitBox1 || j == hitBox2) {
-							// hit
-							gl2.glColor4d(1, 0, 0.8, 0.15);
-						} else {
-							// no hit
-							gl2.glColor4d(1, 0.8, 0, 0.15);
-						}
-						PrimitiveSolids.drawBox(gl2, link.model.getBoundBottom(), link.model.getBoundTop());
+						if (j == hitBox1 || j == hitBox2) gl2.glColor4d(1, 0, 0.8, 0.15); // hit
+						else							  gl2.glColor4d(1, 0.8, 0, 0.15); // no hit
+
+						PrimitiveSolids.drawBox(gl2, link.getModel().getBoundsBottom(), link.getModel().getBoundsTop());
 					}
 				}
-				MatrixHelper.applyMatrix(gl2,link.pose);
+				MatrixHelper.applyMatrix(gl2,link.getPose());
 				++j;
 			}
 				
 			if (dhTool != null) {
-				if (showBones ) dhTool.dhLink.renderBones (gl2);
-				if (showAngles) dhTool.dhLink.renderAngles(gl2);
+				if (showBones ) dhTool.renderBones (gl2);
+				if (showAngles) dhTool.renderAngles(gl2);
 				//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
 				//	 gl2.glColor4d(1,0,0.8,0.15);
 				//	 PrimitiveSolids.drawBox(gl2,
@@ -190,10 +189,12 @@ public class DHRobot extends Observable {
 	}
 
 	public Matrix4d getParentMatrix() {
-		if( parent == null ) {
-			return new Matrix4d();
+		if( parent == null || !(parent instanceof PhysicalObject) ) {
+			Matrix4d m = new Matrix4d();
+			m.setIdentity();
+			return m;
 		} else {
-			return parent.getMatrix();
+			return ((PhysicalObject)parent).getPose();
 		}
 	}
 	
@@ -204,17 +205,21 @@ public class DHRobot extends Observable {
 	public void refreshPose() {
 		endEffectorMatrix.set(getParentMatrix());
 
+		if(model != null) {
+			cuboid.setBounds(model.getBoundsTop(), model.getBoundsBottom());
+		}
+		
 		for( DHLink link : links ) {
 			// update matrix
 			link.refreshPoseMatrix();
 			// find cumulative matrix
 			link.poseCumulative.set(endEffectorMatrix);
-			endEffectorMatrix.mul(link.pose);
+			endEffectorMatrix.mul(link.getPose());
 
 			// set up the physical limits
-			link.cuboid.setMatrix(link.poseCumulative);
-			if( link.model != null ) {
-				link.cuboid.setBounds(link.model.getBoundTop(), link.model.getBoundBottom());
+			link.cuboid.setPose(link.poseCumulative);
+			if(link.getModel()!=null) {
+				link.cuboid.setBounds(link.getModel().getBoundsTop(), link.getModel().getBoundsBottom());
 			}
 		}
 		if (dhTool != null) {
@@ -231,23 +236,26 @@ public class DHRobot extends Observable {
 		if (newSize < 1)
 			newSize = 1;
 
-		int oldSize = links.size();
-		while (oldSize > newSize) {
-			oldSize--;
-			links.remove(0);
-		}
-		while (oldSize < newSize) {
-			oldSize++;
-			links.add(new DHLink());
+		links.clear();
+		Entity prev=this;
+		for(int s = 0; s < newSize;++s) {
+			DHLink newLink = new DHLink();
+			prev.addChild(newLink);
+			links.add(newLink);
+			prev=newLink;
 		}
 	}
 
+	// the tool should be the child of the last link in the chain
 	public void setTool(DHTool arg0) {
 		dhTool = arg0;
-		this.panel.updateActiveTool(dhTool);
+		links.get(links.size()-1).addChild(arg0);
+		this.panel.updateActiveTool(arg0);
 	}
 
 	public void removeTool() {
+		// the child of the last link in the chain is the tool
+		links.get(links.size()-1).removeChild(dhTool);
 		dhTool = null;
 		this.panel.updateActiveTool(null);
 	}
@@ -289,17 +297,19 @@ public class DHRobot extends Observable {
 
 		int size = clone.links.size();
 		for (int i = 0; i < size; ++i) {
-			if (clone.links.get(i).model == null)
+			if (clone.links.get(i).getModel() == null)
 				continue;
 
 			for (int j = i + 3; j < size; ++j) {
-				if (clone.links.get(j).model == null)
+				if (clone.links.get(j).getModel() == null)
 					continue;
 
 				if (IntersectionTester.cuboidCuboid(
-						clone.links.get(i).cuboid,
-						clone.links.get(j).cuboid)) {
-					// System.out.println("Intersect "+i+"/"+j+" (1)!");
+						clone.links.get(i).getCuboid(),
+						clone.links.get(j).getCuboid())) {
+						System.out.println("Self collision between "+
+									i+":"+clone.links.get(i).getName()+" and "+
+									j+":"+clone.links.get(j).getName());
 					hitBox1 = i;
 					hitBox2 = j;
 					return true;
@@ -318,7 +328,9 @@ public class DHRobot extends Observable {
 	 * @return true if there are no collisions
 	 */
 	public boolean collidesWithWorld(DHKeyframe keyframe) {
-		if( this.parent == null ) return false;
+		if( this.parent == null ) {
+			return false;
+		}
 
 		// create a clone of the robot
 		DHRobot clone = new DHRobot(this);
@@ -486,13 +498,5 @@ public class DHRobot extends Observable {
 
 	public void setDisablePanel(boolean disablePanel) {
 		this.disablePanel = disablePanel;
-	}
-
-	public PhysicalObject getParent() {
-		return parent;
-	}
-
-	public void setParent(PhysicalObject parent) {
-		this.parent = parent;
 	}
 }

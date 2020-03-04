@@ -6,7 +6,6 @@ import javax.swing.JPanel;
 
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -153,19 +152,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			}
 		}
 	}
-	
-	// Must be called by subclass to loadModels on render.
-	@Override
-	public void render(GL2 gl2) {
-		if(!isModelLoaded) {
-			loadModels(gl2);
-			isModelLoaded=true;
-		}
-		super.render(gl2);
-	}
-	
-	// stub to be overridden by subclasses.
-	protected void loadModels(GL2 gl2) {}
 	
 	/**
 	 * Processes a single instruction meant for the robot.

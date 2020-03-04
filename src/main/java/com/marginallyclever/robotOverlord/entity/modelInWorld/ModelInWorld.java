@@ -6,7 +6,6 @@ import javax.swing.JPanel;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -22,9 +21,8 @@ public class ModelInWorld extends PhysicalObject {
 	protected transient ModelInWorldPanel modelPanel;
 	protected Material material;
 	
-	// model render scale
+	// model adjustments during loading
 	protected float scale=1;
-	// model adjusted origin
 	protected Vector3d originAdjust;
 	protected Vector3d rotationAdjust;
 	
@@ -34,9 +32,19 @@ public class ModelInWorld extends PhysicalObject {
 		originAdjust = new Vector3d();
 		rotationAdjust = new Vector3d();
 		material = new Material();
-		setDisplayName("Model");
+		setName("Model");
 	}
 
+	public void set(ModelInWorld b) {
+		super.set(b);
+		filename = b.filename;
+		model = b.model;
+		material.set(b.material);
+
+		scale = b.scale;
+		originAdjust.set(b.originAdjust);
+		rotationAdjust.set(b.rotationAdjust);
+	}
 	
 	public String getFilename() {
 		return filename;
@@ -62,7 +70,16 @@ public class ModelInWorld extends PhysicalObject {
 		// if the filename has changed, throw out the model so it will be reloaded.
 		if( this.filename != newFilename ) {
 			this.filename = newFilename;
-			model=null;
+			
+			try {
+				model = ModelFactory.createModelFromFilename(newFilename);
+				model.setScale(scale);
+				model.adjustOrigin(originAdjust);
+				model.adjustRotation(rotationAdjust);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -85,7 +102,7 @@ public class ModelInWorld extends PhysicalObject {
 	}
 
 	public void setModelOrigin(Vector3d arg0) {
-		originAdjust.set(arg0);;
+		originAdjust.set(arg0);
 		if(model!=null) model.adjustOrigin(originAdjust);
 	}
 	
@@ -112,20 +129,9 @@ public class ModelInWorld extends PhysicalObject {
 
 	@Override
 	public void render(GL2 gl2) {
-		if( model==null && filename != null ) {
-			try {
-				model = ModelFactory.createModelFromFilename(filename);
-				model.setScale(scale);
-				model.adjustOrigin(originAdjust);
-				model.adjustRotation(rotationAdjust);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
 		gl2.glPushMatrix();
 
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			MatrixHelper.applyMatrix(gl2, this.getPose());
 			
 			// TODO: this should probably be an option that can be toggled.
 			// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.
@@ -142,23 +148,16 @@ public class ModelInWorld extends PhysicalObject {
 			}
 			
 		gl2.glPopMatrix();
-	}
-
-
-	/**
-	 * 
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		if(model != null) {
-			cuboid.setBounds(model.getBoundTop(), model.getBoundBottom());
-		}
 		
-		return super.getCuboidList();
+		super.render(gl2);
 	}
+
 	
 	public Material getMaterial() {
 		return material;
+	}
+
+	public Model getModel() {
+		return model;
 	}
 }

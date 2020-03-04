@@ -6,18 +6,26 @@ import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 
 public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 	protected NetworkConnection connection;
-	protected DHKeyframe receivedKeyframe;
+	
 	protected DHKeyframe restKey;
+	
+	protected DHKeyframe receivedKeyframe;
 	
 	public Sixi2Live() {
 		super();
+		setName("Live");
 	    readyForCommands=false;
-	    material.setDiffuseColor(1,217f/255f,33f/255f,1);
+
+	    // set yellow
+	    for( DHLink link : links ) {
+	    	link.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
+	    }
 	    
-		receivedKeyframe = getIKSolver().createDHKeyframe();
+	    // set rest position
 		restKey = getIKSolver().createDHKeyframe();
 		restKey.fkValues[0]=0;
 		restKey.fkValues[1]=-60;
@@ -26,6 +34,9 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 		restKey.fkValues[4]=20;
 		restKey.fkValues[5]=0;
 		setPoseFK(restKey);
+		
+		// where to store incoming position data
+		receivedKeyframe = getIKSolver().createDHKeyframe();		
 	}
 	
 	public void closeConnection() {

@@ -1,21 +1,18 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
-import java.util.Observable;
-
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.engine.model.Model;
+import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 
 /**
  * Denavit–Hartenberg parameters
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends Observable {
+public class DHLink extends ModelInWorld {
 	// length (mm) along previous Z to the common normal
 	private double d;
 	// angle (degrees) about previous Z, from old X to new X
@@ -26,15 +23,7 @@ public class DHLink extends Observable {
 	private double alpha;
 	
 	// computed matrix based on the D-H parameters
-	public Matrix4d pose;
-	// computed matrix based on the D-H parameters
 	public Matrix4d poseCumulative;
-
-	// 3D model to render at this link
-	public transient Model model;
-	
-	// World space cuboid for intersection testing
-	public transient Cuboid cuboid;
 	
 	// dynamics are described in a 4x4 matrix
 	//     [ Ixx Ixy Ixz } XgM ]
@@ -70,7 +59,6 @@ public class DHLink extends Observable {
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
-		cuboid = new Cuboid();
 		
 		flags=0;
 		d=0;
@@ -91,12 +79,12 @@ public class DHLink extends Observable {
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
-		cuboid = new Cuboid();
 		
 		set(arg0);
 	} 
 	
 	public void set(DHLink arg0) {
+		setName(arg0.getName());
 		pose.set(arg0.pose);
 		poseCumulative.set(arg0.poseCumulative);
 		inertia.set(arg0.inertia);
@@ -135,19 +123,6 @@ public class DHLink extends Observable {
 	}
 
 	/**
-	 * Render the model in a D-H chain.  
-	 * Changes the current render matrix!  Clean up after yourself!  
-	 * @param gl2 the render context
-	 */
-	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
-		if(model!=null) {
-			model.render(gl2);
-		}
-		gl2.glPopMatrix();
-	}
-
-	/**
 	 * Render the "bone" for one link in a D-H chain.  
 	 * Changes the current render matrix!  Clean up after yourself!  
 	 * @param gl2 the render context
@@ -168,6 +143,18 @@ public class DHLink extends Observable {
 			gl2.glVertex3d(r, 0, d);
 			gl2.glEnd();
 		gl2.glPopMatrix();
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		// change material property here to color by range
+
+		float [] diffuse = material.getDiffuseColor();
+		setAngleColorByRange(gl2);
+		
+		super.render(gl2);
+		
+		material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 	}
 	
 	/**
@@ -305,15 +292,14 @@ public class DHLink extends Observable {
 		safety*=safety*safety;  // squared
 		//gl2.glColor4d(safety,1-safety,0,0.5);
 //		float [] diffuse = {safety,1-safety,0,0};
-		float [] original = new float[4];
 		
-		gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
+		float [] original = material.getDiffuseColor();
+		
 		original[0]+=safety;
 		original[1]-=safety;
 		original[2]-=safety;
 		
-		gl2.glColor4f(original[0],original[1],original[2],original[3]);
-		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
+		material.setDiffuseColor(original[0],original[1],original[2],original[3]);
 	}
 	
 	public boolean hasAdjustableValue() {
@@ -413,12 +399,8 @@ public class DHLink extends Observable {
 	public double getRangeCenter() {
 		return (rangeMax+rangeMin)/2.0;
 	}
-
-	public String getLetter() {
-		return letter;
-	}
-
-	public void setLetter(String letter) {
-		this.letter = letter;
+	
+	public Matrix4d getPoseCumulative() {
+		return poseCumulative;
 	}
 }
