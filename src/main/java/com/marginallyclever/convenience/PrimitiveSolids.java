@@ -193,49 +193,36 @@ public class PrimitiveSolids {
 		double y1=top.y;
 		double z1=top.z;
 
-		gl2.glPushMatrix();
-			gl2.glBegin(GL2.GL_QUADS);
-				// bottom
-				gl2.glNormal3f( 0, 0,-1);
-				gl2.glVertex3d(x0,y1,z0);
-				gl2.glVertex3d(x1,y1,z0);
-				gl2.glVertex3d(x1,y0,z0);
-				gl2.glVertex3d(x0,y0,z0);
-		
-				// top
-				gl2.glNormal3f( 0, 0, 1);
-				gl2.glVertex3d(x1,y1,z1);
-				gl2.glVertex3d(x0,y1,z1);
-				gl2.glVertex3d(x0,y0,z1);
-				gl2.glVertex3d(x1,y0,z1);
-		
-				
-				// side
-				gl2.glNormal3f( 0, 1, 0);
-				gl2.glVertex3d(x0,y1,z1);
-				gl2.glVertex3d(x1,y1,z1);
-				gl2.glVertex3d(x1,y1,z0);
-				gl2.glVertex3d(x0,y1,z0);
-				
-				gl2.glNormal3f( 0,-1, 0);
-				gl2.glVertex3d(x1,y0,z1);
-				gl2.glVertex3d(x0,y0,z1);
-				gl2.glVertex3d(x0,y0,z0);
-				gl2.glVertex3d(x1,y0,z0);
-		
-				gl2.glNormal3f( 1, 0, 0);
-				gl2.glVertex3d(x1,y1,z0);
-				gl2.glVertex3d(x1,y1,z1);
-				gl2.glVertex3d(x1,y0,z1);
-				gl2.glVertex3d(x1,y0,z0);
-			
-				gl2.glNormal3f(-1, 0, 0);
-				gl2.glVertex3d(x0,y0,z1);
-				gl2.glVertex3d(x0,y1,z1);
-				gl2.glVertex3d(x0,y1,z0);
-				gl2.glVertex3d(x0,y0,z0);
-			gl2.glEnd();
-		gl2.glPopMatrix();
+		gl2.glBegin(GL2.GL_QUADS);
+			gl2.glNormal3f( 0, 0,-1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glVertex3d(x0,y0,z0);  // bottom
+			gl2.glNormal3f( 0, 0, 1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x1,y0,z1);  // top
+			gl2.glNormal3f( 0, 1, 0);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x0,y1,z0);  // side
+			gl2.glNormal3f( 0,-1, 0);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y0,z0);	gl2.glVertex3d(x1,y0,z0);
+			gl2.glNormal3f( 1, 0, 0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x1,y0,z0);
+			gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);
+		gl2.glEnd();
+	}
+
+	/**
+	 * draw box based on two corners
+	 * @param gl2
+	 * @param bottom minimum bounds
+	 * @param top maximum bounds
+	 */
+	static public void drawBoxWireframe(GL2 gl2,Point3d bottom,Point3d top) {
+		double x0=bottom.x;
+		double y0=bottom.y;
+		double z0=bottom.z;
+		double x1=top.x;
+		double y1=top.y;
+		double z1=top.z;
+
+		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0, 0,-1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();  // bottom	
+		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0, 0, 1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glEnd();  // top
+		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0, 1, 0);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x0,y1,z0);	gl2.glEnd();  // side
+		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0,-1, 0);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y0,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glEnd();
+		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 1, 0, 0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x1,y0,z0);	gl2.glEnd();
+		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();
 	}
 	
 
