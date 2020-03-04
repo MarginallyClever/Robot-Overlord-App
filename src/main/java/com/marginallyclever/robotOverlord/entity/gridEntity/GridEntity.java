@@ -19,7 +19,7 @@ public class GridEntity extends PhysicalObject {
 
 	public GridEntity() {
 		super();
-		setDisplayName("Grid");
+		setName("Grid");
 	}
 	
 	
@@ -43,7 +43,7 @@ public class GridEntity extends PhysicalObject {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, this.matrix);
+		MatrixHelper.applyMatrix(gl2, this.pose);
 		PrimitiveSolids.drawGrid(gl2,(int)width,(int)height,1);
 		gl2.glPopMatrix();
 	}
