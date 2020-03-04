@@ -1,7 +1,11 @@
 package com.marginallyclever.convenience;
 
+import java.nio.IntBuffer;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+
+import com.jogamp.opengl.GL2;
 
 /**
  * 
@@ -10,7 +14,8 @@ import javax.vecmath.Point3d;
  *
  */
 public class Cuboid extends BoundingVolume {
-	protected Matrix4d pose;
+	protected Matrix4d pose;  // relative to parent
+	protected Matrix4d poseWorld;  // relative to universe
 
 	protected Point3d boundTop;  // max limits
 	protected Point3d boundBottom;  // min limits
@@ -22,6 +27,8 @@ public class Cuboid extends BoundingVolume {
 	public Cuboid() {
 		pose = new Matrix4d();
 		pose.setIdentity();
+		poseWorld = new Matrix4d();
+		poseWorld.setIdentity();
 		boundTop = new Point3d();
 		boundBottom = new Point3d();
 
@@ -31,7 +38,7 @@ public class Cuboid extends BoundingVolume {
 	}
 
 	public void set(Cuboid b) {
-		pose.set(b.pose);
+		poseWorld.set(b.poseWorld);
 		boundTop.set(b.boundTop);
 		boundBottom.set(b.boundBottom);
 
@@ -41,21 +48,21 @@ public class Cuboid extends BoundingVolume {
 	}
 	
 	public void updatePoints() {
-		//if(!isDirty) return;
-		//isDirty=false;
+		if(!isDirty) return;
+		isDirty=false;
 		
 		p[0].set(boundBottom.x, boundBottom.y, boundBottom.z);
-		p[1].set(boundBottom.x, boundBottom.y, boundTop.z);
-		p[2].set(boundBottom.x, boundTop.y, boundBottom.z);
-		p[3].set(boundBottom.x, boundTop.y, boundTop.z);
-		p[4].set(boundTop.x, boundBottom.y, boundBottom.z);
-		p[5].set(boundTop.x, boundBottom.y, boundTop.z);
-		p[6].set(boundTop.x, boundTop.y, boundBottom.z);
-		p[7].set(boundTop.x, boundTop.y, boundTop.z);
+		p[1].set(boundBottom.x, boundBottom.y, boundTop   .z);
+		p[2].set(boundBottom.x, boundTop   .y, boundBottom.z);
+		p[3].set(boundBottom.x, boundTop   .y, boundTop   .z);
+		p[4].set(boundTop   .x, boundBottom.y, boundBottom.z);
+		p[5].set(boundTop   .x, boundBottom.y, boundTop   .z);
+		p[6].set(boundTop   .x, boundTop   .y, boundBottom.z);
+		p[7].set(boundTop   .x, boundTop   .y, boundTop   .z);
 
 		for (int i = 0; i < p.length; ++i) {
 			// System.out.print("\t"+p[i]);
-			pose.transform(p[i]);
+			poseWorld.transform(p[i]);
 			// System.out.println(" >> "+p[i]);
 		}
 	}
@@ -81,10 +88,29 @@ public class Cuboid extends BoundingVolume {
 		return boundBottom;
 	}
 	
-	public void setPose(Matrix4d m) {
-		if(!pose.epsilonEquals(m, 1e-4)) {
-			pose.set(m);
+	public void setPoseWorld(Matrix4d m) {
+		if(!poseWorld.epsilonEquals(m, 1e-4)) {
+			poseWorld.set(m);
 			isDirty=true;
 		}
+	}
+	
+	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+			//MatrixHelper.applyMatrix(gl2, poseWorld);
+
+			IntBuffer depthFunc = IntBuffer.allocate(1);
+			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
+			gl2.glDepthFunc(GL2.GL_ALWAYS);
+			
+			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+			gl2.glDisable(GL2.GL_LIGHTING);
+			
+			PrimitiveSolids.drawBoxWireframe(gl2, getBoundsBottom(),getBoundsTop());
+	
+			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+			
+			gl2.glDepthFunc(depthFunc.get());
+		gl2.glPopMatrix();
 	}
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -55,33 +54,32 @@ public abstract class PhysicalObject extends Entity {
 	}
 
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL2 gl2) {		
 		gl2.glPushMatrix();
-		
-			MatrixHelper.applyMatrix(gl2, pose);
-			// draw the children, if any
-			for(Entity e : children ) {
-				e.render(gl2);
-			}
-			
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_LIGHTING);
-			
 			// physical bounds
 			boolean drawBoundingBox=true;
-			if(drawBoundingBox) 
-			{
-				Point3d a = new Point3d(cuboid.getBoundsBottom());
-				Point3d b = new Point3d(cuboid.getBoundsTop());
-				PrimitiveSolids.drawBoxWireframe(gl2, a,b);
+			if(drawBoundingBox) {
+				cuboid.render(gl2);
 			}
+		
+			MatrixHelper.applyMatrix(gl2, pose);
+			
+			boolean drawLocalOrigin=false;
+			if(drawLocalOrigin) {
+				PrimitiveSolids.drawStar(gl2, new Vector3d(0,0,0),10);
+			}
+			
+			// draw children
+			super.render(gl2);
 
 			// now draw some useful info without lighting or depth testing
+			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+			gl2.glDisable(GL2.GL_LIGHTING);
+
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 			gl2.glDepthFunc(GL2.GL_ALWAYS);
 
-			
 			// connection to children
 			boolean drawConnectionToChildren=false;
 			if(drawConnectionToChildren) {
@@ -96,7 +94,8 @@ public abstract class PhysicalObject extends Entity {
 					}
 				}
 			}
-			gl2.glDepthFunc(GL2.GL_LESS);
+
+			gl2.glDepthFunc(depthFunc.get());
 			
 			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 			
@@ -180,7 +179,7 @@ public abstract class PhysicalObject extends Entity {
 	public ArrayList<Cuboid> getCuboidList() {		
 		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
 		
-		cuboid.setPose(this.getPose());
+		cuboid.setPoseWorld(this.getPose());
 		cuboidList.add(cuboid);
 
 		return cuboidList;

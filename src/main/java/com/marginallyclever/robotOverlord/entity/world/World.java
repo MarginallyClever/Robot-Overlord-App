@@ -502,9 +502,9 @@ public class World extends Entity {
 				for( Cuboid cuboidB : listB ) {
 					if( IntersectionTester.cuboidCuboid(cuboidA,cuboidB) ) {
 						System.out.println("Collision between "+
-							a.getName()+
+							a.getName()+"."+listA.indexOf(cuboidA)+
 							" and "+
-							b.getName());
+							b.getName()+"."+listB.indexOf(cuboidB));
 						return true;
 					}
 				}

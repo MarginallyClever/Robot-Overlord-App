@@ -250,6 +250,7 @@ public class MatrixHelper {
 		return true;
 	}
 	
+	// cumulative multiplication of matrixes
 	public static void applyMatrix(GL2 gl2,Matrix4d pose) {
 		double[] mat = new double[16];
 		mat[ 0] = pose.m00;
@@ -271,6 +272,29 @@ public class MatrixHelper {
 		
 		gl2.glMultMatrixd(mat, 0);	
 	} 
+	
+	
+	public static void setMatrix(GL2 gl2,Matrix4d pose) {
+		double[] mat = new double[16];
+		mat[ 0] = pose.m00;
+		mat[ 1] = pose.m10;
+		mat[ 2] = pose.m20;
+		mat[ 3] = pose.m30;
+		mat[ 4] = pose.m01;
+		mat[ 5] = pose.m11;
+		mat[ 6] = pose.m21;
+		mat[ 7] = pose.m31;
+		mat[ 8] = pose.m02;
+		mat[ 9] = pose.m12;
+		mat[10] = pose.m22;
+		mat[11] = pose.m32;
+		mat[12] = pose.m03;
+		mat[13] = pose.m13;
+		mat[14] = pose.m23;
+		mat[15] = pose.m33;
+		
+		gl2.glLoadMatrixd(mat, 0);	
+	}
 
 	
 	/**

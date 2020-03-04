@@ -125,9 +125,17 @@ public class IntersectionTester {
 	 * separation of axies theorem used to find intersection of two arbitrary boxes.
 	 * @param a
 	 * @param b
-	 * @return
+	 * @return true if cuboids intersect
 	 */
 	static public boolean cuboidCuboid(Cuboid a,Cuboid b) {
+		// infinitely small cuboids will incorrectly report hitting everything.
+		if(a.boundTop.epsilonEquals(a.boundBottom, 1e-6)) {
+			return false;
+		}
+		if(b.boundTop.epsilonEquals(b.boundBottom, 1e-6)) {
+			return false;
+		}
+
 		// only does the second test if the first test succeeds.
 		return cuboidCuboidInternal(a,b) &&
 				cuboidCuboidInternal(b,a);
@@ -137,9 +145,9 @@ public class IntersectionTester {
 	static protected boolean cuboidCuboidInternal(Cuboid a,Cuboid b) {
 		// get the normals for A
 		Vector3d[] n = new Vector3d[3];
-		n[0] = new Vector3d(a.pose.m00, a.pose.m10, a.pose.m20);
-		n[1] = new Vector3d(a.pose.m01, a.pose.m11, a.pose.m21);
-		n[2] = new Vector3d(a.pose.m02, a.pose.m12, a.pose.m22);
+		n[0] = new Vector3d(a.poseWorld.m00, a.poseWorld.m10, a.poseWorld.m20);
+		n[1] = new Vector3d(a.poseWorld.m01, a.poseWorld.m11, a.poseWorld.m21);
+		n[2] = new Vector3d(a.poseWorld.m02, a.poseWorld.m12, a.poseWorld.m22);
 		// System.out.println("aMatrix="+a.poseWorld);
 		
 		a.updatePoints();

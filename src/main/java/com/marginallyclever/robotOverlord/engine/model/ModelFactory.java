@@ -37,16 +37,12 @@ public class ModelFactory {
 		while(i.hasNext()) {
 			ModelLoadAndSave loader = i.next();
 			if(loader.canLoad() && loader.canLoad(sourceName)) {
-				try {
-					BufferedInputStream stream = FileAccess.open(sourceName);
-					m = loader.load(stream);
-					m.setSourceName(sourceName);
-					// Maybe add a m.setSaveAndLoader(loader); ?
-					modelPool.add(m);
-					break;
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
+				BufferedInputStream stream = FileAccess.open(sourceName);
+				m = loader.load(stream);
+				m.setSourceName(sourceName);
+				// Maybe add a m.setSaveAndLoader(loader); ?
+				modelPool.add(m);
+				break;
 			}
 		}
 

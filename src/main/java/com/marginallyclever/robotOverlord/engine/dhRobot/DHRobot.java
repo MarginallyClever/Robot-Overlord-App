@@ -217,7 +217,7 @@ public class DHRobot extends ModelInWorld {
 			endEffectorMatrix.mul(link.getPose());
 
 			// set up the physical limits
-			link.cuboid.setPose(link.poseCumulative);
+			link.cuboid.setPoseWorld(link.poseCumulative);
 			if(link.getModel()!=null) {
 				link.cuboid.setBounds(link.getModel().getBoundsTop(), link.getModel().getBoundsBottom());
 			}

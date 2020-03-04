@@ -63,7 +63,7 @@ public class BoxObject extends PhysicalObject {
 			// draw placeholder
 			mat.render(gl2);
 			//PrimitiveSolids.drawBox(gl2, (float)depth, (float)width, (float)height);
-			cuboid.setPose(getPose());  // TODO should be cumulative pose!
+			cuboid.setPoseWorld(getPose());  // TODO should be cumulative pose!
 			PrimitiveSolids.drawBoxWireframe(gl2,cuboid.getBoundsBottom(),cuboid.getBoundsTop());
 		
 		gl2.glPopMatrix();
