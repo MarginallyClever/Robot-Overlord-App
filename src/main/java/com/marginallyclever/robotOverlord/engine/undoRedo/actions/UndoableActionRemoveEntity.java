@@ -39,7 +39,7 @@ public class UndoableActionRemoveEntity extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Remove ")+entity.getDisplayName();
+		return Translator.get("Remove ")+entity.getName();
 	}
 
 

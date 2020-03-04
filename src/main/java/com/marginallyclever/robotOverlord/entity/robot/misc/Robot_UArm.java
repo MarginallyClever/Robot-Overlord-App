@@ -7,8 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTT;
-import com.marginallyclever.robotOverlord.engine.model.Model;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -19,12 +17,6 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
 public class Robot_UArm extends Robot {
-	private transient Model base;
-	private transient Model shoulder;
-	private transient Model bicep;
-	private transient Model forearm;
-	private transient Model wrist;
-	private transient Model hand;
 /*
 	private transient Model linkA1;
 	private transient Model linkA2;
@@ -38,7 +30,7 @@ public class Robot_UArm extends Robot {
 
 	public Robot_UArm() {
 		super();
-		setDisplayName("UArm");
+		setName("UArm");
 
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_RTT());
@@ -80,36 +72,23 @@ public class Robot_UArm extends Robot {
 	
 	public void setupModels(DHRobot robot) {
 		try {
-			base     = ModelFactory.createModelFromFilename("/uArm/base.STL",0.1f);
-			shoulder = ModelFactory.createModelFromFilename("/uArm/shoulder.STL",0.1f);
-			bicep    = ModelFactory.createModelFromFilename("/uArm/bicep.STL",0.1f);
-			forearm  = ModelFactory.createModelFromFilename("/uArm/forearm.STL",0.1f);
-			wrist    = ModelFactory.createModelFromFilename("/uArm/wrist.STL",0.1f);
-			hand     = ModelFactory.createModelFromFilename("/uArm/hand.STL",0.1f);/*
-			linkA1 = ModelFactory.createModelFromFilename("/uArm/linkA1.STL",0.1f);
-			linkA2 = ModelFactory.createModelFromFilename("/uArm/linkA2.STL",0.1f);
-			linkA3 = ModelFactory.createModelFromFilename("/uArm/linkA3.STL",0.1f);
-			linkB1 = ModelFactory.createModelFromFilename("/uArm/linkB1.STL",0.1f);
-			linkB2 = ModelFactory.createModelFromFilename("/uArm/linkB2.STL",0.1f);*/
-
-			robot.links.get(0).model = base;
-			robot.links.get(1).model = shoulder;
-			robot.links.get(2).model = bicep;
-			robot.links.get(3).model = forearm;
-			robot.links.get(4).model = wrist;
-			robot.links.get(5).model = hand;
-
-
-			robot.links.get(0).model.adjustOrigin(new Vector3d(0,0,1.65f));
-			robot.links.get(1).model.adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
-			robot.links.get(1).model.adjustRotation(new Vector3d(0,0,-180));
-			robot.links.get(2).model.adjustOrigin(new Vector3d(-0.25f,0,1.65f));
-			robot.links.get(2).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(3).model.adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
-			robot.links.get(3).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(4).model.adjustOrigin(new Vector3d(-0.25f,0,0));
-			robot.links.get(4).model.adjustRotation(new Vector3d(-90,0,90));
-			robot.links.get(5).model.adjustRotation(new Vector3d(0,-90,90));
+			robot.links.get(0).setFilename("/uArm/base.STL");
+			robot.links.get(1).setFilename("/uArm/shoulder.STL");
+			robot.links.get(2).setFilename("/uArm/bicep.STL");
+			robot.links.get(3).setFilename("/uArm/forearm.STL");
+			robot.links.get(4).setFilename("/uArm/wrist.STL");
+			robot.links.get(5).setFilename("/uArm/hand.STL");	
+			
+			robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,0,1.65f));
+			robot.links.get(1).getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
+			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,-180));
+			robot.links.get(2).getModel().adjustOrigin(new Vector3d(-0.25f,0,1.65f));
+			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(3).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
+			robot.links.get(3).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(4).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));
+			robot.links.get(4).getModel().adjustRotation(new Vector3d(-90,0,90));
+			robot.links.get(5).getModel().adjustRotation(new Vector3d(0,-90,90));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -134,7 +113,7 @@ public class Robot_UArm extends Robot {
 		live.refreshPose();
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.matrix);
+			MatrixHelper.applyMatrix(gl2, this.pose);
 			
 			// Draw models
 			Material mat = new Material();

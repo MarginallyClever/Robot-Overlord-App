@@ -13,7 +13,7 @@ public class Waypoint extends PhysicalObject {
 
 		
 	@Override
-	public String getDisplayName() {
+	public String getName() {
 		return "Waypoint";
 	}
 	

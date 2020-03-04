@@ -37,7 +37,7 @@ public class Model {
 	public transient boolean hasColors;
 	public transient boolean hasTextureCoordinates;
 	
-	protected transient float loadScale;
+	protected transient float scale;
 	public transient boolean isDirty;
 	
 	// display correction matrix
@@ -59,7 +59,7 @@ public class Model {
 		boundBottom = new Point3d();
 		adjustOrigin = new Vector3d();
 		adjustRotation = new Vector3d();
-		loadScale=1.0f;
+		scale=1.0f;
 		VBO = null;
 		hasNormals=false;
 		hasColors=false;
@@ -126,7 +126,7 @@ public class Model {
 		rot.mul(rotY);
 		rot.mul(rotZ);
 		Matrix4d pose = new Matrix4d(rot);
-		pose.setScale(loadScale);
+		pose.setScale(scale);
 		pose.setTranslation(adjustOrigin);
 
 		boundBottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
@@ -297,13 +297,13 @@ public class Model {
 	}
 	
 	public void setScale(float arg0) {
-		if(loadScale!=arg0) {
-			loadScale=arg0;
+		if(scale!=arg0) {
+			scale=arg0;
 			isDirty=true;
 		}
 	}
 	public float getScale() {
-		return loadScale;
+		return scale;
 	}
 	
 	public void addNormal(float x,float y,float z) {
@@ -345,7 +345,7 @@ public class Model {
 		rot.mul(rotY);
 		rot.mul(rotZ);
 		Matrix4d pose = new Matrix4d(rot);
-		pose.setScale(loadScale);
+		pose.setScale(scale);
 		pose.setTranslation(adjustOrigin);
 		
 		// transform and calculate
@@ -367,12 +367,12 @@ public class Model {
 	}
 
 	
-	public Point3d getBoundBottom() {
+	public Point3d getBoundsBottom() {
 		return boundBottom;
 	}
 
 
-	public Point3d getBoundTop() {
+	public Point3d getBoundsTop() {
 		return boundTop;
 	}
 }

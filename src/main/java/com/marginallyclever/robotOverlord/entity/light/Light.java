@@ -21,7 +21,7 @@ public class Light extends PhysicalObject {
 	
 	public Light() {
 		super();
-		setDisplayName("Light");
+		setName("Light");
 	}
 
 

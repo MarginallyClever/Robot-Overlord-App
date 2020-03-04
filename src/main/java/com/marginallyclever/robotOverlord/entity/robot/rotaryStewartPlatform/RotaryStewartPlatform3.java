@@ -19,7 +19,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
  	public RotaryStewartPlatform3() {
 		super();
 		dimensions = new RotaryStewartPlatform3Dimensions();
-		setDisplayName(dimensions.ROBOT_NAME);
+		setName(dimensions.ROBOT_NAME);
 
 		motionNow = new RotaryStewartPlatformKeyframe(dimensions);
 		motionFuture = new RotaryStewartPlatformKeyframe(dimensions);
@@ -41,10 +41,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		matBicep.setDiffuseColor(2.0f/255.0f,39.0f/255.0f,53.0f/255.0f,1);
 		matForearm.setDiffuseColor(39.0f/255.0f,88.0f/255.0f,107.0f/255.0f,1);
 		matTop.setDiffuseColor(16.0f/255.0f,62.0f/255.0f,80.0f/255.0f,1);
-	}
 
-	@Override
-	protected void loadModels(GL2 gl2) {
 		try {
 			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform3.zip:top.stl",0.1f);
 			modelBicep = ModelFactory.createModelFromFilename("/StewartPlatform3.zip:bicep.stl",0.1f);
@@ -54,7 +51,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 			e.printStackTrace();
 		}
 	}
-	
+
 	
 	public void render(GL2 gl2) {
 		super.render(gl2);

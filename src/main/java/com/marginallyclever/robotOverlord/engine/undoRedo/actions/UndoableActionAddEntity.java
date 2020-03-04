@@ -40,7 +40,7 @@ public class UndoableActionAddEntity extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Add ")+entity.getDisplayName();
+		return Translator.get("Add ")+entity.getName();
 	}
 
 

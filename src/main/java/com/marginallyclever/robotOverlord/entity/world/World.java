@@ -72,7 +72,7 @@ public class World extends Entity {
 		
 		pose.setIdentity();
 		
-		setDisplayName("World");
+		setName("World");
 		
 		areSkyboxTexturesLoaded=false;
 		pickForward=new Vector3d();
@@ -107,24 +107,20 @@ public class World extends Entity {
 		BoxObject box;
 		box = new BoxObject();
 		addEntity(box);
-		box.setDisplayName("Front wall");
-		box.width=100;
-		box.height=100;
+		box.setName("Front wall");
+		box.setSize(100,100,1);
 		box.setPosition(new Vector3d(0,40,0));
 
 		box = new BoxObject();
 		addEntity(box);
-		box.setDisplayName("Table");
-		box.width=140;
-		box.height=1;
-		box.depth=80;
+		box.setName("Table");
+		box.setSize(150,1,80);
 		box.setPosition(new Vector3d(30,0,-2.5));
 
 		box = new BoxObject();
 		addEntity(box);
-		box.setDisplayName("Back wall");
-		box.width=100;
-		box.height=100;
+		box.setName("Back wall");
+		box.setSize(100,100,1);
 		box.setPosition(new Vector3d(-50,0,0));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 	}
@@ -159,7 +155,7 @@ public class World extends Entity {
     	
     	// the custom colors could be in a drop down list. 
 		addEntity(light = new Light());
-		light.setDisplayName("light0");
+		light.setName("light0");
     	light.index=0;
     	light.setPosition(new Vector3d(0,0,30));
     	light.setAmbient (         0.0f,          0.0f,          0.0f, 1.0f);
@@ -167,7 +163,7 @@ public class World extends Entity {
 	    light.setSpecular(         1.0f,          1.0f,          1.0f, 1.0f);
 
 		addEntity(light = new Light());
-		light.setDisplayName("light1");
+		light.setName("light1");
     	light.index=1;
     	light.setPosition(new Vector3d(-10,-10,10));
 	    light.setAmbient(  0.0f, 0.0f, 0.0f, 1.0f);
@@ -175,7 +171,7 @@ public class World extends Entity {
 	    light.setSpecular( 0.0f, 0.0f, 0.0f, 1.0f);
 
 		addEntity(light = new Light());
-		light.setDisplayName("light2");
+		light.setName("light2");
     	light.index=2;
     	light.setPosition(new Vector3d(30,30,30));
 	    light.setAmbient (          0.0f,          0.0f,          0.0f, 1.0f);
@@ -426,7 +422,7 @@ public class World extends Entity {
 		ArrayList<String> list = new ArrayList<String>();
 
 		for( Entity obj : children ) {
-			String s = obj.getDisplayName();
+			String s = obj.getName();
 			list.add(s);
 		}
 		
@@ -435,7 +431,7 @@ public class World extends Entity {
 	
 	public Entity findObjectWithName(String name) {
 		for( Entity obj : children ) {
-			String objectName = obj.getDisplayName();
+			String objectName = obj.getName();
 			if(name.equals(objectName)) return obj; 
 		}
 		
@@ -506,9 +502,9 @@ public class World extends Entity {
 				for( Cuboid cuboidB : listB ) {
 					if( IntersectionTester.cuboidCuboid(cuboidA,cuboidB) ) {
 						System.out.println("Collision between "+
-							a.getDisplayName()+
+							a.getName()+
 							" and "+
-							b.getDisplayName());
+							b.getName());
 						return true;
 					}
 				}

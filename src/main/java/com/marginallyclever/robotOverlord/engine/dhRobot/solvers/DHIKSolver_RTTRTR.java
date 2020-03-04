@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.SingularMatrixException;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
@@ -65,23 +66,27 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		assert((link6.flags & DHLink.READ_ONLY_D)!=0);
 
 		Matrix4d iRoot = new Matrix4d(robot.getParentMatrix());
-		iRoot.invert();
+		try {
+			iRoot.invert();
+		} catch(SingularMatrixException e) {
+			return SolutionType.NO_SOLUTIONS;
+		}
 		
 		Matrix4d targetMatrixAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {
 			// There is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
-			robot.dhTool.dhLink.refreshPoseMatrix();
+			robot.dhTool.refreshPoseMatrix();
 
 			// remove R component (x axis)
-			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.dhLink.getR();
-			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.dhLink.getR();
-			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.dhLink.getR();
+			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.getR();
+			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.getR();
+			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.getR();
 			// remove D component (z axis)
-			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.dhLink.getD();
-			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.dhLink.getD();
-			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.dhLink.getD();
+			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.getD();
+			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.getD();
+			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.getD();
 		}
 		
 		Matrix4d link5m = new Matrix4d(link5.poseCumulative);
@@ -208,7 +213,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			DHLink link = rli.next();
 			link.refreshPoseMatrix();  
 			link.poseCumulative.set(r04);
-			r04.mul(link.pose);
+			r04.mul(link.getPose());
 			++j;
 		}
 

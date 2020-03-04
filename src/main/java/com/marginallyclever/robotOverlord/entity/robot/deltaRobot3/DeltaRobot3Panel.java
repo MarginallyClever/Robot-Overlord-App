@@ -210,7 +210,7 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A three armed, three axis manipulator.  Marginally Clever Robot's first Delta predates the Kossel/Rostock 3D printer.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/delta-robot-v3/'>Click here for more details</a>.</p>"
-				+"</body></html>", "About "+robot.getDisplayName());
+				+"</body></html>", "About "+robot.getName());
 	}
 	
 	public void setUID(long id) {

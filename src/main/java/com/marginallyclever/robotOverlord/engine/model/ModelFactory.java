@@ -66,7 +66,7 @@ public class ModelFactory {
 	 */
 	public static Model createModelFromFilename(String sourceName,float loadScale) throws Exception {
 		Model m = createModelFromFilename(sourceName);
-		if(m!=null) m.loadScale = loadScale;
+		if(m!=null) m.scale = loadScale;
 		return m;
 	}
 }

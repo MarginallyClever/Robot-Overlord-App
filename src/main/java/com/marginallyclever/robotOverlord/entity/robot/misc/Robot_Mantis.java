@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -25,7 +24,7 @@ public class Robot_Mantis extends Robot {
 	
 	public Robot_Mantis() {
 		super();
-		setDisplayName("Mantis");
+		setName("Mantis");
 		
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_RTTRTR());
@@ -81,23 +80,24 @@ public class Robot_Mantis extends Robot {
 
 	public void setupModels(DHRobot robot) {
 		try {
-			robot.links.get(0).model = ModelFactory.createModelFromFilename("/AH/rotBaseCase.stl",0.1f);
-			robot.links.get(1).model = ModelFactory.createModelFromFilename("/AH/Shoulder_r1.stl",0.1f);
-			robot.links.get(2).model = ModelFactory.createModelFromFilename("/AH/Elbow.stl",0.1f);
-			robot.links.get(3).model = ModelFactory.createModelFromFilename("/AH/Forearm.stl",0.1f);
-			robot.links.get(5).model = ModelFactory.createModelFromFilename("/AH/Wrist_r1.stl",0.1f);
-			robot.links.get(6).model = ModelFactory.createModelFromFilename("/AH/WristRot.stl",0.1f);
-			
-			robot.links.get(0).model.adjustOrigin(new Vector3d(0,0,2.7));
-			robot.links.get(1).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(1).model.adjustOrigin(new Vector3d(0,0,0));
-			robot.links.get(2).model.adjustRotation(new Vector3d(90,90,90));
-			robot.links.get(2).model.adjustOrigin(new Vector3d(0,0.476,2.7+(13.9744 + 8.547)/2));
-			robot.links.get(3).model.adjustRotation(new Vector3d(180,90,90));
-			robot.links.get(3).model.adjustOrigin(new Vector3d(0,-5.7162,0));//0.3488,0.3917
-			robot.links.get(5).model.adjustOrigin(new Vector3d(0,0,0));
-			robot.links.get(6).model.adjustRotation(new Vector3d(-180,90,0));
+			robot.links.get(0).setFilename("/AH/rotBaseCase.stl");
+			robot.links.get(1).setFilename("/AH/Shoulder_r1.stl");
+			robot.links.get(2).setFilename("/AH/Elbow.stl");
+			robot.links.get(3).setFilename("/AH/Forearm.stl");
+			robot.links.get(5).setFilename("/AH/Wrist_r1.stl");
+			robot.links.get(6).setFilename("/AH/WristRot.stl");
 
+			for( DHLink link : robot.links ) link.setModelScale(0.1f);
+			
+			robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,0,2.7));
+			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0,0,0));
+			robot.links.get(2).getModel().adjustRotation(new Vector3d(90,90,90));
+			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0,0.476,2.7+(13.9744 + 8.547)/2));
+			robot.links.get(3).getModel().adjustRotation(new Vector3d(180,90,90));
+			robot.links.get(3).getModel().adjustOrigin(new Vector3d(0,-5.7162,0));//0.3488,0.3917
+			robot.links.get(5).getModel().adjustOrigin(new Vector3d(0,0,0));
+			robot.links.get(6).getModel().adjustRotation(new Vector3d(-180,90,0));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -114,7 +114,7 @@ public class Robot_Mantis extends Robot {
 		
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.matrix);
+			MatrixHelper.applyMatrix(gl2, this.pose);
 		
 			Material material = new Material();
 			float r=0.5f;

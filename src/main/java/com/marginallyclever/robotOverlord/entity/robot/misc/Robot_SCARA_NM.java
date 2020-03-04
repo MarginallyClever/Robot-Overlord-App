@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_SCARA;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -23,7 +22,7 @@ public class Robot_SCARA_NM extends Robot {
 	
 	public Robot_SCARA_NM() {
 		super();
-		setDisplayName("SCARA NM");
+		setName("SCARA NM");
 
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_SCARA());
@@ -65,19 +64,19 @@ public class Robot_SCARA_NM extends Robot {
 
 	public void setupModels(DHRobot robot) {
 		try {
-			if(robot.links.get(0).model==null) robot.links.get(0).model = ModelFactory.createModelFromFilename("/SCARA_NM/Scara_base.stl",0.1f);
-			if(robot.links.get(1).model==null) robot.links.get(1).model = ModelFactory.createModelFromFilename("/SCARA_NM/Scara_arm1.stl",0.1f);
-			if(robot.links.get(2).model==null) robot.links.get(2).model = ModelFactory.createModelFromFilename("/SCARA_NM/Scara_arm2.stl",0.1f);
-			if(robot.links.get(4).model==null) robot.links.get(4).model = ModelFactory.createModelFromFilename("/SCARA_NM/Scara_screw.stl",0.1f);
+			robot.links.get(0).setFilename("/SCARA_NM/Scara_base.stl");
+			robot.links.get(1).setFilename("/SCARA_NM/Scara_arm1.stl");
+			robot.links.get(2).setFilename("/SCARA_NM/Scara_arm2.stl");
+			robot.links.get(4).setFilename("/SCARA_NM/Scara_screw.stl");
 			
-			robot.links.get(0).model.adjustOrigin(new Vector3d(-8,0,0));
-			robot.links.get(1).model.adjustOrigin(new Vector3d(-15,8,-13.784));
-			robot.links.get(1).model.adjustRotation(new Vector3d(0,0,-90));
+			robot.links.get(0).getModel().adjustOrigin(new Vector3d(-8,0,0));
+			robot.links.get(1).getModel().adjustOrigin(new Vector3d(-15,8,-13.784));
+			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,-90));
 
-			robot.links.get(2).model.adjustOrigin(new Vector3d(-13,8,-13.784));
-			robot.links.get(2).model.adjustRotation(new Vector3d(0,0,-90));
+			robot.links.get(2).getModel().adjustOrigin(new Vector3d(-13,8,-13.784));
+			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,-90));
 
-			robot.links.get(4).model.adjustOrigin(new Vector3d(-8,0,-13.784));
+			robot.links.get(4).getModel().adjustOrigin(new Vector3d(-8,0,-13.784));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,7 +91,7 @@ public class Robot_SCARA_NM extends Robot {
 		}
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.matrix);
+			MatrixHelper.applyMatrix(gl2, this.pose);
 			
 			// Draw models
 			float r=0.5f;

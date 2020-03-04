@@ -39,12 +39,12 @@ public class BoxObjectPanel extends JPanel implements ChangeListener {
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.FIRST_LINE_START;
 		
-		this.add(chooseWidth  = new UserCommandSelectNumber(gui,com.marginallyclever.robotOverlord.engine.translator.Translator.get("Width" ),(float)box.width ),con1);
+		this.add(chooseWidth  = new UserCommandSelectNumber(gui,com.marginallyclever.robotOverlord.engine.translator.Translator.get("Width"),(float)box.getWidth()),con1);
 		con1.gridy++;
-		this.add(chooseHeight = new UserCommandSelectNumber(gui,Translator.get("Height"),(float)box.height),con1);
+		this.add(chooseHeight = new UserCommandSelectNumber(gui,Translator.get("Height"),(float)box.getHeight()),con1);
 		con1.gridy++;
 		con1.weighty=1;
-		this.add(chooseDepth  = new UserCommandSelectNumber(gui,Translator.get("Depth" ),(float)box.depth ),con1);
+		this.add(chooseDepth  = new UserCommandSelectNumber(gui,Translator.get("Depth" ),(float)box.getDepth() ),con1);
 		con1.gridy++;
 
 		chooseWidth .addChangeListener(this);
@@ -54,9 +54,9 @@ public class BoxObjectPanel extends JPanel implements ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		if(e.getSource()==chooseWidth ) box.width =chooseWidth .getValue();
-		if(e.getSource()==chooseHeight) box.height=chooseHeight.getValue();
-		if(e.getSource()==chooseDepth ) box.depth =chooseDepth .getValue();
+		if(e.getSource()==chooseWidth ) box.setWidth(chooseWidth .getValue());
+		if(e.getSource()==chooseHeight) box.setHeight(chooseHeight.getValue());
+		if(e.getSource()==chooseDepth ) box.setDepth(chooseDepth .getValue());
 		
 	}
 }

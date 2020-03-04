@@ -25,7 +25,7 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 	DHKeyframe keyframe;
 	
 	public SixiJoystick() {
-		setDisplayName("Sixi Joystick");
+		setName("Sixi Joystick");
 		lock = new ReentrantLock();
 	}
 	

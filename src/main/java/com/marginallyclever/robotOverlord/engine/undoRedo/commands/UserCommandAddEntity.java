@@ -64,7 +64,7 @@ public class UserCommandAddEntity extends JButton implements ActionListener {
 		Iterator<Entity> i = loaders.iterator();
 		while(i.hasNext()) {
 			Entity lft = i.next();
-			additionComboBox.addItem(lft.getDisplayName());
+			additionComboBox.addItem(lft.getName());
 			++loadedTypes;
 		}
 		
@@ -78,7 +78,7 @@ public class UserCommandAddEntity extends JButton implements ActionListener {
 			i = loaders.iterator();
 			while(i.hasNext()) {
 				Entity lft = i.next();
-				String name = lft.getDisplayName();
+				String name = lft.getName();
 				if(name.equals(objectTypeName)) {
 					Entity newInstance = null;
 

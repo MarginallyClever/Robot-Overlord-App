@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.entity;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Observable;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -19,9 +20,8 @@ import javax.swing.JTabbedPane;
  * @author danroyer
  *
  */
-public class Entity {
-	
-	private String displayName;
+public class Entity extends Observable {
+	private String name;
 	private int pickName;
 
 	protected ArrayList<Entity> children;
@@ -41,6 +41,13 @@ public class Entity {
 		pickName = pickNameCounter++;
 	}
 	
+	public void set(Entity b) {
+		name = b.name;
+		
+		// what to do about children?  Not a deep copy?
+		
+		parent = b.parent;
+	}
 	
 	/**
 	 * Get the {@link EntityPanel} for this class' superclass, then the EntityPanel for this class, and so on.
@@ -107,13 +114,13 @@ public class Entity {
 	}
 
 
-	public String getDisplayName() {
-		return displayName;
+	public String getName() {
+		return name;
 	}
 
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 
@@ -145,6 +152,7 @@ public class Entity {
 	
 	public void addChild(Entity e) {
 		children.add(e);
+		e.setParent(this);
 	}
 	
 	public void removeChild(Entity e) {

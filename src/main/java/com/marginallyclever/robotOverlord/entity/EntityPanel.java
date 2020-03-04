@@ -48,7 +48,7 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		}
 
 		con1.weighty=1;  // last item gets weight 1.
-		this.add(setName=new UserCommandSelectString(ro,"name",entity.getDisplayName()), con1);
+		this.add(setName=new UserCommandSelectString(ro,"name",entity.getName()), con1);
 		con1.gridy++;
 		setName.addChangeListener(this);
 	}
@@ -71,10 +71,10 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		Object subject = e.getSource();
 		
 		if( subject==setName ) {
-			String name = entity.getDisplayName();
+			String name = entity.getName();
 			String newName = setName.getValue();
 			if(!newName.equals(name)) {
-				entity.setDisplayName(newName);
+				entity.setName(newName);
 			}
 		}
 	}

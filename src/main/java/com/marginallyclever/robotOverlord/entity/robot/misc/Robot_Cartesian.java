@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_Cartesian;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -24,7 +23,7 @@ public class Robot_Cartesian extends Robot {
 	DHRobot live;
 	public Robot_Cartesian() {
 		super();
-		setDisplayName("Cartesian");
+		setName("Cartesian");
 
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_Cartesian());
@@ -71,23 +70,28 @@ public class Robot_Cartesian extends Robot {
 		material.setDiffuseColor(r,g,b,1);
 
 		try {
-			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa0.stl",0.1f);
-			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa1.stl",0.1f);
-			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa2.stl",0.1f);
-			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Prusa i3 MK3/Prusa3.stl",0.1f);
+			robot.links.get(0).setFilename("/Prusa i3 MK3/Prusa0.stl");
+			robot.links.get(1).setFilename("/Prusa i3 MK3/Prusa1.stl");
+			robot.links.get(2).setFilename("/Prusa i3 MK3/Prusa2.stl");
+			robot.links.get(3).setFilename("/Prusa i3 MK3/Prusa3.stl");
+
+			robot.links.get(0).setModelScale(0.1f);
+			robot.links.get(1).setModelScale(0.1f);
+			robot.links.get(2).setModelScale(0.1f);
+			robot.links.get(3).setModelScale(0.1f);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		robot.links.get(0).model.adjustRotation(new Vector3d(90,0,0));
-		robot.links.get(0).model.adjustOrigin(new Vector3d(0,27.9,0));
-		robot.links.get(1).model.adjustOrigin(new Vector3d(11.2758,-8.422,0));
-		robot.links.get(1).model.adjustRotation(new Vector3d(0,-90,0));
-		robot.links.get(2).model.adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
-		robot.links.get(2).model.adjustRotation(new Vector3d(0,0,90));
-		robot.links.get(3).model.adjustRotation(new Vector3d(-90,0,0));
-		robot.links.get(3).model.adjustOrigin(new Vector3d(0,-31.9,32.2679));	
+		robot.links.get(0).getModel().adjustRotation(new Vector3d(90,0,0));
+		robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,27.9,0));
+		robot.links.get(1).getModel().adjustOrigin(new Vector3d(11.2758,-8.422,0));
+		robot.links.get(1).getModel().adjustRotation(new Vector3d(0,-90,0));
+		robot.links.get(2).getModel().adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
+		robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
+		robot.links.get(3).getModel().adjustRotation(new Vector3d(-90,0,0));
+		robot.links.get(3).getModel().adjustOrigin(new Vector3d(0,-31.9,32.2679));	
 	}
 	
 	@Override
@@ -98,7 +102,7 @@ public class Robot_Cartesian extends Robot {
 		}
 
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			MatrixHelper.applyMatrix(gl2, this.getPose());
 			material.render(gl2);
 			live.render(gl2);
 		gl2.glPopMatrix();

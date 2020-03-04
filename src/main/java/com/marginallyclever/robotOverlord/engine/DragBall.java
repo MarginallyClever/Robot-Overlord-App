@@ -355,7 +355,7 @@ public class DragBall extends PhysicalObject {
 				valueLast=0;
 				valueNow=0;
 				
-				Matrix4d cm=cam.getMatrix();
+				Matrix4d cm=cam.getPose();
 				Vector3d cu = new Vector3d(cm.m01,cm.m11,cm.m21);
 				Vector3d cr = new Vector3d(cm.m00,cm.m10,cm.m20);
 				// determine which mouse direction is a positive movement on this axis.

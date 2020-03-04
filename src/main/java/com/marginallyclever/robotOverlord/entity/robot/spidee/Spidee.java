@@ -116,7 +116,7 @@ extends Robot {
 	
 	public Spidee() {
 		super();
-		setDisplayName("Spidee");
+		setName("Spidee");
 		
 		int i;
 		for(i=0;i<6;++i) {
@@ -279,12 +279,9 @@ extends Robot {
 		matThigh.setDiffuseColor(1,0,0,1);
 		matShin.setDiffuseColor(0,0,1,1);
 
-
 		paused=false;
-	}
 
-	@Override
-	protected void loadModels(GL2 gl2) {
+		// models
 		try {
 			modelThigh = ModelFactory.createModelFromFilename( "/Spidee.zip:thigh.stl");
 			modelBody = ModelFactory.createModelFromFilename( "/Spidee.zip:body.stl");
@@ -297,6 +294,7 @@ extends Robot {
 			e.printStackTrace();
 		}
 	}
+
 
     private void readObject(ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException
@@ -1616,7 +1614,7 @@ extends Robot {
 				e.printStackTrace();
 			}
 
-			setDisplayName("Evil Minion #"+robotUID);
+			setName("Evil Minion #"+robotUID);
 		}
 	}
 

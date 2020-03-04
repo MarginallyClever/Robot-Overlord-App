@@ -2,7 +2,6 @@ package com.marginallyclever.convenience;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 
 /**
  * 
@@ -11,20 +10,20 @@ import javax.vecmath.Vector3d;
  *
  */
 public class Cuboid extends BoundingVolume {
-	protected Matrix4d poseWorld;
+	protected Matrix4d pose;
 
-	protected Vector3d boundTop;  // max limits
-	protected Vector3d boundBottom;  // min limits
+	protected Point3d boundTop;  // max limits
+	protected Point3d boundBottom;  // min limits
 	
-	public Point3d [] p;  // all 8 corners of the cuboid 
+	public Point3d [] p;  // all 8 corners
 	protected boolean isDirty;
 	
 	
 	public Cuboid() {
-		poseWorld = new Matrix4d();
-		poseWorld.setIdentity();
-		boundTop = new Vector3d();
-		boundBottom = new Vector3d();
+		pose = new Matrix4d();
+		pose.setIdentity();
+		boundTop = new Point3d();
+		boundBottom = new Point3d();
 
 		p = new Point3d[8];
 		for(int i=0;i<8;++i) p[i] = new Point3d();
@@ -32,9 +31,9 @@ public class Cuboid extends BoundingVolume {
 	}
 
 	public void set(Cuboid b) {
-		poseWorld.set(b.poseWorld);
-		boundTop.set(boundTop);
-		boundBottom.set(boundBottom);
+		pose.set(b.pose);
+		boundTop.set(b.boundTop);
+		boundBottom.set(b.boundBottom);
 
 		for(int i=0;i<8;++i) p[i].set(b.p[i]);
 		
@@ -56,27 +55,35 @@ public class Cuboid extends BoundingVolume {
 
 		for (int i = 0; i < p.length; ++i) {
 			// System.out.print("\t"+p[i]);
-			poseWorld.transform(p[i]);
+			pose.transform(p[i]);
 			// System.out.println(" >> "+p[i]);
 		}
 	}
 
-	public void setBounds(Point3d _boundTop, Point3d _boundBottom) {
-		//if(!boundTop.epsilonEquals(_boundTop, 1e-4)) 
+	public void setBounds(Point3d boundTop, Point3d boundBottom) {
+		//if(!this.boundTop.epsilonEquals(boundTop, 1e-4)) 
 		{
-			boundTop.set(_boundTop);
+			this.boundTop.set(boundTop);
 			isDirty=true;
 		}
-		//if(!boundBottom.epsilonEquals(_boundBottom, 1e-4))
+		//if(!this.boundBottom.epsilonEquals(boundBottom, 1e-4))
 		{
-			boundBottom.set(_boundBottom);
+			this.boundBottom.set(boundBottom);
 			isDirty=true;
 		}
 	}
 	
-	public void setMatrix(Matrix4d m) {
-		if(!poseWorld.epsilonEquals(m, 1e-4)) {
-			poseWorld.set(m);
+	public Point3d getBoundsTop() {
+		return this.boundTop;
+	}
+	
+	public Point3d getBoundsBottom() {
+		return boundBottom;
+	}
+	
+	public void setPose(Matrix4d m) {
+		if(!pose.epsilonEquals(m, 1e-4)) {
+			pose.set(m);
 			isDirty=true;
 		}
 	}

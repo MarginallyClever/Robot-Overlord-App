@@ -8,7 +8,7 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 @Deprecated
 public class MotionHelper extends PhysicalObject {
 	public MotionHelper() {
-		setDisplayName("MotionHelper");
+		setName("MotionHelper");
 	}
 	
 	@Override

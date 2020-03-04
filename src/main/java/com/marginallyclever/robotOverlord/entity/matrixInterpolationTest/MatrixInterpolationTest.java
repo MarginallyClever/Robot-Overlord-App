@@ -21,7 +21,7 @@ public class MatrixInterpolationTest extends Entity {
 	public MatrixInterpolationTest() {
 		super();
 		
-		setDisplayName("matrixInterpolationtest");
+		setName("matrixInterpolationtest");
 
 		points = new ArrayList<Matrix4d>();
 		for(int i=0;i<5;++i) {

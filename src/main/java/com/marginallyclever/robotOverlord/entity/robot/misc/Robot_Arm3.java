@@ -19,7 +19,7 @@ public class Robot_Arm3 extends Robot {
 
 	public Robot_Arm3() {
 		super();
-		setDisplayName("Arm3");
+		setName("Arm3");
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_RTT());
 		setupLinks(live);
@@ -67,7 +67,7 @@ public class Robot_Arm3 extends Robot {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());
+			MatrixHelper.applyMatrix(gl2, this.getPose());
 
 			// Draw models
 			float g=1;

@@ -15,10 +15,10 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
 public class DHTool_GoProCamera extends DHTool {
 	public DHTool_GoProCamera() {
 		super();
-		dhLink.setD(8);  // cm
-		dhLink.flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_ALPHA;
-		dhLink.refreshPoseMatrix();
-		setDisplayName("GoPro Camera");
+		setD(8);  // cm
+		flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_ALPHA;
+		refreshPoseMatrix();
+		setName("GoPro Camera");
 		
 		setFilename("/Sixi2/gopro/gopro.stl");
 		setModelScale(0.1f);

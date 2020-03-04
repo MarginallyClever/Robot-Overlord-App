@@ -18,6 +18,6 @@ public class EntityListItem {
 	public String toString() {
 		if(entity==null) return Translator.get("null object?!");
 		
-		return entity.getDisplayName();
+		return entity.getName();
 	}
 }

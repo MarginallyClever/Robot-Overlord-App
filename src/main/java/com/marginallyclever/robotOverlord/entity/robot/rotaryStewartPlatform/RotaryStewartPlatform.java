@@ -87,7 +87,7 @@ public class RotaryStewartPlatform extends Robot {
 		if(dimensions==null) {
 			dimensions = new RotaryStewartPlatform2Dimensions();
 		}
-		setDisplayName(dimensions.ROBOT_NAME);
+		setName(dimensions.ROBOT_NAME);
 
 		motionNow = new RotaryStewartPlatformKeyframe(dimensions);
 		motionFuture = new RotaryStewartPlatformKeyframe(dimensions);
@@ -104,6 +104,18 @@ public class RotaryStewartPlatform extends Robot {
 		uDir = 0.0f;
 		vDir = 0.0f;
 		wDir = 0.0f;
+		
+		try {
+			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL", 0.1f);
+			modelBicep = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL", 0.1f);
+			modelBase = ModelFactory.createModelFromFilename("/StewartPlatform.zip:base.STL", 0.1f);
+			matBase.setDiffuseColor(37.0f / 255.0f, 110.0f / 255.0f, 94.0f / 255.0f, 1.0f);
+			matBicep.setDiffuseColor(68.0f / 255.0f, 137.0f / 255.0f, 122.0f / 255.0f, 1.0f);
+			matTop.setDiffuseColor(110.0f / 255.0f, 164.0f / 255.0f, 152.0f / 255.0f, 1.0f);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setupBoundingVolumes() {
@@ -152,21 +164,7 @@ public class RotaryStewartPlatform extends Robot {
 		HOME_FORWARD_Y = 0;
 		HOME_FORWARD_Z = 0;
 	}
-
-	@Override
-	protected void loadModels(GL2 gl2) {
-		try {
-			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL", 0.1f);
-			modelBicep = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL", 0.1f);
-			modelBase = ModelFactory.createModelFromFilename("/StewartPlatform.zip:base.STL", 0.1f);
-			matBase.setDiffuseColor(37.0f / 255.0f, 110.0f / 255.0f, 94.0f / 255.0f, 1.0f);
-			matBicep.setDiffuseColor(68.0f / 255.0f, 137.0f / 255.0f, 122.0f / 255.0f, 1.0f);
-			matTop.setDiffuseColor(110.0f / 255.0f, 164.0f / 255.0f, 152.0f / 255.0f, 1.0f);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 
 	private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
 		inputStream.defaultReadObject();
@@ -502,7 +500,7 @@ public class RotaryStewartPlatform extends Robot {
 				e.printStackTrace();
 			}
 
-			setDisplayName(dimensions.ROBOT_NAME + " #" + robotUID);
+			setName(dimensions.ROBOT_NAME + " #" + robotUID);
 		}
 	}
 

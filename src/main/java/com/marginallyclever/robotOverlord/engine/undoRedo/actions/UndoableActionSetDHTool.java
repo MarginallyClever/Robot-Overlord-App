@@ -42,7 +42,7 @@ public class UndoableActionSetDHTool extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Set tool ")+newTool.getDisplayName();
+		return Translator.get("Set tool ")+newTool.getName();
 	}
 
 

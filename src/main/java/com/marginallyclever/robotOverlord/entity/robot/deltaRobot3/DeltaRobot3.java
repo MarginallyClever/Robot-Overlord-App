@@ -84,7 +84,7 @@ extends Robot {
 
 	public DeltaRobot3() {
 		super();
-		setDisplayName(ROBOT_NAME);
+		setName(ROBOT_NAME);
 
 		motionNow = new DeltaRobot3Keyframe();
 		motionFuture = new DeltaRobot3Keyframe();
@@ -100,6 +100,14 @@ extends Robot {
 		xDir = 0.0f;
 		yDir = 0.0f;
 		zDir = 0.0f;
+		
+		try {
+			modelTop = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
+			modelArm = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
+			modelBase = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:base.STL",0.1f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 
@@ -112,18 +120,6 @@ extends Robot {
 		volumes[0].setRadius(3.2f);
 		volumes[1].setRadius(3.0f*0.575f);
 		volumes[2].setRadius(2.2f);
-	}
-
-	
-	@Override
-	protected void loadModels(GL2 gl2) {
-		try {
-			modelTop = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
-			modelArm = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
-			modelBase = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:base.STL",0.1f);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	
@@ -486,7 +482,7 @@ extends Robot {
 				e.printStackTrace();
 			}
 
-			setDisplayName(ROBOT_NAME+" #"+robotUID);
+			setName(ROBOT_NAME+" #"+robotUID);
 		}
 		
 		System.out.print("*** "+line);

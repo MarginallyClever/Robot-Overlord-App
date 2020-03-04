@@ -39,7 +39,7 @@ public class Camera extends PhysicalObject {
 	public Camera() {
 		super();
 		
-		setDisplayName("Camera");
+		setName("Camera");
 		
 		isPressed=false;
 		fov=60;
@@ -176,7 +176,7 @@ public class Camera extends PhysicalObject {
 	public void render(GL2 gl2) {
 		Vector3d p = getPosition();
 		
-		Matrix4d c = new Matrix4d(matrix);
+		Matrix4d c = new Matrix4d(pose);
 		c.setTranslation(new Vector3d(0,0,0));
 
 		Matrix4d mFinal = c;

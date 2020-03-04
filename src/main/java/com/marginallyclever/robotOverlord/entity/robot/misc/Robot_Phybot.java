@@ -10,7 +10,6 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -23,7 +22,7 @@ public class Robot_Phybot extends Robot {
 	
 	public Robot_Phybot() {
 		super();
-		setDisplayName("Phybot");
+		setName("Phybot");
 
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_RTTRTR());
@@ -82,21 +81,22 @@ public class Robot_Phybot extends Robot {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Sixi/anchor.stl",0.1f);
-			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Sixi/shoulder.stl",0.1f);
-			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Sixi/bicep.stl",0.1f);
-			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Sixi/elbow.stl",0.1f);
-			robot.links.get(5).model = ModelFactory.createModelFromFilename("/Sixi/forearm.stl",0.1f);
-			robot.links.get(6).model = ModelFactory.createModelFromFilename("/Sixi/wrist.stl",0.1f);
-			robot.links.get(7).model = ModelFactory.createModelFromFilename("/Sixi/hand.stl",0.1f);
+			robot.links.get(0).setFilename("/Sixi/anchor.stl");
+			robot.links.get(1).setFilename("/Sixi/shoulder.stl");
+			robot.links.get(2).setFilename("/Sixi/bicep.stl");
+			robot.links.get(3).setFilename("/Sixi/elbow.stl");
+			robot.links.get(5).setFilename("/Sixi/forearm.stl");
+			robot.links.get(6).setFilename("/Sixi/wrist.stl");
+			robot.links.get(7).setFilename("/Sixi/hand.stl");
 
-			robot.links.get(1).model.adjustOrigin(new Vector3d(0, 0, -25));
-			robot.links.get(2).model.adjustOrigin(new Vector3d(0, -5, -25));
-			robot.links.get(2).model.adjustRotation(new Vector3d(-11.3,0,0));
+			for( DHLink link : robot.links ) link.setModelScale(0.1f);
+			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0, 0, -25));
+			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0, -5, -25));
+			robot.links.get(2).getModel().adjustRotation(new Vector3d(-11.3,0,0));
 			
-			robot.links.get(5).model.adjustOrigin(new Vector3d(0, 0, -60));
-			robot.links.get(6).model.adjustOrigin(new Vector3d(0, 0, -70));
-			robot.links.get(7).model.adjustOrigin(new Vector3d(0, 0, -74));
+			robot.links.get(5).getModel().adjustOrigin(new Vector3d(0, 0, -60));
+			robot.links.get(6).getModel().adjustOrigin(new Vector3d(0, 0, -70));
+			robot.links.get(7).getModel().adjustOrigin(new Vector3d(0, 0, -74));
 
 			Matrix4d rot = new Matrix4d();
 			Matrix4d rotX = new Matrix4d();
@@ -113,8 +113,8 @@ public class Robot_Phybot extends Robot {
 			Vector3d adjustPos = new Vector3d(0, 5, -50);
 			pose.transform(adjustPos);
 			
-			robot.links.get(3).model.adjustOrigin(adjustPos);
-			robot.links.get(3).model.adjustRotation(new Vector3d(90, 0, 0));
+			robot.links.get(3).getModel().adjustOrigin(adjustPos);
+			robot.links.get(3).getModel().adjustRotation(new Vector3d(90, 0, 0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -132,7 +132,7 @@ public class Robot_Phybot extends Robot {
 		material.render(gl2);
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.matrix);			
+			MatrixHelper.applyMatrix(gl2, this.pose);			
 			live.render(gl2);
 		gl2.glPopMatrix();
 		

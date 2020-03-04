@@ -825,7 +825,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		pickedEntity=arg0;
 		pickedHandle=0;
 		
-		setContextPanel(arg0.getAllContextPanels(this),arg0.getDisplayName());
+		setContextPanel(arg0.getAllContextPanels(this),arg0.getName());
 	}
     
     public void pickNothing() {

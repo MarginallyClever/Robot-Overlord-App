@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -20,7 +19,7 @@ public class Robot_Thor extends Robot {
 	
 	public Robot_Thor() {
 		super();
-		setDisplayName("Thor");
+		setName("Thor");
 
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_RTTRTR());
@@ -78,25 +77,25 @@ public class Robot_Thor extends Robot {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.links.get(0).model = ModelFactory.createModelFromFilename("/Thor/Thor0.stl",0.1f);
-			robot.links.get(1).model = ModelFactory.createModelFromFilename("/Thor/Thor1.stl",0.1f);
-			robot.links.get(2).model = ModelFactory.createModelFromFilename("/Thor/Thor2.stl",0.1f);
-			robot.links.get(3).model = ModelFactory.createModelFromFilename("/Thor/Thor3.stl",0.1f);
-			robot.links.get(5).model = ModelFactory.createModelFromFilename("/Thor/Thor4.stl",0.1f);
-			robot.links.get(6).model = ModelFactory.createModelFromFilename("/Thor/Thor5.stl",0.1f);
-			robot.links.get(7).model = ModelFactory.createModelFromFilename("/Thor/Thor6.stl",0.1f);
+			robot.links.get(0).setFilename("/Thor/Thor0.stl");
+			robot.links.get(1).setFilename("/Thor/Thor1.stl");
+			robot.links.get(2).setFilename("/Thor/Thor2.stl");
+			robot.links.get(3).setFilename("/Thor/Thor3.stl");
+			robot.links.get(5).setFilename("/Thor/Thor4.stl");
+			robot.links.get(6).setFilename("/Thor/Thor5.stl");
+			robot.links.get(7).setFilename("/Thor/Thor6.stl");
 
-			robot.links.get(1).model.adjustOrigin(new Vector3d(0,0,-15.35));
-			robot.links.get(1).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(2).model.adjustOrigin(new Vector3d(0,0,-6.5));
-			robot.links.get(2).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(3).model.adjustRotation(new Vector3d(90,0,90));
-			robot.links.get(3).model.adjustOrigin(new Vector3d(0,6,0));
-			robot.links.get(5).model.adjustOrigin(new Vector3d(0,0,0));
-			robot.links.get(5).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(6).model.adjustOrigin(new Vector3d(0,0,-4.75));
-			robot.links.get(6).model.adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(7).model.adjustOrigin(new Vector3d(0,0,0));
+			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0,0,-15.35));
+			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0,0,-6.5));
+			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(3).getModel().adjustRotation(new Vector3d(90,0,90));
+			robot.links.get(3).getModel().adjustOrigin(new Vector3d(0,6,0));
+			robot.links.get(5).getModel().adjustOrigin(new Vector3d(0,0,0));
+			robot.links.get(5).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(6).getModel().adjustOrigin(new Vector3d(0,0,-4.75));
+			robot.links.get(6).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(7).getModel().adjustOrigin(new Vector3d(0,0,0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -112,7 +111,7 @@ public class Robot_Thor extends Robot {
 		
 		gl2.glPushMatrix();
 			material.render(gl2);
-			MatrixHelper.applyMatrix(gl2, this.matrix);
+			MatrixHelper.applyMatrix(gl2, this.pose);
 			live.render(gl2);		
 		gl2.glPopMatrix();
 		

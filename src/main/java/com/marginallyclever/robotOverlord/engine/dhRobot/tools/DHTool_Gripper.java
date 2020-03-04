@@ -48,17 +48,17 @@ public class DHTool_Gripper extends DHTool {
 	
 	public DHTool_Gripper() {
 		super();
-		setDisplayName("Gripper");
-		dhLink.setD(11.9082);  // cm
-		dhLink.refreshPoseMatrix();
+		setName("Gripper");
+		setD(11.9082);  // cm
+		refreshPoseMatrix();
 		
 		heldRelative = new Matrix4d();
 		
 		gripperServoAngle=90;
 		interpolatePoseT=1;
 		startT=endT=gripperServoAngle;
-		startD=endD=dhLink.getD();
-		startR=endR=dhLink.getR();
+		startD=endD=getD();
+		startR=endR=getR();
 		
 		setFilename("/Sixi2/beerGripper/base.stl");
 		setModelScale(0.1f);
@@ -172,8 +172,8 @@ public class DHTool_Gripper extends DHTool {
 				subjectBeingHeld = findObjectNear(10);
 				if(subjectBeingHeld != null) {
 					// find the relative transform so that its angle doesn't change?
-					Matrix4d held = new Matrix4d(subjectBeingHeld.getMatrix());
-					Matrix4d iEnd = new Matrix4d(dhLink.poseCumulative);
+					Matrix4d held = new Matrix4d(subjectBeingHeld.getPose());
+					Matrix4d iEnd = new Matrix4d(poseCumulative);
 					iEnd.invert();
 					heldRelative.mul(iEnd,held);
 					//heldRelative.transform(dp);
@@ -212,7 +212,7 @@ public class DHTool_Gripper extends DHTool {
 		if(subjectBeingHeld!=null) {
 			Matrix4d finalPose = new Matrix4d();
 			finalPose.mul(endMatrix,heldRelative);
-			subjectBeingHeld.setMatrix(finalPose);
+			subjectBeingHeld.setPose(finalPose);
 		}
 	}
 	
@@ -235,7 +235,7 @@ public class DHTool_Gripper extends DHTool {
 		
 		// World, please tell me who is near my grab point.
 		Vector3d target = new Vector3d();
-		dhLink.poseCumulative.get(target);
+		poseCumulative.get(target);
 		World world = (World)p;
 		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,radius);
 
@@ -253,8 +253,8 @@ public class DHTool_Gripper extends DHTool {
 
 	public String generateGCode() {
 		String message = " T"+StringHelper.formatDouble(this.gripperServoAngle)
-						+ " R"+StringHelper.formatDouble(this.dhLink.getR())
-						+ " S"+StringHelper.formatDouble(this.dhLink.getD());
+						+ " R"+StringHelper.formatDouble(this.getR())
+						+ " S"+StringHelper.formatDouble(this.getD());
 		return message;
 	}
 	
@@ -268,11 +268,11 @@ public class DHTool_Gripper extends DHTool {
 					endT = Double.parseDouble(token.substring(1));
 				}
 				if(token.startsWith("R")) {
-					startR = dhLink.getR();
+					startR = getR();
 					endR = Double.parseDouble(token.substring(1));
 				}
 				if(token.startsWith("S")) {
-					startD = dhLink.getD();
+					startD = getD();
 					endD = Double.parseDouble(token.substring(1));
 				}
 			} catch(NumberFormatException e) {
@@ -290,9 +290,9 @@ public class DHTool_Gripper extends DHTool {
 				interpolatePoseT=1;
 			}
 			gripperServoAngle   =((endT-startT)*interpolatePoseT + startT);
-			dhLink.setR((endR-startR)*interpolatePoseT + startR);
-			dhLink.setD((endD-startD)*interpolatePoseT + startD);
-			dhLink.refreshPoseMatrix();
+			setR((endR-startR)*interpolatePoseT + startR);
+			setD((endD-startD)*interpolatePoseT + startD);
+			refreshPoseMatrix();
 		}
 	}
 	

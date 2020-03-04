@@ -202,7 +202,7 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 				+"<p>Created by Dan Royer (dan@marginallyclever.com).</p><br>"
 				+"<p>A six axis manipulator.</p><br>"
 				+"<p><a href='https://www.marginallyclever.com/product/rotary-stewart-platform-v2/'>Click here for more details</a>.</p>"
-				+"</body></html>", "About "+robot.getDisplayName());
+				+"</body></html>", "About "+robot.getName());
 	}
 	
 	

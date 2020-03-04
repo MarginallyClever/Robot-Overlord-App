@@ -35,7 +35,7 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 	public DHToolPanel(RobotOverlord gui,DHTool tool) {
 		this.tool = tool;
 		this.gui = gui;
-		linkPanel = new DHLinkPanel(gui,tool.dhLink,tool.getDisplayName());
+		linkPanel = new DHLinkPanel(gui,tool,tool.getName());
 		
 		buildPanel();
 	}
@@ -60,14 +60,13 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 		//con1.gridy++;
 		
 		int k=0;
-		DHLink link = tool.dhLink;
-		DHLinkPanel e = new DHLinkPanel(gui,link,k++);
+		DHLinkPanel e = new DHLinkPanel(gui,tool,k++);
 		linkPanel = e;
 
-		if((link.flags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
-		if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
-		if((link.flags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
-		if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
+		if((tool.flags & DHLink.READ_ONLY_D		)==0) {	this.add(e.d    ,con1);		con1.gridy++;	e.d    .addChangeListener(this);	}
+		if((tool.flags & DHLink.READ_ONLY_THETA	)==0) {	this.add(e.theta,con1);		con1.gridy++;	e.theta.addChangeListener(this);	}
+		if((tool.flags & DHLink.READ_ONLY_R		)==0) {	this.add(e.r    ,con1);		con1.gridy++;	e.r    .addChangeListener(this);	}
+		if((tool.flags & DHLink.READ_ONLY_ALPHA	)==0) {	this.add(e.alpha,con1);		con1.gridy++;	e.alpha.addChangeListener(this);	}
 		
 		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
 		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;

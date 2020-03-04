@@ -224,13 +224,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.getAlpha()	));
 		}
 	}
-	
-	public void updateGhostEnd() {
-		// TODO adjust the desired angles values to match ghost angle values 
-		// I don't currently store the ghost values when they are calculated,
-		// which is becoming a problem.
-	}
-	
+		
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -267,7 +261,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		Iterator<DHTool> i = loaders.iterator();
 		while(i.hasNext()) {
 			DHTool lft = i.next();
-			additionComboBox.addItem(lft.getDisplayName());
+			additionComboBox.addItem(lft.getName());
 			if(robot.getCurrentTool()!=null 
 					&& lft.getClass() == robot.getCurrentTool().getClass()) {
 				additionComboBox.setSelectedIndex(loadedTypes);
@@ -285,7 +279,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 			i = loaders.iterator();
 			while(i.hasNext()) {
 				DHTool lft = i.next();
-				String name = lft.getDisplayName();
+				String name = lft.getName();
 				if(name.equals(objectTypeName)) {
 					DHTool newInstance = null;
 
@@ -311,7 +305,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 * Called by the robot to update the panel status
 	 */
 	public void updateActiveTool(DHTool arg0) {
-		String name = (arg0==null) ? "null" : arg0.getDisplayName();
+		String name = (arg0==null) ? "null" : arg0.getName();
 		activeTool.setText("Tool="+name);
 	}
 

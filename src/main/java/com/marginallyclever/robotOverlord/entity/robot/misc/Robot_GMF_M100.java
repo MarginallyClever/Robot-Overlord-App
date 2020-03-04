@@ -19,7 +19,7 @@ public class Robot_GMF_M100 extends Robot {
 
 	public Robot_GMF_M100() {
 		super();
-		setDisplayName("FANUC GMF M-100");
+		setName("FANUC GMF M-100");
 
 		live = new DHRobot();
 		live.setIKSolver(new DHIKSolver_Cylindrical());
@@ -55,7 +55,7 @@ public class Robot_GMF_M100 extends Robot {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.getMatrix());	
+			MatrixHelper.applyMatrix(gl2, this.getPose());	
 			// Draw models
 			float r=1;
 			float g=217f/255f;
