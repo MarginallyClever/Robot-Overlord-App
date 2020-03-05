@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRemoveEntity;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -46,14 +47,6 @@ public class UserCommandRemoveEntity extends JMenuItem implements ActionListener
      */
     public void selectAndRemoveObject() {
 		JPanel additionList = new JPanel(new GridLayout(0, 1));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
 
 		JComboBox<String> removeComboBox = new JComboBox<String>();
 		additionList.add(removeComboBox);

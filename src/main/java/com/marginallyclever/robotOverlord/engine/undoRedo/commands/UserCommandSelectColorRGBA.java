@@ -17,6 +17,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectColorRGBA;
 
@@ -51,13 +52,7 @@ public class UserCommandSelectColorRGBA extends JPanel implements DocumentListen
 		df.setGroupingUsed(false);
 		
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=0;
-		con1.fill=GridBagConstraints.NONE;
-		con1.anchor=GridBagConstraints.WEST;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	

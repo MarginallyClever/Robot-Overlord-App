@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,14 +45,6 @@ public class UserCommandAddEntity extends JButton implements ActionListener {
      */
     public void selectAndAddObject() {
 		JPanel additionList = new JPanel(new GridLayout(0, 1));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
 		
 		JComboBox<String> additionComboBox = new JComboBox<String>();
 		additionList.add(additionComboBox);

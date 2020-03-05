@@ -9,9 +9,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 @Deprecated
+@SuppressWarnings("unused")
 public class RecordingManagerPanel extends JPanel implements ActionListener {
 	/**
 	 * 
@@ -31,12 +33,7 @@ public class RecordingManagerPanel extends JPanel implements ActionListener {
 		this.removeAll();
 		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		buttonRecord=new JButton("Record");
 		buttonPlay  =new JButton("Play");

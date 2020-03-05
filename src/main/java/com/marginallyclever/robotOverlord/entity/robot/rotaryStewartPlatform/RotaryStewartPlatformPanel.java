@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRobotMove;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandMoveRobot;
@@ -58,51 +59,27 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 		super();
 
 		this.robot = robot;
+		this.setName("RSP");
+		
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		JPanel p;
-		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.fill=GridBagConstraints.HORIZONTAL;
-		c.anchor=GridBagConstraints.NORTH;
-		
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Stewart Platform");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-
-		
-		
 		// home button
 		goHome = new JButton("Find Home");
 		goHome.addActionListener(this);
-		contents.add(goHome,con1);
+		this.add(goHome,con1);
 		con1.gridy++;
-
 
 		// speed panel
 		CollapsiblePanel speedPanel = createSpeedPanel();
-		contents.add(speedPanel,con1);
+		this.add(speedPanel,con1);
 		con1.gridy++;
-
 		
 		// ik panel
 		CollapsiblePanel ikPanel = new CollapsiblePanel("Inverse Kinematics");
-		contents.add(ikPanel, con1);
+		this.add(ikPanel, con1);
 		con1.gridy++;
 
-		p = new JPanel(new GridLayout(7,3));
+		JPanel p = new JPanel(new GridLayout(7,3));
 		ikPanel.getContentPane().add(p);
 
 		xPos = new JLabel("0.00");
@@ -125,9 +102,10 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 		p.add(arm5Zpos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Z, 1,"Z+"));		p.add(zPos);
 		p.add(arm5Zneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Z,-1,"Z-"));
 		
+		con1.weighty=1;
 		about = new JButton("About this robot");
 		about.addActionListener(this);
-		contents.add(about, con1);
+		this.add(about, con1);
 		con1.gridy++;
 	}
 	
@@ -144,12 +122,8 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 		speedNow.setPreferredSize(dim);
 
 		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
-		
-		GridBagConstraints con2 = new GridBagConstraints();
-		con2.gridx=0;
-		con2.gridy=0;
-		con2.fill=GridBagConstraints.HORIZONTAL;
-		con2.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con2 = PanelHelper.getDefaultGridBagConstraints();
 		con2.weighty=1;
 		con2.weightx=0.25;
 		speedPanel.getContentPane().add(speedNow,con2);

@@ -15,6 +15,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectNumber;
 
@@ -49,7 +50,7 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		this.label = labelName;
 		
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	
@@ -58,18 +59,13 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		label.setLabelFor(textField);
 		setValue(defaultValue);
 
-		con1.gridx=0;
-		con1.gridy=0;
 		con1.weighty=1;
-		con1.fill=GridBagConstraints.NONE;
-		con1.anchor=GridBagConstraints.WEST;
 		con1.weightx=0.250;
-		con1.gridx=0;
 		this.add(label,con1);
 
+		con1.gridx=1;
 		con1.anchor=GridBagConstraints.EAST;
 		con1.weightx=0.750;
-		con1.gridx=1;
 		this.add(textField,con1);
 	}
 	

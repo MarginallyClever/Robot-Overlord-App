@@ -67,16 +67,14 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx = 0;
 		con1.gridy = 0;
-		
 		con1.weightx=1;
 		con1.weighty=1;
-		con1.fill=GridBagConstraints.BOTH;
+		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTHWEST;
 		this.add(logPane,con1);
 		con1.gridy++;
 
 
-		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.weightx=1;
 		con1.weighty=0;
 		this.add(getTextInputField(),con1);

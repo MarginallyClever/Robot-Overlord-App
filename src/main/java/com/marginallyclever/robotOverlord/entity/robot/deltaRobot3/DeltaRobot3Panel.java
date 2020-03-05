@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRobotMove;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandMoveRobot;
@@ -67,34 +68,16 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		super();
 		
 		robot = deltaRobot;
+		this.setName("Delta Robot");
 
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.fill=GridBagConstraints.HORIZONTAL;
-		c.anchor=GridBagConstraints.NORTH;
-		
-		CollapsiblePanel oiwPanel = new CollapsiblePanel("Delta Robot");
-		this.add(oiwPanel,c);
-		JPanel contents = oiwPanel.getContentPane();
-
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		CollapsiblePanel speedPanel = createSpeedPanel();
-		contents.add(speedPanel,con1);
+		this.add(speedPanel,con1);
 		con1.gridy++;
 
 		CollapsiblePanel homePanel = new CollapsiblePanel("Calibration");
-		contents.add(homePanel,con1);
+		this.add(homePanel,con1);
 		con1.gridy++;
 
 		goHome=createButton("Find Home");
@@ -106,11 +89,12 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		//con1.gridy++;
 
 		CollapsiblePanel ikPanel = createIKPanel(gui);
-		contents.add(ikPanel, con1);
+		this.add(ikPanel, con1);
 		con1.gridy++;
 		
+		con1.weighty=1;
 		about = createButton("About this robot");
-		contents.add(about, con1);
+		this.add(about, con1);
 		con1.gridy++;
 	}
 
@@ -159,12 +143,8 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		speedNow.setPreferredSize(dim);
 
 		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
-		
-		GridBagConstraints con2 = new GridBagConstraints();
-		con2.gridx=0;
-		con2.gridy=0;
-		con2.fill=GridBagConstraints.HORIZONTAL;
-		con2.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con2 = PanelHelper.getDefaultGridBagConstraints();
 		con2.weighty=1;
 		con2.weightx=0.25;
 		speedPanel.getContentPane().add(speedNow,con2);

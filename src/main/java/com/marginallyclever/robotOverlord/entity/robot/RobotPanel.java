@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
@@ -33,14 +34,7 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 		this.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.setLayout(new GridBagLayout());
 
-		GridBagConstraints con1;
-		con1 = new GridBagConstraints();
-		con1.gridx = 0;
-		con1.gridy = 0;
-		con1.weightx = 1;
-		con1.weighty = 0;
-		con1.fill = GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		buttonConnect = createButton(Translator.get("ButtonConnect"));
 		con1.weighty=1;  // last item gets weight 1.

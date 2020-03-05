@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.io.FilenameUtils;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.engine.log.Log;
 import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
 import com.marginallyclever.util.PreferencesHelper;
@@ -99,13 +100,9 @@ public final class Translator {
 		final JComboBox<String> languageOptions = new JComboBox<>(languageList);
 		int currentIndex = getCurrentLanguageIndex();
 		languageOptions.setSelectedIndex(currentIndex);
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.gridwidth = 2;
-		c.gridx = 0;
-		c.gridy = 0;
-		panel.add(languageOptions, c);
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		panel.add(languageOptions, con1);
 		
 		int result;
 		do {

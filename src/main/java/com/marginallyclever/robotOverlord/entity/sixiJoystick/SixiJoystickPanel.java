@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
 
@@ -43,13 +44,9 @@ public class SixiJoystickPanel extends JPanel implements ActionListener {
 		
 		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
+		con1.weighty=1;
 		buttonConnect = new JButton(Translator.get("ButtonConnect"));
 		this.add(buttonConnect, con1);
 		con1.gridy++;

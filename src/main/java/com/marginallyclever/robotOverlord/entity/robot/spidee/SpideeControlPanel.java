@@ -17,6 +17,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 
@@ -61,16 +62,10 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 	
 	SpideeControlPanel(RobotOverlord gui,Spidee robot) {
 		this.robot = robot;
+		this.setName("Spidee");
 
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		
 		JPanel p;
 
 		CollapsiblePanel speedPanel = createSpeedPanel();
@@ -142,11 +137,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 	
 	private CollapsiblePanel createSpeedPanel() {
 		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
-		GridBagConstraints con2 = new GridBagConstraints();
-		con2.gridx=0;
-		con2.gridy=0;
-		con2.fill=GridBagConstraints.HORIZONTAL;
-		con2.anchor=GridBagConstraints.NORTHWEST;
+		GridBagConstraints con2 = PanelHelper.getDefaultGridBagConstraints();
 		con2.weighty=1;
 		con2.weightx=0.25;
 

@@ -8,6 +8,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.convenience.ColorRGB;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectBoolean;
@@ -73,14 +74,8 @@ public class LightPanel extends JPanel implements ChangeListener {
 
 		this.setName("Light");
 		this.setLayout(new GridBagLayout());
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=0;
-		con1.weighty=0;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		this.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),con1);
 		con1.gridy++;

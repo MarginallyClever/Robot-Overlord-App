@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectBoolean;
 
@@ -43,12 +44,7 @@ public class UserCommandSelectBoolean extends JPanel implements ActionListener {
 		this.label = labelName;
 		
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.NONE;
-		con1.anchor=GridBagConstraints.WEST;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 	

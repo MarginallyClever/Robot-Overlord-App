@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAddEntity;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
@@ -43,14 +44,8 @@ public class GridEntityPanel extends JPanel implements ChangeListener {
 		this.setName("Grid");
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(0,0,0,0));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=0;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		this.add(gridWidth=new UserCommandSelectNumber(gui,"Width",(float)grid.width),con1);
 		con1.gridy++;

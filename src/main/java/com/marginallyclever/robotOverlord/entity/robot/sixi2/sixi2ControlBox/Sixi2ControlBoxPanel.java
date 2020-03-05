@@ -17,6 +17,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
@@ -77,13 +78,7 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(0,0,0,0));
 
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=0;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		this.add(new JLabel("File to play"), con1);
 		con1.gridy++;

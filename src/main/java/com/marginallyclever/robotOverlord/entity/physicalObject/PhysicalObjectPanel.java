@@ -10,6 +10,7 @@ import javax.swing.event.ChangeListener;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectVector3d;
 
@@ -35,14 +36,8 @@ public class PhysicalObjectPanel extends JPanel implements ChangeListener {
 		this.setName("Physical Object");
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(0,0,0,0));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weighty=0;
-		con1.weightx=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		this.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;

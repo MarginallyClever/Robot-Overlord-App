@@ -27,6 +27,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -76,14 +77,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		this.setName("DHRobot");
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(0,0,0,0));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
 		//con1.gridy++;
@@ -243,15 +238,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 */
 	public void selectTool() {
 		JPanel additionList = new JPanel(new GridLayout(0, 1));
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weightx=1;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTH;
-		
+
 		JComboBox<String> additionComboBox = new JComboBox<String>();
 		additionList.add(additionComboBox);
 		

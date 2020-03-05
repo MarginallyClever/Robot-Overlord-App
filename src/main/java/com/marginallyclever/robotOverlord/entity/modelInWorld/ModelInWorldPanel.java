@@ -10,6 +10,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.model.ModelLoadAndSave;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectFile;
@@ -36,13 +37,8 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 
 		this.setName("Model");
 		this.setLayout(new GridBagLayout());
-		
-		GridBagConstraints con1 = new GridBagConstraints();
-		con1.gridx=0;
-		con1.gridy=0;
-		con1.weighty=1;
-		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getFilename());
 		// Find all the serviceLoaders for loading files.
