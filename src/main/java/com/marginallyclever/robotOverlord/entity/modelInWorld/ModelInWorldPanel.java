@@ -42,7 +42,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		con1.gridy=0;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 
 		userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getFilename());
 		// Find all the serviceLoaders for loading files.

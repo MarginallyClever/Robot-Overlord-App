@@ -116,7 +116,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=0;
+		con1.weightx=1;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTHWEST;

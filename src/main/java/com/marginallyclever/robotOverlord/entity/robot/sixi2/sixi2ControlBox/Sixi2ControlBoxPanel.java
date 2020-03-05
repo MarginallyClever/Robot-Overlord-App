@@ -80,10 +80,10 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=0;
+		con1.weightx=1;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 		
 		this.add(new JLabel("File to play"), con1);
 		con1.gridy++;

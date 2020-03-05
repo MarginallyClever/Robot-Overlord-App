@@ -83,7 +83,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		con1.weightx=1;
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 
 		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
 		//con1.gridy++;

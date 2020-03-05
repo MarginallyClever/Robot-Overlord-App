@@ -57,7 +57,7 @@ public class WorldPanel extends JPanel implements ActionListener {
 		con1.weightx=1;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 		
 		this.add(addButton = new UserCommandAddEntity(gui),con1);
 		addButton.addActionListener(this);

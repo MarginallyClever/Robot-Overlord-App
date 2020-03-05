@@ -80,7 +80,7 @@ public class LightPanel extends JPanel implements ChangeListener {
 		con1.weightx=0;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 
 		this.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),con1);
 		con1.gridy++;

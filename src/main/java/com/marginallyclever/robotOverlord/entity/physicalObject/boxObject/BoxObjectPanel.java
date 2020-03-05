@@ -34,10 +34,10 @@ public class BoxObjectPanel extends JPanel implements ChangeListener {
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=0;
+		con1.weightx=1;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 		
 		this.add(chooseWidth  = new UserCommandSelectNumber(gui,com.marginallyclever.robotOverlord.engine.translator.Translator.get("Width"),(float)box.getWidth()),con1);
 		con1.gridy++;

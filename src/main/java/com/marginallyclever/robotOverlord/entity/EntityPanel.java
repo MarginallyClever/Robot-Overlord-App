@@ -39,8 +39,9 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		con1.gridx=0;
 		con1.gridy=0;
 		con1.weighty=0;
+		con1.weightx=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 
 		if(ro.getWorld().hasEntity(entity)) {
 			this.add(new UserCommandRemoveMe(ro,entity),con1);

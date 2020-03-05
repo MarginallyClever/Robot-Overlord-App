@@ -40,8 +40,9 @@ public class PhysicalObjectPanel extends JPanel implements ChangeListener {
 		con1.gridx=0;
 		con1.gridy=0;
 		con1.weighty=0;
+		con1.weightx=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.FIRST_LINE_START;
+		con1.anchor=GridBagConstraints.NORTHWEST;
 		
 		this.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
 		con1.gridy++;
