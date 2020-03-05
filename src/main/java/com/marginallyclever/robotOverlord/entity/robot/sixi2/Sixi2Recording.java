@@ -68,9 +68,29 @@ public class Sixi2Recording {
 		fileTo=fileName;
 	}
 
-	public void setCommand(String line) {
+	/**
+	 * add a command after the current command.
+	 * @param line
+	 */
+	public void addCommand(String line) {
+		System.out.println("Add command: "+line);
 		if (commands.size() == 0) {
-			commands.set(0, line);
+			commands.add(line);
+			commandIndex = 0;
+			return;
+		}
+		if (commandIndex >= 0 && commandIndex < commands.size()) {
+			commandIndex++;
+			commands.add(commandIndex, line);
+		}
+	}
+
+	// change the current command
+	public void setCommand(String line) {
+		System.out.println("set command: "+line);
+		if (commands.size() == 0) {
+			commands.add(line);
+			commandIndex = 0;
 			return;
 		}
 		if (commandIndex >= 0 && commandIndex < commands.size()) {
@@ -104,18 +124,6 @@ public class Sixi2Recording {
 	public String prev() {
 		commandIndex--;
 		return getCommand();
-	}
-
-	public void addCommand(String line) {
-		if (commands.size() == 0) {
-			commands.add(line);
-			commandIndex = 0;
-			return;
-		}
-		if (commandIndex >= 0 && commandIndex < commands.size()) {
-			commandIndex++;
-			commands.add(commandIndex, line);
-		}
 	}
 
 	public void deleteCurrentCommand() {
