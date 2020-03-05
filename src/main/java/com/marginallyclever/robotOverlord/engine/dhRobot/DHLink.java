@@ -51,11 +51,12 @@ public class DHLink extends ModelInWorld {
 	public final static double ANGLE_RANGE_STEPS=20;
 	
 	// the gcode letter representing this link
-	protected String letter;
+	protected String letter="";
 
 	
 	public DHLink() {
 		super();
+		setName("DHLink");
 		pose = new Matrix4d();
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
@@ -402,5 +403,12 @@ public class DHLink extends ModelInWorld {
 	
 	public Matrix4d getPoseCumulative() {
 		return poseCumulative;
+	}
+
+	public void setLetter(String letter) {
+		this.letter = letter;
+	}
+	public String getLetter() {
+		return letter;
 	}
 }
