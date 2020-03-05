@@ -133,14 +133,13 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		this.add(setHeight=new JButton("3..2..1..Go!"),con1);
 		con1.gridy++;
 
-		con1.weighty=1;  // last item gets weight 1.
 		this.add(firstPosition=new JButton("First position"),con1);
-		con1.gridy++;
 		
 		setHeight.addActionListener(this);
 		firstPosition.addActionListener(this);
 		userHeight.addActionListener(this);
-		
+
+		PanelHelper.ExpandLastChild(this, con1);
 		updateLabels();
 	}
 	

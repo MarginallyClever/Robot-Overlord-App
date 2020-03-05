@@ -41,8 +41,6 @@ public class UserCommandSelectComboBox extends JPanel implements ActionListener 
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
-		
-		
 		list = new JComboBox<String>(listOptions);
 		list.setSelectedIndex(defaultValue);
 		list.addActionListener(this);
@@ -51,11 +49,11 @@ public class UserCommandSelectComboBox extends JPanel implements ActionListener 
 		label.setLabelFor(list);
 
 		this.add(label,con1);
+		
 		con1.gridy++;
-
-		con1.weighty=1;
 		this.add(list,con1);
-		con1.gridy++;
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	public String getValue() {

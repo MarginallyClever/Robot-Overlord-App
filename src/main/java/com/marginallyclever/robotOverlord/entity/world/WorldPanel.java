@@ -61,15 +61,14 @@ public class WorldPanel extends JPanel implements ActionListener {
 	    DefaultMutableTreeNode top = createTreeNodes(world);
 		JTree tree = new JTree(top);
 		JScrollPane entityList = new JScrollPane(tree);
-		con1.weighty=1;  // last item gets weight 1.
 		this.add(entityList,con1);
-		con1.gridy++;
-
+		
 	    tree.getSelectionModel().setSelectionMode
 	            (TreeSelectionModel.SINGLE_TREE_SELECTION);
 	    
 	    entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 	    
+	    // double click an item to get its panel.
 	    // See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
 	    tree.addMouseListener(new MouseAdapter() {
 		    public void mousePressed(MouseEvent e) {
@@ -86,6 +85,8 @@ public class WorldPanel extends JPanel implements ActionListener {
 		        }
 		    }
 		});
+
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	protected DefaultMutableTreeNode createTreeNodes(Entity e) {

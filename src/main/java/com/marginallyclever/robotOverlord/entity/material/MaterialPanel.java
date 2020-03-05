@@ -54,10 +54,11 @@ public class MaterialPanel extends JPanel implements ChangeListener {
 		this.add(chooseShininess = new UserCommandSelectNumber(gui,Translator.get("Shininess"),mat.getShininess()),con1);
 		con1.gridy++;
 		this.add(chooseTexture = new UserCommandSelectFile(gui,Translator.get("Texture"),mat.getTextureFilename()),con1);
-		con1.weighty=1;  // last item only
 		con1.gridy++;
 		this.add(chooseIsLit = new UserCommandSelectBoolean(gui,Translator.get("Lit"),mat.isLit()),con1);
 
+		PanelHelper.ExpandLastChild(this, con1);
+		
 		chooseDiffuse.addChangeListener(this);
 		chooseAmbient.addChangeListener(this);
 		chooseSpecular.addChangeListener(this);

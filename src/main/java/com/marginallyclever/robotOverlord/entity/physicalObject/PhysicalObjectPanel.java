@@ -40,16 +40,16 @@ public class PhysicalObjectPanel extends JPanel implements ChangeListener {
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		this.add(setPosition = new UserCommandSelectVector3d(ro,"position",entity.getPosition()),con1);
-		con1.gridy++;
 		setPosition.addChangeListener(this);
 
+		con1.gridy++;
 		Vector3d temp = new Vector3d();
 		entity.getRotation(temp);
 		temp.scale(180/Math.PI);
-		con1.weighty=1;  // last item gets weight 1.
 		this.add(setRotation = new UserCommandSelectVector3d(ro,"rotation",temp),con1);
-		con1.gridy++;
 		setRotation.addChangeListener(this);
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	

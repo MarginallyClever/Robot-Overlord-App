@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.robot.deltaRobot3;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -74,28 +73,25 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		
 		CollapsiblePanel speedPanel = createSpeedPanel();
 		this.add(speedPanel,con1);
-		con1.gridy++;
 
+		con1.gridy++;
 		CollapsiblePanel homePanel = new CollapsiblePanel("Calibration");
+		homePanel.getContentPane().add(goHome=createButton("Find Home"));
 		this.add(homePanel,con1);
-		con1.gridy++;
-
-		goHome=createButton("Find Home");
-		homePanel.getContentPane().add(goHome);
 		
 		//CollapsiblePanel fkPanel = 
 				createFKPanel(gui);
-		//this.add(fkPanel,con1);
 		//con1.gridy++;
+		//this.add(fkPanel,con1);
 
-		CollapsiblePanel ikPanel = createIKPanel(gui);
-		this.add(ikPanel, con1);
 		con1.gridy++;
+		this.add(createIKPanel(gui), con1);
 		
-		con1.weighty=1;
+		con1.gridy++;
 		about = createButton("About this robot");
 		this.add(about, con1);
-		con1.gridy++;
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 
 	protected CollapsiblePanel createFKPanel(RobotOverlord gui) {
@@ -145,7 +141,6 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
 
 		GridBagConstraints con2 = PanelHelper.getDefaultGridBagConstraints();
-		con2.weighty=1;
 		con2.weightx=0.25;
 		speedPanel.getContentPane().add(speedNow,con2);
 

@@ -288,11 +288,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		gcodeValue.setText(robot.getCommand());
 		
 
-
 		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording");
-		con1.weighty=1;  // last item gets weight 1.
 		this.add(recordingPanel,con1);
-		con1.gridy++;
 		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));
 		
 		contents = new JPanel();
@@ -309,6 +306,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con2.gridx=0;	con2.gridy=1;	con2.gridwidth=2;
 		contents.add(scrubber=new JSlider(),con2);
 		
+		PanelHelper.ExpandLastChild(this, con1);
 		rewindNow.addActionListener(this);
 		playNow.addActionListener(this);
 		scrubber.addChangeListener(this);

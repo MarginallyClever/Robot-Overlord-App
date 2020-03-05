@@ -24,13 +24,8 @@ public class CameraPanel extends JPanel implements ActionListener {
 		this.setName("Camera");
 /*
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor=GridBagConstraints.NORTHWEST;
-		c.fill=GridBagConstraints.HORIZONTAL;
+		
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		JPanel p;
 		CollapsiblePanel p2 = new CollapsiblePanel("Fly");

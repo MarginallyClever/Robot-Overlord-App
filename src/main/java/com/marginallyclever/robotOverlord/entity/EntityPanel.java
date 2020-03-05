@@ -43,10 +43,10 @@ public class EntityPanel extends JPanel implements ChangeListener {
 			con1.gridy++;
 		}
 
-		con1.weighty=1;  // last item gets weight 1.
 		this.add(setName=new UserCommandSelectString(ro,"name",entity.getName()), con1);
-		con1.gridy++;
 		setName.addChangeListener(this);
+
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	

@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.robot.spidee;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -164,7 +163,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		con2.weightx=0.75;
 		con2.gridx=1;
 		speedPanel.getContentPane().add(speedControl,con2);
-		
+
 		return speedPanel;
 	}
 

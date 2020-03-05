@@ -37,9 +37,9 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		buttonConnect = createButton(Translator.get("ButtonConnect"));
-		con1.weighty=1;  // last item gets weight 1.
 		this.add(buttonConnect, con1);
-		con1.gridy++;
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 
 	private JButton createButton(String name) {

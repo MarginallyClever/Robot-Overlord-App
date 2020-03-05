@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -102,11 +101,11 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 		p.add(arm5Zpos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Z, 1,"Z+"));		p.add(zPos);
 		p.add(arm5Zneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Z,-1,"Z-"));
 		
-		con1.weighty=1;
 		about = new JButton("About this robot");
 		about.addActionListener(this);
 		this.add(about, con1);
-		con1.gridy++;
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	protected CollapsiblePanel createSpeedPanel() {
@@ -124,7 +123,6 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 		CollapsiblePanel speedPanel = new CollapsiblePanel("Speed");
 
 		GridBagConstraints con2 = PanelHelper.getDefaultGridBagConstraints();
-		con2.weighty=1;
 		con2.weightx=0.25;
 		speedPanel.getContentPane().add(speedNow,con2);
 

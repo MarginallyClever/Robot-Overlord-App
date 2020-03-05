@@ -38,9 +38,9 @@ public class BoxObjectPanel extends JPanel implements ChangeListener {
 		con1.gridy++;
 		this.add(chooseHeight = new UserCommandSelectNumber(gui,Translator.get("Height"),(float)box.getHeight()),con1);
 		con1.gridy++;
-		con1.weighty=1;
 		this.add(chooseDepth  = new UserCommandSelectNumber(gui,Translator.get("Depth" ),(float)box.getDepth() ),con1);
-		con1.gridy++;
+
+		PanelHelper.ExpandLastChild(this, con1);
 
 		chooseWidth .addChangeListener(this);
 		chooseHeight.addChangeListener(this);

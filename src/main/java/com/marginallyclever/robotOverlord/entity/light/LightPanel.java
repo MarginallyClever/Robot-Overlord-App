@@ -78,17 +78,20 @@ public class LightPanel extends JPanel implements ChangeListener {
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		this.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),con1);
+
 		con1.gridy++;
 		this.add(choosePreset = new UserCommandSelectComboBox(gui,Translator.get("Preset"),presetNames,detectPreset(light)),con1);
+		
 		con1.gridy++;
 		this.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbientColor()),con1);
+		
 		con1.gridy++;
 		this.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),light.getSpecular()),con1);
+		
 		con1.gridy++;
-		con1.weighty=1;  // last one only
 		this.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuseColor()),con1);
-		con1.gridy++;
 
+		PanelHelper.ExpandLastChild(this, con1);
 		chooseEnabled.addChangeListener(this);
 		chooseDiffuse.addChangeListener(this);
 		chooseAmbient.addChangeListener(this);

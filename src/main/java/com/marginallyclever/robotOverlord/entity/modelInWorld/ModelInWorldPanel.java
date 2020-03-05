@@ -51,24 +51,23 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		}
 		userCommandSelectFile.addChangeListener(this);
 		this.add(userCommandSelectFile,con1);
+
 		con1.gridy++;
-		
-		
 		setScale = new UserCommandSelectNumber(gui,"Scale",model.getModelScale());
 		setScale.addChangeListener(this);
 		this.add(setScale,con1);
-		con1.gridy++;
 
+		con1.gridy++;
 		setOrigin = new UserCommandSelectVector3d(gui,"Adjust origin",model.getModelOrigin());
 		setOrigin.addChangeListener(this);
 		this.add(setOrigin,con1);
-		con1.gridy++;
 
+		con1.gridy++;
 		setRotation = new UserCommandSelectVector3d(gui,"Adjust rotation",model.getModelRotation());
 		setRotation.addChangeListener(this);
-		con1.weighty=1;  // last item only
 		this.add(setRotation,con1);
-		con1.gridy++;
+
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 
 	@Override

@@ -48,10 +48,11 @@ public class GridEntityPanel extends JPanel implements ChangeListener {
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		this.add(gridWidth=new UserCommandSelectNumber(gui,"Width",(float)grid.width),con1);
+		
 		con1.gridy++;
-		con1.weighty=1;  // last item only
 		this.add(gridHeight=new UserCommandSelectNumber(gui,"Depth",(float)grid.height),con1);
-		con1.gridy++;
+
+		PanelHelper.ExpandLastChild(this, con1);
 		gridWidth.addChangeListener(this);
 		gridHeight.addChangeListener(this);
 	}

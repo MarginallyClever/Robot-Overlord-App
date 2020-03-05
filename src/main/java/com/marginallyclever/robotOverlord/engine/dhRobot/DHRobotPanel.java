@@ -128,11 +128,11 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		con1.gridy++;
 		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
-		con1.weighty=1;  // last item gets weight=1.
 		this.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
-		con1.gridy++;
 
+		PanelHelper.ExpandLastChild(this, con1);
+		
 		robot.refreshPose();
 		updateEnd();
 	}

@@ -46,11 +46,11 @@ public class SixiJoystickPanel extends JPanel implements ActionListener {
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		con1.weighty=1;
 		buttonConnect = new JButton(Translator.get("ButtonConnect"));
 		this.add(buttonConnect, con1);
-		con1.gridy++;
 		buttonConnect.addActionListener(this);
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	@Override
