@@ -156,14 +156,9 @@ public class Entity extends Observable {
 	}
 	
 	public void removeChild(Entity e) {
-		int n=0;
-		Iterator<Entity> i = children.iterator();
-		while(i.hasNext()) {
-			if(i==e) {
-				children.remove(n);
-				return;
-			}
-			++n;
+		if(children.contains(e)) {
+			children.remove(e);
+			e.setParent(null);
 		}
 	}
 	
