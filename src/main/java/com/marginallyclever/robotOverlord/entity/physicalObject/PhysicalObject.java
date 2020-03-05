@@ -192,4 +192,33 @@ public abstract class PhysicalObject extends Entity {
 
 		return cuboidList;
 	}
+
+	
+	public boolean isShouldDrawBoundingBox() {
+		return shouldDrawBoundingBox;
+	}
+
+	public void setShouldDrawBoundingBox(boolean shouldDrawBoundingBox) {
+		this.shouldDrawBoundingBox = shouldDrawBoundingBox;
+	}
+
+	public boolean isShouldDrawLocalOrigin() {
+		return shouldDrawLocalOrigin;
+	}
+
+	public void setShouldDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
+		this.shouldDrawLocalOrigin = shouldDrawLocalOrigin;
+	}
+
+	public boolean isShouldDrawConnectionToChildren() {
+		return shouldDrawConnectionToChildren;
+	}
+
+	public void setShouldDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
+		this.shouldDrawConnectionToChildren = shouldDrawConnectionToChildren;
+	}
+
+	public PhysicalObjectPanel getPhysicalObjectControlPanel() {
+		return physicalObjectControlPanel;
+	}
 }
