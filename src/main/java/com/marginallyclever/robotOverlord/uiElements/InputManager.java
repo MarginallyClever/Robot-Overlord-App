@@ -70,7 +70,16 @@ public class InputManager {
 		KEY_8(47),
 		KEY_9(48),
 		KEY_0(49),
-		KEY_ESCAPE(50);
+		KEY_ESCAPE(50),
+		
+		KEY_GREATERTHAN(51),
+		KEY_LESSTHAN(52),
+		KEY_PLUS(53),
+		KEY_FRONTSLASH(54),
+		KEY_BACKSLASH(55),
+
+		KEY_SPACE(56),
+		KEY_TILDE(57);
 		
 		private final int value;
 		private Source(int v) {
@@ -260,6 +269,15 @@ public class InputManager {
     				if(components[j].getIdentifier()==Identifier.Key._9) keyState[Source.KEY_9.getValue()] = 1;
 
     				if(components[j].getIdentifier()==Identifier.Key.ESCAPE) keyState[Source.KEY_ESCAPE.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.SLASH) keyState[Source.KEY_FRONTSLASH.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.BACKSLASH) keyState[Source.KEY_BACKSLASH.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.EQUALS) keyState[Source.KEY_PLUS.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.ADD) keyState[Source.KEY_PLUS.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.COMMA) keyState[Source.KEY_LESSTHAN.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.PERIOD) keyState[Source.KEY_GREATERTHAN.getValue()] = 1;
+    				
+    				if(components[j].getIdentifier()==Identifier.Key.SPACE) keyState[Source.KEY_SPACE.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.GRAVE) keyState[Source.KEY_TILDE.getValue()] = 1;
     			}
         	}
         }
