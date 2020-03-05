@@ -149,12 +149,12 @@ public class DHLink extends ModelInWorld {
 	public void render(GL2 gl2) {
 		// change material property here to color by range
 
-		float [] diffuse = material.getDiffuseColor();
-		setAngleColorByRange(gl2);
+		//float [] diffuse = material.getDiffuseColor();
+		//setAngleColorByRange(gl2);
 		
 		super.render(gl2);
 		
-		material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
+		//material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 	}
 	
 	/**

@@ -80,7 +80,7 @@ public class Sixi2 extends Robot {
 	
 	public Sixi2() {
 		super();
-		setName("Sixi 2");
+		setName("Sixi");
 		
 		addChild(live);
 		addChild(sim);
@@ -140,7 +140,11 @@ public class Sixi2 extends Robot {
 	
 	
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL2 gl2) {		
+		for( DHLink link : sim.links ) {
+			link.refreshPoseMatrix();
+		}
+		
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);

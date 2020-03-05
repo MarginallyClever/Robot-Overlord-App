@@ -10,6 +10,7 @@ import javax.vecmath.Vector3d;
 
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
 
 /**
  * contains the vertex, normal, and texture data for a 3D model.
@@ -45,7 +46,7 @@ public class Model {
 	protected Vector3d adjustRotation;
 	
 	// bounding limits
-	protected Point3d boundBottom, boundTop;
+	protected Cuboid cuboid;
 
 	public Model() {
 		sourceName=null;
@@ -55,8 +56,6 @@ public class Model {
 		colorArray = new ArrayList<Float>();
 		texCoordArray = new ArrayList<Float>();
 		
-		boundTop = new Point3d();
-		boundBottom = new Point3d();
 		adjustOrigin = new Vector3d();
 		adjustRotation = new Vector3d();
 		scale=1.0f;
@@ -66,6 +65,7 @@ public class Model {
 		hasTextureCoordinates=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
+		cuboid = new Cuboid();
 	}
 
 	
@@ -115,22 +115,21 @@ public class Model {
 		int j=0;
 
 		// generate the pose matrix
-		Matrix4d rot = new Matrix4d();
+		Matrix4d pose = new Matrix4d();
 		Matrix4d rotX = new Matrix4d();
 		Matrix4d rotY = new Matrix4d();
 		Matrix4d rotZ = new Matrix4d();
 		rotX.rotX((float)Math.toRadians(adjustRotation.x));
 		rotY.rotY((float)Math.toRadians(adjustRotation.y));
 		rotZ.rotZ((float)Math.toRadians(adjustRotation.z));
-		rot.set(rotX);
-		rot.mul(rotY);
-		rot.mul(rotZ);
-		Matrix4d pose = new Matrix4d(rot);
+		pose.set(rotX);
+		pose.mul(rotY);
+		pose.mul(rotZ);
 		pose.setScale(scale);
 		pose.setTranslation(adjustOrigin);
 
-		boundBottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-		boundTop.set(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
+		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
+		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 		
 		vertices = FloatBuffer.allocate(vertexArray.size());
 		fi = vertexArray.iterator();
@@ -152,6 +151,8 @@ public class Model {
 			if(boundTop.y<p.y) boundTop.y=p.y;
 			if(boundTop.z<p.z) boundTop.z=p.z;
 		}
+		
+		cuboid.setBounds(boundTop, boundBottom);
 
 		int totalBufferSize = numVertexes;
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
@@ -167,13 +168,14 @@ public class Model {
 		if(hasNormals) {
 			j=0;
 		    // repeat for normals
+			pose.setTranslation(new Vector3d(0,0,0));
 			normals = FloatBuffer.allocate(normalArray.size());
 			fi = normalArray.iterator();
 			while(fi.hasNext()) {
 				p.x = fi.next().floatValue();
 				p.y = fi.next().floatValue();
 				p.z = fi.next().floatValue();
-				rot.transform(p);
+				pose.transform(p);
 				normals.put(j++, (float)p.x);
 				normals.put(j++, (float)p.y);
 				normals.put(j++, (float)p.z);
@@ -186,7 +188,7 @@ public class Model {
 		}
 
 		if(hasColors) {
-		    // repeat for normals
+		    // repeat for colors
 			colors = FloatBuffer.allocate(colorArray.size());
 			fi = colorArray.iterator();
 			while(fi.hasNext()) {
@@ -218,7 +220,7 @@ public class Model {
 	public void render(GL2 gl2) {
 		if(!isLoaded) {
 			createBuffers(gl2);
-			updateBuffers(gl2);
+			isDirty=true;
 			isLoaded=true;
 		}
 		if(isDirty) {
@@ -327,24 +329,20 @@ public class Model {
 	 * Meaningless if there is no vertexArray of points.
 	 */
 	public void findBounds() {
-		if(vertexArray == null) return;
-
-		boundBottom.set(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-		boundTop.set(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
+		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
+		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 
 		// generate the pose matrix
-		Matrix4d rot = new Matrix4d();
+		Matrix4d pose = new Matrix4d();
 		Matrix4d rotX = new Matrix4d();
 		Matrix4d rotY = new Matrix4d();
 		Matrix4d rotZ = new Matrix4d();
-		rot.setIdentity();
 		rotX.rotX((float)Math.toRadians(adjustRotation.x));
 		rotY.rotY((float)Math.toRadians(adjustRotation.y));
 		rotZ.rotZ((float)Math.toRadians(adjustRotation.z));
-		rot.set(rotX);
-		rot.mul(rotY);
-		rot.mul(rotZ);
-		Matrix4d pose = new Matrix4d(rot);
+		pose.set(rotX);
+		pose.mul(rotY);
+		pose.mul(rotZ);
 		pose.setScale(scale);
 		pose.setTranslation(adjustOrigin);
 		
@@ -364,15 +362,11 @@ public class Model {
 			if(boundTop.y<p.y) boundTop.y=p.y;
 			if(boundTop.z<p.z) boundTop.z=p.z;
 		}
+		cuboid.setBounds(boundTop, boundBottom);
 	}
 
 	
-	public Point3d getBoundsBottom() {
-		return boundBottom;
-	}
-
-
-	public Point3d getBoundsTop() {
-		return boundTop;
+	public Cuboid getCuboid() {
+		return cuboid;
 	}
 }

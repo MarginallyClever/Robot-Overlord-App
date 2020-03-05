@@ -6,16 +6,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAddEntity;
@@ -53,7 +54,7 @@ public class WorldPanel extends JPanel implements ActionListener {
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
 		con1.gridy=0;
-		con1.weightx=0;
+		con1.weightx=1;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.FIRST_LINE_START;
@@ -62,30 +63,42 @@ public class WorldPanel extends JPanel implements ActionListener {
 		addButton.addActionListener(this);
 		con1.gridy++;
 
-		// (re)create the entity list
-		Iterator<Entity> ie = world.getChildren().iterator();
-		List<EntityListItem> localEntityList = new ArrayList<EntityListItem>(); 
-		while(ie.hasNext()) {
-			Entity e = ie.next();
-			localEntityList.add(new EntityListItem(e));
-		}
-		entityList = new JList<EntityListItem>(new Vector<EntityListItem>(localEntityList));
-		entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+	    DefaultMutableTreeNode top = createTreeNodes(world);
+		JTree tree = new JTree(top);
+		JScrollPane entityList = new JScrollPane(tree);
 		con1.weighty=1;  // last item gets weight 1.
 		this.add(entityList,con1);
 		con1.gridy++;
 
-		entityList.addMouseListener(new MouseAdapter() {
-		    public void mouseClicked(MouseEvent evt) {
-		        JList<?> list = (JList<?>)evt.getSource();
-		        if (evt.getClickCount() == 2) {
-		            // Double-click detected
-		            int index = list.locationToIndex(evt.getPoint());
-		            Entity e = localEntityList.get(index).entity;
-		            gui.pickEntity(e);
+	    tree.getSelectionModel().setSelectionMode
+	            (TreeSelectionModel.SINGLE_TREE_SELECTION);
+	    
+	    entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+	    
+	    // See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
+	    tree.addMouseListener(new MouseAdapter() {
+		    public void mousePressed(MouseEvent e) {
+		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+		        if(selPath != null) {
+		            if(e.getClickCount() == 1) {
+		                //mySingleClick(selRow, selPath);
+		            }
+		            else if(e.getClickCount() == 2) {
+		                //myDoubleClick(selRow, selPath);
+		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
+		            	gui.pickEntity((Entity)(o.getUserObject()));
+		            }
 		        }
 		    }
 		});
+	}
+	
+	protected DefaultMutableTreeNode createTreeNodes(Entity e) {
+		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
+		for(Entity child : e.getChildren() ) {
+			parent.add(createTreeNodes(child));
+		}
+		return parent;
 	}
 	
 	@Override

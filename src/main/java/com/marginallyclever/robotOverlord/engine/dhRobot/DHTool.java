@@ -48,7 +48,8 @@ public class DHTool extends DHLink {
 		// set up the physical limits
 		cuboid.setPoseWorld(poseCumulative);
 		if( getModel() != null ) {
-			cuboid.setBounds(getModel().getBoundsTop(), getModel().getBoundsBottom());
+			cuboid.setBounds(getModel().getCuboid().getBoundsTop(), 
+							 getModel().getCuboid().getBoundsBottom());
 		}
 	}
 

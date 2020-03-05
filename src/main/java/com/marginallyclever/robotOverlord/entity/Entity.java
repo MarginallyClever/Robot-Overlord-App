@@ -191,4 +191,8 @@ public class Entity extends Observable {
 	public String getStatusMessage() {
 		return "";
 	}
+	
+	public String toString() {
+		return name;
+	}
 }

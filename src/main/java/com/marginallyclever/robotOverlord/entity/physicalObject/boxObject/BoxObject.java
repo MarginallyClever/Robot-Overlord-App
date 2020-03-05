@@ -4,6 +4,7 @@ package com.marginallyclever.robotOverlord.entity.physicalObject.boxObject;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
@@ -62,13 +63,18 @@ public class BoxObject extends PhysicalObject {
 	
 			// draw placeholder
 			mat.render(gl2);
-			//PrimitiveSolids.drawBox(gl2, (float)depth, (float)width, (float)height);
-			cuboid.setPoseWorld(getPose());  // TODO should be cumulative pose!
-			PrimitiveSolids.drawBoxWireframe(gl2,cuboid.getBoundsBottom(),cuboid.getBoundsTop());
+			PrimitiveSolids.drawBox(gl2, (float)depth, (float)width, (float)height);
+			
+			//PrimitiveSolids.drawBoxWireframe(gl2,cuboid.getBoundsBottom(),cuboid.getBoundsTop());
 		
 		gl2.glPopMatrix();
 	}
 
+	@Override
+	public void setPose(Matrix4d arg0) {
+		super.setPose(arg0);
+		cuboid.setPoseWorld(arg0);
+	}
 
 	/**
 	 * 

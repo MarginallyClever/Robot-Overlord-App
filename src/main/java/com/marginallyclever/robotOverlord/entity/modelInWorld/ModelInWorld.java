@@ -22,13 +22,14 @@ public class ModelInWorld extends PhysicalObject {
 	protected Material material;
 	
 	// model adjustments during loading
-	protected float scale=1;
+	protected float scale;
 	protected Vector3d originAdjust;
 	protected Vector3d rotationAdjust;
 	
 	
 	public ModelInWorld() {
 		super();
+		scale=1;
 		originAdjust = new Vector3d();
 		rotationAdjust = new Vector3d();
 		material = new Material();
@@ -76,6 +77,7 @@ public class ModelInWorld extends PhysicalObject {
 				model.setScale(scale);
 				model.adjustOrigin(originAdjust);
 				model.adjustRotation(rotationAdjust);
+				model.findBounds();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -128,10 +130,11 @@ public class ModelInWorld extends PhysicalObject {
 	
 
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL2 gl2) {	
 		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, pose);
 
-			MatrixHelper.applyMatrix(gl2, this.getPose());
+			//cuboid.render(gl2);
 			
 			// TODO: this should probably be an option that can be toggled.
 			// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.
@@ -146,9 +149,10 @@ public class ModelInWorld extends PhysicalObject {
 			} else {
 				model.render(gl2);
 			}
-			
 		gl2.glPopMatrix();
 		
+		// draw children
+		// physicalObject also calls applyMatirx() so this has to happen outside of the matrix push/pop
 		super.render(gl2);
 	}
 

@@ -23,6 +23,10 @@ public abstract class PhysicalObject extends Entity {
 	
 	private transient PhysicalObjectPanel physicalObjectControlPanel;
 	
+	protected boolean shouldDrawBoundingBox=false;
+	protected boolean shouldDrawLocalOrigin=false;
+	protected boolean shouldDrawConnectionToChildren=false;
+
 	public PhysicalObject() {
 		super();
 		pose = new Matrix4d();
@@ -54,54 +58,58 @@ public abstract class PhysicalObject extends Entity {
 	}
 
 	@Override
-	public void render(GL2 gl2) {		
+	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			// physical bounds
-			boolean drawBoundingBox=true;
-			if(drawBoundingBox) {
-				cuboid.render(gl2);
-			}
-		
 			MatrixHelper.applyMatrix(gl2, pose);
-			
-			boolean drawLocalOrigin=false;
-			if(drawLocalOrigin) {
-				PrimitiveSolids.drawStar(gl2, new Vector3d(0,0,0),10);
-			}
+
+			// helpful info
+			drawBoundingBox(gl2);
+			drawLocalOrigin(gl2);
+			drawConnectionToChildren(gl2);
 			
 			// draw children
 			super.render(gl2);
-
-			// now draw some useful info without lighting or depth testing
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_LIGHTING);
-
-			IntBuffer depthFunc = IntBuffer.allocate(1);
-			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-			gl2.glDepthFunc(GL2.GL_ALWAYS);
-
-			// connection to children
-			boolean drawConnectionToChildren=false;
-			if(drawConnectionToChildren) {
-				for(Entity e : children ) {
-					if(e instanceof PhysicalObject) {					
-						gl2.glColor3d(255, 255, 255);
-						Vector3d p = ((PhysicalObject)e).getPosition();
-						gl2.glBegin(GL2.GL_LINES);
-						gl2.glVertex3d(0, 0, 0);
-						gl2.glVertex3d(p.x,p.y,p.z);
-						gl2.glEnd();
-					}
-				}
-			}
-
-			gl2.glDepthFunc(depthFunc.get());
-			
-			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 			
 		gl2.glPopMatrix();
 	}
 	
+	protected void drawBoundingBox(GL2 gl2) {
+		if(!shouldDrawBoundingBox) return;
+		cuboid.render(gl2);
+	}
+	
+	protected void drawLocalOrigin(GL2 gl2) {
+		if(!shouldDrawLocalOrigin) return;
+		PrimitiveSolids.drawStar(gl2, new Vector3d(0,0,0),10);
+	}
+	
+	protected void drawConnectionToChildren(GL2 gl2) {
+		if(!shouldDrawConnectionToChildren) return;
+		
+		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_LIGHTING);
+
+		IntBuffer depthFunc = IntBuffer.allocate(1);
+		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
+		gl2.glDepthFunc(GL2.GL_ALWAYS);
+
+		// connection to children
+		for(Entity e : children ) {
+			if(e instanceof PhysicalObject) {					
+				gl2.glColor3d(255, 255, 255);
+				Vector3d p = ((PhysicalObject)e).getPosition();
+				gl2.glBegin(GL2.GL_LINES);
+				gl2.glVertex3d(0, 0, 0);
+				gl2.glVertex3d(p.x,p.y,p.z);
+				gl2.glEnd();
+			}
+		}
+
+		gl2.glDepthFunc(depthFunc.get());
+		
+		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+	}
+
 	public Vector3d getPosition() {
 		return new Vector3d(pose.m03,pose.m13,pose.m23);
 	}

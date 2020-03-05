@@ -41,7 +41,7 @@ public class Sixi2Model extends DHRobot {
 		// setup children
 		this.setNumLinks(8);
 		
-		// roll shoulder
+		// pan shoulder
 		links.get(0).setD(188.452/10+0.9);
 		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
 		links.get(0).setRange(-120, 120);

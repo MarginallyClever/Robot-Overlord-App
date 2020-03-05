@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.IntersectionTester;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -114,79 +110,10 @@ public class DHRobot extends ModelInWorld {
 		return solver;
 	}
 
-
 	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
 	}
 	
-	@Deprecated
-	public void renderOld(GL2 gl2) {
-		material.render(gl2);
-		
-		gl2.glPushMatrix();
-	
-			float [] original = new float[4];
-			
-			gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, original, 0);
-			
-			// 3d meshes
-			for( DHLink link : links ) {
-				gl2.glColor4f(original[0],original[1],original[2],original[3]);
-				MatrixHelper.applyMatrix(gl2, link.getPose());
-				link.render(gl2);
-				link.setAngleColorByRange(gl2);
-			}
-			gl2.glColor4f(original[0],original[1],original[2],original[3]);
-			gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, original,0);
-
-			if (dhTool != null) {
-				dhTool.render(gl2);
-			}
-		gl2.glPopMatrix();
-
-		// now simplify look & feel for line drawings.
-		boolean isDepth = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		
-		gl2.glPushMatrix();
-			int j = 0;
-			for( DHLink link : links ) {
-				if (showBones )	link.renderBones (gl2);
-				if (showAngles)	link.renderAngles(gl2);
-				if (showPhysics) 
-				{
-					if( link.getModel() != null) {
-						// Draw the bounding box of the model as the physical bounding box
-						// TODO there are better shapes for collision detection?
-						if (j == hitBox1 || j == hitBox2) gl2.glColor4d(1, 0, 0.8, 0.15); // hit
-						else							  gl2.glColor4d(1, 0.8, 0, 0.15); // no hit
-
-						PrimitiveSolids.drawBox(gl2, link.getModel().getBoundsBottom(), link.getModel().getBoundsTop());
-					}
-				}
-				MatrixHelper.applyMatrix(gl2,link.getPose());
-				++j;
-			}
-				
-			if (dhTool != null) {
-				if (showBones ) dhTool.renderBones (gl2);
-				if (showAngles) dhTool.renderAngles(gl2);
-				//if(showPhysics && dhTool.dhLinkEquivalent.model != null) {
-				//	 gl2.glColor4d(1,0,0.8,0.15);
-				//	 PrimitiveSolids.drawBox(gl2,
-				//		 dhTool.dhLinkEquivalent.model.getBoundBottom(),
-				//		 dhTool.dhLinkEquivalent.model.getBoundTop());
-				//}
-			}
-
-			// at the end effector position
-			PrimitiveSolids.drawStar(gl2, new Vector3d(0, 0, 0), 8);
-		gl2.glPopMatrix();
-
-		if (isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
-		// end simplify
-	}
 
 	public Matrix4d getParentMatrix() {
 		if( parent == null || !(parent instanceof PhysicalObject) ) {
@@ -206,20 +133,20 @@ public class DHRobot extends ModelInWorld {
 		endEffectorMatrix.set(getParentMatrix());
 
 		if(model != null) {
-			cuboid.setBounds(model.getBoundsTop(), model.getBoundsBottom());
+			cuboid.set(model.getCuboid());
 		}
 		
 		for( DHLink link : links ) {
 			// update matrix
 			link.refreshPoseMatrix();
 			// find cumulative matrix
-			link.poseCumulative.set(endEffectorMatrix);
 			endEffectorMatrix.mul(link.getPose());
+			link.poseCumulative.set(endEffectorMatrix);
 
 			// set up the physical limits
-			link.cuboid.setPoseWorld(link.poseCumulative);
 			if(link.getModel()!=null) {
-				link.cuboid.setBounds(link.getModel().getBoundsTop(), link.getModel().getBoundsBottom());
+				link.cuboid.set(link.getModel().getCuboid());
+				link.cuboid.setPoseWorld(link.poseCumulative);
 			}
 		}
 		if (dhTool != null) {
