@@ -46,7 +46,7 @@ public class ModelInWorld extends PhysicalObject {
 		originAdjust.set(b.originAdjust);
 		rotationAdjust.set(b.rotationAdjust);
 	}
-	
+    
 	public String getFilename() {
 		return filename;
 	}
