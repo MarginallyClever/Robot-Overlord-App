@@ -88,9 +88,7 @@ public class Sixi2 extends Robot {
 		ball = new DragBall();
 		ball.setParent(this);
 		
-		// spawn a control box.
-		// TODO this box is a child, which is wrong.
-		// I think only tools should be children.
+		// spawn a control box as a child of the anchor.
 		Sixi2ControlBox sixi2ControlBox=new Sixi2ControlBox();
 		this.addChild(sixi2ControlBox);
 		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
@@ -126,7 +124,6 @@ public class Sixi2 extends Robot {
 		}
 	}
 	
-	
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = super.getContextPanel(gui);
@@ -137,7 +134,6 @@ public class Sixi2 extends Robot {
 		
 		return list;
 	}
-	
 	
 	@Override
 	public void render(GL2 gl2) {		
@@ -156,7 +152,7 @@ public class Sixi2 extends Robot {
 			MatrixHelper.drawMatrix2(gl2, interpolatedMatrix, 2);
 		}
 		
-		if(isPicked && inDirectDriveMode()) {
+		if(isPicked && controlMode == ControlMode.REAL_TIME) {
 			ball.render(gl2);
 		}
 		
@@ -174,7 +170,6 @@ public class Sixi2 extends Robot {
 		super.dataAvailable(arg0, data);
 	}
 	
-
 	/**
 	 * move the finger tip of the arm if the InputManager says so. The direction and
 	 * torque of the movement is controlled by a frame of reference.
@@ -186,161 +181,123 @@ public class Sixi2 extends Robot {
 		ball.setCameraMatrix(getWorld().getCamera().getPose());	
 		
 		boolean isDirty = false;
-		/*
-		final double scale = 10*dt;
-		final double scaleDolly = 10*dt;
-		//if (InputManager.isOn(InputManager.STICK_SQUARE)) {}
-		//if (InputManager.isOn(InputManager.STICK_CIRCLE)) {}
-		//if (InputManager.isOn(InputManager.STICK_X)) {}
-		if (InputManager.isOn(InputManager.STICK_TRIANGLE)) {
-			ghost.setPoseFK(homeKey);
-			ghost.setTargetMatrix(ghost.getLiveMatrix());
-			isDirty = true;
-		}
-		if (InputManager.isOn(InputManager.STICK_TOUCHPAD)) {
-			// this.toggleATC();
-		}
-
-		int dD = (int) InputManager.rawValue(InputManager.STICK_DPADY);
-		if (dD != 0) {
-			double d =dhTool.dhLinkEquivalent.getD() + dD * scaleDolly; 
-			dhTool.dhLinkEquivalent.setD(Math.max(d, 0));
-			isDirty = true;
-		}
-		int dR = (int) InputManager.rawValue(InputManager.STICK_DPADX); // dpad left/right
-		if (dR != 0) {
-			double r =dhTool.dhLinkEquivalent.getR() + dR * scale; 
-			dhTool.dhLinkEquivalent.setR(Math.max(r,0));
-			isDirty = true;
-		}
-
-		// https://robotics.stackexchange.com/questions/12782/how-rotate-a-point-around-an-arbitrary-line-in-3d
-		if (InputManager.isOn(InputManager.STICK_L1) != InputManager.isOn(InputManager.STICK_R1)) {
-			if (canTargetPoseRotateZ()) {
-				isDirty = true;
-				double vv = scaleTurnRadians;
-				if (dhTool != null && dhTool.dhLinkEquivalent.r > 1) {
-					vv /= dhTool.dhLinkEquivalent.r;
-				}
-
-				rollZ(InputManager.isOn(InputManager.STICK_L1) ? vv : -vv);
-			}
-		}
-
-		if (InputManager.rawValue(InputManager.STICK_RX) != 0) {
-			if (canTargetPoseRotateY()) {
-				isDirty = true;
-				rollY(InputManager.rawValue(InputManager.STICK_RX) * scaleTurnRadians);
-			}
-		}
-		if (InputManager.rawValue(InputManager.STICK_RY) != 0) {
-			if (canTargetPoseRotateX()) {
-				isDirty = true;
-				rollX(InputManager.rawValue(InputManager.STICK_RY) * scaleTurnRadians);
-			}
-		}
-		if (InputManager.rawValue(InputManager.STICK_R2) != -1) {
-			isDirty = true;
-			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_R2) + 1) / 2) * scale);
-		}
-		if (InputManager.rawValue(InputManager.STICK_L2) != -1) {
-			isDirty = true;
-			translate(getForward(), ((InputManager.rawValue(InputManager.STICK_L2) + 1) / 2) * -scale);
-		}
-		if (InputManager.rawValue(InputManager.STICK_LX) != 0) {
-			isDirty = true;
-			translate(getRight(), InputManager.rawValue(InputManager.STICK_LX) * scale);
-		}
-		if (InputManager.rawValue(InputManager.STICK_LY) != 0) {
-			isDirty = true;
-			translate(getUp(), InputManager.rawValue(InputManager.STICK_LY) * -scale);
-		}*/
-
-		/* adjust distance to point around which the hand is rotating.
-		if (InputManager.isOn(InputManager.KEY_LCONTROL) || InputManager.isOn(InputManager.KEY_RCONTROL)) {
-			
-			if (InputManager.rawValue(InputManager.MOUSE_Y) != 0) {
-				double d = dhTool.dhLinkEquivalent.getD()
-						+ InputManager.rawValue(InputManager.MOUSE_Y) * scaleDolly;
-				dhTool.dhLinkEquivalent.setD(Math.max(d, 0));
-				isDirty = true;
-			}
-			if (InputManager.rawValue(InputManager.MOUSE_X) != 0) {
-				double r = dhTool.dhLinkEquivalent.getR() 
-						+ InputManager.rawValue(InputManager.MOUSE_X) * scaleDolly;
-				dhTool.dhLinkEquivalent.setR(Math.max(r, 0));
-				isDirty = true;
-			}
-		}*/
-
 		
 		ball.update(dt);
-		
-		if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
-			if(ball.isActivelyMoving())
-			{
-				Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
-				
-				// The ghost only accepts poses in it's frame of reference.
-				// so we have to account for the robot's pose in world space.
-				//Matrix4d iRoot = new Matrix4d(this.matrix);
-				//iRoot.invert();
-				//worldPose.mul(iRoot);
-				
-				//System.out.println("Update begins");
-				sim.setPoseIK(worldPose);
-				//System.out.println("Update ends");
-				//System.out.println(MatrixHelper.getPosition(worldPose));
-				isDirty=true;
+
+		// move the robot by dragging the ball in live mode
+		if(controlMode==ControlMode.REAL_TIME) {
+			if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
+				if(ball.isActivelyMoving()) {
+					Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
+					
+					// The ghost only accepts poses in it's frame of reference.
+					// so we have to account for the robot's pose in world space.
+					//Matrix4d iRoot = new Matrix4d(this.matrix);
+					//iRoot.invert();
+					//worldPose.mul(iRoot);
+					
+					//System.out.println("Update begins");
+					sim.setPoseIK(worldPose);
+					//System.out.println("Update ends");
+					//System.out.println(MatrixHelper.getPosition(worldPose));
+					isDirty=true;
+				}
 			}
 		}
 		
 		if (sim.dhTool != null) {
 			isDirty |= sim.dhTool.directDrive();
 		}
-		
-		if(controlMode==ControlMode.REAL_TIME) {
-			if (InputManager.isReleased(InputManager.Source.KEY_RETURN) 
-				|| InputManager.isReleased(InputManager.Source.KEY_ENTER)
-				|| InputManager.isReleased(InputManager.Source.STICK_X) 
-					) {
-				// commit move!
-				// if we have a live connection, send it.
-				live.sendCommand(sim.getCommand());
-			}
-		}
 
+		
+		if(InputManager.isReleased(InputManager.Source.KEY_SPACE)) {			reset();					}
+		if(InputManager.isReleased(InputManager.Source.KEY_TAB  )) {			toggleControlMode();		}
+		if(InputManager.isReleased(InputManager.Source.KEY_TILDE)) {			toggleOperatingMode();		}
+		if(InputManager.isReleased(InputManager.Source.KEY_S    )) {			toggleSingleBlock();		}
+		
 		if (InputManager.isOn(InputManager.Source.KEY_DELETE)
 			|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
 			sim.set(live);
 		}
 
+		if(InputManager.isOn(InputManager.Source.KEY_LSHIFT) || InputManager.isOn(InputManager.Source.KEY_RSHIFT)) {
+			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
+			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
+				if(controlMode==ControlMode.RECORD) {
+					toggleCycleStart();
+				}
+			}
+		} else {
+			// shift off
+			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
+			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
+				if(controlMode==ControlMode.REAL_TIME) {
+					System.out.println("setCommand");
+					recording.setCommand(sim.getCommand());
+				}
+			}
+			if(InputManager.isReleased(InputManager.Source.KEY_PLUS)) {
+				System.out.println("addCommand");
+				recording.addCommand(sim.getCommand());
+			}
+			if(InputManager.isReleased(InputManager.Source.KEY_DELETE)) {
+				System.out.println("deleteCurrentCommand");
+				recording.deleteCurrentCommand();
+			}
+			if(InputManager.isReleased(InputManager.Source.KEY_BACKSPACE)) {
+				System.out.println("deletePreviousCommand");
+				recording.deletePreviousCommand();
+			}
+			if(InputManager.isReleased(InputManager.Source.KEY_LESSTHAN)) {
+				System.out.println("PreviousCommand");
+				if(recording.hasPrev()) {
+			          String line=recording.prev();
+			          sim.sendCommand(line);
+				}
+			}
+			if(InputManager.isReleased(InputManager.Source.KEY_GREATERTHAN)) {
+				System.out.println("NextCommand");
+		        if(recording.hasNext()) {
+		            String line=recording.next();
+		            sim.sendCommand(line);
+		        }
+			}
+		}
+			
 		return isDirty;
 	}
 	
 	@Override
 	public void update(double dt) {
-		super.update(dt);
-
-		live.update(dt);
-		sim.update(dt);
-
-		if (inDirectDriveMode() && isPicked) {
+		if (isPicked) {
 			driveFromKeyState(dt);
 		}
+		
+		Sixi2Model activeModel = (operatingMode == OperatingMode.LIVE) ? live : sim;
+		if(activeModel.readyForCommands) {
+			if(controlMode == ControlMode.REAL_TIME) {
+				if( operatingMode == OperatingMode.LIVE) {
+					String line = sim.getCommand();
+					System.out.println("Send command: "+line);
+					activeModel.sendCommand(line);
+				}
+			} else {
+				if(cycleStart && recording.hasNext()) {
+					activeModel.sendCommand(recording.next());
+					if(singleBlock) {
+						// one block at a time
+						cycleStart=false;
+					}
+				} else {
+					// no more recording, stop.
+					cycleStart=false;
+				}
+			}
+			// active model is updated when all children are updated
+		}
+		
+		super.update(dt);
 	}
-	
-	/**
-	 * Direct Drive Mode means that we're not playing animation of any kind. That
-	 * means no gcode running, no scrubbing on a timeline, or any other kind of
-	 * external control.
-	 * 
-	 * @return true if we're in direct drive mode.
-	 */
-	protected boolean inDirectDriveMode() {
-		return true;// interpolatePoseT>=1.0 ;
-	}
-
 
 	@Override
 	public void pick() {
@@ -419,35 +376,34 @@ public class Sixi2 extends Robot {
 		sim.refreshPose();
 	}
 
-
-	public void reset() {
-		singleBlock = false;
-		cycleStart = false;
-		m01Break = true;
+	public double getAcceleration() {
+		if(operatingMode==OperatingMode.LIVE) {
+			return live.getAcceleration();
+		} else {
+			return sim.getAcceleration();
+		}
 	}
 
-	public void toggleCycleStart() {
-		cycleStart = !cycleStart;
-	}
-
-	public void toggleSingleBlock() {
-		singleBlock = !singleBlock;
-	}
-
-	public void toggleM01Break() {
-		m01Break = !m01Break;
+	public void setAcceleration(double v) {
+		if(operatingMode==OperatingMode.LIVE) {
+			live.setAcceleration(v);
+		}
+		sim.setAcceleration(v);
 	}
 	
-	public ControlMode getControlMode() { return controlMode; }
-
-	public void toggleControlMode() {
-		controlMode = (controlMode==ControlMode.REAL_TIME) ? ControlMode.RECORD : ControlMode.REAL_TIME;
-
-		if(controlMode==ControlMode.REAL_TIME) {
-			// move the joystick to match the simulated position?
+	public double getFeedRate() {
+		if(operatingMode==OperatingMode.LIVE) {
+			return live.getFeedrate();
+		} else {
+			return sim.getFeedrate();
 		}
+	}
 
-		reset();
+	public void setFeedRate(double v) {
+		if(operatingMode==OperatingMode.LIVE) {
+			live.setFeedRate(v);
+		}
+		sim.setFeedRate(v);
 	}
 
 	/**
@@ -465,36 +421,6 @@ public class Sixi2 extends Robot {
 		return true;
 	}
 
-	public double getAcceleration() {
-		if(operatingMode==OperatingMode.LIVE) {
-			return live.getAcceleration();
-		} else {
-			return sim.getAcceleration();
-		}
-	}
-	
-	public double getFeedRate() {
-		if(operatingMode==OperatingMode.LIVE) {
-			return live.getFeedrate();
-		} else {
-			return sim.getFeedrate();
-		}
-	}
-
-	public void setAcceleration(double v) {
-		if(operatingMode==OperatingMode.LIVE) {
-			live.setAcceleration(v);
-		}
-		sim.setAcceleration(v);
-	}
-
-	public void setFeedRate(double v) {
-		if(operatingMode==OperatingMode.LIVE) {
-			live.setFeedRate(v);
-		}
-		sim.setFeedRate(v);
-	}
-
 	public String getCommand() {
 		if(operatingMode==OperatingMode.LIVE) {
 			return live.getCommand();
@@ -503,19 +429,78 @@ public class Sixi2 extends Robot {
 		}
 	}
 
-	public boolean isPicked() {
-		return isPicked;
+
+	public void reset() {
+		recording.reset();
+		singleBlock = false;
+		cycleStart = false;
+		m01Break = true;
+		
+		System.out.println("reset");
 	}
 
-	public boolean isSingleBlock() {
-		return singleBlock;
+	public void toggleCycleStart() {
+		cycleStart = !cycleStart;
+		System.out.println("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public boolean isCycleStart() {
 		return cycleStart;
 	}
 
+	public void toggleSingleBlock() {
+		singleBlock = !singleBlock;
+		System.out.println("singleBlock="+(singleBlock?"on":"off"));
+	}
+
+	public boolean isSingleBlock() {
+		return singleBlock;
+	}
+
+	public void toggleM01Break() {
+		m01Break = !m01Break;
+		System.out.println("m01Break="+(m01Break?"on":"off"));
+	}
+
 	public boolean isM01Break() {
 		return m01Break;
+	}
+	
+	public ControlMode getControlMode() {
+		return controlMode;
+	}
+
+	public void toggleControlMode() {
+		controlMode = (controlMode==ControlMode.REAL_TIME) ? ControlMode.RECORD : ControlMode.REAL_TIME;
+
+		System.out.println("controlMode="+(controlMode==ControlMode.REAL_TIME?"REAL_TIME":"RECORD"));
+		
+		if(controlMode==ControlMode.REAL_TIME) {
+			// move the joystick to match the simulated position?
+		}
+
+		reset();
+	}
+
+	public boolean isPicked() {
+		return isPicked;
+	}
+	  
+	public OperatingMode getOperatingMode() {
+		return operatingMode;
+	}
+
+	public void toggleOperatingMode() {
+		operatingMode = (operatingMode==OperatingMode.LIVE) ? OperatingMode.SIM : OperatingMode.LIVE;
+
+		System.out.println("operatingMode="+(operatingMode==OperatingMode.SIM?"SIM":"LIVE"));
+	}
+
+	public void loadRecording(String filename) {
+		recording.loadRecording(filename);
+	}
+
+	public void saveRecording(String filename) {
+		recording.saveRecording(filename);
 	}
 }
