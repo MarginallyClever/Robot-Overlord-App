@@ -328,7 +328,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source == feedrate) {
 			int v = feedrate.getValue();
 			robot.setFeedRate(v);
-			feedrateValue.setText("seconds to move = "+StringHelper.formatDouble(v));
+			feedrateValue.setText("feed rate = "+StringHelper.formatDouble(v));
 		}
 		if(source == acceleration) {
 			int v = acceleration.getValue();
@@ -362,7 +362,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(scrubber==source) {
 			if(!scrubberLock.isLocked()) {
 				scrubberLock.lock();
-				robot.interpolator.setPlayhead(scrubber.getValue()*0.1);
+				//robot.interpolator.setPlayhead(scrubber.getValue()*0.1);
 				scrubberLock.unlock();
 			}
 		}
@@ -399,23 +399,22 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		if(source==rewindNow) rewind();
 		
 		if(source==playNow) {
-			if(!robot.interpolator.isPlaying()) play();
+			if(!robot.isCycleStart()) play();
 			else stop();
 		}
 	}
 
 	public void play() {
-		robot.interpolator.setPlaying(true);
+		robot.setCycleStart(true);
 		playNow.setText("Pause");
 	}
 	public void rewind() {
-		robot.interpolator.setPlaying(false);
-		robot.interpolator.setPlayhead(0);
+		robot.reset();
 		playNow.setText("Play");
 	}
 	
 	public void stop() {
-		robot.interpolator.setPlaying(false);
+		robot.setCycleStart(false);
 		playNow.setText("Play");
 	}
 

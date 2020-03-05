@@ -16,7 +16,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectVector3d;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
 
 /**
  * The user interface for an Entity.

@@ -11,7 +11,6 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.Matrix4dTurtle;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -71,9 +70,6 @@ public class Sixi2 extends Robot {
 	// are we trying to drive the robot live?
 	protected ControlMode controlMode=ControlMode.REAL_TIME;
 	
-	public Matrix4dTurtle interpolator = new Matrix4dTurtle();
-	protected Matrix4d interpolatedMatrix = new Matrix4d();
-
 	protected boolean singleBlock = false;
 	protected boolean cycleStart = false;
 	protected boolean m01Break = true;
@@ -146,11 +142,6 @@ public class Sixi2 extends Robot {
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDepthFunc(GL2.GL_ALWAYS);
 		gl2.glDisable(GL2.GL_LIGHTING);
-
-		interpolator.render(gl2);
-		if(interpolator.isInterpolating()) {
-			MatrixHelper.drawMatrix2(gl2, interpolatedMatrix, 2);
-		}
 		
 		if(isPicked && controlMode == ControlMode.REAL_TIME) {
 			ball.render(gl2);
@@ -349,7 +340,6 @@ public class Sixi2 extends Robot {
 
 
 	/**
-	 * 
 	 * @return a list of cuboids, or null.
 	 */
 	@Override
@@ -441,6 +431,11 @@ public class Sixi2 extends Robot {
 
 	public void toggleCycleStart() {
 		cycleStart = !cycleStart;
+		System.out.println("cycleStart="+(cycleStart?"on":"off"));
+	}
+	
+	public void setCycleStart(boolean arg0) {
+		cycleStart = arg0;
 		System.out.println("cycleStart="+(cycleStart?"on":"off"));
 	}
 
