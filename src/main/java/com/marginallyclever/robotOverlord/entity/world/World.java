@@ -108,21 +108,21 @@ public class World extends Entity {
 		box = new BoxObject();
 		addEntity(box);
 		box.setName("Front wall");
+		box.setSize(160,100,1);
+		box.setPosition(new Vector3d(30,40,0));
+
+		box = new BoxObject();
+		addEntity(box);
+		box.setName("Back wall");
 		box.setSize(100,100,1);
-		box.setPosition(new Vector3d(0,40,0));
+		box.setPosition(new Vector3d(-50,-10,0));
+		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 
 		box = new BoxObject();
 		addEntity(box);
 		box.setName("Table");
 		box.setSize(150,1,80);
 		box.setPosition(new Vector3d(30,0,-2.5));
-
-		box = new BoxObject();
-		addEntity(box);
-		box.setName("Back wall");
-		box.setSize(100,100,1);
-		box.setPosition(new Vector3d(-50,0,0));
-		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 	}
 	
 	
