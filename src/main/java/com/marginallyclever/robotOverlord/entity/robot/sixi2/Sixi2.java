@@ -498,4 +498,27 @@ public class Sixi2 extends Robot {
 	public void saveRecording(String filename) {
 		recording.saveRecording(filename);
 	}
+	
+	@Override
+	public void setShouldDrawBoundingBox(boolean shouldDrawBoundingBox) {
+		super.setShouldDrawBoundingBox(shouldDrawBoundingBox);
+
+		for( DHLink link : this.sim.links ) {
+			link.setShouldDrawBoundingBox(shouldDrawBoundingBox);
+		}
+	}
+	@Override
+	public void setShouldDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
+		super.setShouldDrawLocalOrigin(shouldDrawLocalOrigin);
+		for( DHLink link : this.sim.links ) {
+			link.setShouldDrawLocalOrigin(shouldDrawLocalOrigin);
+		}
+	}
+	@Override
+	public void setShouldDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
+		super.setShouldDrawConnectionToChildren(shouldDrawConnectionToChildren);
+		for( DHLink link : this.sim.links ) {
+			link.setShouldDrawConnectionToChildren(shouldDrawConnectionToChildren);
+		}
+	}
 }
