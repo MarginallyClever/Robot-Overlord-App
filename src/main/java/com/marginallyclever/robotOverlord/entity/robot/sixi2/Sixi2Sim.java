@@ -40,16 +40,16 @@ public class Sixi2Sim extends Sixi2Model {
 	protected Matrix4d mFrom;
 	protected Matrix4d mLive;
 	
-
+	// home position
 	protected DHKeyframe homeKey;
 	  
 	public Sixi2Sim() {
 		super();
 		setName("Sim");
 		
-		poseTarget = new double[6];
-		poseFrom = new double[6];
-		poseLive = new double[6];
+		poseTarget = new double[links.size()];
+		poseFrom = new double[links.size()];
+		poseLive = new double[links.size()];
 		
 	    readyForCommands=true;
 	    
@@ -72,9 +72,7 @@ public class Sixi2Sim extends Sixi2Model {
 	@Override 
 	public void update(double dt) {
 		/*
-		if(connection!=null && connection.isOpen()) {
-			// do not simulate movement when connected to a live robot.
-		} else {
+		if(connection==null || !connection.isOpen()) {
 			if(interpolator.isPlaying()) 
 			{
 				interpolator.update(dt,live.getEndEffectorMatrix());
@@ -100,8 +98,8 @@ public class Sixi2Sim extends Sixi2Model {
 					
 				}
 			}
-		}
-		 */
+		}*/
+		
 	    long tNow=System.currentTimeMillis();
 	    long dtms = arrivalTime - tNow;
 
@@ -156,23 +154,28 @@ public class Sixi2Sim extends Sixi2Model {
 		
 		if(gMode==0) {
 			// linear move
-			Vector3d t1 = new Vector3d();
-			Matrix3d m1 = new Matrix3d();
-			getEndEffectorMatrix().get(m1,t1);
-			Vector3d e1 = MatrixHelper.matrixToEuler(m1);
-			boolean isDirty=false;
 
+			int i=0;
+			for( DHLink link : links ) {
+				poseLive[i] = link.getAdjustableValue();
+				
+				for( String t : tok ) {
+					String letter = t.substring(0,1); 
+					if(link.getLetter().equalsIgnoreCase(letter)) {
+						//System.out.println("link "+link.getLetter()+" matches "+letter);
+						poseTarget[i] = Double.parseDouble(t.substring(1));
+
+					}
+				}
+				++i;
+			}
+			
 			for( String t : tok ) {
-				switch(t.charAt(0)) {
-				case 'X':  isDirty=true;  t1.x = Double.parseDouble(t.substring(1));  break;
-				case 'Y':  isDirty=true;  t1.y = Double.parseDouble(t.substring(1));  break;
-				case 'Z':  isDirty=true;  t1.z = Double.parseDouble(t.substring(1));  break;
-				//case 'I':  isDirty=true;  e1.x = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				//case 'J':  isDirty=true;  e1.y = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				//case 'K':  isDirty=true;  e1.z = Math.toRadians(Double.parseDouble(token.substring(1)));  break;
-				case 'F':  isDirty=true;  feedRate = Double.parseDouble(t.substring(1));  break;
-				case 'A':  isDirty=true;  acceleration = Double.parseDouble(t.substring(1));  break;
-				default:  break;
+				String letter = t.substring(0,1); 
+				if(letter.equalsIgnoreCase("F")) {
+					feedRate = Double.parseDouble(t.substring(1));
+				} else if(letter.equalsIgnoreCase("A")) {
+					acceleration = Double.parseDouble(t.substring(1));
 				}
 			}
 
@@ -180,22 +183,10 @@ public class Sixi2Sim extends Sixi2Model {
 			if(dhTool!=null) {
 				dhTool.parseGCode(command);
 			}
-			
-			if(isDirty) {
-				// changing the target pose of the ghost
-				m1 = MatrixHelper.eulerToMatrix(e1);
-				Matrix4d m=new Matrix4d();
-				m.set(m1);
-				m.setTranslation(t1);
-				
-				if(setPoseIK(m)) {
-					//addInterpolation(feedRate);
-				}
-			}
 		
 			double dMax=0;
 	        double dp=0;
-			for(int i=0; i<poseLive.length; ++i ) {
+			for(i=0; i<poseLive.length; ++i) {
 				poseFrom[i] = poseLive[i];
 				double dAbs = Math.abs(poseTarget[i] - poseFrom[i]);
 				dp+=dAbs;
