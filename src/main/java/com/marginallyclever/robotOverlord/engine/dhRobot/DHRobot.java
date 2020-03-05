@@ -12,7 +12,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
-import com.marginallyclever.robotOverlord.entity.world.World;
 
 /**
  * A robot designed using D-H parameters.
@@ -54,7 +53,7 @@ public class DHRobot extends ModelInWorld {
 		reset();
 		set(b);
 	}
-		
+	
 	private void reset() {
 		setName("DHRobot");
 		
@@ -75,7 +74,7 @@ public class DHRobot extends ModelInWorld {
 	}
 
 	public void set(DHRobot b) {
-		super.set(b);;
+		super.set(b);
 		// remove any exiting links from other robot to be certain.
 		setNumLinks(b.getNumLinks());
 		
@@ -254,19 +253,21 @@ public class DHRobot extends ModelInWorld {
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
 	 */
-	public boolean collidesWithWorld(DHKeyframe keyframe) {
+	public boolean collidesWithWorld(DHKeyframe futureKey) {
 		if( this.parent == null ) {
 			return false;
 		}
 
+		
 		// create a clone of the robot
-		DHRobot clone = new DHRobot(this);
+		DHKeyframe originalKey = solver.createDHKeyframe();
+		getPoseFK(originalKey);
 		// move the clone to the keyframe pose
-		clone.setPoseFK(keyframe);
-
-		PhysicalObject p = (PhysicalObject)parent;
-		World world = p.getWorld();
-		return world.collisionTest(p);
+		setPoseFK(futureKey);
+		boolean result = getWorld().collisionTest((PhysicalObject)parent); 
+		setPoseFK(originalKey);
+		
+		return result;
 	}
 
 	/**
@@ -314,7 +315,6 @@ public class DHRobot extends ModelInWorld {
 		return true;
 	}
 
-
 	/**
 	 * Find the forward kinematic pose of robot r that would give an end effector matrix matching m.
 	 * If the FK pose is found, set the adjustable values of the links to said pose.
@@ -339,7 +339,6 @@ public class DHRobot extends ModelInWorld {
 		return false;
 	}
 
-
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
 	 * 
@@ -363,7 +362,7 @@ public class DHRobot extends ModelInWorld {
 	}
 
 	/**
-	 * Set the robot's FK values to the keyframe values and then refresh the pose.
+	 * Store the robot's FK values in the keyframe.
 	 * 
 	 * @param keyframe to set
 	 */
