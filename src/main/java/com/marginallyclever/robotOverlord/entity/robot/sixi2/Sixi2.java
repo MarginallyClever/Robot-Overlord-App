@@ -419,7 +419,6 @@ public class Sixi2 extends Robot {
 		sim.refreshPose();
 	}
 
-
 	public void reset() {
 		singleBlock = false;
 		cycleStart = false;

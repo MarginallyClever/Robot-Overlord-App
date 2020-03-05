@@ -63,20 +63,20 @@ public class PhysicalObjectPanel extends JPanel implements ChangeListener, ItemL
 		con1.gridy++;
 		this.add(drawBoundingBox=new JCheckBox(),con1);
 		drawBoundingBox.setText("Draw Bounding Box");
-		drawBoundingBox.addItemListener(this);
 		drawBoundingBox.setSelected(entity.isShouldDrawBoundingBox());
+		drawBoundingBox.addItemListener(this);
 		
 		con1.gridy++;
 		this.add(drawLocalOrigin=new JCheckBox(),con1);
 		drawLocalOrigin.setText("Draw Local Origin");
-		drawLocalOrigin.addItemListener(this);
 		drawLocalOrigin.setSelected(entity.isShouldDrawLocalOrigin());
+		drawLocalOrigin.addItemListener(this);
 		
 		con1.gridy++;
 		this.add(drawConnectionToChildren=new JCheckBox(),con1);
 		drawConnectionToChildren.setText("Draw Connection To Children");
-		drawConnectionToChildren.addItemListener(this);
 		drawConnectionToChildren.setSelected(entity.isShouldDrawConnectionToChildren());
+		drawConnectionToChildren.addItemListener(this);
 		
 		PanelHelper.ExpandLastChild(this, con1);
 	}
