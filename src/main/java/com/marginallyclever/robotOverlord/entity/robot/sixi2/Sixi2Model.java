@@ -8,16 +8,7 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
 
 public abstract class Sixi2Model extends DHRobot {	
-	double ELBOW_TO_ULNA_Y = -28.805;
-	double ELBOW_TO_ULNA_Z = 4.7201;
-	double ULNA_TO_WRIST_Y = -11.800;
-	double ULNA_TO_WRIST_Z = 0;
-	double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;  //-40.605
-	double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;  // 4.7201
-	//double WRIST_TO_HAND = 8.9527;
-
 	// last known state
-	
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;
 	protected int gMode=0;
