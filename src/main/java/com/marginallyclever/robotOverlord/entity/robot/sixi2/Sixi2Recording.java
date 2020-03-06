@@ -127,10 +127,10 @@ public class Sixi2Recording {
 	}
 
 	public void deleteCurrentCommand() {
-		if (commands.size() > 0 && commandIndex < commands.size()) {
+		if (commandIndex >= 0 && commandIndex < commands.size()) {
 			commands.remove(commandIndex);
-			if (commandIndex == commands.size())
-				commandIndex = commands.size() - 1;
+			commandIndex = Math.min(commandIndex, commands.size()-1);
+			commandIndex = Math.max(commandIndex, 0);
 		}
 	}
 
