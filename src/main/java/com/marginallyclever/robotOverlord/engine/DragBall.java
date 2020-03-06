@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.engine;
 
+import java.nio.IntBuffer;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -436,6 +438,13 @@ public class DragBall extends PhysicalObject {
 	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
+
+			IntBuffer depthFunc = IntBuffer.allocate(1);
+			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
+			gl2.glDepthFunc(GL2.GL_ALWAYS);
+			//boolean isDepth=gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+			//gl2.glDisable(GL2.GL_DEPTH_TEST);
+		
 			//MatrixHelper.applyMatrix(gl2, this.getMatrix());
 			//Vector3d v1 = MatrixHelper.getPosition(getSubjectMatrix());
 			//gl2.glTranslated(v1.x, v1.y, v1.z);
@@ -445,6 +454,10 @@ public class DragBall extends PhysicalObject {
 			} else {
 				renderTranslation(gl2);
 			}
+			
+			//if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
+			gl2.glDepthFunc(depthFunc.get());
+			
 		gl2.glPopMatrix();
 	}
 	

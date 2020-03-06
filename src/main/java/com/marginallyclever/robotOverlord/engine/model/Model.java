@@ -67,6 +67,19 @@ public class Model {
 		isDirty=false;
 		cuboid = new Cuboid();
 	}
+	
+	
+	/**
+	 * remove all vertexes, normals, colors, texture coordinates, etc.
+	 */
+	public void clear() {
+		vertexArray.clear();
+		normalArray.clear();
+		colorArray.clear();
+		texCoordArray.clear();
+		
+		isDirty=true;
+	}
 
 	
 	public void setSourceName(String sourceName) {

@@ -72,6 +72,8 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 	}
 	
 	protected void buildPanel() {
+		robot = (Sixi2)player.getParent();
+		
 		this.removeAll();
 		
 		this.setName("Sixi 2 Control Box");

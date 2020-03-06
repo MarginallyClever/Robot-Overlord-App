@@ -1,10 +1,8 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 
 /**
@@ -122,40 +120,17 @@ public class DHLink extends ModelInWorld {
 		pose.m20 = 0;		pose.m21 = sa;			pose.m22 = ca;			pose.m23 = d;
 		pose.m30 = 0;		pose.m31 = 0;			pose.m32 = 0;			pose.m33 = 1;
 	}
-
-	/**
-	 * Render the "bone" for one link in a D-H chain.  
-	 * Changes the current render matrix!  Clean up after yourself!  
-	 * @param gl2 the render context
-	 */
-	public void renderBones(GL2 gl2) {
-		MatrixHelper.drawMatrix(gl2, 
-				new Vector3d(0,0,0),
-				new Vector3d(1,0,0),
-				new Vector3d(0,1,0),
-				new Vector3d(0,0,1));
-
-		gl2.glPushMatrix();
-			gl2.glRotated(theta,0,0,1);
-			gl2.glColor3f(1, 0, 0);  // red
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			gl2.glVertex3d(0, 0, 0);
-			gl2.glVertex3d(0, 0, d);
-			gl2.glVertex3d(r, 0, d);
-			gl2.glEnd();
-		gl2.glPopMatrix();
-	}
 	
 	@Override
 	public void render(GL2 gl2) {
 		// change material property here to color by range
 
-		//float [] diffuse = material.getDiffuseColor();
-		//setAngleColorByRange(gl2);
+		float [] diffuse = material.getDiffuseColor();
+		setAngleColorByRange(gl2);
 		
 		super.render(gl2);
 		
-		//material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
+		material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 	}
 	
 	/**

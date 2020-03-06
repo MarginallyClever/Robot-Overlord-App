@@ -389,15 +389,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if(source==goHome) {
-			robot.sim.goHome();
-		}
-		if(source==goRest) {
-			robot.live.goRest();
-		}
-
+		if(source==goHome) robot.goHome();
+		if(source==goRest) robot.goRest();
 		if(source==rewindNow) rewind();
-		
 		if(source==playNow) {
 			if(!robot.isCycleStart()) play();
 			else stop();

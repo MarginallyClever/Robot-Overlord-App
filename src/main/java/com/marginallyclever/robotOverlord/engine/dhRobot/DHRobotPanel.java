@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -53,10 +52,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public ArrayList<DHLinkPanel> linkPanels;
 	public JLabel activeTool;
 	public JButton buttonSetTool;
-	
-	public JCheckBox showBones;
-	public JCheckBox showAngles;
-	public JCheckBox showPhysics;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
@@ -114,7 +109,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
 		this.add(linkContents,con1);
 		con1.gridy++;
-		
+		/*
 		this.add(showBones=new JCheckBox(),con1);
 		showBones.setText("Show D-H bones");
 		showBones.addItemListener(this);
@@ -126,7 +121,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		showPhysics.addItemListener(this);
 		showPhysics.setSelected(robot.isShowPhysics());
 		con1.gridy++;
-		
+		*/
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 		this.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
@@ -299,23 +294,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		// for checkboxes
-		Object source = e.getItemSelectable();
-		if(source == showPhysics) {
-			robot.setShowPhysics(((JCheckBox)source).isSelected());
-		}
-		if(source == showBones) {
-			robot.setShowBones(((JCheckBox)source).isSelected());
-		}
-		if(source == showAngles) {
-			robot.setShowAngles(((JCheckBox)source).isSelected());
-		}
-	}
-
-	public void setShowBones(boolean arg0) {
-		showBones.setSelected(arg0);
-	}
-
-	public void setShowPhysics(boolean arg0) {
-		showPhysics.setSelected(arg0);
+		//Object source = e.getItemSelectable();
 	}
 }

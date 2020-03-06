@@ -83,13 +83,13 @@ public class LightPanel extends JPanel implements ChangeListener {
 		this.add(choosePreset = new UserCommandSelectComboBox(gui,Translator.get("Preset"),presetNames,detectPreset(light)),con1);
 		
 		con1.gridy++;
-		this.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbientColor()),con1);
+		this.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbient()),con1);
 		
 		con1.gridy++;
 		this.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),light.getSpecular()),con1);
 		
 		con1.gridy++;
-		this.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuseColor()),con1);
+		this.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuse()),con1);
 
 		PanelHelper.ExpandLastChild(this, con1);
 		chooseEnabled.addChangeListener(this);
@@ -110,8 +110,8 @@ public class LightPanel extends JPanel implements ChangeListener {
 	public void updateFields() {
 		choosePreset.setIndex(detectPreset(light));
 		chooseEnabled.setValue(light.getEnabled());
-		chooseDiffuse.setValue(light.getDiffuseColor());
-		chooseAmbient.setValue(light.getAmbientColor());
+		chooseDiffuse.setValue(light.getDiffuse());
+		chooseAmbient.setValue(light.getAmbient());
 		chooseSpecular.setValue(light.getSpecular());
 	}
 	

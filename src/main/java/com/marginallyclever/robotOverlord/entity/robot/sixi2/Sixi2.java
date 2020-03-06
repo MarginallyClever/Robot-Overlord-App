@@ -10,12 +10,12 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.DragBall;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
@@ -501,33 +501,53 @@ public class Sixi2 extends Robot {
 	}
 	
 	@Override
-	public void setShouldDrawBoundingBox(boolean shouldDrawBoundingBox) {
-		super.setShouldDrawBoundingBox(shouldDrawBoundingBox);
+	public void setDrawBoundingBox(boolean shouldDrawBoundingBox) {
+		super.setDrawBoundingBox(shouldDrawBoundingBox);
 
 		for( DHLink link : this.sim.links ) {
-			link.setShouldDrawBoundingBox(shouldDrawBoundingBox);
+			link.setDrawBoundingBox(shouldDrawBoundingBox);
 		}
 	}
 	@Override
-	public void setShouldDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
-		super.setShouldDrawLocalOrigin(shouldDrawLocalOrigin);
+	public void setDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
+		super.setDrawLocalOrigin(shouldDrawLocalOrigin);
 		for( DHLink link : this.sim.links ) {
-			link.setShouldDrawLocalOrigin(shouldDrawLocalOrigin);
+			link.setDrawLocalOrigin(shouldDrawLocalOrigin);
 		}
 	}
 	@Override
-	public void setShouldDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
-		super.setShouldDrawConnectionToChildren(shouldDrawConnectionToChildren);
+	public void setDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
+		super.setDrawConnectionToChildren(shouldDrawConnectionToChildren);
 		for( DHLink link : this.sim.links ) {
-			link.setShouldDrawConnectionToChildren(shouldDrawConnectionToChildren);
+			link.setDrawConnectionToChildren(shouldDrawConnectionToChildren);
 		}
 	}
-	
-	public void closeConnection() {
-		live.closeConnection();
-	}
-	
+		
 	public void openConnection() {
 		live.openConnection();
+	}
+	
+	public void goHome() {
+	    // the home position
+		DHKeyframe homeKey = sim.getIKSolver().createDHKeyframe();
+		homeKey.fkValues[0]=0;
+		homeKey.fkValues[1]=0;
+		homeKey.fkValues[2]=0;
+		homeKey.fkValues[3]=0;
+		homeKey.fkValues[4]=20;
+		homeKey.fkValues[5]=0;
+		sim.setPoseFK(homeKey);
+	}
+	
+	public void goRest() {
+	    // set rest position
+		DHKeyframe restKey = sim.getIKSolver().createDHKeyframe();
+		restKey.fkValues[0]=0;
+		restKey.fkValues[1]=-60;
+		restKey.fkValues[2]=85;
+		restKey.fkValues[3]=0;
+		restKey.fkValues[4]=20;
+		restKey.fkValues[5]=0;
+		sim.setPoseFK(restKey);
 	}
 }

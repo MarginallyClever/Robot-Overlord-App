@@ -13,10 +13,20 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 public class Light extends PhysicalObject {
 	public int index=0;
 	private boolean enabled=true;
-	private float[] position={1,1,1,0};
-	private float[] ambient={0.0f,0.0f,0.0f,1f};
-	private float[] diffuse={1f,1f,1f,1f};
-	private float[] specular={0.5f,0.5f,0.5f,1f};
+	private float[] position={0,0,1,0};
+	private float[] ambient ={0,0,0,1};
+	private float[] diffuse ={0,0,0,1};
+	private float[] specular={0,0,0,1};
+	
+	private float[] direction={0,0,1};
+	
+	private float cutoff=180;
+	private float exponent=0;
+	
+	private float attenuationConstant=1;
+	private float attenuationLinear=0;
+	private float attenuationQuadratic=0;
+	
 	private LightPanel lightPanel;
 	
 	public Light() {
@@ -44,11 +54,30 @@ public class Light extends PhysicalObject {
 			gl2.glDisable(i);
 			return;
 		}
+		
+		position[3]=(index==0)?0:1;
+		
+		attenuationConstant=(index==0)?0:0.5f;
+		attenuationLinear=(index==0)?0:0.4f;
+		
 		gl2.glEnable(i);
 		gl2.glLightfv(i, GL2.GL_POSITION, position,0);
 	    gl2.glLightfv(i, GL2.GL_AMBIENT, ambient,0);
 	    gl2.glLightfv(i, GL2.GL_DIFFUSE, diffuse,0);
 	    gl2.glLightfv(i, GL2.GL_SPECULAR, specular,0);
+
+		gl2.glLightfv(i, GL2.GL_SPOT_DIRECTION, direction,0);
+	    
+	    gl2.glLightf(i, GL2.GL_SPOT_EXPONENT, exponent);
+	    gl2.glLightf(i, GL2. GL_SPOT_CUTOFF, cutoff);
+	    gl2.glLightf(i, GL2.GL_SPOT_EXPONENT, exponent);
+	    
+	    gl2.glLightf(i, GL2.GL_CONSTANT_ATTENUATION,attenuationConstant);
+	    gl2.glLightf(i, GL2.GL_LINEAR_ATTENUATION,attenuationLinear);
+	    gl2.glLightf(i, GL2.GL_QUADRATIC_ATTENUATION,attenuationQuadratic);
+    
+	
+		super.render(gl2);
 	}
 
 	public void setEnable(boolean arg0) {
@@ -103,11 +132,11 @@ public class Light extends PhysicalObject {
 		if(lightPanel!=null) lightPanel.updateFields();
 	}
     
-	public float[] getDiffuseColor() {
+	public float[] getDiffuse() {
 		return diffuse.clone();
 	}
 
-	public float[] getAmbientColor() {
+	public float[] getAmbient() {
 		return ambient.clone();
 	}
 	

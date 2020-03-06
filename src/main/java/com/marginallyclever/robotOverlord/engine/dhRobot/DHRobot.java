@@ -34,12 +34,6 @@ public class DHRobot extends ModelInWorld {
 	protected DHRobotPanel panel;
 	protected boolean disablePanel;
 
-	protected boolean showBones; // show D-H representation of each link
-	protected boolean showPhysics; // show bounding boxes of each link
-	protected boolean showAngles; // show current angle and limit of each link
-	
-	protected int hitBox1, hitBox2; // display which hitboxes are colliding
-
 	public Material material;
 	
 
@@ -65,12 +59,7 @@ public class DHRobot extends ModelInWorld {
 		
 		material = new Material();
 		disablePanel = false;
-		setShowBones(false);
-		setShowPhysics(false);
-		setShowAngles(false);
 
-		hitBox1 = -1;
-		hitBox2 = -1;
 	}
 
 	public void set(DHRobot b) {
@@ -89,12 +78,6 @@ public class DHRobot extends ModelInWorld {
 		dhTool.set(b.dhTool);
 
 		disablePanel = b.disablePanel;
-		showBones = b.showBones;
-		showPhysics = b.showPhysics;
-		showAngles = b.showAngles;
-		
-		hitBox1 = b.hitBox1;
-		hitBox2 = b.hitBox2;
 		
 		refreshPose();
 	}
@@ -210,39 +193,35 @@ public class DHRobot extends ModelInWorld {
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
 	 */
-	public boolean collidesWithSelf(DHKeyframe keyframe) {
-		// create a clone of the robot
-		DHRobot clone = new DHRobot(this);
+	public boolean collidesWithSelf(DHKeyframe futureKey) {
+		DHKeyframe originalKey = solver.createDHKeyframe();
+		getPoseFK(originalKey);
 		// move the clone to the keyframe pose
-		clone.setPoseFK(keyframe);
+		setPoseFK(futureKey);
 		
-		// check for collisions
-
-		hitBox1 = -1;
-		hitBox2 = -1;
-
-		int size = clone.links.size();
+		int size = links.size();
 		for (int i = 0; i < size; ++i) {
-			if (clone.links.get(i).getModel() == null)
+			if (links.get(i).getModel() == null)
 				continue;
 
-			for (int j = i + 3; j < size; ++j) {
-				if (clone.links.get(j).getModel() == null)
+			for (int j = i + 2; j < size; ++j) {
+				if (links.get(j).getModel() == null)
 					continue;
 
 				if (IntersectionTester.cuboidCuboid(
-						clone.links.get(i).getCuboid(),
-						clone.links.get(j).getCuboid())) {
+						links.get(i).getCuboid(),
+						links.get(j).getCuboid())) {
 						System.out.println("Self collision between "+
-									i+":"+clone.links.get(i).getName()+" and "+
-									j+":"+clone.links.get(j).getName());
-					hitBox1 = i;
-					hitBox2 = j;
+									i+":"+links.get(i).getName()+" and "+
+									j+":"+links.get(j).getName());
+
+					setPoseFK(originalKey);
 					return true;
 				}
 			}
 		}
 
+		setPoseFK(originalKey);
 		return false;
 	}
 
@@ -257,7 +236,6 @@ public class DHRobot extends ModelInWorld {
 		if( this.parent == null ) {
 			return false;
 		}
-
 		
 		// create a clone of the robot
 		DHKeyframe originalKey = solver.createDHKeyframe();
@@ -341,7 +319,8 @@ public class DHRobot extends ModelInWorld {
 
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
-	 * 
+	 * This method is used by others to verify for collisions, so this method
+	 * cannot verify collisions itself.
 	 * @param keyframe
 	 */
 	public void setPoseFK(DHKeyframe keyframe) {
@@ -376,34 +355,6 @@ public class DHRobot extends ModelInWorld {
 				keyframe.fkValues[j++] = link.getAdjustableValue();
 			}
 		}
-	}
-	
-	public boolean isShowBones() {
-		return showBones;
-	}
-
-	public void setShowBones(boolean arg0) {
-		this.showBones = arg0;
-		if (panel != null)
-			panel.setShowBones(arg0);
-	}
-
-	public boolean isShowPhysics() {
-		return showPhysics;
-	}
-
-	public void setShowPhysics(boolean arg0) {
-		this.showPhysics = arg0;
-		if (panel != null)
-			panel.setShowPhysics(arg0);
-	}
-
-	public void setShowAngles(boolean arg0) {
-		showAngles = arg0;
-	}
-
-	public boolean isShowAngles() {
-		return showAngles;
 	}
 
 	public int getNumLinks() {

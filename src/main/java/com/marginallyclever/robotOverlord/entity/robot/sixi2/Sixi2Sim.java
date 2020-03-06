@@ -39,9 +39,6 @@ public class Sixi2Sim extends Sixi2Model {
 	protected Matrix4d mTarget;
 	protected Matrix4d mFrom;
 	protected Matrix4d mLive;
-	
-	// home position
-	protected DHKeyframe homeKey;
 	  
 	public Sixi2Sim() {
 		super();
@@ -57,16 +54,6 @@ public class Sixi2Sim extends Sixi2Model {
 	    for( DHLink link : links ) {
 	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
 	    }
-
-	    // the home position
-		homeKey = getIKSolver().createDHKeyframe();
-		homeKey.fkValues[0]=0;
-		homeKey.fkValues[1]=0;
-		homeKey.fkValues[2]=0;
-		homeKey.fkValues[3]=0;
-		homeKey.fkValues[4]=20;
-		homeKey.fkValues[5]=0;
-		setPoseFK(homeKey);
 	}
 
 	@Override 
@@ -417,9 +404,5 @@ public class Sixi2Sim extends Sixi2Model {
 			}
 			System.out.println();
 		}
-	}
-	
-	public void goHome() {
-		setPoseFK(homeKey);
 	}
 }

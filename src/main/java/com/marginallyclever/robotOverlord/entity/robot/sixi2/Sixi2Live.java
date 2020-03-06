@@ -9,31 +9,17 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 
 public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
-	protected NetworkConnection connection;
-	
-	protected DHKeyframe restKey;
-	
+	protected transient NetworkConnection connection;
 	protected DHKeyframe receivedKeyframe;
 	
 	public Sixi2Live() {
 		super();
 		setName("Live");
-	    readyForCommands=false;
 
 	    // set yellow
 	    for( DHLink link : links ) {
 	    	link.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
 	    }
-	    
-	    // set rest position
-		restKey = getIKSolver().createDHKeyframe();
-		restKey.fkValues[0]=0;
-		restKey.fkValues[1]=-60;
-		restKey.fkValues[2]=85;
-		restKey.fkValues[3]=0;
-		restKey.fkValues[4]=20;
-		restKey.fkValues[5]=0;
-		setPoseFK(restKey);
 		
 		// where to store incoming position data
 		receivedKeyframe = getIKSolver().createDHKeyframe();		
@@ -171,7 +157,4 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 		prefs.put("recent-port", portName);
 	}
 */
-	public void goRest() {
-		setPoseFK(restKey);
-	}
 }

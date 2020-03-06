@@ -84,45 +84,60 @@ public class World extends Entity {
 	public void createDefaultWorld() {
 		// adjust grid
 		GridEntity grid;
-		addEntity(grid = new GridEntity());
+		addChild(grid = new GridEntity());
 		grid.width = 130;
 		grid.height = 70;
 		grid.setPosition(new Vector3d(30,0,-0.5));
 		
 		// adjust default camera
-		addEntity(camera);
+		addChild(camera);
 		camera.setPosition(new Vector3d(0,-100,65));
 		//camera.setPan(52);
 		camera.setTilt(76);
 
+		// add some lights
+    	Light light;
+    	 
+		addChild(light = new Light());
+		light.setName("light ambient");
+    	light.index=0;
+    	light.setPosition(new Vector3d(0,0,30));
+    	light.setAmbient(2.55f,2.55f,2.51f,1);
+
+		addChild(light = new Light());
+		light.setName("light1");
+    	light.index=1;
+    	light.setPosition(new Vector3d(60,-60,160));
+    	light.setDiffuse (80,80,80,1);
+
+		// add some collision bounds
+		BoxObject box;
+		addChild(box = new BoxObject());
+		box.setName("Front wall");
+		box.setSize(160,100,1);
+		box.setPosition(new Vector3d(30,40,0));
+		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
+
+		addChild(box = new BoxObject());
+		box.setName("Back wall");
+		box.setSize(100,100,1);
+		box.setPosition(new Vector3d(-50,-10,0));
+		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
+		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
+
+		addChild(box = new BoxObject());
+		box.setName("Table");
+		box.setSize(150,1,80);
+		box.setPosition(new Vector3d(30,0,-2.5));
+    	
+    	// add a sixi robot
 		Sixi2 sixi2=new Sixi2();
-		addEntity(sixi2);
+		addChild(sixi2);
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		Matrix3d m=new Matrix3d();
 		m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		sixi2.setRotation(m);
-
-		// add some collision bounds
-		BoxObject box;
-		box = new BoxObject();
-		addEntity(box);
-		box.setName("Front wall");
-		box.setSize(160,100,1);
-		box.setPosition(new Vector3d(30,40,0));
-
-		box = new BoxObject();
-		addEntity(box);
-		box.setName("Back wall");
-		box.setSize(100,100,1);
-		box.setPosition(new Vector3d(-50,-10,0));
-		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
-
-		box = new BoxObject();
-		addEntity(box);
-		box.setName("Table");
-		box.setSize(150,1,80);
-		box.setPosition(new Vector3d(30,0,-2.5));
 	}
 	
 	
@@ -144,40 +159,8 @@ public class World extends Entity {
 
 	protected void setup() {
 		viewCube = new ViewCube();
-		
-		setupLights();
+
 		loadSkyboxTextures();
-    }
-    
-
-    protected void setupLights() {
-    	Light light;
-    	
-    	// the custom colors could be in a drop down list. 
-		addEntity(light = new Light());
-		light.setName("light0");
-    	light.index=0;
-    	light.setPosition(new Vector3d(0,0,30));
-    	light.setAmbient (         0.0f,          0.0f,          0.0f, 1.0f);
-    	light.setDiffuse (255.0f/255.0f, 255.0f/255.0f, 251.0f/255.0f, 1.0f);  // noon
-	    light.setSpecular(         1.0f,          1.0f,          1.0f, 1.0f);
-
-		addEntity(light = new Light());
-		light.setName("light1");
-    	light.index=1;
-    	light.setPosition(new Vector3d(-10,-10,10));
-	    light.setAmbient(  0.0f, 0.0f, 0.0f, 1.0f);
-    	light.setDiffuse(  1.0f, 1.0f, 1.0f, 1.0f);
-	    light.setSpecular( 0.0f, 0.0f, 0.0f, 1.0f);
-
-		addEntity(light = new Light());
-		light.setName("light2");
-    	light.index=2;
-    	light.setPosition(new Vector3d(30,30,30));
-	    light.setAmbient (          0.0f,          0.0f,          0.0f, 1.0f);
-    	light.setDiffuse ( 242.0f/255.0f, 252.0f/255.0f, 255.0f/255.0f, 1.0f);  // metal halide
-	    light.setSpecular(          0.0f,          0.0f,          0.0f, 1.0f);
-    	light.setDirectional(true);
     }
     
 	
@@ -404,8 +387,8 @@ public class World extends Entity {
 	}
 
 	
-	public void addEntity(Entity entity) {
-		children.add(entity); 
+	public void addChild(Entity entity) {
+		super.addChild(entity); 
 		entity.setParent(this);
 		if(worldControlPanel!=null) worldControlPanel.buildPanel();
 	}
