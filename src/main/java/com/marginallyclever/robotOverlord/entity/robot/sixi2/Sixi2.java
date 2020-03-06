@@ -10,6 +10,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
@@ -520,5 +521,13 @@ public class Sixi2 extends Robot {
 		for( DHLink link : this.sim.links ) {
 			link.setShouldDrawConnectionToChildren(shouldDrawConnectionToChildren);
 		}
+	}
+	
+	public void closeConnection() {
+		live.closeConnection();
+	}
+	
+	public void openConnection() {
+		live.openConnection();
 	}
 }

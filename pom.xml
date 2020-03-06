@@ -268,6 +268,8 @@
 	  <groupId>org.jogamp.fat</groupId>
 	  <artifactId>jogamp-fat</artifactId>
 	  <version>2.4.0</version>
+    	<scope>system</scope>
+    <systemPath>${project.basedir}/local-maven-repo/jogamp-fat-2.4.0.jar</systemPath>
 	</dependency>
 	
     <!-- http://kabeja.sourceforge.net/download/download.html -->

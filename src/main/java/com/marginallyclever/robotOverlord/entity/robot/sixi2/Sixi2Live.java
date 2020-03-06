@@ -77,6 +77,12 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 			}
 		}
 
+		if(!command.endsWith("\n")) {
+			command+="\n";
+		}
+		
+		System.out.print(">>>> "+command);
+		
 		try {
 			connection.sendMessage(command);
 		} catch (Exception e) {
@@ -151,7 +157,7 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 
 		if(unhandled) {
 			data=data.replace("\n", "");
-			System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+			//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 		}
 	}
 /*

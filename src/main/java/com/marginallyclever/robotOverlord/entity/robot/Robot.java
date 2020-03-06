@@ -96,6 +96,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	/**
 	 * Take the next line from the file and send it to the robot, if permitted. 
 	 */
+	@Deprecated
 	public void sendFileCommand() {
 		if(!running || paused || linesProcessed>=gcode.size()) return;
 		
@@ -121,6 +122,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	/**
 	 * Stop sending commands to the robot.
 	 */
+	@Deprecated
 	public void halt() {
 		// TODO add an e-stop command?
 		running=false;
@@ -128,19 +130,22 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	    linesProcessed=0;
 	}
 
+	@Deprecated
 	public void start() {
 		paused=false;
 		running=true;
 		sendFileCommand();
 	}
-	
+
+	@Deprecated
 	public void startAt(int lineNumber) {
 		if(!running) {
 			linesProcessed=lineNumber;
 			start();
 		}
 	}
-	
+
+	@Deprecated
 	public void pause() {
 		if(running) {
 			if(paused) {
@@ -158,27 +163,31 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
-	public boolean sendCommand(String line) {
+	public boolean sendCommand(String command) {/*
 		if(connection==null) return false;
 
 		// contains a comment?  if so remove it
-		int index=line.indexOf('(');
+		int index=command.indexOf('(');
 		if(index!=-1) {
 			//String comment=line.substring(index+1,line.lastIndexOf(')'));
 			//Log("* "+comment+NL);
-			line=line.substring(0,index).trim();
-			if(line.length()==0) {
+			command=command.substring(0,index).trim();
+			if(command.length()==0) {
 				// entire line was a comment.
 				return false;  // still ready to send
 			}
 		}
 
+		if(!command.endsWith("\n")) {
+			command+="\n";
+		}
+		
 		// send relevant part of line to the robot
 		try{
-			connection.sendMessage(line);
+			connection.sendMessage(command);
 		} catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 		return true;
 	}
