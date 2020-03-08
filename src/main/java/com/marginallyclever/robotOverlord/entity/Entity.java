@@ -1,18 +1,11 @@
 package com.marginallyclever.robotOverlord.entity;
 
-import java.awt.BorderLayout;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Observable;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
-
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
 
 /**
@@ -44,7 +37,7 @@ public class Entity extends Observable {
 	public void set(Entity b) {
 		name = b.name;
 		
-		// what to do about children?  Not a deep copy?
+		// what to do about children?  Not a deep copy for now
 		
 		parent = b.parent;
 	}
@@ -62,55 +55,6 @@ public class Entity extends Observable {
 		list.add(entityPanel);
 
 		return list;
-	}
-	
-	
-	/**
-	 * Get all the {@link EntityPanel}s for this {@link Entity}.  
-	 * <p>
-	 * If this class is derived from Entity, get the panels for the derived Entities, too.  Normally this is called by {@link RobotOverlord}.
-	 * 
-	 * @param gui the main application instance.
-	 * @return an ArrayList of all the panels for this Entity and all derived classes.
-	 */
-	@SuppressWarnings("unused")  // because of the layout settings below
-	public JComponent getAllContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = getContextPanel(gui);
-		Iterator<JPanel> pi = list.iterator();
-		
-		if(false) {
-			// single page layout
-			JPanel sum = new JPanel();
-			BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
-			sum.setLayout(layout);
-			while(pi.hasNext()) {
-				JPanel p = pi.next();
-				
-				CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
-				oiwPanel.getContentPane().add(p);
-				sum.add(oiwPanel);
-			}
-
-			JPanel b = new JPanel(new BorderLayout());
-			b.add(sum, BorderLayout.PAGE_START);
-			return b;
-		} else {
-			boolean reverseOrderOfTabs = false;
-			// tabbed layout
-			JTabbedPane b = new JTabbedPane();
-			while(pi.hasNext()) {
-				JPanel p = pi.next();
-				
-				if( reverseOrderOfTabs ) {
-					b.insertTab(p.getName(), null, p, null, 0);
-				} else {
-					b.addTab(p.getName(), p);
-				}
-			}
-			b.setSelectedIndex( reverseOrderOfTabs ? 0 : b.getTabCount()-1 );
-			
-			return b;
-		}
 	}
 
 

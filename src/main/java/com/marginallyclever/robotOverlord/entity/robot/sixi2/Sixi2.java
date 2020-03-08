@@ -25,12 +25,17 @@ import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Six
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
-
+/**
+ * A controller for the simulated and live Sixi robot.
+ * @author Dan Royer
+ * @since 1.6.0
+ *
+ */
 public class Sixi2 extends Robot {
 	
 	public enum ControlMode {
-		REAL_TIME("REAL_TIME"),
-		RECORD("RECORD");
+		RECORD("RECORD"),
+		PLAYBACK("PLAYBACK");
 		
 		private String modeName;
 		private ControlMode(String s) {
@@ -69,7 +74,7 @@ public class Sixi2 extends Robot {
 	// are we live or simulated?
 	protected OperatingMode operatingMode=OperatingMode.SIM;
 	// are we trying to drive the robot live?
-	protected ControlMode controlMode=ControlMode.REAL_TIME;
+	protected ControlMode controlMode=ControlMode.RECORD;
 	
 	protected boolean singleBlock = false;
 	protected boolean cycleStart = false;
@@ -144,7 +149,7 @@ public class Sixi2 extends Robot {
 		gl2.glDepthFunc(GL2.GL_ALWAYS);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
-		if(isPicked && controlMode == ControlMode.REAL_TIME) {
+		if(isPicked && controlMode == ControlMode.RECORD) {
 			ball.render(gl2);
 		}
 		
@@ -177,7 +182,7 @@ public class Sixi2 extends Robot {
 		ball.update(dt);
 
 		// move the robot by dragging the ball in live mode
-		if(controlMode==ControlMode.REAL_TIME) {
+		if(controlMode==ControlMode.RECORD) {
 			if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
 				if(ball.isActivelyMoving()) {
 					Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
@@ -206,16 +211,17 @@ public class Sixi2 extends Robot {
 		if(InputManager.isReleased(InputManager.Source.KEY_TAB  )) {			toggleControlMode();		}
 		if(InputManager.isReleased(InputManager.Source.KEY_TILDE)) {			toggleOperatingMode();		}
 		if(InputManager.isReleased(InputManager.Source.KEY_S    )) {			toggleSingleBlock();		}
-		
-		if (InputManager.isOn(InputManager.Source.KEY_DELETE)
-			|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
+
+		if(InputManager.isReleased(InputManager.Source.KEY_DELETE)
+		|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
 			sim.set(live);
 		}
 
-		if(InputManager.isOn(InputManager.Source.KEY_LSHIFT) || InputManager.isOn(InputManager.Source.KEY_RSHIFT)) {
+		if(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
+		|| InputManager.isOn(InputManager.Source.KEY_RSHIFT)) {
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode==ControlMode.RECORD) {
+				if(controlMode==ControlMode.PLAYBACK) {
 					toggleCycleStart();
 				}
 			}
@@ -223,7 +229,7 @@ public class Sixi2 extends Robot {
 			// shift off
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode==ControlMode.REAL_TIME) {
+				if(controlMode==ControlMode.RECORD) {
 					System.out.println("setCommand");
 					recording.setCommand(sim.getCommand());
 				}
@@ -267,7 +273,7 @@ public class Sixi2 extends Robot {
 		
 		Sixi2Model activeModel = (operatingMode == OperatingMode.LIVE) ? live : sim;
 		if(activeModel.readyForCommands) {
-			if(controlMode == ControlMode.REAL_TIME) {
+			if(controlMode == ControlMode.RECORD) {
 				if( operatingMode == OperatingMode.LIVE) {
 					String line = sim.getCommand();
 					System.out.println("Send command: "+line);
@@ -467,11 +473,11 @@ public class Sixi2 extends Robot {
 	}
 
 	public void toggleControlMode() {
-		controlMode = (controlMode==ControlMode.REAL_TIME) ? ControlMode.RECORD : ControlMode.REAL_TIME;
+		controlMode = (controlMode==ControlMode.RECORD) ? ControlMode.PLAYBACK : ControlMode.RECORD;
 
-		System.out.println("controlMode="+(controlMode==ControlMode.REAL_TIME?"REAL_TIME":"RECORD"));
+		System.out.println("controlMode="+(controlMode==ControlMode.RECORD?"REAL_TIME":"RECORD"));
 		
-		if(controlMode==ControlMode.REAL_TIME) {
+		if(controlMode==ControlMode.RECORD) {
 			// move the joystick to match the simulated position?
 		}
 

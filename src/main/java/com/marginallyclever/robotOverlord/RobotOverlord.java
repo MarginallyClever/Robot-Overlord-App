@@ -1,11 +1,14 @@
 package com.marginallyclever.robotOverlord;
 
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -16,17 +19,30 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.prefs.Preferences;
 
-import javax.swing.JComponent;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
@@ -47,6 +63,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.communications.NetworkConnectionManager;
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
 import com.marginallyclever.robotOverlord.engine.undoRedo.UndoHelper;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAbout;
@@ -60,8 +77,10 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandRe
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSaveAs;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandUndo;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.world.World;
+import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.uiElements.FooterBar;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.marginallyclever.robotOverlord.uiElements.SoundSystem;
@@ -73,9 +92,7 @@ import com.marginallyclever.util.PropertiesFileHelper;
  * @author danroyer
  *
  */
-public class RobotOverlord 
-implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, WindowListener
-{
+public class RobotOverlord implements MouseListener, MouseMotionListener, GLEventListener, WindowListener {
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
@@ -132,8 +149,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
 	// mouse steering controls
 	private boolean isMouseIn;
-	//private int cursorStartX, cursorStartY;
-	//private int cursorPreviousX, cursorPreviousY;
 	
 	// opengl rendering context
 	private GLU glu;
@@ -215,9 +230,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         pickedEntity = null;
         pickNothing();
-        
-        // Keys typed while the focus is on the glcanvas will be heard by this class.  That way we can fly WASD.
-		glCanvas.addKeyListener(this);
 		
 //		frame.setFocusable(true);
 //		frame.requestFocusInWindow();
@@ -288,13 +300,110 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		return pickedEntity;
 	}
 	
+	protected DefaultMutableTreeNode createTreeNodes(Entity e) {
+		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
+		for(Entity child : e.getChildren() ) {
+			parent.add(createTreeNodes(child));
+		}
+		return parent;
+	}
+	
 	/**
-	 * Change the right-side context menu.  contextMenu is already a JScrollPane
+	 * Change the right-side context menu.  contextMenu is already a JScrollPane.
+	 * Get all the {@link EntityPanel}s for a {@link Entity}.  
 	 * @param panel
 	 * @param title
 	 */
-	public void setContextPanel(JComponent panel,String title) {
-		contextMenu.setViewportView(panel);
+	@SuppressWarnings("unused")  // because of the layout settings below
+	public void setContextPanel(Entity e) {
+		Splitter masterPanel = new Splitter(JSplitPane.VERTICAL_SPLIT);
+		JPanel selectedEntityPanel = new JPanel();
+
+		contextMenu.setViewportView(masterPanel);
+		masterPanel.setBorder(new EmptyBorder(0,0,0,0));
+		
+		int proportionalLocation = masterPanel.getLastDividerLocation();
+		
+		// list all objects in scene
+	    DefaultMutableTreeNode top = createTreeNodes(world);
+		JTree tree = new JTree(top);
+	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	    // double click an item to get its panel.
+	    // See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
+	    tree.addMouseListener(new MouseAdapter() {
+		    public void mousePressed(MouseEvent e) {
+		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+		        if(selPath != null) {
+		            if(e.getClickCount() == 1) {
+		                //mySingleClick(selRow, selPath);
+		            }
+		            else if(e.getClickCount() == 2) {
+		                //myDoubleClick(selRow, selPath);
+		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
+		            	pickEntity((Entity)(o.getUserObject()));
+		            }
+		        }
+		    }
+		});
+		JScrollPane entityList = new JScrollPane(tree);
+		entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+
+        // list of all entities in system, starting with world.
+		masterPanel.add(entityList);
+		masterPanel.add(selectedEntityPanel);
+		masterPanel.setDividerLocation(proportionalLocation);
+		
+		
+		// list the select item in the scene, if any.
+		ArrayList<JPanel> list = null;
+		if(e!=null) list = e.getContextPanel(this);
+		
+		if(list==null) {
+			selectedEntityPanel.removeAll();
+			return;
+		}
+		
+		// else fill in the selectedEntityPanel
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		
+		Iterator<JPanel> pi = list.iterator();
+		
+		if(false) {
+			// single page layout
+			JPanel sum = new JPanel();
+			BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
+			sum.setLayout(layout);
+			while(pi.hasNext()) {
+				JPanel p = pi.next();
+				
+				CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
+				oiwPanel.getContentPane().add(p);
+				sum.add(oiwPanel);
+			}
+
+			JPanel b = new JPanel(new BorderLayout());
+			b.add(sum, BorderLayout.PAGE_START);
+
+			selectedEntityPanel.add(b,con1);
+		} else {
+			boolean reverseOrderOfTabs = false;
+			// tabbed layout
+			JTabbedPane b = new JTabbedPane();
+			while(pi.hasNext()) {
+				JPanel p = pi.next();
+				
+				if( reverseOrderOfTabs ) {
+					b.insertTab(p.getName(), null, p, null, 0);
+				} else {
+					b.addTab(p.getName(), p);
+				}
+			}
+			b.setSelectedIndex( reverseOrderOfTabs ? 0 : b.getTabCount()-1 );
+
+			selectedEntityPanel.add(b,con1);
+		}
+		
+		PanelHelper.ExpandLastChild(selectedEntityPanel, con1);
 	}
 
 	public void saveWorldToFile(String filename) {
@@ -590,14 +699,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		updateMenu();
 	}
 
-	/**
-	 * Open a gcode file to run on a robot.  This doesn't make sense if there's more than one robot!
-	 * @param filename the file to open
-	 */
-	public void openFile(String filename) {
-		
-	}
-
     @Override
     public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
     	GL2 gl2 = drawable.getGL().getGL2();
@@ -630,7 +731,6 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
     }
     
-    
     @Override
     public void init( GLAutoDrawable drawable ) {
     	// Use debug pipeline
@@ -654,8 +754,7 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         }
         glu = GLU.createGLU(gl);
     }
-    
-    
+
     @Override
     public void dispose( GLAutoDrawable drawable ) {}
     
@@ -695,6 +794,11 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
     	GL2 gl2 = drawable.getGL().getGL2();
 
+        // set up the projection matrix from the live camera
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glLoadIdentity();
+		setPerspectiveMatrix();
+		
 		if(checkStackSize) {
     		IntBuffer stackDepth = IntBuffer.allocate(1);
     		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
@@ -727,13 +831,14 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 
     
     protected void setPerspectiveMatrix() {
-        glu.gluPerspective(60, (float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 5.0f, 2000.0f);
-        Camera cam =world.getCamera();
+        Camera cam = world.getCamera();
+        glu.gluPerspective(
+        		cam.getFOV(), 
+        		(float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 
+        		cam.getNearZ(), 
+        		cam.getFarZ());
         cam.setCanvasWidth(glCanvas.getSurfaceWidth());
         cam.setCanvasHeight(glCanvas.getSurfaceHeight());
-        cam.setMinZ(5.0);
-        cam.setMaxZ(2000.0);
-        cam.setFOV(60.0);
     }
     
     /**
@@ -825,13 +930,13 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 		pickedEntity=arg0;
 		pickedHandle=0;
 		
-		setContextPanel(arg0.getAllContextPanels(this),arg0.getName());
+		setContextPanel(arg0);
 	}
     
     public void pickNothing() {
 		unPick();
     	pickedEntity=null;
-    	setContextPanel(world.getAllContextPanels(this),Translator.get("Everything"));
+    	setContextPanel(null);
     }
 	
     public void unPick() {
@@ -848,7 +953,10 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			pickEntity(camera);
 		}
 	}
-
+	public int getPickedHandle() {
+		return pickedHandle;
+	}
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// if they dragged the cursor around before unclicking, don't pick.
@@ -858,83 +966,36 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			pickNow=true;
 		}
 	}
-
 	@Override
 	public void mousePressed(MouseEvent e) {
-		//cursorPreviousX=cursorStartX=this.mainFrame.getWidth()/2;
-		//cursorPreviousY=cursorStartY=this.mainFrame.getHeight()/2;
-
-		hideCursor();
 		pickX=e.getX();
 		pickY=e.getY();
 		pickedHandle=0;
 		
 		world.getCamera().pressed();
 	}
-	
-	private void hideCursor() {/*
-		// Hide cursor
-		// Transparent 16 x 16 pixel cursor image.
-		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-		// Create a new blank cursor.
-		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-		    cursorImg, new Point(0, 0), "blank cursor");
-		// Set the blank cursor to the JFrame.
-		glCanvas.setCursor(blankCursor);*/
-	}
-	
-	private void showCursor() {
-		//glCanvas.setCursor(Cursor.getDefaultCursor());
-	}
-	
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		showCursor();
 		world.getCamera().released();
 	}
-	
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		isMouseIn=true;
 		glCanvas.requestFocus();
 	}
-	
 	@Override
 	public void mouseExited(MouseEvent e) {
 		isMouseIn=false;
 	}
-	
 	@Override
 	public void mouseDragged(MouseEvent e) {
         Camera cam = world.getCamera();
         cam.setCursor(e.getX(),e.getY());
-        
-		if(pickedHandle>0) {
-			//int x = e.getX();
-			//int y = e.getY();
-			
-			//int dx = x-cursorPreviousX;
-			//int dy = y-cursorPreviousY;
-			//cursorPreviousX=x;
-			//cursorPreviousY=y;
-		}
 	}
-	
 	@Override
 	public void mouseMoved(MouseEvent e) {
         Camera cam = world.getCamera();
         cam.setCursor(e.getX(),e.getY());
-	}
-	
-
-	public static void main(String[] argv) {
-	    //Schedule a job for the event-dispatching thread:
-	    //creating and showing this application's GUI.
-	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	        	new RobotOverlord();
-	        }
-	    });
 	}
 
 
@@ -942,18 +1003,25 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 	public void windowActivated(WindowEvent arg0) {}
 	@Override
 	public void windowClosed(WindowEvent arg0) {}
-	
-	
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {}
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {}
+	@Override
+	public void windowIconified(WindowEvent arg0) {}
+	@Override
+	public void windowOpened(WindowEvent arg0) {}
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		confirmClose();
 	}
 	
+	
 	public void confirmClose() {
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
                 "Are you sure you want to quit?",
-                "Exit",
+                "Quit",
                 JOptionPane.YES_NO_OPTION);
 
         if (result == JOptionPane.YES_OPTION) {
@@ -970,22 +1038,8 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
         }
 	}
 
-	public int getPickedHandle() {
-		return pickedHandle;
-	}
 
-	@Override
-	public void windowDeactivated(WindowEvent arg0) {}
-	@Override
-	public void windowDeiconified(WindowEvent arg0) {}
-	@Override
-	public void windowIconified(WindowEvent arg0) {}
-	@Override
-	public void windowOpened(WindowEvent arg0) {}
-	@Override
-	public void keyPressed(KeyEvent e) {}
-
-	@Override
+	@Deprecated
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
 			System.out.print(" REVERT TO CAMERA");
@@ -993,7 +1047,16 @@ implements MouseListener, MouseMotionListener, KeyListener, GLEventListener, Win
 			pickNothing();
 		}
 	}
+	
 
-	@Override
-	public void keyTyped(KeyEvent arg0) {}
+	
+	public static void main(String[] argv) {
+	    //Schedule a job for the event-dispatching thread:
+	    //creating and showing this application's GUI.
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+	        	new RobotOverlord();
+	        }
+	    });
+	}
 }

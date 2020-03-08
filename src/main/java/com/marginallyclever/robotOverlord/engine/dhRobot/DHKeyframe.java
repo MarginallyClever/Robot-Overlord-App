@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
-import javax.vecmath.Matrix4d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -11,22 +9,20 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  * @author Dan Royer
  *
  */
-public class DHKeyframe implements RobotKeyframe {
-	public double time;
-	
-	public Matrix4d poseIK;
-	
+public class DHKeyframe implements RobotKeyframe {	
 	public double [] fkValues;
 	
-
+	public DHKeyframe() {}
+	
 	public DHKeyframe(int size) {
 		fkValues=new double[size];
-		poseIK = new Matrix4d();
 	}
 	
-	public DHKeyframe() {
-		poseIK = new Matrix4d();
+	public DHKeyframe(double [] arg0) {
+		fkValues=new double[arg0.length];
+		set(arg0);
 	}
+	
 	
 	@Override
 	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
@@ -55,13 +51,20 @@ public class DHKeyframe implements RobotKeyframe {
 	public void set(DHKeyframe arg0) {
 		assert(arg0!=null);
 		assert(arg0.fkValues.length>0);
+		
 		if(fkValues==null || fkValues.length!=arg0.fkValues.length) {
 			fkValues = new double[arg0.fkValues.length];
 		}
 		for(int i=0;i<arg0.fkValues.length;++i) {
 			fkValues[i] = arg0.fkValues[i];
 		}
-		poseIK.set(arg0.poseIK);
-		time=arg0.time;
+	}
+	
+	public void set(double [] arg0) {
+		if(fkValues.length != arg0.length) return;
+		
+		for(int i=0;i<arg0.length;++i) {
+			fkValues[i]=arg0[i];
+		}
 	}
 }

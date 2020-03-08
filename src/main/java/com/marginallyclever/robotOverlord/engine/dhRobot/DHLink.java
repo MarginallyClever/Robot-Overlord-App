@@ -1,8 +1,12 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 
 /**
@@ -50,6 +54,8 @@ public class DHLink extends ModelInWorld {
 	
 	// the gcode letter representing this link
 	protected String letter="";
+	
+	protected transient DHLinkPanel linkPanel;
 
 	
 	public DHLink() {
@@ -100,6 +106,18 @@ public class DHLink extends ModelInWorld {
 		maxVelocity=arg0.maxVelocity;
 		maxAcceleration=arg0.maxAcceleration;
 		maxTorque=arg0.maxTorque;
+	}
+	
+
+	@Override
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		linkPanel = new DHLinkPanel(gui,this);
+		list.add(linkPanel);
+		
+		return list;
 	}
 	
 	/**
@@ -382,6 +400,8 @@ public class DHLink extends ModelInWorld {
 
 	public void setLetter(String letter) {
 		this.letter = letter;
+		
+		this.setName("DHLink "+letter);
 	}
 	public String getLetter() {
 		return letter;

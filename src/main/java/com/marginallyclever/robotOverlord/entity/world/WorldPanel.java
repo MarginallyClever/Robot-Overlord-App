@@ -2,28 +2,14 @@ package com.marginallyclever.robotOverlord.entity.world;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.BorderFactory;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAddEntity;
-import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class WorldPanel extends JPanel implements ActionListener {
+public class WorldPanel extends JPanel {
 	/**
 	 * 
 	 */
@@ -54,55 +40,10 @@ public class WorldPanel extends JPanel implements ActionListener {
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
-		this.add(addButton = new UserCommandAddEntity(gui),con1);
-		addButton.addActionListener(this);
-		con1.gridy++;
-
-	    DefaultMutableTreeNode top = createTreeNodes(world);
-		JTree tree = new JTree(top);
-		JScrollPane entityList = new JScrollPane(tree);
-		this.add(entityList,con1);
-		
-	    tree.getSelectionModel().setSelectionMode
-	            (TreeSelectionModel.SINGLE_TREE_SELECTION);
+		addButton = new UserCommandAddEntity(gui);
+		this.add(addButton,con1);
 	    
-	    entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-	    
-	    // double click an item to get its panel.
-	    // See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
-	    tree.addMouseListener(new MouseAdapter() {
-		    public void mousePressed(MouseEvent e) {
-		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-		        if(selPath != null) {
-		            if(e.getClickCount() == 1) {
-		                //mySingleClick(selRow, selPath);
-		            }
-		            else if(e.getClickCount() == 2) {
-		                //myDoubleClick(selRow, selPath);
-		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
-		            	gui.pickEntity((Entity)(o.getUserObject()));
-		            }
-		        }
-		    }
-		});
-
 		PanelHelper.ExpandLastChild(this, con1);
-	}
-	
-	protected DefaultMutableTreeNode createTreeNodes(Entity e) {
-		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
-		for(Entity child : e.getChildren() ) {
-			parent.add(createTreeNodes(child));
-		}
-		return parent;
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if(e.getSource() == addButton) {
-			
-		}
 	}
 
 }

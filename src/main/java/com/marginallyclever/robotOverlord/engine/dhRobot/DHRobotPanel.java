@@ -50,8 +50,11 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
-	public JLabel activeTool;
+	
+	// select a tool for the sim.  later this may be open/close ATC.
 	public JButton buttonSetTool;
+	// placeholder for the active tool's panel.
+	public JPanel activeTool;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
@@ -61,23 +64,20 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
 		this.robot = robot;
 		this.ro = gui;
-		linkPanels = new ArrayList<DHLinkPanel>();
+		this.setName("DHRobot");
 		
 		buildPanel();
 	}
 	
 	protected void buildPanel() {
 		this.removeAll();
-
-		this.setName("DHRobot");
+		
+		linkPanels = new ArrayList<DHLinkPanel>();
+		
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-
-		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
-		//con1.gridy++;
-		//numLinks.addChangeListener(this);
 		
 		SpringLayout layout = new SpringLayout();
 		JPanel linkContents = new JPanel(layout);
@@ -96,7 +96,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		}
 		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
 		this.add(linkContents,con1);
-		con1.gridy++;
 
 		layout = new SpringLayout();
 		linkContents = new JPanel(layout);
@@ -107,24 +106,17 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		linkContents.add(valuery=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		linkContents.add(valuerz=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
+		con1.gridy++;
 		this.add(linkContents,con1);
-		con1.gridy++;
-		/*
-		this.add(showBones=new JCheckBox(),con1);
-		showBones.setText("Show D-H bones");
-		showBones.addItemListener(this);
-		showBones.setSelected(robot.isShowBones());
-		con1.gridy++;
 		
-		this.add(showPhysics=new JCheckBox(),con1);
-		showPhysics.setText("Show physics model");
-		showPhysics.addItemListener(this);
-		showPhysics.setSelected(robot.isShowPhysics());
+
 		con1.gridy++;
-		*/
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 		this.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
+		
+		con1.gridy++;
+		this.add(activeTool=new JPanel(),con1);
 
 		PanelHelper.ExpandLastChild(this, con1);
 		
@@ -287,8 +279,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 * Called by the robot to update the panel status
 	 */
 	public void updateActiveTool(DHTool arg0) {
-		String name = (arg0==null) ? "null" : arg0.getName();
-		activeTool.setText("Tool="+name);
+		activeTool.removeAll();
+		activeTool.add(arg0.getAllContextPanels(ro));
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 public class DHRobot extends ModelInWorld {
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links;
+	
 	// The solver for this type of robot
 	protected transient DHIKSolver solver;
 
@@ -139,20 +140,42 @@ public class DHRobot extends ModelInWorld {
 	/**
 	 * Adjust the number of links in this robot
 	 * 
-	 * @param newSize must be greater than 0
+	 * @param newSize must be >= 0
 	 */
 	public void setNumLinks(int newSize) {
-		if (newSize < 1)
-			newSize = 1;
+		if(newSize < 0) newSize = 0;
 
 		links.clear();
+		
+		// count the number of existing children.
 		Entity prev=this;
-		for(int s = 0; s < newSize;++s) {
-			DHLink newLink = new DHLink();
-			prev.addChild(newLink);
-			links.add(newLink);
-			prev=newLink;
+		int s=0;
+		while(prev.getChildren().size()>0 && s<newSize) {
+			boolean found=true;
+			for( Entity c : prev.getChildren() ) {
+				if(c instanceof DHLink ) {
+					links.add((DHLink)c);
+					prev=c;
+					++s;
+					found=true;
+					break;
+				}
+			}
+			// in case there are children but none are DHLinks
+			if(found==false) break;
 		}
+
+		// if the number is too low, add more.
+		while(s<newSize) {
+			DHLink newLink = new DHLink();
+			links.add(newLink);
+			prev.addChild(newLink);
+			prev = newLink;
+			++s;
+		}
+		
+		// if the number is too high, delete the remaining children.
+		prev.getChildren().clear();
 	}
 
 	// the tool should be the child of the last link in the chain

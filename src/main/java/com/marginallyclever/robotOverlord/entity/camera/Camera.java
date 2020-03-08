@@ -30,7 +30,9 @@ public class Camera extends PhysicalObject {
 	protected CameraMount mount;
 	
 	protected int canvasWidth, canvasHeight;
-	protected double minZ, maxZ,fov;
+	protected double nearZ=5;
+	protected double farZ=2000;
+	protected double fieldOfView=60;
 	protected int cursorX,cursorY;
 	protected boolean isPressed;
 	
@@ -42,7 +44,7 @@ public class Camera extends PhysicalObject {
 		setName("Camera");
 		
 		isPressed=false;
-		fov=60;
+		fieldOfView=60;
 	}
 
 
@@ -230,7 +232,7 @@ public class Camera extends PhysicalObject {
 		vx.scale(+cursorX);
 		
 		Vector3d pickRay = new Vector3d(forward);
-		pickRay.scale(-canvasHeight*Math.sin(Math.toRadians(fov)));
+		pickRay.scale(-canvasHeight*Math.sin(Math.toRadians(fieldOfView)));
 		pickRay.add(vx);
 		pickRay.add(vy);
 		pickRay.normalize();
@@ -238,33 +240,15 @@ public class Camera extends PhysicalObject {
 		return pickRay;
 	}
 
-
-	public void setMinZ(double d) {
-		minZ=d;
-	}
-
-
-	public void setMaxZ(double d) {
-		maxZ=d;
-	}
-
-
-	public void setFOV(double d) {
-		fov=d;
-	}
-
-
 	public void setCursor(int x,int y) {
 		cursorX= x - canvasWidth/2;
 		cursorY= canvasHeight/2 - y;
         //System.out.println("X"+cursorX+" Y"+cursorY);
 	}
 
-
 	public void pressed() {
 		isPressed=true;
 	}
-
 
 	public void released() {
 		isPressed=false;
@@ -272,5 +256,28 @@ public class Camera extends PhysicalObject {
 	
 	public boolean isPressed() {
 		return isPressed;
+	}
+
+
+
+	public void setNearZ(double d) {
+		nearZ=d;
+	}
+	public double getNearZ() {
+		return nearZ;
+	}
+
+	public void setFarZ(double d) {
+		farZ=d;
+	}
+	public double getFarZ() {
+		return farZ;
+	}
+
+	public void setFOV(double d) {
+		fieldOfView=d;
+	}
+	public double getFOV() {
+		return fieldOfView;
 	}
 }

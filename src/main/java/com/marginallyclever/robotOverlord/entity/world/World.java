@@ -63,7 +63,7 @@ public class World extends Entity {
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCube viewCube;
 	
-	protected transient WorldPanel worldControlPanel;
+	protected transient WorldPanel worldPanel;
 	
 	public World() {
 		super();
@@ -150,8 +150,8 @@ public class World extends Entity {
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
-		worldControlPanel = new WorldPanel(gui,this);
-		list.add(worldControlPanel);
+		worldPanel = new WorldPanel(gui,this);
+		list.add(worldPanel);
 
 		return list;
 	}
@@ -390,7 +390,7 @@ public class World extends Entity {
 	public void addChild(Entity entity) {
 		super.addChild(entity); 
 		entity.setParent(this);
-		if(worldControlPanel!=null) worldControlPanel.buildPanel();
+		if(worldPanel!=null) worldPanel.buildPanel();
 	}
 	
 	public void removeEntity(Entity o) {
@@ -496,5 +496,9 @@ public class World extends Entity {
 
 		// no intersection
 		return false;
+	}
+	
+	public WorldPanel getWorldPanel() {
+		return worldPanel;
 	}
 }

@@ -130,7 +130,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		con1.gridy++;
 		immediateDriving.setText("Real time control mode");
 		immediateDriving.addItemListener(this);
-		immediateDriving.setSelected(robot.controlMode==ControlMode.REAL_TIME);
+		immediateDriving.setSelected(robot.controlMode==ControlMode.RECORD);
 
 		this.add(feedrate=new JSlider(),con1);
 		con1.gridy++;

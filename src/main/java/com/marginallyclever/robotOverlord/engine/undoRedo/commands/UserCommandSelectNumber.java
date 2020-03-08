@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JLabel;
@@ -97,9 +96,8 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		
 		if(sendChange) {
 			ChangeEvent arg0 = new ChangeEvent(this);
-			Iterator<ChangeListener> i = changeListeners.iterator();
-			while(i.hasNext()) {
-				i.next().stateChanged(arg0);
+			for( ChangeListener i : changeListeners ) {
+				i.stateChanged(arg0);
 			}
 		}
 	}

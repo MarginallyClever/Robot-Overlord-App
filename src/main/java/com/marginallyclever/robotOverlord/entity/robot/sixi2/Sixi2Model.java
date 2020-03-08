@@ -20,7 +20,7 @@ public abstract class Sixi2Model extends DHRobot {
 		super();
 		setName("Sixi2Model");
 		
-		feedRate=5;
+		feedRate=25;
 		acceleration=20;
 		
 		this.setIKSolver(new DHIKSolver_RTTRTR());

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
@@ -46,7 +47,7 @@ public class UserCommandSelectBoolean extends JPanel implements ItemListener {
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
-		JLabel label=new JLabel(labelName,JLabel.LEFT);
+		JLabel label=new JLabel(labelName,SwingConstants.LEFT);
 	
 		checkboxField = new JCheckBox();
 		label.setLabelFor(checkboxField);

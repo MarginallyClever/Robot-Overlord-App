@@ -258,7 +258,7 @@ public class DHTool_Gripper extends DHTool {
 		return message;
 	}
 	
-	public void parseGCode(String str) {
+	public void sendCommand(String str) {
 		StringTokenizer tok = new StringTokenizer(str);
 		while(tok.hasMoreTokens()) {
 			String token = tok.nextToken();
