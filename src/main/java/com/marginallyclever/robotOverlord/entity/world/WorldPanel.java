@@ -16,7 +16,10 @@ public class WorldPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private RobotOverlord gui;
+	
+	@SuppressWarnings("unused")
 	private World world;
+	
 	protected JList<?> entityList;
 	protected UserCommandAddEntity addButton;
 
