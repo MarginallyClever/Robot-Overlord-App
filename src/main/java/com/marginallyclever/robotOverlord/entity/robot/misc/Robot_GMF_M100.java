@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.robot.misc;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_Cylindrical;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -29,25 +29,25 @@ public class Robot_GMF_M100 extends Robot {
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(5);
 		// roll
-		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).flags = LinkAdjust.THETA;
 		robot.links.get(0).setRangeMin(-120);
 		robot.links.get(0).setRangeMax(120);
 		// slide
 		robot.links.get(1).setAlpha(90);
-		robot.links.get(1).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(1).flags = LinkAdjust.D;
 		robot.links.get(1).setRangeMin(0);
 		robot.links.get(1).setRangeMin(1300);
 		// slide
 		robot.links.get(2).setAlpha(90);
-		robot.links.get(2).flags = DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(2).flags = LinkAdjust.D;
 		robot.links.get(2).setRangeMin(0);
 		robot.links.get(2).setRangeMax(1100);
 		// roll
-		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).flags = LinkAdjust.THETA;
 		robot.links.get(3).setRangeMin(-90);
 		robot.links.get(3).setRangeMax(90);
 
-		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).flags = LinkAdjust.NONE;
 
 		robot.refreshPose();
 	}

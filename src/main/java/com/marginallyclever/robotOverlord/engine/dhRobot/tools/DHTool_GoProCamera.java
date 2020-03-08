@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.engine.dhRobot.tools;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
 
 /**
@@ -16,7 +15,7 @@ public class DHTool_GoProCamera extends DHTool {
 	public DHTool_GoProCamera() {
 		super();
 		setD(8);  // cm
-		flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_ALPHA;
+		flags = LinkAdjust.R;
 		refreshPoseMatrix();
 		setName("GoPro Camera");
 		

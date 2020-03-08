@@ -30,7 +30,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.convenience.SpringUtilities;

@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Observable;
 
 import com.marginallyclever.robotOverlord.engine.log.Log;
 
@@ -16,7 +17,7 @@ import com.marginallyclever.robotOverlord.engine.log.Log;
  * @since 1.6.0
  * TODO add unit tests
  */
-public class Sixi2Recording {
+public class Sixi2Recording extends Observable {
 	public String fileFrom;
 	public String fileTo;
 	

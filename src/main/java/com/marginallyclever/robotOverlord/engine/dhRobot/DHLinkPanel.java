@@ -80,9 +80,9 @@ public class DHLinkPanel extends JPanel {
 		valueR		.setPreferredSize(size);
 		valueAlpha	.setPreferredSize(size);
 		
-		d		.setReadOnly((link.flags & DHLink.READ_ONLY_D		)!=0);
-		theta	.setReadOnly((link.flags & DHLink.READ_ONLY_THETA	)!=0);
-		r		.setReadOnly((link.flags & DHLink.READ_ONLY_R		)!=0);
-		alpha	.setReadOnly((link.flags & DHLink.READ_ONLY_ALPHA	)!=0);
+		d		.setReadOnly(link.flags != DHLink.LinkAdjust.D);
+		theta	.setReadOnly(link.flags != DHLink.LinkAdjust.THETA);
+		r		.setReadOnly(link.flags != DHLink.LinkAdjust.R);
+		alpha	.setReadOnly(link.flags != DHLink.LinkAdjust.ALPHA);
 	}
 };

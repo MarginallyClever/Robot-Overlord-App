@@ -32,7 +32,6 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  *
  */
 public class Sixi2 extends Robot {
-	
 	public enum ControlMode {
 		RECORD("RECORD"),
 		PLAYBACK("PLAYBACK");
@@ -149,6 +148,10 @@ public class Sixi2 extends Robot {
 		gl2.glDepthFunc(GL2.GL_ALWAYS);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
+		// draw the recording
+		
+		
+		// draw the drag ball
 		if(isPicked && controlMode == ControlMode.RECORD) {
 			ball.render(gl2);
 		}
@@ -475,7 +478,7 @@ public class Sixi2 extends Robot {
 	public void toggleControlMode() {
 		controlMode = (controlMode==ControlMode.RECORD) ? ControlMode.PLAYBACK : ControlMode.RECORD;
 
-		System.out.println("controlMode="+(controlMode==ControlMode.RECORD?"REAL_TIME":"RECORD"));
+		System.out.println("controlMode="+controlMode);
 		
 		if(controlMode==ControlMode.RECORD) {
 			// move the joystick to match the simulated position?
@@ -495,7 +498,7 @@ public class Sixi2 extends Robot {
 	public void toggleOperatingMode() {
 		operatingMode = (operatingMode==OperatingMode.LIVE) ? OperatingMode.SIM : OperatingMode.LIVE;
 
-		System.out.println("operatingMode="+(operatingMode==OperatingMode.SIM?"SIM":"LIVE"));
+		System.out.println("operatingMode="+operatingMode);
 	}
 
 	public void loadRecording(String filename) {

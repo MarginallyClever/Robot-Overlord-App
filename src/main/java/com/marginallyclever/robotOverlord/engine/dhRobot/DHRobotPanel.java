@@ -83,16 +83,17 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		JPanel linkContents = new JPanel(layout);
 		linkContents.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		int k=0;
-		Iterator<DHLink> i = robot.links.iterator();
-		while(i.hasNext()) {
-			DHLink link = i.next();
+		for( DHLink link : robot.links ) {
 			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
 			linkPanels.add(e);
 
-			if((link.flags & DHLink.READ_ONLY_D		)==0) {	linkContents.add(e.d    );	linkContents.add(e.valueD    );	e.d    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	linkContents.add(e.theta);	linkContents.add(e.valueTheta);	e.theta.addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_R		)==0) {	linkContents.add(e.r    );	linkContents.add(e.valueR    );	e.r    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}
+			switch(link.flags) {
+			case D	  : {	linkContents.add(e.d    );	linkContents.add(e.valueD    );	e.d    .addChangeListener(this);	}  break;
+			case THETA: {	linkContents.add(e.theta);	linkContents.add(e.valueTheta);	e.theta.addChangeListener(this);	}  break;
+			case R	  : {	linkContents.add(e.r    );	linkContents.add(e.valueR    );	e.r    .addChangeListener(this);	}  break;
+			case ALPHA: {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}  break;
+			default: break;
+			}
 		}
 		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
 		this.add(linkContents,con1);
@@ -200,10 +201,13 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		while(i.hasNext()) {
 			DHLink link = robot.getLink(j++);
 			DHLinkPanel linkPanel = i.next();
-			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(link.getD()		));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(link.getTheta()	));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(link.getR()		));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.getAlpha()	));
+			switch(linkPanel.link.flags) {
+			case D		: linkPanel.valueD    .setText(StringHelper.formatDouble(link.getD()	));  break;
+			case THETA	: linkPanel.valueTheta.setText(StringHelper.formatDouble(link.getTheta()));  break;
+			case R		: linkPanel.valueR    .setText(StringHelper.formatDouble(link.getR()	));  break;
+			case ALPHA	: linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.getAlpha()));  break;
+			default: break;
+			}
 		}
 	}
 		

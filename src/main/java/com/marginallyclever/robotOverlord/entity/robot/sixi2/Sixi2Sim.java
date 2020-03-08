@@ -44,7 +44,7 @@ public class Sixi2Sim extends Sixi2Model {
 	public Sixi2Sim() {
 		super();
 		setName("Sim");
-		
+
 		poseTarget = new double[links.size()];
 		poseFrom = new double[links.size()];
 		poseLive = new double[links.size()];
@@ -162,6 +162,7 @@ public class Sixi2Sim extends Sixi2Model {
 
 	@Override 
 	public void update(double dt) {
+		interpolationStyle = InterpolationStyle.LINEAR_IK;
 		switch (interpolationStyle) {
 		case LINEAR_FK:	interpolateLinearFK(dt);	break;
 		case LINEAR_IK:	interpolateLinearIK(dt);	break;

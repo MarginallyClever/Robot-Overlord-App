@@ -59,12 +59,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		DHLink link6 = robot.links.get(6);
 		DHLink link7 = robot.links.get(7);
 
-		assert((link0.flags & DHLink.READ_ONLY_D)!=0);
-		assert((link2.flags & DHLink.READ_ONLY_D)!=0);
-		assert((link3.flags & DHLink.READ_ONLY_D)!=0);
-		assert((link4.flags & DHLink.READ_ONLY_D)!=0);
-		assert((link6.flags & DHLink.READ_ONLY_D)!=0);
-
 		Matrix4d iRoot = new Matrix4d(robot.getParentMatrix());
 		try {
 			iRoot.invert();

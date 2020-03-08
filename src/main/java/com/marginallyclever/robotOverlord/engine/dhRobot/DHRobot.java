@@ -2,11 +2,10 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -279,37 +278,12 @@ public class DHRobot extends ModelInWorld {
 	 * @return
 	 */
 	public boolean keyframeAnglesAreOK(DHKeyframe keyframe) {
-		Iterator<DHLink> i = links.iterator();
 		int j = 0;
-		while (i.hasNext()) {
-			DHLink link = i.next();
-			if ((link.flags & DHLink.READ_ONLY_THETA) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK theta " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
-			}
-			if ((link.flags & DHLink.READ_ONLY_D) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK D " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
-			}
-			if ((link.flags & DHLink.READ_ONLY_ALPHA) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK alpha " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
-			}
-			if ((link.flags & DHLink.READ_ONLY_R) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK R " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
+		for( DHLink link : links ) {
+			if(link.flags == LinkAdjust.NONE) continue;
+			double v = keyframe.fkValues[j++];
+			if (link.rangeMax < v || link.rangeMin > v) {
+				System.out.println("FK " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 			}
 		}
 

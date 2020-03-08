@@ -5,6 +5,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -38,41 +39,41 @@ public class Robot_Mantis extends Robot {
 		// roll
 		//robot.links.get(0).d=13.44;
 		robot.links.get(0).setD(24.5+2.7);
-		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).flags = LinkAdjust.THETA;
 		robot.links.get(0).setRangeMin(-120);
 		robot.links.get(0).setRangeMax(120);
 
 		// tilt
-		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).flags = LinkAdjust.ALPHA;
 		robot.links.get(1).setRangeMin(-72);
 
 		// tilt
 		robot.links.get(2).setD(13.9744 + 8.547);
-		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).flags = LinkAdjust.ALPHA;
 		robot.links.get(2).setRangeMin(-83.369);
 		robot.links.get(2).setRangeMax(86);
 		// interim point
 		robot.links.get(3).setD(0.001);  // TODO explain why this couldn't just be zero.  Solver hates it for some reason.
 		robot.links.get(3).setAlpha(90);
-		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).flags = LinkAdjust.NONE;
 		// roll
 		robot.links.get(4).setD(8.547);
-		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).flags = LinkAdjust.THETA;
 		robot.links.get(4).setRangeMin(-90);
 		robot.links.get(4).setRangeMax(90);
 
 		// tilt
 		robot.links.get(5).setD(14.6855f);
-		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(5).flags = LinkAdjust.ALPHA;
 		robot.links.get(5).setRangeMin(-90);
 		robot.links.get(5).setRangeMax(90);
 		// roll
 		robot.links.get(6).setD(5.0f);
-		robot.links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(6).flags = LinkAdjust.THETA;
 		robot.links.get(6).setRangeMin(-90);
 		robot.links.get(6).setRangeMax(90);
 		
-		robot.links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(7).flags = LinkAdjust.NONE;
 
 		robot.refreshPose();
 	}

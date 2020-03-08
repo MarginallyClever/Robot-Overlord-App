@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.robot.misc;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -31,23 +31,23 @@ public class Robot_Arm3 extends Robot {
 		// roll
 		robot.links.get(0).setD(13.44);
 		robot.links.get(0).setTheta(0);
-		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).flags = LinkAdjust.THETA;
 		robot.links.get(0).setRangeMin(-160);
 		robot.links.get(0).setRangeMax(160);
 		// tilt
 		robot.links.get(1).setAlpha(0);
-		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).flags = LinkAdjust.ALPHA;
 		robot.links.get(2).setRangeMin(-72);
 		// tilt
 		robot.links.get(2).setD(44.55);
 		robot.links.get(2).setAlpha(0);
-		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).flags = LinkAdjust.ALPHA;
 		// interim point
 		robot.links.get(3).setD(40);
 		robot.links.get(3).setAlpha(0);
-		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).flags = LinkAdjust.NONE;
 		// end effector
-		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(4).flags = LinkAdjust.NONE;
 /*
 		try {
 			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);

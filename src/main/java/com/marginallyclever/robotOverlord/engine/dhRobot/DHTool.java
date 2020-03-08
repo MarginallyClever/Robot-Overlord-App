@@ -14,7 +14,7 @@ public class DHTool extends DHLink {
 	public DHTool() {
 		rangeMin=0;
 		rangeMax=0;
-		flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
+		flags = LinkAdjust.NONE;
 		refreshPoseMatrix();
 		setName("No Tool");
 	}

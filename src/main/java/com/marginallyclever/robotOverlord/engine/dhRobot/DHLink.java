@@ -27,35 +27,53 @@ public class DHLink extends ModelInWorld {
 	// computed matrix based on the D-H parameters
 	public Matrix4d poseCumulative;
 	
+	public enum LinkAdjust {
+		NONE (0   ,"NONE" ),
+		D    (1   ,"D"    ),
+		THETA(1<<2,"THETA"),
+		R    (1<<3,"R"    ),
+		ALPHA(1<<4,"ALPHA");
+		
+		private int modeNumber;
+		private String modeName;
+		private LinkAdjust(int n,String s) {
+			modeNumber=n;
+			modeName=s;
+		}
+		public int toInt() {
+			return modeNumber;
+		}
+		public String toString() {
+			return modeName;
+		}
+	};
+	
+	// Any combination of the READ_ONLY_* flags, used to control the GUI.
+	public LinkAdjust flags;
+	
+	// the gcode letter representing this link
+	protected String letter="";
+	
+	protected transient DHLinkPanel linkPanel;
+
+	// Changes visual quality of angle range curve.  Must be a whole number >=2
+	// TODO should be in the view, not the model.
+	public final static double ANGLE_RANGE_STEPS=20;
+	
+	
 	// dynamics are described in a 4x4 matrix
 	//     [ Ixx Ixy Ixz } XgM ]
 	// J = [ Iyx Iyy Iyz } YgM ]
 	//     [ Izx Izy Izz } ZgM ]
 	//     [ XgM YgM ZgM }  M  ]
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
-	public Matrix4d inertia;
-	
-	// Any combination of the READ_ONLY_* flags, used to control the GUI.
-	public int flags;
-	
-	public final static int READ_ONLY_D		= 1;
-	public final static int READ_ONLY_THETA	= 1<<1;
-	public final static int READ_ONLY_R		= 1<<2;
-	public final static int READ_ONLY_ALPHA	= 1<<3;
+	public Matrix4d inertia;	// not used yet
 	
 	protected double rangeMin,rangeMax;
 	
 	public double maxVelocity;	// not used yet
 	public double maxAcceleration;	// not used yet
 	public double maxTorque;	// not used yet
-
-	// Changes visual quality of angle range curve.  Must be a whole number >=2
-	public final static double ANGLE_RANGE_STEPS=20;
-	
-	// the gcode letter representing this link
-	protected String letter="";
-	
-	protected transient DHLinkPanel linkPanel;
 
 	
 	public DHLink() {
@@ -65,7 +83,7 @@ public class DHLink extends ModelInWorld {
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
 		
-		flags=0;
+		flags=LinkAdjust.NONE;
 		d=0;
 		theta=0;
 		r=0;
@@ -165,7 +183,7 @@ public class DHLink extends ModelInWorld {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
 		gl2.glColor3f(0, 0, 0);
-		if((flags & READ_ONLY_THETA)==0) {
+		if(flags == LinkAdjust.THETA) {
 			// display the curve around z (in the xy plane)
 			gl2.glPushMatrix();
 			gl2.glTranslated(0, 0, d);
@@ -197,7 +215,7 @@ public class DHLink extends ModelInWorld {
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
-		if((flags & READ_ONLY_D)==0) {
+		if(flags == LinkAdjust.D) {
 			// display the prismatic nature of d
 			gl2.glPushMatrix();
 			gl2.glBegin(GL2.GL_LINES);
@@ -212,7 +230,7 @@ public class DHLink extends ModelInWorld {
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
-		if((flags & READ_ONLY_ALPHA)==0) {
+		if(flags == LinkAdjust.ALPHA) {
 			// display the curve around x (in the yz plane)
 			gl2.glPushMatrix();
 			gl2.glTranslated(r, 0, d);
@@ -251,7 +269,7 @@ public class DHLink extends ModelInWorld {
 			gl2.glEnd();*/
 			gl2.glPopMatrix();
 		}
-		if((flags & READ_ONLY_R)==0) {
+		if(flags == LinkAdjust.R) {
 			// display the prismatic nature of r
 			gl2.glPushMatrix();
 			gl2.glTranslated(0, 0, d);
@@ -277,7 +295,7 @@ public class DHLink extends ModelInWorld {
 	 */
 	public void setAngleColorByRange(GL2 gl2) {
 		double a=0;
-		if((flags & READ_ONLY_THETA)==0) a=theta;
+		if(flags == LinkAdjust.THETA) a=theta;
 		else a=alpha;
 		
 		double halfRange = (rangeMax-rangeMin)/2;
@@ -297,17 +315,20 @@ public class DHLink extends ModelInWorld {
 	}
 	
 	public boolean hasAdjustableValue() {
-		return flags != (READ_ONLY_D | READ_ONLY_R | READ_ONLY_THETA | READ_ONLY_ALPHA );
+		return flags != LinkAdjust.NONE;
 	}
 	
 	/**
 	 * In any DHLink there should only be one parameter that changes in value.  Return that value.
 	 */
 	public double getAdjustableValue() {
-		if((flags & READ_ONLY_D    )==0) return getD();
-		if((flags & READ_ONLY_THETA)==0) return getTheta();
-		if((flags & READ_ONLY_R    )==0) return getR();
-		return getAlpha();
+		switch(flags) {
+		case D    :  return getD();
+		case R    :  return getR();
+		case THETA:  return getTheta();
+		case ALPHA:  return getAlpha();
+		default   :  return 0;
+		}
 	}
 	
 	/**
@@ -316,10 +337,13 @@ public class DHLink extends ModelInWorld {
 	public void setAdjustableValue(double v) {
 		//System.out.println("Adjust begins");
 		v = Math.max(Math.min(v, rangeMax), rangeMin);
-		if((flags & READ_ONLY_D    )==0) setD(v);
-		if((flags & READ_ONLY_THETA)==0) setTheta(v);
-		if((flags & READ_ONLY_R    )==0) setR(v);
-		if((flags & READ_ONLY_ALPHA)==0) setAlpha(v);
+		switch(flags) {
+		case D    :  setD    (v);  break;
+		case THETA:  setTheta(v);  break;
+		case R    :  setR    (v);  break;
+		case ALPHA:  setAlpha(v);  break;
+		default   :  break;
+		}
 		//System.out.println("Adjust ends");
 	}
 
