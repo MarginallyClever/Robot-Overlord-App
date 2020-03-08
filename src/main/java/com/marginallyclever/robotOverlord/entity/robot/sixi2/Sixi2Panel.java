@@ -312,14 +312,14 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		scrubber.addChangeListener(this);
 	}
 	
-	protected void updatePosition(DHRobot r, JPanel p) {
+	protected void updatePosition(DHRobot r, JPanel p) {/*
 		p.removeAll();
 		Vector3d pos = new Vector3d();
 		r.getEndEffectorMatrix().get(pos);
 		p.add(new JLabel("X"));	 p.add(new JLabel(StringHelper.formatDouble(pos.x)));
 		p.add(new JLabel("Y"));	 p.add(new JLabel(StringHelper.formatDouble(pos.y)));
 		p.add(new JLabel("Z"));	 p.add(new JLabel(StringHelper.formatDouble(pos.z)));
-		SpringUtilities.makeCompactGrid(p, 1, 6, 5, 5, 5, 5);
+		SpringUtilities.makeCompactGrid(p, 1, 6, 5, 5, 5, 5);*/
 	}
 	
 	@Override
