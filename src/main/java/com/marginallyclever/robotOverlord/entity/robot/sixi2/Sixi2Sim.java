@@ -11,6 +11,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 
 public class Sixi2Sim extends Sixi2Model {
 	public enum InterpolationStyle {
@@ -32,9 +33,9 @@ public class Sixi2Sim extends Sixi2Model {
 	protected long startTime;
 	
 	// fk interpolation
-	protected double [] poseTarget;
-	protected double [] poseFrom;
-	protected double [] poseLive;
+	protected double [] poseTargetFK;
+	protected double [] poseFromFK;
+	protected double [] poseLiveFK;
 	
 	// ik interpolation
 	protected Matrix4d mLive = new Matrix4d();
@@ -45,9 +46,13 @@ public class Sixi2Sim extends Sixi2Model {
 		super();
 		setName("Sim");
 
-		poseTarget = new double[links.size()];
-		poseFrom = new double[links.size()];
-		poseLive = new double[links.size()];
+		int numAdjustableLinks = 0;
+		for(DHLink link : links ) {
+			if(link.flags != LinkAdjust.NONE) numAdjustableLinks++;
+		}
+		poseTargetFK = new double[numAdjustableLinks];
+		poseFromFK = new double[numAdjustableLinks];
+		poseLiveFK = new double[numAdjustableLinks];
 		
 	    readyForCommands=true;
 	    
@@ -84,13 +89,16 @@ public class Sixi2Sim extends Sixi2Model {
 
 			int i=0;
 			for( DHLink link : links ) {
-				poseLive[i] = link.getAdjustableValue();
+				if(link.flags == LinkAdjust.NONE) continue;
+				
+				poseLiveFK[i] = link.getAdjustableValue();
+				poseTargetFK[i] = poseLiveFK[i];
 				
 				for( String t : tok ) {
 					String letter = t.substring(0,1); 
 					if(link.getLetter().equalsIgnoreCase(letter)) {
 						//System.out.println("link "+link.getLetter()+" matches "+letter);
-						poseTarget[i] = Double.parseDouble(t.substring(1));
+						poseTargetFK[i] = Double.parseDouble(t.substring(1));
 					}
 				}
 				++i;
@@ -112,9 +120,9 @@ public class Sixi2Sim extends Sixi2Model {
 		
 			double dMax=0;
 	        double dp=0;
-			for(i=0; i<poseLive.length; ++i) {
-				poseFrom[i] = poseLive[i];
-				double dAbs = Math.abs(poseTarget[i] - poseFrom[i]);
+			for(i=0; i<poseLiveFK.length; ++i) {
+				poseFromFK[i] = poseLiveFK[i];
+				double dAbs = Math.abs(poseTargetFK[i] - poseFromFK[i]);
 				dp+=dAbs;
 				if(dMax<dAbs) dMax=dAbs;
 			}
@@ -131,7 +139,7 @@ public class Sixi2Sim extends Sixi2Model {
 	        DHKeyframe oldPose = solver.createDHKeyframe();
 	        getPoseFK(oldPose);
 		        DHKeyframe newPose = solver.createDHKeyframe();
-		        newPose.set(poseTarget);
+		        newPose.set(poseTargetFK);
 		        setPoseFK(newPose);
 		        mTarget.set(getEndEffectorMatrix());
 	        setPoseFK(oldPose);
@@ -182,7 +190,7 @@ public class Sixi2Sim extends Sixi2Model {
 	    	int i=0;
 	    	for( DHLink n : links ) {
 	    		if( n.getName()==null ) continue;
-	    		n.setAdjustableValue((poseTarget[i] - poseFrom[i]) * tFraction + poseFrom[i]);
+	    		n.setAdjustableValue((poseTargetFK[i] - poseFromFK[i]) * tFraction + poseFromFK[i]);
 	    		++i;
 	    	}
 	    } else {
