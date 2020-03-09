@@ -121,6 +121,17 @@ public class Sixi2Recording extends Observable {
 		return commandIndex > 0;
 	}
 
+	public int getCommandIndex() {
+		return commandIndex;
+	}
+
+	public int setCommandIndex(int newIndex) {
+		if(newIndex>=0 && newIndex <commands.size()) {
+			commandIndex = newIndex;
+		}
+		return commandIndex;
+	}
+	
 	public String next() {
 		commandIndex++;
 		return getCommand();
@@ -128,13 +139,6 @@ public class Sixi2Recording extends Observable {
 
 	public String prev() {
 		commandIndex--;
-		return getCommand();
-	}
-
-	public String jumpTo(int index) {
-		if(index>=0 && index <commands.size()) {
-			commandIndex = index;
-		}
 		return getCommand();
 	}
 
