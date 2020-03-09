@@ -209,7 +209,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 //		scrollPane.setBounds(206, 154, 177, 189);
 
-		contents.add(recordedCommands = new JList<String>(robot.callGetCommandsList()),con2);
+		contents.add(recordedCommands = new JList<String>(robot.getCommandsList()),con2);
 		scrollPane.setViewportView(recordedCommands);
 		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		recordedCommands.setLayoutOrientation(JList.VERTICAL);
@@ -451,17 +451,17 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			else stop();
 		}
 		if(source==delCommand) {
-			robot.callDeleteCommand();
-			recordedCommands.setModel(robot.callGetCommandsList());
+			robot.deleteCurrentCommand();
+			recordedCommands.setModel(robot.getCommandsList());
 			recordedCommands.revalidate();
 		}
 		if(source==addCommand) {
-			robot.callAddCommand();
-			recordedCommands.setModel(robot.callGetCommandsList());
+			robot.addCommand();
+			recordedCommands.setModel(robot.getCommandsList());
 		}
 		if(source==setCommand) {
-			robot.callSetCommand();
-			recordedCommands.setModel(robot.callGetCommandsList());
+			robot.setCommand();
+			recordedCommands.setModel(robot.getCommandsList());
 		}
 	}
 

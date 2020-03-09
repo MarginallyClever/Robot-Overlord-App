@@ -234,16 +234,16 @@ public class Sixi2 extends Robot {
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
 				if(controlMode==ControlMode.RECORD) {
 					System.out.println("setCommand");
-					callSetCommand();
+					setCommand();
 				}
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_PLUS)) {
 				System.out.println("addCommand");
-				callAddCommand();
+				addCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_DELETE)) {
 				System.out.println("deleteCurrentCommand");
-				callDeleteCommand();
+				deleteCurrentCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_BACKSPACE)) {
 				System.out.println("deletePreviousCommand");
@@ -498,17 +498,17 @@ public class Sixi2 extends Robot {
 		System.out.println("operatingMode="+operatingMode);
 	}
 
-	public DefaultListModel<String> callGetCommandsList() {
+	public DefaultListModel<String> getCommandsList() {
 		return recording.getCommandsList();
 	}
 
-	public void callAddCommand() {
+	public void addCommand() {
 		recording.addCommand(sim.getCommand());
 	}
-	public void callDeleteCommand() {
+	public void deleteCurrentCommand() {
 		recording.deleteCurrentCommand();
 	}
-	public void callSetCommand() {
+	public void setCommand() {
 		recording.setCommand(sim.getCommand());
 	}
 

@@ -353,7 +353,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		// list the select item in the scene, if any.
 		ArrayList<JPanel> list = null;
 		if(e!=null) list = e.getContextPanel(this);
-		
 		if(list==null) {
 			selectedEntityPanel.removeAll();
 			return;
