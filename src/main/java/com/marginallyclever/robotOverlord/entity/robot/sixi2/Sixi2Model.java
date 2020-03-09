@@ -4,20 +4,12 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
 
 public abstract class Sixi2Model extends DHRobot {	
-	double ELBOW_TO_ULNA_Y = -28.805;
-	double ELBOW_TO_ULNA_Z = 4.7201;
-	double ULNA_TO_WRIST_Y = -11.800;
-	double ULNA_TO_WRIST_Z = 0;
-	double ELBOW_TO_WRIST_Y = ELBOW_TO_ULNA_Y + ULNA_TO_WRIST_Y;  //-40.605
-	double ELBOW_TO_WRIST_Z = ELBOW_TO_ULNA_Z + ULNA_TO_WRIST_Z;  // 4.7201
-	//double WRIST_TO_HAND = 8.9527;
-
 	// last known state
-	
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;
 	protected int gMode=0;
@@ -29,7 +21,7 @@ public abstract class Sixi2Model extends DHRobot {
 		super();
 		setName("Sixi2Model");
 		
-		feedRate=5;
+		feedRate=25;
 		acceleration=20;
 		
 		this.setIKSolver(new DHIKSolver_RTTRTR());
@@ -43,7 +35,7 @@ public abstract class Sixi2Model extends DHRobot {
 		
 		// pan shoulder
 		links.get(0).setD(188.452/10+0.9);
-		links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(0).flags = LinkAdjust.THETA;
 		links.get(0).setRange(-120, 120);
 		links.get(0).setLetter("X");
 		links.get(0).setFilename("/Sixi2/shoulder.stl");
@@ -52,7 +44,7 @@ public abstract class Sixi2Model extends DHRobot {
 	
 		// tilt shoulder
 		links.get(1).setTheta(90);
-		links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(1).flags = LinkAdjust.ALPHA;
 		links.get(1).setRangeMin(-72);
 		links.get(1).setLetter("Y");
 		links.get(1).setFilename("/Sixi2/bicep.stl");
@@ -61,7 +53,7 @@ public abstract class Sixi2Model extends DHRobot {
 	
 		// tilt elbow
 		links.get(2).setD(357.96/10);
-		links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(2).flags = LinkAdjust.ALPHA;
 		links.get(2).setRange(-83.369, 86);
 		links.get(2).setLetter("Z");
 		links.get(2).setFilename("/Sixi2/forearm.stl");
@@ -71,11 +63,11 @@ public abstract class Sixi2Model extends DHRobot {
 		// interim point
 		links.get(3).setD(64.259/10);
 		links.get(3).setAlpha(90);
-		links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(3).flags = LinkAdjust.NONE;
 		
 		// roll ulna
 		links.get(4).setD(293.55/10);
-		links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(4).flags = LinkAdjust.THETA;
 		links.get(4).setRange(-175, 175);
 		links.get(4).setLetter("U");
 		links.get(4).setFilename("/Sixi2/tuningFork.stl");
@@ -85,7 +77,7 @@ public abstract class Sixi2Model extends DHRobot {
 		// tilt picassobox
 		links.get(5).setD(93.50/10);
 		links.get(5).setAlpha(25);
-		links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		links.get(5).flags = LinkAdjust.ALPHA;
 		links.get(5).setRange(-120, 125);
 		links.get(5).setLetter("V");
 		links.get(5).setFilename("/Sixi2/picassoBox.stl");
@@ -94,14 +86,14 @@ public abstract class Sixi2Model extends DHRobot {
 	
 		// roll hand
 		links.get(6).setD(57.95/10);
-		links.get(6).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(6).flags = LinkAdjust.THETA;
 		links.get(6).setRange(-180, 180);
 		links.get(6).setLetter("W");
 		links.get(6).setFilename("/Sixi2/hand.stl");
 		links.get(6).setModelOrigin(0,(-188.452-357.96-64.259)/10,(-293.55-93.50-57.95)/10);
 		links.get(6).setModelRotation(new Vector3d(180,0,180));
 		
-		links.get(7).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		links.get(7).flags = LinkAdjust.NONE;
 
 		setModelScale(0.1f);
 		for( DHLink link : links ) {

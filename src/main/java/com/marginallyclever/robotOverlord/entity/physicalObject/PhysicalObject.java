@@ -67,7 +67,7 @@ public abstract class PhysicalObject extends Entity {
 			drawLocalOrigin(gl2);
 			drawConnectionToChildren(gl2);
 			
-			// draw children
+			// draw children relative to parent
 			super.render(gl2);
 			
 		gl2.glPopMatrix();
@@ -194,27 +194,27 @@ public abstract class PhysicalObject extends Entity {
 	}
 
 	
-	public boolean isShouldDrawBoundingBox() {
+	public boolean shouldDrawBoundingBox() {
 		return shouldDrawBoundingBox;
 	}
 
-	public void setShouldDrawBoundingBox(boolean shouldDrawBoundingBox) {
+	public void setDrawBoundingBox(boolean shouldDrawBoundingBox) {
 		this.shouldDrawBoundingBox = shouldDrawBoundingBox;
 	}
 
-	public boolean isShouldDrawLocalOrigin() {
+	public boolean shouldDrawLocalOrigin() {
 		return shouldDrawLocalOrigin;
 	}
 
-	public void setShouldDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
+	public void setDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
 		this.shouldDrawLocalOrigin = shouldDrawLocalOrigin;
 	}
 
-	public boolean isShouldDrawConnectionToChildren() {
+	public boolean shouldDrawConnectionToChildren() {
 		return shouldDrawConnectionToChildren;
 	}
 
-	public void setShouldDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
+	public void setDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
 		this.shouldDrawConnectionToChildren = shouldDrawConnectionToChildren;
 	}
 

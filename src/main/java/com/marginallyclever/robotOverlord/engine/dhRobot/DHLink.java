@@ -1,10 +1,12 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 
 /**
@@ -25,33 +27,53 @@ public class DHLink extends ModelInWorld {
 	// computed matrix based on the D-H parameters
 	public Matrix4d poseCumulative;
 	
+	public enum LinkAdjust {
+		NONE (0   ,"NONE" ),
+		D    (1   ,"D"    ),
+		THETA(1<<2,"THETA"),
+		R    (1<<3,"R"    ),
+		ALPHA(1<<4,"ALPHA");
+		
+		private int modeNumber;
+		private String modeName;
+		private LinkAdjust(int n,String s) {
+			modeNumber=n;
+			modeName=s;
+		}
+		public int toInt() {
+			return modeNumber;
+		}
+		public String toString() {
+			return modeName;
+		}
+	};
+	
+	// Any combination of the READ_ONLY_* flags, used to control the GUI.
+	public LinkAdjust flags;
+	
+	// the gcode letter representing this link
+	protected String letter="";
+	
+	protected transient DHLinkPanel linkPanel;
+
+	// Changes visual quality of angle range curve.  Must be a whole number >=2
+	// TODO should be in the view, not the model.
+	public final static double ANGLE_RANGE_STEPS=20;
+	
+	
 	// dynamics are described in a 4x4 matrix
 	//     [ Ixx Ixy Ixz } XgM ]
 	// J = [ Iyx Iyy Iyz } YgM ]
 	//     [ Izx Izy Izz } ZgM ]
 	//     [ XgM YgM ZgM }  M  ]
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
-	public Matrix4d inertia;
-	
-	// Any combination of the READ_ONLY_* flags, used to control the GUI.
-	public int flags;
-	
-	public final static int READ_ONLY_D		= 1;
-	public final static int READ_ONLY_THETA	= 1<<1;
-	public final static int READ_ONLY_R		= 1<<2;
-	public final static int READ_ONLY_ALPHA	= 1<<3;
+	public Matrix4d inertia;	// not used yet
 	
 	protected double rangeMin,rangeMax;
 	
 	public double maxVelocity;	// not used yet
 	public double maxAcceleration;	// not used yet
 	public double maxTorque;	// not used yet
-
-	// Changes visual quality of angle range curve.  Must be a whole number >=2
-	public final static double ANGLE_RANGE_STEPS=20;
-	
-	// the gcode letter representing this link
-	protected String letter="";
 
 	
 	public DHLink() {
@@ -61,7 +83,7 @@ public class DHLink extends ModelInWorld {
 		poseCumulative = new Matrix4d();
 		inertia = new Matrix4d();
 		
-		flags=0;
+		flags=LinkAdjust.NONE;
 		d=0;
 		theta=0;
 		r=0;
@@ -104,6 +126,18 @@ public class DHLink extends ModelInWorld {
 		maxTorque=arg0.maxTorque;
 	}
 	
+
+	@Override
+	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanel(gui);
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		linkPanel = new DHLinkPanel(gui,this);
+		list.add(linkPanel);
+		
+		return list;
+	}
+	
 	/**
 	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
 	 */
@@ -122,40 +156,17 @@ public class DHLink extends ModelInWorld {
 		pose.m20 = 0;		pose.m21 = sa;			pose.m22 = ca;			pose.m23 = d;
 		pose.m30 = 0;		pose.m31 = 0;			pose.m32 = 0;			pose.m33 = 1;
 	}
-
-	/**
-	 * Render the "bone" for one link in a D-H chain.  
-	 * Changes the current render matrix!  Clean up after yourself!  
-	 * @param gl2 the render context
-	 */
-	public void renderBones(GL2 gl2) {
-		MatrixHelper.drawMatrix(gl2, 
-				new Vector3d(0,0,0),
-				new Vector3d(1,0,0),
-				new Vector3d(0,1,0),
-				new Vector3d(0,0,1));
-
-		gl2.glPushMatrix();
-			gl2.glRotated(theta,0,0,1);
-			gl2.glColor3f(1, 0, 0);  // red
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			gl2.glVertex3d(0, 0, 0);
-			gl2.glVertex3d(0, 0, d);
-			gl2.glVertex3d(r, 0, d);
-			gl2.glEnd();
-		gl2.glPopMatrix();
-	}
 	
 	@Override
 	public void render(GL2 gl2) {
 		// change material property here to color by range
 
-		//float [] diffuse = material.getDiffuseColor();
-		//setAngleColorByRange(gl2);
+		float [] diffuse = material.getDiffuseColor();
+		setAngleColorByRange(gl2);
 		
 		super.render(gl2);
 		
-		//material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
+		material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 	}
 	
 	/**
@@ -172,7 +183,7 @@ public class DHLink extends ModelInWorld {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
 		gl2.glColor3f(0, 0, 0);
-		if((flags & READ_ONLY_THETA)==0) {
+		if(flags == LinkAdjust.THETA) {
 			// display the curve around z (in the xy plane)
 			gl2.glPushMatrix();
 			gl2.glTranslated(0, 0, d);
@@ -204,7 +215,7 @@ public class DHLink extends ModelInWorld {
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
-		if((flags & READ_ONLY_D)==0) {
+		if(flags == LinkAdjust.D) {
 			// display the prismatic nature of d
 			gl2.glPushMatrix();
 			gl2.glBegin(GL2.GL_LINES);
@@ -219,7 +230,7 @@ public class DHLink extends ModelInWorld {
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
-		if((flags & READ_ONLY_ALPHA)==0) {
+		if(flags == LinkAdjust.ALPHA) {
 			// display the curve around x (in the yz plane)
 			gl2.glPushMatrix();
 			gl2.glTranslated(r, 0, d);
@@ -258,7 +269,7 @@ public class DHLink extends ModelInWorld {
 			gl2.glEnd();*/
 			gl2.glPopMatrix();
 		}
-		if((flags & READ_ONLY_R)==0) {
+		if(flags == LinkAdjust.R) {
 			// display the prismatic nature of r
 			gl2.glPushMatrix();
 			gl2.glTranslated(0, 0, d);
@@ -284,7 +295,7 @@ public class DHLink extends ModelInWorld {
 	 */
 	public void setAngleColorByRange(GL2 gl2) {
 		double a=0;
-		if((flags & READ_ONLY_THETA)==0) a=theta;
+		if(flags == LinkAdjust.THETA) a=theta;
 		else a=alpha;
 		
 		double halfRange = (rangeMax-rangeMin)/2;
@@ -304,17 +315,20 @@ public class DHLink extends ModelInWorld {
 	}
 	
 	public boolean hasAdjustableValue() {
-		return flags != (READ_ONLY_D | READ_ONLY_R | READ_ONLY_THETA | READ_ONLY_ALPHA );
+		return flags != LinkAdjust.NONE;
 	}
 	
 	/**
 	 * In any DHLink there should only be one parameter that changes in value.  Return that value.
 	 */
 	public double getAdjustableValue() {
-		if((flags & READ_ONLY_D    )==0) return getD();
-		if((flags & READ_ONLY_THETA)==0) return getTheta();
-		if((flags & READ_ONLY_R    )==0) return getR();
-		return getAlpha();
+		switch(flags) {
+		case D    :  return getD();
+		case R    :  return getR();
+		case THETA:  return getTheta();
+		case ALPHA:  return getAlpha();
+		default   :  return 0;
+		}
 	}
 	
 	/**
@@ -323,10 +337,13 @@ public class DHLink extends ModelInWorld {
 	public void setAdjustableValue(double v) {
 		//System.out.println("Adjust begins");
 		v = Math.max(Math.min(v, rangeMax), rangeMin);
-		if((flags & READ_ONLY_D    )==0) setD(v);
-		if((flags & READ_ONLY_THETA)==0) setTheta(v);
-		if((flags & READ_ONLY_R    )==0) setR(v);
-		if((flags & READ_ONLY_ALPHA)==0) setAlpha(v);
+		switch(flags) {
+		case D    :  setD    (v);  break;
+		case THETA:  setTheta(v);  break;
+		case R    :  setR    (v);  break;
+		case ALPHA:  setAlpha(v);  break;
+		default   :  break;
+		}
 		//System.out.println("Adjust ends");
 	}
 
@@ -407,6 +424,8 @@ public class DHLink extends ModelInWorld {
 
 	public void setLetter(String letter) {
 		this.letter = letter;
+		
+		this.setName("DHLink "+letter);
 	}
 	public String getLetter() {
 		return letter;

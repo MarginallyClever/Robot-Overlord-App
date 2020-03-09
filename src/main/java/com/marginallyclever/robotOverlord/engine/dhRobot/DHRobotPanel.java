@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -51,12 +50,11 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 
 	public UserCommandSelectNumber numLinks;
 	public ArrayList<DHLinkPanel> linkPanels;
-	public JLabel activeTool;
-	public JButton buttonSetTool;
 	
-	public JCheckBox showBones;
-	public JCheckBox showAngles;
-	public JCheckBox showPhysics;
+	// select a tool for the sim.  later this may be open/close ATC.
+	public JButton buttonSetTool;
+	// placeholder for the active tool's panel.
+	public JPanel activeTool;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
 	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
@@ -66,42 +64,39 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public DHRobotPanel(RobotOverlord gui,DHRobot robot) {
 		this.robot = robot;
 		this.ro = gui;
-		linkPanels = new ArrayList<DHLinkPanel>();
+		this.setName("DHRobot");
 		
 		buildPanel();
 	}
 	
 	protected void buildPanel() {
 		this.removeAll();
-
-		this.setName("DHRobot");
+		
+		linkPanels = new ArrayList<DHLinkPanel>();
+		
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-
-		//this.add(numLinks = new UserCommandSelectNumber(gui,"# links",robot.links.size()),con1);
-		//con1.gridy++;
-		//numLinks.addChangeListener(this);
 		
 		SpringLayout layout = new SpringLayout();
 		JPanel linkContents = new JPanel(layout);
 		linkContents.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		int k=0;
-		Iterator<DHLink> i = robot.links.iterator();
-		while(i.hasNext()) {
-			DHLink link = i.next();
+		for( DHLink link : robot.links ) {
 			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
 			linkPanels.add(e);
 
-			if((link.flags & DHLink.READ_ONLY_D		)==0) {	linkContents.add(e.d    );	linkContents.add(e.valueD    );	e.d    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_THETA	)==0) {	linkContents.add(e.theta);	linkContents.add(e.valueTheta);	e.theta.addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_R		)==0) {	linkContents.add(e.r    );	linkContents.add(e.valueR    );	e.r    .addChangeListener(this);	}
-			if((link.flags & DHLink.READ_ONLY_ALPHA	)==0) {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}
+			switch(link.flags) {
+			case D	  : {	linkContents.add(e.d    );	linkContents.add(e.valueD    );	e.d    .addChangeListener(this);	}  break;
+			case THETA: {	linkContents.add(e.theta);	linkContents.add(e.valueTheta);	e.theta.addChangeListener(this);	}  break;
+			case R	  : {	linkContents.add(e.r    );	linkContents.add(e.valueR    );	e.r    .addChangeListener(this);	}  break;
+			case ALPHA: {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}  break;
+			default: break;
+			}
 		}
 		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
 		this.add(linkContents,con1);
-		con1.gridy++;
 
 		layout = new SpringLayout();
 		linkContents = new JPanel(layout);
@@ -112,24 +107,17 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		linkContents.add(valuery=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		linkContents.add(valuerz=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
+		con1.gridy++;
 		this.add(linkContents,con1);
-		con1.gridy++;
 		
-		this.add(showBones=new JCheckBox(),con1);
-		showBones.setText("Show D-H bones");
-		showBones.addItemListener(this);
-		showBones.setSelected(robot.isShowBones());
+
 		con1.gridy++;
-		
-		this.add(showPhysics=new JCheckBox(),con1);
-		showPhysics.setText("Show physics model");
-		showPhysics.addItemListener(this);
-		showPhysics.setSelected(robot.isShowPhysics());
-		con1.gridy++;
-		
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 		this.add(buttonSetTool=new JButton("Set tool"), con1);
 		buttonSetTool.addActionListener(this);
+		
+		con1.gridy++;
+		this.add(activeTool=new JPanel(),con1);
 
 		PanelHelper.ExpandLastChild(this, con1);
 		
@@ -213,10 +201,13 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		while(i.hasNext()) {
 			DHLink link = robot.getLink(j++);
 			DHLinkPanel linkPanel = i.next();
-			if((linkPanel.link.flags & DHLink.READ_ONLY_D		)==0) linkPanel.valueD    .setText(StringHelper.formatDouble(link.getD()		));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_THETA	)==0) linkPanel.valueTheta.setText(StringHelper.formatDouble(link.getTheta()	));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_R		)==0) linkPanel.valueR    .setText(StringHelper.formatDouble(link.getR()		));
-			if((linkPanel.link.flags & DHLink.READ_ONLY_ALPHA	)==0) linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.getAlpha()	));
+			switch(linkPanel.link.flags) {
+			case D		: linkPanel.valueD    .setText(StringHelper.formatDouble(link.getD()	));  break;
+			case THETA	: linkPanel.valueTheta.setText(StringHelper.formatDouble(link.getTheta()));  break;
+			case R		: linkPanel.valueR    .setText(StringHelper.formatDouble(link.getR()	));  break;
+			case ALPHA	: linkPanel.valueAlpha.setText(StringHelper.formatDouble(link.getAlpha()));  break;
+			default: break;
+			}
 		}
 	}
 		
@@ -292,30 +283,13 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 * Called by the robot to update the panel status
 	 */
 	public void updateActiveTool(DHTool arg0) {
-		String name = (arg0==null) ? "null" : arg0.getName();
-		activeTool.setText("Tool="+name);
+		activeTool.removeAll();
+		activeTool.add(arg0.getAllContextPanels(ro));
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		// for checkboxes
-		Object source = e.getItemSelectable();
-		if(source == showPhysics) {
-			robot.setShowPhysics(((JCheckBox)source).isSelected());
-		}
-		if(source == showBones) {
-			robot.setShowBones(((JCheckBox)source).isSelected());
-		}
-		if(source == showAngles) {
-			robot.setShowAngles(((JCheckBox)source).isSelected());
-		}
-	}
-
-	public void setShowBones(boolean arg0) {
-		showBones.setSelected(arg0);
-	}
-
-	public void setShowPhysics(boolean arg0) {
-		showPhysics.setSelected(arg0);
+		//Object source = e.getItemSelectable();
 	}
 }

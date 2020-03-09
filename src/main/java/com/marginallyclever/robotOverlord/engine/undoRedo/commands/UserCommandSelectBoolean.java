@@ -2,14 +2,15 @@ package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
@@ -23,7 +24,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableAction
  * @author Dan Royer
  *
  */
-public class UserCommandSelectBoolean extends JPanel implements ActionListener {
+public class UserCommandSelectBoolean extends JPanel implements ItemListener {
 	/**
 	 * 
 	 */
@@ -46,17 +47,18 @@ public class UserCommandSelectBoolean extends JPanel implements ActionListener {
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
-		JLabel label=new JLabel(labelName,JLabel.LEFT);
+		JLabel label=new JLabel(labelName,SwingConstants.LEFT);
 	
 		checkboxField = new JCheckBox();
-		checkboxField.setSelected(defaultValue);
-		checkboxField.addActionListener(this);
 		label.setLabelFor(checkboxField);
+		checkboxField.setSelected(defaultValue);
+		checkboxField.addItemListener(this);
 		
-		this.add(label,con1);
-		con1.gridy++;
 		this.add(checkboxField,con1);
-		con1.gridy++;
+		con1.gridx++;
+		con1.weightx=1;
+		con1.anchor=GridBagConstraints.NORTHWEST;
+		this.add(label,con1);
 	}
 	
 	public boolean getValue() {
@@ -90,11 +92,12 @@ public class UserCommandSelectBoolean extends JPanel implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void itemStateChanged(ItemEvent arg0) {
 		boolean newValue = checkboxField.isSelected();
-		if(newValue == value) {
+		if(newValue!=value) {
+			allowSetText=false;
 			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectBoolean(this, label, newValue) ) );
+			allowSetText=true;
 		}
-		
 	}
 }

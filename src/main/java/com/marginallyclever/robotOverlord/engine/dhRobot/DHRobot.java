@@ -2,11 +2,10 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -21,6 +20,7 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 public class DHRobot extends ModelInWorld {
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links;
+	
 	// The solver for this type of robot
 	protected transient DHIKSolver solver;
 
@@ -33,12 +33,6 @@ public class DHRobot extends ModelInWorld {
 	// the GUI panel for controlling this robot.
 	protected DHRobotPanel panel;
 	protected boolean disablePanel;
-
-	protected boolean showBones; // show D-H representation of each link
-	protected boolean showPhysics; // show bounding boxes of each link
-	protected boolean showAngles; // show current angle and limit of each link
-	
-	protected int hitBox1, hitBox2; // display which hitboxes are colliding
 
 	public Material material;
 	
@@ -65,12 +59,7 @@ public class DHRobot extends ModelInWorld {
 		
 		material = new Material();
 		disablePanel = false;
-		setShowBones(false);
-		setShowPhysics(false);
-		setShowAngles(false);
 
-		hitBox1 = -1;
-		hitBox2 = -1;
 	}
 
 	public void set(DHRobot b) {
@@ -89,12 +78,6 @@ public class DHRobot extends ModelInWorld {
 		dhTool.set(b.dhTool);
 
 		disablePanel = b.disablePanel;
-		showBones = b.showBones;
-		showPhysics = b.showPhysics;
-		showAngles = b.showAngles;
-		
-		hitBox1 = b.hitBox1;
-		hitBox2 = b.hitBox2;
 		
 		refreshPose();
 	}
@@ -156,20 +139,42 @@ public class DHRobot extends ModelInWorld {
 	/**
 	 * Adjust the number of links in this robot
 	 * 
-	 * @param newSize must be greater than 0
+	 * @param newSize must be >= 0
 	 */
 	public void setNumLinks(int newSize) {
-		if (newSize < 1)
-			newSize = 1;
+		if(newSize < 0) newSize = 0;
 
 		links.clear();
+		
+		// count the number of existing children.
 		Entity prev=this;
-		for(int s = 0; s < newSize;++s) {
-			DHLink newLink = new DHLink();
-			prev.addChild(newLink);
-			links.add(newLink);
-			prev=newLink;
+		int s=0;
+		while(prev.getChildren().size()>0 && s<newSize) {
+			boolean found=true;
+			for( Entity c : prev.getChildren() ) {
+				if(c instanceof DHLink ) {
+					links.add((DHLink)c);
+					prev=c;
+					++s;
+					found=true;
+					break;
+				}
+			}
+			// in case there are children but none are DHLinks
+			if(found==false) break;
 		}
+
+		// if the number is too low, add more.
+		while(s<newSize) {
+			DHLink newLink = new DHLink();
+			links.add(newLink);
+			prev.addChild(newLink);
+			prev = newLink;
+			++s;
+		}
+		
+		// if the number is too high, delete the remaining children.
+		prev.getChildren().clear();
 	}
 
 	// the tool should be the child of the last link in the chain
@@ -210,39 +215,35 @@ public class DHRobot extends ModelInWorld {
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
 	 */
-	public boolean collidesWithSelf(DHKeyframe keyframe) {
-		// create a clone of the robot
-		DHRobot clone = new DHRobot(this);
+	public boolean collidesWithSelf(DHKeyframe futureKey) {
+		DHKeyframe originalKey = solver.createDHKeyframe();
+		getPoseFK(originalKey);
 		// move the clone to the keyframe pose
-		clone.setPoseFK(keyframe);
+		setPoseFK(futureKey);
 		
-		// check for collisions
-
-		hitBox1 = -1;
-		hitBox2 = -1;
-
-		int size = clone.links.size();
+		int size = links.size();
 		for (int i = 0; i < size; ++i) {
-			if (clone.links.get(i).getModel() == null)
+			if (links.get(i).getModel() == null)
 				continue;
 
-			for (int j = i + 3; j < size; ++j) {
-				if (clone.links.get(j).getModel() == null)
+			for (int j = i + 2; j < size; ++j) {
+				if (links.get(j).getModel() == null)
 					continue;
 
 				if (IntersectionTester.cuboidCuboid(
-						clone.links.get(i).getCuboid(),
-						clone.links.get(j).getCuboid())) {
+						links.get(i).getCuboid(),
+						links.get(j).getCuboid())) {
 						System.out.println("Self collision between "+
-									i+":"+clone.links.get(i).getName()+" and "+
-									j+":"+clone.links.get(j).getName());
-					hitBox1 = i;
-					hitBox2 = j;
+									i+":"+links.get(i).getName()+" and "+
+									j+":"+links.get(j).getName());
+
+					setPoseFK(originalKey);
 					return true;
 				}
 			}
 		}
 
+		setPoseFK(originalKey);
 		return false;
 	}
 
@@ -257,7 +258,6 @@ public class DHRobot extends ModelInWorld {
 		if( this.parent == null ) {
 			return false;
 		}
-
 		
 		// create a clone of the robot
 		DHKeyframe originalKey = solver.createDHKeyframe();
@@ -278,37 +278,12 @@ public class DHRobot extends ModelInWorld {
 	 * @return
 	 */
 	public boolean keyframeAnglesAreOK(DHKeyframe keyframe) {
-		Iterator<DHLink> i = links.iterator();
 		int j = 0;
-		while (i.hasNext()) {
-			DHLink link = i.next();
-			if ((link.flags & DHLink.READ_ONLY_THETA) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK theta " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
-			}
-			if ((link.flags & DHLink.READ_ONLY_D) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK D " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
-			}
-			if ((link.flags & DHLink.READ_ONLY_ALPHA) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK alpha " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
-			}
-			if ((link.flags & DHLink.READ_ONLY_R) == 0) {
-				double v = keyframe.fkValues[j++];
-				if (link.rangeMax < v || link.rangeMin > v) {
-					System.out.println("FK R " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
-					return false;
-				}
+		for( DHLink link : links ) {
+			if(link.flags == LinkAdjust.NONE) continue;
+			double v = keyframe.fkValues[j++];
+			if (link.rangeMax < v || link.rangeMin > v) {
+				System.out.println("FK " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 			}
 		}
 
@@ -341,7 +316,8 @@ public class DHRobot extends ModelInWorld {
 
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
-	 * 
+	 * This method is used by others to verify for collisions, so this method
+	 * cannot verify collisions itself.
 	 * @param keyframe
 	 */
 	public void setPoseFK(DHKeyframe keyframe) {
@@ -376,34 +352,6 @@ public class DHRobot extends ModelInWorld {
 				keyframe.fkValues[j++] = link.getAdjustableValue();
 			}
 		}
-	}
-	
-	public boolean isShowBones() {
-		return showBones;
-	}
-
-	public void setShowBones(boolean arg0) {
-		this.showBones = arg0;
-		if (panel != null)
-			panel.setShowBones(arg0);
-	}
-
-	public boolean isShowPhysics() {
-		return showPhysics;
-	}
-
-	public void setShowPhysics(boolean arg0) {
-		this.showPhysics = arg0;
-		if (panel != null)
-			panel.setShowPhysics(arg0);
-	}
-
-	public void setShowAngles(boolean arg0) {
-		showAngles = arg0;
-	}
-
-	public boolean isShowAngles() {
-		return showAngles;
 	}
 
 	public int getNumLinks() {

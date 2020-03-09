@@ -34,6 +34,8 @@ public class Material extends Entity {
 	
 	
 	public Material() {
+		super();
+		this.setName("Material");
 		textureDirty=true;
 	}
 	
@@ -50,12 +52,12 @@ public class Material extends Entity {
 	
 	public void render(GL2 gl2) {
 		gl2.glColor4f(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
-		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, diffuse,0);
-	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, specular,0);
-	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
-	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT, ambient,0);
-	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, shininess);
-	    gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT_AND_DIFFUSE );
+		gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, diffuse,0);
+	    gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, specular,0);
+	    gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emission,0);
+	    gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, ambient,0);
+	    gl2.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, shininess);
+	    gl2.glColorMaterial(GL2.GL_FRONT,GL2.GL_AMBIENT_AND_DIFFUSE );
 	    
 	    boolean isColorEnabled = gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
@@ -88,8 +90,8 @@ public class Material extends Entity {
 	
 
 	public void setShininess(float arg0) {
-		if(arg0>128) arg0=128;
-		if(arg0<0) arg0=0;
+		arg0 = Math.max(arg0, 0);
+		arg0 = Math.min(arg0, 128);
 		shininess = arg0;
 	}
 	public float getShininess() {

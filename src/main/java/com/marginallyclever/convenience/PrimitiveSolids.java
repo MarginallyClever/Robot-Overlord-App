@@ -1,4 +1,6 @@
 package com.marginallyclever.convenience;
+import java.nio.IntBuffer;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
@@ -239,8 +241,12 @@ public class PrimitiveSolids {
 		// save the lighting mode
 		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
-		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
+
+		IntBuffer depthFunc = IntBuffer.allocate(1);
+		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
+		gl2.glDepthFunc(GL2.GL_ALWAYS);
+		//boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		//gl2.glDisable(GL2.GL_DEPTH_TEST);
 
 		size/=2.0f;
 		
@@ -252,10 +258,14 @@ public class PrimitiveSolids {
 		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, 0, size);
 		gl2.glEnd();
 		gl2.glPopMatrix();
+
+		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		gl2.glDepthFunc(depthFunc.get());
 		
 		// restore lighting
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
-		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		
+		
 		// restore color
 		gl2.glColor4dv(params,0);
 	}
@@ -280,7 +290,7 @@ public class PrimitiveSolids {
 	 * @param grid_space the distance between lines on the grid.
 	 */
 	static public void drawGrid(GL2 gl2,int gridWidth,int gridHeight,int grid_space) {
-		gl2.glNormal3f(0,0,0);
+		gl2.glNormal3f(0,0,1);
 
 		//boolean isBlend = gl2.glIsEnabled(GL2.GL_BLEND);
 	    //gl2.glEnable(GL2.GL_BLEND);
@@ -301,8 +311,8 @@ public class PrimitiveSolids {
 		}
 		for(int i=-gridHeight;i<=gridHeight;i+=grid_space) {
 			gl2.glColor4f(0.2f,0.2f,0.2f,start);	gl2.glVertex2f(-gridWidth,i);
-			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f( 0         ,i);
-			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f( 0         ,i);
+			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f( 0        ,i);
+			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f( 0        ,i);
 			gl2.glColor4f(0.2f,0.2f,0.2f,start);	gl2.glVertex2f( gridWidth,i);
 		}
 		gl2.glEnd();

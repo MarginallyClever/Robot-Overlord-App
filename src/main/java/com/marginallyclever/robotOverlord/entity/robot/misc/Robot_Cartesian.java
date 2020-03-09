@@ -4,7 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_Cartesian;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -35,7 +35,7 @@ public class Robot_Cartesian extends Robot {
 	protected void setupLinks(DHRobot robot) {
 		robot.setNumLinks(4);
 		// roll
-		robot.links.get(0).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
+		robot.links.get(0).flags = LinkAdjust.D;
 		robot.links.get(0).setRangeMin(0);
 		robot.links.get(0).setRangeMax(25);
 		robot.links.get(0).setTheta(90);
@@ -46,17 +46,17 @@ public class Robot_Cartesian extends Robot {
 		// tilt
 		robot.links.get(1).setAlpha(90);
 		robot.links.get(1).setTheta(-90);
-		robot.links.get(1).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
+		robot.links.get(1).flags = LinkAdjust.D;
 		robot.links.get(1).setRangeMin(0);
 		robot.links.get(1).setRangeMax(21);
 		// tilt
 		robot.links.get(2).setAlpha(90);
 		robot.links.get(2).setTheta(90);
-		robot.links.get(2).flags = DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA | DHLink.READ_ONLY_THETA;
+		robot.links.get(2).flags = LinkAdjust.D;
 		robot.links.get(2).setRangeMin(0+8.422);
 		robot.links.get(2).setRangeMax(21+8.422);
 		
-		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).flags = LinkAdjust.NONE;
 
 		
 		robot.refreshPose();

@@ -21,31 +21,13 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	// comms	
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
-
-	// sending file to the robot
-	private boolean running;
-	private boolean paused;
-	private long linesProcessed;
-	private ArrayList<String> gcode;
-
-	protected transient boolean isModelLoaded;
 	
 	protected transient RobotPanel robotPanel=null;
 	
 	
 	public Robot() {
 		super();
-		isReadyToReceive=false;
-		linesProcessed=0;
-		paused=true;
-		running=false;
-		isModelLoaded=false;
 	}
-	
-
-	public boolean isRunning() { return running; }
-	public boolean isPaused() { return paused; }
-	
 	
 	@Override
 	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
@@ -84,78 +66,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			}
 		}
 		
-		if(isReadyToReceive) {
-			sendFileCommand();
-		}
-		
 		System.out.print(AnsiColors.GREEN+data+AnsiColors.RESET);
-	}
-	
-	
-	
-	/**
-	 * Take the next line from the file and send it to the robot, if permitted. 
-	 */
-	@Deprecated
-	public void sendFileCommand() {
-		if(!running || paused || linesProcessed>=gcode.size()) return;
-		
-		String line;
-		do {			
-			// are there any more commands?
-			line=gcode.get((int)linesProcessed++).trim();
-			//previewPane.setLinesProcessed(linesProcessed);
-			//statusBar.SetProgress(linesProcessed, gcode.size());
-			// loop until we find a line that gets sent to the robot, at which point we'll
-			// pause for the robot to respond.  Also stop at end of file.
-		} while(!sendCommand(line) && linesProcessed<gcode.size());
-
-		isReadyToReceive=false;
-		
-		if(linesProcessed==gcode.size()) {
-			// end of file
-			halt();
-		}
-	}
-
-	
-	/**
-	 * Stop sending commands to the robot.
-	 */
-	@Deprecated
-	public void halt() {
-		// TODO add an e-stop command?
-		running=false;
-		paused=false;
-	    linesProcessed=0;
-	}
-
-	@Deprecated
-	public void start() {
-		paused=false;
-		running=true;
-		sendFileCommand();
-	}
-
-	@Deprecated
-	public void startAt(int lineNumber) {
-		if(!running) {
-			linesProcessed=lineNumber;
-			start();
-		}
-	}
-
-	@Deprecated
-	public void pause() {
-		if(running) {
-			if(paused) {
-				paused=false;
-				// TODO: if the robot is not ready to unpause, this might fail and the program would appear to hang.
-				sendFileCommand();
-			} else {
-				paused=true;
-			}
-		}
 	}
 	
 	/**
@@ -163,7 +74,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
-	public boolean sendCommand(String command) {/*
+	public boolean sendCommand(String command) {
 		if(connection==null) return false;
 
 		// contains a comment?  if so remove it
@@ -187,7 +98,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 			connection.sendMessage(command);
 		} catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 		
 		return true;
 	}
@@ -220,9 +131,6 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	 * @return an instance derived from RobotKeyframe
 	 */
 	public abstract RobotKeyframe createKeyframe();
-	
-	public void updatePose() {}
-	
 	
 	@Override
 	public void update(double dt) {

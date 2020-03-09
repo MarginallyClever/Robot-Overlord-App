@@ -4,7 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -43,31 +43,31 @@ public class Robot_UArm extends Robot {
 		// roll
 		robot.links.get(0).setD(2.4);
 		robot.links.get(0).setR(2.0728);
-		robot.links.get(0).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(0).flags = LinkAdjust.THETA;
 		robot.links.get(0).setRangeMin(-160);
 		robot.links.get(0).setRangeMax(160);
 		// tilt
 		robot.links.get(1).setD(9.5267-2.4);
 		robot.links.get(1).setTheta(90);
-		robot.links.get(1).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(1).flags = LinkAdjust.ALPHA;
 		robot.links.get(1).setRangeMin(-72);
 		// tilt
 		robot.links.get(2).setD(14.8004);
-		robot.links.get(2).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R;
+		robot.links.get(2).flags = LinkAdjust.ALPHA;
 		robot.links.get(2).setRangeMin(-10);
 		robot.links.get(2).setRangeMax(150);
 		
 		// interim point
 		robot.links.get(3).setD(16.0136);
-		robot.links.get(3).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(3).flags = LinkAdjust.NONE;
 		// end effector
 		robot.links.get(4).setD(3.545);
 		robot.links.get(4).setTheta(-90);
 		robot.links.get(4).setR(1);
-		robot.links.get(4).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_R | DHLink.READ_ONLY_THETA;
+		robot.links.get(4).flags = LinkAdjust.ALPHA;
 
 		robot.links.get(5).setR(4);
-		robot.links.get(5).flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA | DHLink.READ_ONLY_R | DHLink.READ_ONLY_ALPHA;
+		robot.links.get(5).flags = LinkAdjust.NONE;
 	}
 	
 	public void setupModels(DHRobot robot) {

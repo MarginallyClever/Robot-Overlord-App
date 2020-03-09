@@ -2,25 +2,19 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
-
 /**
  * DHTool is a model that has a DHLink equivalence.
  * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
  *
  */
-public class DHTool extends DHLink {	
-	/**
-	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
-	 */
-	public PhysicalObject subjectBeingHeld;
-	
+public class DHTool extends DHLink {
+	// any child of this tool is either a sub-component of this tool or some world object being held by a gripper.
 	
 	public DHTool() {
 		rangeMin=0;
 		rangeMax=0;
-		flags = DHLink.READ_ONLY_D | DHLink.READ_ONLY_THETA |	DHLink.READ_ONLY_R	| DHLink.READ_ONLY_ALPHA;
+		flags = LinkAdjust.NONE;
 		refreshPoseMatrix();
 		setName("No Tool");
 	}
@@ -53,11 +47,11 @@ public class DHTool extends DHLink {
 		}
 	}
 
-	public String generateGCode() {
+	public String getCommand() {
 		return "";
 	}
 	
-	public void parseGCode(String str) {}
+	public void sendCommand(String str) {}
 	
 	public void interpolate(double dt) {}
 }

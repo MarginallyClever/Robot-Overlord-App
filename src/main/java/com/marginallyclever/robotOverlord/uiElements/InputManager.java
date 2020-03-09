@@ -239,6 +239,7 @@ public class InputManager {
         	if(!components[j].isAnalog()) {
         		// digital
     			if(components[j].getPollData()==1) {
+    				//System.out.println(components[j].getIdentifier().getName());
     				if(components[j].getIdentifier()==Identifier.Key.DELETE  ) keyState[Source.KEY_DELETE  .getValue()] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.RETURN  ) keyState[Source.KEY_RETURN  .getValue()] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.LSHIFT  ) keyState[Source.KEY_LSHIFT  .getValue()] = 1;

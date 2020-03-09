@@ -14,27 +14,19 @@ import com.jogamp.opengl.GL2;
  *
  */
 public class Cuboid extends BoundingVolume {
-	protected Matrix4d pose;  // relative to parent
-	protected Matrix4d poseWorld;  // relative to universe
-
-	protected Point3d boundTop;  // max limits
-	protected Point3d boundBottom;  // min limits
+	protected Matrix4d poseWorld = new Matrix4d();  // relative to universe
 	
-	public Point3d [] p;  // all 8 corners
-	protected boolean isDirty;
+	protected Point3d boundTop = new Point3d();  // max limits
+	protected Point3d boundBottom = new Point3d();  // min limits
+	
+	public Point3d [] p = new Point3d[8];  // all 8 corners
+	protected boolean isDirty=false;
 	
 	
 	public Cuboid() {
-		pose = new Matrix4d();
-		pose.setIdentity();
-		poseWorld = new Matrix4d();
+		super();
 		poseWorld.setIdentity();
-		boundTop = new Point3d();
-		boundBottom = new Point3d();
-
-		p = new Point3d[8];
-		for(int i=0;i<8;++i) p[i] = new Point3d();
-		isDirty=false;
+		for(int i=0;i<p.length;++i) p[i] = new Point3d();
 	}
 
 	public void set(Cuboid b) {
@@ -68,12 +60,12 @@ public class Cuboid extends BoundingVolume {
 	}
 
 	public void setBounds(Point3d boundTop, Point3d boundBottom) {
-		//if(!this.boundTop.epsilonEquals(boundTop, 1e-4)) 
+		if(!this.boundTop.epsilonEquals(boundTop, 1e-4)) 
 		{
 			this.boundTop.set(boundTop);
 			isDirty=true;
 		}
-		//if(!this.boundBottom.epsilonEquals(boundBottom, 1e-4))
+		if(!this.boundBottom.epsilonEquals(boundBottom, 1e-4))
 		{
 			this.boundBottom.set(boundBottom);
 			isDirty=true;
@@ -88,6 +80,7 @@ public class Cuboid extends BoundingVolume {
 		return boundBottom;
 	}
 	
+	// set pose relative to universe
 	public void setPoseWorld(Matrix4d m) {
 		if(!poseWorld.epsilonEquals(m, 1e-4)) {
 			poseWorld.set(m);
@@ -106,6 +99,7 @@ public class Cuboid extends BoundingVolume {
 			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 			gl2.glDisable(GL2.GL_LIGHTING);
 			
+			gl2.glColor3d(255,255,255);
 			PrimitiveSolids.drawBoxWireframe(gl2, getBoundsBottom(),getBoundsTop());
 	
 			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
