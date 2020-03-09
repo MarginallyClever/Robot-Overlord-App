@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.entity.robot.sixi2;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -68,8 +70,8 @@ public class Sixi2 extends Robot {
 
 	// are we live or simulated?
 	protected OperatingMode operatingMode=OperatingMode.SIM;
-	// are we trying to drive the robot live?
-	protected ControlMode controlMode=ControlMode.REAL_TIME;
+	// are we trying to record the robot?
+	protected ControlMode controlMode=ControlMode.RECORD;
 	
 	protected boolean singleBlock = false;
 	protected boolean cycleStart = false;
@@ -144,7 +146,7 @@ public class Sixi2 extends Robot {
 		gl2.glDepthFunc(GL2.GL_ALWAYS);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
-		if(isPicked && controlMode == ControlMode.REAL_TIME) {
+		if(isPicked && controlMode == ControlMode.RECORD) {
 			ball.render(gl2);
 		}
 		
@@ -177,7 +179,7 @@ public class Sixi2 extends Robot {
 		ball.update(dt);
 
 		// move the robot by dragging the ball in live mode
-		if(controlMode==ControlMode.REAL_TIME) {
+		if(controlMode==ControlMode.RECORD) {
 			if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
 				if(ball.isActivelyMoving()) {
 					Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
@@ -215,7 +217,7 @@ public class Sixi2 extends Robot {
 		if(InputManager.isOn(InputManager.Source.KEY_LSHIFT) || InputManager.isOn(InputManager.Source.KEY_RSHIFT)) {
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode==ControlMode.RECORD) {
+				if(controlMode==ControlMode.REAL_TIME) {
 					toggleCycleStart();
 				}
 			}
@@ -223,18 +225,18 @@ public class Sixi2 extends Robot {
 			// shift off
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode==ControlMode.REAL_TIME) {
+				if(controlMode==ControlMode.RECORD) {
 					System.out.println("setCommand");
-					recording.setCommand(sim.getCommand());
+					callSetCommand();
 				}
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_PLUS)) {
 				System.out.println("addCommand");
-				recording.addCommand(sim.getCommand());
+				callAddCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_DELETE)) {
 				System.out.println("deleteCurrentCommand");
-				recording.deleteCurrentCommand();
+				callDeleteCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_BACKSPACE)) {
 				System.out.println("deletePreviousCommand");
@@ -267,7 +269,7 @@ public class Sixi2 extends Robot {
 		
 		Sixi2Model activeModel = (operatingMode == OperatingMode.LIVE) ? live : sim;
 		if(activeModel.readyForCommands) {
-			if(controlMode == ControlMode.REAL_TIME) {
+			if(controlMode == ControlMode.RECORD) {
 				if( operatingMode == OperatingMode.LIVE) {
 					String line = sim.getCommand();
 					System.out.println("Send command: "+line);
@@ -338,7 +340,6 @@ public class Sixi2 extends Robot {
 		}
 		return message;
 	}
-
 
 	/**
 	 * @return a list of cuboids, or null.
@@ -420,7 +421,6 @@ public class Sixi2 extends Robot {
 		}
 	}
 
-
 	public void reset() {
 		recording.reset();
 		singleBlock = false;
@@ -467,11 +467,11 @@ public class Sixi2 extends Robot {
 	}
 
 	public void toggleControlMode() {
-		controlMode = (controlMode==ControlMode.REAL_TIME) ? ControlMode.RECORD : ControlMode.REAL_TIME;
+		controlMode = (controlMode==ControlMode.RECORD) ? ControlMode.REAL_TIME : ControlMode.RECORD;
 
-		System.out.println("controlMode="+(controlMode==ControlMode.REAL_TIME?"REAL_TIME":"RECORD"));
+		System.out.println("controlMode="+(controlMode==ControlMode.RECORD?"RECORD":"REAL_TIME"));
 		
-		if(controlMode==ControlMode.REAL_TIME) {
+		if(controlMode==ControlMode.RECORD) {
 			// move the joystick to match the simulated position?
 		}
 
@@ -490,6 +490,20 @@ public class Sixi2 extends Robot {
 		operatingMode = (operatingMode==OperatingMode.LIVE) ? OperatingMode.SIM : OperatingMode.LIVE;
 
 		System.out.println("operatingMode="+(operatingMode==OperatingMode.SIM?"SIM":"LIVE"));
+	}
+	
+	public DefaultListModel<String> callGetCommandsList() {
+		return recording.getCommandsList();
+	}
+	
+	public void callAddCommand() {
+		recording.addCommand(sim.getCommand());
+	}
+	public void callDeleteCommand() {
+		recording.deleteCurrentCommand();
+	}
+	public void callSetCommand() {
+		recording.setCommand(sim.getCommand());
 	}
 
 	public void loadRecording(String filename) {
