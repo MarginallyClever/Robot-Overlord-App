@@ -311,7 +311,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	 * @param panel
 	 * @param title
 	 */
-	@SuppressWarnings("unused")  // because of the layout settings below
 	public void setContextPanel(Entity e) {
 		Splitter masterPanel = new Splitter(JSplitPane.VERTICAL_SPLIT);
 		JPanel selectedEntityPanel = new JPanel();
@@ -365,7 +364,9 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		
 		Iterator<JPanel> pi = list.iterator();
 		
-		if(false) {
+		// true to use tab
+		boolean tabbedLayout=true;
+		if(tabbedLayout==false) {
 			// single page layout
 			JPanel sum = new JPanel();
 			BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
