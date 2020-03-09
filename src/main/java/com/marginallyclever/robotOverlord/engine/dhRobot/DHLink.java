@@ -30,9 +30,9 @@ public class DHLink extends ModelInWorld {
 	public enum LinkAdjust {
 		NONE (0   ,"NONE" ),
 		D    (1   ,"D"    ),
-		THETA(1<<2,"THETA"),
-		R    (1<<3,"R"    ),
-		ALPHA(1<<4,"ALPHA");
+		THETA(1<<1,"THETA"),
+		R    (1<<2,"R"    ),
+		ALPHA(1<<3,"ALPHA");
 		
 		private int modeNumber;
 		private String modeName;
