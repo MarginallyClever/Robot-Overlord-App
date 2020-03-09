@@ -283,7 +283,7 @@ public class DHRobot extends ModelInWorld {
 			if(link.flags == LinkAdjust.NONE) continue;
 			double v = keyframe.fkValues[j++];
 			if (link.rangeMax < v || link.rangeMin > v) {
-				System.out.println("FK " + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
+				System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
 			}
 		}
 
