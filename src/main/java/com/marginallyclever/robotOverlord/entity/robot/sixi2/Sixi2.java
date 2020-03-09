@@ -569,4 +569,8 @@ public class Sixi2 extends Robot {
 		restKey.fkValues[5]=0;
 		sim.setPoseFK(restKey);
 	}
+
+	public int setCommandIndex(int newIndex) {
+		return recording.setCommandIndex(newIndex);
+	}
 }

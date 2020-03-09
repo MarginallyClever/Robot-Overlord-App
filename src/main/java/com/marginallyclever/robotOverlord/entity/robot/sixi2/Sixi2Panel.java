@@ -34,6 +34,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.convenience.SpringUtilities;
@@ -215,6 +217,15 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		recordedCommands.setLayoutOrientation(JList.VERTICAL);
 		recordedCommands.setVisibleRowCount(130);
+		recordedCommands.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				// force stop
+				robot.reset();
+				// change current index
+				robot.setCommandIndex(e.getLastIndex());
+			}
+		});
 		
 
 		// RESET BUTTON
