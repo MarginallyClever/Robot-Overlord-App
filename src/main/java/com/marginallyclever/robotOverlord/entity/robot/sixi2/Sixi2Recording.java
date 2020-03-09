@@ -131,6 +131,13 @@ public class Sixi2Recording extends Observable {
 		return getCommand();
 	}
 
+	public String jumpTo(int index) {
+		if(index>=0 && index <commands.size()) {
+			commandIndex = index;
+		}
+		return getCommand();
+	}
+
 	public void deleteCurrentCommand() {
 		if (commandIndex >= 0 && commandIndex < commands.size()) {
 			commands.remove(commandIndex);

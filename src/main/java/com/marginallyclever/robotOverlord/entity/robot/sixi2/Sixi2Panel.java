@@ -124,16 +124,16 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 
-		//---------------------------------------------------------------------GO HOME BUTTON
+		// GO HOME BUTTON
 		this.add(goHome=new JButton("Go Home"), con1);
 		con1.gridy++;
 		goHome.addActionListener(this);
-		//---------------------------------------------------------------------GO REST BUTTON
+		// GO REST BUTTON
 		this.add(goRest=new JButton("Go Rest"), con1);
 		con1.gridy++;
 		goRest.addActionListener(this);
 
-		//---------------------------------------------------------------------FEEDRATE SLIDER
+		// FEEDRATE SLIDER
 		this.add(feedrateValue=new JLabel(),con1);
 		con1.gridy++;
 		this.add(feedrate=new JSlider(),con1);
@@ -144,7 +144,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		feedrate.addChangeListener(this);
 		feedrate.setValue((int)robot.getFeedRate());
 		stateChanged(new ChangeEvent(feedrate));
-		//---------------------------------------------------------------------ACCELERATION SLIDER
+		// ACCELERATION SLIDER
 		this.add(accelerationValue=new JLabel(),con1);
 		con1.gridy++;
 		this.add(acceleration=new JSlider(),con1);
@@ -156,26 +156,26 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		acceleration.setValue((int)robot.getAcceleration());
 		stateChanged(new ChangeEvent(acceleration));
 
-		//---------------------------------------------------------------------RECORD MODE CHECK
+		// RECORD MODE CHECK
 		this.add(recordMode=new JCheckBox(),con1);
 		con1.gridy++;
 		recordMode.setText("Record Mode ON");
 		recordMode.setSelected(robot.controlMode==ControlMode.RECORD);
 		recordMode.addItemListener(this);
-		//---------------------------------------------------------------------LIVE OPERATING MODE CHECK
+		// LIVE OPERATING MODE CHECK
 		this.add(liveOperation=new JCheckBox(),con1);
 		con1.gridy++;
 		liveOperation.setText("Live Operation Mode");
 		liveOperation.setSelected(robot.operatingMode==OperatingMode.LIVE);
 		liveOperation.addItemListener(this);
-		//---------------------------------------------------------------------SINGLE BLOCK CHECK
+		// SINGLE BLOCK CHECK
 		this.add(singleBlock=new JCheckBox(),con1);
 		con1.gridy++;
 		singleBlock.setText("Single Block Mode");
 		singleBlock.setSelected(robot.singleBlock);
 		singleBlock.addItemListener(this);
 
-		//---------------------------------------------------------------------RECORDING PANEL
+		// RECORDING PANEL
 		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording   ");
 		this.add(recordingPanel,con1);
 		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));
@@ -186,15 +186,15 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		contents.setLayout(new GridBagLayout());
 		GridBagConstraints con2 = new GridBagConstraints();
 //		con2.fill = GridBagConstraints.HORIZONTAL;
-		//---------------------------------------------------------------------DELETE BUTTON
+		// DELETE BUTTON
 		con2.gridx=0;	con2.gridy=0;
 		contents.add(delCommand=new JButton("Delete"),con2);
 		delCommand.addActionListener(this);
-		//---------------------------------------------------------------------ADD BUTTON
+		// ADD BUTTON
 		con2.gridx=1;	con2.gridy=0;
 		contents.add(addCommand=new JButton("Add"),con2);
 		addCommand.addActionListener(this);
-		//---------------------------------------------------------------------OVERWRITE BUTTON
+		// OVERWRITE BUTTON
 		con2.gridx=2;	con2.gridy=0;
 		contents.add(setCommand=new JButton("Overwrite"),con2);
 		setCommand.addActionListener(this);
@@ -214,23 +214,22 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		scrollPane.setViewportView(recordedCommands);
 		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		recordedCommands.setLayoutOrientation(JList.VERTICAL);
-		recordedCommands.setVisibleRowCount(3);
-		recordedCommands.setPreferredSize(new Dimension(150,500));
-		recordedCommands.setMinimumSize(new Dimension(150,500));
+		recordedCommands.setVisibleRowCount(130);
 		
 
-		//---------------------------------------------------------------------RESET BUTTON
+		// RESET BUTTON
 		GridBagConstraints con3 = new GridBagConstraints();
 		con3.ipadx=5;	con3.ipady=5;
 		con3.gridx=0;	con3.gridy=2;
 		contents.add(resetRecording = new JButton("Reset"),con3);
 		resetRecording.addActionListener(this);
-		//---------------------------------------------------------------------PLAY BUTTON
+		
+		// PLAY BUTTON
 		con3.gridx=1;	con3.gridy=2;
 		contents.add(playRecording=new JButton("Play"),con3);
 		playRecording.addActionListener(this);
 
-		//---------------------------------------------------------------------GCODE TEXT
+		// GCODE TEXT
 		this.add(gcodeLabel=new JLabel("Gcode"), con1);
 		con1.gridy++;
 		this.add(gcodeValue=new JTextField(),con1);
@@ -270,11 +269,11 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 */
-		//---------------------------------------------------------------------LIVE PANEL
+		// LIVE PANEL
 		int i;
 		JLabel label;
 
-		CollapsiblePanel livePanel = new CollapsiblePanel("Live     ");
+		CollapsiblePanel livePanel = new CollapsiblePanel("Live");
 		this.add(livePanel,con1);
 		con1.gridy++;
 		livePanel.getContentPane().setLayout(new BoxLayout(livePanel.getContentPane(),BoxLayout.PAGE_AXIS));
@@ -316,7 +315,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		livePanel.getContentPane().add(livePosPanel);
 		updatePosition(robot.sim,livePosPanel);
 
-		//---------------------------------------------------------------------GHOST PANEL
+		// GHOST PANEL
 		CollapsiblePanel ghostPanel = new CollapsiblePanel("Ghost");
 		this.add(ghostPanel,con1);
 		con1.gridy++;
@@ -379,7 +378,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		SpringUtilities.makeCompactGrid(p, 1, 6, 5, 5, 5, 5);*/
 	}
 
-	//---------------------------------------------------------------------SLIDERS
+	// SLIDERS
 	@Override
 	public void stateChanged(ChangeEvent event) {
 		Object source = event.getSource();
@@ -444,7 +443,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		}
 	}
 	
-	//---------------------------------------------------------------------BUTTONS
+	// BUTTONS
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -501,7 +500,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		robot.setCycleStart(false);
 	}
 
-	//---------------------------------------------------------------------CHECKBOXES
+	// CHECKBOXES
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		Object source = e.getItemSelectable();
