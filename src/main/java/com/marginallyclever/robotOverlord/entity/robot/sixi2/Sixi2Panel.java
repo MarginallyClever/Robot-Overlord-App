@@ -17,6 +17,10 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -38,6 +42,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
+import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.OperatingMode;
 import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 
 /**
@@ -47,11 +52,11 @@ import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
  */
 public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener, ItemListener, Observer {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
-	
+
 	protected Sixi2 robot;
 	protected RobotOverlord ro;
 
@@ -60,8 +65,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JSlider feedrate, acceleration, gripperOpening;
 	public JLabel  feedrateValue, accelerationValue, gripperOpeningValue;
 
-	public JCheckBox immediateDriving;
-	public JComboBox<String> frameOfReferenceSelection;
+	public JCheckBox recordMode, liveOperation, singleBlock;
+//	public JComboBox<String> frameOfReferenceSelection;
 
 	public JLabel gcodeLabel;
 	public JTextField gcodeValue;
@@ -69,23 +74,25 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JPanel livePosPanel;
 	public ReentrantLock sliderLock;
 
-	public JButton rewindNow,playNow;
+	public JButton resetRecording,playRecording,addCommand,setCommand,delCommand;
+	JScrollPane scrollPane;
+	public JList<String> recordedCommands;
 	public JSlider scrubber;
 	public ReentrantLock scrubberLock;
-	
-	
+
+
 	public class Pair {
 		public JSlider slider;
 		public DHLink  link;
 		public JLabel  label;
-		
+
 		public Pair(JSlider slider0,DHLink link0,JLabel label0) {
 			slider=slider0;
 			link=link0;
 			label=label0;
 		}
 	}
-	
+
 	ArrayList<Pair> liveJoints = new ArrayList<Pair>();
 	ArrayList<Pair> ghostJoints = new ArrayList<Pair>();
 
@@ -95,17 +102,17 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			"Camera", //1
 			"Finger tip"//2
 			};
-	
-	
+
+
 	public Sixi2Panel(RobotOverlord gui,Sixi2 robot) {
 		this.robot = robot;
 		this.ro = gui;
 		sliderLock = new ReentrantLock();
 		scrubberLock = new ReentrantLock();
-		
+
 		buildPanel();
 	}
-	
+
 	protected void buildPanel() {
 		this.removeAll();
 
@@ -117,23 +124,19 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 		//this.add(toggleATC=new JButton(robot.dhTool!=null?"ATC close":"ATC open"), con1);
 
+		//---------------------------------------------------------------------GO HOME BUTTON
 		this.add(goHome=new JButton("Go Home"), con1);
 		con1.gridy++;
 		goHome.addActionListener(this);
-
+		//---------------------------------------------------------------------GO REST BUTTON
 		this.add(goRest=new JButton("Go Rest"), con1);
 		con1.gridy++;
 		goRest.addActionListener(this);
-		
-		this.add(immediateDriving=new JCheckBox(),con1);
-		con1.gridy++;
-		immediateDriving.setText("Real time control mode");
-		immediateDriving.addItemListener(this);
-		immediateDriving.setSelected(robot.controlMode==ControlMode.RECORD);
 
-		this.add(feedrate=new JSlider(),con1);
-		con1.gridy++;
+		//---------------------------------------------------------------------FEEDRATE SLIDER
 		this.add(feedrateValue=new JLabel(),con1);
+		con1.gridy++;
+		this.add(feedrate=new JSlider(),con1);
 		con1.gridy++;
 		feedrate.setMaximum(80);
 		feedrate.setMinimum(1);
@@ -141,10 +144,10 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		feedrate.addChangeListener(this);
 		feedrate.setValue((int)robot.getFeedRate());
 		stateChanged(new ChangeEvent(feedrate));
-
-		this.add(acceleration=new JSlider(),con1);
-		con1.gridy++;
+		//---------------------------------------------------------------------ACCELERATION SLIDER
 		this.add(accelerationValue=new JLabel(),con1);
+		con1.gridy++;
+		this.add(acceleration=new JSlider(),con1);
 		con1.gridy++;
 		acceleration.setMaximum(120);
 		acceleration.setMinimum(1);
@@ -152,9 +155,98 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		acceleration.addChangeListener(this);
 		acceleration.setValue((int)robot.getAcceleration());
 		stateChanged(new ChangeEvent(acceleration));
+
+		//---------------------------------------------------------------------RECORD MODE CHECK
+		this.add(recordMode=new JCheckBox(),con1);
+		con1.gridy++;
+		recordMode.setText("Record Mode ON");
+		recordMode.setSelected(robot.controlMode==ControlMode.RECORD);
+		recordMode.addItemListener(this);
+		//---------------------------------------------------------------------LIVE OPERATING MODE CHECK
+		this.add(liveOperation=new JCheckBox(),con1);
+		con1.gridy++;
+		liveOperation.setText("Live Operation Mode");
+		liveOperation.setSelected(robot.operatingMode==OperatingMode.LIVE);
+		liveOperation.addItemListener(this);
+		//---------------------------------------------------------------------SINGLE BLOCK CHECK
+		this.add(singleBlock=new JCheckBox(),con1);
+		con1.gridy++;
+		singleBlock.setText("Single Block Mode");
+		singleBlock.setSelected(robot.singleBlock);
+		singleBlock.addItemListener(this);
+
+		//---------------------------------------------------------------------RECORDING PANEL
+		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording   ");
+		this.add(recordingPanel,con1);
+		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));
+
+		JPanel contents = new JPanel();
+		recordingPanel.getContentPane().add(contents);
+		contents.setBorder(new EmptyBorder(0,0,0,0));
+		contents.setLayout(new GridBagLayout());
+		GridBagConstraints con2 = new GridBagConstraints();
+//		con2.fill = GridBagConstraints.HORIZONTAL;
+		//---------------------------------------------------------------------DELETE BUTTON
+		con2.gridx=0;	con2.gridy=0;
+		contents.add(delCommand=new JButton("Delete"),con2);
+		delCommand.addActionListener(this);
+		//---------------------------------------------------------------------ADD BUTTON
+		con2.gridx=1;	con2.gridy=0;
+		contents.add(addCommand=new JButton("Add"),con2);
+		addCommand.addActionListener(this);
+		//---------------------------------------------------------------------OVERWRITE BUTTON
+		con2.gridx=2;	con2.gridy=0;
+		contents.add(setCommand=new JButton("Overwrite"),con2);
+		setCommand.addActionListener(this);
+
+		con2.gridx=0;	con2.gridy=1;
+		con2.gridwidth = 3;
+		con2.fill = GridBagConstraints.HORIZONTAL;
+//		String[] data = {"one", "222", "three", "four"};
+
+		contents.add(scrollPane = new JScrollPane(),con2);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+//		scrollPane.setBounds(206, 154, 177, 189);
+
+		contents.add(recordedCommands = new JList<String>(robot.callGetCommandsList()),con2);
+		scrollPane.setViewportView(recordedCommands);
+		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		recordedCommands.setLayoutOrientation(JList.VERTICAL);
+		recordedCommands.setVisibleRowCount(3);
+		//---------------------------------------------------------------------RESET BUTTON
+		GridBagConstraints con3 = new GridBagConstraints();
+		con3.ipadx=5;	con3.ipady=5;
+		con3.gridx=0;	con3.gridy=2;
+		contents.add(resetRecording = new JButton("Reset"),con3);
+		resetRecording.addActionListener(this);
+		//---------------------------------------------------------------------PLAY BUTTON
+		con3.gridx=1;	con3.gridy=2;
+		contents.add(playRecording=new JButton("Play"),con3);
+		playRecording.addActionListener(this);
+
+		//---------------------------------------------------------------------GCODE TEXT
+		this.add(gcodeLabel=new JLabel("Gcode"), con1);
+		con1.gridy++;
+		this.add(gcodeValue=new JTextField(),con1);
+		con1.gridy++;
+		gcodeValue.setEditable(false);
+		Dimension dim = gcodeValue.getPreferredSize();
+		dim.width=60;
+		gcodeValue.setPreferredSize( dim );
+		gcodeValue.setMaximumSize(dim);
+		gcodeValue.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+            	StringSelection stringSelection = new StringSelection(gcodeValue.getText());
+            	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            	clipboard.setContents(stringSelection, null);
+            }
+        });
+
 /*
 		contents.add(activeTool=new JLabel("Tool=") ,con1);
-		  con1.gridy++; 
+		  con1.gridy++;
 		contents.add(gripperOpening=new JSlider(),con1);
 		con1.gridy++;
 		contents.add(gripperOpeningValue=new JLabel(),con1);
@@ -173,39 +265,19 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		frameOfReferenceSelection.setSelectedIndex(robot.getFrameOfReference());
 		con1.gridy++;
 */
-		
-		this.add(gcodeLabel=new JLabel("Gcode"), con1);
-		con1.gridy++;
-		this.add(gcodeValue=new JTextField(),con1);
-		con1.gridy++;
-		gcodeValue.setEditable(false);
-		Dimension dim = gcodeValue.getPreferredSize();
-		dim.width=60;
-		gcodeValue.setPreferredSize( dim );
-		gcodeValue.setMaximumSize(dim);
-		gcodeValue.addMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseClicked(MouseEvent e){
-            	StringSelection stringSelection = new StringSelection(gcodeValue.getText());
-            	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            	clipboard.setContents(stringSelection, null);
-            }
-        });
-		
+		//---------------------------------------------------------------------LIVE PANEL
 		int i;
 		JLabel label;
 
-		CollapsiblePanel livePanel = new CollapsiblePanel("Live");
+		CollapsiblePanel livePanel = new CollapsiblePanel("Live     ");
 		this.add(livePanel,con1);
 		con1.gridy++;
 		livePanel.getContentPane().setLayout(new BoxLayout(livePanel.getContentPane(),BoxLayout.PAGE_AXIS));
-		
-		
-		
+
 		// live panel
-		JPanel contents = new JPanel();
+		contents = new JPanel();
 		livePanel.getContentPane().add(contents);
-		
+
 		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new SpringLayout());
 		i=0;
@@ -238,9 +310,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		livePosPanel.setLayout(new SpringLayout());
 		livePanel.getContentPane().add(livePosPanel);
 		updatePosition(robot.sim,livePosPanel);
-		
-		
-		// ghost panel
+
+		//---------------------------------------------------------------------GHOST PANEL
 		CollapsiblePanel ghostPanel = new CollapsiblePanel("Ghost");
 		this.add(ghostPanel,con1);
 		con1.gridy++;
@@ -272,7 +343,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			label.setText(StringHelper.formatDouble(link.getAdjustableValue()));
 			label.setMinimumSize(new Dimension(50,16));
 			label.setPreferredSize(label.getMinimumSize());
-			
+
 			//newSlider.setEnabled(false);
 			newSlider.addChangeListener(this);
 		}
@@ -285,32 +356,14 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		updatePosition(robot.sim,ghostPosPanel);
 
 		gcodeValue.setText(robot.getCommand());
-		
 
-		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording");
-		this.add(recordingPanel,con1);
-		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));
-		
-		contents = new JPanel();
-		recordingPanel.getContentPane().add(contents);
-		contents.setBorder(new EmptyBorder(0,0,0,0));
-		contents.setLayout(new GridBagLayout());
-		GridBagConstraints con2 = new GridBagConstraints();
-		con2.ipadx=5;
-		con2.ipady=5;
-		con2.gridx=0;	con2.gridy=0;
-		contents.add(rewindNow = new JButton("Rewind"),con2);
-		con2.gridx=1;	con2.gridy=0;
-		contents.add(playNow=new JButton("Play"),con2);
-		con2.gridx=0;	con2.gridy=1;	con2.gridwidth=2;
-		contents.add(scrubber=new JSlider(),con2);
-		
+//		contents.add(scrubber=new JSlider(),con2);
+
 		PanelHelper.ExpandLastChild(this, con1);
-		rewindNow.addActionListener(this);
-		playNow.addActionListener(this);
-		scrubber.addChangeListener(this);
+
+//		scrubber.addChangeListener(this);
 	}
-	
+
 	protected void updatePosition(DHRobot r, JPanel p) {/*
 		p.removeAll();
 		Vector3d pos = new Vector3d();
@@ -320,7 +373,8 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		p.add(new JLabel("Z"));	 p.add(new JLabel(StringHelper.formatDouble(pos.z)));
 		SpringUtilities.makeCompactGrid(p, 1, 6, 5, 5, 5, 5);*/
 	}
-	
+
+	//---------------------------------------------------------------------SLIDERS
 	@Override
 	public void stateChanged(ChangeEvent event) {
 		Object source = event.getSource();
@@ -339,7 +393,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			robot.sendCommand("G0 T"+v);
 			gripperOpeningValue.setText("gripper = "+StringHelper.formatDouble(v));
 		}
-		
+
 		//*
 		if(!sliderLock.isLocked()) {
 			sliderLock.lock();
@@ -379,44 +433,63 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		}//*/
 		// live and ghost joints are not updated by the user
 		// because right now that would cause an infinite loop.
-		
+
 		if(gcodeValue!=null) {
 			gcodeValue.setText(robot.getCommand());
 		}
 	}
-	
+	//---------------------------------------------------------------------BUTTONS
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
+
 		if(source==goHome) robot.goHome();
 		if(source==goRest) robot.goRest();
-		if(source==rewindNow) rewind();
-		if(source==playNow) {
+		if(source==resetRecording) rewind();
+		if(source==playRecording) {
 			if(!robot.isCycleStart()) play();
 			else stop();
+		}
+		if(source==delCommand) {
+			robot.callDeleteCommand();
+			recordedCommands.setModel(robot.callGetCommandsList());
+			recordedCommands.revalidate();
+		}
+		if(source==addCommand) {
+			robot.callAddCommand();
+			recordedCommands.setModel(robot.callGetCommandsList());
+		}
+		if(source==setCommand) {
+			robot.callSetCommand();
+			recordedCommands.setModel(robot.callGetCommandsList());
 		}
 	}
 
 	public void play() {
+		playRecording.setText("Pause");
 		robot.setCycleStart(true);
-		playNow.setText("Pause");
 	}
 	public void rewind() {
+		playRecording.setText("Play");
 		robot.reset();
-		playNow.setText("Play");
 	}
-	
 	public void stop() {
+		playRecording.setText("Play");
 		robot.setCycleStart(false);
-		playNow.setText("Play");
 	}
 
-	// for checkboxes
+	//---------------------------------------------------------------------CHECKBOXES
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		Object source = e.getItemSelectable();
-		if(source == immediateDriving) {
+		if(source == recordMode) {
 			robot.toggleControlMode();
+		}
+		if(source == liveOperation) {
+			robot.toggleOperatingMode();
+		}
+		if(source == singleBlock) {
+			robot.toggleSingleBlock();
 		}
 	}
 
@@ -447,7 +520,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		updatePosition(robot.live,livePosPanel);
 		updatePosition(robot.sim,ghostPosPanel);
 	}
-	
+
 	public void setScrubHead(int pos) {
 		scrubberLock.lock();
 		scrubber.setValue(pos);

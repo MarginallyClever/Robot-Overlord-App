@@ -284,7 +284,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 */
 	public void updateActiveTool(DHTool arg0) {
 		activeTool.removeAll();
-		activeTool.add(arg0.getAllContextPanels(ro));
+//		activeTool.add(arg0.getAllContextPanels(ro));
 	}
 
 	@Override
