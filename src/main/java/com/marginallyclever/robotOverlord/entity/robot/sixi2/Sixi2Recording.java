@@ -9,8 +9,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Observable;
 
-import javax.swing.DefaultListModel;
-
 import com.marginallyclever.robotOverlord.engine.log.Log;
 
 /**
@@ -23,23 +21,16 @@ public class Sixi2Recording extends Observable {
 	public String fileFrom;
 	public String fileTo;
 	
-	protected DefaultListModel<String> commandsModel;
 	protected ArrayList<String> commands;
 	protected int commandIndex;
 	
-	//commandsModel added to this method
 	public Sixi2Recording() {
 		commands = new ArrayList<String>();
 		commands.add("");
-		
-		commandsModel = new DefaultListModel<String>();
 	}
 
-	//commandsModel added to this method
 	public void reset() {
 		commandIndex = 0;
-		
-		commandsModel.firstElement();
 	}
 
 	
@@ -78,7 +69,6 @@ public class Sixi2Recording extends Observable {
 		fileTo=fileName;
 	}
 
-	//commandsModel added to this method
 	/**
 	 * add a command after the current command.
 	 * @param line
@@ -94,19 +84,8 @@ public class Sixi2Recording extends Observable {
 			commandIndex++;
 			commands.add(commandIndex, line);
 		}
-		//-----------------------------------------------------
-		if (commandsModel.size() == 0) {
-			commandsModel.addElement(line);
-			commandIndex = 0;
-			return;
-		}
-		if (commandIndex >= 0 && commandIndex < commands.size()) {
-			commandIndex++;
-			commandsModel.add(commandIndex, line);
-		}
 	}
 
-	//commandsModel added to this method
 	// change the current command
 	public void setCommand(String line) {
 		System.out.println("set command: "+line);
@@ -118,19 +97,10 @@ public class Sixi2Recording extends Observable {
 		if (commandIndex >= 0 && commandIndex < commands.size()) {
 			commands.set(commandIndex, line);
 		}
-		//-----------------------------------------------------
-		if (commandsModel.size() == 0) {
-			commandsModel.addElement(line);
-			commandIndex = 0;
-			return;
-		}
-		if (commandIndex >= 0 && commandIndex < commands.size()) {
-			commandsModel.set(commandIndex, line);
-		}
 	}
-	
-	public DefaultListModel<String> getCommandsList(){
-		return commandsModel;
+
+	public ArrayList<String> getCommandList() {
+		return commands;
 	}
 
 	public String getCommand(int index) {

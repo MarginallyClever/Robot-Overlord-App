@@ -22,9 +22,9 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -209,11 +209,16 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 //		scrollPane.setBounds(206, 154, 177, 189);
 
-		contents.add(recordedCommands = new JList<String>(robot.getCommandsList()),con2);
+		contents.add(recordedCommands = new JList<String>(),con2);
+		updateCommandList();
 		scrollPane.setViewportView(recordedCommands);
 		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		recordedCommands.setLayoutOrientation(JList.VERTICAL);
 		recordedCommands.setVisibleRowCount(3);
+		recordedCommands.setPreferredSize(new Dimension(150,500));
+		recordedCommands.setMinimumSize(new Dimension(150,500));
+		
+
 		//---------------------------------------------------------------------RESET BUTTON
 		GridBagConstraints con3 = new GridBagConstraints();
 		con3.ipadx=5;	con3.ipady=5;
@@ -438,6 +443,7 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 			gcodeValue.setText(robot.getCommand());
 		}
 	}
+	
 	//---------------------------------------------------------------------BUTTONS
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -452,19 +458,36 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		}
 		if(source==delCommand) {
 			robot.deleteCurrentCommand();
-			recordedCommands.setModel(robot.getCommandsList());
-			recordedCommands.revalidate();
+			updateCommandList();
 		}
 		if(source==addCommand) {
 			robot.addCommand();
-			recordedCommands.setModel(robot.getCommandsList());
+			updateCommandList();
 		}
 		if(source==setCommand) {
 			robot.setCommand();
-			recordedCommands.setModel(robot.getCommandsList());
+			updateCommandList();
 		}
 	}
 
+	// Rebuild the contents of recordedCommands
+	protected void updateCommandList() {
+		// do we have a selected item?
+		int selectedIndex = recordedCommands.getSelectedIndex();
+		// rebuild the contents of the list
+		DefaultListModel<String> list = new DefaultListModel<String>();
+		ArrayList<String> robotCommands = robot.getCommandList();
+		int index=0;
+		for( String s : robotCommands ) {
+			list.add(index++, s);
+		}
+		recordedCommands.setModel(list);
+		// remember our selected item
+		recordedCommands.setSelectedIndex(selectedIndex);
+		// make sure the JList gets redrawn.
+		recordedCommands.revalidate();
+	}
+	
 	public void play() {
 		playRecording.setText("Pause");
 		robot.setCycleStart(true);

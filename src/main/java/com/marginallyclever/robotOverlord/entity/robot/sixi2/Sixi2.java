@@ -4,7 +4,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -498,8 +497,8 @@ public class Sixi2 extends Robot {
 		System.out.println("operatingMode="+operatingMode);
 	}
 
-	public DefaultListModel<String> getCommandsList() {
-		return recording.getCommandsList();
+	public ArrayList<String> getCommandList() {
+		return recording.getCommandList();
 	}
 
 	public void addCommand() {
