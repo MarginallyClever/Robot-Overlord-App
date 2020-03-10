@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,7 +23,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -35,7 +35,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
-import javax.swing.border.BevelBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -236,7 +235,11 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
         		
         // the right hand stuff
         JScrollPane rightTop = new JScrollPane(entityTree);
+        	rightTop.setAlignmentX(Component.LEFT_ALIGNMENT);
+        	rightTop.setAlignmentY(Component.TOP_ALIGNMENT);
         JScrollPane rightBottom = new JScrollPane(selectedEntityPanel = new JPanel());
+	        rightBottom.setAlignmentX(Component.LEFT_ALIGNMENT);
+	        rightBottom.setAlignmentY(Component.TOP_ALIGNMENT);
 		rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
 			rightFrameSplitter.setTopComponent(rightTop);
 			rightFrameSplitter.setBottomComponent(rightBottom);
@@ -299,6 +302,20 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		}
 		return parent;
 	}
+	
+	/**
+	 * Change the right-side context menu.  contextMenu is already a JScrollPane.
+	 * Get all the {@link EntityPanel}s for a {@link Entity}.  
+	 * @param panel
+	 * @param title
+	 */
+	public void setContextPanel(Entity e) {
+        // list of all entities in system, starting with world.
+		updateSelectedEntityPanel(e);
+		if(selectedEntityPanel!=null) selectedEntityPanel.revalidate();
+		
+		rightFrameSplitter.setDividerLocation(180);
+	}
 
     /**
      * list all entities in the world.  Double click an item to get its panel.
@@ -326,7 +343,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		        }
 		    }
 		});
-		tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		
 		if(entityTree.getComponentCount()==1) {
 			JTree oldTree = (JTree)entityTree.getComponent(0);
@@ -343,18 +360,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		entityTree.add(tree,c);
 	}
 	
-	/**
-	 * Change the right-side context menu.  contextMenu is already a JScrollPane.
-	 * Get all the {@link EntityPanel}s for a {@link Entity}.  
-	 * @param panel
-	 * @param title
-	 */
-	public void setContextPanel(Entity e) {
-        // list of all entities in system, starting with world.
-		updateSelectedEntityPanel(e);
-		if(selectedEntityPanel!=null) selectedEntityPanel.revalidate();
-	}
-	
 	protected void updateSelectedEntityPanel(Entity e) {
 		if(selectedEntityPanel==null) return;
 
@@ -362,12 +367,12 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 
 		if(e==null) return;
 		
-		System.out.println("updateSelectedEntityPanel "+e.getName());
+		//System.out.println("updateSelectedEntityPanel "+e.getName());
 		
 		ArrayList<JPanel> list = e.getContextPanel(this);
 		if(list==null) return;
 
-		System.out.println("updateSelectedEntityPanel 2 "+e.getName());
+		//System.out.println("updateSelectedEntityPanel 2 "+e.getName());
 		
 		// fill in the selectedEntityPanel
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
@@ -717,9 +722,14 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthMask(true);
 
+		// make things pretty
     	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
         gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
         gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+        
+        // Scale normals using the scale of the transform matrix so that lighting is sane.
+        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
+		gl2.glEnable(GL2.GL_RESCALE_NORMAL);
         
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
