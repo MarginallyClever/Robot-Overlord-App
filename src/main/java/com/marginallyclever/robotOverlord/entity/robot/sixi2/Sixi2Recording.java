@@ -74,7 +74,7 @@ public class Sixi2Recording extends Observable {
 	 * @param line
 	 */
 	public void addCommand(String line) {
-		System.out.println("Add command: "+line);
+		//System.out.println("Add command: "+line);
 		if (commands.size() == 0) {
 			commands.add(line);
 			commandIndex = 0;
@@ -88,7 +88,7 @@ public class Sixi2Recording extends Observable {
 
 	// change the current command
 	public void setCommand(String line) {
-		System.out.println("set command: "+line);
+		//System.out.println("set command: "+line);
 		if (commands.size() == 0) {
 			commands.add(line);
 			commandIndex = 0;
@@ -121,6 +121,10 @@ public class Sixi2Recording extends Observable {
 		return commandIndex > 0;
 	}
 
+	public int getNumCommands() {
+		return commands.size();
+	}
+	
 	public int getCommandIndex() {
 		return commandIndex;
 	}
