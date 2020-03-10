@@ -4,6 +4,7 @@ package com.marginallyclever.robotOverlord;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
@@ -19,7 +20,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -36,7 +36,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -132,11 +131,17 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	// The main frame of the GUI
     protected JFrame mainFrame; 
 	// the main view
-	protected Splitter splitLeftRight;
 	protected Splitter splitUpDown;
-	
+		// top part
+		protected Splitter splitLeftRight;
+		// bottom part
+		protected Splitter rightFrameSplitter;
+		@Deprecated
+		protected JScrollPane rightFrame;
 	protected GLJPanel glCanvas;
-	protected JScrollPane contextMenu;
+	protected JPanel entityTree;
+	protected JPanel selectedEntityPanel;
+	
 	//protected SecondaryPanel secondaryPanel;
 	protected FooterBar footerBar;
 	
@@ -188,35 +193,33 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
 
-        // setup the animation system.
-        frameDelay=0;
-        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
-      	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
-
       	// this class listens to the window
         mainFrame.addWindowListener(this);
 
-        // some opengl stuff
+        // OpenGL 3D view & animator setup.
         GLCapabilities caps = new GLCapabilities(null);
         caps.setSampleBuffers(true);
         caps.setHardwareAccelerated(true);
         caps.setNumSamples(4);
         glCanvas = new GLJPanel(caps);
-        animator.add(glCanvas);
         glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
         glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
         glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
-        
-        // the right hand context-sensitive menu
-        contextMenu = new JScrollPane();
-        contextMenu.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        contextMenu.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
+        // not sure what good this does here...
         Dimension minimumSize = new Dimension(300,300);
-        contextMenu.setMinimumSize(minimumSize);
-        glCanvas.setMinimumSize(minimumSize);  // not sure what good this does here...
+        glCanvas.setMinimumSize(minimumSize);
+        
+        // setup the animation system.
+        frameDelay=0;
+        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
+      	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
+        animator.add(glCanvas);
+        
 
+		
+		// new world
         world = new World();
+        // ..with default setting.  TODO save & load whole world and all its Entities.
         world.createDefaultWorld();
 
         // now that we have everything built, set up the menus.
@@ -226,41 +229,35 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
         pickNow = false;
         selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         pickedEntity = null;
-        pickNothing();
-		
-//		frame.setFocusable(true);
-//		frame.requestFocusInWindow();
-/*
-		// focus not returning after modal dialog boxes
-		// http://stackoverflow.com/questions/5150964/java-keylistener-does-not-listen-after-regaining-focus
-		frame.addFocusListener(new FocusListener(){
-            public void focusGained(FocusEvent e){
-                //System.out.println("Focus GAINED:"+e);
-            }
-            public void focusLost(FocusEvent e){
-                //System.out.println("Focus LOST:"+e);
 
-                // FIX FOR GNOME/XWIN FOCUS BUG
-                e.getComponent().requestFocus();
-            }
-        });
-*/
+        entityTree = new JPanel();
+        // build the initial entity tree
+        this.updateEntityTree();
+        		
+        // the right hand stuff
+        JScrollPane rightTop = new JScrollPane(entityTree);
+        JScrollPane rightBottom = new JScrollPane(selectedEntityPanel = new JPanel());
+		rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
+			rightFrameSplitter.setTopComponent(rightTop);
+			rightFrameSplitter.setBottomComponent(rightBottom);
+			// make sure the master panel can't be squished.
+	        rightFrameSplitter.setMinimumSize(minimumSize);
+	        rightFrameSplitter.setDividerLocation(-1);
+	        
         // split the mainframe in two vertically
         splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
-        // on the left put the 3D view
-        splitLeftRight.add(glCanvas);
-        // on the right put the context sensitive menu container
-        splitLeftRight.add(contextMenu);
+        splitLeftRight.setLeftComponent(glCanvas);
+        splitLeftRight.setRightComponent(rightFrameSplitter);
         
         // Also split up/down
         splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
-        splitUpDown.add(splitLeftRight);
-        //splitUpDown.add(secondaryPanel = new SecondaryPanel());
-        splitUpDown.add(footerBar = new FooterBar(mainFrame));
+        splitUpDown.setTopComponent(splitLeftRight);
+        splitUpDown.setBottomComponent(footerBar = new FooterBar(mainFrame));
         
 		// add the split panel to the main frame
         mainFrame.add(splitUpDown);
-        //mainFrame.add(splitLeftRight);
+
+        
         // make it visible
         mainFrame.setVisible(true);
         // start the main application loop.  it will call display() repeatedly.
@@ -283,12 +280,10 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		return commandSequence;
 	}
 	
-	
 	public UndoHelper getUndoHelper() {
 		return undoHelper;
 	}
 	
-
 	public World getWorld() {
 		return world;
 	}
@@ -304,6 +299,49 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		}
 		return parent;
 	}
+
+    /**
+     * list all entities in the world.  Double click an item to get its panel.
+     * 
+     * See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
+     */
+	public void updateEntityTree() {
+		// list all objects in scene
+	    DefaultMutableTreeNode top = createTreeNodes(world);
+		JTree tree = new JTree(top);
+
+	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	    tree.setShowsRootHandles(true);
+	    tree.addMouseListener(new MouseAdapter() {
+		    public void mousePressed(MouseEvent e) {
+		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+		        if(selPath != null) {
+		            if(e.getClickCount() == 1) {
+		                //mySingleClick(selRow, selPath);
+		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
+		            	pickEntity((Entity)(o.getUserObject()));
+		            } else if(e.getClickCount() == 2) {
+		                //myDoubleClick(selRow, selPath);
+		            }
+		        }
+		    }
+		});
+		tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		
+		if(entityTree.getComponentCount()==1) {
+			JTree oldTree = (JTree)entityTree.getComponent(0);
+			TreePath[] paths = oldTree.getSelectionPaths();
+			tree.setSelectionPaths(paths);
+		}
+		
+		entityTree.removeAll();
+		entityTree.setLayout(new GridBagLayout());
+		GridBagConstraints c = PanelHelper.getDefaultGridBagConstraints();
+		c.weightx=1;
+		c.weighty=1;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		entityTree.add(tree,c);
+	}
 	
 	/**
 	 * Change the right-side context menu.  contextMenu is already a JScrollPane.
@@ -312,67 +350,36 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	 * @param title
 	 */
 	public void setContextPanel(Entity e) {
-		Splitter masterPanel = new Splitter(JSplitPane.VERTICAL_SPLIT);
-		JPanel selectedEntityPanel = new JPanel();
-
-		contextMenu.setViewportView(masterPanel);
-		masterPanel.setBorder(new EmptyBorder(0,0,0,0));
-		
-		int proportionalLocation = masterPanel.getLastDividerLocation();
-		
-		// list all objects in scene
-	    DefaultMutableTreeNode top = createTreeNodes(world);
-		JTree tree = new JTree(top);
-	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	    // double click an item to get its panel.
-	    // See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
-	    tree.addMouseListener(new MouseAdapter() {
-		    public void mousePressed(MouseEvent e) {
-		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-		        if(selPath != null) {
-		            if(e.getClickCount() == 1) {
-		                //mySingleClick(selRow, selPath);
-		            }
-		            else if(e.getClickCount() == 2) {
-		                //myDoubleClick(selRow, selPath);
-		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
-		            	pickEntity((Entity)(o.getUserObject()));
-		            }
-		        }
-		    }
-		});
-		JScrollPane entityList = new JScrollPane(tree);
-		entityList.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-
         // list of all entities in system, starting with world.
-		masterPanel.add(entityList);
-		masterPanel.add(selectedEntityPanel);
-		masterPanel.setDividerLocation(proportionalLocation);
+		updateSelectedEntityPanel(e);
+		if(selectedEntityPanel!=null) selectedEntityPanel.revalidate();
+	}
+	
+	protected void updateSelectedEntityPanel(Entity e) {
+		if(selectedEntityPanel==null) return;
+
+		selectedEntityPanel.removeAll();
+
+		if(e==null) return;
 		
+		System.out.println("updateSelectedEntityPanel "+e.getName());
 		
-		// list the select item in the scene, if any.
-		ArrayList<JPanel> list = null;
-		if(e!=null) list = e.getContextPanel(this);
-		if(list==null) {
-			selectedEntityPanel.removeAll();
-			return;
-		}
+		ArrayList<JPanel> list = e.getContextPanel(this);
+		if(list==null) return;
+
+		System.out.println("updateSelectedEntityPanel 2 "+e.getName());
 		
-		// else fill in the selectedEntityPanel
+		// fill in the selectedEntityPanel
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
-		Iterator<JPanel> pi = list.iterator();
-		
 		// true to use tab
-		boolean tabbedLayout=true;
+		boolean tabbedLayout=false;
 		if(tabbedLayout==false) {
 			// single page layout
 			JPanel sum = new JPanel();
 			BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
 			sum.setLayout(layout);
-			while(pi.hasNext()) {
-				JPanel p = pi.next();
-				
+			for( JPanel p : list ) {				
 				CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
 				oiwPanel.getContentPane().add(p);
 				sum.add(oiwPanel);
@@ -386,9 +393,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 			boolean reverseOrderOfTabs = false;
 			// tabbed layout
 			JTabbedPane b = new JTabbedPane();
-			while(pi.hasNext()) {
-				JPanel p = pi.next();
-				
+			for( JPanel p : list ) {				
 				if( reverseOrderOfTabs ) {
 					b.insertTab(p.getName(), null, p, null, 0);
 				} else {
