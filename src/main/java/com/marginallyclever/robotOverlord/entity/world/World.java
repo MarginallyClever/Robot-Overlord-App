@@ -385,17 +385,6 @@ public class World extends Entity {
 		
 		return newObject;
 	}
-
-	
-	public void addChild(Entity entity) {
-		super.addChild(entity); 
-		entity.setParent(this);
-		if(worldPanel!=null) worldPanel.buildPanel();
-	}
-	
-	public void removeEntity(Entity o) {
-		children.remove(o);
-	}
 	
 	public boolean hasEntity(Entity o) {
 		return children.contains(o);

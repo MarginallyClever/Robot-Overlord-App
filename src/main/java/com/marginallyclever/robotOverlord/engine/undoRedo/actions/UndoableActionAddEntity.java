@@ -66,12 +66,14 @@ public class UndoableActionAddEntity extends AbstractUndoableEdit {
 
 	private void addNow() {
 		ro.getWorld().addChild(entity);
-		previouslyPickedEntity = ro.getPickedEntity(); 
+		previouslyPickedEntity = ro.getPickedEntity();
+		ro.updateEntityTree();
 		ro.pickEntity(entity);
 	}
 	
 	private void removeNow() {
-		ro.getWorld().removeEntity(entity);
+		ro.getWorld().removeChild(entity);
+		ro.updateEntityTree();
 		ro.pickEntity(previouslyPickedEntity);
 	}
 }
