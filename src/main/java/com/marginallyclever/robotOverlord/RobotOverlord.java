@@ -373,7 +373,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		// true to use tab
-		boolean tabbedLayout=false;
+		boolean tabbedLayout=true;
 		if(tabbedLayout==false) {
 			// single page layout
 			JPanel sum = new JPanel();
