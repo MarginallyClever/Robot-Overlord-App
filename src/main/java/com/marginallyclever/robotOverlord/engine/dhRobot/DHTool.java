@@ -23,7 +23,7 @@ public class DHTool extends DHLink {
 		super.set(b);
 		setName(b.getName());
 	}
-	
+
 	/**
 	 * use the keyState to control the tool.
 	 * @return true if the robot's pose has been affected.
@@ -41,9 +41,8 @@ public class DHTool extends DHLink {
 
 		// set up the physical limits
 		cuboid.setPoseWorld(poseCumulative);
-		if( getModel() != null ) {
-			cuboid.setBounds(getModel().getCuboid().getBoundsTop(), 
-							 getModel().getCuboid().getBoundsBottom());
+		if(model != null) {
+			cuboid.set(model.getCuboid());
 		}
 	}
 
