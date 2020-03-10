@@ -167,15 +167,15 @@ public class Model {
 		
 		cuboid.setBounds(boundTop, boundBottom);
 
-		int totalBufferSize = numVertexes;
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+		int totalBufferSize = numVertexes*3*s;
 		int vboIndex=0;
 		
 		// bind a buffer
 		vertices.rewind();
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 	    // Write out vertex buffer to the currently bound VBO.
-	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, vertices, GL2.GL_STATIC_DRAW);
+	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, vertices, GL2.GL_STATIC_DRAW);
 	    vboIndex++;
 	    
 		if(hasNormals) {
@@ -196,7 +196,7 @@ public class Model {
 			
 			normals.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, normals, GL2.GL_STATIC_DRAW);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, normals, GL2.GL_STATIC_DRAW);
 		    vboIndex++;
 		}
 
@@ -210,7 +210,7 @@ public class Model {
 			
 			colors.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize*3*s, colors, GL2.GL_STATIC_DRAW);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, colors, GL2.GL_STATIC_DRAW);
 		    vboIndex++;
 		}
 		
@@ -381,5 +381,9 @@ public class Model {
 	
 	public Cuboid getCuboid() {
 		return cuboid;
+	}
+	
+	public int getNumTriangles() {
+		return vertexArray.size()/3;
 	}
 }
