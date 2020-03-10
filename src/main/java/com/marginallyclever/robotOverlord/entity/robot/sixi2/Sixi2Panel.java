@@ -31,7 +31,6 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -120,7 +119,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 
 		this.setName("Sixi 2");
 		this.setLayout(new GridBagLayout());
-		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
@@ -181,51 +179,36 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		CollapsiblePanel recordingPanel = new CollapsiblePanel("Recording   ");
 		this.add(recordingPanel,con1);
 		recordingPanel.getContentPane().setLayout(new BoxLayout(recordingPanel.getContentPane(),BoxLayout.PAGE_AXIS));
-
+		
+		recordedCommands = new JList<String>();
+		updateCommandList();
+		
 		JPanel contents = new JPanel();
 		recordingPanel.getContentPane().add(contents);
-		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new GridBagLayout());
-		GridBagConstraints con2 = new GridBagConstraints();
-//		con2.fill = GridBagConstraints.HORIZONTAL;
+		GridBagConstraints con2 = PanelHelper.getDefaultGridBagConstraints();
 		// DELETE BUTTON
-		con2.gridx=0;	con2.gridy=0;
 		contents.add(delCommand=new JButton("Delete"),con2);
 		delCommand.addActionListener(this);
 		// ADD BUTTON
-		con2.gridx=1;	con2.gridy=0;
+		con2.gridx++;
 		contents.add(addCommand=new JButton("Add"),con2);
 		addCommand.addActionListener(this);
 		// OVERWRITE BUTTON
-		con2.gridx=2;	con2.gridy=0;
+		con2.gridx++;
 		contents.add(setCommand=new JButton("Overwrite"),con2);
 		setCommand.addActionListener(this);
-
-		con2.gridx=0;	con2.gridy=1;
+		con2.gridx=0;
+		con2.gridy=1;
 		con2.gridwidth = 3;
 		con2.fill = GridBagConstraints.HORIZONTAL;
 //		String[] data = {"one", "222", "three", "four"};
 
-		contents.add(scrollPane = new JScrollPane(),con2);
+		contents.add(scrollPane = new JScrollPane(recordedCommands),con2);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 //		scrollPane.setBounds(206, 154, 177, 189);
 
-		contents.add(recordedCommands = new JList<String>(),con2);
-		updateCommandList();
-		scrollPane.setViewportView(recordedCommands);
-		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		recordedCommands.setLayoutOrientation(JList.VERTICAL);
-		recordedCommands.setVisibleRowCount(130);
-		recordedCommands.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				// force stop
-				robot.reset();
-				// change current index
-				robot.setCommandIndex(e.getLastIndex());
-			}
-		});
 		
 
 		// RESET BUTTON
@@ -293,7 +276,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		contents = new JPanel();
 		livePanel.getContentPane().add(contents);
 
-		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new SpringLayout());
 		i=0;
 		for( DHLink link : robot.live.links ) {
@@ -321,7 +303,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
 
 		livePosPanel = new JPanel();
-		livePosPanel.setBorder(new EmptyBorder(0,0,0,0));
 		livePosPanel.setLayout(new SpringLayout());
 		livePanel.getContentPane().add(livePosPanel);
 		updatePosition(robot.sim,livePosPanel);
@@ -335,7 +316,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		// ghost joints
 		contents = new JPanel();
 		ghostPanel.getContentPane().add(contents);
-		contents.setBorder(new EmptyBorder(0,0,0,0));
 		contents.setLayout(new SpringLayout());
 		i=0;
 		for( DHLink link : robot.sim.links ) {
@@ -365,7 +345,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		SpringUtilities.makeCompactGrid(contents, i, 3, 5, 5, 5, 5);
 
 		ghostPosPanel = new JPanel();
-		ghostPosPanel.setBorder(new EmptyBorder(0,0,0,0));
 		ghostPosPanel.setLayout(new SpringLayout());
 		ghostPanel.getContentPane().add(ghostPosPanel);
 		updatePosition(robot.sim,ghostPosPanel);
@@ -486,16 +465,28 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		int selectedIndex = recordedCommands.getSelectedIndex();
 		// rebuild the contents of the list
 		DefaultListModel<String> list = new DefaultListModel<String>();
-		ArrayList<String> robotCommands = robot.getCommandList();
-		int index=0;
-		for( String s : robotCommands ) {
-			list.add(index++, s);
-		}
 		recordedCommands.setModel(list);
+		
+		ArrayList<String> robotCommands = robot.getCommandList();
+		for( String s : robotCommands ) {
+			list.addElement(s);
+		}
+		
+		recordedCommands = new JList<String>(list);
 		// remember our selected item
 		recordedCommands.setSelectedIndex(selectedIndex);
-		// make sure the JList gets redrawn.
-		recordedCommands.revalidate();
+
+		recordedCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		recordedCommands.setVisibleRowCount(-1);
+		recordedCommands.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				// force stop
+				robot.reset();
+				// change current index
+				robot.setCommandIndex(e.getLastIndex());
+			}
+		});
 	}
 	
 	public void play() {
