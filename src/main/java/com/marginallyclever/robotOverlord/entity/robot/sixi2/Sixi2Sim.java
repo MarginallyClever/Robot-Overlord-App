@@ -10,7 +10,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 
 public class Sixi2Sim extends Sixi2Model {
@@ -170,7 +169,7 @@ public class Sixi2Sim extends Sixi2Model {
 
 	@Override 
 	public void update(double dt) {
-		interpolationStyle = InterpolationStyle.LINEAR_IK;
+		interpolationStyle = InterpolationStyle.JACOBIAN;
 		switch (interpolationStyle) {
 		case LINEAR_FK:	interpolateLinearFK(dt);	break;
 		case LINEAR_IK:	interpolateLinearIK(dt);	break;
@@ -233,24 +232,23 @@ public class Sixi2Sim extends Sixi2Model {
 		
 		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
 		
-		DHKeyframe keyframe2 = getIKSolver().createDHKeyframe();
-
-		// use anglesA to get the hand matrix
-		DHRobot clone = new DHRobot(this);
-		clone.setPoseFK(keyframe);
-		Matrix4d T = new Matrix4d(clone.getEndEffectorMatrix());
+		DHKeyframe oldPoseFK = getIKSolver().createDHKeyframe();
+		getPoseFK(oldPoseFK);
 		
-		// for all joints
-		int i,j;
-		for(i=0;i<6;++i) {
-			// use anglesB to get the hand matrix after a tiiiiny adjustment on one joint.
-			for(j=0;j<6;++j) {
-				keyframe2.fkValues[j]=keyframe.fkValues[j];
-			}
-			keyframe2.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
-
-			clone.setPoseFK(keyframe2);
-			Matrix4d Tnew = new Matrix4d(clone.getEndEffectorMatrix());
+		setPoseFK(keyframe);
+		Matrix4d T = new Matrix4d(getEndEffectorMatrix());
+		
+		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
+		int i=0;
+		// for all adjustable joints
+		for( DHLink link : links ) {
+			if(link.flags == LinkAdjust.NONE) continue;
+			
+			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
+			newPoseFK.set(keyframe);
+			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
+			setPoseFK(newPoseFK);
+			Matrix4d Tnew = new Matrix4d(getEndEffectorMatrix());
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -310,7 +308,12 @@ public class Sixi2Sim extends Sixi2Model {
 			jacobian[i][3]=skewSymmetric.m12;
 			jacobian[i][4]=skewSymmetric.m20;
 			jacobian[i][5]=skewSymmetric.m01;
+			
+			++i;
 		}
+
+		// undo our changes.
+		setPoseFK(oldPoseFK);
 		
 		return jacobian;
 	}
@@ -322,6 +325,12 @@ public class Sixi2Sim extends Sixi2Model {
 	 * @param dt
 	 */
 	protected void interpolateJacobian(double dt) {
+		if(arrivalTime == startTime) {
+	    	// nothing happening
+			readyForCommands=true;
+			return;
+		}
+		
     	double tTotal = arrivalTime - startTime;
     	double tNow = System.currentTimeMillis();
 	    double t = tNow-startTime;
@@ -331,7 +340,11 @@ public class Sixi2Sim extends Sixi2Model {
 		if(ratio0>1) ratio0=1;
 		if(ratio1>1) ratio1=1;
 		
-		if(ratio1==1 && ratio0==1) return;
+		if(ratio1==1 && ratio0==1) {
+	    	// nothing happening
+			readyForCommands=true;
+			return;
+		}
 		
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
@@ -340,7 +353,6 @@ public class Sixi2Sim extends Sixi2Model {
 		MatrixHelper.interpolate(mFrom,mTarget, ratio0, interpolatedMatrix0);
 		MatrixHelper.interpolate(mFrom,mTarget, ratio1, interpolatedMatrix1);
 
-		mLive.set(interpolatedMatrix1);
 		
 		// get the translation force
 		Vector3d p0 = new Vector3d();
@@ -386,13 +398,15 @@ public class Sixi2Sim extends Sixi2Model {
 				if (!Double.isNaN(jvot[j])) {
 					// simulate a change in the joint velocities
 					double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * dt;
+					System.out.print(StringHelper.formatDouble(v)+"\t");
+					
 					v = MathHelper.capRotationDegrees(v,0);
 					keyframe.fkValues[j]=v;
-					System.out.print(StringHelper.formatDouble(v)+"\t");
 				}
 			}
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
+				mLive.set(getEndEffectorMatrix());
 				System.out.println("ok");
 			} else {
 				System.out.println("bad");
