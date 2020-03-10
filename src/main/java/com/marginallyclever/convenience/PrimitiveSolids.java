@@ -1,4 +1,5 @@
 package com.marginallyclever.convenience;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import javax.vecmath.Point3d;
@@ -7,6 +8,84 @@ import com.jogamp.opengl.GL2;
 
 
 public class PrimitiveSolids {
+	static public void drawSphere(GL2 gl2,double radius) {
+		int width = 32;
+		int height = 16;
+		
+		double theta, phi;
+		int i, j, t;
+
+		int nvec = (height-2)* width + 2;
+		int ntri = (height-2)*(width-1)*2;
+
+		FloatBuffer vertices = FloatBuffer.allocate(nvec * 3);
+		IntBuffer indexes = IntBuffer.allocate(ntri * 3);
+
+		float [] dat = vertices.array();
+		int   [] idx = indexes.array();
+		
+		for( t=0, j=1; j<height-1; j++ ) {
+			for(i=0; i<width; i++ )  {
+				theta = (double)(j)/(double)(height-1) * Math.PI;
+				phi   = (double)(i)/(double)(width-1 ) * Math.PI*2;
+
+				dat[t++] = (float)( Math.sin(theta) * Math.cos(phi));
+				dat[t++] = (float)( Math.cos(theta));
+				dat[t++] = (float)(-Math.sin(theta) * Math.sin(phi));
+			}
+		}
+		dat[t++]= 0;
+		dat[t++]= 1;
+		dat[t++]= 0;
+		dat[t++]= 0;
+		dat[t++]=-1;
+		dat[t++]= 0;
+		
+		for( t=0, j=0; j<height-3; j++ ) {
+			for(      i=0; i<width-1; i++ )  {
+				idx[t++] = (j  )*width + i  ;
+				idx[t++] = (j+1)*width + i+1;
+				idx[t++] = (j  )*width + i+1;
+				idx[t++] = (j  )*width + i  ;
+				idx[t++] = (j+1)*width + i  ;
+				idx[t++] = (j+1)*width + i+1;
+			}
+		}
+		for( i=0; i<width-1; i++ )  {
+			idx[t++] = (height-2)*width;
+			idx[t++] = i;
+			idx[t++] = i+1;
+			idx[t++] = (height-2)*width+1;
+			idx[t++] = (height-3)*width + i+1;
+			idx[t++] = (height-3)*width + i;
+		}
+
+		int NUM_BUFFERS=1;
+		int[] VBO = new int[NUM_BUFFERS];
+		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
+	    // Write out vertex buffer to the currently bound VBO.
+		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, dat.length*s, vertices, GL2.GL_STATIC_DRAW);
+	    
+	    
+		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+		gl2.glVertexPointer(3,GL2.GL_FLOAT,0,0);
+		
+		gl2.glEnableClientState(GL2.GL_NORMAL_ARRAY);
+		gl2.glNormalPointer(GL2.GL_FLOAT,0,0);
+
+		gl2.glPushMatrix();
+		gl2.glScaled(radius,radius,radius);
+		gl2.glDrawElements(GL2.GL_TRIANGLES, ntri*3, GL2.GL_UNSIGNED_INT, indexes );
+		gl2.glPopMatrix();
+		
+		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
+		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+		
+		gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
+	}
+	
 	static public void drawCylinder(GL2 gl2,Cylinder tube) {
 		/*
 		gl2.glBegin(GL2.GL_LINES);
