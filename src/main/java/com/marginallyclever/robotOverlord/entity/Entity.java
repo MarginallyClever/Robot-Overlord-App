@@ -93,6 +93,10 @@ public class Entity extends Observable {
 		}
 	}
 	
+
+	public boolean hasChild(Entity o) {
+		return children.contains(o);
+	}
 	
 	public void addChild(Entity e) {
 		children.add(e);
@@ -108,6 +112,15 @@ public class Entity extends Observable {
 	
 	public ArrayList<Entity> getChildren() {
 		return children;
+	}
+	
+	public Entity findChildWithName(String name) {
+		for( Entity obj : children ) {
+			String objectName = obj.getName();
+			if(name.equals(objectName)) return obj; 
+		}
+		
+		return null;
 	}
 	
 	public void removeParent() {

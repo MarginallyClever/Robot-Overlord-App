@@ -386,10 +386,8 @@ public class World extends Entity {
 		return newObject;
 	}
 	
-	public boolean hasEntity(Entity o) {
-		return children.contains(o);
-	}
 	
+	@Deprecated
 	public List<String> namesOfAllObjects() {
 		ArrayList<String> list = new ArrayList<String>();
 
@@ -400,16 +398,6 @@ public class World extends Entity {
 		
 		return list;
 	}
-	
-	public Entity findObjectWithName(String name) {
-		for( Entity obj : children ) {
-			String objectName = obj.getName();
-			if(name.equals(objectName)) return obj; 
-		}
-		
-		return null;
-	}
-	
 	
 	public Camera getCamera() {
 		return camera;

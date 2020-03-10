@@ -36,7 +36,7 @@ public class EntityPanel extends JPanel implements ChangeListener {
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		if(ro.getWorld().hasEntity(entity)) {
+		if(ro.getWorld().hasChild(entity)) {
 			this.add(new UserCommandRemoveMe(ro,entity),con1);
 			con1.gridy++;
 		}

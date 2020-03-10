@@ -21,6 +21,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
  * @author Admin
  *
  */
+@Deprecated
 public class UserCommandRemoveEntity extends JMenuItem implements ActionListener {
 	/**
 	 * 
@@ -35,15 +36,10 @@ public class UserCommandRemoveEntity extends JMenuItem implements ActionListener
 		addActionListener(this);
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		selectAndRemoveObject();
-	}
-	
-	
     /**
      * Select from a list of all objects in the world.  The selected object is then removed and destroyed.
      */
-    public void selectAndRemoveObject() {
+	public void actionPerformed(ActionEvent e) {
 		JPanel additionList = new JPanel(new GridLayout(0, 1));
 
 		JComboBox<String> removeComboBox = new JComboBox<String>();
@@ -61,7 +57,7 @@ public class UserCommandRemoveEntity extends JMenuItem implements ActionListener
 		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, "Remove...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			String targetName = removeComboBox.getItemAt(removeComboBox.getSelectedIndex());
-			Entity targetInstance = ro.getWorld().findObjectWithName(targetName);
+			Entity targetInstance = ro.getWorld().findChildWithName(targetName);
 
 			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionRemoveEntity(ro,targetInstance) ) );
 
