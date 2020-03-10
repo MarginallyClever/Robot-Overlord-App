@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Iterator;
@@ -15,7 +14,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectBoolean;
 
@@ -44,21 +42,19 @@ public class UserCommandSelectBoolean extends JPanel implements ItemListener {
 		value=defaultValue;
 		this.label = labelName;
 		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		setLayout(new FlowLayout(FlowLayout.LEADING));
+		//setBorder(new LineBorder(Color.GREEN));
 		
-		JLabel label=new JLabel(labelName,SwingConstants.LEFT);
-	
 		checkboxField = new JCheckBox();
-		label.setLabelFor(checkboxField);
 		checkboxField.setSelected(defaultValue);
 		checkboxField.addItemListener(this);
+		//checkboxField.setBorder(new LineBorder(Color.BLUE));
+		add(checkboxField);
 		
-		this.add(checkboxField,con1);
-		con1.gridx++;
-		con1.weightx=1;
-		con1.anchor=GridBagConstraints.NORTHWEST;
-		this.add(label,con1);
+		JLabel label=new JLabel(labelName,SwingConstants.LEFT);
+		//label.setBorder(new LineBorder(Color.RED));
+		label.setLabelFor(checkboxField);
+		add(label);
 	}
 	
 	public boolean getValue() {
