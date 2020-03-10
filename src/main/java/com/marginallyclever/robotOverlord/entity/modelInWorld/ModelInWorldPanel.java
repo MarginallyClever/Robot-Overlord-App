@@ -5,13 +5,17 @@ import java.awt.GridBagLayout;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelLoadAndSave;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
@@ -36,6 +40,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		this.model = model;
 
 		this.setName("Model");
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
@@ -50,6 +55,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 			userCommandSelectFile.addChoosableFileFilter(filter);
 		}
 		userCommandSelectFile.addChangeListener(this);
+		con1.gridy++;
 		this.add(userCommandSelectFile,con1);
 
 		con1.gridy++;
@@ -58,15 +64,24 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		this.add(setScale,con1);
 
 		con1.gridy++;
-		setOrigin = new UserCommandSelectVector3d(gui,"Adjust origin",model.getModelOrigin());
+		setOrigin = new UserCommandSelectVector3d(gui,"Origin",model.getModelOrigin());
 		setOrigin.addChangeListener(this);
 		this.add(setOrigin,con1);
 
 		con1.gridy++;
-		setRotation = new UserCommandSelectVector3d(gui,"Adjust rotation",model.getModelRotation());
+		setRotation = new UserCommandSelectVector3d(gui,"Rotation",model.getModelRotation());
 		setRotation.addChangeListener(this);
 		this.add(setRotation,con1);
 
+		Model m = this.model.getModel();
+		if(m!=null) {
+			con1.gridy++;
+			this.add(new JLabel(m.getNumTriangles()+" triangles",SwingConstants.LEFT),con1);
+			con1.gridy++;
+			this.add(new JLabel(m.hasNormals?"has normals":"",SwingConstants.LEFT),con1);
+			con1.gridy++;
+			this.add(new JLabel(m.hasColors?"has colors":"",SwingConstants.LEFT),con1);
+		}
 		PanelHelper.ExpandLastChild(this, con1);
 	}
 
