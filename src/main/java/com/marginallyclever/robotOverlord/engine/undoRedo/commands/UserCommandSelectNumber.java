@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -55,6 +56,8 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 	
 		textField = new JTextField(8);
 		textField.getDocument().addDocumentListener(this);
+		textField.setHorizontalAlignment(SwingConstants.RIGHT);
+		
 		label.setLabelFor(textField);
 		setValue(defaultValue);
 
