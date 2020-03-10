@@ -26,6 +26,11 @@ com.marginallyclever.robotOverlord.entity.camera.Camera
 com.marginallyclever.robotOverlord.entity.light.Light
 com.marginallyclever.robotOverlord.entity.physicalObject.boxObject.BoxObject
 
+#sixi2 Tools
+com.marginallyclever.robotOverlord.engine.dhRobot.DHTool
+com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_GoProCamera
+com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_Gripper
+
 #tests
 #com.marginallyclever.robotOverlord.entity.matrixInterpolationTest.MatrixInterpolationTest
 
