@@ -278,12 +278,14 @@ public class Sixi2 extends Robot {
 			if(controlMode == ControlMode.RECORD) {
 				if( operatingMode == OperatingMode.LIVE) {
 					String line = sim.getCommand();
-					System.out.println("Send command: "+line);
+					System.out.println(controlMode + " " + operatingMode + " send command: "+line);
 					activeModel.sendCommand(line);
 				}
 			} else {
 				if(cycleStart && recording.hasNext()) {
-					activeModel.sendCommand(recording.next());
+					String line = recording.next();
+					System.out.println(controlMode + " " + operatingMode + " send command: "+line);
+					activeModel.sendCommand(line);
 					if(singleBlock) {
 						// one block at a time
 						cycleStart=false;
@@ -433,7 +435,7 @@ public class Sixi2 extends Robot {
 		cycleStart = false;
 		m01Break = true;
 
-		System.out.println("reset");
+		System.out.println("reset "+recording.getNumCommands());
 	}
 
 	public void toggleCycleStart() {
