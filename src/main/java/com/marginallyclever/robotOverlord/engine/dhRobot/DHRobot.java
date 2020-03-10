@@ -126,7 +126,7 @@ public class DHRobot extends ModelInWorld {
 			link.poseCumulative.set(endEffectorMatrix);
 
 			// set up the physical limits
-			if(link.getModel()!=null) {
+			if(link.getModel() != null) {
 				link.cuboid.set(link.getModel().getCuboid());
 				link.cuboid.setPoseWorld(link.poseCumulative);
 			}
