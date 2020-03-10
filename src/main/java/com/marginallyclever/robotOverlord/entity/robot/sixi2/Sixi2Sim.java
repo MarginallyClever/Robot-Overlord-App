@@ -11,19 +11,33 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
 
 public class Sixi2Sim extends Sixi2Model {
 	public enum InterpolationStyle {
-		LINEAR_FK("LINEAR_FK"),
-		LINEAR_IK("LINEAR_IK"),
-		JACOBIAN("JACOBIAN");
+		LINEAR_FK(0,"LINEAR_FK"),
+		LINEAR_IK(1,"LINEAR_IK"),
+		JACOBIAN(2,"JACOBIAN");
 		
-		private String styleName;
-		private InterpolationStyle(String s) {
-			styleName=s;
+		private int number;
+		private String name;
+		private InterpolationStyle(int n,String s) {
+			number=n;
+			name=s;
+		}
+		public int toInt() {
+			return number;
 		}
 		public String toString() {
-			return styleName;
+			return name;
+		}
+		static public String [] getAll() {
+			ControlMode[] allModes = ControlMode.values();
+			String[] labels = new String[allModes.length];
+			for(int i=0;i<labels.length;++i) {
+				labels[i] = allModes[i].toString();
+			}
+			return labels;
 		}
 	};
 
