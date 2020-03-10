@@ -8,6 +8,12 @@ import com.jogamp.opengl.GL2;
 
 
 public class PrimitiveSolids {
+	/**
+	 * TODO expose width/height parameters
+	 * TODO generate a sphere once as a model, return that.
+	 * @param gl2
+	 * @param radius
+	 */
 	static public void drawSphere(GL2 gl2,double radius) {
 		int width = 32;
 		int height = 16;
