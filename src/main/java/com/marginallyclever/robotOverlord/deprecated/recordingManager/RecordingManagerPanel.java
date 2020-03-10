@@ -31,7 +31,6 @@ public class RecordingManagerPanel extends JPanel implements ActionListener {
 	
 	protected void buildPanel() {
 		this.removeAll();
-		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		

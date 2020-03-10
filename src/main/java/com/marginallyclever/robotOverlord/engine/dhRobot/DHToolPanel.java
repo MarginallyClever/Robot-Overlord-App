@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,12 +35,7 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 		this.tool = tool;
 		this.gui = gui;
 		
-		buildPanel();
-	}
-	
-	protected void buildPanel() {
 		this.removeAll();
-		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 

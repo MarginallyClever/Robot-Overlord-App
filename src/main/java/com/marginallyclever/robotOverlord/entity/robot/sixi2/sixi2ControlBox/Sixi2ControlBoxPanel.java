@@ -10,7 +10,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -78,7 +77,6 @@ public class Sixi2ControlBoxPanel extends JPanel implements ActionListener, Chan
 		
 		this.setName("Sixi 2 Control Box");
 		this.setLayout(new GridBagLayout());
-		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		

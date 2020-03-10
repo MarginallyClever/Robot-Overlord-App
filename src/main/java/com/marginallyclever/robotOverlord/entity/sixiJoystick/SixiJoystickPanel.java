@@ -7,8 +7,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
@@ -34,15 +32,7 @@ public class SixiJoystickPanel extends JPanel implements ActionListener {
 		this.joystick = robot;
 		this.ro = gui;
 		
-		buildPanel();
-	}
-	
-	protected void buildPanel() {
-		this.removeAll();
-
 		this.setName("Sixi Joystick");		
-		
-		this.setBorder(new EmptyBorder(0,0,0,0));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 

@@ -9,7 +9,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -55,7 +54,6 @@ public class UserCommandSelectVector3d extends JPanel implements DocumentListene
 
 		JPanel values = new JPanel();
 		this.add(values);
-		values.setBorder(new EmptyBorder(0,0,0,0));
 		values.setLayout(new SpringLayout());
 
 		JLabel label=new JLabel(labelName,JLabel.LEFT);

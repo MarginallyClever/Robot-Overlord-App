@@ -4,7 +4,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAddEntity;
@@ -15,6 +14,7 @@ public class WorldPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	private RobotOverlord gui;
 	
 	@SuppressWarnings("unused")
@@ -29,17 +29,8 @@ public class WorldPanel extends JPanel {
 		this.gui = gui;
 		this.world = world;
 
-		// A list of all the elements in the world.
-		// TODO add a search feature?
-		buildPanel();
-	}
-	
-	public void buildPanel() {
-		this.removeAll();
-
 		this.setName("World");
 		this.setLayout(new GridBagLayout());
-		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		

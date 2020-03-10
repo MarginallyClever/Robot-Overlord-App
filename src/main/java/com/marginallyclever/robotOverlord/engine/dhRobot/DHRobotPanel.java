@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
@@ -75,7 +74,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		linkPanels = new ArrayList<DHLinkPanel>();
 		
 		this.setLayout(new GridBagLayout());
-		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		

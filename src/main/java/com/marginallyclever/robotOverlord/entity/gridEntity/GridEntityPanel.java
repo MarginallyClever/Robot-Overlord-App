@@ -5,7 +5,6 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -43,7 +42,6 @@ public class GridEntityPanel extends JPanel implements ChangeListener {
 
 		this.setName("Grid");
 		this.setLayout(new GridBagLayout());
-		this.setBorder(new EmptyBorder(0,0,0,0));
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		

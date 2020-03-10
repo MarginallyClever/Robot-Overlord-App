@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -31,7 +30,6 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 		this.robot = robot;
 
 		this.setName("Robot");
-		this.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
