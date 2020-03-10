@@ -8,6 +8,7 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
 
 /**
  * Denavit–Hartenberg parameters
@@ -34,17 +35,25 @@ public class DHLink extends ModelInWorld {
 		R    (1<<2,"R"    ),
 		ALPHA(1<<3,"ALPHA");
 		
-		private int modeNumber;
-		private String modeName;
+		private int number;
+		private String name;
 		private LinkAdjust(int n,String s) {
-			modeNumber=n;
-			modeName=s;
+			number=n;
+			name=s;
 		}
 		public int toInt() {
-			return modeNumber;
+			return number;
 		}
 		public String toString() {
-			return modeName;
+			return name;
+		}
+		static public String [] getAll() {
+			ControlMode[] allModes = ControlMode.values();
+			String[] labels = new String[allModes.length];
+			for(int i=0;i<labels.length;++i) {
+				labels[i] = allModes[i].toString();
+			}
+			return labels;
 		}
 	};
 	
@@ -155,6 +164,17 @@ public class DHLink extends ModelInWorld {
 		pose.m10 = st;		pose.m11 = ct*ca;		pose.m12 = -ct*sa;		pose.m13 = r*st;
 		pose.m20 = 0;		pose.m21 = sa;			pose.m22 = ca;			pose.m23 = d;
 		pose.m30 = 0;		pose.m31 = 0;			pose.m32 = 0;			pose.m33 = 1;
+	}
+
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		
+		// set up the physical limits
+		cuboid.setPoseWorld(poseCumulative);
+		if(model != null) {
+			cuboid.set(model.getCuboid());
+		}
 	}
 	
 	@Override
@@ -294,10 +314,9 @@ public class DHLink extends ModelInWorld {
 	 * @param gl2 the render context
 	 */
 	public void setAngleColorByRange(GL2 gl2) {
-		double a=0;
-		if(flags == LinkAdjust.THETA) a=theta;
-		else a=alpha;
+		if(flags == LinkAdjust.NONE) return;
 		
+		double a= (flags == LinkAdjust.THETA) ? theta : alpha;
 		double halfRange = (rangeMax-rangeMin)/2;
 		double midRange = (rangeMax+rangeMin)/2;
 		float safety = (float)(Math.abs(a-midRange)/halfRange);

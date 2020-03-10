@@ -34,28 +34,54 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  */
 public class Sixi2 extends Robot {
 	public enum ControlMode {
-		RECORD("RECORD"),
-		PLAYBACK("PLAYBACK");
+		RECORD(0,"RECORD"),
+		PLAYBACK(1,"PLAYBACK");
 
+		private int modeNumber;
 		private String modeName;
-		private ControlMode(String s) {
+		private ControlMode(int n,String s) {
+			modeNumber=n;
 			modeName=s;
+		}
+		public int toInt() {
+			return modeNumber;
 		}
 		public String toString() {
 			return modeName;
+		}
+		static public String [] getAll() {
+			ControlMode[] allModes = ControlMode.values();
+			String[] labels = new String[allModes.length];
+			for(int i=0;i<labels.length;++i) {
+				labels[i] = allModes[i].toString();
+			}
+			return labels;
 		}
 	};
 
 	public enum OperatingMode {
-		LIVE("LIVE"),
-		SIM("SIM");
+		LIVE(0,"LIVE"),
+		SIM(1,"SIM");
 
+		private int modeNumber;
 		private String modeName;
-		private OperatingMode(String s) {
+		private OperatingMode(int n,String s) {
+			modeNumber=n;
 			modeName=s;
+		}
+		public int toInt() {
+			return modeNumber;
 		}
 		public String toString() {
 			return modeName;
+		}
+		static public String [] getAll() {
+			OperatingMode[] allModes = OperatingMode.values();
+			String[] labels = new String[allModes.length];
+			for(int i=0;i<labels.length;++i) {
+				labels[i] = allModes[i].toString();
+			}
+			return labels;
 		}
 	}
 
@@ -365,6 +391,7 @@ public class Sixi2 extends Robot {
 				cuboidList.add(link.getCuboid());
 			}
 		}
+		cuboidList.addAll(sim.dhTool.getCuboidList());
 
 		return cuboidList;
 	}
