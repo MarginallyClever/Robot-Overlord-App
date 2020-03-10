@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -27,30 +28,27 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 	private Robot robot = null;
 
 	public RobotPanel(RobotOverlord gui, Robot robot) {
+		super();
+		
 		this.robot = robot;
 
 		this.setName("Robot");
-		this.setLayout(new GridBagLayout());
 
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-
-		buttonConnect = createButton(Translator.get("ButtonConnect"));
-		this.add(buttonConnect, con1);
+		buttonConnect = new JButton();
+		if(robot.getConnection()!=null && robot.getConnection().isOpen()) {
+			buttonConnect.setText(Translator.get("ButtonDisconnect"));
+		} else {
+			buttonConnect.setText(Translator.get("ButtonConnect"));
+		}
+		buttonConnect.addActionListener(this);
 		
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		this.setBorder(new EmptyBorder(5,5,5,5));
+		this.add(buttonConnect, con1);
 		PanelHelper.ExpandLastChild(this, con1);
 	}
-
-	private JButton createButton(String name) {
-		JButton b = new JButton(name);
-
-		// Font font = new Font("Segoe UI Symbol",
-		// Font.PLAIN,b.getFont().getSize());
-		// .b.setFont(font);
-
-		b.addActionListener(this);
-		return b;
-	}
-
+	
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		// TODO Auto-generated method stub

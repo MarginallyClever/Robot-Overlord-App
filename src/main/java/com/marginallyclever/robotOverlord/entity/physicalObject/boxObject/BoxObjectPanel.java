@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -28,8 +29,7 @@ public class BoxObjectPanel extends JPanel implements ChangeListener {
 		this.box=box;
 		
 		this.setName("Box");
-		
-
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();

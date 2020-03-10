@@ -127,23 +127,28 @@ public class ModelInWorld extends PhysicalObject {
 	public Vector3d getModelRotation() {
 		return new Vector3d(rotationAdjust);
 	}
-	
+
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		
+		// set up the physical limits
+		// TODO get poseCumulative somehow
+		//cuboid.setPoseWorld(poseCumulative);
+		if(model != null) {
+			cuboid.set(model.getCuboid());
+		}
+	}
 
 	@Override
 	public void render(GL2 gl2) {	
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);
 
-			//cuboid.render(gl2);
-			
-			// TODO: this should probably be an option that can be toggled.
-			// It is here to fix scaling of the entire model.  It won't work when the model is scaled unevenly.
-			gl2.glEnable(GL2.GL_NORMALIZE);
-	
 			material.render(gl2);
-			
 			if( model==null ) {
 				// draw placeholder
+				//PrimitiveSolids.drawSphere(gl2,1);
 				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
 				PrimitiveSolids.drawStar(gl2,new Vector3d(0,0,0),3f);
 			} else {
@@ -152,7 +157,7 @@ public class ModelInWorld extends PhysicalObject {
 		gl2.glPopMatrix();
 		
 		// draw children
-		// physicalObject also calls applyMatirx() so this has to happen outside of the matrix push/pop
+		// physicalObject also calls applyMatrix() so this has to happen outside of the matrix push/pop
 		super.render(gl2);
 	}
 

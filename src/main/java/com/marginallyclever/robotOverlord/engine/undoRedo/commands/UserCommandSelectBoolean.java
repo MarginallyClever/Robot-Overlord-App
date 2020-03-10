@@ -10,6 +10,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
@@ -42,19 +43,18 @@ public class UserCommandSelectBoolean extends JPanel implements ItemListener {
 		value=defaultValue;
 		this.label = labelName;
 		
-		setLayout(new FlowLayout(FlowLayout.LEADING));
-		//setBorder(new LineBorder(Color.GREEN));
-		
 		checkboxField = new JCheckBox();
 		checkboxField.setSelected(defaultValue);
 		checkboxField.addItemListener(this);
-		//checkboxField.setBorder(new LineBorder(Color.BLUE));
-		add(checkboxField);
+		checkboxField.setBorder(new EmptyBorder(0,0,0,0));
 		
 		JLabel label=new JLabel(labelName,SwingConstants.LEFT);
-		//label.setBorder(new LineBorder(Color.RED));
 		label.setLabelFor(checkboxField);
-		add(label);
+
+		this.setLayout(new FlowLayout(FlowLayout.LEADING));
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		this.add(checkboxField);
+		this.add(label);
 	}
 	
 	public boolean getValue() {

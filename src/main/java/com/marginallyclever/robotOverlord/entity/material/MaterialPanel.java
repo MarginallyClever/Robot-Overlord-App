@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -41,6 +42,7 @@ public class MaterialPanel extends JPanel implements ChangeListener {
 		mat=arg0;
 
 		this.setName("Material");
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();

@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -13,12 +12,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.filechooser.FileFilter;
 
-import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectFile;
 
@@ -44,35 +43,24 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 		this.ro = ro;
 		this.label = labelName;
 		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		lastPath = System.getProperty("user.dir");
 		
-		JLabel label=new JLabel(labelName,JLabel.CENTER);
-	
 		fieldX = new JTextField(15);
 		fieldX.setEditable(false);
 		fieldX.setText(defaultValue);
+		
+		JLabel label=new JLabel(labelName,JLabel.LEFT);
 		label.setLabelFor(fieldX);
+		label.setBorder(new EmptyBorder(0,0,0,5));
 
 		JButton choose = new JButton("...");
 		choose.addActionListener(this);
 
-		con1.weightx=1.0;
-		con1.gridx=0;
-		con1.gridwidth=2;	
-		this.add(label,con1);
-		con1.gridy++;
-
-		con1.gridwidth=1;
-		con1.weightx=1.0;
-		con1.gridx=0;
-		this.add(fieldX,con1);
-		
-		con1.weightx=0;
-		con1.gridx=1;
-		con1.ipadx=-20;
-		this.add(choose,con1);
-		con1.gridy++;
+		this.setLayout(new BorderLayout());
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		this.add(label,BorderLayout.LINE_START);
+		this.add(fieldX,BorderLayout.CENTER);
+		this.add(choose,BorderLayout.LINE_END);
 	}
 	
 

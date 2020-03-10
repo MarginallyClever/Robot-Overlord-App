@@ -1,9 +1,7 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,13 +9,16 @@ import java.util.LinkedList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.convenience.PanelHelper;
+import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectColorRGBA;
 
@@ -51,40 +52,37 @@ public class UserCommandSelectColorRGBA extends JPanel implements DocumentListen
 		df = new DecimalFormat("0.00");
 		df.setGroupingUsed(false);
 		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
-	
-		con1.gridx=0;
-		con1.ipadx=5;
-		this.add(label,con1);
-		con1.gridx++;
-		con1.ipadx=0;
-		con1.weightx=0;
-		fieldR = addField("R",defaultValue[0],con1);
-		fieldG = addField("G",defaultValue[1],con1);
-		fieldB = addField("B",defaultValue[2],con1);
-		fieldA = addField("A",defaultValue[3],con1);
-		con1.gridy++;
+		label.setBorder(new EmptyBorder(0,0,0,5));
+		
+		JPanel values = new JPanel();
+		values.setLayout(new SpringLayout());
+		fieldR = addField("R",defaultValue[0],values);
+		fieldG = addField("G",defaultValue[1],values);
+		fieldB = addField("B",defaultValue[2],values);
+		fieldA = addField("A",defaultValue[3],values);
+		SpringUtilities.makeCompactGrid(values, 1, 8, 0,0,0,0);
+		
+		this.setLayout(new BorderLayout());
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		this.add(label,BorderLayout.LINE_START);
+		this.add(values,BorderLayout.LINE_END);
 	}
 	
-	private JTextField addField(String labelName,float defaultValue,GridBagConstraints con1) {
+	private JTextField addField(String labelName,float defaultValue,JPanel values) {
 		JLabel label = new JLabel(labelName, JLabel.LEADING);
 		JTextField f = new JTextField(3);
 		f.setText(df.format(defaultValue));
+		f.setHorizontalAlignment(SwingConstants.RIGHT);
 		Dimension preferredSize = f.getPreferredSize();
 		preferredSize.width=20;
 		f.setPreferredSize(preferredSize);
 		f.setMaximumSize(preferredSize);
 		f.getDocument().addDocumentListener(this);
 		label.setLabelFor(f);
-		con1.insets = new Insets(0, 1, 0, 2);
-		this.add(label,con1);
-		con1.gridx++;
-		this.add(f,con1);
-		con1.gridx++;
-		con1.insets = new Insets(0, 0, 0, 0);
+		values.add(label);
+		values.add(f);
+		label.setBorder(new EmptyBorder(0,5,0,1));
 		return f;
 	}
 	

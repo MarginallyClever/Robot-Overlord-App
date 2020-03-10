@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -32,17 +33,20 @@ public class EntityPanel extends JPanel implements ChangeListener {
 		this.entity = entity;
 
 		this.setName("Entity");
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		if(ro.getWorld().hasChild(entity)) {
-			this.add(new UserCommandRemoveMe(ro,entity),con1);
-			con1.gridy++;
-		}
-
-		this.add(setName=new UserCommandSelectString(ro,"name",entity.getName()), con1);
+		setName=new UserCommandSelectString(ro,"name",entity.getName());
 		setName.addChangeListener(this);
+
+		this.add(setName, con1);
+		
+		if(ro.getWorld().hasChild(entity)) {
+			con1.gridy++;
+			this.add(new UserCommandRemoveMe(ro,entity),con1);
+		}
 
 		PanelHelper.ExpandLastChild(this, con1);
 	}

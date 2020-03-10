@@ -1,14 +1,15 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
+import java.awt.BorderLayout;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -49,21 +50,21 @@ public class UserCommandSelectVector3d extends JPanel implements DocumentListene
 		allowSetText=true;
 		df = new DecimalFormat("0.00");
 		df.setGroupingUsed(false);
-		
-		this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
 
 		JPanel values = new JPanel();
-		this.add(values);
 		values.setLayout(new SpringLayout());
-
-		JLabel label=new JLabel(labelName,JLabel.LEFT);
-		label.setAlignmentX(LEFT_ALIGNMENT);
-		values.add(label);
-	
 		fieldX = addField("X",defaultValue.x,values);
 		fieldY = addField("Y",defaultValue.y,values);
 		fieldZ = addField("Z",defaultValue.z,values);
-		SpringUtilities.makeCompactGrid(values, 1, 7, 5, 5, 5, 5);
+		SpringUtilities.makeCompactGrid(values, 1, 6, 0,0,0,0);
+
+		JLabel label=new JLabel(labelName,JLabel.LEFT);
+		label.setBorder(new EmptyBorder(0,0,0,5));
+
+		this.setLayout(new BorderLayout());
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		this.add(label,BorderLayout.LINE_START);
+		this.add(values,BorderLayout.LINE_END);
 	}
 	
 	private JTextField addField(String labelName,double defaultValue,JPanel values) {
@@ -75,6 +76,7 @@ public class UserCommandSelectVector3d extends JPanel implements DocumentListene
 		label.setLabelFor(f);
 		values.add(label);
 		values.add(f);
+		label.setBorder(new EmptyBorder(0,5,0,1));
 		return f;
 	}
 	

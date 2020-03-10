@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -73,25 +74,23 @@ public class LightPanel extends JPanel implements ChangeListener {
 		light=arg0;
 
 		this.setName("Light");
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
 		this.add(chooseEnabled = new UserCommandSelectBoolean(gui,Translator.get("On"),light.getEnabled()),con1);
-
 		con1.gridy++;
 		this.add(choosePreset = new UserCommandSelectComboBox(gui,Translator.get("Preset"),presetNames,detectPreset(light)),con1);
-		
 		con1.gridy++;
 		this.add(chooseAmbient = new UserCommandSelectColorRGBA(gui,Translator.get("Ambient"),light.getAmbient()),con1);
-		
 		con1.gridy++;
 		this.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),light.getSpecular()),con1);
-		
 		con1.gridy++;
 		this.add(chooseDiffuse = new UserCommandSelectColorRGBA(gui,Translator.get("Diffuse"),light.getDiffuse()),con1);
 
 		PanelHelper.ExpandLastChild(this, con1);
+		
 		chooseEnabled.addChangeListener(this);
 		chooseDiffuse.addChangeListener(this);
 		chooseAmbient.addChangeListener(this);

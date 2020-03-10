@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 
@@ -9,13 +8,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectNumber;
 
@@ -40,35 +39,27 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 	public UserCommandSelectNumber(RobotOverlord ro,String labelName,float defaultValue) {
 		super();
 		this.ro = ro;
-		
-		//this.setBorder(BorderFactory.createLineBorder(new Color(255,0,0)));
-		
+
 		allowSetText=true;
 		df = new DecimalFormat("0.00");
 		df.setGroupingUsed(false);
 		
 		this.label = labelName;
 		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-		
-		JLabel label=new JLabel(labelName,JLabel.LEFT);
-	
 		textField = new JTextField(8);
 		textField.getDocument().addDocumentListener(this);
 		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-		
-		label.setLabelFor(textField);
 		setValue(defaultValue);
 
-		con1.weighty=1;
-		con1.weightx=0.250;
-		this.add(label,con1);
-
-		con1.gridx=1;
-		con1.anchor=GridBagConstraints.EAST;
-		con1.weightx=0.750;
-		this.add(textField,con1);
+		JLabel label=new JLabel(labelName,JLabel.LEFT);
+		label.setLabelFor(textField);
+		label.setBorder(new EmptyBorder(0,0,0,5));
+		
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		//this.setBorder(new LineBorder(Color.RED));
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.LINE_START);
+		this.add(textField,BorderLayout.LINE_END);
 	}
 	
 	public void setDecimalFormat(DecimalFormat df) {

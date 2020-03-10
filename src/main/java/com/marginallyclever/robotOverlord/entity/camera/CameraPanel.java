@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,6 +37,7 @@ public class CameraPanel extends JPanel implements ActionListener, ChangeListene
 		this.cam=cam;
 	
 		this.setName("Camera");
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 		
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();

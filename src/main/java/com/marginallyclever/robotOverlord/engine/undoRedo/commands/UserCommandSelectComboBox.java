@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -10,11 +9,11 @@ import java.util.LinkedList;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectComboBox;
 
@@ -38,8 +37,6 @@ public class UserCommandSelectComboBox extends JPanel implements ActionListener 
 		value=defaultValue;
 		this.labelName = labelName;
 		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
 		list = new JComboBox<String>(listOptions);
 		list.setSelectedIndex(defaultValue);
@@ -48,12 +45,10 @@ public class UserCommandSelectComboBox extends JPanel implements ActionListener 
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 		label.setLabelFor(list);
 
-		this.add(label,con1);
-		
-		con1.gridy++;
-		this.add(list,con1);
-		
-		PanelHelper.ExpandLastChild(this, con1);
+		this.setLayout(new BorderLayout());
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		this.add(label,BorderLayout.LINE_START);
+		this.add(list,BorderLayout.LINE_END);
 	}
 	
 	public String getValue() {
@@ -77,6 +72,14 @@ public class UserCommandSelectComboBox extends JPanel implements ActionListener 
 		while(i.hasNext()) {
 			i.next().stateChanged(arg0);
 		}
+	}
+	
+	public void addChangeListener(ChangeListener arg0) {
+		changeListeners.add(arg0);
+	}
+	
+	public void removeChangeListner(ChangeListener arg0) {
+		changeListeners.remove(arg0);
 	}
 
 

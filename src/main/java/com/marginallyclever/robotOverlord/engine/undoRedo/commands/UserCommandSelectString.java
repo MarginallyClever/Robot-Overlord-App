@@ -1,20 +1,19 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectString;
 
@@ -42,20 +41,19 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		allowSetText=true;
 		value=defaultValue;
 		this.labelName = labelName;
-		
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-	
+
 		textField = new JTextField(20);
 		textField.setText(defaultValue);
 		textField.getDocument().addDocumentListener(this);
 		
 		JLabel label=new JLabel(labelName,JLabel.LEFT);
 		label.setLabelFor(textField);
-		this.add(label,con1);
-		con1.gridy++;
-		this.add(textField,con1);
-		con1.gridy++;
+		label.setBorder(new EmptyBorder(0,0,0,5));
+
+		this.setLayout(new BorderLayout());
+		this.setBorder(new EmptyBorder(5,0,5,0));
+		this.add(label,BorderLayout.LINE_START);
+		this.add(textField,BorderLayout.LINE_END);
 	}
 	
 	public String getValue() {
