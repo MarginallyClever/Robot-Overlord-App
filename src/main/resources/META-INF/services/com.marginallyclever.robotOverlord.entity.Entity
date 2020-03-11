@@ -18,7 +18,7 @@ com.marginallyclever.robotOverlord.entity.sixiJoystick.SixiJoystick
 #com.marginallyclever.robotOverlord.entity.robot.deltaRobot3.DeltaRobot3
 #com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform.RotaryStewartPlatform
 #com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform.RotaryStewartPlatform3
-com.marginallyclever.robotOverlord.entity.robot.spidee.Spidee
+#com.marginallyclever.robotOverlord.entity.robot.spidee.Spidee
 
 #other objects
 com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld
@@ -26,8 +26,7 @@ com.marginallyclever.robotOverlord.entity.camera.Camera
 com.marginallyclever.robotOverlord.entity.light.Light
 com.marginallyclever.robotOverlord.entity.physicalObject.boxObject.BoxObject
 
-#sixi2 Tools
-com.marginallyclever.robotOverlord.engine.dhRobot.DHTool
+#sixi2 Tools (com.marginallyclever.robotOverlord.engine.dhRobot.DHTool)
 com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_GoProCamera
 com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_Gripper
 
