@@ -296,13 +296,9 @@ public class DHRobot extends ModelInWorld {
 			if (sanityCheck(newPose)) {
 				setPoseFK(newPose);
 				return true;
-			} else {
-				//System.out.println("setPoseIK() insane");
-			}
-		} else {
-			///System.out.println("setPoseIK() impossible");
-			setPoseFK(oldPose);
-		}
+			} // else System.out.println("setPoseIK() insane");
+		} // else System.out.println("setPoseIK() impossible");
+		setPoseFK(oldPose);
 		return false;
 	}
 
