@@ -11,6 +11,7 @@ public class PrimitiveSolids {
 	/**
 	 * TODO expose width/height parameters
 	 * TODO generate a sphere once as a model, return that.
+	 * See https://www.gamedev.net/forums/topic/537269-procedural-sphere-creation/4469427/
 	 * @param gl2
 	 * @param radius
 	 */
