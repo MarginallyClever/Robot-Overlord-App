@@ -48,7 +48,7 @@ public class Entity extends Observable {
 	 * @param gui the main application instance.
 	 * @return the list of EntityPanels 
 	 */
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
 		entityPanel = new EntityPanel(gui,this);

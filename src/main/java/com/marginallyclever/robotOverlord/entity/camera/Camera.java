@@ -49,8 +49,8 @@ public class Camera extends PhysicalObject {
 
 
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		cameraPanel = new CameraPanel(gui,this);

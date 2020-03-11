@@ -34,8 +34,8 @@ public class BoxObject extends PhysicalObject {
 	
 
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 
@@ -44,7 +44,7 @@ public class BoxObject extends PhysicalObject {
 		list.add(boxPanel);
 
 		// add material panel but do not add entity panel.
-		ArrayList<JPanel> list2 = mat.getContextPanel(gui);
+		ArrayList<JPanel> list2 = mat.getContextPanels(gui);
 		list.add(list2.get(list2.size()-1));
 		
 		return list;

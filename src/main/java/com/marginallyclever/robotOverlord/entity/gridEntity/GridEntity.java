@@ -30,8 +30,8 @@ public class GridEntity extends PhysicalObject {
 	 * @return the list of EntityPanels 
 	 */
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		gridEntityControlPanel = new GridEntityPanel(gui,this);
