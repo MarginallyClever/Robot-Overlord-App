@@ -11,7 +11,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.material.Material;
 import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
@@ -36,9 +35,6 @@ public class DHRobot extends ModelInWorld {
 	// the GUI panel for controlling this robot.
 	protected DHRobotPanel dhRobotPanel;
 	protected boolean disablePanel;
-
-	public Material material = new Material();
-	
 
 	public DHRobot() {
 		super();
