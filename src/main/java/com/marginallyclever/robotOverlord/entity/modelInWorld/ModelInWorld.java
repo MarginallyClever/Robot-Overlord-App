@@ -9,6 +9,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.engine.log.Log;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.material.Material;
@@ -16,24 +17,21 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 
 public class ModelInWorld extends PhysicalObject {
-	protected String filename = null;
+	protected String filename = "";
 	protected transient Model model;
 	protected transient ModelInWorldPanel modelPanel;
-	protected Material material;
+	protected Material material = new Material();
 	
 	// model adjustments during loading
 	protected float scale;
-	protected Vector3d originAdjust;
-	protected Vector3d rotationAdjust;
+	protected Vector3d originAdjust = new Vector3d();
+	protected Vector3d rotationAdjust = new Vector3d();
 	
 	
 	public ModelInWorld() {
 		super();
-		scale=1;
-		originAdjust = new Vector3d();
-		rotationAdjust = new Vector3d();
-		material = new Material();
 		setName("Model");
+		scale=1;
 	}
 
 	public void set(ModelInWorld b) {
@@ -46,42 +44,44 @@ public class ModelInWorld extends PhysicalObject {
 		originAdjust.set(b.originAdjust);
 		rotationAdjust.set(b.rotationAdjust);
 	}
-    
-	public String getFilename() {
-		return filename;
-	}
 	
 
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		modelPanel = new ModelInWorldPanel(gui,this);
 		list.add(modelPanel);
 		
-		ArrayList<JPanel> list2 = material.getContextPanel(gui);
+		ArrayList<JPanel> list2 = material.getContextPanels(gui);
 		list.add(list2.get(list2.size()-1));
 		
 		return list;
 	}
+    
+	public String getModelFilename() {
+		return filename;
+	}
 
-
-	public void setFilename(String newFilename) {
+	/**
+	 * sets the new model filename, which causes the model to be reloaded.
+	 * @param newFilename
+	 */
+	public void setModelFilename(String newFilename) {
 		// if the filename has changed, throw out the model so it will be reloaded.
-		if( this.filename != newFilename ) {
+		if( this.filename.equals(newFilename) ) return;
+		
+		try {
+			model = ModelFactory.createModelFromFilename(newFilename);
+			model.setScale(scale);
+			model.adjustOrigin(originAdjust);
+			model.adjustRotation(rotationAdjust);
+			model.findBounds();
+			// only change this after loading has completely succeeded.
 			this.filename = newFilename;
-			
-			try {
-				model = ModelFactory.createModelFromFilename(newFilename);
-				model.setScale(scale);
-				model.adjustOrigin(originAdjust);
-				model.adjustRotation(rotationAdjust);
-				model.findBounds();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (Exception e) {
+			Log.error("Loading model failed: "+e.getLocalizedMessage());
 		}
 	}
 
@@ -131,15 +131,22 @@ public class ModelInWorld extends PhysicalObject {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		
-		// set up the physical limits
-		// TODO get poseCumulative somehow
-		//cuboid.setPoseWorld(poseCumulative);
-		if(model != null) {
-			cuboid.set(model.getCuboid());
-		}
 	}
 
+	/**
+	 * obeys super.updatePoseWorld, Updates cuboid
+	 */
+	@Override
+	public void updatePoseWorld() {
+		super.updatePoseWorld();
+		
+		// set up the physical limits
+		if(model != null) {
+			cuboid.set(model.getCuboid());
+			cuboid.setPoseWorld(poseWorld);
+		}
+	}
+	
 	@Override
 	public void render(GL2 gl2) {	
 		gl2.glPushMatrix();
@@ -148,7 +155,6 @@ public class ModelInWorld extends PhysicalObject {
 			material.render(gl2);
 			if( model==null ) {
 				// draw placeholder
-				//PrimitiveSolids.drawSphere(gl2,1);
 				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
 				PrimitiveSolids.drawStar(gl2,new Vector3d(0,0,0),3f);
 			} else {
