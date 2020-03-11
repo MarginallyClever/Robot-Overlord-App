@@ -52,6 +52,10 @@ public class DHRobot extends ModelInWorld {
 		super.set(b);
 		// remove any exiting links from other robot to be certain.
 		setNumLinks(b.getNumLinks());
+		// copy my links to the next robot
+		for(int i=0;i<b.getNumLinks();++i) {
+			links.get(i).set(b.links.get(i));
+		}
 
 		disablePanel = b.disablePanel;
 		
@@ -59,10 +63,6 @@ public class DHRobot extends ModelInWorld {
 
 		endEffectorMatrix.set(b.endEffectorMatrix);
 		
-		// copy my links to the next robot
-		for(int i=0;i<b.getNumLinks();++i) {
-			links.get(i).set(b.links.get(i));
-		}
 		dhTool = b.dhTool;
 		
 		refreshPose();
