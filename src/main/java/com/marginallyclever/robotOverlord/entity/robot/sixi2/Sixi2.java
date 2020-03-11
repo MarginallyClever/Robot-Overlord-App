@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.robot.sixi2;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -19,6 +20,7 @@ import com.marginallyclever.robotOverlord.engine.DragBall;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
@@ -142,7 +144,6 @@ public class Sixi2 extends Robot {
 			Vector3d target = new Vector3d();
 			sim.getEndEffectorMatrix().get(target);
 			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
-
 			// If there is a tool, attach to it.
 			for( PhysicalObject po : list ) {
 				if (po instanceof DHTool) {
@@ -154,8 +155,8 @@ public class Sixi2 extends Robot {
 	}
 
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 
 		// hide the dhrobot panel because we'll replace it with our own.
 		sixi2Panel = new Sixi2Panel(gui,this);
@@ -202,7 +203,7 @@ public class Sixi2 extends Robot {
 	 * @return true if targetPose changes.
 	 */
 	public boolean driveFromKeyState(double dt) {
-		ball.setSubjectMatrix(sim.links.get(sim.getNumLinks()-1).getPoseCumulative());
+		ball.setSubjectMatrix(sim.links.get(sim.getNumLinks()-1).getPoseWorld());
 		ball.setCameraMatrix(getWorld().getCamera().getPose());
 
 		boolean isDirty = false;
@@ -388,10 +389,12 @@ public class Sixi2 extends Robot {
 
 		for( DHLink link : this.sim.links ) {
 			if(link.getCuboid() != null ) {
-				cuboidList.add(link.getCuboid());
+				cuboidList.addAll(link.getCuboidList());
 			}
 		}
-		cuboidList.addAll(sim.dhTool.getCuboidList());
+		if(sim.dhTool != null) {
+			cuboidList.addAll(sim.dhTool.getCuboidList());
+		}
 
 		return cuboidList;
 	}
@@ -549,25 +552,51 @@ public class Sixi2 extends Robot {
 	}
 
 	@Override
-	public void setDrawBoundingBox(boolean shouldDrawBoundingBox) {
-		super.setDrawBoundingBox(shouldDrawBoundingBox);
+	public void setDrawBoundingBox(boolean arg0) {
+		super.setDrawBoundingBox(arg0);
 
-		for( DHLink link : this.sim.links ) {
-			link.setDrawBoundingBox(shouldDrawBoundingBox);
+		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
+		next.add(this.sim.links.get(0));
+		while( !next.isEmpty() ) {
+			PhysicalObject link = next.pop();
+			link.setDrawBoundingBox(arg0);
+			for( Entity child : link.getChildren() ) {
+				if( child instanceof PhysicalObject ) {
+					next.add((PhysicalObject)child);
+				}
+			}
 		}
 	}
 	@Override
-	public void setDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
-		super.setDrawLocalOrigin(shouldDrawLocalOrigin);
-		for( DHLink link : this.sim.links ) {
-			link.setDrawLocalOrigin(shouldDrawLocalOrigin);
+	public void setDrawLocalOrigin(boolean arg0) {
+		super.setDrawLocalOrigin(arg0);
+
+		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
+		next.add(this.sim.links.get(0));
+		while( !next.isEmpty() ) {
+			PhysicalObject link = next.pop();
+			link.setDrawLocalOrigin(arg0);
+			for( Entity child : link.getChildren() ) {
+				if( child instanceof PhysicalObject ) {
+					next.add((PhysicalObject)child);
+				}
+			}
 		}
 	}
 	@Override
-	public void setDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
-		super.setDrawConnectionToChildren(shouldDrawConnectionToChildren);
-		for( DHLink link : this.sim.links ) {
-			link.setDrawConnectionToChildren(shouldDrawConnectionToChildren);
+	public void setDrawConnectionToChildren(boolean arg0) {
+		super.setDrawConnectionToChildren(arg0);
+
+		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
+		next.add(this.sim.links.get(0));
+		while( !next.isEmpty() ) {
+			PhysicalObject link = next.pop();
+			link.setDrawConnectionToChildren(arg0);
+			for( Entity child : link.getChildren() ) {
+				if( child instanceof PhysicalObject ) {
+					next.add((PhysicalObject)child);
+				}
+			}
 		}
 	}
 
