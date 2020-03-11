@@ -45,7 +45,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getFilename());
+		userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getModelFilename());
 		// Find all the serviceLoaders for loading files.
 		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
 		Iterator<ModelLoadAndSave> i = loaders.iterator();
