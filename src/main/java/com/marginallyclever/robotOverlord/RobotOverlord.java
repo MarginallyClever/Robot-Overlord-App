@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -23,7 +22,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -33,7 +31,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -75,7 +72,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
 import com.marginallyclever.robotOverlord.entity.world.World;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.uiElements.FooterBar;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.marginallyclever.robotOverlord.uiElements.SoundSystem;
@@ -347,6 +343,18 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		
 		if(entityTree.getComponentCount()==1) {
 			JTree oldTree = (JTree)entityTree.getComponent(0);
+			// preserve the original expansions
+			ArrayList<TreePath> expanded = new ArrayList<TreePath>();
+			for(int i=0;i<oldTree.getRowCount();++i) {
+				if(oldTree.isExpanded(i)) {
+					expanded.add(oldTree.getPathForRow(i));
+				}
+			}
+			// restore the expanded paths
+			for(TreePath p : expanded) {
+				tree.expandPath(p);
+			}
+			// restore the selected paths
 			TreePath[] paths = oldTree.getSelectionPaths();
 			tree.setSelectionPaths(paths);
 		}
@@ -369,48 +377,10 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		
 		//System.out.println("updateSelectedEntityPanel "+e.getName());
 		
-		ArrayList<JPanel> list = e.getContextPanel(this);
+		ArrayList<JPanel> list = e.getContextPanels(this);
 		if(list==null) return;
 
-		//System.out.println("updateSelectedEntityPanel 2 "+e.getName());
-		
-		// fill in the selectedEntityPanel
-		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
-		
-		// true to use tab
-		boolean tabbedLayout=true;
-		if(tabbedLayout==false) {
-			// single page layout
-			JPanel sum = new JPanel();
-			BoxLayout layout = new BoxLayout(sum, BoxLayout.PAGE_AXIS);
-			sum.setLayout(layout);
-			for( JPanel p : list ) {				
-				CollapsiblePanel oiwPanel = new CollapsiblePanel(p.getName());
-				oiwPanel.getContentPane().add(p);
-				sum.add(oiwPanel);
-			}
-
-			JPanel b = new JPanel(new BorderLayout());
-			b.add(sum, BorderLayout.PAGE_START);
-
-			selectedEntityPanel.add(b,con1);
-		} else {
-			boolean reverseOrderOfTabs = false;
-			// tabbed layout
-			JTabbedPane b = new JTabbedPane();
-			for( JPanel p : list ) {				
-				if( reverseOrderOfTabs ) {
-					b.insertTab(p.getName(), null, p, null, 0);
-				} else {
-					b.addTab(p.getName(), p);
-				}
-			}
-			b.setSelectedIndex( reverseOrderOfTabs ? 0 : b.getTabCount()-1 );
-
-			selectedEntityPanel.add(b,con1);
-		}
-		
-		PanelHelper.ExpandLastChild(selectedEntityPanel, con1);
+		PanelHelper.formatEntityPanels(list, selectedEntityPanel);
 	}
 
 	public void saveWorldToFile(String filename) {
