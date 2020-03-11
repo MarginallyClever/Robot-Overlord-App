@@ -14,21 +14,24 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
 public class DHTool_GoProCamera extends DHTool {
 	public DHTool_GoProCamera() {
 		super();
-		setD(8);  // cm
-		flags = LinkAdjust.R;
-		refreshPoseMatrix();
 		setName("GoPro Camera");
+		flags = LinkAdjust.R;
 		
-		setFilename("/Sixi2/gopro/gopro.stl");
+		refreshPoseMatrix();
+		
+		setModelFilename("/Sixi2/gopro/gopro.stl");
 		setModelScale(0.1f);
+		setModelOrigin(0, 0, 0.5);
+		setModelRotation(90, 90, 0);
+		
 		// adjust the model's position and rotation.
-		this.setPosition(new Vector3d(0,0,0.6));
+		this.setPosition(new Vector3d(50,0,50));
 		Matrix3d m = new Matrix3d();
 		m.setIdentity();
 		m.rotX(Math.toRadians(90));
 		Matrix3d m2 = new Matrix3d();
 		m2.setIdentity();
-		m2.rotY(Math.toRadians(90));
+		m2.rotZ(Math.toRadians(90));
 		m.mul(m2);
 		this.setRotation(m);
 	}
