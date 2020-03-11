@@ -2,9 +2,12 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -19,53 +22,42 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
  */
 public class DHRobot extends ModelInWorld {
 	// a list of DHLinks describing the kinematic chain.
-	public List<DHLink> links;
+	public List<DHLink> links = new ArrayList<DHLink>();
 	
 	// The solver for this type of robot
 	protected transient DHIKSolver solver;
 
-	// the last link in the kinematic chain.
-	protected Matrix4d endEffectorMatrix;
+	// the matrix at the end of the kinematic chain.
+	protected Matrix4d endEffectorMatrix = new Matrix4d();
 
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
 	
 	// the GUI panel for controlling this robot.
-	protected DHRobotPanel panel;
+	protected DHRobotPanel dhRobotPanel;
 	protected boolean disablePanel;
 
-	public Material material;
+	public Material material = new Material();
 	
 
 	public DHRobot() {
 		super();
-		reset();
+		setName("DHRobot");
+		disablePanel = false;
 	}
 	
 	public DHRobot(DHRobot b) {
 		super();
-		reset();
-		set(b);
-	}
-	
-	private void reset() {
 		setName("DHRobot");
-		
-		links = new ArrayList<DHLink>();
-
-		endEffectorMatrix = new Matrix4d();
-		// set default tool = no tool
-		dhTool = new DHTool();
-		
-		material = new Material();
-		disablePanel = false;
-
+		set(b);
 	}
 
 	public void set(DHRobot b) {
 		super.set(b);
 		// remove any exiting links from other robot to be certain.
 		setNumLinks(b.getNumLinks());
+
+		disablePanel = b.disablePanel;
 		
 		solver = b.solver;
 
@@ -75,11 +67,21 @@ public class DHRobot extends ModelInWorld {
 		for(int i=0;i<b.getNumLinks();++i) {
 			links.get(i).set(b.links.get(i));
 		}
-		dhTool.set(b.dhTool);
-
-		disablePanel = b.disablePanel;
+		dhTool = b.dhTool;
 		
 		refreshPose();
+	}
+	
+
+	@Override
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
+		if(list==null) list = new ArrayList<JPanel>();
+		
+		this.dhRobotPanel = new DHRobotPanel(gui,this);
+		list.add(dhRobotPanel);
+		
+		return list;
 	}
 
 
@@ -112,27 +114,17 @@ public class DHRobot extends ModelInWorld {
 	 * the end position.
 	 */
 	public void refreshPose() {
-		endEffectorMatrix.set(getParentMatrix());
-
 		if(model != null) {
 			cuboid.set(model.getCuboid());
 		}
 		
 		for( DHLink link : links ) {
-			// update matrix
 			link.refreshPoseMatrix();
-			// find cumulative matrix
-			endEffectorMatrix.mul(link.getPose());
-			link.poseCumulative.set(endEffectorMatrix);
-
-			// set up the physical limits
-			if(link.getModel() != null) {
-				link.cuboid.set(link.getModel().getCuboid());
-				link.cuboid.setPoseWorld(link.poseCumulative);
-			}
 		}
+		endEffectorMatrix.set(links.get(links.size()-1).getPoseWorld());
+		
 		if (dhTool != null) {
-			dhTool.refreshPose(endEffectorMatrix);
+			dhTool.refreshPoseMatrix();
 		}
 	}
 
@@ -179,16 +171,19 @@ public class DHRobot extends ModelInWorld {
 
 	// the tool should be the child of the last link in the chain
 	public void setTool(DHTool arg0) {
+		removeTool();
 		dhTool = arg0;
 		links.get(links.size()-1).addChild(arg0);
-		this.panel.updateActiveTool(arg0);
+		this.dhRobotPanel.updateActiveTool(arg0);
 	}
 
 	public void removeTool() {
+		if(dhTool==null) return;
+		
 		// the child of the last link in the chain is the tool
 		links.get(links.size()-1).removeChild(dhTool);
 		dhTool = null;
-		this.panel.updateActiveTool(null);
+		this.dhRobotPanel.updateActiveTool(null);
 	}
 
 	public DHTool getCurrentTool() {
@@ -310,6 +305,7 @@ public class DHRobot extends ModelInWorld {
 			}
 		} else {
 			///System.out.println("setPoseIK() impossible");
+			setPoseFK(oldPose);
 		}
 		return false;
 	}
@@ -332,8 +328,8 @@ public class DHRobot extends ModelInWorld {
 		}
 
 		refreshPose();
-		if (panel != null && !isDisablePanel()) {
-			panel.updateEnd();
+		if (dhRobotPanel != null && !isDisablePanel()) {
+			dhRobotPanel.updateEnd();
 		}
 	}
 
