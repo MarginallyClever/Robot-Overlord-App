@@ -25,9 +25,6 @@ public class DHLink extends ModelInWorld {
 	// angle (degrees) about common normal, from old Z axis to new Z axis
 	private double alpha;
 	
-	// computed matrix based on the D-H parameters
-	public Matrix4d poseCumulative;
-	
 	public enum LinkAdjust {
 		NONE (0   ,"NONE" ),
 		D    (1   ,"D"    ),
@@ -76,7 +73,7 @@ public class DHLink extends ModelInWorld {
 	//     [ Izx Izy Izz } ZgM ]
 	//     [ XgM YgM ZgM }  M  ]
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
-	public Matrix4d inertia;	// not used yet
+	public Matrix4d inertia = new Matrix4d();	// not used yet
 	
 	protected double rangeMin,rangeMax;
 	
@@ -88,37 +85,31 @@ public class DHLink extends ModelInWorld {
 	public DHLink() {
 		super();
 		setName("DHLink");
-		pose = new Matrix4d();
-		poseCumulative = new Matrix4d();
-		inertia = new Matrix4d();
 		
 		flags=LinkAdjust.NONE;
 		d=0;
 		theta=0;
 		r=0;
 		alpha=0;
+		refreshPoseMatrix();
+
 		model=null;
+
 		rangeMin=-90;
 		rangeMax=90;
 		maxVelocity=Double.MAX_VALUE;
 		maxAcceleration=Double.MAX_VALUE;
 		maxTorque=Double.MAX_VALUE;
-		
 	}
 	
 	public DHLink(DHLink arg0) {
 		super();
-		pose = new Matrix4d();
-		poseCumulative = new Matrix4d();
-		inertia = new Matrix4d();
 		
 		set(arg0);
 	} 
 	
 	public void set(DHLink arg0) {
 		setName(arg0.getName());
-		pose.set(arg0.pose);
-		poseCumulative.set(arg0.poseCumulative);
 		inertia.set(arg0.inertia);
 		cuboid.set(arg0.cuboid);
 
@@ -137,8 +128,8 @@ public class DHLink extends ModelInWorld {
 	
 
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 		
 		linkPanel = new DHLinkPanel(gui,this);
@@ -164,24 +155,20 @@ public class DHLink extends ModelInWorld {
 		pose.m10 = st;		pose.m11 = ct*ca;		pose.m12 = -ct*sa;		pose.m13 = r*st;
 		pose.m20 = 0;		pose.m21 = sa;			pose.m22 = ca;			pose.m23 = d;
 		pose.m30 = 0;		pose.m31 = 0;			pose.m32 = 0;			pose.m33 = 1;
+		
+		updatePoseWorld();
 	}
 
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		
-		// set up the physical limits
-		cuboid.setPoseWorld(poseCumulative);
-		if(model != null) {
-			cuboid.set(model.getCuboid());
-		}
 	}
 	
 	@Override
 	public void render(GL2 gl2) {
-		// change material property here to color by range
-
+		// preserve original material color
 		float [] diffuse = material.getDiffuseColor();
+		// change material color - more red when near angle limits 
 		setAngleColorByRange(gl2);
 		
 		super.render(gl2);
@@ -315,6 +302,7 @@ public class DHLink extends ModelInWorld {
 	 */
 	public void setAngleColorByRange(GL2 gl2) {
 		if(flags == LinkAdjust.NONE) return;
+		if(rangeMax==rangeMin) return;  // no range limit?
 		
 		double a= (flags == LinkAdjust.THETA) ? theta : alpha;
 		double halfRange = (rangeMax-rangeMin)/2;
@@ -435,10 +423,6 @@ public class DHLink extends ModelInWorld {
 
 	public double getRangeCenter() {
 		return (rangeMax+rangeMin)/2.0;
-	}
-	
-	public Matrix4d getPoseCumulative() {
-		return poseCumulative;
 	}
 
 	public void setLetter(String letter) {
