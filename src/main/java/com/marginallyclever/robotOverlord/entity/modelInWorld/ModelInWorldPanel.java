@@ -2,9 +2,12 @@ package com.marginallyclever.robotOverlord.entity.modelInWorld;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -17,6 +20,7 @@ import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelLoadAndSave;
+import com.marginallyclever.robotOverlord.engine.model.ModelSmoother;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectVector3d;
@@ -73,6 +77,18 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		setRotation.addChangeListener(this);
 		this.add(setRotation,con1);
 
+		con1.gridy++;
+		JButton button = new JButton("Smooth me");
+		this.add(button,con1);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				float vertexEpsilon = 0.5f;
+				float normalEpsilon = 0.25f;
+				ModelSmoother.smoothNormals(model.getModel(),vertexEpsilon,normalEpsilon);
+			}
+		});
+
 		Model m = this.model.getModel();
 		if(m!=null) {
 			con1.gridy++;
@@ -89,16 +105,17 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		if(e.getSource()==userCommandSelectFile) {
+		Object source = e.getSource();
+		if(source==userCommandSelectFile) {
 			model.setModelFilename(userCommandSelectFile.getFilename());
 		}
-		if(e.getSource()==setScale) {
+		if(source==setScale) {
 			model.setModelScale(setScale.getValue());
 		}
-		if(e.getSource()==setOrigin) {
+		if(source==setOrigin) {
 			model.setModelOrigin(setOrigin.getValue());
 		}
-		if(e.getSource()==setRotation) {
+		if(source==setRotation) {
 			model.setModelRotation(setRotation.getValue());
 		}
 	}

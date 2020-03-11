@@ -56,6 +56,9 @@ public class ModelSmoother {/*
 		int i,j;
 		for(i=0;i<numFaces;++i) {
 			if(skip[i]) continue;
+			
+			System.out.println("Smoothing "+i);
+			
 
 			// find vertices that are in the same position
 			float p1x = model.vertexArray.get(i*3+0);
@@ -75,6 +78,10 @@ public class ModelSmoother {/*
 				float p2x = model.vertexArray.get(j*3+0);
 				float p2y = model.vertexArray.get(j*3+1);
 				float p2z = model.vertexArray.get(j*3+2);
+				//if(Math.abs(p1x-p2x)>vertexEpsilonSquared) continue;
+				//if(Math.abs(p1y-p2y)>vertexEpsilonSquared) continue;
+				//if(Math.abs(p1z-p2z)>vertexEpsilonSquared) continue;
+				
 				if( lengthDifferenceSquared(p1x,p1y,p1z,p2x,p2y,p2z) <= vertexEpsilonSquared ) {
 
 					float n2x = model.normalArray.get(j*3+0);
@@ -114,6 +121,7 @@ public class ModelSmoother {/*
 				}
 			}
 		}
+		model.isDirty=true;
 	}
 
 	

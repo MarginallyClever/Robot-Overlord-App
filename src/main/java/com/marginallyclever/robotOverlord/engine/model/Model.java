@@ -22,10 +22,10 @@ public class Model {
 	
 	protected String sourceName;
 	protected transient boolean isLoaded;
-	public transient ArrayList<Float> vertexArray;
-	public transient ArrayList<Float> normalArray;
-	public transient ArrayList<Float> colorArray;
-	public transient ArrayList<Float> texCoordArray;
+	public transient ArrayList<Float> vertexArray = new ArrayList<Float>();
+	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
+	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
+	public transient ArrayList<Float> texCoordArray = new ArrayList<Float>();
 	public int renderStyle; 
 	
 	protected transient FloatBuffer vertices;
@@ -42,22 +42,15 @@ public class Model {
 	public transient boolean isDirty;
 	
 	// display correction matrix
-	protected Vector3d adjustOrigin;
-	protected Vector3d adjustRotation;
+	protected Vector3d adjustOrigin = new Vector3d();
+	protected Vector3d adjustRotation = new Vector3d();
 	
 	// bounding limits
-	protected Cuboid cuboid;
+	protected Cuboid cuboid = new Cuboid();
 
 	public Model() {
 		sourceName=null;
-		isLoaded=false;
-		vertexArray = new ArrayList<Float>();
-		normalArray = new ArrayList<Float>();
-		colorArray = new ArrayList<Float>();
-		texCoordArray = new ArrayList<Float>();
-		
-		adjustOrigin = new Vector3d();
-		adjustRotation = new Vector3d();
+		isLoaded=false;		
 		scale=1.0f;
 		VBO = null;
 		hasNormals=false;
@@ -65,7 +58,6 @@ public class Model {
 		hasTextureCoordinates=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
-		cuboid = new Cuboid();
 	}
 	
 	
