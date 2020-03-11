@@ -34,9 +34,9 @@ public class Sixi2ControlBox extends ModelInWorld {
 		ArrayList<JPanel> list = super.getContextPanels(gui);
 		
 		// remove material panel
-		list.remove(list.size()-1);
+		//list.remove(list.size()-1);
 		// remove model panel
-		list.remove(list.size()-1);
+		//list.remove(list.size()-1);
 
 		panel = new Sixi2ControlBoxPanel(gui,this);
 		list.add(panel);
