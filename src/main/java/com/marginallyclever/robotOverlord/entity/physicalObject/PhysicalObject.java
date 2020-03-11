@@ -18,8 +18,12 @@ import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
 public abstract class PhysicalObject extends Entity {
-	protected Matrix4d pose;	// position and orientation relative to it's parent entity.
-	public Cuboid cuboid;	// physical limits
+	// position and orientation relative to my parent Entity.
+	protected Matrix4d pose = new Matrix4d();
+	// position and orientation relative to the world.
+	protected Matrix4d poseWorld = new Matrix4d();
+	// physical limits
+	public Cuboid cuboid;
 	
 	private transient PhysicalObjectPanel physicalObjectControlPanel;
 	
@@ -29,14 +33,15 @@ public abstract class PhysicalObject extends Entity {
 
 	public PhysicalObject() {
 		super();
-		pose = new Matrix4d();
 		pose.setIdentity();
+		poseWorld.setIdentity();
 		cuboid=new Cuboid();
 	}
 	
 	public void set(PhysicalObject b) {
 		super.set(b);
 		pose.set(b.pose);
+		poseWorld.set(b.poseWorld);
 		cuboid.set(b.cuboid);
 	}
 	
@@ -47,8 +52,8 @@ public abstract class PhysicalObject extends Entity {
 	 * @return the list of physicalObjectControlPanels 
 	 */
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(list==null) list = new ArrayList<JPanel>();
 
 		physicalObjectControlPanel = new PhysicalObjectPanel(gui,this);
@@ -158,10 +163,34 @@ public abstract class PhysicalObject extends Entity {
 		return pose;
 	}
 	
+	public Matrix4d getPoseWorld() {
+		return poseWorld;
+	}
+	
+	/**
+	 * Set the local pose (relative to my parent)
+	 * Automatically updates the cumulative pose.
+	 * @param arg0
+	 */
 	public void setPose(Matrix4d arg0) {
+		// update 
 		pose.set(arg0);
+		updatePoseWorld();
+		
+		// make sure the panel is updated.  TODO use the observer?
 		if(physicalObjectControlPanel!=null) {
 			physicalObjectControlPanel.updateFields();	
+		}
+	}
+	
+	/**
+	 * Recalculates poseWorld from pose and parent.poseWorld
+	 */
+	public void updatePoseWorld() {
+		if(parent instanceof PhysicalObject) {
+			poseWorld.mul(((PhysicalObject)parent).poseWorld,pose);
+		} else {
+			poseWorld.set(pose);
 		}
 	}
 
