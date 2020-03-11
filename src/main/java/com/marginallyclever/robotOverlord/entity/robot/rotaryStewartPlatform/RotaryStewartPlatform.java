@@ -565,8 +565,8 @@ public class RotaryStewartPlatform extends Robot {
 	}
 
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if (list == null)
 			list = new ArrayList<JPanel>();
 

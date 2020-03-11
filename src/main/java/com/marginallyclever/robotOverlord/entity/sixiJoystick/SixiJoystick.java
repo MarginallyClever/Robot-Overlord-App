@@ -31,8 +31,8 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 	
 	
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 
 		// remove material panel
 		list.remove(list.size()-1);

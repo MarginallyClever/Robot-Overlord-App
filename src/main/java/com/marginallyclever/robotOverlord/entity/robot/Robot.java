@@ -30,8 +30,8 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	}
 	
 	@Override
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanel(gui);
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
+		ArrayList<JPanel> list = super.getContextPanels(gui);
 		if(robotPanel == null) robotPanel = new RobotPanel(gui,this);
 		list.add(robotPanel);
 		

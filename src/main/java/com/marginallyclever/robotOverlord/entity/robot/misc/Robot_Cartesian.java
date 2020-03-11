@@ -70,10 +70,10 @@ public class Robot_Cartesian extends Robot {
 		material.setDiffuseColor(r,g,b,1);
 
 		try {
-			robot.links.get(0).setFilename("/Prusa i3 MK3/Prusa0.stl");
-			robot.links.get(1).setFilename("/Prusa i3 MK3/Prusa1.stl");
-			robot.links.get(2).setFilename("/Prusa i3 MK3/Prusa2.stl");
-			robot.links.get(3).setFilename("/Prusa i3 MK3/Prusa3.stl");
+			robot.links.get(0).setModelFilename("/Prusa i3 MK3/Prusa0.stl");
+			robot.links.get(1).setModelFilename("/Prusa i3 MK3/Prusa1.stl");
+			robot.links.get(2).setModelFilename("/Prusa i3 MK3/Prusa2.stl");
+			robot.links.get(3).setModelFilename("/Prusa i3 MK3/Prusa3.stl");
 
 			robot.links.get(0).setModelScale(0.1f);
 			robot.links.get(1).setModelScale(0.1f);

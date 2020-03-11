@@ -147,7 +147,7 @@ public class World extends Entity {
 	 * @param gui the main application instance.
 	 * @return the list of EntityPanels 
 	 */
-	public ArrayList<JPanel> getContextPanel(RobotOverlord gui) {
+	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
 		ArrayList<JPanel> list = new ArrayList<JPanel>();
 		
 		worldPanel = new WorldPanel(gui,this);

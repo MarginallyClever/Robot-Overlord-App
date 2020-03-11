@@ -26,7 +26,7 @@ public abstract class Sixi2Model extends DHRobot {
 		
 		this.setIKSolver(new DHIKSolver_RTTRTR());
 
-		this.setFilename("/Sixi2/anchor.stl");
+		this.setModelFilename("/Sixi2/anchor.stl");
 		this.setModelOrigin(0, 0, 0.9);
 		this.setModelRotation(90,-90,0);
 		
@@ -38,7 +38,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(0).flags = LinkAdjust.THETA;
 		links.get(0).setRange(-120, 120);
 		links.get(0).setLetter("X");
-		links.get(0).setFilename("/Sixi2/shoulder.stl");
+		links.get(0).setModelFilename("/Sixi2/shoulder.stl");
 		links.get(0).setModelOrigin(0, 0, -188.452/10);
 		links.get(0).setModelRotation(new Vector3d(90,-90,0));
 	
@@ -47,7 +47,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(1).flags = LinkAdjust.ALPHA;
 		links.get(1).setRangeMin(-72);
 		links.get(1).setLetter("Y");
-		links.get(1).setFilename("/Sixi2/bicep.stl");
+		links.get(1).setModelFilename("/Sixi2/bicep.stl");
 		links.get(1).setModelOrigin(0, 0, -188.452/10);
 		links.get(1).setModelRotation(new Vector3d(90,180,0));
 	
@@ -56,7 +56,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(2).flags = LinkAdjust.ALPHA;
 		links.get(2).setRange(-83.369, 86);
 		links.get(2).setLetter("Z");
-		links.get(2).setFilename("/Sixi2/forearm.stl");
+		links.get(2).setModelFilename("/Sixi2/forearm.stl");
 		links.get(2).setModelOrigin(0,0,(-188.452-357.96)/10);
 		links.get(2).setModelRotation(new Vector3d(-90,0,180));
 	
@@ -70,7 +70,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(4).flags = LinkAdjust.THETA;
 		links.get(4).setRange(-175, 175);
 		links.get(4).setLetter("U");
-		links.get(4).setFilename("/Sixi2/tuningFork.stl");
+		links.get(4).setModelFilename("/Sixi2/tuningFork.stl");
 		links.get(4).setModelOrigin(0,(-188.452-357.96-64.259)/10,(-293.55)/10);
 		links.get(4).setModelRotation(new Vector3d(0,180,0));
 	
@@ -80,7 +80,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(5).flags = LinkAdjust.ALPHA;
 		links.get(5).setRange(-120, 125);
 		links.get(5).setLetter("V");
-		links.get(5).setFilename("/Sixi2/picassoBox.stl");
+		links.get(5).setModelFilename("/Sixi2/picassoBox.stl");
 		links.get(5).setModelOrigin(0,(-188.452-357.96-64.259)/10,(-293.55-93.50)/10);
 		links.get(5).setModelRotation(new Vector3d(180,0,180));
 	
@@ -89,7 +89,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(6).flags = LinkAdjust.THETA;
 		links.get(6).setRange(-180, 180);
 		links.get(6).setLetter("W");
-		links.get(6).setFilename("/Sixi2/hand.stl");
+		links.get(6).setModelFilename("/Sixi2/hand.stl");
 		links.get(6).setModelOrigin(0,(-188.452-357.96-64.259)/10,(-293.55-93.50-57.95)/10);
 		links.get(6).setModelRotation(new Vector3d(180,0,180));
 		

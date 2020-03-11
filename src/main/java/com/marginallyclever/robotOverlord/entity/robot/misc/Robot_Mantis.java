@@ -81,12 +81,12 @@ public class Robot_Mantis extends Robot {
 
 	public void setupModels(DHRobot robot) {
 		try {
-			robot.links.get(0).setFilename("/AH/rotBaseCase.stl");
-			robot.links.get(1).setFilename("/AH/Shoulder_r1.stl");
-			robot.links.get(2).setFilename("/AH/Elbow.stl");
-			robot.links.get(3).setFilename("/AH/Forearm.stl");
-			robot.links.get(5).setFilename("/AH/Wrist_r1.stl");
-			robot.links.get(6).setFilename("/AH/WristRot.stl");
+			robot.links.get(0).setModelFilename("/AH/rotBaseCase.stl");
+			robot.links.get(1).setModelFilename("/AH/Shoulder_r1.stl");
+			robot.links.get(2).setModelFilename("/AH/Elbow.stl");
+			robot.links.get(3).setModelFilename("/AH/Forearm.stl");
+			robot.links.get(5).setModelFilename("/AH/Wrist_r1.stl");
+			robot.links.get(6).setModelFilename("/AH/WristRot.stl");
 
 			for( DHLink link : robot.links ) link.setModelScale(0.1f);
 			

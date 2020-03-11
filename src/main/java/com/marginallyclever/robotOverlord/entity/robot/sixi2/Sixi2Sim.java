@@ -182,8 +182,10 @@ public class Sixi2Sim extends Sixi2Model {
 	}
 
 	@Override 
-	public void update(double dt) {
+	public void update(double dt) {		
+		// TODO handle this better
 		interpolationStyle = InterpolationStyle.JACOBIAN;
+		
 		switch (interpolationStyle) {
 		case LINEAR_FK:	interpolateLinearFK(dt);	break;
 		case LINEAR_IK:	interpolateLinearIK(dt);	break;

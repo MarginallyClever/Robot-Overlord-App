@@ -136,8 +136,8 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 			}
 
 			refreshPose();
-			if (panel != null && !isDisablePanel()) {
-				panel.updateEnd();
+			if (dhRobotPanel != null && !isDisablePanel()) {
+				dhRobotPanel.updateEnd();
 			}
 		}
 

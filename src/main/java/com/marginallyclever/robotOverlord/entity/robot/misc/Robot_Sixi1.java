@@ -77,13 +77,13 @@ public class Robot_Sixi1 extends Robot {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.links.get(0).setFilename("/Sixi/anchor.stl");
-			robot.links.get(1).setFilename("/Sixi/shoulder.stl");
-			robot.links.get(2).setFilename("/Sixi/bicep.stl");
-			robot.links.get(3).setFilename("/Sixi/elbow.stl");
-			robot.links.get(5).setFilename("/Sixi/forearm.stl");
-			robot.links.get(6).setFilename("/Sixi/wrist.stl");
-			robot.links.get(7).setFilename("/Sixi/hand.stl");
+			robot.links.get(0).setModelFilename("/Sixi/anchor.stl");
+			robot.links.get(1).setModelFilename("/Sixi/shoulder.stl");
+			robot.links.get(2).setModelFilename("/Sixi/bicep.stl");
+			robot.links.get(3).setModelFilename("/Sixi/elbow.stl");
+			robot.links.get(5).setModelFilename("/Sixi/forearm.stl");
+			robot.links.get(6).setModelFilename("/Sixi/wrist.stl");
+			robot.links.get(7).setModelFilename("/Sixi/hand.stl");
 
 			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0, 0, -25));
 			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0, -5, -25));
