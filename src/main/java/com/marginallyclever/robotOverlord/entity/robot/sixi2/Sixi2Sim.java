@@ -71,7 +71,7 @@ public class Sixi2Sim extends Sixi2Model {
 	    
 	    // set blue
 	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.75f);
+	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,1.0f);
 	    }
 	}
 
@@ -182,7 +182,7 @@ public class Sixi2Sim extends Sixi2Model {
 	}
 
 	@Override 
-	public void update(double dt) {		
+	public void update(double dt) {
 		// TODO handle this better
 		interpolationStyle = InterpolationStyle.JACOBIAN;
 		
