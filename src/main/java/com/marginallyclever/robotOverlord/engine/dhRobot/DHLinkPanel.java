@@ -1,10 +1,16 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
@@ -14,7 +20,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSe
  * @author Dan Royer
  *
  */
-public class DHLinkPanel extends JPanel {
+public class DHLinkPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
@@ -40,38 +46,21 @@ public class DHLinkPanel extends JPanel {
 	public JLabel valueR;
 	public JLabel valueAlpha;
 	
-	public DHLinkPanel(RobotOverlord gui,DHLink link,int k) {
-		setup(gui,link,Integer.toString(k));
-	}
-
-	public DHLinkPanel(RobotOverlord gui,DHLink link,String linkName) {
-		setup(gui,link,linkName);
-	}
 	public DHLinkPanel(RobotOverlord gui,DHLink link) {
-		setup(gui,link,null);
-	}
-	
-	protected void setup(RobotOverlord gui,DHLink link,String linkName) {
 		this.link=link;
-		if(linkName==null || linkName.trim().isEmpty()) {
-			String name="DHLink";
-			if(!link.getLetter().isEmpty())
-				name += " "+link.getLetter();
-				
-			this.setName(name);
-		} else {
-			this.setName("DHLink "+linkName);
-		}
+		this.setName(link.getName());
+		this.setLayout(new GridBagLayout());
+		this.setBorder(new EmptyBorder(5,5,5,5));
 		
-		d     		= new UserCommandSelectNumber(gui,linkName+" d"		,(float)link.getD()		);
-		theta 		= new UserCommandSelectNumber(gui,linkName+" theta"	,(float)link.getTheta()	);
-		r     		= new UserCommandSelectNumber(gui,linkName+" r"		,(float)link.getR()		);
-		alpha 		= new UserCommandSelectNumber(gui,linkName+" alpha"	,(float)link.getAlpha()	);
+		d     		= new UserCommandSelectNumber(gui,"D"		,(float)link.getD()		);
+		theta 		= new UserCommandSelectNumber(gui,"Theta"	,(float)link.getTheta()	);
+		r     		= new UserCommandSelectNumber(gui,"R"		,(float)link.getR()		);
+		alpha 		= new UserCommandSelectNumber(gui,"Alpha"	,(float)link.getAlpha()	);
 
-		valueD     = new JLabel(StringHelper.formatDouble(link.getD()		),JLabel.RIGHT);
-		valueTheta = new JLabel(StringHelper.formatDouble(link.getTheta()	),JLabel.RIGHT);
-		valueR     = new JLabel(StringHelper.formatDouble(link.getR()		),JLabel.RIGHT);
-		valueAlpha = new JLabel(StringHelper.formatDouble(link.getAlpha()	),JLabel.RIGHT);
+		valueD     = new JLabel("D = "+StringHelper.formatDouble(link.getD()		),JLabel.LEFT);
+		valueTheta = new JLabel("Theta = "+StringHelper.formatDouble(link.getTheta()	),JLabel.LEFT);
+		valueR     = new JLabel("R = "+StringHelper.formatDouble(link.getR()		),JLabel.LEFT);
+		valueAlpha = new JLabel("Alpha = "+StringHelper.formatDouble(link.getAlpha()	),JLabel.LEFT);
 
 		Dimension size = valueD.getPreferredSize();
 		size.width = 60;
@@ -84,5 +73,30 @@ public class DHLinkPanel extends JPanel {
 		theta	.setReadOnly(link.flags != DHLink.LinkAdjust.THETA);
 		r		.setReadOnly(link.flags != DHLink.LinkAdjust.R);
 		alpha	.setReadOnly(link.flags != DHLink.LinkAdjust.ALPHA);
+
+		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
+		con1.gridy++;		this.add(d,con1);
+		con1.gridy++;		this.add(theta,con1);
+		con1.gridy++;		this.add(r,con1);
+		con1.gridy++;		this.add(alpha,con1);
+		
+		d.addChangeListener(this);
+		theta.addChangeListener(this);
+		r.addChangeListener(this);
+		alpha.addChangeListener(this);
+
+		PanelHelper.ExpandLastChild(this, con1);
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		switch(link.flags) { 
+		case D: link.setD(d.getValue());  break;
+		case R: link.setR(r.getValue());  break;
+		case THETA: link.setTheta(theta.getValue());  break;
+		case ALPHA: link.setAlpha(alpha.getValue());  break;
+		default:  break;
+		}
+		link.refreshPoseMatrix();
 	}
 };
