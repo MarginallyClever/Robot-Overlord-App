@@ -76,11 +76,13 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		Model m = this.model.getModel();
 		if(m!=null) {
 			con1.gridy++;
-			this.add(new JLabel(m.getNumTriangles()+" triangles",SwingConstants.LEFT),con1);
+			this.add(new JLabel("Triangles: "+m.getNumTriangles(),SwingConstants.LEFT),con1);
 			con1.gridy++;
-			this.add(new JLabel(m.hasNormals?"has normals":"",SwingConstants.LEFT),con1);
+			this.add(new JLabel("Normals: "+(m.hasNormals?"yes":"no"),SwingConstants.LEFT),con1);
 			con1.gridy++;
-			this.add(new JLabel(m.hasColors?"has colors":"",SwingConstants.LEFT),con1);
+			this.add(new JLabel("Colors: "+(m.hasColors?"yes":"no"),SwingConstants.LEFT),con1);
+			con1.gridy++;
+			this.add(new JLabel("Texture coordinates: "+(m.hasTextureCoordinates?"yes":"no"),SwingConstants.LEFT),con1);
 		}
 		PanelHelper.ExpandLastChild(this, con1);
 	}
@@ -88,7 +90,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		if(e.getSource()==userCommandSelectFile) {
-			model.setFilename(userCommandSelectFile.getFilename());
+			model.setModelFilename(userCommandSelectFile.getFilename());
 		}
 		if(e.getSource()==setScale) {
 			model.setModelScale(setScale.getValue());
