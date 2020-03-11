@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import javax.swing.JButton;
@@ -17,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
-import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
@@ -47,16 +45,18 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	protected DHRobot robot;
 	protected RobotOverlord ro;
 
+	@Deprecated
 	public UserCommandSelectNumber numLinks;
+	
 	public ArrayList<DHLinkPanel> linkPanels;
 	
 	// select a tool for the sim.  later this may be open/close ATC.
 	public JButton buttonSetTool;
 	// placeholder for the active tool's panel.
-	public JPanel activeTool;
+	public JPanel activeToolPanel;
 	
 	public UserCommandSelectNumber x,y,z,rx,ry,rz;
-	public JLabel valuex,valuey,valuez,valuerx,valuery,valuerz;
+	public JLabel pX, pY, pZ, rX, rY, rZ;
 
 	
 	
@@ -79,31 +79,12 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		
 		SpringLayout layout = new SpringLayout();
 		JPanel linkContents = new JPanel(layout);
-		linkContents.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		int k=0;
-		for( DHLink link : robot.links ) {
-			DHLinkPanel e = new DHLinkPanel(ro,link,k++);
-			linkPanels.add(e);
-
-			switch(link.flags) {
-			case D	  : {	linkContents.add(e.d    );	linkContents.add(e.valueD    );	e.d    .addChangeListener(this);	}  break;
-			case THETA: {	linkContents.add(e.theta);	linkContents.add(e.valueTheta);	e.theta.addChangeListener(this);	}  break;
-			case R	  : {	linkContents.add(e.r    );	linkContents.add(e.valueR    );	e.r    .addChangeListener(this);	}  break;
-			case ALPHA: {	linkContents.add(e.alpha);	linkContents.add(e.valueAlpha);	e.alpha.addChangeListener(this);	}  break;
-			default: break;
-			}
-		}
-		SpringUtilities.makeCompactGrid(linkContents, linkContents.getComponentCount()/2, 2, 2, 2, 2, 2);
-		this.add(linkContents,con1);
-
-		layout = new SpringLayout();
-		linkContents = new JPanel(layout);
-		linkContents.add(valuex=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(valuey=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(valuez=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(valuerx=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(valuery=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(valuerz=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(pX=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(pY=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(pZ=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(rX=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(rY=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(rZ=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
 		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
 		con1.gridy++;
 		this.add(linkContents,con1);
@@ -115,90 +96,42 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		buttonSetTool.addActionListener(this);
 		
 		con1.gridy++;
-		this.add(activeTool=new JPanel(),con1);
+		this.add(activeToolPanel=new JPanel(),con1);
 
 		PanelHelper.ExpandLastChild(this, con1);
 		
 		robot.refreshPose();
 		updateEnd();
+
+		if(robot.getCurrentTool()!=null && activeToolPanel!=null) {
+			PanelHelper.formatEntityPanels(robot.getCurrentTool().getContextPanels(ro), activeToolPanel);
+		}
 	}
 	
 	@Override
 	public void stateChanged(ChangeEvent event) {
-		Object source = event.getSource();
-		if(source == numLinks) {
-			int newSize = (int)numLinks.getValue();
-			if(robot.links.size() != newSize) {
-				robot.setNumLinks(newSize);
-				buildPanel();
-				this.invalidate();
-				return;
-			}
-		}
-
-		boolean isDirty=false;
-		Iterator<DHLinkPanel> i = linkPanels.iterator();
-		while(i.hasNext()) {
-			DHLinkPanel e = i.next();
-			if(source == e.d    ) isDirty=true;
-			if(source == e.theta) isDirty=true;
-			if(source == e.r    ) isDirty=true;
-			if(source == e.alpha) isDirty=true;
-		}
-		if(isDirty) {
-			i = linkPanels.iterator();
-			
-			double [] arr = new double[linkPanels.size()*4];
-			int j=0;
-			
-			while(i.hasNext()) {
-				DHLinkPanel e = i.next();
-				arr[j++]=e.link.getD()		;
-				arr[j++]=e.link.getTheta()	;
-				arr[j++]=e.link.getR()		;
-				arr[j++]=e.link.getAlpha()	;
-				e.link.setD		(e.d	.getValue());
-				e.link.setTheta	(e.theta.getValue());
-				e.link.setR		(e.r	.getValue());
-				e.link.setAlpha	(e.alpha.getValue());
-			}
-			robot.refreshPose();
-			j=0;
-			i = linkPanels.iterator();
-			while(i.hasNext()) {
-				DHLinkPanel e = i.next();
-				e.link.setD		(arr[j++]);
-				e.link.setTheta	(arr[j++]);
-				e.link.setR		(arr[j++]);
-				e.link.setAlpha	(arr[j++]);
-			}
-			robot.refreshPose();
-			updateEnd();
-		}
+		//Object source = event.getSource();
 	}
 	
 	/**
 	 * Pull the latest arm end world coordinates into the panel.
 	 */
 	public void updateEnd() {
-		updateActiveTool(robot.getCurrentTool());
 		// report end effector position
 		Matrix3d m = new Matrix3d();
 		robot.endEffectorMatrix.get(m);
 		Vector3d v = MatrixHelper.matrixToEuler(m);
-		valuex.setText("X="+StringHelper.formatDouble(robot.endEffectorMatrix.m03));
-		valuey.setText("Y="+StringHelper.formatDouble(robot.endEffectorMatrix.m13));
-		valuez.setText("Z="+StringHelper.formatDouble(robot.endEffectorMatrix.m23));
-		valuerx.setText("Rx="+StringHelper.formatDouble(Math.toDegrees(v.x)));
-		valuery.setText("Ry="+StringHelper.formatDouble(Math.toDegrees(v.y)));
-		valuerz.setText("Rz="+StringHelper.formatDouble(Math.toDegrees(v.z)));
+		pX.setText("X="+StringHelper.formatDouble(robot.endEffectorMatrix.m03));
+		pY.setText("Y="+StringHelper.formatDouble(robot.endEffectorMatrix.m13));
+		pZ.setText("Z="+StringHelper.formatDouble(robot.endEffectorMatrix.m23));
+		rX.setText("Rx="+StringHelper.formatDouble(Math.toDegrees(v.x)));
+		rY.setText("Ry="+StringHelper.formatDouble(Math.toDegrees(v.y)));
+		rZ.setText("Rz="+StringHelper.formatDouble(Math.toDegrees(v.z)));
 		
 		// report the keyframe results here
 		int j=0;
-		Iterator<DHLinkPanel> i = linkPanels.iterator();
-		while(i.hasNext()) {
+		for( DHLinkPanel linkPanel : linkPanels ) {
 			DHLink link = robot.getLink(j++);
-			DHLinkPanel linkPanel = i.next();
 			switch(linkPanel.link.flags) {
 			case D		: linkPanel.valueD    .setText(StringHelper.formatDouble(link.getD()	));  break;
 			case THETA	: linkPanel.valueTheta.setText(StringHelper.formatDouble(link.getTheta()));  break;
@@ -213,7 +146,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(source == buttonSetTool) {
-			// TODO get the tool from somewhere?  Find the tool in the world adjacent to the end effector
+			// TODO get the tool from somewhere?  Find the tool in the world adjacent to the end effector?
 			selectTool();
 			
 			//robot.toggleATC();
@@ -234,12 +167,9 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		// service load the types available.
 		ServiceLoader<DHTool> loaders = ServiceLoader.load(DHTool.class);
 		int loadedTypes=0;
-		Iterator<DHTool> i = loaders.iterator();
-		while(i.hasNext()) {
-			DHTool lft = i.next();
+		for( DHTool lft : loaders ) {
 			additionComboBox.addItem(lft.getName());
-			if(robot.getCurrentTool()!=null 
-					&& lft.getClass() == robot.getCurrentTool().getClass()) {
+			if(robot.getCurrentTool() != null && lft.getClass() == robot.getCurrentTool().getClass()) {
 				additionComboBox.setSelectedIndex(loadedTypes);
 			}
 			++loadedTypes;
@@ -252,11 +182,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		if (result == JOptionPane.OK_OPTION) {
 			String objectTypeName = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
 
-			i = loaders.iterator();
-			while(i.hasNext()) {
-				DHTool lft = i.next();
-				String name = lft.getName();
-				if(name.equals(objectTypeName)) {
+			for( DHTool lft : loaders ) {
+				if(lft.getName().equals(objectTypeName)) {
 					DHTool newInstance = null;
 
 					if(robot.getCurrentTool()!=null 
@@ -281,8 +208,11 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	 * Called by the robot to update the panel status
 	 */
 	public void updateActiveTool(DHTool arg0) {
-		activeTool.removeAll();
-//		activeTool.add(arg0.getAllContextPanels(ro));
+		activeToolPanel.removeAll();
+		ro.updateEntityTree();
+		if(arg0!=null) {
+			PanelHelper.formatEntityPanels(arg0.getContextPanels(ro), activeToolPanel);
+		}
 	}
 
 	@Override

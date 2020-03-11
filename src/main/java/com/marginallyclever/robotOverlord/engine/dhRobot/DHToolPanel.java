@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -35,25 +36,27 @@ public class DHToolPanel extends JPanel implements ActionListener, ChangeListene
 		this.tool = tool;
 		this.gui = gui;
 		
-		this.removeAll();
+		this.setName("DHTool");
+		
 		this.setLayout(new GridBagLayout());
+		this.setBorder(new EmptyBorder(5,5,5,5));
+		
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		this.add(endx=new JLabel("X="), con1);	con1.gridy++;
-		this.add(endy=new JLabel("Y="), con1);	con1.gridy++;
-		this.add(endz=new JLabel("Z="), con1);	con1.gridy++;
+		con1.gridy++;
+		this.add(endx=new JLabel("X="), con1);
+		con1.gridy++;
+		this.add(endy=new JLabel("Y="), con1);
+		con1.gridy++;
+		this.add(endz=new JLabel("Z="), con1);
+		
+		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	
 	@Override
 	public void stateChanged(ChangeEvent event) {
 		// TODO fill me
-	}
-
-	
-	protected String formatDouble(double arg0) {
-		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
 	}
 	
 	@Override
