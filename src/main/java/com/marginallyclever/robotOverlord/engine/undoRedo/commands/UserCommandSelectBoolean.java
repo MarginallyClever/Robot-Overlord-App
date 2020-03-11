@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.engine.undoRedo.commands;
 
-import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Iterator;
@@ -46,15 +46,15 @@ public class UserCommandSelectBoolean extends JPanel implements ItemListener {
 		checkboxField = new JCheckBox();
 		checkboxField.setSelected(defaultValue);
 		checkboxField.addItemListener(this);
-		checkboxField.setBorder(new EmptyBorder(0,0,0,0));
+		checkboxField.setBorder(new EmptyBorder(5,0,5,5));
 		
 		JLabel label=new JLabel(labelName,SwingConstants.LEFT);
 		label.setLabelFor(checkboxField);
-
-		this.setLayout(new FlowLayout(FlowLayout.LEADING));
-		this.setBorder(new EmptyBorder(5,0,5,0));
-		this.add(checkboxField);
-		this.add(label);
+		
+		this.setLayout(new BorderLayout());
+		//this.setBorder(new LineBorder(Color.RED));
+		this.add(checkboxField,BorderLayout.LINE_START);
+		this.add(label,BorderLayout.CENTER);
 	}
 	
 	public boolean getValue() {
