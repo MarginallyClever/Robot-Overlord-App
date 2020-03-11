@@ -9,14 +9,9 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
-import com.marginallyclever.robotOverlord.engine.model.Model;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
-import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.camera.Camera;
-import com.marginallyclever.robotOverlord.entity.light.Light;
 import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
-import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
 
@@ -30,7 +25,6 @@ public class DHTool_Gripper extends DHTool {
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
 	private transient PhysicalObject subjectBeingHeld;
-	private transient Matrix4d heldRelative;
 	
 	private double gripperServoAngle;
 	public static final double ANGLE_MAX=55;
@@ -38,32 +32,26 @@ public class DHTool_Gripper extends DHTool {
 	
 	private double interpolatePoseT;
 	private double startT,endT;
-	private double startD,endD;
-	private double startR,endR;
 	
-	private Model linkage;
-	private Model finger;
+	private DHLink[] subComponents = new DHLink[6];
 	
 	private transient boolean wasGripping;
 	
 	public DHTool_Gripper() {
 		super();
+		setLetter("T");
 		setName("Gripper");
-		setD(11.9082);  // cm
 		refreshPoseMatrix();
-		
-		heldRelative = new Matrix4d();
 		
 		gripperServoAngle=90;
 		interpolatePoseT=1;
 		startT=endT=gripperServoAngle;
-		startD=endD=getD();
-		startR=endR=getR();
 		
-		setFilename("/Sixi2/beerGripper/base.stl");
+		setModelFilename("/Sixi2/beerGripper/base.stl");
 		setModelScale(0.1f);
+		setModelOrigin(-1,0,4.15);
+		setModelRotation(0,180,90);
 		
-		setPosition(new Vector3d(0.91,0,4.1));
 
 		Matrix3d r = new Matrix3d();
 		r.setIdentity();
@@ -74,65 +62,56 @@ public class DHTool_Gripper extends DHTool {
 		r.mul(r2);
 		this.setRotation(r);
 		
+		// 4 bars
+		addChild(subComponents[0]=new DHLink());
+		addChild(subComponents[1]=new DHLink());
+		addChild(subComponents[2]=new DHLink());
+		addChild(subComponents[3]=new DHLink());
+		subComponents[0].setModelFilename("/Sixi2/beerGripper/linkage.stl");
+		subComponents[0].setModelScale(0.1f);
+		subComponents[1].set(subComponents[0]);
+		subComponents[2].set(subComponents[0]);
+		subComponents[3].set(subComponents[0]);
+		subComponents[0].setPosition(new Vector3d(2.7/2, 0, 4.1));
+		subComponents[1].setPosition(new Vector3d(1.1/2, 0, 5.9575));
+		subComponents[2].setPosition(new Vector3d(-2.7/2, 0, 4.1));
+		subComponents[3].setPosition(new Vector3d(-1.1/2, 0, 5.9575));
+		
+		// 2 finger tips
+		addChild(subComponents[4]=new DHLink());
+		subComponents[4].setModelFilename("/Sixi2/beerGripper/finger.stl");
+		subComponents[4].setModelScale(0.1f);
+		addChild(subComponents[5]=new DHLink());
+		subComponents[5].set(subComponents[4]);
+		
 		wasGripping=false;
 	}
 	
+	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
-		
-		if(linkage==null) {
-			try {
-				linkage= ModelFactory.createModelFromFilename("/Sixi2/beerGripper/linkage.stl",0.1f);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if(finger==null) {
-			try {
-				finger= ModelFactory.createModelFromFilename("/Sixi2/beerGripper/finger.stl",0.1f);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
-		}
-
-		//render gripper model
-		if(model==null) return;
-		if(linkage==null) return;
-		if(finger==null) return;
-
+/*
 		material.render(gl2);
 		
 		gl2.glPushMatrix();
-		gl2.glRotated(90, 0, 0, 1);
-			// model rendered by super
+			gl2.glRotated(90, 0, 0, 1);
 		
-		double v = -180-this.gripperServoAngle;
+			double v = -180-this.gripperServoAngle;
 		
 			gl2.glPushMatrix();
-			gl2.glTranslated(2.7/2, 0, 4.1);
 			gl2.glRotated(v, 0, 1, 0);
-			linkage.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glPushMatrix();
-			gl2.glTranslated(1.1/2, 0, 5.9575);
 			gl2.glRotated(v, 0, 1, 0);
-			linkage.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glPushMatrix();
-			gl2.glTranslated(-2.7/2, 0, 4.1);
 			gl2.glRotated(-v, 0, 1, 0);
-			linkage.render(gl2);
 			gl2.glPopMatrix();
 			
 			gl2.glPushMatrix();
-			gl2.glTranslated(-1.1/2, 0, 5.9575);
 			gl2.glRotated(-v, 0, 1, 0);
-			linkage.render(gl2);
-			
 			gl2.glPopMatrix();
 
 			double c=Math.cos(Math.toRadians(v));
@@ -151,6 +130,7 @@ public class DHTool_Gripper extends DHTool {
 			gl2.glPopMatrix();
 		
 		gl2.glPopMatrix();
+		*/
 	}
 
 	/**
@@ -166,24 +146,28 @@ public class DHTool_Gripper extends DHTool {
 			wasGripping=true;
 			// grab release
 			if(subjectBeingHeld==null) {
-				// get the object at the targetPos
-				// attach it to this object
 				//System.out.println("Grab");
-				subjectBeingHeld = findObjectNear(10);
-				if(subjectBeingHeld != null) {
-					// find the relative transform so that its angle doesn't change?
-					Matrix4d held = new Matrix4d(subjectBeingHeld.getPose());
-					Matrix4d iEnd = new Matrix4d(poseCumulative);
-					iEnd.invert();
-					heldRelative.mul(iEnd,held);
-					//heldRelative.transform(dp);
-					//heldRelative.m03=dp.x;
-					//heldRelative.m13=dp.y;
-					//heldRelative.m23=dp.z;
+				// Get the object at the targetPos.
+				Vector3d target = new Vector3d();
+				this.poseWorld.get(target);
+				List<PhysicalObject> list = this.getWorld().findPhysicalObjectsNear(target, 10);
+				if(!list.isEmpty()) {
+					subjectBeingHeld = list.get(0);
+					// A new subject has been acquired.
+					// The subject is being held by the gripper.  Subtract the gripper's world pose from the subject's world pose.
+					Matrix4d m = subjectBeingHeld.getPose();
+					Matrix4d ipc = (Matrix4d)poseWorld.clone();
+					ipc.invert();
+					m.mul(ipc);
+					subjectBeingHeld.setPose(m);
 				}
 			} else {
 				//System.out.println("Release");
-				// release the object being held, somehow.
+				// The subject is being held relative to the gripper.  Add the gripper's world pose to the subject's pose.
+				Matrix4d m = subjectBeingHeld.getPose();
+				m.mul(poseWorld);
+				subjectBeingHeld.setPose(m);
+				// forget the subject.
 				subjectBeingHeld=null;
 			}
 		}
@@ -206,58 +190,13 @@ public class DHTool_Gripper extends DHTool {
 
         return isDirty;
 	}
-	
-	public void refreshPose(Matrix4d endMatrix) {
-		super.refreshPose(endMatrix);
-		if(subjectBeingHeld!=null) {
-			Matrix4d finalPose = new Matrix4d();
-			finalPose.mul(endMatrix,heldRelative);
-			subjectBeingHeld.setPose(finalPose);
-		}
+
+	@Override
+	public String getCommand() {
+		return getLetter()+StringHelper.formatDouble(this.gripperServoAngle);
 	}
 	
-	public PhysicalObject findObjectNear(double radius) {
-		//System.out.println("Finding world...");
-		Entity p=parent;
-		while(p!=null) {
-			//System.out.println("\t"+p.getDisplayName());
-			if(p instanceof World) {
-				break;
-			}
-			p=p.getParent();
-		}
-		if(p==null || !(p instanceof World)) {
-			//System.out.println("World not found");
-			return null;
-		}
-
-		//System.out.println("Asking world...");
-		
-		// World, please tell me who is near my grab point.
-		Vector3d target = new Vector3d();
-		poseCumulative.get(target);
-		World world = (World)p;
-		List<PhysicalObject> list = world.findPhysicalObjectsNear(target,radius);
-
-		// Check the list for anything that is not this tool and not this robot.
-		for( PhysicalObject po : list ) {
-			if(po==parent) continue;
-			if(po==this) continue;
-			if(po instanceof Light) continue;
-			if(po instanceof Camera) continue;
-			//System.out.println("  selected "+po.getDisplayName());
-			return po;  // found!
-		}
-		return null;
-	}
-
-	public String generateGCode() {
-		String message = " T"+StringHelper.formatDouble(this.gripperServoAngle)
-						+ " R"+StringHelper.formatDouble(this.getR())
-						+ " S"+StringHelper.formatDouble(this.getD());
-		return message;
-	}
-	
+	@Override
 	public void sendCommand(String str) {
 		StringTokenizer tok = new StringTokenizer(str);
 		while(tok.hasMoreTokens()) {
@@ -267,14 +206,6 @@ public class DHTool_Gripper extends DHTool {
 					startT = gripperServoAngle;
 					endT = Double.parseDouble(token.substring(1));
 				}
-				if(token.startsWith("R")) {
-					startR = getR();
-					endR = Double.parseDouble(token.substring(1));
-				}
-				if(token.startsWith("S")) {
-					startD = getD();
-					endD = Double.parseDouble(token.substring(1));
-				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
 			}
@@ -283,20 +214,28 @@ public class DHTool_Gripper extends DHTool {
 		interpolatePoseT=0;
 	}
 	
+	@Override
 	public void interpolate(double dt) {
+		super.interpolate(dt);
+		
 		if(interpolatePoseT<1) {
 			interpolatePoseT+=dt;
 			if(interpolatePoseT>=1) {
 				interpolatePoseT=1;
 			}
-			gripperServoAngle   =((endT-startT)*interpolatePoseT + startT);
-			setR((endR-startR)*interpolatePoseT + startR);
-			setD((endD-startD)*interpolatePoseT + startD);
+			gripperServoAngle=((endT-startT)*interpolatePoseT + startT);
 			refreshPoseMatrix();
 		}
 	}
 	
+	@Override
 	public double getAdjustableValue() {
 		return gripperServoAngle;
+	}
+	
+	@Override
+	public void setAdjustableValue(double v) {
+		v = Math.max(Math.min(v, rangeMax), rangeMin);
+		gripperServoAngle=v;
 	}
 }
