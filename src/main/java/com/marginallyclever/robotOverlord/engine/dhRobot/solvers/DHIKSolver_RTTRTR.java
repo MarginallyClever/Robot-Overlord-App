@@ -83,8 +83,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.getD();
 		}
 		
-		Matrix4d link5m = new Matrix4d(link5.poseCumulative);
-		Matrix4d link4m = new Matrix4d(link4.poseCumulative);
+		Matrix4d link5m = new Matrix4d(link5.getPoseWorld());
+		Matrix4d link4m = new Matrix4d(link4.getPoseWorld());
 		targetMatrixAdj.mul(iRoot,targetMatrixAdj);
 		link5m.mul(iRoot,link5m);
 		link4m.mul(iRoot,link4m);
@@ -186,30 +186,17 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		// Now to a partial DHRobot.setRobotPose() up to link5.
 		// I don't want to alter the original robot so I'll make a deep clone of the robot.links.
-		ArrayList<DHLink> clonedLinks = new ArrayList<DHLink>();
-		Iterator<DHLink> rli = robot.links.iterator();
-		while(rli.hasNext()) {
-			DHLink originalLink = rli.next();
-			clonedLinks.add(new DHLink(originalLink));  // deep clone
-		}
 
+		robot.links.get(0).setTheta(keyframe.fkValues[0]);
+		robot.links.get(1).setAlpha(keyframe.fkValues[1]);
+		robot.links.get(2).setAlpha(keyframe.fkValues[2]);
+		robot.links.get(4).setTheta(0);
+
+		for( DHLink link : robot.links ) {
+			link.refreshPoseMatrix();
+		}
 		Matrix4d r04 = new Matrix4d();
-		r04.setIdentity();
-		
-		clonedLinks.get(0).setTheta(keyframe.fkValues[0]);
-		clonedLinks.get(1).setAlpha(keyframe.fkValues[1]);
-		clonedLinks.get(2).setAlpha(keyframe.fkValues[2]);
-		clonedLinks.get(4).setTheta(0);
-
-		rli = clonedLinks.iterator();
-		int j=0;
-		while(rli.hasNext() && j<5) {
-			DHLink link = rli.next();
-			link.refreshPoseMatrix();  
-			link.poseCumulative.set(r04);
-			r04.mul(link.getPose());
-			++j;
-		}
+		r04.set(robot.links.get(robot.links.size()-1).getPoseWorld());
 
 		if(false) {
 			Vector3d p4original = new Vector3d();
@@ -217,7 +204,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			System.out.println("p4o="+p4original);
 			
 			Vector3d p4cloned = new Vector3d();
-			clonedLinks.get(4).poseCumulative.get(p4cloned);
+			robot.links.get(4).getPoseWorld().get(p4cloned);
 			System.out.println("p4c="+p4cloned);
 		}
 		
