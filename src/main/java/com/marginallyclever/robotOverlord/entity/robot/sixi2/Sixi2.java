@@ -167,10 +167,10 @@ public class Sixi2 extends Robot {
 
 	@Override
 	public void render(GL2 gl2) {
-		for( DHLink link : sim.links ) {
-			link.refreshPoseMatrix();
-		}
-
+		// draw the children
+		super.render(gl2);
+		
+		// then the ball
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -184,9 +184,6 @@ public class Sixi2 extends Robot {
 
 		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glDepthFunc(depthFunc.get(0));
-
-		// then draw the target pose, aka the ghost.
-		super.render(gl2);
 	}
 
 	@Override
@@ -536,9 +533,11 @@ public class Sixi2 extends Robot {
 	public void addCommand() {
 		recording.addCommand(sim.getCommand());
 	}
+	
 	public void deleteCurrentCommand() {
 		recording.deleteCurrentCommand();
 	}
+	
 	public void setCommand() {
 		recording.setCommand(sim.getCommand());
 	}
@@ -551,12 +550,13 @@ public class Sixi2 extends Robot {
 		recording.saveRecording(filename);
 	}
 
+	// recursively set for all children
 	@Override
 	public void setDrawBoundingBox(boolean arg0) {
 		super.setDrawBoundingBox(arg0);
 
 		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
-		next.add(this.sim.links.get(0));
+		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PhysicalObject link = next.pop();
 			link.setDrawBoundingBox(arg0);
@@ -567,12 +567,14 @@ public class Sixi2 extends Robot {
 			}
 		}
 	}
+	
+	// recursively set for all children
 	@Override
 	public void setDrawLocalOrigin(boolean arg0) {
 		super.setDrawLocalOrigin(arg0);
 
 		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
-		next.add(this.sim.links.get(0));
+		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PhysicalObject link = next.pop();
 			link.setDrawLocalOrigin(arg0);
@@ -583,12 +585,14 @@ public class Sixi2 extends Robot {
 			}
 		}
 	}
+
+	// recursively set for all children
 	@Override
 	public void setDrawConnectionToChildren(boolean arg0) {
 		super.setDrawConnectionToChildren(arg0);
 
 		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
-		next.add(this.sim.links.get(0));
+		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PhysicalObject link = next.pop();
 			link.setDrawConnectionToChildren(arg0);
@@ -608,7 +612,7 @@ public class Sixi2 extends Robot {
 	    // the home position
 		DHKeyframe homeKey = sim.getIKSolver().createDHKeyframe();
 		homeKey.fkValues[0]=0;
-		homeKey.fkValues[1]=0;
+		homeKey.fkValues[1]=-90;
 		homeKey.fkValues[2]=0;
 		homeKey.fkValues[3]=0;
 		homeKey.fkValues[4]=20;
@@ -620,8 +624,8 @@ public class Sixi2 extends Robot {
 	    // set rest position
 		DHKeyframe restKey = sim.getIKSolver().createDHKeyframe();
 		restKey.fkValues[0]=0;
-		restKey.fkValues[1]=-60;
-		restKey.fkValues[2]=85;
+		restKey.fkValues[1]=-60-90;
+		restKey.fkValues[2]=85+90;
 		restKey.fkValues[3]=0;
 		restKey.fkValues[4]=20;
 		restKey.fkValues[5]=0;
