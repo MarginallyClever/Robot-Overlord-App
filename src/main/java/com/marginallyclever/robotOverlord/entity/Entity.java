@@ -77,11 +77,6 @@ public class Entity extends Observable {
 		return pickName==name;
 	}
 	
-	public void pick() {}
-	
-	public void unPick() {}
-	
-	
 	public void update(double dt) {
 		for(Entity e : children ) {
 			e.update(dt);

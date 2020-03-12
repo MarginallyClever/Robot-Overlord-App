@@ -94,9 +94,6 @@ public class Sixi2 extends Robot {
 
 	public Sixi2Recording recording = new Sixi2Recording();
 
-	// true if the skeleton should be visualized on screen. Default is false.
-	protected boolean isPicked = false;
-
 	// are we live or simulated?
 	protected OperatingMode operatingMode=OperatingMode.SIM;
 
@@ -305,28 +302,6 @@ public class Sixi2 extends Robot {
 	}
 
 	@Override
-	public void pick() {
-		isPicked = true;
-	}
-
-	@Override
-	public void unPick() {
-		isPicked = false;
-	}
-
-	protected boolean canSubjectRotateX() {
-		return true;
-	}
-
-	protected boolean canSubjectRotateY() {
-		return true;
-	}
-
-	protected boolean canSubjectRotateZ() {
-		return true;
-	}
-
-	@Override
 	public RobotKeyframe createKeyframe() {
 		return null;
 	}
@@ -441,10 +416,6 @@ public class Sixi2 extends Robot {
 		m01Break = true;
 
 		System.out.println("reset "+recording.getNumCommands());
-	}
-
-	public boolean isPicked() {
-		return isPicked;
 	}
 
 	public void toggleCycleStart() {

@@ -74,6 +74,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSa
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
+import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.FooterBar;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
@@ -132,8 +133,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		protected Splitter splitLeftRight;
 		// bottom part
 		protected Splitter rightFrameSplitter;
-		@Deprecated
-		protected JScrollPane rightFrame;
 	protected GLJPanel glCanvas;
 	protected JPanel entityTree;
 	protected JPanel selectedEntityPanel;
@@ -503,7 +502,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 
 	public void newWorld() {
 		this.world = new World();
-		pickNothing();
+		pickEntity(null);
 	}
 	
 	/*
@@ -884,7 +883,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
     	
     	if(newlyPickedEntity==null || newlyPickedEntity == pickedEntity) {
 			//System.out.println(" NO PICK");
-    		pickNothing();
+    		pickEntity(null);
         } else {
 			//System.out.print(" PICKED");
 			pickEntity(newlyPickedEntity);
@@ -892,27 +891,14 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
     }
 	
 	public void pickEntity(Entity arg0) {
-		unPick();
-		arg0.pick();
 		pickedEntity=arg0;
 		pickedHandle=0;
-		
+
+		if(arg0 instanceof PhysicalObject) {
+			world.getBall().setSubject((PhysicalObject)arg0);
+		}
 		setContextPanel(arg0);
 	}
-    
-    public void pickNothing() {
-		unPick();
-    	pickedEntity=null;
-    	setContextPanel(null);
-    }
-	
-    public void unPick() {
-		if(pickedEntity!=null) {
-			pickedEntity.unPick();
-			pickedEntity=null;
-			pickedHandle=0;
-		}
-    }
     
 	public void pickCamera() {
 		Camera camera = world.getCamera();
@@ -1009,9 +995,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	@Deprecated
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
-			System.out.print(" REVERT TO CAMERA");
-			unPick();
-			pickNothing();
+			pickEntity(null);
 		}
 	}
 	

@@ -18,7 +18,7 @@ public class UndoableActionRemoveEntity extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Entity entity;	
+	private Entity entity;
 	private RobotOverlord ro;
 	
 	public UndoableActionRemoveEntity(RobotOverlord ro,Entity entity) {
@@ -44,7 +44,7 @@ public class UndoableActionRemoveEntity extends AbstractUndoableEdit {
 	protected void doIt() {
 		ro.getWorld().removeChild(entity);
 		ro.updateEntityTree();
-		ro.pickNothing();
+		ro.pickEntity(null);
 	}
 
 	@Override
