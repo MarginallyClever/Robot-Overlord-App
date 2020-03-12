@@ -9,7 +9,8 @@ import com.jogamp.opengl.GL2;
 
 public class PrimitiveSolids {
 	/**
-	 * TODO expose width/height parameters
+	 * draw a sphere with a given radius.
+	 * TODO expose quality parameters?
 	 * TODO generate a sphere once as a model, return that.
 	 * See https://www.gamedev.net/forums/topic/537269-procedural-sphere-creation/4469427/
 	 * @param gl2
@@ -169,7 +170,6 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 	}
 
-	// TODO: move this to Cylinder?
 	static public void drawCylinder(GL2 gl2,float thickness,float radius) {
 		int i;
 		int c=36;
@@ -313,16 +313,13 @@ public class PrimitiveSolids {
 		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();
 	}
 	
-
 	static public void drawStar(GL2 gl2,double size) {
 		drawStar(gl2,new Vector3d(0,0,0),1.0f);
 	}
 	
-
 	static public void drawStar(GL2 gl2,Vector3d p) {
 		drawStar(gl2,p,1.0f);
 	}
-	
 	
 	static public void drawStar(GL2 gl2,Vector3d p,double size) {
 		// save the current color
@@ -361,7 +358,6 @@ public class PrimitiveSolids {
 		gl2.glColor4dv(params,0);
 	}
 
-	
 	/**
 	 * Draw a gride of lines in the current color
 	 * @param gl2 the render context
@@ -372,7 +368,6 @@ public class PrimitiveSolids {
 		drawGrid(gl2,grid_size,grid_size,grid_space);
 	}
 
-	
 	/**
 	 * Draw a grid of lines in the current color
 	 * @param gl2 the render context
@@ -410,7 +405,6 @@ public class PrimitiveSolids {
 		
 		//if(!isBlend) gl2.glDisable(GL2.GL_BLEND);
 	}
-	
 	
 	static public void drawGrid(GL2 gl2) {
 		drawGrid(gl2,50,1);
