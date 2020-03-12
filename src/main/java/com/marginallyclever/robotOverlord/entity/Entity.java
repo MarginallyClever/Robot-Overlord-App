@@ -43,7 +43,8 @@ public class Entity extends Observable {
 	}
 	
 	/**
-	 * Get the {@link EntityPanel} for this class' superclass, then the EntityPanel for this class, and so on.
+	 * Get the {@link EntityPanel} for this class.  Classes that extend Entity should 
+	 * override this method to add their own panel in the list.
 	 * 
 	 * @param gui the main application instance.
 	 * @return the list of EntityPanels 
