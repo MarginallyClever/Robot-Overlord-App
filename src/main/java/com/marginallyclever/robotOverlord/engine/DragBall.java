@@ -175,6 +175,8 @@ public class DragBall extends PhysicalObject {
 		} else {
 			updateTranslation(dt);
 		}
+		
+		subject.setPoseWorld(resultMatrix);
 	}
 	
 	/**
