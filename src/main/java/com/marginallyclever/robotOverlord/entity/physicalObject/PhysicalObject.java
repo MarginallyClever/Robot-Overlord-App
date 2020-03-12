@@ -183,7 +183,8 @@ public abstract class PhysicalObject extends Entity {
 	}
 	
 	/**
-	 * Recalculates poseWorld from pose and parent.poseWorld
+	 * Recalculates poseWorld from pose and parent.poseWorld.  
+	 * Does not crawl up the parent hierarchy.
 	 */
 	public void updatePoseWorld() {
 		if(parent instanceof PhysicalObject) {
@@ -199,6 +200,22 @@ public abstract class PhysicalObject extends Entity {
 	 */
 	public Matrix4d getPoseWorld() {
 		return poseWorld;
+	}
+	
+	
+	/**
+	 * Set the pose and poseWorld of this item
+	 * @param m
+	 */
+	public void setPoseWorld(Matrix4d m) {
+		if(parent instanceof PhysicalObject) {
+			Matrix4d iParent = new Matrix4d(((PhysicalObject)parent).poseWorld);
+			iParent.invert();
+			m.mul(iParent);
+			setPose(m);
+		} else {
+			setPose(m);
+		}
 	}
 	
 	public World getWorld() {
