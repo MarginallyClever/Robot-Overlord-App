@@ -7,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionListener;
@@ -32,6 +33,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -57,7 +61,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
-import com.marginallyclever.robotOverlord.engine.undoRedo.UndoHelper;
+import com.marginallyclever.robotOverlord.engine.undoRedo.RedoAction;
+import com.marginallyclever.robotOverlord.engine.undoRedo.UndoAction;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAbout;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAboutControls;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandCheckForUpdate;
@@ -65,9 +70,7 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandFo
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandLoad;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandNew;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandQuit;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandRedo;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSaveAs;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandUndo;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.camera.Camera;
@@ -79,11 +82,11 @@ import com.marginallyclever.robotOverlord.uiElements.Splitter;
 import com.marginallyclever.util.PropertiesFileHelper;
 
 /**
- * MainGUI is the root window object.
- * @author danroyer
+ * The main application for Robot Overlord
+ * @author Dan Royer
  *
  */
-public class RobotOverlord implements MouseListener, MouseMotionListener, GLEventListener, WindowListener {
+public class RobotOverlord implements MouseListener, MouseMotionListener, GLEventListener, WindowListener, UndoableEditListener {
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
@@ -101,12 +104,10 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	protected transient double pickX, pickY;
 	protected transient Entity pickedEntity; 
 	protected transient int pickedHandle;
-
+	
 	// menus
     // main menu bar
 	protected transient JMenuBar mainMenu;
-	// edit menu
-	protected transient JMenuItem buttonUndo,buttonRedo;
 	
     // The animator keeps things moving
     private FPSAnimator animator;
@@ -141,8 +142,9 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	protected FooterBar footerBar;
 	
 	// undo/redo system
-	private UndoManager commandSequence;
-	private UndoHelper undoHelper;
+	private UndoManager undoManager;
+	private UndoAction undoAction;
+	private RedoAction redoAction;
 
 	// mouse steering controls
 	private boolean isMouseIn;
@@ -161,10 +163,13 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		SoundSystem.start();
 		InputManager.start();
 		
-		commandSequence = new UndoManager();
-		undoHelper = new UndoHelper(this);
-		checkStackSize=false;
+		undoManager = new UndoManager();
+		undoAction = new UndoAction(undoManager);
+		redoAction = new RedoAction(undoManager);
+		undoAction.setRedoAction(redoAction);
+		redoAction.setUndoAction(undoAction);
 		
+		checkStackSize=false;
 		isMouseIn=false;
 		
 		connectionManager = new NetworkConnectionManager();
@@ -224,7 +229,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
         pickNow = false;
         selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
         pickedEntity = null;
-
+		
         entityTree = new JPanel();
         // build the initial entity tree
         this.updateEntityTree();
@@ -274,13 +279,8 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		return mainFrame;
 	}
 	
-	
 	public UndoManager getUndoManager() {
-		return commandSequence;
-	}
-	
-	public UndoHelper getUndoHelper() {
-		return undoHelper;
+		return undoManager;
 	}
 	
 	public World getWorld() {
@@ -481,7 +481,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	
 			// Read an object in from object store, and cast it to a GameWorld
 			this.world = (World) objectIn.readObject();
-			updateMenu();
 		} catch(IOException e) {
 			System.out.println("World load failed (file io).");
 			e.printStackTrace();
@@ -505,7 +504,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	public void newWorld() {
 		this.world = new World();
 		pickNothing();
-		updateMenu();
 	}
 	
 	/*
@@ -572,52 +570,42 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		mainMenu.add(menu);
         
         menu = new JMenu("Edit");
-        menu.add(buttonUndo = new UserCommandUndo(this));
-        menu.add(buttonRedo = new UserCommandRedo(this));
+        JMenuItem undoItem = new JMenuItem(undoAction);
+        JMenuItem redoItem = new JMenuItem(redoAction);
+        undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
+        redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));  
+        menu.add(undoItem);
+        menu.add(redoItem);
         mainMenu.add(menu);
-
+    	
         menu = new JMenu("Help");
-        menu.add(new UserCommandAboutControls(this));
-		menu.add(new UserCommandForums(this));
-		menu.add(new UserCommandCheckForUpdate(this));
-		menu.add(new UserCommandAbout(this));
+        menu.add(new UserCommandAboutControls());
+		menu.add(new UserCommandForums());
+		menu.add(new UserCommandCheckForUpdate());
+		menu.add(new UserCommandAbout());
         mainMenu.add(menu);
     	
     	// done
         mainMenu.updateUI();
-        updateMenu();
 	}
 
 
-	public void updateMenu() {
-        if(buttonUndo==null || buttonRedo==null) return;
-        
-        buttonUndo.setText(commandSequence.getUndoPresentationName());
-		buttonRedo.setText(commandSequence.getRedoPresentationName());
-		buttonUndo.getParent().validate();
-		buttonUndo.setEnabled(commandSequence.canUndo());
-	    buttonRedo.setEnabled(commandSequence.canRedo());
-    }
-
-	
+	@Deprecated
 	public void undo() {
 		try {
-			commandSequence.undo();
+			undoManager.undo();
 		} catch (CannotUndoException ex) {
 			ex.printStackTrace();
-		} finally {
-			updateMenu();
 		}
 	}
 	
 	
+	@Deprecated
 	public void redo() {
 		try {
-			commandSequence.redo();
+			undoManager.redo();
 		} catch (CannotRedoException ex) {
 			ex.printStackTrace();
-		} finally {
-			updateMenu();
 		}
 	}
 	
@@ -649,8 +637,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 				prefs.put("recent-files-"+i, recentFiles[i]);
 			}
 		}
-		
-		updateMenu();
 	}
 	
 	// A file failed to load.  Remove it from recent files, refresh the menu bar.
@@ -672,8 +658,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 				prefs.put("recent-files-"+i, recentFiles[i]);
 			}
 		}
-		
-		updateMenu();
 	}
 
     @Override
@@ -756,20 +740,21 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
     	frameDelay+=dt;
     	if(frameDelay>frameLength) {
    			frameDelay-=frameLength;
-   			
+
 	    	InputManager.update(isMouseIn);
 
-   	        // if playing, read the input from the recording
-	    	// if recording, write the input changes to the recording
-	    	//RecordingManager.step();
-	    	//RecordingManager.manageArrayOfDoubles(InputManager.keyState);
-    	
    			world.update( frameLength );
-   			
+	    	
+			String statusMessage = "";
    			if( pickedEntity != null ) {
-   				String statusMessage = pickedEntity.getStatusMessage();
-   				footerBar.setStatusLabelText(statusMessage);
+   				statusMessage += pickedEntity.getStatusMessage()+" ";
    			}
+			if(world.getBall().isActivelyMoving) {
+				statusMessage += world.getBall().getStatusMessage()+" ";
+			}
+			if(statusMessage!="") {
+				footerBar.setStatusLabelText(statusMessage);
+			}
     	}
 
     	// RENDER STEP
@@ -1040,5 +1025,13 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	        	new RobotOverlord();
 	        }
 	    });
+	}
+
+
+	@Override
+	public void undoableEditHappened(UndoableEditEvent e) {
+		undoManager.addEdit(e.getEdit());
+		undoAction.updateUndoState();
+		redoAction.updateRedoState();
 	}
 }
