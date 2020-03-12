@@ -194,7 +194,7 @@ public class DHRobot extends ModelInWorld {
 	public boolean sanityCheck(DHKeyframe keyframe) {
 		if(!keyframeAnglesAreOK(keyframe))	return false;
 		if(collidesWithSelf(keyframe))		return false;
-		if(collidesWithWorld(keyframe))		return false;
+		//if(collidesWithWorld(keyframe))		return false;
 		return true;
 	}
 		
@@ -275,6 +275,7 @@ public class DHRobot extends ModelInWorld {
 			double v = keyframe.fkValues[j++];
 			if (link.rangeMax < v || link.rangeMin > v) {
 				System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
+				return false;
 			}
 		}
 
@@ -331,11 +332,10 @@ public class DHRobot extends ModelInWorld {
 	 * @param keyframe to set
 	 */
 	public void getPoseFK(DHKeyframe keyframe) {
-		int stop=keyframe.fkValues.length;
-		int j = 0;
+		assert(keyframe.fkValues.length==links.size());
 
+		int j = 0;
 		for( DHLink link : links ) {
-			if(j==stop) break;
 			if(link.hasAdjustableValue()) {
 				keyframe.fkValues[j++] = link.getAdjustableValue();
 			}
