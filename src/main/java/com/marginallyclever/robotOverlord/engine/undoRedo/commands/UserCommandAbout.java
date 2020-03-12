@@ -18,15 +18,14 @@ public class UserCommandAbout extends JMenuItem implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
 	
-	public UserCommandAbout(RobotOverlord ro) {
+	public UserCommandAbout() {
 		super("About");
         getAccessibleContext().setAccessibleDescription("About this program");
-		this.ro = ro;
 		addActionListener(this);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		JOptionPane.showMessageDialog(null,"<html><body>"
 				+"<h1>"+RobotOverlord.APP_TITLE+" "+RobotOverlord.VERSION+"</h1>"

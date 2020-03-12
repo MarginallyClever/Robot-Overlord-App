@@ -92,7 +92,7 @@ public class UserCommandSelectBoolean extends JPanel implements ItemListener {
 		boolean newValue = checkboxField.isSelected();
 		if(newValue!=value) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectBoolean(this, label, newValue) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectBoolean(this, label, newValue) ) );
 			allowSetText=true;
 		}
 	}

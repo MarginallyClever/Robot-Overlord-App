@@ -7,8 +7,6 @@ import java.net.URI;
 
 import javax.swing.JMenuItem;
 
-import com.marginallyclever.robotOverlord.RobotOverlord;
-
 /**
  * Go to the online help forums. This action is not an undoable action.
  * @author Admin
@@ -20,15 +18,14 @@ public class UserCommandForums extends JMenuItem implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final String FORUM_URL = "https://www.marginallyclever.com/learn/forum/forum/sixi-robot-arm/";
-	protected RobotOverlord ro;
 	
-	public UserCommandForums(RobotOverlord ro) {
+	public UserCommandForums() {
 		super("Online help forums");
         getAccessibleContext().setAccessibleDescription("Go to online forums");
-		this.ro = ro;
 		addActionListener(this);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
 			java.awt.Desktop.getDesktop().browse(URI.create(this.FORUM_URL));

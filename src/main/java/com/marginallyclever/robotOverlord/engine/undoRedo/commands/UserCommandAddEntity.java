@@ -76,7 +76,7 @@ public class UserCommandAddEntity extends JButton implements ActionListener {
 					try {
 						newInstance = lft.getClass().newInstance();
 						// create an undoable command to add this entity.
-						ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionAddEntity(ro,newInstance) ) );
+						ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionAddEntity(ro,newInstance) ) );
 					} catch (InstantiationException | IllegalAccessException e) {
 						e.printStackTrace();
 					}

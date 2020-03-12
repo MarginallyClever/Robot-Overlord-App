@@ -23,15 +23,14 @@ public class UserCommandCheckForUpdate extends JMenuItem implements ActionListen
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
 	
-	public UserCommandCheckForUpdate(RobotOverlord ro) {
+	public UserCommandCheckForUpdate() {
 		super("Check for update");
         getAccessibleContext().setAccessibleDescription("Check if you are using the latest version of this program.");
-		this.ro = ro;
 		addActionListener(this);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		String updateURL = "https://github.com/MarginallyClever/Robot-Overlord-App/releases/latest";
 		try {

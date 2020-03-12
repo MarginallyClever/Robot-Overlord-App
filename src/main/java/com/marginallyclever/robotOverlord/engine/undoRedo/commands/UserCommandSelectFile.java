@@ -87,7 +87,7 @@ public class UserCommandSelectFile extends JPanel implements ActionListener {
 			System.out.println("You chose to open this file: " + newFilename);
 			lastPath = chooser.getSelectedFile().getParent();
 
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectFile(this, label, newFilename) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectFile(this, label, newFilename) ) );
 		}
 	}
 

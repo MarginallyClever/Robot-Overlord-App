@@ -42,6 +42,6 @@ public class UserCommandRemoveMe extends JPanel implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionRemoveEntity(ro,entity) ) );
+		ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionRemoveEntity(ro,entity) ) );
 	}
 }

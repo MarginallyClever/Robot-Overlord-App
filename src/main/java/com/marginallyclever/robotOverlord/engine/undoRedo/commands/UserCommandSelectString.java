@@ -93,7 +93,7 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		String newValue = textField.getText();
 		if(!newValue.equals(value)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectString(this, labelName, newValue) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectString(this, labelName, newValue) ) );
 			allowSetText=true;
 		}
 	}

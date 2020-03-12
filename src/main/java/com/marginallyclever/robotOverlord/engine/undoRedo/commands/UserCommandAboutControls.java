@@ -6,8 +6,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import com.marginallyclever.robotOverlord.RobotOverlord;
-
 /**
  * Display an About dialog box. This action is not an undoable action.
  * @author Admin
@@ -18,15 +16,14 @@ public class UserCommandAboutControls extends JMenuItem implements ActionListene
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
 	
-	public UserCommandAboutControls(RobotOverlord ro) {
+	public UserCommandAboutControls() {
 		super("Controls");
         getAccessibleContext().setAccessibleDescription("About controls");
-		this.ro = ro;
 		addActionListener(this);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		String body = "<h1>Controls</h1>";
 		body+="<h2>Flying</h2>";

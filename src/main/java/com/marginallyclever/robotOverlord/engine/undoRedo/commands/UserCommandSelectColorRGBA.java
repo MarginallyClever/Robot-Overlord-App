@@ -165,7 +165,7 @@ public class UserCommandSelectColorRGBA extends JPanel implements DocumentListen
 
 		if(isSignificantDifference(newValue)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectColorRGBA(this, label, newValue) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectColorRGBA(this, label, newValue) ) );
 			allowSetText=true;
 		}
 	}

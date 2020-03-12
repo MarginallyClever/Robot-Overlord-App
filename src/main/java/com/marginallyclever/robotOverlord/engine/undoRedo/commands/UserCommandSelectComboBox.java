@@ -88,7 +88,7 @@ public class UserCommandSelectComboBox extends JPanel implements ActionListener 
 		int newIndex = list.getSelectedIndex();
 		if(newIndex != value) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectComboBox(this, labelName, newIndex) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectComboBox(this, labelName, newIndex) ) );
 			allowSetText=true;
 		}
 		

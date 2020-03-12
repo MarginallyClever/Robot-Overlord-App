@@ -116,7 +116,7 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		}
 		if(newNumber != value) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectNumber(this, label, newNumber) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectNumber(this, label, newNumber) ) );
 			allowSetText=true;
 		}
 	}
