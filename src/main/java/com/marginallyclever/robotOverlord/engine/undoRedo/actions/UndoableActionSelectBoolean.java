@@ -25,50 +25,34 @@ public class UndoableActionSelectBoolean extends AbstractUndoableEdit {
 	private String label;
 	
 	public UndoableActionSelectBoolean(UserCommandSelectBoolean actionSelectBoolean,String label,Boolean newValue) {
+		super();
+		
 		this.actionSelectBoolean = actionSelectBoolean;
 		this.label = label;
 		this.newValue = newValue;
 		this.oldValue = actionSelectBoolean.getValue();
-		setValue(newValue);
+		
+		doIt();
 	}
 	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
-	}
-
 	@Override
 	public String getPresentationName() {
 		return Translator.get("change ")+label;
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		setValue(newValue);
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		actionSelectBoolean.setValue(newValue);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		setValue(oldValue);
-	}
-
-	private void setValue(Boolean value) {
-		actionSelectBoolean.setValue(value);
+		super.undo();
+		actionSelectBoolean.setValue(oldValue);
 	}
 }

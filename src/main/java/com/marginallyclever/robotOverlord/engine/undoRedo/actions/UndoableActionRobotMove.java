@@ -48,20 +48,13 @@ public class UndoableActionRobotMove extends AbstractUndoableEdit {
 	 * @param direction 1 or -1
 	 */
 	public UndoableActionRobotMove(Robot robot,int axis,int direction) {
+		super();
+		
 		this.robot = robot;
 		this.axis = axis;
 		this.direction = direction;
-		moveNow(direction);
-	}
-	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
+		
+		doIt();
 	}
 
 	@Override
@@ -84,26 +77,18 @@ public class UndoableActionRobotMove extends AbstractUndoableEdit {
 	}
 
 	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
-	@Override
 	public void redo() throws CannotRedoException {
-		moveNow(direction);
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		//robot.move(axis,direction);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		moveNow(-direction);
-	}
-	
-	private void moveNow(int n) {
-		//robot.move(axis,n);
+		super.undo();
+		//robot.move(axis,-direction);
 	}
 }

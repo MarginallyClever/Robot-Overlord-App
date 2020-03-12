@@ -18,24 +18,18 @@ public class UndoableActionAddEntity extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	private Entity entity;
 	private Entity previouslyPickedEntity;	
 	private RobotOverlord ro;
 	
 	public UndoableActionAddEntity(RobotOverlord ro,Entity entity) {
+		super();
+		
 		this.entity = entity;
 		this.ro = ro;
-		addNow();
-	}
-	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
+		
+		doIt();
 	}
 
 	@Override
@@ -43,35 +37,23 @@ public class UndoableActionAddEntity extends AbstractUndoableEdit {
 		return Translator.get("Add ")+entity.getName();
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		addNow();
+		super.redo();
+		doIt();	
 	}
-
-	@Override
-	public void undo() throws CannotUndoException {
-		removeNow();
-	}
-
-	private void addNow() {
+	
+	protected void doIt() {
 		ro.getWorld().addChild(entity);
+		ro.pickEntity(entity);
 		previouslyPickedEntity = ro.getPickedEntity();
 		ro.updateEntityTree();
 		ro.pickEntity(entity);
 	}
-	
-	private void removeNow() {
+
+	@Override
+	public void undo() throws CannotUndoException {
+		super.undo();
 		ro.getWorld().removeChild(entity);
 		ro.updateEntityTree();
 		ro.pickEntity(previouslyPickedEntity);

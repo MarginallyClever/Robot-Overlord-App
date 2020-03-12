@@ -25,21 +25,14 @@ public class UndoableActionSelectString extends AbstractUndoableEdit {
 	private String label;
 	
 	public UndoableActionSelectString(UserCommandSelectString actionSelectString,String label,String newValue) {
+		super();
+		
 		this.actionSelectString = actionSelectString;
 		this.label = label;
 		this.newValue = newValue;
 		this.oldValue = actionSelectString.getValue();
-		setValue(newValue);
-	}
-	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
+		
+		doIt();
 	}
 
 	@Override
@@ -47,28 +40,19 @@ public class UndoableActionSelectString extends AbstractUndoableEdit {
 		return Translator.get("change ")+label;
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		setValue(newValue);
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		actionSelectString.setValue(newValue);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		setValue(oldValue);
-	}
-
-	private void setValue(String value) {
-		actionSelectString.setValue(value);
+		super.undo();
+		actionSelectString.setValue(oldValue);
 	}
 }

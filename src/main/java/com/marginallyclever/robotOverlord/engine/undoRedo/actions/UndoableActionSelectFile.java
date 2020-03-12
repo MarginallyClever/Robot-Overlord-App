@@ -25,50 +25,34 @@ public class UndoableActionSelectFile extends AbstractUndoableEdit {
 	private String label;
 	
 	public UndoableActionSelectFile(UserCommandSelectFile actionSelectFile,String label,String newFilename) {
+		super();
+		
 		this.actionSelectFile = actionSelectFile;
 		this.newFilename = newFilename;
 		this.oldFilename = actionSelectFile.getFilename();
 		this.label = label;
-		setFilename(newFilename);
+		
+		doIt();
 	}
 	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
-	}
-
 	@Override
 	public String getPresentationName() {
 		return Translator.get("choose ")+label;
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		setFilename(newFilename);
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		actionSelectFile.setFilename(newFilename);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		setFilename(oldFilename);
-	}
-
-	private void setFilename(String filename) {
-		actionSelectFile.setFilename(filename);
+		super.undo();
+		actionSelectFile.setFilename(oldFilename);
 	}
 }

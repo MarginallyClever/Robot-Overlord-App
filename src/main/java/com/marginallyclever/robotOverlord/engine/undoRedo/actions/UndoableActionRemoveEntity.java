@@ -22,56 +22,36 @@ public class UndoableActionRemoveEntity extends AbstractUndoableEdit {
 	private RobotOverlord ro;
 	
 	public UndoableActionRemoveEntity(RobotOverlord ro,Entity entity) {
+		super();
+		
 		this.entity = entity;
 		this.ro = ro;
-		removeNow();
+
+		doIt();
 	}
 	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
-	}
-
 	@Override
 	public String getPresentationName() {
 		return Translator.get("Remove ")+entity.getName();
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		removeNow();
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		ro.getWorld().removeChild(entity);
+		ro.updateEntityTree();
+		ro.pickNothing();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		addNow();
-	}
-
-	private void addNow() {
+		super.undo();
 		ro.getWorld().addChild(entity);
 		ro.updateEntityTree();
 		ro.pickEntity(entity);
-	}
-	
-	private void removeNow() {
-		ro.getWorld().removeChild(entity);
-		ro.updateEntityTree();
-		ro.pickNothing();
 	}
 }

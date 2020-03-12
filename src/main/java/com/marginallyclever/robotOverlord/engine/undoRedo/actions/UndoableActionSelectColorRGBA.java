@@ -25,21 +25,14 @@ public class UndoableActionSelectColorRGBA extends AbstractUndoableEdit {
 	private String label;
 	
 	public UndoableActionSelectColorRGBA(UserCommandSelectColorRGBA actionSelectColorRGBA,String label,float [] newValue) {
+		super();
+		
 		this.actionSelectColorRGBA = actionSelectColorRGBA;
 		this.label = label;
 		this.newValue = newValue.clone();
 		this.oldValue = actionSelectColorRGBA.getValue().clone();
-		setValue(newValue);
-	}
-	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
+		
+		doIt();
 	}
 
 	@Override
@@ -47,28 +40,19 @@ public class UndoableActionSelectColorRGBA extends AbstractUndoableEdit {
 		return Translator.get("change ")+label;
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		setValue(newValue);
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		actionSelectColorRGBA.setValue(newValue);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		setValue(oldValue);
-	}
-
-	private void setValue(float [] value) {
-		actionSelectColorRGBA.setValue(value);
+		super.undo();
+		actionSelectColorRGBA.setValue(oldValue);
 	}
 }

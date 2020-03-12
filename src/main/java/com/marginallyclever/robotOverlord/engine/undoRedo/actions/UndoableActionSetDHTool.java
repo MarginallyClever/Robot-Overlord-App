@@ -24,20 +24,13 @@ public class UndoableActionSetDHTool extends AbstractUndoableEdit {
 	private DHTool previousTool;
 	
 	public UndoableActionSetDHTool(DHRobot robot,DHTool newTool) {
+		super();
+		
 		this.robot = robot;
 		this.newTool = newTool;
 		this.previousTool = robot.getCurrentTool();
-		addNow();
-	}
-	
-	@Override
-	public boolean canRedo() {
-		return true;
-	}
-
-	@Override
-	public boolean canUndo() {
-		return true;
+		
+		doIt();
 	}
 
 	@Override
@@ -45,32 +38,19 @@ public class UndoableActionSetDHTool extends AbstractUndoableEdit {
 		return Translator.get("Set tool ")+newTool.getName();
 	}
 
-
-	@Override
-	public String getRedoPresentationName() {
-		return Translator.get("Redo ") + getPresentationName();
-	}
-
-	@Override
-	public String getUndoPresentationName() {
-		return Translator.get("Undo ") + getPresentationName();
-	}
-
 	@Override
 	public void redo() throws CannotRedoException {
-		addNow();
+		super.redo();
+		doIt();
+	}
+	
+	protected void doIt() {
+		robot.setTool(newTool);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		removeNow();
-	}
-
-	private void addNow() {
-		robot.setTool(newTool);
-	}
-	
-	private void removeNow() {
+		super.undo();
 		robot.setTool(previousTool);
 	}
 }
