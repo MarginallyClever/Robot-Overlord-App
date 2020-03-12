@@ -17,6 +17,7 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectNumber;
+import com.marginallyclever.robotOverlord.uiElements.FocusTextField;
 
 /**
  * Panel to alter a number parameter.  There is no way at present to limit the input options (range, step size, etc)
@@ -46,7 +47,7 @@ public class UserCommandSelectNumber extends JPanel implements DocumentListener 
 		
 		this.label = labelName;
 		
-		textField = new JTextField(8);
+		textField = new FocusTextField(8);
 		textField.getDocument().addDocumentListener(this);
 		textField.setHorizontalAlignment(SwingConstants.RIGHT);
 		setValue(defaultValue);

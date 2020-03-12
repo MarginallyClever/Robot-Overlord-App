@@ -20,6 +20,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectVector3d;
+import com.marginallyclever.robotOverlord.uiElements.FocusTextField;
 
 /**
  * Panel to alter a Vector3d parameter (three float values).
@@ -69,7 +70,7 @@ public class UserCommandSelectVector3d extends JPanel implements DocumentListene
 	
 	private JTextField addField(String labelName,double defaultValue,JPanel values) {
 		JLabel label = new JLabel(labelName, JLabel.TRAILING);
-		JTextField f = new JTextField(4);
+		JTextField f = new FocusTextField(4);
 		f.setText(df.format(defaultValue));
 		f.setHorizontalAlignment(JTextField.RIGHT);
 		f.getDocument().addDocumentListener(this);

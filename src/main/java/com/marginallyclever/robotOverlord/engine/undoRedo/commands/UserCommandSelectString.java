@@ -16,6 +16,7 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectString;
+import com.marginallyclever.robotOverlord.uiElements.FocusTextField;
 
 /**
  * Panel to alter a string parameter.  There is currently no way to limit the length of strings.
@@ -42,7 +43,7 @@ public class UserCommandSelectString extends JPanel implements DocumentListener 
 		value=defaultValue;
 		this.labelName = labelName;
 
-		textField = new JTextField(20);
+		textField = new FocusTextField(20);
 		textField.setText(defaultValue);
 		textField.getDocument().addDocumentListener(this);
 		

@@ -21,6 +21,7 @@ import javax.swing.event.UndoableEditEvent;
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionSelectColorRGBA;
+import com.marginallyclever.robotOverlord.uiElements.FocusTextField;
 
 /**
  * Panel to alter a Vector3f parameter (three float values).
@@ -71,7 +72,7 @@ public class UserCommandSelectColorRGBA extends JPanel implements DocumentListen
 	
 	private JTextField addField(String labelName,float defaultValue,JPanel values) {
 		JLabel label = new JLabel(labelName, JLabel.LEADING);
-		JTextField f = new JTextField(3);
+		JTextField f = new FocusTextField(3);
 		f.setText(df.format(defaultValue));
 		f.setHorizontalAlignment(SwingConstants.RIGHT);
 		Dimension preferredSize = f.getPreferredSize();
