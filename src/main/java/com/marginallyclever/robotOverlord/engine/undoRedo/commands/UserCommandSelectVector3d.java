@@ -144,7 +144,7 @@ public class UserCommandSelectVector3d extends JPanel implements DocumentListene
 
 		if(!newValue.epsilonEquals(value, EPSILON)) {
 			allowSetText=false;
-			ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectVector3d(this, label, newValue) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSelectVector3d(this, label, newValue) ) );
 			allowSetText=true;
 		}
 	}

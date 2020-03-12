@@ -104,7 +104,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		updateEnd();
 
 		if(robot.getCurrentTool()!=null && activeToolPanel!=null) {
-			PanelHelper.formatEntityPanels(robot.getCurrentTool().getContextPanels(ro), activeToolPanel);
+			ArrayList<JPanel> list = robot.getCurrentTool().getContextPanels(ro);
+			PanelHelper.formatEntityPanels(list, activeToolPanel);
 		}
 	}
 	
@@ -194,7 +195,7 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 					try {
 						newInstance = lft.getClass().newInstance();
 						// create an undoable command to set the tool.
-						ro.getUndoHelper().undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSetDHTool(robot,newInstance) ) );
+						ro.undoableEditHappened(new UndoableEditEvent(this,new UndoableActionSetDHTool(robot,newInstance) ) );
 					} catch (InstantiationException | IllegalAccessException e) {
 						e.printStackTrace();
 					}
@@ -211,7 +212,8 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		activeToolPanel.removeAll();
 		ro.updateEntityTree();
 		if(arg0!=null) {
-			PanelHelper.formatEntityPanels(arg0.getContextPanels(ro), activeToolPanel);
+			ArrayList<JPanel> list = arg0.getContextPanels(ro);
+			PanelHelper.formatEntityPanels(list, activeToolPanel);
 		}
 	}
 
