@@ -21,24 +21,64 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  *
  */
 public class DragBall extends PhysicalObject {
-	enum SlideDirection {
-	SLIDE_XPOS,
-	SLIDE_XNEG,
-	SLIDE_YPOS,
-	SLIDE_YNEG,
+	public enum SlideDirection {
+		SLIDE_XPOS(0,"X+"),
+		SLIDE_XNEG(1,"X-"),
+		SLIDE_YPOS(2,"Y+"),
+		SLIDE_YNEG(3,"Y-");
+		
+		private int number;
+		private String name;
+		private SlideDirection(int n,String s) {
+			number=n;
+			name=s;
+		}
+		public int toInt() {
+			return number;
+		}
+		public String toString() {
+			return name;
+		}
+		static public String [] getAll() {
+			SlideDirection[] allModes = SlideDirection.values();
+			String[] labels = new String[allModes.length];
+			for(int i=0;i<labels.length;++i) {
+				labels[i] = allModes[i].toString();
+			}
+			return labels;
+		}
 	};
 
-	public enum Frame {
-	WORLD,
-	CAMERA,
-	SELF,
+	public enum FrameOfReference {
+		WORLD(0,"WORLD"),
+		CAMERA(1,"CAMERA"),
+		SELF(2,"SELF");
+		
+		private int number;
+		private String name;
+		private FrameOfReference(int n,String s) {
+			number=n;
+			name=s;
+		}
+		public int toInt() {
+			return number;
+		}
+		public String toString() {
+			return name;
+		}
+		static public String [] getAll() {
+			FrameOfReference[] allModes = FrameOfReference.values();
+			String[] labels = new String[allModes.length];
+			for(int i=0;i<labels.length;++i) {
+				labels[i] = allModes[i].toString();
+			}
+			return labels;
+		}
 	}
-	protected Frame frameOfReferenceIndex; // which style of rotation?
-
-	public boolean isHitting;
-	public Vector3d pickPoint;  // the latest point picked on the ball
-	public Vector3d pickPointSaved;  // the point picked when the action began
-	public Vector3d pickPointOnBall;  // the point picked when the action began
+	
+	public Vector3d pickPoint=new Vector3d();  // the latest point picked on the ball
+	public Vector3d pickPointSaved=new Vector3d();  // the point picked when the action began
+	public Vector3d pickPointOnBall=new Vector3d();  // the point picked when the action began
 	public int nearestPlane;
 	
 	protected final double ballSize=0.125f;
@@ -46,15 +86,20 @@ public class DragBall extends PhysicalObject {
 
 	public boolean isRotateMode;
 	public boolean isActivelyMoving;
-		
+
+	// Who is being moved?
+	protected PhysicalObject subject;
+	// In what frame of reference?
+	protected FrameOfReference frameOfReference;
+
 	// matrix of subject when move started
-	protected Matrix4d subjectMatrix;
-	protected Matrix4d cameraMatrix;
-	protected Matrix4d resultMatrix;
-	protected Matrix4d FOR;
-	protected Matrix4d FORSaved;  // FOR at time of activation
+	protected Matrix4d startMatrix=new Matrix4d();	
+	protected Matrix4d cameraMatrix=new Matrix4d();
+	protected Matrix4d resultMatrix=new Matrix4d();
+	protected Matrix4d FOR=new Matrix4d();
+	protected Matrix4d FORSaved=new Matrix4d();  // FOR at time of activation
 	
-	// for rotations
+	// for rotation
 	public int nearestPlaneSaved;
 	
 	public double valueSaved;  // original angle when move started
@@ -62,7 +107,7 @@ public class DragBall extends PhysicalObject {
 	public double valueLast;  // state last frame 
 	public double valueChanged;  // change this update
 
-	// for translations
+	// for translation
 	protected int majorAxisToSave;
 	public int majorAxisSaved;
 	public SlideDirection majorAxisSlideDirection;
@@ -70,20 +115,12 @@ public class DragBall extends PhysicalObject {
 	public DragBall() {
 		super();
 
-		frameOfReferenceIndex = Frame.WORLD;
-		isHitting=false;
-		pickPoint=new Vector3d();
-		pickPointSaved=new Vector3d();
-		pickPointOnBall=new Vector3d();
+		frameOfReference = FrameOfReference.WORLD;
 		nearestPlane=-1;
 		valueChanged=0;
 		
-		subjectMatrix=new Matrix4d();
-		cameraMatrix=new Matrix4d();
-		resultMatrix=new Matrix4d();
-		FOR=new Matrix4d();
 		FOR.setIdentity();
-		FORSaved = new Matrix4d(FOR);
+		FORSaved.setIdentity();
 		
 		majorAxisToSave=0;
 		majorAxisSaved=0;
@@ -92,38 +129,45 @@ public class DragBall extends PhysicalObject {
 		isActivelyMoving=false;
 	}
 	
+	@Override
 	public void update(double dt) {
+		if(subject==null) return;
+		
+		this.setCameraMatrix(getWorld().getCamera().getPose());
+
 		if(!isActivelyMoving()) {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
 						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT));
 	
 			if(InputManager.isReleased(InputManager.Source.KEY_1)) {
-				frameOfReferenceIndex=Frame.WORLD;
-				//System.out.println("Frame world");
+				frameOfReference=FrameOfReference.WORLD;
+				//System.out.println("Frame "+frameOfReference);
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_2)) {
-				frameOfReferenceIndex=Frame.CAMERA;
-				//System.out.println("Frame camera");
+				frameOfReference=FrameOfReference.CAMERA;
+				//System.out.println("Frame "+frameOfReference);
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_3)) {
-				frameOfReferenceIndex=Frame.SELF;
-				//System.out.println("Frame self");
+				frameOfReference=FrameOfReference.SELF;
+				//System.out.println("Frame "+frameOfReference);
 			}
 		} else {
-			if(InputManager.isReleased(InputManager.Source.KEY_BACKSPACE)) {
+			if(InputManager.isReleased(InputManager.Source.KEY_ESCAPE)) {
 				// cancel this move
 				isActivelyMoving=false;
-				resultMatrix.set(subjectMatrix);
+				resultMatrix.set(startMatrix);
 			}
 		}
 		
-		switch(frameOfReferenceIndex) {
-		case CAMERA: FOR.set(cameraMatrix );	break;
-		case SELF  : FOR.set(subjectMatrix);	break;
-		default    : FOR.setIdentity();			break;
+		switch(frameOfReference) {
+		case CAMERA: FOR.set(cameraMatrix );			break;
+		case SELF  : FOR.set(subject.getPoseWorld());	break;
+		case WORLD : FOR.setIdentity();					break;
+		default    : FOR.setIdentity();					break;
 		}
-		Vector3d p = new Vector3d();
-		subjectMatrix.get(p);
+		//System.out.println(frameOfReference + " "+FOR);
+
+		Vector3d p = MatrixHelper.getPosition(subject.getPoseWorld());
 		FOR.setTranslation(p);
 		
 		if(isRotateMode) {
@@ -150,7 +194,7 @@ public class DragBall extends PhysicalObject {
 	
 	public void updateRotation(double dt) {
 		Camera cam = getWorld().getCamera();
-		this.setPosition(MatrixHelper.getPosition(subjectMatrix));
+		this.setPosition(MatrixHelper.getPosition(subject.getPoseWorld()));
 		Vector3d mp = this.getPosition();
 		mp.sub(cam.getPosition());
 		valueNow = valueLast;
@@ -158,21 +202,21 @@ public class DragBall extends PhysicalObject {
 
 		Vector3d ray = cam.rayPick();
 
-		if(!isActivelyMoving) {
+		if(!isActivelyMoving && cam.isPressed()) {
+			// not moving yet, mouse clicked.
+			
 			// ray/sphere intersection
 			double d = mp.length();
 			ballSizeScaled=ballSize*d;
 			
 			// find a pick point on the ball.
-			isHitting = false;
-			
 			double Tca = ray.dot(mp);
 			if(Tca>=0) {
 				double d2 = Math.sqrt(d*d - Tca*Tca);
-				if(d2>=0 && d2<=ballSizeScaled) {
-					
-					// hit!
-					isHitting=true;
+				boolean isHit = d2>=0 && d2<=ballSizeScaled;
+				if(isHit) {
+					// ball hit!  Start moving.
+					isActivelyMoving=true;
 					double Thc = Math.sqrt(ballSizeScaled*ballSizeScaled - d2*d2);
 					double t0 = Tca - Thc;
 					//double t1 = Tca + Thc;
@@ -182,7 +226,8 @@ public class DragBall extends PhysicalObject {
 							cam.getPosition().x+ray.x*t0,
 							cam.getPosition().y+ray.y*t0,
 							cam.getPosition().z+ray.z*t0);
-					resultMatrix.set(subjectMatrix);
+					startMatrix.set(subject.getPoseWorld());
+					resultMatrix.set(subject.getPoseWorld());
 					this.setPosition(MatrixHelper.getPosition(resultMatrix));
 					
 					FORSaved.set(FOR);
@@ -235,10 +280,6 @@ public class DragBall extends PhysicalObject {
 					}
 					valueSaved=valueNow;
 					valueLast=valueNow;
-					
-					
-					// can only turn on while hitting
-					isActivelyMoving=cam.isPressed();
 				}
 			}
 		}
@@ -293,13 +334,13 @@ public class DragBall extends PhysicalObject {
 	
 	public void updateTranslation(double dt) {
 		Camera cam = getWorld().getCamera();
-		this.setPosition(MatrixHelper.getPosition(subjectMatrix));
+		this.setPosition(MatrixHelper.getPosition(subject.getPoseWorld()));
 		Vector3d mp = this.getPosition();
 		mp.sub(cam.getPosition());
 		valueNow = valueLast;
 		valueChanged=0;
 		
-		if(!isActivelyMoving) {
+		if(!isActivelyMoving && cam.isPressed()) {
 			double d = mp.length();
 			ballSizeScaled=ballSize*d;
 	
@@ -345,11 +386,14 @@ public class DragBall extends PhysicalObject {
 				cam.getPosition().y+ray.y*t0,
 				cam.getPosition().z+ray.z*t0);
 			
-			boolean isHitting = (t0>=0 && majorAxisToSave>0);
-			if(isHitting) {
-				isActivelyMoving=true;
+			boolean isHit = (t0>=0 && majorAxisToSave>0);
+			if(isHit) {
+				// if hitting and pressed, begin movement.
+				isActivelyMoving = true;
+				
 				pickPointSaved.set(pickPoint);
-				resultMatrix.set(subjectMatrix);
+				startMatrix.set(subject.getPoseWorld());
+				resultMatrix.set(startMatrix);
 				
 				majorAxisSaved=majorAxisToSave;
 				nearestPlaneSaved=nearestPlane;
@@ -398,9 +442,6 @@ public class DragBall extends PhysicalObject {
 				case SLIDE_YPOS:  System.out.println("y+");	break;
 				case SLIDE_YNEG:  System.out.println("y-");	break;
 				}*/
-				
-				// if hitting and pressed, begin movement.
-				isActivelyMoving = cam.isPressed();
 			}
 		}
 
@@ -436,25 +477,30 @@ public class DragBall extends PhysicalObject {
 		}
 	}
 	
+	@Override
 	public void render(GL2 gl2) {
+		if(subject==null) return;
+		
 		gl2.glPushMatrix();
-
+			MatrixHelper.applyMatrix(gl2, subject.getPoseWorld());
+			
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 			gl2.glDepthFunc(GL2.GL_ALWAYS);
 			//boolean isDepth=gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 			//gl2.glDisable(GL2.GL_DEPTH_TEST);
-		
-			//MatrixHelper.applyMatrix(gl2, this.getMatrix());
-			//Vector3d v1 = MatrixHelper.getPosition(getSubjectMatrix());
-			//gl2.glTranslated(v1.x, v1.y, v1.z);
-		
+
+			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+			gl2.glDisable(GL2.GL_LIGHTING);
+
 			if(isRotateMode()) {
 				renderRotation(gl2);
 			} else {
 				renderTranslation(gl2);
 			}
 			
+			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+
 			//if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
 			gl2.glDepthFunc(depthFunc.get());
 			
@@ -486,163 +532,160 @@ public class DragBall extends PhysicalObject {
 		
 		Vector3d ballPosition = this.getPosition();
 
-		gl2.glPushMatrix();
-			//MatrixHelper.applyMatrix(gl2, FOR);
-			gl2.glTranslated(ballPosition.x, ballPosition.y, ballPosition.z);
-			gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
-			/*
-			//white
-			gl2.glColor4d(1,1,1,1);
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			for(double n=0;n<Math.PI*2;n+=stepSize) {
-				gl2.glVertex3d(
-						(cm.m00*Math.cos(n) +cm.m10*Math.sin(n))*ballSizeScaled*1.1,
-						(cm.m01*Math.cos(n) +cm.m11*Math.sin(n))*ballSizeScaled*1.1,
-						(cm.m02*Math.cos(n) +cm.m12*Math.sin(n))*ballSizeScaled*1.1  );
+		gl2.glTranslated(ballPosition.x, ballPosition.y, ballPosition.z);
+		gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
+		/*
+		//white
+		gl2.glColor4d(1,1,1,1);
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			gl2.glVertex3d(
+					(cm.m00*Math.cos(n) +cm.m10*Math.sin(n))*ballSizeScaled*1.1,
+					(cm.m01*Math.cos(n) +cm.m11*Math.sin(n))*ballSizeScaled*1.1,
+					(cm.m02*Math.cos(n) +cm.m12*Math.sin(n))*ballSizeScaled*1.1  );
+		}
+		gl2.glEnd();
+		*/
+
+		//grey
+		gl2.glColor4d(0.5,0.5,0.5,1);
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			gl2.glVertex3d(
+					(lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n))*1.01,
+					(lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n))*1.01,
+					(lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n))*1.01  );
+		}
+		gl2.glEnd();
+
+
+		int majorPlaneSaved = isActivelyMoving? nearestPlaneSaved : nearestPlane;
+		float r = (majorPlaneSaved==0)?1:0.25f;
+		float g = (majorPlaneSaved==1)?1:0.25f;
+		float b = (majorPlaneSaved==2)?1:0.25f;
+
+		Vector3d nx = MatrixHelper.getForward(FOR);
+		Vector3d ny = MatrixHelper.getLeft(FOR);
+		Vector3d nz = MatrixHelper.getUp(FOR);
+		// should we hide an axis if it points almost the same direction as the camera?
+		boolean drawX = (Math.abs(nx.dot(cameraForward))>0.95);
+		boolean drawY = (Math.abs(ny.dot(cameraForward))>0.95);
+		boolean drawZ = (Math.abs(nz.dot(cameraForward))>0.95);
+		//System.out.println(drawX+"\t"+drawY+"\t"+drawZ);
+		
+		//x
+		inOutin=0;
+		gl2.glColor3d(r, 0, 0);
+		gl2.glBegin(GL2.GL_LINE_STRIP);
+		for(double n=0;n<Math.PI*4;n+=stepSize) {
+			v.set(0,Math.cos(n),Math.sin(n));
+			FOR.transform(v);
+			if(drawX) {
+				gl2.glVertex3d(v.x,v.y,v.z);
+			} else {
+				if(v.dot(cameraForward)>0) {
+					if(inOutin==0) inOutin=1;
+					if(inOutin==2) {
+						gl2.glVertex3d(v.x,v.y,v.z);
+						break;
+					}
+				} else {
+					if(inOutin==1) {
+						inOutin=2;
+					}
+					if(inOutin==2) {
+						gl2.glVertex3d(v.x,v.y,v.z);
+					}
+				}
 			}
-			gl2.glEnd();
-			*/
+		}
+		gl2.glEnd();
 
-			//grey
-			gl2.glColor4d(0.5,0.5,0.5,1);
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			for(double n=0;n<Math.PI*2;n+=stepSize) {
-				gl2.glVertex3d(
-						(lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n))*1.01,
-						(lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n))*1.01,
-						(lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n))*1.01  );
+		//y
+		inOutin=0;
+		gl2.glColor3d(0, g, 0);
+		gl2.glBegin(GL2.GL_LINE_STRIP);
+		for(double n=0;n<Math.PI*4;n+=stepSize) {
+			v.set(Math.cos(n), 0, Math.sin(n));
+			FOR.transform(v);
+			if(drawY) {
+				gl2.glVertex3d(v.x,v.y,v.z);
+			} else {
+				if(v.dot(cameraForward)>0) {
+					if(inOutin==0) inOutin=1;
+					if(inOutin==2) {
+						gl2.glVertex3d(v.x,v.y,v.z);
+						break;
+					}
+				} else {
+					if(inOutin==1) {
+						inOutin=2;
+					}
+					if(inOutin==2) {
+						gl2.glVertex3d(v.x,v.y,v.z);
+					}
+				}
 			}
-			gl2.glEnd();
+		}
+		gl2.glEnd();
+		
+		//z
+		inOutin=0;
+		gl2.glColor3d(0, 0, b);
+		gl2.glBegin(GL2.GL_LINE_STRIP);
+		for(double n=0;n<Math.PI*4;n+=stepSize) {
+			v.set(Math.cos(n), Math.sin(n),0);
+			FOR.transform(v);
+			if(drawZ) {
+				gl2.glVertex3d(v.x,v.y,v.z);
+			} else {
+				if(v.dot(cameraForward)>0) {
+					if(inOutin==0) inOutin=1;
+					if(inOutin==2) {
+						gl2.glVertex3d(v.x,v.y,v.z);
+						break;
+					}
+				} else {
+					if(inOutin==1) {
+						inOutin=2;
+					}
+					if(inOutin==2) {
+						gl2.glVertex3d(v.x,v.y,v.z);
+					}
+				}
+			}
+		}
+		gl2.glEnd();
 
-
-			int majorPlaneSaved = isActivelyMoving? nearestPlaneSaved : nearestPlane;
-			float r = (majorPlaneSaved==0)?1:0.25f;
-			float g = (majorPlaneSaved==1)?1:0.25f;
-			float b = (majorPlaneSaved==2)?1:0.25f;
-
-			Vector3d nx = MatrixHelper.getForward(FOR);
-			Vector3d ny = MatrixHelper.getLeft(FOR);
-			Vector3d nz = MatrixHelper.getUp(FOR);
-			// should we hide an axis if it points almost the same direction as the camera?
-			boolean drawX = (Math.abs(nx.dot(cameraForward))>0.95);
-			boolean drawY = (Math.abs(ny.dot(cameraForward))>0.95);
-			boolean drawZ = (Math.abs(nz.dot(cameraForward))>0.95);
-			//System.out.println(drawX+"\t"+drawY+"\t"+drawZ);
+		if(isActivelyMoving) {
+			// display the distance rotated.
+			Vector3d mid = new Vector3d();
+			double start=MathHelper.capRotationRadians(valueSaved);
+			double end=MathHelper.capRotationRadians(valueNow);
+			double range=end-start;
+			while(range>Math.PI) range-=Math.PI*2;
+			while(range<-Math.PI) range+=Math.PI*2;
+			double absRange= Math.abs(range);
 			
-			//x
-			inOutin=0;
-			gl2.glColor3d(r, 0, 0);
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			for(double n=0;n<Math.PI*4;n+=stepSize) {
-				v.set(0,Math.cos(n),Math.sin(n));
-				FOR.transform(v);
-				if(drawX) {
-					gl2.glVertex3d(v.x,v.y,v.z);
-				} else {
-					if(v.dot(cameraForward)>0) {
-						if(inOutin==0) inOutin=1;
-						if(inOutin==2) {
-							gl2.glVertex3d(v.x,v.y,v.z);
-							break;
-						}
-					} else {
-						if(inOutin==1) {
-							inOutin=2;
-						}
-						if(inOutin==2) {
-							gl2.glVertex3d(v.x,v.y,v.z);
-						}
-					}
+			//System.out.println(start+" "+end+"");
+
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			gl2.glColor3f(255,255,255);
+			gl2.glVertex3d(0,0,0);
+			for(double i=0;i<absRange;i+=0.01) {
+				double n = range * (i/absRange) + start;
+				switch(majorPlaneSaved) {
+				case 0: mid.set(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
+				case 1: mid.set(Math.cos(-n),0,Math.sin(-n));  break;
+				case 2: mid.set(Math.cos(n),Math.sin(n),0);  break;
 				}
+				FOR.transform(mid);
+				gl2.glVertex3d(mid.x,mid.y,mid.z);
 			}
 			gl2.glEnd();
+		}
 
-			//y
-			inOutin=0;
-			gl2.glColor3d(0, g, 0);
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			for(double n=0;n<Math.PI*4;n+=stepSize) {
-				v.set(Math.cos(n), 0, Math.sin(n));
-				FOR.transform(v);
-				if(drawY) {
-					gl2.glVertex3d(v.x,v.y,v.z);
-				} else {
-					if(v.dot(cameraForward)>0) {
-						if(inOutin==0) inOutin=1;
-						if(inOutin==2) {
-							gl2.glVertex3d(v.x,v.y,v.z);
-							break;
-						}
-					} else {
-						if(inOutin==1) {
-							inOutin=2;
-						}
-						if(inOutin==2) {
-							gl2.glVertex3d(v.x,v.y,v.z);
-						}
-					}
-				}
-			}
-			gl2.glEnd();
-			
-			//z
-			inOutin=0;
-			gl2.glColor3d(0, 0, b);
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			for(double n=0;n<Math.PI*4;n+=stepSize) {
-				v.set(Math.cos(n), Math.sin(n),0);
-				FOR.transform(v);
-				if(drawZ) {
-					gl2.glVertex3d(v.x,v.y,v.z);
-				} else {
-					if(v.dot(cameraForward)>0) {
-						if(inOutin==0) inOutin=1;
-						if(inOutin==2) {
-							gl2.glVertex3d(v.x,v.y,v.z);
-							break;
-						}
-					} else {
-						if(inOutin==1) {
-							inOutin=2;
-						}
-						if(inOutin==2) {
-							gl2.glVertex3d(v.x,v.y,v.z);
-						}
-					}
-				}
-			}
-			gl2.glEnd();
-
-			if(isActivelyMoving) {
-				// display the distance rotated.
-				Vector3d mid = new Vector3d();
-				double start=MathHelper.capRotationRadians(valueSaved);
-				double end=MathHelper.capRotationRadians(valueNow);
-				double range=end-start;
-				while(range>Math.PI) range-=Math.PI*2;
-				while(range<-Math.PI) range+=Math.PI*2;
-				double absRange= Math.abs(range);
-				
-				//System.out.println(start+" "+end+"");
-
-				gl2.glBegin(GL2.GL_LINE_LOOP);
-				gl2.glColor3f(255,255,255);
-				gl2.glVertex3d(0,0,0);
-				for(double i=0;i<absRange;i+=0.01) {
-					double n = range * (i/absRange) + start;
-					switch(majorPlaneSaved) {
-					case 0: mid.set(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
-					case 1: mid.set(Math.cos(-n),0,Math.sin(-n));  break;
-					case 2: mid.set(Math.cos(n),Math.sin(n),0);  break;
-					}
-					FOR.transform(mid);
-					gl2.glVertex3d(mid.x,mid.y,mid.z);
-				}
-				gl2.glEnd();
-			}
-
-			gl2.glLineWidth(1);
-		gl2.glPopMatrix();
+		gl2.glLineWidth(1);
 
 		//Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FORSaved);
 		//FORSaved.transform(pickPointInFOR);
@@ -725,7 +768,7 @@ public class DragBall extends PhysicalObject {
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(255,255,255);
 			gl2.glVertex3d(resultMatrix.m03,resultMatrix.m13,resultMatrix.m23);
-			gl2.glVertex3d(subjectMatrix.m03,subjectMatrix.m13,subjectMatrix.m23);
+			gl2.glVertex3d(startMatrix.m03,startMatrix.m13,startMatrix.m23);
 			gl2.glEnd();
 		}
 		gl2.glLineWidth(1);
@@ -766,17 +809,7 @@ public class DragBall extends PhysicalObject {
 	public void setActivelyMoving(boolean isActivelyMoving) {
 		this.isActivelyMoving = isActivelyMoving;
 	}
-
-	public Matrix4d getSubjectMatrix() {
-		return subjectMatrix;
-	}
-
-	public void setSubjectMatrix(Matrix4d subjectMatrix) {
-		if(isActivelyMoving) return;
-		// only allow change when not actively moving.
-		this.subjectMatrix.set(subjectMatrix);
-	}
-
+	
 	public Matrix4d getCameraMatrix() {
 		return cameraMatrix;
 	}
@@ -794,17 +827,16 @@ public class DragBall extends PhysicalObject {
 		Matrix4d ifor = new Matrix4d(FOR);
 		ifor.invert();
 
-		Matrix4d subjectMartixRotation = new Matrix4d(subjectMatrix);
+		Matrix4d subjectRotation = new Matrix4d(subject.getPoseWorld());
+		Vector3d subjectPosition = MatrixHelper.getPosition(subject.getPoseWorld());
 		
-		Matrix4d subjectMatrixAfterRotation = new Matrix4d(FOR);
-		subjectMatrixAfterRotation.mul(rotation);
-		subjectMatrixAfterRotation.mul(ifor);
-		subjectMatrixAfterRotation.mul(subjectMartixRotation);
+		Matrix4d subjectAfterRotation = new Matrix4d(FOR);
+		subjectAfterRotation.mul(rotation);
+		subjectAfterRotation.mul(ifor);
+		subjectAfterRotation.mul(subjectRotation);
 
-		Vector3d subjectMatrixPosition = MatrixHelper.getPosition(subjectMatrix);
-
-		result.set(subjectMatrixAfterRotation);
-		result.setTranslation(subjectMatrixPosition);
+		result.set(subjectAfterRotation);
+		result.setTranslation(subjectPosition);
 		resultMatrix.set(result);
 	}
 
@@ -830,21 +862,21 @@ public class DragBall extends PhysicalObject {
 
 	protected void translate(Vector3d v, double amount) {
 		//System.out.println(amount);
-		resultMatrix.m03 = subjectMatrix.m03 + v.x*amount;
-		resultMatrix.m13 = subjectMatrix.m13 + v.y*amount;
-		resultMatrix.m23 = subjectMatrix.m23 + v.z*amount;
+		resultMatrix.m03 = startMatrix.m03 + v.x*amount;
+		resultMatrix.m13 = startMatrix.m13 + v.y*amount;
+		resultMatrix.m23 = startMatrix.m23 + v.z*amount;
 	}
 
 	public Matrix4d getResultMatrix() {
 		return resultMatrix;
 	}
 	
-	public void setFrameOfReference(Frame v) {
-		frameOfReferenceIndex=v;
+	public void setFrameOfReference(FrameOfReference v) {
+		frameOfReference=v;
 	}
 	
-	public Frame getFrameOfReference() {
-		return frameOfReferenceIndex;
+	public FrameOfReference getFrameOfReference() {
+		return frameOfReference;
 	}
 	
 	@Override
@@ -857,12 +889,20 @@ public class DragBall extends PhysicalObject {
 			return "turn "+StringHelper.formatDouble(range)+" degrees";
 			
 		} else {  // translate mode
-			double dx=resultMatrix.m03 - subjectMatrix.m03; 
-			double dy=resultMatrix.m13 - subjectMatrix.m13; 
-			double dz=resultMatrix.m23 - subjectMatrix.m23;
+			double dx=resultMatrix.m03 - startMatrix.m03; 
+			double dy=resultMatrix.m13 - startMatrix.m13; 
+			double dz=resultMatrix.m23 - startMatrix.m23;
 
 			double distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
 			return "slide "+StringHelper.formatDouble(distance)+"mm";
 		}
+	}
+
+	/**
+	 * Set which PhysicalObject the drag ball is going to act upon.
+	 * @param subject
+	 */
+	public void setSubject(PhysicalObject subject) {
+		this.subject=subject;		
 	}
 }
