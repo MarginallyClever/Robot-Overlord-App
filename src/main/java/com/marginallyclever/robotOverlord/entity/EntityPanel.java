@@ -12,6 +12,7 @@ import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandRemoveMe;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectString;
+import com.marginallyclever.robotOverlord.entity.world.World;
 
 /**
  * The user interface for an {@link Entity}.
@@ -43,7 +44,7 @@ public class EntityPanel extends JPanel implements ChangeListener {
 
 		this.add(setName, con1);
 		
-		if(ro.getWorld().hasChild(entity)) {
+		if(entity.parent instanceof World) {
 			con1.gridy++;
 			this.add(new UserCommandRemoveMe(ro,entity),con1);
 		}
