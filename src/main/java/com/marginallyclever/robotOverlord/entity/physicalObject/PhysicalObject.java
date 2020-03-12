@@ -85,7 +85,7 @@ public abstract class PhysicalObject extends Entity {
 	
 	protected void drawLocalOrigin(GL2 gl2) {
 		if(!shouldDrawLocalOrigin) return;
-		PrimitiveSolids.drawStar(gl2, new Vector3d(0,0,0),10);
+		PrimitiveSolids.drawStar(gl2,10);
 	}
 	
 	protected void drawConnectionToChildren(GL2 gl2) {
@@ -159,18 +159,17 @@ public abstract class PhysicalObject extends Entity {
 		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 	
+	/**
+	 * @return {@link Matrix4d} of the local pose
+	 */
 	public Matrix4d getPose() {
 		return pose;
 	}
-	
-	public Matrix4d getPoseWorld() {
-		return poseWorld;
-	}
-	
+
 	/**
 	 * Set the local pose (relative to my parent)
 	 * Automatically updates the cumulative pose.
-	 * @param arg0
+	 * @param arg0 the local pose
 	 */
 	public void setPose(Matrix4d arg0) {
 		// update 
@@ -194,6 +193,14 @@ public abstract class PhysicalObject extends Entity {
 		}
 	}
 
+	
+	/**
+	 * @return {@link Matrix4d} of the world pose
+	 */
+	public Matrix4d getPoseWorld() {
+		return poseWorld;
+	}
+	
 	public World getWorld() {
 		Entity p = parent;
 		while (p != null) {
