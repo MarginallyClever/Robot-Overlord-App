@@ -156,7 +156,7 @@ public class ModelInWorld extends PhysicalObject {
 			if( model==null ) {
 				// draw placeholder
 				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
-				PrimitiveSolids.drawStar(gl2,new Vector3d(0,0,0),3f);
+				PrimitiveSolids.drawStar(gl2,3.0);
 			} else {
 				model.render(gl2);
 			}
