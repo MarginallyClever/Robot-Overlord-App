@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.robot.sixi2;
 
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +26,7 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox;
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
+
 
 /**
  * A controller for the simulated and live Sixi robot.
@@ -94,8 +94,6 @@ public class Sixi2 extends Robot {
 
 	public Sixi2Recording recording = new Sixi2Recording();
 
-	protected DragBall ball;
-
 	// true if the skeleton should be visualized on screen. Default is false.
 	protected boolean isPicked = false;
 
@@ -115,9 +113,6 @@ public class Sixi2 extends Robot {
 
 		addChild(live);
 		addChild(sim);
-
-		ball = new DragBall();
-		ball.setParent(this);
 
 		// spawn a control box as a child of the anchor.
 		Sixi2ControlBox sixi2ControlBox=new Sixi2ControlBox();
@@ -167,23 +162,7 @@ public class Sixi2 extends Robot {
 
 	@Override
 	public void render(GL2 gl2) {
-		// draw the children
 		super.render(gl2);
-		
-		// then the ball
-		IntBuffer depthFunc = IntBuffer.allocate(1);
-		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDepthFunc(GL2.GL_ALWAYS);
-		gl2.glDisable(GL2.GL_LIGHTING);
-
-		// draw the drag ball
-		if(isPicked && controlMode == ControlMode.RECORD) {
-			ball.render(gl2);
-		}
-
-		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
-		gl2.glDepthFunc(depthFunc.get(0));
 	}
 
 	@Override
@@ -199,16 +178,19 @@ public class Sixi2 extends Robot {
 	 *
 	 * @return true if targetPose changes.
 	 */
-	public boolean driveFromKeyState(double dt) {
-		ball.setSubjectMatrix(sim.links.get(sim.getNumLinks()-1).getPoseWorld());
-		ball.setCameraMatrix(getWorld().getCamera().getPose());
-
-		boolean isDirty = false;
-
-		ball.update(dt);
-
+	public void driveFromKeyState(double dt) {
+		/*
 		// move the robot by dragging the ball in live mode
-		if(controlMode==ControlMode.RECORD) {
+		DragBall ball = getWorld().getBall();
+		
+		if(!isPicked) {
+			ball.setSubject(null);
+			return;
+		}
+
+		if(controlMode == ControlMode.RECORD) {
+			ball.setSubject(this);
+			
 			if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
 				if(ball.isActivelyMoving()) {
 					Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
@@ -223,13 +205,14 @@ public class Sixi2 extends Robot {
 					sim.setPoseIK(worldPose);
 					//System.out.println("Update ends");
 					//System.out.println(MatrixHelper.getPosition(worldPose));
-					isDirty=true;
 				}
 			}
+		} else {
+			ball.setSubject(null);
 		}
-
+*/
 		if (sim.dhTool != null) {
-			isDirty |= sim.dhTool.directDrive();
+			sim.dhTool.directDrive();
 		}
 
 
@@ -287,16 +270,12 @@ public class Sixi2 extends Robot {
 		        }
 			}
 		}
-
-		return isDirty;
 	}
 
 	@Override
 	public void update(double dt) {
-		if (isPicked) {
-			driveFromKeyState(dt);
-		}
-
+		driveFromKeyState(dt);
+		
 		Sixi2Model activeModel = (operatingMode == OperatingMode.LIVE) ? live : sim;
 		if(activeModel.readyForCommands) {
 			if(controlMode == ControlMode.RECORD) {
@@ -354,11 +333,13 @@ public class Sixi2 extends Robot {
 
 	@Override
 	public String getStatusMessage() {
+		String message = super.getStatusMessage();
+		
 		Matrix4d pose=sim.getEndEffectorMatrix();
 		Matrix3d m = new Matrix3d();
 		pose.get(m);
 		Vector3d v = MatrixHelper.matrixToEuler(m);
-		String message =
+		message +=
 				"Base @ "+this.getPosition().toString() + " Tip @ "
 				+" ("+StringHelper.formatDouble(pose.m03)
 				+", "+StringHelper.formatDouble(pose.m13)
@@ -367,9 +348,6 @@ public class Sixi2 extends Robot {
 				+", "+StringHelper.formatDouble(Math.toDegrees(v.y))
 				+", "+StringHelper.formatDouble(Math.toDegrees(v.z))
 				+")";
-		if(ball.isActivelyMoving) {
-			message += " "+ball.getStatusMessage();
-		}
 		return message;
 	}
 
@@ -465,14 +443,18 @@ public class Sixi2 extends Robot {
 		System.out.println("reset "+recording.getNumCommands());
 	}
 
+	public boolean isPicked() {
+		return isPicked;
+	}
+
 	public void toggleCycleStart() {
 		cycleStart = !cycleStart;
-		System.out.println("cycleStart="+(cycleStart?"on":"off"));
+		//System.out.println("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public void setCycleStart(boolean arg0) {
 		cycleStart = arg0;
-		System.out.println("cycleStart="+(cycleStart?"on":"off"));
+		//System.out.println("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public boolean isCycleStart() {
@@ -481,7 +463,7 @@ public class Sixi2 extends Robot {
 
 	public void toggleSingleBlock() {
 		singleBlock = !singleBlock;
-		System.out.println("singleBlock="+(singleBlock?"on":"off"));
+		//System.out.println("singleBlock="+(singleBlock?"on":"off"));
 	}
 
 	public boolean isSingleBlock() {
@@ -490,7 +472,7 @@ public class Sixi2 extends Robot {
 
 	public void toggleM01Break() {
 		m01Break = !m01Break;
-		System.out.println("m01Break="+(m01Break?"on":"off"));
+		//System.out.println("m01Break="+(m01Break?"on":"off"));
 	}
 
 	public boolean isM01Break() {
@@ -512,18 +494,13 @@ public class Sixi2 extends Robot {
 		reset();
 	}
 
-	public boolean isPicked() {
-		return isPicked;
-	}
-
 	public OperatingMode getOperatingMode() {
 		return operatingMode;
 	}
 
 	public void toggleOperatingMode() {
 		operatingMode = (operatingMode==OperatingMode.LIVE) ? OperatingMode.SIM : OperatingMode.LIVE;
-
-		System.out.println("operatingMode="+operatingMode);
+		//System.out.println("operatingMode="+operatingMode);
 	}
 
 	public ArrayList<String> getCommandList() {
@@ -636,3 +613,4 @@ public class Sixi2 extends Robot {
 		return recording.setCommandIndex(newIndex);
 	}
 }
+
