@@ -87,7 +87,12 @@ import com.marginallyclever.util.PropertiesFileHelper;
  * @author Dan Royer
  *
  */
-public class RobotOverlord implements MouseListener, MouseMotionListener, GLEventListener, WindowListener, UndoableEditListener {
+public class RobotOverlord extends Entity implements MouseListener, MouseMotionListener, GLEventListener, WindowListener, UndoableEditListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6061714880126301427L;
+	
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
@@ -154,7 +159,10 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	
 	
  	protected RobotOverlord() {
-		prefs = Preferences.userRoot().node("Evil Overlord");
+ 		super();
+ 		setName("Robot Overlord");
+ 		
+		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
 
 		//System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
 		
@@ -215,7 +223,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
         animator.add(glCanvas);
         
 		// new world
-        world = new World();
+        addChild(world = new World());
         // ..with default setting.  TODO save & load whole world and all its Entities.
         world.createDefaultWorld();
 
@@ -317,7 +325,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
      */
 	public void updateEntityTree() {
 		// list all objects in scene
-	    DefaultMutableTreeNode top = createTreeNodes(world);
+	    DefaultMutableTreeNode top = createTreeNodes(this);
 		JTree tree = new JTree(top);
 
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
