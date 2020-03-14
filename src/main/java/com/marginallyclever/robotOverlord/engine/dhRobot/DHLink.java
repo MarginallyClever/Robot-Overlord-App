@@ -17,6 +17,7 @@ public class DHLink extends ModelEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = -8160402178509773679L;
+	
 	public enum LinkAdjust {
 		NONE (0   ,"NONE" ),
 		D    (1   ,"D"    ),
@@ -46,7 +47,6 @@ public class DHLink extends ModelEntity {
 		}
 	};
 	
-	// Any combination of the READ_ONLY_* flags, used to control the GUI.
 	public LinkAdjust flags;
 
 	// length (mm) along previous Z to the common normal
