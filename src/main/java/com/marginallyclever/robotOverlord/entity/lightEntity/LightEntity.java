@@ -55,16 +55,6 @@ public class LightEntity extends PhysicalEntity {
 
 	@Override
 	public void render(GL2 gl2) {
-		if(index==0) {
-			ambient.set(2.55,2.55,2.55,0.0);
-			System.out.println(ambient.toString());
-			enabled.set(true);
-		}
-		if(index==1) {
-			ambient.set(0.0,0.0,0.0,0.0);
-			enabled.set(true);
-		}
-		
 		int i = GL2.GL_LIGHT0+index;
 		if(!enabled.get()) {
 			gl2.glDisable(i);
