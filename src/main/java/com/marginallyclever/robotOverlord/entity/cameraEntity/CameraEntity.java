@@ -1,24 +1,26 @@
-package com.marginallyclever.robotOverlord.entity.camera;
+package com.marginallyclever.robotOverlord.entity.cameraEntity;
 
-import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.engine.SkyBoxEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.jogamp.opengl.GL2;
-
-import java.util.ArrayList;
 
 /**
  * Camera in the world.  Has no physical presence.  Has location and direction.
  * TODO confirm the calculated pose matches the forward/up/right values
  * @author Dan Royer
  */
-public class Camera extends PhysicalObject {
+public class CameraEntity extends PhysicalEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8808107560966888107L;
 	// orientation
 	protected Vector3d forward = new Vector3d(1,0,0);
 	protected Vector3d right = new Vector3d(0,1,0);
@@ -26,54 +28,45 @@ public class Camera extends PhysicalObject {
 	
 	// angles
 	protected double pan, tilt;
-	
-	protected CameraMount mount;
-	
+
+	// move to GraphicsEntity?
 	protected int canvasWidth, canvasHeight;
-	protected double nearZ=5;
-	protected double farZ=2000;
-	protected double fieldOfView=60;
+	// move to GraphicsEntity?
 	protected int cursorX,cursorY;
+	
 	protected boolean isPressed;
+
+	protected DoubleEntity nearZ;
+	protected DoubleEntity farZ;
+	protected DoubleEntity fieldOfView;
+
+	protected transient SkyBoxEntity skybox = new SkyBoxEntity();
 	
 	CameraPanel cameraPanel;
 
-	public Camera() {
+	public CameraEntity() {
 		super();
 		
 		setName("Camera");
-		
+		addChild(farZ=new DoubleEntity("far Z",2000.0));
+		addChild(nearZ=new DoubleEntity("near Z",5.0));
+		addChild(fieldOfView=new DoubleEntity("FOV",60.0));
+		//addChild(skybox);
+			
 		isPressed=false;
-		fieldOfView=60;
 	}
-
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		cameraPanel = new CameraPanel(gui,this);
-		list.add(cameraPanel);
-		
-		return list;
-	}
-	
 	
 	public int getCanvasWidth() {
 		return canvasWidth;
 	}
 
-
 	public void setCanvasWidth(int canvasWidth) {
 		this.canvasWidth = canvasWidth;
 	}
 
-
 	public int getCanvasHeight() {
 		return canvasHeight;
 	}
-
 
 	public void setCanvasHeight(int canvasHeight) {
 		this.canvasHeight = canvasHeight;
@@ -177,14 +170,13 @@ public class Camera extends PhysicalObject {
 	@Override
 	public void render(GL2 gl2) {
 		Vector3d p = getPosition();
-		
-		Matrix4d c = new Matrix4d(pose);
-		c.setTranslation(new Vector3d(0,0,0));
 
-		Matrix4d mFinal = c;
+		Matrix4d mFinal = new Matrix4d(pose);
 		mFinal.setTranslation(p);
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);
+		
+		//skybox.render(gl2,this);
 	}
 
 
@@ -232,7 +224,7 @@ public class Camera extends PhysicalObject {
 		vx.scale(+cursorX);
 		
 		Vector3d pickRay = new Vector3d(forward);
-		pickRay.scale(-canvasHeight*Math.sin(Math.toRadians(fieldOfView)));
+		pickRay.scale(-canvasHeight*Math.sin(Math.toRadians(fieldOfView.get())));
 		pickRay.add(vx);
 		pickRay.add(vy);
 		pickRay.normalize();
@@ -258,26 +250,27 @@ public class Camera extends PhysicalObject {
 		return isPressed;
 	}
 
-
-
 	public void setNearZ(double d) {
-		nearZ=d;
+		nearZ.set(d);
 	}
+	
 	public double getNearZ() {
-		return nearZ;
+		return nearZ.get();
 	}
 
 	public void setFarZ(double d) {
-		farZ=d;
+		farZ.set(d);
 	}
+	
 	public double getFarZ() {
-		return farZ;
+		return farZ.get();
 	}
 
 	public void setFOV(double d) {
-		fieldOfView=d;
+		fieldOfView.set(d);
 	}
+	
 	public double getFOV() {
-		return fieldOfView;
+		return fieldOfView.get();
 	}
 }

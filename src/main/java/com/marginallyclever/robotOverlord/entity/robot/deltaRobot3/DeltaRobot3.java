@@ -9,17 +9,13 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
 import com.jogamp.opengl.GL2;
-import javax.swing.JPanel;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRobotMove;
@@ -29,6 +25,10 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 @Deprecated
 public class DeltaRobot3
 extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5612374701460946452L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
@@ -551,33 +551,11 @@ extends Robot {
 		return out;
 	}
 
-	
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		controlPanel = new DeltaRobot3Panel(gui,this);
-		list.add(controlPanel);
-		if(controlPanel!=null) controlPanel.update();
-/*
-		ArrayList<JPanel> toolList = tool.getControlPanels();
-		Iterator<JPanel> iter = toolList.iterator();
-		while(iter.hasNext()) {
-			list.add(iter.next());
-		}
-*/
-		return list;
-	}
-
-	
 	protected float roundOff(float v) {
-		float SCALE = 1000.0f;
+		final float SCALE = 1000.0f;
 		
 		return Math.round(v*SCALE)/SCALE;
 	}
-	
 	
 	public void setSpeed(double newSpeed) {
 		speed=newSpeed;

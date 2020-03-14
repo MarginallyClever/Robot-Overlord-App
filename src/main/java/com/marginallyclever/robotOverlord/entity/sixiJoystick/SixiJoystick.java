@@ -1,48 +1,33 @@
 package com.marginallyclever.robotOverlord.entity.sixiJoystick;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.swing.JPanel;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
 
-public class SixiJoystick extends ModelInWorld implements NetworkConnectionListener {
+public class SixiJoystick extends ModelEntity implements NetworkConnectionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9009274404516671409L;
+	
 	private Sixi2 target;
-	private SixiJoystickPanel panel;
+	
 	private NetworkConnection connection;
-	private ReentrantLock lock;
+	
+	private ReentrantLock lock = new ReentrantLock();
+	
 	DHKeyframe keyframe;
 	
 	public SixiJoystick() {
 		setName("Sixi Joystick");
-		lock = new ReentrantLock();
-	}
-	
-	
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-
-		// remove material panel
-		list.remove(list.size()-1);
-		// remove model panel
-		list.remove(list.size()-1);
-		
-		if(panel == null) panel = new SixiJoystickPanel(gui,this);
-		list.add(panel);
-		
-		return list;
 	}
 	
 	public void closeConnection() {
@@ -65,11 +50,8 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 	}
 
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
-	// should probably be a subscription model.
 	protected Sixi2 findRobot() {
-		Iterator<Entity> entities = getWorld().getChildren().iterator();
-		while(entities.hasNext()) {
-			Entity e = entities.next();
+		for( Entity e : getWorld().getChildren() ) {
 			if(e instanceof Sixi2) {
 				return (Sixi2)e;
 			}
@@ -79,6 +61,7 @@ public class SixiJoystick extends ModelInWorld implements NetworkConnectionListe
 	
 	@Override
 	public void lineError(NetworkConnection arg0, int lineNumber) {}
+	
 	@Override
 	public void sendBufferEmpty(NetworkConnection arg0) {}
 	

@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_Cylindrical;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -15,6 +15,10 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_GMF_M100 extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8098352986694626519L;
 	DHRobot live;
 
 	public Robot_GMF_M100() {
@@ -60,7 +64,7 @@ public class Robot_GMF_M100 extends Robot {
 			float r=1;
 			float g=217f/255f;
 			float b=33f/255f;
-			Material mat = new Material();
+			MaterialEntity mat = new MaterialEntity();
 			mat.setDiffuseColor(r,g,b,1);
 			mat.render(gl2);
 			live.render(gl2);

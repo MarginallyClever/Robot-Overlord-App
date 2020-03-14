@@ -3,23 +3,26 @@ package com.marginallyclever.robotOverlord.engine.dhRobot;
 import java.util.List;
 import java.util.ArrayList;
 
-import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.IntersectionTester;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 
 /**
  * A robot designed using D-H parameters.
  * 
  * @author Dan Royer
  */
-public class DHRobot extends ModelInWorld {
+public class DHRobot extends ModelEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8209132282893336655L;
+
 	// a list of DHLinks describing the kinematic chain.
 	public List<DHLink> links = new ArrayList<DHLink>();
 	
@@ -68,19 +71,6 @@ public class DHRobot extends ModelInWorld {
 		refreshPose();
 	}
 	
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		this.dhRobotPanel = new DHRobotPanel(gui,this);
-		list.add(dhRobotPanel);
-		
-		return list;
-	}
-
-
 	/**
 	 * Override this method to return the correct solver for your type of robot.
 	 * 
@@ -93,15 +83,14 @@ public class DHRobot extends ModelInWorld {
 	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
 	}
-	
 
 	public Matrix4d getParentMatrix() {
-		if( parent == null || !(parent instanceof PhysicalObject) ) {
+		if( parent == null || !(parent instanceof PhysicalEntity) ) {
 			Matrix4d m = new Matrix4d();
 			m.setIdentity();
 			return m;
 		} else {
-			return ((PhysicalObject)parent).getPose();
+			return ((PhysicalEntity)parent).getPose();
 		}
 	}
 	
@@ -136,9 +125,10 @@ public class DHRobot extends ModelInWorld {
 		
 		// count the number of existing children.
 		Entity prev=this;
+		boolean found;
 		int s=0;
 		while(prev.getChildren().size()>0 && s<newSize) {
-			boolean found=true;
+			found=false;
 			for( Entity c : prev.getChildren() ) {
 				if(c instanceof DHLink ) {
 					links.add((DHLink)c);
@@ -255,7 +245,7 @@ public class DHRobot extends ModelInWorld {
 		getPoseFK(originalKey);
 		// move the clone to the keyframe pose
 		setPoseFK(futureKey);
-		boolean result = getWorld().collisionTest((PhysicalObject)parent); 
+		boolean result = getWorld().collisionTest((PhysicalEntity)parent); 
 		setPoseFK(originalKey);
 		
 		return result;
@@ -273,8 +263,8 @@ public class DHRobot extends ModelInWorld {
 		for( DHLink link : links ) {
 			if(link.flags == LinkAdjust.NONE) continue;
 			double v = keyframe.fkValues[j++];
-			if (link.rangeMax < v || link.rangeMin > v) {
-				System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin + " to " + link.rangeMax + ")");
+			if (link.rangeMax.get() < v || link.rangeMin.get() > v) {
+				System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
 				return false;
 			}
 		}

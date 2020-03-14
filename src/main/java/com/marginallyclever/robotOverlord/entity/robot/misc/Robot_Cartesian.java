@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_Cartesian;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -18,8 +18,12 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_Cartesian extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7386828777683260867L;
 	public transient boolean isFirstTime;
-	public Material material;
+	public MaterialEntity material;
 	DHRobot live;
 	public Robot_Cartesian() {
 		super();
@@ -63,7 +67,7 @@ public class Robot_Cartesian extends Robot {
 	}
 	
 	public void setupModels(DHRobot robot) {
-		material = new Material();
+		material = new MaterialEntity();
 		float r=0.5f;
 		float g=0.5f;
 		float b=0.5f;

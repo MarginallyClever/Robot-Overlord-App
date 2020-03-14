@@ -11,14 +11,18 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 
 public class Robot_Phybot extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5976403627830834543L;
 	public transient boolean isFirstTime;
-	public Material material;
+	public MaterialEntity material;
 	DHRobot live;
 	
 	public Robot_Phybot() {
@@ -75,7 +79,7 @@ public class Robot_Phybot extends Robot {
 	}
 	
 	public void setupModels(DHRobot robot) {
-		material = new Material();
+		material = new MaterialEntity();
 		float r=0.75f;
 		float g=0.15f;
 		float b=0.15f;

@@ -9,10 +9,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
 import com.jogamp.opengl.GL2;
-import javax.swing.JPanel;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.communications.NetworkConnection;
@@ -20,16 +17,20 @@ import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.*;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRobotMove;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 @Deprecated
 public class RotaryStewartPlatform extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7452312301245504822L;
+
 	// machine ID
 	protected long robotUID;
 
@@ -61,9 +62,9 @@ public class RotaryStewartPlatform extends Robot {
 	protected transient Model modelTop;
 	protected transient Model modelBicep;
 	protected transient Model modelBase;
-	protected transient Material matTop = new Material();
-	protected transient Material matBicep = new Material();
-	protected transient Material matBase = new Material();
+	protected transient MaterialEntity matTop = new MaterialEntity();
+	protected transient MaterialEntity matBicep = new MaterialEntity();
+	protected transient MaterialEntity matBase = new MaterialEntity();
 
 	// this should be come a list w/ rollback
 	protected RotaryStewartPlatformKeyframe motionNow;
@@ -562,19 +563,6 @@ public class RotaryStewartPlatform extends Robot {
 		out.add(tempz);
 
 		return out;
-	}
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if (list == null)
-			list = new ArrayList<JPanel>();
-
-		rspPanel = new RotaryStewartPlatformPanel(gui, this);
-		list.add(rspPanel);
-		rspPanel.update();
-
-		return list;
 	}
 
 	private void sendChangeToRealMachine() {

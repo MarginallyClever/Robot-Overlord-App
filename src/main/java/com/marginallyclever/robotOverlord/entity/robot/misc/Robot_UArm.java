@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTT;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -17,7 +17,12 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
 public class Robot_UArm extends Robot {
-/*
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7937797399289936308L;
+
+	/*
 	private transient Model linkA1;
 	private transient Model linkA2;
 	private transient Model linkA3;
@@ -116,7 +121,7 @@ public class Robot_UArm extends Robot {
 			MatrixHelper.applyMatrix(gl2, this.pose);
 			
 			// Draw models
-			Material mat = new Material();
+			MaterialEntity mat = new MaterialEntity();
 			mat.setDiffuseColor(
 					0.75f*247.0f/255.0f,
 					0.75f*233.0f/255.0f,

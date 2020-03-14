@@ -7,15 +7,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 
 public class MaterialTest {
 	//@Test
 	public void testLoadAndSave() {
-		Material m1 = new Material();
+		MaterialEntity m1 = new MaterialEntity();
 		@SuppressWarnings("unused")
-		Material m2;
+		MaterialEntity m2;
 		
 		File tempFile;
 		try {
@@ -62,7 +61,7 @@ public class MaterialTest {
 			objectIn = new ObjectInputStream(fin);
 	
 			// Read an object in from object store, and cast it to a GameWorld
-			m2 = (Material) objectIn.readObject();
+			m2 = (MaterialEntity) objectIn.readObject();
 		} catch(IOException e) {
 			System.out.println("Material load failed (file io).");
 			e.printStackTrace();

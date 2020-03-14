@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.robot.sixi2;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.communications.NetworkConnectionManager;
@@ -9,6 +10,10 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 
 public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -811684331077697483L;
 	protected transient NetworkConnection connection;
 	protected DHKeyframe receivedKeyframe;
 	
@@ -37,6 +42,11 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 			connection.addListener(this);
 			sendCommand("D20");
 		}
+	}
+
+	@Override
+	public void render(GL2 gl2) {
+		super.render(gl2);
 	}
 
 	@Override

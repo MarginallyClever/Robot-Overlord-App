@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.physicalObject.boxObject;
+package com.marginallyclever.robotOverlord.entity.boxEntity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,12 +18,12 @@ public class BoxObjectPanel extends JPanel implements ChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	BoxObject box;
+	BoxEntity box;
 	RobotOverlord gui;
 	
 	UserCommandSelectNumber chooseWidth,chooseHeight,chooseDepth;
 	
-	public BoxObjectPanel(RobotOverlord gui, BoxObject box) {
+	public BoxObjectPanel(RobotOverlord gui, BoxEntity box) {
 		super();
 		this.gui=gui;
 		this.box=box;

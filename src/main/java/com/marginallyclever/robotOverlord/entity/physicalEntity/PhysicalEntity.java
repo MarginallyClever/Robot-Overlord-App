@@ -1,9 +1,8 @@
-package com.marginallyclever.robotOverlord.entity.physicalObject;
+package com.marginallyclever.robotOverlord.entity.physicalEntity;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
-import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -12,84 +11,93 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.EntityPanel;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
-public abstract class PhysicalObject extends Entity {
-	// position and orientation relative to my parent Entity.
+public abstract class PhysicalEntity extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1959037711655040359L;
+	
+	// unique ids for all objects in the world.  
+	// zero is reserved to indicate no object.
+	static private int pickNameCounter=1;
+	// my unique id
+	private int pickName;	
+	
+	// pose relative to my parent Entity.
 	protected Matrix4d pose = new Matrix4d();
-	// position and orientation relative to the world.
+	// pose relative to the world.
 	protected Matrix4d poseWorld = new Matrix4d();
+	
 	// physical limits
-	public Cuboid cuboid;
+	public transient Cuboid cuboid = new Cuboid();
 	
-	private transient PhysicalObjectPanel physicalObjectControlPanel;
-	
-	protected boolean shouldDrawBoundingBox=false;
-	protected boolean shouldDrawLocalOrigin=false;
-	protected boolean shouldDrawConnectionToChildren=false;
+	protected transient BooleanEntity showBoundingBox = new BooleanEntity("Bounding Box",false);
+	protected transient BooleanEntity showLocalOrigin = new BooleanEntity("Local Origin",false);
+	protected transient BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
-	public PhysicalObject() {
+
+	public PhysicalEntity() {
 		super();
+		setName("Physics");
+		
+		pickName = pickNameCounter++;
+		
+		addChild(showBoundingBox);
+		addChild(showLocalOrigin);
+		addChild(showLineage);
+		
 		pose.setIdentity();
 		poseWorld.setIdentity();
-		cuboid=new Cuboid();
 	}
 	
-	public void set(PhysicalObject b) {
+	public void set(PhysicalEntity b) {
 		super.set(b);
 		pose.set(b.pose);
 		poseWorld.set(b.poseWorld);
 		cuboid.set(b.cuboid);
 	}
+
+	public int getPickName() {
+		return pickName;
+	}
 	
-	/**
-	 * Get the {@link EntityPanel} for this class' superclass, then the physicalObjectControlPanel for this class, and so on.
-	 * 
-	 * @param gui the main application instance.
-	 * @return the list of physicalObjectControlPanels 
-	 */
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(list==null) list = new ArrayList<JPanel>();
-
-		physicalObjectControlPanel = new PhysicalObjectPanel(gui,this);
-		list.add(physicalObjectControlPanel);
-
-		return list;
+	@Deprecated
+	public boolean hasPickName(int name) {
+		return pickName==name;
 	}
 
-	@Override
+	/**
+	 * Render this physicalEntity into the view
+	 * @param gl2
+	 */
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);
 
 			// helpful info
-			drawBoundingBox(gl2);
-			drawLocalOrigin(gl2);
-			drawConnectionToChildren(gl2);
+			if(showBoundingBox.get()) {
+				cuboid.render(gl2);
+			}
+			if(showLocalOrigin.get()) {
+				PrimitiveSolids.drawStar(gl2,10);
+			}
+			renderConnectionToChildren(gl2);
 			
 			// draw children relative to parent
-			super.render(gl2);
-			
+			for(Entity e : children ) {
+				if(e instanceof PhysicalEntity) {
+					((PhysicalEntity)e).render(gl2);
+				}
+			}
 		gl2.glPopMatrix();
 	}
 	
-	protected void drawBoundingBox(GL2 gl2) {
-		if(!shouldDrawBoundingBox) return;
-		cuboid.render(gl2);
-	}
-	
-	protected void drawLocalOrigin(GL2 gl2) {
-		if(!shouldDrawLocalOrigin) return;
-		PrimitiveSolids.drawStar(gl2,10);
-	}
-	
-	protected void drawConnectionToChildren(GL2 gl2) {
-		if(!shouldDrawConnectionToChildren) return;
+	protected void renderConnectionToChildren(GL2 gl2) {
+		if(!showLineage.get()) return;
 		
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
@@ -100,9 +108,9 @@ public abstract class PhysicalObject extends Entity {
 
 		// connection to children
 		for(Entity e : children ) {
-			if(e instanceof PhysicalObject) {					
+			if(e instanceof PhysicalEntity) {					
 				gl2.glColor3d(255, 255, 255);
-				Vector3d p = ((PhysicalObject)e).getPosition();
+				Vector3d p = ((PhysicalEntity)e).getPosition();
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(p.x,p.y,p.z);
@@ -118,13 +126,13 @@ public abstract class PhysicalObject extends Entity {
 	public Vector3d getPosition() {
 		return new Vector3d(pose.m03,pose.m13,pose.m23);
 	}
-	
+
 	public void setPosition(Vector3d pos) {
 		Matrix4d m = new Matrix4d(pose);
 		m.setTranslation(pos);
 		setPose(m);
 	}
-
+	
 	/**
 	 * 
 	 * @param arg0 fills the vector3 with one possible combination of radian rotations.
@@ -163,7 +171,7 @@ public abstract class PhysicalObject extends Entity {
 	 * @return {@link Matrix4d} of the local pose
 	 */
 	public Matrix4d getPose() {
-		return pose;
+		return new Matrix4d(pose);
 	}
 
 	/**
@@ -175,11 +183,7 @@ public abstract class PhysicalObject extends Entity {
 		// update 
 		pose.set(arg0);
 		updatePoseWorld();
-		
-		// make sure the panel is updated.  TODO use the observer?
-		if(physicalObjectControlPanel!=null) {
-			physicalObjectControlPanel.updateFields();	
-		}
+		cuboid.setPoseWorld(poseWorld);
 	}
 	
 	/**
@@ -187,8 +191,10 @@ public abstract class PhysicalObject extends Entity {
 	 * Does not crawl up the parent hierarchy.
 	 */
 	public void updatePoseWorld() {
-		if(parent instanceof PhysicalObject) {
-			poseWorld.mul(((PhysicalObject)parent).poseWorld,pose);
+		if(parent instanceof PhysicalEntity) {
+			Matrix4d m = new Matrix4d(pose);
+			m.mul(((PhysicalEntity)parent).poseWorld);
+			poseWorld.set(m);
 		} else {
 			poseWorld.set(pose);
 		}
@@ -199,7 +205,7 @@ public abstract class PhysicalObject extends Entity {
 	 * @return {@link Matrix4d} of the world pose
 	 */
 	public Matrix4d getPoseWorld() {
-		return poseWorld;
+		return new Matrix4d(poseWorld);
 	}
 	
 	
@@ -208,8 +214,8 @@ public abstract class PhysicalObject extends Entity {
 	 * @param m
 	 */
 	public void setPoseWorld(Matrix4d m) {
-		if(parent instanceof PhysicalObject) {
-			Matrix4d iParent = new Matrix4d(((PhysicalObject)parent).poseWorld);
+		if(parent instanceof PhysicalEntity) {
+			Matrix4d iParent = new Matrix4d(((PhysicalEntity)parent).poseWorld);
 			iParent.invert();
 			m.mul(iParent);
 			setPose(m);
@@ -248,30 +254,26 @@ public abstract class PhysicalObject extends Entity {
 
 	
 	public boolean shouldDrawBoundingBox() {
-		return shouldDrawBoundingBox;
+		return showBoundingBox.get();
 	}
 
-	public void setDrawBoundingBox(boolean shouldDrawBoundingBox) {
-		this.shouldDrawBoundingBox = shouldDrawBoundingBox;
+	public void setDrawBoundingBox(boolean drawBoundingBox) {
+		this.showBoundingBox.set(drawBoundingBox);
 	}
 
-	public boolean shouldDrawLocalOrigin() {
-		return shouldDrawLocalOrigin;
+	public boolean drawLocalOrigin() {
+		return showLocalOrigin.get();
 	}
 
-	public void setDrawLocalOrigin(boolean shouldDrawLocalOrigin) {
-		this.shouldDrawLocalOrigin = shouldDrawLocalOrigin;
+	public void setDrawLocalOrigin(boolean drawLocalOrigin) {
+		this.showLocalOrigin.set(drawLocalOrigin);
 	}
 
-	public boolean shouldDrawConnectionToChildren() {
-		return shouldDrawConnectionToChildren;
+	public boolean drawConnectionToChildren() {
+		return showLineage.get();
 	}
 
-	public void setDrawConnectionToChildren(boolean shouldDrawConnectionToChildren) {
-		this.shouldDrawConnectionToChildren = shouldDrawConnectionToChildren;
-	}
-
-	public PhysicalObjectPanel getPhysicalObjectControlPanel() {
-		return physicalObjectControlPanel;
+	public void setDrawConnectionToChildren(boolean drawConnectionToChildren) {
+		this.showLineage.set(drawConnectionToChildren);
 	}
 }

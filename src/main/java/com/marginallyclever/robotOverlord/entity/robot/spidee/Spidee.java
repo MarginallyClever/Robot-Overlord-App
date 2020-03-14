@@ -10,17 +10,14 @@ import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import javax.swing.JPanel;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -28,6 +25,10 @@ import java.io.BufferedReader;
 
 public class Spidee 
 extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9001910240118142937L;
 	public static final String hello="HELLO WORLD!  I AM SPIDEE #"; 
 	protected long robotUID=0;
 	
@@ -63,11 +64,11 @@ extends Robot {
 	public static final int BUTTONS_MAX =21;
 
 	
-	private Material matBody = new Material();
-	private Material matHead = new Material();
-	private Material matLeg1 = new Material();
-	private Material matThigh = new Material();
-	private Material matShin = new Material();
+	private MaterialEntity matBody = new MaterialEntity();
+	private MaterialEntity matHead = new MaterialEntity();
+	private MaterialEntity matLeg1 = new MaterialEntity();
+	private MaterialEntity matThigh = new MaterialEntity();
+	private MaterialEntity matShin = new MaterialEntity();
 	
 	public static enum MoveModes {
 	  MOVE_MODE_CALIBRATE,
@@ -1590,8 +1591,8 @@ extends Robot {
 		return new_uid;
 	}
 
-	@Override
 	// override this method to check that the software is connected to the right type of robot.
+	@Override
 	public void dataAvailable(NetworkConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
@@ -1618,20 +1619,6 @@ extends Robot {
 		}
 	}
 
-	
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		spideePanel = new SpideeControlPanel(gui,this);
-		list.add(spideePanel);
-		//updateGUI();
-		
-		return list;
-	}
-
-	
 	@Override
 	public RobotKeyframe createKeyframe() {
 		return new SpideeKeyframe();

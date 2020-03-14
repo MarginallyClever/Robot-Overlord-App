@@ -14,6 +14,11 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
 
 public class Sixi2Sim extends Sixi2Model {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6216095894080620268L;
+
 	public enum InterpolationStyle {
 		LINEAR_FK(0,"LINEAR_FK"),
 		LINEAR_IK(1,"LINEAR_IK"),
@@ -120,9 +125,9 @@ public class Sixi2Sim extends Sixi2Model {
 			for( String t : tok ) {
 				String letter = t.substring(0,1); 
 				if(letter.equalsIgnoreCase("F")) {
-					feedRate = Double.parseDouble(t.substring(1));
+					feedRate.set(Double.parseDouble(t.substring(1)));
 				} else if(letter.equalsIgnoreCase("A")) {
-					acceleration = Double.parseDouble(t.substring(1));
+					acceleration.set(Double.parseDouble(t.substring(1)));
 				}
 			}
 
@@ -141,7 +146,7 @@ public class Sixi2Sim extends Sixi2Model {
 			}
 	        if(dp==0) return;
 	        
-	        double travelS = dMax/feedRate;
+	        double travelS = dMax/feedRate.get();
 	        long travelMs = (long)Math.ceil(travelS*1000.0);
 	        
 	        // set the live and from matrixes

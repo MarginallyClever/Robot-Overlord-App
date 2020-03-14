@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.light;
+package com.marginallyclever.robotOverlord.entity.lightEntity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,7 +28,7 @@ public class LightPanel extends JPanel implements ChangeListener {
 	 */
 	private static final long serialVersionUID = 8529190569816182683L;
 	
-	private Light light;
+	private LightEntity light;
 	private UserCommandSelectBoolean chooseEnabled;
 	private UserCommandSelectComboBox choosePreset;
 	private UserCommandSelectColorRGBA chooseDiffuse;
@@ -68,7 +68,7 @@ public class LightPanel extends JPanel implements ChangeListener {
 		return b;
 	}*/
 
-	public LightPanel(RobotOverlord gui,Light arg0) {
+	public LightPanel(RobotOverlord gui,LightEntity arg0) {
 		super();
 		
 		light=arg0;
@@ -97,7 +97,7 @@ public class LightPanel extends JPanel implements ChangeListener {
 		chooseSpecular.addChangeListener(this);
 	}
 
-	public int detectPreset(Light light) {
+	public int detectPreset(LightEntity light) {
 		//TODO finish me
 		return 0;
 	}

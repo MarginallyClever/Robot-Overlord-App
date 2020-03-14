@@ -6,9 +6,15 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotOverlord.entity.camera.Camera;
+import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
 
-public class SkyBox {
+public class SkyBoxEntity extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8458751997561051222L;
+	
 	protected transient boolean areSkyboxTexturesLoaded=false;
 	protected transient Texture skyboxtextureZPos;
 	protected transient Texture skyboxtextureXPos;
@@ -17,6 +23,10 @@ public class SkyBox {
 	protected transient Texture skyboxtextureYNeg;
 	protected transient Texture skyboxtextureZNeg;
 
+	public SkyBoxEntity() {
+		super();
+		setName("Skybox");
+	}
 	
 	private void loadSkyboxTexturesOnce() {
 		if(areSkyboxTexturesLoaded) return;
@@ -36,10 +46,10 @@ public class SkyBox {
 	}
 	
 	// Draw background
-	protected void render(GL2 gl2,Camera camera) {
+	public void render(GL2 gl2,CameraEntity camera) {
 		loadSkyboxTexturesOnce();
 		if(!areSkyboxTexturesLoaded) return;
-
+		
         //gl2.glDisable(GL2.GL_CULL_FACE);
 		
 		gl2.glDisable(GL2.GL_DEPTH_TEST);

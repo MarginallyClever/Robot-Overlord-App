@@ -11,8 +11,8 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.camera.Camera;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
 /**
@@ -20,7 +20,12 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  * @author Dan Royer
  *
  */
-public class DragBall extends PhysicalObject {
+public class DragBall extends PhysicalEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8786413898168510187L;
+
 	public enum SlideDirection {
 		SLIDE_XPOS(0,"X+"),
 		SLIDE_XNEG(1,"X-"),
@@ -88,7 +93,7 @@ public class DragBall extends PhysicalObject {
 	public boolean isActivelyMoving;
 
 	// Who is being moved?
-	protected PhysicalObject subject;
+	protected PhysicalEntity subject;
 	// In what frame of reference?
 	protected FrameOfReference frameOfReference;
 
@@ -166,7 +171,7 @@ public class DragBall extends PhysicalObject {
 		Vector3d mp = MatrixHelper.getPosition(subject.getPoseWorld());
 		this.setPosition(mp);
 
-		Camera cam = getWorld().getCamera();
+		CameraEntity cam = getWorld().getCamera();
 		mp.sub(cam.getPosition());
 
 		double d = mp.length();
@@ -198,7 +203,7 @@ public class DragBall extends PhysicalObject {
 	public void updateRotation(double dt,double d,Vector3d mp) {
 		valueNow = valueLast;
 
-		Camera cam = getWorld().getCamera();
+		CameraEntity cam = getWorld().getCamera();
 		Vector3d ray = cam.rayPick();
 		
 		if(!isActivelyMoving && cam.isPressed()) {
@@ -330,7 +335,7 @@ public class DragBall extends PhysicalObject {
 	public void updateTranslation(double dt,double d,Vector3d mp) {
 		valueNow = valueLast;
 
-		Camera cam = getWorld().getCamera();
+		CameraEntity cam = getWorld().getCamera();
 		if(!isActivelyMoving && cam.isPressed()) {	
 			Vector3d pos = this.getPosition();
 			
@@ -507,24 +512,28 @@ public class DragBall extends PhysicalObject {
 		gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
 		
 		//white
-		gl2.glColor4d(1,1,1,1);
+		gl2.glColor4d(1,1,1,0.7);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
 		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			double c = Math.cos(n);
+			double s = Math.sin(n);
 			gl2.glVertex3d(
-					(lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n))*1.1,
-					(lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n))*1.1,
-					(lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n))*1.1  );
+					(lookAt.m02*s +lookAt.m01*c)*1.1,
+					(lookAt.m12*s +lookAt.m11*c)*1.1,
+					(lookAt.m22*s +lookAt.m21*c)*1.1  );
 		}
 		gl2.glEnd();
 		
 		//grey
-		gl2.glColor4d(0.5,0.5,0.5,1);
+		gl2.glColor4d(0.5,0.5,0.5,0.7);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
 		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			double c = Math.cos(n);
+			double s = Math.sin(n);
 			gl2.glVertex3d(
-					(lookAt.m02*Math.sin(n) +lookAt.m01*Math.cos(n))*1.01,
-					(lookAt.m12*Math.sin(n) +lookAt.m11*Math.cos(n))*1.01,
-					(lookAt.m22*Math.sin(n) +lookAt.m21*Math.cos(n))*1.01  );
+					(lookAt.m02*s +lookAt.m01*c)*1.01,
+					(lookAt.m12*s +lookAt.m11*c)*1.01,
+					(lookAt.m22*s +lookAt.m21*c)*1.01  );
 		}
 		gl2.glEnd();
 
@@ -666,7 +675,7 @@ public class DragBall extends PhysicalObject {
 		//PrimitiveSolids.drawStar(gl2, pickPointSaved,10);
 	}
 	
-	protected double testBoxHit(Camera cam,Vector3d n) {
+	protected double testBoxHit(CameraEntity cam,Vector3d n) {
 		Vector3d ray = cam.rayPick();
 		
 		Point3d b0 = new Point3d(); 
@@ -829,7 +838,7 @@ public class DragBall extends PhysicalObject {
 		return frameOfReference;
 	}
 	
-	@Override
+	@Deprecated
 	public String getStatusMessage() {
 		if(isRotateMode) {
 			double start=MathHelper.capRotationRadians(valueStart);
@@ -852,7 +861,7 @@ public class DragBall extends PhysicalObject {
 	 * Set which PhysicalObject the drag ball is going to act upon.
 	 * @param subject
 	 */
-	public void setSubject(PhysicalObject subject) {
+	public void setSubject(PhysicalEntity subject) {
 		this.subject=subject;		
 	}
 }

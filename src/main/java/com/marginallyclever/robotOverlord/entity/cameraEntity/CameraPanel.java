@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.camera;
+package com.marginallyclever.robotOverlord.entity.cameraEntity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -25,13 +25,13 @@ public class CameraPanel extends JPanel implements ActionListener, ChangeListene
 	 */
 	private static final long serialVersionUID = 8529190569816182683L;
 	
-	private Camera cam;
+	private CameraEntity cam;
 	
 	private UserCommandSelectNumber nearz;
 	private UserCommandSelectNumber farz;
 	private UserCommandSelectNumber fov;
 	
-	public CameraPanel(RobotOverlord ro,Camera cam) {
+	public CameraPanel(RobotOverlord ro,CameraEntity cam) {
 		super();
 
 		this.cam=cam;

@@ -5,7 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotOverlord.entity.camera.Camera;
+import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
 
 public class ViewCube {
 	protected transient boolean isSetup = false;
@@ -35,7 +35,7 @@ public class ViewCube {
 			e.printStackTrace();
 		}
 	}
-	public void render(GL2 gl2,Camera cam) {
+	public void render(GL2 gl2,CameraEntity cam) {
 		if(!isSetup) {
 			loadTextures();
 			isSetup=true;

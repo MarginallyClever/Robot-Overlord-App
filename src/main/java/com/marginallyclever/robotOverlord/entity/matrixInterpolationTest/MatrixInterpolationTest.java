@@ -7,10 +7,15 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 
-public class MatrixInterpolationTest extends Entity {
+public class MatrixInterpolationTest extends PhysicalEntity {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1401913129076588377L;
+	
 	public double alpha;
 	public ArrayList<Matrix4d> points;
 	public int index;

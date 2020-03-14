@@ -79,12 +79,12 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		
 		SpringLayout layout = new SpringLayout();
 		JPanel linkContents = new JPanel(layout);
-		linkContents.add(pX=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(pY=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(pZ=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(rX=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(rY=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
-		linkContents.add(rZ=new JLabel(StringHelper.formatDouble(0),JLabel.RIGHT));
+		linkContents.add(pX=new JLabel("0.00",JLabel.RIGHT));
+		linkContents.add(pY=new JLabel("0.00",JLabel.RIGHT));
+		linkContents.add(pZ=new JLabel("0.00",JLabel.RIGHT));
+		linkContents.add(rX=new JLabel("0.00",JLabel.RIGHT));
+		linkContents.add(rY=new JLabel("0.00",JLabel.RIGHT));
+		linkContents.add(rZ=new JLabel("0.00",JLabel.RIGHT));
 		SpringUtilities.makeCompactGrid(linkContents, 2, 3, 2, 2, 2, 2);
 		con1.gridy++;
 		this.add(linkContents,con1);
@@ -102,11 +102,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 		
 		robot.refreshPose();
 		updateEnd();
-
-		if(robot.getCurrentTool()!=null && activeToolPanel!=null) {
-			ArrayList<JPanel> list = robot.getCurrentTool().getContextPanels(ro);
-			PanelHelper.formatEntityPanels(list, activeToolPanel);
-		}
 	}
 	
 	@Override
@@ -211,10 +206,6 @@ public class DHRobotPanel extends JPanel implements ActionListener, ChangeListen
 	public void updateActiveTool(DHTool arg0) {
 		activeToolPanel.removeAll();
 		ro.updateEntityTree();
-		if(arg0!=null) {
-			ArrayList<JPanel> list = arg0.getContextPanels(ro);
-			PanelHelper.formatEntityPanels(list, activeToolPanel);
-		}
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -14,13 +13,13 @@ import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.engine.DragBall;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox;
@@ -35,6 +34,11 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  *
  */
 public class Sixi2 extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3770331480833527099L;
+
 	public enum ControlMode {
 		RECORD(0,"RECORD"),
 		PLAYBACK(1,"PLAYBACK");
@@ -100,20 +104,31 @@ public class Sixi2 extends Robot {
 	// are we trying to record the robot?
 	protected ControlMode controlMode=ControlMode.RECORD;
 
-	protected boolean singleBlock = false;
-	protected boolean cycleStart = false;
-	protected boolean m01Break = true;
-
+	protected BooleanEntity singleBlock = new BooleanEntity("Single Block",false);
+	protected BooleanEntity cycleStart = new BooleanEntity("Cycle Start",false);
+	protected BooleanEntity m01Break = new BooleanEntity("M01 Break",true);
+	protected ModelEntity anchor = new ModelEntity();
+	
 	public Sixi2() {
 		super();
 		setName("Sixi");
-
+		addChild(singleBlock);
+		addChild(cycleStart);
+		addChild(m01Break);
+		
 		addChild(live);
 		addChild(sim);
-
+		addChild(anchor);
+		
+		anchor.setName("Base");
+		anchor.setModelFilename("/Sixi2/anchor.stl");
+		anchor.setModelOrigin(0, 0, 0.9);
+		anchor.setModelRotation(90,-90,0);
+		anchor.setModelScale(0.1f);
+		
 		// spawn a control box as a child of the anchor.
 		Sixi2ControlBox sixi2ControlBox=new Sixi2ControlBox();
-		this.addChild(sixi2ControlBox);
+		addChild(sixi2ControlBox);
 		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
 		sixi2ControlBox.setRotation(new Vector3d(0, 0, Math.toRadians(90)));
 		sixi2ControlBox.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
@@ -135,26 +150,15 @@ public class Sixi2 extends Robot {
 			// Request from the world "is there a tool at the position of the end effector"?
 			Vector3d target = new Vector3d();
 			sim.getEndEffectorMatrix().get(target);
-			List<PhysicalObject> list = world.findPhysicalObjectsNear(target, 10);
+			List<PhysicalEntity> list = world.findPhysicalObjectsNear(target, 10);
 			// If there is a tool, attach to it.
-			for( PhysicalObject po : list ) {
+			for( PhysicalEntity po : list ) {
 				if (po instanceof DHTool) {
 					// probably the only one we'll find.
 					sim.setTool((DHTool) po);
 				}
 			}
 		}
-	}
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-
-		// hide the dhrobot panel because we'll replace it with our own.
-		sixi2Panel = new Sixi2Panel(gui,this);
-		list.add(sixi2Panel);
-
-		return list;
 	}
 
 	@Override
@@ -282,17 +286,17 @@ public class Sixi2 extends Robot {
 					activeModel.sendCommand(line);
 				}
 			} else {
-				if(cycleStart && recording.hasNext()) {
+				if(cycleStart.get() && recording.hasNext()) {
 					String line = recording.next();
 					System.out.println(controlMode + " " + operatingMode + " send command: "+line);
 					activeModel.sendCommand(line);
-					if(singleBlock) {
+					if(singleBlock.get()) {
 						// one block at a time
-						cycleStart=false;
+						cycleStart.set(false);
 					}
 				} else {
 					// no more recording, stop.
-					cycleStart=false;
+					cycleStart.set(false);
 				}
 			}
 			// active model is updated when all children are updated
@@ -306,9 +310,9 @@ public class Sixi2 extends Robot {
 		return null;
 	}
 
-	@Override
+	@Deprecated
 	public String getStatusMessage() {
-		String message = super.getStatusMessage();
+		String message = "";//super.getStatusMessage();
 		
 		Matrix4d pose=sim.getEndEffectorMatrix();
 		Matrix3d m = new Matrix3d();
@@ -411,43 +415,43 @@ public class Sixi2 extends Robot {
 
 	public void reset() {
 		recording.reset();
-		singleBlock = false;
-		cycleStart = false;
-		m01Break = true;
+		singleBlock.set(false);
+		cycleStart.set(false);
+		m01Break.set(true);
 
 		System.out.println("reset "+recording.getNumCommands());
 	}
 
 	public void toggleCycleStart() {
-		cycleStart = !cycleStart;
+		cycleStart.toggle();
 		//System.out.println("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public void setCycleStart(boolean arg0) {
-		cycleStart = arg0;
+		cycleStart.set(arg0);
 		//System.out.println("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public boolean isCycleStart() {
-		return cycleStart;
+		return cycleStart.get();
 	}
 
 	public void toggleSingleBlock() {
-		singleBlock = !singleBlock;
+		singleBlock.toggle();
 		//System.out.println("singleBlock="+(singleBlock?"on":"off"));
 	}
 
 	public boolean isSingleBlock() {
-		return singleBlock;
+		return singleBlock.get();
 	}
 
 	public void toggleM01Break() {
-		m01Break = !m01Break;
+		m01Break.toggle();
 		//System.out.println("m01Break="+(m01Break?"on":"off"));
 	}
 
 	public boolean isM01Break() {
-		return m01Break;
+		return m01Break.get();
 	}
 
 	public ControlMode getControlMode() {
@@ -503,14 +507,14 @@ public class Sixi2 extends Robot {
 	public void setDrawBoundingBox(boolean arg0) {
 		super.setDrawBoundingBox(arg0);
 
-		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
+		LinkedList<PhysicalEntity> next = new LinkedList<PhysicalEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
-			PhysicalObject link = next.pop();
+			PhysicalEntity link = next.pop();
 			link.setDrawBoundingBox(arg0);
 			for( Entity child : link.getChildren() ) {
-				if( child instanceof PhysicalObject ) {
-					next.add((PhysicalObject)child);
+				if( child instanceof PhysicalEntity ) {
+					next.add((PhysicalEntity)child);
 				}
 			}
 		}
@@ -521,14 +525,14 @@ public class Sixi2 extends Robot {
 	public void setDrawLocalOrigin(boolean arg0) {
 		super.setDrawLocalOrigin(arg0);
 
-		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
+		LinkedList<PhysicalEntity> next = new LinkedList<PhysicalEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
-			PhysicalObject link = next.pop();
+			PhysicalEntity link = next.pop();
 			link.setDrawLocalOrigin(arg0);
 			for( Entity child : link.getChildren() ) {
-				if( child instanceof PhysicalObject ) {
-					next.add((PhysicalObject)child);
+				if( child instanceof PhysicalEntity ) {
+					next.add((PhysicalEntity)child);
 				}
 			}
 		}
@@ -539,14 +543,14 @@ public class Sixi2 extends Robot {
 	public void setDrawConnectionToChildren(boolean arg0) {
 		super.setDrawConnectionToChildren(arg0);
 
-		LinkedList<PhysicalObject> next = new LinkedList<PhysicalObject>();
+		LinkedList<PhysicalEntity> next = new LinkedList<PhysicalEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
-			PhysicalObject link = next.pop();
+			PhysicalEntity link = next.pop();
 			link.setDrawConnectionToChildren(arg0);
 			for( Entity child : link.getChildren() ) {
-				if( child instanceof PhysicalObject ) {
-					next.add((PhysicalObject)child);
+				if( child instanceof PhysicalEntity ) {
+					next.add((PhysicalEntity)child);
 				}
 			}
 		}

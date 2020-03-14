@@ -1,13 +1,10 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
 import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
 
 /**
@@ -15,16 +12,11 @@ import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends ModelInWorld {
-	// length (mm) along previous Z to the common normal
-	private double d;
-	// angle (degrees) about previous Z, from old X to new X
-	private double theta;
-	// length (mm) of the common normal. Assuming a revolute joint, this is the radius about previous Z
-	private double r;
-	// angle (degrees) about common normal, from old Z axis to new Z axis
-	private double alpha;
-	
+public class DHLink extends ModelEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8160402178509773679L;
 	public enum LinkAdjust {
 		NONE (0   ,"NONE" ),
 		D    (1   ,"D"    ),
@@ -56,6 +48,15 @@ public class DHLink extends ModelInWorld {
 	
 	// Any combination of the READ_ONLY_* flags, used to control the GUI.
 	public LinkAdjust flags;
+
+	// length (mm) along previous Z to the common normal
+	private DoubleEntity d = new DoubleEntity("D");
+	// angle (degrees) about previous Z, from old X to new X
+	private DoubleEntity theta = new DoubleEntity("Theta");
+	// length (mm) of the common normal. Assuming a revolute joint, this is the radius about previous Z
+	private DoubleEntity r = new DoubleEntity("R");
+	// angle (degrees) about common normal, from old Z axis to new Z axis
+	private DoubleEntity alpha = new DoubleEntity("Alpha");
 	
 	// the gcode letter representing this link
 	protected String letter="";
@@ -67,39 +68,42 @@ public class DHLink extends ModelInWorld {
 	public final static double ANGLE_RANGE_STEPS=20;
 	
 	
+	protected DoubleEntity rangeMin = new DoubleEntity("min", 90.0);
+	protected DoubleEntity rangeMax = new DoubleEntity("max", -90.0);
+	/*
+	public DoubleEntity maxVelocity = new DoubleEntity(Double.MAX_VALUE);	// not used yet
+	public DoubleEntity maxAcceleration = new DoubleEntity(Double.MAX_VALUE);	// not used yet
+	public DoubleEntity maxTorque = new DoubleEntity(Double.MAX_VALUE);	// not used yet
+
 	// dynamics are described in a 4x4 matrix
 	//     [ Ixx Ixy Ixz } XgM ]
 	// J = [ Iyx Iyy Iyz } YgM ]
 	//     [ Izx Izy Izz } ZgM ]
 	//     [ XgM YgM ZgM }  M  ]
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
-	public Matrix4d inertia = new Matrix4d();	// not used yet
-	
-	protected double rangeMin,rangeMax;
-	
-	public double maxVelocity;	// not used yet
-	public double maxAcceleration;	// not used yet
-	public double maxTorque;	// not used yet
-
+	public Matrix4dEntity inertia = new Matrix4dEntity();	// not used yet
+	*/
 	
 	public DHLink() {
 		super();
 		setName("DHLink");
+
+		addChild(d);
+		addChild(r);
+		addChild(theta);
+		addChild(alpha);
+		
+		addChild(rangeMin);
+		addChild(rangeMax);
 		
 		flags=LinkAdjust.NONE;
-		d=0;
-		theta=0;
-		r=0;
-		alpha=0;
+		/*
+		addChild(maxVelocity);
+		addChild(maxAcceleration);
+		addChild(maxTorque);
+		addChild(inertia);*/
+		
 		refreshPoseMatrix();
-
-		model=null;
-
-		rangeMin=-90;
-		rangeMax=90;
-		maxVelocity=Double.MAX_VALUE;
-		maxAcceleration=Double.MAX_VALUE;
-		maxTorque=Double.MAX_VALUE;
 	}
 	
 	public DHLink(DHLink arg0) {
@@ -110,51 +114,47 @@ public class DHLink extends ModelInWorld {
 	
 	public void set(DHLink arg0) {
 		setName(arg0.getName());
-		inertia.set(arg0.inertia);
 		cuboid.set(arg0.cuboid);
 
 		flags = arg0.flags;
-		d = arg0.d;
-		theta=arg0.theta;
-		r=arg0.r;
-		alpha=arg0.alpha;
-		model=arg0.model;
-		rangeMin=arg0.rangeMin;
-		rangeMax=arg0.rangeMax;
-		maxVelocity=arg0.maxVelocity;
-		maxAcceleration=arg0.maxAcceleration;
-		maxTorque=arg0.maxTorque;
+		d.set(arg0.d.get());
+		theta.set(arg0.theta.get());
+		r.set(arg0.r.get());
+		alpha.set(arg0.alpha.get());
+		model =arg0.model;
+		rangeMin.set(arg0.rangeMin.get());
+		rangeMax.set(arg0.rangeMax.get());
+		/*
+		maxVelocity.set(arg0.maxVelocity);
+		maxAcceleration.set(arg0.maxAcceleration);
+		maxTorque.set(arg0.maxTorque);
+		inertia.set(arg0.inertia);
+		*/
 	}
 	
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		linkPanel = new DHLinkPanel(gui,this);
-		list.add(linkPanel);
-		
-		return list;
-	}
 	
 	/**
 	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
 	 */
 	public void refreshPoseMatrix() {
-		assert(!Double.isNaN(theta));
-		assert(!Double.isNaN(alpha));
-		assert(!Double.isNaN(r));
-		assert(!Double.isNaN(d));
-		double ct = Math.cos(Math.toRadians(theta));
-		double ca = Math.cos(Math.toRadians(alpha));
-		double st = Math.sin(Math.toRadians(theta));
-		double sa = Math.sin(Math.toRadians(alpha));
+		double t=theta.get();
+		double a=alpha.get();
+		assert(!Double.isNaN(t));
+		assert(!Double.isNaN(a));
+		assert(!Double.isNaN(r.get()));
+		assert(!Double.isNaN(d.get()));
+		double ct = Math.cos(Math.toRadians(t));
+		double ca = Math.cos(Math.toRadians(a));
+		double st = Math.sin(Math.toRadians(t));
+		double sa = Math.sin(Math.toRadians(a));
+		Matrix4d m = new Matrix4d();
 		
-		pose.m00 = ct;		pose.m01 = -st*ca;		pose.m02 = st*sa;		pose.m03 = r*ct;
-		pose.m10 = st;		pose.m11 = ct*ca;		pose.m12 = -ct*sa;		pose.m13 = r*st;
-		pose.m20 = 0;		pose.m21 = sa;			pose.m22 = ca;			pose.m23 = d;
-		pose.m30 = 0;		pose.m31 = 0;			pose.m32 = 0;			pose.m33 = 1;
+		m.m00 = ct;		m.m01 = -st*ca;		m.m02 = st*sa;		m.m03 = r.get()*ct;
+		m.m10 = st;		m.m11 = ct*ca;		m.m12 = -ct*sa;		m.m13 = r.get()*st;
+		m.m20 = 0;		m.m21 = sa;			m.m22 = ca;			m.m23 = d.get();
+		m.m30 = 0;		m.m31 = 0;			m.m32 = 0;			m.m33 = 1;
+		
+		pose.set(m);
 		
 		updatePoseWorld();
 	}
@@ -188,18 +188,20 @@ public class DHLink extends ModelInWorld {
 		
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
+
+		double mid=getRangeCenter();
 		
 		gl2.glColor3f(0, 0, 0);
 		if(flags == LinkAdjust.THETA) {
 			// display the curve around z (in the xy plane)
 			gl2.glPushMatrix();
-			gl2.glTranslated(0, 0, d);
+			gl2.glTranslated(0, 0, d.get());
 			gl2.glScaled(scale, scale, scale);
 			gl2.glColor4d(0,0,0,0.35);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
 			for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
-				double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
+				double j=(getRange())*(k/ANGLE_RANGE_STEPS)+rangeMin.get();
 				gl2.glVertex3d(
 						Math.cos(Math.toRadians(j)), 
 						Math.sin(Math.toRadians(j)), 
@@ -210,10 +212,9 @@ public class DHLink extends ModelInWorld {
 			setAngleColorByRange(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 			gl2.glVertex3d(0, 0, 0);
-			double mid=(rangeMax+rangeMin)/2;
-			double steps = Math.floor(Math.abs(mid-theta));
+			double steps = Math.floor(Math.abs(mid-theta.get()));
 			for(k=0;k<steps;++k) {
-				double j = (theta-mid)*(k/steps)+mid;
+				double j = (theta.get()-mid)*(k/steps)+mid;
 				gl2.glVertex3d(
 						Math.cos(Math.toRadians(j)), 
 						Math.sin(Math.toRadians(j)), 
@@ -226,28 +227,28 @@ public class DHLink extends ModelInWorld {
 			// display the prismatic nature of d
 			gl2.glPushMatrix();
 			gl2.glBegin(GL2.GL_LINES);
-			gl2.glVertex3d(0,  1, this.rangeMin);
-			gl2.glVertex3d(0, -1, this.rangeMin);
-			gl2.glVertex3d(0,  0, this.rangeMin);
-			gl2.glVertex3d(0,  0, this.rangeMax);
-			gl2.glVertex3d(0,  1, this.rangeMax);
-			gl2.glVertex3d(0, -1, this.rangeMax);
-			gl2.glVertex3d(0,  1, d);
-			gl2.glVertex3d(0, -1, d);
+			gl2.glVertex3d(0,  1, rangeMin.get());
+			gl2.glVertex3d(0, -1, rangeMin.get());
+			gl2.glVertex3d(0,  0, rangeMin.get());
+			gl2.glVertex3d(0,  0, rangeMax.get());
+			gl2.glVertex3d(0,  1, rangeMax.get());
+			gl2.glVertex3d(0, -1, rangeMax.get());
+			gl2.glVertex3d(0,  1, d.get());
+			gl2.glVertex3d(0, -1, d.get());
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
 		if(flags == LinkAdjust.ALPHA) {
 			// display the curve around x (in the yz plane)
 			gl2.glPushMatrix();
-			gl2.glTranslated(r, 0, d);
-			gl2.glRotated(this.theta, 0, 0, 1);
+			gl2.glTranslated(r.get(), 0, d.get());
+			gl2.glRotated(this.theta.get(), 0, 0, 1);
 			gl2.glScaled(scale, scale, scale);
 			gl2.glColor4d(0,0,0,0.35);
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			gl2.glVertex3d(0, 0, 0);
 			for(k=0;k<=ANGLE_RANGE_STEPS;++k) {
-				double j=(rangeMax-rangeMin)*(k/ANGLE_RANGE_STEPS)+rangeMin;
+				double j=getRange()*(k/ANGLE_RANGE_STEPS)+rangeMin.get();
 				gl2.glVertex3d(
 						0,
 						Math.cos(Math.toRadians(j)),
@@ -258,10 +259,9 @@ public class DHLink extends ModelInWorld {
 			setAngleColorByRange(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 			gl2.glVertex3d(0, 0, 0);
-			double mid=(rangeMax+rangeMin)/2;
-			double steps = Math.floor(Math.abs(mid-alpha));
+			double steps = Math.floor(Math.abs(mid-alpha.get()));
 			for(k=0;k<steps;++k) {
-				double j = (alpha-mid)*(k/steps)+mid;
+				double j = (alpha.get()-mid)*(k/steps)+mid;
 				gl2.glVertex3d(0,
 						Math.cos(Math.toRadians(j)), 
 						Math.sin(Math.toRadians(j))
@@ -279,17 +279,18 @@ public class DHLink extends ModelInWorld {
 		if(flags == LinkAdjust.R) {
 			// display the prismatic nature of r
 			gl2.glPushMatrix();
-			gl2.glTranslated(0, 0, d);
-			gl2.glRotated(this.theta, 0, 0, 1);
+			gl2.glTranslated(0, 0, d.get());
+			gl2.glRotated(this.theta.get(), 0, 0, 1);
 			gl2.glBegin(GL2.GL_LINES);
-			gl2.glVertex3d(this.rangeMin,  1, 0);
-			gl2.glVertex3d(this.rangeMin, -1, 0);
-			gl2.glVertex3d(this.rangeMin,  0, 0);
-			gl2.glVertex3d(this.rangeMax,  0, 0);
-			gl2.glVertex3d(this.rangeMax,  1, 0);
-			gl2.glVertex3d(this.rangeMax, -1, 0);
-			gl2.glVertex3d(            r,  1, 0);
-			gl2.glVertex3d(            r, -1, 0);
+			double rm = rangeMin.get();
+			gl2.glVertex3d(rm     ,  1, 0);
+			gl2.glVertex3d(rm     , -1, 0);
+			gl2.glVertex3d(rm     ,  0, 0);
+			gl2.glVertex3d(rm     ,  0, 0);
+			gl2.glVertex3d(rm     ,  1, 0);
+			gl2.glVertex3d(rm     , -1, 0);
+			gl2.glVertex3d(r.get(),  1, 0);
+			gl2.glVertex3d(r.get(), -1, 0);
 			gl2.glEnd();
 			gl2.glPopMatrix();
 		}
@@ -302,11 +303,11 @@ public class DHLink extends ModelInWorld {
 	 */
 	public void setAngleColorByRange(GL2 gl2) {
 		if(flags == LinkAdjust.NONE) return;
-		if(rangeMax==rangeMin) return;  // no range limit?
+		if(rangeMax.get()==rangeMin.get()) return;  // no range limit?
 		
-		double a= (flags == LinkAdjust.THETA) ? theta : alpha;
-		double halfRange = (rangeMax-rangeMin)/2;
-		double midRange = (rangeMax+rangeMin)/2;
+		double a= (flags == LinkAdjust.THETA) ? theta.get() : alpha.get();
+		double halfRange = getRange()/2;
+		double midRange = getRangeCenter();
 		float safety = (float)(Math.abs(a-midRange)/halfRange);
 		safety*=safety*safety;  // squared
 		//gl2.glColor4d(safety,1-safety,0,0.5);
@@ -343,7 +344,7 @@ public class DHLink extends ModelInWorld {
 	 */
 	public void setAdjustableValue(double v) {
 		//System.out.println("Adjust begins");
-		v = Math.max(Math.min(v, rangeMax), rangeMin);
+		v = Math.max(Math.min(v, rangeMax.get()), rangeMin.get());
 		switch(flags) {
 		case D    :  setD    (v);  break;
 		case THETA:  setTheta(v);  break;
@@ -355,74 +356,64 @@ public class DHLink extends ModelInWorld {
 	}
 
 	public double getD() {
-		return d;
+		return d.get();
 	}
 
 	public void setD(double v) {
-		if(d==v) return;
-		setChanged();
-		this.d = v;
-		notifyObservers(v);
+		d.set(v);
 	}
 
 	public double getTheta() {
-		return theta;
+		return theta.get();
 	}
 
 	public void setTheta(double v) {
-		if(theta==v) return;
-		setChanged();
-		this.theta = v;
-		notifyObservers(v);
+		theta.set(v);
 	}
 
 	public double getR() {
-		return r;
+		return r.get();
 	}
 
 	public void setR(double v) {
-		if(r==v) return;
-		setChanged();
-		this.r = v;
-		notifyObservers(v);
+		r.set(v);
 	}
 
 	public double getAlpha() {
-		return alpha;
+		return alpha.get();
 	}
 
 	public void setAlpha(double v) {
-		if(alpha==v) return;
-		setChanged();
-		this.alpha = v;
-		notifyObservers(v);
+		alpha.set(v);
 	}
 
 	public double getRangeMin() {
-		return rangeMin;
+		return rangeMin.get();
 	}
 
-	public void setRangeMin(double rangeMin) {
-		if(this.rangeMin == rangeMin) return;
-		this.rangeMin = rangeMin;
+	public void setRangeMin(double v) {
+		rangeMin.set(v);
 	}
 
 	public double getRangeMax() {
-		return rangeMax;
+		return rangeMax.get();
 	}
 
-	public void setRangeMax(double rangeMax) {
-		if(this.rangeMax == rangeMax) return;
-		this.rangeMax = rangeMax;
+	public void setRangeMax(double v) {
+		rangeMax.set(v);
 	}
 	
 	public void setRange(double rangeMin,double rangeMax) {
 		setRangeMin(rangeMin);
 		setRangeMax(rangeMax);
 	}
+	
+	public double getRange() {
+		return rangeMax.get()-rangeMin.get();
+	}
 
 	public double getRangeCenter() {
-		return (rangeMax+rangeMin)/2.0;
+		return (rangeMax.get()+rangeMin.get())/2.0;
 	}
 
 	public void setLetter(String letter) {

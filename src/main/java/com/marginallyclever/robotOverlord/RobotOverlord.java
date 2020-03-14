@@ -73,8 +73,8 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandQu
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSaveAs;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityPanel;
-import com.marginallyclever.robotOverlord.entity.camera.Camera;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.FooterBar;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
@@ -214,8 +214,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
       	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
         animator.add(glCanvas);
         
-
-		
 		// new world
         world = new World();
         // ..with default setting.  TODO save & load whole world and all its Entities.
@@ -376,7 +374,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		
 		//System.out.println("updateSelectedEntityPanel "+e.getName());
 		
-		ArrayList<JPanel> list = e.getContextPanels(this);
+		ArrayList<JPanel> list = null;//e.getContextPanels(this);
 		if(list==null) return;
 
 		PanelHelper.formatEntityPanels(list, selectedEntityPanel);
@@ -682,7 +680,8 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
         
         // Scale normals using the scale of the transform matrix so that lighting is sane.
         // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
-		gl2.glEnable(GL2.GL_RESCALE_NORMAL);
+		//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
+		gl2.glEnable(GL2.GL_NORMALIZE);
         
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
@@ -743,17 +742,6 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	    	InputManager.update(isMouseIn);
 
    			world.update( frameLength );
-	    	
-			String statusMessage = "";
-   			if( pickedEntity != null ) {
-   				statusMessage += pickedEntity.getStatusMessage()+" ";
-   			}
-			if(world.getBall().isActivelyMoving) {
-				statusMessage += world.getBall().getStatusMessage()+" ";
-			}
-			if(statusMessage!="") {
-				footerBar.setStatusLabelText(statusMessage);
-			}
     	}
 
     	// RENDER STEP
@@ -797,7 +785,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 
     
     protected void setPerspectiveMatrix() {
-        Camera cam = world.getCamera();
+        CameraEntity cam = world.getCamera();
         glu.gluPerspective(
         		cam.getFOV(), 
         		(float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 
@@ -879,7 +867,7 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
     }
     
     public void pickIntoWorld(int pickName) {
-    	Entity newlyPickedEntity = world.pickObjectWithName(pickName);
+    	Entity newlyPickedEntity = world.pickPhysicalEntityWithName(pickName);
     	
     	if(newlyPickedEntity==null || newlyPickedEntity == pickedEntity) {
 			//System.out.println(" NO PICK");
@@ -894,14 +882,14 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		pickedEntity=arg0;
 		pickedHandle=0;
 
-		if(arg0 instanceof PhysicalObject) {
-			world.getBall().setSubject((PhysicalObject)arg0);
+		if(arg0 instanceof PhysicalEntity) {
+			world.getBall().setSubject((PhysicalEntity)arg0);
 		}
 		setContextPanel(arg0);
 	}
     
 	public void pickCamera() {
-		Camera camera = world.getCamera();
+		CameraEntity camera = world.getCamera();
 		if(camera!=null) {
 			pickEntity(camera);
 		}
@@ -942,12 +930,12 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 	}
 	@Override
 	public void mouseDragged(MouseEvent e) {
-        Camera cam = world.getCamera();
+        CameraEntity cam = world.getCamera();
         cam.setCursor(e.getX(),e.getY());
 	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
-        Camera cam = world.getCamera();
+        CameraEntity cam = world.getCamera();
         cam.setCursor(e.getX(),e.getY());
 	}
 
@@ -1017,5 +1005,23 @@ public class RobotOverlord implements MouseListener, MouseMotionListener, GLEven
 		undoManager.addEdit(e.getEdit());
 		undoAction.updateUndoState();
 		redoAction.updateRedoState();
+	}
+	
+	/**
+	 * Deep search for a child with this name.
+	 * @param name
+	 * @return the entity.  null if nothing found.
+	 */
+	public Entity findChildWithName(String name) {
+		ArrayList<Entity> list = new ArrayList<Entity>();
+		list.add(world);
+		while( !list.isEmpty() ) {
+			Entity obj = list.remove(0);
+			String objectName = obj.getName();
+			if(name.equals(objectName)) return obj;
+			list.addAll(obj.getChildren());
+		}
+		
+		return null;
 	}
 }

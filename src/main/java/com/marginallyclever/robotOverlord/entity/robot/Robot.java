@@ -1,15 +1,10 @@
 package com.marginallyclever.robotOverlord.entity.robot;
 
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
-import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
 
 
 /**
@@ -17,7 +12,11 @@ import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
  * @author Dan Royer
  *
  */
-public abstract class Robot extends PhysicalObject implements NetworkConnectionListener {
+public abstract class Robot extends PhysicalEntity implements NetworkConnectionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2228444481181973067L;
 	// comms	
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
@@ -27,15 +26,7 @@ public abstract class Robot extends PhysicalObject implements NetworkConnectionL
 	
 	public Robot() {
 		super();
-	}
-	
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(robotPanel == null) robotPanel = new RobotPanel(gui,this);
-		list.add(robotPanel);
-		
-		return list;
+		setName("Robot");
 	}
 	
 	public void closeConnection() {

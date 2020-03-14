@@ -1,18 +1,18 @@
 package com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox;
 
 
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
-import com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 
 /**
  * 
  * @author Dan Royer
  */
-public class Sixi2ControlBox extends ModelInWorld {
+public class Sixi2ControlBox extends ModelEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2297549245663793571L;
 	Sixi2ControlBoxPanel panel;
 	
 	public Sixi2ControlBox() {
@@ -27,20 +27,5 @@ public class Sixi2ControlBox extends ModelInWorld {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		
-		// remove material panel
-		//list.remove(list.size()-1);
-		// remove model panel
-		//list.remove(list.size()-1);
-
-		panel = new Sixi2ControlBoxPanel(gui,this);
-		list.add(panel);
-		
-		return list;
 	}
 }

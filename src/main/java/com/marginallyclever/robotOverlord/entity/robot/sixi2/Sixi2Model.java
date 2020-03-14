@@ -5,28 +5,28 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 
 public abstract class Sixi2Model extends DHRobot {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7341226486087376506L;
 	// last known state
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;
 	protected int gMode=0;
-	protected double feedRate;
-	protected double acceleration;
+	protected DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
+	protected DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
 
 	
 	public Sixi2Model() {
 		super();
 		setName("Sixi2Model");
-		
-		feedRate=25;
-		acceleration=20;
+		addChild(feedRate);
+		addChild(acceleration);
 		
 		this.setIKSolver(new DHIKSolver_RTTRTR());
-
-		this.setModelFilename("/Sixi2/anchor.stl");
-		this.setModelOrigin(0, 0, 0.9);
-		this.setModelRotation(90,-90,0);
 		
 		// setup children
 		this.setNumLinks(6);
@@ -93,8 +93,6 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(5).setModelOrigin(0,-18.84520-35.796-6.4259,-(29.355+9.350+5.795));
 		links.get(5).setRange(-170, 170);
 		
-
-		setModelScale(0.1f);
 		for( DHLink link : links ) {
 			link.setModelScale(0.1f);
 			link.flags = LinkAdjust.THETA;
@@ -122,29 +120,25 @@ public abstract class Sixi2Model extends DHRobot {
 				gcode += " " + link.getLetter() + StringHelper.formatDouble(link.getAdjustableValue());
 			}
 		}
-		gcode += " F"+(StringHelper.formatDouble(feedRate));
-		gcode += " A"+(StringHelper.formatDouble(acceleration));
+		gcode += " F"+feedRate;
+		gcode += " A"+acceleration;
 		
 		return gcode;
 	}
 
-
 	public double getFeedrate() {
-		return feedRate;
+		return feedRate.get();
 	}
-
 
 	public void setFeedRate(double feedrate) {
-		this.feedRate = feedrate;
+		this.feedRate.set(feedrate);
 	}
-
 
 	public double getAcceleration() {
-		return acceleration;
+		return acceleration.get();
 	}
 
-
 	public void setAcceleration(double acceleration) {
-		this.acceleration = acceleration;
+		this.acceleration.set(acceleration);
 	}
 }

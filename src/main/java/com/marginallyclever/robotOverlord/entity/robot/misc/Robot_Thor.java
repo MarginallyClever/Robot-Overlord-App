@@ -7,14 +7,18 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 
 public class Robot_Thor extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4804145940106986459L;
 	public transient boolean isFirstTime;
-	public Material material;
+	public MaterialEntity material;
 	protected DHRobot live;
 	
 	public Robot_Thor() {
@@ -70,7 +74,7 @@ public class Robot_Thor extends Robot {
 	}
 	
 	public void setupModels(DHRobot robot) {
-		material = new Material();
+		material = new MaterialEntity();
 		float r=1;
 		float g=0f/255f;
 		float b=0f/255f;

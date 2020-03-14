@@ -47,10 +47,10 @@ public class GridEntityPanel extends JPanel implements ChangeListener {
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		
-		this.add(gridWidth=new UserCommandSelectNumber(gui,"Width",(float)grid.width),con1);
+		this.add(gridWidth=new UserCommandSelectNumber(gui,"Width",(float)grid.width.get()),con1);
 		
 		con1.gridy++;
-		this.add(gridHeight=new UserCommandSelectNumber(gui,"Depth",(float)grid.height),con1);
+		this.add(gridHeight=new UserCommandSelectNumber(gui,"Depth",(float)grid.height.get()),con1);
 
 		PanelHelper.ExpandLastChild(this, con1);
 		gridWidth.addChangeListener(this);
@@ -59,12 +59,7 @@ public class GridEntityPanel extends JPanel implements ChangeListener {
 	
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
-		if(e.getSource() == gridWidth) {
-			grid.width = (int)gridWidth.getValue();
-		}
-		if(e.getSource() == gridHeight) {
-			grid.height = (int)gridHeight.getValue();
-		}
+		if(e.getSource() == gridWidth) grid.width.set((int)gridWidth.getValue());
+		if(e.getSource() == gridHeight) grid.height.set((int)gridHeight.getValue());
 	}
 }

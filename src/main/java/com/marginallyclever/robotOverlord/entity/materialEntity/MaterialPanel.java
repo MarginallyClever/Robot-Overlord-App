@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.material;
+package com.marginallyclever.robotOverlord.entity.materialEntity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,7 +28,7 @@ public class MaterialPanel extends JPanel implements ChangeListener {
 	 */
 	private static final long serialVersionUID = 2339033692396700503L;
 	
-	private Material mat;
+	private MaterialEntity mat;
 	private UserCommandSelectColorRGBA chooseDiffuse;
 	private UserCommandSelectColorRGBA chooseAmbient;
 	private UserCommandSelectColorRGBA chooseSpecular;
@@ -36,7 +36,7 @@ public class MaterialPanel extends JPanel implements ChangeListener {
 	private UserCommandSelectFile chooseTexture;
 	private UserCommandSelectBoolean chooseIsLit;
 
-	public MaterialPanel(RobotOverlord gui, Material arg0) {
+	public MaterialPanel(RobotOverlord gui, MaterialEntity arg0) {
 		super();
 		
 		mat=arg0;
@@ -53,7 +53,7 @@ public class MaterialPanel extends JPanel implements ChangeListener {
 		con1.gridy++;
 		this.add(chooseSpecular = new UserCommandSelectColorRGBA(gui,Translator.get("Specular"),mat.getSpecular()),con1);
 		con1.gridy++;
-		this.add(chooseShininess = new UserCommandSelectNumber(gui,Translator.get("Shininess"),mat.getShininess()),con1);
+		this.add(chooseShininess = new UserCommandSelectNumber(gui,Translator.get("Shininess"),(float)mat.getShininess()),con1);
 		con1.gridy++;
 		this.add(chooseTexture = new UserCommandSelectFile(gui,Translator.get("Texture"),mat.getTextureFilename()),con1);
 		con1.gridy++;

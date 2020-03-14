@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_SCARA;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -17,6 +17,10 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_SCARA_NM extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3861394846045990358L;
 	public transient boolean isFirstTime;
 	protected DHRobot live;
 	
@@ -97,7 +101,7 @@ public class Robot_SCARA_NM extends Robot {
 			float r=0.5f;
 			float g=0.5f;
 			float b=0.5f;
-			Material mat = new Material();
+			MaterialEntity mat = new MaterialEntity();
 			mat.setDiffuseColor(r,g,b,1);
 			mat.render(gl2);
 			live.render(gl2);

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.physicalObject;
+package com.marginallyclever.robotOverlord.entity.physicalEntity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,13 +20,14 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSe
  * @author Dan Royer
  *
  */
-public class PhysicalObjectPanel extends JPanel implements ChangeListener {
+@Deprecated
+public class PhysicalEntityPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private PhysicalObject entity;
+	private PhysicalEntity entity;
 	
 	private transient UserCommandSelectVector3d setPosition;
 	private transient UserCommandSelectVector3d setRotation;
@@ -38,7 +39,7 @@ public class PhysicalObjectPanel extends JPanel implements ChangeListener {
 	 * @param ro the application instance
 	 * @param entity The entity controlled by this panel
 	 */
-	public PhysicalObjectPanel(RobotOverlord ro,PhysicalObject entity) {
+	public PhysicalEntityPanel(RobotOverlord ro,PhysicalEntity entity) {
 		super();
 		
 		this.entity = entity;
@@ -59,15 +60,15 @@ public class PhysicalObjectPanel extends JPanel implements ChangeListener {
 		setRotation.addChangeListener(this);
 		
 		con1.gridy++;
-		this.add(drawBoundingBox=new UserCommandSelectBoolean(ro,"Draw Bounding Box",entity.shouldDrawBoundingBox()),con1);
+		this.add(drawBoundingBox=new UserCommandSelectBoolean(ro,"Draw Bounding Box",entity.showBoundingBox.get()),con1);
 		drawBoundingBox.addChangeListener(this);
 		
 		con1.gridy++;
-		this.add(drawLocalOrigin=new UserCommandSelectBoolean(ro,"Draw Local Origin",entity.shouldDrawLocalOrigin()),con1);
+		this.add(drawLocalOrigin=new UserCommandSelectBoolean(ro,"Draw Local Origin",entity.showLocalOrigin.get()),con1);
 		drawLocalOrigin.addChangeListener(this);
 		
 		con1.gridy++;
-		this.add(drawConnectionToChildren=new UserCommandSelectBoolean(ro,"Draw Connection To Children",entity.shouldDrawConnectionToChildren()),con1);
+		this.add(drawConnectionToChildren=new UserCommandSelectBoolean(ro,"Draw Connection To Children",entity.showLineage.get()),con1);
 		drawConnectionToChildren.addChangeListener(this);
 		
 		PanelHelper.ExpandLastChild(this, con1);

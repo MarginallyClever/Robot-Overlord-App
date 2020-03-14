@@ -12,6 +12,11 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
  *
  */
 public class DHTool_GoProCamera extends DHTool {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1258343109559729552L;
+
 	public DHTool_GoProCamera() {
 		super();
 		setName("GoPro Camera");

@@ -14,36 +14,38 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.DragBall;
-import com.marginallyclever.robotOverlord.engine.SkyBox;
 import com.marginallyclever.robotOverlord.engine.ViewCube;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.camera.Camera;
+import com.marginallyclever.robotOverlord.entity.boxEntity.BoxEntity;
+import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.gridEntity.GridEntity;
-import com.marginallyclever.robotOverlord.entity.light.Light;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
-import com.marginallyclever.robotOverlord.entity.physicalObject.boxObject.BoxObject;
+import com.marginallyclever.robotOverlord.entity.lightEntity.LightEntity;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
 
 /**
  * Container for all the visible objects in a scene.
- * @author danroyer
+ * @author Dan Royer
  */
 public class World extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4832192356002856296L;
+	
 	public final static Matrix4d pose = new Matrix4d();
 	// TODO lose these junk vectors that don't match assumptions, anyhow.
 	public final static Vector3d forward = new Vector3d(0,0,1);
 	public final static Vector3d right = new Vector3d(1,0,0);
 	public final static Vector3d up = new Vector3d(0,1,0);
 	
-	protected Camera camera = new Camera();
+	protected CameraEntity camera = new CameraEntity();
 	
 	// ray picking
 	protected transient Vector3d pickForward=new Vector3d();
 	protected transient Vector3d pickRight=new Vector3d();
 	protected transient Vector3d pickUp=new Vector3d();
 	protected transient Vector3d pickRay=new Vector3d();
-	
-	protected transient SkyBox skybox = new SkyBox();
 	
 	// The box in the top right of the user view that shows your orientation in the world.
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
@@ -57,60 +59,62 @@ public class World extends Entity {
 	public World() {
 		super();
 		setName("World");
+		addChild(camera);
 		
 		ball.setParent(this);
-		
 	}
 	
 	public void createDefaultWorld() {
 		// adjust grid
 		GridEntity grid;
 		addChild(grid = new GridEntity());
-		grid.width = 130;
-		grid.height = 70;
+		grid.width.set(130);
+		grid.height.set(70);
 		grid.setPosition(new Vector3d(30,0,-0.5));
 		
 		// adjust default camera
-		addChild(camera);
 		camera.setPosition(new Vector3d(0,-100,65));
 		//camera.setPan(52);
 		camera.setTilt(76);
-
+		
 		// add some lights
-    	Light light;
+    	LightEntity light;
     	 
-		addChild(light = new Light());
-		light.setName("light ambient");
+		addChild(light = new LightEntity());
+		light.setName("Ambient light");
     	light.index=0;
     	light.setPosition(new Vector3d(0,0,30));
     	light.setAmbient(2.55f,2.55f,2.51f,1);
 
-		addChild(light = new Light());
-		light.setName("light1");
+		addChild(light = new LightEntity());
+		light.setName("light 1");
     	light.index=1;
     	light.setPosition(new Vector3d(60,-60,160));
-    	light.setDiffuse (80,80,80,1);
+    	light.setDiffuse(80,80,80,1);
+    	light.attenuationConstant.set(0.5);
+    	light.attenuationLinear.set(0.4);
 
 		// add some collision bounds
-		BoxObject box;
-		addChild(box = new BoxObject());
+		BoxEntity box;
+		
+		addChild(box = new BoxEntity());
 		box.setName("Front wall");
 		box.setSize(160,100,1);
 		box.setPosition(new Vector3d(30,40,0));
 		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
-
-		addChild(box = new BoxObject());
+		
+		addChild(box = new BoxEntity());
 		box.setName("Back wall");
 		box.setSize(100,100,1);
 		box.setPosition(new Vector3d(-50,-10,0));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
 
-		addChild(box = new BoxObject());
+		addChild(box = new BoxEntity());
 		box.setName("Table");
 		box.setSize(150,1,80);
 		box.setPosition(new Vector3d(30,0,-2.5));
-    	
+		
     	// add a sixi robot
 		Sixi2 sixi2=new Sixi2();
 		addChild(sixi2);
@@ -157,22 +161,23 @@ public class World extends Entity {
 		gl2.glPushMatrix();
 			camera.render(gl2);
 			
-			//skybox.render(gl2);
-			
 			// lights
 			for( Entity obj : children ) {
-				if(obj instanceof Light) {
-					obj.render(gl2);
+				if(obj instanceof LightEntity) {
+					PhysicalEntity light = (PhysicalEntity)obj;
+					light.render(gl2);
 				}
 			}
 
 			// draw!
 			for( Entity obj : children ) {
-				if(obj instanceof Light) continue;
-				if(obj instanceof Camera) continue;
+				if(!(obj instanceof PhysicalEntity)) continue;
+				if(obj instanceof LightEntity) continue;
+				if(obj instanceof CameraEntity) continue;
+				PhysicalEntity pe = (PhysicalEntity)obj;
 				
-				gl2.glPushName(obj.getPickName());
-				obj.render(gl2);
+				gl2.glPushName(pe.getPickName());
+				pe.render(gl2);
 				gl2.glPopName();
 			}
 	
@@ -227,26 +232,25 @@ public class World extends Entity {
 		gl2.glPopMatrix();
 	}
 
-	public Entity pickObjectWithName(int pickName) {
-		Entity newObject=null;
+	// Search only my children to find the PhysicalEntity with matchin pickName.
+	public PhysicalEntity pickPhysicalEntityWithName(int pickName) {
 		if(pickName==0) {
 			// Hit nothing!  Default to camera controls
-			newObject=camera;
-		} else {
-			// scan all objects in world to find the one with the pickName.
-			for( Entity obj : children ) {
-				if( obj.hasPickName(pickName) ) {
-					// found!
-					newObject=obj;
-					break;
-				}
+			return camera;
+		}
+
+		for( Entity obj : children ) {
+			if(!(obj instanceof PhysicalEntity)) continue;
+			PhysicalEntity pe = (PhysicalEntity)obj;
+			if( pe.getPickName()==pickName ) {
+				return pe;  // found!
 			}
 		}
 		
-		return newObject;
+		return null;
 	}
 		
-	public Camera getCamera() {
+	public CameraEntity getCamera() {
 		return camera;
 	}
 		
@@ -257,17 +261,17 @@ public class World extends Entity {
 	 * @param radius the maximum distance to search for entities.
 	 * @return a list of found PhysicalObjects
 	 */
-	public List<PhysicalObject> findPhysicalObjectsNear(Vector3d target,double radius) {
+	public List<PhysicalEntity> findPhysicalObjectsNear(Vector3d target,double radius) {
 		radius/=2;
 		
 		//System.out.println("Finding within "+epsilon+" of " + target);
-		List<PhysicalObject> found = new ArrayList<PhysicalObject>();
+		List<PhysicalEntity> found = new ArrayList<PhysicalEntity>();
 		
 		// check all children
 		for( Entity e : children ) {
-			if(e instanceof PhysicalObject) {
+			if(e instanceof PhysicalEntity) {
 				// is physical, therefore has position
-				PhysicalObject po = (PhysicalObject)e;
+				PhysicalEntity po = (PhysicalEntity)e;
 				//System.out.println("  Checking "+po.getDisplayName()+" at "+pop);
 				Vector3d pop = new Vector3d();
 				pop.sub(po.getPosition(),target);
@@ -287,15 +291,15 @@ public class World extends Entity {
 	 * @param ignoreList all the entities in the world to ignore.
 	 * @return true if any cuboid in the cuboidList intersects any cuboid in the world.
 	 */
-	public boolean collisionTest(PhysicalObject a) {
+	public boolean collisionTest(PhysicalEntity a) {
 		ArrayList<Cuboid> listA = a.getCuboidList();
 		
 		// check all children
 		for( Entity b : children ) {
 			// we do not test collide with self.  filter for all physical objects EXCEPT a.
-			if( !( b instanceof PhysicalObject ) || b==a ) continue;
+			if( !( b instanceof PhysicalEntity ) || b==a ) continue;
 
-			ArrayList<Cuboid> listB = ((PhysicalObject)b).getCuboidList();
+			ArrayList<Cuboid> listB = ((PhysicalEntity)b).getCuboidList();
 			if( listB == null ) continue;
 			
 			// now we have both lists, test them against each other.

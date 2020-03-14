@@ -11,7 +11,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHTool;
-import com.marginallyclever.robotOverlord.entity.physicalObject.PhysicalObject;
+import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
 
@@ -22,9 +22,14 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  */
 public class DHTool_Gripper extends DHTool {
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5330528803407815395L;
+
+	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
-	private transient PhysicalObject subjectBeingHeld;
+	private transient PhysicalEntity subjectBeingHeld;
 	
 	private double gripperServoAngle;
 	public static final double ANGLE_MAX=55;
@@ -150,7 +155,7 @@ public class DHTool_Gripper extends DHTool {
 				// Get the object at the targetPos.
 				Vector3d target = new Vector3d();
 				this.poseWorld.get(target);
-				List<PhysicalObject> list = this.getWorld().findPhysicalObjectsNear(target, 10);
+				List<PhysicalEntity> list = this.getWorld().findPhysicalObjectsNear(target, 10);
 				if(!list.isEmpty()) {
 					subjectBeingHeld = list.get(0);
 					// A new subject has been acquired.
@@ -235,7 +240,7 @@ public class DHTool_Gripper extends DHTool {
 	
 	@Override
 	public void setAdjustableValue(double v) {
-		v = Math.max(Math.min(v, rangeMax), rangeMin);
+		v = Math.max(Math.min(v, rangeMax.get()), rangeMin.get());
 		gripperServoAngle=v;
 	}
 }

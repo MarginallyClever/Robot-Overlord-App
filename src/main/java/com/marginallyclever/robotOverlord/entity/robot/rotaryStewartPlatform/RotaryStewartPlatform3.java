@@ -8,11 +8,15 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 
 @Deprecated
 public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
-	protected transient Material matForearm = new Material();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3166383472996580970L;
+	protected transient MaterialEntity matForearm = new MaterialEntity();
 	protected transient Model modelForearm;
 	protected RotaryStewartPlatform3Dimensions dimensions;
 

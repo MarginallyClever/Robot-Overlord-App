@@ -314,7 +314,7 @@ public class PrimitiveSolids {
 	}
 	
 	static public void drawStar(GL2 gl2,double size) {
-		drawStar(gl2,new Vector3d(0,0,0),1.0f);
+		drawStar(gl2,new Vector3d(0,0,0),size);
 	}
 	
 	static public void drawStar(GL2 gl2,Vector3d p) {

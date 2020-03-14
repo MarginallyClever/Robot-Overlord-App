@@ -8,14 +8,18 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
 
 public class Robot_Sixi1 extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1397367244262210747L;
 	protected transient boolean isFirstTime;
-	protected Material material;
+	protected MaterialEntity material;
 	protected DHRobot live;
 
 	public Robot_Sixi1() {
@@ -70,7 +74,7 @@ public class Robot_Sixi1 extends Robot {
 	}
 	
 	public void setupModels(DHRobot robot) {
-		material = new Material();
+		material = new MaterialEntity();
 		float r=0.75f;
 		float g=0.15f;
 		float b=0.15f;

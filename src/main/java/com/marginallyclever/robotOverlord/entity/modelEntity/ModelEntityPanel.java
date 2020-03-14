@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.modelInWorld;
+package com.marginallyclever.robotOverlord.entity.modelEntity;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -26,19 +26,19 @@ import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSe
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectVector3d;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class ModelInWorldPanel extends JPanel implements ChangeListener {
+public class ModelEntityPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private ModelInWorld model;
+	private ModelEntity model;
 	private UserCommandSelectFile userCommandSelectFile;
 	private UserCommandSelectNumber setScale;
 	private UserCommandSelectVector3d setOrigin;
 	private UserCommandSelectVector3d setRotation;
 	
-	public ModelInWorldPanel(RobotOverlord gui,ModelInWorld model) {
+	public ModelEntityPanel(RobotOverlord gui,ModelEntity model) {
 		super();
 		
 		this.model = model;
@@ -63,7 +63,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 		this.add(userCommandSelectFile,con1);
 
 		con1.gridy++;
-		setScale = new UserCommandSelectNumber(gui,"Scale",model.getModelScale());
+		setScale = new UserCommandSelectNumber(gui,"Scale",(float)model.getModelScale());
 		setScale.addChangeListener(this);
 		this.add(setScale,con1);
 
@@ -125,7 +125,7 @@ public class ModelInWorldPanel extends JPanel implements ChangeListener {
 	 * This might be better as a listener pattern.
 	 */
 	public void updateFields() {
-		setScale.setValue(model.scale);
+		setScale.setValue(model.scale.get().floatValue());
 		setOrigin.setValue(model.getModelOrigin());
 		setRotation.setValue(model.getModelRotation());
 	}

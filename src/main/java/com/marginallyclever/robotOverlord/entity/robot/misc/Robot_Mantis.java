@@ -8,7 +8,7 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.entity.material.Material;
+import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robot.Robot;
 import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
 
@@ -20,6 +20,10 @@ import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
  *
  */
 public class Robot_Mantis extends Robot {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3617214524612441513L;
 	private transient boolean isFirstTime;
 	DHRobot live;
 	
@@ -117,7 +121,7 @@ public class Robot_Mantis extends Robot {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, this.pose);
 		
-			Material material = new Material();
+			MaterialEntity material = new MaterialEntity();
 			float r=0.5f;
 			float g=0.5f;
 			float b=0.5f;

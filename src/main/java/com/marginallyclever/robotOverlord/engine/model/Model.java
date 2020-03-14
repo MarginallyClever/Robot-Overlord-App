@@ -18,7 +18,7 @@ import com.marginallyclever.convenience.Cuboid;
  *
  */
 public class Model {
-	public final static int NUM_BUFFERS=4;  // verts, normals, textureCoordinates
+	public final static int NUM_BUFFERS=4;  // verts, normals, colors, textureCoordinates
 	
 	protected String sourceName;
 	protected transient boolean isLoaded;
@@ -38,7 +38,7 @@ public class Model {
 	public transient boolean hasColors;
 	public transient boolean hasTextureCoordinates;
 	
-	protected transient float scale;
+	protected transient double scale;
 	public transient boolean isDirty;
 	
 	// display correction matrix
@@ -60,7 +60,6 @@ public class Model {
 		isDirty=false;
 	}
 	
-	
 	/**
 	 * remove all vertexes, normals, colors, texture coordinates, etc.
 	 */
@@ -69,31 +68,25 @@ public class Model {
 		normalArray.clear();
 		colorArray.clear();
 		texCoordArray.clear();
-		
 		isDirty=true;
 	}
 
-	
 	public void setSourceName(String sourceName) {
 		this.sourceName = sourceName;
 		isDirty=true;
 	}
-
 	
 	public String getSourceName() {
 		return sourceName;
 	}
 
-	
 	public boolean isLoaded() {
 		return isLoaded;
 	}
-
 	
 	public void setLoaded(boolean loaded) {
 		isLoaded=loaded;
 	}
-	
 
 	public void unload(GL2 gl2) {
 		if(!isLoaded) return;
@@ -102,7 +95,6 @@ public class Model {
 		VBO=null;
 		isLoaded=false;
 	}
-	
 	
 	private void createBuffers(GL2 gl2) {
 		VBO = new int[NUM_BUFFERS];
@@ -221,7 +213,6 @@ public class Model {
 		}
 	}
 	
-	
 	public void render(GL2 gl2) {
 		if(!isLoaded) {
 			createBuffers(gl2);
@@ -248,7 +239,7 @@ public class Model {
 		}
 		if(hasColors) {
 			gl2.glEnableClientState(GL2.GL_COLOR_ARRAY);
-			// Bind the clor buffer to work with
+			// Bind the color buffer to work with
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
 		}
@@ -303,13 +294,14 @@ public class Model {
 		return adjustRotation;
 	}
 	
-	public void setScale(float arg0) {
+	public void setScale(double arg0) {
 		if(scale!=arg0) {
 			scale=arg0;
 			isDirty=true;
 		}
 	}
-	public float getScale() {
+	
+	public double getScale() {
 		return scale;
 	}
 	
@@ -318,11 +310,13 @@ public class Model {
 		normalArray.add(y);
 		normalArray.add(z);
 	}
+	
 	public void addVertex(float x,float y,float z) {
 		vertexArray.add(x);
 		vertexArray.add(y);
 		vertexArray.add(z);
 	}
+	
 	public void addTexCoord(float x,float y) {
 		texCoordArray.add(x);
 		texCoordArray.add(y);
@@ -370,7 +364,6 @@ public class Model {
 		cuboid.setBounds(boundTop, boundBottom);
 	}
 
-	
 	public Cuboid getCuboid() {
 		return cuboid;
 	}

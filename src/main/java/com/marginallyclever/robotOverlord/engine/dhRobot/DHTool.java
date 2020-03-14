@@ -1,13 +1,8 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 
 /**
  * DHTool is a model that has a DHLink equivalence.
@@ -16,32 +11,22 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  *
  */
 public class DHTool extends DHLink {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2907765110203398256L;
+	
 	// any child of this tool is either a sub-component of this tool or some world object being held by a gripper.
 	protected DHToolPanel toolPanel;
 	
 	public DHTool() {
 		super();
-		rangeMin=0;
-		rangeMax=0;
-		flags = LinkAdjust.NONE;
-		setName("No Tool");
+		setName("DHTool");
 	}
 	
 	public void set(DHTool b) {
 		super.set(b);
 		setName(b.getName());
-	}
-	
-
-	@Override
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = super.getContextPanels(gui);
-		if(list==null) list = new ArrayList<JPanel>();
-		
-		toolPanel = new DHToolPanel(gui,this);
-		list.add(toolPanel);
-		
-		return list;
 	}
 
 	@Override
