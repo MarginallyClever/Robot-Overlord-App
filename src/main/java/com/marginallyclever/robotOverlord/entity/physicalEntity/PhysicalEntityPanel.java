@@ -113,13 +113,13 @@ public class PhysicalEntityPanel extends JPanel implements ChangeListener {
 			}
 		}
 		if(subject==drawBoundingBox) {
-			entity.setDrawBoundingBox(drawBoundingBox.getValue());
+			entity.setShowBoundingBox(drawBoundingBox.getValue());
 		}
 		if(subject==drawLocalOrigin) {
-			entity.setDrawLocalOrigin(drawLocalOrigin.getValue());
+			entity.setShowLocalOrigin(drawLocalOrigin.getValue());
 		}
 		if(subject==drawConnectionToChildren) {
-			entity.setDrawConnectionToChildren(drawConnectionToChildren.getValue());
+			entity.setShowLineage(drawConnectionToChildren.getValue());
 		}
 		
 	}
