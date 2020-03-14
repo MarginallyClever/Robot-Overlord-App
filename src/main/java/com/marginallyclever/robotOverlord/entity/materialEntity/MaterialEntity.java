@@ -59,8 +59,8 @@ public class MaterialEntity extends Entity {
 	    gl2.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, shininess.get().floatValue());
 	    gl2.glColorMaterial(GL2.GL_FRONT,GL2.GL_AMBIENT_AND_DIFFUSE );
 	    
-	    //boolean isColorEnabled = gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
-		//gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+	    boolean isColorEnabled = gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
+		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		
 		gl2.glShadeModel(GL2.GL_SMOOTH);
 		
@@ -70,15 +70,15 @@ public class MaterialEntity extends Entity {
 		if(textureDirty) {
 			// texture has changed, load the new texture.
 			String tName = textureFilename.get();
-			try {
-				if(tName == null || tName.length()==0) texture = null;
-				else {
+			if(tName == null || tName.length()==0) texture = null;
+			else {
+				try {
 					texture = TextureIO.newTexture(FileAccess.open(tName), false, tName.substring(tName.lastIndexOf('.')+1));
+					textureDirty=false;
+				} catch(IOException e) {
+					e.printStackTrace();
 				}
-			} catch(IOException e) {
-				e.printStackTrace();
 			}
-			textureDirty=false;
 		}
 	    if(texture==null) {
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
@@ -87,7 +87,7 @@ public class MaterialEntity extends Entity {
 	    	texture.bind(gl2);
 	    }
 	    
-	    //if(isColorEnabled) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+	    if(isColorEnabled) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 	}
 	
 
