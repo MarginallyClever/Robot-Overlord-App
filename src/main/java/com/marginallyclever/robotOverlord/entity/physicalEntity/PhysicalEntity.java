@@ -35,8 +35,8 @@ public abstract class PhysicalEntity extends Entity {
 	// physical limits
 	public transient Cuboid cuboid = new Cuboid();
 	
-	protected transient BooleanEntity showBoundingBox = new BooleanEntity("Bounding Box",false);
-	protected transient BooleanEntity showLocalOrigin = new BooleanEntity("Local Origin",false);
+	protected transient BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
+	protected transient BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
 	protected transient BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
 
@@ -257,7 +257,7 @@ public abstract class PhysicalEntity extends Entity {
 		return showBoundingBox.get();
 	}
 
-	public void setDrawBoundingBox(boolean drawBoundingBox) {
+	public void setShowBoundingBox(boolean drawBoundingBox) {
 		this.showBoundingBox.set(drawBoundingBox);
 	}
 
@@ -265,7 +265,7 @@ public abstract class PhysicalEntity extends Entity {
 		return showLocalOrigin.get();
 	}
 
-	public void setDrawLocalOrigin(boolean drawLocalOrigin) {
+	public void setShowLocalOrigin(boolean drawLocalOrigin) {
 		this.showLocalOrigin.set(drawLocalOrigin);
 	}
 
@@ -273,7 +273,7 @@ public abstract class PhysicalEntity extends Entity {
 		return showLineage.get();
 	}
 
-	public void setDrawConnectionToChildren(boolean drawConnectionToChildren) {
+	public void setShowLineage(boolean drawConnectionToChildren) {
 		this.showLineage.set(drawConnectionToChildren);
 	}
 }
