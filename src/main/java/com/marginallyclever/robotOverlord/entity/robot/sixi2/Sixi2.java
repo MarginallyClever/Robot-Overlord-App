@@ -126,6 +126,8 @@ public class Sixi2 extends Robot {
 		anchor.setModelRotation(90,-90,0);
 		anchor.setModelScale(0.1f);
 		
+		setShowLineage(true);
+		
 		// spawn a control box as a child of the anchor.
 		Sixi2ControlBox sixi2ControlBox=new Sixi2ControlBox();
 		addChild(sixi2ControlBox);
@@ -504,14 +506,14 @@ public class Sixi2 extends Robot {
 
 	// recursively set for all children
 	@Override
-	public void setDrawBoundingBox(boolean arg0) {
-		super.setDrawBoundingBox(arg0);
+	public void setShowBoundingBox(boolean arg0) {
+		super.setShowBoundingBox(arg0);
 
 		LinkedList<PhysicalEntity> next = new LinkedList<PhysicalEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PhysicalEntity link = next.pop();
-			link.setDrawBoundingBox(arg0);
+			link.setShowBoundingBox(arg0);
 			for( Entity child : link.getChildren() ) {
 				if( child instanceof PhysicalEntity ) {
 					next.add((PhysicalEntity)child);
@@ -522,14 +524,14 @@ public class Sixi2 extends Robot {
 	
 	// recursively set for all children
 	@Override
-	public void setDrawLocalOrigin(boolean arg0) {
-		super.setDrawLocalOrigin(arg0);
+	public void setShowLocalOrigin(boolean arg0) {
+		super.setShowLocalOrigin(arg0);
 
 		LinkedList<PhysicalEntity> next = new LinkedList<PhysicalEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PhysicalEntity link = next.pop();
-			link.setDrawLocalOrigin(arg0);
+			link.setShowLocalOrigin(arg0);
 			for( Entity child : link.getChildren() ) {
 				if( child instanceof PhysicalEntity ) {
 					next.add((PhysicalEntity)child);
@@ -540,14 +542,14 @@ public class Sixi2 extends Robot {
 
 	// recursively set for all children
 	@Override
-	public void setDrawConnectionToChildren(boolean arg0) {
-		super.setDrawConnectionToChildren(arg0);
+	public void setShowLineage(boolean arg0) {
+		super.setShowLineage(arg0);
 
 		LinkedList<PhysicalEntity> next = new LinkedList<PhysicalEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PhysicalEntity link = next.pop();
-			link.setDrawConnectionToChildren(arg0);
+			link.setShowLineage(arg0);
 			for( Entity child : link.getChildren() ) {
 				if( child instanceof PhysicalEntity ) {
 					next.add((PhysicalEntity)child);
