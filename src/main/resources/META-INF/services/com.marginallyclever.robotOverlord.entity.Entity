@@ -1,13 +1,13 @@
 # DHRobots
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_GMF_M100
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Mantis
-com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Sixi1
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Arm3
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_UArm
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_SCARA_NM
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Thor
-#com.marginallyclever.robotOverlord.entity.robot.DHRobot_Cartesian
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_GMF_M100
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Mantis
+com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Sixi1
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Arm3
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_UArm
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_SCARA_NM
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Thor
+#com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Cartesian
 
 # sends gcode to a dhrobot
 #com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox
@@ -15,16 +15,16 @@ com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2
 com.marginallyclever.robotOverlord.entity.sixiJoystick.SixiJoystick
 
 #other robots
-#com.marginallyclever.robotOverlord.entity.robot.deltaRobot3.DeltaRobot3
-#com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform.RotaryStewartPlatform
-#com.marginallyclever.robotOverlord.entity.robot.rotaryStewartPlatform.RotaryStewartPlatform3
-#com.marginallyclever.robotOverlord.entity.robot.spidee.Spidee
+#com.marginallyclever.robotOverlord.entity.robotEntity.deltaRobot3.DeltaRobot3
+#com.marginallyclever.robotOverlord.entity.robotEntity.rotaryStewartPlatform.RotaryStewartPlatform
+#com.marginallyclever.robotOverlord.entity.robotEntity.rotaryStewartPlatform.RotaryStewartPlatform3
+#com.marginallyclever.robotOverlord.entity.robotEntity.spidee.Spidee
 
 #other objects
-com.marginallyclever.robotOverlord.entity.modelInWorld.ModelInWorld
-com.marginallyclever.robotOverlord.entity.camera.Camera
-com.marginallyclever.robotOverlord.entity.light.Light
-com.marginallyclever.robotOverlord.entity.physicalObject.boxObject.BoxObject
+com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity
+#com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity
+com.marginallyclever.robotOverlord.entity.lightEntity.LightEntity
+com.marginallyclever.robotOverlord.entity.boxEntity.BoxEntity
 
 #sixi2 Tools (com.marginallyclever.robotOverlord.engine.dhRobot.DHTool)
 com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_GoProCamera
@@ -33,8 +33,3 @@ com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_Gripper
 #tests
 #com.marginallyclever.robotOverlord.entity.matrixInterpolationTest.MatrixInterpolationTest
 
-#??
-# meant to be grab handles for moving objects by dragging on screen as in Fusion360.
-#com.marginallyclever.robotOverlord.entity.MotionHelper
-# visualization of a robot pose 
-#com.marginallyclever.robotOverlord.entity.Waypoint
