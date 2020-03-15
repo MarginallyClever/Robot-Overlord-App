@@ -780,7 +780,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        pickNow=false;
         	pickName = findItemUnderCursor(gl2);
         	
-        	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
         	pickIntoWorld(pickName);
         }
 		
