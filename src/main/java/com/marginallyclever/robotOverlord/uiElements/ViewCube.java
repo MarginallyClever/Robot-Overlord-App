@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.engine;
+package com.marginallyclever.robotOverlord.uiElements;
 
 
 import com.jogamp.opengl.GL2;
@@ -35,6 +35,7 @@ public class ViewCube {
 			e.printStackTrace();
 		}
 	}
+	
 	public void render(GL2 gl2,CameraEntity cam) {
 		if(!isSetup) {
 			loadTextures();

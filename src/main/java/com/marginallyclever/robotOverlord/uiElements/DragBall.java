@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.engine;
+package com.marginallyclever.robotOverlord.uiElements;
 
 import java.nio.IntBuffer;
 
@@ -11,9 +11,9 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
-import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
@@ -55,9 +55,9 @@ public class DragBall extends PhysicalEntity {
 	};
 
 	public enum FrameOfReference {
-		WORLD(0,"WORLD"),
+		SUBJECT(0,"SUBJECT"),
 		CAMERA(1,"CAMERA"),
-		SELF(2,"SELF");
+		WORLD(2,"WORLD");
 		
 		private int number;
 		private String name;
@@ -84,7 +84,11 @@ public class DragBall extends PhysicalEntity {
 	public Vector3d pickPoint=new Vector3d();  // the latest point picked on the ball
 	public Vector3d pickPointSaved=new Vector3d();  // the point picked when the action began
 	public Vector3d pickPointOnBall=new Vector3d();  // the point picked when the action began
-	public int nearestPlane;
+	
+	private enum NearestPlane {
+		X,Y,Z,
+	};
+	private NearestPlane nearestPlane;
 	
 	protected final double ballSize=0.125f;
 	public double ballSizeScaled;
@@ -101,10 +105,6 @@ public class DragBall extends PhysicalEntity {
 	protected Matrix4d startMatrix=new Matrix4d();	
 	protected Matrix4d resultMatrix=new Matrix4d();
 	protected Matrix4d FOR=new Matrix4d();
-	protected Matrix4d FORStart=new Matrix4d();  // FOR at time of activation
-	
-	// for rotation
-	public int nearestPlaneSaved;
 	
 	public double valueStart;  // original angle when move started
 	public double valueNow;  // current state
@@ -117,12 +117,11 @@ public class DragBall extends PhysicalEntity {
 	
 	public DragBall() {
 		super();
+		setName("DragBall");
 
 		frameOfReference = FrameOfReference.WORLD;
-		nearestPlane=-1;
 		
 		FOR.setIdentity();
-		FORStart.setIdentity();
 		
 		majorAxisToSave=0;
 		majorAxisSaved=0;
@@ -134,13 +133,16 @@ public class DragBall extends PhysicalEntity {
 	@Override
 	public void update(double dt) {
 		if(subject==null) return;
+
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		CameraEntity camera = ro.getWorld().getCamera();
 		
-		switch(frameOfReference) {
-		case CAMERA: FOR.set(getWorld().getCamera().getPoseWorld());	break;
-		case SELF  : FOR.set(subject.getPoseWorld());	break;
-		case WORLD : FOR.setIdentity();					break;
-		default    : FOR.setIdentity();					break;
-		}
+			switch(frameOfReference) {
+			case SUBJECT: FOR.set(subject.getPoseWorld());	break;
+			case CAMERA : FOR.set(camera.getPoseWorld());	break;
+			default     : FOR.setIdentity();				break;
+			}
+			
 		//System.out.println(frameOfReference + " "+FOR);
 		FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 
@@ -157,7 +159,7 @@ public class DragBall extends PhysicalEntity {
 				//System.out.println("Frame "+frameOfReference);
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_3)) {
-				frameOfReference=FrameOfReference.SELF;
+				frameOfReference=FrameOfReference.SUBJECT;
 				//System.out.println("Frame "+frameOfReference);
 			}
 		} else {
@@ -168,16 +170,14 @@ public class DragBall extends PhysicalEntity {
 			}
 		}
 
-		Vector3d mp = MatrixHelper.getPosition(subject.getPoseWorld());
+		Vector3d mp = new Vector3d();
+		subject.getPoseWorld().get(mp);
 		this.setPosition(mp);
-
-		CameraEntity cam = getWorld().getCamera();
-		mp.sub(cam.getPosition());
+		mp.sub(camera.getPosition());
 
 		double d = mp.length();
 		ballSizeScaled=ballSize*d;
-		
-		
+				
 		if(isRotateMode) {
 			updateRotation(dt,d,mp);
 		} else {
@@ -203,10 +203,11 @@ public class DragBall extends PhysicalEntity {
 	public void updateRotation(double dt,double d,Vector3d mp) {
 		valueNow = valueLast;
 
-		CameraEntity cam = getWorld().getCamera();
-		Vector3d ray = cam.rayPick();
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		CameraEntity camera = ro.getWorld().getCamera();
+		Vector3d ray = camera.rayPick();
 		
-		if(!isActivelyMoving && cam.isPressed()) {
+		if(!isActivelyMoving && camera.isPressed()) {
 			// not moving yet, mouse clicked.
 
 			// find a pick point on the ball (ray/sphere intersection)
@@ -223,38 +224,35 @@ public class DragBall extends PhysicalEntity {
 					//System.out.println("d2="+d2);
 
 					pickPointOnBall = new Vector3d(
-							cam.getPosition().x+ray.x*t0,
-							cam.getPosition().y+ray.y*t0,
-							cam.getPosition().z+ray.z*t0);
+							camera.getPosition().x+ray.x*t0,
+							camera.getPosition().y+ray.y*t0,
+							camera.getPosition().z+ray.z*t0);
 					startMatrix.set(subject.getPoseWorld());
 					resultMatrix.set(startMatrix);
 					
-					FORStart.set(FOR);
-
-					Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FORStart);
+					Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
 					
 					// find nearest plane
 					double dx = Math.abs(pickPointInFOR.x);
 					double dy = Math.abs(pickPointInFOR.y);
 					double dz = Math.abs(pickPointInFOR.z);
-					nearestPlane=0;
+					nearestPlane=NearestPlane.X;
 					double nearestD=dx;
 					if(dy<nearestD) {
-						nearestPlane=1;
+						nearestPlane=NearestPlane.Y;
 						nearestD=dy;
 					}
 					if(dz<nearestD) {
-						nearestPlane=2;
+						nearestPlane=NearestPlane.Z;
 						nearestD=dz;
 					}
-					nearestPlaneSaved=nearestPlane;
 
 					// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 					Vector3d majorAxis = new Vector3d();
-					switch(nearestPlaneSaved) {
-					case 0 :	majorAxis = MatrixHelper.getForward	(FORStart);	break;
-					case 1 :	majorAxis = MatrixHelper.getLeft	(FORStart);	break;
-					default:	majorAxis = MatrixHelper.getUp		(FORStart);	break;
+					switch(nearestPlane) {
+					case X :  majorAxis = MatrixHelper.getForward(FOR);	break;
+					case Y :  majorAxis = MatrixHelper.getLeft	 (FOR);	break;
+					default:  majorAxis = MatrixHelper.getUp	 (FOR);	break;
 					}
 					
 					// find the pick point on the plane of rotation
@@ -263,16 +261,16 @@ public class DragBall extends PhysicalEntity {
 						double numerator = mp.dot(majorAxis);
 						t0 = numerator/denominator;
 						pickPoint.set(
-								cam.getPosition().x+ray.x*t0,
-								cam.getPosition().y+ray.y*t0,
-								cam.getPosition().z+ray.z*t0);
+								camera.getPosition().x+ray.x*t0,
+								camera.getPosition().y+ray.y*t0,
+								camera.getPosition().z+ray.z*t0);
 						pickPointSaved.set(pickPoint);
 						
-						pickPointInFOR = getPickPointInFOR(pickPoint,FORStart);
-						switch(nearestPlaneSaved) {
-						case 0 :	valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-						case 1 :	valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-						default:	valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+						pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
+						switch(nearestPlane) {
+						case X :  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
+						case Y :  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
+						default:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
 						}
 						pickPointInFOR.normalize();
 						//System.out.println("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
@@ -284,17 +282,17 @@ public class DragBall extends PhysicalEntity {
 		}
 		
 		// can turn off any time.
-		if(isActivelyMoving && !cam.isPressed()) {
+		if(isActivelyMoving && !camera.isPressed()) {
 			isActivelyMoving=false;
 		}
 
 		if(isActivelyMoving) {
 			// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 			Vector3d majorAxis = new Vector3d();
-			switch(nearestPlaneSaved) {
-			case 0 :	majorAxis = MatrixHelper.getForward	(FORStart);	break;
-			case 1 :	majorAxis = MatrixHelper.getLeft	(FORStart);	break;
-			default:	majorAxis = MatrixHelper.getUp		(FORStart);	break;
+			switch(nearestPlane) {
+			case X :  majorAxis = MatrixHelper.getForward(FOR);	break;
+			case Y :  majorAxis = MatrixHelper.getLeft   (FOR);	break;
+			default:  majorAxis = MatrixHelper.getUp	 (FOR);	break;
 			}
 			
 			// find the pick point on the plane of rotation
@@ -303,23 +301,23 @@ public class DragBall extends PhysicalEntity {
 				double numerator = mp.dot(majorAxis);
 				double t0 = numerator/denominator;
 				pickPoint.set(
-						cam.getPosition().x+ray.x*t0,
-						cam.getPosition().y+ray.y*t0,
-						cam.getPosition().z+ray.z*t0);
+						camera.getPosition().x+ray.x*t0,
+						camera.getPosition().y+ray.y*t0,
+						camera.getPosition().z+ray.z*t0);
 
-				Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FORStart);
-				switch(nearestPlaneSaved) {
-				case 0 :	valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-				case 1 :	valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-				default:	valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+				Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
+				switch(nearestPlane) {
+				case X :  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
+				case Y :  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
+				default:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
 				}
 
 				double da=valueNow - valueStart;
 
 				if(da!=0) {
-					switch(nearestPlaneSaved) {
-					case 0 : rollX(da);	break;
-					case 1 : rollY(da);	break;
+					switch(nearestPlane) {
+					case X : rollX(da);	break;
+					case Y : rollY(da);	break;
 					default: rollZ(da);	break;
 					}
 				}
@@ -335,8 +333,9 @@ public class DragBall extends PhysicalEntity {
 	public void updateTranslation(double dt,double d,Vector3d mp) {
 		valueNow = valueLast;
 
-		CameraEntity cam = getWorld().getCamera();
-		if(!isActivelyMoving && cam.isPressed()) {	
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		CameraEntity camera = ro.getWorld().getCamera();
+		if(!isActivelyMoving && camera.isPressed()) {	
 			Vector3d pos = this.getPosition();
 			
 			// box centers
@@ -356,9 +355,9 @@ public class DragBall extends PhysicalEntity {
 	
 			// of the three boxes, the closest hit is the one to remember.  
 			majorAxisToSave = 0;
-			double dx = testBoxHit(cam,px);
-			double dy = testBoxHit(cam,py);
-			double dz = testBoxHit(cam,pz);
+			double dx = testBoxHit(camera,px);
+			double dy = testBoxHit(camera,py);
+			double dz = testBoxHit(camera,pz);
 			double t0=Double.MAX_VALUE;
 			if(dx>0) {
 				majorAxisToSave=1;
@@ -373,11 +372,11 @@ public class DragBall extends PhysicalEntity {
 				t0=dz;
 			}
 			
-			Vector3d ray=new Vector3d(cam.rayPick());
+			Vector3d ray=new Vector3d(camera.rayPick());
 			pickPoint.set(
-				cam.getPosition().x+ray.x*t0,
-				cam.getPosition().y+ray.y*t0,
-				cam.getPosition().z+ray.z*t0);
+				camera.getPosition().x+ray.x*t0,
+				camera.getPosition().y+ray.y*t0,
+				camera.getPosition().z+ray.z*t0);
 			
 			boolean isHit = (t0>=0 && majorAxisToSave>0);
 			if(isHit) {
@@ -389,12 +388,12 @@ public class DragBall extends PhysicalEntity {
 				resultMatrix.set(startMatrix);
 				
 				majorAxisSaved=majorAxisToSave;
-				nearestPlaneSaved=nearestPlane;
+				nearestPlane=nearestPlane;
 				valueStart=0;
 				valueLast=0;
 				valueNow=0;
 				
-				Matrix4d cm=cam.getPose();
+				Matrix4d cm=camera.getPose();
 				Vector3d cu = new Vector3d(cm.m01,cm.m11,cm.m21);
 				Vector3d cr = new Vector3d(cm.m00,cm.m10,cm.m20);
 				// determine which mouse direction is a positive movement on this axis.
@@ -439,7 +438,7 @@ public class DragBall extends PhysicalEntity {
 		}
 
 		// can turn off any time.
-		if(isActivelyMoving && !cam.isPressed()) {
+		if(isActivelyMoving && !camera.isPressed()) {
 			isActivelyMoving=false;
 		}
 
@@ -474,7 +473,15 @@ public class DragBall extends PhysicalEntity {
 	public void render(GL2 gl2) {
 		if(subject==null) return;
 		
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		CameraEntity camera = ro.getWorld().getCamera();
+		
+		// DRAW THE WORLD
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+		gl2.glLoadIdentity();
+		
 		gl2.glPushMatrix();
+			camera.render(gl2);
 			MatrixHelper.applyMatrix(gl2, FOR);
 			
 			IntBuffer depthFunc = IntBuffer.allocate(1);
@@ -506,7 +513,9 @@ public class DragBall extends PhysicalEntity {
 		gl2.glLineWidth(2);
 		
 		// camera forward is -z axis 
-		Matrix4d lookAt = MatrixHelper.lookAt(getWorld().getCamera().getPosition(), this.getPosition());
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		CameraEntity camera = ro.getWorld().getCamera();
+		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), this.getPosition());
 		Vector3d cameraForward = MatrixHelper.getForward(lookAt);
 
 		gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
@@ -523,7 +532,7 @@ public class DragBall extends PhysicalEntity {
 					(lookAt.m22*s +lookAt.m21*c)*1.1  );
 		}
 		gl2.glEnd();
-		
+		/*
 		//grey
 		gl2.glColor4d(0.5,0.5,0.5,0.7);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
@@ -535,13 +544,12 @@ public class DragBall extends PhysicalEntity {
 					(lookAt.m12*s +lookAt.m11*c)*1.01,
 					(lookAt.m22*s +lookAt.m21*c)*1.01  );
 		}
-		gl2.glEnd();
+		gl2.glEnd();*/
 
 
-		int majorPlaneSaved = isActivelyMoving? nearestPlaneSaved : nearestPlane;
-		float r = (majorPlaneSaved==0)?1:0.5f;
-		float g = (majorPlaneSaved==1)?1:0.5f;
-		float b = (majorPlaneSaved==2)?1:0.5f;
+		float r = (nearestPlane==NearestPlane.X) ? 1 : 0.5f;
+		float g = (nearestPlane==NearestPlane.Y) ? 1 : 0.5f;
+		float b = (nearestPlane==NearestPlane.Z) ? 1 : 0.5f;
 
 		// is a FOR axis normal almost the same as camera forward?		
 		boolean drawX = (Math.abs(cameraForward.dot(MatrixHelper.getForward(FOR)))>0.95);
@@ -652,10 +660,10 @@ public class DragBall extends PhysicalEntity {
 			gl2.glVertex3d(0,0,0);
 			for(double i=0;i<absRange;i+=0.01) {
 				double n = range * (i/absRange) + start;
-				switch(majorPlaneSaved) {
-				case 0: mid.set(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
-				case 1: mid.set(Math.cos(-n),0,Math.sin(-n));  break;
-				case 2: mid.set(Math.cos(n),Math.sin(n),0);  break;
+				switch(nearestPlane) {
+				case X: mid.set(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
+				case Y: mid.set(Math.cos(-n),0,Math.sin(-n));  break;
+				case Z: mid.set(Math.cos(n),Math.sin(n),0);  break;
 				}
 				FOR.transform(mid);
 				gl2.glVertex3d(mid.x,mid.y,mid.z);
@@ -697,7 +705,9 @@ public class DragBall extends PhysicalEntity {
 		gl2.glLineWidth(2);
 
 			// camera forward is -z axis 
-			Matrix4d lookAt = MatrixHelper.lookAt(getWorld().getCamera().getPosition(), this.getPosition());
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		CameraEntity camera = ro.getWorld().getCamera();
+			Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), this.getPosition());
 			Vector3d cameraForward = MatrixHelper.getForward(lookAt);
 		
 			int majorAxisIndex = isActivelyMoving ? majorAxisSaved : majorAxisToSave;
@@ -743,6 +753,7 @@ public class DragBall extends PhysicalEntity {
 		
 		// set previous line width
 		gl2.glLineWidth(lineWidth.get());
+
 	}
 	
 	protected void renderTranslationHandle(GL2 gl2,Vector3d n) {
@@ -858,7 +869,7 @@ public class DragBall extends PhysicalEntity {
 	}
 
 	/**
-	 * Set which PhysicalObject the drag ball is going to act upon.
+	 * Set which PhysicalEntity the drag ball is going to act upon.
 	 * @param subject
 	 */
 	public void setSubject(PhysicalEntity subject) {

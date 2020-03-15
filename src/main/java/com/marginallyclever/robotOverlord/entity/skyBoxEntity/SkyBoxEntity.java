@@ -1,13 +1,11 @@
-package com.marginallyclever.robotOverlord.engine;
+package com.marginallyclever.robotOverlord.entity.skyBoxEntity;
 
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureIO;
-import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.textureEntity.TextureEntity;
 
 public class SkyBoxEntity extends Entity {
 	/**
@@ -16,40 +14,34 @@ public class SkyBoxEntity extends Entity {
 	private static final long serialVersionUID = -8458751997561051222L;
 	
 	protected transient boolean areSkyboxTexturesLoaded=false;
-	protected transient Texture skyboxtextureZPos;
-	protected transient Texture skyboxtextureXPos;
-	protected transient Texture skyboxtextureXNeg;
-	protected transient Texture skyboxtextureYPos;
-	protected transient Texture skyboxtextureYNeg;
-	protected transient Texture skyboxtextureZNeg;
+	protected transient TextureEntity skyboxtextureZPos = new TextureEntity("/images/cube-x-pos.png");
+	protected transient TextureEntity skyboxtextureXPos = new TextureEntity("/images/cube-x-neg.png");
+	protected transient TextureEntity skyboxtextureXNeg = new TextureEntity("/images/cube-y-pos.png");
+	protected transient TextureEntity skyboxtextureYPos = new TextureEntity("/images/cube-y-neg.png");
+	protected transient TextureEntity skyboxtextureYNeg = new TextureEntity("/images/cube-z-pos.png");
+	protected transient TextureEntity skyboxtextureZNeg = new TextureEntity("/images/cube-z-neg.png");
 
 	public SkyBoxEntity() {
 		super();
 		setName("Skybox");
-	}
-	
-	private void loadSkyboxTexturesOnce() {
-		if(areSkyboxTexturesLoaded) return;
-		try {
-			skyboxtextureXPos = TextureIO.newTexture(FileAccess.open("/images/cube-x-pos.png"), false, "png");
-			skyboxtextureXNeg = TextureIO.newTexture(FileAccess.open("/images/cube-x-neg.png"), false, "png");
-			skyboxtextureYPos = TextureIO.newTexture(FileAccess.open("/images/cube-y-pos.png"), false, "png");
-			skyboxtextureYNeg = TextureIO.newTexture(FileAccess.open("/images/cube-y-neg.png"), false, "png");
-			skyboxtextureZPos = TextureIO.newTexture(FileAccess.open("/images/cube-z-pos.png"), false, "png");
-			skyboxtextureZNeg = TextureIO.newTexture(FileAccess.open("/images/cube-z-neg.png"), false, "png");
-			//System.out.println(">>> All textures loaded OK");
-			areSkyboxTexturesLoaded=true;
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+		
+		skyboxtextureXPos.setName("XPos");
+		skyboxtextureXNeg.setName("XNeg");
+		skyboxtextureYPos.setName("YPos");
+		skyboxtextureYNeg.setName("YNeg");
+		skyboxtextureZPos.setName("ZPos");
+		skyboxtextureZNeg.setName("ZNeg");
+		
+		addChild(skyboxtextureXPos);
+		addChild(skyboxtextureXNeg);
+		addChild(skyboxtextureYPos);
+		addChild(skyboxtextureYNeg);
+		addChild(skyboxtextureZPos);
+		addChild(skyboxtextureZNeg);
 	}
 	
 	// Draw background
 	public void render(GL2 gl2,CameraEntity camera) {
-		loadSkyboxTexturesOnce();
-		if(!areSkyboxTexturesLoaded) return;
-		
         //gl2.glDisable(GL2.GL_CULL_FACE);
 		
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
@@ -61,7 +53,7 @@ public class SkyBoxEntity extends Entity {
 			Vector3d p = camera.getPosition();
 			gl2.glTranslated(-p.x,-p.y,-p.z);
 
-			skyboxtextureXPos.bind(gl2);
+			skyboxtextureXPos.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
@@ -69,7 +61,7 @@ public class SkyBoxEntity extends Entity {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
 			gl2.glEnd();
 
-			skyboxtextureXNeg.bind(gl2);
+			skyboxtextureXNeg.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
@@ -77,7 +69,7 @@ public class SkyBoxEntity extends Entity {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
 			gl2.glEnd();
 
-			skyboxtextureYPos.bind(gl2);
+			skyboxtextureYPos.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
@@ -85,7 +77,7 @@ public class SkyBoxEntity extends Entity {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
 			gl2.glEnd();
 
-			skyboxtextureYNeg.bind(gl2);
+			skyboxtextureYNeg.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
 				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
@@ -93,7 +85,7 @@ public class SkyBoxEntity extends Entity {
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
 			gl2.glEnd();
 
-			skyboxtextureZPos.bind(gl2);
+			skyboxtextureZPos.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, 10);
 				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, 10);
@@ -101,7 +93,7 @@ public class SkyBoxEntity extends Entity {
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, 10);
 			gl2.glEnd();
 
-			skyboxtextureZNeg.bind(gl2);
+			skyboxtextureZNeg.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, -10);
 				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, -10);

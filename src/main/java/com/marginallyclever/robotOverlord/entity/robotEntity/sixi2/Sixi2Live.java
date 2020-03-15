@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.robot.sixi2;
+package com.marginallyclever.robotOverlord.entity.robotEntity.sixi2;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;

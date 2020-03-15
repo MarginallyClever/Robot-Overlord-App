@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.robot.sixi2;
+package com.marginallyclever.robotOverlord.entity.robotEntity.sixi2;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -41,8 +41,8 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectBoolean;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectComboBox;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.OperatingMode;
+import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2.ControlMode;
+import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2.OperatingMode;
 import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
 
 /**

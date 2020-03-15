@@ -1,8 +1,9 @@
-package com.marginallyclever.robotOverlord.entity.robot.sixi2;
+package com.marginallyclever.robotOverlord.entity.robotEntity.sixi2;
+
+import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
-import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHRobot;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
@@ -34,11 +35,9 @@ public abstract class Sixi2Model extends DHRobot {
 		// pan shoulder
 		links.get(0).setLetter("X");
 		links.get(0).setModelFilename("/Sixi2/shoulder.stl");
-		links.get(0).setD(18.8452+0.9);
+		links.get(0).setD(18.8452);
 		links.get(0).setR(0);
 		links.get(0).setAlpha(-90);
-		links.get(0).setModelRotation(0,-90,180);
-		links.get(0).setModelOrigin(0,18.84520,0);
 		links.get(1).setRange(-120,120);
 	
 		// tilt shoulder
@@ -47,8 +46,6 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(1).setD(0);
 		links.get(1).setR(35.796);
 		links.get(1).setAlpha(0);
-		links.get(1).setModelRotation(90,0,-90);
-		links.get(1).setModelOrigin(-18.84520-35.796,0,0);
 		links.get(1).setRange(-180,0);
 		links.get(1).setTheta(-90);
 	
@@ -58,8 +55,6 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(2).setD(0);
 		links.get(2).setR(6.4259);
 		links.get(2).setAlpha(-90);
-		links.get(2).setModelRotation(180,0,-90);
-		links.get(2).setModelOrigin(-18.84520-35.796-6.4259,0,0);
 		links.get(2).setRange(-83.369, 86);
 	
 		// roll ulna
@@ -68,8 +63,6 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(3).setD(29.355+9.350);
 		links.get(3).setR(0);
 		links.get(3).setAlpha(90);
-		links.get(3).setModelRotation(90,0,-90);
-		links.get(3).setModelOrigin(-18.84520-35.796-6.4259,-(29.355+9.350),0);
 		links.get(3).setRange(-175, 175);
 	
 		// tilt picassobox
@@ -78,10 +71,7 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(4).setD(0);
 		links.get(4).setR(0);
 		links.get(4).setAlpha(-90);
-		links.get(4).setModelRotation(180,0,-90);
-		links.get(4).setModelOrigin((-18.84520-35.796-6.4259),0,-(29.355+9.350));
 		links.get(4).setRange(-120, 120);
-		links.get(4).setTheta(20);
 	
 		// roll hand
 		links.get(5).setLetter("W");
@@ -89,16 +79,30 @@ public abstract class Sixi2Model extends DHRobot {
 		links.get(5).setD(5.795);
 		links.get(5).setR(0);
 		links.get(5).setAlpha(0);
-		links.get(5).setModelRotation(0,180,0);
-		links.get(5).setModelOrigin(0,-18.84520-35.796-6.4259,-(29.355+9.350+5.795));
 		links.get(5).setRange(-170, 170);
 		
-		for( DHLink link : links ) {
-			link.setModelScale(0.1f);
-			link.flags = LinkAdjust.THETA;
-		}
-
 		this.refreshPose();
+
+		// Now I have the poseWorld for each DHLink, I can use that to adjust the model values.
+		// I need the world pose of every 'bone' DHLink.  I'll keep a running total in 'worldPose'.
+		// The bone.Z axis is the axis of rotation for that kinematic link.
+		Matrix4d worldPose = new Matrix4d();
+		worldPose.setIdentity();
+		// The 
+		Matrix4d isum = new Matrix4d();
+		
+		for(int i=0;i<links.size();++i) {
+			DHLink bone=links.get(i);
+			Matrix4d m = bone.getPose();
+			worldPose.mul(m);
+			// sum is the worldPose.
+			// and then we'll 
+			isum.set(worldPose);
+			isum.invert();
+			bone.getModel().adjustMatrix(isum);
+		}
+		
+		
 	}
 	
 	abstract public void update(double dt);

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.robot.sixi2;
+package com.marginallyclever.robotOverlord.entity.robotEntity.sixi2;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -20,9 +20,8 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
-import com.marginallyclever.robotOverlord.entity.robot.Robot;
-import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 
@@ -33,7 +32,7 @@ import com.marginallyclever.robotOverlord.uiElements.InputManager;
  * @since 1.6.0
  *
  */
-public class Sixi2 extends Robot {
+public class Sixi2 extends RobotEntity {
 	/**
 	 * 
 	 */
@@ -107,7 +106,6 @@ public class Sixi2 extends Robot {
 	protected BooleanEntity singleBlock = new BooleanEntity("Single Block",false);
 	protected BooleanEntity cycleStart = new BooleanEntity("Cycle Start",false);
 	protected BooleanEntity m01Break = new BooleanEntity("M01 Break",true);
-	protected ModelEntity anchor = new ModelEntity();
 	
 	public Sixi2() {
 		super();
@@ -118,21 +116,23 @@ public class Sixi2 extends Robot {
 		
 		addChild(live);
 		addChild(sim);
+
+		ModelEntity anchor = new ModelEntity();
 		addChild(anchor);
-		
 		anchor.setName("Base");
 		anchor.setModelFilename("/Sixi2/anchor.stl");
 		anchor.setModelOrigin(0, 0, 0.9);
-		anchor.setModelRotation(90,-90,0);
-		anchor.setModelScale(0.1f);
-		
+
 		setShowLineage(true);
+		setShowLocalOrigin(true);
 		
 		// spawn a control box as a child of the anchor.
-		Sixi2ControlBox sixi2ControlBox=new Sixi2ControlBox();
+		ModelEntity sixi2ControlBox=new ModelEntity();
 		addChild(sixi2ControlBox);
+		sixi2ControlBox.setName("Control Box");
+		sixi2ControlBox.setModelFilename("/Sixi2/box.stl");
 		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
-		sixi2ControlBox.setRotation(new Vector3d(0, 0, Math.toRadians(90)));
+		sixi2ControlBox.setRotation(new Vector3d(Math.toRadians(90), 0, 0));
 		sixi2ControlBox.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
 	}
 
