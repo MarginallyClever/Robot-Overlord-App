@@ -1,15 +1,11 @@
 package com.marginallyclever.robotOverlord.entity.materialEntity;
 
-import java.io.IOException;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureIO;
-import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
+import com.marginallyclever.robotOverlord.entity.textureEntity.TextureEntity;
 
 
 /**
@@ -29,10 +25,7 @@ public class MaterialEntity extends Entity {
 	private ColorEntity ambient    = new ColorEntity("Ambient" ,0.01,0.01,0.01,1.00);
 	private DoubleEntity shininess = new DoubleEntity("Shininess",10.0);
 	private BooleanEntity isLit    = new BooleanEntity("On",true);
-	
-	private Texture texture = null;
-	private StringEntity textureFilename = new StringEntity("Texture","");
-	private transient boolean textureDirty;
+	private TextureEntity texture  = new TextureEntity();
 		
 	public MaterialEntity() {
 		super();
@@ -44,10 +37,7 @@ public class MaterialEntity extends Entity {
 		addChild(ambient);
 		addChild(shininess);
 		addChild(isLit);
-		
-		addChild(textureFilename);
-		
-		textureDirty=true;
+		addChild(texture);
 	}
 	
 	public void render(GL2 gl2) {
@@ -67,25 +57,7 @@ public class MaterialEntity extends Entity {
 	    if(isLit()) gl2.glEnable(GL2.GL_LIGHTING);
 	    else gl2.glDisable(GL2.GL_LIGHTING);
 
-		if(textureDirty) {
-			// texture has changed, load the new texture.
-			String tName = textureFilename.get();
-			if(tName == null || tName.length()==0) texture = null;
-			else {
-				try {
-					texture = TextureIO.newTexture(FileAccess.open(tName), false, tName.substring(tName.lastIndexOf('.')+1));
-					textureDirty=false;
-				} catch(IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	    if(texture==null) {
-			gl2.glDisable(GL2.GL_TEXTURE_2D);
-	    } else {
-			gl2.glEnable(GL2.GL_TEXTURE_2D);
-	    	texture.bind(gl2);
-	    }
+	    texture.render(gl2);
 	    
 	    if(isColorEnabled) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
 	}
@@ -130,11 +102,10 @@ public class MaterialEntity extends Entity {
 	
 	
 	public void setTextureFilename(String arg0) {
-		textureFilename.set(arg0);
-		textureDirty = true;
+		texture.set(arg0);
 	}
 	public String getTextureFilename() {
-		return textureFilename.get();
+		return texture.get();
 	}
 
 	public boolean isLit() {
