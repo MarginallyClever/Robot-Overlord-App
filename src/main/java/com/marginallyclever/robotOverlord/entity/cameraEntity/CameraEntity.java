@@ -7,7 +7,6 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
-import com.marginallyclever.robotOverlord.entity.skyBoxEntity.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.jogamp.opengl.GL2;
 
@@ -40,8 +39,6 @@ public class CameraEntity extends PhysicalEntity {
 	protected DoubleEntity farZ;
 	protected DoubleEntity fieldOfView;
 
-	protected transient SkyBoxEntity skybox = new SkyBoxEntity();
-	
 	CameraPanel cameraPanel;
 
 	public CameraEntity() {
@@ -51,7 +48,6 @@ public class CameraEntity extends PhysicalEntity {
 		addChild(farZ=new DoubleEntity("far Z",2000.0));
 		addChild(nearZ=new DoubleEntity("near Z",5.0));
 		addChild(fieldOfView=new DoubleEntity("FOV",60.0));
-		//addChild(skybox);
 			
 		isPressed=false;
 	}
@@ -169,14 +165,9 @@ public class CameraEntity extends PhysicalEntity {
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
 	@Override
 	public void render(GL2 gl2) {
-		Vector3d p = getPosition();
-
-		Matrix4d mFinal = new Matrix4d(pose.get());
-		mFinal.setTranslation(p);
+		Matrix4d mFinal = new Matrix4d(poseWorld);
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);
-		
-		//skybox.render(gl2,this);
 	}
 
 
