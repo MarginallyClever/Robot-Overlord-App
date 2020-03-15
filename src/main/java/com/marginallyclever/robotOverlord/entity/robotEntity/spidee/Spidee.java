@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.robot.spidee;
+package com.marginallyclever.robotOverlord.entity.robotEntity.spidee;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,16 +15,16 @@ import java.util.prefs.Preferences;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.robotOverlord.engine.model.Model;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.robot.Robot;
-import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
+import com.marginallyclever.robotOverlord.entity.modelEntity.Model;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelFactory;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
 
 import java.io.BufferedReader;
 
 public class Spidee 
-extends Robot {
+extends RobotEntity {
 	/**
 	 * 
 	 */

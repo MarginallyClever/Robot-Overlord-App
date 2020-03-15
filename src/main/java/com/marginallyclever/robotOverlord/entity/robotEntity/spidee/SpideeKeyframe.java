@@ -1,7 +1,7 @@
-package com.marginallyclever.robotOverlord.entity.robot.spidee;
+package com.marginallyclever.robotOverlord.entity.robotEntity.spidee;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
 
 public class SpideeKeyframe implements RobotKeyframe {
 	@Override

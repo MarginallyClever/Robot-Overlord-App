@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.robot.spidee;
+package com.marginallyclever.robotOverlord.entity.robotEntity.spidee;
 
 import javax.vecmath.Vector3d;
 
