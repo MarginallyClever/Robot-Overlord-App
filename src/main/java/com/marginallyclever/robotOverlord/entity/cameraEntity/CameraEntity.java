@@ -5,9 +5,9 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.engine.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.skyBoxEntity.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.jogamp.opengl.GL2;
 
@@ -171,7 +171,7 @@ public class CameraEntity extends PhysicalEntity {
 	public void render(GL2 gl2) {
 		Vector3d p = getPosition();
 
-		Matrix4d mFinal = new Matrix4d(pose);
+		Matrix4d mFinal = new Matrix4d(pose.get());
 		mFinal.setTranslation(p);
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);

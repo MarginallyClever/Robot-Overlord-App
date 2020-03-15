@@ -27,7 +27,7 @@ public class GridEntity extends PhysicalEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, this.pose);
+		MatrixHelper.applyMatrix(gl2, this.pose.get());
 		PrimitiveSolids.drawGrid(gl2,width.get(),height.get(),1);
 		gl2.glPopMatrix();
 	}

@@ -9,8 +9,8 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotOverlord.engine.model.Model;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 
 public class BoxEntity extends ModelEntity {

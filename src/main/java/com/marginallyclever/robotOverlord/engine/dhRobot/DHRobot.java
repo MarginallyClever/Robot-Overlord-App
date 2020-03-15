@@ -9,7 +9,6 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 
 /**
@@ -17,7 +16,7 @@ import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
  * 
  * @author Dan Royer
  */
-public class DHRobot extends ModelEntity {
+public class DHRobot extends PhysicalEntity {
 	/**
 	 * 
 	 */
@@ -98,11 +97,7 @@ public class DHRobot extends ModelEntity {
 	 * Update the pose matrix of each DH link, then use forward kinematics to find
 	 * the end position.
 	 */
-	public void refreshPose() {
-		if(model != null) {
-			cuboid.set(model.getCuboid());
-		}
-		
+	public void refreshPose() {		
 		for( DHLink link : links ) {
 			link.refreshPoseMatrix();
 		}
@@ -184,7 +179,7 @@ public class DHRobot extends ModelEntity {
 	public boolean sanityCheck(DHKeyframe keyframe) {
 		if(!keyframeAnglesAreOK(keyframe))	return false;
 		if(collidesWithSelf(keyframe))		return false;
-		//if(collidesWithWorld(keyframe))		return false;
+		if(collidesWithWorld(keyframe))		return false;
 		return true;
 	}
 		

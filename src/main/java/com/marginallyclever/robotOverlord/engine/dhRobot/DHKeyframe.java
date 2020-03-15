@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.engine.dhRobot;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.entity.robot.RobotKeyframe;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
 
 /**
  * DHKeyframe contains the time, IK end effector, and FK values for a DHRobot in a given pose.

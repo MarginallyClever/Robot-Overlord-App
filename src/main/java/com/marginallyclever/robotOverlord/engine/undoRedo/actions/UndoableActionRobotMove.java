@@ -5,7 +5,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
-import com.marginallyclever.robotOverlord.entity.robot.Robot;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
 
 /**
  * An undoable command to make a robot move some part relative to itself. For example, a robot arm might move the wrist.
@@ -37,7 +37,7 @@ public class UndoableActionRobotMove extends AbstractUndoableEdit {
 	public static final int AXIS_B = 7;
 	public static final int AXIS_C = 8;
 	
-	private Robot robot;
+	private RobotEntity robot;
 	private int axis;
 	private int direction;
 	
@@ -47,7 +47,7 @@ public class UndoableActionRobotMove extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public UndoableActionRobotMove(Robot robot,int axis,int direction) {
+	public UndoableActionRobotMove(RobotEntity robot,int axis,int direction) {
 		super();
 		
 		this.robot = robot;

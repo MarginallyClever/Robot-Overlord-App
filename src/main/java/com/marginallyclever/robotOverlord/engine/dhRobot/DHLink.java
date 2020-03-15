@@ -5,7 +5,7 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2.ControlMode;
+import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2.ControlMode;
 
 /**
  * Denavit–Hartenberg parameters
@@ -96,7 +96,7 @@ public class DHLink extends ModelEntity {
 		addChild(rangeMin);
 		addChild(rangeMax);
 		
-		flags=LinkAdjust.NONE;
+		flags=LinkAdjust.THETA;
 		/*
 		addChild(maxVelocity);
 		addChild(maxAcceleration);

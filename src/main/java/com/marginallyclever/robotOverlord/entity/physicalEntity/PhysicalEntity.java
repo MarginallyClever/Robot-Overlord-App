@@ -13,6 +13,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.Matrix4dEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
 
 public abstract class PhysicalEntity extends Entity {
@@ -28,7 +29,7 @@ public abstract class PhysicalEntity extends Entity {
 	private int pickName;	
 	
 	// pose relative to my parent Entity.
-	protected Matrix4d pose = new Matrix4d();
+	protected Matrix4dEntity pose = new Matrix4dEntity();
 	// pose relative to the world.
 	protected Matrix4d poseWorld = new Matrix4d();
 	
@@ -76,7 +77,7 @@ public abstract class PhysicalEntity extends Entity {
 	 */
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, pose.get());
 
 			// helpful info
 			if(showBoundingBox.get()) {
@@ -124,11 +125,13 @@ public abstract class PhysicalEntity extends Entity {
 	}
 
 	public Vector3d getPosition() {
-		return new Vector3d(pose.m03,pose.m13,pose.m23);
+		Vector3d trans = new Vector3d();
+		pose.getTranslation(trans);
+		return trans;
 	}
 
 	public void setPosition(Vector3d pos) {
-		Matrix4d m = new Matrix4d(pose);
+		Matrix4d m = new Matrix4d(pose.get());
 		m.setTranslation(pos);
 		setPose(m);
 	}
@@ -139,7 +142,7 @@ public abstract class PhysicalEntity extends Entity {
 	 */
 	public void getRotation(Vector3d arg0) {
 		Matrix3d temp = new Matrix3d();
-		pose.get(temp);
+		pose.get().get(temp);
 		arg0.set(MatrixHelper.matrixToEuler(temp));
 	}
 
@@ -163,7 +166,7 @@ public abstract class PhysicalEntity extends Entity {
 	}
 	
 	public void getRotation(Matrix4d arg0) {
-		arg0.set(pose);
+		arg0.set(pose.get());
 		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 	
@@ -171,7 +174,7 @@ public abstract class PhysicalEntity extends Entity {
 	 * @return {@link Matrix4d} of the local pose
 	 */
 	public Matrix4d getPose() {
-		return new Matrix4d(pose);
+		return new Matrix4d(pose.get());
 	}
 
 	/**
@@ -192,11 +195,11 @@ public abstract class PhysicalEntity extends Entity {
 	 */
 	public void updatePoseWorld() {
 		if(parent instanceof PhysicalEntity) {
-			Matrix4d m = new Matrix4d(pose);
+			Matrix4d m = new Matrix4d(pose.get());
 			m.mul(((PhysicalEntity)parent).poseWorld);
 			poseWorld.set(m);
 		} else {
-			poseWorld.set(pose);
+			poseWorld.set(pose.get());
 		}
 	}
 

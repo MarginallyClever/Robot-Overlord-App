@@ -8,7 +8,7 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.engine.undoRedo.actions.UndoableActionRobotMove;
-import com.marginallyclever.robotOverlord.entity.robot.Robot;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
 
 @Deprecated
 public class UserCommandMoveRobot extends JButton implements ActionListener {
@@ -17,12 +17,12 @@ public class UserCommandMoveRobot extends JButton implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Robot robot;
+	private RobotEntity robot;
 	private int axis;
 	private int direction;
 	private RobotOverlord ro;
 	
-	public UserCommandMoveRobot(RobotOverlord ro,Robot robot,int axis,int direction,String buttonText) {
+	public UserCommandMoveRobot(RobotOverlord ro,RobotEntity robot,int axis,int direction,String buttonText) {
 		super(buttonText);
 		this.robot = robot;
 		this.axis = axis;

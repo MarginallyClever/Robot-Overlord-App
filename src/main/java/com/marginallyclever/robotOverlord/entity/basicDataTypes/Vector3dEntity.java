@@ -4,6 +4,11 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
 
+/**
+ * @author Dan Royer
+ * @since 1.6.0
+ *
+ */
 public class Vector3dEntity extends AbstractEntity<Vector3d> {
 	
 	/**

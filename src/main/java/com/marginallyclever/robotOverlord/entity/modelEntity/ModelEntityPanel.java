@@ -18,9 +18,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.engine.model.Model;
-import com.marginallyclever.robotOverlord.engine.model.ModelLoadAndSave;
-import com.marginallyclever.robotOverlord.engine.model.ModelSmoother;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectFile;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
 import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectVector3d;

@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHLink;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.engine.dhRobot.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2;
 
 public class MiscTests {
 	@Test

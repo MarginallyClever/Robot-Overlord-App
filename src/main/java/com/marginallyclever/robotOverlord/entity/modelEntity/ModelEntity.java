@@ -7,8 +7,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.engine.log.Log;
-import com.marginallyclever.robotOverlord.engine.model.Model;
-import com.marginallyclever.robotOverlord.engine.model.ModelFactory;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
@@ -72,7 +70,7 @@ public class ModelEntity extends PhysicalEntity {
 		
 		try {
 			model = ModelFactory.createModelFromFilename(newFilename);
-			model.setScale(scale.get());
+			model.adjustScale(scale.get());
 			model.adjustOrigin(originAdjust.get());
 			model.adjustRotation(rotationAdjust.get());
 			model.findBounds();
@@ -86,7 +84,7 @@ public class ModelEntity extends PhysicalEntity {
 	public void setModelScale(double arg0) {
 		scale.set(arg0);
 		if(model!=null) {
-			model.setScale(arg0);
+			model.adjustScale(arg0);
 		}
 	}
 	
@@ -144,7 +142,7 @@ public class ModelEntity extends PhysicalEntity {
 	@Override
 	public void render(GL2 gl2) {	
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, pose.get());
 
 			material.render(gl2);
 			if( model==null ) {

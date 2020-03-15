@@ -20,7 +20,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import com.marginallyclever.robotOverlord.engine.translator.Translator;
-import com.marginallyclever.robotOverlord.entity.robot.Robot;
+import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
 
 public class LogPanel extends JPanel implements LogListener, ActionListener, KeyListener {
 	/**
@@ -29,7 +29,7 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 	private static final long serialVersionUID = -3059365538792584595L;
 	
 	transient Translator translator;
-	Robot robot;
+	RobotEntity robot;
 	
 	// logging
 	transient private JTextPane log;
@@ -42,7 +42,7 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 	transient private JButton commandLineSend;
 	
 	
-	public LogPanel(Translator translator, Robot robot) {
+	public LogPanel(Translator translator, RobotEntity robot) {
 		this.translator = translator;
 		this.robot = robot;
 		
