@@ -60,6 +60,8 @@ public class World extends Entity {
 	}
 	
 	public void createDefaultWorld() {
+		//addChild(new SkyBoxEntity());
+		
 		// adjust grid
 		GridEntity grid;
 		addChild(grid = new GridEntity());
@@ -134,8 +136,6 @@ public class World extends Entity {
 		// Clear the screen and depth buffer
 		// background color
     	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 1.0f);
-		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
         // Don't draw triangles facing away from camera
 		gl2.glCullFace(GL2.GL_BACK);
 		// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
@@ -144,10 +144,10 @@ public class World extends Entity {
 		// DRAW THE WORLD
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
-
 		gl2.glPushMatrix();
+
 			camera.render(gl2);
-			
+	
 			// lights
 			for( Entity obj : children ) {
 				if(obj instanceof LightEntity) {
