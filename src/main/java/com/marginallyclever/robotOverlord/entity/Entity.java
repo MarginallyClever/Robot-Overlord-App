@@ -127,6 +127,16 @@ public class Entity extends Observable implements Serializable {
 		
 		return e;
 	}
-	
-	
+
+	public String getCanonicalName() {
+		String sum="";
+		Entity e=this;
+		
+		do {
+			sum = "/" + e.getName() + sum;
+			e=e.getParent();
+		} while(e!=null);
+
+		return sum;
+	}
 }
