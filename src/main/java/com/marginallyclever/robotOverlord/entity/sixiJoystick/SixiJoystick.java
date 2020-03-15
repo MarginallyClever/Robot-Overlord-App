@@ -10,7 +10,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.engine.dhRobot.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2;
 
 public class SixiJoystick extends ModelEntity implements NetworkConnectionListener {
 	/**
