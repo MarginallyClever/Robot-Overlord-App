@@ -84,4 +84,49 @@ public class Entity extends Observable implements Serializable {
 	public String toString() {
 		return name;
 	}
+
+	// Find the root node.
+	public Entity getRoot() {
+		Entity e=this;
+		while( e.getParent() != null ) e = e.getParent();
+		return e;
+	}
+	
+	/**
+	 * Search the entity tree based on an absolute or relative Unix-style path.
+	 * 
+	 * @param path the search query
+	 * @return the requested entity or null.
+	 */
+	public Entity findByPath(String path) {
+		String [] pathComponents = path.split("/");
+		
+		// if absolute path, start with root node.
+		Entity e = path.startsWith("/") ? getRoot() : this;
+		
+		for( String name : pathComponents ) {
+			if(e==null) break;
+			if(name.contentEquals("..")) {
+				// ".." = my parent
+				e = e.getParent();
+			} else if(name.contentEquals(".")) {
+				// "." is me!
+				continue;
+			} else {
+				boolean found=false;
+				for( Entity c : e.getChildren() ) {
+					if( name.contentEquals(c.getName()) ) {
+						e = c;
+						found=true;
+						break;
+					}
+				}
+				if(found==false) return null;  // does not exist
+			}
+		}
+		
+		return e;
+	}
+	
+	
 }
