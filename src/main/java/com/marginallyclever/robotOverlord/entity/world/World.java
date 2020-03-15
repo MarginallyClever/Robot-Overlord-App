@@ -13,15 +13,14 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.engine.DragBall;
-import com.marginallyclever.robotOverlord.engine.ViewCube;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.boxEntity.BoxEntity;
 import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.gridEntity.GridEntity;
 import com.marginallyclever.robotOverlord.entity.lightEntity.LightEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
-import com.marginallyclever.robotOverlord.entity.robot.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.uiElements.ViewCube;
 
 /**
  * Container for all the visible objects in a scene.
@@ -51,8 +50,6 @@ public class World extends Entity {
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCube viewCube = new ViewCube();
 
-	// To move selected items in 3D
-	protected DragBall ball = new DragBall();
 	
 	protected transient WorldPanel worldPanel;
 	
@@ -60,8 +57,6 @@ public class World extends Entity {
 		super();
 		setName("World");
 		addChild(camera);
-		
-		ball.setParent(this);
 	}
 	
 	public void createDefaultWorld() {
@@ -135,14 +130,6 @@ public class World extends Entity {
 		return list;
 	}
 	
-	@Override
-	public void update(double dt) {
-    	ball.update(dt);
-    	
-		// calls update on all entities and sub-entities
-		super.update(dt);
-	}
-	
 	public void render(GL2 gl2) {
 		// Clear the screen and depth buffer
 		// background color
@@ -168,7 +155,7 @@ public class World extends Entity {
 					light.render(gl2);
 				}
 			}
-
+			
 			// draw!
 			for( Entity obj : children ) {
 				if(!(obj instanceof PhysicalEntity)) continue;
@@ -183,7 +170,6 @@ public class World extends Entity {
 	
 			showPickingTest(gl2);
 
-			ball.render(gl2);
 		gl2.glPopMatrix();
 	
 		
@@ -322,9 +308,5 @@ public class World extends Entity {
 	
 	public WorldPanel getWorldPanel() {
 		return worldPanel;
-	}
-	
-	public DragBall getBall() {
-		return ball;
 	}
 }

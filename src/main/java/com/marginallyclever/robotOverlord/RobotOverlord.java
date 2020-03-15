@@ -76,6 +76,7 @@ import com.marginallyclever.robotOverlord.entity.EntityPanel;
 import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
+import com.marginallyclever.robotOverlord.uiElements.DragBall;
 import com.marginallyclever.robotOverlord.uiElements.FooterBar;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.marginallyclever.robotOverlord.uiElements.SoundSystem;
@@ -102,8 +103,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	static final public int SELECT_BUFFER_SIZE=256;
 	static final public int DEFAULT_FRAMES_PER_SECOND = 30;
 	
-	protected World world;
-
+	// Scene container
+	protected World world = new World();
+	// To move selected items in 3D
+	protected DragBall dragBall = new DragBall();
+	
 	// select picking
 	protected transient IntBuffer selectBuffer = null;
 	protected transient boolean pickNow;
@@ -161,7 +165,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  	protected RobotOverlord() {
  		super();
  		setName("Robot Overlord");
- 		
+        addChild(world);
+ 		addChild(dragBall);
+        
+        // ..with default setting.  TODO save & load whole world and all its Entities.
+        world.createDefaultWorld();
+
+        
 		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
 
 		//System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
@@ -222,11 +232,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
       	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
         animator.add(glCanvas);
         
-		// new world
-        addChild(world = new World());
-        // ..with default setting.  TODO save & load whole world and all its Entities.
-        world.createDefaultWorld();
-
         // now that we have everything built, set up the menus.
         buildMainMenu();
         
@@ -265,7 +270,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         
 		// add the split panel to the main frame
         mainFrame.add(splitUpDown);
-
         
         // make it visible
         mainFrame.setVisible(true);
@@ -385,7 +389,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		ArrayList<JPanel> list = null;//e.getContextPanels(this);
 		if(list==null) return;
 
-		PanelHelper.formatEntityPanels(list, selectedEntityPanel);
+		//PanelHelper.formatEntityPanels(list, selectedEntityPanel);
 	}
 
 	public void saveWorldToFile(String filename) {
@@ -749,7 +753,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 	    	InputManager.update(isMouseIn);
 
-   			world.update( frameLength );
+	    	this.update( frameLength );
     	}
 
     	// RENDER STEP
@@ -769,19 +773,15 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		
 		world.render(gl2);
 		
+		dragBall.render(gl2);
+		
         int pickName = 0;
         if(pickNow) {
-        	pickName = findItemUnderCursor(gl2);
-        	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-    		
 	        pickNow=false;
-        	//System.out.println("pickedHandle="+pickedHandle);
-        	if(pickedHandle==0 && pickName>0 && pickName<10) {
-        		//System.out.println("new pickedHandle="+pickName);
-        		pickedHandle=pickName;
-        	} else {
-        		pickIntoWorld(pickName);
-        	}
+        	pickName = findItemUnderCursor(gl2);
+        	
+        	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+        	pickIntoWorld(pickName);
         }
 		
 		if(checkStackSize) {
@@ -890,8 +890,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		pickedEntity=arg0;
 		pickedHandle=0;
 
-		if(arg0 instanceof PhysicalEntity) {
-			world.getBall().setSubject((PhysicalEntity)arg0);
+		if(arg0 instanceof PhysicalEntity && arg0 != dragBall) {
+			dragBall.setSubject((PhysicalEntity)arg0);
 		}
 		setContextPanel(arg0);
 	}
@@ -987,7 +987,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         }
 	}
 
-
 	@Deprecated
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
@@ -996,7 +995,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	
 
-	
 	public static void main(String[] argv) {
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
