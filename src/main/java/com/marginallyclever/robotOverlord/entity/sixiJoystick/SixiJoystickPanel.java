@@ -9,13 +9,14 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.engine.translator.Translator;
+import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
 
 /**
  * Control Panel for a DHRobot
  * @author Dan Royer
  *
  */
+@Deprecated
 public class SixiJoystickPanel extends JPanel implements ActionListener {
 	/**
 	 * 
@@ -39,8 +40,6 @@ public class SixiJoystickPanel extends JPanel implements ActionListener {
 		buttonConnect = new JButton(Translator.get("ButtonConnect"));
 		this.add(buttonConnect, con1);
 		buttonConnect.addActionListener(this);
-		
-		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	@Override

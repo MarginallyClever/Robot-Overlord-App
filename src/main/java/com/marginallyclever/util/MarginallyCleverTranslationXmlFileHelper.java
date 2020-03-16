@@ -22,8 +22,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.marginallyclever.robotOverlord.engine.log.Log;
-import com.marginallyclever.robotOverlord.engine.translator.Translator;
+import com.marginallyclever.robotOverlord.uiElements.log.Log;
+import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
 
 /**
  * Helper utility class to aid in loading of language files.

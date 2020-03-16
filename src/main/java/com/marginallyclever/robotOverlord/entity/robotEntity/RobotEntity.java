@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.robotEntity;
 
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
-import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 
@@ -20,10 +20,7 @@ public abstract class RobotEntity extends PhysicalEntity implements NetworkConne
 	// comms	
 	protected transient NetworkConnection connection;
 	protected transient boolean isReadyToReceive;
-	
-	protected transient RobotPanel robotPanel=null;
-	
-	
+		
 	public RobotEntity() {
 		super();
 		setName("Robot");

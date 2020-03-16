@@ -20,7 +20,7 @@ import java.util.prefs.Preferences;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.marginallyclever.robotOverlord.engine.log.Log;
+import com.marginallyclever.robotOverlord.uiElements.log.Log;
 
 /**
  * Created on 6/7/15.

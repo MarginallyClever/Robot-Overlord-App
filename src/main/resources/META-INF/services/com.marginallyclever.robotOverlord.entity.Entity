@@ -1,7 +1,7 @@
 # DHRobots
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_GMF_M100
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Mantis
-com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2
+com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.sixi2.Sixi2
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Sixi1
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Arm3
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_UArm
@@ -9,8 +9,6 @@ com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Thor
 #com.marginallyclever.robotOverlord.entity.robotEntity.DHRobot_Cartesian
 
-# sends gcode to a dhrobot
-#com.marginallyclever.robotOverlord.entity.robot.sixi2.sixi2ControlBox.Sixi2ControlBox
 # joystick HID
 com.marginallyclever.robotOverlord.entity.sixiJoystick.SixiJoystick
 
@@ -26,10 +24,10 @@ com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity
 com.marginallyclever.robotOverlord.entity.lightEntity.LightEntity
 com.marginallyclever.robotOverlord.entity.boxEntity.BoxEntity
 
-#sixi2 Tools (com.marginallyclever.robotOverlord.engine.dhRobot.DHTool)
-com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_GoProCamera
-com.marginallyclever.robotOverlord.engine.dhRobot.tools.DHTool_Gripper
+#robot Tools
+com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhTool.DHTool_GoProCamera
+com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhTool.DHTool_Gripper
 
 #tests
-#com.marginallyclever.robotOverlord.entity.matrixInterpolationTest.MatrixInterpolationTest
+#com.marginallyclever.robotOverlord.entity.tests.MatrixInterpolationTest
 

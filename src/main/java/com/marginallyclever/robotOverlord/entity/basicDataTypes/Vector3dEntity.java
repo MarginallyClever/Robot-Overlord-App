@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
+import com.marginallyclever.robotOverlord.uiElements.view.View;
 
 /**
  * @author Dan Royer
@@ -45,5 +46,16 @@ public class Vector3dEntity extends AbstractEntity<Vector3d> {
 	
 	public String toString() {
 		return getName()+"="+t.toString();
+	}
+	
+	
+	/**
+	 * Explains to View in abstract terms the control interface for this entity.
+	 * Derivatives of View implement concrete versions of that view. 
+	 * @param g
+	 */
+	@Override
+	public void getView(View view) {
+		view.addVector3(this);
 	}
 }

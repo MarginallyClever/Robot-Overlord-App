@@ -1,10 +1,9 @@
 package com.marginallyclever.robotOverlord;
 
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
@@ -59,32 +58,35 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.communications.NetworkConnectionManager;
-import com.marginallyclever.convenience.PanelHelper;
-import com.marginallyclever.robotOverlord.engine.translator.Translator;
-import com.marginallyclever.robotOverlord.engine.undoRedo.RedoAction;
-import com.marginallyclever.robotOverlord.engine.undoRedo.UndoAction;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAbout;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandAboutControls;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandCheckForUpdate;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandForums;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandLoad;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandNew;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandQuit;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSaveAs;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.EntityPanel;
-import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
-import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
 import com.marginallyclever.robotOverlord.uiElements.DragBall;
 import com.marginallyclever.robotOverlord.uiElements.FooterBar;
 import com.marginallyclever.robotOverlord.uiElements.InputManager;
 import com.marginallyclever.robotOverlord.uiElements.SoundSystem;
 import com.marginallyclever.robotOverlord.uiElements.Splitter;
+import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.RedoAction;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.UndoAction;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandAbout;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandAboutControls;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandCheckForUpdate;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandForums;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandLoad;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandNew;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandQuit;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSaveAs;
+import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.uiElements.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
 
 /**
- * The main application for Robot Overlord
+ * Robot Overlord (RO) is the top-level controller of an application to educate robots.
+ * It is built around good design patterns.
+ * @see https://github.com/MarginallyClever/Robot-Overlord-App
+ * 
  * @author Dan Royer
  *
  */
@@ -244,11 +246,14 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         // build the initial entity tree
         this.updateEntityTree();
         		
+        selectedEntityPanel = new JPanel();
+        selectedEntityPanel.setLayout(new BorderLayout());
+
         // the right hand stuff
         JScrollPane rightTop = new JScrollPane(entityTree);
         	rightTop.setAlignmentX(Component.LEFT_ALIGNMENT);
         	rightTop.setAlignmentY(Component.TOP_ALIGNMENT);
-        JScrollPane rightBottom = new JScrollPane(selectedEntityPanel = new JPanel());
+        JScrollPane rightBottom = new JScrollPane(selectedEntityPanel);
 	        rightBottom.setAlignmentX(Component.LEFT_ALIGNMENT);
 	        rightBottom.setAlignmentY(Component.TOP_ALIGNMENT);
 		rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
@@ -300,10 +305,14 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		return pickedEntity;
 	}
 	
+	// This is a ViewTree of the root entity.
+	// Only add branches of the tree, ignore all leaves.  leaves *should* be handled by the ViewPanel of a single entity.
 	protected DefaultMutableTreeNode createTreeNodes(Entity e) {
 		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
 		for(Entity child : e.getChildren() ) {
-			parent.add(createTreeNodes(child));
+			if(!child.getChildren().isEmpty()) {
+				parent.add(createTreeNodes(child));
+			}
 		}
 		return parent;
 	}
@@ -369,12 +378,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		}
 		
 		entityTree.removeAll();
-		entityTree.setLayout(new GridBagLayout());
-		GridBagConstraints c = PanelHelper.getDefaultGridBagConstraints();
-		c.weightx=1;
-		c.weighty=1;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		entityTree.add(tree,c);
+		entityTree.setLayout(new BorderLayout());
+		entityTree.add(tree,BorderLayout.CENTER);
 	}
 	
 	protected void updateSelectedEntityPanel(Entity e) {
@@ -384,12 +389,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		if(e==null) return;
 		
-		//System.out.println("updateSelectedEntityPanel "+e.getName());
+		System.out.println("updateSelectedEntityPanel "+e.getCanonicalName());
 		
-		ArrayList<JPanel> list = null;//e.getContextPanels(this);
-		if(list==null) return;
-
-		//PanelHelper.formatEntityPanels(list, selectedEntityPanel);
+		ViewPanel vp = new ViewPanel(this);
+		
+		e.getView(vp);
+		
+		selectedEntityPanel.add(vp,BorderLayout.PAGE_START);
 	}
 
 	public void saveWorldToFile(String filename) {
@@ -770,19 +776,21 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
     		System.out.print("stack depth start = "+stackDepth.get(0));
 		}	
-		
-		world.render(gl2);
-		
-		dragBall.render(gl2);
-		
-        int pickName = 0;
-        if(pickNow) {
-	        pickNow=false;
-        	pickName = findItemUnderCursor(gl2);
-        	
-        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-        	pickIntoWorld(pickName);
-        }
+
+		gl2.glPushMatrix();
+			gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
+	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
+			world.render(gl2);
+			dragBall.render(gl2);
+			
+	        if(pickNow) {
+		        pickNow=false;
+		        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+		        int pickName = findItemUnderCursor(gl2);
+	        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+	        	pickIntoWorld(pickName);
+	        }
+		gl2.glPopMatrix();
 		
 		if(checkStackSize) {
     		IntBuffer stackDepth = IntBuffer.allocate(1);
@@ -1029,5 +1037,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public void getView(View view) {
+		
 	}
 }

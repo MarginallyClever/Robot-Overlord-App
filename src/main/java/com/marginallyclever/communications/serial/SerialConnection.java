@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
-import com.marginallyclever.robotOverlord.engine.log.Log;
+import com.marginallyclever.robotOverlord.uiElements.log.Log;
 
 
 /**

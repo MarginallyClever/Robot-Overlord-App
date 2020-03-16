@@ -18,11 +18,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectFile;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectNumber;
-import com.marginallyclever.robotOverlord.engine.undoRedo.commands.UserCommandSelectVector3d;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSelectFile;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSelectDouble;
+import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSelectVector3d;
 
+@Deprecated
 public class ModelEntityPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
@@ -31,7 +32,7 @@ public class ModelEntityPanel extends JPanel implements ChangeListener {
 
 	private ModelEntity model;
 	private UserCommandSelectFile userCommandSelectFile;
-	private UserCommandSelectNumber setScale;
+	private UserCommandSelectDouble setScale;
 	private UserCommandSelectVector3d setOrigin;
 	private UserCommandSelectVector3d setRotation;
 	
@@ -46,7 +47,7 @@ public class ModelEntityPanel extends JPanel implements ChangeListener {
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 
-		userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getModelFilename());
+		//userCommandSelectFile = new UserCommandSelectFile(gui,"Filename",model.getModelFilename());
 		// Find all the serviceLoaders for loading files.
 		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
 		Iterator<ModelLoadAndSave> i = loaders.iterator();
@@ -55,23 +56,23 @@ public class ModelEntityPanel extends JPanel implements ChangeListener {
 			FileNameExtensionFilter filter = new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions());
 			userCommandSelectFile.addChoosableFileFilter(filter);
 		}
-		userCommandSelectFile.addChangeListener(this);
+		//userCommandSelectFile.addChangeListener(this);
 		con1.gridy++;
 		this.add(userCommandSelectFile,con1);
 
 		con1.gridy++;
-		setScale = new UserCommandSelectNumber(gui,"Scale",(float)model.getModelScale());
-		setScale.addChangeListener(this);
+		//setScale = new UserCommandSelectDouble(gui,"Scale",(float)model.getModelScale());
+		//setScale.addChangeListener(this);
 		this.add(setScale,con1);
 
 		con1.gridy++;
-		setOrigin = new UserCommandSelectVector3d(gui,"Origin",model.getModelOrigin());
-		setOrigin.addChangeListener(this);
+		//setOrigin = new UserCommandSelectVector3d(gui,"Origin",model.getModelOrigin());
+		//setOrigin.addChangeListener(this);
 		this.add(setOrigin,con1);
 
 		con1.gridy++;
-		setRotation = new UserCommandSelectVector3d(gui,"Rotation",model.getModelRotation());
-		setRotation.addChangeListener(this);
+		//setRotation = new UserCommandSelectVector3d(gui,"Rotation",model.getModelRotation());
+		//setRotation.addChangeListener(this);
 		this.add(setRotation,con1);
 
 		con1.gridy++;
@@ -97,23 +98,22 @@ public class ModelEntityPanel extends JPanel implements ChangeListener {
 			con1.gridy++;
 			this.add(new JLabel("Texture coordinates: "+(m.hasTextureCoordinates?"yes":"no"),SwingConstants.LEFT),con1);
 		}
-		PanelHelper.ExpandLastChild(this, con1);
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		Object source = e.getSource();
 		if(source==userCommandSelectFile) {
-			model.setModelFilename(userCommandSelectFile.getFilename());
+			//model.setModelFilename(userCommandSelectFile.getFilename());
 		}
 		if(source==setScale) {
-			model.setModelScale(setScale.getValue());
+			//model.setModelScale(setScale.getValue());
 		}
 		if(source==setOrigin) {
-			model.setModelOrigin(setOrigin.getValue());
+			//model.setModelOrigin(setOrigin.getValue());
 		}
 		if(source==setRotation) {
-			model.setModelRotation(setRotation.getValue());
+			//model.setModelRotation(setRotation.getValue());
 		}
 	}
 	
@@ -122,8 +122,8 @@ public class ModelEntityPanel extends JPanel implements ChangeListener {
 	 * This might be better as a listener pattern.
 	 */
 	public void updateFields() {
-		setScale.setValue(model.scale.get().floatValue());
-		setOrigin.setValue(model.getModelOrigin());
-		setRotation.setValue(model.getModelRotation());
+		//setScale.setValue(model.scale.get().floatValue());
+		//setOrigin.setValue(model.getModelOrigin());
+		//setRotation.setValue(model.getModelRotation());
 	}
 }

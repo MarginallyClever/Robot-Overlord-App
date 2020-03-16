@@ -12,8 +12,8 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
-import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
@@ -142,7 +142,7 @@ public class DragBall extends PhysicalEntity {
 			}
 		}
 		
-		FOR.setTranslation(subject.getPosition());
+		FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 
 		if(!isActivelyMoving()) {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)

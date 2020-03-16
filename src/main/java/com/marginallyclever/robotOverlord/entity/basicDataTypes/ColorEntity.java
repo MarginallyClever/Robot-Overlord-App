@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.uiElements.view.View;
 
 /**
  * each color component is in the range [0...1]
@@ -43,6 +44,10 @@ public class ColorEntity extends Entity {
 		notifyObservers();
 	}
 
+	public void set(float [] newValue) {
+		set(newValue[0],newValue[1],newValue[2],newValue[3]);		
+	}
+
 	public double getR() { return r; }
 	public double getG() { return g; }
 	public double getB() { return b; }
@@ -68,5 +73,16 @@ public class ColorEntity extends Entity {
 				+ StringHelper.formatDouble(b) + ","
 				+ StringHelper.formatDouble(a)
 				+")";
+	}
+	
+	
+	/**
+	 * Explains to View in abstract terms the control interface for this entity.
+	 * Derivatives of View implement concrete versions of that view. 
+	 * @param g
+	 */
+	@Override
+	public void getView(View view) {
+		view.addColor(this);
 	}
 }

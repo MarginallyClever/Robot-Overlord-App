@@ -18,7 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 
-import com.marginallyclever.robotOverlord.engine.translator.Translator;
+import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
 import com.marginallyclever.util.PreferencesHelper;
 
 public class SoundSystem {

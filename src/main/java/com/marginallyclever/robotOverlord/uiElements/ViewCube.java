@@ -5,7 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
 
 public class ViewCube {
 	protected transient boolean isSetup = false;

@@ -13,9 +13,10 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.engine.translator.Translator;
 import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
+import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
 
+@Deprecated
 public class RobotPanel extends JPanel implements ActionListener, ChangeListener {
 
 	/**
@@ -46,7 +47,6 @@ public class RobotPanel extends JPanel implements ActionListener, ChangeListener
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
 		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.add(buttonConnect, con1);
-		PanelHelper.ExpandLastChild(this, con1);
 	}
 	
 	@Override

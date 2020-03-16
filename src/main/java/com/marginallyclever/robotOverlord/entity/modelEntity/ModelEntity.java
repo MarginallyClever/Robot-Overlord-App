@@ -4,14 +4,18 @@ package com.marginallyclever.robotOverlord.entity.modelEntity;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.engine.log.Log;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
-import com.marginallyclever.robotOverlord.entity.materialEntity.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.MaterialEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
+import com.marginallyclever.robotOverlord.uiElements.log.Log;
+import com.marginallyclever.robotOverlord.uiElements.view.View;
 
 
 public class ModelEntity extends PhysicalEntity {
@@ -21,7 +25,6 @@ public class ModelEntity extends PhysicalEntity {
 	private static final long serialVersionUID = 5888928381757734702L;
 	
 	protected transient Model model;
-	protected transient ModelEntityPanel modelPanel;
 
 	protected StringEntity filename = new StringEntity("Filename","");
 	protected MaterialEntity material = new MaterialEntity();
@@ -30,7 +33,6 @@ public class ModelEntity extends PhysicalEntity {
 	protected DoubleEntity scale = new DoubleEntity("Scale",1.0);
 	protected Vector3dEntity rotationAdjust = new Vector3dEntity("+/- rotation");
 	protected Vector3dEntity originAdjust = new Vector3dEntity("+/- origin");
-	
 	
 	public ModelEntity() {
 		super();
@@ -134,8 +136,8 @@ public class ModelEntity extends PhysicalEntity {
 		
 		// set up the physical limits
 		if(model != null) {
-			cuboid.set(model.getCuboid());
-			cuboid.setPoseWorld(poseWorld);
+			Cuboid mc = model.getCuboid();
+			cuboid.setBounds(mc.getBoundsTop(),mc.getBoundsBottom());
 		}
 	}
 	
@@ -166,5 +168,22 @@ public class ModelEntity extends PhysicalEntity {
 
 	public Model getModel() {
 		return model;
+	}
+	
+	public void getView(View view) {
+		//super.getView(view);
+
+		view.addFilename(filename);
+		view.addVector3(rotationAdjust);
+		view.addVector3(originAdjust);
+		view.addNumber(scale);
+		
+		Model m = this.model;
+		if(m!=null) {
+			view.addNumber(new IntEntity("Triangles",m.getNumTriangles()));
+			view.addBoolean(new BooleanEntity("Has normals",m.hasNormals));
+			view.addBoolean(new BooleanEntity("Has colors",m.hasColors));
+			view.addBoolean(new BooleanEntity("Has UVs",m.hasTextureCoordinates));
+		}
 	}
 }

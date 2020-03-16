@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.entity.world;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JPanel;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -12,15 +11,15 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.boxEntity.BoxEntity;
-import com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity;
-import com.marginallyclever.robotOverlord.entity.gridEntity.GridEntity;
-import com.marginallyclever.robotOverlord.entity.lightEntity.LightEntity;
-import com.marginallyclever.robotOverlord.entity.physicalEntity.PhysicalEntity;
-import com.marginallyclever.robotOverlord.entity.robotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.primitives.BoxEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.GridEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.LightEntity;
+import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.uiElements.ViewCube;
+import com.marginallyclever.robotOverlord.uiElements.view.View;
 
 /**
  * Container for all the visible objects in a scene.
@@ -50,9 +49,6 @@ public class World extends Entity {
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCube viewCube = new ViewCube();
 
-	
-	protected transient WorldPanel worldPanel;
-	
 	public World() {
 		super();
 		setName("World");
@@ -120,16 +116,6 @@ public class World extends Entity {
 		m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		sixi2.setRotation(m);
-	}
-	
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		// Do not allow access to the Entity, because deleting/renaming the world makes no sense to me.
-		ArrayList<JPanel> list = new ArrayList<JPanel>();
-		
-		worldPanel = new WorldPanel(gui,this);
-		list.add(worldPanel);
-
-		return list;
 	}
 	
 	public void render(GL2 gl2) {
@@ -306,7 +292,8 @@ public class World extends Entity {
 		return false;
 	}
 	
-	public WorldPanel getWorldPanel() {
-		return worldPanel;
+	@Override
+	public void getView(View view) {
+
 	}
 }

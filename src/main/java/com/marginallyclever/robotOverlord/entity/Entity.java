@@ -3,13 +3,16 @@ package com.marginallyclever.robotOverlord.entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Observer;
+
+import com.marginallyclever.robotOverlord.uiElements.view.View;
 
 /**
  * Entities are nodes in a tree of data that can find each other and observe/be observed
  * @author Dan Royer
  *
  */
-public class Entity extends Observable implements Serializable {
+public class Entity extends Observable implements Serializable, Observer {
 	/**
 	 * 
 	 */
@@ -42,7 +45,7 @@ public class Entity extends Observable implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public void update(double dt) {
 		for(Entity e : children ) {
 			e.update(dt);
@@ -139,4 +142,27 @@ public class Entity extends Observable implements Serializable {
 
 		return sum;
 	}
+	
+	/**
+	 * Explains to View in abstract terms the control interface for this entity.
+	 * Derivatives of View implement concrete versions of that view. 
+	 * @param g
+	 */
+	public void getView(View view) {
+		view.addReadOnly(this);
+		
+		for( Entity child : children ) {
+			if(child.getChildren().isEmpty()) {
+				// only leaves
+				child.getView(view);
+			}
+		}
+	}
+
+	/**
+	 * Something this Entity is observing has changed.  Deal with it!
+	 */
+	@Override
+	public void update(Observable o, Object arg) {}
+	
 }
