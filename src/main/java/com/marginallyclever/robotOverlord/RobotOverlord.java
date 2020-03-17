@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseAdapter;
@@ -148,8 +149,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// settings
     protected Preferences prefs;
 	protected String[] recentFiles = {"","","","","","","","","",""};
-
-	protected boolean checkStackSize;
+	
+	// should I check the state of the OpenGL stack size?  true=every frame, false=never
+	protected boolean checkStackSize = false;
 
 	// menus
     // main menu bar
@@ -179,12 +181,18 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	private CommandRedo commandRedo;
 
 	// mouse steering controls
-	private boolean isMouseIn;
+	private boolean isMouseIn=false;
 	
 	
  	protected RobotOverlord() {
  		super();
 		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
+
+		//System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
+		if(GraphicsEnvironment.isHeadless()) {
+			throw new RuntimeException("RobotOverlord cannot be run headless...yet.");
+		}
+		
 		Translator.start();
 
 		commandUndo = new CommandUndo(undoManager);
@@ -193,6 +201,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	commandRedo.setUndoCommand(commandUndo);
 
  		setName("Robot Overlord");
+		
  		addChild(cameraView);
  		addChild(camera);
         addChild(world);
@@ -203,25 +212,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         
         // ..with default setting.  TODO save & load whole world and all its Entities.
         world.createDefaultWorld();
-
-		//System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
 		
 		SoundSystem.start();
 		InputManager.start();
-
-		checkStackSize=false;
-		isMouseIn=false;
 		
-/*
-		try {
-			String s = getPath(this.getClass());
-			System.out.println("enumerating "+s);
-			EnumerateJarContents(s);
-		}
-		catch(IOException e) {
-			System.out.println("failed to enumerate");
-		}
-*/
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
