@@ -1,13 +1,10 @@
 package com.marginallyclever.robotOverlord;
 
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
@@ -32,15 +29,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
+import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -55,31 +50,34 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.communications.NetworkConnectionManager;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.primitives.BlenderCameraEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
-import com.marginallyclever.robotOverlord.uiElements.DragBall;
-import com.marginallyclever.robotOverlord.uiElements.FooterBar;
-import com.marginallyclever.robotOverlord.uiElements.InputManager;
-import com.marginallyclever.robotOverlord.uiElements.SoundSystem;
-import com.marginallyclever.robotOverlord.uiElements.Splitter;
-import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.RedoAction;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.UndoAction;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandAbout;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandAboutControls;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandCheckForUpdate;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandForums;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandLoad;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandNew;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandQuit;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSaveAs;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
-import com.marginallyclever.robotOverlord.uiElements.view.ViewPanel;
+import com.marginallyclever.robotOverlord.swingInterface.CameraViewEntity;
+import com.marginallyclever.robotOverlord.swingInterface.DragBallEntity;
+import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
+import com.marginallyclever.robotOverlord.swingInterface.Splitter;
+import com.marginallyclever.robotOverlord.swingInterface.ViewCubeEntity;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandCheckForUpdate;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandForums;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandNew;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandOpen;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandQuit;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRedo;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandSaveAs;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandUndo;
+import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
 
 /**
@@ -101,28 +99,45 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	final static public String VERSION = PropertiesFileHelper.getVersionPropertyValue();
-	// select picking
-	static final public int SELECT_BUFFER_SIZE=256;
-	static final public int DEFAULT_FRAMES_PER_SECOND = 30;
+	
 	
 	// Scene container
 	protected World world = new World();
+	// The currently selected entity to edit.
+	// This is equivalent to the cursor position in a text editor.
+	// This is equivalent to the currently selected directory in an OS.
+	protected transient Entity selectedEntity; 
+	
 	// To move selected items in 3D
-	protected DragBall dragBall = new DragBall();
+	protected DragBallEntity dragBall = new DragBallEntity();
+	// The box in the top right of the user view that shows your orientation in the world.
+	// TODO probably doesn't belong here, it's per-user?  per-camera?
+	protected transient ViewCubeEntity viewCube = new ViewCubeEntity();
+	// Wraps all the projection matrix stuff. 
+	public CameraViewEntity cameraView = new CameraViewEntity();
+	// At least one camera to prevent disaster. 
+	public CameraEntity camera = new BlenderCameraEntity();
 	
-	// select picking
-	protected transient IntBuffer selectBuffer = null;
+	
+	// click on screen to change which entity is selected
+	// select buffer
+	protected transient IntBuffer pickBuffer = null;
+	// select buffer depth
+	static final public int SELECT_BUFFER_SIZE=256;
+	// when to pick
 	protected transient boolean pickNow;
+	// where on screen to pick
 	protected transient double pickX, pickY;
-	protected transient Entity pickedEntity; 
-	protected transient int pickedHandle;
-	
-	// menus
-    // main menu bar
-	protected transient JMenuBar mainMenu;
+	// ray picking visualization
+	protected transient Vector3d pickForward=new Vector3d();
+	protected transient Vector3d pickRight=new Vector3d();
+	protected transient Vector3d pickUp=new Vector3d();
+	protected transient Vector3d pickRay=new Vector3d();
 	
     // The animator keeps things moving
     private FPSAnimator animator;
+    // animation speed
+	static final public int DEFAULT_FRAMES_PER_SECOND = 30;
     
     // timing for animations
     protected long startTime;
@@ -136,6 +151,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 	protected boolean checkStackSize;
 
+	// menus
+    // main menu bar
+	protected transient JMenuBar mainMenu;
+	
 	// The main frame of the GUI
     protected JFrame mainFrame; 
 	// the main view
@@ -144,54 +163,55 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		protected Splitter splitLeftRight;
 		// bottom part
 		protected Splitter rightFrameSplitter;
+	// the 3D view of the scene
 	protected GLJPanel glCanvas;
+	// tree like view of all entities in the scene
 	protected JPanel entityTree;
+	// panel view of edit controls for the selected entity
 	protected JPanel selectedEntityPanel;
 	
 	//protected SecondaryPanel secondaryPanel;
 	protected FooterBar footerBar;
 	
 	// undo/redo system
-	private UndoManager undoManager;
-	private UndoAction undoAction;
-	private RedoAction redoAction;
+	private UndoManager undoManager = new UndoManager();
+	private CommandUndo commandUndo;
+	private CommandRedo commandRedo;
 
 	// mouse steering controls
 	private boolean isMouseIn;
 	
-	// opengl rendering context
-	private GLU glu;
-	protected transient NetworkConnectionManager connectionManager = new NetworkConnectionManager();
-	
 	
  	protected RobotOverlord() {
  		super();
+		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
+		Translator.start();
+
+		commandUndo = new CommandUndo(undoManager);
+		commandRedo = new CommandRedo(undoManager);
+        commandUndo.setRedoCommand(commandRedo);
+    	commandRedo.setUndoCommand(commandUndo);
+
  		setName("Robot Overlord");
+ 		addChild(cameraView);
+ 		addChild(camera);
         addChild(world);
  		addChild(dragBall);
+ 		addChild(viewCube);
+ 		
+ 		cameraView.attachedTo.set(camera.getCanonicalName());
         
         // ..with default setting.  TODO save & load whole world and all its Entities.
         world.createDefaultWorld();
 
-        
-		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
-
 		//System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
 		
-		Translator.start();
 		SoundSystem.start();
 		InputManager.start();
-		
-		undoManager = new UndoManager();
-		undoAction = new UndoAction(undoManager);
-		redoAction = new RedoAction(undoManager);
-		undoAction.setRedoAction(redoAction);
-		redoAction.setUndoAction(undoAction);
-		
+
 		checkStackSize=false;
 		isMouseIn=false;
 		
-		connectionManager = new NetworkConnectionManager();
 /*
 		try {
 			String s = getPath(this.getClass());
@@ -239,12 +259,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
-        selectBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
-        pickedEntity = null;
+        pickBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
+        selectedEntity = null;
 		
         entityTree = new JPanel();
         // build the initial entity tree
-        this.updateEntityTree();
+        updateEntityTree();
         		
         selectedEntityPanel = new JPanel();
         selectedEntityPanel.setLayout(new BorderLayout());
@@ -283,11 +303,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         // record the start time of the application, also the end of the core initialization process.
         lastTime = startTime = System.currentTimeMillis();
     }
-	
-
- 	public NetworkConnectionManager getConnectionManager() {
- 		return connectionManager;
- 	}
  	
 	public JFrame getMainFrame() {
 		return mainFrame;
@@ -302,7 +317,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	
 	public Entity getPickedEntity() {
-		return pickedEntity;
+		return selectedEntity;
 	}
 	
 	// This is a ViewTree of the root entity.
@@ -323,17 +338,25 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 * @param panel
 	 * @param title
 	 */
-	public void setContextPanel(Entity e) {
+	public void updateSelectedEntityPanel(Entity e) {
         // list of all entities in system, starting with world.
-		updateSelectedEntityPanel(e);
-		if(selectedEntityPanel!=null) selectedEntityPanel.revalidate();
+		if(selectedEntityPanel==null) return;
+
+		selectedEntityPanel.removeAll();
+
+		if(e!=null) {
+			ViewPanel vp = new ViewPanel(this);
+			e.getView(vp);
+			selectedEntityPanel.add(vp,BorderLayout.PAGE_START);
+		}
 		
-		rightFrameSplitter.setDividerLocation(180);
+		selectedEntityPanel.revalidate();
+		
+		//rightFrameSplitter.setDividerLocation(180);
 	}
 
     /**
      * list all entities in the world.  Double click an item to get its panel.
-     * 
      * See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
      */
 	public void updateEntityTree() {
@@ -381,22 +404,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		entityTree.setLayout(new BorderLayout());
 		entityTree.add(tree,BorderLayout.CENTER);
 	}
-	
-	protected void updateSelectedEntityPanel(Entity e) {
-		if(selectedEntityPanel==null) return;
-
-		selectedEntityPanel.removeAll();
-
-		if(e==null) return;
-		
-		System.out.println("updateSelectedEntityPanel "+e.getCanonicalName());
-		
-		ViewPanel vp = new ViewPanel(this);
-		
-		e.getView(vp);
-		
-		selectedEntityPanel.add(vp,BorderLayout.PAGE_START);
-	}
 
 	public void saveWorldToFile(String filename) {
 		saveWorldToFileJSON(filename);
@@ -407,7 +414,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		loadWorldFromFileJSON(filename);
 		//loadWorldFromFileSerializable(filename);
 	}
-	
 
 	protected ObjectMapper getObjectMapper() {
 		ObjectMapper om = new ObjectMapper();
@@ -445,7 +451,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			e.printStackTrace();
 		}
 	}
-	
 	
 	/**
 	 * See http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
@@ -577,54 +582,29 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		JMenu menu;
 		
 		menu = new JMenu(APP_TITLE);
-		menu.add(new UserCommandNew(this));        	
-		menu.add(new UserCommandLoad(this));
-		menu.add(new UserCommandSaveAs(this));
+		menu.add(new JMenuItem(new CommandNew(this)));        	
+		menu.add(new JMenuItem(new CommandOpen(this)));
+		menu.add(new JMenuItem(new CommandSaveAs(this)));
 		menu.add(new JSeparator());
-		menu.add(new UserCommandQuit(this));
+		menu.add(new JMenuItem(new CommandQuit(this)));
 		mainMenu.add(menu);
-        
+		
         menu = new JMenu("Edit");
-        JMenuItem undoItem = new JMenuItem(undoAction);
-        JMenuItem redoItem = new JMenuItem(redoAction);
-        undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
-        redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));  
-        menu.add(undoItem);
-        menu.add(redoItem);
+        menu.add(new JMenuItem(commandUndo));
+        menu.add(new JMenuItem(commandRedo));
         mainMenu.add(menu);
     	
         menu = new JMenu("Help");
-        menu.add(new UserCommandAboutControls());
-		menu.add(new UserCommandForums());
-		menu.add(new UserCommandCheckForUpdate());
-		menu.add(new UserCommandAbout());
+        menu.add(new JMenuItem(new CommandAboutControls()));
+		menu.add(new JMenuItem(new CommandForums()));
+		menu.add(new JMenuItem(new CommandCheckForUpdate()));
+		menu.add(new JMenuItem(new CommandAbout()));
         mainMenu.add(menu);
     	
     	// done
         mainMenu.updateUI();
 	}
 
-
-	@Deprecated
-	public void undo() {
-		try {
-			undoManager.undo();
-		} catch (CannotUndoException ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	
-	@Deprecated
-	public void redo() {
-		try {
-			undoManager.redo();
-		} catch (CannotRedoException ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	
 	/**
 	 * changes the order of the recent files list in the File submenu, saves the updated prefs, and refreshes the menus.
 	 * @param filename the file to push to the top of the list.
@@ -682,9 +662,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         gl2.setSwapInterval(1);
 
         // set up the projection matrix
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
-		setPerspectiveMatrix();
+        cameraView.setCanvasWidth(glCanvas.getSurfaceWidth());
+        cameraView.setCanvasHeight(glCanvas.getSurfaceHeight());
+		cameraView.render(gl2);
+
 
 		// set opengl options
 		gl2.glDepthFunc(GL2.GL_LESS);
@@ -725,21 +706,23 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
             try {
                 // Debug ..
                 gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
-            } catch (Exception e) {e.printStackTrace();}
+            } catch (Exception e) {
+            	e.printStackTrace();
+            }
         }
 
         if(glTrace) {
             try {
                 // Trace ..
                 gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
-            } catch (Exception e) {e.printStackTrace();}
+            } catch (Exception e) {
+            	e.printStackTrace();
+            }
         }
-        glu = GLU.createGLU(gl);
     }
 
     @Override
     public void dispose( GLAutoDrawable drawable ) {}
-    
     
     /**
      * Draw the 3D scene.  Called ~30/s. Also does other update tasks and polls input.
@@ -766,31 +749,36 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
     	GL2 gl2 = drawable.getGL().getGL2();
 
-        // set up the projection matrix from the live camera
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
-		setPerspectiveMatrix();
-		
 		if(checkStackSize) {
     		IntBuffer stackDepth = IntBuffer.allocate(1);
     		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
     		System.out.print("stack depth start = "+stackDepth.get(0));
 		}	
 
-		gl2.glPushMatrix();
-			gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
-			world.render(gl2);
-			dragBall.render(gl2);
-			
-	        if(pickNow) {
-		        pickNow=false;
-		        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
-		        int pickName = findItemUnderCursor(gl2);
-	        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-	        	pickIntoWorld(pickName);
-	        }
-		gl2.glPopMatrix();
+		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
+
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+		gl2.glLoadIdentity();
+		
+		// 
+        cameraView.render(gl2);
+
+        world.render(gl2);
+
+        showPickingTest(gl2);
+        
+        // overlays
+		dragBall.render(gl2);
+		viewCube.render(gl2);
+				
+        if(pickNow) {
+	        pickNow=false;
+	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+	        int pickName = findItemUnderCursor(gl2);
+        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+        	pickIntoWorld(pickName);
+        }
 		
 		if(checkStackSize) {
     		IntBuffer stackDepth = IntBuffer.allocate(1);
@@ -799,18 +787,43 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		}
     }
 
-    
-    protected void setPerspectiveMatrix() {
-        CameraEntity cam = world.getCamera();
-        glu.gluPerspective(
-        		cam.getFOV(), 
-        		(float)glCanvas.getSurfaceWidth()/(float)glCanvas.getSurfaceHeight(), 
-        		cam.getNearZ(), 
-        		cam.getFarZ());
-        cam.setCanvasWidth(glCanvas.getSurfaceWidth());
-        cam.setCanvasHeight(glCanvas.getSurfaceHeight());
-    }
-    
+	protected void showPickingTest(GL2 gl2) {
+		if(pickForward.lengthSquared()<1e-6) return;
+		
+		gl2.glPushMatrix();
+		gl2.glDisable(GL2.GL_LIGHTING);
+
+		Vector3d forward = new Vector3d();
+		forward.set(pickForward);
+		forward.scale(10);
+		forward.sub(camera.getPosition());
+		gl2.glColor3f(1,0,0);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		forward.set(pickForward);
+		forward.scale(10);
+		forward.add(pickRight);
+		forward.sub(camera.getPosition());
+		gl2.glColor3f(0,1,0);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		forward.set(pickForward);
+		forward.scale(10);
+		forward.add(pickUp);
+		forward.sub(camera.getPosition());
+		gl2.glColor3f(0,0,1);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		forward.set(pickRay);
+		forward.scale(10);
+		forward.sub(camera.getPosition());
+		gl2.glColor3f(1,1,0);
+		PrimitiveSolids.drawStar(gl2, forward);
+		
+		gl2.glEnable(GL2.GL_LIGHTING);
+		gl2.glPopMatrix();
+	}
+	
     /**
      * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
      * https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java
@@ -819,28 +832,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
      */
     protected int findItemUnderCursor(GL2 gl2) {
     	// set up the buffer that will hold the names found under the cursor in furthest to closest.
-        gl2.glSelectBuffer(SELECT_BUFFER_SIZE, selectBuffer);
+        gl2.glSelectBuffer(SELECT_BUFFER_SIZE, pickBuffer);
         // change the render mode
 		gl2.glRenderMode( GL2.GL_SELECT );
 		// wipe the select buffer
 		gl2.glInitNames();
-        // get the current viewport dimensions to set up the projection matrix
-        int[] viewport = new int[4];
-		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewport,0);
-		// Set up a tiny viewport that only covers the area behind the cursor.  Tiny viewports are faster?
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glPushMatrix();
-        gl2.glLoadIdentity();
-		glu.gluPickMatrix(pickX, viewport[3]-pickY, 5.0, 5.0, viewport,0);
-		setPerspectiveMatrix();
+		
+		cameraView.renderPick(gl2,pickX,pickY);
 
         // render in selection mode, without advancing time in the simulation.
         world.render(gl2);
 
-        // return the projection matrix to its old state.
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glPopMatrix();
-        gl2.glFlush();
         //gl2.glPushName(0);
 
         // get the picking results and return the render mode to the default 
@@ -856,8 +858,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	int i, j, index=0, nameCount, pickName, bestPickName=0;
     	
     	for(i=0;i<hits;++i) {
-    		nameCount=selectBuffer.get(index++);
-    		z1 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		nameCount=pickBuffer.get(index++);
+    		z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
     		
     		//z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
     		index++;
@@ -865,12 +867,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		//System.out.print("  names="+nameCount+" zMin="+z1);//+" zMax="+z2);
     		//String add=": ";
 			for(j=0;j<nameCount-1;++j) {
-    			pickName = selectBuffer.get(index++);
+    			pickName = pickBuffer.get(index++);
         		//System.out.print(add+pickName);
         		//add=", ";
 			}
 			if(nameCount>0) {
-				pickName = selectBuffer.get(index++);
+				pickName = pickBuffer.get(index++);
         		//System.out.print(add+pickName);
         		if(zMinBest > z1) {
         			zMinBest = z1;
@@ -883,35 +885,30 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     }
     
     public void pickIntoWorld(int pickName) {
-    	Entity newlyPickedEntity = world.pickPhysicalEntityWithName(pickName);
-    	
-    	if(newlyPickedEntity==null || newlyPickedEntity == pickedEntity) {
-			//System.out.println(" NO PICK");
-    		pickEntity(null);
-        } else {
-			//System.out.print(" PICKED");
-			pickEntity(newlyPickedEntity);
-		}
+    	Entity next = world.pickPhysicalEntityWithName(pickName);
+		
+		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntity,next) ) );
     }
 	
-	public void pickEntity(Entity arg0) {
-		pickedEntity=arg0;
-		pickedHandle=0;
+	public void pickEntity(Entity e) {
+		if(e==null) return;
+		
+		System.out.println("Picked "+e.getCanonicalName());
+		
+		selectedEntity=e;
 
-		if(arg0 instanceof PhysicalEntity && arg0 != dragBall) {
-			dragBall.setSubject((PhysicalEntity)arg0);
+		if(e instanceof PhysicalEntity && e != dragBall) {
+			dragBall.setSubject((PhysicalEntity)e);
 		}
-		setContextPanel(arg0);
+		//updateEntityTree();
+		updateSelectedEntityPanel(e);
 	}
     
 	public void pickCamera() {
-		CameraEntity camera = world.getCamera();
+		PhysicalEntity camera = cameraView.getAttachedTo();
 		if(camera!=null) {
 			pickEntity(camera);
 		}
-	}
-	public int getPickedHandle() {
-		return pickedHandle;
 	}
 	
 	@Override
@@ -926,14 +923,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	@Override
 	public void mousePressed(MouseEvent e) {
 		pickX=e.getX();
-		pickY=e.getY();
-		pickedHandle=0;
-		
-		world.getCamera().pressed();
+		pickY=e.getY();		
+		cameraView.pressed();
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		world.getCamera().released();
+		cameraView.released();
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -946,13 +941,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	@Override
 	public void mouseDragged(MouseEvent e) {
-        CameraEntity cam = world.getCamera();
-        cam.setCursor(e.getX(),e.getY());
+        cameraView.setCursor(e.getX(),e.getY());
 	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
-        CameraEntity cam = world.getCamera();
-        cam.setCursor(e.getX(),e.getY());
+        cameraView.setCursor(e.getX(),e.getY());
 	}
 
 
@@ -995,14 +988,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         }
 	}
 
-	@Deprecated
-	public void keyReleased(KeyEvent e) {
-		if(e.getKeyCode()==KeyEvent.VK_ESCAPE) {
-			pickEntity(null);
-		}
-	}
-	
-
 	public static void main(String[] argv) {
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
@@ -1013,12 +998,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	    });
 	}
 
-
 	@Override
 	public void undoableEditHappened(UndoableEditEvent e) {
 		undoManager.addEdit(e.getEdit());
-		undoAction.updateUndoState();
-		redoAction.updateRedoState();
+		commandUndo.updateUndoState();
+		commandRedo.updateRedoState();
 	}
 	
 	/**

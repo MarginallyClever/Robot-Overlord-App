@@ -513,7 +513,7 @@
 
 	<string>
 		<key>UpdateNotice</key>
-		<value><![CDATA[<html><body>A new version of this software is available.<br/>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-software/">https://www.marginallyclever.com/product/makelangelo-software/</a> to get the new hotness.</html></body>]]></value>
+		<value><![CDATA[<html><body>A new version of this software is available.<br/>Please visit <a href="https://www.marginallyclever.com/products/robot-overlord/">https://www.marginallyclever.com/products/robot-overlord/</a> to get the new hotness.</html></body>]]></value>
 		<hint>check for update dialog</hint>
 	</string>
 	<string>
@@ -888,12 +888,6 @@ to check yourself.</value>
 	</string>
 
 	<string>
-		<key>SharePromo</key>
-		<value>Use Twitter tag #makelangelo to share your art.</value>
-		<hint>Your drawing is finished. Share it</hint>
-	</string>
-
-	<string>
 		<key>StatusSoFar</key>
 		<value>Time running: </value>
 		<hint>time machine has been drawing</hint>
@@ -921,16 +915,15 @@ to check yourself.</value>
 		<value><![CDATA[
     <html>
       <body>
-        <h1>Makelangelo %VERSION%</h1>
+        <h1>Robot Overlord %VERSION%</h1>
       <h3>
-        <a href='http://www.makelangelo.com/'>http://www.makelangelo.com/</a>
+        <a href='https://www.marginallyclever.com/products/robot-overlord/'>https://www.marginallyclever.com/products/robot-overlord/</a>
       </h3>
-        <p>To get the latest version please visit<br>
-          <a href='https://www.marginallyclever.com/product/makelangelo-software/'>https://www.marginallyclever.com/product/makelangelo-software/</a></p>
         <p>Created by <a href="mailto:dan@marginallyclever.com">Dan Royer</a>.</p>
         <p>Additional software and hardware contributions by<br>
         Joseph Cottam, <a href='https://github.com/virtuoushub'>Peter Colapietro<a/>,<br>
-        Mark Raynsford, and <a href='https://ca.linkedin.com/in/kington-chu-219923123'>Kington Chu</a>.</p>
+        Mark Raynsford, and<br>
+        <a href='https://ca.linkedin.com/in/kington-chu-219923123'>Kington Chu</a>.</p>
       </body>
     </html>
     ]]>

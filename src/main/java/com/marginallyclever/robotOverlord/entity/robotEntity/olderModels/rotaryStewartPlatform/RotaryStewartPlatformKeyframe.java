@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.bezier3.Bezier3ControlPoint;
 import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
-import com.marginallyclever.robotOverlord.uiElements.log.Log;
+import com.marginallyclever.robotOverlord.log.Log;
 
 
 @Deprecated

@@ -11,8 +11,13 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
+/**
+ * See also https://learnopengl.com/Lighting/Light-casters
+ * @author Dan Royer
+ * @since 1.6.0
+ */
 public class LightEntity extends PhysicalEntity {
 	/**
 	 * 
@@ -45,26 +50,25 @@ public class LightEntity extends PhysicalEntity {
 		"Black",
 	};
 	
-	public int index=0;
+	public int lightIndex=0;
 	
 	private float[] position={0,0,1,0};
-	
-	private float[] direction={0,0,1};
+	private float[] spotDirection={0,0,1};
 
 	public BooleanEntity enabled = new BooleanEntity("On",true);
+	public BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
 
 	public IntEntity preset = new IntEntity("Preset",0);
 	public ColorEntity diffuse = new ColorEntity("Diffuse" ,0,0,0,1);
 	public ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
 	public ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
-
-	public BooleanEntity isDirectional = new BooleanEntity("Directional",false);
 	
-	public DoubleEntity cutoff = new DoubleEntity("Cutoff",180);
-	public DoubleEntity exponent = new DoubleEntity("Exponent",0);
+	public DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",90);
+	public DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
+	
 	public DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
-	public DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.0);
-	public DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0);
+	public DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
+	public DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
 	
 	
 	public LightEntity() {
@@ -75,6 +79,7 @@ public class LightEntity extends PhysicalEntity {
 		addChild(specular);
 		addChild(ambient);
 		
+		addChild(isDirectional);
 		addChild(cutoff);
 		addChild(exponent);
 
@@ -85,20 +90,28 @@ public class LightEntity extends PhysicalEntity {
 
 	@Override
 	public void render(GL2 gl2) {
-		int i = GL2.GL_LIGHT0+index;
+		int i = GL2.GL_LIGHT0+lightIndex;
 		if(!enabled.get()) {
 			gl2.glDisable(i);
 			return;
 		}
 		gl2.glEnable(i);
 		
-		position[3]=isDirectional.get()?0:1;
+		position[0]=(float)poseWorld.m03;
+		position[1]=(float)poseWorld.m13;
+		position[2]=(float)poseWorld.m23;
+		
+		position[3]=isDirectional.get()?1:0;
 		gl2.glLightfv(i, GL2.GL_POSITION, position,0);
 	    gl2.glLightfv(i, GL2.GL_AMBIENT, ambient.getFloatArray(),0);
 	    gl2.glLightfv(i, GL2.GL_DIFFUSE, diffuse.getFloatArray(),0);
 	    gl2.glLightfv(i, GL2.GL_SPECULAR, specular.getFloatArray(),0);
 
-		gl2.glLightfv(i, GL2.GL_SPOT_DIRECTION, direction,0);
+	    // z axis of the light
+	    spotDirection[0]=(float)poseWorld.m02;
+	    spotDirection[1]=(float)poseWorld.m12;
+	    spotDirection[2]=(float)poseWorld.m22;
+		gl2.glLightfv(i, GL2.GL_SPOT_DIRECTION, spotDirection,0);
 	    
 	    gl2.glLightf(i, GL2.GL_SPOT_CUTOFF, cutoff.get().floatValue());
 	    gl2.glLightf(i, GL2.GL_SPOT_EXPONENT, exponent.get().floatValue());
@@ -180,12 +193,14 @@ public class LightEntity extends PhysicalEntity {
 	
 	public void setPreset(int i) {
 		ColorRGB [] choice;
+		
 		switch(i) {
 		case 1: choice = presetNoon;		break;
 		case 2:	choice = presetMetalHalide; break;
 		case 3: choice = presetBlack;		break;
 		default: choice=null;
 		}
+		
 		if(choice!=null) {
 			ColorRGB c;
 			c= choice[0];	this.setAmbient (c.red/255, c.green/255, c.blue/255, 1);

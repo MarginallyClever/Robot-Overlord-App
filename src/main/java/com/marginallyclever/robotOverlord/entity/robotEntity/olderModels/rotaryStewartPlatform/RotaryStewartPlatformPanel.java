@@ -15,10 +15,10 @@ import javax.swing.event.ChangeListener;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.uiElements.HTMLDialogBox;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.actions.UndoableActionRobotMove;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandMoveRobot;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.HTMLDialogBox;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMove;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandMoveRobot;
 
 @Deprecated
 public class RotaryStewartPlatformPanel extends JPanel implements ActionListener, ChangeListener {
@@ -88,18 +88,18 @@ public class RotaryStewartPlatformPanel extends JPanel implements ActionListener
 		vPos = new JLabel("0.00");
 		wPos = new JLabel("0.00");
 
-		p.add(arm5Upos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_U, 1,"U+"));		p.add(uPos);
-		p.add(arm5Uneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_U,-1,"U-"));		
-		p.add(arm5Vpos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_V, 1,"V+"));		p.add(vPos);
-		p.add(arm5Vneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_V,-1,"V-"));		
-		p.add(arm5Wpos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_W, 1,"W+"));		p.add(wPos);
-		p.add(arm5Wneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_W,-1,"W-"));		
-		p.add(arm5Xpos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_X, 1,"X+"));		p.add(xPos);
-		p.add(arm5Xneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_X,-1,"X-"));		
-		p.add(arm5Ypos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Y, 1,"Y+"));		p.add(yPos);
-		p.add(arm5Yneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Y,-1,"Y-"));		
-		p.add(arm5Zpos = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Z, 1,"Z+"));		p.add(zPos);
-		p.add(arm5Zneg = new UserCommandMoveRobot(gui, robot,UndoableActionRobotMove.AXIS_Z,-1,"Z-"));
+		p.add(arm5Upos = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_U, 1,"U+"));		p.add(uPos);
+		p.add(arm5Uneg = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_U,-1,"U-"));		
+		p.add(arm5Vpos = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_V, 1,"V+"));		p.add(vPos);
+		p.add(arm5Vneg = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_V,-1,"V-"));		
+		p.add(arm5Wpos = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_W, 1,"W+"));		p.add(wPos);
+		p.add(arm5Wneg = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_W,-1,"W-"));		
+		p.add(arm5Xpos = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_X, 1,"X+"));		p.add(xPos);
+		p.add(arm5Xneg = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_X,-1,"X-"));		
+		p.add(arm5Ypos = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_Y, 1,"Y+"));		p.add(yPos);
+		p.add(arm5Yneg = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_Y,-1,"Y-"));		
+		p.add(arm5Zpos = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_Z, 1,"Z+"));		p.add(zPos);
+		p.add(arm5Zneg = new CommandMoveRobot(gui, robot,ActionPhysicalEntityMove.AXIS_Z,-1,"Z-"));
 		
 		about = new JButton("About this robot");
 		about.addActionListener(this);

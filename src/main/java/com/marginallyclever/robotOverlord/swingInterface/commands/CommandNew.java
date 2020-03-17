@@ -1,0 +1,44 @@
+package com.marginallyclever.robotOverlord.swingInterface.commands;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+
+/**
+ * Clear the world and start anew. This action is not an undoable action.
+ * @author Dan Royer
+ *
+ */
+public class CommandNew extends AbstractAction implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected RobotOverlord ro;
+	
+	public CommandNew(RobotOverlord ro) {
+		super(Translator.get("New"));
+        putValue(SHORT_DESCRIPTION, "Remove everything from the world.");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK) );
+		this.ro = ro;
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		// TODO Did you save your work?
+        int result = JOptionPane.showConfirmDialog(
+                ro.getMainFrame(),
+                Translator.get("Are you sure?"),
+                (String)this.getValue(AbstractAction.NAME),
+                JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+        	ro.newWorld();
+        }
+	}
+}

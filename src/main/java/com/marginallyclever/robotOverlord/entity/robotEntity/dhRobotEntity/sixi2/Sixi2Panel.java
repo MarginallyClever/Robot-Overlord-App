@@ -38,10 +38,10 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhLink.DHLink;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSelectBoolean;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandSelectComboBox;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanelBoolean;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanelComboBox;
 
 /**
  * Control Panel for a DHRobot
@@ -64,9 +64,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JSlider feedrateSlider, accelerationSlider, gripperOpening;
 	public JLabel  feedrateValue, accelerationValue, gripperOpeningValue;
 
-	public UserCommandSelectComboBox controlMode;
-	public UserCommandSelectComboBox operatingMode;
-	public UserCommandSelectBoolean singleBlock;
+	public ViewPanelComboBox controlMode;
+	public ViewPanelComboBox operatingMode;
+	public ViewPanelBoolean singleBlock;
 //	public JComboBox<String> frameOfReferenceSelection;
 
 	public JLabel gcodeLabel;
@@ -118,7 +118,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		this.removeAll();
 
 		this.setName("Sixi 2");
-		this.setBorder(new EmptyBorder(5,5,5,5));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();
@@ -141,7 +140,6 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 		JPanel feedratePanel = new JPanel(new BorderLayout(5,0));
 		con1.gridy++;
 		this.add(feedratePanel,con1);
-		feedratePanel.setBorder(new EmptyBorder(5,0,5,0));
 			feedrateValue = new JLabel(StringHelper.formatDouble(robot.getFeedRate()),JLabel.RIGHT);
 				feedrateValue.setHorizontalAlignment(SwingConstants.RIGHT);
 				feedrateValue.setMinimumSize(new Dimension(50,16));

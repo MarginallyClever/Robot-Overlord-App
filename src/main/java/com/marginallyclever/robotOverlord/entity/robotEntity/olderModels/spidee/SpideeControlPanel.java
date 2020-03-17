@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 
 @Deprecated
 public class SpideeControlPanel extends JPanel implements ChangeListener, ActionListener, ItemListener {

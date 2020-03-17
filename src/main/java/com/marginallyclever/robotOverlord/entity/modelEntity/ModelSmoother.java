@@ -25,7 +25,7 @@ public class ModelSmoother {/*
 
 	public static void smoothModel(String inName,String outName,float vertexEpsilon,float normalEpsilon) throws IOException {
 		try {
-			Model m = ModelFactory.createModelFromFilename(inName);
+			Model m = ModelEntity.createModelFromFilename(inName);
 			smoothNormals(m,vertexEpsilon,normalEpsilon);
 			
 			//File file = new File(outName);

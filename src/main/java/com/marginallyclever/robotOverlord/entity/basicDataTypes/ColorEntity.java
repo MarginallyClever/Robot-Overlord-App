@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * each color component is in the range [0...1]

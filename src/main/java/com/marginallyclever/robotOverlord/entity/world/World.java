@@ -10,16 +10,14 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
-import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.primitives.BoxEntity;
-import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.GridEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.LightEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.uiElements.ViewCube;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * Container for all the visible objects in a scene.
@@ -36,23 +34,10 @@ public class World extends Entity {
 	public final static Vector3d forward = new Vector3d(0,0,1);
 	public final static Vector3d right = new Vector3d(1,0,0);
 	public final static Vector3d up = new Vector3d(0,1,0);
-	
-	protected CameraEntity camera = new CameraEntity();
-	
-	// ray picking
-	protected transient Vector3d pickForward=new Vector3d();
-	protected transient Vector3d pickRight=new Vector3d();
-	protected transient Vector3d pickUp=new Vector3d();
-	protected transient Vector3d pickRay=new Vector3d();
-	
-	// The box in the top right of the user view that shows your orientation in the world.
-	// TODO probably doesn't belong here, it's per-user?  per-camera?
-	protected transient ViewCube viewCube = new ViewCube();
 
 	public World() {
 		super();
 		setName("World");
-		addChild(camera);
 	}
 	
 	public void createDefaultWorld() {
@@ -66,27 +51,28 @@ public class World extends Entity {
 		grid.setPosition(new Vector3d(30,0,-0.5));
 		
 		// adjust default camera
-		camera.setPosition(new Vector3d(0,-100,65));
-		//camera.setPan(52);
-		camera.setTilt(76);
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		ro.camera.setPosition(new Vector3d(0,-100,65));
+		//ro.camera.setPan(52);
+		ro.camera.setTilt(76);
 		
 		// add some lights
     	LightEntity light;
     	 
 		addChild(light = new LightEntity());
 		light.setName("Ambient light");
-    	light.index=0;
+    	light.lightIndex=0;
     	light.setPosition(new Vector3d(0,0,30));
     	light.setAmbient(2.55f,2.55f,2.51f,1);
 
 		addChild(light = new LightEntity());
-		light.setName("light 1");
-    	light.index=1;
+		light.setName("Light 1");
+    	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
-    	light.setDiffuse(80,80,80,1);
-    	light.attenuationConstant.set(0.5);
-    	light.attenuationLinear.set(0.4);
-
+    	light.setDiffuse(1,1,1,1);
+    	light.attenuationLinear.set(0.0014);
+    	light.attenuationQuadratic.set(0.0007);
+    	
 		// add some collision bounds
 		BoxEntity box;
 		
@@ -126,91 +112,32 @@ public class World extends Entity {
 		gl2.glCullFace(GL2.GL_BACK);
 		// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
     	gl2.glDrawBuffer(GL2.GL_BACK);
-
-		// DRAW THE WORLD
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
-		gl2.glLoadIdentity();
-		gl2.glPushMatrix();
-
-			camera.render(gl2);
 	
-			// lights
-			for( Entity obj : children ) {
-				if(obj instanceof LightEntity) {
-					PhysicalEntity light = (PhysicalEntity)obj;
-					light.render(gl2);
-				}
+		// pass 1: all the lights
+		for( Entity obj : children ) {
+			if(obj instanceof LightEntity) {
+				PhysicalEntity light = (PhysicalEntity)obj;
+				light.render(gl2);
 			}
+		}
+		
+		// pass 2: everything not a light
+		for( Entity obj : children ) {
+			if(!(obj instanceof PhysicalEntity)) continue;
+			if(obj instanceof LightEntity) continue;
+			PhysicalEntity pe = (PhysicalEntity)obj;
 			
-			// draw!
-			for( Entity obj : children ) {
-				if(!(obj instanceof PhysicalEntity)) continue;
-				if(obj instanceof LightEntity) continue;
-				if(obj instanceof CameraEntity) continue;
-				PhysicalEntity pe = (PhysicalEntity)obj;
-				
-				gl2.glPushName(pe.getPickName());
-				pe.render(gl2);
-				gl2.glPopName();
-			}
-	
-			showPickingTest(gl2);
+			gl2.glPushName(pe.getPickName());
+			pe.render(gl2);
+			gl2.glPopName();
+		}
+		
+		// pass 3: everything transparent?
 
-		gl2.glPopMatrix();
-	
-		
-		// DRAW THE HUD
-		gl2.glPushMatrix();
-			camera.render(gl2);
-			
-			viewCube.render(gl2,getCamera());
-		gl2.glPopMatrix();
-	}
-
-	protected void showPickingTest(GL2 gl2) {
-		if(pickForward.lengthSquared()<1e-6) return;
-		
-		gl2.glPushMatrix();
-		gl2.glDisable(GL2.GL_LIGHTING);
-
-		Vector3d forward = new Vector3d();
-		forward.set(pickForward);
-		forward.scale(10);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(1,0,0);
-		PrimitiveSolids.drawStar(gl2, forward);
-		
-		forward.set(pickForward);
-		forward.scale(10);
-		forward.add(pickRight);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(0,1,0);
-		PrimitiveSolids.drawStar(gl2, forward);
-		
-		forward.set(pickForward);
-		forward.scale(10);
-		forward.add(pickUp);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(0,0,1);
-		PrimitiveSolids.drawStar(gl2, forward);
-		
-		forward.set(pickRay);
-		forward.scale(10);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(1,1,0);
-		PrimitiveSolids.drawStar(gl2, forward);
-		
-		gl2.glEnable(GL2.GL_LIGHTING);
-		gl2.glPopMatrix();
 	}
 
 	// Search only my children to find the PhysicalEntity with matchin pickName.
 	public PhysicalEntity pickPhysicalEntityWithName(int pickName) {
-		if(pickName==0) {
-			// Hit nothing!  Default to camera controls
-			return camera;
-		}
-
 		for( Entity obj : children ) {
 			if(!(obj instanceof PhysicalEntity)) continue;
 			PhysicalEntity pe = (PhysicalEntity)obj;
@@ -220,10 +147,6 @@ public class World extends Entity {
 		}
 		
 		return null;
-	}
-		
-	public CameraEntity getCamera() {
-		return camera;
 	}
 		
 	/**

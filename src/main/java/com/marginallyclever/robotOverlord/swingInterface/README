@@ -1,0 +1,4 @@
+swingInterface
+
+These classes are only used with Human Interface Devices (HID) like LCD monitors and mice.
+The application does not HAVE to load them to run. 

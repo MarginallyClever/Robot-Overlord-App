@@ -39,9 +39,7 @@ public class SkyBoxEntity extends Entity {
 	}
 	
 	// Draw background
-	public void render(GL2 gl2,CameraEntity camera) {
-        //gl2.glDisable(GL2.GL_CULL_FACE);
-		
+	public void render(GL2 gl2,CameraEntity camera) {		
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
@@ -101,6 +99,5 @@ public class SkyBoxEntity extends Entity {
 			
 		gl2.glPopMatrix();
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
-        //gl2.glEnable(GL2.GL_CULL_FACE);
 	}
 }

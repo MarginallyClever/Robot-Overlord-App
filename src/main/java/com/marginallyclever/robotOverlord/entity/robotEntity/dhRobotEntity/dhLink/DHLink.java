@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhLink;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
@@ -7,6 +9,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.sixi2.Sixi2.ControlMode;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * Denavit–Hartenberg parameters
@@ -91,6 +94,11 @@ public class DHLink extends ModelEntity {
 		addChild(r);
 		addChild(theta);
 		addChild(alpha);
+		
+		d.addObserver(this);
+		r.addObserver(this);
+		theta.addObserver(this);
+		alpha.addObserver(this);
 		
 		addChild(rangeMin);
 		addChild(rangeMax);
@@ -418,5 +426,23 @@ public class DHLink extends ModelEntity {
 	}
 	public String getLetter() {
 		return letter.get();
+	}
+
+	@Override
+	public void getView(View view) {
+		view.addReadOnly(this.getName());
+		view.addDouble(d);
+		view.addDouble(theta);
+		view.addDouble(r);
+		view.addDouble(alpha);
+		
+		view.addDouble(rangeMin);
+		view.addDouble(rangeMax);
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		super.update(o, arg);
+		refreshPoseMatrix();
 	}
 }

@@ -17,10 +17,10 @@ import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.modelEntity.ModelFactory;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.actions.UndoableActionRobotMove;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMove;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity {
@@ -101,9 +101,9 @@ public class DeltaRobot3 extends RobotEntity {
 		zDir = 0.0f;
 		
 		try {
-			modelTop = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:top.STL",0.1f);
-			modelArm = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:arm.STL",0.1f);
-			modelBase = ModelFactory.createModelFromFilename("/DeltaRobot3.zip:base.STL",0.1f);
+			modelTop = ModelEntity.createModelFromFilename("/DeltaRobot3.zip:top.STL");
+			modelArm = ModelEntity.createModelFromFilename("/DeltaRobot3.zip:arm.STL");
+			modelBase = ModelEntity.createModelFromFilename("/DeltaRobot3.zip:base.STL");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -565,12 +565,12 @@ public class DeltaRobot3 extends RobotEntity {
 	
 	public void move(int axis,int direction) {
 		switch(axis) {
-		case UndoableActionRobotMove.AXIS_A: moveA(direction); break;
-		case UndoableActionRobotMove.AXIS_B: moveB(direction); break;
-		case UndoableActionRobotMove.AXIS_C: moveC(direction); break;
-		case UndoableActionRobotMove.AXIS_X: moveX(direction); break;
-		case UndoableActionRobotMove.AXIS_Y: moveY(direction); break;
-		case UndoableActionRobotMove.AXIS_Z: moveZ(direction); break;
+		case ActionPhysicalEntityMove.AXIS_A: moveA(direction); break;
+		case ActionPhysicalEntityMove.AXIS_B: moveB(direction); break;
+		case ActionPhysicalEntityMove.AXIS_C: moveC(direction); break;
+		case ActionPhysicalEntityMove.AXIS_X: moveX(direction); break;
+		case ActionPhysicalEntityMove.AXIS_Y: moveY(direction); break;
+		case ActionPhysicalEntityMove.AXIS_Z: moveZ(direction); break;
 		}
 	}
 	

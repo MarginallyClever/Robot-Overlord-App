@@ -5,13 +5,12 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.uiElements.log.Log;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
- * Created on 5/10/15.
  *
  * @author Peter Colapietro
- * @since v7.1.2
+ * @since 2015-10-05
  */
 public final class PropertiesFileHelper {
 

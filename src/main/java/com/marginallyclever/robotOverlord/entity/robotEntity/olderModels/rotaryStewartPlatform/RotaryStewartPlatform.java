@@ -18,11 +18,11 @@ import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.modelEntity.ModelFactory;
+import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.RobotKeyframe;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.actions.UndoableActionRobotMove;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMove;
 
 @Deprecated
 public class RotaryStewartPlatform extends RobotEntity {
@@ -107,9 +107,9 @@ public class RotaryStewartPlatform extends RobotEntity {
 		wDir = 0.0f;
 		
 		try {
-			modelTop = ModelFactory.createModelFromFilename("/StewartPlatform.zip:top.STL", 0.1f);
-			modelBicep = ModelFactory.createModelFromFilename("/StewartPlatform.zip:arm.STL", 0.1f);
-			modelBase = ModelFactory.createModelFromFilename("/StewartPlatform.zip:base.STL", 0.1f);
+			modelTop = ModelEntity.createModelFromFilename("/StewartPlatform.zip:top.STL");
+			modelBicep = ModelEntity.createModelFromFilename("/StewartPlatform.zip:arm.STL");
+			modelBase = ModelEntity.createModelFromFilename("/StewartPlatform.zip:base.STL");
 			matBase.setDiffuseColor(37.0f / 255.0f, 110.0f / 255.0f, 94.0f / 255.0f, 1.0f);
 			matBicep.setDiffuseColor(68.0f / 255.0f, 137.0f / 255.0f, 122.0f / 255.0f, 1.0f);
 			matTop.setDiffuseColor(110.0f / 255.0f, 164.0f / 255.0f, 152.0f / 255.0f, 1.0f);
@@ -181,22 +181,22 @@ public class RotaryStewartPlatform extends RobotEntity {
 
 	public void move(int axis, int direction) {
 		switch (axis) {
-		case UndoableActionRobotMove.AXIS_X:
+		case ActionPhysicalEntityMove.AXIS_X:
 			xDir = direction;
 			break;
-		case UndoableActionRobotMove.AXIS_Y:
+		case ActionPhysicalEntityMove.AXIS_Y:
 			yDir = direction;
 			break;
-		case UndoableActionRobotMove.AXIS_Z:
+		case ActionPhysicalEntityMove.AXIS_Z:
 			zDir = direction;
 			break;
-		case UndoableActionRobotMove.AXIS_U:
+		case ActionPhysicalEntityMove.AXIS_U:
 			uDir = direction;
 			break;
-		case UndoableActionRobotMove.AXIS_V:
+		case ActionPhysicalEntityMove.AXIS_V:
 			vDir = direction;
 			break;
-		case UndoableActionRobotMove.AXIS_W:
+		case ActionPhysicalEntityMove.AXIS_W:
 			wDir = direction;
 			break;
 		}

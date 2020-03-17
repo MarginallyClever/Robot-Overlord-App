@@ -9,7 +9,7 @@ import javax.swing.JTabbedPane;
 
 import com.marginallyclever.communications.serial.SerialTransportLayer;
 import com.marginallyclever.communications.tcp.TCPTransportLayer;
-import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
  * Handles requests between the UI and the various transport layers 
@@ -30,10 +30,8 @@ public class NetworkConnectionManager {
 		top.setLayout(new GridLayout(0,1));
 		JTabbedPane tabs = new JTabbedPane();
 		top.add(tabs);
-		// TODO translate me?
-		tabs.addTab("USB", serial.getTransportLayerPanel());
-		// TODO translate me?
-		tabs.addTab("TCP/IP", tcp.getTransportLayerPanel());
+		tabs.addTab(Translator.get("Local"), serial.getTransportLayerPanel());
+		tabs.addTab(Translator.get("Remote"), tcp.getTransportLayerPanel());
 
 		int result = JOptionPane.showConfirmDialog(parent, top, Translator.get("MenuConnect"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {

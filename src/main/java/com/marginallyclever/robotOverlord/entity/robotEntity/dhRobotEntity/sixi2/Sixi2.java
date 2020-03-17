@@ -24,7 +24,7 @@ import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.DHKey
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhLink.DHLink;
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.world.World;
-import com.marginallyclever.robotOverlord.uiElements.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 
 
 /**

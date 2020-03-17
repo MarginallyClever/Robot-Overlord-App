@@ -23,19 +23,19 @@ public class MaterialEntity extends Entity {
 	private ColorEntity emission   = new ColorEntity("Emission",0.01,0.01,0.01,1.00);
 	private ColorEntity ambient    = new ColorEntity("Ambient" ,0.01,0.01,0.01,1.00);
 	private DoubleEntity shininess = new DoubleEntity("Shininess",10.0);
-	private BooleanEntity isLit    = new BooleanEntity("On",true);
+	private BooleanEntity isLit    = new BooleanEntity("Lit",true);
 	private TextureEntity texture  = new TextureEntity();
 		
 	public MaterialEntity() {
 		super();
 		this.setName("Material");
 
+		addChild(isLit);
 		addChild(diffuse);
 		addChild(specular);
 		addChild(emission);
 		addChild(ambient);
 		addChild(shininess);
-		addChild(isLit);
 		addChild(texture);
 	}
 	

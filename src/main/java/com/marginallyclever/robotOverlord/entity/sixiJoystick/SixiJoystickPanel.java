@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.uiElements.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
  * Control Panel for a DHRobot

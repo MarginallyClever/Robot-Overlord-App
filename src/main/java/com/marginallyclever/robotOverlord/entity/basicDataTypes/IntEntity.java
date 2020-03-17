@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * @author Dan Royer
@@ -29,6 +29,6 @@ public class IntEntity extends AbstractEntity<Integer> {
 	
 	@Override
 	public void getView(View view) {
-		view.addNumber(this);
+		view.addInt(this);
 	}
 }

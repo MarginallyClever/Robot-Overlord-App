@@ -5,7 +5,7 @@ package com.marginallyclever.robotOverlord.entity;
  * @author Dan Royer
  * @since 1.6.0
  */
-public abstract class AbstractEntity<T> extends Entity {
+public class AbstractEntity<T> extends Entity {
 	/**
 	 * 
 	 */
@@ -13,7 +13,7 @@ public abstract class AbstractEntity<T> extends Entity {
 	
 	protected T t;
 
-	public AbstractEntity() {
+	protected AbstractEntity() {
 		super();
 		setName("AbstractEntity");
 	}
@@ -44,7 +44,7 @@ public abstract class AbstractEntity<T> extends Entity {
     }
 	
 	public void set(AbstractEntity<T> b) {
-		super.set(b);
+		super.setName(b.getName());
 		
 		set(b.get());
 		

@@ -15,10 +15,10 @@ import javax.swing.event.ChangeListener;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.uiElements.HTMLDialogBox;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.actions.UndoableActionRobotMove;
-import com.marginallyclever.robotOverlord.uiElements.undoRedo.commands.UserCommandMoveRobot;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.HTMLDialogBox;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMove;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandMoveRobot;
 
 @Deprecated
 public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeListener {
@@ -36,20 +36,20 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 	private JLabel speedNow;
 	private JSlider speedControl;
 	
-	private UserCommandMoveRobot arm5Apos;
-	private UserCommandMoveRobot arm5Aneg;
-	private UserCommandMoveRobot arm5Bpos;
-	private UserCommandMoveRobot arm5Bneg;
-	private UserCommandMoveRobot arm5Cpos;
-	private UserCommandMoveRobot arm5Cneg;
+	private CommandMoveRobot arm5Apos;
+	private CommandMoveRobot arm5Aneg;
+	private CommandMoveRobot arm5Bpos;
+	private CommandMoveRobot arm5Bneg;
+	private CommandMoveRobot arm5Cpos;
+	private CommandMoveRobot arm5Cneg;
 	public JLabel angleA,angleB,angleC;
 	
-	private UserCommandMoveRobot arm5Xpos;
-	private UserCommandMoveRobot arm5Xneg;
-	private UserCommandMoveRobot arm5Ypos;
-	private UserCommandMoveRobot arm5Yneg;
-	private UserCommandMoveRobot arm5Zpos;
-	private UserCommandMoveRobot arm5Zneg;
+	private CommandMoveRobot arm5Xpos;
+	private CommandMoveRobot arm5Xneg;
+	private CommandMoveRobot arm5Ypos;
+	private CommandMoveRobot arm5Yneg;
+	private CommandMoveRobot arm5Zpos;
+	private CommandMoveRobot arm5Zneg;
 
 	private JButton about;
 	
@@ -98,12 +98,12 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		JPanel p = new JPanel(new GridLayout(3,3));
 		cp.getContentPane().add(p);
 
-		p.add(arm5Apos = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_A, 1, "A+"));		p.add(angleA = new JLabel("0.00"));
-		p.add(arm5Aneg = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_A,-1, "A-"));		
-		p.add(arm5Bpos = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_B, 1, "B+"));		p.add(angleB = new JLabel("0.00"));
-		p.add(arm5Bneg = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_B,-1, "B-"));		
-		p.add(arm5Cpos = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_C, 1, "C+"));		p.add(angleC = new JLabel("0.00"));
-		p.add(arm5Cneg = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_C,-1, "C-"));
+		p.add(arm5Apos = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_A, 1, "A+"));		p.add(angleA = new JLabel("0.00"));
+		p.add(arm5Aneg = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_A,-1, "A-"));		
+		p.add(arm5Bpos = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_B, 1, "B+"));		p.add(angleB = new JLabel("0.00"));
+		p.add(arm5Bneg = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_B,-1, "B-"));		
+		p.add(arm5Cpos = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_C, 1, "C+"));		p.add(angleC = new JLabel("0.00"));
+		p.add(arm5Cneg = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_C,-1, "C-"));
 
 		return cp;
 	}
@@ -114,12 +114,12 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		JPanel p = new JPanel(new GridLayout(3,3));
 		cp.getContentPane().add(p);
 		
-		p.add(arm5Xpos = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_X, 1, "X+"));		p.add(xPos = new JLabel("0.00"));
-		p.add(arm5Xneg = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_X,-1, "X-"));		
-		p.add(arm5Ypos = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_Y, 1, "Y+"));		p.add(yPos = new JLabel("0.00"));
-		p.add(arm5Yneg = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_Y,-1, "Y-"));		
-		p.add(arm5Zpos = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_Z, 1, "Z+"));		p.add(zPos = new JLabel("0.00"));
-		p.add(arm5Zneg = new UserCommandMoveRobot(gui, robot, UndoableActionRobotMove.AXIS_Z,-1, "Z-"));
+		p.add(arm5Xpos = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_X, 1, "X+"));		p.add(xPos = new JLabel("0.00"));
+		p.add(arm5Xneg = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_X,-1, "X-"));		
+		p.add(arm5Ypos = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_Y, 1, "Y+"));		p.add(yPos = new JLabel("0.00"));
+		p.add(arm5Yneg = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_Y,-1, "Y-"));		
+		p.add(arm5Zpos = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_Z, 1, "Z+"));		p.add(zPos = new JLabel("0.00"));
+		p.add(arm5Zneg = new CommandMoveRobot(gui, robot, ActionPhysicalEntityMove.AXIS_Z,-1, "Z-"));
 		
 		return cp;
 	}

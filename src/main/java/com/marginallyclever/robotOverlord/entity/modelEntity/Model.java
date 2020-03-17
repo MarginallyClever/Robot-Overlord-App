@@ -37,7 +37,7 @@ public class Model {
 
 	public transient boolean hasNormals;
 	public transient boolean hasColors;
-	public transient boolean hasTextureCoordinates;
+	public transient boolean hasUVs;
 	
 	public transient boolean isDirty;
 	// correction matrix
@@ -51,7 +51,7 @@ public class Model {
 		VBO = null;
 		hasNormals=false;
 		hasColors=false;
-		hasTextureCoordinates=false;
+		hasUVs=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
 		adjust.setIdentity();
@@ -182,7 +182,7 @@ public class Model {
 		    vboIndex++;
 		}
 		
-		if(hasTextureCoordinates) {
+		if(hasUVs) {
 		    // repeat for textures
 			texCoords = FloatBuffer.allocate(texCoordArray.size());
 			fi = texCoordArray.iterator();
@@ -227,7 +227,7 @@ public class Model {
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
 		}
-		if(hasTextureCoordinates) {
+		if(hasUVs) {
 			gl2.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
 			// Bind the texture buffer to work with
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);

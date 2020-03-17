@@ -1,17 +1,15 @@
 package com.marginallyclever.robotOverlord.entity.primitives;
 
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.uiElements.InputManager;
+import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.jogamp.opengl.GL2;
 
 /**
  * Camera in the world.  Has no physical presence.  Has location and direction.
- * TODO confirm the calculated pose matches the forward/up/right values
  * @author Dan Royer
  */
 public class CameraEntity extends PhysicalEntity {
@@ -27,50 +25,18 @@ public class CameraEntity extends PhysicalEntity {
 	// angles
 	protected double pan, tilt;
 
-	// move to GraphicsEntity?
-	protected int canvasWidth, canvasHeight;
-	// move to GraphicsEntity?
-	protected int cursorX,cursorY;
-	
-	protected boolean isPressed;
-
-	protected DoubleEntity nearZ;
-	protected DoubleEntity farZ;
-	protected DoubleEntity fieldOfView;
-
 	public CameraEntity() {
 		super();
 		
 		setName("Camera");
-		addChild(farZ=new DoubleEntity("far Z",2000.0));
-		addChild(nearZ=new DoubleEntity("near Z",5.0));
-		addChild(fieldOfView=new DoubleEntity("FOV",60.0));
-			
-		isPressed=false;
 	}
 	
-	public int getCanvasWidth() {
-		return canvasWidth;
-	}
-
-	public void setCanvasWidth(int canvasWidth) {
-		this.canvasWidth = canvasWidth;
-	}
-
-	public int getCanvasHeight() {
-		return canvasHeight;
-	}
-
-	public void setCanvasHeight(int canvasHeight) {
-		this.canvasHeight = canvasHeight;
-	}
-	
-	private void updateMatrix() {
+	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
 		Matrix3d a = new Matrix3d();
 		Matrix3d b = new Matrix3d();
 		Matrix3d c = new Matrix3d();
-		a.rotZ(Math.toRadians(pan));
-		b.rotX(Math.toRadians(-tilt));
+		a.rotZ(Math.toRadians(panDeg));
+		b.rotX(Math.toRadians(-tiltDeg));
 		c.mul(b,a);
 
 		right.x=c.m00;
@@ -86,7 +52,12 @@ public class CameraEntity extends PhysicalEntity {
 		forward.z=c.m22;
 		
 		c.transpose();
-		setRotation(c);
+		
+		return c;
+	}
+	
+	protected void updateMatrix() {
+		setRotation(buildPanTiltMatrix(pan,tilt));
 	}
 
 	@Override
@@ -162,24 +133,10 @@ public class CameraEntity extends PhysicalEntity {
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
 	@Override
 	public void render(GL2 gl2) {
-		Matrix4d mFinal = new Matrix4d(poseWorld);
-		mFinal.invert();
-		MatrixHelper.applyMatrix(gl2, mFinal);
-	}
-
-
-	public Vector3d getForward() {
-		return forward;
-	}
-
-
-	public Vector3d getUp() {
-		return up;
-	}
-
-
-	public Vector3d getRight() {
-		return right;
+		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, pose.get());
+			PrimitiveSolids.drawStar(gl2, 10);
+		gl2.glPopMatrix();
 	}
 	
 	public double getPan() {
@@ -199,66 +156,5 @@ public class CameraEntity extends PhysicalEntity {
 	    
 		if(tilt < 1) tilt=1;
 		if(tilt > 179) tilt= 179;
-	}
-	
-	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
-	public Vector3d rayPick() {		
-		Vector3d vy = new Vector3d();
-		vy.set(up);
-		vy.scale(cursorY);
-
-		Vector3d vx = new Vector3d();
-		vx.set(right);
-		vx.scale(+cursorX);
-		
-		Vector3d pickRay = new Vector3d(forward);
-		pickRay.scale(-canvasHeight*Math.sin(Math.toRadians(fieldOfView.get())));
-		pickRay.add(vx);
-		pickRay.add(vy);
-		pickRay.normalize();
-
-		return pickRay;
-	}
-
-	public void setCursor(int x,int y) {
-		cursorX= x - canvasWidth/2;
-		cursorY= canvasHeight/2 - y;
-        //System.out.println("X"+cursorX+" Y"+cursorY);
-	}
-
-	public void pressed() {
-		isPressed=true;
-	}
-
-	public void released() {
-		isPressed=false;
-	}
-	
-	public boolean isPressed() {
-		return isPressed;
-	}
-
-	public void setNearZ(double d) {
-		nearZ.set(d);
-	}
-	
-	public double getNearZ() {
-		return nearZ.get();
-	}
-
-	public void setFarZ(double d) {
-		farZ.set(d);
-	}
-	
-	public double getFarZ() {
-		return farZ.get();
-	}
-
-	public void setFOV(double d) {
-		fieldOfView.set(d);
-	}
-	
-	public double getFOV() {
-		return fieldOfView.get();
 	}
 }

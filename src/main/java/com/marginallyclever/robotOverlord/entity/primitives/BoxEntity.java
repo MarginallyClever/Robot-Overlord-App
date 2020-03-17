@@ -12,7 +12,7 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 public class BoxEntity extends ModelEntity {
 	/**
@@ -222,7 +222,7 @@ public class BoxEntity extends ModelEntity {
 
 	@Override
 	public void getView(View view) {
-		super.getView(view);
+		view.addReadOnly(this.getName());
 
 		width.getView(view);
 		height.getView(view);

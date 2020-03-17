@@ -40,9 +40,17 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 	
 	public void getTranslation(Vector3d trans) {
-		trans.x = t.m03;
-		trans.y = t.m13;
-		trans.z = t.m23;
+		t.get(trans);
+	}
+	
+	public void setRotation(Matrix3d rot) {
+		setChanged();
+		t.setRotation(rot);
+		notifyObservers();
+	}
+	
+	public void getRotation(Matrix3d rot) {
+		t.get(rot);
 	}
 	
 	public void get(Matrix3d m) {

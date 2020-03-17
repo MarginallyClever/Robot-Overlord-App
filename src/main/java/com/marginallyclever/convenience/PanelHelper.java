@@ -8,7 +8,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 
 /**
  * Consistent gridBagConstraints for easier style tweaking

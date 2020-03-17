@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * @author Dan Royer

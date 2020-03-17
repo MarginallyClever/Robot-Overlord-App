@@ -11,7 +11,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhLink.DHLink;
-import com.marginallyclever.robotOverlord.uiElements.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 
 
 /**

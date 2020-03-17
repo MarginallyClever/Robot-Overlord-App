@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * Entities are nodes in a tree of data that can find each other and observe/be observed
@@ -19,6 +19,7 @@ public class Entity extends Observable implements Serializable, Observer {
 	private static final long serialVersionUID = -994214494049397444L;
 	
 	private String name;
+	
 	// my children 
 	protected ArrayList<Entity> children = new ArrayList<Entity>();
 	// my parent
@@ -33,17 +34,20 @@ public class Entity extends Observable implements Serializable, Observer {
 		super();
 		this.name=name;
 	}
-	
-	public void set(Entity b) {
-		name = b.name;
-	}
 
+	public void set(Entity b) {
+		setName(b.getName());
+	}
+	
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
+		//if(hasChanged()) return;
+		//setChanged();
 		this.name = name;
+		//notifyObservers(name);
 	}
 
 	public void update(double dt) {
@@ -105,9 +109,18 @@ public class Entity extends Observable implements Serializable, Observer {
 		String [] pathComponents = path.split("/");
 		
 		// if absolute path, start with root node.
-		Entity e = path.startsWith("/") ? getRoot() : this;
+		int i=0;
+		Entity e;
+		if(path.startsWith("/")) {
+			e = getRoot();
+			i=2;
+		} else {
+			e = this;
+		}
 		
-		for( String name : pathComponents ) {
+		while(i<pathComponents.length) {
+			String name = pathComponents[i++];
+
 			if(e==null) break;
 			if(name.contentEquals("..")) {
 				// ".." = my parent
@@ -164,5 +177,4 @@ public class Entity extends Observable implements Serializable, Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {}
-	
 }

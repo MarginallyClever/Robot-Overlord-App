@@ -66,7 +66,6 @@ public class MatrixHelper {
 		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
 
-	
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)
 	 */
@@ -273,7 +272,6 @@ public class MatrixHelper {
 		gl2.glMultMatrixd(mat, 0);	
 	} 
 	
-	
 	public static void setMatrix(GL2 gl2,Matrix4d pose) {
 		double[] mat = new double[16];
 		mat[ 0] = pose.m00;
@@ -296,7 +294,6 @@ public class MatrixHelper {
 		gl2.glLoadMatrixd(mat, 0);	
 	}
 
-	
 	/**
 	 * invert an N*N matrix.
 	 * From https://www.sanfoundry.com/java-program-find-inverse-matrix/
@@ -642,7 +639,6 @@ public class MatrixHelper {
 		System.out.println ();
 	}
 
-	
 	// create a matrix with a matching y vector and a z that points at   
 	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
@@ -664,9 +660,10 @@ public class MatrixHelper {
 		
 		return lookAt;
 	}
-	
-	public static Vector3d getForward(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
-	public static Vector3d getLeft(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
-	public static Vector3d getUp(Matrix4d m) {			return new Vector3d(m.m02, m.m12, m.m22);	}
+
 	public static Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
+	
+	public static Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
+	public static Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
+	public static Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
 }

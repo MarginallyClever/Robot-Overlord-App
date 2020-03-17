@@ -1,10 +1,18 @@
 package com.marginallyclever.robotOverlord.entity.modelEntity;
 
 
+import java.io.BufferedInputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.ServiceLoader;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
@@ -14,8 +22,8 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
-import com.marginallyclever.robotOverlord.uiElements.log.Log;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 
 public class ModelEntity extends PhysicalEntity {
@@ -23,17 +31,26 @@ public class ModelEntity extends PhysicalEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = 5888928381757734702L;
-	
+
+	// the pool of all models loaded
+	private static LinkedList<Model> modelPool = new LinkedList<Model>();
+
+	// the model for this entity
 	protected transient Model model;
 
-	protected StringEntity filename = new StringEntity("Filename","");
+	protected StringEntity filename = new StringEntity("File","");
 	protected MaterialEntity material = new MaterialEntity();
 	
 	// model adjustments
 	protected DoubleEntity scale = new DoubleEntity("Scale",1.0);
-	protected Vector3dEntity rotationAdjust = new Vector3dEntity("+/- rotation");
-	protected Vector3dEntity originAdjust = new Vector3dEntity("+/- origin");
-	
+	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
+	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
+
+	IntEntity numTriangles = new IntEntity("Triangles",0);
+	BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+	BooleanEntity hasColors = new BooleanEntity("Has colors",false);
+	BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
+			
 	public ModelEntity() {
 		super();
 		setName("Model");
@@ -44,8 +61,12 @@ public class ModelEntity extends PhysicalEntity {
 		addChild(scale);
 		
 		addChild(material);
+		
+		addChild(numTriangles);
+		addChild(hasNormals);
+		addChild(hasColors);
+		addChild(hasUVs);
 	}
-
 
 	public void set(ModelEntity b) {
 		super.set(b);
@@ -71,11 +92,17 @@ public class ModelEntity extends PhysicalEntity {
 		if( this.filename.get().equals(newFilename) ) return;
 		
 		try {
-			model = ModelFactory.createModelFromFilename(newFilename);
+			model = createModelFromFilename(newFilename);
 			model.adjustScale(scale.get());
 			model.adjustOrigin(originAdjust.get());
 			model.adjustRotation(rotationAdjust.get());
 			model.findBounds();
+
+			numTriangles.set(model.getNumTriangles());
+			hasNormals.set(model.hasNormals);
+			hasColors.set(model.hasColors);
+			hasUVs.set(model.hasUVs);
+					
 			// only change this after loading has completely succeeded.
 			this.filename.set(newFilename);
 		} catch (Exception e) {
@@ -173,17 +200,74 @@ public class ModelEntity extends PhysicalEntity {
 	public void getView(View view) {
 		//super.getView(view);
 
-		view.addFilename(filename);
+		ArrayList<FileNameExtensionFilter> filters = new ArrayList<FileNameExtensionFilter>();
+		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
+		Iterator<ModelLoadAndSave> i = loaders.iterator();
+		while(i.hasNext()) {
+			ModelLoadAndSave loader = i.next();
+			filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
+		}
+		
+		view.addFilename(filename,filters);
 		view.addVector3(rotationAdjust);
 		view.addVector3(originAdjust);
-		view.addNumber(scale);
+		view.addDouble(scale);
 		
 		Model m = this.model;
 		if(m!=null) {
-			view.addNumber(new IntEntity("Triangles",m.getNumTriangles()));
-			view.addBoolean(new BooleanEntity("Has normals",m.hasNormals));
-			view.addBoolean(new BooleanEntity("Has colors",m.hasColors));
-			view.addBoolean(new BooleanEntity("Has UVs",m.hasTextureCoordinates));
+			view.addInt(numTriangles);
+			view.addBoolean(hasNormals);
+			view.addBoolean(hasColors);
+			view.addBoolean(hasUVs);
 		}
+	}
+
+
+	/**
+	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
+	 * @param sourceName file from which to load.  may be filename.ext or zipfile.zip:filename.ext
+	 * @return the instance.
+	 * @throws Exception if file cannot be read successfully
+	 */
+	public static Model createModelFromFilename(String sourceName) throws Exception {
+		if(sourceName == null || sourceName.trim().length()==0) return null;
+		
+		// find the existing model in the pool
+		Iterator<Model> iter = modelPool.iterator();
+		while(iter.hasNext()) {
+			Model m = iter.next();
+			if(m.getSourceName().equals(sourceName)) {
+				return m;
+			}
+		}
+		
+		Model m=null;
+		
+		// not in pool.  Find a serviceLoader that can load this file type.
+		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
+		Iterator<ModelLoadAndSave> i = loaders.iterator();
+		int count=0;
+		while(i.hasNext()) {
+			count++;
+			ModelLoadAndSave loader = i.next();
+			if(loader.canLoad() && loader.canLoad(sourceName)) {
+				BufferedInputStream stream = FileAccess.open(sourceName);
+				m = loader.load(stream);
+				m.setSourceName(sourceName);
+				// Maybe add a m.setSaveAndLoader(loader); ?
+				modelPool.add(m);
+				break;
+			}
+		}
+
+		if(m==null) {
+			if(count==0) {
+				throw new Exception("No loaders found!");
+			} else {
+				throw new Exception("No loader found for "+sourceName);
+			}
+		}
+		
+		return m;
 	}
 }

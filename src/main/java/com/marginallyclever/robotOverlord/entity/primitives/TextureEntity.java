@@ -1,13 +1,16 @@
 package com.marginallyclever.robotOverlord.entity.primitives;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.uiElements.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 public class TextureEntity extends StringEntity {
 	/**
@@ -15,6 +18,8 @@ public class TextureEntity extends StringEntity {
 	 */
 	private static final long serialVersionUID = -5488195728478812737L;
 
+	// TODO load textures from a texture pool to eliminate duplicates?  See ModelEntity for example.
+	
 	private transient Texture texture;
 	private transient boolean textureDirty;
 	
@@ -26,6 +31,7 @@ public class TextureEntity extends StringEntity {
 	public TextureEntity(String fileName) {
 		super(fileName);
 		setName("Texture");
+		textureDirty=true;
 	}
 
 	public void render(GL2 gl2) {
@@ -51,13 +57,13 @@ public class TextureEntity extends StringEntity {
 
 	@Override
 	public void getView(View view) {
-		view.addFilename(this);
-		/*
+		ArrayList<FileNameExtensionFilter> filters = new ArrayList<FileNameExtensionFilter>();
 		// supported file formats
-		chooseTexture.addChoosableFileFilter(new FileNameExtensionFilter("PNG", "png"));
-		chooseTexture.addChoosableFileFilter(new FileNameExtensionFilter("BMP", "bmp"));
-		chooseTexture.addChoosableFileFilter(new FileNameExtensionFilter("JPEG", "jpeg"));
-		chooseTexture.addChoosableFileFilter(new FileNameExtensionFilter("TGA", "tga"));
-		*/
+		filters.add(new FileNameExtensionFilter("PNG", "png"));
+		filters.add(new FileNameExtensionFilter("BMP", "bmp"));
+		filters.add(new FileNameExtensionFilter("JPEG", "jpeg"));
+		filters.add(new FileNameExtensionFilter("TGA", "tga"));
+		
+		view.addFilename(this,filters);
 	}
 }
