@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 
 import javax.swing.BoxLayout;
@@ -20,7 +19,7 @@ public class FooterBar extends JPanel {
 		// create the status bar panel and shove it down the bottom of the frame
 		
 		this.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		this.setPreferredSize(new Dimension(parent.getWidth(), 16));
+		//this.setPreferredSize(new Dimension(parent.getWidth(), 16));
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		statusLabel = new JLabel("");
 		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
