@@ -6,6 +6,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 import com.jogamp.opengl.GL2;
 
 /**
@@ -156,5 +157,12 @@ public class CameraEntity extends PhysicalEntity {
 	    
 		if(tilt < 1) tilt=1;
 		if(tilt > 179) tilt= 179;
+	}
+	
+	@Override
+	public void getView(View view) {
+		super.getView(view);
+		view.addReadOnly("Pan="+pan);
+		view.addReadOnly("Tilt="+tilt);
 	}
 }

@@ -6,6 +6,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * Blender style camera controls
@@ -27,6 +28,8 @@ public class BlenderCameraEntity extends CameraEntity {
 	
 	@Override
 	public void update(double dt) {
+		updateMatrix();
+		
 		// Move the camera
 		Matrix4d m = pose.get();
 		
@@ -107,5 +110,11 @@ public class BlenderCameraEntity extends CameraEntity {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void getView(View view) {
+		super.getView(view);
+		view.addReadOnly("Zoom="+zoom);
 	}
 }
