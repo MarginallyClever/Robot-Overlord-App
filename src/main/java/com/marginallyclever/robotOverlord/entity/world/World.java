@@ -53,8 +53,9 @@ public class World extends Entity {
 		// adjust default camera
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		ro.camera.setPosition(new Vector3d(0,-100,65));
-		//ro.camera.setPan(52);
+		ro.camera.setPan(52);
 		ro.camera.setTilt(76);
+		ro.camera.update(0);
 		
 		// add some lights
     	LightEntity light;
