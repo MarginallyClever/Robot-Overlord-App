@@ -100,14 +100,14 @@ public class LightEntity extends PhysicalEntity {
 		position[0]=(float)poseWorld.m03;
 		position[1]=(float)poseWorld.m13;
 		position[2]=(float)poseWorld.m23;
-		
 		position[3]=isDirectional.get()?1:0;
 		gl2.glLightfv(i, GL2.GL_POSITION, position,0);
+		
 	    gl2.glLightfv(i, GL2.GL_AMBIENT, ambient.getFloatArray(),0);
 	    gl2.glLightfv(i, GL2.GL_DIFFUSE, diffuse.getFloatArray(),0);
 	    gl2.glLightfv(i, GL2.GL_SPECULAR, specular.getFloatArray(),0);
 
-	    // z axis of the light
+	    // z axis of the matrix is the light direction
 	    spotDirection[0]=(float)poseWorld.m02;
 	    spotDirection[1]=(float)poseWorld.m12;
 	    spotDirection[2]=(float)poseWorld.m22;
@@ -116,6 +116,7 @@ public class LightEntity extends PhysicalEntity {
 	    gl2.glLightf(i, GL2.GL_SPOT_CUTOFF, cutoff.get().floatValue());
 	    gl2.glLightf(i, GL2.GL_SPOT_EXPONENT, exponent.get().floatValue());
 	    
+	    // falloff/fade out
 	    gl2.glLightf(i, GL2.GL_CONSTANT_ATTENUATION,attenuationConstant.get().floatValue());
 	    gl2.glLightf(i, GL2.GL_LINEAR_ATTENUATION,attenuationLinear.get().floatValue());
 	    gl2.glLightf(i, GL2.GL_QUADRATIC_ATTENUATION,attenuationQuadratic.get().floatValue());
