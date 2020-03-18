@@ -215,87 +215,94 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		
 		SoundSystem.start();
 		InputManager.start();
-		
+
+        // initialize the screen picking system (to click on a robot and get its context sensitive menu)
+        pickNow = false;
+        pickBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
+        selectedEntity = null;
+        
+        
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setSize( 1224, 768 );
         mainFrame.setLayout(new java.awt.BorderLayout());
+
+      	// this class listens to the window
+        mainFrame.addWindowListener(this);
     	
         // add to the frame a menu bar
         mainMenu = new JMenuBar();
         mainFrame.setJMenuBar(mainMenu);
-
-      	// this class listens to the window
-        mainFrame.addWindowListener(this);
-
-        // OpenGL 3D view & animator setup.
-        GLCapabilities caps = new GLCapabilities(null);
-        caps.setSampleBuffers(true);
-        caps.setHardwareAccelerated(true);
-        caps.setNumSamples(4);
-        glCanvas = new GLJPanel(caps);
-        glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
-        glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
-        glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
-        // not sure what good this does here...
-        Dimension minimumSize = new Dimension(300,300);
-        glCanvas.setMinimumSize(minimumSize);
+        // now that we have everything built, set up the menus.
+        buildMainMenu();
+		
+        {
+	        {
+	        	/**
+	        	 * build OpenGL 3D view
+	        	 */
+	        	{
+		            GLCapabilities caps = new GLCapabilities(null);
+		            caps.setSampleBuffers(true);
+		            caps.setHardwareAccelerated(true);
+		            caps.setNumSamples(4);
+		            glCanvas = new GLJPanel(caps);
+		            glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
+		            glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
+		            glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
+		            // not sure what good this does here...
+		            Dimension minimumSize = new Dimension(300,300);
+		            glCanvas.setMinimumSize(minimumSize);
+	        	}
+	        	{
+	        		// build the initial entity tree
+			        {
+				        entityTree = new JPanel();
+				        updateEntityTree();
+			        }
+			        // build the panel to display controls for the selected entity
+			        {
+				        selectedEntityPanel = new JPanel();
+				        selectedEntityPanel.setLayout(new BorderLayout());
+			        }
+			        
+			        // the right hand stuff			        
+					rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
+					rightFrameSplitter.add(new JScrollPane(entityTree));
+					rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
+					// make sure the master panel can't be squished.
+		            Dimension minimumSize = new Dimension(300,300);
+			        rightFrameSplitter.setMinimumSize(minimumSize);
+			        rightFrameSplitter.setDividerLocation(-1);
+		        }
+			        
+		        // split the mainframe in two vertically
+		        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
+		        splitLeftRight.setLeftComponent(glCanvas);
+		        splitLeftRight.setRightComponent(rightFrameSplitter);
+	        }
+	        // Also split up/down
+	        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
+	        splitUpDown.setTopComponent(splitLeftRight);
+	        splitUpDown.setBottomComponent(footerBar = new FooterBar(mainFrame));
+	        
+			// add the split panel to the main frame
+	        mainFrame.add(splitUpDown);
+	 	}
+        // make it visible
+        mainFrame.setVisible(true);
         
         // setup the animation system.
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
       	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND*2);
         animator.add(glCanvas);
-        
-        // now that we have everything built, set up the menus.
-        buildMainMenu();
-        
-        // initialize the screen picking system (to click on a robot and get its context sensitive menu)
-        pickNow = false;
-        pickBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
-        selectedEntity = null;
-		
-        entityTree = new JPanel();
-        // build the initial entity tree
-        updateEntityTree();
-        		
-        selectedEntityPanel = new JPanel();
-        selectedEntityPanel.setLayout(new BorderLayout());
 
-        // the right hand stuff
-        JScrollPane rightTop = new JScrollPane(entityTree);
-        	rightTop.setAlignmentX(Component.LEFT_ALIGNMENT);
-        	rightTop.setAlignmentY(Component.TOP_ALIGNMENT);
-        JScrollPane rightBottom = new JScrollPane(selectedEntityPanel);
-	        rightBottom.setAlignmentX(Component.LEFT_ALIGNMENT);
-	        rightBottom.setAlignmentY(Component.TOP_ALIGNMENT);
-		rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
-			rightFrameSplitter.setTopComponent(rightTop);
-			rightFrameSplitter.setBottomComponent(rightBottom);
-			// make sure the master panel can't be squished.
-	        rightFrameSplitter.setMinimumSize(minimumSize);
-	        rightFrameSplitter.setDividerLocation(-1);
-	        
-        // split the mainframe in two vertically
-        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
-        splitLeftRight.setLeftComponent(glCanvas);
-        splitLeftRight.setRightComponent(rightFrameSplitter);
-        
-        // Also split up/down
-        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
-        splitUpDown.setTopComponent(splitLeftRight);
-        splitUpDown.setBottomComponent(footerBar = new FooterBar(mainFrame));
-        
-		// add the split panel to the main frame
-        mainFrame.add(splitUpDown);
-        
-        // make it visible
-        mainFrame.setVisible(true);
-        // start the main application loop.  it will call display() repeatedly.
-        animator.start();
         // record the start time of the application, also the end of the core initialization process.
         lastTime = startTime = System.currentTimeMillis();
+        // start the main application loop.  it will call display() repeatedly.
+        animator.start();
     }
  	
 	public JFrame getMainFrame() {
@@ -340,10 +347,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		if(e!=null) {
 			ViewPanel vp = new ViewPanel(this);
+			vp.addReadOnly(e.getCanonicalName());
 			e.getView(vp);
 			selectedEntityPanel.add(vp,BorderLayout.PAGE_START);
 		}
-		
+
+		selectedEntityPanel.repaint();
 		selectedEntityPanel.revalidate();
 		
 		//rightFrameSplitter.setDividerLocation(180);
