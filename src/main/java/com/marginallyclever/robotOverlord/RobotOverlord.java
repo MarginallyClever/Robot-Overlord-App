@@ -53,7 +53,6 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.primitives.BlenderCameraEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
@@ -116,7 +115,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// Wraps all the projection matrix stuff. 
 	public CameraViewEntity cameraView = new CameraViewEntity();
 	// At least one camera to prevent disaster. 
-	public CameraEntity camera = new BlenderCameraEntity();
+	public CameraEntity camera = new CameraEntity();
 	
 	
 	// click on screen to change which entity is selected
@@ -207,7 +206,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		addChild(dragBall);
  		addChild(viewCube);
  		
- 		cameraView.attachedTo.set(camera.getCanonicalName());
+ 		cameraView.attachedTo.set(camera.getFullName());
         
         // ..with default setting.  TODO save & load whole world and all its Entities.
         world.createDefaultWorld();
@@ -346,7 +345,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		if(e!=null) {
 			ViewPanel vp = new ViewPanel(this);
-			vp.addReadOnly(e.getCanonicalName());
+			vp.addReadOnly("Name="+e.getName());
 			e.getView(vp);
 			selectedEntityPanel.add(vp,BorderLayout.PAGE_START);
 		}
@@ -895,7 +894,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	public void pickEntity(Entity e) {
 		if(e==null) return;
 		
-		System.out.println("Picked "+e.getCanonicalName());
+		System.out.println("Picked "+e.getFullName());
 		
 		selectedEntity=e;
 
