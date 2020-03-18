@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Matrix4dEntity;
 import com.marginallyclever.robotOverlord.entity.world.World;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 public abstract class PhysicalEntity extends Entity {
 	/**
@@ -249,5 +250,10 @@ public abstract class PhysicalEntity extends Entity {
 		cuboidList.add(cuboid);
 
 		return cuboidList;
+	}
+	
+	public void getView(View view) {
+		super.getView(view);
+		pose.getView(view);
 	}
 }
