@@ -39,14 +39,14 @@ public class ViewPanelBoolean extends JPanel implements ItemListener, Observer {
 		checkboxField = new JCheckBox();
 		checkboxField.setSelected(e.get());
 		checkboxField.addItemListener(this);
-		checkboxField.setBorder(new EmptyBorder(5,0,5,5));
+		checkboxField.setBorder(new EmptyBorder(0,0,0,0));
 		
 		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
 		label.setLabelFor(checkboxField);
 		
 		this.setLayout(new BorderLayout());
-		this.add(checkboxField,BorderLayout.LINE_START);
-		this.add(label,BorderLayout.CENTER);
+		this.add(label,BorderLayout.LINE_START);
+		this.add(checkboxField,BorderLayout.LINE_END);
 	}
 	
 	/**
