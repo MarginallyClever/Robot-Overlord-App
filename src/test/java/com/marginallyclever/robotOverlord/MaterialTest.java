@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.marginallyclever.robotOverlord.entity.primitives.MaterialEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 
 public class MaterialTest {
 	//@Test

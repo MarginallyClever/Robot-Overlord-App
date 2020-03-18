@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.swingInterface.commands;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -13,7 +12,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Admin
  *
  */
-public class CommandAboutControls extends AbstractAction implements ActionListener {
+public class CommandAboutControls extends AbstractAction {
 	/**
 	 * 
 	 */

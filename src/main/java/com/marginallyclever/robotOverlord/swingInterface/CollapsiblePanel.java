@@ -183,11 +183,9 @@ public class CollapsiblePanel extends JPanel {
             remove(panel);
             arrow.setIcon(iconArrow[COLLAPSED]);
             border = new CollapsableTitledBorder(collapsedBorderLine, titleComponent);
-
             for(CollapseListener collapeListener : collapseListeners) {
-                    collapeListener.collaped();
+              collapeListener.collaped();
             }
-
         } else {
             //expand the panel, add content and set border to titled border
             add(panel, BorderLayout.CENTER);
@@ -195,9 +193,8 @@ public class CollapsiblePanel extends JPanel {
             border = new CollapsableTitledBorder(expandedBorderLine, titleComponent);
 
             for(CollapseListener collapeListener : collapseListeners) {
-                    collapeListener.expanded();
+              collapeListener.expanded();
             }
-
         }
         setBorder(border);
         updateUI();
@@ -304,6 +301,7 @@ public class CollapsiblePanel extends JPanel {
             if (border == null) {
                 this.border = super.getBorder();
             }
+
         }
 
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
@@ -369,25 +367,13 @@ public class CollapsiblePanel extends JPanel {
             int compHeight = component.getPreferredSize().height;
 
             switch (titlePosition) {
-                case ABOVE_TOP:
-                    insets.top += compHeight + TEXT_SPACING;
-                    break;
+                case ABOVE_TOP:         insets.top += compHeight + TEXT_SPACING;                                           break;
                 case TOP:
-                case DEFAULT_POSITION:
-                    insets.top += Math.max(compHeight, borderInsets.top) - borderInsets.top;
-                    break;
-                case BELOW_TOP:
-                    insets.top += compHeight + TEXT_SPACING;
-                    break;
-                case ABOVE_BOTTOM:
-                    insets.bottom += compHeight + TEXT_SPACING;
-                    break;
-                case BOTTOM:
-                    insets.bottom += Math.max(compHeight, borderInsets.bottom) - borderInsets.bottom;
-                    break;
-                case BELOW_BOTTOM:
-                    insets.bottom += compHeight + TEXT_SPACING;
-                    break;
+                case DEFAULT_POSITION:  insets.top += Math.max(compHeight, borderInsets.top) - borderInsets.top;           break;
+                case BELOW_TOP:         insets.top += compHeight + TEXT_SPACING;                                           break;
+                case ABOVE_BOTTOM:      insets.bottom += compHeight + TEXT_SPACING;                                        break;
+                case BOTTOM:            insets.bottom += Math.max(compHeight, borderInsets.bottom) - borderInsets.bottom;  break;
+                case BELOW_BOTTOM:      insets.bottom += compHeight + TEXT_SPACING;                                        break;
             }
             return insets;
         }

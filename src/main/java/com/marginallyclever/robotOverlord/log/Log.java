@@ -98,10 +98,10 @@ public class Log {
 	/**
 	 * Appends a message to the log file
 	 * @param color the hex code or HTML name of the color for this message
-	 * @param msg the text
+	 * @param message the text
 	 */
-	public static void write(String color, String msg) {
-		write("<font color='"+color+"'>"+msg+"</font>\n");
+	protected static void write(String color, String message) {
+		write("<font color='"+color+"'>"+message+"</font>\n");
 	}
 
 	/**
@@ -109,6 +109,7 @@ public class Log {
 	 * @param message append text as red HTML
 	 */
 	public static void error(String message) {
+		System.out.println("ERROR: "+message);
 		write("red",message);
 	}
 
@@ -117,6 +118,7 @@ public class Log {
 	 * @param message append text as green HTML
 	 */
 	public static void message(String message) {
+		System.out.println("LOG: "+message);
 		write("green",message);		
 	}
 }

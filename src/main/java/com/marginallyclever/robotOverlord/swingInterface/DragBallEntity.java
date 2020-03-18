@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.swingInterface;
 
 import java.nio.IntBuffer;
 
+import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -12,14 +13,15 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
+import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMove;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
  * @author Dan Royer
  *
  */
-public class DragBallEntity extends PhysicalEntity {
+public class DragBallEntity extends SceneEntity {
 	/**
 	 * 
 	 */
@@ -99,7 +101,7 @@ public class DragBallEntity extends PhysicalEntity {
 	public boolean isActivelyMoving;
 
 	// Who is being moved?
-	protected PhysicalEntity subject;
+	protected SceneEntity subject;
 	// In what frame of reference?
 	protected FrameOfReference frameOfReference;
 
@@ -131,7 +133,7 @@ public class DragBallEntity extends PhysicalEntity {
 		if(subject==null) return;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PhysicalEntity camera = ro.cameraView.getAttachedTo();
+		SceneEntity camera = ro.cameraView.getAttachedTo();
 
 		if(!isActivelyMoving()) {
 			switch(frameOfReference) {
@@ -202,7 +204,7 @@ public class DragBallEntity extends PhysicalEntity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		CameraViewEntity cameraView = ro.cameraView;
-		PhysicalEntity camera = cameraView.getAttachedTo();
+		SceneEntity camera = cameraView.getAttachedTo();
 		Vector3d ray = cameraView.rayPick();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {
@@ -323,7 +325,7 @@ public class DragBallEntity extends PhysicalEntity {
 				
 				valueLast = valueNow;
 				
-				subject.setPoseWorld(resultMatrix);
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMove(subject,resultMatrix) ) );
 			}
 		}
 	}
@@ -333,7 +335,7 @@ public class DragBallEntity extends PhysicalEntity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		CameraViewEntity cameraView = ro.cameraView;
-		PhysicalEntity camera = cameraView.getAttachedTo();
+		SceneEntity camera = cameraView.getAttachedTo();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {	
 			Vector3d pos = this.getPosition();
@@ -456,14 +458,14 @@ public class DragBallEntity extends PhysicalEntity {
 			if(valueNow!=valueLast) {
 				switch(majorAxis) {
 				case X: translate(MatrixHelper.getXAxis(FOR), valueNow);	break;
-				case Y: translate(MatrixHelper.getYAxis   (FOR), valueNow);	break;
-				case Z: translate(MatrixHelper.getZAxis     (FOR), valueNow);	break;
+				case Y: translate(MatrixHelper.getYAxis(FOR), valueNow);	break;
+				case Z: translate(MatrixHelper.getZAxis(FOR), valueNow);	break;
 				}
 			}
 			
 			valueLast = valueNow;
 			
-			subject.setPoseWorld(resultMatrix);
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMove(subject,resultMatrix) ) );
 		}
 	}
 	
@@ -506,7 +508,7 @@ public class DragBallEntity extends PhysicalEntity {
 		
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PhysicalEntity camera = ro.cameraView.getAttachedTo();
+		SceneEntity camera = ro.cameraView.getAttachedTo();
 		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), this.getPosition());
 		Vector3d lookAtVector = this.getPosition();
 		lookAtVector.sub(camera.getPosition());
@@ -547,8 +549,8 @@ public class DragBallEntity extends PhysicalEntity {
 
 		// is a FOR axis normal almost the same as camera forward?		
 		boolean drawX = (Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)))>0.95);
-		boolean drawY = (Math.abs(lookAtVector.dot(MatrixHelper.getYAxis   (FOR)))>0.95);
-		boolean drawZ = (Math.abs(lookAtVector.dot(MatrixHelper.getZAxis     (FOR)))>0.95);
+		boolean drawY = (Math.abs(lookAtVector.dot(MatrixHelper.getYAxis(FOR)))>0.95);
+		boolean drawZ = (Math.abs(lookAtVector.dot(MatrixHelper.getZAxis(FOR)))>0.95);
 		//System.out.println(drawX+"\t"+drawY+"\t"+drawZ);
 
 		int inOutin;
@@ -690,7 +692,7 @@ public class DragBallEntity extends PhysicalEntity {
 
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PhysicalEntity camera = ro.cameraView.getAttachedTo();
+		SceneEntity camera = ro.cameraView.getAttachedTo();
 		Vector3d lookAtVector = subject.getPosition();
 		lookAtVector.sub(camera.getPosition());
 		lookAtVector.normalize();
@@ -853,7 +855,7 @@ public class DragBallEntity extends PhysicalEntity {
 	 * Set which PhysicalEntity the drag ball is going to act upon.
 	 * @param subject
 	 */
-	public void setSubject(PhysicalEntity subject) {
+	public void setSubject(SceneEntity subject) {
 		this.subject=subject;		
 	}
 }

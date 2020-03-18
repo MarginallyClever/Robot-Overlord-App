@@ -19,10 +19,11 @@ com.marginallyclever.robotOverlord.entity.sixiJoystick.SixiJoystick
 #com.marginallyclever.robotOverlord.entity.robotEntity.spidee.Spidee
 
 #other objects
-com.marginallyclever.robotOverlord.entity.modelEntity.ModelEntity
-#com.marginallyclever.robotOverlord.entity.cameraEntity.CameraEntity
-com.marginallyclever.robotOverlord.entity.lightEntity.LightEntity
-com.marginallyclever.robotOverlord.entity.boxEntity.BoxEntity
+com.marginallyclever.robotOverlord.entity.scene.CameraEntity
+com.marginallyclever.robotOverlord.entity.scene.ModelEntity
+com.marginallyclever.robotOverlord.entity.scene.LightEntity
+com.marginallyclever.robotOverlord.entity.scene.BoxEntity
+com.marginallyclever.robotOverlord.entity.scene.GridEntity
 
 #robot Tools
 com.marginallyclever.robotOverlord.entity.robotEntity.dhRobotEntity.dhTool.DHTool_GoProCamera

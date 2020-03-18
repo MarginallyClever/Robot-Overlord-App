@@ -3,43 +3,26 @@ package com.marginallyclever.robotOverlord.swingInterface.actions;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoableEdit;
+import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotOverlord.entity.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
 
 /**
- * An undoable command to make a robot move some part relative to itself. For example, a robot arm might move the wrist.
- * <p>
- * This should NOT adjust the position of the robot relative to the world.
+ * An undoable command to make a physical entity move.
  *  
  * @author Dan Royer
  *
  */
-@Deprecated
-@SuppressWarnings("unused")
 public class ActionPhysicalEntityMove extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	// enumerate axies for movement commands
-	// linear
-	public static final int AXIS_X = 0;
-	public static final int AXIS_Y = 1;
-	public static final int AXIS_Z = 2;
-	// rotation
-	public static final int AXIS_U = 3;
-	public static final int AXIS_V = 4;
-	public static final int AXIS_W = 5;
-	// fk
-	public static final int AXIS_A = 6;
-	public static final int AXIS_B = 7;
-	public static final int AXIS_C = 8;
-	
-	private RobotEntity robot;
-	private int axis;
-	private int direction;
+		
+	private SceneEntity entity;
+	private Matrix4d next;
+	private Matrix4d prev;
 	
 	/**
 	 * 
@@ -47,48 +30,34 @@ public class ActionPhysicalEntityMove extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public ActionPhysicalEntityMove(RobotEntity robot,int axis,int direction) {
+	public ActionPhysicalEntityMove(SceneEntity entity,Matrix4d newPose) {
 		super();
 		
-		this.robot = robot;
-		this.axis = axis;
-		this.direction = direction;
-		
-		doIt();
-	}
+		this.entity = entity;
+		this.prev = entity.getPose();
+		this.next = newPose;
 
-	@Override
-	public String getPresentationName() {
-		String name = Translator.get("Move ");
-		switch(axis) {
-		case ActionPhysicalEntityMove.AXIS_X: name+=" X";  break;
-		case ActionPhysicalEntityMove.AXIS_Y: name+=" Y";  break;
-		case ActionPhysicalEntityMove.AXIS_Z: name+=" Z";  break;
-		case ActionPhysicalEntityMove.AXIS_A: name+=" A";  break;
-		case ActionPhysicalEntityMove.AXIS_B: name+=" B";  break;
-		case ActionPhysicalEntityMove.AXIS_C: name+=" C";  break;
-		case ActionPhysicalEntityMove.AXIS_U: name+=" U";  break;
-		case ActionPhysicalEntityMove.AXIS_V: name+=" V";  break;
-		case ActionPhysicalEntityMove.AXIS_W: name+=" W";  break;
-		}
-		if(direction>0) name += "+";
-		name += Float.toString(direction);
-		return name;
+		entity.setPose(next);
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		doIt();
+		entity.setPose(next);
 	}
 	
-	protected void doIt() {
-		//robot.move(axis,direction);
-	}
-
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		//robot.move(axis,-direction);
+		entity.setPose(prev);
+	}
+	
+	@Override
+	public boolean addEdit(UndoableEdit anEdit) {
+		if(anEdit instanceof ActionPhysicalEntityMove) {
+			ActionPhysicalEntityMove APEM = (ActionPhysicalEntityMove)anEdit;
+			if(APEM.entity==this.entity) return true;
+		}
+		return super.addEdit(anEdit);
 	}
 }

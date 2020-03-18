@@ -8,8 +8,8 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
-import com.marginallyclever.robotOverlord.entity.primitives.TextureEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.TextureEntity;
+import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
 
 public class ViewCubeEntity extends Entity {
 	/**
@@ -57,7 +57,7 @@ public class ViewCubeEntity extends Entity {
 			gl2.glLoadIdentity();
 			cameraView.renderShared(gl2);
 			
-			PhysicalEntity camera = cameraView.getAttachedTo();
+			SceneEntity camera = cameraView.getAttachedTo();
 			Matrix4d m = camera.getPoseWorld();
 			Vector3d p = camera.getPosition();
 			Vector3d vx = MatrixHelper.getXAxis(m);

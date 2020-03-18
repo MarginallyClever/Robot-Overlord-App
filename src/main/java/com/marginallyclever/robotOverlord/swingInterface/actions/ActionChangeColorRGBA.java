@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.swingInterface.actions;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoableEdit;
 
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
@@ -20,34 +21,43 @@ public class ActionChangeColorRGBA extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ColorEntity e;
+	private ColorEntity entity;
 	private float [] newValue;
 	private float [] oldValue;
 	
-	public ActionChangeColorRGBA(ColorEntity e,float [] newValue) {
+	public ActionChangeColorRGBA(ColorEntity entity,float [] newValue) {
 		super();
 		
-		this.e = e;
+		this.entity = entity;
 		this.newValue = newValue.clone();
-		this.oldValue = e.getFloatArray();
+		this.oldValue = entity.getFloatArray();
 
-		e.set(newValue);
+		entity.set(newValue);
 	}
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("change ")+e.getName();
+		return Translator.get("change ")+entity.getName();
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		e.set(newValue);
+		entity.set(newValue);
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		e.set(oldValue);
+		entity.set(oldValue);
+	}
+	
+	@Override
+	public boolean addEdit(UndoableEdit anEdit) {
+		if(anEdit instanceof ActionChangeColorRGBA ) {
+			ActionChangeColorRGBA APEM = (ActionChangeColorRGBA)anEdit;
+			if(APEM.entity == this.entity) return true;
+		}
+		return super.addEdit(anEdit);
 	}
 }

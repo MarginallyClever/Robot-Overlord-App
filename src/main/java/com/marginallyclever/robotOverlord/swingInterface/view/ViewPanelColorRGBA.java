@@ -1,37 +1,34 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
-import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeColorRGBA;
 
 /**
- * Panel to alter a Vector3f parameter (three float values).
+ * Panel to alter a color parameter (four float values).
  * @author Dan Royer
- *
  */
-public class ViewPanelColorRGBA extends JPanel implements DocumentListener, Observer {
+public class ViewPanelColorRGBA extends JPanel implements ChangeListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private JTextField [] fields = new JTextField[4];
+	private JSlider [] fields = new JSlider[4];
 	private RobotOverlord ro;
 	private ColorEntity e;
 	
@@ -39,76 +36,54 @@ public class ViewPanelColorRGBA extends JPanel implements DocumentListener, Obse
 		super();
 		this.ro = ro;
 		this.e = e;
+
+		CollapsiblePanel p = new CollapsiblePanel(e.getName());
+		JPanel p2 = p.getContentPane();
+		p2.setLayout(new GridBagLayout());
 		
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
+	    GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weightx=1;
+		gbc.gridx=0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.insets.bottom=5;
+		gbc.insets.left=5;
+		gbc.insets.right=5;
 		
-		JPanel values = new JPanel();
-		values.setLayout(new FlowLayout(FlowLayout.TRAILING,0,0));
 		
 		float [] oldValues = e.getFloatArray();
-		for(int i=0;i<oldValues.length;++i) {
-			fields[i] = addField(oldValues[i],values);
-		}
+		fields[0] = addField(oldValues[0],p2,"R",gbc);
+		fields[1] = addField(oldValues[1],p2,"G",gbc);
+		fields[2] = addField(oldValues[2],p2,"B",gbc);
+		fields[3] = addField(oldValues[3],p2,"A",gbc);
 
 		this.setLayout(new BorderLayout());
-		this.add(label,BorderLayout.LINE_START);
-		this.add(values,BorderLayout.LINE_END);
+		this.add(p,BorderLayout.CENTER);
 	}
 	
-	private JTextField addField(float value,JPanel values) {
-		JTextField f = new FocusTextField(4);
-		Integer v = (int)(value*255);
-		f.setText(v.toString());
-		f.setHorizontalAlignment(SwingConstants.RIGHT);
-		Dimension preferredSize = f.getPreferredSize();
-		preferredSize.width=20;
-		f.setPreferredSize(preferredSize);
-		f.setMaximumSize(preferredSize);
-		f.getDocument().addDocumentListener(this);
+	private JSlider addField(float value,JPanel parent,String labelName,GridBagConstraints gbc) {
+		JSlider field = new JSlider();
+		field.setMaximum(255);
+		field.setMinimum(0);
+		field.setMinorTickSpacing(1);
+		field.setValue((int)(value*255));
+		field.addChangeListener(this);
+
+		JLabel label = new JLabel(labelName,JLabel.LEADING);
 		
-		values.add(f);
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
 		
-		return f;
+		parent.add(panel,gbc);
+		
+		return field;
 	}
 	
 	private float getField(int i,float oldValue) {
-		try {
-			return Float.parseFloat(fields[i].getText())/255.0f;
-		} catch(NumberFormatException e) {
-			//fields[i].setText(StringHelper.formatFloat(oldValue));
-			return oldValue;
-		}
-	}
-	
-	/**
-	 * panel changed, poke entity
-	 */
-	@Override
-	public void changedUpdate(DocumentEvent arg0) {
-		float [] newValues = new float[fields.length];
-		float [] oldValues = e.getFloatArray();
-		
-		float sum=0;
-		for(int i=0;i<fields.length;++i) {
-			newValues[i] = getField(i,oldValues[i]);
-			sum += Math.abs( newValues[i] - oldValues[i] );
-		}
-
-		if(sum>1e-3) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA(e,newValues) ) );
-		}
+		return (float)fields[i].getValue()/255.0f;
 	}
 
-	@Override
-	public void insertUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
-	}
-	
 	/**
 	 * entity changed, poke panel
 	 */
@@ -127,5 +102,21 @@ public class ViewPanelColorRGBA extends JPanel implements DocumentListener, Obse
 		for(int i=0;i<newValues.length;++i) {
 			fields[i].getDocument().addDocumentListener(this);
 		}*/
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		float [] newValues = new float[fields.length];
+		float [] oldValues = e.getFloatArray();
+		
+		float sum=0;
+		for(int i=0;i<fields.length;++i) {
+			newValues[i] = getField(i,oldValues[i]);
+			sum += Math.abs( newValues[i] - oldValues[i] );
+		}
+
+		if(sum>1e-3) {
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA(e,newValues) ) );
+		}
 	}
 }

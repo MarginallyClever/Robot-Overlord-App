@@ -1,7 +1,8 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -16,6 +17,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVector3d;
 
@@ -39,26 +41,42 @@ public class ViewPanelVector3d extends JPanel implements DocumentListener, Obser
 		this.ro = ro;
 		this.e = e; 
 
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
-
-		JPanel values = new JPanel();
-		values.setLayout(new FlowLayout(FlowLayout.TRAILING,0,0));
-		fields[0] = addField(e.get().x,values);
-		fields[1] = addField(e.get().y,values);
-		fields[2] = addField(e.get().z,values);
-
+		CollapsiblePanel p = new CollapsiblePanel(e.getName());
+		JPanel p2 = p.getContentPane();
+		p2.setLayout(new GridBagLayout());
+		
+	    GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weightx=1;
+		gbc.gridx=0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.insets.bottom=5;
+		gbc.insets.left=5;
+		gbc.insets.right=5;
+		
+		fields[0] = addField(e.get().x,p2,"X",gbc);
+		fields[1] = addField(e.get().y,p2,"Y",gbc);
+		fields[2] = addField(e.get().z,p2,"Z",gbc);
+		
 		this.setLayout(new BorderLayout());
-		this.add(label,BorderLayout.LINE_START);
-		this.add(values,BorderLayout.LINE_END);
+		this.add(p,BorderLayout.CENTER);
 	}
 	
-	private JTextField addField(double value,JPanel values) {
-		JTextField f = new FocusTextField(4);
-		f.setText(StringHelper.formatDouble(value));
-		f.setHorizontalAlignment(JTextField.RIGHT);
-		f.getDocument().addDocumentListener(this);
-		values.add(f);
-		return f;
+	private JTextField addField(double value,JPanel parent,String labelName,GridBagConstraints gbc) {
+		JTextField field = new FocusTextField(8);
+		field.setText(StringHelper.formatDouble(value));
+		field.setHorizontalAlignment(JTextField.RIGHT);
+		field.getDocument().addDocumentListener(this);
+
+		JLabel label = new JLabel(labelName,JLabel.LEADING);
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
+		
+		parent.add(panel,gbc);
+
+		return field;
 	}
 	
 	private double getField(int i,double oldValue) {

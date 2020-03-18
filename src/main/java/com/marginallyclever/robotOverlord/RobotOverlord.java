@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -28,12 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTree;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3d;
 
@@ -53,11 +48,12 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.primitives.CameraEntity;
-import com.marginallyclever.robotOverlord.entity.primitives.PhysicalEntity;
-import com.marginallyclever.robotOverlord.entity.world.World;
+import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Scene;
+import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
 import com.marginallyclever.robotOverlord.swingInterface.CameraViewEntity;
 import com.marginallyclever.robotOverlord.swingInterface.DragBallEntity;
+import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
@@ -66,6 +62,7 @@ import com.marginallyclever.robotOverlord.swingInterface.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandCheckForUpdate;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandForums;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandNew;
@@ -82,7 +79,7 @@ import com.marginallyclever.util.PropertiesFileHelper;
 /**
  * Robot Overlord (RO) is the top-level controller of an application to educate robots.
  * It is built around good design patterns.
- * @see https://github.com/MarginallyClever/Robot-Overlord-App
+ * See https://github.com/MarginallyClever/Robot-Overlord-App
  * 
  * @author Dan Royer
  *
@@ -99,9 +96,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	final static public String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 	
-	
 	// Scene container
-	protected World world = new World();
+	protected Scene scene = new Scene();
 	// The currently selected entity to edit.
 	// This is equivalent to the cursor position in a text editor.
 	// This is equivalent to the currently selected directory in an OS.
@@ -166,7 +162,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// the 3D view of the scene
 	protected GLJPanel glCanvas;
 	// tree like view of all entities in the scene
-	protected JPanel entityTree;
+	protected EntityTreePanel entityTree;
 	// panel view of edit controls for the selected entity
 	protected JPanel selectedEntityPanel;
 	
@@ -202,14 +198,14 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		
  		addChild(cameraView);
  		addChild(camera);
-        addChild(world);
+        addChild(scene);
  		addChild(dragBall);
  		addChild(viewCube);
  		
  		cameraView.attachedTo.set(camera.getFullName());
         
         // ..with default setting.  TODO save & load whole world and all its Entities.
-        world.createDefaultWorld();
+        scene.createDefaultWorld();
 		
 		SoundSystem.start();
 		InputManager.start();
@@ -230,8 +226,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         mainFrame.addWindowListener(this);
     	
         // add to the frame a menu bar
-        mainMenu = new JMenuBar();
-        mainFrame.setJMenuBar(mainMenu);
+        mainFrame.setJMenuBar(mainMenu = new JMenuBar());
         // now that we have everything built, set up the menus.
         buildMainMenu();
 		
@@ -254,16 +249,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		            glCanvas.setMinimumSize(minimumSize);
 	        	}
 	        	{
-	        		// build the initial entity tree
-			        {
-				        entityTree = new JPanel();
-				        updateEntityTree();
-			        }
-			        // build the panel to display controls for the selected entity
-			        {
-				        selectedEntityPanel = new JPanel();
-				        selectedEntityPanel.setLayout(new BorderLayout());
-			        }
+			        entityTree = new EntityTreePanel(this);
+			        selectedEntityPanel = new JPanel(new BorderLayout());
 			        
 			        // the right hand stuff			        
 					rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
@@ -272,7 +259,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 					// make sure the master panel can't be squished.
 		            Dimension minimumSize = new Dimension(300,300);
 			        rightFrameSplitter.setMinimumSize(minimumSize);
-					rightFrameSplitter.setResizeWeight(0.5);
+					rightFrameSplitter.setResizeWeight(0.4);
 		        }
 			        
 		        // split the mainframe in two vertically
@@ -312,24 +299,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		return undoManager;
 	}
 	
-	public World getWorld() {
-		return world;
+	public Scene getWorld() {
+		return scene;
 	}
 	
 	public Entity getPickedEntity() {
 		return selectedEntity;
-	}
-	
-	// This is a ViewTree of the root entity.
-	// Only add branches of the tree, ignore all leaves.  leaves *should* be handled by the ViewPanel of a single entity.
-	protected DefaultMutableTreeNode createTreeNodes(Entity e) {
-		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
-		for(Entity child : e.getChildren() ) {
-			if(!child.getChildren().isEmpty()) {
-				parent.add(createTreeNodes(child));
-			}
-		}
-		return parent;
 	}
 	
 	/**
@@ -357,56 +332,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		//rightFrameSplitter.setDividerLocation(180);
 	}
 
-    /**
-     * list all entities in the world.  Double click an item to get its panel.
-     * See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
-     */
-	public void updateEntityTree() {
-		// list all objects in scene
-	    DefaultMutableTreeNode top = createTreeNodes(this);
-		JTree tree = new JTree(top);
-
-	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	    tree.setShowsRootHandles(true);
-	    tree.addMouseListener(new MouseAdapter() {
-		    public void mousePressed(MouseEvent e) {
-		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-		        if(selPath != null) {
-		            if(e.getClickCount() == 1) {
-		                //mySingleClick(selRow, selPath);
-		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
-		            	pickEntity((Entity)(o.getUserObject()));
-		            } else if(e.getClickCount() == 2) {
-		                //myDoubleClick(selRow, selPath);
-		            }
-		        }
-		    }
-		});
-		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
-		if(entityTree.getComponentCount()==1) {
-			JTree oldTree = (JTree)entityTree.getComponent(0);
-			// preserve the original expansions
-			ArrayList<TreePath> expanded = new ArrayList<TreePath>();
-			for(int i=0;i<oldTree.getRowCount();++i) {
-				if(oldTree.isExpanded(i)) {
-					expanded.add(oldTree.getPathForRow(i));
-				}
-			}
-			// restore the expanded paths
-			for(TreePath p : expanded) {
-				tree.expandPath(p);
-			}
-			// restore the selected paths
-			TreePath[] paths = oldTree.getSelectionPaths();
-			tree.setSelectionPaths(paths);
-		}
-		
-		entityTree.removeAll();
-		entityTree.setLayout(new BorderLayout());
-		entityTree.add(tree,BorderLayout.CENTER);
-	}
-
 	public void saveWorldToFile(String filename) {
 		saveWorldToFileJSON(filename);
 		//saveWorldToFileSerializable(filename);
@@ -431,7 +356,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	public void saveWorldToFileJSON(String filename) {
 		ObjectMapper om = getObjectMapper();
 		try {
-			om.writeValue(new File(filename), world);
+			om.writeValue(new File(filename), scene);
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -444,7 +369,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	public void loadWorldFromFileJSON(String filename) {
 		ObjectMapper om = getObjectMapper();
 		try {
-			world = (World)om.readValue(new File(filename), World.class);
+			scene = (Scene)om.readValue(new File(filename), Scene.class);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -465,7 +390,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		try {
 			fout = new FileOutputStream(filename);
 			objectOut = new ObjectOutputStream(fout);
-			objectOut.writeObject(world);
+			objectOut.writeObject(scene);
 		} catch(java.io.NotSerializableException e) {
 			System.out.println("World can't be serialized.");
 			e.printStackTrace();
@@ -502,7 +427,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			objectIn = new ObjectInputStream(fin);
 	
 			// Read an object in from object store, and cast it to a GameWorld
-			this.world = (World) objectIn.readObject();
+			this.scene = (Scene) objectIn.readObject();
 		} catch(IOException e) {
 			System.out.println("World load failed (file io).");
 			e.printStackTrace();
@@ -524,7 +449,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 
 	public void newWorld() {
-		this.world = new World();
+		this.scene = new Scene();
 		pickEntity(null);
 	}
 	
@@ -596,6 +521,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         menu.add(new JMenuItem(commandRedo));
         mainMenu.add(menu);
     	
+        menu = new JMenu("World");
+		menu.add(new JMenuItem(new CommandAddEntity(this)));
+        mainMenu.add(menu);
+        
         menu = new JMenu("Help");
         menu.add(new JMenuItem(new CommandAboutControls()));
 		menu.add(new JMenuItem(new CommandForums()));
@@ -766,7 +695,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		// 
         cameraView.render(gl2);
 
-        world.render(gl2);
+        scene.render(gl2);
 
         showPickingTest(gl2);
         
@@ -780,7 +709,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        int pickName = findItemUnderCursor(gl2);
         	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
 
-        	Entity next = world.pickPhysicalEntityWithName(pickName);
+        	Entity next = scene.pickPhysicalEntityWithName(pickName);
     		
     		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntity,next) ) );
         }
@@ -846,7 +775,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		cameraView.renderPick(gl2,pickX,pickY);
 
         // render in selection mode, without advancing time in the simulation.
-        world.render(gl2);
+        scene.render(gl2);
 
         //gl2.glPushName(0);
 
@@ -890,21 +819,22 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     }
     	
 	public void pickEntity(Entity e) {
+		entityTree.updateEntityTree();
+		
 		if(e==null) return;
 		
 		System.out.println("Picked "+e.getFullName());
 		
 		selectedEntity=e;
 
-		if(e instanceof PhysicalEntity && e != dragBall) {
-			dragBall.setSubject((PhysicalEntity)e);
+		if(e instanceof SceneEntity && e != dragBall) {
+			dragBall.setSubject((SceneEntity)e);
 		}
-		//updateEntityTree();
 		updateSelectedEntityPanel(e);
 	}
     
 	public void pickCamera() {
-		PhysicalEntity camera = cameraView.getAttachedTo();
+		SceneEntity camera = cameraView.getAttachedTo();
 		if(camera!=null) {
 			pickEntity(camera);
 		}
@@ -1011,7 +941,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 */
 	public Entity findChildWithName(String name) {
 		ArrayList<Entity> list = new ArrayList<Entity>();
-		list.add(world);
+		list.add(scene);
 		while( !list.isEmpty() ) {
 			Entity obj = list.remove(0);
 			String objectName = obj.getName();
