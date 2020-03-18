@@ -144,7 +144,7 @@ public class Entity extends Observable implements Serializable, Observer {
 		return e;
 	}
 
-	public String getCanonicalName() {
+	public String getFullName() {
 		String sum="";
 		Entity e=this;
 		
