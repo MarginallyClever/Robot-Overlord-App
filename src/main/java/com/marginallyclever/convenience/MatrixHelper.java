@@ -165,6 +165,18 @@ public class MatrixHelper {
 	}
 	
 	/**
+	 * Convenience method to call matrixToEuler() with only the rotational component.
+	 * Assumes the rotational component is a valid rotation matrix.
+	 * @param mat
+	 * @return a valid Euler solution to the matrix.
+	 */
+	public static Vector3d matrixToEuler(Matrix4d mat) {
+		Matrix3d m3 = new Matrix3d();
+		mat.get(m3);
+		return matrixToEuler(m3);
+	}
+	
+	/**
 	 * Convert euler rotations to a matrix.  See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
