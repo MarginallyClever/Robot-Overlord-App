@@ -7,8 +7,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
-import org.junit.Test;
-
 import com.jogamp.opengl.GL2;
 
 public class MatrixHelper {	
@@ -156,7 +154,7 @@ public class MatrixHelper {
 			x = Math.atan2( mat.m21,mat.m22);
 			y = Math.atan2(-mat.m20,sy);
 			z = Math.atan2( mat.m10,mat.m00);
-		} else {                   
+		} else {
 			x = Math.atan2(-mat.m12, mat.m11);
 			y = Math.atan2(-mat.m20, sy);
 			z = 0;
@@ -177,7 +175,8 @@ public class MatrixHelper {
 	}
 	
 	/**
-	 * Convert euler rotations to a matrix.  See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * Convert Euler rotations to a matrix.
+	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
 	 */
@@ -202,32 +201,6 @@ public class MatrixHelper {
 		result.mul(rZ,interim);
 
 		return result;
-	}
-	
-	@Test
-	public void testEulerMatrix() {
-		Vector3d v2;
-		Vector3d v1 = new Vector3d();
-		for(int i=0;i<1000;++i) {
-			v1.x = Math.random() * Math.PI*2.0;
-			v1.y = Math.random() * Math.PI*2.0;
-			v1.z = Math.random() * Math.PI*2.0;
-			
-			Matrix3d a = eulerToMatrix(v1);
-			v2 = matrixToEuler(a);
-			Matrix3d b = eulerToMatrix(v2);
-			
-			boolean test = b.epsilonEquals(a, 1e-6);
-			assert(test);
-			if(test==false) {
-				System.out.println(i+"a="+a);
-				System.out.println(i+"b="+b);
-				b.sub(a);
-				System.out.println(i+"d="+b);
-			}
-			org.junit.Assert.assertTrue(test);
-		}
-		System.out.println("testEulerMatrix() OK");
 	}
 	
 	/**
