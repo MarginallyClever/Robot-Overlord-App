@@ -37,7 +37,7 @@ public class BlenderCameraEntity extends CameraEntity {
         if(dz!=0) { 
         	double oldZoom = zoom;
         	
-        	zoom -= dz;
+        	zoom -= dz*3;
         	zoom = Math.max(0.01,zoom);
 
         	if(oldZoom!=zoom) {
