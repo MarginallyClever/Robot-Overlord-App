@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.primitives;
 
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
@@ -18,13 +19,16 @@ public class CameraEntity extends PhysicalEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = -8808107560966888107L;
+	
 	// orientation
 	protected Vector3d forward = new Vector3d(1,0,0);
 	protected Vector3d right = new Vector3d(0,1,0);
 	protected Vector3d up = new Vector3d(0,0,1);
 	
 	// angles
-	protected double pan, tilt;
+	protected double pan;
+	protected double tilt;
+	protected double zoom;
 
 	public CameraEntity() {
 		super();
@@ -65,70 +69,86 @@ public class CameraEntity extends PhysicalEntity {
 	public void update(double dt) {
 		updateMatrix();
 		
-		// move the camera
-		Vector3d temp = new Vector3d();
-		Vector3d direction = new Vector3d(0,0,0);
-		double vel = 20.0 * dt;
-		boolean changed = false;
+		// Move the camera
+		Matrix4d m = pose.get();
+		
+        double dz = InputManager.rawValue(InputManager.Source.MOUSE_Z);
+        if(dz!=0) { 
+        	double oldZoom = zoom;
+        	
+        	zoom -= dz*3;
+        	zoom = Math.max(0.01,zoom);
 
-		int runSpeed = 1;//(move_run==1)?3:1;
+        	if(oldZoom!=zoom) {
+				// adjust the camera position to orbit around a point 'zoom' in front of the camera
+				Vector3d oldZ = MatrixHelper.getZAxis(m);
+				Vector3d newZ = new Vector3d(oldZ); 
 
-		// pan/tilt
-		if (InputManager.isOn(InputManager.Source.MOUSE_RIGHT)) {
+				oldZ.scale(oldZoom);
+				newZ.scale(zoom);
+	
+				Vector3d p = getPosition();
+				p.sub(oldZ);
+				p.add(newZ);
+				setPosition(p);
+        	}
+        	//System.out.println(dz+"\t"+zoom);
+        }
+        
+		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
 	        double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
 	        double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
-	        if(dx!=0 || dy!=0) {
-				setPan(getPan()+dx*0.5);
-				setTilt(getTilt()-dy*0.5);
-	        }
-			updateMatrix();
-		}
 
+			if(dx!=0 || dy!=0) {
+				if( InputManager.isOn(InputManager.Source.KEY_LSHIFT) ||
+					InputManager.isOn(InputManager.Source.KEY_RSHIFT) ) {
+					// translate relative to camera's current orientation
+					Vector3d vx = MatrixHelper.getXAxis(m);
+					Vector3d vy = MatrixHelper.getYAxis(m);
+					Vector3d p = getPosition();
+					double zSq = Math.sqrt(zoom)*0.1;
+					vx.scale(zSq*-dx);
+					vy.scale(zSq* dy);
+					p.add(vx);
+					p.add(vy);
+					setPosition(p);
+				} else if(InputManager.isOn(InputManager.Source.KEY_LCONTROL) ||
+						  InputManager.isOn(InputManager.Source.KEY_RCONTROL) ) {
+					// up and down to fly forward and back
+					Vector3d zAxis = MatrixHelper.getZAxis(m);
+					zAxis.scale(dy);
+					
+					Vector3d p = getPosition();
+					p.add(zAxis);
+					setPosition(p);
+				} else if(InputManager.isOn(InputManager.Source.KEY_LALT) ||
+						  InputManager.isOn(InputManager.Source.KEY_RALT) ) {
+					// snap system 
+				} else {
+					// orbit around the focal point
+					setPan(getPan()+dx);
+					setTilt(getTilt()-dy);
 
-		// linear moves
-		double move_fb = InputManager.rawValue(InputManager.Source.KEY_S)-InputManager.rawValue(InputManager.Source.KEY_W);
-		double move_lr = InputManager.rawValue(InputManager.Source.KEY_D)-InputManager.rawValue(InputManager.Source.KEY_A);
-		double move_ud = InputManager.rawValue(InputManager.Source.KEY_E)-InputManager.rawValue(InputManager.Source.KEY_Q);
-		// middle mouse click + drag to slide
-		if(InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
-			double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
-			double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
-			move_lr-=dx*0.25;
-			move_ud+=dy*0.25;
-		}
-		
+					// do updateMatrix() but keep the rotation matrix
+					Matrix3d rot = buildPanTiltMatrix(pan,tilt);
+					setRotation(rot);
+					
+					// adjust the camera position to orbit around a point 'zoom' in front of the camera
+					Vector3d oldZ = MatrixHelper.getZAxis(m);
+					oldZ.scale(zoom);
 
-		if(move_fb!=0) {
-			// forward/back
-			temp.set(forward);
-			temp.scale(move_fb);
-			direction.add(temp);
-			changed = true;
-		}
-		if(move_lr!=0) {
-			// strafe left/right
-			temp.set(right);
-			temp.scale(move_lr);
-			direction.add(temp);
-			changed = true;
-		}
-		if(move_ud!=0) {
-			// strafe up/down
-			temp.set(up);
-			temp.scale(move_ud);
-			direction.add(temp);
-			changed = true;
-		}
-		
-		if(changed) {
-			runSpeed=3;
-			//direction.normalize();
-			direction.scale(vel*runSpeed);
+					Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
+					newZ.scale(zoom);
 
-			Vector3d p = getPosition();
-			p.add(direction);
-			setPosition(p);
-		}	
+					Vector3d p = getPosition();
+					p.sub(oldZ);
+					p.add(newZ);
+					setPosition(p);
+					
+					//System.out.println(dx+"\t"+dy+"\t"+pan+"\t"+tilt+"\t"+oldZ+"\t"+newZ);
+				}
+			}
+		}
 	}
 	
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
@@ -164,5 +184,6 @@ public class CameraEntity extends PhysicalEntity {
 		super.getView(view);
 		view.addReadOnly("Pan="+pan);
 		view.addReadOnly("Tilt="+tilt);
+		view.addReadOnly("Zoom="+zoom);
 	}
 }
