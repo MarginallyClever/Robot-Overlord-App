@@ -57,7 +57,8 @@ public class ViewPanelColorRGBA extends JPanel implements DocumentListener, Obse
 	
 	private JTextField addField(float value,JPanel values) {
 		JTextField f = new FocusTextField(4);
-		f.setText(StringHelper.formatFloat(value));
+		Integer v = (int)(value*255);
+		f.setText(v.toString());
 		f.setHorizontalAlignment(SwingConstants.RIGHT);
 		Dimension preferredSize = f.getPreferredSize();
 		preferredSize.width=20;
@@ -72,7 +73,7 @@ public class ViewPanelColorRGBA extends JPanel implements DocumentListener, Obse
 	
 	private float getField(int i,float oldValue) {
 		try {
-			return Float.parseFloat(fields[i].getText());
+			return Float.parseFloat(fields[i].getText())/255.0f;
 		} catch(NumberFormatException e) {
 			//fields[i].setText(StringHelper.formatFloat(oldValue));
 			return oldValue;
