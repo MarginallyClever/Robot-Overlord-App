@@ -18,11 +18,11 @@ public class MaterialEntity extends Entity {
 	 */
 	private static final long serialVersionUID = 7313230310466105159L;
 	
-	private ColorEntity diffuse    = new ColorEntity("Diffuse" ,1.00,1.00,1.00,1.00);
-	private ColorEntity specular   = new ColorEntity("Specular",0.85,0.85,0.85,1.00);
-	private ColorEntity emission   = new ColorEntity("Emission",0.01,0.01,0.01,1.00);
-	private ColorEntity ambient    = new ColorEntity("Ambient" ,0.01,0.01,0.01,1.00);
-	private DoubleEntity shininess = new DoubleEntity("Shininess",10.0);
+	private ColorEntity ambient    = new ColorEntity("Ambient" ,0.2,0.2,0.2,1.00);
+	private ColorEntity diffuse    = new ColorEntity("Diffuse" ,0.8,0.8,0.8,1.00);
+	private ColorEntity specular   = new ColorEntity("Specular",0.0,0.0,0.0,1.00);
+	private ColorEntity emission   = new ColorEntity("Emission",0.0,0.0,0.0,1.00);
+	private DoubleEntity shininess = new DoubleEntity("Shininess",0.0);
 	private BooleanEntity isLit    = new BooleanEntity("Lit",true);
 	private TextureEntity texture  = new TextureEntity();
 		

@@ -12,6 +12,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.BoxEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.GridEntity;
 import com.marginallyclever.robotOverlord.entity.primitives.LightEntity;
@@ -35,6 +36,8 @@ public class World extends Entity {
 	public final static Vector3d right = new Vector3d(1,0,0);
 	public final static Vector3d up = new Vector3d(0,1,0);
 
+	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
+	
 	public World() {
 		super();
 		setName("World");
@@ -59,12 +62,6 @@ public class World extends Entity {
 		
 		// add some lights
     	LightEntity light;
-    	 
-		addChild(light = new LightEntity());
-		light.setName("Ambient light");
-    	light.lightIndex=0;
-    	light.setPosition(new Vector3d(0,0,30));
-    	light.setAmbient(2.55f,2.55f,2.51f,1);
 
 		addChild(light = new LightEntity());
 		light.setName("Light 1");
@@ -116,6 +113,8 @@ public class World extends Entity {
     	gl2.glDrawBuffer(GL2.GL_BACK);
 	
 		// pass 1: all the lights
+		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
+		
 		for( Entity obj : children ) {
 			if(obj instanceof LightEntity) {
 				PhysicalEntity light = (PhysicalEntity)obj;
@@ -219,6 +218,6 @@ public class World extends Entity {
 	
 	@Override
 	public void getView(View view) {
-
+		view.addColor(ambientLight);
 	}
 }
