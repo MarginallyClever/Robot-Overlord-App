@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
