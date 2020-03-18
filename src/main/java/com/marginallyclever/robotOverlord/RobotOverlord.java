@@ -272,18 +272,19 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 					// make sure the master panel can't be squished.
 		            Dimension minimumSize = new Dimension(300,300);
 			        rightFrameSplitter.setMinimumSize(minimumSize);
-			        rightFrameSplitter.setDividerLocation(-1);
+					rightFrameSplitter.setResizeWeight(0.5);
 		        }
 			        
 		        // split the mainframe in two vertically
 		        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
-		        splitLeftRight.setLeftComponent(glCanvas);
-		        splitLeftRight.setRightComponent(rightFrameSplitter);
+		        splitLeftRight.add(glCanvas);
+		        splitLeftRight.add(rightFrameSplitter);
 	        }
 	        // Also split up/down
 	        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
-	        splitUpDown.setTopComponent(splitLeftRight);
-	        splitUpDown.setBottomComponent(footerBar = new FooterBar(mainFrame));
+	        splitUpDown.add(splitLeftRight);
+	        splitUpDown.add(footerBar = new FooterBar(mainFrame));
+	        splitUpDown.setOneTouchExpandable(true);
 	        
 			// add the split panel to the main frame
 	        mainFrame.add(splitUpDown);
@@ -777,8 +778,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        pickNow=false;
 	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 	        int pickName = findItemUnderCursor(gl2);
-        	//System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-        	pickIntoWorld(pickName);
+        	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
+
+        	Entity next = world.pickPhysicalEntityWithName(pickName);
+    		
+    		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntity,next) ) );
         }
 		
 		if(checkStackSize) {
@@ -884,13 +888,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	}
     	return bestPickName;
     }
-    
-    public void pickIntoWorld(int pickName) {
-    	Entity next = world.pickPhysicalEntityWithName(pickName);
-		
-		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntity,next) ) );
-    }
-	
+    	
 	public void pickEntity(Entity e) {
 		if(e==null) return;
 		
