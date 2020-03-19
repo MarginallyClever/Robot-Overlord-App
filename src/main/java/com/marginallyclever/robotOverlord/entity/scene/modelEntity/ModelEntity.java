@@ -84,7 +84,7 @@ public class ModelEntity extends SceneEntity {
 	}
 
 	/**
-	 * sets the new model filename, which causes the model to be reloaded.
+	 * Sets the new model filename, which causes the model to be reloaded.
 	 * @param newFilename
 	 */
 	public void setModelFilename(String newFilename) {
