@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.View;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class LightEntity extends SceneEntity {
+public class LightEntity extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -198,8 +198,12 @@ public class LightEntity extends SceneEntity {
 
 	@Override
 	public void getView(View view) {
-		super.getView(view);
+		view.pushStack("Li", "Light");
 		view.addEnum(preset, presetNames);
+		getViewOfChildren(view);
+		view.popStack();
+		
+		super.getView(view);
 	}
 	
 	public void setPreset(int i) {

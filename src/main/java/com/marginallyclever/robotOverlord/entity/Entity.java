@@ -163,7 +163,9 @@ public class Entity extends Observable implements Serializable, Observer {
 	 */
 	public void getView(View view) {
 		//if(parent!=null) view.addReadOnly("Child of "+parent.getName());
-		
+	}
+	
+	public void getViewOfChildren(View view) {
 		for( Entity child : children ) {
 			if(child.getChildren().isEmpty()) {
 				// only leaves

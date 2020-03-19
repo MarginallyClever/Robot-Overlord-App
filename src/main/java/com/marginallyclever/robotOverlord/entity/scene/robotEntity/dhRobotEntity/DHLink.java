@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink;
+package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity;
 
 import java.util.Observable;
 
@@ -430,7 +430,7 @@ public class DHLink extends ModelEntity {
 
 	@Override
 	public void getView(View view) {
-		view.addReadOnly(this.getName());
+		view.pushStack("DH","DHLink");
 		view.addDouble(d);
 		view.addDouble(theta);
 		view.addDouble(r);
@@ -438,6 +438,9 @@ public class DHLink extends ModelEntity {
 		
 		view.addDouble(rangeMin);
 		view.addDouble(rangeMax);
+		view.popStack();
+		
+		super.getView(view);
 	}
 	
 	@Override
@@ -445,4 +448,9 @@ public class DHLink extends ModelEntity {
 		super.update(o, arg);
 		refreshPoseMatrix();
 	}
+	
+	@Override
+	public void setPoseWorld(Matrix4d m) {
+		
+	} 
 }

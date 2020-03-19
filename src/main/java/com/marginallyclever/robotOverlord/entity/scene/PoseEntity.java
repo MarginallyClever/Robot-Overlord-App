@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Matrix4dEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
-public abstract class SceneEntity extends Entity {
+public class PoseEntity extends Entity {
 	/**
 	 * 
 	 */
@@ -41,9 +41,9 @@ public abstract class SceneEntity extends Entity {
 	public transient BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
 
-	public SceneEntity() {
+	public PoseEntity() {
 		super();
-		setName("Physics");
+		setName("Pose");
 		
 		pickName = pickNameCounter++;
 		
@@ -54,8 +54,13 @@ public abstract class SceneEntity extends Entity {
 		pose.setIdentity();
 		poseWorld.setIdentity();
 	}
+
+	public PoseEntity(String name) {
+		this();
+		setName(name);
+	}
 	
-	public void set(SceneEntity b) {
+	public void set(PoseEntity b) {
 		super.set(b);
 		pose.set(b.pose);
 		poseWorld.set(b.poseWorld);
@@ -85,8 +90,8 @@ public abstract class SceneEntity extends Entity {
 			
 			// draw children relative to parent
 			for(Entity e : children ) {
-				if(e instanceof SceneEntity) {
-					((SceneEntity)e).render(gl2);
+				if(e instanceof PoseEntity) {
+					((PoseEntity)e).render(gl2);
 				}
 			}
 		gl2.glPopMatrix();
@@ -104,9 +109,9 @@ public abstract class SceneEntity extends Entity {
 
 		// connection to children
 		for(Entity e : children ) {
-			if(e instanceof SceneEntity) {					
+			if(e instanceof PoseEntity) {					
 				gl2.glColor3d(255, 255, 255);
-				Vector3d p = ((SceneEntity)e).getPosition();
+				Vector3d p = ((PoseEntity)e).getPosition();
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(p.x,p.y,p.z);
@@ -189,9 +194,9 @@ public abstract class SceneEntity extends Entity {
 	 * Does not crawl up the parent hierarchy.
 	 */
 	public void updatePoseWorld() {
-		if(parent instanceof SceneEntity) {
+		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
-			SceneEntity peParent = (SceneEntity)parent;
+			PoseEntity peParent = (PoseEntity)parent;
 			poseWorld.mul(peParent.poseWorld,pose.get());
 		} else {
 			// this poseWorld is my pose
@@ -200,8 +205,8 @@ public abstract class SceneEntity extends Entity {
 		cuboid.setPoseWorld(poseWorld);
 		
 		for( Entity c : children ) {
-			if(c instanceof SceneEntity) {
-				SceneEntity pe = (SceneEntity)c;
+			if(c instanceof PoseEntity) {
+				PoseEntity pe = (PoseEntity)c;
 				pe.updatePoseWorld();
 			}
 		}
@@ -221,8 +226,8 @@ public abstract class SceneEntity extends Entity {
 	 * @param m
 	 */
 	public void setPoseWorld(Matrix4d m) {
-		if(parent instanceof SceneEntity) {
-			Matrix4d iParent = new Matrix4d(((SceneEntity)parent).poseWorld);
+		if(parent instanceof PoseEntity) {
+			Matrix4d iParent = new Matrix4d(((PoseEntity)parent).poseWorld);
 			iParent.invert();
 			m.mul(iParent);
 			setPose(m);
@@ -259,8 +264,10 @@ public abstract class SceneEntity extends Entity {
 		return cuboidList;
 	}
 	
+	@Override
 	public void getView(View view) {
-		super.getView(view);
+		view.pushStack("Po","Pose");
 		pose.getView(view);
+		view.popStack();
 	}
 }

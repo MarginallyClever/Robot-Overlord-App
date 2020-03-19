@@ -1,9 +1,10 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
 import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.JTree;
@@ -14,12 +15,15 @@ import javax.swing.tree.TreeSelectionModel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class EntityTreePanel extends JPanel {
+public class EntityTreePanel extends JPanel implements MouseListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
+	
+    protected DefaultMutableTreeNode oldTop; 
+	protected JTree oldTree;
 	
 	public EntityTreePanel(RobotOverlord ro) {
 		super();
@@ -29,35 +33,44 @@ public class EntityTreePanel extends JPanel {
 		updateEntityTree();
 	}
 
+	public void setSelection(Entity e) {
+		if(oldTree==null) return;
+		
+		// preserve the original expansions
+		LinkedList<DefaultMutableTreeNode> list = new LinkedList<DefaultMutableTreeNode>();
+		list.add(oldTop);
+		while( !list.isEmpty() ) {
+			DefaultMutableTreeNode node = list.remove();
+			Object o=node.getUserObject();
+			if( o instanceof Entity ) {
+				if( (Entity)o == e ) {
+					TreePath selectedPath = new TreePath(node.getPath());
+					oldTree.expandPath(selectedPath);
+					oldTree.setSelectionPath(selectedPath);
+				}
+			}
+			for(int i=0; i<node.getChildCount(); ++i ) {
+				DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getChildAt(i);
+				list.add(child);
+			}
+		}
+	}
+	
     /**
      * list all entities in the world.  Double click an item to get its panel.
      * See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
      */
 	public void updateEntityTree() {
 		// list all objects in scene
-	    DefaultMutableTreeNode top = createTreeNodes(ro);
-		JTree tree = new JTree(top);
+	    DefaultMutableTreeNode newTop = createTreeNodes(ro);
+		JTree newTree = new JTree(newTop);
 
-	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	    tree.setShowsRootHandles(true);
-	    tree.addMouseListener(new MouseAdapter() {
-		    public void mousePressed(MouseEvent e) {
-		        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-		        if(selPath != null) {
-		            if(e.getClickCount() == 1) {
-		                //mySingleClick(selRow, selPath);
-		            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
-		            	ro.pickEntity((Entity)(o.getUserObject()));
-		            } else if(e.getClickCount() == 2) {
-		                //myDoubleClick(selRow, selPath);
-		            }
-		        }
-		    }
-		});
+	    newTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	    newTree.setShowsRootHandles(true);
+	    newTree.addMouseListener(this);
 		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
-		if(getComponentCount()==1) {
-			JTree oldTree = (JTree)getComponent(0);
+
+		if(oldTree!=null) {
 			// preserve the original expansions
 			ArrayList<TreePath> expanded = new ArrayList<TreePath>();
 			for(int i=0;i<oldTree.getRowCount();++i) {
@@ -67,15 +80,19 @@ public class EntityTreePanel extends JPanel {
 			}
 			// restore the expanded paths
 			for(TreePath p : expanded) {
-				tree.expandPath(p);
+				newTree.expandPath(p);
 			}
 			// restore the selected paths
 			TreePath[] paths = oldTree.getSelectionPaths();
-			tree.setSelectionPaths(paths);
+			newTree.setSelectionPaths(paths);
 		}
 		
-		removeAll();
-		add(tree,BorderLayout.CENTER);
+		if(!newTree.equals(oldTree)) {
+			removeAll();
+			add(newTree,BorderLayout.CENTER);
+			oldTree=newTree;
+			oldTop =newTop;
+		}
 	}
 
 	// This is a ViewTree of the root entity.
@@ -89,4 +106,23 @@ public class EntityTreePanel extends JPanel {
 		}
 		return parent;
 	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+        TreePath selPath = oldTree.getPathForLocation(e.getX(), e.getY());
+        if(selPath != null) {
+            if(e.getClickCount() == 1) {
+                //mySingleClick(selRow, selPath);
+            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
+            	ro.pickEntity((Entity)(o.getUserObject()));
+            } else if(e.getClickCount() == 2) {
+                //myDoubleClick(selRow, selPath);
+            }
+        }
+    }
+
+	@Override	public void mouseClicked(MouseEvent e) {}
+	@Override	public void mouseEntered(MouseEvent e) {}
+	@Override	public void mouseExited(MouseEvent e) {}
+	@Override	public void mouseReleased(MouseEvent e) {}
 }

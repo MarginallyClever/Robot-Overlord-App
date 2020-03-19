@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.util.ArrayList;
 
+import javax.swing.JComponent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.robotOverlord.entity.*;
@@ -22,21 +23,30 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
  * @since 1.6.0
  */
 public interface View {
-	public void addReadOnly(String s);
+	// Views may be made of subsections, like tabs.  This starts a new section.
+	void pushStack(String title,String tip);
 	
-	public void addReadOnly(Entity e);
+	// Views may be made of subsections, like tabs.  This ends a section.  
+	void popStack();
+	
+	// Finally, get the root component at the end of the whole process.
+	JComponent getFinalView();
+	
+	void addReadOnly(String s);
+	
+	void addReadOnly(Entity e);
 
-	public void addBoolean(BooleanEntity e);
+	void addBoolean(BooleanEntity e);
 
-	public void addEnum(IntEntity e,String [] listOptions);
+	void addEnum(IntEntity e,String [] listOptions);
 
-	public void addFilename(StringEntity e,ArrayList<FileNameExtensionFilter> f);
+	void addFilename(StringEntity e,ArrayList<FileNameExtensionFilter> f);
 
-	public void addColor(ColorEntity colorEntity);
+	void addColor(ColorEntity colorEntity);
 
-	public void addVector3(Vector3dEntity vector3dEntity);
+	void addVector3(Vector3dEntity vector3dEntity);
 
-	public void addInt(IntEntity intEntity);
+	void addInt(IntEntity intEntity);
 
-	public void addDouble(DoubleEntity intEntity);
+	void addDouble(DoubleEntity intEntity);
 }

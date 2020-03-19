@@ -7,9 +7,9 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
 

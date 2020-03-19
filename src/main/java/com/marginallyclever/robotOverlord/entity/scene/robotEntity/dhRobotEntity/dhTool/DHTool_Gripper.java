@@ -9,8 +9,8 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 
 
@@ -28,7 +28,7 @@ public class DHTool_Gripper extends DHTool {
 	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
-	private transient SceneEntity subjectBeingHeld;
+	private transient PoseEntity subjectBeingHeld;
 	
 	private double gripperServoAngle;
 	public static final double ANGLE_MAX=55;
@@ -154,7 +154,7 @@ public class DHTool_Gripper extends DHTool {
 				// Get the object at the targetPos.
 				Vector3d target = new Vector3d();
 				this.poseWorld.get(target);
-				List<SceneEntity> list = this.getWorld().findPhysicalObjectsNear(target, 10);
+				List<PoseEntity> list = this.getWorld().findPhysicalObjectsNear(target, 10);
 				if(!list.isEmpty()) {
 					subjectBeingHeld = list.get(0);
 					// A new subject has been acquired.

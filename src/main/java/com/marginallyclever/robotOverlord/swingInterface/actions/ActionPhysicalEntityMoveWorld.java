@@ -6,7 +6,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 
 /**
  * An undoable command to make a physical entity move.
@@ -20,7 +20,7 @@ public class ActionPhysicalEntityMoveWorld extends AbstractUndoableEdit {
 	 */
 	private static final long serialVersionUID = 1L;
 		
-	private SceneEntity entity;
+	private PoseEntity entity;
 	private Matrix4d next;
 	private Matrix4d prev;
 	
@@ -30,7 +30,7 @@ public class ActionPhysicalEntityMoveWorld extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public ActionPhysicalEntityMoveWorld(SceneEntity entity,Matrix4d newPose) {
+	public ActionPhysicalEntityMoveWorld(PoseEntity entity,Matrix4d newPose) {
 		super();
 		
 		this.entity = entity;

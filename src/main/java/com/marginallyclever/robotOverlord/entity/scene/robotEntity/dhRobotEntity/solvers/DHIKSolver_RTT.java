@@ -5,8 +5,8 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
 
 /**
  * Solves IK for a RTT robot

@@ -50,7 +50,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.CameraViewEntity;
 import com.marginallyclever.robotOverlord.swingInterface.DragBallEntity;
 import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
@@ -257,7 +257,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 					rightFrameSplitter.add(new JScrollPane(entityTree));
 					rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
 					// make sure the master panel can't be squished.
-		            Dimension minimumSize = new Dimension(300,300);
+		            Dimension minimumSize = new Dimension(340,300);
 			        rightFrameSplitter.setMinimumSize(minimumSize);
 					rightFrameSplitter.setResizeWeight(0.4);
 		        }
@@ -321,9 +321,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		if(e!=null) {
 			ViewPanel vp = new ViewPanel(this);
-			vp.addReadOnly("Name="+e.getName());
 			e.getView(vp);
-			selectedEntityPanel.add(vp,BorderLayout.PAGE_START);
+			selectedEntityPanel.add(vp.getFinalView(),BorderLayout.PAGE_START);
 		}
 
 		selectedEntityPanel.repaint();
@@ -450,6 +449,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 	public void newWorld() {
 		this.scene = new Scene();
+		updateEntityTree();
 		pickEntity(null);
 	}
 	
@@ -705,7 +705,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 				
         if(pickNow) {
 	        pickNow=false;
-	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
 	        int pickName = findItemUnderCursor(gl2);
         	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
 
@@ -817,24 +817,27 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	}
     	return bestPickName;
     }
-    	
+    
+    public void updateEntityTree() {
+    	entityTree.updateEntityTree();
+    }
+    
 	public void pickEntity(Entity e) {
-		entityTree.updateEntityTree();
-		
 		if(e==null) return;
 		
 		System.out.println("Picked "+e.getFullName());
 		
 		selectedEntity=e;
 
-		if(e instanceof SceneEntity && e != dragBall) {
-			dragBall.setSubject((SceneEntity)e);
+		if(e instanceof PoseEntity && e != dragBall) {
+			dragBall.setSubject((PoseEntity)e);
 		}
+		entityTree.setSelection(e);
 		updateSelectedEntityPanel(e);
 	}
     
 	public void pickCamera() {
-		SceneEntity camera = cameraView.getAttachedTo();
+		PoseEntity camera = cameraView.getAttachedTo();
 		if(camera!=null) {
 			pickEntity(camera);
 		}

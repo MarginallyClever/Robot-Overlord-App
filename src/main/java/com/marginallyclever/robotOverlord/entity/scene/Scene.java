@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -26,12 +25,6 @@ public class Scene extends Entity {
 	 */
 	private static final long serialVersionUID = 4832192356002856296L;
 	
-	public final static Matrix4d pose = new Matrix4d();
-	// TODO lose these junk vectors that don't match assumptions, anyhow.
-	public final static Vector3d forward = new Vector3d(0,0,1);
-	public final static Vector3d right = new Vector3d(1,0,0);
-	public final static Vector3d up = new Vector3d(0,1,0);
-
 	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
 	
 	public Scene() {
@@ -124,9 +117,9 @@ public class Scene extends Entity {
 		
 		// PASS 1: everything not a light
 		for( Entity obj : children ) {
-			if(!(obj instanceof SceneEntity)) continue;
+			if(!(obj instanceof PoseEntity)) continue;
 			if(obj instanceof LightEntity) continue;
-			SceneEntity pe = (SceneEntity)obj;
+			PoseEntity pe = (PoseEntity)obj;
 			
 			gl2.glPushName(pe.getPickName());
 			pe.render(gl2);
@@ -138,10 +131,10 @@ public class Scene extends Entity {
 	}
 
 	// Search only my children to find the PhysicalEntity with matchin pickName.
-	public SceneEntity pickPhysicalEntityWithName(int pickName) {
+	public PoseEntity pickPhysicalEntityWithName(int pickName) {
 		for( Entity obj : children ) {
-			if(!(obj instanceof SceneEntity)) continue;
-			SceneEntity pe = (SceneEntity)obj;
+			if(!(obj instanceof PoseEntity)) continue;
+			PoseEntity pe = (PoseEntity)obj;
 			if( pe.getPickName()==pickName ) {
 				return pe;  // found!
 			}
@@ -157,17 +150,17 @@ public class Scene extends Entity {
 	 * @param radius the maximum distance to search for entities.
 	 * @return a list of found PhysicalObjects
 	 */
-	public List<SceneEntity> findPhysicalObjectsNear(Vector3d target,double radius) {
+	public List<PoseEntity> findPhysicalObjectsNear(Vector3d target,double radius) {
 		radius/=2;
 		
 		//System.out.println("Finding within "+epsilon+" of " + target);
-		List<SceneEntity> found = new ArrayList<SceneEntity>();
+		List<PoseEntity> found = new ArrayList<PoseEntity>();
 		
 		// check all children
 		for( Entity e : children ) {
-			if(e instanceof SceneEntity) {
+			if(e instanceof PoseEntity) {
 				// is physical, therefore has position
-				SceneEntity po = (SceneEntity)e;
+				PoseEntity po = (PoseEntity)e;
 				//System.out.println("  Checking "+po.getDisplayName()+" at "+pop);
 				Vector3d pop = new Vector3d();
 				pop.sub(po.getPosition(),target);
@@ -187,15 +180,15 @@ public class Scene extends Entity {
 	 * @param ignoreList all the entities in the world to ignore.
 	 * @return true if any cuboid in the cuboidList intersects any cuboid in the world.
 	 */
-	public boolean collisionTest(SceneEntity a) {
+	public boolean collisionTest(PoseEntity a) {
 		ArrayList<Cuboid> listA = a.getCuboidList();
 		
 		// check all children
 		for( Entity b : children ) {
 			// we do not test collide with self.  filter for all physical objects EXCEPT a.
-			if( !( b instanceof SceneEntity ) || b==a ) continue;
+			if( !( b instanceof PoseEntity ) || b==a ) continue;
 
-			ArrayList<Cuboid> listB = ((SceneEntity)b).getCuboidList();
+			ArrayList<Cuboid> listB = ((PoseEntity)b).getCuboidList();
 			if( listB == null ) continue;
 			
 			// now we have both lists, test them against each other.
@@ -218,7 +211,8 @@ public class Scene extends Entity {
 	
 	@Override
 	public void getView(View view) {
-		// TODO Add Entity button
+		view.pushStack("Sc", "Scene");
 		view.addColor(ambientLight);
+		view.popStack();
 	}
 }

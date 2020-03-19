@@ -8,8 +8,8 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
 
 /**
  * Solves Inverse Kinematics for a RTTRTR robot.  It is assumed the first three joints position the end effector

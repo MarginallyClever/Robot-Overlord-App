@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 
-public class GridEntity extends SceneEntity {
+public class GridEntity extends PoseEntity {
 	/**
 	 * 
 	 */

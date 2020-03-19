@@ -6,8 +6,8 @@ import javax.vecmath.Vector4d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
 
 /**
  * Solves Inverse Kinematics for a SCARA, serially-linked robot.

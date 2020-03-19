@@ -222,8 +222,11 @@ public class BoxEntity extends ModelEntity {
 
 	@Override
 	public void getView(View view) {
+		view.pushStack("Bx", "Box");
 		width.getView(view);
 		height.getView(view);
 		depth.getView(view);
+		view.popStack();
+		super.getView(view);
 	}
 }

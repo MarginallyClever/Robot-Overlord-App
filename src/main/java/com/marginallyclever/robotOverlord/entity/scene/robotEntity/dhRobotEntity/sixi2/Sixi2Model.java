@@ -4,8 +4,9 @@ import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
 public abstract class Sixi2Model extends DHRobotEntity {	
@@ -80,7 +81,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(5).setR(0);
 		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
-		
+
+		links.get(links.size()-1).addChild(new PoseEntity("End Effector"));
+
 		this.refreshPose();
 
 		// Now I have the poseWorld for each DHLink, I can use that to adjust the model values.

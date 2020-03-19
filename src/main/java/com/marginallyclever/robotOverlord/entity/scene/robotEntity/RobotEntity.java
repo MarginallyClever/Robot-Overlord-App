@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
 
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.View;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
@@ -13,7 +13,7 @@ import com.marginallyclever.communications.NetworkConnectionListener;
  * @author Dan Royer
  *
  */
-public abstract class RobotEntity extends SceneEntity implements NetworkConnectionListener {
+public abstract class RobotEntity extends PoseEntity implements NetworkConnectionListener {
 	/**
 	 * 
 	 */

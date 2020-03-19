@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntit
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 
 /**
  * DHTool is a model that has a DHLink equivalence.

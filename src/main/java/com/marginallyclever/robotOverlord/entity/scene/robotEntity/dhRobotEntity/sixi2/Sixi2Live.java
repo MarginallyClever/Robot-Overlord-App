@@ -7,7 +7,7 @@ import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 
 public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 	/**

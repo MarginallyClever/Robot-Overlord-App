@@ -21,12 +21,12 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 
-public class ModelEntity extends SceneEntity {
+public class ModelEntity extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -59,8 +59,6 @@ public class ModelEntity extends SceneEntity {
 		addChild(rotationAdjust);
 		addChild(originAdjust);
 		addChild(scale);
-		
-		addChild(material);
 		
 		addChild(numTriangles);
 		addChild(hasNormals);
@@ -197,8 +195,9 @@ public class ModelEntity extends SceneEntity {
 		return model;
 	}
 	
+	@Override
 	public void getView(View view) {
-		//super.getView(view);
+		view.pushStack("Mo","Model");
 
 		ArrayList<FileNameExtensionFilter> filters = new ArrayList<FileNameExtensionFilter>();
 		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
@@ -207,8 +206,8 @@ public class ModelEntity extends SceneEntity {
 			ModelLoadAndSave loader = i.next();
 			filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
 		}
-		
 		view.addFilename(filename,filters);
+		
 		view.addVector3(rotationAdjust);
 		view.addVector3(originAdjust);
 		view.addDouble(scale);
@@ -220,6 +219,12 @@ public class ModelEntity extends SceneEntity {
 			view.addBoolean(hasColors);
 			view.addBoolean(hasUVs);
 		}
+
+		view.popStack();
+		
+		material.getView(view);
+		
+		super.getView(view);
 	}
 
 

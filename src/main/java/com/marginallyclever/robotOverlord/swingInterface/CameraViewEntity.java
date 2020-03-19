@@ -9,7 +9,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the render pipeline.
@@ -91,7 +91,7 @@ public class CameraViewEntity extends Entity {
     	gl2.glMatrixMode(GL2.GL_MODELVIEW);
         gl2.glLoadIdentity();
     	
-		SceneEntity camera = getAttachedTo();
+		PoseEntity camera = getAttachedTo();
 		Matrix4d mFinal = camera.getPoseWorld();
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);
@@ -99,7 +99,7 @@ public class CameraViewEntity extends Entity {
 	
 	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
 	public Vector3d rayPick() {
-		SceneEntity camera = getAttachedTo();
+		PoseEntity camera = getAttachedTo();
 		Matrix4d mFinal = camera.getPoseWorld();
 		Vector3d pickRay = MatrixHelper.getZAxis(mFinal);
 		Vector3d vy = MatrixHelper.getYAxis(mFinal);
@@ -154,7 +154,7 @@ public class CameraViewEntity extends Entity {
 		return canvasWidth/canvasHeight;
 	}
 
-	public SceneEntity getAttachedTo() {
-		return (SceneEntity)findByPath(attachedTo.get());
+	public PoseEntity getAttachedTo() {
+		return (PoseEntity)findByPath(attachedTo.get());
 	}
 }

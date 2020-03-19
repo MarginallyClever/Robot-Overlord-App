@@ -7,9 +7,8 @@ import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver;
 
@@ -18,7 +17,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity
  * 
  * @author Dan Royer
  */
-public class DHRobotEntity extends SceneEntity {
+public class DHRobotEntity extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -77,12 +76,12 @@ public class DHRobotEntity extends SceneEntity {
 	}
 
 	public Matrix4d getParentMatrix() {
-		if( parent == null || !(parent instanceof SceneEntity) ) {
+		if( parent == null || !(parent instanceof PoseEntity) ) {
 			Matrix4d m = new Matrix4d();
 			m.setIdentity();
 			return m;
 		} else {
-			return ((SceneEntity)parent).getPose();
+			return ((PoseEntity)parent).getPose();
 		}
 	}
 	
@@ -231,7 +230,7 @@ public class DHRobotEntity extends SceneEntity {
 		getPoseFK(originalKey);
 		// move the clone to the keyframe pose
 		setPoseFK(futureKey);
-		boolean result = getWorld().collisionTest((SceneEntity)parent); 
+		boolean result = getWorld().collisionTest((PoseEntity)parent); 
 		setPoseFK(originalKey);
 		
 		return result;

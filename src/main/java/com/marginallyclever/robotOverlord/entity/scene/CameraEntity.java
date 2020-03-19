@@ -14,7 +14,7 @@ import com.jogamp.opengl.GL2;
  * Camera in the world.  Has no physical presence.  Has location and direction.
  * @author Dan Royer
  */
-public class CameraEntity extends SceneEntity {
+public class CameraEntity extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -183,9 +183,11 @@ public class CameraEntity extends SceneEntity {
 	
 	@Override
 	public void getView(View view) {
-		super.getView(view);
+		view.pushStack("Ca", "Camera");
 		view.addReadOnly("Pan="+pan);
 		view.addReadOnly("Tilt="+tilt);
 		view.addReadOnly("Zoom="+zoom);
+		view.popStack();
+		super.getView(view);
 	}
 }

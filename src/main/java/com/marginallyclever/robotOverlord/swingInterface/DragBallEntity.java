@@ -13,7 +13,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMoveWorld;
 
 /**
@@ -21,7 +21,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalE
  * @author Dan Royer
  *
  */
-public class DragBallEntity extends SceneEntity {
+public class DragBallEntity extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -101,7 +101,7 @@ public class DragBallEntity extends SceneEntity {
 	public boolean isActivelyMoving;
 
 	// Who is being moved?
-	protected SceneEntity subject;
+	protected PoseEntity subject;
 	// In what frame of reference?
 	protected FrameOfReference frameOfReference;
 
@@ -133,7 +133,7 @@ public class DragBallEntity extends SceneEntity {
 		if(subject==null) return;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		SceneEntity camera = ro.cameraView.getAttachedTo();
+		PoseEntity camera = ro.cameraView.getAttachedTo();
 
 		if(!isActivelyMoving()) {
 			switch(frameOfReference) {
@@ -204,7 +204,7 @@ public class DragBallEntity extends SceneEntity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		CameraViewEntity cameraView = ro.cameraView;
-		SceneEntity camera = cameraView.getAttachedTo();
+		PoseEntity camera = cameraView.getAttachedTo();
 		Vector3d ray = cameraView.rayPick();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {
@@ -335,7 +335,7 @@ public class DragBallEntity extends SceneEntity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		CameraViewEntity cameraView = ro.cameraView;
-		SceneEntity camera = cameraView.getAttachedTo();
+		PoseEntity camera = cameraView.getAttachedTo();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {	
 			Vector3d pos = this.getPosition();
@@ -508,7 +508,7 @@ public class DragBallEntity extends SceneEntity {
 		
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		SceneEntity camera = ro.cameraView.getAttachedTo();
+		PoseEntity camera = ro.cameraView.getAttachedTo();
 		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), this.getPosition());
 		Vector3d lookAtVector = this.getPosition();
 		lookAtVector.sub(camera.getPosition());
@@ -692,7 +692,7 @@ public class DragBallEntity extends SceneEntity {
 
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		SceneEntity camera = ro.cameraView.getAttachedTo();
+		PoseEntity camera = ro.cameraView.getAttachedTo();
 		Vector3d lookAtVector = subject.getPosition();
 		lookAtVector.sub(camera.getPosition());
 		lookAtVector.normalize();
@@ -855,7 +855,7 @@ public class DragBallEntity extends SceneEntity {
 	 * Set which PhysicalEntity the drag ball is going to act upon.
 	 * @param subject
 	 */
-	public void setSubject(SceneEntity subject) {
+	public void setSubject(PoseEntity subject) {
 		this.subject=subject;		
 	}
 }

@@ -17,12 +17,12 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhLink.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.view.View;
@@ -132,8 +132,8 @@ public class Sixi2 extends RobotEntity {
 		anchor.setModelFilename("/Sixi2/anchor.stl");
 		anchor.setModelOrigin(0, 0, 0.9);
 
-		setShowLineage(true);
-		setShowLocalOrigin(true);
+		setShowLineage(false);
+		setShowLocalOrigin(false);
 		setShowBoundingBox(true);
 		
 		// spawn a control box as a child of the anchor.
@@ -162,9 +162,9 @@ public class Sixi2 extends RobotEntity {
 			// Request from the world "is there a tool at the position of the end effector"?
 			Vector3d target = new Vector3d();
 			sim.getEndEffectorMatrix().get(target);
-			List<SceneEntity> list = world.findPhysicalObjectsNear(target, 10);
+			List<PoseEntity> list = world.findPhysicalObjectsNear(target, 10);
 			// If there is a tool, attach to it.
-			for( SceneEntity po : list ) {
+			for( PoseEntity po : list ) {
 				if (po instanceof DHTool) {
 					// probably the only one we'll find.
 					sim.setTool((DHTool) po);
@@ -516,14 +516,14 @@ public class Sixi2 extends RobotEntity {
 
 	// recursively set for all children
 	public void setShowBoundingBox(boolean arg0) {
-		LinkedList<SceneEntity> next = new LinkedList<SceneEntity>();
+		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
-			SceneEntity link = next.pop();
+			PoseEntity link = next.pop();
 			link.showBoundingBox.set(arg0);
 			for( Entity child : link.getChildren() ) {
-				if( child instanceof SceneEntity ) {
-					next.add((SceneEntity)child);
+				if( child instanceof PoseEntity ) {
+					next.add((PoseEntity)child);
 				}
 			}
 		}
@@ -531,14 +531,14 @@ public class Sixi2 extends RobotEntity {
 	
 	// recursively set for all children
 	public void setShowLocalOrigin(boolean arg0) {
-		LinkedList<SceneEntity> next = new LinkedList<SceneEntity>();
+		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
-			SceneEntity link = next.pop();
+			PoseEntity link = next.pop();
 			link.showLocalOrigin.set(arg0);
 			for( Entity child : link.getChildren() ) {
-				if( child instanceof SceneEntity ) {
-					next.add((SceneEntity)child);
+				if( child instanceof PoseEntity ) {
+					next.add((PoseEntity)child);
 				}
 			}
 		}
@@ -546,14 +546,14 @@ public class Sixi2 extends RobotEntity {
 
 	// recursively set for all children
 	public void setShowLineage(boolean arg0) {
-		LinkedList<SceneEntity> next = new LinkedList<SceneEntity>();
+		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
 		next.add(this.sim);
 		while( !next.isEmpty() ) {
-			SceneEntity link = next.pop();
+			PoseEntity link = next.pop();
 			link.showLineage.set(arg0);
 			for( Entity child : link.getChildren() ) {
-				if( child instanceof SceneEntity ) {
-					next.add((SceneEntity)child);
+				if( child instanceof PoseEntity ) {
+					next.add((PoseEntity)child);
 				}
 			}
 		}
@@ -603,6 +603,10 @@ public class Sixi2 extends RobotEntity {
 	
 	@Override
 	public void getView(View view) {
+		view.pushStack("S","Sixi");
+		getViewOfChildren(view);
+		view.popStack();
+		
 		super.getView(view);
 	}
 }
