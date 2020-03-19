@@ -14,7 +14,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMove;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMoveWorld;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
@@ -325,7 +325,7 @@ public class DragBallEntity extends SceneEntity {
 				
 				valueLast = valueNow;
 				
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMove(subject,resultMatrix) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMoveWorld(subject,resultMatrix) ) );
 			}
 		}
 	}
@@ -465,7 +465,7 @@ public class DragBallEntity extends SceneEntity {
 			
 			valueLast = valueNow;
 			
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMove(subject,resultMatrix) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMoveWorld(subject,resultMatrix) ) );
 		}
 	}
 	

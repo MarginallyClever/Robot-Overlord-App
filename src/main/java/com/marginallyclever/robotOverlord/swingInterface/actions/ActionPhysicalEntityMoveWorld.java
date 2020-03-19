@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.entity.scene.SceneEntity;
  * @author Dan Royer
  *
  */
-public class ActionPhysicalEntityMove extends AbstractUndoableEdit {
+public class ActionPhysicalEntityMoveWorld extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -30,32 +30,32 @@ public class ActionPhysicalEntityMove extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public ActionPhysicalEntityMove(SceneEntity entity,Matrix4d newPose) {
+	public ActionPhysicalEntityMoveWorld(SceneEntity entity,Matrix4d newPose) {
 		super();
 		
 		this.entity = entity;
-		this.prev = entity.getPose();
+		this.prev = entity.getPoseWorld();
 		this.next = newPose;
 
-		entity.setPose(next);
+		entity.setPoseWorld(next);
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		entity.setPose(next);
+		entity.setPoseWorld(next);
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.setPose(prev);
+		entity.setPoseWorld(prev);
 	}
 	
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof ActionPhysicalEntityMove) {
-			ActionPhysicalEntityMove APEM = (ActionPhysicalEntityMove)anEdit;
+		if(anEdit instanceof ActionPhysicalEntityMoveWorld) {
+			ActionPhysicalEntityMoveWorld APEM = (ActionPhysicalEntityMoveWorld)anEdit;
 			if(APEM.entity==this.entity) return true;
 		}
 		return super.addEdit(anEdit);
