@@ -114,7 +114,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 		}
 
 		if(sum>1e-3) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA((ColorEntity)e,newValues) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA(e,newValues) ) );
 		}
 	}
 

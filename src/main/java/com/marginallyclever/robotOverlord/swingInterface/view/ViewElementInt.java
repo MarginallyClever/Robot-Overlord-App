@@ -34,7 +34,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 	public ViewElementInt(RobotOverlord ro,IntEntity e) {
 		super(ro);
 		this.e=e;
-
+		
 		field = new FocusTextField(8);
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);

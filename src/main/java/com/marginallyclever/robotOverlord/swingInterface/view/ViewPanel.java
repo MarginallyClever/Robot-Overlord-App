@@ -90,34 +90,10 @@ public class ViewPanel {
 		se.p.add(c,se.gbc);
 	}
 
-	/*
-		JLabel label = new JLabel(s,JLabel.LEADING);
-		JLabel label = new JLabel(e.toString(),JLabel.LEADING);
-		
-		ViewElementComboBox b = new ViewElementComboBox(ro, e, listOptions);
-
-		ViewElementFilename b = new ViewElementFilename(ro, e);
-		for( FileNameExtensionFilter fi : f ) {
-			b.addChoosableFileFilter( fi );
-		}
-		
-		ViewElementColorRGBA b = new ViewElementColorRGBA(ro, e);
-		ViewElementVector3d b = new ViewElementVector3d(ro, e);
-		ViewElementInt b = new ViewElementInt(ro, e);
-		ViewElementDouble b = new ViewElementDouble(ro, e);
-	*/
-
-	
 	public JComponent getFinalView() {
 		return tabbedPane;
 	}
 
-
-	public enum ElementType {
-		ENUM,
-		FILENAME,
-	}
-	
 	public ViewElement addStaticText(String text) {
 		ViewElement b = new ViewElement(ro);
 		b.add(new JLabel(text,JLabel.LEADING));
@@ -127,6 +103,13 @@ public class ViewPanel {
 
 	public ViewElement addComboBox(IntEntity e,String [] labels) {
 		ViewElement b = new ViewElementComboBox(ro,e,labels);
+		pushViewElement(b);
+		return b;
+		
+	}
+
+	public ViewElement addRange(IntEntity e,int top,int bottom) {
+		ViewElement b = new ViewElementSlider(ro,e,top,bottom);
 		pushViewElement(b);
 		return b;
 		

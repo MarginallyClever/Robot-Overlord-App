@@ -20,7 +20,7 @@ public class MaterialEntity extends Entity {
 	private ColorEntity diffuse    = new ColorEntity("Diffuse" ,0.8,0.8,0.8,1.00);
 	private ColorEntity specular   = new ColorEntity("Specular",0.0,0.0,0.0,1.00);
 	private ColorEntity emission   = new ColorEntity("Emission",0.0,0.0,0.0,1.00);
-	private DoubleEntity shininess = new DoubleEntity("Shininess",0.0);
+	private IntEntity shininess    = new IntEntity("Shininess",10);
 	private BooleanEntity isLit    = new BooleanEntity("Lit",true);
 	private TextureEntity texture  = new TextureEntity();
 		
@@ -60,7 +60,7 @@ public class MaterialEntity extends Entity {
 	}
 	
 
-	public void setShininess(double arg0) {
+	public void setShininess(int arg0) {
 		arg0 = Math.min(Math.max(arg0, 0), 128);
 		shininess.set(arg0);
 	}
@@ -116,7 +116,14 @@ public class MaterialEntity extends Entity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Ma","Material");
-		super.getViewOfChildren(view);
+		view.add(isLit  );
+		view.add(emission);
+		view.add(ambient );
+		view.add(diffuse );
+		view.add(specular);
+		view.addRange(shininess, 128, 0);
+		view.add(texture);
+
 		view.popStack();
 	}
 }
