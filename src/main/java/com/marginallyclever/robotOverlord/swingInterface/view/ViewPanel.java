@@ -126,7 +126,7 @@ public class ViewPanel {
 	public ViewElement add(Entity e) {
 		ViewElement b=null;
 		
-		System.out.println("Add "+e.getClass().toString());
+		//System.out.println("Add "+e.getClass().toString());
 		
 			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  (ro,(BooleanEntity)e);
 		else if(e instanceof ColorEntity   ) b = new ViewElementColor    (ro,(ColorEntity)e);
@@ -136,7 +136,7 @@ public class ViewPanel {
 		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
 		
 		if(null==b) {
-			return addStaticText("ViewElement.add("+e.getClass().toString()+")");
+			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
 		}
 		// else b not null.
 		pushViewElement(b);
