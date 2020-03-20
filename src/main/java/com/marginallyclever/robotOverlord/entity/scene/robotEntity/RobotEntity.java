@@ -136,6 +136,5 @@ public abstract class RobotEntity extends PoseEntity implements NetworkConnectio
 	@Override
 	public void getView(ViewPanel view) {
 		super.getView(view);
-		// TODO add connect/disconnect button
 	}
 }
