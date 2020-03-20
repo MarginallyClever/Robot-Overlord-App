@@ -37,10 +37,12 @@ public class AbstractEntity<T> extends Entity {
     }
     
     public void set(T t) {
-    	if(hasChanged()) return;
-    	setChanged();
-    	this.t = t;
-    	notifyObservers(t);
+    	if( this.t==null || !this.t.equals(t) ) {
+        	if(hasChanged()) return;
+	    	setChanged();
+	    	this.t = t;
+	    	notifyObservers(t);
+    	}
     }
 	
 	public void set(AbstractEntity<T> b) {

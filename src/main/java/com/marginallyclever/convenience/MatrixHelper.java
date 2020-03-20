@@ -624,7 +624,16 @@ public class MatrixHelper {
 		System.out.println ();
 	}
 
-	// create a matrix with a matching y vector and a z that points at   
+	/**
+	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
+	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
+	 * recalculated based on the correct X and Y.
+	 * This will fail if to.z==from.z
+	 *  
+	 * @param from where i'm at
+	 * @param to what I'm looking at
+	 * @return
+	 */
 	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
@@ -638,9 +647,9 @@ public class MatrixHelper {
 		up.normalize();
 
 		Matrix4d lookAt = new Matrix4d(
-				forward.x,left.x,up.x,0,
-				forward.y,left.y,up.y,0,
-				forward.z,left.z,up.z,0,
+				left.x,up.x,forward.x,0,
+				left.y,up.y,forward.y,0,
+				left.z,up.z,forward.z,0,
 				0,0,0,1);
 		
 		return lookAt;

@@ -51,7 +51,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.swingInterface.CameraViewEntity;
+import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.DragBallEntity;
 import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
@@ -109,7 +109,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCubeEntity viewCube = new ViewCubeEntity();
 	// Wraps all the projection matrix stuff. 
-	public CameraViewEntity cameraView = new CameraViewEntity();
+	public ViewportEntity viewport = new ViewportEntity();
 	// At least one camera to prevent disaster. 
 	public CameraEntity camera = new CameraEntity();
 	
@@ -196,13 +196,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
  		setName("Robot Overlord");
 		
- 		addChild(cameraView);
+ 		addChild(viewport);
  		addChild(camera);
         addChild(scene);
  		addChild(dragBall);
  		addChild(viewCube);
  		
- 		cameraView.attachedTo.set(camera.getFullName());
+ 		viewport.attachedTo.set(camera.getFullName());
         
         // ..with default setting.  TODO save & load whole world and all its Entities.
         scene.createDefaultWorld();
@@ -593,10 +593,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         gl2.setSwapInterval(1);
 
         // set up the projection matrix
-        cameraView.setCanvasWidth(glCanvas.getSurfaceWidth());
-        cameraView.setCanvasHeight(glCanvas.getSurfaceHeight());
-		cameraView.render(gl2);
-
+        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
+        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
 
 		// set opengl options
 		gl2.glDepthFunc(GL2.GL_LESS);
@@ -611,7 +609,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         // Scale normals using the scale of the transform matrix so that lighting is sane.
         // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
 		//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-		gl2.glEnable(GL2.GL_NORMALIZE);
+		//gl2.glEnable(GL2.GL_NORMALIZE);
         
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
@@ -693,7 +691,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		gl2.glLoadIdentity();
 		
 		// 
-        cameraView.render(gl2);
+        viewport.renderPerspective(gl2);
 
         scene.render(gl2);
 
@@ -772,7 +770,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		// wipe the select buffer
 		gl2.glInitNames();
 		
-		cameraView.renderPick(gl2,pickX,pickY);
+		viewport.renderPick(gl2,pickX,pickY);
 
         // render in selection mode, without advancing time in the simulation.
         scene.render(gl2);
@@ -837,7 +835,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
     
 	public void pickCamera() {
-		PoseEntity camera = cameraView.getAttachedTo();
+		PoseEntity camera = viewport.getAttachedTo();
 		if(camera!=null) {
 			pickEntity(camera);
 		}
@@ -856,11 +854,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	public void mousePressed(MouseEvent e) {
 		pickX=e.getX();
 		pickY=e.getY();		
-		cameraView.pressed();
+		viewport.pressed();
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		cameraView.released();
+		viewport.released();
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -873,11 +871,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	@Override
 	public void mouseDragged(MouseEvent e) {
-        cameraView.setCursor(e.getX(),e.getY());
+        viewport.setCursor(e.getX(),e.getY());
 	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
-        cameraView.setCursor(e.getX(),e.getY());
+        viewport.setCursor(e.getX(),e.getY());
 	}
 
 

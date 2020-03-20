@@ -39,7 +39,7 @@ public class ViewCubeEntity extends Entity {
 		
 	public void render(GL2 gl2) {
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		CameraViewEntity cameraView = ro.cameraView;
+		ViewportEntity cameraView = ro.viewport;
 		
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 

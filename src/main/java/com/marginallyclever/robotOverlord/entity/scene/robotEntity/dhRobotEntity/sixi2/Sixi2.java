@@ -527,6 +527,7 @@ public class Sixi2 extends RobotEntity {
 				}
 			}
 		}
+		this.showBoundingBox.set(arg0);
 	}
 	
 	// recursively set for all children
@@ -542,6 +543,7 @@ public class Sixi2 extends RobotEntity {
 				}
 			}
 		}
+		this.showLocalOrigin.set(arg0);
 	}
 
 	// recursively set for all children
@@ -557,6 +559,7 @@ public class Sixi2 extends RobotEntity {
 				}
 			}
 		}
+		this.showLineage.set(arg0);
 	}
 
 	public void openConnection() {

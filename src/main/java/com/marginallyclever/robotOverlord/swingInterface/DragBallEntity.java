@@ -13,8 +13,10 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMoveWorld;
+import com.marginallyclever.robotOverlord.swingInterface.view.View;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
@@ -26,6 +28,7 @@ public class DragBallEntity extends PoseEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = 8786413898168510187L;
+	private static final double STEP_SIZE = Math.PI/120.0;
 
 	public enum SlideDirection {
 		SLIDE_XPOS(0,"X+"),
@@ -94,7 +97,7 @@ public class DragBallEntity extends PoseEntity {
 	// for translation
 	protected Axis majorAxis;
 	
-	protected final double ballSize=0.125f;
+	protected DoubleEntity ballSize = new DoubleEntity("scale",0.25);
 	public double ballSizeScaled;
 
 	public boolean isRotateMode;
@@ -119,6 +122,7 @@ public class DragBallEntity extends PoseEntity {
 	public DragBallEntity() {
 		super();
 		setName("DragBall");
+		addChild(ballSize);
 
 		frameOfReference = FrameOfReference.WORLD;
 		
@@ -133,18 +137,21 @@ public class DragBallEntity extends PoseEntity {
 		if(subject==null) return;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.cameraView.getAttachedTo();
+		PoseEntity camera = ro.viewport.getAttachedTo();
 
+		// find the current frame of reference.  This could change every frame as the camera moves.
 		if(!isActivelyMoving()) {
 			switch(frameOfReference) {
 			case SUBJECT: FOR.set(subject.getPoseWorld());	break;
-			case CAMERA : FOR.set(camera.getPoseWorld());	break;
-			default     : FOR.setIdentity();				break;
+			case CAMERA : 
+				FOR.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));
+				break;
+			default     : FOR.setIdentity();	break;
 			}
 		}
-		
 		FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 
+		// apply the effect of drag actions
 		if(!isActivelyMoving()) {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
 						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT));
@@ -175,7 +182,7 @@ public class DragBallEntity extends PoseEntity {
 		mp.sub(camera.getPosition());
 
 		double d = mp.length();
-		ballSizeScaled=ballSize*d;
+		ballSizeScaled=ballSize.get()*d;
 				
 		if(isRotateMode) {
 			updateRotation(dt,d,mp);
@@ -203,7 +210,7 @@ public class DragBallEntity extends PoseEntity {
 		valueNow = valueLast;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		CameraViewEntity cameraView = ro.cameraView;
+		ViewportEntity cameraView = ro.viewport;
 		PoseEntity camera = cameraView.getAttachedTo();
 		Vector3d ray = cameraView.rayPick();
 		
@@ -334,7 +341,7 @@ public class DragBallEntity extends PoseEntity {
 		valueNow = valueLast;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		CameraViewEntity cameraView = ro.cameraView;
+		ViewportEntity cameraView = ro.viewport;
 		PoseEntity camera = cameraView.getAttachedTo();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {	
@@ -475,8 +482,7 @@ public class DragBallEntity extends PoseEntity {
 
 		gl2.glPushMatrix();
 			RobotOverlord ro = (RobotOverlord)getRoot();
-			ro.cameraView.render(gl2);
-			MatrixHelper.applyMatrix(gl2, FOR);
+			ro.viewport.renderPerspective(gl2);
 			
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
@@ -487,11 +493,29 @@ public class DragBallEntity extends PoseEntity {
 			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 			gl2.glDisable(GL2.GL_LIGHTING);
 
-			if(isRotateMode()) {
+
+			IntBuffer lineWidth = IntBuffer.allocate(1);
+			gl2.glGetIntegerv(GL2.GL_LINE_WIDTH, lineWidth);
+			gl2.glLineWidth(2);
+
+			gl2.glPushMatrix();
+	
+				renderOutsideEdge(gl2);
+
+				MatrixHelper.applyMatrix(gl2, FOR);
+				gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
 				renderRotation(gl2);
-			} else {
 				renderTranslation(gl2);
-			}
+				/*
+				if(isRotateMode()) {
+					renderRotation(gl2);
+				} else {
+					renderTranslation(gl2);
+				}*/
+			gl2.glPopMatrix();
+
+			// set previous line width
+			gl2.glLineWidth(lineWidth.get());
 			
 			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 
@@ -501,46 +525,71 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glPopMatrix();
 	}
 	
-	public void renderRotation(GL2 gl2) {
-		double stepSize = Math.PI/120.0;
-
-		gl2.glLineWidth(2);
-		
-		// camera forward is -z axis 
+	private void renderOutsideEdge(GL2 gl2) {
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.cameraView.getAttachedTo();
-		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), this.getPosition());
-		Vector3d lookAtVector = this.getPosition();
-		lookAtVector.sub(camera.getPosition());
-		lookAtVector.normalize();
+		PoseEntity camera = ro.viewport.getAttachedTo();
+		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
 
-		gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
+		gl2.glPushMatrix();
+
+			ro.viewport.renderPerspective(gl2);
+			Matrix4d m2 = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
+			m2.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
+			MatrixHelper.applyMatrix(gl2, m2);
 		
-		//white
-		gl2.glColor4d(1,1,1,0.7);
-		gl2.glBegin(GL2.GL_LINE_LOOP);
-		for(double n=0;n<Math.PI*2;n+=stepSize) {
-			double c = Math.cos(n);
-			double s = Math.sin(n);
-			gl2.glVertex3d(
-					(lookAt.m02*s +lookAt.m01*c)*1.1,
-					(lookAt.m12*s +lookAt.m11*c)*1.1,
-					(lookAt.m22*s +lookAt.m21*c)*1.1  );
-		}
-		gl2.glEnd();
-		/*
-		//grey
-		gl2.glColor4d(0.5,0.5,0.5,0.7);
-		gl2.glBegin(GL2.GL_LINE_LOOP);
-		for(double n=0;n<Math.PI*2;n+=stepSize) {
-			double c = Math.cos(n);
-			double s = Math.sin(n);
-			gl2.glVertex3d(
-					(lookAt.m02*s +lookAt.m01*c)*1.01,
-					(lookAt.m12*s +lookAt.m11*c)*1.01,
-					(lookAt.m22*s +lookAt.m21*c)*1.01  );
-		}
-		gl2.glEnd();*/
+			//MatrixHelper.applyMatrix(gl2, lookAt);
+			gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
+			//MatrixHelper.applyMatrix(gl2, subject.getPoseWorld());
+			
+			Matrix4d lookAt2 = new Matrix4d(lookAt);
+			lookAt2.setIdentity();
+			
+			//white circle on the xy plane of the camera pose, as the subject position
+			gl2.glColor4d(1,1,1,0.7);
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			for(double n=0;n<Math.PI*2;n+=STEP_SIZE) {
+				double c = Math.cos(n);
+				double s = Math.sin(n);
+				gl2.glVertex3d(//x*c + y*s
+						(lookAt2.m00*c +lookAt2.m01*s)*1.1,
+						(lookAt2.m10*c +lookAt2.m11*s)*1.1,
+						(lookAt2.m20*c +lookAt2.m21*s)*1.1  );
+			}
+			gl2.glEnd();
+			//*
+			//grey circle on the xy plane of the camera pose, as the subject position
+			gl2.glColor4d(0.5,0.5,0.5,0.7);
+			gl2.glBegin(GL2.GL_LINE_LOOP);
+			for(double n=0;n<Math.PI*2;n+=STEP_SIZE) {
+				double c = Math.cos(n);
+				double s = Math.sin(n);
+				gl2.glVertex3d(//x*c + y*s 
+						(lookAt2.m00*c +lookAt2.m01*s)*1.01,
+						(lookAt2.m10*c +lookAt2.m11*s)*1.01,
+						(lookAt2.m20*c +lookAt2.m21*s)*1.01  );
+			}
+			gl2.glEnd();
+
+		gl2.glPopMatrix();
+	}
+
+	public void renderRotation(GL2 gl2) {
+		gl2.glPushMatrix();
+		
+		// camera forward is +z axis 
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		PoseEntity camera = ro.viewport.getAttachedTo();
+		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
+		Vector3d lookAtVector = MatrixHelper.getZAxis(lookAt);
+		
+		Matrix4d cpw = camera.getPoseWorld();
+		//Matrix4d spw = subject.getPoseWorld();
+		//spw.m03=spw.m13=spw.m23=0;
+		cpw.m03=
+		cpw.m13=
+		cpw.m23=0;
+		//spw.invert();
+		//spw.set(cpw);
 
 
 		float r = (nearestPlane==Plane.X) ? 1 : 0.5f;
@@ -560,13 +609,13 @@ public class DragBallEntity extends PoseEntity {
 		inOutin=0;
 		gl2.glColor3d(r, 0, 0);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
-		for(double n=0;n<Math.PI*4;n+=stepSize) {
+		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
 			v.set(0,Math.cos(n),Math.sin(n));
-			FOR.transform(v,v2);
+			cpw.transform(v,v2);
 			if(drawX) {
 				gl2.glVertex3d(v.x,v.y,v.z);
 			} else {
-				if(v2.dot(lookAtVector)>0) {
+				if(v2.z>0) {
 					if(inOutin==0) inOutin=1;
 					if(inOutin==2) {
 						gl2.glVertex3d(v.x,v.y,v.z);
@@ -588,7 +637,7 @@ public class DragBallEntity extends PoseEntity {
 		inOutin=0;
 		gl2.glColor3d(0, g, 0);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
-		for(double n=0;n<Math.PI*4;n+=stepSize) {
+		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
 			v.set(Math.cos(n), 0, Math.sin(n));
 			FOR.transform(v,v2);
 			if(drawY) {
@@ -616,7 +665,7 @@ public class DragBallEntity extends PoseEntity {
 		inOutin=0;
 		gl2.glColor3d(0, 0, b);
 		gl2.glBegin(GL2.GL_LINE_STRIP);
-		for(double n=0;n<Math.PI*4;n+=stepSize) {
+		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
 			v.set(Math.cos(n), Math.sin(n),0);
 			FOR.transform(v,v2);
 			if(drawZ) {
@@ -640,6 +689,7 @@ public class DragBallEntity extends PoseEntity {
 		}
 		gl2.glEnd();
 
+		
 		if(isActivelyMoving) {
 			// display the distance rotated.
 			Vector3d mid = new Vector3d();
@@ -668,7 +718,7 @@ public class DragBallEntity extends PoseEntity {
 			gl2.glEnd();
 		}
 
-		gl2.glLineWidth(1);
+		gl2.glPopMatrix();
 	}
 	
 	protected double testBoxHit(Vector3d pos,Vector3d ray,Vector3d n) {		
@@ -686,13 +736,9 @@ public class DragBallEntity extends PoseEntity {
 	}
 	
 	public void renderTranslation(GL2 gl2) {
-		IntBuffer lineWidth = IntBuffer.allocate(1);
-		gl2.glGetIntegerv(GL2.GL_LINE_WIDTH, lineWidth);
-		gl2.glLineWidth(2);
-
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.cameraView.getAttachedTo();
+		PoseEntity camera = ro.viewport.getAttachedTo();
 		Vector3d lookAtVector = subject.getPosition();
 		lookAtVector.sub(camera.getPosition());
 		lookAtVector.normalize();
@@ -711,15 +757,15 @@ public class DragBallEntity extends PoseEntity {
 
 		if(drawX) {
 			gl2.glColor3f(r,0,0);
-			renderTranslationHandle(gl2,new Vector3d(ballSizeScaled,0,0));
+			renderTranslationHandle(gl2,new Vector3d(1,0,0));
 		}
 		if(drawY) {
 			gl2.glColor3f(0,g,0);
-			renderTranslationHandle(gl2,new Vector3d(0,ballSizeScaled,0));
+			renderTranslationHandle(gl2,new Vector3d(0,1,0));
 		}
 		if(drawZ) {
 			gl2.glColor3f(0,0,b);
-			renderTranslationHandle(gl2,new Vector3d(0,0,ballSizeScaled));
+			renderTranslationHandle(gl2,new Vector3d(0,0,1));
 		}
 		
 		if(isActivelyMoving) {
@@ -733,10 +779,6 @@ public class DragBallEntity extends PoseEntity {
 					startMatrix.m23-resultMatrix.m23);
 			gl2.glEnd();
 		}
-		
-		// set previous line width
-		gl2.glLineWidth(lineWidth.get());
-
 	}
 	
 	protected void renderTranslationHandle(GL2 gl2,Vector3d n) {
@@ -750,8 +792,8 @@ public class DragBallEntity extends PoseEntity {
 		Point3d b0 = new Point3d(+0.05,+0.05,+0.05); 
 		Point3d b1 = new Point3d(-0.05,-0.05,-0.05);
 
-		b0.scale(ballSizeScaled);
-		b1.scale(ballSizeScaled);
+		b0.scale(1);
+		b1.scale(1);
 		b0.add(n);
 		b1.add(n);
 		PrimitiveSolids.drawBox(gl2, b0,b1);
@@ -857,5 +899,11 @@ public class DragBallEntity extends PoseEntity {
 	 */
 	public void setSubject(PoseEntity subject) {
 		this.subject=subject;		
+	}
+	
+	@Override
+	public void getView(View view) {
+		view.pushStack("Mc", "Move controls");
+		getViewOfChildren(view);
 	}
 }

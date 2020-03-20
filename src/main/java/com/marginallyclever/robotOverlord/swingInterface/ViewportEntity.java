@@ -17,7 +17,7 @@ import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
  * @since 1.6.0
  *
  */
-public class CameraViewEntity extends Entity {
+public class ViewportEntity extends Entity {
 	/**
 	 * 
 	 */
@@ -33,10 +33,10 @@ public class CameraViewEntity extends Entity {
 	public DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
 	public StringEntity attachedTo=new StringEntity("Attached to","");
 	
-	public CameraViewEntity() {
+	public ViewportEntity() {
 		super();
 		
-		setName("Camera View");
+		setName("Viewport");
 		addChild(farZ);
 		addChild(nearZ);
 		addChild(fieldOfView);
@@ -46,8 +46,7 @@ public class CameraViewEntity extends Entity {
 	}
 	
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
-	public void render(GL2 gl2) {
-        // set up the projection matrix
+	public void renderPerspective(GL2 gl2) {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 
@@ -65,13 +64,20 @@ public class CameraViewEntity extends Entity {
 	
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
 	public void renderOrtho(GL2 gl2) {
-        // set up the projection matrix
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
+
+		// opengl rendering context
+        if(glu==null) glu = GLU.createGLU(gl2);
+        
+		glu.gluOrtho2D(0, canvasWidth, 0, canvasHeight);
 		
 	}
 	
 	public void renderPick(GL2 gl2,double pickX,double pickY) {
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glLoadIdentity();
+        
         // get the current viewport dimensions to set up the projection matrix
         int[] viewport = new int[4];
 		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewport,0);
@@ -80,8 +86,6 @@ public class CameraViewEntity extends Entity {
         if(glu==null) glu = GLU.createGLU(gl2);
         
 		// Set up a tiny viewport that only covers the area behind the cursor.  Tiny viewports are faster?
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glLoadIdentity();
 		glu.gluPickMatrix(pickX, viewport[3]-pickY, 5.0, 5.0, viewport,0);
 
 		renderShared(gl2);
