@@ -257,9 +257,9 @@ public class DragBallEntity extends PoseEntity {
 					// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 					Vector3d majorAxisVector = new Vector3d();
 					switch(nearestPlane) {
-					case X :  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
-					case Y :  majorAxisVector = MatrixHelper.getYAxis   (FOR);	break;
-					default:  majorAxisVector = MatrixHelper.getZAxis	   (FOR);	break;
+					case X:  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
+					case Y:  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
+					case Z:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
 					}
 					
 					// find the pick point on the plane of rotation
@@ -275,9 +275,9 @@ public class DragBallEntity extends PoseEntity {
 						
 						pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
 						switch(nearestPlane) {
-						case X :  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-						case Y :  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-						default:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+						case X:  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
+						case Y:  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
+						case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
 						}
 						pickPointInFOR.normalize();
 						//System.out.println("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
@@ -297,9 +297,9 @@ public class DragBallEntity extends PoseEntity {
 			// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 			Vector3d majorAxisVector = new Vector3d();
 			switch(nearestPlane) {
-			case X :  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
-			case Y :  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
-			default:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
+			case X:  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
+			case Y:  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
+			case Z:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
 			}
 			
 			// find the pick point on the plane of rotation
@@ -314,18 +314,18 @@ public class DragBallEntity extends PoseEntity {
 
 				Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
 				switch(nearestPlane) {
-				case X :  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-				case Y :  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-				default:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+				case X:  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
+				case Y:  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
+				case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
 				}
 
 				double da=valueNow - valueStart;
 
 				if(da!=0) {
 					switch(nearestPlane) {
-					case X : rollX(da);	break;
-					case Y : rollY(da);	break;
-					default: rollZ(da);	break;
+					case X: rollX(da);	break;
+					case Y: rollY(da);	break;
+					case Z: rollZ(da);	break;
 					}
 				}
 				//System.out.println(da);
@@ -401,46 +401,24 @@ public class DragBallEntity extends PoseEntity {
 				valueNow=0;
 				
 				Matrix4d cm=camera.getPose();
-				Vector3d cu = new Vector3d(cm.m01,cm.m11,cm.m21);
-				Vector3d cr = new Vector3d(cm.m00,cm.m10,cm.m20);
+				Vector3d cr = MatrixHelper.getXAxis(cm);
+				Vector3d cu = MatrixHelper.getYAxis(cm);
 				// determine which mouse direction is a positive movement on this axis.
-				double cx,cy;
+				Vector3d nv;
 				switch(majorAxis) {
-				case X:
-					cy=cu.dot(nx);
-					cx=cr.dot(nx);
-					if( Math.abs(cx) > Math.abs(cy) ) {
-						majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
-					} else {
-						majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
-					}
-					break;
-				case Y:
-					cy=cu.dot(ny);
-					cx=cr.dot(ny);
-					if( Math.abs(cx) > Math.abs(cy) ) {
-						majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
-					} else {
-						majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
-					}
-					break;
-				case Z:
-					cy=cu.dot(nz);
-					cx=cr.dot(nz);
-					if( Math.abs(cx) > Math.abs(cy) ) {
-						majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
-					} else {
-						majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
-					}
-					break;
+				case X: nv = nx;  break;
+				case Y: nv = ny;  break;
+				default: nv = nz;  break;
 				}
-				/*
-				switch(majorAxisSlideDirection) {
-				case SLIDE_XPOS:  System.out.println("x+");	break;
-				case SLIDE_XNEG:  System.out.println("x-");	break;
-				case SLIDE_YPOS:  System.out.println("y+");	break;
-				case SLIDE_YNEG:  System.out.println("y-");	break;
-				}*/
+				
+				double cx,cy;
+				cy=cu.dot(nv);
+				cx=cr.dot(nv);
+				if( Math.abs(cx) > Math.abs(cy) ) {
+					majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
+				} else {
+					majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
+				}
 			}
 		}
 
@@ -591,9 +569,9 @@ public class DragBallEntity extends PoseEntity {
 		//spw.invert();
 		//spw.set(cpw);
 
-		float r = (nearestPlane==Plane.X) ? 1 : 0.5f;
-		float g = (nearestPlane==Plane.Y) ? 1 : 0.5f;
-		float b = (nearestPlane==Plane.Z) ? 1 : 0.5f;
+		double r = (nearestPlane==Plane.X) ? 1 : 0.5f;
+		double g = (nearestPlane==Plane.Y) ? 1 : 0.5f;
+		double b = (nearestPlane==Plane.Z) ? 1 : 0.5f;
 
 		// is a FOR axis normal almost the same as camera forward?		
 		boolean drawX = (Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)))>0.85);
