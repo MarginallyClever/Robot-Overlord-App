@@ -700,7 +700,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         // overlays
 		dragBall.render(gl2);
 		viewCube.render(gl2);
-				
+		
         if(pickNow) {
 	        pickNow=false;
 	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
