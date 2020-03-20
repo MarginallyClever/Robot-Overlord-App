@@ -5,7 +5,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -21,30 +20,28 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeStr
  * @author Dan Royer
  *
  */
-public class ViewPanelString extends JPanel implements DocumentListener, Observer {
+public class ViewElementString extends ViewElement implements DocumentListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JTextField textField;
-	private RobotOverlord ro;
+	private JTextField field;
 	private StringEntity e;
 	
-	public ViewPanelString(RobotOverlord ro,StringEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementString(RobotOverlord ro,StringEntity e) {
+		super(ro);
+		this.e=e;
 		
-		textField = new FocusTextField(20);
-		textField.setText(e.get());
-		textField.getDocument().addDocumentListener(this);
+		field = new FocusTextField(20);
+		field.setText(e.get());
+		field.getDocument().addDocumentListener(this);
 		
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
-		label.setLabelFor(textField);
+		label.setLabelFor(field);
 
 		this.setLayout(new BorderLayout());
 		this.add(label,BorderLayout.LINE_START);
-		this.add(textField,BorderLayout.LINE_END);
+		this.add(field,BorderLayout.LINE_END);
 	}
 
 	/**
@@ -52,8 +49,8 @@ public class ViewPanelString extends JPanel implements DocumentListener, Observe
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
-		String newValue = textField.getText();
-		if(!newValue.equals(e.get())) {
+		String newValue = field.getText();
+		if( !newValue.equals(e.get()) ) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeString(e, newValue) ) );
 		}
 	}
@@ -73,6 +70,11 @@ public class ViewPanelString extends JPanel implements DocumentListener, Observe
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-		textField.setText((String)arg);
+		field.setText((String)arg);
+	}
+
+	@Override
+	public void setReadOnly(boolean arg0) {
+		field.setEnabled(!arg0);		
 	}
 }

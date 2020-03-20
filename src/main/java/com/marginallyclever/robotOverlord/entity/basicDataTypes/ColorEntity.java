@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * each color component is in the range [0...1]
@@ -82,7 +82,7 @@ public class ColorEntity extends Entity {
 	 * @param g
 	 */
 	@Override
-	public void getView(View view) {
-		view.addColor(this);
+	public void getView(ViewPanel view) {
+		view.add(this);
 	}
 }

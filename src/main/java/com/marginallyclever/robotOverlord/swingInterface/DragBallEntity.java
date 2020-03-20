@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMoveWorld;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
@@ -862,7 +862,7 @@ public class DragBallEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Mc", "Move controls");
 		getViewOfChildren(view);
 	}

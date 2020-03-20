@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Container for all the visible objects in a scene.
@@ -210,9 +210,9 @@ public class Scene extends Entity {
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Sc", "Scene");
-		view.addColor(ambientLight);
+		view.add(ambientLight);
 		view.popStack();
 	}
 }

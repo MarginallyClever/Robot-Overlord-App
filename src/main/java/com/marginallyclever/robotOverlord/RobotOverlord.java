@@ -72,7 +72,6 @@ import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRedo;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandSaveAs;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandUndo;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
 
@@ -954,7 +953,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		
 	}
 }

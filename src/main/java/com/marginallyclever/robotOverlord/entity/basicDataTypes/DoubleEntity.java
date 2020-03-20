@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * @author Dan Royer
@@ -41,7 +41,7 @@ public class DoubleEntity extends AbstractEntity<Double> {
 	}
 	
 	@Override
-	public void getView(View view) {
-		view.addDouble(this);
+	public void getView(ViewPanel view) {
+		view.add(this);
 	}
 }

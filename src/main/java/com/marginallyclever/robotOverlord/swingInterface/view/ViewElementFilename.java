@@ -6,15 +6,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.filechooser.FileFilter;
@@ -28,31 +27,30 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeStr
  * @author Dan Royer
  *
  */
-public class ViewPanelFilename extends JPanel implements ActionListener, Observer {
+public class ViewElementFilename extends ViewElement implements ActionListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private static String lastPath=System.getProperty("user.dir");
-	private JTextField pathAndFileName;
-	private RobotOverlord ro;
+	private JTextField field;
+	private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
 	private StringEntity e;
-	private LinkedList<FileFilter> filters = new LinkedList<FileFilter>();
 	
-	public ViewPanelFilename(RobotOverlord ro,StringEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementFilename(RobotOverlord ro,StringEntity e) {
+		super(ro);
+		this.e=e;
+		
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
 				
-		pathAndFileName = new JTextField(15);
-		pathAndFileName.setEditable(false);
-		pathAndFileName.setText(e.get());
-		pathAndFileName.setMargin(new Insets(1,0,1,0));
+		field = new JTextField(15);
+		field.setEditable(false);
+		field.setText(e.get());
+		field.setMargin(new Insets(1,0,1,0));
 		//pathAndFileName.setBorder(BorderFactory.createLoweredBevelBorder());
 		
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
-		label.setLabelFor(pathAndFileName);
+		label.setLabelFor(field);
 
 		JButton choose = new JButton("...");
 		choose.addActionListener(this);
@@ -70,7 +68,7 @@ public class ViewPanelFilename extends JPanel implements ActionListener, Observe
 		gbc.weightx=1;
 		gbc.insets.left=0;
 		gbc.insets.right=0;
-		this.add(pathAndFileName,gbc);
+		this.add(field,gbc);
 		gbc.weightx=0;
 		this.add(choose,gbc);
 	}
@@ -86,7 +84,7 @@ public class ViewPanelFilename extends JPanel implements ActionListener, Observe
 		else {
 			Iterator<FileFilter> i = filters.iterator();
 			while(i.hasNext()) {
-				chooser.addChoosableFileFilter( i.next());
+				chooser.addChoosableFileFilter(i.next());
 			}
 		}
 		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
@@ -100,12 +98,20 @@ public class ViewPanelFilename extends JPanel implements ActionListener, Observe
 	}
 
 	public void setFileFilter(FileFilter arg0) {
-		this.filters.clear();
-		this.filters.add(arg0);
+		filters.clear();
+		filters.add(arg0);
 	}
 	
-	public void addChoosableFileFilter(FileFilter arg0) {
-		this.filters.add(arg0);
+	public void addFileFilter(FileFilter arg0) {
+		filters.add(arg0);
+	}
+	
+	/**
+	 * Plural form of {@link addChoosableFileFilter}.
+	 * @param arg0 {@link ArrayList} of {@link FileFilter}.
+	 */
+	public void addFileFilters(ArrayList<FileFilter> arg0) {
+		filters.addAll(arg0);
 	}
 
 	/**
@@ -115,5 +121,10 @@ public class ViewPanelFilename extends JPanel implements ActionListener, Observe
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void setReadOnly(boolean arg0) {
+		field.setEnabled(!arg0);
 	}
 }

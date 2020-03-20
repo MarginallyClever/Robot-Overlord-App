@@ -10,7 +10,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class SixiJoystick extends ModelEntity implements NetworkConnectionListener {
 	/**
@@ -105,7 +105,7 @@ public class SixiJoystick extends ModelEntity implements NetworkConnectionListen
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		super.getView(view);
 		// TODO add connect/disconnect button
 	}

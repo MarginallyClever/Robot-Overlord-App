@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * @author Dan Royer
@@ -40,7 +40,7 @@ public class BooleanEntity extends AbstractEntity<Boolean> {
 	 * @param g
 	 */
 	@Override
-	public void getView(View view) {
-		view.addBoolean(this);
+	public void getView(ViewPanel view) {
+		view.add(this);
 	}
 }

@@ -8,7 +8,6 @@ import java.util.Observer;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.UndoableEditEvent;
 
@@ -16,35 +15,33 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeComboBox;
 
-public class ViewPanelComboBox extends JPanel implements ActionListener, Observer {
+public class ViewElementComboBox extends ViewElement implements ActionListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JComboBox<String> list;
-	private RobotOverlord ro;
+	private JComboBox<String> field;
 	private IntEntity e;
 	
-	public ViewPanelComboBox(RobotOverlord ro,IntEntity e,String [] listOptions) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementComboBox(RobotOverlord ro,IntEntity e,String [] listOptions) {
+		super(ro);
+		this.e=e;
 				
-		list = new JComboBox<String>(listOptions);
-		list.setSelectedIndex(e.get());
-		list.addActionListener(this);
+		field = new JComboBox<String>(listOptions);
+		field.setSelectedIndex(e.get());
+		field.addActionListener(this);
 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
-		label.setLabelFor(list);
+		label.setLabelFor(field);
 
 		this.setLayout(new BorderLayout());
 		this.setBorder(new EmptyBorder(0,0,0,1));
 		this.add(label,BorderLayout.LINE_START);
-		this.add(list,BorderLayout.LINE_END);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	public String getValue() {
-		return list.getItemAt(e.get());
+		return field.getItemAt(e.get());
 	}
 
 	/**
@@ -52,7 +49,7 @@ public class ViewPanelComboBox extends JPanel implements ActionListener, Observe
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		int newIndex = list.getSelectedIndex();
+		int newIndex = field.getSelectedIndex();
 		if(newIndex != e.get()) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeComboBox(e, e.getName(), newIndex) ) );
 		}
@@ -61,5 +58,10 @@ public class ViewPanelComboBox extends JPanel implements ActionListener, Observe
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setReadOnly(boolean arg0) {
+		field.setEnabled(!arg0);
 	}
 }

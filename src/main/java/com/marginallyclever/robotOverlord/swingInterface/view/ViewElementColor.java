@@ -22,20 +22,18 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeCol
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewPanelColorRGBA extends JPanel implements ChangeListener, Observer {
+public class ViewElementColor extends ViewElement implements ChangeListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
 	private JSlider [] fields = new JSlider[4];
-	private RobotOverlord ro;
 	private ColorEntity e;
 	
-	public ViewPanelColorRGBA(RobotOverlord ro,ColorEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementColor(RobotOverlord ro,ColorEntity e) {
+		super(ro);
+		this.e=e;
 
 		CollapsiblePanel p = new CollapsiblePanel(e.getName());
 		JPanel p2 = p.getContentPane();
@@ -107,7 +105,7 @@ public class ViewPanelColorRGBA extends JPanel implements ChangeListener, Observ
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
 		float [] newValues = new float[fields.length];
-		float [] oldValues = e.getFloatArray();
+		float [] oldValues = ((ColorEntity)e).getFloatArray();
 		
 		float sum=0;
 		for(int i=0;i<fields.length;++i) {
@@ -116,7 +114,14 @@ public class ViewPanelColorRGBA extends JPanel implements ChangeListener, Observ
 		}
 
 		if(sum>1e-3) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA(e,newValues) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA((ColorEntity)e,newValues) ) );
+		}
+	}
+
+	@Override
+	public void setReadOnly(boolean arg0) {
+		for(int i=0;i<fields.length;++i) {
+			fields[i].setEnabled(!arg0);
 		}
 	}
 }

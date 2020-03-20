@@ -14,7 +14,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Matrix4dEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class PoseEntity extends Entity {
 	/**
@@ -227,12 +227,13 @@ public class PoseEntity extends Entity {
 	 */
 	public void setPoseWorld(Matrix4d m) {
 		if(parent instanceof PoseEntity) {
-			Matrix4d iParent = new Matrix4d(((PoseEntity)parent).poseWorld);
+			PoseEntity pep = (PoseEntity)parent;
+			Matrix4d iParent = new Matrix4d(pep.poseWorld);
 			iParent.invert();
-			m.mul(iParent);
-			setPose(m);
+			iParent.mul(new Matrix4d(m));
+			setPose(iParent);
 		} else {
-			setPose(m);
+			setPose(new Matrix4d(m));
 		}
 	}
 	
@@ -265,7 +266,7 @@ public class PoseEntity extends Entity {
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Po","Pose");
 		pose.getView(view);
 		view.popStack();

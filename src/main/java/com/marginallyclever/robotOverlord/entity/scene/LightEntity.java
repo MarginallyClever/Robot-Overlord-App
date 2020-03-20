@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * See also https://learnopengl.com/Lighting/Light-casters
@@ -197,9 +197,9 @@ public class LightEntity extends PoseEntity {
 	}
 
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Li", "Light");
-		view.addEnum(preset, presetNames);
+		view.addComboBox(preset, presetNames);
 		getViewOfChildren(view);
 		view.popStack();
 		

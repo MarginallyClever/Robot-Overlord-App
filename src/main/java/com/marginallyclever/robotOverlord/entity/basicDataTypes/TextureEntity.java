@@ -3,13 +3,14 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class TextureEntity extends StringEntity {
 	/**
@@ -55,8 +56,9 @@ public class TextureEntity extends StringEntity {
 	}
 
 	@Override
-	public void getView(View view) {
-		ArrayList<FileNameExtensionFilter> filters = new ArrayList<FileNameExtensionFilter>();
+	public void getView(ViewPanel view) {
+		//TODO Swing elements like FileFilter should not be mentioned outside of the view.
+		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
 		// supported file formats
 		filters.add(new FileNameExtensionFilter("PNG", "png"));
 		filters.add(new FileNameExtensionFilter("BMP", "bmp"));

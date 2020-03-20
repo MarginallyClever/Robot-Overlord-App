@@ -40,8 +40,8 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanelBoolean;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanelComboBox;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementBoolean;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementComboBox;
 
 /**
  * Control Panel for a DHRobot
@@ -64,9 +64,9 @@ public class Sixi2Panel extends JPanel implements ActionListener, ChangeListener
 	public JSlider feedrateSlider, accelerationSlider, gripperOpening;
 	public JLabel  feedrateValue, accelerationValue, gripperOpeningValue;
 
-	public ViewPanelComboBox controlMode;
-	public ViewPanelComboBox operatingMode;
-	public ViewPanelBoolean singleBlock;
+	public ViewElementComboBox controlMode;
+	public ViewElementComboBox operatingMode;
+	public ViewElementBoolean singleBlock;
 //	public JComboBox<String> frameOfReferenceSelection;
 
 	public JLabel gcodeLabel;

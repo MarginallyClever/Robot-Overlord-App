@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -22,19 +22,25 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 
-public class ViewPanel implements View {
-	class StackElement {
+/**
+ * A factory that builds Swing elements for the entity editor
+ * @author Dan Royer
+ * @since 1.6.0
+ *
+ */
+public class ViewPanel {
+	
+	protected class StackElement {
 		public JComponent p;
 		public GridBagConstraints gbc;
 	}
-	// This doesn't need to be a stack.
-	Stack<StackElement> panelStack = new Stack<StackElement>();
-	StackElement se;
-
-	JTabbedPane tabbedPane;
 	
-	RobotOverlord ro;
+	protected Stack<StackElement> panelStack = new Stack<StackElement>();
+	protected StackElement se;
+	protected JTabbedPane tabbedPane;
+	protected RobotOverlord ro;
 
+	
 	public ViewPanel(RobotOverlord ro) {
 		super();
 		this.ro=ro;
@@ -47,7 +53,6 @@ public class ViewPanel implements View {
 		in.bottom=5;
 	}
 	
-	@Override
 	public void pushStack(String title,String tip) {
 		se = new StackElement();
 		se.p = new JPanel();
@@ -72,10 +77,11 @@ public class ViewPanel implements View {
 		tabbedPane.addTab(title, null, se.p, tip);
 	}
 	
-	@Override
+	
 	public void popStack() {
 		se.gbc.weighty=1;
-		pushViewElement(new JLabel(""));
+		se.gbc.gridy++;
+		se.p.add(new JLabel(""),se.gbc);
 		panelStack.pop();
 	}
 	
@@ -84,73 +90,73 @@ public class ViewPanel implements View {
 		se.p.add(c,se.gbc);
 	}
 
-	@Override
-	public void addReadOnly(String s) {
+	/*
 		JLabel label = new JLabel(s,JLabel.LEADING);
-		pushViewElement(label);
-	}
-	
-	@Override
-	public void addReadOnly(Entity e) {
 		JLabel label = new JLabel(e.toString(),JLabel.LEADING);
-		pushViewElement(label);
-	}
-	
-	@Override
-	public void addBoolean(BooleanEntity e) {
-		ViewPanelBoolean b = new ViewPanelBoolean(ro,e);
-		e.addObserver(b);
-		pushViewElement(b);
-	}
-	
-	@Override
-	public void addEnum(IntEntity e,String [] listOptions) {
-		ViewPanelComboBox b = new ViewPanelComboBox(ro, e, listOptions);
-		e.addObserver(b);
-		pushViewElement(b);
-	}
+		
+		ViewElementComboBox b = new ViewElementComboBox(ro, e, listOptions);
 
-	@Override
-	public void addFilename(StringEntity e,ArrayList<FileNameExtensionFilter> f) {
-		ViewPanelFilename b = new ViewPanelFilename(ro, e);
+		ViewElementFilename b = new ViewElementFilename(ro, e);
 		for( FileNameExtensionFilter fi : f ) {
 			b.addChoosableFileFilter( fi );
 		}
 		
-		e.addObserver(b);
-		pushViewElement(b);
-	}
+		ViewElementColorRGBA b = new ViewElementColorRGBA(ro, e);
+		ViewElementVector3d b = new ViewElementVector3d(ro, e);
+		ViewElementInt b = new ViewElementInt(ro, e);
+		ViewElementDouble b = new ViewElementDouble(ro, e);
+	*/
 
-	@Override
-	public void addColor(ColorEntity e) {
-		ViewPanelColorRGBA b = new ViewPanelColorRGBA(ro, e);
-		e.addObserver(b);
-		pushViewElement(b);
-	}
-
-	@Override
-	public void addVector3(Vector3dEntity e) {
-		ViewPanelVector3d b = new ViewPanelVector3d(ro, e);
-		e.addObserver(b);
-		pushViewElement(b);
-	}
-
-	@Override
-	public void addInt(IntEntity e) {
-		ViewPanelInt b = new ViewPanelInt(ro, e);
-		e.addObserver(b);
-		pushViewElement(b);
-	}
-
-	@Override
-	public void addDouble(DoubleEntity e) {
-		ViewPanelDouble b = new ViewPanelDouble(ro, e);
-		e.addObserver(b);
-		pushViewElement(b);
-	}
-
-	@Override
+	
 	public JComponent getFinalView() {
 		return tabbedPane;
+	}
+
+
+	public enum ElementType {
+		ENUM,
+		FILENAME,
+	}
+	
+	public ViewElement addStaticText(String text) {
+		ViewElement b = new ViewElement(ro);
+		b.add(new JLabel(text,JLabel.LEADING));
+		pushViewElement(b);
+		return b;
+	}
+
+	public ViewElement addComboBox(IntEntity e,String [] labels) {
+		ViewElement b = new ViewElementComboBox(ro,e,labels);
+		pushViewElement(b);
+		return b;
+		
+	}
+	
+	public ViewElement addFilename(StringEntity e,ArrayList<FileFilter> filters) {
+		ViewElementFilename b = new ViewElementFilename(ro,e);
+		b.addFileFilters(filters);
+		
+		pushViewElement(b);
+		return b;
+	}
+	
+	public ViewElement add(Entity e) {
+		ViewElement b=null;
+		
+		System.out.println("Add "+e.getClass().toString());
+		
+			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  (ro,(BooleanEntity)e);
+		else if(e instanceof ColorEntity   ) b = new ViewElementColor    (ro,(ColorEntity)e);
+		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   (ro,(DoubleEntity)e);
+		else if(e instanceof IntEntity     ) b = new ViewElementInt      (ro,(IntEntity)e);
+		else if(e instanceof StringEntity  ) b = new ViewElementString   (ro,(StringEntity)e);
+		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
+		
+		if(null==b) {
+			return addStaticText("ViewElement.add("+e.getClass().toString()+")");
+		}
+		// else b not null.
+		pushViewElement(b);
+		return b;
 	}
 }

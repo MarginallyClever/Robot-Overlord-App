@@ -25,7 +25,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
 /**
@@ -605,7 +605,7 @@ public class Sixi2 extends RobotEntity {
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("S","Sixi");
 		getViewOfChildren(view);
 		view.popStack();

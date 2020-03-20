@@ -6,8 +6,9 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.jogamp.opengl.GL2;
 
 /**
@@ -26,10 +27,11 @@ public class CameraEntity extends PoseEntity {
 	protected Vector3d up = new Vector3d(0,0,1);
 	
 	// angles
-	protected double pan;
-	protected double tilt;
-	protected double zoom=100;
+	protected DoubleEntity pan = new DoubleEntity("Pan",0);
+	protected DoubleEntity tilt = new DoubleEntity("Tilt",0);
+	protected DoubleEntity zoom = new DoubleEntity("Zoom",100);
 
+	
 	public CameraEntity() {
 		super();
 		
@@ -62,7 +64,7 @@ public class CameraEntity extends PoseEntity {
 	}
 	
 	protected void updateMatrix() {
-		setRotation(buildPanTiltMatrix(pan,tilt));
+		setRotation(buildPanTiltMatrix(pan.get(),tilt.get()));
 	}
 
 	@Override
@@ -74,18 +76,20 @@ public class CameraEntity extends PoseEntity {
 		
         double dz = InputManager.rawValue(InputManager.Source.MOUSE_Z);
         if(dz!=0) { 
-        	double oldZoom = zoom;
+        	double oldZoom = zoom.get();
+        	double newZoom = oldZoom;
         	
-        	zoom -= dz*3;
-        	zoom = Math.max(0.01,zoom);
+        	newZoom -= dz*3;
+        	newZoom = Math.max(0.01,newZoom);
 
-        	if(oldZoom!=zoom) {
+        	if(oldZoom!=newZoom) {
+        		zoom.set(newZoom);
 				// adjust the camera position to orbit around a point 'zoom' in front of the camera
 				Vector3d oldZ = MatrixHelper.getZAxis(m);
 				Vector3d newZ = new Vector3d(oldZ); 
 
 				oldZ.scale(oldZoom);
-				newZ.scale(zoom);
+				newZ.scale(zoom.get());
 	
 				Vector3d p = getPosition();
 				p.sub(oldZ);
@@ -106,7 +110,7 @@ public class CameraEntity extends PoseEntity {
 					Vector3d vx = MatrixHelper.getXAxis(m);
 					Vector3d vy = MatrixHelper.getYAxis(m);
 					Vector3d p = getPosition();
-					double zSq = Math.sqrt(zoom)*0.1;
+					double zSq = Math.sqrt(zoom.get())*0.1;
 					vx.scale(zSq*-dx);
 					vy.scale(zSq* dy);
 					p.add(vx);
@@ -132,15 +136,15 @@ public class CameraEntity extends PoseEntity {
 					setTilt(getTilt()-dy);
 
 					// do updateMatrix() but keep the rotation matrix
-					Matrix3d rot = buildPanTiltMatrix(pan,tilt);
+					Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
 					setRotation(rot);
 					
 					// adjust the camera position to orbit around a point 'zoom' in front of the camera
 					Vector3d oldZ = MatrixHelper.getZAxis(m);
-					oldZ.scale(zoom);
+					oldZ.scale(zoom.get());
 
 					Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
-					newZ.scale(zoom);
+					newZ.scale(zoom.get());
 
 					Vector3d p = getPosition();
 					p.sub(oldZ);
@@ -163,30 +167,29 @@ public class CameraEntity extends PoseEntity {
 	}
 	
 	public double getPan() {
-		return pan;
+		return pan.get();
 	}
 	
 	public double getTilt() {
-		return tilt;
+		return tilt.get();
 	}
 	
 	public void setPan(double arg0) {
-		pan=arg0;
+		pan.set(arg0);
 	}
 	
 	public void setTilt(double arg0) {
-		tilt=arg0;
-	    
-		if(tilt < 1) tilt=1;
-		if(tilt > 179) tilt= 179;
+		arg0 = Math.max(arg0, 1);
+		arg0 = Math.min(arg0, 179);
+		tilt.set(arg0);
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Ca", "Camera");
-		view.addReadOnly("Pan="+pan);
-		view.addReadOnly("Tilt="+tilt);
-		view.addReadOnly("Zoom="+zoom);
+		view.add(pan).setReadOnly(true);
+		view.add(tilt).setReadOnly(true);
+		view.add(zoom).setReadOnly(true);
 		view.popStack();
 		super.getView(view);
 	}

@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
 /**
@@ -114,7 +114,7 @@ public class MaterialEntity extends Entity {
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Ma","Material");
 		super.getViewOfChildren(view);
 		view.popStack();

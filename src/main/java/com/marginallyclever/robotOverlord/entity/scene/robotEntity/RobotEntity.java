@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 
@@ -134,7 +134,7 @@ public abstract class RobotEntity extends PoseEntity implements NetworkConnectio
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		super.getView(view);
 		// TODO add connect/disconnect button
 	}

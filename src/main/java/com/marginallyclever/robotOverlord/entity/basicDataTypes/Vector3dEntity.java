@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * @author Dan Royer
@@ -55,7 +55,7 @@ public class Vector3dEntity extends AbstractEntity<Vector3d> {
 	 * @param g
 	 */
 	@Override
-	public void getView(View view) {
-		view.addVector3(this);
+	public void getView(ViewPanel view) {
+		view.add(this);
 	}
 }

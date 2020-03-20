@@ -9,7 +9,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2.Sixi2.ControlMode;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Denavit–Hartenberg parameters
@@ -429,15 +429,15 @@ public class DHLink extends ModelEntity {
 	}
 
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("DH","DHLink");
-		view.addDouble(d);
-		view.addDouble(theta);
-		view.addDouble(r);
-		view.addDouble(alpha);
+		view.add(d);
+		view.add(theta);
+		view.add(r);
+		view.add(alpha);
 		
-		view.addDouble(rangeMin);
-		view.addDouble(rangeMax);
+		view.add(rangeMin);
+		view.add(rangeMax);
 		view.popStack();
 		
 		super.getView(view);

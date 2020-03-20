@@ -6,7 +6,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -24,32 +23,30 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt
  * @author Dan Royer
  *
  */
-public class ViewPanelInt extends JPanel implements DocumentListener, Observer {
+public class ViewElementInt extends ViewElement implements DocumentListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JTextField textField;
-	private RobotOverlord ro;
+	private JTextField field;
 	private IntEntity e;
 	
-	public ViewPanelInt(RobotOverlord ro,IntEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementInt(RobotOverlord ro,IntEntity e) {
+		super(ro);
+		this.e=e;
 
-		textField = new FocusTextField(8);
-		textField.getDocument().addDocumentListener(this);
-		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-		textField.setText(e.get().toString());
+		field = new FocusTextField(8);
+		field.getDocument().addDocumentListener(this);
+		field.setHorizontalAlignment(SwingConstants.RIGHT);
+		field.setText(e.get().toString());
 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
-		label.setLabelFor(textField);
+		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
 		this.setLayout(new BorderLayout());
 		this.add(label,BorderLayout.LINE_START);
-		this.add(textField,BorderLayout.LINE_END);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	/**
@@ -60,10 +57,10 @@ public class ViewPanelInt extends JPanel implements DocumentListener, Observer {
 		int newNumber;
 		
 		try {
-			newNumber = Integer.valueOf(textField.getText());
-			textField.setForeground(UIManager.getColor("Textfield.foreground"));
+			newNumber = Integer.valueOf(field.getText());
+			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
-			textField.setForeground(Color.RED);
+			field.setForeground(Color.RED);
 			newNumber = e.get();
 		}
 		
@@ -82,17 +79,13 @@ public class ViewPanelInt extends JPanel implements DocumentListener, Observer {
 		changedUpdate(arg0);
 	}
 	
-	public boolean isReadOnly() {
-		return this.textField.isEditable();
-	}
-	
+	@Override
 	public void setReadOnly(boolean arg0) {
-		this.textField.setEditable(!arg0);
+		field.setEnabled(!arg0);
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
 		
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ServiceLoader;
 
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;
 
@@ -23,7 +24,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.log.Log;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
 public class ModelEntity extends PoseEntity {
@@ -196,10 +197,11 @@ public class ModelEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Mo","Model");
 
-		ArrayList<FileNameExtensionFilter> filters = new ArrayList<FileNameExtensionFilter>();
+		// TODO FileNameExtensionFilter is Swing specific and should not happen here.
+		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
 		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
 		Iterator<ModelLoadAndSave> i = loaders.iterator();
 		while(i.hasNext()) {
@@ -208,16 +210,16 @@ public class ModelEntity extends PoseEntity {
 		}
 		view.addFilename(filename,filters);
 		
-		view.addVector3(rotationAdjust);
-		view.addVector3(originAdjust);
-		view.addDouble(scale);
+		view.add(rotationAdjust);
+		view.add(originAdjust);
+		view.add(scale);
 		
 		Model m = this.model;
 		if(m!=null) {
-			view.addInt(numTriangles);
-			view.addBoolean(hasNormals);
-			view.addBoolean(hasColors);
-			view.addBoolean(hasUVs);
+			view.add(numTriangles);
+			view.add(hasNormals);
+			view.add(hasColors);
+			view.add(hasUVs);
 		}
 
 		view.popStack();

@@ -12,7 +12,7 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class BoxEntity extends ModelEntity {
 	/**
@@ -221,7 +221,7 @@ public class BoxEntity extends ModelEntity {
 	public double getDepth() { return depth.get(); }
 
 	@Override
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		view.pushStack("Bx", "Box");
 		width.getView(view);
 		height.getView(view);

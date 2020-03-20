@@ -26,20 +26,18 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVec
  * @author Dan Royer
  *
  */
-public class ViewPanelVector3d extends JPanel implements DocumentListener, Observer {
+public class ViewElementVector3d extends ViewElement implements DocumentListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
 	private JTextField [] fields = new JTextField[3];
-	private RobotOverlord ro;
 	private Vector3dEntity e;
 	
-	public ViewPanelVector3d(RobotOverlord ro,Vector3dEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e; 
+	public ViewElementVector3d(RobotOverlord ro,Vector3dEntity e) {
+		super(ro);
+		this.e=e;
 
 		CollapsiblePanel p = new CollapsiblePanel(e.getName());
 		JPanel p2 = p.getContentPane();
@@ -118,5 +116,12 @@ public class ViewPanelVector3d extends JPanel implements DocumentListener, Obser
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void setReadOnly(boolean arg0) {
+		for(int i=0;i<fields.length;++i) {
+			fields[i].setEnabled(!arg0);
+		}
 	}
 }

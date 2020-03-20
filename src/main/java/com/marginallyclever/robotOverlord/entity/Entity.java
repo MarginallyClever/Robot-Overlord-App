@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Entities are nodes in a tree of data that can find each other and observe/be observed
@@ -161,11 +161,11 @@ public class Entity extends Observable implements Serializable, Observer {
 	 * Derivatives of View implement concrete versions of that view. 
 	 * @param g
 	 */
-	public void getView(View view) {
+	public void getView(ViewPanel view) {
 		//if(parent!=null) view.addReadOnly("Child of "+parent.getName());
 	}
 	
-	public void getViewOfChildren(View view) {
+	public void getViewOfChildren(ViewPanel view) {
 		for( Entity child : children ) {
 			if(child.getChildren().isEmpty()) {
 				// only leaves

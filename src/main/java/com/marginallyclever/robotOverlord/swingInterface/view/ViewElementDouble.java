@@ -6,7 +6,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -25,32 +24,30 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeDou
  * @author Dan Royer
  *
  */
-public class ViewPanelDouble extends JPanel implements DocumentListener, Observer {
+public class ViewElementDouble extends ViewElement implements DocumentListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JTextField textField;
-	private RobotOverlord ro;
+	private JTextField field;
 	private DoubleEntity e;
 	
-	public ViewPanelDouble(RobotOverlord ro,DoubleEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementDouble(RobotOverlord ro,DoubleEntity e) {
+		super(ro);
+		this.e=e;
 
-		textField = new FocusTextField(8);
-		textField.getDocument().addDocumentListener(this);
-		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-		textField.setText(StringHelper.formatDouble(e.get()));
+		field = new FocusTextField(8);
+		field.getDocument().addDocumentListener(this);
+		field.setHorizontalAlignment(SwingConstants.RIGHT);
+		field.setText(StringHelper.formatDouble(e.get()));
 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
-		label.setLabelFor(textField);
+		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
 		this.setLayout(new BorderLayout());
 		this.add(label,BorderLayout.LINE_START);
-		this.add(textField,BorderLayout.LINE_END);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	/**
@@ -61,10 +58,10 @@ public class ViewPanelDouble extends JPanel implements DocumentListener, Observe
 		double newNumber;
 		
 		try {
-			newNumber = Double.valueOf(textField.getText());
-			textField.setForeground(UIManager.getColor("Textfield.foreground"));
+			newNumber = Double.valueOf(field.getText());
+			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
-			textField.setForeground(Color.RED);
+			field.setForeground(Color.RED);
 			newNumber = e.get();
 		}
 		
@@ -83,17 +80,13 @@ public class ViewPanelDouble extends JPanel implements DocumentListener, Observe
 		changedUpdate(arg0);
 	}
 	
-	public boolean isReadOnly() {
-		return this.textField.isEditable();
-	}
-	
+	@Override
 	public void setReadOnly(boolean arg0) {
-		this.textField.setEditable(!arg0);
+		field.setEnabled(!arg0);
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
 		
 	}
 }

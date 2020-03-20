@@ -6,7 +6,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.View;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * @author Dan Royer
@@ -87,8 +87,8 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 		return getName()+"="+t.toString();
 	}
 	
-	public void getView(View view) {
-		view.addVector3(pos);
-		view.addVector3(rot);
+	public void getView(ViewPanel view) {
+		view.add(pos);
+		view.add(rot);
 	}
 }

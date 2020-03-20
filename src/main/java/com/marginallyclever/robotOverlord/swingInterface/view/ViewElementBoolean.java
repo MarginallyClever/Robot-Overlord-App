@@ -8,7 +8,6 @@ import java.util.Observer;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.UndoableEditEvent;
@@ -22,31 +21,30 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeBoo
  * @author Dan Royer
  *
  */
-public class ViewPanelBoolean extends JPanel implements ItemListener, Observer {
+public class ViewElementBoolean extends ViewElement implements ItemListener, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JCheckBox checkboxField;
-	private RobotOverlord ro;
+	
+	private JCheckBox field;
 	private BooleanEntity e;
 	
-	public ViewPanelBoolean(RobotOverlord ro,BooleanEntity e) {
-		super();
-		this.ro = ro;
-		this.e = e;
+	public ViewElementBoolean(RobotOverlord ro,BooleanEntity e) {
+		super(ro);
+		this.e=e;
 				
-		checkboxField = new JCheckBox();
-		checkboxField.setSelected(e.get());
-		checkboxField.addItemListener(this);
-		checkboxField.setBorder(new EmptyBorder(0,0,0,0));
+		field = new JCheckBox();
+		field.setSelected(e.get());
+		field.addItemListener(this);
+		field.setBorder(new EmptyBorder(0,0,0,0));
 		
 		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
-		label.setLabelFor(checkboxField);
+		label.setLabelFor(field);
 		
 		this.setLayout(new BorderLayout());
 		this.add(label,BorderLayout.LINE_START);
-		this.add(checkboxField,BorderLayout.LINE_END);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	/**
@@ -54,7 +52,7 @@ public class ViewPanelBoolean extends JPanel implements ItemListener, Observer {
 	 */
 	@Override
 	public void itemStateChanged(ItemEvent arg0) {
-		boolean newValue = checkboxField.isSelected();
+		boolean newValue = field.isSelected();
 		if(e.get()!=newValue) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeBoolean(e, newValue) ) );
 		}
@@ -66,7 +64,12 @@ public class ViewPanelBoolean extends JPanel implements ItemListener, Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		if(o instanceof BooleanEntity) {
-			checkboxField.setSelected((boolean)arg);
+			field.setSelected((boolean)arg);
 		}
+	}
+
+	@Override
+	public void setReadOnly(boolean arg0) {
+		field.setEnabled(!arg0);
 	}
 }
