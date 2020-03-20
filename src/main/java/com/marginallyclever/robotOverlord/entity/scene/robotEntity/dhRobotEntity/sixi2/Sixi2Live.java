@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
 
+import javax.vecmath.Matrix4d;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
@@ -8,6 +10,7 @@ import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 	/**
@@ -153,15 +156,15 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 			//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 		}
 	}
-/*
-	// pull the last connected port from prefs
-	private String loadRecentPortFromPreferences() {
-		return prefs.get("recent-port", "");
+	
+	@Override
+	public void setPoseWorld(Matrix4d m) {
+		
+	} 
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("Sl", "Sixi Live");
+		view.popStack();
 	}
-
-	// update the prefs with the last port connected and refreshes the menus.
-	public void setRecentPort(String portName) {
-		prefs.put("recent-port", portName);
-	}
-*/
 }

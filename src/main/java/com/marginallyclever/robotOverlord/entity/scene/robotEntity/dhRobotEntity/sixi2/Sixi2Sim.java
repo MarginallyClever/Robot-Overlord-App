@@ -12,6 +12,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2.Sixi2.ControlMode;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Sim extends Sixi2Model {
 	/**
@@ -433,5 +434,16 @@ public class Sixi2Sim extends Sixi2Model {
 				System.out.println("bad");
 			}
 		}
+	}
+	
+	@Override
+	public void setPoseWorld(Matrix4d m) {
+		
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("Ss", "Sixi Sim");
+		view.popStack();
 	}
 }
