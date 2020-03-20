@@ -97,7 +97,7 @@ public class DragBallEntity extends PoseEntity {
 	// for translation
 	protected Axis majorAxis;
 	
-	protected DoubleEntity ballSize = new DoubleEntity("scale",0.25);
+	protected DoubleEntity ballSize = new DoubleEntity("Scale",0.25);
 	public double ballSizeScaled;
 
 	public boolean isRotateMode;
@@ -298,8 +298,8 @@ public class DragBallEntity extends PoseEntity {
 			Vector3d majorAxisVector = new Vector3d();
 			switch(nearestPlane) {
 			case X :  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
-			case Y :  majorAxisVector = MatrixHelper.getYAxis   (FOR);	break;
-			default:  majorAxisVector = MatrixHelper.getZAxis	   (FOR);	break;
+			case Y :  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
+			default:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
 			}
 			
 			// find the pick point on the plane of rotation
@@ -475,6 +475,20 @@ public class DragBallEntity extends PoseEntity {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMoveWorld(subject,resultMatrix) ) );
 		}
 	}
+
+	protected double testBoxHit(Vector3d pos,Vector3d ray,Vector3d n) {		
+		Point3d b0 = new Point3d(); 
+		Point3d b1 = new Point3d();
+
+		b0.set(+0.05,+0.05,+0.05);
+		b1.set(-0.05,-0.05,-0.05);
+		b0.scale(ballSizeScaled);
+		b1.scale(ballSizeScaled);
+		b0.add(n);
+		b1.add(n);
+		
+		return MathHelper.rayBoxIntersection(pos,ray,b0,b1);
+	}
 	
 	@Override
 	public void render(GL2 gl2) {
@@ -500,18 +514,17 @@ public class DragBallEntity extends PoseEntity {
 
 			gl2.glPushMatrix();
 	
-				renderOutsideEdge(gl2);
+				renderOutsideCircle(gl2);
 
 				MatrixHelper.applyMatrix(gl2, FOR);
 				gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
-				renderRotation(gl2);
-				renderTranslation(gl2);
-				/*
+
 				if(isRotateMode()) {
 					renderRotation(gl2);
 				} else {
 					renderTranslation(gl2);
-				}*/
+				}
+				
 			gl2.glPopMatrix();
 
 			// set previous line width
@@ -529,9 +542,10 @@ public class DragBallEntity extends PoseEntity {
 	 * Render the white and grey circles around the exterior, always facing the camera.
 	 * @param gl2
 	 */
-	private void renderOutsideEdge(GL2 gl2) {
-		final double whiteRadius=1.1;
-		final double greyRadius=1.01;
+	private void renderOutsideCircle(GL2 gl2) {
+		final double whiteRadius=1.05;
+		final double greyRadius=1.0;
+		final int quality=40;
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
@@ -546,11 +560,11 @@ public class DragBallEntity extends PoseEntity {
 			
 			//white circle on the xy plane of the camera pose, as the subject position
 			gl2.glColor4d(1,1,1,0.7);
-			PrimitiveSolids.drawCircleXY(gl2, whiteRadius, 40);
+			PrimitiveSolids.drawCircleXY(gl2, whiteRadius, quality);
 
 			//grey circle on the xy plane of the camera pose, as the subject position
 			gl2.glColor4d(0.5,0.5,0.5,0.7);
-			PrimitiveSolids.drawCircleXY(gl2, greyRadius, 40);
+			PrimitiveSolids.drawCircleXY(gl2, greyRadius, quality);
 
 		gl2.glPopMatrix();
 	}
@@ -573,6 +587,7 @@ public class DragBallEntity extends PoseEntity {
 		cpw.m03=
 		cpw.m13=
 		cpw.m23=0;
+		cpw.invert();
 		//spw.invert();
 		//spw.set(cpw);
 
@@ -581,97 +596,72 @@ public class DragBallEntity extends PoseEntity {
 		float b = (nearestPlane==Plane.Z) ? 1 : 0.5f;
 
 		// is a FOR axis normal almost the same as camera forward?		
-		boolean drawX = (Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)))>0.95);
-		boolean drawY = (Math.abs(lookAtVector.dot(MatrixHelper.getYAxis(FOR)))>0.95);
-		boolean drawZ = (Math.abs(lookAtVector.dot(MatrixHelper.getZAxis(FOR)))>0.95);
+		boolean drawX = (Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)))>0.85);
+		boolean drawY = (Math.abs(lookAtVector.dot(MatrixHelper.getYAxis(FOR)))>0.85);
+		boolean drawZ = (Math.abs(lookAtVector.dot(MatrixHelper.getZAxis(FOR)))>0.85);
 		//System.out.println(drawX+"\t"+drawY+"\t"+drawZ);
 
-		int inOutin;
-		Vector3d v=new Vector3d();
-		Vector3d v2=new Vector3d();
+		gl2.glEnable(GL2.GL_CULL_FACE);
+		gl2.glCullFace(GL2.GL_BACK);
 		//x
-		inOutin=0;
 		gl2.glColor3d(r, 0, 0);
-		gl2.glBegin(GL2.GL_LINE_STRIP);
-		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
-			v.set(0,Math.cos(n),Math.sin(n));
-			cpw.transform(v,v2);
-			if(drawX) {
-				gl2.glVertex3d(v.x,v.y,v.z);
-			} else {
-				if(v2.z>0) {
-					if(inOutin==0) inOutin=1;
-					if(inOutin==2) {
-						gl2.glVertex3d(v.x,v.y,v.z);
-						break;
-					}
-				} else {
-					if(inOutin==1) {
-						inOutin=2;
-					}
-					if(inOutin==2) {
-						gl2.glVertex3d(v.x,v.y,v.z);
-					}
-				}
+		if(drawX) {
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
+				gl2.glVertex3d(0,Math.cos(n),Math.sin(n));
 			}
+			gl2.glEnd();
+		} else {
+			gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
+				double x=Math.cos(n);
+				double y=Math.sin(n);
+				gl2.glNormal3d(0, y,x);
+				gl2.glVertex3d(-0.25/ballSizeScaled,y,x);
+				gl2.glVertex3d( 0.25/ballSizeScaled,y,x);
+			}
+			gl2.glEnd();
 		}
-		gl2.glEnd();
 
 		//y
-		inOutin=0;
 		gl2.glColor3d(0, g, 0);
-		gl2.glBegin(GL2.GL_LINE_STRIP);
-		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
-			v.set(Math.cos(n), 0, Math.sin(n));
-			FOR.transform(v,v2);
-			if(drawY) {
-				gl2.glVertex3d(v.x,v.y,v.z);
-			} else {
-				if(v2.dot(lookAtVector)>0) {
-					if(inOutin==0) inOutin=1;
-					if(inOutin==2) {
-						gl2.glVertex3d(v.x,v.y,v.z);
-						break;
-					}
-				} else {
-					if(inOutin==1) {
-						inOutin=2;
-					}
-					if(inOutin==2) {
-						gl2.glVertex3d(v.x,v.y,v.z);
-					}
-				}
+		if(drawY) {
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
+				gl2.glVertex3d(Math.cos(n),0,Math.sin(n));
 			}
+			gl2.glEnd();
+		} else {
+			gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
+				double x=Math.cos(n);
+				double y=Math.sin(n);
+				gl2.glNormal3d(x,0,y);
+				gl2.glVertex3d(x,-0.25/ballSizeScaled,y);
+				gl2.glVertex3d(x, 0.25/ballSizeScaled,y);
+			}
+			gl2.glEnd();
 		}
-		gl2.glEnd();
 		
 		//z
-		inOutin=0;
 		gl2.glColor3d(0, 0, b);
-		gl2.glBegin(GL2.GL_LINE_STRIP);
-		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
-			v.set(Math.cos(n), Math.sin(n),0);
-			FOR.transform(v,v2);
-			if(drawZ) {
-				gl2.glVertex3d(v.x,v.y,v.z);
-			} else {
-				if(v2.dot(lookAtVector)>0) {
-					if(inOutin==0) inOutin=1;
-					if(inOutin==2) {
-						gl2.glVertex3d(v.x,v.y,v.z);
-						break;
-					}
-				} else {
-					if(inOutin==1) {
-						inOutin=2;
-					}
-					if(inOutin==2) {
-						gl2.glVertex3d(v.x,v.y,v.z);
-					}
-				}
+		if(drawZ) {
+			gl2.glBegin(GL2.GL_LINE_STRIP);
+			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
+				gl2.glVertex3d(Math.sin(n),Math.cos(n),0);
 			}
+			gl2.glEnd();
+		} else {
+			gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
+				double x=Math.cos(n);
+				double y=Math.sin(n);
+				gl2.glNormal3d(y,x,0);
+				gl2.glVertex3d(y,x,-0.25/ballSizeScaled);
+				gl2.glVertex3d(y,x, 0.25/ballSizeScaled);
+			}
+			gl2.glEnd();
 		}
-		gl2.glEnd();
 
 		
 		if(isActivelyMoving) {
@@ -705,20 +695,6 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glPopMatrix();
 	}
 	
-	protected double testBoxHit(Vector3d pos,Vector3d ray,Vector3d n) {		
-		Point3d b0 = new Point3d(); 
-		Point3d b1 = new Point3d();
-
-		b0.set(+0.05,+0.05,+0.05);
-		b1.set(-0.05,-0.05,-0.05);
-		b0.scale(ballSizeScaled);
-		b1.scale(ballSizeScaled);
-		b0.add(n);
-		b1.add(n);
-		
-		return MathHelper.rayBoxIntersection(pos,ray,b0,b1);
-	}
-	
 	public void renderTranslation(GL2 gl2) {
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
@@ -732,8 +708,8 @@ public class DragBallEntity extends PoseEntity {
 		float b = (majorAxis==Axis.Z) ? 1 : 0.5f;
 
 		Vector3d fx = MatrixHelper.getXAxis(FOR);
-		Vector3d fy = MatrixHelper.getYAxis   (FOR);
-		Vector3d fz = MatrixHelper.getZAxis     (FOR);
+		Vector3d fy = MatrixHelper.getYAxis(FOR);
+		Vector3d fz = MatrixHelper.getZAxis(FOR);
 		// should we hide an axis if it points almost the same direction as the camera?
 		boolean drawX = (Math.abs(lookAtVector.dot(fx))<0.95);
 		boolean drawY = (Math.abs(lookAtVector.dot(fy))<0.95);
@@ -758,9 +734,9 @@ public class DragBallEntity extends PoseEntity {
 			gl2.glColor3f(255,255,255);
 			gl2.glVertex3d(0,0,0);
 			gl2.glVertex3d(
-					startMatrix.m03-resultMatrix.m03,
-					startMatrix.m13-resultMatrix.m13,
-					startMatrix.m23-resultMatrix.m23);
+					(startMatrix.m03-resultMatrix.m03)/ballSizeScaled,
+					(startMatrix.m13-resultMatrix.m13)/ballSizeScaled,
+					(startMatrix.m23-resultMatrix.m23)/ballSizeScaled);
 			gl2.glEnd();
 		}
 	}
