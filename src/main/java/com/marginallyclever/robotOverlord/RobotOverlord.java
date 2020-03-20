@@ -326,8 +326,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		selectedEntityPanel.repaint();
 		selectedEntityPanel.revalidate();
-		
-		//rightFrameSplitter.setDividerLocation(180);
+
+		JScrollPane scroller = (JScrollPane)rightFrameSplitter.getBottomComponent(); 
+		scroller.getVerticalScrollBar().setValue(0);
 	}
 
 	public void saveWorldToFile(String filename) {
