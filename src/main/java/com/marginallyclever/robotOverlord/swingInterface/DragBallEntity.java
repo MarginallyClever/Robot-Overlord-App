@@ -525,50 +525,32 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glPopMatrix();
 	}
 	
+	/**
+	 * Render the white and grey circles around the exterior, always facing the camera.
+	 * @param gl2
+	 */
 	private void renderOutsideEdge(GL2 gl2) {
+		final double whiteRadius=1.1;
+		final double greyRadius=1.01;
+		
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
+		ro.viewport.renderPerspective(gl2);
 		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
+		lookAt.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 
 		gl2.glPushMatrix();
 
-			ro.viewport.renderPerspective(gl2);
-			Matrix4d m2 = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
-			m2.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
-			MatrixHelper.applyMatrix(gl2, m2);
-		
-			//MatrixHelper.applyMatrix(gl2, lookAt);
+			MatrixHelper.applyMatrix(gl2, lookAt);
 			gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
-			//MatrixHelper.applyMatrix(gl2, subject.getPoseWorld());
-			
-			Matrix4d lookAt2 = new Matrix4d(lookAt);
-			lookAt2.setIdentity();
 			
 			//white circle on the xy plane of the camera pose, as the subject position
 			gl2.glColor4d(1,1,1,0.7);
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			for(double n=0;n<Math.PI*2;n+=STEP_SIZE) {
-				double c = Math.cos(n);
-				double s = Math.sin(n);
-				gl2.glVertex3d(//x*c + y*s
-						(lookAt2.m00*c +lookAt2.m01*s)*1.1,
-						(lookAt2.m10*c +lookAt2.m11*s)*1.1,
-						(lookAt2.m20*c +lookAt2.m21*s)*1.1  );
-			}
-			gl2.glEnd();
-			//*
+			PrimitiveSolids.drawCircleXY(gl2, whiteRadius, 40);
+
 			//grey circle on the xy plane of the camera pose, as the subject position
 			gl2.glColor4d(0.5,0.5,0.5,0.7);
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			for(double n=0;n<Math.PI*2;n+=STEP_SIZE) {
-				double c = Math.cos(n);
-				double s = Math.sin(n);
-				gl2.glVertex3d(//x*c + y*s 
-						(lookAt2.m00*c +lookAt2.m01*s)*1.01,
-						(lookAt2.m10*c +lookAt2.m11*s)*1.01,
-						(lookAt2.m20*c +lookAt2.m21*s)*1.01  );
-			}
-			gl2.glEnd();
+			PrimitiveSolids.drawCircleXY(gl2, greyRadius, 40);
 
 		gl2.glPopMatrix();
 	}
@@ -579,6 +561,9 @@ public class DragBallEntity extends PoseEntity {
 		// camera forward is +z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
+		//Vector3d up = MatrixHelper.getYAxis(camera.getPoseWorld());
+		//up.normalize();
+		//Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition(), up);
 		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
 		Vector3d lookAtVector = MatrixHelper.getZAxis(lookAt);
 		
@@ -590,7 +575,6 @@ public class DragBallEntity extends PoseEntity {
 		cpw.m23=0;
 		//spw.invert();
 		//spw.set(cpw);
-
 
 		float r = (nearestPlane==Plane.X) ? 1 : 0.5f;
 		float g = (nearestPlane==Plane.Y) ? 1 : 0.5f;
