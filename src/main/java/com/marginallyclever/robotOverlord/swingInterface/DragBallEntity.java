@@ -154,9 +154,9 @@ public class DragBallEntity extends PoseEntity {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
 						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT));
 	
-			if(InputManager.isReleased(InputManager.Source.KEY_1)) frameOfReference=FrameOfReference.WORLD;
-			if(InputManager.isReleased(InputManager.Source.KEY_2)) frameOfReference=FrameOfReference.CAMERA;
-			if(InputManager.isReleased(InputManager.Source.KEY_3)) frameOfReference=FrameOfReference.SUBJECT;
+			if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReference=FrameOfReference.WORLD;
+			if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReference=FrameOfReference.CAMERA;
+			if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReference=FrameOfReference.SUBJECT;
 		} else {
 			if(InputManager.isReleased(InputManager.Source.KEY_ESCAPE)) {
 				// cancel this move
@@ -517,7 +517,7 @@ public class DragBallEntity extends PoseEntity {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
 		ro.viewport.renderPerspective(gl2);
-		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
+		Matrix4d lookAt = camera.getPoseWorld();
 		lookAt.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 
 		gl2.glPushMatrix();
