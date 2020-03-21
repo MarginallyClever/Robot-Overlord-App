@@ -204,7 +204,7 @@ public class PoseEntity extends Entity {
 			// this poseWorld is my pose
 			poseWorld.set(pose.get());
 		}
-		cuboid.setPoseWorld(poseWorld.get());
+		cuboid.setPoseWorld(this.getPoseWorld());
 		
 		for( Entity c : children ) {
 			if(c instanceof PoseEntity) {
@@ -230,10 +230,10 @@ public class PoseEntity extends Entity {
 	public void setPoseWorld(Matrix4d m) {
 		if(parent instanceof PoseEntity) {
 			PoseEntity pep = (PoseEntity)parent;
-			Matrix4d iParent = new Matrix4d(pep.poseWorld.get());
-			iParent.invert();
-			iParent.mul(new Matrix4d(m));
-			setPose(iParent);
+			Matrix4d newPose = new Matrix4d(pep.poseWorld.get());
+			newPose.invert();
+			newPose.mul(m);
+			setPose(newPose);
 		} else {
 			setPose(new Matrix4d(m));
 		}
@@ -261,7 +261,7 @@ public class PoseEntity extends Entity {
 	public ArrayList<Cuboid> getCuboidList() {		
 		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
 		
-		cuboid.setPoseWorld(this.getPose());
+		cuboid.setPoseWorld(this.getPoseWorld());
 		cuboidList.add(cuboid);
 
 		return cuboidList;
