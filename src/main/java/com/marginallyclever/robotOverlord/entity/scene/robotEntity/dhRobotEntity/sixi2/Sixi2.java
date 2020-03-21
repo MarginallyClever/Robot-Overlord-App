@@ -129,9 +129,9 @@ public class Sixi2 extends RobotEntity {
 		cycleStart.addObserver(this);
 		m01Break.addObserver(this);
 
-		setShowLineage(false);
-		setShowLocalOrigin(false);
-		setShowBoundingBox(true);
+		setShowLineage(true);
+		setShowLocalOrigin(true);
+		setShowBoundingBox(false);
 		
 		// spawn a control box as a child of the anchor.
 		ModelEntity sixi2ControlBox=new ModelEntity();
@@ -171,8 +171,7 @@ public class Sixi2 extends RobotEntity {
 
 	@Override
 	public void render(GL2 gl2) {
-		sim.render(gl2);
-		live.render(gl2);
+		// convenient place for a debugging breakpoint
 		super.render(gl2);
 	}
 
