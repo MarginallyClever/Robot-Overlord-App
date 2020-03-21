@@ -29,9 +29,9 @@ public class PoseEntity extends Entity {
 	private int pickName;	
 	
 	// pose relative to my parent Entity.
-	protected Matrix4dEntity pose = new Matrix4dEntity();
+	public Matrix4dEntity pose = new Matrix4dEntity();
 	// pose relative to the world.
-	protected Matrix4dEntity poseWorld = new Matrix4dEntity();
+	public Matrix4dEntity poseWorld = new Matrix4dEntity();
 	
 	// physical limits
 	public transient Cuboid cuboid = new Cuboid();

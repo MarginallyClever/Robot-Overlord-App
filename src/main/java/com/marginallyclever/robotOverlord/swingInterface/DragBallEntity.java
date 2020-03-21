@@ -15,7 +15,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPhysicalEntityMoveWorld;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -321,7 +321,7 @@ public class DragBallEntity extends PoseEntity {
 				
 				valueLast = valueNow;
 				
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMoveWorld(subject,resultMatrix) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
 			}
 		}
 	}
@@ -439,7 +439,7 @@ public class DragBallEntity extends PoseEntity {
 			
 			valueLast = valueNow;
 			
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPhysicalEntityMoveWorld(subject,resultMatrix) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
 		}
 	}
 

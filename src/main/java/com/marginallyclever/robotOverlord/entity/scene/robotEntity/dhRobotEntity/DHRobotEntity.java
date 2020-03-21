@@ -268,8 +268,8 @@ public class DHRobotEntity extends PoseEntity {
 			if (sanityCheck(newPose)) {
 				setPoseFK(newPose);
 				return true;
-			} // else System.out.println("setPoseIK() insane");
-		} // else System.out.println("setPoseIK() impossible");
+			} else System.out.println("setPoseIK() insane");
+		} else System.out.println("setPoseIK() impossible");
 		setPoseFK(oldPose);
 		return false;
 	}

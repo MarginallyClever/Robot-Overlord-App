@@ -607,6 +607,17 @@ public class Sixi2 extends RobotEntity {
 		view.add(showLocalOrigin);
 		view.add(showLineage);
 		
+		// TODO add sliders to adjust FK values?
+		/*
+		for(int i=0;i<sim.links.length;++i) {
+		  view.addAngle?
+		  (
+		  	sim.links.get(0).theta,
+		  	sim.links.get(0).rangeMax.get(),
+		  	sim.links.get(0).rangeMin.get()
+		  );
+		}
+		*/
 		view.popStack();
 		
 		super.getView(view);

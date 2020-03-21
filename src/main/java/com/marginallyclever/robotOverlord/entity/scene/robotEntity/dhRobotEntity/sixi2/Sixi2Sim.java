@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
@@ -66,7 +68,7 @@ public class Sixi2Sim extends Sixi2Model {
 		super();
 		setName("Sim");
 
-		endEffector.addObserver(this);
+		endEffector.poseWorld.addObserver(this);
 		
 		int numAdjustableLinks = 0;
 		for(DHLink link : links ) {
@@ -196,6 +198,13 @@ public class Sixi2Sim extends Sixi2Model {
 		     if(InterpolationStyle.LINEAR_FK.toInt()==style) interpolateLinearFK(dt);
 		else if(InterpolationStyle.LINEAR_IK.toInt()==style) interpolateLinearIK(dt);
 		else if(InterpolationStyle.JACOBIAN .toInt()==style) interpolateJacobian(dt);
+	}
+	
+	@Override
+	public void update(Observable obs, Object obj) {
+		if(obs == endEffector.poseWorld) {
+			setPoseIK(endEffector.getPoseWorld());
+		}
 	}
 
 	protected void interpolateLinearFK(double dt) {

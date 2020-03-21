@@ -55,19 +55,19 @@ public class DHLink extends ModelEntity {
 	
 	public LinkAdjust flags;
 
-	// length (mm) along previous Z to the common normal
-	private DoubleEntity d = new DoubleEntity("D");
-	// angle (degrees) about previous Z, from old X to new X
-	private DoubleEntity theta = new DoubleEntity("Theta");
-	// length (mm) of the common normal. Assuming a revolute joint, this is the radius about previous Z
-	private DoubleEntity r = new DoubleEntity("R");
-	// angle (degrees) about common normal, from old Z axis to new Z axis
-	private DoubleEntity alpha = new DoubleEntity("Alpha");
-	
 	// the gcode letter representing this link
 	public StringEntity letter = new StringEntity("Letter","");
-
+	// length (mm) along previous Z to the common normal
+	public DoubleEntity d = new DoubleEntity("D");
+	// angle (degrees) about previous Z, from old X to new X
+	public DoubleEntity theta = new DoubleEntity("Theta");
+	// length (mm) of the common normal. Assuming a revolute joint, this is the radius about previous Z
+	public DoubleEntity r = new DoubleEntity("R");
+	// angle (degrees) about common normal, from old Z axis to new Z axis
+	public DoubleEntity alpha = new DoubleEntity("Alpha");
+	// adjustable link range limits
 	public DoubleEntity rangeMin = new DoubleEntity("Range min", -90.0);
+	// adjustable link range limits
 	public DoubleEntity rangeMax = new DoubleEntity("Range max", 90.0);
 
 	/*
