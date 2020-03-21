@@ -79,7 +79,20 @@ public class InputManager {
 		KEY_BACKSLASH(55),
 
 		KEY_SPACE(56),
-		KEY_TILDE(57);
+		KEY_TILDE(57),
+
+		KEY_F1(58),
+		KEY_F2(59),
+		KEY_F3(60),
+		KEY_F4(61),
+		KEY_F5(62),
+		KEY_F6(63),
+		KEY_F7(64),
+		KEY_F8(65),
+		KEY_F9(66),
+		KEY_F10(67),
+		KEY_F11(68),
+		KEY_F12(69);
 		
 		private final int value;
 		private Source(int v) {
@@ -279,6 +292,19 @@ public class InputManager {
     				
     				if(components[j].getIdentifier()==Identifier.Key.SPACE) keyState[Source.KEY_SPACE.getValue()] = 1;
     				if(components[j].getIdentifier()==Identifier.Key.GRAVE) keyState[Source.KEY_TILDE.getValue()] = 1;
+
+    				if(components[j].getIdentifier()==Identifier.Key.F1) keyState[Source.KEY_F1.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F2) keyState[Source.KEY_F2.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F3) keyState[Source.KEY_F3.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F4) keyState[Source.KEY_F4.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F5) keyState[Source.KEY_F5.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F6) keyState[Source.KEY_F6.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F7) keyState[Source.KEY_F7.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F8) keyState[Source.KEY_F8.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F9) keyState[Source.KEY_F9.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F10) keyState[Source.KEY_F10.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F11) keyState[Source.KEY_F11.getValue()] = 1;
+    				if(components[j].getIdentifier()==Identifier.Key.F12) keyState[Source.KEY_F12.getValue()] = 1;
     			}
         	}
         }
