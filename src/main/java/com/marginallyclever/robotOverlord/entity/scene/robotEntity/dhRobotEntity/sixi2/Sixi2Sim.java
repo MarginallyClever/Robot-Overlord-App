@@ -8,10 +8,10 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2.Sixi2.ControlMode;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Sim extends Sixi2Model {
@@ -21,9 +21,9 @@ public class Sixi2Sim extends Sixi2Model {
 	private static final long serialVersionUID = 6216095894080620268L;
 
 	public enum InterpolationStyle {
-		LINEAR_FK(0,"LINEAR_FK"),
-		LINEAR_IK(1,"LINEAR_IK"),
-		JACOBIAN(2,"JACOBIAN");
+		LINEAR_FK(0,"Linear FK"),
+		LINEAR_IK(1,"Linear IK"),
+		JACOBIAN(2,"Jacobian IK");
 		
 		private int number;
 		private String name;
@@ -31,14 +31,14 @@ public class Sixi2Sim extends Sixi2Model {
 			number=n;
 			name=s;
 		}
-		public int toInt() {
+		final public int toInt() {
 			return number;
 		}
-		public String toString() {
+		final public String toString() {
 			return name;
 		}
 		static public String [] getAll() {
-			ControlMode[] allModes = ControlMode.values();
+			InterpolationStyle[] allModes = InterpolationStyle.values();
 			String[] labels = new String[allModes.length];
 			for(int i=0;i<labels.length;++i) {
 				labels[i] = allModes[i].toString();
@@ -47,7 +47,8 @@ public class Sixi2Sim extends Sixi2Model {
 		}
 	};
 
-	protected InterpolationStyle interpolationStyle = InterpolationStyle.LINEAR_FK;
+	protected IntEntity interpolationStyle = new IntEntity("Interpolation",InterpolationStyle.JACOBIAN.toInt());
+	
 	protected long arrivalTime;
 	protected long startTime;
 	
@@ -65,6 +66,8 @@ public class Sixi2Sim extends Sixi2Model {
 		super();
 		setName("Sim");
 
+		endEffector.addObserver(this);
+		
 		int numAdjustableLinks = 0;
 		for(DHLink link : links ) {
 			if(link.flags != LinkAdjust.NONE) numAdjustableLinks++;
@@ -96,8 +99,8 @@ public class Sixi2Sim extends Sixi2Model {
 				case 2: gMode=2;	break;  // arc cw
 				case 3: gMode=3;	break;  // arc ccw
 				case 4: gMode=4;	break;  // dwell
-				case 90: relativeMode=false;					break;
-				case 91: relativeMode=true;					    break;
+				case 90: relativeMode=false;	break;
+				case 91: relativeMode=true;    break;
 				default:  break;
 				}
 			}			
@@ -151,7 +154,7 @@ public class Sixi2Sim extends Sixi2Model {
 	        long travelMs = (long)Math.ceil(travelS*1000.0);
 	        
 	        // set the live and from matrixes
-	        mLive.set(this.getEndEffectorMatrix());
+	        mLive.set(endEffector.getPoseWorld());
 	        mFrom.set(mLive);
 	        
 	        // get the target matrix
@@ -160,7 +163,7 @@ public class Sixi2Sim extends Sixi2Model {
 		        DHKeyframe newPose = solver.createDHKeyframe();
 		        newPose.set(poseTargetFK);
 		        setPoseFK(newPose);
-		        mTarget.set(getEndEffectorMatrix());
+		        mTarget.set(endEffector.getPoseWorld());
 	        setPoseFK(oldPose);
 
 	        // start the clock
@@ -189,14 +192,10 @@ public class Sixi2Sim extends Sixi2Model {
 
 	@Override 
 	public void update(double dt) {
-		// TODO handle this better
-		interpolationStyle = InterpolationStyle.JACOBIAN;
-		
-		switch (interpolationStyle) {
-		case LINEAR_FK:	interpolateLinearFK(dt);	break;
-		case LINEAR_IK:	interpolateLinearIK(dt);	break;
-		case JACOBIAN:	interpolateJacobian(dt);	break;
-		}
+		int style = interpolationStyle.get(); 
+		     if(InterpolationStyle.LINEAR_FK.toInt()==style) interpolateLinearFK(dt);
+		else if(InterpolationStyle.LINEAR_IK.toInt()==style) interpolateLinearIK(dt);
+		else if(InterpolationStyle.JACOBIAN .toInt()==style) interpolateJacobian(dt);
 	}
 
 	protected void interpolateLinearFK(double dt) {
@@ -258,7 +257,7 @@ public class Sixi2Sim extends Sixi2Model {
 		getPoseFK(oldPoseFK);
 		
 		setPoseFK(keyframe);
-		Matrix4d T = new Matrix4d(getEndEffectorMatrix());
+		Matrix4d T = endEffector.getPoseWorld();
 		
 		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
 		int i=0;
@@ -270,7 +269,7 @@ public class Sixi2Sim extends Sixi2Model {
 			newPoseFK.set(keyframe);
 			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 			setPoseFK(newPoseFK);
-			Matrix4d Tnew = new Matrix4d(getEndEffectorMatrix());
+			Matrix4d Tnew = endEffector.getPoseWorld();
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -428,22 +427,21 @@ public class Sixi2Sim extends Sixi2Model {
 			}
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
-				mLive.set(getEndEffectorMatrix());
+				mLive.set(endEffector.getPoseWorld());
 				System.out.println("ok");
 			} else {
 				System.out.println("bad");
 			}
 		}
 	}
-	
+
 	@Override
-	public void setPoseWorld(Matrix4d m) {
-		
-	}
+	public void setPoseWorld(Matrix4d m) {}
 	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Ss", "Sixi Sim");
+		view.addComboBox(interpolationStyle, InterpolationStyle.getAll());
 		view.popStack();
 	}
 }
