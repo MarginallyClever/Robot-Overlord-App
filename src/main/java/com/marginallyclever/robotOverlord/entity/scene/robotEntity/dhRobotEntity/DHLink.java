@@ -8,7 +8,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2.Sixi2.ControlMode;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -23,11 +23,11 @@ public class DHLink extends ModelEntity {
 	private static final long serialVersionUID = -8160402178509773679L;
 	
 	public enum LinkAdjust {
-		NONE (0   ,"NONE" ),
+		NONE (0   ,"None" ),
 		D    (1   ,"D"    ),
-		THETA(1<<1,"THETA"),
+		THETA(1<<1,"Theta"),
 		R    (1<<2,"R"    ),
-		ALPHA(1<<3,"ALPHA");
+		ALPHA(1<<3,"Alpha");
 		
 		private int number;
 		private String name;
@@ -42,7 +42,7 @@ public class DHLink extends ModelEntity {
 			return name;
 		}
 		static public String [] getAll() {
-			ControlMode[] allModes = ControlMode.values();
+			LinkAdjust[] allModes = LinkAdjust.values();
 			String[] labels = new String[allModes.length];
 			for(int i=0;i<labels.length;++i) {
 				labels[i] = allModes[i].toString();
@@ -65,8 +65,8 @@ public class DHLink extends ModelEntity {
 	// the gcode letter representing this link
 	public StringEntity letter = new StringEntity("Letter","");
 
-	public DoubleEntity rangeMin = new DoubleEntity("min", 90.0);
-	public DoubleEntity rangeMax = new DoubleEntity("max", -90.0);
+	public DoubleEntity rangeMin = new DoubleEntity("Range min", 90.0);
+	public DoubleEntity rangeMax = new DoubleEntity("Range max", -90.0);
 
 	/*
 	public DoubleEntity maxVelocity = new DoubleEntity(Double.MAX_VALUE);	// not used yet
@@ -431,10 +431,16 @@ public class DHLink extends ModelEntity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("DH","DHLink");
-		view.add(d);
-		view.add(theta);
-		view.add(r);
-		view.add(alpha);
+		
+		ViewElement vd = view.add(d);
+		ViewElement vt = view.add(theta);
+		ViewElement vr = view.add(r);
+		ViewElement va = view.add(alpha);
+		
+		vd.setReadOnly(0==(flags.toInt() & LinkAdjust.D    .toInt()));
+		vt.setReadOnly(0==(flags.toInt() & LinkAdjust.THETA.toInt()));
+		vr.setReadOnly(0==(flags.toInt() & LinkAdjust.R    .toInt()));
+		va.setReadOnly(0==(flags.toInt() & LinkAdjust.ALPHA.toInt()));
 		
 		view.add(rangeMin);
 		view.add(rangeMax);
