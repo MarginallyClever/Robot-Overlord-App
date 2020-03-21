@@ -108,6 +108,13 @@ public class ViewPanel {
 		
 	}
 
+	/**
+	 * Add a control for an integer that is bound between two values
+	 * @param e
+	 * @param top the maximum value, inclusive
+	 * @param bottom the minimum value, inclusive
+	 * @return the element
+	 */
 	public ViewElement addRange(IntEntity e,int top,int bottom) {
 		ViewElement b = new ViewElementSlider(ro,e,top,bottom);
 		pushViewElement(b);
