@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntit
 
 import javax.vecmath.Matrix4d;
 
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.communications.NetworkConnectionManager;
@@ -45,11 +44,6 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 			connection.addListener(this);
 			sendCommand("D20");
 		}
-	}
-
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
 	}
 
 	@Override
@@ -156,15 +150,14 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 			//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
 		}
 	}
-	
+
 	@Override
-	public void setPoseWorld(Matrix4d m) {
-		
-	} 
+	public void setPoseWorld(Matrix4d m) {}
 	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Sl", "Sixi Live");
 		view.popStack();
+		endEffector.getView(view);
 	}
 }
