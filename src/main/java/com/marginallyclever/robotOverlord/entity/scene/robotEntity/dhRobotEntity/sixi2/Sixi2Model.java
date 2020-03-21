@@ -11,6 +11,14 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
+/**
+ * Contains the setup of the DHLinks for a DHRobot.
+ * TODO Could read these values from a text file.
+ * TODO Could have an interactive setup option - dh parameter design app?
+ * @author Dan Royer
+ * @since 1.6.0
+ *
+ */
 public abstract class Sixi2Model extends DHRobotEntity {	
 	/**
 	 * 
