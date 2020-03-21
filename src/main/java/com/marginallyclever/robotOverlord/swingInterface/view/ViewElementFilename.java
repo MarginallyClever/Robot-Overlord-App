@@ -21,6 +21,7 @@ import javax.swing.filechooser.FileFilter;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
+import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
  * Panel to alter a file parameter.
@@ -74,7 +75,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 	}
 
 	/**
-	 * panel action, update entity
+	 * Panel action, update entity
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
@@ -88,7 +89,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 			}
 		}
 		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
-		int returnVal = chooser.showOpenDialog(ro.getMainFrame());
+		int returnVal = chooser.showDialog(ro.getMainFrame(), Translator.get("Select"));
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
