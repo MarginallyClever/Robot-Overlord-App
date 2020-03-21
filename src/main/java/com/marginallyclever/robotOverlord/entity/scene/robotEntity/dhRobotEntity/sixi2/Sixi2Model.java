@@ -5,6 +5,7 @@ import javax.vecmath.Matrix4d;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
@@ -18,8 +19,10 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;
 	protected int gMode=0;
-	protected DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
-	protected DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
+	
+	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
+	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
+	public PoseEntity endEffector = new PoseEntity("End Effector");
 
 	
 	public Sixi2Model() {
@@ -27,11 +30,18 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		setName("Sixi2Model");
 		addChild(feedRate);
 		addChild(acceleration);
+		addChild(endEffector);
 		
 		this.setIKSolver(new DHIKSolver_RTTRTR());
 		
 		// setup children
 		this.setNumLinks(6);
+
+		ModelEntity anchor = new ModelEntity();
+		addChild(anchor);
+		anchor.setName("Base");
+		anchor.setModelFilename("/Sixi2/anchor.stl");
+		anchor.setModelOrigin(0, 0, 0.9);
 		
 		// pan shoulder
 		links.get(0).setLetter("X");
@@ -39,7 +49,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(0).setD(18.8452);
 		links.get(0).setR(0);
 		links.get(0).setAlpha(-90);
-		links.get(1).setRange(-120,120);
+		links.get(0).setRange(-120,120);
 	
 		// tilt shoulder
 		links.get(1).setLetter("Y");
@@ -82,8 +92,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
 
-		links.get(links.size()-1).addChild(new PoseEntity("End Effector"));
-
+		links.get(5).addChild(endEffector);
+		
 		this.refreshPose();
 
 		// Now I have the poseWorld for each DHLink, I can use that to adjust the model values.
