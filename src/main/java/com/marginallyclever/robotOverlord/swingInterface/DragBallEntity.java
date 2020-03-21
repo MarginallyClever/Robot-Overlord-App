@@ -97,7 +97,7 @@ public class DragBallEntity extends PoseEntity {
 	// for translation
 	protected Axis majorAxis;
 	
-	protected DoubleEntity ballSize = new DoubleEntity("Scale",0.25);
+	protected DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	public double ballSizeScaled;
 
 	public boolean isRotateMode;
@@ -143,10 +143,8 @@ public class DragBallEntity extends PoseEntity {
 		if(!isActivelyMoving()) {
 			switch(frameOfReference) {
 			case SUBJECT: FOR.set(subject.getPoseWorld());	break;
-			case CAMERA : 
-				FOR.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));
-				break;
-			default     : FOR.setIdentity();	break;
+			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));  break;
+			default     : FOR.setIdentity();  break;
 			}
 		}
 		FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
@@ -156,18 +154,9 @@ public class DragBallEntity extends PoseEntity {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
 						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT));
 	
-			if(InputManager.isReleased(InputManager.Source.KEY_1)) {
-				frameOfReference=FrameOfReference.WORLD;
-				//System.out.println("Frame "+frameOfReference);
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_2)) {
-				frameOfReference=FrameOfReference.CAMERA;
-				//System.out.println("Frame "+frameOfReference);
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_3)) {
-				frameOfReference=FrameOfReference.SUBJECT;
-				//System.out.println("Frame "+frameOfReference);
-			}
+			if(InputManager.isReleased(InputManager.Source.KEY_1)) frameOfReference=FrameOfReference.WORLD;
+			if(InputManager.isReleased(InputManager.Source.KEY_2)) frameOfReference=FrameOfReference.CAMERA;
+			if(InputManager.isReleased(InputManager.Source.KEY_3)) frameOfReference=FrameOfReference.SUBJECT;
 		} else {
 			if(InputManager.isReleased(InputManager.Source.KEY_ESCAPE)) {
 				// cancel this move
