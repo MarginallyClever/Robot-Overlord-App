@@ -31,7 +31,7 @@ public class PoseEntity extends Entity {
 	// pose relative to my parent Entity.
 	protected Matrix4dEntity pose = new Matrix4dEntity();
 	// pose relative to the world.
-	protected Matrix4d poseWorld = new Matrix4d();
+	protected Matrix4dEntity poseWorld = new Matrix4dEntity();
 	
 	// physical limits
 	public transient Cuboid cuboid = new Cuboid();
@@ -197,12 +197,14 @@ public class PoseEntity extends Entity {
 		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
 			PoseEntity peParent = (PoseEntity)parent;
-			poseWorld.mul(peParent.poseWorld,pose.get());
+			Matrix4d m = new Matrix4d(peParent.poseWorld.get());
+			m.mul(pose.get());
+			poseWorld.set(m);
 		} else {
 			// this poseWorld is my pose
 			poseWorld.set(pose.get());
 		}
-		cuboid.setPoseWorld(poseWorld);
+		cuboid.setPoseWorld(poseWorld.get());
 		
 		for( Entity c : children ) {
 			if(c instanceof PoseEntity) {
@@ -217,7 +219,7 @@ public class PoseEntity extends Entity {
 	 * @return {@link Matrix4d} of the world pose
 	 */
 	public Matrix4d getPoseWorld() {
-		return new Matrix4d(poseWorld);
+		return new Matrix4d(poseWorld.get());
 	}
 	
 	
@@ -228,7 +230,7 @@ public class PoseEntity extends Entity {
 	public void setPoseWorld(Matrix4d m) {
 		if(parent instanceof PoseEntity) {
 			PoseEntity pep = (PoseEntity)parent;
-			Matrix4d iParent = new Matrix4d(pep.poseWorld);
+			Matrix4d iParent = new Matrix4d(pep.poseWorld.get());
 			iParent.invert();
 			iParent.mul(new Matrix4d(m));
 			setPose(iParent);
@@ -267,8 +269,11 @@ public class PoseEntity extends Entity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Po","Pose");
-		pose.getView(view);
+		view.pushStack("P","Pose");
+			pose.getView(view);
+		view.popStack();
+		view.pushStack("WP","Pose World");
+			poseWorld.getView(view);
 		view.popStack();
 	}
 }
