@@ -160,7 +160,7 @@ public class DHTool_Gripper extends DHTool {
 					// A new subject has been acquired.
 					// The subject is being held by the gripper.  Subtract the gripper's world pose from the subject's world pose.
 					Matrix4d m = subjectBeingHeld.getPose();
-					Matrix4d ipc = (Matrix4d)poseWorld.clone();
+					Matrix4d ipc = new Matrix4d(poseWorld.get());
 					ipc.invert();
 					m.mul(ipc);
 					subjectBeingHeld.setPose(m);
@@ -169,7 +169,7 @@ public class DHTool_Gripper extends DHTool {
 				//System.out.println("Release");
 				// The subject is being held relative to the gripper.  Add the gripper's world pose to the subject's pose.
 				Matrix4d m = subjectBeingHeld.getPose();
-				m.mul(poseWorld);
+				m.mul(poseWorld.get());
 				subjectBeingHeld.setPose(m);
 				// forget the subject.
 				subjectBeingHeld=null;
