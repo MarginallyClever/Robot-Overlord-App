@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * A robot designed using D-H parameters.
@@ -29,9 +31,6 @@ public class DHRobotEntity extends PoseEntity {
 	// The solver for this type of robot
 	protected transient DHIKSolver solver;
 
-	// the matrix at the end of the kinematic chain.
-	protected Matrix4d endEffectorMatrix = new Matrix4d();
-
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
 
@@ -41,8 +40,7 @@ public class DHRobotEntity extends PoseEntity {
 	}
 	
 	public DHRobotEntity(DHRobotEntity b) {
-		super();
-		setName("DHRobot");
+		this();
 		set(b);
 	}
 
@@ -56,7 +54,6 @@ public class DHRobotEntity extends PoseEntity {
 		}
 		
 		solver = b.solver;
-		endEffectorMatrix.set(b.endEffectorMatrix);
 		dhTool = b.dhTool;
 		
 		refreshPose();
@@ -93,7 +90,6 @@ public class DHRobotEntity extends PoseEntity {
 		for( DHLink link : links ) {
 			link.refreshPoseMatrix();
 		}
-		endEffectorMatrix.set(links.get(links.size()-1).getPoseWorld());
 		
 		if (dhTool != null) {
 			dhTool.refreshPoseMatrix();
@@ -230,7 +226,7 @@ public class DHRobotEntity extends PoseEntity {
 		getPoseFK(originalKey);
 		// move the clone to the keyframe pose
 		setPoseFK(futureKey);
-		boolean result = getWorld().collisionTest((PoseEntity)parent); 
+		boolean result = ((RobotOverlord)getRoot()).getWorld().collisionTest((PoseEntity)parent); 
 		setPoseFK(originalKey);
 		
 		return result;
@@ -321,8 +317,9 @@ public class DHRobotEntity extends PoseEntity {
 	public DHLink getLink(int i) {
 		return links.get(i);
 	}
-
-	public Matrix4d getEndEffectorMatrix() {
-		return new Matrix4d(endEffectorMatrix);
+	
+	@Override
+	public void getView(ViewPanel view) {
+	
 	}
 }
