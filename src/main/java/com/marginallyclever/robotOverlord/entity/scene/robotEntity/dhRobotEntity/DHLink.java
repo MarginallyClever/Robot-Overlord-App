@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -23,11 +24,12 @@ public class DHLink extends ModelEntity {
 	private static final long serialVersionUID = -8160402178509773679L;
 	
 	public enum LinkAdjust {
-		NONE (0   ,"None" ),
-		D    (1   ,"D"    ),
-		THETA(1<<1,"Theta"),
-		R    (1<<2,"R"    ),
-		ALPHA(1<<3,"Alpha");
+		NONE (0x0,"None" ),
+		D    (0x1,"D"    ),
+		THETA(0x2,"Theta"),
+		R    (0x4,"R"    ),
+		ALPHA(0x8,"Alpha"),
+		ALL  (0xf,"All"  );  // for editing
 		
 		private int number;
 		private String name;
@@ -65,8 +67,8 @@ public class DHLink extends ModelEntity {
 	// the gcode letter representing this link
 	public StringEntity letter = new StringEntity("Letter","");
 
-	public DoubleEntity rangeMin = new DoubleEntity("Range min", 90.0);
-	public DoubleEntity rangeMax = new DoubleEntity("Range max", -90.0);
+	public DoubleEntity rangeMin = new DoubleEntity("Range min", -90.0);
+	public DoubleEntity rangeMax = new DoubleEntity("Range max", 90.0);
 
 	/*
 	public DoubleEntity maxVelocity = new DoubleEntity(Double.MAX_VALUE);	// not used yet
@@ -436,12 +438,13 @@ public class DHLink extends ModelEntity {
 		ViewElement vt = view.add(theta);
 		ViewElement vr = view.add(r);
 		ViewElement va = view.add(alpha);
-		
+		//*
+		// set the fields to be read only.
 		vd.setReadOnly(0==(flags.toInt() & LinkAdjust.D    .toInt()));
 		vt.setReadOnly(0==(flags.toInt() & LinkAdjust.THETA.toInt()));
 		vr.setReadOnly(0==(flags.toInt() & LinkAdjust.R    .toInt()));
 		va.setReadOnly(0==(flags.toInt() & LinkAdjust.ALPHA.toInt()));
-		
+		//*/
 		view.add(rangeMin);
 		view.add(rangeMax);
 		view.popStack();
@@ -457,6 +460,28 @@ public class DHLink extends ModelEntity {
 	
 	@Override
 	public void setPoseWorld(Matrix4d m) {
+		Matrix4d newPose;
+		if(parent instanceof PoseEntity) {
+			PoseEntity pe = (PoseEntity)parent;
+			newPose=pe.getPoseWorld();
+			newPose.invert();
+			newPose.mul(m);
+		} else {
+			newPose=m;
+		}
 		
+		Matrix4d oldPose=pose.get();
+		// we have newPose ...but is it something this DHLink could do?
+		// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
+		
+		// TODO today this is the only case I care about. make it better later.
+		
+		double dx =Math.abs(newPose.m02-oldPose.m02);
+		double dy =Math.abs(newPose.m12-oldPose.m12);
+		double dz =Math.abs(newPose.m22-oldPose.m22);
+		if(dx+dy+dz<1e-6) {
+			// close enough?
+			setPose(newPose);
+		}
 	} 
 }
