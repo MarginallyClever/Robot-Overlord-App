@@ -16,6 +16,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
@@ -98,10 +99,9 @@ public class Sixi2 extends RobotEntity {
 	public Sixi2Recording recording = new Sixi2Recording();
 
 	// are we live or simulated?
-	protected OperatingMode operatingMode=OperatingMode.SIM;
-
+	protected IntEntity operatingMode = new IntEntity("Operating mode",OperatingMode.SIM.toInt());
 	// are we trying to record the robot?
-	protected ControlMode controlMode=ControlMode.RECORD;
+	protected IntEntity controlMode = new IntEntity("Control mode",ControlMode.RECORD.toInt());
 
 	protected BooleanEntity singleBlock = new BooleanEntity("Single Block",false);
 	protected BooleanEntity cycleStart = new BooleanEntity("Cycle Start",false);
@@ -109,12 +109,15 @@ public class Sixi2 extends RobotEntity {
 	
 	public Sixi2() {
 		super();
+		setName("Sixi");
 
 		showBoundingBox.addObserver(this);
 		showLocalOrigin.addObserver(this);
 		showLineage.addObserver(this);
 		
-		setName("Sixi");
+		addChild(operatingMode);
+		addChild(controlMode);
+		
 		addChild(singleBlock);
 		addChild(cycleStart);
 		addChild(m01Break);
@@ -125,12 +128,6 @@ public class Sixi2 extends RobotEntity {
 		singleBlock.addObserver(this);
 		cycleStart.addObserver(this);
 		m01Break.addObserver(this);
-
-		ModelEntity anchor = new ModelEntity();
-		addChild(anchor);
-		anchor.setName("Base");
-		anchor.setModelFilename("/Sixi2/anchor.stl");
-		anchor.setModelOrigin(0, 0, 0.9);
 
 		setShowLineage(false);
 		setShowLocalOrigin(false);
@@ -160,8 +157,7 @@ public class Sixi2 extends RobotEntity {
 		Scene world = getWorld();
 		if (world != null) {
 			// Request from the world "is there a tool at the position of the end effector"?
-			Vector3d target = new Vector3d();
-			sim.getEndEffectorMatrix().get(target);
+			Vector3d target = MatrixHelper.getPosition(sim.endEffector.getPoseWorld());
 			List<PoseEntity> list = world.findPhysicalObjectsNear(target, 10);
 			// If there is a tool, attach to it.
 			for( PoseEntity po : list ) {
@@ -175,6 +171,8 @@ public class Sixi2 extends RobotEntity {
 
 	@Override
 	public void render(GL2 gl2) {
+		sim.render(gl2);
+		live.render(gl2);
 		super.render(gl2);
 	}
 
@@ -243,7 +241,7 @@ public class Sixi2 extends RobotEntity {
 		|| InputManager.isOn(InputManager.Source.KEY_RSHIFT)) {
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode==ControlMode.PLAYBACK) {
+				if(controlMode.get()==ControlMode.PLAYBACK.toInt()) {
 					toggleCycleStart();
 				}
 			}
@@ -251,7 +249,7 @@ public class Sixi2 extends RobotEntity {
 			// shift off
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode==ControlMode.RECORD) {
+				if(controlMode.get()==ControlMode.RECORD.toInt()) {
 					System.out.println("setCommand");
 					setCommand();
 				}
@@ -289,10 +287,10 @@ public class Sixi2 extends RobotEntity {
 	public void update(double dt) {
 		driveFromKeyState(dt);
 		
-		Sixi2Model activeModel = (operatingMode == OperatingMode.LIVE) ? live : sim;
+		Sixi2Model activeModel = (operatingMode.get() == OperatingMode.LIVE.toInt()) ? live : sim;
 		if(activeModel.readyForCommands) {
-			if(controlMode == ControlMode.RECORD) {
-				if( operatingMode == OperatingMode.LIVE) {
+			if(controlMode.get() == ControlMode.RECORD.toInt()) {
+				if(activeModel == live) {
 					String line = sim.getCommand();
 					System.out.println(controlMode + " " + operatingMode + " send command: "+line);
 					activeModel.sendCommand(line);
@@ -326,7 +324,7 @@ public class Sixi2 extends RobotEntity {
 	public String getStatusMessage() {
 		String message = "";//super.getStatusMessage();
 		
-		Matrix4d pose=sim.getEndEffectorMatrix();
+		Matrix4d pose=sim.endEffector.getPoseWorld();
 		Matrix3d m = new Matrix3d();
 		pose.get(m);
 		Vector3d v = MatrixHelper.matrixToEuler(m);
@@ -368,12 +366,12 @@ public class Sixi2 extends RobotEntity {
 	@Override
 	public void setPose(Matrix4d arg0) {
 		super.setPose(arg0);
-		//live.refreshPose();
-		//sim.refreshPose();
+		live.refreshPose();
+		sim.refreshPose();
 	}
 
 	public double getAcceleration() {
-		if(operatingMode==OperatingMode.LIVE) {
+		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			return live.getAcceleration();
 		} else {
 			return sim.getAcceleration();
@@ -381,14 +379,14 @@ public class Sixi2 extends RobotEntity {
 	}
 
 	public void setAcceleration(double v) {
-		if(operatingMode==OperatingMode.LIVE) {
+		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			live.setAcceleration(v);
 		}
 		sim.setAcceleration(v);
 	}
 
 	public double getFeedRate() {
-		if(operatingMode==OperatingMode.LIVE) {
+		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			return live.getFeedrate();
 		} else {
 			return sim.getFeedrate();
@@ -396,7 +394,7 @@ public class Sixi2 extends RobotEntity {
 	}
 
 	public void setFeedRate(double v) {
-		if(operatingMode==OperatingMode.LIVE) {
+		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			live.setFeedRate(v);
 		}
 		sim.setFeedRate(v);
@@ -409,7 +407,7 @@ public class Sixi2 extends RobotEntity {
 	 */
 	@Override
 	public boolean sendCommand(String command) {
-		if(operatingMode==OperatingMode.LIVE) {
+		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			live.sendCommand(command);
 		}
 		sim.sendCommand(command);
@@ -418,7 +416,7 @@ public class Sixi2 extends RobotEntity {
 	}
 
 	public String getCommand() {
-		if(operatingMode==OperatingMode.LIVE) {
+		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			return live.getCommand();
 		} else {
 			return sim.getCommand();
@@ -466,27 +464,19 @@ public class Sixi2 extends RobotEntity {
 		return m01Break.get();
 	}
 
-	public ControlMode getControlMode() {
-		return controlMode;
-	}
-
 	public void toggleControlMode() {
-		controlMode = (controlMode==ControlMode.RECORD) ? ControlMode.PLAYBACK : ControlMode.RECORD;
+		controlMode.set( (controlMode.get()==ControlMode.RECORD.toInt()) ? ControlMode.PLAYBACK.toInt() : ControlMode.RECORD.toInt() );
 		System.out.println("controlMode="+controlMode);
 
-		if(controlMode==ControlMode.RECORD) {
+		if(controlMode.get()==ControlMode.RECORD.toInt()) {
 			// move the joystick to match the simulated position?
 		}
 
 		reset();
 	}
 
-	public OperatingMode getOperatingMode() {
-		return operatingMode;
-	}
-
 	public void toggleOperatingMode() {
-		operatingMode = (operatingMode==OperatingMode.LIVE) ? OperatingMode.SIM : OperatingMode.LIVE;
+		operatingMode.set( (operatingMode.get()==OperatingMode.LIVE.toInt()) ? OperatingMode.SIM.toInt() : OperatingMode.LIVE.toInt() );
 		//System.out.println("operatingMode="+operatingMode);
 	}
 
@@ -517,7 +507,7 @@ public class Sixi2 extends RobotEntity {
 	// recursively set for all children
 	public void setShowBoundingBox(boolean arg0) {
 		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim);
+		next.add(this.sim.getLink(0));
 		while( !next.isEmpty() ) {
 			PoseEntity link = next.pop();
 			link.showBoundingBox.set(arg0);
@@ -533,7 +523,7 @@ public class Sixi2 extends RobotEntity {
 	// recursively set for all children
 	public void setShowLocalOrigin(boolean arg0) {
 		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim);
+		next.add(this.sim.getLink(0));
 		while( !next.isEmpty() ) {
 			PoseEntity link = next.pop();
 			link.showLocalOrigin.set(arg0);
@@ -549,7 +539,7 @@ public class Sixi2 extends RobotEntity {
 	// recursively set for all children
 	public void setShowLineage(boolean arg0) {
 		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim);
+		next.add(this.sim.getLink(0));
 		while( !next.isEmpty() ) {
 			PoseEntity link = next.pop();
 			link.showLineage.set(arg0);
@@ -607,7 +597,17 @@ public class Sixi2 extends RobotEntity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("S","Sixi");
-		getViewOfChildren(view);
+		view.addComboBox(operatingMode,OperatingMode.getAll());
+		view.addComboBox(controlMode,ControlMode.getAll());
+		
+		view.add(singleBlock);
+		view.add(cycleStart);
+		view.add(m01Break);
+		
+		view.add(showBoundingBox);
+		view.add(showLocalOrigin);
+		view.add(showLineage);
+		
 		view.popStack();
 		
 		super.getView(view);
