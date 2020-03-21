@@ -314,7 +314,7 @@ public class Model {
 	 * Done automatically every time updateBuffers() is called.
 	 * Meaningless if there is no vertexArray of points.
 	 */
-	public void findBounds() {
+	public void updateCuboid() {
 		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
 		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 		
@@ -338,6 +338,9 @@ public class Model {
 	}
 
 	public Cuboid getCuboid() {
+		if(isDirty) {
+			updateCuboid();
+		}
 		return cuboid;
 	}
 	

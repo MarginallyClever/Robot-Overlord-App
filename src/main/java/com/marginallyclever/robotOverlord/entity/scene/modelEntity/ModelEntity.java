@@ -95,7 +95,7 @@ public class ModelEntity extends PoseEntity {
 			model.adjustScale(scale.get());
 			model.adjustOrigin(originAdjust.get());
 			model.adjustRotation(rotationAdjust.get());
-			model.findBounds();
+			model.updateCuboid();
 
 			numTriangles.set(model.getNumTriangles());
 			hasNormals.set(model.hasNormals);
@@ -152,7 +152,7 @@ public class ModelEntity extends PoseEntity {
 	public void update(double dt) {
 		super.update(dt);
 	}
-
+	
 	/**
 	 * obeys super.updatePoseWorld, Updates cuboid
 	 */
