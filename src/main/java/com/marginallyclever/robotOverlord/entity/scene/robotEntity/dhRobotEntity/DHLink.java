@@ -438,15 +438,19 @@ public class DHLink extends ModelEntity {
 		ViewElement vt = view.add(theta);
 		ViewElement vr = view.add(r);
 		ViewElement va = view.add(alpha);
+		ViewElement vMin = view.add(rangeMin);
+		ViewElement vMax = view.add(rangeMax);
 		//*
-		// set the fields to be read only.
+		// set the fields to be read only
+		// TODO make readable when designing new linkages
 		vd.setReadOnly(0==(flags.toInt() & LinkAdjust.D    .toInt()));
 		vt.setReadOnly(0==(flags.toInt() & LinkAdjust.THETA.toInt()));
 		vr.setReadOnly(0==(flags.toInt() & LinkAdjust.R    .toInt()));
 		va.setReadOnly(0==(flags.toInt() & LinkAdjust.ALPHA.toInt()));
+		va.setReadOnly(0==(flags.toInt() & LinkAdjust.ALPHA.toInt()));
+		vMin.setReadOnly(true);
+		vMax.setReadOnly(true);
 		//*/
-		view.add(rangeMin);
-		view.add(rangeMax);
 		view.popStack();
 		
 		super.getView(view);
