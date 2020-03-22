@@ -22,11 +22,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeBoo
  *
  */
 public class ViewElementBoolean extends ViewElement implements ItemListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	private JCheckBox field;
 	private BooleanEntity e;
 	
@@ -42,9 +37,9 @@ public class ViewElementBoolean extends ViewElement implements ItemListener, Obs
 		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
 		label.setLabelFor(field);
 		
-		this.setLayout(new BorderLayout());
-		this.add(label,BorderLayout.LINE_START);
-		this.add(field,BorderLayout.LINE_END);
+		panel.setLayout(new BorderLayout());
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
 	}
 	
 	/**

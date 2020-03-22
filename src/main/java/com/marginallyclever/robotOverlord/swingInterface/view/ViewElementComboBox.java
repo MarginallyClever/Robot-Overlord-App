@@ -16,10 +16,6 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeComboBox;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private JComboBox<String> field;
 	private IntEntity e;
 	
@@ -34,10 +30,10 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
-		this.setLayout(new BorderLayout());
-		this.setBorder(new EmptyBorder(0,0,0,1));
-		this.add(label,BorderLayout.LINE_START);
-		this.add(field,BorderLayout.LINE_END);
+		panel.setLayout(new BorderLayout());
+		panel.setBorder(new EmptyBorder(0,0,0,1));
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
 	}
 	
 	public String getValue() {

@@ -23,11 +23,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeCol
  * @author Dan Royer
  */
 public class ViewElementColor extends ViewElement implements ChangeListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	private JSlider [] fields = new JSlider[4];
 	private ColorEntity e;
 	
@@ -55,8 +50,8 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 		fields[2] = addField(oldValues[2],p2,"B",gbc);
 		fields[3] = addField(oldValues[3],p2,"A",gbc);
 
-		this.setLayout(new BorderLayout());
-		this.add(p,BorderLayout.CENTER);
+		panel.setLayout(new BorderLayout());
+		panel.add(p,BorderLayout.CENTER);
 	}
 	
 	private JSlider addField(float value,JPanel parent,String labelName,GridBagConstraints gbc) {

@@ -19,11 +19,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt
  * @author Dan Royer
  */
 public class ViewElementSlider extends ViewElement implements ChangeListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	private JSlider field;
 	private IntEntity e;
 	
@@ -40,9 +35,9 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
 		
-		setLayout(new BorderLayout());
-		add(label,BorderLayout.LINE_START);
-		add(field,BorderLayout.LINE_END);
+		panel.setLayout(new BorderLayout());
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
 	}
 
 	/**

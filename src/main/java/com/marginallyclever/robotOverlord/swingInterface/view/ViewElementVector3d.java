@@ -27,11 +27,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVec
  *
  */
 public class ViewElementVector3d extends ViewElement implements DocumentListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	private JTextField [] fields = new JTextField[3];
 	private Vector3dEntity e;
 	
@@ -56,8 +51,8 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		fields[1] = addField(e.get().y,p2,"Y",gbc);
 		fields[2] = addField(e.get().z,p2,"Z",gbc);
 		
-		this.setLayout(new BorderLayout());
-		this.add(p,BorderLayout.CENTER);
+		panel.setLayout(new BorderLayout());
+		panel.add(p,BorderLayout.CENTER);
 	}
 	
 	private JTextField addField(double value,JPanel parent,String labelName,GridBagConstraints gbc) {

@@ -29,10 +29,6 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  *
  */
 public class ViewElementFilename extends ViewElement implements ActionListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private static String lastPath=System.getProperty("user.dir");
 	private JTextField field;
 	private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
@@ -57,7 +53,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 		choose.addActionListener(this);
 		choose.setMargin(new Insets(0, 5, 0, 5));
 		
-		this.setLayout(new GridBagLayout());
+		panel.setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx=0;
@@ -65,13 +61,13 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		//gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.insets.right=5;
-		this.add(label,gbc);
+		panel.add(label,gbc);
 		gbc.weightx=1;
 		gbc.insets.left=0;
 		gbc.insets.right=0;
-		this.add(field,gbc);
+		panel.add(field,gbc);
 		gbc.weightx=0;
-		this.add(choose,gbc);
+		panel.add(choose,gbc);
 	}
 
 	/**

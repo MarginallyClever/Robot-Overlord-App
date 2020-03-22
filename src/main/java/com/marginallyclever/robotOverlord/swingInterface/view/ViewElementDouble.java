@@ -25,10 +25,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeDou
  *
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private JTextField field;
 	private DoubleEntity e;
 	
@@ -45,9 +41,9 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
-		this.setLayout(new BorderLayout());
-		this.add(label,BorderLayout.LINE_START);
-		this.add(field,BorderLayout.LINE_END);
+		panel.setLayout(new BorderLayout());
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
 	}
 	
 	/**

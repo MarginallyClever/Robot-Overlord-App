@@ -21,10 +21,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeStr
  *
  */
 public class ViewElementString extends ViewElement implements DocumentListener, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private JTextField field;
 	private StringEntity e;
 	
@@ -39,9 +35,9 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
-		this.setLayout(new BorderLayout());
-		this.add(label,BorderLayout.LINE_START);
-		this.add(field,BorderLayout.LINE_END);
+		panel.setLayout(new BorderLayout());
+		panel.add(label,BorderLayout.LINE_START);
+		panel.add(field,BorderLayout.LINE_END);
 	}
 
 	/**

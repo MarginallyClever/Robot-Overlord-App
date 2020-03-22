@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
+import java.util.Observable;
+
 import javax.swing.JPanel;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -10,13 +12,9 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  * @since 1.6.0
  *
  */
-public class ViewElement extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
+public class ViewElement extends Observable {
 	protected RobotOverlord ro;
+	public JPanel panel = new JPanel();
 	
 	public ViewElement(RobotOverlord ro) {
 		this.ro=ro;
