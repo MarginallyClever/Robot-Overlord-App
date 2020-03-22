@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.io.BufferedReader;
 import java.io.File;

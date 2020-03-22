@@ -1,14 +1,14 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
-import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
@@ -16,12 +16,13 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -811684331077697483L;
-	protected transient NetworkConnection connection;
+	protected RemoteEntity connection = new RemoteEntity();
 	protected DHKeyframe receivedKeyframe;
 	
 	public Sixi2Live() {
 		super();
 		setName("Live");
+		addChild(connection);
 
 	    // set yellow
 	    for( DHLink link : links ) {
@@ -31,27 +32,11 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 		// where to store incoming position data
 		receivedKeyframe = getIKSolver().createDHKeyframe();		
 	}
-	
-	public void closeConnection() {
-		connection.closeConnection();
-		connection.removeListener(this);
-		connection=null;
-	}
-	
-	public void openConnection() {
-		connection = NetworkConnectionManager.requestNewConnection(null);
-		if(connection!=null) {
-			connection.addListener(this);
-			sendCommand("D20");
-		}
-	}
 
 	@Override
 	public void update(double dt) {
-		// we don't do anything, we just report on what the live robot says.
-		if(connection!=null) {
-			connection.update();
-		}
+		// Sixi2Live does nothing on update?
+		// Could compare jacobian estimated force with reported position to determine compliance.
 	}
 	
 	@Override
@@ -76,11 +61,7 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 		
 		System.out.print(">>>> "+command);
 		
-		try {
-			connection.sendMessage(command);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		connection.sendMessage(command);
 		
 	    // wait for reply
 	    readyForCommands=false;
@@ -157,6 +138,8 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Sl", "Sixi Live");
+		view.add(connection);
+		
 		view.popStack();
 		endEffector.getView(view);
 	}

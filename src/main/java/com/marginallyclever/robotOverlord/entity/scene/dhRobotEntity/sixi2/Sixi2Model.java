@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -6,10 +6,10 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
 /**
  * Contains the setup of the DHLinks for a DHRobot.

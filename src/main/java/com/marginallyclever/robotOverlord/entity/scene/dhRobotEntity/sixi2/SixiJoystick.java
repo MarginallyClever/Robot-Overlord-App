@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReentrantLock;
@@ -8,8 +8,8 @@ import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class SixiJoystick extends ModelEntity implements NetworkConnectionListener {

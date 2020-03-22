@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,8 +36,8 @@ import com.marginallyclever.convenience.PanelHelper;
 import com.marginallyclever.convenience.SpringUtilities;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementBoolean;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -9,9 +9,9 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhTool.DHTool;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**

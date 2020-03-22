@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;

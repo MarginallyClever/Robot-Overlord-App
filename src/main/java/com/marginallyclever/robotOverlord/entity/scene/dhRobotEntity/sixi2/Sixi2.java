@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -10,7 +10,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
@@ -18,13 +17,11 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -35,7 +32,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class Sixi2 extends RobotEntity {
+public class Sixi2 extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -175,13 +172,6 @@ public class Sixi2 extends RobotEntity {
 		super.render(gl2);
 	}
 
-	@Override
-	public void dataAvailable(NetworkConnection arg0,String data) {
-		live.dataAvailable(arg0, data);
-
-		super.dataAvailable(arg0, data);
-	}
-
 	/**
 	 * move the finger tip of the arm if the InputManager says so. The direction and
 	 * torque of the movement is controlled by a frame of reference.
@@ -189,47 +179,14 @@ public class Sixi2 extends RobotEntity {
 	 * @return true if targetPose changes.
 	 */
 	public void driveFromKeyState(double dt) {
-		/*
-		// move the robot by dragging the ball in live mode
-		DragBall ball = getWorld().getBall();
-		
-		if(!isPicked) {
-			ball.setSubject(null);
-			return;
-		}
-
-		if(controlMode == ControlMode.RECORD) {
-			ball.setSubject(this);
-			
-			if (InputManager.isOn(InputManager.Source.MOUSE_LEFT)) {
-				if(ball.isActivelyMoving()) {
-					Matrix4d worldPose = new Matrix4d(ball.getResultMatrix());
-
-					// The ghost only accepts poses in it's frame of reference.
-					// so we have to account for the robot's pose in world space.
-					//Matrix4d iRoot = new Matrix4d(this.matrix);
-					//iRoot.invert();
-					//worldPose.mul(iRoot);
-
-					//System.out.println("Update begins");
-					sim.setPoseIK(worldPose);
-					//System.out.println("Update ends");
-					//System.out.println(MatrixHelper.getPosition(worldPose));
-				}
-			}
-		} else {
-			ball.setSubject(null);
-		}
-*/
 		if (sim.dhTool != null) {
 			sim.dhTool.directDrive();
 		}
 
-
-		if(InputManager.isReleased(InputManager.Source.KEY_SPACE)) {			reset();					}
-		if(InputManager.isReleased(InputManager.Source.KEY_TAB  )) {			toggleControlMode();		}
-		if(InputManager.isReleased(InputManager.Source.KEY_TILDE)) {			toggleOperatingMode();		}
-		if(InputManager.isReleased(InputManager.Source.KEY_S    )) {			toggleSingleBlock();		}
+		if(InputManager.isReleased(InputManager.Source.KEY_SPACE)) {	reset();				}
+		if(InputManager.isReleased(InputManager.Source.KEY_TAB  )) {	toggleControlMode();	}
+		if(InputManager.isReleased(InputManager.Source.KEY_TILDE)) {	toggleOperatingMode();	}
+		if(InputManager.isReleased(InputManager.Source.KEY_S    )) {	toggleSingleBlock();	}
 
 		if(InputManager.isReleased(InputManager.Source.KEY_DELETE)
 		|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
@@ -312,11 +269,6 @@ public class Sixi2 extends RobotEntity {
 		}
 
 		super.update(dt);
-	}
-
-	@Override
-	public RobotKeyframe createKeyframe() {
-		return null;
 	}
 
 	@Deprecated
@@ -404,7 +356,6 @@ public class Sixi2 extends RobotEntity {
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
-	@Override
 	public boolean sendCommand(String command) {
 		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			live.sendCommand(command);
@@ -549,10 +500,6 @@ public class Sixi2 extends RobotEntity {
 			}
 		}
 		this.showLineage.set(arg0);
-	}
-
-	public void openConnection() {
-		live.openConnection();
 	}
 
 	public void goHome() {
