@@ -19,6 +19,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 
@@ -28,7 +29,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
  * @since 1.6.0
  *
  */
-public class ViewPanel {
+public class ViewPanel extends ViewElement {
 	
 	protected class StackElement {
 		public JComponent p;
@@ -38,12 +39,10 @@ public class ViewPanel {
 	protected Stack<StackElement> panelStack = new Stack<StackElement>();
 	protected StackElement se;
 	protected JTabbedPane tabbedPane;
-	protected RobotOverlord ro;
 
 	
 	public ViewPanel(RobotOverlord ro) {
-		super();
-		this.ro=ro;
+		super(ro);
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT);
 		Insets in = tabbedPane.getInsets();
@@ -77,7 +76,6 @@ public class ViewPanel {
 		tabbedPane.addTab(title, null, se.p, tip);
 	}
 	
-	
 	public void popStack() {
 		se.gbc.weighty=1;
 		se.gbc.gridy++;
@@ -85,18 +83,42 @@ public class ViewPanel {
 		panelStack.pop();
 	}
 	
-	protected void pushViewElement(JComponent c) {
+	protected void pushViewElement(ViewElement c) {
 		se.gbc.gridy++;
-		se.p.add(c,se.gbc);
+		se.p.add(c.panel,se.gbc);
 	}
 
 	public JComponent getFinalView() {
 		return tabbedPane;
 	}
+	
+	/**
+	 * Add an view element based on the entity type.
+	 */
+	public ViewElement add(Entity e) {
+		ViewElement b=null;
+		
+		//System.out.println("Add "+e.getClass().toString());
+		
+			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  (ro,(BooleanEntity)e);
+		else if(e instanceof ColorEntity   ) b = new ViewElementColor    (ro,(ColorEntity)e);
+		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   (ro,(DoubleEntity)e);
+		else if(e instanceof IntEntity     ) b = new ViewElementInt      (ro,(IntEntity)e);
+		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
+		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   (ro,(RemoteEntity)e);  // must come before StringEntity because extends StringEntity
+		else if(e instanceof StringEntity  ) b = new ViewElementString   (ro,(StringEntity)e);
+		if(null==b) {
+			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
+		}
+		// else b not null.
+		pushViewElement(b);
+		return b;
+	}
+	
 
 	public ViewElement addStaticText(String text) {
 		ViewElement b = new ViewElement(ro);
-		b.add(new JLabel(text,JLabel.LEADING));
+		b.panel.add(new JLabel(text,JLabel.LEADING));
 		pushViewElement(b);
 		return b;
 	}
@@ -121,7 +143,14 @@ public class ViewPanel {
 		return b;
 		
 	}
-	
+
+	/**
+	 * Add a control for an string that includes a filename selection dialog
+	 * @param e
+	 * @param top the maximum value, inclusive
+	 * @param bottom the minimum value, inclusive
+	 * @return the element
+	 */
 	public ViewElement addFilename(StringEntity e,ArrayList<FileFilter> filters) {
 		ViewElementFilename b = new ViewElementFilename(ro,e);
 		b.addFileFilters(filters);
@@ -129,23 +158,9 @@ public class ViewPanel {
 		pushViewElement(b);
 		return b;
 	}
-	
-	public ViewElement add(Entity e) {
-		ViewElement b=null;
-		
-		//System.out.println("Add "+e.getClass().toString());
-		
-			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  (ro,(BooleanEntity)e);
-		else if(e instanceof ColorEntity   ) b = new ViewElementColor    (ro,(ColorEntity)e);
-		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   (ro,(DoubleEntity)e);
-		else if(e instanceof IntEntity     ) b = new ViewElementInt      (ro,(IntEntity)e);
-		else if(e instanceof StringEntity  ) b = new ViewElementString   (ro,(StringEntity)e);
-		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
-		
-		if(null==b) {
-			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
-		}
-		// else b not null.
+
+	public ViewElementButton addButton(String string) {
+		ViewElementButton b = new ViewElementButton(ro,string);
 		pushViewElement(b);
 		return b;
 	}
