@@ -1,7 +1,7 @@
 package com.marginallyclever.communications;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.GridLayout;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,12 +26,12 @@ public class NetworkConnectionManager {
 	 * @return a new connection or null.
 	 */
 	static public NetworkConnection requestNewConnection(Component parent) {
-		JPanel top = new JPanel();
-		top.setLayout(new GridLayout(0,1));
 		JTabbedPane tabs = new JTabbedPane();
-		top.add(tabs);
 		tabs.addTab(Translator.get("Local"), serial.getTransportLayerPanel());
 		tabs.addTab(Translator.get("Remote"), tcp.getTransportLayerPanel());
+
+		JPanel top = new JPanel(new BorderLayout());
+		top.add(tabs,BorderLayout.CENTER);
 
 		int result = JOptionPane.showConfirmDialog(parent, top, Translator.get("MenuConnect"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
