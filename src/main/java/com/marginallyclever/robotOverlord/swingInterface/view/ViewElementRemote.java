@@ -1,23 +1,15 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
@@ -49,7 +41,9 @@ public class ViewElementRemote extends ViewElement implements ActionListener, Ob
 			field.setText(Translator.get("Reopen"));
 		} else {
 			e.openConnection();
-			field.setText(Translator.get("Close"));
+			if(e.isConnectionOpen()) {
+				field.setText(Translator.get("Close"));
+			}
 		}
 	}
 
