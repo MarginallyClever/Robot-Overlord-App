@@ -5,12 +5,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
-import com.marginallyclever.communications.NetworkConnectionManager;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class SixiJoystick extends ModelEntity implements NetworkConnectionListener {
 	/**
@@ -20,7 +19,7 @@ public class SixiJoystick extends ModelEntity implements NetworkConnectionListen
 	
 	private Sixi2 target;
 	
-	private NetworkConnection connection;
+	private RemoteEntity connection = new RemoteEntity();
 	
 	private ReentrantLock lock = new ReentrantLock();
 	
@@ -28,28 +27,11 @@ public class SixiJoystick extends ModelEntity implements NetworkConnectionListen
 	
 	public SixiJoystick() {
 		setName("Sixi Joystick");
+		addChild(connection);
 	}
 	
-	public void closeConnection() {
-		connection.closeConnection();
-		connection.removeListener(this);
-		connection=null;
-	}
-	
-	public void openConnection() {
-		NetworkConnection s = NetworkConnectionManager.requestNewConnection(null);
-		if(s!=null) {
-			connection = s;
-			connection.addListener(this);
-		}
-	}
-	
-	
-	public NetworkConnection getConnection() {
-		return this.connection;
-	}
-
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
+	// What if there was more than one Sixi?  More than one joystick?
 	protected Sixi2 findRobot() {
 		for( Entity e : getWorld().getChildren() ) {
 			if(e instanceof Sixi2) {
@@ -102,11 +84,5 @@ public class SixiJoystick extends ModelEntity implements NetworkConnectionListen
 		lock.lock();
 		target.sim.setPoseFK(keyframe);
 		lock.unlock();
-	}
-	
-	@Override
-	public void getView(ViewPanel view) {
-		super.getView(view);
-		// TODO add connect/disconnect button
 	}
 }
