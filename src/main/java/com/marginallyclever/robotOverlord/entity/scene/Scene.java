@@ -12,7 +12,7 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
