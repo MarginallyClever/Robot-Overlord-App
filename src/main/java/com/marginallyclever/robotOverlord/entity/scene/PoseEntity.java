@@ -272,7 +272,7 @@ public class PoseEntity extends Entity {
 		view.pushStack("P","Pose");
 			pose.getView(view);
 		view.popStack();
-		view.pushStack("WP","Pose World");
+		view.pushStack("WP","World Pose");
 			poseWorld.getView(view);
 		view.popStack();
 	}
