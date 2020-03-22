@@ -24,6 +24,7 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 		setName("Live");
 		addChild(connection);
 
+		connection.addObserver(this);
 	    // set yellow
 	    for( DHLink link : links ) {
 	    	link.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
