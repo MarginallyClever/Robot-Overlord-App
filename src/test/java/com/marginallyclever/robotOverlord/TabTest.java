@@ -14,7 +14,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 
 public class TabTest extends JTabbedPane {
-	JTabbedPane pane;
 	GridBagConstraints gbc;
 	JPanel p;
 	
