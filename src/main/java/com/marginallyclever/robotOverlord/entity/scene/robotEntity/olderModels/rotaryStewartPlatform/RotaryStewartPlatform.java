@@ -464,7 +464,6 @@ public class RotaryStewartPlatform extends RobotEntity {
 			this.sendCommand("G91");
 	}
 
-	@Override
 	// override this method to check that the software is connected to the right
 	// type of robot.
 	public void dataAvailable(NetworkConnection arg0, String line) {

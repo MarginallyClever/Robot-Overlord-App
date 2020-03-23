@@ -1592,7 +1592,6 @@ public class Spidee extends RobotEntity {
 	}
 
 	// override this method to check that the software is connected to the right type of robot.
-	@Override
 	public void dataAvailable(NetworkConnection arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;

@@ -1,11 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
 
-import com.marginallyclever.communications.NetworkConnectionManager;
-import com.marginallyclever.convenience.AnsiColors;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
-import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.communications.NetworkConnectionListener;
 
 
 /**
@@ -13,49 +10,18 @@ import com.marginallyclever.communications.NetworkConnectionListener;
  * @author Dan Royer
  *
  */
-public abstract class RobotEntity extends PoseEntity implements NetworkConnectionListener {
+public abstract class RobotEntity extends PoseEntity {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2228444481181973067L;
 	// comms	
-	protected transient NetworkConnection connection;
+	protected transient RemoteEntity connection = new RemoteEntity();
 	protected transient boolean isReadyToReceive;
 		
 	public RobotEntity() {
 		super();
 		setName("Robot");
-	}
-	
-	public void closeConnection() {
-		connection.closeConnection();
-		connection.removeListener(this);
-		connection=null;
-	}
-	
-	public void openConnection() {
-		NetworkConnection s = NetworkConnectionManager.requestNewConnection(null);
-		if(s!=null) {
-			connection = s;
-			connection.addListener(this);
-		}
-	}
-	
-	
-	public NetworkConnection getConnection() {
-		return this.connection;
-	}
-	
-	
-	@Override
-	public void dataAvailable(NetworkConnection arg0,String data) {
-		if(arg0==connection && connection!=null) {
-			if(data.startsWith(">")) {
-				isReadyToReceive=true;
-			}
-		}
-		
-		System.out.print(AnsiColors.GREEN+data+AnsiColors.RESET);
 	}
 	
 	/**
@@ -83,37 +49,10 @@ public abstract class RobotEntity extends PoseEntity implements NetworkConnectio
 		}
 		
 		// send relevant part of line to the robot
-		try{
-			connection.sendMessage(command);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+		connection.sendMessage(command);
 		
 		return true;
 	}
-
-	@Override
-	public void lineError(NetworkConnection arg0, int lineNumber) {
-		// back up to the line that had an error and send again.
-	}
-
-	@Override
-	public void sendBufferEmpty(NetworkConnection arg0) {
-		// just because the buffer is empty does not mean the robot is ready to receive. 
-	}
-/*
-	// pull the last connected port from prefs
-	private void loadRecentPortFromPreferences() {
-		recentPort = prefs.get("recent-port", "");
-	}
-
-	// update the prefs with the last port connected and refreshes the menus.
-	public void setRecentPort(String portName) {
-		prefs.put("recent-port", portName);
-		recentPort = portName;
-		//UpdateMenuBar();
-	}
-*/
 
 	/**
 	 * Each robot implementation should customize the keframe as needed. 
@@ -124,8 +63,14 @@ public abstract class RobotEntity extends PoseEntity implements NetworkConnectio
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		if(connection!=null) {
-			connection.update();
+		connection.update(dt);
+		if(connection.isConnectionOpen()) {
+			// set the lock
+			
+			// de-queue and process all messages
+			//if(data.startsWith(">")) isReadyToReceive=true;
+			
+			// release the lock
 		}
 	}
 	
