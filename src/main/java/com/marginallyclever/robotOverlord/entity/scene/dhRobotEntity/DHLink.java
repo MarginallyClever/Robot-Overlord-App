@@ -142,7 +142,7 @@ public class DHLink extends ModelEntity {
 	
 	/**
 	 * Set up the pose based on D-H parameters, then update the worldPose.
-	 * Equivalent to (n-1)T(n) = TransZ(n-1)(dn) * RotZ(n-1)(theta) * TransX(n)(r) * RotX(alpha)
+	 * Equivalent to T(n) = TransZ(d) * RotZ(theta) * TransX(r) * RotX(alpha)
 	 */
 	public void refreshPoseMatrix() {
 		double t=theta.get();
@@ -162,6 +162,7 @@ public class DHLink extends ModelEntity {
 		m.m20 = 0;		m.m21 = sa;			m.m22 = ca;			m.m23 = d.get();
 		m.m30 = 0;		m.m31 = 0;			m.m32 = 0;			m.m33 = 1;
 		
+		//System.out.println(letter.get() + "="+m);
 		setPose(m);
 	}
 
@@ -425,7 +426,12 @@ public class DHLink extends ModelEntity {
 	public void setLetter(String letter) {
 		this.letter.set( letter );
 		this.setName( letter );
+		d.setName(letter + " D");
+		r.setName(letter + " R");
+		theta.setName(letter + " Theta");
+		alpha.setName(letter + " Alpha");
 	}
+	
 	public String getLetter() {
 		return letter.get();
 	}
@@ -435,7 +441,9 @@ public class DHLink extends ModelEntity {
 		view.pushStack("DH","DHLink");
 		
 		ViewElement vd = view.add(d);
-		ViewElement vt = view.add(theta);
+		ViewElement vt = view.addRange(theta,
+				(int)Math.floor(rangeMax.get()),
+				(int)Math.ceil(rangeMin.get()));
 		ViewElement vr = view.add(r);
 		ViewElement va = view.add(alpha);
 		ViewElement vMin = view.add(rangeMin);

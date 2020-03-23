@@ -35,7 +35,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	// set this to false before running the app and the model will not attach to the DHLinks.
 	// this is convenient for setting up the DHLinks with less visual confusion.
-	static final boolean ATTACH_MODELS=true;
+	static final boolean ATTACH_MODELS=false;
 	
 	public Sixi2Model() {
 		super();
@@ -50,7 +50,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		addChild(anchor);
 		anchor.setName("Base");
 		anchor.setModelFilename("/Sixi2/anchor.stl");
-		anchor.setModelOrigin(0, 0, 0.9);
+		anchor.setModelOrigin(0, 0, 0);
 
 		// setup children
 		this.setNumLinks(6);
@@ -136,8 +136,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		}
 	}
 	
-	abstract public void update(double dt);
-
 	/**
 	 * send a command to this model
 	 * @param command
@@ -161,8 +159,10 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		return gcode;
 	}
 
+	public void update(double dt) {}
+	
 	public double getFeedrate() {
-		return feedRate.get();
+		return (double)feedRate.get();
 	}
 
 	public void setFeedRate(double feedrate) {
@@ -170,7 +170,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	}
 
 	public double getAcceleration() {
-		return acceleration.get();
+		return (double)acceleration.get();
 	}
 
 	public void setAcceleration(double acceleration) {

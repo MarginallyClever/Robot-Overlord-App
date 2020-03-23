@@ -62,7 +62,7 @@ public class SixiJoystick extends ModelEntity {
 					
 					for(int i=0;i<6;++i) {
 						double d = StringHelper.parseNumber(tokenizer.nextToken());
-						keyframe.fkValues[i]=Math.max(Math.min(d,180),-180);
+						keyframe.fkValues[i]=d;//Math.max(Math.min(d,180),-180);
 					}
 					keyframe.fkValues[1]*=-1;
 					keyframe.fkValues[4]*=-1;

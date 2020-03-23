@@ -152,7 +152,7 @@ public class Sixi2Sim extends Sixi2Model {
 			}
 	        if(dp==0) return;
 	        
-	        double travelS = dMax/feedRate.get();
+	        double travelS = dMax/(double)feedRate.get();
 	        long travelMs = (long)Math.ceil(travelS*1000.0);
 	        
 	        // set the live and from matrixes
@@ -194,16 +194,18 @@ public class Sixi2Sim extends Sixi2Model {
 
 	@Override 
 	public void update(double dt) {
-		int style = interpolationStyle.get(); 
+		int style = (int)interpolationStyle.get(); 
 		     if(InterpolationStyle.LINEAR_FK.toInt()==style) interpolateLinearFK(dt);
 		else if(InterpolationStyle.LINEAR_IK.toInt()==style) interpolateLinearIK(dt);
 		else if(InterpolationStyle.JACOBIAN .toInt()==style) interpolateJacobian(dt);
+		
+		super.update(dt);
 	}
 	
 	@Override
 	public void update(Observable obs, Object obj) {
 		if(obs == endEffector.poseWorld) {
-			setPoseIK(endEffector.getPoseWorld());
+			//setPoseIK(endEffector.getPoseWorld());
 		}
 	}
 
@@ -452,5 +454,6 @@ public class Sixi2Sim extends Sixi2Model {
 		view.pushStack("Ss", "Sixi Sim");
 		view.addComboBox(interpolationStyle, InterpolationStyle.getAll());
 		view.popStack();
+		super.getView(view);
 	}
 }
