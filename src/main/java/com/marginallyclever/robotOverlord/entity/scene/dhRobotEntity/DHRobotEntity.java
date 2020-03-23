@@ -320,6 +320,12 @@ public class DHRobotEntity extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-	
+		view.pushStack("Dh", "DH shortcuts");
+		for( DHLink link : links ) {
+			view.addRange(link.theta,
+					(int)Math.floor(link.rangeMax.get()),
+					(int)Math.ceil(link.rangeMin.get()));
+		}
+		view.popStack();
 	}
 }

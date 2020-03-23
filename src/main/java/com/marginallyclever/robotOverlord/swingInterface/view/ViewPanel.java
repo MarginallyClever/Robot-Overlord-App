@@ -141,7 +141,19 @@ public class ViewPanel extends ViewElement {
 		ViewElement b = new ViewElementSlider(ro,e,top,bottom);
 		pushViewElement(b);
 		return b;
-		
+	}
+
+	/**
+	 * Add a control for an double that is bound between two values
+	 * @param e
+	 * @param top the maximum value, inclusive
+	 * @param bottom the minimum value, inclusive
+	 * @return the element
+	 */
+	public ViewElement addRange(DoubleEntity e,int top,int bottom) {
+		ViewElement b = new ViewElementSliderDouble(ro,e,top,bottom);
+		pushViewElement(b);
+		return b;
 	}
 
 	/**

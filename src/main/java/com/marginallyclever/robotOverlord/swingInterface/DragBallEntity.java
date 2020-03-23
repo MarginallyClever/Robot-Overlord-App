@@ -632,7 +632,6 @@ public class DragBallEntity extends PoseEntity {
 		
 		if(isActivelyMoving) {
 			// display the distance rotated.
-			Vector3d mid = new Vector3d();
 			double start=MathHelper.capRotationRadians(valueStart);
 			double end=MathHelper.capRotationRadians(valueNow);
 			double range=end-start;
