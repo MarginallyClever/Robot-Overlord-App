@@ -457,7 +457,7 @@ public class Sixi2 extends PoseEntity {
 	// recursively set for all children
 	public void setShowBoundingBox(boolean arg0) {
 		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim.getLink(0));
+		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PoseEntity link = next.pop();
 			link.showBoundingBox.set(arg0);
@@ -473,7 +473,7 @@ public class Sixi2 extends PoseEntity {
 	// recursively set for all children
 	public void setShowLocalOrigin(boolean arg0) {
 		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim.getLink(0));
+		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PoseEntity link = next.pop();
 			link.showLocalOrigin.set(arg0);
@@ -489,7 +489,7 @@ public class Sixi2 extends PoseEntity {
 	// recursively set for all children
 	public void setShowLineage(boolean arg0) {
 		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim.getLink(0));
+		next.add(this.sim);
 		while( !next.isEmpty() ) {
 			PoseEntity link = next.pop();
 			link.showLineage.set(arg0);
