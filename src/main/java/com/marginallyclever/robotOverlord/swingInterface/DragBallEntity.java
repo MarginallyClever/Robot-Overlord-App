@@ -14,6 +14,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -97,7 +98,7 @@ public class DragBallEntity extends PoseEntity {
 	// for translation
 	protected Axis majorAxis;
 	
-	protected DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
+	public DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	public double ballSizeScaled;
 
 	public boolean isRotateMode;
@@ -106,8 +107,8 @@ public class DragBallEntity extends PoseEntity {
 	// Who is being moved?
 	protected PoseEntity subject;
 	// In what frame of reference?
-	protected FrameOfReference frameOfReference;
-
+	public IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
+	
 	// matrix of subject when move started
 	protected Matrix4d startMatrix=new Matrix4d();	
 	protected Matrix4d resultMatrix=new Matrix4d();
@@ -123,8 +124,6 @@ public class DragBallEntity extends PoseEntity {
 		super();
 		setName("DragBall");
 		addChild(ballSize);
-
-		frameOfReference = FrameOfReference.WORLD;
 		
 		FOR.setIdentity();
 				
@@ -141,7 +140,7 @@ public class DragBallEntity extends PoseEntity {
 
 		// find the current frame of reference.  This could change every frame as the camera moves.
 		if(!isActivelyMoving()) {
-			switch(frameOfReference) {
+			switch(FrameOfReference.values()[frameOfReference.get()]) {
 			case SUBJECT: FOR.set(subject.getPoseWorld());	break;
 			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));  break;
 			default     : FOR.setIdentity();  break;
@@ -154,9 +153,9 @@ public class DragBallEntity extends PoseEntity {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
 						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT));
 	
-			if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReference=FrameOfReference.WORLD;
-			if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReference=FrameOfReference.CAMERA;
-			if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReference=FrameOfReference.SUBJECT;
+			if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReference.set(FrameOfReference.WORLD.toInt());
+			if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReference.set(FrameOfReference.CAMERA.toInt());
+			if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReference.set(FrameOfReference.SUBJECT.toInt());
 		} else {
 			if(InputManager.isReleased(InputManager.Source.KEY_ESCAPE)) {
 				// cancel this move
@@ -648,13 +647,12 @@ public class DragBallEntity extends PoseEntity {
 			gl2.glVertex3d(0,0,0);
 			for(double i=0;i<absRange;i+=0.01) {
 				double n = range * (i/absRange) + start;
+				
 				switch(nearestPlane) {
-				case X: mid.set(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
-				case Y: mid.set(Math.cos(-n),0,Math.sin(-n));  break;
-				case Z: mid.set(Math.cos(n),Math.sin(n),0);  break;
+				case X: gl2.glVertex3d(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
+				case Y: gl2.glVertex3d(Math.cos(-n),0,Math.sin(-n));  break;
+				case Z: gl2.glVertex3d(Math.cos(n),Math.sin(n),0);  break;
 				}
-				FOR.transform(mid);
-				gl2.glVertex3d(mid.x,mid.y,mid.z);
 			}
 			gl2.glEnd();
 		}
@@ -794,11 +792,11 @@ public class DragBallEntity extends PoseEntity {
 	}
 	
 	public void setFrameOfReference(FrameOfReference v) {
-		frameOfReference=v;
+		frameOfReference.set(v.toInt());
 	}
 	
 	public FrameOfReference getFrameOfReference() {
-		return frameOfReference;
+		return FrameOfReference.values()[frameOfReference.get()];
 	}
 	
 	@Deprecated
@@ -831,6 +829,7 @@ public class DragBallEntity extends PoseEntity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Mc", "Move controls");
-		getViewOfChildren(view);
+		view.add(ballSize);
+		view.addComboBox(frameOfReference,FrameOfReference.getAll());
 	}
 }
