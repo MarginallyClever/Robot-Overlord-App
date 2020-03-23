@@ -26,6 +26,8 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		super(ro);
 		this.e=e;
 
+		e.addObserver(this);
+		
 		field = new JSlider();
 		field.setMaximum(top);
 		field.setMinimum(bottom);
@@ -45,7 +47,7 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-		
+		field.setValue((int)Math.floor((Double)arg));
 	}
 
 	@Override

@@ -26,6 +26,8 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 		super(ro);
 		this.e=e;
 
+		e.addObserver(this);
+		
 		field = new JSlider();
 		field.setMaximum(top);
 		field.setMinimum(bottom);
@@ -45,7 +47,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-		
+		field.setValue((Integer)arg);
 	}
 
 	@Override
