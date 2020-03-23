@@ -1,0 +1,5 @@
+# list of all available tools compatible with DHRobot
+#empty tool goes first
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHTool.DHTool
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHTool.DHTool_GoProCamera
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHTool.DHTool_Gripper
