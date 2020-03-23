@@ -35,7 +35,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	// set this to false before running the app and the model will not attach to the DHLinks.
 	// this is convenient for setting up the DHLinks with less visual confusion.
-	static final boolean ATTACH_MODELS=false;
+	static final boolean ATTACH_MODELS=true;
 	
 	public Sixi2Model() {
 		super();
@@ -50,7 +50,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		addChild(anchor);
 		anchor.setName("Base");
 		anchor.setModelFilename("/Sixi2/anchor.stl");
-		anchor.setModelOrigin(0, 0, 0);
+		anchor.setModelOrigin(0, 0, 0.9);
 
 		// setup children
 		this.setNumLinks(6);
@@ -67,43 +67,43 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// pan shoulder
 		links.get(0).setLetter("X");
 		if(ATTACH_MODELS) links.get(0).setModelFilename("/Sixi2/shoulder.stl");
-		links.get(0).setD(18.8452);
+		links.get(0).setD(18.8452+0.9);
 		links.get(0).setTheta(0);
 		links.get(0).setR(0);
-		links.get(0).setAlpha(0);
+		links.get(0).setAlpha(-90);
 		links.get(0).setRange(-120,120);
 		
 		// tilt shoulder
 		links.get(1).setLetter("Y");
 		if(ATTACH_MODELS) links.get(1).setModelFilename("/Sixi2/bicep.stl");
 		links.get(1).setD(0);
-		links.get(1).setTheta(0);
-		links.get(1).setR(0);
-		links.get(1).setAlpha(-90);
-		links.get(1).setRange(-90,90);
+		links.get(1).setTheta(-90);
+		links.get(1).setR(35.796);
+		links.get(1).setAlpha(0);
+		links.get(1).setRange(-170,0);
 
 		// tilt elbow
 		links.get(2).setLetter("Z");
 		if(ATTACH_MODELS) links.get(2).setModelFilename("/Sixi2/forearm.stl");
 		links.get(2).setD(0);
-		links.get(2).setTheta(-90);
-		links.get(2).setR(35.796);
-		links.get(2).setAlpha(0);
-		links.get(2).setRange(-83.369-90, 86-90);
+		links.get(2).setTheta(0);
+		links.get(2).setR(6.4259);
+		links.get(2).setAlpha(-90);
+		links.get(2).setRange(-83.369, 86);
 	
 		// roll ulna
 		links.get(3).setLetter("U");
 		if(ATTACH_MODELS) links.get(3).setModelFilename("/Sixi2/tuningFork.stl");
-		links.get(3).setD(0);
+		links.get(3).setD(29.355+9.35);
 		links.get(3).setTheta(0);
-		links.get(3).setR(6.4259);
-		links.get(3).setAlpha(-90);
+		links.get(3).setR(0);
+		links.get(3).setAlpha(90);
 		links.get(3).setRange(-175, 175);
 	
 		// tilt picassoBox
 		links.get(4).setLetter("V");
 		if(ATTACH_MODELS) links.get(4).setModelFilename("/Sixi2/picassoBox.stl");
-		links.get(4).setD(29.355+9.350);
+		links.get(4).setD(0);
 		links.get(4).setTheta(0);
 		links.get(4).setR(0);
 		links.get(4).setAlpha(-90);
@@ -113,12 +113,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(5).setLetter("W");
 		if(ATTACH_MODELS) links.get(5).setModelFilename("/Sixi2/hand.stl");
 		links.get(5).setTheta(0);
-		links.get(5).setD(0);
+		links.get(5).setD(5.795);
 		links.get(5).setR(0);
-		links.get(5).setAlpha(90);
+		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
 		
-		endEffector.setPosition(new Vector3d(0,0,5.795));
+		endEffector.setPosition(new Vector3d(0,0,0));
 		
 		links.get(links.size()-1).addChild(endEffector);
 		
@@ -130,10 +130,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			DHLink bone=links.get(i);
 			if(bone.getModel()!=null) {
 				Matrix4d iWP = bone.getPoseWorld();
+				iWP.m23 -= 0.9;
 				iWP.invert();
 				bone.getModel().adjustMatrix(iWP);
 			}
 		}
+		links.get(4).setTheta(20);
 	}
 	
 	/**
