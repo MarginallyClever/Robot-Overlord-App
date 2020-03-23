@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,10 +12,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import javax.swing.border.LineBorder;
 
 public class ObserverTest2 extends JPanel {
 	/**

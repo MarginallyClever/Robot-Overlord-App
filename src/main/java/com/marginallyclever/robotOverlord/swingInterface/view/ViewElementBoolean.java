@@ -28,7 +28,9 @@ public class ViewElementBoolean extends ViewElement implements ItemListener, Obs
 	public ViewElementBoolean(RobotOverlord ro,BooleanEntity e) {
 		super(ro);
 		this.e=e;
-				
+		
+		e.addObserver(this);
+		
 		field = new JCheckBox();
 		field.setSelected(e.get());
 		field.addItemListener(this);
