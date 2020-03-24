@@ -102,12 +102,11 @@ public class ObserverTest2 extends JPanel {
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-	            JFrame f = new JFrame("Tab Test");
+	            JFrame f = new JFrame("Observer Test 2");
 	            f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	            
 	            f.add("Center", new JScrollPane(new ObserverTest2()));
 	            f.pack();
-	            f.setSize(400,200);
 	            f.setVisible(true);
 	        }
 	    });

@@ -22,7 +22,9 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	public ViewElementComboBox(RobotOverlord ro,IntEntity e,String [] listOptions) {
 		super(ro);
 		this.e=e;
-				
+		
+		e.addObserver(this);
+		
 		field = new JComboBox<String>(listOptions);
 		field.setSelectedIndex(e.get());
 		field.addActionListener(this);
@@ -53,7 +55,7 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		// TODO Auto-generated method stub
+		field.setSelectedIndex((Integer)arg1);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -26,10 +27,13 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt
 public class ViewElementInt extends ViewElement implements DocumentListener, Observer {
 	private JTextField field;
 	private IntEntity e;
+	private ReentrantLock lock = new ReentrantLock();
 	
 	public ViewElementInt(RobotOverlord ro,IntEntity e) {
 		super(ro);
 		this.e=e;
+		
+		e.addObserver(this);
 		
 		field = new FocusTextField(8);
 		field.getDocument().addDocumentListener(this);
@@ -50,6 +54,9 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
+		if(lock.isLocked()) return;
+		lock.lock();
+
 		int newNumber;
 		
 		try {
@@ -63,6 +70,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 		if(newNumber != e.get()) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeInt(e, newNumber) ) );
 		}
+		lock.unlock();
 	}
 
 	@Override
@@ -82,6 +90,10 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 
 	@Override
 	public void update(Observable o, Object arg) {
-		
+		if(lock.isLocked()) return;
+		lock.lock();
+		Integer i = (Integer)arg;
+		field.setText(i.toString());
+		lock.unlock();
 	}
 }

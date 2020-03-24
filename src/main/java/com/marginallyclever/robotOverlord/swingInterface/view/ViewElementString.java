@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.BorderLayout;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -23,10 +24,13 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeStr
 public class ViewElementString extends ViewElement implements DocumentListener, Observer {
 	private JTextField field;
 	private StringEntity e;
+	private ReentrantLock lock = new ReentrantLock();
 	
 	public ViewElementString(RobotOverlord ro,StringEntity e) {
 		super(ro);
 		this.e=e;
+
+		e.addObserver(this);
 		
 		field = new FocusTextField(20);
 		field.setText(e.get());
@@ -45,10 +49,14 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
+		if(lock.isLocked()) return;
+		lock.lock();
+
 		String newValue = field.getText();
 		if( !newValue.equals(e.get()) ) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeString(e, newValue) ) );
 		}
+		lock.unlock();
 	}
 
 	@Override
@@ -66,7 +74,10 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
+		if(lock.isLocked()) return;
+		lock.lock();
 		field.setText((String)arg);
+		lock.unlock();
 	}
 
 	@Override

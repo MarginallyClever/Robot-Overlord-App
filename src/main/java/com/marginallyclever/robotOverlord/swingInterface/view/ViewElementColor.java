@@ -30,6 +30,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 		super(ro);
 		this.e=e;
 
+		e.addObserver(this);
 		CollapsiblePanel p = new CollapsiblePanel(e.getName());
 		JPanel p2 = p.getContentPane();
 		p2.setLayout(new GridBagLayout());
@@ -81,20 +82,12 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 	 * entity changed, poke panel
 	 */
 	@Override
-	public void update(Observable o, Object arg) {/*
+	public void update(Observable o, Object arg) {
 		float [] newValues = e.getFloatArray();
 		
 		for(int i=0;i<newValues.length;++i) {
-			fields[i].getDocument().removeDocumentListener(this);
+			fields[i].setValue((int)(newValues[i]*255.0f));
 		}
-		
-		for(int i=0;i<newValues.length;++i) {
-			fields[i].setText(StringHelper.formatFloat(newValues[i]));
-		}
-		
-		for(int i=0;i<newValues.length;++i) {
-			fields[i].getDocument().addDocumentListener(this);
-		}*/
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -27,11 +28,14 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeDou
 public class ViewElementDouble extends ViewElement implements DocumentListener, Observer {
 	private JTextField field;
 	private DoubleEntity e;
+	private ReentrantLock lock = new ReentrantLock();
 	
 	public ViewElementDouble(RobotOverlord ro,DoubleEntity e) {
 		super(ro);
 		this.e=e;
-
+		
+		e.addObserver(this);
+		
 		field = new FocusTextField(8);
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -51,6 +55,10 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
+
+		if(lock.isLocked()) return;
+		lock.lock();
+		
 		double newNumber;
 		
 		try {
@@ -64,6 +72,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		if(newNumber != e.get()) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeDouble(e, newNumber) ) );
 		}
+		lock.unlock();
 	}
 
 	@Override
@@ -83,6 +92,9 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 
 	@Override
 	public void update(Observable o, Object arg) {
-		
+		if(lock.isLocked()) return;
+		lock.lock();
+		field.setText(StringHelper.formatDouble((Double)arg));
+		lock.unlock();		
 	}
 }
