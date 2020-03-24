@@ -205,7 +205,7 @@ public class Sixi2Sim extends Sixi2Model {
 	@Override
 	public void update(Observable obs, Object obj) {
 		if(obs == endEffector.poseWorld) {
-			//setPoseIK(endEffector.getPoseWorld());
+//			setPoseIK(endEffector.getPoseWorld());
 		}
 	}
 
