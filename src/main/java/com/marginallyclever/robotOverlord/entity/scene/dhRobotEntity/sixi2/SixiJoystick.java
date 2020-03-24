@@ -66,6 +66,7 @@ public class SixiJoystick extends ModelEntity {
 					}
 					keyframe.fkValues[1]*=-1;
 					keyframe.fkValues[4]*=-1;
+					keyframe.fkValues[1]-=90;
 				}
 			}
 			finally {
