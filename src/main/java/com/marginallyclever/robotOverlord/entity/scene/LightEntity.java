@@ -66,7 +66,7 @@ public class LightEntity extends PoseEntity {
 	public ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
 	public ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
 	
-	public DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",90);
+	public DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",180);
 	public DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
 	
 	public DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
