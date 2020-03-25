@@ -62,7 +62,7 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	
 	public void set(Matrix4d m) {
 		super.set(m);
-
+		
 		Vector3d trans = MatrixHelper.getPosition(t);
 		pos.set(trans);
 		Vector3d r = MatrixHelper.matrixToEuler(t);

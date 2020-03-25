@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -202,10 +203,15 @@ public class Sixi2Sim extends Sixi2Model {
 		super.update(dt);
 	}
 	
+	ReentrantLock ikLock = new ReentrantLock(); 
 	@Override
 	public void update(Observable obs, Object obj) {
 		if(obs == endEffector.poseWorld) {
-//			setPoseIK(endEffector.getPoseWorld());
+			if(ikLock.isLocked()) return;
+			ikLock.lock();
+			System.out.println("sim lock");
+			setPoseIK(endEffector.getPoseWorld());
+			ikLock.unlock();
 		}
 	}
 
