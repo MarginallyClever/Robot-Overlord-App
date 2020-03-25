@@ -26,15 +26,17 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	
 	/**
 	 * Processes two vectors to find a vector that's projected onto a plane.
-	 * @param n The normal vector of the plane to be projected onto. 
+	 * @param n The normal of the plane to be projected onto.  Always length 1. 
 	 * @param k Vector that is to be projected.
 	 * @return k Projected k vector on the plane that's normal to n vector.
 	 */
 	public Vector3d projOntoPlane (Vector3d n, Vector3d k){
 		Vector3d kNorm = new Vector3d();
-		double dotProd = k.dot(n)/n.lengthSquared();
-	
-		kNorm.scale(dotProd, n);		//kNorm is projection onto the n vector
+		// double dotProd = k.dot(n)/n.lengthSquared();
+		// n is always length 1.
+		double dotProd = k.dot(n);
+		
+		kNorm.scale(dotProd, n);		// kNorm is projection onto the n vector
 		// k is a reference.  Don't damage the reference.  instead, make a new Vector3d to hold the result.
 		Vector3d kProj = new Vector3d(k);
 		kProj.sub(kNorm);	
