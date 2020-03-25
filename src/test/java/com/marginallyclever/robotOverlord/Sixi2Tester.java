@@ -4,6 +4,7 @@ import javax.vecmath.Matrix4d;
 
 import org.junit.Test;
 
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
@@ -26,6 +27,8 @@ public class Sixi2Tester {
 		
 		for( int j = 0; j < totalTests; ++j ) {
 			// find a random pose for the whole arm
+			System.out.print(j + ": ");
+			
 			for( int i = 0; i < numLinks; ++i ) {
 				DHLink link = robot.sim.links.get(i);
 				// find a random pose for this bone.
@@ -34,7 +37,9 @@ public class Sixi2Tester {
 				double range = top-bot;
 				double v = range * Math.random() + bot;
 				key0.fkValues[i]=v;
+				System.out.print(StringHelper.formatDouble(v)+"\t");
 			}
+			
 			// set the pose
 			robot.sim.setPoseFK(key0);
 			// get the end effector world pose for this key
@@ -44,16 +49,16 @@ public class Sixi2Tester {
 				robot.sim.getPoseFK(key1);
 				if(key1.equals(key0)) {
 					testsOK++;
-					//System.out.print(j + ": "+key0.fkValues+" OK");
+					System.out.println(" OK");
 				} else {
 					testsNoMatch++;
-					System.out.print(j + ": "+key0.fkValues+" NO MATCH");
+					System.out.println(" NO MATCH");
 				}
 			} else {
 				testsNoIK++;
-				System.out.print(j + ": "+key0.fkValues+" NO IK");
+				System.out.println(" NO IK");
 			}
 		}
-		System.out.print("Finished! "+testsOK+" OK, "+testsNoMatch+" no match, "+testsNoIK+" no IK.");
+		System.out.println("Finished! "+testsOK+" OK, "+testsNoMatch+" no match, "+testsNoIK+" no IK.");
 	}
 }

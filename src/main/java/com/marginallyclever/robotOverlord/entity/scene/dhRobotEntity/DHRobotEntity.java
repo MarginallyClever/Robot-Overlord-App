@@ -222,7 +222,7 @@ public class DHRobotEntity extends PoseEntity {
 	 */
 	public boolean collidesWithWorld(DHKeyframe futureKey) {
 		// is this robot in the world?
-		Entity rootEntity = (RobotOverlord)getRoot();
+		Entity rootEntity = getRoot();
 		if( !(rootEntity instanceof RobotOverlord) ) {
 			// no!
 			return false;
