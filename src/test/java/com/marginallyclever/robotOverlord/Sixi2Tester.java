@@ -10,15 +10,21 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 public class Sixi2Tester {
 	/**
-	 * Test that IK(FK(A))==A for many random fkpose A. 
+	 * Test that IK(FK(A))==A for many random fk pose A. 
 	 */
 	@Test
 	public void TestIK() {
 		Sixi2 robot = new Sixi2();
 		int numLinks = robot.sim.links.size();
-		DHKeyframe key = robot.sim.getIKSolver().createDHKeyframe();
+		DHKeyframe key0 = robot.sim.getIKSolver().createDHKeyframe();
+		DHKeyframe key1 = robot.sim.getIKSolver().createDHKeyframe();
 		
-		for( int j = 0; j < 1000; ++j ) {
+		final int totalTests = 1000;
+		int testsOK=0;
+		int testsNoMatch=0;
+		int testsNoIK=0;
+		
+		for( int j = 0; j < totalTests; ++j ) {
 			// find a random pose for the whole arm
 			for( int i = 0; i < numLinks; ++i ) {
 				DHLink link = robot.sim.links.get(i);
@@ -27,18 +33,27 @@ public class Sixi2Tester {
 				double bot = link.getRangeMin();
 				double range = top-bot;
 				double v = range * Math.random() + bot;
-				key.fkValues[i]=v;
+				key0.fkValues[i]=v;
 			}
 			// set the pose
-			robot.sim.setPoseFK(key);
+			robot.sim.setPoseFK(key0);
 			// get the end effector world pose for this key
 			Matrix4d ee = robot.sim.endEffector.getPoseWorld();
-			// use the key to solve IK
+			// use the end effector world pose to solve IK
 			if(robot.sim.setPoseIK(ee)) {
-				System.out.print(j + ": "+key.fkValues+" OK");
+				robot.sim.getPoseFK(key1);
+				if(key1.equals(key0)) {
+					testsOK++;
+					//System.out.print(j + ": "+key0.fkValues+" OK");
+				} else {
+					testsNoMatch++;
+					System.out.print(j + ": "+key0.fkValues+" NO MATCH");
+				}
 			} else {
-				System.out.print(j + ": "+key.fkValues+" BAD");
+				testsNoIK++;
+				System.out.print(j + ": "+key0.fkValues+" NO IK");
 			}
 		}
+		System.out.print("Finished! "+testsOK+" OK, "+testsNoMatch+" no match, "+testsNoIK+" no IK.");
 	}
 }

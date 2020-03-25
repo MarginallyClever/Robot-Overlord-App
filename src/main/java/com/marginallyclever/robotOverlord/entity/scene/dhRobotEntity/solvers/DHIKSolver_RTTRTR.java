@@ -6,7 +6,6 @@ import javax.vecmath.SingularMatrixException;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
@@ -30,13 +29,14 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 * @param k Vector that is to be projected.
 	 * @return k Projected k vector on the plane that's normal to n vector.
 	 */
-	public Vector3d projOntoPlane (Vector3d n, Vector3d k){
+	public Vector3d projOntoPlane(Vector3d n, Vector3d k) {
 		Vector3d kNorm = new Vector3d();
 		// double dotProd = k.dot(n)/n.lengthSquared();
 		// n is always length 1.
 		double dotProd = k.dot(n);
 		
-		kNorm.scale(dotProd, n);		// kNorm is projection onto the n vector
+		// kNorm is projection onto the n vector
+		kNorm.scale(dotProd, n);
 		// k is a reference.  Don't damage the reference.  instead, make a new Vector3d to hold the result.
 		Vector3d kProj = new Vector3d(k);
 		kProj.sub(kNorm);	
@@ -224,7 +224,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double t4abs = Math.cos(v46xy0yz2.length()/(link5.getD()));
 		
 		//This prevent NaN returns but also tells us that the wrist is at a singularity position.
-		if(Math.abs(v46xy0yz2.length() - link5.getD()) < EPSILON)	t4abs = 0;
+		if(Math.abs(v46xy0yz2.length() - link5.getD()) < EPSILON) t4abs = 0;
 		if(false) System.out.println("t4abs="+Math.toDegrees(t4abs)+"\t");
 		
 		/*

@@ -9,6 +9,7 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
@@ -34,6 +35,9 @@ public class DHRobotEntity extends PoseEntity {
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
 
+	// more debug output, please.
+	static final boolean VERBOSE=false;
+	
 	public DHRobotEntity() {
 		super();
 		setName("DHRobot");
@@ -214,21 +218,30 @@ public class DHRobotEntity extends PoseEntity {
 	 * We're using separating Axis Theorem. See https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
 	 * 
 	 * @param keyframe the angles at time of test
-	 * @return true if there are no collisions
+	 * @return false if there are no collisions
 	 */
 	public boolean collidesWithWorld(DHKeyframe futureKey) {
-		if( this.parent == null ) {
+		// is this robot in the world?
+		Entity rootEntity = (RobotOverlord)getRoot();
+		if( !(rootEntity instanceof RobotOverlord) ) {
+			// no!
 			return false;
 		}
-		
-		// create a clone of the robot
+		// yes!
+		RobotOverlord ro = (RobotOverlord)rootEntity;
+		// Does RobotOverlord contain a Scene?
+		Scene scene = ro.getWorld();
+		if(scene==null) return false;
+		// yes!  We have all the prerequisites.		
+		// save the original key
 		DHKeyframe originalKey = solver.createDHKeyframe();
 		getPoseFK(originalKey);
-		// move the clone to the keyframe pose
+		// move to the future key
 		setPoseFK(futureKey);
-		boolean result = ((RobotOverlord)getRoot()).getWorld().collisionTest((PoseEntity)parent); 
+		// test for intersection
+		boolean result = scene.collisionTest((PoseEntity)parent);
+		// clean up and report results
 		setPoseFK(originalKey);
-		
 		return result;
 	}
 
@@ -245,14 +258,15 @@ public class DHRobotEntity extends PoseEntity {
 			if(link.flags == LinkAdjust.NONE) continue;
 			double v = keyframe.fkValues[j++];
 			if (link.rangeMax.get() < v || link.rangeMin.get() > v) {
-				System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
+				if(VERBOSE) {
+					System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
+				}
 				return false;
 			}
 		}
 
 		return true;
 	}
-
 	/**
 	 * Find the forward kinematic pose of robot r that would give an end effector matrix matching m.
 	 * If the FK pose is found, set the adjustable values of the links to said pose.
@@ -268,8 +282,8 @@ public class DHRobotEntity extends PoseEntity {
 			if (sanityCheck(newPose)) {
 				setPoseFK(newPose);
 				return true;
-			} else System.out.println("setPoseIK() insane");
-		} else System.out.println("setPoseIK() impossible");
+			} else if(VERBOSE) System.out.println("setPoseIK() insane");
+		} else if(VERBOSE) System.out.println("setPoseIK() impossible");
 		setPoseFK(oldPose);
 		return false;
 	}

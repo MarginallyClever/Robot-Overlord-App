@@ -209,7 +209,7 @@ public class Sixi2Sim extends Sixi2Model {
 		if(obs == endEffector.poseWorld) {
 			if(ikLock.isLocked()) return;
 			ikLock.lock();
-			System.out.println("sim lock");
+			//System.out.println("sim lock");
 			setPoseIK(endEffector.getPoseWorld());
 			ikLock.unlock();
 		}
