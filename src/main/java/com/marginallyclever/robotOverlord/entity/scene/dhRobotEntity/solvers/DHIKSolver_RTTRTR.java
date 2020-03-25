@@ -35,9 +35,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double dotProd = k.dot(n)/n.lengthSquared();
 	
 		kNorm.scale(dotProd, n);		//kNorm is projection onto the n vector
-		k.sub(kNorm);					//now k is projecting onto the plane	
+		// k is a reference.  Don't damage the reference.  instead, make a new Vector3d to hold the result.
+		Vector3d kProj = new Vector3d(k);
+		kProj.sub(kNorm);	
 		
-		return k;
+		return kProj;
 	}
 
 
