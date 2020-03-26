@@ -55,7 +55,6 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 	 */
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
-
 		if(lock.isLocked()) return;
 		lock.lock();
 		
