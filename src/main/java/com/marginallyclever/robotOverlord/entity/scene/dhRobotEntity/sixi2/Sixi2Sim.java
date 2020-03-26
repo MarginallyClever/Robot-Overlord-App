@@ -68,8 +68,6 @@ public class Sixi2Sim extends Sixi2Model {
 	public Sixi2Sim() {
 		super();
 		setName("Sim");
-
-		endEffector.poseWorld.addObserver(this);
 		
 		int numAdjustableLinks = 0;
 		for(DHLink link : links ) {
@@ -203,15 +201,10 @@ public class Sixi2Sim extends Sixi2Model {
 		super.update(dt);
 	}
 	
-	ReentrantLock ikLock = new ReentrantLock(); 
 	@Override
 	public void update(Observable obs, Object obj) {
 		if(obs == endEffector.poseWorld) {
-			if(ikLock.isLocked()) return;
-			ikLock.lock();
-			//System.out.println("sim lock");
 			setPoseIK(endEffector.getPoseWorld());
-			ikLock.unlock();
 		}
 	}
 
