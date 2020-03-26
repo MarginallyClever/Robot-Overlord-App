@@ -320,7 +320,9 @@ public class DragBallEntity extends PoseEntity {
 				
 				valueLast = valueNow;
 				
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+				if(subject.canYouMoveTo(resultMatrix)) {
+					ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+				}
 			}
 		}
 	}
@@ -437,8 +439,11 @@ public class DragBallEntity extends PoseEntity {
 			}
 			
 			valueLast = valueNow;
+
 			
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+			if(subject.canYouMoveTo(resultMatrix)) {
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+			}
 		}
 	}
 
