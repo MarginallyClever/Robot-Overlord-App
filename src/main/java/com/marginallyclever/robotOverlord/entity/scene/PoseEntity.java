@@ -136,6 +136,10 @@ public class PoseEntity extends Entity {
 		setPose(m);
 	}
 	
+	public boolean canYouMoveTo(Matrix4d newPose) {
+		return true;
+	}
+	
 	/**
 	 * 
 	 * @param arg0 fills the vector3 with one possible combination of radian rotations.
