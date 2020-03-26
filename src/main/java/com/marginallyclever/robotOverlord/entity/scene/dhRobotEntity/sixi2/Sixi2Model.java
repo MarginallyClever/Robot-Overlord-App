@@ -5,7 +5,6 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
@@ -31,7 +30,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	
 	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
 	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
-	public PoseEntity endEffector = new PoseEntity("End Effector");
+	public DHLink endEffector = new DHLink();
 
 	// set this to false before running the app and the model will not attach to the DHLinks.
 	// this is convenient for setting up the DHLinks with less visual confusion.
@@ -42,7 +41,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		setName("Sixi2Model");
 		addChild(feedRate);
 		addChild(acceleration);
-		addChild(endEffector);
 
 		this.setIKSolver(new DHIKSolver_RTTRTR());
 		
@@ -119,6 +117,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(5).setRange(-170, 170);
 		
 		endEffector.setPosition(new Vector3d(0,0,0));
+		endEffector.setName("End Effector");
 		
 		links.get(links.size()-1).addChild(endEffector);
 		

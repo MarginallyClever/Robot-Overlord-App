@@ -784,6 +784,11 @@ public class DragBallEntity extends PoseEntity {
 		rotationInternal(temp);
 	}
 
+	/**
+	 * resultMatrix.p = startMatrix.p + v * amount 
+	 * @param v normal vector (length 1)
+	 * @param amount scale of v.
+	 */
 	protected void translate(Vector3d v, double amount) {
 		//System.out.println(amount);
 		resultMatrix.m03 = startMatrix.m03 + v.x*amount;

@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -14,6 +13,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -52,30 +52,36 @@ public class Sixi2Sim extends Sixi2Model {
 
 	protected IntEntity interpolationStyle = new IntEntity("Interpolation",InterpolationStyle.JACOBIAN.toInt());
 	
-	protected long arrivalTime;
-	protected long startTime;
+	protected double timeTarget;
+	protected double timeStart;
+	protected double timeNow;
 	
 	// fk interpolation
-	protected double [] poseTargetFK;
-	protected double [] poseFromFK;
-	protected double [] poseLiveFK;
+	protected double [] poseFKTarget;
+	protected double [] poseFKStart;
+	protected double [] poseFKNow;
 	
 	// ik interpolation
 	protected Matrix4d mLive = new Matrix4d();
 	protected Matrix4d mFrom = new Matrix4d();
 	protected Matrix4d mTarget = new Matrix4d();
-	  
+
+	protected DHRobotEntity robot;
+	
+	
 	public Sixi2Sim() {
 		super();
 		setName("Sim");
 		
-		int numAdjustableLinks = 0;
 		for(DHLink link : links ) {
-			if(link.flags != LinkAdjust.NONE) numAdjustableLinks++;
+			link.setDHRobot(this);
 		}
-		poseTargetFK = new double[numAdjustableLinks];
-		poseFromFK = new double[numAdjustableLinks];
-		poseLiveFK = new double[numAdjustableLinks];
+		endEffector.setDHRobot(this);
+		
+		int numAdjustableLinks = links.size();
+		poseFKTarget = new double[numAdjustableLinks];
+		poseFKStart = new double[numAdjustableLinks];
+		poseFKNow = new double[numAdjustableLinks];
 		
 	    readyForCommands=true;
 	    
@@ -114,14 +120,14 @@ public class Sixi2Sim extends Sixi2Model {
 			for( DHLink link : links ) {
 				if(link.flags == LinkAdjust.NONE) continue;
 				
-				poseLiveFK[i] = link.getAdjustableValue();
-				poseTargetFK[i] = poseLiveFK[i];
+				poseFKNow[i] = link.getAdjustableValue();
+				poseFKTarget[i] = poseFKNow[i];
 				
 				for( String t : tok ) {
 					String letter = t.substring(0,1); 
 					if(link.getLetter().equalsIgnoreCase(letter)) {
 						//System.out.println("link "+link.getLetter()+" matches "+letter);
-						poseTargetFK[i] = Double.parseDouble(t.substring(1));
+						poseFKTarget[i] = Double.parseDouble(t.substring(1));
 					}
 				}
 				++i;
@@ -143,16 +149,13 @@ public class Sixi2Sim extends Sixi2Model {
 		
 			double dMax=0;
 	        double dp=0;
-			for(i=0; i<poseLiveFK.length; ++i) {
-				poseFromFK[i] = poseLiveFK[i];
-				double dAbs = Math.abs(poseTargetFK[i] - poseFromFK[i]);
+			for(i=0; i<poseFKNow.length; ++i) {
+				poseFKStart[i] = poseFKNow[i];
+				double dAbs = Math.abs(poseFKTarget[i] - poseFKStart[i]);
 				dp+=dAbs;
 				if(dMax<dAbs) dMax=dAbs;
 			}
 	        if(dp==0) return;
-	        
-	        double travelS = dMax/(double)feedRate.get();
-	        long travelMs = (long)Math.ceil(travelS*1000.0);
 	        
 	        // set the live and from matrixes
 	        mLive.set(endEffector.getPoseWorld());
@@ -162,32 +165,32 @@ public class Sixi2Sim extends Sixi2Model {
 	        DHKeyframe oldPose = solver.createDHKeyframe();
 	        getPoseFK(oldPose);
 		        DHKeyframe newPose = solver.createDHKeyframe();
-		        newPose.set(poseTargetFK);
+		        newPose.set(poseFKTarget);
 		        setPoseFK(newPose);
 		        mTarget.set(endEffector.getPoseWorld());
 	        setPoseFK(oldPose);
 
-	        // start the clock
-	        startTime=System.currentTimeMillis();
-	        arrivalTime=startTime+travelMs;
+
+	        double travelS = dMax/(double)feedRate.get();
+	        
+	        timeNow=timeStart=0;
+	        timeTarget=timeStart+travelS;
 	        
 	        // wait for reply
 	        readyForCommands=false;
-		}
-		if(gMode==4) {
+		} else if(gMode==4) {
 			// dwell
-			float dwellTimeMs=0;
+			double dwellTimeS=0;
 			for( String t : tok ) {
 				if(t.startsWith("P")) {
-					dwellTimeMs+=Double.parseDouble(t.substring(1));
+					dwellTimeS+=Double.parseDouble(t.substring(1))*0.001;
 				}
 				if(t.startsWith("S")) {
-					dwellTimeMs+=Double.parseDouble(t.substring(1))*1000;
+					dwellTimeS+=Double.parseDouble(t.substring(1));
 				}
 			}
-	        startTime=System.currentTimeMillis();
-	        long travelMs = (long)Math.ceil(dwellTimeMs);
-	        arrivalTime=startTime+travelMs;
+	        timeStart=0;
+	        timeTarget=timeStart+dwellTimeS;
 		}
 	}
 
@@ -209,18 +212,18 @@ public class Sixi2Sim extends Sixi2Model {
 	}
 
 	protected void interpolateLinearFK(double dt) {
-		double tTotal = arrivalTime - startTime;
-    	double tNow = System.currentTimeMillis();
-	    double t = tNow-startTime;
+		double tTotalS = timeTarget - timeStart;
+		timeNow += dt;
+	    double t = timeNow-timeStart;
 
-	    if(t>=0 && t<=tTotal) {
+	    if(t>=0 && t<=tTotalS) {
 	    	// linear interpolation of movement
-	    	double tFraction = t/tTotal;
+	    	double tFraction = t/tTotalS;
 
 	    	int i=0;
 	    	for( DHLink n : links ) {
 	    		if( n.getName()==null ) continue;
-	    		n.setAdjustableValue((poseTargetFK[i] - poseFromFK[i]) * tFraction + poseFromFK[i]);
+	    		n.setAdjustableValue((poseFKTarget[i] - poseFKStart[i]) * tFraction + poseFKStart[i]);
 	    		++i;
 	    	}
 	    } else {
@@ -234,13 +237,13 @@ public class Sixi2Sim extends Sixi2Model {
 	 * @param dt change in seconds.
 	 */
 	protected void interpolateLinearIK(double dt) {	
-		double tTotal = arrivalTime - startTime;
-    	double tNow = System.currentTimeMillis();
-	    double t = tNow-startTime;
+		double tTotalS = timeTarget - timeStart;
+		timeNow += dt;
+	    double t = timeNow-timeStart;
 
-	    if(t>=0 && t<=tTotal) {
+	    if(t>=0 && t<=tTotalS) {
 	    	// linear interpolation of movement
-	    	double tFraction = t/tTotal;
+	    	double tFraction = t/tTotalS;
 	    	
 			MatrixHelper.interpolate(
 					mFrom, 
@@ -350,28 +353,29 @@ public class Sixi2Sim extends Sixi2Model {
 	}
 
 	/**
-	 * interpolation between two matrixes using jacobians, and update kinematics
-	 * while you're at it.
+	 * Interpolate between two matrixes using approximate jacobians and update forward kinematics while you're at it.
 	 * 
-	 * @param dt
+ 	 * caution: assumes FK pose at start of interpolation is sane.
+	 * 
+	 * @param dt size of step this, in seconds.
 	 */
 	protected void interpolateJacobian(double dt) {
-		if(arrivalTime == startTime) {
+		if(timeTarget == timeStart) {
 	    	// nothing happening
 			readyForCommands=true;
 			return;
 		}
 		
-    	double tTotal = arrivalTime - startTime;
-    	double tNow = System.currentTimeMillis();
-	    double t = tNow-startTime;
+    	double tTotal = timeTarget - timeStart;
+		timeNow += dt;
+	    double t = timeNow-timeStart;
 	    
-		double ratio0 = (t        ) / tTotal;
-		double ratio1 = (t+dt*1000) / tTotal;
-		if(ratio0>1) ratio0=1;
-		if(ratio1>1) ratio1=1;
+		double ratioNow    = (t   ) / tTotal;
+		double ratioFuture = (t+dt) / tTotal;
+		if(ratioNow   >1) ratioNow   =1;
+		if(ratioFuture>1) ratioFuture=1;
 		
-		if(ratio1==1 && ratio0==1) {
+		if(ratioFuture==1 && ratioNow==1) {
 	    	// nothing happening
 			readyForCommands=true;
 			return;
@@ -379,18 +383,17 @@ public class Sixi2Sim extends Sixi2Model {
 		
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
-		Matrix4d interpolatedMatrix0 = new Matrix4d();
-		Matrix4d interpolatedMatrix1 = new Matrix4d();
-		MatrixHelper.interpolate(mFrom,mTarget, ratio0, interpolatedMatrix0);
-		MatrixHelper.interpolate(mFrom,mTarget, ratio1, interpolatedMatrix1);
+		Matrix4d interpolatedMatrixNow = new Matrix4d();
+		Matrix4d interpolatedMatrixFuture = new Matrix4d();
+		MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
+		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
 
-		
 		// get the translation force
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
 		Vector3d dp = new Vector3d();
-		interpolatedMatrix0.get(p0);
-		interpolatedMatrix1.get(p1);
+		interpolatedMatrixNow.get(p0);
+		interpolatedMatrixFuture.get(p1);
 		dp.sub(p1,p0);
 		dp.scale(1.0/dt);
 		
@@ -398,14 +401,13 @@ public class Sixi2Sim extends Sixi2Model {
 		Quat4d q0 = new Quat4d();
 		Quat4d q1 = new Quat4d();
 		Quat4d dq = new Quat4d();
-		interpolatedMatrix0.get(q0);
-		interpolatedMatrix1.get(q1);
+		interpolatedMatrixNow.get(q0);
+		interpolatedMatrixFuture.get(q1);
 		dq.sub(q1,q0);
 		dq.scale(2/dt);
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
-		// caution: assumes current pose is sane.
 		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
 		getPoseFK(keyframe);
 		double[][] jacobian = approximateJacobian(keyframe);

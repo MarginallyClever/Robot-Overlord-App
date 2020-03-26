@@ -5,6 +5,7 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -22,6 +23,10 @@ public class DHLink extends ModelEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = -8160402178509773679L;
+	
+	// Changes visual quality of angle range curve.  Must be a whole number >=2
+	// TODO should be in the view, not the model.
+	public final static double ANGLE_RANGE_STEPS=20;
 	
 	public enum LinkAdjust {
 		NONE (0x0,"None" ),
@@ -83,10 +88,8 @@ public class DHLink extends ModelEntity {
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
 	public Matrix4dEntity inertia = new Matrix4dEntity();	// not used yet
 	*/
+	protected DHRobotEntity robot;
 	
-	// Changes visual quality of angle range curve.  Must be a whole number >=2
-	// TODO should be in the view, not the model.
-	public final static double ANGLE_RANGE_STEPS=20;
 	
 	public DHLink() {
 		super();
@@ -469,31 +472,68 @@ public class DHLink extends ModelEntity {
 		super.update(o, arg);
 		refreshPoseMatrix();
 	}
+
+	/**
+	 * TODO some better way to check which DHLink we're working with.  Matching by name is easy to break.
+	 * @return true if I am the end effector of a robot.
+	 */
+	protected boolean amIanEndEffector() {
+		return (robot!=null) && ( this.getName().contentEquals("End Effector") );
+	}
 	
 	@Override
-	public void setPoseWorld(Matrix4d m) {
-		Matrix4d newPose;
-		if(parent instanceof PoseEntity) {
-			PoseEntity pe = (PoseEntity)parent;
-			newPose=pe.getPoseWorld();
-			newPose.invert();
-			newPose.mul(m);
+	public void setPoseWorld(Matrix4d newPose) {
+		if( amIanEndEffector() ) {
+			robot.setPoseIK(newPose);
 		} else {
-			newPose=m;
+			Matrix4d newRelativePose;
+			if(parent instanceof PoseEntity) {
+				PoseEntity pe = (PoseEntity)parent;
+				newRelativePose=pe.getPoseWorld();
+				newRelativePose.invert();
+				newRelativePose.mul(newPose);
+			} else {
+				newRelativePose=newPose;
+			}
+			
+			setPose(newRelativePose);
 		}
-		
-		Matrix4d oldPose=pose.get();
-		// we have newPose ...but is it something this DHLink could do?
-		// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
-		
-		// TODO today this is the only case I care about. make it better later.
-		
-		double dx =Math.abs(newPose.m02-oldPose.m02);
-		double dy =Math.abs(newPose.m12-oldPose.m12);
-		double dz =Math.abs(newPose.m22-oldPose.m22);
-		if(dx+dy+dz<1e-6) {
-			// close enough?
-			setPose(newPose);
-		}
+	}
+
+	public void setDHRobot(DHRobotEntity robot) {
+		this.robot = robot;
 	} 
+	
+	/**
+	 * Ask this entity "can you move to newPose?"
+	 * @param newPose
+	 * @return true if it can.
+	 */
+	@Override
+	public boolean canYouMoveTo(Matrix4d newPose) {
+		if( amIanEndEffector() ) {
+			return robot.isPoseIKSane(newPose);
+		} else if( !this.getLetter().isEmpty() ) {
+			Matrix4d oldPose=pose.get();
+			// we have newPose ...but is it something this DHLink could do?
+			// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
+			// TODO Today this is the only case I care about. make it better later.
+
+			// difference in position
+			double dx =Math.abs(newPose.m03-oldPose.m03);
+			double dy =Math.abs(newPose.m13-oldPose.m13);
+			double dz =Math.abs(newPose.m23-oldPose.m23);
+			if(dx+dy+dz>1e-6) return false;
+
+			// difference in z axis
+			dx =Math.abs(newPose.m02-oldPose.m02);
+			dy =Math.abs(newPose.m12-oldPose.m12);
+			dz =Math.abs(newPose.m22-oldPose.m22);
+			if(dx+dy+dz>1e-6) return false;
+			// we made it here, move is legal!
+			return true;
+		}
+		// else default case
+		return super.canYouMoveTo(newPose);
+	}
 }

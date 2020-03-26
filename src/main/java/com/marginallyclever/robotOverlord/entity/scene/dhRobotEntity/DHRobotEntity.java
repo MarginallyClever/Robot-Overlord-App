@@ -31,13 +31,17 @@ public class DHRobotEntity extends PoseEntity {
 	
 	// The solver for this type of robot
 	protected transient DHIKSolver solver;
+	// only used in isPoseIKSane()
+	protected DHKeyframe poseFKold;
+	// only used in isPoseIKSane()
+	protected DHKeyframe poseFKnew;
 
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
 
 	// more debug output, please.
 	static final boolean VERBOSE=false;
-	
+
 	public DHRobotEntity() {
 		super();
 		setName("DHRobot");
@@ -55,9 +59,10 @@ public class DHRobotEntity extends PoseEntity {
 		// copy my links to the next robot
 		for(int i=0;i<b.getNumLinks();++i) {
 			links.get(i).set(b.links.get(i));
+			links.get(i).setDHRobot(this);
 		}
 		
-		solver = b.solver;
+		setIKSolver(b.solver);
 		dhTool = b.dhTool;
 		
 		refreshPose();
@@ -74,6 +79,8 @@ public class DHRobotEntity extends PoseEntity {
 
 	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
+		poseFKold = solver.createDHKeyframe();
+		poseFKnew = solver.createDHKeyframe();
 	}
 
 	public Matrix4d getParentMatrix() {
@@ -267,25 +274,42 @@ public class DHRobotEntity extends PoseEntity {
 
 		return true;
 	}
+	
 	/**
-	 * Find the forward kinematic pose of robot r that would give an end effector matrix matching m.
-	 * If the FK pose is found, set the adjustable values of the links to said pose.
-	 * @param m the matrix of the finger tip of the robot, relative to the base of the robot.
+	 * Use an IK pose of the end effector to find the FK pose of the robot.  If it can be found, set that FK pose.
+	 *   
+	 * @param m end effector world pose matrix.
+	 * @return true if sane position set.  false, nothing changed.
 	 */
 	public boolean setPoseIK(Matrix4d m) {
-		DHKeyframe oldPose = solver.createDHKeyframe();
-		getPoseFK(oldPose);
-		DHKeyframe newPose = solver.createDHKeyframe();
-		
-		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, newPose,oldPose);
-		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
-			if (sanityCheck(newPose)) {
-				setPoseFK(newPose);
-				return true;
-			} else if(VERBOSE) System.out.println("setPoseIK() insane");
-		} else if(VERBOSE) System.out.println("setPoseIK() impossible");
-		setPoseFK(oldPose);
+		if(isPoseIKSane(m)) {
+			setPoseFK(poseFKnew);
+			return true;
+		}
 		return false;
+	}
+	
+	/**
+	 * Verifies if the requested end effector pose of the robot is reachable and sane.
+	 * Leaves the robot in the state it was found except for the newPose/oldPose keyframes, which are only used for this method. 
+	 * 
+	 * @param m end effector world pose matrix.
+	 * @return true if sane.
+	 */
+	public boolean isPoseIKSane(Matrix4d m) {
+		getPoseFK(poseFKold);
+
+		boolean isSane = false;
+		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
+		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
+			if (sanityCheck(poseFKnew)) {
+				isSane = true;
+			} else if(VERBOSE) System.out.println("isPoseIKSane() insane");
+		} else if(VERBOSE) System.out.println("isPoseIKSane() impossible");
+		
+		setPoseFK(poseFKold);
+		
+		return isSane;
 	}
 
 	/**
