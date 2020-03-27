@@ -197,7 +197,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("beta="+Math.toDegrees(beta+phiCompensate)+"\t");
 		
 		// (8) theta1
-		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(beta+phiCompensate),link1.getRangeCenter());
+		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(-beta-phiCompensate),link1.getRangeCenter());
 		if(false) System.out.println("theta1="+keyframe.fkValues[1]+"\t");
 
 		// (9) theta2
@@ -237,7 +237,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		Vector3d v46xy0yz2 = projOntoPlane(x2, v46xy0);
 		
 		//t4abs		= absolute value of theta 4 will be solved during a solution check	
-		double t4abs = Math.cos(v46xy0yz2.length()/(link5.getD()));
+		double t4abs = Math.cos( v46xy0yz2.length() / link5.getD() );
 		
 		//This prevent NaN returns but also tells us that the wrist is at a singularity position.
 		if(Math.abs(v46xy0yz2.length() - link5.getD()) < EPSILON) t4abs = 0;
