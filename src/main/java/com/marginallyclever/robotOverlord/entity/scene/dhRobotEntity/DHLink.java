@@ -5,7 +5,6 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;

@@ -6,6 +6,7 @@ import javax.vecmath.SingularMatrixException;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
@@ -111,55 +112,59 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 				targetMatrixAdj.m22);
 
 		// Work backward to get link4 origin - wrist center
+		// p4 = p5 - z5*link5.getD()
 		Point3d p4 = new Point3d(z5);
 		p4.scaleAdd(-link5.getD(),p5);
 
 		// Work forward to get p0 position (DH frame shoulder)
 		Point3d p0 = new Point3d(0,0,link0.getD());
-
+		
 		if(false) {
-			Matrix4d link4m = new Matrix4d(link4.getPoseWorld());
+			Matrix4d link4m = link4.getPoseWorld();
 			link4m.mul(iRoot,link4m);
 			Vector3d p4confirm = new Vector3d(
 					link4m.m03,
 					link4m.m13,
 					link4m.m23);
 			System.out.println(
-					"p5="+p5+"\t"+
-					"z5="+z5+"\t"+
-					"d5="+link5.getD()+"\t"+
-					"p4="+p4+"\t"+
-					"p4c="+p4confirm+"\t"+
-					"p0="+p0+"\t"
+					"p5(w)="+p5+"\n"+
+					"z5(w)="+z5+"\n"+
+					"d5(w)="+link5.getD()+"\n"+
+					"p4(v)="+p4+"\n"+
+					"p4c(v)="+p4confirm+"\n"+
+					"p0(x)="+p0+"\t"
 					);
 		}
 		
 		// p4 is at the center of the wrist.  As long as the wrist origin is not directly on the 
 		// zW axis (DH_frame_Anchor) I can find the angle around yW to point at the wrist.
 		// (1) theta0 = atan2(y04/x04);
-		keyframe.fkValues[0] = MathHelper.capRotationDegrees(Math.toDegrees(Math.atan2(p4.y,p4.x)),link0.getRangeCenter());
+		double t0rad = Math.atan2(p4.y,p4.x);
+		keyframe.fkValues[0] = MathHelper.capRotationDegrees(Math.toDegrees(t0rad),link0.getRangeCenter());
 		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
 		
-		// (2) c=z04		- Distance along zW axis between shoulder origin (p0) and wrist origin (p4)
-		double z04 = p4.z-p0.z;
-		if(false) System.out.println("c="+z04+"\t");
-		
-		// (3) d			- Distance along x1 axis between shoulder origin (p0) and wrist origin (p4)
 		double x04 = p4.x-p0.x;
 		double y04 = p4.y-p0.y;
-		double d   = Math.sqrt(x04*x04 + y04*y04);
+		double z04 = p4.z-p0.z;
+		// d = Distance between shoulder origin (p0) and wrist origin (p4) but only in XY plane.
+		double d = Math.sqrt(x04*x04 + y04*y04);
 		if(false) System.out.println("d="+d+"\t");
-		
-		// (4) e = 			- Distance between shoulder origin (p0) and wrist origin (p4)
-		double e = Math.sqrt(z04*z04 + d*d);
+		// (4) e = Distance between shoulder origin (p0) and wrist origin (p4)
+		double e = Math.sqrt(x04*x04 + y04*y04 + z04*z04);
 		if(false) System.out.println("e="+e+"\t");
 
 		// (5) beta = acos((e2 - a^2 - b^2)/(-2ab))			- cosine rule
 		double a  = link1.getR();			//L2		= 35.796
+		if(false) System.out.println("a="+a+"\t");
 		double b1 = link2.getR();			//L3		= 6.4259
-		double b2 = link3.getD();			//L4+L5		= 29.355 + 9.35
-		double b = Math.sqrt(b2*b2+b1*b1);
+		double b2 = link3.getD();			//L4+L5		= 29.355 + 9.35 = 38.705
+		double b = Math.sqrt(b2*b2+b1*b1);  //b should be 39.23479598277529
 		if(false) System.out.println("b="+b+"\t");
+		// (7a) adjust
+		// b1 and b2 are at a right angle to each other.
+		// that means we'll have to adjust phi by some compensation.
+		double phiCompensate = Math.atan2(b1,b2);
+		if(false) System.out.println("phiCompensate="+Math.toDegrees(phiCompensate)+"\t");
 
 		if( e > a+b ) {
 			// target matrix impossibly far away
@@ -167,6 +172,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			return SolutionType.NO_SOLUTIONS;
 		}
 		
+		// a triangle is formed by sides a, b, and e.
+		// see https://www.calculator.net/triangle-calculator.html?vc=&vx=39.234&vy=35.796&va=&vz=57.27797015092277&vb=&angleunits=d&x=90&y=18
+		// where our 'e' is their 'c'
+		// corner phi is inside elbow (p1?).
+		
+		
+		// proof phi is correct
 		double phi = Math.acos((e*e-a*a-b*b)/(-2.0*a*b));
 		if(false) System.out.println("phi="+Math.toDegrees(phi)+"\t");
 		
@@ -178,10 +190,14 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double betaY = b*Math.sin(Math.PI-phi);
 		double betaX = b*Math.cos(Math.PI-phi);
 		double beta = Math.atan2(betaY, betaX);
+		
 		if(false) System.out.println("beta="+Math.toDegrees(beta)+"\t");
+		//if(true) System.out.println("-b-r="+Math.toDegrees(-beta-rho)+"\t");
+		//if(true) System.out.println("-p-r="+Math.toDegrees(-phi-rho)+"\t");
+		if(false) System.out.println("beta="+Math.toDegrees(beta+phiCompensate)+"\t");
 		
 		// (8) theta1
-		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(-beta-rho),link1.getRangeCenter());
+		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(beta+phiCompensate),link1.getRangeCenter());
 		if(false) System.out.println("theta1="+keyframe.fkValues[1]+"\t");
 
 		// (9) theta2
