@@ -6,7 +6,6 @@ import javax.vecmath.SingularMatrixException;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
