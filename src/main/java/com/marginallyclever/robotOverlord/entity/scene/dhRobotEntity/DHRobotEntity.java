@@ -42,7 +42,7 @@ public class DHRobotEntity extends PoseEntity {
 	public DHTool dhTool;
 
 	// more debug output, please.
-	static final boolean VERBOSE=false;
+	static final boolean VERBOSE=true;
 
 	public DHRobotEntity() {
 		super();
@@ -176,9 +176,18 @@ public class DHRobotEntity extends PoseEntity {
 	 * @return false if the keyframe is not sane or a collision occurs.
 	 */
 	public boolean sanityCheck(DHKeyframe keyframe) {
-		if(!keyframeAnglesAreOK(keyframe))	return false;
-		if(collidesWithSelf(keyframe))		return false;
-		if(collidesWithWorld(keyframe))		return false;
+		if(!keyframeAnglesAreOK(keyframe)) {
+			if(VERBOSE) System.out.println("Bad angles");
+			return false;
+		}
+		if(collidesWithSelf(keyframe)) {
+			if(VERBOSE) System.out.println("Collides with self");
+			return false;
+		}
+		if(collidesWithWorld(keyframe))	{
+			if(VERBOSE) System.out.println("Collides with world");
+			return false;
+		}
 		return true;
 	}
 		
@@ -301,17 +310,20 @@ public class DHRobotEntity extends PoseEntity {
 	public boolean isPoseIKSane(Matrix4d m) {
 		getPoseFK(poseFKold);
 
-		System.out.println("\n\nold: "+poseFKold);
-		for( DHLink link : links ) {
-			Vector3d Pn=MatrixHelper.getPosition(link.getPoseWorld());
-			System.out.println(link.getLetter()+"="+Pn);
+		if(VERBOSE) {
+			System.out.println("\n\nold: "+poseFKold);
+			/*for( DHLink link : links ) {
+				Vector3d Pn = MatrixHelper.getPosition(link.getPoseWorld());
+				System.out.println(link.getLetter()+"="+Pn);
+			}*/
 		}
 		
 		boolean isSane = false;
 		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
-		System.out.println("new: "+poseFKnew + "\t"+s);
+		if(VERBOSE) System.out.println("new: "+poseFKnew + "\t"+s);
 		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
 			if (sanityCheck(poseFKnew)) {
+				if(VERBOSE) System.out.println("Sane");
 				isSane = true;
 			} else if(VERBOSE) System.out.println("isPoseIKSane() insane");
 		} else if(VERBOSE) System.out.println("isPoseIKSane() impossible");
