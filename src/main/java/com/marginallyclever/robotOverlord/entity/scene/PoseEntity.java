@@ -137,11 +137,11 @@ public class PoseEntity extends Entity {
 	}
 	
 	/**
-	 * Ask this entity "can you move to newPose?"
-	 * @param newPose
+	 * Ask this entity "can you move to newWorldPose?"
+	 * @param newWorldPose the desired world pose of the PoseEntity.
 	 * @return true if it can.
 	 */
-	public boolean canYouMoveTo(Matrix4d newPose) {
+	public boolean canYouMoveTo(Matrix4d newWorldPose) {
 		// TODO add rules here.
 		return true;
 	}

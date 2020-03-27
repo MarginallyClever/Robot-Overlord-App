@@ -506,34 +506,34 @@ public class DHLink extends ModelEntity {
 	
 	/**
 	 * Ask this entity "can you move to newPose?"
-	 * @param newPose
+	 * @param newWorldPose the desired world pose of the link
 	 * @return true if it can.
 	 */
 	@Override
-	public boolean canYouMoveTo(Matrix4d newPose) {
+	public boolean canYouMoveTo(Matrix4d newWorldPose) {
 		if( amIanEndEffector() ) {			
-			return robot.isPoseIKSane(newPose);
+			return robot.isPoseIKSane(newWorldPose);
 		} else if( !this.getLetter().isEmpty() ) {
-			Matrix4d oldPose=pose.get();
+			Matrix4d oldPose=poseWorld.get();
 			// we have newPose ...but is it something this DHLink could do?
 			// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
 			// TODO Today this is the only case I care about. make it better later.
 
 			// difference in position
-			double dx =Math.abs(newPose.m03-oldPose.m03);
-			double dy =Math.abs(newPose.m13-oldPose.m13);
-			double dz =Math.abs(newPose.m23-oldPose.m23);
+			double dx =Math.abs(newWorldPose.m03-oldPose.m03);
+			double dy =Math.abs(newWorldPose.m13-oldPose.m13);
+			double dz =Math.abs(newWorldPose.m23-oldPose.m23);
 			if(dx+dy+dz>1e-6) return false;
 
 			// difference in z axis
-			dx =Math.abs(newPose.m02-oldPose.m02);
-			dy =Math.abs(newPose.m12-oldPose.m12);
-			dz =Math.abs(newPose.m22-oldPose.m22);
+			dx =Math.abs(newWorldPose.m02-oldPose.m02);
+			dy =Math.abs(newWorldPose.m12-oldPose.m12);
+			dz =Math.abs(newWorldPose.m22-oldPose.m22);
 			if(dx+dy+dz>1e-6) return false;
 			// we made it here, move is legal!
 			return true;
 		}
 		// else default case
-		return super.canYouMoveTo(newPose);
+		return super.canYouMoveTo(newWorldPose);
 	}
 }
