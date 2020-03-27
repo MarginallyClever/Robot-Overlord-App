@@ -299,8 +299,11 @@ public class DHRobotEntity extends PoseEntity {
 	public boolean isPoseIKSane(Matrix4d m) {
 		getPoseFK(poseFKold);
 
+		System.out.println("old: "+poseFKold);
+		
 		boolean isSane = false;
 		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
+		System.out.println("new: "+poseFKnew + "\t"+s);
 		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
 			if (sanityCheck(poseFKnew)) {
 				isSane = true;

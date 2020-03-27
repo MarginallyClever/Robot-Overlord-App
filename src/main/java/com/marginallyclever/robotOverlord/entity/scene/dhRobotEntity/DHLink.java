@@ -511,7 +511,7 @@ public class DHLink extends ModelEntity {
 	 */
 	@Override
 	public boolean canYouMoveTo(Matrix4d newPose) {
-		if( amIanEndEffector() ) {
+		if( amIanEndEffector() ) {			
 			return robot.isPoseIKSane(newPose);
 		} else if( !this.getLetter().isEmpty() ) {
 			Matrix4d oldPose=pose.get();

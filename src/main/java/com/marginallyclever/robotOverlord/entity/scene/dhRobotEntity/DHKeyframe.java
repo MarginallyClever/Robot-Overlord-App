@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
 
 /**
@@ -66,5 +67,14 @@ public class DHKeyframe implements RobotKeyframe {
 		for(int i=0;i<arg0.length;++i) {
 			fkValues[i]=arg0[i];
 		}
+	}
+	
+	public String toString() {
+		String str="", add="";
+		for(int i=0;i<fkValues.length;++i) {
+			str+=add+StringHelper.formatDouble(fkValues[i]);
+			add="\t";
+		}
+		return str;
 	}
 }
