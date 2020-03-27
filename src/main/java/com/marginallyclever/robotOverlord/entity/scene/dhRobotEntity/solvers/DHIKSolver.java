@@ -51,6 +51,8 @@ public class DHIKSolver {
 	 * @param suggestion suggested values if there is an ambiguity.
 	 */
 	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
-		return solve(robot,targetMatrix,keyframe);
+		keyframe.fkValues[0]=0;
+		// default action do nothing.
+		return SolutionType.NO_SOLUTIONS;
 	}
 }
