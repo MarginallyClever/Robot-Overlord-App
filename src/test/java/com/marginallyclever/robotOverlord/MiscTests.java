@@ -19,6 +19,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Sim;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
@@ -451,7 +452,9 @@ public class MiscTests {
 			keyframe.fkValues[4]=mid5;
 			keyframe.fkValues[5]=mid6;
 
-			double [][] jacobian = robot.sim.approximateJacobian(keyframe);
+			assert( robot.sim instanceof Sixi2Sim );
+			Sixi2Sim sim = (Sixi2Sim)(robot.sim);
+			double [][] jacobian = sim.approximateJacobian(keyframe);
 			
 			int i,j;
 			for(i=0;i<6;++i) {
@@ -482,11 +485,14 @@ public class MiscTests {
 		Sixi2 robot = new Sixi2();
 		// a new sixi starts with the ghost post in the home position
 		// and the live pose in the rest position.
+
+		assert( robot.sim instanceof Sixi2Sim );
+		Sixi2Sim sim = (Sixi2Sim)(robot.sim);
 	
 		try(BufferedWriter out=new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jvot.csv")))) {
 			out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
 			
-			DHKeyframe keyframe = robot.sim.getIKSolver().createDHKeyframe();	
+			DHKeyframe keyframe = sim.getIKSolver().createDHKeyframe();	
 
 			final double dt=0.03f;  // time step
 			// match the force directions with the start and end matrix
@@ -496,7 +502,7 @@ public class MiscTests {
 			final double [] force = {dp.x,dp.y,dp.z,r.x,r.y,r.z};
 	
 			// set a new position
-			Matrix4d m = robot.sim.endEffector.getPoseWorld();
+			Matrix4d m = sim.endEffector.getPoseWorld();
 			m.m13=-20;
 			m.m23-=5;
 			
@@ -508,10 +514,10 @@ public class MiscTests {
 			while(m.m13<20 && safety<10000) {
 				safety++;
 				System.out.print(safety+": ");
-				if(robot.sim.setPoseIK(m)) {
-					robot.sim.getPoseFK(keyframe);
+				if(sim.setPoseIK(m)) {
+					sim.getPoseFK(keyframe);
 					// matrix m has a sane solution (is reachable)
-					double [][] jacobian = robot.sim.approximateJacobian(keyframe);
+					double [][] jacobian = sim.approximateJacobian(keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
 					
 					out.write(m.m03+"\t"+m.m13+"\t"+m.m23+"\t");
