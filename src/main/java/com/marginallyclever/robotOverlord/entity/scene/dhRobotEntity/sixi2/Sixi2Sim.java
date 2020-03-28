@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
@@ -256,102 +255,6 @@ public class Sixi2Sim extends Sixi2Model {
 	    	readyForCommands=true;
 	    }
 	}
-	
-	/**
-	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
-	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
-	 */
-	public double [][] approximateJacobian(DHKeyframe keyframe) {
-		double [][] jacobian = new double[6][6];
-		
-		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
-		
-		DHKeyframe oldPoseFK = getIKSolver().createDHKeyframe();
-		getPoseFK(oldPoseFK);
-		
-		setPoseFK(keyframe);
-		Matrix4d T = endEffector.getPoseWorld();
-		
-		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
-		int i=0;
-		// for all adjustable joints
-		for( DHLink link : links ) {
-			if(link.flags == LinkAdjust.NONE) continue;
-			
-			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
-			newPoseFK.set(keyframe);
-			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
-			setPoseFK(newPoseFK);
-			Matrix4d Tnew = endEffector.getPoseWorld();
-			
-			// use the finite difference in the two matrixes
-			// aka the approximate the rate of change (aka the integral, aka the velocity)
-			// in one column of the jacobian matrix at this position.
-			Matrix4d dT = new Matrix4d();
-			dT.sub(Tnew,T);
-			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
-			
-			jacobian[i][0]=dT.m03;
-			jacobian[i][1]=dT.m13;
-			jacobian[i][2]=dT.m23;
-
-
-			// find the rotation part
-			// these initialT and initialTd were found in the comments on
-			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
-			// and used to confirm that our skew-symmetric matrix match theirs.
-			/*
-			double[] initialT = {
-					 0,  0   , 1   ,  0.5963,
-					 0,  1   , 0   , -0.1501,
-					-1,  0   , 0   , -0.01435,
-					 0,  0   , 0   ,  1 };
-			double[] initialTd = {
-					 0, -0.01, 1   ,  0.5978,
-					 0,  1   , 0.01, -0.1441,
-					-1,  0   , 0   , -0.01435,
-					 0,  0   , 0   ,  1 };
-			T.set(initialT);
-			Td.set(initialTd);
-			dT.sub(Td,T);
-			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//*/
-			
-			//System.out.println("T="+T);
-			//System.out.println("Td="+Td);
-			//System.out.println("dT="+dT);
-			Matrix3d T3 = new Matrix3d(
-					T.m00,T.m01,T.m02,
-					T.m10,T.m11,T.m12,
-					T.m20,T.m21,T.m22);
-			//System.out.println("R="+R);
-			Matrix3d dT3 = new Matrix3d(
-					dT.m00,dT.m01,dT.m02,
-					dT.m10,dT.m11,dT.m12,
-					dT.m20,dT.m21,dT.m22);
-			//System.out.println("dT3="+dT3);
-			Matrix3d skewSymmetric = new Matrix3d();
-			
-			T3.transpose();  // inverse of a rotation matrix is its transpose
-			skewSymmetric.mul(dT3,T3);
-			
-			//System.out.println("SS="+skewSymmetric);
-			//[  0 -Wz  Wy]
-			//[ Wz   0 -Wx]
-			//[-Wy  Wx   0]
-			
-			jacobian[i][3]=skewSymmetric.m12;
-			jacobian[i][4]=skewSymmetric.m20;
-			jacobian[i][5]=skewSymmetric.m01;
-			
-			++i;
-		}
-
-		// undo our changes.
-		setPoseFK(oldPoseFK);
-		
-		return jacobian;
-	}
-
 	/**
 	 * Interpolate between two matrixes using approximate jacobians and update forward kinematics while you're at it.
 	 * 
@@ -428,7 +331,7 @@ public class Sixi2Sim extends Sixi2Model {
 				for (k = 0; k < 6; ++k) {
 					jvot[j] += inverseJacobian[k][j] * force[k];
 				}
-				if (!Double.isNaN(jvot[j])) {
+				if(!Double.isNaN(jvot[j])) {
 					// simulate a change in the joint velocities
 					double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * dt;
 					System.out.print(StringHelper.formatDouble(v)+"\t");
