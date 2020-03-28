@@ -90,8 +90,8 @@ public class Sixi2 extends PoseEntity {
 		}
 	}
 
-	public Sixi2Live live = new Sixi2Live();
-	public Sixi2Sim sim = new Sixi2Sim();
+	public Sixi2Model live = new Sixi2LivePID();
+	public Sixi2Model sim = new Sixi2Sim();
 
 	public Sixi2Recording recording = new Sixi2Recording();
 
@@ -248,13 +248,13 @@ public class Sixi2 extends PoseEntity {
 			if(controlMode.get() == ControlMode.RECORD.toInt()) {
 				if(activeModel == live) {
 					String line = sim.getCommand();
-					System.out.println(controlMode + " " + operatingMode + " send command: "+line);
+					//System.out.println(controlMode + " " + operatingMode + " send command: "+line);
 					activeModel.sendCommand(line);
 				}
 			} else {
 				if(cycleStart.get() && recording.hasNext()) {
 					String line = recording.next();
-					System.out.println(controlMode + " " + operatingMode + " send command: "+line);
+					//System.out.println(controlMode + " " + operatingMode + " send command: "+line);
 					activeModel.sendCommand(line);
 					if(singleBlock.get()) {
 						// one block at a time
