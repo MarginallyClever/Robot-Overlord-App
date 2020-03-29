@@ -50,8 +50,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		ModelEntity anchor = new ModelEntity();
 		addChild(anchor);
 		anchor.setName("Base");
-		anchor.setModelFilename("/Sixi2/anchor.stl");
+		anchor.setModelFilename("/Sixi2/anchor.obj");
 		anchor.setModelOrigin(0, 0, 0.9);
+		anchor.getMaterial().setTextureFilename("/Sixi2/anchor.png");
 
 		// setup children
 		this.setNumLinks(6);
