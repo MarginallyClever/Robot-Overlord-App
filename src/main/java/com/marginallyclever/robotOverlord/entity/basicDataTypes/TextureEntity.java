@@ -31,7 +31,7 @@ public class TextureEntity extends StringEntity {
 	public TextureEntity(String fileName) {
 		super(fileName);
 		setName("Texture");
-		textureDirty=true;
+		textureDirty=false;
 	}
 
 	public void render(GL2 gl2) {
@@ -55,6 +55,12 @@ public class TextureEntity extends StringEntity {
 	    }
 	}
 
+	@Override
+	public void set(String s) {
+		super.set(s);
+		textureDirty=true;
+	}
+	
 	@Override
 	public void getView(ViewPanel view) {
 		//TODO Swing elements like FileFilter should not be mentioned outside of the view.

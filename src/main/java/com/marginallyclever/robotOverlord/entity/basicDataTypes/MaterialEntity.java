@@ -122,7 +122,7 @@ public class MaterialEntity extends Entity {
 		view.add(diffuse );
 		view.add(specular);
 		view.addRange(shininess, 128, 0);
-		view.add(texture);
+		texture.getView(view);
 
 		view.popStack();
 	}
