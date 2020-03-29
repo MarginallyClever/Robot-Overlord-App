@@ -80,24 +80,37 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 					String [] subTokens = tokens[i].split("/");
 					// vertex data
 					index = Integer.parseInt(subTokens[0])-1;
-					model.addVertex(
-							vertexArray.get(index*3+0),
-							vertexArray.get(index*3+1),
-							vertexArray.get(index*3+2));
+					
+					try {
+						model.addVertex(
+								vertexArray.get(index*3+0),
+								vertexArray.get(index*3+1),
+								vertexArray.get(index*3+2));
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 					// texture data (if any)
 					if(subTokens.length>1 && subTokens[1].length()>0) {
-						index = Integer.parseInt(subTokens[1])-1;
-						model.addTexCoord(
-								texCoordArray.get(index*3+0),
-								texCoordArray.get(index*3+1));
+						int indexT = Integer.parseInt(subTokens[1])-1;
+						try {
+							model.addTexCoord(
+									texCoordArray.get(indexT*2+0),
+									texCoordArray.get(indexT*2+1));
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 					}
 					// normal data (if any)
 					if(subTokens.length>2 && subTokens[2].length()>0) {
-						index = Integer.parseInt(subTokens[2])-1;
-						model.addNormal(
-								normalArray.get(index*3+0),
-								normalArray.get(index*3+1),
-								normalArray.get(index*3+2));
+						int indexN = Integer.parseInt(subTokens[2])-1;
+						try {
+							model.addNormal(
+									normalArray.get(indexN*3+0),
+									normalArray.get(indexN*3+1),
+									normalArray.get(indexN*3+2));
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
