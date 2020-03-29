@@ -225,7 +225,7 @@ public class Model {
 			gl2.glEnableClientState(GL2.GL_COLOR_ARRAY);
 			// Bind the color buffer to work with
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
-			gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
+			gl2.glColorPointer(4,GL2.GL_FLOAT, 0, 0);
 		}
 		if(hasUVs) {
 			gl2.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
@@ -296,6 +296,7 @@ public class Model {
 		normalArray.add(x);
 		normalArray.add(y);
 		normalArray.add(z);
+		hasNormals=true;
 	}
 	
 	public void addVertex(float x,float y,float z) {
@@ -304,9 +305,17 @@ public class Model {
 		vertexArray.add(z);
 	}
 	
+	public void addColor(float r,float g,float b,float a) {
+		colorArray.add(r);
+		colorArray.add(g);
+		colorArray.add(b);
+		colorArray.add(a);
+	}
+	
 	public void addTexCoord(float x,float y) {
 		texCoordArray.add(x);
 		texCoordArray.add(y);
+		hasUVs=true;
 	}
 	
 	/**
