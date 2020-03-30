@@ -90,7 +90,7 @@ public class Sixi2 extends PoseEntity {
 		}
 	}
 
-	public Sixi2Model live = new Sixi2LivePID();
+	public Sixi2Model live = new Sixi2Live();
 	public Sixi2Model sim = new Sixi2Sim();
 
 	public Sixi2Recording recording = new Sixi2Recording();
@@ -134,10 +134,12 @@ public class Sixi2 extends PoseEntity {
 		ModelEntity sixi2ControlBox=new ModelEntity();
 		addChild(sixi2ControlBox);
 		sixi2ControlBox.setName("Control Box");
-		sixi2ControlBox.setModelFilename("/Sixi2/box.stl");
+		sixi2ControlBox.setModelFilename("/Sixi2/box.obj");
 		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
 		sixi2ControlBox.setRotation(new Vector3d(Math.toRadians(90), 0, 0));
-		sixi2ControlBox.getMaterial().setDiffuseColor(1,217f/255f,33f/255f,1);
+		sixi2ControlBox.getMaterial().setTextureFilename("/Sixi2/bicep.png");
+		sixi2ControlBox.getMaterial().setDiffuseColor(1, 1, 1, 1);
+		sixi2ControlBox.getMaterial().setAmbientColor(1, 1, 1, 1);
 	}
 
 	/**
