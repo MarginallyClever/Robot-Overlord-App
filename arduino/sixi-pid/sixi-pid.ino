@@ -971,12 +971,14 @@ void parseLine() {
   
   for(int i=0;i<NUM_MOTORS;++i) {
     float parsed = parseNumber( motors[i].letter, motors[i].angleTarget );
-    angles[i] = (uint32_t)(parsed);
+    angles[i] = (int32_t)floor(parsed);
   }
   
   IK(angles,steps);
 
+  CRITICAL_SECTION_START();
   for(int i=0;i<NUM_MOTORS;++i) {
+/*
     Serial.print(motors[i].letter);
     Serial.print(motors[i].angleTarget);
     Serial.print('\t');
@@ -988,8 +990,10 @@ void parseLine() {
     Serial.print('\t');
     Serial.print(motors[i].stepsNow);
     Serial.println();
-    //motors[i].stepsTarget = steps[i];
+*/
+    motors[i].stepsTarget = steps[i];
   }
+  CRITICAL_SECTION_END();
 }
 
 
