@@ -133,7 +133,8 @@ public class Sixi2LivePID extends Sixi2Model {
 		motors[2].setPID(1000,30000,0);   
 		motors[3].setPID(500,20,0);       
 		motors[4].setPID(500,20,0);       
-		motors[5].setPID(500,20,0.00);    */
+		motors[5].setPID(500,20,0.00);
+		*/
 		
 		for( int i=0; i<numAdjustableLinks; ++i ) {
 			motors[i].steps = (long) Math.floor( links.get(i).getAdjustableValue() / motors[i].ratio );
@@ -145,7 +146,7 @@ public class Sixi2LivePID extends Sixi2Model {
 		
 		// set green
 	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(22f/255f,161/255f,28f/255f,1);
+	    	link.getMaterial().setDiffuseColor(122f/255f,161/255f,128f/255f,1);
 	    }
 	}
 
