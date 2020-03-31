@@ -201,7 +201,6 @@
 // for timer interrupt control
 #undef F_CPU
 #define F_CPU                   (16000000L)
-#endif
 
 #define MAX_COUNTER             (65536L)  // 16 bits
 
