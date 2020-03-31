@@ -902,7 +902,7 @@ void copySensorsToMotorPositions() {
 /**
    prepares the input buffer to receive a new message and tells the serial connected device it is ready for more.
 */
-void parser_ready() {
+void parserReady() {
   sofar = 0; // clear input buffer
   Serial.print(F("\n> "));  // signal ready to receive input
   last_cmd_time = millis();
@@ -969,6 +969,7 @@ void processCommand() {
         Serial.print(newer);
       }
       break;
+    default: break;
   }
 }
 
@@ -987,7 +988,7 @@ void listenToSerial() {
 
       // do something with the command
       processCommand();
-      parser_ready();
+      parserReady();
     }
   }
 }
@@ -1228,7 +1229,7 @@ void setup() {
   CRITICAL_SECTION_END();
   
   Serial.println(F("** READY **"));
-  parser_ready();
+  parserReady();
 }
 
 
