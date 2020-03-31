@@ -192,7 +192,10 @@
 // CLOCK 
 
 // for timer interrupt control
+#ifndef F_CPU
 #define F_CPU                   (16000000L)
+#endif
+
 #define MAX_COUNTER             (65536L)  // 16 bits
 
 #define TIMER_RATE            ((F_CPU)/8)
@@ -227,6 +230,16 @@ inline void CRITICAL_SECTION_START() {
 inline void CRITICAL_SECTION_END() {
   SREG = _sreg;
 }
+
+
+
+float capRotationDegrees(double arg0,double centerPoint) {
+  while(arg0<centerPoint-180) arg0 += 360;
+  while(arg0>centerPoint+180) arg0 -= 360;
+  
+  return arg0;
+}
+
 
 
 
@@ -298,6 +311,10 @@ struct StepperMotor {
   
   float getDegrees() {
     return capRotationDegrees( steps*ratio, 0 );
+  }
+
+  void setPosition(float angleDeg) {
+    steps = angleDeg / ratio;
   }
   
   void setPID(float p,float i,float d) {
@@ -486,14 +503,6 @@ void loadConfig() {
 char sensorPins[4*NUM_SENSORS];
 float sensorAngles[NUM_SENSORS];
 uint8_t positionErrorFlags;
-
-float capRotationDegrees(double arg0,double centerPoint) {
-  while(arg0<centerPoint-180) arg0 += 360;
-  while(arg0>centerPoint+180) arg0 -= 360;
-  
-  return arg0;
-}
-
 
 
 
