@@ -69,7 +69,7 @@
 #define SENSOR_TOTAL_BITS    (16)
 #define SENSOR_DATA_BITS     (15)
 #define SENSOR_ANGLE_BITS    (14)
-#define SENSOR_ANGLE_PER_BIT (360.0/(float)((long)1<<SENSOR_ANGLE_BITS))  // 0.00549316406
+#define SENSOR_ANGLE_PER_BIT (360.0/(float)((uint32_t)1<<SENSOR_ANGLE_BITS))  // 0.00549316406
 
 // SENSOR PINS
 
@@ -161,6 +161,13 @@
 #define DEGREES_PER_STEP_4 (360.0/MOTOR_4_STEPS_PER_TURN)
 #define DEGREES_PER_STEP_5 (360.0/MOTOR_5_STEPS_PER_TURN)
 
+#define STEP_PER_DEGREES_0 (MOTOR_0_STEPS_PER_TURN/360.0)
+#define STEP_PER_DEGREES_1 (MOTOR_1_STEPS_PER_TURN/360.0)
+#define STEP_PER_DEGREES_2 (MOTOR_2_STEPS_PER_TURN/360.0)
+#define STEP_PER_DEGREES_3 (MOTOR_3_STEPS_PER_TURN/360.0)
+#define STEP_PER_DEGREES_4 (MOTOR_4_STEPS_PER_TURN/360.0)
+#define STEP_PER_DEGREES_5 (MOTOR_5_STEPS_PER_TURN/360.0)
+
 // step signal start
 #define START0 LOW
 #define START1 LOW
@@ -210,7 +217,7 @@
 #define TIMEOUT_OK (1000)
 
 // convenience
-#define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
+#define PENDING(NOW,SOON) ((uint32_t)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
 #ifndef MIN_SEGMENT_TIME_US
@@ -250,18 +257,19 @@ struct StepperMotor {
   uint8_t dir_pin;
   uint8_t enable_pin;
   
+  // steps to degrees ratio (gearbox)
+  float ratio;
+
   // only a whole number of steps is possible.
-  long steps;
+  uint32_t stepsNow;
   // only a whole number of steps is possible.
-  long target;
+  uint32_t stepsTarget;
+  float angleTarget;
   
-  float homePos;
+  float angleHome;
   float limitMax;
   float limitMin;
   
-  // steps to degrees ratio (gearbox)
-  float ratio;
-      
   // current error
   // PID values
   float kp=5, ki=0.001, kd=0.00001;
@@ -275,8 +283,8 @@ struct StepperMotor {
 
   
   StepperMotor() {
-    steps=0;
-    target=0;
+    stepsNow=0;
+    stepsTarget=0;
     error=0;
     error_i=0;
     error_last=0;
@@ -286,7 +294,7 @@ struct StepperMotor {
   
   void update(float dt) {
     // PID calculation
-    error = target - steps;
+    error = stepsTarget - stepsNow;
     error_i += error * dt;          
     float error_d = (error - error_last) / dt;
     velocity = kp * error + ki * error_i + kd * error_d;
@@ -294,14 +302,16 @@ struct StepperMotor {
 
     if(abs(velocity) < 1e-6) {
       stepInterval = 0xFFFFFFFF;  // uint32_t max value
+      return;
     } else {
       stepInterval = 1000000 / floor(abs(velocity));
     }
 
     //CANT PRINT INSIDE ISR 
     // print("("+error+","+velocity+")\t");
-    //steps += velocity*dt;
+    //stepsNow += velocity*dt;
     if( timeSinceLastStep >= stepInterval ) {
+      stepsNow += velocity<0 ? -1 : 1;
       digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
       digitalWrite( step_pin, HIGH );
       digitalWrite( step_pin, LOW  );
@@ -310,11 +320,7 @@ struct StepperMotor {
   }
   
   float getDegrees() {
-    return capRotationDegrees( steps*ratio, 0 );
-  }
-
-  void setPosition(float angleDeg) {
-    steps = angleDeg / ratio;
+    return capRotationDegrees( stepsNow*ratio, 0 );
   }
   
   void setPID(float p,float i,float d) {
@@ -334,8 +340,8 @@ int robot_uid=0;
 
 
 // from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1234477290/3
-long EEPROM_readLong(int ee) {
-  long value = 0;
+uint32_t EEPROM_readLong(int ee) {
+  uint32_t value = 0;
   byte* p = (byte*)(void*)&value;
   for (uint16_t i = 0; i < sizeof(value); i++)
   *p++ = EEPROM.read(ee++);
@@ -345,7 +351,7 @@ long EEPROM_readLong(int ee) {
 // 2020-01-31 Dan added check to not update EEPROM if value is unchanged.
 // from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1234477290/3
 // returns true if the value was changed.
-bool EEPROM_writeLong(int ee, long value) {
+bool EEPROM_writeLong(int ee, uint32_t value) {
   if(EEPROM_readLong(ee) == value) return false;
   
   byte* p = (byte*)(void*)&value;
@@ -369,7 +375,7 @@ char loadVersion() {
  */
 void saveUID() {
   Serial.println(F("Saving UID."));
-  EEPROM_writeLong(ADDR_UUID,(long)robot_uid);
+  EEPROM_writeLong(ADDR_UUID,(uint32_t)robot_uid);
 }
 
 
@@ -447,7 +453,7 @@ void saveHome() {
   Serial.println(F("Saving home."));
   int i,j=ADDR_HOME;
   for(i=0;i<NUM_MOTORS;++i) {
-    EEPROM_writeLong(j,(long)(motors[i].homePos*100.0f));
+    EEPROM_writeLong(j,(uint32_t)(motors[i].angleHome*100.0f));
     j+=4;
   }
 }
@@ -459,7 +465,7 @@ void saveHome() {
 void loadHome() {
   int i,j=ADDR_HOME;
   for(i=0;i<NUM_MOTORS;++i) {
-    motors[i].homePos = (float)EEPROM_readLong(j)/100.0f;
+    motors[i].angleHome = (float)EEPROM_readLong(j)/100.0f;
     j+=4;
   }
 }
@@ -510,10 +516,10 @@ uint8_t positionErrorFlags;
 /**
    Inverse Kinematics turns XY coordinates into step counts from each motor
    This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java inverseKinematics()
-   @param axies the cartesian coordinate
-   @param motorStepArray a measure of each belt to that plotter position
+   @param angles the cartesian coordinate
+   @param steps a measure of each belt to that plotter position
 */
-void IK(const float *const axies, long *motorStepArray) {
+void IK(const float *const angles, uint32_t *steps) {
   // each of the xyz motors are differential to each other.
   // to move only one motor means applying the negative of that value to the other two motors
 
@@ -526,24 +532,25 @@ void IK(const float *const axies, long *motorStepArray) {
   // Some of these are negative because the motor is wired to turn the opposite direction from the Robot Overlord simulation.
   // Robot Overlord has the final say, so these are flipped to match the simulation.
   // This is the only place motor direction should ever be inverted.
-  float J0 = -axies[0];  // anchor  (G0 X*)
-  float J1 =  axies[1];  // shoulder (G0 Y*)
-  float J2 =  axies[2];  // elbow (G0 Z*)
-  float J3 = -axies[3];  // ulna  (G0 U*)
-  float J4 =  axies[4];  // wrist (G0 V*)
-  float J5 = -axies[5];  // hand  (G0 W*)
+  float J0 = -angles[0];  // anchor  (G0 X*)
+  float J1 =  angles[1];  // shoulder (G0 Y*)
+  float J2 =  angles[2];  // elbow (G0 Z*)
+  float J3 = -angles[3];  // ulna  (G0 U*)
+  float J4 =  angles[4];  // wrist (G0 V*)
+  float J5 = -angles[5];  // hand  (G0 W*)
 
   // adjust for the wrist differential
   J5 += (J4/NEMA17_CYCLOID_GEARBOX_RATIO)+(J3/NEMA17_CYCLOID_GEARBOX_RATIO);
   J4 += (J3/NEMA17_CYCLOID_GEARBOX_RATIO);
   
-  motorStepArray[0] = J0 * MOTOR_0_STEPS_PER_TURN / 360.0;  // ANCHOR
-  motorStepArray[1] = J1 * MOTOR_1_STEPS_PER_TURN / 360.0;  // SHOULDER
-  motorStepArray[2] = J2 * MOTOR_2_STEPS_PER_TURN / 360.0;  // ELBOW
-  motorStepArray[3] = J3 * MOTOR_3_STEPS_PER_TURN / 360.0;  // ULNA
-  motorStepArray[4] = J4 * MOTOR_4_STEPS_PER_TURN / 360.0;  // WRIST
-  motorStepArray[5] = J5 * MOTOR_5_STEPS_PER_TURN / 360.0;  // HAND
-  motorStepArray[NUM_MOTORS] = axies[6];
+  steps[0] = J0 * STEP_PER_DEGREES_0;  // ANCHOR
+  steps[1] = J1 * STEP_PER_DEGREES_1;  // SHOULDER
+  steps[2] = J2 * STEP_PER_DEGREES_2;  // ELBOW
+  steps[3] = J3 * STEP_PER_DEGREES_3;  // ULNA
+  steps[4] = J4 * STEP_PER_DEGREES_4;  // WRIST
+  steps[5] = J5 * STEP_PER_DEGREES_5;  // HAND
+  
+  steps[NUM_MOTORS] = angles[6];
 #ifdef DEBUG_IK
   Serial.print("J=");  Serial.print(J0);
   Serial.print('\t');  Serial.print(J1);
@@ -559,11 +566,11 @@ void IK(const float *const axies, long *motorStepArray) {
 /**
    Forward Kinematics - turns step counts into XY coordinates.  
    This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java forwardKinematics()
-   @param motorStepArray a measure of each belt to that plotter position
-   @param axies the resulting cartesian coordinate
+   @param steps a measure of each belt to that plotter position
+   @param angles the resulting cartesian coordinate
    @return 0 if no problem, 1 on failure.
 */
-int FK(long *motorStepArray, float *axies) {
+int FK(uint32_t *steps, float *angles) {
   // TODO fill me in!
 
   return 0;
@@ -696,7 +703,7 @@ void sensorUpdate() {
     // Robot Overlord has the final say, so these are flipped to match the simulation.
     // This is the only place motor direction should ever be inverted.
     if(i!=1 && i!=2) v=-v;
-    v -= motors[i].homePos;
+    v -= motors[i].angleHome;
     while(v<-180) v+=360;
     while(v> 180) v-=360;
     sensorAngles[i] = v;
@@ -711,8 +718,8 @@ uint32_t reportDelay = 0;
 #define MAX_BUF 127
 char serialBuffer[MAX_BUF + 1]; // Serial buffer
 int sofar;                      // Serial buffer progress
-long last_cmd_time;             // prevent timeouts
-long line_number = 0;           // make sure commands arrive in order
+uint32_t last_cmd_time;             // prevent timeouts
+uint32_t line_number = 0;           // make sure commands arrive in order
 uint8_t lastGcommand = -1;
 
 
@@ -762,7 +769,7 @@ char hasGCode(char code) {
 */
 char checkLineNumberAndCRCisOK() {
   // is there a line number?
-  long cmd = parseNumber('N', -1);
+  uint32_t cmd = parseNumber('N', -1);
   if (cmd != -1 && serialBuffer[0] == 'N') { // line number must appear first on the line
     if ( cmd != line_number ) {
       // wrong line number error
@@ -816,13 +823,13 @@ void sixiResetSensorOffsets() {
   int i;
   // cancel the current home offsets
   for (i = 0; i < NUM_SENSORS; ++i) {
-    motors[i].homePos = 0;
+    motors[i].angleHome = 0;
   }
   // read the sensor
   sensorUpdate();
   // apply the new offsets
   for (i = 0; i < NUM_SENSORS; ++i) {
-    motors[i].homePos = sensorAngles[i];
+    motors[i].angleHome = sensorAngles[i];
   }
 }
 
@@ -894,7 +901,7 @@ void copySensorsToMotorPositions() {
     }
   }
   for (j = 0; j < NUM_SENSORS; ++j) {
-    motors[i].steps = a[j] / (float)numSamples;
+    motors[i].stepsNow = a[j] / (float)numSamples;
   }
 
 }
@@ -906,6 +913,33 @@ void parserReady() {
   sofar = 0; // clear input buffer
   Serial.print(F("\n> "));  // signal ready to receive input
   last_cmd_time = millis();
+}
+
+/**
+ * G0/G1 linear moves
+ */
+void parseLine() {
+  float angles[NUM_MOTORS];
+  uint32_t steps[NUM_MOTORS];
+
+  Serial.println();
+  
+  for(int i=0;i<NUM_MOTORS;++i) {
+    float parsed = parseNumber( motors[i].letter, motors[i].angleTarget );
+    angles[i] = (uint32_t)(parsed);
+    
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleTarget);
+    Serial.print('\t');
+    Serial.print(angles[i]);
+    Serial.println();
+  }
+  
+  IK(angles,steps);
+
+  for(int i=0;i<NUM_MOTORS;++i) {
+    //motors[i].stepsTarget = steps[i];
+  }
 }
 
 
@@ -925,7 +959,7 @@ void processCommand() {
     saveUID();
   }
 
-  long cmd;
+  uint32_t cmd;
 
   // M codes
   cmd = parseNumber('M', -1);
@@ -960,18 +994,7 @@ void processCommand() {
     case  0:
     case  1:
       lastGcommand = cmd;
-      for(int i=0;i<NUM_MOTORS;++i) {
-        float older = motors[i].target / motors[i].ratio;
-        float parsed = parseNumber(motors[i].letter,older);
-        long newer = (long)(parsed * motors[i].ratio);
-        //motors[i].target = newer;
-        Serial.print(motors[i].letter);
-        Serial.print(motors[i].target);
-        Serial.print("\t");  Serial.print(older);
-        Serial.print("\t");  Serial.print(parsed);
-        Serial.print("\t");  Serial.print(newer);
-        Serial.println();
-      }
+      parseLine();
       break;
     default: break;
   }
