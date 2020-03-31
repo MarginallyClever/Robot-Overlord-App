@@ -1,5 +1,9 @@
-# raspberry pi + arduino #
+# How to install Arduino command line for Sixi Raspberry Pi
+
 ##########################
+# always first
+##########################
+
 # ssh into pi
 login: pi
 pass: the magic word
@@ -9,25 +13,27 @@ pass: the magic word
 ##########################
 
 # install prequisites for inotools + ino tools
-~/$ sudo pip install configobj
-~/$ sudo pip install glob2
-~/$ sudo pip install jinja2
-~/$ sudo pip install pyserial
-~/$ sudo pip install ordereddict
-~/$ sudo apt update
-~/$ sudo apt install arduino
-~/$ sudo apt install git
-~/$ git clone git://github.com/amperka/ino
-~/$ cd ino
-~/ino$ sudo make install
-~/ino$ cd ../
+pi@raspberrypi:~/ $ sudo pip install configobj
+pi@raspberrypi:~/ $ sudo pip install glob2
+pi@raspberrypi:~/ $ sudo pip install jinja2
+pi@raspberrypi:~/ $ sudo pip install pyserial
+pi@raspberrypi:~/ $ sudo pip install ordereddict
+pi@raspberrypi:~/ $ sudo apt update
+pi@raspberrypi:~/ $ sudo apt install arduino
+pi@raspberrypi:~/ $ sudo apt install git
+pi@raspberrypi:~/ $ git clone git://github.com/amperka/ino
+pi@raspberrypi:~/ $ cd ino
+pi@raspberrypi:~/ino $ sudo make install
+pi@raspberrypi:~/ino $ cd ../
 
 # install camera + python
-~/$ sudo apt install python-picamera
-~/$ sudo apt install python-pip
+pi@raspberrypi:~/ $ sudo apt install python-picamera
+pi@raspberrypi:~/ $ sudo apt install python-pip
 
 #install arduino cli: (http://www.raspberryvi.org/stories/arduino-cli.html)
 
+#install serial tool
+pi@raspberrypi:~/Robot-Overlord-App/arduino/sixi-pid $ sudo apt install picocom
 
 ##########################
 # general
@@ -35,19 +41,29 @@ pass: the magic word
 
 
 # get arduino sketch from github (once)
-~/$ git clone git://github.com/MarginallyClever/Robot-Overlord-App
+pi@raspberrypi:~/ $ git clone git://github.com/MarginallyClever/Robot-Overlord-App
 
 # checkout a branch. example here is '2020-03-dev' (once)
-~/$ cd Robot-Overlord-App
-~/Robot-Overlord-App$ git checkout 2020-03-dev
+pi@raspberrypi:~/ $ cd Robot-Overlord-App
+pi@raspberrypi:~/Robot-Overlord-App $ git checkout 2020-03-dev
 
 # update code in that branch
-~/Robot-Overlord-App$ git pull
+pi@raspberrypi:~/Robot-Overlord-App $ git pull
 
 # surf to arduino sketch folder
-$ cd arduino/sixi-pid
+pi@raspberrypi:~/ $ cd arduino/sixi-pid
 
 # build sketch
 #build and upload
-~/arduino/sixi-pid $ make upload
+pi@raspberrypi:~/arduino/sixi-pid $ make upload
 
+# open serial connection
+pi@raspberrypi:~/arduino/sixi-pid $ picocom -b57600 /dev/ttyACM0
+
+# to exit picocom serial [CTRL + A] followed by [CTRL + X]
+
+##########################
+# always last
+##########################
+
+~/ $ exit

@@ -572,8 +572,6 @@ int FK(long *motorStepArray, float *axies) {
 
 // turn on power to the motors (make them immobile)
 void motor_engage() {
-  int i;
-  
   for( int i=0; i<NUM_MOTORS; ++i ) {
     digitalWrite( motors[i].enable_pin, LOW );
   }
@@ -823,7 +821,6 @@ void sixiResetSensorOffsets() {
   // read the sensor
   sensorUpdate();
   // apply the new offsets
-  float homePos[NUM_MOTORS];
   for (i = 0; i < NUM_SENSORS; ++i) {
     motors[i].homePos = sensorAngles[i];
   }
@@ -980,6 +977,7 @@ void listenToSerial() {
   // listen for serial commands
   while (Serial.available() > 0) {
     char c = Serial.read();
+    Serial.print(c);
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
     if (c == '\r' || c == '\n') {
       serialBuffer[sofar - 1] = 0;
