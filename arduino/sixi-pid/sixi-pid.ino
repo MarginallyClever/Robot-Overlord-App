@@ -980,7 +980,7 @@ void listenToSerial() {
   // listen for serial commands
   while (Serial.available() > 0) {
     char c = Serial.read();
-    Serial.print(c);
+    Serial.println(c,DEC);
     if (c == '\r') continue;
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
     if (c == '\n') {
