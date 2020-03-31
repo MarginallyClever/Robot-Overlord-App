@@ -260,9 +260,9 @@ struct StepperMotor {
   float ratio;
 
   // only a whole number of steps is possible.
-  uint32_t stepsNow;
+  int32_t stepsNow;
   // only a whole number of steps is possible.
-  uint32_t stepsTarget;
+  int32_t stepsTarget;
   float angleTarget;
   
   float angleHome;
@@ -522,7 +522,7 @@ uint8_t positionErrorFlags;
    @param angles the cartesian coordinate
    @param steps a measure of each belt to that plotter position
 */
-void IK(const float *const angles, uint32_t *steps) {
+void IK(const float *const angles, int32_t *steps) {
   // each of the xyz motors are differential to each other.
   // to move only one motor means applying the negative of that value to the other two motors
 
@@ -965,7 +965,7 @@ void parserReady() {
  */
 void parseLine() {
   float angles[NUM_MOTORS];
-  uint32_t steps[NUM_MOTORS];
+  int32_t steps[NUM_MOTORS];
 
   Serial.println();
   
