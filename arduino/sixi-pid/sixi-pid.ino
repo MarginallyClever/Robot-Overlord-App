@@ -734,12 +734,12 @@ float extractAngleFromRawValue(uint16_t rawValue) {
 void sensorUpdate() {
   uint16_t rawValue;
   float v;
-  Serial.println("D");
   for(int i=0;i<NUM_SENSORS;++i) {
+    Serial.print('D');
     if(getSensorRawValue(i,rawValue)) continue;
     Serial.print(i);
     v = extractAngleFromRawValue(rawValue);
-    Serial.print(":");
+    Serial.print('=');
     Serial.println(v);
     // Some of these are negative because the sensor is reading the opposite rotation from the Robot Overlord simulation.
     // Robot Overlord has the final say, so these are flipped to match the simulation.
@@ -750,7 +750,6 @@ void sensorUpdate() {
     while(v>=180) v-=360;
     sensorAngles[i] = v;
   }
-    Serial.print("E");
 }
 
 
