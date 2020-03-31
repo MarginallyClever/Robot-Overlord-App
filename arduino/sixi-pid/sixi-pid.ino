@@ -284,9 +284,13 @@ struct StepperMotor {
   StepperMotor() {
     stepsNow=0;
     stepsTarget=0;
+    angleTarget=0;
+    angleHome=0;
+
     error=0;
     error_i=0;
     error_last=0;
+    
     timeSinceLastStep=0;
     stepInterval=0;
   }
