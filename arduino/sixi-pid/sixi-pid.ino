@@ -759,6 +759,10 @@ void sensorUpdate() {
     Serial.print(cc-bb);
     Serial.print('\t');
     Serial.print(dd-cc);
+    Serial.print("\tv");
+    Serial.print(v);
+    Serial.print("\th");
+    Serial.print(motors[i].angleHome);
     Serial.print('\t');
     Serial.print(ee-dd);
     Serial.println();
