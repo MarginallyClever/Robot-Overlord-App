@@ -808,7 +808,7 @@ char hasGCode(char code) {
 */
 char checkLineNumberAndCRCisOK() {
   // is there a line number?
-  uint32_t cmd = parseNumber('N', -1);
+  int8_t cmd = parseNumber('N', -1);
   if (cmd != -1 && serialBuffer[0] == 'N') { // line number must appear first on the line
     if ( cmd != line_number ) {
       // wrong line number error
