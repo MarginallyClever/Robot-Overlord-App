@@ -761,8 +761,8 @@ uint32_t reportDelay = 0;
 #define MAX_BUF 127
 char serialBuffer[MAX_BUF + 1]; // Serial buffer
 int sofar;                      // Serial buffer progress
-uint32_t last_cmd_time;             // prevent timeouts
-uint32_t line_number = 0;           // make sure commands arrive in order
+uint32_t last_cmd_time;         // prevent timeouts
+int32_t line_number = 0;        // make sure commands arrive in order
 uint8_t lastGcommand = -1;
 
 
@@ -812,7 +812,7 @@ char hasGCode(char code) {
 */
 char checkLineNumberAndCRCisOK() {
   // is there a line number?
-  int8_t cmd = parseNumber('N', -1);
+  int32_t cmd = parseNumber('N', -1);
   if (cmd != -1 && serialBuffer[0] == 'N') { // line number must appear first on the line
     if ( cmd != line_number ) {
       // wrong line number error
