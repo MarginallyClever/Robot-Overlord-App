@@ -230,18 +230,6 @@ inline void CRITICAL_SECTION_END() {
 
 
 
-
-
-int robot_uid=0;
-
-
-float capRotationDegrees(double arg0,double centerPoint) {
-  while(arg0<centerPoint-180) arg0 += 360;
-  while(arg0>centerPoint+180) arg0 -= 360;
-  
-  return arg0;
-}
-
 struct StepperMotor {
   char letter;
 
@@ -320,10 +308,7 @@ struct StepperMotor {
 };
 
 StepperMotor motors[6];
-
-
-
-
+int robot_uid=0;
 
 
 
@@ -501,6 +486,14 @@ void loadConfig() {
 char sensorPins[4*NUM_SENSORS];
 float sensorAngles[NUM_SENSORS];
 uint8_t positionErrorFlags;
+
+float capRotationDegrees(double arg0,double centerPoint) {
+  while(arg0<centerPoint-180) arg0 += 360;
+  while(arg0>centerPoint+180) arg0 -= 360;
+  
+  return arg0;
+}
+
 
 
 
@@ -877,6 +870,30 @@ void reportAllAngleValues() {
 }
 
 /**
+   D18 copy sensor values to motor step positions.
+*/
+void copySensorsToMotorPositions() {
+  float a[NUM_MOTORS];
+  int i, j;
+  int numSamples = 10;
+
+  for (j = 0; j < NUM_MOTORS; ++j) a[j] = 0;
+
+  // assert(NUM_SENSORS <= NUM_MOTORS);
+
+  for (i = 0; i < numSamples; ++i) {
+    sensorUpdate();
+    for (j = 0; j < NUM_SENSORS; ++j) {
+      a[j] += sensorAngles[j];
+    }
+  }
+  for (j = 0; j < NUM_SENSORS; ++j) {
+    motors[i].steps = a[j] / (float)numSamples;
+  }
+
+}
+
+/**
    prepares the input buffer to receive a new message and tells the serial connected device it is ready for more.
 */
 void parser_ready() {
@@ -919,7 +936,6 @@ void processCommand() {
       Serial.print(F("D10 V"));
       Serial.println(MACHINE_HARDWARE_VERSION);
       break;
-    case 16:  setFeedratePerAxis();  break;
     case 17:  reportAllAngleValues();  break;
     case 18:  copySensorsToMotorPositions();  break;
     case 19:  positionErrorFlags ^= POSITION_ERROR_FLAG_CONTINUOUS;  break; // toggle
@@ -940,7 +956,7 @@ void processCommand() {
       lastGcommand = cmd;
       for(int i=0;i<NUM_MOTORS;++i) {
         float older = motors[i].target / motors[i].ratio;
-        long newer = (long)(parseNumber(motors[i].letter,older) * motors.ratio);
+        long newer = (long)(parseNumber(motors[i].letter,older) * motors[i].ratio);
         //motors[i].target = newer;
         Serial.print(motors[i].target);
         Serial.print(" -> ");
@@ -1178,6 +1194,10 @@ void setup() {
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
 #endif
+
+  sensorUpdate();
+  sensorUpdate();
+  copySensorsToMotorPositions();
 
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
