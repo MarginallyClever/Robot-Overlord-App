@@ -976,10 +976,11 @@ void processCommand() {
 }
 
 
-void Serial_listen() {
+void listenToSerial() {
   // listen for serial commands
   while (Serial.available() > 0) {
     char c = Serial.read();
+    Serial.print(c);
     if (c == '\r') continue;
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
     if (c == '\n') {
@@ -1208,7 +1209,7 @@ void setup() {
   sensorUpdate();
   copySensorsToMotorPositions();
 
-  positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
+  positionErrorFlags = 0;//POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
   // disable global interrupts
   CRITICAL_SECTION_START();
@@ -1236,7 +1237,7 @@ void setup() {
 
 
 void loop() {
-  Serial_listen();
+  listenToSerial();
   sensorUpdate();
 
   if ((positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) {
