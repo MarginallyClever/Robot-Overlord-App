@@ -738,38 +738,21 @@ float extractAngleFromRawValue(uint16_t rawValue) {
 void sensorUpdate() {
   uint16_t rawValue;
   float v;
-  uint32_t aa,bb,cc,dd,ee;
+  //uint32_t aa,bb,cc,dd,ee;
   for(int i=0;i<NUM_SENSORS;++i) {
-    aa = micros();
     if(getSensorRawValue(i,rawValue)) continue;
-    bb = micros();
     v = extractAngleFromRawValue(rawValue);
-    cc = micros();
     // Some of these are negative because the sensor is reading the opposite rotation from the Robot Overlord simulation.
     // Robot Overlord has the final say, so these are flipped to match the simulation.
     // This is the only place motor direction should ever be inverted.
     if(i!=1 && i!=2) v=-v;
     v -= motors[i].angleHome;
-    dd = micros();
+    // CAUTION!  if motors[i].angleHome is some really big number (uint32_t -1?) these while loops
+    // will be very slow.  It could happen if EEPROM has garbage data and loadConfig() pulls it in
+    // when the robot boots.
     while(v<-180) v+=360;
     while(v> 180) v-=360;
-    ee = micros();
     sensorAngles[i] = v;
-    Serial.print('D');
-    Serial.print(i);
-    Serial.print('\t');
-    Serial.print(bb-aa);
-    Serial.print('\t');
-    Serial.print(cc-bb);
-    Serial.print('\t');
-    Serial.print(dd-cc);
-    Serial.print("\tv");
-    Serial.print(v);
-    Serial.print("\th");
-    Serial.print(motors[i].angleHome);
-    Serial.print('\t');
-    Serial.print(ee-dd);
-    Serial.println();
   }
 }
 
