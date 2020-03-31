@@ -734,21 +734,31 @@ float extractAngleFromRawValue(uint16_t rawValue) {
 void sensorUpdate() {
   uint16_t rawValue;
   float v;
+  uint32_t aa,bb,cc,dd,ee;
   for(int i=0;i<NUM_SENSORS;++i) {
-    Serial.print('D');
+    aa = micros();
     if(getSensorRawValue(i,rawValue)) continue;
-    Serial.print(i);
+    bb = micros();
     v = extractAngleFromRawValue(rawValue);
-    Serial.print('=');
-    Serial.println(v);
+    cc = micros();
     // Some of these are negative because the sensor is reading the opposite rotation from the Robot Overlord simulation.
     // Robot Overlord has the final say, so these are flipped to match the simulation.
     // This is the only place motor direction should ever be inverted.
     if(i!=1 && i!=2) v=-v;
     v -= motors[i].angleHome;
     while(v<-180) v+=360;
-    while(v>=180) v-=360;
+    while(v> 180) v-=360;
     sensorAngles[i] = v;
+    dd = micros();
+    Serial.print('D');
+    Serial.print(i);
+    Serial.print('\t');
+    Serial.print(bb-aa);
+    Serial.print('\t');
+    Serial.print(cc-bb);
+    Serial.print('\t');
+    Serial.print(dd-cc);
+    Serial.print('\n');
   }
 }
 
