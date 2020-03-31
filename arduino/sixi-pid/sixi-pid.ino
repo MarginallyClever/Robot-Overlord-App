@@ -229,6 +229,11 @@
 
 #define CLOCK_ADJUST(x) {  OCR1A = (x);  }  // microseconds
 
+// serial comms
+#define BAUD 57600
+#define MAX_BUF 127
+
+
 unsigned char _sreg=0;
 inline void CRITICAL_SECTION_START() {
   _sreg = SREG;  cli();
@@ -247,6 +252,7 @@ float capRotationDegrees(double arg0,double centerPoint) {
 }
 
 
+extern uint32_t current_feed_rate;
 
 
 struct StepperMotor {
@@ -310,15 +316,17 @@ struct StepperMotor {
       stepInterval = 1000000 / floor(abs(velocity));
     }
 
+    timeSinceLastStep += 1000000 / current_feed_rate;
+    
     //CANT PRINT INSIDE ISR 
     // print("("+error+","+velocity+")\t");
     //stepsNow += velocity*dt;
     if( timeSinceLastStep >= stepInterval ) {
       stepsNow += velocity<0 ? -1 : 1;
-      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
-      digitalWrite( step_pin, HIGH );
-      digitalWrite( step_pin, LOW  );
-      timeSinceLastStep -= stepInterval;
+      //digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
+      //digitalWrite( step_pin, HIGH );
+      //digitalWrite( step_pin, LOW  );
+      timeSinceLastStep = 0;
     }
   }
   
@@ -333,8 +341,32 @@ struct StepperMotor {
   }
 };
 
+
+// GLOBALS
+
+
 StepperMotor motors[6];
 int robot_uid=0;
+
+char sensorPins[4*NUM_SENSORS];
+float sensorAngles[NUM_SENSORS];
+uint8_t positionErrorFlags;
+
+
+// Serial comm reception
+char serialBuffer[MAX_BUF + 1]; // Serial buffer
+int sofar;                      // Serial buffer progress
+uint32_t lastCmdTimeMs;         // prevent timeouts
+int32_t lineNumber = 0;        // make sure commands arrive in order
+uint8_t lastGcommand = -1;
+uint32_t reportDelay = 0;  // how long since last D17 sent out
+
+
+// timer stuff
+uint32_t current_feed_rate = 1000;
+uint8_t isr_step_multiplier = 1;
+uint32_t min_segment_time_us=MIN_SEGMENT_TIME_US;
+
 
 
 
@@ -505,13 +537,6 @@ void loadConfig() {
 
 // SIXI
 
-
-
-
-
-char sensorPins[4*NUM_SENSORS];
-float sensorAngles[NUM_SENSORS];
-uint8_t positionErrorFlags;
 
 
 
@@ -757,24 +782,6 @@ void sensorUpdate() {
 }
 
 
-uint32_t reportDelay = 0;
-
-// Serial comm reception
-#define BAUD 57600
-#define MAX_BUF 127
-char serialBuffer[MAX_BUF + 1]; // Serial buffer
-int sofar;                      // Serial buffer progress
-uint32_t last_cmd_time;         // prevent timeouts
-int32_t line_number = 0;        // make sure commands arrive in order
-uint8_t lastGcommand = -1;
-
-
-// timer stuff
-uint32_t current_feed_rate = 200;
-uint8_t isr_step_multiplier = 1;
-uint32_t min_segment_time_us=MIN_SEGMENT_TIME_US;
-
-
 /**
    Look for character /code/ in the buffer and read the float that immediately follows it.
    @return the value found.  If nothing is found, /val/ is returned.
@@ -817,10 +824,10 @@ char checkLineNumberAndCRCisOK() {
   // is there a line number?
   int32_t cmd = parseNumber('N', -1);
   if (cmd != -1 && serialBuffer[0] == 'N') { // line number must appear first on the line
-    if ( cmd != line_number ) {
+    if ( cmd != lineNumber ) {
       // wrong line number error
       Serial.print(F("BADLINENUM "));
-      Serial.println(line_number);
+      Serial.println(lineNumber);
       return 0;
     }
 
@@ -843,19 +850,19 @@ char checkLineNumberAndCRCisOK() {
       int against = strtod(serialBuffer + c, NULL);
       if ( checksum != against ) {
         Serial.print(F("BADCHECKSUM "));
-        Serial.println(line_number);
+        Serial.println(lineNumber);
         return 0;
       }
     } else {
       Serial.print(F("NOCHECKSUM "));
-      Serial.println(line_number);
+      Serial.println(lineNumber);
       return 0;
     }
 
     // remove checksum
     serialBuffer[i] = 0;
 
-    line_number++;
+    lineNumber++;
   }
 
   return 1;  // ok!
@@ -897,8 +904,8 @@ void where() {
 }
 
 /**
-   D17 report the 6 axis sensor values from the Sixi robot arm.
-*/
+ * D17 report the 6 axis sensor values from the Sixi robot arm.
+ */
 void reportAllAngleValues() {
   Serial.print(F("D17"));
   for (int i = 0; i < NUM_MOTORS; ++i) {
@@ -929,8 +936,8 @@ void reportAllAngleValues() {
 }
 
 /**
-   D18 copy sensor values to motor step positions.
-*/
+ * D18 copy sensor values to motor step positions.
+ */
 void copySensorsToMotorPositions() {
   float a[NUM_MOTORS];
   int i, j;
@@ -957,7 +964,7 @@ void copySensorsToMotorPositions() {
 void parserReady() {
   sofar = 0; // clear input buffer
   Serial.print(F("\n> "));  // signal ready to receive input
-  last_cmd_time = millis();
+  lastCmdTimeMs = millis();
 }
 
 /**
@@ -978,7 +985,7 @@ void parseLine() {
 
   CRITICAL_SECTION_START();
   for(int i=0;i<NUM_MOTORS;++i) {
-/*
+//*
     Serial.print(motors[i].letter);
     Serial.print(motors[i].angleTarget);
     Serial.print('\t');
@@ -990,7 +997,7 @@ void parseLine() {
     Serial.print('\t');
     Serial.print(motors[i].stepsNow);
     Serial.println();
-*/
+//*/
     motors[i].stepsTarget = steps[i];
   }
   CRITICAL_SECTION_END();
@@ -1208,20 +1215,15 @@ FORCE_INLINE unsigned short calc_timer(uint32_t desired_freq_hz, uint8_t*loops) 
 ISR(TIMER1_COMPA_vect) {
   // Disable interrupts, to avoid ISR preemption while we reprogram the period
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
-  CRITICAL_SECTION_START();
-  // set the timer interrupt value as big as possible so there's little chance it triggers while i'm still in the ISR.
-  CLOCK_ADJUST(MAX_OCR1A_VALUE);
-
-  for( int i=0; i<6; ++i ) {
-    motors[i].update(0.001);
+  for( int j=0; j<isr_step_multiplier;++j ) {
+    for( int i=0; i<NUM_MOTORS; ++i ) {
+      motors[i].update(0.001);
+    }
   }
-
-  uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
   
-  // set the next isr to fire at the right time.
-  CLOCK_ADJUST(interval);
+  digitalWrite(13,digitalRead(13)==HIGH?LOW:HIGH);
+
   // Turn the interrupts back on (reduces UART delay, apparently)
-  CRITICAL_SECTION_END();
 }
 
 
@@ -1231,28 +1233,24 @@ void setup() {
   Serial.begin(BAUD);
   Serial.println(F("** WAKING **"));
   loadConfig();
-  Serial.println(F("A"));
   setupPins();
-
-  Serial.println(F("B"));
   
   // setup servos
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
 #endif
 
-  Serial.println(F("C"));
+  pinMode(13,OUTPUT);  // LED
+
   // find the starting position of the arm
   copySensorsToMotorPositions();
   
-  Serial.println(F("F"));
   // make sure the starting target is the starting position (no move)
   for (int i = 0; i < NUM_MOTORS; ++i) {
     motors[i].stepsTarget = motors[i].stepsNow;
   }
-  Serial.println(F("G"));
   
-  positionErrorFlags = 0;//POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
+  positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
   // disable global interrupts
   CRITICAL_SECTION_START();
@@ -1273,7 +1271,8 @@ void setup() {
     // set the next isr to fire at the right time.
     CLOCK_ADJUST(interval);
   CRITICAL_SECTION_END();
-  
+
+  Serial.print("interval=");  Serial.println(interval);
   Serial.println(F("** READY **"));
   parserReady();
 }
@@ -1298,6 +1297,14 @@ void loop() {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
       reportAllAngleValues();
+      /*
+      for( int i=0;i<NUM_MOTORS;++i ) {
+        Serial.print(motors[i].letter);
+        Serial.print(motors[i].getDegrees());
+        Serial.print('\t');
+      }
+      Serial.println();
+      //*/
     }
   }
 }
