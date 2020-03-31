@@ -199,7 +199,7 @@
 // CLOCK 
 
 // for timer interrupt control
-#ifndef F_CPU
+#undef F_CPU
 #define F_CPU                   (16000000L)
 #endif
 
