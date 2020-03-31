@@ -972,17 +972,22 @@ void parseLine() {
   for(int i=0;i<NUM_MOTORS;++i) {
     float parsed = parseNumber( motors[i].letter, motors[i].angleTarget );
     angles[i] = (uint32_t)(parsed);
-    
-    Serial.print(motors[i].letter);
-    Serial.print(motors[i].angleTarget);
-    Serial.print('\t');
-    Serial.print(angles[i]);
-    Serial.println();
   }
   
   IK(angles,steps);
 
   for(int i=0;i<NUM_MOTORS;++i) {
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleTarget);
+    Serial.print('\t');
+    Serial.print(motors[i].stepsTarget);
+    Serial.print('\t');
+    Serial.print(angles[i]);
+    Serial.print('\t');
+    Serial.print(steps[i]);
+    Serial.print('\t');
+    Serial.print(motors[i].stepsNow);
+    Serial.println();
     //motors[i].stepsTarget = steps[i];
   }
 }
@@ -1004,7 +1009,7 @@ void processCommand() {
     saveUID();
   }
 
-  uint8_t cmd;
+  int8_t cmd;
 
   // M codes
   cmd = parseNumber('M', -1);
