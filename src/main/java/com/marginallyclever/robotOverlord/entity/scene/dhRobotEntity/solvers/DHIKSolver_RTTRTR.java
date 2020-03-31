@@ -25,28 +25,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	// link 7 is the final output that we started with.
 	
 	/**
-	 * Processes two vectors to find a vector that's projected onto a plane.
-	 * @param n The normal of the plane to be projected onto.  Always length 1. 
-	 * @param k Vector that is to be projected.
-	 * @return k Projected k vector on the plane that's normal to n vector.
-	 */
-	public Vector3d projOntoPlane(Vector3d n, Vector3d k) {
-		Vector3d kNorm = new Vector3d();
-		// double dotProd = k.dot(n)/n.lengthSquared();
-		// n is always length 1.
-		double dotProd = k.dot(n);
-		
-		// kNorm is projection onto the n vector
-		kNorm.scale(dotProd, n);
-		// k is a reference.  Don't damage the reference.  instead, make a new Vector3d to hold the result.
-		Vector3d kProj = new Vector3d(k);
-		kProj.sub(kNorm);	
-		
-		return kProj;
-	}
-
-
-	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
 	 */
 	public int getSolutionSize() {
@@ -68,7 +46,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	@SuppressWarnings("unused")
 	@Override
 	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
-
 		DHLink link0 = robot.links.get(0);
 		DHLink link1 = robot.links.get(1);
 		DHLink link2 = robot.links.get(2);
@@ -209,16 +186,16 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		Matrix4d r03 = new Matrix4d();
 		r03.mul(iRoot,link3.getPoseWorld());
 
-		if(false) {
+		if(true) {
 			Matrix4d link3m = new Matrix4d(link3.getPoseWorld());
 			link3m.mul(iRoot,link3m);
 			Vector3d p3original = new Vector3d();
 			link3m.get(p3original);
-			System.out.println("p3o="+p3original);
 			
 			Vector3d p3cloned = new Vector3d();
 			link3.getPoseWorld().get(p3cloned);
-			System.out.println("p3c="+p3cloned);
+			p3cloned.sub(p3original);
+			System.out.println("p3d="+p3cloned);
 		}
 		
 		// endMatrix is now at j3, but the rotation is unknown.
@@ -275,9 +252,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		}
 		
 		// if (theta4 % 180) == 0 then we have the singularity.
-		double t4copy = t4;
-		while(t4copy>= Math.PI) t4copy-=Math.PI;
-		while(t4copy<=-Math.PI) t4copy+=Math.PI;
+		double t4copy = MathHelper.capRotationRadians(t4,0);
 		if(Math.abs(t4copy)<EPSILON) {
 			// singularity!
 			double t5 = Math.acos(r36.m00);
@@ -290,7 +265,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					"j3="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t"+
 					"j4="+StringHelper.formatDouble(keyframe.fkValues[4])+"\t"+
 					"j5="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
-			/*return SolutionType.NO_SOLUTIONS;/*/
 			if(suggestion!=null) {
 				if(true) System.out.println("ONE OF MANY SOLUTIONS");
 				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],link3.getRangeCenter());
@@ -299,9 +273,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 				if(true) System.out.println("MANY SOLUTIONS");
 				keyframe.fkValues[3] = 0;
 				return SolutionType.MANY_SOLUTIONS;
-			}//*/
+			}
 		}
-		
+
 		// no singularity, so we can continue to solve for theta4 and theta6.
 		
 		// https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
@@ -309,7 +283,6 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double s4 = Math.sin(t4);
 		double t3,t5;
 		if(s4>0) {
-			//if(true) System.out.println("A");
 			t4 = Math.atan2( Math.sqrt(1.0-r22*r22),r22);
 			t3 = Math.atan2(r36.m12, r36.m02);
 			t5 = Math.atan2(r36.m21,-r36.m20);
@@ -359,7 +332,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 									+"t3="+StringHelper.formatDouble(t3)+"\t"
 									+"theta3="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t");
 
-		if(true) System.out.println("result={"
+		if(false) System.out.println("result={"
 					+StringHelper.formatDouble(keyframe.fkValues[0])+","
 					+StringHelper.formatDouble(keyframe.fkValues[1])+","
 					+StringHelper.formatDouble(keyframe.fkValues[2])+","
