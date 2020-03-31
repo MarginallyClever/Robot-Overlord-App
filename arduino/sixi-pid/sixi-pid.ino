@@ -746,10 +746,11 @@ void sensorUpdate() {
     // This is the only place motor direction should ever be inverted.
     if(i!=1 && i!=2) v=-v;
     v -= motors[i].angleHome;
+    dd = micros();
     while(v<-180) v+=360;
     while(v> 180) v-=360;
+    ee = micros();
     sensorAngles[i] = v;
-    dd = micros();
     Serial.print('D');
     Serial.print(i);
     Serial.print('\t');
@@ -758,7 +759,9 @@ void sensorUpdate() {
     Serial.print(cc-bb);
     Serial.print('\t');
     Serial.print(dd-cc);
-    Serial.print('\n');
+    Serial.print('\t');
+    Serial.print(ee-dd);
+    Serial.println();
   }
 }
 
