@@ -1295,11 +1295,11 @@ void loop() {
   if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
-      reportAllAngleValues();
-      /*
+      //reportAllAngleValues();
+      //*
       for( int i=0;i<NUM_MOTORS;++i ) {
         Serial.print(motors[i].letter);
-        Serial.print(motors[i].getDegrees());
+        Serial.print(motors[i].error);
         Serial.print('\t');
       }
       Serial.println();
