@@ -980,10 +980,8 @@ void listenToSerial() {
   // listen for serial commands
   while (Serial.available() > 0) {
     char c = Serial.read();
-    Serial.println(c,DEC);
-    if (c == '\r') continue;
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
-    if (c == '\n') {
+    if (c == '\r' || c == '\n') {
       serialBuffer[sofar - 1] = 0;
 
       // echo confirmation
