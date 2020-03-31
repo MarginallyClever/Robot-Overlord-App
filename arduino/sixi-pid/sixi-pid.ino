@@ -1232,17 +1232,14 @@ void setup() {
 
   Serial.println(F("C"));
   // find the starting position of the arm
-  sensorUpdate();
-  Serial.println(F("C1"));
-  sensorUpdate();
-  Serial.println(F("C2"));
   copySensorsToMotorPositions();
-  Serial.println(F("C3"));
+  
+  Serial.println(F("F"));
   // make sure the starting target is the starting position (no move)
   for (int i = 0; i < NUM_MOTORS; ++i) {
     motors[i].stepsTarget = motors[i].stepsNow;
   }
-  Serial.println(F("D"));
+  Serial.println(F("G"));
   
   positionErrorFlags = 0;//POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
