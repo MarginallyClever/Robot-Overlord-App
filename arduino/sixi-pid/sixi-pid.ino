@@ -903,7 +903,6 @@ void copySensorsToMotorPositions() {
   for (j = 0; j < NUM_SENSORS; ++j) {
     motors[i].stepsNow = a[j] / (float)numSamples;
   }
-
 }
 
 /**
@@ -959,7 +958,7 @@ void processCommand() {
     saveUID();
   }
 
-  uint32_t cmd;
+  uint8_t cmd;
 
   // M codes
   cmd = parseNumber('M', -1);
@@ -1216,8 +1215,7 @@ void setup() {
   motors[5].dir_pin         = MOTOR_5_DIR_PIN;
   motors[5].enable_pin      = MOTOR_5_ENABLE_PIN;
 
-  int i;
-  for (i = 0; i < NUM_MOTORS; ++i) {
+  for (int i = 0; i < NUM_MOTORS; ++i) {
     // set the motor pin & scale
     pinMode(motors[i].step_pin, OUTPUT);
     pinMode(motors[i].dir_pin, OUTPUT);
@@ -1233,6 +1231,10 @@ void setup() {
   sensorUpdate();
   copySensorsToMotorPositions();
 
+  for (int i = 0; i < NUM_MOTORS; ++i) {
+    motors[i].stepsTarget = motors[i].stepsNow;
+  }
+  
   positionErrorFlags = 0;//POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
   // disable global interrupts
