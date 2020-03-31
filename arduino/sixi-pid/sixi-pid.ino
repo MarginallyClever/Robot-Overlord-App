@@ -962,11 +962,15 @@ void processCommand() {
       lastGcommand = cmd;
       for(int i=0;i<NUM_MOTORS;++i) {
         float older = motors[i].target / motors[i].ratio;
-        long newer = (long)(parseNumber(motors[i].letter,older) * motors[i].ratio);
+        float parsed = parseNumber(motors[i].letter,older);
+        long newer = (long)(parsed * motors[i].ratio);
         //motors[i].target = newer;
+        Serial.print(motors[i].letter);
         Serial.print(motors[i].target);
-        Serial.print(" -> ");
-        Serial.print(newer);
+        Serial.print("\t");  Serial.print(older);
+        Serial.print("\t");  Serial.print(parsed);
+        Serial.print("\t");  Serial.print(newer);
+        Serial.println();
       }
       break;
     default: break;
