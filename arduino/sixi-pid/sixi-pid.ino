@@ -24,9 +24,9 @@
 #define ADDR_UUID               (ADDR_VERSION+1)
 #define EEPROM_UUID_LENGTH      (SIZEOF_LONG_BYTES)
 #define ADDR_LIMITS             (ADDR_UUID+EEPROM_UUID_LENGTH)
-#define EEPROM_LIMITS_LENGTH    (2*NUM_AXIES*SIZEOF_FLOAT_BYTES)
+#define EEPROM_LIMITS_LENGTH    (2*NUM_MOTORS*SIZEOF_FLOAT_BYTES)
 #define ADDR_HOME               (ADDR_LIMITS+EEPROM_LIMITS_LENGTH)
-#define EEPROM_LIMITS_HOME      (NUM_AXIES*SIZEOF_FLOAT_BYTES)
+#define EEPROM_LIMITS_HOME      (NUM_MOTORS*SIZEOF_FLOAT_BYTES)
 #define ADDR_CALIBRATION_LEFT   (ADDR_HOME+EEPROM_LIMITS_HOME)
 #define ADDR_CALIBRATION_RIGHT  (ADDR_CALIBRATION_LEFT+SIZEOF_FLOAT_BYTES)
 
@@ -123,7 +123,6 @@
 #define MACHINE_STYLE_NAME           "SIXI"
 #define MACHINE_HARDWARE_VERSION     6  // yellow sixi 2019
 
-#define NUM_AXIES            (7)
 #define NUM_MOTORS           (6)
 #define NUM_SERVOS           (0)
 #define NUM_TOOLS            (1)
@@ -378,7 +377,7 @@ void saveUID() {
 void saveLimits() {
   Serial.println(F("Saving limits."));
   int i,j=ADDR_LIMITS;
-  for(i=0;i<NUM_AXIES;++i) {
+  for(i=0;i<NUM_MOTORS;++i) {
     EEPROM_writeLong(j,motors[i].limitMax*100);
     j+=4;
     EEPROM_writeLong(j,motors[i].limitMin*100);
@@ -392,7 +391,7 @@ void saveLimits() {
  */
 void loadLimits() {
   int i,j=ADDR_LIMITS;
-  for(i=0;i<NUM_AXIES;++i) {
+  for(i=0;i<NUM_MOTORS;++i) {
     motors[i].limitMax = (float)EEPROM_readLong(j)/100.0f;
     j+=4;
     motors[i].limitMin = (float)EEPROM_readLong(j)/100.0f;
@@ -409,14 +408,14 @@ void loadLimits() {
 
 
 /**
- * @param limits NUM_AXIES*2 floats.  Each pair is one float for max limit and one for min limit.
+ * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
  */
 void adjustLimits(float *limits) {
   Serial.println(F("Adjusting limits."));
   int i,j=0;
   int changed=0;
   float v;
-  for(i=0;i<NUM_AXIES;++i) {
+  for(i=0;i<NUM_MOTORS;++i) {
     // max test
     v = floor(limits[j]*100.0f)/100.0f;
     if(v != motors[i].limitMax) {
@@ -445,7 +444,7 @@ void adjustLimits(float *limits) {
 void saveHome() {
   Serial.println(F("Saving home."));
   int i,j=ADDR_HOME;
-  for(i=0;i<NUM_AXIES;++i) {
+  for(i=0;i<NUM_MOTORS;++i) {
     EEPROM_writeLong(j,(long)(motors[i].homePos*100.0f));
     j+=4;
   }
@@ -457,7 +456,7 @@ void saveHome() {
  */
 void loadHome() {
   int i,j=ADDR_HOME;
-  for(i=0;i<NUM_AXIES;++i) {
+  for(i=0;i<NUM_MOTORS;++i) {
     motors[i].homePos = (float)EEPROM_readLong(j)/100.0f;
     j+=4;
   }
@@ -822,7 +821,7 @@ void sixiResetSensorOffsets() {
   // read the sensor
   sensorUpdate();
   // apply the new offsets
-  float homePos[NUM_AXIES];
+  float homePos[NUM_MOTORS];
   for (i = 0; i < NUM_SENSORS; ++i) {
     motors[i].homePos = sensorAngles[i];
   }
@@ -834,7 +833,7 @@ void sixiResetSensorOffsets() {
 */
 void where() {
   int i;
-  for (i = 0; i < NUM_AXIES; ++i) {
+  for (i = 0; i < NUM_MOTORS; ++i) {
     Serial.print(motors[i].letter);
     Serial.print(motors[i].getDegrees());
     Serial.print(' ');
@@ -902,7 +901,53 @@ void processCommand() {
     robot_uid = atoi(strchr(serialBuffer, ' ') + 1);
     saveUID();
   }
+
+  long cmd;
+
+  // M codes
+  cmd = parseNumber('M', -1);
+  switch (cmd) {
+    case 114:  where();  break;
+    default:   break;
+  }
+  if (cmd != -1) return; // M command processed, stop.
   
+  // machine style-specific codes
+  cmd = parseNumber('D', -1);
+  switch (cmd) {
+    case 10:  // get hardware version
+      Serial.print(F("D10 V"));
+      Serial.println(MACHINE_HARDWARE_VERSION);
+      break;
+    case 16:  setFeedratePerAxis();  break;
+    case 17:  reportAllAngleValues();  break;
+    case 18:  copySensorsToMotorPositions();  break;
+    case 19:  positionErrorFlags ^= POSITION_ERROR_FLAG_CONTINUOUS;  break; // toggle
+    case 20:  positionErrorFlags &= 0xffff ^ (POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR);  break; // off
+    case 21:  positionErrorFlags ^= POSITION_ERROR_FLAG_ESTOP;  break; // toggle ESTOP
+    case 22:  sixiResetSensorOffsets();  break;
+    default:  break;
+  }
+  if (cmd != -1) return; // D command processed, stop.
+
+  // no M or D commands were found.  This is probably a G-command.
+  // G codes
+  cmd = parseNumber('G', lastGcommand);
+  lastGcommand = -1;
+  switch (cmd) {
+    case  0:
+    case  1:
+      lastGcommand = cmd;
+      for(int i=0;i<NUM_MOTORS;++i) {
+        float older = motors[i].target / motors[i].ratio;
+        long newer = (long)(parseNumber(motors[i].letter,older) * motors.ratio);
+        //motors[i].target = newer;
+        Serial.print(motors[i].target);
+        Serial.print(" -> ");
+        Serial.print(newer);
+      }
+      break;
+  }
 }
 
 
