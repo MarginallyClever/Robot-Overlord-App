@@ -1228,8 +1228,11 @@ void setup() {
   Serial.println(F("C"));
   // find the starting position of the arm
   sensorUpdate();
+  Serial.println(F("C1"));
   sensorUpdate();
+  Serial.println(F("C2"));
   copySensorsToMotorPositions();
+  Serial.println(F("C3"));
   // make sure the starting target is the starting position (no move)
   for (int i = 0; i < NUM_MOTORS; ++i) {
     motors[i].stepsTarget = motors[i].stepsNow;
