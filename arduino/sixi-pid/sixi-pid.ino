@@ -1215,13 +1215,17 @@ void setup() {
   Serial.begin(BAUD);
   Serial.println(F("** WAKING **"));
   loadConfig();
+  Serial.println(F("A"));
   setupPins();
 
+  Serial.println(F("B"));
+  
   // setup servos
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
 #endif
 
+  Serial.println(F("C"));
   // find the starting position of the arm
   sensorUpdate();
   sensorUpdate();
@@ -1230,6 +1234,7 @@ void setup() {
   for (int i = 0; i < NUM_MOTORS; ++i) {
     motors[i].stepsTarget = motors[i].stepsNow;
   }
+  Serial.println(F("D"));
   
   positionErrorFlags = 0;//POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
