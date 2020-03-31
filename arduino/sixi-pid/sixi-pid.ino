@@ -597,7 +597,7 @@ void robot_findHome() {
 }
 
 
-void robot_setup() {
+void setupPins() {
   int i=0;
 
   sensorPins[i++]=PIN_SENSOR_CSEL_0;
@@ -640,9 +640,48 @@ void robot_setup() {
     digitalWrite(sensorPins[(i*4)+3],HIGH);  // mosi
   }
 
-  // slow the servo on pin D13 down to 61.04Hz
-  // see https://arduinoinfo.mywikis.net/wiki/Arduino-PWM-Frequency
-  //TCCR0B = (TCCR0B & B11111000) | B00000101;
+  motors[0].letter = 'X';
+  motors[0].ratio = DEGREES_PER_STEP_0;
+  motors[0].step_pin        = MOTOR_0_STEP_PIN;
+  motors[0].dir_pin         = MOTOR_0_DIR_PIN;
+  motors[0].enable_pin      = MOTOR_0_ENABLE_PIN;
+
+  motors[1].letter = 'Y';
+  motors[1].ratio = DEGREES_PER_STEP_1;
+  motors[1].step_pin        = MOTOR_1_STEP_PIN;
+  motors[1].dir_pin         = MOTOR_1_DIR_PIN;
+  motors[1].enable_pin      = MOTOR_1_ENABLE_PIN;
+
+  motors[2].letter = 'Z';
+  motors[2].ratio = DEGREES_PER_STEP_2;
+  motors[2].step_pin        = MOTOR_2_STEP_PIN;
+  motors[2].dir_pin         = MOTOR_2_DIR_PIN;
+  motors[2].enable_pin      = MOTOR_2_ENABLE_PIN;
+
+  motors[3].letter = 'U';
+  motors[3].ratio = DEGREES_PER_STEP_3;
+  motors[3].step_pin        = MOTOR_3_STEP_PIN;
+  motors[3].dir_pin         = MOTOR_3_DIR_PIN;
+  motors[3].enable_pin      = MOTOR_3_ENABLE_PIN;
+
+  motors[4].letter = 'V';
+  motors[4].ratio = DEGREES_PER_STEP_4;
+  motors[4].step_pin        = MOTOR_4_STEP_PIN;
+  motors[4].dir_pin         = MOTOR_4_DIR_PIN;
+  motors[4].enable_pin      = MOTOR_4_ENABLE_PIN;
+
+  motors[5].letter = 'W';
+  motors[5].ratio = DEGREES_PER_STEP_5;
+  motors[5].step_pin        = MOTOR_5_STEP_PIN;
+  motors[5].dir_pin         = MOTOR_5_DIR_PIN;
+  motors[5].enable_pin      = MOTOR_5_ENABLE_PIN;
+
+  for (int i = 0; i < NUM_MOTORS; ++i) {
+    // set the motor pin & scale
+    pinMode(motors[i].step_pin, OUTPUT);
+    pinMode(motors[i].dir_pin, OUTPUT);
+    pinMode(motors[i].enable_pin, OUTPUT);
+  }
 }
 
 /**
@@ -1176,61 +1215,18 @@ void setup() {
   Serial.begin(BAUD);
   Serial.println(F("** WAKING **"));
   loadConfig();
-  robot_setup();
-
-  
-  motors[0].letter = 'X';
-  motors[0].ratio = DEGREES_PER_STEP_0;
-  motors[0].step_pin        = MOTOR_0_STEP_PIN;
-  motors[0].dir_pin         = MOTOR_0_DIR_PIN;
-  motors[0].enable_pin      = MOTOR_0_ENABLE_PIN;
-
-  motors[1].letter = 'Y';
-  motors[1].ratio = DEGREES_PER_STEP_1;
-  motors[1].step_pin        = MOTOR_1_STEP_PIN;
-  motors[1].dir_pin         = MOTOR_1_DIR_PIN;
-  motors[1].enable_pin      = MOTOR_1_ENABLE_PIN;
-
-  motors[2].letter = 'Z';
-  motors[2].ratio = DEGREES_PER_STEP_2;
-  motors[2].step_pin        = MOTOR_2_STEP_PIN;
-  motors[2].dir_pin         = MOTOR_2_DIR_PIN;
-  motors[2].enable_pin      = MOTOR_2_ENABLE_PIN;
-
-  motors[3].letter = 'U';
-  motors[3].ratio = DEGREES_PER_STEP_3;
-  motors[3].step_pin        = MOTOR_3_STEP_PIN;
-  motors[3].dir_pin         = MOTOR_3_DIR_PIN;
-  motors[3].enable_pin      = MOTOR_3_ENABLE_PIN;
-
-  motors[4].letter = 'V';
-  motors[4].ratio = DEGREES_PER_STEP_4;
-  motors[4].step_pin        = MOTOR_4_STEP_PIN;
-  motors[4].dir_pin         = MOTOR_4_DIR_PIN;
-  motors[4].enable_pin      = MOTOR_4_ENABLE_PIN;
-
-  motors[5].letter = 'W';
-  motors[5].ratio = DEGREES_PER_STEP_5;
-  motors[5].step_pin        = MOTOR_5_STEP_PIN;
-  motors[5].dir_pin         = MOTOR_5_DIR_PIN;
-  motors[5].enable_pin      = MOTOR_5_ENABLE_PIN;
-
-  for (int i = 0; i < NUM_MOTORS; ++i) {
-    // set the motor pin & scale
-    pinMode(motors[i].step_pin, OUTPUT);
-    pinMode(motors[i].dir_pin, OUTPUT);
-    pinMode(motors[i].enable_pin, OUTPUT);
-  }
+  setupPins();
 
   // setup servos
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
 #endif
 
+  // find the starting position of the arm
   sensorUpdate();
   sensorUpdate();
   copySensorsToMotorPositions();
-
+  // make sure the starting target is the starting position (no move)
   for (int i = 0; i < NUM_MOTORS; ++i) {
     motors[i].stepsTarget = motors[i].stepsNow;
   }
