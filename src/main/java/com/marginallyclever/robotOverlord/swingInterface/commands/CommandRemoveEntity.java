@@ -23,7 +23,8 @@ public class CommandRemoveEntity extends AbstractAction {
 	
 	public CommandRemoveEntity(RobotOverlord ro) {
 		super(Translator.get("Remove Entity"));
-        putValue(SHORT_DESCRIPTION, Translator.get("Remove the selected entity from the world."));
+        putValue(AbstractAction.SHORT_DESCRIPTION, Translator.get("Remove the selected entity from the world."));
+        //TODO putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 		this.ro = ro;
 	}
 
