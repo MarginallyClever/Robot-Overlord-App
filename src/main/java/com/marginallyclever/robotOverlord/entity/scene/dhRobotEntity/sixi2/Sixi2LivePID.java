@@ -8,6 +8,12 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
+/**
+ * Simulation of a Sixi Live arm driven by PIDs instead of Marlin
+ * @author Dan Royer
+ * @since 1.6.0
+ *
+ */
 public class Sixi2LivePID extends Sixi2Model {
 	/**
 	 * 
