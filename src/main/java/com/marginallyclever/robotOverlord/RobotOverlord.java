@@ -62,7 +62,6 @@ import com.marginallyclever.robotOverlord.swingInterface.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandCheckForUpdate;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandForums;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandNew;
@@ -253,7 +252,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			        
 			        // the right hand stuff			        
 					rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
-					rightFrameSplitter.add(new JScrollPane(entityTree));
+					rightFrameSplitter.add(entityTree);
 					rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
 					// make sure the master panel can't be squished.
 		            Dimension minimumSize = new Dimension(340,300);
@@ -521,10 +520,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         menu.add(new JMenuItem(commandRedo));
         mainMenu.add(menu);
     	
-        menu = new JMenu("World");
-		menu.add(new JMenuItem(new CommandAddEntity(this)));
-        mainMenu.add(menu);
-        
         menu = new JMenu("Help");
         menu.add(new JMenuItem(new CommandAboutControls()));
 		menu.add(new JMenuItem(new CommandForums()));

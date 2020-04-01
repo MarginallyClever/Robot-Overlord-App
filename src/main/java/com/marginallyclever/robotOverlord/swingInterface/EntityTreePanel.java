@@ -1,12 +1,13 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
 import java.awt.BorderLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -16,6 +17,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRemoveEntity;
 
 public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	/**
@@ -26,12 +29,22 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	
     protected DefaultMutableTreeNode oldTop; 
 	protected JTree oldTree;
+	protected JButton a,b;
+	protected JPanel abContainer;
+	protected JScrollPane scroll = new JScrollPane();
 	
 	public EntityTreePanel(RobotOverlord ro) {
 		super();
 		this.ro=ro;
 		
+		a=new JButton(new CommandAddEntity(ro));
+		b=new JButton(new CommandRemoveEntity(ro));
+		abContainer = new JPanel(new FlowLayout());
+		abContainer.add(a);
+		abContainer.add(b);
 		setLayout(new BorderLayout());
+		this.add(abContainer,BorderLayout.NORTH);
+		this.add(scroll,BorderLayout.CENTER);
 		updateEntityTree();
 	}
 
@@ -90,8 +103,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		}
 		
 		if(!newTree.equals(oldTree)) {
-			removeAll();
-			add(newTree,BorderLayout.CENTER);
+			scroll.setViewportView(newTree);
 			oldTree=newTree;
 			oldTop =newTop;
 		}
