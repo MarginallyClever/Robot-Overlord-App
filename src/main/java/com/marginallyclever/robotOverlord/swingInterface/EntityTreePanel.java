@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -15,7 +17,7 @@ import javax.swing.tree.TreeSelectionModel;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
-public class EntityTreePanel extends JPanel implements MouseListener {
+public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	/**
 	 * 
 	 */
@@ -67,7 +69,7 @@ public class EntityTreePanel extends JPanel implements MouseListener {
 
 	    newTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 	    newTree.setShowsRootHandles(true);
-	    newTree.addMouseListener(this);
+	    newTree.addTreeSelectionListener(this);
 		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		if(oldTree!=null) {
@@ -108,21 +110,8 @@ public class EntityTreePanel extends JPanel implements MouseListener {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
-        TreePath selPath = oldTree.getPathForLocation(e.getX(), e.getY());
-        if(selPath != null) {
-            if(e.getClickCount() == 1) {
-                //mySingleClick(selRow, selPath);
-            	DefaultMutableTreeNode o = (DefaultMutableTreeNode)selPath.getLastPathComponent();
-            	ro.pickEntity((Entity)(o.getUserObject()));
-            } else if(e.getClickCount() == 2) {
-                //myDoubleClick(selRow, selPath);
-            }
-        }
-    }
-
-	@Override	public void mouseClicked(MouseEvent e) {}
-	@Override	public void mouseEntered(MouseEvent e) {}
-	@Override	public void mouseExited(MouseEvent e) {}
-	@Override	public void mouseReleased(MouseEvent e) {}
+	public void valueChanged(TreeSelectionEvent arg0) {
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)oldTree.getLastSelectedPathComponent();
+        ro.pickEntity((Entity)(node.getUserObject()));
+	}
 }
