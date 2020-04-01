@@ -476,13 +476,13 @@ public class DHLink extends ModelEntity {
 	 * TODO some better way to check which DHLink we're working with.  Matching by name is easy to break.
 	 * @return true if I am the end effector of a robot.
 	 */
-	protected boolean amIanEndEffector() {
+	public boolean isAnEndEffector() {
 		return (robot!=null) && ( this.getName().contentEquals("End Effector") );
 	}
 	
 	@Override
 	public void setPoseWorld(Matrix4d newPose) {
-		if( amIanEndEffector() ) {
+		if( isAnEndEffector() ) {
 			robot.setPoseIK(newPose);
 		} else {
 			Matrix4d newRelativePose;
@@ -510,7 +510,7 @@ public class DHLink extends ModelEntity {
 	 */
 	@Override
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
-		if( amIanEndEffector() ) {			
+		if( isAnEndEffector() ) {			
 			return robot.isPoseIKSane(newWorldPose);
 		} else if( !this.getLetter().isEmpty() ) {
 			Matrix4d oldPose=poseWorld.get();
