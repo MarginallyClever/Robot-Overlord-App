@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.scene;
 
 
 import java.util.ArrayList;
+import java.util.Observable;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -31,6 +32,10 @@ public class BoxEntity extends ModelEntity {
 		addChild(height);
 		addChild(depth);
 		
+		width.addObserver(this);
+		height.addObserver(this);
+		depth.addObserver(this);
+		
 		model = new Model();
 	}
 
@@ -43,6 +48,12 @@ public class BoxEntity extends ModelEntity {
 		return super.getCuboidList();
 	}
 
+	@Override
+	public void update(Observable o, Object arg) {
+		updateCuboid();
+		super.update(o, arg);
+	}
+	
 	private void updateCuboid() {
 		Point3d _boundBottom = new Point3d(-width.get()/2,-depth.get()/2,0           );
 		Point3d _boundTop    = new Point3d( width.get()/2, depth.get()/2,height.get());
