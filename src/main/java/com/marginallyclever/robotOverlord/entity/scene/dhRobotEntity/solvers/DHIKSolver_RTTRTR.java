@@ -77,7 +77,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.getD();
 		}
 		
-		targetMatrixAdj.mul(iRoot,targetMatrixAdj);
+		targetMatrixAdj.mul(iRoot);
 		Point3d pEndEffector = new Point3d(
 				targetMatrixAdj.m03,
 				targetMatrixAdj.m13,
@@ -137,7 +137,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double b2 = link3.getD();
 		double b = Math.sqrt(b2*b2+b1*b1);
 		if(false) System.out.println("b="+b+"\t");
-
+			
+		
 		if( e > a+b ) {
 			// target matrix impossibly far away
 			if(false) System.out.println("NO SOLUTIONS (1)");
@@ -173,6 +174,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		// FIRST HALF DONE
+		Matrix4d link3m = link3.getPoseWorld();
 		
 		// Now to a partial DHRobot.setRobotPose() up to link4.
 		link0.setTheta(keyframe.fkValues[0]);
@@ -183,11 +185,10 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		for( DHLink link : robot.links ) {
 			link.refreshPoseMatrix();
 		}
-		Matrix4d r03 = new Matrix4d();
-		r03.mul(iRoot,link3.getPoseWorld());
+		Matrix4d r03 = link4.getPoseWorld();
+		r03.mul(iRoot);
 
-		if(true) {
-			Matrix4d link3m = new Matrix4d(link3.getPoseWorld());
+		if(false) {
 			link3m.mul(iRoot,link3m);
 			Vector3d p3original = new Vector3d();
 			link3m.get(p3original);
@@ -243,7 +244,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) System.out.println("r36.m22="+r36.m22);
 		
 		// with r36 we can find theta4
-		double t4 = -Math.acos(r36.m22);
+		double t4 = Math.acos(r36.m22);
 		
 		if(false) {
 			System.out.println(
@@ -279,19 +280,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		// no singularity, so we can continue to solve for theta4 and theta6.
 		
 		// https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
-		double r22=r36.m22;
 		double s4 = Math.sin(t4);
-		double t3,t5;
-		if(s4>0) {
-			t4 = Math.atan2( Math.sqrt(1.0-r22*r22),r22);
-			t3 = Math.atan2(r36.m12, r36.m02);
-			t5 = Math.atan2(r36.m21,-r36.m20);
-		} else if(s4<0) {
-			//if(true) System.out.println("B");
-			t4 = Math.atan2(-Math.sqrt(1.0-r22*r22),r22);
-			t3 = Math.atan2(-r36.m12,-r36.m02);
-			t5 = Math.atan2(-r36.m21, r36.m20);
-		} else {
+		if(Math.abs(s4)<1e-6) {
 			// Only the sum of t4+t6 can be found, not the individual angles.
 			// this is the same as if(Math.abs(a5copy)<EPSILON) above, so this should
 			// be unreachable.
@@ -302,11 +292,27 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			return SolutionType.NO_SOLUTIONS;
 		}
 		
+		double r22=r36.m22;
+		double t3,t5;
+		double t4Pos = Math.atan2( Math.sqrt(1.0-r22*r22),r22);
+		double t4Neg = Math.atan2(-Math.sqrt(1.0-r22*r22),r22);
+		
+		if(s4>0) {
+			t3 = Math.atan2(r36.m12, r36.m02);
+			t4 = t4Pos;
+			t5 = Math.atan2(r36.m21,-r36.m20);
+		} else {
+			//if(true) System.out.println("B");
+			t3 = Math.atan2(-r36.m12,-r36.m02);
+			t4 = t4Neg;
+			t5 = Math.atan2(-r36.m21, r36.m20);
+		}
+		
 		if(false) System.out.println("5="+t4+"\tpos="+t4);
 
-		keyframe.fkValues[3] = MathHelper.capRotationDegrees(Math.toDegrees(t4)+90,link3.getRangeCenter());
-		keyframe.fkValues[4] = MathHelper.capRotationDegrees(Math.toDegrees(t3)+90,link4.getRangeCenter());
-		keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t5)-90,link5.getRangeCenter());
+		keyframe.fkValues[3] = MathHelper.capRotationDegrees(Math.toDegrees(t3),link3.getRangeCenter());
+		keyframe.fkValues[4] = MathHelper.capRotationDegrees(Math.toDegrees(t4),link4.getRangeCenter());
+		//keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t5),link5.getRangeCenter());
 
 		/*if(suggestion!=null) {
 			if(Math.abs(suggestion.fkValues[3]-keyframe.fkValues[3])>20) {
