@@ -40,7 +40,7 @@ public class DHRobotEntity extends PoseEntity {
 	public DHTool dhTool;
 
 	// more debug output, please.
-	static final boolean VERBOSE=true;
+	static final boolean VERBOSE=false;
 
 	public DHRobotEntity() {
 		super();
@@ -308,13 +308,7 @@ public class DHRobotEntity extends PoseEntity {
 	public boolean isPoseIKSane(Matrix4d m) {
 		getPoseFK(poseFKold);
 
-		if(VERBOSE) {
-			System.out.println("\n\nold: "+poseFKold);
-			/*for( DHLink link : links ) {
-				Vector3d Pn = MatrixHelper.getPosition(link.getPoseWorld());
-				System.out.println(link.getLetter()+"="+Pn);
-			}*/
-		}
+		if(VERBOSE) System.out.println("\n\nold: "+poseFKold);
 		
 		boolean isSane = false;
 		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
