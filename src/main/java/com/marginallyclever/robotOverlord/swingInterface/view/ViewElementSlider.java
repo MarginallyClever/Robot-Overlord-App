@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -20,6 +21,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt
  */
 public class ViewElementSlider extends ViewElement implements ChangeListener, Observer {
 	private JSlider field;
+	private JLabel value;
 	private IntEntity e;
 	
 	public ViewElementSlider(RobotOverlord ro,IntEntity e,int top,int bottom) {
@@ -36,10 +38,16 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 		field.addChangeListener(this);
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
+		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);
+		Dimension dim = new Dimension(30,1);
+		value.setMinimumSize(dim);
+		value.setPreferredSize(dim);
+		value.setMaximumSize(dim);
 		
 		panel.setLayout(new BorderLayout());
 		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.LINE_END);
+		panel.add(field,BorderLayout.CENTER);
+		panel.add(value,BorderLayout.LINE_END);
 	}
 
 	/**
@@ -48,6 +56,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 	@Override
 	public void update(Observable o, Object arg) {
 		field.setValue((Integer)arg);
+		value.setText(Integer.toString(field.getValue()));
 	}
 
 	@Override
