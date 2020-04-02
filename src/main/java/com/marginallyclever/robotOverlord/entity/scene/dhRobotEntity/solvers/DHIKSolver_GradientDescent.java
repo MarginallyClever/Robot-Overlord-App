@@ -1,7 +1,9 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
@@ -15,7 +17,17 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEnti
  */
 public class DHIKSolver_GradientDescent extends DHIKSolver {
 	protected double learningRate=0.0625;
-	protected double samplingDistance=0.5;
+	protected final double SENSOR_RESOLUTION = 360.0/Math.pow(2,12);
+	protected double [] samplingDistances = { 
+		SENSOR_RESOLUTION, 
+		SENSOR_RESOLUTION, 
+		SENSOR_RESOLUTION, 
+		SENSOR_RESOLUTION*4, 
+		SENSOR_RESOLUTION*4,
+		SENSOR_RESOLUTION*4
+	};
+
+	double correctiveFactorMagicNumber = 30;
 	
 	protected DHRobotEntity robot;
 	protected Matrix4d targetMatrix;
@@ -26,30 +38,61 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	public int getSolutionSize() {
 		return 6;
 	}
-
+	
 	public double distanceToTarget() {
 		// TODO this is a shitty, breakable way of finding the end effector.
 		Matrix4d tpw = tip.getPoseWorld();
-		tpw.sub(targetMatrix);
-		double dp =
-				Math.abs(tpw.m00) + Math.abs(tpw.m01) + Math.abs(tpw.m02) + Math.abs(tpw.m03) +
-				Math.abs(tpw.m10) + Math.abs(tpw.m11) + Math.abs(tpw.m12) + Math.abs(tpw.m13) +
-				Math.abs(tpw.m20) + Math.abs(tpw.m21) + Math.abs(tpw.m22) + Math.abs(tpw.m23) +
-				Math.abs(tpw.m30) + Math.abs(tpw.m31) + Math.abs(tpw.m32) + Math.abs(tpw.m33);
-		return dp;
+		//tpw.sub(targetMatrix);
+				
+		// linear difference in centers
+		Vector3d p0 = new Vector3d();
+		Vector3d p1 = new Vector3d();
+		tpw.get(p0);
+		targetMatrix.get(p1);
+		p1.sub(p0);
+		double dC = p1.lengthSquared();
+		
+		// linear difference in X handles
+		Vector3d x0 = MatrixHelper.getXAxis(targetMatrix);
+		Vector3d x1 = MatrixHelper.getXAxis(tpw);
+		x1.scale(correctiveFactorMagicNumber);
+		x0.scale(correctiveFactorMagicNumber);
+		x1.sub(x0);
+		double dX = x1.lengthSquared();
+		
+		// linear difference in Y handles
+		Vector3d y0 = MatrixHelper.getYAxis(targetMatrix);
+		Vector3d y1 = MatrixHelper.getYAxis(tpw);
+		y1.scale(correctiveFactorMagicNumber);
+		y0.scale(correctiveFactorMagicNumber);
+		y1.sub(y0);
+		double dY = y1.lengthSquared();		
+	
+		//System.out.println("C"+dC+"\tX"+dX+"\tY"+dY);
+		return dC+dX+dY;
 	}
 
-	protected double partialDescent(DHLink link) {
+	protected double partialDescent(DHLink link,int i) {
 		double oldValue = link.getAdjustableValue();
-		double newValue = oldValue + samplingDistance;
 		double Fx = distanceToTarget();
-		link.setAdjustableValue(newValue);
+
+		link.setAdjustableValue(oldValue + samplingDistances[i]);
 		link.refreshPoseMatrix();
 		double FxPlusD = distanceToTarget();
+
+		link.setAdjustableValue(oldValue - samplingDistances[i]);
+		link.refreshPoseMatrix();
+		double FxMinusD = distanceToTarget();
+
 		link.setAdjustableValue(oldValue);
 		link.refreshPoseMatrix();
 
-		double gradient = ( FxPlusD - Fx ) / samplingDistance;
+		if( FxMinusD > Fx && FxPlusD > Fx ) {
+			samplingDistances[i]/=2;
+			return 0;
+		}
+		
+		double gradient = ( FxPlusD - Fx ) / samplingDistances[i];
 		return gradient;
 	}
 
@@ -68,20 +111,19 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		learningRate=0.125;
 		
 		// robot sensor spec is 12 bits, or 2^12 steps per rotation.
-		final double s = 360.0/Math.pow(2,12);
-		double [] samplingDistances = { s*0.125, s, s, s*5, s*5, s*5 };
 
-		double dtt=0;
+		double dtt=10;
 		
 		for(int iter=0;iter<20;++iter) {
-			for( int i=0; i<robot.getNumLinks(); ++i ) {
+			//for( int i=0; i<robot.getNumLinks(); ++i ) {
+			for( int i=robot.getNumLinks()-1; i>=0; --i ) {
 				DHLink link = robot.links.get(i);
-				samplingDistance = samplingDistances[i];
 				
 				double oldValue = link.getAdjustableValue();
-				double gradient = partialDescent( link );
+				double gradient = partialDescent( link, i );
 				double newValue = oldValue - gradient * learningRate; 
 				link.setAdjustableValue(newValue);
+				link.refreshPoseMatrix();
 		
 				dtt=distanceToTarget();
 				if(dtt<1) break;
