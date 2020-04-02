@@ -184,6 +184,12 @@ public class CameraEntity extends PoseEntity {
 		tilt.set(arg0);
 	}
 	
+	public void setZoom(double arg0) {
+		arg0 = Math.max(arg0, 0);
+		arg0 = Math.min(arg0, 500);
+		zoom.set(arg0);
+	}
+	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Ca", "Camera");
