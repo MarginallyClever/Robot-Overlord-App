@@ -18,8 +18,6 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.Link
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-import jogamp.opengl.GLBufferObjectTracker.CreateStorageDispatch;
-
 public class Sixi2Sim extends Sixi2Model {
 	/**
 	 * 
