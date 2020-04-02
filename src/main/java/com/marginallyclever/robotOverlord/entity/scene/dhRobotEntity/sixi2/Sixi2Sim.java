@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
+import java.util.Observer;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
@@ -14,7 +15,10 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+
+import jogamp.opengl.GLBufferObjectTracker.CreateStorageDispatch;
 
 public class Sixi2Sim extends Sixi2Model {
 	/**
@@ -357,6 +361,34 @@ public class Sixi2Sim extends Sixi2Model {
 	public void getView(ViewPanel view) {
 		view.pushStack("Ss", "Sixi Sim");
 		view.addComboBox(interpolationStyle, InterpolationStyle.getAll());
+		ViewElement h = view.addButton("Go to home position");
+		h.addObserver(new Observer() {
+			@Override
+			public void update(Observable arg0, Object arg1) {
+				DHKeyframe key = solver.createDHKeyframe();
+				key.fkValues[0]=0;
+				key.fkValues[1]=-90;
+				key.fkValues[2]=0;
+				key.fkValues[3]=0;
+				key.fkValues[4]=20;
+				key.fkValues[5]=0;
+				setPoseFK(key);
+			}
+		});
+		ViewElement r = view.addButton("Go to rest position");
+		r.addObserver(new Observer() {
+			@Override
+			public void update(Observable arg0, Object arg1) {
+				DHKeyframe key = solver.createDHKeyframe();
+				key.fkValues[0]=0;
+				key.fkValues[1]=-170;
+				key.fkValues[2]=86;
+				key.fkValues[3]=0;
+				key.fkValues[4]=20;
+				key.fkValues[5]=0;
+				setPoseFK(key);
+			}
+		});
 		view.popStack();
 		super.getView(view);
 	}
