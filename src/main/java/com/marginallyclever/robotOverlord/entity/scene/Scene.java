@@ -44,9 +44,10 @@ public class Scene extends Entity {
 		
 		// adjust default camera
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ro.camera.setPosition(new Vector3d(50,-80,50));
-		ro.camera.setPan(-20);
-		ro.camera.setTilt(70);
+		ro.camera.setPosition(new Vector3d(40,-91,106));
+		ro.camera.setPan(-16);
+		ro.camera.setTilt(53);
+		ro.camera.setZoom(100);
 		ro.camera.update(0);
 		
 		// add some lights
