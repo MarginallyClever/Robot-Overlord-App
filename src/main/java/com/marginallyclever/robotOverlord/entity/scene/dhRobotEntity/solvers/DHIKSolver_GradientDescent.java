@@ -26,8 +26,6 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		SENSOR_RESOLUTION*4,
 		SENSOR_RESOLUTION*4
 	};
-
-	double correctiveFactorMagicNumber = 30;
 	
 	protected DHRobotEntity robot;
 	protected Matrix4d targetMatrix;
@@ -43,7 +41,9 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		// TODO this is a shitty, breakable way of finding the end effector.
 		Matrix4d tpw = tip.getPoseWorld();
 		//tpw.sub(targetMatrix);
-				
+
+		double correctiveFactorMagicNumber = 65;
+		
 		// linear difference in centers
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
@@ -67,7 +67,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		y0.scale(correctiveFactorMagicNumber);
 		y1.sub(y0);
 		double dY = y1.lengthSquared();		
-	
+		
 		//System.out.println("C"+dC+"\tX"+dX+"\tY"+dY);
 		return dC+dX+dY;
 	}
@@ -109,12 +109,20 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		assert(tip.isAnEndEffector()==true);
 
 		learningRate=0.125;
+
+		samplingDistances[0]=SENSOR_RESOLUTION; 
+		samplingDistances[1]=SENSOR_RESOLUTION;
+		samplingDistances[2]=SENSOR_RESOLUTION;
+		samplingDistances[3]=SENSOR_RESOLUTION*4;
+		samplingDistances[4]=SENSOR_RESOLUTION*4;
+		samplingDistances[5]=SENSOR_RESOLUTION*4;
 		
 		// robot sensor spec is 12 bits, or 2^12 steps per rotation.
 
 		double dtt=10;
 		
 		for(int iter=0;iter<20;++iter) {
+			// seems to work better ascending than descending
 			//for( int i=0; i<robot.getNumLinks(); ++i ) {
 			for( int i=robot.getNumLinks()-1; i>=0; --i ) {
 				DHLink link = robot.links.get(i);
