@@ -119,7 +119,7 @@ public class Sixi2 extends PoseEntity {
 		addChild(cycleStart);
 		addChild(m01Break);
 		
-		addChild(live);
+		//addChild(live);
 		addChild(sim);
 		
 		singleBlock.addObserver(this);
@@ -137,7 +137,7 @@ public class Sixi2 extends PoseEntity {
 		sixi2ControlBox.setModelFilename("/Sixi2/box.obj");
 		sixi2ControlBox.setPosition(new Vector3d(0,39,14));
 		sixi2ControlBox.setRotation(new Vector3d(Math.toRadians(90), 0, 0));
-		sixi2ControlBox.getMaterial().setTextureFilename("/Sixi2/bicep.png");
+		sixi2ControlBox.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		sixi2ControlBox.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		sixi2ControlBox.getMaterial().setAmbientColor(1, 1, 1, 1);
 	}
