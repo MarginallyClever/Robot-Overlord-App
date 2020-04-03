@@ -546,31 +546,27 @@ public class DragBallEntity extends PoseEntity {
 		// camera forward is +z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		//Vector3d up = MatrixHelper.getYAxis(camera.getPoseWorld());
-		//up.normalize();
-		//Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition(), up);
 		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
 		Vector3d lookAtVector = MatrixHelper.getZAxis(lookAt);
 		
 		Matrix4d cpw = camera.getPoseWorld();
-		//Matrix4d spw = subject.getPoseWorld();
-		//spw.m03=spw.m13=spw.m23=0;
 		cpw.m03=
 		cpw.m13=
 		cpw.m23=0;
 		cpw.invert();
-		//spw.invert();
-		//spw.set(cpw);
 
 		double r = (nearestPlane==Plane.X) ? 1 : 0.5f;
 		double g = (nearestPlane==Plane.Y) ? 1 : 0.5f;
 		double b = (nearestPlane==Plane.Z) ? 1 : 0.5f;
 
-		// is a FOR axis normal almost the same as camera forward?		
-		boolean drawX = (Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)))>0.85);
-		boolean drawY = (Math.abs(lookAtVector.dot(MatrixHelper.getYAxis(FOR)))>0.85);
-		boolean drawZ = (Math.abs(lookAtVector.dot(MatrixHelper.getZAxis(FOR)))>0.85);
-		//System.out.println(drawX+"\t"+drawY+"\t"+drawZ);
+		// is a FOR axis normal almost the same as camera forward?
+		double vX=Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)));
+		double vY=Math.abs(lookAtVector.dot(MatrixHelper.getYAxis(FOR)));
+		double vZ=Math.abs(lookAtVector.dot(MatrixHelper.getZAxis(FOR)));
+		boolean drawX = (vX>0.85);
+		boolean drawY = (vY>0.85);
+		boolean drawZ = (vZ>0.85);
+		//System.out.println(vX+"\t"+drawX+"\t"+vY+"\t"+drawY+"\t"+vZ+"\t"+drawZ);
 
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glCullFace(GL2.GL_BACK);
