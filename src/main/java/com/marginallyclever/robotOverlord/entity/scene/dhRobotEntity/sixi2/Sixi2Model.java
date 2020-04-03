@@ -52,7 +52,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		addChild(anchor);
 		anchor.setName("Base");
 		anchor.setModelFilename("/Sixi2/anchor.obj");
-		anchor.getMaterial().setTextureFilename("/Sixi2/anchor.png");
+		anchor.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		anchor.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		anchor.getMaterial().setAmbientColor(1, 1, 1, 1);
 		anchor.setModelOrigin(0, 0, 0.9);
@@ -61,20 +61,17 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		this.setNumLinks(6);
 
 		if(!ATTACH_MODELS) {
-			ModelEntity anchor1 = new ModelEntity();	addChild(anchor1);	anchor1.setModelFilename("/Sixi2/shoulder.stl");
-			ModelEntity anchor2 = new ModelEntity();	addChild(anchor2);	anchor2.setModelFilename("/Sixi2/bicep.stl");
-			ModelEntity anchor3 = new ModelEntity();	addChild(anchor3);	anchor3.setModelFilename("/Sixi2/forearm.stl");
-			ModelEntity anchor4 = new ModelEntity();	addChild(anchor4);	anchor4.setModelFilename("/Sixi2/tuningFork.stl");
-			ModelEntity anchor5 = new ModelEntity();	addChild(anchor5);	anchor5.setModelFilename("/Sixi2/picassoBox.stl");
-			ModelEntity anchor6 = new ModelEntity();	addChild(anchor6);	anchor6.setModelFilename("/Sixi2/hand.stl");
+			ModelEntity anchor1 = new ModelEntity();	addChild(anchor1);	anchor1.setModelFilename("/Sixi2/shoulder.obj");
+			ModelEntity anchor2 = new ModelEntity();	addChild(anchor2);	anchor2.setModelFilename("/Sixi2/bicep.obj");
+			ModelEntity anchor3 = new ModelEntity();	addChild(anchor3);	anchor3.setModelFilename("/Sixi2/forearm.obj");
+			ModelEntity anchor4 = new ModelEntity();	addChild(anchor4);	anchor4.setModelFilename("/Sixi2/tuningFork.obj");
+			ModelEntity anchor5 = new ModelEntity();	addChild(anchor5);	anchor5.setModelFilename("/Sixi2/picassoBox.obj");
+			ModelEntity anchor6 = new ModelEntity();	addChild(anchor6);	anchor6.setModelFilename("/Sixi2/hand.obj");
 		}
 		
 		// pan shoulder
 		links.get(0).setLetter("X");
 		if(ATTACH_MODELS) links.get(0).setModelFilename("/Sixi2/shoulder.obj");
-		links.get(0).getMaterial().setTextureFilename("/Sixi2/shoulder.png");
-		links.get(0).getMaterial().setDiffuseColor(1, 1, 1, 1);
-		links.get(0).getMaterial().setAmbientColor(1, 1, 1, 1);
 		links.get(0).setD(18.8452+0.9);
 		links.get(0).setTheta(0);
 		links.get(0).setR(0);
@@ -84,9 +81,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// tilt shoulder
 		links.get(1).setLetter("Y");
 		if(ATTACH_MODELS) links.get(1).setModelFilename("/Sixi2/bicep.obj");
-		links.get(1).getMaterial().setTextureFilename("/Sixi2/bicep.png");
-		links.get(1).getMaterial().setDiffuseColor(1, 1, 1, 1);
-		links.get(1).getMaterial().setAmbientColor(1, 1, 1, 1);
 		links.get(1).setD(0);
 		links.get(1).setTheta(-90);
 		links.get(1).setR(35.796);
@@ -96,9 +90,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// tilt elbow
 		links.get(2).setLetter("Z");
 		if(ATTACH_MODELS) links.get(2).setModelFilename("/Sixi2/forearm.obj");
-		links.get(2).getMaterial().setTextureFilename("/Sixi2/bicep.png");
-		links.get(2).getMaterial().setDiffuseColor(1, 1, 1, 1);
-		links.get(2).getMaterial().setAmbientColor(1, 1, 1, 1);
 		links.get(2).setD(0);
 		links.get(2).setTheta(0);
 		links.get(2).setR(6.4259);
@@ -108,9 +99,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// roll ulna
 		links.get(3).setLetter("U");
 		if(ATTACH_MODELS) links.get(3).setModelFilename("/Sixi2/tuningFork.obj");
-		links.get(3).getMaterial().setTextureFilename("/Sixi2/tuningFork.png");
-		links.get(3).getMaterial().setDiffuseColor(1, 1, 1, 1);
-		links.get(3).getMaterial().setAmbientColor(1, 1, 1, 1);
 		links.get(3).setD(29.355+9.35);
 		links.get(3).setTheta(0);
 		links.get(3).setR(0);
@@ -120,9 +108,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// tilt picassoBox
 		links.get(4).setLetter("V");
 		if(ATTACH_MODELS) links.get(4).setModelFilename("/Sixi2/picassoBox.obj");
-		links.get(4).getMaterial().setTextureFilename("/Sixi2/tuningFork.png");
-		links.get(4).getMaterial().setDiffuseColor(1, 1, 1, 1);
-		links.get(4).getMaterial().setAmbientColor(1, 1, 1, 1);
 		links.get(4).setD(0);
 		links.get(4).setTheta(0);
 		links.get(4).setR(0);
@@ -132,9 +117,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// roll hand
 		links.get(5).setLetter("W");
 		if(ATTACH_MODELS) links.get(5).setModelFilename("/Sixi2/hand.obj");
-		links.get(5).getMaterial().setTextureFilename("/Sixi2/tuningFork.png");
-		links.get(5).getMaterial().setDiffuseColor(1, 1, 1, 1);
-		links.get(5).getMaterial().setAmbientColor(1, 1, 1, 1);
 		links.get(5).setTheta(0);
 		links.get(5).setD(5.795);
 		links.get(5).setR(0);
@@ -157,6 +139,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				iWP.m23 -= 0.9;
 				iWP.invert();
 				bone.getModel().adjustMatrix(iWP);
+				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+				bone.getMaterial().setDiffuseColor(1, 1, 1, 1);
+				bone.getMaterial().setAmbientColor(1, 1, 1, 1);
 			}
 		}
 		links.get(4).setTheta(20);
