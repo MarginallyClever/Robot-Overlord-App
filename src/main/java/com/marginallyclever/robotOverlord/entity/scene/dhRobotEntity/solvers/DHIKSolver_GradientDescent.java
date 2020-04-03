@@ -16,20 +16,26 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEnti
  *
  */
 public class DHIKSolver_GradientDescent extends DHIKSolver {
-	protected double learningRate=0.0625;
-	protected final double SENSOR_RESOLUTION = 360.0/Math.pow(2,12);
-	protected double [] samplingDistances = { 
-		SENSOR_RESOLUTION, 
-		SENSOR_RESOLUTION, 
-		SENSOR_RESOLUTION, 
-		SENSOR_RESOLUTION*4, 
-		SENSOR_RESOLUTION*4,
-		SENSOR_RESOLUTION*4
-	};
+	// For the sixi robot arm, the max reach is 800mm and the sensor resolution is 2^12 (4096).
+	protected static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,12);  // 0.087890625 degrees = 0.00153398079 radians
+	// protected static final double MAX_REACH = 800; // mm
+	// protected static final double DISTANCE_AT_MAX_REACH = Math.tan(Math.toRadians(SENSOR_RESOLUTION)) * MAX_REACH;  // 1.2272mm
+	// But this is a generic solver that should work with any arm, so.
+
+	// Scale the "handles" used in distanceToTarget().  Bigger scale, greater rotation compensation
+	protected static final double CORRECTIVE_FACTOR = 100;
+	// If distanceToTarget() score is within threshold, quit with success. 
+	protected static final double THRESHOLD = 0.1;
+
+	// how big a step to take with each partial descent?
+	protected double [] samplingDistances = { 0,0,0,0,0,0 };
+	// how much of that partial descent to actually apply?
+	protected double learningRate=0;
 	
 	protected DHRobotEntity robot;
 	protected Matrix4d targetMatrix;
-	protected DHLink tip;
+	protected DHLink endEffector;
+	
 	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
 	 */
@@ -38,40 +44,43 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	}
 	
 	public double distanceToTarget() {
-		// TODO this is a shitty, breakable way of finding the end effector.
-		Matrix4d tpw = tip.getPoseWorld();
-		//tpw.sub(targetMatrix);
-
-		double correctiveFactorMagicNumber = 65;
+		Matrix4d currentMatrix = endEffector.getPoseWorld();
 		
 		// linear difference in centers
-		Vector3d p0 = new Vector3d();
-		Vector3d p1 = new Vector3d();
-		tpw.get(p0);
-		targetMatrix.get(p1);
-		p1.sub(p0);
-		double dC = p1.lengthSquared();
+		Vector3d c0 = new Vector3d();
+		Vector3d c1 = new Vector3d();
+		currentMatrix.get(c0);
+		targetMatrix.get(c1);
+		c1.sub(c0);
+		double dC = c1.lengthSquared();
 		
 		// linear difference in X handles
 		Vector3d x0 = MatrixHelper.getXAxis(targetMatrix);
-		Vector3d x1 = MatrixHelper.getXAxis(tpw);
-		x1.scale(correctiveFactorMagicNumber);
-		x0.scale(correctiveFactorMagicNumber);
+		Vector3d x1 = MatrixHelper.getXAxis(currentMatrix);
+		x1.scale(CORRECTIVE_FACTOR);
+		x0.scale(CORRECTIVE_FACTOR);
 		x1.sub(x0);
 		double dX = x1.lengthSquared();
 		
 		// linear difference in Y handles
 		Vector3d y0 = MatrixHelper.getYAxis(targetMatrix);
-		Vector3d y1 = MatrixHelper.getYAxis(tpw);
-		y1.scale(correctiveFactorMagicNumber);
-		y0.scale(correctiveFactorMagicNumber);
+		Vector3d y1 = MatrixHelper.getYAxis(currentMatrix);
+		y1.scale(CORRECTIVE_FACTOR);
+		y0.scale(CORRECTIVE_FACTOR);
 		y1.sub(y0);
 		double dY = y1.lengthSquared();		
-		
-		//System.out.println("C"+dC+"\tX"+dX+"\tY"+dY);
+
+	    // now sum these to get the error term.
 		return dC+dX+dY;
 	}
 
+	/**
+	 * Adjust one link angle.  Is it better?  Also check if both directions are equally bad, which means we're near the minimum.
+	 * 
+	 * @param link
+	 * @param i
+	 * @return
+	 */
 	protected double partialDescent(DHLink link,int i) {
 		double oldValue = link.getAdjustableValue();
 		double Fx = distanceToTarget();
@@ -88,7 +97,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		link.refreshPoseMatrix();
 
 		if( FxMinusD > Fx && FxPlusD > Fx ) {
-			samplingDistances[i]/=2;
+			samplingDistances[i] *= 2.0/3.0;
 			return 0;
 		}
 		
@@ -97,7 +106,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	}
 
 	/**
-	 * We're going to jiggle the arm very slightly and see which jiggle gets us closer to the target.
+	 * We're going to blindly jiggle the arm very slightly and see which jiggle gets us closer to the target.
 	 * Eventually we get close enough and quit.
 	 * We might not actually reach the target by the time we've done interating.
 	 */
@@ -105,19 +114,18 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
 		this.robot = robot;
 		this.targetMatrix = targetMatrix;
-		this.tip = (DHLink)robot.findByPath("./X/Y/Z/U/V/W/End Effector");
-		assert(tip.isAnEndEffector()==true);
+		this.endEffector = (DHLink)robot.findByPath("./X/Y/Z/U/V/W/End Effector");  // TODO get a better method of finding the end effector
+		assert(endEffector.isAnEndEffector()==true);
 
+		// these need to be reset each run.
 		learningRate=0.125;
-
 		samplingDistances[0]=SENSOR_RESOLUTION; 
 		samplingDistances[1]=SENSOR_RESOLUTION;
 		samplingDistances[2]=SENSOR_RESOLUTION;
-		samplingDistances[3]=SENSOR_RESOLUTION*4;
-		samplingDistances[4]=SENSOR_RESOLUTION*4;
-		samplingDistances[5]=SENSOR_RESOLUTION*4;
+		samplingDistances[3]=SENSOR_RESOLUTION;
+		samplingDistances[4]=SENSOR_RESOLUTION;
+		samplingDistances[5]=SENSOR_RESOLUTION;
 		
-		// robot sensor spec is 12 bits, or 2^12 steps per rotation.
 
 		double dtt=10;
 		
@@ -134,9 +142,9 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 				link.refreshPoseMatrix();
 		
 				dtt=distanceToTarget();
-				if(dtt<1) break;
+				if(dtt<THRESHOLD) break;
 			}
-			if(dtt<1) break;
+			if(dtt<THRESHOLD) break;
 		}
 		
 		for( int i=0; i<robot.getNumLinks(); ++i ) {

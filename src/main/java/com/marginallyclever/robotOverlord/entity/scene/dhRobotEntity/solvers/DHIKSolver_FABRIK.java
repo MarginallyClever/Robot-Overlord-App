@@ -1,11 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 
 /**
