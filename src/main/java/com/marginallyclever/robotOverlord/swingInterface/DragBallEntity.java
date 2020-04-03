@@ -145,8 +145,8 @@ public class DragBallEntity extends PoseEntity {
 			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));  break;
 			default     : FOR.setIdentity();  break;
 			}
+			FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 		}
-		FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 
 		// apply the effect of drag actions
 		if(!isActivelyMoving()) {
@@ -321,6 +321,7 @@ public class DragBallEntity extends PoseEntity {
 				valueLast = valueNow;
 				
 				if(subject.canYouMoveTo(resultMatrix)) {
+					FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
 					ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
 				}
 			}
@@ -442,6 +443,7 @@ public class DragBallEntity extends PoseEntity {
 
 			
 			if(subject.canYouMoveTo(resultMatrix)) {
+				FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
 				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
 			}
 		}
