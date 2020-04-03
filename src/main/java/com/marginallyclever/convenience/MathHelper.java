@@ -107,8 +107,15 @@ public class MathHelper {
 	 */
 	static public double capRotationRadians(double arg0) {
 		final double limit = Math.PI*2.0;
-		while(arg0<0    ) arg0 += limit;
-		while(arg0>limit) arg0 -= limit;
+		while(arg0< 0    ) arg0 += limit;
+		while(arg0>=limit) arg0 -= limit;
+		return arg0;
+	}
+	
+	static public double capRotationRadians(double arg0,double centerPoint) {
+		final double limit = Math.PI*2.0;
+		while(arg0< centerPoint-Math.PI) arg0 += limit;
+		while(arg0>=centerPoint+Math.PI) arg0 -= limit;
 		return arg0;
 	}
 	
@@ -118,19 +125,19 @@ public class MathHelper {
 	 * @return adjusted value
 	 */
 	static public double capRotationDegrees(double arg0) {
-		while(arg0<0  ) arg0 += 360;
-		while(arg0>360) arg0 -= 360;
+		while(arg0< 0  ) arg0 += 360;
+		while(arg0>=360) arg0 -= 360;
 		return arg0;
 	}
-	
+
 	/**
 	 * Prevent angle arg0 from leaving the range 0...360.  outside that range it wraps, like a modulus.
 	 * @param arg0
 	 * @return adjusted value
 	 */
 	static public double capRotationDegrees(double arg0,double centerPoint) {
-		while(arg0<centerPoint-180) arg0 += 360;
-		while(arg0>centerPoint+180) arg0 -= 360;
+		while(arg0< centerPoint-180) arg0 += 360;
+		while(arg0>=centerPoint+180) arg0 -= 360;
 		return arg0;
 	}
 	
