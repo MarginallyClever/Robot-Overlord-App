@@ -126,9 +126,9 @@ public class Sixi2 extends PoseEntity {
 		cycleStart.addObserver(this);
 		m01Break.addObserver(this);
 
-		setShowLineage(true);
-		setShowLocalOrigin(true);
-		setShowBoundingBox(false);
+		//setShowLineage(true);
+		//setShowLocalOrigin(true);
+		//setShowBoundingBox(true);
 		
 		// spawn a control box as a child of the anchor.
 		ModelEntity sixi2ControlBox=new ModelEntity();

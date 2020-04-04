@@ -33,7 +33,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	
 	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
 	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
-	public DHLink endEffector = new DHLink();
+	public DHLink endEffector = new Sixi2LinearGripper();
 
 	// set this to false before running the app and the model will not attach to the DHLinks.
 	// this is convenient for setting up the DHLinks with less visual confusion.
@@ -48,25 +48,25 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		//this.setIKSolver(new DHIKSolver_RTTRTR());
 		this.setIKSolver(new DHIKSolver_GradientDescent());
 		
-		ModelEntity anchor = new ModelEntity();
-		addChild(anchor);
-		anchor.setName("Base");
-		anchor.setModelFilename("/Sixi2/anchor.obj");
-		anchor.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		anchor.getMaterial().setDiffuseColor(1, 1, 1, 1);
-		anchor.getMaterial().setAmbientColor(1, 1, 1, 1);
-		anchor.setModelOrigin(0, 0, 0.9);
+		ModelEntity base = new ModelEntity();
+		addChild(base);
+		base.setName("Base");
+		base.setModelFilename("/Sixi2/anchor.obj");
+		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+		base.getMaterial().setDiffuseColor(1, 1, 1, 1);
+		base.getMaterial().setAmbientColor(1, 1, 1, 1);
+		base.setModelOrigin(0, 0, 0.9);
 
 		// setup children
 		this.setNumLinks(6);
 
 		if(!ATTACH_MODELS) {
-			ModelEntity anchor1 = new ModelEntity();	addChild(anchor1);	anchor1.setModelFilename("/Sixi2/shoulder.obj");
-			ModelEntity anchor2 = new ModelEntity();	addChild(anchor2);	anchor2.setModelFilename("/Sixi2/bicep.obj");
-			ModelEntity anchor3 = new ModelEntity();	addChild(anchor3);	anchor3.setModelFilename("/Sixi2/forearm.obj");
-			ModelEntity anchor4 = new ModelEntity();	addChild(anchor4);	anchor4.setModelFilename("/Sixi2/tuningFork.obj");
-			ModelEntity anchor5 = new ModelEntity();	addChild(anchor5);	anchor5.setModelFilename("/Sixi2/picassoBox.obj");
-			ModelEntity anchor6 = new ModelEntity();	addChild(anchor6);	anchor6.setModelFilename("/Sixi2/hand.obj");
+			ModelEntity part1 = new ModelEntity();	addChild(part1);	part1.setModelFilename("/Sixi2/shoulder.obj");
+			ModelEntity part2 = new ModelEntity();	addChild(part2);	part2.setModelFilename("/Sixi2/bicep.obj");
+			ModelEntity part3 = new ModelEntity();	addChild(part3);	part3.setModelFilename("/Sixi2/forearm.obj");
+			ModelEntity part4 = new ModelEntity();	addChild(part4);	part4.setModelFilename("/Sixi2/tuningFork.obj");
+			ModelEntity part5 = new ModelEntity();	addChild(part5);	part5.setModelFilename("/Sixi2/picassoBox.obj");
+			ModelEntity part6 = new ModelEntity();	addChild(part6);	part6.setModelFilename("/Sixi2/hand.obj");
 		}
 		
 		// pan shoulder
@@ -170,7 +170,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		return gcode;
 	}
 
-	public void update(double dt) {}
+	public void update(double dt) {
+		super.update(dt);
+	}
 	
 	public double getFeedrate() {
 		return (double)feedRate.get();

@@ -60,7 +60,8 @@ public class Scene extends Entity {
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
     	light.attenuationLinear.set(0.0014);
-    	light.attenuationQuadratic.set(0.0007);
+    	light.attenuationQuadratic.set(7*1e-6);
+    	light.setDirectional(true);
     	
 		// add some collision bounds
 		BoxEntity box;

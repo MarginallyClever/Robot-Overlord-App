@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -54,24 +53,20 @@ public class Sixi2LinearGripper extends DHTool {
 		
 		setModelFilename("/Sixi2/linearGripper/gripperBase.obj");
 		getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		
-
-		Matrix3d r = new Matrix3d();
-		r.setIdentity();
-		r.rotX(Math.toRadians(180));
-		Matrix3d r2 = new Matrix3d();
-		r2.setIdentity();
-		r2.rotZ(Math.toRadians(90));
-		r.mul(r2);
-		this.setRotation(r);
+		getMaterial().setDiffuseColor(1, 1, 1, 1);
+		getMaterial().setAmbientColor(1, 1, 1, 1);
 		
 		// 2 finger tips
 		addChild(leftFinger=new DHLink());
 		addChild(rightFinger=new DHLink());
 		leftFinger.setModelFilename("/Sixi2/linearGripper/gripperLeft.obj");
 		leftFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+		leftFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
+		leftFinger.getMaterial().setAmbientColor(1, 1, 1, 1);
 		rightFinger.setModelFilename("/Sixi2/linearGripper/gripperRight.obj");
 		rightFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+		rightFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
+		rightFinger.getMaterial().setAmbientColor(1, 1, 1, 1);
 
 		leftFinger.flags = DHLink.LinkAdjust.R;
 		rightFinger.flags = DHLink.LinkAdjust.R;
