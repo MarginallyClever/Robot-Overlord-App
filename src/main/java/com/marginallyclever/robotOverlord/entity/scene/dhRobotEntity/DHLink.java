@@ -510,27 +510,29 @@ public class DHLink extends ModelEntity {
 	 */
 	@Override
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
-		if( isAnEndEffector() ) {			
-			return robot.isPoseIKSane(newWorldPose);
-		} else if( !this.getLetter().isEmpty() ) {
-			Matrix4d oldPose=poseWorld.get();
-			// we have newPose ...but is it something this DHLink could do?
-			// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
-			// TODO Today this is the only case I care about. make it better later.
-
-			// difference in position
-			double dx =Math.abs(newWorldPose.m03-oldPose.m03);
-			double dy =Math.abs(newWorldPose.m13-oldPose.m13);
-			double dz =Math.abs(newWorldPose.m23-oldPose.m23);
-			if(dx+dy+dz>1e-6) return false;
-
-			// difference in z axis
-			dx =Math.abs(newWorldPose.m02-oldPose.m02);
-			dy =Math.abs(newWorldPose.m12-oldPose.m12);
-			dz =Math.abs(newWorldPose.m22-oldPose.m22);
-			if(dx+dy+dz>1e-6) return false;
-			// we made it here, move is legal!
-			return true;
+		if( parent instanceof DHLink || parent instanceof DHRobotEntity ) {
+			if( isAnEndEffector() ) {			
+				return robot.isPoseIKSane(newWorldPose);
+			} else if( !this.getLetter().isEmpty() ) {
+				Matrix4d oldPose=poseWorld.get();
+				// we have newPose ...but is it something this DHLink could do?
+				// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
+				// TODO Today this is the only case I care about. make it better later.
+	
+				// difference in position
+				double dx =Math.abs(newWorldPose.m03-oldPose.m03);
+				double dy =Math.abs(newWorldPose.m13-oldPose.m13);
+				double dz =Math.abs(newWorldPose.m23-oldPose.m23);
+				if(dx+dy+dz>1e-6) return false;
+	
+				// difference in z axis
+				dx =Math.abs(newWorldPose.m02-oldPose.m02);
+				dy =Math.abs(newWorldPose.m12-oldPose.m12);
+				dz =Math.abs(newWorldPose.m22-oldPose.m22);
+				if(dx+dy+dz>1e-6) return false;
+				// we made it here, move is legal!
+				return true;
+			}
 		}
 		// else default case
 		return super.canYouMoveTo(newWorldPose);

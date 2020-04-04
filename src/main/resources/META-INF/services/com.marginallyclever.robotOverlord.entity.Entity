@@ -12,8 +12,9 @@ com.marginallyclever.robotOverlord.entity.scene.BoxEntity
 com.marginallyclever.robotOverlord.entity.scene.GridEntity
 
 #robot Tools
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_GoProCamera
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_Gripper
+#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_GoProCamera
+#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_Gripper
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2LinearGripper
 
 # DHRobots
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.DHRobot_GMF_M100
