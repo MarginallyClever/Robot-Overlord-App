@@ -467,6 +467,8 @@ public class DragBallEntity extends PoseEntity {
 	public void render(GL2 gl2) {
 		if(subject==null) return;
 
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
+		
 		gl2.glPushMatrix();
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			ro.viewport.renderPerspective(gl2);

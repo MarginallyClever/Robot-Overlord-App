@@ -94,7 +94,7 @@ public class ModelEntity extends PoseEntity {
 	 */
 	public void setModelFilename(String newFilename) {
 		// if the filename has changed, throw out the model so it will be reloaded.
-		if( this.filename.get().equals(newFilename) ) return;
+		//if( this.filename.get().equals(newFilename) ) return;
 		
 		try {
 			model = createModelFromFilename(newFilename);
