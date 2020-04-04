@@ -5,6 +5,7 @@ import java.io.BufferedInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Observable;
 import java.util.ServiceLoader;
 
 import javax.swing.filechooser.FileFilter;
@@ -60,7 +61,12 @@ public class ModelEntity extends PoseEntity {
 		addChild(rotationAdjust);
 		addChild(originAdjust);
 		addChild(scale);
-		
+
+		filename.addObserver(this);
+		rotationAdjust.addObserver(this);
+		originAdjust.addObserver(this);
+		scale.addObserver(this);
+
 		addChild(numTriangles);
 		addChild(hasNormals);
 		addChild(hasColors);
@@ -151,6 +157,23 @@ public class ModelEntity extends PoseEntity {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		super.update(o, arg);
+		if(filename==o) {
+			setModelFilename(filename.get());
+		}
+		if(rotationAdjust==o) {
+			setModelRotation(rotationAdjust.get());
+		}
+		if(originAdjust==o) {
+			setModelOrigin(originAdjust.get());
+		}
+		if(scale==o) {
+			setModelScale(scale.get());
+		}
 	}
 	
 	/**
