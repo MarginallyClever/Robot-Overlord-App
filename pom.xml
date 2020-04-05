@@ -324,6 +324,14 @@
 	    <version>${jackson-annotations-version}</version>
 	</dependency>
 	
+	<!-- SSH for Java -->
+	<!-- https://mvnrepository.com/artifact/com.jcraft/jsch -->
+	<dependency>
+	    <groupId>com.jcraft</groupId>
+	    <artifactId>jsch</artifactId>
+	    <version>0.1.55</version>
+	</dependency>
+	
     <dependency>
       <groupId>org.jetbrains</groupId>
       <artifactId>annotations</artifactId>

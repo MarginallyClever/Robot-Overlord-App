@@ -1,94 +1,60 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Observer;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.RobotOverlord;
-import javax.swing.JPanel;
-
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
- * An object in the world that can have a user interface.  Does not require physical presence.
- * @author danroyer
+ * Entities are nodes in a tree of data that can find each other and observe/be observed
+ * @author Dan Royer
  *
  */
-public class Entity extends Observable {
+public class Entity extends Observable implements Serializable, Observer {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -994214494049397444L;
+	
 	private String name;
-	private int pickName;
-
-	protected ArrayList<Entity> children;
+	
+	// my children 
+	protected ArrayList<Entity> children = new ArrayList<Entity>();
+	// my parent
 	protected Entity parent;
 	
 	
-	// unique ids for all objects in the world.  
-	// zero is reserved to indicate no object.
-	// first 9 are reserved for MotionHelper.
-	static private int pickNameCounter=10;
-	
-	private transient EntityPanel entityPanel;
-	
-	
 	public Entity() {
-		children = new ArrayList<Entity>();
-		pickName = pickNameCounter++;
+		super();
 	}
 	
+	public Entity(String name) {
+		super();
+		this.name=name;
+	}
+
 	public void set(Entity b) {
-		name = b.name;
-		
-		// what to do about children?  Not a deep copy for now
-		
-		parent = b.parent;
+		setName(b.getName());
 	}
 	
-	/**
-	 * Get the {@link EntityPanel} for this class.  Classes that extend Entity should 
-	 * override this method to add their own panel in the list.
-	 * 
-	 * @param gui the main application instance.
-	 * @return the list of EntityPanels 
-	 */
-	public ArrayList<JPanel> getContextPanels(RobotOverlord gui) {
-		ArrayList<JPanel> list = new ArrayList<JPanel>();
-		
-		entityPanel = new EntityPanel(gui,this);
-		list.add(entityPanel);
-
-		return list;
-	}
-
-
 	public String getName() {
 		return name;
 	}
 
-
 	public void setName(String name) {
+		//if(hasChanged()) return;
+		//setChanged();
 		this.name = name;
+		//notifyObservers(name);
 	}
 
-
-	public int getPickName() {
-		return pickName;
-	}
-	
-	public boolean hasPickName(int name) {
-		return pickName==name;
-	}
-	
 	public void update(double dt) {
 		for(Entity e : children ) {
 			e.update(dt);
 		}
-	}
-	
-	public void render(GL2 gl2) {
-		for(Entity e : children ) {
-			e.render(gl2);
-		}
-	}
-	
+	}	
 
 	public boolean hasChild(Entity o) {
 		return children.contains(o);
@@ -110,15 +76,6 @@ public class Entity extends Observable {
 		return children;
 	}
 	
-	public Entity findChildWithName(String name) {
-		for( Entity obj : children ) {
-			String objectName = obj.getName();
-			if(name.equals(objectName)) return obj; 
-		}
-		
-		return null;
-	}
-	
 	public void removeParent() {
 		parent=null;
 	}
@@ -131,16 +88,95 @@ public class Entity extends Observable {
 		parent = e;
 	}
 	
-	/**
-	 * Do you have a status to report to the GUI?
-	 * Override this with your class' status.
-	 * @return a String.  Cannot be null.  default is "".  
-	 */
-	public String getStatusMessage() {
-		return "";
-	}
-	
 	public String toString() {
 		return name;
 	}
+
+	// Find the root node.
+	public Entity getRoot() {
+		Entity e=this;
+		while( e.getParent() != null ) e = e.getParent();
+		return e;
+	}
+	
+	/**
+	 * Search the entity tree based on an absolute or relative Unix-style path.
+	 * 
+	 * @param path the search query
+	 * @return the requested entity or null.
+	 */
+	public Entity findByPath(String path) {
+		String [] pathComponents = path.split("/");
+		
+		// if absolute path, start with root node.
+		int i=0;
+		Entity e;
+		if(path.startsWith("/")) {
+			e = getRoot();
+			i=2;
+		} else {
+			e = this;
+		}
+		
+		while(i<pathComponents.length) {
+			String name = pathComponents[i++];
+
+			if(e==null) break;
+			if(name.contentEquals("..")) {
+				// ".." = my parent
+				e = e.getParent();
+			} else if(name.contentEquals(".")) {
+				// "." is me!
+				continue;
+			} else {
+				boolean found=false;
+				for( Entity c : e.getChildren() ) {
+					if( name.contentEquals(c.getName()) ) {
+						e = c;
+						found=true;
+						break;
+					}
+				}
+				if(found==false) return null;  // does not exist
+			}
+		}
+		
+		return e;
+	}
+
+	public String getFullName() {
+		String sum="";
+		Entity e=this;
+		
+		do {
+			sum = "/" + e.getName() + sum;
+			e=e.getParent();
+		} while(e!=null);
+
+		return sum;
+	}
+	
+	/**
+	 * Explains to View in abstract terms the control interface for this entity.
+	 * Derivatives of View implement concrete versions of that view. 
+	 * @param g
+	 */
+	public void getView(ViewPanel view) {
+		//if(parent!=null) view.addReadOnly("Child of "+parent.getName());
+	}
+	
+	public void getViewOfChildren(ViewPanel view) {
+		for( Entity child : children ) {
+			if(child.getChildren().isEmpty()) {
+				// only leaves
+				child.getView(view);
+			}
+		}
+	}
+
+	/**
+	 * Something this Entity is observing has changed.  Deal with it!
+	 */
+	@Override
+	public void update(Observable o, Object arg) {}
 }

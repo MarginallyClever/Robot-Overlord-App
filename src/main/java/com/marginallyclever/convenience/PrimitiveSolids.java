@@ -8,6 +8,18 @@ import com.jogamp.opengl.GL2;
 
 
 public class PrimitiveSolids {
+	static public void drawCircleXY(GL2 gl2,double radius,int steps) {
+		double stepSize = Math.PI*2 / (double)(steps+1);
+		
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			double c = Math.cos(n);
+			double s = Math.sin(n);
+			gl2.glVertex2d(c*radius, s*radius);
+		}
+		gl2.glEnd();
+	}
+	
 	/**
 	 * draw a sphere with a given radius.
 	 * TODO expose quality parameters?
@@ -314,7 +326,7 @@ public class PrimitiveSolids {
 	}
 	
 	static public void drawStar(GL2 gl2,double size) {
-		drawStar(gl2,new Vector3d(0,0,0),1.0f);
+		drawStar(gl2,new Vector3d(0,0,0),size);
 	}
 	
 	static public void drawStar(GL2 gl2,Vector3d p) {

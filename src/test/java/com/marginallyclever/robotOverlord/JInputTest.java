@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 import org.junit.Test;
 
-import com.marginallyclever.robotOverlord.uiElements.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;

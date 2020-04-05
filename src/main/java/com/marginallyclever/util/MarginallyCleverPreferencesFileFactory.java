@@ -8,7 +8,7 @@ import java.util.prefs.PreferencesFactory;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.marginallyclever.robotOverlord.engine.log.Log;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * @author Peter Colapietro
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.engine.log.Log;
  * @since v7.1.4
  */
 public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPreferences> implements PreferencesFactory {
-	private static final String PREFERENCES_DIRECTORY_PATH = System.getProperty("user.home") + File.separator + "makelangelo";
+	private static final String PREFERENCES_DIRECTORY_PATH = System.getProperty("user.home") + File.separator + "robotOverlord";
 
 	/**
 	 *

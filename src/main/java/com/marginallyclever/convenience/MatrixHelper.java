@@ -7,8 +7,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
-import org.junit.Test;
-
 import com.jogamp.opengl.GL2;
 
 public class MatrixHelper {	
@@ -66,7 +64,6 @@ public class MatrixHelper {
 		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
 
-	
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)
 	 */
@@ -157,7 +154,7 @@ public class MatrixHelper {
 			x = Math.atan2( mat.m21,mat.m22);
 			y = Math.atan2(-mat.m20,sy);
 			z = Math.atan2( mat.m10,mat.m00);
-		} else {                   
+		} else {
 			x = Math.atan2(-mat.m12, mat.m11);
 			y = Math.atan2(-mat.m20, sy);
 			z = 0;
@@ -166,7 +163,20 @@ public class MatrixHelper {
 	}
 	
 	/**
-	 * Convert euler rotations to a matrix.  See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * Convenience method to call matrixToEuler() with only the rotational component.
+	 * Assumes the rotational component is a valid rotation matrix.
+	 * @param mat
+	 * @return a valid Euler solution to the matrix.
+	 */
+	public static Vector3d matrixToEuler(Matrix4d mat) {
+		Matrix3d m3 = new Matrix3d();
+		mat.get(m3);
+		return matrixToEuler(m3);
+	}
+	
+	/**
+	 * Convert Euler rotations to a matrix.
+	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
 	 */
@@ -191,32 +201,6 @@ public class MatrixHelper {
 		result.mul(rZ,interim);
 
 		return result;
-	}
-	
-	@Test
-	public void testEulerMatrix() {
-		Vector3d v2;
-		Vector3d v1 = new Vector3d();
-		for(int i=0;i<1000;++i) {
-			v1.x = Math.random() * Math.PI*2.0;
-			v1.y = Math.random() * Math.PI*2.0;
-			v1.z = Math.random() * Math.PI*2.0;
-			
-			Matrix3d a = eulerToMatrix(v1);
-			v2 = matrixToEuler(a);
-			Matrix3d b = eulerToMatrix(v2);
-			
-			boolean test = b.epsilonEquals(a, 1e-6);
-			assert(test);
-			if(test==false) {
-				System.out.println(i+"a="+a);
-				System.out.println(i+"b="+b);
-				b.sub(a);
-				System.out.println(i+"d="+b);
-			}
-			org.junit.Assert.assertTrue(test);
-		}
-		System.out.println("testEulerMatrix() OK");
 	}
 	
 	/**
@@ -273,7 +257,6 @@ public class MatrixHelper {
 		gl2.glMultMatrixd(mat, 0);	
 	} 
 	
-	
 	public static void setMatrix(GL2 gl2,Matrix4d pose) {
 		double[] mat = new double[16];
 		mat[ 0] = pose.m00;
@@ -296,7 +279,6 @@ public class MatrixHelper {
 		gl2.glLoadMatrixd(mat, 0);	
 	}
 
-	
 	/**
 	 * invert an N*N matrix.
 	 * From https://www.sanfoundry.com/java-program-find-inverse-matrix/
@@ -642,8 +624,16 @@ public class MatrixHelper {
 		System.out.println ();
 	}
 
-	
-	// create a matrix with a matching y vector and a z that points at   
+	/**
+	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
+	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
+	 * recalculated based on the correct X and Y.
+	 * This will fail if to.z==from.z
+	 *  
+	 * @param from where i'm at
+	 * @param to what I'm looking at
+	 * @return
+	 */
 	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
@@ -657,16 +647,47 @@ public class MatrixHelper {
 		up.normalize();
 
 		Matrix4d lookAt = new Matrix4d(
-				forward.x,left.x,up.x,0,
-				forward.y,left.y,up.y,0,
-				forward.z,left.z,up.z,0,
+				left.x,up.x,forward.x,0,
+				left.y,up.y,forward.y,0,
+				left.z,up.z,forward.z,0,
 				0,0,0,1);
 		
 		return lookAt;
 	}
-	
-	public static Vector3d getForward(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
-	public static Vector3d getLeft(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
-	public static Vector3d getUp(Matrix4d m) {			return new Vector3d(m.m02, m.m12, m.m22);	}
+
+	/**
+	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
+	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
+	 * recalculated based on the correct X and Y.
+	 * This will fail if to.z==from.z
+	 *  
+	 * @param from where i'm at
+	 * @param to what I'm looking at
+	 * @return
+	 */
+	public static Matrix4d lookAt(final Vector3d from, final Vector3d to,final Vector3d up) {
+		Vector3d forward = new Vector3d();
+		Vector3d left = new Vector3d();
+		
+		forward.sub(to,from);
+		forward.normalize();
+		left.cross(up, forward);
+		left.normalize();
+		up.cross(forward, left);
+		up.normalize();
+
+		Matrix4d lookAt = new Matrix4d(
+				left.x,up.x,forward.x,0,
+				left.y,up.y,forward.y,0,
+				left.z,up.z,forward.z,0,
+				0,0,0,1);
+		
+		return lookAt;
+	}
+
 	public static Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
+	
+	public static Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
+	public static Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
+	public static Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
 }

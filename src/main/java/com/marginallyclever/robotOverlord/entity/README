@@ -1,0 +1,4 @@
+entity
+
+Entity is the lowest common denominator for all things that are contained in a Scene.
+ 

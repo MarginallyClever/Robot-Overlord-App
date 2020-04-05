@@ -1,22 +1,21 @@
 package com.marginallyclever.convenience;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import com.marginallyclever.robotOverlord.uiElements.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 
 /**
  * Consistent gridBagConstraints for easier style tweaking
  * 
  */
 public class PanelHelper {
+	@Deprecated
 	static public GridBagConstraints getDefaultGridBagConstraints() { 
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx=0;
@@ -24,21 +23,11 @@ public class PanelHelper {
 		con1.weightx=1;
 		con1.weighty=0;
 		con1.fill=GridBagConstraints.HORIZONTAL;
-		con1.anchor=GridBagConstraints.NORTHWEST;
+		con1.anchor=GridBagConstraints.ABOVE_BASELINE_LEADING;
 		
 		return con1;
 	}
-	
-	/**
-	 * @param parent
-	 * @param last
-	 */
-	static public void ExpandLastChild(JComponent parent,GridBagConstraints last) {
-		Component child = parent.getComponent(parent.getComponentCount()-1);
-		last.weighty=1;
-		parent.add(child,last);
-	}
-	
+		
 	/**
 	 * Add a list of panels to a parent panel and control the layout. 
 	 * @param list
@@ -84,7 +73,5 @@ public class PanelHelper {
 
 			parent.add(b,con1);
 		}
-		
-		PanelHelper.ExpandLastChild(parent, con1);
 	}
 }
