@@ -19,6 +19,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRemoveEntity;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRenameEntity;
 
 public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	/**
@@ -29,7 +30,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	
     protected DefaultMutableTreeNode oldTop; 
 	protected JTree oldTree;
-	protected JButton a,b;
+	protected JButton buttonAdd,buttonRemove,buttonRename;
 	protected JPanel abContainer;
 	protected JScrollPane scroll = new JScrollPane();
 	
@@ -37,14 +38,17 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		super();
 		this.ro=ro;
 		
-		a=new JButton(new CommandAddEntity(ro));
-		b=new JButton(new CommandRemoveEntity(ro));
+		buttonAdd=new JButton(new CommandAddEntity(ro));
+		buttonRename=new JButton(new CommandRenameEntity(ro));
+		buttonRemove=new JButton(new CommandRemoveEntity(ro));
 		abContainer = new JPanel(new FlowLayout());
-		abContainer.add(a);
-		abContainer.add(b);
+		abContainer.add(buttonAdd);
+		abContainer.add(buttonRename);
+		abContainer.add(buttonRemove);
 		setLayout(new BorderLayout());
 		this.add(abContainer,BorderLayout.NORTH);
 		this.add(scroll,BorderLayout.CENTER);
+		buttonRename.setEnabled(false);
 		updateEntityTree();
 	}
 
@@ -69,6 +73,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 				list.add(child);
 			}
 		}
+		
+		buttonRename.setEnabled(e.canBeRenamed());
 	}
 	
     /**
@@ -124,6 +130,10 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)oldTree.getLastSelectedPathComponent();
-        ro.pickEntity((Entity)(node.getUserObject()));
+		if(node!=null) {
+			ro.pickEntity((Entity)(node.getUserObject()));
+		} else {
+			ro.pickEntity(null);
+		}
 	}
 }

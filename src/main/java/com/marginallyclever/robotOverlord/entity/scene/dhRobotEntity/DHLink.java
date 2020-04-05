@@ -537,4 +537,9 @@ public class DHLink extends ModelEntity {
 		// else default case
 		return super.canYouMoveTo(newWorldPose);
 	}
+	
+	@Override
+	public boolean canBeRenamed() {
+		return false;
+	}
 }

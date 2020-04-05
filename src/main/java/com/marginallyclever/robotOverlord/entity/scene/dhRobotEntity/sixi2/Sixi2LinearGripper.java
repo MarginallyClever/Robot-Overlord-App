@@ -59,10 +59,12 @@ public class Sixi2LinearGripper extends DHTool {
 		// 2 finger tips
 		addChild(leftFinger=new DHLink());
 		addChild(rightFinger=new DHLink());
+		leftFinger.setName("Left finger");
 		leftFinger.setModelFilename("/Sixi2/linearGripper/gripperLeft.obj");
 		leftFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		leftFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		leftFinger.getMaterial().setAmbientColor(1, 1, 1, 1);
+		rightFinger.setName("Right finger");
 		rightFinger.setModelFilename("/Sixi2/linearGripper/gripperRight.obj");
 		rightFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		rightFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);

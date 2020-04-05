@@ -286,4 +286,9 @@ public class PoseEntity extends Entity {
 			poseWorld.getView(view);
 		view.popStack();
 	}
+	
+	@Override
+	public boolean canBeRenamed() {
+		return true;
+	}
 }

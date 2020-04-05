@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -21,8 +23,10 @@ public class Entity extends Observable implements Serializable, Observer {
 	private String name;
 	
 	// my children 
+	@JsonBackReference
 	protected ArrayList<Entity> children = new ArrayList<Entity>();
 	// my parent
+	@JsonManagedReference
 	protected Entity parent;
 	
 	
@@ -161,9 +165,7 @@ public class Entity extends Observable implements Serializable, Observer {
 	 * Derivatives of View implement concrete versions of that view. 
 	 * @param g
 	 */
-	public void getView(ViewPanel view) {
-		//if(parent!=null) view.addReadOnly("Child of "+parent.getName());
-	}
+	public void getView(ViewPanel view) {}
 	
 	public void getViewOfChildren(ViewPanel view) {
 		for( Entity child : children ) {
@@ -179,4 +181,12 @@ public class Entity extends Observable implements Serializable, Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {}
+	
+	/**
+	 * Override this to let the user rename entities of this type 
+	 * @return
+	 */
+	public boolean canBeRenamed() {
+		return false;
+	}
 }

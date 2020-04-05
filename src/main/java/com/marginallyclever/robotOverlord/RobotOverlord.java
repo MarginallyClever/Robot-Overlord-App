@@ -45,7 +45,6 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -389,10 +388,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			objectOut = new ObjectOutputStream(fout);
 			objectOut.writeObject(scene);
 		} catch(java.io.NotSerializableException e) {
-			System.out.println("World can't be serialized.");
+			System.out.println("Something can't be serialized.");
 			e.printStackTrace();
 		} catch(IOException e) {
-			System.out.println("World save failed.");
+			System.out.println("Save failed.");
 			e.printStackTrace();
 		} finally {
 			if(objectOut!=null) {
@@ -582,8 +581,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
     @Override
     public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-    	GL2 gl2 = drawable.getGL().getGL2();
-
         // set up the projection matrix
         viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
         viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
