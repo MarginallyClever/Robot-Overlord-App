@@ -33,7 +33,7 @@ public class CommandRenameEntity extends AbstractAction {
 
 		String newName = (String)JOptionPane.showInputDialog(ro.getMainFrame(),"New name:","Rename Entity",JOptionPane.PLAIN_MESSAGE,null,null,entity.getName());
 		if( newName!=null && !newName.equals(entity.getName()) ) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRename(entity,newName) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRename(ro,entity,newName) ) );
 		}
 	}
 }

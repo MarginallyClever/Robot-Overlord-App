@@ -119,7 +119,7 @@ public class Sixi2 extends PoseEntity {
 		addChild(cycleStart);
 		addChild(m01Break);
 		
-		//addChild(live);
+		addChild(live);
 		addChild(sim);
 		
 		singleBlock.addObserver(this);

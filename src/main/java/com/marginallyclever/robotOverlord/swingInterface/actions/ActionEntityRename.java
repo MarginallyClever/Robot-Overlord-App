@@ -4,6 +4,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
@@ -22,14 +23,16 @@ public class ActionEntityRename extends AbstractUndoableEdit {
 	private Entity e;
 	private String oldName ="";
 	private String newName ="";
+	private RobotOverlord ro;
 	
-	public ActionEntityRename(Entity e,String newName) {
+	public ActionEntityRename(RobotOverlord ro,Entity e,String newName) {
 		super();
 		
+		this.ro = ro;
 		this.newName = newName;
 		this.oldName = e.getName();
 		this.e=e;
-		e.setName(newName);
+		doIt();
 	}
 
 	@Override
@@ -40,12 +43,18 @@ public class ActionEntityRename extends AbstractUndoableEdit {
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		e.setName(newName);
+		doIt();
 	}
 
+	protected void doIt() {
+		e.setName(newName);
+		ro.updateEntityTree();
+	}
+	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
 		e.setName(oldName);
+		ro.updateEntityTree();
 	}
 }
