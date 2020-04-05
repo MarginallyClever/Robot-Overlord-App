@@ -45,6 +45,7 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -113,8 +114,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	
 	
 	// click on screen to change which entity is selected
-	// select buffer
-	protected transient IntBuffer pickBuffer = null;
 	// select buffer depth
 	static final public int SELECT_BUFFER_SIZE=256;
 	// when to pick
@@ -210,7 +209,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
-        pickBuffer = Buffers.newDirectIntBuffer(RobotOverlord.SELECT_BUFFER_SIZE);
+
         selectedEntity = null;
         
         
@@ -584,38 +583,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     @Override
     public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
     	GL2 gl2 = drawable.getGL().getGL2();
-    	// turn on vsync
-        gl2.setSwapInterval(1);
 
         // set up the projection matrix
         viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
         viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
-
-		// set opengl options
-		gl2.glDepthFunc(GL2.GL_LESS);
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthMask(true);
-
-		// make things pretty
-    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
-        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-        
-        // Scale normals using the scale of the transform matrix so that lighting is sane.
-        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
-		//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-		//gl2.glEnable(GL2.GL_NORMALIZE);
-        
-        gl2.glEnable(GL2.GL_BLEND);
-        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-
-        // TODO add a settings toggle for this option, it really slows down older machines.
-        gl2.glEnable(GL2.GL_MULTISAMPLE);
-        
-        int buf[] = new int[1];
-        int sbuf[] = new int[1];
-        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
-        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
     }
     
     @Override
@@ -643,6 +614,44 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
             	e.printStackTrace();
             }
         }
+
+    	GL2 gl2 = drawable.getGL().getGL2();
+    	
+    	// turn on vsync
+        gl2.setSwapInterval(1);
+        
+		// make things pretty
+    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
+        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
+        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+
+        // TODO add a settings toggle for this option, it really slows down older machines.
+        gl2.glEnable(GL2.GL_MULTISAMPLE);
+        
+        int buf[] = new int[1];
+        int sbuf[] = new int[1];
+        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
+        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
+
+        // depth testing and culling options
+		gl2.glDepthFunc(GL2.GL_LESS);
+		gl2.glEnable(GL2.GL_DEPTH_TEST);
+		gl2.glDepthMask(true);
+        
+        // Scale normals using the scale of the transform matrix so that lighting is sane.
+        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
+		//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
+		//gl2.glEnable(GL2.GL_NORMALIZE);
+        
+		// default blending option for transparent materials
+        gl2.glEnable(GL2.GL_BLEND);
+        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+
+        // set the color to use when wiping the draw buffer
+		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
+		
+		// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
+    	gl2.glDrawBuffer(GL2.GL_BACK);
     }
 
     @Override
@@ -678,12 +687,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
     		System.out.print("stack depth start = "+stackDepth.get(0));
 		}	
-
-		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
-
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
-		gl2.glLoadIdentity();
 		
 		// 
         viewport.renderPerspective(gl2);
@@ -696,14 +699,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		dragBall.render(gl2);
 		viewCube.render(gl2);
 		
+		//pickNow=true;
         if(pickNow) {
 	        pickNow=false;
-	        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
 	        int pickName = findItemUnderCursor(gl2);
-        	System.out.println(System.currentTimeMillis()+" pickName="+pickName);
-
         	Entity next = scene.pickPhysicalEntityWithName(pickName);
-    		
     		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntity,next) ) );
         }
 		
@@ -718,36 +718,25 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(pickForward.lengthSquared()<1e-6) return;
 		
 		gl2.glPushMatrix();
-		gl2.glDisable(GL2.GL_LIGHTING);
 
 		Vector3d forward = new Vector3d();
 		forward.set(pickForward);
 		forward.scale(10);
 		forward.sub(camera.getPosition());
-		gl2.glColor3f(1,0,0);
 		PrimitiveSolids.drawStar(gl2, forward);
 		
-		forward.set(pickForward);
-		forward.scale(10);
-		forward.add(pickRight);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(0,1,0);
-		PrimitiveSolids.drawStar(gl2, forward);
+		Vector3d right = new Vector3d(forward);
+		right.add(pickRight);
+		PrimitiveSolids.drawStar(gl2, right);
 		
-		forward.set(pickForward);
-		forward.scale(10);
-		forward.add(pickUp);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(0,0,1);
-		PrimitiveSolids.drawStar(gl2, forward);
+		Vector3d up = new Vector3d(forward);
+		up.add(pickUp);
+		PrimitiveSolids.drawStar(gl2, up);
 		
-		forward.set(pickRay);
-		forward.scale(10);
-		forward.sub(camera.getPosition());
-		gl2.glColor3f(1,1,0);
-		PrimitiveSolids.drawStar(gl2, forward);
+		Vector3d ray = new Vector3d(pickRay);
+		ray.sub(camera.getPosition());
+		PrimitiveSolids.drawStar(gl2, ray);
 		
-		gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glPopMatrix();
 	}
 	
@@ -758,55 +747,64 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
      * @param gl2 the openGL render context
      */
     protected int findItemUnderCursor(GL2 gl2) {
+    	// select buffer
+    	IntBuffer pickBuffer = Buffers.newDirectIntBuffer(SELECT_BUFFER_SIZE);
     	// set up the buffer that will hold the names found under the cursor in furthest to closest.
         gl2.glSelectBuffer(SELECT_BUFFER_SIZE, pickBuffer);
+
         // change the render mode
 		gl2.glRenderMode( GL2.GL_SELECT );
 		// wipe the select buffer
 		gl2.glInitNames();
-		
+
 		viewport.renderPick(gl2,pickX,pickY);
+		
+        gl2.glPushName(0);
 
         // render in selection mode, without advancing time in the simulation.
         scene.render(gl2);
 
-        //gl2.glPushName(0);
+        gl2.glPopName();
 
+        gl2.glFlush();
+        
         // get the picking results and return the render mode to the default 
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
-        //gl2.glPopName();
-
-		//System.out.println("\n"+hits+" PICKS @ "+pickX+","+pickY);
-        float z1;
-		//float z2;
+        boolean verbose=false;
+        
+		if(verbose) System.out.println("\n"+hits+" PICKS @ "+pickX+","+pickY);
+        float z1,z2;
 		
         float zMinBest = Float.MAX_VALUE;
-    	int i, j, index=0, nameCount, pickName, bestPickName=0;
+    	int i, j, index=0, nameCount, pickName=0, bestPickName=0;
     	
     	for(i=0;i<hits;++i) {
     		nameCount=pickBuffer.get(index++);
     		z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
     		
-    		//z2 = (float) (selectBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    		index++;
+    		if(verbose) {
+    			System.out.print("  names="+nameCount+" zMin="+z1+" zMax="+z2);
+    		}
+    		String add=": ";
     		
-    		//System.out.print("  names="+nameCount+" zMin="+z1);//+" zMax="+z2);
-    		//String add=": ";
-			for(j=0;j<nameCount-1;++j) {
+			for(j=0;j<nameCount;++j) {
     			pickName = pickBuffer.get(index++);
-        		//System.out.print(add+pickName);
-        		//add=", ";
+        		if(verbose) {
+        			System.out.print(add+pickName);
+            		add=", ";
+        		}
 			}
 			if(nameCount>0) {
-				pickName = pickBuffer.get(index++);
-        		//System.out.print(add+pickName);
+				//pickName = pickBuffer.get(index++);
+				if(verbose) System.out.print(add+" BEST="+pickName);
         		if(zMinBest > z1) {
         			zMinBest = z1;
         			bestPickName = pickName;
         		}
     		}
-    		//System.out.println();
+			if(verbose) System.out.println();
     	}
     	return bestPickName;
     }
@@ -817,6 +815,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     
 	public void pickEntity(Entity e) {
 		if(e==null) return;
+		if(e==selectedEntity) return;  // same again
 		
 		System.out.println("Picked "+e.getFullName());
 		

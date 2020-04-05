@@ -96,14 +96,11 @@ public class Scene extends Entity {
 	
 	public void render(GL2 gl2) {
 		// Clear the screen and depth buffer
-		// background color could be a ColorEntity
-    	//gl2.glClearColor(212.0f/255.0f, 233.0f/255.0f, 255.0f/255.0f, 1.0f);
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
 		
         // Don't draw triangles facing away from camera
 		gl2.glCullFace(GL2.GL_BACK);
-		// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
-    	gl2.glDrawBuffer(GL2.GL_BACK);
-	
+		
 		// PASS 0: all the lights
     	
     	// global ambient light
