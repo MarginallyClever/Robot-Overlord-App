@@ -57,8 +57,8 @@ void saveUID() {
  */
 void saveLimits() {
   Serial.println(F("Saving limits."));
-  int i,j=ADDR_LIMITS;
-  for(i=0;i<NUM_MOTORS;++i) {
+  int j=ADDR_LIMITS;
+  for(ALL_MOTORS(i)) {
     EEPROM_writeLong(j,motors[i].limitMax*100);
     j+=4;
     EEPROM_writeLong(j,motors[i].limitMin*100);
@@ -71,8 +71,8 @@ void saveLimits() {
  * 
  */
 void loadLimits() {
-  int i,j=ADDR_LIMITS;
-  for(i=0;i<NUM_MOTORS;++i) {
+  int j=ADDR_LIMITS;
+  for(ALL_MOTORS(i)) {
     motors[i].limitMax = (float)EEPROM_readLong(j)/100.0f;
     j+=4;
     motors[i].limitMin = (float)EEPROM_readLong(j)/100.0f;
@@ -93,10 +93,10 @@ void loadLimits() {
  */
 void adjustLimits(float *limits) {
   Serial.println(F("Adjusting limits."));
-  int i,j=0;
+  int j=0;
   int changed=0;
   float v;
-  for(i=0;i<NUM_MOTORS;++i) {
+  for(ALL_MOTORS(i)) {
     // max test
     v = floor(limits[j]*100.0f)/100.0f;
     if(v != motors[i].limitMax) {
@@ -124,8 +124,8 @@ void adjustLimits(float *limits) {
  */
 void saveHome() {
   Serial.println(F("Saving home."));
-  int i,j=ADDR_HOME;
-  for(i=0;i<NUM_MOTORS;++i) {
+  int j=ADDR_HOME;
+  for(ALL_MOTORS(i)) {
     EEPROM_writeLong(j,(uint32_t)(motors[i].angleHome*100.0f));
     j+=4;
   }
@@ -136,8 +136,8 @@ void saveHome() {
  * 
  */
 void loadHome() {
-  int i,j=ADDR_HOME;
-  for(i=0;i<NUM_MOTORS;++i) {
+  int j=ADDR_HOME;
+  for(ALL_MOTORS(i)) {
     motors[i].angleHome = (float)EEPROM_readLong(j)/100.0f;
     j+=4;
   }

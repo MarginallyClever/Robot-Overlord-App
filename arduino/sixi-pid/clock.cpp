@@ -20,7 +20,7 @@ ISR(TIMER1_COMPA_vect) {
   
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
   for( int j=0; j<isr_step_multiplier;++j ) {
-    for( int i=0; i<NUM_MOTORS; ++i ) {
+    for(ALL_MOTORS(i)) {
       motors[i].update((float)current_feed_rate/1000000.0);
     }
   }

@@ -14,12 +14,13 @@ extern Servo servos[NUM_SERVOS];
 void setupPins() {
   int i=0;
 
-#define SSP(label,number) sensorPins[i++]=PIN_SENSOR_##label##_##number;
-#define SSP2(number) \
-  SSP(CSEL,number) \
-  SSP(CLK,number) \
-  SSP(MOSI,number) \
-  SSP(MISO,number)
+// SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
+#define SSP(label,NN) sensorPins[i++]=PIN_SENSOR_##label##_##NN;
+#define SSP2(NN) \
+  SSP(CSEL,NN) \
+  SSP(CLK,NN) \
+  SSP(MOSI,NN) \
+  SSP(MISO,NN)
 
   SSP2(0);
   SSP2(1);
@@ -28,7 +29,7 @@ void setupPins() {
   SSP2(4);
   SSP2(5);
 
-  for(i=0;i<NUM_SENSORS;++i) {
+  for(ALL_SENSORS(i)) {
     pinMode(sensorPins[(i*4)+0],OUTPUT);  // csel
     pinMode(sensorPins[(i*4)+1],OUTPUT);  // clk
     pinMode(sensorPins[(i*4)+2],INPUT);  // miso
@@ -52,7 +53,7 @@ void setupPins() {
   SMP('V',4);
   SMP('A',5);
 
-  for (int i = 0; i < NUM_MOTORS; ++i) {
+  for(ALL_MOTORS(i)) {
     // set the motor pin & scale
     pinMode(motors[i].step_pin, OUTPUT);
     pinMode(motors[i].dir_pin, OUTPUT);
@@ -77,7 +78,7 @@ void setup() {
   copySensorsToMotorPositions();
   
   // make sure the starting target is the starting position (no move)
-  for (int i = 0; i < NUM_MOTORS; ++i) {
+  for(ALL_MOTORS(i)) {
     motors[i].stepsTarget = motors[i].stepsNow;
   }
   
@@ -110,7 +111,7 @@ void setup() {
 
 
 void reportAllTargets() {
-  for( int i=0;i<NUM_MOTORS;++i ) {
+  for(ALL_MOTORS(i)) {
     Serial.print(motors[i].letter);
     Serial.print(motors[i].stepsTarget);
     Serial.print('\t');

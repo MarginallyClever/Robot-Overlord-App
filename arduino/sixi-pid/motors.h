@@ -7,6 +7,9 @@
 #define NUM_MOTORS                (6)
 #define NUM_SERVOS                (0)
 
+// use in for(ALL_MOTORS(i)) { //i will be rising
+#define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
+
 // MOTOR PINS
 
 #define MOTOR_0_DIR_PIN           46
@@ -187,4 +190,3 @@ struct StepperMotor {
 
 
 extern StepperMotor motors[NUM_MOTORS];
-

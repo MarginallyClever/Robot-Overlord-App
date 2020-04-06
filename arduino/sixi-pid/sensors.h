@@ -4,6 +4,9 @@
 // SENSORS
 #define NUM_SENSORS          (6)
 
+// use in for(ALL_SENSORS(i)) { //i will be rising
+#define ALL_SENSORS(NN) int NN=0;NN<NUM_SENSORS;++NN
+
 // sensor bits, flags, and masks
 #define BOTTOM_14_MASK       (0x3FFF)
 #define SENSOR_TOTAL_BITS    (16)

@@ -65,7 +65,7 @@ void sensorUpdate() {
   uint16_t rawValue;
   float v;
   //uint32_t aa,bb,cc,dd,ee;
-  for(int i=0;i<NUM_SENSORS;++i) {
+  for(ALL_SENSORS(i)) {
     if(getSensorRawValue(i,rawValue)) continue;
     v = extractAngleFromRawValue(rawValue);
     // Some of these are negative because the sensor is reading the opposite rotation from the Robot Overlord simulation.
