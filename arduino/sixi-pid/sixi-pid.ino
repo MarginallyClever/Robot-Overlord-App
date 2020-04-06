@@ -83,8 +83,6 @@ void setup() {
   
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
-  uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
-    
   // disable global interrupts
   CRITICAL_SECTION_START();
   
@@ -93,7 +91,7 @@ void setup() {
     // set the overflow clock to 0
     TCNT1  = 0;
     // set compare match register to desired timer count
-    OCR1A = interval;  // set the next isr to fire at the right time.
+    OCR1A = 2000;  // set the next isr to fire at the right time.
     // turn on CTC mode
     TCCR1B = (1 << WGM12);
     // Set 8x prescaler
@@ -101,6 +99,9 @@ void setup() {
     // enable timer compare interrupt
     TIMSK1 |= (1 << OCIE1A);
     
+    uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
+    CLOCK_ADJUST(interval);
+  
   // enable global interrupts
   CRITICAL_SECTION_END();
 

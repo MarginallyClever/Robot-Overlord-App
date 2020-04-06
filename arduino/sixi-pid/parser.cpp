@@ -270,19 +270,25 @@ void parsePID() {
     int axis = parseNumber('L',0);
     axis = max(min(axis,5),0);
     
-    float p = parseNumber('P', motors[axis].kp );
-    float i = parseNumber('I', motors[axis].ki );
-    float d = parseNumber('D', motors[axis].kd );
-    motors[axis].setPID(p,i,d);
+    // disable global interrupts
+    CRITICAL_SECTION_START();
+      float p = parseNumber('P', motors[axis].kp );
+      float i = parseNumber('I', motors[axis].ki );
+      float d = parseNumber('E', motors[axis].kd );
+    
+      motors[axis].setPID(p,i,d);
+    // enable global interrupts
+    CRITICAL_SECTION_END();
+    
     // report values
     Serial.print("PID ");
     Serial.print(motors[axis].letter);
     Serial.print(" = ");
-    Serial.print(p,7);
+    Serial.print(p,6);
     Serial.print(",");
-    Serial.print(i,7);
+    Serial.print(i,6);
     Serial.print(",");
-    Serial.print(d,7);
+    Serial.print(d,6);
   }
 }
 

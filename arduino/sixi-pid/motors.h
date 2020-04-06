@@ -118,7 +118,10 @@ struct StepperMotor {
   
   // current error
   // PID values
-  float kp=5, ki=0.001, kd=0.00001;
+  float kp=5;
+  float ki=0.01;
+  float kd=0.00001;
+  
   float error;
   float error_i;
   float error_last;
@@ -176,9 +179,9 @@ struct StepperMotor {
   }
   
   void setPID(float p,float i,float d) {
-    kp=p;
-    ki=i;
-    kd=d;
+      kp=p;
+      ki=i;
+      kd=d;
   }
 };
 

@@ -8,6 +8,7 @@
 //#include <Servo.h>
 
 StepperMotor motors[NUM_MOTORS];
+
 #if NUM_SERVOS>0
 Servo servos[NUM_SERVOS];
 #endif
