@@ -5,7 +5,11 @@
 //------------------------------------------------------------------------------
 
 #include "configure.h"
+//#include <Servo.h>
 
+#if NUM_SERVOS>0
+extern Servo servos[NUM_SERVOS];
+#endif
 
 void setupPins() {
   int i=0;
@@ -53,20 +57,21 @@ void setupPins() {
     pinMode(motors[i].step_pin, OUTPUT);
     pinMode(motors[i].dir_pin, OUTPUT);
     pinMode(motors[i].enable_pin, OUTPUT);
+    //digitalWrite(motors[i].enable_pin,HIGH);
   }
+  
+  // setup servos
+#if NUM_SERVOS>0
+  servos[0].attach(SERVO0_PIN);
+#endif
 }
 
 void setup() {
   Serial.begin(BAUD);
   
   loadConfig();
-
-  setupPins();
   
-  // setup servos
-#if NUM_SERVOS>0
-  servos[0].attach(SERVO0_PIN);
-#endif
+  setupPins();
 
   // find the starting position of the arm
   copySensorsToMotorPositions();
@@ -78,14 +83,17 @@ void setup() {
   
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
+  uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
+    
   // disable global interrupts
   CRITICAL_SECTION_START();
+  
     // set entire TCCR1A register to 0
     TCCR1A = 0;
     // set the overflow clock to 0
     TCNT1  = 0;
     // set compare match register to desired timer count
-    OCR1A = 2000;  // 1ms
+    OCR1A = interval;  // set the next isr to fire at the right time.
     // turn on CTC mode
     TCCR1B = (1 << WGM12);
     // Set 8x prescaler
@@ -93,12 +101,31 @@ void setup() {
     // enable timer compare interrupt
     TIMSK1 |= (1 << OCIE1A);
     
-    uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
-    // set the next isr to fire at the right time.
-    CLOCK_ADJUST(interval);
+  // enable global interrupts
   CRITICAL_SECTION_END();
 
   parserReady();
+}
+
+
+void reportAllTargets() {
+  for( int i=0;i<NUM_MOTORS;++i ) {
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].stepsTarget);
+    Serial.print('\t');
+    //Serial.print(motors[i].stepsNow);
+    //Serial.print('\t');
+    //Serial.print(motors[i].error);
+  }
+  Serial.println();
+}
+
+
+void testPID() {
+  int i=0;
+  Serial.print(motors[i].stepsTarget);
+  Serial.print('\t');
+  Serial.println(motors[i].stepsNow);
 }
 
 
@@ -120,15 +147,9 @@ void loop() {
   if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
-      //reportAllAngleValues();
-      //*
-      for( int i=0;i<NUM_MOTORS;++i ) {
-        Serial.print(motors[i].letter);
-        Serial.print(motors[i].error);
-        Serial.print('\t');
-      }
-      Serial.println();
-      //*/
+      reportAllAngleValues();
+      //reportAllTargets();
+      //testPID();
     }
   }
 }

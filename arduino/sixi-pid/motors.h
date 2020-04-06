@@ -164,9 +164,9 @@ struct StepperMotor {
     //stepsNow += velocity*dt;
     if( timeSinceLastStep >= stepInterval ) {
       stepsNow += velocity<0 ? -1 : 1;
-      //digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
-      //digitalWrite( step_pin, HIGH );
-      //digitalWrite( step_pin, LOW  );
+      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
+      digitalWrite( step_pin, HIGH );
+      digitalWrite( step_pin, LOW  );
       timeSinceLastStep = 0;
     }
   }
@@ -184,3 +184,4 @@ struct StepperMotor {
 
 
 extern StepperMotor motors[NUM_MOTORS];
+

@@ -237,6 +237,7 @@ void reportAllAngleValues() {
   Serial.println();
 }
 
+
 /**
  * D18 copy sensor values to motor step positions.
  */
@@ -260,6 +261,31 @@ void copySensorsToMotorPositions() {
   }
 }
 
+
+/**
+ * D50 adjust PID
+ */
+void parsePID() {
+  if(hasGCode('L')) {
+    int axis = parseNumber('L',0);
+    axis = max(min(axis,5),0);
+    
+    float p = parseNumber('P', motors[axis].kp );
+    float i = parseNumber('I', motors[axis].ki );
+    float d = parseNumber('D', motors[axis].kd );
+    motors[axis].setPID(p,i,d);
+    // report values
+    Serial.print("PID ");
+    Serial.print(motors[axis].letter);
+    Serial.print(" = ");
+    Serial.print(p,7);
+    Serial.print(",");
+    Serial.print(i,7);
+    Serial.print(",");
+    Serial.print(d,7);
+  }
+}
+
 /**
    prepares the input buffer to receive a new message and tells the serial connected device it is ready for more.
 */
@@ -268,6 +294,7 @@ void parserReady() {
   Serial.print(F("\n> "));  // signal ready to receive input
   lastCmdTimeMs = millis();
 }
+
 
 /**
  * G0/G1 linear moves
@@ -287,7 +314,7 @@ void parseLine() {
 
   CRITICAL_SECTION_START();
   for(int i=0;i<NUM_MOTORS;++i) {
-//*
+/*
     Serial.print(motors[i].letter);
     Serial.print(motors[i].angleTarget);
     Serial.print('\t');
@@ -345,6 +372,7 @@ void processCommand() {
     case 20:  positionErrorFlags &= 0xffff ^ (POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR);  break; // off
     case 21:  positionErrorFlags ^= POSITION_ERROR_FLAG_ESTOP;  break; // toggle ESTOP
     case 22:  sixiResetSensorOffsets();  break;
+    case 50:  parsePID();  break;
     default:  break;
   }
   if (cmd != -1) return; // D command processed, stop.
