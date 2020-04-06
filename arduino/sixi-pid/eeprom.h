@@ -23,22 +23,22 @@ extern uint32_t robot_uid;
 /**
  * 
  */
-char loadVersion();
+char eepromLoadVersion();
 
 /**
  * 
  */
-extern void saveUID();
+extern void eepromSaveUID();
 
 /**
  * 
  */
-void saveLimits();
+void eepromSaveLimits();
 
 /**
  * 
  */
-void loadLimits();
+void eepromLoadLimits();
 
 /**
  * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
@@ -48,14 +48,16 @@ void adjustLimits(float *limits);
 /**
  * 
  */
-void saveHome();
+void eepromSaveHome();
 
 /**
  * 
  */
-void loadHome();
+void eepromLoadHome();
 
+
+extern void eepromSaveAll();
 /**
  * 
  */
-extern void loadConfig();
+extern void eepromLoadAll();

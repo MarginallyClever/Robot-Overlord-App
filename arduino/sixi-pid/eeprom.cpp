@@ -38,7 +38,7 @@ bool EEPROM_writeLong(int ee, uint32_t value) {
 /**
  * 
  */
-char loadVersion() {
+char eepromLoadVersion() {
   return EEPROM.read(ADDR_VERSION);
 }
 
@@ -46,7 +46,7 @@ char loadVersion() {
 /**
  * 
  */
-void saveUID() {
+void eepromSaveUID() {
   Serial.println(F("Saving UID."));
   EEPROM_writeLong(ADDR_UUID,(uint32_t)robot_uid);
 }
@@ -55,7 +55,15 @@ void saveUID() {
 /**
  * 
  */
-void saveLimits() {
+char eepromLoadUID() {
+  return EEPROM.read(ADDR_VERSION);
+}
+
+
+/**
+ * 
+ */
+void eepromSaveLimits() {
   Serial.println(F("Saving limits."));
   int j=ADDR_LIMITS;
   for(ALL_MOTORS(i)) {
@@ -70,7 +78,7 @@ void saveLimits() {
 /**
  * 
  */
-void loadLimits() {
+void eepromLoadLimits() {
   int j=ADDR_LIMITS;
   for(ALL_MOTORS(i)) {
     motors[i].limitMax = (float)EEPROM_readLong(j)/100.0f;
@@ -91,7 +99,7 @@ void loadLimits() {
 /**
  * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
  */
-void adjustLimits(float *limits) {
+void eepromAdjustLimits(float *limits) {
   Serial.println(F("Adjusting limits."));
   int j=0;
   int changed=0;
@@ -114,15 +122,12 @@ void adjustLimits(float *limits) {
   }
 
   if( changed != 0 ) {
-    saveLimits();
+    eepromSaveLimits();
   }
 }
 
 
-/**
- * 
- */
-void saveHome() {
+void eepromSaveHome() {
   Serial.println(F("Saving home."));
   int j=ADDR_HOME;
   for(ALL_MOTORS(i)) {
@@ -132,10 +137,7 @@ void saveHome() {
 }
 
 
-/**
- * 
- */
-void loadHome() {
+void eepromLoadHome() {
   int j=ADDR_HOME;
   for(ALL_MOTORS(i)) {
     motors[i].angleHome = (float)EEPROM_readLong(j)/100.0f;
@@ -144,11 +146,15 @@ void loadHome() {
 }
 
 
-/**
- * 
- */
-void loadConfig() {
-  char versionNumber = loadVersion();
+void eepromSaveAll() {
+  eepromSaveUID();
+  eepromSaveLimits();
+  eepromSaveHome();
+}
+
+
+void eepromLoadAll() {
+  char versionNumber = eepromLoadVersion();
   if( versionNumber != FIRMWARE_VERSION ) {
     // If not the current FIRMWARE_VERSION or the FIRMWARE_VERSION is sullied (i.e. unknown data)
     // Update the version number
@@ -157,6 +163,6 @@ void loadConfig() {
   
   // Retrieve stored configuration
   robot_uid=EEPROM_readLong(ADDR_UUID);
-  loadLimits();
-  loadHome();
+  eepromLoadLimits();
+  eepromLoadHome();
 }

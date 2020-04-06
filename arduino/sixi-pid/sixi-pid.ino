@@ -70,12 +70,12 @@ void setupPins() {
 void setup() {
   Serial.begin(BAUD);
   
-  loadConfig();
+  eepromLoadAll();
   
   setupPins();
 
   // find the starting position of the arm
-  copySensorsToMotorPositions();
+  parser.D18();
   
   // make sure the starting target is the starting position (no move)
   for(ALL_MOTORS(i)) {
@@ -106,7 +106,7 @@ void setup() {
   // enable global interrupts
   CRITICAL_SECTION_END();
 
-  parserReady();
+  parser.ready();
 }
 
 
@@ -132,7 +132,7 @@ void testPID() {
 
 
 void loop() {
-  serialUpdate();
+  parser.update();
   sensorUpdate();
 
   if ((positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) {
@@ -149,7 +149,7 @@ void loop() {
   if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
-      reportAllAngleValues();
+      parser.D17();
       //reportAllTargets();
       //testPID();
     }

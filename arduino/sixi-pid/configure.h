@@ -28,6 +28,7 @@
 #define PENDING(NOW,SOON) ((uint32_t)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
+#define TEST(FF,NN)       ((FF & NN) == NN )
 
 // serial comms
 #define BAUD 57600

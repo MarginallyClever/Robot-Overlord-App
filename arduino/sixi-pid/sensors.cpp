@@ -64,7 +64,6 @@ float extractAngleFromRawValue(uint16_t rawValue) {
 void sensorUpdate() {
   uint16_t rawValue;
   float v;
-  //uint32_t aa,bb,cc,dd,ee;
   for(ALL_SENSORS(i)) {
     if(getSensorRawValue(i,rawValue)) continue;
     v = extractAngleFromRawValue(rawValue);

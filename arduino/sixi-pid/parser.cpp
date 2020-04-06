@@ -17,8 +17,12 @@ int32_t lineNumber = 0;        // make sure commands arrive in order
 uint8_t lastGcommand = -1;
 uint32_t reportDelay = 0;  // how long since last D17 sent out
 
+#define FLAG_RELATIVE      (1<<0)
+#define RELATIVE_MOVES     (TEST(motionFlags,FLAG_RELATIVE))
 
+uint16_t motionFlags = 0;
 
+Parser parser;
 
 /**
  * Inverse Kinematics turns XY coordinates into step counts from each motor
@@ -90,7 +94,7 @@ int FK(uint32_t *steps, float *angles) {
    @input code the character to look for.
    @input val the return value if /code/ is not found.
 */
-float parseNumber(char code, float val) {
+float Parser::parseNumber(char code, float val) {
   char *ptr = serialBuffer; // start at the beginning of buffer
   char *finale = serialBuffer + sofar;
   for (ptr = serialBuffer; ptr < finale; ++ptr) { // walk to the end
@@ -103,10 +107,8 @@ float parseNumber(char code, float val) {
 }
 
 
-/**
-   @return 1 if the character is found in the serial buffer, 0 if it is not found.
-*/
-char hasGCode(char code) {
+// @return 1 if the character is found in the serial buffer, 0 if it is not found.
+uint8_t Parser::hasGCode(char code) {
   char *ptr = serialBuffer; // start at the beginning of buffer
   char *finale = serialBuffer + sofar;
   for (ptr = serialBuffer; ptr < finale; ++ptr) { // walk to the end
@@ -119,10 +121,8 @@ char hasGCode(char code) {
 }
 
 
-/**
-   @return 1 if CRC ok or not present, 0 if CRC check fails.
-*/
-char checkLineNumberAndCRCisOK() {
+// @return 1 if CRC ok or not present, 0 if CRC check fails.
+char Parser::checkLineNumberAndCRCisOK() {
   // is there a line number?
   int32_t cmd = parseNumber('N', -1);
   if (cmd != -1 && serialBuffer[0] == 'N') { // line number must appear first on the line
@@ -170,64 +170,88 @@ char checkLineNumberAndCRCisOK() {
   return 1;  // ok!
 }
 
-/**
- * D22
- * reset home position to the current angle values.
- */
-void sixiResetSensorOffsets() {
-  int i;
+// M428 - set home position to the current angle values
+void Parser::M428() {
   // cancel the current home offsets
-  for (i = 0; i < NUM_SENSORS; ++i) {
-    motors[i].angleHome = 0;
-  }
+  M502();
+  
   // read the sensor
   sensorUpdate();
+  
   // apply the new offsets
-  for (i = 0; i < NUM_SENSORS; ++i) {
+  for(ALL_MOTORS(i)) {
     motors[i].angleHome = sensorAngles[i];
   }
 }
+
+// M500 - save home offsets
+void Parser::M500() {
+  eepromSaveHome();
+}
+
+// M501 - load home offsets
+void Parser::M501() {
+  eepromLoadHome();
+}
+
+// M502 - reset the home offsets
+void Parser::M502() {
+  for(ALL_MOTORS(i)) {
+    motors[i].angleHome = 0;
+  }
+}
+
+// M503 - report the home offsets
+void Parser::M503() {
+  Serial.print(F("M503"));
+  for(ALL_MOTORS(i)) {
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleHome);
+  }
+  Serial.println();
+}
+
 
 /**
    M114
    Print the X,Y,Z, feedrate, acceleration, and home position
 */
-void where() {
-  int i;
-  for (i = 0; i < NUM_MOTORS; ++i) {
+void Parser::M114() {
+  Serial.print(F("M114"));
+  for(ALL_MOTORS(i)) {
+    Serial.print(' ');
     Serial.print(motors[i].letter);
     Serial.print(motors[i].getDegrees());
-    Serial.print(' ');
   }
 
-//Serial.print('F');  Serial.print(feed_rate);  Serial.print(' ');
-//Serial.print(F('A'));  Serial.print(acceleration);
+//Serial.print(F(" F"));  Serial.print(feed_rate);
+//Serial.print(F(" A"));  Serial.print(acceleration);
   Serial.println();
 }
+
+
+/**
+ * M206 set home offsets
+ */
+void Parser::M206() {
+  // cancel the current home offsets
+  for(ALL_MOTORS(i)) {
+    float angleHome = parseNumber( motors[i].letter, motors[i].angleHome );
+    motors[i].angleHome = min(max(angleHome,360),-360);
+  }
+}
+
 
 /**
  * D17 report the 6 axis sensor values from the Sixi robot arm.
  */
-void reportAllAngleValues() {
+void Parser::D17() {
   Serial.print(F("D17"));
-  for (int i = 0; i < NUM_MOTORS; ++i) {
-    Serial.print('\t');
+  for(ALL_MOTORS(i)) {
+    Serial.print(' ');
     Serial.print(sensorAngles[i], 2);
   }
-  /*
-    if(current_segment==last_segment) {
-    // report estimated position
-    Serial.print(F("\t-\t"));
-
-    working_seg = get_current_segment();
-    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
-      //float diff = working_seg->a[i].expectedPosition - sensorAngles[i];
-      //Serial.print('\t');
-      //Serial.print(abs(diff),3);
-      Serial.print('\t');
-      Serial.print(working_seg->a[i].expectedPosition,2);
-    }
-    }*/
 
   Serial.print('\t');
   //Serial.print(((positionErrorFlags&POSITION_ERROR_FLAG_CONTINUOUS)!=0)?'+':'-');
@@ -238,50 +262,48 @@ void reportAllAngleValues() {
 }
 
 
-/**
- * D18 copy sensor values to motor step positions.
- */
-void copySensorsToMotorPositions() {
+// D18 copy sensor values to motor step positions.
+void Parser::D18() {
   float a[NUM_MOTORS];
-  int i, j;
+  int i;
   int numSamples = 10;
 
-  for (j = 0; j < NUM_MOTORS; ++j) a[j] = 0;
+  for(ALL_MOTORS(j)) a[j] = 0;
 
   // assert(NUM_SENSORS <= NUM_MOTORS);
 
-  for (i = 0; i < numSamples; ++i) {
+  for(i = 0; i < numSamples; ++i) {
     sensorUpdate();
-    for (j = 0; j < NUM_SENSORS; ++j) {
+    for(ALL_SENSORS(j)) {
       a[j] += sensorAngles[j];
     }
   }
-  for (j = 0; j < NUM_SENSORS; ++j) {
+  for(ALL_SENSORS(j)) {
     motors[i].stepsNow = a[j] / (float)numSamples;
   }
 }
 
 
 /**
- * D50 adjust PID
+ * M306 adjust PID
  */
-void parsePID() {
+void Parser::M306() {
   if(hasGCode('L')) {
     int axis = parseNumber('L',0);
     axis = max(min(axis,5),0);
     
-    // disable global interrupts
-    CRITICAL_SECTION_START();
       float p = parseNumber('P', motors[axis].kp );
       float i = parseNumber('I', motors[axis].ki );
-      float d = parseNumber('E', motors[axis].kd );
+      float d = parseNumber('D', motors[axis].kd );  // this only works as long as M codes are processed before D codes.
     
+    // disable global interrupts
+    CRITICAL_SECTION_START();
       motors[axis].setPID(p,i,d);
     // enable global interrupts
     CRITICAL_SECTION_END();
     
     // report values
-    Serial.print("PID ");
+    Serial.print("M306 ");
     Serial.print(motors[axis].letter);
     Serial.print(" = ");
     Serial.print(p,6);
@@ -295,7 +317,7 @@ void parsePID() {
 /**
    prepares the input buffer to receive a new message and tells the serial connected device it is ready for more.
 */
-void parserReady() {
+void Parser::ready() {
   sofar = 0; // clear input buffer
   Serial.print(F("\n> "));  // signal ready to receive input
   lastCmdTimeMs = millis();
@@ -305,15 +327,18 @@ void parserReady() {
 /**
  * G0/G1 linear moves
  */
-void parseLine() {
+void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
 
   Serial.println();
   
   for(ALL_MOTORS(i)) {
-    float parsed = parseNumber( motors[i].letter, motors[i].angleTarget );
-    angles[i] = (int32_t)floor(parsed);
+    float start = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
+    
+    float parsed = (int32_t)floor(parseNumber( motors[i].letter, start ));
+    
+    angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
   }
   
   IK(angles,steps);
@@ -342,7 +367,7 @@ void parseLine() {
 /**
  * process commands in the serial receive buffer
  */
-void processCommand() {
+void Parser::processCommand() {
   if( serialBuffer[0] == '\0' || serialBuffer[0] == ';' ) return;  // blank lines
   if(!checkLineNumberAndCRCisOK()) return; // message garbled
   
@@ -352,33 +377,38 @@ void processCommand() {
   
   if( !strncmp(serialBuffer, "UID", 3) ) {
     robot_uid = atoi(strchr(serialBuffer, ' ') + 1);
-    saveUID();
+    eepromSaveUID();
   }
 
-  int8_t cmd;
+  int16_t cmd;
 
   // M codes
   cmd = parseNumber('M', -1);
-  switch (cmd) {
-    case 114:  where();  break;
+  switch(cmd) {
+    case 114:  M114();  break;
+    case 206:  M206();  break;
+    case 428:  M428();  break;
+    case 500:  M500();  break;
+    case 501:  M501();  break;
+    case 502:  M502();  break;
+    case 503:  M503();  break;
     default:   break;
   }
   if (cmd != -1) return; // M command processed, stop.
   
   // machine style-specific codes
   cmd = parseNumber('D', -1);
-  switch (cmd) {
+  switch(cmd) {
     case 10:  // get hardware version
       Serial.print(F("D10 V"));
       Serial.println(MACHINE_HARDWARE_VERSION);
       break;
-    case 17:  reportAllAngleValues();  break;
-    case 18:  copySensorsToMotorPositions();  break;
+    case 17:  D17();  break;
+    case 18:  D18();  break;
     case 19:  positionErrorFlags ^= POSITION_ERROR_FLAG_CONTINUOUS;  break; // toggle
     case 20:  positionErrorFlags &= 0xffff ^ (POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR);  break; // off
     case 21:  positionErrorFlags ^= POSITION_ERROR_FLAG_ESTOP;  break; // toggle ESTOP
-    case 22:  sixiResetSensorOffsets();  break;
-    case 50:  parsePID();  break;
+    case 50:  M306();  break;
     default:  break;
   }
   if (cmd != -1) return; // D command processed, stop.
@@ -387,20 +417,20 @@ void processCommand() {
   // G codes
   cmd = parseNumber('G', lastGcommand);
   lastGcommand = -1;
-  switch (cmd) {
+  switch(cmd) {
     case  0:
     case  1:
       lastGcommand = cmd;
-      parseLine();
+      G01();
       break;
     default: break;
   }
 }
 
 
-void serialUpdate() {
+void Parser::update() {
   // listen for serial commands
-  while (Serial.available() > 0) {
+  while(Serial.available() > 0) {
     char c = Serial.read();
     Serial.print(c);
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
@@ -412,7 +442,7 @@ void serialUpdate() {
 
       // do something with the command
       processCommand();
-      parserReady();
+      ready();
     }
   }
 }
