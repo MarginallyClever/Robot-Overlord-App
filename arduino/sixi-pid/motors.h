@@ -147,7 +147,7 @@ struct StepperMotor {
     error = stepsTarget - stepsNow;
     error_i += error * dt;          
     float error_d = (error - error_last) / dt;
-    velocity = kp * error + ki * error_i + kd * error_d;
+    velocity = kp * ( error + ki * error_i + kd * error_d );
     error_last = error;
 
     if(abs(velocity) < 1e-6) {
