@@ -17,12 +17,13 @@ int32_t lineNumber = 0;        // make sure commands arrive in order
 uint8_t lastGcommand = -1;
 uint32_t reportDelay = 0;  // how long since last D17 sent out
 
-#define FLAG_RELATIVE      (1<<0)
+#define FLAG_RELATIVE      (0)
 #define RELATIVE_MOVES     (TEST(motionFlags,FLAG_RELATIVE))
 
 uint16_t motionFlags = 0;
 
 Parser parser;
+
 
 /**
  * Inverse Kinematics turns XY coordinates into step counts from each motor
@@ -222,7 +223,7 @@ void Parser::M114() {
   for(ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(motors[i].letter);
-    Serial.print(motors[i].getDegrees());
+    Serial.print(motors[i].getAngleNow());
   }
 
 //Serial.print(F(" F"));  Serial.print(feed_rate);
@@ -263,14 +264,13 @@ void Parser::D17() {
 
 
 // D18 copy sensor values to motor step positions.
+// get the average of a few samples.
 void Parser::D18() {
-  float a[NUM_MOTORS];
+  float a[NUM_SENSORS];
   int i;
   int numSamples = 10;
 
-  for(ALL_MOTORS(j)) a[j] = 0;
-
-  // assert(NUM_SENSORS <= NUM_MOTORS);
+  for(ALL_SENSORS(j)) a[j] = 0;
 
   for(i = 0; i < numSamples; ++i) {
     sensorUpdate();
@@ -278,8 +278,9 @@ void Parser::D18() {
       a[j] += sensorAngles[j];
     }
   }
+  
   for(ALL_SENSORS(j)) {
-    motors[i].stepsNow = a[j] / (float)numSamples;
+    motors[i].setAngleNow( a[j] / (float)numSamples );
   }
 }
 
@@ -288,6 +289,8 @@ void Parser::D18() {
  * M306 adjust PID
  */
 void Parser::M306() {
+  Serial.print(F("M306"));
+  
   if(hasGCode('L')) {
     int axis = parseNumber('L',0);
     axis = max(min(axis,5),0);
@@ -303,7 +306,7 @@ void Parser::M306() {
     CRITICAL_SECTION_END();
     
     // report values
-    Serial.print("M306 ");
+    Serial.print(' ');
     Serial.print(motors[axis].letter);
     Serial.print(" = ");
     Serial.print(p,6);
@@ -331,14 +334,20 @@ void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
 
-  Serial.println();
+  Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
   
   for(ALL_MOTORS(i)) {
+    Serial.print( motors[i].letter );
+    Serial.print( motors[i].angleTarget );
+    
     float start = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
     
     float parsed = (int32_t)floor(parseNumber( motors[i].letter, start ));
     
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
+    
+    Serial.print( " -> " );
+    Serial.println( motors[i].angleTarget );
   }
   
   IK(angles,steps);
@@ -364,6 +373,16 @@ void Parser::G01() {
 }
 
 
+void Parser::G90() {
+  SET_BIT(motionFlags,FLAG_RELATIVE);
+}
+
+
+void Parser::G91() {
+  UNSET_BIT(motionFlags,FLAG_RELATIVE);
+}
+
+
 /**
  * process commands in the serial receive buffer
  */
@@ -382,11 +401,12 @@ void Parser::processCommand() {
 
   int16_t cmd;
 
-  // M codes
+  // M commands
   cmd = parseNumber('M', -1);
   switch(cmd) {
     case 114:  M114();  break;
     case 206:  M206();  break;
+    case 306:  M306();  break;
     case 428:  M428();  break;
     case 500:  M500();  break;
     case 501:  M501();  break;
@@ -396,7 +416,7 @@ void Parser::processCommand() {
   }
   if (cmd != -1) return; // M command processed, stop.
   
-  // machine style-specific codes
+  // D commands
   cmd = parseNumber('D', -1);
   switch(cmd) {
     case 10:  // get hardware version
@@ -408,13 +428,11 @@ void Parser::processCommand() {
     case 19:  positionErrorFlags ^= POSITION_ERROR_FLAG_CONTINUOUS;  break; // toggle
     case 20:  positionErrorFlags &= 0xffff ^ (POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR);  break; // off
     case 21:  positionErrorFlags ^= POSITION_ERROR_FLAG_ESTOP;  break; // toggle ESTOP
-    case 50:  M306();  break;
     default:  break;
   }
   if (cmd != -1) return; // D command processed, stop.
 
-  // no M or D commands were found.  This is probably a G-command.
-  // G codes
+  // G commands
   cmd = parseNumber('G', lastGcommand);
   lastGcommand = -1;
   switch(cmd) {
@@ -423,6 +441,8 @@ void Parser::processCommand() {
       lastGcommand = cmd;
       G01();
       break;
+    case 90:  G90();  break;
+    case 91:  G91();  break;
     default: break;
   }
 }

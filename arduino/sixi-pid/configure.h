@@ -28,7 +28,17 @@
 #define PENDING(NOW,SOON) ((uint32_t)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
-#define TEST(FF,NN)       ((FF & NN) == NN )
+#ifndef SBI
+#define SBI(NN,BB)          (NN |=  (1<<(BB)))
+#endif
+#ifndef CBI
+#define CBI(NN,BB)          (NN &= ~(1<<(BB)))
+#endif
+
+#define TEST(NN,BB)         (NN & (1<<BB) == (1<<BB))
+#define SET_BIT(NN,BB,TF)   do { if(TF) SBI(NN,BB); else CBI(NN,BB); } while(0);
+#define SET_BIT(NN,BB)      SBI(NN,BB);
+#define UNSET_BIT(NN,BB)    CBI(NN,BB);
 
 // serial comms
 #define BAUD 57600

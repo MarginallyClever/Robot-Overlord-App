@@ -58,6 +58,7 @@ float extractAngleFromRawValue(uint16_t rawValue) {
   return (float)(rawValue & BOTTOM_14_MASK) * 360.0 / (float)(1<<SENSOR_ANGLE_BITS);
 }
 
+
 /**
  * Update sensorAngles with the latest values, adjust them by motors[i].angleHome, and cap them to [-180...180).
  */

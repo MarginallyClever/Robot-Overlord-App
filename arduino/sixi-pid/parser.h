@@ -23,6 +23,8 @@ public:
   static void D19();
   
   static void G01();
+  static void G90();
+  static void G91();
   
   static void ready();
   

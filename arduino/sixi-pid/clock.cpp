@@ -10,21 +10,21 @@
 uint8_t _sreg=0;
 
 uint32_t current_feed_rate = 500;
-
+float stepS = (float)MIN_SEGMENT_TIME_US/1000000.0;
 uint8_t isr_step_multiplier = 1;
 
 
 ISR(TIMER1_COMPA_vect) {
   // Disable interrupts, to avoid ISR preemption while we reprogram the period
-  CRITICAL_SECTION_START();
+  //CRITICAL_SECTION_START();
   
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
-  for( int j=0; j<isr_step_multiplier;++j ) {
+  //for( int j=0; j<isr_step_multiplier;++j ) {
     for(ALL_MOTORS(i)) {
-      motors[i].update((float)current_feed_rate/1000000.0);
+      motors[i].update(stepS);
     }
-  }
+  //}
 
   // Turn the interrupts back on (reduces UART delay, apparently)
-  CRITICAL_SECTION_END();
+  //CRITICAL_SECTION_END();
 }

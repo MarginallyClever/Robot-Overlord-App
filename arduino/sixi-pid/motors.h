@@ -99,7 +99,8 @@
 extern uint32_t current_feed_rate;
 
 
-struct StepperMotor {
+class StepperMotor {
+public:
   char letter;
 
   uint8_t step_pin;
@@ -111,11 +112,12 @@ struct StepperMotor {
 
   // only a whole number of steps is possible.
   int32_t stepsNow;
-  // only a whole number of steps is possible.
   int32_t stepsTarget;
+  
   float angleTarget;
   
   float angleHome;
+  
   float limitMax;
   float limitMin;
   
@@ -147,38 +149,19 @@ struct StepperMotor {
     timeSinceLastStep=0;
     stepInterval=0;
   }
-  
-  void update(float dt) {
-    // PID calculation
-    error = stepsTarget - stepsNow;
-    error_i += error * dt;          
-    float error_d = (error - error_last) / dt;
-    velocity = kp * ( error + ki * error_i + kd * error_d );
-    error_last = error;
 
-    if(abs(velocity) < 1e-6) {
-      stepInterval = 0xFFFFFFFF;  // uint32_t max value
-      return;
-    } else {
-      stepInterval = 1000000 / floor(abs(velocity));
-    }
-
-    timeSinceLastStep += 1000000 / current_feed_rate;
-    
-    //CANT PRINT INSIDE ISR 
-    // print("("+error+","+velocity+")\t");
-    //stepsNow += velocity*dt;
-    if( timeSinceLastStep >= stepInterval ) {
-      stepsNow += velocity<0 ? -1 : 1;
-      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
-      digitalWrite( step_pin, HIGH );
-      digitalWrite( step_pin, LOW  );
-      timeSinceLastStep = 0;
-    }
-  }
+  /**
+   * Called byt the ISR to adjust the position of each stepper motor.
+   * MUST NOT contain Serial.* commands
+   */
+  void update(float dt);
   
-  float getDegrees() {
+  float getAngleNow() {
     return capRotationDegrees( stepsNow*ratio, 0 );
+  }
+
+  void setAngleNow(float angle) {
+    stepsNow = (angle/ratio);
   }
   
   void setPID(float p,float i,float d) {

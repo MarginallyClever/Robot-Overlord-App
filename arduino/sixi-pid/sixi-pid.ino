@@ -12,15 +12,16 @@ extern Servo servos[NUM_SERVOS];
 #endif
 
 void setupPins() {
-  int i=0;
+  int i;
+  
+  i=0;
 
 // SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
-#define SSP(label,NN) sensorPins[i++]=PIN_SENSOR_##label##_##NN;
-#define SSP2(NN) \
-  SSP(CSEL,NN) \
-  SSP(CLK,NN) \
-  SSP(MOSI,NN) \
-  SSP(MISO,NN)
+#define SSP(label,NN)    sensorPins[i++] = PIN_SENSOR_##label##_##NN;
+#define SSP2(NN)         SSP(CSEL,NN) \
+                         SSP(CLK,NN) \
+                         SSP(MISO,NN) \
+                         SSP(MOSI,NN)
 
   SSP2(0);
   SSP2(1);
@@ -28,7 +29,7 @@ void setupPins() {
   SSP2(3);
   SSP2(4);
   SSP2(5);
-
+  
   for(ALL_SENSORS(i)) {
     pinMode(sensorPins[(i*4)+0],OUTPUT);  // csel
     pinMode(sensorPins[(i*4)+1],OUTPUT);  // clk
@@ -100,8 +101,9 @@ void setup() {
     // enable timer compare interrupt
     TIMSK1 |= (1 << OCIE1A);
     
-    uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
-    CLOCK_ADJUST(interval);
+    //uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
+    isr_step_multiplier=1;
+    CLOCK_ADJUST(MIN_SEGMENT_TIME_US);
   
   // enable global interrupts
   CRITICAL_SECTION_END();
@@ -113,11 +115,10 @@ void setup() {
 void reportAllTargets() {
   for(ALL_MOTORS(i)) {
     Serial.print(motors[i].letter);
-    Serial.print(motors[i].stepsTarget);
-    Serial.print('\t');
-    //Serial.print(motors[i].stepsNow);
-    //Serial.print('\t');
-    //Serial.print(motors[i].error);
+    //Serial.print(motors[i].stepsTarget);  Serial.print('\t');
+    //Serial.print(motors[i].stepsNow);     Serial.print('\t');
+    //Serial.print(motors[i].error);        Serial.print('\t');
+    Serial.print(motors[i].getAngleNow());     Serial.print('\t');
   }
   Serial.println();
 }
@@ -149,8 +150,8 @@ void loop() {
   if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
-      parser.D17();
-      //reportAllTargets();
+      //parser.D17();
+      reportAllTargets();
       //testPID();
     }
   }
