@@ -106,16 +106,12 @@ public:
   uint8_t step_pin;
   uint8_t dir_pin;
   uint8_t enable_pin;
-  
-  // steps to degrees ratio (gearbox)
-  float ratio;
 
   // only a whole number of steps is possible.
   int32_t stepsNow;
   int32_t stepsTarget;
   
   float angleTarget;
-  
   float angleHome;
   
   float limitMax;
@@ -154,20 +150,21 @@ public:
    * Called byt the ISR to adjust the position of each stepper motor.
    * MUST NOT contain Serial.* commands
    */
-  void update(float dt);
-  
-  float getAngleNow() {
-    return capRotationDegrees( stepsNow*ratio, 0 );
-  }
-
-  void setAngleNow(float angle) {
-    stepsNow = (angle/ratio);
-  }
+  void update(float dt,float angleNow);
   
   void setPID(float p,float i,float d) {
       kp=p;
       ki=i;
       kd=d;
+  }
+
+  void report() {
+    Serial.println(letter);
+    Serial.print("\tstepsTarget=");      Serial.println(stepsTarget);
+    Serial.print("\tstepsNow=");         Serial.println(stepsNow);
+    Serial.print("\terror=");            Serial.println(error);
+    Serial.print("\tangleHome=");        Serial.println(angleHome);
+    Serial.print("\tangleTarget=");      Serial.println(angleTarget);
   }
 };
 

@@ -21,7 +21,7 @@ ISR(TIMER1_COMPA_vect) {
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
   //for( int j=0; j<isr_step_multiplier;++j ) {
     for(ALL_MOTORS(i)) {
-      motors[i].update(STEP_PER_SECOND);
+      motors[i].update(STEP_PER_SECOND,sensorAngles[i]);
     }
   //}
 

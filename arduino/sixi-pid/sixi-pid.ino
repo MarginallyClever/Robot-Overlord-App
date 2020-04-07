@@ -27,15 +27,16 @@ void setupPins() {
                          SSP(CLK,NN) \
                          SSP(MISO,NN) \
                          SSP(MOSI,NN)
-
+                         
   SSP2(0);
   SSP2(1);
   SSP2(2);
   SSP2(3);
   SSP2(4);
   SSP2(5);
-  
+
   for(ALL_SENSORS(i)) {
+    // MUST match the order in SSP2() above
     pinMode(sensorPins[(i*4)+0],OUTPUT);  // csel
     pinMode(sensorPins[(i*4)+1],OUTPUT);  // clk
     pinMode(sensorPins[(i*4)+2],INPUT);  // miso
@@ -47,7 +48,6 @@ void setupPins() {
 
 #define SMP(LL,NN) \
   motors[NN].letter          = LL; \
-  motors[NN].ratio           = DEGREES_PER_STEP_##NN; \
   motors[NN].step_pin        = MOTOR_##NN##_STEP_PIN; \
   motors[NN].dir_pin         = MOTOR_##NN##_DIR_PIN; \
   motors[NN].enable_pin      = MOTOR_##NN##_ENABLE_PIN;
@@ -57,7 +57,7 @@ void setupPins() {
   SMP('Z',2);
   SMP('U',3);
   SMP('V',4);
-  SMP('A',5);
+  SMP('W',5);
 
   for(ALL_MOTORS(i)) {
     // set the motor pin & scale
@@ -73,6 +73,7 @@ void setupPins() {
 #endif
 }
 
+
 void setup() {
   Serial.begin(BAUD);
   
@@ -80,13 +81,10 @@ void setup() {
   
   setupPins();
 
-  // find the starting position of the arm
-  parser.D18();
-  
   // make sure the starting target is the starting position (no move)
-  for(ALL_MOTORS(i)) {
-    motors[i].stepsTarget = motors[i].stepsNow;
-  }
+  parser.D18();
+
+  reportAllMotors();
   
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
@@ -117,13 +115,11 @@ void setup() {
 }
 
 
-void reportAllTargets() {
+void reportAllMotors() {
   for(ALL_MOTORS(i)) {
-    Serial.print(motors[i].letter);
-    //Serial.print(motors[i].stepsTarget);  Serial.print('\t');
-    //Serial.print(motors[i].stepsNow);     Serial.print('\t');
-    //Serial.print(motors[i].error);        Serial.print('\t');
-    Serial.print(motors[i].getAngleNow());     Serial.print('\t');
+    motors[i].report();
+    Serial.print("\tsensor=");
+    Serial.println(sensorAngles[i]);
   }
   Serial.println();
 }
@@ -155,8 +151,8 @@ void loop() {
   if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
-      //parser.D17();
-      reportAllTargets();
+      parser.D17();
+      //reportAllMotors();
       //testPID();
     }
   }

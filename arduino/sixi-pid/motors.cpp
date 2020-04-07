@@ -15,9 +15,13 @@ Servo servos[NUM_SERVOS];
 
 
 
-void StepperMotor::update(float dt) {
-  // PID P term
+void StepperMotor::update(float dt,float angleNow) {
+  // use a PID to control the motion.
+  
+  // P term
   error = stepsTarget - stepsNow;
+  //error = angleTarget - angleNow;
+  
   // i term
   error_i += error * dt;          
   // d term
