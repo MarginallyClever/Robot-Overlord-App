@@ -77,8 +77,8 @@ void sensorUpdate() {
     // CAUTION!  if motors[i].angleHome is some really big number (uint32_t -1?) these while loops
     // will be very slow.  It could happen if EEPROM has garbage data and loadConfig() pulls it in
     // when the robot boots.
-    //while(v<-180) v+=360;
-    //while(v>=180) v-=360;
+    while(v<-180) v+=360;
+    while(v>=180) v-=360;
     sensorAngles[i] = v;
   }
 }
