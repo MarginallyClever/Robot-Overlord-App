@@ -5,7 +5,6 @@
 //------------------------------------------------------------------------------
 
 #include "configure.h"
-//#include <Servo.h>
 
 StepperMotor motors[NUM_MOTORS];
 

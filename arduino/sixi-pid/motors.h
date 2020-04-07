@@ -1,11 +1,7 @@
 #pragma once
 
-
-#define MAX_MOTORS                (6)
-#define MAX_SERVOS                (1)
-
 #define NUM_MOTORS                (6)
-#define NUM_SERVOS                (0)
+#define NUM_SERVOS                (1)
 
 // use in for(ALL_MOTORS(i)) { //i will be rising
 #define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
@@ -96,7 +92,7 @@
 #define END5 LOW
 
 
-extern uint32_t current_feed_rate;
+#include "MServo.h"
 
 
 class StepperMotor {
@@ -170,3 +166,8 @@ public:
 
 
 extern StepperMotor motors[NUM_MOTORS];
+
+#if NUM_SERVOS>0
+extern Servo servos[NUM_SERVOS];
+#endif
+

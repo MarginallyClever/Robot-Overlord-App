@@ -59,7 +59,8 @@ FORCE_INLINE float capRotationDegrees(double arg0,double centerPoint) {
 #include "clock.h"
 #include "parser.h"
 
-// Sanity check
+
+// Sanity checks
 #if NUM_SENSORS != NUM_MOTORS
   #error "Oops!  NUM_SENSORS != NUM_MOTORS"
 #endif

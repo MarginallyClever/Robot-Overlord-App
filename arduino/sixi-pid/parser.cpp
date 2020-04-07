@@ -389,6 +389,11 @@ void Parser::D17() {
     Serial.print(sensorAngles[i], 2);
   }
 
+#if NUM_SERVOS > 0 
+  Serial.print(' ');
+  Serial.print((float)servos[0].read(), 2);
+#endif
+
   Serial.print('\t');
   //Serial.print(((positionErrorFlags&POSITION_ERROR_FLAG_CONTINUOUS)!=0)?'+':'-');
   Serial.print(((positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) ? '+' : '-');
@@ -446,7 +451,6 @@ void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
 
-  Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
   
   for(ALL_MOTORS(i)) {
     float start = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
@@ -458,9 +462,11 @@ void Parser::G01() {
   
   IK(angles,steps);
 
+  //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
+  
   CRITICAL_SECTION_START();
   for(ALL_MOTORS(i)) {
-//*
+/*
     Serial.println(motors[i].letter);
     Serial.print("\tangleTarget0=");
     Serial.println(motors[i].angleTarget);
@@ -477,6 +483,17 @@ void Parser::G01() {
     motors[i].stepsTarget = steps[i];
   }
   CRITICAL_SECTION_END();
+
+#if NUM_SERVOS>0
+  {
+    float initial = (float)servos[0].read();
+    float start  = (RELATIVE_MOVES ? 0 : initial);
+    float parsed = (int32_t)floor(parseNumber( 'T', start ));
+    float ending = (RELATIVE_MOVES ? initial : 0 ) + parsed;
+    ending = max(min(ending,180),0);
+    servos[0].write(floor(ending));
+  }
+#endif
 }
 
 

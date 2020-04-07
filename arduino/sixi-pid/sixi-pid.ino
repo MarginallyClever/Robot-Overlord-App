@@ -5,21 +5,15 @@
 //------------------------------------------------------------------------------
 
 #include "configure.h"
-//#include <Servo.h>
 
-
-#if NUM_SERVOS>0
-extern Servo servos[NUM_SERVOS];
-#endif
 
 
 uint32_t reportDelay = 0;  // how long since last D17 sent out
 
 
+
 void setupPins() {
-  int i;
-  
-  i=0;
+  int i=0;
 
 // SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
 #define SSP(label,NN)    sensorPins[i++] = PIN_SENSOR_##label##_##NN;
@@ -84,7 +78,7 @@ void setup() {
   // make sure the starting target is the starting position (no move)
   parser.D18();
 
-  reportAllMotors();
+  //reportAllMotors();
   
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 

@@ -19,7 +19,7 @@
 #define TIMEOUT_OK (1000)
 
 #ifndef MIN_SEGMENT_TIME_US
-#define MIN_SEGMENT_TIME_US  (10000)  // actual minimum on mega? 5000.
+#define MIN_SEGMENT_TIME_US  (5000)  // actual minimum on mega? 5000.
 #endif
 
 #ifndef MAX_OCR1A_VALUE
