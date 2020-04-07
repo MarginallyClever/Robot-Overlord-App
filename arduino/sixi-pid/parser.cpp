@@ -171,6 +171,67 @@ char Parser::checkLineNumberAndCRCisOK() {
   return 1;  // ok!
 }
 
+
+/**
+ * M114
+ * Print the X,Y,Z, feedrate, acceleration, and home position
+ */
+void Parser::M114() {
+  Serial.print(F("M114"));
+  for(ALL_MOTORS(i)) {
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].getDegrees());
+  }
+
+//Serial.print(F(" F"));  Serial.print(feed_rate);
+//Serial.print(F(" A"));  Serial.print(acceleration);
+  Serial.println();
+}
+
+
+/**
+ * M206 set home offsets
+ */
+void Parser::M206() {
+  // cancel the current home offsets
+  for(ALL_MOTORS(i)) {
+    float angleHome = parseNumber( motors[i].letter, motors[i].angleHome );
+    motors[i].angleHome = min(max(angleHome,360),-360);
+  }
+}
+
+
+/**
+ * M306 adjust PID
+ */
+void Parser::M306() {
+  if(hasGCode('L')) {
+    int axis = parseNumber('L',0);
+    axis = max(min(axis,5),0);
+    
+      float p = parseNumber('P', motors[axis].kp );
+      float i = parseNumber('I', motors[axis].ki );
+      float d = parseNumber('D', motors[axis].kd );  // this only works as long as M codes are processed before D codes.
+    
+    // disable global interrupts
+    CRITICAL_SECTION_START();
+      motors[axis].setPID(p,i,d);
+    // enable global interrupts
+    CRITICAL_SECTION_END();
+    
+    // report values
+    Serial.print("M306 ");
+    Serial.print(motors[axis].letter);
+    Serial.print(" = ");
+    Serial.print(p,6);
+    Serial.print(",");
+    Serial.print(i,6);
+    Serial.print(",");
+    Serial.print(d,6);
+  }
+}
+
 // M428 - set home position to the current angle values
 void Parser::M428() {
   // cancel the current home offsets
@@ -215,36 +276,6 @@ void Parser::M503() {
 
 
 /**
-   M114
-   Print the X,Y,Z, feedrate, acceleration, and home position
-*/
-void Parser::M114() {
-  Serial.print(F("M114"));
-  for(ALL_MOTORS(i)) {
-    Serial.print(' ');
-    Serial.print(motors[i].letter);
-    Serial.print(motors[i].getAngleNow());
-  }
-
-//Serial.print(F(" F"));  Serial.print(feed_rate);
-//Serial.print(F(" A"));  Serial.print(acceleration);
-  Serial.println();
-}
-
-
-/**
- * M206 set home offsets
- */
-void Parser::M206() {
-  // cancel the current home offsets
-  for(ALL_MOTORS(i)) {
-    float angleHome = parseNumber( motors[i].letter, motors[i].angleHome );
-    motors[i].angleHome = min(max(angleHome,360),-360);
-  }
-}
-
-
-/**
  * D17 report the 6 axis sensor values from the Sixi robot arm.
  */
 void Parser::D17() {
@@ -284,38 +315,6 @@ void Parser::D18() {
   }
 }
 
-
-/**
- * M306 adjust PID
- */
-void Parser::M306() {
-  Serial.print(F("M306"));
-  
-  if(hasGCode('L')) {
-    int axis = parseNumber('L',0);
-    axis = max(min(axis,5),0);
-    
-      float p = parseNumber('P', motors[axis].kp );
-      float i = parseNumber('I', motors[axis].ki );
-      float d = parseNumber('D', motors[axis].kd );  // this only works as long as M codes are processed before D codes.
-    
-    // disable global interrupts
-    CRITICAL_SECTION_START();
-      motors[axis].setPID(p,i,d);
-    // enable global interrupts
-    CRITICAL_SECTION_END();
-    
-    // report values
-    Serial.print(' ');
-    Serial.print(motors[axis].letter);
-    Serial.print(" = ");
-    Serial.print(p,6);
-    Serial.print(",");
-    Serial.print(i,6);
-    Serial.print(",");
-    Serial.print(d,6);
-  }
-}
 
 /**
    prepares the input buffer to receive a new message and tells the serial connected device it is ready for more.
