@@ -19,7 +19,7 @@
 #define TIMEOUT_OK (1000)
 
 #ifndef MIN_SEGMENT_TIME_US
-#define MIN_SEGMENT_TIME_US  (20000)  // actual minimum on mega? 2000.
+#define MIN_SEGMENT_TIME_US  (2000)  // actual minimum on mega? 2000.
 #endif
 
 #ifndef MAX_OCR1A_VALUE
@@ -31,7 +31,6 @@
 
 
 extern uint8_t _sreg;
-extern uint32_t current_feed_rate;  // steps/s
 extern uint8_t isr_step_multiplier;
 
 

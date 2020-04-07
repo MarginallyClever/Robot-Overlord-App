@@ -7,9 +7,14 @@
 #include "configure.h"
 //#include <Servo.h>
 
+
 #if NUM_SERVOS>0
 extern Servo servos[NUM_SERVOS];
 #endif
+
+
+uint32_t reportDelay = 0;  // how long since last D17 sent out
+
 
 void setupPins() {
   int i;

@@ -10,17 +10,8 @@
 // GLOBALS
 
 // Serial comm reception
-char serialBuffer[MAX_BUF + 1]; // Serial buffer
-int sofar;                      // Serial buffer progress
-uint32_t lastCmdTimeMs;         // prevent timeouts
-int32_t lineNumber = 0;        // make sure commands arrive in order
-uint8_t lastGcommand = -1;
-uint32_t reportDelay = 0;  // how long since last D17 sent out
-
 #define FLAG_RELATIVE      (0)
 #define RELATIVE_MOVES     (TEST(motionFlags,FLAG_RELATIVE))
-
-uint16_t motionFlags = 0;
 
 Parser parser;
 
@@ -181,7 +172,7 @@ void Parser::M114() {
   for(ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(motors[i].letter);
-    Serial.print(motors[i].getDegrees());
+    Serial.print(motors[i].getAngleNow());
   }
 
 //Serial.print(F(" F"));  Serial.print(feed_rate);
@@ -344,6 +335,7 @@ void Parser::G01() {
     float parsed = (int32_t)floor(parseNumber( motors[i].letter, start ));
     
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
+    motors[i].angleTarget = angles[i];
     
     Serial.print( " -> " );
     Serial.println( motors[i].angleTarget );

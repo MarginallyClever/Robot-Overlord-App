@@ -9,8 +9,8 @@
 
 uint8_t _sreg=0;
 
-uint32_t current_feed_rate = 500;
-float stepS = (float)MIN_SEGMENT_TIME_US/1000000.0;
+static float STEP_PER_SECOND = (float)MIN_SEGMENT_TIME_US/1000000.0;
+
 uint8_t isr_step_multiplier = 1;
 
 
@@ -21,7 +21,7 @@ ISR(TIMER1_COMPA_vect) {
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
   //for( int j=0; j<isr_step_multiplier;++j ) {
     for(ALL_MOTORS(i)) {
-      motors[i].update(stepS);
+      motors[i].update(STEP_PER_SECOND);
     }
   //}
 

@@ -15,7 +15,7 @@ uint32_t robot_uid;
 uint32_t EEPROM_readLong(int ee) {
   uint32_t value = 0;
   byte* p = (byte*)(void*)&value;
-  for (uint16_t i = 0; i < sizeof(value); i++)
+  for (uint8_t i = 0; i < sizeof(value); i++)
   *p++ = EEPROM.read(ee++);
   return value;
 }
@@ -28,7 +28,28 @@ bool EEPROM_writeLong(int ee, uint32_t value) {
   if(EEPROM_readLong(ee) == value) return false;
   
   byte* p = (byte*)(void*)&value;
-  for (uint16_t i = 0; i < sizeof(value); i++)
+  for (uint8_t i = 0; i < sizeof(value); i++)
+  EEPROM.write(ee++, *p++);
+
+  return true;
+}
+
+
+float EEPROM_readFloat(int ee) {
+  float value = 0;
+  byte* p = (byte*)(void*)&value;
+  for (uint8_t i = 0; i < sizeof(value); i++)
+  *p++ = EEPROM.read(ee++);
+  return value;
+}
+
+
+// returns true if the value was changed.
+bool EEPROM_writeFloat(int ee, float value) {
+  if(EEPROM_readFloat(ee) == value) return false;
+  
+  byte* p = (byte*)(void*)&value;
+  for (uint8_t i = 0; i < sizeof(value); i++)
   EEPROM.write(ee++, *p++);
 
   return true;
@@ -67,9 +88,9 @@ void eepromSaveLimits() {
   Serial.println(F("Saving limits."));
   int j=ADDR_LIMITS;
   for(ALL_MOTORS(i)) {
-    EEPROM_writeLong(j,motors[i].limitMax*100);
+    EEPROM_writeFloat(j,motors[i].limitMax);
     j+=4;
-    EEPROM_writeLong(j,motors[i].limitMin*100);
+    EEPROM_writeFloat(j,motors[i].limitMin);
     j+=4;
   }
 }
@@ -81,9 +102,9 @@ void eepromSaveLimits() {
 void eepromLoadLimits() {
   int j=ADDR_LIMITS;
   for(ALL_MOTORS(i)) {
-    motors[i].limitMax = (float)EEPROM_readLong(j)/100.0f;
+    motors[i].limitMax = (float)EEPROM_readFloat(j);
     j+=4;
-    motors[i].limitMin = (float)EEPROM_readLong(j)/100.0f;
+    motors[i].limitMin = (float)EEPROM_readFloat(j);
     j+=4;
     //Serial.print("Axis ");
     //Serial.print(i);
@@ -128,21 +149,32 @@ void eepromAdjustLimits(float *limits) {
 
 
 void eepromSaveHome() {
-  Serial.println(F("Saving home."));
+  Serial.println(F("Saving home:"));
   int j=ADDR_HOME;
   for(ALL_MOTORS(i)) {
-    EEPROM_writeLong(j,(uint32_t)(motors[i].angleHome*100.0f));
+    EEPROM_writeFloat(j,motors[i].angleHome);
     j+=4;
+
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleHome);
   }
+  Serial.println();
 }
 
 
 void eepromLoadHome() {
+  Serial.println(F("Loading home:"));
   int j=ADDR_HOME;
   for(ALL_MOTORS(i)) {
-    motors[i].angleHome = (float)EEPROM_readLong(j)/100.0f;
+    motors[i].angleHome = EEPROM_readFloat(j);
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleHome);
+    
     j+=4;
   }
+  Serial.println();
 }
 
 
