@@ -5,8 +5,6 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.convenience.AnsiColors;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
@@ -22,13 +20,16 @@ public class Sixi2Live extends Sixi2Model {
 	
 	protected Vector3dEntity [] PIDs = new Vector3dEntity[6];
 	
+	protected String lastCommandSent="";
+	
+	
 	public Sixi2Live() {
 		super();
 		setName("Live");
 		addChild(connection);
 		
 		connection.addObserver(this);
-
+		
 		for(int i=0;i<PIDs.length;++i) {
 			PIDs[i] = new Vector3dEntity("PID "+links.get(i).getLetter(),2,0.1,0.0001);
 			addChild(PIDs[i]);
@@ -61,15 +62,28 @@ public class Sixi2Live extends Sixi2Model {
 			}
 		}
 
-		if(!command.endsWith("\n")) {
-			command+="\n";
+		// remove any end-of-line character
+		if(command.endsWith("\n")) {
+			command = command.substring(0,command.lastIndexOf("\n"));
 		}
 		
-		System.out.print(">>"+command);
+		if(lastCommandSent.equals(command)) return;
+		lastCommandSent = command;
 		
+		System.out.println(">>"+command);
+		
+		// build checksum
+		char checksum =0;
+		for(int i=0;i<command.length();++i) {
+			checksum ^= command.charAt(i);
+		}
+		int checkIt = (int)checksum;
+		
+		// add "there is a checksum" (*) + the checksum + end-of-line character
+		command+='*'+Integer.toString(checkIt)+"\n";
+		// DO IT
 		connection.sendMessage(command);
-		
-	    // wait for reply
+	    // while we wait for reply don't flood the robot with too much data. 
 	    readyForCommands=false;
 	}
 
