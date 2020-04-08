@@ -12,6 +12,7 @@ import com.marginallyclever.robotOverlord.log.Log;
  * @since v7.1.0.0
  */
 public class TCPTransportLayer implements TransportLayer {
+    
 	public TCPTransportLayer() {}
 
 	/**
@@ -27,7 +28,9 @@ public class TCPTransportLayer implements TransportLayer {
 			return null;
 		}
 		*/
-		Log.message("Connecting to "+connectionName);
+		String [] parts = connectionName.split("@");
+		
+		Log.message("Connecting to "+parts[parts.length-1]);
 		//if(connectionName.equals(recentPort)) return null;
 		TCPConnection connection = new TCPConnection(this);
 

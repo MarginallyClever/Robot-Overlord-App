@@ -1,16 +1,16 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
+public class Sixi2Live extends Sixi2Model {
 	/**
 	 * 
 	 */
@@ -62,69 +62,64 @@ public class Sixi2Live extends Sixi2Model implements NetworkConnectionListener {
 	    // wait for reply
 	    readyForCommands=false;
 	}
-	
-	@Override
-	public void lineError(NetworkConnection arg0, int lineNumber) {
-		readyForCommands=false;
-	}
-
-	@Override
-	public void sendBufferEmpty(NetworkConnection arg0) {
-	    // just because the buffer is empty does not mean the robot is ready to receive. 
-	}
 
 	@SuppressWarnings("unused")
 	@Override
-	public void dataAvailable(NetworkConnection arg0, String data) {
-		if(data.startsWith(">")) {
-			data=data.substring(1).trim();
-			readyForCommands=true;
-		}
+	public void update(Observable o, Object arg) {
+		super.update(o, arg);
 
-		boolean unhandled=true;
-		
-		// all other data should probably update model
-		if (data.startsWith("D17")) {
-			unhandled=false;
-			
-			String[] tokens = data.split("\\s+");
-			if(tokens.length>=7) {
-				try {
-					receivedKeyframe.fkValues[0]=Double.parseDouble(tokens[1]);
-					receivedKeyframe.fkValues[1]=Double.parseDouble(tokens[2]);
-					receivedKeyframe.fkValues[2]=Double.parseDouble(tokens[3]);
-					receivedKeyframe.fkValues[3]=Double.parseDouble(tokens[4]);
-					receivedKeyframe.fkValues[4]=Double.parseDouble(tokens[5]);
-					receivedKeyframe.fkValues[5]=Double.parseDouble(tokens[6]);
-
-					if(false) {
-						String message = "D17 "
-					    		+" X"+(StringHelper.formatDouble(receivedKeyframe.fkValues[0]))
-					    		+" Y"+(StringHelper.formatDouble(receivedKeyframe.fkValues[1]))
-					    		+" Z"+(StringHelper.formatDouble(receivedKeyframe.fkValues[2]))
-					    		+" U"+(StringHelper.formatDouble(receivedKeyframe.fkValues[3]))
-					    		+" V"+(StringHelper.formatDouble(receivedKeyframe.fkValues[4]))
-					    		+" W"+(StringHelper.formatDouble(receivedKeyframe.fkValues[5]));
-						System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
-					}
-					//data = data.replace('\n', ' ');
-
-					//smoothing to new position
-					//DHKeyframe inter = solver.createDHKeyframe();
-					//inter.interpolate(poseNow,receivedKeyframe, 0.5);
-					//this.setRobotPose(inter);
-
-					setPoseFK(receivedKeyframe);
-
-				} catch(Exception e) {}
+		if(o == connection) {
+			String data = (String)arg;
+			if(data.startsWith(">")) {
+				data=data.substring(1).trim();
+				readyForCommands=true;
 			}
-
-			refreshPose();
-		}
-
-		if(unhandled) {
-			data=data.replace("\n", "");
-			//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+	
+			boolean unhandled=true;
+			
+			// all other data should probably update model
+			if (data.startsWith("D17")) {
+				unhandled=false;
+				
+				String[] tokens = data.split("\\s+");
+				if(tokens.length>=7) {
+					try {
+						receivedKeyframe.fkValues[0]=Double.parseDouble(tokens[1]);
+						receivedKeyframe.fkValues[1]=Double.parseDouble(tokens[2]);
+						receivedKeyframe.fkValues[2]=Double.parseDouble(tokens[3]);
+						receivedKeyframe.fkValues[3]=Double.parseDouble(tokens[4]);
+						receivedKeyframe.fkValues[4]=Double.parseDouble(tokens[5]);
+						receivedKeyframe.fkValues[5]=Double.parseDouble(tokens[6]);
+						
+						if(false) {
+							String message = "D17 "
+						    		+" X"+(StringHelper.formatDouble(receivedKeyframe.fkValues[0]))
+						    		+" Y"+(StringHelper.formatDouble(receivedKeyframe.fkValues[1]))
+						    		+" Z"+(StringHelper.formatDouble(receivedKeyframe.fkValues[2]))
+						    		+" U"+(StringHelper.formatDouble(receivedKeyframe.fkValues[3]))
+						    		+" V"+(StringHelper.formatDouble(receivedKeyframe.fkValues[4]))
+						    		+" W"+(StringHelper.formatDouble(receivedKeyframe.fkValues[5]));
+							System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
+						}
+						//data = data.replace('\n', ' ');
+	
+						//smoothing to new position
+						//DHKeyframe inter = solver.createDHKeyframe();
+						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
+						//this.setRobotPose(inter);
+	
+						setPoseFK(receivedKeyframe);
+	
+					} catch(Exception e) {}
+				}
+	
+				refreshPose();
+			}
+	
+			if(unhandled) {
+				data=data.replace("\n", "");
+				//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+			}
 		}
 	}
 

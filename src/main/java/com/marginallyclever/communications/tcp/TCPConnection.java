@@ -1,26 +1,39 @@
 package com.marginallyclever.communications.tcp;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
-
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.robotOverlord.log.Log;
 
 
 /**
- * Created on 4/12/15.  Encapsulate all jssc serial receive/transmit implementation
- *
- * @author Peter Colapietro
- * @since v7
+ * SSH TCP/IP connection to a Raspberry Pi and then open a picocom session to /dev/ttyACM0
+ * @author Dan Royer 
+ * @since 1.6.0 (2020-04-08)
  */
 public final class TCPConnection extends NetworkConnection implements Runnable {
-	private SocketChannel socket;
+	private static final String DEFAULT_BAUD = "57600";
+	private static final String DEFAULT_USB_DEVICE = "/dev/ttyACM0";
+	
+    private static final String SHELL_TO_SERIAL_STRING = "picocom -b"+DEFAULT_BAUD+" "+DEFAULT_USB_DEVICE;
+    //private static final String SHELL_TO_SERIAL_STRING = "screen "+DEFAULT_USB_DEVICE; maybe?
+    
+    private JSch jsch=new JSch();
+    private Session session;
+    private ChannelExec channel;
+    private BufferedReader inputStream;
+    private PrintWriter outputStream;
+    
+    
 	private TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
@@ -35,9 +48,8 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	static final String BADLINENUM = "BADLINENUM ";
 	static final String NEWLINE = "\n";
 	static final String COMMENT_START = ";";
-	private static final int DEFAULT_TCP_PORT = 9999;
+	private static final int DEFAULT_TCP_PORT = 22;
 	
-	// parsing input from Makelangelo
 	private String inputBuffer = "";
 	ArrayList<String> commandQueue = new ArrayList<String>();
 
@@ -53,24 +65,9 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		sendQueuedCommand();
 	}
 
-
-	@Override
-	public void closeConnection() {
-		if (!portOpened) return;
-		if (socket != null) {
-			keepPolling=false;
-			
-			try {
-				socket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		portOpened = false;
-	}
-
 	/** 
 	 * Open a connection to a device on the net.
+	 * The ipAddress format is a normal URI - name:password@ipaddress:port
 	 * @param ipAddress the network address of the device
 	 */
 	@Override
@@ -78,42 +75,83 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		if (portOpened) return;
 
 		closeConnection();
+
+		jsch.setKnownHosts("./.ssh/known_hosts");
 		
 		if(ipAddress.startsWith("http://")) {
 			ipAddress = ipAddress.substring(7);
 		}
 
+		// the string input
 		URL a = new URL("http://"+ipAddress);
 		String host = a.getHost();
 		int port = a.getPort();
+		String userInfo = a.getUserInfo();
 		if(port==-1) port = DEFAULT_TCP_PORT;
-		socket = SocketChannel.open();
-		socket.connect(new InetSocketAddress(host,port));
-		thread = new Thread(this);
+
+		String [] userParts = userInfo.split(":");
 		
+		// now we have everything we need
+		
+		session = jsch.getSession(userParts[0], host, port);
+	    session.setPassword(userParts[1]);
+	    session.connect(30000);   // making a connection with timeout.
+
+	    channel = (ChannelExec)session.openChannel("exec");
+	    Log.message("Sending "+SHELL_TO_SERIAL_STRING);
+	    channel.setCommand(SHELL_TO_SERIAL_STRING);
+	    channel.connect();
+	    // remember the data streams
+	    inputStream = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+	    outputStream = new PrintWriter(channel.getOutputStream());
+	    
 		connectionName = ipAddress;
 		portOpened = true;
 		waitingForCue = true;
 		keepPolling=true;
+
+		thread = new Thread(this);
 		thread.start();
 	}
+
+
+	@Override
+	public void closeConnection() {
+		if (!portOpened) return;
+		if (channel != null) {
+			keepPolling=false;
+
+			outputStream.flush();
+			channel.disconnect();
+			channel = null;
+			inputStream=null;
+			outputStream=null;
+			session.disconnect();
+			session=null;
+		}
+		portOpened = false;
+	}
 	
+	/**
+	 * Begins when Thread.start() is called in the constructor
+	 */
 	public void run() {
-		ByteBuffer buf = ByteBuffer.allocate(256);
+		StringBuilder input = new StringBuilder();
+		
 		while(keepPolling) {
 			try {
-				int bytesRead = socket.read(buf);
-				if(bytesRead>0) {
-					String line = new String(buf.array());
-					dataAvailable(bytesRead,line);
-					buf.rewind();
+				if(inputStream.ready()) {
+					input.append((char)inputStream.read());
+				}
+				String inputAsString = input.toString();
+				if(inputAsString.endsWith("\n")) {
+					dataAvailable(inputAsString.length(),inputAsString);
+					input.setLength(0);
 				}
 			}
 			catch (IOException e) {
-				if(keepPolling) {
-					e.printStackTrace();
-					closeConnection();
-				}
+				e.printStackTrace();
+				closeConnection();
 			}
 		}
 	}
@@ -164,16 +202,17 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 
 
 	public void dataAvailable(int len,String message) {
-		if(!portOpened) return;
-		String rawInput = message.substring(0,len);
-		if( len==0 ) return;
+		if( !portOpened || len==0 ) return;
 		
-		inputBuffer+=rawInput;
+		inputBuffer += message;
+		
 		// each line ends with a \n.
 		int x;
 
 		for( x=inputBuffer.indexOf("\n"); x!=-1; x=inputBuffer.indexOf("\n") ) {
-			x=x+1;
+			// include \n in line.
+			++x;
+			// extract the line
 			String oneLine = inputBuffer.substring(0,x);
 			inputBuffer = inputBuffer.substring(x);
 
@@ -183,8 +222,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 				notifyLineError(error_line);
 			} else {
 				// no error
-				if(!oneLine.trim().equals(CUE.trim())) 
-				{
+				if(!oneLine.trim().equals(CUE.trim())) {
 					notifyDataAvailable(oneLine);
 				}
 			}
@@ -208,27 +246,21 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 			return;
 		}
 
-		String command;
 		try {
-			command=commandQueue.remove(0);
-			String line = command;
+			String line=commandQueue.remove(0);
+			// trim comments
 			if(line.contains(COMMENT_START)) {
 				String [] lines = line.split(COMMENT_START);
-				command = lines[0];
+				line = lines[0];
 			}
+			// make sure there's a newline
 			if(line.endsWith("\n") == false) {
 				line+=NEWLINE;
 			}
-			byte[] lineBytes = line.getBytes();
-			ByteBuffer buf = ByteBuffer.allocate(lineBytes.length);
-			buf.clear();
-			buf.put(lineBytes);
-			buf.rewind();
-			socket.write(buf);
+			outputStream.write(line);
 			waitingForCue=true;
 		}
 		catch(IndexOutOfBoundsException e1) {}
-		catch(IOException e1) {}
 	}
 
 	public void deleteAllQueuedCommands() {

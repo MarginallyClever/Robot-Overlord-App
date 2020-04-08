@@ -3,11 +3,17 @@ package com.marginallyclever.communications.tcp;
 import java.awt.GridLayout;
 
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayerPanel;
 
+/**
+ * Opens an SSH connection to another device, then opens a screen to the /dev/ACM0 device on that remote.
+ * @author Dan Royer
+ * 
+ */
 public class TCPTransportLayerPanel extends TransportLayerPanel {
 	/**
 	 * 
@@ -16,17 +22,24 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 	private TCPTransportLayer layer;
 	private JTextField connectionField;
 	private JTextField portField;
-	private static String portNumber = "9999";
-	private static String connectionName = "192.168.1.183";
+	private JTextField userField;
+	private JPasswordField passwordField;
+	private static String userName = "pi";
+	private static String portNumber = "22";
+	private static String connectionName = "raspberrypi";
 	
 	TCPTransportLayerPanel(TCPTransportLayer tcpLayer) {
 		this.layer=tcpLayer;
 		
 		this.setLayout(new GridLayout(0, 1));
-		this.add(new JLabel("IP (a.b.c.d)"));  // TODO translate me?
-		this.add(connectionField = new JTextField());
-		this.add(new JLabel("Port"));  // TODO translate me?
-		this.add(portField = new JTextField());
+		this.add(new JLabel("IP address"));
+		this.add(connectionField = new JTextField(connectionName));
+		this.add(new JLabel("Port"));
+		this.add(portField = new JTextField(portNumber));
+		this.add(new JLabel("Username"));
+		this.add(userField = new JTextField(userName));
+		this.add(new JLabel("Password"));
+		this.add(passwordField = new  JPasswordField());
 		
 		connectionField.setText(connectionName);
 		portField.setText(portNumber);
@@ -35,6 +48,8 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 	public NetworkConnection openConnection() {
 		connectionName = connectionField.getText();
 		portNumber = portField.getText();
-		return layer.openConnection(connectionField.getText()+":"+portNumber);
+		userName = userField.getText();
+		String password = String.copyValueOf(passwordField.getPassword());
+		return layer.openConnection(userName+":"+password+"@"+connectionField.getText()+":"+portNumber);
 	}
 }

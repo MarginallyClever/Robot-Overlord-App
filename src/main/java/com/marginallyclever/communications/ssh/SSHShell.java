@@ -19,17 +19,15 @@ import javax.swing.*;
 
 public class SSHShell {
   public static void main(String[] arg) {
-    
     try {
       JSch jsch=new JSch();
 
       jsch.setKnownHosts("./.ssh/known_hosts");
 
       String host=null;
-      if(arg.length>0){
+      if( arg.length>0 ) {
         host=arg[0];
-      }
-      else{
+      } else {
         host=JOptionPane.showInputDialog("Enter username@hostname",
                                          System.getProperty("user.name")+
                                          "@localhost"); 
