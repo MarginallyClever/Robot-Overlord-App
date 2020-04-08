@@ -25,7 +25,7 @@ public class ViewElementRemote extends ViewElement implements ActionListener, Ob
 		super(ro);
 		this.e=e;
 		
-		field = new JButton("Connect");
+		field = new JButton(e.isConnectionOpen()?Translator.get("Close"):Translator.get("Connect"));
 		field.addActionListener(this);
 		panel.setLayout(new BorderLayout());
 		panel.add(field,BorderLayout.CENTER);
