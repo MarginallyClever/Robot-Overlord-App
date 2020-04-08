@@ -1,7 +1,11 @@
 #pragma once
 
-extern uint32_t lastCmdTimeMs;    // prevent timeouts
-extern uint32_t reportDelay;  // how long since last D17 sent out
+
+
+// state flags for the parser
+#define FLAG_RELATIVE      (0)
+#define RELATIVE_MOVES     (TEST(motionFlags,FLAG_RELATIVE))
+
 
 class Parser {
 public:
