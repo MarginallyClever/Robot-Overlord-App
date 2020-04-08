@@ -3,10 +3,12 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 import java.util.Observable;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.AnsiColors;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -18,12 +20,20 @@ public class Sixi2Live extends Sixi2Model {
 	protected RemoteEntity connection = new RemoteEntity();
 	protected DHKeyframe receivedKeyframe;
 	
+	protected Vector3dEntity [] PIDs = new Vector3dEntity[6];
+	
 	public Sixi2Live() {
 		super();
 		setName("Live");
 		addChild(connection);
-
+		
 		connection.addObserver(this);
+
+		for(int i=0;i<PIDs.length;++i) {
+			PIDs[i] = new Vector3dEntity("PID "+links.get(i).getLetter(),2,0.1,0.0001);
+			addChild(PIDs[i]);
+			PIDs[i].addObserver(this);
+		}
 		
 		// where to store incoming position data
 		receivedKeyframe = getIKSolver().createDHKeyframe();		
@@ -55,7 +65,7 @@ public class Sixi2Live extends Sixi2Model {
 			command+="\n";
 		}
 		
-		System.out.print(">>>> "+command);
+		System.out.print(">>"+command);
 		
 		connection.sendMessage(command);
 		
@@ -63,24 +73,34 @@ public class Sixi2Live extends Sixi2Model {
 	    readyForCommands=false;
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void update(Observable o, Object arg) {
 		super.update(o, arg);
 
+		for(int i=0;i<PIDs.length;++i) {
+			if(o==PIDs[i]) {
+				Vector3d newValue = PIDs[i].get();
+				String message = "M306 L"+i+" P"+newValue.x+" I"+newValue.y+" D"+newValue.z;
+				System.out.println("<<"+message);
+				connection.sendMessage(message);
+				return;
+			}
+		}
+		
 		if(o == connection) {
 			String data = (String)arg;
-			if(data.startsWith(">")) {
-				data=data.substring(1).trim();
-				readyForCommands=true;
-			}
 	
 			boolean unhandled=true;
 			
 			// all other data should probably update model
 			if (data.startsWith("D17")) {
-				unhandled=false;
+				if(data.endsWith("\n")) {
+					// strip the return character, if any
+					data = data.substring(0,data.length()-1);
+				}
+				//System.out.println("<<"+data);
 				
+				unhandled=false;
 				String[] tokens = data.split("\\s+");
 				if(tokens.length>=7) {
 					try {
@@ -91,29 +111,12 @@ public class Sixi2Live extends Sixi2Model {
 						receivedKeyframe.fkValues[4]=Double.parseDouble(tokens[5]);
 						receivedKeyframe.fkValues[5]=Double.parseDouble(tokens[6]);
 						
-						if(false) {
-							String message = "D17 "
-						    		+" X"+(StringHelper.formatDouble(receivedKeyframe.fkValues[0]))
-						    		+" Y"+(StringHelper.formatDouble(receivedKeyframe.fkValues[1]))
-						    		+" Z"+(StringHelper.formatDouble(receivedKeyframe.fkValues[2]))
-						    		+" U"+(StringHelper.formatDouble(receivedKeyframe.fkValues[3]))
-						    		+" V"+(StringHelper.formatDouble(receivedKeyframe.fkValues[4]))
-						    		+" W"+(StringHelper.formatDouble(receivedKeyframe.fkValues[5]));
-							System.out.println(AnsiColors.BLUE+message+AnsiColors.RESET);
-						}
-						//data = data.replace('\n', ' ');
-	
-						//smoothing to new position
-						//DHKeyframe inter = solver.createDHKeyframe();
-						//inter.interpolate(poseNow,receivedKeyframe, 0.5);
-						//this.setRobotPose(inter);
-	
 						setPoseFK(receivedKeyframe);
-	
+						refreshPose();
 					} catch(Exception e) {}
 				}
-	
-				refreshPose();
+				
+				readyForCommands=true;
 			}
 	
 			if(unhandled) {
@@ -130,7 +133,10 @@ public class Sixi2Live extends Sixi2Model {
 	public void getView(ViewPanel view) {
 		view.pushStack("Sl", "Sixi Live");
 		view.add(connection);
-		
+		for(int i=0;i<PIDs.length;++i) {
+			view.add(PIDs[i]);
+		}
+
 		view.popStack();
 		endEffector.getView(view);
 	}
