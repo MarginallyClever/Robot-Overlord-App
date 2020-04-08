@@ -9,10 +9,6 @@
 
 // GLOBALS
 
-// Serial comm reception
-#define FLAG_RELATIVE      (0)
-#define RELATIVE_MOVES     (TEST(motionFlags,FLAG_RELATIVE))
-
 Parser parser;
 
 
@@ -288,7 +284,7 @@ void Parser::M206() {
   // cancel the current home offsets
   for(ALL_MOTORS(i)) {
     float angleHome = parseNumber( motors[i].letter, motors[i].angleHome );
-    motors[i].angleHome = min(max(angleHome,360),-360);
+    motors[i].angleHome = max(min(angleHome,360),-360);
   }
 }
 

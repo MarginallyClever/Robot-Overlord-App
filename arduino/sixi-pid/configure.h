@@ -41,7 +41,7 @@
 #define UNSET_BIT(NN,BB)    CBI(NN,BB);
 
 // serial comms
-#define BAUD 57600
+#define BAUD    250000 // was 57600
 #define MAX_BUF 127
 
 

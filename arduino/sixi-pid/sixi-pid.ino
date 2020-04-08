@@ -58,7 +58,6 @@ void setupPins() {
     pinMode(motors[i].step_pin, OUTPUT);
     pinMode(motors[i].dir_pin, OUTPUT);
     pinMode(motors[i].enable_pin, OUTPUT);
-    //digitalWrite(motors[i].enable_pin,HIGH);
   }
   
   // setup servos
