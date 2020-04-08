@@ -7,9 +7,12 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.robotOverlord.log.Log;
@@ -20,12 +23,52 @@ import com.marginallyclever.robotOverlord.log.Log;
  * @author Dan Royer 
  * @since 1.6.0 (2020-04-08)
  */
-public final class TCPConnection extends NetworkConnection implements Runnable {
-	private static final String DEFAULT_BAUD = "57600";
-	private static final String DEFAULT_USB_DEVICE = "/dev/ttyACM0";
-	
-    private static final String SHELL_TO_SERIAL_STRING = "picocom -b"+DEFAULT_BAUD+" "+DEFAULT_USB_DEVICE;
-    //private static final String SHELL_TO_SERIAL_STRING = "screen "+DEFAULT_USB_DEVICE; maybe?
+public final class TCPConnection extends NetworkConnection implements Runnable {	
+    private static final String SHELL_TO_SERIAL_STRING = " ~/Robot-Overlord-App/arduino/connect.sh";
+    
+    public class MyUserInfo implements UserInfo {
+		@Override
+		public String getPassphrase() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getPassword() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean promptPassword(String message) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean promptPassphrase(String message) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean promptYesNo(String message) {
+			Object[] options = { "yes", "no" };
+			int foo = JOptionPane.showOptionDialog(null, 
+					message, 
+					"Warning", 
+					JOptionPane.DEFAULT_OPTION,
+					JOptionPane.WARNING_MESSAGE, 
+					null, options, options[0]);
+			return foo == 0;
+		}
+
+		@Override
+		public void showMessage(String message) {
+			JOptionPane.showMessageDialog(null, message);
+		}
+    	
+    };
     
     private JSch jsch=new JSch();
     private Session session;
@@ -37,7 +80,6 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	private TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
-	private boolean waitingForCue = false;
 	private Thread thread;
 	private boolean keepPolling;
 
@@ -77,7 +119,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		closeConnection();
 
 		jsch.setKnownHosts("./.ssh/known_hosts");
-		
+
 		if(ipAddress.startsWith("http://")) {
 			ipAddress = ipAddress.substring(7);
 		}
@@ -94,6 +136,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		// now we have everything we need
 		
 		session = jsch.getSession(userParts[0], host, port);
+		session.setUserInfo(new MyUserInfo());
 	    session.setPassword(userParts[1]);
 	    session.connect(30000);   // making a connection with timeout.
 
@@ -107,7 +150,6 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	    
 		connectionName = ipAddress;
 		portOpened = true;
-		waitingForCue = true;
 		keepPolling=true;
 
 		thread = new Thread(this);
@@ -226,20 +268,12 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 					notifyDataAvailable(oneLine);
 				}
 			}
-
-			// wait for the cue to send another command
-			if(oneLine.indexOf(CUE)==0) {
-				waitingForCue=false;
-			}
-		}
-		if(waitingForCue==false) {
-			sendQueuedCommand();
 		}
 	}
 
 
 	protected void sendQueuedCommand() {
-		if(!portOpened || waitingForCue) return;
+		if( !portOpened || outputStream==null ) return;
 
 		if(commandQueue.isEmpty()==true) {
 			notifySendBufferEmpty();
@@ -258,7 +292,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 				line+=NEWLINE;
 			}
 			outputStream.write(line);
-			waitingForCue=true;
+			outputStream.flush();
 		}
 		catch(IndexOutOfBoundsException e1) {}
 	}
