@@ -243,7 +243,7 @@ public class Sixi2 extends PoseEntity {
 
 	@Override
 	public void update(double dt) {
-		driveFromKeyState(dt);
+		//driveFromKeyState(dt);
 		
 		Sixi2Model activeModel = (operatingMode.get() == OperatingMode.LIVE.toInt()) ? live : sim;
 		if(activeModel.readyForCommands) {
