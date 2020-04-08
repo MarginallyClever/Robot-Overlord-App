@@ -164,8 +164,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				gcode += " " + link.getLetter() + StringHelper.formatDouble(link.getAdjustableValue());
 			}
 		}
-		gcode += " F"+getFeedrate();
-		gcode += " A"+getAcceleration();
+		//gcode += " F"+getFeedrate();
+		//gcode += " A"+getAcceleration();
 		
 		return gcode;
 	}
