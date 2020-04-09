@@ -152,6 +152,5 @@ public class Sixi2Live extends Sixi2Model {
 		}
 
 		view.popStack();
-		endEffector.getView(view);
 	}
 }
