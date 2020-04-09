@@ -22,6 +22,7 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 		
 		field = new JButton(label);
 		field.addActionListener(this);
+		field.addFocusListener(this);
 		
 		panel.setLayout(new BorderLayout());
 		panel.add(field,BorderLayout.CENTER);

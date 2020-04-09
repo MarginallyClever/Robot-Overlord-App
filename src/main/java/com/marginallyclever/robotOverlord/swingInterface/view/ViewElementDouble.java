@@ -40,6 +40,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
 		field.setText(StringHelper.formatDouble(e.get()));
+		field.addFocusListener(this);
 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
 		label.setLabelFor(field);

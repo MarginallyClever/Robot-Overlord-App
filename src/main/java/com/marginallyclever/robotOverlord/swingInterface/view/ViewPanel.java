@@ -45,6 +45,7 @@ public class ViewPanel extends ViewElement {
 		super(ro);
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT);
+		tabbedPane.addFocusListener(this);
 		Insets in = tabbedPane.getInsets();
 		in.left=5;
 		in.top=5;

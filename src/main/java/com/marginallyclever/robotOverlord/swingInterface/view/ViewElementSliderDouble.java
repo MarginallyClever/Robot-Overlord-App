@@ -36,6 +36,7 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		field.setMinorTickSpacing(1);
 		field.setValue((int)Math.floor(e.get()));
 		field.addChangeListener(this);
+		field.addFocusListener(this);
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
 		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);
