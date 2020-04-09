@@ -150,7 +150,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// The main frame of the GUI
     protected JFrame mainFrame; 
 	// the main view
-	protected Splitter splitUpDown;
 		// top part
 		protected Splitter splitLeftRight;
 		// bottom part
@@ -228,9 +227,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		
         {
 	        {
-	        	/**
-	        	 * build OpenGL 3D view
-	        	 */
+	        	// build OpenGL 3D view
 	        	{
 		            GLCapabilities caps = new GLCapabilities(null);
 		            caps.setSampleBuffers(true);
@@ -244,6 +241,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		            Dimension minimumSize = new Dimension(300,300);
 		            glCanvas.setMinimumSize(minimumSize);
 	        	}
+	        	// the entity tree and the selected entity panel
 	        	{
 			        entityTree = new EntityTreePanel(this);
 			        selectedEntityPanel = new JPanel(new BorderLayout());
@@ -253,24 +251,16 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 					rightFrameSplitter.add(entityTree);
 					rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
 					// make sure the master panel can't be squished.
-		            Dimension minimumSize = new Dimension(340,300);
+		            Dimension minimumSize = new Dimension(360,300);
 			        rightFrameSplitter.setMinimumSize(minimumSize);
-					rightFrameSplitter.setResizeWeight(0.4);
+					rightFrameSplitter.setResizeWeight(0.5);
 		        }
-			        
-		        // split the mainframe in two vertically
+
 		        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
 		        splitLeftRight.add(glCanvas);
 		        splitLeftRight.add(rightFrameSplitter);
 	        }
-	        // Also split up/down
-	        splitUpDown = new Splitter(JSplitPane.VERTICAL_SPLIT);
-	        splitUpDown.add(splitLeftRight);
-	        splitUpDown.add(footerBar = new FooterBar(mainFrame));
-	        splitUpDown.setOneTouchExpandable(true);
-	        
-			// add the split panel to the main frame
-	        mainFrame.add(splitUpDown);
+	        mainFrame.add(splitLeftRight);
 	 	}
         // make it visible
         mainFrame.setVisible(true);
