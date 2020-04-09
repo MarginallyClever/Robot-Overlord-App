@@ -145,8 +145,6 @@ void loop() {
     if (millis() > reportDelay) {
       reportDelay = millis() + 100;
       parser.D17();
-      //reportAllMotors();
-      //testPID();
     }
   }
 }
