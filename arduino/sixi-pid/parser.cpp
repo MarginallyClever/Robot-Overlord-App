@@ -496,11 +496,10 @@ void Parser::G01() {
 
 
 void Parser::G90() {
-  SET_BIT(motionFlags,FLAG_RELATIVE);
+  SET_BIT_ON(motionFlags,FLAG_RELATIVE);
 }
 
 
 void Parser::G91() {
-  UNSET_BIT(motionFlags,FLAG_RELATIVE);
+  SET_BIT_OFF(motionFlags,FLAG_RELATIVE);
 }
-
