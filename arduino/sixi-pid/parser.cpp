@@ -129,32 +129,24 @@ char Parser::checkLineNumberAndCRCisOK() {
   int i;
   for (i = strlen(serialBuffer) - 1; i >= 0; --i) {
     if (serialBuffer[i] == '*') {
-      // yes!
+      // yes.  is it valid?
+      char checksum = 0;
+      int c;
+      for (c = 0; c < i; ++c) {
+        checksum ^= serialBuffer[c];
+      }
+      c++; // skip *
+      int against = strtod(serialBuffer + c, NULL);
+      if ( checksum != against ) {
+        Serial.print(F("BADCHECKSUM "));
+        Serial.println(lineNumber);
+        return 0;
+      }
+      
+      // remove checksum
+      serialBuffer[i] = 0;
       break;
     }
-  }
-
-  if (i >= 0) {
-    // yes.  is it valid?
-    char checksum = 0;
-    int c;
-    for (c = 0; c < i; ++c) {
-      checksum ^= serialBuffer[c];
-    }
-    c++; // skip *
-    int against = strtod(serialBuffer + c, NULL);
-    if ( checksum != against ) {
-      Serial.print(F("BADCHECKSUM "));
-      Serial.println(lineNumber);
-      return 0;
-    }
-    
-    // remove checksum
-    serialBuffer[i] = 0;
-  } else {
-    Serial.print(F("NOCHECKSUM "));
-    Serial.println(lineNumber);
-    return 0;
   }
 
   return 1;  // ok!
