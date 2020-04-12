@@ -13,6 +13,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -99,6 +100,11 @@ public class DragBallEntity extends PoseEntity {
 	protected Axis majorAxis;
 	
 	public DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
+	public BooleanEntity snapOn = new BooleanEntity("Snap On",true);
+	public IntEntity snapDegrees = new IntEntity("Snap degrees",5);
+	public IntEntity snapDistance = new IntEntity("Snap mm",1);
+	 
+	
 	public double ballSizeScaled;
 
 	public boolean isRotateMode;
@@ -124,6 +130,9 @@ public class DragBallEntity extends PoseEntity {
 		super();
 		setName("DragBall");
 		addChild(ballSize);
+		addChild(snapOn);
+		addChild(snapDegrees);
+		addChild(snapDistance);
 		
 		FOR.setIdentity();
 				
@@ -308,21 +317,25 @@ public class DragBallEntity extends PoseEntity {
 				}
 
 				double da=valueNow - valueStart;
-
 				if(da!=0) {
+					if(snapOn.get()) {
+						// round to nearest 5 degrees
+						da = Math.toDegrees(da);
+						da = Math.signum(da)*Math.round(Math.abs(da)/5.0)*5.0;
+						da = Math.toRadians(da);
+					}
+
 					switch(nearestPlane) {
 					case X: rollX(da);	break;
 					case Y: rollY(da);	break;
 					case Z: rollZ(da);	break;
 					}
-				}
-				//System.out.println(da);
-				
-				valueLast = valueNow;
-				
-				if(subject.canYouMoveTo(resultMatrix)) {
-					FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-					ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+					valueLast = valueStart + da;
+					
+					if(subject.canYouMoveTo(resultMatrix)) {
+						FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
+						ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+					}
 				}
 			}
 		}
@@ -431,20 +444,24 @@ public class DragBallEntity extends PoseEntity {
 			case SLIDE_YNEG:  valueNow-=dy;	break;
 			}
 			
-			if(valueNow!=valueLast) {
-				switch(majorAxis) {
-				case X: translate(MatrixHelper.getXAxis(FOR), valueNow);	break;
-				case Y: translate(MatrixHelper.getYAxis(FOR), valueNow);	break;
-				case Z: translate(MatrixHelper.getZAxis(FOR), valueNow);	break;
+			double dp = valueNow - valueStart;
+			if(dp!=0) {
+				if(snapOn.get()) {
+					// round to nearest mm
+					dp = Math.signum(dp)*Math.round(Math.abs(dp)/1.0)*1.0;
 				}
-			}
-			
-			valueLast = valueNow;
 
+				switch(majorAxis) {
+				case X: translate(MatrixHelper.getXAxis(FOR), dp);	break;
+				case Y: translate(MatrixHelper.getYAxis(FOR), dp);	break;
+				case Z: translate(MatrixHelper.getZAxis(FOR), dp);	break;
+				}
+				valueLast = valueStart + dp;
 			
-			if(subject.canYouMoveTo(resultMatrix)) {
-				FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+				if(subject.canYouMoveTo(resultMatrix)) {
+					FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
+					ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+				}
 			}
 		}
 	}
@@ -839,6 +856,9 @@ public class DragBallEntity extends PoseEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("Mc", "Move controls");
 		view.add(ballSize);
+		view.add(snapOn);
+		view.add(snapDegrees);
+		view.add(snapDistance);
 		view.addComboBox(frameOfReference,FrameOfReference.getAll());
 	}
 }
