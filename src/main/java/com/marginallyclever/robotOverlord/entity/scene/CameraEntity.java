@@ -31,11 +31,18 @@ public class CameraEntity extends PoseEntity {
 	protected DoubleEntity tilt = new DoubleEntity("Tilt",0);
 	protected DoubleEntity zoom = new DoubleEntity("Zoom",100);
 
+	// snap system
+	protected DoubleEntity snapDeadZone = new DoubleEntity("Snap dead zone",100);
+	protected boolean hasSnappingStarted=false;
+	protected double sumDx;
+	protected double sumDy;
+	
 	
 	public CameraEntity() {
 		super();
-		
 		setName("Camera");
+		
+		addChild(snapDeadZone);
 	}
 	
 	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -99,6 +106,19 @@ public class CameraEntity extends PoseEntity {
         	//System.out.println(dz+"\t"+zoom);
         }
         
+		// snap system
+        boolean isSnapHappeningNow=
+        		InputManager.isOn(InputManager.Source.MOUSE_MIDDLE) &&
+        		(InputManager.isOn(InputManager.Source.KEY_LALT) || InputManager.isOn(InputManager.Source.KEY_RALT));
+        if(isSnapHappeningNow) {
+        	if(!hasSnappingStarted) {
+				sumDx=0;
+				sumDy=0;
+				hasSnappingStarted=true;
+			}
+		}
+        hasSnappingStarted = isSnapHappeningNow;
+		
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
 	        double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
 	        double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
@@ -127,9 +147,39 @@ public class CameraEntity extends PoseEntity {
 					Vector3d p = getPosition();
 					p.add(zAxis);
 					setPosition(p);
-				} else if(InputManager.isOn(InputManager.Source.KEY_LALT) ||
-						  InputManager.isOn(InputManager.Source.KEY_RALT) ) {
-					// snap system 
+				} else if( isSnapHappeningNow ) {
+					sumDx+=dx;
+					sumDy+=dy;
+					if(Math.abs(sumDx)>snapDeadZone.get() || Math.abs(sumDy)>snapDeadZone.get()) {
+						if(Math.abs(sumDx) > Math.abs(sumDy)) {
+							double a=getPan();
+							// left/right snap
+							if(sumDx>0) {
+								// snap CCW
+								a+=90;
+							} else {
+								// snap CW
+								a-=90;
+							}
+							setPan(Math.round(a/90)*90);
+						} else {
+							double a=getTilt();
+							// up/down snap
+							if(sumDy>0) {
+								// snap down
+								a-=90;
+							} else {
+								// snap up
+								a+=90;
+							}
+							setTilt(Math.round(a/90)*90);
+						}
+						
+						Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
+						setRotation(rot);
+						sumDx=0;
+						sumDy=0;
+					}
 				} else {
 					// orbit around the focal point
 					setPan(getPan()+dx);
@@ -175,24 +225,24 @@ public class CameraEntity extends PoseEntity {
 	}
 	
 	public void setPan(double arg0) {
+		//arg0 = Math.min(Math.max(arg0, 0), 360);
 		pan.set(arg0);
 	}
 	
 	public void setTilt(double arg0) {
-		arg0 = Math.max(arg0, 1);
-		arg0 = Math.min(arg0, 179);
+		arg0 = Math.min(Math.max(arg0, 1), 179);
 		tilt.set(arg0);
 	}
 	
 	public void setZoom(double arg0) {
-		arg0 = Math.max(arg0, 0);
-		arg0 = Math.min(arg0, 500);
+		arg0 = Math.min(Math.max(arg0, 0), 500);
 		zoom.set(arg0);
 	}
 	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Ca", "Camera");
+		view.add(snapDeadZone);
 		view.add(pan).setReadOnly(true);
 		view.add(tilt).setReadOnly(true);
 		view.add(zoom).setReadOnly(true);
