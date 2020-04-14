@@ -74,9 +74,8 @@ public class DHLink extends ModelEntity {
 	// adjustable link range limits
 	public DoubleEntity rangeMax = new DoubleEntity("Range max", 90.0);
 
-	public DoubleEntity maxVelocity = new DoubleEntity("max vel",Double.MAX_VALUE);	// not used yet
-	public DoubleEntity maxAcceleration = new DoubleEntity("max accel",Double.MAX_VALUE);	// not used yet
-	//public DoubleEntity maxTorque = new DoubleEntity("max torque",Double.MAX_VALUE);	// not used yet
+	public DoubleEntity maxTorque = new DoubleEntity("max torque (Nm)",Double.MAX_VALUE);	// not used yet
+	public DoubleEntity maxAcceleration = new DoubleEntity("max accel (deg/s)",Double.MAX_VALUE);	// not used yet
 	
 	/*
 	// dynamics are described in a 4x4 matrix
@@ -107,16 +106,10 @@ public class DHLink extends ModelEntity {
 		addChild(rangeMin);
 		addChild(rangeMax);
 
-		addChild(maxVelocity);
-		addChild(maxAcceleration);
-		//addChild(maxTorque);
-		
-		flags=LinkAdjust.THETA;
-		/*
-		addChild(maxVelocity);
 		addChild(maxAcceleration);
 		addChild(maxTorque);
-		addChild(inertia);*/
+		
+		flags=LinkAdjust.THETA;
 	}
 	
 	public DHLink(DHLink arg0) {

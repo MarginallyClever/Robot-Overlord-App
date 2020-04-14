@@ -75,6 +75,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(0).setR(0);
 		links.get(0).setAlpha(-90);
 		links.get(0).setRange(-120,120);
+		links.get(0).maxTorque.set(14.0); //Nm
 		
 		// tilt shoulder
 		links.get(1).setLetter("Y");
@@ -84,6 +85,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(1).setR(35.796);
 		links.get(1).setAlpha(0);
 		links.get(1).setRange(-170,0);
+		links.get(1).maxTorque.set(40.0); //Nm
 
 		// tilt elbow
 		links.get(2).setLetter("Z");
@@ -93,6 +95,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(2).setR(6.4259);
 		links.get(2).setAlpha(-90);
 		links.get(2).setRange(-83.369, 86);
+		links.get(2).maxTorque.set(14.0); //Nm
 	
 		// roll ulna
 		links.get(3).setLetter("U");
@@ -102,6 +105,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(3).setR(0);
 		links.get(3).setAlpha(90);
 		links.get(3).setRange(-175, 175);
+		links.get(3).maxTorque.set(3.0); //Nm
 	
 		// tilt picassoBox
 		links.get(4).setLetter("V");
@@ -111,6 +115,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(4).setR(0);
 		links.get(4).setAlpha(-90);
 		links.get(4).setRange(-120, 120);
+		links.get(4).maxTorque.set(2.5); //Nm
 	
 		// roll hand
 		links.get(5).setLetter("W");
@@ -120,6 +125,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(5).setR(0);
 		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
+		links.get(5).maxTorque.set(2.5); //Nm
 		
 		endEffector.setPosition(new Vector3d(0,0,0));
 		endEffector.setName("End Effector");
