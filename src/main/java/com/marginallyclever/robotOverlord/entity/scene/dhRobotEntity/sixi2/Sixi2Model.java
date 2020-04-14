@@ -53,8 +53,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		base.setName("Base");
 		base.setModelFilename("/Sixi2/anchor.obj");
 		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		base.getMaterial().setDiffuseColor(1, 1, 1, 1);
-		base.getMaterial().setAmbientColor(1, 1, 1, 1);
 		base.setModelOrigin(0, 0, 0.9);
 
 		// setup children
@@ -140,8 +138,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				iWP.invert();
 				bone.getModel().adjustMatrix(iWP);
 				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-				bone.getMaterial().setDiffuseColor(1, 1, 1, 1);
-				bone.getMaterial().setAmbientColor(1, 1, 1, 1);
 			}
 		}
 		links.get(4).setTheta(20);

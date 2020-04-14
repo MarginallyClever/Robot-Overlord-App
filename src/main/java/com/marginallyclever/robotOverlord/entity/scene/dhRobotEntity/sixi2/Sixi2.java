@@ -357,13 +357,11 @@ public class Sixi2 extends PoseEntity {
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
-	public boolean sendCommand(String command) {
+	public void sendCommand(String command) {
 		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			live.sendCommand(command);
 		}
 		sim.sendCommand(command);
-
-		return true;
 	}
 
 	public String getCommand() {

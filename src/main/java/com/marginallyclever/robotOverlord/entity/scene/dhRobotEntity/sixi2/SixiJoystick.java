@@ -51,16 +51,16 @@ public class SixiJoystick extends ModelEntity {
 				}
 				if(target!=null) {
 					String message = (String)obj;
-					System.out.println("JOY: "+message.trim());
+					//System.out.println("JOY: "+message.trim());
 					
 					if(keyframe==null) {
 						keyframe = target.sim.getIKSolver().createDHKeyframe();
 					}
 
 					StringTokenizer tokenizer = new StringTokenizer(message);
-					if(tokenizer.countTokens()<6) return;
+					if(tokenizer.countTokens()<keyframe.fkValues.length) return;
 					
-					for(int i=0;i<6;++i) {
+					for(int i=0;i<keyframe.fkValues.length;++i) {
 						double d = StringHelper.parseNumber(tokenizer.nextToken());
 						keyframe.fkValues[i]=d;//Math.max(Math.min(d,180),-180);
 					}
