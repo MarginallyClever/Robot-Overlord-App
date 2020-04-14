@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface;
+package com.marginallyclever.robotOverlord.entity.scene;
 
 import java.nio.IntBuffer;
 
@@ -16,7 +16,8 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager.Source;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
