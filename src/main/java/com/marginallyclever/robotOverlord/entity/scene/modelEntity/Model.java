@@ -283,8 +283,8 @@ public class Model {
 	 */
 	public void adjustScale(double arg0) {
 		adjust.m00*=arg0;
-		adjust.m00*=arg0;
-		adjust.m00*=arg0;
+		adjust.m11*=arg0;
+		adjust.m22*=arg0;
 		isDirty=true;
 	}
 	
