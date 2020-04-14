@@ -7,9 +7,11 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the render pipeline.
@@ -32,11 +34,13 @@ public class ViewportEntity extends Entity {
 	public DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
 	public DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
 	public StringEntity attachedTo=new StringEntity("Attached to","");
+	public BooleanEntity drawOrtho=new BooleanEntity("Orthographic",false);
 	
 	public ViewportEntity() {
 		super();
 		
 		setName("Viewport");
+		addChild(drawOrtho);
 		addChild(farZ);
 		addChild(nearZ);
 		addChild(fieldOfView);
@@ -67,10 +71,19 @@ public class ViewportEntity extends Entity {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 
-		// opengl rendering context
-        if(glu==null) glu = GLU.createGLU(gl2);
-        
-		glu.gluOrtho2D(0, canvasWidth, 0, canvasHeight);
+        double w = canvasWidth/10;
+        double h = canvasHeight/10;
+		gl2.glOrtho(-w, w, -h, h,nearZ.get(),farZ.get());
+		
+        renderShared(gl2);
+	}
+	
+	public void renderChosenProjection(GL2 gl2) {
+		if(drawOrtho.get()) {
+			renderOrtho(gl2);
+		} else {
+			renderPerspective(gl2);
+		}
 	}
 	
 	public void renderPick(GL2 gl2,double pickX,double pickY) {
@@ -165,5 +178,17 @@ public class ViewportEntity extends Entity {
 
 	public PoseEntity getAttachedTo() {
 		return (PoseEntity)findByPath(attachedTo.get());
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("V", "Viewport");
+		view.add(drawOrtho);
+		view.add(farZ);
+		view.add(nearZ);
+		view.add(fieldOfView);
+		//view.addStaticText(attachedTo.getName());
+		view.popStack();
+		super.getView(view);
 	}
 }

@@ -17,6 +17,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.swingInterface.InputManager.Source;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -488,7 +489,7 @@ public class DragBallEntity extends PoseEntity {
 		
 		gl2.glPushMatrix();
 			RobotOverlord ro = (RobotOverlord)getRoot();
-			ro.viewport.renderPerspective(gl2);
+			ro.viewport.renderChosenProjection(gl2);
 			
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
@@ -541,7 +542,7 @@ public class DragBallEntity extends PoseEntity {
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		ro.viewport.renderPerspective(gl2);
+		ro.viewport.renderChosenProjection(gl2);
 		Matrix4d lookAt = camera.getPoseWorld();
 		lookAt.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
 

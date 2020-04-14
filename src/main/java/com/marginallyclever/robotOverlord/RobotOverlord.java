@@ -675,8 +675,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		System.out.print("stack depth start = "+stackDepth.get(0));
 		}	
 		
-		// 
-        viewport.renderPerspective(gl2);
+		
+        viewport.renderChosenProjection(gl2);
 
         scene.render(gl2);
 
@@ -684,6 +684,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         
         // overlays
 		dragBall.render(gl2);
+
 		viewCube.render(gl2);
 		
 		//pickNow=true;
