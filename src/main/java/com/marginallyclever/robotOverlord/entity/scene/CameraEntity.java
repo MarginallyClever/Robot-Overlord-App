@@ -33,6 +33,7 @@ public class CameraEntity extends PoseEntity {
 
 	// snap system
 	protected DoubleEntity snapDeadZone = new DoubleEntity("Snap dead zone",100);
+	protected DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",45);
 	protected boolean hasSnappingStarted=false;
 	protected double sumDx;
 	protected double sumDy;
@@ -43,6 +44,7 @@ public class CameraEntity extends PoseEntity {
 		setName("Camera");
 		
 		addChild(snapDeadZone);
+		addChild(snapDegrees);
 	}
 	
 	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -151,28 +153,29 @@ public class CameraEntity extends PoseEntity {
 					sumDx+=dx;
 					sumDy+=dy;
 					if(Math.abs(sumDx)>snapDeadZone.get() || Math.abs(sumDy)>snapDeadZone.get()) {
+						double degrees = snapDegrees.get();
 						if(Math.abs(sumDx) > Math.abs(sumDy)) {
 							double a=getPan();
 							// left/right snap
 							if(sumDx>0) {
 								// snap CCW
-								a+=90;
+								a+=degrees;
 							} else {
 								// snap CW
-								a-=90;
+								a-=degrees;
 							}
-							setPan(Math.round(a/90)*90);
+							setPan(Math.round(a/degrees)*degrees);
 						} else {
 							double a=getTilt();
 							// up/down snap
 							if(sumDy>0) {
 								// snap down
-								a-=90;
+								a-=degrees;
 							} else {
 								// snap up
-								a+=90;
+								a+=degrees;
 							}
-							setTilt(Math.round(a/90)*90);
+							setTilt(Math.round(a/degrees)*degrees);
 						}
 						
 						Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());

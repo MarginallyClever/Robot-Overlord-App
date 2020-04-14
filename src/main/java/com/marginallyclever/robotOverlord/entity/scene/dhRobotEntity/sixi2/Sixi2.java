@@ -117,7 +117,6 @@ public class Sixi2 extends PoseEntity {
 		
 		addChild(singleBlock);
 		addChild(cycleStart);
-		addChild(m01Break);
 		
 		addChild(live);
 		addChild(sim);
