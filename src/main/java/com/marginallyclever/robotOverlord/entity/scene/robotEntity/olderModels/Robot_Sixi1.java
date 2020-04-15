@@ -1,145 +1,153 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
+import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 
 
-public class Robot_Sixi1 extends RobotEntity {
+public class Robot_Sixi1 extends PoseEntity {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1397367244262210747L;
-	protected transient boolean isFirstTime;
 	protected MaterialEntity material;
-	protected DHRobotEntity live;
+	DHRobotEntity live = new DHRobotEntity();
+	DHLink endEffector = new DHLink();
 
 	public Robot_Sixi1() {
 		super();
 		setName("Sixi 1");
-		live = new DHRobotEntity();
-		live.setIKSolver(new DHIKSolver_RTTRTR());
-		setupLinks(live);
-		isFirstTime=true;
-	}
-	
-	protected void setupLinks(DHRobotEntity robot) {
-		robot.setNumLinks(8);
-		// roll
-		robot.links.get(0).setD(25);
-		robot.links.get(0).flags = LinkAdjust.THETA;
-		robot.links.get(0).setRangeMin(-120);
-		robot.links.get(0).setRangeMax(120);
-		// tilt
-		robot.links.get(1).flags = LinkAdjust.ALPHA;
-		robot.links.get(1).setRangeMin(-72);
-		// tilt
-		robot.links.get(2).setD(25);
-		robot.links.get(2).flags = LinkAdjust.ALPHA;
-		robot.links.get(2).setRangeMin(-83.369);
-		robot.links.get(2).setRangeMax(86);
-
-		// interim point
-		robot.links.get(3).setD(5);
-		robot.links.get(3).setAlpha(90);
-		robot.links.get(3).flags = LinkAdjust.NONE;
-		// roll
-		robot.links.get(4).setD(10);
-		robot.links.get(4).flags = LinkAdjust.THETA;
-		robot.links.get(4).setRangeMin(-90);
-		robot.links.get(4).setRangeMax(90);
-
-		// tilt
-		robot.links.get(5).setD(10);
-		robot.links.get(5).flags = LinkAdjust.ALPHA;
-		robot.links.get(5).setRangeMin(-90);
-		robot.links.get(5).setRangeMax(90);
-		// roll
-		robot.links.get(6).setD(3.9527);
-		robot.links.get(6).flags = LinkAdjust.THETA;
-		robot.links.get(6).setRangeMin(-90);
-		robot.links.get(6).setRangeMax(90);
 		
-		robot.links.get(7).flags = LinkAdjust.NONE;
-
-		robot.refreshPose();
-	}
-	
-	public void setupModels(DHRobotEntity robot) {
-		material = new MaterialEntity();
-		float r=0.75f;
-		float g=0.15f;
-		float b=0.15f;
-		material.setDiffuseColor(r,g,b,1);
+		addChild(live);
 		
-		try {
-			robot.links.get(0).setModelFilename("/Sixi/anchor.stl");
-			robot.links.get(1).setModelFilename("/Sixi/shoulder.stl");
-			robot.links.get(2).setModelFilename("/Sixi/bicep.stl");
-			robot.links.get(3).setModelFilename("/Sixi/elbow.stl");
-			robot.links.get(5).setModelFilename("/Sixi/forearm.stl");
-			robot.links.get(6).setModelFilename("/Sixi/wrist.stl");
-			robot.links.get(7).setModelFilename("/Sixi/hand.stl");
+		live.setIKSolver(new DHIKSolver_GradientDescent());
 
-			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0, 0, -25));
-			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0, -5, -25));
-			robot.links.get(2).getModel().adjustRotation(new Vector3d(-11.3,0,0));
-			
-			robot.links.get(5).getModel().adjustOrigin(new Vector3d(0, 0, -60));
-			robot.links.get(6).getModel().adjustOrigin(new Vector3d(0, 0, -70));
-			robot.links.get(7).getModel().adjustOrigin(new Vector3d(0, 0, -74));
+		live.setNumLinks(6);
 
-			Matrix4d rot = new Matrix4d();
-			Matrix4d rotX = new Matrix4d();
-			Matrix4d rotY = new Matrix4d();
-			Matrix4d rotZ = new Matrix4d();
-			rot.setIdentity();
-			rotX.rotX((float)Math.toRadians(90));
-			rotY.rotY((float)Math.toRadians(0));
-			rotZ.rotZ((float)Math.toRadians(0));
-			rot.set(rotX);
-			rot.mul(rotY);
-			rot.mul(rotZ);
-			Matrix4d pose = new Matrix4d(rot);
-			Vector3d adjustPos = new Vector3d(0, 5, -50);
-			pose.transform(adjustPos);
-			
-			robot.links.get(3).getModel().adjustOrigin(adjustPos);
-			robot.links.get(3).getModel().adjustRotation(new Vector3d(90, 0, 0));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		showBoundingBox.addObserver(this);
+		showLocalOrigin.addObserver(this);
+		showLineage.addObserver(this);
+
+		ModelEntity base = new ModelEntity();
+		addChild(base);
+		base.setName("Base");
+		base.setModelFilename("/Sixi/anchor.obj");
+		base.getMaterial().setDiffuseColor(0.89f,0.0f,0.0f,1.0f);
+		
+		live.links.get(0).setName("X");
+		live.links.get(0).setD(25);
+		live.links.get(0).setAlpha(90);
+		live.links.get(0).setTheta(0);
+		live.links.get(0).setR(0);
+		live.links.get(0).setRangeMin(-120);
+		live.links.get(0).setRangeMax(120);
+
+		// tilt
+		live.links.get(1).setName("Y");
+		live.links.get(1).setRangeMin(-72);
+		live.links.get(1).setTheta(90);
+		live.links.get(1).setAlpha(0);
+		live.links.get(1).setR(25);
+		live.links.get(1).setRangeMax(180);
+		live.links.get(1).setRangeMin(0);
+		
+		// tilt
+		live.links.get(2).setName("Z");
+		live.links.get(2).setD(0);
+		live.links.get(2).setR(0);
+		live.links.get(2).setTheta(90);
+		live.links.get(2).setAlpha(90);
+		live.links.get(2).setRangeMin(-83.369+90);
+		live.links.get(2).setRangeMax(86+90);
+		
+		// roll
+		live.links.get(3).setName("U");
+		live.links.get(3).setAlpha(90);
+		live.links.get(3).setD(20);
+		live.links.get(3).setR(0);
+		live.links.get(3).setRangeMin(-90);
+		live.links.get(3).setRangeMax(90);
+
+		// tilt
+		live.links.get(4).setName("V");
+		live.links.get(4).setAlpha(-90);
+		live.links.get(4).setD(0);
+		live.links.get(4).setR(0);
+		live.links.get(4).setRangeMin(-120);
+		live.links.get(4).setRangeMax(120);
+		
+		// roll
+		live.links.get(5).setName("W");
+		live.links.get(5).setAlpha(0);
+		live.links.get(5).setD(3.9527);
+		live.links.get(5).setR(0);
+		live.links.get(5).setRangeMin(-90);
+		live.links.get(5).setRangeMax(90);
+
+		boolean attach=true;
+		if(attach) {
+			live.links.get(0).setModelFilename("/Sixi/shoulder.obj");
+			live.links.get(1).setModelFilename("/Sixi/bicep.obj");
+			live.links.get(2).setModelFilename("/Sixi/elbow.obj");
+			live.links.get(3).setModelFilename("/Sixi/forearm.obj");
+			live.links.get(4).setModelFilename("/Sixi/wrist.obj");
+			live.links.get(5).setModelFilename("/Sixi/hand.obj");
+		} else {
+			addChild(new ModelEntity("/Sixi/shoulder.obj"));
+			addChild(new ModelEntity("/Sixi/bicep.obj"));
+			addChild(new ModelEntity("/Sixi/elbow.obj"));
+			addChild(new ModelEntity("/Sixi/forearm.obj"));
+			addChild(new ModelEntity("/Sixi/wrist.obj"));
+			addChild(new ModelEntity("/Sixi/hand.obj"));
 		}
+
+		endEffector.setName("End Effector");
+		live.links.get(5).addChild(endEffector);
+		endEffector.addObserver(this);
+
+		for(DHLink link : live.links ) {
+			link.setDHRobot(live);
+		}
+		endEffector.setDHRobot(live);
+		
+		// update this world pose and all my children's poses all the way down.
+		this.updatePoseWorld();
+		
+		// Use the poseWorld for each DHLink to adjust the model origins.
+		for(int i=0;i<live.links.size();++i) {
+			DHLink bone=live.links.get(i);
+			if(bone.getModel()!=null) {
+				Matrix4d iWP = bone.getPoseWorld();
+				iWP.invert();
+				bone.getModel().adjustMatrix(iWP);
+				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+				bone.getMaterial().setDiffuseColor(0.89f,0.0f,0.0f,1.0f);
+			}
+		}
+		
+		live.setShowLineage(true);
 	}
-	
 	
 	@Override
 	public void render(GL2 gl2) {
-		if( isFirstTime ) {
-			isFirstTime=false;
-			setupModels(live);
-		}
-
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.pose.get());
-			material.render(gl2);
-			live.render(gl2);
-		gl2.glPopMatrix();
+		// update this world pose and all my children's poses all the way down.
+		this.updatePoseWorld();
 		
 		super.render(gl2);
 	}
-
+	
 	@Override
-	public RobotKeyframe createKeyframe() {
-		// TODO Auto-generated method stub
-		return null;
+	public void update(Observable obs, Object obj) {
+		if(obs == endEffector.poseWorld) {
+			live.setPoseIK(endEffector.getPoseWorld());
+		}
 	}
 }

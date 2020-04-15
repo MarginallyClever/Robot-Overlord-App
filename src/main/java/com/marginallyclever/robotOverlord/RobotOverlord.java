@@ -807,13 +807,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
-		pickX=e.getX();
-		pickY=e.getY();		
-		viewport.pressed();
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			pickX=e.getX();
+			pickY=e.getY();
+			viewport.pressed();
+		}
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		viewport.released();
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			viewport.released();
+		}
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {

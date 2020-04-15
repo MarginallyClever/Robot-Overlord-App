@@ -317,31 +317,49 @@ public class Sixi2Sim extends Sixi2Model {
 		getPoseFK(keyframe);
 		double[][] jacobian = approximateJacobian(keyframe);
 		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-		double[] force = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
+		double[] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
 
 		double df = Math.sqrt(
-				force[0] * force[0] + 
-				force[1] * force[1] + 
-				force[2] * force[2] +
-				force[3] * force[3] +
-				force[4] * force[4] +
-				force[5] * force[5]);
+				cartesianForce[0] * cartesianForce[0] + 
+				cartesianForce[1] * cartesianForce[1] + 
+				cartesianForce[2] * cartesianForce[2] +
+				cartesianForce[3] * cartesianForce[3] +
+				cartesianForce[4] * cartesianForce[4] +
+				cartesianForce[5] * cartesianForce[5]);
 		if (df > 0.01) {
-			double[] jvot = new double[6];
-			int j, k;
-			for (j = 0; j < 6; ++j) {
-				for (k = 0; k < 6; ++k) {
-					jvot[j] += inverseJacobian[k][j] * force[k];
+			// jvot = joint velocity over time
+			double[] jvot = new double[keyframe.fkValues.length];
+			
+			int j,k;
+			for(j = 0; j < keyframe.fkValues.length; ++j) {
+				for(k = 0; k < keyframe.fkValues.length; ++k) {
+					jvot[j] += inverseJacobian[k][j] * cartesianForce[k];
 				}
 				if(!Double.isNaN(jvot[j])) {
-					// simulate a change in the joint velocities
-					double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * dt;
-					System.out.print(StringHelper.formatDouble(v)+"\t");
-					
-					v = MathHelper.capRotationDegrees(v,0);
-					keyframe.fkValues[j]=v;
+					// impossible?  panic?
+					return;
 				}
 			}
+			
+			// scale jvot to within torqueMax
+			double scale=1;/*
+			for(j = 0; j < keyframe.fkValues.length; ++j) {
+				double maxT = links.get(j).maxTorque.get();
+				double ajvot = Math.abs(jvot[j]); 
+				if( scale > maxT/ajvot ) {
+					scale = maxT/ajvot;
+				}
+			}//*/
+			
+			for(j = 0; j < keyframe.fkValues.length; ++j) {
+				// simulate a change in the joint velocities
+				double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * scale * dt;
+				System.out.print(StringHelper.formatDouble(Math.toDegrees(jvot[j]))+"\t");
+				
+				v = MathHelper.capRotationDegrees(v,0);
+				keyframe.fkValues[j]=v;
+			}
+
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
 				mLive.set(endEffector.getPoseWorld());
