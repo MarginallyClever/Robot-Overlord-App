@@ -11,6 +11,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
@@ -209,14 +210,13 @@ public class DragBallEntity extends PoseEntity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		ViewportEntity cameraView = ro.viewport;
-		PoseEntity camera = cameraView.getAttachedTo();
-		Vector3d ray = cameraView.rayPick();
+		Ray ray = cameraView.rayPick();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {
 			// not moving yet, mouse clicked.
 
 			// find a pick point on the ball (ray/sphere intersection)
-			double Tca = ray.dot(mp);
+			double Tca = ray.direction.dot(mp);
 			if(Tca>=0) {
 				double d2 = Math.sqrt(d*d - Tca*Tca);
 				boolean isHit = d2>=0 && d2<=ballSizeScaled;
@@ -229,9 +229,9 @@ public class DragBallEntity extends PoseEntity {
 					//System.out.println("d2="+d2);
 
 					pickPointOnBall = new Vector3d(
-							camera.getPosition().x+ray.x*t0,
-							camera.getPosition().y+ray.y*t0,
-							camera.getPosition().z+ray.z*t0);
+							ray.start.x+ray.direction.x*t0,
+							ray.start.y+ray.direction.y*t0,
+							ray.start.z+ray.direction.z*t0);
 					startMatrix.set(subject.getPoseWorld());
 					resultMatrix.set(startMatrix);
 					
@@ -261,14 +261,14 @@ public class DragBallEntity extends PoseEntity {
 					}
 					
 					// find the pick point on the plane of rotation
-					double denominator = ray.dot(majorAxisVector);
+					double denominator = ray.direction.dot(majorAxisVector);
 					if(denominator!=0) {
 						double numerator = mp.dot(majorAxisVector);
 						t0 = numerator/denominator;
 						pickPoint.set(
-								camera.getPosition().x+ray.x*t0,
-								camera.getPosition().y+ray.y*t0,
-								camera.getPosition().z+ray.z*t0);
+								ray.start.x+ray.direction.x*t0,
+								ray.start.y+ray.direction.y*t0,
+								ray.start.z+ray.direction.z*t0);
 						pickPointSaved.set(pickPoint);
 						
 						pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
@@ -301,14 +301,14 @@ public class DragBallEntity extends PoseEntity {
 			}
 			
 			// find the pick point on the plane of rotation
-			double denominator = ray.dot(majorAxisVector);
+			double denominator = ray.direction.dot(majorAxisVector);
 			if(denominator!=0) {
 				double numerator = mp.dot(majorAxisVector);
 				double t0 = numerator/denominator;
 				pickPoint.set(
-						camera.getPosition().x+ray.x*t0,
-						camera.getPosition().y+ray.y*t0,
-						camera.getPosition().z+ray.z*t0);
+						ray.start.x+ray.direction.x*t0,
+						ray.start.y+ray.direction.y*t0,
+						ray.start.z+ray.direction.z*t0);
 
 				Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
 				switch(nearestPlane) {
@@ -366,11 +366,12 @@ public class DragBallEntity extends PoseEntity {
 			px.add(pos);
 			py.add(pos);
 			pz.add(pos);
-	
+
+			Ray ray = cameraView.rayPick();
 			// of the three boxes, the closest hit is the one to remember.			
-			double dx = testBoxHit(camera.getPosition(),cameraView.rayPick(),px);
-			double dy = testBoxHit(camera.getPosition(),cameraView.rayPick(),py);
-			double dz = testBoxHit(camera.getPosition(),cameraView.rayPick(),pz);
+			double dx = testBoxHit(ray,px);
+			double dy = testBoxHit(ray,py);
+			double dz = testBoxHit(ray,pz);
 			
 			double t0=Double.MAX_VALUE;
 			if(dx>0) {
@@ -386,11 +387,10 @@ public class DragBallEntity extends PoseEntity {
 				t0=dz;
 			}
 			
-			Vector3d ray=new Vector3d(cameraView.rayPick());
 			pickPoint.set(
-				camera.getPosition().x+ray.x*t0,
-				camera.getPosition().y+ray.y*t0,
-				camera.getPosition().z+ray.z*t0);
+				ray.start.x+ray.direction.x*t0,
+				ray.start.y+ray.direction.y*t0,
+				ray.start.z+ray.direction.z*t0);
 			
 			boolean isHit = (t0>=0 && t0<Double.MAX_VALUE);
 			if(isHit) {
@@ -467,7 +467,7 @@ public class DragBallEntity extends PoseEntity {
 		}
 	}
 
-	protected double testBoxHit(Vector3d pos,Vector3d ray,Vector3d n) {		
+	protected double testBoxHit(Ray ray,Vector3d n) {		
 		Point3d b0 = new Point3d(); 
 		Point3d b1 = new Point3d();
 
@@ -478,7 +478,7 @@ public class DragBallEntity extends PoseEntity {
 		b0.add(n);
 		b1.add(n);
 		
-		return MathHelper.rayBoxIntersection(pos,ray,b0,b1);
+		return MathHelper.rayBoxIntersection(ray,b0,b1);
 	}
 	
 	@Override
@@ -490,7 +490,7 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glPushMatrix();
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			ro.viewport.renderChosenProjection(gl2);
-			
+
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 			gl2.glDepthFunc(GL2.GL_ALWAYS);

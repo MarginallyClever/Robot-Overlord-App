@@ -242,6 +242,10 @@ public class CameraEntity extends PoseEntity {
 		zoom.set(arg0);
 	}
 	
+	public double getZoom() {
+		return zoom.get();
+	}
+	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Ca", "Camera");

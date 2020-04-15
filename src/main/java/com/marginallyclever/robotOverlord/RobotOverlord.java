@@ -46,7 +46,6 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.DragBallEntity;
@@ -680,13 +679,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         scene.render(gl2);
 
-        showPickingTest(gl2);
-        
         // overlays
 		dragBall.render(gl2);
 
 		viewCube.render(gl2);
-		
+
+        viewport.showPickingTest(gl2);
+        
 		//pickNow=true;
         if(pickNow) {
 	        pickNow=false;
@@ -701,32 +700,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			System.out.println("stack depth end = "+stackDepth.get(0));
 		}
     }
-
-	protected void showPickingTest(GL2 gl2) {
-		if(pickForward.lengthSquared()<1e-6) return;
-		
-		gl2.glPushMatrix();
-
-		Vector3d forward = new Vector3d();
-		forward.set(pickForward);
-		forward.scale(10);
-		forward.sub(camera.getPosition());
-		PrimitiveSolids.drawStar(gl2, forward);
-		
-		Vector3d right = new Vector3d(forward);
-		right.add(pickRight);
-		PrimitiveSolids.drawStar(gl2, right);
-		
-		Vector3d up = new Vector3d(forward);
-		up.add(pickUp);
-		PrimitiveSolids.drawStar(gl2, up);
-		
-		Vector3d ray = new Vector3d(pickRay);
-		ray.sub(camera.getPosition());
-		PrimitiveSolids.drawStar(gl2, ray);
-		
-		gl2.glPopMatrix();
-	}
 	
     /**
      * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
