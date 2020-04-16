@@ -700,7 +700,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		viewCube.render(gl2);
 
-        viewport.showPickingTest(gl2);
+        //viewport.showPickingTest(gl2);
         
 		//pickNow=true;
         if(pickNow) {

@@ -135,6 +135,7 @@ public class ViewportEntity extends Entity {
 		Ray ray = new Ray();
 
 		if(drawOrtho.get()) {
+			// orthographic projection
 			ray.start = new Point3d(
 					cursorX*canvasWidth/10,
 					cursorY*canvasHeight/10,
@@ -145,6 +146,7 @@ public class ViewportEntity extends Entity {
 			m2.transform(ray.direction);
 			m2.transform(ray.start);
 		} else {
+			// perspective projection
 			double aspect = (double)canvasWidth / (double)canvasHeight;
 			double t = Math.tan(Math.toRadians(fieldOfView.get()/2));
 			ray.direction.set(cursorX*t*aspect,cursorY*t,-1);
@@ -153,9 +155,9 @@ public class ViewportEntity extends Entity {
 			PoseEntity camera = getAttachedTo();
 			Matrix4d m2 = camera.getPoseWorld();
 			m2.transform(ray.direction);
-			//ray.direction.normalize();
 			ray.start.set(camera.getPosition());
 		}
+		ray.direction.normalize();
 		
 		return ray; 
 	}
