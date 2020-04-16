@@ -2,14 +2,14 @@
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 # DHRobots
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_GMF_M100
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_Mantis
-com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.Robot_Sixi1
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_Arm3
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_UArm
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_SCARA_NM
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_Thor
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Robot_Cartesian
+com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.Sixi1
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Arm3
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.GMF_M100
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Mantis
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.UArm
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.SCARA_NM
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Thor
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Cartesian
 
 # joystick HID
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.SixiJoystick

@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHI
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 
 
-public class Robot_Sixi1 extends PoseEntity {
+public class Sixi1 extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -22,7 +22,7 @@ public class Robot_Sixi1 extends PoseEntity {
 	DHRobotEntity live = new DHRobotEntity();
 	DHLink endEffector = new DHLink();
 
-	public Robot_Sixi1() {
+	public Sixi1() {
 		super();
 		setName("Sixi 1");
 		
