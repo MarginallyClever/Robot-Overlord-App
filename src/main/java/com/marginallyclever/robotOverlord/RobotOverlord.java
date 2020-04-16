@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -56,7 +58,6 @@ import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
-import com.marginallyclever.robotOverlord.swingInterface.Splitter;
 import com.marginallyclever.robotOverlord.swingInterface.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
@@ -150,9 +151,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     protected JFrame mainFrame; 
 	// the main view
 		// top part
-		protected Splitter splitLeftRight;
+		protected JSplitPane splitLeftRight;
 		// bottom part
-		protected Splitter rightFrameSplitter;
+		protected JSplitPane rightFrameSplitter;
 	// the 3D view of the scene
 	protected GLJPanel glCanvas;
 	// tree like view of all entities in the scene
@@ -209,11 +210,23 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         selectedEntity = null;
         
-        
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        mainFrame.setSize( 1224, 768 );
+
+    	int windowW = prefs.getInt("windowWidth", 1224);
+    	int windowH = prefs.getInt("windowHeight", 768);
+    	int windowX = prefs.getInt("windowX", -1);
+    	int windowY = prefs.getInt("windowY", -1);
+        
+        mainFrame.setSize( windowW, windowH );
+        if(windowX==-1 || windowY==-1) {
+        	// centered
+        	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        	windowX = (dim.width - windowW)/2;
+        	windowY = (dim.height - windowH)/2;
+        }
+        mainFrame.setLocation( windowX, windowY );
         mainFrame.setLayout(new java.awt.BorderLayout());
 
       	// this class listens to the window
@@ -246,18 +259,21 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			        selectedEntityPanel = new JPanel(new BorderLayout());
 			        
 			        // the right hand stuff			        
-					rightFrameSplitter = new Splitter(JSplitPane.VERTICAL_SPLIT);
+					rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 					rightFrameSplitter.add(entityTree);
 					rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
 					// make sure the master panel can't be squished.
 		            Dimension minimumSize = new Dimension(360,300);
 			        rightFrameSplitter.setMinimumSize(minimumSize);
+			        // if the window resizes, give top and bottom halves equal share of the real estate
 					rightFrameSplitter.setResizeWeight(0.5);
 		        }
 
-		        splitLeftRight = new Splitter(JSplitPane.HORIZONTAL_SPLIT);
+		        splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		        splitLeftRight.add(glCanvas);
 		        splitLeftRight.add(rightFrameSplitter);
+		        // if the window resizes, give left half as much real estate as it can get.
+		        splitLeftRight.setResizeWeight(1);
 	        }
 	        mainFrame.add(splitLeftRight);
 	 	}
@@ -853,6 +869,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		confirmClose();
+		// remember window location for next time.
+		Dimension d = mainFrame.getSize();
+    	prefs.putInt("windowWidth", d.width);
+    	prefs.putInt("windowHeight", d.height);
+    	Point p = mainFrame.getLocation();
+    	prefs.putInt("windowX", p.x);
+    	prefs.putInt("windowY", p.y);
 	}
 	
 	
