@@ -7,7 +7,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe
 
 
 /**
- * MotionState captures the physical state of a robot at a moment in time.
+ * Captures the physical state of a robot at a moment in time.
  * @author Dan Royer
  *
  */
