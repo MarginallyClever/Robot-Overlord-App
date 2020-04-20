@@ -25,4 +25,14 @@ public class Ray {
 				start.y+direction.y*50, 
 				start.z+direction.z*50);
 	}
+	
+	/**
+	 * @return start + direction * t
+	 */
+	public Vector3d getPoint(double t) {
+		return new Vector3d(
+				start.x+direction.x*t,
+				start.y+direction.y*t,
+				start.z+direction.z*t);
+	}
 }

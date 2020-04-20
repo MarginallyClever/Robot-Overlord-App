@@ -101,16 +101,14 @@ public class DragBallEntity extends PoseEntity {
 	// for translation
 	protected Axis majorAxis;
 	
-	public DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
+	public DoubleEntity ballSize = new DoubleEntity("Scale",20);
 	public BooleanEntity snapOn = new BooleanEntity("Snap On",true);
 	public IntEntity snapDegrees = new IntEntity("Snap degrees",5);
 	public IntEntity snapDistance = new IntEntity("Snap mm",1);
-	 
-	
-	public double ballSizeScaled;
 
 	public boolean isRotateMode;
 	public boolean isActivelyMoving;
+	public boolean isBallHit;
 
 	// Who is being moved?
 	protected PoseEntity subject;
@@ -140,6 +138,7 @@ public class DragBallEntity extends PoseEntity {
 				
 		isRotateMode=false;
 		isActivelyMoving=false;
+		isBallHit=false;
 	}
 	
 	@Override
@@ -147,7 +146,8 @@ public class DragBallEntity extends PoseEntity {
 		if(subject==null) return;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.viewport.getAttachedTo();
+		ViewportEntity cameraView = ro.viewport;
+		PoseEntity camera = cameraView.getAttachedTo();
 
 		// find the current frame of reference.  This could change every frame as the camera moves.
 		if(!isActivelyMoving()) {
@@ -177,16 +177,13 @@ public class DragBallEntity extends PoseEntity {
 
 		Vector3d mp = new Vector3d();
 		subject.getPoseWorld().get(mp);
+		// put the dragball on the subject
 		this.setPosition(mp);
-		mp.sub(camera.getPosition());
-
-		double d = mp.length();
-		ballSizeScaled=ballSize.get()*d;
-				
+		
 		if(isRotateMode) {
-			updateRotation(dt,d,mp);
+			updateRotation(dt);
 		} else {
-			updateTranslation(dt,d,mp);
+			updateTranslation(dt);
 		}
 	}
 	
@@ -205,83 +202,87 @@ public class DragBallEntity extends PoseEntity {
 		return pickPointInBallSpace;
 	}
 	
-	public void updateRotation(double dt,double d,Vector3d mp) {
+	public void updateRotation(double dt) {
 		valueNow = valueLast;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		ViewportEntity cameraView = ro.viewport;
 		Ray ray = cameraView.rayPick();
-		
-		if(!isActivelyMoving && cameraView.isPressed()) {
-			// not moving yet, mouse clicked.
 
+		Vector3d dp = this.getPosition();
+		dp.sub(ray.start);
+		
+		if(!isActivelyMoving) {
+			// not moving yet
 			// find a pick point on the ball (ray/sphere intersection)
-			double Tca = ray.direction.dot(mp);
+			// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
+			double d = dp.length();
+			
+			double Tca = ray.direction.dot(dp);
 			if(Tca>=0) {
-				double d2 = Math.sqrt(d*d - Tca*Tca);
-				boolean isHit = d2>=0 && d2<=ballSizeScaled;
-				if(isHit) {
-					// ball hit!  Start moving.
-					isActivelyMoving=true;
-					double Thc = Math.sqrt(ballSizeScaled*ballSizeScaled - d2*d2);
+				// ball is in front of ray start
+				double d2 = d*d - Tca*Tca;
+				double r2 = ballSize.get() * ballSize.get();
+				isBallHit = d2>=0 && d2<=r2;
+				if(isBallHit) {
+					double Thc = Math.sqrt(r2 - d2);
 					double t0 = Tca - Thc;
 					//double t1 = Tca + Thc;
 					//System.out.println("d2="+d2);
 
-					pickPointOnBall = new Vector3d(
-							ray.start.x+ray.direction.x*t0,
-							ray.start.y+ray.direction.y*t0,
-							ray.start.z+ray.direction.z*t0);
-					startMatrix.set(subject.getPoseWorld());
-					resultMatrix.set(startMatrix);
-					
-					Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
-					
-					// find nearest plane
-					double dx = Math.abs(pickPointInFOR.x);
-					double dy = Math.abs(pickPointInFOR.y);
-					double dz = Math.abs(pickPointInFOR.z);
-					nearestPlane=Plane.X;
-					double nearestD=dx;
-					if(dy<nearestD) {
-						nearestPlane=Plane.Y;
-						nearestD=dy;
-					}
-					if(dz<nearestD) {
-						nearestPlane=Plane.Z;
-						nearestD=dz;
-					}
+					pickPointOnBall = ray.getPoint(t0);
 
-					// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-					Vector3d majorAxisVector = new Vector3d();
-					switch(nearestPlane) {
-					case X:  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
-					case Y:  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
-					case Z:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
-					}
-					
-					// find the pick point on the plane of rotation
-					double denominator = ray.direction.dot(majorAxisVector);
-					if(denominator!=0) {
-						double numerator = mp.dot(majorAxisVector);
-						t0 = numerator/denominator;
-						pickPoint.set(
-								ray.start.x+ray.direction.x*t0,
-								ray.start.y+ray.direction.y*t0,
-								ray.start.z+ray.direction.z*t0);
-						pickPointSaved.set(pickPoint);
+					if( cameraView.isPressed() ) {
+						// ball hit!  Start moving.
+						isActivelyMoving=true;
+						startMatrix.set(subject.getPoseWorld());
+						resultMatrix.set(startMatrix);
 						
-						pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
-						switch(nearestPlane) {
-						case X:  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-						case Y:  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-						case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+						Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
+						
+						// find nearest plane
+						double dx = Math.abs(pickPointInFOR.x);
+						double dy = Math.abs(pickPointInFOR.y);
+						double dz = Math.abs(pickPointInFOR.z);
+						nearestPlane=Plane.X;
+						double nearestD=dx;
+						if(dy<nearestD) {
+							nearestPlane=Plane.Y;
+							nearestD=dy;
 						}
-						pickPointInFOR.normalize();
-						//System.out.println("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
+						if(dz<nearestD) {
+							nearestPlane=Plane.Z;
+							nearestD=dz;
+						}
+	
+						// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
+						Vector3d majorAxisVector = new Vector3d();
+						switch(nearestPlane) {
+						case X:  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
+						case Y:  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
+						case Z:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
+						}
+						
+						// find the pick point on the plane of rotation
+						double denominator = ray.direction.dot(majorAxisVector);
+						if(denominator!=0) {
+							double numerator = dp.dot(majorAxisVector);
+							t0 = numerator/denominator;
+							pickPoint.set(ray.getPoint(t0));
+							pickPointSaved.set(pickPoint);
+							
+							pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
+							switch(nearestPlane) {
+							case X:  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
+							case Y:  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
+							case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+							}
+							pickPointInFOR.normalize();
+							//System.out.println("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
+						}
+						valueStart=valueNow;
+						valueLast=valueNow;
 					}
-					valueStart=valueNow;
-					valueLast=valueNow;
 				}
 			}
 		}
@@ -303,12 +304,9 @@ public class DragBallEntity extends PoseEntity {
 			// find the pick point on the plane of rotation
 			double denominator = ray.direction.dot(majorAxisVector);
 			if(denominator!=0) {
-				double numerator = mp.dot(majorAxisVector);
+				double numerator = dp.dot(majorAxisVector);
 				double t0 = numerator/denominator;
-				pickPoint.set(
-						ray.start.x+ray.direction.x*t0,
-						ray.start.y+ray.direction.y*t0,
-						ray.start.z+ray.direction.z*t0);
+				pickPoint.set(ray.getPoint(t0));
 
 				Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
 				switch(nearestPlane) {
@@ -342,7 +340,7 @@ public class DragBallEntity extends PoseEntity {
 		}
 	}
 	
-	public void updateTranslation(double dt,double d,Vector3d mp) {
+	public void updateTranslation(double dt) {
 		valueNow = valueLast;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
@@ -360,9 +358,9 @@ public class DragBallEntity extends PoseEntity {
 			Vector3d px = new Vector3d(nx);
 			Vector3d py = new Vector3d(ny);
 			Vector3d pz = new Vector3d(nz);
-			px.scale(ballSizeScaled);
-			py.scale(ballSizeScaled);
-			pz.scale(ballSizeScaled);
+			px.scale(ballSize.get());
+			py.scale(ballSize.get());
+			pz.scale(ballSize.get());
 			px.add(pos);
 			py.add(pos);
 			pz.add(pos);
@@ -387,10 +385,7 @@ public class DragBallEntity extends PoseEntity {
 				t0=dz;
 			}
 			
-			pickPoint.set(
-				ray.start.x+ray.direction.x*t0,
-				ray.start.y+ray.direction.y*t0,
-				ray.start.z+ray.direction.z*t0);
+			pickPoint.set(ray.getPoint(t0));
 			
 			boolean isHit = (t0>=0 && t0<Double.MAX_VALUE);
 			if(isHit) {
@@ -473,8 +468,8 @@ public class DragBallEntity extends PoseEntity {
 
 		b0.set(+0.05,+0.05,+0.05);
 		b1.set(-0.05,-0.05,-0.05);
-		b0.scale(ballSizeScaled);
-		b1.scale(ballSizeScaled);
+		b0.scale(ballSize.get());
+		b1.scale(ballSize.get());
 		b0.add(n);
 		b1.add(n);
 		
@@ -486,11 +481,32 @@ public class DragBallEntity extends PoseEntity {
 		if(subject==null) return;
 
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
-		
-		gl2.glPushMatrix();
-			RobotOverlord ro = (RobotOverlord)getRoot();
-			ro.viewport.renderChosenProjection(gl2);
 
+		RobotOverlord ro = (RobotOverlord)getRoot();
+		ro.viewport.renderChosenProjection(gl2);
+
+		gl2.glPushMatrix();
+		
+			/*if(isBallHit) {
+				Vector3d dp = this.getPosition();
+				
+				ViewportEntity cameraView = ro.viewport;
+				Ray ray = cameraView.rayPick();
+				Vector3d dr = ray.getPoint(100);
+
+				gl2.glBegin(GL2.GL_LINES);
+				gl2.glColor3d(1, 1, 1);
+				gl2.glVertex3d(ray.start.x, ray.start.y, ray.start.z);
+				gl2.glVertex3d(dr.x, dr.y, dr.z);
+
+				gl2.glVertex3d(dp.x,dp.y,dp.z);
+				gl2.glVertex3d(pickPointOnBall.x, pickPointOnBall.y, pickPointOnBall.z);
+				gl2.glEnd();
+				
+				PrimitiveSolids.drawStar(gl2, dp,10);
+				PrimitiveSolids.drawStar(gl2, pickPointOnBall,10);
+			}//*/
+			
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 			gl2.glDepthFunc(GL2.GL_ALWAYS);
@@ -510,7 +526,7 @@ public class DragBallEntity extends PoseEntity {
 				renderOutsideCircle(gl2);
 
 				MatrixHelper.applyMatrix(gl2, FOR);
-				gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
+				gl2.glScaled(ballSize.get(),ballSize.get(),ballSize.get());
 
 				if(isRotateMode()) {
 					renderRotation(gl2);
@@ -549,7 +565,7 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glPushMatrix();
 
 			MatrixHelper.applyMatrix(gl2, lookAt);
-			gl2.glScaled(ballSizeScaled,ballSizeScaled, ballSizeScaled);
+			gl2.glScaled(ballSize.get(),ballSize.get(),ballSize.get());
 			
 			//white circle on the xy plane of the camera pose, as the subject position
 			gl2.glColor4d(1,1,1,0.7);
@@ -606,8 +622,8 @@ public class DragBallEntity extends PoseEntity {
 				double x=Math.cos(n);
 				double y=Math.sin(n);
 				gl2.glNormal3d(0, y,x);
-				gl2.glVertex3d(-0.25/ballSizeScaled,y,x);
-				gl2.glVertex3d( 0.25/ballSizeScaled,y,x);
+				gl2.glVertex3d(-0.25/ballSize.get(),y,x);
+				gl2.glVertex3d( 0.25/ballSize.get(),y,x);
 			}
 			gl2.glEnd();
 		}
@@ -626,8 +642,8 @@ public class DragBallEntity extends PoseEntity {
 				double x=Math.cos(n);
 				double y=Math.sin(n);
 				gl2.glNormal3d(x,0,y);
-				gl2.glVertex3d(x,-0.25/ballSizeScaled,y);
-				gl2.glVertex3d(x, 0.25/ballSizeScaled,y);
+				gl2.glVertex3d(x,-0.25/ballSize.get(),y);
+				gl2.glVertex3d(x, 0.25/ballSize.get(),y);
 			}
 			gl2.glEnd();
 		}
@@ -646,8 +662,8 @@ public class DragBallEntity extends PoseEntity {
 				double x=Math.cos(n);
 				double y=Math.sin(n);
 				gl2.glNormal3d(y,x,0);
-				gl2.glVertex3d(y,x,-0.25/ballSizeScaled);
-				gl2.glVertex3d(y,x, 0.25/ballSizeScaled);
+				gl2.glVertex3d(y,x,-0.25/ballSize.get());
+				gl2.glVertex3d(y,x, 0.25/ballSize.get());
 			}
 			gl2.glEnd();
 		}
@@ -721,9 +737,9 @@ public class DragBallEntity extends PoseEntity {
 			gl2.glColor3f(255,255,255);
 			gl2.glVertex3d(0,0,0);
 			gl2.glVertex3d(
-					(startMatrix.m03-resultMatrix.m03)/ballSizeScaled,
-					(startMatrix.m13-resultMatrix.m13)/ballSizeScaled,
-					(startMatrix.m23-resultMatrix.m23)/ballSizeScaled);
+					(startMatrix.m03-resultMatrix.m03)/ballSize.get(),
+					(startMatrix.m13-resultMatrix.m13)/ballSize.get(),
+					(startMatrix.m23-resultMatrix.m23)/ballSize.get());
 			gl2.glEnd();
 		}
 	}

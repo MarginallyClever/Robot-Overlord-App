@@ -120,7 +120,6 @@ public class PoseEntity extends Entity {
 		}
 
 		gl2.glDepthFunc(depthFunc.get());
-		
 		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
 	}
 

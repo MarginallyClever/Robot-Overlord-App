@@ -1,13 +1,9 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
-import javax.print.attribute.standard.Fidelity;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector4d;
 
-import com.jogamp.newt.event.PinchToZoomGesture.ZoomEvent;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -17,7 +13,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -73,11 +68,11 @@ public class ViewportEntity extends Entity {
 	protected void renderOrtho(GL2 gl2) {
         double w = canvasWidth/10;
         double h = canvasHeight/10;
-		PoseEntity camera = getAttachedTo();
-        Vector3d z = MatrixHelper.getZAxis(camera.getPoseWorld());
-        double d = camera.getPosition().dot(z);
-        CameraEntity c = (CameraEntity)camera;
-        System.out.println("D="+d+"\tw="+w+"\th="+h+"\tz="+c.getZoom());
+		//PoseEntity camera = getAttachedTo();
+        //Vector3d z = MatrixHelper.getZAxis(camera.getPoseWorld());
+        //double d = camera.getPosition().dot(z);
+        //CameraEntity c = (CameraEntity)camera;
+        //System.out.println("D="+d+"\tw="+w+"\th="+h+"\tz="+c.getZoom());
         
 		gl2.glOrtho(-w, w, -h, h, nearZ.get(), farZ.get());
 	}
@@ -107,7 +102,7 @@ public class ViewportEntity extends Entity {
         
 		// Set up a tiny viewport that only covers the area behind the cursor. 
 		// Tiny viewports are faster.
-		glu.gluPickMatrix(pickX, viewportDimensions[3]-pickY, 5.0, 5.0, viewportDimensions,0);
+		glu.gluPickMatrix(pickX, canvasHeight-pickY, 5.0, 5.0, viewportDimensions,0);
 
 		if(drawOrtho.get()) {
 			renderOrtho(gl2);
@@ -140,6 +135,7 @@ public class ViewportEntity extends Entity {
 		Ray ray = new Ray();
 
 		if(drawOrtho.get()) {
+			// orthographic projection
 			ray.start = new Point3d(
 					cursorX*canvasWidth/10,
 					cursorY*canvasHeight/10,
@@ -150,6 +146,7 @@ public class ViewportEntity extends Entity {
 			m2.transform(ray.direction);
 			m2.transform(ray.start);
 		} else {
+			// perspective projection
 			double aspect = (double)canvasWidth / (double)canvasHeight;
 			double t = Math.tan(Math.toRadians(fieldOfView.get()/2));
 			ray.direction.set(cursorX*t*aspect,cursorY*t,-1);
@@ -158,9 +155,9 @@ public class ViewportEntity extends Entity {
 			PoseEntity camera = getAttachedTo();
 			Matrix4d m2 = camera.getPoseWorld();
 			m2.transform(ray.direction);
-			//ray.direction.normalize();
 			ray.start.set(camera.getPosition());
 		}
+		ray.direction.normalize();
 		
 		return ray; 
 	}

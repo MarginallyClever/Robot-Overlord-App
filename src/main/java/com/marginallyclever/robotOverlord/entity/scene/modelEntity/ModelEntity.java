@@ -72,6 +72,11 @@ public class ModelEntity extends PoseEntity {
 		addChild(hasColors);
 		addChild(hasUVs);
 	}
+	
+	public ModelEntity(String filename) {
+		this();
+		setModelFilename(filename);
+	}
 
 	public void set(ModelEntity b) {
 		super.set(b);
