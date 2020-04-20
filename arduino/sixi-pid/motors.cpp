@@ -12,10 +12,19 @@ StepperMotor motors[NUM_MOTORS];
 Servo servos[NUM_SERVOS];
 #endif
 
-
+int stepsCount = 0;
 
 void StepperMotor::update(float dt,float angleNow) {
   // use a PID to control the motion.
+
+  if(sensorReady){
+    //update stepsNow
+    if ( abs(stepsNow) - stepsCount != abs(stepsUpdated)){
+      stepsNow = stepsUpdated;
+    } 
+    stepsCount = 0;
+    sensorReady = false;
+  }
   
   // P term
   error = stepsTarget - stepsNow;
@@ -29,6 +38,8 @@ void StepperMotor::update(float dt,float angleNow) {
   velocity = kp * ( error + ki * error_i + kd * error_d );
 
   error_last = error;
+
+  if(abs(error) < 0.5) velocity = 0;
 
   if(abs(velocity) < 1e-4) {
     stepInterval = 0xFFFFFFFF;  // uint32_t max value
@@ -44,10 +55,10 @@ void StepperMotor::update(float dt,float angleNow) {
   //stepsNow += velocity*dt;
   if( timeSinceLastStep >= stepInterval ) {
     stepsNow += velocity<0 ? -1 : 1;
+    stepsCount += 1;
     digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
     digitalWrite( step_pin, HIGH );
     timeSinceLastStep =0;
     digitalWrite( step_pin, LOW  );
   }
 }
-

@@ -18,7 +18,7 @@ Parser parser;
  * @param angles the cartesian coordinate
  * @param steps a measure of each belt to that plotter position
 */
-void IK(const float *const angles, int32_t *steps) {
+void Parser::anglesToSteps(const float *const angles, int32_t *steps) {
   // each of the xyz motors are differential to each other.
   // to move only one motor means applying the negative of that value to the other two motors
 
@@ -49,8 +49,8 @@ void IK(const float *const angles, int32_t *steps) {
   steps[4] = J4 * STEP_PER_DEGREES_4;  // WRIST
   steps[5] = J5 * STEP_PER_DEGREES_5;  // HAND
   
-  steps[NUM_MOTORS] = angles[6];
-#ifdef DEBUG_IK
+//  steps[NUM_MOTORS] = angles[6];
+#ifdef DEBUG_anglesToSteps
   Serial.print("J=");  Serial.print(J0);
   Serial.print('\t');  Serial.print(J1);
   Serial.print('\t');  Serial.print(J2);
@@ -130,12 +130,7 @@ char Parser::checkLineNumberAndCRCisOK() {
   for (i = strlen(serialBuffer) - 1; i >= 0; --i) {
     if (serialBuffer[i] == '*') {
       // yes!
-      break;
-    }
-  }
-
-  if (i >= 0) {
-    // yes.  is it valid?
+      // yes.  is it valid?
     char checksum = 0;
     int c;
     for (c = 0; c < i; ++c) {
@@ -151,12 +146,9 @@ char Parser::checkLineNumberAndCRCisOK() {
     
     // remove checksum
     serialBuffer[i] = 0;
-  } else {
-    Serial.print(F("NOCHECKSUM "));
-    Serial.println(lineNumber);
-    return 0;
+    break;
+    }
   }
-
   return 1;  // ok!
 }
 
@@ -423,7 +415,7 @@ void Parser::D18() {
   }
 
   int32_t steps[NUM_MOTORS];
-  IK(angles,steps);
+  anglesToSteps(angles,steps);
   
   for(ALL_SENSORS(i)) {
     motors[i].angleTarget = angles[i];
@@ -458,7 +450,7 @@ void Parser::G01() {
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
   }
   
-  IK(angles,steps);
+  anglesToSteps(angles,steps);
 
   //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
   
