@@ -334,12 +334,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 
 	public void saveWorldToFile(String filename) {
-		saveWorldToFileJSON(filename);
+		saveEntityToFileJSON(filename,scene);
 		//saveWorldToFileSerializable(filename);
 	}
 	
 	public void loadWorldFromFile(String filename) {
-		loadWorldFromFileJSON(filename);
+		scene = (Scene)loadEntityFromFileJSON(filename);
 		//loadWorldFromFileSerializable(filename);
 	}
 
@@ -354,10 +354,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		return om;
 	}
 	
-	public void saveWorldToFileJSON(String filename) {
+	public void saveEntityToFileJSON(String filename,Entity ent) {
 		ObjectMapper om = getObjectMapper();
 		try {
-			om.writeValue(new File(filename), scene);
+			om.writeValue(new File(filename), ent);
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -367,10 +367,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		}
 	}
 
-	public void loadWorldFromFileJSON(String filename) {
+	public Entity loadEntityFromFileJSON(String filename) {
 		ObjectMapper om = getObjectMapper();
+		Entity ent = null;
 		try {
-			scene = (Scene)om.readValue(new File(filename), Scene.class);
+			ent = (Scene)om.readValue(new File(filename), Scene.class);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -378,6 +379,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return ent;
 	}
 	
 	/**

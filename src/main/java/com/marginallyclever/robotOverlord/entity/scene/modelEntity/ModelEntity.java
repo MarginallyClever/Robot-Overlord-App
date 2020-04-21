@@ -220,6 +220,12 @@ public class ModelEntity extends PoseEntity {
 		return material;
 	}
 
+	public void setMaterial(MaterialEntity m) {
+		if(m==null) return;  // bounce the null materials outta here!
+		
+		material = m;
+	}
+	
 	public Model getModel() {
 		return model;
 	}

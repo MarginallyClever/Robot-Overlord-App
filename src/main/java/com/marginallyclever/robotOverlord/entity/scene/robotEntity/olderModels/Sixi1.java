@@ -9,6 +9,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 
@@ -53,28 +54,31 @@ public class Sixi1 extends PoseEntity {
 		// tilt
 		live.links.get(1).setName("Y");
 		live.links.get(1).setRangeMin(-72);
-		live.links.get(1).setTheta(90);
+		live.links.get(1).setTheta(90-11.3);
 		live.links.get(1).setAlpha(0);
-		live.links.get(1).setR(25);
+		live.links.get(1).setR(25.4951);
 		live.links.get(1).setRangeMax(180);
 		live.links.get(1).setRangeMin(0);
 		
 		// tilt
 		live.links.get(2).setName("Z");
 		live.links.get(2).setD(0);
-		live.links.get(2).setR(0);
-		live.links.get(2).setTheta(90);
+		live.links.get(2).setR(20.6155);
+		live.links.get(2).setTheta(180-154.7);
 		live.links.get(2).setAlpha(90);
-		live.links.get(2).setRangeMin(-83.369+90);
-		live.links.get(2).setRangeMax(86+90);
+		live.links.get(2).setRangeMin(36-180);
+		live.links.get(2).setRangeMax(36);
+		live.links.get(2).flags = LinkAdjust.ALL;
 		
 		// roll
 		live.links.get(3).setName("U");
-		live.links.get(3).setAlpha(90);
-		live.links.get(3).setD(20);
+		live.links.get(3).setAlpha(180-166);
+		live.links.get(3).setD(0);
 		live.links.get(3).setR(0);
+		live.links.get(3).setTheta(-90);
 		live.links.get(3).setRangeMin(-90);
 		live.links.get(3).setRangeMax(90);
+		live.links.get(3).flags = LinkAdjust.ALL;
 
 		// tilt
 		live.links.get(4).setName("V");
@@ -92,7 +96,7 @@ public class Sixi1 extends PoseEntity {
 		live.links.get(5).setRangeMin(-90);
 		live.links.get(5).setRangeMax(90);
 
-		boolean attach=true;
+		boolean attach=false;
 		if(attach) {
 			live.links.get(0).setModelFilename("/Sixi/shoulder.obj");
 			live.links.get(1).setModelFilename("/Sixi/bicep.obj");

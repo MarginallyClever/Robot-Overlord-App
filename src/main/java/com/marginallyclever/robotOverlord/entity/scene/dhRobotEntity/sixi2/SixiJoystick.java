@@ -21,6 +21,8 @@ public class SixiJoystick extends ModelEntity {
 	
 	private RemoteEntity connection = new RemoteEntity();
 	private ReentrantLock lock = new ReentrantLock();
+
+	DHKeyframe [] keyframeSamples = new DHKeyframe[10];  // more samples = slower response but smoother results.
 	
 	DHKeyframe keyframe;
 	
@@ -53,20 +55,40 @@ public class SixiJoystick extends ModelEntity {
 					String message = (String)obj;
 					//System.out.println("JOY: "+message.trim());
 					
+					int i,j;
+					
 					if(keyframe==null) {
 						keyframe = target.sim.getIKSolver().createDHKeyframe();
+						for(j=0;j<keyframeSamples.length;++j) {
+							keyframeSamples[j]= target.sim.getIKSolver().createDHKeyframe();
+						}
+					}
+					// age the samples
+					for(j=1;j<keyframeSamples.length;++j) {
+						keyframeSamples[j-1].set(keyframeSamples[j]);
 					}
 
 					StringTokenizer tokenizer = new StringTokenizer(message);
 					if(tokenizer.countTokens()<keyframe.fkValues.length) return;
 					
-					for(int i=0;i<keyframe.fkValues.length;++i) {
+					// update the last sample
+					j=keyframeSamples.length-1;
+					for(i=0;i<keyframe.fkValues.length;++i) {
 						double d = StringHelper.parseNumber(tokenizer.nextToken());
-						keyframe.fkValues[i]=d;//Math.max(Math.min(d,180),-180);
+						keyframeSamples[j].fkValues[i]=d;//Math.max(Math.min(d,180),-180);
 					}
-					keyframe.fkValues[1]*=-1;
-					keyframe.fkValues[4]*=-1;
-					keyframe.fkValues[1]-=90;
+					keyframeSamples[j].fkValues[1]*=-1;
+					keyframeSamples[j].fkValues[4]*=-1;
+					keyframeSamples[j].fkValues[1]-=90;
+					
+					// update the average
+					for(i=0;i<keyframe.fkValues.length;++i) {
+						keyframe.fkValues[i] = 0;
+						for(j=1;j<keyframeSamples.length;++j) {
+							keyframe.fkValues[i] += keyframeSamples[j].fkValues[i];
+						}
+						keyframe.fkValues[i] /= keyframeSamples.length;
+					}
 				}
 			}
 			finally {

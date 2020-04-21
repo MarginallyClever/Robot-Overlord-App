@@ -6,6 +6,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
@@ -34,6 +35,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
 	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
 	public DHLink endEffector = new Sixi2LinearGripper();
+	public PoseEntity endEffectorTarget = new PoseEntity();
 
 	// set this to false before running the app and the model will not attach to the DHLinks.
 	// this is convenient for setting up the DHLinks with less visual confusion.
@@ -146,7 +148,10 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 			}
 		}
-		links.get(4).setTheta(20);
+
+		endEffectorTarget.setName("End Effector Target");
+		addChild(endEffectorTarget);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 	
 	/**
@@ -205,7 +210,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		getPoseFK(oldPoseFK);
 		
 		setPoseFK(keyframe);
-		Matrix4d T = endEffector.getPoseWorld();
+		Matrix4d T = endEffectorTarget.getPoseWorld();
 		
 		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
 		int i=0;
@@ -217,7 +222,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			newPoseFK.set(keyframe);
 			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 			setPoseFK(newPoseFK);
-			Matrix4d Tnew = endEffector.getPoseWorld();
+			// Tnew will be different from T because of the changes in setPoseFK().
+			Matrix4d Tnew = endEffectorTarget.getPoseWorld();
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)

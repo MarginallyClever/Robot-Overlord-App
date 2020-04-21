@@ -80,13 +80,9 @@ public class PoseEntity extends Entity {
 			MatrixHelper.applyMatrix(gl2, pose.get());
 
 			// helpful info
-			if(showBoundingBox.get()) {
-				cuboid.render(gl2);
-			}
-			if(showLocalOrigin.get()) {
-				PrimitiveSolids.drawStar(gl2,10);
-			}
-			renderLineage(gl2);
+			if(showBoundingBox.get()) cuboid.render(gl2);
+			if(showLocalOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
+			if(showLineage.get()) renderLineage(gl2);
 			
 			// draw children relative to parent
 			for(Entity e : children ) {
@@ -97,30 +93,33 @@ public class PoseEntity extends Entity {
 		gl2.glPopMatrix();
 	}
 	
-	protected void renderLineage(GL2 gl2) {
-		if(!showLineage.get()) return;
-		
+	public void renderLineage(GL2 gl2) {
 		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+		
+		boolean isTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
 
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-		gl2.glDepthFunc(GL2.GL_ALWAYS);
+		gl2.glDepthFunc(GL2.GL_NEVER);
 
+		gl2.glColor4d(1,1,1,1);
+		gl2.glBegin(GL2.GL_LINES);
 		// connection to children
 		for(Entity e : children ) {
 			if(e instanceof PoseEntity) {					
-				gl2.glColor3d(255, 255, 255);
 				Vector3d p = ((PoseEntity)e).getPosition();
-				gl2.glBegin(GL2.GL_LINES);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(p.x,p.y,p.z);
-				gl2.glEnd();
 			}
 		}
+		gl2.glEnd();
 
 		gl2.glDepthFunc(depthFunc.get());
-		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		if(isTex) gl2.glDisable(GL2.GL_TEXTURE_2D);
 	}
 
 	public Vector3d getPosition() {
@@ -196,6 +195,9 @@ public class PoseEntity extends Entity {
 		pose.set(arg0);
 		
 		updatePoseWorld();
+		
+		setChanged();
+		notifyObservers();
 	}
 	
 	/**

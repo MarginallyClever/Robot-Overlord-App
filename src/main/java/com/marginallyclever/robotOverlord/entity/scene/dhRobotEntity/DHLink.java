@@ -4,6 +4,7 @@ import java.util.Observable;
 
 import javax.vecmath.Matrix4d;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
@@ -57,10 +58,12 @@ public class DHLink extends ModelEntity {
 		}
 	};
 	
+	@JsonIgnore
 	public LinkAdjust flags;
 
 	// the gcode letter representing this link
 	public StringEntity letter = new StringEntity("Letter","");
+	
 	// length (mm) along previous Z to the common normal
 	public DoubleEntity d = new DoubleEntity("D");
 	// angle (degrees) about previous Z, from old X to new X
@@ -75,6 +78,7 @@ public class DHLink extends ModelEntity {
 	public DoubleEntity rangeMax = new DoubleEntity("Range max", 90.0);
 
 	public DoubleEntity maxTorque = new DoubleEntity("max torque (Nm)",Double.MAX_VALUE);	// not used yet
+	
 	public DoubleEntity maxAcceleration = new DoubleEntity("max accel (deg/s)",Double.MAX_VALUE);	// not used yet
 	
 	/*
@@ -86,6 +90,7 @@ public class DHLink extends ModelEntity {
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
 	public Matrix4dEntity inertia = new Matrix4dEntity();	// not used yet
 	*/
+	@JsonIgnore
 	protected DHRobotEntity robot;
 	
 	
@@ -438,15 +443,30 @@ public class DHLink extends ModelEntity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("DH","DHLink");
+
+		ViewElement vt, va, vd, vr;
+		if(flags==LinkAdjust.THETA) {
+			vt = view.addRange(theta,
+					(int)Math.floor(rangeMax.get()),
+					(int)Math.ceil(rangeMin.get()));
+		} else {
+			vt = view.add(theta);
+		}
 		
-		ViewElement vd = view.add(d);
-		ViewElement vt = view.addRange(theta,
-				(int)Math.floor(rangeMax.get()),
-				(int)Math.ceil(rangeMin.get()));
-		ViewElement vr = view.add(r);
-		ViewElement va = view.add(alpha);
+		if(flags==LinkAdjust.ALPHA) {
+			va = view.addRange(alpha,
+					(int)Math.floor(rangeMax.get()),
+					(int)Math.ceil(rangeMin.get()));
+		} else {
+			va = view.add(alpha);
+		}
+		
+		vd = view.add(d);
+		vr = view.add(r);
+		
 		ViewElement vMin = view.add(rangeMin);
 		ViewElement vMax = view.add(rangeMax);
+		
 		//*
 		// set the fields to be read only
 		// TODO make readable when designing new linkages
@@ -455,8 +475,8 @@ public class DHLink extends ModelEntity {
 		vr.setReadOnly(0==(flags.toInt() & LinkAdjust.R    .toInt()));
 		va.setReadOnly(0==(flags.toInt() & LinkAdjust.ALPHA.toInt()));
 		va.setReadOnly(0==(flags.toInt() & LinkAdjust.ALPHA.toInt()));
-		vMin.setReadOnly(true);
-		vMax.setReadOnly(true);
+		vMin.setReadOnly(flags!=LinkAdjust.ALL);
+		vMax.setReadOnly(flags!=LinkAdjust.ALL);
 		//*/
 		view.popStack();
 		
@@ -468,32 +488,20 @@ public class DHLink extends ModelEntity {
 		super.update(o, arg);
 		refreshPoseMatrix();
 	}
-
-	/**
-	 * TODO some better way to check which DHLink we're working with.  Matching by name is easy to break.
-	 * @return true if I am the end effector of a robot.
-	 */
-	public boolean isAnEndEffector() {
-		return (robot!=null) && ( this.getName().contentEquals("End Effector") );
-	}
 	
 	@Override
 	public void setPoseWorld(Matrix4d newPose) {
-		if( isAnEndEffector() ) {
-			robot.setPoseIK(newPose);
+		Matrix4d newRelativePose;
+		if(parent instanceof PoseEntity) {
+			PoseEntity pe = (PoseEntity)parent;
+			newRelativePose=pe.getPoseWorld();
+			newRelativePose.invert();
+			newRelativePose.mul(newPose);
 		} else {
-			Matrix4d newRelativePose;
-			if(parent instanceof PoseEntity) {
-				PoseEntity pe = (PoseEntity)parent;
-				newRelativePose=pe.getPoseWorld();
-				newRelativePose.invert();
-				newRelativePose.mul(newPose);
-			} else {
-				newRelativePose=newPose;
-			}
-			
-			setPose(newRelativePose);
+			newRelativePose=newPose;
 		}
+		
+		setPose(newRelativePose);
 	}
 
 	public void setDHRobot(DHRobotEntity robot) {
@@ -508,9 +516,7 @@ public class DHLink extends ModelEntity {
 	@Override
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
 		if( parent instanceof DHLink || parent instanceof DHRobotEntity ) {
-			if( isAnEndEffector() ) {			
-				return robot.isPoseIKSane(newWorldPose);
-			} else if( !this.getLetter().isEmpty() ) {
+			if( !this.getLetter().isEmpty() ) {
 				Matrix4d oldPose=poseWorld.get();
 				// we have newPose ...but is it something this DHLink could do?
 				// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.

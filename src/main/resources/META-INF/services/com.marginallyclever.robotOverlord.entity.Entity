@@ -2,6 +2,8 @@
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 # DHRobots
+com.marginallyclever.robotOverlord.entity.scene.robotEntity.DHBuilderApp
+
 com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.Sixi1
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.Arm3
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.GMF_M100

@@ -90,6 +90,7 @@ public class Sixi2Sim extends Sixi2Model {
 	    for( DHLink link : links ) {
 	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,1.0f);
 	    }
+		endEffectorTarget.addObserver(this);
 	}
 
 	@Override 
@@ -168,9 +169,8 @@ public class Sixi2Sim extends Sixi2Model {
 		        DHKeyframe newPose = solver.createDHKeyframe();
 		        newPose.set(poseFKTarget);
 		        setPoseFK(newPose);
-		        mTarget.set(endEffector.getPoseWorld());
+		        mTarget.set(endEffectorTarget.getPoseWorld());
 	        setPoseFK(oldPose);
-
 
 	        double travelS = dMax/(double)feedRate.get();
 	        
@@ -207,9 +207,13 @@ public class Sixi2Sim extends Sixi2Model {
 	
 	@Override
 	public void update(Observable obs, Object obj) {
-		if(obs == endEffector.poseWorld) {
-			setPoseIK(endEffector.getPoseWorld());
+		//if(obs == endEffector.poseWorld) {
+		//	setPoseIK(endEffector.getPoseWorld());
+		//}
+		if(obs==endEffectorTarget) {
+			this.setPoseIK(endEffectorTarget.getPoseWorld());
 		}
+		super.update(obs, obj);
 	}
 
 	protected void interpolateLinearFK(double dt) {
@@ -288,9 +292,9 @@ public class Sixi2Sim extends Sixi2Model {
 		
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
-		Matrix4d interpolatedMatrixNow = new Matrix4d();
+		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
+		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
 		Matrix4d interpolatedMatrixFuture = new Matrix4d();
-		MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
 		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
 
 		// get the translation force
@@ -313,11 +317,16 @@ public class Sixi2Sim extends Sixi2Model {
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
+		double[] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
+		
+		jacobianApplyForce(cartesianForce,dt);
+	}
+	
+	protected void jacobianApplyForce(double[] cartesianForce,double dt) {
 		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
 		getPoseFK(keyframe);
 		double[][] jacobian = approximateJacobian(keyframe);
 		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-		double[] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
 
 		double df = Math.sqrt(
 				cartesianForce[0] * cartesianForce[0] + 
@@ -326,7 +335,11 @@ public class Sixi2Sim extends Sixi2Model {
 				cartesianForce[3] * cartesianForce[3] +
 				cartesianForce[4] * cartesianForce[4] +
 				cartesianForce[5] * cartesianForce[5]);
-		if (df > 0.01) {
+		if (df <= 1e-5) {
+			System.out.println("Jacobian arrived early with "+(timeTarget-timeNow)+" remaining.");
+			// arrived at target early.  weird!
+			//readyForCommands=true;
+		} else {
 			// jvot = joint velocity over time
 			double[] jvot = new double[keyframe.fkValues.length];
 			
@@ -341,7 +354,7 @@ public class Sixi2Sim extends Sixi2Model {
 				}
 			}
 			
-			// scale jvot to within torqueMax
+			// scale jvot to within torqueMax of every joint
 			double scale=1;/*
 			for(j = 0; j < keyframe.fkValues.length; ++j) {
 				double maxT = links.get(j).maxTorque.get();
@@ -363,9 +376,9 @@ public class Sixi2Sim extends Sixi2Model {
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
 				mLive.set(endEffector.getPoseWorld());
-				System.out.println("ok");
+				//System.out.println("ok");
 			} else {
-				System.out.println("bad");
+				System.out.println("Jacobian insane");
 			}
 		}
 	}

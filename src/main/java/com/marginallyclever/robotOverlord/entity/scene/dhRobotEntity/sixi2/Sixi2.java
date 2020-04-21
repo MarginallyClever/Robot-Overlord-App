@@ -2,14 +2,12 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
@@ -91,7 +89,7 @@ public class Sixi2 extends PoseEntity {
 
 	public Sixi2Recording recording = new Sixi2Recording();
 
-	// are we live or simulated?
+	// are we live or simulated?  deep philosophical questions.
 	protected IntEntity operatingMode = new IntEntity("Operating mode",OperatingMode.SIM.toInt());
 	// are we trying to record the robot?
 	protected IntEntity controlMode = new IntEntity("Control mode",ControlMode.RECORD.toInt());
@@ -262,26 +260,6 @@ public class Sixi2 extends PoseEntity {
 		}
 
 		super.update(dt);
-	}
-
-	@Deprecated
-	public String getStatusMessage() {
-		String message = "";//super.getStatusMessage();
-		
-		Matrix4d pose=sim.endEffector.getPoseWorld();
-		Matrix3d m = new Matrix3d();
-		pose.get(m);
-		Vector3d v = MatrixHelper.matrixToEuler(m);
-		message +=
-				"Base @ "+this.getPosition().toString() + " Tip @ "
-				+" ("+StringHelper.formatDouble(pose.m03)
-				+", "+StringHelper.formatDouble(pose.m13)
-				+", "+StringHelper.formatDouble(pose.m23)
-				+") R("+StringHelper.formatDouble(Math.toDegrees(v.x))
-				+", "+StringHelper.formatDouble(Math.toDegrees(v.y))
-				+", "+StringHelper.formatDouble(Math.toDegrees(v.z))
-				+")";
-		return message;
 	}
 
 	/**

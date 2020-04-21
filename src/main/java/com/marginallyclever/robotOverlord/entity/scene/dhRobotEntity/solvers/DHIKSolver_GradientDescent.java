@@ -114,8 +114,9 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
 		this.robot = robot;
 		this.targetMatrix = targetMatrix;
-		this.endEffector = (DHLink)robot.findByPath("./X/Y/Z/U/V/W/End Effector");  // TODO get a better method of finding the end effector
-		assert(endEffector.isAnEndEffector()==true);
+		
+		// TODO get a better method of finding the end effector
+		this.endEffector = (DHLink)robot.findByPath("./X/Y/Z/U/V/W/End Effector");
 
 		// these need to be reset each run.
 		learningRate=0.125;

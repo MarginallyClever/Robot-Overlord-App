@@ -6,6 +6,7 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRemove;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
@@ -30,6 +31,10 @@ public class CommandRemoveEntity extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		Entity entity = ro.getPickedEntity();
+		if(entity==null) {
+			Log.error("RemoveEntity with no entity selected.");
+			return;
+		}
 		ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,entity) ) );
 	}
 }
