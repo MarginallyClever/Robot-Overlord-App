@@ -104,6 +104,7 @@ public:
   uint8_t enable_pin;
 
   // only a whole number of steps is possible.
+  int32_t stepsUpdated;
   int32_t stepsNow;
   int32_t stepsTarget;
   
@@ -115,7 +116,7 @@ public:
   
   // current error
   // PID values
-  float kp=5;
+  float kp=1.5;
   float ki=0.01;
   float kd=0.00001;
   
@@ -170,4 +171,3 @@ extern StepperMotor motors[NUM_MOTORS];
 #if NUM_SERVOS>0
 extern Servo servos[NUM_SERVOS];
 #endif
-

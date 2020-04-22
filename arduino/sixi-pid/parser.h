@@ -17,7 +17,6 @@ public:
   
   uint16_t motionFlags = 0;
 
-
   uint8_t hasGCode(char code);
   float parseNumber(char code, float val);
   char checkLineNumberAndCRCisOK();
@@ -38,6 +37,8 @@ public:
   void G01();  // G0/G1 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
   void G90();  // set absolute mode
   void G91();  // set relative mode
+
+  void anglesToSteps(const float *const angles, int32_t *steps);
   
   void ready();
   
