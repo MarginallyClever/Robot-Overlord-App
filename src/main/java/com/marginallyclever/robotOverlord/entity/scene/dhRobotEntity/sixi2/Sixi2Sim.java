@@ -88,7 +88,7 @@ public class Sixi2Sim extends Sixi2Model {
 	    
 	    // set blue
 	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,1.0f);
+	    	link.model.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,1.0f);
 	    }
 		endEffectorTarget.addObserver(this);
 	}

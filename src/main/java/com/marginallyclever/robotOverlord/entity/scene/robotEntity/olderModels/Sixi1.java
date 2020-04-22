@@ -98,12 +98,12 @@ public class Sixi1 extends PoseEntity {
 
 		boolean attach=false;
 		if(attach) {
-			live.links.get(0).setModelFilename("/Sixi/shoulder.obj");
-			live.links.get(1).setModelFilename("/Sixi/bicep.obj");
-			live.links.get(2).setModelFilename("/Sixi/elbow.obj");
-			live.links.get(3).setModelFilename("/Sixi/forearm.obj");
-			live.links.get(4).setModelFilename("/Sixi/wrist.obj");
-			live.links.get(5).setModelFilename("/Sixi/hand.obj");
+			live.links.get(0).model.setModelFilename("/Sixi/shoulder.obj");
+			live.links.get(1).model.setModelFilename("/Sixi/bicep.obj");
+			live.links.get(2).model.setModelFilename("/Sixi/elbow.obj");
+			live.links.get(3).model.setModelFilename("/Sixi/forearm.obj");
+			live.links.get(4).model.setModelFilename("/Sixi/wrist.obj");
+			live.links.get(5).model.setModelFilename("/Sixi/hand.obj");
 		} else {
 			addChild(new ModelEntity("/Sixi/shoulder.obj"));
 			addChild(new ModelEntity("/Sixi/bicep.obj"));
@@ -128,12 +128,12 @@ public class Sixi1 extends PoseEntity {
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<live.links.size();++i) {
 			DHLink bone=live.links.get(i);
-			if(bone.getModel()!=null) {
+			if(bone.model.getModel()!=null) {
 				Matrix4d iWP = bone.getPoseWorld();
 				iWP.invert();
-				bone.getModel().adjustMatrix(iWP);
-				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-				bone.getMaterial().setDiffuseColor(0.89f,0.0f,0.0f,1.0f);
+				bone.model.getModel().adjustMatrix(iWP);
+				bone.model.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+				bone.model.getMaterial().setDiffuseColor(0.89f,0.0f,0.0f,1.0f);
 			}
 		}
 		

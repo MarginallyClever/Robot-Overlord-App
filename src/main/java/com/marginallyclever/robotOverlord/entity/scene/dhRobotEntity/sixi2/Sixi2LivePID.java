@@ -152,7 +152,7 @@ public class Sixi2LivePID extends Sixi2Model {
 		
 		// set green
 	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(122f/255f,161/255f,128f/255f,1);
+	    	link.model.getMaterial().setDiffuseColor(122f/255f,161/255f,128f/255f,1);
 	    }
 	}
 

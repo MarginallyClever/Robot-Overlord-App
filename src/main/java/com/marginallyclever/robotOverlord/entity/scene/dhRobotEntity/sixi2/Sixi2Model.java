@@ -67,11 +67,17 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			ModelEntity part4 = new ModelEntity();	addChild(part4);	part4.setModelFilename("/Sixi2/tuningFork.obj");
 			ModelEntity part5 = new ModelEntity();	addChild(part5);	part5.setModelFilename("/Sixi2/picassoBox.obj");
 			ModelEntity part6 = new ModelEntity();	addChild(part6);	part6.setModelFilename("/Sixi2/hand.obj");
+		} else {
+			links.get(0).model.setModelFilename("/Sixi2/shoulder.obj");
+			links.get(1).model.setModelFilename("/Sixi2/bicep.obj");
+			links.get(2).model.setModelFilename("/Sixi2/forearm.obj");
+			links.get(3).model.setModelFilename("/Sixi2/tuningFork.obj");
+			links.get(4).model.setModelFilename("/Sixi2/picassoBox.obj");
+			links.get(5).model.setModelFilename("/Sixi2/hand.obj");
 		}
 		
 		// pan shoulder
 		links.get(0).setLetter("X");
-		if(ATTACH_MODELS) links.get(0).setModelFilename("/Sixi2/shoulder.obj");
 		links.get(0).setD(18.8452+0.9);
 		links.get(0).setTheta(0);
 		links.get(0).setR(0);
@@ -81,7 +87,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		
 		// tilt shoulder
 		links.get(1).setLetter("Y");
-		if(ATTACH_MODELS) links.get(1).setModelFilename("/Sixi2/bicep.obj");
 		links.get(1).setD(0);
 		links.get(1).setTheta(-90);
 		links.get(1).setR(35.796);
@@ -91,7 +96,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 		// tilt elbow
 		links.get(2).setLetter("Z");
-		if(ATTACH_MODELS) links.get(2).setModelFilename("/Sixi2/forearm.obj");
 		links.get(2).setD(0);
 		links.get(2).setTheta(0);
 		links.get(2).setR(6.4259);
@@ -101,7 +105,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	
 		// roll ulna
 		links.get(3).setLetter("U");
-		if(ATTACH_MODELS) links.get(3).setModelFilename("/Sixi2/tuningFork.obj");
 		links.get(3).setD(29.355+9.35);
 		links.get(3).setTheta(0);
 		links.get(3).setR(0);
@@ -111,7 +114,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	
 		// tilt picassoBox
 		links.get(4).setLetter("V");
-		if(ATTACH_MODELS) links.get(4).setModelFilename("/Sixi2/picassoBox.obj");
 		links.get(4).setD(0);
 		links.get(4).setTheta(0);
 		links.get(4).setR(0);
@@ -121,7 +123,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	
 		// roll hand
 		links.get(5).setLetter("W");
-		if(ATTACH_MODELS) links.get(5).setModelFilename("/Sixi2/hand.obj");
 		links.get(5).setTheta(0);
 		links.get(5).setD(5.795);
 		links.get(5).setR(0);
@@ -140,12 +141,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
-			if(bone.getModel()!=null) {
+			if(bone.model.getModel()!=null) {
 				Matrix4d iWP = bone.getPoseWorld();
 				iWP.m23 -= 0.9;
 				iWP.invert();
-				bone.getModel().adjustMatrix(iWP);
-				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+				bone.model.getModel().adjustMatrix(iWP);
+				bone.model.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 			}
 		}
 

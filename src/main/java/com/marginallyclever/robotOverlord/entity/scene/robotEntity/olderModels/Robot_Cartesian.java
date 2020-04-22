@@ -74,28 +74,28 @@ public class Robot_Cartesian extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 
 		try {
-			robot.links.get(0).setModelFilename("/Prusa i3 MK3/Prusa0.stl");
-			robot.links.get(1).setModelFilename("/Prusa i3 MK3/Prusa1.stl");
-			robot.links.get(2).setModelFilename("/Prusa i3 MK3/Prusa2.stl");
-			robot.links.get(3).setModelFilename("/Prusa i3 MK3/Prusa3.stl");
+			robot.links.get(0).model.setModelFilename("/Prusa i3 MK3/Prusa0.stl");
+			robot.links.get(1).model.setModelFilename("/Prusa i3 MK3/Prusa1.stl");
+			robot.links.get(2).model.setModelFilename("/Prusa i3 MK3/Prusa2.stl");
+			robot.links.get(3).model.setModelFilename("/Prusa i3 MK3/Prusa3.stl");
 
-			robot.links.get(0).setModelScale(0.1f);
-			robot.links.get(1).setModelScale(0.1f);
-			robot.links.get(2).setModelScale(0.1f);
-			robot.links.get(3).setModelScale(0.1f);
+			robot.links.get(0).model.setModelScale(0.1f);
+			robot.links.get(1).model.setModelScale(0.1f);
+			robot.links.get(2).model.setModelScale(0.1f);
+			robot.links.get(3).model.setModelScale(0.1f);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		robot.links.get(0).getModel().adjustRotation(new Vector3d(90,0,0));
-		robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,27.9,0));
-		robot.links.get(1).getModel().adjustOrigin(new Vector3d(11.2758,-8.422,0));
-		robot.links.get(1).getModel().adjustRotation(new Vector3d(0,-90,0));
-		robot.links.get(2).getModel().adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
-		robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
-		robot.links.get(3).getModel().adjustRotation(new Vector3d(-90,0,0));
-		robot.links.get(3).getModel().adjustOrigin(new Vector3d(0,-31.9,32.2679));	
+		robot.links.get(0).model.getModel().adjustRotation(new Vector3d(90,0,0));
+		robot.links.get(0).model.getModel().adjustOrigin(new Vector3d(0,27.9,0));
+		robot.links.get(1).model.getModel().adjustOrigin(new Vector3d(11.2758,-8.422,0));
+		robot.links.get(1).model.getModel().adjustRotation(new Vector3d(0,-90,0));
+		robot.links.get(2).model.getModel().adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
+		robot.links.get(2).model.getModel().adjustRotation(new Vector3d(0,0,90));
+		robot.links.get(3).model.getModel().adjustRotation(new Vector3d(-90,0,0));
+		robot.links.get(3).model.getModel().adjustOrigin(new Vector3d(0,-31.9,32.2679));	
 	}
 	
 	@Override

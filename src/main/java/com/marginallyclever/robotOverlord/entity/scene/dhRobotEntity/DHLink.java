@@ -18,7 +18,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends ModelEntity {
+public class DHLink extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -27,7 +27,7 @@ public class DHLink extends ModelEntity {
 	// Changes visual quality of angle range curve.  Must be a whole number >=2
 	// TODO should be in the view, not the model.
 	public final static double ANGLE_RANGE_STEPS=20;
-	
+
 	public enum LinkAdjust {
 		NONE (0x0,"None" ),
 		D    (0x1,"D"    ),
@@ -81,6 +81,8 @@ public class DHLink extends ModelEntity {
 	
 	public DoubleEntity maxAcceleration = new DoubleEntity("max accel (deg/s)",Double.MAX_VALUE);	// not used yet
 	
+	public ModelEntity model = new ModelEntity();
+	
 	/*
 	// dynamics are described in a 4x4 matrix
 	//     [ Ixx Ixy Ixz } XgM ]
@@ -113,7 +115,9 @@ public class DHLink extends ModelEntity {
 
 		addChild(maxAcceleration);
 		addChild(maxTorque);
-		
+
+		addChild(model);
+
 		flags=LinkAdjust.THETA;
 	}
 	
@@ -178,13 +182,13 @@ public class DHLink extends ModelEntity {
 	@Override
 	public void render(GL2 gl2) {
 		// preserve original material color
-		float [] diffuse = material.getDiffuseColor();
+		float [] diffuse = model.getMaterial().getDiffuseColor();
 		// change material color - more red when near angle limits 
 		setAngleColorByRange(gl2);
 		
 		super.render(gl2);
 		
-		material.setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
+		model.getMaterial().setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 	}
 	
 	/**
@@ -324,13 +328,13 @@ public class DHLink extends ModelEntity {
 		//gl2.glColor4d(safety,1-safety,0,0.5);
 //		float [] diffuse = {safety,1-safety,0,0};
 		
-		float [] original = material.getDiffuseColor();
+		float [] original = model.getMaterial().getDiffuseColor();
 		
 		original[0]+=safety;
 		original[1]-=safety;
 		original[2]-=safety;
 		
-		material.setDiffuseColor(original[0],original[1],original[2],original[3]);
+		model.getMaterial().setDiffuseColor(original[0],original[1],original[2],original[3]);
 	}
 	
 	public boolean hasAdjustableValue() {

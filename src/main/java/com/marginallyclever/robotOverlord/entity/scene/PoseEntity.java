@@ -7,6 +7,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -24,20 +25,27 @@ public class PoseEntity extends Entity {
 	
 	// unique ids for all objects in the world.  
 	// zero is reserved to indicate no object.
+	@JsonIgnore
 	static private int pickNameCounter=1;
 	// my unique id
+	@JsonIgnore
 	private int pickName;	
 	
 	// pose relative to my parent Entity.
 	public Matrix4dEntity pose = new Matrix4dEntity();
 	// pose relative to the world.
+	@JsonIgnore
 	public Matrix4dEntity poseWorld = new Matrix4dEntity();
 	
 	// physical limits
+	@JsonIgnore
 	public transient Cuboid cuboid = new Cuboid();
-	
+
+	@JsonIgnore
 	public transient BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
+	@JsonIgnore
 	public transient BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
+	@JsonIgnore
 	public transient BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
 

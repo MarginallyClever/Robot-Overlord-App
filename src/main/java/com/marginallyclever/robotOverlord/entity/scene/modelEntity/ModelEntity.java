@@ -12,6 +12,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
@@ -35,12 +36,16 @@ public class ModelEntity extends PoseEntity {
 	private static final long serialVersionUID = 5888928381757734702L;
 
 	// the pool of all models loaded
+	@JsonIgnore
 	private static LinkedList<Model> modelPool = new LinkedList<Model>();
 
 	// the model for this entity
+	@JsonIgnore
 	protected transient Model model;
 
 	protected StringEntity filename = new StringEntity("File","");
+	
+	@JsonIgnore
 	protected MaterialEntity material = new MaterialEntity();
 	
 	// model adjustments
@@ -48,9 +53,16 @@ public class ModelEntity extends PoseEntity {
 	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
 	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
 
+	@JsonIgnore
 	IntEntity numTriangles = new IntEntity("Triangles",0);
+	
+	@JsonIgnore
 	BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+	
+	@JsonIgnore
 	BooleanEntity hasColors = new BooleanEntity("Has colors",false);
+	
+	@JsonIgnore
 	BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 			
 	public ModelEntity() {
@@ -103,16 +115,16 @@ public class ModelEntity extends PoseEntity {
 		
 		try {
 			model = createModelFromFilename(newFilename);
-			model.adjustScale(scale.get());
-			model.adjustOrigin(originAdjust.get());
-			model.adjustRotation(rotationAdjust.get());
-			model.updateCuboid();
-
-			numTriangles.set(model.getNumTriangles());
-			hasNormals.set(model.hasNormals);
-			hasColors.set(model.hasColors);
-			hasUVs.set(model.hasUVs);
-					
+			if(model!=null) {
+				model.adjustScale(scale.get());
+				model.adjustOrigin(originAdjust.get());
+				model.adjustRotation(rotationAdjust.get());
+				model.updateCuboid();
+				numTriangles.set(model.getNumTriangles());
+				hasNormals.set(model.hasNormals);
+				hasColors.set(model.hasColors);
+				hasUVs.set(model.hasUVs);
+			}
 			// only change this after loading has completely succeeded.
 			this.filename.set(newFilename);
 		} catch (Exception e) {

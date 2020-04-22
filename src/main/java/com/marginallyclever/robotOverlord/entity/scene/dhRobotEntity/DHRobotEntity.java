@@ -211,11 +211,11 @@ public class DHRobotEntity extends PoseEntity {
 		
 		int size = links.size();
 		for (int i = 0; i < size; ++i) {
-			if (links.get(i).getModel() == null)
+			if (links.get(i).model.getModel() == null)
 				continue;
 
 			for (int j = i + 2; j < size; ++j) {
-				if (links.get(j).getModel() == null)
+				if (links.get(j).model.getModel() == null)
 					continue;
 
 				if (IntersectionTester.cuboidCuboid(

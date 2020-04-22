@@ -68,19 +68,19 @@ public class Robot_SCARA_NM extends RobotEntity {
 
 	public void setupModels(DHRobotEntity robot) {
 		try {
-			robot.links.get(0).setModelFilename("/SCARA_NM/Scara_base.stl");
-			robot.links.get(1).setModelFilename("/SCARA_NM/Scara_arm1.stl");
-			robot.links.get(2).setModelFilename("/SCARA_NM/Scara_arm2.stl");
-			robot.links.get(4).setModelFilename("/SCARA_NM/Scara_screw.stl");
+			robot.links.get(0).model.setModelFilename("/SCARA_NM/Scara_base.stl");
+			robot.links.get(1).model.setModelFilename("/SCARA_NM/Scara_arm1.stl");
+			robot.links.get(2).model.setModelFilename("/SCARA_NM/Scara_arm2.stl");
+			robot.links.get(4).model.setModelFilename("/SCARA_NM/Scara_screw.stl");
 			
-			robot.links.get(0).getModel().adjustOrigin(new Vector3d(-8,0,0));
-			robot.links.get(1).getModel().adjustOrigin(new Vector3d(-15,8,-13.784));
-			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,-90));
+			robot.links.get(0).model.getModel().adjustOrigin(new Vector3d(-8,0,0));
+			robot.links.get(1).model.getModel().adjustOrigin(new Vector3d(-15,8,-13.784));
+			robot.links.get(1).model.getModel().adjustRotation(new Vector3d(0,0,-90));
 
-			robot.links.get(2).getModel().adjustOrigin(new Vector3d(-13,8,-13.784));
-			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,-90));
+			robot.links.get(2).model.getModel().adjustOrigin(new Vector3d(-13,8,-13.784));
+			robot.links.get(2).model.getModel().adjustRotation(new Vector3d(0,0,-90));
 
-			robot.links.get(4).getModel().adjustOrigin(new Vector3d(-8,0,-13.784));
+			robot.links.get(4).model.getModel().adjustOrigin(new Vector3d(-8,0,-13.784));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

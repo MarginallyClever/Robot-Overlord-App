@@ -86,22 +86,22 @@ public class Robot_Phybot extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.links.get(0).setModelFilename("/Sixi/anchor.stl");
-			robot.links.get(1).setModelFilename("/Sixi/shoulder.stl");
-			robot.links.get(2).setModelFilename("/Sixi/bicep.stl");
-			robot.links.get(3).setModelFilename("/Sixi/elbow.stl");
-			robot.links.get(5).setModelFilename("/Sixi/forearm.stl");
-			robot.links.get(6).setModelFilename("/Sixi/wrist.stl");
-			robot.links.get(7).setModelFilename("/Sixi/hand.stl");
+			robot.links.get(0).model.setModelFilename("/Sixi/anchor.stl");
+			robot.links.get(1).model.setModelFilename("/Sixi/shoulder.stl");
+			robot.links.get(2).model.setModelFilename("/Sixi/bicep.stl");
+			robot.links.get(3).model.setModelFilename("/Sixi/elbow.stl");
+			robot.links.get(5).model.setModelFilename("/Sixi/forearm.stl");
+			robot.links.get(6).model.setModelFilename("/Sixi/wrist.stl");
+			robot.links.get(7).model.setModelFilename("/Sixi/hand.stl");
 
-			for( DHLink link : robot.links ) link.setModelScale(0.1f);
-			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0, 0, -25));
-			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0, -5, -25));
-			robot.links.get(2).getModel().adjustRotation(new Vector3d(-11.3,0,0));
+			for( DHLink link : robot.links ) link.model.setModelScale(0.1f);
+			robot.links.get(1).model.getModel().adjustOrigin(new Vector3d(0, 0, -25));
+			robot.links.get(2).model.getModel().adjustOrigin(new Vector3d(0, -5, -25));
+			robot.links.get(2).model.getModel().adjustRotation(new Vector3d(-11.3,0,0));
 			
-			robot.links.get(5).getModel().adjustOrigin(new Vector3d(0, 0, -60));
-			robot.links.get(6).getModel().adjustOrigin(new Vector3d(0, 0, -70));
-			robot.links.get(7).getModel().adjustOrigin(new Vector3d(0, 0, -74));
+			robot.links.get(5).model.getModel().adjustOrigin(new Vector3d(0, 0, -60));
+			robot.links.get(6).model.getModel().adjustOrigin(new Vector3d(0, 0, -70));
+			robot.links.get(7).model.getModel().adjustOrigin(new Vector3d(0, 0, -74));
 
 			Matrix4d rot = new Matrix4d();
 			Matrix4d rotX = new Matrix4d();
@@ -118,8 +118,8 @@ public class Robot_Phybot extends RobotEntity {
 			Vector3d adjustPos = new Vector3d(0, 5, -50);
 			pose.transform(adjustPos);
 			
-			robot.links.get(3).getModel().adjustOrigin(adjustPos);
-			robot.links.get(3).getModel().adjustRotation(new Vector3d(90, 0, 0));
+			robot.links.get(3).model.getModel().adjustOrigin(adjustPos);
+			robot.links.get(3).model.getModel().adjustRotation(new Vector3d(90, 0, 0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
