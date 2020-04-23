@@ -13,16 +13,16 @@ Parser parser;
 
 
 /**
- * Inverse Kinematics turns XY coordinates into step counts from each motor
- * This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java inverseKinematics()
- * @param angles the cartesian coordinate
- * @param steps a measure of each belt to that plotter position
+   Inverse Kinematics turns XY coordinates into step counts from each motor
+   This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java inverseKinematics()
+   @param angles the cartesian coordinate
+   @param steps a measure of each belt to that plotter position
 */
 void Parser::anglesToSteps(const float *const angles, int32_t *steps) {
   // each of the xyz motors are differential to each other.
   // to move only one motor means applying the negative of that value to the other two motors
 
-  // consider a two motor differential: 
+  // consider a two motor differential:
   // if x moves, subtract x from y.
   // if y moves, subtract y from x.
   // so for three axis,
@@ -39,17 +39,17 @@ void Parser::anglesToSteps(const float *const angles, int32_t *steps) {
   float J5 = -angles[5];  // hand  (G0 W*)
 
   // adjust for the wrist differential
-  J5 += (J4/NEMA17_CYCLOID_GEARBOX_RATIO)+(J3/NEMA17_CYCLOID_GEARBOX_RATIO);
-  J4 += (J3/NEMA17_CYCLOID_GEARBOX_RATIO);
-  
+  J5 += (J4 / NEMA17_CYCLOID_GEARBOX_RATIO) + (J3 / NEMA17_CYCLOID_GEARBOX_RATIO);
+  J4 += (J3 / NEMA17_CYCLOID_GEARBOX_RATIO);
+
   steps[0] = J0 * STEP_PER_DEGREES_0;  // ANCHOR
   steps[1] = J1 * STEP_PER_DEGREES_1;  // SHOULDER
   steps[2] = J2 * STEP_PER_DEGREES_2;  // ELBOW
   steps[3] = J3 * STEP_PER_DEGREES_3;  // ULNA
   steps[4] = J4 * STEP_PER_DEGREES_4;  // WRIST
   steps[5] = J5 * STEP_PER_DEGREES_5;  // HAND
-  
-//  steps[NUM_MOTORS] = angles[6];
+
+  //  steps[NUM_MOTORS] = angles[6];
 #ifdef DEBUG_anglesToSteps
   Serial.print("J=");  Serial.print(J0);
   Serial.print('\t');  Serial.print(J1);
@@ -63,7 +63,7 @@ void Parser::anglesToSteps(const float *const angles, int32_t *steps) {
 
 
 /**
-   Forward Kinematics - turns step counts into XY coordinates.  
+   Forward Kinematics - turns step counts into XY coordinates.
    This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java forwardKinematics()
    @param steps a measure of each belt to that plotter position
    @param angles the resulting cartesian coordinate
@@ -138,11 +138,13 @@ char Parser::checkLineNumberAndCRCisOK() {
       c++; // skip *
       int against = strtod(serialBuffer + c, NULL);
       if ( checksum != against ) {
-        Serial.print(F("BADCHECKSUM "));
-        Serial.println(lineNumber);
+        Serial.print(F("BADCHECKSUM calc="));
+        Serial.print(checksum);
+        Serial.print(F(" sent="));
+        Serial.println(against);
         return 0;
       }
-      
+
       // remove checksum
       serialBuffer[i] = 0;
       break;
@@ -164,17 +166,17 @@ void Parser::ready() {
 
 
 /**
- * process commands in the serial receive buffer
- */
+   process commands in the serial receive buffer
+*/
 void Parser::processCommand() {
-  if( serialBuffer[0] == '\0' || serialBuffer[0] == ';' ) return;  // blank lines
-  if(!checkLineNumberAndCRCisOK()) return; // message garbled
-  
+  if ( serialBuffer[0] == '\0' || serialBuffer[0] == ';' ) return; // blank lines
+  if (!checkLineNumberAndCRCisOK()) return; // message garbled
+
   // remove any trailing semicolon.
-  int last = strlen(serialBuffer)-1;
-  if( serialBuffer[last] == ';') serialBuffer[last]=0;
-  
-  if( !strncmp(serialBuffer, "UID", 3) ) {
+  int last = strlen(serialBuffer) - 1;
+  if ( serialBuffer[last] == ';') serialBuffer[last] = 0;
+
+  if ( !strncmp(serialBuffer, "UID", 3) ) {
     robot_uid = atoi(strchr(serialBuffer, ' ') + 1);
     eepromSaveUID();
   }
@@ -183,7 +185,7 @@ void Parser::processCommand() {
 
   // M commands
   cmd = parseNumber('M', -1);
-  switch(cmd) {
+  switch (cmd) {
     case 114:  M114();  break;
     case 206:  M206();  break;
     case 306:  M306();  break;
@@ -195,10 +197,10 @@ void Parser::processCommand() {
     default:   break;
   }
   if (cmd != -1) return; // M command processed, stop.
-  
+
   // D commands
   cmd = parseNumber('D', -1);
-  switch(cmd) {
+  switch (cmd) {
     case 10:  // get hardware version
       Serial.print(F("D10 V"));
       Serial.println(MACHINE_HARDWARE_VERSION);
@@ -215,7 +217,7 @@ void Parser::processCommand() {
   // G commands
   cmd = parseNumber('G', lastGcommand);
   lastGcommand = -1;
-  switch(cmd) {
+  switch (cmd) {
     case  0:
     case  1:
       lastGcommand = cmd;
@@ -230,7 +232,7 @@ void Parser::processCommand() {
 
 void Parser::update() {
   // listen for serial commands
-  while(Serial.available() > 0) {
+  while (Serial.available() > 0) {
     char c = Serial.read();
     Serial.print(c);
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
@@ -254,62 +256,62 @@ void Parser::update() {
 
 
 /**
- * M114
- * Print the current target position
- */
+   M114
+   Print the current target position
+*/
 void Parser::M114() {
   Serial.print(F("M114"));
-  for(ALL_MOTORS(i)) {
+  for (ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(motors[i].letter);
     Serial.print(motors[i].angleTarget);
   }
 
-//Serial.print(F(" F"));  Serial.print(feed_rate);
-//Serial.print(F(" A"));  Serial.print(acceleration);
+  //Serial.print(F(" F"));  Serial.print(feed_rate);
+  //Serial.print(F(" A"));  Serial.print(acceleration);
   Serial.println();
 }
 
 
 /**
- * M206 set home offsets
- */
+   M206 set home offsets
+*/
 void Parser::M206() {
   // cancel the current home offsets
-  for(ALL_MOTORS(i)) {
+  for (ALL_MOTORS(i)) {
     float angleHome = parseNumber( motors[i].letter, motors[i].angleHome );
-    motors[i].angleHome = max(min(angleHome,360),-360);
+    motors[i].angleHome = max(min(angleHome, 360), -360);
   }
 }
 
 
 /**
- * M306 adjust PID
- */
+   M306 adjust PID
+*/
 void Parser::M306() {
-  if(hasGCode('L')) {
-    int axis = parseNumber('L',0);
-    axis = max(min(axis,5),0);
-    
-      float p = parseNumber('P', motors[axis].kp );
-      float i = parseNumber('I', motors[axis].ki );
-      float d = parseNumber('D', motors[axis].kd );  // this only works as long as M codes are processed before D codes.
-    
+  if (hasGCode('L')) {
+    int axis = parseNumber('L', 0);
+    axis = max(min(axis, 5), 0);
+
+    float p = parseNumber('P', motors[axis].kp );
+    float i = parseNumber('I', motors[axis].ki );
+    float d = parseNumber('D', motors[axis].kd );  // this only works as long as M codes are processed before D codes.
+
     // disable global interrupts
     CRITICAL_SECTION_START();
-      motors[axis].setPID(p,i,d);
+    motors[axis].setPID(p, i, d);
     // enable global interrupts
     CRITICAL_SECTION_END();
-    
+
     // report values
     Serial.print("M306 ");
     Serial.print(motors[axis].letter);
     Serial.print(" = ");
-    Serial.print(p,6);
+    Serial.print(p, 6);
     Serial.print(",");
-    Serial.print(i,6);
+    Serial.print(i, 6);
     Serial.print(",");
-    Serial.print(d,6);
+    Serial.print(d, 6);
   }
 }
 
@@ -317,12 +319,12 @@ void Parser::M306() {
 void Parser::M428() {
   // cancel the current home offsets
   M502();
-  
+
   // read the sensor
   sensorUpdate();
-  
+
   // apply the new offsets
-  for(ALL_MOTORS(i)) {
+  for (ALL_MOTORS(i)) {
     motors[i].angleHome = sensorAngles[i];
   }
   D18();
@@ -343,7 +345,7 @@ void Parser::M501() {
 
 // M502 - reset the home offsets
 void Parser::M502() {
-  for(ALL_MOTORS(i)) {
+  for (ALL_MOTORS(i)) {
     motors[i].angleHome = 0;
   }
   D18();
@@ -353,7 +355,7 @@ void Parser::M502() {
 // M503 - report the home offsets
 void Parser::M503() {
   Serial.print(F("M503"));
-  for(ALL_MOTORS(i)) {
+  for (ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(motors[i].letter);
     Serial.print(motors[i].angleHome);
@@ -370,16 +372,16 @@ void Parser::M503() {
 
 
 /**
- * D17 report the 6 axis sensor values from the Sixi robot arm.
- */
+   D17 report the 6 axis sensor values from the Sixi robot arm.
+*/
 void Parser::D17() {
   Serial.print(F("D17"));
-  for(ALL_MOTORS(i)) {
+  for (ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(sensorAngles[i], 2);
   }
 
-#if NUM_SERVOS > 0 
+#if NUM_SERVOS > 0
   Serial.print(' ');
   Serial.print((float)servos[0].read(), 2);
 #endif
@@ -399,30 +401,30 @@ void Parser::D18() {
   float angles[NUM_SENSORS];
   int numSamples = 10;
 
-  for(ALL_SENSORS(i)) angles[i] = 0;
+  for (ALL_SENSORS(i)) angles[i] = 0;
 
   CRITICAL_SECTION_START();
 
-  for(int i = 0; i < numSamples; ++i) {
+  for (int i = 0; i < numSamples; ++i) {
     sensorUpdate();
-    for(ALL_SENSORS(j)) {
+    for (ALL_SENSORS(j)) {
       angles[j] += sensorAngles[j];
     }
   }
-  
-  for(ALL_SENSORS(i)) {
+
+  for (ALL_SENSORS(i)) {
     angles[i] /= (float)numSamples;
   }
 
   int32_t steps[NUM_MOTORS];
-  anglesToSteps(angles,steps);
-  
-  for(ALL_SENSORS(i)) {
+  anglesToSteps(angles, steps);
+
+  for (ALL_SENSORS(i)) {
     motors[i].angleTarget = angles[i];
     motors[i].stepsNow    = steps[i];
     motors[i].stepsTarget = steps[i];
   }
-  
+
   CRITICAL_SECTION_END();
 }
 
@@ -435,40 +437,40 @@ void Parser::D18() {
 
 
 /**
- * G0/G1 linear moves
- */
+   G0/G1 linear moves
+*/
 void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
 
-  
-  for(ALL_MOTORS(i)) {
+
+  for (ALL_MOTORS(i)) {
     float start = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
-    
+
     float parsed = (int32_t)floor(parseNumber( motors[i].letter, start ));
-    
+
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
   }
-  
-  anglesToSteps(angles,steps);
+
+  anglesToSteps(angles, steps);
 
   //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
-  
+
   CRITICAL_SECTION_START();
-  for(ALL_MOTORS(i)) {
-/*
-    Serial.println(motors[i].letter);
-    Serial.print("\tangleTarget0=");
-    Serial.println(motors[i].angleTarget);
-    Serial.print("\tstepsTarget0=");
-    Serial.println(motors[i].stepsTarget);
-    Serial.print("\tangleTarget1=");
-    Serial.println(angles[i]);
-    Serial.print("\tstepsTarget1=");
-    Serial.println(steps[i]);
-    Serial.print("\tstepsNow=");
-    Serial.println(motors[i].stepsNow);
-//*/
+  for (ALL_MOTORS(i)) {
+    /*
+        Serial.println(motors[i].letter);
+        Serial.print("\tangleTarget0=");
+        Serial.println(motors[i].angleTarget);
+        Serial.print("\tstepsTarget0=");
+        Serial.println(motors[i].stepsTarget);
+        Serial.print("\tangleTarget1=");
+        Serial.println(angles[i]);
+        Serial.print("\tstepsTarget1=");
+        Serial.println(steps[i]);
+        Serial.print("\tstepsNow=");
+        Serial.println(motors[i].stepsNow);
+      //*/
     motors[i].angleTarget = angles[i];
     motors[i].stepsTarget = steps[i];
   }
@@ -480,7 +482,7 @@ void Parser::G01() {
     float start  = (RELATIVE_MOVES ? 0 : initial);
     float parsed = (int32_t)floor(parseNumber( 'T', start ));
     float ending = (RELATIVE_MOVES ? initial : 0 ) + parsed;
-    ending = max(min(ending,180),0);
+    ending = max(min(ending, 180), 0);
     servos[0].write(floor(ending));
   }
 #endif
@@ -498,10 +500,10 @@ void Parser::G28() {
 }
 
 void Parser::G90() {
-  SET_BIT_ON(motionFlags,FLAG_RELATIVE);
+  SET_BIT_ON(motionFlags, FLAG_RELATIVE);
 }
 
 
 void Parser::G91() {
-  SET_BIT_OFF(motionFlags,FLAG_RELATIVE);
+  SET_BIT_OFF(motionFlags, FLAG_RELATIVE);
 }

@@ -70,8 +70,6 @@ public class Sixi2Live extends Sixi2Model {
 		if(lastCommandSent.equals(command)) return;
 		lastCommandSent = command;
 		
-		System.out.println(">>"+command);
-		
 		// build checksum
 		char checksum =0;
 		for(int i=0;i<command.length();++i) {
@@ -81,12 +79,23 @@ public class Sixi2Live extends Sixi2Model {
 		
 		// add "there is a checksum" (*) + the checksum + end-of-line character
 		command+='*'+Integer.toString(checkIt)+"\n";
+		
+		reportDataSent(command);
+		
 		// DO IT
 		connection.sendMessage(command);
 	    // while we wait for reply don't flood the robot with too much data. 
 	    readyForCommands=false;
 	}
 
+	public void reportDataSent(String msg) {
+		System.out.println(">>"+msg.trim());
+	}
+
+	public void reportDataReceived(String msg) {
+		System.out.println("<<"+msg.trim());
+	}
+	
 	@Override
 	public void update(Observable o, Object arg) {
 		super.update(o, arg);
@@ -105,6 +114,8 @@ public class Sixi2Live extends Sixi2Model {
 			String data = (String)arg;
 	
 			boolean unhandled=true;
+
+			reportDataReceived(data);
 			
 			// all other data should probably update model
 			if (data.startsWith("D17")) {
@@ -112,7 +123,6 @@ public class Sixi2Live extends Sixi2Model {
 					// strip the return character, if any
 					data = data.substring(0,data.length()-1);
 				}
-				//System.out.println("<<"+data);
 				
 				unhandled=false;
 				String[] tokens = data.split("\\s+");
