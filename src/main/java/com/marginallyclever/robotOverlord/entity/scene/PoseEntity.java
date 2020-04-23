@@ -102,16 +102,18 @@ public class PoseEntity extends Entity {
 	}
 	
 	public void renderLineage(GL2 gl2) {
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
-		
 		boolean isTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 
+		// save the lighting mode
+		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_LIGHTING);
+
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-		gl2.glDepthFunc(GL2.GL_NEVER);
+		gl2.glDepthFunc(GL2.GL_ALWAYS);
+		//boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		//gl2.glDisable(GL2.GL_DEPTH_TEST);
 
 		gl2.glColor4d(1,1,1,1);
 		gl2.glBegin(GL2.GL_LINES);
@@ -125,8 +127,10 @@ public class PoseEntity extends Entity {
 		}
 		gl2.glEnd();
 
+		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthFunc(depthFunc.get());
-		if(isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		// restore lighting
+		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(isTex) gl2.glDisable(GL2.GL_TEXTURE_2D);
 	}
 

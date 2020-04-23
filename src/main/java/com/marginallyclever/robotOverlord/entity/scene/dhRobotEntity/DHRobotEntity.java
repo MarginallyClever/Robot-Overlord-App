@@ -183,7 +183,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(!keyframeAnglesAreOK(keyframe)) {
 			if(VERBOSE) System.out.println("Bad angles");
 			return false;
-		}
+		}/*
 		if(collidesWithSelf(keyframe)) {
 			if(VERBOSE) System.out.println("Collides with self");
 			return false;
@@ -191,7 +191,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(collidesWithWorld(keyframe))	{
 			if(VERBOSE) System.out.println("Collides with world");
 			return false;
-		}
+		}*/
 		return true;
 	}
 		
@@ -211,11 +211,11 @@ public class DHRobotEntity extends PoseEntity {
 		
 		int size = links.size();
 		for (int i = 0; i < size; ++i) {
-			if (links.get(i).model.getModel() == null)
+			if (links.get(i).getModel() == null)
 				continue;
 
 			for (int j = i + 2; j < size; ++j) {
-				if (links.get(j).model.getModel() == null)
+				if (links.get(j).getModel() == null)
 					continue;
 
 				if (IntersectionTester.cuboidCuboid(
@@ -261,7 +261,7 @@ public class DHRobotEntity extends PoseEntity {
 		// move to the future key
 		setPoseFK(futureKey);
 		// test for intersection
-		boolean result = scene.collisionTest((PoseEntity)parent);
+		boolean result = scene.collisionTest((PoseEntity)this);
 		// clean up and report results
 		setPoseFK(originalKey);
 		return result;
@@ -389,6 +389,7 @@ public class DHRobotEntity extends PoseEntity {
 					(int)Math.ceil(link.rangeMin.get()));
 		}
 		view.popStack();
+		super.getView(view);
 	}
 
 	// recursively set for all children

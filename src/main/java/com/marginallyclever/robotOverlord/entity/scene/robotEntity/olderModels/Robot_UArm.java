@@ -77,23 +77,23 @@ public class Robot_UArm extends RobotEntity {
 	
 	public void setupModels(DHRobotEntity robot) {
 		try {
-			robot.links.get(0).model.setModelFilename("/uArm/base.STL");
-			robot.links.get(1).model.setModelFilename("/uArm/shoulder.STL");
-			robot.links.get(2).model.setModelFilename("/uArm/bicep.STL");
-			robot.links.get(3).model.setModelFilename("/uArm/forearm.STL");
-			robot.links.get(4).model.setModelFilename("/uArm/wrist.STL");
-			robot.links.get(5).model.setModelFilename("/uArm/hand.STL");	
+			robot.links.get(0).setModelFilename("/uArm/base.STL");
+			robot.links.get(1).setModelFilename("/uArm/shoulder.STL");
+			robot.links.get(2).setModelFilename("/uArm/bicep.STL");
+			robot.links.get(3).setModelFilename("/uArm/forearm.STL");
+			robot.links.get(4).setModelFilename("/uArm/wrist.STL");
+			robot.links.get(5).setModelFilename("/uArm/hand.STL");	
 			
-			robot.links.get(0).model.getModel().adjustOrigin(new Vector3d(0,0,1.65f));
-			robot.links.get(1).model.getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
-			robot.links.get(1).model.getModel().adjustRotation(new Vector3d(0,0,-180));
-			robot.links.get(2).model.getModel().adjustOrigin(new Vector3d(-0.25f,0,1.65f));
-			robot.links.get(2).model.getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(3).model.getModel().adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
-			robot.links.get(3).model.getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(4).model.getModel().adjustOrigin(new Vector3d(-0.25f,0,0));
-			robot.links.get(4).model.getModel().adjustRotation(new Vector3d(-90,0,90));
-			robot.links.get(5).model.getModel().adjustRotation(new Vector3d(0,-90,90));
+			robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,0,1.65f));
+			robot.links.get(1).getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
+			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,-180));
+			robot.links.get(2).getModel().adjustOrigin(new Vector3d(-0.25f,0,1.65f));
+			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(3).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
+			robot.links.get(3).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.links.get(4).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));
+			robot.links.get(4).getModel().adjustRotation(new Vector3d(-90,0,90));
+			robot.links.get(5).getModel().adjustRotation(new Vector3d(0,-90,90));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

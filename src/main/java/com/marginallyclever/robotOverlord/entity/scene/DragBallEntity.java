@@ -316,14 +316,13 @@ public class DragBallEntity extends PoseEntity {
 				}
 
 				double da=valueNow - valueStart;
+				if(snapOn.get()) {
+					// round to nearest 5 degrees
+					da = Math.toDegrees(da);
+					da = Math.signum(da)*Math.round(Math.abs(da)/5.0)*5.0;
+					da = Math.toRadians(da);
+				}
 				if(da!=0) {
-					if(snapOn.get()) {
-						// round to nearest 5 degrees
-						da = Math.toDegrees(da);
-						da = Math.signum(da)*Math.round(Math.abs(da)/5.0)*5.0;
-						da = Math.toRadians(da);
-					}
-
 					switch(nearestPlane) {
 					case X: rollX(da);	break;
 					case Y: rollY(da);	break;
@@ -441,12 +440,11 @@ public class DragBallEntity extends PoseEntity {
 			}
 			
 			double dp = valueNow - valueStart;
+			if(snapOn.get()) {
+				// round to nearest mm
+				dp = Math.signum(dp)*Math.round(Math.abs(dp)/1.0)*1.0;
+			}
 			if(dp!=0) {
-				if(snapOn.get()) {
-					// round to nearest mm
-					dp = Math.signum(dp)*Math.round(Math.abs(dp)/1.0)*1.0;
-				}
-
 				switch(majorAxis) {
 				case X: translate(MatrixHelper.getXAxis(FOR), dp);	break;
 				case Y: translate(MatrixHelper.getYAxis(FOR), dp);	break;

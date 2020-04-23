@@ -1,8 +1,10 @@
 {
-  "d" : 20.0,
+  "d" : 0.0,
   "t" : 0.0,
   "r" : 0.0,
-  "a" : 90.0,
+  "a" : -90.0,
+  "rmax" : 90,
+  "rmin" : -90,
   "letter" : "V",
   "modelFilename" : "C:\\Users\\Admin\\Documents\\GitHub\\Robot-Overlord\\src\\main\\resources\\Sixi\\V.obj"
 }

@@ -1,8 +1,10 @@
 {
   "d" : 0.0,
-  "t" : 78.7,
-  "r" : 25.495,
-  "a" : 0.0,
+  "t" : 101.3,
+  "r" : 5.0,
+  "a" : 90.0,
+  "rmax" : 110,
+  "rmin" : -80,
   "letter" : "Z",
   "modelFilename" : "C:\\Users\\Admin\\Documents\\GitHub\\Robot-Overlord\\src\\main\\resources\\Sixi\\Z.obj"
 }

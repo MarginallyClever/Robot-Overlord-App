@@ -212,12 +212,12 @@ public class ModelEntity extends PoseEntity {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose.get());
 
-			material.render(gl2);
 			if( model==null ) {
 				// draw placeholder
 				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
-				PrimitiveSolids.drawStar(gl2,3.0);
+				PrimitiveSolids.drawStar(gl2,15.0);
 			} else {
+				material.render(gl2);
 				model.render(gl2);
 			}
 		gl2.glPopMatrix();
@@ -236,6 +236,10 @@ public class ModelEntity extends PoseEntity {
 		if(m==null) return;  // bounce the null materials outta here!
 		
 		material = m;
+	}
+	
+	public void setModel(Model m) {
+		model = m;
 	}
 	
 	public Model getModel() {

@@ -22,10 +22,10 @@ public class DHTool_GoProCamera extends DHTool {
 		
 		refreshPoseMatrix();
 		
-		model.setModelFilename("/Sixi2/gopro/gopro.stl");
-		model.setModelScale(0.1f);
-		model.setModelOrigin(0, 0, 0.5);
-		model.setModelRotation(90, 90, 0);
+		setModelFilename("/Sixi2/gopro/gopro.stl");
+		setModelScale(0.1f);
+		setModelOrigin(0, 0, 0.5);
+		setModelRotation(90, 90, 0);
 		
 		// adjust the model's position and rotation.
 		this.setPosition(new Vector3d(50,0,50));

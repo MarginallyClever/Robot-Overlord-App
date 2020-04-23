@@ -290,6 +290,7 @@ public class Model {
 	
 	public void adjustMatrix(Matrix4d m) {
 		adjust.set(m);
+		isDirty=true;
 	}
 	
 	public void addNormal(float x,float y,float z) {

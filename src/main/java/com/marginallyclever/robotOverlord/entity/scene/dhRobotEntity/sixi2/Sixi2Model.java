@@ -68,12 +68,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			ModelEntity part5 = new ModelEntity();	addChild(part5);	part5.setModelFilename("/Sixi2/picassoBox.obj");
 			ModelEntity part6 = new ModelEntity();	addChild(part6);	part6.setModelFilename("/Sixi2/hand.obj");
 		} else {
-			links.get(0).model.setModelFilename("/Sixi2/shoulder.obj");
-			links.get(1).model.setModelFilename("/Sixi2/bicep.obj");
-			links.get(2).model.setModelFilename("/Sixi2/forearm.obj");
-			links.get(3).model.setModelFilename("/Sixi2/tuningFork.obj");
-			links.get(4).model.setModelFilename("/Sixi2/picassoBox.obj");
-			links.get(5).model.setModelFilename("/Sixi2/hand.obj");
+			links.get(0).setModelFilename("/Sixi2/shoulder.obj");
+			links.get(1).setModelFilename("/Sixi2/bicep.obj");
+			links.get(2).setModelFilename("/Sixi2/forearm.obj");
+			links.get(3).setModelFilename("/Sixi2/tuningFork.obj");
+			links.get(4).setModelFilename("/Sixi2/picassoBox.obj");
+			links.get(5).setModelFilename("/Sixi2/hand.obj");
 		}
 		
 		// pan shoulder
@@ -132,7 +132,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		
 		endEffector.setPosition(new Vector3d(0,0,0));
 		endEffector.setName("End Effector");
-		
 		links.get(links.size()-1).addChild(endEffector);
 		
 		// update this world pose and all my children's poses all the way down.
@@ -141,12 +140,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
-			if(bone.model.getModel()!=null) {
+			if(bone.getModel()!=null) {
 				Matrix4d iWP = bone.getPoseWorld();
 				iWP.m23 -= 0.9;
 				iWP.invert();
-				bone.model.getModel().adjustMatrix(iWP);
-				bone.model.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+				bone.getModel().adjustMatrix(iWP);
+				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 			}
 		}
 
