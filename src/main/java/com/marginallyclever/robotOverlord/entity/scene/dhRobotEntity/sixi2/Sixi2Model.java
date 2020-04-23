@@ -6,6 +6,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
@@ -34,6 +35,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
 	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
 	public DHLink endEffector = new Sixi2LinearGripper();
+	public PoseEntity endEffectorTarget = new PoseEntity();
 
 	// set this to false before running the app and the model will not attach to the DHLinks.
 	// this is convenient for setting up the DHLinks with less visual confusion.
@@ -53,8 +55,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		base.setName("Base");
 		base.setModelFilename("/Sixi2/anchor.obj");
 		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		base.getMaterial().setDiffuseColor(1, 1, 1, 1);
-		base.getMaterial().setAmbientColor(1, 1, 1, 1);
 		base.setModelOrigin(0, 0, 0.9);
 
 		// setup children
@@ -67,65 +67,71 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			ModelEntity part4 = new ModelEntity();	addChild(part4);	part4.setModelFilename("/Sixi2/tuningFork.obj");
 			ModelEntity part5 = new ModelEntity();	addChild(part5);	part5.setModelFilename("/Sixi2/picassoBox.obj");
 			ModelEntity part6 = new ModelEntity();	addChild(part6);	part6.setModelFilename("/Sixi2/hand.obj");
+		} else {
+			links.get(0).setModelFilename("/Sixi2/shoulder.obj");
+			links.get(1).setModelFilename("/Sixi2/bicep.obj");
+			links.get(2).setModelFilename("/Sixi2/forearm.obj");
+			links.get(3).setModelFilename("/Sixi2/tuningFork.obj");
+			links.get(4).setModelFilename("/Sixi2/picassoBox.obj");
+			links.get(5).setModelFilename("/Sixi2/hand.obj");
 		}
 		
 		// pan shoulder
 		links.get(0).setLetter("X");
-		if(ATTACH_MODELS) links.get(0).setModelFilename("/Sixi2/shoulder.obj");
 		links.get(0).setD(18.8452+0.9);
 		links.get(0).setTheta(0);
 		links.get(0).setR(0);
 		links.get(0).setAlpha(-90);
 		links.get(0).setRange(-120,120);
+		links.get(0).maxTorque.set(14.0); //Nm
 		
 		// tilt shoulder
 		links.get(1).setLetter("Y");
-		if(ATTACH_MODELS) links.get(1).setModelFilename("/Sixi2/bicep.obj");
 		links.get(1).setD(0);
 		links.get(1).setTheta(-90);
 		links.get(1).setR(35.796);
 		links.get(1).setAlpha(0);
 		links.get(1).setRange(-170,0);
+		links.get(1).maxTorque.set(40.0); //Nm
 
 		// tilt elbow
 		links.get(2).setLetter("Z");
-		if(ATTACH_MODELS) links.get(2).setModelFilename("/Sixi2/forearm.obj");
 		links.get(2).setD(0);
 		links.get(2).setTheta(0);
 		links.get(2).setR(6.4259);
 		links.get(2).setAlpha(-90);
 		links.get(2).setRange(-83.369, 86);
+		links.get(2).maxTorque.set(14.0); //Nm
 	
 		// roll ulna
 		links.get(3).setLetter("U");
-		if(ATTACH_MODELS) links.get(3).setModelFilename("/Sixi2/tuningFork.obj");
 		links.get(3).setD(29.355+9.35);
 		links.get(3).setTheta(0);
 		links.get(3).setR(0);
 		links.get(3).setAlpha(90);
 		links.get(3).setRange(-175, 175);
+		links.get(3).maxTorque.set(3.0); //Nm
 	
 		// tilt picassoBox
 		links.get(4).setLetter("V");
-		if(ATTACH_MODELS) links.get(4).setModelFilename("/Sixi2/picassoBox.obj");
 		links.get(4).setD(0);
 		links.get(4).setTheta(0);
 		links.get(4).setR(0);
 		links.get(4).setAlpha(-90);
 		links.get(4).setRange(-120, 120);
+		links.get(4).maxTorque.set(2.5); //Nm
 	
 		// roll hand
 		links.get(5).setLetter("W");
-		if(ATTACH_MODELS) links.get(5).setModelFilename("/Sixi2/hand.obj");
 		links.get(5).setTheta(0);
 		links.get(5).setD(5.795);
 		links.get(5).setR(0);
 		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
+		links.get(5).maxTorque.set(2.5); //Nm
 		
 		endEffector.setPosition(new Vector3d(0,0,0));
 		endEffector.setName("End Effector");
-		
 		links.get(links.size()-1).addChild(endEffector);
 		
 		// update this world pose and all my children's poses all the way down.
@@ -140,11 +146,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				iWP.invert();
 				bone.getModel().adjustMatrix(iWP);
 				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-				bone.getMaterial().setDiffuseColor(1, 1, 1, 1);
-				bone.getMaterial().setAmbientColor(1, 1, 1, 1);
 			}
 		}
-		links.get(4).setTheta(20);
+
+		endEffectorTarget.setName("End Effector Target");
+		addChild(endEffectorTarget);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 	
 	/**
@@ -203,7 +210,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		getPoseFK(oldPoseFK);
 		
 		setPoseFK(keyframe);
-		Matrix4d T = endEffector.getPoseWorld();
+		Matrix4d T = endEffectorTarget.getPoseWorld();
 		
 		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
 		int i=0;
@@ -215,7 +222,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			newPoseFK.set(keyframe);
 			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 			setPoseFK(newPoseFK);
-			Matrix4d Tnew = endEffector.getPoseWorld();
+			// Tnew will be different from T because of the changes in setPoseFK().
+			Matrix4d Tnew = endEffectorTarget.getPoseWorld();
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)

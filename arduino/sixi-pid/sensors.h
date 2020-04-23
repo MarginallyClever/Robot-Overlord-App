@@ -71,7 +71,7 @@
 extern uint8_t sensorPins[4*NUM_SENSORS];
 extern float sensorAngles[NUM_SENSORS];
 extern uint8_t positionErrorFlags;
-
+extern bool sensorReady;
 
 
 /**

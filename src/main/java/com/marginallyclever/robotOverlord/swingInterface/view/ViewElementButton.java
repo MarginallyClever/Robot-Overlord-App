@@ -32,6 +32,10 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 		field.setEnabled(!arg0);
 	}
 	
+	public void setText(String text) {
+		field.setText(text);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		setChanged();

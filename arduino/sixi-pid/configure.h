@@ -37,8 +37,8 @@
 
 #define TEST(NN,BB)         (NN & (1<<BB) == (1<<BB))
 #define SET_BIT(NN,BB,TF)   do { if(TF) SBI(NN,BB); else CBI(NN,BB); } while(0);
-#define SET_BIT(NN,BB)      SBI(NN,BB);
-#define UNSET_BIT(NN,BB)    CBI(NN,BB);
+#define SET_BIT_ON(NN,BB)   SBI(NN,BB);
+#define SET_BIT_OFF(NN,BB)  CBI(NN,BB);
 
 // serial comms
 #define BAUD    250000 // was 57600
@@ -58,6 +58,7 @@ FORCE_INLINE float capRotationDegrees(double arg0,double centerPoint) {
 #include "sensors.h"
 #include "clock.h"
 #include "parser.h"
+#include "dh_parameters.h"
 
 
 // Sanity checks

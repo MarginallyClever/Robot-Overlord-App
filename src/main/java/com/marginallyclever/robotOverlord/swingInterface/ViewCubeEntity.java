@@ -8,8 +8,10 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class ViewCubeEntity extends Entity {
 	/**
@@ -17,10 +19,12 @@ public class ViewCubeEntity extends Entity {
 	 */
 	private static final long serialVersionUID = 1L;
 	protected ModelEntity model = new ModelEntity();
+	protected DoubleEntity cubeSize = new DoubleEntity("size",6);
 	
     public ViewCubeEntity() {
     	super();
     	setName("ViewCube");
+    	addChild(cubeSize);
     	model.setModelFilename("/viewCube.obj");
     	model.getMaterial().setTextureFilename("/images/viewCube.png");
     	model.getMaterial().setDiffuseColor(1, 1, 1, 1);
@@ -42,34 +46,31 @@ public class ViewCubeEntity extends Entity {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glPushMatrix();
 			gl2.glLoadIdentity();
-			cameraView.renderShared(gl2);
+			cameraView.renderOrtho(gl2);
 			
+			double c = cubeSize.get();			
 			PoseEntity camera = cameraView.getAttachedTo();
 			Matrix4d m = camera.getPoseWorld();
 			Vector3d p = camera.getPosition();
 			Vector3d vx = MatrixHelper.getXAxis(m);
 			Vector3d vy = MatrixHelper.getYAxis(m);
 			Vector3d vz = MatrixHelper.getZAxis(m);
-			double fovRadians = Math.toRadians(cameraView.fieldOfView.get());
-			//System.out.println(Math.sin(fovRadians)+"\t"+Math.cos(fovRadians));
-			double ar = cameraView.getAspectRatio();
-			vz.scale((-cameraView.canvasHeight*2)*Math.cos(fovRadians));
-			vx.scale((cameraView.canvasWidth/2-20)*ar);
-			vy.scale((cameraView.canvasHeight/2-20));
+		
+			vz.scale(-100);
+			vx.scale(cameraView.canvasWidth /10 -c*2);
+			vy.scale(cameraView.canvasHeight/10 -c*2);
 			p.add(vx);
 			p.add(vy);
 			p.add(vz);
 			
 			gl2.glTranslated(p.x, p.y, p.z);
-			gl2.glScaled(30, 30, 30);
+			gl2.glScaled(c,c,c);
 
 	    	model.getMaterial().setLit(false);
 			model.render(gl2);
 
 			gl2.glDisable(GL2.GL_LIGHTING);
 			gl2.glDisable(GL2.GL_COLOR_MATERIAL);
-			gl2.glColor4d(1,1,1,1);
-			
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 			
 			// the big lines
@@ -85,5 +86,13 @@ public class ViewCubeEntity extends Entity {
 			gl2.glLineWidth(1);
 						
 		gl2.glPopMatrix();
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("VC", "View Cube");
+		view.add(cubeSize);
+		view.popStack();
+		super.getView(view);
 	}
 }

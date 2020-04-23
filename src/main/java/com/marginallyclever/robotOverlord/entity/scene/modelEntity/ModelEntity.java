@@ -12,6 +12,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
@@ -35,12 +36,16 @@ public class ModelEntity extends PoseEntity {
 	private static final long serialVersionUID = 5888928381757734702L;
 
 	// the pool of all models loaded
+	@JsonIgnore
 	private static LinkedList<Model> modelPool = new LinkedList<Model>();
 
 	// the model for this entity
+	@JsonIgnore
 	protected transient Model model;
 
 	protected StringEntity filename = new StringEntity("File","");
+	
+	@JsonIgnore
 	protected MaterialEntity material = new MaterialEntity();
 	
 	// model adjustments
@@ -48,9 +53,16 @@ public class ModelEntity extends PoseEntity {
 	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
 	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
 
+	@JsonIgnore
 	IntEntity numTriangles = new IntEntity("Triangles",0);
+	
+	@JsonIgnore
 	BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+	
+	@JsonIgnore
 	BooleanEntity hasColors = new BooleanEntity("Has colors",false);
+	
+	@JsonIgnore
 	BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 			
 	public ModelEntity() {
@@ -71,6 +83,11 @@ public class ModelEntity extends PoseEntity {
 		addChild(hasNormals);
 		addChild(hasColors);
 		addChild(hasUVs);
+	}
+	
+	public ModelEntity(String filename) {
+		this();
+		setModelFilename(filename);
 	}
 
 	public void set(ModelEntity b) {
@@ -98,16 +115,16 @@ public class ModelEntity extends PoseEntity {
 		
 		try {
 			model = createModelFromFilename(newFilename);
-			model.adjustScale(scale.get());
-			model.adjustOrigin(originAdjust.get());
-			model.adjustRotation(rotationAdjust.get());
-			model.updateCuboid();
-
-			numTriangles.set(model.getNumTriangles());
-			hasNormals.set(model.hasNormals);
-			hasColors.set(model.hasColors);
-			hasUVs.set(model.hasUVs);
-					
+			if(model!=null) {
+				model.adjustScale(scale.get());
+				model.adjustOrigin(originAdjust.get());
+				model.adjustRotation(rotationAdjust.get());
+				model.updateCuboid();
+				numTriangles.set(model.getNumTriangles());
+				hasNormals.set(model.hasNormals);
+				hasColors.set(model.hasColors);
+				hasUVs.set(model.hasUVs);
+			}
 			// only change this after loading has completely succeeded.
 			this.filename.set(newFilename);
 		} catch (Exception e) {
@@ -195,12 +212,12 @@ public class ModelEntity extends PoseEntity {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose.get());
 
-			material.render(gl2);
 			if( model==null ) {
 				// draw placeholder
 				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
-				PrimitiveSolids.drawStar(gl2,3.0);
+				PrimitiveSolids.drawStar(gl2,15.0);
 			} else {
+				material.render(gl2);
 				model.render(gl2);
 			}
 		gl2.glPopMatrix();
@@ -215,6 +232,16 @@ public class ModelEntity extends PoseEntity {
 		return material;
 	}
 
+	public void setMaterial(MaterialEntity m) {
+		if(m==null) return;  // bounce the null materials outta here!
+		
+		material = m;
+	}
+	
+	public void setModel(Model m) {
+		model = m;
+	}
+	
 	public Model getModel() {
 		return model;
 	}

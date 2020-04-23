@@ -1,19 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
@@ -95,7 +89,7 @@ public class Sixi2 extends PoseEntity {
 
 	public Sixi2Recording recording = new Sixi2Recording();
 
-	// are we live or simulated?
+	// are we live or simulated?  deep philosophical questions.
 	protected IntEntity operatingMode = new IntEntity("Operating mode",OperatingMode.SIM.toInt());
 	// are we trying to record the robot?
 	protected IntEntity controlMode = new IntEntity("Control mode",ControlMode.RECORD.toInt());
@@ -106,21 +100,16 @@ public class Sixi2 extends PoseEntity {
 	
 	public Sixi2() {
 		super();
-		setName("Sixi");
-
-		showBoundingBox.addObserver(this);
-		showLocalOrigin.addObserver(this);
-		showLineage.addObserver(this);
+		setName("Sixi 2");
+		
+		addChild(live);
+		addChild(sim);
 		
 		addChild(operatingMode);
 		addChild(controlMode);
 		
 		addChild(singleBlock);
 		addChild(cycleStart);
-		addChild(m01Break);
-		
-		addChild(live);
-		addChild(sim);
 		
 		singleBlock.addObserver(this);
 		cycleStart.addObserver(this);
@@ -273,26 +262,6 @@ public class Sixi2 extends PoseEntity {
 		super.update(dt);
 	}
 
-	@Deprecated
-	public String getStatusMessage() {
-		String message = "";//super.getStatusMessage();
-		
-		Matrix4d pose=sim.endEffector.getPoseWorld();
-		Matrix3d m = new Matrix3d();
-		pose.get(m);
-		Vector3d v = MatrixHelper.matrixToEuler(m);
-		message +=
-				"Base @ "+this.getPosition().toString() + " Tip @ "
-				+" ("+StringHelper.formatDouble(pose.m03)
-				+", "+StringHelper.formatDouble(pose.m13)
-				+", "+StringHelper.formatDouble(pose.m23)
-				+") R("+StringHelper.formatDouble(Math.toDegrees(v.x))
-				+", "+StringHelper.formatDouble(Math.toDegrees(v.y))
-				+", "+StringHelper.formatDouble(Math.toDegrees(v.z))
-				+")";
-		return message;
-	}
-
 	/**
 	 * @return a list of cuboids, or null.
 	 */
@@ -358,13 +327,11 @@ public class Sixi2 extends PoseEntity {
 	 * @param line command to send
 	 * @return true if the command is sent to the robot.
 	 */
-	public boolean sendCommand(String command) {
+	public void sendCommand(String command) {
 		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
 			live.sendCommand(command);
 		}
 		sim.sendCommand(command);
-
-		return true;
 	}
 
 	public String getCommand() {
@@ -456,54 +423,6 @@ public class Sixi2 extends PoseEntity {
 		recording.saveRecording(filename);
 	}
 
-	// recursively set for all children
-	public void setShowBoundingBox(boolean arg0) {
-		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim);
-		while( !next.isEmpty() ) {
-			PoseEntity link = next.pop();
-			link.showBoundingBox.set(arg0);
-			for( Entity child : link.getChildren() ) {
-				if( child instanceof PoseEntity ) {
-					next.add((PoseEntity)child);
-				}
-			}
-		}
-		this.showBoundingBox.set(arg0);
-	}
-	
-	// recursively set for all children
-	public void setShowLocalOrigin(boolean arg0) {
-		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim);
-		while( !next.isEmpty() ) {
-			PoseEntity link = next.pop();
-			link.showLocalOrigin.set(arg0);
-			for( Entity child : link.getChildren() ) {
-				if( child instanceof PoseEntity ) {
-					next.add((PoseEntity)child);
-				}
-			}
-		}
-		this.showLocalOrigin.set(arg0);
-	}
-
-	// recursively set for all children
-	public void setShowLineage(boolean arg0) {
-		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this.sim);
-		while( !next.isEmpty() ) {
-			PoseEntity link = next.pop();
-			link.showLineage.set(arg0);
-			for( Entity child : link.getChildren() ) {
-				if( child instanceof PoseEntity ) {
-					next.add((PoseEntity)child);
-				}
-			}
-		}
-		this.showLineage.set(arg0);
-	}
-
 	public void goHome() {
 	    // the home position
 		DHKeyframe homeKey = sim.getIKSolver().createDHKeyframe();
@@ -532,16 +451,6 @@ public class Sixi2 extends PoseEntity {
 		return recording.setCommandIndex(newIndex);
 	}
 	
-	/**
-	 * Something this Entity is observing has changed.  Deal with it!
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		if(o==showBoundingBox) setShowBoundingBox((boolean)arg);
-		if(o==showLocalOrigin) setShowLocalOrigin((boolean)arg);
-		if(o==showLineage) setShowLineage((boolean)arg);
-	}
-	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("S","Sixi");
@@ -551,10 +460,6 @@ public class Sixi2 extends PoseEntity {
 		view.add(singleBlock);
 		view.add(cycleStart);
 		view.add(m01Break);
-		
-		view.add(showBoundingBox);
-		view.add(showLocalOrigin);
-		view.add(showLineage);
 		
 		// TODO add sliders to adjust FK values?
 		/*

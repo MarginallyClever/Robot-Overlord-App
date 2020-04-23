@@ -361,7 +361,6 @@ public class PrimitiveSolids {
 
 		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthFunc(depthFunc.get());
-		
 		// restore lighting
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 		

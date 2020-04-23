@@ -41,7 +41,7 @@ public class SkyBoxEntity extends Entity {
 	
 	// Draw background
 	public void render(GL2 gl2,CameraEntity camera) {		
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
+		//gl2.glDisable(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		gl2.glEnable(GL2.GL_TEXTURE_2D);

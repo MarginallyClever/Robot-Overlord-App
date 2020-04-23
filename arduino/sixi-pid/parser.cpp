@@ -18,7 +18,7 @@ Parser parser;
  * @param angles the cartesian coordinate
  * @param steps a measure of each belt to that plotter position
 */
-void IK(const float *const angles, int32_t *steps) {
+void Parser::anglesToSteps(const float *const angles, int32_t *steps) {
   // each of the xyz motors are differential to each other.
   // to move only one motor means applying the negative of that value to the other two motors
 
@@ -49,8 +49,8 @@ void IK(const float *const angles, int32_t *steps) {
   steps[4] = J4 * STEP_PER_DEGREES_4;  // WRIST
   steps[5] = J5 * STEP_PER_DEGREES_5;  // HAND
   
-  steps[NUM_MOTORS] = angles[6];
-#ifdef DEBUG_IK
+//  steps[NUM_MOTORS] = angles[6];
+#ifdef DEBUG_anglesToSteps
   Serial.print("J=");  Serial.print(J0);
   Serial.print('\t');  Serial.print(J1);
   Serial.print('\t');  Serial.print(J2);
@@ -148,7 +148,7 @@ char Parser::checkLineNumberAndCRCisOK() {
       break;
     }
   }
-
+ 
   return 1;  // ok!
 }
 
@@ -415,7 +415,7 @@ void Parser::D18() {
   }
 
   int32_t steps[NUM_MOTORS];
-  IK(angles,steps);
+  anglesToSteps(angles,steps);
   
   for(ALL_SENSORS(i)) {
     motors[i].angleTarget = angles[i];
@@ -450,7 +450,7 @@ void Parser::G01() {
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
   }
   
-  IK(angles,steps);
+  anglesToSteps(angles,steps);
 
   //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
   
@@ -486,13 +486,22 @@ void Parser::G01() {
 #endif
 }
 
+void Parser::G28() {
+  CRITICAL_SECTION_START();
+  motors[0].angleTarget = DH_0_THETA;
+  motors[1].angleTarget = DH_1_THETA;
+  motors[2].angleTarget = DH_2_THETA;
+  motors[3].angleTarget = DH_3_THETA;
+  motors[4].angleTarget = DH_4_THETA;
+  motors[5].angleTarget = DH_5_THETA;
+  CRITICAL_SECTION_END();
+}
 
 void Parser::G90() {
-  SET_BIT(motionFlags,FLAG_RELATIVE);
+  SET_BIT_ON(motionFlags,FLAG_RELATIVE);
 }
 
 
 void Parser::G91() {
-  UNSET_BIT(motionFlags,FLAG_RELATIVE);
+  SET_BIT_OFF(motionFlags,FLAG_RELATIVE);
 }
-

@@ -4,6 +4,7 @@ import java.awt.Dimension;
 
 import javax.swing.JLabel;
 
+@Deprecated
 public class StatusBar extends JLabel {
 	static final long serialVersionUID=1;
 

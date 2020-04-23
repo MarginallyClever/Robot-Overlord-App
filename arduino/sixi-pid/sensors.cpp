@@ -9,7 +9,7 @@
 uint8_t sensorPins[4*NUM_SENSORS];
 float sensorAngles[NUM_SENSORS];
 uint8_t positionErrorFlags;
-
+bool sensorReady;
 
 /**
  * @param index the sensor to read
@@ -64,7 +64,9 @@ float extractAngleFromRawValue(uint16_t rawValue) {
  * Update sensorAngles with the latest values, adjust them by motors[i].angleHome, and cap them to [-180...180).
  */
 void sensorUpdate() {
+  sensorReady = false;
   uint16_t rawValue;
+  int32_t steps[NUM_MOTORS];
   float v;
   for(ALL_SENSORS(i)) {
     if(getSensorRawValue(i,rawValue)) continue;
@@ -81,4 +83,10 @@ void sensorUpdate() {
     while(v>=180) v-=360;
     sensorAngles[i] = v;
   }
+  parser.anglesToSteps(sensorAngles, steps);
+
+  for(ALL_SENSORS(i)){
+    motors[i].stepsUpdated = steps[i];
+  }
+    
 }
