@@ -35,6 +35,7 @@ public:
   //void D19();   // toggle continuous D17 reporting
   
   void G01();  // G0/G1 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
+  void G28();  // go home
   void G90();  // set absolute mode
   void G91();  // set relative mode
 

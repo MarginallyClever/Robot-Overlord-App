@@ -486,6 +486,16 @@ void Parser::G01() {
 #endif
 }
 
+void Parser::G28() {
+  CRITICAL_SECTION_START();
+  motors[0].angleTarget = DH_0_THETA;
+  motors[1].angleTarget = DH_1_THETA;
+  motors[2].angleTarget = DH_2_THETA;
+  motors[3].angleTarget = DH_3_THETA;
+  motors[4].angleTarget = DH_4_THETA;
+  motors[5].angleTarget = DH_5_THETA;
+  CRITICAL_SECTION_END();
+}
 
 void Parser::G90() {
   SET_BIT_ON(motionFlags,FLAG_RELATIVE);
