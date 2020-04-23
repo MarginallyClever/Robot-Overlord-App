@@ -230,6 +230,9 @@ public class Sixi2 extends PoseEntity {
 		}
 	}
 
+
+
+
 	@Override
 	public void update(double dt) {
 		//driveFromKeyState(dt);
