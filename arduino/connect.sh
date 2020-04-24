@@ -1,2 +1,2 @@
 #!/bin/bash
-picocom -b112500 /dev/ttyACM0
+picocom -b115200 /dev/ttyACM0
