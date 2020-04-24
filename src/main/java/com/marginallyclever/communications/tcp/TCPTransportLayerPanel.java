@@ -27,6 +27,7 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 	private static String userName = "pi";
 	private static String portNumber = "22";
 	private static String connectionName = "raspberrypi";
+	private static String lastPassword = "";
 	
 	TCPTransportLayerPanel(TCPTransportLayer tcpLayer) {
 		this.layer=tcpLayer;
@@ -39,17 +40,18 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 		this.add(new JLabel("Username"));
 		this.add(userField = new JTextField(userName));
 		this.add(new JLabel("Password"));
-		this.add(passwordField = new  JPasswordField());
+		this.add(passwordField = new JPasswordField());
 		
 		connectionField.setText(connectionName);
 		portField.setText(portNumber);
+		passwordField.setText(lastPassword);
 	}
 	
 	public NetworkConnection openConnection() {
 		connectionName = connectionField.getText();
 		portNumber = portField.getText();
 		userName = userField.getText();
-		String password = String.copyValueOf(passwordField.getPassword());
-		return layer.openConnection(userName+":"+password+"@"+connectionField.getText()+":"+portNumber);
+		lastPassword = String.copyValueOf(passwordField.getPassword());
+		return layer.openConnection(userName+":"+lastPassword+"@"+connectionField.getText()+":"+portNumber);
 	}
 }

@@ -205,6 +205,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	 * @return -1 if there was no error, otherwise the line number containing the error.
 	 */
 	protected int errorReported(String line) {
+		/*
 		if (line.lastIndexOf(NOCHECKSUM) != -1) {
 			String after_error = line.substring(line.lastIndexOf(NOCHECKSUM) + NOCHECKSUM.length());
 			String x = getNumberPortion(after_error);
@@ -238,7 +239,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 
 			return err;
 		}
-
+*/
 		return -1;
 	}
 
