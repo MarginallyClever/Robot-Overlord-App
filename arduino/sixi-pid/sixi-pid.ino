@@ -89,7 +89,7 @@ void setup() {
     // set the overflow clock to 0
     TCNT1  = 0;
     // set compare match register to desired timer count
-    OCR1A = 2000;  // set the next isr to fire at the right time.
+    OCR1A = 2000;  // set the next isr to fire every MIN_SEGMENT_TIME_US microseconds.
     // turn on CTC mode
     TCCR1B = (1 << WGM12);
     // Set 8x prescaler

@@ -126,30 +126,38 @@ char Parser::checkLineNumberAndCRCisOK() {
   }
 
   // is there a checksum?
+  int found=-1;
   int i;
   for (i = strlen(serialBuffer) - 1; i >= 0; --i) {
     if (serialBuffer[i] == '*') {
-      // yes.  is it valid?
-      char checksum = 0;
-      int c;
-      for (c = 0; c < i; ++c) {
-        checksum ^= serialBuffer[c];
-      }
-      c++; // skip *
-      int against = strtod(serialBuffer + c, NULL);
-      if ( checksum != against ) {
-        Serial.print(F("BADCHECKSUM calc="));
-        Serial.print(checksum);
-        Serial.print(F(" sent="));
-        Serial.println(against);
-        return 0;
-      }
-
-      // remove checksum
-      serialBuffer[i] = 0;
+      found=i;
       break;
     }
   }
+
+  if(found==-1) {
+    Serial.println("NOCHECKSUM");
+    return 0;
+  }
+  
+  // yes.  is it valid?
+  int checksum = 0;
+  int c;
+  for (c = 0; c < i; ++c) {
+    checksum = ( checksum ^ serialBuffer[c] ) & 0xFF;
+  }
+  c++; // skip *
+  int against = strtod(serialBuffer + c, NULL);
+  if ( checksum != against ) {
+    Serial.print("BADCHECKSUM calc=");
+    Serial.print(checksum);
+    Serial.print(" sent=");
+    Serial.println(against);
+    return 0;
+  }
+
+  // remove checksum
+  serialBuffer[i] = 0;
  
   return 1;  // ok!
 }

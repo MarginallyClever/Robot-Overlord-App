@@ -9,14 +9,14 @@
 
 uint8_t _sreg=0;
 
-static float STEP_PER_SECOND = (float)MIN_SEGMENT_TIME_US/1000000.0;
+static float STEP_PER_SECOND = (float)CLOCK_MAX_STEP_FREQUENCY;
 
 uint8_t isr_step_multiplier = 1;
 
 
 ISR(TIMER1_COMPA_vect) {
   // Disable interrupts, to avoid ISR preemption while we reprogram the period
-  //CRITICAL_SECTION_START();
+  CRITICAL_SECTION_START();
   
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
   //for( int j=0; j<isr_step_multiplier;++j ) {
@@ -26,5 +26,5 @@ ISR(TIMER1_COMPA_vect) {
   //}
 
   // Turn the interrupts back on (reduces UART delay, apparently)
-  //CRITICAL_SECTION_END();
+  CRITICAL_SECTION_END();
 }
