@@ -314,6 +314,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	 * @param src
 	 * @return the portion of the string that is actually a number
 	 */
+	@SuppressWarnings("unused")
 	private String getNumberPortion(String src) {
 		src = src.trim();
 		int length = src.length();

@@ -40,6 +40,7 @@
 #define SET_BIT_ON(NN,BB)   SBI(NN,BB);
 #define SET_BIT_OFF(NN,BB)  CBI(NN,BB);
 
+
 // serial comms
 #define BAUD    115200 // was 57600
 #define MAX_BUF 127

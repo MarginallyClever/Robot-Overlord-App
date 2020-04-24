@@ -124,8 +124,8 @@ public:
   float error_i;
   float error_last;
   
-  uint32_t timeSinceLastStep;
-  uint32_t stepInterval;
+  uint32_t timeSinceLastStep_us;
+  uint32_t stepInterval_us;
   float velocity;
 
   
@@ -139,8 +139,8 @@ public:
     error_i=0;
     error_last=0;
     
-    timeSinceLastStep=0;
-    stepInterval=0;
+    timeSinceLastStep_us=0;
+    stepInterval_us=0;
   }
 
   /**

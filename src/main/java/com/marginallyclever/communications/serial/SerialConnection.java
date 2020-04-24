@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.log.Log;
  */
 public final class SerialConnection extends NetworkConnection implements SerialPortEventListener {
 	private SerialPort serialPort;
-	private static final int BAUD_RATE = 57600;
+	private static int BAUD_RATE = 57600;
 
 	private TransportLayer transportLayer;
 	private String connectionName = "";
@@ -74,9 +74,19 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 		// open the port
 		try {
+			// is baud rate included?
+			int baud = BAUD_RATE;
+			int i = portName.indexOf("@");
+			if(i>=0) {
+				// isolate it
+				baud = Integer.parseInt(portName.substring(i+1));
+				// remove it so the serial stuff doesn't get confused by the name.
+				portName = portName.substring(0,i);
+			}
+
 			serialPort = new SerialPort(portName);
 			serialPort.openPort();// Open serial port
-			serialPort.setParams(BAUD_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+			serialPort.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 			serialPort.addEventListener(this);
 	
 			connectionName = portName;

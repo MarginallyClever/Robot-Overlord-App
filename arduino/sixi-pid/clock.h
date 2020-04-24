@@ -14,7 +14,7 @@
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
-#define CLOCK_MAX_STEP_FREQUENCY (300L)
+#define CLOCK_MAX_STEP_FREQUENCY (3000L)// was 240000L
 #define CLOCK_MIN_STEP_FREQUENCY (F_CPU/500000U)
 
 #define TIMEOUT_OK (1000)
@@ -172,3 +172,6 @@ static FORCE_INLINE unsigned short calc_timer(uint32_t desired_freq_hz, uint8_t*
   
   return timer;
 }
+
+extern void clockSetup();
+extern void clockISRProfile();

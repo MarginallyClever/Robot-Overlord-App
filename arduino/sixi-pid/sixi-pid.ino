@@ -81,36 +81,16 @@ void setup() {
   
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 
-  // disable global interrupts
-  CRITICAL_SECTION_START();
-  
-    // set entire TCCR1A register to 0
-    TCCR1A = 0;
-    // set the overflow clock to 0
-    TCNT1  = 0;
-    // set compare match register to desired timer count
-    OCR1A = 2000;  // set the next isr to fire every MIN_SEGMENT_TIME_US microseconds.
-    // turn on CTC mode
-    TCCR1B = (1 << WGM12);
-    // Set 8x prescaler
-    TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
-    // enable timer compare interrupt
-    TIMSK1 |= (1 << OCIE1A);
-    
-    //uint32_t interval = calc_timer(current_feed_rate, &isr_step_multiplier);
-    isr_step_multiplier=1;
-    CLOCK_ADJUST(MIN_SEGMENT_TIME_US);
-  
-  // enable global interrupts
-  CRITICAL_SECTION_END();
-
   motors[0].setPID(1.0 , 0.03, 0.8);        //Good, But slow
   motors[1].setPID(1.25, 0.5, 0.25);        //Decent
   motors[2].setPID(1.25, 0.7, 0.25);        //Very Good - positive side has offset of 1-2 degrees
   motors[3].setPID(1.25, 0.85, 0.4);        //OFFSET IS HAPPENING 
   motors[4].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
   motors[5].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
+
+  //clockISRProfile();
   
+  clockSetup();
 
   parser.ready();
 }
