@@ -129,12 +129,13 @@ char Parser::checkLineNumberAndCRCisOK() {
   int i;
   for (i = strlen(serialBuffer) - 1; i >= 0; --i) {
     if (serialBuffer[i] == '*') {
+      
       // yes!
       // yes.  is it valid?
-      char checksum = 0;
+      int checksum = 0;
       int c;
       for (c = 0; c < i; ++c) {
-        checksum ^= serialBuffer[c];
+        checksum  = (checksum ^ serialBuffer[c]) & 0xFF;
       }
       c++; // skip *
       int against = strtod(serialBuffer + c, NULL);

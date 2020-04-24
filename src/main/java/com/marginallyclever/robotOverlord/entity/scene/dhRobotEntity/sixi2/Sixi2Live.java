@@ -70,15 +70,8 @@ public class Sixi2Live extends Sixi2Model {
 		if(lastCommandSent.equals(command)) return;
 		lastCommandSent = command;
 		
-		// build checksum
-		char checksum =0;
-		for(int i=0;i<command.length();++i) {
-			checksum ^= command.charAt(i);
-		}
-		int checkIt = (int)checksum;
-		
 		// add "there is a checksum" (*) + the checksum + end-of-line character
-		command+='*'+Integer.toString(checkIt)+"\n";
+		command+=generateChecksum(command)+"\n";
 		
 		reportDataSent(command);
 		
@@ -88,6 +81,16 @@ public class Sixi2Live extends Sixi2Model {
 	    readyForCommands=false;
 	}
 
+	static public String generateChecksum(String line) {
+		byte checksum = 0;
+
+		for (int i = 0; i < line.length(); ++i) {
+			checksum ^= line.charAt(i);
+		}
+
+		return "*" + Integer.toString(checksum);
+	}
+	
 	public void reportDataSent(String msg) {
 		System.out.println(">>"+msg.trim());
 	}
