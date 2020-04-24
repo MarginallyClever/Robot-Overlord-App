@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -234,6 +236,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	
         // add to the frame a menu bar
         mainFrame.setJMenuBar(mainMenu = new JMenuBar());
+        
+        mainFrame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+              System.out.println("Resized to " + e.getComponent().getSize());
+            }
+            @Override
+            public void componentMoved(ComponentEvent e) {
+              System.out.println("Moved to " + e.getComponent().getLocation());
+            }
+          });
         // now that we have everything built, set up the menus.
         buildMainMenu();
 		
