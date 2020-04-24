@@ -42,7 +42,7 @@
 
 #define NEMA17_CYCLOID_GEARBOX_RATIO        (20.0)
 #define NEMA23_CYCLOID_GEARBOX_RATIO_ELBOW  (35.0)
-#define NEMA23_CYCLOID_GEARBOX_RATIO_ANCHOR (30.0)
+#define NEMA23_CYCLOID_GEARBOX_RATIO_ANCHOR (30.0)  // will be 40 if build using 3mm dowel pins
 #define NEMA24_CYCLOID_GEARBOX_RATIO        (40.0)
 
 #define DM322T_MICROSTEP              (2.0)

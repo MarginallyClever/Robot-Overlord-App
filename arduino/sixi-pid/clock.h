@@ -13,20 +13,21 @@
 #define TIMER_RATE            ((F_CPU)/8)
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
-#define CLOCK_MAX_STEP_FREQUENCY (30000L)
+
+#define CLOCK_MAX_STEP_FREQUENCY (300L)
 #define CLOCK_MIN_STEP_FREQUENCY (F_CPU/500000U)
 
 #define TIMEOUT_OK (1000)
 
 #ifndef MIN_SEGMENT_TIME_US
-#define MIN_SEGMENT_TIME_US  (5000)  // actual minimum on mega? 5000.
+#define MIN_SEGMENT_TIME_US  (1000000.0/CLOCK_MAX_STEP_FREQUENCY)  // actual minimum on mega? 5000.
 #endif
 
 #ifndef MAX_OCR1A_VALUE
 #define MAX_OCR1A_VALUE (0xFFFF)
 #endif
 
-#define CLOCK_ADJUST(x) {  OCR1A = (x);  }  // microseconds
+#define CLOCK_ADJUST(x)  {  OCR1A = (x);  }  // microseconds
 
 
 

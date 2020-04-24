@@ -17,9 +17,9 @@ int stepsCount = 0;
 void StepperMotor::update(float dt,float angleNow) {
   // use a PID to control the motion.
 
-  if(sensorReady){
+  if(sensorReady) {
     //update stepsNow
-    if ( abs(stepsNow) - stepsCount != abs(stepsUpdated)){
+    if( abs(stepsNow) - stepsCount != abs(stepsUpdated)) {
       stepsNow = stepsUpdated;
     } 
     stepsCount = 0;
