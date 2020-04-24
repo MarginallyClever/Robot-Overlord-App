@@ -14,7 +14,7 @@
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
-#define CLOCK_MAX_STEP_FREQUENCY (3000L)// was 240000L
+#define CLOCK_MAX_STEP_FREQUENCY (300L)// was 240000L
 #define CLOCK_MIN_STEP_FREQUENCY (F_CPU/500000U)
 
 #define TIMEOUT_OK (1000)
