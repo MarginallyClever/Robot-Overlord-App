@@ -28,18 +28,18 @@ void clockSetup() {
     SBI(TIFR1, OCF1A);     // clear any pending interrupts;
     SBI(TIMSK1, OCIE1A);   // enable the output compare interrupt
     
-    uint32_t interval = calc_timer(CLOCK_MAX_STEP_FREQUENCY, &isr_step_multiplier);
+    uint32_t interval = calc_timer(CLOCK_MAX_ISR_FREQUENCY, &isr_step_multiplier);
     uint32_t callsPerSecond = (TIMER_RATE / interval);
     SECONDS_PER_ISR_TICK = 1.0f/(float)callsPerSecond;
 
     CLOCK_ADJUST(interval);
     
     if(true) {
-      Serial.print(F("Hz="));    Serial.println(CLOCK_MAX_ISR_FREQUENCY);
-      Serial.print(F("interval="));    Serial.println(interval);
-      Serial.print(F("multiplier="));  Serial.println(isr_step_multiplier);
+      Serial.print(F("Hz="));              Serial.println(CLOCK_MAX_ISR_FREQUENCY);
+      Serial.print(F("interval="));        Serial.println(interval);
+      Serial.print(F("multiplier="));      Serial.println(isr_step_multiplier);
       Serial.print(F("callsPerSecond="));  Serial.println(callsPerSecond);
-      Serial.print(F("s/tick="));  Serial.println(SECONDS_PER_ISR_TICK,6);
+      Serial.print(F("s/tick="));          Serial.println(SECONDS_PER_ISR_TICK,6);
     }
   
     // enable timer compare interrupt
