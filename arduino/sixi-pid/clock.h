@@ -5,22 +5,21 @@
 // CLOCK 
 
 // for timer interrupt control
-#undef F_CPU
-#define F_CPU                   (16000000L)
+#define CLOCK_FREQ            (16000000L)
 
-#define MAX_COUNTER             (65536L)  // 16 bits
+#define MAX_COUNTER           (65536L)  // 16 bits
 
-#define TIMER_RATE              ((F_CPU)/8)  // 8 is for 8x prescale multiplier
+#define TIMER_RATE            ((CLOCK_FREQ)/8)  // 8 is for 8x prescale multiplier
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
-#define CLOCK_MAX_STEP_FREQUENCY (3000L)// was 240000L
-#define CLOCK_MIN_STEP_FREQUENCY (F_CPU/500000U)
+#define CLOCK_MAX_ISR_FREQUENCY (3000L)// was 240000L
+#define CLOCK_MIN_ISR_FREQUENCY (CLOCK_FREQ/500000U)
 
 #define TIMEOUT_OK (1000)
 
 #ifndef MIN_SEGMENT_TIME_US
-#define MIN_SEGMENT_TIME_US  (1000000.0/CLOCK_MAX_STEP_FREQUENCY)  // actual minimum on mega? 5000.
+#define MIN_SEGMENT_TIME_US  (1000000.0/CLOCK_MAX_ISR_FREQUENCY)  // actual minimum on mega? 5000.
 #endif
 
 #ifndef MAX_OCR1A_VALUE
@@ -155,8 +154,8 @@ static FORCE_INLINE unsigned short calc_timer(uint32_t desired_freq_hz, uint8_t*
   }
   *loops = step_multiplier;
   
-  if( desired_freq_hz < CLOCK_MIN_STEP_FREQUENCY ) desired_freq_hz = CLOCK_MIN_STEP_FREQUENCY;
-  desired_freq_hz -= CLOCK_MIN_STEP_FREQUENCY;
+  if( desired_freq_hz < CLOCK_MIN_ISR_FREQUENCY ) desired_freq_hz = CLOCK_MIN_ISR_FREQUENCY;
+  desired_freq_hz -= CLOCK_MIN_ISR_FREQUENCY;
   if(desired_freq_hz >= 8*256) {
     const uint8_t tmp_step_rate = (desired_freq_hz & 0x00FF);
     const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(desired_freq_hz >> 8)][0],
