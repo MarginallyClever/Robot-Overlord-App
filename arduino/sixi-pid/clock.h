@@ -10,11 +10,11 @@
 
 #define MAX_COUNTER             (65536L)  // 16 bits
 
-#define TIMER_RATE            ((F_CPU)/8)
+#define TIMER_RATE              ((F_CPU)/8)  // 8 is for 8x prescale multiplier
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
-#define CLOCK_MAX_STEP_FREQUENCY (300L)// was 240000L
+#define CLOCK_MAX_STEP_FREQUENCY (3000L)// was 240000L
 #define CLOCK_MIN_STEP_FREQUENCY (F_CPU/500000U)
 
 #define TIMEOUT_OK (1000)
@@ -148,7 +148,7 @@ static FORCE_INLINE unsigned short calc_timer(uint32_t desired_freq_hz, uint8_t*
   uint8_t step_multiplier = 1;
 
   int idx=0;
-  while( idx<6 && desired_freq_hz > 10000 ) {
+  while( idx<7 && desired_freq_hz > 10000 ) {
     step_multiplier <<= 1;
     desired_freq_hz >>= 1;
     idx++;
@@ -157,7 +157,7 @@ static FORCE_INLINE unsigned short calc_timer(uint32_t desired_freq_hz, uint8_t*
   
   if( desired_freq_hz < CLOCK_MIN_STEP_FREQUENCY ) desired_freq_hz = CLOCK_MIN_STEP_FREQUENCY;
   desired_freq_hz -= CLOCK_MIN_STEP_FREQUENCY;
-  if(desired_freq_hz >= 8 *256) {
+  if(desired_freq_hz >= 8*256) {
     const uint8_t tmp_step_rate = (desired_freq_hz & 0x00FF);
     const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(desired_freq_hz >> 8)][0],
                    gain = (uint16_t)pgm_read_word_near(table_address + 2);
