@@ -179,10 +179,7 @@ void Parser::ready() {
 void Parser::processCommand() {
   if( serialBuffer[0] == '\0' || serialBuffer[0] == ';' ) return; // blank lines
 
-//#define STRICT_PARSER
-#if defined(STRICT_PARSER)
-  if(!checkLineNumberAndCRCisOK()) return; // message garbled
-#endif
+  if(IS_STRICT && !checkLineNumberAndCRCisOK()) return; // message garbled
 
   // remove any trailing semicolon.
   int last = strlen(serialBuffer) - 1;
@@ -219,9 +216,11 @@ void Parser::processCommand() {
       break;
     case 17:  D17();  break;
     case 18:  D18();  break;
-    case 19:  positionErrorFlags ^= POSITION_ERROR_FLAG_CONTINUOUS;  break; // toggle
-    case 20:  positionErrorFlags &= 0xffff ^ (POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR);  break; // off
-    case 21:  positionErrorFlags ^= POSITION_ERROR_FLAG_ESTOP;  break; // toggle ESTOP
+    case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
+    case 20:  SET_BIT_OFF(positionErrorFlags,(POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR));  break;  // off
+    case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
+    case 50:  D50();  break;
+    case 51:  D51();  break;
     default:  break;
   }
   if (cmd != -1) return; // D command processed, stop.
@@ -247,13 +246,13 @@ void Parser::update() {
   // listen for serial commands
   if(Serial.available() > 0) {
     char c = Serial.read();
-    Serial.print(c);
+    //Serial.print(c);
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
     if (c == '\r' || c == '\n') {
       serialBuffer[sofar - 1] = 0;
 
       // echo confirmation
-      //Serial.println(serialBuffer);
+      Serial.println(serialBuffer);
 
       // do something with the command
       processCommand();
@@ -442,6 +441,16 @@ void Parser::D18() {
 }
 
 
+void Parser::D50() {
+  SET_BIT(motionFlags,FLAG_STRICT,!IS_STRICT);
+  D51();
+}
+
+
+void Parser::D51() {
+  Serial.print(F("D50 "));
+  Serial.println(IS_STRICT);
+}
 
 
 // G COMMANDS

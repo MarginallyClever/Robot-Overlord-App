@@ -39,6 +39,7 @@
 #define SET_BIT(NN,BB,TF)   do { if(TF) SBI(NN,BB); else CBI(NN,BB); } while(0);
 #define SET_BIT_ON(NN,BB)   SBI(NN,BB);
 #define SET_BIT_OFF(NN,BB)  CBI(NN,BB);
+#define FLIP_BIT(NN,BB)     NN ^= BB
 
 
 // serial comms
