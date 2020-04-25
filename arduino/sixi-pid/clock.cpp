@@ -29,13 +29,13 @@ void clockSetup() {
     // Set 8x prescaler
     TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
     
-    uint32_t interval = calc_timer(CLOCK_MAX_STEP_FREQUENCY, &isr_step_multiplier);
-    SECONDS_PER_ISR_TICK = 1.0 / (float)(CLOCK_MAX_STEP_FREQUENCY * isr_step_multiplier);
+    uint32_t interval = calc_timer(CLOCK_MAX_ISR_FREQUENCY, &isr_step_multiplier);
+    SECONDS_PER_ISR_TICK = 1.0 / (float)(CLOCK_MAX_ISR_FREQUENCY * isr_step_multiplier);
 
     CLOCK_ADJUST(interval);
     
     if(true) {
-      Serial.print(F("Hz="));    Serial.println(CLOCK_MAX_STEP_FREQUENCY);
+      Serial.print(F("Hz="));    Serial.println(CLOCK_MAX_ISR_FREQUENCY);
       Serial.print(F("interval="));    Serial.println(interval);
       Serial.print(F("multiplier="));  Serial.println(isr_step_multiplier);
       Serial.print(F("s/tick="));  Serial.println(SECONDS_PER_ISR_TICK,6);
@@ -63,10 +63,16 @@ FORCE_INLINE void ISRInternal() {
 ISR(TIMER1_COMPA_vect) {
   // Disable interrupts, to avoid ISR preemption while we reprogram the period
   CRITICAL_SECTION_START();
+  uint32_t oldTime = OCR1A;
+  CLOCK_ADJUST(MAX_OCR1A_VALUE);
+  // Turn the interrupts back on (reduces UART delay, apparently)
+  CRITICAL_SECTION_END();
 
   ISRInternal();
 
-  // Turn the interrupts back on (reduces UART delay, apparently)
+  // return the ISR where it used to be.
+  CRITICAL_SECTION_START();
+  CLOCK_ADJUST(oldTime);
   CRITICAL_SECTION_END();
 }
 

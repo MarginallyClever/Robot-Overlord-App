@@ -240,7 +240,7 @@ void Parser::processCommand() {
 
 void Parser::update() {
   // listen for serial commands
-  while (Serial.available() > 0) {
+  if (Serial.available() > 0) {
     char c = Serial.read();
     Serial.print(c);
     if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
