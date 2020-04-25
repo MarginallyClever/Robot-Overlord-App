@@ -17,20 +17,20 @@ uint8_t isr_step_multiplier = 1;
 void clockSetup() {
   // disable global interrupts
   CRITICAL_SECTION_START();
-  
-    // set entire TCCR1A register to 0
-    TCCR1A = 0;
-    // set the overflow clock to 0
-    TCNT1  = 0;
+    // using TIMER1 on the mega
+    
+    // clear registers
+    TCCR1A = 0;  // normal counting mode
+    TCCR1B = _BV(CS11);     // set prescaler of 8
+    TCNT1 = 0;  // overflow clock that triggers the interrupt
     // set compare match register to desired timer count
-    OCR1A = 2000;  // with 8x prescaler this is 1s.
-    // turn on CTC mode
-    TCCR1B = (1 << WGM12);
-    // Set 8x prescaler
-    TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
+    OCR1A = 2000;  // with 8x prescaler this is 1ms, because ((16000000 / 8) / 2000) = 1000ms.
+    SBI(TIFR1, OCF1A);     // clear any pending interrupts;
+    SBI(TIMSK1, OCIE1A);   // enable the output compare interrupt
     
     uint32_t interval = calc_timer(CLOCK_MAX_STEP_FREQUENCY, &isr_step_multiplier);
-    SECONDS_PER_ISR_TICK = 1.0 / (float)(CLOCK_MAX_STEP_FREQUENCY * isr_step_multiplier);
+    uint32_t callsPerSecond = (TIMER_RATE / interval);
+    SECONDS_PER_ISR_TICK = 1.0f/(float)callsPerSecond;
 
     CLOCK_ADJUST(interval);
     
@@ -38,6 +38,7 @@ void clockSetup() {
       Serial.print(F("Hz="));    Serial.println(CLOCK_MAX_STEP_FREQUENCY);
       Serial.print(F("interval="));    Serial.println(interval);
       Serial.print(F("multiplier="));  Serial.println(isr_step_multiplier);
+      Serial.print(F("callsPerSecond="));  Serial.println(callsPerSecond);
       Serial.print(F("s/tick="));  Serial.println(SECONDS_PER_ISR_TICK,6);
     }
   
@@ -69,6 +70,7 @@ ISR(TIMER1_COMPA_vect) {
   // Turn the interrupts back on (reduces UART delay, apparently)
   CRITICAL_SECTION_END();
 }
+
 
 void clockISRProfile() {
   // Disable interrupts, to avoid ISR preemption while we reprogram the period
