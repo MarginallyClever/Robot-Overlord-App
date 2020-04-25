@@ -177,14 +177,18 @@ void Parser::ready() {
    process commands in the serial receive buffer
 */
 void Parser::processCommand() {
-  if ( serialBuffer[0] == '\0' || serialBuffer[0] == ';' ) return; // blank lines
-  if (!checkLineNumberAndCRCisOK()) return; // message garbled
+  if( serialBuffer[0] == '\0' || serialBuffer[0] == ';' ) return; // blank lines
+
+//#define STRICT_PARSER
+#if defined(STRICT_PARSER)
+  if(!checkLineNumberAndCRCisOK()) return; // message garbled
+#endif
 
   // remove any trailing semicolon.
   int last = strlen(serialBuffer) - 1;
-  if ( serialBuffer[last] == ';') serialBuffer[last] = 0;
+  if( serialBuffer[last] == ';') serialBuffer[last] = 0;
 
-  if ( !strncmp(serialBuffer, "UID", 3) ) {
+  if( !strncmp(serialBuffer, "UID", 3) ) {
     robot_uid = atoi(strchr(serialBuffer, ' ') + 1);
     eepromSaveUID();
   }
@@ -231,6 +235,7 @@ void Parser::processCommand() {
       lastGcommand = cmd;
       G01();
       break;
+    case 28:  G28();  break;
     case 90:  G90();  break;
     case 91:  G91();  break;
     default: break;
@@ -314,11 +319,11 @@ void Parser::M306() {
     // report values
     Serial.print("M306 ");
     Serial.print(motors[axis].letter);
-    Serial.print(" = ");
+    Serial.print(" P");
     Serial.print(p, 6);
-    Serial.print(",");
+    Serial.print(" I");
     Serial.print(i, 6);
-    Serial.print(",");
+    Serial.print(" D");
     Serial.print(d, 6);
   }
 }
@@ -497,13 +502,23 @@ void Parser::G01() {
 }
 
 void Parser::G28() {
+  float angles[NUM_MOTORS];
+  int32_t steps[NUM_MOTORS];
+
+  angles[0] = DH_0_THETA;
+  angles[1] = DH_1_THETA;
+  angles[2] = DH_2_THETA;
+  angles[3] = DH_3_THETA;
+  angles[4] = DH_4_THETA;
+  angles[5] = DH_5_THETA;
+  
+  anglesToSteps(angles, steps);
+
   CRITICAL_SECTION_START();
-  motors[0].angleTarget = DH_0_THETA;
-  motors[1].angleTarget = DH_1_THETA;
-  motors[2].angleTarget = DH_2_THETA;
-  motors[3].angleTarget = DH_3_THETA;
-  motors[4].angleTarget = DH_4_THETA;
-  motors[5].angleTarget = DH_5_THETA;
+  for (ALL_MOTORS(i)) {
+    motors[i].angleTarget = angles[i];
+    motors[i].stepsTarget = steps[i];
+  }
   CRITICAL_SECTION_END();
 }
 

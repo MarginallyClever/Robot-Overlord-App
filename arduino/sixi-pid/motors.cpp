@@ -14,7 +14,7 @@ Servo servos[NUM_SERVOS];
 
 int stepsCount = 0;
 
-// dt = seconds
+// dt = ms
 void StepperMotor::update(float dt,float angleNow) {
   // use a PID to control the motion.
 
@@ -46,10 +46,10 @@ void StepperMotor::update(float dt,float angleNow) {
     stepInterval_us = 0xFFFFFFFF;  // uint32_t max value
     return;
   } else {
-    stepInterval_us = floor(1000000.0 / abs(velocity));
+    stepInterval_us = floor(1000.0 / abs(velocity));
   }
 
-  timeSinceLastStep_us += dt*1000000.0f;
+  timeSinceLastStep_us += (uint32_t)(dt*1000.0);
   
   //CANT PRINT INSIDE ISR 
   // print("("+error+","+velocity+")\t");
