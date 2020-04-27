@@ -231,8 +231,6 @@ public class Sixi2 extends PoseEntity {
 	}
 
 
-
-
 	@Override
 	public void update(double dt) {
 		//driveFromKeyState(dt);
@@ -243,7 +241,7 @@ public class Sixi2 extends PoseEntity {
 				if(activeModel == live) {
 					String line = sim.getCommand();
 					//System.out.println(controlMode + " " + operatingMode + " send command: "+line);
-					activeModel.sendCommand(line);
+					live.sendCommand(line);
 				}
 			} else {
 				if(cycleStart.get() && recording.hasNext()) {

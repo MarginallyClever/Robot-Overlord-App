@@ -133,10 +133,19 @@ public class DHBuilderApp extends DHRobotEntity {
 		// don't call super.render()
 	}
 	
+	protected boolean eeLock=false;
+	
 	@Override
 	public void update(Observable obs, Object obj) {
-		if(obs==endEffectorTarget) {
+		if(obs==endEffectorTarget && eeLock==false) {
+			eeLock=true;
 			this.setPoseIK(endEffectorTarget.getPoseWorld());
+			eeLock=false;
+		}
+		if(obs==endEffector && eeLock==false) {
+			eeLock=true;
+			endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
+			eeLock=false;
 		}
 		
 		super.update(obs,obj);
@@ -394,6 +403,7 @@ public class DHBuilderApp extends DHRobotEntity {
 			// Use the poseWorld for each DHLink to adjust the model origins.
 			bone.refreshPoseMatrix();
 			bone.setModel(models[i].getModel());
+			bone.setMaterial(models[i].getMaterial());
 			Matrix4d iWP = bone.getPoseWorld();
 			iWP.invert();
 			if(bone.getModel()!=null) {

@@ -279,7 +279,7 @@ public class DHRobotEntity extends PoseEntity {
 		for( DHLink link : links ) {
 			if(link.flags == LinkAdjust.NONE) continue;
 			double v = keyframe.fkValues[j++];
-			if (link.rangeMax.get() < v || link.rangeMin.get() > v) {
+			if ( link.rangeMax.get() < v || link.rangeMin.get() > v) {
 				if(VERBOSE) {
 					System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
 				}
