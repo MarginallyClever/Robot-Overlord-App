@@ -40,7 +40,7 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
 	// much help from https://www.sculpteo.com/en/glossary/amf-definition/
 	@Override
 	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model();
+		Model model = new Model(this);
 		
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

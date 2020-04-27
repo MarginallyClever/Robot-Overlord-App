@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.ServiceLoader;
 
 import javax.swing.filechooser.FileFilter;
@@ -26,6 +27,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
@@ -276,6 +278,14 @@ public class ModelEntity extends PoseEntity {
 			view.add(hasUVs);
 		}
 
+		ViewElementButton reloadButton = view.addButton("Reload");
+		reloadButton.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				
+			}
+		});
+		
 		view.popStack();
 		
 		material.getView(view);

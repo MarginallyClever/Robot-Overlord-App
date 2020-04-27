@@ -22,7 +22,9 @@ public class Model {
 	public final static int NUM_BUFFERS=4;  // verts, normals, colors, textureCoordinates
 	
 	protected String sourceName;
+	protected ModelLoadAndSave loader;
 	protected transient boolean isLoaded;
+	
 	public transient ArrayList<Float> vertexArray = new ArrayList<Float>();
 	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
 	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
@@ -46,7 +48,10 @@ public class Model {
 	protected Cuboid cuboid = new Cuboid();
 
 	public Model() {
+		super();
+		
 		sourceName=null;
+		loader=null;
 		isLoaded=false;
 		VBO = null;
 		hasNormals=false;

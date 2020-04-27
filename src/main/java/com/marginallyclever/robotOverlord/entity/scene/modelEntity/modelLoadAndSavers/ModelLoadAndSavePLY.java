@@ -34,7 +34,7 @@ public class ModelLoadAndSavePLY implements ModelLoadAndSave {
 
 	@Override
 	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model();
+		Model model = new Model(this);
 		model.renderStyle = GL2.GL_POINTS;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));

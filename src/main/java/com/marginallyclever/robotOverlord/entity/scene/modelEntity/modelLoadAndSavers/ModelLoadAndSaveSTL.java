@@ -39,7 +39,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
 	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model();
+		Model model = new Model(this);
 		
 		InputStreamReader br = null;
 		try {
