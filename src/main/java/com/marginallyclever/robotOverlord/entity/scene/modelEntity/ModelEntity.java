@@ -208,25 +208,29 @@ public class ModelEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void render(GL2 gl2) {	
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
-
-			if( model==null ) {
-				// draw placeholder
-				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
-				PrimitiveSolids.drawStar(gl2,15.0);
-			} else {
-				material.render(gl2);
-				model.render(gl2);
-			}
-		gl2.glPopMatrix();
+	public void render(GL2 gl2) {
+		renderModel(gl2);
 		
 		// draw children
-		// physicalObject also calls applyMatrix() so this has to happen outside of the matrix push/pop
 		super.render(gl2);
 	}
 
+	
+	public void renderModel(GL2 gl2) {	
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, pose.get());
+
+		if( model==null ) {
+			// draw placeholder
+			PrimitiveSolids.drawBox(gl2, 1, 1, 1);
+			PrimitiveSolids.drawStar(gl2,15.0);
+		} else {
+			material.render(gl2);
+			model.render(gl2);
+		}
+		gl2.glPopMatrix();
+	}
+	
 	
 	public MaterialEntity getMaterial() {
 		return material;

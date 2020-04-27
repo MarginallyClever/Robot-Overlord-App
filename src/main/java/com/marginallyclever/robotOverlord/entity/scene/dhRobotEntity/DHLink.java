@@ -181,10 +181,11 @@ public class DHLink extends ModelEntity {
 		float [] diffuse = getMaterial().getDiffuseColor();
 		// change material color - more red when near angle limits 
 		setAngleColorByRange(gl2);
-		
-		super.render(gl2);
+		renderModel(gl2);
 		
 		getMaterial().setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
+		
+		super.render(gl2);
 	}
 	
 	/**
