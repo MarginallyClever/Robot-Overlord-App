@@ -33,8 +33,7 @@ public class ModelLoadAndSavePLY implements ModelLoadAndSave {
 	}
 
 	@Override
-	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model(this);
+	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
 		model.renderStyle = GL2.GL_POINTS;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
@@ -52,7 +51,7 @@ public class ModelLoadAndSavePLY implements ModelLoadAndSave {
 			model.addVertex(x,y,z);
 		}
 		
-		return model;
+		return true;
 	}
 
 	@Override
@@ -70,7 +69,6 @@ public class ModelLoadAndSavePLY implements ModelLoadAndSave {
 	@Override
 	public void save(OutputStream inputStream, Model model) throws Exception {
 		// TODO Auto-generated method stub
-		
 	}
 
 }

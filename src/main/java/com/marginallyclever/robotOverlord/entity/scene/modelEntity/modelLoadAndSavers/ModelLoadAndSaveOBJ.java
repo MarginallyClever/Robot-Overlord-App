@@ -34,9 +34,7 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 	}
 
 	@Override
-	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model(this);
-
+	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
 		ArrayList<Float> vertexArray = new ArrayList<Float>();
 		ArrayList<Float> normalArray = new ArrayList<Float>();
 		ArrayList<Float> texCoordArray = new ArrayList<Float>();
@@ -116,7 +114,7 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 			}
 		}
 		
-		return model;
+		return true;
 	}
 
 	@Override

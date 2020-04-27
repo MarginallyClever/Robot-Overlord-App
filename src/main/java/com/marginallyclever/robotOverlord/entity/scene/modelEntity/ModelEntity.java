@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
 
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -282,7 +283,7 @@ public class ModelEntity extends PoseEntity {
 		reloadButton.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				
+				reload();
 			}
 		});
 		
@@ -323,11 +324,14 @@ public class ModelEntity extends PoseEntity {
 			ModelLoadAndSave loader = i.next();
 			if(loader.canLoad() && loader.canLoad(sourceName)) {
 				BufferedInputStream stream = FileAccess.open(sourceName);
-				m = loader.load(stream);
-				m.setSourceName(sourceName);
-				// Maybe add a m.setSaveAndLoader(loader); ?
-				modelPool.add(m);
-				break;
+				m=new Model();
+				if(loader.load(stream,m)) {
+					m.setSourceName(sourceName);
+					m.setLoader(loader);
+					// Maybe add a m.setSaveAndLoader(loader); ?
+					modelPool.add(m);
+					break;
+				}
 			}
 		}
 
@@ -340,5 +344,21 @@ public class ModelEntity extends PoseEntity {
 		}
 		
 		return m;
+	}
+	
+	protected void reload() {
+		if(model==null) return;
+		try {
+			model.clear();
+			BufferedInputStream stream = FileAccess.open(this.getModelFilename());
+			ModelLoadAndSave loader = model.loader;
+			loader.load(stream,model);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

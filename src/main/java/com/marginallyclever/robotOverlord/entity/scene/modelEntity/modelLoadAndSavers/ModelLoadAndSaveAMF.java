@@ -39,9 +39,7 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
 
 	// much help from https://www.sculpteo.com/en/glossary/amf-definition/
 	@Override
-	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model(this);
-		
+	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(inputStream);
@@ -119,7 +117,7 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
             model.hasNormals=true;
         }
         
-		return model;
+		return true;
 	}
 
 	
