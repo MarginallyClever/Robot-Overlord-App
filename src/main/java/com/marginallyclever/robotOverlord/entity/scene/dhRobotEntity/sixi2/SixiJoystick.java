@@ -91,6 +91,9 @@ public class SixiJoystick extends ModelEntity {
 					}
 				}
 			}
+			catch(NumberFormatException e) {
+				e.printStackTrace();
+			}
 			finally {
 				lock.unlock();
 			}

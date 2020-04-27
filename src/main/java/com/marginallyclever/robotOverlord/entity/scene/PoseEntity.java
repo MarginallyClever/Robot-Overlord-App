@@ -205,10 +205,11 @@ public class PoseEntity extends Entity {
 	public void setPose(Matrix4d arg0) {
 		// update 
 		pose.set(arg0);
+
+		setChanged();
 		
 		updatePoseWorld();
 		
-		setChanged();
 		notifyObservers();
 	}
 	
@@ -217,6 +218,8 @@ public class PoseEntity extends Entity {
 	 * Does not crawl up the parent hierarchy.
 	 */
 	public void updatePoseWorld() {
+		setChanged();
+		
 		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
 			PoseEntity peParent = (PoseEntity)parent;
@@ -227,6 +230,9 @@ public class PoseEntity extends Entity {
 			// this poseWorld is my pose
 			poseWorld.set(pose.get());
 		}
+		
+		notifyObservers();
+		
 		cuboid.setPoseWorld(this.getPoseWorld());
 		
 		for( Entity c : children ) {

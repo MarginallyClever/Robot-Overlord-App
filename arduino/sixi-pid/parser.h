@@ -4,7 +4,10 @@
 
 // state flags for the parser
 #define FLAG_RELATIVE      (0)
+#define FLAG_STRICT        (1)
+
 #define RELATIVE_MOVES     (TEST(motionFlags,FLAG_RELATIVE))
+#define IS_STRICT          (TEST(motionFlags,FLAG_STRICT))
 
 
 class Parser {
@@ -33,6 +36,8 @@ public:
   void D17();   // report sensor values
   void D18();   // copy sensor values to motor step positions
   //void D19();   // toggle continuous D17 reporting
+  void D50();   // toggle strict mode
+  void D51();   // report strict mode
   
   void G01();  // G0/G1 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
   void G28();  // go home

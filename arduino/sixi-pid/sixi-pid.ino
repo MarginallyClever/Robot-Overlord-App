@@ -88,12 +88,12 @@ void setup() {
   motors[4].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
   motors[5].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
 /*/
-  motors[0].setPID(500.0, 1.0, 0.01);
-  motors[1].setPID(500.0, 1.0, 0.01);
-  motors[2].setPID(500.0, 1.0, 0.01);
-  motors[3].setPID(500.0, 1.0, 0.01);
-  motors[4].setPID(500.0, 1.0, 0.01);
-  motors[5].setPID(500.0, 1.0, 0.01);
+  motors[0].setPID(50.0, 1.0, 0.01);
+  motors[1].setPID(50.0, 1.0, 0.01);
+  motors[2].setPID(50.0, 1.0, 0.01);
+  motors[3].setPID(50.0, 1.0, 0.01);
+  motors[4].setPID(50.0, 1.0, 0.01);
+  motors[5].setPID(50.0, 1.0, 0.01);
 //*/
   //clockISRProfile();
   
@@ -139,7 +139,7 @@ void loop() {
 
   if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
     if (millis() > reportDelay) {
-      reportDelay = millis() + 100;
+      reportDelay = millis() + 50;
       parser.D17();
     }
   }
