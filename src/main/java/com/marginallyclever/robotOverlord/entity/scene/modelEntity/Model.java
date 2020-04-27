@@ -22,17 +22,16 @@ public class Model {
 	public final static int NUM_BUFFERS=4;  // verts, normals, colors, textureCoordinates
 	
 	protected String sourceName;
+	protected transient ModelLoadAndSave loader;
 	protected transient boolean isLoaded;
+	protected transient boolean unloadASAP;
+	
 	public transient ArrayList<Float> vertexArray = new ArrayList<Float>();
 	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
 	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
 	public transient ArrayList<Float> texCoordArray = new ArrayList<Float>();
 	public int renderStyle; 
 	
-	protected transient FloatBuffer vertices;
-	protected transient FloatBuffer normals;
-	protected transient FloatBuffer colors;
-	protected transient FloatBuffer texCoords;
 	protected transient int VBO[];
 
 	public transient boolean hasNormals;
@@ -46,8 +45,12 @@ public class Model {
 	protected Cuboid cuboid = new Cuboid();
 
 	public Model() {
+		super();
+		
 		sourceName=null;
+		loader=null;
 		isLoaded=false;
+		unloadASAP=false;
 		VBO = null;
 		hasNormals=false;
 		hasColors=false;
@@ -110,8 +113,8 @@ public class Model {
 
 		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
 		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
-		
-		vertices = FloatBuffer.allocate(vertexArray.size());
+
+		FloatBuffer vertices = FloatBuffer.allocate(vertexArray.size());
 		fi = vertexArray.iterator();
 		Point3d p = new Point3d();
 		while(fi.hasNext()) {
@@ -150,7 +153,7 @@ public class Model {
 		    // repeat for normals
 			Matrix3d pose = new Matrix3d();
 			adjust.get(pose);
-			normals = FloatBuffer.allocate(normalArray.size());
+			FloatBuffer normals = FloatBuffer.allocate(normalArray.size());
 			fi = normalArray.iterator();
 			while(fi.hasNext()) {
 				p.x = fi.next().floatValue();
@@ -170,7 +173,7 @@ public class Model {
 
 		if(hasColors) {
 		    // repeat for colors
-			colors = FloatBuffer.allocate(colorArray.size());
+			FloatBuffer colors = FloatBuffer.allocate(colorArray.size());
 			fi = colorArray.iterator();
 			while(fi.hasNext()) {
 				colors.put(fi.next().floatValue());
@@ -184,7 +187,7 @@ public class Model {
 		
 		if(hasUVs) {
 		    // repeat for textures
-			texCoords = FloatBuffer.allocate(texCoordArray.size());
+			FloatBuffer texCoords = FloatBuffer.allocate(texCoordArray.size());
 			fi = texCoordArray.iterator();
 			while(fi.hasNext()) {
 				texCoords.put(fi.next().floatValue());
@@ -198,6 +201,10 @@ public class Model {
 	}
 	
 	public void render(GL2 gl2) {
+		if(unloadASAP) {
+			unloadASAP=false;
+			unload(gl2);
+		}
 		if(!isLoaded) {
 			createBuffers(gl2);
 			isDirty=true;
@@ -356,5 +363,13 @@ public class Model {
 	
 	public int getNumTriangles() {
 		return vertexArray.size()/3;
+	}
+
+	public ModelLoadAndSave getLoader() {
+		return loader;
+	}
+
+	public void setLoader(ModelLoadAndSave loader) {
+		this.loader = loader;
 	}
 }

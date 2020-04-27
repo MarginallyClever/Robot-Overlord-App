@@ -139,6 +139,8 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 				double oldValue = link.getAdjustableValue();
 				double gradient = partialDescent( link, i );
 				double newValue = oldValue - gradient * learningRate; 
+				newValue = Math.max(Math.min(newValue, link.rangeMax.get()-1e-6), link.rangeMin.get()+1e-6);
+				
 				link.setAdjustableValue(newValue);
 				link.refreshPoseMatrix();
 		

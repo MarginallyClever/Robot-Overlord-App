@@ -2,10 +2,12 @@ package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
 
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.ServiceLoader;
 
 import javax.swing.filechooser.FileFilter;
@@ -26,6 +28,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
@@ -208,25 +211,29 @@ public class ModelEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void render(GL2 gl2) {	
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
-
-			if( model==null ) {
-				// draw placeholder
-				PrimitiveSolids.drawBox(gl2, 1, 1, 1);
-				PrimitiveSolids.drawStar(gl2,15.0);
-			} else {
-				material.render(gl2);
-				model.render(gl2);
-			}
-		gl2.glPopMatrix();
+	public void render(GL2 gl2) {
+		renderModel(gl2);
 		
 		// draw children
-		// physicalObject also calls applyMatrix() so this has to happen outside of the matrix push/pop
 		super.render(gl2);
 	}
 
+	
+	public void renderModel(GL2 gl2) {	
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, pose.get());
+
+		if( model==null ) {
+			// draw placeholder
+			PrimitiveSolids.drawBox(gl2, 1, 1, 1);
+			PrimitiveSolids.drawStar(gl2,15.0);
+		} else {
+			material.render(gl2);
+			model.render(gl2);
+		}
+		gl2.glPopMatrix();
+	}
+	
 	
 	public MaterialEntity getMaterial() {
 		return material;
@@ -272,6 +279,14 @@ public class ModelEntity extends PoseEntity {
 			view.add(hasUVs);
 		}
 
+		ViewElementButton reloadButton = view.addButton("Reload");
+		reloadButton.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				reload();
+			}
+		});
+		
 		view.popStack();
 		
 		material.getView(view);
@@ -309,11 +324,14 @@ public class ModelEntity extends PoseEntity {
 			ModelLoadAndSave loader = i.next();
 			if(loader.canLoad() && loader.canLoad(sourceName)) {
 				BufferedInputStream stream = FileAccess.open(sourceName);
-				m = loader.load(stream);
-				m.setSourceName(sourceName);
-				// Maybe add a m.setSaveAndLoader(loader); ?
-				modelPool.add(m);
-				break;
+				m=new Model();
+				if(loader.load(stream,m)) {
+					m.setSourceName(sourceName);
+					m.setLoader(loader);
+					// Maybe add a m.setSaveAndLoader(loader); ?
+					modelPool.add(m);
+					break;
+				}
 			}
 		}
 
@@ -326,5 +344,21 @@ public class ModelEntity extends PoseEntity {
 		}
 		
 		return m;
+	}
+	
+	protected void reload() {
+		if(model==null) return;
+		try {
+			model.clear();
+			BufferedInputStream stream = FileAccess.open(this.getModelFilename());
+			ModelLoadAndSave loader = model.loader;
+			loader.load(stream,model);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

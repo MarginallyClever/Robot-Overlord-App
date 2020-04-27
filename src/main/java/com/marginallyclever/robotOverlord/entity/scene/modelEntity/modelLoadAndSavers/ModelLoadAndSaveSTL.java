@@ -38,9 +38,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
-	public Model load(BufferedInputStream inputStream) throws Exception {
-		Model model = new Model();
-		
+	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
 		InputStreamReader br = null;
 		try {
 			if(!inputStream.markSupported()) throw new IOException("BufferedInputStream mark unsupported");
@@ -61,9 +59,10 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 		}
 		catch(IOException e) {
 			e.printStackTrace();
+			return false;
 		}
 		
-		return model;
+		return true;
 	}
 
 	@Override
