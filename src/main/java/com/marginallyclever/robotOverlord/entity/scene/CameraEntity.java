@@ -89,7 +89,7 @@ public class CameraEntity extends PoseEntity {
         	double newZoom = oldZoom;
         	
         	newZoom -= dz*3;
-        	newZoom = Math.max(0.01,newZoom);
+        	newZoom = Math.max(1,newZoom);
 
         	if(oldZoom!=newZoom) {
         		zoom.set(newZoom);
@@ -132,7 +132,7 @@ public class CameraEntity extends PoseEntity {
 					Vector3d vx = MatrixHelper.getXAxis(m);
 					Vector3d vy = MatrixHelper.getYAxis(m);
 					Vector3d p = getPosition();
-					double zSq = Math.sqrt(zoom.get())*0.1;
+					double zSq = Math.sqrt(zoom.get())*0.01;
 					vx.scale(zSq*-dx);
 					vy.scale(zSq* dy);
 					p.add(vx);
