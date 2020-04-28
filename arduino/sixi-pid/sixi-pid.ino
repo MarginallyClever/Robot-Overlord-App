@@ -21,7 +21,6 @@ void setupPins() {
                          SSP(CLK,NN) \
                          SSP(MISO,NN) \
                          SSP(MOSI,NN)
-
   SSP2(0);
   SSP2(1);
   SSP2(2);

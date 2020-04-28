@@ -112,9 +112,9 @@ uint8_t Parser::hasGCode(char code) {
 // @return 1 if CRC ok or not present, 0 if CRC check fails.
 char Parser::checkLineNumberAndCRCisOK() {
   // is there a line number?
-  int32_t cmd = parseNumber('N', -1);
-  if (cmd != -1 && serialBuffer[0] == 'N') { // line number must appear first on the line
-    if ( cmd != lineNumber ) {
+  if (serialBuffer[0] == 'N') { // line number must appear first on the line
+    int32_t cmd = parseNumber('N', -1);
+    if( cmd != lineNumber ) {
       // wrong line number error
       Serial.print(F("BADLINENUM "));
       Serial.println(lineNumber);
@@ -195,6 +195,7 @@ void Parser::processCommand() {
   // M commands
   cmd = parseNumber('M', -1);
   switch (cmd) {
+    case 110:  M110();  break;
     case 114:  M114();  break;
     case 206:  M206();  break;
     case 306:  M306();  break;
@@ -219,7 +220,7 @@ void Parser::processCommand() {
     case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
     case 20:  SET_BIT_OFF(positionErrorFlags,(POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR));  break;  // off
     case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
-    case 22:  D22();  break;        //Save all PID values
+    case 22:  D22();  break;
     case 50:  D50();  break;
     case 51:  D51();  break;
     default:  break;
@@ -267,11 +268,33 @@ void Parser::update() {
 // M COMMANDS
 
 
+// M110 set line number
+// valid formats include N100 M110, N200 M110 N110, and M110 N110.
+void Parser::M110() {
+  int firstLineNumber = -1;
+  int secondLineNumber = -1;
+  
+  if(serialBuffer[0]=='N') {
+    // line starts with a line number
+    firstLineNumber = strtol(serialBuffer + 1, NULL, 10);
+  }
+  
+  for(int i=1;i<sofar;++i) {
+    if(serialBuffer[i]=='N' || serialBuffer[i]=='n') {
+      secondLineNumber = strtol(serialBuffer + i + 1, NULL, 10);
+    }
+  }
+  if(secondLineNumber!=-1) {
+    lineNumber = secondLineNumber;
+  } else if(firstLineNumber!=-1) {
+    lineNumber = firstLineNumber;
+  } else {
+    // M110 with no N* ?
+  }
+}
 
-/**
-   M114
-   Print the current target position
-*/
+
+// M114 Print the current target position (in degrees)
 void Parser::M114() {
   Serial.print(F("M114"));
   for (ALL_MOTORS(i)) {
@@ -442,22 +465,9 @@ void Parser::D18() {
 }
 
 
-// Save all PID to eeprom
+// D22 Save all PID to EEPROM
 void Parser::D22() {
-  //check every P value if anyone are 0 for at least one of the motors, don't save it.
-  Serial.println("Checking to see if all PID values are set...");
-
-  for (ALL_MOTORS(i)){
-    if (motors[i].kp == 0){
-      Serial.print("Kp for ");
-      Serial.print(i);
-      Serial.println(" is 0, set PID value before continuing!");
-      break;
-    }
-    if (i == NUM_MOTORS - 1){
-      eepromSavePID();
-    }
-  }
+  eepromSavePID();
 }
 
 

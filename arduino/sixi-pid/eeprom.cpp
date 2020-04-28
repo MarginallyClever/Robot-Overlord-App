@@ -160,6 +160,7 @@ void eepromSaveAll() {
   eepromSaveHome();
 }
 
+
 void eepromLoadAll() {
   char versionNumber = eepromLoadVersion();
   if( versionNumber != FIRMWARE_VERSION ) {
@@ -172,32 +173,24 @@ void eepromLoadAll() {
   robot_uid=EEPROM_readLong(ADDR_UUID);
   eepromLoadLimits();
   eepromLoadHome();
+  eepromLoadPID();
 }
 
+
 void eepromSavePID() {
-  Serial.println(F("Saving PID values:"));
   int j=ADDR_PID;
   
   for(ALL_MOTORS(i)) {
     EEPROM_writeFloat(j,motors[i].kp);
-    EEPROM_writeFloat(j+4,motors[i].ki);
-    EEPROM_writeFloat(j+8,motors[i].kd);
-    j+=12;
-
-    Serial.print(' ');
-    Serial.print(motors[i].letter);
-    Serial.print(' P');
-    Serial.print(motors[i].kp);
-    Serial.print(' I');
-    Serial.print(motors[i].ki);
-    Serial.print(' D');
-    Serial.print(motors[i].kd);
+    j+=4;
+    EEPROM_writeFloat(j,motors[i].ki);
+    j+=4;
+    EEPROM_writeFloat(j,motors[i].kd);
+    j+=4;
   }
-  Serial.println();
 }
 
 void eepromLoadPID() {
-  Serial.println(F("Loading PID values:"));
   int j=ADDR_PID;
   for(ALL_MOTORS(i)) {
 
@@ -205,15 +198,5 @@ void eepromLoadPID() {
     motors[i].ki = EEPROM_readFloat(j+4);
     motors[i].kd = EEPROM_readFloat(j+8);
     j+=12;
-
-    Serial.print(' ');
-    Serial.print(motors[i].letter);
-    Serial.print(' P');
-    Serial.print(motors[i].kp);
-    Serial.print(' I');
-    Serial.print(motors[i].ki);
-    Serial.print(' D');
-    Serial.print(motors[i].kd);
   }
-  Serial.println();
 }

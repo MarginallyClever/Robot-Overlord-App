@@ -24,9 +24,10 @@ public:
   float parseNumber(char code, float val);
   char checkLineNumberAndCRCisOK();
 
+  void M110();  // set line number
   void M114();  // report current target position
   void M206();  // set home offsets M206 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
-  void M306();  // adjust PID  M306 L[0...5] [Pn] [In] [Dn]
+  void M306();  // adjust PID  M306 L[0...5] [Pn] [In] [Dn] and report new values.
   void M428();  // set home position to the current raw angle values (don't use home position to adjust home position!)
   void M500();  // save home offsets
   void M501();  // load home offsets
@@ -36,7 +37,9 @@ public:
   void D17();   // report sensor values
   void D18();   // copy sensor values to motor step positions
   //void D19();   // toggle continuous D17 reporting
-  void D22();
+  
+  void D22();   // Save all PID values
+  
   void D50();   // toggle strict mode
   void D51();   // report strict mode
   
