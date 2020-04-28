@@ -17,10 +17,10 @@
 #define SENSOR_ANGLE_PER_BIT (360.0/(float)((uint32_t)1<<SENSOR_ANGLE_BITS))  // 0.00549316406
 
 // behaviour flags
-#define POSITION_ERROR_FLAG_CONTINUOUS   (1<<0)  // report position (d17) continuously?
-#define POSITION_ERROR_FLAG_ERROR        (1<<1)  // has error occurred?
-#define POSITION_ERROR_FLAG_FIRSTERROR   (1<<2)  // report the error once per occurrence
-#define POSITION_ERROR_FLAG_ESTOP        (1<<3)  // check for error at all?
+#define POSITION_ERROR_FLAG_CONTINUOUS   (0)  // report position (d17) continuously?
+#define POSITION_ERROR_FLAG_ERROR        (1)  // has error occurred?
+#define POSITION_ERROR_FLAG_FIRSTERROR   (2)  // report the error once per occurrence
+#define POSITION_ERROR_FLAG_ESTOP        (3)  // check for error at all?
 
 
 

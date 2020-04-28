@@ -170,11 +170,10 @@ void Parser::processCommand() {
     case 17:  D17();  break;
     case 18:  D18();  break;
     case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
-    case 20:  SET_BIT_OFF(positionErrorFlags,(POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR));  break;  // off
+    case 20:  SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_ERROR); SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);  break;
     case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
     case 22:  D22();  break;
     case 50:  D50();  break;
-    case 51:  D51();  break;
     default:  break;
   }
   if (cmd != -1) return; // D command processed, stop.
@@ -240,9 +239,10 @@ void Parser::M110() {
     lineNumber = secondLineNumber;
   } else if(firstLineNumber!=-1) {
     lineNumber = firstLineNumber;
-  } else {
-    // M110 with no N* ?
   }
+
+  Serial.print(F("M110 "));
+  Serial.println(lineNumber);
 }
 
 
@@ -291,9 +291,7 @@ void Parser::M206() {
 }
 
 
-/**
-   M306 adjust PID
-*/
+// M306 adjust PID.
 void Parser::M306() {
   if (hasGCode('L')) {
     int axis = parseNumber('L', 0);
@@ -440,17 +438,16 @@ void Parser::D22() {
   eepromSavePID();
 }
 
-
+// D50 Set strict parsing and report state.  Format D50 [Sn] where n=0 for off and 1 for true.
 void Parser::D50() {
-  SET_BIT(parserFlags,FLAG_STRICT,!IS_STRICT);
-  D51();
-}
-
-
-void Parser::D51() {
+  if(hasGCode('S')) {
+    int newState = parseNumber('S',IS_STRICT);
+    SET_BIT(parserFlags,FLAG_STRICT,newState);
+  }
   Serial.print(F("D50 "));
   Serial.println(IS_STRICT);
 }
+
 
 
 // G COMMANDS

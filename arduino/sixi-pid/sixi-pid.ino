@@ -74,19 +74,9 @@ void setup() {
 
   //reportAllMotors();
 
-  positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
-/*
-  motors[0].setPID(1.0 , 0.03, 0.8);        //Good, But slow
-  motors[1].setPID(1.25, 0.5, 0.25);        //Decent
-  motors[2].setPID(1.25, 0.7, 0.25);        //Very Good - positive side has offset of 1-2 degrees
-  motors[3].setPID(1.25, 0.85, 0.4);        //OFFSET IS HAPPENING
-  motors[4].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING
-  motors[5].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING
-/*/
-
-  //Load PID values
-  eepromLoadPID();
-//*/
+  positionErrorFlags = 0;
+  SET_BIT_ON(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);// | POSITION_ERROR_FLAG_ESTOP;
+  
   //clockISRProfile();
 
   clockSetup();
@@ -118,20 +108,20 @@ void loop() {
   sensorUpdate();
   sensorReady = true;
 
-  if ((positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) {
-    if ((positionErrorFlags & POSITION_ERROR_FLAG_FIRSTERROR) != 0) {
+  if(TEST(positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
+    if(TEST(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {
       Serial.println(F("\n\n** POSITION ERROR **\n"));
-      positionErrorFlags &= 0xffff ^ POSITION_ERROR_FLAG_FIRSTERROR; // turn off
+      CBI(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
     }
   } else {
-    if ((positionErrorFlags & POSITION_ERROR_FLAG_FIRSTERROR) == 0) {
-      positionErrorFlags |= POSITION_ERROR_FLAG_FIRSTERROR; // turn on
+    if(!TEST(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {
+      SBI(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
     }
   }
 
-  if ((positionErrorFlags & POSITION_ERROR_FLAG_CONTINUOUS) != 0) {
+  if(TEST(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS)) {
     if (millis() > reportDelay) {
-      reportDelay = millis() + 50;
+      reportDelay = millis() + 100;
       parser.D17();
     }
   }

@@ -32,8 +32,8 @@ public:
   // called by update when an entire command is received.
   void processCommand();
 
-  void M110();  // set line number.  M110 Nn sets next expected line number to n.
-  void M111();  // set debug level.  M111 Sn sets flags to n.  Combine any valid flags: 1 (echo)
+  void M110();  // set and report line number.  M110 [Nn] sets next expected line number to n.
+  void M111();  // set and report debug level.  M111 [Sn] sets flags to n.  Combine any valid flags: 1 (echo)
   void M112();  // M112 emergency stop.  Set all PIDS to zero.
   void M114();  // report current target position
   void M206();  // set home offsets M206 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
@@ -47,11 +47,11 @@ public:
   void D17();   // report sensor values
   void D18();   // copy sensor values to motor step positions
   //void D19();   // toggle continuous D17 reporting
-  
+  //void D20();
+  //void D21();  
   void D22();   // Save all PID values
   
-  void D50();   // toggle strict mode
-  void D51();   // report strict mode
+  void D50();   // Set and report strict mode.  D50 Sn where n=0 for off and 1 for on.
   
   void G01();  // G0/G1 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
   void G28();  // go home
