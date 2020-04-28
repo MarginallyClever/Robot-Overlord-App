@@ -31,7 +31,7 @@ public class Sixi2Live extends Sixi2Model {
 		connection.addObserver(this);
 		
 		for(int i=0;i<PIDs.length;++i) {
-			PIDs[i] = new Vector3dEntity("PID "+links.get(i).getLetter(),2,0.1,0.0001);
+			PIDs[i] = new Vector3dEntity("PID "+links.get(i).getLetter(),0,0,0.0);
 			addChild(PIDs[i]);
 			PIDs[i].addObserver(this);
 		}
@@ -158,6 +158,7 @@ public class Sixi2Live extends Sixi2Model {
 				// wait until we received something meaningful before we start blasting our data out.
 				if(waitingForOpenConnection) {
 					waitingForOpenConnection=false;
+					sendCommandToRemoteEntity("D50");
 					// send once
 					for(int i=0;i<PIDs.length;++i) {
 						Vector3d newValue = PIDs[i].get();

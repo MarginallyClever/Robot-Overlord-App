@@ -294,6 +294,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	        double travelS = dMax/(double)feedRate.get();
 	        
+	        MatrixHelper.normalize3(mTarget);
+
 	        timeNow=timeStart=0;
 	        timeTarget=timeStart+travelS;
 	        
@@ -396,6 +398,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 					mTarget, 
 					tFraction, 
 					mLive);
+			MatrixHelper.normalize3(mLive);
 			setPoseIK(mLive);
 	    } else {
 	    	// nothing happening
@@ -437,7 +440,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
 		Matrix4d interpolatedMatrixFuture = new Matrix4d();
 		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
-
+		
+		
 		// get the translation force
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
