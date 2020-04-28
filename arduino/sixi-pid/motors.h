@@ -1,38 +1,11 @@
 #pragma once
 
-#define NUM_MOTORS                (6)
-#define NUM_SERVOS                (1)
+#ifndef NUM_MOTORS
+#error "NUM_MOTORS undefined"
+#endif
 
 // use in for(ALL_MOTORS(i)) { //i will be rising
 #define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
-
-// MOTOR PINS
-
-#define MOTOR_0_DIR_PIN           46
-#define MOTOR_0_STEP_PIN          45
-#define MOTOR_0_ENABLE_PIN        47
-
-#define MOTOR_1_DIR_PIN           43
-#define MOTOR_1_STEP_PIN          42
-#define MOTOR_1_ENABLE_PIN        44
-
-#define MOTOR_2_DIR_PIN           40
-#define MOTOR_2_STEP_PIN          39
-#define MOTOR_2_ENABLE_PIN        41
-
-#define MOTOR_3_DIR_PIN           37
-#define MOTOR_3_STEP_PIN          36
-#define MOTOR_3_ENABLE_PIN        38
-
-#define MOTOR_4_DIR_PIN           34
-#define MOTOR_4_STEP_PIN          33
-#define MOTOR_4_ENABLE_PIN        35
-
-#define MOTOR_5_DIR_PIN           31
-#define MOTOR_5_STEP_PIN          30
-#define MOTOR_5_ENABLE_PIN        32
-
-#define SERVO0_PIN                (13)
 
 // Motor and gearbox ratios
 
@@ -150,9 +123,9 @@ public:
   void update(float dt,float angleNow);
   
   void setPID(float p,float i,float d) {
-      kp=p;
-      ki=i;
-      kd=d;
+    kp=p;
+    ki=i;
+    kd=d;
   }
 
   void report() {

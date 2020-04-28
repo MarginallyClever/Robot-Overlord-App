@@ -58,9 +58,11 @@ void StepperMotor::update(float dt,float angleNow) {
   if( timeSinceLastStep_us >= stepInterval_us ) {
     stepsNow += velocity<0 ? -1 : 1;
     stepsCount++;
-    digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
-    digitalWrite( step_pin, HIGH );
+    if(!IS_DRYRUN) {
+      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
+      digitalWrite( step_pin, HIGH );
+      digitalWrite( step_pin, LOW  );
+    }
     timeSinceLastStep_us -=stepInterval_us;
-    digitalWrite( step_pin, LOW  );
   }
 }

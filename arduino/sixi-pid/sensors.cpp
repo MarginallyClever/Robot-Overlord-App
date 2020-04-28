@@ -83,7 +83,8 @@ void sensorUpdate() {
     while(v>=180) v-=360;
     sensorAngles[i] = v;
   }
-  parser.anglesToSteps(sensorAngles, steps);
+  
+  anglesToSteps(sensorAngles, steps);
 
   for(ALL_SENSORS(i)){
     motors[i].stepsUpdated = steps[i];

@@ -30,3 +30,8 @@
 #define DH_5_ALPHA 0
 #define DH_5_D     5.795
 #define DH_5_R     0
+
+
+
+
+extern void anglesToSteps(const float *const angles, int32_t *steps);

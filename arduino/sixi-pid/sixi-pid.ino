@@ -7,8 +7,9 @@
 #include "configure.h"
 
 
-
 uint32_t reportDelay = 0;  // how long since last D17 sent out
+
+uint8_t debugFlags;
 
 
 
@@ -17,16 +18,13 @@ void setupPins() {
 
 // SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
 #define SSP(label,NN)    sensorPins[i++] = PIN_SENSOR_##label##_##NN;
-#define SSP2(NN)         SSP(CSEL,NN) \
-                         SSP(CLK,NN) \
-                         SSP(MISO,NN) \
-                         SSP(MOSI,NN)
-  SSP2(0);
-  SSP2(1);
-  SSP2(2);
-  SSP2(3);
-  SSP2(4);
-  SSP2(5);
+#define SSP2(NN)         if(NUM_SENSORS>NN) {  SSP(CSEL,NN)  SSP(CLK,NN)  SSP(MISO,NN)  SSP(MOSI,NN)  }
+  SSP2(0)
+  SSP2(1)
+  SSP2(2)
+  SSP2(3)
+  SSP2(4)
+  SSP2(5)
 
   for(ALL_SENSORS(i)) {
     // MUST match the order in SSP2() above
@@ -39,18 +37,16 @@ void setupPins() {
     digitalWrite(sensorPins[(i*4)+3],HIGH);  // mosi
   }
 
-#define SMP(LL,NN) \
-  motors[NN].letter          = LL; \
-  motors[NN].step_pin        = MOTOR_##NN##_STEP_PIN; \
-  motors[NN].dir_pin         = MOTOR_##NN##_DIR_PIN; \
-  motors[NN].enable_pin      = MOTOR_##NN##_ENABLE_PIN;
-
-  SMP('X',0);
-  SMP('Y',1);
-  SMP('Z',2);
-  SMP('U',3);
-  SMP('V',4);
-  SMP('W',5);
+#define SMP(LL,NN) { motors[NN].letter     = LL; \
+                     motors[NN].step_pin   = MOTOR_##NN##_STEP_PIN; \
+                     motors[NN].dir_pin    = MOTOR_##NN##_DIR_PIN; \
+                     motors[NN].enable_pin = MOTOR_##NN##_ENABLE_PIN; }
+  SMP('X',0)
+  SMP('Y',1)
+  SMP('Z',2)
+  SMP('U',3)
+  SMP('V',4)
+  SMP('W',5)
 
   for(ALL_MOTORS(i)) {
     // set the motor pin & scale
