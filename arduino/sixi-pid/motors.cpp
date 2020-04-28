@@ -6,6 +6,7 @@
 
 #include "configure.h"
 
+
 StepperMotor motors[NUM_MOTORS];
 
 #if NUM_SERVOS>0
@@ -13,6 +14,7 @@ Servo servos[NUM_SERVOS];
 #endif
 
 int stepsCount = 0;
+
 
 // dt = us
 void StepperMotor::update(float dt,float angleNow) {

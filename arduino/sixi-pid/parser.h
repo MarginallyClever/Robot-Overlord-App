@@ -49,7 +49,7 @@ public:
   //void D19();   // toggle continuous D17 reporting
   //void D20();
   //void D21();  
-  void D22();   // Save all PID values
+  void D22();   // Save all PID values to EEPROM
   
   void D50();   // Set and report strict mode.  D50 Sn where n=0 for off and 1 for on.
   

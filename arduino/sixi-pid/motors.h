@@ -119,6 +119,8 @@ public:
   /**
    * Called byt the ISR to adjust the position of each stepper motor.
    * MUST NOT contain Serial.* commands
+   * @input dt microseconds since last update
+   * @input angleNow degrees
    */
   void update(float dt,float angleNow);
   
