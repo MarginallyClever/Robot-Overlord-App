@@ -690,4 +690,15 @@ public class MatrixHelper {
 	public static Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
 	public static Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
 	public static Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
+
+	/**
+	 * normalize the 3x3 component of the mTarget matrix.  Do not affect position. 
+	 * @param mTarget
+	 */
+	public static void normalize3(Matrix4d mTarget) {
+		Matrix3d m3 = new Matrix3d();
+		mTarget.get(m3);
+		m3.normalize();
+		mTarget.set(m3);
+	}
 }
