@@ -85,7 +85,7 @@ void clockISRProfile() {
   int oldMult = isr_step_multiplier;
   isr_step_multiplier=1;
 
-  int i, count=1000;
+  int count=1000;
   // get set... go!
   uint32_t tStart = micros();
   

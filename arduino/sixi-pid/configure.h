@@ -13,7 +13,8 @@
 #define BOARD_MEGA2560               0
 #define BOARD_RUMBA                  1
 
-#define MOTHERBOARD                  BOARD_RUMBA  // change this
+#define MOTHERBOARD                  BOARD_MEGA2560
+//#define MOTHERBOARD                  BOARD_RUMBA  // change this
 
 
 // serial comms
