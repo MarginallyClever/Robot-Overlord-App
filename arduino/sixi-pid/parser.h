@@ -36,6 +36,7 @@ public:
   void D17();   // report sensor values
   void D18();   // copy sensor values to motor step positions
   //void D19();   // toggle continuous D17 reporting
+  void D22();
   void D50();   // toggle strict mode
   void D51();   // report strict mode
   

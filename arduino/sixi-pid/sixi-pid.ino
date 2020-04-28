@@ -88,12 +88,9 @@ void setup() {
   motors[4].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
   motors[5].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
 /*/
-  motors[0].setPID(50.0, 1.0, 0.01);
-  motors[1].setPID(50.0, 1.0, 0.01);
-  motors[2].setPID(50.0, 1.0, 0.01);
-  motors[3].setPID(50.0, 1.0, 0.01);
-  motors[4].setPID(50.0, 1.0, 0.01);
-  motors[5].setPID(50.0, 1.0, 0.01);
+
+  //Load PID values
+  eepromLoadPID();
 //*/
   //clockISRProfile();
   

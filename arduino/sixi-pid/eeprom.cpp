@@ -10,7 +10,6 @@
 uint32_t robot_uid;
 
 
-
 // from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1234477290/3
 uint32_t EEPROM_readLong(int ee) {
   uint32_t value = 0;
@@ -56,34 +55,19 @@ bool EEPROM_writeFloat(int ee, float value) {
 }
 
 
-/**
- * 
- */
 char eepromLoadVersion() {
   return EEPROM.read(ADDR_VERSION);
 }
 
-
-/**
- * 
- */
 void eepromSaveUID() {
   Serial.println(F("Saving UID."));
   EEPROM_writeLong(ADDR_UUID,(uint32_t)robot_uid);
 }
 
-
-/**
- * 
- */
 char eepromLoadUID() {
   return EEPROM.read(ADDR_VERSION);
 }
 
-
-/**
- * 
- */
 void eepromSaveLimits() {
   Serial.println(F("Saving limits."));
   int j=ADDR_LIMITS;
@@ -95,10 +79,6 @@ void eepromSaveLimits() {
   }
 }
 
-
-/**
- * 
- */
 void eepromLoadLimits() {
   int j=ADDR_LIMITS;
   for(ALL_MOTORS(i)) {
@@ -115,7 +95,6 @@ void eepromLoadLimits() {
     //Serial.println();
   }
 }
-
 
 /**
  * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
@@ -147,7 +126,6 @@ void eepromAdjustLimits(float *limits) {
   }
 }
 
-
 void eepromSaveHome() {
   Serial.println(F("Saving home:"));
   int j=ADDR_HOME;
@@ -161,7 +139,6 @@ void eepromSaveHome() {
   }
   Serial.println();
 }
-
 
 void eepromLoadHome() {
   Serial.println(F("Loading home:"));
@@ -177,13 +154,11 @@ void eepromLoadHome() {
   Serial.println();
 }
 
-
 void eepromSaveAll() {
   eepromSaveUID();
   eepromSaveLimits();
   eepromSaveHome();
 }
-
 
 void eepromLoadAll() {
   char versionNumber = eepromLoadVersion();
@@ -197,4 +172,48 @@ void eepromLoadAll() {
   robot_uid=EEPROM_readLong(ADDR_UUID);
   eepromLoadLimits();
   eepromLoadHome();
+}
+
+void eepromSavePID() {
+  Serial.println(F("Saving PID values:"));
+  int j=ADDR_PID;
+  
+  for(ALL_MOTORS(i)) {
+    EEPROM_writeFloat(j,motors[i].kp);
+    EEPROM_writeFloat(j+4,motors[i].ki);
+    EEPROM_writeFloat(j+8,motors[i].kd);
+    j+=12;
+
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(' P');
+    Serial.print(motors[i].kp);
+    Serial.print(' I');
+    Serial.print(motors[i].ki);
+    Serial.print(' D');
+    Serial.print(motors[i].kd);
+  }
+  Serial.println();
+}
+
+void eepromLoadPID() {
+  Serial.println(F("Loading PID values:"));
+  int j=ADDR_PID;
+  for(ALL_MOTORS(i)) {
+
+    motors[i].kp = EEPROM_readFloat(j);
+    motors[i].ki = EEPROM_readFloat(j+4);
+    motors[i].kd = EEPROM_readFloat(j+8);
+    j+=12;
+
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(' P');
+    Serial.print(motors[i].kp);
+    Serial.print(' I');
+    Serial.print(motors[i].ki);
+    Serial.print(' D');
+    Serial.print(motors[i].kd);
+  }
+  Serial.println();
 }

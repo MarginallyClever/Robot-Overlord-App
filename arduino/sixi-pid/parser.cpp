@@ -219,6 +219,7 @@ void Parser::processCommand() {
     case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
     case 20:  SET_BIT_OFF(positionErrorFlags,(POSITION_ERROR_FLAG_ERROR | POSITION_ERROR_FLAG_FIRSTERROR));  break;  // off
     case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
+    case 22:  D22();  break;        //Save all PID values
     case 50:  D50();  break;
     case 51:  D51();  break;
     default:  break;
@@ -438,6 +439,25 @@ void Parser::D18() {
   }
 
   CRITICAL_SECTION_END();
+}
+
+
+// Save all PID to eeprom
+void Parser::D22() {
+  //check every P value if anyone are 0 for at least one of the motors, don't save it.
+  Serial.println("Checking to see if all PID values are set...");
+
+  for (ALL_MOTORS(i)){
+    if (motors[i].kp == 0){
+      Serial.print("Kp for ");
+      Serial.print(i);
+      Serial.println(" is 0, set PID value before continuing!");
+      break;
+    }
+    if (i == NUM_MOTORS - 1){
+      eepromSavePID();
+    }
+  }
 }
 
 

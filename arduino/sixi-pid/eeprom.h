@@ -13,8 +13,8 @@
 #define EEPROM_LIMITS_LENGTH    (2*NUM_MOTORS*SIZEOF_FLOAT_BYTES)
 #define ADDR_HOME               (ADDR_LIMITS+EEPROM_LIMITS_LENGTH)
 #define EEPROM_LIMITS_HOME      (NUM_MOTORS*SIZEOF_FLOAT_BYTES)
-#define ADDR_CALIBRATION_LEFT   (ADDR_HOME+EEPROM_LIMITS_HOME)
-#define ADDR_CALIBRATION_RIGHT  (ADDR_CALIBRATION_LEFT+SIZEOF_FLOAT_BYTES)
+#define ADDR_PID                (ADDR_HOME+EEPROM_LIMITS_HOME)
+#define EEPROM_LIMITS_HOME      (NUM_MOTORS*SIZEOF_FLOAT_BYTES)
 
 
 extern uint32_t robot_uid;
@@ -61,3 +61,6 @@ extern void eepromSaveAll();
  * 
  */
 extern void eepromLoadAll();
+
+extern void eepromSavePID();
+extern void eepromLoadPID();

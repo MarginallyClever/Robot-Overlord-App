@@ -116,9 +116,9 @@ public:
   
   // current error
   // PID values
-  float kp=1.5;
-  float ki=0.01;
-  float kd=0.00001;
+  float kp=0.0;
+  float ki=0.0;
+  float kd=0.0;
   
   float error;
   float error_i;
