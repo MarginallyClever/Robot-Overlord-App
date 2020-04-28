@@ -112,11 +112,7 @@ public class InputManager {
 	static public void update(boolean isMouseIn) {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 
-		// reset the key states
-		for(int i=0;i<Source.values().length;++i) {
-			keyStateOld[i]=keyState[i];
-			keyState[i]=0;
-		}
+		resetKeyStates();
 		
 		int numMice=0;
 		//int numSticks=0;
@@ -308,5 +304,17 @@ public class InputManager {
     			}
         	}
         }
+	}
+
+	public static void resetKeyStates() {
+		// reset the key states
+		for(int i=0;i<Source.values().length;++i) {
+			keyStateOld[i]=keyState[i];
+			keyState[i]=0;
+		}
+	}
+	
+	public static void lostFocus() {
+		resetKeyStates();
 	}
 }

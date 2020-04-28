@@ -35,6 +35,7 @@ public class ViewElementBoolean extends ViewElement implements ItemListener, Obs
 		field.setSelected(e.get());
 		field.addItemListener(this);
 		field.setBorder(new EmptyBorder(0,0,0,0));
+		field.addFocusListener(this);
 		
 		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
 		label.setLabelFor(field);

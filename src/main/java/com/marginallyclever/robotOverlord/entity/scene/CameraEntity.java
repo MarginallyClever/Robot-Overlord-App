@@ -31,11 +31,20 @@ public class CameraEntity extends PoseEntity {
 	protected DoubleEntity tilt = new DoubleEntity("Tilt",0);
 	protected DoubleEntity zoom = new DoubleEntity("Zoom",100);
 
+	// snap system
+	protected DoubleEntity snapDeadZone = new DoubleEntity("Snap dead zone",100);
+	protected DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",45);
+	protected boolean hasSnappingStarted=false;
+	protected double sumDx;
+	protected double sumDy;
+	
 	
 	public CameraEntity() {
 		super();
-		
 		setName("Camera");
+		
+		addChild(snapDeadZone);
+		addChild(snapDegrees);
 	}
 	
 	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -80,7 +89,7 @@ public class CameraEntity extends PoseEntity {
         	double newZoom = oldZoom;
         	
         	newZoom -= dz*3;
-        	newZoom = Math.max(0.01,newZoom);
+        	newZoom = Math.max(1,newZoom);
 
         	if(oldZoom!=newZoom) {
         		zoom.set(newZoom);
@@ -99,6 +108,19 @@ public class CameraEntity extends PoseEntity {
         	//System.out.println(dz+"\t"+zoom);
         }
         
+		// snap system
+        boolean isSnapHappeningNow=
+        		InputManager.isOn(InputManager.Source.MOUSE_MIDDLE) &&
+        		(InputManager.isOn(InputManager.Source.KEY_LALT) || InputManager.isOn(InputManager.Source.KEY_RALT));
+        if(isSnapHappeningNow) {
+        	if(!hasSnappingStarted) {
+				sumDx=0;
+				sumDy=0;
+				hasSnappingStarted=true;
+			}
+		}
+        hasSnappingStarted = isSnapHappeningNow;
+		
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
 	        double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
 	        double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
@@ -110,7 +132,7 @@ public class CameraEntity extends PoseEntity {
 					Vector3d vx = MatrixHelper.getXAxis(m);
 					Vector3d vy = MatrixHelper.getYAxis(m);
 					Vector3d p = getPosition();
-					double zSq = Math.sqrt(zoom.get())*0.1;
+					double zSq = Math.sqrt(zoom.get())*0.01;
 					vx.scale(zSq*-dx);
 					vy.scale(zSq* dy);
 					p.add(vx);
@@ -127,9 +149,40 @@ public class CameraEntity extends PoseEntity {
 					Vector3d p = getPosition();
 					p.add(zAxis);
 					setPosition(p);
-				} else if(InputManager.isOn(InputManager.Source.KEY_LALT) ||
-						  InputManager.isOn(InputManager.Source.KEY_RALT) ) {
-					// snap system 
+				} else if( isSnapHappeningNow ) {
+					sumDx+=dx;
+					sumDy+=dy;
+					if(Math.abs(sumDx)>snapDeadZone.get() || Math.abs(sumDy)>snapDeadZone.get()) {
+						double degrees = snapDegrees.get();
+						if(Math.abs(sumDx) > Math.abs(sumDy)) {
+							double a=getPan();
+							// left/right snap
+							if(sumDx>0) {
+								// snap CCW
+								a+=degrees;
+							} else {
+								// snap CW
+								a-=degrees;
+							}
+							setPan(Math.round(a/degrees)*degrees);
+						} else {
+							double a=getTilt();
+							// up/down snap
+							if(sumDy>0) {
+								// snap down
+								a-=degrees;
+							} else {
+								// snap up
+								a+=degrees;
+							}
+							setTilt(Math.round(a/degrees)*degrees);
+						}
+						
+						Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
+						setRotation(rot);
+						sumDx=0;
+						sumDy=0;
+					}
 				} else {
 					// orbit around the focal point
 					setPan(getPan()+dx);
@@ -175,24 +228,28 @@ public class CameraEntity extends PoseEntity {
 	}
 	
 	public void setPan(double arg0) {
+		//arg0 = Math.min(Math.max(arg0, 0), 360);
 		pan.set(arg0);
 	}
 	
 	public void setTilt(double arg0) {
-		arg0 = Math.max(arg0, 1);
-		arg0 = Math.min(arg0, 179);
+		arg0 = Math.min(Math.max(arg0, 1), 179);
 		tilt.set(arg0);
 	}
 	
 	public void setZoom(double arg0) {
-		arg0 = Math.max(arg0, 0);
-		arg0 = Math.min(arg0, 500);
+		arg0 = Math.min(Math.max(arg0, 0), 500);
 		zoom.set(arg0);
+	}
+	
+	public double getZoom() {
+		return zoom.get();
 	}
 	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Ca", "Camera");
+		view.add(snapDeadZone);
 		view.add(pan).setReadOnly(true);
 		view.add(tilt).setReadOnly(true);
 		view.add(zoom).setReadOnly(true);

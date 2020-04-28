@@ -7,6 +7,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -24,20 +25,27 @@ public class PoseEntity extends Entity {
 	
 	// unique ids for all objects in the world.  
 	// zero is reserved to indicate no object.
+	@JsonIgnore
 	static private int pickNameCounter=1;
 	// my unique id
+	@JsonIgnore
 	private int pickName;	
 	
 	// pose relative to my parent Entity.
 	public Matrix4dEntity pose = new Matrix4dEntity();
 	// pose relative to the world.
+	@JsonIgnore
 	public Matrix4dEntity poseWorld = new Matrix4dEntity();
 	
 	// physical limits
+	@JsonIgnore
 	public transient Cuboid cuboid = new Cuboid();
-	
+
+	@JsonIgnore
 	public transient BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
+	@JsonIgnore
 	public transient BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
+	@JsonIgnore
 	public transient BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
 
@@ -80,13 +88,9 @@ public class PoseEntity extends Entity {
 			MatrixHelper.applyMatrix(gl2, pose.get());
 
 			// helpful info
-			if(showBoundingBox.get()) {
-				cuboid.render(gl2);
-			}
-			if(showLocalOrigin.get()) {
-				PrimitiveSolids.drawStar(gl2,10);
-			}
-			renderLineage(gl2);
+			if(showBoundingBox.get()) cuboid.render(gl2);
+			if(showLocalOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
+			if(showLineage.get()) renderLineage(gl2);
 			
 			// draw children relative to parent
 			for(Entity e : children ) {
@@ -97,31 +101,37 @@ public class PoseEntity extends Entity {
 		gl2.glPopMatrix();
 	}
 	
-	protected void renderLineage(GL2 gl2) {
-		if(!showLineage.get()) return;
-		
-		boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+	public void renderLineage(GL2 gl2) {
+		boolean isTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
+
+		// save the lighting mode
+		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_LIGHTING);
 
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
 		gl2.glDepthFunc(GL2.GL_ALWAYS);
+		//boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
+		//gl2.glDisable(GL2.GL_DEPTH_TEST);
 
+		gl2.glColor4d(1,1,1,1);
+		gl2.glBegin(GL2.GL_LINES);
 		// connection to children
 		for(Entity e : children ) {
 			if(e instanceof PoseEntity) {					
-				gl2.glColor3d(255, 255, 255);
 				Vector3d p = ((PoseEntity)e).getPosition();
-				gl2.glBegin(GL2.GL_LINES);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(p.x,p.y,p.z);
-				gl2.glEnd();
 			}
 		}
+		gl2.glEnd();
 
+		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthFunc(depthFunc.get());
-		
-		if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+		// restore lighting
+		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
+		if(isTex) gl2.glDisable(GL2.GL_TEXTURE_2D);
 	}
 
 	public Vector3d getPosition() {
@@ -195,8 +205,12 @@ public class PoseEntity extends Entity {
 	public void setPose(Matrix4d arg0) {
 		// update 
 		pose.set(arg0);
+
+		setChanged();
 		
 		updatePoseWorld();
+		
+		notifyObservers();
 	}
 	
 	/**
@@ -204,6 +218,8 @@ public class PoseEntity extends Entity {
 	 * Does not crawl up the parent hierarchy.
 	 */
 	public void updatePoseWorld() {
+		setChanged();
+		
 		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
 			PoseEntity peParent = (PoseEntity)parent;
@@ -214,6 +230,9 @@ public class PoseEntity extends Entity {
 			// this poseWorld is my pose
 			poseWorld.set(pose.get());
 		}
+		
+		notifyObservers();
+		
 		cuboid.setPoseWorld(this.getPoseWorld());
 		
 		for( Entity c : children ) {

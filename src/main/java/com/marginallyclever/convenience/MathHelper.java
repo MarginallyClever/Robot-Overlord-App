@@ -278,9 +278,9 @@ public class MathHelper {
 	 * @param boxMax upper bounds
 	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
 	 */
-	static public double rayBoxIntersection(final Vector3d rayPoint,final Vector3d rayNormal,final Point3d boxMin,final Point3d boxMax) {
-	    double tmin = (boxMin.x - rayPoint.x) / rayNormal.x; 
-	    double tmax = (boxMax.x - rayPoint.x) / rayNormal.x; 
+	static public double rayBoxIntersection(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
+	    double tmin = (boxMin.x - ray.start.x) / ray.direction.x; 
+	    double tmax = (boxMax.x - ray.start.x) / ray.direction.x; 
 	 
 	    if (tmin > tmax) {
 	    	double temp = tmin;
@@ -288,8 +288,8 @@ public class MathHelper {
 	    	tmax=temp;
 	    }
 	 
-	    double tymin = (boxMin.y - rayPoint.y) / rayNormal.y; 
-	    double tymax = (boxMax.y - rayPoint.y) / rayNormal.y; 
+	    double tymin = (boxMin.y - ray.start.y) / ray.direction.y; 
+	    double tymax = (boxMax.y - ray.start.y) / ray.direction.y; 
 	 
 	    if (tymin > tymax) {
 	    	double temp = tymin;
@@ -306,8 +306,8 @@ public class MathHelper {
 	    if (tymax < tmax) 
 	        tmax = tymax; 
 	 
-	    double tzmin = (boxMin.z - rayPoint.z) / rayNormal.z; 
-	    double tzmax = (boxMax.z - rayPoint.z) / rayNormal.z; 
+	    double tzmin = (boxMin.z - ray.start.z) / ray.direction.z; 
+	    double tzmax = (boxMax.z - ray.start.z) / ray.direction.z; 
 	 
 	    if (tzmin > tzmax) {
 	    	double temp = tzmin;

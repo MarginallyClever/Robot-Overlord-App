@@ -228,7 +228,7 @@ public class PrimitiveSolids {
 	 * @param width
 	 * @param height
 	 */
-	static public void drawBox(GL2 gl2,float depth,float width,float height) {
+	static public void drawBox(GL2 gl2,double depth,double width,double height) {
 		width/=2;
 		depth/=2;
 
@@ -310,6 +310,9 @@ public class PrimitiveSolids {
 	 * @param top maximum bounds
 	 */
 	static public void drawBoxWireframe(GL2 gl2,Point3d bottom,Point3d top) {
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		
 		double x0=bottom.x;
 		double y0=bottom.y;
 		double z0=bottom.z;
@@ -361,7 +364,6 @@ public class PrimitiveSolids {
 
 		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glDepthFunc(depthFunc.get());
-		
 		// restore lighting
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 		

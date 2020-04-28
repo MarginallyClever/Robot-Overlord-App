@@ -62,6 +62,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 		field.setMinorTickSpacing(1);
 		field.setValue((int)(value*255));
 		field.addChangeListener(this);
+		field.addFocusListener(this);
 
 		JLabel label = new JLabel(labelName,JLabel.LEADING);
 		

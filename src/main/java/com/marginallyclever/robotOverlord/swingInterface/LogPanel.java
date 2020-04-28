@@ -24,14 +24,16 @@ import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.log.LogListener;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
-public class LogPanel extends JPanel implements LogListener, ActionListener, KeyListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3059365538792584595L;
-	
+/**
+ * Two way text interface to a RobotEntity
+ * @author Dan Royer
+ *
+ */
+public class LogPanel implements LogListener, ActionListener, KeyListener {	
 	transient Translator translator;
 	RobotEntity robot;
+	
+	transient private JPanel panel;
 	
 	// logging
 	transient private JTextPane log;
@@ -65,7 +67,7 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 		JScrollPane logPane = new JScrollPane(log);
 
 		// Now put all the parts together
-		this.setLayout(new GridBagLayout());
+		panel.setLayout(new GridBagLayout());
 		GridBagConstraints con1 = new GridBagConstraints();
 		con1.gridx = 0;
 		con1.gridy = 0;
@@ -73,13 +75,13 @@ public class LogPanel extends JPanel implements LogListener, ActionListener, Key
 		con1.weighty=1;
 		con1.fill=GridBagConstraints.HORIZONTAL;
 		con1.anchor=GridBagConstraints.NORTHWEST;
-		this.add(logPane,con1);
+		panel.add(logPane,con1);
 		con1.gridy++;
 
 
 		con1.weightx=1;
 		con1.weighty=0;
-		this.add(getTextInputField(),con1);
+		panel.add(getTextInputField(),con1);
 		
 		// lastly, clear the log
 		clearLog();

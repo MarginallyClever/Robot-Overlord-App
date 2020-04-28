@@ -36,6 +36,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 		field.setMinorTickSpacing(1);
 		field.setValue(e.get());
 		field.addChangeListener(this);
+		field.addFocusListener(this);
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
 		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);

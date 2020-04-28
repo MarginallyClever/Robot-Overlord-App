@@ -19,11 +19,28 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Live;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Sim;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
 public class MiscTests {
+	@Test
+	public void testChecksums() {
+		//>>G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000*78
+		//<<G0 X0.000 Y-86.789 Z27.4U0.000 V-30.692 W0.000*78
+		//<<BADCHECKSUM calc=111 sent=78
+		
+		String a = Sixi2Live.generateChecksum("G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000");
+		String b = Sixi2Live.generateChecksum("G0 X0.000 Y-86.789 Z27.4U0.000 V-30.692 W0.000");
+		System.out.println("a="+a);
+		System.out.println("b="+b);
+		assert(a.equals("*78"));
+		System.out.println("test a passed");
+		assert(b.equals("*111"));
+		System.out.println("test b passed");
+	}
+	
 	@Test
     public void testCompatibleFonts() {
         String s = "\u23EF";

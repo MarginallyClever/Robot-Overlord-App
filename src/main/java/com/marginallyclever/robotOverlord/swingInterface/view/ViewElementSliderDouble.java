@@ -23,6 +23,7 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	private JSlider field;
 	private JLabel value;
 	private DoubleEntity e;
+	boolean inUpdate=false;
 	
 	public ViewElementSliderDouble(RobotOverlord ro,DoubleEntity e,int top,int bottom) {
 		super(ro);
@@ -36,6 +37,7 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		field.setMinorTickSpacing(1);
 		field.setValue((int)Math.floor(e.get()));
 		field.addChangeListener(this);
+		field.addFocusListener(this);
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
 		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);
@@ -55,12 +57,16 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
+		inUpdate=true;
 		field.setValue((int)Math.floor((Double)arg));
 		value.setText(Integer.toString(field.getValue()));
+		inUpdate=false;
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
+		if(inUpdate) return;
+		
 		int oldValue = (int)Math.floor(e.get());
 		int newValue = field.getValue();
 		

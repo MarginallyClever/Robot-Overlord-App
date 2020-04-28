@@ -1,7 +1,9 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import java.util.List;
+import java.util.Observable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.vecmath.Matrix4d;
 
@@ -45,6 +47,10 @@ public class DHRobotEntity extends PoseEntity {
 	public DHRobotEntity() {
 		super();
 		setName("DHRobot");
+
+		showBoundingBox.addObserver(this);
+		showLocalOrigin.addObserver(this);
+		showLineage.addObserver(this);
 	}
 	
 	public DHRobotEntity(DHRobotEntity b) {
@@ -177,7 +183,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(!keyframeAnglesAreOK(keyframe)) {
 			if(VERBOSE) System.out.println("Bad angles");
 			return false;
-		}
+		}/*
 		if(collidesWithSelf(keyframe)) {
 			if(VERBOSE) System.out.println("Collides with self");
 			return false;
@@ -185,7 +191,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(collidesWithWorld(keyframe))	{
 			if(VERBOSE) System.out.println("Collides with world");
 			return false;
-		}
+		}*/
 		return true;
 	}
 		
@@ -255,7 +261,7 @@ public class DHRobotEntity extends PoseEntity {
 		// move to the future key
 		setPoseFK(futureKey);
 		// test for intersection
-		boolean result = scene.collisionTest((PoseEntity)parent);
+		boolean result = scene.collisionTest((PoseEntity)this);
 		// clean up and report results
 		setPoseFK(originalKey);
 		return result;
@@ -273,7 +279,7 @@ public class DHRobotEntity extends PoseEntity {
 		for( DHLink link : links ) {
 			if(link.flags == LinkAdjust.NONE) continue;
 			double v = keyframe.fkValues[j++];
-			if (link.rangeMax.get() < v || link.rangeMin.get() > v) {
+			if ( link.rangeMax.get() < v || link.rangeMin.get() > v) {
 				if(VERBOSE) {
 					System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
 				}
@@ -372,11 +378,75 @@ public class DHRobotEntity extends PoseEntity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Dh", "DH shortcuts");
+		
+		view.add(showBoundingBox);
+		view.add(showLocalOrigin);
+		view.add(showLineage);
+		
 		for( DHLink link : links ) {
 			view.addRange(link.theta,
 					(int)Math.floor(link.rangeMax.get()),
 					(int)Math.ceil(link.rangeMin.get()));
 		}
 		view.popStack();
+		super.getView(view);
+	}
+
+	// recursively set for all children
+	public void setShowBoundingBox(boolean arg0) {
+		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
+		next.add(this);
+		while( !next.isEmpty() ) {
+			PoseEntity link = next.pop();
+			link.showBoundingBox.set(arg0);
+			for( Entity child : link.getChildren() ) {
+				if( child instanceof PoseEntity ) {
+					next.add((PoseEntity)child);
+				}
+			}
+		}
+		this.showBoundingBox.set(arg0);
+	}
+	
+	// recursively set for all children
+	public void setShowLocalOrigin(boolean arg0) {
+		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
+		next.add(this);
+		while( !next.isEmpty() ) {
+			PoseEntity link = next.pop();
+			link.showLocalOrigin.set(arg0);
+			for( Entity child : link.getChildren() ) {
+				if( child instanceof PoseEntity ) {
+					next.add((PoseEntity)child);
+				}
+			}
+		}
+		this.showLocalOrigin.set(arg0);
+	}
+
+	// recursively set for all children
+	public void setShowLineage(boolean arg0) {
+		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
+		next.add(this);
+		while( !next.isEmpty() ) {
+			PoseEntity link = next.pop();
+			link.showLineage.set(arg0);
+			for( Entity child : link.getChildren() ) {
+				if( child instanceof PoseEntity ) {
+					next.add((PoseEntity)child);
+				}
+			}
+		}
+		this.showLineage.set(arg0);
+	}
+	
+	/**
+	 * Something this Entity is observing has changed.  Deal with it!
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		if(o==showBoundingBox) setShowBoundingBox((boolean)arg);
+		if(o==showLocalOrigin) setShowLocalOrigin((boolean)arg);
+		if(o==showLineage) setShowLineage((boolean)arg);
 	}
 }

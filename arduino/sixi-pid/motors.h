@@ -1,38 +1,11 @@
 #pragma once
 
-#define NUM_MOTORS                (6)
-#define NUM_SERVOS                (1)
+#ifndef NUM_MOTORS
+#error "NUM_MOTORS undefined"
+#endif
 
 // use in for(ALL_MOTORS(i)) { //i will be rising
 #define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
-
-// MOTOR PINS
-
-#define MOTOR_0_DIR_PIN           46
-#define MOTOR_0_STEP_PIN          45
-#define MOTOR_0_ENABLE_PIN        47
-
-#define MOTOR_1_DIR_PIN           43
-#define MOTOR_1_STEP_PIN          42
-#define MOTOR_1_ENABLE_PIN        44
-
-#define MOTOR_2_DIR_PIN           40
-#define MOTOR_2_STEP_PIN          39
-#define MOTOR_2_ENABLE_PIN        41
-
-#define MOTOR_3_DIR_PIN           37
-#define MOTOR_3_STEP_PIN          36
-#define MOTOR_3_ENABLE_PIN        38
-
-#define MOTOR_4_DIR_PIN           34
-#define MOTOR_4_STEP_PIN          33
-#define MOTOR_4_ENABLE_PIN        35
-
-#define MOTOR_5_DIR_PIN           31
-#define MOTOR_5_STEP_PIN          30
-#define MOTOR_5_ENABLE_PIN        32
-
-#define SERVO0_PIN                (13)
 
 // Motor and gearbox ratios
 
@@ -42,7 +15,7 @@
 
 #define NEMA17_CYCLOID_GEARBOX_RATIO        (20.0)
 #define NEMA23_CYCLOID_GEARBOX_RATIO_ELBOW  (35.0)
-#define NEMA23_CYCLOID_GEARBOX_RATIO_ANCHOR (30.0)
+#define NEMA23_CYCLOID_GEARBOX_RATIO_ANCHOR (30.0)  // will be 40 if build using 3mm dowel pins
 #define NEMA24_CYCLOID_GEARBOX_RATIO        (40.0)
 
 #define DM322T_MICROSTEP              (2.0)
@@ -104,6 +77,7 @@ public:
   uint8_t enable_pin;
 
   // only a whole number of steps is possible.
+  int32_t stepsUpdated;
   int32_t stepsNow;
   int32_t stepsTarget;
   
@@ -115,16 +89,16 @@ public:
   
   // current error
   // PID values
-  float kp=5;
-  float ki=0.01;
-  float kd=0.00001;
+  float kp=0.0;
+  float ki=0.0;
+  float kd=0.0;
   
   float error;
   float error_i;
   float error_last;
   
-  uint32_t timeSinceLastStep;
-  uint32_t stepInterval;
+  uint32_t timeSinceLastStep_us;
+  uint32_t stepInterval_us;
   float velocity;
 
   
@@ -138,20 +112,22 @@ public:
     error_i=0;
     error_last=0;
     
-    timeSinceLastStep=0;
-    stepInterval=0;
+    timeSinceLastStep_us=0;
+    stepInterval_us=0;
   }
 
   /**
    * Called byt the ISR to adjust the position of each stepper motor.
    * MUST NOT contain Serial.* commands
+   * @input dt microseconds since last update
+   * @input angleNow degrees
    */
   void update(float dt,float angleNow);
   
   void setPID(float p,float i,float d) {
-      kp=p;
-      ki=i;
-      kd=d;
+    kp=p;
+    ki=i;
+    kd=d;
   }
 
   void report() {
@@ -170,4 +146,3 @@ extern StepperMotor motors[NUM_MOTORS];
 #if NUM_SERVOS>0
 extern Servo servos[NUM_SERVOS];
 #endif
-

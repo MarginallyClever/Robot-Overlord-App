@@ -1,0 +1,10 @@
+{
+  "t" : 0.0,
+  "a" : 90.0,
+  "d" : 0.0,
+  "r" : 0.0,
+  "rmax" : 120.0,
+  "rmin" : -120.0,
+  "letter" : "V",
+  "modelFilename" : "C:\\Users\\Admin\\Documents\\GitHub\\Robot-Overlord\\src\\main\\resources\\Roci\\V.obj"
+}

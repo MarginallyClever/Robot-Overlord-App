@@ -22,6 +22,7 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 		
 		field = new JButton(label);
 		field.addActionListener(this);
+		field.addFocusListener(this);
 		
 		panel.setLayout(new BorderLayout());
 		panel.add(field,BorderLayout.CENTER);
@@ -29,6 +30,10 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 	
 	public void setReadOnly(boolean arg0) {
 		field.setEnabled(!arg0);
+	}
+	
+	public void setText(String text) {
+		field.setText(text);
 	}
 	
 	@Override

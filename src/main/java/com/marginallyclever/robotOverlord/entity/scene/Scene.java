@@ -12,6 +12,7 @@ import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
+import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -92,6 +93,10 @@ public class Scene extends Entity {
 		m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		sixi2.setRotation(m);
+		
+		TrayCabinet trayCabinet=new TrayCabinet();
+		addChild(trayCabinet);
+		trayCabinet.setPosition(new Vector3d(65,30,0));
 	}
 	
 	public void render(GL2 gl2) {
