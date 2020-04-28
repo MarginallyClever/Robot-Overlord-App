@@ -21,7 +21,7 @@ void setupPins() {
                          SSP(CLK,NN) \
                          SSP(MISO,NN) \
                          SSP(MOSI,NN)
-                         
+
   SSP2(0);
   SSP2(1);
   SSP2(2);
@@ -59,7 +59,7 @@ void setupPins() {
     pinMode(motors[i].dir_pin, OUTPUT);
     pinMode(motors[i].enable_pin, OUTPUT);
   }
-  
+
   // setup servos
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
@@ -69,31 +69,31 @@ void setupPins() {
 
 void setup() {
   Serial.begin(BAUD);
-  
+
   eepromLoadAll();
-  
+
   setupPins();
 
   // make sure the starting target is the starting position (no move)
   parser.D18();
 
   //reportAllMotors();
-  
+
   positionErrorFlags = POSITION_ERROR_FLAG_CONTINUOUS;// | POSITION_ERROR_FLAG_ESTOP;
 /*
   motors[0].setPID(1.0 , 0.03, 0.8);        //Good, But slow
   motors[1].setPID(1.25, 0.5, 0.25);        //Decent
   motors[2].setPID(1.25, 0.7, 0.25);        //Very Good - positive side has offset of 1-2 degrees
-  motors[3].setPID(1.25, 0.85, 0.4);        //OFFSET IS HAPPENING 
-  motors[4].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
-  motors[5].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING 
+  motors[3].setPID(1.25, 0.85, 0.4);        //OFFSET IS HAPPENING
+  motors[4].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING
+  motors[5].setPID(1.25, 0.5, 0.25);        //OFFSET IS HAPPENING
 /*/
 
   //Load PID values
   eepromLoadPID();
 //*/
   //clockISRProfile();
-  
+
   clockSetup();
 
   parser.ready();
