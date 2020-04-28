@@ -12,7 +12,7 @@
 #define MACHINE_HARDWARE_VERSION     6  // yellow sixi 2019
 
 
-#include <SPI.h>  // pkm fix for Arduino 1.5
+//#include <SPI.h>  // pkm fix for Arduino 1.5
 #include <Arduino.h>  // for type definitions
 #include <EEPROM.h>
 #include <stdint.h>
