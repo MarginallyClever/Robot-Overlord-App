@@ -10,8 +10,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -84,7 +84,7 @@ import com.marginallyclever.util.PropertiesFileHelper;
  * @author Dan Royer
  *
  */
-public class RobotOverlord extends Entity implements MouseListener, MouseMotionListener, GLEventListener, WindowListener, UndoableEditListener {
+public class RobotOverlord extends Entity implements MouseListener, MouseMotionListener, GLEventListener, UndoableEditListener {
 	/**
 	 * 
 	 */
@@ -215,7 +215,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
+		
     	int windowW = prefs.getInt("windowWidth", 1224);
     	int windowH = prefs.getInt("windowHeight", 768);
     	int windowX = prefs.getInt("windowX", -1);
@@ -230,9 +230,27 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         }
         mainFrame.setLocation( windowX, windowY );
         mainFrame.setLayout(new java.awt.BorderLayout());
-
-      	// this class listens to the window
-        mainFrame.addWindowListener(this);
+        
+        mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        
+        // when someone tries to close the app, confirm it.
+        mainFrame.addWindowListener(new WindowAdapter() {
+        	@Override
+        	public void windowClosing(WindowEvent e) {
+        		confirmClose();
+        		super.windowClosing(e);
+        	}
+		});
+        // when focus is lost, tell the input manager.
+        mainFrame.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				System.out.println("Focus gained");
+				InputManager.lostFocus();
+				super.windowLostFocus(e);
+			}
+			
+        });
     	
         // add to the frame a menu bar
         mainFrame.setJMenuBar(mainMenu = new JMenuBar());
@@ -240,11 +258,15 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         mainFrame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-              System.out.println("Resized to " + e.getComponent().getSize());
+            	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            	//Dimension windowSize = e.getComponent().getSize();
+            	//System.out.println("Resized to " + windowSize);
+            	//System.out.println("Screen size " + screenSize);
+            	saveWindowSizeAndPosition();
             }
             @Override
             public void componentMoved(ComponentEvent e) {
-              System.out.println("Moved to " + e.getComponent().getLocation());
+            	//System.out.println("Moved to " + e.getComponent().getLocation());
             }
           });
         // now that we have everything built, set up the menus.
@@ -868,22 +890,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         viewport.setCursor(e.getX(),e.getY());
 	}
 
-
-	@Override
-	public void windowActivated(WindowEvent arg0) {}
-	@Override
-	public void windowClosed(WindowEvent arg0) {}
-	@Override
-	public void windowDeactivated(WindowEvent arg0) {}
-	@Override
-	public void windowDeiconified(WindowEvent arg0) {}
-	@Override
-	public void windowIconified(WindowEvent arg0) {}
-	@Override
-	public void windowOpened(WindowEvent arg0) {}
-	@Override
-	public void windowClosing(WindowEvent arg0) {
-		confirmClose();
+	
+	protected void saveWindowSizeAndPosition() {
 		// remember window location for next time.
 		Dimension d = mainFrame.getSize();
     	prefs.putInt("windowWidth", d.width);
@@ -952,6 +960,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	
 	@Override
 	public void getView(ViewPanel view) {
-		
+		view.pushStack("RO", "Robot Overlord");
+		view.popStack();
 	}
 }
