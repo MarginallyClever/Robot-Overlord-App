@@ -349,9 +349,14 @@ void Parser::M501() {
 
 // M502 - reset the home offsets
 void Parser::M502() {
-  for (ALL_MOTORS(i)) {
-    motors[i].angleHome = 0;
-  }
+#define SHP(NN)  if(NUM_MOTORS>NN) motors[NN].angleHome = DH_##NN##_THETA;
+  SHP(0)
+  SHP(1)
+  SHP(2)
+  SHP(3)
+  SHP(4)
+  SHP(5)
+
   D18();
 }
 

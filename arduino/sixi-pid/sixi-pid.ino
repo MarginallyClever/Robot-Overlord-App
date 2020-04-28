@@ -65,9 +65,10 @@ void setupPins() {
 void setup() {
   Serial.begin(BAUD);
 
-  eepromLoadAll();
-
   setupPins();
+  
+  // eepromLoadAll() calls eepromLoadHome() which needs to have motors already setup.
+  eepromLoadAll();
 
   // make sure the starting target is the starting position (no move)
   parser.D18();
