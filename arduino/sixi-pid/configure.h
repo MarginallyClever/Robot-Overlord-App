@@ -18,7 +18,7 @@
 
 
 // serial comms
-#define BAUD                         115200 // was 57600
+#define BAUD                         57600
 #define MAX_BUF                      127
 
 

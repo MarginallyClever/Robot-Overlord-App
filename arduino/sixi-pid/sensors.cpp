@@ -76,11 +76,9 @@ void sensorUpdate() {
     // This is the only place motor direction should ever be inverted.
     if(i!=1 && i!=2) v=-v;
     v -= motors[i].angleHome;
-    // CAUTION!  if motors[i].angleHome is some really big number (uint32_t -1?) these while loops
-    // will be very slow.  It could happen if EEPROM has garbage data and loadConfig() pulls it in
-    // when the robot boots.
-    while(v<-180) v+=360;
-    while(v>=180) v-=360;
+    v+=180;  // shift up so our desired range is 0...360
+    v =fmod(v,360.0f);  // limit to within 0...360
+    v-=180;  // now shift back to +/-180
     sensorAngles[i] = v;
   }
   
