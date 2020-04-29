@@ -1,7 +1,10 @@
 package com.marginallyclever.robotOverlord.swingInterface.commands;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -11,9 +14,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRem
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
- *  
  * @author Dan Royer
- *
  */
 public class CommandRemoveEntity extends AbstractAction {
 	/**
@@ -25,7 +26,9 @@ public class CommandRemoveEntity extends AbstractAction {
 	public CommandRemoveEntity(RobotOverlord ro) {
 		super(Translator.get("Remove Entity"));
         putValue(AbstractAction.SHORT_DESCRIPTION, Translator.get("Remove the selected entity from the world."));
-        //TODO putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        //putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, ActionEvent.CTRL_MASK));
+        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_DELETE));
+        
 		this.ro = ro;
 	}
 

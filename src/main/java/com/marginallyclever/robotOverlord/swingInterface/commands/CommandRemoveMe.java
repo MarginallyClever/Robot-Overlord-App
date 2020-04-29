@@ -17,6 +17,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRem
  * @author Admin
  *
  */
+@Deprecated
 public class CommandRemoveMe extends JPanel implements ActionListener {
 	/**
 	 * 

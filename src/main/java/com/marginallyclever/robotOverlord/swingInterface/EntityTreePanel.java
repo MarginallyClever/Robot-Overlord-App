@@ -33,14 +33,16 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	protected JButton buttonAdd,buttonRemove,buttonRename;
 	protected JPanel abContainer;
 	protected JScrollPane scroll = new JScrollPane();
+	protected CommandRemoveEntity removeEntity;
+	protected CommandRenameEntity renameEntity;
 	
 	public EntityTreePanel(RobotOverlord ro) {
 		super();
 		this.ro=ro;
 		
 		buttonAdd=new JButton(new CommandAddEntity(ro));
-		buttonRename=new JButton(new CommandRenameEntity(ro));
-		buttonRemove=new JButton(new CommandRemoveEntity(ro));
+		buttonRename=new JButton(renameEntity=new CommandRenameEntity(ro));
+		buttonRemove=new JButton(removeEntity=new CommandRemoveEntity(ro));
 		abContainer = new JPanel(new FlowLayout());
 		abContainer.add(buttonAdd);
 		abContainer.add(buttonRename);
@@ -48,8 +50,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		setLayout(new BorderLayout());
 		this.add(abContainer,BorderLayout.NORTH);
 		this.add(scroll,BorderLayout.CENTER);
-		buttonRename.setEnabled(false);
 		updateEntityTree();
+		renameEntity.setEnabled(false);
+		removeEntity.setEnabled(false);
 	}
 
 	public void setSelection(Entity e) {
@@ -74,7 +77,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 			}
 		}
 		
-		buttonRename.setEnabled(e.canBeRenamed());
+		boolean state=e!=null && e.canBeRenamed();
+		renameEntity.setEnabled(state);
+		removeEntity.setEnabled(state);
 	}
 	
     /**
