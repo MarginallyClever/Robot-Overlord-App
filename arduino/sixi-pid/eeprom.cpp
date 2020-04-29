@@ -127,31 +127,31 @@ void eepromAdjustLimits(float *limits) {
 }
 
 void eepromSaveHome() {
-  //Serial.print(F("Saving home:"));
+  Serial.print(F("Saving home:"));
   int j=ADDR_HOME;
   for(ALL_MOTORS(i)) {
     EEPROM_writeFloat(j,motors[i].angleHome);
     j+=4;
 
-    //Serial.print(' ');
-    //Serial.print(motors[i].letter);
-    //Serial.print(motors[i].angleHome);
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleHome);
   }
-  //Serial.println();
+  Serial.println();
 }
 
 void eepromLoadHome() {
-  //Serial.print(F("Loading home:"));
+  Serial.print(F("Loading home:"));
   int j=ADDR_HOME;
   for(ALL_MOTORS(i)) {
     motors[i].angleHome = EEPROM_readFloat(j);
-    //Serial.print(' ');
-    //Serial.print(motors[i].letter);
-    //Serial.print(motors[i].angleHome);
+    Serial.print(' ');
+    Serial.print(motors[i].letter);
+    Serial.print(motors[i].angleHome);
     
     j+=4;
   }
-  //Serial.println();
+  Serial.println();
 }
 
 void eepromSaveAll() {

@@ -51,7 +51,7 @@ public:
   //void D21();  
   void D22();   // Save all PID values to EEPROM
   
-  void D50();   // Set and report strict mode.  D50 Sn where n=0 for off and 1 for on.
+  void D50();   // Set and report strict mode.  D50 [Sn] where n=0 for off and 1 for on.
   
   void G01();  // G0/G1 [Xn] [Yn] [Zn] [Un] [Vn] [Wn]
   void G28();  // go home

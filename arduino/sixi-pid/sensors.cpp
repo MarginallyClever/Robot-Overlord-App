@@ -89,5 +89,5 @@ void sensorUpdate() {
   for(ALL_SENSORS(i)){
     motors[i].stepsUpdated = steps[i];
   }
-  sensorReady=true;
+  sensorReady = true;
 }

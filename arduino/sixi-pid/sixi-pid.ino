@@ -107,7 +107,6 @@ void testPID() {
 void loop() {
   parser.update();
   sensorUpdate();
-  sensorReady = true;
 
   if(TEST(positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
     if(TEST(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {

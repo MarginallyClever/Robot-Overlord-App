@@ -49,7 +49,7 @@ void StepperMotor::update(float dt,float angleNow) {
     timeSinceLastStep_us=0;
     return;
   } else {
-    stepInterval_us = floor(1000.0 / abs(velocity));
+    stepInterval_us = floor(1000000.0 / abs(velocity));
   }
 
   timeSinceLastStep_us += dt;
