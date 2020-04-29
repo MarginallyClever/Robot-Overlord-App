@@ -88,6 +88,7 @@ public class Sixi2 extends PoseEntity {
 	public Sixi2Model sim = new Sixi2Sim();
 
 	public Sixi2Recording recording = new Sixi2Recording();
+	public SixiJoystick joystick = new SixiJoystick();
 
 	// are we live or simulated?  deep philosophical questions.
 	protected IntEntity operatingMode = new IntEntity("Operating mode",OperatingMode.SIM.toInt());
@@ -104,6 +105,7 @@ public class Sixi2 extends PoseEntity {
 		
 		addChild(live);
 		addChild(sim);
+		addChild(joystick);
 		
 		addChild(operatingMode);
 		addChild(controlMode);

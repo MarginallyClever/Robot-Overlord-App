@@ -89,7 +89,7 @@ public class Sixi2Live extends Sixi2Model {
 	    // while we wait for reply don't flood the robot with too much data. 
 	    readyForCommands=false;
 	}
-
+	
 	// @return "*"+ the binary XOR of every byte in the msg.
 	static public String generateChecksum(String msg) {
 		byte checksum = 0;
@@ -102,11 +102,11 @@ public class Sixi2Live extends Sixi2Model {
 	}
 	
 	public void reportDataSent(String msg) {
-		System.out.println(">>"+msg.trim());
+		System.out.println("SEND "+msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
-		System.out.println("<<"+msg.trim());
+		System.out.println("RECV "+msg.trim());
 	}
 	
 	@Override

@@ -34,11 +34,16 @@ public class SixiJoystick extends ModelEntity {
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
 	// What if there was more than one Sixi?  More than one joystick?
 	protected Sixi2 findRobot() {
+		if(parent instanceof Sixi2) {
+			return (Sixi2)parent;
+		}
+		
 		for( Entity e : getWorld().getChildren() ) {
 			if(e instanceof Sixi2) {
 				return (Sixi2)e;
 			}
 		}
+		
 		return null;
 	}
 	

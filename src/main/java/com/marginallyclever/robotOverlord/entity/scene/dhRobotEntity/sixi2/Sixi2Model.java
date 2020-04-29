@@ -298,9 +298,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	        timeNow=timeStart=0;
 	        timeTarget=timeStart+travelS;
-	        
-	        // wait for reply
-	        readyForCommands=false;
 		} else if(gMode==4) {
 			// dwell
 			double dwellTimeS=0;
