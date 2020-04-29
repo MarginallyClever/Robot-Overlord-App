@@ -1,7 +1,7 @@
 #pragma once
 
 
-// EEPROM
+// EEPROM - should exactly match makelangelo-firmware eeprom for legacy reasons
 
 #define FIRMWARE_VERSION        10    // Increment when adding new variables
 #define SIZEOF_FLOAT_BYTES      (4)
@@ -13,7 +13,10 @@
 #define EEPROM_LIMITS_LENGTH    (NUM_MOTORS*2*SIZEOF_FLOAT_BYTES)
 #define ADDR_HOME               (ADDR_LIMITS+EEPROM_LIMITS_LENGTH)
 #define EEPROM_HOME_LENGTH      (NUM_MOTORS*1*SIZEOF_FLOAT_BYTES)
-#define ADDR_PID                (ADDR_HOME+EEPROM_HOME_LENGTH)
+#define ADDR_CALIBRATION_LEFT   (ADDR_HOME+EEPROM_HOME_LENGTH)
+#define ADDR_CALIBRATION_LENGTH (1*SIZEOF_FLOAT_BYTES)
+#define ADDR_CALIBRATION_RIGHT  (ADDR_CALIBRATION_LEFT+ADDR_CALIBRATION_LENGTH)
+#define ADDR_PID                (ADDR_CALIBRATION_RIGHT+ADDR_CALIBRATION_LENGTH)
 #define EEPROM_PID_LENGTH       (NUM_MOTORS*3*SIZEOF_FLOAT_BYTES)
 
 
