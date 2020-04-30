@@ -325,8 +325,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				gcode += " " + link.getLetter() + StringHelper.formatDouble(link.getAdjustableValue());
 			}
 		}
-		//gcode += " F"+getFeedrate();
-		//gcode += " A"+getAcceleration();
+		gcode += " F"+getFeedrate();
+		gcode += " A"+getAcceleration();
 		
 		return gcode;
 	}
@@ -625,6 +625,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("Sm", "Sixi Model");
 		view.addComboBox(interpolationStyle, InterpolationStyle.getAll());
+		view.addRange(feedRate, 50, 0);
+		view.addRange(acceleration,50,0);
 		view.popStack();
 		super.getView(view);
 	}
