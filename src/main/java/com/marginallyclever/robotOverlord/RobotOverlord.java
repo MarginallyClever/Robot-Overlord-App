@@ -54,13 +54,13 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.DragBallEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
+import com.marginallyclever.robotOverlord.entity.scene.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
-import com.marginallyclever.robotOverlord.swingInterface.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
@@ -241,15 +241,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         		super.windowClosing(e);
         	}
 		});
+        
         // when focus is lost, tell the input manager.
         mainFrame.addWindowFocusListener(new WindowAdapter() {
+        	@Override
+        	public void windowLostFocus(WindowEvent e) {
+        		super.windowLostFocus(e);
+        	}
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
-				System.out.println("Focus gained");
-				InputManager.lostFocus();
 				super.windowLostFocus(e);
 			}
-			
         });
     	
         // add to the frame a menu bar

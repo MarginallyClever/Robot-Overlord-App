@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface;
+package com.marginallyclever.robotOverlord.entity.scene;
 
 
 import javax.vecmath.Matrix4d;
@@ -9,8 +9,8 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class ViewCubeEntity extends Entity {
@@ -42,12 +42,13 @@ public class ViewCubeEntity extends Entity {
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		
 		gl2.glBlendFunc(GL2.GL_SRC_ALPHA,GL2.GL_ONE_MINUS_SRC_ALPHA);
-		
-		gl2.glMatrixMode(GL2.GL_MODELVIEW);
+
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glPushMatrix();
-			gl2.glLoadIdentity();
-			cameraView.renderOrtho(gl2);
-			
+		cameraView.renderOrtho(gl2);
+		gl2.glMatrixMode(GL2.GL_MODELVIEW);
+		
+		gl2.glPushMatrix();			
 			double c = cubeSize.get();			
 			PoseEntity camera = cameraView.getAttachedTo();
 			Matrix4d m = camera.getPoseWorld();
@@ -57,8 +58,8 @@ public class ViewCubeEntity extends Entity {
 			Vector3d vz = MatrixHelper.getZAxis(m);
 		
 			vz.scale(-100);
-			vx.scale(cameraView.canvasWidth /10 -c*2);
-			vy.scale(cameraView.canvasHeight/10 -c*2);
+			vx.scale(cameraView.getCanvasWidth() /10 -c*2);
+			vy.scale(cameraView.getCanvasHeight()/10 -c*2);
 			p.add(vx);
 			p.add(vy);
 			p.add(vz);
@@ -66,7 +67,6 @@ public class ViewCubeEntity extends Entity {
 			gl2.glTranslated(p.x, p.y, p.z);
 			gl2.glScaled(c,c,c);
 
-	    	model.getMaterial().setLit(false);
 			model.render(gl2);
 
 			gl2.glDisable(GL2.GL_LIGHTING);
@@ -86,6 +86,10 @@ public class ViewCubeEntity extends Entity {
 			gl2.glLineWidth(1);
 						
 		gl2.glPopMatrix();
+
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glPopMatrix();
+		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 	}
 	
 	@Override

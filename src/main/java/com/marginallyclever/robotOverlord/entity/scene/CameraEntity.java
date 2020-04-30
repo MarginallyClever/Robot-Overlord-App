@@ -83,7 +83,7 @@ public class CameraEntity extends PoseEntity {
 		// Move the camera
 		Matrix4d m = pose.get();
 		
-        double dz = InputManager.rawValue(InputManager.Source.MOUSE_Z);
+        double dz = InputManager.getRawValue(InputManager.Source.MOUSE_Z);
         if(dz!=0) { 
         	double oldZoom = zoom.get();
         	double newZoom = oldZoom;
@@ -108,24 +108,25 @@ public class CameraEntity extends PoseEntity {
         	//System.out.println(dz+"\t"+zoom);
         }
         
-		// snap system
-        boolean isSnapHappeningNow=
-        		InputManager.isOn(InputManager.Source.MOUSE_MIDDLE) &&
-        		(InputManager.isOn(InputManager.Source.KEY_LALT) || InputManager.isOn(InputManager.Source.KEY_RALT));
-        if(isSnapHappeningNow) {
-        	if(!hasSnappingStarted) {
-				sumDx=0;
-				sumDy=0;
-				hasSnappingStarted=true;
-			}
-		}
-        hasSnappingStarted = isSnapHappeningNow;
-		
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
-	        double dx = InputManager.rawValue(InputManager.Source.MOUSE_X);
-	        double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y);
+	        double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X);
+	        double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y);
 
 			if(dx!=0 || dy!=0) {
+				// snap system
+		        boolean isSnapHappeningNow=
+		        		(InputManager.isOn(InputManager.Source.KEY_LALT) || InputManager.isOn(InputManager.Source.KEY_RALT));
+		        if(isSnapHappeningNow) {
+		        	if(!hasSnappingStarted) {
+						sumDx=0;
+						sumDy=0;
+						hasSnappingStarted=true;
+					}
+				}
+		        hasSnappingStarted = isSnapHappeningNow;
+		        //System.out.println("Snap="+isSnapHappeningNow);
+				
+		        //
 				if( InputManager.isOn(InputManager.Source.KEY_LSHIFT) ||
 					InputManager.isOn(InputManager.Source.KEY_RSHIFT) ) {
 					// translate relative to camera's current orientation

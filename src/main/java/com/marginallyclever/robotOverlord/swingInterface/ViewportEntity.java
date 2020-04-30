@@ -55,7 +55,10 @@ public class ViewportEntity extends Entity {
 		isPressed=false;
 	}
 	
-	protected void renderPerspective(GL2 gl2) {
+	public void renderPerspective(GL2 gl2) {
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glLoadIdentity();
+		
 		double zNear = nearZ.get();
 		double zFar = farZ.get();
 		double fH = Math.tan( Math.toRadians(fieldOfView.get()/2) ) * zNear;
@@ -65,7 +68,10 @@ public class ViewportEntity extends Entity {
 		gl2.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
 	}
 	
-	protected void renderOrtho(GL2 gl2) {
+	public void renderOrtho(GL2 gl2) {
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glLoadIdentity();
+		
         double w = canvasWidth/10;
         double h = canvasHeight/10;
 		//PoseEntity camera = getAttachedTo();
@@ -76,10 +82,23 @@ public class ViewportEntity extends Entity {
         
 		gl2.glOrtho(-w, w, -h, h, nearZ.get(), farZ.get());
 	}
+
+	public void renderShared(GL2 gl2) {
+		// store the projection matrix for later
+        double [] m = new double[16];
+        gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX, m, 0);
+        projectionMatrix.set(m);
+
+    	gl2.glMatrixMode(GL2.GL_MODELVIEW);
+        gl2.glLoadIdentity();
+    	
+		PoseEntity camera = getAttachedTo();
+		Matrix4d mFinal = camera.getPoseWorld();
+		mFinal.invert();
+		MatrixHelper.applyMatrix(gl2, mFinal);
+	}
 	
 	public void renderChosenProjection(GL2 gl2) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
 		
 		if(drawOrtho.get()) {
 			renderOrtho(gl2);
@@ -111,21 +130,6 @@ public class ViewportEntity extends Entity {
 		}
 		
 		renderShared(gl2);
-	}
-	
-	public void renderShared(GL2 gl2) {
-		// store the projection matrix for later
-        double [] m = new double[16];
-        gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX, m, 0);
-        projectionMatrix.set(m);
-
-    	gl2.glMatrixMode(GL2.GL_MODELVIEW);
-        gl2.glLoadIdentity();
-    	
-		PoseEntity camera = getAttachedTo();
-		Matrix4d mFinal = camera.getPoseWorld();
-		mFinal.invert();
-		MatrixHelper.applyMatrix(gl2, mFinal);
 	}
 	
 	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.

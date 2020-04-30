@@ -429,8 +429,8 @@ public class DragBallEntity extends PoseEntity {
 		if(isActivelyMoving) {
 			// actively being dragged
 			final double scale = 5.0*dt;  // TODO something better?
-			double dx = InputManager.rawValue(InputManager.Source.MOUSE_X) * scale;
-			double dy = InputManager.rawValue(InputManager.Source.MOUSE_Y) * -scale;
+			double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
+			double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * -scale;
 			
 			switch(majorAxisSlideDirection) {
 			case SLIDE_XPOS:  valueNow+=dx;	break;
