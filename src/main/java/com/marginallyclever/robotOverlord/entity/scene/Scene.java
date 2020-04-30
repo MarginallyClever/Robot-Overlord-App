@@ -81,14 +81,14 @@ public class Scene extends Entity {
 		table.setPosition(new Vector3d(0,0,-0.75));
 		//box.setSize(160,1,110);
 		//box.setPosition(new Vector3d(59.5,0,-2.5));
-
+/*
 		// adjust grid
-		GridEntity grid;
-		addChild(grid = new GridEntity());
+		GridEntity grid = new GridEntity();
+		addChild(grid);
 		grid.width.set(140);
 		grid.height.set(90);
-		grid.setPosition(new Vector3d(139.5/2,0,-0.5));
-		
+		grid.setPosition(new Vector3d(60.0,0,-0.5));
+*/
     	// add a sixi robot
 		Sixi2 sixi2=new Sixi2();
 		addChild(sixi2);
