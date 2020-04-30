@@ -21,6 +21,7 @@ public class Sixi2Live extends Sixi2Model {
 	protected Vector3dEntity [] PIDs = new Vector3dEntity[6];
 	
 	protected String lastCommandSent="";
+	protected String lastCommandUnsent="";
 	protected boolean waitingForOpenConnection;
 	
 	public Sixi2Live() {
@@ -47,7 +48,7 @@ public class Sixi2Live extends Sixi2Model {
 		// Could compare jacobian estimated force with reported position to determine compliance.
 		super.update(dt);
 		if(readyForCommands) {
-			sendCommandToRemoteEntity(getCommand());
+			sendCommandToRemoteEntity(lastCommandUnsent);
 		}
 		if(!connection.isConnectionOpen()) {
 			waitingForOpenConnection=true;
@@ -57,10 +58,16 @@ public class Sixi2Live extends Sixi2Model {
 	@Override
 	public void sendCommand(String command) {
 		super.sendCommand(command);
+		sendCommandToRemoteEntity(command);
 	}
 	
 	protected void sendCommandToRemoteEntity(String command) {
 		if(command==null) return;
+
+		if(readyForCommands==false) {
+			lastCommandUnsent = command;
+			return;
+		}
 
 		// remove any comment 
 		int index=command.indexOf('(');
@@ -76,6 +83,8 @@ public class Sixi2Live extends Sixi2Model {
 			return;  // still ready to send
 		}
 
+		lastCommandUnsent="";
+		
 		if(lastCommandSent.equals(command)) return;
 		lastCommandSent = command;
 		
@@ -101,8 +110,28 @@ public class Sixi2Live extends Sixi2Model {
 		return "*" + Integer.toString(checksum);
 	}
 	
+	static public boolean confirmChecksumOK(String msg) {
+		// confirm there IS a checksum
+		int starPos = msg.lastIndexOf("*");
+		if(starPos==-1) return false;  // no checksum
+		int deliveredChecksum=0;
+		try {
+			deliveredChecksum = Integer.parseInt(msg.substring(starPos+1));
+		} catch(NumberFormatException e) {
+			return false;
+		}
+		
+		byte calculatedChecksum = 0;
+
+		for (int i = 0; i < starPos; ++i) {
+			calculatedChecksum ^= msg.charAt(i);
+		}
+
+		return calculatedChecksum == deliveredChecksum;
+	}
+	
 	public void reportDataSent(String msg) {
-		System.out.println("SEND "+msg.trim());
+		System.out.println("SENT "+msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
@@ -127,7 +156,15 @@ public class Sixi2Live extends Sixi2Model {
 	
 			boolean unhandled=true;
 
+			//if(!confirmChecksumOK(data)) return;
+
 			reportDataReceived(data);
+			
+			if(data.startsWith("> ")) {
+				// can only be ready if also done waiting for open connection.
+				readyForCommands = !waitingForOpenConnection;
+				data = data.substring(2);
+			}
 			
 			// all other data should probably update model
 			if (data.startsWith("D17")) {
@@ -147,8 +184,6 @@ public class Sixi2Live extends Sixi2Model {
 						refreshPose();
 					} catch(Exception e) {}
 				}
-				// can only be ready if also done waiting for open connection.
-				readyForCommands = !waitingForOpenConnection;
 			}
 	
 			if(unhandled) {
@@ -158,7 +193,9 @@ public class Sixi2Live extends Sixi2Model {
 				// wait until we received something meaningful before we start blasting our data out.
 				if(waitingForOpenConnection) {
 					waitingForOpenConnection=false;
-					sendCommandToRemoteEntity("D50");
+					sendCommandToRemoteEntity("D50 S1");
+					sendCommandToRemoteEntity("D50 S1");
+					sendCommandToRemoteEntity("D50 S1");
 					// send once
 					for(int i=0;i<PIDs.length;++i) {
 						Vector3d newValue = PIDs[i].get();
