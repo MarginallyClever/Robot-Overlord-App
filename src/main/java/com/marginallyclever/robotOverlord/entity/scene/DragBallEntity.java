@@ -869,7 +869,7 @@ public class DragBallEntity extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Mc", "Move controls");
+		view.pushStack("Db", "Dragball");
 		view.add(ballSize);
 		view.add(snapOn);
 		view.add(snapDegrees);
