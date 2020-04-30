@@ -14,6 +14,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -65,19 +66,21 @@ public class Scene extends Entity {
 		box.setName("Front wall");
 		box.setSize(233.5,100,1);
 		box.setPosition(new Vector3d(69.75,65,0));
-		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
+		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 		
 		addChild(box = new BoxEntity());
 		box.setName("Back wall");
 		box.setSize(180,100,1);
 		box.setPosition(new Vector3d(-47.5,-25.5,0));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
-		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
+		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 
-		addChild(box = new BoxEntity());
-		box.setName("Table");
-		box.setSize(160,1,110);
-		box.setPosition(new Vector3d(59.5,0,-2.5));
+		ModelEntity table = new ModelEntity("/table.stl");
+		addChild(table);
+		table.setName("Table");
+		table.setPosition(new Vector3d(0,0,-0.75));
+		//box.setSize(160,1,110);
+		//box.setPosition(new Vector3d(59.5,0,-2.5));
 
 		// adjust grid
 		GridEntity grid;
