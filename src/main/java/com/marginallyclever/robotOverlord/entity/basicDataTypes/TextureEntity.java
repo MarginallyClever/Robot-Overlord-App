@@ -41,10 +41,11 @@ public class TextureEntity extends StringEntity {
 			else {
 				try {
 					texture = TextureIO.newTexture(FileAccess.open(t), false, t.substring(t.lastIndexOf('.')+1));
-					textureDirty=false;
 				} catch(IOException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
+					System.out.println("I can't load "+t);
 				}
+				textureDirty=false;
 			}
 		}
 	    if(texture==null) {
