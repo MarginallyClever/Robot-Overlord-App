@@ -828,16 +828,19 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     }
     
 	public void pickEntity(Entity e) {
-		if(e==null) return;
 		if(e==selectedEntity) return;  // same again
-		
-		System.out.println("Picked "+e.getFullName());
+
+		String name = (e==null)?"nothing":e.getFullName();
+		System.out.println("Picked "+name);
 		
 		selectedEntity=e;
 
 		if(e instanceof PoseEntity && e != dragBall) {
 			dragBall.setSubject((PoseEntity)e);
+		} else if(e==null) {
+			dragBall.setSubject(null);
 		}
+			
 		entityTree.setSelection(e);
 		updateSelectedEntityPanel(e);
 	}
