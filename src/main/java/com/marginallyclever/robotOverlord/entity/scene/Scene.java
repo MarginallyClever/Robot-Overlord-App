@@ -19,6 +19,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 /**
  * Container for all the visible objects in a scene.
  * @author Dan Royer
+ * @since 1.6.0
  */
 public class Scene extends Entity {
 	/**
@@ -35,13 +36,6 @@ public class Scene extends Entity {
 	
 	public void createDefaultWorld() {
 		//addChild(new SkyBoxEntity());
-		
-		// adjust grid
-		GridEntity grid;
-		addChild(grid = new GridEntity());
-		grid.width.set(130);
-		grid.height.set(70);
-		grid.setPosition(new Vector3d(30,0,-0.5));
 		
 		// adjust default camera
 		RobotOverlord ro = (RobotOverlord)getRoot();
@@ -69,21 +63,28 @@ public class Scene extends Entity {
 		
 		addChild(box = new BoxEntity());
 		box.setName("Front wall");
-		box.setSize(160,100,1);
-		box.setPosition(new Vector3d(30,40,0));
+		box.setSize(233.5,100,1);
+		box.setPosition(new Vector3d(69.75,65,0));
 		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
 		
 		addChild(box = new BoxEntity());
 		box.setName("Back wall");
-		box.setSize(100,100,1);
-		box.setPosition(new Vector3d(-50,-10,0));
+		box.setSize(180,100,1);
+		box.setPosition(new Vector3d(-47.5,-25.5,0));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 		box.getMaterial().setDiffuseColor(117f/255f,169f/255f,207f/255f,1f);
 
 		addChild(box = new BoxEntity());
 		box.setName("Table");
-		box.setSize(150,1,80);
-		box.setPosition(new Vector3d(30,0,-2.5));
+		box.setSize(160,1,110);
+		box.setPosition(new Vector3d(59.5,0,-2.5));
+
+		// adjust grid
+		GridEntity grid;
+		addChild(grid = new GridEntity());
+		grid.width.set(140);
+		grid.height.set(90);
+		grid.setPosition(new Vector3d(139.5/2,0,-0.5));
 		
     	// add a sixi robot
 		Sixi2 sixi2=new Sixi2();
@@ -96,7 +97,10 @@ public class Scene extends Entity {
 		
 		TrayCabinet trayCabinet=new TrayCabinet();
 		addChild(trayCabinet);
-		trayCabinet.setPosition(new Vector3d(65,30,0));
+		trayCabinet.setPosition(new Vector3d(35,49.5,0));
+		TrayCabinet trayCabinet2=new TrayCabinet();
+		addChild(trayCabinet2);
+		trayCabinet2.setPosition(new Vector3d(35,49.5,21.75));
 	}
 	
 	public void render(GL2 gl2) {
