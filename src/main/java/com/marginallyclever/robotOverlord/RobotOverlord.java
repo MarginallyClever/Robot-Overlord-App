@@ -269,6 +269,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
             	//System.out.println("Moved to " + e.getComponent().getLocation());
             }
           });
+        
         // now that we have everything built, set up the menus.
         buildMainMenu();
 		
