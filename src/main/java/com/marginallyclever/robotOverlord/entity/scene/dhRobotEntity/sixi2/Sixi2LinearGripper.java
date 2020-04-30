@@ -94,7 +94,10 @@ public class Sixi2LinearGripper extends DHTool {
 	
 	@Override
 	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+		gl2.glRotatef(180-45,0,0,1);
 		super.render(gl2);
+		gl2.glPopMatrix();
 	}
 
 	/**
