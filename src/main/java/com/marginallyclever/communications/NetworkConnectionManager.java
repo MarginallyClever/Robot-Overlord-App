@@ -17,8 +17,9 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  *
  */
 public class NetworkConnectionManager {
-	static private SerialTransportLayer serial = new SerialTransportLayer();
-	static private TCPTransportLayer tcp = new TCPTransportLayer();
+	static private TransportLayer serial = new SerialTransportLayer();
+	static private TransportLayer tcp = new TCPTransportLayer();
+	static private int selectedLayer=0;
 	
 	/**
 	 * create a GUI to give the user transport layer options.
@@ -29,13 +30,15 @@ public class NetworkConnectionManager {
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab(Translator.get("Local"), serial.getTransportLayerPanel());
 		tabs.addTab(Translator.get("Remote"), tcp.getTransportLayerPanel());
-
+		tabs.setSelectedIndex(selectedLayer);
+		
 		JPanel top = new JPanel(new BorderLayout());
 		top.add(tabs,BorderLayout.CENTER);
 
 		int result = JOptionPane.showConfirmDialog(parent, top, Translator.get("MenuConnect"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			Component c = tabs.getSelectedComponent();
+			selectedLayer = tabs.getSelectedIndex();
 			if(c instanceof TransportLayerPanel) {
 				return ((TransportLayerPanel)c).openConnection();
 			}
