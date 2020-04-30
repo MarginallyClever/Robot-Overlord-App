@@ -399,21 +399,18 @@ public class PrimitiveSolids {
 		gridWidth/=2;
 		gridHeight/=2;
 		
-		// float start=0;
-		float start=1;
-		float end=1;
 		for(int i=-gridWidth;i<=gridWidth;i+=grid_space) {
 			//end = 0.5f-((float)Math.abs(i)/(float)(gridHeight))*0.5f;
-			gl2.glColor4f(0.2f,0.2f,0.2f,start);	gl2.glVertex2f(i,-gridHeight);
-			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f(i, 0         );
-			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f(i, 0         );
-			gl2.glColor4f(0.2f,0.2f,0.2f,start);	gl2.glVertex2f(i, gridHeight);
+			gl2.glVertex2f(i,-gridHeight);
+			gl2.glVertex2f(i, 0         );
+			gl2.glVertex2f(i, 0         );
+			gl2.glVertex2f(i, gridHeight);
 		}
 		for(int i=-gridHeight;i<=gridHeight;i+=grid_space) {
-			gl2.glColor4f(0.2f,0.2f,0.2f,start);	gl2.glVertex2f(-gridWidth,i);
-			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f( 0        ,i);
-			gl2.glColor4f(0.2f,0.2f,0.2f,end  );	gl2.glVertex2f( 0        ,i);
-			gl2.glColor4f(0.2f,0.2f,0.2f,start);	gl2.glVertex2f( gridWidth,i);
+			gl2.glVertex2f(-gridWidth,i);
+			gl2.glVertex2f( 0        ,i);
+			gl2.glVertex2f( 0        ,i);
+			gl2.glVertex2f( gridWidth,i);
 		}
 		gl2.glEnd();
 		
