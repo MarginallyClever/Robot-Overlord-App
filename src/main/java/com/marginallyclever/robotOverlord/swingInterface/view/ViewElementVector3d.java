@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -29,11 +30,14 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVec
 public class ViewElementVector3d extends ViewElement implements DocumentListener, Observer {
 	private JTextField [] fields = new JTextField[3];
 	private Vector3dEntity e;
+	private ReentrantLock lock = new ReentrantLock();
 	
 	public ViewElementVector3d(RobotOverlord ro,Vector3dEntity e) {
 		super(ro);
 		this.e=e;
 
+		e.addObserver(this);
+		
 		JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEADING,0,0));
 		
 		fields[0] = addField(e.get().x,p2,"X");
@@ -70,7 +74,10 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 	}
 	
 	@Override
-	public void changedUpdate(DocumentEvent arg0) {		
+	public void changedUpdate(DocumentEvent arg0) {	
+		if(lock.isLocked()) return;
+		lock.lock();
+			
 		Vector3d oldValue = e.get(); 
 		Vector3d newValue = new Vector3d(
 			getField(0,oldValue.x),
@@ -84,6 +91,8 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		if(diff.lengthSquared()>1e-6) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeVector3d(e, newValue) ) );
 		}
+		
+		lock.unlock();
 	}
 
 	@Override
@@ -98,8 +107,13 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
+		if(lock.isLocked()) return;
+		lock.lock();
+		Vector3d input = (Vector3d)arg;
+		fields[0].setText(StringHelper.formatDouble(input.x));
+		fields[1].setText(StringHelper.formatDouble(input.y));
+		fields[2].setText(StringHelper.formatDouble(input.z));
+		lock.unlock();		
 	}
 
 	@Override

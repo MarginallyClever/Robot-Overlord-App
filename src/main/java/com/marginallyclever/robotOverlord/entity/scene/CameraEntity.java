@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -45,6 +47,9 @@ public class CameraEntity extends PoseEntity {
 		
 		addChild(snapDeadZone);
 		addChild(snapDegrees);
+		
+		pan.addObserver(this);
+		tilt.addObserver(this);
 	}
 	
 	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -72,14 +77,14 @@ public class CameraEntity extends PoseEntity {
 		return c;
 	}
 	
-	protected void updateMatrix() {
+	@Override
+	public void update(Observable o, Object arg) {
 		setRotation(buildPanTiltMatrix(pan.get(),tilt.get()));
+		super.update(o, arg);
 	}
 
 	@Override
 	public void update(double dt) {
-		updateMatrix();
-		
 		// Move the camera
 		Matrix4d m = pose.get();
 		
@@ -157,25 +162,13 @@ public class CameraEntity extends PoseEntity {
 						double degrees = snapDegrees.get();
 						if(Math.abs(sumDx) > Math.abs(sumDy)) {
 							double a=getPan();
-							// left/right snap
-							if(sumDx>0) {
-								// snap CCW
-								a+=degrees;
-							} else {
-								// snap CW
-								a-=degrees;
-							}
+							if(sumDx>0)	a+=degrees;	// snap CCW
+							else		a-=degrees;	// snap CW
 							setPan(Math.round(a/degrees)*degrees);
 						} else {
 							double a=getTilt();
-							// up/down snap
-							if(sumDy>0) {
-								// snap down
-								a-=degrees;
-							} else {
-								// snap up
-								a+=degrees;
-							}
+							if(sumDy>0)	a-=degrees;	// snap down
+							else		a+=degrees;	// snap up
 							setTilt(Math.round(a/degrees)*degrees);
 						}
 						
@@ -251,6 +244,7 @@ public class CameraEntity extends PoseEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("Ca", "Camera");
 		view.add(snapDeadZone);
+		view.add(snapDegrees);
 		view.add(pan).setReadOnly(true);
 		view.add(tilt).setReadOnly(true);
 		view.add(zoom).setReadOnly(true);

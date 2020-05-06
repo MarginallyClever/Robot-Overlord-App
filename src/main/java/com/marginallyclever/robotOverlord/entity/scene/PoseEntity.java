@@ -2,6 +2,8 @@ package com.marginallyclever.robotOverlord.entity.scene;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -36,6 +38,8 @@ public class PoseEntity extends Entity {
 	// pose relative to the world.
 	@JsonIgnore
 	public Matrix4dEntity poseWorld = new Matrix4dEntity();
+
+	private ReentrantLock lock = new ReentrantLock();
 	
 	// physical limits
 	@JsonIgnore
@@ -61,6 +65,9 @@ public class PoseEntity extends Entity {
 		
 		pose.setIdentity();
 		poseWorld.setIdentity();
+		
+		pose.addObserver(this);
+		poseWorld.addObserver(this);
 	}
 
 	public PoseEntity(String name) {
@@ -203,14 +210,12 @@ public class PoseEntity extends Entity {
 	 * @param arg0 the local pose
 	 */
 	public void setPose(Matrix4d arg0) {
-		// update 
-		pose.set(arg0);
-
-		setChanged();
-		
-		updatePoseWorld();
-		
-		notifyObservers();
+		if(!arg0.epsilonEquals(pose.get(), 1e-6)) {
+			pose.set(arg0);
+			setChanged();
+			updatePoseWorld();
+			notifyObservers();
+		}
 	}
 	
 	/**
@@ -220,29 +225,49 @@ public class PoseEntity extends Entity {
 	public void updatePoseWorld() {
 		setChanged();
 		
+		Matrix4d m;
 		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
 			PoseEntity peParent = (PoseEntity)parent;
-			Matrix4d m = new Matrix4d(peParent.poseWorld.get());
+			m = new Matrix4d(peParent.poseWorld.get());
 			m.mul(pose.get());
-			poseWorld.set(m);
 		} else {
 			// this poseWorld is my pose
-			poseWorld.set(pose.get());
+			m = pose.get();
 		}
 		
-		notifyObservers();
-		
-		cuboid.setPoseWorld(this.getPoseWorld());
-		
-		for( Entity c : children ) {
-			if(c instanceof PoseEntity) {
-				PoseEntity pe = (PoseEntity)c;
-				pe.updatePoseWorld();
+
+		if(!m.epsilonEquals(poseWorld.get(), 1e-6)) {
+			poseWorld.set(m);
+			
+			notifyObservers();
+			cuboid.setPoseWorld(this.getPoseWorld());
+			
+			for( Entity c : children ) {
+				if(c instanceof PoseEntity) {
+					PoseEntity pe = (PoseEntity)c;
+					pe.updatePoseWorld();
+				}
 			}
 		}
 	}
 
+	@Override
+	public void update(Observable o, Object arg) {
+		if(!lock.isLocked()) {
+			lock.lock();
+			if(o==pose) {
+				System.out.println(System.currentTimeMillis() + " " + getName() + " pose");
+				updatePoseWorld();
+			}
+			if(o==poseWorld) {
+				System.out.println(System.currentTimeMillis() + " " + getName() + " poseWorld");
+				setPoseWorld(poseWorld.get());
+			}
+			lock.unlock();
+		}
+		super.update(o, arg);
+	}
 	
 	/**
 	 * @return {@link Matrix4d} of the world pose

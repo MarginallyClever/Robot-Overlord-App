@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
+import java.util.Observable;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -25,6 +27,8 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	public Matrix4dEntity() {
 		super(new Matrix4d());
 		setName("Pose");
+		pos.addObserver(this);
+		rot.addObserver(this);
 	}
 	
 	public Matrix4dEntity(Matrix4d b) {
@@ -69,6 +73,22 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 		rot.set(Math.toDegrees(r.x),
 				Math.toDegrees(r.y),
 				Math.toDegrees(r.z));
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) {
+		Matrix4d m4 = new Matrix4d();
+		Vector3d rDeg = rot.get();
+		Vector3d rRad = new Vector3d(
+				Math.toRadians(rDeg.x),
+				Math.toRadians(rDeg.y),
+				Math.toRadians(rDeg.z)); 
+		Matrix3d m3 = MatrixHelper.eulerToMatrix(rRad);
+		m4.set(m3);
+		m4.setTranslation(pos.get());
+		this.set(m4);
+		
+		super.update(o, arg);
 	}
 	
 	public void getRotation(Matrix3d rot) {
