@@ -256,14 +256,8 @@ public class PoseEntity extends Entity {
 	public void update(Observable o, Object arg) {
 		if(!lock.isLocked()) {
 			lock.lock();
-			if(o==pose) {
-				System.out.println(System.currentTimeMillis() + " " + getName() + " pose");
-				updatePoseWorld();
-			}
-			if(o==poseWorld) {
-				System.out.println(System.currentTimeMillis() + " " + getName() + " poseWorld");
-				setPoseWorld(poseWorld.get());
-			}
+			if(o==pose) updatePoseWorld();
+			if(o==poseWorld) setPoseWorld(poseWorld.get());
 			lock.unlock();
 		}
 		super.update(o, arg);
