@@ -9,6 +9,8 @@ import javax.swing.KeyStroke;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.UndoManager;
 
+import com.marginallyclever.robotOverlord.log.Log;
+
 /**
  * go forward one step in the undo/redo history.
  * @author Dan Royer
@@ -34,7 +36,7 @@ public class CommandRedo extends AbstractAction {
         try {
             undo.redo();
         } catch (CannotRedoException ex) {
-            System.out.println("Unable to redo: " + ex);
+            Log.message("Unable to redo: " + ex);
             ex.printStackTrace();
         }
         updateRedoState();

@@ -47,11 +47,6 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 		setName("Connected to");
 	}
 	
-	@Override
-	public void getView(ViewPanel view) {
-		super.getView(view);
-	}
-	
 	public void closeConnection() {
 		connection.closeConnection();
 		connection.removeListener(this);
@@ -102,5 +97,10 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 		} catch (Exception e) {
 			Log.error("RemoteEntity.sendMessage failed: "+e.getLocalizedMessage());
 		}
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		super.getView(view);
 	}
 }

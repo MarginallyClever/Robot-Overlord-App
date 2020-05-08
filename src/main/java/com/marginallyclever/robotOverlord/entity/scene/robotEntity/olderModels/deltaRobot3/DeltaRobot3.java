@@ -20,6 +20,7 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity {
@@ -450,7 +451,7 @@ public class DeltaRobot3 extends RobotEntity {
 			
 			String uidString=line.substring(hello.length()).trim();
 			uidString = uidString.substring(uidString.indexOf('#')+1);
-			System.out.println(">>> UID="+uidString);
+			Log.message(">>> UID="+uidString);
 			try {
 				long uid = Long.parseLong(uidString);
 				if(uid==0) {
@@ -467,7 +468,7 @@ public class DeltaRobot3 extends RobotEntity {
 			setName(ROBOT_NAME+" #"+robotUID);
 		}
 		
-		System.out.print("*** "+line);
+		Log.message("RECV "+line);
 	}
 	
 

@@ -5,6 +5,7 @@ import javax.vecmath.Matrix4d;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves Inverse Kinematics for cartesian robots like 3D printers and milling machines.
@@ -48,7 +49,7 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 	 
 		
 		if(true) {
-			System.out.println("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
+			Log.message("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
 					StringHelper.formatDouble(keyframe.fkValues[1])+","+
 					StringHelper.formatDouble(keyframe.fkValues[2])+"}");
 		}

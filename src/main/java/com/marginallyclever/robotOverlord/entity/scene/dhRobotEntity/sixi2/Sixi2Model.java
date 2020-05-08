@@ -17,6 +17,7 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEnti
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -248,7 +249,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				for( String t : tok ) {
 					String letter = t.substring(0,1); 
 					if(link.getLetter().equalsIgnoreCase(letter)) {
-						//System.out.println("link "+link.getLetter()+" matches "+letter);
+						//Log.message("link "+link.getLetter()+" matches "+letter);
 						poseFKTarget[i] = Double.parseDouble(t.substring(1));
 					}
 				}
@@ -478,7 +479,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				cartesianForce[4] * cartesianForce[4] +
 				cartesianForce[5] * cartesianForce[5]);
 		if (df <= 1e-5) {
-			System.out.println("Jacobian arrived early with "+(timeTarget-timeNow)+" remaining.");
+			Log.message("Jacobian arrived early with "+(timeTarget-timeNow)+" remaining.");
 			// arrived at target early.  weird!
 			//readyForCommands=true;
 		} else {
@@ -509,7 +510,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			for(j = 0; j < keyframe.fkValues.length; ++j) {
 				// simulate a change in the joint velocities
 				double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * scale * dt;
-				System.out.print(StringHelper.formatDouble(Math.toDegrees(jvot[j]))+"\t");
+				Log.message(StringHelper.formatDouble(Math.toDegrees(jvot[j]))+"\t");
 				
 				v = MathHelper.capRotationDegrees(v,0);
 				keyframe.fkValues[j]=v;
@@ -518,9 +519,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
 				mLive.set(endEffector.getPoseWorld());
-				//System.out.println("ok");
+				//Log.message("ok");
 			} else {
-				System.out.println("Jacobian insane");
+				Log.message("Jacobian insane");
 			}
 		}
 	}
@@ -585,25 +586,25 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			dT.sub(Td,T);
 			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//*/
 			
-			//System.out.println("T="+T);
-			//System.out.println("Td="+Td);
-			//System.out.println("dT="+dT);
+			//Log.message("T="+T);
+			//Log.message("Td="+Td);
+			//Log.message("dT="+dT);
 			Matrix3d T3 = new Matrix3d(
 					T.m00,T.m01,T.m02,
 					T.m10,T.m11,T.m12,
 					T.m20,T.m21,T.m22);
-			//System.out.println("R="+R);
+			//Log.message("R="+R);
 			Matrix3d dT3 = new Matrix3d(
 					dT.m00,dT.m01,dT.m02,
 					dT.m10,dT.m11,dT.m12,
 					dT.m20,dT.m21,dT.m22);
-			//System.out.println("dT3="+dT3);
+			//Log.message("dT3="+dT3);
 			Matrix3d skewSymmetric = new Matrix3d();
 			
 			T3.transpose();  // inverse of a rotation matrix is its transpose
 			skewSymmetric.mul(dT3,T3);
 			
-			//System.out.println("SS="+skewSymmetric);
+			//Log.message("SS="+skewSymmetric);
 			//[  0 -Wz  Wy]
 			//[ Wz   0 -Wx]
 			//[-Wy  Wx   0]

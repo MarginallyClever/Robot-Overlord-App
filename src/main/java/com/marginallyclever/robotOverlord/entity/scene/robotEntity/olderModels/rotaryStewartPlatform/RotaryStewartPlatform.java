@@ -22,6 +22,7 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class RotaryStewartPlatform extends RobotEntity {
@@ -475,7 +476,7 @@ public class RotaryStewartPlatform extends RobotEntity {
 
 			String ending = line.substring(dimensions.hello.length());
 			String uidString = ending.substring(ending.indexOf('#') + 1).trim();
-			System.out.println(">>> UID=" + uidString);
+			Log.message(">>> UID=" + uidString);
 			try {
 				long uid = Long.parseLong(uidString);
 				if (uid == 0) {

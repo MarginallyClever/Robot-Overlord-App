@@ -26,6 +26,8 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  */
 public class Log {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final Calendar cal = Calendar.getInstance();
 	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
 
 	
@@ -38,7 +40,6 @@ public class Log {
 	
 	/**
 	 * wipe the log file
-	 * @author dan royer
 	 */
 	public static void clear() {
 		Path p = FileSystems.getDefault().getPath("log.html");
@@ -49,9 +50,6 @@ public class Log {
 		}
 		
 		// print starting time
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		write("<h3>" + sdf.format(cal.getTime()) + "</h3>\n");
 	}
 
 
@@ -60,9 +58,11 @@ public class Log {
 	 * @param msg HTML to put in the log file
 	 */
 	public static void write(String msg) {
+		System.out.println(msg);
+		
 		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.html", true), StandardCharsets.UTF_8)) {
 			PrintWriter logToFile = new PrintWriter(fileWriter);
-			logToFile.write(msg);
+			logToFile.write(sdf.format(cal.getTime())+" "+msg);
 			logToFile.flush();
 		} catch (IOException e) {
 			logger.error("{}", e);
@@ -77,7 +77,7 @@ public class Log {
 	/**
 	 * Turns milliseconds into h:m:s
 	 * @param millis milliseconds
-	 * @return human-redable string
+	 * @return human-readable string
 	 */
 	public static String millisecondsToHumanReadable(long millis) {
 		long s = millis / 1000;
@@ -96,21 +96,11 @@ public class Log {
 	
 
 	/**
-	 * Appends a message to the log file
-	 * @param color the hex code or HTML name of the color for this message
-	 * @param message the text
-	 */
-	protected static void write(String color, String message) {
-		write("<font color='"+color+"'>"+message+"</font>\n");
-	}
-
-	/**
 	 * Appends a message to the log file.  Color will be red.
 	 * @param message append text as red HTML
 	 */
 	public static void error(String message) {
-		System.out.println("ERROR: "+message);
-		write("red",message);
+		write("ERROR "+message);
 	}
 
 	/**
@@ -118,7 +108,6 @@ public class Log {
 	 * @param message append text as green HTML
 	 */
 	public static void message(String message) {
-		System.out.println("LOG: "+message);
-		write("green",message);		
+		write(message);		
 	}
 }

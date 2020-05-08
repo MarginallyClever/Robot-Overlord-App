@@ -8,6 +8,7 @@ import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.log.Log;
 
 public class MatrixHelper {	
 	/**
@@ -585,43 +586,32 @@ public class MatrixHelper {
 		cols = matrix[0].length;
 
 		switch (id) {
-			case 1:
-				System.out.print (MessageFormat.format ("First matrix[{0}][{1}]:", rows, cols));
-				break;
-			case 2:
-				System.out.print (MessageFormat.format ("Second matrix[{0}][{1}]:", rows, cols));
-				break;
-			case 3:
-				System.out.print (MessageFormat.format ("Result[{0}][{1}]:", rows, cols));
-				break;
-			case 4:
-				System.out.print (MessageFormat.format ("Inverted matrix[{0}][{1}]:", rows, cols));
-				break;
-			default:
-				System.out.print (MessageFormat.format ("Matrix[{0}][{1}]:", rows, cols));
-				break;
+			case  1: Log.message(MessageFormat.format ("First matrix[{0}][{1}]:", rows, cols)); break;
+			case  2: Log.message(MessageFormat.format ("Second matrix[{0}][{1}]:", rows, cols)); break;
+			case  3: Log.message(MessageFormat.format ("Result[{0}][{1}]:", rows, cols)); break;
+			case  4: Log.message(MessageFormat.format ("Inverted matrix[{0}][{1}]:", rows, cols)); break;
+			default: Log.message(MessageFormat.format ("Matrix[{0}][{1}]:", rows, cols)); break;
 		}
 
-		System.out.println ();
-
+		String message = "";
 		for (int i = 0; i < matrix.length; i++) {
-			System.out.print ("[");
+			message+="[";
 
 			for (int j = 0; j < matrix[i].length; j++) {
-				System.out.print (matrix[i][j]);
+				message+=(matrix[i][j]);
 				if ((j + 1) != matrix[i].length) {
-					System.out.print (", ");
+					message+=(", ");
 				}
 			}
 
 			if ((i + 1) != matrix.length) {
-				System.out.println ("]");
+				message+=("]");
 			} else {
-				System.out.println ("].");
+				message+=("].");
 			}
 		}
 
-		System.out.println ();
+		Log.message(message);
 	}
 
 	/**

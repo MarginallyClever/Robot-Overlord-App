@@ -228,7 +228,7 @@ public class DragBallEntity extends PoseEntity {
 					double Thc = Math.sqrt(r2 - d2);
 					double t0 = Tca - Thc;
 					//double t1 = Tca + Thc;
-					//System.out.println("d2="+d2);
+					//Log.message("d2="+d2);
 
 					pickPointOnBall = ray.getPoint(t0);
 
@@ -278,7 +278,7 @@ public class DragBallEntity extends PoseEntity {
 							case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
 							}
 							pickPointInFOR.normalize();
-							//System.out.println("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
+							//Log.message("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
 						}
 						valueStart=valueNow;
 						valueLast=valueNow;
@@ -602,7 +602,7 @@ public class DragBallEntity extends PoseEntity {
 		boolean drawX = (vX>0.85);
 		boolean drawY = (vY>0.85);
 		boolean drawZ = (vZ>0.85);
-		//System.out.println(vX+"\t"+drawX+"\t"+vY+"\t"+drawY+"\t"+vZ+"\t"+drawZ);
+		//Log.message(vX+"\t"+drawX+"\t"+vY+"\t"+drawY+"\t"+vZ+"\t"+drawZ);
 
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glCullFace(GL2.GL_BACK);
@@ -676,7 +676,7 @@ public class DragBallEntity extends PoseEntity {
 			while(range<-Math.PI) range+=Math.PI*2;
 			double absRange= Math.abs(range);
 			
-			//System.out.println(start+" "+end+"");
+			//Log.message(start+" "+end+"");
 
 			gl2.glBegin(GL2.GL_LINE_LOOP);
 			gl2.glColor3f(255,255,255);
@@ -822,7 +822,7 @@ public class DragBallEntity extends PoseEntity {
 	 * @param amount scale of v.
 	 */
 	protected void translate(Vector3d v, double amount) {
-		//System.out.println(amount);
+		//Log.message(amount);
 		resultMatrix.m03 = startMatrix.m03 + v.x*amount;
 		resultMatrix.m13 = startMatrix.m13 + v.y*amount;
 		resultMatrix.m23 = startMatrix.m23 + v.z*amount;

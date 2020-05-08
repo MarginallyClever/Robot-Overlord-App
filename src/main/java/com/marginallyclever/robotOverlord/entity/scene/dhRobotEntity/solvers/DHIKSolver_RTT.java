@@ -7,6 +7,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves IK for a RTT robot
@@ -59,58 +60,58 @@ public class DHIKSolver_RTT extends DHIKSolver {
 		
 		// (1) theta0 = atan(y07/x07);
 		keyframe.fkValues[0] = Math.toDegrees(Math.atan2(p4.x,-p4.y));  // TODO explain why this isn't Math.atan2(p7.y,p7.x)
-		if(false) System.out.println("t0="+keyframe.fkValues[0]+"\t");
+		if(false) Log.message("t0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) C=z14
 		double c = p4.z - p1.z;
-		if(false) System.out.println("c="+c+"\t");
+		if(false) Log.message("c="+c+"\t");
 		
 		// (3) 
 		double x15 = p4.x-p1.x;
 		double y15 = p4.y-p1.y;
 		double d = Math.sqrt(x15*x15 + y15*y15);
-		if(false) System.out.println("d="+d+"\t");
+		if(false) Log.message("d="+d+"\t");
 		
 		// (4)
 		double e = Math.sqrt(c*c + d*d);
-		if(false) System.out.println("e="+e+"\t");
+		if(false) Log.message("e="+e+"\t");
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
 		double a = link2.getD();
 		double b2 = link4.getD();
 		double b1 = link3.getD();
 		double b = Math.sqrt(b2*b2+b1*b1);
-		if(false) System.out.println("b="+b+"\t");
+		if(false) Log.message("b="+b+"\t");
 		
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2*a*e) );
-		if(false) System.out.println("phi="+Math.toDegrees(phi)+"\t");
+		if(false) Log.message("phi="+Math.toDegrees(phi)+"\t");
 		
 		// (6) rho = atan2(d,c)
 		double rho = Math.atan2(d,c);
-		if(false) System.out.println("rho="+Math.toDegrees(rho)+"\t");
+		if(false) Log.message("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) alpha1 = phi-rho
 		keyframe.fkValues[1] = Math.toDegrees(rho - phi);
-		if(false) System.out.println("a1="+keyframe.fkValues[1]+"\t");
+		if(false) Log.message("a1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
 		double omega = Math.acos( (a*a-b*b-e*e) / (-2*b*e) );
-		if(false) System.out.println("omega="+Math.toDegrees(omega)+"\t");
+		if(false) Log.message("omega="+Math.toDegrees(omega)+"\t");
 
 		// (9) phi3 = phi + omega
 		double phi3 = phi+omega;
-		if(false) System.out.println("phi3="+Math.toDegrees(phi3)+"\t");
+		if(false) Log.message("phi3="+Math.toDegrees(phi3)+"\t");
 				
 		// angle of triangle j3-j2-j5 is ph4.
 		// b2^2 = b^+b1^2-2*b*b1*cos(phi4)
 		double phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2*b1*b) );
-		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
+		if(false) Log.message("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) alpha2 - phi3-phi4
 		keyframe.fkValues[2] = Math.toDegrees(phi3 - phi4);
-		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
+		if(false) Log.message("alpha2="+keyframe.fkValues[2]+"\t");
 		
-		if(true) System.out.println("solution={"+keyframe.fkValues[0]+","+keyframe.fkValues[1]+","+keyframe.fkValues[2]+"}");
+		if(true) Log.message("solution={"+keyframe.fkValues[0]+","+keyframe.fkValues[1]+","+keyframe.fkValues[2]+"}");
 		
 		return SolutionType.ONE_SOLUTION;
 	}

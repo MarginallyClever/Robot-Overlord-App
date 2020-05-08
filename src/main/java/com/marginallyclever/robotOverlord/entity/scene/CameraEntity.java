@@ -110,7 +110,7 @@ public class CameraEntity extends PoseEntity {
 				p.add(newZ);
 				setPosition(p);
         	}
-        	//System.out.println(dz+"\t"+zoom);
+        	//Log.message(dz+"\t"+zoom);
         }
         
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
@@ -129,7 +129,7 @@ public class CameraEntity extends PoseEntity {
 					}
 				}
 		        hasSnappingStarted = isSnapHappeningNow;
-		        //System.out.println("Snap="+isSnapHappeningNow);
+		        //Log.message("Snap="+isSnapHappeningNow);
 				
 		        //
 				if( InputManager.isOn(InputManager.Source.KEY_LSHIFT) ||
@@ -145,7 +145,7 @@ public class CameraEntity extends PoseEntity {
 					p.add(vy);
 					setPosition(p);
 					
-					//System.out.println(dx+"\t"+dy+"\t"+zoom+"\t"+zSq);
+					//Log.message(dx+"\t"+dy+"\t"+zoom+"\t"+zSq);
 				} else if(InputManager.isOn(InputManager.Source.KEY_LCONTROL) ||
 						  InputManager.isOn(InputManager.Source.KEY_RCONTROL) ) {
 					// up and down to fly forward and back
@@ -198,7 +198,7 @@ public class CameraEntity extends PoseEntity {
 					p.add(newZ);
 					setPosition(p);
 					
-					//System.out.println(dx+"\t"+dy+"\t"+pan+"\t"+tilt+"\t"+oldZ+"\t"+newZ);
+					//Log.message(dx+"\t"+dy+"\t"+pan+"\t"+tilt+"\t"+oldZ+"\t"+newZ);
 				}
 			}
 		}

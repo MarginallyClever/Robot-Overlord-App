@@ -8,6 +8,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves Inverse Kinematics for a SCARA, serially-linked robot.
@@ -94,7 +95,7 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 		keyframe.fkValues[3] = Math.toDegrees(-Math.atan2(rY,rX));
 		
 		if(false) {
-			System.out.println("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
+			Log.message("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
 								keyframe.fkValues[1]+","+
 								keyframe.fkValues[2]+","+
 								StringHelper.formatDouble(keyframe.fkValues[3])+"}");

@@ -10,6 +10,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class TextureEntity extends StringEntity {
@@ -43,7 +44,7 @@ public class TextureEntity extends StringEntity {
 					texture = TextureIO.newTexture(FileAccess.open(t), false, t.substring(t.lastIndexOf('.')+1));
 				} catch(IOException e) {
 					//e.printStackTrace();
-					System.out.println("I can't load "+t);
+					Log.error("I can't load "+t);
 				}
 				textureDirty=false;
 			}

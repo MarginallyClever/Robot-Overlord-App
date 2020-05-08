@@ -39,7 +39,8 @@ public class PoseEntity extends Entity {
 	@JsonIgnore
 	public Matrix4dEntity poseWorld = new Matrix4dEntity();
 
-	private ReentrantLock lock = new ReentrantLock();
+	private ReentrantLock lock1 = new ReentrantLock();
+	private ReentrantLock lock2 = new ReentrantLock();
 	
 	// physical limits
 	@JsonIgnore
@@ -237,7 +238,9 @@ public class PoseEntity extends Entity {
 		}
 		
 
-		if(!m.epsilonEquals(poseWorld.get(), 1e-6)) {
+		//if(!m.epsilonEquals(poseWorld.get(), 1e-6))
+		{
+			setChanged();
 			poseWorld.set(m);
 			
 			notifyObservers();
@@ -254,11 +257,19 @@ public class PoseEntity extends Entity {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if(!lock.isLocked()) {
-			lock.lock();
-			if(o==pose) updatePoseWorld();
-			if(o==poseWorld) setPoseWorld(poseWorld.get());
-			lock.unlock();
+		if(o==pose) {
+			if(!lock1.isLocked()) {
+				lock1.lock();
+				updatePoseWorld();
+				lock1.unlock();
+			}
+		}
+		if(o==poseWorld) {
+			if(!lock2.isLocked()) {
+				lock2.lock();
+				setPoseWorld(poseWorld.get());
+				lock2.unlock();
+			}
 		}
 		super.update(o, arg);
 	}

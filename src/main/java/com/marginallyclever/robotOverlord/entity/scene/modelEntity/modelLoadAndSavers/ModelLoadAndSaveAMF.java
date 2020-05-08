@@ -14,6 +14,7 @@ import org.w3c.dom.NodeList;
 
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelLoadAndSave;
+import com.marginallyclever.robotOverlord.log.Log;
 
 public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
 	@Override
@@ -28,7 +29,7 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
 	@Override
 	public boolean canLoad(String filename) {
 		boolean result = filename.toLowerCase().endsWith(".amf");
-		//System.out.println("ModelLoadAndSaveSTL.canLoad("+filename+")="+result);
+		//Log.message("ModelLoadAndSaveSTL.canLoad("+filename+")="+result);
 		return result;
 	}
 
@@ -52,12 +53,12 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
     		
         	NodeList coordinateList = doc.getElementsByTagName("coordinates");
     		int numCoordinates = coordinateList.getLength();
-            System.out.println(numCoordinates + " coordinates.");
+            Log.message(numCoordinates + " coordinates.");
             for (int a = 0; a < numCoordinates; a++) {
             	Element coordinate = (Element)coordinateList.item(a);
-            	//System.out.println("x: "+coordinate.getElementsByTagName("x").item(0).getTextContent());
-            	//System.out.println("y: "+coordinate.getElementsByTagName("y").item(0).getTextContent());
-            	//System.out.println("z: "+coordinate.getElementsByTagName("z").item(0).getTextContent());
+            	//Log.message("x: "+coordinate.getElementsByTagName("x").item(0).getTextContent());
+            	//Log.message("y: "+coordinate.getElementsByTagName("y").item(0).getTextContent());
+            	//Log.message("z: "+coordinate.getElementsByTagName("z").item(0).getTextContent());
             	float x = Float.parseFloat(coordinate.getElementsByTagName("x").item(0).getTextContent());
             	float y = Float.parseFloat(coordinate.getElementsByTagName("y").item(0).getTextContent());
             	float z = Float.parseFloat(coordinate.getElementsByTagName("z").item(0).getTextContent());
@@ -67,20 +68,20 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
             }
 
         	NodeList volumeList = doc.getElementsByTagName("volume");
-            System.out.println(volumeList.getLength() + " volumes.");
+            Log.message(volumeList.getLength() + " volumes.");
             int numVolumes = volumeList.getLength();
             for (int a = 0; a < numVolumes; a++) {
             	Element volume = (Element)volumeList.item(a);
             	NodeList triangleList = volume.getElementsByTagName("triangle");
 
                 int numTriangles = triangleList.getLength();
-                System.out.println("\t"+ numTriangles + " triangles.");
+                Log.message("\t"+ numTriangles + " triangles.");
                 for (int b = 0; b < numTriangles; b++) {
                 	Element triangle = (Element)triangleList.item(b);
                 	int v1 = Integer.parseInt(triangle.getElementsByTagName("v1").item(0).getTextContent());
                 	int v2 = Integer.parseInt(triangle.getElementsByTagName("v2").item(0).getTextContent());
                 	int v3 = Integer.parseInt(triangle.getElementsByTagName("v3").item(0).getTextContent());
-                    //System.out.println("\t\t"+v1+", "+v2+", "+v3);
+                    //Log.message("\t\t"+v1+", "+v2+", "+v3);
                 	
                 	float x1 = vertexArray.get(v1*3+0);
                 	float y1 = vertexArray.get(v1*3+1);

@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -181,15 +182,15 @@ public class DHRobotEntity extends PoseEntity {
 	 */
 	public boolean sanityCheck(DHKeyframe keyframe) {
 		if(!keyframeAnglesAreOK(keyframe)) {
-			if(VERBOSE) System.out.println("Bad angles");
+			if(VERBOSE) Log.message("Bad angles");
 			return false;
 		}/*
 		if(collidesWithSelf(keyframe)) {
-			if(VERBOSE) System.out.println("Collides with self");
+			if(VERBOSE) Log.message("Collides with self");
 			return false;
 		}
 		if(collidesWithWorld(keyframe))	{
-			if(VERBOSE) System.out.println("Collides with world");
+			if(VERBOSE) Log.message("Collides with world");
 			return false;
 		}*/
 		return true;
@@ -221,7 +222,7 @@ public class DHRobotEntity extends PoseEntity {
 				if (IntersectionTester.cuboidCuboid(
 						links.get(i).getCuboid(),
 						links.get(j).getCuboid())) {
-						System.out.println("Self collision between "+
+						Log.message("Self collision between "+
 									i+":"+links.get(i).getName()+" and "+
 									j+":"+links.get(j).getName());
 
@@ -281,7 +282,7 @@ public class DHRobotEntity extends PoseEntity {
 			double v = keyframe.fkValues[j++];
 			if ( link.rangeMax.get() < v || link.rangeMin.get() > v) {
 				if(VERBOSE) {
-					System.out.println("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
+					Log.message("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
 				}
 				return false;
 			}
@@ -314,17 +315,17 @@ public class DHRobotEntity extends PoseEntity {
 	public boolean isPoseIKSane(Matrix4d m) {
 		getPoseFK(poseFKold);
 
-		if(VERBOSE) System.out.println("\n\nold: "+poseFKold);
+		if(VERBOSE) Log.message("\n\nold: "+poseFKold);
 		
 		boolean isSane = false;
 		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
-		if(VERBOSE) System.out.println("new: "+poseFKnew + "\t"+s);
+		if(VERBOSE) Log.message("new: "+poseFKnew + "\t"+s);
 		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
 			if (sanityCheck(poseFKnew)) {
-				if(VERBOSE) System.out.println("Sane");
+				if(VERBOSE) Log.message("Sane");
 				isSane = true;
-			} else if(VERBOSE) System.out.println("isPoseIKSane() insane");
-		} else if(VERBOSE) System.out.println("isPoseIKSane() impossible");
+			} else if(VERBOSE) Log.message("isPoseIKSane() insane");
+		} else if(VERBOSE) Log.message("isPoseIKSane() impossible");
 		
 		setPoseFK(poseFKold);
 		

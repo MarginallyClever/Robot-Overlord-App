@@ -99,7 +99,7 @@ public class ViewPanel extends ViewElement {
 	public ViewElement add(Entity e) {
 		ViewElement b=null;
 		
-		//System.out.println("Add "+e.getClass().toString());
+		//Log.message("Add "+e.getClass().toString());
 		
 			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  (ro,(BooleanEntity)e);
 		else if(e instanceof ColorEntity   ) b = new ViewElementColor    (ro,(ColorEntity)e);

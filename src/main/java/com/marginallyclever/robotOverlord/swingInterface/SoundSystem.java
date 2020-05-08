@@ -38,7 +38,7 @@ public class SoundSystem {
 			File file = choose.getSelectedFile();
 			return file.getAbsolutePath();
 		} else {
-			//System.out.println("File access cancelled by user.");
+			//Log.message("File access cancelled by user.");
 			return "";
 		}
 	}

@@ -78,7 +78,7 @@ public class ViewportEntity extends Entity {
         //Vector3d z = MatrixHelper.getZAxis(camera.getPoseWorld());
         //double d = camera.getPosition().dot(z);
         //CameraEntity c = (CameraEntity)camera;
-        //System.out.println("D="+d+"\tw="+w+"\th="+h+"\tz="+c.getZoom());
+		// Log.message("D="+d+"\tw="+w+"\th="+h+"\tz="+c.getZoom());
         
 		gl2.glOrtho(-w, w, -h, h, nearZ.get(), farZ.get());
 	}
@@ -238,7 +238,7 @@ public class ViewportEntity extends Entity {
 		
 		cursorX= (2.0*x/canvasWidth)-1.0;
 		cursorY= 1.0-(2.0*y/canvasHeight);
-        //System.out.println("X"+cursorX+" Y"+cursorY);
+        //Log.message("X"+cursorX+" Y"+cursorY);
 	}
 
 	public void pressed() {

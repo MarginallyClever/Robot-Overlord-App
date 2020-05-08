@@ -72,7 +72,7 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 			} else if(line.startsWith("f ")) {
 				// face
 				String[] tokens = line.split("\\s+");
-				//System.out.println("face len="+tokens.length);
+				//Log.message("face len="+tokens.length);
 				int index;
 				for(int i=1;i<tokens.length;++i) {
 					String [] subTokens = tokens[i].split("/");

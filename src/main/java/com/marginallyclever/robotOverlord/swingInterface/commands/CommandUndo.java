@@ -9,6 +9,8 @@ import javax.swing.KeyStroke;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
+import com.marginallyclever.robotOverlord.log.Log;
+
 /**
  * go back one step in the undo/redo history.
  * @author Dan Royer
@@ -34,7 +36,7 @@ public class CommandUndo extends AbstractAction {
         try {
             undo.undo();
         } catch (CannotUndoException ex) {
-            System.out.println("Unable to undo: " + ex);
+            Log.message("Unable to undo: " + ex);
             ex.printStackTrace();
         }
         updateUndoState();

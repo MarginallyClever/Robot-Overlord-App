@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.marginallyclever.robotOverlord.log.Log;
+
 /**
  * Smooth STL models and save them back to disk.  Meant for one time processing files.
  * @author dan royer
@@ -57,7 +59,7 @@ public class ModelSmoother {/*
 		for(i=0;i<numFaces;++i) {
 			if(skip[i]) continue;
 			
-			System.out.println("Smoothing "+i);
+			Log.message("Smoothing "+i);
 			
 
 			// find vertices that are in the same position

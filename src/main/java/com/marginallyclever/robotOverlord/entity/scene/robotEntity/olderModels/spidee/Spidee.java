@@ -20,6 +20,7 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
 
 import java.io.BufferedReader;
 
@@ -401,7 +402,7 @@ public class Spidee extends RobotEntity {
 		float a1=Math.max(Math.min(a,MAX_VEL),-MAX_VEL);
 		float b1=Math.max(Math.min(b,MAX_VEL),-MAX_VEL);
 		float c1=Math.max(Math.min(c,MAX_VEL),-MAX_VEL);
-		//System.out.println(""+a1+"\t"+b1+"\t"+c1);
+		//Log.message(""+a1+"\t"+b1+"\t"+c1);
 
 		if( a1 !=0 || b1 != 0 ) {
 			Vector3d forward=new Vector3d( body.forward );
@@ -902,23 +903,23 @@ public class Spidee extends RobotEntity {
 
 	// send the calibration data to the robot
 	void SendZeros() {
-	  System.out.print("Sending Zeros...\n");
-	  ByteBuffer zeros = ByteBuffer.allocate(18*2);
-	  int j=0;
-	  for(int i=0;i<6;++i) {
-	    zeros.put(j++,(byte)legs[i].pan_joint.servo_address);
-	    zeros.put(j++,(byte)legs[i].pan_joint.zero);
-	    zeros.put(j++,(byte)legs[i].tilt_joint.servo_address);
-	    zeros.put(j++,(byte)legs[i].tilt_joint.zero);
-	    zeros.put(j++,(byte)legs[i].knee_joint.servo_address);
-	    zeros.put(j++,(byte)legs[i].knee_joint.zero);
-	    System.out.println(""+legs[i].pan_joint.servo_address+":"+legs[i].pan_joint.zero);
-	    System.out.println(""+legs[i].tilt_joint.servo_address+":"+legs[i].tilt_joint.zero);
-	    System.out.println(""+legs[i].knee_joint.servo_address+":"+legs[i].knee_joint.zero);
-	  }
+		Log.message("Sending Zeros...\n");
+		ByteBuffer zeros = ByteBuffer.allocate(18 * 2);
+		int j = 0;
+		for (int i = 0; i < 6; ++i) {
+			zeros.put(j++, (byte) legs[i].pan_joint.servo_address);
+			zeros.put(j++, (byte) legs[i].pan_joint.zero);
+			zeros.put(j++, (byte) legs[i].tilt_joint.servo_address);
+			zeros.put(j++, (byte) legs[i].tilt_joint.zero);
+			zeros.put(j++, (byte) legs[i].knee_joint.servo_address);
+			zeros.put(j++, (byte) legs[i].knee_joint.zero);
+			Log.message("\t" + legs[i].pan_joint.servo_address + ":" + legs[i].pan_joint.zero);
+			Log.message("\t" + legs[i].tilt_joint.servo_address + ":" + legs[i].tilt_joint.zero);
+			Log.message("\t" + legs[i].knee_joint.servo_address + ":" + legs[i].knee_joint.zero);
+		}
 
-	  zeros.rewind();
-	  instruct('W',zeros);
+		zeros.rewind();
+		instruct('W', zeros);
 	}
 
 
@@ -994,7 +995,7 @@ public class Spidee extends RobotEntity {
 	    		pn.putFloat("knee_zero",legs[i].knee_joint.zero);
 	    	}
 
-	    	System.out.println("Updating calibration...");
+	    	Log.message("Updating calibration...");
 	    	SendZeros();
 	    }
 */
@@ -1599,7 +1600,7 @@ public class Spidee extends RobotEntity {
 			this.sendCommand("R1");
 			
 			String uidString=line.substring(hello.length()).trim();
-			System.out.println(">>> UID="+uidString);
+			Log.message(">>> UID="+uidString);
 			try {
 				long uid = Long.parseLong(uidString);
 				if(uid==0) {

@@ -8,6 +8,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model {
@@ -44,8 +45,7 @@ public class Sixi2Live extends Sixi2Model {
 
 	@Override
 	public void update(double dt) {
-		// Sixi2Live does nothing on update?
-		// Could compare jacobian estimated force with reported position to determine compliance.
+		// TODO Compare jacobian estimated force with reported position to determine compliance.
 		super.update(dt);
 		if(readyForCommands) {
 			sendCommandToRemoteEntity(lastCommandUnsent);
@@ -131,11 +131,11 @@ public class Sixi2Live extends Sixi2Model {
 	}
 	
 	public void reportDataSent(String msg) {
-		System.out.println("SENT "+msg.trim());
+		Log.message("SENT "+msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
-		System.out.println("RECV "+msg.trim());
+		Log.message("RECV "+msg.trim());
 	}
 	
 	@Override
@@ -188,7 +188,7 @@ public class Sixi2Live extends Sixi2Model {
 	
 			if(unhandled) {
 				data=data.replace("\n", "");
-				//System.out.println(AnsiColors.PURPLE+data+AnsiColors.RESET);
+				//Log.message(AnsiColors.PURPLE+data+AnsiColors.RESET);
 			} else {
 				// wait until we received something meaningful before we start blasting our data out.
 				if(waitingForOpenConnection) {
