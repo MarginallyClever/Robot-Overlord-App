@@ -123,6 +123,26 @@ void Parser::ready() {
 }
 
 
+void Parser::update() {
+  // listen for serial commands
+  if(Serial.available() > 0) {
+    char c = Serial.read();
+    //Serial.print(c);
+    if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
+    if (c == '\r' || c == '\n') {
+      serialBuffer[sofar - 1] = 0;
+
+      // echo confirmation
+      if(MUST_ECHO) Serial.println(serialBuffer);
+
+      // do something with the command
+      processCommand();
+      ready();
+    }
+  }
+}
+
+
 /**
    process commands in the serial receive buffer
 */
@@ -143,41 +163,45 @@ void Parser::processCommand() {
   int16_t cmd;
 
   // M commands
-  cmd = parseNumber('M', -1);
-  switch (cmd) {
-    case 110:  M110();  break;
-    case 111:  M111();  break;
-    case 112:  M112();  break;
-    case 114:  M114();  break;
-    case 206:  M206();  break;
-    case 306:  M306();  break;
-    case 428:  M428();  break;
-    case 500:  M500();  break;
-    case 501:  M501();  break;
-    case 502:  M502();  break;
-    case 503:  M503();  break;
-    default:   break;
+  if(hasGCode('M')) {
+    cmd = parseNumber('M', -1);
+    switch (cmd) {
+      case 110:  M110();  break;
+      case 111:  M111();  break;
+      case 112:  M112();  break;
+      case 114:  M114();  break;
+      case 206:  M206();  break;
+      case 306:  M306();  break;
+      case 428:  M428();  break;
+      case 500:  M500();  break;
+      case 501:  M501();  break;
+      case 502:  M502();  break;
+      case 503:  M503();  break;
+      default:   break;
+    }
+    if (cmd != -1) return; // M command processed, stop.
   }
-  if (cmd != -1) return; // M command processed, stop.
-
-  // D commands
-  cmd = parseNumber('D', -1);
-  switch (cmd) {
-    case 10:  // get hardware version
-      Serial.print(F("D10 V"));
-      Serial.println(MACHINE_HARDWARE_VERSION);
-      break;
-    case 17:  D17();  break;
-    case 18:  D18();  break;
-    case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
-    case 20:  SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_ERROR); SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);  break;
-    case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
-    case 22:  D22();  break;
-    case 50:  D50();  break;
-    default:  break;
+  
+  // machine style-specific codes
+  if(hasGCode('D')) {
+    cmd = parseNumber('D', -1);
+    switch (cmd) {
+      case 10:  // get hardware version
+        Serial.print(F("D10 V"));
+        Serial.println(MACHINE_HARDWARE_VERSION);
+        break;
+      case 17:  D17();  break;
+      case 18:  D18();  break;
+      case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
+      case 20:  SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_ERROR); SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);  break;
+      case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
+      case 22:  D22();  break;
+      case 50:  D50();  break;
+      default:  break;
+    }
+    if (cmd != -1) return; // D command processed, stop.
   }
-  if (cmd != -1) return; // D command processed, stop.
-
+  
   // G commands
   cmd = parseNumber('G', lastGcommand);
   lastGcommand = -1;
@@ -191,26 +215,6 @@ void Parser::processCommand() {
     case 90:  G90();  break;
     case 91:  G91();  break;
     default: break;
-  }
-}
-
-
-void Parser::update() {
-  // listen for serial commands
-  if(Serial.available() > 0) {
-    char c = Serial.read();
-    //Serial.print(c);
-    if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
-    if (c == '\r' || c == '\n') {
-      serialBuffer[sofar - 1] = 0;
-
-      // echo confirmation
-      if(MUST_ECHO) Serial.println(serialBuffer);
-
-      // do something with the command
-      processCommand();
-      ready();
-    }
   }
 }
 

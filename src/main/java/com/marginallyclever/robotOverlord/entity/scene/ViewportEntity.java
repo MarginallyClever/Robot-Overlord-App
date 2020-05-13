@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface;
+package com.marginallyclever.robotOverlord.entity.scene;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -13,7 +13,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -68,19 +67,22 @@ public class ViewportEntity extends Entity {
 		gl2.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
 	}
 	
-	public void renderOrtho(GL2 gl2) {
+	public void renderOrtho(GL2 gl2,double zoom) {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 		
         double w = canvasWidth/10;
         double h = canvasHeight/10;
-		//PoseEntity camera = getAttachedTo();
-        //Vector3d z = MatrixHelper.getZAxis(camera.getPoseWorld());
-        //double d = camera.getPosition().dot(z);
-        //CameraEntity c = (CameraEntity)camera;
-		// Log.message("D="+d+"\tw="+w+"\th="+h+"\tz="+c.getZoom());
         
-		gl2.glOrtho(-w, w, -h, h, nearZ.get(), farZ.get());
+		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
+	}
+	
+	public void renderOrtho(GL2 gl2) {
+		PoseEntity camera = getAttachedTo();
+        CameraEntity c = (CameraEntity)camera;
+        double z = c.getZoom()/100;
+
+        renderOrtho(gl2,z);
 	}
 
 	public void renderShared(GL2 gl2) {
@@ -99,7 +101,6 @@ public class ViewportEntity extends Entity {
 	}
 	
 	public void renderChosenProjection(GL2 gl2) {
-		
 		if(drawOrtho.get()) {
 			renderOrtho(gl2);
 		} else {
