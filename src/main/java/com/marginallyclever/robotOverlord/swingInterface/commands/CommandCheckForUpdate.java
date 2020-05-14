@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
@@ -51,9 +52,9 @@ public class CommandCheckForUpdate extends AbstractAction implements ActionListe
 					// parse the last part of the redirect URL, which contains the release tag (which is the VERSION)
 					inputLine = inputLine.substring(inputLine.lastIndexOf("/") + 1);
 
-					System.out.println("last release: " + inputLine);
-					System.out.println("your VERSION: " + RobotOverlord.VERSION);
-					//System.out.println(inputLine.compareTo(VERSION));
+					Log.message("last release: " + inputLine);
+					Log.message("your VERSION: " + RobotOverlord.VERSION);
+					//Log.message(inputLine.compareTo(VERSION));
 
 					if (inputLine.compareTo(RobotOverlord.VERSION) > 0) {
 						JOptionPane.showMessageDialog(null, "A new version of this software is available.  The latest version is "+inputLine+"\n"

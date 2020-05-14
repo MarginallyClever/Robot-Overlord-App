@@ -83,7 +83,7 @@ public class IntersectionTester {
 	    dP.add(u);
 	    dP.sub(v);
 
-	    //System.out.print(ca.getRadius()+"\t"+cb.getRadius()+"\t("+(ca.getRadius()+cb.getRadius())+") >=\t"+dP.length()+"\n");
+	    //Log.message(ca.getRadius()+"\t"+cb.getRadius()+"\t("+(ca.getRadius()+cb.getRadius())+") >=\t"+dP.length()+"\n");
 
 	    return dP.length() <= (cA.getRadius()+cB.getRadius());   // return the closest distance
 	}
@@ -148,7 +148,7 @@ public class IntersectionTester {
 		n[0] = new Vector3d(a.poseWorld.m00, a.poseWorld.m10, a.poseWorld.m20);
 		n[1] = new Vector3d(a.poseWorld.m01, a.poseWorld.m11, a.poseWorld.m21);
 		n[2] = new Vector3d(a.poseWorld.m02, a.poseWorld.m12, a.poseWorld.m22);
-		// System.out.println("aMatrix="+a.poseWorld);
+		// Log.message("aMatrix="+a.poseWorld);
 		
 		a.updatePoints();
 		b.updatePoints();
@@ -159,19 +159,19 @@ public class IntersectionTester {
 			// points of each box are a combination of the box's top/bottom values.
 			double[] aLim = SATTest(n[i], a.p);
 			double[] bLim = SATTest(n[i], b.p);
-			// System.out.println("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
+			// Log.message("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
 			// "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
 
 			// if the two box projections do not overlap then there is no chance of a
 			// collision.
 			if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
-				// System.out.println("Miss");
+				// Log.message("Miss");
 				return false;
 			}
 		}
 
 		// intersect!
-		// System.out.println("Hit");
+		// Log.message("Hit");
 		return true;
 	}
 	

@@ -113,7 +113,7 @@ public class Sixi2LinearGripper extends DHTool {
 			wasGripping=true;
 			// grab release
 			if(subjectBeingHeld==null) {
-				//System.out.println("Grab");
+				//Log.message("Grab");
 				// Get the object at the targetPos.
 				Vector3d target = new Vector3d();
 				this.poseWorld.get(target);
@@ -129,7 +129,7 @@ public class Sixi2LinearGripper extends DHTool {
 					subjectBeingHeld.setPose(m);
 				}
 			} else {
-				//System.out.println("Release");
+				//Log.message("Release");
 				// The subject is being held relative to the gripper.  Add the gripper's world pose to the subject's pose.
 				Matrix4d m = subjectBeingHeld.getPose();
 				m.mul(poseWorld.get());

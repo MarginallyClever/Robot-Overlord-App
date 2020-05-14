@@ -16,6 +16,7 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -199,31 +200,31 @@ public class Sixi2 extends PoseEntity {
 			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
 			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
 				if(controlMode.get()==ControlMode.RECORD.toInt()) {
-					System.out.println("setCommand");
+					Log.message("setCommand");
 					setCommand();
 				}
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_PLUS)) {
-				System.out.println("addCommand");
+				Log.message("addCommand");
 				addCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_DELETE)) {
-				System.out.println("deleteCurrentCommand");
+				Log.message("deleteCurrentCommand");
 				deleteCurrentCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_BACKSPACE)) {
-				System.out.println("deletePreviousCommand");
+				Log.message("deletePreviousCommand");
 				recording.deletePreviousCommand();
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_LESSTHAN)) {
-				System.out.println("PreviousCommand");
+				Log.message("PreviousCommand");
 				if(recording.hasPrev()) {
 			          String line=recording.prev();
 			          sim.sendCommand(line);
 				}
 			}
 			if(InputManager.isReleased(InputManager.Source.KEY_GREATERTHAN)) {
-				System.out.println("NextCommand");
+				Log.message("NextCommand");
 		        if(recording.hasNext()) {
 		            String line=recording.next();
 		            sim.sendCommand(line);
@@ -232,7 +233,7 @@ public class Sixi2 extends PoseEntity {
 		}
 	}
 
-
+	
 	@Override
 	public void update(double dt) {
 		//driveFromKeyState(dt);
@@ -242,13 +243,13 @@ public class Sixi2 extends PoseEntity {
 			if(controlMode.get() == ControlMode.RECORD.toInt()) {
 				if(activeModel == live) {
 					String line = sim.getCommand();
-					//System.out.println(controlMode + " " + operatingMode + " send command: "+line);
+					//Log.message(controlMode + " " + operatingMode + " send command: "+line);
 					live.sendCommand(line);
 				}
 			} else {
 				if(cycleStart.get() && recording.hasNext()) {
 					String line = recording.next();
-					//System.out.println(controlMode + " " + operatingMode + " send command: "+line);
+					//Log.message(controlMode + " " + operatingMode + " send command: "+line);
 					activeModel.sendCommand(line);
 					if(singleBlock.get()) {
 						// one block at a time
@@ -351,17 +352,17 @@ public class Sixi2 extends PoseEntity {
 		cycleStart.set(false);
 		m01Break.set(true);
 
-		System.out.println("reset "+recording.getNumCommands());
+		Log.message("reset "+recording.getNumCommands());
 	}
 
 	public void toggleCycleStart() {
 		cycleStart.toggle();
-		//System.out.println("cycleStart="+(cycleStart?"on":"off"));
+		//Log.message("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public void setCycleStart(boolean arg0) {
 		cycleStart.set(arg0);
-		//System.out.println("cycleStart="+(cycleStart?"on":"off"));
+		//Log.message("cycleStart="+(cycleStart?"on":"off"));
 	}
 
 	public boolean isCycleStart() {
@@ -370,7 +371,7 @@ public class Sixi2 extends PoseEntity {
 
 	public void toggleSingleBlock() {
 		singleBlock.toggle();
-		//System.out.println("singleBlock="+(singleBlock?"on":"off"));
+		//Log.message("singleBlock="+(singleBlock?"on":"off"));
 	}
 
 	public boolean isSingleBlock() {
@@ -379,7 +380,7 @@ public class Sixi2 extends PoseEntity {
 
 	public void toggleM01Break() {
 		m01Break.toggle();
-		//System.out.println("m01Break="+(m01Break?"on":"off"));
+		//Log.message("m01Break="+(m01Break?"on":"off"));
 	}
 
 	public boolean isM01Break() {
@@ -388,7 +389,7 @@ public class Sixi2 extends PoseEntity {
 
 	public void toggleControlMode() {
 		controlMode.set( (controlMode.get()==ControlMode.RECORD.toInt()) ? ControlMode.PLAYBACK.toInt() : ControlMode.RECORD.toInt() );
-		System.out.println("controlMode="+controlMode);
+		Log.message("controlMode="+controlMode);
 
 		if(controlMode.get()==ControlMode.RECORD.toInt()) {
 			// move the joystick to match the simulated position?
@@ -399,7 +400,7 @@ public class Sixi2 extends PoseEntity {
 
 	public void toggleOperatingMode() {
 		operatingMode.set( (operatingMode.get()==OperatingMode.LIVE.toInt()) ? OperatingMode.SIM.toInt() : OperatingMode.LIVE.toInt() );
-		//System.out.println("operatingMode="+operatingMode);
+		//Log.message("operatingMode="+operatingMode);
 	}
 
 	public ArrayList<String> getCommandList() {

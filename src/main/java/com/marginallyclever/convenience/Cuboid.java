@@ -53,9 +53,9 @@ public class Cuboid extends BoundingVolume {
 		p[7].set(boundTop   .x, boundTop   .y, boundTop   .z);
 
 		for (int i = 0; i < p.length; ++i) {
-			// System.out.print("\t"+p[i]);
+			// Log.message("\t"+p[i]);
 			poseWorld.transform(p[i]);
-			// System.out.println(" >> "+p[i]);
+			// Log.message(" >> "+p[i]);
 		}
 	}
 

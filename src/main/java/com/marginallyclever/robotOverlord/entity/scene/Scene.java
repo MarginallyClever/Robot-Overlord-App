@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -164,7 +165,7 @@ public class Scene extends Entity {
 	public List<PoseEntity> findPhysicalObjectsNear(Vector3d target,double radius) {
 		radius/=2;
 		
-		//System.out.println("Finding within "+epsilon+" of " + target);
+		//Log.message("Finding within "+epsilon+" of " + target);
 		List<PoseEntity> found = new ArrayList<PoseEntity>();
 		
 		// check all children
@@ -172,11 +173,11 @@ public class Scene extends Entity {
 			if(e instanceof PoseEntity) {
 				// is physical, therefore has position
 				PoseEntity po = (PoseEntity)e;
-				//System.out.println("  Checking "+po.getDisplayName()+" at "+pop);
+				//Log.message("  Checking "+po.getDisplayName()+" at "+pop);
 				Vector3d pop = new Vector3d();
 				pop.sub(po.getPosition(),target);
 				if(pop.length()<=radius) {
-					//System.out.println("  in range!");
+					//Log.message("  in range!");
 					// in range!
 					found.add(po);
 				}
@@ -206,7 +207,7 @@ public class Scene extends Entity {
 			for( Cuboid cuboidA : listA ) {
 				for( Cuboid cuboidB : listB ) {
 					if( IntersectionTester.cuboidCuboid(cuboidA,cuboidB) ) {
-						System.out.println("Collision between "+
+						Log.message("Collision between "+
 							a.getName()+"."+listA.indexOf(cuboidA)+
 							" and "+
 							b.getName()+"."+listB.indexOf(cuboidB));

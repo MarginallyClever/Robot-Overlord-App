@@ -27,7 +27,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 	@Override
 	public boolean canLoad(String filename) {
 		boolean result = filename.toLowerCase().endsWith(".stl");
-		//System.out.println("ModelLoadAndSaveSTL.canLoad("+filename+")="+result);
+		//Log.message("ModelLoadAndSaveSTL.canLoad("+filename+")="+result);
 		return result;
 	}
 
@@ -209,7 +209,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 				model.addVertex(x,y,z);
 			} else {
 				//throw new IOException("Unsupported line ("+lineCount+"): "+line);
-				//System.out.println("STL format reading unsupported line ("+lineCount+"): "+line);
+				//Log.message("STL format reading unsupported line ("+lineCount+"): "+line);
 				continue;
 			}
 			//++lineCount;

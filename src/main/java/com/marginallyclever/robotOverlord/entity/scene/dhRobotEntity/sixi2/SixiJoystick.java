@@ -58,7 +58,7 @@ public class SixiJoystick extends ModelEntity {
 				}
 				if(target!=null) {
 					String message = (String)obj;
-					//System.out.println("JOY: "+message.trim());
+					//Log.message("JOY: "+message.trim());
 					
 					int i,j;
 					

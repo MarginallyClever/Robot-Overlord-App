@@ -55,8 +55,9 @@ import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.DragBallEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.ViewCubeEntity;
+import com.marginallyclever.robotOverlord.entity.scene.ViewportEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
@@ -179,7 +180,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		super();
 		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
 
-		//System.out.println("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
+		//Log.message("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
 		if(GraphicsEnvironment.isHeadless()) {
 			throw new RuntimeException("RobotOverlord cannot be run headless...yet.");
 		}
@@ -262,13 +263,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
             public void componentResized(ComponentEvent e) {
             	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             	//Dimension windowSize = e.getComponent().getSize();
-            	//System.out.println("Resized to " + windowSize);
-            	//System.out.println("Screen size " + screenSize);
+            	//Log.message("Resized to " + windowSize);
+            	//Log.message("Screen size " + screenSize);
             	saveWindowSizeAndPosition();
             }
             @Override
             public void componentMoved(ComponentEvent e) {
-            	//System.out.println("Moved to " + e.getComponent().getLocation());
+            	//Log.message("Moved to " + e.getComponent().getLocation());
             }
           });
         
@@ -433,10 +434,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			objectOut = new ObjectOutputStream(fout);
 			objectOut.writeObject(scene);
 		} catch(java.io.NotSerializableException e) {
-			System.out.println("Something can't be serialized.");
+			Log.message("Something can't be serialized.");
 			e.printStackTrace();
 		} catch(IOException e) {
-			System.out.println("Save failed.");
+			Log.message("Save failed.");
 			e.printStackTrace();
 		} finally {
 			if(objectOut!=null) {
@@ -470,10 +471,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			// Read an object in from object store, and cast it to a GameWorld
 			this.scene = (Scene) objectIn.readObject();
 		} catch(IOException e) {
-			System.out.println("World load failed (file io).");
+			Log.message("World load failed (file io).");
 			e.printStackTrace();
 		} catch(ClassNotFoundException e) {
-			System.out.println("World load failed (class not found)");
+			Log.message("World load failed (class not found)");
 			e.printStackTrace();
 		} finally {
 			if(objectIn!=null) {
@@ -501,11 +502,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 
 	private String getPath(Class cls) {
 	    String cn = cls.getName();
-	    //System.out.println("cn "+cn);
+	    //Log.message("cn "+cn);
 	    String rn = cn.replace('.', '/') + ".class";
-	    //System.out.println("rn "+rn);
+	    //Log.message("rn "+rn);
 	    String path = getClass().getClassLoader().getResource(rn).getPath();
-	    //System.out.println("path "+path);
+	    //Log.message("path "+path);
 	    int ix = path.indexOf("!");
 	    if(ix >= 0) {
 	        path = path.substring(0, ix);
@@ -526,7 +527,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
        String name = entry.getName();
        long size = entry.getSize();
        long compressedSize = entry.getCompressedSize();
-       System.out.println(name + "\t" + size + "\t" + compressedSize);
+       Log.message(name + "\t" + size + "\t" + compressedSize);
      }
 	
 	// Load a class from a Jar file.
@@ -707,7 +708,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         long nowTime = System.currentTimeMillis();
         double dt = (nowTime - lastTime)*0.001;  // to seconds
     	lastTime = nowTime;
-    	//System.out.println(dt);
+    	//Log.message(dt);
     	
     	// UPDATE STEP
     	
@@ -727,7 +728,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(checkStackSize) {
     		IntBuffer stackDepth = IntBuffer.allocate(1);
     		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-    		System.out.print("stack depth start = "+stackDepth.get(0));
+    		Log.message("stack depth start = "+stackDepth.get(0));
 		}	
 		
 		
@@ -753,7 +754,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(checkStackSize) {
     		IntBuffer stackDepth = IntBuffer.allocate(1);
 			gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-			System.out.println("stack depth end = "+stackDepth.get(0));
+			Log.message("stack depth end = "+stackDepth.get(0));
 		}
     }
 	
@@ -790,7 +791,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         boolean verbose=false;
         
-		if(verbose) System.out.println("\n"+hits+" PICKS @ "+pickX+","+pickY);
+		if(verbose) Log.message("\n"+hits+" PICKS @ "+pickX+","+pickY);
         float z1,z2;
 		
         float zMinBest = Float.MAX_VALUE;
@@ -802,26 +803,25 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
     		
     		if(verbose) {
-    			System.out.print("  names="+nameCount+" zMin="+z1+" zMax="+z2);
+    			Log.message("  names="+nameCount+" zMin="+z1+" zMax="+z2);
     		}
     		String add=": ";
     		
 			for(j=0;j<nameCount;++j) {
     			pickName = pickBuffer.get(index++);
         		if(verbose) {
-        			System.out.print(add+pickName);
+        			Log.message(add+pickName);
             		add=", ";
         		}
 			}
 			if(nameCount>0) {
 				//pickName = pickBuffer.get(index++);
-				if(verbose) System.out.print(add+" BEST="+pickName);
+				if(verbose) Log.message(add+" BEST="+pickName);
         		if(zMinBest > z1) {
         			zMinBest = z1;
         			bestPickName = pickName;
         		}
     		}
-			if(verbose) System.out.println();
     	}
     	return bestPickName;
     }
@@ -834,7 +834,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(e==selectedEntity) return;  // same again
 
 		String name = (e==null)?"nothing":e.getFullName();
-		System.out.println("Picked "+name);
+		Log.message("Picked "+name);
 		
 		selectedEntity=e;
 
@@ -930,6 +930,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 
 	public static void main(String[] argv) {
+		Log.clear();
+		
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -166,7 +166,7 @@ public class DHLink extends ModelEntity {
 		m.m20 = 0;		m.m21 = sa;			m.m22 = ca;			m.m23 = d.get();
 		m.m30 = 0;		m.m31 = 0;			m.m32 = 0;			m.m33 = 1;
 		
-		//System.out.println(letter.get() + "="+m);
+		//Log.message(letter.get() + "="+m);
 		setPose(m);
 	}
 
@@ -355,7 +355,7 @@ public class DHLink extends ModelEntity {
 	 * Set the (one) adjustable value, after making sure it is within the range limits.
 	 */
 	public void setAdjustableValue(double v) {
-		//System.out.println("Adjust begins");
+		//Log.message("Adjust begins");
 		v = Math.max(Math.min(v, rangeMax.get()), rangeMin.get());
 		switch(flags) {
 		case D    :  setD    (v);  break;
@@ -364,7 +364,7 @@ public class DHLink extends ModelEntity {
 		case ALPHA:  setAlpha(v);  break;
 		default   :  break;
 		}
-		//System.out.println("Adjust ends");
+		//Log.message("Adjust ends");
 	}
 
 	public double getD() {

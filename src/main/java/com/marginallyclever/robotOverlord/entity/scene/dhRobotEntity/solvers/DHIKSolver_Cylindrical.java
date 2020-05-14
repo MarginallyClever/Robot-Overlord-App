@@ -8,6 +8,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves Inverse Kinematics for a cylindrical, serially-linked robot like the FANUC GMF M-100 robot arm.
@@ -74,7 +75,7 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 		keyframe.fkValues[3] = Math.toDegrees(-Math.atan2(rY,rX));
 		
 		if(false) {
-			System.out.println("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
+			Log.message("solution={"+StringHelper.formatDouble(keyframe.fkValues[0])+","+
 								keyframe.fkValues[1]+","+
 								keyframe.fkValues[2]+","+
 								StringHelper.formatDouble(keyframe.fkValues[3])+"}");

@@ -10,6 +10,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves Inverse Kinematics for a RTTRTR robot.  It is assumed the first three joints position the end effector
@@ -101,7 +102,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					link4m.m03,
 					link4m.m13,
 					link4m.m23);
-			System.out.println(
+			Log.message(
 					"p6="+pEndEffector+"\t"+
 					"n6z="+n5z+"\t"+
 					"d5="+link5.getD()+"\t"+
@@ -115,63 +116,63 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		// I can find the angle around j0 to point at the wrist.
 		// (1) theta0 = atan2(y07/x07);
 		keyframe.fkValues[0] = MathHelper.capRotationDegrees(Math.toDegrees(Math.atan2(p5.y,p5.x)),link0.getRangeCenter());
-		if(false) System.out.println("theta0="+keyframe.fkValues[0]+"\t");
+		if(false) Log.message("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) c=z15
 		double z15 = p5.z-p1.z;
-		if(false) System.out.println("c="+z15+"\t");
+		if(false) Log.message("c="+z15+"\t");
 		
 		// (3) 
 		double x15 = p5.x-p1.x;
 		double y15 = p5.y-p1.y;
 		double d = Math.sqrt(x15*x15 + y15*y15);
-		if(false) System.out.println("d="+d+"\t");
+		if(false) Log.message("d="+d+"\t");
 		
 		// (4) e = The distance from the shoulder to the center of picassobox
 		double e = Math.sqrt(z15*z15 + d*d);
-		if(false) System.out.println("e="+e+"\t");
+		if(false) Log.message("e="+e+"\t");
 
 		// (5) phi = acos( (b^2 - a^2 - e^2) / (-2*a*e) ) 
 		double a = link1.getR();
 		double b1 = link2.getR();
 		double b2 = link3.getD();
 		double b = Math.sqrt(b2*b2+b1*b1);
-		if(false) System.out.println("b="+b+"\t");
+		if(false) Log.message("b="+b+"\t");
 			
 		
 		if( e > a+b ) {
 			// target matrix impossibly far away
-			if(false) System.out.println("NO SOLUTIONS (1)");
+			if(false) Log.message("NO SOLUTIONS (1)");
 			return SolutionType.NO_SOLUTIONS;
 		}
 		
 		double phi = Math.acos( (b*b-a*a-e*e) / (-2.0*a*e) );
-		if(false) System.out.println("phi="+Math.toDegrees(phi)+"\t");
+		if(false) Log.message("phi="+Math.toDegrees(phi)+"\t");
 		
 		// (6) rho = atan2(d,c)
 		double rho = Math.atan2(d,z15);
-		if(false) System.out.println("rho="+Math.toDegrees(rho)+"\t");
+		if(false) Log.message("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) theta1 = phi-rho
 		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(rho-phi)-90,link1.getRangeCenter());
-		if(false) System.out.println("alpha1="+keyframe.fkValues[1]+"\t");
+		if(false) Log.message("alpha1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
 		double omega = Math.acos( (a*a-b*b-e*e) / (-2.0*b*e) );
-		if(false) System.out.println("omega="+Math.toDegrees(omega)+"\t");
+		if(false) Log.message("omega="+Math.toDegrees(omega)+"\t");
 		
 		// (9) phi3 = phi + omega
 		double phi3 = phi+omega;
-		if(false) System.out.println("phi3="+Math.toDegrees(phi3)+"\t");
+		if(false) Log.message("phi3="+Math.toDegrees(phi3)+"\t");
 		
 		// angle of triangle j3-j2-j5 is phi4.
 		// b2^2 = b*b + b1*b1 - 2*b*b1 * cos(phi4)
 		double phi4 = Math.acos( (b2*b2-b1*b1-b*b) / (-2.0*b1*b) );
-		if(false) System.out.println("phi4="+Math.toDegrees(phi4)+"\t");
+		if(false) Log.message("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) theta2 - phi3-phi4
 		keyframe.fkValues[2] = MathHelper.capRotationDegrees(Math.toDegrees(phi3 - phi4),link2.getRangeCenter());
-		if(false) System.out.println("alpha2="+keyframe.fkValues[2]+"\t");
+		if(false) Log.message("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		// FIRST HALF DONE
 		Matrix4d link3m = link3.getPoseWorld();
@@ -196,7 +197,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			Vector3d p3cloned = new Vector3d();
 			link3.getPoseWorld().get(p3cloned);
 			p3cloned.sub(p3original);
-			System.out.println("p3d="+p3cloned);
+			Log.message("p3d="+p3cloned);
 		}
 		
 		// endMatrix is now at j3, but the rotation is unknown.
@@ -208,16 +209,16 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		double g = link5.getD()+link5.getR();
 		double maximumReach = f+g;
 
-		if(false) System.out.println("p7="+pEndEffector+"\t");
-		if(false) System.out.println("p5="+p5+"\t");
-		if(false) System.out.println("p3="+p3+"\t");
-		if(false) System.out.println("f="+f+"\t");
-		if(false) System.out.println("g="+g+"\t");
-		if(false) System.out.println("h="+h+"\t");
+		if(false) Log.message("p7="+pEndEffector+"\t");
+		if(false) Log.message("p5="+p5+"\t");
+		if(false) Log.message("p3="+p3+"\t");
+		if(false) Log.message("f="+f+"\t");
+		if(false) Log.message("g="+g+"\t");
+		if(false) Log.message("h="+h+"\t");
 
 		if( h-maximumReach > EPSILON ) {
 			// out of reach
-			if(false) System.out.println("NO SOLUTIONS (2)");
+			if(false) Log.message("NO SOLUTIONS (2)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
@@ -241,13 +242,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		r36.mul(r03inv,r06);
 		// sometimes the r46.r22 value was ever so slightly out of range [-1...1]
 
-		if(false) System.out.println("r36.m22="+r36.m22);
+		if(false) Log.message("r36.m22="+r36.m22);
 		
 		// with r36 we can find theta4
 		double t4 = Math.acos(r36.m22);
 		
 		if(false) {
-			System.out.println(
+			Log.message(
 					"r36.m22="+r36.m22+"\t"+
 					"t4="+t4+"\t");
 		}
@@ -259,7 +260,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			double t5 = Math.acos(r36.m00);
 			keyframe.fkValues[4] = 0;
 			keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t5),link5.getRangeCenter());
-			if(false) System.out.println(
+			if(false) Log.message(
 					"j0="+StringHelper.formatDouble(keyframe.fkValues[0])+"\t"+
 					"j1="+StringHelper.formatDouble(keyframe.fkValues[1])+"\t"+
 					"j2="+StringHelper.formatDouble(keyframe.fkValues[2])+"\t"+
@@ -267,11 +268,11 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					"j4="+StringHelper.formatDouble(keyframe.fkValues[4])+"\t"+
 					"j5="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
 			if(suggestion!=null) {
-				if(true) System.out.println("ONE OF MANY SOLUTIONS");
+				if(true) Log.message("ONE OF MANY SOLUTIONS");
 				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],link3.getRangeCenter());
 				return SolutionType.ONE_SOLUTION;
 			} else {
-				if(true) System.out.println("MANY SOLUTIONS");
+				if(true) Log.message("MANY SOLUTIONS");
 				keyframe.fkValues[3] = 0;
 				return SolutionType.MANY_SOLUTIONS;
 			}
@@ -285,7 +286,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			// Only the sum of t4+t6 can be found, not the individual angles.
 			// this is the same as if(Math.abs(a5copy)<EPSILON) above, so this should
 			// be unreachable.
-			if(true) System.out.println("NO SOLUTIONS (3)");
+			if(true) Log.message("NO SOLUTIONS (3)");
 			keyframe.fkValues[3]=
 			keyframe.fkValues[4]=
 			keyframe.fkValues[5]=0;
@@ -302,13 +303,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			t4 = t4Pos;
 			t5 = Math.atan2(r36.m21,-r36.m20);
 		} else {
-			//if(true) System.out.println("B");
+			//if(true) Log.message("B");
 			t3 = Math.atan2(-r36.m12,-r36.m02);
 			t4 = t4Neg;
 			t5 = Math.atan2(-r36.m21, r36.m20);
 		}
 		
-		if(false) System.out.println("5="+t4+"\tpos="+t4);
+		if(false) Log.message("5="+t4+"\tpos="+t4);
 
 		keyframe.fkValues[3] = MathHelper.capRotationDegrees(Math.toDegrees(t3),link3.getRangeCenter());
 		keyframe.fkValues[4] = MathHelper.capRotationDegrees(Math.toDegrees(t4),link4.getRangeCenter());
@@ -317,7 +318,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		/*if(suggestion!=null) {
 			if(Math.abs(suggestion.fkValues[3]-keyframe.fkValues[3])>20) {
 				// probably a flip in the joint
-				System.out.println(
+				Log.message(
 						suggestion.fkValues[3]+"/"+keyframe.fkValues[3]+"\t"+
 						suggestion.fkValues[4]+"/"+keyframe.fkValues[4]+"\t"+
 						suggestion.fkValues[5]+"/"+keyframe.fkValues[5]
@@ -330,7 +331,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 				keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t6)+90,0);
 			}
 		}*/
-		if(false) System.out.println("r36.m20="+StringHelper.formatDouble(r36.m20)+"\t"
+		if(false) Log.message("r36.m20="+StringHelper.formatDouble(r36.m20)+"\t"
 									+"t5="+StringHelper.formatDouble(t5)+"\t"
 									+"theta5="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t"
 									+"Math.sin(t4)="+StringHelper.formatDouble(Math.sin(t4))+"\t"
@@ -338,7 +339,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 									+"t3="+StringHelper.formatDouble(t3)+"\t"
 									+"theta3="+StringHelper.formatDouble(keyframe.fkValues[3])+"\t");
 
-		if(false) System.out.println("result={"
+		if(false) Log.message("result={"
 					+StringHelper.formatDouble(keyframe.fkValues[0])+","
 					+StringHelper.formatDouble(keyframe.fkValues[1])+","
 					+StringHelper.formatDouble(keyframe.fkValues[2])+","

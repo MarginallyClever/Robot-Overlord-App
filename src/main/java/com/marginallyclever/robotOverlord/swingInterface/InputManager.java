@@ -3,8 +3,6 @@ package com.marginallyclever.robotOverlord.swingInterface;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
-import net.java.games.input.Event;
-import net.java.games.input.EventQueue;
 import net.java.games.input.Component.Identifier;
 
 /**
@@ -127,7 +125,7 @@ public class InputManager {
         		return;
         	}
 
-        	//System.out.println(ca[i].getType());
+        	//Log.message(ca[i].getType());
         	if(ca[i].getType()==Controller.Type.MOUSE) {
         		if(numMice==0) {
     	            if(isMouseIn) updateMouse(ca[i]);
@@ -145,7 +143,7 @@ public class InputManager {
         		//++numKeyboard;
         	}
         }
-        //System.out.println(numSticks+"/"+numMice+"/"+numKeyboard);
+        //Log.message(numSticks+"/"+numMice+"/"+numKeyboard);
 	}
 	
 	static public boolean isOn(Source i) {
@@ -200,7 +198,7 @@ public class InputManager {
 			Component c = event.getComponent();
 			//*/
         	/*
-        	System.out.println("\t"+c.getName()+
+        	Log.message("\t"+c.getName()+
         			":"+c.getIdentifier().getName()+
         			":"+(c.isAnalog()?"Abs":"Rel")+
         			":"+(c.isAnalog()?"Analog":"Digital")+
@@ -257,7 +255,7 @@ public class InputManager {
 			Component c = event.getComponent();
 			//*/
         	/*
-        	System.out.println("\t"+c.getName()+
+        	Log.message("\t"+c.getName()+
         			":"+c.getIdentifier().getName()+
         			":"+(c.isAnalog()?"Abs":"Rel")+
         			":"+(c.isAnalog()?"Analog":"Digital")+
@@ -293,7 +291,7 @@ public class InputManager {
 			//*/
 
         	/*
-        	System.out.println("\t"+c.getName()+
+        	Log.message("\t"+c.getName()+
         			":"+c.getIdentifier().getName()+
         			":"+(c.isAnalog()?"Abs":"Rel")+
         			":"+(c.isAnalog()?"Analog":"Digital")+
@@ -303,7 +301,7 @@ public class InputManager {
         	if(!c.isAnalog()) {
         		// digital
     			if(c.getPollData()==1) {
-    				//System.out.println(c.getIdentifier().getName());
+    				//Log.message(c.getIdentifier().getName());
     				if(c.getIdentifier()==Identifier.Key.DELETE  ) setRawValue(Source.KEY_DELETE,1);
     				if(c.getIdentifier()==Identifier.Key.RETURN  ) setRawValue(Source.KEY_RETURN,1);
     				if(c.getIdentifier()==Identifier.Key.LSHIFT  ) setRawValue(Source.KEY_LSHIFT,1);

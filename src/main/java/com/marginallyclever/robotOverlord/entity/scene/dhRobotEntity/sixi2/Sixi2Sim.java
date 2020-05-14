@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix4d;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
@@ -17,6 +18,8 @@ public class Sixi2Sim extends Sixi2Model {
 	private static final long serialVersionUID = 6216095894080620268L;
 
 	protected DHRobotEntity robot;
+
+	protected ReentrantLock lock = new ReentrantLock();
 	
 	
 	public Sixi2Sim() {
@@ -34,6 +37,9 @@ public class Sixi2Sim extends Sixi2Model {
 	    for( DHLink link : links ) {
 	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,1.0f);
 	    }
+	    
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
+	    endEffector.addObserver(this);
 		endEffectorTarget.addObserver(this);
 	}
 
@@ -49,11 +55,20 @@ public class Sixi2Sim extends Sixi2Model {
 	
 	@Override
 	public void update(Observable obs, Object obj) {
-		//if(obs == endEffector.poseWorld) {
-		//	setPoseIK(endEffector.getPoseWorld());
-		//}
+		if(obs == endEffector) {
+			if(!lock.isLocked()) {
+				lock.lock();
+				//setPoseIK(endEffector.getPoseWorld());
+				endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
+				lock.unlock();
+			}
+		}
 		if(obs==endEffectorTarget) {
-			this.setPoseIK(endEffectorTarget.getPoseWorld());
+			if(!lock.isLocked()) {
+				lock.lock();
+				setPoseIK(endEffectorTarget.getPoseWorld());
+				lock.unlock();
+			}
 		}
 		super.update(obs, obj);
 	}

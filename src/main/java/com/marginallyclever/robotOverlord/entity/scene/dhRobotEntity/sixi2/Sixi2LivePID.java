@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -95,7 +96,7 @@ public class Sixi2LivePID extends Sixi2Model {
 			velocity = kp * ( error + ki * error_i + kd * error_d );
 			error_last = error;
 
-			//System.out.print("("+error+","+velocity+")\t");
+			//Log.message("("+error+","+velocity+")\t");
 			steps += velocity*dt;
 		}
 		
@@ -145,7 +146,7 @@ public class Sixi2LivePID extends Sixi2Model {
 		for( int i=0; i<numAdjustableLinks; ++i ) {
 			motors[i].steps = (long) Math.floor( links.get(i).getAdjustableValue() / motors[i].ratio );
 			motors[i].target = motors[i].steps; 
-			System.out.println(i+"="+motors[i].steps);
+			Log.message(i+"="+motors[i].steps);
 		}
 
 		readyForCommands=true;
@@ -163,7 +164,6 @@ public class Sixi2LivePID extends Sixi2Model {
 			motors[i].update(dt);
 			links.get(i).setTheta(motors[i].getDegrees());
 		}
-		System.out.println();
 	}
 	
 	@Override
@@ -203,7 +203,7 @@ public class Sixi2LivePID extends Sixi2Model {
 				for( String t : tok ) {
 					String letter = t.substring(0,1); 
 					if(link.getLetter().equalsIgnoreCase(letter)) {
-						//System.out.println("link "+link.getLetter()+" matches "+letter);
+						//Log.message("link "+link.getLetter()+" matches "+letter);
 						double degrees = Double.parseDouble(t.substring(1));
 						poseFKTarget.fkValues[i] = degrees;
 						motors[i].target = (long) Math.floor( degrees / motors[i].ratio );
@@ -276,7 +276,7 @@ public class Sixi2LivePID extends Sixi2Model {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Sf", "Sixi fake with PIDs");
+		view.pushStack("Sp", "Sixi with PIDs");
 		
 		view.popStack();
 		endEffector.getView(view);

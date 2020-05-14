@@ -27,7 +27,6 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	private boolean portOpened = false;
 	private boolean waitingForCue = false;
 
-
 	static final String CUE = "> ";
 	static final String NOCHECKSUM = "NOCHECKSUM ";
 	static final String BADCHECKSUM = "BADCHECKSUM ";
@@ -37,7 +36,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 	// parsing input from Makelangelo
 	private String inputBuffer = "";
-	ArrayList<String> commandQueue = new ArrayList<String>();
+	private ArrayList<String> commandQueue = new ArrayList<String>();
 
 
 	public SerialConnection(SerialTransportLayer layer) {
@@ -53,24 +52,22 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 	@Override
 	public void closeConnection() {
-		if (portOpened) {
-			if (serialPort != null) {
-				try {
-					serialPort.removeEventListener();
-					serialPort.closePort();
-				} catch (SerialPortException e) {
-				}
+		if (!portOpened) return;
+		
+		if (serialPort != null) {
+			try {
+				serialPort.removeEventListener();
+				serialPort.closePort();
+			} catch (SerialPortException e) {
 			}
-			portOpened = false;
 		}
+		portOpened = false;
 	}
 
 	// open a serial connection to a device.  We won't know it's the robot until
 	@Override
 	public void openConnection(String portName) throws Exception {
 		if (portOpened) return;
-
-		closeConnection();
 
 		// open the port
 		try {
@@ -152,6 +149,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 		if(!events.isRXCHAR()) return;
 		if(!portOpened) return;
+		
 		int len =0 ;
 		byte [] buffer;
 		try {
@@ -163,8 +161,10 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 		}
 		
 		if( len<=0 ) return;
+		
 		rawInput = new String(buffer,0,len);
 		inputBuffer+=rawInput;
+		
 		// each line ends with a \n.
 		for( x=inputBuffer.indexOf("\n"); x!=-1; x=inputBuffer.indexOf("\n") ) {
 			x=x+1;
@@ -187,7 +187,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 				waitingForCue=false;
 			}
 		}
-		if(waitingForCue==false) {
+		if(!waitingForCue) {
 			sendQueuedCommand();
 		}
 	}
@@ -203,6 +203,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 		String command;
 		try {
+			waitingForCue=true;
 			command=commandQueue.remove(0);
 			String line = command;
 			if(line.contains(COMMENT_START)) {
@@ -213,7 +214,6 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 				line+=NEWLINE;
 			}
 			serialPort.writeBytes(line.getBytes());
-			waitingForCue=true;
 		}
 		catch(IndexOutOfBoundsException e1) {}
 		catch(SerialPortException e2) {}

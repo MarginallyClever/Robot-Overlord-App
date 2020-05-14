@@ -8,6 +8,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.log.Log;
 
 
 public class Matrix4dTurtle extends Observable {
@@ -135,7 +136,7 @@ public class Matrix4dTurtle extends Observable {
 			playHead=totalPlayTime;
 			setPlaying(false);
 		}
-		System.out.print("playing "+StringHelper.formatDouble(playHead)
+		Log.message("playing "+StringHelper.formatDouble(playHead)
 						+"/"+StringHelper.formatDouble(totalPlayTime)
 						+" ("+(StringHelper.formatDouble(100.0*playHead/totalPlayTime))+"%)"
 						+" aka "+StringHelper.formatDouble(thisStepSoFar));
@@ -146,20 +147,19 @@ public class Matrix4dTurtle extends Observable {
 
 			InterpolationStep step = getStepTargetAtTime(playHead);
 			if(step!=null) {
-				System.out.print("\tstep "+ steps.indexOf(step) +"/"+steps.size());
+				Log.message("\tstep "+ steps.indexOf(step) +"/"+steps.size());
 				thisStepStart.set(poseNow,0);
 				thisStepEnd=step;
 				thisStepDuration=thisStepEnd.duration;
 			}
 		}
 		if(playHead>=totalPlayTime) {
-			System.out.print(" END");
+			Log.message(" END");
 			setPlaying(false);
 			// if we are a looping recording,
 			//setPlayHead(0);
 			//setPlaying(true);
 		}
-		System.out.println();
 		
 		// if we are single block
 		//setPlaying(false);
