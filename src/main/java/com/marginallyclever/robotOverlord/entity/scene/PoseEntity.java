@@ -38,9 +38,9 @@ public class PoseEntity extends Entity {
 	// pose relative to the world.
 	@JsonIgnore
 	public Matrix4dEntity poseWorld = new Matrix4dEntity();
-
-	private ReentrantLock lock1 = new ReentrantLock();
-	private ReentrantLock lock2 = new ReentrantLock();
+	
+	protected ReentrantLock lock1 = new ReentrantLock();
+	protected ReentrantLock lock2 = new ReentrantLock();
 	
 	// physical limits
 	@JsonIgnore
@@ -211,12 +211,12 @@ public class PoseEntity extends Entity {
 	 * @param arg0 the local pose
 	 */
 	public void setPose(Matrix4d arg0) {
-		if(!arg0.epsilonEquals(pose.get(), 1e-6)) {
+		//if(!arg0.epsilonEquals(pose.get(), 1e-6)) {
 			pose.set(arg0);
 			setChanged();
 			updatePoseWorld();
 			notifyObservers();
-		}
+		//}
 	}
 	
 	/**
@@ -224,8 +224,6 @@ public class PoseEntity extends Entity {
 	 * Does not crawl up the parent hierarchy.
 	 */
 	public void updatePoseWorld() {
-		setChanged();
-		
 		Matrix4d m;
 		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
@@ -240,10 +238,7 @@ public class PoseEntity extends Entity {
 
 		//if(!m.epsilonEquals(poseWorld.get(), 1e-6))
 		{
-			setChanged();
 			poseWorld.set(m);
-			
-			notifyObservers();
 			cuboid.setPoseWorld(this.getPoseWorld());
 			
 			for( Entity c : children ) {

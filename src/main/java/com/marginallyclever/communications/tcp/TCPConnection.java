@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 
@@ -24,7 +24,7 @@ import com.marginallyclever.robotOverlord.log.Log;
  * @since 1.6.0 (2020-04-08)
  */
 public final class TCPConnection extends NetworkConnection implements Runnable {	
-    private static final String SHELL_TO_SERIAL_STRING = " ~/Robot-Overlord-App/arduino/connect.sh";
+    private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
     
     public class MyUserInfo implements UserInfo {
 		@Override
@@ -80,11 +80,12 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	private TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
+	private boolean waitingForCue = false;
 	private Thread thread;
 	private boolean keepPolling;
 
 
-	static final String CUE = "> ";
+	static final String CUE = ">";
 	static final String NOCHECKSUM = "NOCHECKSUM ";
 	static final String BADCHECKSUM = "BADCHECKSUM ";
 	static final String BADLINENUM = "BADLINENUM ";
@@ -93,7 +94,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	private static final int DEFAULT_TCP_PORT = 22;
 	
 	private String inputBuffer = "";
-	ArrayList<String> commandQueue = new ArrayList<String>();
+	private LinkedList<String> commandQueue = new LinkedList<String>();
 
 	
 	public TCPConnection(TransportLayer layer) {
@@ -141,8 +142,8 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	    session.connect(30000);   // making a connection with timeout.
 
 	    channel = (ChannelExec)session.openChannel("exec");
-	    Log.message("Sending "+SHELL_TO_SERIAL_STRING);
-	    channel.setCommand(SHELL_TO_SERIAL_STRING);
+	    Log.message("Sending "+SHELL_TO_SERIAL_COMMAND);
+	    channel.setCommand(SHELL_TO_SERIAL_COMMAND);
 	    channel.connect();
 	    // remember the data streams
 	    inputStream = new BufferedReader(new InputStreamReader(channel.getInputStream()));
@@ -150,6 +151,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	    
 		connectionName = ipAddress;
 		portOpened = true;
+		waitingForCue = true;
 		keepPolling=true;
 
 		thread = new Thread(this);
@@ -243,7 +245,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	}
 
 
-	public void dataAvailable(int len,String message) {
+	protected void dataAvailable(int len,String message) {
 		if( !portOpened || len==0 ) return;
 		
 		inputBuffer += message;
@@ -255,46 +257,50 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 			// include \n in line.
 			++x;
 			// extract the line
-			String oneLine = inputBuffer.substring(0,x);
+			String oneLine = inputBuffer.substring(0,x).trim();
 			inputBuffer = inputBuffer.substring(x);
 
+			if(oneLine.isEmpty()) return;
+			
+			Log.message("TCP RECV "+oneLine);
 			// check for error
 			int error_line = errorReported(oneLine);
 			if(error_line != -1) {
 				notifyLineError(error_line);
 			} else {
-				// no error
-				if(!oneLine.trim().equals(CUE.trim())) {
-					notifyDataAvailable(oneLine);
-				}
+				notifyDataAvailable(oneLine);
+			}
+
+			// wait for the cue to send another command
+			if(oneLine.indexOf(CUE)==0) {
+				waitingForCue=false;
 			}
 		}
 	}
 
 
 	protected void sendQueuedCommand() {
-		if( !portOpened || outputStream==null ) return;
+		if( !portOpened || outputStream==null || waitingForCue) return;
 
-		if(commandQueue.isEmpty()==true) {
+		if(commandQueue.isEmpty()) {
 			notifySendBufferEmpty();
 			return;
 		}
 
 		try {
-			String line=commandQueue.remove(0);
-			// trim comments
-			if(line.contains(COMMENT_START)) {
-				String [] lines = line.split(COMMENT_START);
-				line = lines[0];
-			}
+			waitingForCue=true;
+			String line=commandQueue.poll();
 			// make sure there's a newline
 			if(line.endsWith("\n") == false) {
 				line+=NEWLINE;
 			}
 			outputStream.write(line);
 			outputStream.flush();
+			Log.message("TCP SEND "+line.trim()+"("+commandQueue.size()+")");
 		}
-		catch(IndexOutOfBoundsException e1) {}
+		catch(IndexOutOfBoundsException e1) {
+			Log.error(e1.getLocalizedMessage());
+		}
 	}
 
 	public void deleteAllQueuedCommands() {
@@ -345,5 +351,9 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	}
 	
 	@Override
-	public void update() {}
+	public void update() {
+		if(isOpen() && waitingForCue==false) {
+			sendQueuedCommand();
+		}
+	}
 }

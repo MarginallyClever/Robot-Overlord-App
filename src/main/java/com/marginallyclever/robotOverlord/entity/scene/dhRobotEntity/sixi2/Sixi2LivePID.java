@@ -276,7 +276,7 @@ public class Sixi2LivePID extends Sixi2Model {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Sf", "Sixi fake with PIDs");
+		view.pushStack("Sp", "Sixi with PIDs");
 		
 		view.popStack();
 		endEffector.getView(view);

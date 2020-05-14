@@ -18,7 +18,6 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
-import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -316,10 +315,21 @@ public class DragBallEntity extends PoseEntity {
 				}
 
 				double da=valueNow - valueStart;
+				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
+					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+					da *= 0.1;
+				}
+				
 				if(snapOn.get()) {
-					// round to nearest 5 degrees
+					// round to snapDegrees
+					double deg = snapDegrees.get();
+					if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
+							InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+							deg *= 0.1;
+						}
+					
 					da = Math.toDegrees(da);
-					da = Math.signum(da)*Math.round(Math.abs(da)/5.0)*5.0;
+					da = Math.signum(da)*Math.round(Math.abs(da)/deg)*deg;
 					da = Math.toRadians(da);
 				}
 				if(da!=0) {
@@ -428,7 +438,7 @@ public class DragBallEntity extends PoseEntity {
 
 		if(isActivelyMoving) {
 			// actively being dragged
-			final double scale = 5.0*dt;  // TODO something better?
+			double scale = 5.0*dt;  // TODO something better?
 			double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
 			double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * -scale;
 			
@@ -440,9 +450,18 @@ public class DragBallEntity extends PoseEntity {
 			}
 			
 			double dp = valueNow - valueStart;
+			if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
+				InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+				dp *= 0.1;
+			}
 			if(snapOn.get()) {
 				// round to nearest mm
-				dp = Math.signum(dp)*Math.round(Math.abs(dp)/1.0)*1.0;
+				double mm = snapDistance.get();
+				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
+					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+					mm *= 0.1;
+				}
+				dp = Math.signum(dp)*Math.round(Math.abs(dp)/mm)*mm;
 			}
 			if(dp!=0) {
 				switch(majorAxis) {

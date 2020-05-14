@@ -27,7 +27,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 public class Log {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private static final Calendar cal = Calendar.getInstance();
 	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
 
 	
@@ -42,7 +41,7 @@ public class Log {
 	 * wipe the log file
 	 */
 	public static void clear() {
-		Path p = FileSystems.getDefault().getPath("log.html");
+		Path p = FileSystems.getDefault().getPath("log.txt");
 		try {
 			Files.deleteIfExists(p);
 		} catch (IOException e1) {
@@ -58,11 +57,13 @@ public class Log {
 	 * @param msg HTML to put in the log file
 	 */
 	public static void write(String msg) {
-		System.out.println(msg);
+		msg = sdf.format(Calendar.getInstance().getTime())+" "+msg+"\n";
 		
-		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.html", true), StandardCharsets.UTF_8)) {
+		System.out.print(msg);
+		
+		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.txt", true), StandardCharsets.UTF_8)) {
 			PrintWriter logToFile = new PrintWriter(fileWriter);
-			logToFile.write(sdf.format(cal.getTime())+" "+msg);
+			logToFile.write(msg);
 			logToFile.flush();
 		} catch (IOException e) {
 			logger.error("{}", e);

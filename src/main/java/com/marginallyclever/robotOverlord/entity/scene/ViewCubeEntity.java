@@ -10,7 +10,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.swingInterface.ViewportEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class ViewCubeEntity extends Entity {
@@ -45,7 +44,7 @@ public class ViewCubeEntity extends Entity {
 
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glPushMatrix();
-		cameraView.renderOrtho(gl2);
+		cameraView.renderOrtho(gl2,1);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		
 		gl2.glPushMatrix();			
