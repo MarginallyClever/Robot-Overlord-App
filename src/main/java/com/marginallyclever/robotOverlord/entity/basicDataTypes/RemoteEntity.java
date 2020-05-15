@@ -79,13 +79,6 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 		return null;
 	}
 	
-	private void removeAllCommandsLessThan(int number) {
-		//while(!commands.isEmpty() && commands.peek().n<number) 
-		{
-			//commands.poll();
-		}
-	}
-	
 	public void closeConnection() {
 		connection.closeConnection();
 		connection.removeListener(this);
