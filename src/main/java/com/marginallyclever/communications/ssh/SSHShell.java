@@ -19,7 +19,7 @@ import javax.swing.*;
 
 public class SSHShell {
 	public static void main(String[] arg) {
-		Log.clear();
+		Log.start();
 		try {
 			JSch jsch = new JSch();
 

@@ -186,6 +186,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		}
 		
 		Translator.start();
+		SoundSystem.start();
+		InputManager.start();
 
 		commandUndo = new CommandUndo(undoManager);
 		commandRedo = new CommandRedo(undoManager);
@@ -204,9 +206,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         
         // ..with default setting.  TODO save & load whole world and all its Entities.
         scene.createDefaultWorld();
-		
-		SoundSystem.start();
-		InputManager.start();
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
@@ -708,7 +707,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         long nowTime = System.currentTimeMillis();
         double dt = (nowTime - lastTime)*0.001;  // to seconds
     	lastTime = nowTime;
-    	//Log.message(dt);
     	
     	// UPDATE STEP
     	
@@ -917,21 +915,23 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			// Log.end() should be the very last call.  mainFrame.dispose() kills the thread, so this is as close as I can get.
+			Log.end();
+			
         	// Run this on another thread than the AWT event queue to
 	        // make sure the call to Animator.stop() completes before
 	        // exiting
 	        new Thread(new Runnable() {
 	            public void run() {
-	              animator.stop();
-	              mainFrame.dispose();
+					animator.stop();
+					mainFrame.dispose();
 	            }
 	        }).start();
         }
 	}
 
 	public static void main(String[] argv) {
-		Log.clear();
-		
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {

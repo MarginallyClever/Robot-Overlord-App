@@ -1,9 +1,11 @@
 package com.marginallyclever.robotOverlord.log;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -18,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
+import ch.qos.logback.classic.BasicConfigurator;
+
 /**
  * static log methods available everywhere
  * @author Dan Royer
@@ -25,8 +29,13 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  * See org.slf4j.Logger
  */
 public class Log {
-	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static String LOG_FILE_PATH;
+	public static String LOG_FILE_NAME_TXT = "log.txt";
+	public final static String PROGRAM_START_STRING = "PROGRAM START";
+	public final static String PROGRAM_END_STRING = "PROGRAM END";
+	
+	private static Logger logger;
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
 
 	
@@ -37,10 +46,45 @@ public class Log {
 		listeners.remove(listener);
 	}
 	
+	public static void start() {
+		LOG_FILE_PATH = System.getProperty("user.dir");//System.getProperty("java.io.tmpdir");
+		if(!LOG_FILE_PATH.endsWith(File.separator)) {
+			LOG_FILE_PATH+=File.separator;
+		}
+			
+		System.out.println("log dir="+LOG_FILE_PATH);
+
+		crashReportCheck();
+		deleteOldLog();
+		
+		logger = LoggerFactory.getLogger(RobotOverlord.class);
+		BasicConfigurator.configureDefaultContext();
+		
+		write(PROGRAM_START_STRING);
+		write("OS="+System.getProperty("os.name").toLowerCase());
+	}
+	
+	public static void end() {
+		logger.info(PROGRAM_END_STRING);
+	}
+	
+	private static void crashReportCheck() {
+		File oldLogFile = new File(LOG_FILE_PATH+LOG_FILE_NAME_TXT);
+		if( oldLogFile.exists() ) {
+			// read last line of file
+			String ending = tail(oldLogFile);
+			
+			if(!ending.contains(PROGRAM_END_STRING)) {
+				// add a crashed message
+				//sendLog();
+			} // else no problem
+		}
+	}
+	
 	/**
 	 * wipe the log file
 	 */
-	public static void clear() {
+	public static void deleteOldLog() {
 		Path p = FileSystems.getDefault().getPath("log.txt");
 		try {
 			Files.deleteIfExists(p);
@@ -50,6 +94,56 @@ public class Log {
 		
 		// print starting time
 	}
+	
+	/**
+	 * https://stackoverflow.com/a/7322581
+	 * @param file
+	 * @return the last line in the file
+	 */
+	public static String tail( File file ) {
+	    RandomAccessFile fileHandler = null;
+	    try {
+	        fileHandler = new RandomAccessFile( file, "r" );
+	        long fileLength = fileHandler.length() - 1;
+	        StringBuilder sb = new StringBuilder();
+
+	        for(long filePointer = fileLength; filePointer != -1; filePointer--){
+	            fileHandler.seek( filePointer );
+	            int readByte = fileHandler.readByte();
+
+	            if( readByte == 0xA ) {  // 10, line feed, '\n'
+	                if( filePointer == fileLength ) {
+	                    continue;
+	                }
+	                break;
+
+	            } else if( readByte == 0xD ) {  // 13, carriage-return '\r'
+	                if( filePointer == fileLength - 1 ) {
+	                    continue;
+	                }
+	                break;
+	            }
+
+	            sb.append( ( char ) readByte );
+	        }
+
+	        String lastLine = sb.reverse().toString();
+	        return lastLine;
+	    } catch( java.io.FileNotFoundException e ) {
+	        e.printStackTrace();
+	        return null;
+	    } catch( java.io.IOException e ) {
+	        e.printStackTrace();
+	        return null;
+	    } finally {
+	        if (fileHandler != null )
+	            try {
+	                fileHandler.close();
+	            } catch (IOException e) {
+	                /* ignore */
+	            }
+	    }
+	}
 
 
 	/**
@@ -57,13 +151,15 @@ public class Log {
 	 * @param msg HTML to put in the log file
 	 */
 	public static void write(String msg) {
-		msg = sdf.format(Calendar.getInstance().getTime())+" "+msg+"\n";
+		if(logger==null) start();
 		
-		System.out.print(msg);
+		msg = sdf.format(Calendar.getInstance().getTime())+" "+msg;
+		
+		logger.info(msg);
 		
 		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.txt", true), StandardCharsets.UTF_8)) {
 			PrintWriter logToFile = new PrintWriter(fileWriter);
-			logToFile.write(msg);
+			logToFile.write(msg+"\n");
 			logToFile.flush();
 		} catch (IOException e) {
 			logger.error("{}", e);

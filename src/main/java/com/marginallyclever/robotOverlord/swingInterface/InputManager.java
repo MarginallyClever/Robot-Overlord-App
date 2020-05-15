@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
+import com.marginallyclever.robotOverlord.log.Log;
+
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
@@ -107,7 +109,36 @@ public class InputManager {
 	protected static double [] keyStateOld = new double[Source.values().length];
 	protected static double [] keyState = new double[Source.values().length];
 	
-	static public void start() {}
+	static public void start() {
+		listAllControllers();
+	}
+
+	/**
+	 * output all controllers, their components, and some details about those components.
+	 */
+	static public void listAllControllers() {
+		ControllerEnvironment ce = ControllerEnvironment.getDefaultEnvironment();
+		Log.message("supported="+ce.isSupported());
+		
+		
+		Controller[] ca = ce.getControllers();
+        for(int i =0;i<ca.length;i++){
+            Component[] components = ca[i].getComponents();
+
+            Log.message("Controller "+i+":"+ca[i].getName()+" "+ca[i].getType().toString());
+            Log.message("Component Count: "+components.length);
+
+            // Get this controllers components (buttons and axis)
+            for(int j=0;j<components.length;j++){
+            	Log.message("\t"+j+": "+components[j].getName() + " " + components[j].getIdentifier().getName()
+            			+" ("
+                		+ (components[j].isRelative() ? "Relative" : "Absolute")
+                		+ " "
+                		+ (components[j].isAnalog()? "Analog" : "Digital")
+                		+ ")");
+            }
+        }
+	}
 	
 	static public void update(boolean isMouseIn) {
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -115,8 +146,8 @@ public class InputManager {
 		advanceKeyStates();
 		
 		int numMice=0;
-		//int numSticks=0;
-		//int numKeyboard=0;
+		int numSticks=0;
+		int numKeyboard=0;
 		
         for(int i=0;i<ca.length;i++){
         	// poll all controllers once per frame
@@ -135,15 +166,15 @@ public class InputManager {
         		//if(numSticks==0) {
         			updateStick(ca[i]);
         		//}
-        		//++numSticks;
+        		++numSticks;
         	} else if(ca[i].getType()==Controller.Type.KEYBOARD) {
         		//if(numKeyboard==0) {
             		updateKeyboard(ca[i]);
         		//}
-        		//++numKeyboard;
+        		++numKeyboard;
         	}
         }
-        //Log.message(numSticks+"/"+numMice+"/"+numKeyboard);
+        Log.message(numSticks+"/"+numMice+"/"+numKeyboard);
 	}
 	
 	static public boolean isOn(Source i) {
