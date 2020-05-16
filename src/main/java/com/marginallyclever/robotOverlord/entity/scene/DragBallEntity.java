@@ -17,6 +17,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -356,7 +357,7 @@ public class DragBallEntity extends PoseEntity {
 		ViewportEntity cameraView = ro.viewport;
 		PoseEntity camera = cameraView.getAttachedTo();
 		
-		if(!isActivelyMoving && cameraView.isPressed()) {	
+		if(!isActivelyMoving && cameraView.isPressed()) {
 			Vector3d pos = this.getPosition();
 			
 			// box centers
@@ -439,6 +440,8 @@ public class DragBallEntity extends PoseEntity {
 		if(isActivelyMoving) {
 			// actively being dragged
 			double scale = 5.0*dt;  // TODO something better?
+			double rawx= InputManager.getRawValue(InputManager.Source.MOUSE_X);
+			double rawy= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
 			double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
 			double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * -scale;
 			
@@ -463,6 +466,7 @@ public class DragBallEntity extends PoseEntity {
 				}
 				dp = Math.signum(dp)*Math.round(Math.abs(dp)/mm)*mm;
 			}
+			Log.message("dt="+dt+"\trawx="+rawx+"\trawy="+rawy+"\tdx="+dx+"\tdy="+dy+"\ttran="+dp);
 			if(dp!=0) {
 				switch(majorAxis) {
 				case X: translate(MatrixHelper.getXAxis(FOR), dp);	break;

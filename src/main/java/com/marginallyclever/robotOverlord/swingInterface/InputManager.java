@@ -110,6 +110,10 @@ public class InputManager {
 	protected static double [] keyState = new double[Source.values().length];
 	
 	static public void start() {
+		String lib_path = System.getProperty("net.java.games.input.librarypath");
+		Log.message("INPUT library path="+lib_path);
+		Log.message(System.mapLibraryName("here"));
+
 		listAllControllers();
 	}
 
@@ -146,8 +150,8 @@ public class InputManager {
 		advanceKeyStates();
 		
 		int numMice=0;
-		int numSticks=0;
-		int numKeyboard=0;
+		//int numSticks=0;
+		//int numKeyboard=0;
 		
         for(int i=0;i<ca.length;i++){
         	// poll all controllers once per frame
@@ -166,15 +170,15 @@ public class InputManager {
         		//if(numSticks==0) {
         			updateStick(ca[i]);
         		//}
-        		++numSticks;
+        		//++numSticks;
         	} else if(ca[i].getType()==Controller.Type.KEYBOARD) {
         		//if(numKeyboard==0) {
             		updateKeyboard(ca[i]);
         		//}
-        		++numKeyboard;
+        		//++numKeyboard;
         	}
         }
-        Log.message(numSticks+"/"+numMice+"/"+numKeyboard);
+        //Log.message(numSticks+"/"+numMice+"/"+numKeyboard);
 	}
 	
 	static public boolean isOn(Source i) {

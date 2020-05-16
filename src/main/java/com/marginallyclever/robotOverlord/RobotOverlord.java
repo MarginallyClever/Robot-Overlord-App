@@ -178,6 +178,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	
  	protected RobotOverlord() {
  		super();
+ 		Log.message("RO Classpath="+System.getenv("CLASSPATH"));
+ 		Log.message("RO java.library.path="+System.getProperty("java.library.path"));
+ 		
 		prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
 
 		//Log.message("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
