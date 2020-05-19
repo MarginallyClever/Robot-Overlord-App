@@ -1,7 +1,10 @@
 #pragma once
 
-
 // EEPROM - should exactly match makelangelo-firmware eeprom for legacy reasons
+
+#ifndef NUM_AXIES
+#define NUM_AXIES (NUM_SERVOS+NUM_MOTORS)
+#endif
 
 #define FIRMWARE_VERSION        10    // Increment when adding new variables
 #define SIZEOF_FLOAT_BYTES      (4)

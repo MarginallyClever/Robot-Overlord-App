@@ -1,11 +1,28 @@
 #include "configure.h"
 
+Kinematics kinematics;
+
+
+/**
+   Forward Kinematics - turns step counts into XY coordinates.
+   This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java forwardKinematics()
+   @param steps a measure of each belt to that plotter position
+   @param angles the resulting cartesian coordinate
+   @return 0 if no problem, 1 on failure.
+*/
+int Kinematics::FK(uint32_t *steps, float *angles) {
+  // TODO fill me in!
+
+  return 0;
+}
+
+
 /**
  * Turns angle values into step counts for each motor
  * @param angles in degrees
  * @param steps motor pulses to reach the same angle
 */
-void anglesToSteps(const float *const angles, int32_t *steps) {
+void Kinematics::anglesToSteps(const float *const angles, int32_t *steps) {
   // each of the xyz motors are differential to each other.
   // to move only one motor means applying the negative of that value to the other two motors
 

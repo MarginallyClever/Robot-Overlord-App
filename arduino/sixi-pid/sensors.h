@@ -9,6 +9,11 @@
 // use in for(ALL_SENSORS(i)) { //i will be rising
 #define ALL_SENSORS(NN) int NN=0;NN<NUM_SENSORS;++NN
 
+#define SENSOR_CSEL   0
+#define SENSOR_CLK    1
+#define SENSOR_MOSI   2
+#define SENSOR_MISO   3
+
 // sensor bits, flags, and masks
 #define BOTTOM_14_MASK       (0x3FFF)
 #define SENSOR_TOTAL_BITS    (16)
@@ -23,14 +28,42 @@
 #define POSITION_ERROR_FLAG_ESTOP        (3)  // check for error at all?
 
 
+class SensorAS5147 {
+public:
+  uint8_t pins[4];
+  float angle; // current reading after adjustment
+  float angleHome;  // sensor raw angle value at home position.  reading - this = 0.
 
-extern uint8_t sensorPins[4*NUM_SENSORS];
-extern float sensorAngles[NUM_SENSORS];
-extern uint8_t positionErrorFlags;
-extern bool sensorReady;
+  void setup();
+  
+  /**
+   * See https://ams.com/documents/20143/36005/AS5147_DS000307_2-00.pdf
+   * @param result where to store the returned value.  may be changed even if method fails.
+   * @return 0 on fail, 1 on success.
+   */
+  bool getRawValue(uint16_t &result);
+};
 
 
-/**
- * Update sensorAngles with the latest values, adjust them by motors[i].angleHome, and cap them to [-180...180).
- */
-void sensorUpdate();
+class SensorManager {
+public:
+  uint8_t positionErrorFlags;
+  bool sensorReady;
+
+  void setup();
+  
+  // Update sensorAngles with the latest values, adjust them by motors[i].angleHome, and cap them to [-180...180).
+  void update();
+  
+  /**
+   * @param rawValue 16 bit value from as4157 sensor, including parity and EF bit
+   * @return degrees calculated from bottom 14 bits.
+   */
+  inline float extractAngleFromRawValue(uint16_t rawValue) {
+    return (float)(rawValue & BOTTOM_14_MASK) * 360.0 / (float)(1<<SENSOR_ANGLE_BITS);
+  }
+};
+
+
+extern SensorAS5147 sensors[NUM_SENSORS];
+extern SensorManager sensorManager;

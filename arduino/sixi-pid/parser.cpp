@@ -12,19 +12,9 @@
 Parser parser;
 
 
-/**
-   Forward Kinematics - turns step counts into XY coordinates.
-   This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java forwardKinematics()
-   @param steps a measure of each belt to that plotter position
-   @param angles the resulting cartesian coordinate
-   @return 0 if no problem, 1 on failure.
-*/
-int FK(uint32_t *steps, float *angles) {
-  // TODO fill me in!
-
-  return 0;
+void Parser::setup() {
+  Serial.begin(BAUD);
 }
-
 
 /**
    Look for character /code/ in the buffer and read the float that immediately follows it.
@@ -192,9 +182,11 @@ void Parser::processCommand() {
         break;
       case 17:  D17();  break;
       case 18:  D18();  break;
-      case 19:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
-      case 20:  SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_ERROR); SET_BIT_OFF(positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);  break;
-      case 21:  FLIP_BIT(positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
+      case 19:  FLIP_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
+      case 20:  SET_BIT_OFF(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR);
+                SET_BIT_OFF(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
+                break;
+      case 21:  FLIP_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
       case 22:  D22();  break;
       case 50:  D50();  break;
       default:  break;
@@ -329,11 +321,11 @@ void Parser::M428() {
   M502();
 
   // read the sensor
-  sensorUpdate();
+  sensorManager.update();
 
   // apply the new offsets
   for (ALL_MOTORS(i)) {
-    motors[i].angleHome = sensorAngles[i];
+    motors[i].angleHome = sensors[i].angle;
   }
   D18();
 }
@@ -391,7 +383,7 @@ void Parser::D17() {
   Serial.print(F("D17"));
   for (ALL_MOTORS(i)) {
     Serial.print(' ');
-    Serial.print(sensorAngles[i], 2);
+    Serial.print(sensors[i].angle, 2);
   }
 
 #if NUM_SERVOS > 0
@@ -400,10 +392,10 @@ void Parser::D17() {
 #endif
 
   Serial.print('\t');
-  //Serial.print(((positionErrorFlags&POSITION_ERROR_FLAG_CONTINUOUS)!=0)?'+':'-');
-  Serial.print(((positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) ? '+' : '-');
-  //Serial.print(((positionErrorFlags&POSITION_ERROR_FLAG_FIRSTERROR)!=0)?'+':'-');
-  //Serial.print(((positionErrorFlags&POSITION_ERROR_FLAG_ESTOP)!=0)?'+':'-');
+  //Serial.print(((sensorManager.positionErrorFlags&POSITION_ERROR_FLAG_CONTINUOUS)!=0)?'+':'-');
+  Serial.print(((sensorManager.positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) ? '+' : '-');
+  //Serial.print(((sensorManager.positionErrorFlags&POSITION_ERROR_FLAG_FIRSTERROR)!=0)?'+':'-');
+  //Serial.print(((sensorManager.&POSITION_ERROR_FLAG_ESTOP)!=0)?'+':'-');
   Serial.println();
 }
 
@@ -419,9 +411,9 @@ void Parser::D18() {
   CRITICAL_SECTION_START();
 
   for (int i = 0; i < numSamples; ++i) {
-    sensorUpdate();
+    sensorManager.update();
     for (ALL_SENSORS(j)) {
-      angles[j] += sensorAngles[j];
+      angles[j] += sensors[j].angle;
     }
   }
 
@@ -430,7 +422,7 @@ void Parser::D18() {
   }
 
   int32_t steps[NUM_MOTORS];
-  anglesToSteps(angles, steps);
+  kinematics.anglesToSteps(angles, steps);
 
   for (ALL_SENSORS(i)) {
     motors[i].angleTarget = angles[i];
@@ -446,6 +438,7 @@ void Parser::D18() {
 void Parser::D22() {
   eepromSavePID();
 }
+
 
 // D50 Set strict parsing and report state.  Format D50 [Sn] where n=0 for off and 1 for true.
 void Parser::D50() {
@@ -480,7 +473,7 @@ void Parser::G01() {
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
   }
 
-  anglesToSteps(angles, steps);
+  kinematics.anglesToSteps(angles, steps);
 
   //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
 
@@ -527,7 +520,7 @@ void Parser::G28() {
   angles[4] = DH_4_THETA;
   angles[5] = DH_5_THETA;
   
-  anglesToSteps(angles, steps);
+  kinematics.anglesToSteps(angles, steps);
 
   CRITICAL_SECTION_START();
   for (ALL_MOTORS(i)) {

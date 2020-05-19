@@ -6,6 +6,7 @@
 
 #include "configure.h"
 
+MotorManager motorManager;
 
 StepperMotor motors[NUM_MOTORS];
 
@@ -16,17 +17,43 @@ Servo servos[NUM_SERVOS];
 int stepsCount = 0;
 
 
+void MotorManager::setup() {
+#define SMP(LL,NN) { motors[NN].letter     = LL; \
+                     motors[NN].step_pin   = MOTOR_##NN##_STEP_PIN; \
+                     motors[NN].dir_pin    = MOTOR_##NN##_DIR_PIN; \
+                     motors[NN].enable_pin = MOTOR_##NN##_ENABLE_PIN; }
+  SMP('X',0)
+  SMP('Y',1)
+  SMP('Z',2)
+  SMP('U',3)
+  SMP('V',4)
+  SMP('W',5)
+
+  for(ALL_MOTORS(i)) {
+    // set the motor pin & scale
+    pinMode(motors[i].step_pin, OUTPUT);
+    pinMode(motors[i].dir_pin, OUTPUT);
+    pinMode(motors[i].enable_pin, OUTPUT);
+  }
+
+  // setup servos
+#if NUM_SERVOS>0
+  servos[0].attach(SERVO0_PIN);
+#endif
+}
+
+
 // dt = us
 void StepperMotor::update(float dt,float angleNow) {
   // use a PID to control the motion.
 
-  if(sensorReady) {
+  if(sensorManager.sensorReady) {
     //update stepsNow
     if( abs(stepsNow) - stepsCount != abs(stepsUpdated)) {
       stepsNow = stepsUpdated;
     } 
     stepsCount = 0;
-    sensorReady = false;
+    sensorManager.sensorReady = false;
   }
   
   // P term

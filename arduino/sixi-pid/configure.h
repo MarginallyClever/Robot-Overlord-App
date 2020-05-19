@@ -50,9 +50,9 @@ FORCE_INLINE float capRotationDegrees(double arg0,double centerPoint) {
   return arg0;
 }
 
-#include "eeprom.h"
 #include "motors.h"
 #include "sensors.h"
+#include "eeprom.h"
 #include "clock.h"
 #include "kinematics.h"
 #include "parser.h"

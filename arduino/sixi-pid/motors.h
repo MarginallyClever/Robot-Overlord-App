@@ -141,7 +141,16 @@ public:
 };
 
 
+class MotorManager {
+public:
+  void setup();
+  void enableAll();
+  void disableAll();
+};
+
+
 extern StepperMotor motors[NUM_MOTORS];
+extern MotorManager motorManager;
 
 #if NUM_SERVOS>0
 extern Servo servos[NUM_SERVOS];

@@ -19,6 +19,8 @@ public:
   
   uint8_t parserFlags = 0;
 
+  void setup();
+  
   // does this command have the matching code?
   uint8_t hasGCode(char code);
   // find the matching code and return the number that immediately follows it.

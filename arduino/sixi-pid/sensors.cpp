@@ -6,10 +6,21 @@
 
 #include "configure.h"
 
-uint8_t sensorPins[4*NUM_SENSORS];
-float sensorAngles[NUM_SENSORS];
-uint8_t positionErrorFlags;
-bool sensorReady;
+
+SensorAS5147 sensors[NUM_SENSORS];
+SensorManager sensorManager;
+
+
+void SensorAS5147::setup() {
+  pinMode(pins[SENSOR_CSEL],OUTPUT);
+  pinMode(pins[SENSOR_CLK ],OUTPUT);  // clk
+  pinMode(pins[SENSOR_MISO],INPUT);  // miso
+  pinMode(pins[SENSOR_MOSI],OUTPUT);  // mosi
+  
+  digitalWrite(pins[SENSOR_CSEL],HIGH);  // csel
+  digitalWrite(pins[SENSOR_MOSI],HIGH);  // mosi
+}
+
 
 /**
  * @param index the sensor to read
@@ -17,26 +28,24 @@ bool sensorReady;
  * @return 0 on fail, 1 on success.
 // @see https://ams.com/documents/20143/36005/AS5147_DS000307_2-00.pdf
  */
-bool getSensorRawValue(int index, uint16_t &result) {
+bool SensorAS5147::getRawValue(uint16_t &result) {
   result=0;
-  uint8_t input,parity=0;
-
-  index*=4;
+  uint8_t input, parity=0;
   
   // Send the request for the angle value (command 0xFFFF)
   // at the same time as receiving an angle.
 
   // Collect the 16 bits of data from the sensor
-  digitalWrite(sensorPins[index+0],LOW);  // csel
+  digitalWrite(pins[SENSOR_CSEL],LOW);
   
   for(int i=0;i<SENSOR_TOTAL_BITS;++i) {
-    digitalWrite(sensorPins[index+1],HIGH);  // clk
+    digitalWrite(pins[SENSOR_CLK],HIGH);  // clk
     // this is here to give a little more time to the clock going high.
     // only needed if the arduino is *very* fast.  I'm feeling generous.
     result <<= 1;
-    digitalWrite(sensorPins[index+1],LOW);  // clk
+    digitalWrite(pins[SENSOR_CLK],LOW);  // clk
     
-    input = digitalRead(sensorPins[index+2]);  // miso
+    input = digitalRead(pins[SENSOR_MISO]);  // miso
 #ifdef VERBOSE
     Serial.print(input,DEC);
 #endif
@@ -44,32 +53,49 @@ bool getSensorRawValue(int index, uint16_t &result) {
     parity ^= (i>0) & input;
   }
 
-  digitalWrite(sensorPins[index+0],HIGH);  // csel
+  digitalWrite(pins[SENSOR_CSEL],HIGH);  // csel
   
   // check the parity bit
   return ( parity != (result>>SENSOR_DATA_BITS) );
 }
 
 
-/**
- * @param rawValue 16 bit value from as4157 sensor, including parity and EF bit
- * @return degrees calculated from bottom 14 bits.
- */
-float extractAngleFromRawValue(uint16_t rawValue) {
-  return (float)(rawValue & BOTTOM_14_MASK) * 360.0 / (float)(1<<SENSOR_ANGLE_BITS);
+
+void SensorManager::setup() {
+  int i=0;
+
+// SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
+#define SSP(label,NN,JJ)    sensors[i].pins[JJ] = PIN_SENSOR_##label##_##NN;
+#define SSP2(NN)            if(NUM_SENSORS>NN) {  SSP(CSEL,NN,0)  SSP(CLK,NN,1)  SSP(MISO,NN,2)  SSP(MOSI,NN,3)  }
+  SSP2(0)
+  SSP2(1)
+  SSP2(2)
+  SSP2(3)
+  SSP2(4)
+  SSP2(5)
+
+  for(ALL_SENSORS(i)) {
+    // MUST match the order in SSP2() above
+    sensors[i].setup();
+  }
+  
+  sensorManager.positionErrorFlags = 0;
+  SET_BIT_ON(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);// | POSITION_ERROR_FLAG_ESTOP;
 }
 
 
 /**
  * Update sensorAngles with the latest values, adjust them by motors[i].angleHome, and cap them to [-180...180).
  */
-void sensorUpdate() {
+void SensorManager::update() {
   sensorReady = false;
   uint16_t rawValue;
   int32_t steps[NUM_MOTORS];
+  float sensorAngles[NUM_SENSORS];
   float v;
+  
   for(ALL_SENSORS(i)) {
-    if(getSensorRawValue(i,rawValue)) continue;
+    if(sensors[i].getRawValue(rawValue)) continue;
     v = extractAngleFromRawValue(rawValue);
     // Some of these are negative because the sensor is reading the opposite rotation from the Robot Overlord simulation.
     // Robot Overlord has the final say, so these are flipped to match the simulation.
@@ -80,12 +106,14 @@ void sensorUpdate() {
     v =fmod(v,360.0f);  // limit to within 0...360
     v-=180;  // now shift back to +/-180
     sensorAngles[i] = v;
+    sensors[i].angle = v;
   }
-  
-  anglesToSteps(sensorAngles, steps);
+
+  kinematics.anglesToSteps(sensorAngles, steps);
 
   for(ALL_SENSORS(i)){
     motors[i].stepsUpdated = steps[i];
   }
+  
   sensorReady = true;
 }

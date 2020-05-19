@@ -32,6 +32,10 @@
 #define DH_5_R     0
 
 
+class Kinematics {
+public:
+  int FK(uint32_t *steps, float *angles);
+  void anglesToSteps(const float *const angles, int32_t *steps);
+};
 
-
-extern void anglesToSteps(const float *const angles, int32_t *steps);
+extern Kinematics kinematics;
