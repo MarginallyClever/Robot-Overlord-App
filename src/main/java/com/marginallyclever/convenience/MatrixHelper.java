@@ -692,6 +692,6 @@ public class MatrixHelper {
 		mTarget.get(m3);
 		m3.normalize();
 		mTarget.set(m3);
-		mTarget.set(v3);
+		mTarget.setTranslation(v3);
 	}
 }
