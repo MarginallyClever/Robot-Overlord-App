@@ -448,13 +448,15 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		interpolatedMatrixFuture.get(p1);
 		dp.sub(p1,p0);
 		dp.scale(1.0/dt);
-		
+
+		interpolatedMatrixNow.setTranslation(new Vector3d(0,0,0));
+		interpolatedMatrixFuture.setTranslation(new Vector3d(0,0,0));
 		// get the rotation force
 		Quat4d q0 = new Quat4d();
 		Quat4d q1 = new Quat4d();
 		Quat4d dq = new Quat4d();
-		interpolatedMatrixNow.get(q0);
-		interpolatedMatrixFuture.get(q1);
+		q0.set(interpolatedMatrixNow);
+		q1.set(interpolatedMatrixFuture);
 		dq.sub(q1,q0);
 		dq.scale(2/dt);
 		Quat4d w = new Quat4d();
