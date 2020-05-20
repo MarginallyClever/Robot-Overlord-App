@@ -2,10 +2,14 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.swing.AbstractAction;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -36,6 +40,26 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 		e.addObserver(this);
 		
 		field = new FocusTextField(8);
+		field.addActionListener(new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				conditionalChange();
+			}
+		});
+		field.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				conditionalChange();
+			}
+		});
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
 		field.setText(e.get().toString());
@@ -50,14 +74,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 		panel.add(field,BorderLayout.LINE_END);
 	}
 	
-	/**
-	 * panel changed, poke entity
-	 */
-	@Override
-	public void changedUpdate(DocumentEvent arg0) {
-		if(lock.isLocked()) return;
-		lock.lock();
-
+	protected void conditionalChange() {
 		int newNumber;
 		
 		try {
@@ -68,20 +85,40 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 			newNumber = e.get();
 		}
 		
+		if(lock.isLocked()) return;
+		lock.lock();
+
 		if(newNumber != e.get()) {
 			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeInt(e, newNumber) ) );
 		}
 		lock.unlock();
 	}
+	
+	protected void validateField() {
+		try {
+			Integer.valueOf(field.getText());
+			field.setForeground(UIManager.getColor("Textfield.foreground"));
+		} catch(NumberFormatException e1) {
+			field.setForeground(Color.RED);
+		}
+	}
+	
+	/**
+	 * panel changed, poke entity
+	 */
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		validateField();
+	}
 
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
+		validateField();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
+		validateField();
 	}
 	
 	@Override

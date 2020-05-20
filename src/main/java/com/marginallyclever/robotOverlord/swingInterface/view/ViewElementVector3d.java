@@ -1,15 +1,21 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
@@ -51,6 +57,26 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 	
 	private JTextField addField(double value,JPanel parent,String labelName) {
 		JTextField field = new FocusTextField(6);
+		field.addActionListener(new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				conditionalChange();
+			}
+		});
+		field.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				conditionalChange();
+			}
+		});
 		field.setText(StringHelper.formatDouble(value));
 		field.setHorizontalAlignment(JTextField.RIGHT);
 		field.getDocument().addDocumentListener(this);
@@ -66,15 +92,18 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 	}
 	
 	private double getField(int i,double oldValue) {
+		double number;
 		try {
-			return Double.parseDouble(fields[i].getText());
+			number = Double.parseDouble(fields[i].getText());
+			fields[i].setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e) {
-			return oldValue;
+			number = oldValue;
+			fields[i].setForeground(Color.RED);
 		}
+		return number;
 	}
 	
-	@Override
-	public void changedUpdate(DocumentEvent arg0) {	
+	protected void conditionalChange() {
 		if(lock.isLocked()) return;
 		lock.lock();
 			
@@ -96,13 +125,27 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 	}
 
 	@Override
+	public void changedUpdate(DocumentEvent arg0) {	
+		Vector3d oldValue = e.get(); 
+		getField(0,oldValue.x);
+		getField(1,oldValue.y);
+		getField(2,oldValue.z);
+	}
+	
+	@Override
 	public void insertUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
+		Vector3d oldValue = e.get(); 
+		getField(0,oldValue.x);
+		getField(1,oldValue.y);
+		getField(2,oldValue.z);
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent arg0) {
-		changedUpdate(arg0);
+		Vector3d oldValue = e.get(); 
+		getField(0,oldValue.x);
+		getField(1,oldValue.y);
+		getField(2,oldValue.z);
 	}
 
 	@Override

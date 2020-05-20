@@ -34,7 +34,6 @@ public class ViewElement extends Observable implements FocusListener {
 	public void focusGained(FocusEvent e) {
 		Component c = e.getComponent();
 
-		
 		// I need the absolute position of this component in the top-most component inside the JScrollPane
 		// in order to call scrollRectToVisible() with the correct coordinates.
 		Rectangle rec = c.getBounds();
@@ -60,6 +59,5 @@ public class ViewElement extends Observable implements FocusListener {
 		Log.message("LOST "
 					+e.getComponent().getClass().getName() + " >> "
 					+e.getOppositeComponent().getClass().getName());//*/
-		
 	}
 }
