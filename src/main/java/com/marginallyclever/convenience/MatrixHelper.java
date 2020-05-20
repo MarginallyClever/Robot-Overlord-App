@@ -216,9 +216,9 @@ public class MatrixHelper {
 		if(alpha<0 || alpha>1) return false;
 		// spherical interpolation (slerp) between the two matrix orientations
 		Quat4d qStart = new Quat4d();
-		start.get(qStart);
+		qStart.set(start);
 		Quat4d qEnd = new Quat4d();
-		end.get(qEnd);
+		qEnd.set(end);
 		Quat4d qInter = new Quat4d();
 		qInter.interpolate(qStart, qEnd, alpha);
 		// linear interpolation between the two matrix translations
@@ -687,8 +687,11 @@ public class MatrixHelper {
 	 */
 	public static void normalize3(Matrix4d mTarget) {
 		Matrix3d m3 = new Matrix3d();
+		Vector3d v3 = new Vector3d();
+		mTarget.get(v3);
 		mTarget.get(m3);
 		m3.normalize();
 		mTarget.set(m3);
+		mTarget.set(v3);
 	}
 }
