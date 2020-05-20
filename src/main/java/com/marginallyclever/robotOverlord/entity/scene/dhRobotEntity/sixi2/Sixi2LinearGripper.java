@@ -116,14 +116,14 @@ public class Sixi2LinearGripper extends DHTool {
 				//Log.message("Grab");
 				// Get the object at the targetPos.
 				Vector3d target = new Vector3d();
-				this.poseWorld.get(target);
+				poseWorld.get(target);
 				List<PoseEntity> list = this.getWorld().findPhysicalObjectsNear(target, 10);
 				if(!list.isEmpty()) {
 					subjectBeingHeld = list.get(0);
 					// A new subject has been acquired.
 					// The subject is being held by the gripper.  Subtract the gripper's world pose from the subject's world pose.
 					Matrix4d m = subjectBeingHeld.getPose();
-					Matrix4d ipc = new Matrix4d(poseWorld.get());
+					Matrix4d ipc = new Matrix4d(poseWorld);
 					ipc.invert();
 					m.mul(ipc);
 					subjectBeingHeld.setPose(m);
@@ -132,7 +132,7 @@ public class Sixi2LinearGripper extends DHTool {
 				//Log.message("Release");
 				// The subject is being held relative to the gripper.  Add the gripper's world pose to the subject's pose.
 				Matrix4d m = subjectBeingHeld.getPose();
-				m.mul(poseWorld.get());
+				m.mul(poseWorld);
 				subjectBeingHeld.setPose(m);
 				// forget the subject.
 				subjectBeingHeld=null;

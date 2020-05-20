@@ -36,7 +36,7 @@ public class DHTool extends DHLink {
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			PrimitiveSolids.drawSphere(gl2, 1);
 		gl2.glPopMatrix();
 	}

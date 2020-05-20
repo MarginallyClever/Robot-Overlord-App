@@ -46,6 +46,7 @@ public class Sixi2Live extends Sixi2Model {
 		// TODO Compare jacobian estimated force with reported position to determine
 		// compliance.
 		super.update(dt);
+		
 		if (!connection.isConnectionOpen()) {
 			waitingForOpenConnection = true;
 		}
@@ -60,7 +61,7 @@ public class Sixi2Live extends Sixi2Model {
 
 		super.sendCommand(command);
 		
-		sendCommandToRemoteEntity(command);
+		//sendCommandToRemoteEntity(command);
 	}
 
 	protected void sendCommandToRemoteEntity(String command) {

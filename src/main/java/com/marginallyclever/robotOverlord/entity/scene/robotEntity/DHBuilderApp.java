@@ -90,7 +90,7 @@ public class DHBuilderApp extends DHRobotEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			anchor.render(gl2);
 			
 			if(!inTest) {

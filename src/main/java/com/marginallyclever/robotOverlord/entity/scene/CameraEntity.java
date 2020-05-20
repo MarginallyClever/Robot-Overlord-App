@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.entity.scene;
 import java.util.Observable;
 
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
@@ -85,9 +84,7 @@ public class CameraEntity extends PoseEntity {
 
 	@Override
 	public void update(double dt) {
-		// Move the camera
-		Matrix4d m = pose.get();
-		
+		// Move the camera		
         double dz = InputManager.getRawValue(InputManager.Source.MOUSE_Z);
         if(dz!=0) { 
         	double oldZoom = zoom.get();
@@ -99,7 +96,7 @@ public class CameraEntity extends PoseEntity {
         	if(oldZoom!=newZoom) {
         		zoom.set(newZoom);
 				// adjust the camera position to orbit around a point 'zoom' in front of the camera
-				Vector3d oldZ = MatrixHelper.getZAxis(m);
+				Vector3d oldZ = MatrixHelper.getZAxis(pose);
 				Vector3d newZ = new Vector3d(oldZ); 
 
 				oldZ.scale(oldZoom);
@@ -135,8 +132,8 @@ public class CameraEntity extends PoseEntity {
 				if( InputManager.isOn(InputManager.Source.KEY_LSHIFT) ||
 					InputManager.isOn(InputManager.Source.KEY_RSHIFT) ) {
 					// translate relative to camera's current orientation
-					Vector3d vx = MatrixHelper.getXAxis(m);
-					Vector3d vy = MatrixHelper.getYAxis(m);
+					Vector3d vx = MatrixHelper.getXAxis(pose);
+					Vector3d vy = MatrixHelper.getYAxis(pose);
 					Vector3d p = getPosition();
 					double zSq = Math.sqrt(zoom.get())*0.01;
 					vx.scale(zSq*-dx);
@@ -149,7 +146,7 @@ public class CameraEntity extends PoseEntity {
 				} else if(InputManager.isOn(InputManager.Source.KEY_LCONTROL) ||
 						  InputManager.isOn(InputManager.Source.KEY_RCONTROL) ) {
 					// up and down to fly forward and back
-					Vector3d zAxis = MatrixHelper.getZAxis(m);
+					Vector3d zAxis = MatrixHelper.getZAxis(pose);
 					zAxis.scale(dy);
 					
 					Vector3d p = getPosition();
@@ -187,7 +184,7 @@ public class CameraEntity extends PoseEntity {
 					setRotation(rot);
 					
 					// adjust the camera position to orbit around a point 'zoom' in front of the camera
-					Vector3d oldZ = MatrixHelper.getZAxis(m);
+					Vector3d oldZ = MatrixHelper.getZAxis(pose);
 					oldZ.scale(zoom.get());
 
 					Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
@@ -208,7 +205,7 @@ public class CameraEntity extends PoseEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			PrimitiveSolids.drawStar(gl2, 10);
 		gl2.glPopMatrix();
 	}

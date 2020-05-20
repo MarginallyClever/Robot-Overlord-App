@@ -118,7 +118,7 @@ public class Robot_UArm extends RobotEntity {
 		live.refreshPose();
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			
 			// Draw models
 			MaterialEntity mat = new MaterialEntity();

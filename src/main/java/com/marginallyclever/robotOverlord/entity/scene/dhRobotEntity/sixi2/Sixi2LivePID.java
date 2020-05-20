@@ -269,7 +269,6 @@ public class Sixi2LivePID extends Sixi2Model {
 	    readyForCommands=true;
 	}
 
-					//setPoseFK(receivedKeyframe);
 
 	@Override
 	public void setPoseWorld(Matrix4d m) {}

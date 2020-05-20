@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.entity.scene;
 
 import java.util.ArrayList;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -99,11 +98,9 @@ public class LightEntity extends PoseEntity {
 		}
 		gl2.glEnable(i);
 		
-		Matrix4d m = poseWorld.get();
-		
-		position[0]=(float)m.m03;
-		position[1]=(float)m.m13;
-		position[2]=(float)m.m23;
+		position[0]=(float)poseWorld.m03;
+		position[1]=(float)poseWorld.m13;
+		position[2]=(float)poseWorld.m23;
 		position[3]=isDirectional.get()?1:0;
 		gl2.glLightfv(i, GL2.GL_POSITION, position,0);
 		
@@ -112,9 +109,9 @@ public class LightEntity extends PoseEntity {
 	    gl2.glLightfv(i, GL2.GL_SPECULAR, specular.getFloatArray(),0);
 
 	    // z axis of the matrix is the light direction
-	    spotDirection[0]=(float)m.m02;
-	    spotDirection[1]=(float)m.m12;
-	    spotDirection[2]=(float)m.m22;
+	    spotDirection[0]=(float)poseWorld.m02;
+	    spotDirection[1]=(float)poseWorld.m12;
+	    spotDirection[2]=(float)poseWorld.m22;
 		gl2.glLightfv(i, GL2.GL_SPOT_DIRECTION, spotDirection,0);
 	    
 	    gl2.glLightf(i, GL2.GL_SPOT_CUTOFF, cutoff.get().floatValue());
@@ -132,7 +129,7 @@ public class LightEntity extends PoseEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			PrimitiveSolids.drawStar(gl2, 10);
 		gl2.glPopMatrix();
 	}

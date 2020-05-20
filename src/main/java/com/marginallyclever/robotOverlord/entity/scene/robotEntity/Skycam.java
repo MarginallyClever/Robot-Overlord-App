@@ -29,7 +29,7 @@ public class Skycam extends RobotEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, pose.get());
+		MatrixHelper.applyMatrix(gl2, pose);
 		Vector3d s = size.get();
 		Vector3d pos = getPosition();
 		Point3d bottom = new Point3d(pos.x-s.x/2,pos.y-s.y/2,pos.z);

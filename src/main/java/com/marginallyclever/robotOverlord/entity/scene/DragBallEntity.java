@@ -341,14 +341,20 @@ public class DragBallEntity extends PoseEntity {
 					}
 					valueLast = valueStart + da;
 					
-					if(subject.canYouMoveTo(resultMatrix)) {
-						FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-						ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
-					}
+					attemptMove(ro);
 				}
 			}
 		}
 	}
+	
+
+	public void attemptMove(RobotOverlord ro) {
+		if(subject.canYouMoveTo(resultMatrix)) {
+			FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+		}
+	}
+	
 	
 	public void updateTranslation(double dt) {
 		valueNow = valueLast;
@@ -474,11 +480,8 @@ public class DragBallEntity extends PoseEntity {
 				case Z: translate(MatrixHelper.getZAxis(FOR), dp);	break;
 				}
 				valueLast = valueStart + dp;
-			
-				if(subject.canYouMoveTo(resultMatrix)) {
-					FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-					ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
-				}
+
+				attemptMove(ro);
 			}
 		}
 	}

@@ -221,7 +221,7 @@ public class ModelEntity extends PoseEntity {
 	
 	public void renderModel(GL2 gl2) {	
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, pose.get());
+		MatrixHelper.applyMatrix(gl2, pose);
 
 		if( model==null ) {
 			// draw placeholder

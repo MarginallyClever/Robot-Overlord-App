@@ -95,7 +95,7 @@ public class Robot_SCARA_NM extends RobotEntity {
 		}
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, this.pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			
 			// Draw models
 			float r=0.5f;

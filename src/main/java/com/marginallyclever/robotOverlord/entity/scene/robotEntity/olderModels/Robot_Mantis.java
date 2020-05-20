@@ -119,7 +119,7 @@ public class Robot_Mantis extends RobotEntity {
 		
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 		
 			MaterialEntity material = new MaterialEntity();
 			float r=0.5f;

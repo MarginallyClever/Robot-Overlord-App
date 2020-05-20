@@ -28,7 +28,7 @@ public class GridEntity extends PoseEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, this.pose.get());
+		MatrixHelper.applyMatrix(gl2, pose);
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glColor4d(color.getR(), color.getG(), color.getB(), color.getA());

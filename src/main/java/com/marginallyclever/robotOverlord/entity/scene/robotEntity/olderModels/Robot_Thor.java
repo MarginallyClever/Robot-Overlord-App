@@ -115,7 +115,7 @@ public class Robot_Thor extends RobotEntity {
 		
 		gl2.glPushMatrix();
 			material.render(gl2);
-			MatrixHelper.applyMatrix(gl2, this.pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 			live.render(gl2);		
 		gl2.glPopMatrix();
 		

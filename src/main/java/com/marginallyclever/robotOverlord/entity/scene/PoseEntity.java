@@ -16,7 +16,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.Matrix4dEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class PoseEntity extends Entity {
@@ -34,10 +33,10 @@ public class PoseEntity extends Entity {
 	private int pickName;	
 	
 	// pose relative to my parent Entity.
-	public Matrix4dEntity pose = new Matrix4dEntity();
+	public Matrix4d pose = new Matrix4d();
 	// pose relative to the world.
 	@JsonIgnore
-	public Matrix4dEntity poseWorld = new Matrix4dEntity();
+	public Matrix4d poseWorld = new Matrix4d();
 	
 	protected ReentrantLock lock1 = new ReentrantLock();
 	protected ReentrantLock lock2 = new ReentrantLock();
@@ -66,9 +65,6 @@ public class PoseEntity extends Entity {
 		
 		pose.setIdentity();
 		poseWorld.setIdentity();
-		
-		pose.addObserver(this);
-		poseWorld.addObserver(this);
 	}
 
 	public PoseEntity(String name) {
@@ -93,7 +89,7 @@ public class PoseEntity extends Entity {
 	 */
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose.get());
+			MatrixHelper.applyMatrix(gl2, pose);
 
 			// helpful info
 			if(showBoundingBox.get()) cuboid.render(gl2);
@@ -144,12 +140,12 @@ public class PoseEntity extends Entity {
 
 	public Vector3d getPosition() {
 		Vector3d trans = new Vector3d();
-		pose.getTranslation(trans);
+		pose.get(trans);
 		return trans;
 	}
 
 	public void setPosition(Vector3d pos) {
-		Matrix4d m = new Matrix4d(pose.get());
+		Matrix4d m = new Matrix4d(pose);
 		m.setTranslation(pos);
 		setPose(m);
 	}
@@ -170,7 +166,7 @@ public class PoseEntity extends Entity {
 	 */
 	public void getRotation(Vector3d arg0) {
 		Matrix3d temp = new Matrix3d();
-		pose.get().get(temp);
+		pose.get(temp);
 		arg0.set(MatrixHelper.matrixToEuler(temp));
 	}
 
@@ -194,7 +190,7 @@ public class PoseEntity extends Entity {
 	}
 	
 	public void getRotation(Matrix4d arg0) {
-		arg0.set(pose.get());
+		arg0.set(pose);
 		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 	
@@ -202,7 +198,7 @@ public class PoseEntity extends Entity {
 	 * @return {@link Matrix4d} of the local pose
 	 */
 	public Matrix4d getPose() {
-		return new Matrix4d(pose.get());
+		return new Matrix4d(pose);
 	}
 
 	/**
@@ -228,11 +224,11 @@ public class PoseEntity extends Entity {
 		if(parent instanceof PoseEntity) {
 			// this poseWorld is my pose * my parent's pose.
 			PoseEntity peParent = (PoseEntity)parent;
-			m = new Matrix4d(peParent.poseWorld.get());
-			m.mul(pose.get());
+			m = new Matrix4d(peParent.poseWorld);
+			m.mul(pose);
 		} else {
 			// this poseWorld is my pose
-			m = pose.get();
+			m = pose;
 		}
 		
 
@@ -252,20 +248,6 @@ public class PoseEntity extends Entity {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if(o==pose) {
-			if(!lock1.isLocked()) {
-				lock1.lock();
-				updatePoseWorld();
-				lock1.unlock();
-			}
-		}
-		if(o==poseWorld) {
-			if(!lock2.isLocked()) {
-				lock2.lock();
-				setPoseWorld(poseWorld.get());
-				lock2.unlock();
-			}
-		}
 		super.update(o, arg);
 	}
 	
@@ -273,7 +255,7 @@ public class PoseEntity extends Entity {
 	 * @return {@link Matrix4d} of the world pose
 	 */
 	public Matrix4d getPoseWorld() {
-		return new Matrix4d(poseWorld.get());
+		return new Matrix4d(poseWorld);
 	}
 	
 	
@@ -284,7 +266,7 @@ public class PoseEntity extends Entity {
 	public void setPoseWorld(Matrix4d m) {
 		if(parent instanceof PoseEntity) {
 			PoseEntity pep = (PoseEntity)parent;
-			Matrix4d newPose = new Matrix4d(pep.poseWorld.get());
+			Matrix4d newPose = new Matrix4d(pep.poseWorld);
 			newPose.invert();
 			newPose.mul(m);
 			setPose(newPose);
@@ -324,10 +306,10 @@ public class PoseEntity extends Entity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("P","Pose");
-			pose.getView(view);
-		view.popStack();
-		view.pushStack("WP","World Pose");
-			poseWorld.getView(view);
+		//	pose.getView(view);
+		//.popStack();
+		//view.pushStack("WP","World Pose");
+		//	poseWorld.getView(view);
 		view.popStack();
 	}
 	

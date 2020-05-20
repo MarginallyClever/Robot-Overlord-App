@@ -22,6 +22,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	// protected static final double DISTANCE_AT_MAX_REACH = Math.tan(Math.toRadians(SENSOR_RESOLUTION)) * MAX_REACH;  // 1.2272mm
 	// But this is a generic solver that should work with any arm, so.
 
+	protected static final int ITERATIONS = 5;
 	// Scale the "handles" used in distanceToTarget().  Bigger scale, greater rotation compensation
 	protected static final double CORRECTIVE_FACTOR = 100;
 	// If distanceToTarget() score is within threshold, quit with success. 
@@ -130,7 +131,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 
 		double dtt=10;
 		
-		for(int iter=0;iter<20;++iter) {
+		for(int iter=0;iter<ITERATIONS;++iter) {
 			// seems to work better ascending than descending
 			//for( int i=0; i<robot.getNumLinks(); ++i ) {
 			for( int i=robot.getNumLinks()-1; i>=0; --i ) {

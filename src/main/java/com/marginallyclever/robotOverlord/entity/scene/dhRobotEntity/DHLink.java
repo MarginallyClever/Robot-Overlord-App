@@ -518,7 +518,7 @@ public class DHLink extends ModelEntity {
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
 		if( parent instanceof DHLink || parent instanceof DHRobotEntity ) {
 			if( !this.getLetter().isEmpty() ) {
-				Matrix4d oldPose=poseWorld.get();
+				Matrix4d oldPose=poseWorld;
 				// we have newPose ...but is it something this DHLink could do?
 				// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
 				// TODO Today this is the only case I care about. make it better later.
