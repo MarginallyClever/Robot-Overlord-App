@@ -683,7 +683,7 @@ public class MatrixHelper {
 
 	/**
 	 * normalize the 3x3 component of the mTarget matrix.  Do not affect position. 
-	 * @param mTarget
+	 * @param mTarget the matrix that will be normalized.
 	 */
 	public static void normalize3(Matrix4d mTarget) {
 		Matrix3d m3 = new Matrix3d();
