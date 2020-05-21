@@ -11,7 +11,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -428,27 +427,11 @@ public class Sixi2 extends PoseEntity {
 	}
 
 	public void goHome() {
-	    // the home position
-		DHKeyframe homeKey = sim.getIKSolver().createDHKeyframe();
-		homeKey.fkValues[0]=0;
-		homeKey.fkValues[1]=-90;
-		homeKey.fkValues[2]=0;
-		homeKey.fkValues[3]=0;
-		homeKey.fkValues[4]=20;
-		homeKey.fkValues[5]=0;
-		sim.setPoseFK(homeKey);
+		sim.goHome();
 	}
 
 	public void goRest() {
-	    // set rest position
-		DHKeyframe restKey = sim.getIKSolver().createDHKeyframe();
-		restKey.fkValues[0]=0;
-		restKey.fkValues[1]=-60-90;
-		restKey.fkValues[2]=85+90;
-		restKey.fkValues[3]=0;
-		restKey.fkValues[4]=20;
-		restKey.fkValues[5]=0;
-		sim.setPoseFK(restKey);
+	    sim.goRest();
 	}
 
 	public int setCommandIndex(int newIndex) {

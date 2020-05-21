@@ -199,6 +199,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 			}
 		}
+		
+		goHome();
 
 		endEffectorTarget.setName("End Effector Target");
 		addChild(endEffectorTarget);
@@ -290,13 +292,21 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		        DHKeyframe newPose = solver.createDHKeyframe();
 		        newPose.set(poseFKTarget);
 		        setPoseFK(newPose);
-		        mTarget.set(endEffectorTarget.getPoseWorld());
+		        mTarget.set(endEffector.getPoseWorld());
 	        setPoseFK(oldPose);
 
 	        double travelS = dMax/(double)feedRate.get();
 	        
 	        MatrixHelper.normalize3(mTarget);
 
+	        /*String msg="";
+	        Vector3d v3 = new Vector3d();
+	        mFrom.get(v3);
+	        msg+="from="+v3;
+	        mTarget.get(v3);
+	        msg+="\ttarget="+v3;
+	        Log.message(msg);//*/
+	        
 	        timeNow=timeStart=0;
 	        timeTarget=timeStart+travelS;
 		} else if(gMode==4) {
@@ -403,6 +413,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	    	readyForCommands=true;
 	    }
 	}
+	
 	/**
 	 * Interpolate between two matrixes using approximate jacobians and update forward kinematics while you're at it.
 	 * 
@@ -426,16 +437,10 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		if(ratioNow   >1) ratioNow   =1;
 		if(ratioFuture>1) ratioFuture=1;
 		
-		if(ratioFuture==1 && ratioNow==1) {
-	    	// nothing happening
-			readyForCommands=true;
-			return;
-		}
-		
 		// changing the end matrix will only move the simulated version of the "live"
 		// robot.
 		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
-		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
+		MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
 		Matrix4d interpolatedMatrixFuture = new Matrix4d();
 		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
 		
@@ -465,6 +470,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		double[] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
 		
 		jacobianApplyForce(cartesianForce,dt);
+		
+		readyForCommands=true;
 	}
 	
 	protected void jacobianApplyForce(double[] cartesianForce,double dt) {
@@ -480,13 +487,10 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				cartesianForce[3] * cartesianForce[3] +
 				cartesianForce[4] * cartesianForce[4] +
 				cartesianForce[5] * cartesianForce[5]);
-		if (df <= 1e-5) {
-			Log.message("Jacobian arrived early with "+(timeTarget-timeNow)+" remaining.");
-			// arrived at target early.  weird!
-			//readyForCommands=true;
-		} else {
+		if (df > 1e-7) {
 			// jvot = joint velocity over time
 			double[] jvot = new double[keyframe.fkValues.length];
+			String msg="Jacobian ";
 			
 			int j,k;
 			for(j = 0; j < keyframe.fkValues.length; ++j) {
@@ -497,34 +501,36 @@ public abstract class Sixi2Model extends DHRobotEntity {
 					// impossible?  panic?
 					return;
 				}
+				jvot[j]=MathHelper.wrapRadians(jvot[j]);
+				msg+=StringHelper.formatDouble(Math.toDegrees(jvot[j]))+"\t";
 			}
 			
 			// scale jvot to within torqueMax of every joint
-			double scale=0.01;/*
+			double scale=1;
 			for(j = 0; j < keyframe.fkValues.length; ++j) {
 				double maxT = links.get(j).maxTorque.get();
 				double ajvot = Math.abs(jvot[j]); 
 				if( scale > maxT/ajvot ) {
 					scale = maxT/ajvot;
 				}
-			}//*/
+			}
 			
 			for(j = 0; j < keyframe.fkValues.length; ++j) {
 				// simulate a change in the joint velocities
 				double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * scale * dt;
-				Log.message(StringHelper.formatDouble(Math.toDegrees(jvot[j]))+"\t");
 				
-				v = MathHelper.capRotationDegrees(v,0);
+				//v = MathHelper.wrapDegrees(v);
 				keyframe.fkValues[j]=v;
 			}
 
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
 				mLive.set(endEffector.getPoseWorld());
-				//Log.message("ok");
+				msg+="ok";
 			} else {
-				Log.message("Jacobian insane");
+				msg+="insane";
 			}
+			Log.message(msg);
 		}
 	}
 	
@@ -541,7 +547,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		getPoseFK(oldPoseFK);
 		
 		setPoseFK(keyframe);
-		Matrix4d T = endEffectorTarget.getPoseWorld();
+		Matrix4d T = endEffector.getPoseWorld();
 		
 		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
 		int i=0;
@@ -554,7 +560,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 			setPoseFK(newPoseFK);
 			// Tnew will be different from T because of the changes in setPoseFK().
-			Matrix4d Tnew = endEffectorTarget.getPoseWorld();
+			Matrix4d Tnew = endEffector.getPoseWorld();
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -622,6 +628,30 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		setPoseFK(oldPoseFK);
 		
 		return jacobian;
+	}
+
+	public void goHome() {
+	    // the home position
+		DHKeyframe homeKey = getIKSolver().createDHKeyframe();
+		homeKey.fkValues[0]=0;
+		homeKey.fkValues[1]=-90;
+		homeKey.fkValues[2]=0;
+		homeKey.fkValues[3]=0;
+		homeKey.fkValues[4]=20;
+		homeKey.fkValues[5]=0;
+		setPoseFK(homeKey);
+	}
+
+	public void goRest() {
+	    // set rest position
+		DHKeyframe restKey = getIKSolver().createDHKeyframe();
+		restKey.fkValues[0]=0;
+		restKey.fkValues[1]=-60-90;
+		restKey.fkValues[2]=85+90;
+		restKey.fkValues[3]=0;
+		restKey.fkValues[4]=20;
+		restKey.fkValues[5]=0;
+		setPoseFK(restKey);
 	}
 	
 	@Override
