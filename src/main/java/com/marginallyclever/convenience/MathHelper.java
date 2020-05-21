@@ -10,7 +10,7 @@ import javax.vecmath.Vector3d;
  */
 public class MathHelper {
 	public final static double EPSILON = 0.00001f;
-	
+	public final static double TWOPI = Math.PI*2;	
 
 	/**
 	 * @param dx x component
@@ -101,43 +101,44 @@ public class MathHelper {
 	}
 	
 	/**
-	 * Prevent angle arg0 from leaving the range 0...2PI.  outside that range it wraps, like a modulus.
+	 * Same as capRotationDegrees(double arg0,0)
 	 * @param arg0
 	 * @return adjusted value
 	 */
-	static public double capRotationRadians(double arg0) {
-		final double limit = Math.PI*2.0;
-		while(arg0< 0    ) arg0 += limit;
-		while(arg0>=limit) arg0 -= limit;
-		return arg0;
-	}
-	
-	static public double capRotationRadians(double arg0,double centerPoint) {
-		final double limit = Math.PI*2.0;
-		while(arg0< centerPoint-Math.PI) arg0 += limit;
-		while(arg0>=centerPoint+Math.PI) arg0 -= limit;
-		return arg0;
-	}
-	
-	/**
-	 * Prevent angle arg0 from leaving the range 0...360.  outside that range it wraps, like a modulus.
-	 * @param arg0
-	 * @return adjusted value
-	 */
-	static public double capRotationDegrees(double arg0) {
-		while(arg0< 0  ) arg0 += 360;
-		while(arg0>=360) arg0 -= 360;
-		return arg0;
+	static public double wrapRadians(double arg0) {
+		return wrapRadians(arg0,0);
 	}
 
 	/**
-	 * Prevent angle arg0 from leaving the range 0...360.  outside that range it wraps, like a modulus.
+	 * Prevent angle arg0 from leaving the range centerPoint-PI...centerPoint+PI.  outside that range it wraps, like a modulus.
 	 * @param arg0
 	 * @return adjusted value
 	 */
-	static public double capRotationDegrees(double arg0,double centerPoint) {
-		while(arg0< centerPoint-180) arg0 += 360;
-		while(arg0>=centerPoint+180) arg0 -= 360;
+	static public double wrapRadians(double arg0,double centerPoint) {
+		arg0 -= centerPoint-Math.PI;
+		arg0 = ((arg0 % TWOPI) + TWOPI ) % TWOPI;
+		arg0 += centerPoint-Math.PI;
+		return arg0;
+	}
+	
+	/**
+	 * Same as capRotationDegrees(double arg0,0)
+	 * @param arg0
+	 * @return adjusted value
+	 */
+	static public double wrapDegrees(double arg0) {
+		return wrapDegrees(arg0,0);
+	}
+
+	/**
+	 * Prevent angle arg0 from leaving the range centerPoint-180...centerPoint+180.  outside that range it wraps, like a modulus.
+	 * @param arg0
+	 * @return adjusted value
+	 */
+	static public double wrapDegrees(double arg0,double centerPoint) {
+		arg0 -= centerPoint-180;
+		arg0 = ((arg0 % 360) + 360 ) % 360;
+		arg0 += centerPoint-180;
 		return arg0;
 	}
 	
