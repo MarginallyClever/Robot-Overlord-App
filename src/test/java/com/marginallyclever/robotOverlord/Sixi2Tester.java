@@ -61,4 +61,24 @@ public class Sixi2Tester {
 		}
 		System.out.println("Finished! "+testsOK+" OK, "+testsNoMatch+" no match, "+testsNoIK+" no IK.");
 	}
+	
+
+	/**
+	 * Test that approximate jacobian at the home position does not generate any NaN values. 
+	 */
+	@Test
+	public void TestApproximateJacobian() {
+		System.out.println("TestApproximateJacobian start");
+		Sixi2 robot = new Sixi2();
+		//robot.goHome();
+		DHKeyframe keyframe = robot.sim.getIKSolver().createDHKeyframe();
+		robot.sim.getPoseFK(keyframe);
+		double [][] aj = robot.sim.approximateJacobian(keyframe);
+		for( int y=0;y<aj.length;++y ) {
+			for( int x=0;x<aj[y].length;++x ) {
+				assert(!Double.isNaN(aj[y][x]));
+			}
+		}
+		System.out.println("TestApproximateJacobian end");
+	}
 }
