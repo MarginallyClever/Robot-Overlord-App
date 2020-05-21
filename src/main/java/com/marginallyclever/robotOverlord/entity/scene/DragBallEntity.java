@@ -17,7 +17,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -448,8 +447,8 @@ public class DragBallEntity extends PoseEntity {
 			double scale = 5.0*dt;  // TODO something better?
 			double rawx= InputManager.getRawValue(InputManager.Source.MOUSE_X);
 			double rawy= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
-			double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
-			double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * -scale;
+			double dx = rawx * scale;
+			double dy = rawy * -scale;
 			
 			switch(majorAxisSlideDirection) {
 			case SLIDE_XPOS:  valueNow+=dx;	break;
@@ -472,7 +471,7 @@ public class DragBallEntity extends PoseEntity {
 				}
 				dp = Math.signum(dp)*Math.round(Math.abs(dp)/mm)*mm;
 			}
-			Log.message("dt="+dt+"\trawx="+rawx+"\trawy="+rawy+"\tdx="+dx+"\tdy="+dy+"\ttran="+dp);
+			//Log.message("dt="+dt+"\trawx="+rawx+"\trawy="+rawy+"\tdx="+dx+"\tdy="+dy+"\ttran="+dp);
 			if(dp!=0) {
 				switch(majorAxis) {
 				case X: translate(MatrixHelper.getXAxis(FOR), dp);	break;
@@ -695,8 +694,8 @@ public class DragBallEntity extends PoseEntity {
 		
 		if(isActivelyMoving) {
 			// display the distance rotated.
-			double start=MathHelper.capRotationRadians(valueStart);
-			double end=MathHelper.capRotationRadians(valueNow);
+			double start=MathHelper.wrapRadians(valueStart);
+			double end=MathHelper.wrapRadians(valueNow);
 			double range=end-start;
 			while(range>Math.PI) range-=Math.PI*2;
 			while(range<-Math.PI) range+=Math.PI*2;
@@ -869,10 +868,10 @@ public class DragBallEntity extends PoseEntity {
 	@Deprecated
 	public String getStatusMessage() {
 		if(isRotateMode) {
-			double start=MathHelper.capRotationRadians(valueStart);
-			double end=MathHelper.capRotationRadians(valueNow);
+			double start=MathHelper.wrapRadians(valueStart);
+			double end=MathHelper.wrapRadians(valueNow);
 			double range=Math.toDegrees(end-start);
-			range = MathHelper.capRotationDegrees(range);
+			range = MathHelper.wrapDegrees(range);
 			return "turn "+StringHelper.formatDouble(range)+" degrees";
 			
 		} else {  // translate mode

@@ -101,7 +101,7 @@ public class Sixi2LivePID extends Sixi2Model {
 		}
 		
 		public double getDegrees() {
-			return MathHelper.capRotationDegrees( steps*ratio, 0 );
+			return MathHelper.wrapDegrees( steps*ratio, 0 );
 		}
 		
 		public void setPID(double p,double i,double d) {

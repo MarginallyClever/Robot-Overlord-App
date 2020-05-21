@@ -115,7 +115,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		// p5 is at the center of the wrist.  As long as the wrist is not directly on the same z axis as the base
 		// I can find the angle around j0 to point at the wrist.
 		// (1) theta0 = atan2(y07/x07);
-		keyframe.fkValues[0] = MathHelper.capRotationDegrees(Math.toDegrees(Math.atan2(p5.y,p5.x)),link0.getRangeCenter());
+		keyframe.fkValues[0] = MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(p5.y,p5.x)),link0.getRangeCenter());
 		if(false) Log.message("theta0="+keyframe.fkValues[0]+"\t");
 		
 		// (2) c=z15
@@ -154,7 +154,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) Log.message("rho="+Math.toDegrees(rho)+"\t");
 		
 		// (7) theta1 = phi-rho
-		keyframe.fkValues[1] = MathHelper.capRotationDegrees(Math.toDegrees(rho-phi)-90,link1.getRangeCenter());
+		keyframe.fkValues[1] = MathHelper.wrapDegrees(Math.toDegrees(rho-phi)-90,link1.getRangeCenter());
 		if(false) Log.message("alpha1="+keyframe.fkValues[1]+"\t");
 		
 		// (8) omega = acos( (a^2-b^2-e^2) / (-2be) )
@@ -171,7 +171,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) Log.message("phi4="+Math.toDegrees(phi4)+"\t");
 		
 		// (10) theta2 - phi3-phi4
-		keyframe.fkValues[2] = MathHelper.capRotationDegrees(Math.toDegrees(phi3 - phi4),link2.getRangeCenter());
+		keyframe.fkValues[2] = MathHelper.wrapDegrees(Math.toDegrees(phi3 - phi4),link2.getRangeCenter());
 		if(false) Log.message("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		// FIRST HALF DONE
@@ -254,12 +254,12 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		}
 		
 		// if (theta4 % 180) == 0 then we have the singularity.
-		double t4copy = MathHelper.capRotationRadians(t4,0);
+		double t4copy = MathHelper.wrapRadians(t4);
 		if(Math.abs(t4copy)<EPSILON) {
 			// singularity!
 			double t5 = Math.acos(r36.m00);
 			keyframe.fkValues[4] = 0;
-			keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t5),link5.getRangeCenter());
+			keyframe.fkValues[5] = MathHelper.wrapDegrees(Math.toDegrees(t5),link5.getRangeCenter());
 			if(false) Log.message(
 					"j0="+StringHelper.formatDouble(keyframe.fkValues[0])+"\t"+
 					"j1="+StringHelper.formatDouble(keyframe.fkValues[1])+"\t"+
@@ -269,7 +269,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 					"j5="+StringHelper.formatDouble(keyframe.fkValues[5])+"\t");
 			if(suggestion!=null) {
 				if(true) Log.message("ONE OF MANY SOLUTIONS");
-				keyframe.fkValues[3] = MathHelper.capRotationDegrees(suggestion.fkValues[3],link3.getRangeCenter());
+				keyframe.fkValues[3] = MathHelper.wrapDegrees(suggestion.fkValues[3],link3.getRangeCenter());
 				return SolutionType.ONE_SOLUTION;
 			} else {
 				if(true) Log.message("MANY SOLUTIONS");
@@ -311,8 +311,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		if(false) Log.message("5="+t4+"\tpos="+t4);
 
-		keyframe.fkValues[3] = MathHelper.capRotationDegrees(Math.toDegrees(t3),link3.getRangeCenter());
-		keyframe.fkValues[4] = MathHelper.capRotationDegrees(Math.toDegrees(t4),link4.getRangeCenter());
+		keyframe.fkValues[3] = MathHelper.wrapDegrees(Math.toDegrees(t3),link3.getRangeCenter());
+		keyframe.fkValues[4] = MathHelper.wrapDegrees(Math.toDegrees(t4),link4.getRangeCenter());
 		//keyframe.fkValues[5] = MathHelper.capRotationDegrees(Math.toDegrees(t5),link5.getRangeCenter());
 
 		/*if(suggestion!=null) {

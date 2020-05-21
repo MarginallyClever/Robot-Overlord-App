@@ -546,7 +546,7 @@ public class MiscTests {
 						out.write(Math.toDegrees(jvot[j])+"\t");	
 						if (!Double.isNaN(jvot[j])) {
 							double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * dt;
-							keyframe.fkValues[j]=MathHelper.capRotationDegrees(v,0);
+							keyframe.fkValues[j]=MathHelper.wrapDegrees(v,0);
 						}
 					}
 					out.write("\n");
