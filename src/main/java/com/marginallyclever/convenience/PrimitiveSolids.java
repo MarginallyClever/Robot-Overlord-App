@@ -8,6 +8,28 @@ import com.jogamp.opengl.GL2;
 
 
 public class PrimitiveSolids {
+	static public void drawCircleYZ(GL2 gl2,double radius,int steps) {
+		double stepSize = Math.PI*2 / (double)(steps+1);
+		
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			double c = Math.cos(n);
+			double s = Math.sin(n);
+			gl2.glVertex3d(0,c*radius, s*radius);
+		}
+		gl2.glEnd();
+	}
+	static public void drawCircleXZ(GL2 gl2,double radius,int steps) {
+		double stepSize = Math.PI*2 / (double)(steps+1);
+		
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		for(double n=0;n<Math.PI*2;n+=stepSize) {
+			double c = Math.cos(n);
+			double s = Math.sin(n);
+			gl2.glVertex3d(c*radius,0, s*radius);
+		}
+		gl2.glEnd();
+	}
 	static public void drawCircleXY(GL2 gl2,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 		
@@ -15,7 +37,7 @@ public class PrimitiveSolids {
 		for(double n=0;n<Math.PI*2;n+=stepSize) {
 			double c = Math.cos(n);
 			double s = Math.sin(n);
-			gl2.glVertex2d(c*radius, s*radius);
+			gl2.glVertex3d(c*radius, s*radius,0);
 		}
 		gl2.glEnd();
 	}
