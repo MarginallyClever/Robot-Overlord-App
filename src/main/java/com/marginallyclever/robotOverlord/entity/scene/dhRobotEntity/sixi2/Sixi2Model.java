@@ -467,60 +467,34 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
-		double[] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
-		
-		applyForceToEndEffector(cartesianForce,dt);
-		
-		readyForCommands=true;
-	}
-	
-	protected void applyForceToEndEffector(double[] cartesianForce,double dt) {
+		double [] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
+
 		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
 		getPoseFK(keyframe);
-		double[][] jacobian = approximateJacobian(keyframe);
-		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-
-		double df = Math.sqrt(
-				cartesianForce[0] * cartesianForce[0] + 
-				cartesianForce[1] * cartesianForce[1] + 
-				cartesianForce[2] * cartesianForce[2] +
-				cartesianForce[3] * cartesianForce[3] +
-				cartesianForce[4] * cartesianForce[4] +
-				cartesianForce[5] * cartesianForce[5]);
-		if (df > 1e-7) {
-			// jvot = joint velocity over time
-			double[] jvot = new double[keyframe.fkValues.length];
-			String msg="Jacobian ";
-			
-			int j,k;
-			for(j = 0; j < keyframe.fkValues.length; ++j) {
-				for(k = 0; k < keyframe.fkValues.length; ++k) {
-					jvot[j] += inverseJacobian[k][j] * cartesianForce[k];
-				}
-				if(Double.isNaN(jvot[j])) {
-					// impossible?  panic?
-					return;
-				}
-				jvot[j]=MathHelper.wrapRadians(jvot[j]);
-				msg+=StringHelper.formatDouble(Math.toDegrees(jvot[j]))+"\t";
-			}
+		
+		double[] jointVelocity;
+		try {
+			jointVelocity = calculateJointVelocityFromCartesianForce(keyframe,cartesianForce);
 			
 			// scale jvot to within torqueMax of every joint
 			double scale=1;
-			for(j = 0; j < keyframe.fkValues.length; ++j) {
+			for(int j = 0; j < keyframe.fkValues.length; ++j) {
 				double maxT = links.get(j).maxTorque.get();
-				double ajvot = Math.abs(jvot[j]); 
+				double ajvot = Math.abs(jointVelocity[j]); 
 				if( scale > maxT/ajvot ) {
 					scale = maxT/ajvot;
 				}
 			}
-			
-			for(j = 0; j < keyframe.fkValues.length; ++j) {
+
+			String msg="Jacobian ";
+			for(int j = 0; j < keyframe.fkValues.length; ++j) {
 				// simulate a change in the joint velocities
-				double v = keyframe.fkValues[j] + Math.toDegrees(jvot[j]) * scale * dt;
+				double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocity[j]) * scale * dt;
 				
 				//v = MathHelper.wrapDegrees(v);
+				
 				keyframe.fkValues[j]=v;
+				msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocity[j]))+"\t";
 			}
 
 			if (sanityCheck(keyframe)) {
@@ -531,7 +505,57 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				msg+="insane";
 			}
 			Log.message(msg);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		readyForCommands=true;
+	}
+	
+	/**
+	 * 
+	 * @param keyframe the current pose at which to calculate
+	 * @param cartesianForce the XYZ translation and UVW rotation forces on the end effector
+	 * @return the joint velocities
+	 * @throws Exception if joint velocities have NaN values
+	 */
+	protected double [] calculateJointVelocityFromCartesianForce(DHKeyframe keyframe,double[] cartesianForce) throws Exception {
+		// jvot = joint velocity over time
+		double[] jvot = new double[keyframe.fkValues.length];
+		
+		double[][] jacobian = approximateJacobian(keyframe);
+		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
+
+		int j,k;
+		for(j = 0; j < keyframe.fkValues.length; ++j) {
+			for(k = 0; k < 6; ++k) {
+				jvot[j] += inverseJacobian[k][j] * cartesianForce[k];
+			}
+			if(Double.isNaN(jvot[j])) {
+				throw new Exception("impossible jvot");
+			}
+			jvot[j]=MathHelper.wrapRadians(jvot[j]);
+		}
+		
+		return jvot;
+	}
+	
+	/**
+	 * 
+	 * @param jointVelocity
+	 * @return cartesian force calculated
+	 */
+	public double [] calculateCartesianForceFromJointVelocity(DHKeyframe keyframe,double [] jointVelocity) {
+		double [] cf = new double[6];  // cartesian force calculated
+		double[][] jacobian = approximateJacobian(keyframe);
+
+		for( int k=0;k<keyframe.fkValues.length;++k ) {
+			for( int j=0;j<6;++j ) {
+				cf[j] += jacobian[k][j] * jointVelocity[k];
+			}
+		}
+		return cf;
 	}
 	
 	/**
