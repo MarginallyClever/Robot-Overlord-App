@@ -14,6 +14,8 @@ Parser parser;
 
 void Parser::setup() {
   Serial.begin(BAUD);
+  // clear input buffer
+  sofar = 0;
 }
 
 /**
@@ -117,7 +119,7 @@ void Parser::update() {
     sofar=0;
     // and since I'm confused, set all my targets to 0.
     for (ALL_MOTORS(i)) {
-      velocities[i] = 0;
+      motors[i].velocity = 0;
     }
   }
   
@@ -134,7 +136,7 @@ void Parser::update() {
     // total length = 48+3=51 bytes
 
     // eat garbage until we get an S to start a message
-    if(sofar== 0 && c!='S') continue;
+    if(sofar== 0 && c!='S') return;
     
     if(sofar < MAX_BUF) serialBuffer[sofar++] = c;
     
@@ -152,27 +154,32 @@ void Parser::update() {
       if(checksum == serialBuffer[50]) {
         // checksum ok, update target position and velocity
         float angles[NUM_MOTORS];
-        float velocities[NUM_MOTORS];
         int32_t steps[NUM_MOTORS];
 
         char *ptr = serialBuffer+1;
         for (ALL_MOTORS(i)) {
           angles[i] = 0;
-          velocities[i] = 0;
         }
+
         // all pN values
         for (ALL_MOTORS(i)) {
+          float value = 0;
+          byte* p = (byte*)(void*)&value;
           for(int j=0;j<4;++j) {
-            angles[i] |= *ptr++;
-            angles[i] <<= 8;
+            *p++ = *ptr++;
           }
+          angles[i] = value;
         }
         // all vN values
         for (ALL_MOTORS(i)) {
+          float value = 0;
+          byte* p = (byte*)(void*)&value;
+  
           for(int j=0;j<4;++j) {
-            velocities[i] |= *ptr++;
-            velocities[i] <<= 8;
+            *p++ = *ptr++;
           }
+          
+          motors[i].velocity = value;
         }
       
         kinematics.anglesToSteps(angles, steps);
@@ -181,7 +188,10 @@ void Parser::update() {
       
         CRITICAL_SECTION_START();
         for (ALL_MOTORS(i)) {
-          //*
+            Serial.println(motors[i].letter);
+            Serial.println(motors[i].velocity);
+            Serial.println(angles[i]);
+          /*
             Serial.println(motors[i].letter);
             Serial.print("\tangleTarget0=");
             Serial.println(motors[i].angleTarget);
@@ -228,7 +238,7 @@ void Parser::processCommand() {
 
   if( !strncmp(serialBuffer, "UID", 3) ) {
     robot_uid = atoi(strchr(serialBuffer, ' ') + 1);
-    eepromSaveUID();
+    eeprom.saveUID();
   }
 
   int16_t cmd;
@@ -362,8 +372,8 @@ void Parser::M114() {
 void Parser::M206() {
   // cancel the current home offsets
   for (ALL_MOTORS(i)) {
-    float angleHome = parseNumber( motors[i].letter, motors[i].angleHome );
-    motors[i].angleHome = max(min(angleHome, 360), -360);
+    float angleHome = parseNumber( motors[i].letter, sensorManager.sensors[i].angleHome );
+    sensorManager.sensors[i].angleHome = max(min(angleHome, 360), -360);
   }
 }
 
@@ -405,8 +415,8 @@ void Parser::M428() {
   sensorManager.update();
 
   // apply the new offsets
-  for (ALL_MOTORS(i)) {
-    motors[i].angleHome = sensors[i].angle;
+  for (ALL_SENSORS(i)) {
+    sensorManager.sensors[i].angleHome = sensorManager.sensors[i].angle;
   }
   D18();
 }
@@ -414,19 +424,19 @@ void Parser::M428() {
 
 // M500 - save home offsets
 void Parser::M500() {
-  eepromSaveHome();
+  eeprom.saveHome();
 }
 
 
 // M501 - load home offsets
 void Parser::M501() {
-  eepromLoadHome();
+  eeprom.loadHome();
 }
 
 
 // M502 - reset the home offsets
 void Parser::M502() {
-#define SHP(NN)  if(NUM_MOTORS>NN) motors[NN].angleHome = DH_##NN##_THETA;
+#define SHP(NN)  if(NUM_SENSORS>NN) sensorManager.sensors[NN].angleHome = DH_##NN##_THETA;
   SHP(0)
   SHP(1)
   SHP(2)
@@ -444,7 +454,7 @@ void Parser::M503() {
   for (ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(motors[i].letter);
-    Serial.print(motors[i].angleHome);
+    Serial.print(sensorManager.sensors[i].angleHome);
   }
   Serial.println();
 }
@@ -462,9 +472,10 @@ void Parser::M503() {
 */
 void Parser::D17() {
   Serial.print(F("D17"));
-  for (ALL_MOTORS(i)) {
-    Serial.print(' ');
-    Serial.print(sensors[i].angle, 2);
+  for (ALL_SENSORS(i)) {
+    Serial.print('\t');
+    // 360/(2^14) aka 0.02197265625deg is the minimum sensor resolution.  as such more than 3 decimal places is useless.
+    Serial.print(WRAP_DEGREES(sensorManager.sensors[i].angle), 3);
   }
 
 #if NUM_SERVOS > 0
@@ -473,10 +484,10 @@ void Parser::D17() {
 #endif
 
   Serial.print('\t');
-  //Serial.print(((sensorManager.positionErrorFlags&POSITION_ERROR_FLAG_CONTINUOUS)!=0)?'+':'-');
-  Serial.print(((sensorManager.positionErrorFlags & POSITION_ERROR_FLAG_ERROR) != 0) ? '+' : '-');
-  //Serial.print(((sensorManager.positionErrorFlags&POSITION_ERROR_FLAG_FIRSTERROR)!=0)?'+':'-');
-  //Serial.print(((sensorManager.&POSITION_ERROR_FLAG_ESTOP)!=0)?'+':'-');
+  //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS)?'+':'-');
+  Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR     )?'+':'-');
+  //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)?'+':'-');
+  //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ESTOP     )?'+':'-');
   Serial.println();
 }
 
@@ -494,7 +505,7 @@ void Parser::D18() {
   for (int i = 0; i < numSamples; ++i) {
     sensorManager.update();
     for (ALL_SENSORS(j)) {
-      angles[j] += sensors[j].angle;
+      angles[j] += sensorManager.sensors[j].angle;
     }
   }
 
@@ -517,7 +528,7 @@ void Parser::D18() {
 
 // D22 Save all PID to EEPROM
 void Parser::D22() {
-  eepromSavePID();
+  eeprom.savePID();
 }
 
 

@@ -2,9 +2,6 @@
 
 // EEPROM - should exactly match makelangelo-firmware eeprom for legacy reasons
 
-#ifndef NUM_AXIES
-#define NUM_AXIES               (7)
-#endif
 
 #define FIRMWARE_VERSION        10    // Increment when adding new variables
 #define SIZEOF_FLOAT_BYTES      (4)
@@ -29,48 +26,30 @@
 
 extern uint32_t robot_uid;
 
+class Eeprom {
+public:
+  long readLong(int ee);
+  boolean writeLong(int ee, long value);
+  
+  uint8_t loadVersion();
+  void saveUID();
+  uint8_t loadUID();
+  void saveLimits();
+  void loadLimits();
 
-/**
- * 
- */
-char eepromLoadVersion();
+  /**
+   * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
+   */
+  void adjustLimits(float *limits);
+  
+  void saveHome();
+  void loadHome();
 
-/**
- * 
- */
-extern void eepromSaveUID();
+  void saveAll();
+  void loadAll();
+  
+  void savePID();
+  void loadPID();
+};
 
-/**
- * 
- */
-void eepromSaveLimits();
-
-/**
- * 
- */
-void eepromLoadLimits();
-
-/**
- * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
- */
-void adjustLimits(float *limits);
-
-/**
- * 
- */
-void eepromSaveHome();
-
-/**
- * 
- */
-void eepromLoadHome();
-
-
-extern void eepromSaveAll();
-/**
- * 
- */
-extern void eepromLoadAll();
-
-extern void eepromSavePID();
-extern void eepromLoadPID();
+extern Eeprom eeprom;

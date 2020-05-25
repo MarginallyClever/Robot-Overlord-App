@@ -4,8 +4,9 @@
 #error "NUM_MOTORS undefined"
 #endif
 
-// use in for(ALL_MOTORS(i)) { //i will be rising
-#define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
+#ifndef NUM_AXIES
+#error "NUM_AXIES undefined"
+#endif
 
 // Motor and gearbox ratios
 
@@ -82,7 +83,6 @@ public:
   int32_t stepsTarget;
   
   float angleTarget;
-  float angleHome;
   
   float limitMax;
   float limitMin;
@@ -106,7 +106,6 @@ public:
     stepsNow=0;
     stepsTarget=0;
     angleTarget=0;
-    angleHome=0;
 
     error=0;
     error_i=0;
@@ -130,14 +129,7 @@ public:
     kd=d;
   }
 
-  void report() {
-    Serial.println(letter);
-    Serial.print("\tstepsTarget=");      Serial.println(stepsTarget);
-    Serial.print("\tstepsNow=");         Serial.println(stepsNow);
-    Serial.print("\terror=");            Serial.println(error);
-    Serial.print("\tangleHome=");        Serial.println(angleHome);
-    Serial.print("\tangleTarget=");      Serial.println(angleTarget);
-  }
+  void report();
 };
 
 
@@ -149,7 +141,7 @@ public:
 };
 
 
-extern StepperMotor motors[NUM_MOTORS];
+extern StepperMotor motors[NUM_AXIES];
 extern MotorManager motorManager;
 
 #if NUM_SERVOS>0

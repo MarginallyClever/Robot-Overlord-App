@@ -10,31 +10,13 @@
 uint8_t debugFlags;
 
 
-void setup() {
-  parser.setup();
-  sensorManager.setup();
-  motorManager.setup();
-  
-  // eepromLoadAll() calls eepromLoadHome() which needs to have motors already setup.
-  eepromLoadAll();
-
-  // make sure the starting target is the starting position (no move)
-  parser.D18();
-
-  //reportAllMotors();
-  //clockISRProfile();
-
-  clockSetup();
-
-  parser.ready();
-}
-
-
 void reportAllMotors() {
   for(ALL_MOTORS(i)) {
     motors[i].report();
+    Serial.print("\tsensorHome=");
+    Serial.println(sensorManager.sensors[i].angleHome);
     Serial.print("\tsensor=");
-    Serial.println(sensors[i].angle);
+    Serial.println(sensorManager.sensors[i].angle);
   }
   Serial.println();
 }
@@ -45,6 +27,24 @@ void testPID() {
   Serial.print(motors[i].stepsTarget);
   Serial.print('\t');
   Serial.println(motors[i].stepsNow);
+}
+
+
+void setup() {
+  parser.setup();
+  eeprom.loadAll();
+  motorManager.setup();
+  sensorManager.setup();
+  
+  // make sure the starting target is the starting position (no move)
+  parser.D18();
+
+  //reportAllMotors();
+  //clockISRProfile();
+
+  clockSetup();
+
+  parser.ready();
 }
 
 

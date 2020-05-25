@@ -55,7 +55,7 @@ FORCE_INLINE void ISRInternal() {
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
   for( int j=0; j<isr_step_multiplier;++j ) {
     for(ALL_MOTORS(i)) {
-      motors[i].update(usPerTickISR,sensors[i].angle);
+      motors[i].update(usPerTickISR,sensorManager.sensors[i].angle);
     }
   }
 }

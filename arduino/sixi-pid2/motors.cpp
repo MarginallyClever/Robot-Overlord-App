@@ -8,13 +8,22 @@
 
 MotorManager motorManager;
 
-StepperMotor motors[NUM_MOTORS];
+StepperMotor motors[NUM_AXIES];
 
 #if NUM_SERVOS>0
 Servo servos[NUM_SERVOS];
 #endif
 
 int stepsCount = 0;
+
+
+void StepperMotor::report() {
+  Serial.println(letter);
+  Serial.print("\tstepsTarget=");      Serial.println(stepsTarget);
+  Serial.print("\tstepsNow=");         Serial.println(stepsNow);
+  Serial.print("\terror=");            Serial.println(error);
+  Serial.print("\tangleTarget=");      Serial.println(angleTarget);
+}
 
 
 void MotorManager::setup() {
