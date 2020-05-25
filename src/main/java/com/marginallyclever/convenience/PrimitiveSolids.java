@@ -311,7 +311,7 @@ public class PrimitiveSolids {
 	 */
 	static public void drawBoxWireframe(GL2 gl2,Point3d bottom,Point3d top) {
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
-		gl2.glDisable(GL2.GL_LIGHTING);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
 		double x0=bottom.x;
 		double y0=bottom.y;
@@ -326,6 +326,8 @@ public class PrimitiveSolids {
 		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0,-1, 0);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y0,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glEnd();
 		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 1, 0, 0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x1,y0,z0);	gl2.glEnd();
 		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();
+
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 	}
 	
 	static public void drawStar(GL2 gl2,double size) {
@@ -341,15 +343,8 @@ public class PrimitiveSolids {
 		double [] params = new double[4];
 		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
 		
-		// save the lighting mode
-		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
-
-		IntBuffer depthFunc = IntBuffer.allocate(1);
-		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-		gl2.glDepthFunc(GL2.GL_ALWAYS);
-		//boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		//gl2.glDisable(GL2.GL_DEPTH_TEST);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+		int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
 
 		size/=2.0f;
 		
@@ -362,11 +357,8 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 		gl2.glPopMatrix();
 
-		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthFunc(depthFunc.get());
-		// restore lighting
-		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
-		
+		OpenGLHelper.drawAtopEverythingEnd(gl2,depth);
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 		
 		// restore color
 		gl2.glColor4dv(params,0);
