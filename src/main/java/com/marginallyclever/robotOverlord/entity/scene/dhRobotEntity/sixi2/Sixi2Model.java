@@ -469,12 +469,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		
 		double[] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
 		
-		jacobianApplyForce(cartesianForce,dt);
+		applyForceToEndEffector(cartesianForce,dt);
 		
 		readyForCommands=true;
 	}
 	
-	protected void jacobianApplyForce(double[] cartesianForce,double dt) {
+	protected void applyForceToEndEffector(double[] cartesianForce,double dt) {
 		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
 		getPoseFK(keyframe);
 		double[][] jacobian = approximateJacobian(keyframe);
@@ -573,7 +573,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			jacobian[i][1]=dT.m13;
 			jacobian[i][2]=dT.m23;
 
-
 			// find the rotation part
 			// these initialT and initialTd were found in the comments on
 			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
@@ -623,7 +622,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			
 			++i;
 		}
-
+		
 		// undo our changes.
 		setPoseFK(oldPoseFK);
 		
