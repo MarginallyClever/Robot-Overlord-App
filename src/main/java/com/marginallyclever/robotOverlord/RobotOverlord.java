@@ -188,10 +188,14 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			throw new RuntimeException("RobotOverlord cannot be run headless...yet.");
 		}
 		
+		Log.message("Translator start");
 		Translator.start();
+		Log.message("SoundSystem start");
 		SoundSystem.start();
+		Log.message("InputManager start");
 		InputManager.start();
 
+		Log.message("Undo start");
 		commandUndo = new CommandUndo(undoManager);
 		commandRedo = new CommandRedo(undoManager);
         commandUndo.setRedoCommand(commandRedo);
@@ -206,15 +210,16 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		addChild(viewCube);
  		
  		viewport.attachedTo.set(camera.getFullName());
-        
+
+		Log.message("Create default scene");
         // ..with default setting.  TODO save & load whole world and all its Entities.
         scene.createDefaultWorld();
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
-
         selectedEntity = null;
-        
+
+		Log.message("Create GUI");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -223,7 +228,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	int windowH = prefs.getInt("windowHeight", 768);
     	int windowX = prefs.getInt("windowX", -1);
     	int windowY = prefs.getInt("windowY", -1);
-        
+
+		Log.message("Position main window");
         mainFrame.setSize( windowW, windowH );
         if(windowX==-1 || windowY==-1) {
         	// centered
@@ -233,7 +239,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         }
         mainFrame.setLocation( windowX, windowY );
         mainFrame.setLayout(new java.awt.BorderLayout());
-        
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         
         // when someone tries to close the app, confirm it.
@@ -274,10 +279,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
             	//Log.message("Moved to " + e.getComponent().getLocation());
             }
           });
-        
+
+		Log.message("build main menu");
         // now that we have everything built, set up the menus.
         buildMainMenu();
 		
+        Log.message("build layout");
         {
 	        {
 	        	// build OpenGL 3D view
@@ -318,9 +325,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        }
 	        mainFrame.add(splitLeftRight);
 	 	}
-        // make it visible
-        mainFrame.setVisible(true);
         
+        // make it visible
+        Log.message("show it!");
+        mainFrame.setVisible(true);
+
+		Log.message("setup the animation system");
         // setup the animation system.
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
@@ -331,6 +341,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         lastTime = startTime = System.currentTimeMillis();
         // start the main application loop.  it will call display() repeatedly.
         animator.start();
+        
+		Log.message("** READY **");
     }
  	
 	public JFrame getMainFrame() {
