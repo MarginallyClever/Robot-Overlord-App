@@ -32,58 +32,6 @@ public class Sixi2 extends PoseEntity {
 	 */
 	private static final long serialVersionUID = 3770331480833527099L;
 
-	public enum ControlMode {
-		RECORD(0,"RECORD"),
-		PLAYBACK(1,"PLAYBACK");
-
-		private int modeNumber;
-		private String modeName;
-		private ControlMode(int n,String s) {
-			modeNumber=n;
-			modeName=s;
-		}
-		public int toInt() {
-			return modeNumber;
-		}
-		public String toString() {
-			return modeName;
-		}
-		static public String [] getAll() {
-			ControlMode[] allModes = ControlMode.values();
-			String[] labels = new String[allModes.length];
-			for(int i=0;i<labels.length;++i) {
-				labels[i] = allModes[i].toString();
-			}
-			return labels;
-		}
-	};
-
-	public enum OperatingMode {
-		LIVE(0,"LIVE"),
-		SIM(1,"SIM");
-
-		private int modeNumber;
-		private String modeName;
-		private OperatingMode(int n,String s) {
-			modeNumber=n;
-			modeName=s;
-		}
-		public int toInt() {
-			return modeNumber;
-		}
-		public String toString() {
-			return modeName;
-		}
-		static public String [] getAll() {
-			OperatingMode[] allModes = OperatingMode.values();
-			String[] labels = new String[allModes.length];
-			for(int i=0;i<labels.length;++i) {
-				labels[i] = allModes[i].toString();
-			}
-			return labels;
-		}
-	}
-
 	public Sixi2Model live = new Sixi2Live();
 	public Sixi2Model sim = new Sixi2Sim();
 
@@ -163,6 +111,8 @@ public class Sixi2 extends PoseEntity {
 	public void render(GL2 gl2) {
 		// convenient place for a debugging breakpoint
 		super.render(gl2);
+
+		((Sixi2Live)live).renderCartesianForce(gl2);
 	}
 
 	/**
@@ -270,8 +220,6 @@ public class Sixi2 extends PoseEntity {
 	 */
 	@Override
 	public ArrayList<Cuboid> getCuboidList() {
-
-		// get a list of all cuboids
 		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
 
 		sim.refreshPose();
