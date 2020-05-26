@@ -28,8 +28,8 @@ void SensorAS5147::start() {
 boolean SensorAS5147::getRawValue(uint16_t &result) {
   uint8_t input, parity=0;
   
-  //uint16_t command=0xFFFE;  // Please return measured angle without dynamic angle error compnesation
-  uint16_t command=0xFFFF;  // Please return measured angle with    dynamic angle error compnesation
+  //uint16_t command=0xFFFE;  // Please return measured angle without dynamic angle error compensation
+  uint16_t command=0xFFFF;  // Please return measured angle with    dynamic angle error compensation
   
   result=0;
   // Send the request for the angle value (command 0xFFFF) at the same time as receiving an angle.
