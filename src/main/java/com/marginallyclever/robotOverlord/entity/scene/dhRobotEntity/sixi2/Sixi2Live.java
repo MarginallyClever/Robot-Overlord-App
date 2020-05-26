@@ -7,11 +7,13 @@ import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
+import com.marginallyclever.robotOverlord.entity.remoteEntity.RawByteRemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -25,7 +27,7 @@ public class Sixi2Live extends Sixi2Model {
 	public static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,14); 
 	public static final int MAX_HISTORY = 3;
 	
-	protected RemoteEntity connection = new RemoteEntity();
+	protected RawByteRemoteEntity connection = new RawByteRemoteEntity();
 	protected DHKeyframe [] receivedKeyframes;
 	protected long [] recievedKeyframeTimes;
 	protected long receivedKeyframeCount;
@@ -66,16 +68,40 @@ public class Sixi2Live extends Sixi2Model {
 	@Override
 	public void update(double dt) {
 		// TODO Compare jacobian estimated force with reported position to determine compliance.
-		super.update(dt);
-		
 		if (!connection.isConnectionOpen()) {
 			waitingForOpenConnection = true;
-		} else {
-			generateAndSendCommand();
 		}
+		
+		// START this is equivalent to super.super.update(dt)
+		for(Entity e : children ) {
+			e.update(dt);
+		}
+		// END
 	}
 	
-	protected void generateAndSendCommand() {
+	protected void generateAndSendCommand(double dt) {
+		// get interpolated future pose
+    	double tTotal = timeTarget - timeStart;
+		timeNow += dt;
+	    double t = timeNow-timeStart;
+	    
+		double ratioFuture = (t+dt) / tTotal;
+		if(ratioFuture>1) ratioFuture=1;
+		
+		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
+		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
+		Matrix4d interpolatedMatrixFuture = new Matrix4d();
+		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
+		
+		getCartesianForceBetweenTwoPoses(interpolatedMatrixNow, interpolatedMatrixFuture, dt, cartesianForceDesired);
+
+		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
+		getPoseFK(keyframe);
+		
+		if(!getJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) return;
+		
+		capJointVelocity(jointVelocityDesired);
+
 		// we have poseFKTarget and jointVelocityDesired.
 		
 	    // message format is Sv0v1...v5p0p1...p5chkE where 
@@ -110,7 +136,8 @@ public class Sixi2Live extends Sixi2Model {
 		bab.close();
 		
 		String str = new String(msg);
-		connection.sendMessage(str);
+		System.out.println(msg.length);
+		sendCommandToRemoteEntity(str);
 	}
 
 	@Override
@@ -125,7 +152,7 @@ public class Sixi2Live extends Sixi2Model {
 
 	protected void sendCommandToRemoteEntity(String command) {
 		if(command == null) return;
-		
+		/*
 		// remove any end-of-line characters or whitespace.
 		command.trim();
 		if(command.isEmpty()) return;
@@ -134,8 +161,9 @@ public class Sixi2Live extends Sixi2Model {
 		int index = command.indexOf('(');
 		if (index != -1) {
 			command = command.substring(0, index);
-		}
+		}*/
 
+		//System.out.println(command.length());
 		reportDataSent(command);
 
 		// DO IT
@@ -145,12 +173,15 @@ public class Sixi2Live extends Sixi2Model {
 	}
 
 	public void reportDataSent(String msg) {
-		//Log.message("SIX SEND " + msg.trim());
+		//if(msg.startsWith("S")) return;
+		
+		//Log.message("LIVE SEND " + msg.length());
 	}
 
 	public void reportDataReceived(String msg) {
-		if (msg.trim().isEmpty())
-			return;
+		if (msg.trim().isEmpty()) return;
+		if(msg.startsWith("D17")) return;
+		
 		Log.message("LIVE RECV " + msg.trim());
 	}
 
@@ -222,14 +253,14 @@ public class Sixi2Live extends Sixi2Model {
 								jointVelocity[i] = (key0.fkValues[i]-key1.fkValues[i])*dt;
 							}
 							
-							cartesianForceDetected = calculateCartesianForceFromJointVelocity(key0,jointVelocity);
+							cartesianForceDetected = getCartesianForceFromJointVelocity(key0,jointVelocity);
 						}
 						
 						receivedKeyframeCount++;
 					} catch (NumberFormatException e) {
 					}
 					
-					//
+					generateAndSendCommand(1.0/30.0);
 				}
 			}
 

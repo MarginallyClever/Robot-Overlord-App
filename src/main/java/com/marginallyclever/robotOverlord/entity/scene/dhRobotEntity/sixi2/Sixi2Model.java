@@ -399,12 +399,14 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * @param dt size of step this, in seconds.
 	 */
 	protected void interpolateJacobian(double dt) {
+		readyForCommands=true;
+		
 		if(timeTarget == timeStart) {
 	    	// nothing happening
-			readyForCommands=true;
 			return;
 		}
 		
+		// get interpolated future pose
     	double tTotal = timeTarget - timeStart;
 		timeNow += dt;
 	    double t = timeNow-timeStart;
@@ -414,79 +416,97 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		if(ratioNow   >1) ratioNow   =1;
 		if(ratioFuture>1) ratioFuture=1;
 		
-		// changing the end matrix will only move the simulated version of the "live"
-		// robot.
 		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
-		MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
+		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
 		Matrix4d interpolatedMatrixFuture = new Matrix4d();
 		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
 		
+		getCartesianForceBetweenTwoPoses(interpolatedMatrixNow, interpolatedMatrixFuture, dt, cartesianForceDesired);
+
+		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
+		getPoseFK(keyframe);
 		
-		// get the translation force
+		if(!getJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) return;
+		
+		capJointVelocity(jointVelocityDesired);
+
+		//String msg="Jacobian ";
+		for(int j = 0; j < keyframe.fkValues.length; ++j) {
+			// simulate a change in the joint velocities
+			double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocityDesired[j]) * dt;
+			
+			keyframe.fkValues[j]=v;
+			//msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocityDesired[j]))+"\t";
+		}
+
+		if (sanityCheck(keyframe)) {
+			setPoseFK(keyframe);
+			mLive.set(endEffector.getPoseWorld());
+			//msg+="ok";
+		} else {
+			//msg+="insane";
+		}
+		//Log.message(msg);
+	}
+	
+	
+	/**
+	 * Scale jointVelocity to within torqueMax of every joint
+	 * @param jointVelocity Values will be changed.  Must be same length as DHKeyframe.fkValues.length().
+	 */
+	protected void capJointVelocity(double[] jointVelocity) {
+		double scale=1;
+		for(int j = 0; j < jointVelocity.length; ++j) {
+			double maxT = links.get(j).maxTorque.get();
+			double ajvot = Math.abs(jointVelocityDesired[j]); 
+			if( scale > maxT/ajvot ) {
+				scale = maxT/ajvot;
+			}
+		}
+		for(int j = 0; j < jointVelocity.length; ++j) {
+			jointVelocityDesired[j] *= scale;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param mStart matrix of start pose
+	 * @param mEnd matrix of end pose
+	 * @param dt time scale, seconds
+	 * @param cartesianForce 6 doubles that will be filled with the XYZ translation and UVW rotation.
+	 * @return true if successful
+	 */
+	protected boolean getCartesianForceBetweenTwoPoses(Matrix4d mStart,Matrix4d mEnd,double dt,double[] cartesianForce) {
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
 		Vector3d dp = new Vector3d();
-		interpolatedMatrixNow.get(p0);
-		interpolatedMatrixFuture.get(p1);
+		mStart.get(p0);
+		mEnd.get(p1);
 		dp.sub(p1,p0);
 		dp.scale(1.0/dt);
 
-		interpolatedMatrixNow.setTranslation(new Vector3d(0,0,0));
-		interpolatedMatrixFuture.setTranslation(new Vector3d(0,0,0));
+		mStart.setTranslation(new Vector3d(0,0,0));
+		mEnd.setTranslation(new Vector3d(0,0,0));
 		// get the rotation force
 		Quat4d q0 = new Quat4d();
 		Quat4d q1 = new Quat4d();
 		Quat4d dq = new Quat4d();
-		q0.set(interpolatedMatrixNow);
-		q1.set(interpolatedMatrixFuture);
+		q0.set(mStart);
+		q1.set(mEnd);
 		dq.sub(q1,q0);
 		dq.scale(2/dt);
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
-		cartesianForceDesired[0]=dp.x;
-		cartesianForceDesired[1]=dp.y;
-		cartesianForceDesired[2]=dp.z;
-		cartesianForceDesired[3]=-w.x;
-		cartesianForceDesired[4]=-w.y;
-		cartesianForceDesired[5]=-w.z;
-
-		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
-		getPoseFK(keyframe);
+		cartesianForce[0]=dp.x;
+		cartesianForce[1]=dp.y;
+		cartesianForce[2]=dp.z;
+		cartesianForce[3]=-w.x;
+		cartesianForce[4]=-w.y;
+		cartesianForce[5]=-w.z;
 		
-		if(calculateJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) {
-			// scale jvot to within torqueMax of every joint
-			double scale=1;
-			for(int j = 0; j < keyframe.fkValues.length; ++j) {
-				double maxT = links.get(j).maxTorque.get();
-				double ajvot = Math.abs(jointVelocityDesired[j]); 
-				if( scale > maxT/ajvot ) {
-					scale = maxT/ajvot;
-				}
-			}
-
-			//String msg="Jacobian ";
-			for(int j = 0; j < keyframe.fkValues.length; ++j) {
-				// simulate a change in the joint velocities
-				double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocityDesired[j]) * scale * dt;
-				
-				//v = MathHelper.wrapDegrees(v);
-				
-				keyframe.fkValues[j]=v;
-				//msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocityDesired[j]))+"\t";
-			}
-
-			if (sanityCheck(keyframe)) {
-				setPoseFK(keyframe);
-				mLive.set(endEffector.getPoseWorld());
-				//msg+="ok";
-			} else {
-				//msg+="insane";
-			}
-			//Log.message(msg);
-		}
-		
-		readyForCommands=true;
+		return true;
 	}
 	
 	/**
@@ -496,7 +516,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * @param jvot joint velocity over time.  Will be filled with the new velocity
 	 * @return false if joint velocities have NaN values
 	 */
-	protected boolean calculateJointVelocityFromCartesianForce(DHKeyframe keyframe,double[] cartesianForce,double [] jvot) {
+	protected boolean getJointVelocityFromCartesianForce(DHKeyframe keyframe,double[] cartesianForce,double [] jvot) {
 		// jvot = joint velocity over time
 		
 		double[][] jacobian = approximateJacobian(keyframe);
@@ -522,7 +542,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * @param jointVelocity
 	 * @return cartesian force calculated
 	 */
-	public double [] calculateCartesianForceFromJointVelocity(DHKeyframe keyframe,double [] jointVelocity) {
+	public double [] getCartesianForceFromJointVelocity(DHKeyframe keyframe,double [] jointVelocity) {
 		double [] cf = new double[6];  // cartesian force calculated
 		double[][] jacobian = approximateJacobian(keyframe);
 

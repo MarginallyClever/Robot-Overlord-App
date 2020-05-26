@@ -176,9 +176,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		portOpened = false;
 	}
 	
-	/**
-	 * Begins when Thread.start() is called in the constructor
-	 */
+	// Begins when Thread.start() is called in the constructor
 	public void run() {
 		StringBuilder input = new StringBuilder();
 		

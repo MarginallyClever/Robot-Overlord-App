@@ -142,6 +142,7 @@ void Parser::update() {
           
     if(sofar==51 && c=='E') {
       // message received
+      Serial.print("REC ");
       
       // echo confirmation
       if(MUST_ECHO) Serial.println(serialBuffer);
@@ -187,26 +188,27 @@ void Parser::update() {
         //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
       
         CRITICAL_SECTION_START();
-        for (ALL_MOTORS(i)) {/*
-            Serial.println(motors[i].letter);
-            Serial.println(motors[i].velocity);
+        for (ALL_MOTORS(i)) {
+            Serial.print(motors[i].letter);
+            Serial.print(motors[i].velocity);
+            Serial.print(' ');/*
             Serial.println(angles[i]);
-            Serial.println(motors[i].letter);
-            Serial.print("\tangleTarget0=");
-            Serial.println(motors[i].angleTarget);
-            Serial.print("\tstepsTarget0=");
-            Serial.println(motors[i].stepsTarget);
-            Serial.print("\tangleTarget1=");
-            Serial.println(angles[i]);
-            Serial.print("\tstepsTarget1=");
-            Serial.println(steps[i]);
-            Serial.print("\tstepsNow=");
-            Serial.println(motors[i].stepsNow);
+            Serial.print("\tangleTarget0=");     Serial.println(motors[i].angleTarget);
+            Serial.print("\tstepsTarget0=");     Serial.println(motors[i].stepsTarget);
+            Serial.print("\tangleTarget1=");     Serial.println(angles[i]);
+            Serial.print("\tstepsTarget1=");     Serial.println(steps[i]);
+            Serial.print("\tstepsNow=");         Serial.println(motors[i].stepsNow);
           //*/
           motors[i].angleTarget = angles[i];
           motors[i].stepsTarget = steps[i];
         }
+        Serial.println();
         CRITICAL_SECTION_END();
+      } else {
+        Serial.print("CHECK BAD ");
+        Serial.print(checksum,HEX);
+        Serial.print("/");
+        Serial.println(serialBuffer[49]);
       }
       ready();
     } else if(sofar>51) {

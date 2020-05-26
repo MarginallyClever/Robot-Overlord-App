@@ -34,7 +34,7 @@ void clockSetup() {
 
     CLOCK_ADJUST(interval);
     
-    if(true) {
+    if(false) {
       Serial.print(F("Hz="));              Serial.println(CLOCK_MAX_ISR_FREQUENCY);
       Serial.print(F("interval="));        Serial.println(interval);
       Serial.print(F("multiplier="));      Serial.println(isr_step_multiplier);

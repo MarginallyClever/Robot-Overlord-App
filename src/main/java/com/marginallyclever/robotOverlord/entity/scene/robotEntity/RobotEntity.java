@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
 
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
+import com.marginallyclever.robotOverlord.entity.remoteEntity.OneLineAtATimeRemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -16,7 +16,7 @@ public abstract class RobotEntity extends PoseEntity {
 	 */
 	private static final long serialVersionUID = 2228444481181973067L;
 	// comms	
-	protected transient RemoteEntity connection = new RemoteEntity();
+	protected transient OneLineAtATimeRemoteEntity connection = new OneLineAtATimeRemoteEntity();
 	protected transient boolean isReadyToReceive;
 		
 	public RobotEntity() {

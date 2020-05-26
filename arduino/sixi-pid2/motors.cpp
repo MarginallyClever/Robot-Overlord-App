@@ -19,10 +19,15 @@ int stepsCount = 0;
 
 void StepperMotor::report() {
   Serial.println(letter);
+  Serial.print("\tpid=");  Serial.print(kp);
+  Serial.print(", ");      Serial.print(ki);
+  Serial.print(", ");      Serial.println(kd);
+  /*
   Serial.print("\tstepsTarget=");      Serial.println(stepsTarget);
   Serial.print("\tstepsNow=");         Serial.println(stepsNow);
   Serial.print("\terror=");            Serial.println(error);
   Serial.print("\tangleTarget=");      Serial.println(angleTarget);
+  //*/
 }
 
 

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.basicDataTypes;
+package com.marginallyclever.robotOverlord.entity.remoteEntity;
 
 import java.util.LinkedList;
 
@@ -11,7 +11,7 @@ import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
- * Wraps all network connection stuff into a neat entity package.
+ * Wraps all network connection stuff into a neat entity package designed to send one \n terminated string at a time.
  * 
  * See also https://en.wikipedia.org/wiki/Messaging_pattern
  * 
@@ -19,7 +19,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class RemoteEntity extends StringEntity implements NetworkConnectionListener {
+public class OneLineAtATimeRemoteEntity extends StringEntity implements NetworkConnectionListener {
 
 /*
 	// pull the last connected port from prefs
@@ -60,7 +60,7 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	int nextNumberToSend=0;
 	
 	
-	public RemoteEntity() {
+	public OneLineAtATimeRemoteEntity() {
 		super();
 		setName("Connected to");
 		resetCommands();
@@ -138,12 +138,12 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 		if(command.isEmpty()) return;
 		
 		// add the number for error checking
-		//command = "N"+lastNumberAdded+" "+command;
+		command = "N"+lastNumberAdded+" "+command;
 		// add "there is a checksum" (*) + the checksum + end-of-line character
-		//command += StringHelper.generateChecksum(command) + "\n";
+		command += StringHelper.generateChecksum(command) + "\n";
 		
-		//commands.add(new NumberedCommand(lastNumberAdded,command));
-		//lastNumberAdded++;
+		commands.add(new NumberedCommand(lastNumberAdded,command));
+		lastNumberAdded++;
 		
 		sendQueuedMessage(command);
 	}

@@ -185,12 +185,9 @@ void Eeprom::savePID() {
   int j=ADDR_PID;
   
   for(ALL_MOTORS(i)) {
-    writeFloat(j,motors[i].kp);
-    j+=4;
-    writeFloat(j,motors[i].ki);
-    j+=4;
-    writeFloat(j,motors[i].kd);
-    j+=4;
+    writeFloat(j,motors[i].kp);    j+=4;
+    writeFloat(j,motors[i].ki);    j+=4;
+    writeFloat(j,motors[i].kd);    j+=4;
   }
 }
 
@@ -198,9 +195,8 @@ void Eeprom::loadPID() {
   int j=ADDR_PID;
   for(ALL_MOTORS(i)) {
 
-    motors[i].kp = readFloat(j);
-    motors[i].ki = readFloat(j+4);
-    motors[i].kd = readFloat(j+8);
-    j+=12;
+    motors[i].kp = readFloat(j);    j+=4;
+    motors[i].ki = readFloat(j);    j+=4;
+    motors[i].kd = readFloat(j);    j+=4;
   }
 }

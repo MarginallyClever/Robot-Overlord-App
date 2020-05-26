@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
+import com.marginallyclever.robotOverlord.entity.remoteEntity.OneLineAtATimeRemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -19,7 +19,7 @@ public class SixiJoystick extends ModelEntity {
 	
 	private Sixi2 target;
 	
-	private RemoteEntity connection = new RemoteEntity();
+	private OneLineAtATimeRemoteEntity connection = new OneLineAtATimeRemoteEntity();
 	private ReentrantLock lock = new ReentrantLock();
 
 	DHKeyframe [] keyframeSamples = new DHKeyframe[10];  // more samples = slower response but smoother results.
