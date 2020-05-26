@@ -39,33 +39,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	// TODO phase out when dhRobotBuilder matures?
 	static final boolean ATTACH_MODELS=true;
 
-	public enum InterpolationStyle {
-		LINEAR_FK(0,"Linear FK"),
-		LINEAR_IK(1,"Linear IK"),
-		JACOBIAN(2,"Jacobian IK");
-		
-		private int number;
-		private String name;
-		private InterpolationStyle(int n,String s) {
-			number=n;
-			name=s;
-		}
-		final public int toInt() {
-			return number;
-		}
-		final public String toString() {
-			return name;
-		}
-		static public String [] getAll() {
-			InterpolationStyle[] allModes = InterpolationStyle.values();
-			String[] labels = new String[allModes.length];
-			for(int i=0;i<labels.length;++i) {
-				labels[i] = allModes[i].toString();
-			}
-			return labels;
-		}
-	};
-
 	// last known state
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;
@@ -92,6 +65,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	protected Matrix4d mFrom = new Matrix4d();
 	protected Matrix4d mTarget = new Matrix4d();
 
+	protected double[] cartesianForceDesired = {0,0,0,0,0,0};
+	protected double[] jointVelocityDesired;
+	
 	public Sixi2Model() {
 		super();
 		setName("Sixi2Model");
@@ -211,6 +187,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		poseFKTarget = new double[numAdjustableLinks];
 		poseFKStart = new double[numAdjustableLinks];
 		poseFKNow = new double[numAdjustableLinks];
+
+		jointVelocityDesired = new double [links.size()];
 	}
 	
 	/**
@@ -467,20 +445,22 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
-		double [] cartesianForce = { dp.x,dp.y,dp.z, -w.x,-w.y,-w.z };
+		cartesianForceDesired[0]=dp.x;
+		cartesianForceDesired[1]=dp.y;
+		cartesianForceDesired[2]=dp.z;
+		cartesianForceDesired[3]=-w.x;
+		cartesianForceDesired[4]=-w.y;
+		cartesianForceDesired[5]=-w.z;
 
 		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
 		getPoseFK(keyframe);
 		
-		double[] jointVelocity;
-		try {
-			jointVelocity = calculateJointVelocityFromCartesianForce(keyframe,cartesianForce);
-			
+		if(calculateJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) {
 			// scale jvot to within torqueMax of every joint
 			double scale=1;
 			for(int j = 0; j < keyframe.fkValues.length; ++j) {
 				double maxT = links.get(j).maxTorque.get();
-				double ajvot = Math.abs(jointVelocity[j]); 
+				double ajvot = Math.abs(jointVelocityDesired[j]); 
 				if( scale > maxT/ajvot ) {
 					scale = maxT/ajvot;
 				}
@@ -489,12 +469,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			String msg="Jacobian ";
 			for(int j = 0; j < keyframe.fkValues.length; ++j) {
 				// simulate a change in the joint velocities
-				double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocity[j]) * scale * dt;
+				double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocityDesired[j]) * scale * dt;
 				
 				//v = MathHelper.wrapDegrees(v);
 				
 				keyframe.fkValues[j]=v;
-				msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocity[j]))+"\t";
+				msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocityDesired[j]))+"\t";
 			}
 
 			if (sanityCheck(keyframe)) {
@@ -505,9 +485,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				msg+="insane";
 			}
 			Log.message(msg);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		readyForCommands=true;
@@ -517,12 +494,11 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * 
 	 * @param keyframe the current pose at which to calculate
 	 * @param cartesianForce the XYZ translation and UVW rotation forces on the end effector
-	 * @return the joint velocities
-	 * @throws Exception if joint velocities have NaN values
+	 * @param jvot joint velocity over time.  Will be filled with the new velocity
+	 * @return false if joint velocities have NaN values
 	 */
-	protected double [] calculateJointVelocityFromCartesianForce(DHKeyframe keyframe,double[] cartesianForce) throws Exception {
+	protected boolean calculateJointVelocityFromCartesianForce(DHKeyframe keyframe,double[] cartesianForce,double [] jvot) {
 		// jvot = joint velocity over time
-		double[] jvot = new double[keyframe.fkValues.length];
 		
 		double[][] jacobian = approximateJacobian(keyframe);
 		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
@@ -533,12 +509,13 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				jvot[j] += inverseJacobian[k][j] * cartesianForce[k];
 			}
 			if(Double.isNaN(jvot[j])) {
-				throw new Exception("impossible jvot");
+				for(k = 0; k < 6; ++k) jvot[k]=0;
+				return false;
 			}
 			jvot[j]=MathHelper.wrapRadians(jvot[j]);
 		}
 		
-		return jvot;
+		return true;
 	}
 	
 	/**
