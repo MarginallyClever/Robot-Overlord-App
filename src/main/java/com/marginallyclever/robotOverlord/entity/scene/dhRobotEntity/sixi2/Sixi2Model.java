@@ -17,7 +17,6 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEnti
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -466,7 +465,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				}
 			}
 
-			String msg="Jacobian ";
+			//String msg="Jacobian ";
 			for(int j = 0; j < keyframe.fkValues.length; ++j) {
 				// simulate a change in the joint velocities
 				double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocityDesired[j]) * scale * dt;
@@ -474,17 +473,17 @@ public abstract class Sixi2Model extends DHRobotEntity {
 				//v = MathHelper.wrapDegrees(v);
 				
 				keyframe.fkValues[j]=v;
-				msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocityDesired[j]))+"\t";
+				//msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocityDesired[j]))+"\t";
 			}
 
 			if (sanityCheck(keyframe)) {
 				setPoseFK(keyframe);
 				mLive.set(endEffector.getPoseWorld());
-				msg+="ok";
+				//msg+="ok";
 			} else {
-				msg+="insane";
+				//msg+="insane";
 			}
-			Log.message(msg);
+			//Log.message(msg);
 		}
 		
 		readyForCommands=true;

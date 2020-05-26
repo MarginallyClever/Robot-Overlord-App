@@ -84,7 +84,7 @@ void SensorManager::setup() {
   }
   
   positionErrorFlags = 0;
-  SET_BIT_ON(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);// | POSITION_ERROR_FLAG_ESTOP;
+  //SET_BIT_ON(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);// | POSITION_ERROR_FLAG_ESTOP;
 
   // the first few reads will return junk so we force a couple empties here.
   update();

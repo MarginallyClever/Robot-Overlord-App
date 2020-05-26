@@ -134,16 +134,16 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	public void sendMessage(String command) {
 		if(!isConnectionOpen()) return;
 		
-		command.trim();
+		//command.trim();
 		if(command.isEmpty()) return;
 		
 		// add the number for error checking
-		command = "N"+lastNumberAdded+" "+command;
+		//command = "N"+lastNumberAdded+" "+command;
 		// add "there is a checksum" (*) + the checksum + end-of-line character
-		command += StringHelper.generateChecksum(command) + "\n";
+		//command += StringHelper.generateChecksum(command) + "\n";
 		
-		commands.add(new NumberedCommand(lastNumberAdded,command));
-		lastNumberAdded++;
+		//commands.add(new NumberedCommand(lastNumberAdded,command));
+		//lastNumberAdded++;
 		
 		sendQueuedMessage(command);
 	}

@@ -108,7 +108,7 @@ char Parser::checkLineNumberAndCRCisOK() {
 */
 void Parser::ready() {
   sofar = 0; // clear input buffer
-  Serial.print(F("\n> "));  // signal ready to receive input
+  Serial.print(F("\r\n> "));  // signal ready to receive input
   lastCmdTimeMs = millis();
 }
 
@@ -116,7 +116,7 @@ void Parser::ready() {
 void Parser::update() {
   if(millis() - lastCmdTimeMs > 200) {
     // I tried to listen; there's some confusion; let's start again.
-    sofar=0;
+    ready();
     // and since I'm confused, set all my targets to 0.
     for (ALL_MOTORS(i)) {
       motors[i].velocity = 0;
@@ -136,10 +136,10 @@ void Parser::update() {
     // total length = 48+3=51 bytes
 
     // eat garbage until we get an S to start a message
-    if(sofar== 0 && c!='S') return;
+    if(sofar == 0 && c!='S') return;
     
     if(sofar < MAX_BUF) serialBuffer[sofar++] = c;
-    
+          
     if(sofar==51 && c=='E') {
       // message received
       
@@ -148,10 +148,10 @@ void Parser::update() {
       
       // verify checksum
       int checksum = 0;
-      for (int c = 1; c < 50; ++c) {
+      for (int c = 1; c < 49; ++c) {
         checksum = ( checksum ^ serialBuffer[c] ) & 0xFF;
       }
-      if(checksum == serialBuffer[50]) {
+      if(checksum == serialBuffer[49]) {
         // checksum ok, update target position and velocity
         float angles[NUM_MOTORS];
         int32_t steps[NUM_MOTORS];
@@ -187,11 +187,10 @@ void Parser::update() {
         //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
       
         CRITICAL_SECTION_START();
-        for (ALL_MOTORS(i)) {
+        for (ALL_MOTORS(i)) {/*
             Serial.println(motors[i].letter);
             Serial.println(motors[i].velocity);
             Serial.println(angles[i]);
-          /*
             Serial.println(motors[i].letter);
             Serial.print("\tangleTarget0=");
             Serial.println(motors[i].angleTarget);
@@ -204,11 +203,13 @@ void Parser::update() {
             Serial.print("\tstepsNow=");
             Serial.println(motors[i].stepsNow);
           //*/
-          //motors[i].angleTarget = angles[i];
-          //motors[i].stepsTarget = steps[i];
+          motors[i].angleTarget = angles[i];
+          motors[i].stepsTarget = steps[i];
         }
         CRITICAL_SECTION_END();
       }
+      ready();
+    } else if(sofar>51) {
       ready();
     }
     /*
