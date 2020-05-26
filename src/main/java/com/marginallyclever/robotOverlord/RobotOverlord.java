@@ -48,6 +48,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLPipelineFactory;
+import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -289,14 +290,23 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        	// build OpenGL 3D view
 	            Log.message("build OpenGL 3D view");
 	        	{
-		            GLCapabilities caps = new GLCapabilities(null);
+    	            Log.message("...get default caps");
+	        		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+    	            Log.message("...set caps");
+	        		caps.setBackgroundOpaque(true);
+	        		caps.setDoubleBuffered(true);
+	        		caps.setHardwareAccelerated(true);
+	        		//FSAA
 		            caps.setSampleBuffers(true);
-		            caps.setHardwareAccelerated(true);
-		            caps.setNumSamples(4);
+		            caps.setNumSamples(3);
+    	            Log.message("...create panel");
 		            glCanvas = new GLJPanel(caps);
+			            
+		            Log.message("...add listeners");
 		            glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
 		            glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
 		            glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
+		            Log.message("...set minimum size");
 		            // not sure what good this does here...
 		            Dimension minimumSize = new Dimension(300,300);
 		            glCanvas.setMinimumSize(minimumSize);
@@ -319,6 +329,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 					rightFrameSplitter.setResizeWeight(0.5);
 		        }
 
+	            Log.message("build splitters");
 		        splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		        splitLeftRight.add(glCanvas);
 		        splitLeftRight.add(rightFrameSplitter);
@@ -650,12 +661,15 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     
     @Override
     public void init( GLAutoDrawable drawable ) {
-    	// Use debug pipeline
-    	boolean glDebug=false;
-    	boolean glTrace=false;
+        Log.message("gl init");
+
+        // Use debug pipeline
+    	final boolean glDebug=false;
+    	final boolean glTrace=false;
     	
         GL gl = drawable.getGL();
-        
+
+        Log.message("...debug system");
         if(glDebug) {
             try {
                 // Debug ..
@@ -673,7 +687,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
             	e.printStackTrace();
             }
         }
-
+        
+        Log.message("...get gl2");
     	GL2 gl2 = drawable.getGL().getGL2();
     	
     	// turn on vsync
@@ -705,7 +720,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		// default blending option for transparent materials
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-
+		
         // set the color to use when wiping the draw buffer
 		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
 		
@@ -745,7 +760,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
     		Log.message("stack depth start = "+stackDepth.get(0));
 		}	
-		
 		
         viewport.renderChosenProjection(gl2);
 
