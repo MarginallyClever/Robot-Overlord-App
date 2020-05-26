@@ -5,13 +5,15 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model {
@@ -68,7 +70,47 @@ public class Sixi2Live extends Sixi2Model {
 		
 		if (!connection.isConnectionOpen()) {
 			waitingForOpenConnection = true;
+		} else {
+			generateAndSendCommand();
 		}
+	}
+	
+	protected void generateAndSendCommand() {
+		// we have poseFKTarget and jointVelocityDesired.
+		
+	    // message format is Sv0v1...v5p0p1...p5chkE where 
+	    // S is literal 'S'
+	    // E is literal 'E'
+	    // chk is checksum value of all vN and pN values
+	    // vN is 4 bytes LSB float for 6 velocity targets
+	    // pN is 4 bytes LSB float for 6 position targets
+	    // length(vN+pN) == 2*6*4 = 48 bytes.
+	    // total length = 48+3=51 bytes
+		ByteArrayBuilder bab = new ByteArrayBuilder();
+		byte checksum=0;
+		bab.append('S');
+		for(double d : jointVelocityDesired ) {
+			byte[] list = StringHelper.floatToByteArray(d);
+			for(byte b : list) {
+				checksum ^= b;
+				bab.append(b);
+			}
+		}
+		for(double d : poseFKTarget ) {
+			byte[] list = StringHelper.floatToByteArray(d);
+			for(byte b : list) {
+				checksum ^= b;
+				bab.append(b);
+			}
+		}
+		bab.append(checksum);
+		bab.append('E');
+		bab.flush();
+		byte[] msg = bab.toByteArray();
+		bab.close();
+		
+		String str = new String(msg);
+		connection.sendMessage(str);
 	}
 
 	@Override
@@ -109,7 +151,7 @@ public class Sixi2Live extends Sixi2Model {
 	public void reportDataReceived(String msg) {
 		if (msg.trim().isEmpty())
 			return;
-		//Log.message("SIX RECV " + msg.trim());
+		Log.message("LIVE RECV " + msg.trim());
 	}
 
 	@Override
@@ -193,7 +235,7 @@ public class Sixi2Live extends Sixi2Model {
 
 			if (unhandled) {
 				data = data.replace("\n", "");
-				// Log.message(AnsiColors.PURPLE+data+AnsiColors.RESET);
+				//Log.message("Unhandled: "+data);
 			} else {
 				// wait until we received something meaningful before we start blasting our data
 				// out.
@@ -236,7 +278,6 @@ public class Sixi2Live extends Sixi2Model {
 		double scale=1;
 
 		gl2.glPushMatrix();
-		// endEffector is probably at key1 rn, so the force should be drawn backwards to show where it came from.
 			Matrix4d m4 = endEffector.getPoseWorld();
 			gl2.glTranslated(m4.m03, m4.m13, m4.m23);
 
