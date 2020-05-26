@@ -284,10 +284,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         // now that we have everything built, set up the menus.
         buildMainMenu();
 		
-        Log.message("build layout");
         {
 	        {
 	        	// build OpenGL 3D view
+	            Log.message("build OpenGL 3D view");
 	        	{
 		            GLCapabilities caps = new GLCapabilities(null);
 		            caps.setSampleBuffers(true);
@@ -301,7 +301,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		            Dimension minimumSize = new Dimension(300,300);
 		            glCanvas.setMinimumSize(minimumSize);
 	        	}
+	        	
 	        	// the entity tree and the selected entity panel
+	            Log.message("build entity tree and panel");
 	        	{
 			        entityTree = new EntityTreePanel(this);
 			        selectedEntityPanel = new JPanel(new BorderLayout());
