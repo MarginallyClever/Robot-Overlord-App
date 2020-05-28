@@ -14,8 +14,7 @@ import com.marginallyclever.robotOverlord.log.Log;
  */
 public class TCPTransportLayer implements TransportLayer {
 
-	public TCPTransportLayer() {
-	}
+	public TCPTransportLayer() {}
 
 	/**
 	 * @return <code>serialConnection</code> if connection successful.
