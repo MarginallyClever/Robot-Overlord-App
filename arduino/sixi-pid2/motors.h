@@ -99,7 +99,11 @@ public:
   
   uint32_t timeSinceLastStep_us;
   uint32_t stepInterval_us;
+  float target_velocity;
   float velocity;
+  float velocityActual;
+  float interpolationTime;
+  float totalTime;
 
   
   StepperMotor() {
@@ -115,6 +119,8 @@ public:
     stepInterval_us=0;
   }
 
+  void updateStepCount();
+  
   /**
    * Called byt the ISR to adjust the position of each stepper motor.
    * MUST NOT contain Serial.* commands

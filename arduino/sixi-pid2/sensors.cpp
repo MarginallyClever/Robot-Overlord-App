@@ -98,7 +98,6 @@ void SensorManager::setup() {
  * Update sensorAngles with the latest values, adjust them by motors[i].angleHome, and cap them to [-180...180).
  */
 void SensorManager::update() {
-  sensorReady = false;
   uint16_t rawValue;
   int32_t steps[NUM_AXIES];
   float sensorAngles[NUM_SENSORS];
@@ -121,15 +120,16 @@ void SensorManager::update() {
     sensorAngles[i] = v;
     sensors[i].angle = v;
   }
-/*
+
   kinematics.anglesToSteps(sensorAngles, steps);
 
-  for(ALL_SENSORS(i)){
-    motors[i].stepsUpdated = steps[i];
-  }*/
+  if(sensorReady == false) {
+    for(ALL_SENSORS(i)){
+      motors[i].stepsUpdated = steps[i];
+    }  
+    sensorReady = true;
+  }
   
-  sensorReady = true;
-
   if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
     if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {
       Serial.println(F("\n\n** POSITION ERROR **\n"));
@@ -143,7 +143,7 @@ void SensorManager::update() {
 
   if(REPORT_ANGLES_CONTINUOUSLY) {
     if (millis() > reportDelay) {
-      reportDelay = millis() + 50;
+      reportDelay = millis() + 100;
       parser.D17();
     }
   }

@@ -13,7 +13,7 @@
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
-#define CLOCK_MAX_ISR_FREQUENCY (200000L)// was 240000L
+#define CLOCK_MAX_ISR_FREQUENCY (20000L)// was 240000L
 #define CLOCK_MIN_ISR_FREQUENCY (CLOCK_FREQ/500000U)
 
 #define TIMEOUT_OK (1000)

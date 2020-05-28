@@ -9,6 +9,9 @@
 #define RELATIVE_MOVES     (TEST(parserFlags,FLAG_RELATIVE))
 #define IS_STRICT          (TEST(parserFlags,FLAG_STRICT))
 
+#define NEW_G0_SAFETY_TIMEOUT_S   0.2
+#define NEW_G0_SAFETY_TIMEOUT_MS   (NEW_G0_SAFETY_TIMEOUT_S*1000)
+
 class Parser {
 public:
   char serialBuffer[MAX_BUF + 1]; // Serial buffer
