@@ -19,9 +19,9 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
-import com.marginallyclever.robotOverlord.entity.remoteEntity.OneLineAtATimeRemoteEntity;
 
 /**
  * A factory that builds Swing elements for the entity editor
@@ -106,7 +106,7 @@ public class ViewPanel extends ViewElement {
 		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   (ro,(DoubleEntity)e);
 		else if(e instanceof IntEntity     ) b = new ViewElementInt      (ro,(IntEntity)e);
 		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
-		else if(e instanceof OneLineAtATimeRemoteEntity  ) b = new ViewElementRemote   (ro,(OneLineAtATimeRemoteEntity)e);  // must come before StringEntity because extends StringEntity
+		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   (ro,(RemoteEntity)e);  // must come before StringEntity because extends StringEntity
 		else if(e instanceof StringEntity  ) b = new ViewElementString   (ro,(StringEntity)e);
 		if(null==b) {
 			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");

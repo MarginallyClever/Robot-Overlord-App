@@ -9,7 +9,7 @@ import java.util.Observer;
 import javax.swing.JButton;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.remoteEntity.OneLineAtATimeRemoteEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
@@ -19,9 +19,9 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  */
 public class ViewElementRemote extends ViewElement implements ActionListener, Observer {
 	private JButton field;
-	private OneLineAtATimeRemoteEntity e;
+	private RemoteEntity e;
 
-	public ViewElementRemote(RobotOverlord ro,OneLineAtATimeRemoteEntity e) {
+	public ViewElementRemote(RobotOverlord ro,RemoteEntity e) {
 		super(ro);
 		this.e=e;
 		
