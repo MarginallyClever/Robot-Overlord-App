@@ -1,10 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
-import java.io.DataInputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
-
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.NetworkConnectionListener;
 import com.marginallyclever.communications.NetworkConnectionManager;
@@ -49,8 +46,6 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	static final String COMMENT_START = ";";
 	
 	private NetworkConnection connection;
-	private PrintWriter printWriter;
-	private DataInputStream bufferedReader;
 	
 	public class NumberedCommand {
 		public int n;
@@ -93,7 +88,10 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 	
 	public void closeConnection() {
-		connection=null;
+		if(connection!=null) {
+			connection.closeConnection();
+			connection=null;
+		}
 		resetCommands();
 		partialMessage.clear();
 	}
@@ -108,41 +106,10 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	public void update(double dt) {
 		if(connection==null) return;
 		
-		try {
-			int count = bufferedReader.available();
-			for(int i=0;i<count;++i) {
-				byte c = (byte)bufferedReader.read();
-				partialMessage.add(c);
-			}
-			/*
-			{
-				String line = lineIter.next();
-				int errorNumber = checkForError(line);
-				if(errorNumber > -1) {
-					Log.error("REM RESEND "+errorNumber);
-					nextNumberToSend=errorNumber;
-				} else {
-					// line is good
-					reportDataReceived(line);
-					setChanged();
-					notifyObservers(line);
-	
-					// wait for the cue to send another command
-					if(line.indexOf(CUE)==0) {
-						waitingForCue=false;
-					}
-				}
-			}*/
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		if(!waitingForCue && !commands.isEmpty()) {
 			sendMessageInternal(getCommand(nextNumberToSend++));
 		}
 	}
-
 
 	public boolean isConnectionOpen() {
 		return connection!=null;
@@ -186,12 +153,12 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 	
 	private void sendMessageInternal(String command) {
-		if(printWriter==null || command==null) return;
+		if(command==null) return;
 		
 		try {
 			waitingForCue=true;
 			reportDataSent(command);
-			printWriter.print(command);
+			connection.sendMessage(command);
 		} catch (Exception e) {
 			Log.error("RemoteEntity.sendQueuedMessage failed: "+e.getLocalizedMessage());
 		}
@@ -200,14 +167,14 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	public void reportDataSent(String msg) {
 		//if(msg.contains("G0")) return;
 		
-		Log.message("RemoteEntity SEND " + msg);
+		//Log.message("RemoteEntity SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
 		if (msg.trim().isEmpty()) return;
 		if(msg.contains("D17")) return;
 		
-		Log.message("RemoteEntity RECV " + msg.trim());
+		//Log.message("RemoteEntity RECV " + msg.trim());
 	}
 	
 	@Override
@@ -216,20 +183,15 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 
 	@Override
-	public void lineError(NetworkConnection arg0, int lineNumber) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void lineError(NetworkConnection arg0, int lineNumber) {}
 
 	@Override
-	public void sendBufferEmpty(NetworkConnection arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void sendBufferEmpty(NetworkConnection arg0) {}
 
 	@Override
 	public void dataAvailable(NetworkConnection arg0, String data) {
 		setChanged();
+		reportDataReceived(data);
 		notifyObservers(data);
 	}
 }
