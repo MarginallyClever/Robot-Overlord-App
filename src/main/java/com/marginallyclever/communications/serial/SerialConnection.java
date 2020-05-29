@@ -19,20 +19,19 @@ import com.marginallyclever.robotOverlord.log.Log;
  * @since v7
  */
 public final class SerialConnection extends NetworkConnection implements SerialPortEventListener {
-	private SerialPort serialPort;
-	private static int BAUD_RATE = 57600;
+	private static final int DEFAULT_BAUD_RATE = 57600;
+	private static final String CUE = "> ";
+	private static final String NOCHECKSUM = "NOCHECKSUM ";
+	private static final String BADCHECKSUM = "BADCHECKSUM ";
+	private static final String BADLINENUM = "BADLINENUM ";
+	private static final String NEWLINE = "\n";
+	private static final String COMMENT_START = ";";
 
+	private SerialPort serialPort;
 	private TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
 	private boolean waitingForCue = false;
-
-	static final String CUE = "> ";
-	static final String NOCHECKSUM = "NOCHECKSUM ";
-	static final String BADCHECKSUM = "BADCHECKSUM ";
-	static final String BADLINENUM = "BADLINENUM ";
-	static final String NEWLINE = "\n";
-	static final String COMMENT_START = ";";
 
 	// parsing input from Makelangelo
 	private String inputBuffer = "";
@@ -43,17 +42,9 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 		transportLayer = layer;
 	}
 
-	@Override
-	public void sendMessage(String msg) throws Exception {
-		commandQueue.add(msg);
-		sendQueuedCommand();
-	}
-
 
 	@Override
-	public void closeConnection() {
-		if (!portOpened) return;
-		
+	public void closeConnection() {		
 		if (serialPort != null) {
 			try {
 				serialPort.removeEventListener();
@@ -72,7 +63,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 		// open the port
 		try {
 			// is baud rate included?
-			int baud = BAUD_RATE;
+			int baud = DEFAULT_BAUD_RATE;
 			int i = portName.indexOf("@");
 			if(i>=0) {
 				// isolate it
@@ -120,7 +111,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			int err = 0;
 			try {
 				err = Integer.decode(x);
-				Log.error("BADCHECKSUM "+err);
+				Log.error("BADCHECKSUM "+x);
 			} catch (Exception e) {}
 
 			return err;
@@ -170,6 +161,8 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			oneLine = inputBuffer.substring(0,x);
 			inputBuffer = inputBuffer.substring(x);
 
+			reportDataReceived(oneLine);
+			
 			// check for error
 			int error_line = errorReported(oneLine);
 			if(error_line != -1) {
@@ -191,6 +184,20 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 		}
 	}
 
+	public void reportDataSent(String msg) {
+		//Log.message("SerialConnection SEND " + msg.trim());
+	}
+
+	public void reportDataReceived(String msg) {
+		//Log.message("SerialConnection RECV " + msg.trim());
+	}
+
+	@Override
+	public void sendMessage(String msg) throws Exception {
+		commandQueue.add(msg);
+		sendQueuedCommand();
+	}
+
 
 	protected void sendQueuedCommand() {
 		if(!portOpened || waitingForCue) return;
@@ -209,9 +216,10 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 				String [] lines = line.split(COMMENT_START);
 				command = lines[0];
 			}
-			if(line.endsWith("\n") == false) {
+			if(line.endsWith(NEWLINE) == false) {
 				line+=NEWLINE;
 			}
+			reportDataSent(line.trim());
 			serialPort.writeBytes(line.getBytes());
 		}
 		catch(IndexOutOfBoundsException e1) {}
