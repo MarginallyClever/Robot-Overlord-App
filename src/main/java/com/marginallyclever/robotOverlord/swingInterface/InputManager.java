@@ -15,21 +15,24 @@ import net.java.games.input.Component.Identifier;
  */
 public class InputManager {
 	public enum Source {
-		STICK_SQUARE(0),
-		STICK_X(1),
-		STICK_CIRCLE(2),
+		STICK_X(0),
+		STICK_CIRCLE(1),
+		STICK_SQUARE(2),
 		STICK_TRIANGLE(3),
 		STICK_L1(4),
 		STICK_R1(5),
 		STICK_SHARE(6),
 		STICK_OPTIONS(7),
-	
-		STICK_DPADY(8),
-		STICK_DPADX(9),
 		
-		STICK_RX(10),
-		STICK_RY(11),
-		STICK_R2(12),
+		STICK_L3(8),
+		STICK_R3(9),
+		
+		STICK_DPAD(10),
+//		STICK_DPADX(11),
+		
+		STICK_RX(11),
+		STICK_RY(12),
+//		STICK_R2(12),
 		STICK_L2(13),
 	
 		STICK_LX(14),
@@ -109,6 +112,8 @@ public class InputManager {
 	protected static double [] keyStateOld = new double[Source.values().length];
 	protected static double [] keyState = new double[Source.values().length];
 	
+	protected static int prevIdentifier;
+	
 	static public void start() {
 		String lib_path = System.getProperty("net.java.games.input.librarypath");
 		Log.message("INPUT library path="+lib_path);
@@ -166,7 +171,7 @@ public class InputManager {
     	            if(isMouseIn) updateMouse(ca[i]);
         		}
         		++numMice;
-        	} else if(ca[i].getType()==Controller.Type.STICK) {
+        	} else if(ca[i].getType()==Controller.Type.GAMEPAD) {
         		//if(numSticks==0) {
         			updateStick(ca[i]);
         		//}
@@ -232,13 +237,14 @@ public class InputManager {
 		while(queue.getNextEvent(event)) {
 			Component c = event.getComponent();
 			//*/
-        	/*
-        	Log.message("\t"+c.getName()+
-        			":"+c.getIdentifier().getName()+
-        			":"+(c.isAnalog()?"Abs":"Rel")+
-        			":"+(c.isAnalog()?"Analog":"Digital")+
-        			":"+(c.getDeadZone())+
-           			":"+(c.getPollData()));//*/
+//			if(Math.abs(c.getPollData()) > 0.1) {
+//				Log.message("\t"+c.getName()+
+//	        			":"+c.getIdentifier().getName()+
+//	        			":"+(c.isAnalog()?"Abs":"Rel")+
+//	        			":"+(c.isAnalog()?"Analog":"Digital")+
+//	        			":"+(c.getDeadZone())+
+//	           			":"+(c.getPollData()));//
+//			}
         	if(c.isAnalog()) {
         		double v = c.getPollData();
         		final double DEADZONE=0.1;
@@ -246,36 +252,40 @@ public class InputManager {
         			 if(v> deadzone) v=(v-deadzone)/(1.0-deadzone);  // scale 0....1
         		else if(v<-deadzone) v=(v+deadzone)/(1.0-deadzone);  // scale 0...-1
         		else continue;  // inside dead zone, ignore.
-        		
-            	if(c.getIdentifier()==Identifier.Axis.Z ) setRawValue(Source.STICK_RX,v);  // right analog stick, + is right -1 is left
-            	if(c.getIdentifier()==Identifier.Axis.RZ) setRawValue(Source.STICK_RY,v);  // right analog stick, + is down -1 is up
-            	if(c.getIdentifier()==Identifier.Axis.RY) setRawValue(Source.STICK_R2,v);  // R2, +1 is pressed -1 is unpressed
-            	if(c.getIdentifier()==Identifier.Axis.RX) setRawValue(Source.STICK_L2,v);  // L2, +1 is pressed -1 is unpressed
-            	if(c.getIdentifier()==Identifier.Axis.X ) setRawValue(Source.STICK_LX,v);  // left analog stick, +1 is right -1 is left
-            	if(c.getIdentifier()==Identifier.Axis.Y ) setRawValue(Source.STICK_LY,v);  // left analog stick, -1 is up +1 is down
+        			 
+                if(c.getIdentifier()==Identifier.Axis.X ) setRawValue(Source.STICK_LX,v);
+                if(c.getIdentifier()==Identifier.Axis.Y ) setRawValue(Source.STICK_LY,v);  
+                if(c.getIdentifier()==Identifier.Axis.RX) setRawValue(Source.STICK_RX,v);
+                if(c.getIdentifier()==Identifier.Axis.RY) setRawValue(Source.STICK_RY,v);  
+                if(c.getIdentifier()==Identifier.Axis.Z ) setRawValue(Source.STICK_L2,v);  
+                
         	} else {
         		// digital
     			if(c.getPollData()==1) {
-    				if(c.getIdentifier()==Identifier.Button._0 ) setRawValue(Source.STICK_SQUARE,1);  // square
-    				if(c.getIdentifier()==Identifier.Button._1 ) setRawValue(Source.STICK_X,1);  // x
-    				if(c.getIdentifier()==Identifier.Button._2 ) setRawValue(Source.STICK_CIRCLE,1);  // circle
-    				if(c.getIdentifier()==Identifier.Button._3 ) setRawValue(Source.STICK_TRIANGLE,1);  // triangle
-    				if(c.getIdentifier()==Identifier.Button._4 ) setRawValue(Source.STICK_L1,1);  // L1?
-    				if(c.getIdentifier()==Identifier.Button._5 ) setRawValue(Source.STICK_R1,1);  // R1?
-    				if(c.getIdentifier()==Identifier.Button._8 ) setRawValue(Source.STICK_SHARE,1);  // share button
-    				if(c.getIdentifier()==Identifier.Button._9 ) setRawValue(Source.STICK_OPTIONS,1);  // option button
-    				if(c.getIdentifier()==Identifier.Button._13) setRawValue(Source.STICK_TOUCHPAD,1);  // touch pad
+    				if(c.getIdentifier()==Identifier.Button._0) setRawValue(Source.STICK_X,1); 
+    				if(c.getIdentifier()==Identifier.Button._1) setRawValue(Source.STICK_CIRCLE,1);  	
+    				if(c.getIdentifier()==Identifier.Button._2 ) setRawValue(Source.STICK_SQUARE,1);  	
+    				if(c.getIdentifier()==Identifier.Button._3 ) setRawValue(Source.STICK_TRIANGLE,1);  
+    				if(c.getIdentifier()==Identifier.Button._4 ) setRawValue(Source.STICK_L1,1);  		
+    				if(c.getIdentifier()==Identifier.Button._5 ) setRawValue(Source.STICK_R1,1);  		
+    				if(c.getIdentifier()==Identifier.Button._6 ) setRawValue(Source.STICK_SHARE,1);  	
+    				if(c.getIdentifier()==Identifier.Button._7 ) setRawValue(Source.STICK_OPTIONS,1);  	
+    				if(c.getIdentifier()==Identifier.Button._8 ) setRawValue(Source.STICK_L3,1);  	
+    				if(c.getIdentifier()==Identifier.Button._9 ) setRawValue(Source.STICK_R3,1); 
+//    				if(c.getIdentifier()==Identifier.Button._13) setRawValue(Source.STICK_TOUCHPAD,1);  // touch pad
         		}
 				if(c.getIdentifier()==Identifier.Axis.POV) {
-					// D-pad buttons
 					float pollData = c.getPollData();
-						 if(pollData == Component.POV.DOWN ) setRawValue(Source.STICK_DPADY,-1);
-					else if(pollData == Component.POV.UP   ) setRawValue(Source.STICK_DPADY,1);
-					else if(pollData == Component.POV.LEFT ) setRawValue(Source.STICK_DPADX,-1);
-					else if(pollData == Component.POV.RIGHT) setRawValue(Source.STICK_DPADX,1);
+					setRawValue(Source.STICK_DPAD,pollData);	// "UP"= 0.25, "RIGHT"= 0.5, "DOWN"=0.75, "LEFT"= 1.0
+//					if(pollData == Component.POV.DOWN ) setRawValue(Source.STICK_DPAD,-1);
 				}
         	}
     	}
+	}
+
+	public static boolean doesMatchPrevIdentifier(int i) {
+		if (i == prevIdentifier) return true;
+		return false;
 	}
 	
 	static public void updateMouse(Controller controller) {

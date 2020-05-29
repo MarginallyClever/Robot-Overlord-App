@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene;
 import java.nio.IntBuffer;
 
 import javax.swing.event.UndoableEditEvent;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -17,6 +18,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -122,6 +124,10 @@ public class DragBallEntity extends PoseEntity {
 	public double valueStart;  // original angle when move started
 	public double valueNow;  // current state
 	public double valueLast;  // state last frame 
+	
+	public double[] valueStarts = new double[3];
+	public double[] valueNows = new double[3];
+	public double[] valueLasts = new double[3];
 
 	public SlideDirection majorAxisSlideDirection;
 	
@@ -357,6 +363,7 @@ public class DragBallEntity extends PoseEntity {
 	
 	public void updateTranslation(double dt) {
 		valueNow = valueLast;
+		valueNows = valueLasts;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		ViewportEntity cameraView = ro.viewport;
@@ -482,6 +489,47 @@ public class DragBallEntity extends PoseEntity {
 
 				attemptMove(ro);
 			}
+		} else {
+			// GamePad/JoyStick
+			if( InputManager.isOn(InputManager.Source.STICK_X)) {
+								
+				startMatrix.set(subject.getPoseWorld());
+				resultMatrix.set(startMatrix);
+				
+				for(int i=0; i <3; i++) {
+					valueStarts[i]=0;
+					valueLasts[i]=0;
+					valueNows[i]=0;
+				}
+
+				double scale = 50.0*dt;  // TODO something better?
+				double rawx= InputManager.getRawValue(InputManager.Source.STICK_LX);
+				double rawy= InputManager.getRawValue(InputManager.Source.STICK_LY);
+				double rawz= InputManager.getRawValue(InputManager.Source.STICK_L2);
+				double dx = rawx * scale;
+				double dy = rawy * -scale;
+				double dz = rawz * scale;
+				
+				valueNows[0]+=dx;
+				valueNows[1]+=dy;
+				valueNows[2]+=dz;
+				
+				double[] dp = new double[3];
+				for(int i=0; i < 3; i++) dp[i] = valueNows[i] - valueStarts[i];
+
+				if(dp[0]!=0 || dp[1]!=0 || dp[2]!=0) {
+					Matrix3d mat = new Matrix3d();
+					mat.setColumn(0, MatrixHelper.getXAxis(FOR));
+					mat.setColumn(1, MatrixHelper.getYAxis(FOR));
+					mat.setColumn(2, MatrixHelper.getZAxis(FOR));
+					translateAll(mat, dp);
+					
+					for(int i=0; i < 3; i++) valueLasts[i] = valueStarts[i] + dp[i];
+					attemptMove(ro);
+				}
+			}
+					
+			
 		}
 	}
 
@@ -851,6 +899,13 @@ public class DragBallEntity extends PoseEntity {
 		resultMatrix.m03 = startMatrix.m03 + v.x*amount;
 		resultMatrix.m13 = startMatrix.m13 + v.y*amount;
 		resultMatrix.m23 = startMatrix.m23 + v.z*amount;
+	}
+	
+	protected void translateAll(Matrix3d v, double[] amount) {
+		//Log.message(amount);
+		resultMatrix.m03 = startMatrix.m03 + v.m00*amount[0] + v.m01*amount[1] +v.m02*amount[2];
+		resultMatrix.m13 = startMatrix.m13 + v.m10*amount[0] + v.m11*amount[1] +v.m12*amount[2];
+		resultMatrix.m23 = startMatrix.m23 + v.m20*amount[0] + v.m21*amount[1] +v.m22*amount[2];
 	}
 
 	public Matrix4d getResultMatrix() {

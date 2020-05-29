@@ -198,6 +198,54 @@ public class CameraEntity extends PoseEntity {
 					//Log.message(dx+"\t"+dy+"\t"+pan+"\t"+tilt+"\t"+oldZ+"\t"+newZ);
 				}
 			}
+		} 
+			// CONTROLLER
+		if(!InputManager.isOn(InputManager.Source.STICK_X)) {
+			double rawxl = InputManager.getRawValue(InputManager.Source.STICK_LX);
+			double rawyl = InputManager.getRawValue(InputManager.Source.STICK_LY);
+			double rawzl = InputManager.getRawValue(InputManager.Source.STICK_L2);
+			
+			double rawxr = InputManager.getRawValue(InputManager.Source.STICK_RX);
+			double rawyr = InputManager.getRawValue(InputManager.Source.STICK_RY);
+			
+			double scale = 50.0*dt;  // TODO something better?
+			double dxl = rawxl * -scale;
+			double dyl = rawyl * -scale;
+			double dzl = rawzl * scale;
+			
+			double dxr = rawxr * scale;
+			double dyr = rawyr * scale;
+			
+			Vector3d vx = MatrixHelper.getXAxis(pose);
+			Vector3d vy = MatrixHelper.getYAxis(pose);
+			Vector3d vz = MatrixHelper.getZAxis(pose);
+			Vector3d p = getPosition();
+			
+			// orbit around the focal point
+			setPan(getPan()+dxr);
+			setTilt(getTilt()-dyr);
+			// do updateMatrix() but keep the rotation matrix
+			Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
+			setRotation(rot);
+
+			// adjust the camera position to orbit around a point 'zoom' in front of the camera
+			Vector3d oldZ = MatrixHelper.getZAxis(pose);
+			oldZ.scale(zoom.get());
+			Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
+			newZ.scale(zoom.get());
+
+			p.sub(oldZ);
+			p.add(newZ);
+			
+//			double zSq = Math.sqrt(zoom.get())*0.01;
+			double zSq = 1;
+			vx.scale(zSq*-dxl);
+			vy.scale(zSq* dyl);
+			vz.scale(dzl);
+			p.add(vx);
+			p.add(vy);
+			p.add(vz);
+			setPosition(p);
 		}
 	}
 	
