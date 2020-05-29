@@ -214,7 +214,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		Log.message("Create default scene");
         // ..with default setting.  TODO save & load whole world and all its Entities.
-        scene.createDefaultWorld();
+        scene.createSixiDemo();
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
