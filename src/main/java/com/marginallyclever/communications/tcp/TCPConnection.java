@@ -7,12 +7,9 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.LinkedList;
 
-import javax.swing.JOptionPane;
-
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UserInfo;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.robotOverlord.log.Log;
@@ -25,50 +22,6 @@ import com.marginallyclever.robotOverlord.log.Log;
  */
 public final class TCPConnection extends NetworkConnection implements Runnable {	
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
-    
-    public class MyUserInfo implements UserInfo {
-		@Override
-		public String getPassphrase() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getPassword() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean promptPassword(String message) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean promptPassphrase(String message) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean promptYesNo(String message) {
-			Object[] options = { "yes", "no" };
-			int foo = JOptionPane.showOptionDialog(null, 
-					message, 
-					"Warning", 
-					JOptionPane.DEFAULT_OPTION,
-					JOptionPane.WARNING_MESSAGE, 
-					null, options, options[0]);
-			return foo == 0;
-		}
-
-		@Override
-		public void showMessage(String message) {
-			JOptionPane.showMessageDialog(null, message);
-		}
-    	
-    };
     
     private JSch jsch=new JSch();
     private Session session;
@@ -137,7 +90,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		// now we have everything we need
 		
 		session = jsch.getSession(userParts[0], host, port);
-		session.setUserInfo(new MyUserInfo());
+		session.setUserInfo(new SSHUserInfo());
 	    session.setPassword(userParts[1]);
 	    session.connect(30000);   // making a connection with timeout.
 
@@ -166,6 +119,13 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 			keepPolling=false;
 
 			outputStream.flush();
+			outputStream.close();
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			channel.disconnect();
 			channel = null;
 			inputStream=null;

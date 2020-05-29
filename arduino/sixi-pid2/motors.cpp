@@ -18,16 +18,84 @@ int stepsCount = 0;
 
 
 void StepperMotor::report() {
-  Serial.println(letter);
-  Serial.print("\tpid=");  Serial.print(kp);
-  Serial.print(", ");      Serial.print(ki);
-  Serial.print(", ");      Serial.println(kd);
-  /*
-  Serial.print("\tstepsTarget=");      Serial.println(stepsTarget);
-  Serial.print("\tstepsNow=");         Serial.println(stepsNow);
-  Serial.print("\terror=");            Serial.println(error);
-  Serial.print("\tangleTarget=");      Serial.println(angleTarget);
+  //*
+  Serial.print(letter);
+  //Serial.print("\tpid=");  Serial.print(kp);
+  //Serial.print(", ");      Serial.print(ki);
+  //Serial.print(", ");      Serial.print(kd);
+  Serial.print("\tangleTarget=");      Serial.print(angleTarget);
+  Serial.print("\tstepsTarget=");      Serial.print(stepsTarget);
+  Serial.print("\tstepsNow=");         Serial.print(stepsNow);
+  Serial.print("\terror=");            Serial.print(error);
+  //Serial.print("\tv=");                Serial.print(velocityActual);
+  Serial.print("\tv=");                Serial.print(target_velocity);
+  Serial.println();
   //*/
+}
+
+
+void StepperMotor::updateStepCount() {
+  //if( abs(stepsNow) - stepsCount != abs(stepsUpdated)) {
+    for(ALL_MOTORS(i)) {
+      stepsNow = stepsUpdated;
+      stepsCount = 0;
+    }
+  //}
+}
+
+
+// dt = us
+void StepperMotor::update(float dt_us,float angleNow) {
+  // use a PID to control the motion.
+
+  // P term
+  error = stepsTarget - stepsNow;
+  //error = angleTarget - angleNow;
+
+  interpolationTime += dt_us/1000000.0;
+  if( interpolationTime > totalTime ) interpolationTime = totalTime;
+  float vInterpolated = velocity;
+  if(totalTime>0) {
+    vInterpolated = velocity + ( target_velocity - velocity ) * interpolationTime / totalTime;
+  } else {
+    vInterpolated = target_velocity;
+  }
+    
+  // i term
+  error_i += error * dt_us;
+  // d term
+  float error_d = (error - error_last) / dt_us;
+  // put it all together
+  float positionInfluence = kp * ( error + ki * error_i + kd * error_d );
+  velocityActual = vInterpolated + positionInfluence;
+
+  error_last = error;
+
+  if(abs(error) < 0.5) velocity = 0;
+
+  if(abs(velocityActual) < 1e-4) {
+    stepInterval_us = 0xFFFFFFFF;  // uint32_t max value
+    timeSinceLastStep_us=0;
+    return;
+  } else {
+    stepInterval_us = floor(1000000.0 / abs(velocityActual));
+  }
+
+  timeSinceLastStep_us += dt_us;
+  
+  //CANT PRINT INSIDE ISR 
+  // print("("+error+","+velocity+")\t");
+  //stepsNow += velocity*dt;
+  if( timeSinceLastStep_us >= stepInterval_us ) {
+    stepsNow += velocity<0 ? -1 : 1;
+    stepsCount++;
+    if(!IS_DRYRUN) {
+      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
+      digitalWrite( step_pin, HIGH );
+      digitalWrite( step_pin, LOW  );
+    }
+    timeSinceLastStep_us -=stepInterval_us;
+  }
 }
 
 
@@ -48,64 +116,11 @@ void MotorManager::setup() {
     pinMode(motors[i].step_pin, OUTPUT);
     pinMode(motors[i].dir_pin, OUTPUT);
     pinMode(motors[i].enable_pin, OUTPUT);
+    motors[i].totalTime=0;
   }
 
   // setup servos
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
 #endif
-}
-
-
-// dt = us
-void StepperMotor::update(float dt,float angleNow) {
-  // use a PID to control the motion.
-
-  if(sensorManager.sensorReady) {
-    //update stepsNow
-    if( abs(stepsNow) - stepsCount != abs(stepsUpdated)) {
-      stepsNow = stepsUpdated;
-    } 
-    stepsCount = 0;
-    sensorManager.sensorReady = false;
-  }
-  
-  // P term
-  error = stepsTarget - stepsNow;
-  //error = angleTarget - angleNow;
-  
-  // i term
-  error_i += error * dt;          
-  // d term
-  float error_d = (error - error_last) / dt;
-  // put it all together
-  velocity = kp * ( error + ki * error_i + kd * error_d );
-
-  error_last = error;
-
-  if(abs(error) < 0.5) velocity = 0;
-
-  if(abs(velocity) < 1e-4) {
-    stepInterval_us = 0xFFFFFFFF;  // uint32_t max value
-    timeSinceLastStep_us=0;
-    return;
-  } else {
-    stepInterval_us = floor(1000000.0 / abs(velocity));
-  }
-
-  timeSinceLastStep_us += dt;
-  
-  //CANT PRINT INSIDE ISR 
-  // print("("+error+","+velocity+")\t");
-  //stepsNow += velocity*dt;
-  if( timeSinceLastStep_us >= stepInterval_us ) {
-    stepsNow += velocity<0 ? -1 : 1;
-    stepsCount++;
-    if(!IS_DRYRUN) {
-      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
-      digitalWrite( step_pin, HIGH );
-      digitalWrite( step_pin, LOW  );
-    }
-    timeSinceLastStep_us -=stepInterval_us;
-  }
 }

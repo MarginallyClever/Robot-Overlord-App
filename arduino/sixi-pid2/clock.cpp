@@ -9,7 +9,7 @@
 
 uint8_t _sreg=0;
 
-float usPerTickISR = 1;
+float dtPerTickISR = 1;
 
 uint8_t isr_step_multiplier = 1;
 
@@ -30,7 +30,7 @@ void clockSetup() {
     
     uint32_t interval = calc_timer(CLOCK_MAX_ISR_FREQUENCY, &isr_step_multiplier);
     uint32_t callsPerSecond = (TIMER_RATE / interval);
-    usPerTickISR = 1000000.0f/(float)callsPerSecond;
+    dtPerTickISR = 1000000.0f/(float)callsPerSecond;
 
     CLOCK_ADJUST(interval);
     
@@ -39,7 +39,7 @@ void clockSetup() {
       Serial.print(F("interval="));        Serial.println(interval);
       Serial.print(F("multiplier="));      Serial.println(isr_step_multiplier);
       Serial.print(F("callsPerSecond="));  Serial.println(callsPerSecond);
-      Serial.print(F("usPerTickISR="));          Serial.println(usPerTickISR,6);
+      Serial.print(F("dtPerTickISR="));          Serial.println(dtPerTickISR,6);
     }
   
     // enable timer compare interrupt
@@ -52,10 +52,18 @@ void clockSetup() {
 
 
 FORCE_INLINE void ISRInternal() {
+  if(sensorManager.sensorReady==true) {
+    //update stepsNow
+    for(ALL_MOTORS(i)) {
+      motors[i].updateStepCount();
+    }
+    sensorManager.sensorReady = false;
+  }
+  
   // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
   for( int j=0; j<isr_step_multiplier;++j ) {
     for(ALL_MOTORS(i)) {
-      motors[i].update(usPerTickISR,sensorManager.sensors[i].angle);
+      motors[i].update(dtPerTickISR,sensorManager.sensors[i].angle);
     }
   }
 }

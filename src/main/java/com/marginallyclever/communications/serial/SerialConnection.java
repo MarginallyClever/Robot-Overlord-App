@@ -144,16 +144,15 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	// Deal with something robot has sent.
 	@Override
 	public void serialEvent(SerialPortEvent events) {
-		String rawInput, oneLine;
-		int x;
-
 		if(!events.isRXCHAR()) return;
 		if(!portOpened) return;
 		
-		int len =0 ;
+		String rawInput, oneLine;
+		int x;
+		
+		int len = events.getEventValue();
 		byte [] buffer;
 		try {
-			len = events.getEventValue();
 			buffer = serialPort.readBytes(len);
 		} catch (SerialPortException e) {
 			// uh oh

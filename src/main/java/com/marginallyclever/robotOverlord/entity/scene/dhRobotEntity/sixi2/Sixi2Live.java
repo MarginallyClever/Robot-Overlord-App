@@ -4,18 +4,15 @@ import java.util.Observable;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
-import com.marginallyclever.robotOverlord.entity.remoteEntity.RawByteRemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model {
@@ -27,7 +24,7 @@ public class Sixi2Live extends Sixi2Model {
 	public static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,14); 
 	public static final int MAX_HISTORY = 3;
 	
-	protected RawByteRemoteEntity connection = new RawByteRemoteEntity();
+	protected RemoteEntity connection = new RemoteEntity();
 	protected DHKeyframe [] receivedKeyframes;
 	protected long [] recievedKeyframeTimes;
 	protected long receivedKeyframeCount;
@@ -100,44 +97,34 @@ public class Sixi2Live extends Sixi2Model {
 		
 		if(!getJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) return;
 		
-		capJointVelocity(jointVelocityDesired);
+		//TODO Nm max force / moi = max velocity.  don't forget gearbox efficiency!
+		//capJointVelocity(jointVelocityDesired);
 
 		// we have poseFKTarget and jointVelocityDesired.
 		
-	    // message format is Sv0v1...v5p0p1...p5chkE where 
-	    // S is literal 'S'
-	    // E is literal 'E'
-	    // chk is checksum value of all vN and pN values
-	    // vN is 4 bytes LSB float for 6 velocity targets
-	    // pN is 4 bytes LSB float for 6 position targets
-	    // length(vN+pN) == 2*6*4 = 48 bytes.
-	    // total length = 48+3=51 bytes
-		ByteArrayBuilder bab = new ByteArrayBuilder();
-		byte checksum=0;
-		bab.append('S');
-		for(double d : jointVelocityDesired ) {
-			byte[] list = StringHelper.floatToByteArray(d);
-			for(byte b : list) {
-				checksum ^= b;
-				bab.append(b);
-			}
-		}
-		for(double d : poseFKTarget ) {
-			byte[] list = StringHelper.floatToByteArray(d);
-			for(byte b : list) {
-				checksum ^= b;
-				bab.append(b);
-			}
-		}
-		bab.append(checksum);
-		bab.append('E');
-		bab.flush();
-		byte[] msg = bab.toByteArray();
-		bab.close();
+	    // message format is G0 Xnn Ynn Znn Unn Vnn Wnn Fnn Ann Nnn Pnn Qnn Rnn Snn Tnn*chk
+	    // chk is checksum of the entire string
+		String cmd = "G0";
 		
-		String str = new String(msg);
-		System.out.println(msg.length);
-		sendCommandToRemoteEntity(str);
+		cmd += " X"+StringHelper.formatDouble(poseFKTarget[0]);
+		cmd += " Y"+StringHelper.formatDouble(poseFKTarget[1]);
+		cmd += " Z"+StringHelper.formatDouble(poseFKTarget[2]);
+		cmd += " U"+StringHelper.formatDouble(poseFKTarget[3]);
+		cmd += " V"+StringHelper.formatDouble(poseFKTarget[4]);
+		cmd += " W"+StringHelper.formatDouble(poseFKTarget[5]);
+		
+		cmd += " F"+StringHelper.formatDouble(getFeedrate());
+		cmd += " A"+StringHelper.formatDouble(getAcceleration());
+
+		cmd += " K"+StringHelper.formatDouble(jointVelocityDesired[0]);
+		cmd += " P"+StringHelper.formatDouble(jointVelocityDesired[1]);
+		cmd += " Q"+StringHelper.formatDouble(jointVelocityDesired[2]);
+		cmd += " R"+StringHelper.formatDouble(jointVelocityDesired[3]);
+		cmd += " S"+StringHelper.formatDouble(jointVelocityDesired[4]);
+		cmd += " T"+StringHelper.formatDouble(jointVelocityDesired[5]);
+		
+		//System.out.println(cmd);
+		sendCommandToRemoteEntity(cmd,false);
 	}
 
 	@Override
@@ -147,42 +134,35 @@ public class Sixi2Live extends Sixi2Model {
 
 		super.sendCommand(command);
 		
-		//sendCommandToRemoteEntity(command);
+		//sendCommandToRemoteEntity(command,true);
+	}
+	
+	protected String cleanUpMessage(String command) {
+		if(!command.isEmpty()) {
+			// remove any comment
+			int index = command.indexOf('(');
+			if (index != -1) {
+				command = command.substring(0, index);
+			}
+			// remove any end-of-line characters or whitespace.
+			command.trim();
+		}
+		return command;
 	}
 
-	protected void sendCommandToRemoteEntity(String command) {
+	protected void sendCommandToRemoteEntity(String command,boolean guaranteed) {
 		if(command == null) return;
-		/*
-		// remove any end-of-line characters or whitespace.
-		command.trim();
-		if(command.isEmpty()) return;
-
-		// remove any comment
-		int index = command.indexOf('(');
-		if (index != -1) {
-			command = command.substring(0, index);
-		}*/
-
-		//System.out.println(command.length());
-		reportDataSent(command);
-
+		
+		command = cleanUpMessage(command);
+		
 		// DO IT
-		connection.sendMessage(command);
+		if(guaranteed) {
+			connection.sendMessageGuaranteed(command);
+		} else {
+			connection.sendMessage(command);
+		}
 		// while we wait for reply don't flood the robot with too much data.
 		readyForCommands = false;
-	}
-
-	public void reportDataSent(String msg) {
-		//if(msg.startsWith("S")) return;
-		
-		//Log.message("LIVE SEND " + msg.length());
-	}
-
-	public void reportDataReceived(String msg) {
-		if (msg.trim().isEmpty()) return;
-		if(msg.startsWith("D17")) return;
-		
-		Log.message("LIVE RECV " + msg.trim());
 	}
 
 	@Override
@@ -193,7 +173,7 @@ public class Sixi2Live extends Sixi2Model {
 			if (o == PIDs[i]) {
 				Vector3d newValue = PIDs[i].get();
 				String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-				sendCommandToRemoteEntity(message);
+				sendCommandToRemoteEntity(message,true);
 				return;
 			}
 		}
@@ -204,8 +184,6 @@ public class Sixi2Live extends Sixi2Model {
 			boolean unhandled = true;
 
 			// if(!confirmChecksumOK(data)) return;
-
-			reportDataReceived(data);
 
 			if (data.startsWith("> ")) {
 				// can only be ready if also done waiting for open connection.
@@ -272,14 +250,12 @@ public class Sixi2Live extends Sixi2Model {
 				// out.
 				if (waitingForOpenConnection) {
 					waitingForOpenConnection = false;
-					sendCommandToRemoteEntity("D50 S1");
-					sendCommandToRemoteEntity("D50 S1");
-					sendCommandToRemoteEntity("D50 S1");
+					//sendCommandToRemoteEntity("D50 S1",true);
 					// send once
 					for (int i = 0; i < PIDs.length; ++i) {
 						Vector3d newValue = PIDs[i].get();
 						String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-						sendCommandToRemoteEntity(message);
+						sendCommandToRemoteEntity(message,true);
 					}
 					readyForCommands = false;
 
@@ -290,18 +266,10 @@ public class Sixi2Live extends Sixi2Model {
 	}
 
 	@Override
-	public void setPoseWorld(Matrix4d m) {
-	}
+	public void setPoseWorld(Matrix4d m) {}
 	
 	// See https://studywolf.wordpress.com/2013/09/02/robot-control-jacobians-velocity-and-force/
 	public void renderCartesianForce(GL2 gl2) {
-		double len = Math.sqrt(
-			cartesianForceDetected[0]*cartesianForceDetected[0]+
-			cartesianForceDetected[1]*cartesianForceDetected[1]+
-			cartesianForceDetected[2]*cartesianForceDetected[2]);
-		if(len<1) return;
-		//System.out.println(len);
-
 		int previousState = OpenGLHelper.drawAtopEverythingStart(gl2);
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		gl2.glLineWidth(4);
@@ -319,11 +287,26 @@ public class Sixi2Live extends Sixi2Model {
 					cartesianForceDetected[0]*scale,
 					cartesianForceDetected[1]*scale,
 					cartesianForceDetected[2]*scale);
+			gl2.glEnd();
 			
-			gl2.glColor3d(1.0, 0.5, 0.5);	PrimitiveSolids.drawCircleYZ(gl2, cartesianForceDetected[3]*scale, 20);
-			gl2.glColor3d(0.5, 1.0, 0.5);	PrimitiveSolids.drawCircleXZ(gl2, cartesianForceDetected[4]*scale, 20);
-			gl2.glColor3d(0.5, 0.5, 1.0);	PrimitiveSolids.drawCircleXY(gl2, cartesianForceDetected[5]*scale, 20);
-		
+			PrimitiveSolids.drawCircleYZ(gl2, cartesianForceDetected[3]*scale, 20);
+			PrimitiveSolids.drawCircleXZ(gl2, cartesianForceDetected[4]*scale, 20);
+			PrimitiveSolids.drawCircleXY(gl2, cartesianForceDetected[5]*scale, 20);
+
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glColor3d(1, 0, 0.6);
+			gl2.glVertex3d(0,0,0);
+			gl2.glVertex3d(
+					cartesianForceDesired[0]*scale,
+					cartesianForceDesired[1]*scale,
+					cartesianForceDesired[2]*scale);
+			gl2.glEnd();
+			
+			//PrimitiveSolids.drawCircleYZ(gl2, cartesianForceDesired[3]*scale, 20);
+			//PrimitiveSolids.drawCircleXZ(gl2, cartesianForceDesired[4]*scale, 20);
+			//PrimitiveSolids.drawCircleXY(gl2, cartesianForceDesired[5]*scale, 20);
+
+			
 		gl2.glPopMatrix();
 
 		gl2.glLineWidth(1);

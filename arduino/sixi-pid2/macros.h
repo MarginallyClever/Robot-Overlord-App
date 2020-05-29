@@ -12,6 +12,8 @@
 #define PENDING(NOW,SOON) ((uint32_t)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
+#define BIT_FOR_FLAG(FF)    (1<<FF)
+
 #ifndef SBI
 #define SBI(NN,BB)          (NN |=  (1<<BB))
 #endif
@@ -19,11 +21,11 @@
 #define CBI(NN,BB)          (NN &= ~(1<<BB))
 #endif
 
-#define TEST(NN,BB)         ((NN & (1<<BB)) == (1<<BB))
+#define TEST(NN,BB)         ((NN & BIT_FOR_FLAG(BB)) == BIT_FOR_FLAG(BB))
 #define SET_BIT_ON(NN,BB)   SBI(NN,BB)
 #define SET_BIT_OFF(NN,BB)  CBI(NN,BB)
 #define SET_BIT(NN,BB,TF)   do { if(TF) SET_BIT_ON(NN,BB); else SET_BIT_OFF(NN,BB); } while(0);
-#define FLIP_BIT(NN,BB)     (NN ^= (1<<BB))
+#define FLIP_BIT(NN,BB)     (NN ^= BIT_FOR_FLAG(BB))
 
 
 // wrap all degrees to within -180...180.

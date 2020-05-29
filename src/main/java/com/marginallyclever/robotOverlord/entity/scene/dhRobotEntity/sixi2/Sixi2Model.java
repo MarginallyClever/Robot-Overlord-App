@@ -188,6 +188,17 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		poseFKNow = new double[numAdjustableLinks];
 
 		jointVelocityDesired = new double [links.size()];
+
+		int i=0;
+		for( DHLink link : links ) {
+			if(link.flags == LinkAdjust.NONE) continue;
+			
+			poseFKNow[i] = link.getAdjustableValue();
+			poseFKStart[i] = poseFKNow[i];
+			poseFKTarget[i] = poseFKNow[i];
+			jointVelocityDesired[i]=0;
+			++i;
+		}
 	}
 	
 	/**
@@ -524,14 +535,16 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 		int j,k;
 		for(j = 0; j < keyframe.fkValues.length; ++j) {
+			double sum=0;
 			for(k = 0; k < 6; ++k) {
-				jvot[j] += inverseJacobian[k][j] * cartesianForce[k];
+				sum += inverseJacobian[k][j] * cartesianForce[k];
 			}
 			if(Double.isNaN(jvot[j])) {
 				for(k = 0; k < 6; ++k) jvot[k]=0;
 				return false;
 			}
-			jvot[j]=MathHelper.wrapRadians(jvot[j]);
+			sum=MathHelper.wrapRadians(sum);
+			jvot[j]=Math.toDegrees(sum);
 		}
 		
 		return true;

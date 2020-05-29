@@ -19,7 +19,7 @@
 
 // serial comms
 #define BAUD                         57600
-#define MAX_BUF                      127
+#define MAX_BUF                      150
 
 
 //#include <SPI.h>  // pkm fix for Arduino 1.5

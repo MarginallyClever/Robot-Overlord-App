@@ -114,115 +114,34 @@ void Parser::ready() {
 
 
 void Parser::update() {
-  if(millis() - lastCmdTimeMs > 200) {
-    // I tried to listen; there's some confusion; let's start again.
-    ready();
+  if(millis() - lastCmdTimeMs > NEW_G0_SAFETY_TIMEOUT_MS) {
     // and since I'm confused, set all my targets to 0.
     for (ALL_MOTORS(i)) {
-      motors[i].velocity = 0;
+      motors[i].target_velocity = 0;
     }
   }
   
   // listen for serial commands
   if(Serial.available() > 0) {
     char c = Serial.read();
-    // message format is Sv0v1...v5p0p1...p5chkE where 
-    // S is literal 'S'
-    // E is literal 'E'
-    // chk is checksum value of all vN and pN values
-    // vN is 4 bytes LSB float for 6 velocity targets
-    // pN is 4 bytes LSB float for 6 position targets
-    // length(vN+pN) == 2*6*4 = 48 bytes.
-    // total length = 48+3=51 bytes
-
-    // eat garbage until we get an S to start a message
-    if(sofar == 0 && c!='S') return;
-    
+    //Serial.print(c);
     if(sofar < MAX_BUF) serialBuffer[sofar++] = c;
-          
-    if(sofar==51 && c=='E') {
-      // message received
-      Serial.print("REC ");
-      
-      // echo confirmation
-      if(MUST_ECHO) Serial.println(serialBuffer);
-      
-      // verify checksum
-      int checksum = 0;
-      for (int c = 1; c < 49; ++c) {
-        checksum = ( checksum ^ serialBuffer[c] ) & 0xFF;
-      }
-      if(checksum == serialBuffer[49]) {
-        // checksum ok, update target position and velocity
-        float angles[NUM_MOTORS];
-        int32_t steps[NUM_MOTORS];
-
-        char *ptr = serialBuffer+1;
-        for (ALL_MOTORS(i)) {
-          angles[i] = 0;
-        }
-
-        // all pN values
-        for (ALL_MOTORS(i)) {
-          float value = 0;
-          byte* p = (byte*)(void*)&value;
-          for(int j=0;j<4;++j) {
-            *p++ = *ptr++;
-          }
-          angles[i] = value;
-        }
-        // all vN values
-        for (ALL_MOTORS(i)) {
-          float value = 0;
-          byte* p = (byte*)(void*)&value;
-  
-          for(int j=0;j<4;++j) {
-            *p++ = *ptr++;
-          }
-          
-          motors[i].velocity = value;
-        }
-      
-        kinematics.anglesToSteps(angles, steps);
-      
-        //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
-      
-        CRITICAL_SECTION_START();
-        for (ALL_MOTORS(i)) {
-            Serial.print(motors[i].letter);
-            Serial.print(motors[i].velocity);
-            Serial.print(' ');/*
-            Serial.println(angles[i]);
-            Serial.print("\tangleTarget0=");     Serial.println(motors[i].angleTarget);
-            Serial.print("\tstepsTarget0=");     Serial.println(motors[i].stepsTarget);
-            Serial.print("\tangleTarget1=");     Serial.println(angles[i]);
-            Serial.print("\tstepsTarget1=");     Serial.println(steps[i]);
-            Serial.print("\tstepsNow=");         Serial.println(motors[i].stepsNow);
-          //*/
-          motors[i].angleTarget = angles[i];
-          motors[i].stepsTarget = steps[i];
-        }
-        Serial.println();
-        CRITICAL_SECTION_END();
-      } else {
-        Serial.print("CHECK BAD ");
-        Serial.print(checksum,HEX);
-        Serial.print("/");
-        Serial.println(serialBuffer[49]);
-      }
-      ready();
-    } else if(sofar>51) {
-      ready();
-    }
-    /*
-    if (sofar < MAX_BUF) serialBuffer[sofar++] = c;
     if (c == '\r' || c == '\n') {
       serialBuffer[sofar - 1] = 0;
 
+      // echo confirmation
+      //if(MUST_ECHO) 
+      {
+        Serial.println(serialBuffer);
+      }
+
       // do something with the command
       processCommand();
+      // clear input buffer
+      sofar = 0;
+      // go again
       ready();
-    }*/
+    }
   }
 }
 
@@ -558,7 +477,7 @@ void Parser::D50() {
 void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
-
+  Serial.println("G01");
 
   for (ALL_MOTORS(i)) {
     float start = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
@@ -568,27 +487,38 @@ void Parser::G01() {
     angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
   }
 
+  float velocity[NUM_MOTORS];
+
+  #define PARSE_GV(NN,CC)  velocity[CC] = parseNumber(NN,motors[CC].target_velocity);
+  PARSE_GV('K',0);
+  PARSE_GV('P',1);
+  PARSE_GV('Q',2);
+  PARSE_GV('R',3);
+  PARSE_GV('S',4);
+  PARSE_GV('T',5);
+
   kinematics.anglesToSteps(angles, steps);
 
   //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
 
   CRITICAL_SECTION_START();
   for (ALL_MOTORS(i)) {
-    /*
+    //*
         Serial.println(motors[i].letter);
-        Serial.print("\tangleTarget0=");
-        Serial.println(motors[i].angleTarget);
-        Serial.print("\tstepsTarget0=");
-        Serial.println(motors[i].stepsTarget);
-        Serial.print("\tangleTarget1=");
-        Serial.println(angles[i]);
-        Serial.print("\tstepsTarget1=");
-        Serial.println(steps[i]);
-        Serial.print("\tstepsNow=");
-        Serial.println(motors[i].stepsNow);
+        //Serial.print("\tangleTarget0=");        Serial.print(motors[i].angleTarget);
+        //Serial.print("\tstepsTarget0=");        Serial.print(motors[i].stepsTarget);
+        Serial.print("\ta=");        Serial.print(angles[i]);
+        //Serial.print("\tstepsTarget1=");        Serial.print(steps[i]);
+        //Serial.print("\tstepsNow=");        Serial.print(motors[i].stepsNow);
+        Serial.print("\tv=");        Serial.print(velocity[i]);
+        
       //*/
     motors[i].angleTarget = angles[i];
     motors[i].stepsTarget = steps[i];
+    motors[i].velocity = motors[i].target_velocity;
+    motors[i].target_velocity = velocity[i];
+    motors[i].interpolationTime = 0;
+    motors[i].totalTime = NEW_G0_SAFETY_TIMEOUT_S;
   }
   CRITICAL_SECTION_END();
 
