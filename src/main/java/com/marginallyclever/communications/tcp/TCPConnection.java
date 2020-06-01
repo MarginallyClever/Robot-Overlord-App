@@ -22,13 +22,19 @@ import com.marginallyclever.robotOverlord.log.Log;
  */
 public final class TCPConnection extends NetworkConnection implements Runnable {	
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
+	private static final int DEFAULT_TCP_PORT = 22;
+	private static final String CUE = ">";
+	private static final String NOCHECKSUM = "NOCHECKSUM ";
+	private static final String BADCHECKSUM = "BADCHECKSUM ";
+	private static final String BADLINENUM = "BADLINENUM ";
+	private static final String NEWLINE = "\n";
+	private static final String COMMENT_START = ";";
     
     private JSch jsch=new JSch();
     private Session session;
     private ChannelExec channel;
     private BufferedReader inputStream;
     private PrintWriter outputStream;
-    
     
 	private TransportLayer transportLayer;
 	private String connectionName = "";
@@ -37,14 +43,6 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	private Thread thread;
 	private boolean keepPolling;
 
-
-	static final String CUE = ">";
-	static final String NOCHECKSUM = "NOCHECKSUM ";
-	static final String BADCHECKSUM = "BADCHECKSUM ";
-	static final String BADLINENUM = "BADLINENUM ";
-	static final String NEWLINE = "\n";
-	static final String COMMENT_START = ";";
-	private static final int DEFAULT_TCP_PORT = 22;
 	
 	private String inputBuffer = "";
 	private LinkedList<String> commandQueue = new LinkedList<String>();
@@ -220,7 +218,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 
 			if(oneLine.isEmpty()) return;
 			
-			Log.message("TCP RECV "+oneLine);
+			reportDataReceived(oneLine);
 			// check for error
 			int error_line = errorReported(oneLine);
 			if(error_line != -1) {
@@ -248,17 +246,27 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 		try {
 			waitingForCue=true;
 			String line=commandQueue.poll();
-			// make sure there's a newline
-			if(line.endsWith("\n") == false) {
+			if(line.contains(COMMENT_START)) {
+				line = line.substring(0,line.indexOf(COMMENT_START));
+			}
+			if(line.endsWith(NEWLINE) == false) {
 				line+=NEWLINE;
 			}
 			outputStream.write(line);
 			outputStream.flush();
-			Log.message("TCP SEND "+line.trim()+"("+commandQueue.size()+")");
+			reportDataSent(line);
 		}
 		catch(IndexOutOfBoundsException e1) {
 			Log.error(e1.getLocalizedMessage());
 		}
+	}
+
+	public void reportDataSent(String msg) {
+		//Log.message("TCPConnection SEND " + msg.trim());
+	}
+
+	public void reportDataReceived(String msg) {
+		//Log.message("TCPConnection RECV " + msg.trim());
 	}
 
 	public void deleteAllQueuedCommands() {

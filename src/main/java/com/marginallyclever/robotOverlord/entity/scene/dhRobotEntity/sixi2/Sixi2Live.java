@@ -13,6 +13,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model {
@@ -37,6 +38,7 @@ public class Sixi2Live extends Sixi2Model {
 	protected Vector3dEntity[] PIDs = new Vector3dEntity[6];
 
 	protected boolean waitingForOpenConnection;
+	protected boolean remoteIsReadyForCommands;
 
 	public Sixi2Live() {
 		super();
@@ -104,33 +106,37 @@ public class Sixi2Live extends Sixi2Model {
 		
 	    // message format is G0 Xnn Ynn Znn Unn Vnn Wnn Fnn Ann Nnn Pnn Qnn Rnn Snn Tnn*chk
 	    // chk is checksum of the entire string
-		String cmd = "G0";
+		String cmd1 = "G0";
+		cmd1 += " X"+StringHelper.formatDouble(poseFKTarget[0]);
+		cmd1 += " Y"+StringHelper.formatDouble(poseFKTarget[1]);
+		cmd1 += " Z"+StringHelper.formatDouble(poseFKTarget[2]);
+		cmd1 += " U"+StringHelper.formatDouble(poseFKTarget[3]);
+		cmd1 += " V"+StringHelper.formatDouble(poseFKTarget[4]);
+		cmd1 += " W"+StringHelper.formatDouble(poseFKTarget[5]);
 		
-		cmd += " X"+StringHelper.formatDouble(poseFKTarget[0]);
-		cmd += " Y"+StringHelper.formatDouble(poseFKTarget[1]);
-		cmd += " Z"+StringHelper.formatDouble(poseFKTarget[2]);
-		cmd += " U"+StringHelper.formatDouble(poseFKTarget[3]);
-		cmd += " V"+StringHelper.formatDouble(poseFKTarget[4]);
-		cmd += " W"+StringHelper.formatDouble(poseFKTarget[5]);
-		
-		cmd += " F"+StringHelper.formatDouble(getFeedrate());
-		cmd += " A"+StringHelper.formatDouble(getAcceleration());
+		cmd1 += " F"+StringHelper.formatDouble(getFeedrate());
+		cmd1 += " A"+StringHelper.formatDouble(getAcceleration());
 
-		cmd += " K"+StringHelper.formatDouble(jointVelocityDesired[0]);
-		cmd += " P"+StringHelper.formatDouble(jointVelocityDesired[1]);
-		cmd += " Q"+StringHelper.formatDouble(jointVelocityDesired[2]);
-		cmd += " R"+StringHelper.formatDouble(jointVelocityDesired[3]);
-		cmd += " S"+StringHelper.formatDouble(jointVelocityDesired[4]);
-		cmd += " T"+StringHelper.formatDouble(jointVelocityDesired[5]);
+		String cmd2 = "G0";
+		cmd2 += " K"+StringHelper.formatDouble(jointVelocityDesired[0]);
+		cmd2 += " P"+StringHelper.formatDouble(jointVelocityDesired[1]);
+		cmd2 += " Q"+StringHelper.formatDouble(jointVelocityDesired[2]);
+		cmd2 += " R"+StringHelper.formatDouble(jointVelocityDesired[3]);
+		cmd2 += " S"+StringHelper.formatDouble(jointVelocityDesired[4]);
+		cmd2 += " T"+StringHelper.formatDouble(jointVelocityDesired[5]);
 		
 		//System.out.println(cmd);
-		sendCommandToRemoteEntity(cmd,false);
+		sendCommandToRemoteEntity(cmd1,false);
+		sendCommandToRemoteEntity(cmd2,false);
+
+		//Log.message("Live SEND " + cmd1.trim());
+		Log.message("Live SEND " + cmd2.trim());
 	}
 
 	@Override
 	public void sendCommand(String command) {
-		if(lastCommand.contentEquals(command)) return;
-		lastCommand = command;
+		//if(lastCommand.contentEquals(command)) return;
+		//lastCommand = command;
 
 		super.sendCommand(command);
 		
@@ -162,7 +168,8 @@ public class Sixi2Live extends Sixi2Model {
 			connection.sendMessage(command);
 		}
 		// while we wait for reply don't flood the robot with too much data.
-		readyForCommands = false;
+		readyForCommands = true;
+		remoteIsReadyForCommands = false;
 	}
 
 	@Override
@@ -187,10 +194,8 @@ public class Sixi2Live extends Sixi2Model {
 
 			if (data.startsWith("> ")) {
 				// can only be ready if also done waiting for open connection.
-				readyForCommands = !waitingForOpenConnection;
-				if(readyForCommands) {
-					//Log.message("SIX READY");
-				}
+				remoteIsReadyForCommands =!waitingForOpenConnection;
+				//if(remoteIsReadyForCommands) Log.message("SIX READY");
 				data = data.substring(2);
 			}
 
@@ -250,14 +255,14 @@ public class Sixi2Live extends Sixi2Model {
 				// out.
 				if (waitingForOpenConnection) {
 					waitingForOpenConnection = false;
-					//sendCommandToRemoteEntity("D50 S1",true);
+					sendCommandToRemoteEntity("D50 S1",true);
 					// send once
 					for (int i = 0; i < PIDs.length; ++i) {
 						Vector3d newValue = PIDs[i].get();
 						String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
 						sendCommandToRemoteEntity(message,true);
 					}
-					readyForCommands = false;
+					remoteIsReadyForCommands = false;
 
 					receivedKeyframeCount=0;
 				}

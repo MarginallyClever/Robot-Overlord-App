@@ -36,7 +36,7 @@ public class Scene extends Entity {
 		setName("World");
 	}
 	
-	public void createDefaultWorld() {
+	public void createSixiDemo() {
 		//addChild(new SkyBoxEntity());
 		
 		// adjust default camera
