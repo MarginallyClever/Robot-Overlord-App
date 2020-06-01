@@ -111,8 +111,11 @@ public class CameraEntity extends PoseEntity {
         }
         
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
+			double scale = 1;
 	        double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X);
 	        double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y);
+	        dx = dx *scale;
+	        dy = dy *scale;
 
 			if(dx!=0 || dy!=0) {
 				// snap system
@@ -200,7 +203,7 @@ public class CameraEntity extends PoseEntity {
 			}
 		} 
 			// CONTROLLER
-		if(!InputManager.isOn(InputManager.Source.STICK_X)) {
+		if(!InputManager.isOn(InputManager.Source.STICK_X) && !InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
 			double rawxl = InputManager.getRawValue(InputManager.Source.STICK_LX);
 			double rawyl = InputManager.getRawValue(InputManager.Source.STICK_LY);
 			double rawzl = InputManager.getRawValue(InputManager.Source.STICK_L2);

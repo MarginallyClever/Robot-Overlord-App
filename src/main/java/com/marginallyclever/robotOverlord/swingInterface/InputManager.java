@@ -28,6 +28,10 @@ public class InputManager {
 		STICK_R3(9),
 		
 		STICK_DPAD(10),
+		STICK_DPAD_U(70),
+		STICK_DPAD_R(71),
+		STICK_DPAD_D(72),
+		STICK_DPAD_L(73),
 //		STICK_DPADX(11),
 		
 		STICK_RX(11),
@@ -98,6 +102,8 @@ public class InputManager {
 		KEY_F10(67),
 		KEY_F11(68),
 		KEY_F12(69);
+		
+		
 		
 		private final int value;
 		private Source(int v) {
@@ -276,8 +282,11 @@ public class InputManager {
         		}
 				if(c.getIdentifier()==Identifier.Axis.POV) {
 					float pollData = c.getPollData();
-					setRawValue(Source.STICK_DPAD,pollData);	// "UP"= 0.25, "RIGHT"= 0.5, "DOWN"=0.75, "LEFT"= 1.0
-//					if(pollData == Component.POV.DOWN ) setRawValue(Source.STICK_DPAD,-1);
+//					setRawValue(Source.STICK_DPAD,pollData);	// "UP"= 0.25, "RIGHT"= 0.5, "DOWN"=0.75, "LEFT"= 1.0
+					if(pollData == Component.POV.UP ) setRawValue(Source.STICK_DPAD_U,1);
+					else if(pollData == Component.POV.RIGHT ) setRawValue(Source.STICK_DPAD_R,1);
+					else if(pollData == Component.POV.DOWN ) setRawValue(Source.STICK_DPAD_D,1);
+					else if(pollData == Component.POV.LEFT ) setRawValue(Source.STICK_DPAD_L,1);
 				}
         	}
     	}

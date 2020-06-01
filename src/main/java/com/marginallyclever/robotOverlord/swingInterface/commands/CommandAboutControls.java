@@ -27,18 +27,21 @@ public class CommandAboutControls extends AbstractAction {
 	public void actionPerformed(ActionEvent e) {
 		String body = "<h1>Controls</h1>";
 		body+="<h2>Flying</h2>";
-		body+="<p>RMB+Mouse: pan + tilt camera</p>";
-		body+="<p>WASDQE: fly forward, back, left, right, up, and down.</p>";
-		body+="<h2>Selecting</h2>";
+		body+="<p>Pan + Tilt Camera  --  M-Mouse  --  RS</p>";
+		body+="<p>Fly Left, Right, Up + Down  --  Shift + M-Mouse  --  LS</p>";
+		body+="<p>Fly Forward + Back  --  Ctrl + M-Mouse  --  L2/R2</p>";
+		body+="<h2>Selecting [entity?? TODO*]</h2>";
 		body+="<p>Double click anything in the world to see its menu.</p>";
 		body+="<p>Double click again or press escape to unselect.</p>";
-		body+="<h2>Robots</h2>";
-		body+="<p>Robots can be moved when they are selected.</p>";
-		body+="<p>Robots can be moved according to a <i>frame of reference</i>, which can be changed in the robot's panel.</p>";
-		body+="<p>LMB+Mouse: drag robot finger tip in two directions.</p>";
-		body+="<p>LMB+Mouse+Ctrl/Option: drag the robot finger tip in the third direction.</p>";
-		body+="<p>LMB+Mouse+Shift: turn robot finger tip in two directions.</p>";
-		body+="<p>LMB+Mouse+Shift+Ctrl/Option: turn the robot finger tip in the third direction.</p>";
+		body+="<h2>Entity/Object</h2>";
+		body+="<p>**Any Entity/Object in the simulation can be moved when selected according to current <i>frame of reference</i>.**</p>";
+		body+="<p>**The <i>End-Effector<i> must be selected in the Robot Entity Tree in order to move and perform IK.**</p>";
+		body+="<p>LMB: Select the axis you wish to translate along and drag.</p>";
+		body+="<p>Shift + LMB: Select the circular plane you wish to rotate and drag.</p>";
+		body+="<p>'X' + LS: Translate along X and Y axis.</p>";
+		body+="<p>'X' + L2/R2: Translate along Z axis.</p>";
+		body+="<p>'O' + LS: Rotate around X and Y axis.</p>";
+		body+="<p>'O' + L2/R2: Rotate around Z axis.</p>";
 
 		body = "<html><body>"+body+"</body></html>";
 		

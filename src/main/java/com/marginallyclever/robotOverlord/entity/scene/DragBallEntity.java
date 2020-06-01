@@ -167,11 +167,18 @@ public class DragBallEntity extends PoseEntity {
 		// apply the effect of drag actions
 		if(!isActivelyMoving()) {
 			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
-						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT));
+						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT) || InputManager.isOn(InputManager.Source.STICK_CIRCLE));
 	
 			if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReference.set(FrameOfReference.WORLD.toInt());
 			if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReference.set(FrameOfReference.CAMERA.toInt());
 			if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReference.set(FrameOfReference.SUBJECT.toInt());
+			
+			if(InputManager.isReleased(InputManager.Source.STICK_DPAD_R)) {
+				if(frameOfReference.get()==FrameOfReference.WORLD.toInt()) frameOfReference.set(FrameOfReference.CAMERA.toInt());
+				else if(frameOfReference.get()==FrameOfReference.CAMERA.toInt()) frameOfReference.set(FrameOfReference.SUBJECT.toInt());
+				else if(frameOfReference.get()==FrameOfReference.SUBJECT.toInt()) frameOfReference.set(FrameOfReference.WORLD.toInt());
+			}
+			
 		} else {
 			if(InputManager.isReleased(InputManager.Source.KEY_ESCAPE)) {
 				// cancel this move
@@ -349,6 +356,42 @@ public class DragBallEntity extends PoseEntity {
 					attemptMove(ro);
 				}
 			}
+		}
+		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
+			
+			startMatrix.set(subject.getPoseWorld());
+			resultMatrix.set(startMatrix);
+			valueStart =0;
+			valueLast=0;
+			valueNow=0;
+
+			double scale = 0.75*dt;  // TODO something better?
+			double rawxr= InputManager.getRawValue(InputManager.Source.STICK_LX);
+			double rawyr= InputManager.getRawValue(InputManager.Source.STICK_LY);
+			double rawzr= InputManager.getRawValue(InputManager.Source.STICK_L2);
+			double dxr = rawxr * scale;
+			double dyr = rawyr * -scale;
+			double dzr = rawzr * scale;
+
+			if(Math.abs(rawxr)-Math.abs(rawyr) >= 0.3) {
+				valueNow = dxr;
+				double dar1 = valueNow - valueStart;
+				rollX(dar1);
+				valueLast = valueStart+dar1;
+				attemptMove(ro);
+			} else if(Math.abs(rawxr)-Math.abs(rawyr) <= -0.3) {
+				valueNow = dyr;
+				double dar1 = valueNow - valueStart;
+				rollY(dar1);
+				valueLast = valueStart+dar1;
+				attemptMove(ro);
+			} else if(rawzr!=0) {
+				valueNow = dzr;
+				double dar1 = valueNow - valueStart;
+				rollZ(dar1);
+				valueLast = valueStart+dar1;
+				attemptMove(ro);
+			}			
 		}
 	}
 	
