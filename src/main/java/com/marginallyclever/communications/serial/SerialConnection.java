@@ -178,10 +178,10 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			if(oneLine.indexOf(CUE)==0) {
 				waitingForCue=false;
 			}
-		}
+		}/*
 		if(!waitingForCue) {
 			sendQueuedCommand();
-		}
+		}*/
 	}
 
 	public void reportDataSent(String msg) {
@@ -194,23 +194,23 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 	@Override
 	public void sendMessage(String msg) throws Exception {
-		commandQueue.add(msg);
-		sendQueuedCommand();
+		//commandQueue.add(msg);
+		sendQueuedCommand(msg);
 	}
 
 
-	protected void sendQueuedCommand() {
+	protected void sendQueuedCommand(String command) {
 		if(!portOpened || waitingForCue) return;
-
+/*
 		if(commandQueue.isEmpty()==true) {
 			notifySendBufferEmpty();
 			return;
-		}
+		}*/
 
-		String command;
+		//String command;
 		try {
 			waitingForCue=true;
-			command=commandQueue.remove(0);
+			//command=commandQueue.remove(0);
 			String line = command;
 			if(line.contains(COMMENT_START)) {
 				String [] lines = line.split(COMMENT_START);
@@ -276,7 +276,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	@Override
 	public void update() {
 		if(isOpen() && waitingForCue==false) {
-			sendQueuedCommand();
+			//sendQueuedCommand();
 		}
 	}
 }
