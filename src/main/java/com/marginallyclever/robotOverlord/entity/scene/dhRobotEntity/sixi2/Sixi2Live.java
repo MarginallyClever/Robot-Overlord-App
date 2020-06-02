@@ -78,6 +78,11 @@ public class Sixi2Live extends Sixi2Model {
 		// END
 	}
 	
+	/**
+	 * Find the cartesian (linear) force to move from current position to target.
+	 * Use Jacobians to convert cartesian to joint angle velocities. 
+	 * @param dt
+	 */
 	protected void generateAndSendCommand(double dt) {
 		// get interpolated future pose
     	double tTotal = timeTarget - timeStart;
@@ -89,11 +94,46 @@ public class Sixi2Live extends Sixi2Model {
 		
 		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
 		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
-		Matrix4d interpolatedMatrixFuture = new Matrix4d();
-		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
-		
+		//Matrix4d interpolatedMatrixFuture = new Matrix4d();
+		//MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
+		Matrix4d interpolatedMatrixFuture = mTarget;
+
+		// get cartesian force
+		double[] cfdn = {0,0,0,0,0,0};
 		getCartesianForceBetweenTwoPoses(interpolatedMatrixNow, interpolatedMatrixFuture, dt, cartesianForceDesired);
 
+		// cap cartesian force
+		double nx = cfdn[0];
+		double ny = cfdn[1];
+		double nz = cfdn[2];
+		double ox = cartesianForceDesired[0];
+		double oy = cartesianForceDesired[1];
+		double oz = cartesianForceDesired[2];
+		
+		double MAX_LINEAR_VELOCITY    =100;  // must be >0
+		double MAX_LINEAR_ACCELERATION= 50;  // must be >0
+		
+		double newLinearVel = Math.sqrt(nx*nx + ny*ny + nz*nz);
+		newLinearVel = Math.min(newLinearVel , MAX_LINEAR_VELOCITY);
+		double oldLinearVel = Math.sqrt(ox*ox + oy*oy + oz*oz);
+		double dv = newLinearVel-oldLinearVel;
+		double ratio = 1;
+		if(Math.abs(dv)>MAX_LINEAR_ACCELERATION) {
+			ratio = MAX_LINEAR_ACCELERATION / Math.abs(dv);
+			nx = ox*ratio;
+			ny = oy*ratio;
+			nz = oz*ratio;
+		}
+		double nv = dv * ratio;
+		//Log.message("dv="+dv+" nv="+nv);
+		cfdn[0]=nx;
+		cfdn[1]=ny;
+		cfdn[2]=nz;
+				
+		for(int i=0;i<cfdn.length;++i) {
+			cartesianForceDesired[i]=cfdn[i];
+		}
+				
 		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
 		getPoseFK(keyframe);
 		
@@ -114,8 +154,8 @@ public class Sixi2Live extends Sixi2Model {
 		cmd1 += " V"+StringHelper.formatDouble(poseFKTarget[4]);
 		cmd1 += " W"+StringHelper.formatDouble(poseFKTarget[5]);
 		
-		cmd1 += " F"+StringHelper.formatDouble(getFeedrate());
-		cmd1 += " A"+StringHelper.formatDouble(getAcceleration());
+		//cmd1 += " F"+StringHelper.formatDouble(getFeedrate());
+		//cmd1 += " A"+StringHelper.formatDouble(getAcceleration());
 
 		String cmd2 = "G0";
 		cmd2 += " K"+StringHelper.formatDouble(jointVelocityDesired[0]);
@@ -127,10 +167,10 @@ public class Sixi2Live extends Sixi2Model {
 		
 		//System.out.println(cmd);
 		sendCommandToRemoteEntity(cmd1,false);
-		sendCommandToRemoteEntity(cmd2,false);
+		//sendCommandToRemoteEntity(cmd2,false);
 
 		//Log.message("Live SEND " + cmd1.trim());
-		Log.message("Live SEND " + cmd2.trim());
+		//Log.message("Live SEND " + cmd2.trim());
 	}
 
 	@Override
@@ -180,7 +220,7 @@ public class Sixi2Live extends Sixi2Model {
 			if (o == PIDs[i]) {
 				Vector3d newValue = PIDs[i].get();
 				String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-				sendCommandToRemoteEntity(message,true);
+				//sendCommandToRemoteEntity(message,true);
 				return;
 			}
 		}
@@ -260,7 +300,7 @@ public class Sixi2Live extends Sixi2Model {
 					for (int i = 0; i < PIDs.length; ++i) {
 						Vector3d newValue = PIDs[i].get();
 						String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-						sendCommandToRemoteEntity(message,true);
+						//sendCommandToRemoteEntity(message,true);
 					}
 					remoteIsReadyForCommands = false;
 
