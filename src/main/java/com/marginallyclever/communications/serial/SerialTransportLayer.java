@@ -3,8 +3,6 @@ package com.marginallyclever.communications.serial;
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
-import com.marginallyclever.robotOverlord.log.Log;
-
 import jssc.SerialPortList;
 
 
@@ -25,6 +23,7 @@ public class SerialTransportLayer implements TransportLayer {
 	 * @return a list of port names
 	 */
 	public String[] listConnections() {
+		portsDetected = SerialPortList.getPortNames();/*
 		String OS = System.getProperty("os.name").toLowerCase();
 
 		if (OS.indexOf("mac") >= 0) {
@@ -38,7 +37,7 @@ public class SerialTransportLayer implements TransportLayer {
 			//Log.message("Linux/Unix");
 		} else {
 			Log.error("OS NAME=" + System.getProperty("os.name"));
-		}
+		}*/
 		return portsDetected;
 	}
 
