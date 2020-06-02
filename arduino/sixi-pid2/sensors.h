@@ -49,8 +49,6 @@ class SensorManager {
 public:
   SensorAS5147 sensors[NUM_SENSORS];
   uint8_t positionErrorFlags;
-  bool sensorReady;
-  uint32_t reportDelay;  // how long since last D17 sent out
 
   void setup();
   

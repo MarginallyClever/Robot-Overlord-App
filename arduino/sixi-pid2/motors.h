@@ -66,6 +66,11 @@
 #define END5 LOW
 
 
+#define PLANNER_STEPS         2  // must be power of 2.
+#define NEXT_PLANNER_STEP(x)  ((x+1) & PLANNER_STEPS)
+#define PREV_PLANNER_STEP(x)  ((x+PLANNER_STEPS-1) & PLANNER_STEPS)
+
+
 #include "MServo.h"
 
 
@@ -78,9 +83,9 @@ public:
   uint8_t enable_pin;
 
   // only a whole number of steps is possible.
-  int32_t stepsUpdated;
   int32_t stepsNow;
   int32_t stepsTarget;
+  int16_t stepsToRefresh;
   
   float angleTarget;
   
@@ -97,14 +102,20 @@ public:
   float error_i;
   float error_last;
   
-  uint32_t timeSinceLastStep_us;
-  uint32_t stepInterval_us;
-  float target_velocity;
-  float velocity;
+  float velocityTarget;
+  float velocityOld;
   float velocityActual;
   float interpolationTime;
   float totalTime;
 
+  uint32_t timeSinceLastStep_us;
+  
+  // the step currently being read by the ISR
+  uint8_t currentPlannerStep;
+  // two sets of step plans: one read by the ISR and one updated by the main thread.
+  uint32_t stepInterval_us[PLANNER_STEPS];
+  uint8_t stepDirection[PLANNER_STEPS];
+  
   
   StepperMotor() {
     stepsNow=0;
@@ -115,19 +126,23 @@ public:
     error_i=0;
     error_last=0;
     
+    stepsToRefresh=0;
+    
+    currentPlannerStep = 0;
     timeSinceLastStep_us=0;
-    stepInterval_us=0;
+    
+    stepInterval_us[0] = 0xFFFFFFFF;
+    stepDirection[0] = 0;
   }
 
-  void updateStepCount();
-  
   /**
    * Called byt the ISR to adjust the position of each stepper motor.
    * MUST NOT contain Serial.* commands
-   * @input dt microseconds since last update
-   * @input angleNow degrees
    */
-  void update(float dt,float angleNow);
+  void ISRStepNow();
+
+  // Called from the main loop to adjust the valocities
+  void updatePID(uint32_t measuredSteps);
   
   void setPID(float p,float i,float d) {
     kp=p;

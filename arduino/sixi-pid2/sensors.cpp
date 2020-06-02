@@ -89,8 +89,6 @@ void SensorManager::setup() {
   // the first few reads will return junk so we force a couple empties here.
   update();
   update();
-  
-  reportDelay=0;
 }
 
 
@@ -99,8 +97,6 @@ void SensorManager::setup() {
  */
 void SensorManager::update() {
   uint16_t rawValue;
-  int32_t steps[NUM_AXIES];
-  float sensorAngles[NUM_SENSORS];
   float v;
   
   for(ALL_SENSORS(i)) {
@@ -117,17 +113,7 @@ void SensorManager::update() {
     v -= sensors[i].angleHome;
     v = WRAP_DEGREES(v);
     //Serial.print("\tafter=");  Serial.println(v);
-    sensorAngles[i] = v;
     sensors[i].angle = v;
-  }
-
-  kinematics.anglesToSteps(sensorAngles, steps);
-
-  if(sensorReady == false) {
-    for(ALL_SENSORS(i)){
-      motors[i].stepsUpdated = steps[i];
-    }  
-    sensorReady = true;
   }
   
   if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
@@ -138,13 +124,6 @@ void SensorManager::update() {
   } else {
     if(!TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {
       SBI(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
-    }
-  }
-
-  if(REPORT_ANGLES_CONTINUOUSLY) {
-    if (millis() > reportDelay) {
-      reportDelay = millis() + 100;
-      parser.D17();
     }
   }
 }

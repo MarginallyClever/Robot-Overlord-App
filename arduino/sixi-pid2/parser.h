@@ -1,16 +1,16 @@
 #pragma once
 
 
-
 // state flags for the parser
-#define FLAG_RELATIVE      (0)  // relative moves
-#define FLAG_STRICT        (1)  // force CRC check on all commands
+#define FLAG_RELATIVE          (0)  // relative moves
+#define FLAG_STRICT            (1)  // force CRC check on all commands
 
-#define RELATIVE_MOVES     (TEST(parserFlags,FLAG_RELATIVE))
-#define IS_STRICT          (TEST(parserFlags,FLAG_STRICT))
+#define RELATIVE_MOVES         (TEST(parserFlags,FLAG_RELATIVE))
+#define IS_STRICT              (TEST(parserFlags,FLAG_STRICT))
 
-#define NEW_G0_SAFETY_TIMEOUT_S   0.2
-#define NEW_G0_SAFETY_TIMEOUT_MS   (NEW_G0_SAFETY_TIMEOUT_S*1000)
+#define G0_SAFETY_TIMEOUT_S    (1.0/30.0)  // 30 fps
+#define G0_SAFETY_TIMEOUT_MS   (G0_SAFETY_TIMEOUT_S*1000)
+
 
 class Parser {
 public:

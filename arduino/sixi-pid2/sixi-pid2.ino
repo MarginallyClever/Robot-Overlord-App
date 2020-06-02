@@ -7,20 +7,42 @@
 #include "configure.h"
 
 
-uint8_t debugFlags=BIT_FOR_FLAG(FLAG_ECHO);
-//uint8_t debugFlags=0;
+uint8_t debugFlags=0;//BIT_FOR_FLAG(FLAG_ECHO);
+uint32_t reportDelay;  // how long since last D17 sent out
 
 
 void reportAllMotors() {
-  int i=0;//for(ALL_MOTORS(i)) 
+  int i=0;
+  for(ALL_MOTORS(i)) 
   {
-    motors[i].report();/*
+    /*
+    motors[i].report();
     Serial.print("\tsensorHome=");
     Serial.println(sensorManager.sensors[i].angleHome);
     Serial.print("\tsensor=");
-    Serial.println(sensorManager.sensors[i].angle);//*/
+    Serial.println(sensorManager.sensors[i].angle);
+    //*/
+    //Serial.print(usPerTickISR);
+    //Serial.print('\t');
+    //Serial.print(motors[i].letter);
+    
+    Serial.print(motors[i].error);
+    
+    //Serial.print(motors[i].stepsTarget);
+    //Serial.print('/');
+    //Serial.print(motors[i].stepsNow);
+
+    //Serial.print(motors[i].angleTarget);
+    //Serial.print('/');
+    //Serial.print(sensorManager.sensors[i].angle);
+    
+    //Serial.print('\t');
+    //Serial.print(motors[i].velocityActual,2);
+    //Serial.print('\t');
+    //Serial.print(motors[i].stepInterval_us);
+    Serial.print('\t');
   }
-  //Serial.println();
+  Serial.println();
 }
 
 
@@ -31,6 +53,58 @@ void testPID() {
   Serial.println(motors[i].stepsNow);
 }
 
+void meanwhile() {
+  // stop moving if I haven't received instruction in a while.
+  if( millis() - parser.lastCmdTimeMs > G0_SAFETY_TIMEOUT_MS*2 ) {
+    // and since I'm confused, set all my targets to 0.
+    for( ALL_MOTORS(i) ) {
+      motors[i].velocityTarget = 0;
+      motors[i].error = 0;
+      motors[i].error_i = 0;
+    }
+  }
+
+  // update the velocities
+  float sensorAngles[NUM_SENSORS];
+  int32_t steps[NUM_MOTORS];
+  for(ALL_SENSORS(i)) {
+    sensorAngles[i] = sensorManager.sensors[i].angle;
+  }
+  kinematics.anglesToSteps(sensorAngles, steps);
+  
+  for( ALL_MOTORS(i) ) {
+    motors[i].updatePID(steps[i]);
+  }
+
+  // report what I'm doing.
+  if( REPORT_ANGLES_CONTINUOUSLY ) {
+    if( millis() > reportDelay ) {
+      reportDelay = millis() + 100;
+      //parser.D17();
+      reportAllMotors();
+    }
+  }
+
+  // The PC will wait forever for the ready signal.
+  // if Arduino hasn't received a new instruction in a while, send ready() again
+  // just in case USB garbled ready and each half is waiting on the other.
+  if( millis() - parser.lastCmdTimeMs > TIMEOUT_OK ) {
+#ifdef HAS_TMC2130
+    {
+      uint32_t drv_status = driver_0.DRV_STATUS();
+      uint32_t stallValue = (drv_status & SG_RESULT_bm) >> SG_RESULT_bp;
+      Serial.print(stallValue, DEC);
+      Serial.print('\t');
+    }
+    {
+      uint32_t drv_status = driver_1.DRV_STATUS();
+      uint32_t stallValue = (drv_status & SG_RESULT_bm) >> SG_RESULT_bp;
+      Serial.println(stallValue, DEC);
+    }
+#endif
+    parser.ready();
+  }
+}
 
 void setup() {
   parser.setup();
@@ -41,16 +115,18 @@ void setup() {
   // make sure the starting target is the starting position (no move)
   parser.D18();
 
-  motors[0].setPID(0,0,0);
-  motors[1].setPID(0,0,0);
-  motors[2].setPID(0,0,0);
-  motors[3].setPID(0,0,0);
-  motors[4].setPID(0,0,0);
-  motors[5].setPID(0,0,0);
+  motors[0].setPID(1,0.0,0);
+  motors[1].setPID(1,0.0,0);
+  motors[2].setPID(1,0.0,0);
+  motors[3].setPID(1,0.0,0);
+  motors[4].setPID(1,0.0,0);
+  motors[5].setPID(1,0.0,0);
 
-  reportAllMotors();
-  //clockISRProfile();
+  //reportAllMotors();
+  clockISRProfile();
 
+  reportDelay=0;
+  
   clockSetup();
 
   parser.ready();
@@ -60,5 +136,5 @@ void setup() {
 void loop() {
   parser.update();
   sensorManager.update();
-  //reportAllMotors();
+  meanwhile();
 }

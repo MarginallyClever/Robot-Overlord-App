@@ -14,8 +14,6 @@ StepperMotor motors[NUM_AXIES];
 Servo servos[NUM_SERVOS];
 #endif
 
-int stepsCount = 0;
-
 
 void StepperMotor::report() {
   //*
@@ -23,78 +21,82 @@ void StepperMotor::report() {
   //Serial.print("\tpid=");  Serial.print(kp);
   //Serial.print(", ");      Serial.print(ki);
   //Serial.print(", ");      Serial.print(kd);
-  Serial.print("\tangleTarget=");      Serial.print(angleTarget);
-  Serial.print("\tstepsTarget=");      Serial.print(stepsTarget);
-  Serial.print("\tstepsNow=");         Serial.print(stepsNow);
-  Serial.print("\terror=");            Serial.print(error);
-  //Serial.print("\tv=");                Serial.print(velocityActual);
-  Serial.print("\tv=");                Serial.print(target_velocity);
-  Serial.println();
+  //Serial.print("\tat");      Serial.print(angleTarget);
+  //Serial.print("\tst");      Serial.print(stepsTarget);
+  //Serial.print("\tsn");      Serial.print(stepsNow);
+  //Serial.print("\te");       Serial.print(error);
+  //Serial.print("\tv");
+  Serial.print(velocityActual);
+  //Serial.print("\tv");       Serial.print(velocityTarget);
+  //Serial.println();
   //*/
 }
 
 
-void StepperMotor::updateStepCount() {
-  //if( abs(stepsNow) - stepsCount != abs(stepsUpdated)) {
-    for(ALL_MOTORS(i)) {
-      stepsNow = stepsUpdated;
-      stepsCount = 0;
-    }
-  //}
-}
-
-
-// dt = us
-void StepperMotor::update(float dt_us,float angleNow) {
+void StepperMotor::updatePID(uint32_t measuredSteps) {
   // use a PID to control the motion.
 
   // P term
   error = stepsTarget - stepsNow;
-  //error = angleTarget - angleNow;
 
-  interpolationTime += dt_us/1000000.0;
+  interpolationTime += sPerTickISR;
   if( interpolationTime > totalTime ) interpolationTime = totalTime;
-  float vInterpolated = velocity;
+  float vInterpolated;
   if(totalTime>0) {
-    vInterpolated = velocity + ( target_velocity - velocity ) * interpolationTime / totalTime;
+    vInterpolated = velocityOld + ( velocityTarget - velocityOld ) * interpolationTime / totalTime;
   } else {
-    vInterpolated = target_velocity;
+    vInterpolated = velocityTarget;
   }
-    
+
   // i term
-  error_i += error * dt_us;
+  error_i += error * sPerTickISR;
   // d term
-  float error_d = (error - error_last) / dt_us;
+  //float error_d = (error - error_last) / sPerTickISR;
   // put it all together
-  float positionInfluence = kp * ( error + ki * error_i + kd * error_d );
-  velocityActual = vInterpolated + positionInfluence;
-
-  error_last = error;
-
-  if(abs(error) < 0.5) velocity = 0;
-
-  if(abs(velocityActual) < 1e-4) {
-    stepInterval_us = 0xFFFFFFFF;  // uint32_t max value
-    timeSinceLastStep_us=0;
-    return;
-  } else {
-    stepInterval_us = floor(1000000.0 / abs(velocityActual));
-  }
-
-  timeSinceLastStep_us += dt_us;
+  float positionInfluence = kp * ( error + ki * error_i );
+  //float positionInfluence = kp * ( error + ki * error_i + kd * error_d );
+  float newVel = vInterpolated + positionInfluence;
   
-  //CANT PRINT INSIDE ISR 
-  // print("("+error+","+velocity+")\t");
-  //stepsNow += velocity*dt;
-  if( timeSinceLastStep_us >= stepInterval_us ) {
-    stepsNow += velocity<0 ? -1 : 1;
-    stepsCount++;
-    if(!IS_DRYRUN) {
-      digitalWrite( dir_pin, velocity<0 ? HIGH : LOW );
+  error_last = error;
+    
+  // cap acceleration
+  float acc=newVel-velocityActual;
+  float maxA = 50;
+  if(fabs(acc)>maxA) {
+    float ratio = maxA/abs(acc);
+    acc*=ratio;
+  }
+  velocityActual += acc;
+
+  //if(abs(error) < 0.5) velocityActual = 0;
+
+  uint8_t next = NEXT_PLANNER_STEP(currentPlannerStep);
+  
+  stepsNow = measuredSteps;
+  
+  if(abs(velocityActual) == 0) {
+    stepInterval_us[next] = 0xFFFFFFFF;  // uint32_t max value
+    timeSinceLastStep_us=0;
+  } else {
+    stepInterval_us[next] = 1000000.0 / abs(velocityActual);
+    stepDirection[next] = velocityActual<0 ? -1:1;
+    digitalWrite( dir_pin, velocityActual<0 ? HIGH : LOW );
+  }
+}
+  
+// CAN'T PRINT INSIDE ISR 
+// dt = us
+void StepperMotor::ISRStepNow() {    
+  timeSinceLastStep_us += usPerTickISR;
+
+  if( timeSinceLastStep_us >= stepInterval_us[currentPlannerStep] ) {
+    //if(!IS_DRYRUN)
+    {
+      stepsNow += stepDirection[currentPlannerStep];
       digitalWrite( step_pin, HIGH );
       digitalWrite( step_pin, LOW  );
     }
-    timeSinceLastStep_us -=stepInterval_us;
+    timeSinceLastStep_us -= stepInterval_us[currentPlannerStep];
   }
 }
 

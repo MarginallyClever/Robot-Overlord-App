@@ -78,7 +78,8 @@ char Parser::checkLineNumberAndCRCisOK() {
   }
 
   if(found==-1) {
-    Serial.println("NOCHECKSUM");
+    Serial.print("NOCHECKSUM");
+    Serial.println(serialBuffer);
     return 0;
   }
   
@@ -107,20 +108,12 @@ char Parser::checkLineNumberAndCRCisOK() {
    prepares the input buffer to receive a new message and tells the serial connected device it is ready for more.
 */
 void Parser::ready() {
-  sofar = 0; // clear input buffer
   Serial.print(F("\r\n> "));  // signal ready to receive input
   lastCmdTimeMs = millis();
 }
 
 
 void Parser::update() {
-  if(millis() - lastCmdTimeMs > NEW_G0_SAFETY_TIMEOUT_MS) {
-    // and since I'm confused, set all my targets to 0.
-    for (ALL_MOTORS(i)) {
-      motors[i].target_velocity = 0;
-    }
-  }
-  
   // listen for serial commands
   if(Serial.available() > 0) {
     char c = Serial.read();
@@ -130,8 +123,7 @@ void Parser::update() {
       serialBuffer[sofar - 1] = 0;
 
       // echo confirmation
-      //if(MUST_ECHO) 
-      {
+      if(MUST_ECHO) {
         Serial.println(serialBuffer);
       }
 
@@ -471,54 +463,66 @@ void Parser::D50() {
 
 
 
-/**
-   G0/G1 linear moves
-*/
+// G0/G1 linear moves
 void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
-  Serial.println("G01");
 
+  //Serial.print(serialBuffer);
+  //Serial.print("TO");
   for (ALL_MOTORS(i)) {
-    float start = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
+    float startP = RELATIVE_MOVES ? 0 : motors[i].angleTarget;
+    float endP = motors[i].angleTarget - startP;
 
-    float parsed = (int32_t)floor(parseNumber( motors[i].letter, start ));
+    angles[i] = parseNumber( motors[i].letter, startP ) + endP;
 
-    angles[i] = RELATIVE_MOVES ? angles[i] + parsed : parsed;
+    //Serial.print(" ");
+    //Serial.print(angles[i]);
   }
+  //Serial.println();
 
   float velocity[NUM_MOTORS];
 
-  #define PARSE_GV(NN,CC)  velocity[CC] = parseNumber(NN,motors[CC].target_velocity);
+  #define PARSE_GV(NN,CC)  velocity[CC] = parseNumber(NN,motors[CC].velocityTarget);
   PARSE_GV('K',0);
   PARSE_GV('P',1);
   PARSE_GV('Q',2);
   PARSE_GV('R',3);
   PARSE_GV('S',4);
   PARSE_GV('T',5);
+  
+  uint8_t hasVel=0;
+  if(hasGCode('K')) {
+    hasVel=1;
+  }
+
+  //Serial.println("G01");
+  //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
+
+  for (ALL_MOTORS(i)) {
+    /*
+    Serial.println(motors[i].letter);
+    //Serial.print("\tangleTarget0=");        Serial.print(motors[i].angleTarget);
+    //Serial.print("\tstepsTarget0=");        Serial.print(motors[i].stepsTarget);
+    Serial.print("\ta=");        Serial.print(angles[i]);
+    //Serial.print("\tstepsTarget1=");        Serial.print(steps[i]);
+    //Serial.print("\tstepsNow=");        Serial.print(motors[i].stepsNow);
+    Serial.print("\tv=");        Serial.print(velocity[i]);
+    //*/
+    motors[i].angleTarget = angles[i];
+    if(hasVel==1) {
+      motors[i].velocityOld = motors[i].velocityTarget;
+      motors[i].velocityTarget = velocity[i];
+      motors[i].interpolationTime = 0;
+      motors[i].totalTime = G0_SAFETY_TIMEOUT_S;
+    }
+  }
 
   kinematics.anglesToSteps(angles, steps);
 
-  //Serial.println( RELATIVE_MOVES ? "REL" : "ABS" );
-
   CRITICAL_SECTION_START();
   for (ALL_MOTORS(i)) {
-    //*
-        Serial.println(motors[i].letter);
-        //Serial.print("\tangleTarget0=");        Serial.print(motors[i].angleTarget);
-        //Serial.print("\tstepsTarget0=");        Serial.print(motors[i].stepsTarget);
-        Serial.print("\ta=");        Serial.print(angles[i]);
-        //Serial.print("\tstepsTarget1=");        Serial.print(steps[i]);
-        //Serial.print("\tstepsNow=");        Serial.print(motors[i].stepsNow);
-        Serial.print("\tv=");        Serial.print(velocity[i]);
-        
-      //*/
-    motors[i].angleTarget = angles[i];
     motors[i].stepsTarget = steps[i];
-    motors[i].velocity = motors[i].target_velocity;
-    motors[i].target_velocity = velocity[i];
-    motors[i].interpolationTime = 0;
-    motors[i].totalTime = NEW_G0_SAFETY_TIMEOUT_S;
   }
   CRITICAL_SECTION_END();
 
