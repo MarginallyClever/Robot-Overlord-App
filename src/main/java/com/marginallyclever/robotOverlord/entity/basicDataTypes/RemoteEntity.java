@@ -98,8 +98,10 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	
 	public void openConnection() {
 		connection = NetworkConnectionManager.requestNewConnection(null);
-		connection.addListener(this);
-		waitingForCue = true;
+		if(connection!=null) {
+			connection.addListener(this);
+			waitingForCue = true;
+		}
 	}
 
 	@Override
@@ -171,8 +173,8 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 
 	public void reportDataReceived(String msg) {
-		if (msg.trim().isEmpty()) return;
-		if(msg.contains("D17")) return;
+		//if (msg.trim().isEmpty()) return;
+		//if(msg.contains("D17")) return;
 		
 		//Log.message("RemoteEntity RECV " + msg.trim());
 	}
