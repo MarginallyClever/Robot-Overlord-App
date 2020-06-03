@@ -5,7 +5,6 @@ import java.util.Observable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
@@ -13,7 +12,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model {
@@ -124,7 +122,7 @@ public class Sixi2Live extends Sixi2Model {
 			ny = oy*ratio;
 			nz = oz*ratio;
 		}
-		double nv = dv * ratio;
+		//double nv = dv * ratio;
 		//Log.message("dv="+dv+" nv="+nv);
 		cfdn[0]=nx;
 		cfdn[1]=ny;
@@ -220,7 +218,7 @@ public class Sixi2Live extends Sixi2Model {
 			if (o == PIDs[i]) {
 				Vector3d newValue = PIDs[i].get();
 				String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-				//sendCommandToRemoteEntity(message,true);
+				sendCommandToRemoteEntity(message,true);
 				return;
 			}
 		}
@@ -300,7 +298,7 @@ public class Sixi2Live extends Sixi2Model {
 					for (int i = 0; i < PIDs.length; ++i) {
 						Vector3d newValue = PIDs[i].get();
 						String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-						//sendCommandToRemoteEntity(message,true);
+						sendCommandToRemoteEntity(message,true);
 					}
 					remoteIsReadyForCommands = false;
 
