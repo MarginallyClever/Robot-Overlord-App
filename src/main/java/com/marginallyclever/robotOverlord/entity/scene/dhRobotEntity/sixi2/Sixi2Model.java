@@ -672,6 +672,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		homeKey.fkValues[4]=20;
 		homeKey.fkValues[5]=0;
 		setPoseFK(homeKey);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 
 	public void goRest() {
@@ -684,6 +685,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		restKey.fkValues[4]=20;
 		restKey.fkValues[5]=0;
 		setPoseFK(restKey);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 	
 	@Override
