@@ -5,7 +5,6 @@ import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix4d;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
@@ -83,28 +82,14 @@ public class Sixi2Sim extends Sixi2Model {
 		h.addObserver(new Observer() {
 			@Override
 			public void update(Observable arg0, Object arg1) {
-				DHKeyframe key = solver.createDHKeyframe();
-				key.fkValues[0]=0;
-				key.fkValues[1]=-90;
-				key.fkValues[2]=0;
-				key.fkValues[3]=0;
-				key.fkValues[4]=20;
-				key.fkValues[5]=0;
-				setPoseFK(key);
+				goHome();
 			}
 		});
 		ViewElement r = view.addButton("Go to rest position");
 		r.addObserver(new Observer() {
 			@Override
 			public void update(Observable arg0, Object arg1) {
-				DHKeyframe key = solver.createDHKeyframe();
-				key.fkValues[0]=0;
-				key.fkValues[1]=-170;
-				key.fkValues[2]=86;
-				key.fkValues[3]=0;
-				key.fkValues[4]=20;
-				key.fkValues[5]=0;
-				setPoseFK(key);
+				goRest();
 			}
 		});
 		view.popStack();
