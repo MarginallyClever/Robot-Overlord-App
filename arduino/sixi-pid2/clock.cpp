@@ -76,15 +76,16 @@ ISR(TIMER1_COMPA_vect) {
   ISRInternal();
 
   // do we need to adjust the clock timer?
-  uint32_t smallestStepInterval = 0xFFFF;  // max?
+  uint32_t smallestStepInterval = 0xFFFFFFFF;  // max
   for(ALL_MOTORS(i)) {
     uint8_t index = motors[i].currentPlannerStep;
     uint32_t s = motors[i].stepInterval_us[index];
-    if( smallestStepInterval > s ) {
+    if( smallestStepInterval > s && s!=0 ) {
       smallestStepInterval = s;
     }
   }
-  uint32_t hz = 1000000.0 / smallestStepInterval;  // frequency = (one second) / (smallest number of steps)
+  uint32_t hz = 1000000.0 / (float)smallestStepInterval;  // frequency = (one second) / (smallest number of steps)
+  hz = min(max(hz,1),500000);
   uint16_t newTime = calc_timer(hz,&stepMultiplierISR);
 
   // set the new time.

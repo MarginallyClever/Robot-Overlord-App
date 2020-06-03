@@ -46,8 +46,19 @@ FORCE_INLINE float WRAP_RADIANS(float n) {
   return n;
 }
 
+// wrap n within center-range/2...center+range/2
+FORCE_INLINE int32_t WRAP_LONG(int32_t n,int32_t range,int32_t center) {
+  n = n%range;
+  n += range;
+  n = n%range;
+  if(n>center) n-=range;
+  return n;
+}
+
 // use in for(ALL_AXIES(i)) { //i will be rising
 #define ALL_AXIES(NN)  int NN=0;NN<NUM_AXIES;++NN
 
 // use in for(ALL_MOTORS(i)) { //i will be rising
 #define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
+
+#define MACRO6(AA)  AA(0) AA(1) AA(2) AA(3) AA(4) AA(5)

@@ -83,9 +83,10 @@ public:
   uint8_t enable_pin;
 
   // only a whole number of steps is possible.
-  int32_t stepsNow;
   int32_t stepsTarget;
-  int16_t stepsToRefresh;
+
+  // the absolute maximum number of steps for this motor to turn the arm 180 degrees.
+  int32_t absMaxSteps;
   
   float angleTarget;
   
@@ -115,10 +116,10 @@ public:
   // two sets of step plans: one read by the ISR and one updated by the main thread.
   uint32_t stepInterval_us[PLANNER_STEPS];
   uint8_t stepDirection[PLANNER_STEPS];
+  int32_t stepsNow[PLANNER_STEPS];
   
   
   StepperMotor() {
-    stepsNow=0;
     stepsTarget=0;
     angleTarget=0;
 
@@ -126,13 +127,12 @@ public:
     error_i=0;
     error_last=0;
     
-    stepsToRefresh=0;
-    
     currentPlannerStep = 0;
     timeSinceLastStep_us=0;
     
     stepInterval_us[0] = 0xFFFFFFFF;
     stepDirection[0] = 0;
+    stepsNow[0] = 0;
   }
 
   /**
@@ -142,7 +142,7 @@ public:
   void ISRStepNow();
 
   // Called from the main loop to adjust the valocities
-  void updatePID(uint32_t measuredSteps);
+  void updatePID(int32_t measuredSteps);
   
   void setPID(float p,float i,float d) {
     kp=p;

@@ -432,8 +432,8 @@ void Parser::D18() {
 
   for (ALL_SENSORS(i)) {
     motors[i].angleTarget = angles[i];
-    motors[i].stepsNow    = steps[i];
     motors[i].stepsTarget = steps[i];
+    motors[i].stepsNow[motors[i].currentPlannerStep] = steps[i];
   }
 
   CRITICAL_SECTION_END();

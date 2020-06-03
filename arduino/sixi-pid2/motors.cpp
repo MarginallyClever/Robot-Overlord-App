@@ -33,12 +33,16 @@ void StepperMotor::report() {
 }
 
 
-void StepperMotor::updatePID(uint32_t measuredSteps) {
+void StepperMotor::updatePID(int32_t measuredSteps) {
   // use a PID to control the motion.
 
+  //Serial.print(stepsTarget);  Serial.print(' ');
+  //Serial.print(measuredSteps);  Serial.print(' ');
+  //Serial.println();
+  
   // P term
-  error = stepsTarget - stepsNow;
-
+  error = stepsTarget - measuredSteps;
+  
   interpolationTime += sPerTickISR;
   if( interpolationTime > totalTime ) interpolationTime = totalTime;
   float vInterpolated;
@@ -70,9 +74,16 @@ void StepperMotor::updatePID(uint32_t measuredSteps) {
 
   //if(abs(error) < 0.5) velocityActual = 0;
 
+  // stepInterval_us and stepDirection are used by the main loop and the ISR.
+  // if the main loop is writing to those values when the ISR fires, the write is interrupted and the value the ISR reads could be junk.
+  // my solution is to have two sets of values and a flag.  the main loop adjusts the flag after setting up the new values.
+  // it's a bit like a lock.
+
+  // get the next flag value
   uint8_t next = NEXT_PLANNER_STEP(currentPlannerStep);
-  
-  stepsNow = measuredSteps;
+
+  //
+  stepsNow[next] = measuredSteps;
   
   if(abs(velocityActual) == 0) {
     stepInterval_us[next] = 0xFFFFFFFF;  // uint32_t max value
@@ -82,6 +93,8 @@ void StepperMotor::updatePID(uint32_t measuredSteps) {
     stepDirection[next] = velocityActual<0 ? -1:1;
     digitalWrite( dir_pin, velocityActual<0 ? HIGH : LOW );
   }
+  // change the flag  
+  currentPlannerStep=next;
 }
   
 // CAN'T PRINT INSIDE ISR 
@@ -92,7 +105,7 @@ void StepperMotor::ISRStepNow() {
   if( timeSinceLastStep_us >= stepInterval_us[currentPlannerStep] ) {
     //if(!IS_DRYRUN)
     {
-      stepsNow += stepDirection[currentPlannerStep];
+      stepsNow[currentPlannerStep] += stepDirection[currentPlannerStep];
       digitalWrite( step_pin, HIGH );
       digitalWrite( step_pin, LOW  );
     }
@@ -102,10 +115,11 @@ void StepperMotor::ISRStepNow() {
 
 
 void MotorManager::setup() {
-#define SMP(LL,NN) { motors[NN].letter     = LL; \
-                     motors[NN].step_pin   = MOTOR_##NN##_STEP_PIN; \
-                     motors[NN].dir_pin    = MOTOR_##NN##_DIR_PIN; \
-                     motors[NN].enable_pin = MOTOR_##NN##_ENABLE_PIN; }
+#define SMP(LL,NN) { motors[NN].letter      = LL; \
+                     motors[NN].step_pin    = MOTOR_##NN##_STEP_PIN; \
+                     motors[NN].dir_pin     = MOTOR_##NN##_DIR_PIN; \
+                     motors[NN].enable_pin  = MOTOR_##NN##_ENABLE_PIN; \
+                     motors[NN].absMaxSteps = MOTOR_##NN##_STEPS_PER_TURN/2; }
   SMP('X',0)
   SMP('Y',1)
   SMP('Z',2)
