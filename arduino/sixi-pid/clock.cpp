@@ -88,6 +88,10 @@ ISR(TIMER1_COMPA_vect) {
   hz = min(max(hz,1),500000);
   uint16_t newTime = calc_timer(hz,&stepMultiplierISR);
 
+  uint32_t callsPerSecond = (TIMER_RATE / newTime);
+  usPerTickISR = 1000000.0f / (float)(callsPerSecond * stepMultiplierISR);
+  sPerTickISR = usPerTickISR*0.000001;
+    
   // set the new time.
   CRITICAL_SECTION_START();
   CLOCK_ADJUST(newTime);
