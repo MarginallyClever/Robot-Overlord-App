@@ -4,13 +4,26 @@ Kinematics kinematics;
 
 
 /**
-   Forward Kinematics - turns step counts into XY coordinates.
-   This code is a duplicate of https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/src/main/java/com/marginallyclever/robotOverlord/sixiRobot/java forwardKinematics()
-   @param steps a measure of each belt to that plotter position
-   @param angles the resulting cartesian coordinate
+   Forward Kinematics - turns joint angles into end effector cartesian coordinates.
+   @param jointAngles angles in degrees
+   @param cartesian cartesian coordinate
    @return 0 if no problem, 1 on failure.
 */
-int Kinematics::FK(uint32_t *steps, float *angles) {
+uint8_t Kinematics::FK(float *jointAngles,float *cartesian) {
+  // TODO fill me in!
+
+  return 0;
+}
+
+
+/**
+   Inverse Kinematics - turns end effector cartesian coordinates into joint angles.
+   Uses Gradient Descent to adjust jointAngles towards the desired cartesian pose.  like.... wiggling until the arm gets closer.
+   @param jointAngles angles in degrees.  
+   @param cartesian cartesian coordinate
+   @return 0 if no problem, 1 on failure.
+*/
+uint8_t Kinematics::IK(float *jointAngles,float *cartesian) {
   // TODO fill me in!
 
   return 0;

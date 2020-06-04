@@ -46,7 +46,8 @@
 
 class Kinematics {
 public:
-  int FK(uint32_t *steps, float *angles);
+  uint8_t FK(float *jointAngles,float *cartesian);
+  uint8_t IK(float *jointAngles,float *cartesian);
   void anglesToSteps(const float *const angles, int32_t *steps);
 };
 
