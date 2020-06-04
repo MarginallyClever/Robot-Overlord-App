@@ -187,8 +187,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		poseFKStart = new double[numAdjustableLinks];
 		poseFKNow = new double[numAdjustableLinks];
 
+		mLive.set(endEffector.getPoseWorld());
+		mTarget.set(mLive);
+		mFrom.set(mLive);
+		
 		jointVelocityDesired = new double [links.size()];
-
+		
 		int i=0;
 		for( DHLink link : links ) {
 			if(link.flags == LinkAdjust.NONE) continue;
@@ -488,7 +492,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * @param cartesianForce 6 doubles that will be filled with the XYZ translation and UVW rotation.
 	 * @return true if successful
 	 */
-	protected boolean getCartesianForceBetweenTwoPoses(Matrix4d mStart,Matrix4d mEnd,double dt,double[] cartesianForce) {
+	protected boolean getCartesianForceBetweenTwoPoses(final Matrix4d mStart,final Matrix4d mEnd,double dt,double[] cartesianForce) {
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
 		Vector3d dp = new Vector3d();

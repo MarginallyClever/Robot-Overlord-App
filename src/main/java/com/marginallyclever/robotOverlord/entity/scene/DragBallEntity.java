@@ -18,7 +18,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;

@@ -31,7 +31,8 @@ public class Sixi2Live extends Sixi2Model {
 	protected String lastCommand="";
 
 	// perceived cartesian force acting on the arm based on recent joint velocities + jacobian math
-	protected double[] cartesianForceDetected = {0,0,0,0,0,0};
+	protected double[] cartesianForceMeasured = {0,0,0,0,0,0};
+	double[] jointVelocityMeasured;
 	
 	protected Vector3dEntity[] PIDs = new Vector3dEntity[6];
 
@@ -54,10 +55,16 @@ public class Sixi2Live extends Sixi2Model {
 		// where to store incoming position data
 		receivedKeyframes = new DHKeyframe[3];
 		recievedKeyframeTimes = new long[receivedKeyframes.length];
+		
 		for(int i=0;i<receivedKeyframes.length;++i) {
 			receivedKeyframes[i] = getIKSolver().createDHKeyframe();
 		}
 		receivedKeyframeCount=0;
+		
+		jointVelocityMeasured = new double [links.size()];
+		for(int i=0;i<links.size();++i) {
+			jointVelocityMeasured[i]=0;
+		}
 		
 		waitingForOpenConnection = true;
 	}
@@ -90,11 +97,11 @@ public class Sixi2Live extends Sixi2Model {
 		double ratioFuture = (t+dt) / tTotal;
 		if(ratioFuture>1) ratioFuture=1;
 		
-		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
+		Matrix4d interpolatedMatrixNow = endEffector.getPoseWorld();
 		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
 		//Matrix4d interpolatedMatrixFuture = new Matrix4d();
 		//MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
-		Matrix4d interpolatedMatrixFuture = mTarget;
+		Matrix4d interpolatedMatrixFuture = new Matrix4d(mTarget);
 
 		// get cartesian force
 		double[] cfdn = {0,0,0,0,0,0};
@@ -261,9 +268,8 @@ public class Sixi2Live extends Sixi2Model {
 							int i1 = (int)((receivedKeyframeCount-1)%MAX_HISTORY);
 						
 							DHKeyframe key1 = receivedKeyframes[i1];
-							double [] jointVelocity = new double[key1.fkValues.length];
 
-							for( int i=0;i<cartesianForceDetected.length;++i ) cartesianForceDetected[i] = 0;
+							for( int i=0;i<cartesianForceMeasured.length;++i ) cartesianForceMeasured[i] = 0;
 							
 							// get the relative force
 							long t1 = recievedKeyframeTimes[i1];  // ms
@@ -271,10 +277,10 @@ public class Sixi2Live extends Sixi2Model {
 							
 							double dt = (t0-t1)*0.001;  // seconds
 							for( int i=0;i<key1.fkValues.length;++i ) {
-								jointVelocity[i] = (key0.fkValues[i]-key1.fkValues[i])*dt;
+								jointVelocityMeasured[i] = (key0.fkValues[i]-key1.fkValues[i])*dt;
 							}
 							
-							cartesianForceDetected = getCartesianForceFromJointVelocity(key0,jointVelocity);
+							cartesianForceMeasured = getCartesianForceFromJointVelocity(key0,jointVelocityMeasured);
 						}
 						
 						receivedKeyframeCount++;
@@ -317,33 +323,32 @@ public class Sixi2Live extends Sixi2Model {
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		gl2.glLineWidth(4);
 		
-		double scale=1;
+		double scale=10;
 
 		gl2.glPushMatrix();
 			Matrix4d m4 = endEffector.getPoseWorld();
 			gl2.glTranslated(m4.m03, m4.m13, m4.m23);
 
 			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3d(0, 0.6, 1);
+			gl2.glColor4d(1, 0, 0.6, 0.5);
 			gl2.glVertex3d(0,0,0);
 			gl2.glVertex3d(
-					cartesianForceDetected[0]*scale,
-					cartesianForceDetected[1]*scale,
-					cartesianForceDetected[2]*scale);
+					cartesianForceDesired[0],
+					cartesianForceDesired[1],
+					cartesianForceDesired[2]);
+			
+			gl2.glColor4d(0, 0.2, 1, 0.5);
+			gl2.glVertex3d(0,0,0);
+			gl2.glVertex3d(
+					cartesianForceMeasured[0]*scale,
+					cartesianForceMeasured[1]*scale,
+					cartesianForceMeasured[2]*scale);
+
 			gl2.glEnd();
 			
-			PrimitiveSolids.drawCircleYZ(gl2, cartesianForceDetected[3]*scale, 20);
-			PrimitiveSolids.drawCircleXZ(gl2, cartesianForceDetected[4]*scale, 20);
-			PrimitiveSolids.drawCircleXY(gl2, cartesianForceDetected[5]*scale, 20);
-
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3d(1, 0, 0.6);
-			gl2.glVertex3d(0,0,0);
-			gl2.glVertex3d(
-					cartesianForceDesired[0]*scale,
-					cartesianForceDesired[1]*scale,
-					cartesianForceDesired[2]*scale);
-			gl2.glEnd();
+			//PrimitiveSolids.drawCircleYZ(gl2, cartesianForceMeasured[3]*scale, 20);
+			//PrimitiveSolids.drawCircleXZ(gl2, cartesianForceMeasured[4]*scale, 20);
+			//PrimitiveSolids.drawCircleXY(gl2, cartesianForceMeasured[5]*scale, 20);
 			
 			//PrimitiveSolids.drawCircleYZ(gl2, cartesianForceDesired[3]*scale, 20);
 			//PrimitiveSolids.drawCircleXZ(gl2, cartesianForceDesired[4]*scale, 20);

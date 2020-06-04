@@ -169,14 +169,14 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	public void reportDataSent(String msg) {
 		//if(msg.contains("G0")) return;
 		
-		//Log.message("RemoteEntity SEND " + msg.trim());
+		Log.message("RemoteEntity SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
-		//if (msg.trim().isEmpty()) return;
-		//if(msg.contains("D17")) return;
+		if (msg.trim().isEmpty()) return;
+		if(msg.contains("D17")) return;
 		
-		//Log.message("RemoteEntity RECV " + msg.trim());
+		Log.message("RemoteEntity RECV " + msg.trim());
 	}
 	
 	@Override
