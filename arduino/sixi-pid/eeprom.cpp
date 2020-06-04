@@ -10,9 +10,12 @@
 uint32_t robot_uid;
 
 
+extern Eeprom eeprom;
+
+
 // from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1234477290/3
-uint32_t EEPROM_readLong(int ee) {
-  uint32_t value = 0;
+long Eeprom::readLong(int ee) {
+  long value = 0;
   byte* p = (byte*)(void*)&value;
   for (uint8_t i = 0; i < sizeof(value); i++)
   *p++ = EEPROM.read(ee++);
@@ -23,8 +26,8 @@ uint32_t EEPROM_readLong(int ee) {
 // 2020-01-31 Dan added check to not update EEPROM if value is unchanged.
 // from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1234477290/3
 // returns true if the value was changed.
-bool EEPROM_writeLong(int ee, uint32_t value) {
-  if(EEPROM_readLong(ee) == value) return false;
+bool Eeprom::writeLong(int ee, long value) {
+  if(readLong(ee) == value) return false;
   
   byte* p = (byte*)(void*)&value;
   for (uint8_t i = 0; i < sizeof(value); i++)
@@ -34,7 +37,7 @@ bool EEPROM_writeLong(int ee, uint32_t value) {
 }
 
 
-float EEPROM_readFloat(int ee) {
+float readFloat(int ee) {
   float value = 0;
   byte* p = (byte*)(void*)&value;
   for (uint8_t i = 0; i < sizeof(value); i++)
@@ -44,8 +47,8 @@ float EEPROM_readFloat(int ee) {
 
 
 // returns true if the value was changed.
-bool EEPROM_writeFloat(int ee, float value) {
-  if(EEPROM_readFloat(ee) == value) return false;
+bool writeFloat(int ee, float value) {
+  if(readFloat(ee) == value) return false;
   
   byte* p = (byte*)(void*)&value;
   for (uint8_t i = 0; i < sizeof(value); i++)
@@ -55,36 +58,36 @@ bool EEPROM_writeFloat(int ee, float value) {
 }
 
 
-char eepromLoadVersion() {
+uint8_t Eeprom::loadVersion() {
   return EEPROM.read(ADDR_VERSION);
 }
 
-void eepromSaveUID() {
+void Eeprom::saveUID() {
   Serial.println(F("Saving UID."));
-  EEPROM_writeLong(ADDR_UUID,(uint32_t)robot_uid);
+  writeLong(ADDR_UUID,(uint32_t)robot_uid);
 }
 
-char eepromLoadUID() {
+uint8_t Eeprom::loadUID() {
   return EEPROM.read(ADDR_VERSION);
 }
 
-void eepromSaveLimits() {
+void Eeprom::saveLimits() {
   Serial.println(F("Saving limits."));
   int j=ADDR_LIMITS;
-  for(ALL_MOTORS(i)) {
-    EEPROM_writeFloat(j,motors[i].limitMax);
+  for(ALL_AXIES(i)) {
+    writeFloat(j,motors[i].limitMax);
     j+=4;
-    EEPROM_writeFloat(j,motors[i].limitMin);
+    writeFloat(j,motors[i].limitMin);
     j+=4;
   }
 }
 
-void eepromLoadLimits() {
+void Eeprom::loadLimits() {
   int j=ADDR_LIMITS;
-  for(ALL_MOTORS(i)) {
-    motors[i].limitMax = (float)EEPROM_readFloat(j);
+  for(ALL_AXIES(i)) {
+    motors[i].limitMax = (float)readFloat(j);
     j+=4;
-    motors[i].limitMin = (float)EEPROM_readFloat(j);
+    motors[i].limitMin = (float)readFloat(j);
     j+=4;
     //Serial.print("Axis ");
     //Serial.print(i);
@@ -99,12 +102,12 @@ void eepromLoadLimits() {
 /**
  * @param limits NUM_MOTORS*2 floats.  Each pair is one float for max limit and one for min limit.
  */
-void eepromAdjustLimits(float *limits) {
+void Eeprom::adjustLimits(float *limits) {
   Serial.println(F("Adjusting limits."));
   int j=0;
   int changed=0;
   float v;
-  for(ALL_MOTORS(i)) {
+  for(ALL_AXIES(i)) {
     // max test
     v = floor(limits[j]*100.0f)/100.0f;
     if(v != motors[i].limitMax) {
@@ -122,47 +125,48 @@ void eepromAdjustLimits(float *limits) {
   }
 
   if( changed != 0 ) {
-    eepromSaveLimits();
+    saveLimits();
   }
 }
 
-void eepromSaveHome() {
+void Eeprom::saveHome() {
   Serial.print(F("Saving home:"));
   int j=ADDR_HOME;
-  for(ALL_MOTORS(i)) {
-    EEPROM_writeFloat(j,motors[i].angleHome);
+  // this loop must not be more than NUM_AXIES
+  for(ALL_SENSORS(i)) {
+    writeLong(j,sensorManager.sensors[i].angleHome*100.0f);
     j+=4;
 
     Serial.print(' ');
     Serial.print(motors[i].letter);
-    Serial.print(motors[i].angleHome);
+    Serial.print(sensorManager.sensors[i].angleHome);
   }
   Serial.println();
 }
 
-void eepromLoadHome() {
-  Serial.print(F("Loading home:"));
+void Eeprom::loadHome() {
+  //Serial.print(F("Loading home:"));
   int j=ADDR_HOME;
-  for(ALL_MOTORS(i)) {
-    motors[i].angleHome = EEPROM_readFloat(j);
-    Serial.print(' ');
-    Serial.print(motors[i].letter);
-    Serial.print(motors[i].angleHome);
-    
+  // this loop must not be more than NUM_AXIES
+  for(ALL_SENSORS(i)) {
+    sensorManager.sensors[i].angleHome = (float)readLong(j)/100.0f;
+    //Serial.print(' ');
+    //Serial.print(motors[i].letter);
+    //Serial.print(motors[i].angleHome);
     j+=4;
   }
-  Serial.println();
+  //Serial.println();
 }
 
-void eepromSaveAll() {
-  eepromSaveUID();
-  eepromSaveLimits();
-  eepromSaveHome();
+void Eeprom::saveAll() {
+  saveUID();
+  saveLimits();
+  saveHome();
 }
 
 
-void eepromLoadAll() {
-  char versionNumber = eepromLoadVersion();
+void Eeprom::loadAll() {
+  char versionNumber = loadVersion();
   if( versionNumber != FIRMWARE_VERSION ) {
     // If not the current FIRMWARE_VERSION or the FIRMWARE_VERSION is sullied (i.e. unknown data)
     // Update the version number
@@ -170,33 +174,29 @@ void eepromLoadAll() {
   }
   
   // Retrieve stored configuration
-  robot_uid=EEPROM_readLong(ADDR_UUID);
-  eepromLoadLimits();
-  eepromLoadHome();
-  eepromLoadPID();
+  robot_uid=readLong(ADDR_UUID);
+  loadLimits();
+  loadHome();
+  loadPID();
 }
 
 
-void eepromSavePID() {
+void Eeprom::savePID() {
   int j=ADDR_PID;
   
   for(ALL_MOTORS(i)) {
-    EEPROM_writeFloat(j,motors[i].kp);
-    j+=4;
-    EEPROM_writeFloat(j,motors[i].ki);
-    j+=4;
-    EEPROM_writeFloat(j,motors[i].kd);
-    j+=4;
+    writeFloat(j,motors[i].kp);    j+=4;
+    writeFloat(j,motors[i].ki);    j+=4;
+    writeFloat(j,motors[i].kd);    j+=4;
   }
 }
 
-void eepromLoadPID() {
+void Eeprom::loadPID() {
   int j=ADDR_PID;
   for(ALL_MOTORS(i)) {
 
-    motors[i].kp = EEPROM_readFloat(j);
-    motors[i].ki = EEPROM_readFloat(j+4);
-    motors[i].kd = EEPROM_readFloat(j+8);
-    j+=12;
+    motors[i].kp = readFloat(j);    j+=4;
+    motors[i].ki = readFloat(j);    j+=4;
+    motors[i].kd = readFloat(j);    j+=4;
   }
 }

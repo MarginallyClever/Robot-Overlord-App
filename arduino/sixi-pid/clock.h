@@ -13,25 +13,27 @@
 
 // 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
-#define CLOCK_MAX_ISR_FREQUENCY (200000L)// was 240000L
+#define CLOCK_MAX_ISR_FREQUENCY 750000L //(200000L)
 #define CLOCK_MIN_ISR_FREQUENCY (CLOCK_FREQ/500000U)
 
 #define TIMEOUT_OK (1000)
 
 #ifndef MIN_SEGMENT_TIME_US
-#define MIN_SEGMENT_TIME_US  (1000000.0/CLOCK_MAX_ISR_FREQUENCY)  // actual minimum on mega? 5000.
+#define MIN_SEGMENT_TIME_US   (1000000.0/CLOCK_MAX_ISR_FREQUENCY)  // actual minimum on mega? 5000.
 #endif
 
 #ifndef MAX_OCR1A_VALUE
-#define MAX_OCR1A_VALUE (0xFFFF)
+#define MAX_OCR1A_VALUE       (0xFFFF)
 #endif
 
-#define CLOCK_ADJUST(x)  {  OCR1A = (x);  }  // microseconds
+#define CLOCK_ADJUST(x)       {  OCR1A = (x);  }  // microseconds
 
 
 
 extern uint8_t _sreg;
 extern uint8_t isr_step_multiplier;
+extern uint16_t usPerTickISR;
+extern float sPerTickISR;
 
 
 FORCE_INLINE void CRITICAL_SECTION_START() {
@@ -41,7 +43,6 @@ FORCE_INLINE void CRITICAL_SECTION_START() {
 FORCE_INLINE void CRITICAL_SECTION_END() {
   SREG = _sreg;
 }
-
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -137,11 +138,10 @@ FORCE_INLINE uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2) {
 
 
 /**
-   Set the clock 2 timer frequency.
-   @input desired_freq_hz the desired frequency
-   Different clock sources can be selected for each timer independently.
-   To calculate the timer frequency (for example 2Hz using timer1) you will need:
-*/
+ * Find the timer frequency.
+ * @input desired_freq_hz the desired frequency
+ * @input loops a value to be set with the number of repetitions inside each clock pulse.
+ */
 static FORCE_INLINE unsigned short calc_timer(uint32_t desired_freq_hz, uint8_t*loops) {
   uint32_t timer;
   uint8_t step_multiplier = 1;

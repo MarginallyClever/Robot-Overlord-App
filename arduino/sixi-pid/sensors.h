@@ -9,17 +9,12 @@
 // use in for(ALL_SENSORS(i)) { //i will be rising
 #define ALL_SENSORS(NN) int NN=0;NN<NUM_SENSORS;++NN
 
-#define SENSOR_CSEL   0
-#define SENSOR_CLK    1
-#define SENSOR_MOSI   2
-#define SENSOR_MISO   3
-
 // sensor bits, flags, and masks
 #define BOTTOM_14_MASK       (0x3FFF)
 #define SENSOR_TOTAL_BITS    (16)
 #define SENSOR_DATA_BITS     (15)
 #define SENSOR_ANGLE_BITS    (14)
-#define SENSOR_ANGLE_PER_BIT (360.0/(float)((uint32_t)1<<SENSOR_ANGLE_BITS))  // 0.00549316406
+#define SENSOR_ANGLE_PER_BIT (360.0/(float)((uint32_t)1<<SENSOR_ANGLE_BITS))  // 0.02197265625
 
 // behaviour flags
 #define POSITION_ERROR_FLAG_CONTINUOUS   (0)  // report position (d17) continuously?
@@ -29,13 +24,17 @@
 
 #define REPORT_ANGLES_CONTINUOUSLY (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS))
 
+
 class SensorAS5147 {
 public:
-  uint8_t pins[4];
+  uint8_t pin_CSEL;
+  uint8_t pin_CLK;
+  uint8_t pin_MISO;
+  uint8_t pin_MOSI;
   float angle; // current reading after adjustment
   float angleHome;  // sensor raw angle value at home position.  reading - this = 0.
 
-  void setup();
+  void start();
   
   /**
    * See https://ams.com/documents/20143/36005/AS5147_DS000307_2-00.pdf
@@ -48,9 +47,8 @@ public:
 
 class SensorManager {
 public:
+  SensorAS5147 sensors[NUM_SENSORS];
   uint8_t positionErrorFlags;
-  bool sensorReady;
-  uint32_t reportDelay;  // how long since last D17 sent out
 
   void setup();
   
@@ -67,5 +65,4 @@ public:
 };
 
 
-extern SensorAS5147 sensors[NUM_SENSORS];
 extern SensorManager sensorManager;

@@ -4,8 +4,9 @@
 #error "NUM_MOTORS undefined"
 #endif
 
-// use in for(ALL_MOTORS(i)) { //i will be rising
-#define ALL_MOTORS(NN) int NN=0;NN<NUM_MOTORS;++NN
+#ifndef NUM_AXIES
+#error "NUM_AXIES undefined"
+#endif
 
 // Motor and gearbox ratios
 
@@ -65,6 +66,11 @@
 #define END5 LOW
 
 
+#define PLANNER_STEPS         2  // must be power of 2.
+#define NEXT_PLANNER_STEP(x)  ((x+1) & PLANNER_STEPS)
+#define PREV_PLANNER_STEP(x)  ((x+PLANNER_STEPS-1) & PLANNER_STEPS)
+
+
 #include "MServo.h"
 
 
@@ -77,12 +83,12 @@ public:
   uint8_t enable_pin;
 
   // only a whole number of steps is possible.
-  int32_t stepsUpdated;
-  int32_t stepsNow;
   int32_t stepsTarget;
+
+  // the absolute maximum number of steps for this motor to turn the arm 180 degrees.
+  int32_t absMaxSteps;
   
   float angleTarget;
-  float angleHome;
   
   float limitMax;
   float limitMin;
@@ -97,32 +103,46 @@ public:
   float error_i;
   float error_last;
   
-  uint32_t timeSinceLastStep_us;
-  uint32_t stepInterval_us;
-  float velocity;
+  float velocityTarget;
+  float velocityOld;
+  float velocityActual;
+  float interpolationTime;
+  float totalTime;
 
+  uint32_t timeSinceLastStep_us;
+  
+  // the step currently being read by the ISR
+  uint8_t currentPlannerStep;
+  // two sets of step plans: one read by the ISR and one updated by the main thread.
+  uint32_t stepInterval_us[PLANNER_STEPS];
+  uint8_t stepDirection[PLANNER_STEPS];
+  int32_t stepsNow[PLANNER_STEPS];
+  
   
   StepperMotor() {
-    stepsNow=0;
     stepsTarget=0;
     angleTarget=0;
-    angleHome=0;
 
     error=0;
     error_i=0;
     error_last=0;
     
+    currentPlannerStep = 0;
     timeSinceLastStep_us=0;
-    stepInterval_us=0;
+    
+    stepInterval_us[0] = 0xFFFFFFFF;
+    stepDirection[0] = 0;
+    stepsNow[0] = 0;
   }
 
   /**
    * Called byt the ISR to adjust the position of each stepper motor.
    * MUST NOT contain Serial.* commands
-   * @input dt microseconds since last update
-   * @input angleNow degrees
    */
-  void update(float dt,float angleNow);
+  void ISRStepNow();
+
+  // Called from the main loop to adjust the valocities
+  void updatePID(int32_t measuredSteps);
   
   void setPID(float p,float i,float d) {
     kp=p;
@@ -130,14 +150,7 @@ public:
     kd=d;
   }
 
-  void report() {
-    Serial.println(letter);
-    Serial.print("\tstepsTarget=");      Serial.println(stepsTarget);
-    Serial.print("\tstepsNow=");         Serial.println(stepsNow);
-    Serial.print("\terror=");            Serial.println(error);
-    Serial.print("\tangleHome=");        Serial.println(angleHome);
-    Serial.print("\tangleTarget=");      Serial.println(angleTarget);
-  }
+  void report();
 };
 
 
@@ -149,7 +162,7 @@ public:
 };
 
 
-extern StepperMotor motors[NUM_MOTORS];
+extern StepperMotor motors[NUM_AXIES];
 extern MotorManager motorManager;
 
 #if NUM_SERVOS>0

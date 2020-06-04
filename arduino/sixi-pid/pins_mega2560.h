@@ -2,8 +2,11 @@
 
 #if MOTHERBOARD == BOARD_MEGA2560
 
+#define SIXI_UNIT1  // uncomment this for the very first sixi machine.
+
 #define NUM_MOTORS                (6)
 #define NUM_SERVOS                (1)
+#define NUM_AXIES                 (NUM_MOTORS+NUM_SERVOS)
 #define NUM_SENSORS               (6)
 
 // MOTOR PINS
@@ -58,7 +61,8 @@
 #define PIN_SENSOR_MOSI_3   19
 #define PIN_SENSOR_MISO_3   18
 
-#ifdef UNIT1
+#ifdef SIXI_UNIT1
+
 #define PIN_SENSOR_CSEL_4   29
 #define  PIN_SENSOR_CLK_4   27
 #define PIN_SENSOR_MOSI_4   25
@@ -69,7 +73,8 @@
 #define PIN_SENSOR_MOSI_5   26
 #define PIN_SENSOR_MISO_5   28
 
-#else  // UNIT1
+#else  // not SIXI_UNIT1
+
 #define PIN_SENSOR_CSEL_4   22
 #define  PIN_SENSOR_CLK_4   24
 #define PIN_SENSOR_MOSI_4   26
@@ -80,6 +85,6 @@
 #define PIN_SENSOR_MOSI_5   25
 #define PIN_SENSOR_MISO_5   23
 
-#endif  // UNIT1
+#endif  // SIXI_UNIT1
 
 #endif
