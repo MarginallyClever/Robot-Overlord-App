@@ -71,7 +71,11 @@ void SensorManager::setup() {
 
 // SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
 #define SSP(label,NN,JJ)    sensors[NN].pin_##label = PIN_SENSOR_##label##_##NN;
-#define SSP2(NN)            if(NUM_SENSORS>NN) {  SSP(CSEL,NN,0)  SSP(CLK,NN,1)  SSP(MISO,NN,2)  SSP(MOSI,NN,3)  }
+#define SSP2(NN)            if(NUM_SENSORS>NN) { \
+                              SSP(CSEL,NN,0); \
+                              SSP(CLK,NN,1); \
+                              SSP(MISO,NN,2); \
+                              SSP(MOSI,NN,3); }
   SSP2(0)
   SSP2(1)
   SSP2(2)
@@ -114,16 +118,25 @@ void SensorManager::update() {
     v = WRAP_DEGREES(v);
     //Serial.print("\tafter=");  Serial.println(v);
     sensors[i].angle = v;
-  }
-  
-  if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
-    if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {
-      Serial.println(F("\n\n** POSITION ERROR **\n"));
-      CBI(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
-    }
-  } else {
-    if(!TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)) {
-      SBI(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
+
+    // if limit testing is on and no problem at the moment
+    if(!TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_NOLIMIT) && 
+       !TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
+      
+      if(v>motors[i].limitMax) {
+        // and the max limit is passed, barf
+        SET_BIT_ON(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR);
+        DISABLE_ISR;
+        Serial.print(motors[i].letter);
+        Serial.println(F(" MAX LIMIT"));
+      }
+      if(v<motors[i].limitMin) {
+        // and the min limit is passed, barf
+        SET_BIT_ON(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR);
+        DISABLE_ISR;
+        Serial.print(motors[i].letter);
+        Serial.println(F(" MIN LIMIT"));
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
 
 #if MOTHERBOARD == BOARD_MEGA2560
 
-#define SIXI_UNIT1  // uncomment this for the very first sixi machine.
+//#define SIXI_UNIT1  // uncomment this for the very first sixi machine.
 
 #define NUM_MOTORS                (6)
 #define NUM_SERVOS                (1)

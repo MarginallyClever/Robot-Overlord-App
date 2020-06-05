@@ -8,10 +8,7 @@
 #define CLOCK_FREQ            (16000000L)
 
 #define MAX_COUNTER           (65536L)  // 16 bits
-
 #define TIMER_RATE            ((CLOCK_FREQ)/8)  // 8 is for 8x prescale multiplier
-
-// 1.8deg stepper, 1/1 microstepping -> 50 deg/s = ~27.7 steps/s
 
 #define CLOCK_MAX_ISR_FREQUENCY 750000L //(200000L)
 #define CLOCK_MIN_ISR_FREQUENCY (CLOCK_FREQ/500000U)
@@ -28,6 +25,8 @@
 
 #define CLOCK_ADJUST(x)       {  OCR1A = (x);  }  // microseconds
 
+#define ENABLE_ISR            SET_BIT_ON( TIMSK1, OCIE1A )
+#define DISABLE_ISR           SET_BIT_OFF( TIMSK1, OCIE1A )
 
 
 extern uint8_t _sreg;

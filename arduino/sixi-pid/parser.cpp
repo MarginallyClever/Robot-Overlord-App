@@ -468,6 +468,21 @@ void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
 
+  // if limit testing is on
+  if(!TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_NOLIMIT)) {
+    // and a limit is exceeeded
+    if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
+      // refuse to move
+      Serial.println(F("LIMIT ERROR"));
+      return;
+    }
+  }
+      
+  if(hasGCode('A')) {
+    motorManager.acceleration = parseNumber('A',motorManager.acceleration);
+    motorManager.acceleration = max(min(motorManager.acceleration,MAX_ACCELERATION),0.1);
+  }
+  
   //Serial.print(serialBuffer);
   //Serial.print("TO");
   for (ALL_MOTORS(i)) {
@@ -536,6 +551,9 @@ void Parser::G01() {
     servos[0].write(floor(ending));
   }
 #endif
+
+  // in case it was disabled by limit error or e-stop
+  ENABLE_ISR;
 }
 
 void Parser::G28() {

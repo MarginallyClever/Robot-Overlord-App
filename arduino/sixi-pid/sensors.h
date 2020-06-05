@@ -21,6 +21,7 @@
 #define POSITION_ERROR_FLAG_ERROR        (1)  // has error occurred?
 #define POSITION_ERROR_FLAG_FIRSTERROR   (2)  // report the error once per occurrence
 #define POSITION_ERROR_FLAG_ESTOP        (3)  // check for error at all?
+#define POSITION_ERROR_FLAG_NOLIMIT      (4)  // disable limit error checking (normally only used to drive the robot back inside limits)
 
 #define REPORT_ANGLES_CONTINUOUSLY (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS))
 
@@ -31,8 +32,11 @@ public:
   uint8_t pin_CLK;
   uint8_t pin_MISO;
   uint8_t pin_MOSI;
+  
   float angle; // current reading after adjustment
   float angleHome;  // sensor raw angle value at home position.  reading - this = 0.
+  float limitMax;
+  float limitMin;
 
   void start();
   

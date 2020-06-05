@@ -45,6 +45,7 @@ void StepperMotor::updatePID(int32_t measuredSteps) {
   
   interpolationTime += sPerTickISR;
   if( interpolationTime > totalTime ) interpolationTime = totalTime;
+  
   float vInterpolated;
   if(totalTime>0) {
     vInterpolated = velocityOld + ( velocityTarget - velocityOld ) * interpolationTime / totalTime;
@@ -65,7 +66,7 @@ void StepperMotor::updatePID(int32_t measuredSteps) {
     
   // cap acceleration
   float acc=newVel-velocityActual;
-  float maxA = 50;
+  float maxA = motorManager.acceleration;
   if(fabs(acc)>maxA) {
     float ratio = maxA/abs(acc);
     acc*=ratio;
@@ -119,7 +120,9 @@ void MotorManager::setup() {
                      motors[NN].step_pin    = MOTOR_##NN##_STEP_PIN; \
                      motors[NN].dir_pin     = MOTOR_##NN##_DIR_PIN; \
                      motors[NN].enable_pin  = MOTOR_##NN##_ENABLE_PIN; \
-                     motors[NN].absMaxSteps = MOTOR_##NN##_STEPS_PER_TURN/2; }
+                     motors[NN].absMaxSteps = MOTOR_##NN##_STEPS_PER_TURN/2; \
+                     motors[NN].limitMax    = DH_##NN##_MAX; \
+                     motors[NN].limitMin    = DH_##NN##_MIN; }
   SMP('X',0)
   SMP('Y',1)
   SMP('Z',2)
@@ -139,4 +142,6 @@ void MotorManager::setup() {
 #if NUM_SERVOS>0
   servos[0].attach(SERVO0_PIN);
 #endif
+
+  acceleration = DEFAULT_ACCELERATION;
 }

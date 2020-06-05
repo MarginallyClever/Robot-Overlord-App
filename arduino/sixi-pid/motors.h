@@ -70,6 +70,8 @@
 #define NEXT_PLANNER_STEP(x)  ((x+1) & PLANNER_STEPS)
 #define PREV_PLANNER_STEP(x)  ((x+PLANNER_STEPS-1) & PLANNER_STEPS)
 
+#define DEFAULT_ACCELERATION  15
+#define MAX_ACCELERATION      50
 
 #include "MServo.h"
 
@@ -156,6 +158,8 @@ public:
 
 class MotorManager {
 public:
+  float acceleration;
+  
   void setup();
   void enableAll();
   void disableAll();
