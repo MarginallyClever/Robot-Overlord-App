@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 
 import com.marginallyclever.robotOverlord.log.Log;
 
+
 public class TranslatorLanguage {
 	private String name = "";
 	private String author = "";
@@ -23,8 +24,7 @@ public class TranslatorLanguage {
 
 
 	/**
-	 * Load an XML file which contains key/value pairs for a given translation.
-	 * @param language_file the source file
+	 * @param language_file
 	 */
 	public void loadFromString(String language_file) {
 		final DocumentBuilder db = getDocumentBuilder();
@@ -46,20 +46,19 @@ public class TranslatorLanguage {
 	}
 
 	/**
-	 * @param stream XML source of the translated strings
+	 * @param inputStream
 	 */
-	public void loadFromInputStream(InputStream stream) {
+	public void loadFromInputStream(InputStream inputStream) {
 		final DocumentBuilder db = getDocumentBuilder();
 		if (db == null) {
 			return;
 		}
-		Document dom = null;
 		try {
-			dom = db.parse(stream);
+			Document dom = db.parse(inputStream);
+			load(dom);
 		} catch (SAXException | IOException e) {
 			Log.error( e.getMessage() );
 		}
-		load(dom);
 	}
 
 	private void load(Document dom) {
@@ -103,7 +102,7 @@ public class TranslatorLanguage {
 
 	public String get(String key) {
 		String x = strings.get(key);
-		if (x == null) x = key;
+		if (x == null) x = "Missing:"+key;
 		return x;
 	}
 
