@@ -47,6 +47,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
@@ -291,17 +292,22 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	            Log.message("build OpenGL 3D view");
 	        	{
     	            Log.message("...get default caps");
-	        		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-    	            Log.message("...set caps");
-	        		caps.setBackgroundOpaque(true);
-	        		caps.setDoubleBuffered(true);
-	        		caps.setHardwareAccelerated(true);
-	        		//FSAA
-		            caps.setSampleBuffers(true);
-		            caps.setNumSamples(3);
-    	            Log.message("...create panel");
-		            glCanvas = new GLJPanel(caps);
-			            
+    	        
+    	            try {
+		        		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+	    	            Log.message("...set caps");
+		        		caps.setBackgroundOpaque(true);
+		        		caps.setDoubleBuffered(true);
+		        		caps.setHardwareAccelerated(true);
+		        		//FSAA
+			            caps.setSampleBuffers(true);
+			            caps.setNumSamples(3);
+	    	            Log.message("...create panel");
+			            glCanvas = new GLJPanel(caps);
+		        	} catch(GLException e) {
+		        		Log.error("Failed the first call to OpenGL.  Are your native drivers missing?");
+		        	}
+	        	
 		            Log.message("...add listeners");
 		            glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
 		            glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
