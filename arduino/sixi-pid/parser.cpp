@@ -187,11 +187,9 @@ void Parser::processCommand() {
         break;
       case 17:  D17();  break;
       case 18:  D18();  break;
-      case 19:  FLIP_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);  break;
-      case 20:  SET_BIT_OFF(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR);
-                SET_BIT_OFF(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR);
-                break;
-      case 21:  FLIP_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ESTOP);  break;  // toggle ESTOP
+      case 19:  D19();  break;
+      case 20:  D20();  break;
+      case 21:  D21();  break;
       case 22:  D22();  break;
       case 50:  D50();  break;
       default:  break;
@@ -286,8 +284,8 @@ void Parser::M114() {
 void Parser::M206() {
   // cancel the current home offsets
   for (ALL_MOTORS(i)) {
-    float angleHome = parseNumber( motors[i].letter, sensorManager.sensors[i].angleHome );
-    sensorManager.sensors[i].angleHome = max(min(angleHome, 360), -360);
+    float angleHome = parseNumber( motors[i].letter, sensorManager.sensors[i].angleHomeRaw );
+    sensorManager.sensors[i].angleHomeRaw = max(min(angleHome, 360), -360);
   }
 }
 
@@ -330,7 +328,7 @@ void Parser::M428() {
 
   // apply the new offsets
   for (ALL_SENSORS(i)) {
-    sensorManager.sensors[i].angleHome = sensorManager.sensors[i].angle;
+    sensorManager.sensors[i].angleHomeRaw = sensorManager.sensors[i].angle;
   }
   D18();
 }
@@ -350,7 +348,7 @@ void Parser::M501() {
 
 // M502 - reset the home offsets
 void Parser::M502() {
-#define SHP(NN)  if(NUM_SENSORS>NN) sensorManager.sensors[NN].angleHome = DH_##NN##_THETA;
+#define SHP(NN)  if(NUM_SENSORS>NN) sensorManager.sensors[NN].angleHomeRaw = DH_##NN##_THETA;
   SHP(0)
   SHP(1)
   SHP(2)
@@ -368,7 +366,7 @@ void Parser::M503() {
   for (ALL_MOTORS(i)) {
     Serial.print(' ');
     Serial.print(motors[i].letter);
-    Serial.print(sensorManager.sensors[i].angleHome);
+    Serial.print(sensorManager.sensors[i].angleHomeRaw);
   }
   Serial.println();
 }
@@ -389,7 +387,7 @@ void Parser::D17() {
   for (ALL_SENSORS(i)) {
     Serial.print('\t');
     // 360/(2^14) aka 0.02197265625deg is the minimum sensor resolution.  as such more than 3 decimal places is useless.
-    Serial.print(WRAP_DEGREES(sensorManager.sensors[i].angle), 3);
+    Serial.print(sensorManager.sensors[i].angle, 3);
   }
 
 #if NUM_SERVOS > 0
@@ -400,7 +398,6 @@ void Parser::D17() {
   Serial.print('\t');
   //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS)?'+':'-');
   Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR     )?'+':'-');
-  //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_FIRSTERROR)?'+':'-');
   //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ESTOP     )?'+':'-');
   Serial.println();
 }
@@ -440,6 +437,25 @@ void Parser::D18() {
 }
 
 
+void Parser::D19() {
+  FLIP_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);
+}
+
+
+void Parser::D20() {
+  SET_BIT_OFF(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR);
+}
+
+
+void Parser::D21() {
+  int isOn = parseNumber('P',TEST_LIMITS?1:0);
+  
+  SET_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CHECKLIMIT,isOn);  
+  
+  Serial.print(F("D21 "));
+  Serial.println(TEST_LIMITS?"1":"0");
+}
+
 // D22 Save all PID to EEPROM
 void Parser::D22() {
   eeprom.savePID();
@@ -469,7 +485,7 @@ void Parser::G01() {
   int32_t steps[NUM_MOTORS];
 
   // if limit testing is on
-  if(!TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_NOLIMIT)) {
+  if(TEST_LIMITS) {
     // and a limit is exceeeded
     if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
       // refuse to move

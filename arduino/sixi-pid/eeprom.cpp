@@ -134,12 +134,12 @@ void Eeprom::saveHome() {
   int j=ADDR_HOME;
   // this loop must not be more than NUM_AXIES
   for(ALL_SENSORS(i)) {
-    writeLong(j,sensorManager.sensors[i].angleHome*100.0f);
+    writeLong(j,sensorManager.sensors[i].angleHomeRaw*100.0f);
     j+=4;
 
     Serial.print(' ');
     Serial.print(motors[i].letter);
-    Serial.print(sensorManager.sensors[i].angleHome);
+    Serial.print(sensorManager.sensors[i].angleHomeRaw);
   }
   Serial.println();
 }
@@ -149,7 +149,7 @@ void Eeprom::loadHome() {
   int j=ADDR_HOME;
   // this loop must not be more than NUM_AXIES
   for(ALL_SENSORS(i)) {
-    sensorManager.sensors[i].angleHome = (float)readLong(j)/100.0f;
+    sensorManager.sensors[i].angleHomeRaw = (float)readLong(j)/100.0f;
     //Serial.print(' ');
     //Serial.print(motors[i].letter);
     //Serial.print(motors[i].angleHome);

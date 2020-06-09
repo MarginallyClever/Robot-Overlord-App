@@ -37,6 +37,16 @@ FORCE_INLINE float WRAP_DEGREES(float n) {
   return n;
 }
 
+// wrap all degrees to within center-180...center+180.
+FORCE_INLINE float WRAP_DEGREES(float n,float center) {
+  n = fmod(n,360);
+  n +=360;
+  n = fmod(n,360);
+  if(n>center+180) n-=360;
+  return n;
+}
+
+
 // wrap all radians within -PI...PI
 FORCE_INLINE float WRAP_RADIANS(float n) {
   n = fmod(n,TWO_PI);
@@ -51,7 +61,7 @@ FORCE_INLINE int32_t WRAP_LONG(int32_t n,int32_t range,int32_t center) {
   n = n%range;
   n += range;
   n = n%range;
-  if(n>center) n-=range;
+  if(n>center+range/2) n-=range;
   return n;
 }
 

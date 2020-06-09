@@ -19,12 +19,11 @@
 // behaviour flags
 #define POSITION_ERROR_FLAG_CONTINUOUS   (0)  // report position (d17) continuously?
 #define POSITION_ERROR_FLAG_ERROR        (1)  // has error occurred?
-#define POSITION_ERROR_FLAG_FIRSTERROR   (2)  // report the error once per occurrence
-#define POSITION_ERROR_FLAG_ESTOP        (3)  // check for error at all?
-#define POSITION_ERROR_FLAG_NOLIMIT      (4)  // disable limit error checking (normally only used to drive the robot back inside limits)
+#define POSITION_ERROR_FLAG_ESTOP        (2)  // emergency stop!
+#define POSITION_ERROR_FLAG_CHECKLIMIT   (3)  // check limits and throw error if needed (normally only disabled to drive the robot back inside limits)
 
 #define REPORT_ANGLES_CONTINUOUSLY (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS))
-
+#define TEST_LIMITS                (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CHECKLIMIT))
 
 class SensorAS5147 {
 public:
@@ -34,7 +33,8 @@ public:
   uint8_t pin_MOSI;
   
   float angle; // current reading after adjustment
-  float angleHome;  // sensor raw angle value at home position.  reading - this = 0.
+  float angleHomeRaw;  // sensor raw angle value at home position.  reading - this = 0.
+  float angleHomeKinematics;  // sensor value (after adjustment) at home position.
   float limitMax;
   float limitMin;
 

@@ -49,7 +49,6 @@ void reportAllMotors() {
   Serial.println();
 }
 
-
 void testPID() {
   int i=0;
   Serial.print(motors[i].stepsTarget);
@@ -128,7 +127,7 @@ void setup() {
   
 #define REPORT_SPD(NN) Serial.println(MOTOR_##NN##_STEPS_PER_TURN/2);
 #define MACRO6(AA)  AA(0) AA(1) AA(2) AA(3) AA(4) AA(5)
-  MACRO6(REPORT_SPD);
+  //MACRO6(REPORT_SPD);
 
   //reportAllMotors();
   clockISRProfile();

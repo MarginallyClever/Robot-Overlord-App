@@ -70,7 +70,8 @@ void SensorManager::setup() {
   int i=0;
 
 // SSP(CSEL,0) is equivalent to sensorPins[i++]=PIN_SENSOR_CSEL_0;
-#define SSP(label,NN,JJ)    sensors[NN].pin_##label = PIN_SENSOR_##label##_##NN;
+#define SSP(label,NN,JJ)    { sensors[NN].pin_##label = PIN_SENSOR_##label##_##NN; \
+                              sensors[NN].angleHomeKinematics = DH_##NN##_THETA; }
 #define SSP2(NN)            if(NUM_SENSORS>NN) { \
                               SSP(CSEL,NN,0); \
                               SSP(CLK,NN,1); \
@@ -88,8 +89,9 @@ void SensorManager::setup() {
   }
   
   positionErrorFlags = 0;
-  SET_BIT_ON(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);// | POSITION_ERROR_FLAG_ESTOP;
-
+  SET_BIT_ON(positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS);
+  SET_BIT_ON(positionErrorFlags,POSITION_ERROR_FLAG_CHECKLIMIT);
+  
   // the first few reads will return junk so we force a couple empties here.
   update();
   update();
@@ -114,13 +116,13 @@ void SensorManager::update() {
     //Serial.print("\traw=");  Serial.print(rawValue,BIN);
     //Serial.print("\tbefore=");  Serial.print(v);
     //Serial.print("\thome=");  Serial.print(sensors[i].angleHome);
-    v -= sensors[i].angleHome;
-    v = WRAP_DEGREES(v);
+    v -= sensors[i].angleHomeRaw;
+    v = WRAP_DEGREES(v,sensors[i].angleHomeKinematics);
     //Serial.print("\tafter=");  Serial.println(v);
     sensors[i].angle = v;
 
     // if limit testing is on and no problem at the moment
-    if(!TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_NOLIMIT) && 
+    if(TEST_LIMITS && 
        !TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
       
       if(v>motors[i].limitMax) {
