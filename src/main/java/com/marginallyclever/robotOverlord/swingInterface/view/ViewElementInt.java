@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
@@ -89,7 +90,8 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 		lock.lock();
 
 		if(newNumber != e.get()) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeInt(e, newNumber) ) );
+			AbstractUndoableEdit event = new ActionChangeInt(e, newNumber);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 		lock.unlock();
 	}

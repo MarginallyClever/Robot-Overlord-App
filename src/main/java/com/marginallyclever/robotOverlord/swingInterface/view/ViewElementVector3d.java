@@ -19,6 +19,7 @@ import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
@@ -118,7 +119,8 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		diff.sub(newValue,oldValue);
 		
 		if(diff.lengthSquared()>1e-6) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeVector3d(e, newValue) ) );
+			AbstractUndoableEdit event = new ActionChangeVector3d(e, newValue);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this, event) );
 		}
 		
 		lock.unlock();

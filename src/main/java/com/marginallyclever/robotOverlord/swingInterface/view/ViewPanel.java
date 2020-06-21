@@ -53,6 +53,10 @@ public class ViewPanel extends ViewElement {
 		in.bottom=5;
 	}
 	
+	public ViewPanel() {
+		this(null);
+	}
+	
 	public void pushStack(String title,String tip) {
 		se = new StackElement();
 		se.p = new JPanel();
@@ -67,10 +71,7 @@ public class ViewPanel extends ViewElement {
 		se.gbc.gridy  =0;
 		se.gbc.fill      = GridBagConstraints.HORIZONTAL;
 		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
-		se.gbc.insets.top   =5;
-		se.gbc.insets.left  =5;
-		se.gbc.insets.right =5; 
-		se.gbc.insets.bottom=5; 
+		se.gbc.insets.set(5,5,5,5);
 
 		panelStack.push(se);
 		

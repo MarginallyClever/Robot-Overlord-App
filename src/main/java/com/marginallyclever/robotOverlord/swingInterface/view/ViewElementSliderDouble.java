@@ -10,6 +10,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
@@ -71,7 +72,8 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		int newValue = field.getValue();
 		
 		if(newValue!=oldValue) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeDouble(e,(double)newValue) ) );
+			AbstractUndoableEdit event = new ActionChangeDouble(e,(double)newValue);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}
 

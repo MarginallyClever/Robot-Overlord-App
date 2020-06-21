@@ -12,6 +12,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
@@ -103,7 +104,8 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 		}
 
 		if(sum>1e-3) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeColorRGBA(e,newValues) ) );
+			AbstractUndoableEdit event = new ActionChangeColorRGBA(e,newValues);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}
 

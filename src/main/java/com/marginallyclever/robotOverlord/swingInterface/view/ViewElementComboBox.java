@@ -10,6 +10,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
@@ -50,7 +51,8 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	public void actionPerformed(ActionEvent arg0) {
 		int newIndex = field.getSelectedIndex();
 		if(newIndex != e.get()) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeComboBox(e, e.getName(), newIndex) ) );
+			AbstractUndoableEdit event = new ActionChangeComboBox(e, e.getName(), newIndex);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}
 

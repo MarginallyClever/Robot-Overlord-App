@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -90,7 +91,8 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		lock.lock();
 
 		if(newNumber != e.get()) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeDouble(e, newNumber) ) );
+			AbstractUndoableEdit event = new ActionChangeDouble(e, newNumber);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 		
 		lock.unlock();

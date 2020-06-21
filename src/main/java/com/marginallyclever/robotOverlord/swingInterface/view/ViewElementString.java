@@ -10,6 +10,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
@@ -55,7 +56,8 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 
 		String newValue = field.getText();
 		if( !newValue.equals(e.get()) ) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeString(e, newValue) ) );
+			AbstractUndoableEdit event = new ActionChangeString(e, newValue);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 		lock.unlock();
 	}

@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
@@ -21,21 +22,29 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeBoo
  * @author Dan Royer
  *
  */
-public class ViewElementBoolean extends ViewElement implements ItemListener, Observer {
+public class ViewElementBoolean extends ViewElement implements Observer {
 	private JCheckBox field;
-	private BooleanEntity e;
 	
 	public ViewElementBoolean(RobotOverlord ro,BooleanEntity e) {
 		super(ro);
-		this.e=e;
 		
 		e.addObserver(this);
 		
 		field = new JCheckBox();
 		field.setSelected(e.get());
-		field.addItemListener(this);
 		field.setBorder(new EmptyBorder(0,0,0,0));
 		field.addFocusListener(this);
+		field.addItemListener(new ItemListener() {
+			// the panel element has changed.  poke the entity.
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				boolean newValue = field.isSelected();
+				if(e.get()!=newValue) {
+					AbstractUndoableEdit event = new ActionChangeBoolean(e, newValue);
+					if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this, event ) );
+				}
+			}
+		});
 		
 		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
 		label.setLabelFor(field);
@@ -45,16 +54,6 @@ public class ViewElementBoolean extends ViewElement implements ItemListener, Obs
 		panel.add(field,BorderLayout.LINE_END);
 	}
 	
-	/**
-	 * the panel element has changed.  poke the entity.
-	 */
-	@Override
-	public void itemStateChanged(ItemEvent arg0) {
-		boolean newValue = field.isSelected();
-		if(e.get()!=newValue) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeBoolean(e, newValue) ) );
-		}
-	}
 
 	/**
 	 * entity we are observing has changed.  poke the panel element.

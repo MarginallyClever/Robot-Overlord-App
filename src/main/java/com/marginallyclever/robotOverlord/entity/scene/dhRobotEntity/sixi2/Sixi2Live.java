@@ -6,7 +6,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
@@ -158,10 +157,10 @@ public class Sixi2Live extends Sixi2Model {
 		cmd1 += " U"+StringHelper.formatDouble(poseFKTarget[3]);
 		cmd1 += " V"+StringHelper.formatDouble(poseFKTarget[4]);
 		cmd1 += " W"+StringHelper.formatDouble(poseFKTarget[5]);
-		
 		//cmd1 += " F"+StringHelper.formatDouble(getFeedrate());
 		//cmd1 += " A"+StringHelper.formatDouble(getAcceleration());
-
+		sendCommandToRemoteEntity(cmd1,false);
+		/*
 		String cmd2 = "G0";
 		cmd2 += " K"+StringHelper.formatDouble(jointVelocityDesired[0]);
 		cmd2 += " P"+StringHelper.formatDouble(jointVelocityDesired[1]);
@@ -169,13 +168,8 @@ public class Sixi2Live extends Sixi2Model {
 		cmd2 += " R"+StringHelper.formatDouble(jointVelocityDesired[3]);
 		cmd2 += " S"+StringHelper.formatDouble(jointVelocityDesired[4]);
 		cmd2 += " T"+StringHelper.formatDouble(jointVelocityDesired[5]);
-		
-		//System.out.println(cmd);
-		sendCommandToRemoteEntity(cmd1,false);
-		//sendCommandToRemoteEntity(cmd2,false);
-
-		//Log.message("Live SEND " + cmd1.trim());
-		//Log.message("Live SEND " + cmd2.trim());
+		sendCommandToRemoteEntity(cmd2,false);
+		*/
 	}
 
 	@Override

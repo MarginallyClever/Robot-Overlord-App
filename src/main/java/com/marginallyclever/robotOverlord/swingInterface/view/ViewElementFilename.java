@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
@@ -91,7 +92,8 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
 
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionChangeString(e, newFilename) ) );
+			AbstractUndoableEdit event = new ActionChangeString(e, newFilename);
+			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}
 
