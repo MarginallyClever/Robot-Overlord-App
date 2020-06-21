@@ -498,6 +498,8 @@ void Parser::G01() {
     motorManager.acceleration = parseNumber('A',motorManager.acceleration);
     motorManager.acceleration = max(min(motorManager.acceleration,MAX_ACCELERATION),0.1);
   }
+
+  uint8_t badAngles=0;
   
   //Serial.print(serialBuffer);
   //Serial.print("TO");
@@ -509,9 +511,22 @@ void Parser::G01() {
 
     //Serial.print(" ");
     //Serial.print(angles[i]);
+
+    if(angles[i] > motors[i].limitMax) {
+      Serial.print(F("LIMIT MAX "));
+      Serial.println(i);
+      badAngles=1;
+    }
+    if(angles[i] < motors[i].limitMin) {
+      Serial.print(F("LIMIT MIN "));
+      Serial.println(i);
+      badAngles=1;
+    }
   }
   //Serial.println();
 
+  if(badAngles) return;
+  
   float velocity[NUM_MOTORS];
 
   #define PARSE_GV(NN,CC)  velocity[CC] = parseNumber(NN,motors[CC].velocityTarget);

@@ -39,6 +39,7 @@ public:
 
   // COMMANDS
   // w means whole number.  b means binary (0/1).  d means decimal number. [] means optional.
+  // all commands must end with the new line (\n, hex=0xD, dec=13) character.
   
   void M110();  // M110 [Nw] - Set and report line number.  If no number given, report only.
   void M111();  // M111 [Sw] - Ssets flags to n.  If no number given, report only.  Combine any valid flags: 1 (echo)
@@ -60,7 +61,7 @@ public:
   void D22();  // - Save all PID values to EEPROM.
   void D50();  // D50 [Sb] - Set and report strict mode.  When strict mode is on all commands MUST have a checksum.
   
-  void G01();  // G0/G1 [Xd] [Yd] [Zd] [Ud] [Vd] [Wd] - Set the target adjusted joint angles to the values provided.  If a value is not given, the target angle for that joint does not change.
+  void G01();  // G0/G1 [Xd] [Yd] [Zd] [Ud] [Vd] [Wd] - Set the target adjusted joint angles to the values provided.  If a value is not given, the target angle for that joint does not change.  If any part of the requested destination is outside of range a "LIMIT MIN/MAX [joint number]" for each part will be displayed and no action will be taken.
   void G28();  // - Go to home position
   void G90();  // - Set absolute mode
   void G91();  // - Set relative mode

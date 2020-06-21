@@ -118,12 +118,12 @@ void setup() {
   // make sure the starting target is the starting position (no move)
   parser.D18();
 
-  motors[0].setPID(10.0,5.0,0.0);
-  motors[1].setPID(10.0,5.0,0.0);
-  motors[2].setPID(10.0,5.0,0.0);
-  motors[3].setPID(10.0,5.0,0.0);
-  motors[4].setPID(10.0,5.0,0.0);
-  motors[5].setPID(10.0,5.0,0.0);
+  motors[0].setPID(1.0,0.0,0.0);
+  motors[1].setPID(1.0,0.0,0.0);
+  motors[2].setPID(1.0,0.0,0.0);
+  motors[3].setPID(1.0,0.0,0.0);
+  motors[4].setPID(1.0,0.0,0.0);
+  motors[5].setPID(1.0,0.0,0.0);
   
 #define REPORT_SPD(NN) Serial.println(MOTOR_##NN##_STEPS_PER_TURN/2);
 #define MACRO6(AA)  AA(0) AA(1) AA(2) AA(3) AA(4) AA(5)
