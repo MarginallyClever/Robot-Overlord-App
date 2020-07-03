@@ -28,7 +28,7 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: prepare package for release
-      run: mv ./target/Makelangelo-*-with-dependencies.jar ./target/to-upload.jar
+      run: mv ./target/*-with-dependencies.jar ./target/to-upload.jar
       
     # from https://github.com/marketplace/actions/deploy-nightly
     - name: Deploy Windows release
