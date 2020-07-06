@@ -11,6 +11,7 @@
 #define G0_SAFETY_TIMEOUT_S    (1.0/30.0)  // 30 fps
 #define G0_SAFETY_TIMEOUT_MS   (G0_SAFETY_TIMEOUT_S*1000)
 
+#define PARSER_DT_BUFFER_LEN   5
 
 class Parser {
 public:
@@ -19,6 +20,12 @@ public:
   uint32_t lastCmdTimeMs;         // prevent timeouts
   int32_t lineNumber = 0;        // make sure commands arrive in order
   uint8_t lastGcommand = -1;
+
+  // timing the thought-speed of the robot
+  uint32_t dtBuffer_processTime[PARSER_DT_BUFFER_LEN] = {0,0,0,0,0};
+  uint8_t  dtBufferI_processTime=0;
+  float    rollingAvg;
+  
   
   uint8_t parserFlags = 0;
 

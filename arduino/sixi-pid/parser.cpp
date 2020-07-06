@@ -127,8 +127,25 @@ void Parser::update() {
         Serial.println(serialBuffer);
       }
 
+      // start to measure time
+     // uint32_t startTime_processCommand = micros();
+
       // do something with the command
       processCommand();
+/*
+      // finish measuring
+      uint32_t endTime_processCommand = micros();
+      uint32_t dt_processCommand = endTime_processCommand - startTime_processCommand;
+      dtBuffer_processTime[dtBufferI_processTime]=dt_processCommand;
+      uint32_t rollingSum = 0;
+      for(int i=0;i<PARSER_DT_BUFFER_LEN;++i) {
+        rollingSum += dtBuffer_processTime[i];
+      }
+      rollingAvg = (float)rollingSum/PARSER_DT_BUFFER_LEN;
+      dtBufferI_processTime = (dtBufferI_processTime+1) % PARSER_DT_BUFFER_LEN;
+      
+      Serial.println(rollingAvg);
+      */
       // clear input buffer
       sofar = 0;
       // go again
