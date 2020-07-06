@@ -48,7 +48,9 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	private NetworkConnection connection;
 	
 	public class NumberedCommand {
+		// the line number for this command
 		public int n;
+		// the command text
 		public String c;
 		
 		NumberedCommand(int nn,String cc) {
@@ -109,7 +111,9 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 		if(connection==null) return;
 		
 		if(!waitingForCue && !commands.isEmpty()) {
-			sendMessageInternal(getCommand(nextNumberToSend++));
+			if(commands.get(commands.size()-1).n > nextNumberToSend) {
+				sendMessageInternal(getCommand(nextNumberToSend++));
+			}
 		}
 	}
 
@@ -118,7 +122,7 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 	
 	/**
-	 * called by someone else to start the process of sending a message
+	 * Send a message that we don't need to guarantee will arrive.
 	 * @param command
 	 */
 	public void sendMessage(String command) {
@@ -132,13 +136,13 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 	
 	/**
-	 * called by someone else to start the process of sending a message
+	 * Send a message that we guarantee will arrive.
 	 * @param command
 	 */
 	public void sendMessageGuaranteed(String command) {
 		if(!isConnectionOpen()) return;
 		
-		//command.trim();
+		command.trim();
 		if(command.isEmpty()) return;
 		
 		// add the number for error checking
@@ -162,21 +166,21 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 			reportDataSent(command);
 			connection.sendMessage(command);
 		} catch (Exception e) {
-			Log.error("RemoteEntity.sendQueuedMessage failed: "+e.getLocalizedMessage());
+			Log.error(e.getLocalizedMessage());
 		}
 	}
 
 	public void reportDataSent(String msg) {
 		//if(msg.contains("G0")) return;
 		
-		Log.message("RemoteEntity SEND " + msg.trim());
+		//Log.message("RemoteEntity SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
 		if (msg.trim().isEmpty()) return;
 		if(msg.contains("D17")) return;
 		
-		Log.message("RemoteEntity RECV " + msg.trim());
+		//Log.message("RemoteEntity RECV " + msg.trim());
 	}
 	
 	@Override

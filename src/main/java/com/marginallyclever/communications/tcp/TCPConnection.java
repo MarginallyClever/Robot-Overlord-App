@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.util.LinkedList;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -45,18 +44,11 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 
 	
 	private String inputBuffer = "";
-	private LinkedList<String> commandQueue = new LinkedList<String>();
 
 	
 	public TCPConnection(TransportLayer layer) {
 		super();
 		transportLayer = layer;
-	}
-
-	@Override
-	public void sendMessage(String msg) throws Exception {
-		commandQueue.add(msg);
-		sendQueuedCommand();
 	}
 
 	/** 
@@ -235,26 +227,22 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	}
 
 
-	protected void sendQueuedCommand() {
-		if( !portOpened || outputStream==null || waitingForCue) return;
 
-		if(commandQueue.isEmpty()) {
-			notifySendBufferEmpty();
-			return;
-		}
+	@Override
+	public void sendMessage(String msg) throws Exception {
+		if( !portOpened || outputStream==null || waitingForCue) return;
 
 		try {
 			waitingForCue=true;
-			String line=commandQueue.poll();
-			if(line.contains(COMMENT_START)) {
-				line = line.substring(0,line.indexOf(COMMENT_START));
+			if(msg.contains(COMMENT_START)) {
+				msg = msg.substring(0,msg.indexOf(COMMENT_START));
 			}
-			if(line.endsWith(NEWLINE) == false) {
-				line+=NEWLINE;
+			if(msg.endsWith(NEWLINE) == false) {
+				msg+=NEWLINE;
 			}
-			outputStream.write(line);
+			outputStream.write(msg);
 			outputStream.flush();
-			reportDataSent(line);
+			reportDataSent(msg);
 		}
 		catch(IndexOutOfBoundsException e1) {
 			Log.error(e1.getLocalizedMessage());
@@ -267,10 +255,6 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 
 	public void reportDataReceived(String msg) {
 		//Log.message("TCPConnection RECV " + msg.trim());
-	}
-
-	public void deleteAllQueuedCommands() {
-		commandQueue.clear();
 	}
 
 	// connect to the last port
@@ -314,12 +298,5 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	@Override
 	public TransportLayer getTransportLayer() {
 		return this.transportLayer;
-	}
-	
-	@Override
-	public void update() {
-		if(isOpen() && waitingForCue==false) {
-			sendQueuedCommand();
-		}
 	}
 }

@@ -25,8 +25,6 @@ public abstract class NetworkConnection {
 	abstract public void reconnect() throws Exception;
 
 	abstract public boolean isOpen();
-	
-	abstract public void update();
 
 	abstract public String getRecentConnection();
 

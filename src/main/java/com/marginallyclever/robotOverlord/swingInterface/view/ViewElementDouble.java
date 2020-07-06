@@ -81,12 +81,13 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		
 		try {
 			newNumber = Double.valueOf(field.getText());
-			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
 			return;
 		}
 
+		field.setForeground(UIManager.getColor("Textfield.foreground"));
+		
 		if(lock.isLocked()) return;
 		lock.lock();
 

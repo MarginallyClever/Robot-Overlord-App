@@ -5,8 +5,6 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-import java.util.ArrayList;
-
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.robotOverlord.log.Log;
@@ -33,11 +31,10 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	private boolean portOpened = false;
 	private boolean waitingForCue = false;
 
-	// parsing input from Makelangelo
+	// parsing input from outside source
 	private String inputBuffer = "";
-	private ArrayList<String> commandQueue = new ArrayList<String>();
 
-
+	
 	public SerialConnection(SerialTransportLayer layer) {
 		transportLayer = layer;
 	}
@@ -49,8 +46,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			try {
 				serialPort.removeEventListener();
 				serialPort.closePort();
-			} catch (SerialPortException e) {
-			}
+			} catch (SerialPortException e) {}
 		}
 		portOpened = false;
 	}
@@ -160,7 +156,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			x=x+1;
 			oneLine = inputBuffer.substring(0,x);
 			inputBuffer = inputBuffer.substring(x);
-
+			
 			reportDataReceived(oneLine);
 			
 			// check for error
@@ -178,10 +174,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			if(oneLine.indexOf(CUE)==0) {
 				waitingForCue=false;
 			}
-		}/*
-		if(!waitingForCue) {
-			sendQueuedCommand();
-		}*/
+		}
 	}
 
 	public void reportDataSent(String msg) {
@@ -194,40 +187,22 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 	@Override
 	public void sendMessage(String msg) throws Exception {
-		//commandQueue.add(msg);
-		sendQueuedCommand(msg);
-	}
-
-
-	protected void sendQueuedCommand(String command) {
 		if(!portOpened || waitingForCue) return;
-/*
-		if(commandQueue.isEmpty()==true) {
-			notifySendBufferEmpty();
-			return;
-		}*/
 
-		//String command;
 		try {
 			waitingForCue=true;
-			//command=commandQueue.remove(0);
-			String line = command;
-			if(line.contains(COMMENT_START)) {
-				String [] lines = line.split(COMMENT_START);
-				command = lines[0];
+			if(msg.contains(COMMENT_START)) {
+				String [] lines = msg.split(COMMENT_START);
+				msg = lines[0];
 			}
-			if(line.endsWith(NEWLINE) == false) {
-				line+=NEWLINE;
+			if(msg.endsWith(NEWLINE) == false) {
+				msg+=NEWLINE;
 			}
-			reportDataSent(line.trim());
-			serialPort.writeBytes(line.getBytes());
+			reportDataSent(msg.trim());
+			serialPort.writeBytes(msg.getBytes());
 		}
 		catch(IndexOutOfBoundsException e1) {}
 		catch(SerialPortException e2) {}
-	}
-
-	public void deleteAllQueuedCommands() {
-		commandQueue.clear();
 	}
 
 	// connect to the last port
@@ -271,12 +246,5 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	@Override
 	public TransportLayer getTransportLayer() {
 		return this.transportLayer;
-	}
-	
-	@Override
-	public void update() {
-		if(isOpen() && waitingForCue==false) {
-			//sendQueuedCommand();
-		}
 	}
 }
