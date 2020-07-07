@@ -24,6 +24,7 @@
 
 #define REPORT_ANGLES_CONTINUOUSLY (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS))
 #define TEST_LIMITS                (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CHECKLIMIT))
+#define OUT_OF_BOUNDS              (TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR))
 
 class SensorAS5147 {
 public:

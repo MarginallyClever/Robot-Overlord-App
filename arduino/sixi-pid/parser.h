@@ -63,8 +63,8 @@ public:
   void D17();  // - Report adjusted sensor values.
   void D18();  // - Copy sensor values to motor step positions.  Deprecated?
   void D19();  // - Toggle continuous D17 reporting.
-  void D20();  // - Turn off position error.
-  void D21();  // D21 [Pb] - Set and report limit checking.
+  void D20();  // - Turn off limit error and re-enable ISR.  If limit testing is on and machine is out of bounds this will immediately reset to on.
+  void D21();  // D21 [Pb] - Set and report limit testing.  if limit testing is on and robot drives out of range then a limit error flag will be set and the ISR disabled. (see D20)
   void D22();  // - Save all PID values to EEPROM.
   void D50();  // D50 [Sb] - Set and report strict mode.  When strict mode is on all commands MUST have a checksum.
   

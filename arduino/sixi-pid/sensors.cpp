@@ -123,8 +123,7 @@ void SensorManager::update() {
     sensors[i].angle = v;
 
     // if limit testing is on and no problem at the moment
-    if(TEST_LIMITS && 
-       !TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
+    if(TEST_LIMITS && !OUT_OF_BOUNDS) {
       
       if(v>motors[i].limitMax) {
         // and the max limit is passed, barf

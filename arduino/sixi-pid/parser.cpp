@@ -413,9 +413,8 @@ void Parser::D17() {
 #endif
 
   Serial.print('\t');
-  //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS)?'+':'-');
-  Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR     )?'+':'-');
-  //Serial.print( TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ESTOP     )?'+':'-');
+  //Serial.print( TEST_LIMITS?'+':'-');
+  Serial.print( OUT_OF_BOUNDS?'+':'-');
   Serial.println();
 }
 
@@ -461,6 +460,7 @@ void Parser::D19() {
 
 void Parser::D20() {
   SET_BIT_OFF(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR);
+  ENABLE_ISR;
 }
 
 
@@ -501,14 +501,11 @@ void Parser::G01() {
   float angles[NUM_MOTORS];
   int32_t steps[NUM_MOTORS];
 
-  // if limit testing is on
-  if(TEST_LIMITS) {
-    // and a limit is exceeeded
-    if(TEST(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR)) {
-      // refuse to move
-      Serial.println(F("LIMIT ERROR"));
-      return;
-    }
+  // if limit testing is on and a limit is exceeeded
+  if(TEST_LIMITS && OUT_OF_BOUNDS) {
+    // refuse to move
+    Serial.println(F("LIMIT ERROR"));
+    return;
   }
       
   if(hasGCode('A')) {
