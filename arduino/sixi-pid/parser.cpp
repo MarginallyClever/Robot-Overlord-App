@@ -456,7 +456,7 @@ void Parser::D18() {
 
 void Parser::D19() {
   boolean state = parseNumber('P',REPORT_ANGLES_CONTINUOUSLY?1:0);
-  SET_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_ERROR,state);
+  SET_BIT(sensorManager.positionErrorFlags,POSITION_ERROR_FLAG_CONTINUOUS,state);
   Serial.print(F("D19 P"));
   Serial.println(state?1:0,DEC);
 }
