@@ -46,7 +46,7 @@
         <include>org.jogamp.jogl:jogl-all:jar:natives-linux-amd64</include>
       </includes>
       <unpackOptions>
-        <includes><include>*.dll</include></includes>
+        <includes><include>*.so</include></includes>
       </unpackOptions>
     </dependencySet>
         
