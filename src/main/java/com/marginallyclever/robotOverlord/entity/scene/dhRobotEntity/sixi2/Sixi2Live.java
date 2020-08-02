@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
+import java.util.Observer;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -11,6 +12,8 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Live extends Sixi2Model {
@@ -360,6 +363,24 @@ public class Sixi2Live extends Sixi2Model {
 	public void getView(ViewPanel view) {
 		view.pushStack("Sl", "Sixi Live");
 		view.add(connection);
+		
+		ViewElementButton bOpen = view.addButton("Gripper open");
+		bOpen.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				sendCommandToRemoteEntity("M42 P12 S1", true);
+				Log.message("Opening");
+			}
+		});
+		ViewElementButton bClose = view.addButton("Gripper close");
+		bClose.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				sendCommandToRemoteEntity("M42 P12 S0", true);
+				Log.message("Closing");
+			}
+		});
+
 		for (int i = 0; i < PIDs.length; ++i) {
 			view.add(PIDs[i]);
 		}
