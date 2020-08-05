@@ -70,7 +70,7 @@ public class TextureEntity extends StringEntity {
 		// supported file formats
 		filters.add(new FileNameExtensionFilter("PNG", "png"));
 		filters.add(new FileNameExtensionFilter("BMP", "bmp"));
-		filters.add(new FileNameExtensionFilter("JPEG", "jpeg"));
+		filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
 		filters.add(new FileNameExtensionFilter("TGA", "tga"));
 		
 		view.addFilename(this,filters);
