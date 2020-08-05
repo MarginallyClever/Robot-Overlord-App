@@ -47,6 +47,8 @@ public class Sixi2Live extends Sixi2Model {
 		addChild(connection);
 
 		connection.addObserver(this);
+		feedRate.addObserver(this);
+		acceleration.addObserver(this);
 
 		for (int i = 0; i < PIDs.length; ++i) {
 			PIDs[i] = new Vector3dEntity("PID " + links.get(i).getLetter(), 0, 0, 0.0);
@@ -160,8 +162,6 @@ public class Sixi2Live extends Sixi2Model {
 		cmd1 += " U"+StringHelper.formatDouble(poseFKTarget[3]);
 		cmd1 += " V"+StringHelper.formatDouble(poseFKTarget[4]);
 		cmd1 += " W"+StringHelper.formatDouble(poseFKTarget[5]);
-		//cmd1 += " F"+StringHelper.formatDouble(getFeedrate());
-		//cmd1 += " A"+StringHelper.formatDouble(getAcceleration());
 		sendCommandToRemoteEntity(cmd1,false);
 		/*
 		String cmd2 = "G0";
@@ -227,7 +227,17 @@ public class Sixi2Live extends Sixi2Model {
 			}
 		}
 
-		if (o == connection) {
+		if( o == feedRate || o == acceleration ) {
+			// only send feedrate and acceleration changes as they happen
+			// because the mega2560 buffer limit is 64 bytes.
+			String fa = "G0"
+						+" F"+StringHelper.formatDouble(getFeedrate())
+						+" A"+StringHelper.formatDouble(getAcceleration());
+			sendCommandToRemoteEntity(fa,false);
+			return;
+		}
+		
+		if(o == connection) {
 			String data = (String) arg;
 
 			boolean unhandled = true;
