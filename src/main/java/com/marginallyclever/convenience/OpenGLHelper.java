@@ -1,5 +1,6 @@
 package com.marginallyclever.convenience;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
@@ -22,8 +23,13 @@ public class OpenGLHelper {
 		return lightWasOn;
 	}
 	static public void disableLightingEnd(GL2 gl2,boolean lightWasOn) {
-
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 	}
-	
+
+	static public float setLineWidth(GL2 gl2,float newWidth) {
+		FloatBuffer lineWidth = FloatBuffer.allocate(1);
+		gl2.glGetFloatv(GL2.GL_LINE_WIDTH, lineWidth);
+		gl2.glLineWidth(newWidth);
+		return lineWidth.get(0);
+	}
 }
