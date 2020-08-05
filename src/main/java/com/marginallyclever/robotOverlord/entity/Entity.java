@@ -148,6 +148,9 @@ public class Entity extends Observable implements Serializable, Observer {
 		return e;
 	}
 
+	/**
+	 * @return This entity's full pathname in the entity tree. 
+	 */
 	public String getFullName() {
 		String sum="";
 		Entity e=this;
