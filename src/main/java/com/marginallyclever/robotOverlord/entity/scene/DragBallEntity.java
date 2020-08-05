@@ -1,6 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
 import java.nio.IntBuffer;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
@@ -11,6 +13,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.StringHelper;
@@ -20,6 +23,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -103,8 +107,8 @@ public class DragBallEntity extends PoseEntity {
 	
 	public DoubleEntity ballSize = new DoubleEntity("Scale",20);
 	public BooleanEntity snapOn = new BooleanEntity("Snap On",true);
-	public IntEntity snapDegrees = new IntEntity("Snap degrees",5);
-	public IntEntity snapDistance = new IntEntity("Snap mm",1);
+	public DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",5);
+	public DoubleEntity snapDistance = new DoubleEntity("Snap mm",1);
 
 	public boolean isRotateMode;
 	public boolean isActivelyMoving;
@@ -327,18 +331,13 @@ public class DragBallEntity extends PoseEntity {
 				}
 
 				double da=valueNow - valueStart;
-				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
-					da *= 0.1;
-				}
-				
 				if(snapOn.get()) {
 					// round to snapDegrees
 					double deg = snapDegrees.get();
 					if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-							InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
-							deg *= 0.1;
-						}
+						InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+						deg *= 0.1;
+					}
 					
 					da = Math.toDegrees(da);
 					da = Math.signum(da)*Math.round(Math.abs(da)/deg)*deg;
@@ -507,13 +506,9 @@ public class DragBallEntity extends PoseEntity {
 			}
 			
 			double dp = valueNow - valueStart;
-			if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-				InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
-				dp *= 0.1;
-			}
 			if(snapOn.get()) {
 				// round to nearest mm
-				double mm = snapDistance.get();
+				double mm = snapDistance.get()*0.1;
 				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
 					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
 					mm *= 0.1;
@@ -620,19 +615,9 @@ public class DragBallEntity extends PoseEntity {
 				PrimitiveSolids.drawStar(gl2, pickPointOnBall,10);
 			}//*/
 			
-			IntBuffer depthFunc = IntBuffer.allocate(1);
-			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-			gl2.glDepthFunc(GL2.GL_ALWAYS);
-			//boolean isDepth=gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-			//gl2.glDisable(GL2.GL_DEPTH_TEST);
-
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_LIGHTING);
-
-
-			IntBuffer lineWidth = IntBuffer.allocate(1);
-			gl2.glGetIntegerv(GL2.GL_LINE_WIDTH, lineWidth);
-			gl2.glLineWidth(2);
+			int previousState = OpenGLHelper.drawAtopEverythingStart(gl2);
+			boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+			float oldWidth = OpenGLHelper.setLineWidth(gl2, 2);
 
 			gl2.glPushMatrix();
 	
@@ -649,13 +634,14 @@ public class DragBallEntity extends PoseEntity {
 				
 			gl2.glPopMatrix();
 
-			// set previous line width
-			gl2.glLineWidth(lineWidth.get());
+			if(subject!=null) {
+				Matrix4d m = findMajorAxisTarget(subject.getPoseWorld());
+				MatrixHelper.drawMatrix(gl2, m, 35);
+			}
 			
-			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
-
-			//if(isDepth) gl2.glEnable(GL2.GL_DEPTH_TEST);
-			gl2.glDepthFunc(depthFunc.get());
+			OpenGLHelper.setLineWidth(gl2, oldWidth);
+			OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
+			OpenGLHelper.drawAtopEverythingEnd(gl2, previousState);
 			
 		gl2.glPopMatrix();
 	}
@@ -706,9 +692,9 @@ public class DragBallEntity extends PoseEntity {
 		cpw.m23=0;
 		cpw.invert();
 
-		double r = (nearestPlane==Plane.X) ? 1 : 0.5f;
-		double g = (nearestPlane==Plane.Y) ? 1 : 0.5f;
-		double b = (nearestPlane==Plane.Z) ? 1 : 0.5f;
+		double cr = (nearestPlane==Plane.X) ? 1 : 0.5f;
+		double cg = (nearestPlane==Plane.Y) ? 1 : 0.5f;
+		double cb = (nearestPlane==Plane.Z) ? 1 : 0.5f;
 
 		// is a FOR axis normal almost the same as camera forward?
 		double vX=Math.abs(lookAtVector.dot(MatrixHelper.getXAxis(FOR)));
@@ -722,7 +708,7 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glCullFace(GL2.GL_BACK);
 		//x
-		gl2.glColor3d(r, 0, 0);
+		gl2.glColor3d(cr, 0, 0);
 		if(drawX) {
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -742,7 +728,7 @@ public class DragBallEntity extends PoseEntity {
 		}
 
 		//y
-		gl2.glColor3d(0, g, 0);
+		gl2.glColor3d(0, cg, 0);
 		if(drawY) {
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -762,7 +748,7 @@ public class DragBallEntity extends PoseEntity {
 		}
 		
 		//z
-		gl2.glColor3d(0, 0, b);
+		gl2.glColor3d(0, 0, cb);
 		if(drawZ) {
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -791,8 +777,41 @@ public class DragBallEntity extends PoseEntity {
 			while(range<-Math.PI) range+=Math.PI*2;
 			double absRange= Math.abs(range);
 			
-			//Log.message(start+" "+end+"");
-
+			// snap ticks
+			if(snapOn.get()) {
+				double deg = Math.toRadians(snapDegrees.get());
+				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
+					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+					deg *= 0.1;
+				}
+				double a=0,b=0,c=0;
+				double r1=1;
+				double r2=1.05;
+				
+				gl2.glBegin(GL2.GL_LINES);
+				gl2.glColor3d(1, 1, 1);
+				for(double i = 0;i<Math.PI*2;i+=deg) {
+					double j=i + start;
+					switch(nearestPlane) {
+					case X:
+						b=Math.cos(j+Math.PI/2);
+						c=Math.sin(j+Math.PI/2);
+						break;
+					case Y:
+						a=Math.cos(-j);
+						c=Math.sin(-j);
+						break;
+					case Z:
+						a=Math.cos( j);
+						b=Math.sin( j);
+						break;
+					}
+					gl2.glVertex3d(a*r1,b*r1,c*r1);
+					gl2.glVertex3d(a*r2,b*r2,c*r2);
+				}
+				gl2.glEnd();
+			}
+			
 			gl2.glBegin(GL2.GL_LINE_LOOP);
 			gl2.glColor3f(255,255,255);
 			gl2.glVertex3d(0,0,0);
@@ -802,7 +821,7 @@ public class DragBallEntity extends PoseEntity {
 				switch(nearestPlane) {
 				case X: gl2.glVertex3d(0,Math.cos(n+Math.PI/2),Math.sin(n+Math.PI/2));  break;
 				case Y: gl2.glVertex3d(Math.cos(-n),0,Math.sin(-n));  break;
-				case Z: gl2.glVertex3d(Math.cos(n),Math.sin(n),0);  break;
+				case Z: gl2.glVertex3d(Math.cos( n),Math.sin( n),0);  break;
 				}
 			}
 			gl2.glEnd();
@@ -989,6 +1008,47 @@ public class DragBallEntity extends PoseEntity {
 		this.subject=subject;		
 	}
 	
+	public Matrix4d findMajorAxisTarget(Matrix4d from) {
+		if(subject==null) return null;
+		
+		// snap Z axis to major value		
+		Vector3d vz = MatrixHelper.getZAxis(from);
+		
+		double zx = Math.abs(vz.x);
+		double zy = Math.abs(vz.y);
+		double zz = Math.abs(vz.z);
+		
+		Vector3d nx=new Vector3d();
+		Vector3d ny=new Vector3d();
+		Vector3d nz = new Vector3d(); 
+		if(zx>zy) {
+			if(zx>zz) nz.x = Math.signum(vz.x);  //zx wins
+			else      nz.z = Math.signum(vz.z);  //zz wins
+		} else {
+			if(zy>zz) nz.y = Math.signum(vz.y);  //zy wins
+			else      nz.z = Math.signum(vz.z);  //zz wins
+		}
+		
+		// snap X to major value
+		nx.cross(MatrixHelper.getYAxis(from),nz);
+		// make Y orthogonal to X and Z
+		ny.cross(nz, nx);
+		// build the new matrix.  Make sure m33=1 and position data is copied in.
+		Matrix4d m = new Matrix4d(from);
+		MatrixHelper.setXAxis(m,nx);
+		MatrixHelper.setYAxis(m,ny);
+		MatrixHelper.setZAxis(m,nz);
+		return m;
+	}
+	
+	public void snapToMajorAxis() {
+		Matrix4d m = findMajorAxisTarget(subject.getPoseWorld());
+		if(m!=null) {
+			resultMatrix.set(m);
+			attemptMove((RobotOverlord)getRoot());
+		}
+	}
+	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Db", "Dragball");
@@ -996,6 +1056,15 @@ public class DragBallEntity extends PoseEntity {
 		view.add(snapOn);
 		view.add(snapDegrees);
 		view.add(snapDistance);
+
+		ViewElementButton bSnap = view.addButton("Snap to world");
+		bSnap.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				snapToMajorAxis();
+			}
+		});
+		
 		view.addComboBox(frameOfReference,FrameOfReference.getAll());
 	}
 }
