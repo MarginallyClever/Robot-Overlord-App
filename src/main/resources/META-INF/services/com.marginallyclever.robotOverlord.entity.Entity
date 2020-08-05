@@ -22,6 +22,7 @@ com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity
 com.marginallyclever.robotOverlord.entity.scene.LightEntity
 com.marginallyclever.robotOverlord.entity.scene.BoxEntity
 com.marginallyclever.robotOverlord.entity.scene.GridEntity
+com.marginallyclever.robotOverlord.entity.scene.DecalEntity
 
 #robot Tools
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_GoProCamera
