@@ -18,6 +18,11 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
+/**
+ * A object in the world with a position and orientation (collectively, a "pose")
+ * @author Dan Royer
+ *
+ */
 public class PoseEntity extends Entity {
 	/**
 	 * 
