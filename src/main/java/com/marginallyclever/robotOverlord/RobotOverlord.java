@@ -812,7 +812,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 		viewport.renderPick(gl2,pickX,pickY);
 		
-        gl2.glPushName(0);
+        gl2.glLoadName(0);
 
         // render in selection mode, without advancing time in the simulation.
         scene.render(gl2);
@@ -826,37 +826,37 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         boolean verbose=false;
         
-		if(verbose) Log.message("\n"+hits+" PICKS @ "+pickX+","+pickY);
-        float z1,z2;
+		if(verbose) Log.message(hits+" PICKS @ "+pickX+","+pickY);
 		
         float zMinBest = Float.MAX_VALUE;
     	int i, j, index=0, nameCount, pickName=0, bestPickName=0;
     	
     	for(i=0;i<hits;++i) {
     		nameCount=pickBuffer.get(index++);
-    		z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    		z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
+    		@SuppressWarnings("unused")
+    		float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
     		
-    		if(verbose) {
-    			Log.message("  names="+nameCount+" zMin="+z1+" zMax="+z2);
-    		}
+    		//if(verbose) Log.message("  names="+nameCount+" zMin="+z1+" zMax="+z2);
+
     		String add=": ";
-    		
+    		String msg="";
 			for(j=0;j<nameCount;++j) {
     			pickName = pickBuffer.get(index++);
         		if(verbose) {
-        			Log.message(add+pickName);
+        			msg+=add+pickName;
             		add=", ";
         		}
 			}
 			if(nameCount>0) {
 				//pickName = pickBuffer.get(index++);
-				if(verbose) Log.message(add+" BEST="+pickName);
         		if(zMinBest > z1) {
         			zMinBest = z1;
         			bestPickName = pickName;
+    				if(verbose) msg+=add+" BEST="+pickName+" @ "+z1;
         		}
     		}
+			Log.message(msg);
     	}
     	return bestPickName;
     }

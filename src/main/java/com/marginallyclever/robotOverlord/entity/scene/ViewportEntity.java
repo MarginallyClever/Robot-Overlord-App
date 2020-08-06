@@ -55,9 +55,6 @@ public class ViewportEntity extends Entity {
 	}
 	
 	public void renderPerspective(GL2 gl2) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
-		
 		double zNear = nearZ.get();
 		double zFar = farZ.get();
 		double fH = Math.tan( Math.toRadians(fieldOfView.get()/2) ) * zNear;
@@ -68,9 +65,6 @@ public class ViewportEntity extends Entity {
 	}
 	
 	public void renderOrtho(GL2 gl2,double zoom) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
-		
         double w = canvasWidth/10;
         double h = canvasHeight/10;
         
@@ -101,6 +95,9 @@ public class ViewportEntity extends Entity {
 	}
 	
 	public void renderChosenProjection(GL2 gl2) {
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glLoadIdentity();
+		
 		if(drawOrtho.get()) {
 			renderOrtho(gl2);
 		} else {
@@ -111,9 +108,6 @@ public class ViewportEntity extends Entity {
 	}
 	
 	public void renderPick(GL2 gl2,double pickX,double pickY) {
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glLoadIdentity();
-        
         // get the current viewport dimensions to set up the projection matrix
         int[] viewportDimensions = new int[4];
 		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewportDimensions,0);
@@ -122,6 +116,8 @@ public class ViewportEntity extends Entity {
         
 		// Set up a tiny viewport that only covers the area behind the cursor. 
 		// Tiny viewports are faster.
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glLoadIdentity();
 		glu.gluPickMatrix(pickX, canvasHeight-pickY, 5.0, 5.0, viewportDimensions,0);
 
 		if(drawOrtho.get()) {
