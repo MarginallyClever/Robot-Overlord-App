@@ -178,6 +178,13 @@ public class CameraEntity extends PoseEntity {
 						sumDy=0;
 					}
 				} else {
+					double z = zoom.get();
+					
+					// adjust the camera position to orbit around a point 'zoom' in front of the camera
+					// relies on the Z axis of the matrix BEFORE any rotations are applied.
+					Vector3d oldZ = MatrixHelper.getZAxis(pose);
+					oldZ.scale(z);
+					
 					// orbit around the focal point
 					setPan(getPan()+dx);
 					setTilt(getTilt()-dy);
@@ -185,14 +192,12 @@ public class CameraEntity extends PoseEntity {
 					// do updateMatrix() but keep the rotation matrix
 					Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
 					setRotation(rot);
-					
-					// adjust the camera position to orbit around a point 'zoom' in front of the camera
-					Vector3d oldZ = MatrixHelper.getZAxis(pose);
-					oldZ.scale(zoom.get());
 
+					// get the new Z axis
 					Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
-					newZ.scale(zoom.get());
+					newZ.scale(z);
 
+					// adjust position according to zoom (aka orbit) distance.
 					Vector3d p = getPosition();
 					p.sub(oldZ);
 					p.add(newZ);
