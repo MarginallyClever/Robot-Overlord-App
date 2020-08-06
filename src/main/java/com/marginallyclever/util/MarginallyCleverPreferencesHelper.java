@@ -11,7 +11,6 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import com.marginallyclever.robotOverlord.log.Log;
-import com.marginallyclever.util.PreferencesHelper;
 
 /**
  * @author Peter Colapietro
