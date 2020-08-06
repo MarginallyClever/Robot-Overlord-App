@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
-import java.nio.IntBuffer;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -1008,47 +1007,6 @@ public class DragBallEntity extends PoseEntity {
 		this.subject=subject;		
 	}
 	
-	public Matrix4d findMajorAxisTarget(Matrix4d from) {
-		if(subject==null) return null;
-		
-		// snap Z axis to major value		
-		Vector3d vz = MatrixHelper.getZAxis(from);
-		
-		double zx = Math.abs(vz.x);
-		double zy = Math.abs(vz.y);
-		double zz = Math.abs(vz.z);
-		
-		Vector3d nx=new Vector3d();
-		Vector3d ny=new Vector3d();
-		Vector3d nz = new Vector3d(); 
-		if(zx>zy) {
-			if(zx>zz) nz.x = Math.signum(vz.x);  //zx wins
-			else      nz.z = Math.signum(vz.z);  //zz wins
-		} else {
-			if(zy>zz) nz.y = Math.signum(vz.y);  //zy wins
-			else      nz.z = Math.signum(vz.z);  //zz wins
-		}
-		
-		// snap X to major value
-		nx.cross(MatrixHelper.getYAxis(from),nz);
-		// make Y orthogonal to X and Z
-		ny.cross(nz, nx);
-		// build the new matrix.  Make sure m33=1 and position data is copied in.
-		Matrix4d m = new Matrix4d(from);
-		MatrixHelper.setXAxis(m,nx);
-		MatrixHelper.setYAxis(m,ny);
-		MatrixHelper.setZAxis(m,nz);
-		return m;
-	}
-	
-	public void snapToMajorAxis() {
-		Matrix4d m = findMajorAxisTarget(subject.getPoseWorld());
-		if(m!=null) {
-			resultMatrix.set(m);
-			attemptMove((RobotOverlord)getRoot());
-		}
-	}
-	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Db", "Dragball");
@@ -1056,14 +1014,6 @@ public class DragBallEntity extends PoseEntity {
 		view.add(snapOn);
 		view.add(snapDegrees);
 		view.add(snapDistance);
-
-		ViewElementButton bSnap = view.addButton("Snap to world");
-		bSnap.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				snapToMajorAxis();
-			}
-		});
 		
 		view.addComboBox(frameOfReference,FrameOfReference.getAll());
 	}
