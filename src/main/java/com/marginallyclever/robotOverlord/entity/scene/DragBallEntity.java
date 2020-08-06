@@ -1,8 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -22,7 +19,6 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -633,11 +629,6 @@ public class DragBallEntity extends PoseEntity {
 				
 			gl2.glPopMatrix();
 
-			if(subject!=null) {
-				Matrix4d m = findMajorAxisTarget(subject.getPoseWorld());
-				MatrixHelper.drawMatrix(gl2, m, 35);
-			}
-			
 			OpenGLHelper.setLineWidth(gl2, oldWidth);
 			OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
 			OpenGLHelper.drawAtopEverythingEnd(gl2, previousState);
