@@ -33,15 +33,15 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		e.addObserver(this);
 		
 		field = new JSlider();
-		field.setMaximum(top);
-		field.setMinimum(bottom);
+		field.setMaximum(top*10);
+		field.setMinimum(bottom*10);
 		field.setMinorTickSpacing(1);
-		field.setValue((int)Math.floor(e.get()));
+		field.setValue((int)Math.floor(e.get()*10));
 		field.addChangeListener(this);
 		field.addFocusListener(this);
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
-		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);
+		value = new JLabel(Double.toString(field.getValue()/10.0),JLabel.RIGHT);
 		Dimension dim = new Dimension(30,1);
 		value.setMinimumSize(dim);
 		value.setPreferredSize(dim);
@@ -59,8 +59,8 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	@Override
 	public void update(Observable o, Object arg) {
 		inUpdate=true;
-		field.setValue((int)Math.floor((Double)arg));
-		value.setText(Integer.toString(field.getValue()));
+		field.setValue((int)Math.floor((Double)arg*10));
+		value.setText(Double.toString(field.getValue()/10.0));
 		inUpdate=false;
 	}
 
@@ -68,11 +68,11 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	public void stateChanged(ChangeEvent arg0) {
 		if(inUpdate) return;
 		
-		int oldValue = (int)Math.floor(e.get());
-		int newValue = field.getValue();
+		double oldValue = Math.floor(e.get());
+		double newValue = field.getValue()/10.0;
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new ActionChangeDouble(e,(double)newValue);
+			AbstractUndoableEdit event = new ActionChangeDouble(e,newValue);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}
