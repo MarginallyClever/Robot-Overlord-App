@@ -1,6 +1,8 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.marginallyclever.robotOverlord.log.Log;
 
@@ -128,7 +130,8 @@ public class InputManager {
 		if(libPath==null) {
 			Log.message("Trying to force local path, likely to fail.");
 			File temp = new File("DeleteMe");
-			System.setProperty("net.java.games.input.librarypath", temp.getAbsolutePath());
+			Path p = Paths.get(temp.getAbsolutePath());
+			System.setProperty("net.java.games.input.librarypath", p.getParent());
 			temp.delete();
 		}
 		//Log.message(System.mapLibraryName(""));
