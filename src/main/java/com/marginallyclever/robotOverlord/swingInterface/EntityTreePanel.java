@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.swingInterface;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 import javax.swing.JButton;
@@ -82,6 +83,26 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		removeEntity.setEnabled(state);
 	}
 	
+
+	// from https://www.logicbig.com/tutorials/java-swing/jtree-expand-collapse-all-nodes.html
+	public static void setNodeExpandedState(JTree tree, DefaultMutableTreeNode node, boolean expanded) {
+		TreePath path = new TreePath(node.getPath());
+		if (expanded) {
+			tree.expandPath(path);
+		} else {
+			tree.collapsePath(path);
+		}
+		
+		@SuppressWarnings("unchecked")
+		ArrayList<DefaultMutableTreeNode> list = Collections.list(node.children());
+		for (DefaultMutableTreeNode treeNode : list) {
+			setNodeExpandedState(tree, treeNode, expanded);
+		}
+		if (!expanded && node.isRoot()) {
+			return;
+		}
+	}
+
     /**
      * list all entities in the world.  Double click an item to get its panel.
      * See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
@@ -92,32 +113,38 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		JTree newTree = new JTree(newTop);
 
 	    newTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	    newTree.setShowsRootHandles(true);
+	    newTree.setShowsRootHandles(false);
 	    newTree.addTreeSelectionListener(this);
 		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		if(oldTree!=null) {
+			setNodeExpandedState(newTree,(DefaultMutableTreeNode)newTree.getModel().getRoot(),true);
 			// preserve the original expansions
-			ArrayList<TreePath> expanded = new ArrayList<TreePath>();
 			for(int i=0;i<oldTree.getRowCount();++i) {
-				if(oldTree.isExpanded(i)) {
-					expanded.add(oldTree.getPathForRow(i));
+				if(!oldTree.isExpanded(i)) {
+					//Log.message("Collapsing path " + oldTree.getPathForRow(i) + ":"+(oldTree.isExpanded(i)?"o":"x"));
+					TreePath p0 = oldTree.getPathForRow(i);
+					String p0s = p0.toString(); 
+					//Log.message("Comparing to >"+p0s+"<");
+					for(int j=0;j<newTree.getRowCount();++j) {
+						TreePath p1 = newTree.getPathForRow(j);
+						//Log.message("  Comparing to >"+p1.toString()+"<");
+						if(p0s.equals(p1.toString())) {
+							//Log.message("Found " + p1.toString());
+							newTree.collapsePath(p1);
+							break;
+						}
+					}
 				}
-			}
-			// restore the expanded paths
-			for(TreePath p : expanded) {
-				newTree.expandPath(p);
 			}
 			// restore the selected paths
 			TreePath[] paths = oldTree.getSelectionPaths();
 			newTree.setSelectionPaths(paths);
 		}
 		
-		if(!newTree.equals(oldTree)) {
-			scroll.setViewportView(newTree);
-			oldTree=newTree;
-			oldTop =newTop;
-		}
+		scroll.setViewportView(newTree);
+		oldTree=newTree;
+		oldTop =newTop;
 	}
 
 	// This is a ViewTree of the root entity.
