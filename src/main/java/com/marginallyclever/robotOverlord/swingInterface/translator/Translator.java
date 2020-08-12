@@ -78,7 +78,7 @@ public final class Translator {
 	 *
 	 */
 	static public void start() {
-		Log.message("starting translator...");
+		Log.message("Translator start");
 		
 		Locale locale = Locale.getDefault();
 		defaultLanguage = locale.getDisplayLanguage(Locale.ENGLISH);

@@ -125,6 +125,8 @@ public class InputManager {
 	protected static int prevIdentifier;
 	
 	static public void start() {
+		Log.message("InputManager start");
+		
 		String libPath = System.getProperty("net.java.games.input.librarypath");
 		Log.message("INPUT library path="+libPath);
 		if(libPath==null) {

@@ -190,11 +190,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			throw new RuntimeException("RobotOverlord cannot be run headless...yet.");
 		}
 		
-		Log.message("Translator start");
 		Translator.start();
-		Log.message("SoundSystem start");
 		SoundSystem.start();
-		Log.message("InputManager start");
 		InputManager.start();
 
 		Log.message("Undo start");
@@ -203,7 +200,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         commandUndo.setRedoCommand(commandRedo);
     	commandRedo.setUndoCommand(commandUndo);
 
- 		setName("Robot Overlord");
+ 		setName("");
 		
  		addChild(viewport);
  		addChild(camera);
@@ -214,7 +211,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		viewport.attachedTo.set(camera.getFullPath());
 
 		Log.message("Create default scene");
-        // ..with default setting.  TODO save & load whole world and all its Entities.
         scene.createSixiDemo();
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
