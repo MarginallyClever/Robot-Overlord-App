@@ -8,7 +8,7 @@ import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
-public class JInputTest {
+public class InputManagerTest {
 	// Output the current java.library.path and the current working directory.
 	@Test
 	public void reportJavaLibraryPath() {
