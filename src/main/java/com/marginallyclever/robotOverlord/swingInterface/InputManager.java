@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
+import java.io.File;
+
 import com.marginallyclever.robotOverlord.log.Log;
 
 import net.java.games.input.Component;
@@ -121,9 +123,15 @@ public class InputManager {
 	protected static int prevIdentifier;
 	
 	static public void start() {
-		String lib_path = System.getProperty("net.java.games.input.librarypath");
-		Log.message("INPUT library path="+lib_path);
-		Log.message(System.mapLibraryName("here"));
+		String libPath = System.getProperty("net.java.games.input.librarypath");
+		Log.message("INPUT library path="+libPath);
+		if(libPath==null) {
+			Log.message("Trying to force local path, likely to fail.");
+			File temp = new File("DeleteMe");
+			System.setProperty("net.java.games.input.librarypath", temp.getAbsolutePath());
+			temp.delete();
+		}
+		//Log.message(System.mapLibraryName(""));
 
 		listAllControllers();
 	}
