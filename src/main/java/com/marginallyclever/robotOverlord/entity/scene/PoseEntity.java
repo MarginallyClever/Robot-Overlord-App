@@ -19,11 +19,9 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.Matrix4dEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementString;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -368,6 +366,7 @@ public class PoseEntity extends Entity {
 				snapToMajorAxis();
 			}
 		});
+		//view.addStaticText("Pick name="+getPickName());
 		//	pose.getView(view);
 		view.popStack();
 		view.pushStack("WP","World Pose");
