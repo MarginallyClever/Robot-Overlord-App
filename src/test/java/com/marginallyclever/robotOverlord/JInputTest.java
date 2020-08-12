@@ -20,11 +20,12 @@ public class JInputTest {
 	
 
 	// Figure out which input just changed.  Requires human input.
-	//@Test
+	@Test
 	public void detectSingleInputChange() {
 		int i,j,k;
 		
-		while(true) {
+		long t0 = System.currentTimeMillis();
+		while(System.currentTimeMillis() - t0 < 10000) {  // 10 seconds
 			// count all devices and components
 			int totalComponents=0;
 			Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -73,11 +74,12 @@ public class JInputTest {
 	}
 	
 	// Figure out which input just changed.  Requires human input.
-	//@Test
+	@Test
 	public void detectSingleInputChangeB() {
 		int i,j;
-		
-        while(true) {
+
+		long t0 = System.currentTimeMillis();
+		while(System.currentTimeMillis() - t0 < 10000) {  // 10 seconds
         	// get the latest state
             InputManager.update(true);
 			Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
