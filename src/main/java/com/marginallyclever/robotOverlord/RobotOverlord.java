@@ -211,7 +211,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		addChild(dragBall);
  		addChild(viewCube);
  		
- 		viewport.attachedTo.set(camera.getFullName());
+ 		viewport.attachedTo.set(camera.getFullPath());
 
 		Log.message("Create default scene");
         // ..with default setting.  TODO save & load whole world and all its Entities.
@@ -868,7 +868,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	public void pickEntity(Entity e) {
 		if(e==selectedEntity) return;  // same again
 
-		String name = (e==null)?"nothing":e.getFullName();
+		String name = (e==null)?"nothing":e.getFullPath();
 		Log.message("Picked "+name);
 		
 		selectedEntity=e;
