@@ -131,7 +131,7 @@ public class InputManager {
 			Log.message("Trying to force local path, likely to fail.");
 			File temp = new File("DeleteMe");
 			Path p = Paths.get(temp.getAbsolutePath());
-			System.setProperty("net.java.games.input.librarypath", p.getParent());
+			System.setProperty("net.java.games.input.librarypath", p.getParent().toString());
 			temp.delete();
 		}
 		//Log.message(System.mapLibraryName(""));
