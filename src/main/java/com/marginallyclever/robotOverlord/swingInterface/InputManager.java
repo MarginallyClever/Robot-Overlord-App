@@ -1,9 +1,5 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.marginallyclever.robotOverlord.log.Log;
 
 import net.java.games.input.Component;
