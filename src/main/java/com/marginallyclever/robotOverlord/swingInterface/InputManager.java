@@ -131,19 +131,14 @@ public class InputManager {
 		Log.message("INPUT library path="+libPath);
 		if(libPath==null) {
 			Log.message("Trying to force local path, likely to fail.");
-			File temp = new File("DeleteMe");
-			Path p = Paths.get(temp.getAbsolutePath());
-			System.setProperty("net.java.games.input.librarypath", p.getParent().toString());
-			temp.delete();
+			System.setProperty("net.java.games.input.librarypath", System.getProperty("user.dir"));
 		}
 		//Log.message(System.mapLibraryName(""));
 
 		listAllControllers();
 	}
 
-	/**
-	 * output all controllers, their components, and some details about those components.
-	 */
+	// Output all controllers, their components, and some details about those components.
 	static public void listAllControllers() {
 		ControllerEnvironment ce = ControllerEnvironment.getDefaultEnvironment();
 		Log.message("supported="+ce.isSupported());
@@ -153,12 +148,12 @@ public class InputManager {
         for(int i =0;i<ca.length;i++){
             Component[] components = ca[i].getComponents();
 
-            Log.message("Controller "+i+":"+ca[i].getName()+" "+ca[i].getType().toString());
-            Log.message("Component Count: "+components.length);
+            Log.message("Controller "+i+":"+ca[i].getName()+" ("+ca[i].getType().toString()+")");
+            //Log.message("  Component Count: "+components.length);
 
             // Get this controllers components (buttons and axis)
             for(int j=0;j<components.length;j++){
-            	Log.message("\t"+j+": "+components[j].getName() + " " + components[j].getIdentifier().getName()
+            	Log.message("    "+j+": "+components[j].getName() + " " + components[j].getIdentifier().getName()
             			+" ("
                 		+ (components[j].isRelative() ? "Relative" : "Absolute")
                 		+ " "
