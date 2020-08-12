@@ -9,9 +9,7 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
 public class JInputTest {
-	/**
-	 * output the current java.library.path and the current working directory.
-	 */
+	// Output the current java.library.path and the current working directory.
 	@Test
 	public void reportJavaLibraryPath() {
 		String property = System.getProperty("java.library.path");
@@ -21,9 +19,7 @@ public class JInputTest {
 	}
 	
 
-	/**
-	 * Figure out which input just changed.  Requires human input.
-	 */
+	// Figure out which input just changed.  Requires human input.
 	//@Test
 	public void detectSingleInputChange() {
 		int i,j,k;
@@ -76,9 +72,7 @@ public class JInputTest {
 		}
 	}
 	
-	/**
-	 * Figure out which input just changed.  Requires human input.
-	 */
+	// Figure out which input just changed.  Requires human input.
 	//@Test
 	public void detectSingleInputChangeB() {
 		int i,j;
