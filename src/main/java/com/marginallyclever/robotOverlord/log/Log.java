@@ -47,7 +47,7 @@ public class Log {
 	}
 	
 	public static void start() {
-		LOG_FILE_PATH = System.getProperty("user.dir");//System.getProperty("java.io.tmpdir");
+		LOG_FILE_PATH = System.getProperty("user.dir");
 		if(!LOG_FILE_PATH.endsWith(File.separator)) {
 			LOG_FILE_PATH+=File.separator;
 		}
@@ -62,6 +62,7 @@ public class Log {
 		
 		write(PROGRAM_START_STRING);
 		write("OS="+System.getProperty("os.name").toLowerCase());
+		write("JVM="+System.getProperty("java.runtime.version")+" "+System.getProperty("java.version.date")+" "+System.getProperty("java.vendor"));
 	}
 	
 	public static void end() {
