@@ -59,8 +59,10 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	@Override
 	public void update(Observable o, Object arg) {
 		inUpdate=true;
-		field.setValue((int)Math.floor((Double)arg*10));
-		value.setText(Double.toString(field.getValue()/10.0));
+		if(field != null) {
+			field.setValue((int)Math.floor((Double)arg*10));
+			value.setText(Double.toString(field.getValue()/10.0));
+		}
 		inUpdate=false;
 	}
 
