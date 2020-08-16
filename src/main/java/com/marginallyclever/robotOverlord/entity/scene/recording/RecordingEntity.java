@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.entity.scene.recording;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -107,10 +106,10 @@ public class RecordingEntity extends Entity {
 		
 		PoseEntity pe = (PoseEntity)targetEntity;
 		Vector3d targetPos = new Vector3d();
-		Vector3d targetRot = new Vector3d();
 		targetPos.x = trackList.get(0).getValueAt(time_ms);
 		targetPos.y = trackList.get(1).getValueAt(time_ms);
 		targetPos.z = trackList.get(2).getValueAt(time_ms);
+		//Vector3d targetRot = new Vector3d();
 		//targetRot.x = trackList.get(3).getValueAt(time_ms);
 		//targetRot.y = trackList.get(4).getValueAt(time_ms);
 		//targetRot.z = trackList.get(5).getValueAt(time_ms);
