@@ -1,10 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.util.ArrayList;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
@@ -700,5 +703,26 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		view.addRange(acceleration,50,0);
 		view.popStack();
 		super.getView(view);
+	}
+
+	/**
+	 * @return a list of cuboids, or null.
+	 */
+	@Override
+	public ArrayList<Cuboid> getCuboidList() {
+		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
+
+		refreshPose();
+
+		for( DHLink link : links ) {
+			if(link.getCuboid() != null ) {
+				cuboidList.addAll(link.getCuboidList());
+			}
+		}
+		if(dhTool != null) {
+			cuboidList.addAll(dhTool.getCuboidList());
+		}
+
+		return cuboidList;
 	}
 }

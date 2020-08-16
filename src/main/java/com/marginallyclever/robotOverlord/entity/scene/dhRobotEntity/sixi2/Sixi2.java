@@ -1,21 +1,15 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -123,27 +117,6 @@ public class Sixi2 extends PoseEntity {
 		}
 
 		super.update(dt);
-	}
-
-	/**
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-
-		sim.refreshPose();
-
-		for( DHLink link : this.sim.links ) {
-			if(link.getCuboid() != null ) {
-				cuboidList.addAll(link.getCuboidList());
-			}
-		}
-		if(sim.dhTool != null) {
-			cuboidList.addAll(sim.dhTool.getCuboidList());
-		}
-
-		return cuboidList;
 	}
 
 	@Override
