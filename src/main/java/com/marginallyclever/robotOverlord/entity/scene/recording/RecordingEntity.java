@@ -1,10 +1,10 @@
 package com.marginallyclever.robotOverlord.entity.scene.recording;
 
-import java.io.File;
-
-import javax.sound.midi.Track;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
@@ -38,14 +39,20 @@ public class RecordingEntity extends Entity {
 	public BooleanEntity validTarget = new BooleanEntity("Valid target",false);
 	private PoseEntity targetEntity = null;
 	
+	// list of tracks
+	public LinkedList<RecordingTrackDouble> trackList = new LinkedList<RecordingTrackDouble>();
+	
 	// where is the playhead in the sequence of tracks?
 	public DoubleEntity playHead = new DoubleEntity("Play head (s)",0);
-	// what is the total sequence length?
+	
+	// what is the total sequence length?  (can be earlier than the last events)
 	public DoubleEntity sequenceLength = new DoubleEntity("Sequence length (s)",0);
+	
 	public boolean isPlaying=false;
 	
 	// needed as a reference for other button actions.
 	protected ViewElementButton playStop;
+	
 	
 	public RecordingEntity() {
 		super("Recording");
@@ -75,16 +82,92 @@ public class RecordingEntity extends Entity {
 						Log.message("Start watching "+targetEntity.getFullPath());
 						targetEntity.addObserver(this);
 						validTarget.set(true);
+						resetTrackList();
 					}
 				} else if(o==targetEntity) {
-					// target has changed, set current keyframe to the new pose.
-					Log.message("Change to "+targetEntity.getFullPath());
-					
+					// ignore targetEntity moves while in playing.
+					if(!isPlaying) {
+						setKeyToTarget(getPlayHeadMS());
+					}
+				}
+			}
+		});
+		playHead.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				if(targetEntity!=null) {
+					moveTargetToTime(getPlayHeadMS());
 				}
 			}
 		});
 	}
 
+	public void moveTargetToTime(long time_ms) {
+		if(targetEntity==null) return;
+		
+		PoseEntity pe = (PoseEntity)targetEntity;
+		Vector3d targetPos = new Vector3d();
+		Vector3d targetRot = new Vector3d();
+		targetPos.x = trackList.get(0).getValueAt(time_ms);
+		targetPos.y = trackList.get(1).getValueAt(time_ms);
+		targetPos.z = trackList.get(2).getValueAt(time_ms);
+		//targetRot.x = trackList.get(3).getValueAt(time_ms);
+		//targetRot.y = trackList.get(4).getValueAt(time_ms);
+		//targetRot.z = trackList.get(5).getValueAt(time_ms);
+		
+		//Matrix3d m3 = MatrixHelper.eulerToMatrix(targetRot);
+		//Matrix4d m4 = new Matrix4d(m3,targetPos,1);
+		Matrix4d m4 = pe.getPoseWorld();
+		m4.setTranslation(targetPos);
+		pe.setPoseWorld(m4);
+		
+		Log.message("Playback t="+time_ms+": "+targetPos.toString());
+	}
+	
+	// set sequence track list events at time to target pose.
+	public void setKeyToTarget(long time) {
+		if(targetEntity==null) return;
+		
+		Matrix4d pw = targetEntity.getPoseWorld();
+		Vector3d targetPos = MatrixHelper.getPosition(pw);
+		Vector3d targetRot = MatrixHelper.matrixToEuler(pw);
+		
+		trackList.get(0).setValueAt(time,targetPos.x);
+		trackList.get(1).setValueAt(time,targetPos.y);
+		trackList.get(2).setValueAt(time,targetPos.z);
+		trackList.get(3).setValueAt(time,targetRot.x);
+		trackList.get(4).setValueAt(time,targetRot.y);
+		trackList.get(5).setValueAt(time,targetRot.z);
+		
+		Log.message("Record "+targetEntity.getFullPath()+" @ "+time+": "+targetPos.toString());
+	}
+	
+	public long getPlayHeadMS() {
+		return (long)Math.floor(playHead.get()*1000);
+	}
+	
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		
+		// are we playing?
+		if(isPlaying) {
+			// are we at the end?
+			double ts = playHead.get();
+			
+			if(ts>=sequenceLength.get()) {
+				// yes
+				playHead.set(sequenceLength.get());
+				stop();
+				return;
+			} else {
+				// no
+				// advance playHead
+				playHead.set(ts+1.0/30.0); // 30FPS TODO improve this.
+			}
+		}
+	}
+	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Re", "Recording Entity");
@@ -93,32 +176,37 @@ public class RecordingEntity extends Entity {
 		view.addFilename(pathToFile, filters);
 		
 		view.add(targetName);
+		view.add(playHead);
+		view.add(sequenceLength);
+		
 		view.add(validTarget).setReadOnly(true);
 		ViewElementButton toStart  = view.addButton("|◄");
 		ViewElementButton keyPrev  = view.addButton("◄◄");
-						  playStop = view.addButton("||");
+						  playStop = view.addButton("►");
 		ViewElementButton keyNext  = view.addButton("►►");
 		ViewElementButton toEnd    = view.addButton("►|");
 
-		ViewElementButton bAddTrack = view.addButton("Add track");
-		ViewElementButton bNew     = view.addButton("New");
-		ViewElementButton bLoad    = view.addButton("Load");
-		ViewElementButton bSave    = view.addButton("Save");
+		//ViewElementButton bAddTrack = view.addButton("Add track");
+		//ViewElementButton bNew     = view.addButton("New");
+		//ViewElementButton bLoad    = view.addButton("Load");
+		//ViewElementButton bSave    = view.addButton("Save");
 
 		view.popStack();
 		
 		toStart.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				stop();
+				start();
 				playHead.set(0.0);
+				stop();
 			}
 		});
 		keyPrev.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
+				start();
+				playHead.set(findEventTimeBefore(getPlayHeadMS())*0.001);
 				stop();
-				playHead.set(findEventBefore(playHead.get()));
 			}
 		});
 		playStop.addObserver(new Observer() {
@@ -131,44 +219,45 @@ public class RecordingEntity extends Entity {
 		keyNext.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
+				start();
+				playHead.set(findEventTimeAfter(getPlayHeadMS())*0.001);
 				stop();
-				playHead.set(findEventAfter(playHead.get()));
 			}
 		});
 		toEnd.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				stop();
+				start();
 				playHead.set(sequenceLength.get());
+				stop();
 			}
 		});
-		
+		/*
 		bNew.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				resetTrackList();
 				
 			}
-		});;
+		});
 		bLoad.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				loadTrackList();
 			}
-		});;
+		});
 		bSave.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				saveTrackList();
 			}
 		});
-		
 		bAddTrack.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				addTrack();
 			}
-		});
+		});*/
 		super.getView(view);
 	}
 
@@ -177,17 +266,15 @@ public class RecordingEntity extends Entity {
 	 * @param t
 	 * @return X.time, as described.
 	 */
-	protected double findEventBefore(double t) {
-		double nearestTime = 0.0;
+	protected long findEventTimeBefore(long t) {
+		long nearestTime = Long.MAX_VALUE;
 		
-		for(Entity track : children) {
-			if(track instanceof RecordingTrack) {
-				Iterator<AbstractRecordingEvent> iter = ((RecordingTrack)track).events.iterator();
-				while(iter.hasNext()) {
-					AbstractRecordingEvent are = iter.next();
-					if(are.time>=t) break;
-					nearestTime = Math.max(nearestTime,t);
-				}
+		for( AbstractRecordingTrack track : trackList ) {
+			Iterator<AbstractRecordingEvent> iter = track.events.iterator();
+			while(iter.hasNext()) {
+				AbstractRecordingEvent are = iter.next();
+				if(are.time>=t) break;
+				nearestTime = Math.max(nearestTime,t);
 			}
 		}
 		return nearestTime;
@@ -198,17 +285,15 @@ public class RecordingEntity extends Entity {
 	 * @param t
 	 * @return X.time, as described.
 	 */
-	protected double findEventAfter(double t) {
-		double nearestTime = Double.MAX_VALUE;
+	protected long findEventTimeAfter(long t) {
+		long nearestTime = Long.MAX_VALUE;
 
-		for(Entity track : children) {
-			if(track instanceof RecordingTrack) {
-				Iterator<AbstractRecordingEvent> iter = ((RecordingTrack)track).events.descendingIterator();
-				while(iter.hasNext()) {
-					AbstractRecordingEvent are = iter.next();
-					if(are.time<=t) break;
-					nearestTime = Math.min(nearestTime,t);
-				}
+		for(AbstractRecordingTrack track : trackList ) {
+			Iterator<AbstractRecordingEvent> iter = track.events.descendingIterator();
+			while(iter.hasNext()) {
+				AbstractRecordingEvent are = iter.next();
+				if(are.time<=t) break;
+				nearestTime = Math.min(nearestTime,t);
 			}
 		}
 		return nearestTime;
@@ -216,20 +301,25 @@ public class RecordingEntity extends Entity {
 	
 	protected void stop() {
 		isPlaying=false;
-		playStop.setText(isPlaying?"■":"►");
+		if(playStop!=null) playStop.setText("►");
 	}
 	
 	protected void start() {
 		isPlaying=true;
-		playStop.setText(isPlaying?"■":"►");
+		if(playStop!=null) playStop.setText("■");
 	}
 	
 	protected void resetTrackList() {
 		stop();
-		// remove all children
-		while(!this.children.isEmpty()) {
-			removeChild(this.children.get(0));
-		}
+		playHead.set(0.0);
+		trackList.clear();
+		trackList.add(new RecordingTrackDouble("PosX",0));
+		trackList.add(new RecordingTrackDouble("PosY",0));
+		trackList.add(new RecordingTrackDouble("PosZ",0));
+		trackList.add(new RecordingTrackDouble("RotX",0));
+		trackList.add(new RecordingTrackDouble("RotY",0));
+		trackList.add(new RecordingTrackDouble("RotZ",0));
+		setKeyToTarget(0);
 	}
 	
 	protected void saveTrackList() {
@@ -241,7 +331,7 @@ public class RecordingEntity extends Entity {
 		stop();
 		// TODO open file; read in contents; close file
 	}
-	
+	/*
 	protected void addTrack() {
 		int f = 0;
 		for( Entity track : children ) {
@@ -251,8 +341,10 @@ public class RecordingEntity extends Entity {
 				f = Math.max(f,id);
 			}
 		}
-		RecordingTrack newTrack = new RecordingTrack("Track "+(f+1));
-		
-		addChild(newTrack);
-	}
+		f++;
+		Log.message("Adding track "+f);
+		RecordingTrack newTrack = new RecordingTrack("Track "+f);
+		trackList.add(newTrack);
+	}*/
 }
+//

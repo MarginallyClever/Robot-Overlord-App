@@ -7,9 +7,9 @@ package com.marginallyclever.robotOverlord.entity.scene.recording;
  * @param <T> type of data on this track.
  */
 public class AbstractRecordingEvent {
-	public double time;
+	public long time;  // ms
 	
-	public AbstractRecordingEvent(double time) {
+	public AbstractRecordingEvent(long time) {
 		this.time = time;
 	}
 	public AbstractRecordingEvent() {
