@@ -199,7 +199,7 @@ public class Scene extends Entity {
 		
 		// check all children
 		for( Entity b : children ) {
-			// we do not test collide with self.  filter for all physical objects EXCEPT a.
+			// we want all collidable items except a.
 			if( !( b instanceof PoseEntity ) || b==a ) continue;
 
 			ArrayList<Cuboid> listB = ((PoseEntity)b).getCuboidList();
