@@ -184,7 +184,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(!keyframeAnglesAreOK(keyframe)) {
 			if(VERBOSE) Log.message("Bad angles");
 			return false;
-		}/*
+		}
 		if(collidesWithSelf(keyframe)) {
 			if(VERBOSE) Log.message("Collides with self");
 			return false;
@@ -192,7 +192,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(collidesWithWorld(keyframe))	{
 			if(VERBOSE) Log.message("Collides with world");
 			return false;
-		}*/
+		}
 		return true;
 	}
 		
