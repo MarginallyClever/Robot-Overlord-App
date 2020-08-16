@@ -35,17 +35,7 @@ public class Sixi2 extends PoseEntity {
 	public Sixi2Model live = new Sixi2Live();
 	public Sixi2Model sim = new Sixi2Sim();
 
-	public Sixi2Recording recording = new Sixi2Recording();
 	public SixiJoystick joystick = new SixiJoystick();
-
-	// are we live or simulated?  deep philosophical questions.
-	protected IntEntity operatingMode = new IntEntity("Operating mode",OperatingMode.SIM.toInt());
-	// are we trying to record the robot?
-	protected IntEntity controlMode = new IntEntity("Control mode",ControlMode.RECORD.toInt());
-
-	protected BooleanEntity singleBlock = new BooleanEntity("Single Block",false);
-	protected BooleanEntity cycleStart = new BooleanEntity("Cycle Start",false);
-	protected BooleanEntity m01Break = new BooleanEntity("M01 Break",true);
 	
 	public Sixi2() {
 		super();
@@ -54,16 +44,6 @@ public class Sixi2 extends PoseEntity {
 		addChild(live);
 		addChild(sim);
 		addChild(joystick);
-		
-		addChild(operatingMode);
-		addChild(controlMode);
-		
-		addChild(singleBlock);
-		addChild(cycleStart);
-		
-		singleBlock.addObserver(this);
-		cycleStart.addObserver(this);
-		m01Break.addObserver(this);
 
 		//setShowLineage(true);
 		//setShowLocalOrigin(true);
@@ -126,59 +106,9 @@ public class Sixi2 extends PoseEntity {
 			sim.dhTool.directDrive();
 		}
 
-		if(InputManager.isReleased(InputManager.Source.KEY_SPACE)) {	reset();				}
-		if(InputManager.isReleased(InputManager.Source.KEY_TAB  )) {	toggleControlMode();	}
-		if(InputManager.isReleased(InputManager.Source.KEY_TILDE)) {	toggleOperatingMode();	}
-		if(InputManager.isReleased(InputManager.Source.KEY_S    )) {	toggleSingleBlock();	}
-
 		if(InputManager.isReleased(InputManager.Source.KEY_DELETE)
 		|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
 			sim.set(live);
-		}
-
-		if(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
-		|| InputManager.isOn(InputManager.Source.KEY_RSHIFT)) {
-			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
-			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode.get()==ControlMode.PLAYBACK.toInt()) {
-					toggleCycleStart();
-				}
-			}
-		} else {
-			// shift off
-			if(InputManager.isReleased(InputManager.Source.KEY_ENTER)
-			|| InputManager.isReleased(InputManager.Source.KEY_RETURN)) {
-				if(controlMode.get()==ControlMode.RECORD.toInt()) {
-					Log.message("setCommand");
-					setCommand();
-				}
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_PLUS)) {
-				Log.message("addCommand");
-				addCommand();
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_DELETE)) {
-				Log.message("deleteCurrentCommand");
-				deleteCurrentCommand();
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_BACKSPACE)) {
-				Log.message("deletePreviousCommand");
-				recording.deletePreviousCommand();
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_LESSTHAN)) {
-				Log.message("PreviousCommand");
-				if(recording.hasPrev()) {
-			          String line=recording.prev();
-			          sim.sendCommand(line);
-				}
-			}
-			if(InputManager.isReleased(InputManager.Source.KEY_GREATERTHAN)) {
-				Log.message("NextCommand");
-		        if(recording.hasNext()) {
-		            String line=recording.next();
-		            sim.sendCommand(line);
-		        }
-			}
 		}
 	}
 
@@ -187,29 +117,9 @@ public class Sixi2 extends PoseEntity {
 	public void update(double dt) {
 		//driveFromKeyState(dt);
 		
-		Sixi2Model activeModel = (operatingMode.get() == OperatingMode.LIVE.toInt()) ? live : sim;
-		if(activeModel.readyForCommands) {
-			if(controlMode.get() == ControlMode.RECORD.toInt()) {
-				if(activeModel == live) {
-					String line = sim.getCommand();
-					//Log.message(controlMode + " " + operatingMode + " send command: "+line);
-					live.sendCommand(line);
-				}
-			} else {
-				if(cycleStart.get() && recording.hasNext()) {
-					String line = recording.next();
-					//Log.message(controlMode + " " + operatingMode + " send command: "+line);
-					activeModel.sendCommand(line);
-					if(singleBlock.get()) {
-						// one block at a time
-						cycleStart.set(false);
-					}
-				} else {
-					// no more recording, stop.
-					cycleStart.set(false);
-				}
-			}
-			// active model is updated when all children are updated
+		if(live.readyForCommands) {
+			//Log.message(controlMode + " " + operatingMode + " send command: "+line);
+			live.sendCommand(sim.getCommand());
 		}
 
 		super.update(dt);
@@ -244,32 +154,18 @@ public class Sixi2 extends PoseEntity {
 	}
 
 	public double getAcceleration() {
-		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
-			return live.getAcceleration();
-		} else {
-			return sim.getAcceleration();
-		}
+		return sim.getAcceleration();
 	}
 
 	public void setAcceleration(double v) {
-		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
-			live.setAcceleration(v);
-		}
 		sim.setAcceleration(v);
 	}
 
 	public double getFeedRate() {
-		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
-			return live.getFeedrate();
-		} else {
-			return sim.getFeedrate();
-		}
+		return sim.getFeedrate();
 	}
 
 	public void setFeedRate(double v) {
-		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
-			live.setFeedRate(v);
-		}
 		sim.setFeedRate(v);
 	}
 
@@ -279,99 +175,11 @@ public class Sixi2 extends PoseEntity {
 	 * @return true if the command is sent to the robot.
 	 */
 	public void sendCommand(String command) {
-		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
-			live.sendCommand(command);
-		}
 		sim.sendCommand(command);
 	}
 
 	public String getCommand() {
-		if(operatingMode.get()==OperatingMode.LIVE.toInt()) {
-			return live.getCommand();
-		} else {
-			return sim.getCommand();
-		}
-	}
-
-	public void reset() {
-		recording.reset();
-		singleBlock.set(false);
-		cycleStart.set(false);
-		m01Break.set(true);
-
-		Log.message("reset "+recording.getNumCommands());
-	}
-
-	public void toggleCycleStart() {
-		cycleStart.toggle();
-		//Log.message("cycleStart="+(cycleStart?"on":"off"));
-	}
-
-	public void setCycleStart(boolean arg0) {
-		cycleStart.set(arg0);
-		//Log.message("cycleStart="+(cycleStart?"on":"off"));
-	}
-
-	public boolean isCycleStart() {
-		return cycleStart.get();
-	}
-
-	public void toggleSingleBlock() {
-		singleBlock.toggle();
-		//Log.message("singleBlock="+(singleBlock?"on":"off"));
-	}
-
-	public boolean isSingleBlock() {
-		return singleBlock.get();
-	}
-
-	public void toggleM01Break() {
-		m01Break.toggle();
-		//Log.message("m01Break="+(m01Break?"on":"off"));
-	}
-
-	public boolean isM01Break() {
-		return m01Break.get();
-	}
-
-	public void toggleControlMode() {
-		controlMode.set( (controlMode.get()==ControlMode.RECORD.toInt()) ? ControlMode.PLAYBACK.toInt() : ControlMode.RECORD.toInt() );
-		Log.message("controlMode="+controlMode);
-
-		if(controlMode.get()==ControlMode.RECORD.toInt()) {
-			// move the joystick to match the simulated position?
-		}
-
-		reset();
-	}
-
-	public void toggleOperatingMode() {
-		operatingMode.set( (operatingMode.get()==OperatingMode.LIVE.toInt()) ? OperatingMode.SIM.toInt() : OperatingMode.LIVE.toInt() );
-		//Log.message("operatingMode="+operatingMode);
-	}
-
-	public ArrayList<String> getCommandList() {
-		return recording.getCommandList();
-	}
-
-	public void addCommand() {
-		recording.addCommand(sim.getCommand());
-	}
-	
-	public void deleteCurrentCommand() {
-		recording.deleteCurrentCommand();
-	}
-	
-	public void setCommand() {
-		recording.setCommand(sim.getCommand());
-	}
-
-	public void loadRecording(String filename) {
-		recording.loadRecording(filename);
-	}
-
-	public void saveRecording(String filename) {
-		recording.saveRecording(filename);
+		return sim.getCommand();
 	}
 
 	public void goHome() {
@@ -381,32 +189,10 @@ public class Sixi2 extends PoseEntity {
 	public void goRest() {
 	    sim.goRest();
 	}
-
-	public int setCommandIndex(int newIndex) {
-		return recording.setCommandIndex(newIndex);
-	}
 	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("S","Sixi");
-		view.addComboBox(operatingMode,OperatingMode.getAll());
-		view.addComboBox(controlMode,ControlMode.getAll());
-		
-		view.add(singleBlock);
-		view.add(cycleStart);
-		view.add(m01Break);
-		
-		// TODO add sliders to adjust FK values?
-		/*
-		for(int i=0;i<sim.links.length;++i) {
-		  view.addAngle?
-		  (
-		  	sim.links.get(0).theta,
-		  	sim.links.get(0).rangeMax.get(),
-		  	sim.links.get(0).rangeMin.get()
-		  );
-		}
-		*/
 		view.popStack();
 		
 		super.getView(view);

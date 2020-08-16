@@ -378,7 +378,10 @@ public class Sixi2Live extends Sixi2Model {
 		bOpen.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				sendCommandToRemoteEntity("M42 P12 S1", true);
+				// HAND-E command
+				//sendCommandToRemoteEntity("M42 P12 S1", true);
+				sendCommandToRemoteEntity("G0 T135", true);
+				
 				Log.message("Opening");
 			}
 		});
@@ -386,7 +389,10 @@ public class Sixi2Live extends Sixi2Model {
 		bClose.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				sendCommandToRemoteEntity("M42 P12 S0", true);
+				// HAND-E command
+				//sendCommandToRemoteEntity("M42 P12 S0", true);
+				// Servo-driven gripper command
+				sendCommandToRemoteEntity("G0 T85", true);
 				Log.message("Closing");
 			}
 		});
