@@ -11,6 +11,7 @@
 		<value>Are you sure you want to quit?</value>
 		<hint>confirm quit dialog question</hint>
 	</string>
+	
 	<string>
 		<key>ConfirmQuitTitle</key>
 		<value>Exit</value>
@@ -1101,6 +1102,80 @@ to check yourself.</value>
 		<value><![CDATA[<html><body>The firmware (code in the brain of your robot) is not the version I expect. I found <strong>v%VERSION%</strong>.<br/>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-firmware/">https://www.marginallyclever.com/product/makelangelo-firmware/</a><br>
 		   for the latest firmware.<br>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-software/">https://www.marginallyclever.com/product/makelangelo-software/</a> for the latest software.</html></body>]]></value>
 		<hint>Software is too new for firmware</hint>
+	</string>
+		
+	<string>
+		<key>Add Entity</key>
+		<value>Add</value>
+		<hint>Above entity tree</hint>
+	</string>
+	<string>
+		<key>Rename Entity</key>
+		<value>Rename</value>
+		<hint>Above entity tree</hint>
+	</string>
+	<string>
+		<key>Remove Entity</key>
+		<value>Remove</value>
+		<hint>Above entity tree</hint>
+	</string>
+	
+	<string>
+		<key>New</key>
+		<value>New</value>
+		<hint>Main Menu/Robot Overlord</hint>
+	</string>
+	<string>
+		<key>Open</key>
+		<value>Open</value>
+		<hint>Main Menu/Robot Overlord</hint>
+	</string>
+	<string>
+		<key>Save as</key>
+		<value>Save as...</value>
+		<hint>Main Menu/Robot Overlord</hint>
+	</string>
+	<string>
+		<key>Quit</key>
+		<value>Quit</value>
+		<hint>Main Menu/Robot Overlord</hint>
+	</string>
+	
+	<string>
+		<key>Controls</key>
+		<value>Controls</value>
+		<hint>Main Menu/Help</hint>
+	</string>
+	<string>
+		<key>Online help</key>
+		<value>Online help</value>
+		<hint>Main Menu/Help</hint>
+	</string>
+	<string>
+		<key>Check for update</key>
+		<value>Check for update</value>
+		<hint>Main Menu/Help</hint>
+	</string>
+	<string>
+		<key>About</key>
+		<value>About</value>
+		<hint>Main Menu/Help</hint>
+	</string>
+	
+	<string>
+		<key>Connect</key>
+		<value>Connect</value>
+		<hint>Sixi 2</hint>
+	</string>
+	<string>
+		<key>Local</key>
+		<value>Local</value>
+		<hint>Sixi 2/Connect</hint>
+	</string>
+	<string>
+		<key>Remote</key>
+		<value>Local</value>
+		<hint>Sixi 2/Connect</hint>
 	</string>
 		
 </language>
