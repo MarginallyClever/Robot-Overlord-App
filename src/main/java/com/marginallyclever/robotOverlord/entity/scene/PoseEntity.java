@@ -359,6 +359,10 @@ public class PoseEntity extends Entity {
 	public void getView(ViewPanel view) {
 		view.pushStack("P","Pose");
 
+		view.add(showBoundingBox);
+		view.add(showLocalOrigin);
+		view.add(showLineage);
+		
 		ViewElementButton bSnap = view.addButton("Snap Z to major axis");
 		bSnap.addObserver(new Observer() {
 			@Override
