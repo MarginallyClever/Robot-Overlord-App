@@ -5,6 +5,7 @@ import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix4d;
+
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
