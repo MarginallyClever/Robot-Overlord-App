@@ -164,9 +164,10 @@ public class DragBallEntity extends PoseEntity {
 
 		// apply the effect of drag actions
 		if(!isActivelyMoving()) {
-			setRotateMode(InputManager.isOn(InputManager.Source.KEY_LSHIFT)
-						|| InputManager.isOn(InputManager.Source.KEY_RSHIFT) || InputManager.isOn(InputManager.Source.STICK_CIRCLE));
-	
+			//setRotateMode(InputManager.isOn(InputManager.Source.STICK_CIRCLE));
+
+			if(InputManager.isReleased(InputManager.Source.KEY_LSHIFT)
+			|| InputManager.isReleased(InputManager.Source.KEY_RSHIFT)) setRotateMode(!getRotateMode());
 			if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReference.set(FrameOfReference.WORLD.toInt());
 			if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReference.set(FrameOfReference.CAMERA.toInt());
 			if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReference.set(FrameOfReference.SUBJECT.toInt());
@@ -643,13 +644,15 @@ public class DragBallEntity extends PoseEntity {
 	private void renderOutsideCircle(GL2 gl2) {
 		final double whiteRadius=1.05;
 		final double greyRadius=1.0;
-		final int quality=40;
+		final int quality=50;
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		ro.viewport.renderChosenProjection(gl2);
-		Matrix4d lookAt = camera.getPoseWorld();
+		Matrix4d lookAt = new Matrix4d();
+		
+		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));
 		lookAt.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
+
 
 		gl2.glPushMatrix();
 
@@ -892,6 +895,10 @@ public class DragBallEntity extends PoseEntity {
 		if(isActivelyMoving) return;
 		// only allow change when not actively moving.
 		this.isRotateMode = isRotateMode;
+	}
+	
+	public boolean getRotateMode() {
+		return isRotateMode;
 	}
 
 	public boolean isActivelyMoving() {
