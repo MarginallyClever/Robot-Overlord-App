@@ -654,7 +654,6 @@ public class DragBallEntity extends PoseEntity {
 		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), wp));
 		lookAt.setTranslation(wp);
 
-
 		gl2.glPushMatrix();
 
 			MatrixHelper.applyMatrix(gl2, lookAt);
