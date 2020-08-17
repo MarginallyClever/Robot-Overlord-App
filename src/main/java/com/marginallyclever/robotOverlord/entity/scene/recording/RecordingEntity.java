@@ -39,7 +39,7 @@ public class RecordingEntity extends Entity {
 	private PoseEntity targetEntity = null;
 	
 	// list of tracks
-	public LinkedList<RecordingTrackDouble> trackList = new LinkedList<RecordingTrackDouble>();
+	public LinkedList<RecordingTrackMatrix4d> trackList = new LinkedList<RecordingTrackMatrix4d>();
 	
 	// where is the playhead in the sequence of tracks?
 	public DoubleEntity playHead = new DoubleEntity("Play head (s)",0);
@@ -105,40 +105,23 @@ public class RecordingEntity extends Entity {
 		if(targetEntity==null) return;
 		
 		PoseEntity pe = (PoseEntity)targetEntity;
-		Vector3d targetPos = new Vector3d();
-		targetPos.x = trackList.get(0).getValueAt(time_ms);
-		targetPos.y = trackList.get(1).getValueAt(time_ms);
-		targetPos.z = trackList.get(2).getValueAt(time_ms);
-		//Vector3d targetRot = new Vector3d();
-		//targetRot.x = trackList.get(3).getValueAt(time_ms);
-		//targetRot.y = trackList.get(4).getValueAt(time_ms);
-		//targetRot.z = trackList.get(5).getValueAt(time_ms);
 		
-		//Matrix3d m3 = MatrixHelper.eulerToMatrix(targetRot);
-		//Matrix4d m4 = new Matrix4d(m3,targetPos,1);
-		Matrix4d m4 = pe.getPoseWorld();
-		m4.setTranslation(targetPos);
+		Matrix4d m4 = trackList.get(0).getValueAt(time_ms);
+		
 		pe.setPoseWorld(m4);
 		
-		Log.message("Playback t="+time_ms+": "+targetPos.toString());
+		Log.message("Playback t="+time_ms+": "+MatrixHelper.getPosition(m4));
 	}
 	
 	// set sequence track list events at time to target pose.
 	public void setKeyToTarget(long time) {
 		if(targetEntity==null) return;
 		
-		Matrix4d pw = targetEntity.getPoseWorld();
-		Vector3d targetPos = MatrixHelper.getPosition(pw);
-		Vector3d targetRot = MatrixHelper.matrixToEuler(pw);
+		Matrix4d m4 = targetEntity.getPoseWorld();
 		
-		trackList.get(0).setValueAt(time,targetPos.x);
-		trackList.get(1).setValueAt(time,targetPos.y);
-		trackList.get(2).setValueAt(time,targetPos.z);
-		trackList.get(3).setValueAt(time,targetRot.x);
-		trackList.get(4).setValueAt(time,targetRot.y);
-		trackList.get(5).setValueAt(time,targetRot.z);
+		trackList.get(0).setValueAt(time,m4);
 		
-		Log.message("Record "+targetEntity.getFullPath()+" @ "+time+": "+targetPos.toString());
+		Log.message("Record "+targetEntity.getFullPath()+" @ "+time+": "+MatrixHelper.getPosition(m4));
 	}
 	
 	public long getPlayHeadMS() {
@@ -312,12 +295,9 @@ public class RecordingEntity extends Entity {
 		stop();
 		playHead.set(0.0);
 		trackList.clear();
-		trackList.add(new RecordingTrackDouble("PosX",0));
-		trackList.add(new RecordingTrackDouble("PosY",0));
-		trackList.add(new RecordingTrackDouble("PosZ",0));
-		trackList.add(new RecordingTrackDouble("RotX",0));
-		trackList.add(new RecordingTrackDouble("RotY",0));
-		trackList.add(new RecordingTrackDouble("RotZ",0));
+		Matrix4d ident = new Matrix4d();
+		ident.setIdentity();
+		trackList.add(new RecordingTrackMatrix4d("WorldPoseMatrix",ident));
 		setKeyToTarget(0);
 	}
 	
