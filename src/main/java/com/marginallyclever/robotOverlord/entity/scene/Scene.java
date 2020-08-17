@@ -51,7 +51,7 @@ public class Scene extends Entity {
     	LightEntity light;
 
 		addChild(light = new LightEntity());
-		light.setName("Light 1");
+		light.setName("Light");
     	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
@@ -100,11 +100,11 @@ public class Scene extends Entity {
 		sixi2.setRotation(m);
 		
 		TrayCabinet trayCabinet=new TrayCabinet();
-		trayCabinet.setName("Cabinet 1");
+		trayCabinet.setName("Cabinet");
 		addChild(trayCabinet);
 		trayCabinet.setPosition(new Vector3d(35,49.5,0));
 		TrayCabinet trayCabinet2=new TrayCabinet();
-		trayCabinet2.setName("Cabinet 2");
+		trayCabinet2.setName("Cabinet");
 		addChild(trayCabinet2);
 		trayCabinet2.setPosition(new Vector3d(35,49.5,21.75));
 	}

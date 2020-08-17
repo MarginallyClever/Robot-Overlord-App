@@ -66,6 +66,23 @@ public class Entity extends Observable implements Serializable, Observer {
 	}
 
 	public void addChild(Entity e) {
+		// check if any child has a matching name
+		String rootName = e.getName();
+		String name = rootName;
+		int count=1;
+		boolean foundMatch;
+		
+		do {
+			foundMatch=false;
+			for( Entity c : children ) {
+				if( c.getName().equals(name) ) {
+					// oops?
+					name = rootName+Integer.toString(count++);
+					foundMatch=true;
+				}
+			}
+		} while(foundMatch);
+		e.setName(name);
 		children.add(e);
 		e.setParent(this);
 	}
