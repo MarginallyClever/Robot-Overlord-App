@@ -11,7 +11,6 @@ import com.jogamp.opengl.GL2;
  * 
  * @author Dan Royer
  * @since 2.1.0
- *
  */
 public class Cuboid extends BoundingVolume {
 	protected Matrix4d poseWorld = new Matrix4d();  // relative to universe
@@ -20,6 +19,7 @@ public class Cuboid extends BoundingVolume {
 	protected Point3d boundBottom = new Point3d();  // min limits
 	
 	public Point3d [] p = new Point3d[8];  // all 8 corners
+	
 	protected boolean isDirty=false;
 	
 	
@@ -106,5 +106,9 @@ public class Cuboid extends BoundingVolume {
 			
 			gl2.glDepthFunc(depthFunc.get());
 		gl2.glPopMatrix();
+	}
+	
+	public void setDirty(boolean newState) {
+		isDirty=newState;
 	}
 }
