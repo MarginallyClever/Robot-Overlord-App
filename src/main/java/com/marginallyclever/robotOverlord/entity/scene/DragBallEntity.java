@@ -650,8 +650,9 @@ public class DragBallEntity extends PoseEntity {
 		PoseEntity camera = ro.viewport.getAttachedTo();
 		Matrix4d lookAt = new Matrix4d();
 		
-		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));
-		lookAt.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
+		Vector3d wp = MatrixHelper.getPosition(subject.getPoseWorld());
+		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), wp));
+		lookAt.setTranslation(wp);
 
 
 		gl2.glPushMatrix();
