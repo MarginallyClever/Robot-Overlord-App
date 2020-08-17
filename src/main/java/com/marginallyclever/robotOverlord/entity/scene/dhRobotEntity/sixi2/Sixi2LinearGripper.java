@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -7,6 +8,8 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
@@ -214,5 +217,24 @@ public class Sixi2LinearGripper extends DHTool {
 		view.addRange(angleMin, 180, 0);
 		view.popStack();
 		super.getView(view);
+	}
+
+	/**
+	 * @return a list of cuboids, or null.
+	 */
+	@Override
+	public ArrayList<Cuboid> getCuboidList() {
+		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
+
+		cuboidList.add(getCuboid());
+		
+		for( Entity link : children ) {
+			if( link instanceof PoseEntity ) {
+				PoseEntity pe = (PoseEntity)link;
+				cuboidList.addAll(pe.getCuboidList());
+			}
+		}
+
+		return cuboidList;
 	}
 }

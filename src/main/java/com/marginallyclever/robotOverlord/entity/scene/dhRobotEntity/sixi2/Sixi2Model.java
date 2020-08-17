@@ -17,6 +17,7 @@ import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
@@ -48,7 +49,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	
 	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
 	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
-	public DHLink endEffector = new Sixi2LinearGripper();
+	public DHLink endEffector;
 	public PoseEntity endEffectorTarget = new PoseEntity();
 
 	protected IntEntity interpolationStyle = new IntEntity("Interpolation",InterpolationStyle.JACOBIAN.toInt());
@@ -75,7 +76,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		setName("Sixi2Model");
 		addChild(feedRate);
 		addChild(acceleration);
-
+		
 		//this.setIKSolver(new DHIKSolver_RTTRTR());
 		this.setIKSolver(new DHIKSolver_GradientDescent());
 
@@ -159,6 +160,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		links.get(5).setRange(-170, 170);
 		links.get(5).maxTorque.set(2.5); //Nm
 		
+		endEffector = new DHLink();
 		endEffector.setPosition(new Vector3d(0,0,0));
 		endEffector.setName("End Effector");
 		links.get(links.size()-1).addChild(endEffector);
@@ -206,6 +208,8 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			jointVelocityDesired[i]=0;
 			++i;
 		}
+		
+		setTool(new Sixi2LinearGripper());
 	}
 	
 	/**
