@@ -76,7 +76,6 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		addChild(feedRate);
 		addChild(acceleration);
 		
-		//this.setIKSolver(new DHIKSolver_RTTRTR());
 		this.setIKSolver(new DHIKSolver_GradientDescent());
 
 		ModelEntity base = new ModelEntity();
