@@ -212,7 +212,7 @@ public class MatrixHelper {
 	 * @param result where to store the resulting matrix
 	 * @return True if the operation succeeds.  False if the inputs are bad or the operation fails. 
 	 */
-	public static boolean interpolate(Matrix4d start,Matrix4d end,double alpha,Matrix4d result) {
+	public static boolean interpolate(final Matrix4d start,final Matrix4d end,double alpha,Matrix4d result) {
 		if(alpha<0 || alpha>1) return false;
 		// spherical interpolation (slerp) between the two matrix orientations
 		Quat4d qStart = new Quat4d();
