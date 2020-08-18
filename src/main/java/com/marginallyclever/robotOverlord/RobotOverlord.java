@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -22,6 +23,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -61,18 +63,23 @@ import com.marginallyclever.robotOverlord.entity.scene.ViewportEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
+import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanelEvent;
+import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanelListener;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandCheckForUpdate;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandForums;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandNew;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandOpen;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandQuit;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRedo;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRemoveEntity;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRenameEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandSaveAs;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandUndo;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
@@ -317,12 +324,40 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        	// the entity tree and the selected entity panel
 	            Log.message("build entity tree and panel");
 	        	{
-			        entityTree = new EntityTreePanel(this);
+	        		JPanel entityManagerPanel = new JPanel(new BorderLayout());
+	        		{
+	        			JPanel abContainer = new JPanel(new FlowLayout());
+		        		CommandRenameEntity renameEntity=new CommandRenameEntity(this);
+		        		CommandRemoveEntity removeEntity=new CommandRemoveEntity(this);
+		        		renameEntity.setEnabled(false);
+		        		removeEntity.setEnabled(false);
+		        		
+		        		abContainer.add(new JButton(new CommandAddEntity(this)));
+		        		abContainer.add(new JButton(renameEntity));
+		        		abContainer.add(new JButton(removeEntity));
+		        		entityManagerPanel.add(abContainer,BorderLayout.NORTH);
+
+				        entityTree = new EntityTreePanel(this);
+				        entityTree.addEntityTreePanelListener(new EntityTreePanelListener() {
+			        		@Override
+			        		public void entityTreePanelEvent(EntityTreePanelEvent e) {
+			        			pickEntity(e.subject);
+
+			        			Entity subject = e.subject;
+			        			
+			        			boolean state = (subject!=null && subject.canBeRenamed());
+			        			renameEntity.setEnabled(state);
+			        			removeEntity.setEnabled(state);
+			        		}
+				        });
+				        entityManagerPanel.add(entityTree,BorderLayout.CENTER);
+	        		}
+	        		
 			        selectedEntityPanel = new JPanel(new BorderLayout());
 			        
 			        // the right hand stuff			        
 					rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-					rightFrameSplitter.add(entityTree);
+					rightFrameSplitter.add(entityManagerPanel);
 					rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
 					// make sure the master panel can't be squished.
 		            Dimension minimumSize = new Dimension(360,300);
@@ -861,13 +896,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	entityTree.updateEntityTree();
     }
     
+    
 	public void pickEntity(Entity e) {
 		if(e==selectedEntity) return;  // same again
+		selectedEntity=e;
 
 		String name = (e==null)?"nothing":e.getFullPath();
 		Log.message("Picked "+name);
-		
-		selectedEntity=e;
 
 		if(e instanceof PoseEntity && e != dragBall) {
 			dragBall.setSubject((PoseEntity)e);

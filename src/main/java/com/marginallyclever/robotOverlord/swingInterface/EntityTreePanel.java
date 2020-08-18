@@ -1,12 +1,11 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -16,49 +15,44 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRemoveEntity;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRenameEntity;
 
+/**
+ * Uses an Observer Pattern to tell subscribers about changes using EntityTreePanelEvent.
+ * @author Dan Royer
+ *
+ */
 public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
+
+	protected Entity root;  // root of entity tree
+	protected Entity selected;
 	
     protected DefaultMutableTreeNode oldTop; 
 	protected JTree oldTree;
-	protected JButton buttonAdd,buttonRemove,buttonRename;
-	protected JPanel abContainer;
 	protected JScrollPane scroll = new JScrollPane();
-	protected CommandRemoveEntity removeEntity;
-	protected CommandRenameEntity renameEntity;
+
+	private List<EntityTreePanelListener> listeners = new ArrayList<EntityTreePanelListener>();
 	
-	public EntityTreePanel(RobotOverlord ro) {
+	public EntityTreePanel(Entity root) {
 		super();
-		this.ro=ro;
-		
-		buttonAdd=new JButton(new CommandAddEntity(ro));
-		buttonRename=new JButton(renameEntity=new CommandRenameEntity(ro));
-		buttonRemove=new JButton(removeEntity=new CommandRemoveEntity(ro));
-		abContainer = new JPanel(new FlowLayout());
-		abContainer.add(buttonAdd);
-		abContainer.add(buttonRename);
-		abContainer.add(buttonRemove);
-		setLayout(new BorderLayout());
-		this.add(abContainer,BorderLayout.NORTH);
+		this.root = root;
+		this.setLayout(new BorderLayout());
 		this.add(scroll,BorderLayout.CENTER);
 		updateEntityTree();
-		renameEntity.setEnabled(false);
-		removeEntity.setEnabled(false);
 	}
 
+	public Entity getSelected() {
+		return selected;
+	}
+	
 	public void setSelection(Entity e) {
 		if(oldTree==null) return;
-		
+		if(selected==e) return;
+
 		// preserve the original expansions
 		LinkedList<DefaultMutableTreeNode> list = new LinkedList<DefaultMutableTreeNode>();
 		list.add(oldTop);
@@ -77,10 +71,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 				list.add(child);
 			}
 		}
-		
-		boolean state=e!=null && e.canBeRenamed();
-		renameEntity.setEnabled(state);
-		removeEntity.setEnabled(state);
 	}
 	
 
@@ -109,7 +99,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
      */
 	public void updateEntityTree() {
 		// list all objects in scene
-	    DefaultMutableTreeNode newTop = createTreeNodes(ro);
+	    DefaultMutableTreeNode newTop = createTreeNodes(root);
 		JTree newTree = new JTree(newTop);
 
 	    newTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -142,7 +132,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 			newTree.setSelectionPaths(paths);
 		}
 		
+		if(oldTree != null) this.remove(oldTree);
 		scroll.setViewportView(newTree);
+		
 		oldTree=newTree;
 		oldTop =newTop;
 	}
@@ -159,13 +151,25 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		return parent;
 	}
 
+	// TreeSelectionListener event
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)oldTree.getLastSelectedPathComponent();
-		if(node!=null) {
-			ro.pickEntity((Entity)(node.getUserObject()));
-		} else {
-			ro.pickEntity(null);
+		Entity e = (Entity)node.getUserObject();
+		selected=e;
+		EntityTreePanelEvent event = new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,e);
+		updateListeners(event);
+	}
+	
+	public void addEntityTreePanelListener(EntityTreePanelListener arg0) {
+		listeners.add(arg0);
+	}
+	public void removeEntityTreePanelListener(EntityTreePanelListener arg0) {
+		listeners.remove(arg0);
+	}
+	protected void updateListeners(EntityTreePanelEvent event) {
+		for( EntityTreePanelListener e : listeners ) {
+			e.entityTreePanelEvent(event);
 		}
 	}
 }

@@ -173,6 +173,20 @@ public class ViewPanel extends ViewElement {
 		return b;
 	}
 
+	/**
+	 * Add a control for an string that includes a filename selection dialog
+	 * @param e
+	 * @param top the maximum value, inclusive
+	 * @param bottom the minimum value, inclusive
+	 * @return the element
+	 */
+	public ViewElement addEntitySelector(StringEntity e) {
+		ViewElementEntity b = new ViewElementEntity(ro,e);
+		
+		pushViewElement(b);
+		return b;
+	}
+
 	public ViewElementButton addButton(String string) {
 		ViewElementButton b = new ViewElementButton(ro,string);
 		pushViewElement(b);
