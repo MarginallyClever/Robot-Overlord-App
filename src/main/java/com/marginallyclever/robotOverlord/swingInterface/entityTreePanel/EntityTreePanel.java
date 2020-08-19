@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface;
+package com.marginallyclever.robotOverlord.swingInterface.entityTreePanel;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;

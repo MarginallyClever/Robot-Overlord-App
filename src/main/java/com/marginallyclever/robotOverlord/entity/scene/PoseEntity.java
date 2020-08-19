@@ -95,7 +95,7 @@ public class PoseEntity extends Entity {
 	}
 
 	/**
-	 * Render this physicalEntity into the view
+	 * Render this PoseEntity to the display
 	 * @param gl2
 	 */
 	public void render(GL2 gl2) {

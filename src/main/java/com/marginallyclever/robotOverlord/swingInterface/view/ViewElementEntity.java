@@ -5,6 +5,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -16,8 +18,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
+import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
 
 public class ViewElementEntity extends ViewElement implements ActionListener {
 	private JTextField field;
@@ -54,13 +56,24 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 		panel.add(field,gbc);
 		gbc.weightx=0;
 		panel.add(choose,gbc);
+		
+		e.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				field.setText(e.get());
+			}
+		});
 	}
 
 	// Panel action, update entity
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		EntityTreePanel etp = new EntityTreePanel(ro);
-		int returnVal = JOptionPane.showConfirmDialog(null, etp,"Choose one",JOptionPane.PLAIN_MESSAGE);
+		String path = e.get();
+		Entity selected = ro.findByPath(path);
+		etp.setSelection(selected);
+		
+		int returnVal = JOptionPane.showConfirmDialog(null, etp,"Choose one",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 		if(returnVal == JOptionPane.OK_OPTION) {
 			Entity subject = etp.getSelected();
 			String s = (subject == null) ? "" : subject.getFullPath();

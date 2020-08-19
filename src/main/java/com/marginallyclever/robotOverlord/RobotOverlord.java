@@ -62,9 +62,6 @@ import com.marginallyclever.robotOverlord.entity.scene.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.entity.scene.ViewportEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanel;
-import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanelEvent;
-import com.marginallyclever.robotOverlord.swingInterface.EntityTreePanelListener;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
@@ -82,6 +79,9 @@ import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRemoveE
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRenameEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandSaveAs;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandUndo;
+import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
+import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelEvent;
+import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelListener;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
@@ -901,8 +901,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(e==selectedEntity) return;  // same again
 		selectedEntity=e;
 
-		String name = (e==null)?"nothing":e.getFullPath();
-		Log.message("Picked "+name);
+		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
 
 		if(e instanceof PoseEntity && e != dragBall) {
 			dragBall.setSubject((PoseEntity)e);

@@ -70,6 +70,13 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 		panel.add(field,gbc);
 		gbc.weightx=0;
 		panel.add(choose,gbc);
+		
+		e.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				field.setText(e.get());
+			}
+		});
 	}
 
 	/**

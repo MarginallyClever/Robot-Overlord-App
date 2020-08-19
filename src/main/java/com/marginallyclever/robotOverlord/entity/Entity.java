@@ -55,6 +55,9 @@ public class Entity extends Observable implements Serializable, Observer {
 		// notifyObservers(name);
 	}
 
+	/**
+	 * @param dt seconds since last update.
+	 */
 	public void update(double dt) {
 		for (Entity e : children) {
 			e.update(dt);
