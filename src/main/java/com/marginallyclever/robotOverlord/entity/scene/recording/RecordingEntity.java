@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.entity.scene.recording;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,7 +12,6 @@ import java.util.Observer;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -35,7 +33,6 @@ public class RecordingEntity extends Entity {
 	// where was it saved?  where was it loaded from?
 	public StringEntity pathToFile = new StringEntity("File","");
 	public StringEntity targetName = new StringEntity("Target","");
-	public BooleanEntity validTarget = new BooleanEntity("Valid target",false);
 	private PoseEntity targetEntity = null;
 	
 	// list of tracks
@@ -57,7 +54,6 @@ public class RecordingEntity extends Entity {
 		super("Recording");
 		addChild(pathToFile);
 		addChild(targetName);
-		addChild(validTarget);
 		addChild(playHead);
 		addChild(sequenceLength);
 		
@@ -70,7 +66,6 @@ public class RecordingEntity extends Entity {
 						Log.message("Stop watching "+targetEntity.getFullPath());
 						targetEntity.deleteObserver(this);
 						targetEntity=null;
-						validTarget.set(false);
 					}
 					// name has changed
 					Entity e = findByPath(targetName.get());
@@ -80,7 +75,6 @@ public class RecordingEntity extends Entity {
 						// observe the new target
 						Log.message("Start watching "+targetEntity.getFullPath());
 						targetEntity.addObserver(this);
-						validTarget.set(true);
 						resetTrackList();
 					}
 				} else if(o==targetEntity) {
@@ -157,11 +151,10 @@ public class RecordingEntity extends Entity {
 		filters.add( new FileNameExtensionFilter("Any","*") );
 		view.addFilename(pathToFile, filters);
 		
-		view.add(targetName);
+		view.addEntitySelector(targetName);
 		view.add(playHead);
 		view.add(sequenceLength);
 		
-		view.add(validTarget).setReadOnly(true);
 		ViewElementButton toStart  = view.addButton("|◄");
 		ViewElementButton keyPrev  = view.addButton("◄◄");
 						  playStop = view.addButton("►");
