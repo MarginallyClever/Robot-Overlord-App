@@ -1,0 +1,50 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    # from https://github.com/marketplace/actions/cache
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    # from https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+
+    - name: prepare package for release
+      run: mv ./target/*-with-dependencies.jar ./target/to-upload.jar
+      
+    # from https://github.com/marketplace/actions/deploy-nightly
+    - name: Deploy Windows release
+      #if: matrix.os == 'windows-latest'
+      uses: WebFreak001/deploy-nightly@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases 
+        # in your browser and copy the full "upload_url" value including the {?name,label} part
+        upload_url: https://uploads.github.com/repos/MarginallyClever/Robot-Overlord-App/releases/28206919/assets{?name,label}
+        release_id: 28206919 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+        asset_path: ./target/to-upload.jar # path to archive to upload
+        asset_name: robot-overlord-nightly-$$.jar # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/zip # required by GitHub API
+        max_releases: 7 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
