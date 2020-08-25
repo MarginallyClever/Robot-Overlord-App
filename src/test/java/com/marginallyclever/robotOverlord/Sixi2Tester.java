@@ -15,17 +15,18 @@ public class Sixi2Tester {
 	 */
 	@Test
 	public void TestIK() {
+		System.out.println("TestIK() start");
 		Sixi2 robot = new Sixi2();
 		int numLinks = robot.sim.links.size();
 		PoseFK key0 = robot.sim.getIKSolver().createPoseFK();
 		PoseFK key1 = robot.sim.getIKSolver().createPoseFK();
 		
-		final int totalTests = 1000;
+		final int TOTAL_TESTS = 50;
 		int testsOK=0;
 		int testsNoMatch=0;
 		int testsNoIK=0;
 		
-		for( int j = 0; j < totalTests; ++j ) {
+		for( int j = 0; j < TOTAL_TESTS; ++j ) {
 			// find a random pose for the whole arm
 			System.out.print(j + ": ");
 			
@@ -60,6 +61,7 @@ public class Sixi2Tester {
 			}
 		}
 		System.out.println("Finished! "+testsOK+" OK, "+testsNoMatch+" no match, "+testsNoIK+" no IK.");
+		System.out.println("TestIK() end");
 	}
 	
 
@@ -68,7 +70,7 @@ public class Sixi2Tester {
 	 */
 	@Test
 	public void TestApproximateJacobian() {
-		System.out.println("TestApproximateJacobian start");
+		System.out.println("TestApproximateJacobian() start");
 		Sixi2 robot = new Sixi2();
 		//robot.goHome();
 		PoseFK keyframe = robot.sim.getPoseFK();
@@ -78,6 +80,6 @@ public class Sixi2Tester {
 				assert(!Double.isNaN(aj[y][x]));
 			}
 		}
-		System.out.println("TestApproximateJacobian end");
+		System.out.println("TestApproximateJacobian() end");
 	}
 }

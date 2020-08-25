@@ -169,7 +169,7 @@ public class MiscTests {
 	 */
 	@Test
 	public void testFK2IK() {
-		System.out.println("testFK2IK()");
+		System.out.println("testFK2IK() start");
 		Sixi2 robot = new Sixi2();
 		int numLinks = robot.sim.getNumLinks();
 		assert(numLinks>0);
@@ -184,19 +184,18 @@ public class MiscTests {
 		DHLink link0 = robot.sim.getLink(0);		double bottom0 = link0.getRangeMin();		double top0 = link0.getRangeMax();
 		DHLink link1 = robot.sim.getLink(1);		double bottom1 = link1.getRangeMin();		double top1 = link1.getRangeMax();
 		DHLink link2 = robot.sim.getLink(2);		double bottom2 = link2.getRangeMin();		double top2 = link2.getRangeMax();
-		// link3 does not bend
+		DHLink link3 = robot.sim.getLink(3);		double bottom3 = link3.getRangeMin();		double top3 = link3.getRangeMax();
 		DHLink link4 = robot.sim.getLink(4);		double bottom4 = link4.getRangeMin();		double top4 = link4.getRangeMax();
 		DHLink link5 = robot.sim.getLink(5);		double bottom5 = link5.getRangeMin();		double top5 = link5.getRangeMax();
-		DHLink link6 = robot.sim.getLink(6);		double bottom6 = link6.getRangeMin();		double top6 = link6.getRangeMax();
 
 		int totalTests = 0;
 		int totalOneSolutions = 0;
 		int totalPasses = 0;
 		
 		double x,y,z;
-		double u=(bottom4+top4)/2;
-		double v=(bottom5+top5)/2;
-		double w=(bottom6+top6)/2;
+		double u=(bottom3+top3)/2;
+		double v=(bottom4+top4)/2;
+		double w=(bottom5+top5)/2;
 
 		BufferedWriter out=null;
 		try {
@@ -210,11 +209,11 @@ public class MiscTests {
 					keyframe0.fkValues[1]=y;
 					for(z=bottom2;z<top2;z+=ANGLE_STEP_SIZE) {
 						keyframe0.fkValues[2]=z;
-						for(u=bottom4;u<top4;u+=ANGLE_STEP_SIZE) {
+						for(u=bottom3;u<top3;u+=ANGLE_STEP_SIZE) {
 							keyframe0.fkValues[3]=u;
-							for(v=bottom5;v<top5;v+=ANGLE_STEP_SIZE) {
+							for(v=bottom4;v<top4;v+=ANGLE_STEP_SIZE) {
 								keyframe0.fkValues[4]=v;
-								for(w=bottom6;w<top6;w+=ANGLE_STEP_SIZE) {
+								for(w=bottom5;w<top5;w+=ANGLE_STEP_SIZE) {
 									keyframe0.fkValues[5]=w;
 									
 									++totalTests;
@@ -287,6 +286,7 @@ public class MiscTests {
 				e1.printStackTrace();
 			}
 		}
+		System.out.println("testFK2IK() end");
 	}
 
 	/**
@@ -443,17 +443,16 @@ public class MiscTests {
 	 */
 	@Test
 	public void approximateJacobianMatrix() {
-		System.out.println("approximateJacobianMatrix()");
+		System.out.println("approximateJacobianMatrix() start");
 		Sixi2 robot = new Sixi2();
 
 		// Find the min/max range for each joint
 		DHLink link0 = robot.sim.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();  double mid0 = (top0+bottom0)/2;
 		DHLink link1 = robot.sim.getLink(1);  double bottom1 = link1.getRangeMin();  double top1 = link1.getRangeMax();  double mid1 = (top1+bottom1)/2;
 		DHLink link2 = robot.sim.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();  double mid2 = (top2+bottom2)/2;
-		// link3 does not bend
+		DHLink link3 = robot.sim.getLink(3);  double bottom3 = link3.getRangeMin();  double top3 = link3.getRangeMax();  double mid3 = (top3+bottom3)/2;  
 		DHLink link4 = robot.sim.getLink(4);  double bottom4 = link4.getRangeMin();  double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
 		DHLink link5 = robot.sim.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.sim.getLink(6);  double bottom6 = link6.getRangeMin();  double top6 = link6.getRangeMax();  double mid6 = (top6+bottom6)/2;  
 
 		BufferedWriter out=null;
 		try {
@@ -464,9 +463,9 @@ public class MiscTests {
 			keyframe.fkValues[0]=mid0;
 			keyframe.fkValues[1]=mid1;
 			keyframe.fkValues[2]=mid2;
-			keyframe.fkValues[3]=mid4;
-			keyframe.fkValues[4]=mid5;
-			keyframe.fkValues[5]=mid6;
+			keyframe.fkValues[3]=mid3;
+			keyframe.fkValues[4]=mid4;
+			keyframe.fkValues[5]=mid5;
 
 			assert( robot.sim instanceof Sixi2Sim );
 			Sixi2Sim sim = (Sixi2Sim)(robot.sim);
@@ -491,13 +490,15 @@ public class MiscTests {
 				e1.printStackTrace();
 			}
 		}
+		System.out.println("approximateJacobianMatrix() end");
 	}
+	
 	/**
 	 * Use Jacobian matrixes to find joint velocity over time.
 	 */
 	@Test
 	public void jointVelocityOverTime() {
-		System.out.println("angularVelocityOverTime()");
+		System.out.println("angularVelocityOverTime() start");
 		Sixi2 robot = new Sixi2();
 		// a new sixi starts with the ghost post in the home position
 		// and the live pose in the rest position.
@@ -576,5 +577,6 @@ public class MiscTests {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("angularVelocityOverTime() end");
 	}
 }

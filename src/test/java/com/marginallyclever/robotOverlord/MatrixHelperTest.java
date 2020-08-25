@@ -12,7 +12,7 @@ public class MatrixHelperTest {
 	public void testEulerMatrix() {
 		Vector3d v1 = new Vector3d();
 		
-		for(int i=0;i<1000;++i) {
+		for(int i=0;i<100;++i) {
 			v1.x = Math.random() * Math.PI*2.0;
 			v1.y = Math.random() * Math.PI*2.0;
 			v1.z = Math.random() * Math.PI*2.0;
