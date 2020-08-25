@@ -4,7 +4,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 
@@ -112,7 +112,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	 * We might not actually reach the target by the time we've done interating.
 	 */
 	@Override
-	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,DHKeyframe keyframe,DHKeyframe suggestion) {
+	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe,PoseFK suggestion) {
 		this.robot = robot;
 		this.targetMatrix = targetMatrix;
 		

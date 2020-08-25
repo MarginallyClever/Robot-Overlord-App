@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -22,9 +22,9 @@ public class SixiJoystick extends ModelEntity {
 	private RemoteEntity connection = new RemoteEntity();
 	private ReentrantLock lock = new ReentrantLock();
 
-	DHKeyframe [] keyframeSamples = new DHKeyframe[10];  // more samples = slower response but smoother results.
+	PoseFK [] keyframeSamples = new PoseFK[10];  // more samples = slower response but smoother results.
 	
-	DHKeyframe keyframe;
+	PoseFK keyframe;
 	
 	public SixiJoystick() {
 		setName("Sixi Joystick");
@@ -63,9 +63,9 @@ public class SixiJoystick extends ModelEntity {
 					int i,j;
 					
 					if(keyframe==null) {
-						keyframe = target.sim.getIKSolver().createDHKeyframe();
+						keyframe = target.sim.getIKSolver().createPoseFK();
 						for(j=0;j<keyframeSamples.length;++j) {
-							keyframeSamples[j]= target.sim.getIKSolver().createDHKeyframe();
+							keyframeSamples[j]= target.sim.getIKSolver().createPoseFK();
 						}
 					}
 					// age the samples

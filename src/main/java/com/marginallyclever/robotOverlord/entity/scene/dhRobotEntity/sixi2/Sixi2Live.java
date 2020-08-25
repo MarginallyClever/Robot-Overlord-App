@@ -11,7 +11,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -26,7 +26,7 @@ public class Sixi2Live extends Sixi2Model {
 	public static final int MAX_HISTORY = 3;
 	
 	protected RemoteEntity connection = new RemoteEntity();
-	protected DHKeyframe [] receivedKeyframes;
+	protected PoseFK [] receivedKeyframes;
 	protected long [] recievedKeyframeTimes;
 	protected long receivedKeyframeCount;
 
@@ -57,11 +57,11 @@ public class Sixi2Live extends Sixi2Model {
 		}
 
 		// where to store incoming position data
-		receivedKeyframes = new DHKeyframe[3];
+		receivedKeyframes = new PoseFK[3];
 		recievedKeyframeTimes = new long[receivedKeyframes.length];
 		
 		for(int i=0;i<receivedKeyframes.length;++i) {
-			receivedKeyframes[i] = getIKSolver().createDHKeyframe();
+			receivedKeyframes[i] = getIKSolver().createPoseFK();
 		}
 		receivedKeyframeCount=0;
 		
@@ -143,8 +143,7 @@ public class Sixi2Live extends Sixi2Model {
 			cartesianForceDesired[i]=cfdn[i];
 		}
 				
-		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
-		getPoseFK(keyframe);
+		PoseFK keyframe = getPoseFK();
 		
 		if(!getJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) return;
 		
@@ -260,13 +259,13 @@ public class Sixi2Live extends Sixi2Model {
 				if (tokens.length >= 7) {
 					try {
 						int index = (int)(receivedKeyframeCount%MAX_HISTORY);
-						DHKeyframe key0 = receivedKeyframes[index];
-						key0.fkValues[0] = Double.parseDouble(tokens[1]);
-						key0.fkValues[1] = Double.parseDouble(tokens[2]);
-						key0.fkValues[2] = Double.parseDouble(tokens[3]);
-						key0.fkValues[3] = Double.parseDouble(tokens[4]);
-						key0.fkValues[4] = Double.parseDouble(tokens[5]);
-						key0.fkValues[5] = Double.parseDouble(tokens[6]);
+						PoseFK key0 = receivedKeyframes[index];
+						key0.fkValues[0] = StringHelper.parseNumber(tokens[1]);
+						key0.fkValues[1] = StringHelper.parseNumber(tokens[2]);
+						key0.fkValues[2] = StringHelper.parseNumber(tokens[3]);
+						key0.fkValues[3] = StringHelper.parseNumber(tokens[4]);
+						key0.fkValues[4] = StringHelper.parseNumber(tokens[5]);
+						key0.fkValues[5] = StringHelper.parseNumber(tokens[6]);
 						recievedKeyframeTimes[index]=System.currentTimeMillis();
 						setPoseFK(key0);
 						refreshPose();
@@ -274,7 +273,7 @@ public class Sixi2Live extends Sixi2Model {
 						if(receivedKeyframeCount>1) {
 							int i1 = (int)((receivedKeyframeCount-1)%MAX_HISTORY);
 						
-							DHKeyframe key1 = receivedKeyframes[i1];
+							PoseFK key1 = receivedKeyframes[i1];
 
 							for( int i=0;i<cartesianForceMeasured.length;++i ) cartesianForceMeasured[i] = 0;
 							

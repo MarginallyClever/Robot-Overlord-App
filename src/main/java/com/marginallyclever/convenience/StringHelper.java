@@ -1,5 +1,8 @@
 package com.marginallyclever.convenience;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class StringHelper {
 	
 	static public String formatFloat(float arg0) {
@@ -12,17 +15,24 @@ public class StringHelper {
 		return String.format("%.3f", arg0);
 	}
 
+	/**
+	 * Parse a number sent from a US format system
+	 * @param str
+	 * @return
+	 */
 	static public double parseNumber(String str) {
-		float f=0;
+		double d=0;
 		
 		try {
-			f = Float.parseFloat(str);
+			NumberFormat nf = NumberFormat.getInstance(Locale.US);
+			Number n = nf.parse(str);
+			d = n.doubleValue();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return f;
+		return d;
 	}
 
 	// @return "*"+ the binary XOR of every byte in the msg.

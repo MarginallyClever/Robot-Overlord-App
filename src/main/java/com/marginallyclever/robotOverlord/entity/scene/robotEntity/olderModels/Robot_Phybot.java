@@ -6,7 +6,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
@@ -148,7 +148,7 @@ public class Robot_Phybot extends RobotEntity {
 		return new DHIKSolver_RTTRTR();
 	}
 
-	public void sendNewStateToRobot(DHKeyframe keyframe) {}
+	public void sendNewStateToRobot(PoseFK keyframe) {}
 
 	@Override
 	public RobotKeyframe createKeyframe() {

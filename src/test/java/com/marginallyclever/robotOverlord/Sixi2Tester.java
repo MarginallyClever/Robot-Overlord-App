@@ -5,7 +5,7 @@ import javax.vecmath.Matrix4d;
 import org.junit.Test;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 
@@ -17,8 +17,8 @@ public class Sixi2Tester {
 	public void TestIK() {
 		Sixi2 robot = new Sixi2();
 		int numLinks = robot.sim.links.size();
-		DHKeyframe key0 = robot.sim.getIKSolver().createDHKeyframe();
-		DHKeyframe key1 = robot.sim.getIKSolver().createDHKeyframe();
+		PoseFK key0 = robot.sim.getIKSolver().createPoseFK();
+		PoseFK key1 = robot.sim.getIKSolver().createPoseFK();
 		
 		final int totalTests = 1000;
 		int testsOK=0;
@@ -46,7 +46,7 @@ public class Sixi2Tester {
 			Matrix4d ee = robot.sim.endEffector.getPoseWorld();
 			// use the end effector world pose to solve IK
 			if(robot.sim.setPoseIK(ee)) {
-				robot.sim.getPoseFK(key1);
+				key1.set(robot.sim.getPoseFK());
 				if(key1.equals(key0)) {
 					testsOK++;
 					System.out.println(" OK");
@@ -71,8 +71,7 @@ public class Sixi2Tester {
 		System.out.println("TestApproximateJacobian start");
 		Sixi2 robot = new Sixi2();
 		//robot.goHome();
-		DHKeyframe keyframe = robot.sim.getIKSolver().createDHKeyframe();
-		robot.sim.getPoseFK(keyframe);
+		PoseFK keyframe = robot.sim.getPoseFK();
 		double [][] aj = robot.sim.approximateJacobian(keyframe);
 		for( int y=0;y<aj.length;++y ) {
 			for( int x=0;x<aj[y].length;++x ) {

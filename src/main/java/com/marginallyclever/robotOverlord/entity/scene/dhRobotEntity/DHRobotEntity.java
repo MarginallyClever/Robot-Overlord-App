@@ -35,9 +35,9 @@ public class DHRobotEntity extends PoseEntity {
 	// The solver for this type of robot
 	protected transient DHIKSolver solver;
 	// only used in isPoseIKSane()
-	protected DHKeyframe poseFKold;
+	protected PoseFK poseFKold;
 	// only used in isPoseIKSane()
-	protected DHKeyframe poseFKnew;
+	protected PoseFK poseFKnew;
 
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
@@ -86,8 +86,8 @@ public class DHRobotEntity extends PoseEntity {
 
 	public void setIKSolver(DHIKSolver solver0) {
 		solver = solver0;
-		poseFKold = solver.createDHKeyframe();
-		poseFKnew = solver.createDHKeyframe();
+		poseFKold = solver.createPoseFK();
+		poseFKnew = solver.createPoseFK();
 	}
 
 	public Matrix4d getParentMatrix() {
@@ -180,7 +180,7 @@ public class DHRobotEntity extends PoseEntity {
 	 * @param keyframe
 	 * @return false if the keyframe is not sane or a collision occurs.
 	 */
-	public boolean sanityCheck(DHKeyframe keyframe) {
+	public boolean sanityCheck(PoseFK keyframe) {
 		if(!keyframeAnglesAreOK(keyframe)) {
 			if(VERBOSE) Log.message("Bad angles");
 			return false;
@@ -204,9 +204,8 @@ public class DHRobotEntity extends PoseEntity {
 	 * @param keyframe the angles at time of test
 	 * @return true if there are no collisions
 	 */
-	public boolean collidesWithSelf(DHKeyframe futureKey) {
-		DHKeyframe originalKey = solver.createDHKeyframe();
-		getPoseFK(originalKey);
+	public boolean collidesWithSelf(PoseFK futureKey) {
+		PoseFK originalKey = getPoseFK();
 		// move the clone to the keyframe pose
 		setPoseFK(futureKey);
 		
@@ -243,7 +242,7 @@ public class DHRobotEntity extends PoseEntity {
 	 * @param keyframe the angles at time of test
 	 * @return false if there are no collisions
 	 */
-	public boolean collidesWithWorld(DHKeyframe futureKey) {
+	public boolean collidesWithWorld(PoseFK futureKey) {
 		// is this robot in the world?
 		Entity rootEntity = getRoot();
 		if( !(rootEntity instanceof RobotOverlord) ) {
@@ -257,8 +256,7 @@ public class DHRobotEntity extends PoseEntity {
 		if(scene==null) return false;
 		// yes!  We have all the prerequisites.		
 		// save the original key
-		DHKeyframe originalKey = solver.createDHKeyframe();
-		getPoseFK(originalKey);
+		PoseFK originalKey = getPoseFK();
 		// move to the future key
 		setPoseFK(futureKey);
 		// test for intersection
@@ -275,7 +273,7 @@ public class DHRobotEntity extends PoseEntity {
 	 * @param keyframe
 	 * @return
 	 */
-	public boolean keyframeAnglesAreOK(DHKeyframe keyframe) {
+	public boolean keyframeAnglesAreOK(PoseFK keyframe) {
 		int j = 0;
 		for( DHLink link : links ) {
 			if(link.flags == LinkAdjust.NONE) continue;
@@ -313,7 +311,7 @@ public class DHRobotEntity extends PoseEntity {
 	 * @return true if sane.
 	 */
 	public boolean isPoseIKSane(Matrix4d m) {
-		getPoseFK(poseFKold);
+		poseFKold.set(getPoseFK());
 
 		if(VERBOSE) Log.message("\n\nold: "+poseFKold);
 		
@@ -338,7 +336,7 @@ public class DHRobotEntity extends PoseEntity {
 	 * cannot verify collisions itself.
 	 * @param keyframe
 	 */
-	public void setPoseFK(DHKeyframe keyframe) {
+	public void setPoseFK(PoseFK keyframe) {
 		int stop=keyframe.fkValues.length;
 		int j = 0;
 		
@@ -353,11 +351,12 @@ public class DHRobotEntity extends PoseEntity {
 	}
 
 	/**
-	 * Store the robot's FK values in the keyframe.
+	 * Get the robot's FK pose.
 	 * 
-	 * @param keyframe to set
+	 * @return keyframe of this pose
 	 */
-	public void getPoseFK(DHKeyframe keyframe) {
+	public PoseFK getPoseFK() {
+		PoseFK keyframe = solver.createPoseFK();
 		assert(keyframe.fkValues.length==links.size());
 
 		int j = 0;
@@ -366,6 +365,7 @@ public class DHRobotEntity extends PoseEntity {
 				keyframe.fkValues[j++] = link.getAdjustableValue();
 			}
 		}
+		return keyframe;
 	}
 
 	public int getNumLinks() {

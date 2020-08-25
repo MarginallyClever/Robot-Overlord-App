@@ -14,7 +14,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
@@ -249,7 +249,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 					String letter = t.substring(0,1); 
 					if(link.getLetter().equalsIgnoreCase(letter)) {
 						//Log.message("link "+link.getLetter()+" matches "+letter);
-						poseFKTarget[i] = Double.parseDouble(t.substring(1));
+						poseFKTarget[i] = StringHelper.parseNumber(t.substring(1));
 					}
 				}
 				++i;
@@ -258,9 +258,9 @@ public abstract class Sixi2Model extends DHRobotEntity {
 			for( String t : tok ) {
 				String letter = t.substring(0,1); 
 				if(letter.equalsIgnoreCase("F")) {
-					feedRate.set(Double.parseDouble(t.substring(1)));
+					feedRate.set(StringHelper.parseNumber(t.substring(1)));
 				} else if(letter.equalsIgnoreCase("A")) {
-					acceleration.set(Double.parseDouble(t.substring(1)));
+					acceleration.set(StringHelper.parseNumber(t.substring(1)));
 				}
 			}
 
@@ -284,12 +284,11 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	        mFrom.set(mLive);
 	        
 	        // get the target matrix
-	        DHKeyframe oldPose = solver.createDHKeyframe();
-	        getPoseFK(oldPose);
-		        DHKeyframe newPose = solver.createDHKeyframe();
-		        newPose.set(poseFKTarget);
-		        setPoseFK(newPose);
-		        mTarget.set(endEffector.getPoseWorld());
+	        PoseFK oldPose = getPoseFK();
+	        PoseFK newPose = solver.createPoseFK();
+	        newPose.set(poseFKTarget);
+	        setPoseFK(newPose);
+	        mTarget.set(endEffector.getPoseWorld());
 	        setPoseFK(oldPose);
 
 	        double travelS = dMax/(double)feedRate.get();
@@ -443,8 +442,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		
 		getCartesianForceBetweenTwoPoses(interpolatedMatrixNow, interpolatedMatrixFuture, dt, cartesianForceDesired);
 
-		DHKeyframe keyframe = getIKSolver().createDHKeyframe();
-		getPoseFK(keyframe);
+		PoseFK keyframe = getPoseFK();
 		
 		if(!getJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) return;
 		
@@ -536,7 +534,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * @param jvot joint velocity over time.  Will be filled with the new velocity
 	 * @return false if joint velocities have NaN values
 	 */
-	protected boolean getJointVelocityFromCartesianForce(DHKeyframe keyframe,double[] cartesianForce,double [] jvot) {
+	protected boolean getJointVelocityFromCartesianForce(PoseFK keyframe,double[] cartesianForce,double [] jvot) {
 		// jvot = joint velocity over time
 		
 		double[][] jacobian = approximateJacobian(keyframe);
@@ -564,7 +562,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * @param jointVelocity
 	 * @return cartesian force calculated
 	 */
-	public double [] getCartesianForceFromJointVelocity(DHKeyframe keyframe,double [] jointVelocity) {
+	public double [] getCartesianForceFromJointVelocity(PoseFK keyframe,double [] jointVelocity) {
 		double [] cf = new double[6];  // cartesian force calculated
 		double[][] jacobian = approximateJacobian(keyframe);
 
@@ -580,18 +578,17 @@ public abstract class Sixi2Model extends DHRobotEntity {
 	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
 	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
 	 */
-	public double [][] approximateJacobian(DHKeyframe keyframe) {
+	public double [][] approximateJacobian(PoseFK keyframe) {
 		double [][] jacobian = new double[6][6];
 		
 		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
 		
-		DHKeyframe oldPoseFK = getIKSolver().createDHKeyframe();
-		getPoseFK(oldPoseFK);
+		PoseFK oldPoseFK = getPoseFK();
 		
 		setPoseFK(keyframe);
 		Matrix4d T = endEffector.getPoseWorld();
 		
-		DHKeyframe newPoseFK = getIKSolver().createDHKeyframe();
+		PoseFK newPoseFK = getIKSolver().createPoseFK();
 		int i=0;
 		// for all adjustable joints
 		for( DHLink link : links ) {
@@ -673,7 +670,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	public void goHome() {
 	    // the home position
-		DHKeyframe homeKey = getIKSolver().createDHKeyframe();
+		PoseFK homeKey = getIKSolver().createPoseFK();
 		homeKey.fkValues[0]=0;
 		homeKey.fkValues[1]=-90;
 		homeKey.fkValues[2]=0;
@@ -686,7 +683,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	public void goRest() {
 	    // set rest position
-		DHKeyframe restKey = getIKSolver().createDHKeyframe();
+		PoseFK restKey = getIKSolver().createPoseFK();
 		restKey.fkValues[0]=0;
 		restKey.fkValues[1]=-60-90;
 		restKey.fkValues[2]=85+90;

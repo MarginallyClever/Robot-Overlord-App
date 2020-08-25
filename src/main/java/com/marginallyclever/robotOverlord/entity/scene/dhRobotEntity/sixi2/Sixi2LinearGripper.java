@@ -9,6 +9,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -174,7 +175,7 @@ public class Sixi2LinearGripper extends DHTool {
 			try {
 				if(token.startsWith("T")) {
 					startT = angleNow.get();
-					endT = Double.parseDouble(token.substring(1));
+					endT = StringHelper.parseNumber(token.substring(1));
 				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();

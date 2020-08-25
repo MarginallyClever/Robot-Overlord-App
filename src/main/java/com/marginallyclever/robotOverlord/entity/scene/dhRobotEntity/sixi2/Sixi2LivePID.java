@@ -3,7 +3,8 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.log.Log;
@@ -20,7 +21,7 @@ public class Sixi2LivePID extends Sixi2Model {
 	 * 
 	 */
 	private static final long serialVersionUID = -811684331077697483L;
-	protected DHKeyframe receivedKeyframe;
+	protected PoseFK receivedKeyframe;
 	
 	// ----- taken directly from the arduino firmware ---------------------
 	protected static final double MAX_FEEDRATE = 120.0;
@@ -190,7 +191,7 @@ public class Sixi2LivePID extends Sixi2Model {
 		
 		if(gMode==0) {
 			// linear move
-	        DHKeyframe poseFKTarget = solver.createDHKeyframe();
+	        PoseFK poseFKTarget = solver.createPoseFK();
 
 			int i=0;
 			for( DHLink link : links ) {
@@ -204,7 +205,7 @@ public class Sixi2LivePID extends Sixi2Model {
 					String letter = t.substring(0,1); 
 					if(link.getLetter().equalsIgnoreCase(letter)) {
 						//Log.message("link "+link.getLetter()+" matches "+letter);
-						double degrees = Double.parseDouble(t.substring(1));
+						double degrees = StringHelper.parseNumber(t.substring(1));
 						poseFKTarget.fkValues[i] = degrees;
 						motors[i].target = (long) Math.floor( degrees / motors[i].ratio );
 					}
@@ -215,9 +216,9 @@ public class Sixi2LivePID extends Sixi2Model {
 			for( String t : tok ) {
 				String letter = t.substring(0,1); 
 				if(letter.equalsIgnoreCase("F")) {
-					feedRate.set(Double.parseDouble(t.substring(1)));
+					feedRate.set(StringHelper.parseNumber(t.substring(1)));
 				} else if(letter.equalsIgnoreCase("A")) {
-					acceleration.set(Double.parseDouble(t.substring(1)));
+					acceleration.set(StringHelper.parseNumber(t.substring(1)));
 				}
 			}
 
@@ -230,12 +231,11 @@ public class Sixi2LivePID extends Sixi2Model {
 	        mFrom.set(endEffector.getPoseWorld());
 
 	        // get the target matrix
-	        DHKeyframe oldPose = solver.createDHKeyframe();
-	        getPoseFK(oldPose);
-		        DHKeyframe newPose = solver.createDHKeyframe();
-		        newPose.set(poseFKTarget);
-		        setPoseFK(newPose);
-		        mTarget.set(endEffector.getPoseWorld());
+	        PoseFK oldPose = getPoseFK();
+	        PoseFK newPose = solver.createPoseFK();
+	        newPose.set(poseFKTarget);
+	        setPoseFK(newPose);
+	        mTarget.set(endEffector.getPoseWorld());
 	        setPoseFK(oldPose);
 
 

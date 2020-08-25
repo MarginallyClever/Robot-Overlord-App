@@ -211,7 +211,7 @@ public class DHTool_Gripper extends DHTool {
 			try {
 				if(token.startsWith("T")) {
 					startT = gripperServoAngle;
-					endT = Double.parseDouble(token.substring(1));
+					endT = StringHelper.parseNumber(token.substring(1));
 				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();

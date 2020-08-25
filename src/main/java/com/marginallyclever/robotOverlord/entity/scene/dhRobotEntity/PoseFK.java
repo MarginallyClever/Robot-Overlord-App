@@ -10,16 +10,16 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe
  * @author Dan Royer
  *
  */
-public class DHKeyframe implements RobotKeyframe {	
+public class PoseFK implements RobotKeyframe {	
 	public double [] fkValues;
 	
-	public DHKeyframe() {}
+	public PoseFK() {}
 	
-	public DHKeyframe(int size) {
+	public PoseFK(int size) {
 		fkValues=new double[size];
 	}
 	
-	public DHKeyframe(double [] arg0) {
+	public PoseFK(double [] arg0) {
 		fkValues=new double[arg0.length];
 		set(arg0);
 	}
@@ -27,8 +27,8 @@ public class DHKeyframe implements RobotKeyframe {
 	
 	@Override
 	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
-		DHKeyframe dha = (DHKeyframe)a;
-		DHKeyframe dhb = (DHKeyframe)b;
+		PoseFK dha = (PoseFK)a;
+		PoseFK dhb = (PoseFK)b;
 		if(this.fkValues.length == dha.fkValues.length && 
 			dha.fkValues.length == dhb.fkValues.length) {
 			for(int i=0;i<this.fkValues.length;++i) {
@@ -49,7 +49,7 @@ public class DHKeyframe implements RobotKeyframe {
 		// TODO Auto-generated method stub
 	}
 	
-	public void set(DHKeyframe arg0) {
+	public void set(PoseFK arg0) {
 		assert(arg0!=null);
 		assert(arg0.fkValues.length>0);
 		

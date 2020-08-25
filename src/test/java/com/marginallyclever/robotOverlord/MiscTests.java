@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHKeyframe;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Sim;
@@ -175,8 +175,8 @@ public class MiscTests {
 		assert(numLinks>0);
 
 		DHIKSolver solver = new DHIKSolver_RTTRTR();
-		DHKeyframe keyframe0 = robot.sim.getIKSolver().createDHKeyframe();
-		DHKeyframe keyframe1 = robot.sim.getIKSolver().createDHKeyframe();
+		PoseFK keyframe0 = robot.sim.getIKSolver().createPoseFK();
+		PoseFK keyframe1 = robot.sim.getIKSolver().createPoseFK();
 		Matrix4d m0 = new Matrix4d();
 		Matrix4d m1 = new Matrix4d();
 		
@@ -418,7 +418,7 @@ public class MiscTests {
 	 * @throws IOException
 	 */
 	private void plot(double x,double y,double z,double u,double v,double w,BufferedWriter out,Sixi2 robot) throws IOException {
-		DHKeyframe keyframe0 = robot.sim.getIKSolver().createDHKeyframe();
+		PoseFK keyframe0 = robot.sim.getIKSolver().createPoseFK();
 		Matrix4d m0 = new Matrix4d();
 		
 		keyframe0.fkValues[0]=x;
@@ -459,7 +459,7 @@ public class MiscTests {
 		try {
 			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jacobian.csv")));
 
-			DHKeyframe keyframe = robot.sim.getIKSolver().createDHKeyframe();
+			PoseFK keyframe = robot.sim.getIKSolver().createPoseFK();
 			// set the pose with fk
 			keyframe.fkValues[0]=mid0;
 			keyframe.fkValues[1]=mid1;
@@ -508,7 +508,7 @@ public class MiscTests {
 		try(BufferedWriter out=new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jvot.csv")))) {
 			out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
 			
-			DHKeyframe keyframe = sim.getIKSolver().createDHKeyframe();	
+			PoseFK keyframe = sim.getIKSolver().createPoseFK();	
 
 			final double dt=0.03f;  // time step
 			// match the force directions with the start and end matrix
@@ -531,7 +531,7 @@ public class MiscTests {
 				safety++;
 				System.out.print(safety+": ");
 				if(sim.setPoseIK(m)) {
-					sim.getPoseFK(keyframe);
+					keyframe.set(sim.getPoseFK());
 					// matrix m has a sane solution (is reachable)
 					double [][] jacobian = sim.approximateJacobian(keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);

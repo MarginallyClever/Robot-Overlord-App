@@ -414,7 +414,7 @@ public class DHBuilderApp extends DHRobotEntity {
 		}
 		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 		
-		getPoseFK(poseFKold);
+		poseFKold.set(getPoseFK());
 		poseFKnew.set(poseFKold);
 	}
 	
