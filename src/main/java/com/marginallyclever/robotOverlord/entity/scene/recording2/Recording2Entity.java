@@ -14,6 +14,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -67,14 +68,17 @@ public class Recording2Entity extends PoseEntity {
 	}
 
 	void stop() {
+		Log.message("Action:Stop");
 		isPlaying=false;
 	}
 	
 	void play() {
+		Log.message("Action:Play");
 		isPlaying=true;
 	}
 	
 	void rewind() {
+		Log.message("Action:Rewind");
 		playHead=0;
 		
 		ArrayList<Entity> kids = track.getChildren();
@@ -89,6 +93,41 @@ public class Recording2Entity extends PoseEntity {
 		if(isPlaying) {
 			playHead += dt;
 			// recursively walk through all children
+			ArrayList<Entity> kids = track.getChildren();
+			double startT=0;
+			double endT=0;
+			RobotTask k0 = (RobotTask)kids.get(0);
+			int size = kids.size();
+			int i;
+			for( i=1; i<size+1; ++i ) {
+				RobotTask k1 = (RobotTask)kids.get(i%size);
+				// we're trying to find the task on either side of the playhead.
+				// when sum <= playHead and sum+t > playHead then prev is before playhead and rk is after
+				endT = startT+k1.time.get();
+				if(startT <= playHead && endT > playHead) {
+					//rk is the child we've been looking for.
+					//subject.sendCommand(rk.extra.get());
+					if(endT==startT) {
+						// 0 time
+						// TODO don't let this be possible
+					}
+					double alpha = (playHead-startT) / (endT-startT);
+					alpha = Math.min(1, Math.max(0, alpha));
+					
+					Matrix4d result = new Matrix4d();
+					if(MatrixHelper.interpolate(k0.getPose(), k1.getPose(), alpha, result)) {
+						subjectEE.setPose(result);
+						break;
+					}
+				}
+				startT=endT;
+				k0=k1;
+			}
+			
+			if(i==size+1 && playHead>=endT) {
+				stop();
+				rewind();
+			}
 		}
 	}
 	
@@ -118,7 +157,7 @@ public class Recording2Entity extends PoseEntity {
 				//largestAxis = i;
 			}
 		}
-		double travelTime = 0;
+		double travelTime = largestAmount / 50;  // 50 degrees/s max velocity TODO improve this
 		//double travelTime = largestAmount / subject.getMaxV();
 		
 		return travelTime;
