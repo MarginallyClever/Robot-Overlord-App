@@ -17,7 +17,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * A nearly two dimensional object with a texture on both sides.
- * @author aggra
+ * @author Dan Royer
  *
  */
 public class DecalEntity extends ModelEntity {
