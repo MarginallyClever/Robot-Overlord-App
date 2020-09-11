@@ -21,7 +21,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -314,8 +313,13 @@ public class PoseEntity extends Entity {
 		return cuboidList;
 	}
 	
+	/**
+	 * Build a matrix as close to *from* as possible, with the Z axis parallel to the nearest world axis.
+	 * @param from the matrix we are comparing to the world.
+	 * @return 
+	 */
 	public Matrix4d findMajorAxisTarget(Matrix4d from) {		
-		// snap Z axis to major value		
+		// find Z axis to major value		
 		Vector3d vz = MatrixHelper.getZAxis(from);
 		
 		double zx = Math.abs(vz.x);
@@ -324,7 +328,7 @@ public class PoseEntity extends Entity {
 		
 		Vector3d nx=new Vector3d();
 		Vector3d ny=new Vector3d();
-		Vector3d nz = new Vector3d(); 
+		Vector3d nz=new Vector3d(); 
 		if(zx>zy) {
 			if(zx>zz) nz.x = Math.signum(vz.x);  //zx wins
 			else      nz.z = Math.signum(vz.z);  //zz wins
@@ -345,8 +349,57 @@ public class PoseEntity extends Entity {
 		return m;
 	}
 	
-	public void snapToMajorAxis() {
+	/**
+	 * Build a matrix as close to *from* as possible, with the Z axis parallel to the nearest world axis and then the other two axies
+	 * pointing along their nearest world axies.
+	 * @param from the matrix we are comparing to the world.
+	 * @return 
+	 */
+	public Matrix4d findMinorAxisTarget(Matrix4d from) {
+		Matrix4d m = findMajorAxisTarget(from);
+		// find X axis to major value		
+		Vector3d vx = MatrixHelper.getXAxis(m);
+		Vector3d vz = MatrixHelper.getZAxis(m);
+		
+		double xx = Math.abs(vx.x);
+		double xy = Math.abs(vx.y);
+		double xz = Math.abs(vx.z);
+		
+		Vector3d nx=new Vector3d();
+		Vector3d ny=new Vector3d();
+		if(xx>xy) {
+			if(xx>xz) nx.x = Math.signum(vx.x);  //xx wins
+			else      nx.z = Math.signum(vx.z);  //xz wins
+		} else {
+			if(xy>xz) nx.y = Math.signum(vx.y);  //xy wins
+			else      nx.z = Math.signum(vx.z);  //xz wins
+		}
+		
+		// make Y orthogonal to X and Z
+		ny.cross(vz, nx);
+		// snap X to major value
+		nx.cross(ny,vz);
+		
+		// build the new matrix.  Make sure m33=1 and position data is copied in.
+		Matrix4d m2 = new Matrix4d(from);
+		MatrixHelper.setXAxis(m2,nx);
+		MatrixHelper.setYAxis(m2,ny);
+		MatrixHelper.setZAxis(m2,vz);
+		return m2;
+	}
+	
+	public void snapZToMajorAxis() {
 		Matrix4d m = findMajorAxisTarget(poseWorld);
+		if(m!=null) {
+			RobotOverlord ro = (RobotOverlord)getRoot();
+			if(canYouMoveTo(m)) {
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(this,m) ) );
+			}
+		}
+	}
+	
+	public void snapXToMajorAxis() {
+		Matrix4d m = findMinorAxisTarget(poseWorld);
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
@@ -363,11 +416,16 @@ public class PoseEntity extends Entity {
 		view.add(showLocalOrigin);
 		view.add(showLineage);
 		
-		ViewElementButton bSnap = view.addButton("Snap Z to major axis");
-		bSnap.addObserver(new Observer() {
+		view.addButton("Snap Z to major axis").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				snapToMajorAxis();
+				snapZToMajorAxis();
+			}
+		});
+		view.addButton("Snap X to major axis").addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				snapXToMajorAxis();
 			}
 		});
 		//view.addStaticText("Pick name="+getPickName());
