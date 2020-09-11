@@ -15,6 +15,11 @@ public abstract class NetworkConnection {
 	protected NetworkConnection() {
 		listeners = new ArrayList<NetworkConnectionListener>();
 	}
+
+	protected void finalize() throws Throwable {
+		listeners.clear();
+		super.finalize();
+	}
 	
 	// close this connection
 	abstract public void closeConnection();
