@@ -1,7 +1,10 @@
 package com.marginallyclever.robotOverlord.entity.scene.recording2;
 
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
+import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -29,6 +32,7 @@ public class Recording2Entity extends PoseEntity {
 	protected double        playHead;
 	protected double        totalPlayTime;
 	protected RobotTask     playHeadEntity;
+	protected Entity        track;
 	
 	public Recording2Entity() {
 		super("Recording2");
@@ -36,6 +40,9 @@ public class Recording2Entity extends PoseEntity {
 		isPlaying=false;
 		totalPlayTime=0;
 		playHead=0;
+		
+		track = new Entity("Track");
+		this.addChild(track);
 		
 		subjectEntityPath.addObserver(new Observer() {
 			@Override
@@ -69,7 +76,10 @@ public class Recording2Entity extends PoseEntity {
 	
 	void rewind() {
 		playHead=0;
-		playHeadEntity = (RobotTask)children.get(0);
+		
+		ArrayList<Entity> kids = track.getChildren();
+		
+		playHeadEntity = kids.isEmpty() ? null : (RobotTask)track.getChildren().get(0);
 	}
 	
 	@Override
@@ -120,10 +130,10 @@ public class Recording2Entity extends PoseEntity {
 		
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
-		for( Entity c : children ) {
+		for( Entity c : track.getChildren() ) {
 			if( c instanceof RobotTask ) {
 				RobotTask rt = (RobotTask)c;
-				MatrixHelper.drawMatrix(gl2, rt.getPose(), 5);
+				MatrixHelper.drawMatrix(gl2, rt.getPose(), 15);
 			}
 		}
 		gl2.glPopMatrix();
@@ -135,12 +145,17 @@ public class Recording2Entity extends PoseEntity {
 		view.addStaticText("Choose a robot:");
 		view.addEntitySelector(subjectEntityPath);
 		
-		final Recording2Entity parent = this;
 		view.addButton("Add Task").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				parent.addChild(new RobotTask());
+				RobotTask newTask = new RobotTask();
+				track.addChild(newTask);
 				((RobotOverlord)parent.getRoot()).updateEntityTree();
+				Matrix4d newPose = subjectEE.getPoseWorld();
+				Matrix4d invParentPose = subject.getPoseWorld();
+				invParentPose.invert();
+				newPose.mul(invParentPose);
+				newTask.setPose(newPose);
 			}
 		});
 		
@@ -156,6 +171,21 @@ public class Recording2Entity extends PoseEntity {
 					play();
 					bPlay.setText("■");
 				}
+			}
+		});
+
+		
+		ViewElementButton bNew = view.addButton("New"); 
+		bNew.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				stop();
+				rewind();
+				
+				while( !track.getChildren().isEmpty() ) {
+					track.getChildren().remove(0);
+				}
+				((RobotOverlord)parent.getRoot()).updateEntityTree();
 			}
 		});
 		view.popStack();

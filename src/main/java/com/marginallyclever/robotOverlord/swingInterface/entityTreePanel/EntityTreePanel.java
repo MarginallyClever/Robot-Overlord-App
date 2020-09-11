@@ -84,7 +84,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		}
 		
 		@SuppressWarnings("unchecked")
-		ArrayList<DefaultMutableTreeNode> list = Collections.list(node.children());
+		ArrayList<DefaultMutableTreeNode> list = (ArrayList<DefaultMutableTreeNode>)Collections.list(node.children());
 		for (DefaultMutableTreeNode treeNode : list) {
 			setNodeExpandedState(tree, treeNode, expanded);
 		}
