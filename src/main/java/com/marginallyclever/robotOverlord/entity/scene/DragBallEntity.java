@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
+import java.awt.Font;
+
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -7,6 +9,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.util.awt.TextRenderer;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -32,6 +35,8 @@ public class DragBallEntity extends PoseEntity {
 	 */
 	private static final long serialVersionUID = 8786413898168510187L;
 	private static final double STEP_SIZE = Math.PI/120.0;
+	
+	protected TextRenderer textRender = new TextRenderer(new Font("CourrierNew", Font.BOLD, 16));
 
 	public enum SlideDirection {
 		SLIDE_XPOS(0,"X+"),
@@ -635,6 +640,24 @@ public class DragBallEntity extends PoseEntity {
 			OpenGLHelper.drawAtopEverythingEnd(gl2, previousState);
 			
 		gl2.glPopMatrix();
+		
+		gl2.glEnable(GL2.GL_TEXTURE_2D);
+		
+		//ro.viewport.renderOrtho(gl2);
+		textRender.beginRendering(ro.viewport.getCanvasWidth(), ro.viewport.getCanvasHeight());
+		textRender.setColor(0,0,0,1);
+		Matrix4d w = resultMatrix;
+		Vector3d wp = MatrixHelper.getPosition(w);
+		Vector3d eu = MatrixHelper.matrixToEuler(w);
+		textRender.draw("("
+				+StringHelper.formatDouble(wp.x)+","
+				+StringHelper.formatDouble(wp.y)+","
+				+StringHelper.formatDouble(wp.z)+")-("
+				+StringHelper.formatDouble(Math.toDegrees(eu.x))+","
+				+StringHelper.formatDouble(Math.toDegrees(eu.y))+","
+				+StringHelper.formatDouble(Math.toDegrees(eu.z))+")", 20, 20);
+		textRender.endRendering();
+		//ro.viewport.renderPerspective(gl2);
 	}
 	
 	/**
