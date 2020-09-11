@@ -80,10 +80,7 @@ public class Recording2Entity extends PoseEntity {
 	void rewind() {
 		Log.message("Action:Rewind");
 		playHead=0;
-		
-		ArrayList<Entity> kids = track.getChildren();
-		
-		playHeadEntity = kids.isEmpty() ? null : (RobotTask)track.getChildren().get(0);
+		playHeadEntity = null;
 	}
 	
 	@Override
@@ -106,7 +103,12 @@ public class Recording2Entity extends PoseEntity {
 				endT = startT+k1.time.get();
 				if(startT <= playHead && endT > playHead) {
 					//rk is the child we've been looking for.
-					//subject.sendCommand(rk.extra.get());
+					if( playHeadEntity != k0) {
+						Log.message("Playback:task "+(i-1));
+						// entering this task, send command once.
+						//subject.sendCommand(k0.extra.get());
+						playHeadEntity = k0;
+					}
 					if(endT==startT) {
 						// 0 time
 						// TODO don't let this be possible
@@ -125,6 +127,7 @@ public class Recording2Entity extends PoseEntity {
 			}
 			
 			if(i==size+1 && playHead>=endT) {
+				Log.message("Playback:End");
 				stop();
 				rewind();
 			}
