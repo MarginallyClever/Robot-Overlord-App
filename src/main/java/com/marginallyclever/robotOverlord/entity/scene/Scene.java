@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.recording2.Recording2Entity;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -107,6 +108,11 @@ public class Scene extends Entity {
 		trayCabinet2.setName("Cabinet");
 		addChild(trayCabinet2);
 		trayCabinet2.setPosition(new Vector3d(35,49.5,21.75));
+		
+		// add recording engine
+		Recording2Entity r2e = new Recording2Entity(); 
+		addChild(r2e);
+		r2e.subjectEntityPath.set("//World/Sixi 2/Sim");
 	}
 	
 	public void render(GL2 gl2) {
