@@ -1,8 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
-import com.jogamp.opengl.GL2;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.convenience.memento.Memento;
 
 /**
  * DHKeyframe contains the time, IK end effector, and FK values for a DHRobot in a given pose.
@@ -10,7 +15,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe
  * @author Dan Royer
  *
  */
-public class PoseFK implements RobotKeyframe {	
+public class PoseFK implements Memento {	
 	public double [] fkValues;
 	
 	public PoseFK() {}
@@ -25,28 +30,15 @@ public class PoseFK implements RobotKeyframe {
 	}
 	
 	
-	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
-		PoseFK dha = (PoseFK)a;
-		PoseFK dhb = (PoseFK)b;
-		if(this.fkValues.length == dha.fkValues.length && 
-			dha.fkValues.length == dhb.fkValues.length) {
+	public void interpolate(PoseFK a, PoseFK b, double t) {
+		if(this.fkValues.length == a.fkValues.length && 
+			a.fkValues.length == b.fkValues.length) {
 			for(int i=0;i<this.fkValues.length;++i) {
-				double c=dha.fkValues[i];
-				double d=dhb.fkValues[i];
+				double c=a.fkValues[i];
+				double d=b.fkValues[i];
 				this.fkValues[i] = (d-c)*t+c; 
 			}
 		}
-	}
-
-	@Override
-	public void render(GL2 gl2) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
-		// TODO Auto-generated method stub
 	}
 	
 	public void set(PoseFK arg0) {
@@ -76,5 +68,21 @@ public class PoseFK implements RobotKeyframe {
 			add="\t";
 		}
 		return str;
+	}
+
+	@Override
+	public void save(OutputStream arg0) throws IOException {
+		DataOutputStream out = new DataOutputStream(arg0);
+		for( double v : fkValues ) {
+			out.writeDouble(v);
+		}
+	}
+
+	@Override
+	public void load(InputStream arg0) throws IOException {
+		DataInputStream out = new DataInputStream(arg0);
+		for(int i=0;i<fkValues.length;++i) {
+			fkValues[i] = out.readDouble();
+		}
 	}
 }
