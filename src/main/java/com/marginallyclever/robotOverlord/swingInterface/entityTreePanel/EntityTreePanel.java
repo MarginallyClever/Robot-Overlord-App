@@ -1,6 +1,8 @@
 package com.marginallyclever.robotOverlord.swingInterface.entityTreePanel;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -53,6 +55,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		if(oldTree==null) return;
 		if(selected==e) return;
 
+		oldTree.clearSelection();
+		
 		// preserve the original expansions
 		LinkedList<DefaultMutableTreeNode> list = new LinkedList<DefaultMutableTreeNode>();
 		list.add(oldTop);
@@ -137,6 +141,21 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		
 		oldTree=newTree;
 		oldTop =newTop;
+		
+
+		oldTree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				super.mouseClicked(e);
+				
+				// https://coderanch.com/t/518163/java/Deselect-nodes-JTree-user-clicks
+				int row=oldTree.getRowForLocation(e.getX(),e.getY());
+			    if(row==-1) { // When user clicks on the "empty surface"
+			    	oldTree.clearSelection();
+			    }
+			}
+		});
 	}
 
 	// This is a ViewTree of the root entity.
@@ -155,7 +174,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)oldTree.getLastSelectedPathComponent();
-		Entity e = (Entity)node.getUserObject();
+		Entity e = (node==null) ? null : (Entity)node.getUserObject();
 		selected=e;
 		EntityTreePanelEvent event = new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,e);
 		updateListeners(event);
