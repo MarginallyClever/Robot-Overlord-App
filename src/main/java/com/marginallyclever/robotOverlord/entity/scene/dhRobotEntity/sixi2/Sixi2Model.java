@@ -11,6 +11,8 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -30,16 +32,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public abstract class Sixi2Model extends DHRobotEntity {	
+public class Sixi2Model extends DHRobotEntity implements MementoOriginator {	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7341226486087376506L;
-
-	// set this to false before running the app and the model will not attach to the DHLinks.
-	// this is convenient for setting up the DHLinks with less visual confusion.
-	// TODO phase out when dhRobotBuilder matures?
-	static final boolean ATTACH_MODELS=true;
 
 	// last known state
 	protected boolean readyForCommands=false;
@@ -69,8 +66,12 @@ public abstract class Sixi2Model extends DHRobotEntity {
 
 	protected double[] cartesianForceDesired = {0,0,0,0,0,0};
 	protected double[] jointVelocityDesired;
-	
+
 	public Sixi2Model() {
+		this(true);
+	}
+	
+	public Sixi2Model(boolean attachModels) {
 		super();
 		setName("Sixi2Model");
 		addChild(feedRate);
@@ -88,7 +89,7 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		// setup children
 		this.setNumLinks(6);
 
-		if(!ATTACH_MODELS) {
+		if(!attachModels) {
 			ModelEntity part1 = new ModelEntity();	addChild(part1);	part1.setModelFilename("/Sixi2/shoulder.obj");
 			ModelEntity part2 = new ModelEntity();	addChild(part2);	part2.setModelFilename("/Sixi2/bicep.obj");
 			ModelEntity part3 = new ModelEntity();	addChild(part3);	part3.setModelFilename("/Sixi2/forearm.obj");
@@ -723,5 +724,17 @@ public abstract class Sixi2Model extends DHRobotEntity {
 		}
 
 		return cuboidList;
+	}
+
+	@Override
+	public Memento getState() {
+		return this.getPoseFK();
+	}
+
+	@Override
+	public void setState(Memento arg0) {
+		if(arg0 instanceof PoseFK) {
+			this.setPoseFK((PoseFK)arg0);
+		}
 	}
 }

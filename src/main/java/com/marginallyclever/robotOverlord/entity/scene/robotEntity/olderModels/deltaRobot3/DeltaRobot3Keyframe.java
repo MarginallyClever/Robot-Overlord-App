@@ -1,9 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.deltaRobot3;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import javax.vecmath.Vector3d;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.convenience.memento.Memento;
 
 
 /**
@@ -12,7 +16,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe
  *
  */
 @Deprecated
-public class DeltaRobot3Keyframe implements RobotKeyframe {
+public class DeltaRobot3Keyframe implements Memento {
 	// angle of rotation
 	public DeltaRobot3Arm arms[];
 
@@ -53,20 +57,18 @@ public class DeltaRobot3Keyframe implements RobotKeyframe {
 	}
 
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
-		// TODO Auto-generated method stub
-		
+	public void save(OutputStream arg0) throws IOException {
+		DataOutputStream out = new DataOutputStream(arg0);
+		out.writeDouble(arms[0].angle);
+		out.writeDouble(arms[1].angle);
+		out.writeDouble(arms[2].angle);
 	}
 
 	@Override
-	public void render(GL2 gl2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
-		// TODO Auto-generated method stub
-		
+	public void load(InputStream arg0) throws IOException {
+		DataInputStream in = new DataInputStream(arg0);
+		arms[0].angle = in.readDouble();
+		arms[1].angle = in.readDouble();
+		arms[2].angle = in.readDouble();
 	}
 };

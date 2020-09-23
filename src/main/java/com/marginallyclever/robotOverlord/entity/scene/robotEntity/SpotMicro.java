@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
 
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 
@@ -43,7 +44,7 @@ public class SpotMicro extends RobotEntity {
 	}
 	
 	@Override
-	public RobotKeyframe createKeyframe() {
+	public Memento createKeyframe() {
 		// TODO Auto-generated method stub
 		return null;
 	}

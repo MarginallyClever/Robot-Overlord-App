@@ -1,17 +1,20 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.rotaryStewartPlatform;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.bezier3.Bezier3ControlPoint;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.log.Log;
 
 
 @Deprecated
-public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
+public class RotaryStewartPlatformKeyframe implements Memento {
 	// angle of rotation
 	public RotaryStewartPlatformArm arms[];
 
@@ -409,8 +412,14 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	}
 
 
-	@Override
-	public void interpolate(RobotKeyframe arg0, RobotKeyframe arg1, double t) {
+	public void render(GL2 gl2) {
+		Vector3d fingerRight = new Vector3d();
+		fingerRight.cross(finger_forward,finger_up);
+		MatrixHelper.drawMatrix(gl2,fingerPosition,finger_forward,fingerRight,finger_up);
+	}
+
+
+	public void interpolate(Memento arg0, Memento arg1, double t) {
 		// TODO Auto-generated method stub
 		RotaryStewartPlatformKeyframe a = (RotaryStewartPlatformKeyframe)arg0;
 		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
@@ -423,16 +432,7 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 	}
 
 
-	@Override
-	public void render(GL2 gl2) {
-		Vector3d fingerRight = new Vector3d();
-		fingerRight.cross(finger_forward,finger_up);
-		MatrixHelper.drawMatrix(gl2,fingerPosition,finger_forward,fingerRight,finger_up);
-	}
-
-
-	@Override
-	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
+	public void renderInterpolation(GL2 gl2, Memento arg1) {
 		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
 		Bezier3ControlPoint lcp = new Bezier3ControlPoint();
 		
@@ -442,6 +442,15 @@ public class RotaryStewartPlatformKeyframe implements RobotKeyframe {
 		lcp.position.p3.set(b.fingerPosition);
 
 		lcp.render(gl2);
-		
+	}
+
+	@Override
+	public void save(OutputStream arg0) throws IOException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void load(InputStream arg0) throws IOException {
+		// TODO Auto-generated method stub
 	}
 };

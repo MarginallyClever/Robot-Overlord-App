@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
 
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -58,14 +59,14 @@ public abstract class RobotEntity extends PoseEntity {
 	 * Each robot implementation should customize the keframe as needed. 
 	 * @return an instance derived from RobotKeyframe
 	 */
-	public abstract RobotKeyframe createKeyframe();
+	public abstract Memento createKeyframe();
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
 		connection.update(dt);
 		if(connection.isConnectionOpen()) {
-			// set the lock
+			// set the lock 
 			
 			// de-queue and process all messages
 			//if(data.startsWith(">")) isReadyToReceive=true;

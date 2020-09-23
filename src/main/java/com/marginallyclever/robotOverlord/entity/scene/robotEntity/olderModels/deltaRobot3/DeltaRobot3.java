@@ -16,10 +16,10 @@ import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
 import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
@@ -818,7 +818,7 @@ public class DeltaRobot3 extends RobotEntity {
 
 
 	@Override
-	public RobotKeyframe createKeyframe() {
+	public Memento createKeyframe() {
 		return new DeltaRobot3Keyframe();
 	}
 }

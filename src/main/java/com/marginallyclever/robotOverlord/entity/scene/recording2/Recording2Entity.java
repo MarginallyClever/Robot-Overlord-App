@@ -4,30 +4,32 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.vecmath.Matrix4d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
+/**
+ * Record and play back a set of states for any Entity that implements the MementoOriginator interface.
+ * @author Dan Royer
+ *
+ */
 public class Recording2Entity extends PoseEntity {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected StringEntity  subjectEntityPath = new StringEntity("Robot","");
-	protected DHRobotEntity subject;
-	protected PoseEntity    subjectEE;
+	public StringEntity 		subjectEntityPath = new StringEntity("Subject","");
+	protected PoseEntity 		subject;
+	protected MementoOriginator originator;
 	
 	protected boolean 		isPlaying;
 	protected double        playHead;
@@ -51,22 +53,20 @@ public class Recording2Entity extends PoseEntity {
 				if(subject!=null) {
 					Log.message("Stop following "+subject.getFullPath());
 					subject=null;
-					subjectEE=null;
 				}
 				
 				Entity e = findByPath(subjectEntityPath.get());
-				if( e instanceof DHRobotEntity ) {
+				if( e instanceof PoseEntity && e instanceof MementoOriginator ) {
 					Log.message("Start following "+e.getFullPath());
-					subject = (DHRobotEntity)e;
-					subjectEE = (PoseEntity)subject.findByPath("End Effector Target");
-					setPoseWorld(subject.getPoseWorld());
+					subject = (PoseEntity)e;
+					originator = (MementoOriginator)e;
 				}
 				stop();
 				rewind();
 			}
 		});
 	}
-
+	
 	void stop() {
 		Log.message("Action:Stop");
 		isPlaying=false;
@@ -107,19 +107,12 @@ public class Recording2Entity extends PoseEntity {
 						Log.message("Playback:task "+(i-1));
 						// entering this task, send command once.
 						//subject.sendCommand(k0.extra.get());
+						originator.setState(k0.getMemento());
 						playHeadEntity = k0;
 					}
 					if(endT==startT) {
 						// 0 time
 						// TODO don't let this be possible
-					}
-					double alpha = (playHead-startT) / (endT-startT);
-					alpha = Math.min(1, Math.max(0, alpha));
-					
-					Matrix4d result = new Matrix4d();
-					if(MatrixHelper.interpolate(k0.getPose(), k1.getPose(), alpha, result)) {
-						subjectEE.setPose(result);
-						break;
 					}
 				}
 				startT=endT;
@@ -137,48 +130,26 @@ public class Recording2Entity extends PoseEntity {
 	protected void walkChildren(RobotTask node) {
 		
 	}
-	
-	double estimateTimeBetweePoses(RobotTask A, RobotTask B) {
-		if( subject == null ) return 0;
 		
-		PoseFK oldPose = subject.getPoseFK();
-		
-		subject.setPoseIK(A.getPoseWorld());
-		PoseFK fkA = subject.getPoseFK();
-		subject.setPoseIK(B.getPoseWorld());
-		PoseFK fkB = subject.getPoseFK();
-					
-		subject.setPoseFK(oldPose);
-		
-		// find largest fk change between poses
-		//int largestAxis=0;
-		double largestAmount = Math.abs(fkB.fkValues[0]-fkA.fkValues[0]);
-		for( int i = 1; i < fkA.fkValues.length; ++i ) {
-			double dfk = Math.abs(fkB.fkValues[i]-fkA.fkValues[i]);
-			if( largestAmount < dfk ) {
-				largestAmount = dfk;
-				//largestAxis = i;
-			}
-		}
-		double travelTime = largestAmount / 50;  // 50 degrees/s max velocity TODO improve this
-		//double travelTime = largestAmount / subject.getMaxV();
-		
-		return travelTime;
-	}
-	
 	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
+		
+		if(subject==null) return;
+		
+		Memento m = originator.getState();
 		
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
 		for( Entity c : track.getChildren() ) {
 			if( c instanceof RobotTask ) {
-				RobotTask rt = (RobotTask)c;
-				MatrixHelper.drawMatrix(gl2, rt.getPose(), 15);
+				originator.setState(((RobotTask)c).getMemento());
+				subject.render(gl2);
 			}
 		}
 		gl2.glPopMatrix();
+		
+		originator.setState(m);
 	}
 	
 	@Override
@@ -193,11 +164,7 @@ public class Recording2Entity extends PoseEntity {
 				RobotTask newTask = new RobotTask();
 				track.addChild(newTask);
 				((RobotOverlord)parent.getRoot()).updateEntityTree();
-				Matrix4d newPose = subjectEE.getPoseWorld();
-				Matrix4d invParentPose = subject.getPoseWorld();
-				invParentPose.invert();
-				newPose.mul(invParentPose);
-				newTask.setPose(newPose);
+				newTask.setMemento(originator.getState());
 			}
 		});
 		

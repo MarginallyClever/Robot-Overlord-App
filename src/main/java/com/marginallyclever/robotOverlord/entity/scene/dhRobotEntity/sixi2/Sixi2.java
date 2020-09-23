@@ -28,8 +28,7 @@ public class Sixi2 extends PoseEntity {
 
 	public Sixi2Model live = new Sixi2Live();
 	public Sixi2Model sim = new Sixi2Sim();
-
-	public SixiJoystick joystick = new SixiJoystick();
+	//public SixiJoystick joystick = new SixiJoystick();
 	
 	public Sixi2() {
 		super();
@@ -37,7 +36,7 @@ public class Sixi2 extends PoseEntity {
 		
 		addChild(live);
 		addChild(sim);
-		addChild(joystick);
+		//addChild(joystick);
 
 		//setShowLineage(true);
 		//setShowLocalOrigin(true);
@@ -165,7 +164,15 @@ public class Sixi2 extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("S","Sixi");
+		view.pushStack("S","Sixi");/*
+		TODO finish me - a way to type + send gcode to the robot, read responses.  
+		view.addButton("Open console").addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				MessageMonitor mm = new MessageMonitor();
+				mm.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+			}
+		});*/
 		view.popStack();
 		
 		super.getView(view);

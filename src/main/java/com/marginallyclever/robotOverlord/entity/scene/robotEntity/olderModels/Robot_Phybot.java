@@ -5,6 +5,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
@@ -13,7 +14,6 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.Link
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
 
 
 public class Robot_Phybot extends RobotEntity {
@@ -151,7 +151,7 @@ public class Robot_Phybot extends RobotEntity {
 	public void sendNewStateToRobot(PoseFK keyframe) {}
 
 	@Override
-	public RobotKeyframe createKeyframe() {
+	public Memento createKeyframe() {
 		// TODO Auto-generated method stub
 		return null;
 	}

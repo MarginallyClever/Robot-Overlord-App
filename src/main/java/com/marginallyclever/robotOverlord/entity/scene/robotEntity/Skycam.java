@@ -6,11 +6,13 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Skycam extends RobotEntity {
+public class Skycam extends RobotEntity implements MementoOriginator {
 	/**
 	 * 
 	 */
@@ -50,8 +52,7 @@ public class Skycam extends RobotEntity {
 	}
 	
 	@Override
-	public RobotKeyframe createKeyframe() {
-		// TODO Auto-generated method stub
+	public Memento createKeyframe() {
 		return null;
 	}
 
@@ -62,5 +63,22 @@ public class Skycam extends RobotEntity {
 		view.popStack();
 		
 		super.getView(view);
+	}
+
+	@Override
+	public Memento getState() {
+		SkycamMemento m = new SkycamMemento();
+		m.relative.set(ee.getPose());
+		m.size.set(this.size.get());
+		return m;
+	}
+
+	@Override
+	public void setState(Memento arg0) {
+		if(arg0 instanceof SkycamMemento) {
+			SkycamMemento m = (SkycamMemento)arg0;
+			ee.setPose(m.relative);
+			this.size.set(m.size);
+		}
 	}
 }

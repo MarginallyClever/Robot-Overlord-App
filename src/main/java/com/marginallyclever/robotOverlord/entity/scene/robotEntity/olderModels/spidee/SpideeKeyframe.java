@@ -1,24 +1,22 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.spidee;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class SpideeKeyframe implements RobotKeyframe {
+import com.marginallyclever.convenience.memento.Memento;
+
+public class SpideeKeyframe implements Memento {
+
 	@Override
-	public void interpolate(RobotKeyframe a, RobotKeyframe b, double t) {
+	public void save(OutputStream arg0) throws IOException {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
-	public void render(GL2 gl2) {
+	public void load(InputStream arg0) throws IOException {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void renderInterpolation(GL2 gl2, RobotKeyframe arg1) {
-		// TODO Auto-generated method stub
-
+		
 	}
 }

@@ -4,12 +4,12 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
 
 /**
  * Unfinished UArm implementation of DHRobot.
@@ -135,7 +135,7 @@ public class Robot_UArm extends RobotEntity {
 	}
 
 	@Override
-	public RobotKeyframe createKeyframe() {
+	public Memento createKeyframe() {
 		// TODO Auto-generated method stub
 		return null;
 	}

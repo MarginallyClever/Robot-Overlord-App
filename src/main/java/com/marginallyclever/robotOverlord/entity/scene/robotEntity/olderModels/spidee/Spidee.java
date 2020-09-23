@@ -15,11 +15,11 @@ import java.util.prefs.Preferences;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotKeyframe;
 import com.marginallyclever.robotOverlord.log.Log;
 
 import java.io.BufferedReader;
@@ -1620,7 +1620,7 @@ public class Spidee extends RobotEntity {
 	}
 
 	@Override
-	public RobotKeyframe createKeyframe() {
+	public Memento createKeyframe() {
 		return new SpideeKeyframe();
 	}
 }

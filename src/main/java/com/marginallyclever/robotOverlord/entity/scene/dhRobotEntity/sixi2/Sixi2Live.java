@@ -379,7 +379,7 @@ public class Sixi2Live extends Sixi2Model {
 			public void update(Observable o, Object arg) {
 				// HAND-E command
 				//sendCommandToRemoteEntity("M42 P12 S1", true);
-				sendCommandToRemoteEntity("G0 T135", true);
+				sendCommandToRemoteEntity("G0 T1", true);
 				
 				Log.message("Opening");
 			}
@@ -391,7 +391,7 @@ public class Sixi2Live extends Sixi2Model {
 				// HAND-E command
 				//sendCommandToRemoteEntity("M42 P12 S0", true);
 				// Servo-driven gripper command
-				sendCommandToRemoteEntity("G0 T85", true);
+				sendCommandToRemoteEntity("G0 T0", true);
 				Log.message("Closing");
 			}
 		});

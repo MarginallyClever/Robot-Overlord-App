@@ -4,16 +4,17 @@
 package com.marginallyclever.robotOverlord.entity.scene.recording2;
 
 
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * @author Dan Royer
  *
  */
-public class RobotTask extends PoseEntity {
+public class RobotTask extends Entity {
 	/**
 	 * 
 	 */
@@ -21,7 +22,8 @@ public class RobotTask extends PoseEntity {
 	
 	public DoubleEntity time=new DoubleEntity("Time",5);  // time to reach the next pose
 	public StringEntity extra=new StringEntity("Extra","");  // additional commands to execute
-	
+	protected Memento memento;
+
 	public RobotTask() {
 		super("Task");
 	}
@@ -35,5 +37,13 @@ public class RobotTask extends PoseEntity {
 		view.addStaticText("Extra command happens at start of task.");
 		view.popStack();
 		super.getView(view);
+	}
+	
+	public Memento getMemento() {
+		return memento;
+	}
+
+	public void setMemento(Memento memento) {
+		this.memento = memento;
 	}
 }
