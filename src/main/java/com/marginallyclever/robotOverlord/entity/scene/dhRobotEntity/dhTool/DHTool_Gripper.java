@@ -11,6 +11,8 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
@@ -22,7 +24,7 @@ import com.marginallyclever.robotOverlord.swingInterface.InputManager;
  * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
  */
-public class DHTool_Gripper extends DHTool {
+public class DHTool_Gripper extends DHTool implements MementoOriginator {
 	/**
 	 * 
 	 */
@@ -263,5 +265,15 @@ public class DHTool_Gripper extends DHTool {
 		}
 
 		return cuboidList;
+	}
+
+	@Override
+	public Memento getState() {
+		return new GripperMemento(gripperServoAngle);
+	}
+
+	@Override
+	public void setState(Memento arg0) {
+		gripperServoAngle = ((GripperMemento)arg0).gripperAngle;
 	}
 }
