@@ -1,18 +1,14 @@
 package com.marginallyclever.robotOverlord.entity.scene.recording;
 
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.vecmath.Matrix4d;
-
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.marginallyclever.convenience.MatrixHelper;
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.convenience.memento.MementoOriginator;
+import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.log.Log;
@@ -20,303 +16,185 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
- * Multitrack recording/playback for a target entity.  Child RecordingTrack entities are the tracks in the recording.
+ * Record and play back a set of states for any Entity that implements the MementoOriginator interface.
  * @author Dan Royer
- * TODO make this system undoable.
+ *
  */
 public class RecordingEntity extends Entity {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public StringEntity 		subjectEntityPath = new StringEntity("Subject","");
+	protected PoseEntity 		subject;
+	protected MementoOriginator originator;
 	
-	// where was it saved?  where was it loaded from?
-	public StringEntity pathToFile = new StringEntity("File","");
-	public StringEntity targetName = new StringEntity("Target","");
-	private PoseEntity targetEntity = null;
-	
-	// list of tracks
-	public LinkedList<RecordingTrackMatrix4d> trackList = new LinkedList<RecordingTrackMatrix4d>();
-	
-	// where is the playhead in the sequence of tracks?
-	public DoubleEntity playHead = new DoubleEntity("Play head (s)",0);
-	
-	// what is the total sequence length?  (can be earlier than the last events)
-	public DoubleEntity sequenceLength = new DoubleEntity("Sequence length (s)",0);
-	
-	public boolean isPlaying=false;
-	
-	// needed as a reference for other button actions.
-	protected ViewElementButton playStop;
-	
+	protected boolean 				isPlaying;
+	protected double        		playHead;
+	protected double        		totalPlayTime;
+	protected RecordingKeyframe     playHeadEntity;
+	protected Entity        		track;
 	
 	public RecordingEntity() {
 		super("Recording");
-		addChild(pathToFile);
-		addChild(targetName);
-		addChild(playHead);
-		addChild(sequenceLength);
 		
-		targetName.addObserver(new Observer() {
+		isPlaying=false;
+		totalPlayTime=0;
+		playHead=0;
+		
+		track = new Entity("Track");
+		this.addChild(track);
+		
+		subjectEntityPath.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				if(o==targetName) {
-					// stop watching the old entity 
-					if( targetEntity != null ) {
-						Log.message("Stop watching "+targetEntity.getFullPath());
-						targetEntity.deleteObserver(this);
-						targetEntity=null;
-					}
-					// name has changed
-					Entity e = findByPath(targetName.get());
-					if(e instanceof PoseEntity) {
-						// remember the new target
-						targetEntity = (PoseEntity)e;
-						// observe the new target
-						Log.message("Start watching "+targetEntity.getFullPath());
-						targetEntity.addObserver(this);
-						resetTrackList();
-					}
-				} else if(o==targetEntity) {
-					// ignore targetEntity moves while in playing.
-					if(!isPlaying) {
-						setKeyToTarget(getPlayHeadMS());
-					}
+				if(subject!=null) {
+					Log.message("Stop following "+subject.getFullPath());
+					subject=null;
 				}
-			}
-		});
-		playHead.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				if(targetEntity!=null) {
-					moveTargetToTime(getPlayHeadMS());
+				
+				Entity e = findByPath(subjectEntityPath.get());
+				if( e instanceof PoseEntity && e instanceof MementoOriginator ) {
+					Log.message("Start following "+e.getFullPath());
+					subject = (PoseEntity)e;
+					originator = (MementoOriginator)e;
 				}
+				stop();
+				rewind();
 			}
 		});
 	}
-
-	public void moveTargetToTime(long time_ms) {
-		if(targetEntity==null) return;
-		
-		PoseEntity pe = (PoseEntity)targetEntity;
-		
-		Matrix4d m4 = trackList.get(0).getValueAt(time_ms);
-		
-		pe.setPoseWorld(m4);
-		
-		Log.message("Playback t="+time_ms+": "+MatrixHelper.getPosition(m4));
+	
+	void stop() {
+		Log.message("Action:Stop");
+		isPlaying=false;
 	}
 	
-	// set sequence track list events at time to target pose.
-	public void setKeyToTarget(long time) {
-		if(targetEntity==null) return;
-		
-		Matrix4d m4 = targetEntity.getPoseWorld();
-		
-		trackList.get(0).setValueAt(time,m4);
-		
-		Log.message("Record "+targetEntity.getFullPath()+" @ "+time+": "+MatrixHelper.getPosition(m4));
+	void play() {
+		Log.message("Action:Play");
+		isPlaying=true;
 	}
 	
-	public long getPlayHeadMS() {
-		return (long)Math.floor(playHead.get()*1000);
+	void rewind() {
+		Log.message("Action:Rewind");
+		playHead=0;
+		playHeadEntity = null;
 	}
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
 		
-		// are we playing?
 		if(isPlaying) {
-			// are we at the end?
-			double ts = playHead.get();
+			playHead += dt;
+			// recursively walk through all children
+			ArrayList<Entity> kids = track.getChildren();
+			double startT=0;
+			double endT=0;
+			RecordingKeyframe k0 = (RecordingKeyframe)kids.get(0);
+			int size = kids.size();
+			int i;
+			for( i=1; i<size+1; ++i ) {
+				RecordingKeyframe k1 = (RecordingKeyframe)kids.get(i%size);
+				// we're trying to find the task on either side of the playhead.
+				// when sum <= playHead and sum+t > playHead then prev is before playhead and rk is after
+				endT = startT+k1.time.get();
+				if(startT <= playHead && endT > playHead) {
+					//rk is the child we've been looking for.
+					if( playHeadEntity != k0) {
+						Log.message("Playback:task "+(i-1));
+						// entering this task, send command once.
+						//subject.sendCommand(k0.extra.get());
+						originator.setState(k0.getMemento());
+						playHeadEntity = k0;
+					}
+					if(endT==startT) {
+						// 0 time
+						// TODO don't let this be possible
+					}
+				}
+				startT=endT;
+				k0=k1;
+			}
 			
-			if(ts>=sequenceLength.get()) {
-				// yes
-				playHead.set(sequenceLength.get());
+			if(i==size+1 && playHead>=endT) {
+				Log.message("Playback:End");
 				stop();
-				return;
-			} else {
-				// no
-				// advance playHead
-				playHead.set(ts+1.0/30.0); // 30FPS TODO improve this.
+				rewind();
 			}
 		}
+	}
+	
+	protected void walkChildren(RecordingKeyframe node) {
+		
+	}
+		
+	@Override
+	public void render(GL2 gl2) {
+		super.render(gl2);
+		
+		if(subject==null) return;
+		
+		Memento m = originator.getState();
+		
+		for( Entity c : track.getChildren() ) {
+			if( c instanceof RecordingKeyframe ) {
+				originator.setState(((RecordingKeyframe)c).getMemento());
+				subject.render(gl2);
+			}
+		}
+		
+		originator.setState(m);
 	}
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Re", "Recording Entity");
-		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
-		filters.add( new FileNameExtensionFilter("Any","*") );
-		view.addFilename(pathToFile, filters);
+		view.pushStack("R2", "Recording2");
+		view.addStaticText("Choose a robot:");
+		view.addEntitySelector(subjectEntityPath);
 		
-		view.addEntitySelector(targetName);
-		view.add(playHead);
-		view.add(sequenceLength);
+		view.addButton("Add Task").addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				RecordingKeyframe newTask = new RecordingKeyframe();
+				track.addChild(newTask);
+				((RobotOverlord)parent.getRoot()).updateEntityTree();
+				newTask.setMemento(originator.getState());
+			}
+		});
 		
-		ViewElementButton toStart  = view.addButton("|◄");
-		ViewElementButton keyPrev  = view.addButton("◄◄");
-						  playStop = view.addButton("►");
-		ViewElementButton keyNext  = view.addButton("►►");
-		ViewElementButton toEnd    = view.addButton("►|");
+		ViewElementButton bPlay = view.addButton("►"); 
+		bPlay.addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				if(isPlaying) {
+					stop();
+					rewind();
+					bPlay.setText("►");
+				} else {
+					play();
+					bPlay.setText("■");
+				}
+			}
+		});
 
-		//ViewElementButton bAddTrack = view.addButton("Add track");
-		//ViewElementButton bNew     = view.addButton("New");
-		//ViewElementButton bLoad    = view.addButton("Load");
-		//ViewElementButton bSave    = view.addButton("Save");
-
-		view.popStack();
 		
-		toStart.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				start();
-				playHead.set(0.0);
-				stop();
-			}
-		});
-		keyPrev.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				start();
-				playHead.set(findEventTimeBefore(getPlayHeadMS())*0.001);
-				stop();
-			}
-		});
-		playStop.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				if(isPlaying) stop();
-				else          start();
-			}
-		});
-		keyNext.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				start();
-				playHead.set(findEventTimeAfter(getPlayHeadMS())*0.001);
-				stop();
-			}
-		});
-		toEnd.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				start();
-				playHead.set(sequenceLength.get());
-				stop();
-			}
-		});
-		/*
+		ViewElementButton bNew = view.addButton("New"); 
 		bNew.addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				resetTrackList();
+				stop();
+				rewind();
 				
+				while( !track.getChildren().isEmpty() ) {
+					track.getChildren().remove(0);
+				}
+				((RobotOverlord)parent.getRoot()).updateEntityTree();
 			}
 		});
-		bLoad.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				loadTrackList();
-			}
-		});
-		bSave.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				saveTrackList();
-			}
-		});
-		bAddTrack.addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				addTrack();
-			}
-		});*/
+		view.popStack();
+		
 		super.getView(view);
 	}
-
-	/**
-	 * Scan all RecordingTrack, find the AbstractRecordingEvent X where X.time &lt; t. 
-	 * @param t
-	 * @return X.time, as described.
-	 */
-	protected long findEventTimeBefore(long t) {
-		long nearestTime = Long.MAX_VALUE;
-		
-		for( AbstractRecordingTrack track : trackList ) {
-			Iterator<AbstractRecordingEvent> iter = track.events.iterator();
-			while(iter.hasNext()) {
-				AbstractRecordingEvent are = iter.next();
-				if(are.time>=t) break;
-				nearestTime = Math.max(nearestTime,t);
-			}
-		}
-		return nearestTime;
-	}
-	
-	/**
-	 * Scan all RecordingTrack, find the AbstractRecordingEvent X where X.time &gt; t. 
-	 * @param t
-	 * @return X.time, as described.
-	 */
-	protected long findEventTimeAfter(long t) {
-		long nearestTime = Long.MAX_VALUE;
-
-		for(AbstractRecordingTrack track : trackList ) {
-			Iterator<AbstractRecordingEvent> iter = track.events.descendingIterator();
-			while(iter.hasNext()) {
-				AbstractRecordingEvent are = iter.next();
-				if(are.time<=t) break;
-				nearestTime = Math.min(nearestTime,t);
-			}
-		}
-		return nearestTime;
-	}
-	
-	protected void stop() {
-		isPlaying=false;
-		if(playStop!=null) playStop.setText("►");
-	}
-	
-	protected void start() {
-		isPlaying=true;
-		if(playStop!=null) playStop.setText("■");
-	}
-	
-	protected void resetTrackList() {
-		stop();
-		playHead.set(0.0);
-		trackList.clear();
-		Matrix4d ident = new Matrix4d();
-		ident.setIdentity();
-		trackList.add(new RecordingTrackMatrix4d("WorldPoseMatrix",ident));
-		setKeyToTarget(0);
-	}
-	
-	protected void saveTrackList() {
-		stop();
-		// TODO open file; write out contents; close file
-	}
-	
-	protected void loadTrackList() {
-		stop();
-		// TODO open file; read in contents; close file
-	}
-	/*
-	protected void addTrack() {
-		int f = 0;
-		for( Entity track : children ) {
-			if(track instanceof RecordingTrack) {
-				String [] parts = track.getName().split("\\s+");
-				int id = Integer.parseInt(parts[1]);
-				f = Math.max(f,id);
-			}
-		}
-		f++;
-		Log.message("Adding track "+f);
-		RecordingTrack newTrack = new RecordingTrack("Track "+f);
-		trackList.add(newTrack);
-	}*/
 }
-//
