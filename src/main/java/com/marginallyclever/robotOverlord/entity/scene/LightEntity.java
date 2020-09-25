@@ -121,8 +121,6 @@ public class LightEntity extends PoseEntity {
 	    gl2.glLightf(i, GL2.GL_CONSTANT_ATTENUATION,attenuationConstant.get().floatValue());
 	    gl2.glLightf(i, GL2.GL_LINEAR_ATTENUATION,attenuationLinear.get().floatValue());
 	    gl2.glLightf(i, GL2.GL_QUADRATIC_ATTENUATION,attenuationQuadratic.get().floatValue());
-		
-		super.render(gl2);
 	}
 	
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
