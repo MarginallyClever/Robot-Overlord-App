@@ -7,7 +7,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -16,8 +15,6 @@ public class Sixi2Sim extends Sixi2Model {
 	 * 
 	 */
 	private static final long serialVersionUID = 6216095894080620268L;
-
-	protected DHRobotEntity robot;
 
 	protected ReentrantLock lock = new ReentrantLock();
 	
@@ -35,7 +32,7 @@ public class Sixi2Sim extends Sixi2Model {
 	    
 	    // set blue
 	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,1.0f);
+	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.70f);
 	    }
 	    
 		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
