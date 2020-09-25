@@ -21,11 +21,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class RecordingEntity extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public StringEntity 		subjectEntityPath = new StringEntity("Subject","");
 	protected PoseEntity 		subject;
 	protected MementoOriginator originator;

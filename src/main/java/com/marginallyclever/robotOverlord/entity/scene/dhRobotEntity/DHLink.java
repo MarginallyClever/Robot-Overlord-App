@@ -19,11 +19,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
 public class DHLink extends ModelEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8160402178509773679L;
-	
 	// Changes visual quality of angle range curve.  Must be a whole number >=2
 	// TODO should be in the view, not the model.
 	public final static double ANGLE_RANGE_STEPS=20;

@@ -11,11 +11,6 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
  *
  */
 public class SpotMicro extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public class Leg {
 		public DHLink hip = new DHLink(),
 				thigh = new DHLink(), 

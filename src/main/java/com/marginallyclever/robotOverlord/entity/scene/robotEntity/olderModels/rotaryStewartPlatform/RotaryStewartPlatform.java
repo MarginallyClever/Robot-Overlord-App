@@ -26,11 +26,6 @@ import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class RotaryStewartPlatform extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7452312301245504822L;
-
 	// machine ID
 	protected long robotUID;
 

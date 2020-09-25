@@ -10,11 +10,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import com.jogamp.opengl.GL2;
+
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.communications.NetworkConnection;
 import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
@@ -24,10 +27,6 @@ import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5612374701460946452L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
@@ -52,6 +51,9 @@ public class DeltaRobot3 extends RobotEntity {
 	static final float LIMIT_U=15;
 	static final float LIMIT_V=15;
 	static final float LIMIT_W=15;
+
+	// angle of rotation
+	public DeltaRobot3Arm arms[];
 
 	// bounding volumes for collision testing
 	protected Cylinder [] volumes;
@@ -129,22 +131,19 @@ public class DeltaRobot3 extends RobotEntity {
 		HOME_X=newHome.x;
 		HOME_Y=newHome.y;
 		HOME_Z=newHome.z;
-		rotateBase(motionNow,0f,0f);
-		moveBase(motionNow,newHome);
+		
 		rebuildShoulders(motionNow);
 		updateIKWrists(motionNow);
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
-		double aa=(motionNow.arms[0].elbow.y-motionNow.arms[0].wrist.y);
+		double aa=(arms[0].elbow.y-arms[0].wrist.y);
 		double cc=FOREARM_LENGTH;
 		double bb=Math.sqrt((cc*cc)-(aa*aa));
-		aa=motionNow.arms[0].elbow.x-motionNow.arms[0].wrist.x;
+		aa=arms[0].elbow.x-arms[0].wrist.x;
 		cc=bb;
 		bb=Math.sqrt((cc*cc)-(aa*aa));
 		motionNow.fingerPosition.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
-		motionFuture.set(motionNow);
-
 		moveIfAble();
 	}
 	
@@ -157,7 +156,6 @@ public class DeltaRobot3 extends RobotEntity {
 
 	protected void updateIK(double delta) {
 		boolean changed=false;
-		motionFuture.set(motionNow);
 		
 		float dv = (float)getSpeed();
 		
@@ -172,12 +170,10 @@ public class DeltaRobot3 extends RobotEntity {
 	
 	
 	public void moveIfAble() {
-		if(movePermitted(motionFuture)) {
+		if(movePermitted()) {
 			haveArmsMoved=true;
 			finalizeMove();
 			if(controlPanel!=null) controlPanel.update();
-		} else {
-			motionFuture.set(motionNow);
 		}
 	}
 	
@@ -186,8 +182,10 @@ public class DeltaRobot3 extends RobotEntity {
 		boolean changed=false;
 		int i;
 		
+		double [] angles = new double[NUM_ARMS];
+		
 		for(i=0;i<NUM_ARMS;++i) {
-			motionFuture.arms[i].angle = motionNow.arms[i].angle;
+			angles[i] = arms[i].angle;
 		}
 		
 		// movement
@@ -196,16 +194,20 @@ public class DeltaRobot3 extends RobotEntity {
 		// if continuous, adjust speed over time
 		//float dv *= delta;
 		
-		if (aDir!=0) {  motionFuture.arms[0].angle -= dv * aDir;  changed=true;  aDir=0;  }
-		if (bDir!=0) {  motionFuture.arms[1].angle -= dv * bDir;  changed=true;  bDir=0;  }
-		if (cDir!=0) {  motionFuture.arms[2].angle += dv * cDir;  changed=true;  cDir=0;  }
+		if (aDir!=0) {  arms[0].angle -= dv * aDir;  changed=true;  aDir=0;  }
+		if (bDir!=0) {  arms[1].angle -= dv * bDir;  changed=true;  bDir=0;  }
+		if (cDir!=0) {  arms[2].angle += dv * cDir;  changed=true;  cDir=0;  }
 		
 		// if not continuous, set *Dir to zero.
 		
 		if(changed) {
-			if(checkAngleLimits(motionFuture)) {
-				updateFK(motionFuture);
+			if(checkAngleLimits()) {
+				updateFK();
 				haveArmsMoved=true;
+			} else {
+				for(i=0;i<NUM_ARMS;++i) {
+					arms[i].angle= angles[i];
+				}
 			}
 		}
 	}
@@ -221,7 +223,6 @@ public class DeltaRobot3 extends RobotEntity {
 		if(!haveArmsMoved) return;		
 
 		haveArmsMoved=false;
-		motionNow.set(motionFuture);
 		this.sendCommand("G0 X"+motionNow.fingerPosition.x
 				          +" Y"+motionNow.fingerPosition.y
 				          +" Z"+motionNow.fingerPosition.z
@@ -260,14 +261,13 @@ public class DeltaRobot3 extends RobotEntity {
 		//RebuildShoulders(motion_now);
 		
 		gl2.glPushMatrix();
-		Vector3d p = getPosition();
-		gl2.glTranslated(p.x, p.y, p.z+2);
+		MatrixHelper.applyMatrix(gl2, this.getPose());
+		gl2.glTranslated(0,0,2);
 		
 		//motion_now.moveBase(new Vector3d(0,0,0));
 		
 		if(draw_stl) {
 			// base
-			gl2.glPushMatrix();
 			setColor(gl2,
 					247.0f/255.0f,
 					233.0f/255.0f,
@@ -275,7 +275,6 @@ public class DeltaRobot3 extends RobotEntity {
 					1.0f);
 			setColor(gl2,1,0.8f,0.6f,1);
 			modelBase.render(gl2);
-			gl2.glPopMatrix();
 
 			//gl2.glTranslated(0, 0, BASE_TO_SHOULDER_Z);
 			
@@ -283,13 +282,13 @@ public class DeltaRobot3 extends RobotEntity {
 			for(i=0;i<NUM_ARMS;++i) {
 				setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 				gl2.glPushMatrix();
-				gl2.glTranslated(motionNow.arms[i].shoulder.x,
-						         motionNow.arms[i].shoulder.y,
-						         motionNow.arms[i].shoulder.z);
+				gl2.glTranslated(arms[i].shoulder.x,
+						         arms[i].shoulder.y,
+						         arms[i].shoulder.z);
 				gl2.glRotated(90,0,1,0);  // model oriented wrong direction
 				gl2.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
 				gl2.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
-				gl2.glRotated(180-motionNow.arms[i].angle,0,0,1);
+				gl2.glRotated(180-arms[i].angle,0,0,1);
 				modelArm.render(gl2);
 				gl2.glPopMatrix();
 			}
@@ -320,24 +319,24 @@ public class DeltaRobot3 extends RobotEntity {
 			ortho.x=Math.cos((float)i*Math.PI*2.0/3.0f);
 			ortho.y=Math.sin((float)i*Math.PI*2.0/3.0f);
 			ortho.z=0;
-			a.set(motionNow.arms[i].wrist);
+			a.set(arms[i].wrist);
 			b.set(ortho);
 			b.scale(1);
 			a.add(b);
 			tube.SetP1(a);
-			a.set(motionNow.arms[i].elbow);
+			a.set(arms[i].elbow);
 			b.set(ortho);
 			b.scale(1);
 			a.add(b);
 			tube.SetP2(a);
 			PrimitiveSolids.drawCylinder(gl2, tube);
 
-			a.set(motionNow.arms[i].wrist);
+			a.set(arms[i].wrist);
 			b.set(ortho);
 			b.scale(-1);
 			a.add(b);
 			tube.SetP1(a);
-			a.set(motionNow.arms[i].elbow);
+			a.set(arms[i].elbow);
 			b.set(ortho);
 			b.scale(-1);
 			a.add(b);
@@ -351,65 +350,34 @@ public class DeltaRobot3 extends RobotEntity {
 		gl2.glPushMatrix();
 		for(i=0;i<NUM_ARMS;++i) {
 			gl2.glColor3f(1,1,1);
-			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].shoulder,5);
-			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].elbow,3);			
-			if(draw_wrist_star) PrimitiveSolids.drawStar(gl2, motionNow.arms[i].wrist,1);
+			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, arms[i].shoulder,5);
+			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, arms[i].elbow,3);			
+			if(draw_wrist_star) PrimitiveSolids.drawStar(gl2, arms[i].wrist,1);
 
 			if(draw_shoulder_to_elbow) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0,1,0);
-				gl2.glVertex3d(motionNow.arms[i].elbow.x,motionNow.arms[i].elbow.y,motionNow.arms[i].elbow.z);
+				gl2.glVertex3d(arms[i].elbow.x,arms[i].elbow.y,arms[i].elbow.z);
 				gl2.glColor3f(0,0,1);
-				gl2.glVertex3d(motionNow.arms[i].shoulder.x,motionNow.arms[i].shoulder.y,motionNow.arms[i].shoulder.z);
+				gl2.glVertex3d(arms[i].shoulder.x,arms[i].shoulder.y,arms[i].shoulder.z);
 				gl2.glEnd();
 			}
 		}
 		gl2.glPopMatrix();
 		
 		if(draw_finger_star) {
-	 		// draw finger orientation
-			float s=2;
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(1,1,1);
-			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3d(motionNow.fingerPosition.x+motionNow.base_forward.x*s,
-					       motionNow.fingerPosition.y+motionNow.base_forward.y*s,
-					       motionNow.fingerPosition.z+motionNow.base_forward.z*s);
-			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3d(motionNow.fingerPosition.x+motionNow.base_up.x*s,
-				       motionNow.fingerPosition.y+motionNow.base_up.y*s,
-				       motionNow.fingerPosition.z+motionNow.base_up.z*s);
-			gl2.glVertex3d(motionNow.fingerPosition.x, motionNow.fingerPosition.y, motionNow.fingerPosition.z);
-			gl2.glVertex3d(motionNow.fingerPosition.x+motionNow.base_right.x*s,
-				       motionNow.fingerPosition.y+motionNow.base_right.y*s,
-				       motionNow.fingerPosition.z+motionNow.base_right.z*s);
-			
-			gl2.glEnd();
+	 		// draw finger center (end effector)
+			gl2.glPushMatrix();
+			gl2.glTranslated(
+					motionNow.fingerPosition.x,
+					motionNow.fingerPosition.y,
+					motionNow.fingerPosition.z);
+			PrimitiveSolids.drawStar(gl2, 5);
+			gl2.glPopMatrix();
 		}
 
 		if(draw_base_star) {
-	 		// draw finger orientation
-			float s=2;
-			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(1,0,0);
-			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3d(motionNow.base.x+motionNow.base_forward.x*s,
-					       motionNow.base.y+motionNow.base_forward.y*s,
-					       motionNow.base.z+motionNow.base_forward.z*s);
-			gl2.glColor3f(0,1,0);
-			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3d(motionNow.base.x+motionNow.base_up.x*s,
-				       motionNow.base.y+motionNow.base_up.y*s,
-				       motionNow.base.z+motionNow.base_up.z*s);
-			gl2.glColor3f(0,0,1);
-			gl2.glVertex3d(motionNow.base.x, motionNow.base.y, motionNow.base.z);
-			gl2.glVertex3d(motionNow.base.x+motionNow.base_right.x*s,
-				       motionNow.base.y+motionNow.base_right.y*s,
-				       motionNow.base.z+motionNow.base_right.z*s);
-			
-			gl2.glEnd();
-			gl2.glEnable(GL2.GL_DEPTH_TEST);
+			PrimitiveSolids.drawStar(gl2, 2);
 		}
 		
 		gl2.glEnable(GL2.GL_LIGHTING);
@@ -432,8 +400,7 @@ public class DeltaRobot3 extends RobotEntity {
 		isHomed=false;
 		this.sendCommand("G28");
 		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
-		updateIK(motionFuture);
-		motionNow.set(motionFuture);
+		updateIK();
 		haveArmsMoved=true;
 		finalizeMove();
 		isHomed=true;
@@ -517,20 +484,10 @@ public class DeltaRobot3 extends RobotEntity {
 	
 	
 	Vector3d getWorldCoordinatesFor(Vector3d in) {
-		Vector3d out = new Vector3d(motionFuture.base);
-		
-		Vector3d tempx = new Vector3d(motionFuture.base_forward);
-		tempx.scale(in.x);
-		out.add(tempx);
-
-		Vector3d tempy = new Vector3d(motionFuture.base_right);
-		tempy.scale(-in.y);
-		out.add(tempy);
-
-		Vector3d tempz = new Vector3d(motionFuture.base_up);
-		tempz.scale(in.z);
-		out.add(tempz);
-				
+		Matrix4d im = this.getPoseWorld();
+		im.invert();
+		Vector3d out = new Vector3d(in);
+		im.transform(out);				
 		return out;
 	}
 
@@ -552,7 +509,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 	
-	public boolean updateFK(DeltaRobot3Memento keyframe) {
+	public boolean updateFK() {
 		return true;
 	}
 
@@ -560,10 +517,10 @@ public class DeltaRobot3 extends RobotEntity {
 	 * Convert cartesian XYZ to robot motor steps.
 	 * @return true if successful, false if the IK solution cannot be found.
 	 */
-	public boolean updateIK(DeltaRobot3Memento keyframe) {
+	public boolean updateIK() {
 		try {
-			updateIKWrists(keyframe);
-			updateIKShoulderAngles(keyframe);
+			updateIKWrists(motionNow);
+			updateIKShoulderAngles();
 		}
 		catch(AssertionError e) {
 			return false;
@@ -578,22 +535,26 @@ public class DeltaRobot3 extends RobotEntity {
 		double c,s;
 		int i;
 		for(i=0;i<NUM_ARMS;++i) {
-			DeltaRobot3Arm arma=keyframe.arms[i];
+			DeltaRobot3Arm arma=arms[i];
 
 			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
 			//n1 = n* c + o*s;
-			n1.set(keyframe.base_forward);
+			Vector3d forward = MatrixHelper.getXAxis(this.pose);
+			Vector3d right   = MatrixHelper.getYAxis(this.pose);
+			Vector3d up      = MatrixHelper.getZAxis(this.pose);
+
+			n1.set(forward);
 			n1.scale(c);
-			temp.set(keyframe.base_right);
+			temp.set(right);
 			temp.scale(s);
 			n1.add(temp);
 			n1.normalize();
 			//o1 = n*-s + o*c;
-			o1.set(keyframe.base_forward);
+			o1.set(forward);
 			o1.scale(-s);
-			temp.set(keyframe.base_right);
+			temp.set(right);
 			temp.scale(c);
 			o1.add(temp);
 			o1.normalize();
@@ -605,7 +566,7 @@ public class DeltaRobot3 extends RobotEntity {
 			arma.wrist.set(n1);
 			arma.wrist.scale(DeltaRobot3.WRIST_TO_FINGER_X);
 			arma.wrist.add(keyframe.fingerPosition);
-			temp.set(keyframe.base_up);
+			temp.set(up);
 			temp.scale(DeltaRobot3.WRIST_TO_FINGER_Z);
 			arma.wrist.add(temp);
 			temp.set(o1);
@@ -615,13 +576,13 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 	
 
-	protected void updateIKShoulderAngles(DeltaRobot3Memento keyframe) throws AssertionError {
+	protected void updateIKShoulderAngles() throws AssertionError {
 		Vector3d ortho = new Vector3d(),w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
 		double a,b,d,r1,r0,hh,y,x;
 
 		int i;
 		for(i=0;i<NUM_ARMS;++i) {
-			DeltaRobot3Arm arm = keyframe.arms[i];
+			DeltaRobot3Arm arm = arms[i];
 
 			// project wrist position onto plane of bicep (wop)
 			ortho.x=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
@@ -682,56 +643,32 @@ public class DeltaRobot3 extends RobotEntity {
 		}
 	}
 
-
-	public void moveBase(DeltaRobot3Memento keyframe,Vector3d dp) {
-		keyframe.base.set(dp);
-		rebuildShoulders(keyframe);
-	}
-
-
-	public void rotateBase(DeltaRobot3Memento keyframe,double pan,double tilt) {
-		keyframe.basePan=pan;
-		keyframe.baseTilt=tilt;
-
-		pan = Math.toRadians(pan);
-		tilt = Math.toRadians(tilt);
-		keyframe.base_forward.y = Math.sin(pan) * Math.cos(tilt);
-		keyframe.base_forward.x = Math.cos(pan) * Math.cos(tilt);
-		keyframe.base_forward.z =                 Math.sin(tilt);
-		keyframe.base_forward.normalize();
-
-		keyframe.base_up.set(0,0,1);
-
-		keyframe.base_right.cross(keyframe.base_up,keyframe.base_forward);
-		keyframe.base_right.normalize();
-		keyframe.base_up.cross(keyframe.base_forward,keyframe.base_right);
-		keyframe.base_up.normalize();
-
-		rebuildShoulders(keyframe);
-	}
-
 	
 	protected void rebuildShoulders(DeltaRobot3Memento keyframe) {
 		Vector3d n1=new Vector3d(),o1=new Vector3d(),temp=new Vector3d();
 		double c,s;
 		int i;
 		for(i=0;i<3;++i) {
-			DeltaRobot3Arm arma=keyframe.arms[i];
+			DeltaRobot3Arm arma=arms[i];
 
 			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
+			Vector3d forward = MatrixHelper.getXAxis(this.pose);
+			Vector3d right   = MatrixHelper.getYAxis(this.pose);
+			Vector3d up      = MatrixHelper.getZAxis(this.pose);
+
 			//n1 = n* c + o*s;
-			n1.set(keyframe.base_forward);
+			n1.set(forward);
 			n1.scale(c);
-			temp.set(keyframe.base_right);
+			temp.set(right);
 			temp.scale(s);
 			n1.add(temp);
 			n1.normalize();
 			//o1 = n*-s + o*c;
-			o1.set(keyframe.base_forward);
+			o1.set(forward);
 			o1.scale(-s);
-			temp.set(keyframe.base_right);
+			temp.set(right);
 			temp.scale(c);
 			o1.add(temp);
 			o1.normalize();
@@ -741,18 +678,18 @@ public class DeltaRobot3 extends RobotEntity {
 			//		    arma.shoulder = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*BASE_TO_SHOULDER_Y;
 			arma.shoulder.set(n1);
 			arma.shoulder.scale(DeltaRobot3.BASE_TO_SHOULDER_X);
-			temp.set(keyframe.base_up);
+			temp.set(up);
 			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Z);
 			arma.shoulder.add(temp);
 			temp.set(o1);
 			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Y);
 			arma.shoulder.sub(temp);
-			arma.shoulder.add(keyframe.base);
+			arma.shoulder.add(MatrixHelper.getPosition(this.pose));
 
 			//		    arma.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
 			arma.elbow.set(n1);
 			arma.elbow.scale(DeltaRobot3.BASE_TO_SHOULDER_X);
-			temp.set(keyframe.base_up);
+			temp.set(up);
 			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Z);
 			arma.elbow.add(temp);
 			temp.set(o1);
@@ -767,7 +704,7 @@ public class DeltaRobot3 extends RobotEntity {
 
 
 	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
-	public boolean movePermitted(DeltaRobot3Memento keyframe) {/*
+	public boolean movePermitted() {/*
 		// don't hit floor
 		if(state.finger_tip.z<0.25f) {
 			return false;
@@ -785,16 +722,16 @@ public class DeltaRobot3 extends RobotEntity {
 		if(temp.length() < BASE_TO_SHOULDER_MINIMUM_LIMIT) return false;
 	 */
 		// angle are good?
-		if(!checkAngleLimits(keyframe)) return false;
+		if(!checkAngleLimits()) return false;
 		// seems doable
-		if(!updateIK(keyframe)) return false;
+		if(!updateIK()) return false;
 
 		// OK
 		return true;
 	}
 
 
-	public boolean checkAngleLimits(DeltaRobot3Memento keyframe) {
+	public boolean checkAngleLimits() {
 		// machine specific limits
 		/*
 		if (state.angle_0 < -180) return false;

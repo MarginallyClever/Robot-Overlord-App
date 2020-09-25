@@ -17,12 +17,7 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
 public class Robot_UArm extends RobotEntity {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7937797399289936308L;
-
-	/*
+/*
 	private transient Model linkA1;
 	private transient Model linkA2;
 	private transient Model linkA3;

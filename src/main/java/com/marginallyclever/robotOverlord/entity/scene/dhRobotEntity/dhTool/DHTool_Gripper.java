@@ -26,11 +26,6 @@ import com.marginallyclever.robotOverlord.swingInterface.InputManager;
  */
 public class DHTool_Gripper extends DHTool implements MementoOriginator {
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5330528803407815395L;
-
-	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
 	private transient PoseEntity subjectBeingHeld;

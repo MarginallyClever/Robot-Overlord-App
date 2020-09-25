@@ -21,11 +21,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class Sixi2 extends PoseEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3770331480833527099L;
-
 	public Sixi2Model live = new Sixi2Live();
 	public Sixi2Model sim = new Sixi2Sim();
 	//public SixiJoystick joystick = new SixiJoystick();

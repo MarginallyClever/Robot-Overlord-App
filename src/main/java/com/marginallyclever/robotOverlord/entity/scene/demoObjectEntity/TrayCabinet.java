@@ -6,12 +6,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 
 public class TrayCabinet extends ModelEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6205115800152179820L;
-	
-	
 	public TrayCabinet() {
 		super();
 		setName("Cabinet");

@@ -15,11 +15,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class RecordingKeyframe extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	public DoubleEntity time=new DoubleEntity("Time",5);  // time to reach the next pose
 	public StringEntity extra=new StringEntity("Extra","");  // additional commands to execute
 	protected Memento memento;

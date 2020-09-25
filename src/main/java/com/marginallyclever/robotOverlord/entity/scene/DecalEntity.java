@@ -21,11 +21,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class DecalEntity extends ModelEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7894115384701922746L;
-
 	protected DoubleEntity width = new DoubleEntity("Width",1.0);
 	protected DoubleEntity height = new DoubleEntity("Height",1.0);
 	

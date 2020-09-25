@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,21 +22,14 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class DHBuilderApp extends DHRobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public static final String [] BONE_NAMES = { "X", "Y", "Z", "U", "V", "W" };
 	
 	protected ModelEntity anchor = new ModelEntity();

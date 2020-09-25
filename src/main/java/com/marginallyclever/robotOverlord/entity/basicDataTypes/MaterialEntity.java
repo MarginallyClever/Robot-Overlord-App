@@ -11,11 +11,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class MaterialEntity extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7313230310466105159L;
-	
 	private ColorEntity ambient    = new ColorEntity("Ambient" ,1.0,1.0,1.0,1.00);
 	private ColorEntity diffuse    = new ColorEntity("Diffuse" ,1.0,1.0,1.0,1.00);
 	private ColorEntity specular   = new ColorEntity("Specular",1.0,1.0,1.0,1.00);

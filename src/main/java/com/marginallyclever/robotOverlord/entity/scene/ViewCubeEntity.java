@@ -13,10 +13,6 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class ViewCubeEntity extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	protected ModelEntity model = new ModelEntity();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",6);
 	

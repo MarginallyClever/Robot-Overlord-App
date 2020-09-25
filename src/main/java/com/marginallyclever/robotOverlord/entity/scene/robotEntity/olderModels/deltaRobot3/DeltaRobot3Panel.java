@@ -192,9 +192,9 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 	}
 	
 	public void update() {
-		angleA.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.arms[0].angle)));
-		angleB.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.arms[1].angle)));
-		angleC.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.arms[2].angle)));
+		angleA.setText(Double.toString(MathHelper.roundOff3(robot.arms[0].angle)));
+		angleB.setText(Double.toString(MathHelper.roundOff3(robot.arms[1].angle)));
+		angleC.setText(Double.toString(MathHelper.roundOff3(robot.arms[2].angle)));
 		xPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.x)));
 		yPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.y)));
 		zPos.setText(Double.toString(MathHelper.roundOff3(robot.motionNow.fingerPosition.z)));

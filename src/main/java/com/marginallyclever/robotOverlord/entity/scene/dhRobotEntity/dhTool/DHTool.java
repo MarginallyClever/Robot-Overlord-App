@@ -12,11 +12,6 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
  *
  */
 public class DHTool extends DHLink {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2907765110203398256L;
-		
 	public DHTool() {
 		super();
 		setName("DHTool");

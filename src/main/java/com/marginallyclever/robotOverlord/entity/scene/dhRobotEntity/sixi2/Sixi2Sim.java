@@ -11,11 +11,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2Sim extends Sixi2Model {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6216095894080620268L;
-
 	protected ReentrantLock lock = new ReentrantLock();
 	
 	

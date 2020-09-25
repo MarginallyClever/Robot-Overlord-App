@@ -8,10 +8,6 @@ import com.marginallyclever.robotOverlord.entity.AbstractEntity;
  *
  */
 public class StringEntity extends AbstractEntity<String> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1454821584340199355L;
 	public StringEntity() {
 		super("","");
 	}

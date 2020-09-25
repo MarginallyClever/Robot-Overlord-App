@@ -26,11 +26,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 public class Sixi2LinearGripper extends DHTool {
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5330528803407815395L;
-
-	/**
 	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
 	 */
 	private transient PoseEntity subjectBeingHeld;

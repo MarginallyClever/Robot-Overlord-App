@@ -30,10 +30,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class DragBallEntity extends PoseEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8786413898168510187L;
 	private static final double STEP_SIZE = Math.PI/120.0;
 	
 	protected TextRenderer textRender = new TextRenderer(new Font("CourrierNew", Font.BOLD, 16));
@@ -680,7 +676,8 @@ public class DragBallEntity extends PoseEntity {
 		gl2.glPushMatrix();
 
 			MatrixHelper.applyMatrix(gl2, lookAt);
-			gl2.glScaled(ballSize.get(),ballSize.get(),ballSize.get());
+			double d=ballSize.get();
+			gl2.glScaled(d,d,d);
 			
 			//white circle on the xy plane of the camera pose, as the subject position
 			gl2.glColor4d(1,1,1,0.7);
@@ -877,6 +874,38 @@ public class DragBallEntity extends PoseEntity {
 		if(drawZ) {
 			gl2.glColor3f(0,0,b);
 			renderTranslationHandle(gl2,new Vector3d(0,0,1));
+		}
+		
+		if(drawX && drawY) {
+			// handle for XY plane
+			gl2.glColor4f(r,g,0,1);
+			gl2.glBegin(GL2.GL_QUADS);
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glVertex3d(0.15, 0, 0);
+			gl2.glVertex3d(0.15, 0.15, 0);
+			gl2.glVertex3d(0, 0.15, 0);
+			gl2.glEnd();
+			
+		}
+		if(drawX && drawZ) {
+			// handle for XZ plane
+			gl2.glColor4f(r,0,b,1);
+			gl2.glBegin(GL2.GL_QUADS);
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glVertex3d(0.15, 0, 0);
+			gl2.glVertex3d(0.15, 0, 0.15);
+			gl2.glVertex3d(0, 0, 0.15);
+			gl2.glEnd();
+		}
+		if(drawY && drawZ) {
+			// handle for YZ plane
+			gl2.glColor4f(0,g,b,1);
+			gl2.glBegin(GL2.GL_QUADS);
+			gl2.glVertex3d(0, 0, 0);
+			gl2.glVertex3d(0, 0, 0.15);
+			gl2.glVertex3d(0, 0.15, 0.15);
+			gl2.glVertex3d(0, 0.15, 0);
+			gl2.glEnd();
 		}
 		
 		if(isActivelyMoving) {

@@ -17,10 +17,6 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 
 
 public class Robot_Phybot extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5976403627830834543L;
 	public transient boolean isFirstTime;
 	public MaterialEntity material;
 	DHRobotEntity live;

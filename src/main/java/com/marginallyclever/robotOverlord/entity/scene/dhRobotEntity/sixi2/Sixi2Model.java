@@ -33,11 +33,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class Sixi2Model extends DHRobotEntity implements MementoOriginator {	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7341226486087376506L;
-
 	// last known state
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;

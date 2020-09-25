@@ -17,11 +17,6 @@ import com.jogamp.opengl.GL2;
  * @author Dan Royer
  */
 public class CameraEntity extends PoseEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8808107560966888107L;
-	
 	// orientation
 	protected Vector3d forward = new Vector3d(1,0,0);
 	protected Vector3d right = new Vector3d(0,1,0);

@@ -7,11 +7,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.TextureEntity;
 
 public class SkyBoxEntity extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8458751997561051222L;
-	
 	protected transient boolean areSkyboxTexturesLoaded=false;
 	protected transient TextureEntity skyboxtextureZPos = new TextureEntity("/images/cube-x-pos.png");
 	protected transient TextureEntity skyboxtextureXPos = new TextureEntity("/images/cube-x-neg.png");

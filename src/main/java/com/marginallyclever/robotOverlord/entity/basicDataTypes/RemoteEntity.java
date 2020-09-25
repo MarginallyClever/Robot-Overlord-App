@@ -33,11 +33,6 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 */
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	static final String CUE = "> ";
 	static final String NOCHECKSUM = "NOCHECKSUM ";
 	static final String BADCHECKSUM = "BADCHECKSUM ";
@@ -173,7 +168,7 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	public void reportDataSent(String msg) {
 		//if(msg.contains("G0")) return;
 		
-		//Log.message("RemoteEntity SEND " + msg.trim());
+		Log.message("RemoteEntity SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {

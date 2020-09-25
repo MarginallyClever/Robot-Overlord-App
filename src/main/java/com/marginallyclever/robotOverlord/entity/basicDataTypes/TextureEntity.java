@@ -14,10 +14,7 @@ import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class TextureEntity extends StringEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5488195728478812737L;
+	
 
 	// TODO load textures from a texture pool to eliminate duplicates?  See ModelEntity for example.
 	

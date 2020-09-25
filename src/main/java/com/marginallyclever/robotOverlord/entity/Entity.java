@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -17,12 +16,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class Entity extends Observable implements Serializable, Observer {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -994214494049397444L;
-
+public class Entity extends Observable implements Observer {
 	private String name;
 
 	// my children

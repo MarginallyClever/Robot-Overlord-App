@@ -29,11 +29,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class PoseEntity extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1959037711655040359L;
-	
 	// unique ids for all objects in the world.  
 	// zero is reserved to indicate no object.
 	@JsonIgnore

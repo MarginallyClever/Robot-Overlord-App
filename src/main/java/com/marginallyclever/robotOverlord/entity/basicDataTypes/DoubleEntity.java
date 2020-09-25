@@ -11,11 +11,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 public class DoubleEntity extends AbstractEntity<Double> {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4353388843961077697L;
-
 	public DoubleEntity(String s) {
 		super(0.0);
 		setName(s);

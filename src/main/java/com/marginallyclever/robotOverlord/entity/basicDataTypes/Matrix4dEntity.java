@@ -19,11 +19,6 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	Vector3dEntity pos = new Vector3dEntity("Position");
 	Vector3dEntity rot = new Vector3dEntity("Rotation");
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1066819144032022261L;
-
 	public Matrix4dEntity() {
 		super(new Matrix4d());
 		setName("Pose");

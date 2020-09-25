@@ -1,8 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.olderModels.rotaryStewartPlatform;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -15,6 +12,11 @@ import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class RotaryStewartPlatformMemento implements Memento {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// angle of rotation
 	public RotaryStewartPlatformArm arms[];
 
@@ -442,15 +444,5 @@ public class RotaryStewartPlatformMemento implements Memento {
 		lcp.position.p3.set(b.fingerPosition);
 
 		lcp.render(gl2);
-	}
-
-	@Override
-	public void save(OutputStream arg0) throws IOException {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void load(InputStream arg0) throws IOException {
-		// TODO Auto-generated method stub
 	}
 };

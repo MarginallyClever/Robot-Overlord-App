@@ -18,10 +18,6 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_Cartesian extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7386828777683260867L;
 	public transient boolean isFirstTime;
 	public MaterialEntity material;
 	DHRobotEntity live;

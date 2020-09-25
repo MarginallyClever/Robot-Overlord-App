@@ -17,10 +17,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class Sixi2LivePID extends Sixi2Model {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -811684331077697483L;
 	protected PoseFK receivedKeyframe;
 	
 	// ----- taken directly from the arduino firmware ---------------------
