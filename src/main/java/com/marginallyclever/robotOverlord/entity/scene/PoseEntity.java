@@ -94,9 +94,10 @@ public class PoseEntity extends Entity {
 	}
 
 	/**
-	 * Render this PoseEntity to the display
+	 * Render this Entity to the display
 	 * @param gl2
 	 */
+	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);
@@ -105,13 +106,9 @@ public class PoseEntity extends Entity {
 			if(showBoundingBox.get()) cuboid.render(gl2);
 			if(showLocalOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
 			if(showLineage.get()) renderLineage(gl2);
+
+			super.render(gl2);
 			
-			// draw children relative to parent
-			for(Entity e : children ) {
-				if(e instanceof PoseEntity) {
-					((PoseEntity)e).render(gl2);
-				}
-			}
 		gl2.glPopMatrix();
 	}
 	

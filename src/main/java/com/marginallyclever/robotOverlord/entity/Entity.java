@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -64,6 +65,16 @@ public class Entity extends Observable implements Serializable, Observer {
 		}
 	}
 
+	/**
+	 * Render this Entity to the display
+	 * @param gl2
+	 */
+	public void render(GL2 gl2) {
+		for (Entity e : children) {
+			e.render(gl2);
+		}
+	}
+	
 	public boolean hasChild(Entity o) {
 		return children.contains(o);
 	}
