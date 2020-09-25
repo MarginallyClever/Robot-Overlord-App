@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -10,6 +10,7 @@ import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Skycam extends RobotEntity implements MementoOriginator {

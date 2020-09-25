@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
