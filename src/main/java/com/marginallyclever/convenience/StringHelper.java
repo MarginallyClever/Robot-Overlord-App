@@ -4,15 +4,21 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class StringHelper {
+	static public String shortenNumber(String s) {
+		if(!s.contains(".")) return s;
+		while(s.endsWith("0")) s=s.substring(0,s.length()-1);
+		if(s.endsWith(".")) s=s.substring(0,s.length()-1);
+		return s;
+	}
 	
 	static public String formatFloat(float arg0) {
 		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
+		return shortenNumber(String.format("%.3f", arg0));
 	}
 	
 	static public String formatDouble(double arg0) {
 		//return Float.toString(roundOff(arg0));
-		return String.format("%.3f", arg0);
+		return shortenNumber(String.format("%.3f", arg0));
 	}
 
 	/**
