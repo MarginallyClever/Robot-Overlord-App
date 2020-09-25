@@ -62,8 +62,8 @@ public class DeltaRobot3 extends RobotEntity {
 	protected transient Model modelBase;
 	
 	// motion state testing
-	protected DeltaRobot3Keyframe motionNow;
-	protected DeltaRobot3Keyframe motionFuture;
+	protected DeltaRobot3Memento motionNow;
+	protected DeltaRobot3Memento motionFuture;
 
 	// control panel
 	protected transient DeltaRobot3Panel controlPanel;
@@ -85,8 +85,8 @@ public class DeltaRobot3 extends RobotEntity {
 		super();
 		setName(ROBOT_NAME);
 
-		motionNow = new DeltaRobot3Keyframe();
-		motionFuture = new DeltaRobot3Keyframe();
+		motionNow = new DeltaRobot3Memento();
+		motionFuture = new DeltaRobot3Memento();
 		
 		setupBoundingVolumes();
 		setHome(new Vector3d(0,0,0));
@@ -552,7 +552,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 	
-	public boolean updateFK(DeltaRobot3Keyframe keyframe) {
+	public boolean updateFK(DeltaRobot3Memento keyframe) {
 		return true;
 	}
 
@@ -560,7 +560,7 @@ public class DeltaRobot3 extends RobotEntity {
 	 * Convert cartesian XYZ to robot motor steps.
 	 * @return true if successful, false if the IK solution cannot be found.
 	 */
-	public boolean updateIK(DeltaRobot3Keyframe keyframe) {
+	public boolean updateIK(DeltaRobot3Memento keyframe) {
 		try {
 			updateIKWrists(keyframe);
 			updateIKShoulderAngles(keyframe);
@@ -573,7 +573,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 
-	protected void updateIKWrists(DeltaRobot3Keyframe keyframe) {
+	protected void updateIKWrists(DeltaRobot3Memento keyframe) {
 		Vector3d n1 = new Vector3d(),o1 = new Vector3d(),temp = new Vector3d();
 		double c,s;
 		int i;
@@ -615,7 +615,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 	
 
-	protected void updateIKShoulderAngles(DeltaRobot3Keyframe keyframe) throws AssertionError {
+	protected void updateIKShoulderAngles(DeltaRobot3Memento keyframe) throws AssertionError {
 		Vector3d ortho = new Vector3d(),w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
 		double a,b,d,r1,r0,hh,y,x;
 
@@ -683,13 +683,13 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 
-	public void moveBase(DeltaRobot3Keyframe keyframe,Vector3d dp) {
+	public void moveBase(DeltaRobot3Memento keyframe,Vector3d dp) {
 		keyframe.base.set(dp);
 		rebuildShoulders(keyframe);
 	}
 
 
-	public void rotateBase(DeltaRobot3Keyframe keyframe,double pan,double tilt) {
+	public void rotateBase(DeltaRobot3Memento keyframe,double pan,double tilt) {
 		keyframe.basePan=pan;
 		keyframe.baseTilt=tilt;
 
@@ -711,7 +711,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 	
-	protected void rebuildShoulders(DeltaRobot3Keyframe keyframe) {
+	protected void rebuildShoulders(DeltaRobot3Memento keyframe) {
 		Vector3d n1=new Vector3d(),o1=new Vector3d(),temp=new Vector3d();
 		double c,s;
 		int i;
@@ -767,7 +767,7 @@ public class DeltaRobot3 extends RobotEntity {
 
 
 	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
-	public boolean movePermitted(DeltaRobot3Keyframe keyframe) {/*
+	public boolean movePermitted(DeltaRobot3Memento keyframe) {/*
 		// don't hit floor
 		if(state.finger_tip.z<0.25f) {
 			return false;
@@ -794,7 +794,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 
-	public boolean checkAngleLimits(DeltaRobot3Keyframe keyframe) {
+	public boolean checkAngleLimits(DeltaRobot3Memento keyframe) {
 		// machine specific limits
 		/*
 		if (state.angle_0 < -180) return false;
@@ -819,6 +819,6 @@ public class DeltaRobot3 extends RobotEntity {
 
 	@Override
 	public Memento createKeyframe() {
-		return new DeltaRobot3Keyframe();
+		return new DeltaRobot3Memento();
 	}
 }

@@ -16,7 +16,7 @@ import com.marginallyclever.convenience.memento.Memento;
  *
  */
 @Deprecated
-public class DeltaRobot3Keyframe implements Memento {
+public class DeltaRobot3Memento implements Memento {
 	// angle of rotation
 	public DeltaRobot3Arm arms[];
 
@@ -34,7 +34,7 @@ public class DeltaRobot3Keyframe implements Memento {
 	public double baseTilt=0;
 
 
-	public DeltaRobot3Keyframe() {
+	public DeltaRobot3Memento() {
 		arms = new DeltaRobot3Arm[DeltaRobot3.NUM_ARMS];
 		int i;
 		for(i=0;i<DeltaRobot3.NUM_ARMS;++i) {
@@ -42,7 +42,7 @@ public class DeltaRobot3Keyframe implements Memento {
 		}
 	}
 
-	public void set(DeltaRobot3Keyframe other) {
+	public void set(DeltaRobot3Memento other) {
 		fingerPosition.set(other.fingerPosition);
 		int i;
 		for(i=0;i<DeltaRobot3.NUM_ARMS;++i) {

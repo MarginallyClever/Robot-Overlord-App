@@ -67,8 +67,8 @@ public class RotaryStewartPlatform extends RobotEntity {
 	protected transient MaterialEntity matBase = new MaterialEntity();
 
 	// this should be come a list w/ rollback
-	protected RotaryStewartPlatformKeyframe motionNow;
-	protected RotaryStewartPlatformKeyframe motionFuture;
+	protected RotaryStewartPlatformMemento motionNow;
+	protected RotaryStewartPlatformMemento motionFuture;
 
 	// convenience
 	protected boolean hasArmMoved;
@@ -90,8 +90,8 @@ public class RotaryStewartPlatform extends RobotEntity {
 		}
 		setName(dimensions.ROBOT_NAME);
 
-		motionNow = new RotaryStewartPlatformKeyframe(dimensions);
-		motionFuture = new RotaryStewartPlatformKeyframe(dimensions);
+		motionNow = new RotaryStewartPlatformMemento(dimensions);
+		motionFuture = new RotaryStewartPlatformMemento(dimensions);
 
 		setupBoundingVolumes();
 		setHome(new Vector3d(0, 0, 0));
@@ -598,6 +598,6 @@ public class RotaryStewartPlatform extends RobotEntity {
 			dimensions = new RotaryStewartPlatform2Dimensions();
 		}
 
-		return new RotaryStewartPlatformKeyframe(dimensions);
+		return new RotaryStewartPlatformMemento(dimensions);
 	}
 }

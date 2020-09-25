@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import com.marginallyclever.convenience.memento.Memento;
 
-public class SpideeKeyframe implements Memento {
+public class SpideeMemento implements Memento {
 
 	@Override
 	public void save(OutputStream arg0) throws IOException {

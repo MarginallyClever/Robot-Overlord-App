@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.log.Log;
 
 
 @Deprecated
-public class RotaryStewartPlatformKeyframe implements Memento {
+public class RotaryStewartPlatformMemento implements Memento {
 	// angle of rotation
 	public RotaryStewartPlatformArm arms[];
 
@@ -47,7 +47,7 @@ public class RotaryStewartPlatformKeyframe implements Memento {
 
 	public RotaryStewartPlatform2Dimensions dimensions;
 	
-	public RotaryStewartPlatformKeyframe(RotaryStewartPlatform2Dimensions arg0) {
+	public RotaryStewartPlatformMemento(RotaryStewartPlatform2Dimensions arg0) {
 		dimensions = arg0;
 		arms = new RotaryStewartPlatformArm[6];
 		int i;
@@ -71,7 +71,7 @@ public class RotaryStewartPlatformKeyframe implements Memento {
 	}
 	
 	
-	public void set(RotaryStewartPlatformKeyframe other) {
+	public void set(RotaryStewartPlatformMemento other) {
 		dimensions = other.dimensions;
 		
 		int i;
@@ -421,8 +421,8 @@ public class RotaryStewartPlatformKeyframe implements Memento {
 
 	public void interpolate(Memento arg0, Memento arg1, double t) {
 		// TODO Auto-generated method stub
-		RotaryStewartPlatformKeyframe a = (RotaryStewartPlatformKeyframe)arg0;
-		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
+		RotaryStewartPlatformMemento a = (RotaryStewartPlatformMemento)arg0;
+		RotaryStewartPlatformMemento b = (RotaryStewartPlatformMemento)arg1;
 		
 		fingerPosition = MathHelper.interpolate(a.fingerPosition, b.fingerPosition, t);
 		rotationAngleU = MathHelper.interpolate(a.rotationAngleU, b.rotationAngleU, t);
@@ -433,7 +433,7 @@ public class RotaryStewartPlatformKeyframe implements Memento {
 
 
 	public void renderInterpolation(GL2 gl2, Memento arg1) {
-		RotaryStewartPlatformKeyframe b = (RotaryStewartPlatformKeyframe)arg1;
+		RotaryStewartPlatformMemento b = (RotaryStewartPlatformMemento)arg1;
 		Bezier3ControlPoint lcp = new Bezier3ControlPoint();
 		
 		lcp.position.p0.set(this.fingerPosition);

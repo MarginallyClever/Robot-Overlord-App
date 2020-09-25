@@ -25,8 +25,8 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		dimensions = new RotaryStewartPlatform3Dimensions();
 		setName(dimensions.ROBOT_NAME);
 
-		motionNow = new RotaryStewartPlatformKeyframe(dimensions);
-		motionFuture = new RotaryStewartPlatformKeyframe(dimensions);
+		motionNow = new RotaryStewartPlatformMemento(dimensions);
+		motionFuture = new RotaryStewartPlatformMemento(dimensions);
 		
 		setupBoundingVolumes();
 		setHome(new Vector3d(0,0,0));

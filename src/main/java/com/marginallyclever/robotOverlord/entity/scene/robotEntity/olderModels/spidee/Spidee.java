@@ -1621,7 +1621,7 @@ public class Spidee extends RobotEntity {
 
 	@Override
 	public Memento createKeyframe() {
-		return new SpideeKeyframe();
+		return new SpideeMemento();
 	}
 }
 
