@@ -1,8 +1,6 @@
 package com.marginallyclever.convenience.memento;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Serializable;
 
 /**
  * A Memento is a snapshot of a robot at a moment in time.  
@@ -10,18 +8,5 @@ import java.io.OutputStream;
  * @author Dan Royer
  *
  */
-public abstract interface Memento {
-	/**
-	 * Write the Memento to a stream
-	 * @param arg0 the stream
-	 * @throws IOException
-	 */
-	abstract public void save(OutputStream arg0) throws IOException;
-
-	/**
-	 * Read the Memento to a stream
-	 * @param arg0 the stream
-	 * @throws IOException
-	 */
-	abstract public void load(InputStream arg0) throws IOException;
+public abstract interface Memento extends Serializable {
 }
