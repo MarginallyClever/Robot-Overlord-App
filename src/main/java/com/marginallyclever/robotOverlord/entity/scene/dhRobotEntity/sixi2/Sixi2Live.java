@@ -34,7 +34,7 @@ public class Sixi2Live extends Sixi2Model {
 
 	// perceived cartesian force acting on the arm based on recent joint velocities + jacobian math
 	protected double[] cartesianForceMeasured = {0,0,0,0,0,0};
-	double[] jointVelocityMeasured;
+	protected double[] jointVelocityMeasured;
 	
 	protected Vector3dEntity[] PIDs = new Vector3dEntity[6];
 
