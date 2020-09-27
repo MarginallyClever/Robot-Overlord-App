@@ -269,6 +269,7 @@ public class Model {
 	 * @param arg0 amount in degrees to rotate around X,Y, and then Z. 
 	 */
 	public void adjustRotation(Vector3d arg0) {
+		double scale = adjust.getScale();
 		// generate the pose matrix
 		Matrix3d pose = new Matrix3d();
 		Matrix3d rotX = new Matrix3d();
@@ -281,6 +282,7 @@ public class Model {
 		pose.mul(rotY);
 		pose.mul(rotZ);
 		adjust.set(pose);
+		adjust.setScale(scale);
 		isDirty=true;
 	}
 	
