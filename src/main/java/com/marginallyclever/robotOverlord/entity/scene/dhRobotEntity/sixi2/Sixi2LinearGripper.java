@@ -44,7 +44,7 @@ public class Sixi2LinearGripper extends DHTool {
 	public Sixi2LinearGripper() {
 		super();
 		setLetter("T");
-		setName("Sixi Gripper");
+		setName("Sixi2 Linear Gripper");
 		refreshPoseMatrix();
 		
 		interpolatePoseT=1;

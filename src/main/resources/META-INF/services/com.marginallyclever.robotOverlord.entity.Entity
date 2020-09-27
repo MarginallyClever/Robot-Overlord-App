@@ -2,7 +2,7 @@
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 # DHRobots
-com.marginallyclever.robotOverlord.entity.scene.robotEntity.DHBuilderApp
+#com.marginallyclever.robotOverlord.entity.scene.robotEntity.DHBuilderApp
 
 com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.Arm3
@@ -27,6 +27,7 @@ com.marginallyclever.robotOverlord.entity.scene.DecalEntity
 #robot Tools
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_GoProCamera
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_Gripper
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2ChuckGripper
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2LinearGripper
 
 #other robots
@@ -41,4 +42,3 @@ com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2LinearG
 
 #other componnents
 com.marginallyclever.robotOverlord.entity.scene.recording.RecordingEntity
-com.marginallyclever.robotOverlord.entity.scene.recording2.Recording2Entity

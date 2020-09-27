@@ -25,21 +25,17 @@ import com.marginallyclever.robotOverlord.swingInterface.InputManager;
  * @author Dan Royer
  */
 public class DHTool_Gripper extends DHTool implements MementoOriginator {
-	/**
-	 * A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.
-	 */
-	private transient PoseEntity subjectBeingHeld;
-	
-	private double gripperServoAngle;
 	public static final double ANGLE_MAX=55;
 	public static final double ANGLE_MIN=10;
 	
-	private double interpolatePoseT;
-	private double startT,endT;
-	
-	private DHLink[] subComponents = new DHLink[6];
-	
-	private transient boolean wasGripping;
+	protected DHLink[] subComponents = new DHLink[6];
+
+	protected double gripperServoAngle;
+	protected double interpolatePoseT;
+	protected double startT,endT;
+
+	protected transient boolean wasGripping;
+	protected transient PoseEntity subjectBeingHeld;
 	
 	public DHTool_Gripper() {
 		super();
