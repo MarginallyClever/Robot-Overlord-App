@@ -203,7 +203,7 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 			++i;
 		}
 		
-		setTool(new Sixi2LinearGripper());
+		setTool(new Sixi2ChuckGripper());
 	}
 	
 	/**
