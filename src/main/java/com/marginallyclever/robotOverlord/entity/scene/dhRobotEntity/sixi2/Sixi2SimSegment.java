@@ -3,12 +3,12 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 
 /**
- * A Segment describes trapezoidal acceleration and deceleration between two points.
- * Segments chain together to form a motion profile for a robot.
+ * A Sixi2SimSegment describes trapezoidal acceleration and deceleration between two points.
+ * Sixi2SimSegments chain together to form a motion profile for a robot.
  * @author aggra
  *
  */
-public class Sixi2Segment {
+public class Sixi2SimSegment {
 	public PoseFK start;
 	public PoseFK end;
 	public PoseFK delta;
@@ -40,7 +40,7 @@ public class Sixi2Segment {
 	
 	
 	// delta is calculated here in the constructor.
-	public Sixi2Segment(PoseFK startPose,PoseFK endPose) {
+	public Sixi2SimSegment(PoseFK startPose,PoseFK endPose) {
 		try {
 			start  = (PoseFK)startPose.clone();
 			end    = (PoseFK)endPose.clone();

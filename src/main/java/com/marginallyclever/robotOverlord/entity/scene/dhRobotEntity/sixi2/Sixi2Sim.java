@@ -28,7 +28,7 @@ public class Sixi2Sim extends Entity {
 	protected PoseFK forceFK;
 	
 	// the sequence of poses to drive towards.
-	protected LinkedList<Sixi2Segment> queue = new LinkedList<Sixi2Segment>();
+	protected LinkedList<Sixi2SimSegment> queue = new LinkedList<Sixi2SimSegment>();
 
 	public Sixi2Sim(DHRobotModel model) {
 		super("Sixi2 Sim");
@@ -44,20 +44,25 @@ public class Sixi2Sim extends Entity {
 	@Override
 	public void update(double dt) {
 		if(!queue.isEmpty()) {
-			Sixi2Segment seg = queue.getFirst();
+			Sixi2SimSegment seg = queue.getFirst();
 			seg.busy=true;
 			seg.now_s+=dt;
-			if(seg.now_s > seg.end_s) seg.now_s = seg.end_s;
+			double diff = 0;
+			if(seg.now_s > seg.end_s) {
+				diff = seg.now_s-seg.end_s;
+				seg.now_s = seg.end_s;
+			}
 			
 			updateForces(seg);
 			updateVelocities(seg);
 			updatePositions(seg);
 			
-			if(seg.now_s>= seg.end_s) {
+			if(seg.now_s== seg.end_s) {
+				System.out.println("pop");
 				queue.pop();
 				// make sure the remainder isn't lost.
 				if(!queue.isEmpty()) {
-					queue.getFirst().now_s = seg.now_s-seg.end_s;
+					queue.getFirst().now_s = diff;
 				}
 			}
 		}
@@ -69,33 +74,30 @@ public class Sixi2Sim extends Entity {
 	 * override this to adjust forces acting on each joint
 	 * @param dt
 	 */
-	protected void updateForces(Sixi2Segment s) {
-	}
+	protected void updateForces(Sixi2SimSegment s) {}
 	
 	/**
 	 * override this to adjust velocities of each joint
 	 * @param dt
 	 */
-	protected void updateVelocities(Sixi2Segment s) {
-	}
+	protected void updateVelocities(Sixi2SimSegment s) {}
 
 	/**
 	 * override this to change behavior of joints over time.
 	 * @param dt
 	 */
-	protected void updatePositions(Sixi2Segment seg) {
+	protected void updatePositions(Sixi2SimSegment seg) {
 		if(poseNow==null) return;
 
 		double dt = (seg.now_s - seg.start_s);
-		// i need to know how much time has been spent acclerating, cruising, and decelerating in this segment.
+		
+		// I need to know how much time has been spent accelerating, cruising, and decelerating in this segment.
+		// acceleratingT will be in the range 0....seg.accelerateUntilT
 		double acceleratingT = Math.min(dt,seg.accelerateUntilT);
-		
-		double deceleratingT = dt > seg.decelerateAfterT ? dt-seg.decelerateAfterT : 0;
-		
-		double nominalT = dt - acceleratingT;
-		nominalT = Math.max(dt,seg.accelerateUntilT);
-		nominalT = Math.min(nominalT,seg.decelerateAfterT);
-		nominalT -= seg.accelerateUntilT;
+		// deceleratingT will be in the range 0....(seg.end_s-seg.decelerateAfterT)
+		double deceleratingT = Math.max(dt,seg.decelerateAfterT) - seg.decelerateAfterT;
+		// nominalT will be in the range 0....(seg.decelerateAfterT-seg.accelerateUntilT)
+		double nominalT = Math.min(Math.max(dt,seg.accelerateUntilT),seg.decelerateAfterT) - seg.accelerateUntilT;
 		
 		// now find the distance moved in each of those sections.
 		double a = (seg.entrySpeed * acceleratingT) + (0.5 * seg.acceleration * acceleratingT*acceleratingT);
@@ -106,7 +108,7 @@ public class Sixi2Sim extends Entity {
 		// find the fraction of the total distance travelled
 		double fraction = p / seg.distance;
 		fraction = Math.min(Math.max(fraction, 0), 1);
-		
+		/*
 		System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": ");
 		for(int i=0;i<poseNow.fkValues.length;++i) {
 			System.out.print(StringHelper.formatDouble(seg.start.fkValues[i])+" ");
@@ -115,8 +117,8 @@ public class Sixi2Sim extends Entity {
 
 		for(int i=0;i<poseNow.fkValues.length;++i) {
 			System.out.print(StringHelper.formatDouble(seg.delta.fkValues[i])+" ");
-		}
-		System.out.print(fraction+" = ");
+		}*/
+		System.out.print(seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" : "+fraction+" = ");
 		
 		// set pos = start + delta * fraction
 		for(int i=0;i<poseNow.fkValues.length;++i) {
@@ -171,7 +173,7 @@ public class Sixi2Sim extends Entity {
 	public void AddDestination(PoseFK poseTo,double feedrate,double acceleration) {
 		PoseFK start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
 		
-		Sixi2Segment next = new Sixi2Segment(start,poseTo);
+		Sixi2SimSegment next = new Sixi2SimSegment(start,poseTo);
 		
 		// zero distance?  do nothing.
 		if(next.distance==0) return;
@@ -179,9 +181,9 @@ public class Sixi2Sim extends Entity {
 		double timeToEnd = next.distance / feedrate;
 
 		// slow down if the buffer is nearly empty.
-		if( queue.size() > 0 && queue.size() <= (Sixi2FirmwareSettings.MAX_SEGMENTS/2)-1 ) {
-			if( timeToEnd < Sixi2FirmwareSettings.MIN_SEGMENT_TIME ) {
-				timeToEnd += (Sixi2FirmwareSettings.MIN_SEGMENT_TIME-timeToEnd)*2.0 / queue.size();
+		if( queue.size() > 0 && queue.size() <= (Sixi2Model.MAX_SEGMENTS/2)-1 ) {
+			if( timeToEnd < Sixi2Model.MIN_SEGMENT_TIME ) {
+				timeToEnd += (Sixi2Model.MIN_SEGMENT_TIME-timeToEnd)*2.0 / queue.size();
 			}
 		}
 		
@@ -193,7 +195,7 @@ public class Sixi2Sim extends Entity {
 		for(int i=0;i<currentSpeed.fkValues.length;++i) {
 			currentSpeed.fkValues[i] = next.delta.fkValues[i] / timeToEnd;
 			double cs = Math.abs(currentSpeed.fkValues[i]);
-			double maxFr = Sixi2FirmwareSettings.MAX_JOINT_FEEDRATE;
+			double maxFr = Sixi2Model.MAX_JOINT_FEEDRATE;
 			if( cs > maxFr ) speedFactor = Math.min(speedFactor, maxFr/cs);
 		}
 		// apply speed limit
@@ -211,7 +213,7 @@ public class Sixi2Sim extends Entity {
 		boolean limited=false;
 		for(int i=0;i<next.delta.fkValues.length;++i) {
 			double jerk = Math.abs(currentSpeed.fkValues[i]),
-					maxj = Sixi2FirmwareSettings.MAX_JERK[i];
+					maxj = Sixi2Model.MAX_JERK[i];
 			if( jerk > maxj ) {
 				if(limited) {
 					double mjerk = maxj * next.nominalSpeed;
@@ -226,14 +228,8 @@ public class Sixi2Sim extends Entity {
 		double vmax_junction = 0;
 		if(queue.size()>0) { 
 			// look at difference between this move and previous move
-			Sixi2Segment prev = queue.getLast();
-			if(prev.nominalSpeed > 1e-6) {
-				next.start_s = prev.end_s;
-				next.exitSpeed=0;
-				next.entrySpeed=0;
-				next.nominalSpeed = next.distance / feedrate;
-				if(!prev.busy) prev.recalculate=true;
-				
+			Sixi2SimSegment prev = queue.getLast();
+			if(prev.nominalSpeed > 1e-6) {				
 				vmax_junction = Math.min(next.nominalSpeed,prev.nominalSpeed);
 				limited=false;
 
@@ -249,8 +245,8 @@ public class Sixi2Sim extends Entity {
 					}
 					double jerk = (vExit > vEntry) ? ((vEntry>0 || vExit<0) ? (vExit-vEntry) : Math.max(vExit, -vEntry))
 												   : ((vEntry<0 || vExit>0) ? (vEntry-vExit) : Math.max(-vExit, vEntry));
-					if( jerk > Sixi2FirmwareSettings.MAX_JERK[i] ) {
-						vFactor = Sixi2FirmwareSettings.MAX_JERK[i] / jerk;
+					if( jerk > Sixi2Model.MAX_JERK[i] ) {
+						vFactor = Sixi2Model.MAX_JERK[i] / jerk;
 						limited = true;
 					}
 				}
@@ -293,9 +289,9 @@ public class Sixi2Sim extends Entity {
 	}
 	
 	protected void recalculateBackwards() {
-		Sixi2Segment current;
-		Sixi2Segment next = null;
-		Iterator<Sixi2Segment> ri = queue.descendingIterator();
+		Sixi2SimSegment current;
+		Sixi2SimSegment next = null;
+		Iterator<Sixi2SimSegment> ri = queue.descendingIterator();
 		while(ri.hasNext()) {
 			current = ri.next();
 			recalculateBackwardsBetween(current,next);
@@ -303,7 +299,7 @@ public class Sixi2Sim extends Entity {
 		}
 	}
 	
-	protected void recalculateBackwardsBetween(Sixi2Segment current,Sixi2Segment next) {
+	protected void recalculateBackwardsBetween(Sixi2SimSegment current,Sixi2SimSegment next) {
 		double top = current.entrySpeedMax;
 		if(current.entrySpeed != top || (next!=null && next.recalculate)) {
 			double newEntrySpeed = current.nominalLength 
@@ -315,9 +311,9 @@ public class Sixi2Sim extends Entity {
 	}
 	
 	protected void recalculateForwards() {
-		Sixi2Segment current;
-		Sixi2Segment prev = null;
-		Iterator<Sixi2Segment> ri = queue.iterator();
+		Sixi2SimSegment current;
+		Sixi2SimSegment prev = null;
+		Iterator<Sixi2SimSegment> ri = queue.iterator();
 		while(ri.hasNext()) {
 			current = ri.next();
 			recalculateForwardsBetween(prev,current);
@@ -325,7 +321,7 @@ public class Sixi2Sim extends Entity {
 		}
 	}
 	
-	protected void recalculateForwardsBetween(Sixi2Segment prev,Sixi2Segment current) {
+	protected void recalculateForwardsBetween(Sixi2SimSegment prev,Sixi2SimSegment current) {
 		if(prev==null) return;
 		if(!prev.nominalLength && prev.entrySpeed < current.entrySpeed) {
 			double newEntrySpeed = maxSpeedAllowed(-prev.acceleration, prev.entrySpeed, prev.distance);
@@ -337,7 +333,7 @@ public class Sixi2Sim extends Entity {
 	}
 	
 	protected void recalculateTrapezoids() {
-		Sixi2Segment current=null;
+		Sixi2SimSegment current=null;
 		
 		boolean nextDirty;
 		double currentEntrySpeed=0, nextEntrySpeed=0;
@@ -347,7 +343,7 @@ public class Sixi2Sim extends Entity {
 			current = queue.get(i);
 			int j = i+1;
 			if(j<size) {
-				Sixi2Segment next = queue.get(i+1);
+				Sixi2SimSegment next = queue.get(i+1);
 				nextEntrySpeed = next.entrySpeed;
 				nextDirty = next.recalculate;
 			} else {
@@ -366,7 +362,7 @@ public class Sixi2Sim extends Entity {
 		}
 	}
 	
-	protected void recalculateTrapezoidSegment(Sixi2Segment seg, double entrySpeed, double exitSpeed) {
+	protected void recalculateTrapezoidSegment(Sixi2SimSegment seg, double entrySpeed, double exitSpeed) {
 		if( entrySpeed < 0 ) entrySpeed = 0;
 		if( exitSpeed < 0 ) exitSpeed = 0;
 		

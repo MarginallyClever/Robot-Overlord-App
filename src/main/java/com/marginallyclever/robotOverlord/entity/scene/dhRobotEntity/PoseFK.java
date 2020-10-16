@@ -32,7 +32,12 @@ public class PoseFK implements Memento, Cloneable {
 		this(b.fkValues);
 	}
 	
-	
+	/**
+	 * Assign to this PoseFK the value of (b-a)*t+a
+	 * @param a start pose
+	 * @param b end pose
+	 * @param t expected range 0...1, inclusive.  Does not check if t is in range.
+	 */
 	public void interpolate(PoseFK a, PoseFK b, double t) {
 		if(this.fkValues.length == a.fkValues.length && 
 			a.fkValues.length == b.fkValues.length) {

@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2FirmwareSettings;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -90,12 +90,12 @@ public class Sixi2LivePID extends Sixi2Model {
 			motors[i]=new StepperMotor();
 		}
 
-		motors[0].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_0;
-		motors[1].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_1;
-		motors[2].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_2;
-		motors[3].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_3;
-		motors[4].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_4;
-		motors[5].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_5;
+		motors[0].ratio = Sixi2Model.DEGREES_PER_STEP_0;
+		motors[1].ratio = Sixi2Model.DEGREES_PER_STEP_1;
+		motors[2].ratio = Sixi2Model.DEGREES_PER_STEP_2;
+		motors[3].ratio = Sixi2Model.DEGREES_PER_STEP_3;
+		motors[4].ratio = Sixi2Model.DEGREES_PER_STEP_4;
+		motors[5].ratio = Sixi2Model.DEGREES_PER_STEP_5;
 		/*
 		motors[0].setPID(500,20,0);       
 		motors[1].setPID(1000,30000,0);   

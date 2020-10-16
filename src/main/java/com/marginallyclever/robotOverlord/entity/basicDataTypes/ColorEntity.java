@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.AbstractEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -10,32 +10,29 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class ColorEntity extends Entity {
-	
-	private double r,g,b,a;
-
+public class ColorEntity extends AbstractEntity<float[]> {
 	public ColorEntity() {
-		super();
-		set(0,0,0,0);
+		this(0,0,0,0);
 	}
 
 	public ColorEntity(String name,double r,double g,double b,double a) {
-		super();
+		super(new float[4]);
 		setName(name);
 		set(r,g,b,a);
 	}
+	
 	public ColorEntity(double r,double g,double b,double a) {
-		super();
+		super(new float[4]);
 		set(r,g,b,a);
 	}
 
 	public void set(double r,double g,double b,double a) {
 		if(hasChanged()) return;
 		setChanged();
-		this.r=r;
-		this.g=g;
-		this.b=b;
-		this.a=a;
+		this.t[0]=(float)r;
+		this.t[1]=(float)g;
+		this.t[2]=(float)b;
+		this.t[3]=(float)a;
 		notifyObservers();
 	}
 
@@ -43,30 +40,30 @@ public class ColorEntity extends Entity {
 		set(newValue[0],newValue[1],newValue[2],newValue[3]);		
 	}
 
-	public double getR() { return r; }
-	public double getG() { return g; }
-	public double getB() { return b; }
-	public double getA() { return a; }
+	public double getR() { return t[0]; }
+	public double getG() { return t[1]; }
+	public double getB() { return t[2]; }
+	public double getA() { return t[3]; }
 	
 	public float[] getFloatArray() {
-		return new float[]{
-			(float)r,
-			(float)g,
-			(float)b,
-			(float)a
-		};
+		return t.clone();
 	}
 	
 	public double[] getDoubleArray() {
-		return new double[]{r,g,b,a};
+		return new double[]{
+				t[0],
+				t[1],
+				t[2],
+				t[3]
+				};
 	}
 	
 	public String toString() {
 		return getName()+"="+"("
-				+ StringHelper.formatDouble(r) + ","
-				+ StringHelper.formatDouble(g) + ","
-				+ StringHelper.formatDouble(b) + ","
-				+ StringHelper.formatDouble(a)
+				+ StringHelper.formatFloat(t[0]) + ","
+				+ StringHelper.formatFloat(t[1]) + ","
+				+ StringHelper.formatFloat(t[2]) + ","
+				+ StringHelper.formatFloat(t[3])
 				+")";
 	}
 	

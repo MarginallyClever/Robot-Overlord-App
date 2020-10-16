@@ -7,32 +7,39 @@ import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Sixi2 compares the simulated position and the reported live position to determine if a collision
  * has occurred and can react from there.
+ * 
+ * This design is similar to a Flyweight design pattern - the extrinsic (unchanging) model is shared 
+ * by the intrinsic (state-dependent) poses.  
+ * 
+ * Put another way, the model describes the physical limits 
+ * of the robot and each PoseFK is a state somewhere inside those limits.
+ * 
  * @author Dan Royer
  *
  */
 public class Sixi2 extends PoseEntity {
-	// the model used to render & control.
-	public Sixi2Model model;
-	// the live robot in the real world.
-	public Sixi2Live live;
-	// the simulated robot.
-	public Sixi2Sim sim;
+	// the model used to render & control (the Flyweight)
+	protected DHRobotModel model;
+	// the live robot in the real world.  Controls comms with the machine.
+	protected Sixi2Live live;
+	// a simulation of the motors which should match the ideal physical behavior.
+	protected Sixi2Sim sim;
 	
-	// aka joint angles
-	protected PoseFK userControlledFK;
-	// aka end effector
-	protected PoseEntity userControlledIK;
-	
-	protected DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2FirmwareSettings.DEFAULT_FEEDRATE);
-	protected DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2FirmwareSettings.DEFAULT_ACCELERATION);
+	// there's also a Sixi2 that the user controls directly through the GUI to set new target states.
+	// in other words, the user has no direct control over the live or sim robots.
+	protected Sixi2Command nextUserCommand;
+	// the list of queued commands
+	protected Entity commandList = new Entity("Commands");
 	
 	public Sixi2() {
 		super("Sixi2");
@@ -42,16 +49,18 @@ public class Sixi2 extends PoseEntity {
 		live = new Sixi2Live(model);
 		// the interface to the simulated machine.
 		sim = new Sixi2Sim(model);
-		userControlledFK = model.createPoseFK();
-		userControlledIK = new PoseEntity("End Effector");
-		userControlledIK.addObserver(this);
+		nextUserCommand = new Sixi2Command(model.createPoseFK(),
+				Sixi2Model.DEFAULT_FEEDRATE,
+				Sixi2Model.DEFAULT_ACCELERATION);
+		nextUserCommand.setName("End Effector");
+		nextUserCommand.addObserver(this);
+		addChild(nextUserCommand);
+		addChild(commandList);
 		//addChild(live);
 		//addChild(sim);
-		addChild(userControlledIK);
 		
 		// set the user controlled IK to the model, which is at home position.
-		userControlledIK.setPose(model.getPoseIK());
-		userControlledFK = model.getPoseFK();
+		nextUserCommand.setPose(model.getPoseIK());
 	}
 	
 	@Override
@@ -64,7 +73,7 @@ public class Sixi2 extends PoseEntity {
 		// simulation claims
 		sim.render(gl2);
 		// user controlled version
-		model.setPoseFK(userControlledFK);
+		model.setPoseFK(nextUserCommand.pose);
 		model.setDiffuseColor(1,1,1,1);
 		model.render(gl2);
 
@@ -84,10 +93,10 @@ public class Sixi2 extends PoseEntity {
 	
 	@Override
 	public void update(Observable o, Object arg) {
-		if(o==userControlledIK) {
-			Matrix4d m = userControlledIK.getPose();
+		if(o==nextUserCommand) {
+			Matrix4d m = nextUserCommand.getPose();
 			if(model.setPoseIK(m)) {
-				userControlledFK = model.getPoseFK();
+				nextUserCommand.pose = model.getPoseFK();
 			}
 		}
 		super.update(o, arg);
@@ -101,19 +110,8 @@ public class Sixi2 extends PoseEntity {
 			public void update(Observable o, Object arg) {
 				model.goHome();
 				sim.setPoseTo(model.getPoseFK());
-				userControlledIK.setPose(model.getPoseIK());
-				userControlledFK = model.getPoseFK();
-			}
-		});
-		view.addRange(feedrateSlider, (int)Sixi2FirmwareSettings.MAX_FEEDRATE, 0);
-		view.addRange(accelerationSlider, (int)Sixi2FirmwareSettings.MAX_ACCELERATION, 0);
-		
-		view.addButton("Go Here").addObserver(new Observer() {
-			@Override
-			public void update(Observable o, Object arg) {
-				addDestination(userControlledFK,
-						(double)feedrateSlider.get(),
-						(double)accelerationSlider.get());
+				nextUserCommand.setPose(model.getPoseIK());
+				nextUserCommand.pose = model.getPoseFK();
 			}
 		});
 		view.popStack();
@@ -124,7 +122,19 @@ public class Sixi2 extends PoseEntity {
 		super.getView(view);
 	}
 	
+	public DHRobotModel getModel() {
+		return model;
+	}
+	
 	public void addDestination(PoseFK poseTo,double feedrate,double acceleration) {
+		// queue it
+		commandList.addChild(new Sixi2Command(poseTo, feedrate, acceleration));
+		((RobotOverlord)getRoot()).updateEntityTree();
+		// and go there
+		goTo(poseTo,feedrate,acceleration);
+	}
+
+	public void goTo(PoseFK poseTo, double feedrate, double acceleration) {
 		sim.AddDestination(poseTo, feedrate, acceleration);
 		live.AddDestination(poseTo,feedrate, acceleration);
 	}
@@ -138,13 +148,13 @@ public class Sixi2 extends PoseEntity {
 	
 	// recursively set for all children
 	public void setShowLocalOrigin(boolean arg0) {
-		super.setShowBoundingBox(arg0);
+		super.setShowLocalOrigin(arg0);
 		model.getLink(0).setShowLocalOrigin(arg0);
 	}
 
 	// recursively set for all children
 	public void setShowLineage(boolean arg0) {
-		super.setShowBoundingBox(arg0);
+		super.setShowLineage(arg0);
 		model.getLink(0).setShowLineage(arg0);
 	}
 }

@@ -17,6 +17,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import com.marginallyclever.robotOverlord.entity.AbstractEntity;
 import com.marginallyclever.robotOverlord.entity.Entity;
 
 /**
@@ -163,8 +164,10 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	public DefaultMutableTreeNode createTreeNodes(Entity e) {
 		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
 		for(Entity child : e.getChildren() ) {
-			if(!child.getChildren().isEmpty()) 
+			//if(!child.getChildren().isEmpty())
+			if(!(child instanceof AbstractEntity)) {
 				parent.add(createTreeNodes(child));
+			}
 		}
 		return parent;
 	}

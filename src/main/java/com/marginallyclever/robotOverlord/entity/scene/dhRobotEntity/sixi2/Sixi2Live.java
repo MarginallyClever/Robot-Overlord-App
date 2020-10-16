@@ -55,16 +55,16 @@ public class Sixi2Live extends Entity {
 	}
 	
 	@Override
+	public void update(double dt) {
+		super.update(dt);
+	}
+	
+	@Override
 	public void update(Observable o, Object arg) {
 		if(o == connection) {
 			readConnectionData((String)arg);
 		}
 		super.update(o, arg);
-	}
-	
-	@Override
-	public void update(double dt) {
-		super.update(dt);
 	}
 	
 	protected void readConnectionData(String data) {
@@ -172,13 +172,16 @@ public class Sixi2Live extends Entity {
 		return poseSent;
 	}
 
-	@SuppressWarnings("unused")
 	private void setPoseSent(PoseFK poseSent) {
-		try {
-			this.poseSent = (PoseFK)poseSent.clone();
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(poseSent==null) {
+			this.poseSent=null;
+		} else {
+			try {
+				this.poseSent = (PoseFK)poseSent.clone();
+			} catch (CloneNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -187,11 +190,15 @@ public class Sixi2Live extends Entity {
 	}
 
 	protected void setPoseReceived(PoseFK poseReceived) {
-		try {
-			this.poseReceived = (PoseFK)poseReceived.clone();
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(poseReceived==null) {
+			this.poseReceived=null;
+		} else {
+			try {
+				this.poseReceived = (PoseFK)poseReceived.clone();
+			} catch (CloneNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
