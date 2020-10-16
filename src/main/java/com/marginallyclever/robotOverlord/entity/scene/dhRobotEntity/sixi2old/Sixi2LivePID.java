@@ -4,10 +4,10 @@ import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -20,6 +20,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 @Deprecated
 public class Sixi2LivePID extends Sixi2Model {
 	protected PoseFK receivedKeyframe;
+	protected int gMode=0;
+	protected DoubleEntity feedRate = new DoubleEntity("Feedrate",25);
+	
+	protected boolean readyForCommands=false;
+	protected boolean relativeMode=false;
 
 	class StepperMotor {
 		// only a whole number of steps is possible.

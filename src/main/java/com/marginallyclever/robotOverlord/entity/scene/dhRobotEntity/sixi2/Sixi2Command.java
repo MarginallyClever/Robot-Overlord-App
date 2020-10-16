@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -40,17 +41,16 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 		view.pushStack("C", "Command");
 		
 		view.addRange(feedrateSlider, (int)Sixi2Model.MAX_FEEDRATE, 0);
-		
 		view.addRange(accelerationSlider, (int)Sixi2Model.MAX_ACCELERATION, 0);
 		
-		view.addButton("Queue").addObserver(new Observer() {
+		final Sixi2Command sc = this;
+		
+		view.addButton("Copy").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				Sixi2 e = findParentSixi2();
 				if(e==null) return;
-				e.addDestination(pose,
-						(double)feedrateSlider.get(),
-						(double)accelerationSlider.get());
+				e.addDestination(sc);
 			}
 		});
 		view.addButton("Goto").addObserver(new Observer() {
@@ -64,6 +64,15 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 			}
 		});
 		view.popStack();
+
+		Sixi2 e = findParentSixi2();
+		if(e!=null) {
+			view.pushStack("FK", "Forward Kinematics");
+			for(int i=0;i<pose.fkValues.length;++i) {
+				view.addStaticText(i+" = "+StringHelper.formatDouble(pose.fkValues[i]));
+			}
+			view.popStack();
+		}
 		super.getView(view);
 	}
 	

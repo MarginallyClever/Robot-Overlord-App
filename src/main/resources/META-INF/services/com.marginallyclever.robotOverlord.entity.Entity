@@ -15,7 +15,7 @@ com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.Cartesian
 
 # joystick HID
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.SixiJoystick
+#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.SixiJoystick
 
 #other objects
 com.marginallyclever.robotOverlord.entity.scene.CameraEntity
@@ -40,6 +40,3 @@ com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2Linear
 
 #tests
 #com.marginallyclever.robotOverlord.entity.tests.MatrixInterpolationTest
-
-#other componnents
-com.marginallyclever.robotOverlord.entity.scene.recording.RecordingEntity

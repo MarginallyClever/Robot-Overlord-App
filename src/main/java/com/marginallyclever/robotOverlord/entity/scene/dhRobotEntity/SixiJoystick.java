@@ -7,11 +7,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
+@Deprecated
 public class SixiJoystick extends ModelEntity {
 	private Sixi2 target;
 	
@@ -59,9 +60,9 @@ public class SixiJoystick extends ModelEntity {
 					int i,j;
 					
 					if(keyframe==null) {
-						keyframe = target.model.createPoseFK();
+						keyframe = target.sim.createPoseFK();
 						for(j=0;j<keyframeSamples.length;++j) {
-							keyframeSamples[j]= target.model.createPoseFK();
+							keyframeSamples[j]= target.sim.createPoseFK();
 						}
 					}
 					// age the samples

@@ -8,7 +8,6 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
@@ -38,8 +37,6 @@ public class Sixi2 extends PoseEntity {
 	// there's also a Sixi2 that the user controls directly through the GUI to set new target states.
 	// in other words, the user has no direct control over the live or sim robots.
 	protected Sixi2Command nextUserCommand;
-	// the list of queued commands
-	protected Entity commandList = new Entity("Commands");
 	
 	public Sixi2() {
 		super("Sixi2");
@@ -52,10 +49,8 @@ public class Sixi2 extends PoseEntity {
 		nextUserCommand = new Sixi2Command(model.createPoseFK(),
 				Sixi2Model.DEFAULT_FEEDRATE,
 				Sixi2Model.DEFAULT_ACCELERATION);
-		nextUserCommand.setName("End Effector");
 		nextUserCommand.addObserver(this);
 		addChild(nextUserCommand);
-		addChild(commandList);
 		//addChild(live);
 		//addChild(sim);
 		
@@ -114,6 +109,17 @@ public class Sixi2 extends PoseEntity {
 				nextUserCommand.pose = model.getPoseFK();
 			}
 		});
+		view.addButton("Append").addObserver(new Observer() {
+			@Override
+			public void update(Observable o, Object arg) {
+				try {
+					addDestination((Sixi2Command)nextUserCommand.clone());
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 		view.popStack();
 		
 		sim.getView(view);
@@ -126,12 +132,26 @@ public class Sixi2 extends PoseEntity {
 		return model;
 	}
 	
-	public void addDestination(PoseFK poseTo,double feedrate,double acceleration) {
+	public void addDestination(Sixi2Command c) {
 		// queue it
-		commandList.addChild(new Sixi2Command(poseTo, feedrate, acceleration));
-		((RobotOverlord)getRoot()).updateEntityTree();
-		// and go there
-		goTo(poseTo,feedrate,acceleration);
+		try {
+			Sixi2Command copy = (Sixi2Command)c.clone();
+			copy.setName(getUniqueChildName(c));
+			
+			for(int i=0;i<children.size();++i) {
+				if(children.get(i)==c) {
+					children.add(i,copy);
+					break;
+				}
+				if(i==children.size()) {
+					children.add(copy);
+				}
+			}
+			((RobotOverlord)getRoot()).updateEntityTree();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void goTo(PoseFK poseTo, double feedrate, double acceleration) {

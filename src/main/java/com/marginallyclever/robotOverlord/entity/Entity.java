@@ -73,10 +73,12 @@ public class Entity extends Observable implements Observer {
 		return children.contains(o);
 	}
 
-	public void addChild(Entity e) {
-		// check if any child has a matching name
-		String rootName = e.getName();
+	public String getUniqueChildName(Entity e) {
+		String rootName = e.getName(); 
+		// strip digits from end of name.
+		rootName = rootName.replaceAll("\\d*$", "");
 		String name = rootName;
+		
 		int count=1;
 		boolean foundMatch;
 		
@@ -84,13 +86,19 @@ public class Entity extends Observable implements Observer {
 			foundMatch=false;
 			for( Entity c : children ) {
 				if( c.getName().equals(name) ) {
-					// oops?
+					// matches an existing name.  increment by one and check everybody again.
 					name = rootName+Integer.toString(count++);
 					foundMatch=true;
 				}
 			}
 		} while(foundMatch);
-		e.setName(name);
+		// unique name found.
+		return name;
+	}
+	
+	public void addChild(Entity e) {
+		// check if any child has a matching name
+		e.setName(getUniqueChildName(e));
 		children.add(e);
 		e.setParent(this);
 	}
