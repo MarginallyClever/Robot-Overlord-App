@@ -199,23 +199,24 @@ public class Scene extends Entity {
 	 * @param ignoreList all the entities in the world to ignore.
 	 * @return true if any cuboid in the cuboidList intersects any cuboid in the world.
 	 */
-	public boolean collisionTest(PoseEntity a) {
-		ArrayList<Cuboid> listA = a.getCuboidList();
+	public boolean collisionTest(ArrayList<Cuboid> listA) {
 		
 		// check all children
 		for( Entity b : children ) {
-			// we want all collidable items except a.
-			if( !( b instanceof PoseEntity ) || b==a ) continue;
-
 			ArrayList<Cuboid> listB = ((PoseEntity)b).getCuboidList();
 			if( listB == null ) continue;
+			
+			if(listB.get(0)==listA.get(0)) {
+				// don't test against yourself.
+				continue;
+			}
 			
 			// now we have both lists, test them against each other.
 			for( Cuboid cuboidA : listA ) {
 				for( Cuboid cuboidB : listB ) {
 					if( IntersectionTester.cuboidCuboid(cuboidA,cuboidB) ) {
 						Log.message("Collision between "+
-							a.getName()+"."+listA.indexOf(cuboidA)+
+							listA.indexOf(cuboidA)+
 							" and "+
 							b.getName()+"."+listB.indexOf(cuboidB));
 						return true;

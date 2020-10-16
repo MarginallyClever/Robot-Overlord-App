@@ -7,9 +7,9 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.log.Log;
 
 /**
@@ -33,7 +33,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	}
 
 	@Override
-	public SolutionType solve(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe) {
+	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
 		return solveWithSuggestion(robot,targetMatrix,keyframe,null);
 	}
 	
@@ -46,13 +46,13 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe,PoseFK suggestion) {
-		DHLink link0 = robot.links.get(0);
-		DHLink link1 = robot.links.get(1);
-		DHLink link2 = robot.links.get(2);
-		DHLink link3 = robot.links.get(3);
-		DHLink link4 = robot.links.get(4);
-		DHLink link5 = robot.links.get(5);
+	public SolutionType solveWithSuggestion(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
+		DHLink link0 = robot.getLink(0);
+		DHLink link1 = robot.getLink(1);
+		DHLink link2 = robot.getLink(2);
+		DHLink link3 = robot.getLink(3);
+		DHLink link4 = robot.getLink(4);
+		DHLink link5 = robot.getLink(5);
 
 		Matrix4d iRoot = new Matrix4d(robot.getParentMatrix());
 		try {
@@ -183,8 +183,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		link2.setTheta(keyframe.fkValues[2]);
 		link3.setTheta(0);
 
-		for( DHLink link : robot.links ) {
-			link.refreshPoseMatrix();
+		for( int i=0;i<robot.getNumLinks();++i) {
+			robot.getLink(i).refreshPoseMatrix();
 		}
 		Matrix4d r03 = link4.getPoseWorld();
 		r03.mul(iRoot);

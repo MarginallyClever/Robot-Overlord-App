@@ -4,9 +4,9 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.log.Log;
 
 /**
@@ -32,12 +32,12 @@ public class DHIKSolver_RTT extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public SolutionType solve(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe) {
-		DHLink link0 = robot.links.get(0);
-		DHLink link1 = robot.links.get(1);
-		DHLink link2 = robot.links.get(2);
-		DHLink link3 = robot.links.get(3);
-		DHLink link4 = robot.links.get(4);
+	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
+		DHLink link0 = robot.getLink(0);
+		DHLink link1 = robot.getLink(1);
+		DHLink link2 = robot.getLink(2);
+		DHLink link3 = robot.getLink(3);
+		DHLink link4 = robot.getLink(4);
 
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		

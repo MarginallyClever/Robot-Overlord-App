@@ -5,9 +5,9 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector4d;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.log.Log;
 
 /**
@@ -33,8 +33,8 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public SolutionType solve(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe) {
-		DHLink link4 = robot.links.get(robot.links.size()-1);
+	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
+		DHLink link4 = robot.getLink(robot.getNumLinks()-1);
 
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		

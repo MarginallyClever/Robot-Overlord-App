@@ -5,9 +5,9 @@ import javax.vecmath.Matrix4d;
 import org.junit.Test;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
 
 public class Sixi2Tester {
 	/**
@@ -16,10 +16,10 @@ public class Sixi2Tester {
 	@Test
 	public void TestIK() {
 		System.out.println("TestIK() start");
-		Sixi2 robot = new Sixi2();
-		int numLinks = robot.sim.links.size();
-		PoseFK key0 = robot.sim.getIKSolver().createPoseFK();
-		PoseFK key1 = robot.sim.getIKSolver().createPoseFK();
+		Sixi2Model model = new Sixi2Model();
+		int numLinks = model.getNumLinks();
+		PoseFK key0 = model.createPoseFK();
+		PoseFK key1 = model.createPoseFK();
 		
 		final int TOTAL_TESTS = 50;
 		int testsOK=0;
@@ -31,7 +31,7 @@ public class Sixi2Tester {
 			System.out.print(j + ": ");
 			
 			for( int i = 0; i < numLinks; ++i ) {
-				DHLink link = robot.sim.links.get(i);
+				DHLink link = model.getLink(i);
 				// find a random pose for this bone.
 				double top = link.getRangeMax();
 				double bot = link.getRangeMin();
@@ -42,12 +42,12 @@ public class Sixi2Tester {
 			}
 			
 			// set the pose
-			robot.sim.setPoseFK(key0);
+			model.setPoseFK(key0);
 			// get the end effector world pose for this key
-			Matrix4d ee = robot.sim.endEffector.getPoseWorld();
+			Matrix4d ee = model.getPoseIK();
 			// use the end effector world pose to solve IK
-			if(robot.sim.setPoseIK(ee)) {
-				key1.set(robot.sim.getPoseFK());
+			if(model.setPoseIK(ee)) {
+				key1.set(model.getPoseFK());
 				if(key1.equals(key0)) {
 					testsOK++;
 					System.out.println(" OK");
@@ -71,10 +71,10 @@ public class Sixi2Tester {
 	@Test
 	public void TestApproximateJacobian() {
 		System.out.println("TestApproximateJacobian() start");
-		Sixi2 robot = new Sixi2();
+		Sixi2Model robot = new Sixi2Model();
 		//robot.goHome();
-		PoseFK keyframe = robot.sim.getPoseFK();
-		double [][] aj = robot.sim.approximateJacobian(keyframe);
+		PoseFK keyframe = robot.getPoseFK();
+		double [][] aj = robot.approximateJacobian(keyframe);
 		for( int y=0;y<aj.length;++y ) {
 			for( int x=0;x<aj[y].length;++x ) {
 				assert(!Double.isNaN(aj[y][x]));

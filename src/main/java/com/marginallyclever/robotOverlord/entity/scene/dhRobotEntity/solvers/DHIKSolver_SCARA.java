@@ -5,9 +5,9 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector4d;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.log.Log;
 
 /**
@@ -33,8 +33,8 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public SolutionType solve(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe) {
-		DHLink link4 = robot.links.get(robot.links.size()-1);
+	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
+		DHLink link4 = robot.getLink(robot.getNumLinks()-1);
 
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		
@@ -50,8 +50,8 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 		
 		Point3d p4 = new Point3d(m4.m03,m4.m13,m4.m23);
 
-		double a1 = robot.links.get(0).getR();
-		double a2 = robot.links.get(1).getR();
+		double a1 = robot.getLink(0).getR();
+		double a2 = robot.getLink(1).getR();
 		
 		double b = a1;
 		double a = a2;
@@ -74,7 +74,7 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 		keyframe.fkValues[0]=Math.toDegrees(tau-phi2); 
 		
 		Point3d p3 = new Point3d(p4);
-		p3.z = robot.links.get(0).getD();
+		p3.z = robot.getLink(0).getD();
 		Point3d p2 = new Point3d(Math.cos(phi),Math.sin(phi),p3.z);
 		
 		// the height

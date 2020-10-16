@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_Cartesian;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
@@ -20,49 +20,49 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 public class Robot_Cartesian extends RobotEntity {
 	public transient boolean isFirstTime;
 	public MaterialEntity material;
-	DHRobotEntity live;
+	DHRobotModel live;
 	public Robot_Cartesian() {
 		super();
 		setName("Cartesian");
 
-		live = new DHRobotEntity();
+		live = new DHRobotModel();
 		live.setIKSolver(new DHIKSolver_Cartesian());
 		setupLinks(live);
 		
 		isFirstTime=true;
 	}
 	
-	protected void setupLinks(DHRobotEntity robot) {
+	protected void setupLinks(DHRobotModel robot) {
 		robot.setNumLinks(4);
 		// roll
-		robot.links.get(0).flags = LinkAdjust.D;
-		robot.links.get(0).setRangeMin(0);
-		robot.links.get(0).setRangeMax(25);
-		robot.links.get(0).setTheta(90);
-		robot.links.get(0).setAlpha(90);
-		robot.links.get(0).setRangeMin(0+8.422);
-		robot.links.get(0).setRangeMax(21+8.422);
+		robot.getLink(0).flags = LinkAdjust.D;
+		robot.getLink(0).setRangeMin(0);
+		robot.getLink(0).setRangeMax(25);
+		robot.getLink(0).setTheta(90);
+		robot.getLink(0).setAlpha(90);
+		robot.getLink(0).setRangeMin(0+8.422);
+		robot.getLink(0).setRangeMax(21+8.422);
 		
 		// tilt
-		robot.links.get(1).setAlpha(90);
-		robot.links.get(1).setTheta(-90);
-		robot.links.get(1).flags = LinkAdjust.D;
-		robot.links.get(1).setRangeMin(0);
-		robot.links.get(1).setRangeMax(21);
+		robot.getLink(1).setAlpha(90);
+		robot.getLink(1).setTheta(-90);
+		robot.getLink(1).flags = LinkAdjust.D;
+		robot.getLink(1).setRangeMin(0);
+		robot.getLink(1).setRangeMax(21);
 		// tilt
-		robot.links.get(2).setAlpha(90);
-		robot.links.get(2).setTheta(90);
-		robot.links.get(2).flags = LinkAdjust.D;
-		robot.links.get(2).setRangeMin(0+8.422);
-		robot.links.get(2).setRangeMax(21+8.422);
+		robot.getLink(2).setAlpha(90);
+		robot.getLink(2).setTheta(90);
+		robot.getLink(2).flags = LinkAdjust.D;
+		robot.getLink(2).setRangeMin(0+8.422);
+		robot.getLink(2).setRangeMax(21+8.422);
 		
-		robot.links.get(3).flags = LinkAdjust.NONE;
+		robot.getLink(3).flags = LinkAdjust.NONE;
 
 		
 		robot.refreshPose();
 	}
 	
-	public void setupModels(DHRobotEntity robot) {
+	public void setupModels(DHRobotModel robot) {
 		material = new MaterialEntity();
 		float r=0.5f;
 		float g=0.5f;
@@ -70,28 +70,28 @@ public class Robot_Cartesian extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 
 		try {
-			robot.links.get(0).setModelFilename("/Prusa i3 MK3/Prusa0.stl");
-			robot.links.get(1).setModelFilename("/Prusa i3 MK3/Prusa1.stl");
-			robot.links.get(2).setModelFilename("/Prusa i3 MK3/Prusa2.stl");
-			robot.links.get(3).setModelFilename("/Prusa i3 MK3/Prusa3.stl");
+			robot.getLink(0).setModelFilename("/Prusa i3 MK3/Prusa0.stl");
+			robot.getLink(1).setModelFilename("/Prusa i3 MK3/Prusa1.stl");
+			robot.getLink(2).setModelFilename("/Prusa i3 MK3/Prusa2.stl");
+			robot.getLink(3).setModelFilename("/Prusa i3 MK3/Prusa3.stl");
 
-			robot.links.get(0).setModelScale(0.1f);
-			robot.links.get(1).setModelScale(0.1f);
-			robot.links.get(2).setModelScale(0.1f);
-			robot.links.get(3).setModelScale(0.1f);
+			robot.getLink(0).setModelScale(0.1f);
+			robot.getLink(1).setModelScale(0.1f);
+			robot.getLink(2).setModelScale(0.1f);
+			robot.getLink(3).setModelScale(0.1f);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		robot.links.get(0).getModel().adjustRotation(new Vector3d(90,0,0));
-		robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,27.9,0));
-		robot.links.get(1).getModel().adjustOrigin(new Vector3d(11.2758,-8.422,0));
-		robot.links.get(1).getModel().adjustRotation(new Vector3d(0,-90,0));
-		robot.links.get(2).getModel().adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
-		robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
-		robot.links.get(3).getModel().adjustRotation(new Vector3d(-90,0,0));
-		robot.links.get(3).getModel().adjustOrigin(new Vector3d(0,-31.9,32.2679));	
+		robot.getLink(0).getModel().adjustRotation(new Vector3d(90,0,0));
+		robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,27.9,0));
+		robot.getLink(1).getModel().adjustOrigin(new Vector3d(11.2758,-8.422,0));
+		robot.getLink(1).getModel().adjustRotation(new Vector3d(0,-90,0));
+		robot.getLink(2).getModel().adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
+		robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,90));
+		robot.getLink(3).getModel().adjustRotation(new Vector3d(-90,0,0));
+		robot.getLink(3).getModel().adjustOrigin(new Vector3d(0,-31.9,32.2679));	
 	}
 	
 	@Override

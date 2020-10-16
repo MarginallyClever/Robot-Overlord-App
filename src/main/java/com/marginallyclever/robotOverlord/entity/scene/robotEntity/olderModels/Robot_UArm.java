@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
@@ -26,69 +26,69 @@ public class Robot_UArm extends RobotEntity {
 */
 	public transient boolean isFirstTime;
 	
-	DHRobotEntity live;
+	DHRobotModel live;
 
 	public Robot_UArm() {
 		super();
 		setName("UArm");
 
-		live = new DHRobotEntity();
+		live = new DHRobotModel();
 		live.setIKSolver(new DHIKSolver_RTT());
 		setupLinks(live);
 		isFirstTime=true;
 	}
 	
-	protected void setupLinks(DHRobotEntity robot) {
+	protected void setupLinks(DHRobotModel robot) {
 		robot.setNumLinks(6);
 		// roll
-		robot.links.get(0).setD(2.4);
-		robot.links.get(0).setR(2.0728);
-		robot.links.get(0).flags = LinkAdjust.THETA;
-		robot.links.get(0).setRangeMin(-160);
-		robot.links.get(0).setRangeMax(160);
+		robot.getLink(0).setD(2.4);
+		robot.getLink(0).setR(2.0728);
+		robot.getLink(0).flags = LinkAdjust.THETA;
+		robot.getLink(0).setRangeMin(-160);
+		robot.getLink(0).setRangeMax(160);
 		// tilt
-		robot.links.get(1).setD(9.5267-2.4);
-		robot.links.get(1).setTheta(90);
-		robot.links.get(1).flags = LinkAdjust.ALPHA;
-		robot.links.get(1).setRangeMin(-72);
+		robot.getLink(1).setD(9.5267-2.4);
+		robot.getLink(1).setTheta(90);
+		robot.getLink(1).flags = LinkAdjust.ALPHA;
+		robot.getLink(1).setRangeMin(-72);
 		// tilt
-		robot.links.get(2).setD(14.8004);
-		robot.links.get(2).flags = LinkAdjust.ALPHA;
-		robot.links.get(2).setRangeMin(-10);
-		robot.links.get(2).setRangeMax(150);
+		robot.getLink(2).setD(14.8004);
+		robot.getLink(2).flags = LinkAdjust.ALPHA;
+		robot.getLink(2).setRangeMin(-10);
+		robot.getLink(2).setRangeMax(150);
 		
 		// interim point
-		robot.links.get(3).setD(16.0136);
-		robot.links.get(3).flags = LinkAdjust.NONE;
+		robot.getLink(3).setD(16.0136);
+		robot.getLink(3).flags = LinkAdjust.NONE;
 		// end effector
-		robot.links.get(4).setD(3.545);
-		robot.links.get(4).setTheta(-90);
-		robot.links.get(4).setR(1);
-		robot.links.get(4).flags = LinkAdjust.ALPHA;
+		robot.getLink(4).setD(3.545);
+		robot.getLink(4).setTheta(-90);
+		robot.getLink(4).setR(1);
+		robot.getLink(4).flags = LinkAdjust.ALPHA;
 
-		robot.links.get(5).setR(4);
-		robot.links.get(5).flags = LinkAdjust.NONE;
+		robot.getLink(5).setR(4);
+		robot.getLink(5).flags = LinkAdjust.NONE;
 	}
 	
-	public void setupModels(DHRobotEntity robot) {
+	public void setupModels(DHRobotModel robot) {
 		try {
-			robot.links.get(0).setModelFilename("/uArm/base.STL");
-			robot.links.get(1).setModelFilename("/uArm/shoulder.STL");
-			robot.links.get(2).setModelFilename("/uArm/bicep.STL");
-			robot.links.get(3).setModelFilename("/uArm/forearm.STL");
-			robot.links.get(4).setModelFilename("/uArm/wrist.STL");
-			robot.links.get(5).setModelFilename("/uArm/hand.STL");	
+			robot.getLink(0).setModelFilename("/uArm/base.STL");
+			robot.getLink(1).setModelFilename("/uArm/shoulder.STL");
+			robot.getLink(2).setModelFilename("/uArm/bicep.STL");
+			robot.getLink(3).setModelFilename("/uArm/forearm.STL");
+			robot.getLink(4).setModelFilename("/uArm/wrist.STL");
+			robot.getLink(5).setModelFilename("/uArm/hand.STL");	
 			
-			robot.links.get(0).getModel().adjustOrigin(new Vector3d(0,0,1.65f));
-			robot.links.get(1).getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
-			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,-180));
-			robot.links.get(2).getModel().adjustOrigin(new Vector3d(-0.25f,0,1.65f));
-			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(3).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
-			robot.links.get(3).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(4).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));
-			robot.links.get(4).getModel().adjustRotation(new Vector3d(-90,0,90));
-			robot.links.get(5).getModel().adjustRotation(new Vector3d(0,-90,90));
+			robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,0,1.65f));
+			robot.getLink(1).getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
+			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,-180));
+			robot.getLink(2).getModel().adjustOrigin(new Vector3d(-0.25f,0,1.65f));
+			robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.getLink(3).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
+			robot.getLink(3).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.getLink(4).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));
+			robot.getLink(4).getModel().adjustRotation(new Vector3d(-90,0,90));
+			robot.getLink(5).getModel().adjustRotation(new Vector3d(0,-90,90));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -100,14 +100,14 @@ public class Robot_UArm extends RobotEntity {
 			isFirstTime=false;
 			setupModels(live);
 		}
-		live.links.get(2).setRangeMin(20);
-		live.links.get(2).setRangeMax(165);
+		live.getLink(2).setRangeMin(20);
+		live.getLink(2).setRangeMax(165);
 		
 		// TODO calculate me in the solver?
-		live.links.get(3).setAlpha(
+		live.getLink(3).setAlpha(
 				90
-				-live.links.get(1).getAlpha()
-				-live.links.get(2).getAlpha()
+				-live.getLink(1).getAlpha()
+				-live.getLink(2).getAlpha()
 				);
 		
 		live.refreshPose();

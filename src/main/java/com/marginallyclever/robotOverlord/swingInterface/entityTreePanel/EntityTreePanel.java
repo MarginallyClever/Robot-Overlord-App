@@ -163,9 +163,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	public DefaultMutableTreeNode createTreeNodes(Entity e) {
 		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
 		for(Entity child : e.getChildren() ) {
-			if(!child.getChildren().isEmpty()) {
+			if(!child.getChildren().isEmpty()) 
 				parent.add(createTreeNodes(child));
-			}
 		}
 		return parent;
 	}

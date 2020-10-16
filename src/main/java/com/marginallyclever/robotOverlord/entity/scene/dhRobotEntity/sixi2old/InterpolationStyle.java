@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old;
 
 public enum InterpolationStyle {
 	LINEAR_FK(0,"Linear FK"),

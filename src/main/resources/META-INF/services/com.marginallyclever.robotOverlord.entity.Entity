@@ -1,4 +1,5 @@
 
+#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old.Sixi2
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 # DHRobots
@@ -14,7 +15,7 @@ com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.Cartesian
 
 # joystick HID
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.SixiJoystick
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.SixiJoystick
 
 #other objects
 com.marginallyclever.robotOverlord.entity.scene.CameraEntity
@@ -27,8 +28,8 @@ com.marginallyclever.robotOverlord.entity.scene.DecalEntity
 #robot Tools
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_GoProCamera
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_Gripper
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2ChuckGripper
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2LinearGripper
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckGripper
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2LinearGripper
 
 #other robots
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.deltaRobot3.DeltaRobot3

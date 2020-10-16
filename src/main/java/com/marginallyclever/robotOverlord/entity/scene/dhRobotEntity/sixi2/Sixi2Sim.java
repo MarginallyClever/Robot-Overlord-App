@@ -1,91 +1,420 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Iterator;
+import java.util.LinkedList;
 
-import javax.vecmath.Matrix4d;
-
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Sixi2Sim extends Sixi2Model {
-	protected ReentrantLock lock = new ReentrantLock();
+/**
+ * A simulation of a robot's movement over time.
+ * @author Dan Royer
+ *
+ */
+public class Sixi2Sim extends Entity {
+	protected DHRobotModel model;
 	
+	// poseTo represents the desired destination. It could be null if there is none.  Roughly equivalent to Sixi2Live.poseSent.
+	public PoseFK poseTo;
+	// poseNow is the current position.  Roughly equivalent to Sixi2Live.poseReceived.
+	protected PoseFK poseNow;
+	// velocity of each joint
+	protected PoseFK velocityFK;
+	// acceleration of each joint
+	protected PoseFK forceFK;
 	
-	public Sixi2Sim() {
-		super();
-		setName("Sim");
-		
-		for(DHLink link : links ) {
-			link.setDHRobot(this);
-		}
-		endEffector.setDHRobot(this);
-		
-	    readyForCommands=true;
-	    
-	    // set blue
-	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(113f/255f, 211f/255f, 226f/255f,0.70f);
-	    }
-	    
-		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-	    endEffector.addObserver(this);
-		endEffectorTarget.addObserver(this);
-	}
+	// the sequence of poses to drive towards.
+	protected LinkedList<Sixi2Segment> queue = new LinkedList<Sixi2Segment>();
 
-	@Override 
-	public void sendCommand(String command) {
-		super.sendCommand(command);
+	public Sixi2Sim(DHRobotModel model) {
+		super("Sixi2 Sim");
+		
+		this.model = model;
+		velocityFK = model.createPoseFK();
+		forceFK = model.createPoseFK();
+		
+		// I assume the simulated robot starts at the home position.
+		setPoseNow(model.getPoseFK());
 	}
-
-	@Override 
+	
+	@Override
 	public void update(double dt) {
+		if(!queue.isEmpty()) {
+			Sixi2Segment seg = queue.getFirst();
+			seg.busy=true;
+			seg.now_s+=dt;
+			if(seg.now_s > seg.end_s) seg.now_s = seg.end_s;
+			
+			updateForces(seg);
+			updateVelocities(seg);
+			updatePositions(seg);
+			
+			if(seg.now_s>= seg.end_s) {
+				queue.pop();
+				// make sure the remainder isn't lost.
+				if(!queue.isEmpty()) {
+					queue.getFirst().now_s = seg.now_s-seg.end_s;
+				}
+			}
+		}
+		
 		super.update(dt);
 	}
 	
-	@Override
-	public void update(Observable obs, Object obj) {
-		if(obs == endEffector) {
-			if(!lock.isLocked()) {
-				lock.lock();
-				//setPoseIK(endEffector.getPoseWorld());
-				endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-				lock.unlock();
-			}
-		}
-		if(obs==endEffectorTarget) {
-			if(!lock.isLocked()) {
-				lock.lock();
-				setPoseIK(endEffectorTarget.getPoseWorld());
-				lock.unlock();
-			}
-		}
-		super.update(obs, obj);
+	/**
+	 * override this to adjust forces acting on each joint
+	 * @param dt
+	 */
+	protected void updateForces(Sixi2Segment s) {
+	}
+	
+	/**
+	 * override this to adjust velocities of each joint
+	 * @param dt
+	 */
+	protected void updateVelocities(Sixi2Segment s) {
 	}
 
+	/**
+	 * override this to change behavior of joints over time.
+	 * @param dt
+	 */
+	protected void updatePositions(Sixi2Segment seg) {
+		if(poseNow==null) return;
+
+		double dt = (seg.now_s - seg.start_s);
+		// i need to know how much time has been spent acclerating, cruising, and decelerating in this segment.
+		double acceleratingT = Math.min(dt,seg.accelerateUntilT);
+		
+		double deceleratingT = dt > seg.decelerateAfterT ? dt-seg.decelerateAfterT : 0;
+		
+		double nominalT = dt - acceleratingT;
+		nominalT = Math.max(dt,seg.accelerateUntilT);
+		nominalT = Math.min(nominalT,seg.decelerateAfterT);
+		nominalT -= seg.accelerateUntilT;
+		
+		// now find the distance moved in each of those sections.
+		double a = (seg.entrySpeed * acceleratingT) + (0.5 * seg.acceleration * acceleratingT*acceleratingT);
+		double n = seg.nominalSpeed * nominalT;
+		double d = (seg.nominalSpeed * deceleratingT) - (0.5 * seg.acceleration * deceleratingT*deceleratingT);
+		double p = a+n+d;
+		
+		// find the fraction of the total distance travelled
+		double fraction = p / seg.distance;
+		fraction = Math.min(Math.max(fraction, 0), 1);
+		
+		System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": ");
+		for(int i=0;i<poseNow.fkValues.length;++i) {
+			System.out.print(StringHelper.formatDouble(seg.start.fkValues[i])+" ");
+		}
+		System.out.print(fraction+" + ");
+
+		for(int i=0;i<poseNow.fkValues.length;++i) {
+			System.out.print(StringHelper.formatDouble(seg.delta.fkValues[i])+" ");
+		}
+		System.out.print(fraction+" = ");
+		
+		// set pos = start + delta * fraction
+		for(int i=0;i<poseNow.fkValues.length;++i) {
+			poseNow.fkValues[i] = seg.start.fkValues[i] + (seg.delta.fkValues[i]) * fraction;
+			System.out.print(StringHelper.formatDouble(poseNow.fkValues[i])+" ");
+		}
+		System.out.println();
+	}
+	
 	@Override
-	public void setPoseWorld(Matrix4d m) {}
+	public void render(GL2 gl2) {
+		// draw now first so it takes precedence in the z buffers
+		if(poseNow!=null) {
+			model.setPoseFK(poseNow);
+			model.setDiffuseColor(0.0f, 1.0f, 0, 1f);
+			model.render(gl2);
+		}
+		if(poseTo!=null) {
+			model.setPoseFK(poseTo);
+			model.setDiffuseColor(0.0f, 1.0f, 0, 0.25f);
+			model.render(gl2);
+		}		
+		super.render(gl2);
+	}
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Ss", "Sixi Sim");
-		ViewElement h = view.addButton("Go to home position");
-		h.addObserver(new Observer() {
-			@Override
-			public void update(Observable arg0, Object arg1) {
-				goHome();
-			}
-		});
-		ViewElement r = view.addButton("Go to rest position");
-		r.addObserver(new Observer() {
-			@Override
-			public void update(Observable arg0, Object arg1) {
-				goRest();
-			}
-		});
-		view.popStack();
 		super.getView(view);
+	}
+	
+	public PoseFK getPoseTo() {
+		return poseTo;
+	}
+
+	public void setPoseTo(PoseFK poseTo) {
+		this.poseTo = poseTo;
+	}
+
+	public PoseFK getPoseNow() {
+		return poseNow;
+	}
+
+	protected void setPoseNow(PoseFK poseNow) {
+		this.poseNow = poseNow;
+	}
+
+	/**
+	 * This robot may have already been given several destinations.  Add this destination to the queue.
+	 * @param poseTo
+	 * @throws CloneNotSupportedException 
+	 */
+	public void AddDestination(PoseFK poseTo,double feedrate,double acceleration) {
+		PoseFK start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
+		
+		Sixi2Segment next = new Sixi2Segment(start,poseTo);
+		
+		// zero distance?  do nothing.
+		if(next.distance==0) return;
+		
+		double timeToEnd = next.distance / feedrate;
+
+		// slow down if the buffer is nearly empty.
+		if( queue.size() > 0 && queue.size() <= (Sixi2FirmwareSettings.MAX_SEGMENTS/2)-1 ) {
+			if( timeToEnd < Sixi2FirmwareSettings.MIN_SEGMENT_TIME ) {
+				timeToEnd += (Sixi2FirmwareSettings.MIN_SEGMENT_TIME-timeToEnd)*2.0 / queue.size();
+			}
+		}
+		
+		next.nominalSpeed = next.distance / timeToEnd;
+		
+		// find if speed exceeds any joint max speed.
+		PoseFK currentSpeed = model.createPoseFK();
+		double speedFactor=1.0;
+		for(int i=0;i<currentSpeed.fkValues.length;++i) {
+			currentSpeed.fkValues[i] = next.delta.fkValues[i] / timeToEnd;
+			double cs = Math.abs(currentSpeed.fkValues[i]);
+			double maxFr = Sixi2FirmwareSettings.MAX_JOINT_FEEDRATE;
+			if( cs > maxFr ) speedFactor = Math.min(speedFactor, maxFr/cs);
+		}
+		// apply speed limit
+		if(speedFactor<1.0) {
+			for(int i=0;i<currentSpeed.fkValues.length;++i) {
+				currentSpeed.fkValues[i]*=speedFactor;
+			}
+			next.nominalSpeed *= speedFactor;
+		}
+		
+		next.acceleration = acceleration;
+
+		// limit jerk between moves
+		double safeSpeed = next.nominalSpeed;
+		boolean limited=false;
+		for(int i=0;i<next.delta.fkValues.length;++i) {
+			double jerk = Math.abs(currentSpeed.fkValues[i]),
+					maxj = Sixi2FirmwareSettings.MAX_JERK[i];
+			if( jerk > maxj ) {
+				if(limited) {
+					double mjerk = maxj * next.nominalSpeed;
+					if( jerk * safeSpeed > mjerk ) safeSpeed = mjerk/jerk;
+				} else {
+					safeSpeed *= maxj / jerk;
+					limited=true;
+				}
+			}
+		}
+		
+		double vmax_junction = 0;
+		if(queue.size()>0) { 
+			// look at difference between this move and previous move
+			Sixi2Segment prev = queue.getLast();
+			if(prev.nominalSpeed > 1e-6) {
+				next.start_s = prev.end_s;
+				next.exitSpeed=0;
+				next.entrySpeed=0;
+				next.nominalSpeed = next.distance / feedrate;
+				if(!prev.busy) prev.recalculate=true;
+				
+				vmax_junction = Math.min(next.nominalSpeed,prev.nominalSpeed);
+				limited=false;
+
+				double vFactor=0;
+				double smallerSpeedFactor = vmax_junction / prev.nominalSpeed;
+				
+				for(int i=0;i<prev.normal.fkValues.length;++i) {
+					double vExit = prev.normal.fkValues[i]* smallerSpeedFactor;
+					double vEntry = currentSpeed.fkValues[i];
+					if(limited) {
+						vExit *= vFactor;
+						vEntry *= vFactor;
+					}
+					double jerk = (vExit > vEntry) ? ((vEntry>0 || vExit<0) ? (vExit-vEntry) : Math.max(vExit, -vEntry))
+												   : ((vEntry<0 || vExit>0) ? (vEntry-vExit) : Math.max(-vExit, vEntry));
+					if( jerk > Sixi2FirmwareSettings.MAX_JERK[i] ) {
+						vFactor = Sixi2FirmwareSettings.MAX_JERK[i] / jerk;
+						limited = true;
+					}
+				}
+				if(limited) {
+					vmax_junction *= vFactor;
+				}
+				
+				double vmax_junction_threshold = vmax_junction * 0.99;
+				if( // previous_safe_speed > vmax_junction_threshold &&
+				    safeSpeed > vmax_junction_threshold ) {
+					vmax_junction = safeSpeed;
+				}
+			}
+		} else {
+			vmax_junction = safeSpeed;
+		}
+		
+		// previous_safe_speed = safe_speed
+		
+		double allowableSpeed = maxSpeedAllowed(-next.accelerateUntilD,0,next.distance);
+		next.entrySpeedMax = vmax_junction;
+		next.entrySpeed = Math.min(vmax_junction, allowableSpeed);
+		next.nominalLength = ( allowableSpeed >= next.nominalSpeed );
+		next.recalculate=true;
+		next.now_s=0;
+		next.start_s=0;
+		next.end_s=0;
+		
+		recalculateTrapezoidSegment(next,next.entrySpeed, 0);
+		
+		queue.add(next);
+		
+		recalculateAcceleration();
+	}
+	
+	protected void recalculateAcceleration() {
+		recalculateBackwards();
+		recalculateForwards();
+		recalculateTrapezoids();
+	}
+	
+	protected void recalculateBackwards() {
+		Sixi2Segment current;
+		Sixi2Segment next = null;
+		Iterator<Sixi2Segment> ri = queue.descendingIterator();
+		while(ri.hasNext()) {
+			current = ri.next();
+			recalculateBackwardsBetween(current,next);
+			next = current;
+		}
+	}
+	
+	protected void recalculateBackwardsBetween(Sixi2Segment current,Sixi2Segment next) {
+		double top = current.entrySpeedMax;
+		if(current.entrySpeed != top || (next!=null && next.recalculate)) {
+			double newEntrySpeed = current.nominalLength 
+					? top
+					: Math.min( top, maxSpeedAllowed( -current.acceleration, (next!=null? next.entrySpeed : 0), current.distance));
+			current.entrySpeed = newEntrySpeed;
+			current.recalculate = true;
+		}
+	}
+	
+	protected void recalculateForwards() {
+		Sixi2Segment current;
+		Sixi2Segment prev = null;
+		Iterator<Sixi2Segment> ri = queue.iterator();
+		while(ri.hasNext()) {
+			current = ri.next();
+			recalculateForwardsBetween(prev,current);
+			prev = current;
+		}
+	}
+	
+	protected void recalculateForwardsBetween(Sixi2Segment prev,Sixi2Segment current) {
+		if(prev==null) return;
+		if(!prev.nominalLength && prev.entrySpeed < current.entrySpeed) {
+			double newEntrySpeed = maxSpeedAllowed(-prev.acceleration, prev.entrySpeed, prev.distance);
+			if(newEntrySpeed < current.entrySpeed) {
+				current.recalculate=true;
+				current.entrySpeed = newEntrySpeed;
+			}
+		}
+	}
+	
+	protected void recalculateTrapezoids() {
+		Sixi2Segment current=null;
+		
+		boolean nextDirty;
+		double currentEntrySpeed=0, nextEntrySpeed=0;
+		int size = queue.size();
+		
+		for(int i=0;i<size;++i) {
+			current = queue.get(i);
+			int j = i+1;
+			if(j<size) {
+				Sixi2Segment next = queue.get(i+1);
+				nextEntrySpeed = next.entrySpeed;
+				nextDirty = next.recalculate;
+			} else {
+				nextEntrySpeed=0;
+				nextDirty=false;
+			}
+			if( current.recalculate || nextDirty ) {
+				current.recalculate = true;
+				if( !current.busy  ) {
+					recalculateTrapezoidSegment(current, currentEntrySpeed, nextEntrySpeed);
+				}
+				current.recalculate = false;
+			}
+			current.recalculate=false;
+			currentEntrySpeed = nextEntrySpeed;
+		}
+	}
+	
+	protected void recalculateTrapezoidSegment(Sixi2Segment seg, double entrySpeed, double exitSpeed) {
+		if( entrySpeed < 0 ) entrySpeed = 0;
+		if( exitSpeed < 0 ) exitSpeed = 0;
+		
+		double accel = seg.acceleration;
+		double accelerateD = Math.ceil( estimateAccelerationDistance(entrySpeed, seg.nominalSpeed, accel));
+		double decelerateD = Math.floor( estimateAccelerationDistance(seg.nominalSpeed, exitSpeed, -accel));
+		double plateauD = seg.distance - accelerateD - decelerateD;
+		if( plateauD < 0 ) {
+			double half = Math.ceil(intersectionDistance(entrySpeed, exitSpeed, accel, seg.distance));
+			accelerateD = Math.min(Math.max(half, 0), seg.distance);
+			plateauD = 0;
+		}
+		seg.accelerateUntilD = accelerateD;
+		seg.decelerateAfterD = accelerateD + plateauD;
+		
+		double nominalT = plateauD/seg.nominalSpeed;
+		
+		// d = vt + 0.5att.  it's a quadratic, so t = -v +/- sqrt( -v*-v -4a
+		double nA = maxSpeedAllowed(-seg.acceleration,entrySpeed,accelerateD) / seg.acceleration;
+		double accelerateT = -entrySpeed + nA;
+		
+		double nD = maxSpeedAllowed(-seg.acceleration,exitSpeed,decelerateD) / seg.acceleration;
+		double decelerateT = -exitSpeed + nD;
+		seg.accelerateUntilT = accelerateT;
+		seg.decelerateAfterT = accelerateT + nominalT;
+		seg.end_s = accelerateT + nominalT + decelerateT;
+		seg.entrySpeed=entrySpeed;
+		seg.exitSpeed=exitSpeed;
+	}
+
+	/**
+	 * Calculate the maximum allowable speed at this point, in order to reach 'targetVelocity' using 
+	 * 'acceleration' within a given 'distance'.
+	 * @param acceleration
+	 * @param targetVelocity
+	 * @param distance
+	*/
+	protected double maxSpeedAllowed( double acceleration, double targetVelocity, double distance ) {
+		return Math.sqrt( (targetVelocity*targetVelocity) - 2 * acceleration * distance );
+	}
+	
+	protected double estimateAccelerationDistance(final double initialRate, final double targetRate, final double accel) {
+		if(accel == 0) return 0;
+		return ( (targetRate*targetRate) - (initialRate*initialRate) ) / (accel * 2);
+	}
+
+	protected double intersectionDistance(final double startRate, final double endRate, final double accel, final double distance) {
+		if(accel == 0) return 0;
+		return ( 2.0 * accel * distance - (startRate*startRate) + (endRate*endRate) ) / (4.0 * accel);
 	}
 }

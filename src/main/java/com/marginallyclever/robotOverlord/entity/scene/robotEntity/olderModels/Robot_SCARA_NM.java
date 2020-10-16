@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_SCARA;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
@@ -18,65 +18,65 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  */
 public class Robot_SCARA_NM extends RobotEntity {
 	public transient boolean isFirstTime;
-	protected DHRobotEntity live;
+	protected DHRobotModel live;
 	
 	public Robot_SCARA_NM() {
 		super();
 		setName("SCARA NM");
 
-		live = new DHRobotEntity();
+		live = new DHRobotModel();
 		live.setIKSolver(new DHIKSolver_SCARA());
 		setupLinks(live);
 		isFirstTime=true;
 	}
 	
-	protected void setupLinks(DHRobotEntity robot) {
+	protected void setupLinks(DHRobotModel robot) {
 		robot.setNumLinks(5);
 
 		// roll
-		robot.links.get(0).setD(13.784);
-		robot.links.get(0).setR(15);
-		robot.links.get(0).flags = LinkAdjust.THETA;
-		robot.links.get(0).setRangeMin(-40);
-		robot.links.get(0).setRangeMax(240);
+		robot.getLink(0).setD(13.784);
+		robot.getLink(0).setR(15);
+		robot.getLink(0).flags = LinkAdjust.THETA;
+		robot.getLink(0).setRangeMin(-40);
+		robot.getLink(0).setRangeMax(240);
 		
 		// roll
-		robot.links.get(1).setR(13.0);
-		robot.links.get(1).flags = LinkAdjust.THETA;		
-		robot.links.get(1).setRangeMin(-120);
-		robot.links.get(1).setRangeMax(120);
+		robot.getLink(1).setR(13.0);
+		robot.getLink(1).flags = LinkAdjust.THETA;		
+		robot.getLink(1).setRangeMin(-120);
+		robot.getLink(1).setRangeMax(120);
 		// slide
-		robot.links.get(2).setD(-8);
-		robot.links.get(2).flags = LinkAdjust.D;
-		live.links.get(2).setRangeMax(-10.92600+7.574);
-		live.links.get(2).setRangeMin(-10.92600-0.5);//-18.5+7.574;
+		robot.getLink(2).setD(-8);
+		robot.getLink(2).flags = LinkAdjust.D;
+		live.getLink(2).setRangeMax(-10.92600+7.574);
+		live.getLink(2).setRangeMin(-10.92600-0.5);//-18.5+7.574;
 		// roll
-		robot.links.get(3).flags = LinkAdjust.THETA;
-		robot.links.get(3).setRangeMin(-180);
-		robot.links.get(3).setRangeMax(180);
+		robot.getLink(3).flags = LinkAdjust.THETA;
+		robot.getLink(3).setRangeMin(-180);
+		robot.getLink(3).setRangeMax(180);
 
-		robot.links.get(4).flags = LinkAdjust.NONE;
-		robot.links.get(4).setRangeMin(0);
-		robot.links.get(4).setRangeMax(0);
+		robot.getLink(4).flags = LinkAdjust.NONE;
+		robot.getLink(4).setRangeMin(0);
+		robot.getLink(4).setRangeMax(0);
 		
 		robot.refreshPose();
 	}
 
-	public void setupModels(DHRobotEntity robot) {
+	public void setupModels(DHRobotModel robot) {
 		try {
-			robot.links.get(0).setModelFilename("/SCARA_NM/Scara_base.stl");
-			robot.links.get(1).setModelFilename("/SCARA_NM/Scara_arm1.stl");
-			robot.links.get(2).setModelFilename("/SCARA_NM/Scara_arm2.stl");
-			robot.links.get(4).setModelFilename("/SCARA_NM/Scara_screw.stl");
+			robot.getLink(0).setModelFilename("/SCARA_NM/Scara_base.stl");
+			robot.getLink(1).setModelFilename("/SCARA_NM/Scara_arm1.stl");
+			robot.getLink(2).setModelFilename("/SCARA_NM/Scara_arm2.stl");
+			robot.getLink(4).setModelFilename("/SCARA_NM/Scara_screw.stl");
 			
-			robot.links.get(0).getModel().adjustOrigin(new Vector3d(-8,0,0));
-			robot.links.get(1).getModel().adjustOrigin(new Vector3d(-15,8,-13.784));
-			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,-90));
+			robot.getLink(0).getModel().adjustOrigin(new Vector3d(-8,0,0));
+			robot.getLink(1).getModel().adjustOrigin(new Vector3d(-15,8,-13.784));
+			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,-90));
 
-			robot.links.get(2).getModel().adjustOrigin(new Vector3d(-13,8,-13.784));
-			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,-90));
+			robot.getLink(2).getModel().adjustOrigin(new Vector3d(-13,8,-13.784));
+			robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,-90));
 
-			robot.links.get(4).getModel().adjustOrigin(new Vector3d(-8,0,-13.784));
+			robot.getLink(4).getModel().adjustOrigin(new Vector3d(-8,0,-13.784));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

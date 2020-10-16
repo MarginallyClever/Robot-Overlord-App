@@ -1,8 +1,9 @@
-package com.marginallyclever.robotOverlord.entity.scene.robotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.robotEntity.spotMicro;
 
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 
 /**
  * Spot Micro simulation

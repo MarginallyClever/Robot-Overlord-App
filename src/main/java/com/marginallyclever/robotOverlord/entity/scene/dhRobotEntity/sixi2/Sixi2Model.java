@@ -1,25 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.util.ArrayList;
-
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Quat4d;
-import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoOriginator;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -32,47 +20,17 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class Sixi2Model extends DHRobotEntity implements MementoOriginator {	
-	// last known state
-	protected boolean readyForCommands=false;
-	protected boolean relativeMode=false;
-	protected int gMode=0;
-	
-	public DoubleEntity feedRate = new DoubleEntity("Feedrate",25.0);
-	public DoubleEntity acceleration = new DoubleEntity("Acceleration",5.0);
-	public DHLink endEffector;
-	public PoseEntity endEffectorTarget = new PoseEntity();
-
-	protected IntEntity interpolationStyle = new IntEntity("Interpolation",InterpolationStyle.JACOBIAN.toInt());
-	
-	protected double timeTarget;
-	protected double timeStart;
-	protected double timeNow;
-	
-	// fk interpolation
-	protected double [] poseFKTarget;
-	protected double [] poseFKStart;
-	protected double [] poseFKNow;
-	
-	// ik interpolation
-	protected Matrix4d mLive = new Matrix4d();
-	protected Matrix4d mFrom = new Matrix4d();
-	protected Matrix4d mTarget = new Matrix4d();
-
-	protected double[] cartesianForceDesired = {0,0,0,0,0,0};
-	protected double[] jointVelocityDesired;
+public class Sixi2Model extends DHRobotModel implements MementoOriginator {	
+	protected PoseFK poseFK;
+	protected Matrix4d poseIK = new Matrix4d();
 
 	public Sixi2Model() {
 		this(true);
 	}
 	
 	public Sixi2Model(boolean attachModels) {
-		super();
+		super(new DHIKSolver_GradientDescent());
 		setName("Sixi2Model");
-		addChild(feedRate);
-		addChild(acceleration);
-		
-		this.setIKSolver(new DHIKSolver_GradientDescent());
 
 		ModelEntity base = new ModelEntity();
 		addChild(base);
@@ -82,7 +40,7 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 		base.setModelOrigin(0, 0, 0.9);
 
 		// setup children
-		this.setNumLinks(6);
+		this.setNumLinks(7);
 
 		if(!attachModels) {
 			ModelEntity part1 = new ModelEntity();	addChild(part1);	part1.setModelFilename("/Sixi2/shoulder.obj");
@@ -153,17 +111,17 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
 		links.get(5).maxTorque.set(2.5); //Nm
-		
-		endEffector = new DHLink();
-		endEffector.setPosition(new Vector3d(0,0,0));
-		endEffector.setName("End Effector");
-		links.get(links.size()-1).addChild(endEffector);
+
+		links.get(6).setLetter("E");
+		links.get(6).setName("End Effector");
+		links.get(6).setD(3);
+		links.get(6).flags = LinkAdjust.NONE;
 		
 		// update this world pose and all my children's poses all the way down.
-		this.updatePoseWorld();
+		refreshPose();
 		
 		// Use the poseWorld for each DHLink to adjust the model origins.
-		for(int i=0;i<links.size();++i) {
+		for(int i=0;i<getNumLinks();++i) {
 			DHLink bone=links.get(i);
 			if(bone.getModel()!=null) {
 				Matrix4d iWP = bone.getPoseWorld();
@@ -173,401 +131,62 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 			}
 		}
-		
+
+		// set to default position
 		goHome();
-
-		endEffectorTarget.setName("End Effector Target");
-		addChild(endEffectorTarget);
-		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-		
-		// interpolation stuff
-		int numAdjustableLinks = links.size();
-		poseFKTarget = new double[numAdjustableLinks];
-		poseFKStart = new double[numAdjustableLinks];
-		poseFKNow = new double[numAdjustableLinks];
-
-		mLive.set(endEffector.getPoseWorld());
-		mTarget.set(mLive);
-		mFrom.set(mLive);
-		
-		jointVelocityDesired = new double [links.size()];
-		
-		int i=0;
-		for( DHLink link : links ) {
-			if(link.flags == LinkAdjust.NONE) continue;
-			
-			poseFKNow[i] = link.getAdjustableValue();
-			poseFKStart[i] = poseFKNow[i];
-			poseFKTarget[i] = poseFKNow[i];
-			jointVelocityDesired[i]=0;
-			++i;
-		}
-		
-		setTool(new Sixi2ChuckGripper());
-	}
-	
-	/**
-	 * send a command to this model
-	 * @param command
-	 */
-	public void sendCommand(String command) {
-		if(command==null) return;  // no more commands.
-
-		// parse the command and update the model immediately.
-		String [] tok = command.split("\\s+");
-		for( String t : tok ) {
-			if( t.startsWith("G")) {
-				int newGMode = Integer.parseInt(t.substring(1));
-				switch(newGMode) {
-				case 0: gMode=0;	break;  // move
-				case 1: gMode=1;	break;  // rapid
-				case 2: gMode=2;	break;  // arc cw
-				case 3: gMode=3;	break;  // arc ccw
-				case 4: gMode=4;	break;  // dwell
-				case 90: relativeMode=false;	break;
-				case 91: relativeMode=true;    break;
-				default:  break;
-				}
-			}			
-		}
-		
-		if(gMode==0) {
-			// linear move
-
-			int i=0;
-			for( DHLink link : links ) {
-				if(link.flags == LinkAdjust.NONE) continue;
-				
-				poseFKNow[i] = link.getAdjustableValue();
-				poseFKTarget[i] = poseFKNow[i];
-				
-				for( String t : tok ) {
-					String letter = t.substring(0,1); 
-					if(link.getLetter().equalsIgnoreCase(letter)) {
-						//Log.message("link "+link.getLetter()+" matches "+letter);
-						poseFKTarget[i] = StringHelper.parseNumber(t.substring(1));
-					}
-				}
-				++i;
-			}
-			
-			for( String t : tok ) {
-				String letter = t.substring(0,1); 
-				if(letter.equalsIgnoreCase("F")) {
-					feedRate.set(StringHelper.parseNumber(t.substring(1)));
-				} else if(letter.equalsIgnoreCase("A")) {
-					acceleration.set(StringHelper.parseNumber(t.substring(1)));
-				}
-			}
-
-			
-			if(dhTool!=null) {
-				dhTool.sendCommand(command);
-			}
-		
-			double dMax=0;
-	        double dp=0;
-			for(i=0; i<poseFKNow.length; ++i) {
-				poseFKStart[i] = poseFKNow[i];
-				double dAbs = Math.abs(poseFKTarget[i] - poseFKStart[i]);
-				dp+=dAbs;
-				if(dMax<dAbs) dMax=dAbs;
-			}
-	        if(dp==0) return;
-	        
-	        // set the live and from matrixes
-	        mLive.set(endEffector.getPoseWorld());
-	        mFrom.set(mLive);
-	        
-	        // get the target matrix
-	        PoseFK oldPose = getPoseFK();
-	        PoseFK newPose = solver.createPoseFK();
-	        newPose.set(poseFKTarget);
-	        setPoseFK(newPose);
-	        mTarget.set(endEffector.getPoseWorld());
-	        setPoseFK(oldPose);
-
-	        double travelS = dMax/(double)feedRate.get();
-	        
-	        MatrixHelper.normalize3(mTarget);
-
-	        /*String msg="";
-	        Vector3d v3 = new Vector3d();
-	        mFrom.get(v3);
-	        msg+="from="+v3;
-	        mTarget.get(v3);
-	        msg+="\ttarget="+v3;
-	        Log.message(msg);//*/
-	        
-	        timeNow=timeStart=0;
-	        timeTarget=timeStart+travelS;
-		} else if(gMode==4) {
-			// dwell
-			double dwellTimeS=0;
-			for( String t : tok ) {
-				if(t.startsWith("P")) {
-					dwellTimeS+=Double.parseDouble(t.substring(1))*0.001;
-				}
-				if(t.startsWith("S")) {
-					dwellTimeS+=Double.parseDouble(t.substring(1));
-				}
-			}
-	        timeStart=0;
-	        timeTarget=timeStart+dwellTimeS;
-		}
+		// make room to store the current position and get a copy of the default.
+		poseFK = getPoseFK();
+		// make sure the matrixes in the model match the default position...
+		refreshPose();
+		// ...so that we can get the IK pose of the finger tip.
+		poseIK.set(links.get(getNumLinks()-1).getPoseWorld());
 	}
 
 	/**
-	 * get the command for this model
-	 * @return
+	 * Override this to set your robot at home position.  Called on creation.
 	 */
-	public String getCommand() {
-		String gcode = "G0";
-		for( DHLink link : links ) {
-			if(!link.getLetter().isEmpty()) {
-				gcode += " " + link.getLetter() + StringHelper.formatDouble(link.getAdjustableValue());
-			}
+	@Override
+	public void goHome() {
+	    // the home position
+		PoseFK homeKey = createPoseFK();
+		homeKey.fkValues[0]=0;
+		homeKey.fkValues[1]=-90;
+		homeKey.fkValues[2]=0;
+		homeKey.fkValues[3]=0;
+		homeKey.fkValues[4]=20;
+		homeKey.fkValues[5]=0;
+		setPoseFK(homeKey);
+	}
+
+	public void goRest() {
+	    // set rest position
+		PoseFK restKey = createPoseFK();
+		restKey.fkValues[0]=0;
+		restKey.fkValues[1]=-60-90;
+		restKey.fkValues[2]=85+90;
+		restKey.fkValues[3]=0;
+		restKey.fkValues[4]=20;
+		restKey.fkValues[5]=0;
+		setPoseFK(restKey);
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("Sm", "Sixi Model");
+		view.popStack();
+		super.getView(view);
+	}
+
+	@Override
+	public Memento getState() {
+		return this.getPoseFK();
+	}
+
+	@Override
+	public void setState(Memento arg0) {
+		if(arg0 instanceof PoseFK) {
+			this.setPoseFK((PoseFK)arg0);
 		}
-		gcode += " F"+getFeedrate();
-		gcode += " A"+getAcceleration();
-		
-		return gcode;
-	}
-
-	public void update(double dt) {
-		int style = (int)interpolationStyle.get(); 
-		     if(InterpolationStyle.LINEAR_FK.toInt()==style) interpolateLinearFK(dt);
-		else if(InterpolationStyle.LINEAR_IK.toInt()==style) interpolateLinearIK(dt);
-		else if(InterpolationStyle.JACOBIAN .toInt()==style) interpolateJacobian(dt);
-		
-		super.update(dt);
-	}
-	
-	public double getFeedrate() {
-		return (double)feedRate.get();
-	}
-
-	public void setFeedRate(double feedrate) {
-		this.feedRate.set(feedrate);
-	}
-
-	public double getAcceleration() {
-		return (double)acceleration.get();
-	}
-
-	public void setAcceleration(double acceleration) {
-		this.acceleration.set(acceleration);
-	}
-
-	protected void interpolateLinearFK(double dt) {
-		double tTotalS = timeTarget - timeStart;
-		timeNow += dt;
-	    double t = timeNow-timeStart;
-
-	    if(t>=0 && t<=tTotalS) {
-	    	// linear interpolation of movement
-	    	double tFraction = t/tTotalS;
-
-	    	int i=0;
-	    	for( DHLink n : links ) {
-	    		if( n.getName()==null ) continue;
-	    		n.setAdjustableValue((poseFKTarget[i] - poseFKStart[i]) * tFraction + poseFKStart[i]);
-	    		++i;
-	    	}
-	    } else {
-	    	// nothing happening
-	    	readyForCommands=true;
-	    }
-	}
-	
-	/**
-	 * interpolation between two matrixes linearly, and update kinematics.
-	 * @param dt change in seconds.
-	 */
-	protected void interpolateLinearIK(double dt) {	
-		double tTotalS = timeTarget - timeStart;
-		timeNow += dt;
-	    double t = timeNow-timeStart;
-
-	    if(t>=0 && t<=tTotalS) {
-	    	// linear interpolation of movement
-	    	double tFraction = t/tTotalS;
-	    	
-			MatrixHelper.interpolate(
-					mFrom, 
-					mTarget, 
-					tFraction, 
-					mLive);
-			MatrixHelper.normalize3(mLive);
-			setPoseIK(mLive);
-	    } else {
-	    	// nothing happening
-	    	readyForCommands=true;
-	    }
-	}
-	
-	/**
-	 * Interpolate between two matrixes using approximate jacobians and update forward kinematics while you're at it.
-	 * 
- 	 * caution: assumes FK pose at start of interpolation is sane.
-	 * 
-	 * @param dt size of step this, in seconds.
-	 */
-	protected void interpolateJacobian(double dt) {
-		readyForCommands=true;
-		
-		if(timeTarget == timeStart) {
-	    	// nothing happening
-			return;
-		}
-		
-		// get interpolated future pose
-    	double tTotal = timeTarget - timeStart;
-		timeNow += dt;
-	    double t = timeNow-timeStart;
-	    
-		double ratioNow    = (t   ) / tTotal;
-		double ratioFuture = (t+dt) / tTotal;
-		if(ratioNow   >1) ratioNow   =1;
-		if(ratioFuture>1) ratioFuture=1;
-		
-		Matrix4d interpolatedMatrixNow = new Matrix4d(endEffector.getPoseWorld());
-		//MatrixHelper.interpolate(mFrom,mTarget, ratioNow   , interpolatedMatrixNow);
-		Matrix4d interpolatedMatrixFuture = new Matrix4d();
-		MatrixHelper.interpolate(mFrom,mTarget, ratioFuture, interpolatedMatrixFuture);
-		
-		getCartesianForceBetweenTwoPoses(interpolatedMatrixNow, interpolatedMatrixFuture, dt, cartesianForceDesired);
-
-		PoseFK keyframe = getPoseFK();
-		
-		if(!getJointVelocityFromCartesianForce(keyframe,cartesianForceDesired,jointVelocityDesired)) return;
-		
-		capJointVelocity(jointVelocityDesired);
-
-		//String msg="Jacobian ";
-		for(int j = 0; j < keyframe.fkValues.length; ++j) {
-			// simulate a change in the joint velocities
-			double v = keyframe.fkValues[j] + Math.toDegrees(jointVelocityDesired[j]) * dt;
-			
-			keyframe.fkValues[j]=v;
-			//msg+=StringHelper.formatDouble(Math.toDegrees(jointVelocityDesired[j]))+"\t";
-		}
-
-		if (sanityCheck(keyframe)) {
-			setPoseFK(keyframe);
-			mLive.set(endEffector.getPoseWorld());
-			//msg+="ok";
-		} else {
-			//msg+="insane";
-		}
-		//Log.message(msg);
-	}
-	
-	
-	/**
-	 * Scale jointVelocity to within torqueMax of every joint
-	 * @param jointVelocity Values will be changed.  Must be same length as DHKeyframe.fkValues.length().
-	 */
-	protected void capJointVelocity(double[] jointVelocity) {
-		double scale=1;
-		for(int j = 0; j < jointVelocity.length; ++j) {
-			double maxT = links.get(j).maxTorque.get();
-			double ajvot = Math.abs(jointVelocityDesired[j]); 
-			if( scale > maxT/ajvot ) {
-				scale = maxT/ajvot;
-			}
-		}
-		for(int j = 0; j < jointVelocity.length; ++j) {
-			jointVelocityDesired[j] *= scale;
-		}
-	}
-	
-	
-	/**
-	 * 
-	 * @param mStart matrix of start pose
-	 * @param mEnd matrix of end pose
-	 * @param dt time scale, seconds
-	 * @param cartesianForce 6 doubles that will be filled with the XYZ translation and UVW rotation.
-	 * @return true if successful
-	 */
-	protected boolean getCartesianForceBetweenTwoPoses(final Matrix4d mStart,final Matrix4d mEnd,double dt,double[] cartesianForce) {
-		Vector3d p0 = new Vector3d();
-		Vector3d p1 = new Vector3d();
-		Vector3d dp = new Vector3d();
-		mStart.get(p0);
-		mEnd.get(p1);
-		dp.sub(p1,p0);
-		dp.scale(1.0/dt);
-
-		mStart.setTranslation(new Vector3d(0,0,0));
-		mEnd.setTranslation(new Vector3d(0,0,0));
-		// get the rotation force
-		Quat4d q0 = new Quat4d();
-		Quat4d q1 = new Quat4d();
-		Quat4d dq = new Quat4d();
-		q0.set(mStart);
-		q1.set(mEnd);
-		dq.sub(q1,q0);
-		dq.scale(2/dt);
-		Quat4d w = new Quat4d();
-		w.mulInverse(dq,q0);
-		
-		cartesianForce[0]=dp.x;
-		cartesianForce[1]=dp.y;
-		cartesianForce[2]=dp.z;
-		cartesianForce[3]=-w.x;
-		cartesianForce[4]=-w.y;
-		cartesianForce[5]=-w.z;
-		
-		return true;
-	}
-	
-	/**
-	 * 
-	 * @param keyframe the current pose at which to calculate
-	 * @param cartesianForce the XYZ translation and UVW rotation forces on the end effector
-	 * @param jvot joint velocity over time.  Will be filled with the new velocity
-	 * @return false if joint velocities have NaN values
-	 */
-	protected boolean getJointVelocityFromCartesianForce(PoseFK keyframe,double[] cartesianForce,double [] jvot) {
-		// jvot = joint velocity over time
-		
-		double[][] jacobian = approximateJacobian(keyframe);
-		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-
-		int j,k;
-		for(j = 0; j < keyframe.fkValues.length; ++j) {
-			double sum=0;
-			for(k = 0; k < 6; ++k) {
-				sum += inverseJacobian[k][j] * cartesianForce[k];
-			}
-			if(Double.isNaN(jvot[j])) {
-				for(k = 0; k < 6; ++k) jvot[k]=0;
-				return false;
-			}
-			sum=MathHelper.wrapRadians(sum);
-			jvot[j]=Math.toDegrees(sum);
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * 
-	 * @param jointVelocity
-	 * @return cartesian force calculated
-	 */
-	public double [] getCartesianForceFromJointVelocity(PoseFK keyframe,double [] jointVelocity) {
-		double [] cf = new double[6];  // cartesian force calculated
-		double[][] jacobian = approximateJacobian(keyframe);
-
-		for( int k=0;k<keyframe.fkValues.length;++k ) {
-			for( int j=0;j<6;++j ) {
-				cf[j] += jacobian[k][j] * jointVelocity[k];
-			}
-		}
-		return cf;
 	}
 	
 	/**
@@ -582,9 +201,9 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 		PoseFK oldPoseFK = getPoseFK();
 		
 		setPoseFK(keyframe);
-		Matrix4d T = endEffector.getPoseWorld();
+		Matrix4d T = new Matrix4d(poseIK);
 		
-		PoseFK newPoseFK = getIKSolver().createPoseFK();
+		PoseFK newPoseFK = createPoseFK();
 		int i=0;
 		// for all adjustable joints
 		for( DHLink link : links ) {
@@ -595,7 +214,7 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 			newPoseFK.fkValues[i]+=ANGLE_STEP_SIZE_DEGREES;
 			setPoseFK(newPoseFK);
 			// Tnew will be different from T because of the changes in setPoseFK().
-			Matrix4d Tnew = endEffector.getPoseWorld();
+			Matrix4d Tnew = new Matrix4d(poseIK);
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -662,74 +281,5 @@ public class Sixi2Model extends DHRobotEntity implements MementoOriginator {
 		setPoseFK(oldPoseFK);
 		
 		return jacobian;
-	}
-
-	public void goHome() {
-	    // the home position
-		PoseFK homeKey = getIKSolver().createPoseFK();
-		homeKey.fkValues[0]=0;
-		homeKey.fkValues[1]=-90;
-		homeKey.fkValues[2]=0;
-		homeKey.fkValues[3]=0;
-		homeKey.fkValues[4]=20;
-		homeKey.fkValues[5]=0;
-		setPoseFK(homeKey);
-		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-	}
-
-	public void goRest() {
-	    // set rest position
-		PoseFK restKey = getIKSolver().createPoseFK();
-		restKey.fkValues[0]=0;
-		restKey.fkValues[1]=-60-90;
-		restKey.fkValues[2]=85+90;
-		restKey.fkValues[3]=0;
-		restKey.fkValues[4]=20;
-		restKey.fkValues[5]=0;
-		setPoseFK(restKey);
-		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-	}
-	
-	@Override
-	public void getView(ViewPanel view) {
-		view.pushStack("Sm", "Sixi Model");
-		view.addComboBox(interpolationStyle, InterpolationStyle.getAll());
-		view.addRange(feedRate, 50, 0);
-		view.addRange(acceleration,50,0);
-		view.popStack();
-		super.getView(view);
-	}
-
-	/**
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-
-		refreshPose();
-
-		for( DHLink link : links ) {
-			if(link.getCuboid() != null ) {
-				cuboidList.addAll(link.getCuboidList());
-			}
-		}
-		if(dhTool != null) {
-			cuboidList.addAll(dhTool.getCuboidList());
-		}
-
-		return cuboidList;
-	}
-
-	@Override
-	public Memento getState() {
-		return this.getPoseFK();
-	}
-
-	@Override
-	public void setState(Memento arg0) {
-		if(arg0 instanceof PoseFK) {
-			this.setPoseFK((PoseFK)arg0);
-		}
 	}
 }

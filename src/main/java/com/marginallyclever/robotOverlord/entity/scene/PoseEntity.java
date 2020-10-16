@@ -67,6 +67,10 @@ public class PoseEntity extends Entity {
 		addChild(showBoundingBox);
 		addChild(showLocalOrigin);
 		addChild(showLineage);
+
+		showBoundingBox.addObserver(this);
+		showLocalOrigin.addObserver(this);
+		showLineage.addObserver(this);
 		
 		pose.setIdentity();
 		poseWorld.setIdentity();
@@ -250,6 +254,10 @@ public class PoseEntity extends Entity {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		if(o==showBoundingBox) setShowBoundingBox((boolean)arg);
+		if(o==showLocalOrigin) setShowLocalOrigin((boolean)arg);
+		if(o==showLineage) setShowLineage((boolean)arg);
+		
 		super.update(o, arg);
 	}
 	
@@ -399,6 +407,36 @@ public class PoseEntity extends Entity {
 			}
 		}
 	}
+
+	// recursively set for all children
+	public void setShowBoundingBox(boolean arg0) {
+		for( Entity c : getChildren() ) {
+			if(c instanceof PoseEntity) {
+				((PoseEntity)c).setShowBoundingBox(arg0);
+			}
+		}
+		this.showBoundingBox.set(arg0);
+	}
+	
+	// recursively set for all children
+	public void setShowLocalOrigin(boolean arg0) {
+		for( Entity c : getChildren() ) {
+			if(c instanceof PoseEntity) {
+				((PoseEntity)c).setShowLocalOrigin(arg0);
+			}
+		}
+		this.showLocalOrigin.set(arg0);
+	}
+
+	// recursively set for all children
+	public void setShowLineage(boolean arg0) {
+		for( Entity c : getChildren() ) {
+			if(c instanceof PoseEntity) {
+				((PoseEntity)c).setShowLineage(arg0);
+			}
+		}
+		this.showLineage.set(arg0);
+	}
 	
 	@Override
 	public void getView(ViewPanel view) {
@@ -433,4 +471,5 @@ public class PoseEntity extends Entity {
 	public boolean canBeRenamed() {
 		return true;
 	}
+	
 }

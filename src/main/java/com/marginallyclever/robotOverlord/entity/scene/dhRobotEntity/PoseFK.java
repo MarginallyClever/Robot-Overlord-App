@@ -9,7 +9,7 @@ import com.marginallyclever.convenience.memento.Memento;
  * @author Dan Royer
  *
  */
-public class PoseFK implements Memento {	
+public class PoseFK implements Memento, Cloneable {	
 	/**
 	 * 
 	 */
@@ -24,8 +24,12 @@ public class PoseFK implements Memento {
 	}
 	
 	public PoseFK(double [] arg0) {
-		fkValues=new double[arg0.length];
+		this(arg0.length);
 		set(arg0);
+	}
+	
+	public PoseFK(PoseFK b) {
+		this(b.fkValues);
 	}
 	
 	
@@ -67,5 +71,13 @@ public class PoseFK implements Memento {
 			add=",";
 		}
 		return str;
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		PoseFK t = (PoseFK)super.clone();
+		t.fkValues = fkValues.clone();
+		
+		return t;
 	}
 }

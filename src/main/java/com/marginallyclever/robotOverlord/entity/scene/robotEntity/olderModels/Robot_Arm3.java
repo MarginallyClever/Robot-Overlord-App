@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
@@ -15,49 +15,49 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_Arm3 extends RobotEntity {
-	DHRobotEntity live;
+	DHRobotModel live;
 
 	public Robot_Arm3() {
 		super();
 		setName("Arm3");
-		live = new DHRobotEntity();
+		live = new DHRobotModel();
 		live.setIKSolver(new DHIKSolver_RTT());
 		setupLinks(live);
 	}
 	
-	protected void setupLinks(DHRobotEntity robot) {
+	protected void setupLinks(DHRobotModel robot) {
 		// setup sixi2 as default.
 		robot.setNumLinks(5);
 		// roll
-		robot.links.get(0).setD(13.44);
-		robot.links.get(0).setTheta(0);
-		robot.links.get(0).flags = LinkAdjust.THETA;
-		robot.links.get(0).setRangeMin(-160);
-		robot.links.get(0).setRangeMax(160);
+		robot.getLink(0).setD(13.44);
+		robot.getLink(0).setTheta(0);
+		robot.getLink(0).flags = LinkAdjust.THETA;
+		robot.getLink(0).setRangeMin(-160);
+		robot.getLink(0).setRangeMax(160);
 		// tilt
-		robot.links.get(1).setAlpha(0);
-		robot.links.get(1).flags = LinkAdjust.ALPHA;
-		robot.links.get(2).setRangeMin(-72);
+		robot.getLink(1).setAlpha(0);
+		robot.getLink(1).flags = LinkAdjust.ALPHA;
+		robot.getLink(2).setRangeMin(-72);
 		// tilt
-		robot.links.get(2).setD(44.55);
-		robot.links.get(2).setAlpha(0);
-		robot.links.get(2).flags = LinkAdjust.ALPHA;
+		robot.getLink(2).setD(44.55);
+		robot.getLink(2).setAlpha(0);
+		robot.getLink(2).flags = LinkAdjust.ALPHA;
 		// interim point
-		robot.links.get(3).setD(40);
-		robot.links.get(3).setAlpha(0);
-		robot.links.get(3).flags = LinkAdjust.NONE;
+		robot.getLink(3).setD(40);
+		robot.getLink(3).setAlpha(0);
+		robot.getLink(3).flags = LinkAdjust.NONE;
 		// end effector
-		robot.links.get(4).flags = LinkAdjust.NONE;
+		robot.getLink(4).flags = LinkAdjust.NONE;
 /*
 		try {
-			links.get(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
-			links.get(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
-			links.get(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep.stl",0.1f);
-			links.get(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm.stl",0.1f);
-			links.get(4).model = ModelFactory.createModelFromFilename("/Sixi2/hand.stl",0.1f);
+			getLink(0).model = ModelFactory.createModelFromFilename("/Sixi2/anchor.stl",0.1f);
+			getLink(1).model = ModelFactory.createModelFromFilename("/Sixi2/shoulder.stl",0.1f);
+			getLink(2).model = ModelFactory.createModelFromFilename("/Sixi2/bicep.stl",0.1f);
+			getLink(3).model = ModelFactory.createModelFromFilename("/Sixi2/forearm.stl",0.1f);
+			getLink(4).model = ModelFactory.createModelFromFilename("/Sixi2/hand.stl",0.1f);
 
-			links.get(0).model.adjustOrigin(new Vector3d(0, 0, 5.150f));
-			links.get(0).model.adjustRotation(new Vector3d(90,90,0));
+			getLink(0).model.adjustOrigin(new Vector3d(0, 0, 5.150f));
+			getLink(0).model.adjustRotation(new Vector3d(90,90,0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

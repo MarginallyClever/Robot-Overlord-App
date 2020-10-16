@@ -198,8 +198,7 @@ public class Entity extends Observable implements Observer {
 	 * 
 	 * @param g
 	 */
-	public void getView(ViewPanel view) {
-	}
+	public void getView(ViewPanel view) {}
 
 	public void getViewOfChildren(ViewPanel view) {
 		for (Entity child : children) {

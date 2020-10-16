@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
@@ -15,61 +15,61 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 public class Robot_Thor extends RobotEntity {
 	public transient boolean isFirstTime;
 	public MaterialEntity material;
-	protected DHRobotEntity live;
+	protected DHRobotModel live;
 	
 	public Robot_Thor() {
 		super();
 		setName("Thor");
 
-		live = new DHRobotEntity();
+		live = new DHRobotModel();
 		live.setIKSolver(new DHIKSolver_RTTRTR());
 		setupLinks(live);
 		isFirstTime=true;
 	}
 	
-	protected void setupLinks(DHRobotEntity robot) {
+	protected void setupLinks(DHRobotModel robot) {
 		robot.setNumLinks(8);
 
 		// roll
-		robot.links.get(0).setD(20.2);
-		robot.links.get(0).flags = LinkAdjust.THETA;
-		robot.links.get(0).setRangeMin(-120);
-		robot.links.get(0).setRangeMax(120);
+		robot.getLink(0).setD(20.2);
+		robot.getLink(0).flags = LinkAdjust.THETA;
+		robot.getLink(0).setRangeMin(-120);
+		robot.getLink(0).setRangeMax(120);
 		// tilt
-		robot.links.get(1).flags = LinkAdjust.ALPHA;
-		robot.links.get(1).setRangeMin(-72);
+		robot.getLink(1).flags = LinkAdjust.ALPHA;
+		robot.getLink(1).setRangeMin(-72);
 		// tilt
-		robot.links.get(2).setD(16.0);
-		robot.links.get(2).flags = LinkAdjust.ALPHA;
-		robot.links.get(2).setRangeMin(-83.369);
-		robot.links.get(2).setRangeMax(86);
+		robot.getLink(2).setD(16.0);
+		robot.getLink(2).flags = LinkAdjust.ALPHA;
+		robot.getLink(2).setRangeMin(-83.369);
+		robot.getLink(2).setRangeMax(86);
 		// interim point
-		robot.links.get(3).setD(0.001);
-		robot.links.get(3).setAlpha(90);
-		robot.links.get(3).flags = LinkAdjust.NONE;
+		robot.getLink(3).setD(0.001);
+		robot.getLink(3).setAlpha(90);
+		robot.getLink(3).flags = LinkAdjust.NONE;
 		// roll
-		robot.links.get(4).setD(1.4);
-		robot.links.get(4).flags = LinkAdjust.THETA;
-		robot.links.get(4).setRangeMin(-90);
-		robot.links.get(4).setRangeMax(90);
+		robot.getLink(4).setD(1.4);
+		robot.getLink(4).flags = LinkAdjust.THETA;
+		robot.getLink(4).setRangeMin(-90);
+		robot.getLink(4).setRangeMax(90);
 
 		// tilt
-		robot.links.get(5).setD(18.1);
-		robot.links.get(5).flags = LinkAdjust.ALPHA;
-		robot.links.get(5).setRangeMin(-90);
-		robot.links.get(5).setRangeMax(90);
+		robot.getLink(5).setD(18.1);
+		robot.getLink(5).flags = LinkAdjust.ALPHA;
+		robot.getLink(5).setRangeMin(-90);
+		robot.getLink(5).setRangeMax(90);
 		// roll
-		robot.links.get(6).setD(5.35);
-		robot.links.get(6).flags = LinkAdjust.THETA;
-		robot.links.get(6).setRangeMin(-90);
-		robot.links.get(6).setRangeMax(90);
+		robot.getLink(6).setD(5.35);
+		robot.getLink(6).flags = LinkAdjust.THETA;
+		robot.getLink(6).setRangeMin(-90);
+		robot.getLink(6).setRangeMax(90);
 		
-		robot.links.get(7).flags = LinkAdjust.NONE;
+		robot.getLink(7).flags = LinkAdjust.NONE;
 		
 		robot.refreshPose();
 	}
 	
-	public void setupModels(DHRobotEntity robot) {
+	public void setupModels(DHRobotModel robot) {
 		material = new MaterialEntity();
 		float r=1;
 		float g=0f/255f;
@@ -77,25 +77,25 @@ public class Robot_Thor extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.links.get(0).setModelFilename("/Thor/Thor0.stl");
-			robot.links.get(1).setModelFilename("/Thor/Thor1.stl");
-			robot.links.get(2).setModelFilename("/Thor/Thor2.stl");
-			robot.links.get(3).setModelFilename("/Thor/Thor3.stl");
-			robot.links.get(5).setModelFilename("/Thor/Thor4.stl");
-			robot.links.get(6).setModelFilename("/Thor/Thor5.stl");
-			robot.links.get(7).setModelFilename("/Thor/Thor6.stl");
+			robot.getLink(0).setModelFilename("/Thor/Thor0.stl");
+			robot.getLink(1).setModelFilename("/Thor/Thor1.stl");
+			robot.getLink(2).setModelFilename("/Thor/Thor2.stl");
+			robot.getLink(3).setModelFilename("/Thor/Thor3.stl");
+			robot.getLink(5).setModelFilename("/Thor/Thor4.stl");
+			robot.getLink(6).setModelFilename("/Thor/Thor5.stl");
+			robot.getLink(7).setModelFilename("/Thor/Thor6.stl");
 
-			robot.links.get(1).getModel().adjustOrigin(new Vector3d(0,0,-15.35));
-			robot.links.get(1).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(2).getModel().adjustOrigin(new Vector3d(0,0,-6.5));
-			robot.links.get(2).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(3).getModel().adjustRotation(new Vector3d(90,0,90));
-			robot.links.get(3).getModel().adjustOrigin(new Vector3d(0,6,0));
-			robot.links.get(5).getModel().adjustOrigin(new Vector3d(0,0,0));
-			robot.links.get(5).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(6).getModel().adjustOrigin(new Vector3d(0,0,-4.75));
-			robot.links.get(6).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.links.get(7).getModel().adjustOrigin(new Vector3d(0,0,0));
+			robot.getLink(1).getModel().adjustOrigin(new Vector3d(0,0,-15.35));
+			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.getLink(2).getModel().adjustOrigin(new Vector3d(0,0,-6.5));
+			robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.getLink(3).getModel().adjustRotation(new Vector3d(90,0,90));
+			robot.getLink(3).getModel().adjustOrigin(new Vector3d(0,6,0));
+			robot.getLink(5).getModel().adjustOrigin(new Vector3d(0,0,0));
+			robot.getLink(5).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.getLink(6).getModel().adjustOrigin(new Vector3d(0,0,-4.75));
+			robot.getLink(6).getModel().adjustRotation(new Vector3d(0,0,90));
+			robot.getLink(7).getModel().adjustOrigin(new Vector3d(0,0,0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -2,8 +2,8 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers;
 
 import javax.vecmath.Matrix4d;
 
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 
 /**
  * TODO FABRIK solver (http://www.andreasaristidou.com/publications/papers/FABRIK.pdf)
@@ -23,7 +23,7 @@ public class DHIKSolver_FABRIK extends DHIKSolver {
 	 * 
 	 */
 	@Override
-	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe,PoseFK suggestion) {
+	public SolutionType solveWithSuggestion(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
 		return SolutionType.NO_SOLUTIONS;
 	}
 }

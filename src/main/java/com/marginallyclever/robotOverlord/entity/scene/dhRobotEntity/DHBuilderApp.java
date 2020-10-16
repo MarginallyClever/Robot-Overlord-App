@@ -29,7 +29,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class DHBuilderApp extends DHRobotEntity {
+public class DHBuilderApp extends DHRobotModel {
 	public static final String [] BONE_NAMES = { "X", "Y", "Z", "U", "V", "W" };
 	
 	protected ModelEntity anchor = new ModelEntity();
@@ -83,7 +83,6 @@ public class DHBuilderApp extends DHRobotEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
 			anchor.render(gl2);
 			
 			if(!inTest) {
@@ -96,7 +95,7 @@ public class DHBuilderApp extends DHRobotEntity {
 			
 			boolean showBones=false;
 			if(showBones==true) {
-				Vector3d p0 = MatrixHelper.getPosition(this.getPoseWorld());
+				Vector3d p0 = new Vector3d(0,0,0);
 				for( int i=0;i<BONE_NAMES.length;++i) {
 					Matrix4d m = links.get(i).getPoseWorld();
 					Vector3d p1 = MatrixHelper.getPosition(m);
@@ -406,9 +405,6 @@ public class DHBuilderApp extends DHRobotEntity {
 			bone.flags = LinkAdjust.THETA;
 		}
 		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-		
-		poseFKold.set(getPoseFK());
-		poseFKnew.set(poseFKold);
 	}
 	
 	protected void testEnd() {

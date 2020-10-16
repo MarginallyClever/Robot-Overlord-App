@@ -1,61 +1,61 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import java.util.List;
-import java.util.Observable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import javax.vecmath.Matrix4d;
 
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
- * A robot designed using D-H parameters.
+ * Physical description of a robot designed using D-H parameters.  The model contains unchanging details such as mass, length,
+ * range of motion, maximum force of each motor, collision bounds for each bone, and triangle mesh for each bone.
+ * 
+ * A physical description may be in any one of many states.  Put another way, all valid states exist within the bounds set by
+ * a physical description. 
  * 
  * @author Dan Royer
  */
-public class DHRobotEntity extends PoseEntity {
+public class DHRobotModel extends Entity {
 	// a list of DHLinks describing the kinematic chain.
-	public List<DHLink> links = new ArrayList<DHLink>();
+	protected List<DHLink> links = new ArrayList<DHLink>();
 	
-	// The solver for this type of robot
-	protected transient DHIKSolver solver;
-	// only used in isPoseIKSane()
-	protected PoseFK poseFKold;
-	// only used in isPoseIKSane()
-	protected PoseFK poseFKnew;
-
+	// The solver for this type of robot.  A solver figures out how to translate FK to/from IK
+	protected transient DHIKSolver ikSolver;
+	
 	// a DHTool attached to the arm.
 	public DHTool dhTool;
 
 	// more debug output, please.
 	static final boolean VERBOSE=false;
 
-	public DHRobotEntity() {
+	public DHRobotModel() {
 		super();
 		setName("DHRobot");
-
-		showBoundingBox.addObserver(this);
-		showLocalOrigin.addObserver(this);
-		showLineage.addObserver(this);
 	}
 	
-	public DHRobotEntity(DHRobotEntity b) {
+	public DHRobotModel(DHIKSolver solver) {
+		this();
+		setIKSolver(solver);
+	}
+	
+	public DHRobotModel(DHRobotModel b) {
 		this();
 		set(b);
 	}
 
-	public void set(DHRobotEntity b) {
+	public void set(DHRobotModel b) {
 		super.set(b);
+		setIKSolver(b.ikSolver);
 		// remove any exiting links from other robot to be certain.
 		setNumLinks(b.getNumLinks());
 		// copy my links to the next robot
@@ -64,25 +64,25 @@ public class DHRobotEntity extends PoseEntity {
 			links.get(i).setDHRobot(this);
 		}
 		
-		setIKSolver(b.solver);
 		dhTool = b.dhTool;
 		
 		refreshPose();
 	}
-	
-	/**
-	 * Override this method to return the correct solver for your type of robot.
-	 * 
-	 * @return the IK solver for a specific type of robot.
-	 */
-	public DHIKSolver getIKSolver() {
-		return solver;
-	}
 
 	public void setIKSolver(DHIKSolver solver0) {
-		solver = solver0;
-		poseFKold = solver.createPoseFK();
-		poseFKnew = solver.createPoseFK();
+		ikSolver = solver0;
+	}
+	
+	/**
+	 * @return the IK solver for a specific type of robot.
+	 */
+	protected DHIKSolver getIKSolver() {
+		return ikSolver;
+	}
+	
+	// shorthand
+	public PoseFK createPoseFK() {
+		return ikSolver.createPoseFK();
 	}
 
 	public Matrix4d getParentMatrix() {
@@ -255,7 +255,7 @@ public class DHRobotEntity extends PoseEntity {
 		// move to the future key
 		setPoseFK(futureKey);
 		// test for intersection
-		boolean result = scene.collisionTest((PoseEntity)this);
+		boolean result = scene.collisionTest(this.getCuboidList());
 		// clean up and report results
 		setPoseFK(originalKey);
 		return result;
@@ -269,10 +269,10 @@ public class DHRobotEntity extends PoseEntity {
 	 * @return
 	 */
 	public boolean keyframeAnglesAreOK(PoseFK keyframe) {
-		int j = 0;
-		for( DHLink link : links ) {
-			if(link.flags == LinkAdjust.NONE) continue;
-			double v = keyframe.fkValues[j++];
+		for(int j = 0;j<getNumLinks();++j) {
+			DHLink link = getLink(j);
+			if(!link.hasAdjustableValue()) continue;
+			double v = keyframe.fkValues[j];
 			if ( link.rangeMax.get() < v || link.rangeMin.get() > v) {
 				if(VERBOSE) {
 					Log.message("FK "+ link.flags + j + ":" + v + " out (" + link.rangeMin.get() + " to " + link.rangeMax.get() + ")");
@@ -285,14 +285,23 @@ public class DHRobotEntity extends PoseEntity {
 	}
 	
 	/**
+	 * @return matrix of end effector.  matrix is relative to the robot origin.
+	 */
+	public Matrix4d getPoseIK() {
+		return getLink(getNumLinks()-1).getPoseWorld();
+	}
+	
+	/**
 	 * Use an IK pose of the end effector to find the FK pose of the robot.  If it can be found, set that FK pose.
-	 *   
+	 * matrix is relative to the robot origin.
+	 * 
 	 * @param m end effector world pose matrix.
 	 * @return true if sane position set.  false, nothing changed.
 	 */
 	public boolean setPoseIK(Matrix4d m) {
-		if(isPoseIKSane(m)) {
-			setPoseFK(poseFKnew);
+		PoseFK newPose = isPoseIKSane(m); 
+		if( newPose != null ) {
+			setPoseFK(newPose);
 			return true;
 		}
 		return false;
@@ -302,27 +311,26 @@ public class DHRobotEntity extends PoseEntity {
 	 * Verifies if the requested end effector pose of the robot is reachable and sane.
 	 * Leaves the robot in the state it was found except for the newPose/oldPose keyframes, which are only used for this method. 
 	 * 
-	 * @param m end effector world pose matrix.
-	 * @return true if sane.
+	 * @param m desired end effector relative to the robot's origin.
+	 * @return the PoseFK if sane.  null if not sane.
 	 */
-	public boolean isPoseIKSane(Matrix4d m) {
+	public PoseFK isPoseIKSane(Matrix4d m) {
+		PoseFK poseFKold = ikSolver.createPoseFK();
+		PoseFK poseFKnew = ikSolver.createPoseFK();
 		poseFKold.set(getPoseFK());
-
-		if(VERBOSE) Log.message("\n\nold: "+poseFKold);
 		
 		boolean isSane = false;
-		DHIKSolver.SolutionType s = solver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
+		// the solver should NEVER change the current model.  it only attempts to find one possible solution.
+		DHIKSolver.SolutionType s = ikSolver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
 		if(VERBOSE) Log.message("new: "+poseFKnew + "\t"+s);
 		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
 			if (sanityCheck(poseFKnew)) {
 				if(VERBOSE) Log.message("Sane");
 				isSane = true;
 			} else if(VERBOSE) Log.message("isPoseIKSane() insane");
-		} else if(VERBOSE) Log.message("isPoseIKSane() impossible");
-		
-		setPoseFK(poseFKold);
-		
-		return isSane;
+		} else if(VERBOSE) Log.message("isPoseIKSane() not one solution");
+				
+		return isSane ? poseFKnew : null;
 	}
 
 	/**
@@ -332,13 +340,12 @@ public class DHRobotEntity extends PoseEntity {
 	 * @param keyframe
 	 */
 	public void setPoseFK(PoseFK keyframe) {
-		int stop=keyframe.fkValues.length;
-		int j = 0;
+		assert(keyframe.fkValues.length==getNumLinks());
 		
-		for( DHLink link : links ) {
-			if(j==stop) break;
+		for(int j = 0;j<keyframe.fkValues.length;++j) {
+			DHLink link = getLink(j);
 			if(link.hasAdjustableValue()) {
-				link.setAdjustableValue(keyframe.fkValues[j++]);
+				link.setAdjustableValue(keyframe.fkValues[j]);
 			}
 		}
 
@@ -351,13 +358,13 @@ public class DHRobotEntity extends PoseEntity {
 	 * @return keyframe of this pose
 	 */
 	public PoseFK getPoseFK() {
-		PoseFK keyframe = solver.createPoseFK();
-		assert(keyframe.fkValues.length==links.size());
+		PoseFK keyframe = ikSolver.createPoseFK();
+		assert(keyframe.fkValues.length==getNumLinks());
 
-		int j = 0;
-		for( DHLink link : links ) {
+		for(int j = 0;j<keyframe.fkValues.length;++j) {
+			DHLink link = getLink(j);
 			if(link.hasAdjustableValue()) {
-				keyframe.fkValues[j++] = link.getAdjustableValue();
+				keyframe.fkValues[j] = link.getAdjustableValue();
 			}
 		}
 		return keyframe;
@@ -375,10 +382,6 @@ public class DHRobotEntity extends PoseEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("Dh", "DH shortcuts");
 		
-		view.add(showBoundingBox);
-		view.add(showLocalOrigin);
-		view.add(showLineage);
-		
 		for( DHLink link : links ) {
 			view.addRange(link.theta,
 					(int)Math.floor(link.rangeMax.get()),
@@ -388,61 +391,34 @@ public class DHRobotEntity extends PoseEntity {
 		super.getView(view);
 	}
 
-	// recursively set for all children
-	public void setShowBoundingBox(boolean arg0) {
-		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this);
-		while( !next.isEmpty() ) {
-			PoseEntity link = next.pop();
-			link.showBoundingBox.set(arg0);
-			for( Entity child : link.getChildren() ) {
-				if( child instanceof PoseEntity ) {
-					next.add((PoseEntity)child);
-				}
+	/**
+	 * @return a list of cuboids, or null.
+	 */
+	public ArrayList<Cuboid> getCuboidList() {
+		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
+
+		refreshPose();
+
+		for( DHLink link : links ) {
+			if(link.getCuboid() != null ) {
+				cuboidList.addAll(link.getCuboidList());
 			}
 		}
-		this.showBoundingBox.set(arg0);
+		if(dhTool != null) {
+			cuboidList.addAll(dhTool.getCuboidList());
+		}
+
+		return cuboidList;
 	}
 	
-	// recursively set for all children
-	public void setShowLocalOrigin(boolean arg0) {
-		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this);
-		while( !next.isEmpty() ) {
-			PoseEntity link = next.pop();
-			link.showLocalOrigin.set(arg0);
-			for( Entity child : link.getChildren() ) {
-				if( child instanceof PoseEntity ) {
-					next.add((PoseEntity)child);
-				}
-			}
+	public void setDiffuseColor(float r,float g,float b,float a) {
+		for(int i=0;i<getNumLinks();++i) {
+			getLink(i).getMaterial().setDiffuseColor(r,g,b,a);
 		}
-		this.showLocalOrigin.set(arg0);
-	}
-
-	// recursively set for all children
-	public void setShowLineage(boolean arg0) {
-		LinkedList<PoseEntity> next = new LinkedList<PoseEntity>();
-		next.add(this);
-		while( !next.isEmpty() ) {
-			PoseEntity link = next.pop();
-			link.showLineage.set(arg0);
-			for( Entity child : link.getChildren() ) {
-				if( child instanceof PoseEntity ) {
-					next.add((PoseEntity)child);
-				}
-			}
-		}
-		this.showLineage.set(arg0);
 	}
 	
 	/**
-	 * Something this Entity is observing has changed.  Deal with it!
+	 * Override this to set your robot at home position.  Called on creation.
 	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		if(o==showBoundingBox) setShowBoundingBox((boolean)arg);
-		if(o==showLocalOrigin) setShowLocalOrigin((boolean)arg);
-		if(o==showLineage) setShowLineage((boolean)arg);
-	}
+	public void goHome() {}
 }

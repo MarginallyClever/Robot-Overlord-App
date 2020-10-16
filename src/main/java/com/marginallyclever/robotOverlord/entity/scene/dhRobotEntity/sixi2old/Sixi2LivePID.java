@@ -1,12 +1,13 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old;
 
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2FirmwareSettings;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -16,45 +17,9 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
+@Deprecated
 public class Sixi2LivePID extends Sixi2Model {
 	protected PoseFK receivedKeyframe;
-	
-	// ----- taken directly from the arduino firmware ---------------------
-	protected static final double MAX_FEEDRATE = 120.0;
-	protected static final double DEFAULT_FEEDRATE = 45.0;
-	protected static final double MAX_ACCELERATION = 202.5;
-	protected static final double DEFUALT_ACCELERATION = 101.25;
-	
-	protected static final double MOTOR_STEPS_PER_TURN          =(200.0); // motor full steps * microstepping setting
-	
-	protected static final double NEMA17_CYCLOID_GEARBOX_RATIO        =(20.0);
-	protected static final double NEMA23_CYCLOID_GEARBOX_RATIO_ELBOW  =(35.0);
-	protected static final double NEMA23_CYCLOID_GEARBOX_RATIO_ANCHOR =(30.0);
-	protected static final double NEMA24_CYCLOID_GEARBOX_RATIO        =(40.0);
-	
-	protected static final double DM322T_MICROSTEP             = (2.0);
-	
-	protected static final double ELBOW_DOWNGEAR_RATIO         = (30.0/20.0);
-	protected static final double NEMA17_RATIO                 = (DM322T_MICROSTEP*NEMA17_CYCLOID_GEARBOX_RATIO*ELBOW_DOWNGEAR_RATIO);
-	protected static final double NEMA23_RATIO_ELBOW           = (NEMA23_CYCLOID_GEARBOX_RATIO_ELBOW);
-	protected static final double NEMA23_RATIO_ANCHOR          = (NEMA23_CYCLOID_GEARBOX_RATIO_ANCHOR);
-	protected static final double NEMA24_RATIO                 = (NEMA24_CYCLOID_GEARBOX_RATIO);
-	
-	// Motors are numbered 0 (base) to 5 (hand)
-	protected static final double MOTOR_0_STEPS_PER_TURN    =(MOTOR_STEPS_PER_TURN*NEMA23_RATIO_ANCHOR);  // anchor
-	protected static final double MOTOR_1_STEPS_PER_TURN    =(MOTOR_STEPS_PER_TURN*NEMA24_RATIO);  // shoulder
-	protected static final double MOTOR_2_STEPS_PER_TURN    =(MOTOR_STEPS_PER_TURN*NEMA23_RATIO_ELBOW);  // elbow
-	protected static final double MOTOR_3_STEPS_PER_TURN    =(MOTOR_STEPS_PER_TURN*NEMA17_RATIO);  // ulna
-	protected static final double MOTOR_4_STEPS_PER_TURN    =(MOTOR_STEPS_PER_TURN*NEMA17_RATIO);  // wrist
-	protected static final double MOTOR_5_STEPS_PER_TURN    =(MOTOR_STEPS_PER_TURN*NEMA17_RATIO);  // hand
-	
-	protected static final double DEGREES_PER_STEP_0 =(360.0/MOTOR_0_STEPS_PER_TURN);
-	protected static final double DEGREES_PER_STEP_1 =(360.0/MOTOR_1_STEPS_PER_TURN);
-	protected static final double DEGREES_PER_STEP_2 =(360.0/MOTOR_2_STEPS_PER_TURN);
-	protected static final double DEGREES_PER_STEP_3 =(360.0/MOTOR_3_STEPS_PER_TURN);
-	protected static final double DEGREES_PER_STEP_4 =(360.0/MOTOR_4_STEPS_PER_TURN);
-	protected static final double DEGREES_PER_STEP_5 =(360.0/MOTOR_5_STEPS_PER_TURN);
-	// ----- taken directly from the arduino firmware ---------------------
 
 	class StepperMotor {
 		// only a whole number of steps is possible.
@@ -125,12 +90,12 @@ public class Sixi2LivePID extends Sixi2Model {
 			motors[i]=new StepperMotor();
 		}
 
-		motors[0].ratio = DEGREES_PER_STEP_0;
-		motors[1].ratio = DEGREES_PER_STEP_1;
-		motors[2].ratio = DEGREES_PER_STEP_2;
-		motors[3].ratio = DEGREES_PER_STEP_3;
-		motors[4].ratio = DEGREES_PER_STEP_4;
-		motors[5].ratio = DEGREES_PER_STEP_5;
+		motors[0].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_0;
+		motors[1].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_1;
+		motors[2].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_2;
+		motors[3].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_3;
+		motors[4].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_4;
+		motors[5].ratio = Sixi2FirmwareSettings.DEGREES_PER_STEP_5;
 		/*
 		motors[0].setPID(500,20,0);       
 		motors[1].setPID(1000,30000,0);   
@@ -187,7 +152,7 @@ public class Sixi2LivePID extends Sixi2Model {
 		
 		if(gMode==0) {
 			// linear move
-	        PoseFK poseFKTarget = solver.createPoseFK();
+	        PoseFK poseFKTarget = ikSolver.createPoseFK();
 
 			int i=0;
 			for( DHLink link : links ) {
@@ -228,7 +193,7 @@ public class Sixi2LivePID extends Sixi2Model {
 
 	        // get the target matrix
 	        PoseFK oldPose = getPoseFK();
-	        PoseFK newPose = solver.createPoseFK();
+	        PoseFK newPose = ikSolver.createPoseFK();
 	        newPose.set(poseFKTarget);
 	        setPoseFK(newPose);
 	        mTarget.set(endEffector.getPoseWorld());
@@ -264,10 +229,6 @@ public class Sixi2LivePID extends Sixi2Model {
 	    // wait for reply
 	    readyForCommands=true;
 	}
-
-
-	@Override
-	public void setPoseWorld(Matrix4d m) {}
 	
 	@Override
 	public void getView(ViewPanel view) {

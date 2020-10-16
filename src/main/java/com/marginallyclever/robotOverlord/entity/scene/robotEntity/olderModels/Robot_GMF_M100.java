@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_Cylindrical;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
@@ -15,39 +15,39 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_GMF_M100 extends RobotEntity {
-	DHRobotEntity live;
+	DHRobotModel live;
 
 	public Robot_GMF_M100() {
 		super();
 		setName("FANUC GMF M-100");
 
-		live = new DHRobotEntity();
+		live = new DHRobotModel();
 		live.setIKSolver(new DHIKSolver_Cylindrical());
 		setupLinks(live);
 	}
 	
-	protected void setupLinks(DHRobotEntity robot) {
+	protected void setupLinks(DHRobotModel robot) {
 		robot.setNumLinks(5);
 		// roll
-		robot.links.get(0).flags = LinkAdjust.THETA;
-		robot.links.get(0).setRangeMin(-120);
-		robot.links.get(0).setRangeMax(120);
+		robot.getLink(0).flags = LinkAdjust.THETA;
+		robot.getLink(0).setRangeMin(-120);
+		robot.getLink(0).setRangeMax(120);
 		// slide
-		robot.links.get(1).setAlpha(90);
-		robot.links.get(1).flags = LinkAdjust.D;
-		robot.links.get(1).setRangeMin(0);
-		robot.links.get(1).setRangeMin(1300);
+		robot.getLink(1).setAlpha(90);
+		robot.getLink(1).flags = LinkAdjust.D;
+		robot.getLink(1).setRangeMin(0);
+		robot.getLink(1).setRangeMin(1300);
 		// slide
-		robot.links.get(2).setAlpha(90);
-		robot.links.get(2).flags = LinkAdjust.D;
-		robot.links.get(2).setRangeMin(0);
-		robot.links.get(2).setRangeMax(1100);
+		robot.getLink(2).setAlpha(90);
+		robot.getLink(2).flags = LinkAdjust.D;
+		robot.getLink(2).setRangeMin(0);
+		robot.getLink(2).setRangeMax(1100);
 		// roll
-		robot.links.get(3).flags = LinkAdjust.THETA;
-		robot.links.get(3).setRangeMin(-90);
-		robot.links.get(3).setRangeMax(90);
+		robot.getLink(3).flags = LinkAdjust.THETA;
+		robot.getLink(3).setRangeMin(-90);
+		robot.getLink(3).setRangeMax(90);
 
-		robot.links.get(4).flags = LinkAdjust.NONE;
+		robot.getLink(4).flags = LinkAdjust.NONE;
 
 		robot.refreshPose();
 	}

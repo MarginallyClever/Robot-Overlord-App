@@ -5,7 +5,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
@@ -19,11 +19,11 @@ public class ActionSetDHTool extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private DHRobotEntity robot;
+	private DHRobotModel robot;
 	private DHTool newTool;
 	private DHTool previousTool;
 	
-	public ActionSetDHTool(DHRobotEntity robot,DHTool newTool) {
+	public ActionSetDHTool(DHRobotModel robot,DHTool newTool) {
 		super();
 		
 		this.robot = robot;

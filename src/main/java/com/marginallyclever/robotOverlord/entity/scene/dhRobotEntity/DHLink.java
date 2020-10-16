@@ -86,7 +86,7 @@ public class DHLink extends ModelEntity {
 	public Matrix4dEntity inertia = new Matrix4dEntity();	// not used yet
 	*/
 	@JsonIgnore
-	protected DHRobotEntity robot;
+	protected DHRobotModel robot;
 	
 	
 	public DHLink() {
@@ -500,7 +500,7 @@ public class DHLink extends ModelEntity {
 		setPose(newRelativePose);
 	}
 
-	public void setDHRobot(DHRobotEntity robot) {
+	public void setDHRobot(DHRobotModel robot) {
 		this.robot = robot;
 	} 
 	
@@ -511,7 +511,7 @@ public class DHLink extends ModelEntity {
 	 */
 	@Override
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
-		if( parent instanceof DHLink || parent instanceof DHRobotEntity ) {
+		if( parent instanceof DHLink || parent instanceof DHRobotModel ) {
 			if( !this.getLetter().isEmpty() ) {
 				Matrix4d oldPose=poseWorld;
 				// we have newPose ...but is it something this DHLink could do?

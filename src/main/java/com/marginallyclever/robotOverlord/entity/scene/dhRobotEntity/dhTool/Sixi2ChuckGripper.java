@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 

@@ -16,10 +16,9 @@ import org.junit.Test;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Sim;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
@@ -170,23 +169,23 @@ public class MiscTests {
 	@Test
 	public void testFK2IK() {
 		System.out.println("testFK2IK() start");
-		Sixi2 robot = new Sixi2();
-		int numLinks = robot.sim.getNumLinks();
+		Sixi2Model model = new Sixi2Model();
+		int numLinks = model.getNumLinks();
 		assert(numLinks>0);
 
 		DHIKSolver solver = new DHIKSolver_RTTRTR();
-		PoseFK keyframe0 = robot.sim.getIKSolver().createPoseFK();
-		PoseFK keyframe1 = robot.sim.getIKSolver().createPoseFK();
+		PoseFK keyframe0 = model.createPoseFK();
+		PoseFK keyframe1 = model.createPoseFK();
 		Matrix4d m0 = new Matrix4d();
 		Matrix4d m1 = new Matrix4d();
 		
 		// Find the min/max range for each joint
-		DHLink link0 = robot.sim.getLink(0);		double bottom0 = link0.getRangeMin();		double top0 = link0.getRangeMax();
-		DHLink link1 = robot.sim.getLink(1);		double bottom1 = link1.getRangeMin();		double top1 = link1.getRangeMax();
-		DHLink link2 = robot.sim.getLink(2);		double bottom2 = link2.getRangeMin();		double top2 = link2.getRangeMax();
-		DHLink link3 = robot.sim.getLink(3);		double bottom3 = link3.getRangeMin();		double top3 = link3.getRangeMax();
-		DHLink link4 = robot.sim.getLink(4);		double bottom4 = link4.getRangeMin();		double top4 = link4.getRangeMax();
-		DHLink link5 = robot.sim.getLink(5);		double bottom5 = link5.getRangeMin();		double top5 = link5.getRangeMax();
+		DHLink link0 = model.getLink(0);		double bottom0 = link0.getRangeMin();		double top0 = link0.getRangeMax();
+		DHLink link1 = model.getLink(1);		double bottom1 = link1.getRangeMin();		double top1 = link1.getRangeMax();
+		DHLink link2 = model.getLink(2);		double bottom2 = link2.getRangeMin();		double top2 = link2.getRangeMax();
+		DHLink link3 = model.getLink(3);		double bottom3 = link3.getRangeMin();		double top3 = link3.getRangeMax();
+		DHLink link4 = model.getLink(4);		double bottom4 = link4.getRangeMin();		double top4 = link4.getRangeMax();
+		DHLink link5 = model.getLink(5);		double bottom5 = link5.getRangeMin();		double top5 = link5.getRangeMax();
 
 		int totalTests = 0;
 		int totalOneSolutions = 0;
@@ -218,15 +217,15 @@ public class MiscTests {
 									
 									++totalTests;
 									// use forward kinematics to find the endMatrix of the pose
-				            		robot.sim.setPoseFK(keyframe0);
-									m0.set(robot.sim.endEffector.getPoseWorld());
+									model.setPoseFK(keyframe0);
+									m0.set(model.getPoseIK());
 									// now generate a set of FK values from the endMatrix m0.
-									if(solver.solve(robot.sim, m0, keyframe1)==DHIKSolver.SolutionType.ONE_SOLUTION) {
+									if(solver.solve(model, m0, keyframe1)==DHIKSolver.SolutionType.ONE_SOLUTION) {
 										++totalOneSolutions;
 										
 										// update the robot pose and get the m1 matrix. 
-					            		robot.sim.setPoseFK(keyframe1);
-					            		m1.set(robot.sim.endEffector.getPoseWorld());
+					            		model.setPoseFK(keyframe1);
+					            		m1.set(model.getPoseIK());
 					            		
 					            		String message = StringHelper.formatDouble(keyframe0.fkValues[0])+"\t"
 					            						+StringHelper.formatDouble(keyframe0.fkValues[1])+"\t"
@@ -295,18 +294,18 @@ public class MiscTests {
 	//@Test
 	public void plotXZ() {
 		System.out.println("plotXZ()");
-		Sixi2 robot = new Sixi2();
-		int numLinks = robot.sim.getNumLinks();
+		Sixi2Model model = new Sixi2Model();
+		int numLinks = model.getNumLinks();
 		assert(numLinks>0);
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.sim.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();  double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.sim.getLink(1);  double bottom1 = link1.getRangeMin();  double top1 = link1.getRangeMax();  double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.sim.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();//double mid2 = (top2+bottom2)/2;
+		DHLink link0 = model.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = model.getLink(1);  double bottom1 = link1.getRangeMin();  double top1 = link1.getRangeMax();  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = model.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();//double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
-		DHLink link4 = robot.sim.getLink(4);  double bottom4 = link4.getRangeMin();//double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
-		DHLink link5 = robot.sim.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.sim.getLink(6);  double bottom6 = link6.getRangeMin();//double top6 = link6.getRangeMax();  double mid6 = (top6+bottom6)/2;  
+		DHLink link4 = model.getLink(4);  double bottom4 = link4.getRangeMin();//double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = model.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = model.getLink(6);  double bottom6 = link6.getRangeMin();//double top6 = link6.getRangeMax();  double mid6 = (top6+bottom6)/2;  
 
 		BufferedWriter out=null;
 		try {
@@ -323,16 +322,16 @@ public class MiscTests {
 			double v=bottom5;
 			double w=bottom6;
 
-			for(v=bottom5;v<mid5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // picasso box to middle
-			for(y=bottom1;y<mid1;y+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot); // shoulder forward
+			for(v=bottom5;v<mid5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // picasso box to middle
+			for(y=bottom1;y<mid1;y+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model); // shoulder forward
 			// skip j0 to keep things on the XZ plane.
-			for(;y<top1;y+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // shoulder forward 
-			for(;z<top2;z+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // elbow forward  
-			for(;v<top5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // picasso box forward
+			for(;y<top1;y+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // shoulder forward 
+			for(;z<top2;z+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // elbow forward  
+			for(;v<top5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // picasso box forward
 
-			for(;y>bottom1;y-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // shoulder back 
-			for(;z>bottom2;z-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // elbow back  
-			for(;v<bottom5;v-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);  // picasso box back
+			for(;y>bottom1;y-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // shoulder back 
+			for(;z>bottom2;z-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // elbow back  
+			for(;v<bottom5;v-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);  // picasso box back
 			
 		}
 		catch(Exception e) {
@@ -354,18 +353,18 @@ public class MiscTests {
 	//@Test
 	public void plotXY() {
 		System.out.println("plotXY()");
-		Sixi2 robot = new Sixi2();
-		int numLinks = robot.sim.getNumLinks();
+		Sixi2Model model = new Sixi2Model();
+		int numLinks = model.getNumLinks();
 		assert(numLinks>0);
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.sim.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();//double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.sim.getLink(1);/*double bottom1 = link1.getRangeMin();*/double top1 = link1.getRangeMax();//double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.sim.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();//double mid2 = (top2+bottom2)/2;
+		DHLink link0 = model.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();//double mid0 = (top0+bottom0)/2;
+		DHLink link1 = model.getLink(1);/*double bottom1 = link1.getRangeMin();*/double top1 = link1.getRangeMax();//double mid1 = (top1+bottom1)/2;
+		DHLink link2 = model.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();//double mid2 = (top2+bottom2)/2;
 		// link3 does not bend
-		DHLink link4 = robot.sim.getLink(4);  double bottom4 = link4.getRangeMin();  double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
-		DHLink link5 = robot.sim.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
-		DHLink link6 = robot.sim.getLink(6);  double bottom6 = link6.getRangeMin();  double top6 = link6.getRangeMax();  double mid6 = (top6+bottom6)/2;  
+		DHLink link4 = model.getLink(4);  double bottom4 = link4.getRangeMin();  double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = model.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
+		DHLink link6 = model.getLink(6);  double bottom6 = link6.getRangeMin();  double top6 = link6.getRangeMax();  double mid6 = (top6+bottom6)/2;  
 
 		double ANGLE_STEP_SIZE2=1;
 		
@@ -383,13 +382,13 @@ public class MiscTests {
 			double v=mid5;
 			double w=mid6;
 
-			for(x=bottom0;x<top0;x+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
-			for(;z<top2;z+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
-			//for(;v<top5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			for(x=bottom0;x<top0;x+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);
+			for(;z<top2;z+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);
+			//for(;v<top5;v+=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);
 			
-			for(x=top0;x>bottom0;x-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
-			//for(;v>mid5;v-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
-			for(;z>bottom2;z-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,robot);
+			for(x=top0;x>bottom0;x-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);
+			//for(;v>mid5;v-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);
+			for(;z>bottom2;z-=ANGLE_STEP_SIZE2) plot(x,y,z,u,v,w,out,model);
 			
 		}
 		catch(Exception e) {
@@ -417,8 +416,8 @@ public class MiscTests {
 	 * @param robot
 	 * @throws IOException
 	 */
-	private void plot(double x,double y,double z,double u,double v,double w,BufferedWriter out,Sixi2 robot) throws IOException {
-		PoseFK keyframe0 = robot.sim.getIKSolver().createPoseFK();
+	private void plot(double x,double y,double z,double u,double v,double w,BufferedWriter out,Sixi2Model model) throws IOException {
+		PoseFK keyframe0 = model.createPoseFK();
 		Matrix4d m0 = new Matrix4d();
 		
 		keyframe0.fkValues[0]=x;
@@ -429,8 +428,8 @@ public class MiscTests {
 		keyframe0.fkValues[5]=w;
 					
 		// use forward kinematics to find the endMatrix of the pose
-		robot.sim.setPoseFK(keyframe0);
-		m0.set(robot.sim.endEffector.getPoseWorld());
+		model.setPoseFK(keyframe0);
+		m0.set(model.getPoseIK());
 		
 		String message = StringHelper.formatDouble(m0.m03)+"\t"
 						+StringHelper.formatDouble(m0.m13)+"\t"
@@ -444,21 +443,21 @@ public class MiscTests {
 	@Test
 	public void approximateJacobianMatrix() {
 		System.out.println("approximateJacobianMatrix() start");
-		Sixi2 robot = new Sixi2();
+		Sixi2Model model = new Sixi2Model();
 
 		// Find the min/max range for each joint
-		DHLink link0 = robot.sim.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();  double mid0 = (top0+bottom0)/2;
-		DHLink link1 = robot.sim.getLink(1);  double bottom1 = link1.getRangeMin();  double top1 = link1.getRangeMax();  double mid1 = (top1+bottom1)/2;
-		DHLink link2 = robot.sim.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();  double mid2 = (top2+bottom2)/2;
-		DHLink link3 = robot.sim.getLink(3);  double bottom3 = link3.getRangeMin();  double top3 = link3.getRangeMax();  double mid3 = (top3+bottom3)/2;  
-		DHLink link4 = robot.sim.getLink(4);  double bottom4 = link4.getRangeMin();  double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
-		DHLink link5 = robot.sim.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
+		DHLink link0 = model.getLink(0);  double bottom0 = link0.getRangeMin();  double top0 = link0.getRangeMax();  double mid0 = (top0+bottom0)/2;
+		DHLink link1 = model.getLink(1);  double bottom1 = link1.getRangeMin();  double top1 = link1.getRangeMax();  double mid1 = (top1+bottom1)/2;
+		DHLink link2 = model.getLink(2);  double bottom2 = link2.getRangeMin();  double top2 = link2.getRangeMax();  double mid2 = (top2+bottom2)/2;
+		DHLink link3 = model.getLink(3);  double bottom3 = link3.getRangeMin();  double top3 = link3.getRangeMax();  double mid3 = (top3+bottom3)/2;  
+		DHLink link4 = model.getLink(4);  double bottom4 = link4.getRangeMin();  double top4 = link4.getRangeMax();  double mid4 = (top4+bottom4)/2;  
+		DHLink link5 = model.getLink(5);  double bottom5 = link5.getRangeMin();  double top5 = link5.getRangeMax();  double mid5 = (top5+bottom5)/2;  
 
 		BufferedWriter out=null;
 		try {
 			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jacobian.csv")));
 
-			PoseFK keyframe = robot.sim.getIKSolver().createPoseFK();
+			PoseFK keyframe = model.createPoseFK();
 			// set the pose with fk
 			keyframe.fkValues[0]=mid0;
 			keyframe.fkValues[1]=mid1;
@@ -467,9 +466,7 @@ public class MiscTests {
 			keyframe.fkValues[4]=mid4;
 			keyframe.fkValues[5]=mid5;
 
-			assert( robot.sim instanceof Sixi2Sim );
-			Sixi2Sim sim = (Sixi2Sim)(robot.sim);
-			double [][] jacobian = sim.approximateJacobian(keyframe);
+			double [][] jacobian = model.approximateJacobian(keyframe);
 			
 			int i,j;
 			for(i=0;i<6;++i) {
@@ -499,17 +496,14 @@ public class MiscTests {
 	@Test
 	public void jointVelocityOverTime() {
 		System.out.println("angularVelocityOverTime() start");
-		Sixi2 robot = new Sixi2();
+		Sixi2Model model = new Sixi2Model();
 		// a new sixi starts with the ghost post in the home position
 		// and the live pose in the rest position.
-
-		assert( robot.sim instanceof Sixi2Sim );
-		Sixi2Sim sim = (Sixi2Sim)(robot.sim);
 	
 		try(BufferedWriter out=new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jvot.csv")))) {
 			out.write("Px\tPy\tPz\tJ0\tJ1\tJ2\tJ3\tJ4\tJ5\n");
 			
-			PoseFK keyframe = sim.getIKSolver().createPoseFK();	
+			PoseFK keyframe = model.createPoseFK();	
 
 			final double dt=0.03f;  // time step
 			// match the force directions with the start and end matrix
@@ -519,7 +513,7 @@ public class MiscTests {
 			final double [] force = {dp.x,dp.y,dp.z,r.x,r.y,r.z};
 	
 			// set a new position
-			Matrix4d m = sim.endEffector.getPoseWorld();
+			Matrix4d m = model.getPoseIK();
 			m.m13=-20;
 			m.m23-=5;
 			
@@ -531,10 +525,10 @@ public class MiscTests {
 			while(m.m13<20 && safety<10000) {
 				safety++;
 				System.out.print(safety+": ");
-				if(sim.setPoseIK(m)) {
-					keyframe.set(sim.getPoseFK());
+				if(model.setPoseIK(m)) {
+					keyframe.set(model.getPoseFK());
 					// matrix m has a sane solution (is reachable)
-					double [][] jacobian = sim.approximateJacobian(keyframe);
+					double [][] jacobian = model.approximateJacobian(keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
 					
 					out.write(m.m03+"\t"+m.m13+"\t"+m.m23+"\t");
@@ -553,10 +547,10 @@ public class MiscTests {
 					out.write("\n");
 
 					// if the new pose is sane,
-					if (robot.sim.sanityCheck(keyframe)) {
+					if(model.sanityCheck(keyframe)) {
 						// set the pose (eg, move each joints by jvot*dt)
-						robot.sim.setPoseFK(keyframe);
-						m = robot.sim.endEffector.getPoseWorld();
+						model.setPoseFK(keyframe);
+						m = model.getPoseIK();
 
 						System.out.println("ok");
 						continue;

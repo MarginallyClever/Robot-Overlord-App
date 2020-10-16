@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import java.util.Observable;
 import java.util.StringTokenizer;
@@ -7,9 +7,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+
 
 public class SixiJoystick extends ModelEntity {
 	private Sixi2 target;
@@ -58,9 +59,9 @@ public class SixiJoystick extends ModelEntity {
 					int i,j;
 					
 					if(keyframe==null) {
-						keyframe = target.sim.getIKSolver().createPoseFK();
+						keyframe = target.model.createPoseFK();
 						for(j=0;j<keyframeSamples.length;++j) {
-							keyframeSamples[j]= target.sim.getIKSolver().createPoseFK();
+							keyframeSamples[j]= target.model.createPoseFK();
 						}
 					}
 					// age the samples
@@ -107,7 +108,7 @@ public class SixiJoystick extends ModelEntity {
 		if(lock.isLocked()) return;
 		lock.lock();
 		try {
-			target.sim.setPoseFK(keyframe);
+			target.sim.setPoseTo(keyframe);
 		}
 		finally {
 			lock.unlock();

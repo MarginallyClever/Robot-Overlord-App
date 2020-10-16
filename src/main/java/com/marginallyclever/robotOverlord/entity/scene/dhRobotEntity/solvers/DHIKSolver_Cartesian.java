@@ -3,8 +3,8 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 
 /**
@@ -29,7 +29,7 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 	 * @param keyframe store the computed solution in keyframe.
 	 */
 	@Override
-	public SolutionType solve(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe) {
+	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {

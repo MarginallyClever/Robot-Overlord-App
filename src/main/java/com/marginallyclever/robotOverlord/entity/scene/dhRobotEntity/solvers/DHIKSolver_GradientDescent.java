@@ -4,9 +4,9 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 
 /**
  * See https://www.alanzucconi.com/2017/04/10/gradient-descent/
@@ -29,11 +29,11 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	protected static final double THRESHOLD = 0.1;
 
 	// how big a step to take with each partial descent?
-	protected double [] samplingDistances = { 0,0,0,0,0,0 };
+	protected double [] samplingDistances = { 0,0,0,0,0,0,0 };
 	// how much of that partial descent to actually apply?
 	protected double learningRate=0;
 	
-	protected DHRobotEntity robot;
+	protected DHRobotModel robot;
 	protected Matrix4d targetMatrix;
 	protected DHLink endEffector;
 	
@@ -41,7 +41,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
 	 */
 	public int getSolutionSize() {
-		return 6;
+		return 7;
 	}
 	
 	public double distanceToTarget() {
@@ -112,7 +112,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	 * We might not actually reach the target by the time we've done interating.
 	 */
 	@Override
-	public SolutionType solveWithSuggestion(DHRobotEntity robot,Matrix4d targetMatrix,PoseFK keyframe,PoseFK suggestion) {
+	public SolutionType solveWithSuggestion(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
 		this.robot = robot;
 		this.targetMatrix = targetMatrix;
 		
@@ -127,6 +127,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		samplingDistances[3]=SENSOR_RESOLUTION;
 		samplingDistances[4]=SENSOR_RESOLUTION;
 		samplingDistances[5]=SENSOR_RESOLUTION;
+		samplingDistances[6]=SENSOR_RESOLUTION;
 		
 
 		double dtt=10;
@@ -135,24 +136,25 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 			// seems to work better ascending than descending
 			//for( int i=0; i<robot.getNumLinks(); ++i ) {
 			for( int i=robot.getNumLinks()-1; i>=0; --i ) {
-				DHLink link = robot.links.get(i);
-				
-				double oldValue = link.getAdjustableValue();
-				double gradient = partialDescent( link, i );
-				double newValue = oldValue - gradient * learningRate; 
-				newValue = Math.max(Math.min(newValue, link.rangeMax.get()-1e-6), link.rangeMin.get()+1e-6);
-				
-				link.setAdjustableValue(newValue);
-				link.refreshPoseMatrix();
-		
-				dtt=distanceToTarget();
-				if(dtt<THRESHOLD) break;
+				DHLink link = robot.getLink(i);
+				if( link.hasAdjustableValue() ) {
+					double oldValue = link.getAdjustableValue();
+					double gradient = partialDescent( link, i );
+					double newValue = oldValue - gradient * learningRate; 
+					newValue = Math.max(Math.min(newValue, link.rangeMax.get()-1e-6), link.rangeMin.get()+1e-6);
+					
+					link.setAdjustableValue(newValue);
+					link.refreshPoseMatrix();
+			
+					dtt=distanceToTarget();
+					if(dtt<THRESHOLD) break;
+				}
 			}
 			if(dtt<THRESHOLD) break;
 		}
 		
 		for( int i=0; i<robot.getNumLinks(); ++i ) {
-			keyframe.fkValues[i] = robot.links.get(i).getAdjustableValue();
+			keyframe.fkValues[i] = robot.getLink(i).getAdjustableValue();
 		}
 		
 		return SolutionType.ONE_SOLUTION;
