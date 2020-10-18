@@ -18,6 +18,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
@@ -28,7 +29,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class PoseEntity extends Entity {
+public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 	// unique ids for all objects in the world.  
 	// zero is reserved to indicate no object.
 	@JsonIgnore
@@ -468,8 +469,18 @@ public class PoseEntity extends Entity {
 	}
 	
 	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		PoseEntity e = (PoseEntity)super.clone();
+		e.pose = (Matrix4d)pose.clone();
+		e.poseWorld = (Matrix4d)poseWorld.clone();
+		return e;
+	}
+	
+	@Override
 	public boolean canBeRenamed() {
 		return true;
 	}
-	
+
+	@Override
+	public void beingRemoved() {}
 }
