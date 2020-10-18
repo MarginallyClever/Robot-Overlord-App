@@ -314,14 +314,14 @@ public class DHRobotModel extends Entity {
 	 * @param m desired end effector relative to the robot's origin.
 	 * @return the PoseFK if sane.  null if not sane.
 	 */
-	public PoseFK isPoseIKSane(Matrix4d m) {
+	public PoseFK isPoseIKSane(final Matrix4d m) {
 		PoseFK poseFKold = ikSolver.createPoseFK();
 		PoseFK poseFKnew = ikSolver.createPoseFK();
 		poseFKold.set(getPoseFK());
 		
 		boolean isSane = false;
 		// the solver should NEVER change the current model.  it only attempts to find one possible solution.
-		DHIKSolver.SolutionType s = ikSolver.solveWithSuggestion(this, m, poseFKnew,poseFKold);
+		DHIKSolver.SolutionType s = ikSolver.solveWithSuggestion(this, m, poseFKnew, poseFKold);
 		if(VERBOSE) Log.message("new: "+poseFKnew + "\t"+s);
 		if (s == DHIKSolver.SolutionType.ONE_SOLUTION) {
 			if (sanityCheck(poseFKnew)) {
