@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -16,16 +14,16 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class Entity extends Observable implements Observer {
+public class Entity extends Observable implements Observer, Cloneable {
 	private String name;
 
 	// my children
-	@JsonBackReference
 	protected ArrayList<Entity> children = new ArrayList<Entity>();
+	
 	// my parent
-	@JsonManagedReference
 	protected Entity parent;
 
+	
 	public Entity() {
 		super();
 	}
@@ -96,11 +94,15 @@ public class Entity extends Observable implements Observer {
 		return name;
 	}
 	
-	public void addChild(Entity e) {
+	public void addChild(int index,Entity e) {
 		// check if any child has a matching name
 		e.setName(getUniqueChildName(e));
-		children.add(e);
+		children.add(index,e);
 		e.setParent(this);
+	}
+	
+	public void addChild(Entity e) {
+		addChild(children.size(),e);
 	}
 
 	public void removeChild(Entity e) {
@@ -231,5 +233,15 @@ public class Entity extends Observable implements Observer {
 	 */
 	public boolean canBeRenamed() {
 		return false;
+	}
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		Entity e = (Entity)super.clone();
+		for(int i=0;i<children.size();++i) {
+			e.children.set(i, (Entity)children.get(i).clone());
+		}
+		
+		return e;
 	}
 }
