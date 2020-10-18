@@ -6,6 +6,7 @@ import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
@@ -19,6 +20,7 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 	 */
 	private static final long serialVersionUID = 1L;
 	private Entity entity;
+	private Entity parent;
 	private RobotOverlord ro;
 	
 	public ActionEntityRemove(RobotOverlord ro,Entity entity) {
@@ -26,6 +28,7 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 		
 		this.entity = entity;
 		this.ro = ro;
+		this.parent = entity.getParent();
 
 		doIt();
 	}
@@ -42,7 +45,10 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		ro.getWorld().removeChild(entity);
+		if(entity instanceof RemovableEntity) {
+			((RemovableEntity)entity).beingRemoved();
+		}
+		if(parent!=null) parent.removeChild(entity);
 		ro.updateEntityTree();
 		ro.pickEntity(null);
 	}
@@ -50,7 +56,7 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.getWorld().addChild(entity);
+		if(parent!=null) parent.addChild(entity);
 		ro.updateEntityTree();
 		ro.pickEntity(entity);
 	}

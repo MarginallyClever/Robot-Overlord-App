@@ -9,6 +9,7 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRemove;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
@@ -38,6 +39,10 @@ public class CommandRemoveEntity extends AbstractAction {
 			Log.error("RemoveEntity with no entity selected.");
 			return;
 		}
-		ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,entity) ) );
+		if(entity instanceof RemovableEntity) {
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,entity) ) );
+		} else {
+			Log.error("Entity "+entity.getFullPath()+" is not a RemovableEntity.");
+		}
 	}
 }
