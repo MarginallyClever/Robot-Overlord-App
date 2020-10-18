@@ -94,4 +94,23 @@ public class StringHelper {
 	      bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
 	    return (double)Float.intBitsToFloat(intBits);  
 	}
+
+	/**
+	 * 
+	 * @param seconds time in seconds
+	 * @return formatted string
+	 */
+	public static String formatTime(double seconds) {
+		double p1 = seconds % 60;
+		int p2 = (int)(seconds / 60);
+		int p3 = p2 % 60;
+        p2 = p2 / 60;
+        
+        String value ="";
+        if(p2>0) value += p2 + ":";
+        if(p2>0 || p3>0) value += p3 + ":";
+        value += formatDouble(p1);
+		
+		return value;
+	}
 }
