@@ -380,12 +380,12 @@ public class Sixi2Sim extends Entity {
 		
 		double nominalT = plateauD/seg.nominalSpeed;
 		
-		// d = vt + 0.5att.  it's a quadratic, so t = -v +/- sqrt( -v*-v -4a
-		double nA = maxSpeedAllowed(-seg.acceleration,entrySpeed,accelerateD) / seg.acceleration;
-		double accelerateT = -entrySpeed + nA;
+		// d = vt + 0.5att.  it's a quadratic, so t = -v +/- sqrt( v*v -2ad ) / a
+		double nA = maxSpeedAllowed(-seg.acceleration,entrySpeed,accelerateD);
+		double accelerateT = ( -entrySpeed + nA ) / seg.acceleration;
 		
-		double nD = maxSpeedAllowed(-seg.acceleration,exitSpeed,decelerateD) / seg.acceleration;
-		double decelerateT = -exitSpeed + nD;
+		double nD = maxSpeedAllowed(-seg.acceleration,exitSpeed,decelerateD);
+		double decelerateT = ( -exitSpeed + nD ) / seg.acceleration;
 		seg.accelerateUntilT = accelerateT;
 		seg.decelerateAfterT = accelerateT + nominalT;
 		seg.end_s = accelerateT + nominalT + decelerateT;
@@ -412,5 +412,17 @@ public class Sixi2Sim extends Entity {
 	protected double intersectionDistance(final double startRate, final double endRate, final double accel, final double distance) {
 		if(accel == 0) return 0;
 		return ( 2.0 * accel * distance - (startRate*startRate) + (endRate*endRate) ) / (4.0 * accel);
+	}
+
+	public void eStop() {
+		queue.clear();
+	}
+
+	public double getTimeRemaining() {
+		double sum=0;
+		for( Sixi2SimSegment s : queue ) {
+			sum += s.end_s - s.now_s;
+		}
+		return sum;
 	}
 }
