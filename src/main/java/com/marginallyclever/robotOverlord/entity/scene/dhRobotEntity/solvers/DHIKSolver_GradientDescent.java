@@ -112,7 +112,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	 * We might not actually reach the target by the time we've done interating.
 	 */
 	@Override
-	public SolutionType solveWithSuggestion(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
+	public SolutionType solveWithSuggestion(DHRobotModel robot,final Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
 		this.robot = robot;
 		this.targetMatrix = targetMatrix;
 		

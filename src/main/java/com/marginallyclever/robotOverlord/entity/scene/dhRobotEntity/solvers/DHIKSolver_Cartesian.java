@@ -29,7 +29,7 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 	 * @param keyframe store the computed solution in keyframe.
 	 */
 	@Override
-	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
+	public SolutionType solve(DHRobotModel robot,final Matrix4d targetMatrix,final PoseFK keyframe) {
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
 		
 		if(robot.dhTool!=null) {

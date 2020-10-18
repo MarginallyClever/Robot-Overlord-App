@@ -23,7 +23,7 @@ public class DHIKSolver_FABRIK extends DHIKSolver {
 	 * 
 	 */
 	@Override
-	public SolutionType solveWithSuggestion(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
+	public SolutionType solveWithSuggestion(DHRobotModel robot,final Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
 		return SolutionType.NO_SOLUTIONS;
 	}
 }

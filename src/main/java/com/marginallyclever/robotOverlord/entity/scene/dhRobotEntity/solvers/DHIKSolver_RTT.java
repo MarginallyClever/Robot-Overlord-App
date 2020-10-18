@@ -32,7 +32,7 @@ public class DHIKSolver_RTT extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
+	public SolutionType solve(DHRobotModel robot,final Matrix4d targetMatrix,final PoseFK keyframe) {
 		DHLink link0 = robot.getLink(0);
 		DHLink link1 = robot.getLink(1);
 		DHLink link2 = robot.getLink(2);

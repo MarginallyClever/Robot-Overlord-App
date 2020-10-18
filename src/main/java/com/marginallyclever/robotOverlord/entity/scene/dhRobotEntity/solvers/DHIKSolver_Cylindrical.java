@@ -33,7 +33,7 @@ public class DHIKSolver_Cylindrical extends DHIKSolver {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public SolutionType solve(DHRobotModel robot,Matrix4d targetMatrix,final PoseFK keyframe) {
+	public SolutionType solve(DHRobotModel robot,final Matrix4d targetMatrix,final PoseFK keyframe) {
 		DHLink link4 = robot.getLink(robot.getNumLinks()-1);
 
 		Matrix4d targetPoseAdj = new Matrix4d(targetMatrix);
