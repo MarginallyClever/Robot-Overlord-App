@@ -3,15 +3,18 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.vecmath.Matrix4d;
+
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Sixi2Command extends PoseEntity implements Cloneable {
-	public PoseFK pose;
+public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusListener {
+	public PoseFK poseFK;
 
 	protected DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2Model.DEFAULT_FEEDRATE);
 	protected DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2Model.DEFAULT_ACCELERATION);
@@ -20,7 +23,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 		super("Pose");
 		
 		try {
-			pose=(PoseFK)p.clone();
+			poseFK=(PoseFK)p.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -32,7 +35,12 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		Sixi2Command c = (Sixi2Command)super.clone();
-		c.pose = (PoseFK)pose.clone();
+		c.pose = (Matrix4d)pose.clone();
+		c.poseFK = (PoseFK)poseFK.clone();
+		c.feedrateSlider = new DoubleEntity(feedrateSlider.getName());
+		c.feedrateSlider.set(feedrateSlider.get());
+		c.accelerationSlider = new DoubleEntity(accelerationSlider.getName());
+		c.accelerationSlider.set(accelerationSlider.get());
 		return c;
 	}
 	
@@ -58,7 +66,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 			public void update(Observable o, Object arg) {
 				Sixi2 e = findParentSixi2();
 				if(e==null) return;
-				e.goTo(pose,
+				e.goTo(poseFK,
 						(double)feedrateSlider.get(),
 						(double)accelerationSlider.get());
 			}
@@ -68,8 +76,8 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 		Sixi2 e = findParentSixi2();
 		if(e!=null) {
 			view.pushStack("FK", "Forward Kinematics");
-			for(int i=0;i<pose.fkValues.length;++i) {
-				view.addStaticText(i+" = "+StringHelper.formatDouble(pose.fkValues[i]));
+			for(int i=0;i<poseFK.fkValues.length;++i) {
+				view.addStaticText(i+" = "+StringHelper.formatDouble(poseFK.fkValues[i]));
 			}
 			view.popStack();
 		}
@@ -85,5 +93,18 @@ public class Sixi2Command extends PoseEntity implements Cloneable {
 			e = e.getParent();
 		}
 		return null;
+	}
+
+	@Override
+	public void gainedFocus() {
+		Sixi2 e = findParentSixi2();
+		if(e==null) return;
+		e.setCursor(this);
+	}
+
+	@Override
+	public void lostFocus() {
+		// TODO Auto-generated method stub
+		
 	}
 }
