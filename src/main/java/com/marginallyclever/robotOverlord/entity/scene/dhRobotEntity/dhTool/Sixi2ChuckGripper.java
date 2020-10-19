@@ -4,6 +4,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5463215121829599553L;
+
 	public Sixi2ChuckGripper() {
 		super();
 		setName("Sixi2 Chuck Gripper");

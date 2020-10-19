@@ -21,6 +21,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  */
 public class LightEntity extends PoseEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8031035180948318283L;
+
 	private final static ColorRGB [] presetBlack = {
 		new ColorRGB(0,0,0),  // ambient
 		new ColorRGB(0,0,0),  // specular

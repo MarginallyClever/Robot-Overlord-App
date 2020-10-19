@@ -9,6 +9,12 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class BooleanEntity extends AbstractEntity<Boolean> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1393466347571351227L;
+
+
 	public BooleanEntity() {
 		super();
 		setName("Boolean");

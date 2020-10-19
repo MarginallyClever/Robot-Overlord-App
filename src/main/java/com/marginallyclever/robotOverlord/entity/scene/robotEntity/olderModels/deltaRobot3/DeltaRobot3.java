@@ -27,6 +27,10 @@ import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5991551452979216237L;
 	// machine ID
 	protected long robotUID;
 	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";

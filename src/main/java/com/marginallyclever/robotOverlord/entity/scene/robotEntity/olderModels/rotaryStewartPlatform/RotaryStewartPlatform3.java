@@ -12,6 +12,10 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 
 @Deprecated
 public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3536746836054923170L;
 	protected transient MaterialEntity matForearm = new MaterialEntity();
 	protected transient Model modelForearm;
 	protected RotaryStewartPlatform3Dimensions dimensions;

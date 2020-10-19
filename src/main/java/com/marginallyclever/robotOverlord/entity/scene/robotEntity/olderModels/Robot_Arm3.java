@@ -15,6 +15,10 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_Arm3 extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2954608403808864189L;
 	DHRobotModel live;
 
 	public Robot_Arm3() {

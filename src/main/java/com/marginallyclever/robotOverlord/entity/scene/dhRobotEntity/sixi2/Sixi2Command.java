@@ -1,5 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -13,13 +16,21 @@ import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusListener {
+public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusListener, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public PoseFK poseFK;
 
 	protected DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2Model.DEFAULT_FEEDRATE);
 	protected DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2Model.DEFAULT_ACCELERATION);
+
+	public Sixi2Command() {
+	}
 	
-	Sixi2Command(PoseFK p,double f,double a) {
+	public Sixi2Command(PoseFK p,double f,double a) {
 		super("Pose");
 		
 		try {
@@ -105,6 +116,17 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	@Override
 	public void lostFocus() {
 		// TODO Auto-generated method stub
-		
+	}
+
+	public void write(ObjectOutputStream stream) throws Exception {
+		stream.writeObject(poseFK);
+		stream.writeDouble(feedrateSlider.get());
+		stream.writeDouble(accelerationSlider.get());
+	}
+	
+	public void read(ObjectInputStream stream) throws Exception {
+		poseFK = (PoseFK)stream.readObject();
+		feedrateSlider.set(stream.readDouble());
+		accelerationSlider.set(stream.readDouble());
 	}
 }

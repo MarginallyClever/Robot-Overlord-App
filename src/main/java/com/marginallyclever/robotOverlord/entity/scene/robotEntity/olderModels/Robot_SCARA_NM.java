@@ -17,6 +17,10 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_SCARA_NM extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4687585577640559775L;
 	public transient boolean isFirstTime;
 	protected DHRobotModel live;
 	

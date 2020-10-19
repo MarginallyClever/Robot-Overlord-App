@@ -6,6 +6,12 @@ package com.marginallyclever.robotOverlord.entity;
  * @since 1.6.0
  */
 public class AbstractEntity<T> extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4725754267079958438L;
+	
+	// the data to store
 	protected T t;
 
 	protected AbstractEntity() {

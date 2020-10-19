@@ -30,6 +30,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class DragBallEntity extends PoseEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -189456892380998828L;
+
 	private static final double STEP_SIZE = Math.PI/120.0;
 	
 	protected TextRenderer textRender = new TextRenderer(new Font("CourrierNew", Font.BOLD, 16));

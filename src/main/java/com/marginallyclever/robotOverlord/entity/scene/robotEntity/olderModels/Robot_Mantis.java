@@ -19,6 +19,10 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_Mantis extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5773299795110988863L;
 	private transient boolean isFirstTime;
 	DHRobotModel live;
 	

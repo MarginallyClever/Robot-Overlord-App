@@ -12,6 +12,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public abstract class RobotEntity extends PoseEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6326012946042811230L;
 	// comms	
 	protected transient RemoteEntity connection = new RemoteEntity();
 	protected transient boolean isReadyToReceive;

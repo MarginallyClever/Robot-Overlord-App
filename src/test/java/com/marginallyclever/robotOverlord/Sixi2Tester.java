@@ -1,5 +1,12 @@
 package com.marginallyclever.robotOverlord;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.vecmath.Matrix4d;
 
 import org.junit.Test;
@@ -7,6 +14,7 @@ import org.junit.Test;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
 
 public class Sixi2Tester {
@@ -81,5 +89,54 @@ public class Sixi2Tester {
 			}
 		}
 		System.out.println("TestApproximateJacobian() end");
+	}
+
+	@Test
+	public void TestSerialize() throws Exception {
+		Sixi2 a = new Sixi2();
+
+        final ByteArrayOutputStream streamReal = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(streamReal);
+        oos.writeObject(a);
+        oos.flush();
+        oos.close();
+
+        final ByteArrayInputStream inTest = new ByteArrayInputStream(streamReal.toByteArray());
+        final ObjectInputStream is = new ObjectInputStream(inTest);
+        final Object bObj = is.readObject();
+        
+        assertTrue(bObj instanceof Sixi2);
+        Sixi2 b = (Sixi2)bObj;
+        assertTrue(b.getName().equals("Sixi2"));
+
+        assertTrue(b.getChildren().size() == a.getChildren().size());
+	}
+	
+	@Test
+	public void TestReadWrite() throws Exception {
+		Sixi2 a = new Sixi2();
+		Sixi2 b = new Sixi2();
+		/*
+        final ByteArrayOutputStream streamReal = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(streamReal);
+        oos.writeObject(a);
+        oos.flush();
+        oos.close();
+
+        final ByteArrayInputStream inTest = new ByteArrayInputStream(streamReal.toByteArray());
+        final ObjectInputStream is = new ObjectInputStream(inTest);
+        final Object bObj = is.readObject();
+        
+        assertTrue(bObj instanceof Sixi2);
+        Sixi2 b = (Sixi2)bObj;
+        assertTrue(b.getName().equals("Sixi2"));*/
+		try {
+		a.save("test.sixi2");
+		b.load("test.sixi2");
+		} catch( Exception e) {
+			e.printStackTrace();
+		}
+		
+        assertTrue(b.getChildren().size() == a.getChildren().size());
 	}
 }

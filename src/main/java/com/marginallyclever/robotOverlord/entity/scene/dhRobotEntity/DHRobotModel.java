@@ -26,6 +26,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  */
 public class DHRobotModel extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4684338773503409014L;
+
 	// a list of DHLinks describing the kinematic chain.
 	protected List<DHLink> links = new ArrayList<DHLink>();
 	

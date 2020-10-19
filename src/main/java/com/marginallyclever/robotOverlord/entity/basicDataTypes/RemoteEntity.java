@@ -33,6 +33,10 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 */
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2553138173639792442L;
 	static final String CUE = "> ";
 	static final String NOCHECKSUM = "NOCHECKSUM ";
 	static final String BADCHECKSUM = "BADCHECKSUM ";

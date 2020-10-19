@@ -1,17 +1,18 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -30,33 +31,27 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7250407040741008778L;
 	// unique ids for all objects in the world.  
 	// zero is reserved to indicate no object.
-	@JsonIgnore
 	static private int pickNameCounter=1;
 	// my unique id
-	@JsonIgnore
-	private int pickName;	
+	private transient int pickName;	
 	
 	// pose relative to my parent Entity.
 	public Matrix4d pose = new Matrix4d();
 	// pose relative to the world.
-	@JsonIgnore
 	public Matrix4d poseWorld = new Matrix4d();
 	
-	protected ReentrantLock lock1 = new ReentrantLock();
-	protected ReentrantLock lock2 = new ReentrantLock();
-	
-	// physical limits
-	@JsonIgnore
-	public transient Cuboid cuboid = new Cuboid();
+	// collision limits
+	public Cuboid cuboid = new Cuboid();
 
-	@JsonIgnore
-	public transient BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
-	@JsonIgnore
-	public transient BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
-	@JsonIgnore
-	public transient BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
+	public BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
+	public BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
+	public BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
 
 	public PoseEntity() {
@@ -416,7 +411,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 				((PoseEntity)c).setShowBoundingBox(arg0);
 			}
 		}
-		this.showBoundingBox.set(arg0);
+		showBoundingBox.set(arg0);
 	}
 	
 	// recursively set for all children
@@ -426,7 +421,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 				((PoseEntity)c).setShowLocalOrigin(arg0);
 			}
 		}
-		this.showLocalOrigin.set(arg0);
+		showLocalOrigin.set(arg0);
 	}
 
 	// recursively set for all children
@@ -436,7 +431,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 				((PoseEntity)c).setShowLineage(arg0);
 			}
 		}
-		this.showLineage.set(arg0);
+		showLineage.set(arg0);
 	}
 	
 	@Override
@@ -483,4 +478,12 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 
 	@Override
 	public void beingRemoved() {}
+	
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+    	stream.defaultWriteObject();
+    }
+    private void readObject(ObjectInputStream stream) throws ClassNotFoundException, IOException {
+    	stream.defaultReadObject();
+    	pickName = pickNameCounter++;
+    }
 }

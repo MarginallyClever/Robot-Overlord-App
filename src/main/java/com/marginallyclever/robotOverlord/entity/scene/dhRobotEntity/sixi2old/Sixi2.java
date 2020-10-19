@@ -22,6 +22,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 @Deprecated
 public class Sixi2 extends PoseEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6408671639676468744L;
 	public Sixi2Model live = new Sixi2Live();
 	public Sixi2Model sim = new Sixi2Sim();
 	

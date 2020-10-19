@@ -17,11 +17,11 @@ import com.jogamp.opengl.GL2;
  * @author Dan Royer
  */
 public class CameraEntity extends PoseEntity {
-	// orientation
-	protected Vector3d forward = new Vector3d(1,0,0);
-	protected Vector3d right = new Vector3d(0,1,0);
-	protected Vector3d up = new Vector3d(0,0,1);
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2042647908029220648L;
+		
 	// angles
 	protected DoubleEntity pan = new DoubleEntity("Pan",0);
 	protected DoubleEntity tilt = new DoubleEntity("Tilt",0);
@@ -30,9 +30,9 @@ public class CameraEntity extends PoseEntity {
 	// snap system
 	protected DoubleEntity snapDeadZone = new DoubleEntity("Snap dead zone",100);
 	protected DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",45);
-	protected boolean hasSnappingStarted=false;
-	protected double sumDx;
-	protected double sumDy;
+	protected transient boolean hasSnappingStarted=false;
+	protected transient double sumDx;
+	protected transient double sumDy;
 	
 	
 	public CameraEntity() {
@@ -53,19 +53,6 @@ public class CameraEntity extends PoseEntity {
 		a.rotZ(Math.toRadians(panDeg));
 		b.rotX(Math.toRadians(-tiltDeg));
 		c.mul(b,a);
-
-		right.x=c.m00;
-		right.y=c.m01;
-		right.z=c.m02;
-
-		up.x=c.m10;
-		up.y=c.m11;
-		up.z=c.m12;
-		
-		forward.x=c.m20;
-		forward.y=c.m21;
-		forward.z=c.m22;
-		
 		c.transpose();
 		
 		return c;

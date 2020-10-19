@@ -24,6 +24,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  */
 public class Scene extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2990084741436544957L;
 	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
 	
 	public Scene() {

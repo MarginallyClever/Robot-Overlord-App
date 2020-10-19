@@ -18,6 +18,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 public class Sixi2Live extends Entity {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4726488200398410229L;
 	protected DHRobotModel model;
 	// roughly equivalent to Sixi2Sim.poseTo
 	protected PoseFK poseSent;

@@ -14,6 +14,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 @Deprecated
 public class SixiJoystick extends ModelEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3463275255789595886L;
+
 	private Sixi2 target;
 	
 	private RemoteEntity connection = new RemoteEntity();

@@ -97,6 +97,10 @@ import com.marginallyclever.util.PropertiesFileHelper;
  *
  */
 public class RobotOverlord extends Entity implements MouseListener, MouseMotionListener, GLEventListener, UndoableEditListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8890695769715268519L;
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	

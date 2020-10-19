@@ -23,6 +23,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class ViewportEntity extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7613439702723031982L;
 	protected int canvasWidth, canvasHeight;
 	protected double cursorX,cursorY;
 	protected boolean isPressed;

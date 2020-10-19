@@ -25,6 +25,10 @@ import com.marginallyclever.robotOverlord.swingInterface.InputManager;
  * @author Dan Royer
  */
 public class DHTool_Gripper extends DHTool implements MementoOriginator {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1544140469103301389L;
 	public static final double ANGLE_MAX=55;
 	public static final double ANGLE_MIN=10;
 	

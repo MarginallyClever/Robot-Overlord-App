@@ -16,6 +16,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4661259130802425144L;
 	Vector3dEntity pos = new Vector3dEntity("Position");
 	Vector3dEntity rot = new Vector3dEntity("Rotation");
 	

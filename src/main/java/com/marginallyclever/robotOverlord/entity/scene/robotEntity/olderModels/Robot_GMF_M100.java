@@ -15,6 +15,10 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
  *
  */
 public class Robot_GMF_M100 extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3788475254620756094L;
 	DHRobotModel live;
 
 	public Robot_GMF_M100() {

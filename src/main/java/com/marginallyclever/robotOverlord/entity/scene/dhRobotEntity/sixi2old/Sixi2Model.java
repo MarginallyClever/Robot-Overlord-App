@@ -33,6 +33,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 @Deprecated
 public class Sixi2Model extends DHRobotModel implements MementoOriginator {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6760794014688189880L;
+
 	public static final double SENSOR_RESOLUTION = 360.0 / Math.pow(2,14); 
 	
 	public static final double MAX_FEEDRATE = 80.0;  // cm/s

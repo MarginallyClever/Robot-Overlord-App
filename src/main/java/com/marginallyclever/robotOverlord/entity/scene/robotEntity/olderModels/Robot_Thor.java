@@ -13,6 +13,10 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 
 
 public class Robot_Thor extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1098202067875588529L;
 	public transient boolean isFirstTime;
 	public MaterialEntity material;
 	protected DHRobotModel live;

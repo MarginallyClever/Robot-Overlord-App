@@ -14,6 +14,10 @@ import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Skycam extends RobotEntity implements MementoOriginator {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7308619886170592734L;
 	public Vector3dEntity size = new Vector3dEntity();
 	public PoseEntity ee = new PoseEntity("End Effector");
 	

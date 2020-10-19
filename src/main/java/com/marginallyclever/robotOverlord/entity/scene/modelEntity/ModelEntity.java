@@ -33,6 +33,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
 public class ModelEntity extends PoseEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6421492357105354857L;
+
 	// the pool of all models loaded
 	@JsonIgnore
 	private static LinkedList<Model> modelPool = new LinkedList<Model>();

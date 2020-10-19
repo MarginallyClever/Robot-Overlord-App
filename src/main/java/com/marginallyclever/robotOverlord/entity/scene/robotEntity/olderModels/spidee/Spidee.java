@@ -26,6 +26,10 @@ import java.io.BufferedReader;
 
 @Deprecated
 public class Spidee extends RobotEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8759931076095273381L;
 	public static final String hello="HELLO WORLD!  I AM SPIDEE #"; 
 	protected long robotUID=0;
 	

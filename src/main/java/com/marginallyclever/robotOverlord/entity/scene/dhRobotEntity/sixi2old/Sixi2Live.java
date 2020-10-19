@@ -19,6 +19,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 @Deprecated
 public class Sixi2Live extends Sixi2Model {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5343715421843003835L;
 	public static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,14); 
 	public static final int MAX_HISTORY = 3;
 	

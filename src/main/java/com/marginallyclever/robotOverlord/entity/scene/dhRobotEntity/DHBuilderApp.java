@@ -30,6 +30,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class DHBuilderApp extends DHRobotModel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6652532320052257924L;
+
 	public static final String [] BONE_NAMES = { "X", "Y", "Z", "U", "V", "W" };
 	
 	protected ModelEntity anchor = new ModelEntity();

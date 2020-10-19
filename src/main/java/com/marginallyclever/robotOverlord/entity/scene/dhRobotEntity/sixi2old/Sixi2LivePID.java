@@ -19,6 +19,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 @Deprecated
 public class Sixi2LivePID extends Sixi2Model {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2050689950673373411L;
 	protected PoseFK receivedKeyframe;
 	protected int gMode=0;
 	protected DoubleEntity feedRate = new DoubleEntity("Feedrate",25);

@@ -8,6 +8,10 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class GridEntity extends PoseEntity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5329188355998127781L;
 	public IntEntity width = new IntEntity("Width (cm)",100);
 	public IntEntity height = new IntEntity("Height (cm)",100);
 	public ColorEntity color = new ColorEntity("Color",0,0,0,1);

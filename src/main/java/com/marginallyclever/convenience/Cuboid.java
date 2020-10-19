@@ -1,5 +1,6 @@
 package com.marginallyclever.convenience;
 
+import java.io.Serializable;
 import java.nio.IntBuffer;
 
 import javax.vecmath.Matrix4d;
@@ -12,7 +13,12 @@ import com.jogamp.opengl.GL2;
  * @author Dan Royer
  * @since 2.1.0
  */
-public class Cuboid extends BoundingVolume {
+public class Cuboid extends BoundingVolume implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1617983108751476098L;
+
 	protected Matrix4d poseWorld = new Matrix4d();  // relative to universe
 	
 	protected Point3d boundTop = new Point3d();  // max limits

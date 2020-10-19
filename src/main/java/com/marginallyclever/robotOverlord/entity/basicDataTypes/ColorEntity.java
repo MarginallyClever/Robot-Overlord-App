@@ -11,6 +11,12 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class ColorEntity extends AbstractEntity<float[]> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2162459650636178933L;
+
+
 	public ColorEntity() {
 		this(0,0,0,0);
 	}

@@ -12,6 +12,12 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 public class Vector3dEntity extends AbstractEntity<Vector3d> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6504746583968180431L;
+
+
 	public Vector3dEntity() {
 		super(new Vector3d());
 	}

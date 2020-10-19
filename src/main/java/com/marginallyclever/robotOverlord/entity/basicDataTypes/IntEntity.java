@@ -9,6 +9,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class IntEntity extends AbstractEntity<Integer> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -665400072120969645L;
+
 	public IntEntity() {
 		super();
 	}

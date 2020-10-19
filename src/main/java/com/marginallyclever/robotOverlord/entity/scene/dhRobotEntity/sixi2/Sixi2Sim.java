@@ -16,6 +16,11 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class Sixi2Sim extends Entity {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8618746034128255505L;
+
 	protected DHRobotModel model;
 	
 	// poseTo represents the desired destination. It could be null if there is none.  Roughly equivalent to Sixi2Live.poseSent.

@@ -18,6 +18,10 @@ public class TextureEntity extends StringEntity {
 
 	// TODO load textures from a texture pool to eliminate duplicates?  See ModelEntity for example.
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2104122122058199991L;
 	private transient Texture texture;
 	private transient boolean textureDirty;
 	

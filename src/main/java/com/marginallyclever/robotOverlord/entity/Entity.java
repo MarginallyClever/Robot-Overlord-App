@@ -1,5 +1,9 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -14,14 +18,19 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class Entity extends Observable implements Observer, Cloneable {
+public class Entity extends Observable implements Observer, Cloneable, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -470516237871859765L;
+
 	private String name;
 
 	// my children
-	protected ArrayList<Entity> children = new ArrayList<Entity>();
+	protected transient ArrayList<Entity> children = new ArrayList<Entity>();
 	
 	// my parent
-	protected Entity parent;
+	protected transient Entity parent;
 
 	
 	public Entity() {
@@ -243,5 +252,27 @@ public class Entity extends Observable implements Observer, Cloneable {
 		}
 		
 		return e;
+	}
+	
+	// Serialization
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.writeObject(name);
+		stream.writeInt(children.size());
+		for( Entity c : children ) {
+			stream.writeObject(c);
+		}
+	}
+
+	// Serialization
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		name = (String)stream.readObject();
+
+		// load and associate children
+		children = new ArrayList<Entity>();
+		int count = stream.readInt();
+		for(int i=0;i<count;++i) {
+			Entity child = (Entity)stream.readObject();
+			addChild(child);
+		}
 	}
 }
