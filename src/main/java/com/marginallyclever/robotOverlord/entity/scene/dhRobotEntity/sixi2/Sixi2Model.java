@@ -173,7 +173,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		refreshPose();
 		
 		// Use the poseWorld for each DHLink to adjust the model origins.
-		for(int i=0;i<getNumLinks();++i) {
+		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
 			if(bone.getModel()!=null) {
 				Matrix4d iWP = bone.getPoseWorld();
@@ -188,10 +188,8 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		goHome();
 		// make room to store the current position and get a copy of the default.
 		poseFK = getPoseFK();
-		// make sure the matrixes in the model match the default position...
-		refreshPose();
 		// ...so that we can get the IK pose of the finger tip.
-		poseIK.set(links.get(getNumLinks()-1).getPoseWorld());
+		poseIK.set(links.get(links.size()-1).getPoseWorld());
 	}
 
 	/**

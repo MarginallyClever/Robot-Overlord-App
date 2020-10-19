@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old;
 
+@Deprecated
 public enum InterpolationStyle {
 	LINEAR_FK(0,"Linear FK"),
 	LINEAR_IK(1,"Linear IK"),

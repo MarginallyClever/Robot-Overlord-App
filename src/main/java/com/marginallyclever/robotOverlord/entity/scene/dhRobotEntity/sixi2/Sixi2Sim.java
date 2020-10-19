@@ -175,13 +175,13 @@ public class Sixi2Sim extends Entity {
 	 * @param poseTo
 	 * @throws CloneNotSupportedException 
 	 */
-	public void AddDestination(PoseFK poseTo,double feedrate,double acceleration) {
+	public boolean AddDestination(PoseFK poseTo,double feedrate,double acceleration) {
 		PoseFK start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
 		
 		Sixi2SimSegment next = new Sixi2SimSegment(start,poseTo);
 		
 		// zero distance?  do nothing.
-		if(next.distance==0) return;
+		if(next.distance==0) return true;
 		
 		double timeToEnd = next.distance / feedrate;
 
@@ -285,6 +285,8 @@ public class Sixi2Sim extends Entity {
 		queue.add(next);
 		
 		recalculateAcceleration();
+		
+		return true;
 	}
 	
 	protected void recalculateAcceleration() {
@@ -429,5 +431,9 @@ public class Sixi2Sim extends Entity {
 			sum += s.end_s - s.now_s;
 		}
 		return sum;
+	}
+	
+	public boolean isRemoteIsReadyForCommands() {
+		return true;
 	}
 }

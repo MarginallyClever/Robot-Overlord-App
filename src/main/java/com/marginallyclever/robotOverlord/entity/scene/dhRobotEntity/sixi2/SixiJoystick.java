@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.util.Observable;
 import java.util.StringTokenizer;
@@ -7,12 +7,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old.Sixi2;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
-@Deprecated
 public class SixiJoystick extends ModelEntity {
 	/**
 	 * 
@@ -56,7 +55,18 @@ public class SixiJoystick extends ModelEntity {
 			lock.lock();
 			try {
 				if(target==null) {
+					
 					target = findRobot();
+					if(target!=null) {
+						Sixi2Model model = (Sixi2Model)target.getModel();
+
+						if(keyframe==null) {
+							keyframe = model.createPoseFK();
+							for(int j=0;j<keyframeSamples.length;++j) {
+								keyframeSamples[j]= model.createPoseFK();
+							}
+						}
+					}
 				}
 				if(target!=null) {
 					String message = (String)obj;
@@ -64,12 +74,6 @@ public class SixiJoystick extends ModelEntity {
 					
 					int i,j;
 					
-					if(keyframe==null) {
-						keyframe = target.sim.createPoseFK();
-						for(j=0;j<keyframeSamples.length;++j) {
-							keyframeSamples[j]= target.sim.createPoseFK();
-						}
-					}
 					// age the samples
 					for(j=1;j<keyframeSamples.length;++j) {
 						keyframeSamples[j-1].set(keyframeSamples[j]);
@@ -114,7 +118,15 @@ public class SixiJoystick extends ModelEntity {
 		if(lock.isLocked()) return;
 		lock.lock();
 		try {
-			target.sim.setPoseTo(keyframe);
+			Sixi2Command sc = target.getCursor();
+			if(sc!=null) {
+				// set the cursor to the joystick position
+				Sixi2Model m = (Sixi2Model) target.getModel();
+				m.setPoseFK(keyframe);
+				sc.setPose(m.getPoseIK());
+				// and notify observers so they update the ik pose.
+				sc.notifyObservers();
+			}
 		}
 		finally {
 			lock.unlock();

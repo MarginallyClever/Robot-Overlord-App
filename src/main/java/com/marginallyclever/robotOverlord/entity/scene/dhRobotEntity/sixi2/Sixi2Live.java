@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.LinkedList;
 import java.util.Observable;
 
@@ -30,7 +32,7 @@ public class Sixi2Live extends Entity {
 	// connection to robot outside this app. 
 	protected RemoteEntity connection = new RemoteEntity();
 
-	protected LinkedList<PoseAtTime> received = new LinkedList<PoseAtTime>();  
+	protected transient LinkedList<PoseAtTime> received = new LinkedList<PoseAtTime>();  
 	public static final int RECEIVED_BUFFER_LEN = 3;
 
 	protected boolean waitingForOpenConnection;
@@ -47,9 +49,10 @@ public class Sixi2Live extends Entity {
 		
 		connection.addObserver(this);
 		
+		remoteIsReadyForCommands = false;
 		waitingForOpenConnection = true;
 	}
-	
+
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("L", "Live");
@@ -98,9 +101,7 @@ public class Sixi2Live extends Entity {
 					key0.fkValues[3] = StringHelper.parseNumber(tokens[4]);
 					key0.fkValues[4] = StringHelper.parseNumber(tokens[5]);
 					key0.fkValues[5] = StringHelper.parseNumber(tokens[6]);
-					PoseAtTime pat = new PoseAtTime();
-					pat.p=key0;
-					pat.t=System.currentTimeMillis();
+					PoseAtTime pat = new PoseAtTime(key0,System.currentTimeMillis());
 					received.add(pat);
 					setPoseReceived(key0);
 					if(received.size() > RECEIVED_BUFFER_LEN) {
@@ -206,19 +207,31 @@ public class Sixi2Live extends Entity {
 		}
 	}
 	
-	public void AddDestination(PoseFK poseTo, double feedrate, double acceleration) {
-		if(connection.isConnectionOpen()) {
-			connection.sendMessageGuaranteed("G0"
-					+" X"+StringHelper.formatDouble(poseTo.fkValues[0])
-					+" Y"+StringHelper.formatDouble(poseTo.fkValues[1])
-					+" Z"+StringHelper.formatDouble(poseTo.fkValues[2])
-					+" U"+StringHelper.formatDouble(poseTo.fkValues[3])
-					+" V"+StringHelper.formatDouble(poseTo.fkValues[4])
-					+" W"+StringHelper.formatDouble(poseTo.fkValues[5])
-					+" F"+StringHelper.formatDouble(feedrate)
-					+" A"+StringHelper.formatDouble(acceleration)
-					);
-			setPoseSent(poseTo);
-		}
+	public boolean isRemoteIsReadyForCommands() {
+		return remoteIsReadyForCommands;
+	}
+	
+	public boolean AddDestination(PoseFK poseTo, double feedrate, double acceleration) {
+		if(!remoteIsReadyForCommands) return false;
+		
+		if(!connection.isConnectionOpen()) return false;
+		
+		connection.sendMessageGuaranteed("G0"
+				+" X"+StringHelper.formatDouble(poseTo.fkValues[0])
+				+" Y"+StringHelper.formatDouble(poseTo.fkValues[1])
+				+" Z"+StringHelper.formatDouble(poseTo.fkValues[2])
+				+" U"+StringHelper.formatDouble(poseTo.fkValues[3])
+				+" V"+StringHelper.formatDouble(poseTo.fkValues[4])
+				+" W"+StringHelper.formatDouble(poseTo.fkValues[5])
+				+" F"+StringHelper.formatDouble(feedrate)
+				+" A"+StringHelper.formatDouble(acceleration)
+				);
+		setPoseSent(poseTo);
+		return true;
+	}
+	
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		received = new LinkedList<PoseAtTime>();  
 	}
 }

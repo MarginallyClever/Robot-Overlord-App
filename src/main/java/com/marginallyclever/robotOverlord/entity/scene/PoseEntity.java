@@ -237,7 +237,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 		//if(!m.epsilonEquals(poseWorld.get(), 1e-6))
 		{
 			poseWorld.set(m);
-			cuboid.setPoseWorld(this.getPoseWorld());
+			cuboid.setPoseWorld(m);
 			
 			for( Entity c : children ) {
 				if(c instanceof PoseEntity) {

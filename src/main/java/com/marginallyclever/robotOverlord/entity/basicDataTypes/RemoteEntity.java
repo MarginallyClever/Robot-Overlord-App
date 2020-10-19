@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import com.marginallyclever.communications.NetworkConnection;
@@ -44,8 +46,6 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	static final String NEWLINE = "\n";
 	static final String COMMENT_START = ";";
 	
-	private NetworkConnection connection;
-	
 	public class NumberedCommand {
 		// the line number for this command
 		public int n;
@@ -61,13 +61,23 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 			c="";
 		}
 	}
+
+	private transient NetworkConnection connection;
 	
-	private LinkedList<NumberedCommand> commands = new LinkedList<NumberedCommand>();
-	private int lastNumberAdded=0;
-	private int nextNumberToSend=0;
-	private boolean waitingForCue = false;
-	private ArrayList<Byte> partialMessage = new ArrayList<Byte>();
+	private transient int lastNumberAdded=0;
+	private transient int nextNumberToSend=0;
+	private transient boolean waitingForCue = false;
+	// data being sent
+	private transient LinkedList<NumberedCommand> commands = new LinkedList<NumberedCommand>();
+	// data received
+	private transient ArrayList<Byte> partialMessage = new ArrayList<Byte>();
+
 	
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		commands = new LinkedList<NumberedCommand>();
+		partialMessage = new ArrayList<Byte>();
+	}
 	
 	public RemoteEntity() {
 		super();

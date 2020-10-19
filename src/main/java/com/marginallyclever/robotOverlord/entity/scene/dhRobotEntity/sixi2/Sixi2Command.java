@@ -22,12 +22,12 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public PoseFK poseFK;
-
+	protected PoseFK poseFK;
 	protected DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2Model.DEFAULT_FEEDRATE);
 	protected DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2Model.DEFAULT_ACCELERATION);
 
 	public Sixi2Command() {
+		super("Pose");
 	}
 	
 	public Sixi2Command(PoseFK p,double f,double a) {
@@ -41,6 +41,14 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		
 		feedrateSlider.set(f);
 		accelerationSlider.set(a);
+	}
+
+	public PoseFK getPoseFK() {
+		return poseFK;
+	}
+
+	public void setPoseFK(PoseFK poseFK) {
+		this.poseFK = poseFK;
 	}
 	
 	@Override
@@ -69,7 +77,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 			public void update(Observable o, Object arg) {
 				Sixi2 e = findParentSixi2();
 				if(e==null) return;
-				e.addDestination(sc);
+				e.queueDestination(sc);
 			}
 		});
 		view.addButton("Goto").addObserver(new Observer() {

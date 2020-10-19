@@ -1,5 +1,7 @@
 package com.marginallyclever.communications;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 /**
@@ -10,7 +12,7 @@ import java.util.ArrayList;
  */
 public abstract class NetworkConnection {
 	// Listeners which should be notified of a change to the percentage.
-	private ArrayList<NetworkConnectionListener> listeners;
+	private transient ArrayList<NetworkConnectionListener> listeners;
 	
 	protected NetworkConnection() {
 		listeners = new ArrayList<NetworkConnectionListener>();
@@ -63,5 +65,10 @@ public abstract class NetworkConnection {
 		for (NetworkConnectionListener listener : listeners) {
 			listener.dataAvailable(this,line);
 		}
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		listeners = new ArrayList<NetworkConnectionListener>();
 	}
 }

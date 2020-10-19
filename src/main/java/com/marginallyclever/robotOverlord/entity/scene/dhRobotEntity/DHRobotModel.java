@@ -335,7 +335,12 @@ public class DHRobotModel extends Entity {
 			} else if(VERBOSE) Log.message("isPoseIKSane() insane");
 		} else if(VERBOSE) Log.message("isPoseIKSane() not one solution");
 		
-		return isSane ? poseFKnew : null;
+		if(!isSane) {
+			setPoseFK(poseFKold);
+			return null;
+		} else {
+			return poseFKnew;
+		}
 	}
 
 	/**

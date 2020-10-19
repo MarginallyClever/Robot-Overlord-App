@@ -497,7 +497,7 @@ public class DragBallEntity extends PoseEntity {
 			double scale = 5.0*dt;  // TODO something better?
 			double rawx= InputManager.getRawValue(InputManager.Source.MOUSE_X);
 			double rawy= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
-			double dx = rawx * scale;
+			double dx = rawx *  scale;
 			double dy = rawy * -scale;
 			
 			switch(majorAxisSlideDirection) {

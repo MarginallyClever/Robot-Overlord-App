@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -44,11 +45,11 @@ public class Sixi2 extends PoseEntity {
 	 */
 	private static final long serialVersionUID = -3853296509642009298L;
 	// the model used to render & control (the Flyweight)
-	protected DHRobotModel model;
+	protected transient DHRobotModel model;
 	// the live robot in the real world.  Controls comms with the machine.
-	protected Sixi2Live live;
+	protected transient Sixi2Live live;
 	// a simulation of the motors which should match the ideal physical behavior.
-	protected Sixi2Sim sim;
+	protected transient Sixi2Sim sim;
 	
 	// there's also a Sixi2 that the user controls directly through the GUI to set new target states.
 	// in other words, the user has no direct control over the live or sim robots.
@@ -64,8 +65,8 @@ public class Sixi2 extends PoseEntity {
 		live = new Sixi2Live(model);
 		// the interface to the simulated machine.
 		sim = new Sixi2Sim(model);
-		// the "cursor" or "hot" position the user is currently looking at, which is neither live nor sim.
-		setCursor(new Sixi2Command(sim.getPoseNow(),
+		// the "hot" position the user is currently looking at, which is neither live nor sim.
+		setCursor(new Sixi2Command(model.getPoseFK(),
 				Sixi2Model.DEFAULT_FEEDRATE,
 				Sixi2Model.DEFAULT_ACCELERATION));
 		addChild(cursor);
@@ -83,7 +84,7 @@ public class Sixi2 extends PoseEntity {
 		// live machine reports
 		live.render(gl2);
 		// user controlled version
-		model.setPoseFK(cursor.poseFK);
+		model.setPoseFK(cursor.getPoseFK());
 		model.setDiffuseColor(1,1,1,1);
 		model.render(gl2);
 		// simulation claims
@@ -96,7 +97,15 @@ public class Sixi2 extends PoseEntity {
 	}
 	
 	@Override
-	public void update(double dt) {
+	public void update(double dt) {/*
+		if(isPlaying) {
+			if(live.isRemoteIsReadyForCommands()) {
+				
+			}
+			if(sim.isRemoteIsReadyForCommands()) {
+				sim.AddDestination(poseTo, feedrate, acceleration)
+			}
+		}*/
 		live.update(dt);
 		sim.update(dt);
 		
@@ -106,9 +115,12 @@ public class Sixi2 extends PoseEntity {
 	@Override
 	public void update(Observable o, Object arg) {
 		if(o==cursor) {
+			// model state is dirty.  Set it to cursor.poseFK, which is *pretty close* to cursor.pose
+			model.setPoseFK(cursor.getPoseFK());
+			// now set the new cursor IK pose
 			Matrix4d m = cursor.getPose();
 			if(model.setPoseIK(m)) {
-				cursor.poseFK = model.getPoseFK();
+				cursor.setPoseFK(model.getPoseFK());
 			}
 		}
 		super.update(o, arg);
@@ -123,14 +135,14 @@ public class Sixi2 extends PoseEntity {
 				model.goHome();
 				sim.setPoseTo(model.getPoseFK());
 				cursor.setPose(model.getPoseIK());
-				cursor.poseFK = model.getPoseFK();
+				cursor.setPoseFK(model.getPoseFK());
 			}
 		});
 		view.addButton("Append").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				try {
-					addDestination((Sixi2Command)cursor.clone());
+					queueDestination((Sixi2Command)cursor.clone());
 				} catch (CloneNotSupportedException e) {
 					e.printStackTrace();
 				}
@@ -143,7 +155,7 @@ public class Sixi2 extends PoseEntity {
 				for( Entity child : children ) {
 					if(child instanceof Sixi2Command ) {
 						Sixi2Command sc = (Sixi2Command)child;
-						sim.AddDestination(sc.poseFK, sc.feedrateSlider.get(), sc.accelerationSlider.get());
+						sim.AddDestination(sc.getPoseFK(), sc.feedrateSlider.get(), sc.accelerationSlider.get());
 					}
 				}
 				double sum=sim.getTimeRemaining();
@@ -159,6 +171,7 @@ public class Sixi2 extends PoseEntity {
 			@Override
 			public void update(Observable o, Object arg) {
 				clearAllCommands();
+				((RobotOverlord)getRoot()).updateEntityTree();
 			}
 		});
 		view.addButton("Save").addObserver(new Observer() {
@@ -166,7 +179,12 @@ public class Sixi2 extends PoseEntity {
 			public void update(Observable o, Object arg) {
 				Log.message("Saving started.");
 				try {
-					save(filename.get());
+					String f = filename.get();
+					if(!f.endsWith("sixi2")) {
+						f+="sixi2";
+						filename.set(f);
+					}
+					save(f);
 				} catch (Exception e) {
 					//e.printStackTrace();
 					Log.error("Save failed.");
@@ -233,6 +251,7 @@ public class Sixi2 extends PoseEntity {
 			}
 		}
 		fin.close();
+		((RobotOverlord)getRoot()).updateEntityTree();
 	}
 	
 	/**
@@ -253,16 +272,19 @@ public class Sixi2 extends PoseEntity {
 		return model;
 	}
 	
-	public void addDestination(Sixi2Command c) {
-		// queue it
+	/**
+	 * Clone this command and add it to the queue.  If this command is already in the queue, insert the copy 
+	 * immediately prior to the original.  Otherwise append it to the end of the list.
+	 * @param c the command to queue.
+	 */
+	public void queueDestination(Sixi2Command c) {
 		try {
+			// clone it
 			Sixi2Command copy = (Sixi2Command)c.clone();
-			copy.setName(getUniqueChildName(c));
-			
-			int i;
-			for(i=0;i<children.size();++i) {
-				if(children.get(i)==c) break;
-			}
+			// find the original
+			int i = children.indexOf(c);
+			if(i==-1) i = children.size();
+			// add before original or tail of queue, whichever comes first.
 			addChild(i,copy);
 			((RobotOverlord)getRoot()).updateEntityTree();
 		} catch (CloneNotSupportedException e) {
@@ -275,7 +297,6 @@ public class Sixi2 extends PoseEntity {
 		live.AddDestination(poseTo,feedrate, acceleration);
 	}
 	
-
 	// recursively set for all children
 	public void setShowBoundingBox(boolean arg0) {
 		super.setShowBoundingBox(arg0);
@@ -294,15 +315,42 @@ public class Sixi2 extends PoseEntity {
 		model.getLink(0).setShowLineage(arg0);
 	}
 
+	/**
+	 * Set the cursor of the robot to this Sixi2Command.  I don't clone the Sixi2Command so 
+	 * that adjusting the cursor can move the original.
+	 * @param sixi2Command the command to make into the cursor.
+	 */
 	public void setCursor(Sixi2Command sixi2Command) {
 		if(cursor != null)
 			cursor.deleteObserver(this);
 		
-		model.setPoseFK(sixi2Command.poseFK);
+		model.setPoseFK(sixi2Command.getPoseFK());
 		sixi2Command.setPose(model.getPoseIK());
 		cursor = sixi2Command;
 		
 		if(cursor != null)
 			cursor.addObserver(this);
+	}
+
+	public Sixi2Command getCursor() {
+		return cursor;
+	}
+	
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		// model should begin at home position.
+		model = new Sixi2Model();
+		// the interface to the real machine
+		live = new Sixi2Live(model);
+		// the interface to the simulated machine.
+		sim = new Sixi2Sim(model);
+		
+		for(int i=children.size()-1;i>=0;--i) {
+			Entity c = children.get(i); 
+			if(c instanceof Sixi2Command) {
+				setCursor((Sixi2Command)c);
+				return;
+			}
+		}
 	}
 }

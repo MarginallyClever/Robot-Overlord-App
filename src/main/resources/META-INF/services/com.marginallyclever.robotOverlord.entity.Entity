@@ -1,5 +1,4 @@
 
-#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old.Sixi2
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 # DHRobots
@@ -15,7 +14,7 @@ com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.Cartesian
 
 # joystick HID
-#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.SixiJoystick
+#com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.SixiJoystick
 
 #other objects
 com.marginallyclever.robotOverlord.entity.scene.CameraEntity
