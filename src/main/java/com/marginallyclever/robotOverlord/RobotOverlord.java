@@ -55,6 +55,8 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
+import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
 import com.marginallyclever.robotOverlord.entity.scene.DragBallEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
@@ -342,7 +344,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 			        			
 			        			boolean state = (subject!=null && subject.canBeRenamed());
 			        			renameEntity.setEnabled(state);
-			        			removeEntity.setEnabled(state);
+			        			
+			        			removeEntity.setEnabled(subject instanceof RemovableEntity);
 			        		}
 				        });
 				        entityManagerPanel.add(entityTree,BorderLayout.CENTER);
@@ -850,7 +853,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         // get the picking results and return the render mode to the default 
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
-        boolean verbose=false;
+        boolean verbose=true;
         
 		if(verbose) Log.message(hits+" PICKS @ "+pickX+","+pickY);
 		
@@ -894,7 +897,11 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     
 	public void pickEntity(Entity e) {
 		if(e==selectedEntity) return;  // same again
+		
+		
+		if(e!=null && e instanceof EntityFocusListener) ((EntityFocusListener)e).lostFocus();
 		selectedEntity=e;
+		if(e!=null && e instanceof EntityFocusListener) ((EntityFocusListener)e).gainedFocus();
 
 		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
 
