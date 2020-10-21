@@ -137,10 +137,6 @@ public class Entity extends Observable implements Observer, Cloneable, Serializa
 		parent = e;
 	}
 
-	public String toString() {
-		return name;
-	}
-
 	// Find the root node.
 	public Entity getRoot() {
 		Entity e = this;

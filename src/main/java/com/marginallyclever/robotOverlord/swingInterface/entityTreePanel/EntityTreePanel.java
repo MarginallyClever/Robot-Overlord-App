@@ -13,7 +13,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -34,7 +33,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	protected Entity root;  // root of entity tree
 	protected Entity selected;
 	
-    protected DefaultMutableTreeNode oldTop; 
+    protected EntityTreeNode oldTop; 
 	protected JTree oldTree;
 	protected JScrollPane scroll = new JScrollPane();
 
@@ -59,10 +58,10 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		oldTree.clearSelection();
 		
 		// preserve the original expansions
-		LinkedList<DefaultMutableTreeNode> list = new LinkedList<DefaultMutableTreeNode>();
+		LinkedList<EntityTreeNode> list = new LinkedList<EntityTreeNode>();
 		list.add(oldTop);
 		while( !list.isEmpty() ) {
-			DefaultMutableTreeNode node = list.remove();
+			EntityTreeNode node = list.remove();
 			Object o=node.getUserObject();
 			if( o instanceof Entity ) {
 				if( (Entity)o == e ) {
@@ -72,7 +71,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 				}
 			}
 			for(int i=0; i<node.getChildCount(); ++i ) {
-				DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getChildAt(i);
+				EntityTreeNode child = (EntityTreeNode)node.getChildAt(i);
 				list.add(child);
 			}
 		}
@@ -80,7 +79,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	
 
 	// from https://www.logicbig.com/tutorials/java-swing/jtree-expand-collapse-all-nodes.html
-	public static void setNodeExpandedState(JTree tree, DefaultMutableTreeNode node, boolean expanded) {
+	public static void setNodeExpandedState(JTree tree, EntityTreeNode node, boolean expanded) {
 		TreePath path = new TreePath(node.getPath());
 		if (expanded) {
 			tree.expandPath(path);
@@ -89,8 +88,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		}
 		
 		@SuppressWarnings("unchecked")
-		ArrayList<DefaultMutableTreeNode> list = (ArrayList<DefaultMutableTreeNode>)Collections.list(node.children());
-		for (DefaultMutableTreeNode treeNode : list) {
+		ArrayList<EntityTreeNode> list = (ArrayList<EntityTreeNode>)Collections.list(node.children());
+		for (EntityTreeNode treeNode : list) {
 			setNodeExpandedState(tree, treeNode, expanded);
 		}
 		if (!expanded && node.isRoot()) {
@@ -104,7 +103,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
      */
 	public void updateEntityTree() {
 		// list all objects in scene
-	    DefaultMutableTreeNode newTop = createTreeNodes(root);
+	    EntityTreeNode newTop = createTreeNodes(root);
 		JTree newTree = new JTree(newTop);
 
 	    newTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -113,7 +112,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		if(oldTree!=null) {
-			setNodeExpandedState(newTree,(DefaultMutableTreeNode)newTree.getModel().getRoot(),true);
+			setNodeExpandedState(newTree,(EntityTreeNode)newTree.getModel().getRoot(),true);
 			// preserve the original expansions
 			for(int i=0;i<oldTree.getRowCount();++i) {
 				if(!oldTree.isExpanded(i)) {
@@ -161,8 +160,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 
 	// This is a ViewTree of the root entity.
 	// Only add branches of the tree, ignore all leaves.  leaves *should* be handled by the ViewPanel of a single entity.
-	public DefaultMutableTreeNode createTreeNodes(Entity e) {
-		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(e);
+	public EntityTreeNode createTreeNodes(Entity e) {
+		EntityTreeNode parent = new EntityTreeNode(e);
 		for(Entity child : e.getChildren() ) {
 			//if(!child.getChildren().isEmpty())
 			if(!(child instanceof AbstractEntity)) {
@@ -175,7 +174,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	// TreeSelectionListener event
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode)oldTree.getLastSelectedPathComponent();
+		EntityTreeNode node = (EntityTreeNode)oldTree.getLastSelectedPathComponent();
 		Entity e = (node==null) ? null : (Entity)node.getUserObject();
 		selected=e;
 		EntityTreePanelEvent event = new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,e);
