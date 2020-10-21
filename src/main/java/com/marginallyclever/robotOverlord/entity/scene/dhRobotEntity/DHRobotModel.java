@@ -21,7 +21,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * range of motion, maximum force of each motor, collision bounds for each bone, and triangle mesh for each bone.
  * 
  * A physical description may be in any one of many states.  Put another way, all valid states exist within the bounds set by
- * a physical description. 
+ * a physical description.
+ * 
+ * All possible tools for a robot exist somewhere within this space, so they must also be within this model.  Then the current
+ * tool in use is a part of the state, and any sub-information (tool wear, gripper claw position, etc) are part of the state.
  * 
  * @author Dan Royer
  */
@@ -37,7 +40,10 @@ public class DHRobotModel extends Entity {
 	// The solver for this type of robot.  A solver figures out how to translate FK to/from IK
 	protected transient DHIKSolver ikSolver;
 	
-	// a DHTool attached to the arm.
+	// all the possible tools for this arm.  
+	protected List<DHTool> allTools = new ArrayList<DHTool>(); 
+
+	// a tool attached to the arm.
 	public DHTool dhTool;
 
 	// more debug output, please.
@@ -425,6 +431,14 @@ public class DHRobotModel extends Entity {
 		for(int i=0;i<getNumLinks();++i) {
 			getLink(i).getMaterial().setDiffuseColor(r,g,b,a);
 		}
+	}
+	
+	public void addTool(DHTool t) {
+		allTools.add(t);
+	}
+	
+	public void removeTool(DHTool t) {
+		allTools.remove(t);
 	}
 	
 	/**

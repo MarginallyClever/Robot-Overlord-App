@@ -21,6 +21,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckGripper;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -76,10 +77,8 @@ public class Sixi2 extends PoseEntity {
 				Sixi2Model.DEFAULT_FEEDRATE,
 				Sixi2Model.DEFAULT_ACCELERATION));
 		addChild(cursor);
-		//addChild(live);
-		//addChild(sim);
-		
-		// set the user controlled IK to the model, which is at home position.
+
+		model.addTool(new Sixi2ChuckGripper());
 	}
 	
 	@Override
