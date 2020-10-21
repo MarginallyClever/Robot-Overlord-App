@@ -229,13 +229,23 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 
 	@Override
 	public Memento getState() {
-		return this.getPoseFK();
+		Sixi2ModelState s = new Sixi2ModelState();
+		s.poseFK = getPoseFK();
+		s.currentTool = this.toolIndex;
+		if(toolIndex>=0 && toolIndex < allTools.size()) {
+			s.toolMemento = allTools.get(toolIndex).getState();
+		}
+		return s;
 	}
 
 	@Override
 	public void setState(Memento arg0) {
-		if(arg0 instanceof PoseFK) {
-			this.setPoseFK((PoseFK)arg0);
+		if(!(arg0 instanceof Sixi2ModelState)) return;
+		Sixi2ModelState s = (Sixi2ModelState)arg0;
+		this.setPoseFK(s.poseFK);
+		this.toolIndex = s.currentTool;
+		if(toolIndex>=0 && toolIndex < allTools.size()) {
+			allTools.get(toolIndex).setState(s.toolMemento);
 		}
 	}
 	
