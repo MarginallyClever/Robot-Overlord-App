@@ -36,7 +36,7 @@ public class Sixi2Live extends Entity {
 	public static final int RECEIVED_BUFFER_LEN = 3;
 
 	protected boolean waitingForOpenConnection;
-	protected boolean remoteIsReadyForCommands;
+	protected boolean readyForCommands;
 
 	protected double[] cartesianForceMeasured = {0,0,0,0,0,0,0};
 	protected double[] jointVelocityMeasured = {0,0,0,0,0,0,0};
@@ -49,7 +49,7 @@ public class Sixi2Live extends Entity {
 		
 		connection.addObserver(this);
 		
-		remoteIsReadyForCommands = false;
+		readyForCommands = false;
 		waitingForOpenConnection = true;
 	}
 
@@ -81,7 +81,7 @@ public class Sixi2Live extends Entity {
 
 		if (data.startsWith("> ")) {
 			// can only be ready if also done waiting for open connection.
-			remoteIsReadyForCommands = !waitingForOpenConnection;
+			readyForCommands = !waitingForOpenConnection;
 			//if(remoteIsReadyForCommands) Log.message("SIX READY");
 			data = data.substring(2);
 		}
@@ -144,13 +144,6 @@ public class Sixi2Live extends Entity {
 			if (waitingForOpenConnection) {
 				waitingForOpenConnection = false;
 				sendCommandToRemoteEntity("D50 S1",true);
-				// send once
-				for (int i = 0; i < PIDs.length; ++i) {
-					Vector3d newValue = PIDs[i].get();
-					String message = "M306 L" + i + " P" + newValue.x + " I" + newValue.y + " D" + newValue.z;
-					sendCommandToRemoteEntity(message,true);
-				}
-				remoteIsReadyForCommands = false;
 
 				receivedKeyframeCount=0;
 			}*/
@@ -207,12 +200,12 @@ public class Sixi2Live extends Entity {
 		}
 	}
 	
-	public boolean isRemoteIsReadyForCommands() {
-		return remoteIsReadyForCommands;
+	public boolean isReadyForCommands() {
+		return readyForCommands;
 	}
 	
-	public boolean AddDestination(PoseFK poseTo, double feedrate, double acceleration) {
-		if(!remoteIsReadyForCommands) return false;
+	public boolean addDestination(PoseFK poseTo, double feedrate, double acceleration) {
+		if(!readyForCommands) return false;
 		
 		if(!connection.isConnectionOpen()) return false;
 		
@@ -228,6 +221,10 @@ public class Sixi2Live extends Entity {
 				);
 		setPoseSent(poseTo);
 		return true;
+	}
+
+	public void eStop() {
+		connection.sendMessageGuaranteed("M112");
 	}
 	
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {

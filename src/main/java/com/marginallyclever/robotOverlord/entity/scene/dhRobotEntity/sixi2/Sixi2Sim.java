@@ -34,6 +34,7 @@ public class Sixi2Sim extends Entity {
 	
 	// the sequence of poses to drive towards.
 	protected LinkedList<Sixi2SimSegment> queue = new LinkedList<Sixi2SimSegment>();
+	protected boolean readyForCommands;
 
 	public Sixi2Sim(DHRobotModel model) {
 		super("Sixi2 Sim");
@@ -44,6 +45,8 @@ public class Sixi2Sim extends Entity {
 		
 		// I assume the simulated robot starts at the home position.
 		setPoseNow(model.getPoseFK());
+		
+		readyForCommands=true;
 	}
 	
 	@Override
@@ -58,34 +61,21 @@ public class Sixi2Sim extends Entity {
 				seg.now_s = seg.end_s;
 			}
 			
-			updateForces(seg);
-			updateVelocities(seg);
 			updatePositions(seg);
 			
 			if(seg.now_s== seg.end_s) {
-				System.out.println("pop");
 				queue.pop();
 				// make sure the remainder isn't lost.
 				if(!queue.isEmpty()) {
 					queue.getFirst().now_s = diff;
 				}
 			}
+			
+			readyForCommands=(queue.size()<Sixi2Model.MAX_SEGMENTS); 
 		}
 		
 		super.update(dt);
 	}
-	
-	/**
-	 * override this to adjust forces acting on each joint
-	 * @param dt
-	 */
-	protected void updateForces(Sixi2SimSegment s) {}
-	
-	/**
-	 * override this to adjust velocities of each joint
-	 * @param dt
-	 */
-	protected void updateVelocities(Sixi2SimSegment s) {}
 
 	/**
 	 * override this to change behavior of joints over time.
@@ -113,24 +103,27 @@ public class Sixi2Sim extends Entity {
 		// find the fraction of the total distance travelled
 		double fraction = p / seg.distance;
 		fraction = Math.min(Math.max(fraction, 0), 1);
-		/*
-		System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": ");
-		for(int i=0;i<poseNow.fkValues.length;++i) {
-			System.out.print(StringHelper.formatDouble(seg.start.fkValues[i])+" ");
+		
+		boolean verbose=false;
+		if(verbose) {
+			System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": ");
+			for(int i=0;i<poseNow.fkValues.length;++i) {
+				System.out.print(StringHelper.formatDouble(seg.start.fkValues[i])+" ");
+			}
+			System.out.print(fraction+" + ");
+	
+			for(int i=0;i<poseNow.fkValues.length;++i) {
+				System.out.print(StringHelper.formatDouble(seg.delta.fkValues[i])+" ");
+			}
+			System.out.print(seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" : "+fraction+" = ");
 		}
-		System.out.print(fraction+" + ");
-
-		for(int i=0;i<poseNow.fkValues.length;++i) {
-			System.out.print(StringHelper.formatDouble(seg.delta.fkValues[i])+" ");
-		}*/
-		System.out.print(seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" : "+fraction+" = ");
 		
 		// set pos = start + delta * fraction
 		for(int i=0;i<poseNow.fkValues.length;++i) {
 			poseNow.fkValues[i] = seg.start.fkValues[i] + (seg.delta.fkValues[i]) * fraction;
-			System.out.print(StringHelper.formatDouble(poseNow.fkValues[i])+" ");
+			if(verbose) System.out.print(StringHelper.formatDouble(poseNow.fkValues[i])+" ");
 		}
-		System.out.println();
+		if(verbose) System.out.println();
 	}
 	
 	@Override
@@ -175,7 +168,7 @@ public class Sixi2Sim extends Entity {
 	 * @param poseTo
 	 * @throws CloneNotSupportedException 
 	 */
-	public boolean AddDestination(PoseFK poseTo,double feedrate,double acceleration) {
+	public boolean addDestination(PoseFK poseTo, double feedrate, double acceleration) {
 		PoseFK start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
 		
 		Sixi2SimSegment next = new Sixi2SimSegment(start,poseTo);
@@ -396,8 +389,8 @@ public class Sixi2Sim extends Entity {
 		seg.accelerateUntilT = accelerateT;
 		seg.decelerateAfterT = accelerateT + nominalT;
 		seg.end_s = accelerateT + nominalT + decelerateT;
-		seg.entrySpeed=entrySpeed;
-		seg.exitSpeed=exitSpeed;
+		seg.entrySpeed = entrySpeed;
+		seg.exitSpeed = exitSpeed;
 	}
 
 	/**
@@ -433,7 +426,7 @@ public class Sixi2Sim extends Entity {
 		return sum;
 	}
 	
-	public boolean isRemoteIsReadyForCommands() {
-		return true;
+	public boolean isReadyForCommands() {
+		return readyForCommands;
 	}
 }

@@ -55,7 +55,14 @@ public class Sixi2 extends PoseEntity {
 	// in other words, the user has no direct control over the live or sim robots.
 	protected transient Sixi2Command cursor;
 	
+	// where to save/load commands
 	protected StringEntity filename = new StringEntity("");
+	ArrayList<Sixi2Command> playlist = new ArrayList<Sixi2Command>();
+	protected boolean isPlaying = false;
+	protected transient int playheadLive;
+	protected transient int playheadSim;
+	protected double playTimeTotal;
+	
 	
 	public Sixi2() {
 		super("Sixi2");
@@ -97,15 +104,32 @@ public class Sixi2 extends PoseEntity {
 	}
 	
 	@Override
-	public void update(double dt) {/*
+	public void update(double dt) {
 		if(isPlaying) {
-			if(live.isRemoteIsReadyForCommands()) {
-				
+			playTimeTotal+=dt;
+			int doneCount=0;
+			
+			if(live.isReadyForCommands()) {
+				if( playheadLive < playlist.size() ) {
+					Sixi2Command c = playlist.get(playheadLive++);
+					live.addDestination(c.poseFK, (double)c.feedrateSlider.get(), (double)c.accelerationSlider.get());
+				} else doneCount++;
+			} else doneCount++;
+			
+			if(sim.isReadyForCommands()) {
+				if( playheadSim < playlist.size() ) {
+					Sixi2Command c = playlist.get(playheadSim++);
+					sim.addDestination(c.poseFK, (double)c.feedrateSlider.get(), (double)c.accelerationSlider.get());
+				} else doneCount++;
 			}
-			if(sim.isRemoteIsReadyForCommands()) {
-				sim.AddDestination(poseTo, feedrate, acceleration)
+			
+			if(doneCount==2) {
+				Log.message("Playback queueing done @ "+StringHelper.formatTime(playTimeTotal));
+				// all finished
+				isPlaying=false;
+				playlist.clear();
 			}
-		}*/
+		}
 		live.update(dt);
 		sim.update(dt);
 		
@@ -155,7 +179,7 @@ public class Sixi2 extends PoseEntity {
 				for( Entity child : children ) {
 					if(child instanceof Sixi2Command ) {
 						Sixi2Command sc = (Sixi2Command)child;
-						sim.AddDestination(sc.getPoseFK(), sc.feedrateSlider.get(), sc.accelerationSlider.get());
+						sim.addDestination(sc.getPoseFK(), sc.feedrateSlider.get(), sc.accelerationSlider.get());
 					}
 				}
 				double sum=sim.getTimeRemaining();
@@ -170,6 +194,7 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("New").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
+				if(isPlaying) return;
 				clearAllCommands();
 				((RobotOverlord)getRoot()).updateEntityTree();
 			}
@@ -195,6 +220,7 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("Load").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
+				if(isPlaying) return;
 				Log.message("Loading started.");
 				try {
 					load(filename.get());
@@ -205,6 +231,39 @@ public class Sixi2 extends PoseEntity {
 				Log.message("Loading finished.");
 			}
 		});
+		view.addButton("Run").addObserver(new Observer() {
+			@Override
+			public void update(Observable arg0, Object arg1) {
+				if(isPlaying) return;
+				playlist.clear();
+				playheadLive = 0;
+				playheadSim = 0;
+				playTimeTotal = 0;
+				// clone the playlist so that it cannot be broken while the playback is in progress.
+				try {
+					for( Entity c : children ) {
+						if( c instanceof Sixi2Command ) {
+							playlist.add((Sixi2Command)((Sixi2Command) c).clone());
+						}
+					}
+					isPlaying=true;
+					Log.message("Playback started.");
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		});
+		view.addButton("Stop").addObserver(new Observer() {
+			@Override
+			public void update(Observable arg0, Object arg1) {
+				if(isPlaying) return;
+				isPlaying=false;
+				Log.message("Playback stopped.");
+			}
+		});
+		
 		view.popStack();
 		
 		sim.getView(view);
@@ -293,8 +352,8 @@ public class Sixi2 extends PoseEntity {
 	}
 
 	public void goTo(PoseFK poseTo, double feedrate, double acceleration) {
-		sim.AddDestination(poseTo, feedrate, acceleration);
-		live.AddDestination(poseTo,feedrate, acceleration);
+		sim.addDestination(poseTo, feedrate, acceleration);
+		live.addDestination(poseTo, feedrate, acceleration);
 	}
 	
 	// recursively set for all children
