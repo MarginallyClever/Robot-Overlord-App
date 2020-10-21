@@ -21,7 +21,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -111,15 +110,13 @@ public class Sixi2 extends PoseEntity {
 			
 			if(live.isReadyForCommands()) {
 				if( playheadLive < playlist.size() ) {
-					Sixi2Command c = playlist.get(playheadLive++);
-					live.addDestination(c.poseFK, (double)c.feedrateSlider.get(), (double)c.accelerationSlider.get());
+					live.addDestination(playlist.get(playheadLive++));
 				} else doneCount++;
 			} else doneCount++;
 			
 			if(sim.isReadyForCommands()) {
 				if( playheadSim < playlist.size() ) {
-					Sixi2Command c = playlist.get(playheadSim++);
-					sim.addDestination(c.poseFK, (double)c.feedrateSlider.get(), (double)c.accelerationSlider.get());
+					sim.addDestination(playlist.get(playheadSim++));
 				} else doneCount++;
 			}
 			
@@ -178,8 +175,7 @@ public class Sixi2 extends PoseEntity {
 				sim.eStop();
 				for( Entity child : children ) {
 					if(child instanceof Sixi2Command ) {
-						Sixi2Command sc = (Sixi2Command)child;
-						sim.addDestination(sc.getPoseFK(), sc.feedrateSlider.get(), sc.accelerationSlider.get());
+						sim.addDestination((Sixi2Command)child);
 					}
 				}
 				double sum=sim.getTimeRemaining();
@@ -351,9 +347,9 @@ public class Sixi2 extends PoseEntity {
 		}
 	}
 
-	public void goTo(PoseFK poseTo, double feedrate, double acceleration) {
-		sim.addDestination(poseTo, feedrate, acceleration);
-		live.addDestination(poseTo, feedrate, acceleration);
+	public void goTo(Sixi2Command command) {
+		sim.addDestination(command);
+		live.addDestination(command);
 	}
 	
 	// recursively set for all children

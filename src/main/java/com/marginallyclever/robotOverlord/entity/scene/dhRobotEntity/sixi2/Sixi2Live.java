@@ -152,7 +152,7 @@ public class Sixi2Live extends Entity {
 	
 	@Override
 	public void render(GL2 gl2) {
-		// draw now first so it takes precedence in the z buffers
+		// draw poseReceived first so it takes precedence in the z buffers
 		if(poseReceived!=null) {
 			model.setPoseFK(poseReceived);
 			model.setDiffuseColor(1, 0, 0, 1);
@@ -170,17 +170,8 @@ public class Sixi2Live extends Entity {
 		return poseSent;
 	}
 
-	private void setPoseSent(PoseFK poseSent) {
-		if(poseSent==null) {
-			this.poseSent=null;
-		} else {
-			try {
-				this.poseSent = (PoseFK)poseSent.clone();
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	private void setPoseSent(PoseFK newPoseSent) {
+		this.poseSent=newPoseSent;
 	}
 
 	public PoseFK getPoseReceived() {
@@ -204,22 +195,13 @@ public class Sixi2Live extends Entity {
 		return readyForCommands;
 	}
 	
-	public boolean addDestination(PoseFK poseTo, double feedrate, double acceleration) {
+	public boolean addDestination(final Sixi2Command command) {
 		if(!readyForCommands) return false;
 		
 		if(!connection.isConnectionOpen()) return false;
 		
-		connection.sendMessageGuaranteed("G0"
-				+" X"+StringHelper.formatDouble(poseTo.fkValues[0])
-				+" Y"+StringHelper.formatDouble(poseTo.fkValues[1])
-				+" Z"+StringHelper.formatDouble(poseTo.fkValues[2])
-				+" U"+StringHelper.formatDouble(poseTo.fkValues[3])
-				+" V"+StringHelper.formatDouble(poseTo.fkValues[4])
-				+" W"+StringHelper.formatDouble(poseTo.fkValues[5])
-				+" F"+StringHelper.formatDouble(feedrate)
-				+" A"+StringHelper.formatDouble(acceleration)
-				);
-		setPoseSent(poseTo);
+		connection.sendMessageGuaranteed(command.toString());
+		setPoseSent(command.poseFK);
 		return true;
 	}
 

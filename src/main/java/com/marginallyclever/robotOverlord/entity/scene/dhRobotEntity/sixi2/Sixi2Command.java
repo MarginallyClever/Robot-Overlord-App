@@ -85,9 +85,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 			public void update(Observable o, Object arg) {
 				Sixi2 e = findParentSixi2();
 				if(e==null) return;
-				e.goTo(poseFK,
-						(double)feedrateSlider.get(),
-						(double)accelerationSlider.get());
+				e.goTo(sc);
 			}
 		});
 		view.popStack();
@@ -136,5 +134,22 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		poseFK = (PoseFK)stream.readObject();
 		feedrateSlider.set(stream.readDouble());
 		accelerationSlider.set(stream.readDouble());
+	}
+
+	/**
+	 * Convert this command to a string useable by a live robot.
+	 * @return
+	 */
+	@Override
+	public String toString() {
+		return "G0"
+			+" X"+StringHelper.formatDouble(poseFK.fkValues[0])
+			+" Y"+StringHelper.formatDouble(poseFK.fkValues[1])
+			+" Z"+StringHelper.formatDouble(poseFK.fkValues[2])
+			+" U"+StringHelper.formatDouble(poseFK.fkValues[3])
+			+" V"+StringHelper.formatDouble(poseFK.fkValues[4])
+			+" W"+StringHelper.formatDouble(poseFK.fkValues[5])
+			+" F"+StringHelper.formatDouble(feedrateSlider.get())
+			+" A"+StringHelper.formatDouble(accelerationSlider.get());
 	}
 }

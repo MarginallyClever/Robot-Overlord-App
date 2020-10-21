@@ -151,8 +151,8 @@ public class Sixi2Sim extends Entity {
 		return poseTo;
 	}
 
-	public void setPoseTo(PoseFK poseTo) {
-		this.poseTo = poseTo;
+	public void setPoseTo(PoseFK newPoseTo) {
+		this.poseTo = newPoseTo;
 	}
 
 	public PoseFK getPoseNow() {
@@ -164,14 +164,17 @@ public class Sixi2Sim extends Entity {
 	}
 
 	/**
-	 * This robot may have already been given several destinations.  Add this destination to the queue.
-	 * @param poseTo
-	 * @throws CloneNotSupportedException 
+	 * add this destination to the queue and attempt to optimize travel between destinations. 
+	 * @param command
 	 */
-	public boolean addDestination(PoseFK poseTo, double feedrate, double acceleration) {
+	public boolean addDestination(final Sixi2Command command) {
+		setPoseTo(command.poseFK);
+		double feedrate = command.feedrateSlider.get();
+		double acceleration = command.accelerationSlider.get();
+		
 		PoseFK start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
 		
-		Sixi2SimSegment next = new Sixi2SimSegment(start,poseTo);
+		Sixi2SimSegment next = new Sixi2SimSegment(start,command.poseFK);
 		
 		// zero distance?  do nothing.
 		if(next.distance==0) return true;
