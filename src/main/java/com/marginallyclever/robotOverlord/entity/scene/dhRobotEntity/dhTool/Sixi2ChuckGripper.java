@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {
-
 	/**
 	 * 
 	 */

@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.memento.Memento;
+
 /**
  * DHTool is a model that has a DHLink equivalence.
  * In this way it can perform transforms and have sub-links.
@@ -37,5 +39,17 @@ public class DHTool_GoProCamera extends DHTool {
 		m2.rotZ(Math.toRadians(90));
 		m.mul(m2);
 		this.setRotation(m);
+	}
+
+	@Override
+	public Memento getState() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setState(Memento arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

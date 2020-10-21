@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 
 /**
@@ -11,7 +12,7 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
  * @author Dan Royer
  *
  */
-public class DHTool extends DHLink {
+public abstract class DHTool extends DHLink implements MementoOriginator {
 	/**
 	 * 
 	 */
@@ -56,4 +57,5 @@ public class DHTool extends DHLink {
 	public void sendCommand(String str) {}
 	
 	public void interpolate(double dt) {}
+
 }

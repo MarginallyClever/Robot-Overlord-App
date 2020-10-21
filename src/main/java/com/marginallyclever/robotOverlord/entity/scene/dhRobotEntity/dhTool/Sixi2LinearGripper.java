@@ -10,6 +10,8 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.convenience.memento.MementoDoubleArray;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -236,5 +238,17 @@ public class Sixi2LinearGripper extends DHTool {
 		}
 
 		return cuboidList;
+	}
+	
+	@Override
+	public Memento getState() {
+		MementoDoubleArray a = new MementoDoubleArray(1);
+		a.values[0] = angleNow.get();
+		return null;
+	}
+
+	@Override
+	public void setState(Memento arg0) {
+		angleNow.set((int)((MementoDoubleArray)arg0).values[0]);
 	}
 }
