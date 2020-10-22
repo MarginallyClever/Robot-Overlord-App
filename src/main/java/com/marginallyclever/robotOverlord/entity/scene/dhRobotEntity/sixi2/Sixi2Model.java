@@ -158,7 +158,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		// roll hand
 		links.get(5).setLetter("W");
 		links.get(5).setTheta(0);
-		links.get(5).setD(5.795);
+		links.get(5).setD(3.795);
 		links.get(5).setR(0);
 		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
@@ -166,7 +166,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 
 		links.get(6).setLetter("E");
 		links.get(6).setName("End Effector");
-		links.get(6).setD(3);
+		links.get(6).setD(2.75);
 		links.get(6).flags = LinkAdjust.NONE;
 		
 		// update this world pose and all my children's poses all the way down.

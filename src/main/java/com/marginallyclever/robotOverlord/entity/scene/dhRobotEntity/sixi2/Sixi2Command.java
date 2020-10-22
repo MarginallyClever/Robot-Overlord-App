@@ -120,9 +120,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	}
 
 	@Override
-	public void lostFocus() {
-		// TODO Auto-generated method stub
-	}
+	public void lostFocus() {}
 
 	public void write(ObjectOutputStream stream) throws Exception {
 		stream.writeObject(poseFK);
@@ -140,15 +138,22 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	 * Convert this command to a string useable by a live robot.
 	 * @return
 	 */
-	@Override
-	public String toString() {
+	public String poseFKToString() {
 		return "G0"
 			+" X"+StringHelper.formatDouble(poseFK.fkValues[0])
 			+" Y"+StringHelper.formatDouble(poseFK.fkValues[1])
 			+" Z"+StringHelper.formatDouble(poseFK.fkValues[2])
 			+" U"+StringHelper.formatDouble(poseFK.fkValues[3])
 			+" V"+StringHelper.formatDouble(poseFK.fkValues[4])
-			+" W"+StringHelper.formatDouble(poseFK.fkValues[5])
+			+" W"+StringHelper.formatDouble(poseFK.fkValues[5]);
+	}
+	
+	/**
+	 * Stringify the feedrate and acceleration.
+	 * @return
+	 */
+	public String getFAAsString() {
+		return "G0"
 			+" F"+StringHelper.formatDouble(feedrateSlider.get())
 			+" A"+StringHelper.formatDouble(accelerationSlider.get());
 	}

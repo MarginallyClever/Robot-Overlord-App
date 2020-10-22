@@ -1,16 +1,11 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old;
 
-import java.util.List;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
-import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
@@ -51,10 +46,10 @@ public class Sixi2 extends PoseEntity {
 	/**
 	 * Attach the nearest tool Detach the active tool if there is one.
 	 */
-	public void toggleATC() {
-		if (sim.dhTool != null) {
+	public void toggleATC() {/*
+		if (sim.getToolIndex() != -1) {
 			// we have a tool, release it.
-			sim.removeTool();
+			sim.setToolIndex(-1);
 			return;
 		}
 
@@ -68,10 +63,10 @@ public class Sixi2 extends PoseEntity {
 			for( PoseEntity po : list ) {
 				if (po instanceof DHTool) {
 					// probably the only one we'll find.
-					sim.setTool((DHTool) po);
+					sim.setToolIndex((DHTool) po);
 				}
 			}
-		}
+		}*/
 	}
 
 	@Override
@@ -81,24 +76,6 @@ public class Sixi2 extends PoseEntity {
 
 		((Sixi2Live)live).renderCartesianForce(gl2);
 	}
-
-	/**
-	 * move the finger tip of the arm if the InputManager says so. The direction and
-	 * torque of the movement is controlled by a frame of reference.
-	 *
-	 * @return true if targetPose changes.
-	 */
-	public void driveFromKeyState(double dt) {
-		if (sim.dhTool != null) {
-			sim.dhTool.directDrive();
-		}
-
-		if(InputManager.isReleased(InputManager.Source.KEY_DELETE)
-		|| InputManager.isOn(InputManager.Source.STICK_TRIANGLE)) {
-			sim.set(live);
-		}
-	}
-
 	
 	@Override
 	public void update(double dt) {

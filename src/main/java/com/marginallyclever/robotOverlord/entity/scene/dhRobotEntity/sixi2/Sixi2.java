@@ -21,6 +21,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckGripper;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -39,7 +40,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class Sixi2 extends PoseEntity {
-	
 	/**
 	 * 
 	 */
@@ -79,13 +79,14 @@ public class Sixi2 extends PoseEntity {
 		addChild(cursor);
 
 		model.addTool(new Sixi2ChuckGripper());
+		model.setToolIndex(0);
 	}
 	
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, pose);
-
+		
 		// live machine reports
 		live.render(gl2);
 		// user controlled version
@@ -107,10 +108,12 @@ public class Sixi2 extends PoseEntity {
 			playTimeTotal+=dt;
 			int doneCount=0;
 			
-			if(live.isReadyForCommands()) {
-				if( playheadLive < playlist.size() ) {
-					live.addDestination(playlist.get(playheadLive++));
-				} else doneCount++;
+			if(live.isConnected()) {
+				if(live.isReadyForCommands()) {
+					if( playheadLive < playlist.size() ) {
+						live.addDestination(playlist.get(playheadLive++));
+					} else doneCount++;
+				}
 			} else doneCount++;
 			
 			if(sim.isReadyForCommands()) {
@@ -171,7 +174,8 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("Time estimate").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				sim.eStop();
+				PoseFK p = sim.getPoseNow();
+				
 				for( Entity child : children ) {
 					if(child instanceof Sixi2Command ) {
 						sim.addDestination((Sixi2Command)child);
@@ -179,13 +183,18 @@ public class Sixi2 extends PoseEntity {
 				}
 				double sum=sim.getTimeRemaining();
 				sim.eStop();
+				
+				sim.setPoseNow(p);
+				
 				Log.message("Time estimate: "+StringHelper.formatTime(sum));
 			}
 		});
+		
 		ArrayList<FileFilter> fileFilter = new ArrayList<FileFilter>();
 		// supported file formats
 		fileFilter.add(new FileNameExtensionFilter("Sixi2", "sixi2"));
 		view.addFilename(filename,fileFilter);
+		
 		view.addButton("New").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
@@ -229,33 +238,14 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("Run").addObserver(new Observer() {
 			@Override
 			public void update(Observable arg0, Object arg1) {
-				if(isPlaying) return;
-				playlist.clear();
-				playheadLive = 0;
-				playheadSim = 0;
-				playTimeTotal = 0;
-				// clone the playlist so that it cannot be broken while the playback is in progress.
-				try {
-					for( Entity c : children ) {
-						if( c instanceof Sixi2Command ) {
-							playlist.add((Sixi2Command)((Sixi2Command) c).clone());
-						}
-					}
-					isPlaying=true;
-					Log.message("Playback started.");
-				} catch (CloneNotSupportedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				runProgram();
 			}
 			
 		});
 		view.addButton("Stop").addObserver(new Observer() {
 			@Override
 			public void update(Observable arg0, Object arg1) {
-				if(isPlaying) return;
-				isPlaying=false;
-				Log.message("Playback stopped.");
+				stopProgram();
 			}
 		});
 		
@@ -265,6 +255,33 @@ public class Sixi2 extends PoseEntity {
 		live.getView(view);
 		
 		super.getView(view);
+	}
+
+	protected void stopProgram() {
+		if(isPlaying) return;
+		isPlaying=false;
+		Log.message("Playback stopped.");
+	}
+	
+	protected void runProgram() {
+		if(isPlaying) return;
+		playlist.clear();
+		playheadLive = 0;
+		playheadSim = 0;
+		playTimeTotal = 0;
+		// clone the playlist so that it cannot be broken while the playback is in progress.
+		try {
+			for( Entity c : children ) {
+				if( c instanceof Sixi2Command ) {
+					playlist.add((Sixi2Command)((Sixi2Command) c).clone());
+				}
+			}
+			isPlaying=true;
+			Log.message("Playback started.");
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void save(String name) throws Exception {

@@ -11,6 +11,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -82,7 +83,7 @@ public class Sixi2Live extends Entity {
 		if (data.startsWith("> ")) {
 			// can only be ready if also done waiting for open connection.
 			readyForCommands = !waitingForOpenConnection;
-			//if(remoteIsReadyForCommands) Log.message("SIX READY");
+			//if(readyForCommands) Log.message("SIXI READY");
 			data = data.substring(2);
 		}
 
@@ -138,15 +139,13 @@ public class Sixi2Live extends Entity {
 		if (unhandled) {
 			data = data.replace("\n", "");
 			//Log.message("Unhandled: "+data);
-		} else {/*
+		} else {
 			// wait until we received something meaningful before we start blasting our data
 			// out.
 			if (waitingForOpenConnection) {
 				waitingForOpenConnection = false;
-				sendCommandToRemoteEntity("D50 S1",true);
-
-				receivedKeyframeCount=0;
-			}*/
+				//sendCommandToRemoteEntity("D50 S1",true);
+			}
 		}
 	}
 	
@@ -196,12 +195,12 @@ public class Sixi2Live extends Entity {
 	}
 	
 	public boolean addDestination(final Sixi2Command command) {
-		if(!readyForCommands) return false;
+		if(!isConnected() || !readyForCommands) return false;
 		
-		if(!connection.isConnectionOpen()) return false;
-		
-		connection.sendMessageGuaranteed(command.toString());
+		//connection.sendMessageGuaranteed(command.getFAAsString());
+		connection.sendMessageGuaranteed(command.poseFKToString());
 		setPoseSent(command.poseFK);
+		//Log.message("Sent "+command.poseFKToString());
 		return true;
 	}
 
@@ -212,5 +211,9 @@ public class Sixi2Live extends Entity {
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
 		received = new LinkedList<PoseAtTime>();  
+	}
+
+	public boolean isConnected() {
+		return connection.isConnectionOpen();
 	}
 }

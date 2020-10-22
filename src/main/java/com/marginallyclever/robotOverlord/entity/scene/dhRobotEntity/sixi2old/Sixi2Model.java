@@ -1,11 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old;
 
-import java.util.ArrayList;
-
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
@@ -253,7 +250,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 			++i;
 		}
 		
-		setTool(new Sixi2ChuckGripper());
+		addTool(new Sixi2ChuckGripper());
 	}
 	
 	/**
@@ -311,8 +308,8 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 			}
 
 			
-			if(dhTool!=null) {
-				dhTool.sendCommand(command);
+			if(toolIndex!=-1) {
+				getCurrentTool().sendCommand(command);
 			}
 		
 			double dMax=0;
@@ -566,27 +563,6 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		view.addRange(acceleration,50,0);
 		view.popStack();
 		super.getView(view);
-	}
-
-	/**
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-
-		refreshPose();
-
-		for( DHLink link : links ) {
-			if(link.getCuboid() != null ) {
-				cuboidList.addAll(link.getCuboidList());
-			}
-		}
-		if(dhTool != null) {
-			cuboidList.addAll(dhTool.getCuboidList());
-		}
-
-		return cuboidList;
 	}
 
 	@Override

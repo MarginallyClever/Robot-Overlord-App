@@ -5,8 +5,10 @@ import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
@@ -42,9 +44,8 @@ public class DHRobotModel extends Entity {
 	
 	// all the possible tools for this arm.  
 	protected List<DHTool> allTools = new ArrayList<DHTool>(); 
-
-	// a tool attached to the arm.
-	public DHTool dhTool;
+	// the selected tool (-1 for none)
+	protected int toolIndex;
 
 	// more debug output, please.
 	static final boolean VERBOSE=false;
@@ -75,7 +76,7 @@ public class DHRobotModel extends Entity {
 			links.get(i).setDHRobot(this);
 		}
 		
-		dhTool = b.dhTool;
+		toolIndex = b.toolIndex;
 		
 		refreshPose();
 	}
@@ -89,6 +90,17 @@ public class DHRobotModel extends Entity {
 	 */
 	protected DHIKSolver getIKSolver() {
 		return ikSolver;
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		super.render(gl2);
+		if(toolIndex!=-1) {
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, getPoseIK());
+			getCurrentTool().render(gl2);
+			gl2.glPopMatrix();
+		}
 	}
 	
 	// shorthand
@@ -115,8 +127,8 @@ public class DHRobotModel extends Entity {
 			link.refreshPoseMatrix();
 		}
 		
-		if (dhTool != null) {
-			dhTool.refreshPoseMatrix();
+		if(toolIndex>0) {
+			allTools.get(toolIndex).refreshPoseMatrix();
 		}
 	}
 
@@ -163,22 +175,19 @@ public class DHRobotModel extends Entity {
 	}
 
 	// the tool should be the child of the last link in the chain
-	public void setTool(DHTool arg0) {
-		removeTool();
-		dhTool = arg0;
-		links.get(links.size()-1).addChild(arg0);
+	public void setToolIndex(int arg0) {
+		toolIndex = arg0;
 	}
-
-	public void removeTool() {
-		if(dhTool==null) return;
-		
-		// the child of the last link in the chain is the tool
-		links.get(links.size()-1).removeChild(dhTool);
-		dhTool = null;
+	
+	/**
+	 * @return the tool index.  -1 means 'no tool'.
+	 */
+	public int getToolIndex() {
+		return toolIndex;
 	}
 
 	public DHTool getCurrentTool() {
-		return dhTool;
+		return allTools.get(toolIndex);
 	}
 
 	/**
@@ -420,8 +429,11 @@ public class DHRobotModel extends Entity {
 				cuboidList.addAll(link.getCuboidList());
 			}
 		}
-		if(dhTool != null) {
-			cuboidList.addAll(dhTool.getCuboidList());
+		if(toolIndex>0) {
+			DHTool t = allTools.get(toolIndex);
+			t.pose.set(links.get(links.size()-1).poseWorld);
+			t.refreshPoseMatrix();
+			cuboidList.addAll(t.getCuboidList());
 		}
 
 		return cuboidList;

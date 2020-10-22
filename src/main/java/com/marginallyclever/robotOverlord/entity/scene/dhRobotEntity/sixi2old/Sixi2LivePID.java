@@ -193,8 +193,8 @@ public class Sixi2LivePID extends Sixi2Model {
 			}
 
 			
-			if(dhTool!=null) {
-				dhTool.sendCommand(command);
+			if(toolIndex!=-1) {
+				getCurrentTool().sendCommand(command);
 			}
 	        
 	        // set the live and from matrixes

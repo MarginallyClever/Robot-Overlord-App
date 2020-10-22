@@ -63,19 +63,19 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		
 		Matrix4d targetMatrixAdj = new Matrix4d(targetMatrix);
 		
-		if(robot.dhTool!=null) {
+		if(robot.getToolIndex()!=-1) {
 			// There is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
-			robot.dhTool.refreshPoseMatrix();
+			robot.getCurrentTool().refreshPoseMatrix();
 
 			// remove R component (x axis)
-			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.dhTool.getR();
-			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.dhTool.getR();
-			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.dhTool.getR();
+			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.getCurrentTool().getR();
+			targetMatrixAdj.m13-=targetMatrixAdj.m10 * robot.getCurrentTool().getR();
+			targetMatrixAdj.m23-=targetMatrixAdj.m20 * robot.getCurrentTool().getR();
 			// remove D component (z axis)
-			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.dhTool.getD();
-			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.dhTool.getD();
-			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.dhTool.getD();
+			targetMatrixAdj.m03-=targetMatrixAdj.m02 * robot.getCurrentTool().getD();
+			targetMatrixAdj.m13-=targetMatrixAdj.m12 * robot.getCurrentTool().getD();
+			targetMatrixAdj.m23-=targetMatrixAdj.m22 * robot.getCurrentTool().getD();
 		}
 		
 		targetMatrixAdj.mul(iRoot);
