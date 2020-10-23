@@ -78,6 +78,13 @@ public class Sixi2Live extends Entity {
 		boolean unhandled = true;
 
 		// if(!confirmChecksumOK(data)) return;
+		
+		if (waitingForOpenConnection) {
+			// the moment connection is opened for the first time.
+			waitingForOpenConnection = false;
+			// turn on STRICT mode where checksums and line numbers must ALWAYS be provided.
+			connection.sendMessageGuaranteed("D50 S1");
+		}
 
 		if (data.startsWith("> ")) {
 			// can only be ready if also done waiting for open connection.
@@ -138,13 +145,6 @@ public class Sixi2Live extends Entity {
 		if (unhandled) {
 			data = data.replace("\n", "");
 			//Log.message("Unhandled: "+data);
-		} else {
-			// wait until we received something meaningful before we start blasting our data
-			// out.
-			if (waitingForOpenConnection) {
-				waitingForOpenConnection = false;
-				//sendCommandToRemoteEntity("D50 S1",true);
-			}
 		}
 	}
 	
@@ -199,6 +199,7 @@ public class Sixi2Live extends Entity {
 		//connection.sendMessageGuaranteed(command.getFAAsString());
 		connection.sendMessageGuaranteed(command.poseFKToString());
 		setPoseSent(command.poseFK);
+		readyForCommands = false;
 		//Log.message("Sent "+command.poseFKToString());
 		return true;
 	}

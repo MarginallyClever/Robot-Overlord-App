@@ -5,7 +5,7 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.robotOverlord.log.Log;
 
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.log.Log;
  * @author Peter Colapietro
  * @since v7
  */
-public final class SerialConnection extends NetworkConnection implements SerialPortEventListener {
+public final class SerialConnection extends NetworkSession implements SerialPortEventListener {
 	private static final int DEFAULT_BAUD_RATE = 57600;
 
 	private SerialPort serialPort;

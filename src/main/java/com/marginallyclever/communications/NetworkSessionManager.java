@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class NetworkTransportManager {
+public class NetworkSessionManager {
 	static private TransportLayer serial = new SerialTransportLayer();
 	static private TransportLayer tcp = new TCPTransportLayer();
 	static private int selectedLayer=0;
@@ -26,7 +26,7 @@ public class NetworkTransportManager {
 	 * @param parent the root gui component
 	 * @return a new connection or null.
 	 */
-	static public NetworkConnection requestNewConnection(Component parent) {
+	static public NetworkSession requestNewSession(Component parent) {
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab(Translator.get("Local"), serial.getTransportLayerPanel());
 		tabs.addTab(Translator.get("Remote"), tcp.getTransportLayerPanel());

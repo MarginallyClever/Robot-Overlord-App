@@ -9,7 +9,7 @@ import java.net.URL;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.robotOverlord.log.Log;
 
@@ -19,7 +19,7 @@ import com.marginallyclever.robotOverlord.log.Log;
  * @author Dan Royer 
  * @since 1.6.0 (2020-04-08)
  */
-public final class TCPConnection extends NetworkConnection implements Runnable {	
+public final class TCPConnection extends NetworkSession implements Runnable {	
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
 	private static final int DEFAULT_TCP_PORT = 22;
     
@@ -176,14 +176,11 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	}
 
 	public void reportDataSent(String msg) {
-		Log.message("TCPConnection SEND " + msg.trim());
+		//Log.message("TCPConnection SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
-		if(msg.trim().isEmpty()) return;
-		if(msg.contains("D17")) return;
-		
-		Log.message("TCPConnection RECV " + msg.trim());
+		//Log.message("TCPConnection RECV " + msg.trim());
 	}
 
 	// connect to the last port

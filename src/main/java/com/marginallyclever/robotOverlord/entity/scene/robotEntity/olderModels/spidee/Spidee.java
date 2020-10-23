@@ -14,7 +14,7 @@ import java.util.prefs.Preferences;
 
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
@@ -1593,7 +1593,7 @@ public class Spidee extends RobotEntity {
 	}
 
 	// override this method to check that the software is connected to the right type of robot.
-	public void dataAvailable(NetworkConnection arg0,String line) {
+	public void dataAvailable(NetworkSession arg0,String line) {
 		if(line.contains(hello)) {
 			isPortConfirmed=true;
 			//finalizeMove();

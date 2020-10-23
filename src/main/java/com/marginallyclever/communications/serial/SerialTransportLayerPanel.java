@@ -7,7 +7,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayerPanel;
 
 public class SerialTransportLayerPanel extends TransportLayerPanel {
@@ -56,7 +56,7 @@ public class SerialTransportLayerPanel extends TransportLayerPanel {
 	}
 
 	@Override
-	public NetworkConnection openConnection() {
+	public NetworkSession openConnection() {
 		lastConnectionPort = connectionPort.getItemAt(connectionPort.getSelectedIndex());
 		lastConnectionBaud = Integer.parseInt(connectionBaud.getItemAt(connectionBaud.getSelectedIndex()));
 		return layer.openConnection(lastConnectionPort + "@" + lastConnectionBaud);

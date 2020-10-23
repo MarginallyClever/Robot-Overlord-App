@@ -1,19 +1,23 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.communications.NetworkTransportListener;
-import com.marginallyclever.communications.NetworkTransportManager;
+import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.NetworkSessionListener;
+import com.marginallyclever.communications.NetworkSessionManager;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Wraps all network connection stuff into a neat entity package designed to send one \n terminated string at a time.
- * In the OSI Model of computer networking this is both Presentation and Session.
+ * In the OSI Model of computer networking (https://en.wikipedia.org/wiki/OSI_model#Layer_5:_Session_Layer) this is
+ * the Presentation layer.
  * 
  * See also https://en.wikipedia.org/wiki/Messaging_pattern
  * 
@@ -21,7 +25,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class RemoteEntity extends StringEntity implements NetworkTransportListener {
+public class RemoteEntity extends StringEntity implements NetworkSessionListener {
 /*
 	// pull the last connected port from prefs
 	private void loadRecentPortFromPreferences() {
@@ -63,7 +67,7 @@ public class RemoteEntity extends StringEntity implements NetworkTransportListen
 		}
 	}
 
-	private transient NetworkConnection connection;
+	private transient NetworkSession networkSession;
 	
 	private transient int lastNumberAdded=0;
 	private transient int nextNumberToSend=0;
@@ -100,25 +104,28 @@ public class RemoteEntity extends StringEntity implements NetworkTransportListen
 	}
 	
 	public void closeConnection() {
-		if(connection!=null) {
-			connection.closeConnection();
-			connection=null;
+		if(networkSession!=null) {
+			networkSession.closeConnection();
+			networkSession=null;
 		}
 		resetCommands();
 		partialMessage.clear();
 	}
 	
 	public void openConnection() {
-		connection = NetworkTransportManager.requestNewConnection(null);
-		if(connection!=null) {
-			connection.addListener(this);
+		Entity e = getRoot();
+		Component parent = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+		
+		networkSession = NetworkSessionManager.requestNewSession(parent);
+		if(networkSession!=null) {
+			networkSession.addListener(this);
 			waitingForCue = true;
 		}
 	}
 
 	@Override
 	public void update(double dt) {
-		if(connection==null) return;
+		if(networkSession==null) return;
 		
 		if(!waitingForCue && !commands.isEmpty()) {
 			if(commands.get(commands.size()-1).n > nextNumberToSend) {
@@ -128,7 +135,7 @@ public class RemoteEntity extends StringEntity implements NetworkTransportListen
 	}
 
 	public boolean isConnectionOpen() {
-		return connection!=null;
+		return networkSession!=null;
 	}
 	
 	/**
@@ -174,7 +181,7 @@ public class RemoteEntity extends StringEntity implements NetworkTransportListen
 		try {
 			waitingForCue=true;
 			reportDataSent(command);
-			connection.sendMessage(command);
+			networkSession.sendMessage(command);
 		} catch (Exception e) {
 			Log.error(e.getLocalizedMessage());
 		}
@@ -261,10 +268,10 @@ public class RemoteEntity extends StringEntity implements NetworkTransportListen
 	}
 
 	@Override
-	public void sendBufferEmpty(NetworkConnection arg0) {}
+	public void sendBufferEmpty(NetworkSession arg0) {}
 
 	@Override
-	public void dataAvailable(NetworkConnection arg0, String data) {
+	public void dataAvailable(NetworkSession arg0, String data) {
 		setChanged();
 		reportDataReceived(data);
 		
@@ -281,7 +288,7 @@ public class RemoteEntity extends StringEntity implements NetworkTransportListen
 	}
 
 	@Override
-	public void transportError(NetworkConnection arg0, String errorMessage) {
+	public void transportError(NetworkSession arg0, String errorMessage) {
 		Log.error("RemoteEntity error: "+errorMessage);
 		arg0.closeConnection();
 	}

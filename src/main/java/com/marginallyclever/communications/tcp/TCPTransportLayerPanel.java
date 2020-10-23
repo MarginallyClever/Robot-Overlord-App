@@ -7,7 +7,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import com.marginallyclever.communications.NetworkConnection;
+import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayerPanel;
 
 /**
@@ -49,7 +49,7 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 		passwordField.setText(lastPassword);
 	}
 	
-	public NetworkConnection openConnection() {
+	public NetworkSession openConnection() {
 		connectionName = connectionField.getText();
 		portNumber = portField.getText();
 		userName = userField.getText();
