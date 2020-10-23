@@ -5,13 +5,14 @@ package com.marginallyclever.communications;
  * @author Dan Royer (dan@marginallyclever.com)
  *
  */
-public interface NetworkConnectionListener {
+public interface NetworkTransportListener {
 	/**
-	 * Transmission of message number 'lineNumber' has failed on a NetworkConnection.
-	 * @param arg0  connection involved
-	 * @param lineNumber the number of the command line sent that failed to receive.  all messages after this point will also fail until this line is resent.
+	 * the transport layer has experienced a serious error.  
+	 * @param arg0 connection involved
+	 * @param errorMessage the type of error.
 	 */
-	public void lineError(NetworkConnection arg0,int lineNumber);
+	public void transportError(NetworkConnection arg0,String errorMessage);
+	
 	/**
 	 * The outbound data buffer for a NetworkConnection is empty.
 	 * @param arg0 connection involved

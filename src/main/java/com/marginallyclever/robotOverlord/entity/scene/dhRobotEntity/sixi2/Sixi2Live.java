@@ -11,7 +11,6 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**

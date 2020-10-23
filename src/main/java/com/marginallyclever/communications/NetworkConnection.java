@@ -12,10 +12,10 @@ import java.util.ArrayList;
  */
 public abstract class NetworkConnection {
 	// Listeners which should be notified of a change to the percentage.
-	private transient ArrayList<NetworkConnectionListener> listeners;
+	private transient ArrayList<NetworkTransportListener> listeners;
 	
 	protected NetworkConnection() {
-		listeners = new ArrayList<NetworkConnectionListener>();
+		listeners = new ArrayList<NetworkTransportListener>();
 	}
 
 	protected void finalize() throws Throwable {
@@ -40,35 +40,35 @@ public abstract class NetworkConnection {
 	abstract public TransportLayer getTransportLayer();
 
 
-	public void addListener(NetworkConnectionListener listener) {
+	public void addListener(NetworkTransportListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(NetworkConnectionListener listener) {
+	public void removeListener(NetworkTransportListener listener) {
 		listeners.remove(listener);
 	}
 
-	public void notifyLineError(int lineNumber) {
-		for (NetworkConnectionListener listener : listeners) {
-			listener.lineError(this,lineNumber);
+	public void notifyTransportError(String error) {
+		for (NetworkTransportListener listener : listeners) {
+			listener.transportError(this,error);
 		}
 	}
 
 	public void notifySendBufferEmpty() {
-		for (NetworkConnectionListener listener : listeners) {
+		for (NetworkTransportListener listener : listeners) {
 			listener.sendBufferEmpty(this);
 		}
 	}
 
 	// tell all listeners data has arrived
 	public void notifyDataAvailable(String line) {
-		for (NetworkConnectionListener listener : listeners) {
+		for (NetworkTransportListener listener : listeners) {
 			listener.dataAvailable(this,line);
 		}
 	}
 
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		listeners = new ArrayList<NetworkConnectionListener>();
+		listeners = new ArrayList<NetworkTransportListener>();
 	}
 }

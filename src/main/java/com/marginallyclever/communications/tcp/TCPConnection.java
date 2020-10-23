@@ -22,12 +22,6 @@ import com.marginallyclever.robotOverlord.log.Log;
 public final class TCPConnection extends NetworkConnection implements Runnable {	
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
 	private static final int DEFAULT_TCP_PORT = 22;
-	private static final String CUE = ">";
-	private static final String NOCHECKSUM = "NOCHECKSUM ";
-	private static final String BADCHECKSUM = "BADCHECKSUM ";
-	private static final String BADLINENUM = "BADLINENUM ";
-	private static final String NEWLINE = "\n";
-	private static final String COMMENT_START = ";";
     
     private JSch jsch=new JSch();
     private Session session;
@@ -38,7 +32,6 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	private TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
-	private boolean waitingForCue = false;
 	private Thread thread;
 	private boolean keepPolling;
 
@@ -94,13 +87,11 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	    
 		connectionName = ipAddress;
 		portOpened = true;
-		waitingForCue = true;
 		keepPolling=true;
 
 		thread = new Thread(this);
 		thread.start();
 	}
-
 
 	@Override
 	public void closeConnection() {
@@ -147,51 +138,6 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 			}
 		}
 	}
-	
-	
-	/**
-	 * Check if the robot reports an error and if so what line number.
-	 * @param line the message from the robot to be parsed
-	 * @return -1 if there was no error, otherwise the line number containing the error.
-	 */
-	protected int errorReported(String line) {
-		if (line.lastIndexOf(NOCHECKSUM) != -1) {
-			String after_error = line.substring(line.lastIndexOf(NOCHECKSUM) + NOCHECKSUM.length());
-			String x = getNumberPortion(after_error);
-			int err = 0;
-			try {
-				err = Integer.decode(x);
-				Log.error("NOCHECKSUM "+err);
-			} catch (Exception e) {}
-
-			return err;
-		}
-		if (line.lastIndexOf(BADCHECKSUM) != -1) {
-			String after_error = line.substring(line.lastIndexOf(BADCHECKSUM) + BADCHECKSUM.length());
-			String x = getNumberPortion(after_error);
-			int err = 0;
-			try {
-				err = Integer.decode(x);
-				Log.error("BADCHECKSUM "+err);
-			} catch (Exception e) {}
-
-			return err;
-		}
-		if (line.lastIndexOf(BADLINENUM) != -1) {
-			String after_error = line.substring(line.lastIndexOf(BADLINENUM) + BADLINENUM.length());
-			String x = getNumberPortion(after_error);
-			int err = 0;
-			try {
-				err = Integer.decode(x);
-				Log.error("BADLINENUM "+err);
-			} catch (Exception e) {}
-
-			return err;
-		}
-
-		return -1;
-	}
-
 
 	protected void dataAvailable(int len,String message) {
 		if( !portOpened || len==0 ) return;
@@ -211,50 +157,33 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 			if(oneLine.isEmpty()) return;
 			
 			reportDataReceived(oneLine);
-			// check for error
-			int error_line = errorReported(oneLine);
-			if(error_line != -1) {
-				notifyLineError(error_line);
-			} else {
-				notifyDataAvailable(oneLine);
-			}
-
-			// wait for the cue to send another command
-			if(oneLine.indexOf(CUE)==0) {
-				waitingForCue=false;
-			}
+			notifyDataAvailable(oneLine);
 		}
 	}
 
-
-
 	@Override
 	public void sendMessage(String msg) throws Exception {
-		if( !portOpened || outputStream==null || waitingForCue) return;
+		if( !portOpened || outputStream==null ) return;
 
 		try {
-			waitingForCue=true;
-			if(msg.contains(COMMENT_START)) {
-				msg = msg.substring(0,msg.indexOf(COMMENT_START));
-			}
-			if(msg.endsWith(NEWLINE) == false) {
-				msg+=NEWLINE;
-			}
 			outputStream.write(msg);
 			outputStream.flush();
 			reportDataSent(msg);
 		}
 		catch(IndexOutOfBoundsException e1) {
-			Log.error(e1.getLocalizedMessage());
+			notifyTransportError(e1.getLocalizedMessage());
 		}
 	}
 
 	public void reportDataSent(String msg) {
-		//Log.message("TCPConnection SEND " + msg.trim());
+		Log.message("TCPConnection SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
-		//Log.message("TCPConnection RECV " + msg.trim());
+		if(msg.trim().isEmpty()) return;
+		if(msg.contains("D17")) return;
+		
+		Log.message("TCPConnection RECV " + msg.trim());
 	}
 
 	// connect to the last port
@@ -264,26 +193,7 @@ public final class TCPConnection extends NetworkConnection implements Runnable {
 	}
 
 	/**
-	 * Java string to int is very picky.  this method is slightly less picky.  Only works with positive whole numbers.
-	 *
-	 * @param src
-	 * @return the portion of the string that is actually a number
-	 */
-	private String getNumberPortion(String src) {
-		src = src.trim();
-		int length = src.length();
-		String result = "";
-		for (int i = 0; i < length; i++) {
-			Character character = src.charAt(i);
-			if (Character.isDigit(character)) {
-				result += character;
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * @return the port open for this serial connection.
+	 * @return the port open for this connection.
 	 */
 	@Override
 	public boolean isOpen() {

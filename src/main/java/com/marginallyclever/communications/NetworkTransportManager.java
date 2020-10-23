@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class NetworkConnectionManager {
+public class NetworkTransportManager {
 	static private TransportLayer serial = new SerialTransportLayer();
 	static private TransportLayer tcp = new TCPTransportLayer();
 	static private int selectedLayer=0;

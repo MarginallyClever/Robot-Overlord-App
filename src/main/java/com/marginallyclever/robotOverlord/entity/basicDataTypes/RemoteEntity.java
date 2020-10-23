@@ -5,14 +5,15 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import com.marginallyclever.communications.NetworkConnection;
-import com.marginallyclever.communications.NetworkConnectionListener;
-import com.marginallyclever.communications.NetworkConnectionManager;
+import com.marginallyclever.communications.NetworkTransportListener;
+import com.marginallyclever.communications.NetworkTransportManager;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Wraps all network connection stuff into a neat entity package designed to send one \n terminated string at a time.
+ * In the OSI Model of computer networking this is both Presentation and Session.
  * 
  * See also https://en.wikipedia.org/wiki/Messaging_pattern
  * 
@@ -20,7 +21,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class RemoteEntity extends StringEntity implements NetworkConnectionListener {
+public class RemoteEntity extends StringEntity implements NetworkTransportListener {
 /*
 	// pull the last connected port from prefs
 	private void loadRecentPortFromPreferences() {
@@ -108,7 +109,7 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 	
 	public void openConnection() {
-		connection = NetworkConnectionManager.requestNewConnection(null);
+		connection = NetworkTransportManager.requestNewConnection(null);
 		if(connection!=null) {
 			connection.addListener(this);
 			waitingForCue = true;
@@ -186,10 +187,10 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	}
 
 	public void reportDataReceived(String msg) {
-		if (msg.trim().isEmpty()) return;
+		if(msg.trim().isEmpty()) return;
 		if(msg.contains("D17")) return;
 		
-		//Log.message("RemoteEntity RECV " + msg.trim());
+		Log.message("RemoteEntity RECV " + msg.trim());
 	}
 	
 	@Override
@@ -197,8 +198,67 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 		super.getView(view);
 	}
 
-	@Override
-	public void lineError(NetworkConnection arg0, int lineNumber) {}
+	/**
+	 * Java string to int is very picky.  this method is slightly less picky.  Only works with positive whole numbers.
+	 *
+	 * @param src
+	 * @return the portion of the string that is actually a number
+	 */
+	private String getNumberPortion(String src) {
+		src = src.trim();
+		int length = src.length();
+		String result = "";
+		for (int i = 0; i < length; i++) {
+			Character character = src.charAt(i);
+			if (Character.isDigit(character)) {
+				result += character;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Check if the robot reports an error and if so what line number.
+	 * @param line the message from the robot to be parsed
+	 * @return -1 if there was no error, otherwise the line number containing the error.
+	 */
+	protected int errorReported(String line) {
+		if (line.lastIndexOf(NOCHECKSUM) != -1) {
+			String after_error = line.substring(line.lastIndexOf(NOCHECKSUM) + NOCHECKSUM.length());
+			String x = getNumberPortion(after_error);
+			int err = 0;
+			try {
+				err = Integer.decode(x);
+				Log.error("NOCHECKSUM "+err);
+			} catch (Exception e) {}
+
+			return err;
+		}
+		if (line.lastIndexOf(BADCHECKSUM) != -1) {
+			String after_error = line.substring(line.lastIndexOf(BADCHECKSUM) + BADCHECKSUM.length());
+			String x = getNumberPortion(after_error);
+			int err = 0;
+			try {
+				err = Integer.decode(x);
+				Log.error("BADCHECKSUM "+x);
+			} catch (Exception e) {}
+
+			return err;
+		}
+		if (line.lastIndexOf(BADLINENUM) != -1) {
+			String after_error = line.substring(line.lastIndexOf(BADLINENUM) + BADLINENUM.length());
+			String x = getNumberPortion(after_error);
+			int err = 0;
+			try {
+				err = Integer.decode(x);
+				Log.error("BADLINENUM "+err);
+			} catch (Exception e) {}
+
+			return err;
+		}
+
+		return -1;
+	}
 
 	@Override
 	public void sendBufferEmpty(NetworkConnection arg0) {}
@@ -207,6 +267,22 @@ public class RemoteEntity extends StringEntity implements NetworkConnectionListe
 	public void dataAvailable(NetworkConnection arg0, String data) {
 		setChanged();
 		reportDataReceived(data);
-		notifyObservers(data);
+		
+		// check for error
+		int error_line = errorReported(data);
+		if(error_line != -1) {
+			nextNumberToSend = error_line;
+		} else {
+			// no error
+			if(!data.trim().equals(CUE.trim())) {
+				notifyObservers(data);
+			}
+		}
+	}
+
+	@Override
+	public void transportError(NetworkConnection arg0, String errorMessage) {
+		Log.error("RemoteEntity error: "+errorMessage);
+		arg0.closeConnection();
 	}
 }

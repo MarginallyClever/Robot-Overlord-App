@@ -6,8 +6,7 @@ import com.marginallyclever.communications.TransportLayerPanel;
 import com.marginallyclever.robotOverlord.log.Log;
 
 /**
- * Lists available TCP connections and opens a connection of that type to a
- * robot
+ * Lists available TCP connections and opens a connection of that type to a robot
  *
  * @author Dan
  * @since v7.1.0.0

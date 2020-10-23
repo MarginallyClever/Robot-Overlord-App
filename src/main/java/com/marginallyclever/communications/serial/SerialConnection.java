@@ -18,27 +18,18 @@ import com.marginallyclever.robotOverlord.log.Log;
  */
 public final class SerialConnection extends NetworkConnection implements SerialPortEventListener {
 	private static final int DEFAULT_BAUD_RATE = 57600;
-	private static final String CUE = "> ";
-	private static final String NOCHECKSUM = "NOCHECKSUM ";
-	private static final String BADCHECKSUM = "BADCHECKSUM ";
-	private static final String BADLINENUM = "BADLINENUM ";
-	private static final String NEWLINE = "\n";
-	private static final String COMMENT_START = ";";
 
 	private SerialPort serialPort;
 	private TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
-	private boolean waitingForCue = false;
 
 	// parsing input from outside source
 	private String inputBuffer = "";
 
-	
 	public SerialConnection(SerialTransportLayer layer) {
 		transportLayer = layer;
 	}
-
 
 	@Override
 	public void closeConnection() {		
@@ -51,7 +42,9 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 		portOpened = false;
 	}
 
-	// open a serial connection to a device.  We won't know it's the robot until
+	/**
+	 * Open a serial connection to a device.  Has no idea to whom we are opening.
+	 */
 	@Override
 	public void openConnection(String portName) throws Exception {
 		if (portOpened) return;
@@ -75,56 +68,11 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	
 			connectionName = portName;
 			portOpened = true;
-			waitingForCue = true;
 		}
 		catch(jssc.SerialPortException e) {
 			// TODO display this more gracefully?
 			Log.error(e.getLocalizedMessage());
 		}
-	}
-
-
-	/**
-	 * Check if the robot reports an error and if so what line number.
-	 * @param line the message from the robot to be parsed
-	 * @return -1 if there was no error, otherwise the line number containing the error.
-	 */
-	protected int errorReported(String line) {
-		if (line.lastIndexOf(NOCHECKSUM) != -1) {
-			String after_error = line.substring(line.lastIndexOf(NOCHECKSUM) + NOCHECKSUM.length());
-			String x = getNumberPortion(after_error);
-			int err = 0;
-			try {
-				err = Integer.decode(x);
-				Log.error("NOCHECKSUM "+err);
-			} catch (Exception e) {}
-
-			return err;
-		}
-		if (line.lastIndexOf(BADCHECKSUM) != -1) {
-			String after_error = line.substring(line.lastIndexOf(BADCHECKSUM) + BADCHECKSUM.length());
-			String x = getNumberPortion(after_error);
-			int err = 0;
-			try {
-				err = Integer.decode(x);
-				Log.error("BADCHECKSUM "+x);
-			} catch (Exception e) {}
-
-			return err;
-		}
-		if (line.lastIndexOf(BADLINENUM) != -1) {
-			String after_error = line.substring(line.lastIndexOf(BADLINENUM) + BADLINENUM.length());
-			String x = getNumberPortion(after_error);
-			int err = 0;
-			try {
-				err = Integer.decode(x);
-				Log.error("BADLINENUM "+err);
-			} catch (Exception e) {}
-
-			return err;
-		}
-
-		return -1;
 	}
 
 
@@ -142,7 +90,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 		try {
 			buffer = serialPort.readBytes(len);
 		} catch (SerialPortException e) {
-			// uh oh
+			notifyTransportError(e.getLocalizedMessage());
 			return;
 		}
 		
@@ -158,22 +106,7 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 			inputBuffer = inputBuffer.substring(x);
 			
 			reportDataReceived(oneLine);
-			
-			// check for error
-			int error_line = errorReported(oneLine);
-			if(error_line != -1) {
-				notifyLineError(error_line);
-			} else {
-				// no error
-				if(!oneLine.trim().equals(CUE.trim())) {
-					notifyDataAvailable(oneLine);
-				}
-			}
-
-			// wait for the cue to send another command
-			if(oneLine.indexOf(CUE)==0) {
-				waitingForCue=false;
-			}
+			notifyDataAvailable(oneLine);
 		}
 	}
 
@@ -187,17 +120,9 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 
 	@Override
 	public void sendMessage(String msg) throws Exception {
-		if(!portOpened || waitingForCue) return;
+		if(!portOpened) return;
 
 		try {
-			waitingForCue=true;
-			if(msg.contains(COMMENT_START)) {
-				String [] lines = msg.split(COMMENT_START);
-				msg = lines[0];
-			}
-			if(msg.endsWith(NEWLINE) == false) {
-				msg+=NEWLINE;
-			}
 			reportDataSent(msg.trim());
 			serialPort.writeBytes(msg.getBytes());
 		}
@@ -209,25 +134,6 @@ public final class SerialConnection extends NetworkConnection implements SerialP
 	@Override
 	public void reconnect() throws Exception {
 		openConnection(connectionName);
-	}
-
-	/**
-	 * Java string to int is very picky.  this method is slightly less picky.  Only works with positive whole numbers.
-	 *
-	 * @param src
-	 * @return the portion of the string that is actually a number
-	 */
-	private String getNumberPortion(String src) {
-		src = src.trim();
-		int length = src.length();
-		String result = "";
-		for (int i = 0; i < length; i++) {
-			Character character = src.charAt(i);
-			if (Character.isDigit(character)) {
-				result += character;
-			}
-		}
-		return result;
 	}
 
 	/**
