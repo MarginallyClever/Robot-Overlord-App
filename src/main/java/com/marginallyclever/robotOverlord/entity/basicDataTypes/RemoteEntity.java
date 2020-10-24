@@ -26,28 +26,17 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class RemoteEntity extends StringEntity implements NetworkSessionListener {
-/*
-	// pull the last connected port from prefs
-	private void loadRecentPortFromPreferences() {
-		recentPort = prefs.get("recent-port", "");
-	}
-
-	// update the prefs with the last port connected and refreshes the menus.
-	public void setRecentPort(String portName) {
-		prefs.put("recent-port", portName);
-		recentPort = portName;
-		//UpdateMenuBar();
-	}
-*/
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2553138173639792442L;
+	
+	// the firmware uses a specific syntax.  these are elements of that syntax
 	static final String CUE = "> ";
 	static final String NOCHECKSUM = "NOCHECKSUM ";
 	static final String BADCHECKSUM = "BADCHECKSUM ";
 	static final String BADLINENUM = "BADLINENUM ";
+	static final String NOLINENUM = "NOLINENUM ";
 	static final String NEWLINE = "\n";
 	static final String COMMENT_START = ";";
 	
@@ -263,6 +252,10 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 
 			return err;
 		}
+		if (line.lastIndexOf(NOLINENUM) != -1) {
+			Log.error("NOLINENUM");
+			return 0;
+		}
 
 		return -1;
 	}
@@ -292,4 +285,19 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		Log.error("RemoteEntity error: "+errorMessage);
 		arg0.closeConnection();
 	}
+	
+
+/*
+	// pull the last connected port from prefs
+	private void loadRecentPortFromPreferences() {
+		recentPort = prefs.get("recent-port", "");
+	}
+
+	// update the prefs with the last port connected and refreshes the menus.
+	public void setRecentPort(String portName) {
+		prefs.put("recent-port", portName);
+		recentPort = portName;
+		//UpdateMenuBar();
+	}
+*/
 }
