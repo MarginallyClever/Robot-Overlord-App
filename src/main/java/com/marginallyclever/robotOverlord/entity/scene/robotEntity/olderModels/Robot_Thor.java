@@ -81,13 +81,13 @@ public class Robot_Thor extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.getLink(0).setModelFilename("/Thor/Thor0.stl");
-			robot.getLink(1).setModelFilename("/Thor/Thor1.stl");
-			robot.getLink(2).setModelFilename("/Thor/Thor2.stl");
-			robot.getLink(3).setModelFilename("/Thor/Thor3.stl");
-			robot.getLink(5).setModelFilename("/Thor/Thor4.stl");
-			robot.getLink(6).setModelFilename("/Thor/Thor5.stl");
-			robot.getLink(7).setModelFilename("/Thor/Thor6.stl");
+			robot.getLink(0).setShapeFilename("/Thor/Thor0.stl");
+			robot.getLink(1).setShapeFilename("/Thor/Thor1.stl");
+			robot.getLink(2).setShapeFilename("/Thor/Thor2.stl");
+			robot.getLink(3).setShapeFilename("/Thor/Thor3.stl");
+			robot.getLink(5).setShapeFilename("/Thor/Thor4.stl");
+			robot.getLink(6).setShapeFilename("/Thor/Thor5.stl");
+			robot.getLink(7).setShapeFilename("/Thor/Thor6.stl");
 
 			robot.getLink(1).getModel().adjustOrigin(new Vector3d(0,0,-15.35));
 			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,90));

@@ -11,11 +11,11 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class BoxEntity extends ModelEntity {
+public class BoxEntity extends ShapeEntity {
 	/**
 	 * 
 	 */
@@ -36,7 +36,7 @@ public class BoxEntity extends ModelEntity {
 		height.addObserver(this);
 		depth.addObserver(this);
 		
-		model = new Model();
+		shape = new Shape();
 	}
 
 	/**
@@ -66,9 +66,9 @@ public class BoxEntity extends ModelEntity {
 	 * Procedurally generate a list of triangles that form a box, subdivided by some amount.
 	 */
 	protected void updateModel() {
-		model.clear();
-		model.renderStyle=GL2.GL_TRIANGLES;
-		//model.renderStyle=GL2.GL_LINES;  // set to see the wireframe
+		shape.clear();
+		shape.renderStyle=GL2.GL_TRIANGLES;
+		//shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 		
 		float w = (float)(width.get()/2);
 		float d = (float)(depth.get()/2);
@@ -171,35 +171,35 @@ public class BoxEntity extends ModelEntity {
 				pG.set(MathHelper.interpolate(pA, pC, (double)(y+1)/(double)yParts));
 				pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
 
-				if(model.renderStyle == GL2.GL_TRIANGLES) {
-					model.hasNormals=true;
-					model.addNormal((float)n.x, (float)n.y, (float)n.z);
-					model.addNormal((float)n.x, (float)n.y, (float)n.z);
-					model.addNormal((float)n.x, (float)n.y, (float)n.z);
+				if(shape.renderStyle == GL2.GL_TRIANGLES) {
+					shape.hasNormals=true;
+					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
+					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
+					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
 					
-					model.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-					model.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-					model.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					shape.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
+					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-					model.addNormal((float)n.x, (float)n.y, (float)n.z);
-					model.addNormal((float)n.x, (float)n.y, (float)n.z);
-					model.addNormal((float)n.x, (float)n.y, (float)n.z);
+					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
+					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
+					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
 					
-					model.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-					model.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-					model.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-				} else if(model.renderStyle == GL2.GL_LINES) {
-					model.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-					model.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					shape.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+				} else if(shape.renderStyle == GL2.GL_LINES) {
+					shape.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
+					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-					model.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-					model.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 
-					model.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-					model.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					shape.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
 					
-					model.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-					model.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					shape.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 				}
 			}
 		}

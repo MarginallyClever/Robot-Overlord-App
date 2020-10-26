@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity.modelLoadAndSavers;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity.shapeLoadAndSavers;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -7,8 +7,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelLoadAndSave;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeLoadAndSave;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 
 /**
  * 
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelLoadAndS
  *
  */
 // see https://en.wikipedia.org/wiki/Wavefront_.obj_file
-public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
+public class ShapeLoadAndSaveOBJ implements ShapeLoadAndSave {
 	@Override
 	public String getEnglishName() { return "Wavefront Object File (OBJ)"; }
 	@Override
@@ -34,7 +34,7 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 	}
 
 	@Override
-	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
+	public boolean load(BufferedInputStream inputStream,Shape model) throws Exception {
 		ArrayList<Float> vertexArray = new ArrayList<Float>();
 		ArrayList<Float> normalArray = new ArrayList<Float>();
 		ArrayList<Float> texCoordArray = new ArrayList<Float>();
@@ -130,7 +130,7 @@ public class ModelLoadAndSaveOBJ implements ModelLoadAndSave {
 	}
 
 	@Override
-	public void save(OutputStream inputStream, Model model) throws Exception {
+	public void save(OutputStream inputStream, Shape model) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

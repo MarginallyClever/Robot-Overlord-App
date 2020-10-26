@@ -6,8 +6,6 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.memento.Memento;
 
 /**
- * DHTool is a model that has a DHLink equivalence.
- * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
  *
  */
@@ -24,12 +22,12 @@ public class DHTool_GoProCamera extends DHTool {
 		
 		refreshPoseMatrix();
 		
-		setModelFilename("/Sixi2/gopro/gopro.stl");
-		setModelScale(0.1f);
-		setModelOrigin(0, 0, 0.5);
-		setModelRotation(90, 90, 0);
+		setShapeFilename("/Sixi2/gopro/gopro.stl");
+		setShapeScale(0.1f);
+		setShapeOrigin(0, 0, 0.5);
+		setShapeRotation(90, 90, 0);
 		
-		// adjust the model's position and rotation.
+		// adjust the shape's position and rotation.
 		this.setPosition(new Vector3d(50,0,50));
 		Matrix3d m = new Matrix3d();
 		m.setIdentity();

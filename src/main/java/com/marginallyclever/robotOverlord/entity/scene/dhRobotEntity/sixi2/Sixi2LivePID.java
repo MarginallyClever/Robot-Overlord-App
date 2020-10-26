@@ -1,10 +1,10 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2old;
+package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
@@ -18,14 +18,14 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 @Deprecated
-public class Sixi2LivePID extends Sixi2Model {
+public class Sixi2LivePID extends Entity {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2050689950673373411L;
 	protected PoseFK receivedKeyframe;
 	protected int gMode=0;
-	protected DoubleEntity feedRate = new DoubleEntity("Feedrate",25);
+	protected Sixi2Model model;
 	
 	protected boolean readyForCommands=false;
 	protected boolean relativeMode=false;
@@ -89,11 +89,13 @@ public class Sixi2LivePID extends Sixi2Model {
 	protected Matrix4d mTarget = new Matrix4d();
 	
 	
-	public Sixi2LivePID() {
+	public Sixi2LivePID(Sixi2Model model) {
 		super();
 		setName("Live");
+		
+		this.model = model;
 
-		int numAdjustableLinks = links.size();		
+		int numAdjustableLinks = model.getNumLinks();		
 		motors = new StepperMotor[numAdjustableLinks];
 		for( int i=0; i<numAdjustableLinks; ++i ) {
 			motors[i]=new StepperMotor();
@@ -115,29 +117,23 @@ public class Sixi2LivePID extends Sixi2Model {
 		*/
 		
 		for( int i=0; i<numAdjustableLinks; ++i ) {
-			motors[i].steps = (long) Math.floor( links.get(i).getAdjustableValue() / motors[i].ratio );
+			motors[i].steps = (long) Math.floor( model.getLink(i).getAdjustableValue() / motors[i].ratio );
 			motors[i].target = motors[i].steps; 
 			Log.message(i+"="+motors[i].steps);
 		}
 
 		readyForCommands=true;
-		
-		// set green
-	    for( DHLink link : links ) {
-	    	link.getMaterial().setDiffuseColor(122f/255f,161/255f,128f/255f,1);
-	    }
 	}
 
 	@Override
 	public void update(double dt) {
 		// Sixi2LivePID runs PIDs to step motors
-		for( int i=0; i<links.size(); ++i) {
+		for( int i=0; i<model.getNumLinks(); ++i) {
 			motors[i].update(dt);
-			links.get(i).setTheta(motors[i].getDegrees());
+			model.getLink(i).setTheta(motors[i].getDegrees());
 		}
 	}
 	
-	@Override
 	public void sendCommand(String command) {
 		if(command==null) return;  // no more commands.
 
@@ -161,10 +157,10 @@ public class Sixi2LivePID extends Sixi2Model {
 		
 		if(gMode==0) {
 			// linear move
-	        PoseFK poseFKTarget = ikSolver.createPoseFK();
+	        PoseFK poseFKTarget = model.createPoseFK();
 
-			int i=0;
-			for( DHLink link : links ) {
+			for(int i=0;i<model.getNumLinks();++i) {
+				DHLink link = model.getLink(i);
 				if(link.flags == LinkAdjust.NONE) continue;
 				
 				// set the target position
@@ -180,9 +176,8 @@ public class Sixi2LivePID extends Sixi2Model {
 						motors[i].target = (long) Math.floor( degrees / motors[i].ratio );
 					}
 				}
-				++i;
 			}
-			
+			/*
 			for( String t : tok ) {
 				String letter = t.substring(0,1); 
 				if(letter.equalsIgnoreCase("F")) {
@@ -192,26 +187,25 @@ public class Sixi2LivePID extends Sixi2Model {
 				}
 			}
 
-			
 			if(toolIndex!=-1) {
 				getCurrentTool().sendCommand(command);
-			}
+			}*/
 	        
 	        // set the live and from matrixes
-	        mFrom.set(endEffector.getPoseWorld());
+	        mFrom.set(model.getPoseIK());
 
 	        // get the target matrix
-	        PoseFK oldPose = getPoseFK();
-	        PoseFK newPose = ikSolver.createPoseFK();
+	        PoseFK oldPose = model.getPoseFK();
+	        PoseFK newPose = model.createPoseFK();
 	        newPose.set(poseFKTarget);
-	        setPoseFK(newPose);
-	        mTarget.set(endEffector.getPoseWorld());
-	        setPoseFK(oldPose);
+	        model.setPoseFK(newPose);
+	        mTarget.set(model.getPoseIK());
+	        model.setPoseFK(oldPose);
 
 
 			double dMax=0;
 	        double dp=0;
-			for(i=0; i<poseFKTarget.fkValues.length; ++i) {
+			for(int i=0; i<poseFKTarget.fkValues.length; ++i) {
 				double dAbs = Math.abs(poseFKTarget.fkValues[i] - motors[i].getDegrees());
 				dp+=dAbs;
 				if(dMax<dAbs) dMax=dAbs;
@@ -242,8 +236,6 @@ public class Sixi2LivePID extends Sixi2Model {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Sp", "Sixi with PIDs");
-		
 		view.popStack();
-		endEffector.getView(view);
 	}
 }

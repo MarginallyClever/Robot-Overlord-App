@@ -1,9 +1,9 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
 
-public interface ModelLoadAndSave {
+public interface ShapeLoadAndSave {
 	public String getEnglishName();
 	public String getValidExtensions();
 
@@ -26,7 +26,7 @@ public interface ModelLoadAndSave {
 	 * @returns true if model loaded OK.
 	 * @throws Exception
 	 */
-	public boolean load(BufferedInputStream inputStream,Model model) throws Exception;
+	public boolean load(BufferedInputStream inputStream,Shape model) throws Exception;
 
 	/**
 	 * Can you save at all?
@@ -46,5 +46,5 @@ public interface ModelLoadAndSave {
 	 * @param model
 	 * @throws Exception
 	 */
-	public void save(OutputStream outputStream,Model model) throws Exception;
+	public void save(OutputStream outputStream,Shape model) throws Exception;
 }

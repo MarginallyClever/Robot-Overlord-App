@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLContext;

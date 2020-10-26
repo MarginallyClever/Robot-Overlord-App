@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
 
 import java.io.BufferedInputStream;
@@ -31,27 +31,32 @@ import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-
-public class ModelEntity extends PoseEntity {
+/**
+ * A "shape" is a collection of triangles, normals, and possibly other elements in a single static 3D shape.
+ * A ShapeEntity is a shape positioned and scaled somewhere in a Scene.
+ * @author aggra
+ *
+ */
+public class ShapeEntity extends PoseEntity {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6421492357105354857L;
 
-	// the pool of all models loaded
+	// the pool of all shapes loaded
 	@JsonIgnore
-	private static LinkedList<Model> modelPool = new LinkedList<Model>();
+	private static LinkedList<Shape> shapePool = new LinkedList<Shape>();
 
-	// the model for this entity
+	// the shape for this entity
 	@JsonIgnore
-	protected transient Model model;
+	protected transient Shape shape;
 
 	protected StringEntity filename = new StringEntity("File","");
 	
 	@JsonIgnore
 	protected MaterialEntity material = new MaterialEntity();
 	
-	// model adjustments
+	// shape adjustments
 	protected DoubleEntity scale = new DoubleEntity("Scale",1.0);
 	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
 	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
@@ -68,7 +73,7 @@ public class ModelEntity extends PoseEntity {
 	@JsonIgnore
 	BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 			
-	public ModelEntity() {
+	public ShapeEntity() {
 		super();
 		setName("Model");
 		addChild(filename);
@@ -88,17 +93,17 @@ public class ModelEntity extends PoseEntity {
 		addChild(hasUVs);
 	}
 	
-	public ModelEntity(String filename) {
+	public ShapeEntity(String filename) {
 		this();
-		setModelFilename(filename);
+		setShapeFilename(filename);
 	}
 
-	public void set(ModelEntity b) {
+	public void set(ShapeEntity b) {
 		super.set(b);
 		scale.set(b.scale.get());
 		
 		filename.set(b.filename.get());
-		model = b.model;
+		shape = b.shape;
 		material.set(b.material);
 		originAdjust.set(b.originAdjust.get());
 		rotationAdjust.set(b.rotationAdjust.get());
@@ -109,68 +114,68 @@ public class ModelEntity extends PoseEntity {
 	}
 
 	/**
-	 * Sets the new model filename, which causes the model to be reloaded.
+	 * Sets the new shape filename, which causes the shape to be reloaded.
 	 * @param newFilename
 	 */
-	public void setModelFilename(String newFilename) {
-		// if the filename has changed, throw out the model so it will be reloaded.
+	public void setShapeFilename(String newFilename) {
+		// if the filename has changed, throw out the shape so it will be reloaded.
 		//if( this.filename.get().equals(newFilename) ) return;
 		
 		try {
-			model = createModelFromFilename(newFilename);
-			if(model!=null) {
-				model.adjustScale(scale.get());
-				model.adjustOrigin(originAdjust.get());
-				model.adjustRotation(rotationAdjust.get());
-				model.updateCuboid();
-				numTriangles.set(model.getNumTriangles());
-				hasNormals.set(model.hasNormals);
-				hasColors.set(model.hasColors);
-				hasUVs.set(model.hasUVs);
+			shape = createModelFromFilename(newFilename);
+			if(shape!=null) {
+				shape.adjustScale(scale.get());
+				shape.adjustOrigin(originAdjust.get());
+				shape.adjustRotation(rotationAdjust.get());
+				shape.updateCuboid();
+				numTriangles.set(shape.getNumTriangles());
+				hasNormals.set(shape.hasNormals);
+				hasColors.set(shape.hasColors);
+				hasUVs.set(shape.hasUVs);
 			}
 			// only change this after loading has completely succeeded.
 			this.filename.set(newFilename);
 		} catch (Exception e) {
-			Log.error("Loading model '"+newFilename+"' failed: "+e.getLocalizedMessage());
+			Log.error("Loading shape '"+newFilename+"' failed: "+e.getLocalizedMessage());
 		}
 	}
 
-	public void setModelScale(double arg0) {
+	public void setShapeScale(double arg0) {
 		scale.set(arg0);
-		if(model!=null) {
-			model.adjustScale(arg0);
+		if(shape!=null) {
+			shape.adjustScale(arg0);
 		}
 	}
 	
-	public double getModelScale() {
+	public double getShapeScale() {
 		return scale.get();
 	}
 
-	public void setModelOrigin(double x,double y,double z) {
+	public void setShapeOrigin(double x,double y,double z) {
 		originAdjust.set(x,y,z);
-		if(model!=null) model.adjustOrigin(originAdjust.get());
+		if(shape!=null) shape.adjustOrigin(originAdjust.get());
 	}
 
-	public void setModelOrigin(Vector3d arg0) {
+	public void setShapeOrigin(Vector3d arg0) {
 		originAdjust.set(arg0);
-		if(model!=null) model.adjustOrigin(originAdjust.get());
+		if(shape!=null) shape.adjustOrigin(originAdjust.get());
 	}
 	
-	public Vector3d getModelOrigin() {
+	public Vector3d getShapeOrigin() {
 		return new Vector3d(originAdjust.get());
 	}
 
-	public void setModelRotation(double x,double y,double z) {
+	public void setShapeRotation(double x,double y,double z) {
 		rotationAdjust.set(x,y,z);
-		if(model!=null) model.adjustRotation(rotationAdjust.get());
+		if(shape!=null) shape.adjustRotation(rotationAdjust.get());
 	}
 
-	public void setModelRotation(Vector3d arg0) {
+	public void setShapeRotation(Vector3d arg0) {
 		rotationAdjust.set(arg0);
-		if(model!=null) model.adjustRotation(rotationAdjust.get());
+		if(shape!=null) shape.adjustRotation(rotationAdjust.get());
 	}
 	
-	public Vector3d getModelRotation() {
+	public Vector3d getShapeRotation() {
 		return new Vector3d(rotationAdjust.get());
 	}
 
@@ -183,16 +188,16 @@ public class ModelEntity extends PoseEntity {
 	public void update(Observable o, Object arg) {
 		super.update(o, arg);
 		if(filename==o) {
-			setModelFilename(filename.get());
+			setShapeFilename(filename.get());
 		}
 		if(rotationAdjust==o) {
-			setModelRotation(rotationAdjust.get());
+			setShapeRotation(rotationAdjust.get());
 		}
 		if(originAdjust==o) {
-			setModelOrigin(originAdjust.get());
+			setShapeOrigin(originAdjust.get());
 		}
 		if(scale==o) {
-			setModelScale(scale.get());
+			setShapeScale(scale.get());
 		}
 	}
 	
@@ -204,8 +209,8 @@ public class ModelEntity extends PoseEntity {
 		super.updatePoseWorld();
 		
 		// set up the physical limits
-		if(model != null) {
-			Cuboid mc = model.getCuboid();
+		if(shape != null) {
+			Cuboid mc = shape.getCuboid();
 			cuboid.setBounds(mc.getBoundsTop(),mc.getBoundsBottom());
 		}
 	}
@@ -223,13 +228,13 @@ public class ModelEntity extends PoseEntity {
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, pose);
 
-		if( model==null ) {
+		if( shape==null ) {
 			// draw placeholder
 			PrimitiveSolids.drawBox(gl2, 1, 1, 1);
 			PrimitiveSolids.drawStar(gl2,15.0);
 		} else {
 			material.render(gl2);
-			model.render(gl2);
+			shape.render(gl2);
 		}
 		gl2.glPopMatrix();
 	}
@@ -245,12 +250,12 @@ public class ModelEntity extends PoseEntity {
 		material = m;
 	}
 	
-	public void setModel(Model m) {
-		model = m;
+	public void setModel(Shape m) {
+		shape = m;
 	}
 	
-	public Model getModel() {
-		return model;
+	public Shape getModel() {
+		return shape;
 	}
 	
 	@Override
@@ -259,10 +264,10 @@ public class ModelEntity extends PoseEntity {
 
 		// TODO FileNameExtensionFilter is Swing specific and should not happen here.
 		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
-		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
-		Iterator<ModelLoadAndSave> i = loaders.iterator();
+		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
+		Iterator<ShapeLoadAndSave> i = loaders.iterator();
 		while(i.hasNext()) {
-			ModelLoadAndSave loader = i.next();
+			ShapeLoadAndSave loader = i.next();
 			filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
 		}
 		view.addFilename(filename,filters);
@@ -271,7 +276,7 @@ public class ModelEntity extends PoseEntity {
 		view.add(originAdjust);
 		view.add(scale);
 		
-		Model m = this.model;
+		Shape m = this.shape;
 		if(m!=null) {
 			view.add(numTriangles);
 			view.add(hasNormals);
@@ -301,35 +306,35 @@ public class ModelEntity extends PoseEntity {
 	 * @return the instance.
 	 * @throws Exception if file cannot be read successfully
 	 */
-	public static Model createModelFromFilename(String sourceName) throws Exception {
+	public static Shape createModelFromFilename(String sourceName) throws Exception {
 		if(sourceName == null || sourceName.trim().length()==0) return null;
 		
-		// find the existing model in the pool
-		Iterator<Model> iter = modelPool.iterator();
+		// find the existing shape in the pool
+		Iterator<Shape> iter = shapePool.iterator();
 		while(iter.hasNext()) {
-			Model m = iter.next();
+			Shape m = iter.next();
 			if(m.getSourceName().equals(sourceName)) {
 				return m;
 			}
 		}
 		
-		Model m=null;
+		Shape m=null;
 		
 		// not in pool.  Find a serviceLoader that can load this file type.
-		ServiceLoader<ModelLoadAndSave> loaders = ServiceLoader.load(ModelLoadAndSave.class);
-		Iterator<ModelLoadAndSave> i = loaders.iterator();
+		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
+		Iterator<ShapeLoadAndSave> i = loaders.iterator();
 		int count=0;
 		while(i.hasNext()) {
 			count++;
-			ModelLoadAndSave loader = i.next();
+			ShapeLoadAndSave loader = i.next();
 			if(loader.canLoad() && loader.canLoad(sourceName)) {
 				BufferedInputStream stream = FileAccess.open(sourceName);
-				m=new Model();
+				m=new Shape();
 				if(loader.load(stream,m)) {
 					m.setSourceName(sourceName);
 					m.setLoader(loader);
 					// Maybe add a m.setSaveAndLoader(loader); ?
-					modelPool.add(m);
+					shapePool.add(m);
 					break;
 				}
 			}
@@ -347,12 +352,12 @@ public class ModelEntity extends PoseEntity {
 	}
 	
 	protected void reload() {
-		if(model==null) return;
+		if(shape==null) return;
 		try {
-			model.clear();
+			shape.clear();
 			BufferedInputStream stream = FileAccess.open(this.getModelFilename());
-			ModelLoadAndSave loader = model.loader;
-			loader.load(stream,model);
+			ShapeLoadAndSave loader = shape.loader;
+			loader.load(stream,shape);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

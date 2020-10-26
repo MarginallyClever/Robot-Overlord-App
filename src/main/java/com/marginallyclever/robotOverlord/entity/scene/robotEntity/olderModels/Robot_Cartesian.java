@@ -74,15 +74,15 @@ public class Robot_Cartesian extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 
 		try {
-			robot.getLink(0).setModelFilename("/Prusa i3 MK3/Prusa0.stl");
-			robot.getLink(1).setModelFilename("/Prusa i3 MK3/Prusa1.stl");
-			robot.getLink(2).setModelFilename("/Prusa i3 MK3/Prusa2.stl");
-			robot.getLink(3).setModelFilename("/Prusa i3 MK3/Prusa3.stl");
+			robot.getLink(0).setShapeFilename("/Prusa i3 MK3/Prusa0.stl");
+			robot.getLink(1).setShapeFilename("/Prusa i3 MK3/Prusa1.stl");
+			robot.getLink(2).setShapeFilename("/Prusa i3 MK3/Prusa2.stl");
+			robot.getLink(3).setShapeFilename("/Prusa i3 MK3/Prusa3.stl");
 
-			robot.getLink(0).setModelScale(0.1f);
-			robot.getLink(1).setModelScale(0.1f);
-			robot.getLink(2).setModelScale(0.1f);
-			robot.getLink(3).setModelScale(0.1f);
+			robot.getLink(0).setShapeScale(0.1f);
+			robot.getLink(1).setShapeScale(0.1f);
+			robot.getLink(2).setShapeScale(0.1f);
+			robot.getLink(3).setShapeScale(0.1f);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

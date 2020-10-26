@@ -19,9 +19,9 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
@@ -59,9 +59,9 @@ public class RotaryStewartPlatform extends RobotEntity {
 	protected boolean isPortConfirmed;
 
 	// visual models of robot
-	protected transient Model modelTop;
-	protected transient Model modelBicep;
-	protected transient Model modelBase;
+	protected transient Shape modelTop;
+	protected transient Shape modelBicep;
+	protected transient Shape modelBase;
 	protected transient MaterialEntity matTop = new MaterialEntity();
 	protected transient MaterialEntity matBicep = new MaterialEntity();
 	protected transient MaterialEntity matBase = new MaterialEntity();
@@ -107,9 +107,9 @@ public class RotaryStewartPlatform extends RobotEntity {
 		wDir = 0.0f;
 		
 		try {
-			modelTop = ModelEntity.createModelFromFilename("/StewartPlatform.zip:top.STL");
-			modelBicep = ModelEntity.createModelFromFilename("/StewartPlatform.zip:arm.STL");
-			modelBase = ModelEntity.createModelFromFilename("/StewartPlatform.zip:base.STL");
+			modelTop = ShapeEntity.createModelFromFilename("/StewartPlatform.zip:top.STL");
+			modelBicep = ShapeEntity.createModelFromFilename("/StewartPlatform.zip:arm.STL");
+			modelBase = ShapeEntity.createModelFromFilename("/StewartPlatform.zip:base.STL");
 			matBase.setDiffuseColor(37.0f / 255.0f, 110.0f / 255.0f, 94.0f / 255.0f, 1.0f);
 			matBicep.setDiffuseColor(68.0f / 255.0f, 137.0f / 255.0f, 122.0f / 255.0f, 1.0f);
 			matTop.setDiffuseColor(110.0f / 255.0f, 164.0f / 255.0f, 152.0f / 255.0f, 1.0f);

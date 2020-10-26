@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity.modelLoadAndSavers;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity.shapeLoadAndSavers;
 
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
@@ -12,11 +12,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelLoadAndSave;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeLoadAndSave;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 import com.marginallyclever.robotOverlord.log.Log;
 
-public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
+public class ShapeLoadAndSaveAMF implements ShapeLoadAndSave {
 	@Override
 	public String getEnglishName() { return "3D printing file (AMF)"; }
 	@Override
@@ -40,7 +40,7 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
 
 	// much help from https://www.sculpteo.com/en/glossary/amf-definition/
 	@Override
-	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
+	public boolean load(BufferedInputStream inputStream,Shape model) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(inputStream);
@@ -123,7 +123,7 @@ public class ModelLoadAndSaveAMF implements ModelLoadAndSave {
 
 	
 	@Override
-	public void save(OutputStream inputStream, Model model) throws Exception {
+	public void save(OutputStream inputStream, Shape model) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

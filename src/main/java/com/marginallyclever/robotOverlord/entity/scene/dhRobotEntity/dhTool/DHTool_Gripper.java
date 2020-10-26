@@ -20,8 +20,6 @@ import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 
 
 /**
- * DHTool is a model that has a DHLink equivalence.
- * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
  */
 public class DHTool_Gripper extends DHTool implements MementoOriginator {
@@ -51,10 +49,10 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		interpolatePoseT=1;
 		startT=endT=gripperServoAngle;
 		
-		setModelFilename("/Sixi2/beerGripper/base.stl");
-		setModelScale(0.1f);
-		setModelOrigin(-1,0,4.15);
-		setModelRotation(0,180,90);
+		setShapeFilename("/Sixi2/beerGripper/base.stl");
+		setShapeScale(0.1f);
+		setShapeOrigin(-1,0,4.15);
+		setShapeRotation(0,180,90);
 		
 
 		Matrix3d r = new Matrix3d();
@@ -71,8 +69,8 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		addChild(subComponents[1]=new DHLink());
 		addChild(subComponents[2]=new DHLink());
 		addChild(subComponents[3]=new DHLink());
-		subComponents[0].setModelFilename("/Sixi2/beerGripper/linkage.stl");
-		subComponents[0].setModelScale(0.1f);
+		subComponents[0].setShapeFilename("/Sixi2/beerGripper/linkage.stl");
+		subComponents[0].setShapeScale(0.1f);
 		subComponents[1].set(subComponents[0]);
 		subComponents[2].set(subComponents[0]);
 		subComponents[3].set(subComponents[0]);
@@ -83,8 +81,8 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		
 		// 2 finger tips
 		addChild(subComponents[4]=new DHLink());
-		subComponents[4].setModelFilename("/Sixi2/beerGripper/finger.stl");
-		subComponents[4].setModelScale(0.1f);
+		subComponents[4].setShapeFilename("/Sixi2/beerGripper/finger.stl");
+		subComponents[4].setShapeScale(0.1f);
 		addChild(subComponents[5]=new DHLink());
 		subComponents[5].set(subComponents[4]);
 		

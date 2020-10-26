@@ -84,15 +84,15 @@ public class Robot_Mantis extends RobotEntity {
 
 	public void setupModels(DHRobotModel robot) {
 		try {
-			robot.getLink(0).setModelFilename("/AH/rotBaseCase.stl");
-			robot.getLink(1).setModelFilename("/AH/Shoulder_r1.stl");
-			robot.getLink(2).setModelFilename("/AH/Elbow.stl");
-			robot.getLink(3).setModelFilename("/AH/Forearm.stl");
-			robot.getLink(5).setModelFilename("/AH/Wrist_r1.stl");
-			robot.getLink(6).setModelFilename("/AH/WristRot.stl");
+			robot.getLink(0).setShapeFilename("/AH/rotBaseCase.stl");
+			robot.getLink(1).setShapeFilename("/AH/Shoulder_r1.stl");
+			robot.getLink(2).setShapeFilename("/AH/Elbow.stl");
+			robot.getLink(3).setShapeFilename("/AH/Forearm.stl");
+			robot.getLink(5).setShapeFilename("/AH/Wrist_r1.stl");
+			robot.getLink(6).setShapeFilename("/AH/WristRot.stl");
 
 			for( int i=0;i<robot.getNumLinks();++i) {
-				robot.getLink(i).setModelScale(0.1f);
+				robot.getLink(i).setShapeScale(0.1f);
 			}
 			
 			robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,0,2.7));

@@ -18,7 +18,7 @@ com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
 
 #other objects
 com.marginallyclever.robotOverlord.entity.scene.CameraEntity
-com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity
+com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity
 com.marginallyclever.robotOverlord.entity.scene.LightEntity
 com.marginallyclever.robotOverlord.entity.scene.BoxEntity
 com.marginallyclever.robotOverlord.entity.scene.GridEntity

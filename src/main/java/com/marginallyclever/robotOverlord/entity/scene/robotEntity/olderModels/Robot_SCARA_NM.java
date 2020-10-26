@@ -68,10 +68,10 @@ public class Robot_SCARA_NM extends RobotEntity {
 
 	public void setupModels(DHRobotModel robot) {
 		try {
-			robot.getLink(0).setModelFilename("/SCARA_NM/Scara_base.stl");
-			robot.getLink(1).setModelFilename("/SCARA_NM/Scara_arm1.stl");
-			robot.getLink(2).setModelFilename("/SCARA_NM/Scara_arm2.stl");
-			robot.getLink(4).setModelFilename("/SCARA_NM/Scara_screw.stl");
+			robot.getLink(0).setShapeFilename("/SCARA_NM/Scara_base.stl");
+			robot.getLink(1).setShapeFilename("/SCARA_NM/Scara_arm1.stl");
+			robot.getLink(2).setShapeFilename("/SCARA_NM/Scara_arm2.stl");
+			robot.getLink(4).setShapeFilename("/SCARA_NM/Scara_screw.stl");
 			
 			robot.getLink(0).getModel().adjustOrigin(new Vector3d(-8,0,0));
 			robot.getLink(1).getModel().adjustOrigin(new Vector3d(-15,8,-13.784));

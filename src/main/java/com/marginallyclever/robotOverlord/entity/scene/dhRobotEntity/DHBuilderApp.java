@@ -24,7 +24,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -37,8 +37,8 @@ public class DHBuilderApp extends DHRobotModel {
 
 	public static final String [] BONE_NAMES = { "X", "Y", "Z", "U", "V", "W" };
 	
-	protected ModelEntity anchor = new ModelEntity();
-	protected ModelEntity [] models = new ModelEntity[BONE_NAMES.length];
+	protected ShapeEntity anchor = new ShapeEntity();
+	protected ShapeEntity [] models = new ShapeEntity[BONE_NAMES.length];
 	
 	protected MaterialEntity mat = new MaterialEntity();
 	public DHLink endEffector = new DHLink();
@@ -71,7 +71,7 @@ public class DHBuilderApp extends DHRobotModel {
 		anchor.setMaterial(mat);
 		
 		for( i=0;i<BONE_NAMES.length;++i) {
-			models[i] = new ModelEntity();
+			models[i] = new ShapeEntity();
 			models[i].setName("model "+BONE_NAMES[i]);
 			addChild(models[i]);
 			models[i].setMaterial(mat);
@@ -349,7 +349,7 @@ public class DHBuilderApp extends DHRobotModel {
 				File tObj = new File(testName);
 				//https://howtodoinjava.com/java/io/how-to-check-if-file-exists-in-java/
 				if(tObj.exists()) {
-					models[i].setModelFilename(testName);
+					models[i].setShapeFilename(testName);
 					models[i].setMaterial(mat);
 					break;
 				}
@@ -368,7 +368,7 @@ public class DHBuilderApp extends DHRobotModel {
 					bone.theta.set(mr.t);
 					bone.r.set(mr.r);
 					bone.alpha.set(mr.a);
-					bone.setModelFilename(mr.modelFilename);
+					bone.setShapeFilename(mr.modelFilename);
 				} catch (JsonParseException e) {
 					e.printStackTrace();
 				} catch (JsonMappingException e) {
@@ -386,7 +386,7 @@ public class DHBuilderApp extends DHRobotModel {
 			File tObj = new File(testName);
 			//https://howtodoinjava.com/java/io/how-to-check-if-file-exists-in-java/
 			if(tObj.exists()) {
-				anchor.setModelFilename(testName);
+				anchor.setShapeFilename(testName);
 				break;
 			}
 		}

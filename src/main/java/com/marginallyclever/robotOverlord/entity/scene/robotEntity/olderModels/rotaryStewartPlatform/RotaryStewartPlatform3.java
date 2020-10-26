@@ -7,8 +7,8 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 
 @Deprecated
 public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
@@ -17,7 +17,7 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 	 */
 	private static final long serialVersionUID = -3536746836054923170L;
 	protected transient MaterialEntity matForearm = new MaterialEntity();
-	protected transient Model modelForearm;
+	protected transient Shape modelForearm;
 	protected RotaryStewartPlatform3Dimensions dimensions;
 
  	public RotaryStewartPlatform3() {
@@ -47,10 +47,10 @@ public class RotaryStewartPlatform3 extends RotaryStewartPlatform {
 		matTop.setDiffuseColor(16.0f/255.0f,62.0f/255.0f,80.0f/255.0f,1);
 
 		try {
-			modelTop = ModelEntity.createModelFromFilename("/StewartPlatform3.zip:top.stl");
-			modelBicep = ModelEntity.createModelFromFilename("/StewartPlatform3.zip:bicep.stl");
-			modelBase = ModelEntity.createModelFromFilename("/StewartPlatform3.zip:base.stl");
-			modelForearm = ModelEntity.createModelFromFilename("/StewartPlatform3.zip:forearm.stl");
+			modelTop = ShapeEntity.createModelFromFilename("/StewartPlatform3.zip:top.stl");
+			modelBicep = ShapeEntity.createModelFromFilename("/StewartPlatform3.zip:bicep.stl");
+			modelBase = ShapeEntity.createModelFromFilename("/StewartPlatform3.zip:base.stl");
+			modelForearm = ShapeEntity.createModelFromFilename("/StewartPlatform3.zip:forearm.stl");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

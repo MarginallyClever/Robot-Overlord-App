@@ -9,7 +9,7 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -84,30 +84,30 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		super(new DHIKSolver_GradientDescent());
 		setName("Sixi2Model");
 
-		ModelEntity base = new ModelEntity();
+		ShapeEntity base = new ShapeEntity();
 		addChild(base);
 		base.setName("Base");
-		base.setModelFilename("/Sixi2/anchor.obj");
+		base.setShapeFilename("/Sixi2/anchor.obj");
 		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		base.setModelOrigin(0, 0, 0.9);
+		base.setShapeOrigin(0, 0, 0.9);
 
 		// setup children
 		this.setNumLinks(7);
 
 		if(!attachModels) {
-			ModelEntity part1 = new ModelEntity();	addChild(part1);	part1.setModelFilename("/Sixi2/shoulder.obj");
-			ModelEntity part2 = new ModelEntity();	addChild(part2);	part2.setModelFilename("/Sixi2/bicep.obj");
-			ModelEntity part3 = new ModelEntity();	addChild(part3);	part3.setModelFilename("/Sixi2/forearm.obj");
-			ModelEntity part4 = new ModelEntity();	addChild(part4);	part4.setModelFilename("/Sixi2/tuningFork.obj");
-			ModelEntity part5 = new ModelEntity();	addChild(part5);	part5.setModelFilename("/Sixi2/picassoBox.obj");
-			ModelEntity part6 = new ModelEntity();	addChild(part6);	part6.setModelFilename("/Sixi2/hand.obj");
+			ShapeEntity part1 = new ShapeEntity();	addChild(part1);	part1.setShapeFilename("/Sixi2/shoulder.obj");
+			ShapeEntity part2 = new ShapeEntity();	addChild(part2);	part2.setShapeFilename("/Sixi2/bicep.obj");
+			ShapeEntity part3 = new ShapeEntity();	addChild(part3);	part3.setShapeFilename("/Sixi2/forearm.obj");
+			ShapeEntity part4 = new ShapeEntity();	addChild(part4);	part4.setShapeFilename("/Sixi2/tuningFork.obj");
+			ShapeEntity part5 = new ShapeEntity();	addChild(part5);	part5.setShapeFilename("/Sixi2/picassoBox.obj");
+			ShapeEntity part6 = new ShapeEntity();	addChild(part6);	part6.setShapeFilename("/Sixi2/hand.obj");
 		} else {
-			links.get(0).setModelFilename("/Sixi2/shoulder.obj");
-			links.get(1).setModelFilename("/Sixi2/bicep.obj");
-			links.get(2).setModelFilename("/Sixi2/forearm.obj");
-			links.get(3).setModelFilename("/Sixi2/tuningFork.obj");
-			links.get(4).setModelFilename("/Sixi2/picassoBox.obj");
-			links.get(5).setModelFilename("/Sixi2/hand.obj");
+			links.get(0).setShapeFilename("/Sixi2/shoulder.obj");
+			links.get(1).setShapeFilename("/Sixi2/bicep.obj");
+			links.get(2).setShapeFilename("/Sixi2/forearm.obj");
+			links.get(3).setShapeFilename("/Sixi2/tuningFork.obj");
+			links.get(4).setShapeFilename("/Sixi2/picassoBox.obj");
+			links.get(5).setShapeFilename("/Sixi2/hand.obj");
 		}
 		
 		// pan shoulder

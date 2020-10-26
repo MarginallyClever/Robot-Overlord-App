@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity.modelLoadAndSavers;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity.shapeLoadAndSavers;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -11,10 +11,10 @@ import java.nio.CharBuffer;
 import java.util.Iterator;
 
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelLoadAndSave;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeLoadAndSave;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 
-public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
+public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 	@Override
 	public String getEnglishName() { return "3D printing file (STL)"; }
 	@Override
@@ -38,7 +38,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
-	public boolean load(BufferedInputStream inputStream,Model model) throws Exception {
+	public boolean load(BufferedInputStream inputStream,Shape model) throws Exception {
 		InputStreamReader br = null;
 		try {
 			if(!inputStream.markSupported()) throw new IOException("BufferedInputStream mark unsupported");
@@ -66,7 +66,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 	}
 
 	@Override
-	public void save(OutputStream outputStream, Model model) throws Exception {
+	public void save(OutputStream outputStream, Shape model) throws Exception {
 		byte[] info = new byte[80];
 		for(int k=0;k<80;++k) info[k]=' ';
 	    info[0]='M';
@@ -123,7 +123,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 
 
 	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
-	protected void loadBinary(BufferedInputStream inputStream,Model model) throws IOException {
+	protected void loadBinary(BufferedInputStream inputStream,Shape model) throws IOException {
 		int j;
 
 	    byte[] headerInfo=new byte[80];             // Header data
@@ -173,7 +173,7 @@ public class ModelLoadAndSaveSTL implements ModelLoadAndSave {
 	}
 
 	
-	protected void loadASCII(BufferedInputStream inputStream,Model model) throws IOException {
+	protected void loadASCII(BufferedInputStream inputStream,Shape model) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
 		
 		String line;

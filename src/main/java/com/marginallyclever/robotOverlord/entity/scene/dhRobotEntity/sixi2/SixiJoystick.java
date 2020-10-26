@@ -8,11 +8,11 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
-public class SixiJoystick extends ModelEntity {
+public class SixiJoystick extends ShapeEntity {
 	/**
 	 * 
 	 */

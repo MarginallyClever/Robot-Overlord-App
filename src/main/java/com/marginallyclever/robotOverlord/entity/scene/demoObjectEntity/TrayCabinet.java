@@ -3,9 +3,9 @@ package com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 
-public class TrayCabinet extends ModelEntity {
+public class TrayCabinet extends ShapeEntity {
 	/**
 	 * 
 	 */
@@ -14,14 +14,14 @@ public class TrayCabinet extends ModelEntity {
 	public TrayCabinet() {
 		super();
 		setName("Cabinet");
-		setModelFilename("/trayCabinet_resized.stl"); 
+		setShapeFilename("/trayCabinet_resized.stl"); 
 		getMaterial().setDiffuseColor(1, 1, 1, 1);
 		getMaterial().setAmbientColor(1, 1, 1, 1);
 		
-		ModelEntity tray = new ModelEntity();
+		ShapeEntity tray = new ShapeEntity();
 		addChild(tray);
 		tray.setName("Tray");
-		tray.setModelFilename("/tray_resized.stl");
+		tray.setShapeFilename("/tray_resized.stl");
 		tray.setPosition(new Vector3d(3.925*-3,-8.35,0.3+7));
 		tray.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		tray.getMaterial().setAmbientColor(1, 1, 1, 1);

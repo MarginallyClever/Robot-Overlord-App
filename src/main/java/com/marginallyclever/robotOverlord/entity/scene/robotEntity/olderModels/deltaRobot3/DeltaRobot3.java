@@ -20,9 +20,9 @@ import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
@@ -63,9 +63,9 @@ public class DeltaRobot3 extends RobotEntity {
 	protected Cylinder [] volumes;
 
 	// models for 3d rendering
-	protected transient Model modelTop;
-	protected transient Model modelArm;
-	protected transient Model modelBase;
+	protected transient Shape modelTop;
+	protected transient Shape modelArm;
+	protected transient Shape modelBase;
 	
 	// motion state testing
 	protected DeltaRobot3Memento motionNow;
@@ -107,9 +107,9 @@ public class DeltaRobot3 extends RobotEntity {
 		zDir = 0.0f;
 		
 		try {
-			modelTop = ModelEntity.createModelFromFilename("/DeltaRobot3.zip:top.STL");
-			modelArm = ModelEntity.createModelFromFilename("/DeltaRobot3.zip:arm.STL");
-			modelBase = ModelEntity.createModelFromFilename("/DeltaRobot3.zip:base.STL");
+			modelTop = ShapeEntity.createModelFromFilename("/DeltaRobot3.zip:top.STL");
+			modelArm = ShapeEntity.createModelFromFilename("/DeltaRobot3.zip:arm.STL");
+			modelBase = ShapeEntity.createModelFromFilename("/DeltaRobot3.zip:base.STL");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -9,7 +9,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class ViewCubeEntity extends Entity {
@@ -17,14 +17,14 @@ public class ViewCubeEntity extends Entity {
 	 * 
 	 */
 	private static final long serialVersionUID = 2625823417579183587L;
-	protected ModelEntity model = new ModelEntity();
+	protected ShapeEntity model = new ShapeEntity();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",6);
 	
     public ViewCubeEntity() {
     	super();
     	setName("ViewCube");
     	addChild(cubeSize);
-    	model.setModelFilename("/viewCube.obj");
+    	model.setShapeFilename("/viewCube.obj");
     	model.getMaterial().setTextureFilename("/images/viewCube.png");
     	model.getMaterial().setDiffuseColor(1, 1, 1, 1);
     	model.getMaterial().setAmbientColor(1, 1, 1, 1);

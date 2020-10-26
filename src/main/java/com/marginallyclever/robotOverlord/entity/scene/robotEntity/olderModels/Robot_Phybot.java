@@ -85,16 +85,16 @@ public class Robot_Phybot extends RobotEntity {
 		material.setDiffuseColor(r,g,b,1);
 		
 		try {
-			robot.getLink(0).setModelFilename("/Sixi/anchor.stl");
-			robot.getLink(1).setModelFilename("/Sixi/shoulder.stl");
-			robot.getLink(2).setModelFilename("/Sixi/bicep.stl");
-			robot.getLink(3).setModelFilename("/Sixi/elbow.stl");
-			robot.getLink(5).setModelFilename("/Sixi/forearm.stl");
-			robot.getLink(6).setModelFilename("/Sixi/wrist.stl");
-			robot.getLink(7).setModelFilename("/Sixi/hand.stl");
+			robot.getLink(0).setShapeFilename("/Sixi/anchor.stl");
+			robot.getLink(1).setShapeFilename("/Sixi/shoulder.stl");
+			robot.getLink(2).setShapeFilename("/Sixi/bicep.stl");
+			robot.getLink(3).setShapeFilename("/Sixi/elbow.stl");
+			robot.getLink(5).setShapeFilename("/Sixi/forearm.stl");
+			robot.getLink(6).setShapeFilename("/Sixi/wrist.stl");
+			robot.getLink(7).setShapeFilename("/Sixi/hand.stl");
 
 			for(int i=0;i<robot.getNumLinks();++i) 
-				robot.getLink(i).setModelScale(0.1f);
+				robot.getLink(i).setShapeScale(0.1f);
 			
 			robot.getLink(1).getModel().adjustOrigin(new Vector3d(0, 0, -25));
 			robot.getLink(2).getModel().adjustOrigin(new Vector3d(0, -5, -25));

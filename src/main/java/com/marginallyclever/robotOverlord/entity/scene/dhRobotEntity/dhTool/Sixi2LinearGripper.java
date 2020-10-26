@@ -21,8 +21,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
 /**
- * DHTool is a model that has a DHLink equivalence.
- * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
  */
 public class Sixi2LinearGripper extends DHTool {
@@ -56,7 +54,7 @@ public class Sixi2LinearGripper extends DHTool {
 		interpolatePoseT=1;
 		startT=endT=angleNow.get();
 		
-		setModelFilename("/Sixi2/linearGripper/gripperBase.obj");
+		setShapeFilename("/Sixi2/linearGripper/gripperBase.obj");
 		getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		getMaterial().setDiffuseColor(1, 1, 1, 1);
 		getMaterial().setAmbientColor(1, 1, 1, 1);
@@ -65,12 +63,12 @@ public class Sixi2LinearGripper extends DHTool {
 		addChild(leftFinger=new DHLink());
 		addChild(rightFinger=new DHLink());
 		leftFinger.setName("Left finger");
-		leftFinger.setModelFilename("/Sixi2/linearGripper/gripperLeft.obj");
+		leftFinger.setShapeFilename("/Sixi2/linearGripper/gripperLeft.obj");
 		leftFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		leftFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		leftFinger.getMaterial().setAmbientColor(1, 1, 1, 1);
 		rightFinger.setName("Right finger");
-		rightFinger.setModelFilename("/Sixi2/linearGripper/gripperRight.obj");
+		rightFinger.setShapeFilename("/Sixi2/linearGripper/gripperRight.obj");
 		rightFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		rightFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		rightFinger.getMaterial().setAmbientColor(1, 1, 1, 1);

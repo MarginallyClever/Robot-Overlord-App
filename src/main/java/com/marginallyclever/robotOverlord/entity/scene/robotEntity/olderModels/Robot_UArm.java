@@ -77,12 +77,12 @@ public class Robot_UArm extends RobotEntity {
 	
 	public void setupModels(DHRobotModel robot) {
 		try {
-			robot.getLink(0).setModelFilename("/uArm/base.STL");
-			robot.getLink(1).setModelFilename("/uArm/shoulder.STL");
-			robot.getLink(2).setModelFilename("/uArm/bicep.STL");
-			robot.getLink(3).setModelFilename("/uArm/forearm.STL");
-			robot.getLink(4).setModelFilename("/uArm/wrist.STL");
-			robot.getLink(5).setModelFilename("/uArm/hand.STL");	
+			robot.getLink(0).setShapeFilename("/uArm/base.STL");
+			robot.getLink(1).setShapeFilename("/uArm/shoulder.STL");
+			robot.getLink(2).setShapeFilename("/uArm/bicep.STL");
+			robot.getLink(3).setShapeFilename("/uArm/forearm.STL");
+			robot.getLink(4).setShapeFilename("/uArm/wrist.STL");
+			robot.getLink(5).setShapeFilename("/uArm/hand.STL");	
 			
 			robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,0,1.65f));
 			robot.getLink(1).getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));

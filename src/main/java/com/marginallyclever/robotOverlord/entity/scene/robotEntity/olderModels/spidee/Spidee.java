@@ -17,9 +17,9 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.Model;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.log.Log;
 
 import java.io.BufferedReader;
@@ -106,12 +106,12 @@ public class Spidee extends RobotEntity {
   boolean render_meshes = true;
 
   // models
-  protected transient Model modelThigh = null;
-  protected transient Model modelBody = null;
-  protected transient Model modelShoulderLeft = null;
-  protected transient Model modelShoulderRight = null;
-  protected transient Model modelShinLeft = null;
-  protected transient Model modelShinRight = null;
+  protected transient Shape modelThigh = null;
+  protected transient Shape modelBody = null;
+  protected transient Shape modelShoulderLeft = null;
+  protected transient Shape modelShoulderRight = null;
+  protected transient Shape modelShinLeft = null;
+  protected transient Shape modelShinRight = null;
   
   protected transient SpideeControlPanel spideePanel;
 	  
@@ -285,12 +285,12 @@ public class Spidee extends RobotEntity {
 
 		// models
 		try {
-			modelThigh = ModelEntity.createModelFromFilename( "/Spidee.zip:thigh.stl");
-			modelBody = ModelEntity.createModelFromFilename( "/Spidee.zip:body.stl");
-			modelShoulderLeft = ModelEntity.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
-			modelShoulderRight = ModelEntity.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
-			modelShinLeft = ModelEntity.createModelFromFilename( "/Spidee.zip:shin_left.stl");
-			modelShinRight = ModelEntity.createModelFromFilename( "/Spidee.zip:shin_right.stl");
+			modelThigh = ShapeEntity.createModelFromFilename( "/Spidee.zip:thigh.stl");
+			modelBody = ShapeEntity.createModelFromFilename( "/Spidee.zip:body.stl");
+			modelShoulderLeft = ShapeEntity.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
+			modelShoulderRight = ShapeEntity.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
+			modelShinLeft = ShapeEntity.createModelFromFilename( "/Spidee.zip:shin_left.stl");
+			modelShinRight = ShapeEntity.createModelFromFilename( "/Spidee.zip:shin_right.stl");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

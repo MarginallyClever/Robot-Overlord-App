@@ -45,7 +45,7 @@ public class PrimitiveSolids {
 	/**
 	 * draw a sphere with a given radius.
 	 * TODO expose quality parameters?
-	 * TODO generate a sphere once as a model, return that.
+	 * TODO generate a sphere once as a shape, return that.
 	 * See https://www.gamedev.net/forums/topic/537269-procedural-sphere-creation/4469427/
 	 * @param gl2
 	 * @param radius

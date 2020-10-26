@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.entity.scene.modelEntity;
+package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -18,11 +18,11 @@ import com.marginallyclever.convenience.Cuboid;
  * @author dan royer
  *
  */
-public class Model {
+public class Shape {
 	public final static int NUM_BUFFERS=4;  // verts, normals, colors, textureCoordinates
 	
 	protected String sourceName;
-	protected transient ModelLoadAndSave loader;
+	protected transient ShapeLoadAndSave loader;
 	protected transient boolean isLoaded;
 	protected transient boolean unloadASAP;
 	
@@ -44,7 +44,7 @@ public class Model {
 	// bounding limits
 	protected Cuboid cuboid = new Cuboid();
 
-	public Model() {
+	public Shape() {
 		super();
 		
 		sourceName=null;
@@ -370,11 +370,11 @@ public class Model {
 		return vertexArray.size()/3;
 	}
 
-	public ModelLoadAndSave getLoader() {
+	public ShapeLoadAndSave getLoader() {
 		return loader;
 	}
 
-	public void setLoader(ModelLoadAndSave loader) {
+	public void setLoader(ShapeLoadAndSave loader) {
 		this.loader = loader;
 	}
 }

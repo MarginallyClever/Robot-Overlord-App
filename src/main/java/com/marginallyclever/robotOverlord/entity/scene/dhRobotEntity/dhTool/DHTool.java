@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 
 /**
- * DHTool is a model that has a DHLink equivalence.
+ * DHTool has a DHLink equivalence.
  * In this way it can perform transforms and have sub-links.
  * @author Dan Royer
  *

@@ -9,7 +9,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.modelEntity.ModelEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -18,7 +18,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends ModelEntity {
+public class DHLink extends ShapeEntity {
 	/**
 	 * 
 	 */
@@ -132,7 +132,7 @@ public class DHLink extends ModelEntity {
 		theta.set(arg0.theta.get());
 		r.set(arg0.r.get());
 		alpha.set(arg0.alpha.get());
-		model =arg0.model;
+		shape =arg0.shape;
 		rangeMin.set(arg0.rangeMin.get());
 		rangeMax.set(arg0.rangeMax.get());
 		/*
