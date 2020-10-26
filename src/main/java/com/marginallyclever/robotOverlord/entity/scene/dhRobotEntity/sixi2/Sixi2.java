@@ -151,6 +151,11 @@ public class Sixi2 extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
+		ArrayList<FileFilter> fileFilter = new ArrayList<FileFilter>();
+		// supported file formats
+		fileFilter.add(new FileNameExtensionFilter("Sixi2", "sixi2"));
+		view.addFilename(filename,fileFilter);
+		
 		view.pushStack("S", "Sixi");
 		view.addButton("Go Home").addObserver(new Observer() {
 			@Override
@@ -174,27 +179,10 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("Time estimate").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				PoseFK p = sim.getPoseNow();
-				
-				for( Entity child : children ) {
-					if(child instanceof Sixi2Command ) {
-						sim.addDestination((Sixi2Command)child);
-					}
-				}
-				double sum=sim.getTimeRemaining();
-				sim.eStop();
-				
-				sim.setPoseNow(p);
-				
-				Log.message("Time estimate: "+StringHelper.formatTime(sum));
+				double t = getTimeEstimate();
+				Log.message("Time estimate: "+StringHelper.formatTime(t));
 			}
 		});
-		
-		ArrayList<FileFilter> fileFilter = new ArrayList<FileFilter>();
-		// supported file formats
-		fileFilter.add(new FileNameExtensionFilter("Sixi2", "sixi2"));
-		view.addFilename(filename,fileFilter);
-		
 		view.addButton("New").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
@@ -257,6 +245,25 @@ public class Sixi2 extends PoseEntity {
 		super.getView(view);
 	}
 
+	/**
+	 * @return time in seconds to run sequence.
+	 */
+	public double getTimeEstimate() {
+		PoseFK p = sim.getPoseNow();
+		
+		for( Entity child : children ) {
+			if(child instanceof Sixi2Command ) {
+				sim.addDestination((Sixi2Command)child);
+			}
+		}
+		double sum=sim.getTimeRemaining();
+		sim.eStop();
+		
+		sim.setPoseNow(p);
+		
+		return sum;
+	}
+	
 	protected void stopProgram() {
 		if(isPlaying) return;
 		isPlaying=false;
@@ -328,7 +335,7 @@ public class Sixi2 extends PoseEntity {
 	/**
 	 * Remove all Sixi2Command children.
 	 */
-	protected void clearAllCommands() {
+	public void clearAllCommands() {
 		ArrayList<Entity> toKeep = new ArrayList<Entity>();
 		for( Entity c : children ) {
 			if( !(c instanceof Sixi2Command ) ) {
