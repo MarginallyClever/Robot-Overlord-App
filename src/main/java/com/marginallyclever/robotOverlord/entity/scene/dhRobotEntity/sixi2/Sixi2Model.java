@@ -95,12 +95,12 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		this.setNumLinks(7);
 
 		if(!attachModels) {
-			ShapeEntity part1 = new ShapeEntity();	addChild(part1);	part1.setShapeFilename("/Sixi2/shoulder.obj");
-			ShapeEntity part2 = new ShapeEntity();	addChild(part2);	part2.setShapeFilename("/Sixi2/bicep.obj");
-			ShapeEntity part3 = new ShapeEntity();	addChild(part3);	part3.setShapeFilename("/Sixi2/forearm.obj");
-			ShapeEntity part4 = new ShapeEntity();	addChild(part4);	part4.setShapeFilename("/Sixi2/tuningFork.obj");
-			ShapeEntity part5 = new ShapeEntity();	addChild(part5);	part5.setShapeFilename("/Sixi2/picassoBox.obj");
-			ShapeEntity part6 = new ShapeEntity();	addChild(part6);	part6.setShapeFilename("/Sixi2/hand.obj");
+			ShapeEntity part0 = new ShapeEntity();	addChild(part0);	part0.setShapeFilename("/Sixi2/shoulder.obj");
+			ShapeEntity part1 = new ShapeEntity();	addChild(part1);	part1.setShapeFilename("/Sixi2/bicep.obj");
+			ShapeEntity part2 = new ShapeEntity();	addChild(part2);	part2.setShapeFilename("/Sixi2/forearm.obj");
+			ShapeEntity part3 = new ShapeEntity();	addChild(part3);	part3.setShapeFilename("/Sixi2/tuningFork.obj");
+			ShapeEntity part4 = new ShapeEntity();	addChild(part4);	part4.setShapeFilename("/Sixi2/picassoBox.obj");
+			ShapeEntity part5 = new ShapeEntity();	addChild(part5);	part5.setShapeFilename("/Sixi2/hand.obj");
 		} else {
 			links.get(0).setShapeFilename("/Sixi2/shoulder.obj");
 			links.get(1).setShapeFilename("/Sixi2/bicep.obj");
