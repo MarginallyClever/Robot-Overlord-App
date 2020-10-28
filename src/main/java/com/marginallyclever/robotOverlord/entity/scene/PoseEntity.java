@@ -464,7 +464,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	protected Object clone() {
 		PoseEntity e = (PoseEntity)super.clone();
 		e.pose = (Matrix4d)pose.clone();
 		e.poseWorld = (Matrix4d)poseWorld.clone();

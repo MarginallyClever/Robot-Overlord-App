@@ -154,7 +154,6 @@ public class Sixi2 extends PoseEntity {
 		ArrayList<FileFilter> fileFilter = new ArrayList<FileFilter>();
 		// supported file formats
 		fileFilter.add(new FileNameExtensionFilter("Sixi2", "sixi2"));
-		view.addFilename(filename,fileFilter);
 		
 		view.pushStack("S", "Sixi");
 		view.addButton("Go Home").addObserver(new Observer() {
@@ -169,11 +168,7 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("Append").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				try {
-					queueDestination((Sixi2Command)cursor.clone());
-				} catch (CloneNotSupportedException e) {
-					e.printStackTrace();
-				}
+				queueDestination((Sixi2Command)cursor.clone());
 			}
 		});
 		view.addButton("Time estimate").addObserver(new Observer() {
@@ -183,6 +178,7 @@ public class Sixi2 extends PoseEntity {
 				Log.message("Time estimate: "+StringHelper.formatTime(t));
 			}
 		});
+		view.addFilename(filename,fileFilter);
 		view.addButton("New").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
@@ -277,18 +273,13 @@ public class Sixi2 extends PoseEntity {
 		playheadSim = 0;
 		playTimeTotal = 0;
 		// clone the playlist so that it cannot be broken while the playback is in progress.
-		try {
-			for( Entity c : children ) {
-				if( c instanceof Sixi2Command ) {
-					playlist.add((Sixi2Command)((Sixi2Command) c).clone());
-				}
+		for( Entity c : children ) {
+			if( c instanceof Sixi2Command ) {
+				playlist.add((Sixi2Command)((Sixi2Command) c).clone());
 			}
-			isPlaying=true;
-			Log.message("Playback started.");
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+		isPlaying=true;
+		Log.message("Playback started.");
 	}
 	
 	public void save(String name) throws Exception {
@@ -356,18 +347,14 @@ public class Sixi2 extends PoseEntity {
 	 * @param c the command to queue.
 	 */
 	public void queueDestination(Sixi2Command c) {
-		try {
-			// clone it
-			Sixi2Command copy = (Sixi2Command)c.clone();
-			// find the original
-			int i = children.indexOf(c);
-			if(i==-1) i = children.size();
-			// add before original or tail of queue, whichever comes first.
-			addChild(i,copy);
-			((RobotOverlord)getRoot()).updateEntityTree();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
+		// clone it
+		Sixi2Command copy = (Sixi2Command)c.clone();
+		// find the original
+		int i = children.indexOf(c);
+		if(i==-1) i = children.size();
+		// add before original or tail of queue, whichever comes first.
+		addChild(i,copy);
+		((RobotOverlord)getRoot()).updateEntityTree();
 	}
 
 	public void goTo(Sixi2Command command) {

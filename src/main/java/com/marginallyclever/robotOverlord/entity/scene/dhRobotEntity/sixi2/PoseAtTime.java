@@ -1,17 +1,15 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-
 /**
  * Used by Sixi2Live to average motion over time and estimate forces acting on the robot.
  * @author Dan Royer
  *
  */
-public class PoseAtTime {
+public class PoseAtTime<T> {
 	public long t;  // ms
-	public PoseFK p;
+	public T p;
 	
-	public PoseAtTime(PoseFK pose,long time) {
+	public PoseAtTime(T pose,long time) {
 		super();
 		
 		this.p=pose;

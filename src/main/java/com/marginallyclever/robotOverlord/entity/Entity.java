@@ -241,8 +241,13 @@ public class Entity extends Observable implements Observer, Cloneable, Serializa
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		Entity e = (Entity)super.clone();
+	protected Object clone() {
+		Entity e;
+		try {
+			e = (Entity)super.clone();
+		} catch (CloneNotSupportedException e1) {
+			throw new InternalError();
+		}
 		for(int i=0;i<children.size();++i) {
 			e.children.set(i, (Entity)children.get(i).clone());
 		}

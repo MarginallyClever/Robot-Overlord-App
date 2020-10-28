@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Observable;
 import java.util.Observer;
@@ -23,8 +21,8 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	private static final long serialVersionUID = 1L;
 
 	protected PoseFK poseFK;
-	protected DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2Model.DEFAULT_FEEDRATE);
-	protected DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2Model.DEFAULT_ACCELERATION);
+	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2Model.DEFAULT_FEEDRATE);
+	protected transient DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2Model.DEFAULT_ACCELERATION);
 
 	public Sixi2Command() {
 		super("Pose");
@@ -33,12 +31,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	public Sixi2Command(PoseFK p,double f,double a) {
 		super("Pose");
 		
-		try {
-			poseFK=(PoseFK)p.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		
+		poseFK=(PoseFK)p.clone();
 		feedrateSlider.set(f);
 		accelerationSlider.set(a);
 	}
@@ -52,7 +45,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	protected Object clone() {
 		Sixi2Command c = (Sixi2Command)super.clone();
 		c.pose = (Matrix4d)pose.clone();
 		c.poseFK = (PoseFK)poseFK.clone();
@@ -121,7 +114,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 
 	@Override
 	public void lostFocus() {}
-
+/*
 	public void write(ObjectOutputStream stream) throws Exception {
 		stream.writeObject(poseFK);
 		stream.writeDouble(feedrateSlider.get());
@@ -133,7 +126,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		feedrateSlider.set(stream.readDouble());
 		accelerationSlider.set(stream.readDouble());
 	}
-
+*/
 	/**
 	 * Convert this command to a string useable by a live robot.
 	 * @return

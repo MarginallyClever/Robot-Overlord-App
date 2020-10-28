@@ -79,9 +79,15 @@ public class PoseFK implements Memento, Cloneable {
 	}
 	
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		PoseFK t = (PoseFK)super.clone();
-		t.fkValues = fkValues.clone();
+	public Object clone() {
+		PoseFK t=null;
+		
+		try {
+			t = (PoseFK)super.clone();
+			t.fkValues = fkValues.clone();
+		} catch(CloneNotSupportedException e) {
+		    throw new InternalError();
+		}
 		
 		return t;
 	}

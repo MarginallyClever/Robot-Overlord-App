@@ -1,13 +1,12 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.vecmath.Vector3d;
+
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -15,30 +14,30 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class Sixi2Sim extends Entity {
+public class SkycamSim extends Entity {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8618746034128255505L;
+	private static final long serialVersionUID = -6890055884739855994L;
 
-	protected DHRobotModel model;
+	protected SkycamModel model;
 	
-	// poseTo represents the desired destination. It could be null if there is none.  Roughly equivalent to Sixi2Live.poseSent.
-	public PoseFK poseTo;
-	// poseNow is the current position.  Roughly equivalent to Sixi2Live.poseReceived.
-	protected PoseFK poseNow;
+	// poseTo represents the desired destination. It could be null if there is none.  Roughly equivalent to SkycamLive.poseSent.
+	public Vector3d poseTo;
+	// poseNow is the current position.  Roughly equivalent to SkycamLive.poseReceived.
+	protected Vector3d poseNow;
 	
 	// the sequence of poses to drive towards.
-	protected LinkedList<Sixi2SimSegment> queue = new LinkedList<Sixi2SimSegment>();
+	protected LinkedList<SkycamSimSegment> queue = new LinkedList<SkycamSimSegment>();
 	protected boolean readyForCommands;
 
-	public Sixi2Sim(DHRobotModel model) {
-		super("Sixi2 Sim");
+	public SkycamSim(SkycamModel model) {
+		super("Skycam Sim");
 		
 		this.model = model;
 		
 		// I assume the simulated robot starts at the home position.
-		setPoseNow(model.getPoseFK());
+		setPoseNow(model.getPosition());
 		
 		readyForCommands=true;
 	}
@@ -46,7 +45,7 @@ public class Sixi2Sim extends Entity {
 	@Override
 	public void update(double dt) {
 		if(!queue.isEmpty()) {
-			Sixi2SimSegment seg = queue.getFirst();
+			SkycamSimSegment seg = queue.getFirst();
 			seg.busy=true;
 			seg.now_s+=dt;
 			double diff = 0;
@@ -65,7 +64,7 @@ public class Sixi2Sim extends Entity {
 				}
 			}
 			
-			readyForCommands=(queue.size()<Sixi2Model.MAX_SEGMENTS); 
+			readyForCommands=(queue.size()<SkycamModel.MAX_SEGMENTS); 
 		}
 		
 		super.update(dt);
@@ -75,7 +74,7 @@ public class Sixi2Sim extends Entity {
 	 * override this to change behavior of joints over time.
 	 * @param dt
 	 */
-	protected void updatePositions(Sixi2SimSegment seg) {
+	protected void updatePositions(SkycamSimSegment seg) {
 		if(poseNow==null) return;
 
 		double dt = (seg.now_s - seg.start_s);
@@ -100,36 +99,28 @@ public class Sixi2Sim extends Entity {
 		
 		boolean verbose=false;
 		if(verbose) {
-			System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": ");
-			for(int i=0;i<poseNow.fkValues.length;++i) {
-				System.out.print(StringHelper.formatDouble(seg.start.fkValues[i])+" ");
-			}
-			System.out.print(fraction+" + ");
-	
-			for(int i=0;i<poseNow.fkValues.length;++i) {
-				System.out.print(StringHelper.formatDouble(seg.delta.fkValues[i])+" ");
-			}
-			System.out.print(seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" : "+fraction+" = ");
+			System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": "
+					+seg.start+" + "+seg.delta+" "+seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" = ");
 		}
 		
 		// set pos = start + delta * fraction
-		for(int i=0;i<poseNow.fkValues.length;++i) {
-			poseNow.fkValues[i] = seg.start.fkValues[i] + (seg.delta.fkValues[i]) * fraction;
-			if(verbose) System.out.print(StringHelper.formatDouble(poseNow.fkValues[i])+" ");
-		}
-		if(verbose) System.out.println();
+		poseNow.set(seg.delta);
+		poseNow.scale(fraction);
+		poseNow.add(seg.start);
+		
+		if(verbose) System.out.println(poseNow);
 	}
 	
 	@Override
 	public void render(GL2 gl2) {
 		// draw now first so it takes precedence in the z buffers
 		if(poseNow!=null) {
-			model.setPoseFK(poseNow);
+			model.setPosition(poseNow);
 			model.setDiffuseColor(0.0f, 1.0f, 0, 1f);
 			model.render(gl2);
 		}
 		if(poseTo!=null) {
-			model.setPoseFK(poseTo);
+			model.setPosition(poseTo);
 			model.setDiffuseColor(0.0f, 1.0f, 0, 0.25f);
 			model.render(gl2);
 		}		
@@ -141,19 +132,19 @@ public class Sixi2Sim extends Entity {
 		super.getView(view);
 	}
 	
-	public PoseFK getPoseTo() {
+	public Vector3d getPoseTo() {
 		return poseTo;
 	}
 
-	public void setPoseTo(PoseFK newPoseTo) {
+	public void setPoseTo(Vector3d newPoseTo) {
 		this.poseTo = newPoseTo;
 	}
 
-	public PoseFK getPoseNow() {
+	public Vector3d getPoseNow() {
 		return poseNow;
 	}
 
-	protected void setPoseNow(PoseFK poseNow) {
+	protected void setPoseNow(Vector3d poseNow) {
 		this.poseNow = poseNow;
 	}
 
@@ -161,14 +152,14 @@ public class Sixi2Sim extends Entity {
 	 * add this destination to the queue and attempt to optimize travel between destinations. 
 	 * @param command
 	 */
-	public boolean addDestination(final Sixi2Command command) {
-		setPoseTo(command.poseFK);
+	public boolean addDestination(final SkycamCommand command) {
+		setPoseTo(command.getPosition());
 		double feedrate = command.feedrateSlider.get();
 		double acceleration = command.accelerationSlider.get();
 		
-		PoseFK start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
+		Vector3d start = (!queue.isEmpty()) ? queue.getLast().end : poseNow;
 		
-		Sixi2SimSegment next = new Sixi2SimSegment(start,command.poseFK);
+		SkycamSimSegment next = new SkycamSimSegment(start,command.getPosition());
 		
 		// zero distance?  do nothing.
 		if(next.distance==0) return true;
@@ -176,28 +167,31 @@ public class Sixi2Sim extends Entity {
 		double timeToEnd = next.distance / feedrate;
 
 		// slow down if the buffer is nearly empty.
-		if( queue.size() > 0 && queue.size() <= (Sixi2Model.MAX_SEGMENTS/2)-1 ) {
-			if( timeToEnd < Sixi2Model.MIN_SEGMENT_TIME ) {
-				timeToEnd += (Sixi2Model.MIN_SEGMENT_TIME-timeToEnd)*2.0 / queue.size();
+		if( queue.size() > 0 && queue.size() <= (SkycamModel.MAX_SEGMENTS/2)-1 ) {
+			if( timeToEnd < SkycamModel.MIN_SEGMENT_TIME ) {
+				timeToEnd += (SkycamModel.MIN_SEGMENT_TIME-timeToEnd)*2.0 / queue.size();
 			}
 		}
 		
 		next.nominalSpeed = next.distance / timeToEnd;
 		
 		// find if speed exceeds any joint max speed.
-		PoseFK currentSpeed = model.createPoseFK();
+		Vector3d currentSpeed = new Vector3d(next.delta);
 		double speedFactor=1.0;
-		for(int i=0;i<currentSpeed.fkValues.length;++i) {
-			currentSpeed.fkValues[i] = next.delta.fkValues[i] / timeToEnd;
-			double cs = Math.abs(currentSpeed.fkValues[i]);
-			double maxFr = Sixi2Model.MAX_JOINT_FEEDRATE;
+		currentSpeed.scale(1.0/timeToEnd);
+		
+		double maxFr = SkycamModel.MAX_JOINT_FEEDRATE;
+		double [] cs1 = { currentSpeed.x, currentSpeed.y, currentSpeed.z };
+		for(int i=0;i< cs1.length;++i) {
+			double cs = Math.abs(cs1[i]);
 			if( cs > maxFr ) speedFactor = Math.min(speedFactor, maxFr/cs);
 		}
 		// apply speed limit
 		if(speedFactor<1.0) {
-			for(int i=0;i<currentSpeed.fkValues.length;++i) {
-				currentSpeed.fkValues[i]*=speedFactor;
+			for(int i=0;i< cs1.length;++i) {
+				cs1[i] *= speedFactor;
 			}
+			currentSpeed.scale(speedFactor);
 			next.nominalSpeed *= speedFactor;
 		}
 		
@@ -206,9 +200,11 @@ public class Sixi2Sim extends Entity {
 		// limit jerk between moves
 		double safeSpeed = next.nominalSpeed;
 		boolean limited=false;
-		for(int i=0;i<next.delta.fkValues.length;++i) {
-			double jerk = Math.abs(currentSpeed.fkValues[i]),
-					maxj = Sixi2Model.MAX_JERK[i];
+		double [] d = { next.delta.x, next.delta.y, next.delta.z };
+		
+		for(int i=0;i<d.length;++i) {
+			double jerk = Math.abs(cs1[i]),
+					maxj = SkycamModel.MAX_JERK[i];
 			if( jerk > maxj ) {
 				if(limited) {
 					double mjerk = maxj * next.nominalSpeed;
@@ -223,25 +219,26 @@ public class Sixi2Sim extends Entity {
 		double vmax_junction = 0;
 		if(queue.size()>0) { 
 			// look at difference between this move and previous move
-			Sixi2SimSegment prev = queue.getLast();
+			SkycamSimSegment prev = queue.getLast();
 			if(prev.nominalSpeed > 1e-6) {				
 				vmax_junction = Math.min(next.nominalSpeed,prev.nominalSpeed);
 				limited=false;
 
 				double vFactor=0;
 				double smallerSpeedFactor = vmax_junction / prev.nominalSpeed;
-				
-				for(int i=0;i<prev.normal.fkValues.length;++i) {
-					double vExit = prev.normal.fkValues[i]* smallerSpeedFactor;
-					double vEntry = currentSpeed.fkValues[i];
+
+				double [] n = { prev.normal.x, prev.normal.y, prev.normal.z };
+				for(int i=0;i<n.length;++i) {
+					double vExit = n[i]* smallerSpeedFactor;
+					double vEntry = cs1[i];
 					if(limited) {
 						vExit *= vFactor;
 						vEntry *= vFactor;
 					}
 					double jerk = (vExit > vEntry) ? ((vEntry>0 || vExit<0) ? (vExit-vEntry) : Math.max(vExit, -vEntry))
 												   : ((vEntry<0 || vExit>0) ? (vEntry-vExit) : Math.max(-vExit, vEntry));
-					if( jerk > Sixi2Model.MAX_JERK[i] ) {
-						vFactor = Sixi2Model.MAX_JERK[i] / jerk;
+					if( jerk > SkycamModel.MAX_JERK[i] ) {
+						vFactor = SkycamModel.MAX_JERK[i] / jerk;
 						limited = true;
 					}
 				}
@@ -286,9 +283,9 @@ public class Sixi2Sim extends Entity {
 	}
 	
 	protected void recalculateBackwards() {
-		Sixi2SimSegment current;
-		Sixi2SimSegment next = null;
-		Iterator<Sixi2SimSegment> ri = queue.descendingIterator();
+		SkycamSimSegment current;
+		SkycamSimSegment next = null;
+		Iterator<SkycamSimSegment> ri = queue.descendingIterator();
 		while(ri.hasNext()) {
 			current = ri.next();
 			recalculateBackwardsBetween(current,next);
@@ -296,7 +293,7 @@ public class Sixi2Sim extends Entity {
 		}
 	}
 	
-	protected void recalculateBackwardsBetween(Sixi2SimSegment current,Sixi2SimSegment next) {
+	protected void recalculateBackwardsBetween(SkycamSimSegment current,SkycamSimSegment next) {
 		double top = current.entrySpeedMax;
 		if(current.entrySpeed != top || (next!=null && next.recalculate)) {
 			double newEntrySpeed = current.nominalLength 
@@ -308,9 +305,9 @@ public class Sixi2Sim extends Entity {
 	}
 	
 	protected void recalculateForwards() {
-		Sixi2SimSegment current;
-		Sixi2SimSegment prev = null;
-		Iterator<Sixi2SimSegment> ri = queue.iterator();
+		SkycamSimSegment current;
+		SkycamSimSegment prev = null;
+		Iterator<SkycamSimSegment> ri = queue.iterator();
 		while(ri.hasNext()) {
 			current = ri.next();
 			recalculateForwardsBetween(prev,current);
@@ -318,7 +315,7 @@ public class Sixi2Sim extends Entity {
 		}
 	}
 	
-	protected void recalculateForwardsBetween(Sixi2SimSegment prev,Sixi2SimSegment current) {
+	protected void recalculateForwardsBetween(SkycamSimSegment prev,SkycamSimSegment current) {
 		if(prev==null) return;
 		if(!prev.nominalLength && prev.entrySpeed < current.entrySpeed) {
 			double newEntrySpeed = maxSpeedAllowed(-prev.acceleration, prev.entrySpeed, prev.distance);
@@ -330,7 +327,7 @@ public class Sixi2Sim extends Entity {
 	}
 	
 	protected void recalculateTrapezoids() {
-		Sixi2SimSegment current=null;
+		SkycamSimSegment current=null;
 		
 		boolean nextDirty;
 		double currentEntrySpeed=0, nextEntrySpeed=0;
@@ -340,7 +337,7 @@ public class Sixi2Sim extends Entity {
 			current = queue.get(i);
 			int j = i+1;
 			if(j<size) {
-				Sixi2SimSegment next = queue.get(i+1);
+				SkycamSimSegment next = queue.get(i+1);
 				nextEntrySpeed = next.entrySpeed;
 				nextDirty = next.recalculate;
 			} else {
@@ -359,7 +356,7 @@ public class Sixi2Sim extends Entity {
 		}
 	}
 	
-	protected void recalculateTrapezoidSegment(Sixi2SimSegment seg, double entrySpeed, double exitSpeed) {
+	protected void recalculateTrapezoidSegment(SkycamSimSegment seg, double entrySpeed, double exitSpeed) {
 		if( entrySpeed < 0 ) entrySpeed = 0;
 		if( exitSpeed < 0 ) exitSpeed = 0;
 		
@@ -417,7 +414,7 @@ public class Sixi2Sim extends Entity {
 
 	public double getTimeRemaining() {
 		double sum=0;
-		for( Sixi2SimSegment s : queue ) {
+		for( SkycamSimSegment s : queue ) {
 			sum += s.end_s - s.now_s;
 		}
 		return sum;

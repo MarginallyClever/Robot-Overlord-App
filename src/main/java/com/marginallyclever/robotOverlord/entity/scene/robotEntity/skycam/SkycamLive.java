@@ -1,38 +1,33 @@
-package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.LinkedList;
 import java.util.Observable;
 
+import javax.vecmath.Vector3d;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.PoseAtTime;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-/**
- * Everything known about the state of the live robot
- * @author Dan Royer
- *
- */
-public class Sixi2Live extends Entity {
-	
+public class SkycamLive extends Entity {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4726488200398410229L;
-	protected DHRobotModel model;
-	// roughly equivalent to Sixi2Sim.poseTo
-	protected PoseFK poseSent;
-	// roughly equivalent to Sixi2Sim.poseNow
-	protected PoseFK poseReceived;
+	private static final long serialVersionUID = 6543522320148593138L;
+	protected SkycamModel model;
+	// roughly equivalent to SkycamSim.poseTo
+	protected Vector3d poseSent;
+	// roughly equivalent to SkycamSim.poseNow
+	protected Vector3d poseReceived;
 	// connection to robot outside this app. 
 	protected RemoteEntity connection = new RemoteEntity();
 
-	protected transient LinkedList<PoseAtTime<PoseFK>> received = new LinkedList<PoseAtTime<PoseFK>>();  
+	protected transient LinkedList<PoseAtTime<Vector3d>> received = new LinkedList<PoseAtTime<Vector3d>>();  
 	public static final int RECEIVED_BUFFER_LEN = 3;
 
 	protected boolean waitingForOpenConnection;
@@ -42,8 +37,8 @@ public class Sixi2Live extends Entity {
 	protected double[] jointVelocityMeasured = {0,0,0,0,0,0,0};
 	
 	
-	public Sixi2Live(DHRobotModel model) {
-		super("Sixi2 Live");
+	public SkycamLive(SkycamModel model) {
+		super("Skycam Live");
 		
 		this.model = model;
 		
@@ -101,44 +96,19 @@ public class Sixi2Live extends Entity {
 			String[] tokens = data.split("\\s+");
 			if (tokens.length >= 7) {
 				try {
-					PoseFK key0 = model.createPoseFK();
-					key0.fkValues[0] = StringHelper.parseNumber(tokens[1]);
-					key0.fkValues[1] = StringHelper.parseNumber(tokens[2]);
-					key0.fkValues[2] = StringHelper.parseNumber(tokens[3]);
-					key0.fkValues[3] = StringHelper.parseNumber(tokens[4]);
-					key0.fkValues[4] = StringHelper.parseNumber(tokens[5]);
-					key0.fkValues[5] = StringHelper.parseNumber(tokens[6]);
-					PoseAtTime<PoseFK> pat = new PoseAtTime<PoseFK>(key0,System.currentTimeMillis());
+					Vector3d key0 = new Vector3d();
+					key0.x = StringHelper.parseNumber(tokens[1]);
+					key0.y = StringHelper.parseNumber(tokens[2]);
+					key0.z = StringHelper.parseNumber(tokens[3]);
+					PoseAtTime<Vector3d> pat = new PoseAtTime<Vector3d>(key0,System.currentTimeMillis());
 					received.add(pat);
 					setPoseReceived(key0);
 					if(received.size() > RECEIVED_BUFFER_LEN) {
 						received.pop();
 					}
-
-					int s = received.size();
-					if(s>1) {
-						int i1 = (int)((s-2) % RECEIVED_BUFFER_LEN);
-					
-						PoseFK key1 = received.get(i1).p;
-
-						for( int i=0;i<cartesianForceMeasured.length;++i ) cartesianForceMeasured[i] = 0;
-						
-						// get the relative force
-						long t1 = received.get(i1).t;  // ms
-						long t0 = pat.t;  // ms
-						
-						double dt = (t0-t1)*0.001;  // seconds
-						for( int i=0;i<key1.fkValues.length;++i ) {
-							jointVelocityMeasured[i] = (key0.fkValues[i]-key1.fkValues[i])*dt;
-						}
-						
-						cartesianForceMeasured = JacobianHelper.getCartesianForceFromJointVelocity(model,jointVelocityMeasured);
-					}
-					
+					// TODO use received buffer to estimate forces on end effector?
 				} catch (NumberFormatException e) {
 				}
-				
-				//generateAndSendCommand(1.0/30.0);
 			}
 		}
 
@@ -152,44 +122,44 @@ public class Sixi2Live extends Entity {
 	public void render(GL2 gl2) {
 		// draw poseReceived first so it takes precedence in the z buffers
 		if(poseReceived!=null) {
-			model.setPoseFK(poseReceived);
+			model.setPosition(poseReceived);
 			model.setDiffuseColor(1, 0, 0, 1);
 			model.render(gl2);
 		}
 		if(poseSent!=null) {
-			model.setPoseFK(poseSent);
+			model.setPosition(poseSent);
 			model.setDiffuseColor(1, 0, 0, 0.25f);
 			model.render(gl2);
 		}		
 		super.render(gl2);
 	}
 
-	public PoseFK getPoseSent() {
+	public Vector3d getPoseSent() {
 		return poseSent;
 	}
 
-	private void setPoseSent(PoseFK newPoseSent) {
+	private void setPoseSent(Vector3d newPoseSent) {
 		this.poseSent=newPoseSent;
 	}
 
-	public PoseFK getPoseReceived() {
+	public Vector3d getPoseReceived() {
 		return poseReceived;
 	}
 
-	protected void setPoseReceived(PoseFK poseReceived) {
-		this.poseReceived = (poseReceived==null) ? null : (PoseFK)poseReceived.clone();
+	protected void setPoseReceived(Vector3d poseReceived) {
+		this.poseReceived = (poseReceived==null) ? null : (Vector3d)poseReceived.clone();
 	}
 	
 	public boolean isReadyForCommands() {
 		return readyForCommands;
 	}
 	
-	public boolean addDestination(final Sixi2Command command) {
+	public boolean addDestination(final SkycamCommand command) {
 		if(!isConnected() || !readyForCommands) return false;
 		
 		//connection.sendMessageGuaranteed(command.getFAAsString());
 		connection.sendMessageGuaranteed(command.poseFKToString());
-		setPoseSent(command.poseFK);
+		setPoseSent(command.getPosition());
 		readyForCommands = false;
 		//Log.message("Sent "+command.poseFKToString());
 		return true;
@@ -201,7 +171,7 @@ public class Sixi2Live extends Entity {
 	
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		received = new LinkedList<PoseAtTime<PoseFK>>();  
+		received = new LinkedList<PoseAtTime<Vector3d>>();  
 	}
 
 	public boolean isConnected() {

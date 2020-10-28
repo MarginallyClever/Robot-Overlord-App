@@ -41,14 +41,10 @@ public class Sixi2SimSegment {
 	
 	// delta is calculated here in the constructor.
 	public Sixi2SimSegment(PoseFK startPose,PoseFK endPose) {
-		try {
-			start  = (PoseFK)startPose.clone();
-			end    = (PoseFK)endPose.clone();
-			delta  = (PoseFK)endPose.clone();
-			normal = (PoseFK)endPose.clone();
-		} catch(CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
+		start  = (PoseFK)startPose.clone();
+		end    = (PoseFK)endPose.clone();
+		delta  = (PoseFK)endPose.clone();
+		normal = (PoseFK)endPose.clone();
 		
 		distance = 0;
 		for(int i=0;i<delta.fkValues.length;++i) {
