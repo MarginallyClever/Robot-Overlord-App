@@ -6,7 +6,7 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>Robot-Overlord</artifactId>
-	<version>1.6.2</version>
+	<version>1.7.0</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots. 
 
@@ -335,7 +335,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
+			<version>[4.13.1,)</version>
 			<!-- <scope>test</scope> -->
 		</dependency>
 
