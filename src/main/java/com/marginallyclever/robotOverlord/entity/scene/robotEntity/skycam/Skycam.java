@@ -216,6 +216,8 @@ public class Skycam extends PoseEntity {
 		sim.getView(view);
 		live.getView(view);
 		
+		model.getView(view);
+		
 		super.getView(view);
 	}
 

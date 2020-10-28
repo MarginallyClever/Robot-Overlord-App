@@ -10,6 +10,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class SkycamModel extends Entity {
 	/**
@@ -59,6 +60,14 @@ public class SkycamModel extends Entity {
 		super.render(gl2);
 	}
 
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("M", "Model");
+		view.add(size);
+		view.popStack();
+		super.getView(view);
+	}
+	
 	public SkycamCursor createPose() {
 		return new SkycamCursor();
 	}
