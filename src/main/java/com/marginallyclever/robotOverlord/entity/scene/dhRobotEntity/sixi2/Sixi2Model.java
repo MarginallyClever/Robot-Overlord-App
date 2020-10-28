@@ -71,8 +71,9 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 
 	public static final double [] MAX_JERK = { 3,3,3,4,4,5,5 };
 	
-	
+	// the joint angles that lead to a given finger tip position.  one set of joint angles creates one finger tip position.
 	protected PoseFK poseFK;
+	// the finger tip position.  one finger tip position is creates more than one set of joint angles.
 	protected Matrix4d poseIK = new Matrix4d();
 	
 
@@ -82,6 +83,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 	
 	public Sixi2Model(boolean attachModels) {
 		super(new DHIKSolver_GradientDescent());
+		
 		setName("Sixi2Model");
 
 		ShapeEntity base = new ShapeEntity();
@@ -341,5 +343,19 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		setPoseFK(oldPoseFK);
 		
 		return jacobian;
+	}
+	
+	// return the Sixi2Command that represents the current model state. 
+	public Sixi2Command createCommand() {
+		Sixi2Command c = new Sixi2Command(getPoseFK(),
+				Sixi2Model.DEFAULT_FEEDRATE,
+				Sixi2Model.DEFAULT_ACCELERATION,
+				1,0);
+		c.setPose(getPoseIK());
+		return c;
+	}
+	
+	public void setCommand(Sixi2Command c) {
+		setPoseFK(c.getPoseFK());
 	}
 }

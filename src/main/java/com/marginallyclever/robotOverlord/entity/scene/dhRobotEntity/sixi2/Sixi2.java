@@ -20,7 +20,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckGripper;
 import com.marginallyclever.robotOverlord.log.Log;
@@ -45,7 +44,7 @@ public class Sixi2 extends PoseEntity {
 	 */
 	private static final long serialVersionUID = -3853296509642009298L;
 	// the model used to render & control (the Flyweight)
-	protected transient DHRobotModel model;
+	protected transient Sixi2Model model;
 	// the live robot in the real world.  Controls comms with the machine.
 	protected transient Sixi2Live live;
 	// a simulation of the motors which should match the ideal physical behavior.
@@ -56,7 +55,7 @@ public class Sixi2 extends PoseEntity {
 	protected transient Sixi2Command cursor;
 	
 	// where to save/load commands
-	protected StringEntity filename = new StringEntity("");
+	protected StringEntity filename = new StringEntity("test.sixi2");
 	ArrayList<Sixi2Command> playlist = new ArrayList<Sixi2Command>();
 	protected boolean isPlaying = false;
 	protected transient int playheadLive;
@@ -73,9 +72,7 @@ public class Sixi2 extends PoseEntity {
 		// the interface to the simulated machine.
 		sim = new Sixi2Sim(model);
 		// the "hot" position the user is currently looking at, which is neither live nor sim.
-		setCursor(new Sixi2Command(model.getPoseFK(),
-				Sixi2Model.DEFAULT_FEEDRATE,
-				Sixi2Model.DEFAULT_ACCELERATION));
+		setCursor(model.createCommand());
 		addChild(cursor);
 
 		model.addTool(new Sixi2ChuckGripper());
@@ -337,7 +334,7 @@ public class Sixi2 extends PoseEntity {
 		children.addAll(toKeep);
 	}
 
-	public DHRobotModel getModel() {
+	public Sixi2Model getModel() {
 		return model;
 	}
 	
@@ -389,8 +386,7 @@ public class Sixi2 extends PoseEntity {
 		if(cursor != null)
 			cursor.deleteObserver(this);
 		
-		model.setPoseFK(sixi2Command.getPoseFK());
-		sixi2Command.setPose(model.getPoseIK());
+		model.setCommand(sixi2Command);
 		cursor = sixi2Command;
 		
 		if(cursor != null)

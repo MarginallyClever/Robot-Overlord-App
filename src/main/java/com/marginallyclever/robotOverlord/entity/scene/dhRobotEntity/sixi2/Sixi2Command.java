@@ -21,19 +21,30 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	private static final long serialVersionUID = 1L;
 
 	protected PoseFK poseFK;
-	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",Sixi2Model.DEFAULT_FEEDRATE);
-	protected transient DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",Sixi2Model.DEFAULT_ACCELERATION);
-
+	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate (deg/s)",Sixi2Model.DEFAULT_FEEDRATE);
+	protected transient DoubleEntity accelerationSlider = new DoubleEntity("Acceleration (deg/s/s)",Sixi2Model.DEFAULT_ACCELERATION);
+	protected transient DoubleEntity toolSlider = new DoubleEntity("Tool",0);
+	protected transient DoubleEntity wait = new DoubleEntity("Wait (s)",0);
+	
 	public Sixi2Command() {
 		super("Pose");
 	}
 	
-	public Sixi2Command(PoseFK p,double f,double a) {
+	/**
+	 * 
+	 * @param poseFK
+	 * @param feedrate >=0
+	 * @param acceleration >=0
+	 * @param tool angle >=0
+	 * @param delay seconds >=0
+	 */
+	public Sixi2Command(PoseFK poseFK,double feedrate,double acceleration,double tool,double delay) {
 		super("Pose");
 		
-		poseFK=(PoseFK)p.clone();
-		feedrateSlider.set(f);
-		accelerationSlider.set(a);
+		this.poseFK=(PoseFK)poseFK.clone();
+		feedrateSlider.set(feedrate);
+		accelerationSlider.set(acceleration);
+		toolSlider.set(tool);
 	}
 
 	public PoseFK getPoseFK() {
@@ -52,6 +63,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		c.feedrateSlider = new DoubleEntity(feedrateSlider.getName());
 		c.feedrateSlider.set(feedrateSlider.get());
 		c.accelerationSlider = new DoubleEntity(accelerationSlider.getName());
+		c.toolSlider = new DoubleEntity(toolSlider.getName());
 		c.accelerationSlider.set(accelerationSlider.get());
 		return c;
 	}
@@ -62,6 +74,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		
 		view.addRange(feedrateSlider, (int)Sixi2Model.MAX_FEEDRATE, 0);
 		view.addRange(accelerationSlider, (int)Sixi2Model.MAX_ACCELERATION, 0);
+		view.addRange(toolSlider, 1, 0);
 		
 		final Sixi2Command sc = this;
 		
@@ -119,12 +132,14 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		stream.writeObject(poseFK);
 		stream.writeDouble(feedrateSlider.get());
 		stream.writeDouble(accelerationSlider.get());
+		stream.writeDouble(toolSlider.get());
 	}
 	
 	public void read(ObjectInputStream stream) throws Exception {
 		poseFK = (PoseFK)stream.readObject();
 		feedrateSlider.set(stream.readDouble());
 		accelerationSlider.set(stream.readDouble());
+		toolSlider.set(stream.readDouble());
 	}
 */
 	/**
@@ -145,9 +160,24 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	 * Stringify the feedrate and acceleration.
 	 * @return
 	 */
-	public String getFAAsString() {
-		return "G0"
-			+" F"+StringHelper.formatDouble(feedrateSlider.get())
-			+" A"+StringHelper.formatDouble(accelerationSlider.get());
+	public String [] getExtraStrings() {
+		double w = wait.get();
+		int count =  w>0 ? 2:1;
+		String [] list = new String[count];
+		
+		list[0]="G0"
+					+" F"+StringHelper.formatDouble(feedrateSlider.get())
+					+" A"+StringHelper.formatDouble(accelerationSlider.get())
+					+" T"+(toolSlider.get()>0.5? 1:0);
+		
+		if(w>0) {
+			list[1] = "D4 P"+StringHelper.formatDouble(w);
+		}
+			
+		return list; 
+	}
+	
+	public double getWait() {
+		return wait.get();
 	}
 }

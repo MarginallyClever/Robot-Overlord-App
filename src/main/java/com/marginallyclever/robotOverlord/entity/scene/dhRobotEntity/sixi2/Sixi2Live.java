@@ -63,6 +63,7 @@ public class Sixi2Live extends Entity {
 	
 	@Override
 	public void update(double dt) {
+		connection.update(dt);
 		super.update(dt);
 	}
 	
@@ -188,7 +189,12 @@ public class Sixi2Live extends Entity {
 		if(!isConnected() || !readyForCommands) return false;
 		
 		//connection.sendMessageGuaranteed(command.getFAAsString());
+		String [] list = command.getExtraStrings();
+		for(int i=0;i<list.length;++i) {
+			connection.sendMessageGuaranteed(list[i]);
+		}
 		connection.sendMessageGuaranteed(command.poseFKToString());
+		
 		setPoseSent(command.poseFK);
 		readyForCommands = false;
 		//Log.message("Sent "+command.poseFKToString());

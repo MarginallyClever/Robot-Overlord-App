@@ -165,7 +165,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	}
 	
 	private void sendMessageInternal(String command) {
-		if(command==null) return;
+		if(command==null || waitingForCue==true) return;
 		
 		try {
 			waitingForCue=true;
@@ -266,8 +266,13 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	@Override
 	public void dataAvailable(NetworkSession arg0, String data) {
 		setChanged();
+
 		reportDataReceived(data);
 		
+		if (data.startsWith("> ")) {
+			waitingForCue=false;
+		}
+
 		// check for error
 		int error_line = errorReported(data);
 		if(error_line != -1) {
