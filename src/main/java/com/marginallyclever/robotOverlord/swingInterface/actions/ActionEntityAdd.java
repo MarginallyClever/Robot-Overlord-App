@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface.actions;
 
+import java.util.ArrayList;
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
@@ -20,7 +22,7 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 	private static final long serialVersionUID = 1L;
 	
 	private Entity entity;
-	private Entity previouslyPickedEntity;	
+	private ArrayList<Entity> previouslyPickedEntities;	
 	private RobotOverlord ro;
 	
 	public ActionEntityAdd(RobotOverlord ro,Entity entity) {
@@ -46,8 +48,10 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 	protected void doIt() {
 		ro.getWorld().addChild(entity);
 		ro.updateEntityTree();
-		ro.pickEntity(entity);
-		previouslyPickedEntity = ro.getPickedEntity();
+		ArrayList<Entity> list = new ArrayList<Entity>();
+		list.add(entity);
+		ro.selectEntities(list);
+		previouslyPickedEntities = ro.getSelectedEntities();
 	}
 
 	@Override
@@ -55,6 +59,6 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 		super.undo();
 		ro.getWorld().removeChild(entity);
 		ro.updateEntityTree();
-		ro.pickEntity(previouslyPickedEntity);
+		ro.selectEntities(previouslyPickedEntities);
 	}
 }

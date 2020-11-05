@@ -1,12 +1,15 @@
 package com.marginallyclever.robotOverlord.swingInterface.commands;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRename;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
@@ -28,12 +31,21 @@ public class CommandRenameEntity extends AbstractAction {
 		this.ro = ro;
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		Entity entity = ro.getPickedEntity();
+	public void actionPerformed(ActionEvent event) {
+		ArrayList<Entity> entityList = ro.getSelectedEntities();
+		if(entityList.size()!=1) {
+			Log.error("Rename more than one entity at the same time?!");
+			return;
+		}
+		Entity e = entityList.get(0);
 
-		String newName = (String)JOptionPane.showInputDialog(ro.getMainFrame(),"New name:","Rename Entity",JOptionPane.PLAIN_MESSAGE,null,null,entity.getName());
-		if( newName!=null && !newName.equals(entity.getName()) ) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRename(ro,entity,newName) ) );
+		String newName = (String)JOptionPane.showInputDialog(
+				ro.getMainFrame(),
+				"New name:",
+				"Rename Entity",
+				JOptionPane.PLAIN_MESSAGE,null,null,e.getName());
+		if( newName!=null && !newName.equals(e.getName()) ) {
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRename(ro,e,newName) ) );
 		}
 	}
 }

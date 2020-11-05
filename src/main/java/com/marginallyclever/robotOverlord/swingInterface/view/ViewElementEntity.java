@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -68,15 +69,16 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 	// Panel action, update entity
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		EntityTreePanel etp = new EntityTreePanel(ro);
+		EntityTreePanel treePanel = new EntityTreePanel(ro,false);
 		String path = e.get();
-		Entity selected = ro.findByPath(path);
-		etp.setSelection(selected);
+		ArrayList<Entity> selected = new ArrayList<>();
+		selected.add(ro.findByPath(path));
+		treePanel.setSelection(selected);
 		
-		int returnVal = JOptionPane.showConfirmDialog(null, etp,"Choose one",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+		int returnVal = JOptionPane.showConfirmDialog(null, treePanel,"Choose one",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 		if(returnVal == JOptionPane.OK_OPTION) {
-			Entity subject = etp.getSelected();
-			String s = (subject == null) ? "" : subject.getFullPath();
+			ArrayList<Entity> subject = treePanel.getSelected();
+			String s = (subject == null) ? "" : subject.get(0).getFullPath();
 			AbstractUndoableEdit event = new ActionChangeString(e, s);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}

@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.swingInterface.commands;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -33,16 +34,18 @@ public class CommandRemoveEntity extends AbstractAction {
 		this.ro = ro;
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		Entity entity = ro.getPickedEntity();
-		if(entity==null) {
+	public void actionPerformed(ActionEvent event) {
+		ArrayList<Entity> entityList = ro.getSelectedEntities();
+		if(entityList.size()==0) {
 			Log.error("RemoveEntity with no entity selected.");
 			return;
 		}
-		if(entity instanceof RemovableEntity) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,entity) ) );
-		} else {
-			Log.error("Entity "+entity.getFullPath()+" is not a RemovableEntity.");
-		}
+		for(Entity e : entityList) {
+			if(e instanceof RemovableEntity) {
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,e) ) );
+			} else {
+				Log.error("Entity "+e.getFullPath()+" is not a RemovableEntity.");
+			}
+		}			
 	}
 }

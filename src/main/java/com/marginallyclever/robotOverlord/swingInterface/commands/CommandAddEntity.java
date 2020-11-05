@@ -70,7 +70,7 @@ public class CommandAddEntity extends AbstractAction {
 					try {
 						newInstance = lft.getClass().newInstance();
 						// create an undoable command to add this entity.
-						ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityAdd(ro,newInstance) ) );
+						ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityAdd(ro,newInstance)));
 					} catch (InstantiationException | IllegalAccessException e) {
 						e.printStackTrace();
 					}

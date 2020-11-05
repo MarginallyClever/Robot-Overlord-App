@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface.actions;
 
+import java.util.ArrayList;
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
@@ -50,7 +52,7 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 		}
 		if(parent!=null) parent.removeChild(entity);
 		ro.updateEntityTree();
-		ro.pickEntity(null);
+		ro.selectEntities(null);
 	}
 
 	@Override
@@ -58,6 +60,8 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 		super.undo();
 		if(parent!=null) parent.addChild(entity);
 		ro.updateEntityTree();
-		ro.pickEntity(entity);
+		ArrayList<Entity> list = new ArrayList<Entity>();
+		list.add(entity);
+		ro.selectEntities(list);
 	}
 }

@@ -112,7 +112,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// The currently selected entity to edit.
 	// This is equivalent to the cursor position in a text editor.
 	// This is equivalent to the currently selected directory in an OS.
-	protected transient Entity selectedEntity; 
+	protected transient ArrayList<Entity> selectedEntities; 
 	
 	// To move selected items in 3D
 	protected DragBallEntity dragBall = new DragBallEntity();
@@ -182,6 +182,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	private CommandUndo commandUndo;
 	private CommandRedo commandRedo;
 
+
+	private CommandRenameEntity renameEntity;
+	private CommandRemoveEntity removeEntity;
+	
 	// mouse steering controls
 	private boolean isMouseIn=false;
 	
@@ -223,7 +227,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
-        selectedEntity = null;
+        selectedEntities = new ArrayList<Entity>();
 
 		Log.message("Create GUI");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
@@ -328,8 +332,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        		JPanel entityManagerPanel = new JPanel(new BorderLayout());
 	        		{
 	        			JPanel abContainer = new JPanel(new FlowLayout());
-		        		CommandRenameEntity renameEntity=new CommandRenameEntity(this);
-		        		CommandRemoveEntity removeEntity=new CommandRemoveEntity(this);
+		        		renameEntity=new CommandRenameEntity(this);
+		        		removeEntity=new CommandRemoveEntity(this);
 		        		renameEntity.setEnabled(false);
 		        		removeEntity.setEnabled(false);
 		        		
@@ -338,18 +342,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		        		abContainer.add(new JButton(removeEntity));
 		        		entityManagerPanel.add(abContainer,BorderLayout.NORTH);
 
-				        entityTree = new EntityTreePanel(this);
+				        entityTree = new EntityTreePanel(this,true);
 				        entityTree.addEntityTreePanelListener(new EntityTreePanelListener() {
 			        		@Override
 			        		public void entityTreePanelEvent(EntityTreePanelEvent e) {
-			        			pickEntity(e.subject);
-
-			        			Entity subject = e.subject;
-			        			
-			        			boolean state = (subject!=null && subject.canBeRenamed());
-			        			renameEntity.setEnabled(state);
-			        			
-			        			removeEntity.setEnabled(subject instanceof RemovableEntity);
+			        			if(e.eventType== EntityTreePanelEvent.UNSELECT) {
+			        				selectedEntities.removeAll(e.subjects);
+			        			}
+			        			if(e.eventType== EntityTreePanelEvent.SELECT) {
+			        				selectedEntities.addAll(e.subjects);
+			        				selectEntities(selectedEntities);
+			        			}
 			        		}
 				        });
 				        entityManagerPanel.add(entityTree,BorderLayout.CENTER);
@@ -409,8 +412,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		return scene;
 	}
 	
-	public Entity getPickedEntity() {
-		return selectedEntity;
+	public ArrayList<Entity> getSelectedEntities() {
+		return selectedEntities;
 	}
 	
 	/**
@@ -419,16 +422,18 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 * @param panel
 	 * @param title
 	 */
-	public void updateSelectedEntityPanel(Entity e) {
-        // list of all entities in system, starting with world.
+	public void updateSelectedEntityPanel(ArrayList<Entity> entityList) {
 		if(selectedEntityPanel==null) return;
-
+		
 		selectedEntityPanel.removeAll();
 
-		if(e!=null) {
+		if(entityList.size()==1) {
+			Entity e = entityList.get(0);
 			ViewPanel vp = new ViewPanel(this);
 			e.getView(vp);
 			selectedEntityPanel.add(vp.getFinalView(),BorderLayout.PAGE_START);
+		} else {
+			// TODO display values shared across all selected entities
 		}
 
 		selectedEntityPanel.repaint();
@@ -816,7 +821,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        pickNow=false;
 	        int pickName = findItemUnderCursor(gl2);
         	Entity next = scene.pickPhysicalEntityWithName(pickName);
-    		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntity,next) ) );
+    		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntities,next) ) );
         }
 		
 		if(checkStackSize) {
@@ -898,32 +903,54 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	entityTree.updateEntityTree();
     }
     
-    
-	public void pickEntity(Entity e) {
-		if(e==selectedEntity) return;  // same again
-		
-		
-		if(e!=null && e instanceof EntityFocusListener) ((EntityFocusListener)e).lostFocus();
-		selectedEntity=e;
-		if(e!=null && e instanceof EntityFocusListener) ((EntityFocusListener)e).gainedFocus();
-
+    /**
+     * An entity in the 3D scene has been "picked" (aka double-clicked).  This begins the process
+     * to select that entity.  Entities selected through other means should not call pickEntity() as it would
+     * cause an infinite loop.
+     * 
+     * @param e
+     */
+    protected void pickEntity(Entity e) {
 		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
+		if(selectedEntities.contains(e)) return;
 
-		if(e instanceof PoseEntity && e != dragBall) {
-			dragBall.setSubject((PoseEntity)e);
-		} else if(e==null) {
+		entityTree.setSelection(e);
+	}
+	
+	/**
+	 * The selected entities have changed, either through scene picking or tree clicking
+	 * @param e
+	 */
+    public void selectEntities(ArrayList<Entity> entityList) {
+    	boolean removable = true;
+    	boolean moveable = true;
+    	for(Entity e1 : entityList) {
+    		if(!(e1 instanceof RemovableEntity)) removable=false;
+    		if(!(e1 instanceof PoseEntity)) moveable=false;
+    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
+    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
+    	}
+
+		if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && entityList.get(0).canBeRenamed());
+		if(removeEntity!=null) removeEntity.setEnabled(removable);
+				
+		if(moveable) {
+			if(entityList.size()==1) {
+				Entity e = entityList.get(0);
+				if(e instanceof PoseEntity && e != dragBall) {
+					dragBall.setSubject((PoseEntity)e);
+				} else if(e==null) {
+					dragBall.setSubject(null);
+				}
+			} else {
+				// TODO group all selected poseEntities so they can be moved as one?
+				dragBall.setSubject(null);
+			}
+		} else {
 			dragBall.setSubject(null);
 		}
-			
-		entityTree.setSelection(e);
-		updateSelectedEntityPanel(e);
-	}
-    
-	public void pickCamera() {
-		PoseEntity camera = viewport.getAttachedTo();
-		if(camera!=null) {
-			pickEntity(camera);
-		}
+		
+		updateSelectedEntityPanel(entityList);
 	}
 	
 	@Override

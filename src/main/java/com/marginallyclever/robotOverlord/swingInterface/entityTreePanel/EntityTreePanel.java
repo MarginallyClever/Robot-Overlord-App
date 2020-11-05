@@ -31,50 +31,66 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	private static final long serialVersionUID = 1L;
 
 	protected Entity root;  // root of entity tree
-	protected Entity selected;
+	protected ArrayList<Entity> selected = new ArrayList<>();
 	
     protected EntityTreeNode oldTop; 
 	protected JTree oldTree;
 	protected JScrollPane scroll = new JScrollPane();
+	
+	protected boolean multiSelect=false;
 
 	private List<EntityTreePanelListener> listeners = new ArrayList<EntityTreePanelListener>();
 	
-	public EntityTreePanel(Entity root) {
+	public EntityTreePanel(Entity root,boolean allowMultiSelect) {
 		super();
 		this.root = root;
+		this.multiSelect = allowMultiSelect;
 		this.setLayout(new BorderLayout());
 		this.add(scroll,BorderLayout.CENTER);
 		updateEntityTree();
 	}
 
-	public Entity getSelected() {
+	public ArrayList<Entity> getSelected() {
 		return selected;
 	}
-	
-	public void setSelection(Entity e) {
-		if(oldTree==null) return;
-		if(selected==e) return;
 
-		oldTree.clearSelection();
+	public void setSelection(Entity one) {
+		ArrayList<Entity> newSelectionList = new ArrayList<Entity>();
+		newSelectionList.add(one);
+		setSelection(newSelectionList);
+	}
+	
+	public void setSelection(ArrayList<Entity> newSelectionList) {
+		if(oldTree==null) return;
+		if(selected.equals(newSelectionList)) return;
+
+		ArrayList<TreePath> pathList = new ArrayList<TreePath>();
 		
 		// preserve the original expansions
 		LinkedList<EntityTreeNode> list = new LinkedList<EntityTreeNode>();
 		list.add(oldTop);
 		while( !list.isEmpty() ) {
 			EntityTreeNode node = list.remove();
-			Object o=node.getUserObject();
-			if( o instanceof Entity ) {
-				if( (Entity)o == e ) {
-					TreePath selectedPath = new TreePath(node.getPath());
-					oldTree.expandPath(selectedPath);
-					oldTree.setSelectionPath(selectedPath);
-				}
-			}
+			// add children of this node so we scan through all possible nodes.
 			for(int i=0; i<node.getChildCount(); ++i ) {
 				EntityTreeNode child = (EntityTreeNode)node.getChildAt(i);
 				list.add(child);
 			}
+			
+			// does this node match a selected entity?
+			Object o=node.getUserObject();
+			if( o instanceof Entity ) {
+				Entity oe = (Entity)o;
+				if( newSelectionList.contains(oe) ) {
+					// yes
+					pathList.add(new TreePath(node.getPath()));
+				}
+			}
 		}
+		
+		TreePath[] paths = new TreePath[pathList.size()];
+		pathList.toArray(paths);
+		oldTree.setSelectionPaths(paths);
 	}
 	
 
@@ -106,7 +122,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	    EntityTreeNode newTop = createTreeNodes(root);
 		JTree newTree = new JTree(newTop);
 
-	    newTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		newTree.getSelectionModel().setSelectionMode( multiSelect
+				? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
+				: TreeSelectionModel.SINGLE_TREE_SELECTION );
 	    newTree.setShowsRootHandles(false);
 	    newTree.addTreeSelectionListener(this);
 		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -142,16 +160,16 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		oldTree=newTree;
 		oldTop =newTop;
 		
-
+		// clicking on empty part of tree unselects the rest.
+		// https://coderanch.com/t/518163/java/Deselect-nodes-JTree-user-clicks
 		oldTree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
 				super.mouseClicked(e);
 				
-				// https://coderanch.com/t/518163/java/Deselect-nodes-JTree-user-clicks
 				int row=oldTree.getRowForLocation(e.getX(),e.getY());
-			    if(row==-1) { // When user clicks on the "empty surface"
+			    if(row==-1) {
+			    	// When user clicks on the "empty surface"
 			    	oldTree.clearSelection();
 			    }
 			}
@@ -174,19 +192,34 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	// TreeSelectionListener event
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
-		EntityTreeNode node = (EntityTreeNode)oldTree.getLastSelectedPathComponent();
-		Entity e = (node==null) ? null : (Entity)node.getUserObject();
-		selected=e;
-		EntityTreePanelEvent event = new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,e);
-		updateListeners(event);
+		ArrayList<Entity> added = new ArrayList<>();
+		ArrayList<Entity> removed = new ArrayList<>();
+		
+		for(TreePath p : arg0.getPaths()) {
+			EntityTreeNode node = (EntityTreeNode)p.getLastPathComponent();
+			Entity e = (node==null) ? null : (Entity)node.getUserObject();
+			if(arg0.isAddedPath(p)) {
+				added.add(e);
+			} else {
+				removed.add(e);
+			}
+		}
+		
+		selected.removeAll(removed);
+		selected.addAll(added);
+
+		updateListeners(new EntityTreePanelEvent(EntityTreePanelEvent.UNSELECT,this,removed));
+		updateListeners(new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,added));
 	}
 	
 	public void addEntityTreePanelListener(EntityTreePanelListener arg0) {
 		listeners.add(arg0);
 	}
+	
 	public void removeEntityTreePanelListener(EntityTreePanelListener arg0) {
 		listeners.remove(arg0);
 	}
+	
 	protected void updateListeners(EntityTreePanelEvent event) {
 		for( EntityTreePanelListener e : listeners ) {
 			e.entityTreePanelEvent(event);
