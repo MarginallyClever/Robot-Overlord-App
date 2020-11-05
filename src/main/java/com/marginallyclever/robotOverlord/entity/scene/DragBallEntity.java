@@ -17,6 +17,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
@@ -29,7 +30,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class DragBallEntity extends PoseEntity {
+public class DragBallEntity extends Entity {
 	/**
 	 * 
 	 */
@@ -93,6 +94,8 @@ public class DragBallEntity extends PoseEntity {
 			return labels;
 		}
 	}
+	
+	protected Vector3d position = new Vector3d();
 	
 	public Vector3d pickPoint=new Vector3d();  // the latest point picked on the ball
 	public Vector3d pickPointSaved=new Vector3d();  // the point picked when the action began
@@ -195,7 +198,7 @@ public class DragBallEntity extends PoseEntity {
 		Vector3d mp = new Vector3d();
 		subject.getPoseWorld().get(mp);
 		// put the dragball on the subject
-		this.setPosition(mp);
+		position.set(mp);
 		
 		if(isRotateMode) {
 			updateRotation(dt);
@@ -214,7 +217,7 @@ public class DragBallEntity extends PoseEntity {
 		iMe.m30=iMe.m31=iMe.m32=0;
 		iMe.invert();
 		Vector3d pickPointInBallSpace = new Vector3d(pointInWorldSpace);
-		pickPointInBallSpace.sub(this.getPosition());
+		pickPointInBallSpace.sub(position);
 		iMe.transform(pickPointInBallSpace);
 		return pickPointInBallSpace;
 	}
@@ -226,7 +229,7 @@ public class DragBallEntity extends PoseEntity {
 		ViewportEntity cameraView = ro.viewport;
 		Ray ray = cameraView.rayPick();
 
-		Vector3d dp = this.getPosition();
+		Vector3d dp = new Vector3d(position);
 		dp.sub(ray.start);
 		
 		if(!isActivelyMoving) {
@@ -413,8 +416,6 @@ public class DragBallEntity extends PoseEntity {
 		PoseEntity camera = cameraView.getAttachedTo();
 		
 		if(!isActivelyMoving && cameraView.isPressed()) {
-			Vector3d pos = this.getPosition();
-			
 			// box centers
 			Vector3d nx = MatrixHelper.getXAxis(FOR);
 			Vector3d ny = MatrixHelper.getYAxis(FOR);
@@ -426,9 +427,9 @@ public class DragBallEntity extends PoseEntity {
 			px.scale(ballSize.get());
 			py.scale(ballSize.get());
 			pz.scale(ballSize.get());
-			px.add(pos);
-			py.add(pos);
-			pz.add(pos);
+			px.add(position);
+			py.add(position);
+			pz.add(position);
 
 			Ray ray = cameraView.rayPick();
 			// of the three boxes, the closest hit is the one to remember.			
