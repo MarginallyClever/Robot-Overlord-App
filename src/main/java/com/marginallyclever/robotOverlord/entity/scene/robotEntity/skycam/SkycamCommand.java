@@ -46,9 +46,9 @@ public class SkycamCommand extends PoseEntity implements Cloneable, EntityFocusL
 		view.addButton("Copy").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
-				Skycam e = findParentSkycam();
-				if(e==null) return;
-				e.queueDestination(sc);
+				Skycam myParent = findParentSkycam();
+				if(myParent==null) return;
+				myParent.queueDestination(sc);
 			}
 		});
 		view.addButton("Goto").addObserver(new Observer() {

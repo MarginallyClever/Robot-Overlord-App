@@ -110,6 +110,11 @@ public class Skycam extends PoseEntity {
 				isPlaying=false;
 				playlist.clear();
 			}
+		} else {
+			// Here
+			if(false) {
+				queueDestination(cursor);
+			}
 		}
 		live.update(dt);
 		sim.update(dt);
