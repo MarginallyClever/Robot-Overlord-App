@@ -181,6 +181,10 @@ public class Sixi2 extends PoseEntity {
 			public void update(Observable o, Object arg) {
 				if(isPlaying) return;
 				clearAllCommands();
+
+				setCursor(model.createCommand());
+				addChild(cursor);
+				
 				((RobotOverlord)getRoot()).updateEntityTree();
 			}
 		});
