@@ -75,6 +75,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 		view.addRange(feedrateSlider, (int)Sixi2Model.MAX_FEEDRATE, 0);
 		view.addRange(accelerationSlider, (int)Sixi2Model.MAX_ACCELERATION, 0);
 		view.addRange(toolSlider, 1, 0);
+		view.add(wait);
 		
 		final Sixi2Command sc = this;
 		
