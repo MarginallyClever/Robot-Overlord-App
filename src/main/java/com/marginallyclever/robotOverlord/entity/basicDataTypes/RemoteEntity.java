@@ -148,7 +148,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	public void sendMessageGuaranteed(String command) {
 		if(!isConnectionOpen()) return;
 		
-		command.trim();
+		command = command.trim();
 		if(command.isEmpty()) return;
 		
 		// add the number for error checking
@@ -160,12 +160,16 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		// remember the message in case we need to resend it later.
 		commands.add(new NumberedCommand(lastNumberAdded,command));
 		lastNumberAdded++;
-		
-		sendMessageInternal(command);
+
+		if(!waitingForCue ) {
+			if(commands.get(commands.size()-1).n > nextNumberToSend) {
+				sendMessageInternal(getCommand(nextNumberToSend++));
+			}
+		}
 	}
 	
 	private void sendMessageInternal(String command) {
-		if(command==null || waitingForCue==true) return;
+		if( command==null || waitingForCue ) return;
 		
 		try {
 			waitingForCue=true;
