@@ -76,23 +76,18 @@ public class DHLink extends ShapeEntity {
 	public DoubleEntity rangeMin = new DoubleEntity("Range min", -90.0);
 	// adjustable link range limits
 	public DoubleEntity rangeMax = new DoubleEntity("Range max", 90.0);
-
-	public DoubleEntity maxTorque = new DoubleEntity("max torque (Nm)",Double.MAX_VALUE);	// not used yet
-	
-	public DoubleEntity maxAcceleration = new DoubleEntity("max accel (deg/s)",Double.MAX_VALUE);	// not used yet
-	
-	/*
+	// not used yet
+	public DoubleEntity maxTorque = new DoubleEntity("max torque (Nm)",Double.MAX_VALUE);
+	// not used yet
+	public DoubleEntity maxAcceleration = new DoubleEntity("max accel (deg/s)",Double.MAX_VALUE);
+	// not used yet
 	// dynamics are described in a 4x4 matrix
-	//     [ Ixx Ixy Ixz } XgM ]
-	// J = [ Iyx Iyy Iyz } YgM ]
-	//     [ Izx Izy Izz } ZgM ]
-	//     [ XgM YgM ZgM }  M  ]
+	//     [ Ixx Ixy Ixz XgM ]
+	// J = [ Iyx Iyy Iyz YgM ]
+	//     [ Izx Izy Izz ZgM ]
+	//     [ XgM YgM ZgM  M  ]
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
-	public Matrix4dEntity inertia = new Matrix4dEntity();	// not used yet
-	*/
-	@JsonIgnore
-	protected DHRobotModel robot;
-	
+	//public Matrix4dEntity inertia = new Matrix4dEntity();
 	
 	public DHLink() {
 		super();
@@ -504,10 +499,6 @@ public class DHLink extends ShapeEntity {
 		
 		setPose(newRelativePose);
 	}
-
-	public void setDHRobot(DHRobotModel robot) {
-		this.robot = robot;
-	} 
 	
 	/**
 	 * Ask this entity "can you move to newPose?"
