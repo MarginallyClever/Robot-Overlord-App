@@ -20,6 +20,7 @@ public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 		rightFinger.setShapeFilename("/Sixi2/chuckGripper/b.stl");		
 		rightFinger.setShapeScale(0.1);
 		rightFinger.setShapeOrigin(0, 0, 3.4);
+		toolTipOffset.setD(13.5);
 	}
 	
 	@Override
