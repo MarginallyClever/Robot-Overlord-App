@@ -215,7 +215,7 @@ public class Entity extends Observable implements Observer, Cloneable, Serializa
 	 */
 	public void getView(ViewPanel view) {}
 
-	public void getViewOfChildren(ViewPanel view) {
+	protected void getViewOfChildren(ViewPanel view) {
 		for (Entity child : children) {
 			if (child.getChildren().isEmpty()) {
 				// only leaves
