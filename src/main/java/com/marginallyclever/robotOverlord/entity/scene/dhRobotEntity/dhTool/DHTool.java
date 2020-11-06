@@ -17,15 +17,19 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 	 * 
 	 */
 	private static final long serialVersionUID = -3140513593165370783L;
-
+	// tool tip convenience used in kinematics
+	protected DHLink toolTipOffset = new DHLink();
+	
 	public DHTool() {
 		super();
 		setName("DHTool");
+		addChild(toolTipOffset);
 	}
 	
 	public void set(DHTool b) {
 		super.set(b);
 		setName(b.getName());
+		b.toolTipOffset.set(toolTipOffset);
 	}
 
 	@Override
@@ -39,6 +43,8 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);
 			PrimitiveSolids.drawSphere(gl2, 1);
+
+			toolTipOffset.render(gl2);
 		gl2.glPopMatrix();
 	}
 	
