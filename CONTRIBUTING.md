@@ -11,23 +11,22 @@ The following is a set of guidelines for contributing.  These are just guideline
 - Code of conduct
 
 ## Reporting bugs
-Please use the Github [Issues](/issues) and fill out the template to make good bug reports.
+Please use the Github [Issues](https://github.com/MarginallyClever/Robot-Overlord-App/issues) and fill out the template to make good bug reports.
 
 ## Contributing new code
 
-Please see the [Getting Started Guide](/wiki/Getting-Started) to get setup and running.
+Please see the [Getting Started Guide](https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Getting-Started) to get setup and running.
 
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
-We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
-Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
+We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests. We actively welcome your pull requests:
 
 1. Fork the repo and create your branch from `master`.
 2. Write tests for your code.
 3. Write code that passes your tests.
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes.
-5. Send in your [pull request](/pulls).
+5. Send in your [pull request](https://github.com/MarginallyClever/Robot-Overlord-App/pulls).
 6. Discuss the changes with the team.
 7. Get the code approved and merged into the `master` branch.
 
@@ -37,7 +36,7 @@ By sending in new code you agree that it will be covered by the existing license
 
 ## Discussing features
 
-First please check out our [Road map](/wiki/Road-Map) of where we'd like to go.  This direction informs our plan of attack.
+First please check out our [Road map](https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Road-Map) of where we'd like to go.  This direction informs our plan of attack.
 
 
 ## Code of conduct
