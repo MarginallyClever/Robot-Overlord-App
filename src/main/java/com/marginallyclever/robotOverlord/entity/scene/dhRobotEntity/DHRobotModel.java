@@ -9,13 +9,13 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -45,7 +45,7 @@ public class DHRobotModel extends Entity {
 	// all the possible tools for this arm.  
 	protected List<DHTool> allTools = new ArrayList<DHTool>(); 
 	// the selected tool (-1 for none)
-	protected int toolIndex;
+	protected int toolIndex=-1;
 
 	// more debug output, please.
 	static final boolean VERBOSE=false;
@@ -73,7 +73,6 @@ public class DHRobotModel extends Entity {
 		// copy my links to the next robot
 		for(int i=0;i<b.getNumLinks();++i) {
 			links.get(i).set(b.links.get(i));
-			links.get(i).setDHRobot(this);
 		}
 		
 		toolIndex = b.toolIndex;
@@ -128,7 +127,7 @@ public class DHRobotModel extends Entity {
 		}
 		
 		if(toolIndex>0) {
-			allTools.get(toolIndex).refreshPoseMatrix();
+			//allTools.get(toolIndex).refreshPoseMatrix();
 		}
 	}
 
@@ -174,29 +173,13 @@ public class DHRobotModel extends Entity {
 		prev.getChildren().clear();
 	}
 
-	// the tool should be the child of the last link in the chain
-	public void setToolIndex(int arg0) {
-		toolIndex = arg0;
-	}
-	
-	/**
-	 * @return the tool index.  -1 means 'no tool'.
-	 */
-	public int getToolIndex() {
-		return toolIndex;
-	}
-
-	public DHTool getCurrentTool() {
-		return allTools.get(toolIndex);
-	}
-
 	/**
 	 * checks that the keyframe is sane that no collisions occur.
 	 * @param keyframe
 	 * @return false if the keyframe is not sane or a collision occurs.
 	 */
 	public boolean sanityCheck(PoseFK keyframe) {
-		if(!keyframeAnglesAreOK(keyframe)) {
+		if(!poseAnglesAreOK(keyframe)) {
 			if(VERBOSE) Log.message("Bad angles");
 			return false;
 		}
@@ -282,14 +265,14 @@ public class DHRobotModel extends Entity {
 	}
 
 	/**
-	 * Perform a sanity check. Make sure the angles in the keyframe are within the
+	 * Perform a sanity check. Make sure the angles in the {@link PoseFK} are within the
 	 * joint range limits.
 	 * 
 	 * @param keyframe
 	 * @return
 	 */
-	public boolean keyframeAnglesAreOK(PoseFK keyframe) {
-		for(int j = 0;j<getNumLinks();++j) {
+	public boolean poseAnglesAreOK(PoseFK keyframe) {
+		for(int j = 0;j<getNumNonToolLinks();++j) {
 			DHLink link = getLink(j);
 			if(!link.hasAdjustableValue()) continue;
 			double v = keyframe.fkValues[j];
@@ -308,7 +291,8 @@ public class DHRobotModel extends Entity {
 	 * @return matrix of end effector.  matrix is relative to the robot origin.
 	 */
 	public Matrix4d getPoseIK() {
-		return getLink(getNumLinks()-1).getPoseWorld();
+		Matrix4d m = getLink(getNumLinks()-1).getPoseWorld();
+		return m;
 	}
 	
 	/**
@@ -340,6 +324,15 @@ public class DHRobotModel extends Entity {
 		poseFKold.set(getPoseFK());
 		
 		boolean isSane = false;
+		
+		// if we have a tool
+		if(toolIndex!=-1) {
+			// find the end effector by removing the tool offset from the pose.
+			Matrix4d im = new Matrix4d(allTools.get(toolIndex).getPose());
+			im.invert();
+			m.mul(im);
+		}
+		
 		// the solver should NEVER change the current model.  it only attempts to find one possible solution.
 		DHIKSolver.SolutionType s = ikSolver.solveWithSuggestion(this, m, poseFKnew, poseFKold);
 		if(VERBOSE) Log.message("new: "+poseFKnew + "\t"+s);
@@ -357,7 +350,7 @@ public class DHRobotModel extends Entity {
 			return poseFKnew;
 		}
 	}
-
+	
 	/**
 	 * Set the robot's FK values to the keyframe values and then refresh the pose.
 	 * This method is used by others to verify for collisions, so this method
@@ -365,7 +358,7 @@ public class DHRobotModel extends Entity {
 	 * @param keyframe
 	 */
 	public void setPoseFK(PoseFK keyframe) {
-		assert(keyframe.fkValues.length==getNumLinks());
+		assert(keyframe.fkValues.length==getNumNonToolLinks());
 		
 		for(int j = 0;j<keyframe.fkValues.length;++j) {
 			DHLink link = getLink(j);
@@ -384,7 +377,7 @@ public class DHRobotModel extends Entity {
 	 */
 	public PoseFK getPoseFK() {
 		PoseFK keyframe = ikSolver.createPoseFK();
-		assert(keyframe.fkValues.length==getNumLinks());
+		assert(keyframe.fkValues.length==getNumNonToolLinks());
 
 		for(int j = 0;j<keyframe.fkValues.length;++j) {
 			DHLink link = getLink(j);
@@ -451,6 +444,30 @@ public class DHRobotModel extends Entity {
 	
 	public void removeTool(DHTool t) {
 		allTools.remove(t);
+	}
+	
+	// the tool should be the child of the last link in the chain
+	public void setToolIndex(int arg0) {
+		if(toolIndex==arg0) return;
+		
+		toolIndex = arg0;
+	}
+	
+	/**
+	 * @return the tool index.  -1 means 'no tool'.
+	 */
+	public int getToolIndex() {
+		return toolIndex;
+	}
+
+	public DHTool getCurrentTool() {
+		return allTools.get(toolIndex);
+	}
+
+	protected int getNumNonToolLinks() {
+		int linkCount = getNumLinks();
+		if(toolIndex>=0) linkCount--;
+		return linkCount;
 	}
 	
 	/**

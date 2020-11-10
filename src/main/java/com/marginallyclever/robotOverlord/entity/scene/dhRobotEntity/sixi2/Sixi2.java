@@ -16,13 +16,13 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckGripper;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -67,6 +67,10 @@ public class Sixi2 extends PoseEntity {
 		super("Sixi2");
 		// model should begin at home position.
 		model = new Sixi2Model();
+
+		model.addTool(new Sixi2ChuckGripper());
+		model.setToolIndex(0);
+		
 		// the interface to the real machine
 		live = new Sixi2Live(model);
 		// the interface to the simulated machine.
@@ -74,9 +78,6 @@ public class Sixi2 extends PoseEntity {
 		// the "hot" position the user is currently looking at, which is neither live nor sim.
 		setCursor(model.createCommand());
 		addChild(cursor);
-
-		model.addTool(new Sixi2ChuckGripper());
-		model.setToolIndex(0);
 	}
 	
 	@Override
@@ -138,7 +139,7 @@ public class Sixi2 extends PoseEntity {
 			// model state is dirty.  Set it to cursor.poseFK, which is *pretty close* to cursor.pose
 			model.setPoseFK(cursor.getPoseFK());
 			// now set the new cursor IK pose
-			Matrix4d m = cursor.getPose();
+			Matrix4d m = cursor.getPoseIK();
 			if(model.setPoseIK(m)) {
 				cursor.setPoseFK(model.getPoseFK());
 			}
@@ -158,7 +159,7 @@ public class Sixi2 extends PoseEntity {
 			public void update(Observable o, Object arg) {
 				model.goHome();
 				sim.setPoseTo(model.getPoseFK());
-				cursor.setPose(model.getPoseIK());
+				cursor.setPoseIK(model.getPoseIK());
 				cursor.setPoseFK(model.getPoseFK());
 			}
 		});

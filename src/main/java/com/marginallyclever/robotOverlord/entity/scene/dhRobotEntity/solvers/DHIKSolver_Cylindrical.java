@@ -5,10 +5,10 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector4d;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves Inverse Kinematics for a cylindrical, serially-linked robot like the FANUC GMF M-100 robot arm.

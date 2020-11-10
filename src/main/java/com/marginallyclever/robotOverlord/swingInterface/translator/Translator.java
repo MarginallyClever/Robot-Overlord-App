@@ -29,7 +29,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
 import com.marginallyclever.util.PreferencesHelper;
 

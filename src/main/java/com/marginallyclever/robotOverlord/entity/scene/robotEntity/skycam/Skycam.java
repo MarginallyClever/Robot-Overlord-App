@@ -16,11 +16,11 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Skycam extends PoseEntity {
@@ -112,9 +112,7 @@ public class Skycam extends PoseEntity {
 			}
 		} else {
 			// Here
-			if(false) {
-				queueDestination(cursor);
-			}
+			//if(false) queueDestination(cursor);
 		}
 		live.update(dt);
 		sim.update(dt);

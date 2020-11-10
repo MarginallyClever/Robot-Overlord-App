@@ -10,8 +10,9 @@ import java.nio.charset.StandardCharsets;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
+
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**

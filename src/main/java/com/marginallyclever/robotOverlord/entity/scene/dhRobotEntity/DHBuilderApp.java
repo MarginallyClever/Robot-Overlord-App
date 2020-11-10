@@ -58,12 +58,10 @@ public class DHBuilderApp extends DHRobotModel {
 			bone.setLetter(BONE_NAMES[i++]);
 			bone.flags = LinkAdjust.ALL;
 			bone.showLineage.set(true);
-			bone.setDHRobot(this);
 		}
 		
 		endEffector.setName("End Effector");
 		links.get(links.size()-1).addChild(endEffector);
-		endEffector.setDHRobot(this);
 		endEffector.addObserver(this);
 		
 		addChild(anchor);

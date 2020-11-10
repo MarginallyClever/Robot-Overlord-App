@@ -191,7 +191,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		// make room to store the current position and get a copy of the default.
 		poseFK = getPoseFK();
 		// ...so that we can get the IK pose of the finger tip.
-		poseIK.set(links.get(links.size()-1).getPoseWorld());
+		poseIK.set(links.get(getNumNonToolLinks()-1).getPoseWorld());
 	}
 
 	/**
@@ -351,7 +351,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 				Sixi2Model.DEFAULT_FEEDRATE,
 				Sixi2Model.DEFAULT_ACCELERATION,
 				1,0);
-		c.setPose(getPoseIK());
+		c.poseIK.set(getPoseIK());
 		return c;
 	}
 	

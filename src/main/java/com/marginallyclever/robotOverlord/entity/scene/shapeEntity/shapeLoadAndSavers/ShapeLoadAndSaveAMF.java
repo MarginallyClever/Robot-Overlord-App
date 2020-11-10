@@ -13,8 +13,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeLoadAndSave;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
-import com.marginallyclever.robotOverlord.log.Log;
 
 public class ShapeLoadAndSaveAMF implements ShapeLoadAndSave {
 	@Override

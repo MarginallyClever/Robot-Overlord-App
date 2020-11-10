@@ -11,7 +11,7 @@ package com.marginallyclever.communications.ssh;
  *
  */
 import com.jcraft.jsch.*;
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 import java.awt.*;
 

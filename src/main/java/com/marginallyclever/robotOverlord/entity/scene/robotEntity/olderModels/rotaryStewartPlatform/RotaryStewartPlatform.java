@@ -17,12 +17,12 @@ import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 
 @Deprecated
 public class RotaryStewartPlatform extends RobotEntity {

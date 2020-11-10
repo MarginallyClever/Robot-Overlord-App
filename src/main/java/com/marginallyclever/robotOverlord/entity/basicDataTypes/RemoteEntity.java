@@ -9,9 +9,9 @@ import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.NetworkSessionListener;
 import com.marginallyclever.communications.NetworkSessionManager;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Wraps all network connection stuff into a neat entity package designed to send one \n terminated string at a time.

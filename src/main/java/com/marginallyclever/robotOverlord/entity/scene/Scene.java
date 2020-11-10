@@ -9,13 +9,13 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**

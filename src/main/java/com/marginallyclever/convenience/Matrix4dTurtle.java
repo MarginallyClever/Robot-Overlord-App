@@ -8,7 +8,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 
 public class Matrix4dTurtle extends Observable {

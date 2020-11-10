@@ -15,12 +15,12 @@ import java.util.prefs.Preferences;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 
 import java.io.BufferedReader;
 

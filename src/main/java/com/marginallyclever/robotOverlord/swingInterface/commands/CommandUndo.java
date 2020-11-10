@@ -9,7 +9,7 @@ import javax.swing.KeyStroke;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 /**
  * go back one step in the undo/redo history.

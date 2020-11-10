@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.log;
+package com.marginallyclever.convenience.log;
 
 public interface LogListener {
 	// decorated HTML message has been logged

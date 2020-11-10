@@ -19,9 +19,9 @@ import javax.swing.text.DefaultCaret;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.convenience.log.LogListener;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
-import com.marginallyclever.robotOverlord.log.Log;
-import com.marginallyclever.robotOverlord.log.LogListener;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**

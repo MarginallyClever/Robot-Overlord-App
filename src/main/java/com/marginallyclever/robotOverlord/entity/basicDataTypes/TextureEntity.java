@@ -10,7 +10,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 // TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.

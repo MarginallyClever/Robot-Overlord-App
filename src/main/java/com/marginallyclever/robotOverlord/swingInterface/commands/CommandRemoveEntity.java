@@ -8,10 +8,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.RemovableEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRemove;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 

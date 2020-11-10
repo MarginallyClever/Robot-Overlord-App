@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 /**
  * store command line options for use in the app

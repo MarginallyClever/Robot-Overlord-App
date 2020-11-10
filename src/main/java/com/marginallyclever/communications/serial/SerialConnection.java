@@ -7,7 +7,7 @@ import jssc.SerialPortException;
 
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayer;
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 
 /**

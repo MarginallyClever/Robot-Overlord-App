@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 /**
  * Smooth STL models and save them back to disk.  Meant for one time processing files.

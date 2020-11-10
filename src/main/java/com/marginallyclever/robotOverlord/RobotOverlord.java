@@ -54,6 +54,7 @@ import com.jogamp.opengl.GLPipelineFactory;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
 import com.marginallyclever.robotOverlord.entity.RemovableEntity;
@@ -62,7 +63,6 @@ import com.marginallyclever.robotOverlord.entity.scene.DragBallEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.entity.scene.ViewportEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
@@ -428,10 +428,20 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		selectedEntityPanel.removeAll();
 
 		if(entityList.size()==1) {
-			Entity e = entityList.get(0);
-			ViewPanel vp = new ViewPanel(this);
-			e.getView(vp);
-			selectedEntityPanel.add(vp.getFinalView(),BorderLayout.PAGE_START);
+			int size = entityList.size();
+			ViewPanel [] panels = new ViewPanel[size];
+			for( int i=0;i<size;++i) {
+				panels[i] = new ViewPanel(this);
+				entityList.get(i).getView(panels[i]);
+			}
+			
+			// keep the first panel.
+			// TODO compare panels and keep only the matching elements and - if possible - the data in those elements.
+			ViewPanel combined = panels[0];
+			
+			// TODO throw away panels that have no elements left.
+
+			selectedEntityPanel.add(combined.getFinalView(),BorderLayout.PAGE_START);
 		} else {
 			// TODO display values shared across all selected entities
 		}

@@ -3,9 +3,9 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.log.Log;
 
 /**
  * Solves Inverse Kinematics for cartesian robots like 3D printers and milling machines.

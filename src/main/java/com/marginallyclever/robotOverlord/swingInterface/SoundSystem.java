@@ -18,7 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.util.PreferencesHelper;
 

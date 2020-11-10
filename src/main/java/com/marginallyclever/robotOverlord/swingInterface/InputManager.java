@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
-import com.marginallyclever.robotOverlord.log.Log;
+import com.marginallyclever.convenience.log.Log;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;

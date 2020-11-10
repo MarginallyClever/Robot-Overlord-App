@@ -20,6 +20,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
@@ -27,7 +28,6 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 

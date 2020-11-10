@@ -20,7 +20,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  */
 public class ViewElement extends Observable implements FocusListener {
 	protected RobotOverlord ro;
-	public JPanel panel = new JPanel();
+	protected JPanel panel = new JPanel();
 	
 	public ViewElement(RobotOverlord ro) {
 		this.ro=ro;

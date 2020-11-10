@@ -4,6 +4,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -30,6 +31,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
  *
  */
 public class ViewPanel extends ViewElement {
+	public Hashtable<String,Object> viewElements = new Hashtable<>();
 	
 	protected class StackElement {
 		public JComponent p;

@@ -6,8 +6,8 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.bezier3.Bezier3ControlPoint;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotOverlord.log.Log;
 
 
 @Deprecated

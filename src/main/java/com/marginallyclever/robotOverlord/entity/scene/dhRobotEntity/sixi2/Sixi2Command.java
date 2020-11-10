@@ -10,17 +10,17 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusListener, Serializable {
+public class Sixi2Command extends Entity implements Cloneable, EntityFocusListener, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	protected PoseFK poseFK;
+	protected Matrix4d poseIK;
 	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate (deg/s)",Sixi2Model.DEFAULT_FEEDRATE);
 	protected transient DoubleEntity accelerationSlider = new DoubleEntity("Acceleration (deg/s/s)",Sixi2Model.DEFAULT_ACCELERATION);
 	protected transient DoubleEntity toolSlider = new DoubleEntity("Tool",0);
@@ -41,7 +41,8 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	public Sixi2Command(PoseFK poseFK,double feedrate,double acceleration,double tool,double delay) {
 		super("Pose");
 		
-		this.poseFK=(PoseFK)poseFK.clone();
+		this.poseFK = (PoseFK)poseFK.clone();
+		this.poseIK = new Matrix4d();
 		feedrateSlider.set(feedrate);
 		accelerationSlider.set(acceleration);
 		toolSlider.set(tool);
@@ -58,7 +59,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	@Override
 	protected Object clone() {
 		Sixi2Command c = (Sixi2Command)super.clone();
-		c.pose = (Matrix4d)pose.clone();
+		c.poseIK = (Matrix4d)poseIK.clone();
 		c.poseFK = (PoseFK)poseFK.clone();
 		c.feedrateSlider = new DoubleEntity(feedrateSlider.getName());
 		c.feedrateSlider.set(feedrateSlider.get());
@@ -128,21 +129,7 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 
 	@Override
 	public void lostFocus() {}
-/*
-	public void write(ObjectOutputStream stream) throws Exception {
-		stream.writeObject(poseFK);
-		stream.writeDouble(feedrateSlider.get());
-		stream.writeDouble(accelerationSlider.get());
-		stream.writeDouble(toolSlider.get());
-	}
-	
-	public void read(ObjectInputStream stream) throws Exception {
-		poseFK = (PoseFK)stream.readObject();
-		feedrateSlider.set(stream.readDouble());
-		accelerationSlider.set(stream.readDouble());
-		toolSlider.set(stream.readDouble());
-	}
-*/
+
 	/**
 	 * Convert this command to a string useable by a live robot.
 	 * @return
@@ -180,5 +167,13 @@ public class Sixi2Command extends PoseEntity implements Cloneable, EntityFocusLi
 	
 	public double getWait() {
 		return wait.get();
+	}
+
+	public Matrix4d getPoseIK() {
+		return new Matrix4d(poseIK);
+	}
+
+	public void setPoseIK(Matrix4d poseIK2) {
+		poseIK.set(poseIK2);
 	}
 }
