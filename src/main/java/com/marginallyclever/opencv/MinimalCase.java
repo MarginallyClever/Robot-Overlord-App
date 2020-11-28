@@ -1,9 +1,8 @@
 package com.marginallyclever.opencv;
 
+import org.opencv.core.Core;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
-
-import nu.pattern.OpenCV;
 
 public class MinimalCase {
 
@@ -14,7 +13,8 @@ public class MinimalCase {
 	 */
 	public static void main(String[] args) {
 		// load shared OpenCV stuff.
-		OpenCV.loadShared();
+		
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
 		VideoCapture vc = new VideoCapture();
     	vc.open(0, Videoio.CAP_DSHOW);
