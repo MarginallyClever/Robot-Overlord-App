@@ -123,7 +123,7 @@ public class SixiJoystick extends ShapeEntity {
 				// set the cursor to the joystick position
 				Sixi2Model m = (Sixi2Model) target.getModel();
 				m.setPoseFK(keyframe);
-				sc.setPoseIK(m.getPoseIK());
+				sc.setPoseWorld(m.getPoseIK());
 				// and notify observers so they update the ik pose.
 				sc.notifyObservers();
 			}

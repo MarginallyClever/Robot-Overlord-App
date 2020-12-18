@@ -325,14 +325,6 @@ public class DHRobotModel extends Entity {
 		
 		boolean isSane = false;
 		
-		// if we have a tool
-		if(toolIndex!=-1) {
-			// find the end effector by removing the tool offset from the pose.
-			Matrix4d im = new Matrix4d(allTools.get(toolIndex).getPose());
-			im.invert();
-			m.mul(im);
-		}
-		
 		// the solver should NEVER change the current model.  it only attempts to find one possible solution.
 		DHIKSolver.SolutionType s = ikSolver.solveWithSuggestion(this, m, poseFKnew, poseFKold);
 		if(VERBOSE) Log.message("new: "+poseFKnew + "\t"+s);
@@ -344,7 +336,7 @@ public class DHRobotModel extends Entity {
 		} else if(VERBOSE) Log.message("isPoseIKSane() not one solution");
 		
 		if(!isSane) {
-			setPoseFK(poseFKold);
+			Log.message("No");
 			return null;
 		} else {
 			return poseFKnew;

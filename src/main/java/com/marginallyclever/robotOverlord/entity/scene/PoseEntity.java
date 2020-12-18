@@ -22,7 +22,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionMoveTo;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -30,7 +30,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
+public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Moveable {
 	/**
 	 * 
 	 */
@@ -157,8 +157,8 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 	 * @param newWorldPose the desired world pose of the PoseEntity.
 	 * @return true if it can.
 	 */
+	@Override
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
-		// TODO add rules here.
 		return true;
 	}
 	
@@ -389,7 +389,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(this,m) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionMoveTo(this,m) ) );
 			}
 		}
 	}
@@ -399,7 +399,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(this,m) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionMoveTo(this,m) ) );
 			}
 		}
 	}
@@ -448,12 +448,14 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable {
 				snapZToMajorAxis();
 			}
 		});
+		
 		view.addButton("Snap X to major axis").addObserver(new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
 				snapXToMajorAxis();
 			}
 		});
+		
 		//view.addStaticText("Pick name="+getPickName());
 		//	pose.getView(view);
 		view.popStack();

@@ -22,7 +22,6 @@ public class EntityTreeNode extends DefaultMutableTreeNode {
 	
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return ((Entity)userObject).getName();
 	}
 }

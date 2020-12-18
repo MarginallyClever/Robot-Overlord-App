@@ -22,7 +22,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionPoseEntityMoveWorld;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ActionMoveTo;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -30,7 +30,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class DragBallEntity extends Entity {
+public class MoveTool extends Entity {
 	/**
 	 * 
 	 */
@@ -119,7 +119,7 @@ public class DragBallEntity extends Entity {
 	public boolean isBallHit;
 
 	// Who is being moved?
-	protected PoseEntity subject;
+	protected Moveable subject;
 	// In what frame of reference?
 	public IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
 	
@@ -138,9 +138,9 @@ public class DragBallEntity extends Entity {
 
 	public SlideDirection majorAxisSlideDirection;
 	
-	public DragBallEntity() {
+	public MoveTool() {
 		super();
-		setName("DragBall");
+		setName("MoveTool");
 		addChild(ballSize);
 		addChild(snapOn);
 		addChild(snapDegrees);
@@ -165,7 +165,7 @@ public class DragBallEntity extends Entity {
 		if(!isActivelyMoving()) {
 			switch(FrameOfReference.values()[frameOfReference.get()]) {
 			case SUBJECT: FOR.set(subject.getPoseWorld());	break;
-			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), subject.getPosition()));  break;
+			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subject.getPoseWorld())));  break;
 			default     : FOR.setIdentity();  break;
 			}
 			FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
@@ -402,7 +402,7 @@ public class DragBallEntity extends Entity {
 	public void attemptMove(RobotOverlord ro) {
 		if(subject.canYouMoveTo(resultMatrix)) {
 			FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionPoseEntityMoveWorld(subject,resultMatrix) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionMoveTo(subject,resultMatrix) ) );
 		}
 	}
 	
@@ -702,7 +702,7 @@ public class DragBallEntity extends Entity {
 		// camera forward is +z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), subject.getPosition());
+		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subject.getPoseWorld()));
 		Vector3d lookAtVector = MatrixHelper.getZAxis(lookAt);
 		
 		Matrix4d cpw = camera.getPoseWorld();
@@ -853,7 +853,7 @@ public class DragBallEntity extends Entity {
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		Vector3d lookAtVector = subject.getPosition();
+		Vector3d lookAtVector = MatrixHelper.getPosition(subject.getPoseWorld());
 		lookAtVector.sub(camera.getPosition());
 		lookAtVector.normalize();
 	
@@ -915,14 +915,16 @@ public class DragBallEntity extends Entity {
 		}
 		
 		if(isActivelyMoving) {
-			// the distance moved.
+			// the distance we tried to move.
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(255,255,255);
 			gl2.glVertex3d(0,0,0);
+			Matrix4d sw = subject.getPoseWorld();
+			
 			gl2.glVertex3d(
-					(startMatrix.m03-resultMatrix.m03)/ballSize.get(),
-					(startMatrix.m13-resultMatrix.m13)/ballSize.get(),
-					(startMatrix.m23-resultMatrix.m23)/ballSize.get());
+					(startMatrix.m03-sw.m03)/ballSize.get(),
+					(startMatrix.m13-sw.m13)/ballSize.get(),
+					(startMatrix.m23-sw.m23)/ballSize.get());
 			gl2.glEnd();
 		}
 	}
@@ -1059,7 +1061,7 @@ public class DragBallEntity extends Entity {
 	 * Set which PhysicalEntity the drag ball is going to act upon.
 	 * @param subject
 	 */
-	public void setSubject(PoseEntity subject) {
+	public void setSubject(Moveable subject) {
 		this.subject=subject;		
 	}
 	

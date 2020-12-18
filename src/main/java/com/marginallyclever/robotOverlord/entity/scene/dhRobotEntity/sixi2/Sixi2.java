@@ -22,6 +22,7 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckGripper;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -70,6 +71,8 @@ public class Sixi2 extends PoseEntity {
 
 		model.addTool(new Sixi2ChuckGripper());
 		model.setToolIndex(0);
+		
+		addChild(model);
 		
 		// the interface to the real machine
 		live = new Sixi2Live(model);
@@ -418,5 +421,11 @@ public class Sixi2 extends PoseEntity {
 				return;
 			}
 		}
+	}
+
+	public DHTool findLastToolBefore(Sixi2Command sixi2Command) {
+		// TODO implement
+		//throw new NotImplementedException("findLastToolBefore()");
+		return null;
 	}
 }

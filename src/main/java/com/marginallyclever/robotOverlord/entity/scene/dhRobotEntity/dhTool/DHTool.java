@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 
+import javax.vecmath.Matrix4d;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -64,4 +66,7 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 	
 	public void interpolate(double dt) {}
 
+	public Matrix4d getToolTipOffset() {
+		return toolTipOffset.getPose();
+	}
 }

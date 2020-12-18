@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -104,9 +105,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		}
 		
 		@SuppressWarnings("unchecked")
-		ArrayList<EntityTreeNode> list = (ArrayList<EntityTreeNode>)Collections.list(node.children());
-		for (EntityTreeNode treeNode : list) {
-			setNodeExpandedState(tree, treeNode, expanded);
+		ArrayList<TreeNode> list = (ArrayList<TreeNode>)Collections.list(node.children());
+		for (TreeNode treeNode : list) {
+			setNodeExpandedState(tree, (EntityTreeNode)treeNode, expanded);
 		}
 		if (!expanded && node.isRoot()) {
 			return;

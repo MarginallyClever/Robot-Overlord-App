@@ -59,11 +59,11 @@ import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
 import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
-import com.marginallyclever.robotOverlord.entity.scene.DragBallEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Moveable;
+import com.marginallyclever.robotOverlord.entity.scene.MoveTool;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
 import com.marginallyclever.robotOverlord.entity.scene.ViewCubeEntity;
 import com.marginallyclever.robotOverlord.entity.scene.ViewportEntity;
-import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
@@ -101,6 +101,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 * 
 	 */
 	private static final long serialVersionUID = 8890695769715268519L;
+	//public static final String APP_TITLE = "Robot Overlord SKYCAM SPECIAL";  // for skycam only
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
@@ -115,7 +116,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	protected transient ArrayList<Entity> selectedEntities; 
 	
 	// To move selected items in 3D
-	protected DragBallEntity dragBall = new DragBallEntity();
+	protected MoveTool dragTool = new MoveTool();
 	// The box in the top right of the user view that shows your orientation in the world.
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
 	protected transient ViewCubeEntity viewCube = new ViewCubeEntity();
@@ -217,13 +218,14 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		addChild(viewport);
  		addChild(camera);
         addChild(scene);
- 		addChild(dragBall);
+ 		addChild(dragTool);
  		addChild(viewCube);
  		
  		viewport.attachedTo.set(camera.getFullPath());
 
 		Log.message("Create default scene");
         scene.createSixiDemo();
+		//scene.createSkycamDemo();  // for skycam only
 
         // initialize the screen picking system (to click on a robot and get its context sensitive menu)
         pickNow = false;
@@ -820,7 +822,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         scene.render(gl2);
 
         // overlays
-		dragBall.render(gl2);
+		dragTool.render(gl2);
 
 		viewCube.render(gl2);
 
@@ -936,7 +938,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	boolean moveable = true;
     	for(Entity e1 : entityList) {
     		if(!(e1 instanceof RemovableEntity)) removable=false;
-    		if(!(e1 instanceof PoseEntity)) moveable=false;
+    		if(!(e1 instanceof Moveable)) moveable=false;
     		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
     		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
     	}
@@ -947,17 +949,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(moveable) {
 			if(entityList.size()==1) {
 				Entity e = entityList.get(0);
-				if(e instanceof PoseEntity && e != dragBall) {
-					dragBall.setSubject((PoseEntity)e);
+				if(e instanceof Moveable) {
+					dragTool.setSubject((Moveable)e);
 				} else if(e==null) {
-					dragBall.setSubject(null);
+					dragTool.setSubject(null);
 				}
 			} else {
 				// TODO group all selected poseEntities so they can be moved as one?
-				dragBall.setSubject(null);
+				dragTool.setSubject(null);
 			}
 		} else {
-			dragBall.setSubject(null);
+			dragTool.setSubject(null);
 		}
 		
 		updateSelectedEntityPanel(entityList);

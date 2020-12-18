@@ -2,21 +2,31 @@ package com.marginallyclever.opencv;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacpp.*;
-import org.bytedeco.opencv.global.opencv_calib3d;
-import org.bytedeco.opencv.global.opencv_core;
-import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.*;
-import org.bytedeco.opencv.opencv_objdetect.*;
+import org.bytedeco.opencv.opencv_highgui.*;
 import org.bytedeco.opencv.opencv_imgproc.*;
+import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
+import org.bytedeco.opencv.opencv_optflow.DualTVL1OpticalFlow;
+import org.bytedeco.opencv.opencv_video.*;
+
+import org.bytedeco.opencv.global.opencv_core;
+import org.bytedeco.opencv.global.opencv_highgui.*;
+import org.bytedeco.opencv.global.opencv_calib3d;
+import org.bytedeco.opencv.global.opencv_imgproc;
+import org.bytedeco.opencv.global.opencv_optflow;
 
 import static org.bytedeco.opencv.global.opencv_core.*;
+import static org.bytedeco.opencv.global.opencv_highgui.*;
+import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_calib3d.*;
+import static org.bytedeco.opencv.global.opencv_optflow.*;
 
 
 public class JavaCVDemo {
@@ -105,10 +115,14 @@ public class JavaCVDemo {
 
     // calibration data
 	private Mat imageCorners = new Mat();
-	private  List<Mat> imagePoints = new ArrayList<>();
-	private  List<Mat> objectPoints = new ArrayList<>();
-	private  Mat intrinsic = new Mat(3, 3, opencv_core.CV_32FC1);
-	private  Mat distCoeffs = new Mat();
+	private List<Mat> imagePoints = new ArrayList<>();
+	private List<Mat> objectPoints = new ArrayList<>();
+	private Mat intrinsic = new Mat(3, 3, opencv_core.CV_32FC1);
+	private Mat distCoeffs = new Mat();
+	
+    //private Mat oldGray = new Mat();
+    //private static final int MAX_CORNERS = 500;
+    //private static final int win_size = 15;
     
     /**
      * Find and draws the points needed for the calibration on the chessboard
@@ -123,13 +137,13 @@ public class JavaCVDemo {
     	// init
     	Mat grayImage = new Mat();
 
+        // Let's try to detect some faces! but we need a grayscale image...
+        cvtColor(grabbedImage, grayImage, CV_BGR2GRAY);
+        
     	// I would perform this operation only before starting the calibration
     	// process
     	if (successes < boardsNumber)
     	{
-            // Let's try to detect some faces! but we need a grayscale image...
-            cvtColor(grabbedImage, grayImage, CV_BGR2GRAY);
-            
     		// the size of the chessboard
     		Size boardSize = new Size(NUM_CORNERS_HOR, NUM_CORNERS_VER);
     		// look for the inner chessboard corners
@@ -145,6 +159,36 @@ public class JavaCVDemo {
     			// show the chessboard inner corners on screen
     			opencv_calib3d.drawChessboardCorners(grabbedImage, boardSize, imageCorners, found);
     		}
+    		
+    		
+    		/*
+            // calculate optical flow?  Untested
+            final Mat pGray = new Mat(), cGray = new Mat(), Optical_Flow = new Mat();
+
+            oldGray.convertTo(pGray, CV_32FC1);
+            grayImage.convertTo(cGray, CV_32FC1);
+
+            final DenseOpticalFlow tvl1 = DualTVL1OpticalFlow.create();
+            tvl1.calc(pGray, cGray, Optical_Flow);
+
+            final Mat OF = new Mat(pGray.rows(), pGray.cols(), CV_32FC1);
+            final FloatBuffer in = Optical_Flow.createBuffer(),
+                    		  out = OF.createBuffer();
+
+            final int height = pGray.rows(), width = pGray.cols();
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    final float xVelocity = in.get();
+                    final float yVelocity = in.get();
+                    final float pixelVelocity = (float) Math
+                            .sqrt(xVelocity * xVelocity + yVelocity * yVelocity);
+                    out.put(pixelVelocity);
+                }
+            }
+            
+            oldGray = grayImage.clone();
+            */
     	}
     }
 

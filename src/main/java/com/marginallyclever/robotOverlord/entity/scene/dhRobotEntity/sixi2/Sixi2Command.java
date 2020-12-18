@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.io.Serializable;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -10,10 +9,16 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Moveable;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class Sixi2Command extends Entity implements Cloneable, EntityFocusListener, Serializable {
+/**
+ * 
+ * @author Dan Royer
+ *
+ */
+public class Sixi2Command extends Entity implements EntityFocusListener, Moveable {
 	/**
 	 * 
 	 */
@@ -31,7 +36,7 @@ public class Sixi2Command extends Entity implements Cloneable, EntityFocusListen
 	}
 	
 	/**
-	 * 
+	 * Constructor
 	 * @param poseFK
 	 * @param feedrate >=0
 	 * @param acceleration >=0
@@ -169,11 +174,60 @@ public class Sixi2Command extends Entity implements Cloneable, EntityFocusListen
 		return wait.get();
 	}
 
+	// @return pose of tool tip 
+	@Override
+	public Matrix4d getPoseWorld() {
+		Sixi2 s = findParentSixi2();
+		Sixi2Model model = s.model;
+		Matrix4d mt = model.getCurrentTool().getToolTipOffset();
+		Matrix4d m = new Matrix4d();
+		m.mul(poseIK,mt);
+		return m;
+	}
+
+	// @set pose of tool tip
+	@Override
+	public void setPoseWorld(Matrix4d m) {
+		Sixi2 s = findParentSixi2();
+		Sixi2Model model = s.model;
+		Matrix4d mt = model.getCurrentTool().getToolTipOffset();
+		mt.invert();
+		Matrix4d newPose = new Matrix4d();
+		newPose.mul(m,mt);
+		
+		setChanged();
+		poseIK.set(newPose);
+		notifyObservers();
+	}
+
+	/**
+	 * @param newWorldPose pose of tool tip
+	 * @return true if arm can move to this pose sanely.
+	 */
+	@Override
+	public boolean canYouMoveTo(Matrix4d newWorldPose) {
+		Sixi2 s = findParentSixi2();
+		Sixi2Model model = s.model;
+		Matrix4d mt = model.getCurrentTool().getToolTipOffset();
+		mt.invert();
+		Matrix4d nextPose = new Matrix4d(newWorldPose);
+		nextPose.mul(mt);
+		
+		model.setPoseFK(getPoseFK());
+		
+		boolean b = (model.isPoseIKSane(nextPose) != null); 
+		return b;
+	}
+
+	// @return pose of finger tip (not including tool)
 	public Matrix4d getPoseIK() {
 		return new Matrix4d(poseIK);
 	}
 
-	public void setPoseIK(Matrix4d poseIK2) {
-		poseIK.set(poseIK2);
+	// set pose of finger tip (not including tool)
+	public void setPoseIK(Matrix4d m) {
+		setChanged();
+		poseIK.set(m);
+		notifyObservers();
 	}
 }
