@@ -2,31 +2,18 @@ package com.marginallyclever.opencv;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacpp.*;
 import org.bytedeco.opencv.opencv_core.*;
-import org.bytedeco.opencv.opencv_highgui.*;
-import org.bytedeco.opencv.opencv_imgproc.*;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
-import org.bytedeco.opencv.opencv_optflow.DualTVL1OpticalFlow;
-import org.bytedeco.opencv.opencv_video.*;
-
 import org.bytedeco.opencv.global.opencv_core;
-import org.bytedeco.opencv.global.opencv_highgui.*;
 import org.bytedeco.opencv.global.opencv_calib3d;
 import org.bytedeco.opencv.global.opencv_imgproc;
-import org.bytedeco.opencv.global.opencv_optflow;
-
 import static org.bytedeco.opencv.global.opencv_core.*;
-import static org.bytedeco.opencv.global.opencv_highgui.*;
-import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
-import static org.bytedeco.opencv.global.opencv_calib3d.*;
-import static org.bytedeco.opencv.global.opencv_optflow.*;
 
 
 public class JavaCVDemo {
@@ -103,6 +90,7 @@ public class JavaCVDemo {
         hatPoints.close();
         classifier.close();
         frame.dispose();
+        grayImage.close();
         //recorder.stop();
         grabber.stop();
 	}
