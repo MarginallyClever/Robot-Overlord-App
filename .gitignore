@@ -19,8 +19,8 @@
 **/*.tmp
 **/temp.ngc
 
-**/log.*
-log.html
+**/log.html
+**/log.txt
 
 .settings/**
 /target/

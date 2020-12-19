@@ -44,11 +44,11 @@ public class JavaCVDemo {
         }
 
         // We can "cast" Pointer objects by instantiating a new object of the desired class.
-        CascadeClassifier classifier = new CascadeClassifier(classifierName);
+        CascadeClassifier classifier = new CascadeClassifier(classifierName);/*
         if (classifier == null) {
             System.err.println("Error loading classifier file \"" + classifierName + "\".");
             System.exit(1);
-        }
+        }*/
 
         // The available FrameGrabber classes include OpenCVFrameGrabber (opencv_videoio),
         // DC1394FrameGrabber, FlyCapture2FrameGrabber, OpenKinectFrameGrabber, OpenKinect2FrameGrabber,
