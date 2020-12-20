@@ -283,12 +283,18 @@
 			<groupId>io.github.java-native</groupId>
 			<artifactId>jssc</artifactId>
 			<version>2.9.2</version>
-			<!--<scope>system</scope> <systemPath>${project.basedir}/local-maven-repo/jssc-2.9.1.jar</systemPath> -->
+			<!--
+			<scope>system</scope>
+			<systemPath>${project.basedir}/local-maven-repo/jssc-2.9.1.jar</systemPath>
+			-->
 		</dependency>
-		<!-- <dependency>
-		 <groupId>org.jogamp.fat</groupId>
-		  <artifactId>jogamp-fat</artifactId> 
-			<version>2.4.0</version> <scope>system</scope> <systemPath>${project.basedir}/local-maven-repo/jogamp-fat-2.4.0.jar</systemPath> 
+		<!--
+		<dependency>
+		 	<groupId>org.jogamp.fat</groupId>
+		  	<artifactId>jogamp-fat</artifactId> 
+			<version>2.4.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/local-maven-repo/jogamp-fat-2.4.0.jar</systemPath> 
 		</dependency> -->
 		<dependency>
 			<groupId>org.jogamp.gluegen</groupId>
@@ -308,16 +314,12 @@
 		</dependency>
 	  
 		<!-- https://mvnrepository.com/artifact/net.sourceforge/kabeja -->
+		<!-- http://kabeja.sourceforge.net/download/download.html -->
 		<dependency>
 			<groupId>net.sourceforge</groupId>
 			<artifactId>kabeja</artifactId>
 			<version>0.4</version>
 		</dependency>
-
-		<!-- http://kabeja.sourceforge.net/download/download.html -->
-		<!-- <dependency> <groupId>org.kabeja</groupId> <artifactId>kabeja</artifactId> 
-			<version>0.4</version> <scope>system</scope> <systemPath>${project.basedir}/local-maven-repo/kabeja-0.4.jar</systemPath> 
-			</dependency> -->
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
