@@ -9,6 +9,7 @@
 /target/test-classes/**
 /target/classes/com/**
 /target/classes/META-INF/**
+/target/
 
 /html/
 
@@ -23,8 +24,6 @@
 **/log.txt
 
 .settings/**
-/target/
 G30.ngc
 *.prefs
-.ssh/known_hosts
 .ssh/known_hosts
