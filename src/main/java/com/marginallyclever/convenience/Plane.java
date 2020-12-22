@@ -41,4 +41,14 @@ public class Plane {
 				start.y+normal.y, 
 				start.z+normal.z);
 	}
+	
+	/**
+	 * @return distance to plane from origin.  effectively normal.dot(start)
+	 */
+	public double distanceToPlane() {
+		double d = start.x * normal.x
+				 + start.y * normal.y
+				 + start.z * normal.z;
+		return d;
+	}
 }

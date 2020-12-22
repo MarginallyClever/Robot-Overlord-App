@@ -1,5 +1,4 @@
 package com.marginallyclever.convenience;
-import java.util.ArrayList;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -209,23 +208,52 @@ public class IntersectionHelper {
 		Vector3d diff = new Vector3d();
 		diff.sub(p.start,r.start);
 		double denominator = r.direction.dot(p.normal);
-		if(denominator==0) {
+		if(denominator<1e-6) {  // some tiny epsilon
 			// ray is parallel to plane.
 			return null;
 		}
-		double numerator = diff.dot(p.normal); 
-		double d = numerator / denominator;
+		double numerator = diff.dot(p.normal);
+		double d = p.distanceToPlane();
+		double t = (numerator +d) / denominator;
+		if(t<0) {
+			// plane behind ray aka ray heading away from plane
+			return null;
+		}
 
 		Vector3d intersection = new Vector3d(r.direction);
-		intersection.scale(d);
+		intersection.scale(t);
 		intersection.add(r.start);
 		
 		return intersection;
 	}
 	
-	static Vector3d rayTriangle(Ray r, Point3d [] points) {
-		Vector3d planePoint = rayPlane(r,new Plane(points[0],points[1],points[2]));
+	/**
+	 * First fine ray/plane intersection, then test if intersection is inside triangle.
+	 * Uses the first three points of the polygon to construct a plane.
+	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution
+	 * @param r ray
+	 * @param points 3+ points that make up a convex polygon in a plane
+	 * @return single intersection point or null.
+	 */
+	static Vector3d rayConvexPolygon(Ray r, Point3d [] points) {
+		assert(points.length>3);
 		
-		return null;
+		Plane plane = new Plane(points[0],points[1],points[2]);
+		Vector3d planePoint = rayPlane(r,plane);
+		if(planePoint==null) {
+			// no intersection
+			return null;
+		}
+
+		// test if point is inside convex polygon
+		int s = points.length;
+		for(int i=0;i<s;++i) {
+			Vector3d e0 = new Vector3d(points[(i+1)%s]); e0.sub(points[i]);
+			Vector3d c0 = new Vector3d(planePoint); c0.sub(points[i]);
+			Vector3d temp = new Vector3d();
+			temp.cross(e0,c0);	if(plane.normal.dot(temp)<=0) return null;
+		}
+		
+		return planePoint;
 	}
 }
