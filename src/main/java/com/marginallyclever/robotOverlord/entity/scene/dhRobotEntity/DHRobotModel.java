@@ -7,7 +7,7 @@ import javax.vecmath.Matrix4d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -216,7 +216,7 @@ public class DHRobotModel extends Entity {
 				if (links.get(j).getModel() == null)
 					continue;
 
-				if (IntersectionTester.cuboidCuboid(
+				if (IntersectionHelper.cuboidCuboid(
 						links.get(i).getCuboid(),
 						links.get(j).getCuboid())) {
 						Log.message("Self collision between "+

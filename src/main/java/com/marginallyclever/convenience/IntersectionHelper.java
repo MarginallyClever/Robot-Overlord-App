@@ -3,7 +3,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 
-public class IntersectionTester {
+public class IntersectionHelper {
 	static final float SMALL_NUM = 0.001f;
 	/**
 	 * test intersection of two cylinders.  From http://geomalgorithms.com/a07-_distance.html
@@ -195,5 +195,11 @@ public class IntersectionTester {
 		}
 
 		return values;
+	}
+	
+	static Vector3d rayPlane(Ray r,Plane p) {
+		Vector3d intersection = null;
+		
+		return intersection;
 	}
 }

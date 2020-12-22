@@ -8,7 +8,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.IntersectionTester;
+import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -247,7 +247,7 @@ public class Scene extends Entity {
 			// now we have both lists, test them against each other.
 			for( Cuboid cuboidA : listA ) {
 				for( Cuboid cuboidB : listB ) {
-					if( IntersectionTester.cuboidCuboid(cuboidA,cuboidB) ) {
+					if( IntersectionHelper.cuboidCuboid(cuboidA,cuboidB) ) {
 						Log.message("Collision between "+
 							listA.indexOf(cuboidA)+
 							" and "+
