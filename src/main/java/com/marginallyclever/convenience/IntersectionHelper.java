@@ -1,4 +1,6 @@
 package com.marginallyclever.convenience;
+import java.util.ArrayList;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -197,9 +199,33 @@ public class IntersectionHelper {
 		return values;
 	}
 	
+	/**
+	 * https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+	 * @param r ray
+	 * @param p plane
+	 * @return single intersection point or null
+	 */
 	static Vector3d rayPlane(Ray r,Plane p) {
-		Vector3d intersection = null;
+		Vector3d diff = new Vector3d();
+		diff.sub(p.start,r.start);
+		double denominator = r.direction.dot(p.normal);
+		if(denominator==0) {
+			// ray is parallel to plane.
+			return null;
+		}
+		double numerator = diff.dot(p.normal); 
+		double d = numerator / denominator;
+
+		Vector3d intersection = new Vector3d(r.direction);
+		intersection.scale(d);
+		intersection.add(r.start);
 		
 		return intersection;
+	}
+	
+	static Vector3d rayTriangle(Ray r, Point3d [] points) {
+		Vector3d planePoint = rayPlane(r,new Plane(points[0],points[1],points[2]));
+		
+		return null;
 	}
 }
