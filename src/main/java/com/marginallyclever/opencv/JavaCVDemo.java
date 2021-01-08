@@ -20,16 +20,24 @@ public class JavaCVDemo {
 
 	public JavaCVDemo() {}
 	
-    public static void main(String[] args) throws Exception {
-        String classifierName = null;
+    public static void main(String[] args) throws Exception
+    {
+    	System.out.println("JavaCVDemo main() start");
+
+    	String classifierName = null;
         if (args.length > 0) {
+        	System.out.println("classifier given");
             classifierName = args[0];
         } else {
+        	System.out.println("classifier not given");
             URL url = new URL("https://raw.github.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_alt.xml");
             File file = Loader.cacheResource(url);
             classifierName = file.getAbsolutePath();
+        	System.out.println("classifiername="+classifierName);
         }
 
+    	System.out.println("create classifier");
+    	
         // We can "cast" Pointer objects by instantiating a new object of the desired class.
         CascadeClassifier classifier = new CascadeClassifier(classifierName);/*
         if (classifier == null) {
@@ -37,13 +45,22 @@ public class JavaCVDemo {
             System.exit(1);
         }*/
 
+    	System.out.println("make grabber");
+    	
         // The available FrameGrabber classes include OpenCVFrameGrabber (opencv_videoio),
         // DC1394FrameGrabber, FlyCapture2FrameGrabber, OpenKinectFrameGrabber, OpenKinect2FrameGrabber,
         // RealSenseFrameGrabber, RealSense2FrameGrabber, PS3EyeFrameGrabber, VideoInputFrameGrabber, and FFmpegFrameGrabber.
         //FrameGrabber grabber = FrameGrabber.createDefault(0);
         FrameGrabber grabber = FFmpegFrameGrabber.createDefault("http://sixi.ddns.net:8081/?action=stream");
-        grabber.start();
+    	System.out.println("start grabbing");
+    	try {
+    		grabber.start();
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
 
+    	System.out.println("get converter");
+    	
         // CanvasFrame, FrameGrabber, and FrameRecorder use Frame objects to communicate image data.
         // We need a FrameConverter to interface with other APIs (Android, Java 2D, JavaFX, Tesseract, OpenCV, etc).
         OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat();
@@ -71,15 +88,20 @@ public class JavaCVDemo {
         //FrameRecorder recorder = FrameRecorder.createDefault("output.avi", width, height);
         //recorder.start();
 
+
+    	System.out.println("new canvasframe");
+    	
         // CanvasFrame is a JFrame containing a Canvas component, which is hardware accelerated.
         // It can also switch into full-screen mode when called with a screenNumber.
         // We should also specify the relative monitor/camera response for proper gamma correction.
-        CanvasFrame frame = new CanvasFrame("Dan was here", CanvasFrame.getDefaultGamma()/grabber.getGamma());
+        CanvasFrame frame = new CanvasFrame("Sixi camera view", CanvasFrame.getDefaultGamma()/grabber.getGamma());
 
         // We can allocate native arrays using constructors taking an integer as argument.
         Point hatPoints = new Point(3);
         JavaCVDemo demo = new JavaCVDemo ();
 
+    	System.out.println("loop start");
+    	
         while (frame.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
             demo.findAndDrawPoints(grabbedImage);
 
@@ -87,12 +109,16 @@ public class JavaCVDemo {
             frame.showImage(rotatedFrame);
             //recorder.record(rotatedFrame);
         }
-        hatPoints.close();
+
+    	System.out.println("loop end");
+    	hatPoints.close();
         classifier.close();
         frame.dispose();
         grayImage.close();
         //recorder.stop();
         grabber.stop();
+        
+    	System.out.println("JavaCVDemo main() end");
 	}
 
 	static final int NUM_CORNERS_VER = 6;
@@ -103,10 +129,10 @@ public class JavaCVDemo {
 
     // calibration data
 	private Mat imageCorners = new Mat();
-	private List<Mat> imagePoints = new ArrayList<>();
-	private List<Mat> objectPoints = new ArrayList<>();
-	private Mat intrinsic = new Mat(3, 3, opencv_core.CV_32FC1);
-	private Mat distCoeffs = new Mat();
+	//private List<Mat> imagePoints = new ArrayList<>();
+	//private List<Mat> objectPoints = new ArrayList<>();
+	//private Mat intrinsic = new Mat(3, 3, opencv_core.CV_32FC1);
+	//private Mat distCoeffs = new Mat();
 	
     //private Mat oldGray = new Mat();
     //private static final int MAX_CORNERS = 500;
