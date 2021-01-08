@@ -10,6 +10,11 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.log.Log;
 
+/**
+ * Convenience methods for matrixes
+ * @author aggra
+ *
+ */
 public class MatrixHelper {	
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)
@@ -127,6 +132,7 @@ public class MatrixHelper {
 	/**
 	 * Confirms that this matrix is a rotation matrix.  Matrix A * transpose(A) should be the Identity.
 	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * Eulers are using the ZYX convention.
 	 * @param mat
 	 * @return
 	 */
@@ -142,6 +148,7 @@ public class MatrixHelper {
 	/**
 	 * Convert a matrix to Euler rotations.  There are many valid solutions.
 	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * Eulers are using the ZYX convention.
 	 * @param mat the Matrix3d to convert.
 	 * @return a Vector3d resulting radian rotations.  One possible solution.
 	 */
@@ -166,6 +173,7 @@ public class MatrixHelper {
 	/**
 	 * Convenience method to call matrixToEuler() with only the rotational component.
 	 * Assumes the rotational component is a valid rotation matrix.
+	 * Eulers are using the ZYX convention.
 	 * @param mat
 	 * @return a valid Euler solution to the matrix.
 	 */
@@ -178,6 +186,7 @@ public class MatrixHelper {
 	/**
 	 * Convert Euler rotations to a matrix.
 	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * Eulers are using the ZYX convention.
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
 	 */
