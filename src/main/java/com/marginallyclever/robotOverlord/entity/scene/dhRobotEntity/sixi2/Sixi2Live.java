@@ -154,12 +154,12 @@ public class Sixi2Live extends Entity {
 		// draw poseReceived first so it takes precedence in the z buffers
 		if(poseReceived!=null) {
 			model.setPoseFK(poseReceived);
-			model.setDiffuseColor(1, 0, 0, 1);
+			model.setDiffuseColor(0.4f, 0.4f, 1, 1);
 			model.render(gl2);
 		}
 		if(poseSent!=null) {
 			model.setPoseFK(poseSent);
-			model.setDiffuseColor(1, 0, 0, 0.25f);
+			model.setDiffuseColor(0.6f, 0.6f, 1, 0.25f);
 			model.render(gl2);
 		}		
 		super.render(gl2);
