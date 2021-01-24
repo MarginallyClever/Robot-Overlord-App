@@ -1,13 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.ServiceLoader;
 
 import javax.swing.filechooser.FileFilter;
@@ -81,11 +81,11 @@ public class ShapeEntity extends PoseEntity {
 		addChild(rotationAdjust);
 		addChild(originAdjust);
 		addChild(scale);
-
-		filename.addObserver(this);
-		rotationAdjust.addObserver(this);
-		originAdjust.addObserver(this);
-		scale.addObserver(this);
+				
+		filename.addPropertyChangeListener(this);
+		rotationAdjust.addPropertyChangeListener(this);
+		originAdjust.addPropertyChangeListener(this);
+		scale.addPropertyChangeListener(this);
 
 		addChild(numTriangles);
 		addChild(hasNormals);
@@ -185,8 +185,10 @@ public class ShapeEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
-		super.update(o, arg);
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
+		
 		if(filename==o) {
 			setShapeFilename(filename.get());
 		}
@@ -285,9 +287,9 @@ public class ShapeEntity extends PoseEntity {
 		}
 
 		ViewElementButton reloadButton = view.addButton("Reload");
-		reloadButton.addObserver(new Observer() {
+		reloadButton.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				reload();
 			}
 		});

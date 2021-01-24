@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.util.Observable;
+import java.beans.PropertyChangeEvent;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,7 +29,7 @@ public class SixiJoystick extends ShapeEntity {
 	
 	public SixiJoystick() {
 		setName("Sixi Joystick");
-		connection.addObserver(this);
+		connection.addPropertyChangeListener(this);
 	}
 	
 	// TODO this is trash.  if robot is deleted this link would do what, exactly?
@@ -49,8 +49,11 @@ public class SixiJoystick extends ShapeEntity {
 	}
 	
 	@Override
-	public void update(Observable obs,Object obj) {
-		if(obs == connection) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
+		
+		if(o == connection) {
 			if(lock.isLocked()) return;
 			lock.lock();
 			try {
@@ -69,7 +72,7 @@ public class SixiJoystick extends ShapeEntity {
 					}
 				}
 				if(target!=null) {
-					String message = (String)obj;
+					String message = (String)o;
 					//Log.message("JOY: "+message.trim());
 					
 					int i,j;
@@ -124,8 +127,6 @@ public class SixiJoystick extends ShapeEntity {
 				Sixi2Model m = (Sixi2Model) target.getModel();
 				m.setPoseFK(keyframe);
 				sc.setPoseWorld(m.getPoseIK());
-				// and notify observers so they update the ik pose.
-				sc.notifyObservers();
 			}
 		}
 		finally {

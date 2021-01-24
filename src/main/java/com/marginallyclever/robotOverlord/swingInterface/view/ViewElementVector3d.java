@@ -6,8 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.AbstractAction;
@@ -34,7 +34,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVec
  * @author Dan Royer
  *
  */
-public class ViewElementVector3d extends ViewElement implements DocumentListener, Observer {
+public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private JTextField [] fields = new JTextField[3];
 	private Vector3dEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -43,7 +43,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		super(ro);
 		this.e=e;
 
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		
 		JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEADING,0,0));
 		
@@ -151,10 +151,12 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		Object o = evt.getSource();
+		
 		if(lock.isLocked()) return;
 		lock.lock();
-		Vector3d input = (Vector3d)arg;
+		Vector3d input = (Vector3d)o;
 		fields[0].setText(StringHelper.formatDouble(input.x));
 		fields[1].setText(StringHelper.formatDouble(input.y));
 		fields[2].setText(StringHelper.formatDouble(input.z));

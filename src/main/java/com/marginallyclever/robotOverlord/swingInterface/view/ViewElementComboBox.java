@@ -3,8 +3,8 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeComboBox;
 
-public class ViewElementComboBox extends ViewElement implements ActionListener, Observer {
+public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
 	private JComboBox<String> field;
 	private IntEntity e;
 	
@@ -24,7 +24,7 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 		super(ro);
 		this.e=e;
 		
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		
 		field = new JComboBox<String>(listOptions);
 		field.setSelectedIndex(e.get());
@@ -57,8 +57,8 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	}
 
 	@Override
-	public void update(Observable arg0, Object arg1) {
-		field.setSelectedIndex((Integer)arg1);
+	public void propertyChange(PropertyChangeEvent evt) {
+		field.setSelectedIndex((Integer)evt.getNewValue());
 	}
 
 	@Override

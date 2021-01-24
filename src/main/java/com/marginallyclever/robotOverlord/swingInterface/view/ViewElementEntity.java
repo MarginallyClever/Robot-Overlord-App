@@ -5,10 +5,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -58,9 +57,9 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 		gbc.weightx=0;
 		panel.add(choose,gbc);
 		
-		e.addObserver(new Observer() {
+		e.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				field.setText(e.get());
 			}
 		});

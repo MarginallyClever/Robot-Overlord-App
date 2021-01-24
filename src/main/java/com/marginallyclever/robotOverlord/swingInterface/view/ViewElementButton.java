@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 
 import javax.swing.JButton;
 
@@ -38,7 +39,6 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		setChanged();
-		notifyObservers();
+		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"click",null,null));
 	}
 }

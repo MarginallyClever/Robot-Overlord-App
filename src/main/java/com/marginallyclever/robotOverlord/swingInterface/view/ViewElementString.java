@@ -1,8 +1,8 @@
 package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JLabel;
@@ -22,7 +22,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeStr
  * @author Dan Royer
  *
  */
-public class ViewElementString extends ViewElement implements DocumentListener, Observer {
+public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private JTextField field;
 	private StringEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -31,7 +31,7 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 		super(ro);
 		this.e=e;
 
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		
 		field = new FocusTextField(20);
 		field.setText(e.get());
@@ -76,10 +76,11 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 	 * entity changed, poke panel
 	 */
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		
 		if(lock.isLocked()) return;
 		lock.lock();
-		field.setText((String)arg);
+		field.setText((String)evt.getNewValue());
 		lock.unlock();
 	}
 

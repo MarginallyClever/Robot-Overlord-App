@@ -1,12 +1,12 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
@@ -64,9 +64,9 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		addChild(showLocalOrigin);
 		addChild(showLineage);
 
-		showBoundingBox.addObserver(this);
-		showLocalOrigin.addObserver(this);
-		showLineage.addObserver(this);
+		showBoundingBox.addPropertyChangeListener(this);
+		showLocalOrigin.addPropertyChangeListener(this);
+		showLineage.addPropertyChangeListener(this);
 		
 		pose.setIdentity();
 		poseWorld.setIdentity();
@@ -210,10 +210,13 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	 */
 	public void setPose(Matrix4d arg0) {
 		//if(!arg0.epsilonEquals(pose.get(), 1e-6)) {
+			Matrix4d oldValue = pose;
+			Matrix4d newValue = arg0;
+			
 			pose.set(arg0);
-			setChanged();
 			updatePoseWorld();
-			notifyObservers();
+			
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"pose",oldValue,newValue));
 		//}
 	}
 	
@@ -249,12 +252,12 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
-		if(o==showBoundingBox) setShowBoundingBox((boolean)arg);
-		if(o==showLocalOrigin) setShowLocalOrigin((boolean)arg);
-		if(o==showLineage) setShowLineage((boolean)arg);
-		
-		super.update(o, arg);
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
+		if(o==showBoundingBox) setShowBoundingBox((boolean)o);
+		if(o==showLocalOrigin) setShowLocalOrigin((boolean)o);
+		if(o==showLineage) setShowLineage((boolean)o);
 	}
 	
 	/**
@@ -442,16 +445,17 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		view.add(showLocalOrigin);
 		view.add(showLineage);
 		
-		view.addButton("Snap Z to major axis").addObserver(new Observer() {
+		view.addButton("Snap Z to major axis").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				snapZToMajorAxis();
 			}
 		});
 		
-		view.addButton("Snap X to major axis").addObserver(new Observer() {
+		view.addButton("Snap X to major axis").addPropertyChangeListener(new PropertyChangeListener() {
+			
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				snapXToMajorAxis();
 			}
 		});

@@ -5,8 +5,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.AbstractAction;
@@ -30,7 +30,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeDou
  * @author Dan Royer
  *
  */
-public class ViewElementDouble extends ViewElement implements DocumentListener, Observer {
+public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private JTextField field;
 	private DoubleEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -39,7 +39,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		super(ro);
 		this.e=e;
 		
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
@@ -132,10 +132,10 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {		
 		if(lock.isLocked()) return;
 		lock.lock();
-		field.setText(StringHelper.formatDouble((Double)arg));
+		field.setText(StringHelper.formatDouble((Double)evt.getNewValue()));
 		lock.unlock();		
 	}
 }

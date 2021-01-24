@@ -22,24 +22,16 @@ public class ColorEntity extends AbstractEntity<float[]> {
 	}
 
 	public ColorEntity(String name,double r,double g,double b,double a) {
-		super(new float[4]);
+		super(new float[] {(float)r,(float)g,(float)b,(float)a});
 		setName(name);
-		set(r,g,b,a);
 	}
 	
 	public ColorEntity(double r,double g,double b,double a) {
-		super(new float[4]);
-		set(r,g,b,a);
+		super(new float[] {(float)r,(float)g,(float)b,(float)a});
 	}
 
 	public void set(double r,double g,double b,double a) {
-		if(hasChanged()) return;
-		setChanged();
-		this.t[0]=(float)r;
-		this.t[1]=(float)g;
-		this.t[2]=(float)b;
-		this.t[3]=(float)a;
-		notifyObservers();
+		super.set(new float[] {(float)r,(float)g,(float)b,(float)a});
 	}
 
 	public void set(float [] newValue) {

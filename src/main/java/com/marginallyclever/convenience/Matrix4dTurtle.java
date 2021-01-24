@@ -2,7 +2,6 @@ package com.marginallyclever.convenience;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -11,8 +10,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.log.Log;
 
 
-public class Matrix4dTurtle extends Observable {
-
+public class Matrix4dTurtle {
 	public class InterpolationStep {		
 		public Matrix4d targetIK;
 		public double duration;
@@ -51,14 +49,12 @@ public class Matrix4dTurtle extends Observable {
 	protected transient InterpolationStep thisStepEnd;
 	
 	public Matrix4dTurtle() {
-		super();
 		thisStepStart=new InterpolationStep();
 		thisStepEnd=new InterpolationStep();
 		reset();
 	}
 	
 	public Matrix4dTurtle(Matrix4dTurtle b) {
-		super();
 		thisStepStart=new InterpolationStep();
 		thisStepEnd=new InterpolationStep();
 		set(b);

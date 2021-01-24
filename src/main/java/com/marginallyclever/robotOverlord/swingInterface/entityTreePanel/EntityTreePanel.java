@@ -104,7 +104,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 			tree.collapsePath(path);
 		}
 		
-		@SuppressWarnings("unchecked")
 		ArrayList<TreeNode> list = (ArrayList<TreeNode>)Collections.list(node.children());
 		for (TreeNode treeNode : list) {
 			setNodeExpandedState(tree, (EntityTreeNode)treeNode, expanded);

@@ -5,8 +5,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.AbstractAction;
@@ -29,7 +29,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt
  * @author Dan Royer
  *
  */
-public class ViewElementInt extends ViewElement implements DocumentListener, Observer {
+public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private JTextField field;
 	private IntEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -38,7 +38,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 		super(ro);
 		this.e=e;
 		
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
@@ -129,10 +129,10 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Obs
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
 		if(lock.isLocked()) return;
 		lock.lock();
-		Integer i = (Integer)arg;
+		Integer i = (Integer)evt.getNewValue();
 		field.setText(i.toString());
 		lock.unlock();
 	}

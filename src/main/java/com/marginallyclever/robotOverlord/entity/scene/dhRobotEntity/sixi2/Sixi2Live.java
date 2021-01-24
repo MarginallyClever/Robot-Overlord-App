@@ -1,10 +1,9 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.LinkedList;
-import java.util.Observable;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -47,7 +46,7 @@ public class Sixi2Live extends Entity {
 		
 		this.model = model;
 		
-		connection.addObserver(this);
+		connection.addPropertyChangeListener(this);
 		
 		readyForCommands = false;
 		waitingForOpenConnection = true;
@@ -68,11 +67,12 @@ public class Sixi2Live extends Entity {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
 		if(o == connection) {
-			readConnectionData((String)arg);
+			readConnectionData((String)evt.getNewValue());
 		}
-		super.update(o, arg);
 	}
 	
 	protected void readConnectionData(String data) {

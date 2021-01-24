@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
-import java.util.Observable;
-
+import java.beans.PropertyChangeEvent;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -26,8 +25,8 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	public Matrix4dEntity() {
 		super(new Matrix4d());
 		setName("Pose");
-		pos.addObserver(this);
-		rot.addObserver(this);
+		pos.addPropertyChangeListener(this);
+		rot.addPropertyChangeListener(this);
 	}
 	
 	public Matrix4dEntity(Matrix4d b) {
@@ -36,15 +35,18 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 	
 	public void setIdentity() {
-		setChanged();
+		Matrix4d oldValue = new Matrix4d(t);
 		t.setIdentity();
-		notifyObservers();
+		Matrix4d newValue = new Matrix4d(t);
+		
+		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"identity",oldValue,newValue));
 	}
 	
 	public void setTranslation(Vector3d trans) {
-		setChanged();
+		Matrix4d oldValue = new Matrix4d(t);
 		t.setTranslation(trans);
-		notifyObservers();
+		Matrix4d newValue = new Matrix4d(t);
+		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"position",oldValue,newValue));
 		pos.set(trans);
 	}
 	
@@ -53,9 +55,10 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 	
 	public void setRotation(Matrix3d m) {
-		setChanged();
+		Matrix4d oldValue = new Matrix4d(t);
 		t.setRotation(m);
-		notifyObservers();
+		Matrix4d newValue = new Matrix4d(t);
+		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"rotation",oldValue,newValue));
 		
 		Vector3d r = MatrixHelper.matrixToEuler(t);
 		rot.set(Math.toDegrees(r.x),
@@ -75,7 +78,9 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		
 		Matrix4d m4 = new Matrix4d();
 		Vector3d rDeg = rot.get();
 		Vector3d rRad = new Vector3d(
@@ -86,8 +91,6 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 		m4.set(m3);
 		m4.setTranslation(pos.get());
 		this.set(m4);
-		
-		super.update(o, arg);
 	}
 	
 	public void getRotation(Matrix3d rot) {

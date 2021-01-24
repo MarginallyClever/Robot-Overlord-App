@@ -5,8 +5,9 @@ import java.awt.Container;
 import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.Observable;
-
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,9 +19,13 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  * @since 1.6.0
  *
  */
-public class ViewElement extends Observable implements FocusListener {
+public class ViewElement implements FocusListener {
 	protected RobotOverlord ro;
 	protected JPanel panel = new JPanel();
+
+	// who is listening to me?
+	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<PropertyChangeListener>();
+	
 	
 	public ViewElement(RobotOverlord ro) {
 		this.ro=ro;
@@ -59,5 +64,19 @@ public class ViewElement extends Observable implements FocusListener {
 		Log.message("LOST "
 					+e.getComponent().getClass().getName() + " >> "
 					+e.getOppositeComponent().getClass().getName());//*/
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener p) {
+		propertyChangeListeners.add(p);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener p) {
+		propertyChangeListeners.remove(p);
+	}
+	
+	public void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
+		for( PropertyChangeListener p : propertyChangeListeners ) {
+			p.propertyChange(evt);
+		}
 	}
 }

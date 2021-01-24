@@ -1,10 +1,9 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam;
 
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.LinkedList;
-import java.util.Observable;
-
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -42,7 +41,7 @@ public class SkycamLive extends Entity {
 		
 		this.model = model;
 		
-		connection.addObserver(this);
+		connection.addPropertyChangeListener(this);
 		
 		readyForCommands = false;
 		waitingForOpenConnection = true;
@@ -62,11 +61,12 @@ public class SkycamLive extends Entity {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
 		if(o == connection) {
-			readConnectionData((String)arg);
+			readConnectionData((String)o);
 		}
-		super.update(o, arg);
 	}
 	
 	protected void readConnectionData(String data) {

@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.beans.PropertyChangeEvent;
+
 /**
  * A convenience class for basic data types
  * @author Dan Royer
@@ -39,10 +41,10 @@ public class AbstractEntity<T> extends Entity {
     
     public void set(T t) {
     	if( this.t==null || !this.t.equals(t) ) {
-        	if(hasChanged()) return;
-	    	setChanged();
+    		T oldValue = this.t;
 	    	this.t = t;
-	    	notifyObservers(t);
+    		T newValue = t;
+    		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"identity",oldValue,newValue));
     	}
     }
 	

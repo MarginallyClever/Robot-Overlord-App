@@ -3,8 +3,8 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,7 +23,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeCol
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewElementColor extends ViewElement implements ChangeListener, Observer {
+public class ViewElementColor extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private JSlider [] fields = new JSlider[4];
 	private ColorEntity e;
 	
@@ -31,7 +31,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 		super(ro);
 		this.e=e;
 
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		CollapsiblePanel p = new CollapsiblePanel(e.getName());
 		JPanel p2 = p.getContentPane();
 		p2.setLayout(new GridBagLayout());
@@ -84,7 +84,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Obs
 	 * entity changed, poke panel
 	 */
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {		
 		float [] newValues = e.getFloatArray();
 		
 		for(int i=0;i<newValues.length;++i) {

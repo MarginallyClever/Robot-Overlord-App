@@ -5,11 +5,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -29,7 +29,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class ViewElementFilename extends ViewElement implements ActionListener, Observer {
+public class ViewElementFilename extends ViewElement implements ActionListener {
 	private static String lastPath=System.getProperty("user.dir");
 	private JTextField field;
 	private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
@@ -71,9 +71,9 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 		gbc.weightx=0;
 		panel.add(choose,gbc);
 		
-		e.addObserver(new Observer() {
+		e.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				field.setText(e.get());
 			}
 		});
@@ -121,14 +121,6 @@ public class ViewElementFilename extends ViewElement implements ActionListener, 
 		filters.addAll(arg0);
 	}
 
-	/**
-	 * entity has changed, update panel
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void setReadOnly(boolean arg0) {

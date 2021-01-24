@@ -1,13 +1,12 @@
 package com.marginallyclever.robotOverlord.entity;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -18,7 +17,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class Entity extends Observable implements Observer, Cloneable, Serializable {
+public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	/**
 	 * 
 	 */
@@ -32,6 +31,9 @@ public class Entity extends Observable implements Observer, Cloneable, Serializa
 	// my parent
 	protected transient Entity parent;
 
+	// who is listening to me?
+	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<PropertyChangeListener>();
+	
 	
 	public Entity() {
 		super();
@@ -225,13 +227,6 @@ public class Entity extends Observable implements Observer, Cloneable, Serializa
 	}
 
 	/**
-	 * Something this Entity is observing has changed. Deal with it!
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-	}
-
-	/**
 	 * Override this to let the user rename entities of this type
 	 * 
 	 * @return
@@ -274,6 +269,26 @@ public class Entity extends Observable implements Observer, Cloneable, Serializa
 		for(int i=0;i<count;++i) {
 			Entity child = (Entity)stream.readObject();
 			addChild(child);
+		}
+	}
+
+	/**
+	 * Something this Entity is observing has changed. Deal with it!
+	 */
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {}
+	
+	public void addPropertyChangeListener(PropertyChangeListener p) {
+		propertyChangeListeners.add(p);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener p) {
+		propertyChangeListeners.remove(p);
+	}
+	
+	public void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
+		for( PropertyChangeListener p : propertyChangeListeners ) {
+			p.propertyChange(evt);
 		}
 	}
 }

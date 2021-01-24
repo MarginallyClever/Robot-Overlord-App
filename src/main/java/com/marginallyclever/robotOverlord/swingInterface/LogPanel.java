@@ -88,11 +88,6 @@ public class LogPanel implements LogListener, ActionListener, KeyListener {
 	}
 
 
-	public void finalize() throws Throwable  {
-		super.finalize();
-		Log.removeListener(this);
-	}
-
 	private JPanel getTextInputField() {
 		textInputArea = new JPanel();
 		textInputArea.setLayout(new GridBagLayout());

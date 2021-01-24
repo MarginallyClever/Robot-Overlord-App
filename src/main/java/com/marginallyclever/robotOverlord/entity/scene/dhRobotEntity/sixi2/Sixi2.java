@@ -1,14 +1,13 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Matrix4d;
@@ -137,7 +136,9 @@ public class Sixi2 extends PoseEntity {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
 		if(o==cursor) {
 			// model state is dirty.  Set it to cursor.poseFK, which is *pretty close* to cursor.pose
 			model.setPoseFK(cursor.getPoseFK());
@@ -147,7 +148,6 @@ public class Sixi2 extends PoseEntity {
 				cursor.setPoseFK(model.getPoseFK());
 			}
 		}
-		super.update(o, arg);
 	}
 	
 	@Override
@@ -157,32 +157,32 @@ public class Sixi2 extends PoseEntity {
 		fileFilter.add(new FileNameExtensionFilter("Sixi2", "sixi2"));
 		
 		view.pushStack("S", "Sixi");
-		view.addButton("Go Home").addObserver(new Observer() {
+		view.addButton("Go Home").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				model.goHome();
 				sim.setPoseTo(model.getPoseFK());
 				cursor.setPoseIK(model.getPoseIK());
 				cursor.setPoseFK(model.getPoseFK());
 			}
 		});
-		view.addButton("Append").addObserver(new Observer() {
+		view.addButton("Append").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				queueDestination((Sixi2Command)cursor.clone());
 			}
 		});
-		view.addButton("Time estimate").addObserver(new Observer() {
+		view.addButton("Time estimate").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				double t = getTimeEstimate();
 				Log.message("Time estimate: "+StringHelper.formatTime(t));
 			}
 		});
 		view.addFilename(filename,fileFilter);
-		view.addButton("New").addObserver(new Observer() {
+		view.addButton("New").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				if(isPlaying) return;
 				clearAllCommands();
 
@@ -192,9 +192,9 @@ public class Sixi2 extends PoseEntity {
 				((RobotOverlord)getRoot()).updateEntityTree();
 			}
 		});
-		view.addButton("Save").addObserver(new Observer() {
+		view.addButton("Save").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				Log.message("Saving started.");
 				try {
 					String f = filename.get();
@@ -210,9 +210,9 @@ public class Sixi2 extends PoseEntity {
 				Log.message("Saving finished.");
 			}
 		});
-		view.addButton("Load").addObserver(new Observer() {
+		view.addButton("Load").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				if(isPlaying) return;
 				Log.message("Loading started.");
 				try {
@@ -224,16 +224,16 @@ public class Sixi2 extends PoseEntity {
 				Log.message("Loading finished.");
 			}
 		});
-		view.addButton("Run").addObserver(new Observer() {
+		view.addButton("Run").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable arg0, Object arg1) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				runProgram();
 			}
 			
 		});
-		view.addButton("Stop").addObserver(new Observer() {
+		view.addButton("Stop").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable arg0, Object arg1) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				stopProgram();
 			}
 		});
@@ -392,13 +392,13 @@ public class Sixi2 extends PoseEntity {
 	 */
 	public void setCursor(Sixi2Command sixi2Command) {
 		if(cursor != null)
-			cursor.deleteObserver(this);
+			cursor.removePropertyChangeListener(this);
 		
 		model.setCommand(sixi2Command);
 		cursor = sixi2Command;
 		
 		if(cursor != null)
-			cursor.addObserver(this);
+			cursor.addPropertyChangeListener(this);
 	}
 
 	public Sixi2Command getCursor() {

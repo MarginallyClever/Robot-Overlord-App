@@ -3,8 +3,9 @@ package com.marginallyclever.robotOverlord;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,9 +23,26 @@ public class ObserverTest extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	class ObservableModel extends Observable {
+	class ObservableModel {
 		protected int value;
 		protected int max,min;
+
+		// who is listening to me?
+		protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<PropertyChangeListener>();
+		
+		public void addPropertyChangeListener(PropertyChangeListener p) {
+			propertyChangeListeners.add(p);
+		}
+		
+		public void removePropertyChangeListener(PropertyChangeListener p) {
+			propertyChangeListeners.remove(p);
+		}
+		
+		public void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
+			for( PropertyChangeListener p : propertyChangeListeners ) {
+				p.propertyChange(evt);
+			}
+		}
 
 		public ObservableModel(int min,int max,int value) {
 			this.min=min;
@@ -40,13 +58,14 @@ public class ObserverTest extends JPanel {
 			System.out.println("setState("+newValue+")");
 			if(newValue<min) return;
 			if(newValue>max) return;
-			setChanged();
+			int oldValue = value;
 			this.value = newValue;
-			notifyObservers(newValue);
+
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"state",oldValue,newValue));
 		}
 	}
 	
-	class ObservingField extends JPanel implements Observer, ChangeListener {
+	class ObservingField extends JPanel implements PropertyChangeListener, ChangeListener {
 		/**
 		 * 
 		 */
@@ -61,7 +80,7 @@ public class ObserverTest extends JPanel {
 			setLayout(new BorderLayout());
 			this.mod=mod;
 			field = new JSlider(mod.min,mod.max,mod.getValue());
-			mod.addObserver(this);
+			mod.addPropertyChangeListener(this);
 			field.addChangeListener(this);
 
 			buttonAdd.addActionListener(new ActionListener() {
@@ -85,8 +104,8 @@ public class ObserverTest extends JPanel {
 		}
 		
 		@Override
-		public void update(Observable arg0, Object arg1) {
-			int v = (int)arg1;
+		public void propertyChange(PropertyChangeEvent evt) {
+			int v = (int)evt.getNewValue();
 			System.out.println("update("+v+")");
 			field.setValue(v);
 			label.setText(Integer.toString(v));

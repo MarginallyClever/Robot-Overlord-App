@@ -3,8 +3,6 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JButton;
 
@@ -17,7 +15,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class ViewElementRemote extends ViewElement implements ActionListener, Observer {
+public class ViewElementRemote extends ViewElement implements ActionListener {
 	private JButton field;
 	private RemoteEntity e;
 
@@ -48,14 +46,6 @@ public class ViewElementRemote extends ViewElement implements ActionListener, Ob
 		}
 	}
 
-	/**
-	 * entity has changed, update panel
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void setReadOnly(boolean arg0) {

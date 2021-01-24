@@ -1,9 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-import java.util.Observable;
-
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -32,9 +31,9 @@ public class BoxEntity extends ShapeEntity {
 		addChild(height);
 		addChild(depth);
 		
-		width.addObserver(this);
-		height.addObserver(this);
-		depth.addObserver(this);
+		width.addPropertyChangeListener(this);
+		height.addPropertyChangeListener(this);
+		depth.addPropertyChangeListener(this);
 		
 		shape = new Shape();
 	}
@@ -49,9 +48,9 @@ public class BoxEntity extends ShapeEntity {
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
 		updateCuboid();
-		super.update(o, arg);
 	}
 	
 	private void updateCuboid() {

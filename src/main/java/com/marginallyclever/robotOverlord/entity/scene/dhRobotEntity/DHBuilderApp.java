@@ -1,12 +1,11 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.IntBuffer;
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.JFileChooser;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -62,7 +61,7 @@ public class DHBuilderApp extends DHRobotModel {
 		
 		endEffector.setName("End Effector");
 		links.get(links.size()-1).addChild(endEffector);
-		endEffector.addObserver(this);
+		endEffector.addPropertyChangeListener(this);
 		
 		addChild(anchor);
 		anchor.setName("Anchor");
@@ -78,7 +77,7 @@ public class DHBuilderApp extends DHRobotModel {
 		endEffectorTarget.setName("End Effector Target");
 		addChild(endEffectorTarget);
 		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
-		endEffectorTarget.addObserver(this);
+		endEffectorTarget.addPropertyChangeListener(this);
 		
 		addChild(mat);
 	}
@@ -131,19 +130,20 @@ public class DHBuilderApp extends DHRobotModel {
 	protected boolean eeLock=false;
 	
 	@Override
-	public void update(Observable obs, Object obj) {
-		if(obs==endEffectorTarget && eeLock==false) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
+		
+		if(o==endEffectorTarget && eeLock==false) {
 			eeLock=true;
 			this.setPoseIK(endEffectorTarget.getPoseWorld());
 			eeLock=false;
 		}
-		if(obs==endEffector && eeLock==false) {
+		if(o==endEffector && eeLock==false) {
 			eeLock=true;
 			endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 			eeLock=false;
 		}
-		
-		super.update(obs,obj);
 	}
 
 	protected static String LAST_PATH = System.getProperty("user.dir");
@@ -154,9 +154,9 @@ public class DHBuilderApp extends DHRobotModel {
 		view.pushStack("BA", "Builder App");
 		
 		ViewElementButton bindButton = (ViewElementButton)view.addButton(inTest ? "Stop test":"Start test");
-		bindButton.addObserver(new Observer() {
+		bindButton.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable arg0, Object arg1) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				if(!inTest) {
 					testStart();
 					bindButton.setText("Stop test");
@@ -170,9 +170,9 @@ public class DHBuilderApp extends DHRobotModel {
 		});
 
 		ViewElement lockButton = view.addButton("Lock");
-		lockButton.addObserver(new Observer() {
+		lockButton.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable arg0, Object arg1) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				for(int i=0;i<links.size();++i) {
 					DHLink bone=links.get(i);
 					bone.flags = LinkAdjust.THETA;
@@ -181,9 +181,9 @@ public class DHBuilderApp extends DHRobotModel {
 		});
 		
 		ViewElement saveButton = view.addButton("Save");
-		saveButton.addObserver(new Observer() {
+		saveButton.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable arg0, Object arg1) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				//private static 
 				RobotOverlord ro = (RobotOverlord)getRoot();
 
@@ -198,9 +198,9 @@ public class DHBuilderApp extends DHRobotModel {
 		});
 
 		ViewElement loadButton = view.addButton("Load");
-		loadButton.addObserver(new Observer() {
+		loadButton.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable arg0, Object arg1) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				//private static 
 				RobotOverlord ro = (RobotOverlord)getRoot();
 

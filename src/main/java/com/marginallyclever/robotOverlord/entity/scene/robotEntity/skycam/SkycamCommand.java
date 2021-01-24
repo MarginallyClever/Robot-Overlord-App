@@ -1,9 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
@@ -43,17 +42,17 @@ public class SkycamCommand extends PoseEntity implements Cloneable, EntityFocusL
 		
 		final SkycamCommand sc = this;
 		
-		view.addButton("Copy").addObserver(new Observer() {
+		view.addButton("Copy").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				Skycam myParent = findParentSkycam();
 				if(myParent==null) return;
 				myParent.queueDestination(sc);
 			}
 		});
-		view.addButton("Goto").addObserver(new Observer() {
+		view.addButton("Goto").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				Skycam e = findParentSkycam();
 				if(e==null) return;
 				e.goTo(sc);

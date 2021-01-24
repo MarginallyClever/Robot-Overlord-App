@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.basicDataTypes;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -263,8 +264,6 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 
 	@Override
 	public void dataAvailable(NetworkSession arg0, String data) {
-		setChanged();
-
 		reportDataReceived(data);
 		
 		if (data.startsWith("> ")) {
@@ -278,7 +277,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		} else {
 			// no error
 			if(!data.trim().equals(CUE.trim())) {
-				notifyObservers(data);
+				notifyPropertyChangeListeners(new PropertyChangeEvent(this, "data", null, data));
 			}
 		}
 	}

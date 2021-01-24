@@ -2,9 +2,8 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.Observable;
-import java.util.Observer;
-
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -20,7 +19,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewElementSlider extends ViewElement implements ChangeListener, Observer {
+public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private JSlider field;
 	private JLabel value;
 	private IntEntity e;
@@ -29,7 +28,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 		super(ro);
 		this.e=e;
 
-		e.addObserver(this);
+		e.addPropertyChangeListener(this);
 		
 		field = new JSlider();
 		field.setMaximum(top);
@@ -56,8 +55,8 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Ob
 	 * entity changed, poke panel
 	 */
 	@Override
-	public void update(Observable o, Object arg) {
-		field.setValue((Integer)arg);
+	public void propertyChange(PropertyChangeEvent evt) {
+		field.setValue((Integer)evt.getNewValue());
 		value.setText(Integer.toString(field.getValue()));
 	}
 

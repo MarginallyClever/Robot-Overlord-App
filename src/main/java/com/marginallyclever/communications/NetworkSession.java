@@ -17,11 +17,6 @@ public abstract class NetworkSession {
 	protected NetworkSession() {
 		listeners = new ArrayList<NetworkSessionListener>();
 	}
-
-	protected void finalize() throws Throwable {
-		listeners.clear();
-		super.finalize();
-	}
 	
 	// close this connection
 	abstract public void closeConnection();

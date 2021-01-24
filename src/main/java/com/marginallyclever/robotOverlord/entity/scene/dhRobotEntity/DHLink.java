@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
-import java.util.Observable;
+import java.beans.PropertyChangeEvent;
 
 import javax.vecmath.Matrix4d;
 
@@ -98,10 +98,10 @@ public class DHLink extends ShapeEntity {
 		addChild(theta);
 		addChild(alpha);
 		
-		d.addObserver(this);
-		r.addObserver(this);
-		theta.addObserver(this);
-		alpha.addObserver(this);
+		d.addPropertyChangeListener(this);
+		r.addPropertyChangeListener(this);
+		theta.addPropertyChangeListener(this);
+		alpha.addPropertyChangeListener(this);
 		
 		addChild(rangeMin);
 		addChild(rangeMax);
@@ -480,8 +480,8 @@ public class DHLink extends ShapeEntity {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
-		super.update(o, arg);
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
 		refreshPoseMatrix();
 	}
 	

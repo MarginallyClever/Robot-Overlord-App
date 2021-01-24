@@ -3,8 +3,9 @@ package com.marginallyclever.robotOverlord;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -21,22 +22,39 @@ public class ObserverTest2 extends JPanel {
 	private static final long serialVersionUID = 1L;
 	GridBagConstraints gbc;
 	
-	class ObservableModel extends Observable {
+	class ObservableModel {
 		protected boolean state;
+
+		// who is listening to me?
+		protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<PropertyChangeListener>();
+		
+		public void addPropertyChangeListener(PropertyChangeListener p) {
+			propertyChangeListeners.add(p);
+		}
+		
+		public void removePropertyChangeListener(PropertyChangeListener p) {
+			propertyChangeListeners.remove(p);
+		}
+		
+		public void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
+			for( PropertyChangeListener p : propertyChangeListeners ) {
+				p.propertyChange(evt);
+			}
+		}
 
 		public boolean isState() {
 			return state;
 		}
 
-		public void setState(boolean state) {
-			System.out.println("setState("+state+")");
-			setChanged();
-			this.state = state;
-			notifyObservers(state);
+		public void setState(boolean newValue) {
+			boolean oldValue = this.state;
+			System.out.println("setState("+newValue+")");
+			this.state = newValue;
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"state",oldValue,newValue));
 		}
 	}
 	
-	class ObservingField extends JCheckBox implements Observer, ActionListener {
+	class ObservingField extends JCheckBox implements PropertyChangeListener, ActionListener {
 		/**
 		 * 
 		 */
@@ -46,12 +64,13 @@ public class ObserverTest2 extends JPanel {
 		public ObservingField(ObservableModel mod) {
 			super();
 			this.mod=mod;
-			mod.addObserver(this);
+			mod.addPropertyChangeListener(this);
 			addActionListener(this);
 		}
-		
+
 		@Override
-		public void update(Observable arg0, Object arg1) {
+		public void propertyChange(PropertyChangeEvent evt) {
+			Object arg1 = evt.getNewValue();
 			System.out.println("update("+arg1+")");
 			setSelected((boolean)arg1);
 		}

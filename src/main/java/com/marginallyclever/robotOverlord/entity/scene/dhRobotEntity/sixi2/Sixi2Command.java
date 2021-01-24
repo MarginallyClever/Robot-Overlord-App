@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Matrix4d;
 
@@ -85,17 +85,17 @@ public class Sixi2Command extends Entity implements EntityFocusListener, Moveabl
 		
 		final Sixi2Command sc = this;
 		
-		view.addButton("Copy").addObserver(new Observer() {
+		view.addButton("Copy").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				Sixi2 e = findParentSixi2();
 				if(e==null) return;
 				e.queueDestination(sc);
 			}
 		});
-		view.addButton("Goto").addObserver(new Observer() {
+		view.addButton("Goto").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
-			public void update(Observable o, Object arg) {
+			public void propertyChange(PropertyChangeEvent evt) {
 				Sixi2 e = findParentSixi2();
 				if(e==null) return;
 				e.goTo(sc);
@@ -195,9 +195,10 @@ public class Sixi2Command extends Entity implements EntityFocusListener, Moveabl
 		Matrix4d newPose = new Matrix4d();
 		newPose.mul(m,mt);
 		
-		setChanged();
+		Matrix4d oldPose = getPoseWorld();
 		poseIK.set(newPose);
-		notifyObservers();
+		
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"poseWorld",oldPose,newPose));
 	}
 
 	/**
@@ -226,8 +227,9 @@ public class Sixi2Command extends Entity implements EntityFocusListener, Moveabl
 
 	// set pose of finger tip (not including tool)
 	public void setPoseIK(Matrix4d m) {
-		setChanged();
+		Matrix4d oldValue = new Matrix4d(poseIK);
 		poseIK.set(m);
-		notifyObservers();
+		
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"poseIK",oldValue,m));
 	}
 }

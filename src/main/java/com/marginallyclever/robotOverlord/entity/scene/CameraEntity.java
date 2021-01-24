@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
-import java.util.Observable;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
@@ -16,7 +17,7 @@ import com.jogamp.opengl.GL2;
  * Camera in the world.  Has no physical presence.  Has location and direction.
  * @author Dan Royer
  */
-public class CameraEntity extends PoseEntity {
+public class CameraEntity extends PoseEntity implements PropertyChangeListener {
 	/**
 	 * 
 	 */
@@ -42,8 +43,8 @@ public class CameraEntity extends PoseEntity {
 		addChild(snapDeadZone);
 		addChild(snapDegrees);
 		
-		pan.addObserver(this);
-		tilt.addObserver(this);
+		pan.addPropertyChangeListener(this);
+		tilt.addPropertyChangeListener(this);
 	}
 	
 	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -59,9 +60,9 @@ public class CameraEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
 		setRotation(buildPanTiltMatrix(pan.get(),tilt.get()));
-		super.update(o, arg);
 	}
 
 	@Override

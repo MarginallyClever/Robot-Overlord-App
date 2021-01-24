@@ -1,9 +1,8 @@
 package com.marginallyclever.robotOverlord.entity.scene;
 
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-import java.util.Observable;
-
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -35,8 +34,8 @@ public class DecalEntity extends ShapeEntity {
 		addChild(width);
 		addChild(height);
 		
-		width.addObserver(this);
-		height.addObserver(this);
+		width.addPropertyChangeListener(this);
+		height.addPropertyChangeListener(this);
 		
 		shape = new Shape();
 	}
@@ -51,9 +50,9 @@ public class DecalEntity extends ShapeEntity {
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
 		updatePlane();
-		super.update(o, arg);
 	}
 	
 	private void updatePlane() {
