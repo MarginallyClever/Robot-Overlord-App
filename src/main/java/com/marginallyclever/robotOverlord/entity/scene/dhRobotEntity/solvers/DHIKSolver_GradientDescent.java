@@ -98,7 +98,11 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		link.refreshPoseMatrix();
 
 		if( FxMinusD > Fx && FxPlusD > Fx ) {
-			samplingDistances[i] *= 2.0/3.0;
+			if( Fx == 0 ) {
+				samplingDistances[i] *= 2.0/3.0;
+			} else {
+				samplingDistances[i] *= Math.min(FxMinusD, FxPlusD) / Fx;
+			}
 			return 0;
 		}
 		
