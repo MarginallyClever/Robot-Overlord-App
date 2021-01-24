@@ -528,7 +528,8 @@ public class MiscTests {
 				if(model.setPoseIK(m)) {
 					keyframe.set(model.getPoseFK());
 					// matrix m has a sane solution (is reachable)
-					double [][] jacobian = model.approximateJacobian(keyframe);
+					//was double [][] jacobian = model.approximateJacobian(keyframe);
+					double [][] jacobian = model.exactJacobian(keyframe);
 					double [][] inverseJacobian = MatrixHelper.invert(jacobian);
 					
 					out.write(m.m03+"\t"+m.m13+"\t"+m.m23+"\t");

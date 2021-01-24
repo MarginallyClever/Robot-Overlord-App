@@ -82,7 +82,10 @@ public class Sixi2Tester {
 		Sixi2Model robot = new Sixi2Model();
 		//robot.goHome();
 		PoseFK keyframe = robot.getPoseFK();
-		double [][] aj = robot.approximateJacobian(keyframe);
+		
+		//was double [][] aj = robot.approximateJacobian(keyframe);
+		double [][] aj = robot.exactJacobian(keyframe);
+		
 		for( int y=0;y<aj.length;++y ) {
 			for( int x=0;x<aj[y].length;++x ) {
 				assert(!Double.isNaN(aj[y][x]));
@@ -91,6 +94,28 @@ public class Sixi2Tester {
 		System.out.println("TestApproximateJacobian() end");
 	}
 
+
+	/**
+	 * Compare approximate and exact Jacobian matrixes 
+	 */
+	@Test
+	public void CompareJacobians() {
+		System.out.println("CompareJacobians() start");
+		Sixi2Model robot = new Sixi2Model();
+		//robot.goHome();
+		PoseFK keyframe = robot.getPoseFK();
+		double [][] aj1 = robot.approximateJacobian(keyframe);
+		double [][] aj2 = robot.exactJacobian(keyframe);
+		double diff=0;
+		for( int y=0;y<aj1.length;++y ) {
+			for( int x=0;x<aj1[y].length;++x ) {
+				diff += Math.abs(aj1[y][x]-aj2[y][x]);
+			}
+		}
+		System.out.println("CompareJacobians() end.  Diff = "+diff);
+	}
+	
+	
 	@Test
 	public void TestSerialize() throws Exception {
 		Sixi2 a = new Sixi2();
