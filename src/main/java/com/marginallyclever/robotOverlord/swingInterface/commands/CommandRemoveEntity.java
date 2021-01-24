@@ -29,7 +29,7 @@ public class CommandRemoveEntity extends AbstractAction {
 		super(Translator.get("Remove Entity"));
         putValue(AbstractAction.SHORT_DESCRIPTION, Translator.get("Remove the selected entity from the world."));
         //putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, ActionEvent.CTRL_MASK));
-        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_DELETE));
+        putValue(Action.MNEMONIC_KEY, KeyEvent.VK_DELETE);
         
 		this.ro = ro;
 	}

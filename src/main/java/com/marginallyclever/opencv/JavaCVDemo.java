@@ -2,14 +2,11 @@ package com.marginallyclever.opencv;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacpp.*;
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
-import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_calib3d;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import static org.bytedeco.opencv.global.opencv_core.*;
@@ -125,7 +122,7 @@ public class JavaCVDemo {
 	static final int NUM_CORNERS_HOR = 9;
 	private int successes=0;
 	private  int boardsNumber=10;
-	private  boolean isCalibrated=false;
+	//private  boolean isCalibrated=false;
 
     // calibration data
 	private Mat imageCorners = new Mat();

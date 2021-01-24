@@ -278,6 +278,7 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
 		</dependency>
+		
 		<!-- https://github.com/java-native/jssc/ -->
 		<dependency>
 			<groupId>io.github.java-native</groupId>
@@ -288,6 +289,7 @@
 			<systemPath>${project.basedir}/local-maven-repo/jssc-2.9.1.jar</systemPath>
 			-->
 		</dependency>
+		
 		<!--
 		<dependency>
 		 	<groupId>org.jogamp.fat</groupId>
@@ -296,11 +298,13 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/local-maven-repo/jogamp-fat-2.4.0.jar</systemPath> 
 		</dependency> -->
+		
 		<dependency>
 			<groupId>org.jogamp.gluegen</groupId>
 			<artifactId>gluegen-rt-main</artifactId>
 			<version>2.3.2</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.jogamp.jogl</groupId>
 			<artifactId>jogl-all-main</artifactId>
@@ -312,6 +316,14 @@
 		  	<artifactId>javacv-platform</artifactId>
 		  	<version>1.5.4</version>
 		</dependency>
+	
+		<!--  alt opencv 	
+	    <dependency>
+	      <groupId>org.openpnp</groupId>
+	      <artifactId>opencv</artifactId>
+	      <version>4.3.0-3</version>
+	    </dependency>
+		-->
 	  
 		<!-- https://mvnrepository.com/artifact/net.sourceforge/kabeja -->
 		<!-- http://kabeja.sourceforge.net/download/download.html --><!-- 
@@ -442,7 +454,7 @@
   <repositories>
   	<repository>
   		<id>my-local-repo</id>
-  		<url>file://${project.basedir}/java/local-maven-repo</url>
+  		<url>file://${project.basedir}/local-maven-repo</url>
     </repository>
     <repository>
     	<id>openkm</id>
