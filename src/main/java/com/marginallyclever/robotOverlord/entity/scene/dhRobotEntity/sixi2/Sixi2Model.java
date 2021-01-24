@@ -252,9 +252,10 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 	}
 	
 	/**
+	 * Return the Jacobian matrix for Sixi at a given FK pose.
 	 * Courtesy of https://github.com/MichaelRyanGreer/Instructional/blob/main/inverse_kinematics/inverse_kinematics_DH_parameters.ipynb
-	 * @param keyframe
-	 * @return
+	 * @param keyframe joint angles
+	 * @return 6x6 jacobian matrix 
 	 */
 	public double [][] exactJacobian(PoseFK keyframe) {
 		double s1=Math.sin(keyframe.fkValues[0]);
@@ -270,44 +271,49 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		double c4=Math.cos(keyframe.fkValues[3]);
 		double c5=Math.cos(keyframe.fkValues[4]);
 		double c23 = Math.cos(keyframe.fkValues[1]+keyframe.fkValues[2]);
+
+		double r1 = links.get(1).getR();
+		double r2 = links.get(2).getR();
+		double d3 = links.get(3).getD();
+		double d5d6 = links.get(5).getD() + links.get(6).getD();
 		
 		double [][] jacobian = {
 			{
-				6.545*s1*s5*c4*c23+6.545*s1*s23*c5+38.705*s1*s23-35.796*s1*c2-6.4259*s1*c23-6.545*s4*s5*c1,
-				-6.545*s1*s4*s5-6.545*s5*c1*c4*c23-6.545*s23*c1*c5-38.705*s23*c1+35.796*c1*c2+6.4259*c1*c23,
+				d5d6*s1*s5*c4*c23+d5d6*s1*s23*c5+d3*s1*s23-r1*s1*c2-r2*s1*c23-d5d6*s4*s5*c1,
+				-d5d6*s1*s4*s5-d5d6*s5*c1*c4*c23-d5d6*s23*c1*c5-d3*s23*c1+r1*c1*c2+r2*c1*c23,
 				0,
 				0,
 				0,
 				1,
 			},
 			{ 
-				-(35.796*s2-6.545*s5*s23*c4+6.4259*s23+6.545*c5*c23+38.705*c23)*c1,
-				-(35.796*s2-6.545*s5*s23*c4+6.4259*s23+6.545*c5*c23+38.705*c23)*s1,
-				6.545*s5*c4*c23+6.545*s23*c5+38.705*s23-35.796*c2-6.4259*c23,
+				-(r1*s2-d5d6*s5*s23*c4+r2*s23+d5d6*c5*c23+d3*c23)*c1,
+				-(r1*s2-d5d6*s5*s23*c4+r2*s23+d5d6*c5*c23+d3*c23)*s1,
+				d5d6*s5*c4*c23+d5d6*s23*c5+d3*s23-r1*c2-r2*c23,
 				-s1,
 				c1,
 				0
 			},
 			{
-				(6.545*s5*s23*c4-6.4259*s23-6.545*c5*c23-38.705*c23)*c1,
-				(6.545*s5*s23*c4-6.4259*s23-6.545*c5*c23-38.705*c23)*s1,
-				6.545*s5*c4*c23+6.545*s23*c5+38.705*s23-6.4259*c23,
+				(d5d6*s5*s23*c4-r2*s23-d5d6*c5*c23-d3*c23)*c1,
+				(d5d6*s5*s23*c4-r2*s23-d5d6*c5*c23-d3*c23)*s1,
+				d5d6*s5*c4*c23+d5d6*s23*c5+d3*s23-r2*c23,
 				-s1,
 				c1,
 				0
 			},
 			{
-				6.545*(-s1*c4+s4*c1*c23)*s5,
-				6.545*(s1*s4*c23+c1*c4)*s5,
-				-6.545*s4*s5*s23,
+				d5d6*(-s1*c4+s4*c1*c23)*s5,
+				d5d6*(s1*s4*c23+c1*c4)*s5,
+				-d5d6*s4*s5*s23,
 				-s23*c1,
 				-s1*s23,
 				-c23
 			},
 			{
-				-6.545*s1*s4*c5+6.545*s5*s23*c1-6.545*c1*c4*c5*c23,
-				6.545*s1*s5*s23-6.545*s1*c4*c5*c23+6.545*s4*c1*c5,
-				6.545*s5*c23+6.545*s23*c4*c5,
+				-d5d6*s1*s4*c5+d5d6*s5*s23*c1-d5d6*c1*c4*c5*c23,
+				d5d6*s1*s5*s23-d5d6*s1*c4*c5*c23+d5d6*s4*c1*c5,
+				d5d6*s5*c23+d5d6*s23*c4*c5,
 				-s1*c4+s4*c1*c23,
 				s1*s4*c23+c1*c4,
 				-s4*s23
@@ -329,6 +335,8 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 	/**
 	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
 	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
+	 * @param keyframe joint angles
+	 * @return 6x6 jacobian matrix 
 	 */
 	public double [][] approximateJacobian(PoseFK keyframe) {
 		double [][] jacobian = new double[6][6];
