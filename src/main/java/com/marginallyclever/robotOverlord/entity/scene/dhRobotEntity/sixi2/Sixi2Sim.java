@@ -31,6 +31,7 @@ public class Sixi2Sim extends Entity {
 	// the sequence of poses to drive towards.
 	protected LinkedList<Sixi2SimSegment> queue = new LinkedList<Sixi2SimSegment>();
 	protected boolean readyForCommands;
+	protected double previousSafeSpeed = 0;
 
 	public Sixi2Sim(DHRobotModel model) {
 		super("Sixi2 Sim");
@@ -250,7 +251,7 @@ public class Sixi2Sim extends Entity {
 				}
 				
 				double vmax_junction_threshold = vmax_junction * 0.99;
-				if( // previous_safe_speed > vmax_junction_threshold &&
+				if( previousSafeSpeed > vmax_junction_threshold &&
 				    safeSpeed > vmax_junction_threshold ) {
 					vmax_junction = safeSpeed;
 				}
@@ -259,9 +260,9 @@ public class Sixi2Sim extends Entity {
 			vmax_junction = safeSpeed;
 		}
 		
-		// previous_safe_speed = safe_speed
+		previousSafeSpeed = safeSpeed;
 		
-		double allowableSpeed = maxSpeedAllowed(-next.accelerateUntilD,0,next.distance);
+		double allowableSpeed = maxSpeedAllowed(-next.acceleration,0,next.distance);
 		next.entrySpeedMax = vmax_junction;
 		next.entrySpeed = Math.min(vmax_junction, allowableSpeed);
 		next.nominalLength = ( allowableSpeed >= next.nominalSpeed );
@@ -340,7 +341,7 @@ public class Sixi2Sim extends Entity {
 			current = queue.get(i);
 			int j = i+1;
 			if(j<size) {
-				Sixi2SimSegment next = queue.get(i+1);
+				Sixi2SimSegment next = queue.get(j);
 				nextEntrySpeed = next.entrySpeed;
 				nextDirty = next.recalculate;
 			} else {
@@ -349,7 +350,7 @@ public class Sixi2Sim extends Entity {
 			}
 			if( current.recalculate || nextDirty ) {
 				current.recalculate = true;
-				if( !current.busy  ) {
+				if( !current.busy ) {
 					recalculateTrapezoidSegment(current, currentEntrySpeed, nextEntrySpeed);
 				}
 				current.recalculate = false;
