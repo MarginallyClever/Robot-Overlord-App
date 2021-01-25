@@ -93,7 +93,7 @@ public class JacobianHelper {
 	 * @param jointVelocity from which to calculate the cartesian force.
 	 * @return cartesian force calculated
 	 */
-	static public double [] getCartesianForceFromJointVelocity(DHRobotModel model,final double [] jointVelocity) {
+	static public double [] getCartesianVelocityFromJointVelocity(DHRobotModel model,final double [] jointVelocity) {
 		double [] cf = new double[6];  // cartesian force calculated
 		double[][] jacobian = JacobianHelper.approximateJacobian(model);
 

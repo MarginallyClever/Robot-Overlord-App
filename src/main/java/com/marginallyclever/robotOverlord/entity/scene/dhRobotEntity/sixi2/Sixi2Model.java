@@ -257,7 +257,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 	 * @param keyframe joint angles
 	 * @return 6x6 jacobian matrix 
 	 */
-	public double [][] exactJacobian(PoseFK keyframe) {
+	public double[][] exactJacobian(PoseFK keyframe) {
 		double s1=Math.sin(keyframe.fkValues[0]);
 		double s2=Math.sin(keyframe.fkValues[1]);
 		//double s3=Math.sin(keyframe.fkValues[2]);
@@ -426,6 +426,24 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		setPoseFK(oldPoseFK);
 		
 		return jacobian;
+	}
+	
+	/**
+	 * Convert joint velocity to cartesian velocity.
+	 * @param model a robot model set to the current pose.
+	 * @param jointVelocity from which to calculate the cartesian force.
+	 * @return cartesian force calculated
+	 */
+	public double [] getCartesianVelocityFromJointVelocity(final double [] jointVelocity) {
+		double [] cf = new double[6];  // cartesian force calculated
+		double[][] jacobian = exactJacobian(getPoseFK());
+
+		for( int k=0;k<6;++k ) {
+			for( int j=0;j<6;++j ) {
+				cf[j] += jacobian[k][j] * jointVelocity[k];
+			}
+		}
+		return cf;
 	}
 	
 	// return the Sixi2Command that represents the current model state. 

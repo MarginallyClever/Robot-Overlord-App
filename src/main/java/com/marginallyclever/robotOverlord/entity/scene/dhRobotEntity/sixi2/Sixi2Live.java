@@ -37,8 +37,8 @@ public class Sixi2Live extends Entity {
 	protected boolean waitingForOpenConnection;
 	protected boolean readyForCommands;
 
-	protected double[] cartesianForceMeasured = {0,0,0,0,0,0,0};
-	protected double[] jointVelocityMeasured = {0,0,0,0,0,0,0};
+	protected double[] cartesianVelocity = {0,0,0,0,0,0,0};
+	protected double[] jointVelocity = {0,0,0,0,0,0,0};
 	
 	
 	public Sixi2Live(DHRobotModel model) {
@@ -121,8 +121,6 @@ public class Sixi2Live extends Entity {
 						int i1 = (int)((s-2) % RECEIVED_BUFFER_LEN);
 					
 						PoseFK key1 = received.get(i1).p;
-
-						for( int i=0;i<cartesianForceMeasured.length;++i ) cartesianForceMeasured[i] = 0;
 						
 						// get the relative force
 						long t1 = received.get(i1).t;  // ms
@@ -130,10 +128,14 @@ public class Sixi2Live extends Entity {
 						
 						double dt = (t0-t1)*0.001;  // seconds
 						for( int i=0;i<key1.fkValues.length;++i ) {
-							jointVelocityMeasured[i] = (key0.fkValues[i]-key1.fkValues[i])*dt;
+							jointVelocity[i] = (key0.fkValues[i]-key1.fkValues[i])*dt;
 						}
 						
-						cartesianForceMeasured = JacobianHelper.getCartesianForceFromJointVelocity(model,jointVelocityMeasured);
+						if(model instanceof Sixi2Model) {
+							cartesianVelocity = ((Sixi2Model)model).getCartesianVelocityFromJointVelocity(jointVelocity);
+						} else {
+							cartesianVelocity = JacobianHelper.getCartesianVelocityFromJointVelocity(model,jointVelocity);
+						}
 					}
 					
 				} catch (NumberFormatException e) {
@@ -161,7 +163,8 @@ public class Sixi2Live extends Entity {
 			model.setPoseFK(poseSent);
 			model.setDiffuseColor(0.6f, 0.6f, 1, 0.25f);
 			model.render(gl2);
-		}		
+		}
+		
 		super.render(gl2);
 	}
 
