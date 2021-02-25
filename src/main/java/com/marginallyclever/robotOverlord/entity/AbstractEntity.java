@@ -44,7 +44,7 @@ public class AbstractEntity<T> extends Entity {
     		T oldValue = this.t;
 	    	this.t = t;
     		T newValue = t;
-    		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"identity",oldValue,newValue));
+    		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"value",oldValue,newValue));
     	}
     }
 	

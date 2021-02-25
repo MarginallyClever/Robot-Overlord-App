@@ -1,5 +1,9 @@
 package com.marginallyclever.convenience.memento;
 
+/**
+ * 
+ * @author Dan Royer
+ */
 public class MementoDoubleArray implements Memento, Cloneable {
 	/**
 	 * 

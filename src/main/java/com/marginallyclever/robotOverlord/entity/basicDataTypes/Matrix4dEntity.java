@@ -35,19 +35,16 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 	
 	public void setIdentity() {
-		Matrix4d oldValue = new Matrix4d(t);
-		t.setIdentity();
-		Matrix4d newValue = new Matrix4d(t);
-		
-		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"identity",oldValue,newValue));
+		Matrix4d m = new Matrix4d();
+		m.setIdentity();
+		t.set(m);
 	}
 	
 	public void setTranslation(Vector3d trans) {
-		Matrix4d oldValue = new Matrix4d(t);
-		t.setTranslation(trans);
-		Matrix4d newValue = new Matrix4d(t);
-		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"position",oldValue,newValue));
 		pos.set(trans);
+		Matrix4d newValue = new Matrix4d(t);
+		newValue.setTranslation(trans);
+		t.set(newValue);
 	}
 	
 	public void getTranslation(Vector3d trans) {

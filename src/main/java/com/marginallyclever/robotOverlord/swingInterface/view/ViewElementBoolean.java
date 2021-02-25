@@ -61,7 +61,7 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 	public void propertyChange(PropertyChangeEvent evt) {
 		Object o = evt.getSource();
 		if(o instanceof BooleanEntity) {
-			field.setSelected((boolean)o);
+			field.setSelected(((BooleanEntity)o).get());
 		}
 	}
 

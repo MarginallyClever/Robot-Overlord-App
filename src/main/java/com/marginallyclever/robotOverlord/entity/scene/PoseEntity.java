@@ -255,9 +255,9 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 		Object o = evt.getSource();
-		if(o==showBoundingBox) setShowBoundingBox((boolean)o);
-		if(o==showLocalOrigin) setShowLocalOrigin((boolean)o);
-		if(o==showLineage) setShowLineage((boolean)o);
+		if(o==showBoundingBox) setShowBoundingBox((boolean)showBoundingBox.get());
+		if(o==showLocalOrigin) setShowLocalOrigin((boolean)showLocalOrigin.get());
+		if(o==showLineage) setShowLineage((boolean)showLineage.get());
 	}
 	
 	/**

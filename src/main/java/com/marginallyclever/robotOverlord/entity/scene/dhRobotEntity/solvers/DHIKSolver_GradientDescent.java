@@ -17,25 +17,24 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
  */
 public class DHIKSolver_GradientDescent extends DHIKSolver {
 	// For the sixi robot arm, the max reach is 800mm and the sensor resolution is 2^12 (4096).
-	protected static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,12);  // 0.087890625 degrees = 0.00153398079 radians
+	private static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,12);  // 0.087890625 degrees = 0.00153398079 radians
 	// protected static final double MAX_REACH = 800; // mm
 	// protected static final double DISTANCE_AT_MAX_REACH = Math.tan(Math.toRadians(SENSOR_RESOLUTION)) * MAX_REACH;  // 1.2272mm
 	// But this is a generic solver that should work with any arm, so.
 
-	protected static final int ITERATIONS = 10;
+	private static final int ITERATIONS = 10;
 	// Scale the "handles" used in distanceToTarget().  Bigger scale, greater rotation compensation
-	protected static final double CORRECTIVE_FACTOR = 100;
+	private static final double CORRECTIVE_FACTOR = 100;
 	// If distanceToTarget() score is within threshold, quit with success. 
-	protected static final double THRESHOLD = 0.1;
+	private static final double THRESHOLD = 0.1;
 
 	// how big a step to take with each partial descent?
-	protected double [] samplingDistances = { 0,0,0,0,0,0,0 };
+	private double [] samplingDistances = { 0,0,0,0,0,0,0 };
 	// how much of that partial descent to actually apply?
-	protected double learningRate=0;
+	private double learningRate=0;
 	
-	protected DHRobotModel robot;
-	protected Matrix4d targetMatrix;
-	protected DHLink endEffector;
+	private Matrix4d targetMatrix;
+	private DHLink endEffector;
 	
 	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
@@ -117,7 +116,6 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	 */
 	@Override
 	public SolutionType solveWithSuggestion(DHRobotModel robot,final Matrix4d targetMatrix,final PoseFK keyframe,PoseFK suggestion) {
-		this.robot = robot;
 		this.targetMatrix = targetMatrix;
 		
 		// TODO get a better method of finding the end effector

@@ -158,7 +158,9 @@ public class ShapeEntity extends PoseEntity {
 
 	public void setShapeOrigin(Vector3d arg0) {
 		originAdjust.set(arg0);
-		if(shape!=null) shape.adjustOrigin(originAdjust.get());
+		if(shape!=null) {
+			shape.adjustOrigin(originAdjust.get());
+		}
 	}
 	
 	public Vector3d getShapeOrigin() {

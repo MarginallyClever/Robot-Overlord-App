@@ -279,32 +279,32 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		
 		double [][] jacobian = {
 			{
-				d5d6*s1*s5*c4*c23+d5d6*s1*s23*c5+d3*s1*s23-r1*s1*c2-r2*s1*c23-d5d6*s4*s5*c1,
-				-d5d6*s1*s4*s5-d5d6*s5*c1*c4*c23-d5d6*s23*c1*c5-d3*s23*c1+r1*c1*c2+r2*c1*c23,
+				d5d6*s1*s5*c4*c23 + d5d6*s1*s23*c5 + d3*s1*s23 - r1*s1*c2-r2*s1*c23 - d5d6*s4*s5*c1,
+				-d5d6*s1*s4*s5 - d5d6*s5*c1*c4*c23 - d5d6*s23*c1*c5 - d3*s23*c1 + r1*c1*c2 + r2*c1*c23,
 				0,
 				0,
 				0,
 				1,
 			},
 			{ 
-				-(r1*s2-d5d6*s5*s23*c4+r2*s23+d5d6*c5*c23+d3*c23)*c1,
-				-(r1*s2-d5d6*s5*s23*c4+r2*s23+d5d6*c5*c23+d3*c23)*s1,
-				d5d6*s5*c4*c23+d5d6*s23*c5+d3*s23-r1*c2-r2*c23,
+				-(r1*s2 - d5d6*s5*s23*c4 + r2*s23 + d5d6*c5*c23 + d3*c23)*c1,
+				-(r1*s2 - d5d6*s5*s23*c4 + r2*s23 + d5d6*c5*c23 + d3*c23)*s1,
+				d5d6*s5*c4*c23 + d5d6*s23*c5 + d3*s23 - r1*c2 - r2*c23,
 				-s1,
 				c1,
 				0
 			},
 			{
-				(d5d6*s5*s23*c4-r2*s23-d5d6*c5*c23-d3*c23)*c1,
-				(d5d6*s5*s23*c4-r2*s23-d5d6*c5*c23-d3*c23)*s1,
-				d5d6*s5*c4*c23+d5d6*s23*c5+d3*s23-r2*c23,
+				(d5d6*s5*s23*c4 - r2*s23 - d5d6*c5*c23 - d3*c23)*c1,
+				(d5d6*s5*s23*c4 - r2*s23 - d5d6*c5*c23 - d3*c23)*s1,
+				d5d6*s5*c4*c23 + d5d6*s23*c5 + d3*s23 - r2*c23,
 				-s1,
 				c1,
 				0
 			},
 			{
-				d5d6*(-s1*c4+s4*c1*c23)*s5,
-				d5d6*(s1*s4*c23+c1*c4)*s5,
+				d5d6*(-s1*c4 + s4*c1*c23)*s5,
+				d5d6*(s1*s4*c23 + c1*c4)*s5,
 				-d5d6*s4*s5*s23,
 				-s23*c1,
 				-s1*s23,
@@ -428,6 +428,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		return jacobian;
 	}
 	
+	
 	/**
 	 * Convert joint velocity to cartesian velocity.
 	 * @param model a robot model set to the current pose.
@@ -446,6 +447,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		return cf;
 	}
 	
+	
 	// return the Sixi2Command that represents the current model state. 
 	public Sixi2Command createCommand() {
 		Sixi2Command c = new Sixi2Command(getPoseFK(),
@@ -455,6 +457,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		c.poseIK.set(getPoseIK());
 		return c;
 	}
+	
 	
 	public void setCommand(Sixi2Command c) {
 		setPoseFK(c.getPoseFK());
