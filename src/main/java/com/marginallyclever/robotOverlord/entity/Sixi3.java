@@ -117,7 +117,7 @@ public class Sixi3 extends PoseEntity {
 	// how fast do we want to move?
 	private DoubleEntity axisAmount = new DoubleEntity("Jog speed",0);
 	// target end effector pose
-	private Matrix4d ee2 = new Matrix4d();
+	private PoseEntity ee2 = new PoseEntity();
 	private boolean applyingIK;
 
 	// how big a step to take with each partial descent?
@@ -129,6 +129,8 @@ public class Sixi3 extends PoseEntity {
 		super();
 		setName("Sixi3");
 
+		addChild(ee2);
+		
 		setupModel();
 		
 		J0.addPropertyChangeListener(this);
@@ -138,6 +140,7 @@ public class Sixi3 extends PoseEntity {
 		J4.addPropertyChangeListener(this);
 		J5.addPropertyChangeListener(this);
 		axisChoice.addPropertyChangeListener(this);
+		ee2.addPropertyChangeListener(this);
 		
 		J0.set(180.0);
 		J1.set(180.0);
@@ -149,7 +152,8 @@ public class Sixi3 extends PoseEntity {
 		applyingIK=false;
 
 		getEndEffector(ee);
-		ee2.set(ee);
+		ee2.setPose(ee);
+		ee2.updatePoseWorld();
 	}
 
 	/**
@@ -172,7 +176,7 @@ public class Sixi3 extends PoseEntity {
 		double d5=LENGTH_A+HAND_HEIGHT;
 		links[0].set(0 ,d0,-90,0,ACTUATOR_MODEL);
 		links[1].set(r2, 0,  0,0,ACTUATOR_MODEL);
-		links[2].set(0 , 0,-90,0,ACTUATOR_MODEL);
+		links[2].set(0 , 0, 90,0,ACTUATOR_MODEL);
 		links[3].set(0 ,d3,-90,0,ACTUATOR_MODEL);
 		links[4].set(0 ,d4, 90,0,ACTUATOR_MODEL);
 		links[5].set(0 ,d5,  0,0,HAND_MODEL);
@@ -232,6 +236,15 @@ public class Sixi3 extends PoseEntity {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
+
+		Matrix4d m0=new Matrix4d();
+		Matrix4d m1=new Matrix4d();
+		Matrix4d m2=new Matrix4d();
+		m0.rotX(Math.toRadians(180));
+		m1.rotZ(Math.toRadians(90));
+		m2.mul(m1,m0);
+		links[2].shapeOffset.set(m2);
+		links[2].shapeOffset.m23=LENGTH_A;
 		
 		// get the end effector
 		getEndEffector(ee);
@@ -239,11 +252,13 @@ public class Sixi3 extends PoseEntity {
 		if(axisAmount.get()!=0) {
 			double aa = axisAmount.get();
 			int ac = axisChoice.get();
-			System.out.println(axisLabels[ac]+"="+aa);
+
 			aa*=dt;
 
-			Vector3d p = new Vector3d(ee2.m03,ee2.m13,ee2.m23);
-			ee2.setTranslation(new Vector3d(0,0,0));
+			Matrix4d target = ee2.getPose();
+			
+			Vector3d p = new Vector3d(target.m03,target.m13,target.m23);
+			target.setTranslation(new Vector3d(0,0,0));
 			Matrix4d r = new Matrix4d();
 			r.setIdentity();
 			
@@ -256,20 +271,12 @@ public class Sixi3 extends PoseEntity {
 			case 5:				r.rotZ(Math.toRadians(aa));	break;
 			default: 										break;
 			}
-			ee2.mul(r);
-			ee2.setTranslation(p);
-
-			// gradient descent towards ee2
-			gradientDescent();
-
-			applyingIK=true;
-			J0.set(links[0].theta);
-			J1.set(links[1].theta);
-			J2.set(links[2].theta);
-			J3.set(links[3].theta);
-			J4.set(links[4].theta);
-			J5.set(links[5].theta);
-			applyingIK=false;
+			target.mul(r);
+			target.setTranslation(p);
+			ee2.setPose(target);
+			// which will cause a propertyChange event
+			
+			axisAmount.set(0.0);
 		}
 	}
 	
@@ -294,17 +301,18 @@ public class Sixi3 extends PoseEntity {
 		
 		Matrix4d m = new Matrix4d();
 		getEndEffector(m);
+		Matrix4d target = ee2.getPose();
 		
 		// linear difference in centers
 		Vector3d c0 = new Vector3d();
 		Vector3d c1 = new Vector3d();
 		m.get(c0);
-		ee2.get(c1);
+		target.get(c1);
 		c1.sub(c0);
 		double dC = c1.lengthSquared();
 		
 		// linear difference in X handles
-		Vector3d x0 = MatrixHelper.getXAxis(ee2);
+		Vector3d x0 = MatrixHelper.getXAxis(target);
 		Vector3d x1 = MatrixHelper.getXAxis(m);
 		x1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		x0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
@@ -312,7 +320,7 @@ public class Sixi3 extends PoseEntity {
 		double dX = x1.lengthSquared();
 		
 		// linear difference in Y handles
-		Vector3d y0 = MatrixHelper.getYAxis(ee2);
+		Vector3d y0 = MatrixHelper.getYAxis(target);
 		Vector3d y1 = MatrixHelper.getYAxis(m);
 		y1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		y0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
@@ -362,7 +370,7 @@ public class Sixi3 extends PoseEntity {
 	 */
 	private boolean gradientDescent() {
 		// How many times should I try to get closer?
-		final int iterations = 30;
+		final int iterations = 50;
 		
 		// When distanceToTarget() score is within threshold then stop. 
 		final double threshold = 0.001;
@@ -371,7 +379,7 @@ public class Sixi3 extends PoseEntity {
 		double learningRate=0.125;
 		
 		// the sensor resolution is 2^15 (32768 bits, 0.011 degree)
-		final double initialSampleSize = 360.0/Math.pow(2,12);
+		final double initialSampleSize = 0.005;
 		samplingDistances[0]=initialSampleSize; 
 		samplingDistances[1]=initialSampleSize;
 		samplingDistances[2]=initialSampleSize;
@@ -411,20 +419,39 @@ public class Sixi3 extends PoseEntity {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 		Object src = evt.getSource();
-		
-		if(!applyingIK) {
-			axisAmount.set(0.0);
-			if(src == J0) links[0].theta=J0.get();
-			if(src == J1) links[1].theta=J1.get();
-			if(src == J2) links[2].theta=J2.get();
-			if(src == J3) links[3].theta=J3.get();
-			if(src == J4) links[4].theta=J4.get();
-			if(src == J5) links[5].theta=J5.get();
-			getEndEffector(ee);
-			ee2.set(ee);
-		}
+
 		if(src == axisChoice) {
 			axisAmount.set(0.0);
+		}
+		if(src == ee2 && evt.getPropertyName().contentEquals("pose")) {
+			// gradient descent towards ee2
+			gradientDescent();
+
+			if(!applyingIK) {
+				applyingIK=true;
+				J0.set(links[0].theta);
+				J1.set(links[1].theta);
+				J2.set(links[2].theta);
+				J3.set(links[3].theta);
+				J4.set(links[4].theta);
+				J5.set(links[5].theta);
+				applyingIK=false;
+			}
+		} else {
+			if(!applyingIK) {
+				applyingIK=true;
+				axisAmount.set(0.0);
+				if(src == J0) links[0].theta=J0.get();
+				if(src == J1) links[1].theta=J1.get();
+				if(src == J2) links[2].theta=J2.get();
+				if(src == J3) links[3].theta=J3.get();
+				if(src == J4) links[4].theta=J4.get();
+				if(src == J5) links[5].theta=J5.get();
+				getEndEffector(ee);
+				ee2.setPose(ee);
+				ee2.updatePoseWorld();
+				applyingIK=false;
+			}
 		}
 	}
 	
@@ -443,7 +470,7 @@ public class Sixi3 extends PoseEntity {
 			gl2.glPopMatrix();
 		
 			MatrixHelper.drawMatrix2(gl2, ee, 6);
-			MatrixHelper.drawMatrix(gl2, ee2, 4);
+			//MatrixHelper.drawMatrix(gl2, ee2.getPose(), 4);
 		gl2.glPopMatrix();
 
 		
