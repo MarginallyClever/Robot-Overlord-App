@@ -20,8 +20,6 @@ import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
-
 import java.io.BufferedReader;
 
 @Deprecated
@@ -285,12 +283,12 @@ public class Spidee extends RobotEntity {
 
 		// models
 		try {
-			modelThigh = ShapeEntity.createModelFromFilename( "/Spidee.zip:thigh.stl");
-			modelBody = ShapeEntity.createModelFromFilename( "/Spidee.zip:body.stl");
-			modelShoulderLeft = ShapeEntity.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
-			modelShoulderRight = ShapeEntity.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
-			modelShinLeft = ShapeEntity.createModelFromFilename( "/Spidee.zip:shin_left.stl");
-			modelShinRight = ShapeEntity.createModelFromFilename( "/Spidee.zip:shin_right.stl");
+			modelThigh = Shape.createModelFromFilename( "/Spidee.zip:thigh.stl");
+			modelBody = Shape.createModelFromFilename( "/Spidee.zip:body.stl");
+			modelShoulderLeft = Shape.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
+			modelShoulderRight = Shape.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
+			modelShinLeft = Shape.createModelFromFilename( "/Spidee.zip:shin_left.stl");
+			modelShinRight = Shape.createModelFromFilename( "/Spidee.zip:shin_right.stl");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

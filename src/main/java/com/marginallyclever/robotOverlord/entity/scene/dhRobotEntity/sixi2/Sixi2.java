@@ -43,7 +43,7 @@ public class Sixi2 extends PoseEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = -3853296509642009298L;
-	// the model used to render & control (the Flyweight)
+	// the model used to render and control (the Flyweight)
 	protected transient Sixi2Model model;
 	// the live robot in the real world.  Controls comms with the machine.
 	protected transient Sixi2Live live;
@@ -103,7 +103,7 @@ public class Sixi2 extends PoseEntity {
 	}
 	
 	@Override
-	public void update(double dt) {
+	public void update(double dt) {		
 		if(isPlaying) {
 			playTimeTotal+=dt;
 			int doneCount=0;

@@ -86,23 +86,22 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		
 		setName("Sixi2Model");
 
-		ShapeEntity base = new ShapeEntity();
+		ShapeEntity base = new ShapeEntity("/Sixi2/anchor.obj");
 		addChild(base);
 		base.setName("Base");
-		base.setShapeFilename("/Sixi2/anchor.obj");
 		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		base.setShapeOrigin(0, 0, 0.9);
 
 		// setup children
-		this.setNumLinks(7);
+		setNumLinks(7);
 
 		if(!attachModels) {
-			ShapeEntity part0 = new ShapeEntity();	addChild(part0);	part0.setShapeFilename("/Sixi2/shoulder.obj");
-			ShapeEntity part1 = new ShapeEntity();	addChild(part1);	part1.setShapeFilename("/Sixi2/bicep.obj");
-			ShapeEntity part2 = new ShapeEntity();	addChild(part2);	part2.setShapeFilename("/Sixi2/forearm.obj");
-			ShapeEntity part3 = new ShapeEntity();	addChild(part3);	part3.setShapeFilename("/Sixi2/tuningFork.obj");
-			ShapeEntity part4 = new ShapeEntity();	addChild(part4);	part4.setShapeFilename("/Sixi2/picassoBox.obj");
-			ShapeEntity part5 = new ShapeEntity();	addChild(part5);	part5.setShapeFilename("/Sixi2/hand.obj");
+			ShapeEntity part0 = new ShapeEntity("/Sixi2/shoulder.obj");  	addChild(part0);
+			ShapeEntity part1 = new ShapeEntity("/Sixi2/bicep.obj");     	addChild(part1);
+			ShapeEntity part2 = new ShapeEntity("/Sixi2/forearm.obj");   	addChild(part2);
+			ShapeEntity part3 = new ShapeEntity("/Sixi2/tuningFork.obj");	addChild(part3);
+			ShapeEntity part4 = new ShapeEntity("/Sixi2/picassoBox.obj");	addChild(part4);
+			ShapeEntity part5 = new ShapeEntity("/Sixi2/hand.obj");      	addChild(part5);
 		} else {
 			links.get(0).setShapeFilename("/Sixi2/shoulder.obj");
 			links.get(1).setShapeFilename("/Sixi2/bicep.obj");
@@ -111,64 +110,48 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 			links.get(4).setShapeFilename("/Sixi2/picassoBox.obj");
 			links.get(5).setShapeFilename("/Sixi2/hand.obj");
 		}
-		
+
+		// DH table
+		links.get(0).setDHParams(18.8452+0.9,0     ,-90,  0);
+		links.get(1).setDHParams(0          ,35.796,  0,-90);
+		links.get(2).setDHParams(0          ,6.4259,-90,  0);
+		links.get(3).setDHParams(29.355+9.35,0     , 90,  0);
+		links.get(4).setDHParams(0          ,0     ,-90,  0);
+		links.get(5).setDHParams(3.795      ,0     ,  0,  0);
+
 		// pan shoulder
 		links.get(0).setLetter("X");
-		links.get(0).setD(18.8452+0.9);
-		links.get(0).setTheta(0);
-		links.get(0).setR(0);
-		links.get(0).setAlpha(-90);
 		links.get(0).setRange(-120,120);
 		links.get(0).maxTorque.set(14.0); //Nm
 		
 		// tilt shoulder
 		links.get(1).setLetter("Y");
-		links.get(1).setD(0);
-		links.get(1).setTheta(-90);
-		links.get(1).setR(35.796);
-		links.get(1).setAlpha(0);
 		links.get(1).setRange(-170,0);
 		links.get(1).maxTorque.set(40.0); //Nm
 
 		// tilt elbow
 		links.get(2).setLetter("Z");
-		links.get(2).setD(0);
-		links.get(2).setTheta(0);
-		links.get(2).setR(6.4259);
-		links.get(2).setAlpha(-90);
 		links.get(2).setRange(-83.369, 86);
 		links.get(2).maxTorque.set(14.0); //Nm
 	
 		// roll ulna
 		links.get(3).setLetter("U");
-		links.get(3).setD(29.355+9.35);
-		links.get(3).setTheta(0);
-		links.get(3).setR(0);
-		links.get(3).setAlpha(90);
 		links.get(3).setRange(-175, 175);
 		links.get(3).maxTorque.set(3.0); //Nm
 	
 		// tilt picassoBox
 		links.get(4).setLetter("V");
-		links.get(4).setD(0);
-		links.get(4).setTheta(0);
-		links.get(4).setR(0);
-		links.get(4).setAlpha(-90);
 		links.get(4).setRange(-120, 120);
 		links.get(4).maxTorque.set(2.5); //Nm
 	
 		// roll hand
 		links.get(5).setLetter("W");
-		links.get(5).setTheta(0);
-		links.get(5).setD(3.795);
-		links.get(5).setR(0);
-		links.get(5).setAlpha(0);
 		links.get(5).setRange(-170, 170);
 		links.get(5).maxTorque.set(2.5); //Nm
 
 		links.get(6).setLetter("E");
 		links.get(6).setName("End Effector");
-		links.get(6).setD(2.75);
+		links.get(6).setDHParams(2.75,0,0,0);
 		links.get(6).flags = LinkAdjust.NONE;
 		
 		// update this world pose and all my children's poses all the way down.
@@ -177,13 +160,13 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
-			if(bone.getModel()!=null) {
-				Matrix4d iWP = bone.getPoseWorld();
-				iWP.m23 -= 0.9;
-				iWP.invert();
-				bone.getModel().adjustMatrix(iWP);
-				bone.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-			}
+
+			Matrix4d iWP = new Matrix4d();
+			bone.getPoseWorld(iWP);
+			iWP.m23 -= 0.9;
+			iWP.invert();			
+			bone.setShapeMatrix(iWP);
+			bone.setTextureFilename("/Sixi2/sixi.png");
 		}
 
 		// set to default position
@@ -191,7 +174,9 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		// make room to store the current position and get a copy of the default.
 		poseFK = getPoseFK();
 		// ...so that we can get the IK pose of the finger tip.
-		poseIK.set(links.get(getNumNonToolLinks()-1).getPoseWorld());
+		Matrix4d m = new Matrix4d();
+		links.get(getNumNonToolLinks()-1).getPoseWorld(m);
+		poseIK.set(m);
 	}
 
 	/**

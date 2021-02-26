@@ -55,23 +55,19 @@ public class Sixi2LinearGripper extends DHTool {
 		startT=endT=angleNow.get();
 		
 		setShapeFilename("/Sixi2/linearGripper/gripperBase.obj");
-		getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		getMaterial().setDiffuseColor(1, 1, 1, 1);
-		getMaterial().setAmbientColor(1, 1, 1, 1);
+		shapeEntity.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+		shapeEntity.getMaterial().setDiffuseColor(1, 1, 1, 1);
+		shapeEntity.getMaterial().setAmbientColor(1, 1, 1, 1);
 		
 		// 2 finger tips
 		addChild(leftFinger=new DHLink());
 		addChild(rightFinger=new DHLink());
 		leftFinger.setName("Left finger");
 		leftFinger.setShapeFilename("/Sixi2/linearGripper/gripperLeft.obj");
-		leftFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		leftFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
-		leftFinger.getMaterial().setAmbientColor(1, 1, 1, 1);
+		leftFinger.setTextureFilename("/Sixi2/sixi.png");
 		rightFinger.setName("Right finger");
 		rightFinger.setShapeFilename("/Sixi2/linearGripper/gripperRight.obj");
-		rightFinger.getMaterial().setTextureFilename("/Sixi2/sixi.png");
-		rightFinger.getMaterial().setDiffuseColor(1, 1, 1, 1);
-		rightFinger.getMaterial().setAmbientColor(1, 1, 1, 1);
+		rightFinger.setTextureFilename("/Sixi2/sixi.png");
 
 		leftFinger.flags = DHLink.LinkAdjust.R;
 		rightFinger.flags = DHLink.LinkAdjust.R;
@@ -114,6 +110,8 @@ public class Sixi2LinearGripper extends DHTool {
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
 			wasGripping=true;
 			// grab release
+			Matrix4d poseWorld = new Matrix4d();
+			getPoseWorld(poseWorld);
 			if(subjectBeingHeld==null) {
 				//Log.message("Grab");
 				// Get the object at the targetPos.
@@ -125,9 +123,9 @@ public class Sixi2LinearGripper extends DHTool {
 					// A new subject has been acquired.
 					// The subject is being held by the gripper.  Subtract the gripper's world pose from the subject's world pose.
 					Matrix4d m = subjectBeingHeld.getPose();
-					Matrix4d ipc = new Matrix4d(poseWorld);
-					ipc.invert();
-					m.mul(ipc);
+					Matrix4d iPoseWorld = new Matrix4d(poseWorld);
+					iPoseWorld.invert();
+					m.mul(iPoseWorld);
 					subjectBeingHeld.setPose(m);
 				}
 			} else {

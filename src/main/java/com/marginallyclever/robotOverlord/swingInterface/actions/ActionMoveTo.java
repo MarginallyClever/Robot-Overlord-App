@@ -34,7 +34,8 @@ public class ActionMoveTo extends AbstractUndoableEdit {
 		super();
 		
 		this.entity = entity;
-		this.prev = entity.getPoseWorld();
+		prev = new Matrix4d();
+		entity.getPoseWorld(prev);
 		this.next = newPose;
 
 		entity.setPoseWorld(next);

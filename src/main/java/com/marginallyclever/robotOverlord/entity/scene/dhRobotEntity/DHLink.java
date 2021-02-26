@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 import java.beans.PropertyChangeEvent;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
@@ -18,7 +19,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends ShapeEntity {
+public class DHLink extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -89,6 +90,8 @@ public class DHLink extends ShapeEntity {
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
 	//public Matrix4dEntity inertia = new Matrix4dEntity();
 	
+	protected ShapeEntity shapeEntity = new ShapeEntity();
+	
 	public DHLink() {
 		super();
 		setName("DHLink");
@@ -127,7 +130,7 @@ public class DHLink extends ShapeEntity {
 		theta.set(arg0.theta.get());
 		r.set(arg0.r.get());
 		alpha.set(arg0.alpha.get());
-		shape =arg0.shape;
+		shapeEntity.set(arg0.shapeEntity);
 		rangeMin.set(arg0.rangeMin.get());
 		rangeMax.set(arg0.rangeMax.get());
 		/*
@@ -173,12 +176,12 @@ public class DHLink extends ShapeEntity {
 	@Override
 	public void render(GL2 gl2) {
 		// preserve original material color
-		float [] diffuse = getMaterial().getDiffuseColor();
+		float [] diffuse = shapeEntity.getMaterial().getDiffuseColor();
 		// change material color - more red when near angle limits 
 		setAngleColorByRange(gl2);
-		renderModel(gl2);
+		shapeEntity.render(gl2);
 		
-		getMaterial().setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
+		shapeEntity.getMaterial().setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 		
 		super.render(gl2);
 	}
@@ -320,13 +323,13 @@ public class DHLink extends ShapeEntity {
 		//gl2.glColor4d(safety,1-safety,0,0.5);
 //		float [] diffuse = {safety,1-safety,0,0};
 		
-		float [] original = getMaterial().getDiffuseColor();
+		float [] original = shapeEntity.getMaterial().getDiffuseColor();
 		
 		original[0]+=safety;
 		original[1]-=safety;
 		original[2]-=safety;
 		
-		getMaterial().setDiffuseColor(original[0],original[1],original[2],original[3]);
+		shapeEntity.getMaterial().setDiffuseColor(original[0],original[1],original[2],original[3]);
 	}
 	
 	public boolean hasAdjustableValue() {
@@ -487,14 +490,14 @@ public class DHLink extends ShapeEntity {
 	
 	@Override
 	public void setPoseWorld(Matrix4d newPose) {
-		Matrix4d newRelativePose;
+		Matrix4d newRelativePose = new Matrix4d();
 		if(parent instanceof PoseEntity) {
 			PoseEntity pe = (PoseEntity)parent;
-			newRelativePose=pe.getPoseWorld();
+			pe.getPoseWorld(newRelativePose);
 			newRelativePose.invert();
 			newRelativePose.mul(newPose);
 		} else {
-			newRelativePose=newPose;
+			newRelativePose.set(newPose);
 		}
 		
 		setPose(newRelativePose);
@@ -509,7 +512,8 @@ public class DHLink extends ShapeEntity {
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
 		if( parent instanceof DHLink || parent instanceof DHRobotModel ) {
 			if( !this.getLetter().isEmpty() ) {
-				Matrix4d oldPose=poseWorld;
+				Matrix4d oldPose = new Matrix4d();
+				getPoseWorld(oldPose);
 				// we have newPose ...but is it something this DHLink could do?
 				// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
 				// TODO Today this is the only case I care about. make it better later.
@@ -536,5 +540,43 @@ public class DHLink extends ShapeEntity {
 	@Override
 	public boolean canBeRenamed() {
 		return false;
+	}
+
+	public void setShapeFilename(String modelFilename) {
+		shapeEntity.setShapeFilename(modelFilename);
+	}
+
+	public void setShapeScale(double d) {
+		shapeEntity.setShapeScale(d);
+	}
+
+	public void setTextureFilename(String string) {
+		shapeEntity.getMaterial().setTextureFilename(string);
+	}
+
+	public void setShapeRotation(Vector3d vector3d) {
+		shapeEntity.setShapeRotation(vector3d);
+	}
+
+	public void setShapeOrigin(Vector3d vector3d) {
+		shapeEntity.setShapeOrigin(vector3d);
+	}
+
+	public void setShapeMatrix(Matrix4d matrix4d) {
+		shapeEntity.setPose(matrix4d);
+	}
+
+	/**
+	 * Convenience method to set DH parameters
+	 * @param d
+	 * @param r
+	 * @param alpha
+	 * @param theta
+	 */
+	public void setDHParams(double d, double r, double alpha, double theta) {
+		setD(d);
+		setR(r);
+		setAlpha(alpha);
+		setTheta(theta);
 	}
 }

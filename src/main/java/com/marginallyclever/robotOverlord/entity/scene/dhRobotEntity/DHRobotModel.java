@@ -209,11 +209,11 @@ public class DHRobotModel extends Entity {
 		
 		int size = links.size();
 		for (int i = 0; i < size; ++i) {
-			if (links.get(i).getModel() == null)
+			if (links.get(i).shapeEntity.getModel() == null)
 				continue;
 
 			for (int j = i + 2; j < size; ++j) {
-				if (links.get(j).getModel() == null)
+				if (links.get(j).shapeEntity.getModel() == null)
 					continue;
 
 				if (IntersectionHelper.cuboidCuboid(
@@ -291,7 +291,8 @@ public class DHRobotModel extends Entity {
 	 * @return matrix of end effector.  matrix is relative to the robot origin.
 	 */
 	public Matrix4d getPoseIK() {
-		Matrix4d m = getLink(getNumLinks()-1).getPoseWorld();
+		Matrix4d m = new Matrix4d();
+		getLink(getNumLinks()-1).getPoseWorld(m);
 		return m;
 	}
 	
@@ -416,7 +417,9 @@ public class DHRobotModel extends Entity {
 		}
 		if(toolIndex>0) {
 			DHTool t = allTools.get(toolIndex);
-			t.pose.set(links.get(links.size()-1).poseWorld);
+			Matrix4d m = new Matrix4d();
+			links.get(links.size()-1).getPoseWorld(m);
+			t.setPose(m);
 			t.refreshPoseMatrix();
 			cuboidList.addAll(t.getCuboidList());
 		}
@@ -426,7 +429,7 @@ public class DHRobotModel extends Entity {
 	
 	public void setDiffuseColor(float r,float g,float b,float a) {
 		for(int i=0;i<getNumLinks();++i) {
-			getLink(i).getMaterial().setDiffuseColor(r,g,b,a);
+			getLink(i).shapeEntity.getMaterial().setDiffuseColor(r,g,b,a);
 		}
 	}
 	

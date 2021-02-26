@@ -96,7 +96,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		Point3d p1 = new Point3d(0,0,link0.getD());
 
 		if(false) {
-			Matrix4d link4m = new Matrix4d(link4.getPoseWorld());
+			Matrix4d link4m = new Matrix4d();
+			link4.getPoseWorld(link4m);
 			link4m.mul(iRoot,link4m);
 			Vector3d p5confirm = new Vector3d(
 					link4m.m03,
@@ -175,7 +176,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(false) Log.message("alpha2="+keyframe.fkValues[2]+"\t");
 		
 		// FIRST HALF DONE
-		Matrix4d link3m = link3.getPoseWorld();
+		Matrix4d link3m = new Matrix4d();
+		link3.getPoseWorld(link3m);
 		
 		// Now to a partial DHRobot.setRobotPose() up to link4.
 		link0.setTheta(keyframe.fkValues[0]);
@@ -186,7 +188,8 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		for( int i=0;i<robot.getNumLinks();++i) {
 			robot.getLink(i).refreshPoseMatrix();
 		}
-		Matrix4d r03 = link4.getPoseWorld();
+		Matrix4d r03 = new Matrix4d();
+		link4.getPoseWorld(r03);
 		r03.mul(iRoot);
 
 		if(false) {
@@ -195,7 +198,9 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 			link3m.get(p3original);
 			
 			Vector3d p3cloned = new Vector3d();
-			link3.getPoseWorld().get(p3cloned);
+			Matrix4d link3wp = new Matrix4d();
+			link3.getPoseWorld(link3wp);
+			link3wp.get(p3cloned);
 			p3cloned.sub(p3original);
 			Log.message("p3d="+p3cloned);
 		}

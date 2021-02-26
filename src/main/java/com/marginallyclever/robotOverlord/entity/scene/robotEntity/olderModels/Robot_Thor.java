@@ -89,17 +89,17 @@ public class Robot_Thor extends RobotEntity {
 			robot.getLink(6).setShapeFilename("/Thor/Thor5.stl");
 			robot.getLink(7).setShapeFilename("/Thor/Thor6.stl");
 
-			robot.getLink(1).getModel().adjustOrigin(new Vector3d(0,0,-15.35));
-			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(2).getModel().adjustOrigin(new Vector3d(0,0,-6.5));
-			robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(3).getModel().adjustRotation(new Vector3d(90,0,90));
-			robot.getLink(3).getModel().adjustOrigin(new Vector3d(0,6,0));
-			robot.getLink(5).getModel().adjustOrigin(new Vector3d(0,0,0));
-			robot.getLink(5).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(6).getModel().adjustOrigin(new Vector3d(0,0,-4.75));
-			robot.getLink(6).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(7).getModel().adjustOrigin(new Vector3d(0,0,0));
+			robot.getLink(1).setShapeOrigin(new Vector3d(0,0,-15.35));
+			robot.getLink(1).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(2).setShapeOrigin(new Vector3d(0,0,-6.5));
+			robot.getLink(2).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(3).setShapeRotation(new Vector3d(90,0,90));
+			robot.getLink(3).setShapeOrigin(new Vector3d(0,6,0));
+			robot.getLink(5).setShapeOrigin(new Vector3d(0,0,0));
+			robot.getLink(5).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(6).setShapeOrigin(new Vector3d(0,0,-4.75));
+			robot.getLink(6).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(7).setShapeOrigin(new Vector3d(0,0,0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

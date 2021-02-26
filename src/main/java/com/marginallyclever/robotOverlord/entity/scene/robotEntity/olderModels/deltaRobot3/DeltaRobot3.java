@@ -23,7 +23,6 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity {
@@ -107,9 +106,9 @@ public class DeltaRobot3 extends RobotEntity {
 		zDir = 0.0f;
 		
 		try {
-			modelTop = ShapeEntity.createModelFromFilename("/DeltaRobot3.zip:top.STL");
-			modelArm = ShapeEntity.createModelFromFilename("/DeltaRobot3.zip:arm.STL");
-			modelBase = ShapeEntity.createModelFromFilename("/DeltaRobot3.zip:base.STL");
+			modelTop = Shape.createModelFromFilename("/DeltaRobot3.zip:top.STL");
+			modelArm = Shape.createModelFromFilename("/DeltaRobot3.zip:arm.STL");
+			modelBase = Shape.createModelFromFilename("/DeltaRobot3.zip:base.STL");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -488,7 +487,8 @@ public class DeltaRobot3 extends RobotEntity {
 	
 	
 	Vector3d getWorldCoordinatesFor(Vector3d in) {
-		Matrix4d im = this.getPoseWorld();
+		Matrix4d im = new Matrix4d();
+		getPoseWorld(im);
 		im.invert();
 		Vector3d out = new Vector3d(in);
 		im.transform(out);				

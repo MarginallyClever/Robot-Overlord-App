@@ -73,14 +73,14 @@ public class Robot_SCARA_NM extends RobotEntity {
 			robot.getLink(2).setShapeFilename("/SCARA_NM/Scara_arm2.stl");
 			robot.getLink(4).setShapeFilename("/SCARA_NM/Scara_screw.stl");
 			
-			robot.getLink(0).getModel().adjustOrigin(new Vector3d(-8,0,0));
-			robot.getLink(1).getModel().adjustOrigin(new Vector3d(-15,8,-13.784));
-			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,-90));
+			robot.getLink(0).setShapeOrigin(new Vector3d(-8,0,0));
+			robot.getLink(1).setShapeOrigin(new Vector3d(-15,8,-13.784));
+			robot.getLink(1).setShapeRotation(new Vector3d(0,0,-90));
 
-			robot.getLink(2).getModel().adjustOrigin(new Vector3d(-13,8,-13.784));
-			robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,-90));
+			robot.getLink(2).setShapeOrigin(new Vector3d(-13,8,-13.784));
+			robot.getLink(2).setShapeRotation(new Vector3d(0,0,-90));
 
-			robot.getLink(4).getModel().adjustOrigin(new Vector3d(-8,0,-13.784));
+			robot.getLink(4).setShapeOrigin(new Vector3d(-8,0,-13.784));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -92,18 +92,18 @@ public class Robot_Mantis extends RobotEntity {
 			robot.getLink(6).setShapeFilename("/AH/WristRot.stl");
 
 			for( int i=0;i<robot.getNumLinks();++i) {
-				robot.getLink(i).setShapeScale(0.1f);
+				robot.getLink(i).setShapeScale(0.1);
 			}
 			
-			robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,0,2.7));
-			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(1).getModel().adjustOrigin(new Vector3d(0,0,0));
-			robot.getLink(2).getModel().adjustRotation(new Vector3d(90,90,90));
-			robot.getLink(2).getModel().adjustOrigin(new Vector3d(0,0.476,2.7+(13.9744 + 8.547)/2));
-			robot.getLink(3).getModel().adjustRotation(new Vector3d(180,90,90));
-			robot.getLink(3).getModel().adjustOrigin(new Vector3d(0,-5.7162,0));//0.3488,0.3917
-			robot.getLink(5).getModel().adjustOrigin(new Vector3d(0,0,0));
-			robot.getLink(6).getModel().adjustRotation(new Vector3d(-180,90,0));
+			robot.getLink(0).setShapeOrigin(new Vector3d(0,0,2.7));
+			robot.getLink(1).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(1).setShapeOrigin(new Vector3d(0,0,0));
+			robot.getLink(2).setShapeRotation(new Vector3d(90,90,90));
+			robot.getLink(2).setShapeOrigin(new Vector3d(0,0.476,2.7+(13.9744 + 8.547)/2));
+			robot.getLink(3).setShapeRotation(new Vector3d(180,90,90));
+			robot.getLink(3).setShapeOrigin(new Vector3d(0,-5.7162,0));//0.3488,0.3917
+			robot.getLink(5).setShapeOrigin(new Vector3d(0,0,0));
+			robot.getLink(6).setShapeRotation(new Vector3d(-180,90,0));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

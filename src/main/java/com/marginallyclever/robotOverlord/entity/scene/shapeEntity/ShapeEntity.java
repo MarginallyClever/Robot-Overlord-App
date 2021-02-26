@@ -1,17 +1,16 @@
 package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ServiceLoader;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,9 +31,10 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
- * A "shape" is a collection of triangles, normals, and possibly other elements in a single static 3D shape.
- * A ShapeEntity is a shape positioned and scaled somewhere in a Scene.
- * @author aggra
+ * A {@link Shape} is a collection of points, triangles, normals, and possibly color and possibly texture coordinates.
+ * A {@link ShapeEntity} is a {@link Shape} positioned and scaled somewhere in a Scene.  That is to say, {@link ShapeEntity}
+ * allows for local changes to the {@link Shape} origin, scale, and rotation.
+ * @author Dan Royer
  *
  */
 public class ShapeEntity extends PoseEntity {
@@ -42,10 +42,6 @@ public class ShapeEntity extends PoseEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = -6421492357105354857L;
-
-	// the pool of all shapes loaded
-	@JsonIgnore
-	private static LinkedList<Shape> shapePool = new LinkedList<Shape>();
 
 	// the shape for this entity
 	@JsonIgnore
@@ -122,11 +118,8 @@ public class ShapeEntity extends PoseEntity {
 		//if( this.filename.get().equals(newFilename) ) return;
 		
 		try {
-			shape = createModelFromFilename(newFilename);
+			shape = Shape.createModelFromFilename(newFilename);
 			if(shape!=null) {
-				shape.adjustScale(scale.get());
-				shape.adjustOrigin(originAdjust.get());
-				shape.adjustRotation(rotationAdjust.get());
 				shape.updateCuboid();
 				numTriangles.set(shape.getNumTriangles());
 				hasNormals.set(shape.hasNormals);
@@ -134,7 +127,7 @@ public class ShapeEntity extends PoseEntity {
 				hasUVs.set(shape.hasUVs);
 			}
 			// only change this after loading has completely succeeded.
-			this.filename.set(newFilename);
+			filename.set(newFilename);
 		} catch (Exception e) {
 			Log.error("Loading shape '"+newFilename+"' failed: "+e.getLocalizedMessage());
 		}
@@ -142,9 +135,7 @@ public class ShapeEntity extends PoseEntity {
 
 	public void setShapeScale(double arg0) {
 		scale.set(arg0);
-		if(shape!=null) {
-			shape.adjustScale(arg0);
-		}
+		rebuildLocalPose();
 	}
 	
 	public double getShapeScale() {
@@ -153,14 +144,12 @@ public class ShapeEntity extends PoseEntity {
 
 	public void setShapeOrigin(double x,double y,double z) {
 		originAdjust.set(x,y,z);
-		if(shape!=null) shape.adjustOrigin(originAdjust.get());
+		rebuildLocalPose();
 	}
 
 	public void setShapeOrigin(Vector3d arg0) {
 		originAdjust.set(arg0);
-		if(shape!=null) {
-			shape.adjustOrigin(originAdjust.get());
-		}
+		rebuildLocalPose();
 	}
 	
 	public Vector3d getShapeOrigin() {
@@ -169,12 +158,24 @@ public class ShapeEntity extends PoseEntity {
 
 	public void setShapeRotation(double x,double y,double z) {
 		rotationAdjust.set(x,y,z);
-		if(shape!=null) shape.adjustRotation(rotationAdjust.get());
+		rebuildLocalPose();
+	}
+	
+	private void rebuildLocalPose() {
+		Vector3d t = new Vector3d();
+		Vector3d r = rotationAdjust.get();
+		
+		pose.get(t);
+		Matrix4d rotX = new Matrix4d();		rotX.rotX(Math.toRadians(r.x));		pose.set(rotX);
+		Matrix4d rotY = new Matrix4d();		rotY.rotY(Math.toRadians(r.y));		pose.mul(rotY);
+		Matrix4d rotZ = new Matrix4d();		rotZ.rotZ(Math.toRadians(r.z));		pose.mul(rotZ);
+		pose.setScale(scale.get());
+		pose.setTranslation(t);
 	}
 
 	public void setShapeRotation(Vector3d arg0) {
 		rotationAdjust.set(arg0);
-		if(shape!=null) shape.adjustRotation(rotationAdjust.get());
+		rebuildLocalPose();
 	}
 	
 	public Vector3d getShapeRotation() {
@@ -191,17 +192,8 @@ public class ShapeEntity extends PoseEntity {
 		super.propertyChange(evt);
 		Object o = evt.getSource();
 		
-		if(filename==o) {
-			setShapeFilename(filename.get());
-		}
-		if(rotationAdjust==o) {
-			setShapeRotation(rotationAdjust.get());
-		}
-		if(originAdjust==o) {
-			setShapeOrigin(originAdjust.get());
-		}
-		if(scale==o) {
-			setShapeScale(scale.get());
+		if(rotationAdjust==o || originAdjust==o || scale==o) {
+			rebuildLocalPose();
 		}
 	}
 	
@@ -221,14 +213,6 @@ public class ShapeEntity extends PoseEntity {
 	
 	@Override
 	public void render(GL2 gl2) {
-		renderModel(gl2);
-		
-		// draw children
-		super.render(gl2);
-	}
-
-	
-	public void renderModel(GL2 gl2) {	
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, pose);
 
@@ -240,9 +224,12 @@ public class ShapeEntity extends PoseEntity {
 			material.render(gl2);
 			shape.render(gl2);
 		}
+
+		// draw children
+		super.render(gl2);
+		
 		gl2.glPopMatrix();
 	}
-	
 	
 	public MaterialEntity getMaterial() {
 		return material;
@@ -301,58 +288,6 @@ public class ShapeEntity extends PoseEntity {
 		material.getView(view);
 		
 		super.getView(view);
-	}
-
-
-	/**
-	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
-	 * @param sourceName file from which to load.  may be filename.ext or zipfile.zip:filename.ext
-	 * @return the instance.
-	 * @throws Exception if file cannot be read successfully
-	 */
-	public static Shape createModelFromFilename(String sourceName) throws Exception {
-		if(sourceName == null || sourceName.trim().length()==0) return null;
-		
-		// find the existing shape in the pool
-		Iterator<Shape> iter = shapePool.iterator();
-		while(iter.hasNext()) {
-			Shape m = iter.next();
-			if(m.getSourceName().equals(sourceName)) {
-				return m;
-			}
-		}
-		
-		Shape m=null;
-		
-		// not in pool.  Find a serviceLoader that can load this file type.
-		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
-		Iterator<ShapeLoadAndSave> i = loaders.iterator();
-		int count=0;
-		while(i.hasNext()) {
-			count++;
-			ShapeLoadAndSave loader = i.next();
-			if(loader.canLoad() && loader.canLoad(sourceName)) {
-				BufferedInputStream stream = FileAccess.open(sourceName);
-				m=new Shape();
-				if(loader.load(stream,m)) {
-					m.setSourceName(sourceName);
-					m.setLoader(loader);
-					// Maybe add a m.setSaveAndLoader(loader); ?
-					shapePool.add(m);
-					break;
-				}
-			}
-		}
-
-		if(m==null) {
-			if(count==0) {
-				throw new Exception("No loaders found!");
-			} else {
-				throw new Exception("No loader found for "+sourceName);
-			}
-		}
-		
-		return m;
 	}
 	
 	protected void reload() {

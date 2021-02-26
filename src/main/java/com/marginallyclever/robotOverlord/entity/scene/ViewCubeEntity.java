@@ -50,7 +50,8 @@ public class ViewCubeEntity extends Entity {
 		gl2.glPushMatrix();			
 			double c = cubeSize.get();			
 			PoseEntity camera = cameraView.getAttachedTo();
-			Matrix4d m = camera.getPoseWorld();
+			Matrix4d m = new Matrix4d();
+			camera.getPoseWorld(m);
 			Vector3d p = camera.getPosition();
 			Vector3d vx = MatrixHelper.getXAxis(m);
 			Vector3d vy = MatrixHelper.getYAxis(m);

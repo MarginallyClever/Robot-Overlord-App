@@ -1,25 +1,30 @@
 package com.marginallyclever.robotOverlord.entity.scene.shapeEntity;
 
+import java.io.BufferedInputStream;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.ServiceLoader;
 
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.FileAccess;
 
 /**
- * contains the vertex, normal, and texture data for a 3D model.
- * @author dan royer
- *
+ * {@link Shape} contains the vertex, normal, maybe color, and maybe texture data for a 3D model.
+ * It uses Vertex Buffer Objects to optimize rendering large collections of triangles.
+ * @author Dan Royer
  */
 public class Shape {
 	public final static int NUM_BUFFERS=4;  // verts, normals, colors, textureCoordinates
+
+	// the pool of all shapes loaded
+	@JsonIgnore
+	private static LinkedList<Shape> shapePool = new LinkedList<Shape>();
 	
 	protected String sourceName;
 	protected transient ShapeLoadAndSave loader;
@@ -38,9 +43,10 @@ public class Shape {
 	public transient boolean hasColors;
 	public transient boolean hasUVs;
 	
+	// the mesh can only be optimized after OpenGL is ready, during rendering.
+	// Loading may happen early.  This one-time flag remembers it needs to be done.
 	public transient boolean isDirty;
-	// correction matrix
-	protected Matrix4d adjust = new Matrix4d();
+	
 	// bounding limits
 	protected Cuboid cuboid = new Cuboid();
 
@@ -57,7 +63,6 @@ public class Shape {
 		hasUVs=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
-		adjust.setIdentity();
 	}
 	
 	/**
@@ -111,32 +116,16 @@ public class Shape {
 		Iterator<Float> fi;
 		int j=0;
 
-		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
-
 		FloatBuffer vertices = FloatBuffer.allocate(vertexArray.size());
 		fi = vertexArray.iterator();
-		Point3d p = new Point3d();
 		while(fi.hasNext()) {
-			p.x = fi.next().floatValue();
-			p.y = fi.next().floatValue();
-			p.z = fi.next().floatValue();
-			adjust.transform(p);
-			vertices.put(j++, (float)p.x);
-			vertices.put(j++, (float)p.y);
-			vertices.put(j++, (float)p.z);
-			
-			// also recalculate the bounding limits			
-			if(boundBottom.x>p.x) boundBottom.x=p.x;
-			if(boundBottom.y>p.y) boundBottom.y=p.y;
-			if(boundBottom.z>p.z) boundBottom.z=p.z;
-			if(boundTop.x<p.x) boundTop.x=p.x;
-			if(boundTop.y<p.y) boundTop.y=p.y;
-			if(boundTop.z<p.z) boundTop.z=p.z;
+			vertices.put(j++, fi.next().floatValue());
+			vertices.put(j++, fi.next().floatValue());
+			vertices.put(j++, fi.next().floatValue());
 		}
-		
-		cuboid.setBounds(boundTop, boundBottom);
 
+		updateCuboid();
+		
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
 		int totalBufferSize = numVertexes*3*s;
 		int vboIndex=0;
@@ -151,18 +140,12 @@ public class Shape {
 		if(hasNormals) {
 			j=0;
 		    // repeat for normals
-			Matrix3d pose = new Matrix3d();
-			adjust.get(pose);
 			FloatBuffer normals = FloatBuffer.allocate(normalArray.size());
 			fi = normalArray.iterator();
 			while(fi.hasNext()) {
-				p.x = fi.next().floatValue();
-				p.y = fi.next().floatValue();
-				p.z = fi.next().floatValue();
-				pose.transform(p);
-				normals.put(j++, (float)p.x);
-				normals.put(j++, (float)p.y);
-				normals.put(j++, (float)p.z);
+				normals.put(fi.next().floatValue());
+				normals.put(fi.next().floatValue());
+				normals.put(fi.next().floatValue());
 			}
 			
 			normals.rewind();
@@ -254,57 +237,6 @@ public class Shape {
 		gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
 	}
 	
-	
-	/**
-	 * Translate all the vertexes by a given amount
-	 * @param arg0 amount to translate on X, Y, and Z.
-	 */
-	public void adjustOrigin(Vector3d arg0) {
-		adjust.setTranslation(arg0);
-		isDirty=true;
-	}
-	
-	/**
-	 * Rotate all the vertexes by a given amount
-	 * @param arg0 amount in degrees to rotate around X,Y, and then Z. 
-	 */
-	public void adjustRotation(Vector3d arg0) {
-		// preserve scale
-		double scale = adjust.getScale();
-		// preserve translation
-		Vector3d trans = new Vector3d();
-		adjust.get(trans);
-		// generate the pose matrix
-		Matrix3d pose = new Matrix3d();
-		Matrix3d rotX = new Matrix3d();
-		Matrix3d rotY = new Matrix3d();
-		Matrix3d rotZ = new Matrix3d();
-		rotX.rotX((float)Math.toRadians(arg0.x));
-		rotY.rotY((float)Math.toRadians(arg0.y));
-		rotZ.rotZ((float)Math.toRadians(arg0.z));
-		pose.set(rotX);
-		pose.mul(rotY);
-		pose.mul(rotZ);
-		adjust.set(pose);
-		adjust.setTranslation(trans);  // preserve translation
-		adjust.setScale(scale);  // preserve scale
-		isDirty=true;
-	}
-	
-	/**
-	 * magnifies the current scale
-	 * @param arg0
-	 */
-	public void adjustScale(double arg0) {
-		adjust.setScale(arg0);
-		isDirty=true;
-	}
-	
-	public void adjustMatrix(Matrix4d m) {
-		adjust.set(m);
-		isDirty=true;
-	}
-	
 	public void addNormal(float x,float y,float z) {
 		normalArray.add(x);
 		normalArray.add(y);
@@ -346,9 +278,7 @@ public class Shape {
 		while(fi.hasNext()) {
 			p.x = fi.next().floatValue();
 			p.y = fi.next().floatValue();
-			p.z = fi.next().floatValue();
-			adjust.transform(p);
-			
+			p.z = fi.next().floatValue();			
 			if(boundBottom.x>p.x) boundBottom.x=p.x;
 			if(boundBottom.y>p.y) boundBottom.y=p.y;
 			if(boundBottom.z>p.z) boundBottom.z=p.z;
@@ -360,9 +290,6 @@ public class Shape {
 	}
 
 	public Cuboid getCuboid() {
-		if(isDirty) {
-			updateCuboid();
-		}
 		return cuboid;
 	}
 	
@@ -376,5 +303,56 @@ public class Shape {
 
 	public void setLoader(ShapeLoadAndSave loader) {
 		this.loader = loader;
+	}
+
+	/**
+	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
+	 * @param sourceName file from which to load.  may be filename.ext or zipfile.zip:filename.ext
+	 * @return the instance.
+	 * @throws Exception if file cannot be read successfully
+	 */
+	public static Shape createModelFromFilename(String sourceName) throws Exception {
+		if(sourceName == null || sourceName.trim().length()==0) return null;
+		
+		// find the existing shape in the pool
+		Iterator<Shape> iter = shapePool.iterator();
+		while(iter.hasNext()) {
+			Shape m = iter.next();
+			if(m.getSourceName().equals(sourceName)) {
+				return m;
+			}
+		}
+		
+		Shape m=null;
+		
+		// not in pool.  Find a serviceLoader that can load this file type.
+		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
+		Iterator<ShapeLoadAndSave> i = loaders.iterator();
+		int count=0;
+		while(i.hasNext()) {
+			count++;
+			ShapeLoadAndSave loader = i.next();
+			if(loader.canLoad() && loader.canLoad(sourceName)) {
+				BufferedInputStream stream = FileAccess.open(sourceName);
+				m=new Shape();
+				if(loader.load(stream,m)) {
+					m.setSourceName(sourceName);
+					m.setLoader(loader);
+					// Maybe add a m.setSaveAndLoader(loader); ?
+					shapePool.add(m);
+					break;
+				}
+			}
+		}
+
+		if(m==null) {
+			if(count==0) {
+				throw new Exception("No loaders found!");
+			} else {
+				throw new Exception("No loader found for "+sourceName);
+			}
+		}
+		
+		return m;
 	}
 }

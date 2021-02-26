@@ -41,10 +41,8 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	// my unique id
 	private transient int pickName;	
 	
-	// pose relative to my parent Entity.
-	public Matrix4d pose = new Matrix4d();
-	// pose relative to the world.
-	public Matrix4d poseWorld = new Matrix4d();
+	// pose relative to my parent.
+	protected Matrix4d pose = new Matrix4d();
 	
 	// collision limits
 	public Cuboid cuboid = new Cuboid();
@@ -69,7 +67,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		showLineage.addPropertyChangeListener(this);
 		
 		pose.setIdentity();
-		poseWorld.setIdentity();
 	}
 
 	public PoseEntity(String name) {
@@ -80,7 +77,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	public void set(PoseEntity b) {
 		super.set(b);
 		pose.set(b.pose);
-		poseWorld.set(b.poseWorld);
 		cuboid.set(b.cuboid);
 	}
 
@@ -214,41 +210,9 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 			Matrix4d newValue = arg0;
 			
 			pose.set(arg0);
-			updatePoseWorld();
 			
 			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"pose",oldValue,newValue));
 		//}
-	}
-	
-	/**
-	 * Recalculates poseWorld from pose and parent.poseWorld.  
-	 * Does not crawl up the parent hierarchy.
-	 */
-	public void updatePoseWorld() {
-		Matrix4d m;
-		if(parent instanceof PoseEntity) {
-			// this poseWorld is my pose * my parent's pose.
-			PoseEntity peParent = (PoseEntity)parent;
-			m = new Matrix4d(peParent.poseWorld);
-			m.mul(pose);
-		} else {
-			// this poseWorld is my pose
-			m = pose;
-		}
-		
-
-		//if(!m.epsilonEquals(poseWorld.get(), 1e-6))
-		{
-			poseWorld.set(m);
-			cuboid.setPoseWorld(m);
-			
-			for( Entity c : children ) {
-				if(c instanceof PoseEntity) {
-					PoseEntity pe = (PoseEntity)c;
-					pe.updatePoseWorld();
-				}
-			}
-		}
 	}
 
 	@Override
@@ -261,26 +225,39 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	}
 	
 	/**
+	 * Climb through the entity tree, finding all parents that are a {@link PoseEntity}.
+	 * Then work from parent-most forward to build the world pose matrix.
+	 * It's not efficient but it's always accurate.  
 	 * @return {@link Matrix4d} of the world pose
 	 */
-	public Matrix4d getPoseWorld() {
-		return new Matrix4d(poseWorld);
+	@Override
+	public void getPoseWorld(Matrix4d m) {
+		Entity parent = getParent(); 
+		if(parent!=null && parent instanceof PoseEntity) {
+			((PoseEntity)parent).getPoseWorld(m);
+		} else {
+			m.setIdentity();
+		}
+		m.mul(pose);
 	}
-	
 	
 	/**
 	 * Set the pose and poseWorld of this item
 	 * @param m
 	 */
 	public void setPoseWorld(Matrix4d m) {
-		if(parent instanceof PoseEntity) {
+		if(parent != null && parent instanceof PoseEntity) {
+			// I have a parent that is posed in the world.  I only hold onto relative pose information,
+			// so remove my parent's world pose from m to get the correct relative pose.
 			PoseEntity pep = (PoseEntity)parent;
-			Matrix4d newPose = new Matrix4d(pep.poseWorld);
+			Matrix4d newPose = new Matrix4d();
+			pep.getPoseWorld(newPose);
 			newPose.invert();
 			newPose.mul(m);
+			// set the new relative pose.
 			setPose(newPose);
 		} else {
-			setPose(new Matrix4d(m));
+			setPose(m);
 		}
 	}
 	
@@ -306,7 +283,9 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	public ArrayList<Cuboid> getCuboidList() {		
 		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
 		
-		cuboid.setPoseWorld(this.getPoseWorld());
+		Matrix4d m = new Matrix4d();
+		this.getPoseWorld(m);
+		cuboid.setPoseWorld(m);
 		cuboidList.add(cuboid);
 
 		return cuboidList;
@@ -388,6 +367,8 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	}
 	
 	public void snapZToMajorAxis() {
+		Matrix4d poseWorld = new Matrix4d();
+		getPoseWorld(poseWorld);
 		Matrix4d m = findMajorAxisTarget(poseWorld);
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
@@ -398,6 +379,8 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	}
 	
 	public void snapXToMajorAxis() {
+		Matrix4d poseWorld = new Matrix4d();
+		getPoseWorld(poseWorld);
 		Matrix4d m = findMinorAxisTarget(poseWorld);
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
@@ -464,6 +447,8 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		//	pose.getView(view);
 		view.popStack();
 		view.pushStack("WP","World Pose");
+		Matrix4d poseWorld = new Matrix4d();
+		getPoseWorld(poseWorld);
 		view.add(new Vector3dEntity("Position",MatrixHelper.getPosition(poseWorld)));
 		//	poseWorld.getView(view);
 		view.popStack();
@@ -473,7 +458,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	protected Object clone() {
 		PoseEntity e = (PoseEntity)super.clone();
 		e.pose = (Matrix4d)pose.clone();
-		e.poseWorld = (Matrix4d)poseWorld.clone();
 		return e;
 	}
 	

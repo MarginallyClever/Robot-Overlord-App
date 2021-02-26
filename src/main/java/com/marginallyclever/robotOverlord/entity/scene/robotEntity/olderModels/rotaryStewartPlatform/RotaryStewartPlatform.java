@@ -22,7 +22,6 @@ import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.RobotEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 
 @Deprecated
 public class RotaryStewartPlatform extends RobotEntity {
@@ -107,9 +106,9 @@ public class RotaryStewartPlatform extends RobotEntity {
 		wDir = 0.0f;
 		
 		try {
-			modelTop = ShapeEntity.createModelFromFilename("/StewartPlatform.zip:top.STL");
-			modelBicep = ShapeEntity.createModelFromFilename("/StewartPlatform.zip:arm.STL");
-			modelBase = ShapeEntity.createModelFromFilename("/StewartPlatform.zip:base.STL");
+			modelTop = Shape.createModelFromFilename("/StewartPlatform.zip:top.STL");
+			modelBicep = Shape.createModelFromFilename("/StewartPlatform.zip:arm.STL");
+			modelBase = Shape.createModelFromFilename("/StewartPlatform.zip:base.STL");
 			matBase.setDiffuseColor(37.0f / 255.0f, 110.0f / 255.0f, 94.0f / 255.0f, 1.0f);
 			matBicep.setDiffuseColor(68.0f / 255.0f, 137.0f / 255.0f, 122.0f / 255.0f, 1.0f);
 			matTop.setDiffuseColor(110.0f / 255.0f, 164.0f / 255.0f, 152.0f / 255.0f, 1.0f);

@@ -79,23 +79,22 @@ public class Robot_Cartesian extends RobotEntity {
 			robot.getLink(2).setShapeFilename("/Prusa i3 MK3/Prusa2.stl");
 			robot.getLink(3).setShapeFilename("/Prusa i3 MK3/Prusa3.stl");
 
-			robot.getLink(0).setShapeScale(0.1f);
-			robot.getLink(1).setShapeScale(0.1f);
-			robot.getLink(2).setShapeScale(0.1f);
-			robot.getLink(3).setShapeScale(0.1f);
+			robot.getLink(0).setShapeScale(0.1);
+			robot.getLink(1).setShapeScale(0.1);
+			robot.getLink(2).setShapeScale(0.1);
+			robot.getLink(3).setShapeScale(0.1);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		robot.getLink(0).getModel().adjustRotation(new Vector3d(90,0,0));
-		robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,27.9,0));
-		robot.getLink(1).getModel().adjustOrigin(new Vector3d(11.2758,-8.422,0));
-		robot.getLink(1).getModel().adjustRotation(new Vector3d(0,-90,0));
-		robot.getLink(2).getModel().adjustOrigin(new Vector3d(32.2679,-9.2891,-27.9));
-		robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,90));
-		robot.getLink(3).getModel().adjustRotation(new Vector3d(-90,0,0));
-		robot.getLink(3).getModel().adjustOrigin(new Vector3d(0,-31.9,32.2679));	
+		robot.getLink(0).setShapeRotation(new Vector3d(90,0,0));
+		robot.getLink(0).setShapeOrigin(new Vector3d(0,27.9,0));
+		robot.getLink(1).setShapeOrigin(new Vector3d(11.2758,-8.422,0));
+		robot.getLink(1).setShapeRotation(new Vector3d(0,-90,0));
+		robot.getLink(2).setShapeOrigin(new Vector3d(32.2679,-9.2891,-27.9));
+		robot.getLink(2).setShapeRotation(new Vector3d(0,0,90));
+		robot.getLink(3).setShapeRotation(new Vector3d(-90,0,0));
+		robot.getLink(3).setShapeOrigin(new Vector3d(0,-31.9,32.2679));	
 	}
 	
 	@Override

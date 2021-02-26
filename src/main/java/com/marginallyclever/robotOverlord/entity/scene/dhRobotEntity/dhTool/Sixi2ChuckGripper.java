@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 
+import javax.vecmath.Vector3d;
+
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {
@@ -12,14 +14,14 @@ public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 		super();
 		setName("Sixi2 Chuck Gripper");
 		setShapeFilename("/Sixi2/chuckGripper/base.stl");
-		setShapeScale(0.1);
-		setShapeOrigin(0, 0, 3.4);
+		shapeEntity.setShapeScale(0.1);
+		shapeEntity.setShapeOrigin(0, 0, 3.4);
 		leftFinger.setShapeFilename("/Sixi2/chuckGripper/a.stl");
 		leftFinger.setShapeScale(0.1);
-		leftFinger.setShapeOrigin(0, 0, 3.4);
+		leftFinger.setShapeOrigin(new Vector3d(0, 0, 3.4));
 		rightFinger.setShapeFilename("/Sixi2/chuckGripper/b.stl");		
 		rightFinger.setShapeScale(0.1);
-		rightFinger.setShapeOrigin(0, 0, 3.4);
+		rightFinger.setShapeOrigin(new Vector3d(0, 0, 3.4));
 		toolTipOffset.setD(13.5);
 	}
 	

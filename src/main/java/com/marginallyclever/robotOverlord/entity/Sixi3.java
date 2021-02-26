@@ -13,7 +13,6 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -57,7 +56,7 @@ public class Sixi3 extends PoseEntity {
 		public double alpha;
 
 		// model and relative offset from DH origin
-		public Shape shape = new Shape();
+		public ShapeEntity shape;
 		public Matrix4d shapeOffset = new Matrix4d();
 		
 		public Sixi3Link() {
@@ -69,12 +68,7 @@ public class Sixi3 extends PoseEntity {
 			r=rr;
 			alpha=aa;
 			theta=tt;
-			try {
-				shape = ShapeEntity.createModelFromFilename(shapeFilename);
-			} catch(Exception e) {
-				System.out.println("Sixi3Link cannot load '"+shapeFilename+"': "+e.getLocalizedMessage());
-				e.printStackTrace();
-			}
+			shape = new ShapeEntity(shapeFilename);
 		}
 		
 		public void updateMatrix() {
@@ -97,7 +91,7 @@ public class Sixi3 extends PoseEntity {
 	private Sixi3Link [] links = new Sixi3Link[6];
 
 	// unmoving model of the robot base.
-	private Shape base;
+	private ShapeEntity base;
 
 	// end effector
 	private Matrix4d ee = new Matrix4d();
@@ -123,7 +117,9 @@ public class Sixi3 extends PoseEntity {
 	// how big a step to take with each partial descent?
 	private double [] samplingDistances = { 0,0,0,0,0,0 };
 	
+	// material to draw on the surface of the shapes.
 	private MaterialEntity linkMat = new MaterialEntity();
+	
 	
 	public Sixi3() {
 		super();
@@ -182,17 +178,12 @@ public class Sixi3 extends PoseEntity {
 		links[5].set(0 ,d5,  0,0,HAND_MODEL);
 
 		// load the base shape.
-		try {
-			base = ShapeEntity.createModelFromFilename(BASE_MODEL);
-		} catch(Exception e) {
-			System.out.println("Sixi3Link cannot load '"+BASE_MODEL+"': "+e.getLocalizedMessage());
-			e.printStackTrace();
-		}
+		base = new ShapeEntity(BASE_MODEL);
 		
 		// the models are 10x too big.
-		base.adjustScale(0.1);
+		base.setShapeScale(0.1);
 		//links[1].shape.adjustScale(0.1);
-		links[5].shape.adjustScale(0.1);
+		links[5].shape.setShapeScale(0.1);
 
 		// adjust the shape offsets.
 		Matrix4d m0 = new Matrix4d();

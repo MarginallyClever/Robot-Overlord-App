@@ -16,17 +16,16 @@ import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
  *
  */
 public class DHIKSolver_GradientDescent extends DHIKSolver {
-	// For the sixi robot arm, the max reach is 800mm and the sensor resolution is 2^12 (4096).
-	private static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,12);  // 0.087890625 degrees = 0.00153398079 radians
+	private static final double SENSOR_RESOLUTION = 0.01;
 	// protected static final double MAX_REACH = 800; // mm
 	// protected static final double DISTANCE_AT_MAX_REACH = Math.tan(Math.toRadians(SENSOR_RESOLUTION)) * MAX_REACH;  // 1.2272mm
 	// But this is a generic solver that should work with any arm, so.
 
-	private static final int ITERATIONS = 10;
+	private static final int ITERATIONS = 30;
 	// Scale the "handles" used in distanceToTarget().  Bigger scale, greater rotation compensation
 	private static final double CORRECTIVE_FACTOR = 100;
 	// If distanceToTarget() score is within threshold, quit with success. 
-	private static final double THRESHOLD = 0.1;
+	private static final double THRESHOLD = 0.01;
 
 	// how big a step to take with each partial descent?
 	private double [] samplingDistances = { 0,0,0,0,0,0,0 };
@@ -44,7 +43,8 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	}
 	
 	public double distanceToTarget() {
-		Matrix4d currentMatrix = endEffector.getPoseWorld();
+		Matrix4d currentMatrix = new Matrix4d();
+		endEffector.getPoseWorld(currentMatrix);
 		
 		// linear difference in centers
 		Vector3d c0 = new Vector3d();
@@ -97,9 +97,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		link.refreshPoseMatrix();
 
 		if( FxMinusD > Fx && FxPlusD > Fx ) {
-			if( Fx == 0 ) {
-				samplingDistances[i] *= 2.0/3.0;
-			} else {
+			if( Fx != 0 ) {
 				samplingDistances[i] *= Math.min(FxMinusD, FxPlusD) / Fx;
 			}
 			return 0;

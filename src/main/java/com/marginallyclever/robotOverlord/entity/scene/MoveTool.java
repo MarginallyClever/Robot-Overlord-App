@@ -162,13 +162,16 @@ public class MoveTool extends Entity {
 		PoseEntity camera = cameraView.getAttachedTo();
 
 		// find the current frame of reference.  This could change every frame as the camera moves.
+		Matrix4d pw = new Matrix4d();
+		subject.getPoseWorld(pw);
 		if(!isActivelyMoving()) {
 			switch(FrameOfReference.values()[frameOfReference.get()]) {
-			case SUBJECT: FOR.set(subject.getPoseWorld());	break;
-			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subject.getPoseWorld())));  break;
+			case SUBJECT: FOR.set(pw);	break;
+			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(pw)));  break;
 			default     : FOR.setIdentity();  break;
 			}
-			FOR.setTranslation(MatrixHelper.getPosition(subject.getPoseWorld()));
+			
+			FOR.setTranslation(MatrixHelper.getPosition(pw));
 		}
 
 		// apply the effect of drag actions
@@ -196,7 +199,7 @@ public class MoveTool extends Entity {
 		}
 
 		Vector3d mp = new Vector3d();
-		subject.getPoseWorld().get(mp);
+		pw.get(mp);
 		// put the dragball on the subject
 		position.set(mp);
 		
@@ -255,7 +258,7 @@ public class MoveTool extends Entity {
 					if( cameraView.isPressed() ) {
 						// ball hit!  Start moving.
 						isActivelyMoving=true;
-						startMatrix.set(subject.getPoseWorld());
+						subject.getPoseWorld(startMatrix);
 						resultMatrix.set(startMatrix);
 						
 						Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
@@ -361,8 +364,7 @@ public class MoveTool extends Entity {
 			}
 		}
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
-			
-			startMatrix.set(subject.getPoseWorld());
+			subject.getPoseWorld(startMatrix);
 			resultMatrix.set(startMatrix);
 			valueStart =0;
 			valueLast=0;
@@ -459,7 +461,7 @@ public class MoveTool extends Entity {
 				isActivelyMoving = true;
 				
 				pickPointSaved.set(pickPoint);
-				startMatrix.set(subject.getPoseWorld());
+				subject.getPoseWorld(startMatrix);
 				resultMatrix.set(startMatrix);
 				
 				valueStart=0;
@@ -532,8 +534,7 @@ public class MoveTool extends Entity {
 		} else {
 			// GamePad/JoyStick
 			if( InputManager.isOn(InputManager.Source.STICK_X)) {
-								
-				startMatrix.set(subject.getPoseWorld());
+				subject.getPoseWorld(startMatrix);
 				resultMatrix.set(startMatrix);
 				
 				for(int i=0; i <3; i++) {
@@ -674,10 +675,13 @@ public class MoveTool extends Entity {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
 		Matrix4d lookAt = new Matrix4d();
+
+		Matrix4d pw = new Matrix4d();
+		subject.getPoseWorld(pw);
 		
-		Vector3d wp = MatrixHelper.getPosition(subject.getPoseWorld());
-		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), wp));
-		lookAt.setTranslation(wp);
+		Vector3d worldPosition = MatrixHelper.getPosition(pw);
+		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), worldPosition));
+		lookAt.setTranslation(worldPosition);
 
 		gl2.glPushMatrix();
 
@@ -700,16 +704,19 @@ public class MoveTool extends Entity {
 		gl2.glPushMatrix();
 		
 		// camera forward is +z axis 
+		Matrix4d pw = new Matrix4d();
+		subject.getPoseWorld(pw);
+		
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subject.getPoseWorld()));
+		Matrix4d lookAt = MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(pw));
 		Vector3d lookAtVector = MatrixHelper.getZAxis(lookAt);
 		
-		Matrix4d cpw = camera.getPoseWorld();
-		cpw.m03=
-		cpw.m13=
-		cpw.m23=0;
-		cpw.invert();
+		camera.getPoseWorld(pw);
+		pw.m03=
+		pw.m13=
+		pw.m23=0;
+		pw.invert();
 
 		double cr = (nearestPlane==Plane.X) ? 1 : 0.5f;
 		double cg = (nearestPlane==Plane.Y) ? 1 : 0.5f;
@@ -853,7 +860,10 @@ public class MoveTool extends Entity {
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
-		Vector3d lookAtVector = MatrixHelper.getPosition(subject.getPoseWorld());
+
+		Matrix4d pw = new Matrix4d();
+		subject.getPoseWorld(pw);
+		Vector3d lookAtVector = MatrixHelper.getPosition(pw);
 		lookAtVector.sub(camera.getPosition());
 		lookAtVector.normalize();
 	
@@ -919,12 +929,11 @@ public class MoveTool extends Entity {
 			gl2.glBegin(GL2.GL_LINES);
 			gl2.glColor3f(255,255,255);
 			gl2.glVertex3d(0,0,0);
-			Matrix4d sw = subject.getPoseWorld();
 			
 			gl2.glVertex3d(
-					(startMatrix.m03-sw.m03)/ballSize.get(),
-					(startMatrix.m13-sw.m13)/ballSize.get(),
-					(startMatrix.m23-sw.m23)/ballSize.get());
+					(startMatrix.m03-pw.m03)/ballSize.get(),
+					(startMatrix.m13-pw.m13)/ballSize.get(),
+					(startMatrix.m23-pw.m23)/ballSize.get());
 			gl2.glEnd();
 		}
 	}

@@ -50,9 +50,9 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		startT=endT=gripperServoAngle;
 		
 		setShapeFilename("/Sixi2/beerGripper/base.stl");
-		setShapeScale(0.1f);
-		setShapeOrigin(-1,0,4.15);
-		setShapeRotation(0,180,90);
+		shapeEntity.setShapeScale(0.1f);
+		shapeEntity.setShapeOrigin(-1,0,4.15);
+		shapeEntity.setShapeRotation(0,180,90);
 		
 
 		Matrix3d r = new Matrix3d();
@@ -70,7 +70,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		addChild(subComponents[2]=new DHLink());
 		addChild(subComponents[3]=new DHLink());
 		subComponents[0].setShapeFilename("/Sixi2/beerGripper/linkage.stl");
-		subComponents[0].setShapeScale(0.1f);
+		subComponents[0].setShapeScale(0.1);
 		subComponents[1].set(subComponents[0]);
 		subComponents[2].set(subComponents[0]);
 		subComponents[3].set(subComponents[0]);
@@ -82,7 +82,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		// 2 finger tips
 		addChild(subComponents[4]=new DHLink());
 		subComponents[4].setShapeFilename("/Sixi2/beerGripper/finger.stl");
-		subComponents[4].setShapeScale(0.1f);
+		subComponents[4].setShapeScale(0.1);
 		addChild(subComponents[5]=new DHLink());
 		subComponents[5].set(subComponents[4]);
 		
@@ -146,21 +146,23 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
 			wasGripping=true;
+			Matrix4d poseWorld = new Matrix4d();
+			getPoseWorld(poseWorld);
 			// grab release
 			if(subjectBeingHeld==null) {
 				//Log.message("Grab");
 				// Get the object at the targetPos.
 				Vector3d target = new Vector3d();
-				this.poseWorld.get(target);
+				poseWorld.get(target);
 				List<PoseEntity> list = this.getWorld().findPhysicalObjectsNear(target, 10);
 				if(!list.isEmpty()) {
 					subjectBeingHeld = list.get(0);
 					// A new subject has been acquired.
 					// The subject is being held by the gripper.  Subtract the gripper's world pose from the subject's world pose.
 					Matrix4d m = subjectBeingHeld.getPose();
-					Matrix4d ipc = new Matrix4d(poseWorld);
-					ipc.invert();
-					m.mul(ipc);
+					Matrix4d iposeWorld = new Matrix4d(poseWorld);
+					iposeWorld.invert();
+					m.mul(iposeWorld);
 					subjectBeingHeld.setPose(m);
 				}
 			} else {

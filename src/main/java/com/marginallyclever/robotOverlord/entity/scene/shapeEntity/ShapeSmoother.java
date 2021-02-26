@@ -27,7 +27,7 @@ public class ShapeSmoother {/*
 
 	public static void smoothModel(String inName,String outName,float vertexEpsilon,float normalEpsilon) throws IOException {
 		try {
-			Shape m = ShapeEntity.createModelFromFilename(inName);
+			Shape m = Shape.createModelFromFilename(inName);
 			smoothNormals(m,vertexEpsilon,normalEpsilon);
 			
 			//File file = new File(outName);

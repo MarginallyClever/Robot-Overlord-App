@@ -84,16 +84,16 @@ public class Robot_UArm extends RobotEntity {
 			robot.getLink(4).setShapeFilename("/uArm/wrist.STL");
 			robot.getLink(5).setShapeFilename("/uArm/hand.STL");	
 			
-			robot.getLink(0).getModel().adjustOrigin(new Vector3d(0,0,1.65f));
-			robot.getLink(1).getModel().adjustOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
-			robot.getLink(1).getModel().adjustRotation(new Vector3d(0,0,-180));
-			robot.getLink(2).getModel().adjustOrigin(new Vector3d(-0.25f,0,1.65f));
-			robot.getLink(2).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(3).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
-			robot.getLink(3).getModel().adjustRotation(new Vector3d(0,0,90));
-			robot.getLink(4).getModel().adjustOrigin(new Vector3d(-0.25f,0,0));
-			robot.getLink(4).getModel().adjustRotation(new Vector3d(-90,0,90));
-			robot.getLink(5).getModel().adjustRotation(new Vector3d(0,-90,90));
+			robot.getLink(0).setShapeOrigin(new Vector3d(0,0,1.65f));
+			robot.getLink(1).setShapeOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
+			robot.getLink(1).setShapeRotation(new Vector3d(0,0,-180));
+			robot.getLink(2).setShapeOrigin(new Vector3d(-0.25f,0,1.65f));
+			robot.getLink(2).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(3).setShapeOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
+			robot.getLink(3).setShapeRotation(new Vector3d(0,0,90));
+			robot.getLink(4).setShapeOrigin(new Vector3d(-0.25f,0,0));
+			robot.getLink(4).setShapeRotation(new Vector3d(-90,0,90));
+			robot.getLink(5).setShapeRotation(new Vector3d(0,-90,90));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

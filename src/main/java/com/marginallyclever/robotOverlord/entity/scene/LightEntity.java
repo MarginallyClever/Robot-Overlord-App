@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.scene;
 
 import java.util.ArrayList;
 
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -96,6 +97,9 @@ public class LightEntity extends PoseEntity {
 			return;
 		}
 		gl2.glEnable(i);
+		
+		Matrix4d poseWorld = new Matrix4d();
+		getPoseWorld(poseWorld);
 		
 		position[0]=(float)poseWorld.m03;
 		position[1]=(float)poseWorld.m13;

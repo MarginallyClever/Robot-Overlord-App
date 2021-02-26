@@ -4,7 +4,7 @@ import javax.vecmath.Matrix4d;
 
 public abstract interface Moveable {
 	// get the movable thing's current pose
-	public abstract Matrix4d getPoseWorld();
+	public abstract void getPoseWorld(Matrix4d m);
 	
 	// force move to a given pose
 	public abstract void setPoseWorld(Matrix4d m);

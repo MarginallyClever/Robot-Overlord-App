@@ -96,13 +96,13 @@ public class Robot_Phybot extends RobotEntity {
 			for(int i=0;i<robot.getNumLinks();++i) 
 				robot.getLink(i).setShapeScale(0.1f);
 			
-			robot.getLink(1).getModel().adjustOrigin(new Vector3d(0, 0, -25));
-			robot.getLink(2).getModel().adjustOrigin(new Vector3d(0, -5, -25));
-			robot.getLink(2).getModel().adjustRotation(new Vector3d(-11.3,0,0));
+			robot.getLink(1).setShapeOrigin(new Vector3d(0, 0, -25));
+			robot.getLink(2).setShapeOrigin(new Vector3d(0, -5, -25));
+			robot.getLink(2).setShapeRotation(new Vector3d(-11.3,0,0));
 			
-			robot.getLink(5).getModel().adjustOrigin(new Vector3d(0, 0, -60));
-			robot.getLink(6).getModel().adjustOrigin(new Vector3d(0, 0, -70));
-			robot.getLink(7).getModel().adjustOrigin(new Vector3d(0, 0, -74));
+			robot.getLink(5).setShapeOrigin(new Vector3d(0, 0, -60));
+			robot.getLink(6).setShapeOrigin(new Vector3d(0, 0, -70));
+			robot.getLink(7).setShapeOrigin(new Vector3d(0, 0, -74));
 
 			Matrix4d rot = new Matrix4d();
 			Matrix4d rotX = new Matrix4d();
@@ -119,8 +119,8 @@ public class Robot_Phybot extends RobotEntity {
 			Vector3d adjustPos = new Vector3d(0, 5, -50);
 			pose.transform(adjustPos);
 			
-			robot.getLink(3).getModel().adjustOrigin(adjustPos);
-			robot.getLink(3).getModel().adjustRotation(new Vector3d(90, 0, 0));
+			robot.getLink(3).setShapeOrigin(adjustPos);
+			robot.getLink(3).setShapeRotation(new Vector3d(90, 0, 0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

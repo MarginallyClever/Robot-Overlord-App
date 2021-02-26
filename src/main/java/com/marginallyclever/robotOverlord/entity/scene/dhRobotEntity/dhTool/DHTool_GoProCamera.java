@@ -23,9 +23,9 @@ public class DHTool_GoProCamera extends DHTool {
 		refreshPoseMatrix();
 		
 		setShapeFilename("/Sixi2/gopro/gopro.stl");
-		setShapeScale(0.1f);
-		setShapeOrigin(0, 0, 0.5);
-		setShapeRotation(90, 90, 0);
+		shapeEntity.setShapeScale(0.1f);
+		shapeEntity.setShapeOrigin(0, 0, 0.5);
+		shapeEntity.setShapeRotation(90, 90, 0);
 		
 		// adjust the shape's position and rotation.
 		this.setPosition(new Vector3d(50,0,50));

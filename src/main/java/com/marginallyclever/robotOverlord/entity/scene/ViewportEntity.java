@@ -88,7 +88,8 @@ public class ViewportEntity extends Entity {
         gl2.glLoadIdentity();
     	
 		PoseEntity camera = getAttachedTo();
-		Matrix4d mFinal = camera.getPoseWorld();
+		Matrix4d mFinal = new Matrix4d();
+		camera.getPoseWorld(mFinal);
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);
 	}
@@ -142,7 +143,8 @@ public class ViewportEntity extends Entity {
 					0);
 			ray.direction.set(0,0,-1);
 			PoseEntity camera = getAttachedTo();
-			Matrix4d m2 = camera.getPoseWorld();
+			Matrix4d m2 = new Matrix4d();
+			camera.getPoseWorld(m2);
 			m2.transform(ray.direction);
 			m2.transform(ray.start);
 		} else {
@@ -153,7 +155,8 @@ public class ViewportEntity extends Entity {
 			
 			// adjust the ray by the camera world pose.
 			PoseEntity camera = getAttachedTo();
-			Matrix4d m2 = camera.getPoseWorld();
+			Matrix4d m2 = new Matrix4d();
+			camera.getPoseWorld(m2);
 			m2.transform(ray.direction);
 			ray.start.set(camera.getPosition());
 		}
