@@ -31,17 +31,19 @@ public class Sixi3 extends PoseEntity {
 	 */
 	private static final long serialVersionUID = -2436924907127292890L;
 
+	// measurements from Fusion360 model.
 	private static final double BASE_HEIGHT=8.0;
 	private static final double LENGTH_A=2.95;
 	private static final double LENGTH_B=8.2564;
 	private static final double CONNECTOR_HEIGHT=0.7;
 	private static final double HAND_HEIGHT=1.25;
 	
-	private static final String FILE_ACTUATOR = "C:\\Users\\aggra\\Desktop\\actuator 2020-feb\\actuator 2021-02-24-02.stl";
-	private static final String FILE_HAND = "C:\\Users\\aggra\\Desktop\\actuator 2020-feb\\Sixi3 Hand DIN EN ISO 9409-1-50-4-M6 v6.stl";
-	private static final String FILE_BASE = "C:\\Users\\aggra\\Desktop\\actuator 2020-feb\\base v7.stl";
-
-	// math shape of robot
+	private static final String ACTUATOR_MODEL   = "/Sixi3/actuator 2021-02-25.obj";
+	private static final String HAND_MODEL       = "/Sixi3/Sixi3 Hand DIN EN ISO 9409-1-50-4-M6 v6.stl";
+	private static final String BASE_MODEL       = "/Sixi3/base v7.stl";
+	private static final String ACTUATOR_TEXTURE = "/Sixi3/actuator-texture.png";
+	
+	// math representation.
 	private class Sixi3Link {
 		// D-H parameters combine to make this matrix which is relative to the parent.
 		public Matrix4d pose = new Matrix4d();
@@ -110,26 +112,18 @@ public class Sixi3 extends PoseEntity {
 
 	// axis for ik
 	static private final String [] axisLabels = new String[] { "X","Y","Z","Xr","Yr","Zr"};
-	private IntEntity axisChoice = new IntEntity("axisChoice",0);
-	// axis amount for ik
-	private DoubleEntity axisAmount = new DoubleEntity("axisAmount",0);
+	// which axis do we want to move?
+	private IntEntity axisChoice = new IntEntity("Jog direction",0);
+	// how fast do we want to move?
+	private DoubleEntity axisAmount = new DoubleEntity("Jog speed",0);
 	// target end effector pose
 	private Matrix4d ee2 = new Matrix4d();
 	private boolean applyingIK;
-	
 
-	// For the sixi robot arm, the max reach is 800mm and the sensor resolution is 2^15 (32768 bits, 0.011 degree)
-	private static final double SENSOR_RESOLUTION = 360.0/Math.pow(2,15);
-	private static final int ITERATIONS = 30;
-	// Scale the "handles" used in distanceToTarget().  Bigger scale, greater rotation compensation
-	private static final double CORRECTIVE_FACTOR = 100;
-	// If distanceToTarget() score is within threshold, quit with success. 
-	private static final double THRESHOLD = 0.1;
 	// how big a step to take with each partial descent?
 	private double [] samplingDistances = { 0,0,0,0,0,0 };
-	// how much of that partial descent to actually apply?
-	private double learningRate=0;
 	
+	private MaterialEntity linkMat = new MaterialEntity();
 	
 	public Sixi3() {
 		super();
@@ -176,24 +170,24 @@ public class Sixi3 extends PoseEntity {
 		double d3=LENGTH_A+LENGTH_B;
 		double d4=d3;
 		double d5=LENGTH_A+HAND_HEIGHT;
-		links[0].set(0 ,d0,-90,0,FILE_ACTUATOR);
-		links[1].set(r2, 0,  0,0,FILE_ACTUATOR);
-		links[2].set(0 , 0,-90,0,FILE_ACTUATOR);
-		links[3].set(0 ,d3,-90,0,FILE_ACTUATOR);
-		links[4].set(0 ,d4, 90,0,FILE_ACTUATOR);
-		links[5].set(0 ,d5,  0,0,FILE_HAND);
+		links[0].set(0 ,d0,-90,0,ACTUATOR_MODEL);
+		links[1].set(r2, 0,  0,0,ACTUATOR_MODEL);
+		links[2].set(0 , 0,-90,0,ACTUATOR_MODEL);
+		links[3].set(0 ,d3,-90,0,ACTUATOR_MODEL);
+		links[4].set(0 ,d4, 90,0,ACTUATOR_MODEL);
+		links[5].set(0 ,d5,  0,0,HAND_MODEL);
 
 		// load the base shape.
 		try {
-			base = ShapeEntity.createModelFromFilename(FILE_BASE);
+			base = ShapeEntity.createModelFromFilename(BASE_MODEL);
 		} catch(Exception e) {
-			System.out.println("Sixi3Link cannot load '"+FILE_BASE+"': "+e.getLocalizedMessage());
+			System.out.println("Sixi3Link cannot load '"+BASE_MODEL+"': "+e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		
 		// the models are 10x too big.
 		base.adjustScale(0.1);
-		links[1].shape.adjustScale(0.1);
+		//links[1].shape.adjustScale(0.1);
 		links[5].shape.adjustScale(0.1);
 
 		// adjust the shape offsets.
@@ -231,6 +225,8 @@ public class Sixi3 extends PoseEntity {
 
 		links[5].shapeOffset.rotZ(Math.toRadians(-90));
 		links[5].shapeOffset.m23=0;
+		
+		linkMat.setTextureFilename(ACTUATOR_TEXTURE);
 	}
 	
 	@Override
@@ -250,6 +246,7 @@ public class Sixi3 extends PoseEntity {
 			ee2.setTranslation(new Vector3d(0,0,0));
 			Matrix4d r = new Matrix4d();
 			r.setIdentity();
+			
 			switch(ac) {
 			case 0:				p.x+=aa;					break;
 			case 1:				p.y+=aa;					break;
@@ -261,10 +258,10 @@ public class Sixi3 extends PoseEntity {
 			}
 			ee2.mul(r);
 			ee2.setTranslation(p);
-			
+
 			// gradient descent towards ee2
 			gradientDescent();
-			
+
 			applyingIK=true;
 			J0.set(links[0].theta);
 			J1.set(links[1].theta);
@@ -276,6 +273,10 @@ public class Sixi3 extends PoseEntity {
 		}
 	}
 	
+	/**
+	 * Find the current end effector pose, relative to the base of this robot
+	 * @param m where to store the end effector pose.
+	 */
 	private void getEndEffector(Matrix4d m) {
 		m.setIdentity();
 		for( Sixi3Link bone : links ) {
@@ -283,7 +284,14 @@ public class Sixi3 extends PoseEntity {
 		}
 	}
 	
-	private double distanceToTarget() {
+	/**
+	 * Measures the difference beween the latest end effector matrix and the target matrix
+	 * @return
+	 */
+	private double gradientDescentErrorTerm() {
+		// Scale the "handles" used.  Bigger scale, greater rotation compensation.
+		final double GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE = 100;
+		
 		Matrix4d m = new Matrix4d();
 		getEndEffector(m);
 		
@@ -298,16 +306,16 @@ public class Sixi3 extends PoseEntity {
 		// linear difference in X handles
 		Vector3d x0 = MatrixHelper.getXAxis(ee2);
 		Vector3d x1 = MatrixHelper.getXAxis(m);
-		x1.scale(CORRECTIVE_FACTOR);
-		x0.scale(CORRECTIVE_FACTOR);
+		x1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
+		x0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		x1.sub(x0);
 		double dX = x1.lengthSquared();
 		
 		// linear difference in Y handles
 		Vector3d y0 = MatrixHelper.getYAxis(ee2);
 		Vector3d y1 = MatrixHelper.getYAxis(m);
-		y1.scale(CORRECTIVE_FACTOR);
-		y0.scale(CORRECTIVE_FACTOR);
+		y1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
+		y0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		y1.sub(y0);
 		double dY = y1.lengthSquared();		
 
@@ -317,24 +325,28 @@ public class Sixi3 extends PoseEntity {
 	
 	private double partialGradientDescent(int i) {
 		Sixi3Link bone = links[i];
+		// get the current error term F.
 		double oldValue = bone.theta;
-		double Fx = distanceToTarget();
+		double Fx = gradientDescentErrorTerm();
 
+		// move F+D, measure again.
 		bone.theta = oldValue + samplingDistances[i];
 		bone.updateMatrix();
-		double FxPlusD = distanceToTarget();
+		double FxPlusD = gradientDescentErrorTerm();
 
+		// move F-D, measure again.
 		bone.theta = oldValue - samplingDistances[i];
 		bone.updateMatrix();
-		double FxMinusD = distanceToTarget();
+		double FxMinusD = gradientDescentErrorTerm();
 
+		// restore the old value
 		bone.theta = oldValue;
 		bone.updateMatrix();
 
+		// if F+D and F-D have more error than F, try smaller step size next time. 
 		if( FxMinusD > Fx && FxPlusD > Fx ) {
-			if( Fx == 0 ) {
-				samplingDistances[i] *= 2.0/3.0;
-			} else {
+			// If we somehow are *exactly* fit then Fx is zero and /0 is bad.
+			if( Fx != 0 ) {
 				samplingDistances[i] *= Math.min(FxMinusD, FxPlusD) / Fx;
 			}
 			return 0;
@@ -344,22 +356,36 @@ public class Sixi3 extends PoseEntity {
 		return gradient;
 	}
 
-	private void gradientDescent() {
-		// these need to be reset each run.
-		learningRate=0.125;
-		samplingDistances[0]=SENSOR_RESOLUTION; 
-		samplingDistances[1]=SENSOR_RESOLUTION;
-		samplingDistances[2]=SENSOR_RESOLUTION;
-		samplingDistances[3]=SENSOR_RESOLUTION;
-		samplingDistances[4]=SENSOR_RESOLUTION;
-		samplingDistances[5]=SENSOR_RESOLUTION;
+	/**
+	 * Use gradient descent to move the end effector closer to the target. 
+	 * @return true if the margin of error is within the threshold.
+	 */
+	private boolean gradientDescent() {
+		// How many times should I try to get closer?
+		final int iterations = 30;
 		
-		double dtt=10;
+		// When distanceToTarget() score is within threshold then stop. 
+		final double threshold = 0.001;
 		
-		for(int iter=0;iter<ITERATIONS;++iter) {
-			// seems to work better ascending than descending
-			//for( int i=0; i<robot.getNumLinks(); ++i ) {
-			for( int i=links.length-1; i>=0; --i ) {
+		// how much of that partial descent to actually apply?
+		double learningRate=0.125;
+		
+		// the sensor resolution is 2^15 (32768 bits, 0.011 degree)
+		final double initialSampleSize = 360.0/Math.pow(2,12);
+		samplingDistances[0]=initialSampleSize; 
+		samplingDistances[1]=initialSampleSize;
+		samplingDistances[2]=initialSampleSize;
+		samplingDistances[3]=initialSampleSize;
+		samplingDistances[4]=initialSampleSize;
+		samplingDistances[5]=initialSampleSize;
+		
+		double dtt=gradientDescentErrorTerm();
+		if(dtt<threshold) return true;
+
+		for(int j=0;j<iterations;++j) {
+			// seems to work better descending from the finger than ascending from the base.
+			//for( int i=0; i<links.length; ++i ) {  // ascending mode
+			for( int i=links.length-1; i>=0; --i ) {  // descending mode
 				Sixi3Link bone = links[i];
 
 				double oldValue = bone.theta;
@@ -369,14 +395,18 @@ public class Sixi3 extends PoseEntity {
 				bone.theta = Math.max(Math.min(newValue, 350-1e-6), 10+1e-6);
 				bone.updateMatrix();
 		
-				dtt=distanceToTarget();
-				if(dtt<THRESHOLD) break;
+				dtt=gradientDescentErrorTerm();
+				if(dtt<threshold) return true;
 			}
-			if(dtt<THRESHOLD) break;
 		}
+		
+		// Probably always false?
+		return dtt<threshold;
 	}
 	
-	
+	/**
+	 * When GUI elements are changed they each cause a {@link PropertyChangeEvent}.
+	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
@@ -421,10 +451,7 @@ public class Sixi3 extends PoseEntity {
 	}
 	
 	private void drawMeshes(GL2 gl2) {
-		MaterialEntity mat = new MaterialEntity();
-		mat.setDiffuseColor(1.0f, 0.8f, 0.0f, 1.0f);
-		mat.render(gl2);
-		
+		linkMat.render(gl2);
 		base.render(gl2);
 		
 		gl2.glPushMatrix();
