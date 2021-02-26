@@ -146,7 +146,7 @@ public class DHLink extends PoseEntity {
 	 * Set up the pose based on D-H parameters, then update the worldPose.
 	 * Equivalent to T(n) = TransZ(d) * RotZ(theta) * TransX(r) * RotX(alpha)
 	 */
-	public void refreshPoseMatrix() {
+	public void refreshDHMatrix() {
 		double t=theta.get();
 		double a=alpha.get();
 		assert(!Double.isNaN(t));
@@ -485,7 +485,7 @@ public class DHLink extends PoseEntity {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
-		refreshPoseMatrix();
+		refreshDHMatrix();
 	}
 	
 	@Override

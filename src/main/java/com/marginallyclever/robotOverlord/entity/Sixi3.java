@@ -149,7 +149,6 @@ public class Sixi3 extends PoseEntity {
 
 		getEndEffector(ee);
 		ee2.setPose(ee);
-		ee2.updatePoseWorld();
 	}
 
 	/**
@@ -440,7 +439,6 @@ public class Sixi3 extends PoseEntity {
 				if(src == J5) links[5].theta=J5.get();
 				getEndEffector(ee);
 				ee2.setPose(ee);
-				ee2.updatePoseWorld();
 				applyingIK=false;
 			}
 		}

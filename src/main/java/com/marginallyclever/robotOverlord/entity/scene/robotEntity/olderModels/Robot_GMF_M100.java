@@ -53,7 +53,7 @@ public class Robot_GMF_M100 extends RobotEntity {
 
 		robot.getLink(4).flags = LinkAdjust.NONE;
 
-		robot.refreshPose();
+		robot.refreshDHMatrixes();
 	}
 	
 	@Override

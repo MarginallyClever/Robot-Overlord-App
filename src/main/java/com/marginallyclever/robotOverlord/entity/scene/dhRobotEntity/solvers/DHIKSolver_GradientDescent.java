@@ -86,15 +86,15 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 		double Fx = distanceToTarget();
 
 		link.setAdjustableValue(oldValue + samplingDistances[i]);
-		link.refreshPoseMatrix();
+		link.refreshDHMatrix();
 		double FxPlusD = distanceToTarget();
 
 		link.setAdjustableValue(oldValue - samplingDistances[i]);
-		link.refreshPoseMatrix();
+		link.refreshDHMatrix();
 		double FxMinusD = distanceToTarget();
 
 		link.setAdjustableValue(oldValue);
-		link.refreshPoseMatrix();
+		link.refreshDHMatrix();
 
 		if( FxMinusD > Fx && FxPlusD > Fx ) {
 			if( Fx != 0 ) {
@@ -144,7 +144,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 					newValue = Math.max(Math.min(newValue, link.rangeMax.get()-1e-6), link.rangeMin.get()+1e-6);
 					
 					link.setAdjustableValue(newValue);
-					link.refreshPoseMatrix();
+					link.refreshDHMatrix();
 			
 					dtt=distanceToTarget();
 					if(dtt<THRESHOLD) break;

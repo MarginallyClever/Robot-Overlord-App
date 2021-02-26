@@ -205,14 +205,9 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	 * @param arg0 the local pose
 	 */
 	public void setPose(Matrix4d arg0) {
-		//if(!arg0.epsilonEquals(pose.get(), 1e-6)) {
-			Matrix4d oldValue = pose;
-			Matrix4d newValue = arg0;
-			
-			pose.set(arg0);
-			
-			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"pose",oldValue,newValue));
-		//}
+		Matrix4d oldValue = new Matrix4d(pose);
+		pose.set(arg0);
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"pose",oldValue,arg0));
 	}
 
 	@Override

@@ -77,7 +77,7 @@ public class DHRobotModel extends Entity {
 		
 		toolIndex = b.toolIndex;
 		
-		refreshPose();
+		refreshDHMatrixes();
 	}
 
 	public void setIKSolver(DHIKSolver solver0) {
@@ -121,9 +121,9 @@ public class DHRobotModel extends Entity {
 	 * Update the pose matrix of each DH link, then use forward kinematics to find
 	 * the end position.
 	 */
-	public void refreshPose() {
+	public void refreshDHMatrixes() {
 		for( DHLink link : links ) {
-			link.refreshPoseMatrix();
+			link.refreshDHMatrix();
 		}
 		
 		if(toolIndex>0) {
@@ -360,7 +360,7 @@ public class DHRobotModel extends Entity {
 			}
 		}
 
-		refreshPose();
+		refreshDHMatrixes();
 	}
 
 	/**
@@ -408,7 +408,7 @@ public class DHRobotModel extends Entity {
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
 
-		refreshPose();
+		refreshDHMatrixes();
 
 		for( DHLink link : links ) {
 			if(link.getCuboid() != null ) {
@@ -420,7 +420,7 @@ public class DHRobotModel extends Entity {
 			Matrix4d m = new Matrix4d();
 			links.get(links.size()-1).getPoseWorld(m);
 			t.setPose(m);
-			t.refreshPoseMatrix();
+			t.refreshDHMatrix();
 			cuboidList.addAll(t.getCuboidList());
 		}
 

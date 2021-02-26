@@ -78,7 +78,7 @@ public class Robot_Mantis extends RobotEntity {
 		
 		robot.getLink(7).flags = LinkAdjust.NONE;
 
-		robot.refreshPose();
+		robot.refreshDHMatrixes();
 	}
 
 

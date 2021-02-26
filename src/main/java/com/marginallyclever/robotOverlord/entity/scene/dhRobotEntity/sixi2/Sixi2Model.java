@@ -154,8 +154,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		links.get(6).setDHParams(2.75,0,0,0);
 		links.get(6).flags = LinkAdjust.NONE;
 		
-		// update this world pose and all my children's poses all the way down.
-		refreshPose();
+		refreshDHMatrixes();
 		
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<links.size();++i) {
@@ -163,7 +162,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 
 			Matrix4d iWP = new Matrix4d();
 			bone.getPoseWorld(iWP);
-			iWP.m23 -= 0.9;
+			//iWP.m23 -= 0.9;
 			iWP.invert();			
 			bone.setShapeMatrix(iWP);
 			bone.setTextureFilename("/Sixi2/sixi.png");

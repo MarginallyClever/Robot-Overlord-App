@@ -73,8 +73,6 @@ public class Robot_Phybot extends RobotEntity {
 		robot.getLink(6).setRangeMax(90);
 		
 		robot.getLink(7).flags = LinkAdjust.NONE;
-
-		robot.refreshPose();
 	}
 	
 	public void setupModels(DHRobotModel robot) {

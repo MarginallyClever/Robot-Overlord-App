@@ -115,7 +115,7 @@ public class Robot_UArm extends RobotEntity {
 				-live.getLink(2).getAlpha()
 				);
 		
-		live.refreshPose();
+		live.refreshDHMatrixes();
 		
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);

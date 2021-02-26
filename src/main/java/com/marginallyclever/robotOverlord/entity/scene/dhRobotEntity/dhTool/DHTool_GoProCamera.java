@@ -20,7 +20,7 @@ public class DHTool_GoProCamera extends DHTool {
 		setName("GoPro Camera");
 		flags = LinkAdjust.R;
 		
-		refreshPoseMatrix();
+		refreshDHMatrix();
 		
 		setShapeFilename("/Sixi2/gopro/gopro.stl");
 		shapeEntity.setShapeScale(0.1f);

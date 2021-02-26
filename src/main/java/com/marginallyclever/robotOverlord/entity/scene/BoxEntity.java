@@ -50,15 +50,14 @@ public class BoxEntity extends ShapeEntity {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
-		updateCuboid();
+		updateModel();
 	}
-	
-	private void updateCuboid() {
+
+	@Override
+	public void updateCuboid() {
 		Point3d _boundBottom = new Point3d(-width.get()/2,-depth.get()/2,0           );
 		Point3d _boundTop    = new Point3d( width.get()/2, depth.get()/2,height.get());
 		cuboid.setBounds(_boundTop, _boundBottom);
-		
-		updateModel();
 	}
 	
 	/**
@@ -127,6 +126,8 @@ public class BoxEntity extends ShapeEntity {
 		p2.set(-w, d,0);
 		p3.set(-w,-d,0);
 		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
+
+		updateCuboid();
 	}
 
 	/**
@@ -206,24 +207,20 @@ public class BoxEntity extends ShapeEntity {
 	
 	public void setWidth(double v) {
 		width.set(v);
-		updateCuboid();
 	}
 	
 	public void setHeight(double v) {
 		height.set(v);
-		updateCuboid();
 	}
 	
 	public void setDepth(double v) {
 		depth.set(v);
-		updateCuboid();
 	}
 
 	public void setSize(double w, double h, double d) {
 		width.set(w);
 		height.set(h);
 		depth.set(d);
-		updateCuboid();
 	}
 	
 	public double getWidth() { return width.get(); }

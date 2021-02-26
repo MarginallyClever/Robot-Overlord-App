@@ -66,7 +66,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		if(robot.getToolIndex()!=-1) {
 			// There is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist transform.
-			robot.getCurrentTool().refreshPoseMatrix();
+			robot.getCurrentTool().refreshDHMatrix();
 
 			// remove R component (x axis)
 			targetMatrixAdj.m03-=targetMatrixAdj.m00 * robot.getCurrentTool().getR();
@@ -186,7 +186,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 		link3.setTheta(0);
 
 		for( int i=0;i<robot.getNumLinks();++i) {
-			robot.getLink(i).refreshPoseMatrix();
+			robot.getLink(i).refreshDHMatrix();
 		}
 		Matrix4d r03 = new Matrix4d();
 		link4.getPoseWorld(r03);

@@ -63,7 +63,7 @@ public class Robot_SCARA_NM extends RobotEntity {
 		robot.getLink(4).setRangeMin(0);
 		robot.getLink(4).setRangeMax(0);
 		
-		robot.refreshPose();
+		robot.refreshDHMatrixes();
 	}
 
 	public void setupModels(DHRobotModel robot) {

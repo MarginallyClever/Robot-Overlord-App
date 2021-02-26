@@ -49,7 +49,7 @@ public class Sixi2LinearGripper extends DHTool {
 		super();
 		setLetter("T");
 		setName("Sixi2 Linear Gripper");
-		refreshPoseMatrix();
+		refreshDHMatrix();
 		
 		interpolatePoseT=1;
 		startT=endT=angleNow.get();
@@ -191,7 +191,7 @@ public class Sixi2LinearGripper extends DHTool {
 				interpolatePoseT=1;
 			}
 			angleNow.set((int)((endT-startT)*interpolatePoseT + startT));
-			refreshPoseMatrix();
+			refreshDHMatrix();
 		}
 	}
 	

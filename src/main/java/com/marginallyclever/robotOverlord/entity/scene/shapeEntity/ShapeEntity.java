@@ -120,7 +120,7 @@ public class ShapeEntity extends PoseEntity {
 		try {
 			shape = Shape.createModelFromFilename(newFilename);
 			if(shape!=null) {
-				shape.updateCuboid();
+				updateCuboid();
 				numTriangles.set(shape.getNumTriangles());
 				hasNormals.set(shape.hasNormals);
 				hasColors.set(shape.hasColors);
@@ -171,6 +171,7 @@ public class ShapeEntity extends PoseEntity {
 		Matrix4d rotZ = new Matrix4d();		rotZ.rotZ(Math.toRadians(r.z));		pose.mul(rotZ);
 		pose.setScale(scale.get());
 		pose.setTranslation(t);
+		updateCuboid();
 	}
 
 	public void setShapeRotation(Vector3d arg0) {
@@ -198,15 +199,13 @@ public class ShapeEntity extends PoseEntity {
 	}
 	
 	/**
-	 * obeys super.updatePoseWorld, Updates cuboid
+	 * Updates the {@link Cuboid} bounds.
 	 */
-	@Override
-	public void updatePoseWorld() {
-		super.updatePoseWorld();
-		
+	public void updateCuboid() {		
 		// set up the physical limits
 		if(shape != null) {
 			Cuboid mc = shape.getCuboid();
+			// TODO multiply by this.pose?
 			cuboid.setBounds(mc.getBoundsTop(),mc.getBoundsBottom());
 		}
 	}

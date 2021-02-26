@@ -43,7 +43,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		super();
 		setLetter("T");
 		setName("Gripper");
-		refreshPoseMatrix();
+		refreshDHMatrix();
 		
 		gripperServoAngle=90;
 		interpolatePoseT=1;
@@ -228,7 +228,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 				interpolatePoseT=1;
 			}
 			gripperServoAngle=((endT-startT)*interpolatePoseT + startT);
-			refreshPoseMatrix();
+			refreshDHMatrix();
 		}
 	}
 	

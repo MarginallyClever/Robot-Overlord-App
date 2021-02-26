@@ -62,8 +62,7 @@ public class Robot_Cartesian extends RobotEntity {
 		
 		robot.getLink(3).flags = LinkAdjust.NONE;
 
-		
-		robot.refreshPose();
+		robot.refreshDHMatrixes();
 	}
 	
 	public void setupModels(DHRobotModel robot) {

@@ -70,7 +70,7 @@ public class Robot_Thor extends RobotEntity {
 		
 		robot.getLink(7).flags = LinkAdjust.NONE;
 		
-		robot.refreshPose();
+		robot.refreshDHMatrixes();
 	}
 	
 	public void setupModels(DHRobotModel robot) {

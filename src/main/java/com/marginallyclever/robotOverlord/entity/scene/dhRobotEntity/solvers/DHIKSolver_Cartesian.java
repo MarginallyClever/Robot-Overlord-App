@@ -35,7 +35,7 @@ public class DHIKSolver_Cartesian extends DHIKSolver {
 		if(robot.getToolIndex()!=-1) {
 			// there is a transform between the wrist and the tool tip.
 			// use the inverse to calculate the wrist Z axis and wrist position.
-			robot.getCurrentTool().refreshPoseMatrix();
+			robot.getCurrentTool().refreshDHMatrix();
 			Matrix4d inverseToolPose = new Matrix4d(robot.getCurrentTool().getPose());
 			inverseToolPose.invert();
 			targetPoseAdj.mul(inverseToolPose);

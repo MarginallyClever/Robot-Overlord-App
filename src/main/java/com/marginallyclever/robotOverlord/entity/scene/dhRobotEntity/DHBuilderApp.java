@@ -384,7 +384,7 @@ public class DHBuilderApp extends DHRobotModel {
 				}
 				bone.showLineage.set(true);
 			}
-			bone.refreshPoseMatrix();
+			bone.refreshDHMatrix();
 		}
 		
 		for( String e : extensions ) {
@@ -404,7 +404,7 @@ public class DHBuilderApp extends DHRobotModel {
 			// save the initial theta for each link
 			thetaAtTestStart[i] = links.get(i).getTheta();
 			// Use the poseWorld for each DHLink to adjust the model origins.
-			bone.refreshPoseMatrix();
+			bone.refreshDHMatrix();
 			bone.shapeEntity.setModel(models[i].getModel());
 			bone.shapeEntity.setMaterial(models[i].getMaterial());
 			Matrix4d iWP = new Matrix4d();
@@ -431,7 +431,7 @@ public class DHBuilderApp extends DHRobotModel {
 			bone.flags = LinkAdjust.ALL;
 			// undo changes to theta values
 			bone.setTheta(thetaAtTestStart[i]);
-			bone.refreshPoseMatrix();
+			bone.refreshDHMatrix();
 			// set all models back to world origin
 			bone.setShapeMatrix(identity);
 		}
