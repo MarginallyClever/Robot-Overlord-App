@@ -103,15 +103,15 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 			ShapeEntity part4 = new ShapeEntity("/Sixi2/picassoBox.obj");	addChild(part4);
 			ShapeEntity part5 = new ShapeEntity("/Sixi2/hand.obj");      	addChild(part5);
 		} else {
-			links.get(0).setShapeFilename("/Sixi2/shoulder.obj");
-			links.get(1).setShapeFilename("/Sixi2/bicep.obj");
-			links.get(2).setShapeFilename("/Sixi2/forearm.obj");
-			links.get(3).setShapeFilename("/Sixi2/tuningFork.obj");
-			links.get(4).setShapeFilename("/Sixi2/picassoBox.obj");
-			links.get(5).setShapeFilename("/Sixi2/hand.obj");
+			links.get(1).setShapeFilename("/Sixi2/shoulder.obj");
+			links.get(2).setShapeFilename("/Sixi2/bicep.obj");
+			links.get(3).setShapeFilename("/Sixi2/forearm.obj");
+			links.get(4).setShapeFilename("/Sixi2/tuningFork.obj");
+			links.get(5).setShapeFilename("/Sixi2/picassoBox.obj");
+			links.get(6).setShapeFilename("/Sixi2/hand.obj");
 		}
 
-		// DH table
+		// DH table - D, R, Alpha, Theta
 		links.get(0).setDHParams(18.8452+0.9,0     ,-90,  0);
 		links.get(1).setDHParams(0          ,35.796,  0,-90);
 		links.get(2).setDHParams(0          ,6.4259,-90,  0);
@@ -154,18 +154,21 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		links.get(6).setDHParams(2.75,0,0,0);
 		links.get(6).flags = LinkAdjust.NONE;
 		
-		refreshDHMatrixes();
+		//refreshDHMatrixes();
+		
+		// local origin of this model.
+		Matrix4d current = new Matrix4d();
+		current.setIdentity();
 		
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
-
-			Matrix4d iWP = new Matrix4d();
-			bone.getPoseWorld(iWP);
-			//iWP.m23 -= 0.9;
+			Matrix4d iWP = new Matrix4d(current);
+			iWP.m23 -= 0.9;
 			iWP.invert();			
 			bone.setShapeMatrix(iWP);
 			bone.setTextureFilename("/Sixi2/sixi.png");
+			current.mul(bone.getPose());
 		}
 
 		// set to default position
