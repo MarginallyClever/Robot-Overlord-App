@@ -103,8 +103,8 @@ public class DHLink extends PoseEntity {
 		
 		d.addPropertyChangeListener(this);
 		r.addPropertyChangeListener(this);
-		theta.addPropertyChangeListener(this);
 		alpha.addPropertyChangeListener(this);
+		theta.addPropertyChangeListener(this);
 		
 		addChild(rangeMin);
 		addChild(rangeMax);

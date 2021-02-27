@@ -137,40 +137,15 @@ public class DHRobotModel extends Entity {
 	 * @param newSize must be >= 0
 	 */
 	public void setNumLinks(int newSize) {
-		if(newSize < 0) newSize = 0;
-
 		links.clear();
 		
-		// count the number of existing children.
 		Entity prev=this;
-		boolean found;
-		int s=0;
-		while(prev.getChildren().size()>0 && s<newSize) {
-			found=false;
-			for( Entity c : prev.getChildren() ) {
-				if(c instanceof DHLink ) {
-					links.add((DHLink)c);
-					prev=c;
-					++s;
-					found=true;
-					break;
-				}
-			}
-			// in case there are children but none are DHLinks
-			if(found==false) break;
-		}
-
-		// if the number is too low, add more.
-		while(s<newSize) {
+		while(newSize-->0) {
 			DHLink newLink = new DHLink();
 			links.add(newLink);
 			prev.addChild(newLink);
 			prev = newLink;
-			++s;
 		}
-		
-		// if the number is too high, delete the remaining children.
-		prev.getChildren().clear();
 	}
 
 	/**
