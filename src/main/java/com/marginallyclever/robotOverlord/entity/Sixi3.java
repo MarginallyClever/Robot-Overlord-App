@@ -1,17 +1,18 @@
 package com.marginallyclever.robotOverlord.entity;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -38,8 +39,8 @@ public class Sixi3 extends PoseEntity {
 	private static final double HAND_HEIGHT=1.25;
 	
 	private static final String ACTUATOR_MODEL   = "/Sixi3/actuator 2021-02-25.obj";
-	private static final String HAND_MODEL       = "/Sixi3/Sixi3 Hand DIN EN ISO 9409-1-50-4-M6 v6.stl";
-	private static final String BASE_MODEL       = "/Sixi3/base v7.stl";
+	private static final String HAND_MODEL       = "/Sixi3/Sixi3 Hand DIN EN ISO 9409-1-50-4-M6 v6.obj";
+	private static final String BASE_MODEL       = "/Sixi3/base v7.obj";
 	private static final String ACTUATOR_TEXTURE = "/Sixi3/actuator-texture.png";
 	
 	// math representation.
@@ -117,9 +118,6 @@ public class Sixi3 extends PoseEntity {
 	// how big a step to take with each partial descent?
 	private double [] samplingDistances = { 0,0,0,0,0,0 };
 	
-	// material to draw on the surface of the shapes.
-	private MaterialEntity linkMat = new MaterialEntity();
-	
 	
 	public Sixi3() {
 		super();
@@ -145,10 +143,16 @@ public class Sixi3 extends PoseEntity {
 		J4.set(180.0);
 		J5.set(180.0);
 		
-		applyingIK=false;
+		applyingIK=true;
 
+		for( Sixi3Link bone : links ) {
+			bone.updateMatrix();
+		}
+		
 		getEndEffector(ee);
 		ee2.setPose(ee);
+		
+		applyingIK=false;
 	}
 
 	/**
@@ -172,18 +176,13 @@ public class Sixi3 extends PoseEntity {
 		links[0].set(0 ,d0,-90,0,ACTUATOR_MODEL);
 		links[1].set(r2, 0,  0,0,ACTUATOR_MODEL);
 		links[2].set(0 , 0, 90,0,ACTUATOR_MODEL);
-		links[3].set(0 ,d3,-90,0,ACTUATOR_MODEL);
+		links[3].set(0 ,d3, 90,0,ACTUATOR_MODEL);
 		links[4].set(0 ,d4, 90,0,ACTUATOR_MODEL);
-		links[5].set(0 ,d5,  0,0,HAND_MODEL);
+		links[5].set(0 ,d5,  0,0,HAND_MODEL    );
 
 		// load the base shape.
 		base = new ShapeEntity(BASE_MODEL);
 		
-		// the models are 10x too big.
-		base.setShapeScale(0.1);
-		//links[1].shape.adjustScale(0.1);
-		links[5].shape.setShapeScale(0.1);
-
 		// adjust the shape offsets.
 		Matrix4d m0 = new Matrix4d();
 		Matrix4d m1 = new Matrix4d();
@@ -206,7 +205,7 @@ public class Sixi3 extends PoseEntity {
 		links[2].shapeOffset.m23=LENGTH_A;
 
 		m0.rotX(Math.toRadians(180));
-		m1.rotZ(Math.toRadians(90));
+		m1.rotZ(Math.toRadians(-90));
 		m2.mul(m1,m0);
 		links[3].shapeOffset.set(m2);
 		links[3].shapeOffset.m23=LENGTH_A;
@@ -220,7 +219,11 @@ public class Sixi3 extends PoseEntity {
 		links[5].shapeOffset.rotZ(Math.toRadians(-90));
 		links[5].shapeOffset.m23=0;
 		
-		linkMat.setTextureFilename(ACTUATOR_TEXTURE);
+		// set material properties for each part of this model.
+		base.getMaterial().setTextureFilename(ACTUATOR_TEXTURE);
+		for( Sixi3Link bone : links ) {
+			bone.shape.getMaterial().setTextureFilename(ACTUATOR_TEXTURE);
+		}
 	}
 	
 	@Override
@@ -268,6 +271,149 @@ public class Sixi3 extends PoseEntity {
 			
 			axisAmount.set(0.0);
 		}
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, pose);
+		
+			gl2.glPushMatrix();
+				// draw the meshes
+				drawMeshes(gl2);
+				drawExtras(gl2);
+			gl2.glPopMatrix();
+		
+			MatrixHelper.drawMatrix2(gl2, ee, 6);
+		gl2.glPopMatrix();
+		
+		super.render(gl2);
+	}
+	
+	private void drawMeshes(GL2 gl2) {
+		base.render(gl2);
+
+		gl2.glPushMatrix();
+		{
+			Sixi3Link bone = links[0];
+			// draw model with local shape offset
+			bone.updateMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.pose);
+			
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
+			bone.shape.render(gl2);
+			gl2.glPopMatrix();
+		}
+		//1-2
+		{
+			Sixi3Link bone = links[1];
+			// draw model with local shape offset
+			bone.updateMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.pose);
+			
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
+			bone.shape.render(gl2);
+			// special only for bone 2
+			gl2.glTranslated((LENGTH_B+CONNECTOR_HEIGHT)*2,0,0);
+			gl2.glRotated(180, 0, 0, 1);
+			bone.shape.render(gl2);
+			gl2.glPopMatrix();
+		}
+		// 3
+		{
+			Sixi3Link bone = links[2];
+			// draw model with local shape offset
+			bone.updateMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.pose);
+			
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
+			bone.shape.render(gl2);
+			gl2.glPopMatrix();
+		}
+		// 4
+		{
+			Sixi3Link bone = links[3];
+			// draw model with local shape offset
+			bone.updateMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.pose);
+
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
+			bone.shape.render(gl2);
+			gl2.glPopMatrix();
+		}
+		// 5
+		{
+			Sixi3Link bone = links[4];
+			// draw model with local shape offset
+			bone.updateMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.pose);
+
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
+			bone.shape.render(gl2);
+			gl2.glPopMatrix();
+		}
+		// 6
+		{
+			Sixi3Link bone = links[5];
+			// draw model with local shape offset
+			bone.updateMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.pose);
+
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
+			bone.shape.render(gl2);
+			gl2.glPopMatrix();
+		}
+		gl2.glPopMatrix();
+	}
+	
+	private void drawExtras(GL2 gl2) {
+		Vector3d v = new Vector3d();
+		
+		// turn of textures so lines draw good
+		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
+		// turn off lighting so lines draw good
+		boolean wasLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		// draw on top of everything else
+		int wasOver=OpenGLHelper.drawAtopEverythingStart(gl2);
+		gl2.glPushMatrix();
+		if(showLineage.get()) {
+			// then the bones, overtop and unlit.
+			int j=links.length+1;
+			for(int i=0;i<links.length;++i) {
+				Sixi3Link bone = links[i];
+				bone.updateMatrix();
+				PrimitiveSolids.drawStar(gl2,j--);
+	
+				bone.pose.get(v);
+				gl2.glColor3d(1, 1, 1);
+				gl2.glBegin(GL2.GL_LINES);
+				gl2.glVertex3d(0, 0, 0);
+				gl2.glVertex3d(v.x,v.y,v.z);
+				gl2.glEnd();
+				// draw origin of next bone
+				MatrixHelper.applyMatrix(gl2, bone.pose);
+			}
+		}
+		if(showBoundingBox.get()) {
+			ArrayList<Cuboid> list = getCuboidList();
+			for(Cuboid c : list) {
+				c.render(gl2);
+			}
+		}
+		gl2.glPopMatrix();
+
+		// return state if needed
+		OpenGLHelper.drawAtopEverythingEnd(gl2,wasOver);
+		if(wasLit) gl2.glEnable(GL2.GL_LIGHTING);
+		if(wasTex) gl2.glEnable(GL2.GL_TEXTURE_2D);	
 	}
 	
 	/**
@@ -445,147 +591,6 @@ public class Sixi3 extends PoseEntity {
 	}
 	
 	@Override
-	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
-		
-			gl2.glPushMatrix();
-				// draw the meshes
-				drawMeshes(gl2);
-				if(showLineage.get()) {
-					// then the bones, overtop and unlit.
-					drawBones(gl2);
-				}
-			gl2.glPopMatrix();
-		
-			MatrixHelper.drawMatrix2(gl2, ee, 6);
-			//MatrixHelper.drawMatrix(gl2, ee2.getPose(), 4);
-		gl2.glPopMatrix();
-
-		
-		super.render(gl2);
-	}
-	
-	private void drawMeshes(GL2 gl2) {
-		linkMat.render(gl2);
-		base.render(gl2);
-		
-		gl2.glPushMatrix();
-		{
-			Sixi3Link bone = links[0];
-			// draw model with local shape offset
-			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-			
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
-			bone.shape.render(gl2);
-			gl2.glPopMatrix();
-		}
-		//1-2
-		{
-			Sixi3Link bone = links[1];
-			// draw model with local shape offset
-			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-			
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
-			bone.shape.render(gl2);
-			// special only for bone 2
-			gl2.glTranslated((LENGTH_B+CONNECTOR_HEIGHT)*2,0,0);
-			gl2.glRotated(180, 0, 0, 1);
-			bone.shape.render(gl2);
-			gl2.glPopMatrix();
-		}
-		// 3
-		{
-			Sixi3Link bone = links[2];
-			// draw model with local shape offset
-			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-			
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
-			bone.shape.render(gl2);
-			gl2.glPopMatrix();
-		}
-		// 4
-		{
-			Sixi3Link bone = links[3];
-			// draw model with local shape offset
-			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
-			bone.shape.render(gl2);
-			gl2.glPopMatrix();
-		}
-		// 5
-		{
-			Sixi3Link bone = links[4];
-			// draw model with local shape offset
-			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
-			bone.shape.render(gl2);
-			gl2.glPopMatrix();
-		}
-		// 6
-		{
-			Sixi3Link bone = links[5];
-			// draw model with local shape offset
-			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.shapeOffset);
-			bone.shape.render(gl2);
-			gl2.glPopMatrix();
-		}
-		gl2.glPopMatrix();
-	}
-	
-	private void drawBones(GL2 gl2) {
-		Vector3d v = new Vector3d();
-		
-		// turn of textures so lines draw good
-		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
-		// turn off lighting so lines draw good
-		boolean wasLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		// draw on top of everything else
-		int wasOver=OpenGLHelper.drawAtopEverythingStart(gl2);
-		gl2.glPushMatrix();
-
-		int j=links.length+1;
-		for(int i=0;i<links.length;++i) {
-			Sixi3Link bone = links[i];
-			bone.updateMatrix();
-			PrimitiveSolids.drawStar(gl2,j--);
-
-			bone.pose.get(v);
-			gl2.glColor3d(1, 1, 1);
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glVertex3d(0, 0, 0);
-			gl2.glVertex3d(v.x,v.y,v.z);
-			gl2.glEnd();
-			// draw origin of next bone
-			MatrixHelper.applyMatrix(gl2, bone.pose);
-		}
-		gl2.glPopMatrix();
-
-		// return state if needed
-		OpenGLHelper.drawAtopEverythingEnd(gl2,wasOver);
-		if(wasLit) gl2.glEnable(GL2.GL_LIGHTING);
-		if(wasTex) gl2.glEnable(GL2.GL_TEXTURE_2D);	
-	}
-	
-	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("K","Kinematics");
 		view.addRange(J0, 350, 10);
@@ -600,5 +605,15 @@ public class Sixi3 extends PoseEntity {
 		view.popStack();
 		
 		super.getView(view);
+	}
+	
+	@Override
+	public ArrayList<Cuboid> getCuboidList() {
+		ArrayList<Cuboid> list = super.getCuboidList();
+		for( Sixi3Link bone : links ) {
+			list.addAll(bone.shape.getCuboidList());
+		}
+		list.addAll(base.getCuboidList());
+		return list;
 	}
 }

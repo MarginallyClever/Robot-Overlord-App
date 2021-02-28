@@ -196,6 +196,9 @@ public class ShapeEntity extends PoseEntity {
 		if(rotationAdjust==o || originAdjust==o || scale==o) {
 			rebuildLocalPose();
 		}
+		if(filename==o) {
+			setShapeFilename(filename.get());
+		}
 	}
 	
 	/**
