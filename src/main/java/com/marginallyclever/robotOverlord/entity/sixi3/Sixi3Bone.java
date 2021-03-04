@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.entity.sixi3;
 
 import javax.vecmath.Matrix4d;
 
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 
 /**
@@ -10,7 +11,7 @@ import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
  * @since 2021-02-24
  *
  */
-public class Sixi3Link {
+public class Sixi3Bone {
 	// D-H parameters combine to make this matrix which is relative to the parent.
 	public Matrix4d pose = new Matrix4d();
 	// length (mm) along previous Z to the common normal
@@ -21,7 +22,9 @@ public class Sixi3Link {
 	public double r;
 	// angle (degrees) about common normal, from old Z axis to new Z axis
 	public double alpha;
-
+	
+	public double angleMax, angleMin;
+	
 	public double mass;
 	public double maxTorque;
 	public double maxVelocity;
@@ -29,13 +32,17 @@ public class Sixi3Link {
 	// model and relative offset from DH origin
 	public ShapeEntity shape;
 	
-	public Sixi3Link() {}
+	public DoubleEntity slider = new DoubleEntity("J",0);
 	
-	public void set(double rr,double dd,double aa,double tt,String shapeFilename) {
+	public Sixi3Bone() {}
+	
+	public void set(double rr,double dd,double aa,double tt,double aMax,double aMin,String shapeFilename) {
 		d=dd;
 		r=rr;
 		alpha=aa;
 		theta=tt;
+		angleMax=aMax;
+		angleMin=aMin;
 		shape = new ShapeEntity(shapeFilename);
 	}
 	
