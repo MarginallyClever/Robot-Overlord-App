@@ -2,6 +2,9 @@ package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
@@ -14,8 +17,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * Contains the setup of the DHLinks for a DHRobot.
- * TODO Could read these values from a text file.
- * TODO Could have an interactive setup option - dh parameter design app?
+ * TODO Could read these values from a text file?
  * @author Dan Royer
  * @since 1.6.0
  *
@@ -103,12 +105,12 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 			ShapeEntity part4 = new ShapeEntity("/Sixi2/picassoBox.obj");	addChild(part4);
 			ShapeEntity part5 = new ShapeEntity("/Sixi2/hand.obj");      	addChild(part5);
 		} else {
-			links.get(1).setShapeFilename("/Sixi2/shoulder.obj");
-			links.get(2).setShapeFilename("/Sixi2/bicep.obj");
-			links.get(3).setShapeFilename("/Sixi2/forearm.obj");
-			links.get(4).setShapeFilename("/Sixi2/tuningFork.obj");
-			links.get(5).setShapeFilename("/Sixi2/picassoBox.obj");
-			links.get(6).setShapeFilename("/Sixi2/hand.obj");
+			links.get(0).setShapeFilename("/Sixi2/shoulder.obj");
+			links.get(1).setShapeFilename("/Sixi2/bicep.obj");
+			links.get(2).setShapeFilename("/Sixi2/forearm.obj");
+			links.get(3).setShapeFilename("/Sixi2/tuningFork.obj");
+			links.get(4).setShapeFilename("/Sixi2/picassoBox.obj");
+			links.get(5).setShapeFilename("/Sixi2/hand.obj");
 		}
 
 		// DH table - D, R, Alpha, Theta
@@ -154,7 +156,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		links.get(6).setDHParams(2.75,0,0,0);
 		links.get(6).flags = LinkAdjust.NONE;
 		
-		//refreshDHMatrixes();
+		refreshDHMatrixes();
 		
 		// local origin of this model.
 		Matrix4d current = new Matrix4d();
@@ -163,12 +165,12 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		// Use the poseWorld for each DHLink to adjust the model origins.
 		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
+			current.mul(bone.getPose());
 			Matrix4d iWP = new Matrix4d(current);
 			iWP.m23 -= 0.9;
 			iWP.invert();			
 			bone.setShapeMatrix(iWP);
 			bone.setTextureFilename("/Sixi2/sixi.png");
-			current.mul(bone.getPose());
 		}
 
 		// set to default position
@@ -179,6 +181,11 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		Matrix4d m = new Matrix4d();
 		links.get(getNumNonToolLinks()-1).getPoseWorld(m);
 		poseIK.set(m);
+	}
+	
+	@Override
+	public void render(GL2 gl2) {
+		super.render(gl2);
 	}
 
 	/**

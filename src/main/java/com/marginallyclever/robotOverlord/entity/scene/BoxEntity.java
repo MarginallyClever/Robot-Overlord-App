@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.entity.scene;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -14,7 +16,7 @@ import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class BoxEntity extends ShapeEntity {
+public class BoxEntity extends ShapeEntity implements Collidable {
 	/**
 	 * 
 	 */
@@ -23,6 +25,8 @@ public class BoxEntity extends ShapeEntity {
 	protected DoubleEntity width = new DoubleEntity("Width",1.0);
 	protected DoubleEntity height = new DoubleEntity("Height",1.0);
 	protected DoubleEntity depth = new DoubleEntity("Depth",1.0);
+	
+	private Cuboid cuboid = new Cuboid();
 	
 	public BoxEntity() {
 		super();
@@ -38,13 +42,14 @@ public class BoxEntity extends ShapeEntity {
 		shape = new Shape();
 	}
 
-	/**
-	 * 
-	 * @return a list of cuboids, or null.
-	 */
 	@Override
 	public ArrayList<Cuboid> getCuboidList() {
-		return super.getCuboidList();
+		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
+		Matrix4d m = new Matrix4d();
+		getPoseWorld(m);
+		cuboid.setPose(m);
+		list.add(cuboid);
+		return list;
 	}
 
 	@Override

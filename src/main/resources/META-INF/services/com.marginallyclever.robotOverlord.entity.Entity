@@ -3,7 +3,7 @@ com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 # DHRobots
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHBuilderApp
-com.marginallyclever.robotOverlord.entity.Sixi3
+com.marginallyclever.robotOverlord.entity.sixi3.Sixi3IK
 
 com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
 #com.marginallyclever.robotOverlord.entity.scene.robotEntity.Arm3

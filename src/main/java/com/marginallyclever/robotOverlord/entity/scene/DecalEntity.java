@@ -2,12 +2,9 @@ package com.marginallyclever.robotOverlord.entity.scene;
 
 
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
@@ -40,26 +37,9 @@ public class DecalEntity extends ShapeEntity {
 		shape = new Shape();
 	}
 
-	/**
-	 * 
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		return super.getCuboidList();
-	}
-
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
-		updatePlane();
-	}
-	
-	private void updatePlane() {
-		Point3d _boundBottom = new Point3d(-width.get()/2,-height.get()/2,-0.01);
-		Point3d _boundTop    = new Point3d( width.get()/2, height.get()/2,0.01);
-		cuboid.setBounds(_boundTop, _boundBottom);
-		
 		updateModel();
 	}
 	
@@ -177,19 +157,19 @@ public class DecalEntity extends ShapeEntity {
 	
 	public void setWidth(double v) {
 		width.set(v);
-		updatePlane();
+		updateModel();
 	}
 	
 	public void setHeight(double v) {
 		height.set(v);
-		updatePlane();
+		updateModel();
 	}
 	
 
 	public void setSize(double w, double h) {
 		width.set(w);
 		height.set(h);
-		updatePlane();
+		updateModel();
 	}
 	
 	public double getWidth() { return width.get(); }

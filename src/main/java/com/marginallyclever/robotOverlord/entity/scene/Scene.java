@@ -9,6 +9,8 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
@@ -180,6 +182,37 @@ public class Scene extends Entity {
 		
 		// PASS 2: everything transparent?
 
+		renderAllBoundingBoxes(gl2);
+	}
+	
+	private void renderAllBoundingBoxes(GL2 gl2) {
+		// turn of textures so lines draw good
+		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
+		// turn off lighting so lines draw good
+		boolean wasLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_LIGHTING);
+		// draw on top of everything else
+		int wasOver=OpenGLHelper.drawAtopEverythingStart(gl2);
+
+		renderAllBoundingBoxes(gl2,this);
+		
+		// return state if needed
+		OpenGLHelper.drawAtopEverythingEnd(gl2,wasOver);
+		if(wasLit) gl2.glEnable(GL2.GL_LIGHTING);
+		if(wasTex) gl2.glEnable(GL2.GL_TEXTURE_2D);	
+	}
+	
+	private void renderAllBoundingBoxes(GL2 gl2, Entity me) {
+		for( Entity child : me.getChildren() ) {
+			if(child instanceof Collidable) {
+				ArrayList<Cuboid> list = ((Collidable)child).getCuboidList();
+				for( Cuboid c : list ) {
+					c.render(gl2);
+				}
+			}
+			renderAllBoundingBoxes(gl2,child);
+		}
 	}
 
 	// Search only my children to find the PhysicalEntity with matchin pickName.
@@ -229,14 +262,15 @@ public class Scene extends Entity {
 
 	/**
 	 * @param listA all the cuboids being tested against the world.
-	 * @param ignoreList all the entities in the world to ignore.
-	 * @return true if any cuboid in the cuboidList intersects any cuboid in the world.
+	 * @return true if any cuboid in {@code listA} intersects any {@link Cuboid} in the world.
 	 */
 	public boolean collisionTest(ArrayList<Cuboid> listA) {
 		
 		// check all children
 		for( Entity b : children ) {
-			ArrayList<Cuboid> listB = ((PoseEntity)b).getCuboidList();
+			if( !(b instanceof Collidable) ) continue;
+			
+			ArrayList<Cuboid> listB = ((Collidable)b).getCuboidList();
 			if( listB == null ) continue;
 			
 			if(listB.get(0)==listA.get(0)) {

@@ -428,26 +428,26 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		if(selectedEntityPanel==null) return;
 		
 		selectedEntityPanel.removeAll();
-
-		if(entityList.size()==1) {
-			int size = entityList.size();
-			ViewPanel [] panels = new ViewPanel[size];
-			for( int i=0;i<size;++i) {
-				panels[i] = new ViewPanel(this);
-				entityList.get(i).getView(panels[i]);
+		if(entityList != null ) {
+			if(entityList.size()==1) {
+				int size = entityList.size();
+				ViewPanel [] panels = new ViewPanel[size];
+				for( int i=0;i<size;++i) {
+					panels[i] = new ViewPanel(this);
+					entityList.get(i).getView(panels[i]);
+				}
+				
+				// keep the first panel.
+				// TODO compare panels and keep only the matching elements and - if possible - the data in those elements.
+				ViewPanel combined = panels[0];
+				
+				// TODO throw away panels that have no elements left.
+	
+				selectedEntityPanel.add(combined.getFinalView(),BorderLayout.PAGE_START);
+			} else {
+				// TODO display values shared across all selected entities
 			}
-			
-			// keep the first panel.
-			// TODO compare panels and keep only the matching elements and - if possible - the data in those elements.
-			ViewPanel combined = panels[0];
-			
-			// TODO throw away panels that have no elements left.
-
-			selectedEntityPanel.add(combined.getFinalView(),BorderLayout.PAGE_START);
-		} else {
-			// TODO display values shared across all selected entities
 		}
-
 		selectedEntityPanel.repaint();
 		selectedEntityPanel.revalidate();
 
@@ -934,34 +934,35 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 * @param e
 	 */
     public void selectEntities(ArrayList<Entity> entityList) {
-    	boolean removable = true;
-    	boolean moveable = true;
-    	for(Entity e1 : entityList) {
-    		if(!(e1 instanceof RemovableEntity)) removable=false;
-    		if(!(e1 instanceof Moveable)) moveable=false;
-    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
-    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
-    	}
-
-		if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && entityList.get(0).canBeRenamed());
-		if(removeEntity!=null) removeEntity.setEnabled(removable);
-				
-		if(moveable) {
-			if(entityList.size()==1) {
-				Entity e = entityList.get(0);
-				if(e instanceof Moveable) {
-					dragTool.setSubject((Moveable)e);
-				} else if(e==null) {
+    	if( entityList != null) {
+	    	boolean removable = true;
+	    	boolean moveable = true;
+	    	
+	    	for(Entity e1 : entityList) {
+	    		if(!(e1 instanceof RemovableEntity)) removable=false;
+	    		if(!(e1 instanceof Moveable)) moveable=false;
+	    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
+	    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
+	    	}
+			if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && entityList.get(0).canBeRenamed());
+			if(removeEntity!=null) removeEntity.setEnabled(removable);
+					
+			if(moveable) {
+				if(entityList.size()==1) {
+					Entity e = entityList.get(0);
+					if(e instanceof Moveable) {
+						dragTool.setSubject((Moveable)e);
+					} else if(e==null) {
+						dragTool.setSubject(null);
+					}
+				} else {
+					// TODO group all selected poseEntities so they can be moved as one?
 					dragTool.setSubject(null);
 				}
 			} else {
-				// TODO group all selected poseEntities so they can be moved as one?
 				dragTool.setSubject(null);
 			}
-		} else {
-			dragTool.setSubject(null);
-		}
-		
+    	}	
 		updateSelectedEntityPanel(entityList);
 	}
 	

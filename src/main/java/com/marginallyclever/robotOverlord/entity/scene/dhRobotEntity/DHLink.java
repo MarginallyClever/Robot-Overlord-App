@@ -1,14 +1,18 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Collidable;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
@@ -19,7 +23,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
-public class DHLink extends PoseEntity {
+public class DHLink extends PoseEntity implements Collidable {
 	/**
 	 * 
 	 */
@@ -123,7 +127,6 @@ public class DHLink extends PoseEntity {
 	
 	public void set(DHLink arg0) {
 		setName(arg0.getName());
-		cuboid.set(arg0.cuboid);
 
 		flags = arg0.flags;
 		d.set(arg0.d.get());
@@ -179,8 +182,13 @@ public class DHLink extends PoseEntity {
 		float [] diffuse = shapeEntity.getMaterial().getDiffuseColor();
 		// change material color - more red when near angle limits 
 		setAngleColorByRange(gl2);
-		shapeEntity.render(gl2);
 		
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, pose);
+			shapeEntity.render(gl2);
+		gl2.glPopMatrix();
+		
+		// restore original material color
 		shapeEntity.getMaterial().setDiffuseColor(diffuse[0],diffuse[1],diffuse[2],diffuse[3]);
 		
 		super.render(gl2);
@@ -578,5 +586,24 @@ public class DHLink extends PoseEntity {
 		setR(r);
 		setAlpha(alpha);
 		setTheta(theta);
+	}
+
+	/**
+	 * @return a list of {@link Cuboid} relative to the world.
+	 */
+	@Override
+	public ArrayList<Cuboid> getCuboidList() {
+		ArrayList<Cuboid> list = shapeEntity.getCuboidList();
+		Matrix4d m = new Matrix4d();
+		Matrix4d m2 = new Matrix4d();
+		Matrix4d m3 = new Matrix4d();
+		getPoseWorld(m);
+		
+		for( Cuboid c : list ) {
+			c.getPose(m2);
+			m3.mul(m,m2);
+			c.setPose(m3);
+		}
+		return list;
 	}
 }

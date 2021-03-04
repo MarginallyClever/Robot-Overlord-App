@@ -124,8 +124,6 @@ public class Shape {
 			vertices.put(j++, fi.next().floatValue());
 		}
 
-		updateCuboid();
-		
 		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
 		int totalBufferSize = numVertexes*3*s;
 		int vboIndex=0;
@@ -274,17 +272,17 @@ public class Shape {
 		
 		// transform and calculate
 		Iterator<Float> fi = vertexArray.iterator();
-		Point3d p = new Point3d();
+		double x,y,z;
 		while(fi.hasNext()) {
-			p.x = fi.next().floatValue();
-			p.y = fi.next().floatValue();
-			p.z = fi.next().floatValue();			
-			if(boundBottom.x>p.x) boundBottom.x=p.x;
-			if(boundBottom.y>p.y) boundBottom.y=p.y;
-			if(boundBottom.z>p.z) boundBottom.z=p.z;
-			if(boundTop.x<p.x) boundTop.x=p.x;
-			if(boundTop.y<p.y) boundTop.y=p.y;
-			if(boundTop.z<p.z) boundTop.z=p.z;
+			x = fi.next().floatValue();
+			y = fi.next().floatValue();
+			z = fi.next().floatValue();
+			boundTop.x = Math.max(x, boundTop.x);
+			boundTop.y = Math.max(y, boundTop.y);
+			boundTop.z = Math.max(z, boundTop.z);
+			boundBottom.x = Math.min(x, boundBottom.x);
+			boundBottom.y = Math.min(y, boundBottom.y);
+			boundBottom.z = Math.min(z, boundBottom.z);
 		}
 		cuboid.setBounds(boundTop, boundBottom);
 	}
@@ -338,6 +336,7 @@ public class Shape {
 				if(loader.load(stream,m)) {
 					m.setSourceName(sourceName);
 					m.setLoader(loader);
+					m.updateCuboid();
 					// Maybe add a m.setSaveAndLoader(loader); ?
 					shapePool.add(m);
 					break;

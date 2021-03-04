@@ -14,6 +14,7 @@ import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoDoubleArray;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Collidable;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
@@ -216,25 +217,6 @@ public class Sixi2LinearGripper extends DHTool {
 		super.getView(view);
 	}
 
-	/**
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-
-		cuboidList.add(getCuboid());
-		
-		for( Entity link : children ) {
-			if( link instanceof PoseEntity ) {
-				PoseEntity pe = (PoseEntity)link;
-				cuboidList.addAll(pe.getCuboidList());
-			}
-		}
-
-		return cuboidList;
-	}
-	
 	@Override
 	public Memento getState() {
 		MementoDoubleArray a = new MementoDoubleArray(1);

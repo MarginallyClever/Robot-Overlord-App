@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
@@ -14,7 +13,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -44,9 +42,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	// pose relative to my parent.
 	protected Matrix4d pose = new Matrix4d();
 	
-	// collision limits
-	public Cuboid cuboid = new Cuboid();
-
 	public BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
 	public BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
 	public BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
@@ -77,7 +72,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	public void set(PoseEntity b) {
 		super.set(b);
 		pose.set(b.pose);
-		cuboid.set(b.cuboid);
 	}
 
 	public int getPickName() {
@@ -94,7 +88,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 			MatrixHelper.applyMatrix(gl2, pose);
 
 			// helpful info
-			if(showBoundingBox.get()) cuboid.render(gl2);
 			if(showLocalOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
 			if(showLineage.get()) renderLineage(gl2);
 
@@ -220,9 +213,8 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	}
 	
 	/**
-	 * Climb through the entity tree, finding all parents that are a {@link PoseEntity}.
-	 * Then work from parent-most forward to build the world pose matrix.
-	 * It's not efficient but it's always accurate.  
+	 * Climb through the entity tree, to the root.
+	 * Then work from root forward, finding all parents that are a {@link PoseEntity}, to build the world pose matrix.
 	 * @return {@link Matrix4d} of the world pose
 	 */
 	@Override
@@ -265,25 +257,6 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 			p=p.getParent();
 		}
 		return null;
-	}
-
-	public Cuboid getCuboid() {
-		return cuboid;
-	}
-	
-	/**
-	 * 
-	 * @return a list of cuboids, or null.
-	 */
-	public ArrayList<Cuboid> getCuboidList() {		
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-		
-		Matrix4d m = new Matrix4d();
-		this.getPoseWorld(m);
-		cuboid.setPoseWorld(m);
-		cuboidList.add(cuboid);
-
-		return cuboidList;
 	}
 	
 	/**

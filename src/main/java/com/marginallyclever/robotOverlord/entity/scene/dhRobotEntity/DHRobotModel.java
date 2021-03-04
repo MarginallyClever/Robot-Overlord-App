@@ -184,20 +184,20 @@ public class DHRobotModel extends Entity {
 		
 		int size = links.size();
 		for (int i = 0; i < size; ++i) {
-			if (links.get(i).shapeEntity.getModel() == null)
+			ArrayList<Cuboid> aa = links.get(i).getCuboidList();
+			if (aa.size()==0)
 				continue;
 
 			for (int j = i + 2; j < size; ++j) {
-				if (links.get(j).shapeEntity.getModel() == null)
+				ArrayList<Cuboid> bb = links.get(j).getCuboidList();
+				if (bb.size()==0)
 					continue;
 
-				if (IntersectionHelper.cuboidCuboid(
-						links.get(i).getCuboid(),
-						links.get(j).getCuboid())) {
-						Log.message("Self collision between "+
-									i+":"+links.get(i).getName()+" and "+
-									j+":"+links.get(j).getName());
-
+				if (IntersectionHelper.cuboidCuboid(aa.get(0),bb.get(0))) {
+					Log.message("Self collision between "
+								+links.get(i).getName()
+								+" and "
+								+links.get(j).getName());
 					setPoseFK(originalKey);
 					return true;
 				}
@@ -386,9 +386,7 @@ public class DHRobotModel extends Entity {
 		refreshDHMatrixes();
 
 		for( DHLink link : links ) {
-			if(link.getCuboid() != null ) {
-				cuboidList.addAll(link.getCuboidList());
-			}
+			cuboidList.addAll(link.getCuboidList());
 		}
 		if(toolIndex>0) {
 			DHTool t = allTools.get(toolIndex);

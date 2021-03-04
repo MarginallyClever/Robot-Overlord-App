@@ -26,6 +26,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Collidable;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -37,7 +38,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class ShapeEntity extends PoseEntity {
+public class ShapeEntity extends PoseEntity implements Collidable {
 	/**
 	 * 
 	 */
@@ -57,18 +58,13 @@ public class ShapeEntity extends PoseEntity {
 	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
 	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
 
-	@JsonIgnore
-	IntEntity numTriangles = new IntEntity("Triangles",0);
+	private IntEntity numTriangles = new IntEntity("Triangles",0);
+	private BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+	private BooleanEntity hasColors = new BooleanEntity("Has colors",false);
+	private BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 	
-	@JsonIgnore
-	BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+	private Cuboid cuboid = new Cuboid();
 	
-	@JsonIgnore
-	BooleanEntity hasColors = new BooleanEntity("Has colors",false);
-	
-	@JsonIgnore
-	BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
-			
 	public ShapeEntity() {
 		super();
 		setName("Model");
@@ -97,6 +93,7 @@ public class ShapeEntity extends PoseEntity {
 	public void set(ShapeEntity b) {
 		super.set(b);
 		scale.set(b.scale.get());
+		cuboid.set(b.cuboid);
 		
 		filename.set(b.filename.get());
 		shape = b.shape;
@@ -162,15 +159,12 @@ public class ShapeEntity extends PoseEntity {
 	}
 	
 	private void rebuildLocalPose() {
-		Vector3d t = new Vector3d();
 		Vector3d r = rotationAdjust.get();
-		
-		pose.get(t);
 		Matrix4d rotX = new Matrix4d();		rotX.rotX(Math.toRadians(r.x));		pose.set(rotX);
 		Matrix4d rotY = new Matrix4d();		rotY.rotY(Math.toRadians(r.y));		pose.mul(rotY);
 		Matrix4d rotZ = new Matrix4d();		rotZ.rotZ(Math.toRadians(r.z));		pose.mul(rotZ);
 		pose.setScale(scale.get());
-		pose.setTranslation(t);
+		pose.setTranslation(originAdjust.get());
 		updateCuboid();
 	}
 
@@ -204,11 +198,9 @@ public class ShapeEntity extends PoseEntity {
 	/**
 	 * Updates the {@link Cuboid} bounds.
 	 */
-	public void updateCuboid() {		
-		// set up the physical limits
+	public void updateCuboid() {
 		if(shape != null) {
 			Cuboid mc = shape.getCuboid();
-			// TODO multiply by this.pose?
 			cuboid.setBounds(mc.getBoundsTop(),mc.getBoundsBottom());
 		}
 	}
@@ -226,11 +218,11 @@ public class ShapeEntity extends PoseEntity {
 			material.render(gl2);
 			shape.render(gl2);
 		}
+		
+		gl2.glPopMatrix();
 
 		// draw children
 		super.render(gl2);
-		
-		gl2.glPopMatrix();
 	}
 	
 	public MaterialEntity getMaterial() {
@@ -300,11 +292,23 @@ public class ShapeEntity extends PoseEntity {
 			ShapeLoadAndSave loader = shape.loader;
 			loader.load(stream,shape);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * @return a list of {@link Cuboid}, or null.
+	 */
+	@Override
+	public ArrayList<Cuboid> getCuboidList() {
+		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
+		list.add(cuboid);
+		Matrix4d m2 = new Matrix4d();
+		getPoseWorld(m2);
+		cuboid.setPose(m2);
+
+		return list;
 	}
 }

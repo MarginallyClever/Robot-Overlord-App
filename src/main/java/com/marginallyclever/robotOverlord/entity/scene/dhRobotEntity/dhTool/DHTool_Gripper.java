@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -9,11 +8,9 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoOriginator;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
@@ -241,25 +238,6 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 	public void setAdjustableValue(double v) {
 		v = Math.max(Math.min(v, rangeMax.get()), rangeMin.get());
 		gripperServoAngle=v;
-	}
-
-	/**
-	 * @return a list of cuboids, or null.
-	 */
-	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> cuboidList = new ArrayList<Cuboid>();
-
-		cuboidList.add(getCuboid());
-		
-		for( Entity link : children ) {
-			if( link instanceof PoseEntity ) {
-				PoseEntity pe = (PoseEntity)link;
-				cuboidList.addAll(pe.getCuboidList());
-			}
-		}
-
-		return cuboidList;
 	}
 
 	@Override

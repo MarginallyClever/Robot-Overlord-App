@@ -19,7 +19,7 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	 */
 	private static final long serialVersionUID = -1617983108751476098L;
 
-	protected Matrix4d poseWorld = new Matrix4d();  // relative to universe
+	protected Matrix4d pose = new Matrix4d();
 	
 	protected Point3d boundTop = new Point3d();  // max limits
 	protected Point3d boundBottom = new Point3d();  // min limits
@@ -31,12 +31,12 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	
 	public Cuboid() {
 		super();
-		poseWorld.setIdentity();
+		pose.setIdentity();
 		for(int i=0;i<p.length;++i) p[i] = new Point3d();
 	}
 
 	public void set(Cuboid b) {
-		poseWorld.set(b.poseWorld);
+		pose.set(b.pose);
 		boundTop.set(b.boundTop);
 		boundBottom.set(b.boundBottom);
 
@@ -60,7 +60,7 @@ public class Cuboid extends BoundingVolume implements Serializable {
 
 		for (int i = 0; i < p.length; ++i) {
 			// Log.message("\t"+p[i]);
-			poseWorld.transform(p[i]);
+			pose.transform(p[i]);
 			// Log.message(" >> "+p[i]);
 		}
 	}
@@ -86,17 +86,20 @@ public class Cuboid extends BoundingVolume implements Serializable {
 		return boundBottom;
 	}
 	
-	// set pose relative to universe
-	public void setPoseWorld(Matrix4d m) {
-		if(!poseWorld.epsilonEquals(m, 1e-4)) {
-			poseWorld.set(m);
+	public void setPose(Matrix4d m) {
+		if(!pose.epsilonEquals(m, 1e-4)) {
+			pose.set(m);
 			isDirty=true;
 		}
 	}
 	
+	public void getPose(Matrix4d m) {
+		m.set(pose);
+	}
+	
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			//MatrixHelper.applyMatrix(gl2, poseWorld);
+			MatrixHelper.applyMatrix(gl2, pose);
 
 			IntBuffer depthFunc = IntBuffer.allocate(1);
 			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
