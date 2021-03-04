@@ -19,6 +19,8 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionMoveTo;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -33,17 +35,31 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	 * 
 	 */
 	private static final long serialVersionUID = -7250407040741008778L;
+
+	// axis names
+	static public final String [] AXIS_LABELS = new String[] { "X","Y","Z","Xr","Yr","Zr"};
+
 	// unique ids for all objects in the world.  
 	// zero is reserved to indicate no object.
 	static private int pickNameCounter=1;
+
 	// my unique id
 	private transient int pickName;	
-	
+
 	// pose relative to my parent.
 	protected Matrix4d pose = new Matrix4d();
+
+	// which axis do we want to move?
+	private IntEntity axisChoice = new IntEntity("Jog direction",0);
+	// how fast do we want to move?
+	private DoubleEntity axisAmount = new DoubleEntity("Jog speed",0);
 	
+	// draw collidable Cuboid(s)?
+	// TODO move this somewhere more appropriate
 	public BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
+	// show star at local origin?
 	public BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
+	// show connection to all children?
 	public BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
 
 
@@ -60,6 +76,7 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		showBoundingBox.addPropertyChangeListener(this);
 		showLocalOrigin.addPropertyChangeListener(this);
 		showLineage.addPropertyChangeListener(this);
+		axisChoice.addPropertyChangeListener(this);
 		
 		pose.setIdentity();
 	}
@@ -203,10 +220,50 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"pose",oldValue,arg0));
 	}
 
+	
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		
+		if(axisAmount.get()!=0) {
+			double aa = axisAmount.get();
+			int ac = axisChoice.get();
+			double aaOverTime = aa*dt;
+
+			Matrix4d target = getPose();
+			
+			Vector3d p = new Vector3d(target.m03,target.m13,target.m23);
+			target.setTranslation(new Vector3d(0,0,0));
+			Matrix4d r = new Matrix4d();
+			r.setIdentity();
+			
+			switch(ac) {
+			case 0:				p.x+=aaOverTime;					break;
+			case 1:				p.y+=aaOverTime;					break;
+			case 2:				p.z+=aaOverTime;					break;
+			case 3:				r.rotX(Math.toRadians(aaOverTime));	break;
+			case 4:				r.rotY(Math.toRadians(aaOverTime));	break;
+			case 5:				r.rotZ(Math.toRadians(aaOverTime));	break;
+			default: 										break;
+			}
+			target.mul(r);
+			target.setTranslation(p);
+			setPose(target);
+			
+			// which will cause a propertyChange event
+			axisAmount.set(aa);
+		}
+	}
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 		Object o = evt.getSource();
+
+		if(o != axisAmount && axisAmount!=null) {
+			axisAmount.set(0.0);
+		}
+		
 		if(o==showBoundingBox) setShowBoundingBox((boolean)showBoundingBox.get());
 		if(o==showLocalOrigin) setShowLocalOrigin((boolean)showLocalOrigin.get());
 		if(o==showLineage) setShowLineage((boolean)showLineage.get());
@@ -391,10 +448,9 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("P","Pose");
-
-		view.add(showBoundingBox);
-		view.add(showLocalOrigin);
-		view.add(showLineage);
+		
+		view.addComboBox(axisChoice, AXIS_LABELS);
+		view.addRange(axisAmount, 5, -5);
 		
 		view.addButton("Snap Z to major axis").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
@@ -404,12 +460,15 @@ public class PoseEntity extends Entity implements RemovableEntity, Cloneable, Mo
 		});
 		
 		view.addButton("Snap X to major axis").addPropertyChangeListener(new PropertyChangeListener() {
-			
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				snapXToMajorAxis();
 			}
 		});
+
+		view.add(showBoundingBox);
+		view.add(showLocalOrigin);
+		view.add(showLineage);
 		
 		//view.addStaticText("Pick name="+getPickName());
 		//	pose.getView(view);
