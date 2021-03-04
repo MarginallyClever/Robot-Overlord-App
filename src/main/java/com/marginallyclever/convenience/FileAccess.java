@@ -11,11 +11,9 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Methods to make loading files from disk or jar resource easier.
- * 
  * @author Dan Royer
  */
 public class FileAccess {
-
 	/**
 	 * Open a file.  open() looks in three places:<br>
 	 *  - The file may be contained inside a zip, as indicated by the filename "zipname:filename".<br>
