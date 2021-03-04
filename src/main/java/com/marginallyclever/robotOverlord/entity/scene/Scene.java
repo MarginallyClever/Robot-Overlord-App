@@ -3,22 +3,21 @@ package com.marginallyclever.robotOverlord.entity.scene;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
 import com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
+import com.marginallyclever.robotOverlord.entity.sixi3.Sixi3FK;
+import com.marginallyclever.robotOverlord.entity.sixi3.Sixi3IK;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -93,13 +92,21 @@ public class Scene extends Entity {
 		grid.setPosition(new Vector3d(60.0,0,-0.5));
 */
     	// add a sixi robot
-		Sixi2 sixi2=new Sixi2();
-		addChild(sixi2);
+		//Sixi2 sixi2=new Sixi2();
+		//addChild(sixi2);
+		Sixi3FK s0 = new Sixi3FK();
+		addChild(s0);
+		
+		Sixi3IK s1 = new Sixi3IK();
+		addChild(s1);
+		s1.setPosition(new Vector3d(80,0,0));
+		
+		
 		//sixi2.setPosition(new Vector3d(78,-25,0));
-		Matrix3d m=new Matrix3d();
-		m.setIdentity();
+		//Matrix3d m=new Matrix3d();
+		//m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
-		sixi2.setRotation(m);
+		//sixi2.setRotation(m);
 		
 		TrayCabinet trayCabinet=new TrayCabinet();
 		trayCabinet.setName("Cabinet");
@@ -169,20 +176,21 @@ public class Scene extends Entity {
 		for( Entity obj : children ) {
 			if(obj instanceof LightEntity) continue;
 
+			// name for picking
 			if(obj instanceof PoseEntity) {
-				// name for picking
 				gl2.glPushName(((PoseEntity)obj).getPickName());
 			}
+			
 			obj.render(gl2);
+			
+			// name for picking
 			if(obj instanceof PoseEntity) {
-				// name for picking
 				gl2.glPopName();
 			}
 		}
 		
 		// PASS 2: everything transparent?
-
-		renderAllBoundingBoxes(gl2);
+		//renderAllBoundingBoxes(gl2);
 	}
 	
 	private void renderAllBoundingBoxes(GL2 gl2) {
