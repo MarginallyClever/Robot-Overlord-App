@@ -99,7 +99,7 @@ public class Scene extends Entity {
 		
 		Sixi3IK s1 = new Sixi3IK();
 		addChild(s1);
-		s1.setPosition(new Vector3d(80,0,0));
+		s1.setPosition(new Vector3d(50,0,0));
 		
 		
 		//sixi2.setPosition(new Vector3d(78,-25,0));
