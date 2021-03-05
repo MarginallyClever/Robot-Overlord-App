@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -25,11 +26,13 @@ public class Sixi3IK extends Sixi3FK {
 	 */
 	private static final long serialVersionUID = -7778520191789995554L;
 
-	private double THRESHOLD = 0.001;
-	
 	// target end effector pose
 	private PoseEntity eeTarget = new PoseEntity("Target");
-		
+
+	private DoubleEntity threshold = new DoubleEntity("Threshold",0.001); 
+	private DoubleEntity stepSize = new DoubleEntity("Step size",0.125); 
+	private DoubleEntity learningRate = new DoubleEntity("Leaning rate",0.005); 
+	
 	public Sixi3IK() {
 		super();
 		setName("Sixi3IK");
@@ -45,11 +48,6 @@ public class Sixi3IK extends Sixi3FK {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		
-		if(distanceToTarget() > THRESHOLD) {
-			// gradient descent towards eeTarget
-			gradientDescent(50, THRESHOLD, 0.125, 0.005);
-		}
 	}
 	
 	/**
@@ -169,8 +167,6 @@ public class Sixi3IK extends Sixi3FK {
 	public void getView(ViewPanel view) {
 		view.pushStack("IK","Inverse Kinematics");
 
-		// TODO add gradient descent parameters here
-		
 		ViewElementButton b = view.addButton("Reset GoTo");
 		b.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
@@ -180,6 +176,11 @@ public class Sixi3IK extends Sixi3FK {
 				eeTarget.setPose(m);
 			}
 		});
+		
+		// add gradient descent parameters here
+		view.add(threshold);
+		view.add(stepSize);
+		view.add(learningRate);
 		
 		view.popStack();
 		
@@ -195,7 +196,7 @@ public class Sixi3IK extends Sixi3FK {
 		
 		if(src == eeTarget && evt.getPropertyName().contentEquals("pose")) {
 			// gradient descent towards eeTarget
-			gradientDescent(50, 0.001, 0.125, 0.005);
+			gradientDescent(50, threshold.get(), stepSize.get(), learningRate.get());
 		}
 	}
 }

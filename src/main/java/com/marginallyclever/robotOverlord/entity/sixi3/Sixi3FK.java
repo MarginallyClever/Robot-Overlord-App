@@ -14,6 +14,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Collidable;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
@@ -62,8 +63,13 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 	// end effector
 	private Matrix4d ee = new Matrix4d();
+
+	// visualize rotations?
+	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
+
+	private ReentrantLock setFKLock = new ReentrantLock();
 	
-	
+
 	public Sixi3FK() {
 		super();
 		setName("Sixi3FK");
@@ -196,22 +202,57 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		if(showLineage.get()) {
 			// then the bones, overtop and unlit.
 			gl2.glPushMatrix();
-				int j=bones.length+1;
+				int j=Sixi3FK.NUM_BONES+1;
 				for(int i=0;i<bones.length;++i) {
 					Sixi3Bone bone = bones[i];
 					bone.updateMatrix();
 					// draw bone origin
-					PrimitiveSolids.drawStar(gl2,j--);
-		
+					PrimitiveSolids.drawStar(gl2,j*2);
+					// draw line to next bone
 					bone.pose.get(v);
 					gl2.glColor3d(1, 0, 1);
 					gl2.glBegin(GL2.GL_LINES);
 					gl2.glVertex3d(0, 0, 0);
 					gl2.glVertex3d(v.x,v.y,v.z);
 					gl2.glEnd();
+
 					MatrixHelper.applyMatrix(gl2, bone.pose);
+					--j;
 				}
 			gl2.glPopMatrix();
+		}
+
+		if(showAngles.get()) {
+			boolean cullOn = gl2.glIsEnabled(GL2.GL_CULL_FACE);
+			gl2.glDisable(GL2.GL_CULL_FACE);
+			
+			// then the bones, overtop and unlit.
+			gl2.glPushMatrix();
+				int j=Sixi3FK.NUM_BONES+1;
+				for(int i=0;i<bones.length;++i) {
+					Sixi3Bone bone = bones[i];
+					bone.updateMatrix();
+					// curve of movement
+					gl2.glColor4d(1,1,1,0.6);
+					gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+					gl2.glVertex3d(0, 0, 0);
+					double diff = bone.theta-180;
+					double end = Math.abs(diff);
+					double dir = diff>0?1:-1;
+					for(double a = 0; a<end;a+=5) {
+						double s = Math.sin(Math.toRadians(-a*dir));
+						double c = Math.cos(Math.toRadians(-a*dir));
+						gl2.glVertex3d(s*j*3, c*j*3,0);
+					}
+					gl2.glEnd();
+
+					MatrixHelper.applyMatrix(gl2, bone.pose);
+					--j;
+				}
+			gl2.glPopMatrix();
+
+			if(cullOn) gl2.glEnable(GL2.GL_CULL_FACE);
+
 		}
 		
 		// bounding boxes are always relative to base?
@@ -270,6 +311,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				}*/
 			}
 		});
+		view.add(showAngles);
 		view.popStack();
 		
 		super.getView(view);
@@ -283,8 +325,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		return list;
 	}
-	
-	private ReentrantLock setFKLock = new ReentrantLock();
 	
 	/**
 	 * Update the theta angles of each bone in the robot and the FK sliders on the panel.
