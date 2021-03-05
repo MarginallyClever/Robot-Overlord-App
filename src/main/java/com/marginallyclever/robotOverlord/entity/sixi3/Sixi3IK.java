@@ -51,16 +51,16 @@ public class Sixi3IK extends Sixi3FK {
 	}
 	
 	/**
-	 * Measures the difference beween the latest end effector matrix and the target matrix
+	 * Measures the difference between the latest end effector matrix and the target matrix.
+	 * It is a combination of the linear distance and the rotation distance (collectively known as the Twist)
 	 * @return the error term.
 	 */
-	public double distanceToTarget() {
+	public double distanceToTarget(final Matrix4d target) {
 		// Scale the "handles" used.  Bigger scale, greater rotation compensation.
 		final double GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE = 100;
 		
 		Matrix4d m = new Matrix4d();
 		getEndEffector(m);
-		Matrix4d target = eeTarget.getPose();
 		
 		// linear difference in centers
 		Vector3d c0 = new Vector3d();
@@ -91,20 +91,20 @@ public class Sixi3IK extends Sixi3FK {
 	}
 	
 	/**/
-	private double partialGradientDescent(double [] fk,double [] samplingDistances, int i) {
+	private double partialGradientDescent(final Matrix4d target, double [] fk, double [] samplingDistances, int i) {
 		// get the current error term F.
 		double oldValue = fk[i];
-		double Fx = distanceToTarget();
+		double Fx = distanceToTarget(target);
 
 		// move F+D, measure again.
 		fk[i] = oldValue + samplingDistances[i];
 		setFKValues(fk);
-		double FxPlusD = distanceToTarget();
+		double FxPlusD = distanceToTarget(target);
 
 		// move F-D, measure again.
 		fk[i] = oldValue - samplingDistances[i];
 		setFKValues(fk);
-		double FxMinusD = distanceToTarget();
+		double FxMinusD = distanceToTarget(target);
 
 		// restore the old value
 		fk[i] = oldValue;
@@ -131,11 +131,12 @@ public class Sixi3IK extends Sixi3FK {
 	 * @param learningRate how much of that partial descent to actually apply each step?
 	 * @param initialSampleSize How many times should I try to get closer?
 	 */
-	private void gradientDescent(final double iterations, final double threshold, final double learningRate, final double initialSampleSize) {
-		double dtt=distanceToTarget();
+	private void gradientDescent(final Matrix4d target,final double iterations, final double threshold, final double learningRate, final double initialSampleSize) {
+		double dtt=distanceToTarget(target);
 
 		// pose before gradient descent starts
-		double [] fk = getFKValues();
+		double [] fk = new double [Sixi3FK.NUM_BONES];
+		getFKValues(fk);
 
 		// how big a step to take with each partial descent?
 		double [] samplingDistances = new double[Sixi3FK.NUM_BONES];
@@ -145,14 +146,14 @@ public class Sixi3IK extends Sixi3FK {
 		
 		for(int j=0;j<iterations;++j) {
 			// seems to work better descending from the finger than ascending from the base.
-			//for( int i=0; i<links.length; ++i ) {  // ascending mode
+			//for( int i=0; i<Sixi3FK.NUM_BONES; ++i ) {  // ascending mode
 			for( int i=Sixi3FK.NUM_BONES-1; i>=0; --i ) {  // descending mode
 				double oldValue = fk[i];
-				double gradient = partialGradientDescent(fk,samplingDistances,i);
+				double gradient = partialGradientDescent(target,fk,samplingDistances,i);
 				fk[i] = oldValue - gradient * learningRate; 
 				setFKValues(fk);
 						
-				dtt=distanceToTarget();
+				dtt=distanceToTarget(target);
 				if(dtt<threshold) {
 					// we hit the target, stop early.
 					return;
@@ -196,7 +197,8 @@ public class Sixi3IK extends Sixi3FK {
 		
 		if(src == eeTarget && evt.getPropertyName().contentEquals("pose")) {
 			// gradient descent towards eeTarget
-			gradientDescent(50, threshold.get(), stepSize.get(), learningRate.get());
+			gradientDescent(eeTarget.getPose(),50, threshold.get(), stepSize.get(), learningRate.get());
+			updateSliders();
 		}
 	}
 }
