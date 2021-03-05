@@ -253,8 +253,13 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 		}
 		
+		
 		// bounding boxes are always relative to base?
 		if(showBoundingBox.get()) {
+			boolean hit = collidesWithSelf();
+			if(hit) gl2.glColor3d(1, 0, 0);
+			else    gl2.glColor3d(1, 1, 1);
+			
 			Matrix4d w = new Matrix4d();
 			ArrayList<Cuboid> list = getCuboidList();
 			gl2.glPushMatrix();
@@ -262,7 +267,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			w.invert();
 			MatrixHelper.applyMatrix(gl2, w);
 			for(Cuboid c : list) {
-				c.render(gl2);
+				gl2.glPushMatrix();
+				c.getPose(w);
+				MatrixHelper.applyMatrix(gl2, w);
+				PrimitiveSolids.drawBoxWireframe(gl2, c.getBoundsBottom(),c.getBoundsTop());
+				gl2.glPopMatrix();
 			}
 			gl2.glPopMatrix();
 		}
