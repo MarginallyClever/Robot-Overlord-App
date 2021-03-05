@@ -221,7 +221,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		addChild(dragTool);
  		addChild(viewCube);
  		
- 		viewport.attachedTo.set(camera.getFullPath());
+ 		viewport.setAttachedTo(camera.getFullPath());
 
 		Log.message("Create default scene");
         scene.createSixiDemo();

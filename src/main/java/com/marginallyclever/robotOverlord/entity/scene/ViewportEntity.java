@@ -27,18 +27,22 @@ public class ViewportEntity extends Entity {
 	 * 
 	 */
 	private static final long serialVersionUID = -7613439702723031982L;
-	protected int canvasWidth, canvasHeight;
-	protected double cursorX,cursorY;
-	protected boolean isPressed;
+	
+	private int canvasWidth, canvasHeight;
+	// mouse position in GUI
+	private double cursorX,cursorY;
+	// is mouse pressed in GUI?
+	private boolean isPressed;
 
 	// calculated when rendering.  so won't be valid on the first frame.
-	protected Matrix4d projectionMatrix = new Matrix4d();
+	private Matrix4d projectionMatrix = new Matrix4d();
 	
-	public DoubleEntity nearZ=new DoubleEntity("Near Z",5.0);
-	public DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
-	public DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
-	public StringEntity attachedTo=new StringEntity("Attached to","");
-	public BooleanEntity drawOrtho=new BooleanEntity("Orthographic",false);
+	private DoubleEntity nearZ=new DoubleEntity("Near Z",5.0);
+	private DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
+	private DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
+	private StringEntity attachedTo=new StringEntity("Attached to","");
+	private BooleanEntity drawOrtho=new BooleanEntity("Orthographic",false);
+	
 	
 	public ViewportEntity() {
 		super();
@@ -240,14 +244,17 @@ public class ViewportEntity extends Entity {
         //Log.message("X"+cursorX+" Y"+cursorY);
 	}
 
+	// mouse was pressed in GUI
 	public void pressed() {
 		isPressed=true;
 	}
 
+	// mouse was released in GUI
 	public void released() {
 		isPressed=false;
 	}
 	
+	// is mouse pressed in GUI?
 	public boolean isPressed() {
 		return isPressed;
 	}
@@ -274,6 +281,10 @@ public class ViewportEntity extends Entity {
 
 	public PoseEntity getAttachedTo() {
 		return (PoseEntity)findByPath(attachedTo.get());
+	}
+	
+	public void setAttachedTo(String s) {
+		attachedTo.set(s);
 	}
 	
 	@Override
