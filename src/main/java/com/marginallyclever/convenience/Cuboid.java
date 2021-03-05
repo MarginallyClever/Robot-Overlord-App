@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 
 /**
  * 
@@ -19,6 +20,7 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	 */
 	private static final long serialVersionUID = -1617983108751476098L;
 
+	// pose of this {@link Cuboid} in the world.
 	protected Matrix4d pose = new Matrix4d();
 	
 	protected Point3d boundTop = new Point3d();  // max limits
@@ -26,7 +28,8 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	
 	public Point3d [] p = new Point3d[8];  // all 8 corners
 	
-	protected boolean isDirty=false;
+	private boolean isDirty=false;
+	private Shape myShape;
 	
 	
 	public Cuboid() {
@@ -39,6 +42,7 @@ public class Cuboid extends BoundingVolume implements Serializable {
 		pose.set(b.pose);
 		boundTop.set(b.boundTop);
 		boundBottom.set(b.boundBottom);
+		myShape = b.myShape;
 
 		for(int i=0;i<8;++i) p[i].set(b.p[i]);
 		
@@ -119,5 +123,14 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	
 	public void setDirty(boolean newState) {
 		isDirty=newState;
+	}
+
+	
+	public void setShape(Shape shape) {
+		myShape=shape;
+	}
+	
+	public Shape getShape() {
+		return myShape;
 	}
 }

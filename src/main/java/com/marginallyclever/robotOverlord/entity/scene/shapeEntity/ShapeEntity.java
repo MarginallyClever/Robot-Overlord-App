@@ -11,6 +11,7 @@ import java.util.ServiceLoader;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -200,8 +201,10 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	 */
 	public void updateCuboid() {
 		if(shape != null) {
-			Cuboid mc = shape.getCuboid();
-			cuboid.setBounds(mc.getBoundsTop(),mc.getBoundsBottom());
+			cuboid.set(shape.getCuboid());
+		} else {
+			cuboid.setShape(null);
+			cuboid.setBounds(new Point3d(0,0,0),new Point3d(0,0,0));
 		}
 	}
 	

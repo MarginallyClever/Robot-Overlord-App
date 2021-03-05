@@ -63,6 +63,7 @@ public class Shape {
 		hasUVs=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
+		cuboid.setShape(this);
 	}
 	
 	/**

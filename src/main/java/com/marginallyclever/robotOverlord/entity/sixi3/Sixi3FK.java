@@ -17,6 +17,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Collidable;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -466,7 +467,14 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			for(int j=i+2;j<list.size();++j) {
 				Cuboid b = list.get(j);
 				if(IntersectionHelper.cuboidCuboid(a, b)) {
-					return true;
+					Matrix4d ma = new Matrix4d();
+					Matrix4d mb = new Matrix4d();
+					a.getPose(ma);
+					b.getPose(mb);
+					Shape sa = a.getShape();
+					Shape sb = b.getShape();
+					
+					return IntersectionHelper.meshMesh(ma,sa,mb,sb);
 				}
 			}
 		}
