@@ -4,13 +4,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -28,7 +28,6 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @see <a href='https://en.wikipedia.org/wiki/Forward_kinematics'>Forward Kinematics</a>
  * @author Dan Royer
  * @since 2021-02-24
- *
  */
 public class Sixi3FK extends PoseEntity implements Collidable {
 	/**
@@ -67,8 +66,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	// visualize rotations?
 	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
 
-	private ReentrantLock setFKLock = new ReentrantLock();
-	
 
 	public Sixi3FK() {
 		super();
@@ -239,10 +236,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 					double diff = bone.theta-180;
 					double end = Math.abs(diff);
 					double dir = diff>0?1:-1;
+					double radius = j;
 					for(double a = 0; a<end;a+=5) {
-						double s = Math.sin(Math.toRadians(-a*dir));
-						double c = Math.cos(Math.toRadians(-a*dir));
-						gl2.glVertex3d(s*j*3, c*j*3,0);
+						double s = Math.sin(Math.toRadians(-a*dir)) * radius;
+						double c = Math.cos(Math.toRadians(-a*dir)) * radius;
+						gl2.glVertex3d(s, c,0);
 					}
 					gl2.glEnd();
 
@@ -301,14 +299,12 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				//*
-				double [] v = getFKValues();
-				for(int i=0;i<v.length;++i) {
+				double [] v = new double[Sixi3FK.NUM_BONES];
+				for(int i=0;i<Sixi3FK.NUM_BONES;++i) {
 					v[i]=180;
 				}
-				setFKValues(v);/*/
-				for( Sixi3Bone b : bones ) {
-					b.slider.set((b.angleMax+b.angleMin)/2);
-				}*/
+				setFKValues(v);
+				updateSliders();
 			}
 		});
 		view.add(showAngles);
@@ -316,57 +312,74 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		super.getView(view);
 	}
+	
+	/**
+	 * Refresh the FK sliders in the GUI.
+	 */
+	protected void updateSliders() {
+		for( Sixi3Bone b : bones ) {
+			b.slider.set(b.theta);
+		}	
+	}
 
-	public double [] getFKValues() {
-		double [] list = new double[bones.length];
+	/**
+	 * 
+	 * @param list where to collect the information.  Must be {@link Sixi3FK#NUM_BONES} long.
+	 * @throws InvalidParameterException
+	 */
+	public void getFKValues(double [] list) throws InvalidParameterException {
+		if(list==null) {
+			throw new InvalidParameterException("list cannot be null.");
+		}
+		if(list.length!=Sixi3FK.NUM_BONES) {
+			throw new InvalidParameterException("list length must match number of bones ("+bones.length+")");
+		}
 		int i=0;
 		for( Sixi3Bone bone : bones ) {
 			list[i++] = bone.theta;
 		}
-		return list;
 	}
 	
 	/**
 	 * Update the theta angles of each bone in the robot and the FK sliders on the panel.
-	 * @param list new theta values.
+	 * It does not allow you to set the angle of a bone outside the angleMax/angleMin of that bone.
+	 * @param list new theta values.  Must be {@link Sixi3FK#NUM_BONES} long.
 	 * @return true if new values are different from old values.
 	 * @throws InvalidParameterException list is the wrong length.
 	 */
 	public boolean setFKValues(double [] list) throws InvalidParameterException {
+		if(list==null) {
+			throw new InvalidParameterException("list cannot be null.");
+		}
 		if(bones.length != list.length) {
-			throw new InvalidParameterException("list length must match number of links ("+bones.length+")");
+			throw new InvalidParameterException("list length must match number of bones ("+bones.length+")");
 		}
 
 		boolean changed=false;
 		
-		if(!setFKLock.isLocked()) {
-			setFKLock.lock();
+		int i=0;
+		for( Sixi3Bone b : bones ) {
+			double v = list[i];
+			// prevent pushing the arm to an illegal angle
+			v = Math.max(Math.min(v, b.angleMax), b.angleMin);
 			
-			int i=0;
+			if( b.theta != v ) {
+				b.theta = v;
+				changed=true;
+			}
+			++i;
+		}
+
+		if(changed) {
+			// theta values actually changed so update matrixes and get the new end effector position.
 			for( Sixi3Bone b : bones ) {
-				double v = list[i++];
-				// prevent pushing the arm to an illegal angle
-				v = Math.max(Math.min(v, b.angleMax), b.angleMin);
-				
-				if( b.theta != v ) {
-					b.theta = v;
-					changed=true;
-				}
-				b.slider.set(b.theta);
+				b.updateMatrix();
 			}
-	
-			if(changed) {
-				// theta values actually changed so update matrixes and get the new end effector position.
-				for( Sixi3Bone b : bones ) {
-					b.updateMatrix();
-				}
-				Matrix4d oldee = new Matrix4d(ee);
-				getEndEffector(ee);
-				notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",oldee,ee));
-			}
-			
-			setFKLock.unlock();
-		}		
+			Matrix4d oldee = new Matrix4d(ee);
+			getEndEffector(ee);
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",oldee,ee));
+		}
+		
 		return changed;
 	}
 	
@@ -376,7 +389,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		super.propertyChange(evt);
 		Object src = evt.getSource();
 
-		double [] v = getFKValues();
+		double [] v = new double[Sixi3FK.NUM_BONES];
+		getFKValues(v);
 		
 		boolean changed=false;
 		int i=0;
@@ -393,6 +407,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 		if(changed) {
 			setFKValues(v);
+			updateSliders();
 		}
 	}
 	
@@ -430,4 +445,24 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		return list;
 	}
+	
+	/**
+	 * @return true if this robot currently collide with itself.
+	 */
+	public boolean collidesWithSelf() {
+		ArrayList<Cuboid> list = getCuboidList();
+		
+		for(int i=0;i<list.size();++i) {
+			Cuboid a = list.get(i);
+			for(int j=i+2;j<list.size();++j) {
+				Cuboid b = list.get(j);
+				if(IntersectionHelper.cuboidCuboid(a, b)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	
 }

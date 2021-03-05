@@ -128,8 +128,8 @@ public class IntersectionHelper {
 	
 	/**
 	 * separation of axies theorem used to find intersection of two arbitrary boxes.
-	 * @param a
-	 * @param b
+	 * @param a first cuboid
+	 * @param b second cuboid
 	 * @return true if cuboids intersect
 	 */
 	static public boolean cuboidCuboid(Cuboid a,Cuboid b) {
