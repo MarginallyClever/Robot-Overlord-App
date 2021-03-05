@@ -731,10 +731,14 @@ public class MoveTool extends Entity {
 		boolean drawZ = (vZ>0.85);
 		//Log.message(vX+"\t"+drawX+"\t"+vY+"\t"+drawY+"\t"+vZ+"\t"+drawZ);
 
-		gl2.glEnable(GL2.GL_CULL_FACE);
-		gl2.glCullFace(GL2.GL_BACK);
+		gl2.glDisable(GL2.GL_CULL_FACE);
+
+		double radius0 = 20.0/ballSize.get();
+		double radius1 = radius0-0.1;
+		double alpha=0.5;
+		
 		//x
-		gl2.glColor3d(cr, 0, 0);
+		gl2.glColor4d(cr, 0, 0,alpha);
 		if(drawX) {
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -746,15 +750,14 @@ public class MoveTool extends Entity {
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
 				double x=Math.cos(n);
 				double y=Math.sin(n);
-				gl2.glNormal3d(0, y,x);
-				gl2.glVertex3d(-0.25/ballSize.get(),y,x);
-				gl2.glVertex3d( 0.25/ballSize.get(),y,x);
+				gl2.glVertex3d(0,y*radius0,x*radius0);
+				gl2.glVertex3d(0,y*radius1,x*radius1);
 			}
 			gl2.glEnd();
 		}
 
 		//y
-		gl2.glColor3d(0, cg, 0);
+		gl2.glColor4d(0, cg, 0,alpha);
 		if(drawY) {
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -766,15 +769,14 @@ public class MoveTool extends Entity {
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
 				double x=Math.cos(n);
 				double y=Math.sin(n);
-				gl2.glNormal3d(x,0,y);
-				gl2.glVertex3d(x,-0.25/ballSize.get(),y);
-				gl2.glVertex3d(x, 0.25/ballSize.get(),y);
+				gl2.glVertex3d(x*radius0,0,y*radius0);
+				gl2.glVertex3d(x*radius1,0,y*radius1);
 			}
 			gl2.glEnd();
 		}
 		
 		//z
-		gl2.glColor3d(0, 0, cb);
+		gl2.glColor4d(0, 0, cb,alpha);
 		if(drawZ) {
 			gl2.glBegin(GL2.GL_LINE_STRIP);
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -786,13 +788,14 @@ public class MoveTool extends Entity {
 			for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
 				double x=Math.cos(n);
 				double y=Math.sin(n);
-				gl2.glNormal3d(y,x,0);
-				gl2.glVertex3d(y,x,-0.25/ballSize.get());
-				gl2.glVertex3d(y,x, 0.25/ballSize.get());
+				gl2.glVertex3d(y*radius0,x*radius0,0);
+				gl2.glVertex3d(y*radius1,x*radius1,0);
 			}
 			gl2.glEnd();
 		}
 
+		gl2.glEnable(GL2.GL_CULL_FACE);
+		gl2.glCullFace(GL2.GL_BACK);
 		
 		if(isActivelyMoving) {
 			// display the distance rotated.
