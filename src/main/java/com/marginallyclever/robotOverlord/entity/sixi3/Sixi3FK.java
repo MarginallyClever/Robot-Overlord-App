@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -60,9 +61,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	
 	// DH parameters, meshes, physical limits.
 	private Sixi3Bone [] bones = new Sixi3Bone[NUM_BONES];
-
-	// end effector
-	private Matrix4d ee = new Matrix4d();
 
 	// visualize rotations?
 	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
@@ -278,7 +276,9 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		
 		if(showLocalOrigin.get()) {
-			MatrixHelper.drawMatrix2(gl2, ee, 6);
+			Matrix4d m = new Matrix4d();
+			getEndEffector(m);
+			MatrixHelper.drawMatrix2(gl2, m, 6);
 		}
 
 		// return state if needed
@@ -291,7 +291,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * Find the current end effector pose, relative to the base of this robot
 	 * @param m where to store the end effector pose.
 	 */
-	protected void getEndEffector(Matrix4d m) {
+	public void getEndEffector(Matrix4d m) {
 		m.setIdentity();
 		for( Sixi3Bone bone : bones ) {
 			m.mul(bone.pose);
@@ -382,12 +382,14 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 		if(changed) {
 			// theta values actually changed so update matrixes and get the new end effector position.
+			Matrix4d eeOld = new Matrix4d();
+			getEndEffector(eeOld);
 			for( Sixi3Bone b : bones ) {
 				b.updateMatrix();
 			}
-			Matrix4d oldee = new Matrix4d(ee);
-			getEndEffector(ee);
-			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",oldee,ee));
+			Matrix4d eeNew = new Matrix4d();
+			getEndEffector(eeNew);
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
 		
 		return changed;
@@ -480,6 +482,130 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		return false;
 	}
+
+
+	public String toString() {
+		String angles = "";
+		String add="";
+		for( Sixi3Bone b : bones ) {
+			angles += add + Double.toString(b.theta);
+			add=",";
+		}
+		return "Sixi3FK {"+angles+"}";
+	}
+
+	public boolean fromString(String s) {
+		final String header="Sixi3FK {";
+		if(!s.startsWith(header )) return false;
+		
+		// strip "Sixi3FK {" and "}" from either end.
+		s=s.substring(header.length(),s.length()-1);
+		// split by comma
+		String [] pieces = s.split(",");
+		if(pieces.length != bones.length) return false;
+		
+		double [] v = new double[Sixi3FK.NUM_BONES];
+		for(int i=0; i<Sixi3FK.NUM_BONES; ++i) {
+			v[i] = Double.parseDouble(pieces[i]);
+		}
+		
+		setFKValues(v);
+		updateSliders();
+		
+		return true;
+	}
 	
-	
+	/**
+	 * Given the current pose of the robot, find the approximate jacobian.  
+	 * @See <a href='https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346'>Robot Academy tutorial</a>
+	 * @param jacobian 
+	 * 		a 6x6 matrix that will be filled with the jacobian.  
+	 *  	The first three columns are translation component, 
+	 *  	the last three are the rotation component.
+	 */
+	public void getApproximateJacobian(double [][] jacobian) {
+		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
+		
+		double [] oldAngles = new double[Sixi3FK.NUM_BONES];
+		double [] newAngles = new double[Sixi3FK.NUM_BONES];
+		getFKValues(oldAngles);
+		
+		Matrix4d T = new Matrix4d();
+		Matrix4d Tnew = new Matrix4d();
+		getEndEffector(T);
+		
+		// for all adjustable joints
+		for(int i=0;i<Sixi3FK.NUM_BONES;++i) {
+			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
+			for(int j=0;j<Sixi3FK.NUM_BONES;++j) {
+				newAngles[j]=oldAngles[j];
+			}
+			newAngles[i]+=ANGLE_STEP_SIZE_DEGREES;
+			setFKValues(newAngles);
+			
+			// Tnew will be different from T because of the changes in setPoseFK().
+			getEndEffector(Tnew);
+			
+			// use the finite difference in the two matrixes
+			// aka the approximate the rate of change (aka the integral, aka the velocity)
+			// in one column of the jacobian matrix at this position.
+			Matrix4d dT = new Matrix4d();
+			dT.sub(Tnew,T);
+			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
+			
+			jacobian[i][0]=dT.m03;
+			jacobian[i][1]=dT.m13;
+			jacobian[i][2]=dT.m23;
+
+			// find the rotation part
+			// these initialT and initialTd were found in the comments on
+			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
+			// and used to confirm that our skew-symmetric matrix match theirs.
+			/*
+			double[] initialT = {
+					 0,  0   , 1   ,  0.5963,
+					 0,  1   , 0   , -0.1501,
+					-1,  0   , 0   , -0.01435,
+					 0,  0   , 0   ,  1 };
+			double[] initialTd = {
+					 0, -0.01, 1   ,  0.5978,
+					 0,  1   , 0.01, -0.1441,
+					-1,  0   , 0   , -0.01435,
+					 0,  0   , 0   ,  1 };
+			T.set(initialT);
+			Td.set(initialTd);
+			dT.sub(Td,T);
+			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//*/
+			
+			//Log.message("T="+T);
+			//Log.message("Td="+Td);
+			//Log.message("dT="+dT);
+			Matrix3d T3 = new Matrix3d(
+					T.m00,T.m01,T.m02,
+					T.m10,T.m11,T.m12,
+					T.m20,T.m21,T.m22);
+			//Log.message("R="+R);
+			Matrix3d dT3 = new Matrix3d(
+					dT.m00,dT.m01,dT.m02,
+					dT.m10,dT.m11,dT.m12,
+					dT.m20,dT.m21,dT.m22);
+			//Log.message("dT3="+dT3);
+			Matrix3d skewSymmetric = new Matrix3d();
+			
+			T3.transpose();  // inverse of a rotation matrix is its transpose
+			skewSymmetric.mul(dT3,T3);
+			
+			//Log.message("SS="+skewSymmetric);
+			//[  0 -Wz  Wy]
+			//[ Wz   0 -Wx]
+			//[-Wy  Wx   0]
+			
+			jacobian[i][3]=skewSymmetric.m12;
+			jacobian[i][4]=skewSymmetric.m20;
+			jacobian[i][5]=skewSymmetric.m01;
+		}
+		
+		// undo our changes.
+		setFKValues(oldAngles);
+	}
 }
