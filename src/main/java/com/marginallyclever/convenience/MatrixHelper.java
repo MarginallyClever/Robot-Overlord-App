@@ -223,6 +223,7 @@ public class MatrixHelper {
 	 */
 	public static boolean interpolate(final Matrix4d start,final Matrix4d end,double alpha,Matrix4d result) {
 		if(alpha<0 || alpha>1) return false;
+		
 		// spherical interpolation (slerp) between the two matrix orientations
 		Quat4d qStart = new Quat4d();
 		qStart.set(start);
@@ -230,6 +231,7 @@ public class MatrixHelper {
 		qEnd.set(end);
 		Quat4d qInter = new Quat4d();
 		qInter.interpolate(qStart, qEnd, alpha);
+		
 		// linear interpolation between the two matrix translations
 		Vector3d tStart = new Vector3d();
 		start.get(tStart);
@@ -237,9 +239,11 @@ public class MatrixHelper {
 		end.get(tEnd);
 		Vector3d tInter = new Vector3d();
 		tInter.interpolate(tStart, tEnd, alpha);
+		
 		// build the result matrix
 		result.set(qInter);
 		result.setTranslation(tInter);
+		
 		// report ok
 		return true;
 	}
@@ -291,42 +295,57 @@ public class MatrixHelper {
 
 	/**
 	 * invert an N*N matrix.
-	 * From https://www.sanfoundry.com/java-program-find-inverse-matrix/
+	 * @see https://github.com/rchen8/algorithms/blob/master/Matrix.java
 	 * 
-	 * @param a
-	 * @return the inverse.
+	 * @param a the matrix to invert.
+	 * @return the result.
 	 */
 	public static double[][] invert(double a[][]) {
-		int n = a.length;
-		double x[][] = new double[n][n];
-		double b[][] = new double[n][n];
-		int index[] = new int[n];
-		for (int i = 0; i < n; ++i)
-			b[i][i] = 1;
+		double[][] inverse = new double[a.length][a.length];
 
-		// Transform the matrix into an upper triangle
-		gaussian(a, index);
+		// minors and cofactors
+		for (int i = 0; i < a.length; i++)
+			for (int j = 0; j < a[i].length; j++)
+				inverse[i][j] = Math.pow(-1, i + j)
+						* determinant(minor(a, i, j));
 
-		// Update the matrix b[i][j] with the ratios stored
-		for (int i = 0; i < n - 1; ++i)
-			for (int j = i + 1; j < n; ++j)
-				for (int k = 0; k < n; ++k)
-					b[index[j]][k] -= a[index[j]][i] * b[index[i]][k];
-
-		// Perform backward substitutions
-		for (int i = 0; i < n; ++i) {
-			x[n - 1][i] = b[index[n - 1]][i] / a[index[n - 1]][n - 1];
-			for (int j = n - 2; j >= 0; --j) {
-				x[j][i] = b[index[j]][i];
-				for (int k = j + 1; k < n; ++k) {
-					x[j][i] -= a[index[j]][k] * x[k][i];
-				}
-				x[j][i] /= a[index[j]][j];
+		// adjugate and determinant
+		double det = 1.0 / determinant(a);
+		for (int i = 0; i < inverse.length; i++) {
+			for (int j = 0; j <= i; j++) {
+				double temp = inverse[i][j];
+				inverse[i][j] = inverse[j][i] * det;
+				inverse[j][i] = temp * det;
 			}
 		}
-		return x;
-	}
 
+		return inverse;
+	}
+	
+	public static double determinant(double[][] matrix) {
+		if (matrix.length != matrix[0].length)
+			throw new IllegalStateException("invalid dimensions");
+
+		if (matrix.length == 2)
+			return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
+		double det = 0;
+		for (int i = 0; i < matrix[0].length; i++)
+			det += Math.pow(-1, i) * matrix[0][i]
+					* determinant(minor(matrix, 0, i));
+		return det;
+	}
+	
+	private static double[][] minor(double[][] matrix, int row, int column) {
+		double[][] minor = new double[matrix.length - 1][matrix.length - 1];
+
+		for (int i = 0; i < matrix.length; i++)
+			for (int j = 0; i != row && j < matrix[i].length; j++)
+				if (j != column)
+					minor[i < row ? i : i - 1][j < column ? j : j - 1] = matrix[i][j];
+		return minor;
+	}
+	
 	/**
 	 * Method to carry out the partial-pivoting Gaussian elimination.
 	 * From https://www.sanfoundry.com/java-program-find-inverse-matrix/
