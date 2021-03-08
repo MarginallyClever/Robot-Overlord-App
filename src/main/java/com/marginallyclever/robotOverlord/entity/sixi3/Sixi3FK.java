@@ -627,7 +627,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		for(j = 0; j < 6; ++j) {
 			sum=0;
 			for(k = 0; k < 6; ++k) {
-				sum += jacobian[k][j] * jointVelocity[k];
+				sum += jacobian[k][j] * Math.toRadians(jointVelocity[k]);
 			}
 			cartesianVelocity[j] = sum;
 		}
