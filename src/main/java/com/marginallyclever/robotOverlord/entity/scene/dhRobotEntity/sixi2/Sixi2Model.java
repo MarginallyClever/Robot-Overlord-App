@@ -326,7 +326,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 	
 	/**
 	 * Use Forward Kinematics to approximate the Jacobian matrix for Sixi.
-	 * See also https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
+	 * @See <a href='https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346'>Robot Academy tutorial</a>
 	 * @param keyframe joint angles
 	 * @return 6x6 jacobian matrix 
 	 */
