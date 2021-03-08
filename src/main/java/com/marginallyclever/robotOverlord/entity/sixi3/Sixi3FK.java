@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -57,7 +58,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public static final int NUM_BONES = 6;
 	
 	// unmoving model of the robot base.
-	private ShapeEntity base;
+	transient private ShapeEntity base;
 	
 	// DH parameters, meshes, physical limits.
 	private Sixi3Bone [] bones = new Sixi3Bone[NUM_BONES];
@@ -516,7 +517,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	}
 	
 	/**
-	 * Given the current pose of the robot, find the approximate jacobian.  
+	 * Given the current pose of the robot, find the approximate jacobian, which describe the relationship
+	 * between joint velocity and cartesian velocity
 	 * @See <a href='https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346'>Robot Academy tutorial</a>
 	 * @param jacobian 
 	 * 		a 6x6 matrix that will be filled with the jacobian.  
@@ -524,7 +526,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 *  	the last three are the rotation component.
 	 */
 	public void getApproximateJacobian(double [][] jacobian) {
-		double ANGLE_STEP_SIZE_DEGREES=0.5;  // degrees
+		double ANGLE_STEP_SIZE_DEGREES=0.1;  // degrees
 		
 		double [] oldAngles = new double[Sixi3FK.NUM_BONES];
 		double [] newAngles = new double[Sixi3FK.NUM_BONES];
@@ -608,5 +610,98 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		// undo our changes.
 		setFKValues(oldAngles);
 	}
+	
+	/**
 	 * @param jacobian
+	 *		the 6x6 jacobian matrix.
+	 * @param jointVelocity 
+	 * 		joint velocity in degrees.  
+	 * @param cartesianVelocity 
+	 * 		6 doubles - the XYZ translation and UVW rotation forces on the end effector.
+	 *		Will be filled with new values
+	 */
+	public void getCartesianVelocityFromJointVelocity(final double [][] jacobian, final double [] jointVelocity, double [] cartesianVelocity) {
+		// vector-matrix multiplication (y = x^T A)
+		int j,k;
+		double sum;
+		for(j = 0; j < 6; ++j) {
+			sum=0;
+			for(k = 0; k < 6; ++k) {
+				sum += jacobian[k][j] * jointVelocity[k];
+			}
+			cartesianVelocity[j] = sum;
+		}
+	}
+	
+	/**
+	 * Use the jacobian to get the joint velocity from the cartesian velocity.
+	 * @param jacobian
+	 *		the 6x6 jacobian matrix.
+	 * @param cartesianVelocity 
+	 * 		6 doubles - the XYZ translation and UVW rotation forces on the end effector.
+	 * @param jointVelocity 
+	 * 		joint velocity in degrees.  Will be filled with the new velocity.
+	 * @return false if joint velocities have NaN values
+	 */
+	public boolean getJointVelocityFromCartesianVelocity(final double [][] jacobian, final double[] cartesianVelocity,double [] jointVelocity) {
+		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
+		
+		// vector-matrix multiplication (y = x^T A)
+		int j,k;
+		double sum;
+		for(j = 0; j < 6; ++j) {
+			sum=0;
+			for(k = 0; k < 6; ++k) {
+				sum += inverseJacobian[k][j] * cartesianVelocity[k];
+			}
+			if(Double.isNaN(sum)) return false;
+			jointVelocity[j] = Math.toDegrees(sum);
+		}
+		
+		return true;
+	}
+	/**
+	 * Use Quaternions to interpolate between two matrixes and estimate the velocity needed to
+	 * travel the distance (both linear and rotational) in the desired time.
+	 * @param mStart 
+	 * 	matrix of start pose
+	 * @param mEnd 
+	 * 	matrix of end pose
+	 * @param dt
+	 *  time scale, seconds
+	 * @param cartesianVelocity
+	 *  6 doubles that will be filled with the XYZ translation and UVW rotation.
+	 */
+	public void getCartesianBetweenTwoPoses(final Matrix4d mStart,final Matrix4d mEnd,double dt,double[] cartesianVelocity) {
+		Vector3d p0 = new Vector3d();
+		Vector3d p1 = new Vector3d();
+		Vector3d dp = new Vector3d();
+		mStart.get(p0);
+		mEnd.get(p1);
+		dp.sub(p1,p0);
+		dp.scale(1.0/dt);
+
+		mStart.setTranslation(new Vector3d(0,0,0));
+		mEnd.setTranslation(new Vector3d(0,0,0));
+		// get the rotation force
+		Quat4d q0 = new Quat4d();
+		Quat4d q1 = new Quat4d();
+		Quat4d dq = new Quat4d();
+		q0.set(mStart);
+		q1.set(mEnd);
+		dq.sub(q1,q0);
+		dq.scale(2.0/dt);
+		Quat4d w = new Quat4d();
+		w.mulInverse(dq,q0);
+		
+		cartesianVelocity[0]=dp.x;
+		cartesianVelocity[1]=dp.y;
+		cartesianVelocity[2]=dp.z;
+		cartesianVelocity[3]=-w.x;
+		cartesianVelocity[4]=-w.y;
+		cartesianVelocity[5]=-w.z;
+		
+		mStart.setTranslation(p0);
+		mEnd.setTranslation(p1);
+	}
 }
