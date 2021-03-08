@@ -608,4 +608,5 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		// undo our changes.
 		setFKValues(oldAngles);
 	}
+	 * @param jacobian
 }
