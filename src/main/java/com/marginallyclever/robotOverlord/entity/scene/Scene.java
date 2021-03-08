@@ -193,6 +193,7 @@ public class Scene extends Entity {
 		//renderAllBoundingBoxes(gl2);
 	}
 	
+	@SuppressWarnings("unused")
 	private void renderAllBoundingBoxes(GL2 gl2) {
 		// turn of textures so lines draw good
 		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
