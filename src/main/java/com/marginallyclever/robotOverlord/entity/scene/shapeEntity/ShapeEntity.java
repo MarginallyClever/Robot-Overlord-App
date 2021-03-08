@@ -14,7 +14,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.FileAccess;
@@ -46,12 +45,10 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	private static final long serialVersionUID = -6421492357105354857L;
 
 	// the shape for this entity
-	@JsonIgnore
 	protected transient Shape shape;
 
 	protected StringEntity filename = new StringEntity("File","");
 	
-	@JsonIgnore
 	protected MaterialEntity material = new MaterialEntity();
 	
 	// shape adjustments
