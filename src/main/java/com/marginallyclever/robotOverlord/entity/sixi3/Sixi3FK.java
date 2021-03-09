@@ -620,7 +620,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * 		6 doubles - the XYZ translation and UVW rotation forces on the end effector.
 	 *		Will be filled with new values
 	 */
-	public void getCartesianVelocityFromJointVelocity(final double [][] jacobian, final double [] jointVelocity, double [] cartesianVelocity) {
+	public void getCartesianFromJoint(final double [][] jacobian, final double [] jointVelocity, double [] cartesianVelocity) {
 		// vector-matrix multiplication (y = x^T A)
 		int j,k;
 		double sum;
@@ -643,7 +643,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * 		joint velocity in degrees.  Will be filled with the new velocity.
 	 * @return false if joint velocities have NaN values
 	 */
-	public boolean getJointVelocityFromCartesianVelocity(final double [][] jacobian, final double[] cartesianVelocity,double [] jointVelocity) {
+	public boolean getJointFromCartesian(final double [][] jacobian, final double[] cartesianVelocity,double [] jointVelocity) {
 		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
 		
 		// vector-matrix multiplication (y = x^T A)
@@ -667,19 +667,16 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * 	matrix of start pose
 	 * @param mEnd 
 	 * 	matrix of end pose
-	 * @param dt
-	 *  time scale, seconds
-	 * @param cartesianVelocity
+	 * @param cartesianDistance
 	 *  6 doubles that will be filled with the XYZ translation and UVW rotation.
 	 */
-	public void getCartesianBetweenTwoPoses(final Matrix4d mStart,final Matrix4d mEnd,double dt,double[] cartesianVelocity) {
+	public void getCartesianBetweenTwoMatrixes(final Matrix4d mStart,final Matrix4d mEnd,double[] cartesianDistance) {
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();
 		Vector3d dp = new Vector3d();
 		mStart.get(p0);
 		mEnd.get(p1);
 		dp.sub(p1,p0);
-		dp.scale(1.0/dt);
 
 		mStart.setTranslation(new Vector3d(0,0,0));
 		mEnd.setTranslation(new Vector3d(0,0,0));
@@ -690,16 +687,16 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		q0.set(mStart);
 		q1.set(mEnd);
 		dq.sub(q1,q0);
-		dq.scale(2.0/dt);
+		dq.scale(2.0);
 		Quat4d w = new Quat4d();
 		w.mulInverse(dq,q0);
 		
-		cartesianVelocity[0]=dp.x;
-		cartesianVelocity[1]=dp.y;
-		cartesianVelocity[2]=dp.z;
-		cartesianVelocity[3]=-w.x;
-		cartesianVelocity[4]=-w.y;
-		cartesianVelocity[5]=-w.z;
+		cartesianDistance[0]=dp.x;
+		cartesianDistance[1]=dp.y;
+		cartesianDistance[2]=dp.z;
+		cartesianDistance[3]=-w.x;
+		cartesianDistance[4]=-w.y;
+		cartesianDistance[5]=-w.z;
 		
 		mStart.setTranslation(p0);
 		mEnd.setTranslation(p1);
