@@ -1,6 +1,7 @@
 package com.marginallyclever.convenience;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -326,5 +327,33 @@ public class MathHelper {
 	    //    tmax = tzmax; 
 	 
 	    return tmin; 
+	}
+	
+	/**
+	 * Convert quaternion 'q' to euler radian angles roll, pitch, yaw
+	 * @param q
+	 * @return
+	 */
+	static public double [] quatToEuler(Quat4d q) {
+		double roll, pitch, yaw;
+		
+	    // roll (x-axis rotation)
+	    double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+	    double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+	    roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+	    // pitch (y-axis rotation)
+	    double sinp = 2 * (q.w * q.y - q.z * q.x);
+	    if (Math.abs(sinp) >= 1)
+	        pitch = Math.copySign(Math.PI / 2, sinp); // use 90 degrees if out of range
+	    else
+	        pitch = Math.asin(sinp);
+
+	    // yaw (z-axis rotation)
+	    double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+	    double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+	    yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+	    return new double[] { roll, pitch, yaw };
 	}
 }
