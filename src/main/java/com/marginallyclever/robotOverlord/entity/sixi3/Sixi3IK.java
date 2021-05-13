@@ -2,12 +2,15 @@ package com.marginallyclever.robotOverlord.entity.sixi3;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -49,6 +52,29 @@ public class Sixi3IK extends Sixi3FK {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
+	}
+
+	@Override
+	public void render(GL2 gl2) {
+		super.render(gl2);
+
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, getPose());
+		
+		Matrix4d start = new Matrix4d();
+		getEndEffector(start);
+		
+		Matrix4d end = eeTarget.getPose();
+		Matrix4d interpolated = new Matrix4d();
+		
+		double STEPS=50;
+		for(double d=1;d<STEPS;d++) {
+			MatrixHelper.interpolate(start,end,d/STEPS,interpolated);
+			
+			MatrixHelper.drawMatrix(gl2, interpolated, 1.0);
+		}
+
+		gl2.glPopMatrix();
 	}
 	
 	/**
@@ -179,6 +205,17 @@ public class Sixi3IK extends Sixi3FK {
 				eeTarget.setPose(m);
 			}
 		});
+
+		ViewElementButton b2 = view.addButton("Run test");
+		b2.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				//testPathCalculation(100,true);
+				//testPathCalculation(100,false);
+				testTime(true);
+				testTime(false);
+			}
+		});
 		
 		// add gradient descent parameters here
 		view.add(threshold);
@@ -197,74 +234,114 @@ public class Sixi3IK extends Sixi3FK {
 		Object src = evt.getSource();
 		
 		if(src == eeTarget && evt.getPropertyName().contentEquals("pose")) {
-			double [] v = new double[Sixi3FK.NUM_BONES];
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private void testPathCalculation(double STEPS,boolean useExact) {
+		double [] jOriginal = new double[Sixi3FK.NUM_BONES];
+		getFKValues(jOriginal);
+		Matrix4d start = new Matrix4d();
+		getEndEffector(start);
+		
+		Matrix4d end = eeTarget.getPose();
+		
+		try {
+			PrintWriter pw = new PrintWriter(new File("test"+((int)STEPS)+"-"+(useExact?"e":"a")+".csv"));
+
 			double [] jBefore = new double[Sixi3FK.NUM_BONES];
 			double [] jAfter = new double[Sixi3FK.NUM_BONES];
-			getFKValues(v);
-			Matrix4d start = new Matrix4d();
-			getEndEffector(start);
-			Matrix4d end = eeTarget.getPose();
 			Matrix4d interpolated = new Matrix4d();
 			Matrix4d old = new Matrix4d(start);
 			double [][] jacobian = new double[6][6];
 			double [] cartesianDistance = new double[6];
-			double [] cartesianDistanceCompare = new double[6];
+			//double [] cartesianDistanceCompare = new double[6];
 			double [] jointDistance = new double[Sixi3FK.NUM_BONES];
-			final double STEPS=20;
 
-			//System.out.print("S"+start.toString()+"E"+end.toString());
-			
+			//pw.print("S"+start.toString()+"E"+end.toString());
+
+
 			for(double alpha=1;alpha<=STEPS;++alpha) {
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
-
+	
 				getFKValues(jBefore);
+
 				// move arm towards result to get future pose
 				gradientDescent(interpolated,30, threshold.get(), stepSize.get(), learningRate.get());
 				getFKValues(jAfter);
 
-				getApproximateJacobian(jacobian);
+				if(useExact) {
+					getExactJacobian(jacobian);
+				} else {
+					getApproximateJacobian(jacobian);
+				}
 				
 				getCartesianBetweenTwoMatrixes(old, interpolated, cartesianDistance);
 				old.set(interpolated);
-
+	
 				boolean ok=getJointFromCartesian(jacobian, cartesianDistance, jointDistance);
-				getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
+				//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
 				// cartesianDistance and cartesianDistanceCompare should always match
 				// jointDistance[n] should match jAfter[n]-jBefore[n]
-
-				System.out.print(alpha
-						+","
-						//+"R"+result.toString()
-						);
+	
+				pw.print((int)alpha+"\t");
 				if(ok) {
 					/*
 					for(int i=0;i<6;++i) {
 						String add="";
 						for(int j=0;j<6;++j) {
-							System.out.print(add+jacobian[i][j]);
+							pw.print(add+jacobian[i][j]);
 							add="\t";
 						}
-						System.out.println();
+						pw.println();
 					}*/
-					System.out.println(
-							+jointDistance[0]+","
-							+jointDistance[1]+","
-							+jointDistance[2]+","
-							+jointDistance[3]+","
-							+jointDistance[4]+","
-							+jointDistance[5]+","
-							+(jAfter[0]-jBefore[0])+","
-							+(jAfter[1]-jBefore[1])+","
-							+(jAfter[2]-jBefore[2])+","
-							+(jAfter[3]-jBefore[3])+","
-							+(jAfter[4]-jBefore[4])+","
-							+(jAfter[5]-jBefore[5])+",");
-				} else System.out.println(" not ok");
+					pw.println(
+							+jointDistance[0]+"\t"
+							+jointDistance[1]+"\t"
+							+jointDistance[2]+"\t"
+							+jointDistance[3]+"\t"
+							+jointDistance[4]+"\t"
+							+jointDistance[5]+"\t"
+							+(jAfter[0]-jBefore[0])+"\t"
+							+(jAfter[1]-jBefore[1])+"\t"
+							+(jAfter[2]-jBefore[2])+"\t"
+							+(jAfter[3]-jBefore[3])+"\t"
+							+(jAfter[4]-jBefore[4])+"\t"
+							+(jAfter[5]-jBefore[5])+"\t");
+				} else pw.println(" not ok");
 			}
-			System.out.println();
-			
-			setFKValues(v);
-			//updateSliders();
+
+			pw.flush();
+			pw.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		setFKValues(jOriginal);
+		
+		Matrix4d startCompare = new Matrix4d();
+		getEndEffector(startCompare);
+		if(!startCompare.equals(start)) {
+			System.out.println("Change!\nS"+start.toString()+"E"+startCompare.toString());
+		}
+
+		//updateSliders();
+	}
+	
+	private void testTime(boolean useExact) {
+		double [][] jacobian = new double[6][6];
+		long start = System.nanoTime();
+
+		for(int i=0;i<1000;++i) {
+			if(useExact) {
+				getExactJacobian(jacobian);
+			} else {
+				getApproximateJacobian(jacobian);
+			}
+		}
+		
+		long end = System.nanoTime();
+		System.out.println("diff="+((double)(end-start)/1000.0)+(useExact?"exact":"approx"));
 	}
 }

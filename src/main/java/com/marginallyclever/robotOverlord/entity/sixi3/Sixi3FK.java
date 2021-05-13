@@ -13,6 +13,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
+import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -94,11 +95,16 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		
 		// The DH parameters
-		double d0=BASE_HEIGHT+LENGTH_A;
-		double r2=(LENGTH_B+CONNECTOR_HEIGHT)*2;
-		double d3=LENGTH_A+LENGTH_B;
+		double d0=BASE_HEIGHT+LENGTH_A;  // 8 + 2.95 = 10.95
+		double r2=(LENGTH_B+CONNECTOR_HEIGHT)*2.0;  // ( 8.2564 + 0.7 ) * 2 = 17.9128
+		double d3=LENGTH_A+LENGTH_B;  // 2.95 + 8.2564 = 11.2064
 		double d4=d3;
-		double d5=LENGTH_A+HAND_HEIGHT;
+		double d5=LENGTH_A+HAND_HEIGHT;  // 2.95 + 1.25 = 4.2
+		System.out.println("d0="+d0);
+		System.out.println("r2="+r2);
+		System.out.println("d3="+d3);
+		System.out.println("d4="+d4);
+		System.out.println("d5="+d5);
 		bones[0].set(0 ,d0,-90,0,350,10,ACTUATOR_MODEL);
 		bones[1].set(r2, 0,  0,0,350,10,BICEP_MODEL   );
 		bones[2].set(0 , 0, 90,0,350,10,ACTUATOR_MODEL);
@@ -517,16 +523,16 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	}
 	
 	/**
-	 * Given the current pose of the robot, find the approximate jacobian, which describe the relationship
-	 * between joint velocity and cartesian velocity
+	 * Given the current pose of the robot, find the approximate jacobian, which
+	 * describe the relationship between joint velocity and cartesian velocity.
 	 * @See <a href='https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346'>Robot Academy tutorial</a>
 	 * @param jacobian 
-	 * 		a 6x6 matrix that will be filled with the jacobian.  
-	 *  	The first three columns are translation component, 
-	 *  	the last three are the rotation component.
+	 * 	a 6x6 matrix that will be filled with the jacobian.  
+	 *  The first three columns are translation component. 
+	 *  The last three columns are the rotation component.
 	 */
 	public void getApproximateJacobian(double [][] jacobian) {
-		double ANGLE_STEP_SIZE_DEGREES=0.1;  // degrees
+		double ANGLE_STEP_SIZE_DEGREES=0.001;  // degrees
 		
 		double [] oldAngles = new double[Sixi3FK.NUM_BONES];
 		double [] newAngles = new double[Sixi3FK.NUM_BONES];
@@ -678,27 +684,96 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		mEnd.get(p1);
 		dp.sub(p1,p0);
 
-		mStart.setTranslation(new Vector3d(0,0,0));
-		mEnd.setTranslation(new Vector3d(0,0,0));
-		// get the rotation force
+		// get the 3x3 part of the matrixes
+		Matrix3d mStart3 = new Matrix3d();
+		Matrix3d mEnd3 = new Matrix3d();
+		mStart.set(mStart3);
+		mEnd.set(mEnd3);
+		// then use the 3x3 to get the quaternions
 		Quat4d q0 = new Quat4d();
 		Quat4d q1 = new Quat4d();
-		Quat4d dq = new Quat4d();
-		q0.set(mStart);
-		q1.set(mEnd);
-		dq.sub(q1,q0);
-		dq.scale(2.0);
-		Quat4d w = new Quat4d();
-		w.mulInverse(dq,q0);
+		q0.set(mStart3);
+		q1.set(mEnd3);
+		// then get the difference in quaternions.  diff * q0 = q1 --> diff = q1 * invert(q0)
+		Quat4d qDiff = new Quat4d();
+		qDiff.mulInverse(q1,q0);
+		
+		// get the radian roll/pitch/yaw
+		double [] rpy = MathHelper.quatToEuler(qDiff);
 		
 		cartesianDistance[0]=dp.x;
 		cartesianDistance[1]=dp.y;
 		cartesianDistance[2]=dp.z;
-		cartesianDistance[3]=-w.x;
-		cartesianDistance[4]=-w.y;
-		cartesianDistance[5]=-w.z;
+		cartesianDistance[3]=-rpy[0];
+		cartesianDistance[4]=-rpy[1];
+		cartesianDistance[5]=-rpy[2];
+	}
+	
+	/**
+	 * Return the Jacobian matrix for Sixi at a given FK pose.
+	 * Variation of https://github.com/MichaelRyanGreer/Instructional/blob/main/inverse_kinematics/inverse_kinematics_DH_parameters.ipynb
+	 * @param keyframe joint angles
+	 * @return 6x6 jacobian matrix 
+	 */
+	public void getExactJacobian(double [][] jacobian) {
+		double s1=Math.sin(Math.toRadians(bones[0].theta));
+		double s2=Math.sin(Math.toRadians(bones[1].theta));
+		//double s3=Math.sin(Math.toRadians(bones[2].theta));
+		double s4=Math.sin(Math.toRadians(bones[3].theta));
+		double s5=Math.sin(Math.toRadians(bones[4].theta));
+		//double s6=Math.sin(Math.toRadians(bones[5].theta));
 		
-		mStart.setTranslation(p0);
-		mEnd.setTranslation(p1);
+		double c1=Math.cos(Math.toRadians(bones[0].theta));
+		double c2=Math.cos(Math.toRadians(bones[1].theta));
+		//double c3=Math.cos(Math.toRadians(bones[2].theta));
+		double c4=Math.cos(Math.toRadians(bones[3].theta));
+		double c5=Math.cos(Math.toRadians(bones[4].theta));
+		//double c6=Math.cos(Math.toRadians(bones[5].theta));
+		
+		double c23 = Math.cos(Math.toRadians(bones[1].theta+bones[2].theta));
+		double s23 = Math.sin(Math.toRadians(bones[1].theta+bones[2].theta));
+		
+		//double d0 = 10.95;
+		double r2 = 17.9128;
+		double d3 = 11.2064;
+		//double d4 = d3;
+		double d5 = 4.2;
+		
+		jacobian[0][0] = -d3*s1*s4*c23 + d5*s1*s5*c4*c23 - d5*s1*s23*c5 - d3*s1*s23 - r2*s1*c2 + d5*s4*s5*c1 + d3*c1*c4;
+		jacobian[0][1] = d5*s1*s4*s5 + d3*s1*c4 + d3*s4*c1*c23 - d5*s5*c1*c4*c23 + d5*s23*c1*c5 + d3*s23*c1 + r2*c1*c2;
+		jacobian[0][2] = 0;
+		jacobian[0][3] = 0;
+		jacobian[0][4] = 0;
+		jacobian[0][5] = 1;
+		jacobian[1][0] = (-r2*s2 - d3*s4*s23 + d5*s5*s23*c4 + d5*c5*c23 + d3*c23)*c1;
+		jacobian[1][1] = (-r2*s2 - d3*s4*s23 + d5*s5*s23*c4 + d5*c5*c23 + d3*c23)*s1;
+		jacobian[1][2] = -d3*s4*c23 + d5*s5*c4*c23 - d5*s23*c5 - d3*s23 - r2*c2;
+		jacobian[1][3] = -s1;
+		jacobian[1][4] = c1;
+		jacobian[1][5] = 0;
+		jacobian[2][0] = (-d3*s4*s23 + d5*s5*c4*s23 + d5*c5*c23 + d3*c23)*c1;
+		jacobian[2][1] = (-d3*s4*s23 + d5*s5*c4*s23 + d5*c5*c23 + d3*c23)*s1;
+		jacobian[2][2] =  -d3*s4*c23 + d5*s5*c4*c23 - d5*c5*s23 - d3*s23;
+		jacobian[2][3] = -s1;
+		jacobian[2][4] = c1;
+		jacobian[2][5] = 0;
+		jacobian[3][0] = -d3*s1*s4 + d5*s1*s5*c4 + d5*s4*s5*c1*c23 + d3*c1*c4*c23;
+		jacobian[3][1] = d5*s1*s4*s5*c23 + d3*s1*c4*c23 + d3*s4*c1 - d5*c1*c4*s5;
+		jacobian[3][2] = -(d5*s4*s5 + d3*c4)*s23;
+		jacobian[3][3] = s23*c1;
+		jacobian[3][4] = s1*s23;
+		jacobian[3][5] = c23;
+		jacobian[4][0] = d5*s1*s4*c5 - d5*s5*s23*c1 - d5*c1*c4*c5*c23;
+		jacobian[4][1] = -d5*s1*s5*s23 - d5*s1*c4*c5*c23 - d5*s4*c1*c5;
+		jacobian[4][2] = -d5*s5*c23 + d5*s23*c4*c5;
+		jacobian[4][3] = s1*c4 + s4*c1*c23;
+		jacobian[4][4] = s1*s4*c23 - c1*c4;
+		jacobian[4][5] = -s4*s23;
+		jacobian[5][0] = 0;
+		jacobian[5][1] = 0;
+		jacobian[5][2] = 0;
+		jacobian[5][3] = (s1*s4 - c1*c4*c23)*s5 + s23*c1*c5;
+		jacobian[5][4] = -(s1*c4*c23 + s4*c1)*s5 + s1*s23*c5;
+		jacobian[5][5] = s5*s23*c4 + c5*c23;
 	}
 }
