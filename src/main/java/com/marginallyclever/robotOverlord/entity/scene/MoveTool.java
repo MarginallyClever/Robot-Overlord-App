@@ -10,6 +10,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -146,7 +147,7 @@ public class MoveTool extends Entity {
 	// translate handle size
 	static private final double tScale=0.9;
 	// tool transparency
-	static private final double alpha=1.0;
+	static private final double alpha=0.8;
 	
 	public MoveTool() {
 		super();
@@ -599,7 +600,7 @@ public class MoveTool extends Entity {
 		b0.add(n);
 		b1.add(n);
 		
-		return MathHelper.rayBoxIntersection(ray,b0,b1);
+		return IntersectionHelper.rayBox(ray,b0,b1);
 	}
 	
 	@Override
@@ -842,7 +843,7 @@ public class MoveTool extends Entity {
 		gl2.glDisable(GL2.GL_CULL_FACE);
 		
 		// handle for XY plane
-		gl2.glColor4f(r,g,0,1);
+		gl2.glColor4d(r,g,0,alpha);
 		gl2.glBegin(GL2.GL_QUADS);
 		gl2.glVertex3d(0.00, 0.00, 0);
 		gl2.glVertex3d(0.15, 0.00, 0);
@@ -851,7 +852,7 @@ public class MoveTool extends Entity {
 		gl2.glEnd();
 
 		// handle for XZ plane
-		gl2.glColor4f(r,0,b,1);
+		gl2.glColor4d(r,0,b,alpha);
 		gl2.glBegin(GL2.GL_QUADS);
 		gl2.glVertex3d(0.00, 0, 0.00);
 		gl2.glVertex3d(0.15, 0, 0.00);
@@ -860,7 +861,7 @@ public class MoveTool extends Entity {
 		gl2.glEnd();
 
 		// handle for YZ plane
-		gl2.glColor4f(0,g,b,1);
+		gl2.glColor4d(0,g,b,alpha);
 		gl2.glBegin(GL2.GL_QUADS);
 		gl2.glVertex3d(0, 0.00, 0.00);
 		gl2.glVertex3d(0, 0.00, 0.15);
