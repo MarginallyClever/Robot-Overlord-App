@@ -272,4 +272,107 @@ public class IntersectionHelper {
 
 		return false;
 	}
+
+
+	/**
+	 * ray/sphere intersection. @see <a href='https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/'>reference</a>.
+	 * @param ray
+	 * @param center
+	 * @param radius
+	 * @return distance to first hit.  negative values for no hit/behind start. 
+	 */
+	static public double raySphere(final Ray ray,final Point3d center,final double radius) {
+		Vector3d oc = new Vector3d();
+		oc.sub(ray.start,center);
+	    double a = ray.direction.dot(ray.direction);
+	    double b = 2.0 * oc.dot(ray.direction);
+	    double c = oc.dot(oc) - radius*radius;
+	    double discriminant = b*b - 4*a*c;
+	    if(discriminant >= 0) {
+	        return (-b - Math.sqrt(discriminant)) / (2.0*a);
+	    }
+	    // no hit
+        return -1.0;
+	}
+	
+	/**
+	 * find distance to box, if hit.
+	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+	 * @param rayPoint start of ray
+	 * @param rayNormal direction of ray
+	 * @param boxMin lower bounds
+	 * @param boxMax upper bounds
+	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
+	 */
+	static public double rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
+	    double tmin = (boxMin.x - ray.start.x) / ray.direction.x; 
+	    double tmax = (boxMax.x - ray.start.x) / ray.direction.x; 
+	
+	    if (tmin > tmax) {
+	    	double temp = tmin;
+	    	tmin=tmax;
+	    	tmax=temp;
+	    }
+	
+	    double tymin = (boxMin.y - ray.start.y) / ray.direction.y; 
+	    double tymax = (boxMax.y - ray.start.y) / ray.direction.y; 
+	
+	    if (tymin > tymax) {
+	    	double temp = tymin;
+	    	tymin=tymax;
+	    	tymax=temp;
+	    }
+	
+	    if ((tmin > tymax) || (tymin > tmax)) 
+	        return -1; 
+	
+	    if (tymin > tmin) 
+	        tmin = tymin; 
+	
+	    if (tymax < tmax) 
+	        tmax = tymax; 
+	
+	    double tzmin = (boxMin.z - ray.start.z) / ray.direction.z; 
+	    double tzmax = (boxMax.z - ray.start.z) / ray.direction.z; 
+	
+	    if (tzmin > tzmax) {
+	    	double temp = tzmin;
+	    	tzmin=tzmax;
+	    	tzmax=temp;
+	    }
+	
+	    if ((tmin > tzmax) || (tzmin > tmax)) 
+	        return -1; 
+	
+	    if (tzmin > tmin) 
+	        tmin = tzmin; 
+	
+	    //if (tzmax < tmax) 
+	    //    tmax = tzmax; 
+	
+	    return tmin; 
+	}
+
+
+	/**
+	 * 
+	 * @param planePoint point on plane
+	 * @param planeNormal normal of plane
+	 * @param rayPoint origin of ray
+	 * @param rayNormal direction of ray
+	 * @return Double.POSITIVE_INFINITY if no collision (orthogonal).  otherwise, distance to plane.
+	 */
+	static public double rayPlane(final Vector3d planePoint,final Vector3d planeNormal,final Vector3d rayPoint,final Vector3d rayNormal) {
+		Vector3d dp = new Vector3d(planePoint);
+		dp.sub(rayPoint);
+	
+		double denominator = rayNormal.dot(planeNormal);
+		if(denominator==0) {
+			// rays are orthogonal, never collide.
+			return Double.POSITIVE_INFINITY;
+		} else {
+			double numerator = dp.dot(planeNormal);
+			return numerator/denominator;
+		}
+	}
 }
