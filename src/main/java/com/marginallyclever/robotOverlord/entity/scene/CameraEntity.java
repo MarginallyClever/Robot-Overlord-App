@@ -95,15 +95,13 @@ public class CameraEntity extends PoseEntity implements PropertyChangeListener {
         
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
 			double scale = 1;
-	        double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X);
-	        double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y);
-	        dx = dx *scale;
-	        dy = dy *scale;
+	        double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
+	        double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * scale;
 
 			if(dx!=0 || dy!=0) {
 				// snap system
-		        boolean isSnapHappeningNow=
-		        		(InputManager.isOn(InputManager.Source.KEY_LALT) || InputManager.isOn(InputManager.Source.KEY_RALT));
+		        boolean isSnapHappeningNow = InputManager.isOn(InputManager.Source.KEY_LALT) 
+		        						  || InputManager.isOn(InputManager.Source.KEY_RALT);
 		        if(isSnapHappeningNow) {
 		        	if(!hasSnappingStarted) {
 						sumDx=0;
