@@ -1,5 +1,9 @@
 package com.marginallyclever.robotOverlord.entity.linearStewartPlatform;
 
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -9,9 +13,13 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.MaterialEntity;
+import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class LinearStewartPlatform  extends PoseEntity {
 	/**
@@ -35,53 +43,39 @@ public class LinearStewartPlatform  extends PoseEntity {
 	private ShapeEntity eeModel;
 	private ShapeEntity armModel;
 	
-	private double [] linearPosition = new double[6];
 	private PoseEntity ee = new PoseEntity("ee");
 
-	// lowest point that the magnetic balls on each linear actuator can travel.
-	// they can only move up from this point.
-	Point3d [] pBase = {
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
+	private class Arm {
+		// lowest point that the magnetic ball can travel.
+		// they can only move up from this point.
+		public Point3d pBase = new Point3d();
+		// center of each magnetic ball at the end effector, before being transformed by ee.pose
+		public Point3d pEE = new Point3d();
+		// pEE after transform by ee.pose.  will be same coordinate system as base.
+		public Point3d pEE2 = new Point3d();
+		// point where arm is connected to slider after EE has moved.
+		public Point3d pSlide = new Point3d();
+		// value to remember to send to robot.
+		public double linearPosition;
+		
+		public Arm() {
+			linearPosition=0;
+		}
 	};
-	// center of each magnetic ball at the end effector, before being transformed by ee.pose
-	Point3d [] pEE = {
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-	};
-	// pEE after transform by ee.pose.  will be same coordinate system as base.
-	Point3d [] pEE2 = {
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-	};
-	// point where arm is connected to slider after EE has moved.
-	Point3d [] pSlide = {
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-			new Point3d(),
-	};
+
+	private Arm [] arms = { new Arm(), new Arm(), new Arm(), new Arm(), new Arm(), new Arm() };
+	
 	private MaterialEntity me = new MaterialEntity();
+	private RemoteEntity connection = new RemoteEntity();
+	private DoubleEntity velocity = new DoubleEntity("velocity",5);
+	private DoubleEntity acceleration = new DoubleEntity("acceleration",200);
 
 	public LinearStewartPlatform() {
 		super("Linear Stewart Platform");
 		addChild(ee);
-		addChild(me);
 
+		connection.addPropertyChangeListener(this);
+		
 		// load models and fix scale/orientation.
 		baseModel = new ShapeEntity("/linearStewartPlatform/base.stl");
 		baseModel.setShapeScale(0.1);
@@ -101,13 +95,6 @@ public class LinearStewartPlatform  extends PoseEntity {
 		eeModel.setMaterial(me);
 		armModel.setMaterial(me);
 		
-		
-		for(int i=0;i<linearPosition.length;++i) {
-			linearPosition[i]=0;
-		}
-		
-		int [] indexes = {0,5,2,1,4,3};
-
 		Vector3d vx = new Vector3d();
 		Vector3d vy = new Vector3d();
 		Vector3d tx = new Vector3d();
@@ -120,19 +107,19 @@ public class LinearStewartPlatform  extends PoseEntity {
 		//      x     <-- center
 		//  3       5 <-- last
 		//       4
-		for(int i=0;i<6;++i) {
+		for(int i=0;i<arms.length;++i) {
 			double r = Math.toRadians(60.0+120.0*i/2.0);
 			vx.set(Math.cos(r),Math.sin(r),0);
 			vy.set(-vx.y,vx.x,0);
 			tx.scale( EE_X,vx);
 			ty.scale(-EE_Y,vy);
-			pEE[i].add(tx,ty);
-			pEE[i].z=EE_Z;
+			arms[i].pEE.add(tx,ty);
+			arms[i].pEE.z=EE_Z;
 			++i;
 			tx.scale( EE_X,vx);
 			ty.scale( EE_Y,vy);
-			pEE[i].add(tx,ty);
-			pEE[i].z=EE_Z;
+			arms[i].pEE.add(tx,ty);
+			arms[i].pEE.z=EE_Z;
 		}
 
 		// calculate base of linear slides.
@@ -142,29 +129,35 @@ public class LinearStewartPlatform  extends PoseEntity {
 		//      x     <-- center
 		//  3       5 <-- last
 		//     4
-		for(int i=0;i<6;++i) {
+		int [] indexes = {0,5,2,1,4,3};
+
+		for(int i=0;i<arms.length;++i) {
 			double r = Math.toRadians(120.0*i/2.0);
 			vx.set(Math.cos(r),Math.sin(r),0);
 			vy.set(-vx.y,vx.x,0);
 			tx.scale( BASE_X,vx);
 			ty.scale( BASE_Y,vy);
-			pBase[indexes[i]].add(tx,ty);
+			arms[indexes[i]].pBase.add(tx,ty);
 			++i;
 			tx.scale( BASE_X,vx);
 			ty.scale(-BASE_Y,vy);
-			pBase[indexes[i]].add(tx,ty);
-		}			
+			arms[indexes[i]].pBase.add(tx,ty);
+		}
+		
+		ee.setPosition(new Vector3d(0,0,BASE_Z+Math.abs(EE_Z)+ARM_LENGTH));
 	}
+	
 	
 	@Override
 	public void update(double dt) {
-		//super.update(dt);
+		connection.update(dt);
+		super.update(dt);
 
 		Matrix4d eeMatrix = ee.getPose();
 
 		// use calculated end effector points to find same points after EE moves.
-		for(int i=0;i<6;++i) {
-			eeMatrix.transform(pEE[i], pEE2[i]);
+		for(int i=0;i<arms.length;++i) {
+			eeMatrix.transform(arms[i].pEE, arms[i].pEE2);
 		}
 
 		// We have pEE2 and pBase.  one end of the rod is at pEE2[n].  
@@ -172,15 +165,14 @@ public class LinearStewartPlatform  extends PoseEntity {
 		// The first intersection traveling up is the one we want.
 		Ray ray = new Ray();
 		ray.direction.set(0,0,1);
-		for(int i=0;i<6;++i) {
-			ray.start.set(pBase[i]);
-			linearPosition[i] = IntersectionHelper.raySphere(ray, pEE2[i], ARM_LENGTH);
-			
-			pSlide[i].set(pBase[i].x,
-						  pBase[i].y,
-						  pBase[i].z+linearPosition[i]);
+		for(int i=0;i<arms.length;++i) {
+			ray.start.set(arms[i].pBase);
+			arms[i].linearPosition = IntersectionHelper.raySphere(ray, arms[i].pEE2, ARM_LENGTH)-BASE_Z;
+			arms[i].pSlide.set(arms[i].pBase);
+			arms[i].pSlide.z += arms[i].linearPosition+BASE_Z;
 		}
 	}
+	
 	
 	@Override
 	public void render(GL2 gl2) {
@@ -199,20 +191,20 @@ public class LinearStewartPlatform  extends PoseEntity {
 
 			// draw the arms (some work to get each matrix...)
 			Matrix4d m = new Matrix4d();
-			for(int i=0;i<6;++i) {
+			for(int i=0;i<arms.length;++i) {
 				// we need the pose of each bone to draw the mesh.
 				// a matrix is 3 orthogonal (right angle) vectors and a position. 
 				// z (up) is from one ball to the next
 				Vector3d z = new Vector3d(
-						pEE2[i].x-pSlide[i].x,
-						pEE2[i].y-pSlide[i].y,
-						pEE2[i].z-pSlide[i].z);
+						arms[i].pEE2.x-arms[i].pSlide.x,
+						arms[i].pEE2.y-arms[i].pSlide.y,
+						arms[i].pEE2.z-arms[i].pSlide.z);
 				z.normalize();
 				// x is a vector that is guaranteed not parallel to z.
 				Vector3d x = new Vector3d(
-						pSlide[i].x,
-						pSlide[i].y,
-						pSlide[i].z);
+						arms[i].pSlide.x,
+						arms[i].pSlide.y,
+						arms[i].pSlide.z);
 				x.normalize();
 				// y is orthogonal to x and z.  
 				Vector3d y = new Vector3d();
@@ -236,9 +228,9 @@ public class LinearStewartPlatform  extends PoseEntity {
 				m.m12=z.y;
 				m.m22=z.z;
 				
-				m.m03=pSlide[i].x;
-				m.m13=pSlide[i].y;
-				m.m23=pSlide[i].z;
+				m.m03=arms[i].pSlide.x;
+				m.m13=arms[i].pSlide.y;
+				m.m23=arms[i].pSlide.z;
 				m.m33=1;
 						
 				gl2.glPushMatrix();
@@ -256,11 +248,11 @@ public class LinearStewartPlatform  extends PoseEntity {
 				Vector3d eeCenter = ee.getPosition();
 				gl2.glColor3d(1, 0, 0);
 				gl2.glBegin(GL2.GL_LINES);
-				for(int i=0;i<6;++i) {
+				for(int i=0;i<arms.length;++i) {
 					gl2.glVertex3d(eeCenter.x,eeCenter.y,eeCenter.z);
-					gl2.glVertex3d(pEE2[i].x,
-								   pEE2[i].y,
-								   pEE2[i].z);
+					gl2.glVertex3d(arms[i].pEE2.x,
+								   arms[i].pEE2.y,
+								   arms[i].pEE2.z);
 					gl2.glColor3d(0, 0, 0);
 				}
 				gl2.glEnd();
@@ -269,11 +261,11 @@ public class LinearStewartPlatform  extends PoseEntity {
 			// draw linear slides
 			boolean debugSlides=true;
 			if(debugSlides) {
-				for(int i=0;i<6;++i) {
+				for(int i=0;i<arms.length;++i) {
 					renderOneLinearSlide(gl2,
-							pSlide[i].x,
-							pSlide[i].y,
-							pSlide[i].z,
+							arms[i].pSlide.x,
+							arms[i].pSlide.y,
+							arms[i].pSlide.z,
 							BASE_Z,
 							BASE_Z+SLIDE_TRAVEL);
 				}
@@ -284,13 +276,13 @@ public class LinearStewartPlatform  extends PoseEntity {
 			if(debugArms) {
 				gl2.glColor3d(1, 0, 0);
 				gl2.glBegin(GL2.GL_LINES);
-				for(int i=0;i<6;++i) {
-					gl2.glVertex3d(pEE2[i].x,
-								   pEE2[i].y,
-								   pEE2[i].z);
-					gl2.glVertex3d(pSlide[i].x,
-									pSlide[i].y,
-									pSlide[i].z);
+				for(int i=0;i<arms.length;++i) {
+					gl2.glVertex3d(arms[i].pEE2.x,
+								   arms[i].pEE2.y,
+								   arms[i].pEE2.z);
+					gl2.glVertex3d( arms[i].pSlide.x,
+									arms[i].pSlide.y,
+									arms[i].pSlide.z);
 					gl2.glColor3d(0, 0, 0);
 				}
 				gl2.glEnd();
@@ -300,11 +292,63 @@ public class LinearStewartPlatform  extends PoseEntity {
 		gl2.glPopMatrix();
 
 	}
-	
+
 	private void renderOneLinearSlide(GL2 gl2,double x,double y,double z,double min,double max) {
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glColor3d(1, 1, 1);		gl2.glVertex3d(x, y, min);		gl2.glVertex3d(x, y, z);
 		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(x, y, z);		gl2.glVertex3d(x, y, max);
 		gl2.glEnd();
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+
+		view.pushStack("LSP", "Linear Stewart Platform");
+		view.add(connection);
+		view.addButton("GOTO EE").addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				gotoPose();
+			}
+		});
+		view.addButton("Factory Reset").addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				for(int i=0;i<arms.length;++i) {
+					connection.sendMessage("M101 A"+i+" B-1000 T0");
+				}
+			}
+		});
+		view.addRange(velocity, 10, 1);
+		view.addRange(acceleration, 1000, 0);
+		view.popStack();
+		
+		me.getView(view);
+		
+		super.getView(view);
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Object o = evt.getSource();
+		if(o == connection) {
+			//readConnectionData((String)evt.getNewValue());
+		}
+	}
+	
+	private void gotoPose() {
+		float scale=-10;
+		String message = "G0"
+				+" F"+StringHelper.formatDouble(velocity.get())
+				+" A"+StringHelper.formatDouble(acceleration.get())
+				+" X"+StringHelper.formatDouble(arms[0].linearPosition*scale)
+				+" Y"+StringHelper.formatDouble(arms[1].linearPosition*scale)
+				+" Z"+StringHelper.formatDouble(arms[2].linearPosition*scale)
+				+" U"+StringHelper.formatDouble(arms[3].linearPosition*scale)
+				+" V"+StringHelper.formatDouble(arms[4].linearPosition*scale)
+				+" W"+StringHelper.formatDouble(arms[5].linearPosition*scale);
+		System.out.println(message);
+		connection.sendMessage(message);
 	}
 }
