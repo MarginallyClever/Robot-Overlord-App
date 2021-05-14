@@ -76,7 +76,7 @@ public class ViewportEntity extends Entity {
 	
 	public void renderOrtho(GL2 gl2) {
 		PoseEntity camera = getAttachedTo();
-        CameraEntity c = (CameraEntity)camera;
+        Camera c = (Camera)camera;
         double z = c.getZoom()/100;
 
         renderOrtho(gl2,z);

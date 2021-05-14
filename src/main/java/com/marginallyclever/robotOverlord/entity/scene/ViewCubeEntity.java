@@ -9,7 +9,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 public class ViewCubeEntity extends Entity {
@@ -17,7 +17,7 @@ public class ViewCubeEntity extends Entity {
 	 * 
 	 */
 	private static final long serialVersionUID = 2625823417579183587L;
-	protected ShapeEntity model = new ShapeEntity();
+	protected Shape model = new Shape();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",6);
 	
     public ViewCubeEntity() {

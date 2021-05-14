@@ -7,7 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shape.Mesh;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	public Point3d [] p = new Point3d[8];  // all 8 corners
 	
 	private boolean isDirty=false;
-	private Shape myShape;
+	private Mesh myShape;
 	
 	
 	public Cuboid() {
@@ -126,11 +126,11 @@ public class Cuboid extends BoundingVolume implements Serializable {
 	}
 
 	
-	public void setShape(Shape shape) {
+	public void setShape(Mesh shape) {
 		myShape=shape;
 	}
 	
-	public Shape getShape() {
+	public Mesh getShape() {
 		return myShape;
 	}
 }

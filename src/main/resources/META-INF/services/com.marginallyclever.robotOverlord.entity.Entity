@@ -1,30 +1,29 @@
 
-com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
-
 # DHRobots
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHBuilderApp
-com.marginallyclever.robotOverlord.entity.sixi3.Sixi3IK
-com.marginallyclever.robotOverlord.entity.linearStewartPlatform.LinearStewartPlatform
+com.marginallyclever.robotOverlord.entity.scene.robots.sixi3.Sixi3IK
+com.marginallyclever.robotOverlord.entity.scene.robots.linearStewartPlatform.LinearStewartPlatform
 
-com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Arm3
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.GMF_M100
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Mantis
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.UArm
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.SCARA_NM
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Thor
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.Cartesian
+com.marginallyclever.robotOverlord.entity.scene.robots.skycam.Skycam
+#com.marginallyclever.robotOverlord.entity.scene.robots.Arm3
+#com.marginallyclever.robotOverlord.entity.scene.robots.GMF_M100
+#com.marginallyclever.robotOverlord.entity.scene.robots.Mantis
+#com.marginallyclever.robotOverlord.entity.scene.robots.UArm
+#com.marginallyclever.robotOverlord.entity.scene.robots.SCARA_NM
+#com.marginallyclever.robotOverlord.entity.scene.robots.Thor
+#com.marginallyclever.robotOverlord.entity.scene.robots.Cartesian
 
 # joystick HID
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.SixiJoystick
+com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2
 
 #other objects
-com.marginallyclever.robotOverlord.entity.scene.CameraEntity
-com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity
-com.marginallyclever.robotOverlord.entity.scene.LightEntity
-com.marginallyclever.robotOverlord.entity.scene.BoxEntity
-com.marginallyclever.robotOverlord.entity.scene.GridEntity
-com.marginallyclever.robotOverlord.entity.scene.DecalEntity
+com.marginallyclever.robotOverlord.entity.scene.Camera
+com.marginallyclever.robotOverlord.entity.scene.shape.Shape
+com.marginallyclever.robotOverlord.entity.scene.Light
+com.marginallyclever.robotOverlord.entity.scene.Box
+com.marginallyclever.robotOverlord.entity.scene.Grid
+com.marginallyclever.robotOverlord.entity.scene.Decal
 
 #robot Tools
 #com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.DHTool_GoProCamera
@@ -33,11 +32,11 @@ com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2ChuckG
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.dhTool.Sixi2LinearGripper
 
 #other robots
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.deltaRobot3.DeltaRobot3
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.rotaryStewartPlatform.RotaryStewartPlatform
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.rotaryStewartPlatform.RotaryStewartPlatform3
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.spidee.Spidee
-#com.marginallyclever.robotOverlord.entity.scene.robotEntity.SpotMicro
+#com.marginallyclever.robotOverlord.entity.scene.robots.deltaRobot3.DeltaRobot3
+#com.marginallyclever.robotOverlord.entity.scene.robots.rotaryStewartPlatform.RotaryStewartPlatform
+#com.marginallyclever.robotOverlord.entity.scene.robots.rotaryStewartPlatform.RotaryStewartPlatform3
+#com.marginallyclever.robotOverlord.entity.scene.robots.spidee.Spidee
+#com.marginallyclever.robotOverlord.entity.scene.robots.SpotMicro
 
 #tests
 #com.marginallyclever.robotOverlord.entity.tests.MatrixInterpolationTest

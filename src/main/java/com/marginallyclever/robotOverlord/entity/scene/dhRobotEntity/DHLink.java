@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.entity.scene.Collidable;
 import com.marginallyclever.robotOverlord.entity.scene.PoseEntity;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -94,7 +94,7 @@ public class DHLink extends PoseEntity implements Collidable {
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
 	//public Matrix4dEntity inertia = new Matrix4dEntity();
 	
-	protected ShapeEntity shapeEntity = new ShapeEntity();
+	protected Shape shapeEntity = new Shape();
 	
 	public DHLink() {
 		super();

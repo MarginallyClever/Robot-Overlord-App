@@ -8,9 +8,9 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
 
 public class JacobianHelper {
 	// step size for approximate jacobians

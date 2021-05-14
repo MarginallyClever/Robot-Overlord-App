@@ -148,6 +148,8 @@ public class MoveTool extends Entity {
 	static private final double tScale=0.9;
 	// tool transparency
 	static private final double alpha=0.8;
+	// distance from camera to moving item
+	private double cameraDistance=1;
 	
 	public MoveTool() {
 		super();
@@ -162,13 +164,12 @@ public class MoveTool extends Entity {
 		isActivelyMoving=false;
 	}
 
-	
 	/**
 	 * transform a world-space point to the ball's current frame of reference
 	 * @param pointInWorldSpace the world space point
 	 * @return the transformed Vector3d
 	 */
-	public Vector3d getPickPointInFOR(Vector3d pointInWorldSpace,Matrix4d frameOfReference) {
+	private Vector3d getPickPointInFOR(Vector3d pointInWorldSpace,Matrix4d frameOfReference) {
 		Matrix4d iMe = new Matrix4d(frameOfReference);
 		iMe.m30=iMe.m31=iMe.m32=0;
 		iMe.invert();
@@ -218,6 +219,9 @@ public class MoveTool extends Entity {
 		// put the dragball on the subject
 		position.set(mp);
 		
+		mp.sub(camera.getPosition());
+		cameraDistance = mp.length();
+		
 		// can turn off any time.
 		if(!cameraView.isPressed()) {
 			isActivelyMoving=false;
@@ -260,9 +264,9 @@ public class MoveTool extends Entity {
 		Vector3d px = new Vector3d(nx);
 		Vector3d py = new Vector3d(ny);
 		Vector3d pz = new Vector3d(nz);
-		px.scale(ballSize.get()*tScale);
-		py.scale(ballSize.get()*tScale);
-		pz.scale(ballSize.get()*tScale);
+		px.scale(ballSize.get()*cameraDistance*tScale);
+		py.scale(ballSize.get()*cameraDistance*tScale);
+		pz.scale(ballSize.get()*cameraDistance*tScale);
 		px.add(position);
 		py.add(position);
 		pz.add(position);
@@ -330,7 +334,7 @@ public class MoveTool extends Entity {
 		if(Tca>=0) {
 			// ball is in front of ray start
 			double d2 = d*d - Tca*Tca;
-			double r = ballSize.get()*rScale;
+			double r = ballSize.get()*cameraDistance*rScale;
 			double r2=r*r;
 			boolean isBallHit = d2>=0 && d2<=r2;
 			if(isBallHit) {
@@ -461,7 +465,7 @@ public class MoveTool extends Entity {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 
 		// actively being dragged
-		double scale = 5.0*dt;  // TODO something better?
+		double scale = cameraDistance*0.02*dt;  // TODO something better?
 		double rawx= InputManager.getRawValue(InputManager.Source.MOUSE_X);
 		double rawy= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
 		double dx = rawx *  scale;
@@ -595,8 +599,8 @@ public class MoveTool extends Entity {
 
 		b0.set(+0.05,+0.05,+0.05);
 		b1.set(-0.05,-0.05,-0.05);
-		b0.scale(ballSize.get());
-		b1.scale(ballSize.get());
+		b0.scale(ballSize.get()*cameraDistance);
+		b1.scale(ballSize.get()*cameraDistance);
 		b0.add(n);
 		b1.add(n);
 		
@@ -624,7 +628,7 @@ public class MoveTool extends Entity {
 				renderOutsideCircle(gl2);
 
 				MatrixHelper.applyMatrix(gl2, FOR);
-				gl2.glScaled(ballSize.get(),ballSize.get(),ballSize.get());
+				gl2.glScaled(ballSize.get()*cameraDistance,ballSize.get()*cameraDistance,ballSize.get()*cameraDistance);
 
 				renderRotation(gl2);
 				renderTranslation(gl2);
@@ -678,7 +682,7 @@ public class MoveTool extends Entity {
 		gl2.glPushMatrix();
 
 			MatrixHelper.applyMatrix(gl2, lookAt);
-			double d=ballSize.get();
+			double d=ballSize.get()*cameraDistance;
 			gl2.glScaled(d,d,d);
 			
 			//white circle on the xy plane of the camera pose, as the subject position
@@ -878,9 +882,9 @@ public class MoveTool extends Entity {
 			gl2.glVertex3d(0,0,0);
 			
 			gl2.glVertex3d(
-					(startMatrix.m03-pw.m03)/ballSize.get(),
-					(startMatrix.m13-pw.m13)/ballSize.get(),
-					(startMatrix.m23-pw.m23)/ballSize.get());
+					(startMatrix.m03-pw.m03)/(ballSize.get()*cameraDistance),
+					(startMatrix.m13-pw.m13)/(ballSize.get()*cameraDistance),
+					(startMatrix.m23-pw.m23)/(ballSize.get()));
 			gl2.glEnd();
 		}
 	}
@@ -1016,5 +1020,8 @@ public class MoveTool extends Entity {
 		view.add(snapDistance);
 		
 		view.addComboBox(frameOfReference,FrameOfReference.getAll());
+		view.popStack();
+		
+		super.getView(view);
 	}
 }

@@ -4,7 +4,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.Shape;
+import com.marginallyclever.robotOverlord.entity.scene.shape.Mesh;
 
 
 /**
@@ -268,7 +268,7 @@ public class IntersectionHelper {
 	 * TODO mesh / mesh intersection
 	 * @return true if the two mesh intersect.
 	 */
-	public static boolean meshMesh(final Matrix4d ma, final Shape sa, final Matrix4d mb, final Shape sb) {
+	public static boolean meshMesh(final Matrix4d ma, final Mesh sa, final Matrix4d mb, final Mesh sb) {
 
 		return false;
 	}

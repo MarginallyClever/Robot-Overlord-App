@@ -58,7 +58,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
 import com.marginallyclever.robotOverlord.entity.RemovableEntity;
-import com.marginallyclever.robotOverlord.entity.scene.CameraEntity;
+import com.marginallyclever.robotOverlord.entity.scene.Camera;
 import com.marginallyclever.robotOverlord.entity.scene.Moveable;
 import com.marginallyclever.robotOverlord.entity.scene.MoveTool;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
@@ -123,7 +123,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	// Wraps all the projection matrix stuff. 
 	public ViewportEntity viewport = new ViewportEntity();
 	// At least one camera to prevent disaster. 
-	public CameraEntity camera = new CameraEntity();
+	public Camera camera = new Camera();
 	
 	
 	// click on screen to change which entity is selected

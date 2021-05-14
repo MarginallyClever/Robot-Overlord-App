@@ -13,11 +13,11 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
-import com.marginallyclever.robotOverlord.entity.scene.demoObjectEntity.TrayCabinet;
-import com.marginallyclever.robotOverlord.entity.scene.robotEntity.skycam.Skycam;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
-import com.marginallyclever.robotOverlord.entity.sixi3.Sixi3FK;
-import com.marginallyclever.robotOverlord.entity.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.entity.scene.demoObjects.TrayCabinet;
+import com.marginallyclever.robotOverlord.entity.scene.robots.sixi3.Sixi3FK;
+import com.marginallyclever.robotOverlord.entity.scene.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.entity.scene.robots.skycam.Skycam;
+import com.marginallyclever.robotOverlord.entity.scene.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -49,9 +49,9 @@ public class Scene extends Entity {
 		ro.camera.update(0);
 		
 		// add some lights
-    	LightEntity light;
+    	Light light;
 
-		addChild(light = new LightEntity());
+		addChild(light = new Light());
 		light.setName("Light");
     	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
@@ -62,22 +62,22 @@ public class Scene extends Entity {
     	light.setDirectional(true);
     	
 		// add some collision bounds
-		BoxEntity box;
+		Box box;
 		
-		addChild(box = new BoxEntity());
+		addChild(box = new Box());
 		box.setName("Front wall");
 		box.setSize(233.5,100,1);
 		box.setPosition(new Vector3d(69.75,65,0));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 		
-		addChild(box = new BoxEntity());
+		addChild(box = new Box());
 		box.setName("Back wall");
 		box.setSize(180,100,1);
 		box.setPosition(new Vector3d(-47.5,-25.5,0));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 
-		ShapeEntity table = new ShapeEntity("/table.stl");
+		Shape table = new Shape("/table.stl");
 		addChild(table);
 		table.setName("Table");
 		table.setPosition(new Vector3d(0,0,-0.75));
@@ -128,9 +128,9 @@ public class Scene extends Entity {
 		ro.camera.update(0);
 		
 		// add some lights
-    	LightEntity light;
+    	Light light;
 
-		addChild(light = new LightEntity());
+		addChild(light = new Light());
 		light.setName("Light");
     	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
@@ -141,7 +141,7 @@ public class Scene extends Entity {
     	light.setDirectional(true);
     	
 		// adjust grid
-		GridEntity grid = new GridEntity();
+		Grid grid = new Grid();
 		addChild(grid);
 		grid.width.set(140);
 		grid.height.set(90);
@@ -166,15 +166,15 @@ public class Scene extends Entity {
 		
 		// point and spot lights
 		for( Entity obj : children ) {
-			if(obj instanceof LightEntity) {
-				LightEntity light = (LightEntity)obj;
+			if(obj instanceof Light) {
+				Light light = (Light)obj;
 				light.setupLight(gl2);
 			}
 		}
 		
 		// PASS 1: everything not a light
 		for( Entity obj : children ) {
-			if(obj instanceof LightEntity) continue;
+			if(obj instanceof Light) continue;
 
 			// name for picking
 			if(obj instanceof PoseEntity) {

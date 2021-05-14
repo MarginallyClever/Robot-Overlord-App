@@ -5,12 +5,12 @@ import javax.vecmath.Matrix4d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoOriginator;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHRobotModel;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
-import com.marginallyclever.robotOverlord.entity.scene.shapeEntity.ShapeEntity;
+import com.marginallyclever.robotOverlord.entity.scene.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
@@ -86,7 +86,7 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		
 		setName("Sixi2Model");
 
-		ShapeEntity base = new ShapeEntity("/Sixi2/anchor.obj");
+		Shape base = new Shape("/Sixi2/anchor.obj");
 		addChild(base);
 		base.setName("Base");
 		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
@@ -96,12 +96,12 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		setNumLinks(7);
 
 		if(!attachModels) {
-			ShapeEntity part0 = new ShapeEntity("/Sixi2/shoulder.obj");  	addChild(part0);
-			ShapeEntity part1 = new ShapeEntity("/Sixi2/bicep.obj");     	addChild(part1);
-			ShapeEntity part2 = new ShapeEntity("/Sixi2/forearm.obj");   	addChild(part2);
-			ShapeEntity part3 = new ShapeEntity("/Sixi2/tuningFork.obj");	addChild(part3);
-			ShapeEntity part4 = new ShapeEntity("/Sixi2/picassoBox.obj");	addChild(part4);
-			ShapeEntity part5 = new ShapeEntity("/Sixi2/hand.obj");      	addChild(part5);
+			Shape part0 = new Shape("/Sixi2/shoulder.obj");  	addChild(part0);
+			Shape part1 = new Shape("/Sixi2/bicep.obj");     	addChild(part1);
+			Shape part2 = new Shape("/Sixi2/forearm.obj");   	addChild(part2);
+			Shape part3 = new Shape("/Sixi2/tuningFork.obj");	addChild(part3);
+			Shape part4 = new Shape("/Sixi2/picassoBox.obj");	addChild(part4);
+			Shape part5 = new Shape("/Sixi2/hand.obj");      	addChild(part5);
 		} else {
 			links.get(0).setShapeFilename("/Sixi2/shoulder.obj");
 			links.get(1).setShapeFilename("/Sixi2/bicep.obj");
