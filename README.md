@@ -14,7 +14,6 @@ http://www.marginallyclever.com/
 ## Installation ##
 
 For setup help please see https://github.com/MarginallyClever/Robot-Overlord/wiki/Home/
-The API is documented at http://marginallyclever.github.io/Robot-Overlord-App/
 
 ## Get help ##
 
