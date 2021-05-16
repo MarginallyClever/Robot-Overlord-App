@@ -11,9 +11,7 @@ http://www.marginallyclever.com/
  - Delta Robot 3, aka a Kossel
  - Spidee, a 6 legged crab robot
 
-## Instructions ##
-
-## Developers + Beta testers ##
+## Installation ##
 
 For setup help please see https://github.com/MarginallyClever/Robot-Overlord/wiki/Home/
 The API is documented at http://marginallyclever.github.io/Robot-Overlord-App/
