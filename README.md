@@ -57,10 +57,8 @@ Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-
 
 ## Get help ##
 
-Please visit the forums
-https://marginallyclever.com/forum
+Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
 
 ## Misc ##
 
 This file was downloaded from https://github.com/MarginallyClever/Robot-Overlord
-This file was last updated 2019-04-06
