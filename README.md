@@ -11,6 +11,10 @@ Some of the robots it controls are:
  - Delta Robot 3, aka a Kossel
  - Spidee, a 6 legged crab robot
 
+## Get help ##
+
+Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
+
 ## Installation ##
 
 Robot Overlord is is written in Java.  That means you'll need 
@@ -49,10 +53,6 @@ Application should now launch.
 
 At this time there is no Maven repository that works for us.  You'll have to install OpenCV from source files.
 Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-opencv-for-java.html for complete instructions.
-
-## Get help ##
-
-Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
 
 ## Misc ##
 
