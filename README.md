@@ -11,9 +11,7 @@ Some of the robots it controls are:
  - Delta Robot 3, aka a Kossel
  - Spidee, a 6 legged crab robot
 
-# Get help ##
-
-Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
+We would love to see your robot run in the app.  Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
 
 # Get Started! ##
 
