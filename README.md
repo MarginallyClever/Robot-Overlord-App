@@ -2,6 +2,8 @@
 
 Robot Overlord is 3D control software for robots.  It is intended to be easier than ROS.  It was started by http://www.marginallyclever.com/
 
+We would love to see your robot run in the app.  Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
+
 Some of the robots it controls are:
 
  - Sixi 2+3, 6DOF arms
@@ -10,8 +12,6 @@ Some of the robots it controls are:
  - Rotary Stewart Platforms, like flight simulators
  - Delta Robot 3, aka a Kossel
  - Spidee, a 6 legged crab robot
-
-We would love to see your robot run in the app.  Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
 
 # Get Started! ##
 
