@@ -15,7 +15,7 @@ Some of the robots it controls are:
 
 # Get Started! ##
 
-Robot Overlord is written in Eclipse, which uses Java.  That means to run the app you will need to install a few things.  
+Robot Overlord is written in Eclipse, which uses Java.  That means to run the app you will need to install a few things:
 
 1. The latest OpenJDK (java software)
 2. Eclipse (prorgramming interface)
