@@ -35,7 +35,9 @@ Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest 
 
 ## Install Eclipse
 
-* Download Eclipse IDE: https://www.eclipse.org/downloads/, install the latest.
+* Download Eclipse IDE: https://www.eclipse.org/downloads/
+* install the latest.  
+* Choose "Eclipse IDE for Java developers"
 
 ## Install OpenCV
 
