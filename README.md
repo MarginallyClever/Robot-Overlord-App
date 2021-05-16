@@ -45,8 +45,8 @@ Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-
 ## Install Robot Overlord App
 
 * Goto https://github.com/MarginallyClever/Robot-Overlord-App/
-* Click the green "download code/clone repository" button.  Note the location of your local github folder for later.
-* In Eclipse. Fo to File > Import > Maven > Existing Maven Projects > (locate robot overlord folder in your local github folder).  You should be mostly error message free now.
+* Fownload this zip file: https://github.com/MarginallyClever/Robot-Overlord-App/archive/refs/heads/master.zip and extract it.  Note the folder for later.
+* In Eclipse. Fo to File > Import > Maven > Existing Maven Projects > (folder from previous step).
 * select Robot-Overlord > Debug As > Java Application
 * select com.marginallyclever.robotOverlord.RobotOverlord as main class.
 * wait while Eclipse builds the project and updates some stuff.
