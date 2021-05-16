@@ -11,19 +11,21 @@ Some of the robots it controls are:
  - Delta Robot 3, aka a Kossel
  - Spidee, a 6 legged crab robot
 
-## Get help ##
+# Get help ##
 
 Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
 
-## Get Started! ##
+# Get Started! ##
 
 Robot Overlord is is written in Java.  That means you'll need to install a few things.  
 1. The latest OpenJDK (java software), 
-1. Eclipse (prorgramming interface),
-1. the code of the app itself.
-1. Maybe OpenCV
+2. Eclipse (prorgramming interface),
+3. the code of the app itself.
+4. Maybe OpenCV
 
-### Install OpenJDK
+Then you should be able to run the application.
+
+## Install OpenJDK
 
 Robot Overlord Java Application requires the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest version is the "ready to use" edition.
 
@@ -32,28 +34,27 @@ Robot Overlord Java Application requires the Open Java Development Kit (OpenJDK)
 *Windows*: https://stackoverflow.com/a/52531093 _untested_
 *Linux*: https://linuxize.com/post/install-java-on-ubuntu-18-04/ _untested_
 
-### Eclipse IDE
+## Install Eclipse
 
-* Download Eclipse IDE: https://www.eclipse.org/downloads/, install and run.
-* Select _Checkout projects from Git > Clone URI > Url=https://github.com/MarginallyClever/Robot-Overlord-App > Next > (dev & master branch) > Next_.  Note the location of your local github folder for later.
-* Install Git if required
-* Complete clone of repository
-* Do NOT import project.  Close the wizard.
-* Eclipse > File > Import > Maven > Existing Maven Projects > (locate robot overlord folder in your local github folder)
+* Download Eclipse IDE: https://www.eclipse.org/downloads/, install the latest.
 
-You should be mostly error message free now.
-* select Robot-Overlord > Debug As > Java Application
-* select com.marginallyclever.robotOverlord.RobotOverlord as main class.
-* wait while Eclipse builds the workspace
-* "Errors exist...Proceed with launch?" Select Proceed.
-
-Application should now launch.
-
-### Install OpenCV
+## Install OpenCV
 
 At this time there is no Maven repository that works for us.  You'll have to install OpenCV from source files.
 Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-opencv-for-java.html for complete instructions.
 
-## Misc ##
+## Download the code
 
-This file was downloaded from https://github.com/MarginallyClever/Robot-Overlord
+* Goto https://github.com/MarginallyClever/Robot-Overlord-App/
+* Click the green "download code/clone repository" button.  Note the location of your local github folder for later.
+* In Eclipse. Fo to File > Import > Maven > Existing Maven Projects > (locate robot overlord folder in your local github folder).  You should be mostly error message free now.
+* select Robot-Overlord > Debug As > Java Application
+* select com.marginallyclever.robotOverlord.RobotOverlord as main class.
+* wait while Eclipse builds the project and updates some stuff.
+* "Errors exist...Proceed with launch?" Select Proceed.
+
+Application should now launch.
+
+# Usage
+
+tbd
