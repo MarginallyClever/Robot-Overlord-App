@@ -52,7 +52,7 @@ Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-
 * If you see the "Weldome!" tab, close it.
 * select Run > Debug As > Java Application
 * select "Robot Overlord - com.marginallyclever.robotOverlord.RobotOverlord" and click OK.
-* wait while Eclipse builds the project and updates some stuff.
+* Wait while Eclipse builds the project and updates some stuff.  In the bottom right there is a progress bar.  This is one time thing.
 * "Errors exist...Proceed with launch?" Select Proceed.
 
 Application should now launch.
