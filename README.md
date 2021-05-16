@@ -15,17 +15,18 @@ Some of the robots it controls are:
 
 # Get Started! ##
 
-Robot Overlord is is written in Java.  That means you'll need to install a few things.  
-1. The latest OpenJDK (java software), 
-2. Eclipse (prorgramming interface),
-3. the code of the app itself.
-4. Maybe OpenCV
+Robot Overlord is written in Eclipse, which uses Java.  That means to run the app you will need to install a few things.  
+
+1. The latest OpenJDK (java software)
+2. Eclipse (prorgramming interface)
+3. OpenCV
+4. Robot Overlord App
 
 Then you should be able to run the application.
 
-## Install OpenJDK
+## Install The latest OpenJDK
 
-Robot Overlord Java Application requires the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest version is the "ready to use" edition.
+Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest version is the "ready to use" edition.
 
 *OSX*: Unarchive the OpenJDK tar, and place the resulting folder (i.e. jdk-12.jdk) into your /Library/Java/JavaVirtualMachines/ folder since this is the standard and expected location of JDK installs. You can also install anywhere you want in reality.
 
@@ -41,7 +42,7 @@ Robot Overlord Java Application requires the Open Java Development Kit (OpenJDK)
 At this time there is no Maven repository that works for us.  You'll have to install OpenCV from source files.
 Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-opencv-for-java.html for complete instructions.
 
-## Download the code
+## Install Robot Overlord App
 
 * Goto https://github.com/MarginallyClever/Robot-Overlord-App/
 * Click the green "download code/clone repository" button.  Note the location of your local github folder for later.
