@@ -35,6 +35,7 @@ Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest 
 *OSX*: Unarchive the OpenJDK tar, and place the resulting folder (i.e. jdk-12.jdk) into your /Library/Java/JavaVirtualMachines/ folder since this is the standard and expected location of JDK installs. You can also install anywhere you want in reality.
 
 *Windows*: https://stackoverflow.com/a/52531093 _untested_
+
 *Linux*: https://linuxize.com/post/install-java-on-ubuntu-18-04/ _untested_
 
 ## Install Eclipse
