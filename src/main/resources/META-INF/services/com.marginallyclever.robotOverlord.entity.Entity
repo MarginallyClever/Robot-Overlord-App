@@ -2,7 +2,7 @@
 # DHRobots
 com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHBuilderApp
 com.marginallyclever.robotOverlord.entity.scene.robots.sixi3.Sixi3IK
-com.marginallyclever.robotOverlord.entity.scene.robots.linearStewartPlatform.LinearStewartPlatform
+com.marginallyclever.robotOverlord.entity.scene.robots.LinearStewartPlatform
 
 com.marginallyclever.robotOverlord.entity.scene.robots.skycam.Skycam
 #com.marginallyclever.robotOverlord.entity.scene.robots.Arm3

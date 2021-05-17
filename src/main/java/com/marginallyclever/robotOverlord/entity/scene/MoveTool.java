@@ -119,7 +119,7 @@ public class MoveTool extends Entity {
 	// In what frame of reference?
 	private IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
 	// drawing scale of ball
-	private DoubleEntity ballSize = new DoubleEntity("Scale",20);
+	private DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	// snap at all?
 	private BooleanEntity snapOn = new BooleanEntity("Snap On",true);
 	// snap to what number of degrees rotation?
