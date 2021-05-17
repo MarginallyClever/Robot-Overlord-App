@@ -184,7 +184,7 @@ public class MoveTool extends Entity {
 		if(subject==null) return;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ViewportEntity cameraView = ro.viewport;
+		Viewport cameraView = ro.viewport;
 		PoseEntity camera = cameraView.getAttachedTo();
 
 		Matrix4d pw = new Matrix4d();
@@ -242,7 +242,7 @@ public class MoveTool extends Entity {
 	
 	private void beginMovement() {
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ViewportEntity cameraView = ro.viewport;
+		Viewport cameraView = ro.viewport;
 		PoseEntity camera = cameraView.getAttachedTo();
 		Ray ray = cameraView.rayPick();
 
@@ -404,7 +404,7 @@ public class MoveTool extends Entity {
 		valueNow = valueLast;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ViewportEntity cameraView = ro.viewport;
+		Viewport cameraView = ro.viewport;
 		Ray ray = cameraView.rayPick();
 
 		Vector3d dp = new Vector3d(position);

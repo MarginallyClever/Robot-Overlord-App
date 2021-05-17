@@ -22,7 +22,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
-public class ViewportEntity extends Entity {
+public class Viewport extends Entity {
 	/**
 	 * 
 	 */
@@ -44,7 +44,7 @@ public class ViewportEntity extends Entity {
 	private BooleanEntity drawOrtho=new BooleanEntity("Orthographic",false);
 	
 	
-	public ViewportEntity() {
+	public Viewport() {
 		super();
 		
 		setName("Viewport");

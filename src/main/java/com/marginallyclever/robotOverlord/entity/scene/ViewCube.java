@@ -12,7 +12,7 @@ import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.entity.scene.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class ViewCubeEntity extends Entity {
+public class ViewCube extends Entity {
 	/**
 	 * 
 	 */
@@ -20,7 +20,7 @@ public class ViewCubeEntity extends Entity {
 	protected Shape model = new Shape();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",6);
 	
-    public ViewCubeEntity() {
+    public ViewCube() {
     	super();
     	setName("ViewCube");
     	addChild(cubeSize);
@@ -33,7 +33,7 @@ public class ViewCubeEntity extends Entity {
 		
 	public void render(GL2 gl2) {
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ViewportEntity cameraView = ro.viewport;
+		Viewport cameraView = ro.viewport;
 		
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 

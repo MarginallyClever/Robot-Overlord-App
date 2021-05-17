@@ -62,8 +62,8 @@ import com.marginallyclever.robotOverlord.entity.scene.Camera;
 import com.marginallyclever.robotOverlord.entity.scene.Moveable;
 import com.marginallyclever.robotOverlord.entity.scene.MoveTool;
 import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.ViewCubeEntity;
-import com.marginallyclever.robotOverlord.entity.scene.ViewportEntity;
+import com.marginallyclever.robotOverlord.entity.scene.ViewCube;
+import com.marginallyclever.robotOverlord.entity.scene.Viewport;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
@@ -119,9 +119,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	protected MoveTool dragTool = new MoveTool();
 	// The box in the top right of the user view that shows your orientation in the world.
 	// TODO probably doesn't belong here, it's per-user?  per-camera?
-	protected transient ViewCubeEntity viewCube = new ViewCubeEntity();
+	protected transient ViewCube viewCube = new ViewCube();
 	// Wraps all the projection matrix stuff. 
-	public ViewportEntity viewport = new ViewportEntity();
+	public Viewport viewport = new Viewport();
 	// At least one camera to prevent disaster. 
 	public Camera camera = new Camera();
 	
