@@ -13,7 +13,11 @@ Some of the robots it controls are:
  - Delta Robot 3, aka a Kossel
  - Spidee, a 6 legged crab robot
 
-# Get Started! ##
+# Why
+
+For our philosophy about RO, please see the Wiki: https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F
+
+# Get Started!
 
 Steps to get started:
 
