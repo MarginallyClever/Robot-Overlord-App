@@ -8,8 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRemove;
 
 /**

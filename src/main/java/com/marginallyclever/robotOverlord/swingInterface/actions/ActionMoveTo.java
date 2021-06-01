@@ -6,7 +6,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotOverlord.entity.scene.Moveable;
+import com.marginallyclever.robotOverlord.Moveable;
 
 /**
  * An undoable command to make a physical entity move.

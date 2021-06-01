@@ -20,9 +20,9 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt;
+import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 /**
  * Panel to alter a number parameter.  There is no way at present to limit the input options (range, step size, etc)

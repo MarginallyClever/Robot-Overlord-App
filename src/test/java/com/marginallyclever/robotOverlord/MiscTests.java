@@ -16,11 +16,11 @@ import org.junit.Test;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
+import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.dhRobotEntity.sixi2.Sixi2Model;
+import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver;
+import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 
 public class MiscTests {
 	@Test

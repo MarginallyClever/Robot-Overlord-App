@@ -12,10 +12,10 @@ import javax.vecmath.Matrix4d;
 import org.junit.Test;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.PoseFK;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.sixi2.Sixi2Model;
+import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
+import com.marginallyclever.robotOverlord.dhRobotEntity.sixi2.Sixi2;
+import com.marginallyclever.robotOverlord.dhRobotEntity.sixi2.Sixi2Model;
 
 public class Sixi2Tester {
 	/**

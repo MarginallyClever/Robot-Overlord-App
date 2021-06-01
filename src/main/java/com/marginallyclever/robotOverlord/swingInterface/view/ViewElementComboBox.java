@@ -13,8 +13,8 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeComboBox;
+import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
 	private JComboBox<String> field;

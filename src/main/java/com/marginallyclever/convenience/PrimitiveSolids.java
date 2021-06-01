@@ -19,6 +19,7 @@ public class PrimitiveSolids {
 		}
 		gl2.glEnd();
 	}
+	
 	static public void drawCircleXZ(GL2 gl2,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 		
@@ -30,6 +31,7 @@ public class PrimitiveSolids {
 		}
 		gl2.glEnd();
 	}
+	
 	static public void drawCircleXY(GL2 gl2,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 		

@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 import java.io.IOException;
 
-import com.marginallyclever.robotOverlord.entity.scene.shape.ShapeSmoother;
+import com.marginallyclever.robotOverlord.shape.ShapeSmoother;
 
 public class ModelSmootherTest {
 	

@@ -13,9 +13,9 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
+import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
 /**
  * Panel to alter a string parameter.  There is currently no way to limit the length of strings.

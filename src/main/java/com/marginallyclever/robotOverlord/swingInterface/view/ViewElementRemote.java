@@ -7,8 +7,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
 
 /**
  * Panel to alter a network connection parameter.

@@ -12,8 +12,8 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeDouble;
+import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
 /**
  * Panel to alter a color parameter (four float values).

@@ -42,6 +42,12 @@ public class MatrixHelper {
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
+
+	public static void drawMatrix(GL2 gl2,double scale) {
+		Matrix4d m= new Matrix4d();
+		m.setIdentity();
+		drawMatrix(gl2,m,scale);
+	}
 	
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)

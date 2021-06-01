@@ -24,10 +24,10 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
 //import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVector3d;
+import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 
 /**
  * Panel to alter a Vector3d parameter (three float values).

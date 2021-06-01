@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord.swingInterface.actions;
 
-import com.marginallyclever.robotOverlord.entity.AbstractEntity;
+import com.marginallyclever.robotOverlord.AbstractEntity;
 
 /**
  * Undoable action to select a number.

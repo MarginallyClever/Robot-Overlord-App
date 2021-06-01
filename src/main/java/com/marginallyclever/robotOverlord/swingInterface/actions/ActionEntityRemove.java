@@ -6,9 +6,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.Removable;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.RemovableEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
@@ -47,8 +47,8 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		if(entity instanceof RemovableEntity) {
-			((RemovableEntity)entity).beingRemoved();
+		if(entity instanceof Removable) {
+			((Removable)entity).beingRemoved();
 		}
 		if(parent!=null) parent.removeChild(entity);
 		ro.updateEntityTree();

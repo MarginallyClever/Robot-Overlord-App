@@ -8,8 +8,8 @@ import javax.swing.JOptionPane;
 import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRename;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 

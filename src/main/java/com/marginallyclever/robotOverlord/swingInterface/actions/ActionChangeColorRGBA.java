@@ -5,8 +5,8 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 
 /**
  * Undoable action to select a ColorRGBA.

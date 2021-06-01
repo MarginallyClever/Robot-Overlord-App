@@ -13,8 +13,8 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeBoolean;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 /**
  * Panel to alter a boolean parameter.  There is currently no way to limit the length of strings.

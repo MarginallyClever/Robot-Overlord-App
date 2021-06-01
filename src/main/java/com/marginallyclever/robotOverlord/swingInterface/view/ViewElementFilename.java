@@ -20,9 +20,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
 /**
  * Panel to alter a file parameter.

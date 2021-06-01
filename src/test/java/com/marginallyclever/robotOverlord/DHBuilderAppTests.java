@@ -6,8 +6,8 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHBuilderApp;
-import com.marginallyclever.robotOverlord.entity.scene.dhRobotEntity.DHLink;
+import com.marginallyclever.robotOverlord.dhRobotEntity.DHBuilderApp;
+import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
 
 public class DHBuilderAppTests {
 	final static String TEST_FOLDER = "src\\\\main\\resources\\Sixi";

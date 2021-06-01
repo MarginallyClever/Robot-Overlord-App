@@ -14,15 +14,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.BooleanEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.IntEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.RemoteEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.Vector3dEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 
 /**
  * A factory that builds Swing elements for the entity editor

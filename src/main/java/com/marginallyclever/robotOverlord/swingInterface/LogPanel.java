@@ -21,7 +21,7 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogListener;
-import com.marginallyclever.robotOverlord.entity.scene.robots.RobotEntity;
+import com.marginallyclever.robotOverlord.robots.RobotEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**

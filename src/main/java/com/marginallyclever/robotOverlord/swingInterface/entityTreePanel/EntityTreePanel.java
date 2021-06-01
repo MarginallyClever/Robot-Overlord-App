@@ -17,8 +17,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.marginallyclever.robotOverlord.entity.AbstractEntity;
-import com.marginallyclever.robotOverlord.entity.Entity;
+import com.marginallyclever.robotOverlord.AbstractEntity;
+import com.marginallyclever.robotOverlord.Entity;
 
 /**
  * Uses an Observer Pattern to tell subscribers about changes using EntityTreePanelEvent.

@@ -15,9 +15,9 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.ColorEntity;
 import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeColorRGBA;
+import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 
 /**
  * Panel to alter a color parameter (four float values).

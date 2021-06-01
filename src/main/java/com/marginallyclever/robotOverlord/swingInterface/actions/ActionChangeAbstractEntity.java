@@ -5,7 +5,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
-import com.marginallyclever.robotOverlord.entity.AbstractEntity;
+import com.marginallyclever.robotOverlord.AbstractEntity;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**

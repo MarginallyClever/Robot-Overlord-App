@@ -15,11 +15,11 @@ import javax.swing.JTextField;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.basicDataTypes.StringEntity;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
+import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
 public class ViewElementEntity extends ViewElement implements ActionListener {
 	private JTextField field;

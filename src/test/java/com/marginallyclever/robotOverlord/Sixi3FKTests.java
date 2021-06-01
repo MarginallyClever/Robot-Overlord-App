@@ -13,7 +13,7 @@ import javax.vecmath.Matrix4d;
 
 import org.junit.Test;
 
-import com.marginallyclever.robotOverlord.entity.scene.robots.sixi3.Sixi3FK;
+import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3FK;
 
 public class Sixi3FKTests {
 	/**

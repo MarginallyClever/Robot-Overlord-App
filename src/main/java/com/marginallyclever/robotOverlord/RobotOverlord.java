@@ -55,15 +55,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.entity.Entity;
-import com.marginallyclever.robotOverlord.entity.EntityFocusListener;
-import com.marginallyclever.robotOverlord.entity.RemovableEntity;
-import com.marginallyclever.robotOverlord.entity.scene.Camera;
-import com.marginallyclever.robotOverlord.entity.scene.Moveable;
-import com.marginallyclever.robotOverlord.entity.scene.MoveTool;
-import com.marginallyclever.robotOverlord.entity.scene.Scene;
-import com.marginallyclever.robotOverlord.entity.scene.ViewCube;
-import com.marginallyclever.robotOverlord.entity.scene.Viewport;
+import com.marginallyclever.robotOverlord.moveTool.MoveTool;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
@@ -751,6 +743,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         gl2.setSwapInterval(1);
         
 		// make things pretty
+		gl2.glEnable(GL2.GL_NORMALIZE);
     	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
         gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
         gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
@@ -939,7 +932,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	    	boolean moveable = true;
 	    	
 	    	for(Entity e1 : entityList) {
-	    		if(!(e1 instanceof RemovableEntity)) removable=false;
+	    		if(!(e1 instanceof Removable)) removable=false;
 	    		if(!(e1 instanceof Moveable)) moveable=false;
 	    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
 	    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
