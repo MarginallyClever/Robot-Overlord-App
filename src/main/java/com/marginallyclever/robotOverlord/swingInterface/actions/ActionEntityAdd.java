@@ -46,7 +46,7 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		ro.getWorld().addChild(entity);
+		ro.getScene().addChild(entity);
 		ro.updateEntityTree();
 		ArrayList<Entity> list = new ArrayList<Entity>();
 		list.add(entity);
@@ -57,7 +57,7 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.getWorld().removeChild(entity);
+		ro.getScene().removeChild(entity);
 		ro.updateEntityTree();
 		ro.selectEntities(previouslyPickedEntities);
 	}

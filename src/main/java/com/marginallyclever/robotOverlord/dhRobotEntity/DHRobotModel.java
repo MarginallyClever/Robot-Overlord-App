@@ -225,7 +225,7 @@ public class DHRobotModel extends Entity {
 		// yes!
 		RobotOverlord ro = (RobotOverlord)rootEntity;
 		// Does RobotOverlord contain a Scene?
-		Scene scene = ro.getWorld();
+		Scene scene = ro.getScene();
 		if(scene==null) return false;
 		// yes!  We have all the prerequisites.		
 		// save the original key

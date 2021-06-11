@@ -38,7 +38,7 @@ public class CommandNew extends AbstractAction implements ActionListener {
                 (String)this.getValue(AbstractAction.NAME),
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-        	ro.newWorld();
+        	ro.newScene();
         }
 	}
 }

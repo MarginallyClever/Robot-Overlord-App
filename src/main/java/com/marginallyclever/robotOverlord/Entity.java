@@ -291,4 +291,8 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 			p.propertyChange(evt);
 		}
 	}
+
+	public void removeAllChildren() {
+		while(!children.isEmpty()) removeChild(children.get(0));
+	}
 }
