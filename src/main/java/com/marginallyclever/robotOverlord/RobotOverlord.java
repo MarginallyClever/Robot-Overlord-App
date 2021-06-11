@@ -55,6 +55,9 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.demos.SixiDemo;
+import com.marginallyclever.robotOverlord.demos.SkycamDemo;
+import com.marginallyclever.robotOverlord.demos.StewartPlatformDemo;
 import com.marginallyclever.robotOverlord.moveTool.MoveTool;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
@@ -64,6 +67,7 @@ import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandCheckForUpdate;
+import com.marginallyclever.robotOverlord.swingInterface.commands.CommandDemo;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandForums;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandNew;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandOpen;
@@ -126,7 +130,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     // animation speed
     public static final int DEFAULT_FRAMES_PER_SECOND = 30;
     
-	private static final int FSAA_NUM_SAMPLES = 1;
+	private static final int FSAA_NUM_SAMPLES = 3;
 	private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     
     // timing for animations
@@ -167,23 +171,18 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  	private RobotOverlord() {
  		super();
  		setName("");
- 		
- 		Log.message("Classpath="+System.getenv("CLASSPATH"));
- 		Log.message("java.library.path="+System.getProperty("java.library.path"));
-
-		//Log.message("\n\n*** CLASSPATH="+System.getProperty("java.class.path")+" ***\n\n");
+ 		 		
 		if(GraphicsEnvironment.isHeadless()) {
-			throw new RuntimeException("RobotOverlord cannot be run headless...yet.");
+			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
 		}
 		
 		Translator.start();
 		SoundSystem.start();
 		InputManager.start();
 
-		Log.message("Undo start");
         commandUndo.setRedoCommand(commandRedo);
     	commandRedo.setUndoCommand(commandUndo);
-
+    	
  		addChild(viewport);
  		addChild(camera);
         addChild(scene);
@@ -192,10 +191,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		
  		viewport.setAttachedTo(camera.getFullPath());
 
-        createGUI();
+        buildMainFrame();
         buildMainMenu();
-        layoutComponents();        
-        mainFrame.setVisible(true);
+		buildOpenGLView();
+        layoutComponents();
         setupAnimationSystem();
         
 		Log.message("** READY **");
@@ -215,7 +214,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 	@SuppressWarnings("unused")
 	private void buildOpenGLView() {
-        Log.message("build OpenGL 3D view");
+        Log.message("buildOpenGLView()");
 
         try {
             Log.message("...get default caps");
@@ -267,7 +266,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     			}
     			if(e.eventType== EntityTreePanelEvent.SELECT) {
     				selectedEntities.addAll(e.subjects);
-    				selectEntities(selectedEntities);
+    				updateSelectEntities(selectedEntities);
     			}
     		}
         });
@@ -277,7 +276,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 	
 	private void layoutComponents() {
-		buildOpenGLView();
+        Log.message("layoutComponents()");
 		JPanel entityManagerPanel = buildEntityManagerPanel();
 
         selectedEntityPanel = new JPanel(new BorderLayout());
@@ -300,10 +299,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         splitLeftRight.setResizeWeight(1);
 
         mainFrame.add(splitLeftRight);
+        
+        mainFrame.setJMenuBar(mainMenu);
+        mainFrame.setVisible(true);
  	}
 
-	private void createGUI() {
-		Log.message("Create GUI");
+	private void buildMainFrame() {
+		Log.message("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -345,10 +347,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 				super.windowLostFocus(e);
 			}
         });
-    	
-        // add to the frame a menu bar
-        mainFrame.setJMenuBar(mainMenu = new JMenuBar());
-        
+    	        
         mainFrame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -537,7 +536,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 
 	public void newScene() {
-		this.scene = new Scene();
+		scene.removeAllChildren();
 		updateEntityTree();
 		pickEntity(null);
 	}
@@ -593,8 +592,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	*/
 	
 	public void buildMainMenu() {
-		Log.message("build main menu");
+		Log.message("buildMainMenu()");
 		
+		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
 		
 		JMenu menu;
@@ -606,6 +606,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		menu.add(new JSeparator());
 		menu.add(new JMenuItem(new CommandQuit(this)));
 		mainMenu.add(menu);
+		
+		menu = new JMenu("Demos");
+		menu.add(new JMenuItem(new CommandDemo(this,new SixiDemo())));
+		menu.add(new JMenuItem(new CommandDemo(this,new SkycamDemo())));
+		menu.add(new JMenuItem(new CommandDemo(this,new StewartPlatformDemo())));
+        mainMenu.add(menu);
 		
         menu = new JMenu("Edit");
         menu.add(new JMenuItem(commandUndo));
@@ -639,7 +645,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	final boolean glDebug=false;
     	if(glDebug) useGLDebugPipeline(gl);
     	final boolean glTrace=false;
-        if(glTrace) useTracePipeline(gl);        
+        if(glTrace) useTracePipeline(gl); 
+        
         Log.message("...get gl2");
     	GL2 gl2 = drawable.getGL().getGL2();
     	
@@ -723,7 +730,9 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	        pickNow=false;
 	        int pickName = findItemUnderCursor(gl2);
         	Entity next = scene.pickPhysicalEntityWithName(pickName);
-    		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntities,next) ) );
+        	if(next!=null) {
+        		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntities,next) ) );
+        	}
         }
     }
     
@@ -824,7 +833,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	}
 
 	public void updateEntityTree() {
-    	entityTree.updateEntityTree();
+    	entityTree.update();
     }
     
     /**
@@ -845,8 +854,8 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 * The selected entities have changed, either through scene picking or tree clicking
 	 * @param e
 	 */
-    public void selectEntities(ArrayList<Entity> entityList) {
-    	if( entityList != null) {
+    public void updateSelectEntities(ArrayList<Entity> entityList) {
+    	if( entityList != null && entityList.size()>0) {
 	    	boolean removable = true;
 	    	boolean moveable = true;
 	    	

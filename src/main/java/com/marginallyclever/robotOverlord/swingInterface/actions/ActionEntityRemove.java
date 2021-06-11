@@ -52,7 +52,7 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 		}
 		if(parent!=null) parent.removeChild(entity);
 		ro.updateEntityTree();
-		ro.selectEntities(null);
+		ro.updateSelectEntities(null);
 	}
 
 	@Override
@@ -62,6 +62,6 @@ public class ActionEntityRemove extends AbstractUndoableEdit {
 		ro.updateEntityTree();
 		ArrayList<Entity> list = new ArrayList<Entity>();
 		list.add(entity);
-		ro.selectEntities(list);
+		ro.updateSelectEntities(list);
 	}
 }

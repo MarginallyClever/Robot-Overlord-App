@@ -87,7 +87,7 @@ public class LinearStewartPlatform  extends PoseEntity {
 
 		// apply some default materials.
 		me.setAmbientColor(0, 0, 0, 1);
-		me.setDiffuseColor(0.1f,0.1f,0.1f,1);
+		me.setDiffuseColor(1f,1f,1f,1);
 		me.setEmissionColor(0, 0, 0, 1);
 		me.setLit(true);
 		me.setShininess(0);

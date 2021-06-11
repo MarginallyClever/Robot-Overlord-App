@@ -50,7 +50,7 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 		ro.updateEntityTree();
 		ArrayList<Entity> list = new ArrayList<Entity>();
 		list.add(entity);
-		ro.selectEntities(list);
+		ro.updateSelectEntities(list);
 		previouslyPickedEntities = ro.getSelectedEntities();
 	}
 
@@ -59,6 +59,6 @@ public class ActionEntityAdd extends AbstractUndoableEdit {
 		super.undo();
 		ro.getScene().removeChild(entity);
 		ro.updateEntityTree();
-		ro.selectEntities(previouslyPickedEntities);
+		ro.updateSelectEntities(previouslyPickedEntities);
 	}
 }

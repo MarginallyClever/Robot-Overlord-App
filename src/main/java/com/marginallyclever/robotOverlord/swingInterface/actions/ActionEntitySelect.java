@@ -34,7 +34,7 @@ public class ActionEntitySelect extends AbstractUndoableEdit {
 		this.prev=prev;
 		ArrayList<Entity> ent = new ArrayList<Entity>();
 		ent.add(next);
-		ro.selectEntities(ent);
+		ro.updateSelectEntities(ent);
 	}
 
 	@Override
@@ -48,12 +48,12 @@ public class ActionEntitySelect extends AbstractUndoableEdit {
 		super.redo();
 		ArrayList<Entity> ent = new ArrayList<Entity>();
 		ent.add(next);
-		ro.selectEntities(ent);
+		ro.updateSelectEntities(ent);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.selectEntities(prev);
+		ro.updateSelectEntities(prev);
 	}
 }

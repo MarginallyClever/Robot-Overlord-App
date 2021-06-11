@@ -8,15 +8,14 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Grid;
 import com.marginallyclever.robotOverlord.robots.skycam.Skycam;
 
-public class SkycamDemo extends Entity implements Demo {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class SkycamDemo implements Demo {
+	@Override
+	public String getName() {
+		return "Skycam";
+	}	
 
 	@Override
-	public void execute() {	
-		RobotOverlord ro = (RobotOverlord)getRoot();
+	public void execute(RobotOverlord ro) {
 		ro.newScene();
 		Entity sc = ro.getScene();
 		

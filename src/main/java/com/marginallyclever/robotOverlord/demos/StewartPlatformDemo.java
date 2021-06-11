@@ -7,14 +7,14 @@ import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
 import com.marginallyclever.robotOverlord.demoAssets.TrayCabinet;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3FK;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.LinearStewartPlatform;
+import com.marginallyclever.robotOverlord.robots.RotaryStewartPlatform;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
-public class SixiDemo implements Demo {
+public class StewartPlatformDemo implements Demo {
 	@Override
 	public String getName() {
-		return "Sixi3s";
+		return "Stewart Platforms";
 	}
 	
 	@Override
@@ -62,37 +62,17 @@ public class SixiDemo implements Demo {
 		sc.addChild(table);
 		table.setName("Table");
 		table.setPosition(new Vector3d(0,0,-0.75));
-		//box.setSize(160,1,110);
-		//box.setPosition(new Vector3d(59.5,0,-2.5));
-/*
-		// adjust grid
-		GridEntity grid = new GridEntity();
-		addChild(grid);
-		grid.width.set(140);
-		grid.height.set(90);
-		grid.setPosition(new Vector3d(60.0,0,-0.5));
-*/
-    	// add a sixi robot
-		//Sixi2 sixi2=new Sixi2();
-		//addChild(sixi2);
-		Sixi3FK s0 = new Sixi3FK();
-		sc.addChild(s0);
-		
-		Sixi3IK s1 = new Sixi3IK();
-		sc.addChild(s1);
-		s1.setPosition(new Vector3d(50,0,0));
-		
-		
-		//sixi2.setPosition(new Vector3d(78,-25,0));
-		//Matrix3d m=new Matrix3d();
-		//m.setIdentity();
-		//m.rotZ(Math.toRadians(-90));
-		//sixi2.setRotation(m);
-		
+
 		TrayCabinet trayCabinet;
 		sc.addChild(trayCabinet=new TrayCabinet());
 		trayCabinet.setPosition(new Vector3d(35,49.5,0));
 		sc.addChild(trayCabinet=new TrayCabinet());
 		trayCabinet.setPosition(new Vector3d(35,49.5,21.75));
+
+		RotaryStewartPlatform rsp = new RotaryStewartPlatform();
+		sc.addChild(rsp);
+		LinearStewartPlatform lsp = new LinearStewartPlatform();
+		sc.addChild(lsp);
+		lsp.setPosition(new Vector3d(50,0,0));
 	}
 }
