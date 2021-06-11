@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
-import ch.qos.logback.classic.BasicConfigurator;
-
 /**
  * static log methods available everywhere
  * @author Dan Royer
@@ -48,7 +46,7 @@ public class Log {
 		listeners.remove(listener);
 	}
 	
-	// call this before anythign else.
+	// call this before anything else.
 	public static void start() {
 		LOG_FILE_PATH = System.getProperty("user.dir");
 		if(!LOG_FILE_PATH.endsWith(File.separator)) {
@@ -61,7 +59,6 @@ public class Log {
 		deleteOldLog();
 		
 		logger = LoggerFactory.getLogger(RobotOverlord.class);
-		BasicConfigurator.configureDefaultContext();
 		
 		write(PROGRAM_START_STRING);
 		write("------------------------");
