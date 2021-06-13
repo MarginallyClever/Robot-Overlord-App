@@ -256,45 +256,23 @@ public class MatrixHelper {
 	
 	// cumulative multiplication of matrixes
 	public static void applyMatrix(GL2 gl2,Matrix4d pose) {
-		double[] mat = new double[16];
-		mat[ 0] = pose.m00;
-		mat[ 1] = pose.m10;
-		mat[ 2] = pose.m20;
-		mat[ 3] = pose.m30;
-		mat[ 4] = pose.m01;
-		mat[ 5] = pose.m11;
-		mat[ 6] = pose.m21;
-		mat[ 7] = pose.m31;
-		mat[ 8] = pose.m02;
-		mat[ 9] = pose.m12;
-		mat[10] = pose.m22;
-		mat[11] = pose.m32;
-		mat[12] = pose.m03;
-		mat[13] = pose.m13;
-		mat[14] = pose.m23;
-		mat[15] = pose.m33;
+		double[] mat = {
+			pose.m00,pose.m10,pose.m20,pose.m30,
+			pose.m01,pose.m11,pose.m21,pose.m31,
+			pose.m02,pose.m12,pose.m22,pose.m32,
+			pose.m03,pose.m13,pose.m23,pose.m33
+		};
 		
 		gl2.glMultMatrixd(mat, 0);	
 	} 
 	
 	public static void setMatrix(GL2 gl2,Matrix4d pose) {
-		double[] mat = new double[16];
-		mat[ 0] = pose.m00;
-		mat[ 1] = pose.m10;
-		mat[ 2] = pose.m20;
-		mat[ 3] = pose.m30;
-		mat[ 4] = pose.m01;
-		mat[ 5] = pose.m11;
-		mat[ 6] = pose.m21;
-		mat[ 7] = pose.m31;
-		mat[ 8] = pose.m02;
-		mat[ 9] = pose.m12;
-		mat[10] = pose.m22;
-		mat[11] = pose.m32;
-		mat[12] = pose.m03;
-		mat[13] = pose.m13;
-		mat[14] = pose.m23;
-		mat[15] = pose.m33;
+		double[] mat = {
+				pose.m00,pose.m10,pose.m20,pose.m30,
+				pose.m01,pose.m11,pose.m21,pose.m31,
+				pose.m02,pose.m12,pose.m22,pose.m32,
+				pose.m03,pose.m13,pose.m23,pose.m33
+			};
 		
 		gl2.glLoadMatrixd(mat, 0);	
 	}
@@ -731,5 +709,11 @@ public class MatrixHelper {
 		m3.normalize();
 		mTarget.set(m3);
 		mTarget.setTranslation(v3);
+	}
+
+	public static Matrix4d createIdentityMatrix4() {
+		Matrix4d m = new Matrix4d();
+		m.setIdentity();
+		return m;
 	}
 }
