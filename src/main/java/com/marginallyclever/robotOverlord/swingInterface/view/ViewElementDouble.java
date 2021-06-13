@@ -22,7 +22,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeDouble;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.DoubleEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
 /**
@@ -92,7 +92,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		lock.lock();
 
 		if(newNumber != e.get()) {
-			AbstractUndoableEdit event = new ActionChangeDouble(e, newNumber);
+			AbstractUndoableEdit event = new DoubleEdit(e, newNumber);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 		

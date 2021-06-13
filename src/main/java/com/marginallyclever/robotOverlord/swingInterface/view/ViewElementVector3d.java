@@ -26,7 +26,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 //import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeVector3d;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.Vector3dEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 
 /**
@@ -119,7 +119,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		diff.sub(newValue,oldValue);
 		
 		if(diff.lengthSquared()>1e-6) {
-			AbstractUndoableEdit event = new ActionChangeVector3d(e, newValue);
+			AbstractUndoableEdit event = new Vector3dEdit(e, newValue);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this, event) );
 		}
 		

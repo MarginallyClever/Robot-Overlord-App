@@ -17,8 +17,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.StringEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
 public class ViewElementEntity extends ViewElement implements ActionListener {
@@ -78,7 +78,7 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 		if(returnVal == JOptionPane.OK_OPTION) {
 			ArrayList<Entity> subject = treePanel.getSelected();
 			String s = (subject == null) ? "" : subject.get(0).getFullPath();
-			AbstractUndoableEdit event = new ActionChangeString(e, s);
+			AbstractUndoableEdit event = new StringEdit(e, s);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}

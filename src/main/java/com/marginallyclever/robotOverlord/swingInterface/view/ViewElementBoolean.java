@@ -13,7 +13,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeBoolean;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.BooleanEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 /**
@@ -39,7 +39,7 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 			public void itemStateChanged(ItemEvent arg0) {
 				boolean newValue = field.isSelected();
 				if(e.get()!=newValue) {
-					AbstractUndoableEdit event = new ActionChangeBoolean(e, newValue);
+					AbstractUndoableEdit event = new BooleanEdit(e, newValue);
 					if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this, event ) );
 				}
 			}

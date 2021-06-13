@@ -179,7 +179,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	// Only add branches of the tree, ignore all leaves.  leaves *should* be handled by the ViewPanel of a single entity.
 	public EntityTreeNode createTreeNodes(Entity e) {
 		EntityTreeNode parent = new EntityTreeNode(e);
-		for(Entity child : e.getChildren() ) {
+		for( Entity child : e.getChildren() ) {
 			//if(!child.getChildren().isEmpty())
 			if(!(child instanceof AbstractEntity)) {
 				parent.add(createTreeNodes(child));

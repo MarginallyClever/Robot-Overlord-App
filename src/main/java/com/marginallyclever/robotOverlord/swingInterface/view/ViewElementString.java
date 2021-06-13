@@ -14,7 +14,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.StringEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
 /**
@@ -56,7 +56,7 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 
 		String newValue = field.getText();
 		if( !newValue.equals(e.get()) ) {
-			AbstractUndoableEdit event = new ActionChangeString(e, newValue);
+			AbstractUndoableEdit event = new StringEdit(e, newValue);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 		lock.unlock();

@@ -21,7 +21,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.IntEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 /**
@@ -90,7 +90,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		lock.lock();
 
 		if(newNumber != e.get()) {
-			AbstractUndoableEdit event = new ActionChangeInt(e, newNumber);
+			AbstractUndoableEdit event = new IntEdit(e, newNumber);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 		lock.unlock();

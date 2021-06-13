@@ -12,7 +12,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeInt;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.IntEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 /**
@@ -66,7 +66,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 		int newValue = field.getValue();
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new ActionChangeInt(e,newValue);
+			AbstractUndoableEdit event = new IntEdit(e,newValue);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}

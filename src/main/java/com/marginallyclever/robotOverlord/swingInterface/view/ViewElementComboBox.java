@@ -13,7 +13,7 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeComboBox;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.ComboBoxEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
@@ -51,7 +51,7 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	public void actionPerformed(ActionEvent arg0) {
 		int newIndex = field.getSelectedIndex();
 		if(newIndex != e.get()) {
-			AbstractUndoableEdit event = new ActionChangeComboBox(e, e.getName(), newIndex);
+			AbstractUndoableEdit event = new ComboBoxEdit(e, e.getName(), newIndex);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}

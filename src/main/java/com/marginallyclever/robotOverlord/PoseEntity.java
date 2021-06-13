@@ -15,7 +15,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionMoveTo;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.MoveEdit;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
@@ -394,7 +394,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionMoveTo(this,m) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new MoveEdit(this,m) ) );
 			}
 		}
 	}
@@ -406,7 +406,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionMoveTo(this,m) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new MoveEdit(this,m) ) );
 			}
 		}
 	}

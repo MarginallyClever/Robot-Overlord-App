@@ -52,29 +52,28 @@ import com.marginallyclever.robotOverlord.io.Save;
 import com.marginallyclever.robotOverlord.io.json.JSONLoad;
 import com.marginallyclever.robotOverlord.io.json.JSONSave;
 import com.marginallyclever.robotOverlord.moveTool.MoveTool;
-import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SelectedEntityPanel;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAboutControls;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAddEntity;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandCheckForUpdate;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandDemo;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandForums;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandNew;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandOpen;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandQuit;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRedo;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRemoveEntity;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandRenameEntity;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandSaveAs;
-import com.marginallyclever.robotOverlord.swingInterface.commands.CommandUndo;
+import com.marginallyclever.robotOverlord.swingInterface.actions.AboutAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.AboutControlsAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.AddEntityAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.CheckForUpdateAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.DemoAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.ForumsAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.NewAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.OpenAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.QuitAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.RedoAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.RemoveEntityAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.RenameEntityAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.SaveAsAction;
+import com.marginallyclever.robotOverlord.swingInterface.actions.UndoAction;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelEvent;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelListener;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.SelectEdit;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
 
@@ -84,81 +83,69 @@ import com.marginallyclever.util.PropertiesFileHelper;
  * See https://github.com/MarginallyClever/Robot-Overlord-App
  * 
  * @author Dan Royer
- *
  */
-public class RobotOverlord extends Entity implements MouseListener, MouseMotionListener, GLEventListener, UndoableEditListener {
+public class RobotOverlord extends Entity implements UndoableEditListener, MouseListener, MouseMotionListener, GLEventListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8890695769715268519L;
+	
 	public static final String APP_TITLE = "Robot Overlord";
-	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-	
-	// used for checking the application version with the github release, for "there is a new version available!" notification
-	final static public String VERSION = PropertiesFileHelper.getVersionPropertyValue();
-	
-	protected Scene scene = new Scene();
-	// The currently selected entities to edit.
-	protected transient ArrayList<Entity> selectedEntities = new ArrayList<Entity>(); 
-	
-	// To move selected items in 3D
-	protected MoveTool moveTool = new MoveTool();
-	// The box in the top right of the user view that shows your orientation in the world.
-	protected transient ViewCube viewCube = new ViewCube();
-	// All the projection matrix stuff. 
-	public Viewport viewport = new Viewport();
-	public Camera camera = new Camera();
-	
-	// click on screen to change which entity is selected
-	// select buffer depth
-	static final public int PICK_BUFFER_SIZE=256;
-	// when to pick
-	protected transient boolean pickNow = false;
-	// where on screen to pick
-	protected transient Vector2d pickPoint = new Vector2d();
-	
-    // The animator keeps things moving
-    private FPSAnimator animator;
-    // animation speed
-    public static final int DEFAULT_FRAMES_PER_SECOND = 30;
-    
+	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	private static final int FSAA_NUM_SAMPLES = 3;
 	private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
+    public static final int DEFAULT_FRAMES_PER_SECOND = 30;
+    public static final int PICK_BUFFER_SIZE = 256;
+
+	// used for checking the application version with the github release, for "there is a new version available!" notification
+	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
+	// settings
+	private Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
+    //private RecentFiles recentFiles = new RecentFiles();
     
+    private Scene scene = new Scene();
+	private transient ArrayList<Entity> selectedEntities = new ArrayList<Entity>(); 
+	private MoveTool moveTool = new MoveTool();
+	private transient ViewCube viewCube = new ViewCube();
+	public Camera camera = new Camera();
+	
+
+	// The main frame of the GUI
+	private JFrame mainFrame; 
+    private JMenuBar mainMenu;
+	private JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	private JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	private EntityTreePanel entityTree;
+	private SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
+	
+	// undo/redo system
+	private UndoManager undoManager = new UndoManager();
+	private UndoAction commandUndo = new UndoAction(undoManager);
+	private RedoAction commandRedo = new RedoAction(undoManager);
+
+	private RenameEntityAction renameEntity;
+	private RemoveEntityAction removeEntity;
+
+	private FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
+	public GLJPanel glCanvas;
+	
+	// should I check the state of the OpenGL stack size?  true=every frame, false=never
+	protected boolean checkStackSize = false;
+	
+	// mouse steering controls
+	private boolean isMouseIn=false;
+
+	public Viewport viewport = new Viewport();
+	
     // timing for animations
     protected long startTime;
     protected long lastTime;
     private double frameDelay;
     private double frameLength;
-	
-	// settings
-    protected Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
-    protected RecentFiles recentFiles = new RecentFiles();
-	
-	// should I check the state of the OpenGL stack size?  true=every frame, false=never
-	protected boolean checkStackSize = false;
 
-	// The main frame of the GUI
-    protected JFrame mainFrame; 
-	protected transient JMenuBar mainMenu;
-	protected JSplitPane splitLeftRight;
-	protected JSplitPane rightFrameSplitter;
-	protected GLJPanel glCanvas;
-	protected EntityTreePanel entityTree;
-	protected SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
-	protected FooterBar footerBar;
-	
-	// undo/redo system
-	private UndoManager undoManager = new UndoManager();
-	private CommandUndo commandUndo = new CommandUndo(undoManager);
-	private CommandRedo commandRedo = new CommandRedo(undoManager);
-
-	private CommandRenameEntity renameEntity;
-	private CommandRemoveEntity removeEntity;
-	
-	// mouse steering controls
-	private boolean isMouseIn=false;
-	
+	// click on screen to change which entity is selected
+	protected transient boolean pickNow = false;
+	protected transient Vector2d pickPoint = new Vector2d();
 	
  	private RobotOverlord() {
  		super();
@@ -171,42 +158,35 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		Translator.start();
 		SoundSystem.start();
 		InputManager.start();
-
+		
         commandUndo.setRedoCommand(commandRedo);
     	commandRedo.setUndoCommand(commandUndo);
-    	
+
+        buildMainFrame();
+        buildMainMenu();
+        createSimulationPanel();
+        viewport.setAttachedTo(camera.getFullPath());
+        
+        layoutComponents();
+        
  		addChild(viewport);
  		addChild(camera);
         addChild(scene);
  		addChild(moveTool);
  		addChild(viewCube);
  		
- 		viewport.setAttachedTo(camera.getFullPath());
-
-        buildMainFrame();
-        buildMainMenu();
-		buildOpenGLView();
-        layoutComponents();
         startAnimationSystem();
         
 		Log.message("** READY **");
     }
- 	
- 	private void startAnimationSystem() {
-		Log.message("setup the animation system");
-        frameDelay=0;
-        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
-      	animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
-        animator.add(glCanvas);
-        // record the start time of the application, also the end of the core initialization process.
-        lastTime = startTime = System.currentTimeMillis();
-        // start the main application loop.  it will call display() repeatedly.
-        animator.start();
+
+	private void createSimulationPanel() {
+		createCanvas();
+        addCanvasListeners();
+        glCanvas.setMinimumSize(new Dimension(300,300));
 	}
 
-	private void buildOpenGLView() {
-        Log.message("buildOpenGLView()");
-
+	private void createCanvas() {
         try {
             Log.message("...get default caps");
     		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
@@ -223,27 +203,34 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	} catch(GLException e) {
     		Log.error("Failed the first call to OpenGL.  Are your native drivers missing?");
     	}
+	}
+
+	private void addCanvasListeners() {
+		glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
+		glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
+		glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
+	}
 	
-        Log.message("...add listeners");
-        glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
-        glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
-        glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
-        Log.message("...set minimum size");
-        // not sure what good this does here...
-        Dimension minimumSize = new Dimension(300,300);
-        glCanvas.setMinimumSize(minimumSize);
- 	}
+	public static void main(String[] argv) {
+	    //Schedule a job for the event-dispatching thread:
+	    //creating and showing this application's GUI.
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+	        	new RobotOverlord();
+	        }
+	    });
+	}
 
 	private JPanel buildEntityManagerPanel() {
         Log.message("buildEntityManagerPanel()");
 		JPanel entityManagerPanel = new JPanel(new BorderLayout());
 		JPanel abContainer = new JPanel(new FlowLayout());
-		renameEntity=new CommandRenameEntity(this);
-		removeEntity=new CommandRemoveEntity(this);
+		renameEntity=new RenameEntityAction(this);
+		removeEntity=new RemoveEntityAction(this);
 		renameEntity.setEnabled(false);
 		removeEntity.setEnabled(false);
 		
-		abContainer.add(new JButton(new CommandAddEntity(this)));
+		abContainer.add(new JButton(new AddEntityAction(this)));
 		abContainer.add(new JButton(renameEntity));
 		abContainer.add(new JButton(removeEntity));
 		entityManagerPanel.add(abContainer,BorderLayout.NORTH);
@@ -271,7 +258,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		JPanel entityManagerPanel = buildEntityManagerPanel();
         
 		// the right hand stuff			        
-		rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		rightFrameSplitter.add(entityManagerPanel);
 		rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
 		// make sure the master panel can't be squished.
@@ -281,7 +267,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		rightFrameSplitter.setResizeWeight(0.5);
 
         Log.message("build splitters");
-        splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitLeftRight.add(glCanvas);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
@@ -387,8 +372,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		pickEntity(null);
 	}
 	
-	/*
-	
+/*
 	// stuff for trying to find and load plugins, part of future expansion
 	 
 	private String getPath(Class cls) {
@@ -446,17 +430,17 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		JMenu menu;
 		
 		menu = new JMenu(APP_TITLE);
-		menu.add(new JMenuItem(new CommandNew(this)));        	
-		menu.add(new JMenuItem(new CommandOpen(this)));
-		menu.add(new JMenuItem(new CommandSaveAs(this)));
+		menu.add(new JMenuItem(new NewAction(this)));        	
+		menu.add(new JMenuItem(new OpenAction(this)));
+		menu.add(new JMenuItem(new SaveAsAction(this)));
 		menu.add(new JSeparator());
-		menu.add(new JMenuItem(new CommandQuit(this)));
+		menu.add(new JMenuItem(new QuitAction(this)));
 		mainMenu.add(menu);
 		
 		menu = new JMenu("Demos");
-		menu.add(new JMenuItem(new CommandDemo(this,new SixiDemo())));
-		menu.add(new JMenuItem(new CommandDemo(this,new SkycamDemo())));
-		menu.add(new JMenuItem(new CommandDemo(this,new StewartPlatformDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new SixiDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new StewartPlatformDemo())));
         mainMenu.add(menu);
 		
         menu = new JMenu("Edit");
@@ -465,23 +449,125 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         mainMenu.add(menu);
     	
         menu = new JMenu("Help");
-        menu.add(new JMenuItem(new CommandAboutControls()));
-		menu.add(new JMenuItem(new CommandForums()));
-		menu.add(new JMenuItem(new CommandCheckForUpdate()));
-		menu.add(new JMenuItem(new CommandAbout()));
+        menu.add(new JMenuItem(new AboutControlsAction()));
+		menu.add(new JMenuItem(new ForumsAction()));
+		menu.add(new JMenuItem(new CheckForUpdateAction()));
+		menu.add(new JMenuItem(new AboutAction()));
         mainMenu.add(menu);
     	
     	// done
         mainMenu.updateUI();
 	}
-	
-    @Override
-    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-        // set up the projection matrix
-        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
-        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+
+	public void updateEntityTree() {
+    	entityTree.update();
     }
     
+    /**
+     * An entity in the 3D scene has been "picked" (aka double-clicked).  This begins the process
+     * to select that entity.  Entities selected through other means should not call pickEntity() as it would
+     * cause an infinite loop.
+     * 
+     * @param e
+     */
+    protected void pickEntity(Entity e) {
+		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
+		if(selectedEntities.contains(e)) return;
+
+		entityTree.setSelection(e);
+	}
+	
+	/**
+	 * The selected entities have changed, either through scene picking or tree clicking
+	 * @param e
+	 */
+    public void updateSelectEntities(ArrayList<Entity> entityList) {
+    	if( entityList != null && entityList.size()>0) {
+	    	boolean removable = true;
+	    	boolean moveable = true;
+	    	
+	    	for(Entity e1 : entityList) {
+	    		if(!(e1 instanceof Removable)) removable=false;
+	    		if(!(e1 instanceof Moveable)) moveable=false;
+	    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
+	    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
+	    	}
+			Entity firstEntity = entityList.get(0);
+			if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && firstEntity!=null && firstEntity.canBeRenamed());
+			if(removeEntity!=null) removeEntity.setEnabled(removable);
+			
+			moveTool.setSubject(null);
+			if(moveable && entityList.size()==1) {
+				moveTool.setSubject((Moveable)firstEntity);
+			}
+    	}
+    	selectedEntityPanel.update(entityList,this);
+	}
+
+	protected void saveWindowSizeAndPosition() {
+		// remember window location for next time.
+		Dimension d = mainFrame.getSize();
+    	prefs.putInt("windowWidth", d.width);
+    	prefs.putInt("windowHeight", d.height);
+    	Point p = mainFrame.getLocation();
+    	prefs.putInt("windowX", p.x);
+    	prefs.putInt("windowY", p.y);
+	}
+	
+	public void confirmClose() {
+        int result = JOptionPane.showConfirmDialog(
+                mainFrame,
+                "Are you sure you want to quit?",
+                "Quit",
+                JOptionPane.YES_NO_OPTION);
+
+        if (result == JOptionPane.YES_OPTION) {
+        	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			// Log.end() should be the very last call.  mainFrame.dispose() kills the thread, so this is as close as I can get.
+			Log.end();
+			
+        	// Run this on another thread than the AWT event queue to
+	        // make sure the call to Animator.stop() completes before
+	        // exiting
+	        new Thread(new Runnable() {
+	            public void run() {
+	            	animator.stop();
+					mainFrame.dispose();
+	            }
+	        }).start();
+        }
+	}
+		
+	@Override
+	public void undoableEditHappened(UndoableEditEvent e) {
+		undoManager.addEdit(e.getEdit());
+		commandUndo.updateUndoState();
+		commandRedo.updateRedoState();
+	}
+	
+	/**
+	 * Deep search for a child with this name.
+	 * @param name
+	 * @return the entity.  null if nothing found.
+	 */
+	public Entity findChildWithName(String name) {
+		ArrayList<Entity> list = new ArrayList<Entity>();
+		list.add(scene);
+		while( !list.isEmpty() ) {
+			Entity obj = list.remove(0);
+			String objectName = obj.getName();
+			if(name.equals(objectName)) return obj;
+			list.addAll(obj.getChildren());
+		}
+		return null;
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("RO", "Robot Overlord");
+		view.popStack();
+	}
     @Override
     public void init( GLAutoDrawable drawable ) {
         Log.message("gl init");
@@ -532,6 +618,13 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
     	gl2.glDrawBuffer(GL2.GL_BACK);
     }
+	
+    @Override
+    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
+        // set up the projection matrix
+        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
+        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+    }
 
     private void useTracePipeline(GL gl) {
         try {
@@ -552,10 +645,53 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 
 	@Override
     public void dispose( GLAutoDrawable drawable ) {}
-    
-    /**
-     * Draw the 3D scene.  Also does other update tasks and polls input.
-     */
+
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// if they dragged the cursor around before unclicking, don't pick.
+		if (e.getClickCount() == 2) {
+			pickPoint.set(e.getX(),e.getY());
+			pickNow=true;
+		}
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			pickPoint.set(e.getX(),e.getY());
+			viewport.pressed();
+		}
+	}
+	
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			viewport.released();
+		}
+	}
+	
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		isMouseIn=true;
+		glCanvas.requestFocus();
+	}
+	
+	@Override
+	public void mouseExited(MouseEvent e) {
+		isMouseIn=false;
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+        viewport.setCursor(e.getX(),e.getY());
+	}
+	
+	@Override
+	public void mouseMoved(MouseEvent e) {
+        viewport.setCursor(e.getX(),e.getY());
+	}
+	
     @Override
     public void display( GLAutoDrawable drawable ) {
         long nowTime = System.currentTimeMillis();
@@ -573,12 +709,10 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         //viewport.showPickingTest(gl2);
 		//pickNow=true;
         if(pickNow) {
-	        pickNow=false;
+	        pickNow = false;
 	        int pickName = findItemUnderCursor(gl2);
         	Entity next = scene.pickPhysicalEntityWithName(pickName);
-        	if(next!=null) {
-        		undoableEditHappened(new UndoableEditEvent(this,new ActionEntitySelect(this,selectedEntities,next) ) );
-        	}
+        	undoableEditHappened(new UndoableEditEvent(this,new SelectEdit(this,selectedEntities,next) ) );
         }
     }
     
@@ -606,8 +740,23 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     	if(frameDelay>frameLength) {
    			frameDelay-=frameLength;
 	    	InputManager.update(isMouseIn);
-	    	this.update( frameLength );
+	    	scene.update( frameLength );
     	}
+	}
+ 	
+ 	public void startAnimationSystem() {
+		Log.message("setup the animation system");
+        frameDelay=0;
+        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
+        animator.add(glCanvas);
+        // record the start time of the application, also the end of the core initialization process.
+        lastTime = startTime = System.currentTimeMillis();
+        // start the main application loop.  it will call display() repeatedly.
+        animator.start();
+	}
+
+	public void stop() {
+		animator.stop();
 	}
 
 	/**
@@ -616,7 +765,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
      * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
      * @param gl2 the openGL render context
      */
-    protected int findItemUnderCursor(GL2 gl2) {
+    public int findItemUnderCursor(GL2 gl2) {
     	IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
         gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
 
@@ -676,177 +825,5 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
     		add=", ";
 		}
 		Log.message(msg);
-	}
-
-	public void updateEntityTree() {
-    	entityTree.update();
-    }
-    
-    /**
-     * An entity in the 3D scene has been "picked" (aka double-clicked).  This begins the process
-     * to select that entity.  Entities selected through other means should not call pickEntity() as it would
-     * cause an infinite loop.
-     * 
-     * @param e
-     */
-    protected void pickEntity(Entity e) {
-		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
-		if(selectedEntities.contains(e)) return;
-
-		entityTree.setSelection(e);
-	}
-	
-	/**
-	 * The selected entities have changed, either through scene picking or tree clicking
-	 * @param e
-	 */
-    public void updateSelectEntities(ArrayList<Entity> entityList) {
-    	if( entityList != null && entityList.size()>0) {
-	    	boolean removable = true;
-	    	boolean moveable = true;
-	    	
-	    	for(Entity e1 : entityList) {
-	    		if(!(e1 instanceof Removable)) removable=false;
-	    		if(!(e1 instanceof Moveable)) moveable=false;
-	    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
-	    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
-	    	}
-			if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && entityList.get(0).canBeRenamed());
-			if(removeEntity!=null) removeEntity.setEnabled(removable);
-			
-			if(moveable) {
-				if(entityList.size()==1) {
-					Entity e = entityList.get(0);
-					if(e instanceof Moveable) {
-						moveTool.setSubject((Moveable)e);
-					} else if(e==null) {
-						moveTool.setSubject(null);
-					}
-				} else {
-					// TODO group all selected poseEntities so they can be moved as one?
-					moveTool.setSubject(null);
-				}
-			} else {
-				moveTool.setSubject(null);
-			}
-    	}
-    	selectedEntityPanel.update(entityList,this);
-	}
-	
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// if they dragged the cursor around before unclicking, don't pick.
-		if (e.getClickCount() == 2) {
-			pickPoint.set(e.getX(),e.getY());
-			pickNow=true;
-		}
-	}
-	@Override
-	public void mousePressed(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1) {
-			pickPoint.set(e.getX(),e.getY());
-			viewport.pressed();
-		}
-	}
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1) {
-			viewport.released();
-		}
-	}
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		isMouseIn=true;
-		glCanvas.requestFocus();
-	}
-	@Override
-	public void mouseExited(MouseEvent e) {
-		isMouseIn=false;
-	}
-	@Override
-	public void mouseDragged(MouseEvent e) {
-        viewport.setCursor(e.getX(),e.getY());
-	}
-	@Override
-	public void mouseMoved(MouseEvent e) {
-        viewport.setCursor(e.getX(),e.getY());
-	}
-
-	
-	protected void saveWindowSizeAndPosition() {
-		// remember window location for next time.
-		Dimension d = mainFrame.getSize();
-    	prefs.putInt("windowWidth", d.width);
-    	prefs.putInt("windowHeight", d.height);
-    	Point p = mainFrame.getLocation();
-    	prefs.putInt("windowX", p.x);
-    	prefs.putInt("windowY", p.y);
-	}
-	
-	
-	public void confirmClose() {
-        int result = JOptionPane.showConfirmDialog(
-                mainFrame,
-                "Are you sure you want to quit?",
-                "Quit",
-                JOptionPane.YES_NO_OPTION);
-
-        if (result == JOptionPane.YES_OPTION) {
-        	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-			// Log.end() should be the very last call.  mainFrame.dispose() kills the thread, so this is as close as I can get.
-			Log.end();
-			
-        	// Run this on another thread than the AWT event queue to
-	        // make sure the call to Animator.stop() completes before
-	        // exiting
-	        new Thread(new Runnable() {
-	            public void run() {
-					animator.stop();
-					mainFrame.dispose();
-	            }
-	        }).start();
-        }
-	}
-
-	public static void main(String[] argv) {
-	    //Schedule a job for the event-dispatching thread:
-	    //creating and showing this application's GUI.
-	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	        	new RobotOverlord();
-	        }
-	    });
-	}
-		
-	@Override
-	public void undoableEditHappened(UndoableEditEvent e) {
-		undoManager.addEdit(e.getEdit());
-		commandUndo.updateUndoState();
-		commandRedo.updateRedoState();
-	}
-	
-	/**
-	 * Deep search for a child with this name.
-	 * @param name
-	 * @return the entity.  null if nothing found.
-	 */
-	public Entity findChildWithName(String name) {
-		ArrayList<Entity> list = new ArrayList<Entity>();
-		list.add(scene);
-		while( !list.isEmpty() ) {
-			Entity obj = list.remove(0);
-			String objectName = obj.getName();
-			if(name.equals(objectName)) return obj;
-			list.addAll(obj.getChildren());
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public void getView(ViewPanel view) {
-		view.pushStack("RO", "Robot Overlord");
-		view.popStack();
 	}
 }

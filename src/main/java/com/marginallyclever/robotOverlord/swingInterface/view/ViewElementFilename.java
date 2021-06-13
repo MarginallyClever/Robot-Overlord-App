@@ -20,8 +20,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeString;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.StringEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
 /**
@@ -99,7 +99,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
 
-			AbstractUndoableEdit event = new ActionChangeString(e, newFilename);
+			AbstractUndoableEdit event = new StringEdit(e, newFilename);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}

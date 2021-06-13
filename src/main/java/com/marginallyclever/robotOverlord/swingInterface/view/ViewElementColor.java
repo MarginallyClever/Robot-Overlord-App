@@ -16,7 +16,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionChangeColorRGBA;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.ColorRGBAEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 
 /**
@@ -104,7 +104,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		}
 
 		if(sum>1e-3) {
-			AbstractUndoableEdit event = new ActionChangeColorRGBA(e,newValues);
+			AbstractUndoableEdit event = new ColorRGBAEdit(e,newValues);
 			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
 		}
 	}

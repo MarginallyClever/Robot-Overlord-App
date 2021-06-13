@@ -23,7 +23,7 @@ import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Viewport;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionMoveTo;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.MoveEdit;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
@@ -537,7 +537,7 @@ public class MoveTool extends Entity {
 	public void attemptMove(RobotOverlord ro) {
 		if(subject.canYouMoveTo(resultMatrix)) {
 			FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-			ro.undoableEditHappened(new UndoableEditEvent(this,new ActionMoveTo(subject,resultMatrix) ) );
+			ro.undoableEditHappened(new UndoableEditEvent(this,new MoveEdit(subject,resultMatrix) ) );
 		}
 	}
 
