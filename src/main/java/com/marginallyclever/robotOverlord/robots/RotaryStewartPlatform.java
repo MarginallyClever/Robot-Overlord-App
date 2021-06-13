@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.robots;
 
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -9,13 +8,10 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.robots.rotaryStewartPlatform.RotaryStewartPlatformArm;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
@@ -28,7 +24,6 @@ public class RotaryStewartPlatform  extends PoseEntity {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public final String ROBOT_NAME = "Stewart Platorm 2";
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
 	public final double BASE_X         = 8.093f;
@@ -370,13 +365,6 @@ public class RotaryStewartPlatform  extends PoseEntity {
 						   arms[i].pEE2.z);
 			gl2.glColor3d(0, 0, 0);
 		}
-		gl2.glEnd();
-	}
-
-	private void renderOneLinearSlide(GL2 gl2,double x,double y,double z,double min,double max) {
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1, 1, 1);		gl2.glVertex3d(x, y, min);		gl2.glVertex3d(x, y, z);
-		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(x, y, z);		gl2.glVertex3d(x, y, max);
 		gl2.glEnd();
 	}
 	
