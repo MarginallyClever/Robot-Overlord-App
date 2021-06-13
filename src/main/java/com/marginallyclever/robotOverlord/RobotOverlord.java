@@ -13,12 +13,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -38,11 +32,6 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector2d;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -58,9 +47,14 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.demos.SixiDemo;
 import com.marginallyclever.robotOverlord.demos.SkycamDemo;
 import com.marginallyclever.robotOverlord.demos.StewartPlatformDemo;
+import com.marginallyclever.robotOverlord.io.Load;
+import com.marginallyclever.robotOverlord.io.Save;
+import com.marginallyclever.robotOverlord.io.json.JSONLoad;
+import com.marginallyclever.robotOverlord.io.json.JSONSave;
 import com.marginallyclever.robotOverlord.moveTool.MoveTool;
 import com.marginallyclever.robotOverlord.swingInterface.FooterBar;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
+import com.marginallyclever.robotOverlord.swingInterface.SelectedEntityPanel;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
 import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntitySelect;
 import com.marginallyclever.robotOverlord.swingInterface.commands.CommandAbout;
@@ -97,20 +91,18 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	 * 
 	 */
 	private static final long serialVersionUID = 8890695769715268519L;
-	//public static final String APP_TITLE = "Robot Overlord SKYCAM SPECIAL";  // for skycam only
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final  String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	final static public String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 	
-	// Scene container
 	protected Scene scene = new Scene();
 	// The currently selected entities to edit.
 	protected transient ArrayList<Entity> selectedEntities = new ArrayList<Entity>(); 
 	
 	// To move selected items in 3D
-	protected MoveTool dragTool = new MoveTool();
+	protected MoveTool moveTool = new MoveTool();
 	// The box in the top right of the user view that shows your orientation in the world.
 	protected transient ViewCube viewCube = new ViewCube();
 	// All the projection matrix stuff. 
@@ -153,7 +145,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	protected JSplitPane rightFrameSplitter;
 	protected GLJPanel glCanvas;
 	protected EntityTreePanel entityTree;
-	protected JPanel selectedEntityPanel;
+	protected SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
 	protected FooterBar footerBar;
 	
 	// undo/redo system
@@ -186,7 +178,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  		addChild(viewport);
  		addChild(camera);
         addChild(scene);
- 		addChild(dragTool);
+ 		addChild(moveTool);
  		addChild(viewCube);
  		
  		viewport.setAttachedTo(camera.getFullPath());
@@ -195,12 +187,12 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         buildMainMenu();
 		buildOpenGLView();
         layoutComponents();
-        setupAnimationSystem();
+        startAnimationSystem();
         
 		Log.message("** READY **");
     }
  	
- 	private void setupAnimationSystem() {
+ 	private void startAnimationSystem() {
 		Log.message("setup the animation system");
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
@@ -212,7 +204,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         animator.start();
 	}
 
-	@SuppressWarnings("unused")
 	private void buildOpenGLView() {
         Log.message("buildOpenGLView()");
 
@@ -244,7 +235,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
  	}
 
 	private JPanel buildEntityManagerPanel() {
-        Log.message("build entity tree and panel");
+        Log.message("buildEntityManagerPanel()");
 		JPanel entityManagerPanel = new JPanel(new BorderLayout());
 		JPanel abContainer = new JPanel(new FlowLayout());
 		renameEntity=new CommandRenameEntity(this);
@@ -278,8 +269,6 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	private void layoutComponents() {
         Log.message("layoutComponents()");
 		JPanel entityManagerPanel = buildEntityManagerPanel();
-
-        selectedEntityPanel = new JPanel(new BorderLayout());
         
 		// the right hand stuff			        
 		rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -380,159 +369,16 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 		return selectedEntities;
 	}
 	
-	/**
-	 * Change the right-side context menu.  contextMenu is already a JScrollPane.
-	 * Get all the {@link EntityPanel}s for a {@link Entity}.  
-	 * @param panel
-	 * @param title
-	 */
-	public void updateSelectedEntityPanel(ArrayList<Entity> entityList) {
-		if(selectedEntityPanel==null) return;
-		
-		selectedEntityPanel.removeAll();
-		if(entityList != null ) {
-			if(entityList.size()==1) {
-				int size = entityList.size();
-				ViewPanel [] panels = new ViewPanel[size];
-				for( int i=0;i<size;++i) {
-					panels[i] = new ViewPanel(this);
-					entityList.get(i).getView(panels[i]);
-				}
-				
-				// keep the first panel.
-				// TODO compare panels and keep only the matching elements and - if possible - the data in those elements.
-				ViewPanel combined = panels[0];
-				
-				// TODO throw away panels that have no elements left.
-	
-				selectedEntityPanel.add(combined.getFinalView(),BorderLayout.PAGE_START);
-			} else {
-				// TODO display values shared across all selected entities
-			}
-		}
-		selectedEntityPanel.repaint();
-		selectedEntityPanel.revalidate();
-
-		JScrollPane scroller = (JScrollPane)rightFrameSplitter.getBottomComponent(); 
-		scroller.getVerticalScrollBar().setValue(0);
-	}
-
 	public void saveWorldToFile(String filename) {
-		saveEntityToFileJSON(filename,scene);
-		//saveWorldToFileSerializable(filename);
+		Save io = new JSONSave();
+		//Save io = new SerialSave();
+		io.save(filename, scene);
 	}
 	
 	public void loadWorldFromFile(String filename) {
-		scene = (Scene)loadEntityFromFileJSON(filename);
-		//loadWorldFromFileSerializable(filename);
-	}
-
-	protected ObjectMapper getObjectMapper() {
-		ObjectMapper om = new ObjectMapper();
-		om.enable(SerializationFeature.INDENT_OUTPUT);/*
-		om.setVisibility(
-					om.getSerializationConfig().
-					getDefaultVisibilityChecker().
-					withFieldVisibility(Visibility.ANY).
-					withGetterVisibility(Visibility.NONE));*/
-		return om;
-	}
-	
-	public void saveEntityToFileJSON(String filename,Entity ent) {
-		ObjectMapper om = getObjectMapper();
-		try {
-			om.writeValue(new File(filename), ent);
-		} catch (JsonGenerationException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public Entity loadEntityFromFileJSON(String filename) {
-		ObjectMapper om = getObjectMapper();
-		Entity ent = null;
-		try {
-			ent = (Scene)om.readValue(new File(filename), Scene.class);
-		} catch (JsonParseException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return ent;
-	}
-	
-	/**
-	 * See http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	 * @param filename
-	 */
-	@Deprecated
-	public void saveWorldToFileSerializable(String filename) {
-		FileOutputStream fout=null;
-		ObjectOutputStream objectOut=null;
-		try {
-			fout = new FileOutputStream(filename);
-			objectOut = new ObjectOutputStream(fout);
-			objectOut.writeObject(scene);
-		} catch(java.io.NotSerializableException e) {
-			Log.message("Something can't be serialized.");
-			e.printStackTrace();
-		} catch(IOException e) {
-			Log.message("Save failed.");
-			e.printStackTrace();
-		} finally {
-			if(objectOut!=null) {
-				try {
-					objectOut.close();
-				} catch(IOException e) {}
-			}
-			if(fout!=null) {
-				try {
-					fout.close();
-				} catch(IOException e) {}
-			}
-		}
-	}
-
-	/**
-	 *  See http://www.javacoffeebreak.com/text-adventure/tutorial3/tutorial3.html
-	 * @param filename
-	 */
-	@Deprecated
-	public void loadWorldFromFileSerializable(String filename) {
-		FileInputStream fin=null;
-		ObjectInputStream objectIn=null;
-		try {
-			// Create a file input stream
-			fin = new FileInputStream(filename);
-	
-			// Create an object input stream
-			objectIn = new ObjectInputStream(fin);
-	
-			// Read an object in from object store, and cast it to a GameWorld
-			this.scene = (Scene) objectIn.readObject();
-		} catch(IOException e) {
-			Log.message("World load failed (file io).");
-			e.printStackTrace();
-		} catch(ClassNotFoundException e) {
-			Log.message("World load failed (class not found)");
-			e.printStackTrace();
-		} finally {
-			if(objectIn!=null) {
-				try {
-					objectIn.close();
-				} catch(IOException e) {}
-			}
-			if(fin!=null) {
-				try {
-					fin.close();
-				} catch(IOException e) {}
-			}
-		}
+		Load io = new JSONLoad();
+		//Load io = new SerialLoad();
+		scene = (Scene)io.load(filename);
 	}
 
 	public void newScene() {
@@ -751,7 +597,7 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
         viewport.renderChosenProjection(gl2);
         scene.render(gl2);
         // overlays
-		dragTool.render(gl2);
+		moveTool.render(gl2);
 		viewCube.render(gl2);
 	}
 
@@ -867,24 +713,24 @@ public class RobotOverlord extends Entity implements MouseListener, MouseMotionL
 	    	}
 			if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && entityList.get(0).canBeRenamed());
 			if(removeEntity!=null) removeEntity.setEnabled(removable);
-					
+			
 			if(moveable) {
 				if(entityList.size()==1) {
 					Entity e = entityList.get(0);
 					if(e instanceof Moveable) {
-						dragTool.setSubject((Moveable)e);
+						moveTool.setSubject((Moveable)e);
 					} else if(e==null) {
-						dragTool.setSubject(null);
+						moveTool.setSubject(null);
 					}
 				} else {
 					// TODO group all selected poseEntities so they can be moved as one?
-					dragTool.setSubject(null);
+					moveTool.setSubject(null);
 				}
 			} else {
-				dragTool.setSubject(null);
+				moveTool.setSubject(null);
 			}
-    	}	
-		updateSelectedEntityPanel(entityList);
+    	}
+    	selectedEntityPanel.update(entityList,this);
 	}
 	
 	@Override
