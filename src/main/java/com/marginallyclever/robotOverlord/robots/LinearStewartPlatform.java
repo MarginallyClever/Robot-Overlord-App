@@ -270,11 +270,10 @@ public class LinearStewartPlatform  extends PoseEntity {
 	private void drawDebugSlides(GL2 gl2)  {
 		for(int i=0;i<arms.length;++i) {
 			renderOneLinearSlide(gl2,
-					arms[i].pSlide.x,
-					arms[i].pSlide.y,
-					arms[i].pSlide.z,
+					arms[i].pSlide,
 					BASE_Z,
-					BASE_Z+SLIDE_TRAVEL);
+					BASE_Z+SLIDE_TRAVEL,
+					i==0);
 		}
 	}
 
@@ -293,11 +292,15 @@ public class LinearStewartPlatform  extends PoseEntity {
 		gl2.glEnd();
 	}
 
-
-	private void renderOneLinearSlide(GL2 gl2,double x,double y,double z,double min,double max) {
+	private void renderOneLinearSlide(GL2 gl2,Point3d p,double min,double max,boolean first) {
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1, 1, 1);		gl2.glVertex3d(x, y, min);		gl2.glVertex3d(x, y, z);
-		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(x, y, z);		gl2.glVertex3d(x, y, max);
+		if(first) gl2.glColor3d(1, 0, 0);
+		else      gl2.glColor3d(1, 1, 1);
+		gl2.glVertex3d(p.x, p.y, min);
+		gl2.glVertex3d(p.x, p.y, p.z);
+		gl2.glColor3d(0, 0, 1);
+		gl2.glVertex3d(p.x, p.y, p.z);
+		gl2.glVertex3d(p.x, p.y, max);
 		gl2.glEnd();
 	}
 	
