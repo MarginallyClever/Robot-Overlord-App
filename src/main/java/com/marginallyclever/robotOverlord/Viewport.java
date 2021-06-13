@@ -40,14 +40,14 @@ public class Viewport extends Entity {
 	private DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
 	private DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
 	private StringEntity attachedTo=new StringEntity("Attached to","");
-	private BooleanEntity drawOrtho=new BooleanEntity("Orthographic",false);
+	private BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
 	
 	
 	public Viewport() {
 		super();
 		
 		setName("Viewport");
-		addChild(drawOrtho);
+		addChild(drawOrthographic);
 		addChild(farZ);
 		addChild(nearZ);
 		addChild(fieldOfView);
@@ -101,7 +101,7 @@ public class Viewport extends Entity {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 		
-		if(drawOrtho.get()) {
+		if(drawOrthographic.get()) {
 			renderOrtho(gl2);
 		} else {
 			renderPerspective(gl2);
@@ -123,7 +123,7 @@ public class Viewport extends Entity {
         gl2.glLoadIdentity();
 		glu.gluPickMatrix(pickX, canvasHeight-pickY, 5.0, 5.0, viewportDimensions,0);
 
-		if(drawOrtho.get()) {
+		if(drawOrthographic.get()) {
 			renderOrtho(gl2);
 		} else {
 			renderPerspective(gl2);
@@ -138,7 +138,7 @@ public class Viewport extends Entity {
 		// get the ray coming through the viewport in the current projection.
 		Ray ray = new Ray();
 
-		if(drawOrtho.get()) {
+		if(drawOrthographic.get()) {
 			// orthographic projection
 			ray.start = new Point3d(
 					cursorX*canvasWidth/10,
@@ -289,7 +289,7 @@ public class Viewport extends Entity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("V", "Viewport");
-		view.add(drawOrtho);
+		view.add(drawOrthographic);
 		view.add(farZ);
 		view.add(nearZ);
 		view.add(fieldOfView);
