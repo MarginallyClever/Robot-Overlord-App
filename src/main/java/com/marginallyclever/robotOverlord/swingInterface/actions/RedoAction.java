@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -15,15 +15,15 @@ import com.marginallyclever.convenience.log.Log;
  * go forward one step in the undo/redo history.
  * @author Dan Royer
  */
-public class CommandRedo extends AbstractAction {
+public class RedoAction extends AbstractAction {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private UndoManager undo;
-	private CommandUndo undoCommand;
+	private UndoAction undoCommand;
 	
-    public CommandRedo(UndoManager undo) {
+    public RedoAction(UndoManager undo) {
         super("Redo");
         this.undo = undo;
         setEnabled(false);
@@ -53,7 +53,7 @@ public class CommandRedo extends AbstractAction {
         }
     }
     
-    public void setUndoCommand(CommandUndo undoCommand) {
+    public void setUndoCommand(UndoAction undoCommand) {
     	this.undoCommand=undoCommand;
     }
 }

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class ActionSetDHTool extends AbstractUndoableEdit {
+public class DHToolEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -22,7 +22,7 @@ public class ActionSetDHTool extends AbstractUndoableEdit {
 	private int newTool;
 	private int previousTool;
 	
-	public ActionSetDHTool(DHRobotModel robot,int newTool) {
+	public DHToolEdit(DHRobotModel robot,int newTool) {
 		super();
 		
 		this.robot = robot;

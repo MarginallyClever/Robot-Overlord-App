@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import javax.vecmath.Vector3d;
 
@@ -12,13 +12,13 @@ import com.marginallyclever.robotOverlord.AbstractEntity;
  * @author Dan Royer
  *
  */
-public class ActionChangeVector3d extends ActionChangeAbstractEntity<Vector3d> {
+public class Vector3dEdit extends AbstractEntityEdit<Vector3d> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public ActionChangeVector3d(AbstractEntity<Vector3d> e, Vector3d newValue) {
+	public Vector3dEdit(AbstractEntity<Vector3d> e, Vector3d newValue) {
 		super(e, newValue);
 	}
 }

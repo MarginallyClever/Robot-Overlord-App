@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import com.marginallyclever.robotOverlord.AbstractEntity;
 
@@ -10,13 +10,13 @@ import com.marginallyclever.robotOverlord.AbstractEntity;
  * @author Dan Royer
  *
  */
-public class ActionChangeInt extends ActionChangeAbstractEntity<Integer> {
+public class DoubleEdit extends AbstractEntityEdit<Double> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	public ActionChangeInt(AbstractEntity<Integer> e, Integer newValue) {
+
+	public DoubleEdit(AbstractEntity<Double> e, Double newValue) {
 		super(e, newValue);
 	}
 }

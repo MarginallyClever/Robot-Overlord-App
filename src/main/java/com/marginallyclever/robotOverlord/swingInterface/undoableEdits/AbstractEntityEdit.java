@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class ActionChangeAbstractEntity<T> extends AbstractUndoableEdit {
+public class AbstractEntityEdit<T> extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -24,7 +24,7 @@ public class ActionChangeAbstractEntity<T> extends AbstractUndoableEdit {
 	private AbstractEntity<T> entity;
 	private T oldValue,newValue;
 	
-	public ActionChangeAbstractEntity(AbstractEntity<T> entity,T newValue) {
+	public AbstractEntityEdit(AbstractEntity<T> entity,T newValue) {
 		super();
 		
 		this.entity = entity;
@@ -57,8 +57,8 @@ public class ActionChangeAbstractEntity<T> extends AbstractUndoableEdit {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if( anEdit instanceof ActionChangeAbstractEntity<?> ) {
-			ActionChangeAbstractEntity<T> b = (ActionChangeAbstractEntity<T>) anEdit;
+		if( anEdit instanceof AbstractEntityEdit<?> ) {
+			AbstractEntityEdit<T> b = (AbstractEntityEdit<T>) anEdit;
 			if( b.entity == this.entity) return true;
 		}
 		return super.addEdit(anEdit);

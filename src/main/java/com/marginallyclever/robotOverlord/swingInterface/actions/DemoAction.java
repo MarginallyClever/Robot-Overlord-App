@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class CommandDemo extends AbstractAction implements ActionListener {
+public class DemoAction extends AbstractAction implements ActionListener {
 	/**
 	 * 
 	 */
@@ -21,7 +21,7 @@ public class CommandDemo extends AbstractAction implements ActionListener {
 	protected RobotOverlord ro;
 	protected Demo demo;
 	
-	public CommandDemo(RobotOverlord ro,Demo demo) {
+	public DemoAction(RobotOverlord ro,Demo demo) {
 		super(demo.getName());
         putValue(SHORT_DESCRIPTION, Translator.get("Open a demo."));
 		this.ro = ro;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,13 +20,13 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class CommandCheckForUpdate extends AbstractAction implements ActionListener {
+public class CheckForUpdateAction extends AbstractAction implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public CommandCheckForUpdate() {
+	public CheckForUpdateAction() {
 		super(Translator.get("Check for update"));
         putValue(SHORT_DESCRIPTION, Translator.get("Check if you are using the latest version of this app"));
 	}

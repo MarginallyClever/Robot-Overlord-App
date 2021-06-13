@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -12,20 +12,20 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Removable;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRemove;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.RemoveEdit;
 
 /**
  * @author Dan Royer
  */
-public class CommandRemoveEntity extends AbstractAction {
+public class RemoveEntityAction extends AbstractAction {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
-	public CommandRemoveEntity(RobotOverlord ro) {
+	public RemoveEntityAction(RobotOverlord ro) {
 		super(Translator.get("Remove Entity"));
         putValue(AbstractAction.SHORT_DESCRIPTION, Translator.get("Remove the selected entity from the world."));
         //putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, ActionEvent.CTRL_MASK));
@@ -42,7 +42,7 @@ public class CommandRemoveEntity extends AbstractAction {
 		}
 		for(Entity e : entityList) {
 			if(e instanceof Removable) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,e) ) );
+				ro.undoableEditHappened(new UndoableEditEvent(this,new RemoveEdit(ro,e) ) );
 			} else {
 				Log.error("Entity "+e.getFullPath()+" is not a RemovableEntity.");
 			}

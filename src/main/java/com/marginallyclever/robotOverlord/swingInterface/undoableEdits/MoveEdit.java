@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.Moveable;
  * @author Dan Royer
  *
  */
-public class ActionMoveTo extends AbstractUndoableEdit {
+public class MoveEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -30,7 +30,7 @@ public class ActionMoveTo extends AbstractUndoableEdit {
 	 * @param axis index of axis
 	 * @param direction 1 or -1
 	 */
-	public ActionMoveTo(Moveable entity,Matrix4d newPose) {
+	public MoveEdit(Moveable entity,Matrix4d newPose) {
 		super();
 		
 		this.entity = entity;
@@ -55,8 +55,8 @@ public class ActionMoveTo extends AbstractUndoableEdit {
 	
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof ActionMoveTo) {
-			ActionMoveTo APEM = (ActionMoveTo)anEdit;
+		if(anEdit instanceof MoveEdit) {
+			MoveEdit APEM = (MoveEdit)anEdit;
 			if(APEM.entity==this.entity) return true;
 		}
 		return super.addEdit(anEdit);

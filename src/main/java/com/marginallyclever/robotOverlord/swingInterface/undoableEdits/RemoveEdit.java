@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import java.util.ArrayList;
 
@@ -7,58 +7,61 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.Removable;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
- * An undoable action to add an {@link Entity} to the world.
+ * An undoable action to remove an {@link Entity} from the world.
  * @author Dan Royer
  *
  */
-public class ActionEntityAdd extends AbstractUndoableEdit {
+public class RemoveEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
 	private Entity entity;
-	private ArrayList<Entity> previouslyPickedEntities;	
+	private Entity parent;
 	private RobotOverlord ro;
 	
-	public ActionEntityAdd(RobotOverlord ro,Entity entity) {
+	public RemoveEdit(RobotOverlord ro,Entity entity) {
 		super();
 		
 		this.entity = entity;
 		this.ro = ro;
-		
+		this.parent = entity.getParent();
+
 		doIt();
 	}
-
+	
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Add ")+entity.getName();
+		return Translator.get("Remove ")+entity.getName();
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		doIt();	
+		doIt();
 	}
 	
 	protected void doIt() {
-		ro.getScene().addChild(entity);
+		if(entity instanceof Removable) {
+			((Removable)entity).beingRemoved();
+		}
+		if(parent!=null) parent.removeChild(entity);
 		ro.updateEntityTree();
-		ArrayList<Entity> list = new ArrayList<Entity>();
-		list.add(entity);
-		ro.updateSelectEntities(list);
-		previouslyPickedEntities = ro.getSelectedEntities();
+		ro.updateSelectEntities(null);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.getScene().removeChild(entity);
+		if(parent!=null) parent.addChild(entity);
 		ro.updateEntityTree();
-		ro.updateSelectEntities(previouslyPickedEntities);
+		ArrayList<Entity> list = new ArrayList<Entity>();
+		list.add(entity);
+		ro.updateSelectEntities(list);
 	}
 }

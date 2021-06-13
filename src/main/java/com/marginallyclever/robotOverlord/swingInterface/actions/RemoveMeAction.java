@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -10,7 +10,7 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRemove;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.RemoveEdit;
 
 /**
  * Click this button to delete the active entity
@@ -18,7 +18,7 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityRem
  *
  */
 @Deprecated
-public class CommandRemoveMe extends JPanel implements ActionListener {
+public class RemoveMeAction extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
@@ -27,7 +27,7 @@ public class CommandRemoveMe extends JPanel implements ActionListener {
 	protected Entity entity;
 	JButton theButton;
 	
-	public CommandRemoveMe(RobotOverlord ro,Entity entity) {
+	public RemoveMeAction(RobotOverlord ro,Entity entity) {
 		super();
 		
 		this.entity = entity;
@@ -41,6 +41,6 @@ public class CommandRemoveMe extends JPanel implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityRemove(ro,entity) ) );
+		ro.undoableEditHappened(new UndoableEditEvent(this,new RemoveEdit(ro,entity) ) );
 	}
 }

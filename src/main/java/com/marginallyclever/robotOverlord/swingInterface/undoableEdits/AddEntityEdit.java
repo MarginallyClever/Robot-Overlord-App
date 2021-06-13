@@ -1,4 +1,6 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
+
+import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -9,52 +11,54 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 
 /**
- * An undoable action to change the currently selected entity.
- * This is the equivalent to moving the caret in a text document.
+ * An undoable action to add an {@link Entity} to the world.
  * @author Dan Royer
  *
  */
-public class ActionEntityRename extends AbstractUndoableEdit {
+public class AddEntityEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Entity e;
-	private String oldName ="";
-	private String newName ="";
+	private Entity entity;
+	private ArrayList<Entity> previouslyPickedEntities;	
 	private RobotOverlord ro;
 	
-	public ActionEntityRename(RobotOverlord ro,Entity e,String newName) {
+	public AddEntityEdit(RobotOverlord ro,Entity entity) {
 		super();
 		
+		this.entity = entity;
 		this.ro = ro;
-		this.newName = newName;
-		this.oldName = e.getName();
-		this.e=e;
+		
 		doIt();
 	}
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Rename ")+oldName;
+		return Translator.get("Add ")+entity.getName();
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		doIt();
-	}
-
-	protected void doIt() {
-		e.setName(newName);
-		ro.updateEntityTree();
+		doIt();	
 	}
 	
+	protected void doIt() {
+		ro.getScene().addChild(entity);
+		ro.updateEntityTree();
+		ArrayList<Entity> list = new ArrayList<Entity>();
+		list.add(entity);
+		ro.updateSelectEntities(list);
+		previouslyPickedEntities = ro.getSelectedEntities();
+	}
+
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		e.setName(oldName);
+		ro.getScene().removeChild(entity);
 		ro.updateEntityTree();
+		ro.updateSelectEntities(previouslyPickedEntities);
 	}
 }

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,14 +11,14 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Admin
  *
  */
-public class CommandQuit extends AbstractAction implements ActionListener {
+public class QuitAction extends AbstractAction implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
-	public CommandQuit(RobotOverlord ro) {
+	public QuitAction(RobotOverlord ro) {
 		super(Translator.get("Quit"));
         putValue(SHORT_DESCRIPTION, Translator.get("Gracefully terminate this app"));
         

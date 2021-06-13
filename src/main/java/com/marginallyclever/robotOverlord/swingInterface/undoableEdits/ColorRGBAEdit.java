@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
  * @author Dan Royer
  *
  */
-public class ActionChangeColorRGBA extends AbstractUndoableEdit {
+public class ColorRGBAEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -25,7 +25,7 @@ public class ActionChangeColorRGBA extends AbstractUndoableEdit {
 	private float [] newValue;
 	private float [] oldValue;
 	
-	public ActionChangeColorRGBA(ColorEntity entity,float [] newValue) {
+	public ColorRGBAEdit(ColorEntity entity,float [] newValue) {
 		super();
 		
 		this.entity = entity;
@@ -54,8 +54,8 @@ public class ActionChangeColorRGBA extends AbstractUndoableEdit {
 	
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof ActionChangeColorRGBA ) {
-			ActionChangeColorRGBA APEM = (ActionChangeColorRGBA)anEdit;
+		if(anEdit instanceof ColorRGBAEdit ) {
+			ColorRGBAEdit APEM = (ColorRGBAEdit)anEdit;
 			if(APEM.entity == this.entity) return true;
 		}
 		return super.addEdit(anEdit);

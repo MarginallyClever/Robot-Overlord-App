@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,14 +16,14 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class CommandNew extends AbstractAction implements ActionListener {
+public class NewAction extends AbstractAction implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
-	public CommandNew(RobotOverlord ro) {
+	public NewAction(RobotOverlord ro) {
 		super(Translator.get("New"));
         putValue(SHORT_DESCRIPTION, "Remove everything from the world.");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK) );

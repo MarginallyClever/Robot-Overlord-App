@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -12,13 +12,13 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Admin
  *
  */
-public class CommandAboutControls extends AbstractAction {
+public class AboutControlsAction extends AbstractAction {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public CommandAboutControls() {
+	public AboutControlsAction() {
 		super(Translator.get("Controls"));
         putValue(SHORT_DESCRIPTION, Translator.get("About controls"));
 	}

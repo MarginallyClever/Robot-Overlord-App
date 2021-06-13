@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -13,72 +13,70 @@ import javax.swing.event.UndoableEditEvent;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.actions.ActionEntityAdd;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.AddEntityEdit;
 
 /**
  * Display an Add Entity dialog box.  If an entity is selected and "ok" is pressed, add that Entity to the world. 
  * @author Dan Royer
  *
  */
-public class CommandAddEntity extends AbstractAction {
+public class AddEntityAction extends AbstractAction {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
-	public CommandAddEntity(RobotOverlord ro) {
+	public AddEntityAction(RobotOverlord ro) {
 		super(Translator.get("Add Entity"));
         putValue(SHORT_DESCRIPTION, Translator.get("Add an entity to the world."));
 		this.ro = ro;
 	}
-
+	
     /**
      * select from a list of all object types.  An instance of that type is then added to the world.
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		JPanel additionList = new JPanel(new GridLayout(0, 1));
-		
-		JComboBox<String> additionComboBox = new JComboBox<String>();
+		JComboBox<String> additionComboBox = buildEntityComboBox();
 		additionList.add(additionComboBox);
-		
-		// service load the types available.
-		ServiceLoader<Entity> loaders = ServiceLoader.load(Entity.class);
-		int loadedTypes=0;
-		Iterator<Entity> i = loaders.iterator();
-		while(i.hasNext()) {
-				Entity lft = i.next();
-				additionComboBox.addItem(lft.getName());
-				++loadedTypes;
-		}
-		
-		assert(loadedTypes!=0);
 
 		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, (String)this.getValue(AbstractAction.NAME), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			String objectTypeName = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
 
-			i = loaders.iterator();
-			while(i.hasNext()) {
-				Entity lft = i.next();
-				String name = lft.getName();
-				if(name.equals(objectTypeName)) {
-					Entity newInstance = null;
-
-					try {
-						newInstance = lft.getClass().getDeclaredConstructor().newInstance();
-						// create an undoable command to add this entity.
-						ro.undoableEditHappened(new UndoableEditEvent(this,new ActionEntityAdd(ro,newInstance)));
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return;
-				}
-			}
-			// TODO catch selected an item to load, then couldn't find object class?!  Should be impossible.
+			Entity newInstance = createInstanceOf(objectTypeName);
+			if(newInstance != null) ro.undoableEditHappened(new UndoableEditEvent(this,new AddEntityEdit(ro,newInstance)));
 		}
     }
+
+	private JComboBox<String> buildEntityComboBox() {
+		JComboBox<String> additionComboBox = new JComboBox<String>();
+		
+		Iterator<Entity> i = ServiceLoader.load(Entity.class).iterator();
+		while(i.hasNext()) {
+			Entity lft = i.next();
+			additionComboBox.addItem(lft.getName());
+		}
+
+		return additionComboBox;
+	}
+
+	private Entity createInstanceOf(String objectTypeName) {
+		Iterator<Entity> i = ServiceLoader.load(Entity.class).iterator();
+		while(i.hasNext()) {
+			Entity lft = i.next();
+			String name = lft.getName();
+			if(name.equals(objectTypeName)) {
+				try {
+					return lft.getClass().getDeclaredConstructor().newInstance();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
 }

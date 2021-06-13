@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.commands;
+package com.marginallyclever.robotOverlord.swingInterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,14 +14,14 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Admin
  *
  */
-public class CommandForums extends AbstractAction implements ActionListener {
+public class ForumsAction extends AbstractAction implements ActionListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private final String FORUM_URL = "https://www.marginallyclever.com/learn/forum/forum/sixi-robot-arm/";
 	
-	public CommandForums() {
+	public ForumsAction() {
 		super(Translator.get("Online help"));
         putValue(SHORT_DESCRIPTION, Translator.get("Go to the forums"));
 	}

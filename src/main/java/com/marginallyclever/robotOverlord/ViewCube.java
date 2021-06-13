@@ -30,8 +30,22 @@ public class ViewCube extends Entity {
     	mat.setAmbientColor(1, 1, 1, 1);
     	mat.setLit(false);
     }
+    
+	public void render(GL2 gl2) {
+		Viewport viewport = ((RobotOverlord)getRoot()).viewport;
 		
-    public Matrix4d getInverseCameraMatrix(PoseEntity camera) {
+		startProjection(gl2,viewport);
+		
+		gl2.glPushMatrix();
+			positionCubeModel(gl2,viewport);
+			renderCubeModel(gl2);
+			renderMajorAxies(gl2);
+		gl2.glPopMatrix();
+
+		endProjection(gl2);
+	}
+		
+    private Matrix4d getInverseCameraMatrix(PoseEntity camera) {
 		Matrix4d m = new Matrix4d();
 		camera.getPoseWorld(m);
 		m.invert();
@@ -52,20 +66,6 @@ public class ViewCube extends Entity {
 		gl2.glPopMatrix();
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
-    
-	public void render(GL2 gl2) {
-		Viewport viewport = ((RobotOverlord)getRoot()).viewport;
-		
-		startProjection(gl2,viewport);
-		
-		gl2.glPushMatrix();
-			positionCubeModel(gl2,viewport);
-			renderCubeModel(gl2);
-			renderMajorAxies(gl2);
-		gl2.glPopMatrix();
-
-		endProjection(gl2);
-	}
 	
 	private void positionCubeModel(GL2 gl2, Viewport viewport) {
 		double c = cubeSize.get();

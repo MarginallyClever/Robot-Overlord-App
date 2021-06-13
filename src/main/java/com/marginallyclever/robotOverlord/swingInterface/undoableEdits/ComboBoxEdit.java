@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface.actions;
+package com.marginallyclever.robotOverlord.swingInterface.undoableEdits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -15,7 +15,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  * @author Dan Royer
  *
  */
-public class ActionChangeComboBox extends AbstractUndoableEdit {
+public class ComboBoxEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -24,7 +24,7 @@ public class ActionChangeComboBox extends AbstractUndoableEdit {
 	private int oldValue,newValue;
 	private String label;
 	
-	public ActionChangeComboBox(IntEntity e,String label,int newValue) {
+	public ComboBoxEdit(IntEntity e,String label,int newValue) {
 		super();
 		
 		this.e = e;
