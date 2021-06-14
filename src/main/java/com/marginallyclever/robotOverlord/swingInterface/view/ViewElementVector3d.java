@@ -24,8 +24,6 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-//import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
-import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.Vector3dEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 

@@ -21,7 +21,6 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.swingInterface.FocusTextField;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.DoubleEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 

@@ -89,10 +89,11 @@ public class Viewport extends Entity {
 
     	gl2.glMatrixMode(GL2.GL_MODELVIEW);
         gl2.glLoadIdentity();
-    	
-		PoseEntity camera = getAttachedTo();
+
 		Matrix4d mFinal = new Matrix4d();
-		camera.getPoseWorld(mFinal);
+		PoseEntity camera = getAttachedTo();
+		if(camera !=null) camera.getPoseWorld(mFinal);
+		else mFinal.setIdentity(); 
 		mFinal.invert();
 		MatrixHelper.applyMatrix(gl2, mFinal);
 	}
@@ -237,7 +238,6 @@ public class Viewport extends Entity {
 	}
 
 	public void setCursor(int x,int y) {
-		
 		cursorX= (2.0*x/canvasWidth)-1.0;
 		cursorY= 1.0-(2.0*y/canvasHeight);
         //Log.message("X"+cursorX+" Y"+cursorY);

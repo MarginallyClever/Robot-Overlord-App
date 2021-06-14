@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
+@Deprecated
 public class FooterBar extends JPanel {
 	/**
 	 * 

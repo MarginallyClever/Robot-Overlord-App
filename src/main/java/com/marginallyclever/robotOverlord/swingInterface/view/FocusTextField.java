@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.swingInterface;
+package com.marginallyclever.robotOverlord.swingInterface.view;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;

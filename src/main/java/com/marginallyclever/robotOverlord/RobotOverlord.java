@@ -130,7 +130,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	public GLJPanel glCanvas;
 	
 	// should I check the state of the OpenGL stack size?  true=every frame, false=never
-	protected boolean checkStackSize = false;
+	private boolean checkStackSize = false;
 	
 	// mouse steering controls
 	private boolean isMouseIn=false;
@@ -138,8 +138,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	public Viewport viewport = new Viewport();
 	
     // timing for animations
-    protected long startTime;
-    protected long lastTime;
+    private long lastTime;
     private double frameDelay;
     private double frameLength;
 
@@ -165,7 +164,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         buildMainFrame();
         buildMainMenu();
         createSimulationPanel();
-        viewport.setAttachedTo(camera.getFullPath());
         
         layoutComponents();
         
@@ -175,6 +173,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
  		addChild(moveTool);
  		addChild(viewCube);
  		
+        viewport.setAttachedTo(camera.getFullPath());
+
         startAnimationSystem();
         
 		Log.message("** READY **");
@@ -239,10 +239,10 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         entityTree.addEntityTreePanelListener(new EntityTreePanelListener() {
     		@Override
     		public void entityTreePanelEvent(EntityTreePanelEvent e) {
-    			if(e.eventType== EntityTreePanelEvent.UNSELECT) {
+    			if(e.eventType == EntityTreePanelEvent.UNSELECT) {
     				selectedEntities.removeAll(e.subjects);
     			}
-    			if(e.eventType== EntityTreePanelEvent.SELECT) {
+    			if(e.eventType == EntityTreePanelEvent.SELECT) {
     				selectedEntities.addAll(e.subjects);
     				updateSelectEntities(selectedEntities);
     			}
@@ -470,17 +470,12 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
      * 
      * @param e
      */
-    protected void pickEntity(Entity e) {
+	private void pickEntity(Entity e) {
 		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
 		if(selectedEntities.contains(e)) return;
-
 		entityTree.setSelection(e);
 	}
 	
-	/**
-	 * The selected entities have changed, either through scene picking or tree clicking
-	 * @param e
-	 */
     public void updateSelectEntities(ArrayList<Entity> entityList) {
     	if( entityList != null && entityList.size()>0) {
 	    	boolean removable = true;
@@ -504,7 +499,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
     	selectedEntityPanel.update(entityList,this);
 	}
 
-	protected void saveWindowSizeAndPosition() {
+    private void saveWindowSizeAndPosition() {
 		// remember window location for next time.
 		Dimension d = mainFrame.getSize();
     	prefs.putInt("windowWidth", d.width);
@@ -516,10 +511,10 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	
 	public void confirmClose() {
         int result = JOptionPane.showConfirmDialog(
-                mainFrame,
-                "Are you sure you want to quit?",
-                "Quit",
-                JOptionPane.YES_NO_OPTION);
+            mainFrame,
+            "Are you sure you want to quit?",
+            "Quit",
+            JOptionPane.YES_NO_OPTION);
 
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -527,9 +522,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 			// Log.end() should be the very last call.  mainFrame.dispose() kills the thread, so this is as close as I can get.
 			Log.end();
 			
-        	// Run this on another thread than the AWT event queue to
-	        // make sure the call to Animator.stop() completes before
-	        // exiting
+        	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(new Runnable() {
 	            public void run() {
 	            	animator.stop();
@@ -568,10 +561,9 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 		view.pushStack("RO", "Robot Overlord");
 		view.popStack();
 	}
+	
     @Override
     public void init( GLAutoDrawable drawable ) {
-        Log.message("gl init");
-
         GL gl = drawable.getGL();
 
     	final boolean glDebug=false;
@@ -579,7 +571,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
     	final boolean glTrace=false;
         if(glTrace) useTracePipeline(gl); 
         
-        Log.message("...get gl2");
     	GL2 gl2 = drawable.getGL().getGL2();
     	
     	// turn on vsync
@@ -645,7 +636,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 
 	@Override
     public void dispose( GLAutoDrawable drawable ) {}
-
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -740,7 +730,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
     	if(frameDelay>frameLength) {
    			frameDelay-=frameLength;
 	    	InputManager.update(isMouseIn);
-	    	scene.update( frameLength );
+	    	update( frameLength );
     	}
 	}
  	
@@ -750,7 +740,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
         animator.add(glCanvas);
         // record the start time of the application, also the end of the core initialization process.
-        lastTime = startTime = System.currentTimeMillis();
+        lastTime = System.currentTimeMillis();
         // start the main application loop.  it will call display() repeatedly.
         animator.start();
 	}

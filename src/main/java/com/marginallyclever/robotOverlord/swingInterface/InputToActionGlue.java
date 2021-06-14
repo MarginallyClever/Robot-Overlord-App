@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
 
+@Deprecated
 public class InputToActionGlue  {
 	public String inputControllerName;
 	
