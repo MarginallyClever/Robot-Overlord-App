@@ -109,7 +109,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	private transient ViewCube viewCube = new ViewCube();
 	public Camera camera = new Camera();
 	
-
 	// The main frame of the GUI
 	private JFrame mainFrame; 
     private JMenuBar mainMenu;
@@ -478,6 +477,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	
     public void updateSelectEntities(ArrayList<Entity> entityList) {
     	if( entityList != null && entityList.size()>0) {
+    		pickEntity(entityList.get(0));
+    		
 	    	boolean removable = true;
 	    	boolean moveable = true;
 	    	

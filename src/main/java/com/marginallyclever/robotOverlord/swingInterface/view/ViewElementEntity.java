@@ -68,7 +68,8 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 	// Panel action, update entity
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		EntityTreePanel treePanel = new EntityTreePanel(ro,false);
+		EntityTreePanel treePanel = new EntityTreePanel(false);
+		treePanel.update(ro.getScene());
 		String path = e.get();
 		ArrayList<Entity> selected = new ArrayList<>();
 		selected.add(ro.findByPath(path));

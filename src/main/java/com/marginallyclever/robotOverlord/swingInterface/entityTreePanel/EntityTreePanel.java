@@ -93,22 +93,19 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	}
 	
 
+	// expand or collapse all nodes of a tree
 	// from https://www.logicbig.com/tutorials/java-swing/jtree-expand-collapse-all-nodes.html
 	public static void setNodeExpandedState(JTree tree, EntityTreeNode node, boolean expanded) {
-		TreePath path = new TreePath(node.getPath());
-		if (expanded) {
-			tree.expandPath(path);
-		} else {
-			tree.collapsePath(path);
-		}
-		
 		ArrayList<TreeNode> list = (ArrayList<TreeNode>)Collections.list(node.children());
 		for (TreeNode treeNode : list) {
 			setNodeExpandedState(tree, (EntityTreeNode)treeNode, expanded);
 		}
-		if (!expanded && node.isRoot()) {
-			return;
-		}
+		
+		if (!expanded && node.isRoot()) return;
+		
+		TreePath path = new TreePath(node.getPath());
+		if (expanded) tree.expandPath(path);
+		else tree.collapsePath(path);
 	}
 
     /**
@@ -128,12 +125,14 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 
 		if(oldTree!=null) {
 			setNodeExpandedState(newTree,(EntityTreeNode)newTree.getModel().getRoot(),true);
+			
 			// preserve the original expansions
 			for(int i=0;i<oldTree.getRowCount();++i) {
 				if(!oldTree.isExpanded(i)) {
 					//Log.message("Collapsing path " + oldTree.getPathForRow(i) + ":"+(oldTree.isExpanded(i)?"o":"x"));
 					TreePath p0 = oldTree.getPathForRow(i);
-					String p0s = p0.toString(); 
+					String p0s = p0.toString();
+					
 					//Log.message("Comparing to >"+p0s+"<");
 					for(int j=0;j<newTree.getRowCount();++j) {
 						TreePath p1 = newTree.getPathForRow(j);
@@ -146,9 +145,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 					}
 				}
 			}
+			
 			// restore the selected paths
-			TreePath[] paths = oldTree.getSelectionPaths();
-			newTree.setSelectionPaths(paths);
+			newTree.setSelectionPaths(oldTree.getSelectionPaths());
 		}
 		
 		if(oldTree != null) this.remove(oldTree);
