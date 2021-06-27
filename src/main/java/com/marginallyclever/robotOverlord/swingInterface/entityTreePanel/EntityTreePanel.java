@@ -42,13 +42,11 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 
 	private List<EntityTreePanelListener> listeners = new ArrayList<EntityTreePanelListener>();
 	
-	public EntityTreePanel(Entity root,boolean allowMultiSelect) {
+	public EntityTreePanel(boolean allowMultiSelect) {
 		super();
-		this.root = root;
 		this.multiSelect = allowMultiSelect;
 		this.setLayout(new BorderLayout());
 		this.add(scroll,BorderLayout.CENTER);
-		update();
 	}
 
 	public ArrayList<Entity> getSelected() {
@@ -117,8 +115,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
      * list all objects in scene.  Double click an item to get its panel.
      * See https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html
      */
-	public void update() {
-	    EntityTreeNode newTop = createTreeNodes(root);
+	public void update(Entity scene) {
+	    EntityTreeNode newTop = createTreeNodes(scene);
 		JTree newTree = new JTree(newTop);
 
 		newTree.getSelectionModel().setSelectionMode( multiSelect

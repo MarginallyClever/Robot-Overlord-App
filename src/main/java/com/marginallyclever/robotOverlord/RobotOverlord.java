@@ -235,7 +235,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 		abContainer.add(new JButton(removeEntity));
 		entityManagerPanel.add(abContainer,BorderLayout.NORTH);
 
-        entityTree = new EntityTreePanel(this,true);
+        entityTree = new EntityTreePanel(true);
         entityTree.addEntityTreePanelListener(new EntityTreePanelListener() {
     		@Override
     		public void entityTreePanelEvent(EntityTreePanelEvent e) {
@@ -460,7 +460,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	}
 
 	public void updateEntityTree() {
-    	entityTree.update();
+    	entityTree.update(scene);
     }
     
     /**
