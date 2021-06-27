@@ -52,6 +52,9 @@ public class Sixi3IK extends Sixi3FK {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
+		
+		// move arm towards result to get future pose
+		gradientDescent(eeTarget.getPose(),30, threshold.get(), stepSize.get(), learningRate.get());
 	}
 
 	@Override
