@@ -53,8 +53,10 @@ Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-
 
 * Goto https://github.com/MarginallyClever/Robot-Overlord-App/
 * Fownload this zip file: https://github.com/MarginallyClever/Robot-Overlord-App/archive/refs/heads/master.zip and extract it.  Note the folder for later.
-* In Eclipse. Fo to File > Import > Maven > Existing Maven Projects > Next > (folder from previous step) > Finish
-* If you see the "Weldome!" tab, close it.
+* Open Eclipse.  If you see the "Welcome!" tab, close it.
+* Go to File > Import > Maven > Existing Maven Projects > Next > (folder from previous step) > Finish
+* Go to Window > Show View > Package Explorer
+* Right click on "Robot Overlord" in Package Explorer view and select > Maven > Update Project
 * select Run > Debug As > Java Application
 * select "Robot Overlord - com.marginallyclever.robotOverlord.RobotOverlord" and click OK.
 * Wait while the progress bar in the bottom right fills up.  This is a one time thing.
