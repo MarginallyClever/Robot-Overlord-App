@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.marginallyclever</groupId>
-	<artifactId>Robot-Overlord</artifactId>
+	<artifactId>RobotOverlord</artifactId>
 	<version>1.7.0</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots. 
@@ -64,19 +64,19 @@
 	</developers>
 
 	<build>
-		<sourceDirectory>src/main/java</sourceDirectory>
+		<sourceDirectory>${project.basedir}/src/main</sourceDirectory>
 		<!-- See: http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html 
 			and http://stackoverflow.com/a/3697482 -->
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
+				<directory>${project.basedir}/src/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
 					<include>**/*.properties</include>
 				</includes>
 			</resource>
 			<resource>
-				<directory>src/main/resources</directory>
+				<directory>${project.basedir}/src/main/resources</directory>
 				<filtering>false</filtering>
 				<excludes>
 					<exclude>**/*.properties</exclude>
@@ -290,15 +290,13 @@
 			-->
 		</dependency>
 		
-		<!--
 		<dependency>
-		 	<groupId>org.jogamp.fat</groupId>
-		  	<artifactId>jogamp-fat</artifactId> 
-			<version>2.4.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/local-maven-repo/jogamp-fat-2.4.0.jar</systemPath> 
-		</dependency> -->
+			<groupId>org.jogamp.fat</groupId>
+			<artifactId>jogamp-fat</artifactId>
+			<version>2.4.0-rc-20200307</version>
+		</dependency>
 		
+		<!--
 		<dependency>
 			<groupId>org.jogamp.gluegen</groupId>
 			<artifactId>gluegen-rt-main</artifactId>
@@ -309,13 +307,15 @@
 			<groupId>org.jogamp.jogl</groupId>
 			<artifactId>jogl-all-main</artifactId>
 			<version>2.3.2</version>
-		</dependency>
-
+		</dependency> -->
+		
+		<!-- opencv -->
+<!--
 		<dependency>
 		    <groupId>org.bytedeco</groupId>
 		  	<artifactId>javacv-platform</artifactId>
 		  	<version>1.5.4</version>
-		</dependency>
+		</dependency> -->
 	
 		<!--  alt opencv 	
 	    <dependency>
@@ -359,7 +359,7 @@
 			<!-- <scope>test</scope> -->
 		</dependency>
 
-		<!-- used for some src/main/java/util/PreferencesHelper logging -->
+		<!-- used for some src/main/util/PreferencesHelper logging -->
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
 			<groupId>org.json</groupId>
@@ -433,7 +433,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minimum.maven.version>3.3.1</minimum.maven.version>
-		<minimum.java.version>1.8</minimum.java.version>
+		<minimum.java.version>15</minimum.java.version>
 		<jogl.version>2.4.0</jogl.version>
 		<jinput.version>2.0.7</jinput.version>
 		<maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>

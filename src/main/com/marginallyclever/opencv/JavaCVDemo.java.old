@@ -17,8 +17,7 @@ public class JavaCVDemo {
 
 	public JavaCVDemo() {}
 	
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
     	System.out.println("JavaCVDemo main() start");
 
     	String classifierName = null;
@@ -36,11 +35,11 @@ public class JavaCVDemo {
     	System.out.println("create classifier");
     	
         // We can "cast" Pointer objects by instantiating a new object of the desired class.
-        CascadeClassifier classifier = new CascadeClassifier(classifierName);/*
-        if (classifier == null) {
-            System.err.println("Error loading classifier file \"" + classifierName + "\".");
-            System.exit(1);
-        }*/
+        CascadeClassifier classifier = new CascadeClassifier(classifierName);
+        //if (classifier == null) {
+        //    System.err.println("Error loading classifier file \"" + classifierName + "\".");
+        //    System.exit(1);
+        //}
 
     	System.out.println("make grabber");
     	
@@ -171,8 +170,6 @@ public class JavaCVDemo {
     			opencv_calib3d.drawChessboardCorners(grabbedImage, boardSize, imageCorners, found);
     		}
     		
-    		
-    		/*
             // calculate optical flow?  Untested
             final Mat pGray = new Mat(), cGray = new Mat(), Optical_Flow = new Mat();
 
@@ -199,8 +196,7 @@ public class JavaCVDemo {
             }
             
             oldGray = grayImage.clone();
-            */
-    	}
+    	}*/
     }
 
 }

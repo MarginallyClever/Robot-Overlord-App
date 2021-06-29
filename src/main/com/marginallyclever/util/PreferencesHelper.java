@@ -281,6 +281,7 @@ public final class PreferencesHelper implements Serializable {
 	 * @param properties Properties to be logged.
 	 */
 	public static <P extends Properties> void logPropertiesNode(P properties) {
+		
 		final JSONObject jsonObject = Property.toJSONObject(properties);
 		Log.message( jsonObject.toString());
 	}
