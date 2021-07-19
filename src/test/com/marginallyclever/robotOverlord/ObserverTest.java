@@ -76,7 +76,7 @@ public class ObserverTest extends JPanel {
 		JButton buttonSub = new JButton("-");
 		JLabel label = new JLabel();
 		
-		public ObservingField(ObservableModel mod) {
+		public ObservingField(final ObservableModel mod) {
 			setLayout(new BorderLayout());
 			this.mod=mod;
 			field = new JSlider(mod.min,mod.max,mod.getValue());
@@ -105,7 +105,7 @@ public class ObserverTest extends JPanel {
 		
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			int v = (int)evt.getNewValue();
+			int v = (Integer)evt.getNewValue();
 			System.out.println("update("+v+")");
 			field.setValue(v);
 			label.setText(Integer.toString(v));

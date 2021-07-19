@@ -79,7 +79,7 @@ public class ObserverTest3 extends JPanel {
 		JTextField label = new JTextField();
 		ReentrantLock lock = new ReentrantLock(); 
 		
-		public ObservingField(ObservableModel mod) {
+		public ObservingField(final ObservableModel mod) {
 			setLayout(new BorderLayout());
 			this.mod=mod;
 			field = new JSlider(mod.min,mod.max,mod.getValue());
@@ -88,14 +88,12 @@ public class ObserverTest3 extends JPanel {
 			label.getDocument().addDocumentListener(this);
 
 			buttonAdd.addActionListener(new ActionListener() {
-				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					mod.setValue(mod.getValue()+10);
 				}
 			});
 			
 			buttonSub.addActionListener(new ActionListener() {
-				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					mod.setValue(mod.getValue()-10);
 				}
@@ -107,9 +105,8 @@ public class ObserverTest3 extends JPanel {
 			add(label,BorderLayout.PAGE_END);
 		}
 		
-		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			int v = (int)evt.getNewValue();
+			int v = (Integer)evt.getNewValue();
 			System.out.println("update("+v+")");
 			field.setValue(v);
 
@@ -119,7 +116,6 @@ public class ObserverTest3 extends JPanel {
 			lock.unlock();
 		}
 
-		@Override
 		public void stateChanged(ChangeEvent e) {
 			System.out.println("actionPerformed("+field.getValue()+")");
 			mod.setValue(field.getValue());
@@ -139,20 +135,14 @@ public class ObserverTest3 extends JPanel {
 			lock.unlock();
 		}
 		
-		// jtextfield changed
-		@Override
 		public void changedUpdate(DocumentEvent arg0) {
 			doSomething();
 		}
 
-		// jtextfield changed
-		@Override
 		public void insertUpdate(DocumentEvent arg0) {
 			doSomething();
 		}
 
-		// jtextfield changed
-		@Override
 		public void removeUpdate(DocumentEvent arg0) {
 			doSomething();
 		}

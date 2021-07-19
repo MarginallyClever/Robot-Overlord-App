@@ -32,7 +32,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	private static final long serialVersionUID = 1L;
 
 	protected Entity root;  // root of entity tree
-	protected ArrayList<Entity> selected = new ArrayList<>();
+	protected ArrayList<Entity> selected = new ArrayList<Entity>();
 	
     protected EntityTreeNode oldTop; 
 	protected JTree oldTree;
@@ -186,10 +186,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	}
 
 	// TreeSelectionListener event
-	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
-		ArrayList<Entity> added = new ArrayList<>();
-		ArrayList<Entity> removed = new ArrayList<>();
+		ArrayList<Entity> added = new ArrayList<Entity>();
+		ArrayList<Entity> removed = new ArrayList<Entity>();
 		
 		for(TreePath p : arg0.getPaths()) {
 			EntityTreeNode node = (EntityTreeNode)p.getLastPathComponent();

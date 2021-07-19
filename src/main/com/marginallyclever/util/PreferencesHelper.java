@@ -75,7 +75,7 @@ public final class PreferencesHelper implements Serializable {
 	 * See <a href="http://stackoverflow.com/a/507658">How can I Initialize a static Map?</a>
 	 */
 	static {
-		final Map<MakelangeloPreferenceKey, ? super Preferences> initialMap = new HashMap<>();
+		final Map<MakelangeloPreferenceKey, ? super Preferences> initialMap = new HashMap<MakelangeloPreferenceKey, Preferences>();
 		final Preferences userRootPreferencesNode = MarginallyCleverPreferences.userRoot();
 		//FIXME write unit test/tool to view import/export machine configurations.
 		//final Preferences makelangeloPreferenceNode = userRootPreferencesNode.node(MAKELANGELO_ROOT_PATH_NAME);

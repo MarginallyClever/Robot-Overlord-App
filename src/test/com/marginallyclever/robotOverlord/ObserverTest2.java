@@ -68,11 +68,10 @@ public class ObserverTest2 extends JPanel {
 			addActionListener(this);
 		}
 
-		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			Object arg1 = evt.getNewValue();
 			System.out.println("update("+arg1+")");
-			setSelected((boolean)arg1);
+			setSelected((Boolean)arg1);
 		}
 
 		@Override
@@ -95,7 +94,7 @@ public class ObserverTest2 extends JPanel {
 		gbc.insets.right =5; 
 		gbc.insets.bottom=5; 
 
-		ObservableModel mod = new ObservableModel();
+		final ObservableModel mod = new ObservableModel();
 		ObservingField obs = new ObservingField(mod);
 		
 		add(obs,gbc);
@@ -105,7 +104,6 @@ public class ObserverTest2 extends JPanel {
 		
 		JButton thirdParty = new JButton("3rd party");
 		thirdParty.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				mod.setState(!mod.isState());

@@ -31,7 +31,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
  *
  */
 public class ViewPanel extends ViewElement {
-	public Hashtable<String,Object> viewElements = new Hashtable<>();
+	public Hashtable<String,Object> viewElements = new Hashtable<String, Object>();
 	
 	protected class StackElement {
 		public JComponent p;

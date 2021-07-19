@@ -161,9 +161,8 @@ public class DHBuilderApp extends DHRobotModel {
 	public void getView(ViewPanel view) {
 		view.pushStack("BA", "Builder App");
 		
-		ViewElementButton bindButton = (ViewElementButton)view.addButton(inTest ? "Stop test":"Start test");
+		final ViewElementButton bindButton = (ViewElementButton)view.addButton(inTest ? "Stop test":"Start test");
 		bindButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if(!inTest) {
 					testStart();
@@ -177,9 +176,8 @@ public class DHBuilderApp extends DHRobotModel {
 			}
 		});
 
-		ViewElement lockButton = view.addButton("Lock");
+		final ViewElement lockButton = view.addButton("Lock");
 		lockButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				for(int i=0;i<links.size();++i) {
 					DHLink bone=links.get(i);
@@ -190,7 +188,6 @@ public class DHBuilderApp extends DHRobotModel {
 		
 		ViewElement saveButton = view.addButton("Save");
 		saveButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				//private static 
 				RobotOverlord ro = (RobotOverlord)getRoot();
@@ -207,7 +204,6 @@ public class DHBuilderApp extends DHRobotModel {
 
 		ViewElement loadButton = view.addButton("Load");
 		loadButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				//private static 
 				RobotOverlord ro = (RobotOverlord)getRoot();
@@ -231,9 +227,6 @@ public class DHBuilderApp extends DHRobotModel {
 	}
 	
 	static public class MinimalRecord implements Serializable {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 2689287169771077750L;
 		
 		protected double t=0,a=0,d=0,r=0,rmax=90,rmin=-90;

@@ -72,7 +72,7 @@ public final class Translator {
 	/**
 	 * a list of all languages and their translations strings
 	 */
-	private static final Map<String, TranslatorLanguage> languages = new HashMap<>();
+	private static final Map<String, TranslatorLanguage> languages = new HashMap<String, TranslatorLanguage>();
 
 	/**
 	 *
@@ -98,7 +98,7 @@ public final class Translator {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		final String[] languageList = getLanguageList();
-		final JComboBox<String> languageOptions = new JComboBox<>(languageList);
+		final JComboBox<String> languageOptions = new JComboBox<String>(languageList);
 		int currentIndex = getCurrentLanguageIndex();
 		languageOptions.setSelectedIndex(currentIndex);
 

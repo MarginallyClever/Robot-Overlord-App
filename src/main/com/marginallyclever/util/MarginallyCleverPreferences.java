@@ -67,8 +67,8 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
   public MarginallyCleverPreferences(AbstractPreferences parent, String name) {
     super(parent, name);
     Log.message("Instantiating node "+ name);
-    root = new TreeMap<>();
-    children = new TreeMap<>();
+    root = new TreeMap<String, String>();
+    children = new TreeMap<String, Preferences>();
     try {
       sync();
     } catch (BackingStoreException e) {
@@ -155,7 +155,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
     final Method declaredMethod = AbstractPreferences.class.getDeclaredMethod("isRemoved");
     declaredMethod.setAccessible(true);
     Object isRemoved = declaredMethod.invoke(abstractPreference, new Object[]{null});
-    return (boolean) isRemoved;
+    return (Boolean) isRemoved;
   }
 
   @Override
@@ -210,7 +210,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
             p.load(fileInputStream);
           }
 
-          final List<String> toRemove = new ArrayList<>();
+          final List<String> toRemove = new ArrayList<String>();
 
           // Make a list of all direct children of this node to be removed
           final Enumeration<?> pnen = p.propertyNames();
@@ -292,12 +292,12 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
 
   @Override
   public Map<String, Preferences> getChildren() {
-    return new TreeMap<>(children);
+    return new TreeMap<String, Preferences>(children);
   }
 
   @Override
   public Map<String, String> getRoot() {
-    return new TreeMap<>(root);
+    return new TreeMap<String, String>(root);
   }
 
 }

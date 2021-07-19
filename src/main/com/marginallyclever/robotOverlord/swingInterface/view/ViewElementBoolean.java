@@ -24,7 +24,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
 	private JCheckBox field;
 	
-	public ViewElementBoolean(RobotOverlord ro,BooleanEntity e) {
+	public ViewElementBoolean(final RobotOverlord ro,final BooleanEntity e) {
 		super(ro);
 		
 		e.addPropertyChangeListener(this);
@@ -34,8 +34,6 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 		field.setBorder(new EmptyBorder(0,0,0,0));
 		field.addFocusListener(this);
 		field.addItemListener(new ItemListener() {
-			// the panel element has changed.  poke the entity.
-			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				boolean newValue = field.isSelected();
 				if(e.get()!=newValue) {
@@ -53,11 +51,6 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 		panel.add(field,BorderLayout.LINE_END);
 	}
 	
-
-	/**
-	 * entity we are observing has changed.  poke the panel element.
-	 */
-	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		Object o = evt.getSource();
 		if(o instanceof BooleanEntity) {

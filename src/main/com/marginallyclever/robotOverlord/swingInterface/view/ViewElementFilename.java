@@ -35,7 +35,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
 	private StringEntity e;
 	
-	public ViewElementFilename(RobotOverlord ro,StringEntity e) {
+	public ViewElementFilename(RobotOverlord ro,final StringEntity e) {
 		super(ro);
 		this.e=e;
 		
@@ -72,17 +72,12 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		panel.add(choose,gbc);
 		
 		e.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				field.setText(e.get());
 			}
 		});
 	}
 
-	/**
-	 * Panel action, update entity
-	 */
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		JFileChooser chooser = new JFileChooser();
 		if(filters.size()==0) return;  // @TODO: fail!

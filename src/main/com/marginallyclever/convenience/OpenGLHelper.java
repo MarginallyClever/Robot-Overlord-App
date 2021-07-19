@@ -32,4 +32,10 @@ public class OpenGLHelper {
 		gl2.glLineWidth(newWidth);
 		return lineWidth.get(0);
 	}
+	
+	static public double [] getCurrentColor(GL2 gl2) {
+		double [] rgba = new double[4];
+		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, rgba, 0);
+		return rgba;
+	}
 }
