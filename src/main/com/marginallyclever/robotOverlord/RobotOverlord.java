@@ -44,6 +44,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.SixiDemo;
 import com.marginallyclever.robotOverlord.demos.SkycamDemo;
 import com.marginallyclever.robotOverlord.demos.StewartPlatformDemo;
@@ -440,6 +441,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 		menu.add(new JMenuItem(new DemoAction(this,new SixiDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new StewartPlatformDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new DogDemo())));
         mainMenu.add(menu);
 		
         menu = new JMenu("Edit");

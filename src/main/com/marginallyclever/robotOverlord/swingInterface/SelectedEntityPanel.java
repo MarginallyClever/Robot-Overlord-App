@@ -35,7 +35,8 @@ public class SelectedEntityPanel extends JPanel {
 				ViewPanel [] panels = new ViewPanel[size];
 				for( int i=0;i<size;++i) {
 					panels[i] = new ViewPanel(ro);
-					entityList.get(i).getView(panels[i]);
+					Entity e = entityList.get(i);
+					if(e != null) e.getView(panels[i]);
 				}
 				
 				// keep the first panel.
