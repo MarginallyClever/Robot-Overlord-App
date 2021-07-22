@@ -46,6 +46,10 @@ public class Sixi3Bone {
 		shape = new Shape(shapeFilename);
 	}
 	
+	public void setAngleWRTLimits(double newAngle) {
+		theta=Math.max(Math.min(newAngle,angleMax),angleMin);
+	}
+	
 	public void updateMatrix() {
 		assert(!Double.isNaN(theta));
 		assert(!Double.isNaN(alpha));
