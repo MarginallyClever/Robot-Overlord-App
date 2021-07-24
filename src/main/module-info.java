@@ -12,11 +12,11 @@ module com.marginallyclever.robotOverlord {
 	requires com.fasterxml.jackson.annotation;
 	requires com.fasterxml.jackson.databind;
 	requires org.json;
+	requires org.slf4j;
 	requires vecmath;
 	requires jsch;
 	requires jinput;
 	requires jogamp.fat;
-	requires slf4j.api;
 	requires annotations;
 	requires jssc;
 	
