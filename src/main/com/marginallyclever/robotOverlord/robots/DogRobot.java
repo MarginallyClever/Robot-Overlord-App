@@ -58,10 +58,20 @@ public class DogRobot extends PoseEntity {
 			legAngles[2]=elbow.theta;
 			legAngles[3]=foot.theta;
 		}
+		
+		public void render(GL2 gl2) {
+			gl2.glPushMatrix();
+			drawLineTo(gl2,shoulderA.pose,255,  0,  0);
+			drawLineTo(gl2,shoulderB.pose,  0,  0,  0);
+			drawLineTo(gl2,elbow.pose    ,  0,255,  0);
+			drawLineTo(gl2,foot.pose     ,  0,  0,255);
+			gl2.glPopMatrix();
+		}
 	};
 	
 	private DogLeg [] legs = new DogLeg[4];
 	private MaterialEntity mat = new MaterialEntity();
+	private MaterialEntity mat2 = new MaterialEntity();
 
 	private double leftForce = 0;
 	private double forwardForce = 0;
@@ -79,30 +89,36 @@ public class DogRobot extends PoseEntity {
 		setDHParameters();
 		
 		mat.setLit(true);
+		mat2.setLit(true);
+		mat2.setDiffuseColor(1,0,0,1);
 	}
 	
 	private void setDHParameters() {
 		// robot faces +Z
 		// r d a t min max file
-		legs[0].shoulderA.set( BODY_WIDTH/2, BODY_HEIGHT/2, 0, 0, 360, -360, "");
-		legs[0].shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		legs[0].elbow    .set(11.5, 0, 0, -45, 360, -360, "");
-		legs[0].foot     .set(13, 0, 0,  90, 360, -360, "");
+		int i=0;
+		legs[i].shoulderA.set( BODY_WIDTH/2, BODY_HEIGHT/2, 0, 0, 360, -360, "");
+		legs[i].shoulderB.set(0, 0, 90, -90, 360, -360, "");
+		legs[i].elbow    .set(11.5, 0, 0, -45, 0, -360, "");
+		legs[i].foot     .set(13, 0, 0,  90, 360, -360, "");
+		i++;
 
-		legs[1].shoulderA.set(-BODY_WIDTH/2, BODY_HEIGHT/2, 0, 0, 360, -360, "");
-		legs[1].shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		legs[1].elbow    .set(11.5, 0, 0, -45, 360, -360, "");
-		legs[1].foot     .set(13, 0, 0,  90, 360, -360, "");
+		legs[i].shoulderA.set(-BODY_WIDTH/2, BODY_HEIGHT/2, 0, 0, 360, -360, "");
+		legs[i].shoulderB.set(0, 0, 90, -90, 360, -360, "");
+		legs[i].elbow    .set(11.5, 0, 0, -45, 0, -360, "");
+		legs[i].foot     .set(13, 0, 0,  90, 360, -360, "");
+		i++;
 
-		legs[2].shoulderA.set(-BODY_WIDTH/2,-BODY_HEIGHT/2, 0, 0, 360, -360, "");
-		legs[2].shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		legs[2].elbow    .set(11.5, 0, 0, -45, 360, -360, "");
-		legs[2].foot     .set(13, 0, 0,  90, 360, -360, "");
+		legs[i].shoulderA.set(-BODY_WIDTH/2,-BODY_HEIGHT/2, 0, 0, 360, -360, "");
+		legs[i].shoulderB.set(0, 0, 90, -90, 360, -360, "");
+		legs[i].elbow    .set(11.5, 0, 0, -45, 0, -360, "");
+		legs[i].foot     .set(13, 0, 0,  90, 360, -360, "");
+		i++;
 
-		legs[3].shoulderA.set( BODY_WIDTH/2,-BODY_HEIGHT/2, 0, 0, 360, -360, "");
-		legs[3].shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		legs[3].elbow    .set(11.5, 0, 0, -45, 360, -360, "");
-		legs[3].foot     .set(13, 0, 0,  90, 360, -360, "");
+		legs[i].shoulderA.set( BODY_WIDTH/2,-BODY_HEIGHT/2, 0, 0, 360, -360, "");
+		legs[i].shoulderB.set(0, 0, 90, -90, 360, -360, "");
+		legs[i].elbow    .set(11.5, 0, 0, -45, 0, -360, "");
+		legs[i].foot     .set(13, 0, 0,  90, 360, -360, "");
 		
 		for( DogLeg leg : legs ) {
 			updateLegMatrixes(leg);
@@ -208,6 +224,7 @@ public class DogRobot extends PoseEntity {
 	}
 
 
+	// @return the distance from the {@code DogLeg.toe} to the {@code DogLeg.toeTarget}
 	private double scoreLeg(DogLeg leg,double [] angles) {
 		setLegToAngles(leg,angles);
 		Vector3d fp = new Vector3d();
@@ -230,8 +247,13 @@ public class DogRobot extends PoseEntity {
 		
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, pose);
-		
-		// torso
+		drawTorso(gl2);
+		drawLegs(gl2);
+		gl2.glPopMatrix();
+	}
+
+	
+	private void drawTorso(GL2 gl2) {
 		double scale = 0.99;
 		double width = (BODY_WIDTH/2)*scale;
 		double height = (BODY_HEIGHT/2)*scale;
@@ -239,26 +261,16 @@ public class DogRobot extends PoseEntity {
 		PrimitiveSolids.drawBox(gl2, 
 			new Point3d(-width,-length,-height),
 			new Point3d( width, length, height));
-		
-		// legs
-		boolean flag = OpenGLHelper.disableLightingStart(gl2);	
-		for( DogLeg leg : legs ) drawLeg(gl2,leg);
-		OpenGLHelper.disableLightingEnd(gl2, flag);
-
-		gl2.glPopMatrix();
-	}
-
-
-	private void drawLeg(GL2 gl2, DogLeg leg) {
-		gl2.glPushMatrix();
-		drawLineTo(gl2,leg.shoulderA.pose,255,  0,  0);
-		drawLineTo(gl2,leg.shoulderB.pose,  0,  0,  0);
-		drawLineTo(gl2,leg.elbow.pose    ,  0,255,  0);
-		drawLineTo(gl2,leg.foot.pose     ,  0,  0,255);
-		gl2.glPopMatrix();
 	}
 
 	
+	private void drawLegs(GL2 gl2) {
+		boolean flag = OpenGLHelper.disableLightingStart(gl2);	
+		for( DogLeg leg : legs ) leg.render(gl2);
+		OpenGLHelper.disableLightingEnd(gl2, flag);
+	}
+	
+
 	private void updateLegMatrixes(DogLeg leg) {
 		leg.shoulderA.updateMatrix();
 		leg.shoulderB.updateMatrix();
@@ -282,63 +294,118 @@ public class DogRobot extends PoseEntity {
 
 
 	private Matrix4d getWorldMatrixOfToe(DogLeg leg) {
-		Matrix4d m = new Matrix4d();
-		m.set(getPose());
+		Matrix4d m = getPose();
 		m.mul(leg.shoulderA.pose);
 		m.mul(leg.shoulderB.pose);
 		m.mul(leg.elbow.pose);
 		m.mul(leg.foot.pose);
 		return m;
 	}
+	
 
 	private void walk2() {
-		double t = System.currentTimeMillis()*0.0025;
+		double t = System.currentTimeMillis()*0.001;
 
-		Matrix4d myPose = getPose();
-		
-		Vector3d wLeft = MatrixHelper.getXAxis(myPose);
-		Vector3d wForward = MatrixHelper.getZAxis(myPose);
-		
-		wLeft.scale(leftForce);
-		wForward.scale(forwardForce);
-		Vector3d forward = new Vector3d();
-		forward.add(wLeft,wForward);
-		
-		if(leftForce!=0 && forwardForce!=0) forward.normalize();
-		
-		Vector3d f2 = new Vector3d();
-		Vector3d worldUp = new Vector3d(0,0,1);
-		
+		Vector3d toward = getDesiredDirectionOfBody();
+		Vector3d push = new Vector3d();
+		double feetOnFloor=0;
+
+		int i=0;
 		for( DogLeg leg : legs ) {
-			Vector3d fp = dropShoulderToFloor(leg);
-			Vector3d v1 = centerToShoulderOnXYPlane(leg);
-			Vector3d crossProduct = new Vector3d();
-			crossProduct.cross(v1, worldUp);
-			crossProduct.normalize();
-			crossProduct.scale(turnForce);
+			Vector3d f2 = getDesiredDirectionOfOneLeg(toward,leg);
 			
-			// find point in that circle that makes a good gait
-			double as = Math.max(0,-Math.sin(t));
-			double ac = Math.cos(t);
-			t+=Math.PI*0.75;
+			// step in the desired direction
+			double as = Math.max(0,-Math.sin(t+i*Math.PI/2));
+			double ac = Math.cos(t+i*Math.PI/2);
+			i++;
 			
-			f2.add(forward,crossProduct);
-			if(f2.lengthSquared()>0) {
-				f2.normalize();
+			//if(f2.lengthSquared()>0)
+			{
 				f2.scale(STEP_LENGTH*ac);
 				f2.z+= as*STEP_HEIGHT;
 			}
-			System.out.println(f2.toString());
+			//System.out.println(f2.toString());
+			
 			// remember the point for later
-			leg.toeTarget2.add(f2,fp);
+			Vector3d fp = getPointOnFloorUnderShoulder(leg);
+			Vector3d target = new Vector3d();
+			target.add(f2,fp);
+			boolean applyFriction=false;
+			if(applyFriction) {
+				if(f2.z<=0.001 && leg.toeTarget2.z<0.001) {
+					feetOnFloor++;
+					//target.sub(leg.toeTarget2);
+					target.scale(0.001);
+					push.add(target);
+				}
+			} else {
+				leg.toeTarget2.set(target);
+			}
+		}
+		
+		if(feetOnFloor>0) {
+			push.scale(1.0/feetOnFloor);
+			moveBodyToMatchFeet(push);
 		}
 	}
+	
+	private void moveBodyToMatchFeet(Vector3d push) {
+		// move the body to match the feet
+		Matrix4d wp = new Matrix4d();
+		Matrix4d wp2 = new Matrix4d();
+		getPoseWorld(wp);
+		wp2.set(wp);
+		
+		Vector3d p = MatrixHelper.getPosition(wp);
+		p.add(push);
+		MatrixHelper.setPosition(wp2, new Vector3d(0,0,0));
+		
+		//Matrix4d rz = new Matrix4d();
+		//rz.rotZ(-turnForce);
+		//wp.mul(rz);
+		
+		MatrixHelper.setPosition(wp2, p);
+		
+		setPoseWorld(wp2);
+	}
+	
+	
+	private Vector3d getDesiredDirectionOfOneLeg(final Vector3d bodyToward,DogLeg leg) {
+		Vector3d f2 = new Vector3d();
+		
+		Vector3d worldUp = new Vector3d(0,0,1);
+		Vector3d v1 = getCenterToShoulderOnXYPlane(leg);
+		Vector3d crossProduct = new Vector3d();
+		crossProduct.cross(v1, worldUp);
+		crossProduct.normalize();
+		crossProduct.scale(turnForce);
+		f2.add(bodyToward,crossProduct);
+
+		if(f2.lengthSquared()>0) f2.normalize();
+		
+		return f2;
+	}
+	
+
+	private Vector3d getDesiredDirectionOfBody() {
+		Vector3d forward = new Vector3d();
+		
+		Matrix4d myPose = getPose();
+		Vector3d wLeft = MatrixHelper.getXAxis(myPose);
+		Vector3d wForward = MatrixHelper.getZAxis(myPose);
+		wLeft.scale(leftForce);
+		wForward.scale(forwardForce);
+		forward.add(wLeft,wForward);
+		if(leftForce!=0 && forwardForce!=0) forward.normalize();
+		
+		return forward;
+	}
+
 	
 	private void moveToeTargetsSmoothly(double dt) {
 		dt *= 0.25;
 		dt = Math.max(Math.min(dt, 1), 0);
 
-		// move 
 		Vector3d v = new Vector3d();
 		for( DogLeg leg : legs ) {
 			v.sub(leg.toeTarget2,leg.toeTarget);
@@ -348,17 +415,18 @@ public class DogRobot extends PoseEntity {
 	}
 
 	
-	private Vector3d centerToShoulderOnXYPlane(DogLeg leg) {
-		Vector3d v1 = dropShoulderToFloor(leg);
+	private Vector3d getCenterToShoulderOnXYPlane(DogLeg leg) {
+		Vector3d v1 = getPointOnFloorUnderShoulder(leg);
 		Vector3d v0 = MatrixHelper.getPosition(getPose());
 		v0.z=0;
 		v1.sub(v0);
+		v1.normalize();
 		
 		return v1;
 	}
 
 	
-	private Vector3d dropShoulderToFloor(DogLeg leg) {
+	private Vector3d getPointOnFloorUnderShoulder(DogLeg leg) {
 		Matrix4d m = new Matrix4d();
 		m.set(getPose());
 		m.mul(leg.shoulderA.pose);
@@ -371,15 +439,15 @@ public class DogRobot extends PoseEntity {
 
 	
 	@SuppressWarnings("unused")
-	private void drawAllShoulderFloorCircles(GL2 gl2) {
+	private void drawFloorCirclesUnderEachShoulder(GL2 gl2) {
 		for( DogLeg leg : legs ) {
-			Vector3d fp = dropShoulderToFloor(leg);
-			drawShoulderFloorCircle(gl2,fp);
+			Vector3d fp = getPointOnFloorUnderShoulder(leg);
+			drawFloorCircleUnderOneShoulder(gl2,fp);
 		}
 	}
 
 
-	private void drawShoulderFloorCircle(GL2 gl2, Vector3d fp) {
+	private void drawFloorCircleUnderOneShoulder(GL2 gl2, Vector3d fp) {
 		gl2.glPushMatrix();
 		gl2.glTranslated(fp.x,fp.y,fp.z);
 		PrimitiveSolids.drawCircleXY(gl2, 5, 20);
@@ -389,13 +457,17 @@ public class DogRobot extends PoseEntity {
 
 	@SuppressWarnings("unused")
 	private void drawToeTarget(GL2 gl2) {
-		gl2.glColor3d(1, 0, 0);
 		for( DogLeg leg : legs ) {
 			gl2.glPushMatrix();
 			gl2.glTranslated(leg.toeTarget.x, leg.toeTarget.y, leg.toeTarget.z);
+
+			if(leg.toeTarget.z<0.1) mat2.render(gl2);
+			else mat.render(gl2);
+			
 			PrimitiveSolids.drawSphere(gl2, 0.5);
 			gl2.glPopMatrix();
 		}
+		mat.render(gl2);
 	}
 
 
@@ -404,33 +476,15 @@ public class DogRobot extends PoseEntity {
 		setDHParameters();
 		
 		double t = System.currentTimeMillis()*0.0025;
-		double as = Math.toDegrees(Math.sin(t));
-		double ac = Math.toDegrees(Math.cos(t));
-
-		legs[0].elbow.theta += as/4;
-		legs[0].foot.theta += ac/4;
-		updateLegMatrixes(legs[0]);
-
-		t+=Math.PI/2;
-		as = Math.toDegrees(Math.sin(t));
-		ac = Math.toDegrees(Math.cos(t));
-		legs[1].elbow.theta += as/4;
-		legs[1].foot.theta += ac/4;
-		updateLegMatrixes(legs[1]);
-
-		t+=Math.PI/2;
-		as = Math.toDegrees(Math.sin(t));
-		ac = Math.toDegrees(Math.cos(t));
-		legs[2].elbow.theta += as/4;
-		legs[2].foot.theta += ac/4;
-		updateLegMatrixes(legs[2]);
-
-		t+=Math.PI/2;
-		as = Math.toDegrees(Math.sin(t));
-		ac = Math.toDegrees(Math.cos(t));
-		legs[3].elbow.theta += as/4;
-		legs[3].foot.theta += ac/4;
-		updateLegMatrixes(legs[3]);
+		
+		for(int i=0;i<4;++i) {
+			double as = Math.toDegrees(Math.sin(t));
+			double ac = Math.toDegrees(Math.cos(t));
+			legs[i].elbow.theta += as/4;
+			legs[i].foot.theta += ac/4;
+			updateLegMatrixes(legs[i]);
+			t+=Math.PI/2;
+		}
 	}
 
 
