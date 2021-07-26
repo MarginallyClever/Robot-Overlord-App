@@ -436,4 +436,12 @@ public class PrimitiveSolids {
 	static public void drawGrid(GL2 gl2) {
 		drawGrid(gl2,50,1);
 	}
+
+	public static void drawSphere(GL2 gl2, double radius, Vector3d p) {
+		gl2.glPushMatrix();
+		gl2.glTranslated(p.x,p.y,p.z);
+		drawSphere(gl2,radius);
+		gl2.glPopMatrix();
+		
+	}
 }
