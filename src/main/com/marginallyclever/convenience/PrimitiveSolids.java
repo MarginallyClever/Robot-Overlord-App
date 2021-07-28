@@ -327,6 +327,26 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 	}
 
+	public static Point3d[] get8PointsOfBox(Point3d bottom, Point3d top) {
+		double x0=bottom.x;
+		double y0=bottom.y;
+		double z0=bottom.z;
+		double x1=top.x;
+		double y1=top.y;
+		double z1=top.z;
+		
+		return new Point3d[] {
+			new Point3d(x0,y1,z0),
+			new Point3d(x0,y1,z1),
+			new Point3d(x0,y0,z0),
+			new Point3d(x0,y0,z1),
+			new Point3d(x1,y1,z1),
+			new Point3d(x1,y1,z0),
+			new Point3d(x1,y0,z1),
+			new Point3d(x1,y0,z0)
+		};
+	}
+
 	/**
 	 * draw box based on two corners
 	 * @param gl2
