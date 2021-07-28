@@ -6,7 +6,7 @@ import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Grid;
-import com.marginallyclever.robotOverlord.robots.DogRobot;
+import com.marginallyclever.robotOverlord.robots.dog.DogRobot;
 
 public class DogDemo implements Demo {
 	@Override

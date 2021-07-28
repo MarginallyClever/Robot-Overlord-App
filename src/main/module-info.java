@@ -36,7 +36,7 @@ module com.marginallyclever.robotOverlord {
 		com.marginallyclever.robotOverlord.demoAssets.Grid,
 		com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.Sixi2ChuckGripper,
 		com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.Sixi2LinearGripper,
-		com.marginallyclever.robotOverlord.robots.DogRobot;
+		com.marginallyclever.robotOverlord.robots.dog.DogRobot;
 	
 	uses ShapeLoadAndSave;
 	provides ShapeLoadAndSave with
