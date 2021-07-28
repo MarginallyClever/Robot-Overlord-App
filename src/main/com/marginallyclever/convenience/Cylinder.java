@@ -3,7 +3,7 @@ package com.marginallyclever.convenience;
 import javax.vecmath.Vector3d;
 
 
-public class Cylinder extends BoundingVolume {
+public class Cylinder implements BoundingVolume {
 	private Vector3d p1 = new Vector3d(0,0,0);
 	private Vector3d p2 = new Vector3d(0,0,0);
 	private Vector3d n = new Vector3d(0,0,0);

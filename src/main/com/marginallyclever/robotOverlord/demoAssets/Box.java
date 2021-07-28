@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.demoAssets;
 
-
-import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
@@ -17,6 +15,11 @@ import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
+/**
+ * {@code Box} can be turned any way in space.  {@code Cuboid} can only be aligned to world axies.
+ * @author aggra
+ *
+ */
 public class Box extends Shape implements Collidable {
 	/**
 	 * 
@@ -30,15 +33,14 @@ public class Box extends Shape implements Collidable {
 	private Cuboid cuboid = new Cuboid();
 	
 	public Box() {
-		super();
-		setName("Box");
+		super("Box");
 		addChild(width);
 		addChild(height);
 		addChild(depth);
 		
-		width.addPropertyChangeListener(this);
-		height.addPropertyChangeListener(this);
-		depth.addPropertyChangeListener(this);
+		width .addPropertyChangeListener((evt)->{  updateModel();  });
+		height.addPropertyChangeListener((evt)->{  updateModel();  });
+		depth .addPropertyChangeListener((evt)->{  updateModel();  });
 		
 		shape = new Mesh();
 	}
@@ -54,22 +56,14 @@ public class Box extends Shape implements Collidable {
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
-		updateModel();
-	}
-
-	@Override
 	public void updateCuboid() {
 		Point3d _boundBottom = new Point3d(-width.get()/2,-depth.get()/2,0           );
 		Point3d _boundTop    = new Point3d( width.get()/2, depth.get()/2,height.get());
 		cuboid.setBounds(_boundTop, _boundBottom);
 	}
 	
-	/**
-	 * Procedurally generate a list of triangles that form a box, subdivided by some amount.
-	 */
-	protected void updateModel() {
+	// Procedurally generate a list of triangles that form a box, subdivided by some amount.
+	private void updateModel() {
 		shape.clear();
 		shape.renderStyle=GL2.GL_TRIANGLES;
 		//shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
@@ -146,7 +140,7 @@ public class Box extends Shape implements Collidable {
 	 * @param xParts east/west divisions
 	 * @param yParts north/south divisions
 	 */
-	protected void addSubdividedPlane(Vector3d n,
+	private void addSubdividedPlane(Vector3d n,
 			Vector3d p0,
 			Vector3d p1,
 			Vector3d p2,
@@ -229,16 +223,16 @@ public class Box extends Shape implements Collidable {
 		depth.set(d);
 	}
 	
-	public double getWidth() { return width.get(); }
+	public double getWidth () { return width .get(); }
 	public double getHeight() { return height.get(); }
-	public double getDepth() { return depth.get(); }
+	public double getDepth () { return depth .get(); }
 
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Bx", "Box");
-		width.getView(view);
-		height.getView(view);
-		depth.getView(view);
+		view.add(width);
+		view.add(height);
+		view.add(depth);
 		view.popStack();
 		super.getView(view);
 	}

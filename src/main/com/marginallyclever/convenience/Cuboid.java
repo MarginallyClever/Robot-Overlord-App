@@ -10,11 +10,11 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 
 /**
- * 
+ * A box aligned to the world axies.  used for fast sorting and filtering.
  * @author Dan Royer
  * @since 2.1.0
  */
-public class Cuboid extends BoundingVolume implements Serializable {
+public class Cuboid implements BoundingVolume, Serializable {
 	/**
 	 * 
 	 */

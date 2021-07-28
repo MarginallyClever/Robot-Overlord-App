@@ -1,5 +1,5 @@
 package com.marginallyclever.convenience;
 
-public class BoundingVolume {
+public interface BoundingVolume {
 
 }
