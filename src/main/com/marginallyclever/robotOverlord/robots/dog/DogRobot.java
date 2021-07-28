@@ -75,41 +75,28 @@ public class DogRobot extends PoseEntity {
 
 	public void setDHParameters() {
 		// robot faces negative Z
-		int i=0;
 		double w = BODY_WIDTH/2;
 		double h = BODY_HEIGHT/2;
-		// r d a t min max file
-		legs[i].shoulderA.set(   w, h,  0,   0, 360, -360, "");
-		legs[i].shoulderB.set(   0, 0, 90, -90, 360, -360, "");
-		legs[i].elbow    .set(11.5, 0,  0, -45,   0, -180, "");
-		legs[i].foot     .set(  13, 0,  0,  90, 360, -360, "");
-		i++;
 
-		legs[i].shoulderA.set(  -w, h,  0,   0, 360, -360, "");
-		legs[i].shoulderB.set(   0, 0, 90, -90, 360, -360, "");
-		legs[i].elbow    .set(11.5, 0,  0, -45,   0, -180, "");
-		legs[i].foot     .set(  13, 0,  0,  90, 360, -360, "");
-		i++;
-
-		legs[i].shoulderA.set(  -w,-h,  0,   0, 360, -360, "");
-		legs[i].shoulderB.set(   0, 0, 90, -90, 360, -360, "");
-		legs[i].elbow    .set(11.5, 0,  0, -45,   0, -180, "");
-		legs[i].foot     .set(  13, 0,  0,  90, 360, -360, "");
-		i++;
-
-		legs[i].shoulderA.set(   w,-h,  0,   0, 360, -360, "");
-		legs[i].shoulderB.set(   0, 0, 90, -90, 360, -360, "");
-		legs[i].elbow    .set(11.5, 0,  0, -45,   0, -180, "");
-		legs[i].foot     .set(  13, 0,  0,  90, 360, -360, "");
-		
-		for( DogLeg leg : legs ) {
-			updateLegMatrixes(leg);
-			//leg.toeTarget2.set(leg.toe);
-			//leg.toeTarget.set(leg.toe);
-			leg.captureAngles(leg.idealStandingAngles);
-		}
+		int i=0;
+		setDHParametersForLeg(i++, w, h);
+		setDHParametersForLeg(i++,-w, h);
+		setDHParametersForLeg(i++,-w,-h);
+		setDHParametersForLeg(i++, w,-h);
 	}
 	
+	private void setDHParametersForLeg(int i, double r, double d) {
+		DogLeg leg = legs[i];
+		leg.shoulderA.set(   r, d,  0,   0, 360, -360, "");
+		leg.shoulderB.set(   0, 0, 90, -90, 360, -360, "");
+		leg.elbow    .set(11.5, 0,  0, -45,   0, -180, "");
+		leg.foot     .set(  13, 0,  0,  90, 360, -360, "");
+		updateLegMatrixes(leg);
+		leg.captureAngles(leg.idealStandingAngles);
+		//leg.toeTarget2.set(leg.toe);
+		//leg.toeTarget.set(leg.toe);
+	}
+
 	@Override
 	public void update(double dt) {
 		super.update(dt);
@@ -127,26 +114,36 @@ public class DogRobot extends PoseEntity {
 	}
 	
 	private void drawShadow(GL2 gl2) {
+		Vector3d [] p = getBoxCornersProjectedOnFloor();
+
 		ConvexShadow shadow = new ConvexShadow();
-		// add all 8 corners of the box, as projected on the ground.
+		for( Vector3d pN : p ) shadow.add(pN);
+		matShadow.setDiffuseColor(0, 0, 0, 0.4f);
+		matShadow.render(gl2);
+		shadow.renderAsFan(gl2);
+	}
+
+	private Vector3d[] getBoxCornersProjectedOnFloor() {
 		double width = (BODY_WIDTH/2)*bodyScale;
 		double height = (BODY_HEIGHT/2)*bodyScale;
 		double length = (BODY_LENGTH/2)*bodyScale;
 		Point3d [] p = PrimitiveSolids.get8PointsOfBox(
 							new Point3d(-width,-length,-height),
 							new Point3d( width, length, height));
+		Vector3d [] p2 = new Vector3d[8];
+		
 		Matrix4d m = new Matrix4d();
 		getPoseWorld(m);
+		
+		int i=0;
 		for( Point3d pN : p ) {
 			m.transform(pN);
 			Vector3d pT = new Vector3d(pN);
 			pT.z=0;
-			shadow.add(pT);
+			p2[i++]=pT;
 		}
 
-		matShadow.setDiffuseColor(0, 0, 0, 0.4f);
-		matShadow.render(gl2);
-		shadow.renderAsFan(gl2);
+		return p2;
 	}
 
 	public void setLegToAngles(DogLeg leg, double[] angles) {
