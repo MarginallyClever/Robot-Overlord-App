@@ -24,8 +24,7 @@ Steps to get started:
 
 1. Install The latest OpenJDK (java software)
 2. Install Eclipse (prorgramming interface)
-3. Install OpenCV
-4. Install Robot Overlord App
+3. Install Robot Overlord App
 
 Then you should be able to run the application.
 
@@ -44,11 +43,6 @@ Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest 
 * Download Eclipse IDE: https://www.eclipse.org/downloads/
 * install the latest.  
 * Choose "Eclipse IDE for Java developers"
-
-## Install OpenCV
-
-At this time there is no Maven repository that works for us.  You'll have to install OpenCV from source files.
-Please see https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-opencv-for-java.html for complete instructions.
 
 ## Install Robot Overlord App
 
