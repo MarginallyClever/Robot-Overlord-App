@@ -77,9 +77,7 @@ public class DHBuilderApp extends DHRobotModel {
 		endEffectorTarget.setName("End Effector Target");
 		addChild(endEffectorTarget);
 
-		Matrix4d m = new Matrix4d();
-		endEffector.getPoseWorld(m);
-		endEffectorTarget.setPoseWorld(m);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 		endEffectorTarget.addPropertyChangeListener(this);
 		
 		addChild(mat);
@@ -102,8 +100,7 @@ public class DHBuilderApp extends DHRobotModel {
 			if(showBones==true) {
 				Vector3d p0 = new Vector3d(0,0,0);
 				for( int i=0;i<BONE_NAMES.length;++i) {
-					Matrix4d m = new Matrix4d();
-					links.get(i).getPoseWorld(m);
+					Matrix4d m = links.get(i).getPoseWorld();
 					Vector3d p1 = MatrixHelper.getPosition(m);
 	
 					IntBuffer depthFunc = IntBuffer.allocate(1);
@@ -140,16 +137,12 @@ public class DHBuilderApp extends DHRobotModel {
 		
 		if(o==endEffectorTarget && eeLock==false) {
 			eeLock=true;
-			Matrix4d m = new Matrix4d();
-			endEffectorTarget.getPoseWorld(m);
-			this.setPoseIK(m);
+			this.setPoseIK(endEffectorTarget.getPoseWorld());
 			eeLock=false;
 		}
 		if(o==endEffector && eeLock==false) {
 			eeLock=true;
-			Matrix4d m = new Matrix4d();
-			endEffector.getPoseWorld(m);
-			endEffectorTarget.setPoseWorld(m);
+			endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 			eeLock=false;
 		}
 	}
@@ -400,17 +393,14 @@ public class DHBuilderApp extends DHRobotModel {
 			bone.refreshDHMatrix();
 			bone.shapeEntity.setModel(models[i].getModel());
 			bone.shapeEntity.setMaterial(models[i].getMaterial());
-			Matrix4d iWP = new Matrix4d();
-			bone.getPoseWorld(iWP);
+			Matrix4d iWP = bone.getPoseWorld();
 			iWP.invert();
 			bone.setShapeMatrix(iWP);
 			// only allow theta adjustments of DH parameters
 			bone.flags = LinkAdjust.THETA;
 		}
 
-		Matrix4d m = new Matrix4d();
-		endEffector.getPoseWorld(m);
-		endEffectorTarget.setPoseWorld(m);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 	
 	protected void testEnd() {
@@ -428,8 +418,6 @@ public class DHBuilderApp extends DHRobotModel {
 			// set all models back to world origin
 			bone.setShapeMatrix(identity);
 		}
-		Matrix4d m = new Matrix4d();
-		endEffector.getPoseWorld(m);
-		endEffectorTarget.setPoseWorld(m);
+		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 }

@@ -98,8 +98,7 @@ public class Light extends PoseEntity {
 		}
 		gl2.glEnable(i);
 		
-		Matrix4d poseWorld = new Matrix4d();
-		getPoseWorld(poseWorld);
+		Matrix4d poseWorld = getPoseWorld();
 		
 		position[0]=(float)poseWorld.m03;
 		position[1]=(float)poseWorld.m13;

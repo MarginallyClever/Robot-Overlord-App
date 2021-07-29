@@ -498,14 +498,14 @@ public class DHLink extends PoseEntity implements Collidable {
 	
 	@Override
 	public void setPoseWorld(Matrix4d newPose) {
-		Matrix4d newRelativePose = new Matrix4d();
+		Matrix4d newRelativePose; 
 		if(parent instanceof PoseEntity) {
 			PoseEntity pe = (PoseEntity)parent;
-			pe.getPoseWorld(newRelativePose);
+			newRelativePose = pe.getPoseWorld();
 			newRelativePose.invert();
 			newRelativePose.mul(newPose);
 		} else {
-			newRelativePose.set(newPose);
+			newRelativePose = new Matrix4d(newPose);
 		}
 		
 		setPose(newRelativePose);
@@ -520,8 +520,7 @@ public class DHLink extends PoseEntity implements Collidable {
 	public boolean canYouMoveTo(Matrix4d newWorldPose) {
 		if( parent instanceof DHLink || parent instanceof DHRobotModel ) {
 			if( !this.getLetter().isEmpty() ) {
-				Matrix4d oldPose = new Matrix4d();
-				getPoseWorld(oldPose);
+				Matrix4d oldPose = getPoseWorld();
 				// we have newPose ...but is it something this DHLink could do?
 				// For D-H links, the convention is that rotations are always around the Z axis.  the Z axis of each matrix should match.
 				// TODO Today this is the only case I care about. make it better later.
@@ -594,11 +593,10 @@ public class DHLink extends PoseEntity implements Collidable {
 	@Override
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = shapeEntity.getCuboidList();
-		Matrix4d m = new Matrix4d();
+		Matrix4d m = getPoseWorld();
 		Matrix4d m2 = new Matrix4d();
 		Matrix4d m3 = new Matrix4d();
-		getPoseWorld(m);
-		
+				
 		for( Cuboid c : list ) {
 			c.getPose(m2);
 			m3.mul(m,m2);

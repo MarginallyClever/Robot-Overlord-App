@@ -487,8 +487,7 @@ public class DeltaRobot3 extends RobotEntity {
 	
 	
 	Vector3d getWorldCoordinatesFor(Vector3d in) {
-		Matrix4d im = new Matrix4d();
-		getPoseWorld(im);
+		Matrix4d im = getPoseWorld();
 		im.invert();
 		Vector3d out = new Vector3d(in);
 		im.transform(out);				

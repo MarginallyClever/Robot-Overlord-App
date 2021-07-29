@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.demoAssets;
 
 import java.util.ArrayList;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -48,9 +47,7 @@ public class Box extends Shape implements Collidable {
 	@Override
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
-		Matrix4d m = new Matrix4d();
-		getPoseWorld(m);
-		cuboid.setPose(m);
+		cuboid.setPose(getPoseWorld());
 		list.add(cuboid);
 		return list;
 	}

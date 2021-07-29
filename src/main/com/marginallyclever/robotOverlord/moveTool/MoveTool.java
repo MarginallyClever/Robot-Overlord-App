@@ -135,8 +135,7 @@ public class MoveTool extends Entity {
 		Viewport cameraView = ro.viewport;
 		PoseEntity camera = cameraView.getAttachedTo();
 
-		Matrix4d subjectPoseWorld = new Matrix4d();
-		subject.getPoseWorld(subjectPoseWorld);
+		Matrix4d subjectPoseWorld = subject.getPoseWorld();
 		if(!isActivelyMoving()) {
 			checkChangeFrameOfReference();
 			
@@ -246,7 +245,7 @@ public class MoveTool extends Entity {
 			isActivelyMoving = true;
 			
 			pickPointSaved.set(pickPoint);
-			subject.getPoseWorld(startMatrix);
+			startMatrix = subject.getPoseWorld();
 			resultMatrix.set(startMatrix);
 			
 			valueStart=0;
@@ -296,7 +295,7 @@ public class MoveTool extends Entity {
 				pickPointOnBall = ray.getPoint(t0);
 
 				isActivelyMoving=true;
-				subject.getPoseWorld(startMatrix);
+				startMatrix = subject.getPoseWorld();
 				resultMatrix.set(startMatrix);
 				
 				Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
@@ -459,7 +458,7 @@ public class MoveTool extends Entity {
 
 		// rotations
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
-			subject.getPoseWorld(startMatrix);
+			startMatrix = subject.getPoseWorld();
 			resultMatrix.set(startMatrix);
 			valueStart =0;
 			valueLast=0;
@@ -496,7 +495,7 @@ public class MoveTool extends Entity {
 		
 		// translations
 		if( InputManager.isOn(InputManager.Source.STICK_X)) {
-			subject.getPoseWorld(startMatrix);
+			startMatrix = subject.getPoseWorld();
 			resultMatrix.set(startMatrix);
 			
 			for(int i=0; i <3; i++) {
@@ -621,8 +620,7 @@ public class MoveTool extends Entity {
 		PoseEntity camera = ro.viewport.getAttachedTo();
 		Matrix4d lookAt = new Matrix4d();
 
-		Matrix4d pw = new Matrix4d();
-		subject.getPoseWorld(pw);
+		Matrix4d pw = subject.getPoseWorld();
 		
 		Vector3d worldPosition = MatrixHelper.getPosition(pw);
 		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), worldPosition));
@@ -648,14 +646,12 @@ public class MoveTool extends Entity {
 	public void renderRotation(GL2 gl2) {
 		gl2.glPushMatrix();
 		
-		// camera forward is +z axis 
-		Matrix4d pw = new Matrix4d();
-		//subject.getPoseWorld(pw);
+		// camera forward is +z axis
+		//Matrix4d pw = subject.getPoseWorld(pw);
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.viewport.getAttachedTo();
-		
-		camera.getPoseWorld(pw);
+		PoseEntity camera = ro.viewport.getAttachedTo();		
+		Matrix4d pw = camera.getPoseWorld();
 		pw.m03=
 		pw.m13=
 		pw.m23=0;
@@ -787,8 +783,7 @@ public class MoveTool extends Entity {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		PoseEntity camera = ro.viewport.getAttachedTo();
 
-		Matrix4d pw = new Matrix4d();
-		subject.getPoseWorld(pw);
+		Matrix4d pw = subject.getPoseWorld();
 		Vector3d lookAtVector = MatrixHelper.getPosition(pw);
 		lookAtVector.sub(camera.getPosition());
 		lookAtVector.normalize();

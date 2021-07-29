@@ -143,8 +143,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
 			wasGripping=true;
-			Matrix4d poseWorld = new Matrix4d();
-			getPoseWorld(poseWorld);
+			Matrix4d poseWorld = getPoseWorld();
 			// grab release
 			if(subjectBeingHeld==null) {
 				//Log.message("Grab");

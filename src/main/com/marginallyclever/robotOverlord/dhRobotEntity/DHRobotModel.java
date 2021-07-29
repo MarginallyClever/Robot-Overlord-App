@@ -266,9 +266,7 @@ public class DHRobotModel extends Entity {
 	 * @return matrix of end effector.  matrix is relative to the robot origin.
 	 */
 	public Matrix4d getPoseIK() {
-		Matrix4d m = new Matrix4d();
-		getLink(getNumLinks()-1).getPoseWorld(m);
-		return m;
+		return getLink(getNumLinks()-1).getPoseWorld();
 	}
 	
 	/**
@@ -390,9 +388,7 @@ public class DHRobotModel extends Entity {
 		}
 		if(toolIndex>0) {
 			DHTool t = allTools.get(toolIndex);
-			Matrix4d m = new Matrix4d();
-			links.get(links.size()-1).getPoseWorld(m);
-			t.setPose(m);
+			t.setPose(links.get(links.size()-1).getPoseWorld());
 			t.refreshDHMatrix();
 			cuboidList.addAll(t.getCuboidList());
 		}

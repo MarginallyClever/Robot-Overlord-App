@@ -90,12 +90,12 @@ public class Viewport extends Entity {
     	gl2.glMatrixMode(GL2.GL_MODELVIEW);
         gl2.glLoadIdentity();
 
-		Matrix4d mFinal = new Matrix4d();
 		PoseEntity camera = getAttachedTo();
-		if(camera !=null) camera.getPoseWorld(mFinal);
-		else mFinal.setIdentity(); 
-		mFinal.invert();
-		MatrixHelper.applyMatrix(gl2, mFinal);
+		if(camera !=null) {
+			Matrix4d mFinal = camera.getPoseWorld();
+			mFinal.invert();
+			MatrixHelper.applyMatrix(gl2, mFinal);
+		}
 	}
 	
 	public void renderChosenProjection(GL2 gl2) {
@@ -147,8 +147,7 @@ public class Viewport extends Entity {
 					0);
 			ray.direction.set(0,0,-1);
 			PoseEntity camera = getAttachedTo();
-			Matrix4d m2 = new Matrix4d();
-			camera.getPoseWorld(m2);
+			Matrix4d m2 = camera.getPoseWorld();
 			m2.transform(ray.direction);
 			m2.transform(ray.start);
 		} else {
@@ -159,8 +158,7 @@ public class Viewport extends Entity {
 			
 			// adjust the ray by the camera world pose.
 			PoseEntity camera = getAttachedTo();
-			Matrix4d m2 = new Matrix4d();
-			camera.getPoseWorld(m2);
+			Matrix4d m2 = camera.getPoseWorld();
 			m2.transform(ray.direction);
 			ray.start.set(camera.getPosition());
 		}

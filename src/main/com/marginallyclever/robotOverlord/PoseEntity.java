@@ -270,15 +270,16 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	 * Then work from root forward, finding all parents that are a {@link PoseEntity}, to build the world pose matrix.
 	 * @return {@link Matrix4d} of the world pose
 	 */
-	@Override
-	public void getPoseWorld(Matrix4d m) {
-		Entity parent = getParent(); 
+	public Matrix4d getPoseWorld() {
+		Entity parent = getParent();
+		
 		if(parent!=null && parent instanceof PoseEntity) {
-			((PoseEntity)parent).getPoseWorld(m);
+			Matrix4d m = ((PoseEntity)parent).getPoseWorld();
+			m.mul(pose);
+			return m;
 		} else {
-			m.setIdentity();
+			return getPose();
 		}
-		m.mul(pose);
 	}
 	
 	/**
@@ -290,8 +291,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 			// I have a parent that is posed in the world.  I only hold onto relative pose information,
 			// so remove my parent's world pose from m to get the correct relative pose.
 			PoseEntity pep = (PoseEntity)parent;
-			Matrix4d newPose = new Matrix4d();
-			pep.getPoseWorld(newPose);
+			Matrix4d newPose = pep.getPoseWorld();
 			newPose.invert();
 			newPose.mul(m);
 			// set the new relative pose.
@@ -388,8 +388,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	}
 	
 	public void snapZToMajorAxis() {
-		Matrix4d poseWorld = new Matrix4d();
-		getPoseWorld(poseWorld);
+		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMajorAxisTarget(poseWorld);
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
@@ -400,8 +399,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	}
 	
 	public void snapXToMajorAxis() {
-		Matrix4d poseWorld = new Matrix4d();
-		getPoseWorld(poseWorld);
+		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMinorAxisTarget(poseWorld);
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
@@ -470,8 +468,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 		//	pose.getView(view);
 		view.popStack();
 		view.pushStack("WP","World Pose");
-		Matrix4d poseWorld = new Matrix4d();
-		getPoseWorld(poseWorld);
+		Matrix4d poseWorld = getPoseWorld();
 		view.add(new Vector3dEntity("Position",MatrixHelper.getPosition(poseWorld)));
 		//	poseWorld.getView(view);
 		view.popStack();

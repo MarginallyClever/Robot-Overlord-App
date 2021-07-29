@@ -132,8 +132,7 @@ public class DogRobot extends PoseEntity {
 							new Point3d( width, length, height));
 		Vector3d [] p2 = new Vector3d[8];
 		
-		Matrix4d m = new Matrix4d();
-		getPoseWorld(m);
+		Matrix4d m = getPoseWorld();
 		
 		int i=0;
 		for( Point3d pN : p ) {
@@ -168,6 +167,7 @@ public class DogRobot extends PoseEntity {
 		double width = (BODY_WIDTH/2)*bodyScale;
 		double height = (BODY_HEIGHT/2)*bodyScale;
 		double length = (BODY_LENGTH/2)*bodyScale;
+		gl2.glColor4d(1,1,1,1);
 		PrimitiveSolids.drawBox(gl2, 
 			new Point3d(-width,-length,-height),
 			new Point3d( width, length, height));
@@ -328,10 +328,8 @@ public class DogRobot extends PoseEntity {
 	
 	public void pushBody(Vector3d linearForce,double zTorque) {
 		// move the body to match the feet
-		Matrix4d wp = new Matrix4d();
-		Matrix4d wp2 = new Matrix4d();
-		getPoseWorld(wp);
-		wp2.set(wp);
+		Matrix4d wp = getPoseWorld();
+		Matrix4d wp2 = new Matrix4d(wp);
 		
 		Vector3d p = MatrixHelper.getPosition(wp);
 		p.add(linearForce);

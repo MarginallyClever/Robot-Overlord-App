@@ -305,8 +305,7 @@ public class Shape extends PoseEntity implements Collidable {
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
 		list.add(cuboid);
-		Matrix4d m2 = new Matrix4d();
-		getPoseWorld(m2);
+		Matrix4d m2 = getPoseWorld();
 		cuboid.setPose(m2);
 
 		return list;

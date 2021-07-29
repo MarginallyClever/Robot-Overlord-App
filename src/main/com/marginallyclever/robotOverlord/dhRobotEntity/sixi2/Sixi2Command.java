@@ -176,13 +176,14 @@ public class Sixi2Command extends Entity implements EntityFocusListener, Moveabl
 
 	// @return pose of tool tip 
 	@Override
-	public void getPoseWorld(Matrix4d m) {
+	public Matrix4d getPoseWorld() {
 		Sixi2 s = findParentSixi2();
 		Sixi2Model model = s.model;
 		Matrix4d mt = model.getCurrentTool().getToolTipOffset();
-		s.getPoseWorld(m);
+		Matrix4d m = s.getPoseWorld();
 		m.mul(poseIK);
 		m.mul(mt);
+		return m;
 	}
 
 	// @set pose of tool tip
@@ -195,8 +196,7 @@ public class Sixi2Command extends Entity implements EntityFocusListener, Moveabl
 		Matrix4d newPose = new Matrix4d();
 		newPose.mul(m,mt);
 
-		Matrix4d oldPose = new Matrix4d();
-		getPoseWorld(oldPose);
+		Matrix4d oldPose = getPoseWorld();
 		poseIK.set(newPose);
 		
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"poseWorld",oldPose,newPose));

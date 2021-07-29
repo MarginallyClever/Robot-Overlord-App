@@ -265,20 +265,20 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			boolean hit = collidesWithSelf();
 			if(hit) gl2.glColor3d(1, 0, 0);
 			else    gl2.glColor3d(1, 1, 1);
-			
-			Matrix4d w = new Matrix4d();
-			ArrayList<Cuboid> list = getCuboidList();
-			gl2.glPushMatrix();
-			getPoseWorld(w);
+
+			Matrix4d w = getPoseWorld();
 			w.invert();
+			
+			gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, w);
-			for(Cuboid c : list) {
-				gl2.glPushMatrix();
-				c.getPose(w);
-				MatrixHelper.applyMatrix(gl2, w);
-				PrimitiveSolids.drawBoxWireframe(gl2, c.getBoundsBottom(),c.getBoundsTop());
-				gl2.glPopMatrix();
-			}
+				ArrayList<Cuboid> list = getCuboidList();
+				for(Cuboid c : list) {
+					gl2.glPushMatrix();
+					c.getPose(w);
+					MatrixHelper.applyMatrix(gl2, w);
+					PrimitiveSolids.drawBoxWireframe(gl2, c.getBoundsBottom(),c.getBoundsTop());
+					gl2.glPopMatrix();
+				}
 			gl2.glPopMatrix();
 		}
 		
@@ -434,11 +434,9 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
 
-		Matrix4d currentBonePose = new Matrix4d();
-		Matrix4d cuboidAfter = new Matrix4d();
-
 		// current pose starts as root pose
-		getPoseWorld(currentBonePose);
+		Matrix4d currentBonePose = getPoseWorld();
+		Matrix4d cuboidAfter = new Matrix4d();
 
 		list.addAll(base.getCuboidList());
 		for(Cuboid c : list) {

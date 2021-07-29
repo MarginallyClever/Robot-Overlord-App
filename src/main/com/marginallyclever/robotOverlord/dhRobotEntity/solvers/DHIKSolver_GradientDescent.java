@@ -43,8 +43,7 @@ public class DHIKSolver_GradientDescent extends DHIKSolver {
 	}
 	
 	public double distanceToTarget() {
-		Matrix4d currentMatrix = new Matrix4d();
-		endEffector.getPoseWorld(currentMatrix);
+		Matrix4d currentMatrix = endEffector.getPoseWorld();
 		
 		// linear difference in centers
 		Vector3d c0 = new Vector3d();

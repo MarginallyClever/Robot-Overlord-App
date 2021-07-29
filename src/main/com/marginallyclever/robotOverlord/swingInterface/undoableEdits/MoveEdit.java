@@ -34,8 +34,7 @@ public class MoveEdit extends AbstractUndoableEdit {
 		super();
 		
 		this.entity = entity;
-		prev = new Matrix4d();
-		entity.getPoseWorld(prev);
+		prev = entity.getPoseWorld();
 		this.next = newPose;
 
 		entity.setPoseWorld(next);

@@ -107,8 +107,7 @@ public class Sixi2LinearGripper extends DHTool {
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
 			wasGripping=true;
 			// grab release
-			Matrix4d poseWorld = new Matrix4d();
-			getPoseWorld(poseWorld);
+			Matrix4d poseWorld = getPoseWorld();
 			if(subjectBeingHeld==null) {
 				//Log.message("Grab");
 				// Get the object at the targetPos.
