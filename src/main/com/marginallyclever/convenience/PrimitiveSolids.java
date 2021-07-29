@@ -406,56 +406,7 @@ public class PrimitiveSolids {
 		
 		// restore color
 		gl2.glColor4dv(params,0);
-	}
-
-	/**
-	 * Draw a gride of lines in the current color
-	 * @param gl2 the render context
-	 * @param grid_size the dimensions of the grid, from -grid_size to grid_size.
-	 * @param grid_space the distance between lines on the grid.
-	 */
-	static public void drawGrid(GL2 gl2,int grid_size,int grid_space) {
-		drawGrid(gl2,grid_size,grid_size,grid_space);
-	}
-
-	/**
-	 * Draw a grid of lines in the current color
-	 * @param gl2 the render context
-	 * @param gridWidth the dimensions of the grid
-	 * @param gridHeight the dimensions of the grid
-	 * @param grid_space the distance between lines on the grid.
-	 */
-	static public void drawGrid(GL2 gl2,int gridWidth,int gridHeight,int grid_space) {
-		gl2.glNormal3f(0,0,1);
-
-		//boolean isBlend = gl2.glIsEnabled(GL2.GL_BLEND);
-	    //gl2.glEnable(GL2.GL_BLEND);
-	    //gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-		gl2.glBegin(GL2.GL_LINES);
-		gridWidth/=2;
-		gridHeight/=2;
-		
-		for(int i=-gridWidth;i<=gridWidth;i+=grid_space) {
-			//end = 0.5f-((float)Math.abs(i)/(float)(gridHeight))*0.5f;
-			gl2.glVertex2f(i,-gridHeight);
-			gl2.glVertex2f(i, 0         );
-			gl2.glVertex2f(i, 0         );
-			gl2.glVertex2f(i, gridHeight);
-		}
-		for(int i=-gridHeight;i<=gridHeight;i+=grid_space) {
-			gl2.glVertex2f(-gridWidth,i);
-			gl2.glVertex2f( 0        ,i);
-			gl2.glVertex2f( 0        ,i);
-			gl2.glVertex2f( gridWidth,i);
-		}
-		gl2.glEnd();
-		
-		//if(!isBlend) gl2.glDisable(GL2.GL_BLEND);
-	}
-	
-	static public void drawGrid(GL2 gl2) {
-		drawGrid(gl2,50,1);
-	}
+	}	
 
 	public static void drawSphere(GL2 gl2, double radius, Vector3d p) {
 		gl2.glPushMatrix();
