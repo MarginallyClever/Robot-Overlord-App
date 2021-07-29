@@ -38,14 +38,16 @@ public class DogDemo implements Demo {
     	light.attenuationLinear.set(0.0014);
     	light.attenuationQuadratic.set(7*1e-6);
     	light.setDirectional(true);
-    	
+
     	Grid grid = new Grid();
 		sc.addChild(grid);
 		grid.setName("Floor");
-
+		
 		DogRobot dog = new DogRobot();
 		sc.addChild(dog);
 		dog.setPosition(new Vector3d(0,0,17));
 		dog.setRotation(new Vector3d(Math.toRadians(90),0,0));
+		
+		grid.shadow(dog);
 	}
 }
