@@ -11,7 +11,8 @@ Some of the robots it controls are:
  - Thor, a 5DOF arm
  - Rotary Stewart Platforms, like flight simulators
  - Delta Robot 3, aka a Kossel
- - Spidee, a 6 legged crab robot
+ - Spidee, a 6 legged crab-style walker.
+ - Dog Robot, a generic 4 legged walker.
 
 # Why
 
