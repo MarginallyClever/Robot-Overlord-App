@@ -29,7 +29,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 	@Override
 	public void walk(DogRobot dogRobot,GL2 gl2) {
 		lowerFeetToGround(dogRobot);
-		relaxShoulders(dogRobot);
+		dogRobot.relaxShoulders();
 		moveOneToeTarget2AtATime(dogRobot,gl2);
 		dogRobot.moveToeTargetsSmoothly(1);
 		dogRobot.gradientDescent();
@@ -45,14 +45,6 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		}
 	}
 
-	private void relaxShoulders(DogRobot dogRobot) {
-		for(int i=0;i<4;++i) {
-			DogLeg leg = dogRobot.getLeg(i);
-			double d = leg.idealStandingAngles[0] - leg.shoulderA.theta;
-			leg.shoulderA.theta+=d;
-		}
-	}
-	
 	private void moveOneToeTarget2AtATime(DogRobot dogRobot,GL2 gl2) {
 		double t = System.currentTimeMillis()*0.001;
 
@@ -65,7 +57,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		
 			// step in the desired direction
 			Vector3d oneLegDir = getDesiredDirectionOfOneLeg(dogRobot,toward,leg);
-			Vector3d floorUnderShoulder = getPointOnFloorUnderShoulder(dogRobot,leg);
+			Vector3d floorUnderShoulder = leg.getPointOnFloorUnderShoulder();
 			
 			if(thisLegShouldStepNow(t,i)) {
 				// leg should be not touching floor, up and moving.
@@ -81,7 +73,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 				}
 				leg.toeTarget2.add(oneLegDir,floorUnderShoulder);
 			} else if(oneLegDir.z<=0.001 && leg.toeTarget2.z<0.001) {
-				// foot is touching floor, pushing body.
+				// Foot is touching floor, pushing body.
 				feetOnFloor++;
 				pushToBody.add(oneLegDir);
 				
@@ -109,7 +101,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		OpenGLHelper.drawVector3dFrom(gl2,toward,floorUnderShoulder);
 	}
 
-	private void drawBodyForce(GL2 gl2,DogRobot dogRobot, Vector3d pushToBody, double zTorque) {
+	protected void drawBodyForce(GL2 gl2,DogRobot dogRobot, Vector3d pushToBody, double zTorque) {
 		Vector3d body = getPointOnFloorUnderCenterOfBody(dogRobot);
 		PrimitiveSolids.drawSphere(gl2,0.5,body);
 		gl2.glColor3d(1, 1, 0);
@@ -143,7 +135,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		return v;
 	}
 	
-	private boolean thisLegShouldStepNow(double t, int i) {
+	protected boolean thisLegShouldStepNow(double t, int i) {
 		return (Math.floor(t)%4) == i;
 	}
 	
@@ -168,7 +160,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		return f2;
 	}
 
-	private Vector3d getDesiredDirectionOfBody(DogRobot dogRobot) {
+	protected Vector3d getDesiredDirectionOfBody(DogRobot dogRobot) {
 		Vector3d forward = new Vector3d();
 		
 		Matrix4d myPose = dogRobot.getPose();
@@ -184,25 +176,14 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 	}
 
 	private Vector3d getBodyCenterToShoulderOnXYPlane(DogRobot dogRobot,DogLeg leg) {
-		Vector3d v1 = getPointOnFloorUnderShoulder(dogRobot,leg);
+		Vector3d v1 = leg.getPointOnFloorUnderShoulder();
 		Vector3d v0 = MatrixHelper.getPosition(dogRobot.getPose());
 		v0.z=0;
 		v1.sub(v0);
 		
 		return v1;
 	}
-
-	private Vector3d getPointOnFloorUnderShoulder(DogRobot dogRobot,DogLeg leg) {
-		Matrix4d m = new Matrix4d();
-		m.set(dogRobot.getPose());
-		m.mul(leg.shoulderA.pose);
-		m.mul(leg.shoulderB.pose);
-		Vector3d fp = MatrixHelper.getPosition(m);
-		fp.z=0;
-
-		return fp;
-	}
-
+	
 	private Vector3d getPointOnFloorUnderCenterOfBody(DogRobot dogRobot) {
 		Vector3d fp = MatrixHelper.getPosition(dogRobot.getPose());
 		fp.z=0;
@@ -214,7 +195,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 	private void drawFloorCirclesUnderEachShoulder(DogRobot dogRobot,GL2 gl2) {
 		for(int j=0;j<4;++j) {
 			DogLeg leg = dogRobot.getLeg(j);
-			Vector3d fp = getPointOnFloorUnderShoulder(dogRobot,leg);
+			Vector3d fp = leg.getPointOnFloorUnderShoulder();
 			drawFloorCircleUnderOneShoulder(gl2,fp);
 		}
 	}

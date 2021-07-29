@@ -42,13 +42,22 @@ public class DogRobot extends PoseEntity {
 	private ArrayList<DogAnimator> animators = new ArrayList<DogAnimator>();
 	
 	public DogRobot() {
-		super();
-		setName("Dog Robot");
-		
-		for(int i=0;i<4;++i) legs[i] = new DogLeg();
-		setDHParameters();
+		super("Dog Robot");
+		setupLegs();
 		setupAnimators();
-		
+		setupMaterials();
+	}
+	
+	private void setupLegs() {
+		double w = BODY_WIDTH/2;
+		double h = BODY_HEIGHT/2;
+		legs[0] = new DogLeg(this, w, h);
+		legs[1] = new DogLeg(this,-w, h);
+		legs[2] = new DogLeg(this,-w,-h);
+		legs[3] = new DogLeg(this, w,-h);
+	}
+
+	private void setupMaterials() {		
 		mat.setLit(true);
 		mat2.setLit(true);
 		mat2.setDiffuseColor(1,0,0,1);
@@ -59,6 +68,7 @@ public class DogRobot extends PoseEntity {
 		addAnimator(new DogWalkZero());
 		addAnimator(new DogWalkOne());
 		addAnimator(new DogWalkTwo());
+		addAnimator(new DogWalkThree());
 		
 		animator = animators.get(0);
 	}
@@ -71,30 +81,6 @@ public class DogRobot extends PoseEntity {
 	public void removeAnimator(DogAnimator da) {
 		animators.remove(da);
 		if(da instanceof Entity) removeChild((Entity)da);
-	}
-
-	public void setDHParameters() {
-		// robot faces negative Z
-		double w = BODY_WIDTH/2;
-		double h = BODY_HEIGHT/2;
-
-		int i=0;
-		setDHParametersForLeg(i++, w, h);
-		setDHParametersForLeg(i++,-w, h);
-		setDHParametersForLeg(i++,-w,-h);
-		setDHParametersForLeg(i++, w,-h);
-	}
-	
-	private void setDHParametersForLeg(int i, double r, double d) {
-		DogLeg leg = legs[i];
-		leg.shoulderA.set(   r, d,  0,   0, 360, -360, "");
-		leg.shoulderB.set(   0, 0, 90, -90, 360, -360, "");
-		leg.elbow    .set(11.5, 0,  0, -45,   0, -180, "");
-		leg.foot     .set(  13, 0,  0,  90, 360, -360, "");
-		updateLegMatrixes(leg);
-		leg.captureAngles(leg.idealStandingAngles);
-		//leg.toeTarget2.set(leg.toe);
-		//leg.toeTarget.set(leg.toe);
 	}
 
 	@Override
@@ -145,14 +131,6 @@ public class DogRobot extends PoseEntity {
 		return p2;
 	}
 
-	public void setLegToAngles(DogLeg leg, double[] angles) {
-		leg.shoulderA.setAngleWRTLimits(angles[0]);
-		leg.shoulderB.setAngleWRTLimits(angles[1]);
-		leg.elbow.setAngleWRTLimits(angles[2]);
-		leg.foot.setAngleWRTLimits(angles[3]);
-		updateLegMatrixes(leg);
-	}
-
 	private void drawCurrentDogPose(GL2 gl2) {
 		mat.render(gl2);
 		
@@ -179,14 +157,6 @@ public class DogRobot extends PoseEntity {
 		OpenGLHelper.disableLightingEnd(gl2, flag);
 	}
 	
-	public void updateLegMatrixes(DogLeg leg) {
-		leg.shoulderA.updateMatrix();
-		leg.shoulderB.updateMatrix();
-		leg.elbow.updateMatrix();
-		leg.foot.updateMatrix();
-		leg.toe.set(MatrixHelper.getPosition(getWorldMatrixOfToe(leg)));
-	}
-
 	private void drawPointOnGroundUnderFeet(GL2 gl2) {
 		for( DogLeg leg : legs ) {
 			Vector3d fp = leg.toe;
@@ -198,22 +168,13 @@ public class DogRobot extends PoseEntity {
 		}
 	}
 
-	private Matrix4d getWorldMatrixOfToe(DogLeg leg) {
-		Matrix4d m = getPose();
-		m.mul(leg.shoulderA.pose);
-		m.mul(leg.shoulderB.pose);
-		m.mul(leg.elbow.pose);
-		m.mul(leg.foot.pose);
-		return m;
-	}
-
 	public void drawToeTarget(GL2 gl2) {
 		for( DogLeg leg : legs ) {
 			gl2.glPushMatrix();
 			gl2.glTranslated(leg.toeTarget.x, leg.toeTarget.y, leg.toeTarget.z);
 
-			if(leg.toeTarget.z<0.1) mat2.render(gl2);
-			else mat.render(gl2);
+			if(leg.isTouchingTheFloor()) mat2.render(gl2);
+			else						 mat.render(gl2);
 			
 			PrimitiveSolids.drawSphere(gl2, 0.5);
 			gl2.glPopMatrix();
@@ -246,9 +207,7 @@ public class DogRobot extends PoseEntity {
 	}
 
 	public void updateAllLegMatrixes() {
-		for(int i=0;i<4;++i) {
-			updateLegMatrixes(legs[i]);
-		}
+		for( DogLeg leg : legs ) leg.refreshMatrixes();
 	}
 
 	public DogLeg getLeg(int i) {
@@ -269,14 +228,10 @@ public class DogRobot extends PoseEntity {
 
 	// Move the toes towards the toeTargets.
 	public void gradientDescent() {
-		double [] legAngles = new double[4];
 		double EPSILON = 0.001;
 		
 		for( DogLeg leg : legs ) {
-			legAngles[0] = leg.shoulderA.theta;
-			legAngles[1] = leg.shoulderB.theta;
-			legAngles[2] = leg.elbow.theta;
-			legAngles[3] = leg.foot.theta;
+			double [] legAngles = leg.getAngles();
 			
 			double stepSize=10;
 			for(int tries=0;tries<15;++tries) {
@@ -289,7 +244,7 @@ public class DogRobot extends PoseEntity {
 				
 				stepSize*=0.75;
 			}
-			setLegToAngles(leg,legAngles);
+			leg.setAngles(legAngles);
 		}
 	}
 
@@ -319,8 +274,8 @@ public class DogRobot extends PoseEntity {
 	}
 
 	// @return the distance from the {@code DogLeg.toe} to the {@code DogLeg.toeTarget}
-	private double scoreLeg(DogLeg leg,double [] angles) {
-		setLegToAngles(leg,angles);
+	private double scoreLeg(DogLeg leg,double [] legAngles) {
+		leg.setAngles(legAngles);
 		Vector3d fp = new Vector3d();
 		fp.sub(leg.toe,leg.toeTarget);
 		return fp.lengthSquared();
@@ -343,4 +298,14 @@ public class DogRobot extends PoseEntity {
 		
 		setPoseWorld(wp2);
 	}
+
+
+	public void setIdealStandingAngles() {
+		for( DogLeg leg : legs ) leg.setIdealStandingAngles();
+	}
+
+	public void relaxShoulders() {
+		for( DogLeg leg : legs ) leg.relaxShoulder();
+	}
+	
 }

@@ -16,14 +16,16 @@ public class DogWalkOne extends Entity implements DogAnimator {
 	
 	@Override
 	public void walk(DogRobot dogRobot,GL2 gl2) {
-		dogRobot.setDHParameters();
+		dogRobot.setIdealStandingAngles();
 		
 		double t = System.currentTimeMillis()*0.001;
 		
 		for(int i=0;i<4;++i) {
 			DogLeg leg = dogRobot.getLeg(i);
-			leg.elbow.theta += Math.toDegrees(Math.sin(t))/4;
-			leg.foot.theta += Math.toDegrees(Math.cos(t))/4;
+			double [] angles = leg.getAngles();
+			angles[1] += Math.toDegrees(Math.sin(t))/4;
+			angles[2] += Math.toDegrees(Math.cos(t))/4;
+			leg.setAngles(angles);
 			t+=Math.PI/2;
 		}
 		dogRobot.updateAllLegMatrixes();
