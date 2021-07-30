@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.robots.dog;
 
-import javax.vecmath.Matrix4d;
+import java.util.ArrayList;
+
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -8,21 +9,20 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 public class DogWalkTwo extends DogWalkOne {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1161074262097357976L;
-	private double STEP_LENGTH = 5;
-	
-	private double leftForce = 0;
-	private double forwardForce = 0;
-	private double turnForce = 0;
+	private static final double NOMINAL_STEP_LENGTH = 5;
+	private static final int NUM_PLANNERS=4; 
+	private ArrayList<ArcZPlanner> planners = new ArrayList<ArcZPlanner>();
+	private BooleanEntity isWalking=new BooleanEntity("Walk",false);
 	
 	public DogWalkTwo() {
 		super();
 		setName("DogWalkTwo - blended");
+		
+		for(int i=0;i<NUM_PLANNERS;++i) planners.add(new ArcZPlanner());
 	}
 	
 	@Override
@@ -30,70 +30,66 @@ public class DogWalkTwo extends DogWalkOne {
 		dogRobot.lowerFeetToGround();
 		dogRobot.relaxShoulders();
 		
-		moveOneToeTarget2AtATime(dogRobot,gl2);
+		planWhereIStepFromHere(gl2,dogRobot);
 		
-		dogRobot.moveToeTargetsSmoothly(0.25);
-		dogRobot.gradientDescent();
+		gl2.glLineWidth(3);
+		planners.forEach(e->e.render(gl2, 40));
+		gl2.glLineWidth(1);
+		
+		if(getTime()!=0) {
+			double dt = (1.0/30.0);  // 30 fps TODO replace me
+			
+			if(getIsWalking()) moveOneFootAtATime(gl2,dogRobot,dt);
+			dogRobot.moveToeTargetsSmoothly(0.25);
+			dogRobot.gradientDescent();
+		}
 		
 		dogRobot.drawToeTargets(gl2);
 	}
 
-	private void moveOneToeTarget2AtATime(DogRobot dogRobot,GL2 gl2) {
-		double t = getTime();
-		
-		Vector3d toward = getDesiredDirectionOfBody(dogRobot);
-		Vector3d pushToBody = new Vector3d();
-		double zTorque=0;
-		double feetOnFloor=0;
-		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
-			DogLeg leg = dogRobot.getLeg(i);
-		
-			// step in the desired direction
-			Vector3d oneLegDir = getDesiredDirectionOfOneLeg(dogRobot,toward,leg);
-			Vector3d floorUnderShoulder = leg.getPointOnFloorUnderShoulder();
-			
-			if(thisLegShouldStepNow(t,i)) {
-				// leg should be not touching floor, up and moving.
-				drawLegToward(gl2,toward,floorUnderShoulder);
-				
-				double zeroToOne = getTimeIntoStep(t,i);
-				double verticalMove=Math.max(0,Math.abs(Math.sin(Math.PI*zeroToOne))-0.2);
-				double horizontalMove=Math.sin((Math.PI/2)*zeroToOne);
-				
-				if(oneLegDir.lengthSquared()>0) {
-					oneLegDir.scale(STEP_LENGTH*horizontalMove);
-					oneLegDir.z+= DogLeg.DEFAULT_STEP_HEIGHT*verticalMove;
-				}
-				leg.toeTarget2.add(oneLegDir,floorUnderShoulder);
-			} else if(leg.isToeTouchingTheFloor()) {
-				// Foot is touching floor, pushing body.
-				feetOnFloor++;
-				pushToBody.add(oneLegDir);
-				
-				Vector3d v1 = getBodyCenterToShoulderOnXYPlane(dogRobot,leg);
-				Vector3d v2 = getTurnVectorOfOneLeg(dogRobot,leg);
-				double radians = Math.atan2(v2.length(),v1.length());
-				zTorque += radians * turnForce;
-			}
-		}
-
-		if(t==0) return;
-		
-		boolean applyFriction=true;
-		if(feetOnFloor>0 && applyFriction) {
-			double s = 0.25/feetOnFloor;
-			zTorque *= s/2;
-			pushToBody.scale(s);
-			
-			drawBodyForce(gl2,dogRobot,pushToBody,zTorque);			
-			dogRobot.pushBody(pushToBody,zTorque);
+	private void moveOneFootAtATime(GL2 gl2, DogRobot dogRobot, double dt) {
+		int i = chooseALeg(dogRobot);		
+		ArcZPlanner myPlanner = planners.get(i);
+		DogLeg leg = dogRobot.getLeg(i);
+		if(dt>0) {
+			myPlanner.advance(dt);
+			leg.toeTarget2.set(myPlanner.getPointNow());
 		}
 	}
+	
+	private int chooseALeg(DogRobot dogRobot) {
+		double t = getTime();
+		return (int)Math.floor(t%DogRobot.NUM_LEGS);
+	}
 
-	private void drawLegToward(GL2 gl2, Vector3d toward, Vector3d floorUnderShoulder) {
-		gl2.glColor3d(1, 0, 1);
-		gl2.glLineWidth(3);
-		OpenGLHelper.drawVector3dFrom(gl2,toward,floorUnderShoulder);
+	protected void planWhereIStepFromHere(GL2 gl2,DogRobot dogRobot) {
+		double speed=1;  // TODO make me adjustable
+		
+		int hits=0;
+		
+		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
+			ArcZPlanner myPlanner = planners.get(i);
+			DogLeg leg = dogRobot.getLeg(i);
+			if(leg.isToeTouchingTheFloor()) {
+				hits++;
+				System.out.print(i+"\t");
+				Vector3d startPoint = leg.getPointOnFloorUnderToe(); 
+				Vector3d endPoint = getWhereIStepFromHere(dogRobot,leg,speed,startPoint);
+				myPlanner.planStep(startPoint,endPoint,DogLeg.DEFAULT_STEP_HEIGHT,speed);
+			}
+		}
+		
+		if(hits>0) System.out.println();
+	}
+
+	private Vector3d getWhereIStepFromHere(DogRobot dogRobot, DogLeg leg, double speed,Vector3d startPoint) {
+		Vector3d bodyToward = getDesiredDirectionOfBody(dogRobot);
+		Vector3d direction = getDesiredDirectionOfOneLeg(dogRobot,bodyToward,leg);
+		direction.scale(NOMINAL_STEP_LENGTH*speed);
+		 
+		Vector3d endPoint = leg.getPointOnFloorUnderShoulder();
+		endPoint.add(direction);
+		return endPoint;
 	}
 
 	protected void drawBodyForce(GL2 gl2,DogRobot dogRobot, Vector3d pushToBody, double zTorque) {
@@ -107,33 +103,20 @@ public class DogWalkTwo extends DogWalkOne {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("2","Two");
-		view.addButton("all stop").addPropertyChangeListener((evt)->{
-			forwardForce=0;
-			leftForce=0;
-			turnForce=0;
-		});
-		view.addButton("forward"		).addPropertyChangeListener(e->	forwardForce++ );
-		view.addButton("backward"		).addPropertyChangeListener(e->	forwardForce-- );
-		view.addButton("strafe left"	).addPropertyChangeListener(e->	leftForce++	);
-		view.addButton("strafe right"	).addPropertyChangeListener(e->	leftForce--	);
-		view.addButton("turn left"		).addPropertyChangeListener(e->	turnForce++	);
-		view.addButton("turn right"		).addPropertyChangeListener(e->	turnForce--	);
-		
+		view.add(isWalking);
 		view.popStack();
 		super.getView(view);
 	}
 	
-	// return s0...1
-	private double getTimeIntoStep(double t, int i) {
-		double v = (t%DogRobot.NUM_LEGS)-i; 
-		Math.min(1,Math.max(0, v));
-		return v;
+	public boolean getIsWalking() {
+		return isWalking.get();
 	}
 	
 	protected boolean thisLegShouldStepNow(double t, int i) {
 		return (Math.floor(t)%DogRobot.NUM_LEGS) == i;
 	}
 	
+	@SuppressWarnings("unused")
 	private Vector3d getTurnVectorOfOneLeg(DogRobot dogRobot,DogLeg leg) {
 		Vector3d worldUp = new Vector3d(0,0,1);
 		Vector3d v1 = getBodyCenterToShoulderOnXYPlane(dogRobot,leg);
@@ -145,11 +128,11 @@ public class DogWalkTwo extends DogWalkOne {
 	}
 	
 	public Vector3d getDesiredDirectionOfOneLeg(DogRobot dogRobot,final Vector3d bodyToward,DogLeg leg) {
-		Vector3d f2 = new Vector3d();
-		Vector3d turnVector = getTurnVectorOfOneLeg(dogRobot,leg);
-		turnVector.scale(turnForce);
-		f2.add(bodyToward,turnVector);
+		//Vector3d turnVector = getTurnVectorOfOneLeg(dogRobot,leg);
+		//turnVector.scale(turnForce);
 
+		Vector3d f2 = new Vector3d();
+		//f2.add(bodyToward,turnVector);
 		if(f2.lengthSquared()>0) f2.normalize();
 		
 		return f2;
@@ -157,14 +140,14 @@ public class DogWalkTwo extends DogWalkOne {
 
 	protected Vector3d getDesiredDirectionOfBody(DogRobot dogRobot) {
 		Vector3d forward = new Vector3d();
-		
+/*
 		Matrix4d myPose = dogRobot.getPose();
 		Vector3d wLeft = MatrixHelper.getXAxis(myPose);
 		Vector3d wForward = MatrixHelper.getZAxis(myPose);		
 		wLeft.scale(leftForce);
 		wForward.scale(forwardForce);
 		forward.add(wLeft,wForward);
-
+*/
 		if(forward.lengthSquared()>0) forward.normalize();
 		
 		return forward;
