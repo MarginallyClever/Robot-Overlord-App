@@ -66,4 +66,10 @@ public class ArcZPlanner {
 		i.z+=z;
 		return i;
 	}
+	
+	public double getStepDistanceSquared() {
+		Vector3d v = new Vector3d(pointTo);
+		v.sub(pointFrom);
+		return v.lengthSquared();
+	}
 }
