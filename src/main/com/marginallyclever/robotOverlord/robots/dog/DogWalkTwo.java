@@ -7,47 +7,40 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
-public class DogWalkTwo extends Entity implements DogAnimator {
+public class DogWalkTwo extends DogWalkOne {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1161074262097357976L;
 	private double STEP_LENGTH = 5;
-	private double STEP_HEIGHT = 3;
 	
 	private double leftForce = 0;
 	private double forwardForce = 0;
 	private double turnForce = 0;
 	
 	public DogWalkTwo() {
-		super("DogWalkTwo - blended");
+		super();
+		setName("DogWalkTwo - blended");
 	}
 	
 	@Override
 	public void walk(DogRobot dogRobot,GL2 gl2) {
-		lowerFeetToGround(dogRobot);
+		dogRobot.lowerFeetToGround();
 		dogRobot.relaxShoulders();
+		
 		moveOneToeTarget2AtATime(dogRobot,gl2);
+		
 		dogRobot.moveToeTargetsSmoothly(0.25);
 		dogRobot.gradientDescent();
 		
 		dogRobot.drawToeTargets(gl2);
 	}
-	
-	// assumes body is right way up.
-	private void lowerFeetToGround(DogRobot dogRobot) {
-		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
-			DogLeg leg = dogRobot.getLeg(i);
-			leg.toeTarget2.z=0;
-		}
-	}
 
 	private void moveOneToeTarget2AtATime(DogRobot dogRobot,GL2 gl2) {
-		double t = System.currentTimeMillis()*0.001;
-
+		double t = getTime();
+		
 		Vector3d toward = getDesiredDirectionOfBody(dogRobot);
 		Vector3d pushToBody = new Vector3d();
 		double zTorque=0;
@@ -69,7 +62,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 				
 				if(oneLegDir.lengthSquared()>0) {
 					oneLegDir.scale(STEP_LENGTH*horizontalMove);
-					oneLegDir.z+= STEP_HEIGHT*verticalMove;
+					oneLegDir.z+= DogLeg.DEFAULT_STEP_HEIGHT*verticalMove;
 				}
 				leg.toeTarget2.add(oneLegDir,floorUnderShoulder);
 			} else if(leg.isToeTouchingTheFloor()) {
@@ -84,6 +77,8 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 			}
 		}
 
+		if(t==0) return;
+		
 		boolean applyFriction=true;
 		if(feetOnFloor>0 && applyFriction) {
 			double s = 0.25/feetOnFloor;
@@ -111,18 +106,18 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("D","Driving");
+		view.pushStack("2","Two");
 		view.addButton("all stop").addPropertyChangeListener((evt)->{
 			forwardForce=0;
 			leftForce=0;
 			turnForce=0;
 		});
-		view.addButton("forward"		).addPropertyChangeListener((evt)->{	forwardForce++;	});
-		view.addButton("backward"		).addPropertyChangeListener((evt)->{	forwardForce--;	});
-		view.addButton("strafe left"	).addPropertyChangeListener((evt)->{	leftForce++;	});
-		view.addButton("strafe right"	).addPropertyChangeListener((evt)->{	leftForce--;	});
-		view.addButton("turn left"		).addPropertyChangeListener((evt)->{	turnForce++;	});
-		view.addButton("turn right"		).addPropertyChangeListener((evt)->{	turnForce--;	});
+		view.addButton("forward"		).addPropertyChangeListener(e->	forwardForce++ );
+		view.addButton("backward"		).addPropertyChangeListener(e->	forwardForce-- );
+		view.addButton("strafe left"	).addPropertyChangeListener(e->	leftForce++	);
+		view.addButton("strafe right"	).addPropertyChangeListener(e->	leftForce--	);
+		view.addButton("turn left"		).addPropertyChangeListener(e->	turnForce++	);
+		view.addButton("turn right"		).addPropertyChangeListener(e->	turnForce--	);
 		
 		view.popStack();
 		super.getView(view);
