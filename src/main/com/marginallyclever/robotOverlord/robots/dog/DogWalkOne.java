@@ -10,7 +10,7 @@ public class DogWalkOne extends Entity implements DogAnimator {
 	 * 
 	 */
 	private static final long serialVersionUID = -3164195940151204314L;
-	private BooleanEntity isRunning=new BooleanEntity("Running",false);
+	private BooleanEntity isFrozen=new BooleanEntity("Freeze!",true);
 
 	public DogWalkOne() {
 		super("DogWalkOne - Fixed motion");
@@ -32,24 +32,24 @@ public class DogWalkOne extends Entity implements DogAnimator {
 		dogRobot.updateAllLegMatrixes();
 	}
 	
-	public boolean getIsRunning() {
-		return isRunning.get();
+	public boolean getIsFrozen() {
+		return isFrozen.get();
 	}
 
 	public void setIsRunning(boolean state) {
-		isRunning.set(state);
+		isFrozen.set(state);
 	}
 	
 	public double getTime() {
 		double t = System.currentTimeMillis()*0.001;
-		if(!getIsRunning()) t=0;
+		if(getIsFrozen()) t=0;
 		return t;
 	}
 	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("1","One");
-		view.add(isRunning);
+		view.add(isFrozen);
 		view.popStack();
 		super.getView(view);
 	}
