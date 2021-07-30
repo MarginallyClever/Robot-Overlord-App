@@ -1,8 +1,5 @@
 package com.marginallyclever.robotOverlord;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
@@ -17,7 +14,7 @@ import com.jogamp.opengl.GL2;
  * Camera in the world.  Has no physical presence.  Has location and direction.
  * @author Dan Royer
  */
-public class Camera extends PoseEntity implements PropertyChangeListener {
+public class Camera extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -35,6 +32,8 @@ public class Camera extends PoseEntity implements PropertyChangeListener {
 	protected transient double sumDx;
 	protected transient double sumDy;
 	
+	protected boolean isCurrentlyMoving=false;
+	
 	
 	public Camera() {
 		super();
@@ -43,8 +42,8 @@ public class Camera extends PoseEntity implements PropertyChangeListener {
 		addChild(snapDeadZone);
 		addChild(snapDegrees);
 		
-		pan.addPropertyChangeListener(this);
-		tilt.addPropertyChangeListener(this);
+		pan.addPropertyChangeListener(e -> updateAngle());
+		tilt.addPropertyChangeListener(e -> updateAngle());
 	}
 	
 	protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -59,41 +58,47 @@ public class Camera extends PoseEntity implements PropertyChangeListener {
 		return c;
 	}
 	
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
+	private void updateAngle() {
 		setRotation(buildPanTiltMatrix(pan.get(),tilt.get()));
 	}
-
+	
+	public Vector3d getOrbitPoint() {
+		Vector3d p = getPosition();
+		Vector3d oldZ = MatrixHelper.getZAxis(pose);
+		oldZ.scale(zoom.get());
+		p.add(oldZ);
+		return p;
+	}
+	
 	@Override
 	public void update(double dt) {
 		// Move the camera		
         double dz = InputManager.getRawValue(InputManager.Source.MOUSE_Z);
-        if(dz!=0) { 
-        	double oldZoom = zoom.get();
-        	double newZoom = oldZoom;
+        if(dz!=0) {
+        	//System.out.println("dz="+dz);
+        	isCurrentlyMoving=true;
         	
-        	newZoom -= dz*3;
+        	double oldZoom = zoom.get();
+        	double newZoom = oldZoom - dz*3;
         	newZoom = Math.max(1,newZoom);
 
         	if(oldZoom!=newZoom) {
-        		zoom.set(newZoom);
 				// adjust the camera position to orbit around a point 'zoom' in front of the camera
-				Vector3d oldZ = MatrixHelper.getZAxis(pose);
-				Vector3d newZ = new Vector3d(oldZ); 
-
-				oldZ.scale(oldZoom);
-				newZ.scale(zoom.get());
-	
-				Vector3d p = getPosition();
-				p.sub(oldZ);
-				p.add(newZ);
+        		Vector3d p = getOrbitPoint();
+        		Vector3d v = getPosition();
+        		v.sub(p);
+        		v.scale(oldZoom/newZoom);
+        		p.add(v);
 				setPosition(p);
+        		
+        		zoom.set(newZoom);	
         	}
         	//Log.message(dz+"\t"+zoom);
         }
         
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
+        	//System.out.println("mouse middle");
+        	isCurrentlyMoving=true;
 			double scale = 1;
 	        double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
 	        double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * scale;
@@ -187,8 +192,9 @@ public class Camera extends PoseEntity implements PropertyChangeListener {
 					//Log.message(dx+"\t"+dy+"\t"+pan+"\t"+tilt+"\t"+oldZ+"\t"+newZ);
 				}
 			}
-		} 
-			// CONTROLLER
+		}
+		
+		// CONTROLLER
 		if(!InputManager.isOn(InputManager.Source.STICK_X) && !InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
 			double rawxl = InputManager.getRawValue(InputManager.Source.STICK_LX);
 			double rawyl = InputManager.getRawValue(InputManager.Source.STICK_LY);
@@ -204,49 +210,63 @@ public class Camera extends PoseEntity implements PropertyChangeListener {
 			
 			double dxr = rawxr * scale;
 			double dyr = rawyr * scale;
-			
-			Vector3d vx = MatrixHelper.getXAxis(pose);
-			Vector3d vy = MatrixHelper.getYAxis(pose);
-			Vector3d vz = MatrixHelper.getZAxis(pose);
-			Vector3d p = getPosition();
-			
-			// orbit around the focal point
-			setPan(getPan()+dxr);
-			setTilt(getTilt()-dyr);
-			// do updateMatrix() but keep the rotation matrix
-			Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
-			setRotation(rot);
 
-			// adjust the camera position to orbit around a point 'zoom' in front of the camera
-			Vector3d oldZ = MatrixHelper.getZAxis(pose);
-			oldZ.scale(zoom.get());
-			Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
-			newZ.scale(zoom.get());
-
-			p.sub(oldZ);
-			p.add(newZ);
-			
-//			double zSq = Math.sqrt(zoom.get())*0.01;
-			double zSq = 1;
-			vx.scale(zSq*-dxl);
-			vy.scale(zSq* dyl);
-			vz.scale(dzl);
-			p.add(vx);
-			p.add(vy);
-			p.add(vz);
-			setPosition(p);
+        	if(dxr!=0 && dyr!=0 && dxl!=0 && dyl!=0 && dzl!=0) {
+        		//System.out.println("stick");
+	        	isCurrentlyMoving=true;
+	
+				Vector3d vx = MatrixHelper.getXAxis(pose);
+				Vector3d vy = MatrixHelper.getYAxis(pose);
+				Vector3d vz = MatrixHelper.getZAxis(pose);
+				Vector3d p = getPosition();
+				
+				// orbit around the focal point
+				setPan(getPan()+dxr);
+				setTilt(getTilt()-dyr);
+				// do updateMatrix() but keep the rotation matrix
+				Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
+				setRotation(rot);
+	
+				// adjust the camera position to orbit around a point 'zoom' in front of the camera
+				Vector3d oldZ = MatrixHelper.getZAxis(pose);
+				oldZ.scale(zoom.get());
+				Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
+				newZ.scale(zoom.get());
+	
+				p.sub(oldZ);
+				p.add(newZ);
+				
+	//			double zSq = Math.sqrt(zoom.get())*0.01;
+				double zSq = 1;
+				vx.scale(zSq*-dxl);
+				vy.scale(zSq* dyl);
+				vz.scale(dzl);
+				p.add(vx);
+				p.add(vy);
+				p.add(vz);
+				setPosition(p);
+        	}
 		}
 	}
 	
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
 	@Override
 	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
-			PrimitiveSolids.drawStar(gl2, 10);
-		gl2.glPopMatrix();
+		if(isCurrentlyMoving) {
+			drawOrbitPoint(gl2);		
+			isCurrentlyMoving=false;
+		}
 	}
 	
+	private void drawOrbitPoint(GL2 gl2) {
+		Vector3d oldZ = MatrixHelper.getZAxis(pose);
+		oldZ.scale(zoom.get());
+		
+		Vector3d p = getPosition();
+		p.sub(oldZ);
+		PrimitiveSolids.drawStar(gl2, p, 20);
+	}
+
 	public double getPan() {
 		return pan.get();
 	}

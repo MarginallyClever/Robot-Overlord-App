@@ -722,7 +722,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	
     private void renderStep(GL2 gl2) {
         viewport.renderChosenProjection(gl2);
-        scene.render(gl2);
+        scene.render(gl2,camera);
         // overlays
 		moveTool.render(gl2);
 		viewCube.render(gl2);
@@ -770,7 +770,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 		
         gl2.glLoadName(0);
         // render in selection mode, without advancing time in the simulation.
-        scene.render(gl2);
+        scene.render(gl2,camera);
 
         gl2.glPopName();
         gl2.glFlush();

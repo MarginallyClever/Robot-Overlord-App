@@ -30,7 +30,7 @@ public class Scene extends Entity {
 		setName("Scene");
 	}
 	
-	public void render(GL2 gl2) {
+	public void render(GL2 gl2, Camera camera) {
 		// Clear the screen and depth buffer
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
         // Don't draw triangles facing away from camera
@@ -46,7 +46,9 @@ public class Scene extends Entity {
 				light.setupLight(gl2);
 			}
 		}
-		
+
+        camera.render(gl2);
+        
 		// PASS 1: everything not a light
 		for( Entity obj : children ) {
 			if(obj instanceof Light) continue;
