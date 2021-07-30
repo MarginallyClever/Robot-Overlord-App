@@ -34,12 +34,12 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		dogRobot.moveToeTargetsSmoothly(0.25);
 		dogRobot.gradientDescent();
 		
-		dogRobot.drawToeTarget(gl2);
+		dogRobot.drawToeTargets(gl2);
 	}
 	
 	// assumes body is right way up.
 	private void lowerFeetToGround(DogRobot dogRobot) {
-		for(int i=0;i<4;++i) {
+		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
 			DogLeg leg = dogRobot.getLeg(i);
 			leg.toeTarget2.z=0;
 		}
@@ -52,7 +52,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		Vector3d pushToBody = new Vector3d();
 		double zTorque=0;
 		double feetOnFloor=0;
-		for(int i=0;i<4;++i) {
+		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
 			DogLeg leg = dogRobot.getLeg(i);
 		
 			// step in the desired direction
@@ -72,7 +72,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 					oneLegDir.z+= STEP_HEIGHT*verticalMove;
 				}
 				leg.toeTarget2.add(oneLegDir,floorUnderShoulder);
-			} else if(oneLegDir.z<=0.001 && leg.toeTarget2.z<0.001) {
+			} else if(leg.isToeTouchingTheFloor()) {
 				// Foot is touching floor, pushing body.
 				feetOnFloor++;
 				pushToBody.add(oneLegDir);
@@ -130,13 +130,13 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 	
 	// return s0...1
 	private double getTimeIntoStep(double t, int i) {
-		double v = (t%4)-i; 
+		double v = (t%DogRobot.NUM_LEGS)-i; 
 		Math.min(1,Math.max(0, v));
 		return v;
 	}
 	
 	protected boolean thisLegShouldStepNow(double t, int i) {
-		return (Math.floor(t)%4) == i;
+		return (Math.floor(t)%DogRobot.NUM_LEGS) == i;
 	}
 	
 	private Vector3d getTurnVectorOfOneLeg(DogRobot dogRobot,DogLeg leg) {
@@ -193,7 +193,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 
 	@SuppressWarnings("unused")
 	private void drawFloorCirclesUnderEachShoulder(DogRobot dogRobot,GL2 gl2) {
-		for(int j=0;j<4;++j) {
+		for(int j=0;j<DogRobot.NUM_LEGS;++j) {
 			DogLeg leg = dogRobot.getLeg(j);
 			Vector3d fp = leg.getPointOnFloorUnderShoulder();
 			drawFloorCircleUnderOneShoulder(gl2,fp);

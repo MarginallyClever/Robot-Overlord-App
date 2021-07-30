@@ -20,11 +20,11 @@ public class DogWalkOne extends Entity implements DogAnimator {
 		
 		double t = System.currentTimeMillis()*0.001;
 		
-		for(int i=0;i<4;++i) {
+		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
 			DogLeg leg = dogRobot.getLeg(i);
 			double [] angles = leg.getAngles();
-			angles[1] += Math.toDegrees(Math.sin(t))/4;
-			angles[2] += Math.toDegrees(Math.cos(t))/4;
+			angles[1] += Math.toDegrees(Math.sin(t))/DogRobot.NUM_LEGS;
+			angles[2] += Math.toDegrees(Math.cos(t))/DogRobot.NUM_LEGS;
 			leg.setAngles(angles);
 			t+=Math.PI/2;
 		}

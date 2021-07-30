@@ -27,7 +27,8 @@ public class DogRobot extends PoseEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = 5916361555293772951L;
-
+	public static final int NUM_LEGS = 4;
+	
 	private double BODY_WIDTH = 12;
 	private double BODY_LENGTH = 8;
 	private double BODY_HEIGHT = 32;
@@ -35,9 +36,8 @@ public class DogRobot extends PoseEntity {
 	private DogAnimator animator;
 
 	
-	private DogLeg [] legs = new DogLeg[4];
+	private DogLeg[] legs = new DogLeg[NUM_LEGS];
 	private MaterialEntity mat = new MaterialEntity();
-	private MaterialEntity mat2 = new MaterialEntity();
 	private MaterialEntity matShadow = new MaterialEntity();
 	private ArrayList<DogAnimator> animators = new ArrayList<DogAnimator>();
 	
@@ -57,10 +57,8 @@ public class DogRobot extends PoseEntity {
 		legs[3] = new DogLeg(this, w,-h);
 	}
 
-	private void setupMaterials() {		
+	private void setupMaterials() {
 		mat.setLit(true);
-		mat2.setLit(true);
-		mat2.setDiffuseColor(1,0,0,1);
 		matShadow.setDiffuseColor(0, 0, 0, 0.4f);
 	}
 	
@@ -168,18 +166,8 @@ public class DogRobot extends PoseEntity {
 		}
 	}
 
-	public void drawToeTarget(GL2 gl2) {
-		for( DogLeg leg : legs ) {
-			gl2.glPushMatrix();
-			gl2.glTranslated(leg.toeTarget.x, leg.toeTarget.y, leg.toeTarget.z);
-
-			if(leg.isTouchingTheFloor()) mat2.render(gl2);
-			else						 mat.render(gl2);
-			
-			PrimitiveSolids.drawSphere(gl2, 0.5);
-			gl2.glPopMatrix();
-		}
-		mat.render(gl2);
+	public void drawToeTargets(GL2 gl2) {
+		for( DogLeg leg : legs ) leg.drawToeTarget(gl2);
 	}
 
 	@Override
@@ -244,8 +232,6 @@ public class DogRobot extends PoseEntity {
 		
 		setPoseWorld(wp2);
 	}
-
-
 
 	public void setIdealStandingAngles() {
 		for( DogLeg leg : legs ) leg.setIdealStandingAngles();

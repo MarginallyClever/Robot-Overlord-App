@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.robots.dog;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 
@@ -46,14 +47,14 @@ public class DogWalkThree extends DogWalkTwo implements DogAnimator {
 				bestLeg=i;
 			}
 		}
-		DogLeg leg = dogRobot.getLeg(bestLeg);
-		PrimitiveSolids.drawSphere(gl2, 1.25, leg.toe);
+		
+		Vector3d p = MatrixHelper.getPosition(dogRobot.getLeg(bestLeg).getWorldMatrixOfToe());
+		PrimitiveSolids.drawSphere(gl2, 1.25, p);
 	}
 
 	private double getHowFarIsThisLegFromIdeal(GL2 gl2, DogRobot dogRobot, DogLeg leg) {
-		// furthest leg from ideal
 		Vector3d legCenter = leg.getPointOnFloorUnderShoulder();
-		Vector3d legActual = new Vector3d(leg.toe);
+		Vector3d legActual = MatrixHelper.getPosition(leg.getWorldMatrixOfToe());
 		legActual.sub(legCenter);
 		return legActual.lengthSquared();
 	}
@@ -61,7 +62,7 @@ public class DogWalkThree extends DogWalkTwo implements DogAnimator {
 	private double getHowBadlyThisLegNeedsToMove(GL2 gl2,DogRobot dogRobot, Vector3d toward, DogLeg leg) {
 		Vector3d oneLegDir = getDesiredDirectionOfOneLeg(dogRobot,toward,leg);
 		Vector3d legCenter = leg.getPointOnFloorUnderShoulder();
-		Vector3d legActual = new Vector3d(leg.toe);
+		Vector3d legActual = MatrixHelper.getPosition(leg.getWorldMatrixOfToe());
 		legActual.z=0;
 		Vector3d legDiff = new Vector3d();
 		legDiff.sub(legActual,legCenter);
@@ -73,4 +74,5 @@ public class DogWalkThree extends DogWalkTwo implements DogAnimator {
 	protected boolean thisLegShouldStepNow(double t, int i) {
 		return bestLeg == i;
 	}
+
 }
