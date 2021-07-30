@@ -95,7 +95,7 @@ public class DogRobot extends PoseEntity {
 		if(animator!=null) animator.walk(this, gl2);
 		
 		drawCurrentDogPose(gl2);
-		drawPointOnGroundUnderFeet(gl2);
+		drawPointOnGroundUnderToes(gl2);
 		drawShadow(gl2);
 	}
 	
@@ -157,12 +157,12 @@ public class DogRobot extends PoseEntity {
 		OpenGLHelper.disableLightingEnd(gl2, flag);
 	}
 	
-	private void drawPointOnGroundUnderFeet(GL2 gl2) {
+	private void drawPointOnGroundUnderToes(GL2 gl2) {
 		for( DogLeg leg : legs ) {
-			Vector3d fp = leg.toe;
+			Vector3d fp = leg.getPointOnFloorUnderToe();
 			
 			gl2.glPushMatrix();
-			gl2.glTranslated(fp.x,fp.y,0);
+			gl2.glTranslated(fp.x,fp.y,fp.z);
 			PrimitiveSolids.drawSphere(gl2, 0.25);
 			gl2.glPopMatrix();
 		}
@@ -214,16 +214,8 @@ public class DogRobot extends PoseEntity {
 		return legs[i];
 	}
 
-	public void moveToeTargetsSmoothly(double dt) {
-		dt *= 0.25;
-		dt = Math.max(Math.min(dt, 1), 0);
-
-		Vector3d v = new Vector3d();
-		for( DogLeg leg : legs ) {
-			v.sub(leg.toeTarget2,leg.toeTarget);
-			v.scale(dt);
-			leg.toeTarget.add(v);
-		}
+	public void moveToeTargetsSmoothly(double scale) {
+		for( DogLeg leg : legs ) leg.moveToeTargetSmoothly(scale);
 	}
 
 	// Move the toes towards the toeTargets.
@@ -231,56 +223,10 @@ public class DogRobot extends PoseEntity {
 		double EPSILON = 0.001;
 		
 		for( DogLeg leg : legs ) {
-			double [] legAngles = leg.getAngles();
-			
-			double stepSize=10;
-			for(int tries=0;tries<15;++tries) {
-				int i;
-				// work from toe to shoulder, seems to finish faster than shoulder to toe.
-				for(i=legAngles.length-1;i>=0;--i) {
-					if(partialDescent(leg,legAngles,i,stepSize)<EPSILON) break;
-				}
-				if(i>0) break;
-				
-				stepSize*=0.75;
-			}
-			leg.setAngles(legAngles);
+			leg.gradientDescent(EPSILON);
 		}
 	}
 
-	// Wiggle leg joint 'i' to see which way gets a better score.
-	private double partialDescent(DogLeg leg, double[] legAngles,int i,double stepSize) {
-		double startAngle = legAngles[i];
-		double bestAngle = startAngle;
-		double startScore = scoreLeg(leg,legAngles);
-		double bestScore = startScore;
-
-		legAngles[i] = startAngle-stepSize;
-		double scoreNeg = scoreLeg(leg,legAngles);
-		if(bestScore>scoreNeg) {
-			bestScore = scoreNeg;
-			bestAngle = legAngles[i];
-		}
-		
-		legAngles[i] = startAngle+stepSize;
-		double scorePos = scoreLeg(leg,legAngles);
-		if(bestScore>scorePos) {
-			bestScore = scorePos;
-			bestAngle = legAngles[i];
-		}
-		
-		legAngles[i] = bestAngle;
-		return bestScore;
-	}
-
-	// @return the distance from the {@code DogLeg.toe} to the {@code DogLeg.toeTarget}
-	private double scoreLeg(DogLeg leg,double [] legAngles) {
-		leg.setAngles(legAngles);
-		Vector3d fp = new Vector3d();
-		fp.sub(leg.toe,leg.toeTarget);
-		return fp.lengthSquared();
-	}
-	
 	public void pushBody(Vector3d linearForce,double zTorque) {
 		// move the body to match the feet
 		Matrix4d wp = getPoseWorld();
@@ -298,6 +244,7 @@ public class DogRobot extends PoseEntity {
 		
 		setPoseWorld(wp2);
 	}
+
 
 
 	public void setIdealStandingAngles() {

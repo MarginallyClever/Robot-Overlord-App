@@ -31,7 +31,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		lowerFeetToGround(dogRobot);
 		dogRobot.relaxShoulders();
 		moveOneToeTarget2AtATime(dogRobot,gl2);
-		dogRobot.moveToeTargetsSmoothly(1);
+		dogRobot.moveToeTargetsSmoothly(0.25);
 		dogRobot.gradientDescent();
 		
 		dogRobot.drawToeTarget(gl2);
@@ -87,7 +87,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		boolean applyFriction=true;
 		if(feetOnFloor>0 && applyFriction) {
 			double s = 0.25/feetOnFloor;
-			zTorque *= s;
+			zTorque *= s/2;
 			pushToBody.scale(s);
 			
 			drawBodyForce(gl2,dogRobot,pushToBody,zTorque);			
@@ -121,8 +121,8 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		view.addButton("backward"		).addPropertyChangeListener((evt)->{	forwardForce--;	});
 		view.addButton("strafe left"	).addPropertyChangeListener((evt)->{	leftForce++;	});
 		view.addButton("strafe right"	).addPropertyChangeListener((evt)->{	leftForce--;	});
-		view.addButton("turn left"		).addPropertyChangeListener((evt)->{	turnForce--;	});
-		view.addButton("turn right"		).addPropertyChangeListener((evt)->{	turnForce++;	});
+		view.addButton("turn left"		).addPropertyChangeListener((evt)->{	turnForce++;	});
+		view.addButton("turn right"		).addPropertyChangeListener((evt)->{	turnForce--;	});
 		
 		view.popStack();
 		super.getView(view);
@@ -144,7 +144,7 @@ public class DogWalkTwo extends Entity implements DogAnimator {
 		Vector3d v1 = getBodyCenterToShoulderOnXYPlane(dogRobot,leg);
 		v1.normalize();
 		Vector3d crossProduct = new Vector3d();
-		crossProduct.cross(v1, worldUp);
+		crossProduct.cross(worldUp,v1);
 		crossProduct.normalize();
 		return crossProduct;
 	}

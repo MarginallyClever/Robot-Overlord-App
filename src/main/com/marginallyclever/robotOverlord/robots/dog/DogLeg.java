@@ -22,7 +22,7 @@ public class DogLeg {
 	// desired toe location, second order
 	public Vector3d toeTarget2 = new Vector3d();
 
-	private double[] idealStandingAngles = new double[4];
+	private double[] idealStandingAngles;
 
 	public DogLeg(PoseEntity parent, double r, double d) {
 		super();
@@ -36,16 +36,9 @@ public class DogLeg {
 		elbow.set(11.5, 0, 0, -45, 0, -180, "");
 		foot.set(13, 0, 0, 90, 360, -360, "");
 		refreshMatrixes();
-		captureAngles(idealStandingAngles);
-		// toeTarget2.set(toe);
-		// toeTarget.set(toe);
-	}
-
-	public void captureAngles(double[] legAngles) {
-		legAngles[0] = shoulderA.theta;
-		legAngles[1] = shoulderB.theta;
-		legAngles[2] = elbow.theta;
-		legAngles[3] = foot.theta;
+		idealStandingAngles = getAngles();
+		toeTarget2.set(toe);
+		toeTarget.set(toe);
 	}
 
 	public void render(GL2 gl2) {
@@ -126,5 +119,73 @@ public class DogLeg {
 		fp.z=0;
 
 		return fp;
+	}
+
+	public Vector3d getPointOnFloorUnderToe() {
+		Vector3d fp = MatrixHelper.getPosition(getWorldMatrixOfToe());
+		fp.z=0;
+
+		return fp;
+	}
+	
+	public double getGradientDescentScore(double [] legAngles) {
+		Vector3d fp = new Vector3d();
+		fp.sub(toeTarget,toe);
+		return fp.lengthSquared();
+	}
+
+	// Move the toes towards the toeTargets.
+	public void gradientDescent(double EPSILON) {		
+		double [] legAngles = getAngles();
+		
+		double stepSize=10;
+		for(int tries=0;tries<15;++tries) {
+			int i;
+			// work from toe to shoulder, seems to finish faster than shoulder to toe.
+			for(i=legAngles.length-1;i>=0;--i) {
+				if(partialDescent(legAngles,i,stepSize)<EPSILON) break;
+			}
+			if(i>0) break;
+			
+			stepSize*=0.75;
+		}
+	}
+
+	// Wiggle leg joint 'i' to see which way gets a better score.
+	private double partialDescent(double[] legAngles,int i,double stepSize) {
+		double startAngle = legAngles[i];
+		double bestAngle = startAngle;
+
+		setAngles(legAngles);
+		double startScore = getGradientDescentScore(legAngles);
+		double bestScore = startScore;
+
+		legAngles[i] = startAngle-stepSize;
+		setAngles(legAngles);
+		double scoreNeg = getGradientDescentScore(legAngles);
+		if(bestScore>scoreNeg) {
+			bestScore = scoreNeg;
+			bestAngle = legAngles[i];
+		}
+		
+		legAngles[i] = startAngle+stepSize;
+		setAngles(legAngles);
+		double scorePos = getGradientDescentScore(legAngles);
+		if(bestScore>scorePos) {
+			bestScore = scorePos;
+			bestAngle = legAngles[i];
+		}
+		
+		legAngles[i] = bestAngle;
+		setAngles(legAngles);
+		
+		return bestScore;
+	}
+	
+	public void moveToeTargetSmoothly(double scale) {
+		Vector3d v = new Vector3d();
+		v.sub(toeTarget2,toeTarget);
+		v.scale(scale);
+		toeTarget.add(v);
 	}
 }
