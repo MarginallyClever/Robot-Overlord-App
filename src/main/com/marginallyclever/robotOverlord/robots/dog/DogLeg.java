@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.robots.dog;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -11,6 +12,8 @@ import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3Bone;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 public class DogLeg {
+	public static final double DEFAULT_STEP_HEIGHT = 3;
+	
 	private PoseEntity myParent;
 
 	private Sixi3Bone shoulderA = new Sixi3Bone();
@@ -20,29 +23,40 @@ public class DogLeg {
 
 	private MaterialEntity matOnFloor = new MaterialEntity();
 	private MaterialEntity matStepping = new MaterialEntity();
+	
+	private MaterialEntity matShoulderA = new MaterialEntity();
+	private MaterialEntity matShoulderB = new MaterialEntity();
+	private MaterialEntity matElbow= new MaterialEntity();
+	private MaterialEntity matFoot= new MaterialEntity();
 
+	// current world position of foot
 	private Vector3d toe = new Vector3d();
+	// where gradient descent is trying to send the toe.
 	private Vector3d gradientDescentTarget = new Vector3d();
-	// desired toe location, second order
+	// desired toe location, second order - where gradientDescentTarget is heading.
 	public Vector3d toeTarget2 = new Vector3d();
-
+	
 	private double[] idealStandingAngles;
 
-	public DogLeg(PoseEntity parent, double r, double d) {
+	public DogLeg(PoseEntity parent, double r, double d,double s) {
 		super();
 		myParent = parent;
-		setDHParameters(r, d);
+		setDHParameters(r, d, s);
 
 		matOnFloor.setLit(true);
 		matOnFloor.setDiffuseColor(1, 0, 0, 1);
 		matStepping.setLit(true);
 		matStepping.setDiffuseColor(1,1,1,1);
+		matShoulderA.setDiffuseColor(1,1,0,1);
+		matShoulderB.setDiffuseColor(1,0,0,1);
+		matElbow.setDiffuseColor(0,1,0,1);
+		matFoot.setDiffuseColor(0,0,1,1);
 	}
 
-	private void setDHParameters(double r, double d) {
+	private void setDHParameters(double r, double d,double s) {
 		shoulderA.set(r, d, 0, 0, 360, -360, "");
 		shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		elbow.set(11.5, 0, 0, -45, 0, -180, "");
+		elbow.set(11.5, -3.5*s, 0, -45, 0, -180, "");
 		foot.set(13, 0, 0, 90, 360, -360, "");
 		refreshMatrixes();
 		idealStandingAngles = getAngles();
@@ -52,10 +66,31 @@ public class DogLeg {
 
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
+
+		matShoulderA.render(gl2);
 		drawLineTo(gl2, shoulderA.pose, 255, 0, 0);
+		gl2.glPushMatrix();
+		gl2.glRotated(90, 1, 0, 0);
+		PrimitiveSolids.drawCylinder(gl2, 2, 2.1f);
+		gl2.glPopMatrix();
+		
+		matShoulderB.render(gl2);
 		drawLineTo(gl2, shoulderB.pose, 0, 0, 0);
+		gl2.glPushMatrix();
+		gl2.glRotated(90, 1, 0, 0);
+		PrimitiveSolids.drawCylinder(gl2, 2.5f, 2);
+		gl2.glPopMatrix();
+		
+		double s=1;
+		matElbow.render(gl2);
 		drawLineTo(gl2, elbow.pose, 0, 255, 0);
+		PrimitiveSolids.drawBox(gl2, new Point3d(-elbow.r,-s,-s), new Point3d( 0,s,s));
+
+		s=0.7;
+		matFoot.render(gl2);
 		drawLineTo(gl2, foot.pose, 0, 0, 255);
+		PrimitiveSolids.drawBox(gl2, new Point3d(-foot.r ,-s,-s), new Point3d( 0,s,s));
+		
 		gl2.glPopMatrix();
 	}
 
@@ -167,9 +202,11 @@ public class DogLeg {
 		double startAngle = legAngles[i];
 		double bestAngle = startAngle;
 
+		setAngles(legAngles);
 		double startScore = getGradientDescentScore(legAngles);
 		double bestScore = startScore;
-		if(bestScore < epsilon) return true;
+		if(bestScore < epsilon) 
+			return true;
 
 		legAngles[i] = startAngle-stepSize;
 		setAngles(legAngles);
@@ -177,7 +214,8 @@ public class DogLeg {
 		if(bestScore>scoreNeg) {
 			bestScore = scoreNeg;
 			bestAngle = legAngles[i];
-			if(bestScore < epsilon) return true;
+			if(bestScore < epsilon) 
+				return true;
 		}
 		
 		legAngles[i] = startAngle+stepSize;
@@ -186,7 +224,8 @@ public class DogLeg {
 		if(bestScore>scorePos) {
 			bestScore = scorePos;
 			bestAngle = legAngles[i];
-			if(bestScore < epsilon) return true;
+			if(bestScore < epsilon) 
+				return true;
 		}
 		
 		legAngles[i] = bestAngle;
@@ -202,8 +241,7 @@ public class DogLeg {
 		gradientDescentTarget.add(v);
 	}
 
-
-	public void drawToeTarget(GL2 gl2) {
+	public void drawGradientDescentTarget(GL2 gl2) {
 		gl2.glPushMatrix();
 		gl2.glTranslated(gradientDescentTarget.x, gradientDescentTarget.y, gradientDescentTarget.z);
 
