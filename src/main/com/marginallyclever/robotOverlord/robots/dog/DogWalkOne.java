@@ -2,14 +2,16 @@ package com.marginallyclever.robotOverlord.robots.dog;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 public class DogWalkOne extends Entity implements DogAnimator {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3164195940151204314L;
+	private BooleanEntity isRunning=new BooleanEntity("Running",false);
 
-	
 	public DogWalkOne() {
 		super("DogWalkOne - Fixed motion");
 	}
@@ -18,16 +20,37 @@ public class DogWalkOne extends Entity implements DogAnimator {
 	public void walk(DogRobot dogRobot,GL2 gl2) {
 		dogRobot.setIdealStandingAngles();
 		
-		double t = System.currentTimeMillis()*0.001;
-		
+		double t = getTime();
 		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
 			DogLeg leg = dogRobot.getLeg(i);
 			double [] angles = leg.getAngles();
-			angles[1] += Math.toDegrees(Math.sin(t))/DogRobot.NUM_LEGS;
-			angles[2] += Math.toDegrees(Math.cos(t))/DogRobot.NUM_LEGS;
+			angles[2] += Math.toDegrees(Math.sin(t))/DogRobot.NUM_LEGS;
+			angles[3] += Math.toDegrees(Math.cos(t))/DogRobot.NUM_LEGS;
 			leg.setAngles(angles);
 			t+=Math.PI/2;
 		}
 		dogRobot.updateAllLegMatrixes();
+	}
+	
+	public boolean getIsRunning() {
+		return isRunning.get();
+	}
+
+	public void setIsRunning(boolean state) {
+		isRunning.set(state);
+	}
+	
+	public double getTime() {
+		double t = System.currentTimeMillis()*0.001;
+		if(!getIsRunning()) t=0;
+		return t;
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("1","One");
+		view.add(isRunning);
+		view.popStack();
+		super.getView(view);
 	}
 }
