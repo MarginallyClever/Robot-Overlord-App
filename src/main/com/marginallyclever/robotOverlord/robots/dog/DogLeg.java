@@ -42,6 +42,7 @@ public class DogLeg {
 		super();
 		myParent = parent;
 		setDHParameters(r, d, s);
+		whenBodyHasMoved();
 
 		matOnFloor.setLit(true);
 		matOnFloor.setDiffuseColor(1, 0, 0, 1);
@@ -58,10 +59,6 @@ public class DogLeg {
 		shoulderB.set(0, 0, 90, -90, 360, -360, "");
 		elbow.set(11.5, -3.5*s, 0, -45, 0, -180, "");
 		foot.set(13, 0, 0, 90, 360, -360, "");
-		refreshMatrixes();
-		idealStandingAngles = getAngles();
-		gradientDescentTarget.set(toe);
-		toeTarget2.set(toe);
 	}
 
 	public void render(GL2 gl2) {
@@ -110,7 +107,16 @@ public class DogLeg {
 	}
 
 	public boolean isToeTouchingTheFloor() {
-		return toe.z < 0.01;
+		return toe.z < 0.1;
+	}
+
+	public double[] getAngles() {
+		double[] legAngles = new double[4];
+		legAngles[0] = shoulderA.theta;
+		legAngles[1] = shoulderB.theta;
+		legAngles[2] = elbow.theta;
+		legAngles[3] = foot.theta;
+		return legAngles;
 	}
 
 	public void setAngles(double[] angles) {
@@ -138,17 +144,15 @@ public class DogLeg {
 		return m;
 	}
 
-	public double[] getAngles() {
-		double[] legAngles = new double[4];
-		legAngles[0] = shoulderA.theta;
-		legAngles[1] = shoulderB.theta;
-		legAngles[2] = elbow.theta;
-		legAngles[3] = foot.theta;
-		return legAngles;
-	}
-
 	public void setIdealStandingAngles() {
 		setAngles(idealStandingAngles);
+	}
+	
+	public void whenBodyHasMoved() {
+		idealStandingAngles = getAngles();
+		refreshMatrixes();
+		gradientDescentTarget.set(toe);
+		toeTarget2.set(toe);
 	}
 
 	public void relaxShoulder() {
