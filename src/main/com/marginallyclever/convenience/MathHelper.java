@@ -275,4 +275,12 @@ public class MathHelper {
 
 	    return new double[] { roll, pitch, yaw };
 	}
+	
+	static public Vector3d getNewRandomInRange(int xRadius, int yRadius, int zRadius) {
+		double x=Math.random()*xRadius*2 - xRadius;
+		double y=Math.random()*yRadius*2 - yRadius;
+		double z=Math.random()*zRadius*2 - zRadius;
+		Vector3d a = new Vector3d(x,y,z);
+		return a;
+	}
 }
