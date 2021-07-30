@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.robots.dog;
 
 import java.util.ArrayList;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -42,6 +43,7 @@ public class DogRobot extends PoseEntity {
 	private ArrayList<DogAnimator> animators = new ArrayList<DogAnimator>();
 	private DogAnimator activeAnimator;
 
+	private IntEntity animationChoice = new IntEntity("Animation style",0);
 	private MaterialEntity matTorso = new MaterialEntity();
 	private MaterialEntity matShadow = new MaterialEntity();
 	private Shape torsoShape = new Shape("/SpotMicro/torso.obj");
@@ -54,10 +56,9 @@ public class DogRobot extends PoseEntity {
 		fixBlenderTorsoModel();
 	}
 
-
 	private void fixBlenderTorsoModel() {
-		torsoShape.setRotation(new Vector3d(Math.toRadians(90),0,Math.toRadians(180)));
-		torsoShape.setPosition(new Vector3d(0.7,4.1,-7)); 
+		torsoShape.setRotation(new Vector3d(Math.toRadians(90),Math.toRadians(180),Math.toRadians(180)));
+		torsoShape.setPosition(new Vector3d(-0.7,4.1,7)); 
 	}
 
 	private void setupLegs() {
@@ -153,9 +154,7 @@ public class DogRobot extends PoseEntity {
 	}
 
 	private void drawLegs(GL2 gl2) {
-		//boolean flag = OpenGLHelper.disableLightingStart(gl2);	
 		for( DogLeg leg : legs ) leg.render(gl2);
-		//OpenGLHelper.disableLightingEnd(gl2, flag);
 	}
 	
 	public void drawPointOnGroundUnderToes(GL2 gl2) {
@@ -177,7 +176,6 @@ public class DogRobot extends PoseEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("D",getName());
 		
-		IntEntity animationChoice = new IntEntity("Animation style",0);
 		animationChoice.addPropertyChangeListener((evt)->{
 			activeAnimator = animators.get(animationChoice.get());
 		});
@@ -240,9 +238,20 @@ public class DogRobot extends PoseEntity {
 		for( DogLeg leg : legs ) leg.relaxShoulder();
 	}
 
-
 	public void lowerFeetToGround() {
 		// assumes body is right way up.
 		for( DogLeg leg : legs ) leg.toeTarget2.z=0;
+	}
+
+	@Override
+	public void setRotation(Matrix3d arg0) {
+		super.setRotation(arg0);
+		for( DogLeg leg : legs ) leg.whenBodyHasMoved();
+	}
+	
+	@Override
+	public void setPosition(Vector3d pos) {
+		super.setPosition(pos);
+		for( DogLeg leg : legs ) leg.whenBodyHasMoved();
 	}
 }
