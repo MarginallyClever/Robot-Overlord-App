@@ -206,7 +206,7 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 	}
 
-	static public void drawCylinder(GL2 gl2,float thickness,float radius) {
+	static public void drawCylinder(GL2 gl2,float thicknessY,float radiusXZ) {
 		int i;
 		int c=36;
 		
@@ -215,9 +215,9 @@ public class PrimitiveSolids {
 		gl2.glNormal3f(0,1,0);
 		for(i=0;i<=c;++i) {
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3d((float)Math.sin(ratio)*radius,
-							thickness,
-							(float)Math.cos(ratio)*radius);
+			gl2.glVertex3d((float)Math.sin(ratio)*radiusXZ,
+							thicknessY,
+							(float)Math.cos(ratio)*radiusXZ);
 		}
 		gl2.glEnd();
 		// right
@@ -225,9 +225,9 @@ public class PrimitiveSolids {
 		gl2.glNormal3f(0,-1,0);
 		for(i=0;i<=c;++i) {
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3d((float)Math.cos(ratio)*radius,
-							-thickness,
-							(float)Math.sin(ratio)*radius);
+			gl2.glVertex3d((float)Math.cos(ratio)*radiusXZ,
+							-thicknessY,
+							(float)Math.sin(ratio)*radiusXZ);
 		}
 		gl2.glEnd();
 
@@ -235,9 +235,9 @@ public class PrimitiveSolids {
 		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 		for(i=0;i<=c;++i) {
 			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			float a=(float)Math.sin(ratio)*radius;
-			float b=thickness;
-			float d=(float)Math.cos(ratio)*radius;
+			float a=(float)Math.sin(ratio)*radiusXZ;
+			float b=thicknessY;
+			float d=(float)Math.cos(ratio)*radiusXZ;
 			gl2.glNormal3f(a,0,d);
 			gl2.glVertex3d(a,b,d);
 			gl2.glVertex3d(a,-b,d);
