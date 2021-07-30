@@ -46,36 +46,13 @@ public class DogRobot extends PoseEntity {
 	private MaterialEntity matShadow = new MaterialEntity();
 	private Shape torsoShape = new Shape("/SpotMicro/torso.obj");
 	
-	private ArrayList<ArcZPlanner> list = new ArrayList<ArcZPlanner>();
-	
 	public DogRobot() {
 		super("Dog Robot");
 		setupLegs();
 		setupAnimators();
 		setupMaterials();
 		fixBlenderTorsoModel();
-		
-		for(int i=0;i<200;++i) {
-			ArcZPlanner p = new ArcZPlanner();
-			Vector3d a = getNewRandominRange(40,40,0);
-			Vector3d b = getNewRandominRange(40,40,0);
-			double h = Math.random()*25.0;
-			double t = Math.random()*5.0;
-			p.planStep(a, b, h, t);
-			list.add(p);
-		}
 	}
-	
-	
-	
-	private Vector3d getNewRandominRange(int xrange, int yrange, int zrange) {
-		double x=Math.random()*xrange - xrange/2.0;
-		double y=Math.random()*yrange - yrange/2.0;
-		double z=Math.random()*zrange;
-		Vector3d a = new Vector3d(x,y,z);
-		return a;
-	}
-
 
 
 	private void fixBlenderTorsoModel() {
@@ -128,8 +105,6 @@ public class DogRobot extends PoseEntity {
 		if(activeAnimator!=null) activeAnimator.walk(this, gl2);
 		drawCurrentDogPose(gl2);
 		drawShadow(gl2);
-		
-		list.forEach(e->e.render(gl2, 40));
 	}
 	
 	private void drawShadow(GL2 gl2) {
