@@ -8,10 +8,10 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
+import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
@@ -29,36 +29,72 @@ public class DogRobot extends PoseEntity {
 	private static final long serialVersionUID = 5916361555293772951L;
 	public static final int NUM_LEGS = 4;
 	
-	private double BODY_WIDTH = 12;
-	private double BODY_LENGTH = 8;
-	private double BODY_HEIGHT = 32;
-	private double bodyScale = 0.99;
-	private DogAnimator animator;
-
+	public static final double KINEMATIC_BODY_WIDTH = 8;
+	public static final double KINEMATIC_BODY_LENGTH = 8;
+	public static final double KINEMATIC_BODY_HEIGHT = 18.5;
 	
+	public static final double VISUAL_BODY_WIDTH = 12;
+	public static final double VISUAL_BODY_LENGTH = 8;
+	public static final double VISUAL_BODY_HEIGHT = 30;
+
 	private DogLeg[] legs = new DogLeg[NUM_LEGS];
-	private MaterialEntity mat = new MaterialEntity();
-	private MaterialEntity matShadow = new MaterialEntity();
+	
 	private ArrayList<DogAnimator> animators = new ArrayList<DogAnimator>();
+	private DogAnimator activeAnimator;
+
+	private MaterialEntity matTorso = new MaterialEntity();
+	private MaterialEntity matShadow = new MaterialEntity();
+	private Shape torsoShape = new Shape("/SpotMicro/torso.obj");
+	
+	private ArrayList<ArcZPlanner> list = new ArrayList<ArcZPlanner>();
 	
 	public DogRobot() {
 		super("Dog Robot");
 		setupLegs();
 		setupAnimators();
 		setupMaterials();
+		fixBlenderTorsoModel();
+		
+		for(int i=0;i<200;++i) {
+			ArcZPlanner p = new ArcZPlanner();
+			Vector3d a = getNewRandominRange(40,40,0);
+			Vector3d b = getNewRandominRange(40,40,0);
+			double h = Math.random()*25.0;
+			double t = Math.random()*5.0;
+			p.planStep(a, b, h, t);
+			list.add(p);
+		}
 	}
 	
+	
+	
+	private Vector3d getNewRandominRange(int xrange, int yrange, int zrange) {
+		double x=Math.random()*xrange - xrange/2.0;
+		double y=Math.random()*yrange - yrange/2.0;
+		double z=Math.random()*zrange;
+		Vector3d a = new Vector3d(x,y,z);
+		return a;
+	}
+
+
+
+	private void fixBlenderTorsoModel() {
+		torsoShape.setRotation(new Vector3d(Math.toRadians(90),0,Math.toRadians(180)));
+		torsoShape.setPosition(new Vector3d(0.7,4.1,-7)); 
+	}
+
 	private void setupLegs() {
-		double w = BODY_WIDTH/2;
-		double h = BODY_HEIGHT/2;
-		legs[0] = new DogLeg(this, w, h);
-		legs[1] = new DogLeg(this,-w, h);
-		legs[2] = new DogLeg(this,-w,-h);
-		legs[3] = new DogLeg(this, w,-h);
+		double w = KINEMATIC_BODY_WIDTH/2;
+		double h = KINEMATIC_BODY_HEIGHT/2;
+		legs[0] = new DogLeg(this, w, h,1);
+		legs[1] = new DogLeg(this,-w, h,-1);
+		legs[2] = new DogLeg(this,-w,-h,-1);
+		legs[3] = new DogLeg(this, w,-h,1);
 	}
 
 	private void setupMaterials() {
-		mat.setLit(true);
+		matTorso.setLit(true);
+		matTorso.setDiffuseColor(1, 1, 1, 1);
 		matShadow.setDiffuseColor(0, 0, 0, 0.4f);
 	}
 	
@@ -68,7 +104,7 @@ public class DogRobot extends PoseEntity {
 		addAnimator(new DogWalkTwo());
 		addAnimator(new DogWalkThree());
 		
-		animator = animators.get(0);
+		activeAnimator = animators.get(0);
 	}
 
 	public void addAnimator(DogAnimator da) {
@@ -88,13 +124,12 @@ public class DogRobot extends PoseEntity {
 	
 	@Override
 	public void render(GL2 gl2) {
-		super.render(gl2);
-
-		if(animator!=null) animator.walk(this, gl2);
-		
+		super.render(gl2);		
+		if(activeAnimator!=null) activeAnimator.walk(this, gl2);
 		drawCurrentDogPose(gl2);
-		drawPointOnGroundUnderToes(gl2);
 		drawShadow(gl2);
+		
+		list.forEach(e->e.render(gl2, 40));
 	}
 	
 	private void drawShadow(GL2 gl2) {
@@ -107,10 +142,10 @@ public class DogRobot extends PoseEntity {
 		shadow.renderAsFan(gl2);
 	}
 
-	private Vector3d[] getBoxCornersProjectedOnFloor() {
-		double width = (BODY_WIDTH/2)*bodyScale;
-		double height = (BODY_HEIGHT/2)*bodyScale;
-		double length = (BODY_LENGTH/2)*bodyScale;
+	private Vector3d [] getBoxCornersProjectedOnFloor() {
+		double width = (VISUAL_BODY_WIDTH/2);
+		double height = (VISUAL_BODY_HEIGHT/2);
+		double length = (VISUAL_BODY_LENGTH/2);
 		Point3d [] p = PrimitiveSolids.get8PointsOfBox(
 							new Point3d(-width,-length,-height),
 							new Point3d( width, length, height));
@@ -130,8 +165,6 @@ public class DogRobot extends PoseEntity {
 	}
 
 	private void drawCurrentDogPose(GL2 gl2) {
-		mat.render(gl2);
-		
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, pose);
 		drawTorso(gl2);
@@ -140,22 +173,17 @@ public class DogRobot extends PoseEntity {
 	}
 
 	private void drawTorso(GL2 gl2) {
-		double width = (BODY_WIDTH/2)*bodyScale;
-		double height = (BODY_HEIGHT/2)*bodyScale;
-		double length = (BODY_LENGTH/2)*bodyScale;
-		gl2.glColor4d(1,1,1,1);
-		PrimitiveSolids.drawBox(gl2, 
-			new Point3d(-width,-length,-height),
-			new Point3d( width, length, height));
+		matTorso.render(gl2);
+		torsoShape.render(gl2);
 	}
 
 	private void drawLegs(GL2 gl2) {
-		boolean flag = OpenGLHelper.disableLightingStart(gl2);	
+		//boolean flag = OpenGLHelper.disableLightingStart(gl2);	
 		for( DogLeg leg : legs ) leg.render(gl2);
-		OpenGLHelper.disableLightingEnd(gl2, flag);
+		//OpenGLHelper.disableLightingEnd(gl2, flag);
 	}
 	
-	private void drawPointOnGroundUnderToes(GL2 gl2) {
+	public void drawPointOnGroundUnderToes(GL2 gl2) {
 		for( DogLeg leg : legs ) {
 			Vector3d fp = leg.getPointOnFloorUnderToe();
 			
@@ -167,7 +195,7 @@ public class DogRobot extends PoseEntity {
 	}
 
 	public void drawToeTargets(GL2 gl2) {
-		for( DogLeg leg : legs ) leg.drawToeTarget(gl2);
+		for( DogLeg leg : legs ) leg.drawGradientDescentTarget(gl2);
 	}
 
 	@Override
@@ -176,7 +204,7 @@ public class DogRobot extends PoseEntity {
 		
 		IntEntity animationChoice = new IntEntity("Animation style",0);
 		animationChoice.addPropertyChangeListener((evt)->{
-			animator = animators.get(animationChoice.get());
+			activeAnimator = animators.get(animationChoice.get());
 		});
 		view.addComboBox(animationChoice, getAnimationNames());
 		
@@ -208,11 +236,7 @@ public class DogRobot extends PoseEntity {
 
 	// Move the toes towards the toeTargets.
 	public void gradientDescent() {
-		double EPSILON = 0.001;
-		
-		for( DogLeg leg : legs ) {
-			leg.gradientDescent(EPSILON);
-		}
+		for( DogLeg leg : legs ) leg.gradientDescent(0.001);
 	}
 
 	public void pushBody(Vector3d linearForce,double zTorque) {
@@ -240,5 +264,10 @@ public class DogRobot extends PoseEntity {
 	public void relaxShoulders() {
 		for( DogLeg leg : legs ) leg.relaxShoulder();
 	}
-	
+
+
+	public void lowerFeetToGround() {
+		// assumes body is right way up.
+		for( DogLeg leg : legs ) leg.toeTarget2.z=0;
+	}
 }
