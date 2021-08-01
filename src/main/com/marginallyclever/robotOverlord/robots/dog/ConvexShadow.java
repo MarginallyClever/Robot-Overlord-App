@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.log.Log;
 
 public class ConvexShadow {
 	private ArrayList<Vector3d> hull = new ArrayList<Vector3d>();
@@ -15,7 +16,13 @@ public class ConvexShadow {
 		int s = hull.size();
 		if(s<2) hull.add(p);
 		else if(s<3) addThirdPointClockwise(p);
-		else if(!pointIsInsideHull(p)) addPointCarefully(p);
+		else if(!pointIsInsideHull(p)) {
+			try {
+				addPointCarefully(p);
+			} catch(Exception e) {
+				Log.error("ConvexShadow::addPointCarefully() algorithm failure.");
+			}
+		}
 	}
 	
 	private void addThirdPointClockwise(Vector3d c) {
@@ -37,7 +44,7 @@ public class ConvexShadow {
 	}
 	
 	// See https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
-	private void addPointCarefully(Vector3d p) {
+	private void addPointCarefully(Vector3d p) throws Exception {
 		ArrayList<Vector3d> hull2 = new ArrayList<Vector3d>();
 		hull.add(p);
 		// first is left-most point in the set.
@@ -46,6 +53,8 @@ public class ConvexShadow {
 			if(pointOnHull.x>n.x) pointOnHull=n;
 		}
 
+		int hullSize=hull.size();
+		
 		Vector3d firstPoint = pointOnHull;
 		
 		Vector3d endPoint;
@@ -58,8 +67,13 @@ public class ConvexShadow {
 				}
 			}
 			pointOnHull = endPoint;
-		} while(endPoint!=firstPoint);
+			hullSize--;
+		} while(endPoint!=firstPoint && hullSize>=0);
 		
+		if(hullSize<0) {
+			throw new IndexOutOfBoundsException("Algorithm failed.");
+		}
+			
 		hull = hull2;
 	}
 
