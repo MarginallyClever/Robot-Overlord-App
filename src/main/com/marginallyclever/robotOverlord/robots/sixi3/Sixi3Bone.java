@@ -55,10 +55,12 @@ public class Sixi3Bone {
 		assert(!Double.isNaN(alpha));
 		assert(!Double.isNaN(r));
 		assert(!Double.isNaN(d));
-		double ct = Math.cos(Math.toRadians(theta));
-		double ca = Math.cos(Math.toRadians(alpha));
-		double st = Math.sin(Math.toRadians(theta));
-		double sa = Math.sin(Math.toRadians(alpha));
+		double rt = Math.toRadians(theta);
+		double ra = Math.toRadians(alpha);
+		double ct = Math.cos(rt);
+		double ca = Math.cos(ra);
+		double st = Math.sin(rt);
+		double sa = Math.sin(ra);
 		
 		pose.m00 = ct;		pose.m01 = -st*ca;		pose.m02 = st*sa;		pose.m03 = r*ct;
 		pose.m10 = st;		pose.m11 = ct*ca;		pose.m12 = -ct*sa;		pose.m13 = r*st;
