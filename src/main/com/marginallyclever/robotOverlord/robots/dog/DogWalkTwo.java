@@ -72,7 +72,7 @@ public class DogWalkTwo extends DogWalkOne {
 			DogLeg leg = dogRobot.getLeg(i);
 			if(leg.isToeTouchingTheFloor()) {
 				hits++;
-				System.out.print(i+"\t");
+				//System.out.print(i+"\t");
 				Vector3d startPoint = leg.getPointOnFloorUnderToe(); 
 				Vector3d endPoint = getWhereIStepFromHere(dogRobot,leg,speed,startPoint);
 				myPlanner.planStep(startPoint,endPoint,DogLeg.DEFAULT_STEP_HEIGHT,speed);
