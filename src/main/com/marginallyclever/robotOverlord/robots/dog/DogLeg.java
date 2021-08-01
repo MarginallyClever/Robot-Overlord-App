@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 public class DogLeg {
 	public static final double DEFAULT_STEP_HEIGHT = 3;
-	
+
 	private PoseEntity myParent;
 
 	private Sixi3Bone shoulderA = new Sixi3Bone();
@@ -23,11 +23,11 @@ public class DogLeg {
 
 	private MaterialEntity matOnFloor = new MaterialEntity();
 	private MaterialEntity matStepping = new MaterialEntity();
-	
+
 	private MaterialEntity matShoulderA = new MaterialEntity();
 	private MaterialEntity matShoulderB = new MaterialEntity();
-	private MaterialEntity matElbow= new MaterialEntity();
-	private MaterialEntity matFoot= new MaterialEntity();
+	private MaterialEntity matElbow = new MaterialEntity();
+	private MaterialEntity matFoot = new MaterialEntity();
 
 	// current world position of foot
 	private Vector3d toe = new Vector3d();
@@ -35,10 +35,10 @@ public class DogLeg {
 	private Vector3d gradientDescentTarget = new Vector3d();
 	// desired toe location, second order - where gradientDescentTarget is heading.
 	public Vector3d toeTarget2 = new Vector3d();
-	
+
 	private double[] idealStandingAngles;
 
-	public DogLeg(PoseEntity parent, double r, double d,double s) {
+	public DogLeg(PoseEntity parent, double r, double d, double s) {
 		super();
 		myParent = parent;
 		setDHParameters(r, d, s);
@@ -47,17 +47,17 @@ public class DogLeg {
 		matOnFloor.setLit(true);
 		matOnFloor.setDiffuseColor(1, 0, 0, 1);
 		matStepping.setLit(true);
-		matStepping.setDiffuseColor(1,1,1,1);
-		matShoulderA.setDiffuseColor(1,1,0,1);
-		matShoulderB.setDiffuseColor(1,0,0,1);
-		matElbow.setDiffuseColor(0,1,0,1);
-		matFoot.setDiffuseColor(0,0,1,1);
+		matStepping.setDiffuseColor(1, 1, 1, 1);
+		matShoulderA.setDiffuseColor(1, 1, 0, 1);
+		matShoulderB.setDiffuseColor(1, 0, 0, 1);
+		matElbow.setDiffuseColor(0, 1, 0, 1);
+		matFoot.setDiffuseColor(0, 0, 1, 1);
 	}
 
-	private void setDHParameters(double r, double d,double s) {
+	private void setDHParameters(double r, double d, double s) {
 		shoulderA.set(r, d, 0, 0, 360, -360, "");
 		shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		elbow.set(11.5, -3.5*s, 0, -45, 0, -180, "");
+		elbow.set(11.5, -3.5 * s, 0, -45, 0, -180, "");
 		foot.set(13, 0, 0, 90, 360, -360, "");
 	}
 
@@ -70,24 +70,24 @@ public class DogLeg {
 		gl2.glRotated(90, 1, 0, 0);
 		PrimitiveSolids.drawCylinder(gl2, 2, 2.1f);
 		gl2.glPopMatrix();
-		
+
 		matShoulderB.render(gl2);
 		drawLineTo(gl2, shoulderB.pose, 0, 0, 0);
 		gl2.glPushMatrix();
 		gl2.glRotated(90, 1, 0, 0);
 		PrimitiveSolids.drawCylinder(gl2, 2.5f, 2);
 		gl2.glPopMatrix();
-		
-		double s=1;
+
+		double s = 1;
 		matElbow.render(gl2);
 		drawLineTo(gl2, elbow.pose, 0, 255, 0);
-		PrimitiveSolids.drawBox(gl2, new Point3d(-elbow.r,-s,-s), new Point3d( 0,s,s));
+		PrimitiveSolids.drawBox(gl2, new Point3d(-elbow.r, -s, -s), new Point3d(0, s, s));
 
-		s=0.7;
+		s = 0.7;
 		matFoot.render(gl2);
 		drawLineTo(gl2, foot.pose, 0, 0, 255);
-		PrimitiveSolids.drawBox(gl2, new Point3d(-foot.r ,-s,-s), new Point3d( 0,s,s));
-		
+		PrimitiveSolids.drawBox(gl2, new Point3d(-foot.r, -s, -s), new Point3d(0, s, s));
+
 		gl2.glPopMatrix();
 	}
 
@@ -110,7 +110,7 @@ public class DogLeg {
 		return toe.z < 0.1;
 	}
 
-	public double[] getAngles() {
+	public double[] getJointAngles() {
 		double[] legAngles = new double[4];
 		legAngles[0] = shoulderA.theta;
 		legAngles[1] = shoulderB.theta;
@@ -119,8 +119,8 @@ public class DogLeg {
 		return legAngles;
 	}
 
-	public void setAngles(double[] angles) {
-		shoulderA.setAngleWRTLimits(angles[0]);
+	public void setJointAngles(double[] angles) {
+		//shoulderA.setAngleWRTLimits(angles[0]);
 		shoulderB.setAngleWRTLimits(angles[1]);
 		elbow.setAngleWRTLimits(angles[2]);
 		foot.setAngleWRTLimits(angles[3]);
@@ -145,11 +145,11 @@ public class DogLeg {
 	}
 
 	public void setIdealStandingAngles() {
-		setAngles(idealStandingAngles);
+		setJointAngles(idealStandingAngles);
 	}
-	
+
 	public void whenBodyHasMoved() {
-		idealStandingAngles = getAngles();
+		idealStandingAngles = getJointAngles();
 		refreshMatrixes();
 		gradientDescentTarget.set(toe);
 		toeTarget2.set(toe);
@@ -168,79 +168,76 @@ public class DogLeg {
 
 	public Vector3d getPointOnFloorUnderShoulder() {
 		Vector3d fp = MatrixHelper.getPosition(getWorldMatrixOfShoulder());
-		fp.z=0;
+		fp.z = 0;
 		return fp;
 	}
 
 	public Vector3d getPointOnFloorUnderToe() {
 		Vector3d fp = MatrixHelper.getPosition(getWorldMatrixOfToe());
-		fp.z=0;
+		fp.z = 0;
 		return fp;
 	}
-	
-	public double getGradientDescentScore(double [] legAngles) {
+
+	public double getGradientDescentScore(double[] legAngles) {
 		Vector3d fp = new Vector3d();
-		fp.sub(gradientDescentTarget,toe);
+		fp.sub(gradientDescentTarget, toe);
 		return fp.lengthSquared();
 	}
-	
+
 	// Move the toes towards the toeTargets.
-	public void gradientDescent(double epsilon) {		
-		double [] legAngles = getAngles();
-		
-		double stepSize=10;
-		for(int tries=0;tries<15;++tries) {
+	public void gradientDescent(double epsilon) {
+		double[] legAngles = getJointAngles();
+
+		double stepSize = 10;
+		for(int tries = 0; tries < 15; ++tries) {
 			int i;
 			// work from toe to shoulder, seems to finish faster than shoulder to toe.
-			for(i=legAngles.length-1;i>=0;--i) {
-				if(partialDescent(legAngles,i,stepSize,epsilon)) break;
+			for(i = legAngles.length - 1; i >= 0; --i) {
+				if(partialDescent(legAngles, i, stepSize, epsilon)) break;
 			}
-			if(i>0) break;
-			
-			stepSize*=0.75;
+			if(i > 0) break;
+
+			stepSize *= 0.75;
 		}
 	}
-	
+
 	// Wiggle leg joint 'i' to see which way gets a better score.
-	private boolean partialDescent(double[] legAngles,int i,double stepSize,double epsilon) {
+	private boolean partialDescent(double[] legAngles, int i, double stepSize, double epsilon) {
 		double startAngle = legAngles[i];
 		double bestAngle = startAngle;
 
-		setAngles(legAngles);
+		setJointAngles(legAngles);
 		double startScore = getGradientDescentScore(legAngles);
 		double bestScore = startScore;
-		if(bestScore < epsilon) 
-			return true;
+		if (bestScore < epsilon) return true;
 
-		legAngles[i] = startAngle-stepSize;
-		setAngles(legAngles);
+		legAngles[i] = startAngle - stepSize;
+		setJointAngles(legAngles);
 		double scoreNeg = getGradientDescentScore(legAngles);
-		if(bestScore>scoreNeg) {
+		if (bestScore > scoreNeg) {
 			bestScore = scoreNeg;
 			bestAngle = legAngles[i];
-			if(bestScore < epsilon) 
-				return true;
+			if (bestScore < epsilon) return true;
 		}
-		
-		legAngles[i] = startAngle+stepSize;
-		setAngles(legAngles);
+
+		legAngles[i] = startAngle + stepSize;
+		setJointAngles(legAngles);
 		double scorePos = getGradientDescentScore(legAngles);
-		if(bestScore>scorePos) {
+		if (bestScore > scorePos) {
 			bestScore = scorePos;
 			bestAngle = legAngles[i];
-			if(bestScore < epsilon) 
-				return true;
+			if (bestScore < epsilon) return true;
 		}
-		
+
 		legAngles[i] = bestAngle;
-		setAngles(legAngles);
-		
+		setJointAngles(legAngles);
+
 		return false;
 	}
-	
+
 	public void moveToeTargetSmoothly(double scale) {
 		Vector3d v = new Vector3d();
-		v.sub(toeTarget2,gradientDescentTarget);
+		v.sub(toeTarget2, gradientDescentTarget);
 		v.scale(scale);
 		gradientDescentTarget.add(v);
 	}
@@ -249,11 +246,11 @@ public class DogLeg {
 		gl2.glPushMatrix();
 		gl2.glTranslated(gradientDescentTarget.x, gradientDescentTarget.y, gradientDescentTarget.z);
 
-		if(isToeTouchingTheFloor()) matStepping.render(gl2);
-		else						matOnFloor.render(gl2);
-		
+		if (isToeTouchingTheFloor()) matStepping.render(gl2);
+		else						 matOnFloor.render(gl2);
+
 		PrimitiveSolids.drawSphere(gl2, 0.5);
 		gl2.glPopMatrix();
 	}
-	
+
 }
