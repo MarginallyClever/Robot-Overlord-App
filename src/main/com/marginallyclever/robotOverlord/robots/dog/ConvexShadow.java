@@ -47,16 +47,11 @@ public class ConvexShadow {
 	private void addPointCarefully(Vector3d p) throws Exception {
 		ArrayList<Vector3d> hull2 = new ArrayList<Vector3d>();
 		hull.add(p);
-		// first is left-most point in the set.
-		Vector3d pointOnHull = hull.get(0);
-		for( Vector3d n : hull ) {
-			if(pointOnHull.x>n.x) pointOnHull=n;
-		}
 
 		int hullSize=hull.size();
 		
+		Vector3d pointOnHull = getPointGuaranteedOnEdgeOfHull(hull);
 		Vector3d firstPoint = pointOnHull;
-		
 		Vector3d endPoint;
 		do {
 			hull2.add(pointOnHull);
@@ -75,6 +70,20 @@ public class ConvexShadow {
 		}
 			
 		hull = hull2;
+	}
+
+	private Vector3d getPointGuaranteedOnEdgeOfHull(ArrayList<Vector3d> hull2) {
+		// first is left-most point in the set.
+		Vector3d pointOnHull = hull.get(0);
+		for( Vector3d n : hull ) {
+			if(pointOnHull.x>n.x) pointOnHull=n;
+			else if(pointOnHull.x==n.x) {
+				// two matching x, find the smallest y
+				if(pointOnHull.y>n.y) pointOnHull=n; 
+			}
+		}
+
+		return pointOnHull;
 	}
 
 	@SuppressWarnings("unused")
