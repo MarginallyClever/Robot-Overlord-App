@@ -105,36 +105,47 @@ public class DogRobot extends PoseEntity {
 		super.render(gl2);		
 		if(activeAnimator!=null) activeAnimator.walk(this, gl2);
 		drawCurrentDogPose(gl2);
+		drawStabilityPolygon(gl2);
 		drawShadow(gl2);
 	}
 	
-	private void drawShadow(GL2 gl2) {
-		Vector3d [] p = getBoxCornersProjectedOnFloor();
+	private void drawStabilityPolygon(GL2 gl2) {
+		ConvexShadow shadow = new ConvexShadow( getToesOnFloor() );
+		matShadow.render(gl2);
+		shadow.renderAsLineLoop(gl2);
+	}
 
-		ConvexShadow shadow = new ConvexShadow();
-		for( Vector3d pN : p ) shadow.add(pN);
+	public ArrayList<Vector3d> getToesOnFloor() {
+		ArrayList<Vector3d> p = new ArrayList<Vector3d>();
+		for( DogLeg leg : legs ) {
+			if( leg.isToeTouchingTheFloor() ) {
+				p.add(leg.getPointOnFloorUnderToe());
+			}
+		}
+		return p;
+	}
+
+	private void drawShadow(GL2 gl2) {
+		ConvexShadow shadow = new ConvexShadow( getBoxCornersProjectedOnFloor() );
 		matShadow.setDiffuseColor(0, 0, 0, 0.4f);
 		matShadow.render(gl2);
 		shadow.renderAsFan(gl2);
 	}
 
-	private Vector3d [] getBoxCornersProjectedOnFloor() {
+	private ArrayList<Vector3d> getBoxCornersProjectedOnFloor() {
 		double width = (VISUAL_BODY_WIDTH/2);
 		double height = (VISUAL_BODY_HEIGHT/2);
 		double length = (VISUAL_BODY_LENGTH/2);
 		Point3d [] p = PrimitiveSolids.get8PointsOfBox(
 							new Point3d(-width,-length,-height),
 							new Point3d( width, length, height));
-		Vector3d [] p2 = new Vector3d[8];
-		
+		ArrayList<Vector3d> p2 = new ArrayList<Vector3d>();
 		Matrix4d m = getPoseWorld();
-		
-		int i=0;
 		for( Point3d pN : p ) {
 			m.transform(pN);
 			Vector3d pT = new Vector3d(pN);
 			pT.z=0;
-			p2[i++]=pT;
+			p2.add(pT);
 		}
 
 		return p2;

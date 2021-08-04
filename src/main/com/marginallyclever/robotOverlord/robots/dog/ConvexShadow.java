@@ -12,6 +12,10 @@ public class ConvexShadow {
 	
 	public ConvexShadow() {}
 	
+	public ConvexShadow(ArrayList<Vector3d> points) {
+		set(points);
+	}
+	
 	public void add(Vector3d p) {
 		int s = hull.size();
 		if(s<2) hull.add(p);
@@ -23,6 +27,12 @@ public class ConvexShadow {
 				Log.error("ConvexShadow::addPointCarefully() algorithm failure.");
 			}
 		}
+	}
+	
+	public void set(ArrayList<Vector3d> points) {
+		hull.clear();
+		hull.addAll(points);
+		rebuildHull();
 	}
 	
 	private void addThirdPointClockwise(Vector3d c) {
@@ -45,10 +55,14 @@ public class ConvexShadow {
 	
 	// See https://en.wikipedia.org/wiki/Gift_wrapping_algorithm
 	private void addPointCarefully(Vector3d p) throws Exception {
-		ArrayList<Vector3d> hull2 = new ArrayList<Vector3d>();
 		hull.add(p);
-
+		rebuildHull();
+	}
+	
+	private void rebuildHull() {
+		ArrayList<Vector3d> hull2 = new ArrayList<Vector3d>();
 		int hullSize=hull.size();
+		if(hullSize<3) return;
 		
 		Vector3d pointOnHull = getPointGuaranteedOnEdgeOfHull(hull);
 		Vector3d firstPoint = pointOnHull;
@@ -135,7 +149,7 @@ public class ConvexShadow {
 		gl2.glEnd();
 	}
 	
-	public void renderAsLine(GL2 gl2) {
+	public void renderAsLineLoop(GL2 gl2) {
 		gl2.glBegin(GL2.GL_LINE_LOOP);
 		for( Vector3d p : hull ) gl2.glVertex3d(p.x,p.y,p.z);
 		gl2.glEnd();
