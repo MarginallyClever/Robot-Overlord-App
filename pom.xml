@@ -409,6 +409,13 @@
 			<version>${jinput.version}</version>
 			<type>pom</type>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/batik/batik-xml -->
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-all</artifactId>
+			<version>[1.13,)</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

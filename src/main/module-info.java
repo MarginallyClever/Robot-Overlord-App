@@ -19,6 +19,8 @@ module com.marginallyclever.robotOverlord {
 	requires jogamp.fat;
 	requires annotations;
 	requires jssc;
+	requires batik.all;
+	requires xml.apis.ext;
 	
 	uses Entity;
 	provides Entity with 
@@ -43,7 +45,8 @@ module com.marginallyclever.robotOverlord {
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveAMF,
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveOBJ,
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSavePLY,
-		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveSTL;
+		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveSTL,
+		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSave3MF;
 	
 	uses DHTool;
 	provides DHTool with
