@@ -37,6 +37,10 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 		field.setText(text);
 	}
 	
+	public String getText() {
+		return field.getText();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"click",null,null));
