@@ -154,7 +154,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		
 		if(lock.isLocked()) return;
 		lock.lock();
-		Vector3d input = (Vector3d)o;
+		Vector3d input = ((Vector3dEntity)o).get();
 		fields[0].setText(StringHelper.formatDouble(input.x));
 		fields[1].setText(StringHelper.formatDouble(input.y));
 		fields[2].setText(StringHelper.formatDouble(input.z));
