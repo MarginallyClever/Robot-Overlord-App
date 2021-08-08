@@ -345,7 +345,8 @@ public class DHRobotModel extends Entity {
 		PoseFK keyframe = ikSolver.createPoseFK();
 		assert(keyframe.fkValues.length==getNumNonToolLinks());
 
-		for(int j = 0;j<keyframe.fkValues.length;++j) {
+		int count = Math.min(getNumLinks(), keyframe.fkValues.length);
+		for(int j = 0;j<count;++j) {
 			DHLink link = getLink(j);
 			if(link.hasAdjustableValue()) {
 				keyframe.fkValues[j] = link.getAdjustableValue();
