@@ -17,14 +17,14 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
 /**
- * {@link Sixi3IK} is a {@link Sixi3FK} with added Inverse Kinematics.  
+ * {@link Sixi3IK2} is a {@link Sixi3FK} with added Inverse Kinematics.  
  * Registered in {@code com.marginallyclever.robotOverlord.entity.Entity}
  * @see <a href='https://en.wikipedia.org/wiki/Inverse_kinematics'>Inverse Kinematics</a>
  * @author Dan Royer
  * @since 2021-02-24
  *
  */
-public class Sixi3IK extends Sixi3FK {
+public class Sixi3IK2 extends Sixi3FK2 {
 	/**
 	 * 
 	 */
@@ -37,9 +37,9 @@ public class Sixi3IK extends Sixi3FK {
 	private DoubleEntity stepSize = new DoubleEntity("Step size",0.125); 
 	private DoubleEntity learningRate = new DoubleEntity("Leaning rate",0.005); 
 	
-	public Sixi3IK() {
+	public Sixi3IK2() {
 		super();
-		setName("Sixi3IK");
+		setName("Sixi3IK2");
 
 		addChild(eeTarget);
 		eeTarget.addPropertyChangeListener(this);
@@ -54,7 +54,7 @@ public class Sixi3IK extends Sixi3FK {
 		super.update(dt);
 		
 		// move arm towards result to get future pose
-		gradientDescent(eeTarget.getPose(),10, threshold.get(), learningRate.get(), stepSize.get());
+		gradientDescent(eeTarget.getPose(),30, threshold.get(), stepSize.get(), learningRate.get());
 	}
 
 	@Override
@@ -139,6 +139,15 @@ public class Sixi3IK extends Sixi3FK {
 		// restore the old value
 		fk[i] = oldValue;
 		setFKValues(fk);
+
+		// if F+D and F-D have more error than F, try smaller step size next time. 
+		if( FxMinusD > Fx && FxPlusD > Fx ) {
+			// If we somehow are *exactly* fit then Fx is zero and /0 is bad.
+			if( Fx != 0 ) {
+				samplingDistances[i] *= Math.min(FxMinusD, FxPlusD) / Fx;
+			}
+			return 0;
+		}
 		
 		double gradient = ( FxPlusD - Fx ) / samplingDistances[i];
 		return gradient;
@@ -151,23 +160,23 @@ public class Sixi3IK extends Sixi3FK {
 	 * @param iterations How many times should I try to get closer?
 	 * @param threshold When error term is within threshold then stop. 
 	 * @param learningRate how much of that partial descent to actually apply each step?
-	 * @param stepSize How many times should I try to get closer?
+	 * @param initialSampleSize How many times should I try to get closer?
 	 */
-	private boolean gradientDescent(final Matrix4d target,final double iterations, final double threshold, final double learningRate, final double stepSize) {
+	private boolean gradientDescent(final Matrix4d target,final double iterations, final double threshold, final double learningRate, final double initialSampleSize) {
 		// pose before gradient descent starts
-		double [] fk = new double [getNumBones()];
+		double [] fk = new double [Sixi3FK2.NUM_BONES];
 		getFKValues(fk);
 
 		// how big a step to take with each partial descent?
-		double [] samplingDistances = new double[getNumBones()];
-		for(int i=0;i<getNumBones();++i) {
-			samplingDistances[i]=stepSize;
+		double [] samplingDistances = new double[Sixi3FK2.NUM_BONES];
+		for(int i=0;i<Sixi3FK2.NUM_BONES;++i) {
+			samplingDistances[i]=initialSampleSize;
 		}
 		
 		for(int j=0;j<iterations;++j) {
 			// seems to work better descending from the finger than ascending from the base.
-			//for( int i=0; i<getNumBones(); ++i ) {  // ascending mode
-			for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
+			//for( int i=0; i<Sixi3FK2.NUM_BONES; ++i ) {  // ascending mode
+			for( int i=Sixi3FK2.NUM_BONES-1; i>=0; --i ) {  // descending mode
 				double oldValue = fk[i];
 				double gradient = partialGradientDescent(target,fk,samplingDistances,i);
 				fk[i] = oldValue - gradient * learningRate; 
@@ -178,9 +187,6 @@ public class Sixi3IK extends Sixi3FK {
 					// we hit the target, stop early.
 					return true;
 				}
-			}
-			for(int i=0;i<getNumBones();++i) {
-				samplingDistances[i]*=0.75;
 			}
 		}
 		
@@ -209,7 +215,7 @@ public class Sixi3IK extends Sixi3FK {
 			public void propertyChange(PropertyChangeEvent evt) {
 				//testPathCalculation(100,true);
 				//testPathCalculation(100,false);
-				//testTime(true);
+				testTime(true);
 				testTime(false);
 			}
 		});
@@ -236,7 +242,7 @@ public class Sixi3IK extends Sixi3FK {
 	
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = new double[getNumBones()];
+		double [] jOriginal = new double[Sixi3FK2.NUM_BONES];
 		getFKValues(jOriginal);
 		Matrix4d start = new Matrix4d();
 		getEndEffector(start);
@@ -246,16 +252,17 @@ public class Sixi3IK extends Sixi3FK {
 		try {
 			PrintWriter pw = new PrintWriter(new File("test"+((int)STEPS)+"-"+(useExact?"e":"a")+".csv"));
 
-			double [] jBefore = new double[getNumBones()];
-			double [] jAfter = new double[getNumBones()];
+			double [] jBefore = new double[Sixi3FK2.NUM_BONES];
+			double [] jAfter = new double[Sixi3FK2.NUM_BONES];
 			Matrix4d interpolated = new Matrix4d();
 			Matrix4d old = new Matrix4d(start);
 			double [][] jacobian = new double[6][6];
 			double [] cartesianDistance = new double[6];
 			//double [] cartesianDistanceCompare = new double[6];
-			double [] jointDistance = new double[getNumBones()];
+			double [] jointDistance = new double[Sixi3FK2.NUM_BONES];
 
 			//pw.print("S"+start.toString()+"E"+end.toString());
+
 
 			for(double alpha=1;alpha<=STEPS;++alpha) {
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
@@ -263,11 +270,11 @@ public class Sixi3IK extends Sixi3FK {
 				getFKValues(jBefore);
 
 				// move arm towards result to get future pose
-				gradientDescent(interpolated,30, threshold.get(), learningRate.get(), stepSize.get());
+				gradientDescent(interpolated,30, threshold.get(), stepSize.get(), learningRate.get());
 				getFKValues(jAfter);
 
 				if(useExact) {
-					//getExactJacobian(jacobian);
+					getExactJacobian(jacobian);
 				} else {
 					getApproximateJacobian(jacobian);
 				}
@@ -331,7 +338,7 @@ public class Sixi3IK extends Sixi3FK {
 
 		for(int i=0;i<1000;++i) {
 			if(useExact) {
-				//getExactJacobian(jacobian);
+				getExactJacobian(jacobian);
 			} else {
 				getApproximateJacobian(jacobian);
 			}

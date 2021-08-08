@@ -19,7 +19,6 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.Collidable;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -34,27 +33,44 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
  * @author Dan Royer
  * @since 2021-02-24
  */
-public class Sixi3FK extends PoseEntity implements Collidable {
+public class Sixi3FK2 extends PoseEntity implements Collidable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2436924907127292890L;
-	
-	private static final String ACTUATOR_TEXTURE = "/Sixi3b/actuator-texture.png";
 
+	// measurements from Fusion360 model.
+	private static final double BASE_HEIGHT=8.0;
+	private static final double LENGTH_A=2.95;
+	private static final double LENGTH_B=8.2564;
+	private static final double CONNECTOR_HEIGHT=0.7;
+	private static final double HAND_HEIGHT=1.25;
+	
+	//private static final double ACTUATOR_MASS = 1.061427; // kg
+	//private static final double CONNECTOR_MASS = 0.085692; // kg
+	//private static final double HAND_MASS = 0.114065; // kg
+	
+	private static final String ACTUATOR_MODEL   = "/Sixi3/actuator 2021-02-25.obj";
+	private static final String BICEP_MODEL      = "/Sixi3/bicep.obj";
+	private static final String HAND_MODEL       = "/Sixi3/Sixi3 Hand DIN EN ISO 9409-1-50-4-M6 v6.obj";
+	private static final String BASE_MODEL       = "/Sixi3/base v7.obj";
+	private static final String ACTUATOR_TEXTURE = "/Sixi3/actuator-texture.png";
+
+	public static final int NUM_BONES = 6;
+	
 	// unmoving model of the robot base.
 	transient private Shape base;
 	
 	// DH parameters, meshes, physical limits.
-	private ArrayList<Sixi3Bone> bones = new ArrayList<Sixi3Bone>();
+	private Sixi3Bone [] bones = new Sixi3Bone[NUM_BONES];
 
 	// visualize rotations?
 	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
 
 
-	public Sixi3FK() {
+	public Sixi3FK2() {
 		super();
-		setName("Sixi3FK");
+		setName("Sixi3FK2");
 		
 		setupModel();
 		
@@ -62,6 +78,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		for( Sixi3Bone b : bones ) {
 			b.slider.setName("J"+(i++));
 			b.slider.addPropertyChangeListener(this);
+			b.slider.set(180.0);
 			b.updateMatrix();
 		}
 	}
@@ -72,40 +89,78 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * so adjust the {@link Sixi3Bone.shapeOffset} of each bone to compensate.
 	 */
 	private void setupModel() {
-		// load the base shape.
-		base = new Shape("/Sixi3b/base.3mf");
-		bones.clear();
-		// name r d a t max min file
-		addBone("j0",     0, 8.01,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
-		addBone("j1",17.889,9.131,  0,270,270+190,270-190,"/Sixi3b/j1.3mf");
-		addBone("j2",12.435,    0,  0,  0,0+130  ,0-130  ,"/Sixi3b/j2.3mf");
-		addBone("j3",     0,    0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
-		addBone("j4",     0, 5.12,  0,  0,350    ,10     ,"/Sixi3b/j4.3mf");
-		//addBone("end effector",     0, 5.12,  0,  0,350,10,"");
+		// memory allocation
+		for( int i=0;i<bones.length;++i ) {
+			bones[i] = new Sixi3Bone();
+		}
 		
-		adjustModelOriginsToDHLinks();
-	}
-	
-	// Use the cumulative pose of each Sixi3Bone to adjust the model origins.
-	private void adjustModelOriginsToDHLinks() {
-		Matrix4d current = new Matrix4d();
-		current.setIdentity();
+		// The DH parameters
+		double d0=BASE_HEIGHT+LENGTH_A;  // 8 + 2.95 = 10.95
+		double r2=(LENGTH_B+CONNECTOR_HEIGHT)*2.0;  // ( 8.2564 + 0.7 ) * 2 = 17.9128
+		double d3=LENGTH_A+LENGTH_B;  // 2.95 + 8.2564 = 11.2064
+		double d4=d3;
+		double d5=LENGTH_A+HAND_HEIGHT;  // 2.95 + 1.25 = 4.2
+		System.out.println("d0="+d0);
+		System.out.println("r2="+r2);
+		System.out.println("d3="+d3);
+		System.out.println("d4="+d4);
+		System.out.println("d5="+d5);
+		bones[0].set(0 ,d0,-90,0,350,10,ACTUATOR_MODEL);
+		bones[1].set(r2, 0,  0,0,350,10,BICEP_MODEL   );
+		bones[2].set(0 , 0, 90,0,350,10,ACTUATOR_MODEL);
+		bones[3].set(0 ,d3, 90,0,350,10,ACTUATOR_MODEL);
+		bones[4].set(0 ,d4,-90,0,350,10,ACTUATOR_MODEL);
+		bones[5].set(0 ,d5,  0,0,361,-1,HAND_MODEL    );  // can turn forever
+
+		// load the base shape.
+		base = new Shape(BASE_MODEL);
+		
+		// adjust the shape offsets.
+		Matrix4d m0 = new Matrix4d();
+		Matrix4d m1 = new Matrix4d();
+		Matrix4d m2 = new Matrix4d();
+
+		m0.rotX(Math.toRadians(90));
+		m1.rotY(Math.toRadians(-90));
+		m2.mul(m1,m0);
+		m2.m13=LENGTH_A;
+		bones[0].shape.setPose(m2);
+
+		m2.setIdentity();
+		m2.rotX(Math.toRadians(-90));
+		m2.m03=-(LENGTH_B+CONNECTOR_HEIGHT)*2;
+		m2.m23=LENGTH_B;
+		bones[1].shape.setPose(m2);
+
+		m0.rotX(Math.toRadians(180));
+		m1.rotZ(Math.toRadians(90));
+		m2.mul(m1,m0);
+		m2.m23=LENGTH_A;
+		bones[2].shape.setPose(m2);
+
+		m0.rotX(Math.toRadians(180));
+		m1.rotZ(Math.toRadians(-90));
+		m2.mul(m1,m0);
+		m2.m23=LENGTH_A;
+		bones[3].shape.setPose(m2);
+
+		m0.rotZ(Math.toRadians(-90));
+		m1.rotX(Math.toRadians(180));
+		m2.mul(m1,m0);
+		m2.m23=LENGTH_A;
+		bones[4].shape.setPose(m2);
+
+		m2.rotZ(Math.toRadians(-90));
+		m2.m23=0;
+		bones[5].shape.setPose(m2);
+		
+		// set material properties for each part of this model.
+		base.getMaterial().setTextureFilename(ACTUATOR_TEXTURE);
 		for( Sixi3Bone bone : bones ) {
-			bone.updateMatrix();
-			current.mul(bone.pose);
-			Matrix4d iWP = new Matrix4d(current);
-			iWP.invert();			
-			bone.shape.setPose(iWP);
+			bone.shape.getMaterial().setTextureFilename(ACTUATOR_TEXTURE);
 		}
 	}
-
-	private void addBone(String name, double r, double d, double a, double t, double jMax, double jMin, String modelFilename) {
-		Sixi3Bone b = new Sixi3Bone();
-		b.set(r,d,a,t,jMax,jMin,modelFilename);
-		b.slider.setName(name);
-		bones.add(b);
-	}
-
+	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
@@ -136,6 +191,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	}
 	
 	private void drawExtras(GL2 gl2) {
+		Vector3d v = new Vector3d();
+		
 		// turn of textures so lines draw good
 		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
@@ -145,10 +202,85 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		// draw on top of everything else
 		int wasOver=OpenGLHelper.drawAtopEverythingStart(gl2);
 		
-		if(showLineage.get()) drawLineage(gl2);
-		if(showAngles.get()) drawAngles(gl2);
+		if(showLineage.get()) {
+			// then the bones, overtop and unlit.
+			gl2.glPushMatrix();
+				int j=Sixi3FK2.NUM_BONES+1;
+				for(int i=0;i<bones.length;++i) {
+					Sixi3Bone bone = bones[i];
+					bone.updateMatrix();
+					// draw bone origin
+					PrimitiveSolids.drawStar(gl2,j*2);
+					// draw line to next bone
+					bone.pose.get(v);
+					gl2.glColor3d(1, 0, 1);
+					gl2.glBegin(GL2.GL_LINES);
+					gl2.glVertex3d(0, 0, 0);
+					gl2.glVertex3d(v.x,v.y,v.z);
+					gl2.glEnd();
+
+					MatrixHelper.applyMatrix(gl2, bone.pose);
+					--j;
+				}
+			gl2.glPopMatrix();
+		}
+
+		if(showAngles.get()) {
+			boolean cullOn = gl2.glIsEnabled(GL2.GL_CULL_FACE);
+			gl2.glDisable(GL2.GL_CULL_FACE);
+			
+			// then the bones, overtop and unlit.
+			gl2.glPushMatrix();
+				int j=Sixi3FK2.NUM_BONES+1;
+				for(int i=0;i<bones.length;++i) {
+					Sixi3Bone bone = bones[i];
+					bone.updateMatrix();
+					// curve of movement
+					gl2.glColor4d(1,1,1,0.6);
+					gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+					gl2.glVertex3d(0, 0, 0);
+					double diff = bone.theta-180;
+					double end = Math.abs(diff);
+					double dir = diff>0?1:-1;
+					double radius = j;
+					for(double a = 0; a<end;a+=5) {
+						double s = Math.sin(Math.toRadians(-a*dir)) * radius;
+						double c = Math.cos(Math.toRadians(-a*dir)) * radius;
+						gl2.glVertex3d(s, c,0);
+					}
+					gl2.glEnd();
+
+					MatrixHelper.applyMatrix(gl2, bone.pose);
+					--j;
+				}
+			gl2.glPopMatrix();
+
+			if(cullOn) gl2.glEnable(GL2.GL_CULL_FACE);
+
+		}
+		
+		
 		// bounding boxes are always relative to base?
-		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
+		if(showBoundingBox.get()) {
+			boolean hit = collidesWithSelf();
+			if(hit) gl2.glColor3d(1, 0, 0);
+			else    gl2.glColor3d(1, 1, 1);
+
+			Matrix4d w = getPoseWorld();
+			w.invert();
+			
+			gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, w);
+				ArrayList<Cuboid> list = getCuboidList();
+				for(Cuboid c : list) {
+					gl2.glPushMatrix();
+					c.getPose(w);
+					MatrixHelper.applyMatrix(gl2, w);
+					PrimitiveSolids.drawBoxWireframe(gl2, c.getBoundsBottom(),c.getBoundsTop());
+					gl2.glPopMatrix();
+				}
+			gl2.glPopMatrix();
+		}
 		
 		if(showLocalOrigin.get()) {
 			Matrix4d m = new Matrix4d();
@@ -162,81 +294,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		if(wasTex) gl2.glEnable(GL2.GL_TEXTURE_2D);	
 	}
 	
-	private void drawBoundindBoxes(GL2 gl2) {
-		boolean hit = collidesWithSelf();
-		if(hit) gl2.glColor3d(1, 0, 0);
-		else    gl2.glColor3d(1, 1, 1);
-
-		Matrix4d w = getPoseWorld();
-		w.invert();
-		
-		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, w);
-			ArrayList<Cuboid> list = getCuboidList();
-			for(Cuboid c : list) {
-				gl2.glPushMatrix();
-				c.getPose(w);
-				MatrixHelper.applyMatrix(gl2, w);
-				PrimitiveSolids.drawBoxWireframe(gl2, c.getBoundsBottom(),c.getBoundsTop());
-				gl2.glPopMatrix();
-			}
-		gl2.glPopMatrix();
-	}
-
-	private void drawAngles(GL2 gl2) {
-		boolean cullOn = gl2.glIsEnabled(GL2.GL_CULL_FACE);
-		gl2.glDisable(GL2.GL_CULL_FACE);
-		
-		gl2.glPushMatrix();
-			int j = bones.size()+1;
-			for( Sixi3Bone bone : bones ) {
-				bone.updateMatrix();
-				// curve of movement
-				gl2.glColor4d(1,1,1,0.6);
-				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glVertex3d(0, 0, 0);
-				double diff = bone.theta-180;
-				double end = Math.abs(diff);
-				double dir = diff>0?1:-1;
-				double radius = j;
-				for(double a = 0; a<end;a+=5) {
-					double s = Math.sin(Math.toRadians(-a*dir)) * radius;
-					double c = Math.cos(Math.toRadians(-a*dir)) * radius;
-					gl2.glVertex3d(s, c,0);
-				}
-				gl2.glEnd();
-
-				MatrixHelper.applyMatrix(gl2, bone.pose);
-				--j;
-			}
-		gl2.glPopMatrix();
-
-		if(cullOn) gl2.glEnable(GL2.GL_CULL_FACE);
-	}
-
-	private void drawLineage(GL2 gl2) {
-		Vector3d v = new Vector3d();
-		// then the bones, overtop and unlit.
-		gl2.glPushMatrix();
-			int j = bones.size()+1;
-			for( Sixi3Bone bone : bones ) {
-				bone.updateMatrix();
-				// draw bone origin
-				PrimitiveSolids.drawStar(gl2,j*2);
-				// draw line to next bone
-				bone.pose.get(v);
-				gl2.glColor3d(1, 0, 1);
-				gl2.glBegin(GL2.GL_LINES);
-				gl2.glVertex3d(0, 0, 0);
-				gl2.glVertex3d(v.x,v.y,v.z);
-				gl2.glEnd();
-
-				MatrixHelper.applyMatrix(gl2, bone.pose);
-				--j;
-			}
-		gl2.glPopMatrix();
-	}
-
 	/**
 	 * Find the current end effector pose, relative to the base of this robot
 	 * @param m where to store the end effector pose.
@@ -259,10 +316,9 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				//*
-				double [] v = new double[bones.size()];
-				for(int i=0;i<bones.size();++i) {
-					Sixi3Bone b = bones.get(i);
-					v[i]=(b.angleMax+b.angleMin)/2;
+				double [] v = new double[Sixi3FK2.NUM_BONES];
+				for(int i=0;i<Sixi3FK2.NUM_BONES;++i) {
+					v[i]=180;
 				}
 				setFKValues(v);
 				updateSliders();
@@ -285,15 +341,15 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 	/**
 	 * 
-	 * @param list where to collect the information.  Must be {@link Sixi3FK#NUM_BONES} long.
+	 * @param list where to collect the information.  Must be {@link Sixi3FK2#NUM_BONES} long.
 	 * @throws InvalidParameterException
 	 */
 	public void getFKValues(double [] list) throws InvalidParameterException {
 		if(list==null) {
 			throw new InvalidParameterException("list cannot be null.");
 		}
-		if(list.length!=bones.size()) {
-			throw new InvalidParameterException("list length must match number of bones ("+bones.size()+")");
+		if(list.length!=Sixi3FK2.NUM_BONES) {
+			throw new InvalidParameterException("list length must match number of bones ("+bones.length+")");
 		}
 		int i=0;
 		for( Sixi3Bone bone : bones ) {
@@ -304,7 +360,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	/**
 	 * Update the theta angles of each bone in the robot and the FK sliders on the panel.
 	 * It does not allow you to set the angle of a bone outside the angleMax/angleMin of that bone.
-	 * @param list new theta values.  Must be {@link Sixi3FK#NUM_BONES} long.
+	 * @param list new theta values.  Must be {@link Sixi3FK2#NUM_BONES} long.
 	 * @return true if new values are different from old values.
 	 * @throws InvalidParameterException list is the wrong length.
 	 */
@@ -312,8 +368,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		if(list==null) {
 			throw new InvalidParameterException("list cannot be null.");
 		}
-		if(bones.size() != list.length) {
-			throw new InvalidParameterException("list length must match number of bones ("+bones.size()+")");
+		if(bones.length != list.length) {
+			throw new InvalidParameterException("list length must match number of bones ("+bones.length+")");
 		}
 
 		boolean changed=false;
@@ -352,7 +408,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		super.propertyChange(evt);
 		Object src = evt.getSource();
 
-		double [] v = new double[bones.size()];
+		double [] v = new double[Sixi3FK2.NUM_BONES];
 		getFKValues(v);
 		
 		boolean changed=false;
@@ -451,10 +507,10 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		s=s.substring(header.length(),s.length()-1);
 		// split by comma
 		String [] pieces = s.split(",");
-		if(pieces.length != bones.size()) return false;
+		if(pieces.length != bones.length) return false;
 		
-		double [] v = new double[bones.size()];
-		for(int i=0; i<bones.size(); ++i) {
+		double [] v = new double[Sixi3FK2.NUM_BONES];
+		for(int i=0; i<Sixi3FK2.NUM_BONES; ++i) {
 			v[i] = Double.parseDouble(pieces[i]);
 		}
 		
@@ -476,8 +532,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public void getApproximateJacobian(double [][] jacobian) {
 		double ANGLE_STEP_SIZE_DEGREES=0.001;  // degrees
 		
-		double [] oldAngles = new double[bones.size()];
-		double [] newAngles = new double[bones.size()];
+		double [] oldAngles = new double[Sixi3FK2.NUM_BONES];
+		double [] newAngles = new double[Sixi3FK2.NUM_BONES];
 		getFKValues(oldAngles);
 		
 		Matrix4d T = new Matrix4d();
@@ -485,9 +541,9 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		getEndEffector(T);
 		
 		// for all adjustable joints
-		for(int i=0;i<bones.size();++i) {
+		for(int i=0;i<Sixi3FK2.NUM_BONES;++i) {
 			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
-			for(int j=0;j<bones.size();++j) {
+			for(int j=0;j<Sixi3FK2.NUM_BONES;++j) {
 				newAngles[j]=oldAngles[j];
 			}
 			newAngles[i]+=ANGLE_STEP_SIZE_DEGREES;
@@ -608,7 +664,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		return true;
 	}
-	
 	/**
 	 * Use Quaternions to interpolate between two matrixes and estimate the velocity needed to
 	 * travel the distance (both linear and rotational) in the desired time.
@@ -651,9 +706,72 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		cartesianDistance[4]=-rpy[1];
 		cartesianDistance[5]=-rpy[2];
 	}
-
-
-	public int getNumBones() {
-		return bones.size();
+	
+	/**
+	 * Return the Jacobian matrix for Sixi at a given FK pose.
+	 * Variation of https://github.com/MichaelRyanGreer/Instructional/blob/main/inverse_kinematics/inverse_kinematics_DH_parameters.ipynb
+	 * @param keyframe joint angles
+	 * @return 6x6 jacobian matrix 
+	 */
+	public void getExactJacobian(double [][] jacobian) {
+		double s1=Math.sin(Math.toRadians(bones[0].theta));
+		double s2=Math.sin(Math.toRadians(bones[1].theta));
+		//double s3=Math.sin(Math.toRadians(bones[2].theta));
+		double s4=Math.sin(Math.toRadians(bones[3].theta));
+		double s5=Math.sin(Math.toRadians(bones[4].theta));
+		//double s6=Math.sin(Math.toRadians(bones[5].theta));
+		
+		double c1=Math.cos(Math.toRadians(bones[0].theta));
+		double c2=Math.cos(Math.toRadians(bones[1].theta));
+		//double c3=Math.cos(Math.toRadians(bones[2].theta));
+		double c4=Math.cos(Math.toRadians(bones[3].theta));
+		double c5=Math.cos(Math.toRadians(bones[4].theta));
+		//double c6=Math.cos(Math.toRadians(bones[5].theta));
+		
+		double c23 = Math.cos(Math.toRadians(bones[1].theta+bones[2].theta));
+		double s23 = Math.sin(Math.toRadians(bones[1].theta+bones[2].theta));
+		
+		//double d0 = 10.95;
+		double r2 = 17.9128;
+		double d3 = 11.2064;
+		//double d4 = d3;
+		double d5 = 4.2;
+		
+		jacobian[0][0] = -d3*s1*s4*c23 + d5*s1*s5*c4*c23 - d5*s1*s23*c5 - d3*s1*s23 - r2*s1*c2 + d5*s4*s5*c1 + d3*c1*c4;
+		jacobian[0][1] = d5*s1*s4*s5 + d3*s1*c4 + d3*s4*c1*c23 - d5*s5*c1*c4*c23 + d5*s23*c1*c5 + d3*s23*c1 + r2*c1*c2;
+		jacobian[0][2] = 0;
+		jacobian[0][3] = 0;
+		jacobian[0][4] = 0;
+		jacobian[0][5] = 1;
+		jacobian[1][0] = (-r2*s2 - d3*s4*s23 + d5*s5*s23*c4 + d5*c5*c23 + d3*c23)*c1;
+		jacobian[1][1] = (-r2*s2 - d3*s4*s23 + d5*s5*s23*c4 + d5*c5*c23 + d3*c23)*s1;
+		jacobian[1][2] = -d3*s4*c23 + d5*s5*c4*c23 - d5*s23*c5 - d3*s23 - r2*c2;
+		jacobian[1][3] = -s1;
+		jacobian[1][4] = c1;
+		jacobian[1][5] = 0;
+		jacobian[2][0] = (-d3*s4*s23 + d5*s5*c4*s23 + d5*c5*c23 + d3*c23)*c1;
+		jacobian[2][1] = (-d3*s4*s23 + d5*s5*c4*s23 + d5*c5*c23 + d3*c23)*s1;
+		jacobian[2][2] =  -d3*s4*c23 + d5*s5*c4*c23 - d5*c5*s23 - d3*s23;
+		jacobian[2][3] = -s1;
+		jacobian[2][4] = c1;
+		jacobian[2][5] = 0;
+		jacobian[3][0] = -d3*s1*s4 + d5*s1*s5*c4 + d5*s4*s5*c1*c23 + d3*c1*c4*c23;
+		jacobian[3][1] = d5*s1*s4*s5*c23 + d3*s1*c4*c23 + d3*s4*c1 - d5*c1*c4*s5;
+		jacobian[3][2] = -(d5*s4*s5 + d3*c4)*s23;
+		jacobian[3][3] = s23*c1;
+		jacobian[3][4] = s1*s23;
+		jacobian[3][5] = c23;
+		jacobian[4][0] = d5*s1*s4*c5 - d5*s5*s23*c1 - d5*c1*c4*c5*c23;
+		jacobian[4][1] = -d5*s1*s5*s23 - d5*s1*c4*c5*c23 - d5*s4*c1*c5;
+		jacobian[4][2] = -d5*s5*c23 + d5*s23*c4*c5;
+		jacobian[4][3] = s1*c4 + s4*c1*c23;
+		jacobian[4][4] = s1*s4*c23 - c1*c4;
+		jacobian[4][5] = -s4*s23;
+		jacobian[5][0] = 0;
+		jacobian[5][1] = 0;
+		jacobian[5][2] = 0;
+		jacobian[5][3] = (s1*s4 - c1*c4*c23)*s5 + s23*c1*c5;
+		jacobian[5][4] = -(s1*c4*c23 + s4*c1)*s5 + s1*s23*c5;
+		jacobian[5][5] = s5*s23*c4 + c5*c23;
 	}
 }
