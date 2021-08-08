@@ -36,15 +36,20 @@ public class DHBuilderApp extends DHRobotModel {
 
 	public static final String [] BONE_NAMES = { "X", "Y", "Z", "U", "V", "W" };
 	
-	protected Shape anchor = new Shape();
-	protected Shape [] models = new Shape[BONE_NAMES.length];
+	private Shape anchor = new Shape();
+	private Shape [] models = new Shape[BONE_NAMES.length];
 	
-	protected MaterialEntity mat = new MaterialEntity();
+	private MaterialEntity mat = new MaterialEntity();
 	public DHLink endEffector = new DHLink();
 	public PoseEntity endEffectorTarget = new PoseEntity();
 	
-	protected boolean inTest=false;
+	private static String LAST_PATH = System.getProperty("user.dir");
+	
+	private boolean inTest=false;
+	
 	public double [] thetaAtTestStart = new double[BONE_NAMES.length];
+
+	private boolean eeLock=false;
 	
 	public DHBuilderApp() {
 		super();
@@ -96,7 +101,7 @@ public class DHBuilderApp extends DHRobotModel {
 				links.get(0).render(gl2);
 			}
 			
-			boolean showBones=false;
+			boolean showBones=true;
 			if(showBones==true) {
 				Vector3d p0 = new Vector3d(0,0,0);
 				for( int i=0;i<BONE_NAMES.length;++i) {
@@ -128,8 +133,6 @@ public class DHBuilderApp extends DHRobotModel {
 		// don't call super.render()
 	}
 	
-	protected boolean eeLock=false;
-	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
@@ -147,9 +150,6 @@ public class DHBuilderApp extends DHRobotModel {
 		}
 	}
 
-	protected static String LAST_PATH = System.getProperty("user.dir");
-	
-	
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("BA", "Builder App");
@@ -169,13 +169,20 @@ public class DHBuilderApp extends DHRobotModel {
 			}
 		});
 
-		final ViewElement lockButton = view.addButton("Lock");
-		lockButton.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
+		final ViewElementButton lockButton = view.addButton("Lock");
+		lockButton.addPropertyChangeListener((evt) -> {
+			if(lockButton.getText().contentEquals("Lock")) {
 				for(int i=0;i<links.size();++i) {
 					DHLink bone=links.get(i);
 					bone.flags = LinkAdjust.THETA;
 				}
+				lockButton.setText("Unlock");
+			} else {
+				for(int i=0;i<links.size();++i) {
+					DHLink bone=links.get(i);
+					bone.flags = LinkAdjust.ALL;
+				}
+				lockButton.setText("Lock");
 			}
 		});
 		
@@ -218,13 +225,13 @@ public class DHBuilderApp extends DHRobotModel {
 		
 		super.getView(view);
 	}
-	
+
 	static public class MinimalRecord implements Serializable {
 		private static final long serialVersionUID = 2689287169771077750L;
 		
-		protected double t=0,a=0,d=0,r=0,rmax=90,rmin=-90;
-		protected String letter="";
-		protected String modelFilename="";
+		private double t=0,a=0,d=0,r=0,rmax=90,rmin=-90;
+		private String letter="";
+		private String modelFilename="";
 
 		public MinimalRecord() {
 			super();
@@ -384,7 +391,7 @@ public class DHBuilderApp extends DHRobotModel {
 		}
 	}
 	
-	protected void testStart() {
+	private void testStart() {
 		for(int i=0;i<links.size();++i) {
 			DHLink bone=links.get(i);
 			// save the initial theta for each link
@@ -403,7 +410,7 @@ public class DHBuilderApp extends DHRobotModel {
 		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 	}
 	
-	protected void testEnd() {
+	private void testEnd() {
 		Matrix4d identity = new Matrix4d();
 		identity.setIdentity();
 		
