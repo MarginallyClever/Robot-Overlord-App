@@ -25,6 +25,7 @@ public class Sixi3FKTests {
 	@Test
 	public void testSerialization() throws IOException, ClassNotFoundException {
 		Sixi3FK a = new Sixi3FK();
+		int numBones = a.getNumBones();
 
 		Matrix4d m1 = new Matrix4d();
 		Matrix4d m2 = new Matrix4d();
@@ -32,12 +33,12 @@ public class Sixi3FKTests {
 		Matrix4d am = new Matrix4d();
 		Matrix4d bm = new Matrix4d();
 		
-		double [] av = new double[Sixi3FK.NUM_BONES];
-		double [] bv = new double[Sixi3FK.NUM_BONES];
+		double [] av = new double[numBones];
+		double [] bv = new double[numBones];
 		
 		for(int j=0;j<200;++j) {
 			// old pose
-			for(int i=0;i<Sixi3FK.NUM_BONES;++i) {
+			for(int i=0;i<numBones;++i) {
 				av[i] = 10 + Math.random()*340;
 			}
 			
@@ -71,7 +72,7 @@ public class Sixi3FKTests {
 			assertTrue(b.getPose().equals(a.getPose()));
 			
 			b.getFKValues(bv);
-			for(int i=0;i<Sixi3FK.NUM_BONES;++i) {
+			for(int i=0;i<numBones;++i) {
 				assertTrue(av[i]==bv[i]);
 			}
 			
