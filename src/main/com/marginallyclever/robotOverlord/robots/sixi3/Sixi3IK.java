@@ -54,7 +54,7 @@ public class Sixi3IK extends Sixi3FK {
 		super.update(dt);
 		
 		// move arm towards result to get future pose
-		gradientDescent(eeTarget.getPose(),10, threshold.get(), learningRate.get(), stepSize.get());
+		gradientDescent(eeTarget.getPose(),30, threshold.get(), stepSize.get(), learningRate.get());
 	}
 
 	@Override
@@ -139,6 +139,15 @@ public class Sixi3IK extends Sixi3FK {
 		// restore the old value
 		fk[i] = oldValue;
 		setFKValues(fk);
+
+		// if F+D and F-D have more error than F, try smaller step size next time. 
+		if( FxMinusD > Fx && FxPlusD > Fx ) {
+			// If we somehow are *exactly* fit then Fx is zero and /0 is bad.
+			if( Fx != 0 ) {
+				samplingDistances[i] *= Math.min(FxMinusD, FxPlusD) / Fx;
+			}
+			return 0;
+		}
 		
 		double gradient = ( FxPlusD - Fx ) / samplingDistances[i];
 		return gradient;
@@ -151,9 +160,9 @@ public class Sixi3IK extends Sixi3FK {
 	 * @param iterations How many times should I try to get closer?
 	 * @param threshold When error term is within threshold then stop. 
 	 * @param learningRate how much of that partial descent to actually apply each step?
-	 * @param stepSize How many times should I try to get closer?
+	 * @param initialSampleSize How many times should I try to get closer?
 	 */
-	private boolean gradientDescent(final Matrix4d target,final double iterations, final double threshold, final double learningRate, final double stepSize) {
+	private boolean gradientDescent(final Matrix4d target,final double iterations, final double threshold, final double learningRate, final double initialSampleSize) {
 		// pose before gradient descent starts
 		double [] fk = new double [getNumBones()];
 		getFKValues(fk);
@@ -161,7 +170,7 @@ public class Sixi3IK extends Sixi3FK {
 		// how big a step to take with each partial descent?
 		double [] samplingDistances = new double[getNumBones()];
 		for(int i=0;i<getNumBones();++i) {
-			samplingDistances[i]=stepSize;
+			samplingDistances[i]=initialSampleSize;
 		}
 		
 		for(int j=0;j<iterations;++j) {
@@ -178,9 +187,6 @@ public class Sixi3IK extends Sixi3FK {
 					// we hit the target, stop early.
 					return true;
 				}
-			}
-			for(int i=0;i<getNumBones();++i) {
-				samplingDistances[i]*=0.75;
 			}
 		}
 		
@@ -263,7 +269,7 @@ public class Sixi3IK extends Sixi3FK {
 				getFKValues(jBefore);
 
 				// move arm towards result to get future pose
-				gradientDescent(interpolated,30, threshold.get(), learningRate.get(), stepSize.get());
+				gradientDescent(interpolated,30, threshold.get(), stepSize.get(), learningRate.get());
 				getFKValues(jAfter);
 
 				if(useExact) {
