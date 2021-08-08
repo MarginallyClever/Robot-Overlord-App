@@ -53,7 +53,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 	public boolean load(BufferedInputStream inputStream, Mesh model) throws Exception {
 		BufferedInputStream stream2 = openZipAndFind3DFile(inputStream);
 		Element modelNode = buildTreeAndReturnRootNode(stream2);
-        double scale = getScale(modelNode)*0.1;
+        double scale = getScale(modelNode);
         
         ArrayList<Vector3d> collectedVertexes = new ArrayList<Vector3d>();
 
@@ -64,7 +64,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
         //System.out.println("finding model/resources/object...");
         Element resources = (Element)modelNode.getElementsByTagName("resources").item(0);
         NodeList objects = resources.getElementsByTagName("object");
-        System.out.println(objects.getLength() + " elements found.");
+        //System.out.println(objects.getLength() + " elements found.");
         for(int i=0;i<objects.getLength();++i) {
         	Element object = (Element)objects.item(i);
         	String objectUUID = object.getAttribute("p:UUID");
@@ -117,7 +117,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
         		model.addNormal((float)n.x, (float)n.y, (float)n.z);
         	}
         }
-        System.out.println("done.");
+        //System.out.println("done.");
         
         model.hasNormals=true;
         
@@ -140,7 +140,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 	}
 
 	private double getScale(Element modelNode) {
-        System.out.println("searching for scale...");
+		//System.out.println("searching for scale...");
         String units = modelNode.getAttribute("units");
         // 3MF format description says "Valid values are micron, millimeter, centimeter, inch, foot, and meter."
         double scale=1;
@@ -152,6 +152,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
         case "foot": scale = 304.8;  break;
         case "meter": scale = 1000;  break;
         } 
+        scale *= 0.1;
         System.out.println("scale is now x"+scale);
 		return scale;
 	}
