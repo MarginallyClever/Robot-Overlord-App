@@ -17,10 +17,13 @@ import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
 public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 	@Override
 	public String getEnglishName() { return "3D printing file (STL)"; }
+	
 	@Override
 	public String getValidExtensions() { return "stl"; }
+	
 	@Override
 	public boolean canLoad() {	return true;	}
+	
 	@Override
 	public boolean canSave() {	return false;	}
 
@@ -38,31 +41,25 @@ public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 
 	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
-	public boolean load(BufferedInputStream inputStream,Mesh model) throws Exception {
-		InputStreamReader br = null;
-		try {
-			if(!inputStream.markSupported()) throw new IOException("BufferedInputStream mark unsupported");
-			inputStream.mark(2000);
-			br = new InputStreamReader(inputStream,"UTF-8");
-			CharBuffer binaryCheck = CharBuffer.allocate(80);
-			br.read(binaryCheck);
-			binaryCheck.rewind();
-			String test = binaryCheck.toString();
-			boolean isASCII = test.toLowerCase().contains("facet");
-			inputStream.reset();
-			
-			if(!isASCII) {
-				loadBinary(inputStream,model);
-			} else {
-			    loadASCII(inputStream,model);   
-			}
+	public Mesh load(BufferedInputStream inputStream) throws Exception {
+		Mesh model = new Mesh();
+
+		if(!inputStream.markSupported()) {
+			throw new IOException("BufferedInputStream mark unsupported");
 		}
-		catch(IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+		inputStream.mark(2000);
+		InputStreamReader br = new InputStreamReader(inputStream,"UTF-8");
+		CharBuffer binaryCheck = CharBuffer.allocate(80);
+		br.read(binaryCheck);
+		binaryCheck.rewind();
+		String test = binaryCheck.toString();
+		boolean isASCII = test.toLowerCase().contains("facet");
+		inputStream.reset();
 		
-		return true;
+		if(isASCII) loadASCII(inputStream,model);
+		else 		loadBinary(inputStream,model);
+		
+		return model;
 	}
 
 	@Override
@@ -121,7 +118,6 @@ public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 	    }
 	}
 
-
 	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
 	protected void loadBinary(BufferedInputStream inputStream,Mesh model) throws IOException {
 		int j;
@@ -171,7 +167,6 @@ public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 		}
 		model.hasNormals=true;
 	}
-
 	
 	protected void loadASCII(BufferedInputStream inputStream,Mesh model) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));

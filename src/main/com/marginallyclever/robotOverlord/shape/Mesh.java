@@ -2,12 +2,14 @@ package com.marginallyclever.robotOverlord.shape;
 
 import java.io.BufferedInputStream;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ServiceLoader;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
@@ -20,7 +22,7 @@ import com.marginallyclever.convenience.FileAccess;
  * @author Dan Royer
  */
 public class Mesh {
-	public final static int NUM_BUFFERS=4;  // verts, normals, colors, textureCoordinates
+	public final static int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates,index
 
 	// the pool of all shapes loaded
 	@JsonIgnore
@@ -35,6 +37,7 @@ public class Mesh {
 	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
 	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
 	public transient ArrayList<Float> texCoordArray = new ArrayList<Float>();
+	public transient ArrayList<Integer> indexArray = new ArrayList<Integer>();
 	public int renderStyle; 
 	
 	protected transient int VBO[];
@@ -42,6 +45,7 @@ public class Mesh {
 	public transient boolean hasNormals;
 	public transient boolean hasColors;
 	public transient boolean hasUVs;
+	public transient boolean hasIndexes;
 	
 	// the mesh can only be optimized after OpenGL is ready, during rendering.
 	// Loading may happen early.  This one-time flag remembers it needs to be done.
@@ -61,6 +65,7 @@ public class Mesh {
 		hasNormals=false;
 		hasColors=false;
 		hasUVs=false;
+		hasIndexes=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
 		cuboid.setShape(this);
@@ -74,11 +79,12 @@ public class Mesh {
 		normalArray.clear();
 		colorArray.clear();
 		texCoordArray.clear();
+		indexArray.clear();
 		isDirty=true;
 	}
 
-	public void setSourceName(String sourceName) {
-		this.sourceName = sourceName;
+	public void setSourceName(String filename) {
+		this.sourceName = filename;
 		isDirty=true;
 	}
 	
@@ -125,8 +131,8 @@ public class Mesh {
 			vertices.put(j++, fi.next().floatValue());
 		}
 
-		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
-		int totalBufferSize = numVertexes*3*s;
+		final int BYTES_PER_FLOAT=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+		int totalBufferSize = numVertexes*3*BYTES_PER_FLOAT;
 		int vboIndex=0;
 		
 		// bind a buffer
@@ -177,7 +183,20 @@ public class Mesh {
 			
 		    texCoords.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*2*s, texCoords, GL2.GL_STATIC_DRAW);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*2*BYTES_PER_FLOAT, texCoords, GL2.GL_STATIC_DRAW);
+		    vboIndex++;
+		}
+		
+		if(hasIndexes) {
+			IntBuffer indexes = IntBuffer.allocate(indexArray.size());
+			Iterator<Integer> ii = indexArray.iterator();
+			while(ii.hasNext()) {
+				indexes.put(ii.next().intValue());
+			}
+			final int BYTES_PER_INT = Integer.SIZE/8;
+			indexes.rewind();
+			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex]);
+			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indexArray.size()*BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
 		    vboIndex++;
 		}
 	}
@@ -186,6 +205,7 @@ public class Mesh {
 		if(unloadASAP) {
 			unloadASAP=false;
 			unload(gl2);
+			return;
 		}
 		if(!isLoaded) {
 			createBuffers(gl2);
@@ -223,17 +243,46 @@ public class Mesh {
 			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
 		}
 		
-		int count=vertexArray.size()/3;
-		if(renderStyle==GL2.GL_POINTS) {
-			count*=3;
+		
+		if(hasIndexes) {
+			//gl2.glEnableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
+			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex++]);
+			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
+		} else {
+			int count=vertexArray.size();
+			if(renderStyle!=GL2.GL_POINTS) count/=3;
+			gl2.glDrawArrays(renderStyle, 0, count);
+			//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, count);
 		}
-		gl2.glDrawArrays(renderStyle, 0, count);
-		//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, count);
 		
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
 		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
 		gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
 		gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+		gl2.glDisableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
+	}
+	
+	public void drawNormals(GL2 gl2) {
+		if(!hasNormals) return;
+		
+		double scale=2;
+		
+		gl2.glBegin(GL2.GL_LINES);
+		for(int i=0;i<vertexArray.size();i+=3) {
+			double px = vertexArray.get(i);
+			double py = vertexArray.get(i+1);
+			double pz = vertexArray.get(i+2);
+			gl2.glVertex3d(px, py, pz);
+
+			double nx = normalArray.get(i);
+			double ny = normalArray.get(i+1);
+			double nz = normalArray.get(i+2);
+			
+			gl2.glVertex3d( px + nx*scale, 
+							py + ny*scale,
+							pz + nz*scale);
+		}
+		gl2.glEnd();
 	}
 	
 	public void addNormal(float x,float y,float z) {
@@ -260,6 +309,11 @@ public class Mesh {
 		texCoordArray.add(x);
 		texCoordArray.add(y);
 		hasUVs=true;
+	}
+	
+	public void addIndex(int n) {
+		indexArray.add(n);
+		hasIndexes=true;
 	}
 	
 	/**
@@ -306,53 +360,134 @@ public class Mesh {
 
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
-	 * @param sourceName file from which to load.  may be filename.ext or zipfile.zip:filename.ext
+	 * @param filename file from which to load.  may be filename.ext or zipfile.zip:filename.ext
 	 * @return the instance.
 	 * @throws Exception if file cannot be read successfully
 	 */
-	public static Mesh createModelFromFilename(String sourceName) throws Exception {
-		if(sourceName == null || sourceName.trim().length()==0) return null;
+	public static Mesh createModelFromFilename(String filename) throws Exception {
+		if(filename == null || filename.trim().length()==0) return null;
 		
-		// find the existing shape in the pool
-		Iterator<Mesh> iter = meshPool.iterator();
-		while(iter.hasNext()) {
-			Mesh m = iter.next();
-			if(m.getSourceName().equals(sourceName)) {
-				return m;
-			}
-		}
-		
-		Mesh m=null;
-		
-		// not in pool.  Find a serviceLoader that can load this file type.
-		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
-		Iterator<ShapeLoadAndSave> i = loaders.iterator();
-		int count=0;
-		while(i.hasNext()) {
-			count++;
-			ShapeLoadAndSave loader = i.next();
-			if(loader.canLoad() && loader.canLoad(sourceName)) {
-				BufferedInputStream stream = FileAccess.open(sourceName);
-				m=new Mesh();
-				if(loader.load(stream,m)) {
-					m.setSourceName(sourceName);
-					m.setLoader(loader);
-					m.updateCuboid();
-					// Maybe add a m.setSaveAndLoader(loader); ?
-					meshPool.add(m);
-					break;
-				}
-			}
-		}
-
+		Mesh m = getMeshFromPool(filename);
 		if(m==null) {
-			if(count==0) {
-				throw new Exception("No loaders found!");
-			} else {
-				throw new Exception("No loader found for "+sourceName);
-			}
+			m=attemptServiceLoad(filename);
+			if(m!=null) meshPool.add(m);
 		}
 		
 		return m;
+	}
+
+	private static Mesh getMeshFromPool(String filename) {
+		// find the existing shape in the pool
+		for( Mesh m : meshPool ) {
+			if(m.getSourceName().equals(filename)) {
+				return m;
+			}
+		}
+
+		return null;
+	}
+
+	private static Mesh attemptServiceLoad(String filename) throws Exception {
+		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
+		for( ShapeLoadAndSave loader : loaders ) {
+			if(loader.canLoad() && loader.canLoad(filename)) {
+				return loadMeshWithServiceLoader(filename,loader);
+			}
+		}
+		
+		return null;
+	}
+
+	private static Mesh loadMeshWithServiceLoader(String filename, ShapeLoadAndSave loader) throws Exception {
+		BufferedInputStream stream = FileAccess.open(filename);
+		Mesh m=loader.load(stream);
+		if(m!=null) {
+			m.setSourceName(filename);
+			m.setLoader(loader);
+			m.updateCuboid();
+		}
+		
+		return m;
+	}
+
+	public int getNumVertices() {
+		return (vertexArray==null) ? 0 : vertexArray.size()/3;
+	}
+
+	public void buildNormals() {
+    	//System.out.println("Building normals...");
+		normalArray.clear();
+		
+		if(hasIndexes) buildSmoothIndexedNormals();
+		else buildDirectNormals();
+		
+    	isDirty=true;
+    	//System.out.println("Normals generated.");
+	}
+	
+	// vertexes and normals are shared.  a vertex may be part of many triangles.
+	// the normal should therefore be a blend between each of these triangle faces.
+	private void buildSmoothIndexedNormals() {
+		// make normal array same size as vertex array.
+		int size = getNumVertices();
+		
+		Vector3d [] myNormals = new Vector3d[size];
+		for(int i=0;i<size;++i) myNormals[i] = new Vector3d();
+		
+		// build all normals for all faces.
+		System.out.println("Find normals for every face...");
+		System.out.println("Averaging normals for all vertices...");
+		for(int i=0;i<indexArray.size();i+=3) {
+			int a = indexArray.get(i  );
+			int b = indexArray.get(i+1);
+			int c = indexArray.get(i+2);
+    		Vector3d n = buildNormalFromThreePoints(a,b,c);
+    		myNormals[a].add(n);
+    		myNormals[b].add(n);
+    		myNormals[c].add(n);
+		}
+
+		for( Vector3d n : myNormals ) {
+			n.normalize();
+			this.addNormal((float)n.x, (float)n.y, (float)n.z);
+		}
+	}
+
+	// vertexes are not shared.  one normal per vertex, identical for all three points of a triangle.
+	// assumes we are rendering GL_TRIANGLES only.
+	private void buildDirectNormals() {
+    	for(int i=0;i<getNumVertices();i+=3) {
+    		Vector3d n = buildNormalFromThreePoints(i,i+1,i+2);
+    		
+    		this.addNormal((float)n.x, (float)n.y, (float)n.z);
+    		this.addNormal((float)n.x, (float)n.y, (float)n.z);
+    		this.addNormal((float)n.x, (float)n.y, (float)n.z);
+    	}
+	}
+
+	private Vector3d buildNormalFromThreePoints(int a,int b,int c) {
+		Vector3d vA = getVertex(a);
+		Vector3d vB = getVertex(b);
+		Vector3d vC = getVertex(c);
+        Vector3d nCA = new Vector3d();
+        Vector3d nBA = new Vector3d();
+        Vector3d n = new Vector3d();
+        
+		nCA.sub(vC,vA);
+		nBA.sub(vB,vA);
+		nCA.normalize();
+		nBA.normalize();
+		n.cross(nBA,nCA);
+		n.normalize();
+
+		return n;
+	}
+
+	private Vector3d getVertex(int t) {
+		t*=3;
+		double x = vertexArray.get(t++); 
+		double y = vertexArray.get(t++); 
+		double z = vertexArray.get(t++); 
+		return new Vector3d(x,y,z);
 	}
 }

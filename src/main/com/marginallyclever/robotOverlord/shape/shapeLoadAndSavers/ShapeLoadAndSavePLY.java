@@ -33,7 +33,9 @@ public class ShapeLoadAndSavePLY implements ShapeLoadAndSave {
 	}
 
 	@Override
-	public boolean load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public Mesh load(BufferedInputStream inputStream) throws Exception {
+		Mesh model = new Mesh();
+		
 		model.renderStyle = GL2.GL_POINTS;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
@@ -51,7 +53,7 @@ public class ShapeLoadAndSavePLY implements ShapeLoadAndSave {
 			model.addVertex(x,y,z);
 		}
 		
-		return true;
+		return model;
 	}
 
 	@Override

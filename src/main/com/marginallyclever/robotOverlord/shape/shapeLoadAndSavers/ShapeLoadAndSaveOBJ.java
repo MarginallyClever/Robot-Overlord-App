@@ -34,7 +34,9 @@ public class ShapeLoadAndSaveOBJ implements ShapeLoadAndSave {
 	}
 
 	@Override
-	public boolean load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public Mesh load(BufferedInputStream inputStream) throws Exception {
+		Mesh model = new Mesh();
+		
 		ArrayList<Float> vertexArray = new ArrayList<Float>();
 		ArrayList<Float> normalArray = new ArrayList<Float>();
 		ArrayList<Float> texCoordArray = new ArrayList<Float>();
@@ -57,10 +59,11 @@ public class ShapeLoadAndSaveOBJ implements ShapeLoadAndSave {
 				float y=Float.parseFloat(tokens[2]);
 				float z=Float.parseFloat(tokens[3]);
 				float len = (float)MathHelper.length((double)x,(double)y,(double)z);
-				x/=len;
-				y/=len;
-				z/=len;
-				
+				if(len>0) {
+					x/=len;
+					y/=len;
+					z/=len;
+				}				
 				normalArray.add(x);
 				normalArray.add(y);
 				normalArray.add(z);
@@ -114,7 +117,7 @@ public class ShapeLoadAndSaveOBJ implements ShapeLoadAndSave {
 			}
 		}
 		
-		return true;
+		return model;
 	}
 
 	@Override

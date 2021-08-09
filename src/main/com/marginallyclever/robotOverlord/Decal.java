@@ -34,7 +34,7 @@ public class Decal extends Shape {
 		width.addPropertyChangeListener(this);
 		height.addPropertyChangeListener(this);
 		
-		shape = new Mesh();
+		myMesh = new Mesh();
 	}
 
 	@Override
@@ -47,8 +47,8 @@ public class Decal extends Shape {
 	 * Procedurally generate a list of triangles that form a box, subdivided by some amount.
 	 */
 	protected void updateModel() {
-		shape.clear();
-		shape.renderStyle=GL2.GL_TRIANGLES;
+		myMesh.clear();
+		myMesh.renderStyle=GL2.GL_TRIANGLES;
 		//model.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 		
 		float w = (float)(width.get()/2);
@@ -121,35 +121,35 @@ public class Decal extends Shape {
 				pG.set(MathHelper.interpolate(pA, pC, (double)(y+1)/(double)yParts));
 				pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
 
-				if(shape.renderStyle == GL2.GL_TRIANGLES) {
-					shape.hasNormals=true;
-					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
-					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
-					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
+				if(myMesh.renderStyle == GL2.GL_TRIANGLES) {
+					myMesh.hasNormals=true;
+					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					
-					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-					shape.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
+					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
-					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
-					shape.addNormal((float)n.x, (float)n.y, (float)n.z);
+					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					
-					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-					shape.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-				} else if(shape.renderStyle == GL2.GL_LINES) {
-					shape.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+				} else if(myMesh.renderStyle == GL2.GL_LINES) {
+					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
+					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 
-					shape.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-					shape.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+					myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
 					
-					shape.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-					shape.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+					myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 				}
 			}
 		}

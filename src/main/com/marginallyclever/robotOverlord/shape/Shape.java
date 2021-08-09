@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.shape;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -45,7 +44,7 @@ public class Shape extends PoseEntity implements Collidable {
 	private static final long serialVersionUID = -6421492357105354857L;
 
 	// the shape for this entity
-	protected transient Mesh shape;
+	protected transient Mesh myMesh;
 
 	protected StringEntity filename = new StringEntity("File","");
 	
@@ -94,7 +93,7 @@ public class Shape extends PoseEntity implements Collidable {
 		cuboid.set(b.cuboid);
 		
 		filename.set(b.filename.get());
-		shape = b.shape;
+		myMesh = b.myMesh;
 		material.set(b.material);
 		originAdjust.set(b.originAdjust.get());
 		rotationAdjust.set(b.rotationAdjust.get());
@@ -113,13 +112,13 @@ public class Shape extends PoseEntity implements Collidable {
 		//if( this.filename.get().equals(newFilename) ) return;
 		
 		try {
-			shape = Mesh.createModelFromFilename(newFilename);
-			if(shape!=null) {
+			myMesh = Mesh.createModelFromFilename(newFilename);
+			if(myMesh!=null) {
 				updateCuboid();
-				numTriangles.set(shape.getNumTriangles());
-				hasNormals.set(shape.hasNormals);
-				hasColors.set(shape.hasColors);
-				hasUVs.set(shape.hasUVs);
+				numTriangles.set(myMesh.getNumTriangles());
+				hasNormals.set(myMesh.hasNormals);
+				hasColors.set(myMesh.hasColors);
+				hasUVs.set(myMesh.hasUVs);
 			}
 			// only change this after loading has completely succeeded.
 			filename.set(newFilename);
@@ -197,8 +196,8 @@ public class Shape extends PoseEntity implements Collidable {
 	 * Updates the {@link Cuboid} bounds.
 	 */
 	public void updateCuboid() {
-		if(shape != null) {
-			cuboid.set(shape.getCuboid());
+		if(myMesh != null) {
+			cuboid.set(myMesh.getCuboid());
 		} else {
 			cuboid.setShape(null);
 			cuboid.setBounds(new Point3d(0,0,0),new Point3d(0,0,0));
@@ -210,13 +209,13 @@ public class Shape extends PoseEntity implements Collidable {
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, pose);
 
-		if( shape==null ) {
+		if( myMesh==null ) {
 			// draw placeholder
 			PrimitiveSolids.drawBox(gl2, 1, 1, 1);
 			PrimitiveSolids.drawStar(gl2,15.0);
 		} else {
 			material.render(gl2);
-			shape.render(gl2);
+			myMesh.render(gl2);
 		}
 		
 		gl2.glPopMatrix();
@@ -236,11 +235,11 @@ public class Shape extends PoseEntity implements Collidable {
 	}
 	
 	public void setModel(Mesh m) {
-		shape = m;
+		myMesh = m;
 	}
 	
 	public Mesh getModel() {
-		return shape;
+		return myMesh;
 	}
 	
 	@Override
@@ -261,7 +260,7 @@ public class Shape extends PoseEntity implements Collidable {
 		view.add(originAdjust);
 		view.add(scale);
 		
-		Mesh m = this.shape;
+		Mesh m = this.myMesh;
 		if(m!=null) {
 			view.add(numTriangles);
 			view.add(hasNormals);
@@ -285,14 +284,12 @@ public class Shape extends PoseEntity implements Collidable {
 	}
 	
 	protected void reload() {
-		if(shape==null) return;
+		if(myMesh==null) return;
 		try {
-			shape.clear();
+			myMesh.clear();
 			BufferedInputStream stream = FileAccess.open(this.getModelFilename());
-			ShapeLoadAndSave loader = shape.loader;
-			loader.load(stream,shape);
-		} catch (IOException e) {
-			e.printStackTrace();
+			ShapeLoadAndSave loader = myMesh.loader;
+			loader.load(stream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

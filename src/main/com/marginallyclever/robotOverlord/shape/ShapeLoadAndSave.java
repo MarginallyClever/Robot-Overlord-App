@@ -18,15 +18,14 @@ public interface ShapeLoadAndSave {
 	 * @return true for yes
 	 */
 	public boolean canLoad(String filename);
-	
+
 	/**
-	 * Load data from stream into model 
-	 * @param inputStream
-	 * @param model
-	 * @returns true if model loaded OK.
+	 * Load data from stream
+	 * @param inputStream source of data
+	 * @returns Mesh containing all parsed data
 	 * @throws Exception
 	 */
-	public boolean load(BufferedInputStream inputStream,Mesh model) throws Exception;
+	public Mesh load(BufferedInputStream inputStream) throws Exception;
 
 	/**
 	 * Can you save at all?

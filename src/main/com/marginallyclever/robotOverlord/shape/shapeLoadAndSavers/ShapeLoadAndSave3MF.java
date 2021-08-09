@@ -50,80 +50,98 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 	}
 
 	@Override
-	public boolean load(BufferedInputStream inputStream, Mesh model) throws Exception {
+	public Mesh load(BufferedInputStream inputStream) throws Exception {
+        Mesh model = new Mesh();
+        
 		BufferedInputStream stream2 = openZipAndFind3DFile(inputStream);
 		Element modelNode = buildTreeAndReturnRootNode(stream2);
         double scale = getScale(modelNode);
-        
-        ArrayList<Vector3d> collectedVertexes = new ArrayList<Vector3d>();
-
-        Vector3d nCA = new Vector3d();
-        Vector3d nBA = new Vector3d();
-        Vector3d n = new Vector3d();
-        
+                
         //System.out.println("finding model/resources/object...");
         Element resources = (Element)modelNode.getElementsByTagName("resources").item(0);
         NodeList objects = resources.getElementsByTagName("object");
         //System.out.println(objects.getLength() + " elements found.");
         for(int i=0;i<objects.getLength();++i) {
         	Element object = (Element)objects.item(i);
-        	String objectUUID = object.getAttribute("p:UUID");
-        	//System.out.println("parsing object "+objectUUID);
-        	
-        	String objectType = object.getAttribute("type");
-        	if(!objectType.contentEquals("model")) {
-            	throw new Exception("Object "+objectUUID+" has unsupported model type '"+objectType+"'.");
-        	}
-        	
-            Element mesh = (Element)object.getElementsByTagName("mesh").item(0);
-        	//System.out.println("mesh found.");
-            
-            collectedVertexes.clear();
-
-        	Element vertices = (Element)mesh.getElementsByTagName("vertices").item(0);
-        	NodeList allVertices = vertices.getElementsByTagName("vertex");
-        	//System.out.println(allVertices.getLength() + " vertices found.");
-        	for(int v=0;v<allVertices.getLength();++v) {
-        		Element v1 = (Element)allVertices.item(v);
-        		double x = scale * Double.valueOf(v1.getAttribute("x"));
-        		double y = scale * Double.valueOf(v1.getAttribute("y"));
-        		double z = scale * Double.valueOf(v1.getAttribute("z"));
-        		collectedVertexes.add(new Vector3d(x,y,z));
-        	}
-        	
-        	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
-        	NodeList allTriangles = triangles.getElementsByTagName("triangle");
-        	//System.out.println(allTriangles.getLength() + " triangles found.");
-        	for(int t=0;t<allTriangles.getLength();++t) {
-        		Element t1 = (Element)allTriangles.item(t);
-        		int v1 = Integer.valueOf(t1.getAttribute("v1"));
-        		int v2 = Integer.valueOf(t1.getAttribute("v2"));
-        		int v3 = Integer.valueOf(t1.getAttribute("v3"));
-        		Vector3d vA = collectedVertexes.get(v1);
-        		Vector3d vB = collectedVertexes.get(v2);
-        		Vector3d vC = collectedVertexes.get(v3);
-        		model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
-        		model.addVertex((float)vB.x,(float)vB.y,(float)vB.z);
-        		model.addVertex((float)vC.x,(float)vC.y,(float)vC.z);
-        		
-        		nCA.sub(vC,vA);
-        		nBA.sub(vB,vA);
-        		nCA.normalize();
-        		nBA.normalize();
-        		n.cross(nBA,nCA);
-        		n.normalize();
-        		model.addNormal((float)n.x, (float)n.y, (float)n.z);
-        		model.addNormal((float)n.x, (float)n.y, (float)n.z);
-        		model.addNormal((float)n.x, (float)n.y, (float)n.z);
-        	}
+        	parseObject(object,scale,model);
         }
         //System.out.println("done.");
         
-        model.hasNormals=true;
+        model.buildNormals();
         
-		return false;
+		return model;
 	}
     
+	private void parseObject(Element object,double scale, Mesh model) throws Exception {
+    	String objectUUID = object.getAttribute("p:UUID");
+    	//System.out.println("parsing object "+objectUUID);
+    	
+    	String objectType = object.getAttribute("type");
+    	if(!objectType.contentEquals("model")) {
+        	throw new Exception("Object "+objectUUID+" has unsupported model type '"+objectType+"'.");
+    	}
+    	
+        Element mesh = (Element)object.getElementsByTagName("mesh").item(0);
+    	//System.out.println("mesh found.");
+
+        ArrayList<Vector3d> vertexes = collectMeshVertices(mesh,scale);
+        
+        //buildIndexedTriangles(mesh,model,vertexes);
+        buildTriangles(mesh,model,vertexes);
+	}
+
+	@SuppressWarnings("unused")
+	private void buildIndexedTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes) {
+		int n = model.getNumVertices();
+		for( Vector3d vA : vertexes ) {
+			model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+		}
+		
+    	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
+    	NodeList allTriangles = triangles.getElementsByTagName("triangle");
+    	//System.out.println(allTriangles.getLength() + " indexed triangles found.");
+    	for(int t=0;t<allTriangles.getLength();++t) {
+    		Element t1 = (Element)allTriangles.item(t);
+    		model.addIndex(n+Integer.valueOf(t1.getAttribute("v1")));
+    		model.addIndex(n+Integer.valueOf(t1.getAttribute("v2")));
+    		model.addIndex(n+Integer.valueOf(t1.getAttribute("v3")));
+    	}
+	}
+
+	@SuppressWarnings("unused")
+	private void buildTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes) {
+		Vector3d vA;
+		
+    	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
+    	NodeList allTriangles = triangles.getElementsByTagName("triangle");
+    	//System.out.println(allTriangles.getLength() + " triangles found.");
+    	for(int t=0;t<allTriangles.getLength();++t) {
+    		Element t1 = (Element)allTriangles.item(t);
+    		int v1 = Integer.valueOf(t1.getAttribute("v1"));
+    		int v2 = Integer.valueOf(t1.getAttribute("v2"));
+    		int v3 = Integer.valueOf(t1.getAttribute("v3"));
+    		vA = vertexes.get(v1);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+    		vA = vertexes.get(v2);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+    		vA = vertexes.get(v3);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+    	}
+	}
+	
+	private ArrayList<Vector3d> collectMeshVertices(Element mesh, double scale) {
+        ArrayList<Vector3d> collectedVertexes = new ArrayList<Vector3d>();
+    	Element vertices = (Element)mesh.getElementsByTagName("vertices").item(0);
+    	NodeList allVertices = vertices.getElementsByTagName("vertex");
+    	//System.out.println(allVertices.getLength() + " vertices found.");
+    	for(int v=0;v<allVertices.getLength();++v) {
+    		Element v1 = (Element)allVertices.item(v);
+    		double x = scale * Double.valueOf(v1.getAttribute("x"));
+    		double y = scale * Double.valueOf(v1.getAttribute("y"));
+    		double z = scale * Double.valueOf(v1.getAttribute("z"));
+    		collectedVertexes.add(new Vector3d(x,y,z));
+    	}
+
+		return collectedVertexes;
+	}
+
 	private Element buildTreeAndReturnRootNode(BufferedInputStream stream2) throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		// process XML securely, avoid attacks like XML External Entities (XXE)
@@ -153,7 +171,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
         case "meter": scale = 1000;  break;
         } 
         scale *= 0.1;
-        System.out.println("scale is now x"+scale);
+        //System.out.println("scale is now x"+scale);
 		return scale;
 	}
 
