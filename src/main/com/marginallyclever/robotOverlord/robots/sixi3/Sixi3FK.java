@@ -85,7 +85,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		addBone("j1",17.889,9.131,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
 		addBone("j2",12.435,    0,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
 		addBone("j3",     0,    0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
-		addBone("j4",     0, 5.12,  0,  0,350    ,10     ,"/Sixi3b/j4.3mf");
+		addBone("j4",     0, 5.12,  0,  0,360    ,0      ,"/Sixi3b/j4.3mf");
 		//addBone("end effector",     0, 5.12,  0,  0,350,10,"");
 		
 		adjustModelOriginsToDHLinks();
@@ -196,8 +196,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			int j = bones.size()+1;
 			for( Sixi3Bone bone : bones ) {
 				bone.updateMatrix();
+				double bmin = bone.getAngleMin();
+				double bmax = bone.getAngleMax();
+				double color = Math.abs(0.5-MathHelper.getUnitInRange(bmin,bmax,bone.theta));
 				// curve of movement
-				gl2.glColor4d(1,1,1,0.6);
+				gl2.glColor4d(1,1-color,1-color,0.6);
 				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glVertex3d(0, 0, 0);
 				double diff = bone.theta-180;
@@ -318,13 +321,13 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		int i=0;
 		for( Sixi3Bone b : bones ) {
-			double v = list[i];
+			double v = list[i++];
 
 			// if max angle and min angle overlap then there is no limit on this joint.
 			double bMiddle = b.getAngleMiddle();
-			double bMax = (b.getAngleMax()-bMiddle) % 360;
-			double bMin = (b.getAngleMin()-bMiddle) % 360;
-			if(bMin<bMax) {
+			double bMax = Math.abs(b.getAngleMax()-bMiddle);
+			double bMin = Math.abs(b.getAngleMin()-bMiddle);
+			if(bMin+bMax<360) {
 				// prevent pushing the arm to an illegal angle
 				v = Math.max(Math.min(v, b.getAngleMax()), b.getAngleMin());
 			}
@@ -333,7 +336,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				b.setAngleWRTLimits(v);
 				changed=true;
 			}
-			++i;
 		}
 
 		if(changed) {
