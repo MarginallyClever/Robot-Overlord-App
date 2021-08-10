@@ -311,18 +311,20 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         	}
 		});
         
-        // when focus is lost, tell the input manager.
         mainFrame.addWindowFocusListener(new WindowAdapter() {
         	@Override
         	public void windowLostFocus(WindowEvent e) {
-        		super.windowLostFocus(e);
+        		InputManager.focusLost();
+				//System.out.println("Focus lost");
         	}
+        	
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
-				super.windowLostFocus(e);
+				//System.out.println("Focus gained");
+        		InputManager.focusGained();
 			}
         });
-    	        
+        
         mainFrame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -332,6 +334,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
             	//Log.message("Screen size " + screenSize);
             	saveWindowSizeAndPosition();
             }
+            
             @Override
             public void componentMoved(ComponentEvent e) {
             	//Log.message("Moved to " + e.getComponent().getLocation());
