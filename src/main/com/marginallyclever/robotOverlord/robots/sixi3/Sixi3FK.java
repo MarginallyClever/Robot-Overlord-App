@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.robots.sixi3;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
@@ -39,8 +38,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 */
 	private static final long serialVersionUID = -2436924907127292890L;
 	
-	private static final String ACTUATOR_TEXTURE = "/Sixi3b/actuator-texture.png";
-
 	// unmoving model of the robot base.
 	transient private Shape base;
 	
@@ -57,10 +54,19 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		setupModel();
 		
-		int i=0;
-		for( Sixi3Bone b : bones ) {
-			b.slider.setName("J"+(i++));
-			b.slider.addPropertyChangeListener(this);
+		for(int i=0;i<bones.size();++i) {
+			Sixi3Bone b = bones.get(i);
+			b.setSliderName("J"+(i));
+			final int j=i;
+			b.slider.addPropertyChangeListener((evt)->{
+				double [] v = getFKValues();
+				double d = b.slider.get();
+				if( v[j] != d ) {
+					v[j] = d;
+					setFKValues(v);
+					updateSliders();
+				}
+			});
 			b.updateMatrix();
 		}
 	}
@@ -76,8 +82,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		bones.clear();
 		// name r d a t max min file
 		addBone("j0",     0, 8.01,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
-		addBone("j1",17.889,9.131,  0,270,270+190,270-190,"/Sixi3b/j1.3mf");
-		addBone("j2",12.435,    0,  0,  0,0+130  ,0-130  ,"/Sixi3b/j2.3mf");
+		addBone("j1",17.889,9.131,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
+		addBone("j2",12.435,    0,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
 		addBone("j3",     0,    0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
 		addBone("j4",     0, 5.12,  0,  0,350    ,10     ,"/Sixi3b/j4.3mf");
 		//addBone("end effector",     0, 5.12,  0,  0,350,10,"");
@@ -91,7 +97,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		current.setIdentity();
 		for( Sixi3Bone bone : bones ) {
 			bone.updateMatrix();
-			current.mul(bone.pose);
+			current.mul(bone.getPose());
 			Matrix4d iWP = new Matrix4d(current);
 			iWP.invert();			
 			bone.shape.setPose(iWP);
@@ -101,7 +107,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	private void addBone(String name, double r, double d, double a, double t, double jMax, double jMin, String modelFilename) {
 		Sixi3Bone b = new Sixi3Bone();
 		b.set(r,d,a,t,jMax,jMin,modelFilename);
-		b.slider.setName(name);
+		b.setSliderName(name);
 		bones.add(b);
 	}
 
@@ -128,7 +134,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		for( Sixi3Bone bone : bones ) {
 			// draw model with local shape offset
 			bone.updateMatrix();
-			MatrixHelper.applyMatrix(gl2, bone.pose);
+			MatrixHelper.applyMatrix(gl2, bone.getPose());
 			bone.shape.render(gl2);
 		}
 		gl2.glPopMatrix();
@@ -205,7 +211,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				}
 				gl2.glEnd();
 
-				MatrixHelper.applyMatrix(gl2, bone.pose);
+				MatrixHelper.applyMatrix(gl2, bone.getPose());
 				--j;
 			}
 		gl2.glPopMatrix();
@@ -223,14 +229,14 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				// draw bone origin
 				PrimitiveSolids.drawStar(gl2,j*2);
 				// draw line to next bone
-				bone.pose.get(v);
+				bone.getPose().get(v);
 				gl2.glColor3d(1, 0, 1);
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glVertex3d(0, 0, 0);
 				gl2.glVertex3d(v.x,v.y,v.z);
 				gl2.glEnd();
 
-				MatrixHelper.applyMatrix(gl2, bone.pose);
+				MatrixHelper.applyMatrix(gl2, bone.getPose());
 				--j;
 			}
 		gl2.glPopMatrix();
@@ -243,7 +249,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public void getEndEffector(Matrix4d m) {
 		m.setIdentity();
 		for( Sixi3Bone bone : bones ) {
-			m.mul(bone.pose);
+			m.mul(bone.getPose());
 		}
 	}
 	
@@ -251,21 +257,17 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public void getView(ViewPanel view) {
 		view.pushStack("FK","Forward Kinematics");
 		for( Sixi3Bone b : bones ) {
-			view.addRange(b.slider,(int)b.angleMax,(int)b.angleMin);
+			b.getView(view);
 		}
-		ViewElementButton b = view.addButton("Center all");
-		b.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				//*
-				double [] v = new double[bones.size()];
-				for(int i=0;i<bones.size();++i) {
-					Sixi3Bone b = bones.get(i);
-					v[i]=(b.angleMax+b.angleMin)/2;
-				}
-				setFKValues(v);
-				updateSliders();
+		ViewElementButton button = view.addButton("Center all");
+		button.addPropertyChangeListener((evt)-> {
+			double [] v = new double[bones.size()];
+			for(int i=0;i<bones.size();++i) {
+				Sixi3Bone b = bones.get(i);
+				v[i]=b.getAngleMiddle();
 			}
+			setFKValues(v);
+			updateSliders();
 		});
 		view.add(showAngles);
 		view.popStack();
@@ -287,17 +289,14 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * @param list where to collect the information.  Must be {@link Sixi3FK#NUM_BONES} long.
 	 * @throws InvalidParameterException
 	 */
-	public void getFKValues(double [] list) throws InvalidParameterException {
-		if(list==null) {
-			throw new InvalidParameterException("list cannot be null.");
-		}
-		if(list.length!=bones.size()) {
-			throw new InvalidParameterException("list length must match number of bones ("+bones.size()+")");
-		}
+	public double [] getFKValues() {
+		double [] list = new double[bones.size()];
+		
 		int i=0;
 		for( Sixi3Bone bone : bones ) {
 			list[i++] = bone.theta;
 		}
+		return list;
 	}
 	
 	/**
@@ -320,11 +319,18 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		int i=0;
 		for( Sixi3Bone b : bones ) {
 			double v = list[i];
-			// prevent pushing the arm to an illegal angle
-			v = Math.max(Math.min(v, b.angleMax), b.angleMin);
+
+			// if max angle and min angle overlap then there is no limit on this joint.
+			double bMiddle = b.getAngleMiddle();
+			double bMax = (b.getAngleMax()-bMiddle) % 360;
+			double bMin = (b.getAngleMin()-bMiddle) % 360;
+			if(bMin<bMax) {
+				// prevent pushing the arm to an illegal angle
+				v = Math.max(Math.min(v, b.getAngleMax()), b.getAngleMin());
+			}
 			
 			if( b.theta != v ) {
-				b.theta = v;
+				b.setAngleWRTLimits(v);
 				changed=true;
 			}
 			++i;
@@ -345,34 +351,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		return changed;
 	}
 	
-	// When GUI elements are changed they each cause a {@link PropertyChangeEvent}.
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
-		Object src = evt.getSource();
-
-		double [] v = new double[bones.size()];
-		getFKValues(v);
-		
-		boolean changed=false;
-		int i=0;
-		for( Sixi3Bone b : bones ) {
-			if(src == b.slider) {
-				double d = b.slider.get();
-				if( v[i] != d ) {
-					v[i] = d;
-					changed=true;
-				}
-			}
-			i++;
-		}
-
-		if(changed) {
-			setFKValues(v);
-			updateSliders();
-		}
-	}
-	
 	@Override
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
@@ -390,7 +368,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		for( Sixi3Bone bone : bones ) {
 			// add bone to current pose
-			currentBonePose.mul(bone.pose);
+			currentBonePose.mul(bone.getPose());
 			
 			ArrayList<Cuboid> list2 = bone.shape.getCuboidList();
 			for(Cuboid c : list2) {
@@ -431,7 +409,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		return false;
 	}
 
-
+	@Override
 	public String toString() {
 		String angles = "";
 		String add="";
@@ -475,9 +453,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public void getApproximateJacobian(double [][] jacobian) {
 		double ANGLE_STEP_SIZE_DEGREES=0.001;  // degrees
 		
-		double [] oldAngles = new double[bones.size()];
-		double [] newAngles = new double[bones.size()];
-		getFKValues(oldAngles);
+		double [] oldAngles = getFKValues();
+		double [] newAngles = new double[oldAngles.length];
 		
 		Matrix4d T = new Matrix4d();
 		Matrix4d Tnew = new Matrix4d();

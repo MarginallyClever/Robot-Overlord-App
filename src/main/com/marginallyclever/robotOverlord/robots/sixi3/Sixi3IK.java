@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.robots.sixi3;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -15,6 +13,7 @@ import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 /**
  * {@link Sixi3IK} is a {@link Sixi3FK} with added Inverse Kinematics.  
@@ -33,20 +32,25 @@ public class Sixi3IK extends Sixi3FK {
 	// target end effector pose
 	private PoseEntity eeTarget = new PoseEntity("Target");
 
-	private DoubleEntity threshold = new DoubleEntity("Threshold",0.01); 
-	private DoubleEntity stepSize = new DoubleEntity("Step size",0.125); 
-	private DoubleEntity learningRate = new DoubleEntity("Leaning rate",0.005); 
+	private DoubleEntity threshold = new DoubleEntity("Threshold",0.001);
+	private DoubleEntity stepSize = new DoubleEntity("Step size",10.0);
+	private IntEntity iterations = new IntEntity("Iterations",10);
+	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.75); 
 	
 	public Sixi3IK() {
 		super();
 		setName("Sixi3IK");
 
 		addChild(eeTarget);
-		eeTarget.addPropertyChangeListener(this);
 		
 		Matrix4d m = new Matrix4d();
 		getEndEffector(m);
 		eeTarget.setPose(m);
+		
+		eeTarget.addPropertyChangeListener((evt)->{			
+			if(evt.getPropertyName().contentEquals("pose")) {
+			}
+		});
 	}
 	
 	@Override
@@ -54,7 +58,7 @@ public class Sixi3IK extends Sixi3FK {
 		super.update(dt);
 		
 		// move arm towards result to get future pose
-		gradientDescent(eeTarget.getPose(),30, threshold.get(), stepSize.get(), learningRate.get());
+		gradientDescent(eeTarget.getPose(),iterations.get(),refinementRate.get(), threshold.get(), stepSize.get());
 	}
 
 	@Override
@@ -121,36 +125,39 @@ public class Sixi3IK extends Sixi3FK {
 	}
 	
 	/**/
-	private double partialGradientDescent(final Matrix4d target, double [] fk, double [] samplingDistances, int i) {
+	private boolean partialGradientDescent(final Matrix4d target, double [] fk, int jointIndex, double stepSize,double threshold) {
 		// get the current error term F.
-		double oldValue = fk[i];
+		double oldValue = fk[jointIndex];
+		double bestValue = oldValue;
 		double Fx = distanceToTarget(target);
+		double bestScore = Fx;
+		if(bestScore < threshold) return true;
 
 		// move F+D, measure again.
-		fk[i] = oldValue + samplingDistances[i];
+		fk[jointIndex] = oldValue + stepSize;
 		setFKValues(fk);
 		double FxPlusD = distanceToTarget(target);
+		if(bestScore > FxPlusD) {
+			bestScore = FxPlusD;
+			bestValue = fk[jointIndex];
+			if(bestScore < threshold) return true;
+		}
 
 		// move F-D, measure again.
-		fk[i] = oldValue - samplingDistances[i];
+		fk[jointIndex] = oldValue - stepSize;
 		setFKValues(fk);
 		double FxMinusD = distanceToTarget(target);
-
-		// restore the old value
-		fk[i] = oldValue;
-		setFKValues(fk);
-
-		// if F+D and F-D have more error than F, try smaller step size next time. 
-		if( FxMinusD > Fx && FxPlusD > Fx ) {
-			// If we somehow are *exactly* fit then Fx is zero and /0 is bad.
-			if( Fx != 0 ) {
-				samplingDistances[i] *= Math.min(FxMinusD, FxPlusD) / Fx;
-			}
-			return 0;
+		if(bestScore > FxMinusD) {
+			bestScore = FxMinusD;
+			bestValue = fk[jointIndex];
+			if(bestScore < threshold) return true;
 		}
+
+		// set the best value
+		fk[jointIndex] = bestValue;
+		setFKValues(fk);
 		
-		double gradient = ( FxPlusD - Fx ) / samplingDistances[i];
-		return gradient;
+		return false;
 	}
 
 	/**
@@ -158,36 +165,24 @@ public class Sixi3IK extends Sixi3FK {
 	 * and changes depending on the position when gradient descent began. 
 	 * @return distance to target
 	 * @param iterations How many times should I try to get closer?
+	 * @param refinementRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
 	 * @param threshold When error term is within threshold then stop. 
-	 * @param learningRate how much of that partial descent to actually apply each step?
-	 * @param initialSampleSize How many times should I try to get closer?
+	 * @param initialStepSize how big should the first step be?
 	 */
-	private boolean gradientDescent(final Matrix4d target,final double iterations, final double threshold, final double learningRate, final double initialSampleSize) {
-		// pose before gradient descent starts
-		double [] fk = new double [getNumBones()];
-		getFKValues(fk);
-
+	private boolean gradientDescent(final Matrix4d target,final double iterations,double refinementRate, final double threshold, final double initialStepSize) {
+		double [] angles = getFKValues();
 		// how big a step to take with each partial descent?
-		double [] samplingDistances = new double[getNumBones()];
-		for(int i=0;i<getNumBones();++i) {
-			samplingDistances[i]=initialSampleSize;
-		}
+		double stepSize = initialStepSize;
 		
-		for(int j=0;j<iterations;++j) {
+		for(int tries=0;tries<iterations;++tries) {
 			// seems to work better descending from the finger than ascending from the base.
-			//for( int i=0; i<getNumBones(); ++i ) {  // ascending mode
-			for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
-				double oldValue = fk[i];
-				double gradient = partialGradientDescent(target,fk,samplingDistances,i);
-				fk[i] = oldValue - gradient * learningRate; 
-				setFKValues(fk);
 
-				double dtt=distanceToTarget(target);
-				if(dtt<=threshold) {
-					// we hit the target, stop early.
+			for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
+				if(partialGradientDescent(target,angles,i,stepSize,threshold)) {
 					return true;
 				}
 			}
+			stepSize *= refinementRate;
 		}
 		
 		// if you get here the robot did not reach its target within 'iteration' steps.
@@ -200,50 +195,34 @@ public class Sixi3IK extends Sixi3FK {
 		view.pushStack("IK","Inverse Kinematics");
 
 		ViewElementButton b = view.addButton("Reset GoTo");
-		b.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				Matrix4d m = new Matrix4d();
-				getEndEffector(m);
-				eeTarget.setPose(m);
-			}
+		b.addPropertyChangeListener((evt) -> {
+			Matrix4d m = new Matrix4d();
+			getEndEffector(m);
+			eeTarget.setPose(m);
 		});
 
 		ViewElementButton b2 = view.addButton("Run test");
-		b2.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				//testPathCalculation(100,true);
-				//testPathCalculation(100,false);
-				//testTime(true);
-				testTime(false);
-			}
+		b2.addPropertyChangeListener((evt) -> {
+			//testPathCalculation(100,true);
+			//testPathCalculation(100,false);
+			//testTime(true);
+			testTime(false);
 		});
 		
 		// add gradient descent parameters here
 		view.add(threshold);
 		view.add(stepSize);
-		view.add(learningRate);
+		view.add(iterations);
+		view.add(refinementRate);
 		
 		view.popStack();
 		
 		super.getView(view);
 	}
 	
-	// When GUI elements are changed they each cause a {@link PropertyChangeEvent}.
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
-		Object src = evt.getSource();
-		
-		if(src == eeTarget && evt.getPropertyName().contentEquals("pose")) {
-		}
-	}
-	
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = new double[getNumBones()];
-		getFKValues(jOriginal);
+		double [] jOriginal = getFKValues();
 		Matrix4d start = new Matrix4d();
 		getEndEffector(start);
 		
@@ -252,8 +231,6 @@ public class Sixi3IK extends Sixi3FK {
 		try {
 			PrintWriter pw = new PrintWriter(new File("test"+((int)STEPS)+"-"+(useExact?"e":"a")+".csv"));
 
-			double [] jBefore = new double[getNumBones()];
-			double [] jAfter = new double[getNumBones()];
 			Matrix4d interpolated = new Matrix4d();
 			Matrix4d old = new Matrix4d(start);
 			double [][] jacobian = new double[6][6];
@@ -266,11 +243,11 @@ public class Sixi3IK extends Sixi3FK {
 			for(double alpha=1;alpha<=STEPS;++alpha) {
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
 	
-				getFKValues(jBefore);
+				double [] jBefore = getFKValues();
 
 				// move arm towards result to get future pose
-				gradientDescent(interpolated,30, threshold.get(), stepSize.get(), learningRate.get());
-				getFKValues(jAfter);
+				gradientDescent(interpolated,20,0.8, threshold.get(), stepSize.get());
+				double [] jAfter = getFKValues();
 
 				if(useExact) {
 					//getExactJacobian(jacobian);
@@ -316,7 +293,6 @@ public class Sixi3IK extends Sixi3FK {
 			pw.flush();
 			pw.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
