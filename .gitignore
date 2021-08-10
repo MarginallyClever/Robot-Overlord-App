@@ -23,7 +23,7 @@
 **/log.html
 **/log.txt
 
-.settings/**
-G30.ngc
-*.prefs
 .ssh/known_hosts
+
+.settings/**
+.settings/*.prefs
