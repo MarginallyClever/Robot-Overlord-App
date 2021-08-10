@@ -276,7 +276,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         mainFrame.add(splitLeftRight);
         
         mainFrame.setJMenuBar(mainMenu);
-        mainFrame.setVisible(true);
  	}
 
 	private void buildMainFrame() {
@@ -285,22 +284,11 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
-    	int windowW = prefs.getInt("windowWidth", 1224);
-    	int windowH = prefs.getInt("windowHeight", 768);
-    	int windowX = prefs.getInt("windowX", -1);
-    	int windowY = prefs.getInt("windowY", -1);
-
-		Log.message("Position main window");
-        mainFrame.setSize( windowW, windowH );
-        if(windowX==-1 || windowY==-1) {
-        	// centered
-        	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        	windowX = (dim.width - windowW)/2;
-        	windowY = (dim.height - windowH)/2;
-        }
-        mainFrame.setLocation( windowX, windowY );
+        
         mainFrame.setLayout(new java.awt.BorderLayout());
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        mainFrame.setVisible(true);
+    	setWindowSizeAndPosition();
         
         // when someone tries to close the app, confirm it.
         mainFrame.addWindowListener(new WindowAdapter() {
@@ -324,22 +312,32 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         		InputManager.focusGained();
 			}
         });
+	}
+
+	private void setWindowSizeAndPosition() {
+		Log.message("Set window size and position");
+
+    	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    	
+    	int windowW = prefs.getInt("windowWidth", -1);
+    	int windowH = prefs.getInt("windowHeight", -1);
+    	if(windowW==-1 || windowH==-1) {
+    		Log.message("...default size");
+    		windowW=dim.width;
+    		windowH=dim.height;
+    	}
+        mainFrame.setSize( windowW, windowH );
+    	
+    	int windowX = prefs.getInt("windowX", -1);
+    	int windowY = prefs.getInt("windowY", -1);
+        if(windowX==-1 || windowY==-1) {
+    		Log.message("...default position");
+        	// centered
+        	windowX = (dim.width - windowW)/2;
+        	windowY = (dim.height - windowH)/2;
+        }
         
-        mainFrame.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-            	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            	//Dimension windowSize = e.getComponent().getSize();
-            	//Log.message("Resized to " + windowSize);
-            	//Log.message("Screen size " + screenSize);
-            	saveWindowSizeAndPosition();
-            }
-            
-            @Override
-            public void componentMoved(ComponentEvent e) {
-            	//Log.message("Moved to " + e.getComponent().getLocation());
-            }
-          });
+        mainFrame.setLocation( windowX, windowY );
 	}
 
 	public JFrame getMainFrame() {
@@ -508,6 +506,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 
     private void saveWindowSizeAndPosition() {
 		// remember window location for next time.
+    	System.out.println("saveWindowSizeAndPosition()");
+    	
 		Dimension d = mainFrame.getSize();
     	prefs.putInt("windowWidth", d.width);
     	prefs.putInt("windowHeight", d.height);
@@ -533,6 +533,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	        new Thread(new Runnable() {
 	            @Override
 				public void run() {
+	            	saveWindowSizeAndPosition();
 	            	animator.stop();
 					mainFrame.dispose();
 	            }
