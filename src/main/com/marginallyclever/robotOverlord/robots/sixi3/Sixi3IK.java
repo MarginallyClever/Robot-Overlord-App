@@ -34,7 +34,7 @@ public class Sixi3IK extends Sixi3FK {
 
 	private DoubleEntity threshold = new DoubleEntity("Threshold",0.001);
 	private DoubleEntity stepSize = new DoubleEntity("Step size",10.0);
-	private IntEntity iterations = new IntEntity("Iterations",10);
+	private IntEntity iterations = new IntEntity("Iterations",30);
 	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.75); 
 	
 	public Sixi3IK() {
@@ -46,11 +46,6 @@ public class Sixi3IK extends Sixi3FK {
 		Matrix4d m = new Matrix4d();
 		getEndEffector(m);
 		eeTarget.setPose(m);
-		
-		eeTarget.addPropertyChangeListener((evt)->{			
-			if(evt.getPropertyName().contentEquals("pose")) {
-			}
-		});
 	}
 	
 	@Override
@@ -67,23 +62,32 @@ public class Sixi3IK extends Sixi3FK {
 
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
-		
+		drawPathToTarget(gl2);
+		gl2.glPopMatrix();
+	}
+	
+	private void drawPathToTarget(GL2 gl2) {
 		Matrix4d start = new Matrix4d();
 		getEndEffector(start);
 		
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
 		
-		double STEPS=50;
+		Vector3d a = new Vector3d();
+		Vector3d b = new Vector3d();
+		start.get(a);
+		end.get(b);
+		a.sub(b);
+		a.length();
+		
+		double STEPS=a.length();
 		for(double d=1;d<STEPS;d++) {
 			MatrixHelper.interpolate(start,end,d/STEPS,interpolated);
-			
 			MatrixHelper.drawMatrix(gl2, interpolated, 1.0);
 		}
-
-		gl2.glPopMatrix();
 	}
 	
+
 	/**
 	 * Measures the difference between the latest end effector matrix and the target matrix.
 	 * It is a combination of the linear distance and the rotation distance (collectively known as the Twist)
