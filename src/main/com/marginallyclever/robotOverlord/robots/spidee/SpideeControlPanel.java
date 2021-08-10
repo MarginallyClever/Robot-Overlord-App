@@ -174,6 +174,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		speedNow.setText(Double.toString(speed));
 	}
 	
+	@Override
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
 		if( subject == speedControl ) {

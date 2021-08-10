@@ -34,6 +34,7 @@ public class ColorEntity extends AbstractEntity<float[]> {
 		super.set(new float[] {(float)r,(float)g,(float)b,(float)a});
 	}
 
+	@Override
 	public void set(float [] newValue) {
 		set(newValue[0],newValue[1],newValue[2],newValue[3]);		
 	}
@@ -56,6 +57,7 @@ public class ColorEntity extends AbstractEntity<float[]> {
 				};
 	}
 	
+	@Override
 	public String toString() {
 		return getName()+"="+"("
 				+ StringHelper.formatFloat(t[0]) + ","

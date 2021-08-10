@@ -26,6 +26,7 @@ public class BooleanEntity extends AbstractEntity<Boolean> {
 		set(b);
 	}
 
+	@Override
 	public String toString() {
 		return getName()+"="+t.toString();
 	}

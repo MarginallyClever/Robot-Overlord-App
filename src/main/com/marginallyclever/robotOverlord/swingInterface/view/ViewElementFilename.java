@@ -72,12 +72,14 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		panel.add(choose,gbc);
 		
 		e.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				field.setText(e.get());
 			}
 		});
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		JFileChooser chooser = new JFileChooser();
 		if(filters.size()==0) return;  // @TODO: fail!

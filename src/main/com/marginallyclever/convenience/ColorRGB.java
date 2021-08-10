@@ -1,8 +1,7 @@
 package com.marginallyclever.convenience;
 
-
 import java.awt.Color;
-
+import java.security.InvalidParameterException;
 
 /**
  * RGB color class
@@ -83,11 +82,23 @@ public class ColorRGB {
     return (float) Math.sqrt(distanceSquared);
   }
 
-  public String toString() {
+  @Override
+public String toString() {
     return "(" + red + "," + green + "," + blue + ")";
   }
   
   public int getRed() { return red; }
   public int getGreen() { return green; }
   public int getBlue() { return blue; }
+  
+  public static ColorRGB parse(String arg0) throws NumberFormatException, InvalidParameterException {
+	  if(arg0==null) throw new InvalidParameterException("arg0 is null");
+	  if(arg0.startsWith("#")) arg0 = arg0.substring(1);
+	  int size = arg0.length();
+	  if(size>8 || size<6) throw new InvalidParameterException("arg0 must be 6 or 8 characters long in hex format.");
+	  if(size>6) arg0.substring(0,6);
+	  
+	  int r = (int) Long.parseLong(arg0, 16);
+	  return new ColorRGB(r);
+  }
 }

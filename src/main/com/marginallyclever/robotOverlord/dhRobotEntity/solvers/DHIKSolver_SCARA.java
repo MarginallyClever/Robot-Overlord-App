@@ -21,6 +21,7 @@ public class DHIKSolver_SCARA extends DHIKSolver {
 	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
 	 */
+	@Override
 	public int getSolutionSize() {
 		return 4;
 	}

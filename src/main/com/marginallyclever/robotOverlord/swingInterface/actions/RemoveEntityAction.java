@@ -34,6 +34,7 @@ public class RemoveEntityAction extends AbstractAction {
 		this.ro = ro;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent event) {
 		ArrayList<Entity> entityList = ro.getSelectedEntities();
 		if(entityList.size()==0) {

@@ -35,6 +35,7 @@ public class DoubleEntity extends AbstractEntity<Double> {
 		setName(s);
 	}
 	
+	@Override
 	public String toString() {
 		return getName()+"="+StringHelper.formatDouble(t);
 	}

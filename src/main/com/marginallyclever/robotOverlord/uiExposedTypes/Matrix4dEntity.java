@@ -63,6 +63,7 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 				Math.toDegrees(r.z));
 	}
 	
+	@Override
 	public void set(Matrix4d m) {
 		super.set(m);
 		
@@ -102,10 +103,12 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 		t.get(v);
 	}
 	
+	@Override
 	public String toString() {
 		return getName()+"="+t.toString();
 	}
 	
+	@Override
 	public void getView(ViewPanel view) {
 		view.add(pos);
 		view.add(rot);

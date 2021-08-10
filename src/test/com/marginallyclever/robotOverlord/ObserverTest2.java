@@ -68,6 +68,7 @@ public class ObserverTest2 extends JPanel {
 			addActionListener(this);
 		}
 
+		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			Object arg1 = evt.getNewValue();
 			System.out.println("update("+arg1+")");
@@ -118,6 +119,7 @@ public class ObserverTest2 extends JPanel {
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 	            JFrame f = new JFrame("Observer Test 2");
 	            f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

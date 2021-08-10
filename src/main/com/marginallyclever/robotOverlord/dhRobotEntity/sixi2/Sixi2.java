@@ -368,18 +368,21 @@ public class Sixi2 extends PoseEntity {
 	}
 	
 	// recursively set for all children
+	@Override
 	public void setShowBoundingBox(boolean arg0) {
 		super.setShowBoundingBox(arg0);
 		model.getLink(0).setShowBoundingBox(arg0);
 	}
 	
 	// recursively set for all children
+	@Override
 	public void setShowLocalOrigin(boolean arg0) {
 		super.setShowLocalOrigin(arg0);
 		model.getLink(0).setShowLocalOrigin(arg0);
 	}
 
 	// recursively set for all children
+	@Override
 	public void setShowLineage(boolean arg0) {
 		super.setShowLineage(arg0);
 		model.getLink(0).setShowLineage(arg0);

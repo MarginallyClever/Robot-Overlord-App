@@ -248,6 +248,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 	
 	
+	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		

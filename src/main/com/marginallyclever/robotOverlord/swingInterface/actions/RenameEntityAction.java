@@ -31,6 +31,7 @@ public class RenameEntityAction extends AbstractAction {
 		this.ro = ro;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent event) {
 		ArrayList<Entity> entityList = ro.getSelectedEntities();
 		if(entityList.size()!=1) {

@@ -31,6 +31,7 @@ public class ViewCube extends Entity {
     	mat.setLit(false);
     }
     
+	@Override
 	public void render(GL2 gl2) {
 		Viewport viewport = ((RobotOverlord)getRoot()).viewport;
 		

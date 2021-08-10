@@ -36,6 +36,7 @@ public class MaterialEntity extends Entity {
 		addChild(texture);
 	}
 	
+	@Override
 	public void render(GL2 gl2) {
 		gl2.glColor4d(diffuse.getR(),diffuse.getG(),diffuse.getB(),diffuse.getA());
 		gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, diffuse.getFloatArray(),0);

@@ -215,7 +215,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
+	        @Override
+			public void run() {
 	        	new RobotOverlord();
 	        }
 	    });
@@ -527,7 +528,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 			
         	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(new Runnable() {
-	            public void run() {
+	            @Override
+				public void run() {
 	            	animator.stop();
 					mainFrame.dispose();
 	            }

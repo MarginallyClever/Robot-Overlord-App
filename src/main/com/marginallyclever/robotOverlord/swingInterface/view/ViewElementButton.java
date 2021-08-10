@@ -29,6 +29,7 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 		panel.add(field,BorderLayout.CENTER);
 	}
 	
+	@Override
 	public void setReadOnly(boolean arg0) {
 		field.setEnabled(!arg0);
 	}

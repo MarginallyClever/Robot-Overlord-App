@@ -156,6 +156,7 @@ public class DHBuilderApp extends DHRobotModel {
 		
 		final ViewElementButton bindButton = (ViewElementButton)view.addButton(inTest ? "Stop test":"Start test");
 		bindButton.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if(!inTest) {
 					testStart();
@@ -188,6 +189,7 @@ public class DHBuilderApp extends DHRobotModel {
 		
 		ViewElement saveButton = view.addButton("Save");
 		saveButton.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				//private static 
 				RobotOverlord ro = (RobotOverlord)getRoot();
@@ -204,6 +206,7 @@ public class DHBuilderApp extends DHRobotModel {
 
 		ViewElement loadButton = view.addButton("Load");
 		loadButton.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				//private static 
 				RobotOverlord ro = (RobotOverlord)getRoot();

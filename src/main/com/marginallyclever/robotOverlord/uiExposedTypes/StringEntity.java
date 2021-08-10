@@ -30,6 +30,7 @@ public class StringEntity extends AbstractEntity<String> {
 		t=value;
 	}
 
+	@Override
 	public String toString() {
 		return getName()+"="+t.toString();
 	}

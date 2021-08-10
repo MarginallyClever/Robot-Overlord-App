@@ -119,7 +119,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		newTree.getSelectionModel().setSelectionMode( multiSelect
 				? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
 				: TreeSelectionModel.SINGLE_TREE_SELECTION );
-	    newTree.setShowsRootHandles(false);
+	    newTree.setShowsRootHandles(true);
 	    newTree.addTreeSelectionListener(this);
 		//tree.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
@@ -186,6 +186,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	}
 
 	// TreeSelectionListener event
+	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
 		ArrayList<Entity> added = new ArrayList<Entity>();
 		ArrayList<Entity> removed = new ArrayList<Entity>();

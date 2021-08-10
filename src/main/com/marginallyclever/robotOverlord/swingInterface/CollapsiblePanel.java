@@ -262,10 +262,12 @@ public class CollapsiblePanel extends JPanel {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		@Override
 		public void actionPerformed(ActionEvent e) {
             setCollapsed(!isCollapsed());
         }
-        public void itemStateChanged(ItemEvent e) {
+        @Override
+		public void itemStateChanged(ItemEvent e) {
             setCollapsed(!isCollapsed());
         }
     }
@@ -304,7 +306,8 @@ public class CollapsiblePanel extends JPanel {
 
         }
 
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        @Override
+		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Rectangle borderR = new Rectangle(x + EDGE_SPACING, y + EDGE_SPACING, width - (EDGE_SPACING * 2), height - (EDGE_SPACING * 2));
             Insets borderInsets;
             if (border != null) {
@@ -348,7 +351,8 @@ public class CollapsiblePanel extends JPanel {
             g.setColor(col);
         }
 
-        public Insets getBorderInsets(Component c, Insets insets) {
+        @Override
+		public Insets getBorderInsets(Component c, Insets insets) {
             Insets borderInsets;
             if (border != null) {
                 borderInsets = border.getBorderInsets(c);

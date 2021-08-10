@@ -65,14 +65,14 @@ public class DogLeg {
 		gl2.glPushMatrix();
 
 		matShoulderA.render(gl2);
-		drawLineTo(gl2, shoulderA.pose, 255, 0, 0);
+		drawLineTo(gl2, shoulderA.getPose(), 255, 0, 0);
 		gl2.glPushMatrix();
 		gl2.glRotated(90, 1, 0, 0);
 		PrimitiveSolids.drawCylinder(gl2, 2, 2.1f);
 		gl2.glPopMatrix();
 
 		matShoulderB.render(gl2);
-		drawLineTo(gl2, shoulderB.pose, 0, 0, 0);
+		drawLineTo(gl2, shoulderB.getPose(), 0, 0, 0);
 		gl2.glPushMatrix();
 		gl2.glRotated(90, 1, 0, 0);
 		PrimitiveSolids.drawCylinder(gl2, 2.5f, 2);
@@ -80,13 +80,13 @@ public class DogLeg {
 
 		double s = 1;
 		matElbow.render(gl2);
-		drawLineTo(gl2, elbow.pose, 0, 255, 0);
-		PrimitiveSolids.drawBox(gl2, new Point3d(-elbow.r, -s, -s), new Point3d(0, s, s));
+		drawLineTo(gl2, elbow.getPose(), 0, 255, 0);
+		PrimitiveSolids.drawBox(gl2, new Point3d(-elbow.getR(), -s, -s), new Point3d(0, s, s));
 
 		s = 0.7;
 		matFoot.render(gl2);
-		drawLineTo(gl2, foot.pose, 0, 0, 255);
-		PrimitiveSolids.drawBox(gl2, new Point3d(-foot.r, -s, -s), new Point3d(0, s, s));
+		drawLineTo(gl2, foot.getPose(), 0, 0, 255);
+		PrimitiveSolids.drawBox(gl2, new Point3d(-foot.getR(), -s, -s), new Point3d(0, s, s));
 
 		gl2.glPopMatrix();
 	}
@@ -137,10 +137,10 @@ public class DogLeg {
 
 	public Matrix4d getWorldMatrixOfToe() {
 		Matrix4d m = myParent == null ? MatrixHelper.createIdentityMatrix4() : myParent.getPose();
-		m.mul(shoulderA.pose);
-		m.mul(shoulderB.pose);
-		m.mul(elbow.pose);
-		m.mul(foot.pose);
+		m.mul(shoulderA.getPose());
+		m.mul(shoulderB.getPose());
+		m.mul(elbow.getPose());
+		m.mul(foot.getPose());
 		return m;
 	}
 
@@ -161,8 +161,8 @@ public class DogLeg {
 
 	public Matrix4d getWorldMatrixOfShoulder() {
 		Matrix4d m = myParent == null ? MatrixHelper.createIdentityMatrix4() : myParent.getPose();
-		m.mul(shoulderA.pose);
-		m.mul(shoulderB.pose);
+		m.mul(shoulderA.getPose());
+		m.mul(shoulderB.getPose());
 		return m;
 	}
 

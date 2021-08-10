@@ -40,6 +40,7 @@ public class RemoveMeAction extends JPanel implements ActionListener {
 		this.add(theButton,BorderLayout.CENTER);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		ro.undoableEditHappened(new UndoableEditEvent(this,new RemoveEdit(ro,entity) ) );
 	}

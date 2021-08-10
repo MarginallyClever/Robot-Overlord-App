@@ -303,6 +303,7 @@ public class Mesh {
 		colorArray.add(g);
 		colorArray.add(b);
 		colorArray.add(a);
+		hasColors=true;
 	}
 	
 	public void addTexCoord(float x,float y) {

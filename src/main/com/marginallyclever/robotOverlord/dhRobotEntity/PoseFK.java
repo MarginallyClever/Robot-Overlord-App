@@ -69,6 +69,7 @@ public class PoseFK implements Memento, Cloneable {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		String str="", add="";
 		for(int i=0;i<fkValues.length;++i) {

@@ -45,6 +45,7 @@ public class Vector3dEntity extends AbstractEntity<Vector3d> {
 		t.set(x,y,z);
 	}
 	
+	@Override
 	public String toString() {
 		return getName()+"="+t.toString();
 	}

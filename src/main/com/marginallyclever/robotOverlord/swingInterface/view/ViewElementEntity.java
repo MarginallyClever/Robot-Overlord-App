@@ -58,6 +58,7 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 		panel.add(choose,gbc);
 		
 		e.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				field.setText(e.get());
 			}
@@ -65,6 +66,7 @@ public class ViewElementEntity extends ViewElement implements ActionListener {
 	}
 
 	// Panel action, update entity
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		EntityTreePanel treePanel = new EntityTreePanel(false);
 		treePanel.update(ro.getScene());

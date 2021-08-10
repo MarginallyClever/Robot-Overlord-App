@@ -562,6 +562,7 @@ public class Spidee extends RobotEntity {
 		  }
 	}
 	
+	@Override
 	public void update(double dt) {
 		/*
 		  boolean open=comm.IsOpen();
@@ -635,6 +636,7 @@ public class Spidee extends RobotEntity {
 	}
 	
 
+	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		gl2.glPushName(getPickName());

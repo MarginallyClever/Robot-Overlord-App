@@ -28,6 +28,7 @@ public class DHIKSolver_RTTRTR extends DHIKSolver {
 	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.
 	 */
+	@Override
 	public int getSolutionSize() {
 		return 6;
 	}

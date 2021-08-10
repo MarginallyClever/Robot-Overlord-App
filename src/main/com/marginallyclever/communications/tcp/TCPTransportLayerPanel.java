@@ -49,6 +49,7 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 		passwordField.setText(lastPassword);
 	}
 	
+	@Override
 	public NetworkSession openConnection() {
 		connectionName = connectionField.getText();
 		portNumber = portField.getText();

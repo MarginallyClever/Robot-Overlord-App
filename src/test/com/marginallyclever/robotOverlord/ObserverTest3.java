@@ -88,12 +88,14 @@ public class ObserverTest3 extends JPanel {
 			label.getDocument().addDocumentListener(this);
 
 			buttonAdd.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					mod.setValue(mod.getValue()+10);
 				}
 			});
 			
 			buttonSub.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					mod.setValue(mod.getValue()-10);
 				}
@@ -105,6 +107,7 @@ public class ObserverTest3 extends JPanel {
 			add(label,BorderLayout.PAGE_END);
 		}
 		
+		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			int v = (Integer)evt.getNewValue();
 			System.out.println("update("+v+")");
@@ -116,6 +119,7 @@ public class ObserverTest3 extends JPanel {
 			lock.unlock();
 		}
 
+		@Override
 		public void stateChanged(ChangeEvent e) {
 			System.out.println("actionPerformed("+field.getValue()+")");
 			mod.setValue(field.getValue());
@@ -135,14 +139,17 @@ public class ObserverTest3 extends JPanel {
 			lock.unlock();
 		}
 		
+		@Override
 		public void changedUpdate(DocumentEvent arg0) {
 			doSomething();
 		}
 
+		@Override
 		public void insertUpdate(DocumentEvent arg0) {
 			doSomething();
 		}
 
+		@Override
 		public void removeUpdate(DocumentEvent arg0) {
 			doSomething();
 		}
@@ -165,6 +172,7 @@ public class ObserverTest3 extends JPanel {
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 	            JFrame f = new JFrame("Observer Test 3");
 	            f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

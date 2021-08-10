@@ -270,6 +270,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	 * Then work from root forward, finding all parents that are a {@link PoseEntity}, to build the world pose matrix.
 	 * @return {@link Matrix4d} of the world pose
 	 */
+	@Override
 	public Matrix4d getPoseWorld() {
 		Entity parent = getParent();
 		
@@ -286,6 +287,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	 * Set the pose and poseWorld of this item
 	 * @param m
 	 */
+	@Override
 	public void setPoseWorld(Matrix4d m) {
 		if(parent != null && parent instanceof PoseEntity) {
 			// I have a parent that is posed in the world.  I only hold onto relative pose information,

@@ -160,6 +160,7 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		speedNow.setText(Double.toString(robot.getSpeed()));
 	}
 	
+	@Override
 	public void stateChanged(ChangeEvent e) {
 		Object subject = e.getSource();
 		if( subject == speedControl ) {
@@ -168,6 +169,7 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 		}
 	}
 	
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object subject = e.getSource();			
 		

@@ -50,6 +50,7 @@ public class DHLink extends PoseEntity implements Collidable {
 		public int toInt() {
 			return number;
 		}
+		@Override
 		public String toString() {
 			return name;
 		}

@@ -79,6 +79,7 @@ public class TabTest extends JTabbedPane {
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 	            JFrame f = new JFrame("Tab Test");
 	            f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

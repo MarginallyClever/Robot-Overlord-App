@@ -29,6 +29,7 @@ public class HTMLDialogBox {
 		bottomText.setText(html);
 		bottomText.setOpaque(false);
 		final HyperlinkListener hyperlinkListener = new HyperlinkListener() {
+			@Override
 			public void hyperlinkUpdate(HyperlinkEvent hyperlinkEvent) {
 				if (hyperlinkEvent.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 					if (Desktop.isDesktopSupported()) {

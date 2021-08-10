@@ -34,6 +34,7 @@ public class TextureEntity extends StringEntity {
 		textureDirty=false;
 	}
 
+	@Override
 	public void render(GL2 gl2) {
 		if(textureDirty) {
 			// texture has changed, load the new texture.

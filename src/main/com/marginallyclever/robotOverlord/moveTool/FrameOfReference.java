@@ -14,6 +14,7 @@ public enum FrameOfReference {
 	public int toInt() {
 		return number;
 	}
+	@Override
 	public String toString() {
 		return name;
 	}

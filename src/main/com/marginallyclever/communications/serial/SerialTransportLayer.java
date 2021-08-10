@@ -44,6 +44,7 @@ public class SerialTransportLayer implements TransportLayer {
 	/**
 	 * @return <code>serialConnection</code> if connection successful.  <code>null</code> on failure.
 	 */
+	@Override
 	public NetworkSession openConnection(String connectionName) {
 		//if(connectionName.equals(recentPort)) return null;
 
@@ -62,6 +63,7 @@ public class SerialTransportLayer implements TransportLayer {
 	/**
 	 * @return a panel with the gui options for this transport layer
 	 */
+	@Override
 	public TransportLayerPanel getTransportLayerPanel() {
 		return new SerialTransportLayerPanel(this);
 	}

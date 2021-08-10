@@ -23,6 +23,7 @@ public class IntEntity extends AbstractEntity<Integer> {
 		setName(name);
 	}
 	
+	@Override
 	public String toString() {
 		return getName()+"="+t.toString();
 	}

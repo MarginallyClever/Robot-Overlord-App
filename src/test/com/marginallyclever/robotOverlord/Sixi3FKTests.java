@@ -34,7 +34,6 @@ public class Sixi3FKTests {
 		Matrix4d bm = new Matrix4d();
 		
 		double [] av = new double[numBones];
-		double [] bv = new double[numBones];
 		
 		for(int j=0;j<200;++j) {
 			// old pose
@@ -71,7 +70,7 @@ public class Sixi3FKTests {
 			assertTrue(b.getName().contentEquals(a.getName()));
 			assertTrue(b.getPose().equals(a.getPose()));
 			
-			b.getFKValues(bv);
+			double [] bv = b.getFKValues();
 			for(int i=0;i<numBones;++i) {
 				assertTrue(av[i]==bv[i]);
 			}

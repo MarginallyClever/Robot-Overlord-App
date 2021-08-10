@@ -82,10 +82,12 @@ public class SSHShell {
 	}
 
 	public static class MyUserInfo implements UserInfo, UIKeyboardInteractive {
+		@Override
 		public String getPassword() {
 			return passwd;
 		}
 
+		@Override
 		public boolean promptYesNo(String str) {
 			Object[] options = { "yes", "no" };
 			int foo = JOptionPane.showOptionDialog(null, str, "Warning", JOptionPane.DEFAULT_OPTION,
@@ -96,14 +98,17 @@ public class SSHShell {
 		String passwd;
 		JTextField passwordField = (JTextField) new JPasswordField(20);
 
+		@Override
 		public String getPassphrase() {
 			return null;
 		}
 
+		@Override
 		public boolean promptPassphrase(String message) {
 			return true;
 		}
 
+		@Override
 		public boolean promptPassword(String message) {
 			Object[] ob = { passwordField };
 			int result = JOptionPane.showConfirmDialog(null, ob, message, JOptionPane.OK_CANCEL_OPTION);
@@ -115,6 +120,7 @@ public class SSHShell {
 			}
 		}
 
+		@Override
 		public void showMessage(String message) {
 			JOptionPane.showMessageDialog(null, message);
 		}
@@ -123,6 +129,7 @@ public class SSHShell {
 				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0);
 		private Container panel;
 
+		@Override
 		public String[] promptKeyboardInteractive(String destination, String name, String instruction, String[] prompt,
 				boolean[] echo) {
 			panel = new JPanel();

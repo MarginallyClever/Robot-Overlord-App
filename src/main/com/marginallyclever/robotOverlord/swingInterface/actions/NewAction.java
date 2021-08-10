@@ -30,6 +30,7 @@ public class NewAction extends AbstractAction implements ActionListener {
 		this.ro = ro;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Did you save your work?
         int result = JOptionPane.showConfirmDialog(
