@@ -103,24 +103,22 @@ public class InputManager {
 		KEY_F11(68),
 		KEY_F12(69);
 		
-		
-		
 		private final int value;
+		
 		private Source(int v) {
 			value=v;
 		}
+		
 		public int getValue() {
 			return value;
 		}
 	};
 	
-
-	protected static double [] keyStateOld = new double[Source.values().length];
-	protected static double [] keyState = new double[Source.values().length];
+	private static double [] keyStateOld = new double[Source.values().length];
+	private static double [] keyState = new double[Source.values().length];
+	private static boolean hasFocus=false;
 	
-	protected static int prevIdentifier;
-	
-	static public void start() {
+	public static void start() {
 		Log.message("InputManager start");
 		
 		String libPath = System.getProperty("net.java.games.input.librarypath");
@@ -135,7 +133,7 @@ public class InputManager {
 	}
 
 	// Output all controllers, their components, and some details about those components.
-	static public void listAllControllers() {
+	public static void listAllControllers() {
 		ControllerEnvironment ce = ControllerEnvironment.getDefaultEnvironment();
 		Log.message("supported="+ce.isSupported());
 		
@@ -159,88 +157,74 @@ public class InputManager {
         }
 	}
 	
-	static public void update(boolean isMouseIn) {
+	public static void update(boolean isMouseIn) {
+		if(!hasFocus) return;
+		
 		Controller[] ca = ControllerEnvironment.getDefaultEnvironment().getControllers();
 
-		advanceKeyStates();
-		
-		//int numMice=0;
-		//int numSticks=0;
-		//int numKeyboard=0;
+		updateOldKeyStates();
 		
 		boolean didIHearAMouse=false;
 		
-        for(int i=0;i<ca.length;i++){
+        for(int i=0;i<ca.length;i++) {
         	// poll all controllers once per frame
         	if(!ca[i].poll()) {
-        		// TODO poll failed, device disconnected?
-        		continue;
+        		continue;  // TODO poll failed, device disconnected?
         	}
 
-        	//Log.message(ca[i].getType());
         	if(ca[i].getType()==Controller.Type.MOUSE) {
         		// only listen to the first mouse and only listen if it's in
         		if(!didIHearAMouse && isMouseIn) {
 	            	updateMouse(ca[i]);
-	            	//didIHearAMouse=true;
         		}
-        		//++numMice;
         	} else if(ca[i].getType()==Controller.Type.GAMEPAD) {
-        		//if(numSticks==0) {
-        			updateStick(ca[i]);
-        		//}
-        		//++numSticks;
+       			updateStick(ca[i]);
         	} else if(ca[i].getType()==Controller.Type.KEYBOARD) {
-        		//if(numKeyboard==0) {
-            		updateKeyboard(ca[i]);
-        		//}
-        		//++numKeyboard;
+           		updateKeyboard(ca[i]);
         	}
         }
-        //Log.message(numSticks+"/"+numMice+"/"+numKeyboard);
 	}
 	
-	static public boolean isOn(Source i) {
+	public static boolean isOn(Source i) {
 		return keyState[i.getValue()]==1;
 	}
 
-	static public boolean isOff(Source i) {
+	public static boolean isOff(Source i) {
 		return keyState[i.getValue()]==0;
 	}
 	
-	static public boolean isPressed(Source i) {
+	public static boolean isPressed(Source i) {
 		return keyState[i.getValue()]==1 && keyStateOld[i.getValue()]==0;
 	}
 	
-	static public boolean isReleased(Source i) {
+	public static boolean isReleased(Source i) {
 		return keyState[i.getValue()]==0 && keyStateOld[i.getValue()]==1;
 	}
 	
-	static public double getRawValue(Source i) {
+	public static double getRawValue(Source i) {
 		return keyState[i.getValue()];
 	}
 	
-	static protected void setRawValue(Source i,double value) {
+	static private void setRawValue(Source i,double value) {
 		int v = i.getValue();
-		//keyStateOld[v]=keyState[v];
-		keyState[v]=value;
+		keyState[v] = value;
 	}
 
-	static protected void advanceKeyStates() {
-		for(int i=0;i<Source.values().length;++i) {
-			keyStateOld[i]=keyState[i];
-			keyState[i]=0;
+	static private void updateOldKeyStates() {
+		for(int i=0;i<keyState.length;++i) {
+			keyStateOld[i] = keyState[i];
+			keyState[i] = 0;
 		}
 	}
 
-	static protected void resetKeyStates() {
-		for(int i=0;i<Source.values().length;++i) {
-			keyStateOld[i]=0;
-			keyState[i]=0;
+	static private void resetKeyStates() {
+		for(int i=0;i<keyState.length;++i) {
+			keyStateOld[i] = 0;
+			keyState[i] = 0;
 		}
 	}
 
-	static public void updateStick(Controller controller) {
+	public static void updateStick(Controller controller) {
     	//*
 		Component[] components = controller.getComponents();
         for(int j=0;j<components.length;j++){
@@ -299,13 +283,8 @@ public class InputManager {
         	}
     	}
 	}
-
-	public static boolean doesMatchPrevIdentifier(int i) {
-		if (i == prevIdentifier) return true;
-		return false;
-	}
 	
-	static public void updateMouse(Controller controller) {
+	public static void updateMouse(Controller controller) {
     	//*
 		Component[] components = controller.getComponents();
         for(int j=0;j<components.length;j++){
@@ -358,10 +337,10 @@ public class InputManager {
         }
 	}
 	
-	static public void updateKeyboard(Controller controller) {
+	public static void updateKeyboard(Controller controller) {
     	//*
 		Component[] components = controller.getComponents();
-        for(int j=0;j<components.length;j++){
+        for(int j=0;j<components.length;j++) {
 			Component c = components[j];
 			Identifier cid = c.getIdentifier();
 		/*/
@@ -378,26 +357,25 @@ public class InputManager {
         			":"+(c.isAnalog()?"Analog":"Digital")+
         			":"+(c.getDeadZone())+
            			":"+(c.getPollData()));//*/
-        	
         	if(!c.isAnalog()) {
         		// digital
     			if(c.getPollData()==1) {
     				//Log.message(cid.getName());
-    				     if(cid==Identifier.Key.DELETE  ) setRawValue(Source.KEY_DELETE,1);
-    				else if(cid==Identifier.Key.RETURN  ) setRawValue(Source.KEY_RETURN,1);
-    				else if(cid==Identifier.Key.LSHIFT  ) setRawValue(Source.KEY_LSHIFT,1);
-    				else if(cid==Identifier.Key.RSHIFT  ) setRawValue(Source.KEY_RSHIFT,1);
-    				else if(cid==Identifier.Key.RALT    ) setRawValue(Source.KEY_RALT,1);
-    				else if(cid==Identifier.Key.LALT    ) setRawValue(Source.KEY_LALT,1);
+    				     if(cid==Identifier.Key.DELETE ) setRawValue(Source.KEY_DELETE,1);
+    				else if(cid==Identifier.Key.RETURN ) setRawValue(Source.KEY_RETURN,1);
+    				else if(cid==Identifier.Key.LSHIFT ) setRawValue(Source.KEY_LSHIFT,1);
+    				else if(cid==Identifier.Key.RSHIFT ) setRawValue(Source.KEY_RSHIFT,1);
+    				else if(cid==Identifier.Key.RALT ) setRawValue(Source.KEY_RALT,1);
+    				else if(cid==Identifier.Key.LALT ) setRawValue(Source.KEY_LALT,1);
     				else if(cid==Identifier.Key.RCONTROL) setRawValue(Source.KEY_RCONTROL,1);
     				else if(cid==Identifier.Key.LCONTROL) setRawValue(Source.KEY_LCONTROL,1);
-    				else if(cid==Identifier.Key.BACK    ) setRawValue(Source.KEY_BACKSPACE,1);
-    				else if(cid==Identifier.Key.Q    ) setRawValue(Source.KEY_Q,1);
-    				else if(cid==Identifier.Key.E    ) setRawValue(Source.KEY_E,1);
-    				else if(cid==Identifier.Key.W    ) setRawValue(Source.KEY_W,1);
-    				else if(cid==Identifier.Key.A    ) setRawValue(Source.KEY_A,1);
-    				else if(cid==Identifier.Key.S    ) setRawValue(Source.KEY_S,1);
-    				else if(cid==Identifier.Key.D    ) setRawValue(Source.KEY_D,1);
+    				else if(cid==Identifier.Key.BACK ) setRawValue(Source.KEY_BACKSPACE,1);
+    				else if(cid==Identifier.Key.Q ) setRawValue(Source.KEY_Q,1);
+    				else if(cid==Identifier.Key.E ) setRawValue(Source.KEY_E,1);
+    				else if(cid==Identifier.Key.W ) setRawValue(Source.KEY_W,1);
+    				else if(cid==Identifier.Key.A ) setRawValue(Source.KEY_A,1);
+    				else if(cid==Identifier.Key.S ) setRawValue(Source.KEY_S,1);
+    				else if(cid==Identifier.Key.D ) setRawValue(Source.KEY_D,1);
     				else if(cid==Identifier.Key.NUMPADENTER) setRawValue(Source.KEY_ENTER,1);
     				else if(cid==Identifier.Key.TAB) setRawValue(Source.KEY_TAB,1);
 
@@ -440,7 +418,14 @@ public class InputManager {
         }
 	}
 	
-	public static void lostFocus() {
+	public static void focusLost() {
+		hasFocus=false;
 		resetKeyStates();
+	}
+	
+	public static void focusGained() {
+		hasFocus=true;
+		resetKeyStates();
+
 	}
 }
