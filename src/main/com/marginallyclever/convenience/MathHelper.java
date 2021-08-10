@@ -283,4 +283,17 @@ public class MathHelper {
 		Vector3d a = new Vector3d(x,y,z);
 		return a;
 	}
+
+
+	/**
+	 * @param start
+	 * @param end
+	 * @param theta
+	 * @return where x sits between start and end.  value may be outside rante 0...1
+	 */
+	public static double getUnitInRange(double start, double end, double x) {
+		double range = end-start;
+		double p = x-start;
+		return p/range;
+	}
 }
