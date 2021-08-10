@@ -19,6 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
 
@@ -27,7 +28,13 @@ import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
  * @author Dan Royer
  */
 public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
-
+	private class ColorGroup {
+		public int id;
+		public ArrayList<ColorRGB> colors = new ArrayList<ColorRGB>();
+	};
+	
+	ArrayList<ColorGroup> colorGroups = new ArrayList<ColorGroup>();
+	
 	@Override
 	public String getEnglishName() {
 		return "3D Manufacturing Format (3MF)";
@@ -56,7 +63,41 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 		BufferedInputStream stream2 = openZipAndFind3DFile(inputStream);
 		Element modelNode = buildTreeAndReturnRootNode(stream2);
         double scale = getScale(modelNode);
-                
+
+        parseMaterials(modelNode);
+        parseAllObjects(model,modelNode,scale);
+        
+        model.buildNormals();
+        
+		return model;
+	}
+    
+	private void parseMaterials(Element modelNode) {
+		colorGroups.clear();
+		
+        Element resources = (Element)modelNode.getElementsByTagName("resources").item(0);
+        NodeList colorGroupNodes = resources.getElementsByTagName("m:colorgroup");
+        for(int i=0;i<colorGroupNodes.getLength();++i) {
+        	ColorGroup g = loadColorGroup((Element)colorGroupNodes.item(i));
+        	colorGroups.add(g);
+        }
+	}
+
+	private ColorGroup loadColorGroup(Element group) {
+    	ColorGroup g = new ColorGroup();
+    	g.id = Integer.valueOf(group.getAttribute("id"));
+        NodeList colorNodes = group.getElementsByTagName("m:color");
+        for(int i=0;i<colorNodes.getLength();++i) {
+        	Element cn = (Element)colorNodes.item(i);
+        	String hex = cn.getAttribute("color");
+        	ColorRGB c = ColorRGB.parse(hex);
+        	g.colors.add(c);
+        }
+    	
+		return g;
+	}
+
+	private void parseAllObjects(Mesh model,Element modelNode, double scale) throws Exception {
         //System.out.println("finding model/resources/object...");
         Element resources = (Element)modelNode.getElementsByTagName("resources").item(0);
         NodeList objects = resources.getElementsByTagName("object");
@@ -66,16 +107,13 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
         	parseObject(object,scale,model);
         }
         //System.out.println("done.");
-        
-        model.buildNormals();
-        
-		return model;
 	}
-    
+
 	private void parseObject(Element object,double scale, Mesh model) throws Exception {
     	String objectUUID = object.getAttribute("p:UUID");
     	//System.out.println("parsing object "+objectUUID);
     	
+    	ColorRGB defaultColor = parseObjectColor(object);
     	String objectType = object.getAttribute("type");
     	if(!objectType.contentEquals("model")) {
         	throw new Exception("Object "+objectUUID+" has unsupported model type '"+objectType+"'.");
@@ -87,8 +125,23 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
         ArrayList<Vector3d> vertexes = collectMeshVertices(mesh,scale);
         
         //buildIndexedTriangles(mesh,model,vertexes);
-        buildTriangles(mesh,model,vertexes);
+        buildTriangles(mesh,model,vertexes,defaultColor);
 	}
+
+	private ColorRGB parseObjectColor(Element object) throws Exception {
+		int pid = Integer.valueOf(object.getAttribute("pid"));
+		int pindex = Integer.valueOf(object.getAttribute("pindex"));
+		return getColor(pid,pindex);
+	}
+
+	private ColorRGB getColor(int pid, int pindex) {
+		for( ColorGroup g : colorGroups ) {
+			if(g.id == pid) return g.colors.get(pindex);
+		}
+		
+		return new ColorRGB(255,255,255);  // white
+	}
+	
 
 	@SuppressWarnings("unused")
 	private void buildIndexedTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes) {
@@ -108,8 +161,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
     	}
 	}
 
-	@SuppressWarnings("unused")
-	private void buildTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes) {
+	private void buildTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes,ColorRGB defaultColor) {
 		Vector3d vA;
 		
     	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
@@ -123,6 +175,20 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
     		vA = vertexes.get(v1);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
     		vA = vertexes.get(v2);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
     		vA = vertexes.get(v3);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+    		
+    		ColorRGB myColor;
+    		if( t1.hasAttribute("pid") ) {
+    			int pid = Integer.valueOf(t1.getAttribute("pid"));
+    			int p1 = Integer.valueOf("p1");
+    			myColor = getColor(pid,p1);
+    		} else myColor = defaultColor;
+    		
+    		float r = (float)myColor.red/255.0f;
+    		float g = (float)myColor.green/255.0f;
+    		float b = (float)myColor.blue/255.0f;
+    		model.addColor(r,g,b,1);
+    		model.addColor(r,g,b,1);
+    		model.addColor(r,g,b,1);
     	}
 	}
 	
