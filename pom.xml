@@ -398,17 +398,6 @@
 			<artifactId>jinput</artifactId>
 			<version>${jinput.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.java.jutils</groupId>
-			<artifactId>jutils</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.java.jinput</groupId>
-			<artifactId>jinput-platform</artifactId>
-			<version>${jinput.version}</version>
-			<type>pom</type>
-		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/batik/batik-xml -->
 		<dependency>
@@ -434,7 +423,7 @@
 		<minimum.maven.version>3.8.1</minimum.maven.version>
 		<minimum.java.version>15</minimum.java.version>
 		<jogl.version>2.4.0</jogl.version>
-		<jinput.version>2.0.7</jinput.version>
+		<jinput.version>2.0.9</jinput.version>
 		<maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
 		<maven.compiler.source>${minimum.java.version}</maven.compiler.source>
 		<maven.compiler.target>${minimum.java.version}</maven.compiler.target>
