@@ -6,8 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -323,8 +321,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
     	int windowH = prefs.getInt("windowHeight", -1);
     	if(windowW==-1 || windowH==-1) {
     		Log.message("...default size");
-    		windowW=dim.width;
-    		windowH=dim.height;
+    		windowW = dim.width;
+    		windowH = dim.height;
     	}
         mainFrame.setSize( windowW, windowH );
     	
@@ -525,6 +523,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        	saveWindowSizeAndPosition();
 
 			// Log.end() should be the very last call.  mainFrame.dispose() kills the thread, so this is as close as I can get.
 			Log.end();
@@ -533,7 +532,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	        new Thread(new Runnable() {
 	            @Override
 				public void run() {
-	            	saveWindowSizeAndPosition();
 	            	animator.stop();
 					mainFrame.dispose();
 	            }
