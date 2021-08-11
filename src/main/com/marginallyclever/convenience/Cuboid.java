@@ -90,6 +90,18 @@ public class Cuboid implements BoundingVolume, Serializable {
 		return boundBottom;
 	}
 	
+	public double getExtentX() {
+		return boundTop.x-boundBottom.x;
+	}
+	
+	public double getExtentY() {
+		return boundTop.y-boundBottom.y;
+	}
+	
+	public double getExtentZ() {
+		return boundTop.z-boundBottom.z;
+	}
+	
 	public void setPose(Matrix4d m) {
 		if(!pose.epsilonEquals(m, 1e-4)) {
 			pose.set(m);
@@ -125,7 +137,6 @@ public class Cuboid implements BoundingVolume, Serializable {
 		isDirty=newState;
 	}
 
-	
 	public void setShape(Mesh shape) {
 		myShape=shape;
 	}
