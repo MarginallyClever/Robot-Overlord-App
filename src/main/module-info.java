@@ -1,7 +1,3 @@
-import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
-import com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.DHTool;
-	
 module com.marginallyclever.robotOverlord {
 	requires java.desktop;
 	requires java.prefs;
@@ -22,8 +18,8 @@ module com.marginallyclever.robotOverlord {
 	requires batik.all;
 	requires xml.apis.ext;
 	
-	uses Entity;
-	provides Entity with 
+	uses com.marginallyclever.robotOverlord.Entity;
+	provides com.marginallyclever.robotOverlord.Entity with 
 		com.marginallyclever.robotOverlord.dhRobotEntity.DHBuilderApp,
 		com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK,
 		com.marginallyclever.robotOverlord.robots.LinearStewartPlatform,
@@ -40,15 +36,15 @@ module com.marginallyclever.robotOverlord {
 		com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.Sixi2LinearGripper,
 		com.marginallyclever.robotOverlord.robots.dog.DogRobot;
 	
-	uses ShapeLoadAndSave;
-	provides ShapeLoadAndSave with
+	uses com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
+	provides com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave with
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveAMF,
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveOBJ,
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSavePLY,
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveSTL,
 		com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSave3MF;
 	
-	uses DHTool;
-	provides DHTool with
+	uses com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.DHTool;
+	provides com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.DHTool with
 		com.marginallyclever.robotOverlord.dhRobotEntity.dhTool.Sixi2LinearGripper;
 }
