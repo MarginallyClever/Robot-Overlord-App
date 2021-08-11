@@ -40,13 +40,10 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	
 	// unmoving model of the robot base.
 	transient private Shape base;
-	
 	// DH parameters, meshes, physical limits.
 	private ArrayList<Sixi3Bone> bones = new ArrayList<Sixi3Bone>();
-
 	// visualize rotations?
 	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
-
 
 	public Sixi3FK() {
 		super();
@@ -80,12 +77,12 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		// load the base shape.
 		base = new Shape("/Sixi3b/base.3mf");
 		bones.clear();
-		// name r d a t max min file
-		addBone("j0",     0, 8.01,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
-		addBone("j1",17.889,9.131,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
-		addBone("j2",12.435,    0,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
-		addBone("j3",     0,    0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
-		addBone("j4",     0, 5.12,  0,  0,360    ,0      ,"/Sixi3b/j4.3mf");
+		// name d r a t max min file
+		addBone("j0", 8.01,     0,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
+		addBone("j1",9.131,17.889,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
+		addBone("j2",    0,12.435,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
+		addBone("j3",    0,     0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
+		addBone("j4", 5.12,     0,  0,  0,360    ,0      ,"/Sixi3b/j4.3mf");
 		//addBone("end effector",     0, 5.12,  0,  0,350,10,"");
 		
 		adjustModelOriginsToDHLinks();
@@ -104,9 +101,9 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 	}
 
-	private void addBone(String name, double r, double d, double a, double t, double jMax, double jMin, String modelFilename) {
+	private void addBone(String name, double d, double r, double a, double t, double jMax, double jMin, String modelFilename) {
 		Sixi3Bone b = new Sixi3Bone();
-		b.set(r,d,a,t,jMax,jMin,modelFilename);
+		b.set(d,r,a,t,jMax,jMin,modelFilename);
 		b.setSliderName(name);
 		bones.add(b);
 	}

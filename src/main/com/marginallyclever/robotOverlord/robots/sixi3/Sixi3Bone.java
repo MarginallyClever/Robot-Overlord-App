@@ -17,19 +17,15 @@ public class Sixi3Bone {
 	private Matrix4d pose = new Matrix4d();
 	// length (mm) along previous Z to the common normal
 	private double d;
-	// angle (degrees) about previous Z, from old X to new X
-	public double theta;
 	// length (mm) of the common normal. movement on X.  Assuming a revolute joint, this is the radius about previous Z
 	private double r;
 	// angle (degrees) about common normal, from old Z axis to new Z axis
 	private double alpha;
+	// angle (degrees) about previous Z, from old X to new X
+	public double theta;
 	
 	private double angleMax, angleMin;
-	
-	private double mass;
-	private double maxTorque;
-	private double maxVelocity;
-	
+		
 	// model and relative offset from DH origin
 	public Shape shape;
 	
@@ -37,7 +33,7 @@ public class Sixi3Bone {
 	
 	public Sixi3Bone() {}
 	
-	public void set(double rr,double dd,double aa,double tt,double aMax,double aMin,String shapeFilename) {
+	public void set(double dd,double rr,double aa,double tt,double aMax,double aMin,String shapeFilename) {
 		d=dd;
 		r=rr;
 		alpha=aa;

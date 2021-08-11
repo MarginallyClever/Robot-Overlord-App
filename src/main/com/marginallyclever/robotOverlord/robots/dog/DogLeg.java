@@ -55,10 +55,10 @@ public class DogLeg {
 	}
 
 	private void setDHParameters(double r, double d, double s) {
-		shoulderA.set(r, d, 0, 0, 360, -360, "");
+		shoulderA.set(d, r, 0, 0, 360, -360, "");
 		shoulderB.set(0, 0, 90, -90, 360, -360, "");
-		elbow.set(11.5, -3.5 * s, 0, -45, 0, -180, "");
-		foot.set(13, 0, 0, 90, 360, -360, "");
+		elbow.set(-3.5 * s, 11.5, 0, -45, 0, -180, "");
+		foot.set(0, 13, 0, 90, 360, -360, "");
 	}
 
 	public void render(GL2 gl2) {
