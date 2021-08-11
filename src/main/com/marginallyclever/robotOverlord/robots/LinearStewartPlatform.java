@@ -77,12 +77,12 @@ public class LinearStewartPlatform  extends PoseEntity {
 		connection.addPropertyChangeListener(this);
 		
 		// load models and fix scale/orientation.
-		baseModel = new Shape("/linearStewartPlatform/base.stl");
+		baseModel = new Shape("Base","/linearStewartPlatform/base.stl");
 		baseModel.setShapeScale(0.1);
-		eeModel = new Shape("/linearStewartPlatform/endEffector.stl");
+		eeModel = new Shape("ee","/linearStewartPlatform/endEffector.stl");
 		eeModel.setShapeScale(0.1);
 		eeModel.setShapeRotation(new Vector3d(0,0,-30));
-		armModel = new Shape("/linearStewartPlatform/arm.stl");
+		armModel = new Shape("arm","/linearStewartPlatform/arm.stl");
 		armModel.setShapeScale(0.1);
 
 		// apply some default materials.

@@ -75,12 +75,12 @@ public class RotaryStewartPlatform  extends PoseEntity {
 		connection.addPropertyChangeListener(this);
 		
 		// load models and fix scale/orientation.
-		baseModel = new Shape("/rotaryStewartPlatform/base.stl");
+		baseModel = new Shape("Base","/rotaryStewartPlatform/base.stl");
 		baseModel.setShapeScale(0.1);
-		eeModel = new Shape("/rotaryStewartPlatform/endEffector.stl");
+		eeModel = new Shape("ee","/rotaryStewartPlatform/endEffector.stl");
 		eeModel.setShapeScale(0.1);
 		eeModel.setShapeRotation(new Vector3d(0,0,-30));
-		armModel = new Shape("/rotaryStewartPlatform/arm.stl");
+		armModel = new Shape("arm","/rotaryStewartPlatform/arm.stl");
 		armModel.setShapeScale(0.1);
 
 		eeModel.setShapeRotation(180,0,30);

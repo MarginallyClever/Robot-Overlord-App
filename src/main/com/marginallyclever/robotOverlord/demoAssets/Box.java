@@ -32,7 +32,8 @@ public class Box extends Shape implements Collidable {
 	private Cuboid cuboid = new Cuboid();
 	
 	public Box() {
-		super("Box");
+		super();
+		setName("Box");
 		addChild(width);
 		addChild(height);
 		addChild(depth);

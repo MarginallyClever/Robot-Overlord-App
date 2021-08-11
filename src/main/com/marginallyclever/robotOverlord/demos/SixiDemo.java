@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.shape.Shape;
 public class SixiDemo implements Demo {
 	@Override
 	public String getName() {
-		return "Sixi3s";
+		return "Sixi 3";
 	}
 	
 	@Override
@@ -58,9 +58,8 @@ public class SixiDemo implements Demo {
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 
-		Shape table = new Shape("/table.stl");
+		Shape table = new Shape("Table","/table.stl");
 		sc.addChild(table);
-		table.setName("Table");
 		table.setPosition(new Vector3d(0,0,-0.75));
 		//box.setSize(160,1,110);
 		//box.setPosition(new Vector3d(59.5,0,-2.5));

@@ -33,14 +33,14 @@ public class Sixi3Bone {
 	
 	public Sixi3Bone() {}
 	
-	public void set(double dd,double rr,double aa,double tt,double aMax,double aMin,String shapeFilename) {
+	public void set(String name,double dd,double rr,double aa,double tt,double aMax,double aMin,String shapeFilename) {
 		d=dd;
 		r=rr;
 		alpha=aa;
 		theta=tt;
 		angleMax=aMax;
 		angleMin=aMin;
-		shape = new Shape(shapeFilename);
+		shape = new Shape(name,shapeFilename);
 	}
 	
 	public void setAngleWRTLimits(double newAngle) {

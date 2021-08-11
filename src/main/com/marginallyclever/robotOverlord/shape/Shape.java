@@ -63,8 +63,11 @@ public class Shape extends PoseEntity implements Collidable {
 	private Cuboid cuboid = new Cuboid();
 	
 	public Shape() {
-		super();
-		setName("Model");
+		this("Shape");
+	}
+	
+	public Shape(String name) {
+		super(name);
 		addChild(filename);
 
 		addChild(rotationAdjust);
@@ -82,11 +85,11 @@ public class Shape extends PoseEntity implements Collidable {
 		addChild(hasUVs);
 	}
 	
-	public Shape(String filename) {
-		this();
+	public Shape(String name,String filename) {
+		super(name);
 		setShapeFilename(filename);
 	}
-
+	
 	public void set(Shape b) {
 		super.set(b);
 		scale.set(b.scale.get());

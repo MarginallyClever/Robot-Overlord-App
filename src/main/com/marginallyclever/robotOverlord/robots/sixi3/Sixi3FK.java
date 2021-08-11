@@ -75,7 +75,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 */
 	private void setupModel() {
 		// load the base shape.
-		base = new Shape("/Sixi3b/base.3mf");
+		base = new Shape("Base","/Sixi3b/base.3mf");
 		bones.clear();
 		// name d r a t max min file
 		addBone("j0", 8.01,     0,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
@@ -103,7 +103,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 	private void addBone(String name, double d, double r, double a, double t, double jMax, double jMin, String modelFilename) {
 		Sixi3Bone b = new Sixi3Bone();
-		b.set(d,r,a,t,jMax,jMin,modelFilename);
+		b.set(name,d,r,a,t,jMax,jMin,modelFilename);
 		b.setSliderName(name);
 		bones.add(b);
 	}

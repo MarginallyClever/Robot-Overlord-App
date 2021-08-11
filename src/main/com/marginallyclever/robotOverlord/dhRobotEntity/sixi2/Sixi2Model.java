@@ -86,9 +86,8 @@ public class Sixi2Model extends DHRobotModel implements MementoOriginator {
 		
 		setName("Sixi2Model");
 
-		Shape base = new Shape("/Sixi2/anchor.obj");
+		Shape base = new Shape("Base","/Sixi2/anchor.obj");
 		addChild(base);
-		base.setName("Base");
 		base.getMaterial().setTextureFilename("/Sixi2/sixi.png");
 		base.setShapeOrigin(0, 0, 0.9);
 
