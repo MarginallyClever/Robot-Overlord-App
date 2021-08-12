@@ -716,4 +716,107 @@ public class MatrixHelper {
 		m.setIdentity();
 		return m;
 	}
+	
+	// see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_angle
+	public static Matrix3d getMatrixFromAxisAndRotation(Vector3d axis,double degrees) {
+		Matrix3d m = new Matrix3d();
+		
+		double radians = Math.toRadians(degrees);
+		double c = Math.cos(radians);
+		double s = Math.sin(radians);
+		double oneMinusC = 1-c;
+		double x = axis.x;
+		double y = axis.y;
+		double z = axis.z;
+		
+		double xzc = x*z*oneMinusC;
+		double yzc = y*z*oneMinusC;
+		double xyc = x*y*oneMinusC;
+		
+		m.m00 = c + x*x*oneMinusC;
+		m.m01 = xyc - z*s;
+		m.m02 = xzc + y*s;
+
+		m.m10 = xyc +z*s;
+		m.m11 = c + y*y*oneMinusC;
+		m.m12 = yzc - x*s;
+		
+		m.m20 = xzc - y*s;
+		m.m21 = yzc + x*s;
+		m.m22 = c + z*z*oneMinusC;
+			
+		return m;
+	}
+	
+	// Only implemented for symmetric matrices with the Jacobi iterative method
+	// see https://en.wikipedia.org/wiki/Jacobi_eigenvalue_algorithm
+	// see https://en.wikipedia.org/wiki/Diagonalizable_matrix#Diagonalization
+	public static Matrix3d diagonalize(Matrix3d arg0) {
+		Matrix3d result = new Matrix3d();
+		Matrix3d elements = new Matrix3d(arg0);
+
+		double offMatrixNorm2 = elements.m01*elements.m01 + elements.m02*elements.m02 + elements.m12*elements.m12;
+
+		final int ite_max = 1024;
+		int ite = 0;
+		while (offMatrixNorm2 > 1e-6 && ite++ < ite_max) {
+			double el01_2 = elements.m01 * elements.m01;
+			double el02_2 = elements.m02 * elements.m02;
+			double el12_2 = elements.m12 * elements.m12;
+			// Find the pivot element
+			int i, j;
+			if (el01_2 > el02_2) {
+				if (el12_2 > el01_2) {
+					i = 1;
+					j = 2;
+				} else {
+					i = 0;
+					j = 1;
+				}
+			} else {
+				if (el12_2 > el02_2) {
+					i = 1;
+					j = 2;
+				} else {
+					i = 0;
+					j = 2;
+				}
+			}
+
+			// Compute the rotation angle
+			double angle;
+			if(Math.abs(elements.getElement(j,j) - elements.getElement(i,i)) < 1e-5) {
+				angle = Math.PI / 4;
+			} else {
+				angle = 0.5 * Math.atan(2 * elements.getElement(i,j) / (elements.getElement(j,j) - elements.getElement(i,i)));
+			}
+
+			// Compute the rotation matrix
+			Matrix3d rot = new Matrix3d();
+			rot.setIdentity();
+			double c = Math.cos(angle);
+			double s = Math.sin(angle);
+
+			rot.setElement(i,i, c); 
+			rot.setElement(j,j, c);
+			rot.setElement(i,j,-s); 
+			rot.setElement(j,i, s);
+
+			// Update the off matrix norm
+			offMatrixNorm2 -= elements.getElement(i,j) * elements.getElement(i,j);
+
+			// Apply the rotation
+			//*this = rot * *this * rot.transposed();
+			Matrix3d rt = new Matrix3d(rot);
+			rt.transpose();
+			Matrix3d temp = new Matrix3d(rot);
+			temp.mul(elements);
+			temp.mul(rt);
+			elements.set(temp);
+			
+			result.mul(rot);
+		}
+
+		return result;
+	}
 }
