@@ -55,8 +55,8 @@ public class Box extends Shape implements Collidable {
 
 	@Override
 	public void updateCuboid() {
-		Point3d _boundBottom = new Point3d(-width.get()/2,-depth.get()/2,0           );
-		Point3d _boundTop    = new Point3d( width.get()/2, depth.get()/2,height.get());
+		Point3d _boundBottom = new Point3d(-width.get()/2,-depth.get()/2,-height.get()/2);
+		Point3d _boundTop    = new Point3d( width.get()/2, depth.get()/2, height.get()/2);
 		cuboid.setBounds(_boundTop, _boundBottom);
 	}
 	
@@ -68,7 +68,7 @@ public class Box extends Shape implements Collidable {
 		
 		float w = (float)(width.get()/2);
 		float d = (float)(depth.get()/2);
-		float h = (float)(height.get()*1.0);
+		float h = (float)(height.get()/2);
 		
 		int wParts = (int)(w/4)*2;
 		int hParts = (int)(h/8)*2;
@@ -82,10 +82,10 @@ public class Box extends Shape implements Collidable {
 		
 		// bottom
 		n.set( 0, 0,-1);
-		p0.set(-w, d,0);
-		p1.set( w, d,0);
-		p2.set( w,-d,0);
-		p3.set(-w,-d,0);
+		p0.set(-w, d,-h);
+		p1.set( w, d,-h);
+		p2.set( w,-d,-h);
+		p3.set(-w,-d,-h);
 		addSubdividedPlane(n,p0,p1,p2,p3,wParts,dParts);
 
 		// top
@@ -100,29 +100,29 @@ public class Box extends Shape implements Collidable {
 		n.set( 0, 1, 0);
 		p0.set(-w, d,h);
 		p1.set( w, d,h);
-		p2.set( w, d,0);
-		p3.set(-w, d,0);
+		p2.set( w, d,-h);
+		p3.set(-w, d,-h);
 		addSubdividedPlane(n,p0,p1,p2,p3,wParts,hParts);
 
 		n.set( 0,-1, 0);
 		p0.set( w,-d,h);
 		p1.set(-w,-d,h);
-		p2.set(-w,-d,0);
-		p3.set( w,-d,0);
+		p2.set(-w,-d,-h);
+		p3.set( w,-d,-h);
 		addSubdividedPlane(n,p0,p1,p2,p3,(int)(w/10),hParts);
 		
 		n.set( 1, 0, 0);
-		p0.set( w, d,0);
+		p0.set( w, d,-h);
 		p1.set( w, d,h);
 		p2.set( w,-d,h);
-		p3.set( w,-d,0);
+		p3.set( w,-d,-h);
 		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
 	
 		n.set(-1, 0, 0);
 		p0.set(-w,-d,h);
 		p1.set(-w, d,h);
-		p2.set(-w, d,0);
-		p3.set(-w,-d,0);
+		p2.set(-w, d,-h);
+		p3.set(-w,-d,-h);
 		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
 
 		updateCuboid();
@@ -215,10 +215,10 @@ public class Box extends Shape implements Collidable {
 		depth.set(v);
 	}
 
-	public void setSize(double w, double h, double d) {
+	public void setSize(double w, double d, double h) {
 		width.set(w);
-		height.set(h);
 		depth.set(d);
+		height.set(h);
 	}
 	
 	public double getWidth () { return width .get(); }
