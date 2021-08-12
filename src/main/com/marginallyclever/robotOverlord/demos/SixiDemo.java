@@ -47,14 +47,14 @@ public class SixiDemo implements Demo {
 		
 		sc.addChild(box = new Box());
 		box.setName("Front wall");
-		box.setSize(233.5,100,1);
-		box.setPosition(new Vector3d(69.75,65,0));
+		box.setSize(233.5,1,100);
+		box.setPosition(new Vector3d(69.75,65,50));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 		
 		sc.addChild(box = new Box());
 		box.setName("Back wall");
-		box.setSize(180,100,1);
-		box.setPosition(new Vector3d(-47.5,-25.5,0));
+		box.setSize(180,1,100);
+		box.setPosition(new Vector3d(-47.5,-25.5,50));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 

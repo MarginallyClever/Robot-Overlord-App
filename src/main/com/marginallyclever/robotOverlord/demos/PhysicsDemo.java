@@ -44,25 +44,30 @@ public class PhysicsDemo implements Demo {
 		// adjust grid
 		Grid grid = new Grid();
 		sc.addChild(grid);
-		grid.width.set(140);
-		grid.height.set(90);
-		grid.setPosition(new Vector3d(60.0,0,-0.5));
 
-		for(int i=0;i<20;++i) {
+		int count=1;
+		int countSq = (int)Math.sqrt(count);
+		for(int i=0;i<count;++i) {
 			Box box = new Box();
 			box.setSize(1+Math.random()*5,
 					    1+Math.random()*5,
 					    1+Math.random()*5);
 			RigidBody rigidBody = new RigidBody();
+			double x = 20*(i/countSq) - 10*countSq;
+			double y = 20*(i%countSq) - 10*countSq;
+			double z = 10;
+			
+			rigidBody.setPosition(new Vector3d(x,y,z));
+			rigidBody.setRotation(new Vector3d(15,30,0));
 			rigidBody.setShape(box);
 			rigidBody.setMass(Math.random()*5);
 			sc.addChild(rigidBody);
-			rigidBody.setLinearVelocity(new Vector3d(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1));
-			rigidBody.setAngularVelocity(new Vector3d(randomRotation(),randomRotation(),randomRotation()));
+			//rigidBody.setLinearVelocity(new Vector3d(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1));
+			//rigidBody.setAngularVelocity(new Vector3d(randomRotation(),randomRotation(),randomRotation()));
 		}
 	}
 	
 	private double randomRotation() {
-		return (Math.random()*2-1)*Math.PI;
+		return (Math.random()*4-2)*Math.PI;
 	}
 }
