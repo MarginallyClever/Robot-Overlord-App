@@ -66,8 +66,8 @@ public class Grid extends PoseEntity {
 		double ry = starty % gridSpace;
 		startx -= rx;
 		starty -= ry;
-		double endx = startx + gridWidth;// + rx;
-		double endy = starty + gridWidth;// + ry;
+		double endx = startx + gridWidth;
+		double endy = starty + gridHeight;
 
 		boolean isBlend = gl2.glIsEnabled(GL2.GL_BLEND);
 	    gl2.glEnable(GL2.GL_BLEND);
