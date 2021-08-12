@@ -290,6 +290,14 @@ public class Camera extends PoseEntity {
 		zoom.set(arg0);
 	}
 	
+	public void lookAt(Vector3d target) {
+		Vector3d forward = new Vector3d(target);
+		forward.sub(getPosition());
+		double xy = Math.sqrt(forward.x*forward.x + forward.y*forward.y);
+		setPan(Math.toDegrees(Math.atan2(forward.x,forward.y)));
+		setTilt(Math.toDegrees(Math.atan2(xy,forward.z))-90);
+	}
+	
 	public double getZoom() {
 		return zoom.get();
 	}
