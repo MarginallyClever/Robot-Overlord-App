@@ -41,7 +41,7 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 
 		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
 		value = new JLabel(Double.toString(field.getValue()/10.0),JLabel.RIGHT);
-		Dimension dim = new Dimension(30,1);
+		Dimension dim = new Dimension(35,1);
 		value.setMinimumSize(dim);
 		value.setPreferredSize(dim);
 		value.setMaximumSize(dim);
