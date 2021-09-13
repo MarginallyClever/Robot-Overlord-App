@@ -76,4 +76,12 @@ public class FileAccess {
 
 	    throw new IOException("file not found in zip.");
 	}
+
+	public static String getUserDirectory() {
+		return System.getProperty("user.dir");
+	}
+	
+	public static String getTempDirectory() { 
+		return System.getProperty("java.io.tmpdir");
+	}
 }
