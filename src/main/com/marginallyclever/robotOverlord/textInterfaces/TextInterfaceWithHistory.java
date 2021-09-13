@@ -20,7 +20,7 @@ public class TextInterfaceWithHistory extends JPanel {
 	 */
 	private static final long serialVersionUID = 5542831703742185676L;
 	private TextInterfaceToListeners myInterface = new TextInterfaceToListeners();
-	private HistoryList myHistory = new HistoryList();
+	private ConversationHistoryList myHistory = new ConversationHistoryList();
 	
 	public TextInterfaceWithHistory() {
 		super();
@@ -41,7 +41,7 @@ public class TextInterfaceWithHistory extends JPanel {
 		c.weighty=0;
 		add(myInterface,c);
 		
-		myInterface.addActionListener((e)->addToHistory(e.getActionCommand()));
+		myInterface.addActionListener((e)->addToHistory("You",e.getActionCommand()));
 		myHistory.addListSelectionListener((e)->{
 			if(e.getValueIsAdjusting()) return;
 			int i = myHistory.getSelectedIndex();
@@ -49,8 +49,8 @@ public class TextInterfaceWithHistory extends JPanel {
 		});
 	}
 
-	private void addToHistory(String actionCommand) {
-		myHistory.addElement(actionCommand);
+	public void addToHistory(String who,String actionCommand) {
+		myHistory.addElement(who,actionCommand);
 	}
 	
 	public void addActionListener(ActionListener e) {

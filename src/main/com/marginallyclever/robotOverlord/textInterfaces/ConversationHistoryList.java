@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.textInterfaces;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,31 +15,37 @@ import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionListener;
 
-public class HistoryList extends JPanel {
+public class ConversationHistoryList extends JPanel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3986789901447241422L;
-	private DefaultListModel<String> listModel = new DefaultListModel<String>();
-	private JList<String> listView = new JList<String>(listModel);
+	private static final long serialVersionUID = 6287436679006933618L;
+	
+	private DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
+	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
 	private JScrollPane scrollPane = new JScrollPane(listView);
 	private JPanel editPanel = setupEditPanel();
 	private JFileChooser chooser = new JFileChooser();
 	private JButton bNew, bSave, bLoad, bDelete;
 	
-	public HistoryList() {
+	public ConversationHistoryList() {
 		super();
+		
+		createCellRenderingSystem();
 		
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
@@ -60,6 +68,29 @@ public class HistoryList extends JPanel {
 		scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 	}
 	
+	private void createCellRenderingSystem() {
+		listView.setCellRenderer(new ListCellRenderer<ConversationEvent>() {
+			private DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer(); 
+			
+			@Override
+			public Component getListCellRendererComponent(JList<? extends ConversationEvent> list,
+					ConversationEvent value, int index, boolean isSelected, boolean cellHasFocus) {
+				Component c = defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				
+				if(c instanceof JLabel) {
+					JLabel jc = (JLabel)c;
+					jc.setText(value.whoSpoke+"> "+value.whatWasSaid);
+					if(!value.whoSpoke.contentEquals("You")) {
+						jc.setForeground(Color.BLUE);
+					}
+				}
+				return c;
+			}
+			
+		});
+		
+	}
+
 	private JPanel setupEditPanel() {
 		final JPanel panel = new JPanel();
 				
@@ -91,7 +122,7 @@ public class HistoryList extends JPanel {
 						int size=listModel.getSize();
 						for(int i=0;i<size;++i) {
 							String str = fileReader.readLine();
-							addElement(str);
+							addElement("You",str);
 						}
 						fileReader.close();
 					} catch (IOException e1) {
@@ -116,7 +147,8 @@ public class HistoryList extends JPanel {
 						BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
 						int size=listModel.getSize();
 						for(int i=0;i<size;++i) {
-							String str = listModel.get(i);
+							ConversationEvent evt = listModel.get(i);
+							String str = evt.whatWasSaid;
 							if(!str.endsWith("\n")) str+="\n";
 							fileWriter.write(str);
 						}
@@ -169,8 +201,8 @@ public class HistoryList extends JPanel {
 		return listView.getSelectedValue().toString();
 	}
 
-	public void addElement(String element) {
-		listModel.addElement(element);
+	public void addElement(String src,String str) {
+		listModel.addElement(new ConversationEvent(src, str));
 	}
 	
 	@Override

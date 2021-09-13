@@ -85,7 +85,6 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		try {
 			String str = evt.getActionCommand();
 			if(!str.endsWith("\n")) str+="\n";
-			System.out.print(mySession.getName()+"< "+str);
 			mySession.sendMessage(str);
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(this,e.getLocalizedMessage(),"Error",JOptionPane.ERROR_MESSAGE);
@@ -113,7 +112,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	@Override
 	public void networkSessionEvent(NetworkSessionEvent evt) {
 		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
-			System.out.println(mySession.getName()+"> "+((String)evt.data).trim());
+			myInterface.addToHistory(mySession.getName(),((String)evt.data).trim());
 		}		
 	}
 
