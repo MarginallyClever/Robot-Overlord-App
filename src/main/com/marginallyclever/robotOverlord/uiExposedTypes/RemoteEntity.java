@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.NetworkSessionListener;
 import com.marginallyclever.communications.NetworkSessionManager;
 import com.marginallyclever.convenience.StringHelper;
@@ -260,10 +261,12 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	}
 
 	@Override
-	public void sendBufferEmpty(NetworkSession arg0) {}
-
-	@Override
-	public void dataAvailable(NetworkSession arg0, String data) {
+	public void networkSessionEvent(NetworkSessionEvent evt) {
+		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) receiveData((NetworkSession)evt.getSource(),(String)evt.data);
+		else if(evt.flag == NetworkSessionEvent.TRANSPORT_ERROR) transportError((NetworkSession)evt.getSource(),(String)evt.data);
+	}
+	
+	private void receiveData(NetworkSession arg0, String data) {
 		reportDataReceived(data);
 		
 		if (data.startsWith("> ")) {
@@ -282,8 +285,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		}
 	}
 
-	@Override
-	public void transportError(NetworkSession arg0, String errorMessage) {
+	private void transportError(NetworkSession arg0, String errorMessage) {
 		Log.error("RemoteEntity error: "+errorMessage);
 		arg0.closeConnection();
 	}

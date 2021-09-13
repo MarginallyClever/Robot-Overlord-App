@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
+import javax.swing.SwingUtilities;
+
 /**
  * Created on 4/12/15.
  *
@@ -28,7 +30,7 @@ public abstract class NetworkSession {
 
 	abstract public boolean isOpen();
 
-	abstract public String getRecentConnection();
+	abstract public String getName();
 
 	abstract public void sendMessage(String msg) throws Exception;
 	
@@ -43,25 +45,17 @@ public abstract class NetworkSession {
 		listeners.remove(listener);
 	}
 
-	public void notifyTransportError(String error) {
-		for (NetworkSessionListener listener : listeners) {
-			listener.transportError(this,error);
-		}
+	protected void notifyListeners(NetworkSessionEvent evt) {
+		SwingUtilities.invokeLater(new Runnable() {
+            @Override
+			public void run() {
+				for (NetworkSessionListener a : listeners) {
+					a.networkSessionEvent(evt);
+				}
+            }
+		});
 	}
-
-	public void notifySendBufferEmpty() {
-		for (NetworkSessionListener listener : listeners) {
-			listener.sendBufferEmpty(this);
-		}
-	}
-
-	// tell all listeners data has arrived
-	public void notifyDataAvailable(String line) {
-		for (NetworkSessionListener listener : listeners) {
-			listener.dataAvailable(this,line);
-		}
-	}
-
+	
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
 		listeners = new ArrayList<NetworkSessionListener>();

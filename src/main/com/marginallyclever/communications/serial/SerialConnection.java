@@ -6,6 +6,7 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
 import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.convenience.log.Log;
 
@@ -90,7 +91,7 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 		try {
 			buffer = serialPort.readBytes(len);
 		} catch (SerialPortException e) {
-			notifyTransportError(e.getLocalizedMessage());
+			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.TRANSPORT_ERROR,e.getLocalizedMessage()));
 			return;
 		}
 		
@@ -104,30 +105,20 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 			x=x+1;
 			oneLine = inputBuffer.substring(0,x);
 			inputBuffer = inputBuffer.substring(x);
+
+			//Log.message("SerialConnection SEND " + msg.trim());
 			
-			reportDataReceived(oneLine);
-			notifyDataAvailable(oneLine);
+			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.DATA_AVAILABLE,oneLine));
 		}
-	}
-
-	public void reportDataSent(String msg) {
-		//Log.message("SerialConnection SEND " + msg.trim());
-	}
-
-	public void reportDataReceived(String msg) {
-		//Log.message("SerialConnection RECV " + msg.trim());
 	}
 
 	@Override
 	public void sendMessage(String msg) throws Exception {
 		if(!portOpened) return;
 
-		try {
-			reportDataSent(msg.trim());
-			serialPort.writeBytes(msg.getBytes());
-		}
-		catch(IndexOutOfBoundsException e1) {}
-		catch(SerialPortException e2) {}
+		//Log.message("SerialConnection RECV " + msg.trim());
+		
+		serialPort.writeBytes(msg.getBytes());
 	}
 
 	// connect to the last port
@@ -145,7 +136,7 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 	}
 
 	@Override
-	public String getRecentConnection() {
+	public String getName() {
 		return connectionName;
 	}
 

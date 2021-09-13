@@ -10,6 +10,7 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.convenience.log.Log;
 
@@ -158,7 +159,7 @@ public final class TCPConnection extends NetworkSession implements Runnable {
 			if(oneLine.isEmpty()) return;
 			
 			reportDataReceived(oneLine);
-			notifyDataAvailable(oneLine);
+			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.DATA_AVAILABLE,oneLine));
 		}
 	}
 
@@ -172,7 +173,7 @@ public final class TCPConnection extends NetworkSession implements Runnable {
 			reportDataSent(msg);
 		}
 		catch(IndexOutOfBoundsException e1) {
-			notifyTransportError(e1.getLocalizedMessage());
+			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.TRANSPORT_ERROR,e1.getLocalizedMessage()));
 		}
 	}
 
@@ -199,7 +200,7 @@ public final class TCPConnection extends NetworkSession implements Runnable {
 	}
 
 	@Override
-	public String getRecentConnection() {
+	public String getName() {
 		return connectionName;
 	}
 
