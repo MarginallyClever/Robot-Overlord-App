@@ -45,17 +45,17 @@ public class PhysicsDemo implements Demo {
 		Grid grid = new Grid();
 		sc.addChild(grid);
 
-		int count=1;
+		int count=10;
 		int countSq = (int)Math.sqrt(count);
 		for(int i=0;i<count;++i) {
 			Box box = new Box();
-			box.setSize(10,//+Math.random()*5,
-					    10,//+Math.random()*5,
-					    10//+Math.random()*5
+			box.setSize(1+Math.random()*5,
+					    1+Math.random()*5,
+					    1+Math.random()*5
 					    );
 			RigidBody rigidBody = new RigidBody();
-			double x = 0;//20*(i/countSq) - 10*countSq;
-			double y = 0;//20*(i%countSq) - 10*countSq;
+			double x = 20*(i/countSq) - 10*countSq;
+			double y = 20*(i%countSq) - 10*countSq;
 			double z = 10;
 			
 			rigidBody.setPosition(new Vector3d(x,y,z));
@@ -64,9 +64,9 @@ public class PhysicsDemo implements Demo {
 			rigidBody.setMass(1);//Math.random()*5);
 			sc.addChild(rigidBody);
 			//rigidBody.setLinearVelocity(new Vector3d(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1));
-			//rigidBody.setAngularVelocity(new Vector3d(randomRotation(),randomRotation(),randomRotation()));
-			
-			rigidBody.applyForceAtPoint(new Vector3d(10,0,-10), new Point3d(-10,0,5));
+			rigidBody.setAngularVelocity(new Vector3d(randomRotation(),randomRotation(),randomRotation()));
+			//rigidBody.applyForceAtPoint(new Vector3d(10,0,40), new Point3d(-10,0,10));
+			//rigidBody.applyForceAtPoint(new Vector3d(-1,0,-4), new Point3d(-10,0,10));
 		}
 	}
 	
