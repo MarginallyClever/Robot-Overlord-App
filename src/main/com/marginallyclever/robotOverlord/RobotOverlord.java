@@ -6,15 +6,19 @@ import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -42,6 +46,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.PhysicsDemo;
 import com.marginallyclever.robotOverlord.demos.SixiDemo;
@@ -84,7 +89,7 @@ import com.marginallyclever.util.PropertiesFileHelper;
  * 
  * @author Dan Royer
  */
-public class RobotOverlord extends Entity implements UndoableEditListener, MouseListener, MouseMotionListener, GLEventListener {
+public class RobotOverlord extends Entity implements UndoableEditListener {
 	/**
 	 * 
 	 */
@@ -127,6 +132,9 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 
 	private FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
 	public GLJPanel glCanvas;
+	
+	private LogPanel logPanel = new LogPanel();
+	private JFrame logFrame;
 	
 	// should I check the state of the OpenGL stack size?  true=every frame, false=never
 	private boolean checkStackSize = false;
@@ -205,9 +213,125 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 	}
 
 	private void addCanvasListeners() {
-		glCanvas.addGLEventListener(this);  // this class also listens to the glcanvas (messy!) 
-		glCanvas.addMouseListener(this);  // this class also listens to the mouse button clicks.
-		glCanvas.addMouseMotionListener(this);  // this class also listens to the mouse movement.
+		glCanvas.addGLEventListener(new GLEventListener() {
+		    @Override
+		    public void init( GLAutoDrawable drawable ) {
+		        GL gl = drawable.getGL();
+
+		    	final boolean glDebug=false;
+		    	if(glDebug) useGLDebugPipeline(gl);
+		    	final boolean glTrace=false;
+		        if(glTrace) useTracePipeline(gl); 
+		        
+		    	GL2 gl2 = drawable.getGL().getGL2();
+		    	
+		    	// turn on vsync
+		        gl2.setSwapInterval(VERTICAL_SYNC_ON);
+		        
+				// make things pretty
+				gl2.glEnable(GL2.GL_NORMALIZE);
+		    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
+		        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
+		        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+		        // TODO add a settings toggle for this option, it really slows down older machines.
+		        gl2.glEnable(GL2.GL_MULTISAMPLE);
+		        
+		        int buf[] = new int[1];
+		        int sbuf[] = new int[1];
+		        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
+		        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
+
+		        // depth testing and culling options
+				gl2.glDepthFunc(GL2.GL_LESS);
+				gl2.glEnable(GL2.GL_DEPTH_TEST);
+				gl2.glDepthMask(true);
+		        
+		        // Scale normals using the scale of the transform matrix so that lighting is sane.
+		        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
+				//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
+				//gl2.glEnable(GL2.GL_NORMALIZE);
+		        
+				// default blending option for transparent materials
+		        gl2.glEnable(GL2.GL_BLEND);
+		        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+				
+		        // set the color to use when wiping the draw buffer
+				gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
+				
+				// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
+		    	gl2.glDrawBuffer(GL2.GL_BACK);
+		    }
+			
+		    @Override
+		    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
+		        // set up the projection matrix
+		        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
+		        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+		    }
+
+			@Override
+		    public void dispose( GLAutoDrawable drawable ) {}
+			
+		    @Override
+		    public void display( GLAutoDrawable drawable ) {
+		        long nowTime = System.currentTimeMillis();
+		        long dt = nowTime - lastTime;
+		    	lastTime = nowTime;
+		    	updateStep(dt*0.001);  // to seconds
+		    	
+		    	GL2 gl2 = drawable.getGL().getGL2();
+				if(checkStackSize) checkRenderStep(gl2);
+				else renderStep(gl2);
+		    	pickStep(gl2);
+		    }
+		});  // this class also listens to the glcanvas (messy!) 
+		glCanvas.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// if they dragged the cursor around before unclicking, don't pick.
+				if (e.getClickCount() == 2) {
+					pickPoint.set(e.getX(),e.getY());
+					pickNow=true;
+				}
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if(e.getButton() == MouseEvent.BUTTON1) {
+					pickPoint.set(e.getX(),e.getY());
+					viewport.pressed();
+				}
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if(e.getButton() == MouseEvent.BUTTON1) {
+					viewport.released();
+				}
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				isMouseIn=true;
+				glCanvas.requestFocus();
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				isMouseIn=false;
+			}
+		});  // this class also listens to the mouse button clicks.
+		glCanvas.addMouseMotionListener(new MouseMotionListener() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+		        viewport.setCursor(e.getX(),e.getY());
+			}
+			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+		        viewport.setCursor(e.getX(),e.getY());
+			}
+		});  // this class also listens to the mouse movement.
 	}
 	
 	public static void main(String[] argv) {
@@ -452,6 +576,37 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         mainMenu.add(menu);
     	
         menu = new JMenu("Help");
+        menu.add(new JMenuItem(new AbstractAction("Log") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(logFrame == null) {
+					logFrame = new JFrame(Translator.get("Log"));
+					logFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					logFrame.setPreferredSize(new Dimension(600,400));
+					logFrame.add(logPanel);
+					logFrame.pack();
+					logFrame.addWindowListener(new WindowListener() {
+						@Override
+						public void windowOpened(WindowEvent e) {}
+						@Override
+						public void windowIconified(WindowEvent e) {}
+						@Override
+						public void windowDeiconified(WindowEvent e) {}
+						@Override
+						public void windowDeactivated(WindowEvent e) {}
+						@Override
+						public void windowClosing(WindowEvent e) {}
+						@Override
+						public void windowClosed(WindowEvent e) {
+							logFrame=null;
+						}
+						@Override
+						public void windowActivated(WindowEvent e) {}
+					});
+				}
+				logFrame.setVisible(true);
+			}
+        }));
         menu.add(new JMenuItem(new AboutControlsAction()));
 		menu.add(new JMenuItem(new ForumsAction()));
 		menu.add(new JMenuItem(new CheckForUpdateAction()));
@@ -571,61 +726,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
 		view.popStack();
 	}
 	
-    @Override
-    public void init( GLAutoDrawable drawable ) {
-        GL gl = drawable.getGL();
-
-    	final boolean glDebug=false;
-    	if(glDebug) useGLDebugPipeline(gl);
-    	final boolean glTrace=false;
-        if(glTrace) useTracePipeline(gl); 
-        
-    	GL2 gl2 = drawable.getGL().getGL2();
-    	
-    	// turn on vsync
-        gl2.setSwapInterval(VERTICAL_SYNC_ON);
-        
-		// make things pretty
-		gl2.glEnable(GL2.GL_NORMALIZE);
-    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
-        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-        // TODO add a settings toggle for this option, it really slows down older machines.
-        gl2.glEnable(GL2.GL_MULTISAMPLE);
-        
-        int buf[] = new int[1];
-        int sbuf[] = new int[1];
-        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
-        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
-
-        // depth testing and culling options
-		gl2.glDepthFunc(GL2.GL_LESS);
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthMask(true);
-        
-        // Scale normals using the scale of the transform matrix so that lighting is sane.
-        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
-		//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-		//gl2.glEnable(GL2.GL_NORMALIZE);
-        
-		// default blending option for transparent materials
-        gl2.glEnable(GL2.GL_BLEND);
-        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-		
-        // set the color to use when wiping the draw buffer
-		gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-		
-		// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
-    	gl2.glDrawBuffer(GL2.GL_BACK);
-    }
-	
-    @Override
-    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-        // set up the projection matrix
-        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
-        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
-    }
-
     private void useTracePipeline(GL gl) {
         try {
             gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
@@ -642,67 +742,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener, Mouse
         	e.printStackTrace();
         }
 	}
-
-	@Override
-    public void dispose( GLAutoDrawable drawable ) {}
-	
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// if they dragged the cursor around before unclicking, don't pick.
-		if (e.getClickCount() == 2) {
-			pickPoint.set(e.getX(),e.getY());
-			pickNow=true;
-		}
-	}
-	
-	@Override
-	public void mousePressed(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1) {
-			pickPoint.set(e.getX(),e.getY());
-			viewport.pressed();
-		}
-	}
-	
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1) {
-			viewport.released();
-		}
-	}
-	
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		isMouseIn=true;
-		glCanvas.requestFocus();
-	}
-	
-	@Override
-	public void mouseExited(MouseEvent e) {
-		isMouseIn=false;
-	}
-	
-	@Override
-	public void mouseDragged(MouseEvent e) {
-        viewport.setCursor(e.getX(),e.getY());
-	}
-	
-	@Override
-	public void mouseMoved(MouseEvent e) {
-        viewport.setCursor(e.getX(),e.getY());
-	}
-	
-    @Override
-    public void display( GLAutoDrawable drawable ) {
-        long nowTime = System.currentTimeMillis();
-        long dt = nowTime - lastTime;
-    	lastTime = nowTime;
-    	updateStep(dt*0.001);  // to seconds
-    	
-    	GL2 gl2 = drawable.getGL().getGL2();
-		if(checkStackSize) checkRenderStep(gl2);
-		else renderStep(gl2);
-    	pickStep(gl2);
-    }
 
 	private void pickStep(GL2 gl2) {
         //viewport.showPickingTest(gl2);
