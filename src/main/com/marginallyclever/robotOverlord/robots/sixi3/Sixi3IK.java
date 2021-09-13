@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.robots.sixi3;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -23,7 +25,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  * @since 2021-02-24
  *
  */
-public class Sixi3IK extends Sixi3FK {
+public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 	/**
 	 * 
 	 */
@@ -34,8 +36,8 @@ public class Sixi3IK extends Sixi3FK {
 
 	private DoubleEntity threshold = new DoubleEntity("Threshold",0.001);
 	private DoubleEntity stepSize = new DoubleEntity("Step size",10.0);
-	private IntEntity iterations = new IntEntity("Iterations",30);
-	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.75); 
+	private IntEntity iterations = new IntEntity("Iterations",40);
+	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.85); 
 	
 	public Sixi3IK() {
 		super();
@@ -45,6 +47,15 @@ public class Sixi3IK extends Sixi3FK {
 		
 		Matrix4d m = new Matrix4d();
 		getEndEffector(m);
+		eeTarget.setPose(m);
+		
+		this.addPropertyChangeListener(this);
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		super.propertyChange(evt);
+		Matrix4d m = (Matrix4d)evt.getNewValue();
 		eeTarget.setPose(m);
 	}
 	
@@ -106,7 +117,7 @@ public class Sixi3IK extends Sixi3FK {
 		m.get(c0);
 		target.get(c1);
 		c1.sub(c0);
-		double dC = c1.lengthSquared();
+		double dC = c1.length();
 		
 		// linear difference in X handles
 		Vector3d x0 = MatrixHelper.getXAxis(target);
@@ -114,7 +125,7 @@ public class Sixi3IK extends Sixi3FK {
 		x1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		x0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		x1.sub(x0);
-		double dX = x1.lengthSquared();
+		double dX = x1.length();
 		
 		// linear difference in Y handles
 		Vector3d y0 = MatrixHelper.getYAxis(target);
@@ -122,71 +133,61 @@ public class Sixi3IK extends Sixi3FK {
 		y1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		y0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
 		y1.sub(y0);
-		double dY = y1.lengthSquared();		
+		double dY = y1.length();		
 
 	    // now sum these to get the error term.
 		return dC+dX+dY;
 	}
 	
-	/**/
-	private boolean partialGradientDescent(final Matrix4d target, double [] fk, int jointIndex, double stepSize,double threshold) {
+	/**
+	 * 
+	 * @param target
+	 * @param fk
+	 * @param jointIndex
+	 * @param stepSize
+	 * @return the gradient
+	 */
+	private double partialGradient(final Matrix4d target, double [] fk, int jointIndex, double stepSize) {
 		// get the current error term F.
 		double oldValue = fk[jointIndex];
-		double bestValue = oldValue;
 		double Fx = distanceToTarget(target);
-		double bestScore = Fx;
-		if(bestScore < threshold) return true;
 
 		// move F+D, measure again.
 		fk[jointIndex] = oldValue + stepSize;
 		setFKValues(fk);
 		double FxPlusD = distanceToTarget(target);
-		if(bestScore > FxPlusD) {
-			bestScore = FxPlusD;
-			bestValue = fk[jointIndex];
-			if(bestScore < threshold) return true;
-		}
 
-		// move F-D, measure again.
-		fk[jointIndex] = oldValue - stepSize;
-		setFKValues(fk);
-		double FxMinusD = distanceToTarget(target);
-		if(bestScore > FxMinusD) {
-			bestScore = FxMinusD;
-			bestValue = fk[jointIndex];
-			if(bestScore < threshold) return true;
-		}
-
-		// set the best value
-		fk[jointIndex] = bestValue;
+		// set the old value
+		fk[jointIndex] = oldValue;
 		setFKValues(fk);
 		
-		return false;
+		return (FxPlusD - Fx) / stepSize;
 	}
 
 	/**
 	 * Use gradient descent to move the end effector closer to the target.  The process is iterative, might not reach the target,
 	 * and changes depending on the position when gradient descent began. 
 	 * @return distance to target
-	 * @param iterations How many times should I try to get closer?
-	 * @param refinementRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
+	 * @param attempts How many times should I try to get closer?
+	 * @param learningRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
 	 * @param threshold When error term is within threshold then stop. 
 	 * @param initialStepSize how big should the first step be?
 	 */
-	private boolean gradientDescent(final Matrix4d target,final double iterations,double refinementRate, final double threshold, final double initialStepSize) {
+	private boolean gradientDescent(final Matrix4d target, final double attempts, double learningRate, final double threshold, double initialStepSize) {
+		if(distanceToTarget(target)<threshold) return true;
+		
 		double [] angles = getFKValues();
-		// how big a step to take with each partial descent?
 		double stepSize = initialStepSize;
 		
-		for(int tries=0;tries<iterations;++tries) {
+		for(int tries=0;tries<attempts;++tries) {
 			// seems to work better descending from the finger than ascending from the base.
 
 			for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
-				if(partialGradientDescent(target,angles,i,stepSize,threshold)) {
-					return true;
-				}
+				double gradient = partialGradient(target,angles,i,stepSize);
+				angles[i] -= learningRate * gradient;
+				setFKValues(angles);
+				if(distanceToTarget(target)<threshold) return true;
 			}
-			stepSize *= refinementRate;
 		}
 		
 		// if you get here the robot did not reach its target within 'iteration' steps.
