@@ -1,5 +1,5 @@
-com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveAMF;
-com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveOBJ;
-com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSavePLY;
-com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveSTL;
-com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSave3MF;
+com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveAMF
+com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveOBJ
+com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSavePLY
+com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSaveSTL
+com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers.ShapeLoadAndSave3MF
