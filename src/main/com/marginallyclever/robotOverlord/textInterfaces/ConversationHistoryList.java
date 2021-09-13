@@ -203,6 +203,7 @@ public class ConversationHistoryList extends JPanel {
 
 	public void addElement(String src,String str) {
 		listModel.addElement(new ConversationEvent(src, str));
+		listView.ensureIndexIsVisible(listModel.getSize()-1);
 	}
 	
 	@Override
