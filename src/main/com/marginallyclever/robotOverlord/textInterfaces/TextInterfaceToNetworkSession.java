@@ -56,6 +56,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(mySession!=null) {
+					mySession.closeConnection();
 					setNetworkSession(null);
 					bConnect.setText("Connect");
 					connectionName.setText("Not connected");
