@@ -319,19 +319,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		int i=0;
 		for( Sixi3Bone b : bones ) {
 			double v = list[i++];
-
-			// if max angle and min angle overlap then there is no limit on this joint.
-			double bMiddle = b.getAngleMiddle();
-			double bMax = Math.abs(b.getAngleMax()-bMiddle);
-			double bMin = Math.abs(b.getAngleMin()-bMiddle);
-			if(bMin+bMax<360) {
-				// prevent pushing the arm to an illegal angle
-				v = Math.max(Math.min(v, b.getAngleMax()), b.getAngleMin());
-			}
-			
-			if( b.theta != v ) {
+			double t = b.getTheta(); 
+			if( t != v ) {
 				b.setAngleWRTLimits(v);
-				changed=true;
+				if( t != b.getTheta() )
+					changed=true;
 			}
 		}
 

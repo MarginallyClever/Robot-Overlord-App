@@ -44,7 +44,16 @@ public class Sixi3Bone {
 	}
 	
 	public void setAngleWRTLimits(double newAngle) {
-		theta=Math.max(Math.min(newAngle,angleMax),angleMin);
+		// if max angle and min angle overlap then there is no limit on this joint.
+		double bMiddle = getAngleMiddle();
+		double bMax = Math.abs(angleMax-bMiddle);
+		double bMin = Math.abs(angleMin-bMiddle);
+		if(bMin+bMax<360) {
+			// prevent pushing the arm to an illegal angle
+			newAngle = Math.max(Math.min(newAngle, angleMax), angleMin);
+		}
+		
+		theta = newAngle;
 	}
 	
 	public void updateMatrix() {
