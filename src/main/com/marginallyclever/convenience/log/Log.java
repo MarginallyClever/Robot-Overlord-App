@@ -17,15 +17,17 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
 /**
  * static log methods available everywhere
  * @author Dan Royer
- * @since Makelangelo 7.3.0
  * See org.slf4j.Logger
  */
 public class Log {
@@ -42,39 +44,42 @@ public class Log {
 	public static void addListener(LogListener listener) {
 		listeners.add(listener);
 	}
+	
 	public static void removeListener(LogListener listener) {
 		listeners.remove(listener);
 	}
 	
-	// call this before anything else.
 	public static void start() {
-		LOG_FILE_PATH = System.getProperty("user.dir");
+		LOG_FILE_PATH = FileAccess.getUserDirectory();
 		if(!LOG_FILE_PATH.endsWith(File.separator)) {
 			LOG_FILE_PATH+=File.separator;
 		}
 			
 		System.out.println("log dir="+LOG_FILE_PATH);
 
-		crashReportCheck();
+		boolean hadCrashed = crashReportCheck();
 		deleteOldLog();
 		
 		logger = LoggerFactory.getLogger(RobotOverlord.class);
 		
 		write(PROGRAM_START_STRING);
-		write("------------------------");
+		write("------------------------------------------------");
 		Properties p = System.getProperties();
 		Set<String> names = p.stringPropertyNames();
 		for(String n : names) {
 			write(n+" = "+p.get(n));
 		}
-		write("------------------------");
+		write("------------------------------------------------");
+		if(hadCrashed) {
+			Log.message("Crash detected on previous run");
+		}
 	}
 	
 	public static void end() {
 		logger.info(PROGRAM_END_STRING);
 	}
 	
-	private static void crashReportCheck() {
+	private static boolean crashReportCheck() {
 		File oldLogFile = new File(LOG_FILE_PATH+LOG_FILE_NAME_TXT);
 		if( oldLogFile.exists() ) {
 			// read last line of file
@@ -83,8 +88,11 @@ public class Log {
 			if(!ending.contains(PROGRAM_END_STRING)) {
 				// add a crashed message
 				//sendLog();
-			} // else no problem
+				
+				return true;
+			}
 		}
+		return false;
 	}
 	
 	/**
@@ -159,25 +167,34 @@ public class Log {
 	public static void write(String msg) {
 		if(logger==null) start();
 		
-		msg = sdf.format(Calendar.getInstance().getTime())+" "+msg;
+		final String cleanMsg = sdf.format(Calendar.getInstance().getTime())+" "+msg;
 		
-		System.out.println(msg);
+		// TODO why have logger if it's not being used?
 		//logger.info(msg);
 		
 		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.txt", true), StandardCharsets.UTF_8)) {
 			PrintWriter logToFile = new PrintWriter(fileWriter);
-			logToFile.write(msg+"\n");
+			logToFile.write(cleanMsg+"\n");
 			logToFile.flush();
 		} catch (IOException e) {
 			logger.error("{}", e);
 		}
 		
-		for( LogListener listener : listeners ) {
-			listener.logEvent(msg);
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+        		for( LogListener listener : listeners ) {
+        			listener.logEvent(cleanMsg);
+        		}
+        		//System.out.println(msg);
+            }
+         });
 	}
 
 
+	public static String secondsToHumanReadable(double totalTime) {
+		return millisecondsToHumanReadable((long)(totalTime*1000));
+	}
+	
 	/**
 	 * Turns milliseconds into h:m:s
 	 * @param millis milliseconds
