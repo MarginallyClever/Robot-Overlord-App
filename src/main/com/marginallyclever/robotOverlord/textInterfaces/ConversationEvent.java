@@ -11,6 +11,6 @@ public class ConversationEvent {
 	
 	@Override
 	public String toString() {
-		return whatWasSaid;
+		return whoSpoke +": "+whatWasSaid;
 	}
 }

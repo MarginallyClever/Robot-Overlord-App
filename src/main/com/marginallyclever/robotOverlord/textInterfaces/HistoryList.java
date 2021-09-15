@@ -24,6 +24,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionListener;
 
+@Deprecated
 public class HistoryList extends JPanel {
 	/**
 	 * 

@@ -2,13 +2,9 @@ package com.marginallyclever.robotOverlord.textInterfaces;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -16,7 +12,6 @@ import javax.swing.UIManager;
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.NetworkSessionListener;
-import com.marginallyclever.communications.NetworkSessionManager;
 import com.marginallyclever.convenience.log.Log;
 
 public class TextInterfaceToNetworkSession extends JPanel implements NetworkSessionListener {
@@ -25,7 +20,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	 */
 	private static final long serialVersionUID = 1032123255711692874L;
 	private TextInterfaceWithHistory myInterface = new TextInterfaceWithHistory();
-	private JPanel myConnection = setupConnectionPanel();
+	private ChooseConnectionPanel myConnection = new ChooseConnectionPanel();
 	private NetworkSession mySession;
 
 	public TextInterfaceToNetworkSession() {
@@ -37,48 +32,21 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		add(myInterface,BorderLayout.CENTER);
 		
 		myInterface.setEnabled(false);
-		
 		myInterface.addActionListener((e)->sendCommandToSession(e));
+		myConnection.addActionListener((e)->{
+			switch(e.getID()) {
+			case ChooseConnectionPanel.CONNECTION_OPENED: setNetworkSession(myConnection.getNetworkSession()); break;
+			case ChooseConnectionPanel.CONNECTION_CLOSED: setNetworkSession(null); break;
+			}
+		});
 	}
 	
-	private JPanel setupConnectionPanel() {
-		final JPanel panel = new JPanel();
+	private void setNetworkSession(NetworkSession session) {
+		if(mySession!=null) mySession.removeListener(this);
+		mySession = session;
+		if(mySession!=null) mySession.addListener(this);
 		
-		JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
-
-		JButton bConnect = new JButton();
-		AbstractAction connectAction = new AbstractAction("Connect") {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(mySession!=null) {
-					mySession.closeConnection();
-					setNetworkSession(null);
-					bConnect.setText("Connect");
-					connectionName.setText("Not connected");
-					myInterface.setEnabled(false);
-				} else {
-					NetworkSession s = NetworkSessionManager.requestNewSession(panel);
-					if(s!=null) {
-						setNetworkSession(s);
-						bConnect.setText("Disconnect");
-						connectionName.setText(s.getName());
-						myInterface.setEnabled(true);
-					}
-				}
-			}
-		};
-		bConnect.setAction(connectAction);
-		
-		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
-		panel.add(bConnect);
-		panel.add(connectionName);
-		
-		return panel;
+		myInterface.setEnabled(mySession!=null);
 	}
 
 	private void sendCommandToSession(ActionEvent evt) {
@@ -92,16 +60,6 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		}
 	}
 	
-	public NetworkSession getNetworkSession() {
-		return mySession;
-	}
-	
-	public void setNetworkSession(NetworkSession session) {
-		if(mySession!=null) mySession.removeListener(this);
-		mySession = session;
-		if(mySession!=null) mySession.addListener(this);
-	}
-
 	public String getCommand() {
 		return myInterface.getCommand();
 	}

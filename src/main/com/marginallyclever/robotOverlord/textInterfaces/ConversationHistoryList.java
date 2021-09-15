@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,7 +12,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -32,15 +30,20 @@ import javax.swing.event.ListSelectionListener;
 public class ConversationHistoryList extends JPanel {
 	/**
 	 * 
-	 */
+	 */	
 	private static final long serialVersionUID = 6287436679006933618L;
 	
 	private DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
 	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
 	private JScrollPane scrollPane = new JScrollPane(listView);
+	
+	private JButton bNew = new JButton();
+	private JButton bSave = new JButton();
+	private JButton bLoad = new JButton();
+	private JButton bDelete = new JButton();
 	private JPanel editPanel = setupEditPanel();
+	
 	private JFileChooser chooser = new JFileChooser();
-	private JButton bNew, bSave, bLoad, bDelete;
 	
 	public ConversationHistoryList() {
 		super();
@@ -79,7 +82,7 @@ public class ConversationHistoryList extends JPanel {
 				
 				if(c instanceof JLabel) {
 					JLabel jc = (JLabel)c;
-					jc.setText(value.whoSpoke+"> "+value.whatWasSaid);
+					jc.setText(value.toString());
 					if(!value.whoSpoke.contentEquals("You")) {
 						jc.setForeground(Color.BLUE);
 					}
@@ -88,91 +91,22 @@ public class ConversationHistoryList extends JPanel {
 			}
 			
 		});
-		
 	}
-
+	
 	private JPanel setupEditPanel() {
 		final JPanel panel = new JPanel();
-				
-		bNew = new JButton(new AbstractAction("Clear") {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				listModel.clear();
-			}
-		});
 		
-		bLoad = new JButton(new AbstractAction("Load") {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(chooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
-					File file = chooser.getSelectedFile();
-					listModel.clear();
-					try {
-						BufferedReader fileReader = new BufferedReader(new FileReader(file));
-						int size=listModel.getSize();
-						for(int i=0;i<size;++i) {
-							String str = fileReader.readLine();
-							addElement("You",str);
-						}
-						fileReader.close();
-					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(panel, e1.getLocalizedMessage(),"Load error",JOptionPane.ERROR_MESSAGE);
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
+		bNew.setText("Clear");
+		bNew.addActionListener( (e) -> listModel.clear() );
 		
-		bSave = new JButton(new AbstractAction("Save") {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(chooser.showSaveDialog(panel) == JFileChooser.APPROVE_OPTION) {
-					File file = chooser.getSelectedFile();
-					try {
-						BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
-						int size=listModel.getSize();
-						for(int i=0;i<size;++i) {
-							ConversationEvent evt = listModel.get(i);
-							String str = evt.whatWasSaid;
-							if(!str.endsWith("\n")) str+="\n";
-							fileWriter.write(str);
-						}
-						fileWriter.close();
-					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(panel, e1.getLocalizedMessage(),"Save error",JOptionPane.ERROR_MESSAGE);
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
+		bLoad.setText("Load");
+		bLoad.addActionListener( (e) -> runLoadAction() );
 		
-		bDelete = new JButton(new AbstractAction("Delete") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int i = listView.getSelectedIndex();
-				if(i==-1) return;
-				listModel.remove(i);
-				if(i>=listModel.getSize()) i = listModel.getSize()-1; 
-				listView.setSelectedIndex(i);
-			}
-		});
+		bSave.setText("Save");
+		bSave.addActionListener( (e) -> runSaveAction() );
+		
+		bDelete.setText("Delete");
+		bDelete.addActionListener( (e) -> runDeleteAction() );
 		
 		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
 		panel.add(bNew);
@@ -188,7 +122,52 @@ public class ConversationHistoryList extends JPanel {
 		return panel;
 	}
 
+	private void runLoadAction() {
+		if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			File file = chooser.getSelectedFile();
+			listModel.clear();
+			try {
+				BufferedReader fileReader = new BufferedReader(new FileReader(file));
+				int size=listModel.getSize();
+				for(int i=0;i<size;++i) {
+					String str = fileReader.readLine();
+					addElement("You",str);
+				}
+				fileReader.close();
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"Load error",JOptionPane.ERROR_MESSAGE);
+				e1.printStackTrace();
+			}
+		}
+	}
 	
+	private void runSaveAction() {
+		if(chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+		
+		File file = chooser.getSelectedFile();
+		try {
+			BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
+			int size=listModel.getSize();
+			for(int i=0;i<size;++i) {
+				String str = listModel.get(i).toString();
+				if(!str.endsWith("\n")) str+="\n";
+				fileWriter.write(str);
+			}
+			fileWriter.close();
+		} catch (IOException e1) {
+			JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"Save error",JOptionPane.ERROR_MESSAGE);
+			e1.printStackTrace();
+		}
+	}
+	
+	private void runDeleteAction() {
+		int i = listView.getSelectedIndex();
+		if(i==-1) return;
+		listModel.remove(i);
+		if(i>=listModel.getSize()) i = listModel.getSize()-1; 
+		listView.setSelectedIndex(i);
+	}
+
 	public void addListSelectionListener(ListSelectionListener listener) {
 		listView.addListSelectionListener(listener);
 	}
