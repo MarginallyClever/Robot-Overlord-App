@@ -53,7 +53,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		for(int i=0;i<bones.size();++i) {
 			Sixi3Bone b = bones.get(i);
-			b.setSliderName("J"+(i));
 			final int j=i;
 			b.slider.addPropertyChangeListener((evt)->{
 				double [] v = getFKValues();
@@ -78,11 +77,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		base = new Shape("Base","/Sixi3b/base.3mf");
 		bones.clear();
 		// name d r a t max min file
-		addBone("j0", 8.01,     0,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
-		addBone("j1",9.131,17.889,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
-		addBone("j2",    0,12.435,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
-		addBone("j3",    0,     0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
-		addBone("j4", 5.12,     0,  0,  0,360    ,0      ,"/Sixi3b/j4.3mf");
+		addBone("X", 8.01,     0,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
+		addBone("Y",9.131,17.889,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
+		addBone("Z",    0,12.435,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
+		addBone("U",    0,     0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
+		addBone("V", 5.12,     0,  0,180,360    ,0      ,"/Sixi3b/j4.3mf");
 		//addBone("end effector",     0, 5.12,  0,  0,350,10,"");
 		
 		adjustModelOriginsToDHLinks();
@@ -104,13 +103,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	private void addBone(String name, double d, double r, double a, double t, double jMax, double jMin, String modelFilename) {
 		Sixi3Bone b = new Sixi3Bone();
 		b.set(name,d,r,a,t,jMax,jMin,modelFilename);
-		b.setSliderName(name);
+		b.setName(name);
 		bones.add(b);
-	}
-
-	@Override
-	public void update(double dt) {
-		super.update(dt);
 	}
 	
 	@Override
@@ -153,8 +147,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
 		
 		if(showLocalOrigin.get()) {
-			Matrix4d m = new Matrix4d();
-			getEndEffector(m);
+			Matrix4d m = getEndEffector();
 			MatrixHelper.drawMatrix2(gl2, m, 6);
 		}
 
@@ -246,11 +239,13 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * Find the current end effector pose, relative to the base of this robot
 	 * @param m where to store the end effector pose.
 	 */
-	public void getEndEffector(Matrix4d m) {
+	public Matrix4d getEndEffector() {
+		Matrix4d m = new Matrix4d();
 		m.setIdentity();
 		for( Sixi3Bone bone : bones ) {
 			m.mul(bone.getPose());
 		}
+		return m;
 	}
 	
 	@Override
@@ -329,13 +324,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 		if(changed) {
 			// theta values actually changed so update matrixes and get the new end effector position.
-			Matrix4d eeOld = new Matrix4d();
-			getEndEffector(eeOld);
+			Matrix4d eeOld = getEndEffector();
 			for( Sixi3Bone b : bones ) {
 				b.updateMatrix();
 			}
-			Matrix4d eeNew = new Matrix4d();
-			getEndEffector(eeNew);
+			Matrix4d eeNew = getEndEffector();
 			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
 		
@@ -447,9 +440,8 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		double [] oldAngles = getFKValues();
 		double [] newAngles = new double[oldAngles.length];
 		
-		Matrix4d T = new Matrix4d();
-		Matrix4d Tnew = new Matrix4d();
-		getEndEffector(T);
+		Matrix4d T = getEndEffector();
+		Matrix4d Tnew;		
 		
 		// for all adjustable joints
 		for(int i=0;i<bones.size();++i) {
@@ -461,7 +453,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			setFKValues(newAngles);
 			
 			// Tnew will be different from T because of the changes in setPoseFK().
-			getEndEffector(Tnew);
+			Tnew = getEndEffector();
 			
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
@@ -619,8 +611,50 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		cartesianDistance[5]=-rpy[2];
 	}
 
-
 	public int getNumBones() {
 		return bones.size();
+	}
+	
+	public Sixi3Bone getBone(int i) {
+		return bones.get(i);
+	}
+	
+	/**
+	 * Measures the difference between the latest end effector matrix and the target matrix.
+	 * It is a combination of the linear distance and the rotation distance (collectively known as the Twist)
+	 * @return the error term.
+	 */
+	public double distanceToTarget(final Matrix4d target) {
+		// Scale the "handles" used.  Bigger scale, greater rotation compensation.
+		final double GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE = 100;
+		
+		Matrix4d m = getEndEffector();
+		
+		// linear difference in centers
+		Vector3d c0 = new Vector3d();
+		Vector3d c1 = new Vector3d();
+		m.get(c0);
+		target.get(c1);
+		c1.sub(c0);
+		double dC = c1.length();
+		
+		// linear difference in X handles
+		Vector3d x0 = MatrixHelper.getXAxis(target);
+		Vector3d x1 = MatrixHelper.getXAxis(m);
+		x1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
+		x0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
+		x1.sub(x0);
+		double dX = x1.length();
+		
+		// linear difference in Y handles
+		Vector3d y0 = MatrixHelper.getYAxis(target);
+		Vector3d y1 = MatrixHelper.getYAxis(m);
+		y1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
+		y0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
+		y1.sub(y0);
+		double dY = y1.length();		
+
+	    // now sum these to get the error term.
+		return dC+dX+dY;
 	}
 }

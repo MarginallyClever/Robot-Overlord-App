@@ -9,11 +9,9 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -29,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
@@ -46,7 +45,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.convenience.log.LogPanel;
+import com.marginallyclever.convenience.log.LogDialog;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.PhysicsDemo;
 import com.marginallyclever.robotOverlord.demos.SixiDemo;
@@ -132,9 +131,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 
 	private FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
 	public GLJPanel glCanvas;
-	
-	private LogPanel logPanel = new LogPanel();
-	private JFrame logFrame;
 	
 	// should I check the state of the OpenGL stack size?  true=every frame, false=never
 	private boolean checkStackSize = false;
@@ -335,6 +331,10 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	}
 	
 	public static void main(String[] argv) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception e) {}
+		
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -577,34 +577,15 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
     	
         menu = new JMenu("Help");
         menu.add(new JMenuItem(new AbstractAction("Log") {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -1216809258902111798L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(logFrame == null) {
-					logFrame = new JFrame(Translator.get("Log"));
-					logFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-					logFrame.setPreferredSize(new Dimension(600,400));
-					logFrame.add(logPanel);
-					logFrame.pack();
-					logFrame.addWindowListener(new WindowListener() {
-						@Override
-						public void windowOpened(WindowEvent e) {}
-						@Override
-						public void windowIconified(WindowEvent e) {}
-						@Override
-						public void windowDeiconified(WindowEvent e) {}
-						@Override
-						public void windowDeactivated(WindowEvent e) {}
-						@Override
-						public void windowClosing(WindowEvent e) {}
-						@Override
-						public void windowClosed(WindowEvent e) {
-							logFrame=null;
-						}
-						@Override
-						public void windowActivated(WindowEvent e) {}
-					});
-				}
-				logFrame.setVisible(true);
+				LogDialog logFrame = new LogDialog(mainFrame,"Log");
+				logFrame.run();
 			}
         }));
         menu.add(new JMenuItem(new AboutControlsAction()));

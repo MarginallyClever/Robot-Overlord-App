@@ -13,6 +13,8 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  *
  */
 public class Sixi3Bone {
+	private String name = "";
+	
 	// D-H parameters combine to make this matrix which is relative to the parent.
 	private Matrix4d pose = new Matrix4d();
 	// length (mm) along previous Z to the common normal
@@ -30,7 +32,7 @@ public class Sixi3Bone {
 	public Shape shape;
 	
 	public DoubleEntity slider = new DoubleEntity("J",0);
-	
+		
 	public Sixi3Bone() {}
 	
 	public void set(String name,double dd,double rr,double aa,double tt,double aMax,double aMin,String shapeFilename) {
@@ -106,11 +108,16 @@ public class Sixi3Bone {
 		return theta;
 	}
 
-	public void setSliderName(String name) {
-		slider.setName(name);
-	}
-
 	public Matrix4d getPose() {
 		return pose;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+		slider.setName(name);
 	}
 }

@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.textInterfaces;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -20,7 +19,6 @@ public class TextInterfaceToListeners extends JPanel {
 	private static final long serialVersionUID = 7996257740483513358L;
 	private JTextField commandLine = new JTextField(60);
 	private JButton send = new JButton("Send");
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 		
 	public TextInterfaceToListeners() {
 		setLayout(new GridBagLayout());
@@ -37,28 +35,17 @@ public class TextInterfaceToListeners extends JPanel {
 		c.weightx=0;
 		add(send,c);
 		
-		commandLine.addActionListener((e)->sendCommand());
-		send.addActionListener((e)->sendCommand());
+		commandLine.addActionListener((e)->sendNow());
+		send.addActionListener((e)->sendNow());
 	}
-	
-	public void addActionListener(ActionListener a) {
-		listeners.add(a);
-	}
-	
-	public void removeActionListener(ActionListener a) {
-		listeners.remove(a);
-	}
-	
-	private void notifyListeners(ActionEvent e) {
-		for( ActionListener a : listeners ) {
-			a.actionPerformed(e);
-		}
-	}
-	
-	private void sendCommand() {
-		String str = commandLine.getText();
-		commandLine.setText("");
+
+	public void sendCommand(String str) {
 		notifyListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,str));
+	}
+	
+	public void sendNow() {
+		sendCommand(commandLine.getText());
+		commandLine.setText("");
 	}
 
 	public static void main(String[] args) {
@@ -67,7 +54,6 @@ public class TextInterfaceToListeners extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(600, 400));
 		frame.add(new TextInterfaceToListeners());
 		frame.pack();
 		frame.setVisible(true);
@@ -86,5 +72,22 @@ public class TextInterfaceToListeners extends JPanel {
 		super.setEnabled(state);
 		commandLine.setEnabled(state);
 		send.setEnabled(state);
+	}
+
+	// OBSERVER PATTERN
+
+	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	public void addActionListener(ActionListener a) {
+		listeners.add(a);
+	}
+	
+	public void removeActionListener(ActionListener a) {
+		listeners.remove(a);
+	}
+	
+	private void notifyListeners(ActionEvent e) {
+		for( ActionListener a : listeners ) {
+			a.actionPerformed(e);
+		}
 	}
 }

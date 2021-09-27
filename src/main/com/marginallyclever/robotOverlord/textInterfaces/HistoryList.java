@@ -16,13 +16,17 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionListener;
+
+import com.marginallyclever.convenience.log.Log;
 
 @Deprecated
 public class HistoryList extends JPanel {
@@ -182,5 +186,17 @@ public class HistoryList extends JPanel {
 		bSave.setEnabled(state);
 		bLoad.setEnabled(state);
 		bDelete.setEnabled(state);
+	}
+
+	public static void main(String[] args) {
+		Log.start();
+		JFrame frame = new JFrame("TextInterfaceWithHistory");
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception e) {}
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(new HistoryList());
+		frame.pack();
+		frame.setVisible(true);
 	}
 }

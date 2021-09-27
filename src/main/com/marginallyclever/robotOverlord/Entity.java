@@ -286,7 +286,7 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 		propertyChangeListeners.remove(p);
 	}
 	
-	public void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
+	protected void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
 		for( PropertyChangeListener p : propertyChangeListeners ) {
 			p.propertyChange(evt);
 		}

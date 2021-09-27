@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.demos;
 
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;

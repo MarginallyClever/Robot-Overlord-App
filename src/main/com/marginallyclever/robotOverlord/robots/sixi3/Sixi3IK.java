@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.security.InvalidParameterException;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -25,31 +26,28 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  * @since 2021-02-24
  *
  */
-public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
+public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7778520191789995554L;
 
 	// target end effector pose
+	private Sixi3FK sixi3fk = new Sixi3FK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
-
 	private DoubleEntity threshold = new DoubleEntity("Threshold",0.001);
 	private DoubleEntity stepSize = new DoubleEntity("Step size",10.0);
 	private IntEntity iterations = new IntEntity("Iterations",40);
-	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.85); 
+	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.85);
 	
 	public Sixi3IK() {
 		super();
 		setName("Sixi3IK");
 
 		addChild(eeTarget);
+		eeTarget.setPose(sixi3fk.getEndEffector());
 		
-		Matrix4d m = new Matrix4d();
-		getEndEffector(m);
-		eeTarget.setPose(m);
-		
-		this.addPropertyChangeListener(this);
+		addPropertyChangeListener(this);
 	}
 	
 	@Override
@@ -62,6 +60,7 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
+		sixi3fk.update(dt);
 		
 		// move arm towards result to get future pose
 		gradientDescent(eeTarget.getPose(),iterations.get(),refinementRate.get(), threshold.get(), stepSize.get());
@@ -73,13 +72,13 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
+		sixi3fk.render(gl2);
 		drawPathToTarget(gl2);
 		gl2.glPopMatrix();
 	}
 	
 	private void drawPathToTarget(GL2 gl2) {
-		Matrix4d start = new Matrix4d();
-		getEndEffector(start);
+		Matrix4d start = sixi3fk.getEndEffector();
 		
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
@@ -98,47 +97,6 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 		}
 	}
 	
-
-	/**
-	 * Measures the difference between the latest end effector matrix and the target matrix.
-	 * It is a combination of the linear distance and the rotation distance (collectively known as the Twist)
-	 * @return the error term.
-	 */
-	public double distanceToTarget(final Matrix4d target) {
-		// Scale the "handles" used.  Bigger scale, greater rotation compensation.
-		final double GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE = 100;
-		
-		Matrix4d m = new Matrix4d();
-		getEndEffector(m);
-		
-		// linear difference in centers
-		Vector3d c0 = new Vector3d();
-		Vector3d c1 = new Vector3d();
-		m.get(c0);
-		target.get(c1);
-		c1.sub(c0);
-		double dC = c1.length();
-		
-		// linear difference in X handles
-		Vector3d x0 = MatrixHelper.getXAxis(target);
-		Vector3d x1 = MatrixHelper.getXAxis(m);
-		x1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		x0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		x1.sub(x0);
-		double dX = x1.length();
-		
-		// linear difference in Y handles
-		Vector3d y0 = MatrixHelper.getYAxis(target);
-		Vector3d y1 = MatrixHelper.getYAxis(m);
-		y1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		y0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		y1.sub(y0);
-		double dY = y1.length();		
-
-	    // now sum these to get the error term.
-		return dC+dX+dY;
-	}
-	
 	/**
 	 * 
 	 * @param target
@@ -147,19 +105,19 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 	 * @param stepSize
 	 * @return the gradient
 	 */
-	private double partialGradient(final Matrix4d target, double [] fk, int jointIndex, double stepSize) {
+	private double partialGradient(Sixi3FK temp,final Matrix4d target, double [] fk, int jointIndex, double stepSize) {
 		// get the current error term F.
 		double oldValue = fk[jointIndex];
-		double Fx = distanceToTarget(target);
+		double Fx = temp.distanceToTarget(target);
 
 		// move F+D, measure again.
 		fk[jointIndex] = oldValue + stepSize;
-		setFKValues(fk);
-		double FxPlusD = distanceToTarget(target);
+		temp.setFKValues(fk);
+		double FxPlusD = temp.distanceToTarget(target);
 
 		// set the old value
 		fk[jointIndex] = oldValue;
-		setFKValues(fk);
+		temp.setFKValues(fk);
 		
 		return (FxPlusD - Fx) / stepSize;
 	}
@@ -174,36 +132,42 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 	 * @param initialStepSize how big should the first step be?
 	 */
 	private boolean gradientDescent(final Matrix4d target, final double attempts, double learningRate, final double threshold, double initialStepSize) {
-		if(distanceToTarget(target)<threshold) return true;
+		//if(distanceToTarget(target)<threshold) return true;
 		
-		double [] angles = getFKValues();
+		double [] angles = sixi3fk.getFKValues();
 		double stepSize = initialStepSize;
+		
+		Sixi3FK temp = new Sixi3FK();
+		temp.setFKValues(sixi3fk.getFKValues());
 		
 		for(int tries=0;tries<attempts;++tries) {
 			// seems to work better descending from the finger than ascending from the base.
 
-			for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
-				double gradient = partialGradient(target,angles,i,stepSize);
+			for( int i=temp.getNumBones()-1; i>=0; --i ) {  // descending mode
+				double gradient = partialGradient(temp,target,angles,i,stepSize);
 				angles[i] -= learningRate * gradient;
-				setFKValues(angles);
-				if(distanceToTarget(target)<threshold) return true;
+				temp.setFKValues(angles);
+				if(temp.distanceToTarget(target)<threshold) {
+					sixi3fk.setFKValues(temp.getFKValues());
+					return true;
+				}
 			}
 		}
 		
 		// if you get here the robot did not reach its target within 'iteration' steps.
 		// try tweaking your input parameters for better results.
+		//sixi3fk.setFKValues(temp.getFKValues());
 		return false;
 	}
 	
 	@Override
 	public void getView(ViewPanel view) {
+		sixi3fk.getView(view);
 		view.pushStack("IK","Inverse Kinematics");
 
 		ViewElementButton b = view.addButton("Reset GoTo");
 		b.addPropertyChangeListener((evt) -> {
-			Matrix4d m = new Matrix4d();
-			getEndEffector(m);
-			eeTarget.setPose(m);
+			eeTarget.setPose(sixi3fk.getEndEffector());
 		});
 
 		ViewElementButton b2 = view.addButton("Run test");
@@ -227,10 +191,8 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 	
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = getFKValues();
-		Matrix4d start = new Matrix4d();
-		getEndEffector(start);
-		
+		double [] jOriginal = sixi3fk.getFKValues();
+		Matrix4d start = sixi3fk.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		
 		try {
@@ -241,29 +203,29 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 			double [][] jacobian = new double[6][6];
 			double [] cartesianDistance = new double[6];
 			//double [] cartesianDistanceCompare = new double[6];
-			double [] jointDistance = new double[getNumBones()];
+			double [] jointDistance = new double[sixi3fk.getNumBones()];
 
 			//pw.print("S"+start.toString()+"E"+end.toString());
 
 			for(double alpha=1;alpha<=STEPS;++alpha) {
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
 	
-				double [] jBefore = getFKValues();
+				double [] jBefore = sixi3fk.getFKValues();
 
 				// move arm towards result to get future pose
 				gradientDescent(interpolated,20,0.8, threshold.get(), stepSize.get());
-				double [] jAfter = getFKValues();
+				double [] jAfter = sixi3fk.getFKValues();
 
 				if(useExact) {
 					//getExactJacobian(jacobian);
 				} else {
-					getApproximateJacobian(jacobian);
+					sixi3fk.getApproximateJacobian(jacobian);
 				}
 				
-				getCartesianBetweenTwoMatrixes(old, interpolated, cartesianDistance);
+				sixi3fk.getCartesianBetweenTwoMatrixes(old, interpolated, cartesianDistance);
 				old.set(interpolated);
 	
-				boolean ok=getJointFromCartesian(jacobian, cartesianDistance, jointDistance);
+				boolean ok=sixi3fk.getJointFromCartesian(jacobian, cartesianDistance, jointDistance);
 				//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
 				// cartesianDistance and cartesianDistanceCompare should always match
 				// jointDistance[n] should match jAfter[n]-jBefore[n]
@@ -301,10 +263,9 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 			e.printStackTrace();
 		}
 		
-		setFKValues(jOriginal);
+		sixi3fk.setFKValues(jOriginal);
 		
-		Matrix4d startCompare = new Matrix4d();
-		getEndEffector(startCompare);
+		Matrix4d startCompare = sixi3fk.getEndEffector();
 		if(!startCompare.equals(start)) {
 			System.out.println("Change!\nS"+start.toString()+"E"+startCompare.toString());
 		}
@@ -320,11 +281,49 @@ public class Sixi3IK extends Sixi3FK implements PropertyChangeListener {
 			if(useExact) {
 				//getExactJacobian(jacobian);
 			} else {
-				getApproximateJacobian(jacobian);
+				sixi3fk.getApproximateJacobian(jacobian);
 			}
 		}
 		
 		long end = System.nanoTime();
 		System.out.println("diff="+((double)(end-start)/1000.0)+(useExact?"exact":"approx"));
 	}
+	
+
+	public boolean moveEndEffectorTo(Matrix4d m) {
+		Matrix4d invert = getPoseWorld();
+		invert.invert();
+		m.mul(invert);
+		
+		return gradientDescent(m,iterations.get(),refinementRate.get(), threshold.get(), stepSize.get());
+	}
+
+	public Matrix4d getEndEffector() {
+		Matrix4d m = getPoseWorld();
+		m.mul(sixi3fk.getEndEffector());
+		return m;
+	}
+
+	public double[] getFKValues() {
+		return sixi3fk.getFKValues();
+	}
+
+	public boolean setFKValues(double[] list) throws InvalidParameterException {
+		return sixi3fk.setFKValues(list);
+	}
+
+	public int getNumBones() {
+		return sixi3fk.getNumBones();
+	}
+
+	public Sixi3Bone getBone(int i) {
+		return sixi3fk.getBone(i);
+	}
+
+	@Override
+	public void addPropertyChangeListener(PropertyChangeListener p) {
+		super.addPropertyChangeListener(p);
+		sixi3fk.addPropertyChangeListener(p);
+	}
+	
 }

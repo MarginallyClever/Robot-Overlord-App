@@ -30,8 +30,7 @@ public class Sixi3FKTests {
 		Matrix4d m1 = new Matrix4d();
 		Matrix4d m2 = new Matrix4d();
 		Matrix4d m3 = new Matrix4d();
-		Matrix4d am = new Matrix4d();
-		Matrix4d bm = new Matrix4d();
+		Matrix4d am,bm;
 		
 		double [] av = new double[numBones];
 		
@@ -52,7 +51,7 @@ public class Sixi3FKTests {
 			a.setPose(m3);
 
 			a.setFKValues(av);
-			a.getEndEffector(am);
+			am = a.getEndEffector();
 			
 			File tempFile = File.createTempFile("test","txt",new File(System.getProperty("user.dir")));
 			
@@ -75,7 +74,7 @@ public class Sixi3FKTests {
 				assertTrue(av[i]==bv[i]);
 			}
 			
-			b.getEndEffector(bm);
+			bm = b.getEndEffector();
 			assertTrue(am.equals(bm));
 			
 			tempFile.deleteOnExit();

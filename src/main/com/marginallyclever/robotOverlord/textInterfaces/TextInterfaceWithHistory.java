@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.textInterfaces;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
@@ -69,17 +68,8 @@ public class TextInterfaceWithHistory extends JPanel {
 		myInterface.setCommand(str);
 	}
 
-	public static void main(String[] args) {
-		Log.start();
-		JFrame frame = new JFrame("TextInterfaceWithHistory");
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(600, 400));
-		frame.add(new TextInterfaceWithHistory());
-		frame.pack();
-		frame.setVisible(true);
+	public void sendCommand(String str) {
+		myInterface.sendCommand(str);
 	}
 	
 	@Override
@@ -87,5 +77,17 @@ public class TextInterfaceWithHistory extends JPanel {
 		super.setEnabled(state);
 		myInterface.setEnabled(state);
 		myHistory.setEnabled(state);
+	}
+
+	public static void main(String[] args) {
+		Log.start();
+		JFrame frame = new JFrame("TextInterfaceWithHistory");
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception e) {}
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(new TextInterfaceWithHistory());
+		frame.pack();
+		frame.setVisible(true);
 	}
 }

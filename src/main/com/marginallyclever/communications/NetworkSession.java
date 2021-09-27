@@ -13,13 +13,6 @@ import javax.swing.SwingUtilities;
  * @since v7
  */
 public abstract class NetworkSession {
-	// Listeners which should be notified of a change to the percentage.
-	private transient ArrayList<NetworkSessionListener> listeners;
-	
-	protected NetworkSession() {
-		listeners = new ArrayList<NetworkSessionListener>();
-	}
-	
 	// close this connection
 	abstract public void closeConnection();
 
@@ -36,7 +29,16 @@ public abstract class NetworkSession {
 	
 	abstract public TransportLayer getTransportLayer();
 
+	
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		listeners = new ArrayList<NetworkSessionListener>();
+	}
 
+	// OBSERVER PATTERN
+	
+	private transient ArrayList<NetworkSessionListener> listeners = new ArrayList<NetworkSessionListener>();
+	
 	public void addListener(NetworkSessionListener listener) {
 		listeners.add(listener);
 	}
@@ -54,10 +56,5 @@ public abstract class NetworkSession {
 				}
             }
 		});
-	}
-	
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-		listeners = new ArrayList<NetworkSessionListener>();
 	}
 }

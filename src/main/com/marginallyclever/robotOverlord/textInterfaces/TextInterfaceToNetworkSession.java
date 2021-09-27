@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.textInterfaces;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,7 +22,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	 */
 	private static final long serialVersionUID = 1032123255711692874L;
 	private TextInterfaceWithHistory myInterface = new TextInterfaceWithHistory();
-	private ChooseConnectionPanel myConnection = new ChooseConnectionPanel();
+	private ChooseConnectionPanel myConnectionChoice = new ChooseConnectionPanel();
 	private NetworkSession mySession;
 
 	public TextInterfaceToNetworkSession() {
@@ -28,16 +30,31 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		
 		setLayout(new BorderLayout());
 		
-		add(myConnection,BorderLayout.NORTH);
+		add(myConnectionChoice,BorderLayout.NORTH);
 		add(myInterface,BorderLayout.CENTER);
 		
 		myInterface.setEnabled(false);
-		myInterface.addActionListener((e)->sendCommandToSession(e));
-		myConnection.addActionListener((e)->{
-			switch(e.getID()) {
-			case ChooseConnectionPanel.CONNECTION_OPENED: setNetworkSession(myConnection.getNetworkSession()); break;
-			case ChooseConnectionPanel.CONNECTION_CLOSED: setNetworkSession(null); break;
+		myInterface.addActionListener( (evt) -> {
+			if(mySession==null) return;
+			
+			String str = evt.getActionCommand();
+			str = str.toUpperCase();
+			if(!str.endsWith("\n")) str+="\n";
+			
+			try {
+				mySession.sendMessage(str);
+			} catch (Exception e1) {
+				JOptionPane.showMessageDialog(this,e1.getLocalizedMessage(),"Error",JOptionPane.ERROR_MESSAGE);
 			}
+		});
+		myConnectionChoice.addActionListener((e)->{
+			switch(e.getID()) {
+			case ChooseConnectionPanel.NEW_CONNECTION: 
+				setNetworkSession(myConnectionChoice.getNetworkSession());
+				break;
+			}
+			
+			notifyListeners(e);
 		});
 	}
 	
@@ -46,18 +63,12 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		mySession = session;
 		if(mySession!=null) mySession.addListener(this);
 		
+		myConnectionChoice.setNetworkSession(session);
 		myInterface.setEnabled(mySession!=null);
 	}
 
-	private void sendCommandToSession(ActionEvent evt) {
-		if(mySession==null) return;
-		try {
-			String str = evt.getActionCommand();
-			if(!str.endsWith("\n")) str+="\n";
-			mySession.sendMessage(str);
-		} catch(Exception e) {
-			JOptionPane.showMessageDialog(this,e.getLocalizedMessage(),"Error",JOptionPane.ERROR_MESSAGE);
-		}
+	public void sendCommand(String str) {
+		myInterface.sendCommand(str);
 	}
 	
 	public String getCommand() {
@@ -72,9 +83,32 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	public void networkSessionEvent(NetworkSessionEvent evt) {
 		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
 			myInterface.addToHistory(mySession.getName(),((String)evt.data).trim());
-		}		
+		}
+	}
+	
+	public NetworkSession getNetworkSession() {
+		return myConnectionChoice.getNetworkSession();
 	}
 
+	// OBSERVER PATTERN
+	
+	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	public void addActionListener(ActionListener a) {
+		listeners.add(a);
+	}
+	
+	public void removeActionListener(ActionListener a) {
+		listeners.remove(a);
+	}
+	
+	private void notifyListeners(ActionEvent e) {
+		for( ActionListener a : listeners ) {
+			a.actionPerformed(e);
+		}
+	}
+
+	// TEST 
+	
 	public static void main(String[] args) {
 		Log.start();
 		JFrame frame = new JFrame("TextInterfaceToNetworkSession");

@@ -17,6 +17,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -24,8 +25,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionListener;
+
+import com.marginallyclever.convenience.log.Log;
 
 public class ConversationHistoryList extends JPanel {
 	/**
@@ -37,6 +41,7 @@ public class ConversationHistoryList extends JPanel {
 	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
 	private JScrollPane scrollPane = new JScrollPane(listView);
 	
+	// TODO use JToolBar?
 	private JButton bNew = new JButton();
 	private JButton bSave = new JButton();
 	private JButton bLoad = new JButton();
@@ -168,6 +173,10 @@ public class ConversationHistoryList extends JPanel {
 		listView.setSelectedIndex(i);
 	}
 
+	public void clear() {
+		listModel.clear();
+	}
+	
 	public void addListSelectionListener(ListSelectionListener listener) {
 		listView.addListSelectionListener(listener);
 	}
@@ -193,5 +202,17 @@ public class ConversationHistoryList extends JPanel {
 		bSave.setEnabled(state);
 		bLoad.setEnabled(state);
 		bDelete.setEnabled(state);
+	}
+
+	public static void main(String[] args) {
+		Log.start();
+		JFrame frame = new JFrame("TextInterfaceWithHistory");
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception e) {}
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(new ConversationHistoryList());
+		frame.pack();
+		frame.setVisible(true);
 	}
 }
