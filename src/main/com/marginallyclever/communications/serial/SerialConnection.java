@@ -18,7 +18,7 @@ import com.marginallyclever.convenience.log.Log;
  * @since v7
  */
 public final class SerialConnection extends NetworkSession implements SerialPortEventListener {
-	private static final int DEFAULT_BAUD_RATE = 57600;
+	private static final int DEFAULT_BAUD_RATE = 250000;
 
 	private SerialPort serialPort;
 	private TransportLayer transportLayer;

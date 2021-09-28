@@ -20,7 +20,7 @@ public class SerialTransportLayerPanel extends TransportLayerPanel {
 	private JComboBox<String> connectionBaud;
 	
 	private static String lastConnectionPort="COM4";
-	private static int lastConnectionBaud=57600;
+	private static int lastConnectionBaud=250000;
 
 	public static final int [] COMMON_BAUD_RATES = {300,1200,2400,4800,9600,19200,38400,57600,74880,115200,230400,250000,500000,1000000,2000000};
 	
