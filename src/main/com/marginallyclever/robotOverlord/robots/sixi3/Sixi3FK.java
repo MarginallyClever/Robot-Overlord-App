@@ -55,11 +55,11 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			Sixi3Bone b = bones.get(i);
 			final int j=i;
 			b.slider.addPropertyChangeListener((evt)->{
-				double [] v = getFKValues();
+				double [] v = getAngles();
 				double d = b.slider.get();
 				if( v[j] != d ) {
 					v[j] = d;
-					setFKValues(v);
+					setAngles(v);
 					updateSliders();
 				}
 			});
@@ -261,7 +261,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				Sixi3Bone b = bones.get(i);
 				v[i]=b.getAngleMiddle();
 			}
-			setFKValues(v);
+			setAngles(v);
 			updateSliders();
 		});
 		view.add(showAngles);
@@ -284,7 +284,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * @param list where to collect the information.  Must be {@link Sixi3FK#NUM_BONES} long.
 	 * @throws InvalidParameterException
 	 */
-	public double [] getFKValues() {
+	public double [] getAngles() {
 		double [] list = new double[bones.size()];
 		
 		int i=0;
@@ -301,25 +301,16 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * @return true if new values are different from old values.
 	 * @throws InvalidParameterException list is the wrong length.
 	 */
-	public boolean setFKValues(double [] list) throws InvalidParameterException {
-		if(list==null) {
-			throw new InvalidParameterException("list cannot be null.");
-		}
-		if(bones.size() != list.length) {
-			throw new InvalidParameterException("list length must match number of bones ("+bones.size()+")");
-		}
-
+	public boolean setAngles(double [] list) {
 		boolean changed=false;
 		
 		int i=0;
 		for( Sixi3Bone b : bones ) {
 			double v = list[i++];
-			double t = b.getTheta(); 
-			if( t != v ) {
-				b.setAngleWRTLimits(v);
-				if( t != b.getTheta() )
-					changed=true;
-			}
+			double t = b.getTheta();
+			b.setAngleWRTLimits(v);
+			if( t != b.getTheta() )
+				changed=true;
 		}
 
 		if(changed) {
@@ -329,6 +320,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				b.updateMatrix();
 			}
 			Matrix4d eeNew = getEndEffector();
+
 			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
 		
@@ -419,7 +411,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			v[i] = Double.parseDouble(pieces[i]);
 		}
 		
-		setFKValues(v);
+		setAngles(v);
 		updateSliders();
 		
 		return true;
@@ -437,7 +429,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public void getApproximateJacobian(double [][] jacobian) {
 		double ANGLE_STEP_SIZE_DEGREES=0.001;  // degrees
 		
-		double [] oldAngles = getFKValues();
+		double [] oldAngles = getAngles();
 		double [] newAngles = new double[oldAngles.length];
 		
 		Matrix4d T = getEndEffector();
@@ -450,7 +442,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 				newAngles[j]=oldAngles[j];
 			}
 			newAngles[i]+=ANGLE_STEP_SIZE_DEGREES;
-			setFKValues(newAngles);
+			setAngles(newAngles);
 			
 			// Tnew will be different from T because of the changes in setPoseFK().
 			Tnew = getEndEffector();
@@ -515,7 +507,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		
 		// undo our changes.
-		setFKValues(oldAngles);
+		setAngles(oldAngles);
 	}
 	
 	/**
@@ -656,5 +648,65 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 	    // now sum these to get the error term.
 		return dC+dX+dY;
+	}
+	
+	/**
+	 * 
+	 * @param target
+	 * @param angles
+	 * @param i
+	 * @param samplingDistance
+	 * @return the gradient
+	 */
+	private double partialGradient(Matrix4d target, double [] angles, int i, double samplingDistance) {
+		// get the current error term F.
+		double oldValue = angles[i];
+		double Fx = distanceToTarget(target);
+
+		// move F+D, measure again.
+		angles[i] += samplingDistance;
+		//double t0 = temp.getBone(i).getTheta();
+		setAngles(angles);
+		//double t1 = temp.getBone(i).getTheta();
+		double FxPlusD = distanceToTarget(target);
+		double gradient = (FxPlusD - Fx) / samplingDistance;
+		//System.out.println("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
+		
+		// reset the old value
+		angles[i] = oldValue;
+		setAngles(angles);
+		
+		return gradient;
+	}
+
+	/**
+	 * Use gradient descent to move the end effector closer to the target.  The process is iterative, might not reach the target,
+	 * and changes depending on the position when gradient descent began. 
+	 * @return distance to target
+	 * @param learningRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
+	 * @param threshold When error term is within threshold then stop. 
+	 * @param samplingDistance how big should the first step be?
+	 */
+	public boolean gradientDescent(Matrix4d target,double learningRate, double threshold, double samplingDistance) {
+		if(distanceToTarget(target)<threshold) return true;
+		
+		double [] angles = getAngles();
+		
+		// seems to work better descending from the finger than ascending from the base.
+		for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
+			//System.out.println("\tA angles["+i+"]="+angles[i]);
+			double gradient = partialGradient(target,angles,i,samplingDistance);
+			//System.out.println("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
+			angles[i] -= learningRate * gradient;
+			//System.out.println("\tC angles["+i+"]="+angles[i]);
+			setAngles(angles);
+			if(distanceToTarget(target)<threshold) {
+				return true;
+			}
+		}
+
+		// if you get here the robot did not reach its target.
+		// try tweaking your input parameters for better results.
+		return false;
 	}
 }

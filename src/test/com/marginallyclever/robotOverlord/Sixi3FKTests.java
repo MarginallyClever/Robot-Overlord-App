@@ -50,7 +50,7 @@ public class Sixi3FKTests {
 			m3.m23=Math.random()*100;
 			a.setPose(m3);
 
-			a.setFKValues(av);
+			a.setAngles(av);
 			am = a.getEndEffector();
 			
 			File tempFile = File.createTempFile("test","txt",new File(System.getProperty("user.dir")));
@@ -69,7 +69,7 @@ public class Sixi3FKTests {
 			assertTrue(b.getName().contentEquals(a.getName()));
 			assertTrue(b.getPose().equals(a.getPose()));
 			
-			double [] bv = b.getFKValues();
+			double [] bv = b.getAngles();
 			for(int i=0;i<numBones;++i) {
 				assertTrue(av[i]==bv[i]);
 			}

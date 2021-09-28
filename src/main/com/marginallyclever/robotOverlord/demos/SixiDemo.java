@@ -1,15 +1,16 @@
 package com.marginallyclever.robotOverlord.demos;
 
+import javax.swing.JFrame;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
-import com.marginallyclever.robotOverlord.demoAssets.TrayCabinet;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3FK;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
 import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.textInterfaces.RobotUI;
 
 public class SixiDemo implements Demo {
 	@Override
@@ -88,10 +89,18 @@ public class SixiDemo implements Demo {
 		//m.rotZ(Math.toRadians(-90));
 		//sixi2.setRotation(m);
 		
-		TrayCabinet trayCabinet;
-		sc.addChild(trayCabinet=new TrayCabinet());
-		trayCabinet.setPosition(new Vector3d(35,49.5,0));
-		sc.addChild(trayCabinet=new TrayCabinet());
-		trayCabinet.setPosition(new Vector3d(35,49.5,21.75));
+
+    	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
+        new Thread(new Runnable() {
+            @Override
+			public void run() {
+        		JFrame frame = new JFrame("Sixi3 UI");
+        		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        		frame.add(new RobotUI(s1));
+        		frame.pack();
+        		frame.setVisible(true);
+            }
+        }).start();
+		
 	}
 }

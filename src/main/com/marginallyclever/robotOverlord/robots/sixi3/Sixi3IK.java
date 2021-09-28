@@ -16,7 +16,6 @@ import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 /**
  * {@link Sixi3IK} is a {@link Sixi3FK} with added Inverse Kinematics.  
@@ -34,18 +33,20 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 
 	// target end effector pose
 	private Sixi3FK sixi3fk = new Sixi3FK();
+	private Sixi3FK gradientFK = new Sixi3FK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
-	private DoubleEntity threshold = new DoubleEntity("Threshold",0.001);
-	private DoubleEntity stepSize = new DoubleEntity("Step size",10.0);
-	private IntEntity iterations = new IntEntity("Iterations",40);
-	private DoubleEntity refinementRate = new DoubleEntity("Refinement rate (0...1)",0.85);
+	private DoubleEntity threshold = new DoubleEntity("Threshold",0.5);
+	private DoubleEntity samplingDistance = new DoubleEntity("Sampling distance (>0)",0.05);
+	private DoubleEntity learningRate = new DoubleEntity("Learning rate (0...1)",2.0);
+	private double learningRateNow=learningRate.get();
 	
 	public Sixi3IK() {
 		super();
 		setName("Sixi3IK");
 
 		addChild(eeTarget);
-		eeTarget.setPose(sixi3fk.getEndEffector());
+		setEndEffectorTarget(getEndEffector());
+		
 		
 		addPropertyChangeListener(this);
 	}
@@ -53,8 +54,8 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
-		Matrix4d m = (Matrix4d)evt.getNewValue();
-		eeTarget.setPose(m);
+		//Matrix4d m = (Matrix4d)evt.getNewValue();
+		//eeTarget.setPose(m);
 	}
 	
 	@Override
@@ -63,7 +64,7 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 		sixi3fk.update(dt);
 		
 		// move arm towards result to get future pose
-		gradientDescent(eeTarget.getPose(),iterations.get(),refinementRate.get(), threshold.get(), stepSize.get());
+		gradientDescent(eeTarget.getPose(),threshold.get());
 	}
 
 	@Override
@@ -96,68 +97,37 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 			MatrixHelper.drawMatrix(gl2, interpolated, 1.0);
 		}
 	}
-	
-	/**
-	 * 
-	 * @param target
-	 * @param fk
-	 * @param jointIndex
-	 * @param stepSize
-	 * @return the gradient
-	 */
-	private double partialGradient(Sixi3FK temp,final Matrix4d target, double [] fk, int jointIndex, double stepSize) {
-		// get the current error term F.
-		double oldValue = fk[jointIndex];
-		double Fx = temp.distanceToTarget(target);
-
-		// move F+D, measure again.
-		fk[jointIndex] = oldValue + stepSize;
-		temp.setFKValues(fk);
-		double FxPlusD = temp.distanceToTarget(target);
-
-		// set the old value
-		fk[jointIndex] = oldValue;
-		temp.setFKValues(fk);
-		
-		return (FxPlusD - Fx) / stepSize;
-	}
 
 	/**
 	 * Use gradient descent to move the end effector closer to the target.  The process is iterative, might not reach the target,
 	 * and changes depending on the position when gradient descent began. 
 	 * @return distance to target
-	 * @param attempts How many times should I try to get closer?
 	 * @param learningRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
 	 * @param threshold When error term is within threshold then stop. 
-	 * @param initialStepSize how big should the first step be?
+	 * @param samplingDistance how big should the first step be?
 	 */
-	private boolean gradientDescent(final Matrix4d target, final double attempts, double learningRate, final double threshold, double initialStepSize) {
-		//if(distanceToTarget(target)<threshold) return true;
-		
-		double [] angles = sixi3fk.getFKValues();
-		double stepSize = initialStepSize;
-		
-		Sixi3FK temp = new Sixi3FK();
-		temp.setFKValues(sixi3fk.getFKValues());
-		
-		for(int tries=0;tries<attempts;++tries) {
-			// seems to work better descending from the finger than ascending from the base.
-
-			for( int i=temp.getNumBones()-1; i>=0; --i ) {  // descending mode
-				double gradient = partialGradient(temp,target,angles,i,stepSize);
-				angles[i] -= learningRate * gradient;
-				temp.setFKValues(angles);
-				if(temp.distanceToTarget(target)<threshold) {
-					sixi3fk.setFKValues(temp.getFKValues());
-					return true;
-				}
-			}
+	private void gradientDescent(final Matrix4d target, final double threshold) {
+		double d0 = gradientFK.distanceToTarget(target);
+		if(d0<threshold) {
+			// target reached!
+			sixi3fk.setAngles(gradientFK.getAngles());
 		}
 		
-		// if you get here the robot did not reach its target within 'iteration' steps.
-		// try tweaking your input parameters for better results.
-		//sixi3fk.setFKValues(temp.getFKValues());
-		return false;
+		gradientFK.gradientDescent(target,learningRateNow,threshold,samplingDistance.get());
+
+		double d1 = gradientFK.distanceToTarget(target);
+		if(d1>d0) {
+			learningRateNow*=0.95;
+		} else {
+			learningRateNow*=1.01;
+		}
+		
+		if(d1<threshold) {
+			// target reached!
+			sixi3fk.setAngles(gradientFK.getAngles());
+		} else {
+			System.out.println("gradient Descent="+d1+" learningRateNow="+learningRateNow);
+		}
 	}
 	
 	@Override
@@ -180,9 +150,8 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 		
 		// add gradient descent parameters here
 		view.add(threshold);
-		view.add(stepSize);
-		view.add(iterations);
-		view.add(refinementRate);
+		view.add(samplingDistance);
+		view.add(learningRate);
 		
 		view.popStack();
 		
@@ -191,7 +160,7 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = sixi3fk.getFKValues();
+		double [] jOriginal = sixi3fk.getAngles();
 		Matrix4d start = sixi3fk.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		
@@ -210,11 +179,12 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 			for(double alpha=1;alpha<=STEPS;++alpha) {
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
 	
-				double [] jBefore = sixi3fk.getFKValues();
+				double [] jBefore = sixi3fk.getAngles();
 
 				// move arm towards result to get future pose
-				gradientDescent(interpolated,20,0.8, threshold.get(), stepSize.get());
-				double [] jAfter = sixi3fk.getFKValues();
+				learningRateNow=learningRate.get();
+				gradientDescent(interpolated,threshold.get());
+				double [] jAfter = sixi3fk.getAngles();
 
 				if(useExact) {
 					//getExactJacobian(jacobian);
@@ -263,7 +233,7 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 			e.printStackTrace();
 		}
 		
-		sixi3fk.setFKValues(jOriginal);
+		sixi3fk.setAngles(jOriginal);
 		
 		Matrix4d startCompare = sixi3fk.getEndEffector();
 		if(!startCompare.equals(start)) {
@@ -289,27 +259,29 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 		System.out.println("diff="+((double)(end-start)/1000.0)+(useExact?"exact":"approx"));
 	}
 	
-
-	public boolean moveEndEffectorTo(Matrix4d m) {
-		Matrix4d invert = getPoseWorld();
-		invert.invert();
-		m.mul(invert);
-		
-		return gradientDescent(m,iterations.get(),refinementRate.get(), threshold.get(), stepSize.get());
-	}
-
 	public Matrix4d getEndEffector() {
 		Matrix4d m = getPoseWorld();
-		m.mul(sixi3fk.getEndEffector());
+		Matrix4d ee = sixi3fk.getEndEffector(); 
+		m.mul(ee);
 		return m;
 	}
 
+	public Matrix4d getEndEffectorTarget() {
+		return eeTarget.getPoseWorld();
+	}
+
+	public void setEndEffectorTarget(Matrix4d m) {
+		gradientFK.setAngles(sixi3fk.getAngles());
+		learningRateNow=learningRate.get();
+		eeTarget.setPoseWorld(m);
+	}
+
 	public double[] getFKValues() {
-		return sixi3fk.getFKValues();
+		return sixi3fk.getAngles();
 	}
 
 	public boolean setFKValues(double[] list) throws InvalidParameterException {
-		return sixi3fk.setFKValues(list);
+		return sixi3fk.setAngles(list);
 	}
 
 	public int getNumBones() {
@@ -324,6 +296,5 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	public void addPropertyChangeListener(PropertyChangeListener p) {
 		super.addPropertyChangeListener(p);
 		sixi3fk.addPropertyChangeListener(p);
-	}
-	
+	}	
 }
