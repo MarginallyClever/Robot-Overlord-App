@@ -22,7 +22,7 @@ public class MatrixHelper {
 	 * @param m
 	 * @param scale
 	 */
-	public static void drawMatrix(GL2 gl2,Matrix4d m,double scale) {
+	static public void drawMatrix(GL2 gl2,Matrix4d m,double scale) {
 		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -43,7 +43,7 @@ public class MatrixHelper {
 		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
 	}
 
-	public static void drawMatrix(GL2 gl2,double scale) {
+	static public void drawMatrix(GL2 gl2,double scale) {
 		Matrix4d m= new Matrix4d();
 		m.setIdentity();
 		drawMatrix(gl2,m,scale);
@@ -55,7 +55,7 @@ public class MatrixHelper {
 	 * @param m
 	 * @param scale
 	 */
-	public static void drawMatrix2(GL2 gl2,Matrix4d m,double scale) {
+	static public void drawMatrix2(GL2 gl2,Matrix4d m,double scale) {
 		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
 		gl2.glDisable(GL2.GL_DEPTH_TEST);
 		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
@@ -79,7 +79,7 @@ public class MatrixHelper {
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)
 	 */
-	public static void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
+	static public void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
 		drawMatrix(gl2,p,u,v,w,1);
 	}
 	
@@ -92,7 +92,7 @@ public class MatrixHelper {
 	 * @param w in magenta (1,0,1)
 	 * @param scale nominally 1
 	 */
-	public static void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
+	static public void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
 		Matrix4d m = new Matrix4d(
 				u.x,u.y,u.z,p.x,
 				v.x,v.y,v.z,p.y,
@@ -111,7 +111,7 @@ public class MatrixHelper {
 	 * @param v
 	 * @param w
 	 */
-	public static void drawMatrix2(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
+	static public void drawMatrix2(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
 		drawMatrix2(gl2,p,u,v,w,1);
 	}
 	
@@ -125,7 +125,7 @@ public class MatrixHelper {
 	 * @param w in blue
 	 * @param scale nominally 1
 	 */
-	public static void drawMatrix2(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
+	static public void drawMatrix2(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
 		Matrix4d m = new Matrix4d(
 				u.x,u.y,u.z,p.x,
 				v.x,v.y,v.z,p.y,
@@ -142,7 +142,7 @@ public class MatrixHelper {
 	 * @param mat
 	 * @return
 	 */
-	public static boolean isRotationMatrix(Matrix3d mat) {
+	static public boolean isRotationMatrix(Matrix3d mat) {
 		Matrix3d m1 = new Matrix3d(mat);
 		Matrix3d m2 = new Matrix3d();
 		m2.transpose(m1);
@@ -158,7 +158,7 @@ public class MatrixHelper {
 	 * @param mat the Matrix3d to convert.
 	 * @return a Vector3d resulting radian rotations.  One possible solution.
 	 */
-	public static Vector3d matrixToEuler(Matrix3d mat) {
+	static public Vector3d matrixToEuler(Matrix3d mat) {
 		assert(isRotationMatrix(mat));
 		
 		double sy = Math.sqrt(mat.m00*mat.m00 + mat.m10*mat.m10);
@@ -183,7 +183,7 @@ public class MatrixHelper {
 	 * @param mat
 	 * @return a valid Euler solution to the matrix.
 	 */
-	public static Vector3d matrixToEuler(Matrix4d mat) {
+	static public Vector3d matrixToEuler(Matrix4d mat) {
 		Matrix3d m3 = new Matrix3d();
 		mat.get(m3);
 		return matrixToEuler(m3);
@@ -196,7 +196,7 @@ public class MatrixHelper {
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
 	 */
-	public static Matrix3d eulerToMatrix(Vector3d v) {
+	static public Matrix3d eulerToMatrix(Vector3d v) {
 		double c0 = Math.cos(v.x);		double s0 = Math.sin(v.x);
 		double c1 = Math.cos(v.y);		double s1 = Math.sin(v.y);
 		double c2 = Math.cos(v.z);		double s2 = Math.sin(v.z);
@@ -227,7 +227,7 @@ public class MatrixHelper {
 	 * @param result where to store the resulting matrix
 	 * @return True if the operation succeeds.  False if the inputs are bad or the operation fails. 
 	 */
-	public static boolean interpolate(final Matrix4d start,final Matrix4d end,double alpha,Matrix4d result) {
+	static public boolean interpolate(final Matrix4d start,final Matrix4d end,double alpha,Matrix4d result) {
 		if(alpha<0 || alpha>1) return false;
 		
 		// spherical interpolation (slerp) between the two matrix orientations
@@ -255,7 +255,7 @@ public class MatrixHelper {
 	}
 	
 	// cumulative multiplication of matrixes
-	public static void applyMatrix(GL2 gl2,Matrix4d pose) {
+	static public void applyMatrix(GL2 gl2,Matrix4d pose) {
 		double[] mat = {
 			pose.m00,pose.m10,pose.m20,pose.m30,
 			pose.m01,pose.m11,pose.m21,pose.m31,
@@ -266,7 +266,7 @@ public class MatrixHelper {
 		gl2.glMultMatrixd(mat, 0);	
 	} 
 	
-	public static void setMatrix(GL2 gl2,Matrix4d pose) {
+	static public void setMatrix(GL2 gl2,Matrix4d pose) {
 		double[] mat = {
 				pose.m00,pose.m10,pose.m20,pose.m30,
 				pose.m01,pose.m11,pose.m21,pose.m31,
@@ -284,7 +284,7 @@ public class MatrixHelper {
 	 * @param a the matrix to invert.
 	 * @return the result.
 	 */
-	public static double[][] invert(double a[][]) {
+	static public double[][] invert(double a[][]) {
 		double[][] inverse = new double[a.length][a.length];
 
 		// minors and cofactors
@@ -306,7 +306,23 @@ public class MatrixHelper {
 		return inverse;
 	}
 	
-	public static double determinant(double[][] matrix) {
+	static public double [][] transpose(double a[][]) {
+		if (a.length != a[0].length)
+			throw new IllegalStateException("invalid dimensions");
+		
+		double [][] b = a.clone();
+		int h = a.length;
+		
+		for(int y=0;y<h;y++) {
+			for(int x=0;x<h;x++) {
+				b[y][x] = a[x][y];
+			}
+		}
+		
+		return b;
+	}
+	
+	static public double determinant(double[][] matrix) {
 		if (matrix.length != matrix[0].length)
 			throw new IllegalStateException("invalid dimensions");
 
@@ -337,7 +353,7 @@ public class MatrixHelper {
 	 * @param a the matrix
 	 * @param index the pivoting order.
 	 */
-	public static void gaussian(double a[][], int index[]) {
+	static public void gaussian(double a[][], int index[]) {
 		int n = index.length;
 		double c[] = new double[n];
 
@@ -388,21 +404,19 @@ public class MatrixHelper {
 
 	/**
 	 * Method that multiplies two matrices and returns the result
-	 *
 	 * @param x first matrix
 	 * @param y second matrix
-	 *
 	 * @return result after multiplication
 	 */
-	public static int[][] multiplyMatrices (int[][] x, int[][] y) {
-		int[][] result;
+	static public double[][] multiplyMatrices (double[][] x, double[][] y) {
+		double[][] result;
 		int xColumns, xRows, yColumns, yRows;
 
 		xRows = x.length;
 		xColumns = x[0].length;
 		yRows = y.length;
 		yColumns = y[0].length;
-		result = new int[xRows][yColumns];
+		result = new double[xRows][yColumns];
 
 		if (xColumns != yRows) {
 			throw new IllegalArgumentException (
@@ -428,7 +442,7 @@ public class MatrixHelper {
 	 *
 	 * @return determinant of given matrix
 	 */
-	public static double matrixDeterminant (double[][] matrix) {
+	static public double matrixDeterminant (double[][] matrix) {
 		double temporary[][];
 		double result = 0;
 
@@ -461,7 +475,7 @@ public class MatrixHelper {
 	}
 
     // matrix-vector multiplication (y = A * x)
-    public static double[] multiply(double[][] a, double[] x) {
+    static public double[] multiply(double[][] a, double[] x) {
         int m = a.length;
         int n = a[0].length;
         if (x.length != n) throw new RuntimeException("Illegal matrix dimensions.");
@@ -472,7 +486,7 @@ public class MatrixHelper {
         return y;
     }
     
-	public static double[][] invertMatrix (double[][] matrix) {
+	static public double[][] invertMatrix (double[][] matrix) {
 		double[][] auxiliaryMatrix, invertedMatrix;
 		int[] index;
 
@@ -512,7 +526,7 @@ public class MatrixHelper {
 		return (invertedMatrix);
 	}
 
-	public static void transformToUpperTriangle (double[][] matrix, int[] index) {
+	static public void transformToUpperTriangle (double[][] matrix, int[] index) {
 		double[] c;
 		double c0, c1, pi0, pi1, pj;
 		int itmp, k;
@@ -573,7 +587,7 @@ public class MatrixHelper {
 	 * @param matrix matrix to print
 	 * @param id     what does the matrix contain?
 	 */
-	public static void printMatrix (int[][] matrix, int id) {
+	static public void printMatrix (int[][] matrix, int id) {
 		double doubleMatrix[][] = new double[matrix.length][matrix[0].length];
 
 		for (int i = 0; i < matrix.length; i++) {
@@ -591,7 +605,7 @@ public class MatrixHelper {
 	 * @param matrix matrix to print
 	 * @param id     what does the matrix contain?
 	 */
-	public static void printMatrix (double[][] matrix, int id) {
+	static public void printMatrix (double[][] matrix, int id) {
 		int cols, rows;
 
 		rows = matrix.length;
@@ -636,7 +650,7 @@ public class MatrixHelper {
 	 * @param to what I'm looking at
 	 * @return
 	 */
-	public static Matrix4d lookAt(final Vector3d from, final Vector3d to) {
+	static public Matrix4d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
 		Vector3d up = new Vector3d(0,0,1);
@@ -667,7 +681,7 @@ public class MatrixHelper {
 	 * @param to what I'm looking at
 	 * @return
 	 */
-	public static Matrix4d lookAt(final Vector3d from, final Vector3d to,final Vector3d up) {
+	static public Matrix4d lookAt(final Vector3d from, final Vector3d to,final Vector3d up) {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
 		
@@ -687,21 +701,21 @@ public class MatrixHelper {
 		return lookAt;
 	}
 
-	public static Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
-	public static Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
-	public static Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
-	public static Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
+	static public Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
+	static public Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
+	static public Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
+	static public Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
 
-	public static void setPosition(Matrix4d m,Vector3d v) {	m.m03=v.x;  m.m13=v.y;  m.m23=v.z;	}
-	public static void setXAxis(Matrix4d m,Vector3d v) {	m.m00=v.x;  m.m10=v.y;  m.m20=v.z;	}
-	public static void setYAxis(Matrix4d m,Vector3d v) {	m.m01=v.x;  m.m11=v.y;  m.m21=v.z;	}
-	public static void setZAxis(Matrix4d m,Vector3d v) {	m.m02=v.x;  m.m12=v.y;  m.m22=v.z;	}
+	static public void setPosition(Matrix4d m,Vector3d v) {	m.m03=v.x;  m.m13=v.y;  m.m23=v.z;	}
+	static public void setXAxis(Matrix4d m,Vector3d v) {	m.m00=v.x;  m.m10=v.y;  m.m20=v.z;	}
+	static public void setYAxis(Matrix4d m,Vector3d v) {	m.m01=v.x;  m.m11=v.y;  m.m21=v.z;	}
+	static public void setZAxis(Matrix4d m,Vector3d v) {	m.m02=v.x;  m.m12=v.y;  m.m22=v.z;	}
 
 	/**
 	 * normalize the 3x3 component of the mTarget matrix.  Do not affect position. 
 	 * @param mTarget the matrix that will be normalized.
 	 */
-	public static void normalize3(Matrix4d mTarget) {
+	static public void normalize3(Matrix4d mTarget) {
 		Matrix3d m3 = new Matrix3d();
 		Vector3d v3 = new Vector3d();
 		mTarget.get(v3);
@@ -711,14 +725,14 @@ public class MatrixHelper {
 		mTarget.setTranslation(v3);
 	}
 
-	public static Matrix4d createIdentityMatrix4() {
+	static public Matrix4d createIdentityMatrix4() {
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
 		return m;
 	}
 	
 	// see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_angle
-	public static Matrix3d getMatrixFromAxisAndRotation(Vector3d axis,double degrees) {
+	static public Matrix3d getMatrixFromAxisAndRotation(Vector3d axis,double degrees) {
 		Matrix3d m = new Matrix3d();
 		
 		double radians = Math.toRadians(degrees);
@@ -757,7 +771,7 @@ public class MatrixHelper {
 	 * @param qOut where to store the results
 	 */
 
-	public static void diagonalize(Matrix3d a,Matrix3d dOut,Matrix3d qOut) {
+	static public void diagonalize(Matrix3d a,Matrix3d dOut,Matrix3d qOut) {
 		Matrix3d d = new Matrix3d();
 		d.setIdentity();
 		Matrix3d q = new Matrix3d(a);
@@ -822,5 +836,40 @@ public class MatrixHelper {
 
 		dOut.set(d);
 		qOut.set(q);
+	}
+
+	/**
+	 * Use Quaternions to interpolate between two matrixes and estimate the distance needed to
+	 * travel the distance (both linear and rotational).
+	 * @param mStart matrix of start pose
+	 * @param mEnd matrix of end pose
+	 * @return 6 doubles that will be filled with the XYZ translation and UVW rotation.
+	 */
+	static public double[] getCartesianBetweenTwoMatrixes(final Matrix4d mStart,final Matrix4d mEnd) {
+		Vector3d p0 = new Vector3d();
+		Vector3d p1 = new Vector3d();
+		Vector3d dp = new Vector3d();
+		mStart.get(p0);
+		mEnd.get(p1);
+		dp.sub(p1,p0);
+
+		// get the 3x3 part of the matrixes
+		Matrix3d mStart3 = new Matrix3d();
+		Matrix3d mEnd3 = new Matrix3d();
+		mStart.set(mStart3);
+		mEnd.set(mEnd3);
+		// then use the 3x3 to get the quaternions
+		Quat4d q0 = new Quat4d();
+		Quat4d q1 = new Quat4d();
+		q0.set(mStart3);
+		q1.set(mEnd3);
+		// then get the difference in quaternions.  diff * q0 = q1 --> diff = q1 * invert(q0)
+		Quat4d qDiff = new Quat4d();
+		qDiff.mulInverse(q1,q0);
+		
+		// get the radian roll/pitch/yaw
+		double [] rpy = MathHelper.quatToEuler(qDiff);
+		
+		return new double[] { dp.x,dp.y,dp.z, -rpy[0],-rpy[1],-rpy[2] };
 	}
 }
