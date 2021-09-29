@@ -29,7 +29,7 @@ public class Sixi3Bone {
 	private double angleMax, angleMin;
 		
 	// model and relative offset from DH origin
-	public Shape shape;
+	private Shape shape;
 	
 	public DoubleEntity slider = new DoubleEntity("J",0);
 		
@@ -119,5 +119,9 @@ public class Sixi3Bone {
 	public void setName(String name) {
 		this.name = name;
 		slider.setName(name);
+	}
+
+	public Shape getShape() {
+		return shape;
 	}
 }
