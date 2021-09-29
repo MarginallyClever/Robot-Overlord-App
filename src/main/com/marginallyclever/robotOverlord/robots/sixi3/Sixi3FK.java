@@ -4,9 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -44,7 +42,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	private ArrayList<Sixi3Bone> bones = new ArrayList<Sixi3Bone>();
 	// visualize rotations?
 	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
-
+	
 	public Sixi3FK() {
 		super();
 		setName("Sixi3FK");
@@ -53,16 +51,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		for(int i=0;i<bones.size();++i) {
 			Sixi3Bone b = bones.get(i);
-			final int j=i;
-			b.slider.addPropertyChangeListener((evt)->{
-				double [] v = getAngles();
-				double d = b.slider.get();
-				if( v[j] != d ) {
-					v[j] = d;
-					setAngles(v);
-					updateSliders();
-				}
-			});
 			b.updateMatrix();
 		}
 	}
@@ -96,7 +84,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			current.mul(bone.getPose());
 			Matrix4d iWP = new Matrix4d(current);
 			iWP.invert();			
-			bone.shape.setPose(iWP);
+			bone.getShape().setPose(iWP);
 		}
 	}
 
@@ -126,7 +114,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			// draw model with local shape offset
 			bone.updateMatrix();
 			MatrixHelper.applyMatrix(gl2, bone.getPose());
-			bone.shape.render(gl2);
+			bone.getShape().render(gl2);
 		}
 		gl2.glPopMatrix();
 	}
@@ -247,22 +235,18 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		return m;
 	}
-	
+
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("FK","Forward Kinematics");
-		for( Sixi3Bone b : bones ) {
-			b.getView(view);
-		}
 		ViewElementButton button = view.addButton("Center all");
 		button.addPropertyChangeListener((evt)-> {
-			double [] v = new double[bones.size()];
+			double [] v = new double[bones.size()]; 
 			for(int i=0;i<bones.size();++i) {
 				Sixi3Bone b = bones.get(i);
 				v[i]=b.getAngleMiddle();
 			}
 			setAngles(v);
-			updateSliders();
 		});
 		view.add(showAngles);
 		view.popStack();
@@ -270,15 +254,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		super.getView(view);
 	}
 	
-	/**
-	 * Refresh the FK sliders in the GUI.
-	 */
-	protected void updateSliders() {
-		for( Sixi3Bone b : bones ) {
-			b.slider.set(b.theta);
-		}	
-	}
-
 	/**
 	 * 
 	 * @param list where to collect the information.  Must be {@link Sixi3FK#NUM_BONES} long.
@@ -346,12 +321,12 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			// add bone to current pose
 			currentBonePose.mul(bone.getPose());
 			
-			ArrayList<Cuboid> list2 = bone.shape.getCuboidList();
+			ArrayList<Cuboid> list2 = bone.getShape().getCuboidList();
 			for(Cuboid c : list2) {
 				Cuboid nc = new Cuboid();
 				nc.set(c);
 				// add current pose to cube pose and save that as cube pose.
-				cuboidAfter.mul(currentBonePose,bone.shape.getPose());
+				cuboidAfter.mul(currentBonePose,bone.getShape().getPose());
 				nc.setPose(cuboidAfter);
 				list.add(nc);
 			}
@@ -412,197 +387,10 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 		
 		setAngles(v);
-		updateSliders();
 		
 		return true;
 	}
 	
-	/**
-	 * Given the current pose of the robot, find the approximate jacobian, which
-	 * describe the relationship between joint velocity and cartesian velocity.
-	 * @See <a href='https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346'>Robot Academy tutorial</a>
-	 * @param jacobian 
-	 * 	a 6x6 matrix that will be filled with the jacobian.  
-	 *  The first three columns are translation component. 
-	 *  The last three columns are the rotation component.
-	 */
-	public void getApproximateJacobian(double [][] jacobian) {
-		double ANGLE_STEP_SIZE_DEGREES=0.001;  // degrees
-		
-		double [] oldAngles = getAngles();
-		double [] newAngles = new double[oldAngles.length];
-		
-		Matrix4d T = getEndEffector();
-		Matrix4d Tnew;		
-		
-		// for all adjustable joints
-		for(int i=0;i<bones.size();++i) {
-			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
-			for(int j=0;j<bones.size();++j) {
-				newAngles[j]=oldAngles[j];
-			}
-			newAngles[i]+=ANGLE_STEP_SIZE_DEGREES;
-			setAngles(newAngles);
-			
-			// Tnew will be different from T because of the changes in setPoseFK().
-			Tnew = getEndEffector();
-			
-			// use the finite difference in the two matrixes
-			// aka the approximate the rate of change (aka the integral, aka the velocity)
-			// in one column of the jacobian matrix at this position.
-			Matrix4d dT = new Matrix4d();
-			dT.sub(Tnew,T);
-			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
-			
-			jacobian[i][0]=dT.m03;
-			jacobian[i][1]=dT.m13;
-			jacobian[i][2]=dT.m23;
-
-			// find the rotation part
-			// these initialT and initialTd were found in the comments on
-			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
-			// and used to confirm that our skew-symmetric matrix match theirs.
-			/*
-			double[] initialT = {
-					 0,  0   , 1   ,  0.5963,
-					 0,  1   , 0   , -0.1501,
-					-1,  0   , 0   , -0.01435,
-					 0,  0   , 0   ,  1 };
-			double[] initialTd = {
-					 0, -0.01, 1   ,  0.5978,
-					 0,  1   , 0.01, -0.1441,
-					-1,  0   , 0   , -0.01435,
-					 0,  0   , 0   ,  1 };
-			T.set(initialT);
-			Td.set(initialTd);
-			dT.sub(Td,T);
-			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//*/
-			
-			//Log.message("T="+T);
-			//Log.message("Td="+Td);
-			//Log.message("dT="+dT);
-			Matrix3d T3 = new Matrix3d(
-					T.m00,T.m01,T.m02,
-					T.m10,T.m11,T.m12,
-					T.m20,T.m21,T.m22);
-			//Log.message("R="+R);
-			Matrix3d dT3 = new Matrix3d(
-					dT.m00,dT.m01,dT.m02,
-					dT.m10,dT.m11,dT.m12,
-					dT.m20,dT.m21,dT.m22);
-			//Log.message("dT3="+dT3);
-			Matrix3d skewSymmetric = new Matrix3d();
-			
-			T3.transpose();  // inverse of a rotation matrix is its transpose
-			skewSymmetric.mul(dT3,T3);
-			
-			//Log.message("SS="+skewSymmetric);
-			//[  0 -Wz  Wy]
-			//[ Wz   0 -Wx]
-			//[-Wy  Wx   0]
-			
-			jacobian[i][3]=skewSymmetric.m12;
-			jacobian[i][4]=skewSymmetric.m20;
-			jacobian[i][5]=skewSymmetric.m01;
-		}
-		
-		// undo our changes.
-		setAngles(oldAngles);
-	}
-	
-	/**
-	 * @param jacobian
-	 *		the 6x6 jacobian matrix.
-	 * @param jointVelocity 
-	 * 		joint velocity in degrees.  
-	 * @param cartesianVelocity 
-	 * 		6 doubles - the XYZ translation and UVW rotation forces on the end effector.
-	 *		Will be filled with new values
-	 */
-	public void getCartesianFromJoint(final double [][] jacobian, final double [] jointVelocity, double [] cartesianVelocity) {
-		// vector-matrix multiplication (y = x^T A)
-		int j,k;
-		double sum;
-		for(j = 0; j < 6; ++j) {
-			sum=0;
-			for(k = 0; k < 6; ++k) {
-				sum += jacobian[k][j] * Math.toRadians(jointVelocity[k]);
-			}
-			cartesianVelocity[j] = sum;
-		}
-	}
-	
-	/**
-	 * Use the jacobian to get the joint velocity from the cartesian velocity.
-	 * @param jacobian
-	 *		the 6x6 jacobian matrix.
-	 * @param cartesianVelocity 
-	 * 		6 doubles - the XYZ translation and UVW rotation forces on the end effector.
-	 * @param jointVelocity 
-	 * 		joint velocity in degrees.  Will be filled with the new velocity.
-	 * @return false if joint velocities have NaN values
-	 */
-	public boolean getJointFromCartesian(final double [][] jacobian, final double[] cartesianVelocity,double [] jointVelocity) {
-		double[][] inverseJacobian = MatrixHelper.invert(jacobian);
-		
-		// vector-matrix multiplication (y = x^T A)
-		int j,k;
-		double sum;
-		for(j = 0; j < 6; ++j) {
-			sum=0;
-			for(k = 0; k < 6; ++k) {
-				sum += inverseJacobian[k][j] * cartesianVelocity[k];
-			}
-			if(Double.isNaN(sum)) return false;
-			jointVelocity[j] = Math.toDegrees(sum);
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Use Quaternions to interpolate between two matrixes and estimate the velocity needed to
-	 * travel the distance (both linear and rotational) in the desired time.
-	 * @param mStart 
-	 * 	matrix of start pose
-	 * @param mEnd 
-	 * 	matrix of end pose
-	 * @param cartesianDistance
-	 *  6 doubles that will be filled with the XYZ translation and UVW rotation.
-	 */
-	public void getCartesianBetweenTwoMatrixes(final Matrix4d mStart,final Matrix4d mEnd,double[] cartesianDistance) {
-		Vector3d p0 = new Vector3d();
-		Vector3d p1 = new Vector3d();
-		Vector3d dp = new Vector3d();
-		mStart.get(p0);
-		mEnd.get(p1);
-		dp.sub(p1,p0);
-
-		// get the 3x3 part of the matrixes
-		Matrix3d mStart3 = new Matrix3d();
-		Matrix3d mEnd3 = new Matrix3d();
-		mStart.set(mStart3);
-		mEnd.set(mEnd3);
-		// then use the 3x3 to get the quaternions
-		Quat4d q0 = new Quat4d();
-		Quat4d q1 = new Quat4d();
-		q0.set(mStart3);
-		q1.set(mEnd3);
-		// then get the difference in quaternions.  diff * q0 = q1 --> diff = q1 * invert(q0)
-		Quat4d qDiff = new Quat4d();
-		qDiff.mulInverse(q1,q0);
-		
-		// get the radian roll/pitch/yaw
-		double [] rpy = MathHelper.quatToEuler(qDiff);
-		
-		cartesianDistance[0]=dp.x;
-		cartesianDistance[1]=dp.y;
-		cartesianDistance[2]=dp.z;
-		cartesianDistance[3]=-rpy[0];
-		cartesianDistance[4]=-rpy[1];
-		cartesianDistance[5]=-rpy[2];
-	}
-
 	public int getNumBones() {
 		return bones.size();
 	}
@@ -616,97 +404,10 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	 * It is a combination of the linear distance and the rotation distance (collectively known as the Twist)
 	 * @return the error term.
 	 */
-	public double distanceToTarget(final Matrix4d target) {
-		// Scale the "handles" used.  Bigger scale, greater rotation compensation.
-		final double GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE = 100;
-		
-		Matrix4d m = getEndEffector();
-		
-		// linear difference in centers
-		Vector3d c0 = new Vector3d();
-		Vector3d c1 = new Vector3d();
-		m.get(c0);
-		target.get(c1);
-		c1.sub(c0);
-		double dC = c1.length();
-		
-		// linear difference in X handles
-		Vector3d x0 = MatrixHelper.getXAxis(target);
-		Vector3d x1 = MatrixHelper.getXAxis(m);
-		x1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		x0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		x1.sub(x0);
-		double dX = x1.length();
-		
-		// linear difference in Y handles
-		Vector3d y0 = MatrixHelper.getYAxis(target);
-		Vector3d y1 = MatrixHelper.getYAxis(m);
-		y1.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		y0.scale(GRADIENT_DESCENT_ERROR_TERM_ROTATION_SCALE);
-		y1.sub(y0);
-		double dY = y1.length();		
-
-	    // now sum these to get the error term.
-		return dC+dX+dY;
-	}
-	
-	/**
-	 * 
-	 * @param target
-	 * @param angles
-	 * @param i
-	 * @param samplingDistance
-	 * @return the gradient
-	 */
-	private double partialGradient(Matrix4d target, double [] angles, int i, double samplingDistance) {
-		// get the current error term F.
-		double oldValue = angles[i];
-		double Fx = distanceToTarget(target);
-
-		// move F+D, measure again.
-		angles[i] += samplingDistance;
-		//double t0 = temp.getBone(i).getTheta();
-		setAngles(angles);
-		//double t1 = temp.getBone(i).getTheta();
-		double FxPlusD = distanceToTarget(target);
-		double gradient = (FxPlusD - Fx) / samplingDistance;
-		//System.out.println("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
-		
-		// reset the old value
-		angles[i] = oldValue;
-		setAngles(angles);
-		
-		return gradient;
-	}
-
-	/**
-	 * Use gradient descent to move the end effector closer to the target.  The process is iterative, might not reach the target,
-	 * and changes depending on the position when gradient descent began. 
-	 * @return distance to target
-	 * @param learningRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
-	 * @param threshold When error term is within threshold then stop. 
-	 * @param samplingDistance how big should the first step be?
-	 */
-	public boolean gradientDescent(Matrix4d target,double learningRate, double threshold, double samplingDistance) {
-		if(distanceToTarget(target)<threshold) return true;
-		
-		double [] angles = getAngles();
-		
-		// seems to work better descending from the finger than ascending from the base.
-		for( int i=getNumBones()-1; i>=0; --i ) {  // descending mode
-			//System.out.println("\tA angles["+i+"]="+angles[i]);
-			double gradient = partialGradient(target,angles,i,samplingDistance);
-			//System.out.println("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
-			angles[i] -= learningRate * gradient;
-			//System.out.println("\tC angles["+i+"]="+angles[i]);
-			setAngles(angles);
-			if(distanceToTarget(target)<threshold) {
-				return true;
-			}
-		}
-
-		// if you get here the robot did not reach its target.
-		// try tweaking your input parameters for better results.
-		return false;
+	public double getDistanceToTarget(final Matrix4d target) {
+		double [] d = MatrixHelper.getCartesianBetweenTwoMatrixes(getEndEffector(), target);
+		double sum=0;
+		for(int i=0;i<d.length;++i) sum+=d[i];
+		return sum;
 	}
 }
