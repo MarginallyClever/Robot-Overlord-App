@@ -5,15 +5,19 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.BorderLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
+import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.communications.NetworkSessionEvent;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.robots.sixi3.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3Bone;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
 
@@ -22,11 +26,8 @@ public class RobotUI extends JPanel {
 
 	private Sixi3IK mySixi3 = new Sixi3IK();
 	private TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
-	private JPanel angleReport;
-	private JPanel sixi3FKDrivePanel;
-	private JPanel cartesianReport;
-	private JPanel sixi3IKDrivePanel;
 	private JToolBar toolBar = getToolBar();
+	private CartesianReportPanel eeReport, eeTargetReport;
 
 	public RobotUI() {
 		this(new Sixi3IK());
@@ -37,18 +38,15 @@ public class RobotUI extends JPanel {
 
 		mySixi3 = sixi3;
 
-		angleReport = new AngleReportPanel(sixi3);
-		sixi3FKDrivePanel = new Sixi3FKDrivePanel(sixi3);
-		cartesianReport = new CartesianReportPanel(sixi3);
-		sixi3IKDrivePanel = new Sixi3IKDrivePanel(sixi3);
-
 		JPanel interior = getInteriorPanel();
 
 		this.setLayout(new BorderLayout());
 		this.add(toolBar, BorderLayout.PAGE_START);
 		this.add(interior, BorderLayout.CENTER);
 
-		sixi3.addPropertyChangeListener((e) -> sendGoto());
+		sixi3.addPropertyChangeListener((e) -> {
+			if(e.getPropertyName().contentEquals("ee")) sendGoto();	
+		});
 
 		chatInterface.addActionListener((e) -> {
 			switch (e.getID()) {
@@ -56,13 +54,11 @@ public class RobotUI extends JPanel {
 				onConnect();
 				break;
 			}
-
 		});
 	}
 
 	private JPanel getInteriorPanel() {
 		JPanel panel = new JPanel();
-
 		panel.setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -77,27 +73,55 @@ public class RobotUI extends JPanel {
 
 		panel.add(chatInterface, c);
 
+		chatInterface.setBorder(BorderFactory.createTitledBorder("RobotUI.chatInterface"));
+
 		c.gridheight = 1;
 		c.gridwidth = 1;
 		c.gridx = 1;
-		c.weightx = 0.25;
+		c.weightx = 0;
 		c.weighty = 0;
-
 		c.gridy = 0;
-		panel.add(angleReport, c);
+		panel.add(new AngleReportPanel(mySixi3), c);
+		c.gridx++;
+		panel.add(new AngleDrivePanel(mySixi3), c);
+		c.gridx--;
 		c.gridy++;
-		panel.add(sixi3FKDrivePanel, c);
-
+		panel.add(eeReport=new CartesianReportPanel("RobotUI.EndEffector"), c);
 		c.gridy++;
-		panel.add(cartesianReport, c);
-		c.gridy++;
-		panel.add(sixi3IKDrivePanel, c);
-
+		panel.add(eeTargetReport=new CartesianReportPanel("RobotUI.EndEffectorTarget"), c);
+		c.gridy--;
+		c.gridx++;
+		c.gridheight=2;
+		panel.add(new CartesianDrivePanel(mySixi3), c);
+		c.gridheight=1;
+		c.gridx--;
+		c.gridy+=2;
+		c.gridwidth = 2;
+		panel.add(new JacobianReportPanel(mySixi3), c);
 		c.gridy++;
 		c.weighty = 1;
 		panel.add(new JPanel(), c);
 
+		mySixi3.addPropertyChangeListener( (e)-> updateReports() );
+		
+		updateReports();
+		
 		return panel;
+	}
+	
+	private void updateReports() {
+		Matrix4d m0=mySixi3.getEndEffector();
+		eeReport.updateReport(m0);
+		Matrix4d m1=mySixi3.getEndEffectorTarget();
+		eeTargetReport.updateReport(m1);
+		double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, m1);
+		ApproximateJacobian aj = mySixi3.getApproximateJacobian();
+		try {
+			double [] jointDistance = aj.getJointFromCartesian(cartesianDistance);
+			System.out.println(jointDistance.toString());
+		} catch(Exception e) {
+			System.out.println("Failed to calculate jointDistance.");
+		}
 	}
 
 	private void onConnect() {
@@ -130,7 +154,7 @@ public class RobotUI extends JPanel {
 	private void processM114Reply(String message) {
 		message = message.substring(0, message.indexOf("Count"));
 		String[] majorParts = message.split("\b");
-		double[] angles = mySixi3.getFKValues();
+		double[] angles = mySixi3.getAngles();
 
 		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
 			Sixi3Bone bone = mySixi3.getBone(i);
@@ -145,7 +169,7 @@ public class RobotUI extends JPanel {
 				}
 			}
 		}
-		mySixi3.setFKValues(angles);
+		mySixi3.setAngles(angles);
 	}
 
 	private void sendGoto() {
@@ -162,27 +186,16 @@ public class RobotUI extends JPanel {
 		bar.setRollover(true);
 
 		JButton bESTOP = new JButton("EMERGENCY STOP");
-		JButton bGetAngles = new JButton("Tell me your angles");
-		JButton bSetHome = new JButton("You are at home");
-		JButton bGoHome = new JButton("Go home");
+		JButton bGetAngles = new JButton("M114");
+		JButton bSetHome = new JButton("Set Home");
+		JButton bGoHome = new JButton("Go Home");
 
 		bESTOP.setFont(getFont().deriveFont(Font.BOLD));
 
-		bESTOP.addActionListener((e) -> {
-			chatInterface.sendCommand("M112");
-		});
-
-		bGetAngles.addActionListener((e) -> {
-			sendGetPosition();
-		});
-
-		bSetHome.addActionListener((e) -> {
-			sendSetHome();
-		});
-
-		bGoHome.addActionListener((e) -> {
-			sendGoHome();
-		});
+		bESTOP.addActionListener((e) -> chatInterface.sendCommand("M112") );
+		bGetAngles.addActionListener((e) -> chatInterface.sendCommand("M114") );
+		bSetHome.addActionListener((e) -> sendSetHome() );
+		bGoHome.addActionListener((e) -> sendGoHome() );
 
 		bar.add(bESTOP);
 		bar.add(bGetAngles);
@@ -190,10 +203,6 @@ public class RobotUI extends JPanel {
 		bar.add(bGoHome);
 
 		return bar;
-	}
-
-	private void sendGetPosition() {
-		chatInterface.sendCommand("M114");
 	}
 
 	private void sendSetHome() {
@@ -208,7 +217,7 @@ public class RobotUI extends JPanel {
 	private void sendGoHome() {
 		String action = "G0";
 		Sixi3IK temp = new Sixi3IK();
-		double[] angles = temp.getFKValues();
+		double[] angles = temp.getAngles();
 
 		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
 			Sixi3Bone bone = mySixi3.getBone(i);
