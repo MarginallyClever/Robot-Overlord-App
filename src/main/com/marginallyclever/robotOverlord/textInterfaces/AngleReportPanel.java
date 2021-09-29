@@ -19,7 +19,7 @@ public class AngleReportPanel extends JPanel {
 		super();
 		
 		joint = new JSlider[sixi3.getNumBones()];
-		this.setBorder(BorderFactory.createTitledBorder("Joint angles"));
+		this.setBorder(BorderFactory.createTitledBorder("AngleReport"));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
