@@ -44,7 +44,7 @@ public class JacobianReportPanel extends JPanel {
 		ApproximateJacobian aj = sixi3.getApproximateJacobian();
 		for(int y=0;y<aj.jacobian.length;++y) {
 			for(int x=0;x<aj.jacobian[y].length;++x) {
-				table.setValueAt(String.format("%.5f", aj.jacobian[y][x]), y, x);
+				table.setValueAt(String.format("%.5f", aj.jacobian[x][y]), x, y);
 			}
 		}
 	}

@@ -27,7 +27,6 @@ public class ApproximateJacobian {
 		Matrix4d T = sixi3.getEndEffector();
 		Sixi3FK temp = new Sixi3FK();
 		
-		// for all adjustable joints
 		for(int i=0;i<sixi3.getNumBones();++i) {
 			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
 			double [] newAngles = sixi3.getAngles();
@@ -42,9 +41,9 @@ public class ApproximateJacobian {
 			dT.sub(Tnew,T);
 			dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
 			
-			jacobian[i][0]=dT.m03;
-			jacobian[i][1]=dT.m13;
-			jacobian[i][2]=dT.m23;
+			jacobian[0][i]=dT.m03;
+			jacobian[1][i]=dT.m13;
+			jacobian[2][i]=dT.m23;
 
 			// find the rotation part
 			// these initialT and initialTd were found in the comments on
@@ -89,9 +88,9 @@ public class ApproximateJacobian {
 			//[ Wz   0 -Wx]
 			//[-Wy  Wx   0]
 			
-			jacobian[i][3]=skewSymmetric.m12;
-			jacobian[i][4]=skewSymmetric.m20;
-			jacobian[i][5]=skewSymmetric.m01;
+			jacobian[3][i]=skewSymmetric.m12;
+			jacobian[4][i]=skewSymmetric.m20;
+			jacobian[5][i]=skewSymmetric.m01;
 		}
 	}
 	
