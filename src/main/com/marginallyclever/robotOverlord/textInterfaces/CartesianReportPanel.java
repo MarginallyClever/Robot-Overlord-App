@@ -1,62 +1,64 @@
 package com.marginallyclever.robotOverlord.textInterfaces;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.vecmath.Matrix4d;
-
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
 
 public class CartesianReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private JLabel x = new JLabel("",JLabel.RIGHT);
-	private JLabel y = new JLabel("",JLabel.RIGHT);
-	private JLabel z = new JLabel("",JLabel.RIGHT);
-	
-	public CartesianReportPanel(Sixi3IK sixi3) {
+	private JTable table;
+
+	public CartesianReportPanel(String title) {
 		super();
 		
-		this.setBorder(BorderFactory.createTitledBorder("Finger position"));
-		this.setLayout(new GridBagLayout());
+		table = new JTable(4,4) {
+			private static final long serialVersionUID = 1L;
+			DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=0;
-		c.weighty=0;
-		c.gridheight=1;
-		c.gridwidth=1;
-		c.anchor=GridBagConstraints.WEST;
+		    { // initializer block
+		        renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
+		    }
 
-		buildCartesianReportLine(this,c,x,"X");
-		buildCartesianReportLine(this,c,y,"Y");
-		buildCartesianReportLine(this,c,z,"Z");
+		    @Override
+		    public TableCellRenderer getCellRenderer (int arg0, int arg1) {
+		        return renderRight;
+		    }
+		};
 
-		sixi3.addPropertyChangeListener((e)-> {
-			Matrix4d m = sixi3.getEndEffector();
-			x.setText(StringHelper.formatDouble(m.m03));
-			y.setText(StringHelper.formatDouble(m.m13));
-			z.setText(StringHelper.formatDouble(m.m23));
-		});
+		this.setBorder(BorderFactory.createTitledBorder(title));
+		this.add((table));
+	}
+	public CartesianReportPanel() {
+		this("CartesianReport");
 	}
 	
-	private void buildCartesianReportLine(JPanel panel,GridBagConstraints c,JLabel field,String label) {
-		c.gridx=0;
-		c.weightx=0;
-		c.fill = GridBagConstraints.NONE;
-		panel.add(new JLabel(label),c);
-		
-		c.gridx=1;
-		c.weightx=1;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		panel.add(field,c);
-		
-		field.setEnabled(false);
-		
-		c.gridy++;
+	public void setTitle(String s) {
+		this.setBorder(BorderFactory.createTitledBorder(s));
+	}
+	
+	public void updateReport(Matrix4d m) {
+		table.setValueAt(String.format("%.3f", m.m00), 0, 0);
+		table.setValueAt(String.format("%.3f", m.m01), 0, 1);
+		table.setValueAt(String.format("%.3f", m.m02), 0, 2);
+		table.setValueAt(String.format("%.3f", m.m03), 0, 3);
+                                                           
+		table.setValueAt(String.format("%.3f", m.m10), 1, 0);
+		table.setValueAt(String.format("%.3f", m.m11), 1, 1);
+		table.setValueAt(String.format("%.3f", m.m12), 1, 2);
+		table.setValueAt(String.format("%.3f", m.m13), 1, 3);
+                                                           
+		table.setValueAt(String.format("%.3f", m.m20), 2, 0);
+		table.setValueAt(String.format("%.3f", m.m21), 2, 1);
+		table.setValueAt(String.format("%.3f", m.m22), 2, 2);
+		table.setValueAt(String.format("%.3f", m.m23), 2, 3);
+                                                           
+		table.setValueAt(String.format("%.3f", m.m30), 3, 0);
+		table.setValueAt(String.format("%.3f", m.m31), 3, 1);
+		table.setValueAt(String.format("%.3f", m.m32), 3, 2);
+		table.setValueAt(String.format("%.3f", m.m33), 3, 3);
 	}
 }
