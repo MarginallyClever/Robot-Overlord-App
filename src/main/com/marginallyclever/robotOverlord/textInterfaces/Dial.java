@@ -78,7 +78,6 @@ public class Dial extends JComponent {
 		return value;
 	}
 
-
 	public void setValue(int value) {
 		this.value = (value+360)%360;
 		repaint();
@@ -114,18 +113,20 @@ public class Dial extends JComponent {
 	}
 	
 	private void drawLabels(Graphics g, int radius) {
+		int inset = 4;
 		int v = radius/5;
-		int x = 2-radius;
+		int x = inset-radius;
+		int y = -radius+v/2 + inset; 
 		// -
-		g.drawLine(x,-radius+v/2,x+v,-radius+v/2);
+		g.drawLine(x,y,x+v,y);
 		// +
-		x = radius-2;
-		g.drawLine(x-v,-radius+v/2,x,-radius+v/2);
-		g.drawLine(x-v/2,-radius+0,x-v/2,-radius+v);
+		x = radius-inset;
+		g.drawLine(x-v,y,x,y);
+		g.drawLine(x-v/2,-radius+0+inset,x-v/2,-radius+v+inset);
 	}
 
 	private void drawTurnIndicator(Graphics g, int radius) {
-		radius-=4;
+		radius-=6;
 		double radians = Math.toRadians(value);
 		int x=(int)Math.round(Math.cos(radians)*radius);
 		int y=(int)Math.round(Math.sin(radians)*radius);
@@ -139,17 +140,18 @@ public class Dial extends JComponent {
 		
 		// shadow
 		int x=0;
-		int y=-1;
+		int y=-2;
+		g.setColor(Color.DARK_GRAY);
+		g.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
 		g.setColor(Color.GRAY);
-		g.fillArc(x-r, y-r, x+r*2, y+r*2, 0, 360);
+		g.drawArc(x-r, y-r, x+r*2, y+r*2, 180+45, 180);
 		g.setColor(getBackground());
-		// center
-		x=0;
-		y=-2;
-		g.fillArc(x-r, y-r, x+r*2, y+r*2, 0, 360);
 		// edge
-		g.setColor(Color.BLACK);
-		g.drawArc(x-r, y-r, x+r*2, y+r*2, 0, 360);
+		r-=3;
+		g.setColor(Color.DARK_GRAY);
+		g.drawArc(x-r, y-r, x+r*2, y+r*2, 180+45, 180);
+		g.setColor(Color.LIGHT_GRAY);
+		g.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
 	}
 
 	public static void main(String[] args) {
