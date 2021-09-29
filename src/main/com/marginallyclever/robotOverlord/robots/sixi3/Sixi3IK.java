@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.security.InvalidParameterException;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -25,16 +24,13 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @since 2021-02-24
  *
  */
-public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
-	/**
-	 * 
-	 */
+public class Sixi3IK extends PoseEntity {
 	private static final long serialVersionUID = -7778520191789995554L;
 
-	// target end effector pose
 	private Sixi3FK sixi3fk = new Sixi3FK();
 	private Sixi3FK gradientFK = new Sixi3FK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
+	
 	private DoubleEntity threshold = new DoubleEntity("Threshold",0.5);
 	private DoubleEntity samplingDistance = new DoubleEntity("Sampling distance (>0)",0.05);
 	private DoubleEntity learningRate = new DoubleEntity("Learning rate (0...1)",2.0);
@@ -46,16 +42,6 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 
 		addChild(eeTarget);
 		setEndEffectorTarget(getEndEffector());
-		
-		
-		addPropertyChangeListener(this);
-	}
-	
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
-		//Matrix4d m = (Matrix4d)evt.getNewValue();
-		//eeTarget.setPose(m);
 	}
 	
 	@Override
@@ -75,6 +61,12 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 		MatrixHelper.applyMatrix(gl2, getPose());
 		sixi3fk.render(gl2);
 		drawPathToTarget(gl2);
+		gl2.glPopMatrix();
+
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, getPose());
+		gl2.glColor4d(0,0,1,0.8);
+		gradientFK.render(gl2);
 		gl2.glPopMatrix();
 	}
 	
@@ -107,15 +99,16 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	 * @param samplingDistance how big should the first step be?
 	 */
 	private void gradientDescent(final Matrix4d target, final double threshold) {
-		double d0 = gradientFK.distanceToTarget(target);
+		double d0 = gradientFK.getDistanceToTarget(target);
 		if(d0<threshold) {
 			// target reached!
 			sixi3fk.setAngles(gradientFK.getAngles());
 		}
 		
-		gradientFK.gradientDescent(target,learningRateNow,threshold,samplingDistance.get());
+		GradientDescent gd = new GradientDescent(gradientFK);
+		gd.run(target,learningRateNow,threshold,samplingDistance.get());
 
-		double d1 = gradientFK.distanceToTarget(target);
+		double d1 = gradientFK.getDistanceToTarget(target);
 		if(d1>d0) {
 			learningRateNow*=0.95;
 		} else {
@@ -169,14 +162,13 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 
 			Matrix4d interpolated = new Matrix4d();
 			Matrix4d old = new Matrix4d(start);
-			double [][] jacobian = new double[6][6];
-			double [] cartesianDistance = new double[6];
 			//double [] cartesianDistanceCompare = new double[6];
-			double [] jointDistance = new double[sixi3fk.getNumBones()];
 
 			//pw.print("S"+start.toString()+"E"+end.toString());
 
 			for(double alpha=1;alpha<=STEPS;++alpha) {
+				pw.print((int)alpha+"\t");
+
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
 	
 				double [] jBefore = sixi3fk.getAngles();
@@ -186,22 +178,16 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 				gradientDescent(interpolated,threshold.get());
 				double [] jAfter = sixi3fk.getAngles();
 
-				if(useExact) {
-					//getExactJacobian(jacobian);
-				} else {
-					sixi3fk.getApproximateJacobian(jacobian);
-				}
-				
-				sixi3fk.getCartesianBetweenTwoMatrixes(old, interpolated, cartesianDistance);
+				double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(old, interpolated);
 				old.set(interpolated);
 	
-				boolean ok=sixi3fk.getJointFromCartesian(jacobian, cartesianDistance, jointDistance);
-				//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
-				// cartesianDistance and cartesianDistanceCompare should always match
-				// jointDistance[n] should match jAfter[n]-jBefore[n]
+				ApproximateJacobian aj = new ApproximateJacobian(sixi3fk);
+				try {
+					double [] jointDistance = aj.getJointFromCartesian(cartesianDistance);
+					//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
+					// cartesianDistance and cartesianDistanceCompare should always match
+					// jointDistance[n] should match jAfter[n]-jBefore[n]
 	
-				pw.print((int)alpha+"\t");
-				if(ok) {
 					/*
 					for(int i=0;i<6;++i) {
 						String add="";
@@ -224,7 +210,9 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 							+(jAfter[3]-jBefore[3])+"\t"
 							+(jAfter[4]-jBefore[4])+"\t"
 							+(jAfter[5]-jBefore[5])+"\t");
-				} else pw.println(" not ok");
+				} catch(Exception e) {
+					pw.println(" not ok");
+				}
 			}
 
 			pw.flush();
@@ -244,14 +232,13 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	}
 	
 	private void testTime(boolean useExact) {
-		double [][] jacobian = new double[6][6];
 		long start = System.nanoTime();
 
 		for(int i=0;i<1000;++i) {
 			if(useExact) {
 				//getExactJacobian(jacobian);
 			} else {
-				sixi3fk.getApproximateJacobian(jacobian);
+				new ApproximateJacobian(sixi3fk);
 			}
 		}
 		
@@ -270,17 +257,20 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 		return eeTarget.getPoseWorld();
 	}
 
-	public void setEndEffectorTarget(Matrix4d m) {
+	public void setEndEffectorTarget(Matrix4d m1) {
 		gradientFK.setAngles(sixi3fk.getAngles());
-		learningRateNow=learningRate.get();
-		eeTarget.setPoseWorld(m);
+		learningRateNow=0.001;
+		Matrix4d m0 = eeTarget.getPoseWorld();
+		eeTarget.setPoseWorld(m1);
+		
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"eeTarget",m0,m1));
 	}
 
-	public double[] getFKValues() {
+	public double[] getAngles() {
 		return sixi3fk.getAngles();
 	}
 
-	public boolean setFKValues(double[] list) throws InvalidParameterException {
+	public boolean setAngles(double[] list) {
 		return sixi3fk.setAngles(list);
 	}
 
@@ -296,5 +286,14 @@ public class Sixi3IK extends PoseEntity implements PropertyChangeListener {
 	public void addPropertyChangeListener(PropertyChangeListener p) {
 		super.addPropertyChangeListener(p);
 		sixi3fk.addPropertyChangeListener(p);
+	}
+
+	public ApproximateJacobian getApproximateJacobian() {
+		return new ApproximateJacobian(sixi3fk);
+	}
+
+
+	public double getDistanceToTarget(Matrix4d m4) {
+		return sixi3fk.getDistanceToTarget(m4);
 	}	
 }
