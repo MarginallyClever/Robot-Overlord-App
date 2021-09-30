@@ -307,18 +307,17 @@ public class MatrixHelper {
 	}
 	
 	static public double [][] transpose(double a[][]) {
-		if (a.length != a[0].length)
-			throw new IllegalStateException("invalid dimensions");
-		
-		double [][] b = a.clone();
 		int h = a.length;
+		int w = a[0].length;
 		
+		double [][] b = createMatrix(w,h);
+	
 		for(int y=0;y<h;y++) {
-			for(int x=0;x<h;x++) {
-				b[y][x] = a[x][y];
+			for(int x=0;x<w;x++) {
+				b[x][y] = a[y][x];
 			}
 		}
-		
+	
 		return b;
 	}
 	
@@ -856,8 +855,8 @@ public class MatrixHelper {
 		// get the 3x3 part of the matrixes
 		Matrix3d mStart3 = new Matrix3d();
 		Matrix3d mEnd3 = new Matrix3d();
-		mStart.set(mStart3);
-		mEnd.set(mEnd3);
+		mStart.get(mStart3);
+		mEnd.get(mEnd3);
 		// then use the 3x3 to get the quaternions
 		Quat4d q0 = new Quat4d();
 		Quat4d q1 = new Quat4d();
@@ -871,5 +870,13 @@ public class MatrixHelper {
 		double [] rpy = MathHelper.quatToEuler(qDiff);
 		
 		return new double[] { dp.x,dp.y,dp.z, -rpy[0],-rpy[1],-rpy[2] };
+	}
+
+	public static double[][] createMatrix(int rows, int cols) {
+		double [][] m = new double[rows][];
+		for(int i=0;i<rows;++i) {
+			m[i]=new double[cols];
+		}
+		return m;
 	}
 }
