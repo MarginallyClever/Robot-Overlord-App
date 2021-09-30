@@ -19,15 +19,19 @@ public class ApproximateJacobian {
 	 * The first three columns are translation component. 
 	 * The last three columns are the rotation component.
 	 */
-	public double [][] jacobian = new double[6][6];
+	public double [][] jacobian;
+	
 	
 	public ApproximateJacobian(Sixi3FK sixi3) {
 		mySixi3 = sixi3;
 		
 		Matrix4d T = sixi3.getEndEffector();
 		Sixi3FK temp = new Sixi3FK();
+
+		int DOF = sixi3.getNumBones();
+		jacobian = MatrixHelper.createMatrix(6,DOF);
 		
-		for(int i=0;i<sixi3.getNumBones();++i) {
+		for(int i=0;i<DOF;++i) {
 			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
 			double [] newAngles = sixi3.getAngles();
 			newAngles[i]+=ANGLE_STEP_SIZE_DEGREES;
@@ -148,17 +152,17 @@ public class ApproximateJacobian {
 	 */
 	public double [] getJointFromCartesian(final double[] cartesianVelocity) throws Exception {
 		double [][] inverseJacobian = getInverseJacobian();
-		double [] jointVelocity = new double[6];
+		double [] jointVelocity = new double[mySixi3.getNumBones()];
 		
 		// vector-matrix multiplication (y = x^T A)
 		double sum;
-		for(int j=0;j<6;++j) {
+		for(int j=0;j<mySixi3.getNumBones();++j) {
 			sum=0;
 			for(int k=0;k<6;++k) {
-				sum += inverseJacobian[k][j] * cartesianVelocity[k];
+				sum += inverseJacobian[j][k] * cartesianVelocity[k];
 			}
 			if(Double.isNaN(sum)) {
-				throw new Exception("impossible!");
+				throw new Exception("Bad inverse Jacobian.  Singularity?");
 			}
 			jointVelocity[j] = Math.toDegrees(sum);
 		}
