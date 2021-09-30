@@ -24,10 +24,8 @@ public class SixiDemo implements Demo {
 		Entity sc = ro.getScene();
 		
 		// adjust default camera
-		ro.camera.setPosition(new Vector3d(40,-91,106));
-		ro.camera.setPan(-16);
-		ro.camera.setTilt(53);
-		ro.camera.setZoom(100);
+		ro.camera.setPosition(new Vector3d(50,-50,70));
+		ro.camera.lookAt(new Vector3d(0,0,-20));
 		ro.camera.update(0);
 		
 		// add some lights
@@ -62,6 +60,7 @@ public class SixiDemo implements Demo {
 		Shape table = new Shape("Table","/table.stl");
 		sc.addChild(table);
 		table.setPosition(new Vector3d(0,0,-0.75));
+		table.getMaterial().setDiffuseColor(255f/255f,192f/255f,128f/255f,1f);
 		//box.setSize(160,1,110);
 		//box.setPosition(new Vector3d(59.5,0,-2.5));
 /*
@@ -75,12 +74,12 @@ public class SixiDemo implements Demo {
     	// add a sixi robot
 		//Sixi2 sixi2=new Sixi2();
 		//addChild(sixi2);
-		Sixi3FK s0 = new Sixi3FK();
-		sc.addChild(s0);
+		//Sixi3FK s0 = new Sixi3FK();
+		//sc.addChild(s0);
 		
 		Sixi3IK s1 = new Sixi3IK();
 		sc.addChild(s1);
-		s1.setPosition(new Vector3d(50,0,0));
+		//s1.setPosition(new Vector3d(50,0,0));
 		
 		
 		//sixi2.setPosition(new Vector3d(78,-25,0));
