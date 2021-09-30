@@ -76,7 +76,6 @@ public class TextInterfaceWithHistory extends JPanel {
 	public void setEnabled(boolean state) {
 		super.setEnabled(state);
 		myInterface.setEnabled(state);
-		myHistory.setEnabled(state);
 	}
 
 	public static void main(String[] args) {
