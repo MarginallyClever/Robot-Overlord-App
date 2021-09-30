@@ -115,7 +115,6 @@ public class CartesianDrivePanel extends JPanel {
 		}
 		
 		iterateNewtonRaphson(sixi3,m4,20);
-		//sixi3.setEndEffectorTarget(m4);
 	}
 
 	private void iterateNewtonRaphson(Sixi3IK sixi3, Matrix4d m4,int i) {
@@ -125,18 +124,23 @@ public class CartesianDrivePanel extends JPanel {
 		temp.setEndEffectorTarget(m4);
 		try {
 			while(i-->=0) {
-				newtonRaphson(temp,m4);
-				if(temp.getDistanceToTarget(m4)<0.001) break;
+				newtonRaphson(temp);
+				if(temp.getDistanceToTarget(m4)<0.001) {
+					System.out.println("iterateNewtonRaphson hit");
+					sixi3.setAngles(temp.getAngles());
+					sixi3.setEndEffectorTarget(m4);
+					break;
+				}
 			}
-			sixi3.setAngles(temp.getAngles());
 		} catch(Exception e) {
 			System.out.println("iterateNewtonRaphson exception: "+e.getLocalizedMessage());
+			e.printStackTrace();
 		}
 		System.out.println("iterateNewtonRaphson ends ("+i+")");
 	}
 
 	// http://motion.pratt.duke.edu/RoboticSystems/InverseKinematics.html#mjx-eqn-eqNewtonRaphson
-	private void newtonRaphson(Sixi3IK sixi3, Matrix4d m4) throws Exception {
+	private void newtonRaphson(Sixi3IK sixi3) throws Exception {
 		Matrix4d m0=sixi3.getEndEffector();
 		Matrix4d m1=sixi3.getEndEffectorTarget();
 		System.out.print("m0="+m0);
