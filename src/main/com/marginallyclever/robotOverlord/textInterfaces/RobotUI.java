@@ -173,7 +173,7 @@ public class RobotUI extends JPanel {
 	}
 
 	private void sendGoto() {
-		String action = "G0";
+		String action = "G1";
 		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
 			Sixi3Bone bone = mySixi3.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
@@ -207,23 +207,19 @@ public class RobotUI extends JPanel {
 
 	private void sendSetHome() {
 		String action = "G92";
-		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
-			Sixi3Bone bone = mySixi3.getBone(i);
+		Sixi3IK temp = new Sixi3IK();
+		for (int i = 0; i < temp.getNumBones(); ++i) {
+			Sixi3Bone bone = temp.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
 		chatInterface.sendCommand(action);
+		mySixi3.setAngles(temp.getAngles());
 	}
 
 	private void sendGoHome() {
-		String action = "G0";
 		Sixi3IK temp = new Sixi3IK();
-		double[] angles = temp.getAngles();
-
-		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
-			Sixi3Bone bone = mySixi3.getBone(i);
-			action += " " + bone.getName() + StringHelper.formatDouble(angles[i]);
-		}
-		chatInterface.sendCommand(action);
+		mySixi3.setAngles(temp.getAngles());
+		mySixi3.setEndEffectorTarget(mySixi3.getEndEffector());
 	}
 
 	// TEST
