@@ -16,8 +16,10 @@ public class JacobianReportPanel extends JPanel {
 	
 	public JacobianReportPanel(Sixi3IK sixi3) {
 		super();
-	
-		table = new JTable(6,6) {
+
+		ApproximateJacobian aj = sixi3.getApproximateJacobian();
+		
+		table = new JTable(aj.jacobian.length,aj.jacobian[0].length) {
 			private static final long serialVersionUID = 1L;
 			DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
 
@@ -44,7 +46,7 @@ public class JacobianReportPanel extends JPanel {
 		ApproximateJacobian aj = sixi3.getApproximateJacobian();
 		for(int y=0;y<aj.jacobian.length;++y) {
 			for(int x=0;x<aj.jacobian[y].length;++x) {
-				table.setValueAt(String.format("%.5f", aj.jacobian[x][y]), x, y);
+				table.setValueAt(String.format("%.5f", aj.jacobian[y][x]), y, x);
 			}
 		}
 	}
