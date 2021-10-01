@@ -1,10 +1,8 @@
 package com.marginallyclever.robotOverlord.textInterfaces;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,6 +21,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -32,48 +31,58 @@ import javax.swing.event.ListSelectionListener;
 import com.marginallyclever.convenience.log.Log;
 
 public class ConversationHistoryList extends JPanel {
-	/**
-	 * 
-	 */	
 	private static final long serialVersionUID = 6287436679006933618L;
-	
 	private DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
 	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
-	private JScrollPane scrollPane = new JScrollPane(listView);
-	
-	// TODO use JToolBar?
-	private JButton bNew = new JButton();
-	private JButton bSave = new JButton();
-	private JButton bLoad = new JButton();
-	private JButton bDelete = new JButton();
-	private JPanel editPanel = setupEditPanel();
-	
 	private JFileChooser chooser = new JFileChooser();
+
+	private JButton bNew = new JButton("New");
+	private JButton bSave = new JButton("Save");
+	private JButton bLoad = new JButton("Load");
+	private JButton bDelete = new JButton("Delete");
+
 	
 	public ConversationHistoryList() {
 		super();
-		
 		createCellRenderingSystem();
+
+		JScrollPane scrollPane = new JScrollPane(listView);
+		scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		setLayout(new GridBagLayout());
+		this.setBorder(BorderFactory.createTitledBorder("ConversationHistoryList"));
+		this.setLayout(new BorderLayout());
+		this.add(getToolBar(), BorderLayout.PAGE_START);
+		this.add(scrollPane, BorderLayout.CENTER);
+	}
+	
+	private JToolBar getToolBar() {
+		JToolBar bar = new JToolBar();
+		bar.setRollover(true);
 
-		GridBagConstraints c = new GridBagConstraints();
+		bar.add(bNew);
+		bar.add(bLoad);
+		bar.add(bSave);
+		bar.add(bDelete);
 		
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx=0;
-		c.gridy=0;
-		c.weightx=1;
-		c.weighty=0;
-		add(editPanel,c);
+		bNew.addActionListener( (e) -> runNewAction() );
+		bLoad.addActionListener( (e) -> runLoadAction() );
+		bSave.addActionListener( (e) -> runSaveAction() );
+		bDelete.addActionListener( (e) -> runDeleteAction() );
 
-		c.gridy++;
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx=1;
-		c.weighty=1;
-		add(scrollPane,c);
-		scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		listView.addListSelectionListener((e)->{
+			if(e.getValueIsAdjusting()) return;
+			updateDeleteButtonAccess(bDelete);
+		});
+		
+		updateDeleteButtonAccess(bDelete);
+		
+		return bar;
+	}
+
+	private void updateDeleteButtonAccess(JButton bDelete) {
+		bDelete.setEnabled( listView.getSelectedIndex() != -1 );
 	}
 	
 	private void createCellRenderingSystem() {
@@ -97,72 +106,51 @@ public class ConversationHistoryList extends JPanel {
 			
 		});
 	}
-	
-	private JPanel setupEditPanel() {
-		final JPanel panel = new JPanel();
-		
-		bNew.setText("Clear");
-		bNew.addActionListener( (e) -> listModel.clear() );
-		
-		bLoad.setText("Load");
-		bLoad.addActionListener( (e) -> runLoadAction() );
-		
-		bSave.setText("Save");
-		bSave.addActionListener( (e) -> runSaveAction() );
-		
-		bDelete.setText("Delete");
-		bDelete.addActionListener( (e) -> runDeleteAction() );
-		
-		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
-		panel.add(bNew);
-		panel.add(bLoad);
-		panel.add(bSave);
-		panel.add(bDelete);
 
-		listView.addListSelectionListener((e)->{
-			if(e.getValueIsAdjusting()) return;
-			bDelete.setEnabled( listView.getSelectedIndex() != -1 );
-		});
-		
-		return panel;
+	private void runNewAction() {
+		listModel.clear();
 	}
-
+	
 	private void runLoadAction() {
 		if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			File file = chooser.getSelectedFile();
-			listModel.clear();
 			try {
-				BufferedReader fileReader = new BufferedReader(new FileReader(file));
-				int size=listModel.getSize();
-				for(int i=0;i<size;++i) {
-					String str = fileReader.readLine();
-					addElement("You",str);
-				}
-				fileReader.close();
+				loadFile(chooser.getSelectedFile());
 			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"Load error",JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"runLoadAction error",JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
 			}
 		}
 	}
 	
-	private void runSaveAction() {
-		if(chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
-		
-		File file = chooser.getSelectedFile();
-		try {
-			BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
-			int size=listModel.getSize();
-			for(int i=0;i<size;++i) {
-				String str = listModel.get(i).toString();
-				if(!str.endsWith("\n")) str+="\n";
-				fileWriter.write(str);
-			}
-			fileWriter.close();
-		} catch (IOException e1) {
-			JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"Save error",JOptionPane.ERROR_MESSAGE);
-			e1.printStackTrace();
+	private void loadFile(File file) throws IOException {
+		BufferedReader fileReader = new BufferedReader(new FileReader(file));
+		String line;
+		while((line = fileReader.readLine()) != null) {
+			addElement("You",line);
 		}
+		fileReader.close();
+	}
+	
+	private void runSaveAction() {
+		if(chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			try {
+				saveFile(chooser.getSelectedFile());
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"runSaveAction error",JOptionPane.ERROR_MESSAGE);
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	private void saveFile(File file) throws IOException {
+		BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
+		int size=listModel.getSize();
+		for(int i=0;i<size;++i) {
+			String str = listModel.get(i).toString();
+			if(!str.endsWith("\n")) str+="\n";
+			fileWriter.write(str);
+		}
+		fileWriter.close();
 	}
 	
 	private void runDeleteAction() {
@@ -174,7 +162,7 @@ public class ConversationHistoryList extends JPanel {
 	}
 
 	public void clear() {
-		listModel.clear();
+		runNewAction();
 	}
 	
 	public void addListSelectionListener(ListSelectionListener listener) {
