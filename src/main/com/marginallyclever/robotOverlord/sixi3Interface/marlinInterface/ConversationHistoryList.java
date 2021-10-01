@@ -1,12 +1,11 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.io.BufferedReader;
+import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -36,10 +35,8 @@ public class ConversationHistoryList extends JPanel {
 	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
 	private JFileChooser chooser = new JFileChooser();
 
-	private JButton bNew = new JButton("New");
+	private JButton bClear = new JButton("Clear");
 	private JButton bSave = new JButton("Save");
-	private JButton bLoad = new JButton("Load");
-	private JButton bDelete = new JButton("Delete");
 
 	
 	public ConversationHistoryList() {
@@ -50,7 +47,8 @@ public class ConversationHistoryList extends JPanel {
 		scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+		listView.setPreferredSize(new Dimension(500,500));
+
 		this.setBorder(BorderFactory.createTitledBorder("ConversationHistoryList"));
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
@@ -61,30 +59,15 @@ public class ConversationHistoryList extends JPanel {
 		JToolBar bar = new JToolBar();
 		bar.setRollover(true);
 
-		bar.add(bNew);
-		bar.add(bLoad);
+		bar.add(bClear);
 		bar.add(bSave);
-		bar.add(bDelete);
 		
-		bNew.addActionListener( (e) -> runNewAction() );
-		bLoad.addActionListener( (e) -> runLoadAction() );
+		bClear.addActionListener( (e) -> runNewAction() );
 		bSave.addActionListener( (e) -> runSaveAction() );
-		bDelete.addActionListener( (e) -> runDeleteAction() );
-
-		listView.addListSelectionListener((e)->{
-			if(e.getValueIsAdjusting()) return;
-			updateDeleteButtonAccess(bDelete);
-		});
-		
-		updateDeleteButtonAccess(bDelete);
 		
 		return bar;
 	}
 
-	private void updateDeleteButtonAccess(JButton bDelete) {
-		bDelete.setEnabled( listView.getSelectedIndex() != -1 );
-	}
-	
 	private void createCellRenderingSystem() {
 		listView.setCellRenderer(new ListCellRenderer<ConversationEvent>() {
 			private DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer(); 
@@ -111,26 +94,6 @@ public class ConversationHistoryList extends JPanel {
 		listModel.clear();
 	}
 	
-	private void runLoadAction() {
-		if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			try {
-				loadFile(chooser.getSelectedFile());
-			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"runLoadAction error",JOptionPane.ERROR_MESSAGE);
-				e1.printStackTrace();
-			}
-		}
-	}
-	
-	private void loadFile(File file) throws IOException {
-		BufferedReader fileReader = new BufferedReader(new FileReader(file));
-		String line;
-		while((line = fileReader.readLine()) != null) {
-			addElement("You",line);
-		}
-		fileReader.close();
-	}
-	
 	private void runSaveAction() {
 		if(chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			try {
@@ -153,14 +116,6 @@ public class ConversationHistoryList extends JPanel {
 		fileWriter.close();
 	}
 	
-	private void runDeleteAction() {
-		int i = listView.getSelectedIndex();
-		if(i==-1) return;
-		listModel.remove(i);
-		if(i>=listModel.getSize()) i = listModel.getSize()-1; 
-		listView.setSelectedIndex(i);
-	}
-
 	public void clear() {
 		runNewAction();
 	}
@@ -182,16 +137,6 @@ public class ConversationHistoryList extends JPanel {
 		listView.ensureIndexIsVisible(listModel.getSize()-1);
 	}
 	
-	@Override
-	public void setEnabled(boolean state) {
-		super.setEnabled(state);
-		listView.setEnabled(state);
-		bNew.setEnabled(state);
-		bSave.setEnabled(state);
-		bLoad.setEnabled(state);
-		bDelete.setEnabled(state);
-	}
-
 	public static void main(String[] args) {
 		Log.start();
 		JFrame frame = new JFrame("TextInterfaceWithHistory");

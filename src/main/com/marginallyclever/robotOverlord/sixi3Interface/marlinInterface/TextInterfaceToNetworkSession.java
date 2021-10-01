@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,7 +28,8 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 
 	public TextInterfaceToNetworkSession() {
 		super();
-		
+
+		this.setBorder(BorderFactory.createTitledBorder("TextInterfaceToNetworkSession"));
 		setLayout(new BorderLayout());
 		
 		add(myConnectionChoice,BorderLayout.NORTH);
@@ -49,8 +51,11 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		});
 		myConnectionChoice.addActionListener((e)->{
 			switch(e.getID()) {
-			case ChooseConnectionPanel.NEW_CONNECTION: 
+			case ChooseConnectionPanel.CONNECTION_OPENED: 
 				setNetworkSession(myConnectionChoice.getNetworkSession());
+				break;
+			case ChooseConnectionPanel.CONNECTION_CLOSED:
+				setNetworkSession(null);
 				break;
 			}
 			
@@ -86,10 +91,6 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		}
 	}
 	
-	public NetworkSession getNetworkSession() {
-		return myConnectionChoice.getNetworkSession();
-	}
-
 	// OBSERVER PATTERN
 	
 	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
@@ -107,6 +108,14 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		}
 	}
 
+	public void addNetworkSessionListener(NetworkSessionListener a) {
+		mySession.addListener(a);
+	}
+	
+	public void removeNetworkSessionListener(NetworkSessionListener a) {
+		mySession.removeListener(a);
+	}
+
 	// TEST 
 	
 	public static void main(String[] args) {
@@ -120,5 +129,9 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		frame.add(new TextInterfaceToNetworkSession());
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	public boolean getIsConnected() { 
+		return (mySession!=null && mySession.isOpen());
 	}
 }

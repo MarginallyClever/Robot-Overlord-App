@@ -1,6 +1,7 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
 import java.awt.Font;
+import java.awt.Color;
 import java.awt.BorderLayout;
 
 import javax.swing.JButton;
@@ -19,7 +20,14 @@ public class MarlinInterface extends JPanel {
 	private static final long serialVersionUID = -6388563393882327725L;
 
 	private Sixi3IK mySixi3;
+	private int lineNumber;
+
 	private TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
+
+	private JButton bESTOP = new JButton("EMERGENCY STOP");
+	private JButton bGetAngles = new JButton("M114");
+	private JButton bSetHome = new JButton("Set Home");
+	private JButton bGoHome = new JButton("Go Home");
 
 	public MarlinInterface(Sixi3IK sixi3) {
 		super();
@@ -36,8 +44,11 @@ public class MarlinInterface extends JPanel {
 
 		chatInterface.addActionListener((e) -> {
 			switch (e.getID()) {
-			case ChooseConnectionPanel.NEW_CONNECTION:
+			case ChooseConnectionPanel.CONNECTION_OPENED:
 				onConnect();
+				break;
+			case ChooseConnectionPanel.CONNECTION_CLOSED:
+				updateButtonAccess();
 				break;
 			}
 		});
@@ -45,10 +56,14 @@ public class MarlinInterface extends JPanel {
 
 	private void onConnect() {
 		setupListener();
+		
+		lineNumber=0;
+		
 		// you are at the position I say you are at.
 		new java.util.Timer().schedule(new java.util.TimerTask() {
 			@Override
 			public void run() {
+				updateButtonAccess();
 				sendSetHome();
 			}
 		}, 1000 // 1s delay
@@ -56,15 +71,33 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void setupListener() {
-		chatInterface.getNetworkSession().addListener((evt) -> {
-			if (evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
-				String message = ((String) evt.data).trim();
+		chatInterface.addNetworkSessionListener((evt) -> {
+			if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
+				String message = ((String)evt.data).trim();
 				if (message.startsWith("X:") && message.contains("Count")) {
-					System.out.println("FOUND " + message);
+					//System.out.println("FOUND " + message);
 					processM114Reply(message);
 				}
 			}
 		});
+	}
+	
+	private void sendCommand(String str) {
+		lineNumber++;
+		str = "N"+lineNumber+" "+str;
+		str += generateChecksum(str);
+		
+		chatInterface.sendCommand(str);
+	}
+
+	private String generateChecksum(String line) {
+		byte checksum = 0;
+
+		for (int i = 0; i < line.length(); ++i) {
+			checksum ^= line.charAt(i);
+		}
+
+		return "*" + Integer.toString(checksum);
 	}
 
 	// format is normally X:0.00 Y:270.00 Z:0.00 U:270.00 V:180.00 W:0.00 Count X:0
@@ -92,36 +125,53 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void sendGoto() {
+		//System.out.println("MarlinInterface.sendGoto()");
 		String action = "G1";
 		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
 			Sixi3Bone bone = mySixi3.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
-		chatInterface.sendCommand(action);
+		sendCommand(action);
 	}
 
 	private JToolBar getToolBar() {
 		JToolBar bar = new JToolBar();
 		bar.setRollover(true);
 
-		JButton bESTOP = new JButton("EMERGENCY STOP");
-		JButton bGetAngles = new JButton("M114");
-		JButton bSetHome = new JButton("Set Home");
-		JButton bGoHome = new JButton("Go Home");
-
 		bESTOP.setFont(getFont().deriveFont(Font.BOLD));
+		bESTOP.setForeground(Color.RED);
 
-		bESTOP.addActionListener((e) -> chatInterface.sendCommand("M112") );
-		bGetAngles.addActionListener((e) -> chatInterface.sendCommand("M114") );
+		bESTOP.addActionListener((e) -> sendESTOP() );
+		bGetAngles.addActionListener((e) -> sendGetPosition() );
 		bSetHome.addActionListener((e) -> sendSetHome() );
 		bGoHome.addActionListener((e) -> sendGoHome() );
 
 		bar.add(bESTOP);
+		bar.addSeparator();
 		bar.add(bGetAngles);
 		bar.add(bSetHome);
 		bar.add(bGoHome);
+		
+		updateButtonAccess();
 
 		return bar;
+	}
+
+	private void sendESTOP() {
+		sendCommand("M112");
+	}
+
+	private void sendGetPosition() {
+		sendCommand("M114");
+	}
+
+	private void updateButtonAccess() {
+		boolean isConnected = chatInterface.getIsConnected();
+
+		bESTOP.setEnabled(isConnected);
+		bGetAngles.setEnabled(isConnected);
+		bSetHome.setEnabled(isConnected);
+		bGoHome.setEnabled(isConnected);
 	}
 
 	private void sendSetHome() {
@@ -131,7 +181,7 @@ public class MarlinInterface extends JPanel {
 			Sixi3Bone bone = temp.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
-		chatInterface.sendCommand(action);
+		sendCommand(action);
 		mySixi3.setAngles(temp.getAngles());
 	}
 

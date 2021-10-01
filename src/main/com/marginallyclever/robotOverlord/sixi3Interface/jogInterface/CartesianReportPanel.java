@@ -1,12 +1,19 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.jogInterface;
+
+import java.awt.BorderLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.vecmath.Matrix4d;
+
+import com.marginallyclever.convenience.log.Log;
 
 public class CartesianReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -14,28 +21,55 @@ public class CartesianReportPanel extends JPanel {
 
 	public CartesianReportPanel(String title) {
 		super();
+
+		DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
+        renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
 		
 		table = new JTable(4,4) {
 			private static final long serialVersionUID = 1L;
-			DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
-
-		    { // initializer block
-		        renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
-		    }
-
+			
 		    @Override
 		    public TableCellRenderer getCellRenderer (int arg0, int arg1) {
 		        return renderRight;
 		    }
 		};
-
-		this.setBorder(BorderFactory.createTitledBorder(title));
-		this.add((table));
+		
+		//setColumnNames();
+		
+		this.setBorder(BorderFactory.createTitledBorder(/*BorderFactory.createEmptyBorder(),*/title));
+		this.setLayout(new BorderLayout());
+		this.add(/*new JScrollPane*/(table),BorderLayout.CENTER);
+		table.setPreferredScrollableViewportSize(table.getPreferredSize());
+		table.setFillsViewportHeight(false);
 	}
+
+	@SuppressWarnings("unused")
+	private void setColumnNames() {
+		DefaultTableCellRenderer renderHeaderRight = (DefaultTableCellRenderer)table.getTableHeader().getDefaultRenderer();
+		renderHeaderRight.setHorizontalAlignment(SwingConstants.RIGHT);
+		table.getTableHeader().setDefaultRenderer(renderHeaderRight);
+		
+		TableColumnModel tcm = table.getColumnModel();
+		tcm.getColumn(0).setHeaderValue( "X" );
+		tcm.getColumn(1).setHeaderValue( "Y" );
+		tcm.getColumn(2).setHeaderValue( "Z" );
+		tcm.getColumn(3).setHeaderValue( "-" );
+	}
+
 	public CartesianReportPanel() {
 		this("CartesianReport");
 	}
 	
+	public CartesianReportPanel(String title,Matrix4d m) {
+		this(title);
+		updateReport(m);
+	}
+	
+	public CartesianReportPanel(Matrix4d m) {
+		this();
+		updateReport(m);
+	}
+
 	public void setTitle(String s) {
 		this.setBorder(BorderFactory.createTitledBorder(s));
 	}
@@ -60,5 +94,25 @@ public class CartesianReportPanel extends JPanel {
 		table.setValueAt(String.format("%.3f", m.m31), 3, 1);
 		table.setValueAt(String.format("%.3f", m.m32), 3, 2);
 		table.setValueAt(String.format("%.3f", m.m33), 3, 3);
+	}
+
+	// TEST
+
+	public static void main(String[] args) {
+		Log.start();
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		}
+
+		Matrix4d m = new Matrix4d();
+		m.setIdentity();
+		
+		JFrame frame = new JFrame("CartesianReportPanel");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(new CartesianReportPanel(m));
+		frame.pack();
+		frame.setVisible(true);
 	}
 }

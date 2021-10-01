@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -7,6 +7,9 @@ import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.sixi3Interface.jogInterface.JogInterface;
+import com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface.MarlinInterface;
+import com.marginallyclever.robotOverlord.sixi3Interface.programInterface.ProgramInterface;
 
 public class Sixi3Interface extends JPanel {
 	private static final long serialVersionUID = 1L;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,7 +8,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import com.marginallyclever.convenience.log.Log;
@@ -23,10 +22,10 @@ public class TextInterfaceWithHistory extends JPanel {
 	
 	public TextInterfaceWithHistory() {
 		super();
-		
-		setBorder(new EmptyBorder(2,2,2,2));
+
+		this.setBorder(BorderFactory.createTitledBorder("TextInterfaceWithHistory"));
 		setLayout(new GridBagLayout());
-		
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;

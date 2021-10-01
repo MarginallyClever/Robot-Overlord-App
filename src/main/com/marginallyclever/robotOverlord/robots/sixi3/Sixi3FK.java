@@ -274,11 +274,12 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	/**
 	 * Update the theta angles of each bone in the robot and the FK sliders on the panel.
 	 * It does not allow you to set the angle of a bone outside the angleMax/angleMin of that bone.
-	 * @param list new theta values.  Must be {@link Sixi3FK#NUM_BONES} long.
-	 * @return true if new values are different from old values.
-	 * @throws InvalidParameterException list is the wrong length.
+	 * The new values will be tested against the bone limits.
+	 * If the arm moves to a new position a {@link PropertyChangeEvent} notice will be fired.  The
+	 * {@link PropertyChangeEvent.propertyName} will be "ee".
+	 * @param list new theta values.  Must be {@link Sixi3FK.getNumBones()} long.
 	 */
-	public boolean setAngles(double [] list) {
+	public void setAngles(double [] list) {
 		boolean changed=false;
 		
 		int i=0;
@@ -300,8 +301,6 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 
 			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
-		
-		return changed;
 	}
 	
 	@Override

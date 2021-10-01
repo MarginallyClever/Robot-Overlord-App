@@ -1,7 +1,8 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.programInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,10 +36,11 @@ public class ProgramInterface extends JPanel {
 	private JList<ProgramEvent> listView = new JList<ProgramEvent>(listModel);
 	private JFileChooser chooser = new JFileChooser();
 
-	private JButton bNew = new JButton("Clear");
+	private JButton bNew = new JButton("New");
 	private JButton bSave = new JButton("Save");
 	private JButton bLoad = new JButton("Load");
 	private JButton bDelete = new JButton("Delete");
+	private JButton bCopy = new JButton("Copy");
 	private JButton bAdd = new JButton("Add");
 	private JButton bRewind = new JButton("Rewind");
 	private JButton bStep = new JButton("Step");
@@ -54,8 +56,8 @@ public class ProgramInterface extends JPanel {
 		scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listView.setMaximumSize(new Dimension(300,Integer.MAX_VALUE));
 		
-		this.setBorder(BorderFactory.createTitledBorder("ProgramHistoryList"));
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
 		this.add(scrollPane, BorderLayout.CENTER);
@@ -72,7 +74,7 @@ public class ProgramInterface extends JPanel {
 				
 				if(c instanceof JLabel) {
 					JLabel jc = (JLabel)c;
-					jc.setText(value.toString());
+					jc.setText(value.getFormattedDisplay());
 				}
 				return c;
 			}
@@ -87,8 +89,11 @@ public class ProgramInterface extends JPanel {
 		bar.add(bNew);
 		bar.add(bSave);
 		bar.add(bLoad);
+		bar.addSeparator();
 		bar.add(bAdd);
+		bar.add(bCopy);
 		bar.add(bDelete);
+		bar.addSeparator();
 		bar.add(bRewind);
 		bar.add(bStep);
 
@@ -96,16 +101,17 @@ public class ProgramInterface extends JPanel {
 		bSave.addActionListener((e)-> runSaveAction() );
 		bLoad.addActionListener((e)-> runLoadAction() );
 		bAdd.addActionListener((e)-> runAddAction() );
+		bCopy.addActionListener((e)-> runCopyAction() );
 		bDelete.addActionListener((e)-> runDeleteAction() );
 		bRewind.addActionListener((e)-> runRewindAction() );
 		bStep.addActionListener((e)-> runStepAction() );
 
 		listView.addListSelectionListener((e)->{
 			if(e.getValueIsAdjusting()) return;
-			updateDeleteButtonAccess(bDelete);
+			updateButtonAccess(bDelete);
 		});
 		
-		updateDeleteButtonAccess(bDelete);
+		updateButtonAccess(bDelete);
 		
 		return bar;
 	}
@@ -116,17 +122,28 @@ public class ProgramInterface extends JPanel {
 
 	private void runStepAction() {
 		int now = listView.getSelectedIndex();
-		ProgramEvent pe = listModel.get(now);		
+		if(now==-1) return;
+		
+		ProgramEvent pe = listModel.get(now);
+		System.out.println("Step to ("+now+"):"+pe.toString());
+
 		mySixi3.setAngles(pe.getAngles());
+		mySixi3.setEndEffectorTarget(mySixi3.getEndEffector());
+		
 		listView.setSelectedIndex(now+1);
+		if(listView.getSelectedIndex()==now) {
+			listView.clearSelection();
+		}
 	}
 
-	private void updateDeleteButtonAccess(JButton bDelete) {
-		bDelete.setEnabled( listView.getSelectedIndex() != -1 );
+	private void updateButtonAccess(JButton bDelete) {
+		boolean somethingSelected = (listView.getSelectedIndex() != -1);
+		bDelete.setEnabled( somethingSelected );
+		bStep.setEnabled( somethingSelected );
 	}
 	
 	private void runNewAction() {
-		listView.clearSelection();
+		listModel.clear();
 	}
 
 	private void runSaveAction() {
@@ -180,6 +197,13 @@ public class ProgramInterface extends JPanel {
 
 	private void runAddAction() {
 		listModel.addElement(new ProgramEvent(mySixi3.getAngles()));
+	}
+
+	private void runCopyAction() {
+		int i = listView.getSelectedIndex();
+		if(i==-1) return;
+		
+		listModel.addElement(new ProgramEvent(listModel.getElementAt(i)));
 	}
 
 	private void runDeleteAction() {

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
 public class ConversationEvent {
 	public String whoSpoke;

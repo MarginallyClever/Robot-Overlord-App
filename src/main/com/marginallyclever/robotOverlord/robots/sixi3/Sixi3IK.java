@@ -14,7 +14,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
-import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
 /**
  * {@link Sixi3IK} is a {@link Sixi3FK} with added Inverse Kinematics.  
@@ -28,14 +27,8 @@ public class Sixi3IK extends PoseEntity {
 	private static final long serialVersionUID = -7778520191789995554L;
 
 	private Sixi3FK sixi3fk = new Sixi3FK();
-	private Sixi3FK gradientFK = new Sixi3FK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
-	
-	private DoubleEntity threshold = new DoubleEntity("Threshold",0.5);
-	private DoubleEntity samplingDistance = new DoubleEntity("Sampling distance (>0)",0.05);
-	private DoubleEntity learningRate = new DoubleEntity("Learning rate (0...1)",2.0);
-	private double learningRateNow=learningRate.get();
-	
+		
 	public Sixi3IK() {
 		super();
 		setName("Sixi3IK");
@@ -50,7 +43,12 @@ public class Sixi3IK extends PoseEntity {
 		sixi3fk.update(dt);
 		
 		// move arm towards result to get future pose
-		gradientDescent(eeTarget.getPose(),threshold.get());
+		try {
+			//JacobianNewtonRaphson.step(this);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -85,39 +83,6 @@ public class Sixi3IK extends PoseEntity {
 			MatrixHelper.drawMatrix(gl2, interpolated, 1.0);
 		}
 	}
-
-	/**
-	 * Use gradient descent to move the end effector closer to the target.  The process is iterative, might not reach the target,
-	 * and changes depending on the position when gradient descent began. 
-	 * @return distance to target
-	 * @param learningRate in a given iteration the stepSize is x.  on the next iteration it should be x * refinementRate. 
-	 * @param threshold When error term is within threshold then stop. 
-	 * @param samplingDistance how big should the first step be?
-	 */
-	private void gradientDescent(final Matrix4d target, final double threshold) {
-		double d0 = gradientFK.getDistanceToTarget(target);
-		if(d0<threshold) {
-			// target reached!
-			sixi3fk.setAngles(gradientFK.getAngles());
-		}
-		
-		GradientDescent gd = new GradientDescent(gradientFK);
-		gd.run(target,learningRateNow,threshold,samplingDistance.get());
-
-		double d1 = gradientFK.getDistanceToTarget(target);
-		if(d1>d0) {
-			learningRateNow*=0.95;
-		} else {
-			learningRateNow*=1.01;
-		}
-		
-		if(d1<threshold) {
-			// target reached!
-			sixi3fk.setAngles(gradientFK.getAngles());
-		} else {
-			System.out.println("gradient Descent="+d1+" learningRateNow="+learningRateNow);
-		}
-	}
 	
 	@Override
 	public void getView(ViewPanel view) {
@@ -136,12 +101,7 @@ public class Sixi3IK extends PoseEntity {
 			//testTime(true);
 			testTime(false);
 		});
-		
-		// add gradient descent parameters here
-		view.add(threshold);
-		view.add(samplingDistance);
-		view.add(learningRate);
-		
+				
 		view.popStack();
 		
 		super.getView(view);
@@ -170,8 +130,13 @@ public class Sixi3IK extends PoseEntity {
 				double [] jBefore = sixi3fk.getAngles();
 
 				// move arm towards result to get future pose
-				learningRateNow=learningRate.get();
-				gradientDescent(interpolated,threshold.get());
+				try {
+					JacobianNewtonRaphson.step(this);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				double [] jAfter = sixi3fk.getAngles();
 
 				double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(old, interpolated);
@@ -253,9 +218,12 @@ public class Sixi3IK extends PoseEntity {
 		return eeTarget.getPoseWorld();
 	}
 
+	/**
+	 * Update the target end effector and fire a {@link PropertyChangeEvent} notice.  
+	 * The {@link PropertyChangeEvent.propertyName} will be "eeTarget".
+	 * @param m1 the new end effector target.
+	 */
 	public void setEndEffectorTarget(Matrix4d m1) {
-		gradientFK.setAngles(sixi3fk.getAngles());
-		learningRateNow=0.001;
 		Matrix4d m0 = eeTarget.getPoseWorld();
 		eeTarget.setPoseWorld(m1);
 		
@@ -266,8 +234,8 @@ public class Sixi3IK extends PoseEntity {
 		return sixi3fk.getAngles();
 	}
 
-	public boolean setAngles(double[] list) {
-		return sixi3fk.setAngles(list);
+	public void setAngles(double[] list) {
+		sixi3fk.setAngles(list);
 	}
 
 	public int getNumBones() {

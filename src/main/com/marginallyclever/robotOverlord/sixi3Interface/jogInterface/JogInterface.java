@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.jogInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,9 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
 
 public class JogInterface extends JPanel {
@@ -42,9 +40,9 @@ public class JogInterface extends JPanel {
 		c.gridx--;
 		c.gridy++;
 		c.weightx = 1;
-		this.add(eeReport=new CartesianReportPanel("RobotUI.EndEffector"), c);
+		this.add(eeReport=new CartesianReportPanel("JogInterface.EndEffector"), c);
 		c.gridy++;
-		this.add(eeTargetReport=new CartesianReportPanel("RobotUI.EndEffectorTarget"), c);
+		this.add(eeTargetReport=new CartesianReportPanel("JogInterface.EndEffectorTarget"), c);
 		c.gridy--;
 		c.gridx++;
 		c.gridheight=2;
@@ -66,20 +64,12 @@ public class JogInterface extends JPanel {
 	}
 	
 	private void updateReports() {
+		//System.out.println("JogInterface.updateReports()");
 		Matrix4d m0=mySixi3.getEndEffector();
 		eeReport.updateReport(m0);
 		Matrix4d m1=mySixi3.getEndEffectorTarget();
 		eeTargetReport.updateReport(m1);
-		double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, m1);
-		ApproximateJacobian aj = mySixi3.getApproximateJacobian();
-		try {
-			double [] jointDistance = aj.getJointFromCartesian(cartesianDistance);
-			System.out.println(jointDistance.toString());
-		} catch(Exception e) {
-			System.out.println("Failed to calculate jointDistance.");
-		}
 	}
-
 
 	public static void main(String[] args) {
 		Log.start();

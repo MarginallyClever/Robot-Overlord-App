@@ -1,6 +1,5 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,11 +17,9 @@ import com.marginallyclever.communications.NetworkSessionManager;
 import com.marginallyclever.convenience.log.Log;
 
 public class ChooseConnectionPanel extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4773092967249064165L;
-	public static final int NEW_CONNECTION = 1;
+	public static final int CONNECTION_OPENED = 1;
+	public static final int CONNECTION_CLOSED = 2;
 	
 	private JButton bConnect = new JButton();
 	private JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
@@ -31,31 +28,32 @@ public class ChooseConnectionPanel extends JPanel {
 	public ChooseConnectionPanel() {
 		super();
 
-		final Component parent = this;
-		
 		bConnect.setText("Connect");
+		bConnect.addActionListener((e)-> onConnectAction() );
 		
-		bConnect.addActionListener((e)->{
-			if(mySession!=null) {
-				onClose();
-			} else {
-				NetworkSession s = NetworkSessionManager.requestNewSession(parent);
-				if(s!=null) {
-					onOpen(s);
-					notifyListeners(new ActionEvent(this,ChooseConnectionPanel.NEW_CONNECTION,""));
-				}
+		//this.setBorder(BorderFactory.createTitledBorder("ChooseConnectionPanel"));
+		this.setLayout(new FlowLayout(FlowLayout.LEADING));
+		this.add(bConnect);
+		this.add(connectionName);
+	}
+
+	private void onConnectAction() {
+		if(mySession!=null) {
+			onClose();
+		} else {
+			NetworkSession s = NetworkSessionManager.requestNewSession(this);
+			if(s!=null) {
+				onOpen(s);
+				notifyListeners(new ActionEvent(this,ChooseConnectionPanel.CONNECTION_OPENED,""));
 			}
-		});
-		
-		setLayout(new FlowLayout(FlowLayout.LEADING));
-		add(bConnect);
-		add(connectionName);
+		}
 	}
 
 	private void onClose() {
 		if(mySession!=null) {
 			mySession.closeConnection();
 			mySession=null;
+			notifyListeners(new ActionEvent(this,ChooseConnectionPanel.CONNECTION_CLOSED,""));
 		}
 		bConnect.setText("Connect");
 		connectionName.setText("Not connected");

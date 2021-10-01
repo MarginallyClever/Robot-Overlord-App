@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,6 +22,12 @@ public class TextInterfaceToListeners extends JPanel {
 	private JButton send = new JButton("Send");
 		
 	public TextInterfaceToListeners() {
+		super();
+		
+		commandLine.addActionListener((e)->sendNow());
+		send.addActionListener((e)->sendNow());
+		
+		this.setBorder(BorderFactory.createTitledBorder("TextInterfaceToListeners"));
 		setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
@@ -28,15 +35,12 @@ public class TextInterfaceToListeners extends JPanel {
 		c.gridy=0;
 		c.fill= GridBagConstraints.HORIZONTAL;
 		c.weightx=1;
-		add(commandLine,c);
+		this.add(commandLine,c);
 		
 		c.gridx=1;
 		c.fill=GridBagConstraints.NONE;
 		c.weightx=0;
-		add(send,c);
-		
-		commandLine.addActionListener((e)->sendNow());
-		send.addActionListener((e)->sendNow());
+		this.add(send,c);
 	}
 
 	public void sendCommand(String str) {

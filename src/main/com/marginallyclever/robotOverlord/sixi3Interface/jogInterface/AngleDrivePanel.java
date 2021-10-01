@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.textInterfaces;
+package com.marginallyclever.robotOverlord.sixi3Interface.jogInterface;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -6,10 +6,12 @@ import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.UIManager;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
 
 public class AngleDrivePanel extends JPanel {
@@ -28,9 +30,7 @@ public class AngleDrivePanel extends JPanel {
 		buttons[0].setSelected(true);
 
 		dial.addActionListener((evt)-> {
-			ButtonModel b = buttonGroup.getSelection();
-
-			System.out.println("FK " + b.getActionCommand() + " V"+dial.getChange());
+			//System.out.println("FK " + buttonGroup.getSelection().getActionCommand() + " V"+dial.getChange());
 			
 			double [] fk = sixi3.getAngles();
 			
@@ -43,6 +43,7 @@ public class AngleDrivePanel extends JPanel {
 			sixi3.setAngles(fk);
 			sixi3.setEndEffectorTarget(sixi3.getEndEffector());
 		});
+		dial.setPreferredSize(new Dimension(120,120));
 		
 		this.setBorder(BorderFactory.createTitledBorder("AngleDrive"));
 		this.setLayout(new GridBagLayout());
@@ -67,8 +68,8 @@ public class AngleDrivePanel extends JPanel {
 		c.weighty=1;
 		c.gridwidth=buttons.length;
 		c.gridheight=buttons.length;
-		c.anchor=GridBagConstraints.EAST;
-		dial.setPreferredSize(new Dimension(120,120));
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.EAST;
 		this.add(dial,c);
 	}
 
@@ -77,5 +78,22 @@ public class AngleDrivePanel extends JPanel {
 		rb.setActionCommand(label);
 		group.add(rb);
 		return rb;
+	}
+
+	// TEST
+
+	public static void main(String[] args) {
+		Log.start();
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		}
+
+		JFrame frame = new JFrame("AngleDrivePanel");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(new AngleDrivePanel(new Sixi3IK()));
+		frame.pack();
+		frame.setVisible(true);
 	}
 }
