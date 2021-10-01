@@ -42,6 +42,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	private ArrayList<Sixi3Bone> bones = new ArrayList<Sixi3Bone>();
 	// visualize rotations?
 	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
+	public BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
 	
 	public Sixi3FK() {
 		super();
@@ -134,7 +135,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		// bounding boxes are always relative to base?
 		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
 		
-		if(showLocalOrigin.get()) {
+		if(showEndEffector.get()) {
 			Matrix4d m = getEndEffector();
 			MatrixHelper.drawMatrix2(gl2, m, 6);
 		}
@@ -249,6 +250,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			setAngles(v);
 		});
 		view.add(showAngles);
+		view.add(showEndEffector);
 		view.popStack();
 		
 		super.getView(view);
