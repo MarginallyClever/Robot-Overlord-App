@@ -62,12 +62,8 @@ public class Sixi3IK extends PoseEntity {
 		sixi3fk.render(gl2);
 		drawPathToTarget(gl2);
 		gl2.glPopMatrix();
-
-		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, getPose());
-		gl2.glColor4d(0,0,1,0.8);
-		gradientFK.render(gl2);
-		gl2.glPopMatrix();
+		
+		MatrixHelper.drawMatrix(gl2, getEndEffector(), 1);
 	}
 	
 	private void drawPathToTarget(GL2 gl2) {
