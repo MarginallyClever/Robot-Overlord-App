@@ -14,6 +14,7 @@ import com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface.TextInt
  * @author Dan
  *
  */
+@Deprecated
 public class ClassExplorer {
 	public static void reportOnClass(Object o) {
 		Class<?> c = o.getClass();

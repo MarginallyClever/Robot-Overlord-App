@@ -22,6 +22,7 @@ import com.marginallyclever.convenience.log.Log;
  * @author Dan 
  *
  */
+@Deprecated
 public class TapeDeckPanel extends JPanel {
 	/**
 	 * 

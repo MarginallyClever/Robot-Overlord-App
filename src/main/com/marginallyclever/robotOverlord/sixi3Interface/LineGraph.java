@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
 
+@Deprecated
 public class LineGraph extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<Double> fx;
