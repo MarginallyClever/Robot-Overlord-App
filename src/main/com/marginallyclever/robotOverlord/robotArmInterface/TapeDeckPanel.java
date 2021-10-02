@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sixi3Interface;
+package com.marginallyclever.robotOverlord.robotArmInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

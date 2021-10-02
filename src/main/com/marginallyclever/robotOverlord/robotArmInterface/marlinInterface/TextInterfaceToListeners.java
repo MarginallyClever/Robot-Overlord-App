@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
+package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sixi3Interface;
+package com.marginallyclever.robotOverlord.robotArmInterface;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -6,15 +6,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.robotArmInterface.jogInterface.JogInterface;
+import com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface.MarlinInterface;
+import com.marginallyclever.robotOverlord.robotArmInterface.programInterface.ProgramInterface;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
-import com.marginallyclever.robotOverlord.sixi3Interface.jogInterface.JogInterface;
-import com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface.MarlinInterface;
-import com.marginallyclever.robotOverlord.sixi3Interface.programInterface.ProgramInterface;
 
-public class Sixi3Interface extends JPanel {
+public class RobotArmInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	public Sixi3Interface(Sixi3IK sixi3) {
+	public RobotArmInterface(Sixi3IK sixi3) {
 		super();
 		
 		JTabbedPane pane = new JTabbedPane();
@@ -31,7 +31,7 @@ public class Sixi3Interface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new Sixi3Interface(new Sixi3IK()));
+		frame.add(new RobotArmInterface(new Sixi3IK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

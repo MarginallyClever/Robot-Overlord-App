@@ -7,9 +7,9 @@ import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
+import com.marginallyclever.robotOverlord.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
 import com.marginallyclever.robotOverlord.shape.Shape;
-import com.marginallyclever.robotOverlord.sixi3Interface.Sixi3Interface;
 
 public class SixiDemo implements Demo {
 	@Override
@@ -94,7 +94,7 @@ public class SixiDemo implements Demo {
 			public void run() {
         		JFrame frame = new JFrame("Sixi3 UI");
         		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        		frame.add(new Sixi3Interface(s1));
+        		frame.add(new RobotArmInterface(s1));
         		frame.pack();
         		frame.setVisible(true);
             }

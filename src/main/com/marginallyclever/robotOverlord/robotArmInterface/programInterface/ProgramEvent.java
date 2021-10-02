@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sixi3Interface.programInterface;
+package com.marginallyclever.robotOverlord.robotArmInterface.programInterface;
 
 import java.util.Arrays;
 

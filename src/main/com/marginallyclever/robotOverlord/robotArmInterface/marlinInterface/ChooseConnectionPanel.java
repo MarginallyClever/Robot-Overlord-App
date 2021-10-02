@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sixi3Interface.marlinInterface;
+package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;

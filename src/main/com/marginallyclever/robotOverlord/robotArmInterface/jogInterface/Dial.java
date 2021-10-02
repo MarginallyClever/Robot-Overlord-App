@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sixi3Interface.jogInterface;
+package com.marginallyclever.robotOverlord.robotArmInterface.jogInterface;
 
 import java.awt.Color;
 import java.awt.Dimension;
