@@ -412,10 +412,6 @@
 			<id>my-local-repo</id>
 			<url>file://${project.basedir}/java/local-maven-repo</url>
 		</repository>
-		<repository>
-			<id>openkm</id>
-			<url>http://maven.openkm.com</url>
-		</repository>
 	</repositories>
 
 	<properties>
@@ -431,7 +427,7 @@
 
 		<!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
 		<nd4j.backend>nd4j-native-platform</nd4j.backend>
-		<!--<nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend> -->
+		<!-- <nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend> -->
 		<nd4j.version>1.0.0-beta</nd4j.version>
 		<dl4j.version>1.0.0-beta</dl4j.version>
 		<datavec.version>1.0.0-beta</datavec.version>
