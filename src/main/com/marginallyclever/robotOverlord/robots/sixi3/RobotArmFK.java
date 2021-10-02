@@ -24,63 +24,51 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 /**
  * Simulation of a Sixi3 robot arm with Forward Kinematics based on Denavit Hartenberg parameters.
- * It manages a set of {@link Sixi3Bone}.
+ * It manages a set of {@link RobotArmBone}.
  * @see <a href='https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters'>DH parameters</a>
  * @see <a href='https://en.wikipedia.org/wiki/Forward_kinematics'>Forward Kinematics</a>
  * @author Dan Royer
  * @since 2021-02-24
  */
-public class Sixi3FK extends PoseEntity implements Collidable {
+public class RobotArmFK extends PoseEntity implements Collidable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2436924907127292890L;
 	
-	// unmoving model of the robot base.
-	transient private Shape base;
-	// DH parameters, meshes, physical limits.
-	private ArrayList<Sixi3Bone> bones = new ArrayList<Sixi3Bone>();
-	// visualize rotations?
-	public BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
-	public BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
+	private Shape base;
+	private ArrayList<RobotArmBone> bones = new ArrayList<RobotArmBone>();
 	
-	public Sixi3FK() {
-		super();
-		setName("Sixi3FK");
+	// TODO move show* to a robotRender() class?
+	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
+	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
 		
-		setupModel();
+	public RobotArmFK() {
+		super();
+		setName("RobotArmFK");
+		
+		loadModel();
 		
 		for(int i=0;i<bones.size();++i) {
-			Sixi3Bone b = bones.get(i);
+			RobotArmBone b = bones.get(i);
 			b.updateMatrix();
 		}
 	}
 
 	/**
-	 * Set up the DH link hierarchy according to the DH parameters.  Also load the shapes.  
-	 * The physical location of the shapes does not match the DH linkage description of the robot, 
-	 * so adjust the {@link Sixi3Bone.shapeOffset} of each bone to compensate.
+	 * Set up the hierarchy according to the DH parameters.  Also load the shapes.  
+	 * The physical origin of the shapes does not match the DH linkage description of the robot, 
+	 * so adjust the {@link RobotArmBone.shapeOffset} of each bone to compensate.
 	 */
-	private void setupModel() {
-		// load the base shape.
-		base = new Shape("Base","/Sixi3b/base.3mf");
+	protected void loadModel() {
 		bones.clear();
-		// name d r a t max min file
-		addBone("X", 8.01,     0,270,  0,170    ,-170   ,"/Sixi3b/j0.3mf");
-		addBone("Y",9.131,17.889,  0,270,270+100,270-100,"/Sixi3b/j1.3mf");
-		addBone("Z",    0,12.435,  0,  0,0+150  ,0-150  ,"/Sixi3b/j2.3mf");
-		addBone("U",    0,     0,270,270,270+170,270-170,"/Sixi3b/j3.3mf");
-		addBone("V", 5.12,     0,  0,180,360    ,0      ,"/Sixi3b/j4.3mf");
-		//addBone("end effector",     0, 5.12,  0,  0,350,10,"");
-		
-		adjustModelOriginsToDHLinks();
 	}
-	
+
 	// Use the cumulative pose of each Sixi3Bone to adjust the model origins.
-	private void adjustModelOriginsToDHLinks() {
+	protected void adjustModelOriginsToDHLinks() {
 		Matrix4d current = new Matrix4d();
 		current.setIdentity();
-		for( Sixi3Bone bone : bones ) {
+		for( RobotArmBone bone : bones ) {
 			bone.updateMatrix();
 			current.mul(bone.getPose());
 			Matrix4d iWP = new Matrix4d(current);
@@ -89,15 +77,19 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		}
 	}
 
-	private void addBone(String name, double d, double r, double a, double t, double jMax, double jMin, String modelFilename) {
-		Sixi3Bone b = new Sixi3Bone();
-		b.set(name,d,r,a,t,jMax,jMin,modelFilename);
-		b.setName(name);
-		bones.add(b);
+	protected void addBone(RobotArmBone bone) {
+		bones.add(bone);
+	}
+	
+	protected void setTextureFilename(String fname) {
+		base.getMaterial().setTextureFilename(fname);
+		for( RobotArmBone bone : bones ) {
+			bone.setTexturefilename(fname);
+		}
 	}
 	
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL2 gl2) {		
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);
 			drawMeshes(gl2);
@@ -111,7 +103,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		base.render(gl2);
 
 		gl2.glPushMatrix();
-		for( Sixi3Bone bone : bones ) {
+		for( RobotArmBone bone : bones ) {
 			// draw model with local shape offset
 			bone.updateMatrix();
 			MatrixHelper.applyMatrix(gl2, bone.getPose());
@@ -173,7 +165,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		
 		gl2.glPushMatrix();
 			int j = bones.size()+1;
-			for( Sixi3Bone bone : bones ) {
+			for( RobotArmBone bone : bones ) {
 				bone.updateMatrix();
 				double bmin = bone.getAngleMin();
 				double bmax = bone.getAngleMax();
@@ -206,7 +198,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		// then the bones, overtop and unlit.
 		gl2.glPushMatrix();
 			int j = bones.size()+1;
-			for( Sixi3Bone bone : bones ) {
+			for( RobotArmBone bone : bones ) {
 				bone.updateMatrix();
 				// draw bone origin
 				PrimitiveSolids.drawStar(gl2,j*2);
@@ -231,7 +223,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public Matrix4d getEndEffector() {
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
-		for( Sixi3Bone bone : bones ) {
+		for( RobotArmBone bone : bones ) {
 			m.mul(bone.getPose());
 		}
 		return m;
@@ -244,7 +236,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		button.addPropertyChangeListener((evt)-> {
 			double [] v = new double[bones.size()]; 
 			for(int i=0;i<bones.size();++i) {
-				Sixi3Bone b = bones.get(i);
+				RobotArmBone b = bones.get(i);
 				v[i]=b.getAngleMiddle();
 			}
 			setAngles(v);
@@ -258,14 +250,14 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	
 	/**
 	 * 
-	 * @param list where to collect the information.  Must be {@link Sixi3FK#NUM_BONES} long.
+	 * @param list where to collect the information.  Must be {@link RobotArmFK#NUM_BONES} long.
 	 * @throws InvalidParameterException
 	 */
 	public double [] getAngles() {
 		double [] list = new double[bones.size()];
 		
 		int i=0;
-		for( Sixi3Bone bone : bones ) {
+		for( RobotArmBone bone : bones ) {
 			list[i++] = bone.theta;
 		}
 		return list;
@@ -283,7 +275,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		boolean changed=false;
 		
 		int i=0;
-		for( Sixi3Bone b : bones ) {
+		for( RobotArmBone b : bones ) {
 			double v = list[i++];
 			double t = b.getTheta();
 			b.setAngleWRTLimits(v);
@@ -294,7 +286,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		if(changed) {
 			// theta values actually changed so update matrixes and get the new end effector position.
 			Matrix4d eeOld = getEndEffector();
-			for( Sixi3Bone b : bones ) {
+			for( RobotArmBone b : bones ) {
 				b.updateMatrix();
 			}
 			Matrix4d eeNew = getEndEffector();
@@ -318,7 +310,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 			c.setPose(cuboidAfter);
 		}
 		
-		for( Sixi3Bone bone : bones ) {
+		for( RobotArmBone bone : bones ) {
 			// add bone to current pose
 			currentBonePose.mul(bone.getPose());
 			
@@ -365,7 +357,7 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 	public String toString() {
 		String angles = "";
 		String add="";
-		for( Sixi3Bone b : bones ) {
+		for( RobotArmBone b : bones ) {
 			angles += add + Double.toString(b.theta);
 			add=",";
 		}
@@ -396,8 +388,16 @@ public class Sixi3FK extends PoseEntity implements Collidable {
 		return bones.size();
 	}
 	
-	public Sixi3Bone getBone(int i) {
+	public RobotArmBone getBone(int i) {
 		return bones.get(i);
+	}
+	
+	public Shape getBaseShape() {
+		return base;
+	}
+	
+	public void setBaseShape(Shape s) {
+		base=s;
 	}
 	
 	/**

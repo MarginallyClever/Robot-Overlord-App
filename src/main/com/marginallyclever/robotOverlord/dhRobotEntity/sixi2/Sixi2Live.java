@@ -17,6 +17,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Sixi2Live extends Entity {
 	
 	/**

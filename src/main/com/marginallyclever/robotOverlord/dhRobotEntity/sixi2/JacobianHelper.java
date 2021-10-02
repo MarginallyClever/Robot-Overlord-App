@@ -12,6 +12,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
 
+@Deprecated
 public class JacobianHelper {
 	// step size for approximate jacobians
 	final public static double ANGLE_STEP_SIZE_DEGREES=0.5;

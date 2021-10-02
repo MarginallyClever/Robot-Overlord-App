@@ -3,9 +3,9 @@ package com.marginallyclever.robotOverlord.robots.sixi3;
 import javax.vecmath.Matrix4d;
 
 public class GradientDescent {
-	private Sixi3FK sixi3;
+	private RobotArmFK sixi3;
 
-	GradientDescent(Sixi3FK subject) {
+	GradientDescent(RobotArmFK subject) {
 		super();
 		sixi3=subject;
 	}

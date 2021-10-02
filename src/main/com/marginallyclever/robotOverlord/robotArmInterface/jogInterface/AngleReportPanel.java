@@ -11,15 +11,15 @@ import javax.swing.JSlider;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3Bone;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class AngleReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JSlider [] joint;
 	private JLabel [] values;
 	
-	public AngleReportPanel(Sixi3IK sixi3) {
+	public AngleReportPanel(RobotArmIK sixi3) {
 		super();
 		
 		joint = new JSlider[sixi3.getNumBones()];
@@ -36,7 +36,7 @@ public class AngleReportPanel extends JPanel {
 		c.gridwidth=1;
 		
 		for(int i=0;i<joint.length;++i) {
-			Sixi3Bone bone = sixi3.getBone(i);
+			RobotArmBone bone = sixi3.getBone(i);
 			c.gridx=0;
 			c.weightx=0;
 			c.anchor=GridBagConstraints.WEST;
@@ -62,16 +62,16 @@ public class AngleReportPanel extends JPanel {
 		updateReport(sixi3);
 	}
 
-	private void updateReport(Sixi3IK sixi3) {
+	private void updateReport(RobotArmIK sixi3) {
 		for(int i=0;i<joint.length;++i) {
-			Sixi3Bone bone = sixi3.getBone(i);
+			RobotArmBone bone = sixi3.getBone(i);
 			double t = bone.getTheta();
 			joint[i].setValue((int)t);
 			values[i].setText(String.format("%.3f",t));
 		}
 	}
 
-	private JSlider makeSliderFromBone(Sixi3Bone b) {
+	private JSlider makeSliderFromBone(RobotArmBone b) {
 		JSlider slider = new JSlider((int)b.getAngleMin(),
 							(int)b.getAngleMax(),
 							(int)b.getTheta());
@@ -91,7 +91,7 @@ public class AngleReportPanel extends JPanel {
 
 		JFrame frame = new JFrame("AngleReportPanel");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new AngleReportPanel(new Sixi3IK()));
+		frame.add(new AngleReportPanel(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

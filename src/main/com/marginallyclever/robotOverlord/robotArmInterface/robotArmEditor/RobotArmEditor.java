@@ -1,20 +1,18 @@
 package com.marginallyclever.robotOverlord.robotArmInterface.robotArmEditor;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3FK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmFK;
 
 public class RobotArmEditor extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private Sixi3FK myArm;
+	private RobotArmFK myArm;
 
-	public RobotArmEditor(Sixi3FK arm) {
+	public RobotArmEditor(RobotArmFK arm) {
 		super();
 		myArm = arm;
 		
@@ -38,7 +36,7 @@ public class RobotArmEditor extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmEditor(new Sixi3FK()));
+		frame.add(new RobotArmEditor(new RobotArmFK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

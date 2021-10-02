@@ -18,6 +18,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Sixi2Command extends Entity implements EntityFocusListener, Moveable {
 	/**
 	 * 

@@ -12,6 +12,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * Effectively three prismatic (sliding) joints.
  * @author Dan Royer
  */
+@Deprecated
 public class DHIKSolver_Cartesian extends DHIKSolver {
 	//public double d0,d1,d2;
 

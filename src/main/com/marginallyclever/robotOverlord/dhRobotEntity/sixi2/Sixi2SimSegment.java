@@ -8,6 +8,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * @author aggra
  *
  */
+@Deprecated
 public class Sixi2SimSegment {
 	public PoseFK start;
 	public PoseFK end;

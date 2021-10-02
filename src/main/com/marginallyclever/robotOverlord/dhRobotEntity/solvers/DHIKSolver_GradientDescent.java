@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * @since 1.6.0
  *
  */
+@Deprecated
 public class DHIKSolver_GradientDescent extends DHIKSolver {
 	private static final double SENSOR_RESOLUTION = 0.01;
 	// protected static final double MAX_REACH = 800; // mm

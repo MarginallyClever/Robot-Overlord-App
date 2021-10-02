@@ -9,6 +9,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * Solves Inverse Kinematics for a robot arm.  Assumptions differ with each specific implementation.
  * @author Dan Royer
  */
+@Deprecated
 public class DHIKSolver {
 	public static final double EPSILON = 0.00001;
 

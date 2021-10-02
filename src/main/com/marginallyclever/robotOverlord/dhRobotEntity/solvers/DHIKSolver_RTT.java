@@ -14,6 +14,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * @author Dan Royer
  * TODO test and finish
  */
+@Deprecated
 public class DHIKSolver_RTT extends DHIKSolver {
 	//public double theta0,alpha1,alpha2;
 

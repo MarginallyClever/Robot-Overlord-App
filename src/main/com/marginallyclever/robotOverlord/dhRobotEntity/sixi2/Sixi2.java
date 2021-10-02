@@ -38,6 +38,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Sixi2 extends PoseEntity {
 	/**
 	 * 

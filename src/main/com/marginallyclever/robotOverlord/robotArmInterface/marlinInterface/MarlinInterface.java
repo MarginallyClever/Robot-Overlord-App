@@ -13,13 +13,13 @@ import javax.swing.UIManager;
 import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3Bone;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class MarlinInterface extends JPanel {
 	private static final long serialVersionUID = -6388563393882327725L;
 
-	private Sixi3IK mySixi3;
+	private RobotArmIK mySixi3;
 	private int lineNumber;
 
 	private TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
@@ -29,7 +29,7 @@ public class MarlinInterface extends JPanel {
 	private JButton bSetHome = new JButton("Set Home");
 	private JButton bGoHome = new JButton("Go Home");
 
-	public MarlinInterface(Sixi3IK sixi3) {
+	public MarlinInterface(RobotArmIK sixi3) {
 		super();
 
 		mySixi3 = sixi3;
@@ -109,7 +109,7 @@ public class MarlinInterface extends JPanel {
 		double[] angles = mySixi3.getAngles();
 
 		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
-			Sixi3Bone bone = mySixi3.getBone(i);
+			RobotArmBone bone = mySixi3.getBone(i);
 			for (String s : majorParts) {
 				String[] minorParts = s.split(":");
 
@@ -128,7 +128,7 @@ public class MarlinInterface extends JPanel {
 		//System.out.println("MarlinInterface.sendGoto()");
 		String action = "G1";
 		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
-			Sixi3Bone bone = mySixi3.getBone(i);
+			RobotArmBone bone = mySixi3.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
 		sendCommand(action);
@@ -176,9 +176,9 @@ public class MarlinInterface extends JPanel {
 
 	private void sendSetHome() {
 		String action = "G92";
-		Sixi3IK temp = new Sixi3IK();
+		RobotArmIK temp = new RobotArmIK();
 		for (int i = 0; i < temp.getNumBones(); ++i) {
-			Sixi3Bone bone = temp.getBone(i);
+			RobotArmBone bone = temp.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
 		sendCommand(action);
@@ -186,7 +186,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void sendGoHome() {
-		Sixi3IK temp = new Sixi3IK();
+		RobotArmIK temp = new RobotArmIK();
 		mySixi3.setAngles(temp.getAngles());
 		mySixi3.setEndEffectorTarget(mySixi3.getEndEffector());
 	}
@@ -203,7 +203,7 @@ public class MarlinInterface extends JPanel {
 
 		JFrame frame = new JFrame("MarlinInterface");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new MarlinInterface(new Sixi3IK()));
+		frame.add(new MarlinInterface(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -12,9 +12,8 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @since 2021-02-24
  *
  */
-public class Sixi3Bone {
+public class RobotArmBone {
 	private String name = "";
-	
 	// D-H parameters combine to make this matrix which is relative to the parent.
 	private Matrix4d pose = new Matrix4d();
 	// length (mm) along previous Z to the common normal
@@ -26,33 +25,40 @@ public class Sixi3Bone {
 	// angle (degrees) about previous Z, from old X to new X
 	public double theta;
 	
-	private double angleMax, angleMin;
+	private double thetaMax, thetaMin;
 		
 	// model and relative offset from DH origin
 	private Shape shape;
 	
+	// TODO this doesn't belong here
 	public DoubleEntity slider = new DoubleEntity("J",0);
 		
-	public Sixi3Bone() {}
+	public RobotArmBone() {}
 	
-	public void set(String name,double dd,double rr,double aa,double tt,double aMax,double aMin,String shapeFilename) {
-		d=dd;
-		r=rr;
-		alpha=aa;
-		theta=tt;
-		angleMax=aMax;
-		angleMin=aMin;
+	public RobotArmBone(String name,double d,double r,double alpha,double theta,double thetaMax,double thetaMin,String shapeFilename) {
+		this();
+		this.set(name,d,r,alpha,theta,thetaMax,thetaMin,shapeFilename);
+	}
+	
+	public void set(String name,double d,double r,double alpha,double theta,double thetaMax,double thetaMin,String shapeFilename) {
+		this.setName(name);
+		this.d=d;
+		this.r=r;
+		this.alpha=alpha;
+		this.theta=theta;
+		this.thetaMax=thetaMax;
+		this.thetaMin=thetaMin;
 		shape = new Shape(name,shapeFilename);
 	}
 	
 	public void setAngleWRTLimits(double newAngle) {
 		// if max angle and min angle overlap then there is no limit on this joint.
 		double bMiddle = getAngleMiddle();
-		double bMax = Math.abs(angleMax-bMiddle);
-		double bMin = Math.abs(angleMin-bMiddle);
+		double bMax = Math.abs(thetaMax-bMiddle);
+		double bMin = Math.abs(thetaMin-bMiddle);
 		if(bMin+bMax<360) {
 			// prevent pushing the arm to an illegal angle
-			newAngle = Math.max(Math.min(newAngle, angleMax), angleMin);
+			newAngle = Math.max(Math.min(newAngle, thetaMax), thetaMin);
 		}
 		
 		theta = newAngle;
@@ -77,19 +83,19 @@ public class Sixi3Bone {
 	}
 
 	public void getView(ViewPanel view) {
-		view.addRange(slider,(int)angleMax,(int)angleMin);
+		view.addRange(slider,(int)thetaMax,(int)thetaMin);
 	}
 	
 	public double getAngleMiddle() {
-		return (angleMax+angleMin)/2;
+		return (thetaMax+thetaMin)/2;
 	}
 
 	public double getAngleMax() {
-		return angleMax;
+		return thetaMax;
 	}
 
 	public double getAngleMin() {
-		return angleMin;
+		return thetaMin;
 	}
 
 	public double getD() {
@@ -123,5 +129,9 @@ public class Sixi3Bone {
 
 	public Shape getShape() {
 		return shape;
+	}
+
+	public void setTexturefilename(String fname) {
+		shape.getMaterial().setTextureFilename(fname);
 	}
 }

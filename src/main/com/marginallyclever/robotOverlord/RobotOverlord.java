@@ -48,7 +48,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogDialog;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.PhysicsDemo;
-import com.marginallyclever.robotOverlord.demos.SixiDemo;
+import com.marginallyclever.robotOverlord.demos.RobotArmsDemo;
 import com.marginallyclever.robotOverlord.demos.SkycamDemo;
 import com.marginallyclever.robotOverlord.demos.StewartPlatformDemo;
 import com.marginallyclever.robotOverlord.io.Load;
@@ -564,7 +564,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 		
 		menu = new JMenu("Demos");
 		menu.add(new JMenuItem(new DemoAction(this,new PhysicsDemo())));
-		menu.add(new JMenuItem(new DemoAction(this,new SixiDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new RobotArmsDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new DogDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new StewartPlatformDemo())));

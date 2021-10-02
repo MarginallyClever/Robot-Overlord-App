@@ -30,6 +30,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * 
  * @author Dan Royer
  */
+@Deprecated
 public class DHRobotModel extends Entity {
 	/**
 	 * 

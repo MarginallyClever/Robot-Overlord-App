@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Sixi2Sim extends Entity {
 	/**
 	 * 

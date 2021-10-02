@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.robotArmInterface.robotArmEditor;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -10,12 +11,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import org.apache.batik.ext.swing.GridBagConstants;
+
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3Bone;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
 
 public class RobotArmBoneEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private Sixi3Bone myBone;
+	private RobotArmBone myBone;
 
 	private JTextField name = new JTextField();
 	private JTextField alpha = new JTextField();
@@ -26,7 +29,7 @@ public class RobotArmBoneEditorPanel extends JPanel {
 	private JTextField tMin = new JTextField();
 	private JTextField shape = new JTextField();
 	
-	public RobotArmBoneEditorPanel(Sixi3Bone bone) {
+	public RobotArmBoneEditorPanel(RobotArmBone bone) {
 		super();
 		myBone = bone;
 		
@@ -39,6 +42,7 @@ public class RobotArmBoneEditorPanel extends JPanel {
 		c.gridheight=1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(1, 2, 1, 2);
 		
 		addNewRow("Name",name,c);
 		addNewRow("D (real number)",d,c);
@@ -48,6 +52,13 @@ public class RobotArmBoneEditorPanel extends JPanel {
 		addNewRow("Theta max",tMax,c);
 		addNewRow("Theta min",tMin,c);
 		addNewRow("Model filename",shape,c);
+		
+		c.gridy++;
+		c.gridwidth=2;
+		c.fill = GridBagConstants.BOTH;
+		c.weightx=1;
+		c.weighty=1;
+		this.add(new JLabel(),c);
 		
 		name.setText(bone.getName());
 		d.setText(Double.toString(bone.getD()));
@@ -73,7 +84,7 @@ public class RobotArmBoneEditorPanel extends JPanel {
 	private void addNewRow(String label,JComponent field,GridBagConstraints c) {
 		c.gridx=0;
 		c.weightx=0;
-		c.weighty=1;
+		c.weighty=0;
 		this.add(new JLabel(label+" "),c);
 		c.gridx=1;
 		c.weightx=1;
@@ -103,7 +114,7 @@ public class RobotArmBoneEditorPanel extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmBoneEditorPanel(new Sixi3Bone()));
+		frame.add(new RobotArmBoneEditorPanel(new RobotArmBone()));
 		frame.pack();
 		frame.setVisible(true);
 	}

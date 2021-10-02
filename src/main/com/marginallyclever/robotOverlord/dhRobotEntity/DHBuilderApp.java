@@ -28,6 +28,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
+@Deprecated
 public class DHBuilderApp extends DHRobotModel {
 	/**
 	 * 

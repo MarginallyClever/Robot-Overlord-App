@@ -9,14 +9,14 @@ import javax.swing.UIManager;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class JogInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private Sixi3IK mySixi3;
+	private RobotArmIK mySixi3;
 	private CartesianReportPanel eeReport, eeTargetReport;
 
-	public JogInterface(Sixi3IK sixi3) {
+	public JogInterface(RobotArmIK sixi3) {
 		super();
 		
 		mySixi3 = sixi3;
@@ -78,7 +78,7 @@ public class JogInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new JogInterface(new Sixi3IK()));
+		frame.add(new JogInterface(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

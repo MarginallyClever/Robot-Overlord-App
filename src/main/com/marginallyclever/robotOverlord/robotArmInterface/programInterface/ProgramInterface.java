@@ -28,7 +28,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class ProgramInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -45,9 +45,9 @@ public class ProgramInterface extends JPanel {
 	private JButton bRewind = new JButton("Rewind");
 	private JButton bStep = new JButton("Step");
 	
-	private Sixi3IK mySixi3;
+	private RobotArmIK mySixi3;
 		
-	public ProgramInterface(Sixi3IK sixi3) {
+	public ProgramInterface(RobotArmIK sixi3) {
 		super();
 		mySixi3 = sixi3;
 		createCellRenderingSystem();
@@ -221,7 +221,7 @@ public class ProgramInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new ProgramInterface(new Sixi3IK()));
+		frame.add(new ProgramInterface(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

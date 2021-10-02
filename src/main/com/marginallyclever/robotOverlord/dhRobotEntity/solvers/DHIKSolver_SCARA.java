@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * @author Dan Royer
  * See https://www.youtube.com/watch?v=xdOe4_WYzgU
  */
+@Deprecated
 public class DHIKSolver_SCARA extends DHIKSolver {
 	//public double theta0,d1,d2,theta3;
 

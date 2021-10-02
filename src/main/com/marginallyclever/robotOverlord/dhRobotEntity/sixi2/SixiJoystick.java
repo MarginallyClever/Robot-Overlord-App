@@ -12,6 +12,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
 
 
+@Deprecated
 public class SixiJoystick extends Shape {
 	/**
 	 * 

@@ -11,6 +11,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * @since 1.6.0
  *
  */
+@Deprecated
 public class DHIKSolver_FABRIK extends DHIKSolver {
 	/**
 	 * @return the number of double values needed to store a valid solution from this DHIKSolver.

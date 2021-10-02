@@ -13,9 +13,9 @@ import javax.vecmath.Matrix4d;
 
 import org.junit.Test;
 
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3FK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmFK;
 
-public class Sixi3FKTests {
+public class RobotArmFKTests {
 	/**
 	 * Set random positions for the the robot, save, load, and compare that they match.
 	 * Repeat many times.
@@ -24,7 +24,7 @@ public class Sixi3FKTests {
 	 */
 	@Test
 	public void testSerialization() throws IOException, ClassNotFoundException {
-		Sixi3FK a = new Sixi3FK();
+		RobotArmFK a = new RobotArmFK();
 		int numBones = a.getNumBones();
 
 		Matrix4d m1 = new Matrix4d();
@@ -63,7 +63,7 @@ public class Sixi3FKTests {
 			
 			FileInputStream fileIn = new FileInputStream(tempFile);
 			ObjectInputStream objIn = new ObjectInputStream(fileIn);
-			Sixi3FK b = (Sixi3FK)objIn.readObject();
+			RobotArmFK b = (RobotArmFK)objIn.readObject();
 			objIn.close();
 			
 			assertTrue(b.getName().contentEquals(a.getName()));

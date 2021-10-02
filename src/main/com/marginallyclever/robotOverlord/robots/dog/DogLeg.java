@@ -8,7 +8,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3Bone;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 public class DogLeg {
@@ -16,10 +16,10 @@ public class DogLeg {
 
 	private PoseEntity myParent;
 
-	private Sixi3Bone shoulderA = new Sixi3Bone();
-	private Sixi3Bone shoulderB = new Sixi3Bone();
-	private Sixi3Bone elbow = new Sixi3Bone();
-	private Sixi3Bone foot = new Sixi3Bone();
+	private RobotArmBone shoulderA = new RobotArmBone();
+	private RobotArmBone shoulderB = new RobotArmBone();
+	private RobotArmBone elbow = new RobotArmBone();
+	private RobotArmBone foot = new RobotArmBone();
 
 	private MaterialEntity matOnFloor = new MaterialEntity();
 	private MaterialEntity matStepping = new MaterialEntity();

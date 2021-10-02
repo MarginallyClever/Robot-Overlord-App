@@ -23,6 +23,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
  * @author Dan Royer
  * See https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters
  */
+@Deprecated
 public class DHLink extends PoseEntity implements Collidable {
 	/**
 	 * 

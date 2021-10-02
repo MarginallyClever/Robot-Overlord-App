@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.dhRobotEntity.sixi2;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
 
+@Deprecated
 public class Sixi2ModelState implements Memento, Cloneable {
 	/**
 	 * 

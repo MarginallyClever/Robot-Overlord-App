@@ -16,31 +16,38 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
- * {@link Sixi3IK} is a {@link Sixi3FK} with added Inverse Kinematics.  
+ * {@link RobotArmIK} is a {@link RobotArmFK} with added Inverse Kinematics.  
  * Registered in {@code com.marginallyclever.robotOverlord.entity.Entity}
  * @see <a href='https://en.wikipedia.org/wiki/Inverse_kinematics'>Inverse Kinematics</a>
  * @author Dan Royer
  * @since 2021-02-24
  *
  */
-public class Sixi3IK extends PoseEntity {
+public class RobotArmIK extends PoseEntity {
 	private static final long serialVersionUID = -7778520191789995554L;
 
-	private Sixi3FK sixi3fk = new Sixi3FK();
+	private RobotArmFK myArmFK = new RobotArmFK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
 		
-	public Sixi3IK() {
+	public RobotArmIK() {
 		super();
-		setName("Sixi3IK");
+		setName("RobotArmIK");
 
 		addChild(eeTarget);
+		setEndEffectorTarget(getEndEffector());
+	}
+	
+	public RobotArmIK(RobotArmFK armFK) {
+		super();
+		myArmFK = armFK;
+		setName(myArmFK.getName());
 		setEndEffectorTarget(getEndEffector());
 	}
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		sixi3fk.update(dt);
+		myArmFK.update(dt);
 		
 		// move arm towards result to get future pose
 		try {
@@ -57,7 +64,7 @@ public class Sixi3IK extends PoseEntity {
 
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
-		sixi3fk.render(gl2);
+		myArmFK.render(gl2);
 		drawPathToTarget(gl2);
 		gl2.glPopMatrix();
 		
@@ -65,7 +72,7 @@ public class Sixi3IK extends PoseEntity {
 	}
 	
 	private void drawPathToTarget(GL2 gl2) {
-		Matrix4d start = sixi3fk.getEndEffector();
+		Matrix4d start = myArmFK.getEndEffector();
 		
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
@@ -86,12 +93,12 @@ public class Sixi3IK extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		sixi3fk.getView(view);
+		myArmFK.getView(view);
 		view.pushStack("IK","Inverse Kinematics");
 
 		ViewElementButton b = view.addButton("Reset GoTo");
 		b.addPropertyChangeListener((evt) -> {
-			eeTarget.setPose(sixi3fk.getEndEffector());
+			eeTarget.setPose(myArmFK.getEndEffector());
 		});
 
 		ViewElementButton b2 = view.addButton("Run test");
@@ -109,8 +116,8 @@ public class Sixi3IK extends PoseEntity {
 	
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = sixi3fk.getAngles();
-		Matrix4d start = sixi3fk.getEndEffector();
+		double [] jOriginal = myArmFK.getAngles();
+		Matrix4d start = myArmFK.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		
 		try {
@@ -127,7 +134,7 @@ public class Sixi3IK extends PoseEntity {
 
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
 	
-				double [] jBefore = sixi3fk.getAngles();
+				double [] jBefore = myArmFK.getAngles();
 
 				// move arm towards result to get future pose
 				try {
@@ -137,12 +144,12 @@ public class Sixi3IK extends PoseEntity {
 					e1.printStackTrace();
 				}
 				
-				double [] jAfter = sixi3fk.getAngles();
+				double [] jAfter = myArmFK.getAngles();
 
 				double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(old, interpolated);
 				old.set(interpolated);
 	
-				ApproximateJacobian aj = new ApproximateJacobian(sixi3fk);
+				ApproximateJacobian aj = new ApproximateJacobian(myArmFK);
 				try {
 					double [] jointDistance = aj.getJointFromCartesian(cartesianDistance);
 					//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
@@ -182,9 +189,9 @@ public class Sixi3IK extends PoseEntity {
 			e.printStackTrace();
 		}
 		
-		sixi3fk.setAngles(jOriginal);
+		myArmFK.setAngles(jOriginal);
 		
-		Matrix4d startCompare = sixi3fk.getEndEffector();
+		Matrix4d startCompare = myArmFK.getEndEffector();
 		if(!startCompare.equals(start)) {
 			System.out.println("Change!\nS"+start.toString()+"E"+startCompare.toString());
 		}
@@ -199,7 +206,7 @@ public class Sixi3IK extends PoseEntity {
 			if(useExact) {
 				//getExactJacobian(jacobian);
 			} else {
-				new ApproximateJacobian(sixi3fk);
+				new ApproximateJacobian(myArmFK);
 			}
 		}
 		
@@ -209,7 +216,7 @@ public class Sixi3IK extends PoseEntity {
 	
 	public Matrix4d getEndEffector() {
 		Matrix4d m = getPoseWorld();
-		Matrix4d ee = sixi3fk.getEndEffector(); 
+		Matrix4d ee = myArmFK.getEndEffector(); 
 		m.mul(ee);
 		return m;
 	}
@@ -225,39 +232,42 @@ public class Sixi3IK extends PoseEntity {
 	 */
 	public void setEndEffectorTarget(Matrix4d m1) {
 		Matrix4d m0 = eeTarget.getPoseWorld();
-		eeTarget.setPoseWorld(m1);
+		Matrix4d inverseRobotRoot = getPoseWorld();
+		inverseRobotRoot.invert();
+		m1.mul(inverseRobotRoot,m1);
+		eeTarget.setPose(m1);
 		
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"eeTarget",m0,m1));
 	}
 
 	public double[] getAngles() {
-		return sixi3fk.getAngles();
+		return myArmFK.getAngles();
 	}
 
 	public void setAngles(double[] list) {
-		sixi3fk.setAngles(list);
+		myArmFK.setAngles(list);
 	}
 
 	public int getNumBones() {
-		return sixi3fk.getNumBones();
+		return myArmFK.getNumBones();
 	}
 
-	public Sixi3Bone getBone(int i) {
-		return sixi3fk.getBone(i);
+	public RobotArmBone getBone(int i) {
+		return myArmFK.getBone(i);
 	}
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener p) {
 		super.addPropertyChangeListener(p);
-		sixi3fk.addPropertyChangeListener(p);
+		myArmFK.addPropertyChangeListener(p);
 	}
 
 	public ApproximateJacobian getApproximateJacobian() {
-		return new ApproximateJacobian(sixi3fk);
+		return new ApproximateJacobian(myArmFK);
 	}
 
 
 	public double getDistanceToTarget(Matrix4d m4) {
-		return sixi3fk.getDistanceToTarget(m4);
+		return myArmFK.getDistanceToTarget(m4);
 	}	
 }

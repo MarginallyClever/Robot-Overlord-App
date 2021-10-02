@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 
 // http://motion.pratt.duke.edu/RoboticSystems/InverseKinematics.html#mjx-eqn-eqNewtonRaphson
 public class JacobianNewtonRaphson {
-	public static void step(Sixi3IK sixi3) throws Exception {
+	public static void step(RobotArmIK sixi3) throws Exception {
 		Matrix4d m0=sixi3.getEndEffector();
 		Matrix4d m1=sixi3.getEndEffectorTarget();
 		//System.out.print("m0="+m0);
@@ -22,9 +22,9 @@ public class JacobianNewtonRaphson {
 		sixi3.setAngles(angles);
 	}
 
-	public static void iterate(Sixi3IK sixi3, Matrix4d m4,int tries) throws Exception {
+	public static void iterate(RobotArmIK sixi3, Matrix4d m4,int tries) throws Exception {
 		//System.out.println("JacobianNewtonRaphson.iterate begins");
-		Sixi3IK temp = new Sixi3IK();
+		RobotArmIK temp = new RobotArmIK();
 		temp.setAngles(sixi3.getAngles());
 		temp.setEndEffectorTarget(m4);
 		while(tries-->=0) {

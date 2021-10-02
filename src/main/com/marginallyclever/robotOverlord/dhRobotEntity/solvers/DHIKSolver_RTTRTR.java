@@ -19,6 +19,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * See https://www.youtube.com/watch?v=V_6diIcQl0U
  * See https://www.youtube.com/watch?v=74tbl9q2_qI
  */
+@Deprecated
 public class DHIKSolver_RTTRTR extends DHIKSolver {
 	//public double theta0,alpha1,alpha2;
 	// link 3 is a dummy to draw the skeleton correctly.

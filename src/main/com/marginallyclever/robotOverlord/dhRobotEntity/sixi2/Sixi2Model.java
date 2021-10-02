@@ -20,6 +20,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 1.6.0
  *
  */
+@Deprecated
 public class Sixi2Model extends DHRobotModel implements MementoOriginator {	
 	/**
 	 * 

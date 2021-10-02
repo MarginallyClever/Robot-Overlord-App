@@ -12,7 +12,7 @@ import com.marginallyclever.convenience.MatrixHelper;
  */
 public class ApproximateJacobian {
 	static public final double ANGLE_STEP_SIZE_DEGREES=0.001;  // degrees
-	Sixi3FK mySixi3;
+	RobotArmFK mySixi3;
 	
 	/**
 	 * a 6x6 matrix that will be filled with the jacobian.  
@@ -22,11 +22,11 @@ public class ApproximateJacobian {
 	public double [][] jacobian;
 	
 	
-	public ApproximateJacobian(Sixi3FK sixi3) {
+	public ApproximateJacobian(RobotArmFK sixi3) {
 		mySixi3 = sixi3;
 		
 		Matrix4d T = sixi3.getEndEffector();
-		Sixi3FK temp = new Sixi3FK();
+		RobotArmFK temp = new RobotArmFK();
 
 		int DOF = sixi3.getNumBones();
 		jacobian = MatrixHelper.createMatrix(6,DOF);

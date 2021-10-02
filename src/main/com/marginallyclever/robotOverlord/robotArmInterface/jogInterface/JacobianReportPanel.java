@@ -15,13 +15,13 @@ import javax.swing.table.TableColumnModel;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.sixi3.ApproximateJacobian;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class JacobianReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JTable table;
 	
-	public JacobianReportPanel(Sixi3IK sixi3) {
+	public JacobianReportPanel(RobotArmIK sixi3) {
 		super();
 
 		ApproximateJacobian aj = sixi3.getApproximateJacobian();
@@ -53,7 +53,7 @@ public class JacobianReportPanel extends JPanel {
 	}
 	
 	@SuppressWarnings("unused")
-	private void setColumnNames(Sixi3IK sixi3) {
+	private void setColumnNames(RobotArmIK sixi3) {
 		DefaultTableCellRenderer renderHeaderRight = (DefaultTableCellRenderer)table.getTableHeader().getDefaultRenderer();
 		renderHeaderRight.setHorizontalAlignment(SwingConstants.RIGHT);
 		table.getTableHeader().setDefaultRenderer(renderHeaderRight);
@@ -65,7 +65,7 @@ public class JacobianReportPanel extends JPanel {
 		}
 	}
 
-	private void updateReport(Sixi3IK sixi3) {
+	private void updateReport(RobotArmIK sixi3) {
 		ApproximateJacobian aj = sixi3.getApproximateJacobian();
 		for(int y=0;y<aj.jacobian.length;++y) {
 			for(int x=0;x<aj.jacobian[y].length;++x) {
@@ -86,7 +86,7 @@ public class JacobianReportPanel extends JPanel {
 
 		JFrame frame = new JFrame("JacobianReportPanel");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new JacobianReportPanel(new Sixi3IK()));
+		frame.add(new JacobianReportPanel(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

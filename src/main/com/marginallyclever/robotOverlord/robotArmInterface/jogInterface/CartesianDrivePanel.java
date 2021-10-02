@@ -21,7 +21,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.sixi3.JacobianNewtonRaphson;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class CartesianDrivePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -36,7 +36,7 @@ public class CartesianDrivePanel extends JPanel {
 	
 	private Dial dial = new Dial();
 
-	public CartesianDrivePanel(Sixi3IK sixi3) {
+	public CartesianDrivePanel(RobotArmIK sixi3) {
 		super();
 
 		frameOfReference = getFramesOfReference(sixi3);
@@ -92,7 +92,7 @@ public class CartesianDrivePanel extends JPanel {
 		this.add(dial,c);
 	}
 
-	private JComboBox<String> getFramesOfReference(Sixi3IK sixi3) {
+	private JComboBox<String> getFramesOfReference(RobotArmIK sixi3) {
 		JComboBox<String> FOR = new JComboBox<String>();
 		FOR.addItem("World");
 		FOR.addItem("First joint");
@@ -101,7 +101,7 @@ public class CartesianDrivePanel extends JPanel {
 		return FOR;
 	}
 
-	private Matrix4d getFrameOfReferenceMatrix(Sixi3IK sixi3) {
+	private Matrix4d getFrameOfReferenceMatrix(RobotArmIK sixi3) {
 		Matrix4d mFor;
 		
 		switch(frameOfReference.getSelectedIndex()) {
@@ -129,7 +129,7 @@ public class CartesianDrivePanel extends JPanel {
 		return rb;
 	}
 	
-	private void onDialTurn(Sixi3IK sixi3) {
+	private void onDialTurn(RobotArmIK sixi3) {
 		double v_mm = dial.getChange()*0.1;
 		Matrix4d m4 = sixi3.getEndEffectorTarget();
 		Matrix4d mFor = getFrameOfReferenceMatrix(sixi3);
@@ -198,7 +198,7 @@ public class CartesianDrivePanel extends JPanel {
 
 		JFrame frame = new JFrame("CartesianDrivePanel");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new CartesianDrivePanel(new Sixi3IK()));
+		frame.add(new CartesianDrivePanel(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

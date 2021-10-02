@@ -9,12 +9,12 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robotArmInterface.jogInterface.JogInterface;
 import com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface.MarlinInterface;
 import com.marginallyclever.robotOverlord.robotArmInterface.programInterface.ProgramInterface;
-import com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class RobotArmInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	public RobotArmInterface(Sixi3IK sixi3) {
+	public RobotArmInterface(RobotArmIK sixi3) {
 		super();
 		
 		JTabbedPane pane = new JTabbedPane();
@@ -31,7 +31,7 @@ public class RobotArmInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmInterface(new Sixi3IK()));
+		frame.add(new RobotArmInterface(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

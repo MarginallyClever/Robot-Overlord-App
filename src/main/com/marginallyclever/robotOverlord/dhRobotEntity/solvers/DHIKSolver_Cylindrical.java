@@ -15,6 +15,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.PoseFK;
  * @author Dan Royer
  * See http://www.robotix.co.uk/products/fanuc/robot/m_series/m100.htm
  */
+@Deprecated
 public class DHIKSolver_Cylindrical extends DHIKSolver {
 	//public double theta0,d1,d2,theta3;
 
