@@ -129,8 +129,8 @@ public class ApproximateJacobian {
 	private double [][] getInverseJacobian() {
 		int bones = myArm.getNumBones();
 		if(bones<6) return getInverseJacobianOverdetermined();
-		else if(bones>6) return getInverseJacobianUnderdetermined();
-		else return MatrixHelper.invert(jacobian);
+		else /*if(bones>=6)*/ return getInverseJacobianUnderdetermined();
+		//else return MatrixHelper.invert(jacobian);
 	}
 
 	//J_plus = J.transpose * (J*J.transpose()).inverse() // This is for Underdetermined systems
