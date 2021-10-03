@@ -20,12 +20,10 @@ module com.marginallyclever.robotOverlord {
 	
 	uses com.marginallyclever.robotOverlord.Entity;
 	provides com.marginallyclever.robotOverlord.Entity with 
-		com.marginallyclever.robotOverlord.dhRobotEntity.DHBuilderApp,
 		com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK,
 		com.marginallyclever.robotOverlord.robots.LinearStewartPlatform,
 		com.marginallyclever.robotOverlord.robots.RotaryStewartPlatform,
 		com.marginallyclever.robotOverlord.robots.skycam.Skycam,
-		com.marginallyclever.robotOverlord.dhRobotEntity.sixi2.Sixi2,
 		com.marginallyclever.robotOverlord.Camera,
 		com.marginallyclever.robotOverlord.shape.Shape,
 		com.marginallyclever.robotOverlord.Light,

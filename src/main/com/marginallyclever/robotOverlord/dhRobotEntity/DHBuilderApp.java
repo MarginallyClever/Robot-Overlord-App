@@ -21,7 +21,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_GradientDescent;
+import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -56,7 +56,7 @@ public class DHBuilderApp extends DHRobotModel {
 		super();
 		setName("DHBuilderApp");
 		setNumLinks(BONE_NAMES.length);
-		setIKSolver(new DHIKSolver_GradientDescent());
+		setIKSolver(new DHIKSolver());
 		
 		int i=0;
 		for(DHLink bone : links) {

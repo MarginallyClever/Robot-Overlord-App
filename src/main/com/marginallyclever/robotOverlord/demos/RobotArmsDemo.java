@@ -9,6 +9,7 @@ import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
 import com.marginallyclever.robotOverlord.robotArmInterface.RobotArmInterface;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
@@ -76,26 +77,26 @@ public class RobotArmsDemo implements Demo {
 		//addChild(sixi2);
 		//Sixi3FK s0 = new Sixi3FK();
 		//sc.addChild(s0);
-		
-		RobotArmIK s1 = new RobotArmIK(new Sixi3());
-		sc.addChild(s1);
-		openControlDialog(ro,s1);
-		
-		RobotArmIK s2 = new RobotArmIK(new Sixi2());
-		sc.addChild(s2);
-		s2.setPosition(new Vector3d(50,0,0));
-		openControlDialog(ro,s2);
-		
-		RobotArmIK s3 = new RobotArmIK(new Thor());
-		sc.addChild(s2);
-		s2.setPosition(new Vector3d(100,0,0));
-		openControlDialog(ro,s3);
-		
-		//sixi2.setPosition(new Vector3d(78,-25,0));
-		//Matrix3d m=new Matrix3d();
-		//m.setIdentity();
-		//m.rotZ(Math.toRadians(-90));
-		//sixi2.setRotation(m);
+
+		Vector3d p = new Vector3d();
+
+		addArm(new Sixi3(),p,sc,ro);
+		p.x+=50;
+		addArm(new Sixi2(),p,sc,ro);
+		p.x+=50;
+		addArm(new Thor(),p,sc,ro);
+		p.x+=50;
+		addArm(new Mantis(),p,sc,ro);
+
+		p.x=0;
+		p.y=-25;
+	}
+	
+	private void addArm(RobotArmFK arm,Vector3d p,Entity sc,RobotOverlord ro) {
+		RobotArmIK s3 = new RobotArmIK(arm);
+		s3.setPosition(p);
+		sc.addChild(s3);
+		//openControlDialog(ro,s3);
 	}
 	
 	private void openControlDialog(RobotOverlord ro,RobotArmIK arm) {
