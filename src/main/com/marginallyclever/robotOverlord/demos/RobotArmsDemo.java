@@ -65,17 +65,17 @@ public class RobotArmsDemo implements Demo {
 
 		// add robots
 		Vector3d p = new Vector3d();
-
+/*
 		addArm(new Sixi3(),p,sc,ro);
 		p.x+=50;
 		addArm(new Sixi2(),p,sc,ro);
 		p.x+=50;
 		addArm(new Thor(),p,sc,ro);
 		p.x+=50;
-		addArm(new Mantis(),p,sc,ro);
+		addArm(new Mantis(),p,sc,ro);w
 
 		p.x=0;
-		p.y=-25;
+		p.y=-25;*/
 		addArm(new Sixi1(),p,sc,ro);
 	}
 	
