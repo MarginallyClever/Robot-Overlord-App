@@ -13,6 +13,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Robot_Arm3 extends RobotEntity {
 	/**
 	 * 

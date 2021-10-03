@@ -10,7 +10,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_RTTRTR;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
-
+@Deprecated
 public class Robot_Thor extends RobotEntity {
 	/**
 	 * 

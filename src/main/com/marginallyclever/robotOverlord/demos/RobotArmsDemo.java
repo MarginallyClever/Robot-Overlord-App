@@ -86,6 +86,11 @@ public class RobotArmsDemo implements Demo {
 		s2.setPosition(new Vector3d(50,0,0));
 		openControlDialog(ro,s2);
 		
+		RobotArmIK s3 = new RobotArmIK(new Thor());
+		sc.addChild(s2);
+		s2.setPosition(new Vector3d(100,0,0));
+		openControlDialog(ro,s3);
+		
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		//Matrix3d m=new Matrix3d();
 		//m.setIdentity();
