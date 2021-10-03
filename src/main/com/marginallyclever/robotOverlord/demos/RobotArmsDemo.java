@@ -62,22 +62,8 @@ public class RobotArmsDemo implements Demo {
 		sc.addChild(table);
 		table.setPosition(new Vector3d(0,0,-0.75));
 		table.getMaterial().setDiffuseColor(255f/255f,192f/255f,128f/255f,1f);
-		//box.setSize(160,1,110);
-		//box.setPosition(new Vector3d(59.5,0,-2.5));
-/*
-		// adjust grid
-		GridEntity grid = new GridEntity();
-		addChild(grid);
-		grid.width.set(140);
-		grid.height.set(90);
-		grid.setPosition(new Vector3d(60.0,0,-0.5));
-*/
-    	// add a sixi robot
-		//Sixi2 sixi2=new Sixi2();
-		//addChild(sixi2);
-		//Sixi3FK s0 = new Sixi3FK();
-		//sc.addChild(s0);
 
+		// add robots
 		Vector3d p = new Vector3d();
 
 		addArm(new Sixi3(),p,sc,ro);
@@ -90,6 +76,7 @@ public class RobotArmsDemo implements Demo {
 
 		p.x=0;
 		p.y=-25;
+		addArm(new Sixi1(),p,sc,ro);
 	}
 	
 	private void addArm(RobotArmFK arm,Vector3d p,Entity sc,RobotOverlord ro) {
@@ -99,6 +86,7 @@ public class RobotArmsDemo implements Demo {
 		//openControlDialog(ro,s3);
 	}
 	
+	@SuppressWarnings("unused")
 	private void openControlDialog(RobotOverlord ro,RobotArmIK arm) {
         new Thread(new Runnable() {
             @Override
