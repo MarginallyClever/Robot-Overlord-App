@@ -77,8 +77,6 @@ public class RobotArmIK extends PoseEntity {
 		myArmFK.render(gl2);
 		drawPathToTarget(gl2);
 		gl2.glPopMatrix();
-		
-		MatrixHelper.drawMatrix(gl2, getEndEffector(), 1);
 	}
 	
 	private void drawPathToTarget(GL2 gl2) {
