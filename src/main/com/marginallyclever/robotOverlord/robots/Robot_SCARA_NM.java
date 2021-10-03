@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_SCARA;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 /**
@@ -15,6 +14,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Robot_SCARA_NM extends RobotEntity {
 	/**
 	 * 
@@ -28,7 +28,7 @@ public class Robot_SCARA_NM extends RobotEntity {
 		setName("SCARA NM");
 
 		live = new DHRobotModel();
-		live.setIKSolver(new DHIKSolver_SCARA());
+		//live.setIKSolver(new DHIKSolver_SCARA());
 		setupLinks(live);
 		isFirstTime=true;
 	}

@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 /**
@@ -15,6 +14,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
  * @author Dan Royer
  * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
+@Deprecated
 public class Robot_UArm extends RobotEntity {
 /**
 	 * 
@@ -37,7 +37,7 @@ public class Robot_UArm extends RobotEntity {
 		setName("UArm");
 
 		live = new DHRobotModel();
-		live.setIKSolver(new DHIKSolver_RTT());
+		//live.setIKSolver(new DHIKSolver_RTT());
 		setupLinks(live);
 		isFirstTime=true;
 	}

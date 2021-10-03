@@ -7,7 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_Cartesian;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 /**
@@ -16,6 +15,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Robot_Cartesian extends RobotEntity {
 	/**
 	 * 
@@ -29,7 +29,7 @@ public class Robot_Cartesian extends RobotEntity {
 		setName("Cartesian");
 
 		live = new DHRobotModel();
-		live.setIKSolver(new DHIKSolver_Cartesian());
+		//live.setIKSolver(new DHIKSolver_Cartesian());
 		setupLinks(live);
 		
 		isFirstTime=true;

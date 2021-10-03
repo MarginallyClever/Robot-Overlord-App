@@ -5,7 +5,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHRobotModel;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
-import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver_RTT;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 /**
@@ -25,7 +24,7 @@ public class Robot_Arm3 extends RobotEntity {
 		super();
 		setName("Arm3");
 		live = new DHRobotModel();
-		live.setIKSolver(new DHIKSolver_RTT());
+		//live.setIKSolver(new DHIKSolver_RTT());
 		setupLinks(live);
 	}
 	
