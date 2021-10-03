@@ -6,13 +6,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmFK;
+import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class RobotArmEditor extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private RobotArmFK myArm;
+	private RobotArmIK myArm;
 
-	public RobotArmEditor(RobotArmFK arm) {
+	public RobotArmEditor(RobotArmIK arm) {
 		super();
 		myArm = arm;
 		
@@ -36,7 +36,7 @@ public class RobotArmEditor extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmEditor(new RobotArmFK()));
+		frame.add(new RobotArmEditor(new RobotArmIK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

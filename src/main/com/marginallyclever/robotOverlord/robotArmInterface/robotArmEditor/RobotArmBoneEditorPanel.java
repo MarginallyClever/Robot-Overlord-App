@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.apache.batik.ext.swing.GridBagConstants;
 
@@ -71,14 +73,36 @@ public class RobotArmBoneEditorPanel extends JPanel {
 			shape.setText(bone.getShape().getModelFilename());
 		}
 		
-		name.addActionListener((e)-> onEditAction() );
-		d.addActionListener((e)-> onEditAction() );
-		r.addActionListener((e)-> onEditAction() );
-		alpha.addActionListener((e)-> onEditAction() );
-		theta.addActionListener((e)-> onEditAction() );
-		tMax.addActionListener((e)-> onEditAction() );
-		tMin.addActionListener((e)-> onEditAction() );
-		shape.addActionListener((e)-> onEditAction() );
+		addDocumentListenerToTextField(name);
+		addDocumentListenerToTextField(d);
+		addDocumentListenerToTextField(r);
+		addDocumentListenerToTextField(alpha);
+		addDocumentListenerToTextField(theta);
+		addDocumentListenerToTextField(tMax);
+		addDocumentListenerToTextField(tMin);
+		addDocumentListenerToTextField(shape);
+	}
+	
+	private void addDocumentListenerToTextField(JTextField f) {
+		f.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				System.out.println("insert");
+				onEditAction();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				System.out.println("remove");
+				onEditAction();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				System.out.println("changed");
+				onEditAction();
+			}
+		});
 	}
 
 	private void addNewRow(String label,JComponent field,GridBagConstraints c) {
