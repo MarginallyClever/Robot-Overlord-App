@@ -13,13 +13,13 @@ import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 
 public class JogInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private RobotArmIK mySixi3;
+	private RobotArmIK myArm;
 	private CartesianReportPanel eeReport, eeTargetReport;
 
-	public JogInterface(RobotArmIK sixi3) {
+	public JogInterface(RobotArmIK arm) {
 		super();
 		
-		mySixi3 = sixi3;
+		myArm = arm;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -33,10 +33,10 @@ public class JogInterface extends JPanel {
 		c.anchor = GridBagConstraints.NORTHWEST;
 
 		c.weightx = 1;
-		this.add(new AngleReportPanel(mySixi3), c);
+		this.add(new AngleReportPanel(myArm), c);
 		c.gridx++;
 		c.weightx = 0;
-		this.add(new AngleDrivePanel(mySixi3), c);
+		this.add(new AngleDrivePanel(myArm), c);
 		c.gridx--;
 		c.gridy++;
 		c.weightx = 1;
@@ -47,27 +47,27 @@ public class JogInterface extends JPanel {
 		c.gridx++;
 		c.gridheight=2;
 		c.weightx = 0;
-		this.add(new CartesianDrivePanel(mySixi3), c);
+		this.add(new CartesianDrivePanel(myArm), c);
 		c.gridheight=1;
 		c.gridx--;
 		c.gridy+=2;
 		c.gridwidth = 2;
 		c.weightx = 1;
-		this.add(new JacobianReportPanel(mySixi3), c);
+		this.add(new JacobianReportPanel(myArm), c);
 		c.gridy++;
 		c.weighty = 1;
 		this.add(new JPanel(), c);
 
-		mySixi3.addPropertyChangeListener( (e)-> updateReports() );
+		myArm.addPropertyChangeListener( (e)-> updateReports() );
 		
 		updateReports();
 	}
 	
 	private void updateReports() {
 		//System.out.println("JogInterface.updateReports()");
-		Matrix4d m0=mySixi3.getEndEffector();
+		Matrix4d m0=myArm.getEndEffector();
 		eeReport.updateReport(m0);
-		Matrix4d m1=mySixi3.getEndEffectorTarget();
+		Matrix4d m1=myArm.getEndEffectorTarget();
 		eeTargetReport.updateReport(m1);
 	}
 

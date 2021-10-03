@@ -161,11 +161,11 @@ public class RigidBody extends PoseEntity {
 		Matrix3d m = new Matrix3d();
 		Matrix3d rot = MatrixHelper.getMatrixFromAxisAndRotation(w,len);
 		
-		pose.get(m);
+		myPose.get(m);
 		m.mul(rot);
-		pose.set(m);
+		myPose.set(m);
 		
-		pose.setTranslation(p);
+		myPose.setTranslation(p);
 	}
 	
 
@@ -182,7 +182,7 @@ public class RigidBody extends PoseEntity {
 		super.render(gl2);
 		if(shape!=null) {
 			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 				shape.render(gl2);
 			gl2.glPopMatrix();
 			
@@ -326,7 +326,7 @@ public class RigidBody extends PoseEntity {
 	private Matrix3d getInertiaTensorTransformed() {
 		Matrix3d inertiaTensor = getInertiaTensorFromShape();
 		Matrix3d pose3 = new Matrix3d();
-		pose.get(pose3);
+		myPose.get(pose3);
 		inertiaTensor.mul(pose3);
 		return inertiaTensor;
 	}
@@ -359,7 +359,7 @@ public class RigidBody extends PoseEntity {
 			Point3d [] corners = PrimitiveSolids.get8PointsOfBox(cuboid.getBoundsBottom(),cuboid.getBoundsTop());
 			double adjustZ =0;
 			for( Point3d p : corners ) {
-				pose.transform(p);
+				myPose.transform(p);
 				if(p.z<=0) {
 					// hit floor
 					Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
@@ -371,7 +371,7 @@ public class RigidBody extends PoseEntity {
 					//isPaused=true;
 				}
 			}
-			pose.m23-=adjustZ;
+			myPose.m23-=adjustZ;
 		}
 	}
 

@@ -21,10 +21,10 @@ public class JacobianReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JTable table;
 	
-	public JacobianReportPanel(RobotArmIK sixi3) {
+	public JacobianReportPanel(RobotArmIK arm) {
 		super();
 
-		ApproximateJacobian aj = sixi3.getApproximateJacobian();
+		ApproximateJacobian aj = arm.getApproximateJacobian();
 
 		DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
         renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -47,26 +47,26 @@ public class JacobianReportPanel extends JPanel {
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(false);
 		
-		sixi3.addPropertyChangeListener( (e)-> updateReport(sixi3) );
+		arm.addPropertyChangeListener( (e)-> updateReport(arm) );
 		
-		updateReport(sixi3);
+		updateReport(arm);
 	}
 	
 	@SuppressWarnings("unused")
-	private void setColumnNames(RobotArmIK sixi3) {
+	private void setColumnNames(RobotArmIK arm) {
 		DefaultTableCellRenderer renderHeaderRight = (DefaultTableCellRenderer)table.getTableHeader().getDefaultRenderer();
 		renderHeaderRight.setHorizontalAlignment(SwingConstants.RIGHT);
 		table.getTableHeader().setDefaultRenderer(renderHeaderRight);
 		
 		TableColumnModel tcm = table.getColumnModel();
-		for(int i=0;i<sixi3.getNumBones();++i) {
+		for(int i=0;i<arm.getNumBones();++i) {
 			TableColumn tc = tcm.getColumn(i);
-			tc.setHeaderValue( sixi3.getBone(i).getName() );
+			tc.setHeaderValue( arm.getBone(i).getName() );
 		}
 	}
 
-	private void updateReport(RobotArmIK sixi3) {
-		ApproximateJacobian aj = sixi3.getApproximateJacobian();
+	private void updateReport(RobotArmIK arm) {
+		ApproximateJacobian aj = arm.getApproximateJacobian();
 		for(int y=0;y<aj.jacobian.length;++y) {
 			for(int x=0;x<aj.jacobian[y].length;++x) {
 				table.setValueAt(String.format("%.5f", aj.jacobian[y][x]), y, x);

@@ -236,16 +236,15 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	}
 	
 	@Override
-	protected Object clone() {
-		Entity e;
-		try {
-			e = (Entity)super.clone();
-		} catch (CloneNotSupportedException e1) {
-			throw new InternalError();
-		}
+	public Object clone() throws CloneNotSupportedException {
+		Entity e = (Entity)super.clone();
+		
+		e.children = new ArrayList<Entity>();
 		for(int i=0;i<children.size();++i) {
-			e.children.set(i, (Entity)children.get(i).clone());
+			e.children.add((Entity)children.get(i).clone());
 		}
+		
+		e.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
 		
 		return e;
 	}

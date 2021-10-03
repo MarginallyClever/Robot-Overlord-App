@@ -20,29 +20,16 @@ public class AngleDrivePanel extends JPanel {
 	private JRadioButton [] buttons;
 	private Dial dial = new Dial();
 
-	public AngleDrivePanel(RobotArmIK sixi3) {
+	public AngleDrivePanel(RobotArmIK arm) {
 		super();
 		
-		buttons = new JRadioButton[sixi3.getNumBones()];
+		buttons = new JRadioButton[arm.getNumBones()];
 		for(int i=0;i<buttons.length;++i) {
-			buttons[i] = makeRadioButton(buttonGroup,sixi3.getBone(i).getName());
+			buttons[i] = makeRadioButton(buttonGroup,arm.getBone(i).getName());
 		}
 		buttons[0].setSelected(true);
 
-		dial.addActionListener((evt)-> {
-			//System.out.println("FK " + buttonGroup.getSelection().getActionCommand() + " V"+dial.getChange());
-			
-			double [] fk = sixi3.getAngles();
-			
-			for(int i=0;i<buttons.length;++i) {
-				if(buttons[i].isSelected()) {
-					fk[i] += dial.getChange();
-				}
-			}
-			
-			sixi3.setAngles(fk);
-			sixi3.setEndEffectorTarget(sixi3.getEndEffector());
-		});
+		dial.addActionListener((evt)-> onDialTurn(arm) );
 		dial.setPreferredSize(new Dimension(120,120));
 		
 		this.setBorder(BorderFactory.createTitledBorder("AngleDrive"));
@@ -71,6 +58,21 @@ public class AngleDrivePanel extends JPanel {
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.EAST;
 		this.add(dial,c);
+	}
+
+	private void onDialTurn(RobotArmIK arm) {
+		//System.out.println("FK " + buttonGroup.getSelection().getActionCommand() + " V"+dial.getChange());
+		
+		double [] fk = arm.getAngles();
+		
+		for(int i=0;i<buttons.length;++i) {
+			if(buttons[i].isSelected()) {
+				fk[i] += dial.getChange();
+			}
+		}
+		
+		arm.setAngles(fk);
+		arm.setEndEffectorTarget(arm.getEndEffector());
 	}
 
 	private JRadioButton makeRadioButton(ButtonGroup group, String label) {

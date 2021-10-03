@@ -19,7 +19,7 @@ import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
 public class MarlinInterface extends JPanel {
 	private static final long serialVersionUID = -6388563393882327725L;
 
-	private RobotArmIK mySixi3;
+	private RobotArmIK myArm;
 	private int lineNumber;
 
 	private TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
@@ -29,16 +29,16 @@ public class MarlinInterface extends JPanel {
 	private JButton bSetHome = new JButton("Set Home");
 	private JButton bGoHome = new JButton("Go Home");
 
-	public MarlinInterface(RobotArmIK sixi3) {
+	public MarlinInterface(RobotArmIK arm) {
 		super();
 
-		mySixi3 = sixi3;
+		myArm = arm;
 
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
 		this.add(chatInterface, BorderLayout.CENTER);
 
-		sixi3.addPropertyChangeListener((e) -> {
+		arm.addPropertyChangeListener((e) -> {
 			if(e.getPropertyName().contentEquals("ee")) sendGoto();	
 		});
 
@@ -106,10 +106,10 @@ public class MarlinInterface extends JPanel {
 	private void processM114Reply(String message) {
 		message = message.substring(0, message.indexOf("Count"));
 		String[] majorParts = message.split("\b");
-		double[] angles = mySixi3.getAngles();
+		double[] angles = myArm.getAngles();
 
-		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
-			RobotArmBone bone = mySixi3.getBone(i);
+		for (int i = 0; i < myArm.getNumBones(); ++i) {
+			RobotArmBone bone = myArm.getBone(i);
 			for (String s : majorParts) {
 				String[] minorParts = s.split(":");
 
@@ -121,14 +121,14 @@ public class MarlinInterface extends JPanel {
 				}
 			}
 		}
-		mySixi3.setAngles(angles);
+		myArm.setAngles(angles);
 	}
 
 	private void sendGoto() {
 		//System.out.println("MarlinInterface.sendGoto()");
 		String action = "G1";
-		for (int i = 0; i < mySixi3.getNumBones(); ++i) {
-			RobotArmBone bone = mySixi3.getBone(i);
+		for (int i = 0; i < myArm.getNumBones(); ++i) {
+			RobotArmBone bone = myArm.getBone(i);
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
 		sendCommand(action);
@@ -182,13 +182,13 @@ public class MarlinInterface extends JPanel {
 			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
 		}
 		sendCommand(action);
-		mySixi3.setAngles(temp.getAngles());
+		myArm.setAngles(temp.getAngles());
 	}
 
 	private void sendGoHome() {
 		RobotArmIK temp = new RobotArmIK();
-		mySixi3.setAngles(temp.getAngles());
-		mySixi3.setEndEffectorTarget(mySixi3.getEndEffector());
+		myArm.setAngles(temp.getAngles());
+		myArm.setEndEffectorTarget(myArm.getEndEffector());
 	}
 
 	// TEST

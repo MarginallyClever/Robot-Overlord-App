@@ -86,7 +86,7 @@ public class Sixi2 extends PoseEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, pose);
+		MatrixHelper.applyMatrix(gl2, myPose);
 		
 		// live machine reports
 		live.render(gl2);
@@ -170,7 +170,7 @@ public class Sixi2 extends PoseEntity {
 		view.addButton("Append").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				queueDestination((Sixi2Command)cursor.clone());
+				queueDestination((Sixi2Command)cursor);
 			}
 		});
 		view.addButton("Time estimate").addPropertyChangeListener(new PropertyChangeListener() {
@@ -281,7 +281,12 @@ public class Sixi2 extends PoseEntity {
 		// clone the playlist so that it cannot be broken while the playback is in progress.
 		for( Entity c : children ) {
 			if( c instanceof Sixi2Command ) {
-				playlist.add((Sixi2Command)((Sixi2Command) c).clone());
+				try {
+					playlist.add((Sixi2Command)((Sixi2Command) c).clone());
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		isPlaying=true;
@@ -354,13 +359,18 @@ public class Sixi2 extends PoseEntity {
 	 */
 	public void queueDestination(Sixi2Command c) {
 		// clone it
-		Sixi2Command copy = (Sixi2Command)c.clone();
-		// find the original
-		int i = children.indexOf(c);
-		if(i==-1) i = children.size();
-		// add before original or tail of queue, whichever comes first.
-		addChild(i,copy);
-		((RobotOverlord)getRoot()).updateEntityTree();
+		try {
+			Sixi2Command copy = (Sixi2Command)c.clone();
+			// find the original
+			int i = children.indexOf(c);
+			if(i==-1) i = children.size();
+			// add before original or tail of queue, whichever comes first.
+			addChild(i,copy);
+			((RobotOverlord)getRoot()).updateEntityTree();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void goTo(Sixi2Command command) {

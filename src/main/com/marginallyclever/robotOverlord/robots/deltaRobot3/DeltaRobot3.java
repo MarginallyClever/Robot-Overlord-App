@@ -545,9 +545,9 @@ public class DeltaRobot3 extends RobotEntity {
 			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
 			//n1 = n* c + o*s;
-			Vector3d forward = MatrixHelper.getXAxis(this.pose);
-			Vector3d right   = MatrixHelper.getYAxis(this.pose);
-			Vector3d up      = MatrixHelper.getZAxis(this.pose);
+			Vector3d forward = MatrixHelper.getXAxis(this.myPose);
+			Vector3d right   = MatrixHelper.getYAxis(this.myPose);
+			Vector3d up      = MatrixHelper.getZAxis(this.myPose);
 
 			n1.set(forward);
 			n1.scale(c);
@@ -658,9 +658,9 @@ public class DeltaRobot3 extends RobotEntity {
 			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
 
-			Vector3d forward = MatrixHelper.getXAxis(this.pose);
-			Vector3d right   = MatrixHelper.getYAxis(this.pose);
-			Vector3d up      = MatrixHelper.getZAxis(this.pose);
+			Vector3d forward = MatrixHelper.getXAxis(this.myPose);
+			Vector3d right   = MatrixHelper.getYAxis(this.myPose);
+			Vector3d up      = MatrixHelper.getZAxis(this.myPose);
 
 			//n1 = n* c + o*s;
 			n1.set(forward);
@@ -688,7 +688,7 @@ public class DeltaRobot3 extends RobotEntity {
 			temp.set(o1);
 			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Y);
 			arma.shoulder.sub(temp);
-			arma.shoulder.add(MatrixHelper.getPosition(this.pose));
+			arma.shoulder.add(MatrixHelper.getPosition(this.myPose));
 
 			//		    arma.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
 			arma.elbow.set(n1);

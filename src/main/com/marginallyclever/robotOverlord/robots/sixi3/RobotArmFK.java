@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.robots.sixi3;
 import java.beans.PropertyChangeEvent;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -14,7 +15,6 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.Collidable;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 import com.marginallyclever.robotOverlord.shape.Shape;
@@ -30,7 +30,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
  * @author Dan Royer
  * @since 2021-02-24
  */
-public class RobotArmFK extends PoseEntity implements Collidable {
+public class RobotArmFK extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -54,7 +54,19 @@ public class RobotArmFK extends PoseEntity implements Collidable {
 			b.updateMatrix();
 		}
 	}
-
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		RobotArmFK b = (RobotArmFK)super.clone();
+		b.bones = new ArrayList<RobotArmBone>();
+		Iterator<RobotArmBone> i = bones.iterator();
+		while(i.hasNext()) {
+			b.bones.add((RobotArmBone)(i.next().clone()));
+		}
+		
+		return b;
+	}
+	
 	/**
 	 * Set up the hierarchy according to the DH parameters.  Also load the shapes.  
 	 * The physical origin of the shapes does not match the DH linkage description of the robot, 
@@ -91,7 +103,7 @@ public class RobotArmFK extends PoseEntity implements Collidable {
 	@Override
 	public void render(GL2 gl2) {		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 			drawMeshes(gl2);
 			drawExtras(gl2);
 		gl2.glPopMatrix();
@@ -295,7 +307,6 @@ public class RobotArmFK extends PoseEntity implements Collidable {
 		}
 	}
 	
-	@Override
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
 

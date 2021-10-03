@@ -242,7 +242,7 @@ public class RotaryStewartPlatform  extends PoseEntity {
 		super.render(gl2);
 
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 			
 			baseModel.render(gl2);
 			

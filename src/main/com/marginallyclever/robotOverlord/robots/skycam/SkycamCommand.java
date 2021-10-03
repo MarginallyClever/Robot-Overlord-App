@@ -85,7 +85,7 @@ public class SkycamCommand extends PoseEntity implements Cloneable, EntityFocusL
 	public void lostFocus() {}
 
 	@Override
-	public Object clone() {
+	public Object clone() throws CloneNotSupportedException {
 		SkycamCommand c = (SkycamCommand)super.clone();
 		c.feedrateSlider = new DoubleEntity(feedrateSlider.getName());
 		c.feedrateSlider.set(feedrateSlider.get());

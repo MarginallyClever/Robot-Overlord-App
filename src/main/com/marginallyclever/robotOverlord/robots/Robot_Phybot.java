@@ -135,7 +135,7 @@ public class Robot_Phybot extends RobotEntity {
 		material.render(gl2);
 		
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);			
+			MatrixHelper.applyMatrix(gl2, myPose);			
 			live.render(gl2);
 		gl2.glPopMatrix();
 		

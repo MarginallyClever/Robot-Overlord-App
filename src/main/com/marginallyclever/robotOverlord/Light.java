@@ -129,7 +129,7 @@ public class Light extends PoseEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 			PrimitiveSolids.drawStar(gl2, 10);
 		gl2.glPopMatrix();
 	}

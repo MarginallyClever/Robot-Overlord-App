@@ -64,7 +64,7 @@ public class Camera extends PoseEntity {
 	
 	public Vector3d getOrbitPoint() {
 		Vector3d p = getPosition();
-		Vector3d oldZ = MatrixHelper.getZAxis(pose);
+		Vector3d oldZ = MatrixHelper.getZAxis(myPose);
 		oldZ.scale(zoom.get());
 		p.add(oldZ);
 		return p;
@@ -121,8 +121,8 @@ public class Camera extends PoseEntity {
 				if( InputManager.isOn(InputManager.Source.KEY_LSHIFT) ||
 					InputManager.isOn(InputManager.Source.KEY_RSHIFT) ) {
 					// translate relative to camera's current orientation
-					Vector3d vx = MatrixHelper.getXAxis(pose);
-					Vector3d vy = MatrixHelper.getYAxis(pose);
+					Vector3d vx = MatrixHelper.getXAxis(myPose);
+					Vector3d vy = MatrixHelper.getYAxis(myPose);
 					Vector3d p = getPosition();
 					double zSq = Math.sqrt(zoom.get())*0.01;
 					vx.scale(zSq*-dx);
@@ -135,7 +135,7 @@ public class Camera extends PoseEntity {
 				} else if(InputManager.isOn(InputManager.Source.KEY_LCONTROL) ||
 						  InputManager.isOn(InputManager.Source.KEY_RCONTROL) ) {
 					// up and down to fly forward and back
-					Vector3d zAxis = MatrixHelper.getZAxis(pose);
+					Vector3d zAxis = MatrixHelper.getZAxis(myPose);
 					zAxis.scale(dy);
 					
 					Vector3d p = getPosition();
@@ -168,7 +168,7 @@ public class Camera extends PoseEntity {
 					
 					// adjust the camera position to orbit around a point 'zoom' in front of the camera
 					// relies on the Z axis of the matrix BEFORE any rotations are applied.
-					Vector3d oldZ = MatrixHelper.getZAxis(pose);
+					Vector3d oldZ = MatrixHelper.getZAxis(myPose);
 					oldZ.scale(z);
 					
 					// orbit around the focal point
@@ -215,9 +215,9 @@ public class Camera extends PoseEntity {
         		//System.out.println("stick");
 	        	isCurrentlyMoving=true;
 	
-				Vector3d vx = MatrixHelper.getXAxis(pose);
-				Vector3d vy = MatrixHelper.getYAxis(pose);
-				Vector3d vz = MatrixHelper.getZAxis(pose);
+				Vector3d vx = MatrixHelper.getXAxis(myPose);
+				Vector3d vy = MatrixHelper.getYAxis(myPose);
+				Vector3d vz = MatrixHelper.getZAxis(myPose);
 				Vector3d p = getPosition();
 				
 				// orbit around the focal point
@@ -228,7 +228,7 @@ public class Camera extends PoseEntity {
 				setRotation(rot);
 	
 				// adjust the camera position to orbit around a point 'zoom' in front of the camera
-				Vector3d oldZ = MatrixHelper.getZAxis(pose);
+				Vector3d oldZ = MatrixHelper.getZAxis(myPose);
 				oldZ.scale(zoom.get());
 				Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
 				newZ.scale(zoom.get());
@@ -259,7 +259,7 @@ public class Camera extends PoseEntity {
 	}
 	
 	private void drawOrbitPoint(GL2 gl2) {
-		Vector3d oldZ = MatrixHelper.getZAxis(pose);
+		Vector3d oldZ = MatrixHelper.getZAxis(myPose);
 		oldZ.scale(zoom.get());
 		
 		Vector3d p = getPosition();

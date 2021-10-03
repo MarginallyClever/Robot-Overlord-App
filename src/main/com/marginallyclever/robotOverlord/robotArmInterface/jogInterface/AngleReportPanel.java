@@ -19,11 +19,11 @@ public class AngleReportPanel extends JPanel {
 	private JSlider [] joint;
 	private JLabel [] values;
 	
-	public AngleReportPanel(RobotArmIK sixi3) {
+	public AngleReportPanel(RobotArmIK arm) {
 		super();
 		
-		joint = new JSlider[sixi3.getNumBones()];
-		values = new JLabel[sixi3.getNumBones()];
+		joint = new JSlider[arm.getNumBones()];
+		values = new JLabel[arm.getNumBones()];
 		this.setBorder(BorderFactory.createTitledBorder("AngleReport"));
 		this.setLayout(new GridBagLayout());
 
@@ -36,7 +36,7 @@ public class AngleReportPanel extends JPanel {
 		c.gridwidth=1;
 		
 		for(int i=0;i<joint.length;++i) {
-			RobotArmBone bone = sixi3.getBone(i);
+			RobotArmBone bone = arm.getBone(i);
 			c.gridx=0;
 			c.weightx=0;
 			c.anchor=GridBagConstraints.WEST;
@@ -58,8 +58,8 @@ public class AngleReportPanel extends JPanel {
 			c.gridy++;
 		}
 
-		sixi3.addPropertyChangeListener((e)-> updateReport(sixi3) );
-		updateReport(sixi3);
+		arm.addPropertyChangeListener((e)-> updateReport(arm) );
+		updateReport(arm);
 	}
 
 	private void updateReport(RobotArmIK sixi3) {

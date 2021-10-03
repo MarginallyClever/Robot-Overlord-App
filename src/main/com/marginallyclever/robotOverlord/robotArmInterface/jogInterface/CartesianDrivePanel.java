@@ -129,34 +129,35 @@ public class CartesianDrivePanel extends JPanel {
 		return rb;
 	}
 	
-	private void onDialTurn(RobotArmIK sixi3) {
+	private void onDialTurn(RobotArmIK arm) {
 		double v_mm = dial.getChange()*0.1;
-		Matrix4d m4 = sixi3.getEndEffectorTarget();
-		Matrix4d mFor = getFrameOfReferenceMatrix(sixi3);
-		moveEndEffectorInFrameOfReference(m4,mFor,v_mm);
+		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(arm,v_mm);
+		arm.setEndEffectorTarget(m4);
 		try {
-			JacobianNewtonRaphson.iterate(sixi3,m4,20);
+			JacobianNewtonRaphson.iterate(arm,m4,20);
 		} catch(Exception e) {
 			// TODO deal with this more elegantly?
-			Log.error("CartesianDrivePanel failed for move to "+m4+": "+e.getLocalizedMessage());
+			String s = "CartesianDrivePanel failed for move: "+e.getLocalizedMessage();
+			System.out.println(s);
+			Log.error(s);
 		}
 	}
 	
-	private void moveEndEffectorInFrameOfReference(Matrix4d m4, Matrix4d mFor, double v_mm) {
+	private Matrix4d getEndEffectorMovedInFrameOfReference(RobotArmIK arm, double v_mm) {
+		Matrix4d m4 = arm.getEndEffectorTarget();
+		Matrix4d mFor = getFrameOfReferenceMatrix(arm);
+		
 		Vector3d p=new Vector3d();
 		Matrix3d mA = new Matrix3d(); 
 		m4.get(p);
 		m4.get(mA);
 		
 		if(x.isSelected()) {
-			Vector3d v = MatrixHelper.getXAxis(mFor);
-			translateMatrix(m4,v,v_mm);
+			translateMatrix(m4,MatrixHelper.getXAxis(mFor),v_mm);
 		} else if(y.isSelected()) {
-			Vector3d v = MatrixHelper.getYAxis(mFor);
-			translateMatrix(m4,v,v_mm);
+			translateMatrix(m4,MatrixHelper.getYAxis(mFor),v_mm);
 		} else if(z.isSelected()) {
-			Vector3d v = MatrixHelper.getZAxis(mFor);
-			translateMatrix(m4,v,v_mm);
+			translateMatrix(m4,MatrixHelper.getZAxis(mFor),v_mm);
 		} else {
 			Matrix3d rot = new Matrix3d();
 			Matrix3d mB = new Matrix3d();
@@ -177,6 +178,8 @@ public class CartesianDrivePanel extends JPanel {
 			m4.set(mA);
 			m4.setTranslation(p);
 		}
+		
+		return m4;
 	}
 
 	private void translateMatrix(Matrix4d m4, Vector3d v, double v_mm) {
@@ -193,8 +196,7 @@ public class CartesianDrivePanel extends JPanel {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {}
 
 		JFrame frame = new JFrame("CartesianDrivePanel");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

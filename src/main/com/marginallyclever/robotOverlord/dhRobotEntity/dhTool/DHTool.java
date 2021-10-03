@@ -43,7 +43,7 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 			PrimitiveSolids.drawSphere(gl2, 1);
 
 			toolTipOffset.render(gl2);

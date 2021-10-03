@@ -43,7 +43,17 @@ public class RobotArmIK extends PoseEntity {
 		setName(myArmFK.getName());
 		setEndEffectorTarget(getEndEffector());
 	}
-	
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		RobotArmIK b = (RobotArmIK)super.clone();
+		
+		b.myArmFK = (RobotArmFK)myArmFK.clone();
+		b.eeTarget = (PoseEntity)(eeTarget.clone());
+		
+		return b;
+	}
+
 	@Override
 	public void update(double dt) {
 		super.update(dt);
@@ -215,14 +225,11 @@ public class RobotArmIK extends PoseEntity {
 	}
 	
 	public Matrix4d getEndEffector() {
-		Matrix4d m = getPoseWorld();
-		Matrix4d ee = myArmFK.getEndEffector(); 
-		m.mul(ee);
-		return m;
+		return myArmFK.getEndEffector(); 
 	}
 
 	public Matrix4d getEndEffectorTarget() {
-		return eeTarget.getPoseWorld();
+		return eeTarget.getPose();
 	}
 
 	/**
@@ -232,9 +239,6 @@ public class RobotArmIK extends PoseEntity {
 	 */
 	public void setEndEffectorTarget(Matrix4d m1) {
 		Matrix4d m0 = eeTarget.getPoseWorld();
-		Matrix4d inverseRobotRoot = getPoseWorld();
-		inverseRobotRoot.invert();
-		m1.mul(inverseRobotRoot,m1);
 		eeTarget.setPose(m1);
 		
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"eeTarget",m0,m1));

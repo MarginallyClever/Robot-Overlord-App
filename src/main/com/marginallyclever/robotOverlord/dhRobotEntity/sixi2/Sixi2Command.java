@@ -63,7 +63,7 @@ public class Sixi2Command extends Entity implements EntityFocusListener, Moveabl
 	}
 	
 	@Override
-	protected Object clone() {
+	public Object clone() throws CloneNotSupportedException {
 		Sixi2Command c = (Sixi2Command)super.clone();
 		c.poseIK = (Matrix4d)poseIK.clone();
 		c.poseFK = (PoseFK)poseFK.clone();

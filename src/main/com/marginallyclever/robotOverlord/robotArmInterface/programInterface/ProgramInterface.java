@@ -45,11 +45,11 @@ public class ProgramInterface extends JPanel {
 	private JButton bRewind = new JButton("Rewind");
 	private JButton bStep = new JButton("Step");
 	
-	private RobotArmIK mySixi3;
+	private RobotArmIK myArm;
 		
-	public ProgramInterface(RobotArmIK sixi3) {
+	public ProgramInterface(RobotArmIK arm) {
 		super();
-		mySixi3 = sixi3;
+		myArm = arm;
 		createCellRenderingSystem();
 		
 		JScrollPane scrollPane = new JScrollPane(listView);
@@ -127,8 +127,8 @@ public class ProgramInterface extends JPanel {
 		ProgramEvent pe = listModel.get(now);
 		System.out.println("Step to ("+now+"):"+pe.toString());
 
-		mySixi3.setAngles(pe.getAngles());
-		mySixi3.setEndEffectorTarget(mySixi3.getEndEffector());
+		myArm.setAngles(pe.getAngles());
+		myArm.setEndEffectorTarget(myArm.getEndEffector());
 		
 		listView.setSelectedIndex(now+1);
 		if(listView.getSelectedIndex()==now) {
@@ -196,7 +196,7 @@ public class ProgramInterface extends JPanel {
 	}
 
 	private void runAddAction() {
-		listModel.addElement(new ProgramEvent(mySixi3.getAngles()));
+		listModel.addElement(new ProgramEvent(myArm.getAngles()));
 	}
 
 	private void runCopyAction() {

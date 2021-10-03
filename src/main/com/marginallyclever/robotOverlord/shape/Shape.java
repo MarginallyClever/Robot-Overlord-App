@@ -160,11 +160,11 @@ public class Shape extends PoseEntity implements Collidable {
 	
 	private void rebuildLocalPose() {
 		Vector3d r = rotationAdjust.get();
-		Matrix4d rotX = new Matrix4d();		rotX.rotX(Math.toRadians(r.x));		pose.set(rotX);
-		Matrix4d rotY = new Matrix4d();		rotY.rotY(Math.toRadians(r.y));		pose.mul(rotY);
-		Matrix4d rotZ = new Matrix4d();		rotZ.rotZ(Math.toRadians(r.z));		pose.mul(rotZ);
-		pose.setScale(scale.get());
-		pose.setTranslation(originAdjust.get());
+		Matrix4d rotX = new Matrix4d();		rotX.rotX(Math.toRadians(r.x));		myPose.set(rotX);
+		Matrix4d rotY = new Matrix4d();		rotY.rotY(Math.toRadians(r.y));		myPose.mul(rotY);
+		Matrix4d rotZ = new Matrix4d();		rotZ.rotZ(Math.toRadians(r.z));		myPose.mul(rotZ);
+		myPose.setScale(scale.get());
+		myPose.setTranslation(originAdjust.get());
 		updateCuboid();
 	}
 
@@ -210,7 +210,7 @@ public class Shape extends PoseEntity implements Collidable {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, pose);
+		MatrixHelper.applyMatrix(gl2, myPose);
 
 		if( myMesh==null ) {
 			// draw placeholder

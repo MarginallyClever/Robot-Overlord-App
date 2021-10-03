@@ -27,7 +27,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
  * @author Dan Royer
  *
  */
-public class PoseEntity extends Entity implements Removable, Cloneable, Moveable {
+public class PoseEntity extends Entity implements Removable, Moveable {
 	/**
 	 * 
 	 */
@@ -44,7 +44,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	private transient int pickName;	
 
 	// pose relative to my parent.
-	protected Matrix4d pose = new Matrix4d();
+	protected Matrix4d myPose = new Matrix4d();
 
 	// which axis do we want to move?
 	private IntEntity axisChoice = new IntEntity("Jog direction",0);
@@ -74,7 +74,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 		showLineage.addPropertyChangeListener(this);
 		axisChoice.addPropertyChangeListener(this);
 		
-		pose.setIdentity();
+		myPose.setIdentity();
 	}
 
 	public PoseEntity(String name) {
@@ -84,7 +84,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	
 	public void set(PoseEntity b) {
 		super.set(b);
-		pose.set(b.pose);
+		myPose.set(b.myPose);
 	}
 
 	public int getPickName() {
@@ -98,7 +98,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 
 			// helpful info
 			if(showLocalOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
@@ -144,12 +144,12 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 
 	public Vector3d getPosition() {
 		Vector3d trans = new Vector3d();
-		pose.get(trans);
+		myPose.get(trans);
 		return trans;
 	}
 
 	public void setPosition(Vector3d pos) {
-		Matrix4d m = new Matrix4d(pose);
+		Matrix4d m = new Matrix4d(myPose);
 		m.setTranslation(pos);
 		setPose(m);
 	}
@@ -170,7 +170,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	 */
 	public void getRotation(Vector3d arg0) {
 		Matrix3d temp = new Matrix3d();
-		pose.get(temp);
+		myPose.get(temp);
 		arg0.set(MatrixHelper.matrixToEuler(temp));
 	}
 
@@ -194,7 +194,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	}
 	
 	public void getRotation(Matrix4d arg0) {
-		arg0.set(pose);
+		arg0.set(myPose);
 		arg0.setTranslation(new Vector3d(0,0,0));
 	}
 	
@@ -202,7 +202,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	 * @return {@link Matrix4d} of the local pose
 	 */
 	public Matrix4d getPose() {
-		return new Matrix4d(pose);
+		return new Matrix4d(myPose);
 	}
 
 	/**
@@ -211,8 +211,8 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	 * @param arg0 the local pose
 	 */
 	public void setPose(Matrix4d arg0) {
-		Matrix4d oldValue = new Matrix4d(pose);
-		pose.set(arg0);
+		Matrix4d oldValue = new Matrix4d(myPose);
+		myPose.set(arg0);
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"pose",oldValue,arg0));
 	}
 
@@ -276,7 +276,7 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 		
 		if(parent!=null && parent instanceof PoseEntity) {
 			Matrix4d m = ((PoseEntity)parent).getPoseWorld();
-			m.mul(pose);
+			m.mul(myPose);
 			return m;
 		} else {
 			return getPose();
@@ -477,10 +477,10 @@ public class PoseEntity extends Entity implements Removable, Cloneable, Moveable
 	}
 	
 	@Override
-	protected Object clone() {
-		PoseEntity e = (PoseEntity)super.clone();
-		e.pose = (Matrix4d)pose.clone();
-		return e;
+	public Object clone() throws CloneNotSupportedException {
+		PoseEntity b = (PoseEntity)super.clone();
+		b.myPose = (Matrix4d)myPose.clone();
+		return b;
 	}
 	
 	@Override

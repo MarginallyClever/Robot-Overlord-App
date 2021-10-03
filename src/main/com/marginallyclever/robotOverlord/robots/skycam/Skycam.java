@@ -66,7 +66,7 @@ public class Skycam extends PoseEntity {
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, pose);
+		MatrixHelper.applyMatrix(gl2, myPose);
 		
 		// live machine reports
 		live.render(gl2);
@@ -150,7 +150,7 @@ public class Skycam extends PoseEntity {
 		view.addButton("Append").addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				queueDestination((SkycamCommand)cursor.clone());
+				queueDestination((SkycamCommand)cursor);
 			}
 		});
 		view.addButton("Time estimate").addPropertyChangeListener(new PropertyChangeListener() {
@@ -259,7 +259,12 @@ public class Skycam extends PoseEntity {
 		// clone the playlist so that it cannot be broken while the playback is in progress.
 		for( Entity c : children ) {
 			if( c instanceof SkycamCommand ) {
-				playlist.add((SkycamCommand)((SkycamCommand)c).clone());
+				try {
+					playlist.add((SkycamCommand)((SkycamCommand)c).clone());
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		isPlaying=true;
@@ -331,14 +336,18 @@ public class Skycam extends PoseEntity {
 	 * @param c the command to queue.
 	 */
 	public void queueDestination(SkycamCommand c) {
-		// clone it
-		SkycamCommand copy = (SkycamCommand)c.clone();
-		// find the original
-		int i = children.indexOf(c);
-		if(i==-1) i = children.size();
-		// add before original or tail of queue, whichever comes first.
-		addChild(i,copy);
-		((RobotOverlord)getRoot()).updateEntityTree();
+		try {
+			SkycamCommand copy = (SkycamCommand)c.clone();
+			// find the original
+			int i = children.indexOf(c);
+			if(i==-1) i = children.size();
+			// add before original or tail of queue, whichever comes first.
+			addChild(i,copy);
+			((RobotOverlord)getRoot()).updateEntityTree();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void goTo(SkycamCommand command) {

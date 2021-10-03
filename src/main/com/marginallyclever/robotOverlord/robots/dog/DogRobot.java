@@ -153,7 +153,7 @@ public class DogRobot extends PoseEntity {
 
 	private void drawCurrentDogPose(GL2 gl2) {
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, pose);
+		MatrixHelper.applyMatrix(gl2, myPose);
 		drawTorso(gl2);
 		drawLegs(gl2);
 		gl2.glPopMatrix();

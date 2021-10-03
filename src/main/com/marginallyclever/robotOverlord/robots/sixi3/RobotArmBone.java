@@ -12,7 +12,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @since 2021-02-24
  *
  */
-public class RobotArmBone {
+public class RobotArmBone implements Cloneable {
 	private String name = "";
 	// D-H parameters combine to make this matrix which is relative to the parent.
 	private Matrix4d pose = new Matrix4d();
@@ -49,6 +49,11 @@ public class RobotArmBone {
 		this.thetaMax=thetaMax;
 		this.thetaMin=thetaMin;
 		shape = new Shape(name,shapeFilename);
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 	
 	public void setAngleWRTLimits(double newAngle) {

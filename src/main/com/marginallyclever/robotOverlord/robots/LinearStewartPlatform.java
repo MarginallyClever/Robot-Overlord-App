@@ -180,7 +180,7 @@ public class LinearStewartPlatform  extends PoseEntity {
 
 		gl2.glPushMatrix();
 			// draw the base
-			MatrixHelper.applyMatrix(gl2, pose);
+			MatrixHelper.applyMatrix(gl2, myPose);
 			baseModel.render(gl2);
 			
 			// draw the end effector
