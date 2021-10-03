@@ -132,7 +132,7 @@ public class CartesianDrivePanel extends JPanel {
 	private void onDialTurn(RobotArmIK arm) {
 		double v_mm = dial.getChange()*0.1;
 		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(arm,v_mm);
-		arm.setEndEffectorTarget(m4);
+		//arm.setEndEffectorTarget(m4);
 		try {
 			JacobianNewtonRaphson.iterate(arm,m4,20);
 		} catch(Exception e) {
