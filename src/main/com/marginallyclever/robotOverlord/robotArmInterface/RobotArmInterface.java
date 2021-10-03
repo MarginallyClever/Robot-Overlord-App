@@ -9,7 +9,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robotArmInterface.jogInterface.JogInterface;
 import com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface.MarlinInterface;
 import com.marginallyclever.robotOverlord.robotArmInterface.programInterface.ProgramInterface;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class RobotArmInterface extends JPanel {
 	private static final long serialVersionUID = 1L;

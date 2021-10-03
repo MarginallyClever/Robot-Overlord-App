@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robots.sixi3;
+package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import javax.vecmath.Matrix4d;
 

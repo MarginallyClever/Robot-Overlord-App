@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord.demos;
 
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmFK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class Sixi2 extends RobotArmFK {

@@ -14,8 +14,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.ApproximateJacobian;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.ApproximateJacobian;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class JacobianReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

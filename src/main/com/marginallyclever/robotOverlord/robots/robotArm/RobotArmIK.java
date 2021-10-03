@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robots.sixi3;
+package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -6,12 +6,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -57,7 +62,6 @@ public class RobotArmIK extends PoseEntity {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		myArmFK.update(dt);
 		
 		// move arm towards result to get future pose
 		try {
@@ -81,7 +85,6 @@ public class RobotArmIK extends PoseEntity {
 	
 	private void drawPathToTarget(GL2 gl2) {
 		Matrix4d start = myArmFK.getEndEffector();
-		
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
 		
@@ -104,24 +107,53 @@ public class RobotArmIK extends PoseEntity {
 		myArmFK.getView(view);
 		view.pushStack("IK","Inverse Kinematics");
 
+		ViewElementButton bOpen = view.addButton("Open control panel");
 		ViewElementButton b = view.addButton("Reset GoTo");
-		b.addPropertyChangeListener((evt) -> {
-			eeTarget.setPose(myArmFK.getEndEffector());
-		});
-
 		ViewElementButton b2 = view.addButton("Run test");
-		b2.addPropertyChangeListener((evt) -> {
-			//testPathCalculation(100,true);
-			//testPathCalculation(100,false);
-			//testTime(true);
-			testTime(false);
-		});
+		
+		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
+		b.addPropertyChangeListener((evt) -> onResetGotoAction() );
+		b2.addPropertyChangeListener((evt) -> onRunTest() );
 				
 		view.popStack();
 		
 		super.getView(view);
 	}
 	
+	private void onRunTest() {
+		//testPathCalculation(100,true);
+		//testPathCalculation(100,false);
+		//testTime(true);
+		testTime(false);
+	}
+
+	private void onResetGotoAction() {
+		eeTarget.setPose(myArmFK.getEndEffector());
+	}
+
+	private void onOpenAction() {
+		JFrame parent = null;
+		
+		Entity e = this.getRoot();
+		if(e instanceof RobotOverlord) {
+			parent = ((RobotOverlord)e).getMainFrame();
+		}
+		
+		final RobotArmIK me = this;
+		final JFrame parentFrame = parent;
+		
+        new Thread(new Runnable() {
+            @Override
+			public void run() {
+            	JDialog frame = new JDialog(parentFrame,getName());
+        		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        		frame.add(new RobotArmInterface(me));
+        		frame.pack();
+        		frame.setVisible(true);
+            }
+        }).start();
+	}
+
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
 		double [] jOriginal = myArmFK.getAngles();

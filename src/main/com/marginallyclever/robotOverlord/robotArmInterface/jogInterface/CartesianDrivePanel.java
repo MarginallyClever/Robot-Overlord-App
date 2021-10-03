@@ -20,8 +20,8 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.JacobianNewtonRaphson;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.JacobianNewtonRaphson;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class CartesianDrivePanel extends JPanel {
 	private static final long serialVersionUID = 1L;

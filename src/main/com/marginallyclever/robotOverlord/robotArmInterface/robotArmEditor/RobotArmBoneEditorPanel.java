@@ -16,7 +16,7 @@ import javax.swing.event.DocumentListener;
 import org.apache.batik.ext.swing.GridBagConstants;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 
 public class RobotArmBoneEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

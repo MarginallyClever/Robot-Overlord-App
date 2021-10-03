@@ -13,8 +13,8 @@ import javax.swing.UIManager;
 import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmBone;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class MarlinInterface extends JPanel {
 	private static final long serialVersionUID = -6388563393882327725L;

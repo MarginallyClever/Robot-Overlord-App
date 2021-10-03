@@ -9,7 +9,7 @@ import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
 import com.marginallyclever.robotOverlord.robotArmInterface.RobotArmInterface;
-import com.marginallyclever.robotOverlord.robots.sixi3.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class RobotArmsDemo implements Demo {
@@ -79,42 +79,30 @@ public class RobotArmsDemo implements Demo {
 		
 		RobotArmIK s1 = new RobotArmIK(new Sixi3());
 		sc.addChild(s1);
+		openControlDialog(ro,s1);
 		
 		RobotArmIK s2 = new RobotArmIK(new Sixi2());
 		sc.addChild(s2);
 		s2.setPosition(new Vector3d(50,0,0));
-		
+		openControlDialog(ro,s2);
 		
 		//sixi2.setPosition(new Vector3d(78,-25,0));
 		//Matrix3d m=new Matrix3d();
 		//m.setIdentity();
 		//m.rotZ(Math.toRadians(-90));
 		//sixi2.setRotation(m);
-		
-
-    	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
+	}
+	
+	private void openControlDialog(RobotOverlord ro,RobotArmIK arm) {
         new Thread(new Runnable() {
             @Override
 			public void run() {
-            	JDialog frame = new JDialog(ro.getMainFrame(),s1.getName());
+            	JDialog frame = new JDialog(ro.getMainFrame(),arm.getName());
         		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        		frame.add(new RobotArmInterface(s1));
+        		frame.add(new RobotArmInterface(arm));
         		frame.pack();
         		frame.setVisible(true);
             }
         }).start();
-
-    	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
-        new Thread(new Runnable() {
-            @Override
-			public void run() {
-            	JDialog frame = new JDialog(ro.getMainFrame(),s2.getName());
-        		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        		frame.add(new RobotArmInterface(s2));
-        		frame.pack();
-        		frame.setVisible(true);
-            }
-        }).start();
-		
 	}
 }
