@@ -39,7 +39,7 @@ public class Sixi1 extends RobotArmFK {
 		double a = 11.31;
 		double b = 78.69;
 		double c = 75.964;
-		double d = 14.036;
+		//double d = 14.036;
 		double e = 180-c-b;
 		
 		// name d r a t max min file
