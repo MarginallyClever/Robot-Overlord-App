@@ -9,6 +9,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.dhRobotEntity.sixi2.PoseAtTime;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
 
