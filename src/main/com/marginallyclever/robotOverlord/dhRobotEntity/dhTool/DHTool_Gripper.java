@@ -19,6 +19,7 @@ import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 /**
  * @author Dan Royer
  */
+@Deprecated
 public class DHTool_Gripper extends DHTool implements MementoOriginator {
 	/**
 	 * 

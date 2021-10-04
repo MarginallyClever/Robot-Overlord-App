@@ -20,6 +20,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 /**
  * @author Dan Royer
  */
+@Deprecated
 public class Sixi2LinearGripper extends DHTool {
 	/**
 	 * 

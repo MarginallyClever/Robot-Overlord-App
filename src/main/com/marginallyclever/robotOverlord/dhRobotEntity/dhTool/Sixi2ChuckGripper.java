@@ -4,6 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
+@Deprecated
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 	/**
 	 * 

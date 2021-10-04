@@ -14,6 +14,7 @@ import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
  * @author Dan Royer
  *
  */
+@Deprecated
 public abstract class DHTool extends DHLink implements MementoOriginator {
 	/**
 	 * 

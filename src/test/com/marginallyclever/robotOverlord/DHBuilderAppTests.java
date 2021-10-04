@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHBuilderApp;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
 
+@Deprecated
 public class DHBuilderAppTests {
 	final static String TEST_FOLDER = "src\\\\main\\resources\\Sixi";
 	@Test
