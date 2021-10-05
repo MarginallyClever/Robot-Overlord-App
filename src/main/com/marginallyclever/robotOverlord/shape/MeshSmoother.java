@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.shape.load.MeshFactory;
 
 /**
  * Smooth STL models and save them back to disk.  Meant for one time processing files.
  * @author dan royer
  */
-public class ShapeSmoother {/*
+public class MeshSmoother {/*
 	public static void main(String[] argv) throws IllegalArgumentException, IOException {
 		float vertexEpsilon = 0.1f;
 		float normalEpsilon = 0.25f;
@@ -27,7 +28,7 @@ public class ShapeSmoother {/*
 
 	public static void smoothModel(String inName,String outName,float vertexEpsilon,float normalEpsilon) throws IOException {
 		try {
-			Mesh m = Mesh.createModelFromFilename(inName);
+			Mesh m = MeshFactory.load(inName);
 			smoothNormals(m,vertexEpsilon,normalEpsilon);
 			
 			//File file = new File(outName);
@@ -47,7 +48,7 @@ public class ShapeSmoother {/*
 	 * @param vertexEpsilon how close should points be to be considered one and the same.  typically ~0.001
 	 * @param normalEpsilon how close should normals be to be merged. 0...2 larger values more smoothing.
 	 */
-	public static void smoothNormals(Mesh model,float vertexEpsilon,float normalEpsilon) {
+	private static void smoothNormals(Mesh model,float vertexEpsilon,float normalEpsilon) {
 		float vertexEpsilonSquared = vertexEpsilon * vertexEpsilon;
 		float normalEpsilonSquared = normalEpsilon * normalEpsilon;
 
@@ -123,7 +124,7 @@ public class ShapeSmoother {/*
 				}
 			}
 		}
-		model.isDirty=true;
+		model.setDirty(true);
 	}
 
 	

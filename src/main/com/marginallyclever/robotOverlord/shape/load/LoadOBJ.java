@@ -1,38 +1,25 @@
-package com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers;
+package com.marginallyclever.robotOverlord.shape.load;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
 
-/**
- * 
- * @author Admin
- *
- */
 // see https://en.wikipedia.org/wiki/Wavefront_.obj_file
-public class ShapeLoadAndSaveOBJ implements ShapeLoadAndSave {
+public class LoadOBJ implements MeshLoader {
 	@Override
-	public String getEnglishName() { return "Wavefront Object File (OBJ)"; }
-	@Override
-	public String getValidExtensions() { return "obj"; }
+	public String getEnglishName() {
+		return "Wavefront Object File (OBJ)";
+	}
 	
 	@Override
-	public boolean canLoad(String filename) {
-		boolean result = filename.toLowerCase().endsWith(".obj");
-		return result;
+	public String[] getValidExtensions() {
+		return new String[]{"obj"};
 	}
-
-	@Override
-	public boolean canLoad() {
-		return true;
-	}
-
+	
 	@Override
 	public Mesh load(BufferedInputStream inputStream) throws Exception {
 		Mesh model = new Mesh();
@@ -119,23 +106,4 @@ public class ShapeLoadAndSaveOBJ implements ShapeLoadAndSave {
 		
 		return model;
 	}
-
-	@Override
-	public boolean canSave() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean canSave(String filename) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void save(OutputStream inputStream, Mesh model) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

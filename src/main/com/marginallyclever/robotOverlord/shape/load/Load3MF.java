@@ -1,11 +1,10 @@
-package com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers;
+package com.marginallyclever.robotOverlord.shape.load;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -21,13 +20,13 @@ import org.w3c.dom.NodeList;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
+import com.marginallyclever.robotOverlord.shape.MeshNormalBuilder;
 
 /**
  * https://en.wikipedia.org/wiki/3D_Manufacturing_Format
  * @author Dan Royer
  */
-public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
+public class Load3MF implements MeshLoader {
 	private class ColorGroup {
 		public int id;
 		public ArrayList<ColorRGB> colors = new ArrayList<ColorRGB>();
@@ -41,19 +40,8 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 	}
 
 	@Override
-	public String getValidExtensions() {
-		return "3mf";
-	}
-
-	@Override
-	public boolean canLoad() {
-		return true;
-	}
-
-	@Override
-	public boolean canLoad(String filename) {
-		boolean result = filename.toLowerCase().endsWith(".3mf");
-		return result;
+	public String[] getValidExtensions() {
+		return new String[]{"3mf"};
 	}
 
 	@Override
@@ -66,8 +54,7 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 
         parseMaterials(modelNode);
         parseAllObjects(model,modelNode,scale);
-        
-        model.buildNormals();
+        MeshNormalBuilder.buildNormals(model);
         
 		return model;
 	}
@@ -142,7 +129,6 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 		return new ColorRGB(255,255,255);  // white
 	}
 	
-
 	@SuppressWarnings("unused")
 	private void buildIndexedTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes) {
 		int n = model.getNumVertices();
@@ -270,23 +256,4 @@ public class ShapeLoadAndSave3MF implements ShapeLoadAndSave {
 
 		return f;
 	}
-
-	@Override
-	public boolean canSave() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean canSave(String filename) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void save(OutputStream outputStream, Mesh model) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

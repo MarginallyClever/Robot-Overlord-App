@@ -26,7 +26,7 @@ public class RobotArmInterface extends JPanel {
 
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("Sixi3Interface");
+		JFrame frame = new JFrame("RobotArmInterface");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}

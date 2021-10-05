@@ -23,6 +23,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.robots.RobotEntity;
 import com.marginallyclever.robotOverlord.shape.Mesh;
+import com.marginallyclever.robotOverlord.shape.load.MeshFactory;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity {
@@ -106,9 +107,9 @@ public class DeltaRobot3 extends RobotEntity {
 		zDir = 0.0f;
 		
 		try {
-			modelTop = Mesh.createModelFromFilename("/DeltaRobot3.zip:top.STL");
-			modelArm = Mesh.createModelFromFilename("/DeltaRobot3.zip:arm.STL");
-			modelBase = Mesh.createModelFromFilename("/DeltaRobot3.zip:base.STL");
+			modelTop = MeshFactory.load("/DeltaRobot3.zip:top.STL");
+			modelArm = MeshFactory.load("/DeltaRobot3.zip:arm.STL");
+			modelBase = MeshFactory.load("/DeltaRobot3.zip:base.STL");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

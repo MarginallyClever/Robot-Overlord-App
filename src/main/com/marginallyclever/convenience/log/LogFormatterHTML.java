@@ -48,6 +48,7 @@ public class LogFormatterHTML extends Formatter {
         return date_format.format(resultdate);
     }
     
+	@Override
 	public String getHead(Handler h) {
         return "<!DOCTYPE html>\n<head>\n<style>\n"
                 + "table { width: 100% }\n"
@@ -65,6 +66,7 @@ public class LogFormatterHTML extends Formatter {
                 + "\t<th style=\"width:75%\">Log Message</th>\n"
                 + "</tr>\n";
 	}
+	@Override
 	public String getTail(Handler h) {
 		return "</table>\n</body>\n</html>";
 	}

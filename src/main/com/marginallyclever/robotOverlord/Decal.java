@@ -122,7 +122,6 @@ public class Decal extends Shape {
 				pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
 
 				if(myMesh.renderStyle == GL2.GL_TRIANGLES) {
-					myMesh.hasNormals=true;
 					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);

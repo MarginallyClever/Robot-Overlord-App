@@ -181,7 +181,8 @@ public class Log {
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+            @Override
+			public void run() {
         		for( LogListener listener : listeners ) {
         			listener.logEvent(cleanMsg);
         		}

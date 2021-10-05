@@ -1,7 +1,6 @@
-package com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers;
+package com.marginallyclever.robotOverlord.shape.load;
 
 import java.io.BufferedInputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 import javax.vecmath.Vector3f;
@@ -14,28 +13,16 @@ import org.w3c.dom.NodeList;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
 
-public class ShapeLoadAndSaveAMF implements ShapeLoadAndSave {
+public class LoadAMF implements MeshLoader {
 	@Override
-	public String getEnglishName() { return "3D printing file (AMF)"; }
-	@Override
-	public String getValidExtensions() { return "amf"; }
-	@Override
-	public boolean canLoad() {	return true;	}
-	@Override
-	public boolean canSave() {	return false;	}
-
-	@Override
-	public boolean canLoad(String filename) {
-		boolean result = filename.toLowerCase().endsWith(".amf");
-		//Log.message("ModelLoadAndSaveSTL.canLoad("+filename+")="+result);
-		return result;
+	public String getEnglishName() {
+		return "3D printing file (AMF)";
 	}
-
+	
 	@Override
-	public boolean canSave(String filename) {
-		return false;
+	public String[] getValidExtensions() {
+		return new String[]{"amf"};
 	}
 
 	// much help from https://www.sculpteo.com/en/glossary/amf-definition/
@@ -118,15 +105,8 @@ public class ShapeLoadAndSaveAMF implements ShapeLoadAndSave {
 				model.addNormal(p1.x, p1.y, p1.z);
             }
         }
-        model.hasNormals=true;
         
 		return model;
 	}
 
-	
-	@Override
-	public void save(OutputStream inputStream, Mesh model) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
 }

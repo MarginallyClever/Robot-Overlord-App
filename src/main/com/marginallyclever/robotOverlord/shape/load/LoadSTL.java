@@ -1,45 +1,28 @@
-package com.marginallyclever.robotOverlord.shape.shapeLoadAndSavers;
+package com.marginallyclever.robotOverlord.shape.load;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
-import java.util.Iterator;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.ShapeLoadAndSave;
 
-public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
+public class LoadSTL implements MeshLoader {
 	@Override
-	public String getEnglishName() { return "3D printing file (STL)"; }
-	
-	@Override
-	public String getValidExtensions() { return "stl"; }
-	
-	@Override
-	public boolean canLoad() {	return true;	}
-	
-	@Override
-	public boolean canSave() {	return false;	}
-
-	@Override
-	public boolean canLoad(String filename) {
-		boolean result = filename.toLowerCase().endsWith(".stl");
-		//Log.message("ModelLoadAndSaveSTL.canLoad("+filename+")="+result);
-		return result;
+	public String getEnglishName() {
+		return "3D printing file (STL)";
 	}
-
+	
 	@Override
-	public boolean canSave(String filename) {
-		return false;
+	public String[] getValidExtensions() {
+		return new String[]{"stl"};
 	}
-
-	// much help from http://www.java-gaming.org/index.php?;topic=18710.0
+	
+	// see http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
 	public Mesh load(BufferedInputStream inputStream) throws Exception {
 		Mesh model = new Mesh();
@@ -62,64 +45,8 @@ public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 		return model;
 	}
 
-	@Override
-	public void save(OutputStream outputStream, Mesh model) throws Exception {
-		byte[] info = new byte[80];
-		for(int k=0;k<80;++k) info[k]=' ';
-	    info[0]='M';
-	    info[1]='C';
-	    info[2]='R';
-	    info[4]='D';
-	    info[5]='R';
-	    outputStream.write(info);
-
-	    int numTriangles = model.vertexArray.size()/3;
-		ByteBuffer dataBuffer = ByteBuffer.allocate(4);
-	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
-	    dataBuffer.putInt(numTriangles);
-	    outputStream.write(dataBuffer.array());
-
-	    dataBuffer = ByteBuffer.allocate(74);
-	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
-	    
-	    Iterator<Float> vi = model.vertexArray.iterator();
-	    Iterator<Float> ni = model.normalArray.iterator();
-	    
-	    int i;
-	    for(i=0;i<numTriangles;++i) {
-	    	dataBuffer.rewind();
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	
-	    	dataBuffer.put((byte)0);
-	    	dataBuffer.put((byte)0);
-	    	outputStream.write(dataBuffer.array());
-	    }
-	}
-
 	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
-	protected void loadBinary(BufferedInputStream inputStream,Mesh model) throws IOException {
+	private void loadBinary(BufferedInputStream inputStream,Mesh model) throws IOException {
 		int j;
 
 	    byte[] headerInfo=new byte[80];             // Header data
@@ -165,10 +92,9 @@ public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 			dataBuffer.get();
 			dataBuffer.get();
 		}
-		model.hasNormals=true;
 	}
 	
-	protected void loadASCII(BufferedInputStream inputStream,Mesh model) throws IOException {
+	private void loadASCII(BufferedInputStream inputStream,Mesh model) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
 		
 		String line;
@@ -209,6 +135,5 @@ public class ShapeLoadAndSaveSTL implements ShapeLoadAndSave {
 			}
 			//++lineCount;
 		}
-		model.hasNormals=true;
 	}
 }

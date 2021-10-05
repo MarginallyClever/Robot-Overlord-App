@@ -13,6 +13,7 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class DHToolEdit extends AbstractUndoableEdit {
 	/**
 	 * 

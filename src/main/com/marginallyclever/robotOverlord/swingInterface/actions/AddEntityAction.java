@@ -1,17 +1,16 @@
 package com.marginallyclever.robotOverlord.swingInterface.actions;
 
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
-import java.util.ServiceLoader;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.event.UndoableEditEvent;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.EntityFactory;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.AddEntityEdit;
@@ -39,44 +38,33 @@ public class AddEntityAction extends AbstractAction {
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		JPanel additionList = new JPanel(new GridLayout(0, 1));
 		JComboBox<String> additionComboBox = buildEntityComboBox();
-		additionList.add(additionComboBox);
-
-		int result = JOptionPane.showConfirmDialog(ro.getMainFrame(), additionList, (String)this.getValue(AbstractAction.NAME), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		int result = JOptionPane.showConfirmDialog(
+				ro.getMainFrame(), 
+				additionComboBox, 
+				(String)this.getValue(AbstractAction.NAME), 
+				JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
-			String objectTypeName = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
-
-			Entity newInstance = createInstanceOf(objectTypeName);
-			if(newInstance != null) ro.undoableEditHappened(new UndoableEditEvent(this,new AddEntityEdit(ro,newInstance)));
+			createInstanceOf(additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
 		}
     }
 
 	private JComboBox<String> buildEntityComboBox() {
-		JComboBox<String> additionComboBox = new JComboBox<String>();
-		
-		Iterator<Entity> i = ServiceLoader.load(Entity.class).iterator();
-		while(i.hasNext()) {
-			Entity lft = i.next();
-			additionComboBox.addItem(lft.getName());
-		}
-
-		return additionComboBox;
+		JComboBox<String> box = new JComboBox<String>();
+		ArrayList<String> names = EntityFactory.getAllEntityNames();
+		for( String n : names ) box.addItem(n);
+		return box;
 	}
 
-	private Entity createInstanceOf(String objectTypeName) {
-		Iterator<Entity> i = ServiceLoader.load(Entity.class).iterator();
-		while(i.hasNext()) {
-			Entity lft = i.next();
-			String name = lft.getName();
-			if(name.equals(objectTypeName)) {
-				try {
-					return lft.getClass().getDeclaredConstructor().newInstance();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+	private void createInstanceOf(String className) {
+		try {
+			Entity newInstance = EntityFactory.load(className);
+			if(newInstance != null) ro.undoableEditHappened(new UndoableEditEvent(this,new AddEntityEdit(ro,newInstance)));
+		} catch (Exception e) {
+			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
+			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);
+			Log.error(msg);
 		}
-		return null;
 	}
 }

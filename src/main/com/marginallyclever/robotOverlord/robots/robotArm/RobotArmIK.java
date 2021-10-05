@@ -22,11 +22,9 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 /**
  * {@link RobotArmIK} is a {@link RobotArmFK} with added Inverse Kinematics.  
- * Registered in {@code com.marginallyclever.robotOverlord.entity.Entity}
  * @see <a href='https://en.wikipedia.org/wiki/Inverse_kinematics'>Inverse Kinematics</a>
  * @author Dan Royer
  * @since 2021-02-24
- *
  */
 public class RobotArmIK extends PoseEntity {
 	private static final long serialVersionUID = -7778520191789995554L;
@@ -104,22 +102,25 @@ public class RobotArmIK extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		myArmFK.getView(view);
 		view.pushStack("IK","Inverse Kinematics");
 
 		ViewElementButton bOpen = view.addButton("Open control panel");
-		ViewElementButton b = view.addButton("Reset GoTo");
-		ViewElementButton b2 = view.addButton("Run test");
+		ViewElementButton bResetGoto = view.addButton("Reset GoTo");
+		//ViewElementButton bRunTest = view.addButton("Run test");
 		
 		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
-		b.addPropertyChangeListener((evt) -> onResetGotoAction() );
-		b2.addPropertyChangeListener((evt) -> onRunTest() );
+		bResetGoto.addPropertyChangeListener((evt) -> onResetGotoAction() );
+		//bRunTest.addPropertyChangeListener((evt) -> onRunTest() );
 				
 		view.popStack();
 		
+		myArmFK.getView(view);
+		
 		super.getView(view);
 	}
-	
+
+	@Deprecated
+	@SuppressWarnings("unused")
 	private void onRunTest() {
 		//testPathCalculation(100,true);
 		//testPathCalculation(100,false);
@@ -128,7 +129,7 @@ public class RobotArmIK extends PoseEntity {
 	}
 
 	private void onResetGotoAction() {
-		eeTarget.setPose(myArmFK.getEndEffector());
+		setEndEffectorTarget(myArmFK.getEndEffector());
 	}
 
 	private void onOpenAction() {
@@ -154,6 +155,7 @@ public class RobotArmIK extends PoseEntity {
         }).start();
 	}
 
+	@Deprecated
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
 		double [] jOriginal = myArmFK.getAngles();
@@ -239,6 +241,7 @@ public class RobotArmIK extends PoseEntity {
 		//updateSliders();
 	}
 	
+	@Deprecated
 	private void testTime(boolean useExact) {
 		long start = System.nanoTime();
 
@@ -299,7 +302,6 @@ public class RobotArmIK extends PoseEntity {
 	public ApproximateJacobian getApproximateJacobian() {
 		return new ApproximateJacobian(myArmFK);
 	}
-
 
 	public double getDistanceToTarget(Matrix4d m4) {
 		return myArmFK.getDistanceToTarget(m4);

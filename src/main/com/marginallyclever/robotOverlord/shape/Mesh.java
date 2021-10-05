@@ -1,20 +1,15 @@
 package com.marginallyclever.robotOverlord.shape;
 
-import java.io.BufferedInputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.ServiceLoader;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.FileAccess;
 
 /**
  * {@link Mesh} contains the vertex, normal, maybe color, and maybe texture data for a 3D model.
@@ -23,33 +18,29 @@ import com.marginallyclever.convenience.FileAccess;
  */
 public class Mesh {
 	public final static int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates,index
-
-	// the pool of all shapes loaded
-	@JsonIgnore
-	private static LinkedList<Mesh> meshPool = new LinkedList<Mesh>();
-	
-	protected String sourceName;
-	protected transient ShapeLoadAndSave loader;
-	protected transient boolean isLoaded;
-	protected transient boolean unloadASAP;
 	
 	public transient ArrayList<Float> vertexArray = new ArrayList<Float>();
-	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
-	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
-	public transient ArrayList<Float> texCoordArray = new ArrayList<Float>();
-	public transient ArrayList<Integer> indexArray = new ArrayList<Integer>();
-	public int renderStyle; 
-	
-	protected transient int VBO[];
 
-	public transient boolean hasNormals;
-	public transient boolean hasColors;
-	public transient boolean hasUVs;
-	public transient boolean hasIndexes;
+	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
+	private transient boolean hasNormals;
 	
+	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
+	private transient boolean hasColors;
+
+	public transient ArrayList<Float> texCoordArray = new ArrayList<Float>();
+	private transient boolean hasUVs;
+
+	public transient ArrayList<Integer> indexArray = new ArrayList<Integer>();
+	private transient boolean hasIndexes;
+
 	// the mesh can only be optimized after OpenGL is ready, during rendering.
 	// Loading may happen early.  This one-time flag remembers it needs to be done.
-	public transient boolean isDirty;
+	private transient boolean isDirty;
+
+	private transient boolean isLoaded;
+	private transient int VBO[];
+	public int renderStyle; 
+	private String fileName;
 	
 	// bounding limits
 	protected Cuboid cuboid = new Cuboid();
@@ -57,10 +48,8 @@ public class Mesh {
 	public Mesh() {
 		super();
 		
-		sourceName=null;
-		loader=null;
+		fileName=null;
 		isLoaded=false;
-		unloadASAP=false;
 		VBO = null;
 		hasNormals=false;
 		hasColors=false;
@@ -84,12 +73,12 @@ public class Mesh {
 	}
 
 	public void setSourceName(String filename) {
-		this.sourceName = filename;
+		this.fileName = filename;
 		isDirty=true;
 	}
 	
 	public String getSourceName() {
-		return sourceName;
+		return fileName;
 	}
 
 	public boolean isLoaded() {
@@ -202,11 +191,6 @@ public class Mesh {
 	}
 	
 	public void render(GL2 gl2) {
-		if(unloadASAP) {
-			unloadASAP=false;
-			unload(gl2);
-			return;
-		}
 		if(!isLoaded) {
 			createBuffers(gl2);
 			isDirty=true;
@@ -242,17 +226,13 @@ public class Mesh {
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
 		}
-		
-		
 		if(hasIndexes) {
-			//gl2.glEnableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
 			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
 		} else {
 			int count=vertexArray.size();
 			if(renderStyle!=GL2.GL_POINTS) count/=3;
 			gl2.glDrawArrays(renderStyle, 0, count);
-			//gl2.glDrawArrays(GL2.GL_LINE_LOOP, 0, count);
 		}
 		
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
@@ -351,144 +331,40 @@ public class Mesh {
 		return vertexArray.size()/3;
 	}
 
-	public ShapeLoadAndSave getLoader() {
-		return loader;
-	}
-
-	public void setLoader(ShapeLoadAndSave loader) {
-		this.loader = loader;
-	}
-
-	/**
-	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
-	 * @param filename file from which to load.  may be filename.ext or zipfile.zip:filename.ext
-	 * @return the instance.
-	 * @throws Exception if file cannot be read successfully
-	 */
-	public static Mesh createModelFromFilename(String filename) throws Exception {
-		if(filename == null || filename.trim().length()==0) return null;
-		
-		Mesh m = getMeshFromPool(filename);
-		if(m==null) {
-			m=attemptServiceLoad(filename);
-			if(m!=null) meshPool.add(m);
-		}
-		
-		return m;
-	}
-
-	private static Mesh getMeshFromPool(String filename) {
-		// find the existing shape in the pool
-		for( Mesh m : meshPool ) {
-			if(m.getSourceName().equals(filename)) {
-				return m;
-			}
-		}
-
-		return null;
-	}
-
-	private static Mesh attemptServiceLoad(String filename) throws Exception {
-		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
-		for( ShapeLoadAndSave loader : loaders ) {
-			if(loader.canLoad() && loader.canLoad(filename)) {
-				return loadMeshWithServiceLoader(filename,loader);
-			}
-		}
-		
-		return null;
-	}
-
-	private static Mesh loadMeshWithServiceLoader(String filename, ShapeLoadAndSave loader) throws Exception {
-		BufferedInputStream stream = FileAccess.open(filename);
-		Mesh m=loader.load(stream);
-		if(m!=null) {
-			m.setSourceName(filename);
-			m.setLoader(loader);
-			m.updateCuboid();
-		}
-		
-		return m;
-	}
-
 	public int getNumVertices() {
 		return (vertexArray==null) ? 0 : vertexArray.size()/3;
 	}
 
-	public void buildNormals() {
-    	//System.out.println("Building normals...");
-		normalArray.clear();
-		
-		if(hasIndexes) buildSmoothIndexedNormals();
-		else buildDirectNormals();
-		
-    	isDirty=true;
-    	//System.out.println("Normals generated.");
-	}
-	
-	// vertexes and normals are shared.  a vertex may be part of many triangles.
-	// the normal should therefore be a blend between each of these triangle faces.
-	private void buildSmoothIndexedNormals() {
-		// make normal array same size as vertex array.
-		int size = getNumVertices();
-		
-		Vector3d [] myNormals = new Vector3d[size];
-		for(int i=0;i<size;++i) myNormals[i] = new Vector3d();
-		
-		// build all normals for all faces.
-		System.out.println("Find normals for every face...");
-		System.out.println("Averaging normals for all vertices...");
-		for(int i=0;i<indexArray.size();i+=3) {
-			int a = indexArray.get(i  );
-			int b = indexArray.get(i+1);
-			int c = indexArray.get(i+2);
-    		Vector3d n = buildNormalFromThreePoints(a,b,c);
-    		myNormals[a].add(n);
-    		myNormals[b].add(n);
-    		myNormals[c].add(n);
-		}
-
-		for( Vector3d n : myNormals ) {
-			n.normalize();
-			this.addNormal((float)n.x, (float)n.y, (float)n.z);
-		}
-	}
-
-	// vertexes are not shared.  one normal per vertex, identical for all three points of a triangle.
-	// assumes we are rendering GL_TRIANGLES only.
-	private void buildDirectNormals() {
-    	for(int i=0;i<getNumVertices();i+=3) {
-    		Vector3d n = buildNormalFromThreePoints(i,i+1,i+2);
-    		
-    		this.addNormal((float)n.x, (float)n.y, (float)n.z);
-    		this.addNormal((float)n.x, (float)n.y, (float)n.z);
-    		this.addNormal((float)n.x, (float)n.y, (float)n.z);
-    	}
-	}
-
-	private Vector3d buildNormalFromThreePoints(int a,int b,int c) {
-		Vector3d vA = getVertex(a);
-		Vector3d vB = getVertex(b);
-		Vector3d vC = getVertex(c);
-        Vector3d nCA = new Vector3d();
-        Vector3d nBA = new Vector3d();
-        Vector3d n = new Vector3d();
-        
-		nCA.sub(vC,vA);
-		nBA.sub(vB,vA);
-		nCA.normalize();
-		nBA.normalize();
-		n.cross(nBA,nCA);
-		n.normalize();
-
-		return n;
-	}
-
-	private Vector3d getVertex(int t) {
+	public Vector3d getVertex(int t) {
 		t*=3;
 		double x = vertexArray.get(t++); 
 		double y = vertexArray.get(t++); 
 		double z = vertexArray.get(t++); 
 		return new Vector3d(x,y,z);
+	}
+
+
+	public boolean isDirty() {
+		return isDirty;
+	}
+
+	public void setDirty(boolean isDirty) {
+		this.isDirty = isDirty;
+	}
+
+	public boolean getHasNormals() {
+		return hasNormals;
+	}
+
+	public boolean getHasColors() {
+		return hasColors;
+	}
+
+	public boolean getHasUVs() {
+		return hasUVs;
+	}
+
+	public boolean getHasIndexes() {
+		return hasIndexes;
 	}
 }

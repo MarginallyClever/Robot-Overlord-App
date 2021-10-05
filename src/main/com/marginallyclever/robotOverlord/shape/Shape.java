@@ -2,25 +2,21 @@ package com.marginallyclever.robotOverlord.shape;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedInputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Collidable;
 import com.marginallyclever.robotOverlord.PoseEntity;
+import com.marginallyclever.robotOverlord.shape.load.MeshFactory;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
@@ -115,13 +111,13 @@ public class Shape extends PoseEntity implements Collidable {
 		//if( this.filename.get().equals(newFilename) ) return;
 		
 		try {
-			myMesh = Mesh.createModelFromFilename(newFilename);
+			myMesh = MeshFactory.load(newFilename);
 			if(myMesh!=null) {
 				updateCuboid();
 				numTriangles.set(myMesh.getNumTriangles());
-				hasNormals.set(myMesh.hasNormals);
-				hasColors.set(myMesh.hasColors);
-				hasUVs.set(myMesh.hasUVs);
+				hasNormals.set(myMesh.getHasNormals());
+				hasColors.set(myMesh.getHasColors());
+				hasUVs.set(myMesh.getHasUVs());
 			}
 			// only change this after loading has completely succeeded.
 			filename.set(newFilename);
@@ -249,14 +245,7 @@ public class Shape extends PoseEntity implements Collidable {
 	public void getView(ViewPanel view) {
 		view.pushStack("Mo","Model");
 
-		// TODO FileNameExtensionFilter is Swing specific and should not happen here.
-		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
-		ServiceLoader<ShapeLoadAndSave> loaders = ServiceLoader.load(ShapeLoadAndSave.class);
-		Iterator<ShapeLoadAndSave> i = loaders.iterator();
-		while(i.hasNext()) {
-			ShapeLoadAndSave loader = i.next();
-			filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
-		}
+		ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
 		view.addFilename(filename,filters);
 		
 		view.add(rotationAdjust);
@@ -289,10 +278,7 @@ public class Shape extends PoseEntity implements Collidable {
 	protected void reload() {
 		if(myMesh==null) return;
 		try {
-			myMesh.clear();
-			BufferedInputStream stream = FileAccess.open(this.getModelFilename());
-			ShapeLoadAndSave loader = myMesh.loader;
-			loader.load(stream);
+			MeshFactory.reload(myMesh);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -19,6 +19,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.robots.RobotEntity;
 import com.marginallyclever.robotOverlord.shape.Mesh;
+import com.marginallyclever.robotOverlord.shape.load.MeshFactory;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 import java.io.BufferedReader;
@@ -284,12 +285,12 @@ public class Spidee extends RobotEntity {
 
 		// models
 		try {
-			modelThigh = Mesh.createModelFromFilename( "/Spidee.zip:thigh.stl");
-			modelBody = Mesh.createModelFromFilename( "/Spidee.zip:body.stl");
-			modelShoulderLeft = Mesh.createModelFromFilename( "/Spidee.zip:shoulder_left.stl");
-			modelShoulderRight = Mesh.createModelFromFilename( "/Spidee.zip:shoulder_right.stl");
-			modelShinLeft = Mesh.createModelFromFilename( "/Spidee.zip:shin_left.stl");
-			modelShinRight = Mesh.createModelFromFilename( "/Spidee.zip:shin_right.stl");
+			modelThigh = MeshFactory.load( "/Spidee.zip:thigh.stl");
+			modelBody = MeshFactory.load( "/Spidee.zip:body.stl");
+			modelShoulderLeft = MeshFactory.load( "/Spidee.zip:shoulder_left.stl");
+			modelShoulderRight = MeshFactory.load( "/Spidee.zip:shoulder_right.stl");
+			modelShinLeft = MeshFactory.load( "/Spidee.zip:shin_left.stl");
+			modelShinRight = MeshFactory.load( "/Spidee.zip:shin_right.stl");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
