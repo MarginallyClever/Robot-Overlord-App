@@ -103,8 +103,8 @@ public class ProgramInterface extends JPanel {
 		bAdd.addActionListener((e)-> runAddAction() );
 		bCopy.addActionListener((e)-> runCopyAction() );
 		bDelete.addActionListener((e)-> runDeleteAction() );
-		bRewind.addActionListener((e)-> runRewindAction() );
-		bStep.addActionListener((e)-> runStepAction() );
+		bRewind.addActionListener((e)-> rewind() );
+		bStep.addActionListener((e)-> step() );
 
 		listView.addListSelectionListener((e)->{
 			if(e.getValueIsAdjusting()) return;
@@ -116,11 +116,11 @@ public class ProgramInterface extends JPanel {
 		return bar;
 	}
 
-	private void runRewindAction() {
+	public void rewind() {
 		listView.setSelectedIndex(0);
 	}
 
-	private void runStepAction() {
+	public void step() {
 		int now = listView.getSelectedIndex();
 		if(now==-1) return;
 		

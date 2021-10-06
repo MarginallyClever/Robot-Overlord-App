@@ -89,7 +89,7 @@ public class AngleReportPanel extends JPanel {
 		} catch (Exception e) {
 		}
 
-		JFrame frame = new JFrame("AngleReportPanel");
+		JFrame frame = new JFrame(AngleReportPanel.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new AngleReportPanel(new RobotArmIK()));
 		frame.pack();

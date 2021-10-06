@@ -40,9 +40,9 @@ public class JogInterface extends JPanel {
 		c.gridx--;
 		c.gridy++;
 		c.weightx = 1;
-		this.add(eeReport=new CartesianReportPanel("JogInterface.EndEffector"), c);
+		this.add(eeReport=new CartesianReportPanel(JogInterface.class.getName()+".EndEffector"), c);
 		c.gridy++;
-		this.add(eeTargetReport=new CartesianReportPanel("JogInterface.EndEffectorTarget"), c);
+		this.add(eeTargetReport=new CartesianReportPanel(JogInterface.class.getName()+".EndEffectorTarget"), c);
 		c.gridy--;
 		c.gridx++;
 		c.gridheight=2;
@@ -64,7 +64,6 @@ public class JogInterface extends JPanel {
 	}
 	
 	private void updateReports() {
-		//System.out.println("JogInterface.updateReports()");
 		Matrix4d m0=myArm.getEndEffector();
 		eeReport.updateReport(m0);
 		Matrix4d m1=myArm.getEndEffectorTarget();
@@ -73,10 +72,10 @@ public class JogInterface extends JPanel {
 
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("JogControlPanel");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
+		JFrame frame = new JFrame(JogInterface.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new JogInterface(new RobotArmIK()));
 		frame.pack();

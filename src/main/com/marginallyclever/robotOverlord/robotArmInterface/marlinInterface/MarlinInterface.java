@@ -20,6 +20,7 @@ public class MarlinInterface extends JPanel {
 	private static final long serialVersionUID = -6388563393882327725L;
 
 	private RobotArmIK myArm;
+	
 	private int lineNumber;
 
 	private TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
@@ -100,28 +101,28 @@ public class MarlinInterface extends JPanel {
 		return "*" + Integer.toString(checksum);
 	}
 
-	// format is normally X:0.00 Y:270.00 Z:0.00 U:270.00 V:180.00 W:0.00 Count X:0
-	// Y:0 Z:0 U:0 V:0 W:0
-	// trim everything after and including "Count", then read the angles into sixi3.
+	// format is normally X:0.00 Y:270.00 Z:0.00 U:270.00 V:180.00 W:0.00 Count X:0 Y:0 Z:0 U:0 V:0 W:0
+	// trim everything after and including "Count", then read the state data.
 	private void processM114Reply(String message) {
-		message = message.substring(0, message.indexOf("Count"));
-		String[] majorParts = message.split("\b");
-		double[] angles = myArm.getAngles();
+		try {
+			message = message.substring(0, message.indexOf("Count"));
+			String[] majorParts = message.split("\b");
+			double[] angles = myArm.getAngles();
+	
+			for (int i = 0; i < myArm.getNumBones(); ++i) {
+				RobotArmBone bone = myArm.getBone(i);
+				for (String s : majorParts) {
+					String[] minorParts = s.split(":");
 
-		for (int i = 0; i < myArm.getNumBones(); ++i) {
-			RobotArmBone bone = myArm.getBone(i);
-			for (String s : majorParts) {
-				String[] minorParts = s.split(":");
-
-				if (minorParts[0].contentEquals(bone.getName())) {
-					try {
-						angles[i] = Double.valueOf(minorParts[1]);
-					} catch (NumberFormatException e) {
+					if (minorParts[0].contentEquals(bone.getName())) {
+							angles[i] = Double.valueOf(minorParts[1]);
 					}
 				}
 			}
+			myArm.setAngles(angles);
+		} catch (NumberFormatException e) {
+			Log.error("M114: "+e.getMessage());
 		}
-		myArm.setAngles(angles);
 	}
 
 	private void sendGoto() {
@@ -175,20 +176,28 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void sendSetHome() {
-		String action = "G92";
-		RobotArmIK temp = new RobotArmIK();
-		for (int i = 0; i < temp.getNumBones(); ++i) {
-			RobotArmBone bone = temp.getBone(i);
-			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
+		try {
+			String action = "G92";
+			RobotArmIK temp = (RobotArmIK)myArm.clone();
+			for (int i = 0; i < temp.getNumBones(); ++i) {
+				RobotArmBone bone = temp.getBone(i);
+				action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
+			}
+			sendCommand(action);
+			myArm.setAngles(temp.getAngles());
+		} catch (CloneNotSupportedException e) {
+			Log.error("G92: "+e.getMessage());
 		}
-		sendCommand(action);
-		myArm.setAngles(temp.getAngles());
 	}
 
 	private void sendGoHome() {
-		RobotArmIK temp = new RobotArmIK();
-		myArm.setAngles(temp.getAngles());
-		myArm.setEndEffectorTarget(myArm.getEndEffector());
+		try {
+			RobotArmIK temp = (RobotArmIK)myArm.clone();
+			myArm.setAngles(temp.getAngles());
+			myArm.setEndEffectorTarget(myArm.getEndEffector());
+		} catch (CloneNotSupportedException e) {
+			Log.error("GoHome: "+e.getMessage());
+		}
 	}
 
 	// TEST
@@ -201,7 +210,7 @@ public class MarlinInterface extends JPanel {
 		} catch (Exception e) {
 		}
 
-		JFrame frame = new JFrame("MarlinInterface");
+		JFrame frame = new JFrame(MarlinInterface.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new MarlinInterface(new RobotArmIK()));
 		frame.pack();

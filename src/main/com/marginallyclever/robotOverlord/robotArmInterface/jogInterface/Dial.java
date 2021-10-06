@@ -156,9 +156,6 @@ public class Dial extends JComponent {
 
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("Dial");
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         try {
         	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -166,13 +163,15 @@ public class Dial extends JComponent {
         	Log.error("Look and feel could not be set: "+e.getLocalizedMessage());
         }
 
+		JFrame frame = new JFrame(Dial.class.getName());
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel p = new JPanel();
 		frame.add(p);
 		Dial dial = new Dial();        
 		p.add(dial);
 		dial.addActionListener((e)->{
 			System.out.println(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
-			
 		});
 		
 		p.addComponentListener(new ComponentAdapter() {

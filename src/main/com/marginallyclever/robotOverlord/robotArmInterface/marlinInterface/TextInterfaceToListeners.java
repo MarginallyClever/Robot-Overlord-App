@@ -27,7 +27,7 @@ public class TextInterfaceToListeners extends JPanel {
 		commandLine.addActionListener((e)->sendNow());
 		send.addActionListener((e)->sendNow());
 		
-		this.setBorder(BorderFactory.createTitledBorder("TextInterfaceToListeners"));
+		this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToListeners.class.getName()));
 		setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
@@ -53,10 +53,11 @@ public class TextInterfaceToListeners extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("TextInterfaceToListeners");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
+		
+		JFrame frame = new JFrame(TextInterfaceToListeners.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new TextInterfaceToListeners());
 		frame.pack();

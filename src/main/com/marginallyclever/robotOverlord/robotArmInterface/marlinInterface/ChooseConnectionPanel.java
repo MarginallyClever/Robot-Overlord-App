@@ -31,7 +31,7 @@ public class ChooseConnectionPanel extends JPanel {
 		bConnect.setText("Connect");
 		bConnect.addActionListener((e)-> onConnectAction() );
 		
-		//this.setBorder(BorderFactory.createTitledBorder("ChooseConnectionPanel"));
+		//this.setBorder(BorderFactory.createTitledBorder(ChooseConnectionPanel.class.getName()));
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
 		this.add(bConnect);
 		this.add(connectionName);
@@ -101,10 +101,10 @@ public class ChooseConnectionPanel extends JPanel {
 	
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("ChooseConnectionPanel");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
+		JFrame frame = new JFrame(ChooseConnectionPanel.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new ChooseConnectionPanel());
 		frame.pack();

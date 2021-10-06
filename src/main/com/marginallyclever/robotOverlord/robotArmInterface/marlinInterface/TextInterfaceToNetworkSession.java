@@ -29,7 +29,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	public TextInterfaceToNetworkSession() {
 		super();
 
-		this.setBorder(BorderFactory.createTitledBorder("TextInterfaceToNetworkSession"));
+		this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToNetworkSession.class.getName()));
 		setLayout(new BorderLayout());
 		
 		add(myConnectionChoice,BorderLayout.NORTH);
@@ -120,7 +120,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("TextInterfaceToNetworkSession");
+		JFrame frame = new JFrame(TextInterfaceToNetworkSession.class.getName());
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}

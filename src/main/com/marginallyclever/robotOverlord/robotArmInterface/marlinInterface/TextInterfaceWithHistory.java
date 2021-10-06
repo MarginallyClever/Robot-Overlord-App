@@ -23,7 +23,7 @@ public class TextInterfaceWithHistory extends JPanel {
 	public TextInterfaceWithHistory() {
 		super();
 
-		this.setBorder(BorderFactory.createTitledBorder("TextInterfaceWithHistory"));
+		this.setBorder(BorderFactory.createTitledBorder(TextInterfaceWithHistory.class.getName()));
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -79,7 +79,7 @@ public class TextInterfaceWithHistory extends JPanel {
 
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("TextInterfaceWithHistory");
+		JFrame frame = new JFrame(TextInterfaceWithHistory.class.getName());
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}

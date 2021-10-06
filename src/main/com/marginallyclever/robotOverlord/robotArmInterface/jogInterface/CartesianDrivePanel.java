@@ -45,7 +45,7 @@ public class CartesianDrivePanel extends JPanel {
 		
 		dial.addActionListener( (e)-> onDialTurn(sixi3) );
 
-		this.setBorder(BorderFactory.createTitledBorder("CartesianDrive"));
+		this.setBorder(BorderFactory.createTitledBorder(CartesianDrivePanel.class.getName()));
 		this.setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
@@ -198,7 +198,7 @@ public class CartesianDrivePanel extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {}
 
-		JFrame frame = new JFrame("CartesianDrivePanel");
+		JFrame frame = new JFrame(CartesianDrivePanel.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new CartesianDrivePanel(new RobotArmIK()));
 		frame.pack();

@@ -49,7 +49,7 @@ public class ConversationHistoryList extends JPanel {
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listView.setPreferredSize(new Dimension(500,500));
 
-		this.setBorder(BorderFactory.createTitledBorder("ConversationHistoryList"));
+		this.setBorder(BorderFactory.createTitledBorder(ConversationHistoryList.class.getName()));
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
 		this.add(scrollPane, BorderLayout.CENTER);
@@ -139,10 +139,10 @@ public class ConversationHistoryList extends JPanel {
 	
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("TextInterfaceWithHistory");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
+		JFrame frame = new JFrame(ConversationHistoryList.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new ConversationHistoryList());
 		frame.pack();

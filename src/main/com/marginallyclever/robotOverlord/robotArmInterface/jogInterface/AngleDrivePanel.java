@@ -92,7 +92,7 @@ public class AngleDrivePanel extends JPanel {
 		} catch (Exception e) {
 		}
 
-		JFrame frame = new JFrame("AngleDrivePanel");
+		JFrame frame = new JFrame(AngleDrivePanel.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new AngleDrivePanel(new RobotArmIK()));
 		frame.pack();
