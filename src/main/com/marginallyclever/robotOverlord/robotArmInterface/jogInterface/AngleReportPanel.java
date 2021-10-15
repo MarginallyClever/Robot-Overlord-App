@@ -24,7 +24,7 @@ public class AngleReportPanel extends JPanel {
 		
 		joint = new JSlider[arm.getNumBones()];
 		values = new JLabel[arm.getNumBones()];
-		this.setBorder(BorderFactory.createTitledBorder("AngleReport"));
+		this.setBorder(BorderFactory.createTitledBorder(AngleReportPanel.class.getSimpleName()));
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -89,7 +89,7 @@ public class AngleReportPanel extends JPanel {
 		} catch (Exception e) {
 		}
 
-		JFrame frame = new JFrame(AngleReportPanel.class.getName());
+		JFrame frame = new JFrame(AngleReportPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new AngleReportPanel(new RobotArmIK()));
 		frame.pack();

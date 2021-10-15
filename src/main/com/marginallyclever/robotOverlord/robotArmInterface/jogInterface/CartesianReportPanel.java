@@ -109,7 +109,7 @@ public class CartesianReportPanel extends JPanel {
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
 		
-		JFrame frame = new JFrame(CartesianReportPanel.class.getName());
+		JFrame frame = new JFrame(CartesianReportPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new CartesianReportPanel(m));
 		frame.pack();

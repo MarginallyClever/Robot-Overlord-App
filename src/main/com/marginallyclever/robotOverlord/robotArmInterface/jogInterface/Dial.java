@@ -163,7 +163,7 @@ public class Dial extends JComponent {
         	Log.error("Look and feel could not be set: "+e.getLocalizedMessage());
         }
 
-		JFrame frame = new JFrame(Dial.class.getName());
+		JFrame frame = new JFrame(Dial.class.getSimpleName());
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel p = new JPanel();

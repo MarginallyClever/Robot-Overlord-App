@@ -40,7 +40,7 @@ public class JacobianReportPanel extends JPanel {
 
 		//setColumnNames(sixi3);
 		
-		this.setBorder(BorderFactory.createTitledBorder(/*BorderFactory.createEmptyBorder(),*/JacobianReportPanel.class.getName()));
+		this.setBorder(BorderFactory.createTitledBorder(/*BorderFactory.createEmptyBorder(),*/JacobianReportPanel.class.getSimpleName()));
 		this.setLayout(new BorderLayout());
 		this.add(/*new JScrollPane*/(table),BorderLayout.CENTER);
 		
@@ -84,7 +84,7 @@ public class JacobianReportPanel extends JPanel {
 		} catch (Exception e) {
 		}
 
-		JFrame frame = new JFrame(JacobianReportPanel.class.getName());
+		JFrame frame = new JFrame(JacobianReportPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new JacobianReportPanel(new RobotArmIK()));
 		frame.pack();

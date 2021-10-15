@@ -32,7 +32,7 @@ public class AngleDrivePanel extends JPanel {
 		dial.addActionListener((evt)-> onDialTurn(arm) );
 		dial.setPreferredSize(new Dimension(120,120));
 		
-		this.setBorder(BorderFactory.createTitledBorder("AngleDrive"));
+		this.setBorder(BorderFactory.createTitledBorder(AngleDrivePanel.class.getSimpleName()));
 		this.setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
@@ -92,7 +92,7 @@ public class AngleDrivePanel extends JPanel {
 		} catch (Exception e) {
 		}
 
-		JFrame frame = new JFrame(AngleDrivePanel.class.getName());
+		JFrame frame = new JFrame(AngleDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new AngleDrivePanel(new RobotArmIK()));
 		frame.pack();
