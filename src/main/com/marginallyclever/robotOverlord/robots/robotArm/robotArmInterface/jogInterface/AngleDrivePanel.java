@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.jogInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -12,6 +12,7 @@ import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.demos.Sixi3;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class AngleDrivePanel extends JPanel {
@@ -94,7 +95,7 @@ public class AngleDrivePanel extends JPanel {
 
 		JFrame frame = new JFrame(AngleDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new AngleDrivePanel(new RobotArmIK()));
+		frame.add(new AngleDrivePanel(new RobotArmIK(new Sixi3())));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -23,7 +23,7 @@ public class TextInterfaceWithHistory extends JPanel {
 	public TextInterfaceWithHistory() {
 		super();
 
-		this.setBorder(BorderFactory.createTitledBorder(TextInterfaceWithHistory.class.getName()));
+		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceWithHistory.class.getName()));
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();

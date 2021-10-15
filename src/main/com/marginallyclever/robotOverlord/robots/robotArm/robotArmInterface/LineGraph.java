@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

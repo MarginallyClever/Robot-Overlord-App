@@ -1,5 +1,6 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,21 +51,28 @@ public class ChooseConnectionPanel extends JPanel {
 	}
 
 	private void onClose() {
+		Log.message("ChooseConnection closed.");
 		if(mySession!=null) {
 			mySession.closeConnection();
 			mySession=null;
 			notifyListeners(new ActionEvent(this,ChooseConnectionPanel.CONNECTION_CLOSED,""));
 		}
 		bConnect.setText("Connect");
+		bConnect.setForeground(Color.GREEN);
 		connectionName.setText("Not connected");
 	}
 
 	private void onOpen(NetworkSession s) {
+		Log.message("ChooseConnection open to "+s.getName());
+
 		mySession = s;
 		mySession.addListener((e)->{
-			if(e.flag == NetworkSessionEvent.CONNECTION_CLOSED) onClose(); 
+			if(e.flag == NetworkSessionEvent.CONNECTION_CLOSED) {
+				onClose(); 
+			}
 		});
 		bConnect.setText("Disconnect");
+		bConnect.setForeground(Color.RED);
 		connectionName.setText(s.getName());
 	}
 
@@ -77,6 +85,10 @@ public class ChooseConnectionPanel extends JPanel {
 			onClose();
 			onOpen(s);
 		}
+	}
+
+	public void closeConnection() {
+		onClose();
 	}
 
 	// OBSERVER PATTERN

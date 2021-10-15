@@ -4,13 +4,16 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.vecmath.Vector3d;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
-import com.marginallyclever.robotOverlord.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class RobotArmsDemo implements Demo {
@@ -91,10 +94,17 @@ public class RobotArmsDemo implements Demo {
         new Thread(new Runnable() {
             @Override
 			public void run() {
+            	RobotArmInterface i = new RobotArmInterface(arm); 
             	JDialog frame = new JDialog(ro.getMainFrame(),arm.getName());
         		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        		frame.add(new RobotArmInterface(arm));
+        		frame.add(i);
         		frame.pack();
+        		frame.addWindowListener(new WindowAdapter() {
+        			@Override
+        			public void windowClosing(WindowEvent e) {
+        				i.closeConnection();
+        			}
+        		});
         		frame.setVisible(true);
             }
         }).start();

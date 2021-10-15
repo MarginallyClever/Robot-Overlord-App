@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.robotArmEditor;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.robotArmEditor;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

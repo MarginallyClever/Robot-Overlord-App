@@ -46,6 +46,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogDialog;
+import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.PhysicsDemo;
 import com.marginallyclever.robotOverlord.demos.RobotArmsDemo;
@@ -115,6 +116,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	
 	// The main frame of the GUI
 	private JFrame mainFrame; 
+	private static JFrame logFrame;
     private JMenuBar mainMenu;
 	private JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -331,6 +333,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	}
 	
 	public static void main(String[] argv) {
+		logFrame = LogPanel.createFrame();
+		Log.start();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
@@ -576,18 +580,11 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
         mainMenu.add(menu);
     	
         menu = new JMenu("Help");
-        menu.add(new JMenuItem(new AbstractAction("Log") {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -1216809258902111798L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				LogDialog logFrame = new LogDialog(mainFrame,"Log");
-				logFrame.run();
-			}
-        }));
+		
+		JMenuItem buttonViewLog = new JMenuItem("Show Log");
+		buttonViewLog.addActionListener((e) -> showLogDialog() );
+		menu.add(buttonViewLog);
+		
         menu.add(new JMenuItem(new AboutControlsAction()));
 		menu.add(new JMenuItem(new ForumsAction()));
 		menu.add(new JMenuItem(new CheckForUpdateAction()));
@@ -596,6 +593,10 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
     	
     	// done
         mainMenu.updateUI();
+	}
+
+	private void showLogDialog() {
+		logFrame.setVisible(true);
 	}
 
 	public void updateEntityTree() {

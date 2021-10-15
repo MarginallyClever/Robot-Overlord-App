@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,7 +28,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	public TextInterfaceToNetworkSession() {
 		super();
 
-		this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToNetworkSession.class.getName()));
+		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToNetworkSession.class.getName()));
 		setLayout(new BorderLayout());
 		
 		add(myConnectionChoice,BorderLayout.NORTH);
@@ -40,7 +39,6 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 			if(mySession==null) return;
 			
 			String str = evt.getActionCommand();
-			str = str.toUpperCase();
 			if(!str.endsWith("\n")) str+="\n";
 			
 			try {
@@ -63,7 +61,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		});
 	}
 	
-	private void setNetworkSession(NetworkSession session) {
+	public void setNetworkSession(NetworkSession session) {
 		if(mySession!=null) mySession.removeListener(this);
 		mySession = session;
 		if(mySession!=null) mySession.addListener(this);
@@ -89,6 +87,14 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
 			myInterface.addToHistory(mySession.getName(),((String)evt.data).trim());
 		}
+	}
+
+	public boolean getIsConnected() { 
+		return (mySession!=null && mySession.isOpen());
+	}
+
+	public void closeConnection() {
+		myConnectionChoice.closeConnection();
 	}
 	
 	// OBSERVER PATTERN
@@ -129,9 +135,5 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		frame.add(new TextInterfaceToNetworkSession());
 		frame.pack();
 		frame.setVisible(true);
-	}
-
-	public boolean getIsConnected() { 
-		return (mySession!=null && mySession.isOpen());
 	}
 }

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.robotArmEditor;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.robotArmEditor;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

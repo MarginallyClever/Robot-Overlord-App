@@ -1,13 +1,14 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.Graphics;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -33,6 +34,7 @@ public class ConversationHistoryList extends JPanel {
 	private static final long serialVersionUID = 6287436679006933618L;
 	private DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
 	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
+	private ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<ConversationEvent>();
 	private JFileChooser chooser = new JFileChooser();
 
 	private JButton bClear = new JButton("Clear");
@@ -47,7 +49,6 @@ public class ConversationHistoryList extends JPanel {
 		scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listView.setPreferredSize(new Dimension(500,500));
 
 		this.setBorder(BorderFactory.createTitledBorder(ConversationHistoryList.class.getName()));
 		this.setLayout(new BorderLayout());
@@ -133,9 +134,37 @@ public class ConversationHistoryList extends JPanel {
 	}
 
 	public void addElement(String src,String str) {
-		listModel.addElement(new ConversationEvent(src, str));
+		inBoundQueue.add(new ConversationEvent(src, str));
+		repaint();
+	}
+	
+	@Override
+	public void paint(Graphics g) {
+		addQueuedMessages();
+		super.paint(g);
+	}
+
+	private void addQueuedMessages() {
+		while(!inBoundQueue.isEmpty()) {
+			ConversationEvent msg = inBoundQueue.poll();
+			if(msg!=null) addMessage(msg);
+		}
+	}
+	
+	private void addMessage(ConversationEvent msg) {
+		int listSize = listModel.getSize() - 1;
+		int lastVisible = listView.getLastVisibleIndex();
+		boolean isLast = (lastVisible == listSize);
+
+		listModel.addElement(msg);
+		if(isLast) jumpToEnd();
+	}
+	
+	private void jumpToEnd() {
 		listView.ensureIndexIsVisible(listModel.getSize()-1);
 	}
+	
+	// TEST
 	
 	public static void main(String[] args) {
 		Log.start();

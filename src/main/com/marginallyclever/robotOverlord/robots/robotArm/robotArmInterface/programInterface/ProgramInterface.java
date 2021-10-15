@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.programInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.programInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

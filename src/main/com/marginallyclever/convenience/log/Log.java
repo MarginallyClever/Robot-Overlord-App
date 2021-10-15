@@ -40,13 +40,16 @@ public class Log {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
 
-	
 	public static void addListener(LogListener listener) {
 		listeners.add(listener);
 	}
 	
 	public static void removeListener(LogListener listener) {
 		listeners.remove(listener);
+	}
+
+	public static String getLogLocation() {
+		return LOG_FILE_PATH+LOG_FILE_NAME_TXT;
 	}
 	
 	public static void start() {

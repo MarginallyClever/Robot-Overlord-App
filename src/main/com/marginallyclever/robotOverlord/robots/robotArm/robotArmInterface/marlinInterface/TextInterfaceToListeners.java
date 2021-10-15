@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robotArmInterface.marlinInterface;
+package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,7 +27,7 @@ public class TextInterfaceToListeners extends JPanel {
 		commandLine.addActionListener((e)->sendNow());
 		send.addActionListener((e)->sendNow());
 		
-		this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToListeners.class.getName()));
+		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToListeners.class.getSimpleName()));
 		setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
