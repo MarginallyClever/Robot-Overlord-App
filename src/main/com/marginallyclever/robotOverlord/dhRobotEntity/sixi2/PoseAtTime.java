@@ -5,7 +5,6 @@ package com.marginallyclever.robotOverlord.dhRobotEntity.sixi2;
  * @author Dan Royer
  *
  */
-@Deprecated
 public class PoseAtTime<T> {
 	public long t;  // ms
 	public T p;

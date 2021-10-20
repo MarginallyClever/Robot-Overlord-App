@@ -226,6 +226,7 @@ public class Mesh {
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
 		}
+		
 		if(hasIndexes) {
 			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex++]);
 			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
