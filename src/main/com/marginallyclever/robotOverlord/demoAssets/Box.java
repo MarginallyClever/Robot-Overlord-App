@@ -38,11 +38,11 @@ public class Box extends Shape implements Collidable {
 		addChild(height);
 		addChild(depth);
 		
-		width .addPropertyChangeListener((evt)->{  updateModel();  });
-		height.addPropertyChangeListener((evt)->{  updateModel();  });
-		depth .addPropertyChangeListener((evt)->{  updateModel();  });
-		
+		width .addPropertyChangeListener((evt)-> updateModel() );
+		height.addPropertyChangeListener((evt)-> updateModel() );
+		depth .addPropertyChangeListener((evt)-> updateModel() );
 		myMesh = new Mesh();
+		updateModel();
 	}
 
 	@Override
