@@ -159,7 +159,8 @@ public class MarlinInterface extends JPanel {
 
 	private void onHearOK() {
 		SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+            @Override
+			public void run() {
         		busyCount++;
         		sendQueuedCommand();
             	clearOldHistory();
