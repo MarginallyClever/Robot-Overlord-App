@@ -181,7 +181,7 @@ public class DHLink extends PoseEntity implements Collidable {
 	@Override
 	public void render(GL2 gl2) {
 		// preserve original material color
-		float [] diffuse = shapeEntity.getMaterial().getDiffuseColor();
+		double [] diffuse = shapeEntity.getMaterial().getDiffuseColor();
 		// change material color - more red when near angle limits 
 		setAngleColorByRange(gl2);
 		
@@ -333,7 +333,7 @@ public class DHLink extends PoseEntity implements Collidable {
 		//gl2.glColor4d(safety,1-safety,0,0.5);
 //		float [] diffuse = {safety,1-safety,0,0};
 		
-		float [] original = shapeEntity.getMaterial().getDiffuseColor();
+		double [] original = shapeEntity.getMaterial().getDiffuseColor();
 		
 		original[0]+=safety;
 		original[1]-=safety;

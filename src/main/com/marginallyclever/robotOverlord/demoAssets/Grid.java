@@ -47,7 +47,7 @@ public class Grid extends PoseEntity {
 	 */
 	private void drawGrid(GL2 gl2,int gridWidth,int gridHeight,int gridSpace) {
 		m.render(gl2);
-		float[] c = m.getDiffuseColor();
+		double[] c = m.getDiffuseColor();
 		double r=c[0];
 		double g=c[1];
 		double b=c[2];

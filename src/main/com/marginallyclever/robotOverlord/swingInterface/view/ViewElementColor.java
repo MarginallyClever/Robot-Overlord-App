@@ -46,7 +46,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		gbc.insets.right=5;
 		
 		
-		float [] oldValues = e.getFloatArray();
+		double [] oldValues = e.getDoubleArray();
 		fields[0] = addField(oldValues[0],p2,"R",gbc);
 		fields[1] = addField(oldValues[1],p2,"G",gbc);
 		fields[2] = addField(oldValues[2],p2,"B",gbc);
@@ -56,7 +56,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		panel.add(p,BorderLayout.CENTER);
 	}
 	
-	private JSlider addField(float value,JPanel parent,String labelName,GridBagConstraints gbc) {
+	private JSlider addField(double value,JPanel parent,String labelName,GridBagConstraints gbc) {
 		JSlider field = new JSlider();
 		field.setMaximum(255);
 		field.setMinimum(0);
@@ -76,8 +76,8 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		return field;
 	}
 	
-	private float getField(int i,float oldValue) {
-		return (float)fields[i].getValue()/255.0f;
+	private double getField(int i,double oldValue) {
+		return (double)fields[i].getValue()/255.0;
 	}
 
 	/**
@@ -85,17 +85,17 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {		
-		float [] newValues = e.getFloatArray();
+		double [] newValues = e.getDoubleArray();
 		
 		for(int i=0;i<newValues.length;++i) {
-			fields[i].setValue((int)(newValues[i]*255.0f));
+			fields[i].setValue((int)(newValues[i]*255.0));
 		}
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
-		float [] newValues = new float[fields.length];
-		float [] oldValues = ((ColorEntity)e).getFloatArray();
+		double [] newValues = new double[fields.length];
+		double [] oldValues = ((ColorEntity)e).getDoubleArray();
 		
 		float sum=0;
 		for(int i=0;i<fields.length;++i) {

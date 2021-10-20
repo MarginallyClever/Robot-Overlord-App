@@ -22,15 +22,15 @@ public class ColorRGBAEdit extends AbstractUndoableEdit {
 	 */
 	private static final long serialVersionUID = 1L;
 	private ColorEntity entity;
-	private float [] newValue;
-	private float [] oldValue;
+	private double [] newValue;
+	private double [] oldValue;
 	
-	public ColorRGBAEdit(ColorEntity entity,float [] newValue) {
+	public ColorRGBAEdit(ColorEntity entity,double [] newValue) {
 		super();
 		
 		this.entity = entity;
 		this.newValue = newValue.clone();
-		this.oldValue = entity.getFloatArray();
+		this.oldValue = entity.getDoubleArray();
 
 		entity.set(newValue);
 	}

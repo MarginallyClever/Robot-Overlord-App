@@ -68,33 +68,33 @@ public class MaterialEntity extends Entity {
 		return shininess.get();
 	}
 	
-	public void setDiffuseColor(float r,float g,float b,float a) {
+	public void setDiffuseColor(double r,double g,double b,double a) {
 		diffuse.set(r,g,b,a);
 	}
 	
-	public void setSpecularColor(float r,float g,float b,float a) {
+	public void setSpecularColor(double r,double g,double b,double a) {
 		specular.set(r,g,b,a);
 	}
 	
-	public void setEmissionColor(float r,float g,float b,float a) {
+	public void setEmissionColor(double r,double g,double b,double a) {
 		emission.set(r,g,b,a);
 	}
 	
 
-	public void setAmbientColor(float r,float g,float b,float a) {
+	public void setAmbientColor(double r,double g,double b,double a) {
 		ambient.set(r,g,b,a);
 	}
     
-	public float[] getDiffuseColor() {
-		return diffuse.getFloatArray();
+	public double[] getDiffuseColor() {
+		return diffuse.getDoubleArray();
 	}
 
-	public float[] getAmbientColor() {
-		return ambient.getFloatArray();
+	public double[] getAmbientColor() {
+		return ambient.getDoubleArray();
 	}
 	
-	public float[] getSpecular() {
-		return specular.getFloatArray();
+	public double[] getSpecular() {
+		return specular.getDoubleArray();
 	}
 	
 	
