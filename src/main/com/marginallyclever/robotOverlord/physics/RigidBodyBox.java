@@ -52,30 +52,33 @@ public class RigidBodyBox extends RigidBody {
 		return getMass() * ( a*a + b*b ) / 12;
 	}
 	
+	@Override
 	protected void testFloorContact() {
 		Shape shape = getShape();	
 		ArrayList<Cuboid> list = shape.getCuboidList();
 		if(!list.isEmpty()) {
 			Cuboid cuboid = list.get(0);
 			Point3d [] corners = PrimitiveSolids.get8PointsOfBox(cuboid.getBoundsBottom(),cuboid.getBoundsTop());
-			double adjustZ =0;
 			for( Point3d p : corners ) {
 				myPose.transform(p);
 				if(p.z<0) {
 					// hit floor
+					// don't be in the floor 
+					myPose.m23-=p.z;
+					for( Point3d p2 : corners ) {
+						p2.z-=p.z;
+					}
+					
+					// now deal with the hit
 					Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
 					Vector3d n = new Vector3d(0,0,1);
 					double vn = velocityAtPoint.dot(n);
 					if(vn<0) {
 						applyCollisionImpulse(p,n);
 					}
-					
-					// don't be in the floor 
-					if(adjustZ>p.z) adjustZ=p.z; 
 					//isPaused=true;
 				}
 			}
-			myPose.m23+=Math.abs(adjustZ);
 		}
 	}
 }

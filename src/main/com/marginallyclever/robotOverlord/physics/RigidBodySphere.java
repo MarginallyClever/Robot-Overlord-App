@@ -29,34 +29,34 @@ public class RigidBodySphere extends RigidBody {
 		Shape shape = getShape();
 		if( shape instanceof Sphere ) {
 			double r = ((Sphere)shape).getRadius();	
-			inertiaTensor.setScale(getMass() * 2/5* r*r);
+			inertiaTensor.setScale(getMass() * 2.0/5.0 * r*r);
 		}
 		return inertiaTensor;
 	}
 		
+	@Override
 	protected void testFloorContact() {
 		Shape shape = getShape();
 		ArrayList<Cuboid> list = shape.getCuboidList();
 		if(!list.isEmpty()) {
 			if( !(shape instanceof Sphere ) ) return;
 				
-			Point3d bottom = new Point3d(this.getPosition());
-			bottom.z-=((Sphere)shape).getRadius();
-					
-			double adjustZ =0;
-			if(bottom.z<0) {
+			Point3d p = new Point3d(this.getPosition());
+			p.z-=((Sphere)shape).getRadius();
+			if(p.z<0) {
 				// hit floor
-				Vector3d velocityAtPoint = getCombinedVelocityAtPoint(bottom);
+				// don't be in the floor 
+				myPose.m23-=p.z;
+				p.z=0;
+				// now deal with the hit
+				Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
 				Vector3d n = new Vector3d(0,0,1);
 				double vn = velocityAtPoint.dot(n);
 				if(vn<0) {
-					applyCollisionImpulse(bottom,n);
+					applyCollisionImpulse(p,n);
 				}
 				
-				// don't be in the floor 
-				if(adjustZ>bottom.z) adjustZ=bottom.z; 
 			}
-			myPose.m23+=Math.abs(adjustZ);
 		}
 	}
 }
