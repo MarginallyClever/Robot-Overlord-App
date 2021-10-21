@@ -108,6 +108,7 @@ public class Sphere extends Shape implements Collidable {
 	
 	public void setDiameter(double v) {
 		diameter.set(v);
+		updateModel();
 	}
 	
 	public void setRadius(double v) {

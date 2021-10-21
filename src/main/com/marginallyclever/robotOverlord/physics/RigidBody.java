@@ -10,12 +10,11 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 //https://en.wikipedia.org/wiki/Collision_response
-public class RigidBody extends PoseEntity {
+public abstract class RigidBody extends PoseEntity {
 	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<Force> forces = new ArrayList<Force>();
@@ -28,6 +27,8 @@ public class RigidBody extends PoseEntity {
 	
 	private Vector3d forceToApply = new Vector3d();
 	private Vector3d torqueToApply = new Vector3d();
+	
+	private double coefficientOfRestitution = 0.75;
 		
 	private boolean isPaused=false;
 		
@@ -48,8 +49,8 @@ public class RigidBody extends PoseEntity {
 		testFloorContact();
 		if(isPaused) return;
 		updateForces(dt);
-		updateLinearPosition(dt);
 		updateAngularPosition(dt);
+		updateLinearPosition(dt);
 	}
 
 	private void updateForces(double dt) {
@@ -80,8 +81,6 @@ public class RigidBody extends PoseEntity {
 	}
 
 	private void updateAngularPosition(double dt) {
-		Vector3d p = getPosition();
-		
 		// We can describe that spin as a vector w(t) The direction of w(t) gives the direction of 
 		// the axis about which the body is spinning. The magnitude of w(t) tells how fast the body is spinning.
 		Vector3d w = new Vector3d(angularVelocity);
@@ -91,11 +90,9 @@ public class RigidBody extends PoseEntity {
 		Matrix3d m = new Matrix3d();
 		Matrix3d rot = MatrixHelper.getMatrixFromAxisAndRotation(w,len);
 		
-		myPose.get(m);
+		myPose.getRotationScale(m);
 		m.mul(rot);
-		myPose.set(m);
-		
-		myPose.setTranslation(p);
+		myPose.setRotationScale(m);
 	}
 	
 	private void updateLinearPosition(double dt) {
@@ -224,15 +221,15 @@ public class RigidBody extends PoseEntity {
 		forceToApply.add(forceScaled);
 
 		// angular component
-		Vector3d forceNormal = new Vector3d(force);
+		Vector3d n = new Vector3d(force);
+		n.normalize();
 		Vector3d newTorque = new Vector3d();
-		newTorque.cross(getR(p),forceNormal);
+		newTorque.cross(getR(p),n);
 		
-		//torqueToApply.add(newTorque);
 		Matrix3d inertiaTensor = getInertiaTensor();
 		inertiaTensor.invert();
 		inertiaTensor.transform(newTorque);
-		//newTorque.scale(len);
+		newTorque.scale(len);
 
 		forces.add(new Force(p,newTorque,0,1,1));
 
@@ -266,7 +263,7 @@ public class RigidBody extends PoseEntity {
 		Vector3d sum = getR(p);
 		sum.cross(angularVelocity,sum);
 		sum.add(linearVelocity);
-
+		
 		//System.out.println(angularVelocity+"\t"+linearVelocity+"\t"+sum);
 		//forces.add(new Force(p,sum,0,0,1));
 		//forces.add(new Force(p,linearVelocity,0,1,0));
@@ -274,43 +271,27 @@ public class RigidBody extends PoseEntity {
 		return sum;
 	}
 	
-	private void testFloorContact() {	
-		ArrayList<Cuboid> list = shape.getCuboidList();
-		if(!list.isEmpty()) {
-			Cuboid cuboid = list.get(0);
-			Point3d [] corners = PrimitiveSolids.get8PointsOfBox(cuboid.getBoundsBottom(),cuboid.getBoundsTop());
-			double adjustZ =0;
-			for( Point3d p : corners ) {
-				myPose.transform(p);
-				if(p.z<0) {
-					// hit floor
-					Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
-					Vector3d n = new Vector3d(0,0,1);
-					double vn = velocityAtPoint.dot(n);
-					if(vn<0) {
-						applyCollisionImpulse(p,n);
-					}
-					
-					// don't be in the floor 
-					if(adjustZ>p.z) adjustZ=p.z; 
-					//isPaused=true;
-				}
-			}
-			myPose.m23+=Math.abs(adjustZ);
-		}
-	}
+	abstract protected void testFloorContact();
 
 	// https://en.wikipedia.org/wiki/Collision_response
 	protected void applyCollisionImpulse(Point3d p, Vector3d n) {
-		double coefficientOfRestitution = 0.5;
-		double jr = getImpulseMagnitude(p,n,coefficientOfRestitution);
+		/*double jr = getImpulseMagnitude(p,n,coefficientOfRestitution);
 
 		Vector3d linearChange = getLinearCollisionResponse(n,jr);
 		Vector3d angularChange = getAngularCollisionResponse(n,p,jr); 
 		forces.add(new Force(p,linearChange,0,0,1));
 		
 		linearVelocity.sub(linearChange);
-		angularVelocity.sub(angularChange);
+		angularVelocity.sub(angularChange);*/
+		
+		Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
+		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
+		//relativeVelocity.scale(-1);
+		
+		double d = relativeVelocity.dot(n);
+		Vector3d f = new Vector3d(n);
+		f.scale(-(1+coefficientOfRestitution)*d*mass);
+		applyForceAtPoint(f,p);
 	}
 	
 	private Vector3d getAngularCollisionResponse(Vector3d n, Point3d p, double jr) {
@@ -340,7 +321,7 @@ public class RigidBody extends PoseEntity {
 		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
 		relativeVelocity.scale(-1);
 		
-		forces.add(new Force(p,relativeVelocity,1,1,0));
+		forces.add(new Force(p,velocityAtPoint,1,1,0));
 				
 		Vector3d r = getR(p);
 		Vector3d rxn = new Vector3d();

@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.demos;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
@@ -8,6 +9,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demoAssets.Box;
 import com.marginallyclever.robotOverlord.demoAssets.Grid;
 import com.marginallyclever.robotOverlord.demoAssets.Sphere;
+import com.marginallyclever.robotOverlord.physics.RigidBody;
 import com.marginallyclever.robotOverlord.physics.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.RigidBodySphere;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
@@ -47,22 +49,36 @@ public class PhysicsDemo implements Demo {
 		Grid grid = new Grid();
 		sc.addChild(grid);
 
-		//oneSphereFallingNoSpin(sc,new Vector3d(0,0,5));
-		oneCubeFalling45(sc,new Vector3d(0,0,5));
-		oneCubeFallingWithSpin(sc,new Vector3d(0,5,5));
-		oneCubeFallingNoSpin(sc,new Vector3d(0,10,5));
-		oneCubeFallingWithLinear(sc,new Vector3d(5,0,5));
-		oneCubeFallingWithBoth(sc,new Vector3d(10,0,5));
+		double x=0;
+		
+		oneFallingNoSpin     (makeOneSphere(sc),new Vector3d(x,0,5));
+		oneFallingWithSpin   (makeOneSphere(sc),new Vector3d(x,5,5));
+		oneFallingWithLinear (makeOneSphere(sc),new Vector3d(x,10,5));
+		oneFallingWithBoth   (makeOneSphere(sc),new Vector3d(x,15,5));
+		oneFalling45         (makeOneSphere(sc),new Vector3d(x,20,5));
+		oneSitting           (makeOneSphere(sc),new Vector3d(x,25,0.5));
+		oneSittingWithImpulse(makeOneSphere(sc),new Vector3d(x,30,0.5));
+
+		x+=5;
+		oneFallingNoSpin     (makeOneCube(sc),new Vector3d(x,0,5));
+		oneFallingWithSpin   (makeOneCube(sc),new Vector3d(x,5,5));
+		oneFallingWithLinear (makeOneCube(sc),new Vector3d(x,10,5));
+		oneFallingWithBoth   (makeOneCube(sc),new Vector3d(x,15,5));
+		oneFalling45         (makeOneCube(sc),new Vector3d(x,20,5));
+		oneSitting           (makeOneCube(sc),new Vector3d(x,25,0.5));
+		oneSittingWithImpulse(makeOneCube(sc),new Vector3d(x,30,0.5));
+		
 		//manyCubeDemo(sc);
 	}
-	
-	private void oneSphereFallingNoSpin(Entity sc, Vector3d p) {
-		RigidBodySphere rigidBody = makeOneSphere(sc);
-		rigidBody.setPosition(p);
-		rigidBody.setLinearVelocity(new Vector3d(0,0,0));
-		rigidBody.setAngularVelocity(new Vector3d(0,0,0));
-	}
 
+	private void oneSittingWithImpulse(RigidBody body, Vector3d p) {
+		body.setPosition(p);
+		double f= 100.0*body.getMass();
+		body.applyForceAtPoint(new Vector3d(f,0,f),new Point3d(p.x,p.y,p.z-1));
+	}
+	
+
+	@SuppressWarnings("unused")
 	private void manyCubeDemo(Entity sc) {
 		int count=10;
 		int countSq = (int)Math.sqrt(count);
@@ -93,53 +109,52 @@ public class PhysicsDemo implements Demo {
 			sc.addChild(rigidBody);
 		}
 	}
+
+	private void oneSitting(RigidBody rigidBody, Vector3d p) {
+		rigidBody.setPosition(p);
+	}
 	
-	private void oneCubeFallingWithBoth(Entity sc,Vector3d p) {
-		RigidBodyBox rigidBody = makeOneCube(sc);
+	private void oneFallingWithBoth(RigidBody rigidBody,Vector3d p) {
 		rigidBody.setPosition(p);
 		rigidBody.setLinearVelocity(new Vector3d(1,0,0));
 		rigidBody.setAngularVelocity(new Vector3d(5,0,0));
 	}
 	
-	private void oneCubeFallingWithLinear(Entity sc,Vector3d p) {
-		RigidBodyBox rigidBody = makeOneCube(sc);
+	private void oneFallingWithLinear(RigidBody rigidBody,Vector3d p) {
 		rigidBody.setPosition(p);
 		rigidBody.setLinearVelocity(new Vector3d(1,0,0));
 	}
 	
-	private void oneCubeFallingWithSpin(Entity sc,Vector3d p) {
-		RigidBodyBox rigidBody = makeOneCube(sc);
+	private void oneFallingWithSpin(RigidBody rigidBody,Vector3d p) {
 		rigidBody.setPosition(p);
 		rigidBody.setAngularVelocity(new Vector3d(5,0,0));
 		rigidBody.setLinearVelocity(new Vector3d(0,0,0));
 	}
 	
-	private void oneCubeFalling45(Entity sc,Vector3d p) {
-		RigidBodyBox rigidBody = makeOneCube(sc);
+	private void oneFalling45(RigidBody rigidBody,Vector3d p) {
 		rigidBody.setPosition(p);
 		rigidBody.setRotation(new Vector3d(45,0,0));
 	}
 	
-	private void oneCubeFallingNoSpin(Entity sc,Vector3d p) {
-		RigidBodyBox rigidBody = makeOneCube(sc);
+	private void oneFallingNoSpin(RigidBody rigidBody,Vector3d p) {
 		rigidBody.setPosition(p);
 	}
 	
-	private RigidBodyBox makeOneCube(Entity sc) {
-		Box box = new Box();
-		box.setSize(1,1,1);
+	private RigidBody makeOneCube(Entity sc) {
 		RigidBodyBox rigidBody = new RigidBodyBox();
-		rigidBody.setShape(box);
+		Box b = new Box();
+		b.setSize(2, 2, 2);
+		rigidBody.setShape(b);
 		rigidBody.setMass(1);
 		sc.addChild(rigidBody);
 		return rigidBody;
 	}
 	
-	private RigidBodySphere makeOneSphere(Entity sc) {
-		Sphere box = new Sphere();
-		box.setDiameter(10);
+	private RigidBody makeOneSphere(Entity sc) {
 		RigidBodySphere rigidBody = new RigidBodySphere();
-		rigidBody.setShape(box);
+		Sphere s = new Sphere();
+		s.setDiameter(2);
+		rigidBody.setShape(s);
 		rigidBody.setMass(1);
 		sc.addChild(rigidBody);
 		return rigidBody;
