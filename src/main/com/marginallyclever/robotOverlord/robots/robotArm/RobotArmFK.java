@@ -141,7 +141,7 @@ public class RobotArmFK extends PoseEntity {
 		
 		if(showEndEffector.get()) {
 			Matrix4d m = getEndEffector();
-			MatrixHelper.drawMatrix2(gl2, m, 6);
+			MatrixHelper.drawMatrix(gl2, m, 6);
 		}
 
 		// return state if needed
