@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.mar
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -51,6 +52,7 @@ public class ConversationHistoryList extends JPanel {
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		this.setBorder(BorderFactory.createTitledBorder(ConversationHistoryList.class.getName()));
+		this.setPreferredSize(new Dimension(500,500));
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
 		this.add(scrollPane, BorderLayout.CENTER);
