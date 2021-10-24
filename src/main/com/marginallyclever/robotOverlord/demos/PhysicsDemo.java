@@ -50,25 +50,34 @@ public class PhysicsDemo implements Demo {
 		sc.addChild(grid);
 
 		double x=0;
+		makeRB op = ()->makeOneSphere(sc);
+		testList(x,op);
 		
-		oneFallingNoSpin     (makeOneSphere(sc),new Vector3d(x,0,5));
-		oneFallingWithSpin   (makeOneSphere(sc),new Vector3d(x,5,5));
-		oneFallingWithLinear (makeOneSphere(sc),new Vector3d(x,10,5));
-		oneFallingWithBoth   (makeOneSphere(sc),new Vector3d(x,15,5));
-		oneFalling45         (makeOneSphere(sc),new Vector3d(x,20,5));
-		oneSitting           (makeOneSphere(sc),new Vector3d(x,25,0.5));
-		oneSittingWithImpulse(makeOneSphere(sc),new Vector3d(x,30,0.5));
-
 		x+=5;
-		oneFallingNoSpin     (makeOneCube(sc),new Vector3d(x,0,5));
-		oneFallingWithSpin   (makeOneCube(sc),new Vector3d(x,5,5));
-		oneFallingWithLinear (makeOneCube(sc),new Vector3d(x,10,5));
-		oneFallingWithBoth   (makeOneCube(sc),new Vector3d(x,15,5));
-		oneFalling45         (makeOneCube(sc),new Vector3d(x,20,5));
-		oneSitting           (makeOneCube(sc),new Vector3d(x,25,0.5));
-		oneSittingWithImpulse(makeOneCube(sc),new Vector3d(x,30,0.5));
+		op = ()->makeOneCube(sc);
+		testList(x,op);
 		
 		//manyCubeDemo(sc);
+	}
+	
+	interface makeRB {
+		public RigidBody operation();
+	}
+	
+	private void testList(double x,makeRB op) {
+		oneFallingNoSpin     (op.operation(),new Vector3d(x,0,5));
+		oneFallingWithSpin   (op.operation(),new Vector3d(x,5,5));
+		oneFallingWithLinear (op.operation(),new Vector3d(x,10,5));
+		oneFallingWithBoth   (op.operation(),new Vector3d(x,15,5));
+		oneFalling45         (op.operation(),new Vector3d(x,20,5));
+		oneSitting           (op.operation(),new Vector3d(x,25,1));
+		oneSittingWithImpulse(op.operation(),new Vector3d(x,30,1));
+		oneSlidingNoFall     (op.operation(),new Vector3d(x,35,1));
+	}
+
+	private void oneSlidingNoFall(RigidBody body, Vector3d p) {
+		body.setPosition(p);
+		body.setLinearVelocity(new Vector3d(1,0,0));
 	}
 
 	private void oneSittingWithImpulse(RigidBody body, Vector3d p) {
@@ -77,7 +86,6 @@ public class PhysicsDemo implements Demo {
 		body.applyForceAtPoint(new Vector3d(f,0,f),new Point3d(p.x,p.y,p.z-1));
 	}
 	
-
 	@SuppressWarnings("unused")
 	private void manyCubeDemo(Entity sc) {
 		int count=10;
@@ -110,14 +118,14 @@ public class PhysicsDemo implements Demo {
 		}
 	}
 
-	private void oneSitting(RigidBody rigidBody, Vector3d p) {
-		rigidBody.setPosition(p);
+	private void oneSitting(RigidBody body, Vector3d p) {
+		body.setPosition(p);
 	}
 	
-	private void oneFallingWithBoth(RigidBody rigidBody,Vector3d p) {
-		rigidBody.setPosition(p);
-		rigidBody.setLinearVelocity(new Vector3d(1,0,0));
-		rigidBody.setAngularVelocity(new Vector3d(5,0,0));
+	private void oneFallingWithBoth(RigidBody body,Vector3d p) {
+		body.setPosition(p);
+		body.setLinearVelocity(new Vector3d(1,0,0));
+		body.setAngularVelocity(new Vector3d(5,0,0));
 	}
 	
 	private void oneFallingWithLinear(RigidBody rigidBody,Vector3d p) {
@@ -125,39 +133,39 @@ public class PhysicsDemo implements Demo {
 		rigidBody.setLinearVelocity(new Vector3d(1,0,0));
 	}
 	
-	private void oneFallingWithSpin(RigidBody rigidBody,Vector3d p) {
-		rigidBody.setPosition(p);
-		rigidBody.setAngularVelocity(new Vector3d(5,0,0));
-		rigidBody.setLinearVelocity(new Vector3d(0,0,0));
+	private void oneFallingWithSpin(RigidBody body,Vector3d p) {
+		body.setPosition(p);
+		body.setAngularVelocity(new Vector3d(5,0,0));
+		body.setLinearVelocity(new Vector3d(0,0,0));
 	}
 	
-	private void oneFalling45(RigidBody rigidBody,Vector3d p) {
-		rigidBody.setPosition(p);
-		rigidBody.setRotation(new Vector3d(45,0,0));
+	private void oneFalling45(RigidBody body,Vector3d p) {
+		body.setPosition(p);
+		body.setRotation(new Vector3d(45,0,0));
 	}
 	
-	private void oneFallingNoSpin(RigidBody rigidBody,Vector3d p) {
-		rigidBody.setPosition(p);
+	private void oneFallingNoSpin(RigidBody body,Vector3d p) {
+		body.setPosition(p);
 	}
 	
 	private RigidBody makeOneCube(Entity sc) {
-		RigidBodyBox rigidBody = new RigidBodyBox();
+		RigidBodyBox body = new RigidBodyBox();
 		Box b = new Box();
 		b.setSize(2, 2, 2);
-		rigidBody.setShape(b);
-		rigidBody.setMass(1);
-		sc.addChild(rigidBody);
-		return rigidBody;
+		body.setShape(b);
+		body.setMass(1);
+		sc.addChild(body);
+		return body;
 	}
 	
 	private RigidBody makeOneSphere(Entity sc) {
-		RigidBodySphere rigidBody = new RigidBodySphere();
+		RigidBodySphere body = new RigidBodySphere();
 		Sphere s = new Sphere();
 		s.setDiameter(2);
-		rigidBody.setShape(s);
-		rigidBody.setMass(1);
-		sc.addChild(rigidBody);
-		return rigidBody;
+		body.setShape(s);
+		body.setMass(1);
+		sc.addChild(body);
+		return body;
 	}
 	
 	private double randomRotation() {

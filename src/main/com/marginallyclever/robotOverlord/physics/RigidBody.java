@@ -10,6 +10,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
@@ -29,6 +30,7 @@ public abstract class RigidBody extends PoseEntity {
 	private Vector3d torqueToApply = new Vector3d();
 	
 	private double coefficientOfRestitution = 0.75;
+	private double coefficientOfFriction = 0.5;
 		
 	private boolean isPaused=false;
 		
@@ -63,8 +65,11 @@ public abstract class RigidBody extends PoseEntity {
 		forceToApply.add(new Vector3d(0,0,-9.8*mass));
 	}
 
-	private void updateAngularForce(double dt) {
-		if(torqueToApply.lengthSquared()<1e-6) return;
+	private void updateAngularForce(double dt) {/*
+		if(torqueToApply.lengthSquared()<1e-6) {
+			torqueToApply.set(0,0,0);
+			return;
+		}*/
 		if(shape==null) return;
 
 		if(mass>0) torqueToApply.scale(1.0/mass);
@@ -108,8 +113,9 @@ public abstract class RigidBody extends PoseEntity {
 		super.render(gl2);
 		if(shape!=null) {
 			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
+				MatrixHelper.applyMatrix(gl2, myPose);
 				shape.render(gl2);
+				PrimitiveSolids.drawStar(gl2,1);
 			gl2.glPopMatrix();
 			
 			boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
@@ -214,7 +220,7 @@ public abstract class RigidBody extends PoseEntity {
 		double len = force.length();
 		if(len<1e-6) return;
 		
-		forces.add(new Force(p,force,1,0,1));
+		//forces.add(new Force(p,force,1,0,1));
 		
 		// linear component
 		Vector3d forceScaled = new Vector3d(force);
@@ -231,7 +237,7 @@ public abstract class RigidBody extends PoseEntity {
 		inertiaTensor.transform(newTorque);
 		newTorque.scale(len);
 
-		forces.add(new Force(p,newTorque,0,1,1));
+		//forces.add(new Force(p,newTorque,0,1,1));
 
 		torqueToApply.add(newTorque);
 	}
@@ -275,7 +281,7 @@ public abstract class RigidBody extends PoseEntity {
 
 	// https://en.wikipedia.org/wiki/Collision_response
 	protected void applyCollisionImpulse(Point3d p, Vector3d n) {
-		/*double jr = getImpulseMagnitude(p,n,coefficientOfRestitution);
+		double jr = getImpulseMagnitude(p,n,coefficientOfRestitution);/*
 
 		Vector3d linearChange = getLinearCollisionResponse(n,jr);
 		Vector3d angularChange = getAngularCollisionResponse(n,p,jr); 
@@ -284,14 +290,33 @@ public abstract class RigidBody extends PoseEntity {
 		linearVelocity.sub(linearChange);
 		angularVelocity.sub(angularChange);*/
 		
+		Vector3d f = new Vector3d(n);
+		f.scale(-jr*mass);
+		applyForceAtPoint(f,p);
+
+		applyFriction(p,n);
+	}
+	
+	private void applyFriction(Point3d p,Vector3d n) {
 		Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
 		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
-		//relativeVelocity.scale(-1);
-		
 		double d = relativeVelocity.dot(n);
-		Vector3d f = new Vector3d(n);
-		f.scale(-(1+coefficientOfRestitution)*d*mass);
-		applyForceAtPoint(f,p);
+		// friction m
+		if(d!=0) {
+			Vector3d f2 = new Vector3d(n);
+			Vector3d t = new Vector3d(relativeVelocity);
+			f2.scale(d);
+			t.sub(f2);
+			if(t.lengthSquared()>1e-6) {
+				//if(t.length()<coefficientOfFriction * d) {
+					//t.normalize();
+				t.scale(-coefficientOfFriction);
+				//}
+				forces.add(new Force(p,relativeVelocity,1,0,0));
+				forces.add(new Force(p,t,1,1,0));
+				applyForceAtPoint(t,p);
+			}
+		}		
 	}
 	
 	private Vector3d getAngularCollisionResponse(Vector3d n, Point3d p, double jr) {
@@ -321,7 +346,7 @@ public abstract class RigidBody extends PoseEntity {
 		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
 		relativeVelocity.scale(-1);
 		
-		forces.add(new Force(p,velocityAtPoint,1,1,0));
+		//forces.add(new Force(p,velocityAtPoint,1,1,0));
 				
 		Vector3d r = getR(p);
 		Vector3d rxn = new Vector3d();

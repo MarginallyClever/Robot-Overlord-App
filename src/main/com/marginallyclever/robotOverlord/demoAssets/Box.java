@@ -6,6 +6,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.Collidable;
@@ -79,14 +80,6 @@ public class Box extends Shape implements Collidable {
 		Vector3d p1=new Vector3d();
 		Vector3d p2=new Vector3d();
 		Vector3d p3=new Vector3d();
-		
-		// bottom
-		n.set( 0, 0,-1);
-		p0.set(-w, d,-h);
-		p1.set( w, d,-h);
-		p2.set( w,-d,-h);
-		p3.set(-w,-d,-h);
-		addSubdividedPlane(n,p0,p1,p2,p3,wParts,dParts);
 
 		// top
 		n.set( 0, 0, 1);
@@ -94,7 +87,15 @@ public class Box extends Shape implements Collidable {
 		p1.set(-w, d,h);
 		p2.set(-w,-d,h);
 		p3.set( w,-d,h);
-		addSubdividedPlane(n,p0,p1,p2,p3,wParts,dParts);
+		addSubdividedPlane(n,p0,p1,p2,p3,wParts,dParts,new ColorRGB(0,0,1));
+		
+		// bottom
+		n.set( 0, 0,-1);
+		p0.set(-w, d,-h);
+		p1.set( w, d,-h);
+		p2.set( w,-d,-h);
+		p3.set(-w,-d,-h);
+		addSubdividedPlane(n,p0,p1,p2,p3,wParts,dParts,new ColorRGB(1,1,1));
 		
 		// sides
 		n.set( 0, 1, 0);
@@ -102,28 +103,28 @@ public class Box extends Shape implements Collidable {
 		p1.set( w, d,h);
 		p2.set( w, d,-h);
 		p3.set(-w, d,-h);
-		addSubdividedPlane(n,p0,p1,p2,p3,wParts,hParts);
+		addSubdividedPlane(n,p0,p1,p2,p3,wParts,hParts,new ColorRGB(0,1,0));
 
 		n.set( 0,-1, 0);
 		p0.set( w,-d,h);
 		p1.set(-w,-d,h);
 		p2.set(-w,-d,-h);
 		p3.set( w,-d,-h);
-		addSubdividedPlane(n,p0,p1,p2,p3,(int)(w/10),hParts);
+		addSubdividedPlane(n,p0,p1,p2,p3,(int)(w/10),hParts,new ColorRGB(1,1,1));
 		
 		n.set( 1, 0, 0);
 		p0.set( w, d,-h);
 		p1.set( w, d,h);
 		p2.set( w,-d,h);
 		p3.set( w,-d,-h);
-		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
+		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts,new ColorRGB(1,0,0));
 	
 		n.set(-1, 0, 0);
 		p0.set(-w,-d,h);
 		p1.set(-w, d,h);
 		p2.set(-w, d,-h);
 		p3.set(-w,-d,-h);
-		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
+		addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts,new ColorRGB(1,1,1));
 
 		updateCuboid();
 	}
@@ -144,7 +145,8 @@ public class Box extends Shape implements Collidable {
 			Vector3d p2,
 			Vector3d p3,
 			int xParts,
-			int yParts) {
+			int yParts,
+			ColorRGB c) {
 		xParts = Math.max(xParts, 1);
 		yParts = Math.max(yParts, 1);
 
@@ -170,21 +172,18 @@ public class Box extends Shape implements Collidable {
 				pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
 
 				if(myMesh.renderStyle == GL2.GL_TRIANGLES) {
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					
+					for(int i=0;i<6;++i) {
+						myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+						myMesh.addColor(c.red, c.green, c.blue, 1);
+					}			
 					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					
 					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 					myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+					
 				} else if(myMesh.renderStyle == GL2.GL_LINES) {
 					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
