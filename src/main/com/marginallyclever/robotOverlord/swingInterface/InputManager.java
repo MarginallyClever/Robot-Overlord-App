@@ -426,6 +426,5 @@ public class InputManager {
 	public static void focusGained() {
 		hasFocus=true;
 		resetKeyStates();
-
 	}
 }

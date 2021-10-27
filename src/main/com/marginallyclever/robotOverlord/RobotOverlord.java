@@ -421,21 +421,20 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
         		confirmClose();
         		super.windowClosing(e);
         	}
-		});
-        
-        mainFrame.addWindowFocusListener(new WindowAdapter() {
-        	@Override
-        	public void windowLostFocus(WindowEvent e) {
-        		InputManager.focusLost();
-				//System.out.println("Focus lost");
-        	}
         	
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-				//System.out.println("Focus gained");
+        	@Override
+            public void windowActivated(WindowEvent e) {
+        		// switch back to this window
         		InputManager.focusGained();
-			}
-        });
+        		
+        	}
+
+        	@Override
+            public void windowDeactivated(WindowEvent e) {
+        		// switch away to another window
+        		InputManager.focusLost();
+        	}
+		});
 	}
 
 	private void setWindowSizeAndPosition() {
