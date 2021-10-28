@@ -31,13 +31,16 @@ public class RobotArmIK extends PoseEntity {
 
 	private RobotArmFK myArmFK = new RobotArmFK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
-		
-	public RobotArmIK() {
-		super();
-		setName("RobotArmIK");
+	
+	public RobotArmIK(String name) {
+		super(name);
 
 		addChild(eeTarget);
 		setEndEffectorTarget(getEndEffector());
+	}
+		
+	public RobotArmIK() {
+		this(RobotArmIK.class.getSimpleName());
 	}
 	
 	public RobotArmIK(RobotArmFK armFK) {
@@ -52,22 +55,9 @@ public class RobotArmIK extends PoseEntity {
 		RobotArmIK b = (RobotArmIK)super.clone();
 		
 		b.myArmFK = (RobotArmFK)myArmFK.clone();
-		b.eeTarget = (PoseEntity)(eeTarget.clone());
+		b.eeTarget = (PoseEntity)eeTarget.clone();
 		
 		return b;
-	}
-
-	@Override
-	public void update(double dt) {
-		super.update(dt);
-		
-		// move arm towards result to get future pose
-		try {
-			//JacobianNewtonRaphson.step(this);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	@Override
@@ -77,11 +67,11 @@ public class RobotArmIK extends PoseEntity {
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
 		myArmFK.render(gl2);
-		drawPathToTarget(gl2);
+		drawEndEffectorPathToTarget(gl2);
 		gl2.glPopMatrix();
 	}
 	
-	private void drawPathToTarget(GL2 gl2) {
+	private void drawEndEffectorPathToTarget(GL2 gl2) {
 		Matrix4d start = myArmFK.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
@@ -105,17 +95,16 @@ public class RobotArmIK extends PoseEntity {
 		view.pushStack("IK","Inverse Kinematics");
 
 		ViewElementButton bOpen = view.addButton("Open control panel");
-		ViewElementButton bResetGoto = view.addButton("Reset GoTo");
-		//ViewElementButton bRunTest = view.addButton("Run test");
-		
 		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
+
+		ViewElementButton bResetGoto = view.addButton("Reset GoTo");
 		bResetGoto.addPropertyChangeListener((evt) -> onResetGotoAction() );
+
+		//ViewElementButton bRunTest = view.addButton("Run test");
 		//bRunTest.addPropertyChangeListener((evt) -> onRunTest() );
-				
 		view.popStack();
 		
 		myArmFK.getView(view);
-		
 		super.getView(view);
 	}
 
@@ -305,5 +294,9 @@ public class RobotArmIK extends PoseEntity {
 
 	public double getDistanceToTarget(Matrix4d m4) {
 		return myArmFK.getDistanceToTarget(m4);
-	}	
+	}
+
+	public void setToolCenterPoint(Matrix4d m) {
+		myArmFK.setToolCenterPoint(m);
+	}
 }

@@ -23,8 +23,8 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 /**
- * Simulation of a Sixi3 robot arm with Forward Kinematics based on Denavit Hartenberg parameters.
- * It manages a set of {@link RobotArmBone}.
+ * Simulation of a robot arm with Forward Kinematics based on Denavit Hartenberg parameters.
+ * It manages a set of {@link RobotArmBone} and a tool center position.
  * @see <a href='https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters'>DH parameters</a>
  * @see <a href='https://en.wikipedia.org/wiki/Forward_kinematics'>Forward Kinematics</a>
  * @author Dan Royer
@@ -39,14 +39,13 @@ public class RobotArmFK extends PoseEntity {
 	private Shape base;
 	private ArrayList<RobotArmBone> bones = new ArrayList<RobotArmBone>();
 	
-	// TODO move show* to a robotRender() class?
 	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
 	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
+	private PoseEntity toolCenterPoint = new PoseEntity("TCP");
 		
 	public RobotArmFK() {
-		super();
-		setName("RobotArmFK");
-		
+		super(RobotArmFK.class.getSimpleName());
+				
 		loadModel();
 		
 		for(int i=0;i<bones.size();++i) {
@@ -227,6 +226,17 @@ public class RobotArmFK extends PoseEntity {
 			}
 		gl2.glPopMatrix();
 	}
+	
+	public Matrix4d getToolCenterPoint() {
+		return toolCenterPoint.getPose();
+	}
+	
+	public void setToolCenterPoint(Matrix4d tcpNew) {
+		Matrix4d tcpOld = toolCenterPoint.getPose();
+		this.toolCenterPoint.setPose(tcpNew);
+
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"tcp",tcpOld,tcpNew));
+	}
 
 	/**
 	 * Find the current end effector pose, relative to the base of this robot
@@ -238,6 +248,8 @@ public class RobotArmFK extends PoseEntity {
 		for( RobotArmBone bone : bones ) {
 			m.mul(bone.getPose());
 		}
+		m.mul(toolCenterPoint.getPose());
+		
 		return m;
 	}
 
@@ -254,7 +266,6 @@ public class RobotArmFK extends PoseEntity {
 			setAngles(v);
 		});
 		view.add(showAngles);
-		view.add(showEndEffector);
 		view.popStack();
 		
 		super.getView(view);
