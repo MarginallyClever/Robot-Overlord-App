@@ -138,7 +138,7 @@ public class CartesianDrivePanel extends JPanel {
 	
 	private double getMovementStepSize() {
 		double d = ((Number)stepScale.getValue()).doubleValue();
-		double scale = 0.1/Math.pow(2.0, d);
+		double scale = Math.pow(10.0, -d);
 		return dial.getChange()*scale;
 	}
 	

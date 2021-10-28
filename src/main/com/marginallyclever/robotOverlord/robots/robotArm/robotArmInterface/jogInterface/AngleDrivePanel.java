@@ -78,7 +78,7 @@ public class AngleDrivePanel extends JPanel {
 	
 	private double getMovementStepSize() {
 		double d = ((Number)stepScale.getValue()).doubleValue();
-		double scale = 1.0/Math.pow(2.0, d);
+		double scale = 10.0*Math.pow(10.0, -d);
 		return dial.getChange()*scale;
 	}
 
