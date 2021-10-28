@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.physics;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.vecmath.Matrix3d;
@@ -13,6 +15,8 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 //https://en.wikipedia.org/wiki/Collision_response
 public abstract class RigidBody extends PoseEntity {
@@ -25,15 +29,16 @@ public abstract class RigidBody extends PoseEntity {
 
 	private Vector3d angularVelocity = new Vector3d();
 	private Vector3d linearVelocity = new Vector3d();
-	
 	private Vector3d forceToApply = new Vector3d();
 	private Vector3d torqueToApply = new Vector3d();
+	
+	private BooleanEntity pauseOnCollision = new BooleanEntity("Pause on collision",true);
 	
 	private double coefficientOfRestitution = 0.75;
 	private double coefficientOfFriction = 0.5;
 		
 	private boolean isPaused=false;
-		
+
 	public RigidBody() {
 		this(RigidBody.class.getSimpleName());
 	}
@@ -47,12 +52,11 @@ public abstract class RigidBody extends PoseEntity {
 		if(isPaused) return;
 		
 		while(forces.size()>200) forces.remove(0);
-		
-		testFloorContact();
-		if(isPaused) return;
+
 		updateForces(dt);
 		updateAngularPosition(dt);
 		updateLinearPosition(dt);
+		testFloorContact();
 	}
 
 	private void updateForces(double dt) {
@@ -78,12 +82,14 @@ public abstract class RigidBody extends PoseEntity {
 		torqueToApply.set(0,0,0);
 	}
 	
+	
 	private void updateLinearForce(double dt) {
 		if(mass>0) forceToApply.scale(1.0/mass);
 		forceToApply.scale(dt);
 		linearVelocity.add(forceToApply);
 		forceToApply.set(0,0,0);
 	}
+	
 
 	private void updateAngularPosition(double dt) {
 		// We can describe that spin as a vector w(t) The direction of w(t) gives the direction of 
@@ -100,6 +106,7 @@ public abstract class RigidBody extends PoseEntity {
 		myPose.setRotationScale(m);
 	}
 	
+	
 	private void updateLinearPosition(double dt) {
 		Vector3d p = getPosition();
 		Vector3d dp = new Vector3d(linearVelocity);
@@ -107,6 +114,7 @@ public abstract class RigidBody extends PoseEntity {
 		p.add(dp);
 		setPosition(p);
 	}
+
 
 	@Override
 	public void render(GL2 gl2) {
@@ -136,22 +144,23 @@ public abstract class RigidBody extends PoseEntity {
 			Vector3d p = getPosition();
 			gl2.glTranslated(p.x, p.y, p.z);
 
+			int a = OpenGLHelper.drawAtopEverythingStart(gl2);
 			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3d(1,0,0);
+			gl2.glColor3d(0,1,1);
 			gl2.glVertex3d(0, 0, 0);
 			gl2.glVertex3d(
 					linearVelocity.x,
 					linearVelocity.y,
 					linearVelocity.z);
 			
-			gl2.glColor3d(0,1,0);
+			gl2.glColor3d(1,0,1);
 			gl2.glVertex3d(0, 0, 0);
 			gl2.glVertex3d(
 					angularVelocity.x,
 					angularVelocity.y,
 					angularVelocity.z);
-			
 			gl2.glEnd();
+			OpenGLHelper.drawAtopEverythingEnd(gl2,a);
 		gl2.glPopMatrix();
 	}
 
@@ -187,6 +196,7 @@ public abstract class RigidBody extends PoseEntity {
 			return inertiaTensor;
 		}
 	}
+	
 
 	private Matrix3d getInertiaTensorFromDimensions(double x, double y, double z) {
 		Matrix3d it = new Matrix3d();
@@ -195,26 +205,32 @@ public abstract class RigidBody extends PoseEntity {
 		it.m22=calculateMOI(x,y);
 		return it;
 	}
+	
 
 	private double calculateMOI(double a, double b) {
 		return mass * ( a*a + b*b ) / 12;
 	}
+	
 
 	public void setLinearVelocity(Vector3d arg0) {
 		linearVelocity.set(arg0);
 	}
+	
 
 	public Vector3d getLinearVelocity() {
 		return linearVelocity;
 	}
+	
 
 	public void setAngularVelocity(Vector3d arg0) {
 		angularVelocity.set(arg0);
 	}
+	
 
 	public Vector3d getAngularVelocity() {
 		return angularVelocity;
 	}
+	
 	
 	public void applyForceAtPoint(Vector3d force,Point3d p) {
 		double len = force.length();
@@ -242,6 +258,7 @@ public abstract class RigidBody extends PoseEntity {
 		torqueToApply.add(newTorque);
 	}
 	
+	
 	private Matrix3d getInertiaTensor() {
 		Matrix3d inertiaTensor = getInertiaTensorFromShape();
 		Matrix3d pose3 = new Matrix3d();
@@ -250,11 +267,13 @@ public abstract class RigidBody extends PoseEntity {
 		return inertiaTensor;
 	}
 	
+	
 	private Vector3d getR(Point3d p) {
 		Vector3d r = new Vector3d(p);
 		r.sub(getPosition());
 		return r;
 	}
+	
 	
 	/**
 	 * Vp = V + W x R
@@ -293,8 +312,12 @@ public abstract class RigidBody extends PoseEntity {
 		Vector3d f = new Vector3d(n);
 		f.scale(-jr*mass);
 		applyForceAtPoint(f,p);
+		forces.add(new Force(p,f,0,1,1));
 
 		applyFriction(p,n);
+		
+		if(pauseOnCollision.get())
+			isPaused=true;
 	}
 	
 	private void applyFriction(Point3d p,Vector3d n) {
@@ -302,20 +325,18 @@ public abstract class RigidBody extends PoseEntity {
 		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
 		double d = relativeVelocity.dot(n);
 		// friction m
-		if(d!=0) {
-			Vector3d f2 = new Vector3d(n);
-			Vector3d t = new Vector3d(relativeVelocity);
-			f2.scale(d);
-			t.sub(f2);
-			if(t.lengthSquared()>1e-6) {
-				//if(t.length()<coefficientOfFriction * d) {
-					//t.normalize();
-				t.scale(-coefficientOfFriction);
-				//}
-				forces.add(new Force(p,relativeVelocity,1,0,0));
-				forces.add(new Force(p,t,1,1,0));
-				applyForceAtPoint(t,p);
-			}
+		Vector3d f2 = new Vector3d(n);
+		Vector3d t = new Vector3d(relativeVelocity);
+		f2.scale(d);
+		t.sub(f2);
+		if(t.lengthSquared()>1e-6) {
+			//if(t.length()<coefficientOfFriction * d) {
+				//t.normalize();
+			t.scale(-coefficientOfFriction);
+			//}
+			forces.add(new Force(p,relativeVelocity,1,0,0));
+			forces.add(new Force(p,t,1,1,0));
+			applyForceAtPoint(t,p);
 		}		
 	}
 	
@@ -332,6 +353,7 @@ public abstract class RigidBody extends PoseEntity {
 		newAngularVelocity.scale(jr);
 		return newAngularVelocity;
 	}
+	
 
 	private Vector3d getLinearCollisionResponse(Vector3d n,double jr) {
 		double s = jr/mass;
@@ -340,6 +362,7 @@ public abstract class RigidBody extends PoseEntity {
 									s*n.z );
 		return sum;
 	}
+	
 
 	private double getImpulseMagnitude(Point3d p, Vector3d n,double e) {
 		Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
@@ -363,5 +386,23 @@ public abstract class RigidBody extends PoseEntity {
 		double jr = a/b;
 		
 		return jr;
+	}
+	
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("Ph", "Physics");
+		view.add(pauseOnCollision);
+		view.addButton("Unpause").addPropertyChangeListener( (evt) -> isPaused=false );
+		view.popStack();
+		shape.getView(view);
+		super.getView(view);
+	}
+	
+	public boolean isPaused() {
+		return isPaused;
+	}
+	
+	public void setPaused(boolean isPaused) {
+		this.isPaused = isPaused;
 	}
 }
