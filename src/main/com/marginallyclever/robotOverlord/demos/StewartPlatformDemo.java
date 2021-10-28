@@ -5,8 +5,8 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demoAssets.Box;
-import com.marginallyclever.robotOverlord.demoAssets.TrayCabinet;
+import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
+import com.marginallyclever.robotOverlord.demos.demoAssets.TrayCabinet;
 import com.marginallyclever.robotOverlord.robots.LinearStewartPlatform;
 import com.marginallyclever.robotOverlord.robots.RotaryStewartPlatform;
 import com.marginallyclever.robotOverlord.shape.Shape;
@@ -34,12 +34,11 @@ public class StewartPlatformDemo implements Demo {
 
 		sc.addChild(light = new Light());
 		light.setName("Light");
-    	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
-    	light.attenuationLinear.set(0.0014);
-    	light.attenuationQuadratic.set(7*1e-6);
+    	light.setAttenuationLinear(0.0014);
+    	light.setAttenuationQuadratic(7*1e-6);
     	light.setDirectional(true);
     	
 		// add some collision bounds

@@ -6,9 +6,9 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demoAssets.Box;
-import com.marginallyclever.robotOverlord.demoAssets.Grid;
-import com.marginallyclever.robotOverlord.demoAssets.Sphere;
+import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
+import com.marginallyclever.robotOverlord.demos.demoAssets.Grid;
+import com.marginallyclever.robotOverlord.demos.demoAssets.Sphere;
 import com.marginallyclever.robotOverlord.physics.RigidBody;
 import com.marginallyclever.robotOverlord.physics.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.RigidBodySphere;
@@ -36,12 +36,11 @@ public class PhysicsDemo implements Demo {
 
 		sc.addChild(light = new Light());
 		light.setName("Light");
-    	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
-    	light.attenuationLinear.set(0.0014);
-    	light.attenuationQuadratic.set(7*1e-6);
+    	light.setAttenuationLinear(0.0014);
+    	light.setAttenuationQuadratic(7*1e-6);
     	light.setDirectional(true);
     	
 		// add some collision bounds
@@ -53,9 +52,9 @@ public class PhysicsDemo implements Demo {
 		makeRB op = ()->makeOneSphere(sc);
 		testList(x,op);
 		
-		x+=5;
-		op = ()->makeOneCube(sc);
-		testList(x,op);
+		//x+=5;
+		//op = ()->makeOneCube(sc);
+		//testList(x,op);
 		
 		//manyCubeDemo(sc);
 	}
@@ -65,14 +64,14 @@ public class PhysicsDemo implements Demo {
 	}
 	
 	private void testList(double x,makeRB op) {
-		oneFallingNoSpin     (op.operation(),new Vector3d(x,0,5));
-		oneFallingWithSpin   (op.operation(),new Vector3d(x,5,5));
+		//oneFallingNoSpin     (op.operation(),new Vector3d(x,0,5));
+		//oneFallingWithSpin   (op.operation(),new Vector3d(x,5,5));
 		oneFallingWithLinear (op.operation(),new Vector3d(x,10,5));
-		oneFallingWithBoth   (op.operation(),new Vector3d(x,15,5));
-		oneFalling45         (op.operation(),new Vector3d(x,20,5));
-		oneSitting           (op.operation(),new Vector3d(x,25,1));
-		oneSittingWithImpulse(op.operation(),new Vector3d(x,30,1));
-		oneSlidingNoFall     (op.operation(),new Vector3d(x,35,1));
+		//oneFallingWithBoth   (op.operation(),new Vector3d(x,15,5));
+		//oneFalling45         (op.operation(),new Vector3d(x,20,5));
+		//oneSitting           (op.operation(),new Vector3d(x,25,1));
+		//oneSittingWithImpulse(op.operation(),new Vector3d(x,30,1));
+		//oneSlidingNoFall     (op.operation(),new Vector3d(x,35,1));
 	}
 
 	private void oneSlidingNoFall(RigidBody body, Vector3d p) {
@@ -126,6 +125,7 @@ public class PhysicsDemo implements Demo {
 		body.setPosition(p);
 		body.setLinearVelocity(new Vector3d(1,0,0));
 		body.setAngularVelocity(new Vector3d(5,0,0));
+		body.setPaused(true);
 	}
 	
 	private void oneFallingWithLinear(RigidBody rigidBody,Vector3d p) {
@@ -161,6 +161,7 @@ public class PhysicsDemo implements Demo {
 	private RigidBody makeOneSphere(Entity sc) {
 		RigidBodySphere body = new RigidBodySphere();
 		Sphere s = new Sphere();
+		s.getMaterial().setTextureFilename("/grid.png");
 		s.setDiameter(2);
 		body.setShape(s);
 		body.setMass(1);

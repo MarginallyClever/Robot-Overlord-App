@@ -11,7 +11,11 @@ import java.awt.event.WindowEvent;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demoAssets.Box;
+import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
+import com.marginallyclever.robotOverlord.demos.robotArms.Mantis;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi2;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Thor;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
@@ -38,12 +42,11 @@ public class RobotArmsDemo implements Demo {
 
 		sc.addChild(light = new Light());
 		light.setName("Light");
-    	light.lightIndex=1;
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
-    	light.attenuationLinear.set(0.0014);
-    	light.attenuationQuadratic.set(7*1e-6);
+    	light.setAttenuationLinear(0.0014);
+    	light.setAttenuationQuadratic(7*1e-6);
     	light.setDirectional(true);
     	
 		// add some collision bounds
