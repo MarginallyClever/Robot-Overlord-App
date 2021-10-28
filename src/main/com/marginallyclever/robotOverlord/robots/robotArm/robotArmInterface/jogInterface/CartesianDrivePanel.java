@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.vecmath.Matrix3d;
@@ -32,8 +34,8 @@ public class CartesianDrivePanel extends JPanel {
 	private JRadioButton roll = makeRadioButton(buttonGroup,"roll");
 	private JRadioButton pitch = makeRadioButton(buttonGroup,"pitch");
 	private JRadioButton yaw = makeRadioButton(buttonGroup,"yaw");
+	private JSpinner stepScale = new JSpinner(new SpinnerNumberModel(1,1,5,1));
 	private JComboBox<String> frameOfReference;
-	
 	private Dial dial = new Dial();
 
 	public CartesianDrivePanel(RobotArmIK sixi3) {
@@ -47,7 +49,15 @@ public class CartesianDrivePanel extends JPanel {
 
 		this.setBorder(BorderFactory.createTitledBorder(CartesianDrivePanel.class.getSimpleName()));
 		this.setLayout(new GridBagLayout());
+
+		JPanel scaleSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
+		scaleSelection.add(new JLabel("Scale 1/(2^-x)"));
+		scaleSelection.add(stepScale);
 		
+		JPanel referenceFrameSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
+		referenceFrameSelection.add(new JLabel("Reference frame"));
+		referenceFrameSelection.add(frameOfReference);
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
 		c.gridy=0;
@@ -55,15 +65,12 @@ public class CartesianDrivePanel extends JPanel {
 		c.weighty=0;
 		c.gridheight=1;
 		c.anchor=GridBagConstraints.NORTHWEST;
-
-		c.gridwidth=2;
-
-		JPanel referenceFrameSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
-		referenceFrameSelection.add(new JLabel("Reference frame"));
-		referenceFrameSelection.add(frameOfReference);
-		
 		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth=2;
 		this.add(referenceFrameSelection,c);
+		
+		c.gridy++;
+		this.add(scaleSelection,c);
 
 		c.gridwidth=1;
 		c.gridy++;
@@ -81,7 +88,7 @@ public class CartesianDrivePanel extends JPanel {
 		c.gridy++;
 		
 		c.gridx=1;
-		c.gridy=1;
+		c.gridy=2;
 		c.weightx=1;
 		c.weighty=1;
 		c.gridwidth=1;
@@ -129,10 +136,15 @@ public class CartesianDrivePanel extends JPanel {
 		return rb;
 	}
 	
+	private double getMovementStepSize() {
+		double d = ((Number)stepScale.getValue()).doubleValue();
+		double scale = 0.1/Math.pow(2.0, d);
+		return dial.getChange()*scale;
+	}
+	
 	private void onDialTurn(RobotArmIK arm) {
-		double v_mm = dial.getChange()*0.1;
+		double v_mm = getMovementStepSize();
 		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(arm,v_mm);
-		//arm.setEndEffectorTarget(m4);
 		try {
 			JacobianNewtonRaphson.iterate(arm,m4,20);
 		} catch(Exception e) {
@@ -165,9 +177,9 @@ public class CartesianDrivePanel extends JPanel {
 			if(roll.isSelected()) {
 				rot.rotZ(v_mm);
 			} else if(pitch.isSelected()) {
-				rot.rotX(v_mm);
-			} else if(yaw.isSelected()) {
 				rot.rotY(v_mm);
+			} else {
+				rot.rotX(v_mm);
 			}
 			Matrix3d mBi = new Matrix3d(mB);
 			mBi.invert();

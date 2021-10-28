@@ -1,14 +1,19 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
@@ -19,6 +24,7 @@ public class AngleDrivePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private ButtonGroup buttonGroup = new ButtonGroup();
 	private JRadioButton [] buttons;
+	private JSpinner stepScale = new JSpinner(new SpinnerNumberModel(1,1,5,1));
 	private Dial dial = new Dial();
 
 	public AngleDrivePanel(RobotArmIK arm) {
@@ -42,8 +48,17 @@ public class AngleDrivePanel extends JPanel {
 		c.weightx=0;
 		c.weighty=0;
 		c.gridheight=1;
-		c.gridwidth=1;
+		c.gridwidth=2;
 		c.anchor=GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+
+		JPanel scaleSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
+		scaleSelection.add(new JLabel("Scale 1/(2^-x)"));
+		scaleSelection.add(stepScale);
+		this.add(scaleSelection,c);
+
+		c.gridwidth=1;
+		c.gridy++;
 
 		for(int i=0;i<buttons.length;++i) {
 			this.add(buttons[i],c);
@@ -51,7 +66,7 @@ public class AngleDrivePanel extends JPanel {
 		}
 		
 		c.gridx=1;
-		c.gridy=0;
+		c.gridy=1;
 		c.weightx=1;
 		c.weighty=1;
 		c.gridwidth=buttons.length;
@@ -60,15 +75,19 @@ public class AngleDrivePanel extends JPanel {
 		c.anchor = GridBagConstraints.EAST;
 		this.add(dial,c);
 	}
+	
+	private double getMovementStepSize() {
+		double d = ((Number)stepScale.getValue()).doubleValue();
+		double scale = 1.0/Math.pow(2.0, d);
+		return dial.getChange()*scale;
+	}
 
 	private void onDialTurn(RobotArmIK arm) {
-		//System.out.println("FK " + buttonGroup.getSelection().getActionCommand() + " V"+dial.getChange());
-		
 		double [] fk = arm.getAngles();
 		
 		for(int i=0;i<buttons.length;++i) {
 			if(buttons[i].isSelected()) {
-				fk[i] += dial.getChange();
+				fk[i] += getMovementStepSize();
 			}
 		}
 		
