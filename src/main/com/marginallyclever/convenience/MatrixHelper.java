@@ -48,6 +48,12 @@ public class MatrixHelper {
 		m.setIdentity();
 		drawMatrix(gl2,m,scale);
 	}
+
+	static public void drawMatrix2(GL2 gl2,double scale) {
+		Matrix4d m= new Matrix4d();
+		m.setIdentity();
+		drawMatrix2(gl2,m,scale);
+	}
 	
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)
