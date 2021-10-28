@@ -52,25 +52,23 @@ public class Light extends PoseEntity {
 		"Black",
 	};
 	
-	public int lightIndex=0;
-	
 	private float[] position={0,0,1,0};
 	private float[] spotDirection={0,0,1};
 
-	public BooleanEntity enabled = new BooleanEntity("On",true);
-	public BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
+	private BooleanEntity enabled = new BooleanEntity("On",true);
+	private BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
 
-	public IntEntity preset = new IntEntity("Preset",0);
-	public ColorEntity diffuse = new ColorEntity("Diffuse" ,0,0,0,1);
-	public ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
-	public ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
+	private IntEntity preset = new IntEntity("Preset",0);
+	private ColorEntity diffuse = new ColorEntity("Diffuse" ,0,0,0,1);
+	private ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
+	private ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
 	
-	public DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",180);
-	public DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
+	private DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",180);
+	private DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
 	
-	public DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
-	public DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
-	public DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
+	private DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
+	private DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
+	private DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
 	
 	
 	public Light() {
@@ -90,16 +88,12 @@ public class Light extends PoseEntity {
 		addChild(attenuationQuadratic);
 	}
 
-	public void setupLight(GL2 gl2) {
+	public void setupLight(GL2 gl2,int lightIndex) {
 		int i = GL2.GL_LIGHT0+lightIndex;
-		if(!enabled.get()) {
-			gl2.glDisable(i);
-			return;
-		}
+		
 		gl2.glEnable(i);
 		
 		Matrix4d poseWorld = getPoseWorld();
-		
 		position[0]=(float)poseWorld.m03;
 		position[1]=(float)poseWorld.m13;
 		position[2]=(float)poseWorld.m23;
@@ -222,5 +216,17 @@ public class Light extends PoseEntity {
 			c= choice[1];	this.setSpecular(c.red/255, c.green/255, c.blue/255, 1);
 			c= choice[2];	this.setDiffuse (c.red/255, c.green/255, c.blue/255, 1);
 		}
+	}
+
+	public boolean isOn() {
+		return enabled.get();
+	}
+
+	public void setAttenuationLinear(double d) {
+		attenuationLinear.set(d);
+	}
+
+	public void setAttenuationQuadratic(double d) {
+		attenuationQuadratic.set(d);
 	}
 }

@@ -39,14 +39,9 @@ public class Scene extends Entity {
     	
     	// global ambient light
 		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
-		// point and spot lights
-		for( Entity obj : children ) {
-			if(obj instanceof Light) {
-				Light light = (Light)obj;
-				light.setupLight(gl2);
-			}
-		}
-
+		
+		renderLights(gl2);
+		
         camera.render(gl2);
         
 		// PASS 1: everything not a light
@@ -67,6 +62,26 @@ public class Scene extends Entity {
 		//renderAllBoundingBoxes(gl2);
 	}
 	
+	private void renderLights(GL2 gl2) {
+		turnOffAllLights(gl2);
+		
+		int i=0;
+		for( Entity obj : children ) {
+			if(obj instanceof Light) {
+				Light light = (Light)obj;
+				if(light.isOn()) {
+					light.setupLight(gl2,i++);
+				}
+			}
+		}
+	}
+
+	private void turnOffAllLights(GL2 gl2) {
+		for(int i=0;i<GL2.GL_MAX_LIGHTS;++i) {
+			gl2.glDisable(GL2.GL_LIGHT0+i);
+		}
+	}
+
 	@SuppressWarnings("unused")
 	private void renderAllBoundingBoxes(GL2 gl2) {
 		// turn of textures so lines draw good
