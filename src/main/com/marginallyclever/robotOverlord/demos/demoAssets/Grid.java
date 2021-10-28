@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.demoAssets;
+package com.marginallyclever.robotOverlord.demos.demoAssets;
 
 import javax.vecmath.Vector3d;
 

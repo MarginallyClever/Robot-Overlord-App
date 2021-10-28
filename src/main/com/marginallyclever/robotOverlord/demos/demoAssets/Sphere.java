@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.demoAssets;
+package com.marginallyclever.robotOverlord.demos.demoAssets;
 
 import java.util.ArrayList;
 
@@ -68,21 +68,27 @@ public class Sphere extends Shape implements Collidable {
 		
 		for( j=1; j<height-1; j++ ) {
 			for(i=0; i<width; i++ )  {
-				theta = (double)(j)/(double)(height-1) * Math.PI;
-				phi   = (double)(i)/(double)(width-1 ) * Math.PI*2;
+				double tx = (double)(i)/(double)(width-1 );
+				double ty = (double)(j)/(double)(height-1);
+				phi   = tx * Math.PI*2;
+				theta = ty * Math.PI;
 
 				float x = (float)( Math.sin(theta) * Math.cos(phi));
 				float y = (float)( Math.cos(theta));
 				float z = (float)(-Math.sin(theta) * Math.sin(phi));
 				myMesh.addVertex(r*x,r*y,r*z);
 				myMesh.addNormal(x,y,z);
+				myMesh.addTexCoord((float)tx, (float)ty);
 
 			}
 		}
 		myMesh.addVertex(0,r*1,0);
 		myMesh.addNormal(0,1,0);
+		myMesh.addTexCoord(0.5f,0);
+
 		myMesh.addVertex(0,r*-1,0);
 		myMesh.addNormal(0,-1,0);
+		myMesh.addTexCoord(0.5f,1);
 
 		for( j=0; j<height-3; j++ ) {
 			for( i=0; i<width-1; i++ )  {
@@ -123,6 +129,7 @@ public class Sphere extends Shape implements Collidable {
 		view.pushStack("Sp", "Sphere");
 		view.add(diameter);
 		view.popStack();
+		material.getView(view);
 		super.getView(view);
 	}
 }
