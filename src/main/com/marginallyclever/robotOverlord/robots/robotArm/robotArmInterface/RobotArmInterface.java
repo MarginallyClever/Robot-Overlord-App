@@ -6,7 +6,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.demos.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface.JogInterface;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface.MarlinInterface;

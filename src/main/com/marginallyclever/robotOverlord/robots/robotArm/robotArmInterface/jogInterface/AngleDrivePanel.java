@@ -17,7 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.demos.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class AngleDrivePanel extends JPanel {
