@@ -53,6 +53,11 @@ public class Log {
 	}
 	
 	public static void start() {
+		if(logger!=null) {
+			// already started
+			return;
+		}
+		
 		LOG_FILE_PATH = FileAccess.getUserDirectory();
 		if(!LOG_FILE_PATH.endsWith(File.separator)) {
 			LOG_FILE_PATH+=File.separator;
