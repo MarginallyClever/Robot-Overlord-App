@@ -44,6 +44,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
+import com.marginallyclever.robotOverlord.demos.BasicDemo;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.PhysicsDemo;
 import com.marginallyclever.robotOverlord.demos.RobotArmsDemo;
@@ -497,55 +498,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 		pickEntity(null);
 	}
 	
-/*
-	// stuff for trying to find and load plugins, part of future expansion
-	 
-	private String getPath(Class cls) {
-	    String cn = cls.getName();
-	    //Log.message("cn "+cn);
-	    String rn = cn.replace('.', '/') + ".class";
-	    //Log.message("rn "+rn);
-	    String path = getClass().getClassLoader().getResource(rn).getPath();
-	    //Log.message("path "+path);
-	    int ix = path.indexOf("!");
-	    if(ix >= 0) {
-	        path = path.substring(0, ix);
-	    }
-	    return path;
-	}
-	
-	protected void EnumerateJarContents(String absPathToJarFile) throws IOException {
-	    JarFile jarFile = new JarFile(absPathToJarFile);
-	    Enumeration<JarEntry> e = jarFile.entries();
-	    while (e.hasMoreElements()) {
-			_EnumerateJarContents(e.nextElement());
-		}
-	}
-	
-	private static void _EnumerateJarContents(Object obj) {
-       JarEntry entry = (JarEntry)obj;
-       String name = entry.getName();
-       long size = entry.getSize();
-       long compressedSize = entry.getCompressedSize();
-       Log.message(name + "\t" + size + "\t" + compressedSize);
-     }
-	
-	// Load a class from a Jar file.
-	// @param absPathToJarFile c:\some\path\myfile.jar
-	// @param className like com.mypackage.myclass
-	protected void LoadClasses(String absPathToJarFile,String className) {
-		File file  = new File(absPathToJarFile);
-		try {
-			URL url = file.toURI().toURL();  
-			URL[] urls = new URL[]{url};
-			ClassLoader cl = new URLClassLoader(urls);
-			Class cls = cl.loadClass(className);
-		}
-		catch(MalformedURLException e) {}
-		catch(ClassNotFoundException e) {}
-	}
-	*/
-	
 	public void buildMainMenu() {
 		Log.message("buildMainMenu()");
 		
@@ -563,8 +515,9 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 		mainMenu.add(menu);
 		
 		menu = new JMenu("Demos");
-		menu.add(new JMenuItem(new DemoAction(this,new PhysicsDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new BasicDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new RobotArmsDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new PhysicsDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new DogDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new StewartPlatformDemo())));
