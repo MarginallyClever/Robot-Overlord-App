@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.demos;
+package com.marginallyclever.robotOverlord.demos.robotArms;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
