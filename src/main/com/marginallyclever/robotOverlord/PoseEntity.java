@@ -60,26 +60,20 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 
 
 	public PoseEntity() {
-		super();
-		setName("Pose");
+		this(PoseEntity.class.getSimpleName());
+	}
+
+	public PoseEntity(String name) {
+		super(name);
 		
 		pickName = pickNameCounter++;
 		
-		addChild(showBoundingBox);
-		addChild(showLocalOrigin);
-		addChild(showLineage);
-
 		showBoundingBox.addPropertyChangeListener(this);
 		showLocalOrigin.addPropertyChangeListener(this);
 		showLineage.addPropertyChangeListener(this);
 		axisChoice.addPropertyChangeListener(this);
 		
 		myPose.setIdentity();
-	}
-
-	public PoseEntity(String name) {
-		this();
-		setName(name);
 	}
 	
 	public void set(PoseEntity b) {
