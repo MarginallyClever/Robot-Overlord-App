@@ -21,7 +21,8 @@ public class RigidBodyBox extends RigidBody {
 	public RigidBodyBox(String name) {
 		super(name);
 	}
-	
+
+	@Override
 	protected Matrix3d getInertiaTensorFromShape() {	
 		Shape shape = getShape();	
 		ArrayList<Cuboid> list = shape.getCuboidList();
@@ -64,9 +65,10 @@ public class RigidBodyBox extends RigidBody {
 				if(p.z<0) {
 					// hit floor
 					// don't be in the floor 
-					myPose.m23-=p.z;
+					double d = p.z;
+					myPose.m23-=d;
 					for( Point3d p2 : corners ) {
-						p2.z-=p.z;
+						p2.z-=d;
 					}
 					
 					// now deal with the hit
