@@ -21,7 +21,8 @@ public class RigidBodySphere extends RigidBody {
 	public RigidBodySphere(String name) {
 		super(name);
 	}
-		
+	
+	@Override
 	protected Matrix3d getInertiaTensorFromShape() {
 		Matrix3d inertiaTensor = new Matrix3d();
 		inertiaTensor.setIdentity();
