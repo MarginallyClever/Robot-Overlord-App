@@ -14,6 +14,7 @@ import com.marginallyclever.robotOverlord.physics.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.RigidBodySphere;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
+@SuppressWarnings("unused")
 public class PhysicsDemo implements Demo {
 	@Override
 	public String getName() {
@@ -47,25 +48,26 @@ public class PhysicsDemo implements Demo {
 		// adjust grid
 		Grid grid = new Grid();
 		sc.addChild(grid);
-
-		double x=0;
-		makeRB op = ()->makeOneSphere(sc);
-		testList(x,op);
 		
-		//x+=5;
-		//op = ()->makeOneCube(sc);
+		MakeRigidBody op;
+		double x=0;
+		//op = ()->makeOneSphere(sc);
 		//testList(x,op);
+		
+		x+=5;
+		op = ()->makeOneCube(sc);
+		testList(x,op);
 		
 		//manyCubeDemo(sc);
 	}
 	
-	interface makeRB {
+	interface MakeRigidBody {
 		public RigidBody operation();
 	}
 	
-	private void testList(double x,makeRB op) {
-		//oneFallingNoSpin     (op.operation(),new Vector3d(x,0,5));
-		//oneFallingWithSpin   (op.operation(),new Vector3d(x,5,5));
+	private void testList(double x,MakeRigidBody op) {
+		oneFallingNoSpin     (op.operation(),new Vector3d(x,0,5));
+		oneFallingWithSpin   (op.operation(),new Vector3d(x,5,5));
 		oneFallingWithLinear (op.operation(),new Vector3d(x,10,5));
 		//oneFallingWithBoth   (op.operation(),new Vector3d(x,15,5));
 		//oneFalling45         (op.operation(),new Vector3d(x,20,5));
@@ -85,7 +87,6 @@ public class PhysicsDemo implements Demo {
 		body.applyForceAtPoint(new Vector3d(f,0,f),new Point3d(p.x,p.y,p.z-1));
 	}
 	
-	@SuppressWarnings("unused")
 	private void manyCubeDemo(Entity sc) {
 		int count=10;
 		int countSq = (int)Math.sqrt(count);
