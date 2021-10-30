@@ -1,19 +1,14 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
@@ -24,7 +19,7 @@ public class AngleDrivePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private ButtonGroup buttonGroup = new ButtonGroup();
 	private JRadioButton [] buttons;
-	private JSpinner stepScale = new JSpinner(new SpinnerNumberModel(1,1,5,1));
+	private ScalePanel stepScale = new ScalePanel();
 	private Dial dial = new Dial();
 
 	public AngleDrivePanel(RobotArmIK arm) {
@@ -51,11 +46,8 @@ public class AngleDrivePanel extends JPanel {
 		c.gridwidth=2;
 		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
-
-		JPanel scaleSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
-		scaleSelection.add(new JLabel("Scale 1/(2^-x)"));
-		scaleSelection.add(stepScale);
-		this.add(scaleSelection,c);
+		
+		this.add(stepScale,c);
 
 		c.gridwidth=1;
 		c.gridy++;
@@ -69,7 +61,7 @@ public class AngleDrivePanel extends JPanel {
 		c.gridy=1;
 		c.weightx=1;
 		c.weighty=1;
-		c.gridwidth=buttons.length;
+		c.gridwidth=1;
 		c.gridheight=buttons.length;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.EAST;
@@ -77,7 +69,7 @@ public class AngleDrivePanel extends JPanel {
 	}
 	
 	private double getMovementStepSize() {
-		double d = ((Number)stepScale.getValue()).doubleValue();
+		double d = stepScale.getScale();
 		double scale = 10.0*Math.pow(10.0, -d);
 		return dial.getChange()*scale;
 	}

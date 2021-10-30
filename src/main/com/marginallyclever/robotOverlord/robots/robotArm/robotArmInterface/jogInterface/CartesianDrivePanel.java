@@ -12,8 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.vecmath.Matrix3d;
@@ -34,7 +32,7 @@ public class CartesianDrivePanel extends JPanel {
 	private JRadioButton roll = makeRadioButton(buttonGroup,"roll");
 	private JRadioButton pitch = makeRadioButton(buttonGroup,"pitch");
 	private JRadioButton yaw = makeRadioButton(buttonGroup,"yaw");
-	private JSpinner stepScale = new JSpinner(new SpinnerNumberModel(1,1,5,1));
+	private ScalePanel stepScale = new ScalePanel();
 	private JComboBox<String> frameOfReference;
 	private Dial dial = new Dial();
 
@@ -49,10 +47,6 @@ public class CartesianDrivePanel extends JPanel {
 
 		this.setBorder(BorderFactory.createTitledBorder(CartesianDrivePanel.class.getSimpleName()));
 		this.setLayout(new GridBagLayout());
-
-		JPanel scaleSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
-		scaleSelection.add(new JLabel("Scale 1/(2^-x)"));
-		scaleSelection.add(stepScale);
 		
 		JPanel referenceFrameSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
 		referenceFrameSelection.add(new JLabel("Reference frame"));
@@ -70,7 +64,7 @@ public class CartesianDrivePanel extends JPanel {
 		this.add(referenceFrameSelection,c);
 		
 		c.gridy++;
-		this.add(scaleSelection,c);
+		this.add(stepScale,c);
 
 		c.gridwidth=1;
 		c.gridy++;
@@ -137,7 +131,7 @@ public class CartesianDrivePanel extends JPanel {
 	}
 	
 	private double getMovementStepSize() {
-		double d = ((Number)stepScale.getValue()).doubleValue();
+		double d = stepScale.getScale();
 		double scale = Math.pow(10.0, -d);
 		return dial.getChange()*scale;
 	}
