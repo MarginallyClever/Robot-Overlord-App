@@ -27,7 +27,7 @@ public class Scene extends Entity {
 	
 	public Scene() {
 		super();
-		setName("Scene");
+		setName(Scene.class.getSimpleName());
 	}
 	
 	public void render(GL2 gl2, Camera camera) {
