@@ -62,7 +62,7 @@ public class ConvexShadow {
 	private void rebuildHull() {
 		ArrayList<Vector3d> hull2 = new ArrayList<Vector3d>();
 		int hullSize=hull.size();
-		if(hullSize<3) return;
+		if(hullSize<=3) return;
 		
 		Vector3d pointOnHull = getPointGuaranteedOnEdgeOfHull(hull);
 		Vector3d firstPoint = pointOnHull;
@@ -79,7 +79,7 @@ public class ConvexShadow {
 			hullSize--;
 		} while(endPoint!=firstPoint && hullSize>=0);
 		
-		if(hullSize<0) {
+		if(hull2.size()<3) {
 			throw new IndexOutOfBoundsException("Algorithm failed.");
 		}
 			
