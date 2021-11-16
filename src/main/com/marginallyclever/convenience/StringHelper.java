@@ -142,7 +142,7 @@ public class StringHelper {
 	}
 
 	public static Matrix4d parseMatrix4d(String s) throws Exception {
-		String [] pieces = s.split("[,\\n]");		
+		String [] pieces = s.split("[,\n]");		
 		double [] mArray = new double[16];
 		for(int i=0;i<mArray.length;++i) mArray[i] = Double.parseDouble(pieces[i].trim());
 		return new Matrix4d(mArray);
