@@ -3,6 +3,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 
@@ -129,82 +130,6 @@ public class PrimitiveSolids {
 		
 		gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
 	}
-	
-	static public void drawCylinder(GL2 gl2,Cylinder tube) {
-		/*
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3d(tube.GetP1().x, tube.GetP1().y, tube.GetP1().z);
-		gl2.glVertex3d(tube.GetP2().x, tube.GetP2().y, tube.GetP2().z);
-		gl2.glEnd();
-		*/
-
-		Vector3d tx = new Vector3d();
-		Vector3d ty = new Vector3d();
-		Vector3d t1 = new Vector3d();
-		Vector3d t2 = new Vector3d();
-		Vector3d n = new Vector3d();
-		
-		int i;
-		int c=10;
-		
-		// left
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3d(-tube.GetN().x,-tube.GetN().y,-tube.GetN().z);
-		for(i=0;i<=c;++i) {
-			tx.set(tube.GetR());
-			ty.set(tube.GetF());
-
-			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			tx.scale((float)Math.sin(ratio)*tube.getRadius());
-			ty.scale((float)Math.cos(ratio)*tube.getRadius());
-			t1.set(tube.GetP1());
-			t1.add(tx);
-			t1.add(ty);
-			gl2.glVertex3d(t1.x,t1.y,t1.z);
-		}
-		gl2.glEnd();
-		// right
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3d(tube.GetN().x,tube.GetN().y,tube.GetN().z);
-		for(i=0;i<=c;++i) {
-			tx.set(tube.GetR());
-			ty.set(tube.GetF());
-
-			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			tx.scale((float)Math.sin(ratio)*tube.getRadius());
-			ty.scale((float)Math.cos(ratio)*tube.getRadius());
-			t1.set(tube.GetP2());
-			t1.add(tx);
-			t1.add(ty);
-			gl2.glVertex3d(t1.x,t1.y,t1.z);
-		}
-		gl2.glEnd();
-
-		// edge
-		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
-		for(i=0;i<=c;++i) {
-			tx.set(tube.GetR());
-			ty.set(tube.GetF());
-
-			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			tx.scale((float)Math.sin(ratio)*tube.getRadius());
-			ty.scale((float)Math.cos(ratio)*tube.getRadius());
-			t1.set(tube.GetP1());
-			t1.add(tx);
-			t1.add(ty);
-			
-			t2.set(tx);
-			t2.add(ty);
-			n.set(t2);
-			n.normalize();
-			gl2.glNormal3d(n.x,n.y,n.z);
-			t2.add(tube.GetP2());
-			gl2.glVertex3d(t1.x,t1.y,t1.z);
-			gl2.glVertex3d(t2.x,t2.y,t2.z);
-			
-		}
-		gl2.glEnd();
-	}
 
 	static public void drawCylinder(GL2 gl2,float thicknessY,float radiusXZ) {
 		int i;
@@ -309,7 +234,7 @@ public class PrimitiveSolids {
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
-	static public void drawBox(GL2 gl2,Point3d bottom,Point3d top) {
+	static public void drawBox(GL2 gl2,Tuple3d bottom,Tuple3d top) {
 		double x0=bottom.x;
 		double y0=bottom.y;
 		double z0=bottom.z;
@@ -353,7 +278,7 @@ public class PrimitiveSolids {
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
-	static public void drawBoxWireframe(GL2 gl2,Point3d bottom,Point3d top) {
+	static public void drawBoxWireframe(GL2 gl2,Tuple3d bottom,Tuple3d top) {
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
@@ -378,11 +303,11 @@ public class PrimitiveSolids {
 		drawStar(gl2,new Vector3d(0,0,0),size);
 	}
 	
-	static public void drawStar(GL2 gl2,Vector3d p) {
+	static public void drawStar(GL2 gl2,Tuple3d p) {
 		drawStar(gl2,p,1.0f);
 	}
 	
-	static public void drawStar(GL2 gl2,Vector3d p,double size) {
+	static public void drawStar(GL2 gl2,Tuple3d p,double size) {
 		// save the current color
 		double [] params = new double[4];
 		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);

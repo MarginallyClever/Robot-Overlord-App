@@ -2,6 +2,8 @@ package com.marginallyclever.convenience;
 
 import javax.vecmath.Vector3d;
 
+import com.jogamp.opengl.GL2;
+
 
 public class Cylinder implements BoundingVolume {
 	private Vector3d p1 = new Vector3d(0,0,0);
@@ -78,5 +80,81 @@ public class Cylinder implements BoundingVolume {
 		r.normalize();
 		f.cross(n, r);
 		f.normalize();
+	}
+	
+	public void render(GL2 gl2) {
+		/*
+		gl2.glBegin(GL2.GL_LINES);
+		gl2.glVertex3d(this.GetP1().x, this.GetP1().y, this.GetP1().z);
+		gl2.glVertex3d(this.GetP2().x, this.GetP2().y, this.GetP2().z);
+		gl2.glEnd();
+		*/
+
+		Vector3d tx = new Vector3d();
+		Vector3d ty = new Vector3d();
+		Vector3d t1 = new Vector3d();
+		Vector3d t2 = new Vector3d();
+		Vector3d n = new Vector3d();
+		
+		int i;
+		int c=10;
+		
+		// left
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+		gl2.glNormal3d(-this.GetN().x,-this.GetN().y,-this.GetN().z);
+		for(i=0;i<=c;++i) {
+			tx.set(this.GetR());
+			ty.set(this.GetF());
+
+			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
+			tx.scale((float)Math.sin(ratio)*this.getRadius());
+			ty.scale((float)Math.cos(ratio)*this.getRadius());
+			t1.set(this.GetP1());
+			t1.add(tx);
+			t1.add(ty);
+			gl2.glVertex3d(t1.x,t1.y,t1.z);
+		}
+		gl2.glEnd();
+		// right
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+		gl2.glNormal3d(this.GetN().x,this.GetN().y,this.GetN().z);
+		for(i=0;i<=c;++i) {
+			tx.set(this.GetR());
+			ty.set(this.GetF());
+
+			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
+			tx.scale((float)Math.sin(ratio)*this.getRadius());
+			ty.scale((float)Math.cos(ratio)*this.getRadius());
+			t1.set(this.GetP2());
+			t1.add(tx);
+			t1.add(ty);
+			gl2.glVertex3d(t1.x,t1.y,t1.z);
+		}
+		gl2.glEnd();
+
+		// edge
+		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+		for(i=0;i<=c;++i) {
+			tx.set(this.GetR());
+			ty.set(this.GetF());
+
+			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
+			tx.scale((float)Math.sin(ratio)*this.getRadius());
+			ty.scale((float)Math.cos(ratio)*this.getRadius());
+			t1.set(this.GetP1());
+			t1.add(tx);
+			t1.add(ty);
+			
+			t2.set(tx);
+			t2.add(ty);
+			n.set(t2);
+			n.normalize();
+			gl2.glNormal3d(n.x,n.y,n.z);
+			t2.add(this.GetP2());
+			gl2.glVertex3d(t1.x,t1.y,t1.z);
+			gl2.glVertex3d(t2.x,t2.y,t2.z);
+			
+		}
+		gl2.glEnd();
 	}
 }
