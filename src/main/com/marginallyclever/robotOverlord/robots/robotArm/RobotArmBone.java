@@ -89,7 +89,7 @@ public class RobotArmBone implements Cloneable {
 		return RobotArmBone.class.getSimpleName()+" ["+s+"]";
 	}
 	
-	public void fromString(String s) throws IOException {
+	public void fromString(String s) throws Exception {
 		final String header = RobotArmBone.class.getSimpleName()+" [";
 		if(!s.startsWith(header)) throw new IOException("missing header.");
 		
