@@ -1,7 +1,13 @@
 package com.marginallyclever.convenience;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Tuple3d;
+import javax.vecmath.Vector3d;
 
 public class StringHelper {
 	static public String shortenNumber(String s) {
@@ -112,5 +118,33 @@ public class StringHelper {
         value += formatDouble(p1);
 		
 		return value;
+	}
+	
+	// expects "[a,b,c]" where a,b,c are doubles 
+	public static Tuple3d parseTuple3d(String s) throws IOException {
+		if(!s.startsWith("(") || !s.endsWith(")")) throw new IOException("Invalid format, start and end.");
+		
+		s=s.substring(1, s.length()-1);
+		String [] pieces = s.split(",");
+		if(pieces.length != 3) throw new IOException("Invalid format, wrong number of values."); 
+
+		double x = Double.parseDouble(pieces[0].trim());
+		double y = Double.parseDouble(pieces[1].trim());
+		double z = Double.parseDouble(pieces[2].trim());
+		return new Vector3d(x,y,z);
+	}
+
+	public static Matrix3d parseMatrix3d(String s) throws Exception {
+		String [] pieces = s.split("[,\n]");		
+		double [] mArray = new double[9];
+		for(int i=0;i<mArray.length;++i) mArray[i] = Double.parseDouble(pieces[i].trim());
+		return new Matrix3d(mArray);
+	}
+
+	public static Matrix4d parseMatrix4d(String s) throws Exception {
+		String [] pieces = s.split("[,\\n]");		
+		double [] mArray = new double[16];
+		for(int i=0;i<mArray.length;++i) mArray[i] = Double.parseDouble(pieces[i].trim());
+		return new Matrix4d(mArray);
 	}
 }
