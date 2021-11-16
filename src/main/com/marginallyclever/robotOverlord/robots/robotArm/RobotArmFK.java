@@ -409,7 +409,7 @@ public class RobotArmFK extends PoseEntity {
 		return RobotArmFK.class.getSimpleName()+" {"+angles+"}";
 	}
 
-	public void fromString(String s) throws IOException {
+	public void fromString(String s) throws Exception {
 		final String header = RobotArmFK.class.getSimpleName()+" {";
 		if(!s.startsWith(header)) throw new IOException("missing header.");
 		
