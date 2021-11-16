@@ -1,11 +1,13 @@
 package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -45,7 +47,9 @@ public class RobotArmFK extends PoseEntity {
 		
 	public RobotArmFK() {
 		super(RobotArmFK.class.getSimpleName());
-				
+		
+		addChild(toolCenterPoint);
+		
 		loadModel();
 		
 		for(int i=0;i<bones.size();++i) {
@@ -83,8 +87,23 @@ public class RobotArmFK extends PoseEntity {
 			bone.updateMatrix();
 			current.mul(bone.getPose());
 			Matrix4d iWP = new Matrix4d(current);
-			iWP.invert();			
+			iWP.invert();
 			bone.getShape().setPose(iWP);
+		}
+	}
+
+	// Use the cumulative pose of each Sixi3Bone to adjust the center of mass of each bone.
+	protected void adjustCenterOfMassToDHLinks() {
+		Matrix4d current = new Matrix4d();
+		current.setIdentity();
+		Point3d p = new Point3d();
+		for( RobotArmBone bone : bones ) {
+			bone.updateMatrix();
+			current.mul(bone.getPose());
+			Matrix4d iWP = new Matrix4d(current);
+			iWP.invert();
+			iWP.transform(bone.getCenterOfMass(),p);
+			bone.setCenterOfMass(p);
 		}
 	}
 
@@ -292,7 +311,7 @@ public class RobotArmFK extends PoseEntity {
 	 * The new values will be tested against the bone limits.
 	 * If the arm moves to a new position a {@link PropertyChangeEvent} notice will be fired.  The
 	 * {@link PropertyChangeEvent.propertyName} will be "ee".
-	 * @param list new theta values.  Must be {@link Sixi3FK.getNumBones()} long.
+	 * @param list new theta values.  Must be {@link RobotArmFK.getNumBones()} long.
 	 */
 	public void setAngles(double [] list) {
 		boolean changed=false;
@@ -308,14 +327,18 @@ public class RobotArmFK extends PoseEntity {
 
 		if(changed) {
 			// theta values actually changed so update matrixes and get the new end effector position.
-			Matrix4d eeOld = getEndEffector();
-			for( RobotArmBone b : bones ) {
-				b.updateMatrix();
-			}
-			Matrix4d eeNew = getEndEffector();
-
-			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
+			updateEndEffectorPosition();
 		}
+	}
+	
+	private void updateEndEffectorPosition() {
+		Matrix4d eeOld = getEndEffector();
+		for( RobotArmBone b : bones ) {
+			b.updateMatrix();
+		}
+		Matrix4d eeNew = getEndEffector();
+
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 	}
 	
 	public ArrayList<Cuboid> getCuboidList() {
@@ -380,30 +403,29 @@ public class RobotArmFK extends PoseEntity {
 		String angles = "";
 		String add="";
 		for( RobotArmBone b : bones ) {
-			angles += add + Double.toString(b.theta);
+			angles += add + b.toString();
 			add=",";
 		}
-		return "Sixi3FK {"+angles+"}";
+		return RobotArmFK.class.getSimpleName()+" {"+angles+"}";
 	}
 
-	public boolean fromString(String s) {
-		final String header="Sixi3FK {";
-		if(!s.startsWith(header )) return false;
+	public void fromString(String s) throws IOException {
+		final String header = RobotArmFK.class.getSimpleName()+" {";
+		if(!s.startsWith(header)) throw new IOException("missing header.");
 		
-		// strip "Sixi3FK {" and "}" from either end.
+		// strip header and "}" from either end.
 		s=s.substring(header.length(),s.length()-1);
+		
 		// split by comma
 		String [] pieces = s.split(",");
-		if(pieces.length != bones.size()) return false;
+		if(pieces.length != bones.size()) throw new IOException("found "+pieces.length+" bones, expected "+bones.size());
+		// TODO set number of bones to pieces.length, avoids exception.
 		
-		double [] v = new double[bones.size()];
 		for(int i=0; i<bones.size(); ++i) {
-			v[i] = Double.parseDouble(pieces[i]);
+			bones.get(i).fromString(pieces[i]);
 		}
 		
-		setAngles(v);
-		
-		return true;
+		updateEndEffectorPosition();
 	}
 	
 	public int getNumBones() {
