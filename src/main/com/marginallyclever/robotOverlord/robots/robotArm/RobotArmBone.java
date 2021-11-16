@@ -1,7 +1,13 @@
 package com.marginallyclever.robotOverlord.robots.robotArm;
 
-import javax.vecmath.Matrix4d;
+import java.io.IOException;
 
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+
+import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
@@ -26,7 +32,13 @@ public class RobotArmBone implements Cloneable {
 	public double theta;
 	
 	private double thetaMax, thetaMin;
-		
+
+	private double mass, iMass;
+	private Matrix3d inertiaTensor;
+	private Point3d centerOfMass;
+	private Vector3d linearVelocity, force;
+	private Vector3d angularVelocity, torque;
+	
 	// model and relative offset from DH origin
 	private Shape shape;
 	
@@ -48,12 +60,59 @@ public class RobotArmBone implements Cloneable {
 		this.theta=theta;
 		this.thetaMax=thetaMax;
 		this.thetaMin=thetaMin;
-		shape = new Shape(name,shapeFilename);
+		this.shape = new Shape(name,shapeFilename);
 	}
 
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+	
+	@Override
+	public String toString() {
+		String s = name
+				+","+d
+				+","+r
+				+","+alpha
+				+","+theta
+				+","+thetaMax
+				+","+thetaMin
+				+","+shape.getModelFilename()
+				+","+mass
+				+","+inertiaTensor
+				+","+centerOfMass
+				+","+linearVelocity
+				+","+force
+				+","+angularVelocity
+				+","+torque;
+		
+		return RobotArmBone.class.getSimpleName()+" ["+s+"]";
+	}
+	
+	public void fromString(String s) throws IOException {
+		final String header = RobotArmBone.class.getSimpleName()+" [";
+		if(!s.startsWith(header)) throw new IOException("missing header.");
+		
+		// strip header and "]" from either end.
+		s=s.substring(header.length(),s.length()-1);
+		
+		// split by comma
+		String [] pieces = s.split(",");
+		set(pieces[0], 
+			Double.parseDouble(pieces[1]),
+			Double.parseDouble(pieces[2]),
+			Double.parseDouble(pieces[3]),
+			Double.parseDouble(pieces[4]),
+			Double.parseDouble(pieces[5]),
+			Double.parseDouble(pieces[6]),
+			pieces[7]);
+		setMass(Double.parseDouble(pieces[8]));
+		setInertiaTensor(StringHelper.parseMatrix3d(pieces[9]));
+		setCenterOfMass((Point3d)StringHelper.parseTuple3d(pieces[10]));
+		setLinearVelocity((Vector3d)StringHelper.parseTuple3d(pieces[11]));
+		setForce((Vector3d)StringHelper.parseTuple3d(pieces[12]));
+		setLinearVelocity((Vector3d)StringHelper.parseTuple3d(pieces[13]));
+		setForce((Vector3d)StringHelper.parseTuple3d(pieces[14]));
 	}
 	
 	public void setAngleWRTLimits(double newAngle) {
@@ -138,5 +197,63 @@ public class RobotArmBone implements Cloneable {
 
 	public void setTexturefilename(String fname) {
 		shape.getMaterial().setTextureFilename(fname);
+	}
+
+	public double getMass() {
+		return mass;
+	}
+
+	public void setMass(double mass) {
+		this.mass = mass;
+		if(mass==0) this.iMass = 1.0;
+		else this.iMass = 1.0 / mass;
+	}
+
+	public Matrix3d getInertiaTensor() {
+		return inertiaTensor;
+	}
+
+	public void setInertiaTensor(Matrix3d inertiaTensor) {
+		this.inertiaTensor = inertiaTensor;
+	}
+
+	public Point3d getCenterOfMass() {
+		return centerOfMass;
+	}
+
+	public void setCenterOfMass(Point3d centerOfMass) {
+		this.centerOfMass = centerOfMass;
+	}
+
+	public Vector3d getLinearVelocity() {
+		return linearVelocity;
+	}
+
+	public void setLinearVelocity(Vector3d linearVelocity) {
+		this.linearVelocity = linearVelocity;
+	}
+
+	public Vector3d getLinearAcceleration() {
+		return force;
+	}
+
+	public void setForce(Vector3d linearAcceleration) {
+		this.force = linearAcceleration;
+	}
+
+	public Vector3d getAngularVelocity() {
+		return angularVelocity;
+	}
+
+	public void setAngularVelocity(Vector3d angularVelocity) {
+		this.angularVelocity = angularVelocity;
+	}
+
+	public Vector3d getAngularAcceleration() {
+		return torque;
+	}
+
+	public void setAngularAcceleration(Vector3d angularAcceleration) {
+		this.torque = angularAcceleration;
 	}
 }
