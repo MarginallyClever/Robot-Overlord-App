@@ -96,13 +96,13 @@ public class RobotArmFK extends PoseEntity {
 	protected void adjustCenterOfMassToDHLinks() {
 		Matrix4d current = new Matrix4d();
 		current.setIdentity();
-		Point3d p = new Point3d();
 		for( RobotArmBone bone : bones ) {
 			bone.updateMatrix();
 			current.mul(bone.getPose());
 			Matrix4d iWP = new Matrix4d(current);
 			iWP.invert();
-			iWP.transform(bone.getCenterOfMass(),p);
+			Point3d p = bone.getCenterOfMass();
+			iWP.transform(p);
 			bone.setCenterOfMass(p);
 		}
 	}
@@ -119,7 +119,7 @@ public class RobotArmFK extends PoseEntity {
 	}
 	
 	@Override
-	public void render(GL2 gl2) {		
+	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, myPose);
 			drawMeshes(gl2);
@@ -154,6 +154,7 @@ public class RobotArmFK extends PoseEntity {
 		
 		if(showLineage.get()) drawLineage(gl2);
 		if(showAngles.get()) drawAngles(gl2);
+		drawForceAndTorque(gl2);
 		// bounding boxes are always relative to base?
 		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
 		
@@ -225,7 +226,6 @@ public class RobotArmFK extends PoseEntity {
 
 	private void drawLineage(GL2 gl2) {
 		Vector3d v = new Vector3d();
-		// then the bones, overtop and unlit.
 		gl2.glPushMatrix();
 			int j = bones.size()+1;
 			for( RobotArmBone bone : bones ) {
@@ -242,6 +242,28 @@ public class RobotArmFK extends PoseEntity {
 
 				MatrixHelper.applyMatrix(gl2, bone.getPose());
 				--j;
+			}
+		gl2.glPopMatrix();
+	}
+	
+	private void drawForceAndTorque(GL2 gl2) {
+		gl2.glPushMatrix();
+			for( RobotArmBone bone : bones ) {
+				bone.updateMatrix();
+				Point3d p = bone.getCenterOfMass();
+				
+				// draw center of mass
+				PrimitiveSolids.drawBillboard(gl2,p,3,3);
+				
+				// draw forces
+				gl2.glBegin(GL2.GL_LINES);
+				Vector3d v = bone.getLinearVelocity();
+				gl2.glColor3d(1, 0, 0);	gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(v.x,v.y,v.z);
+				Vector3d a = bone.getAngularVelocity();
+				gl2.glColor3d(0, 1, 0);	gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(a.x,a.y,a.z);
+				gl2.glEnd();
+				
+				MatrixHelper.applyMatrix(gl2, bone.getPose());
 			}
 		gl2.glPopMatrix();
 	}
@@ -455,4 +477,75 @@ public class RobotArmFK extends PoseEntity {
 		for(int i=0;i<d.length;++i) sum+=d[i];
 		return sum;
 	}
+	
+	public void addGravity(Vector3d g) {
+		for(RobotArmBone b : bones) {
+			Vector3d f = b.getForce();
+			f.add(g);
+			b.setForce(f);
+		}
+	}
+	
+	public void zeroForces() {
+		Vector3d zero = new Vector3d();
+		for(RobotArmBone b : bones) {
+			b.setForce(zero);
+			b.setTorque(zero);
+		}
+	}
+	
+	public void zeroVelocities() {
+		Vector3d zero = new Vector3d();
+		for(RobotArmBone b : bones) {
+			b.setLinearVelocity(zero);
+			b.setAngularVelocity(zero);
+		}
+	}
+	
+	/**
+	 * Compute the inverse dynamics using recursive Newton-Euler algorithm (RNEA).
+	 * Uses the current position, velocity, and acceleration of each joint.<br>
+	 * <br>
+	 * See https://www.gamedeveloper.com/programming/create-your-own-inverse-dynamics-in-unity
+	 * @return the torque at each joint
+	 */
+	public double [] getTorques() {
+		//rootToFinal();
+		//finalToRoot();
+	
+		double [] p = new double[getNumBones()];
+		for(int i=0;i<getNumBones();++i) {
+			p[i] = bones.get(i).getTorque().length();
+		}
+		return p;
+	}
+	/*
+	private void rootToFinal() {
+		RobotArmBone a = null;
+		RobotArmBone b = null;
+		for(int i=0;i<getNumBones();++i) {
+			a=b;
+			b=bones.get(i);
+			
+			b.computeAngularVelocity(a);
+			b.computeTorque(a);
+			
+			b.computeForceAtJoint(a);
+			b.computeForceAtCenterOfMass();
+
+			b.computeLimbForce();
+			b.computeLimbTorque();
+		}
+	}
+	
+	private void finalToRoot() {
+		RobotArmBone a = null;
+		RobotArmBone b = null;
+		for(int i=getNumBones()-1;i>=0;--i) {
+			a=b;
+			b=bones.get(i);
+			b.computeJointForce(a);
+			b.computeJointTorque(a);
+		}
+	}*/
 }
