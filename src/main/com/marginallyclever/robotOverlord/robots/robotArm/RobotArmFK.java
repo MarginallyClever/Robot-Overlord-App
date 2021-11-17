@@ -23,6 +23,7 @@ import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.TextureEntity;
 
 /**
  * Simulation of a robot arm with Forward Kinematics based on Denavit Hartenberg parameters.
@@ -247,23 +248,25 @@ public class RobotArmFK extends PoseEntity {
 	}
 	
 	private void drawForceAndTorque(GL2 gl2) {
+		TextureEntity tex = new TextureEntity("/center-of-mass.png");
+		
 		gl2.glPushMatrix();
 			for( RobotArmBone bone : bones ) {
 				bone.updateMatrix();
+				MatrixHelper.applyMatrix(gl2, bone.getPose());
+				
 				Point3d p = bone.getCenterOfMass();
 				
 				// draw center of mass
-				PrimitiveSolids.drawBillboard(gl2,p,3,3);
+				gl2.glColor3d(1, 1, 1);
+				tex.render(gl2);
+				PrimitiveSolids.drawBillboard(gl2,p,1,1);
 				
 				// draw forces
 				gl2.glBegin(GL2.GL_LINES);
-				Vector3d v = bone.getLinearVelocity();
-				gl2.glColor3d(1, 0, 0);	gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(v.x,v.y,v.z);
-				Vector3d a = bone.getAngularVelocity();
-				gl2.glColor3d(0, 1, 0);	gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(a.x,a.y,a.z);
+				Vector3d v = bone.getLinearVelocity();	gl2.glColor3d(1, 0, 0);  gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(v.x,v.y,v.z);
+				Vector3d a = bone.getAngularVelocity();	gl2.glColor3d(0, 1, 0);  gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(a.x,a.y,a.z);
 				gl2.glEnd();
-				
-				MatrixHelper.applyMatrix(gl2, bone.getPose());
 			}
 		gl2.glPopMatrix();
 	}
