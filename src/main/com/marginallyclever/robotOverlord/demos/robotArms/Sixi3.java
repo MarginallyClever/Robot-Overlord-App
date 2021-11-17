@@ -18,19 +18,9 @@ public class Sixi3 extends RobotArmFK {
 	@Override
 	protected void loadModel() {
 		setBaseShape(new Shape("Base","/Sixi3b/j0.obj"));
-		/* base 
-		 * Mass	201.686 g
-		 * Center of Mass	-1.113, -0.011, 14.664
-		 * moi Ixx	1.553E+05
-		 * moi Ixy	-3.935
-		 * moi Ixz	-2210.277
-		 * moi Iyx	-3.935
-		 * moi Iyy	1.498E+05
-		 * moi Iyz	-4.605
-		 * moi Izx	-2210.277
-		 * moi Izy	-4.605
-		 * moi Izz	2.620E+05
-		 */
+		// base 
+		// Mass	201.686 g
+		// Center of Mass	-1.113, -0.011, 14.664
 
 		// name d r a t max min file
 		addBone(new RobotArmBone("X", 8.01,     0,270,  0,170,-170,"/Sixi3b/j1.obj"));
@@ -41,40 +31,39 @@ public class Sixi3 extends RobotArmFK {
 		//addBone(new RobotArmBone("W",    0,  5.12,  0,  0,350    ,10     ,"/Sixi3b/j6.obj"));
 
 		// numbers from fusion360 file.
-		this.getBone(0).setMass(870.643);  // kg
-		this.getBone(0).setCenterOfMass(new Point3d(0.02,-28.793,77.502));
+		
+		this.getBone(0).setMass(870.643);  // g
+		this.getBone(1).setMass(1818.102);
+		this.getBone(2).setMass(928.555);
+		this.getBone(3).setMass(870.643);
+		this.getBone(4).setMass(27.664);
+
 		this.getBone(0).setInertiaTensor(new Matrix3d(
-				1.643E+06,			5.10,				-38.868,
-				5.10,				6.984E+05,			-73330.099,
-				-38.868,			-73330.099,			1.488E+06));
-
-		this.getBone(1).setMass(1818.102);  // g
-		this.getBone(1).setCenterOfMass(new Point3d(0.015, 85.22, 169.545));
+				16426.868,		0.051,		-0.389,
+				0.051,		6984.50,		-733.301,
+				-0.389,		-733.301,		14884.64));  // g/cm^2
 		this.getBone(1).setInertiaTensor(new Matrix3d(
-				8.060E+06,			0.321,				961.936,
-				0.321,				7.666E+06,			0.747,
-				961.936,			0.747,				1.543E+06));
-		
-		this.getBone(2).setMass(928.555);  // g
-		this.getBone(2).setCenterOfMass(new Point3d(0.076, 8.836,341.415));
+				80600.063,		0.003,		9.619,
+				0.003,		76663.265,		0.007,
+				9.619,		0.007,		15428.804));
 		this.getBone(2).setInertiaTensor(new Matrix3d(
-				2.089E+06,			166.563,			-638.127,
-				166.563,			1.904E+06,			2.583E+05,
-				-638.127,			2.583E+05,			8.264E+05));
-		
-		this.getBone(3).setMass(870.643);  // g
-		this.getBone(3).setCenterOfMass(new Point3d(0.092, 120.103, 385.988));
+				20890.707,		1.666,		-6.381,
+				1.666,		19039.542,		2583.349,
+				-6.381,		2583.349,		8263.735));
 		this.getBone(3).setInertiaTensor(new Matrix3d(
-				1.643E+06,			-54.009,			-33.295,
-				-54.009,			6.985E+05,			-73333.678,
-				-33.295,			-73333.678,			1.488E+06));
-
-		this.getBone(4).setMass(27.664);  // g
-		this.getBone(4).setCenterOfMass(new Point3d(-0.042, 91.191, 427.917));
+				16426.871,		-0.54,		-0.333,
+				-0.54,		6984.62,		-733.337,
+				-0.333,		-733.337,		14884.759));
 		this.getBone(4).setInertiaTensor(new Matrix3d(
-				8082.34,			37.241,				15.101,
-				37.241,				8159.352,			13.111,
-				15.101,				13.111,				15417.036));
+				80.823,		0.372,		0.151,
+				0.372,		81.594,		0.131,
+				0.151,		0.131,		154.17));
+
+		this.getBone(0).setCenterOfMass(new Point3d(0.002,-2.8793, 7.7502));  // cm
+		this.getBone(1).setCenterOfMass(new Point3d(0.0015, 8.522, 16.9545));
+		this.getBone(2).setCenterOfMass(new Point3d(0.0076, 0.8836, 34.1415));
+		this.getBone(3).setCenterOfMass(new Point3d(0.0092, 12.0103, 38.5988));
+		this.getBone(4).setCenterOfMass(new Point3d(-0.0042, 9.1191, 42.7917));
 		
 		adjustModelOriginsToDHLinks();
 		adjustCenterOfMassToDHLinks();
