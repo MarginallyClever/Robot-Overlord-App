@@ -352,6 +352,7 @@ public class PrimitiveSolids {
 		Matrix4d m = OpenGLHelper.getModelviewMatrix(gl2);
 		Vector3d up = MatrixHelper.getYAxis(m);
 		Vector3d left = MatrixHelper.getXAxis(m);
+		//Vector3d forward = MatrixHelper.getZAxis(m);
 		up.scale(h);
 		left.scale(w);
 		Vector3d a0 = new Vector3d();
@@ -363,11 +364,15 @@ public class PrimitiveSolids {
 		a2.set(p);		a2.sub(up);		a2.add(left);
 		a3.set(p);		a3.sub(up);		a3.sub(left);
 
-		gl2.glBegin(GL2.GL_LINE_LOOP);
-		gl2.glVertex3d(a0.x,a0.y,a0.z);
-		gl2.glVertex3d(a1.x,a1.y,a1.z);
-		gl2.glVertex3d(a2.x,a2.y,a2.z);
-		gl2.glVertex3d(a3.x,a3.y,a3.z);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+		//gl2.glColor3d(0, 0, 1);
+		gl2.glTexCoord2d(0, 1);		gl2.glVertex3d(a3.x,a3.y,a3.z);
+		//gl2.glColor3d(0, 1, 0);
+		gl2.glTexCoord2d(1, 1);		gl2.glVertex3d(a2.x,a2.y,a2.z);
+		//gl2.glColor3d(1, 0, 0);
+		gl2.glTexCoord2d(1, 0);		gl2.glVertex3d(a1.x,a1.y,a1.z);
+		//gl2.glColor3d(1, 1, 1);
+		gl2.glTexCoord2d(0, 0);		gl2.glVertex3d(a0.x,a0.y,a0.z);
 		gl2.glEnd();
 	}
 }
