@@ -34,10 +34,12 @@ public class RobotArmBone implements Cloneable {
 	private double thetaMax, thetaMin;
 
 	private double mass, iMass;
-	private Matrix3d inertiaTensor;
-	private Point3d centerOfMass;
-	private Vector3d linearVelocity, force;
-	private Vector3d angularVelocity, torque;
+	private Matrix3d inertiaTensor = new Matrix3d();
+	private Point3d centerOfMass = new Point3d();
+	private Vector3d linearVelocity = new Vector3d();
+	private Vector3d force = new Vector3d();
+	private Vector3d angularVelocity = new Vector3d();
+	private Vector3d torque = new Vector3d();
 	
 	// model and relative offset from DH origin
 	private Shape shape;
@@ -45,7 +47,10 @@ public class RobotArmBone implements Cloneable {
 	// TODO this doesn't belong here
 	public DoubleEntity slider = new DoubleEntity("J",0);
 		
-	public RobotArmBone() {}
+	public RobotArmBone() {
+		inertiaTensor.setIdentity();
+		setMass(1);
+	}
 	
 	public RobotArmBone(String name,double d,double r,double alpha,double theta,double thetaMax,double thetaMin,String shapeFilename) {
 		this();
@@ -210,50 +215,63 @@ public class RobotArmBone implements Cloneable {
 	}
 
 	public Matrix3d getInertiaTensor() {
-		return inertiaTensor;
+		return new Matrix3d(inertiaTensor);
 	}
 
 	public void setInertiaTensor(Matrix3d inertiaTensor) {
-		this.inertiaTensor = inertiaTensor;
+		this.inertiaTensor.set(inertiaTensor);
 	}
 
 	public Point3d getCenterOfMass() {
-		return centerOfMass;
+		return new Point3d(centerOfMass);
 	}
 
 	public void setCenterOfMass(Point3d centerOfMass) {
-		this.centerOfMass = centerOfMass;
+		this.centerOfMass.set(centerOfMass);
 	}
 
 	public Vector3d getLinearVelocity() {
-		return linearVelocity;
+		return new Vector3d(linearVelocity);
 	}
 
 	public void setLinearVelocity(Vector3d linearVelocity) {
-		this.linearVelocity = linearVelocity;
+		this.linearVelocity.set(linearVelocity);
 	}
 
-	public Vector3d getLinearAcceleration() {
-		return force;
+	public Vector3d getForce() {
+		return new Vector3d(force);
 	}
 
-	public void setForce(Vector3d linearAcceleration) {
-		this.force = linearAcceleration;
+	public void setForce(Vector3d force) {
+		this.force.set(force);
 	}
 
 	public Vector3d getAngularVelocity() {
-		return angularVelocity;
+		return new Vector3d(angularVelocity);
 	}
 
 	public void setAngularVelocity(Vector3d angularVelocity) {
-		this.angularVelocity = angularVelocity;
+		this.angularVelocity.set(angularVelocity);
 	}
 
-	public Vector3d getAngularAcceleration() {
-		return torque;
+	public Vector3d getTorque() {
+		return new Vector3d(torque);
 	}
 
-	public void setAngularAcceleration(Vector3d angularAcceleration) {
-		this.torque = angularAcceleration;
+	public void setTorque(Vector3d torque) {
+		this.torque.set(torque);
 	}
+/*
+	// a.angularVelocity
+	public void computeAngularVelocity(RobotArmBone a) {
+		if(a!=null) {
+			// angular velocity of ith limb in the i+1th reference frame
+			
+			Vector3d av = a.getAngularVelocity();
+			a.getPose().transform(av);
+			
+			Vector3d z = MatrixHelper.getZAxis(getPose());
+			z.scale(this.theta);
+		}
+	}*/
 }
