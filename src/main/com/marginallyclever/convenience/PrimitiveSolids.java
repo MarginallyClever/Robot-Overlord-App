@@ -2,6 +2,7 @@ package com.marginallyclever.convenience;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
@@ -338,6 +339,35 @@ public class PrimitiveSolids {
 		gl2.glTranslated(p.x,p.y,p.z);
 		drawSphere(gl2,radius);
 		gl2.glPopMatrix();
-		
+	}
+	
+	/** draw square billboard facing the camera.
+	 * @param gl2 render context
+	 * @param p center of billboard
+	 * @param c camera
+	 * @param w width of square
+	 * @param h height of square
+	 */
+	public static void drawBillboard(GL2 gl2, Tuple3d p,double w,double h) {
+		Matrix4d m = OpenGLHelper.getModelviewMatrix(gl2);
+		Vector3d up = MatrixHelper.getYAxis(m);
+		Vector3d left = MatrixHelper.getXAxis(m);
+		up.scale(h);
+		left.scale(w);
+		Vector3d a0 = new Vector3d();
+		Vector3d a1 = new Vector3d();
+		Vector3d a2 = new Vector3d();
+		Vector3d a3 = new Vector3d();
+		a0.set(p);		a0.add(up);		a0.sub(left);
+		a1.set(p);		a1.add(up);		a1.add(left);
+		a2.set(p);		a2.sub(up);		a2.add(left);
+		a3.set(p);		a3.sub(up);		a3.sub(left);
+
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		gl2.glVertex3d(a0.x,a0.y,a0.z);
+		gl2.glVertex3d(a1.x,a1.y,a1.z);
+		gl2.glVertex3d(a2.x,a2.y,a2.z);
+		gl2.glVertex3d(a3.x,a3.y,a3.z);
+		gl2.glEnd();
 	}
 }
