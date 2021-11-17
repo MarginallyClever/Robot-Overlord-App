@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.uiExposedTypes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -19,6 +20,7 @@ public class TextureEntity extends StringEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = -2104122122058199991L;
+	private static HashMap<String,Texture> texturePool = new HashMap<String,Texture>();
 	
 	private transient Texture texture;
 	private transient boolean textureDirty;
@@ -31,7 +33,7 @@ public class TextureEntity extends StringEntity {
 	public TextureEntity(String fileName) {
 		super(fileName);
 		setName("Texture");
-		textureDirty=false;
+		textureDirty=true;
 	}
 
 	@Override
@@ -41,7 +43,7 @@ public class TextureEntity extends StringEntity {
 			if(t == null || t.length()==0) texture = null;
 			else {
 				try {
-					texture = TextureIO.newTexture(FileAccess.open(t), false, t.substring(t.lastIndexOf('.')+1));
+					texture=getTextureFromPool(t);
 				} catch(IOException e) {
 					//e.printStackTrace();
 					Log.error("I can't load "+t);
@@ -57,6 +59,23 @@ public class TextureEntity extends StringEntity {
 	    }
 	}
 
+	private static Texture getTextureFromPool(String filename) throws IOException {
+		Texture t = texturePool.get(filename);
+		if(t==null) {
+			t = TextureIO.newTexture(FileAccess.open(filename), false, filename.substring(filename.lastIndexOf('.')+1));
+			texturePool.put(filename, t);
+		}
+		return t; 
+	}
+	
+	public static void drainPool() {
+		texturePool.clear();
+	}
+	
+	public static void forceReload(String filename) {
+		texturePool.remove(filename);
+	}
+	
 	@Override
 	public void set(String s) {
 		super.set(s);
