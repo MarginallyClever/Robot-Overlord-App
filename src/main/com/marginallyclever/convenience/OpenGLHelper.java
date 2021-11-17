@@ -3,6 +3,7 @@ package com.marginallyclever.convenience;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
@@ -24,6 +25,7 @@ public class OpenGLHelper {
 		gl2.glDisable(GL2.GL_LIGHTING);
 		return lightWasOn;
 	}
+
 	static public void disableLightingEnd(GL2 gl2,boolean lightWasOn) {
 		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
 	}
@@ -59,14 +61,31 @@ public class OpenGLHelper {
 		gl2.glEnd();
 	}
 
-	// draw vector n at position p.
-	public static void drawVector3dFrom(GL2 gl2, Vector3d n, Vector3d p) {
+	// draw vector v at position p.
+	public static void drawVector3dFrom(GL2 gl2, Vector3d v, Vector3d p) {
 		gl2.glBegin(GL2.GL_LINES);
 		//gl2.glColor3d(0, 0, 0);
 		gl2.glVertex3d(p.x,p.y,p.z);
 		//gl2.glColor3d(1, 1, 1);
-		gl2.glVertex3d(p.x+n.x,p.y+n.y,p.z+n.z);
+		gl2.glVertex3d(p.x+v.x,p.y+v.y,p.z+v.z);
 		gl2.glEnd();
-		
+	}
+
+	public static Matrix4d getModelviewMatrix(GL2 gl2) {
+		FloatBuffer ptr = FloatBuffer.allocate(16);
+		gl2.glGetFloatv(GL2.GL_MODELVIEW_MATRIX, ptr);
+		float [] fArray = ptr.array();
+		double [] dArray = new double[fArray.length];
+		for(int i=0;i<fArray.length;++i) dArray[i]=fArray[i];
+		return new Matrix4d(dArray);
+	}
+
+	public static Matrix4d getProjectionMatrix(GL2 gl2) {
+		FloatBuffer ptr = FloatBuffer.allocate(16);
+		gl2.glGetFloatv(GL2.GL_PROJECTION_MATRIX, ptr);
+		float [] fArray = ptr.array();
+		double [] dArray = new double[fArray.length];
+		for(int i=0;i<fArray.length;++i) dArray[i]=fArray[i];
+		return new Matrix4d(dArray);
 	}
 }
