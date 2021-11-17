@@ -334,7 +334,7 @@ public class DeltaRobot3 extends RobotEntity {
 			b.scale(1);
 			a.add(b);
 			tube.SetP2(a);
-			PrimitiveSolids.drawCylinder(gl2, tube);
+			tube.render(gl2);
 
 			a.set(arms[i].wrist);
 			b.set(ortho);
@@ -346,8 +346,7 @@ public class DeltaRobot3 extends RobotEntity {
 			b.scale(-1);
 			a.add(b);
 			tube.SetP2(a);
-
-			PrimitiveSolids.drawCylinder(gl2, tube);
+			tube.render(gl2);
 		}
 
 		gl2.glDisable(GL2.GL_LIGHTING);
