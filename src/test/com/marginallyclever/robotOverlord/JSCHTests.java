@@ -4,12 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+@Ignore
 public class JSCHTests {
 	private static final String DEFAULT_BAUD = "57600";
 	private static final String DEFAULT_USB_DEVICE = "/dev/ttyACM0";
@@ -17,7 +19,7 @@ public class JSCHTests {
     private static final String SHELL_TO_SERIAL_STRING = "picocom -b"+DEFAULT_BAUD+" "+DEFAULT_USB_DEVICE;
     
 	@Test(timeout=15000)
-	public void testExec() throws Exception {
+	public void testConnectAndReadData() throws Exception {
 		JSch jsch = new JSch();
 		jsch.setKnownHosts("./.ssh/known_hosts");
 		

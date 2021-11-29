@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
 import com.marginallyclever.robotOverlord.robots.robotArm.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
@@ -301,32 +302,32 @@ public class MiscTests {
 	/**
 	 * Report Jacobian results for a given pose
 	 */
-	@Test
-	public void approximateJacobianMatrix() {
+	//@Test
+	public void reportApproximateJacobianMatrix(String outputPath) {
 		System.out.println("approximateJacobianMatrix() start");
-		RobotArmFK model = new RobotArmFK();
+		RobotArmFK model = new Sixi3();
 
 		// Find the min/max range for each joint
-		RobotArmBone link0 = model.getBone(0);  double bottom0 = link0.getAngleMin();  double top0 = link0.getAngleMax();  double mid0 = (top0+bottom0)/2;
-		RobotArmBone link1 = model.getBone(1);  double bottom1 = link1.getAngleMin();  double top1 = link1.getAngleMax();  double mid1 = (top1+bottom1)/2;
-		RobotArmBone link2 = model.getBone(2);  double bottom2 = link2.getAngleMin();  double top2 = link2.getAngleMax();  double mid2 = (top2+bottom2)/2;
-		RobotArmBone link3 = model.getBone(3);  double bottom3 = link3.getAngleMin();  double top3 = link3.getAngleMax();  double mid3 = (top3+bottom3)/2;  
-		RobotArmBone link4 = model.getBone(4);  double bottom4 = link4.getAngleMin();  double top4 = link4.getAngleMax();  double mid4 = (top4+bottom4)/2;  
-		RobotArmBone link5 = model.getBone(5);  double bottom5 = link5.getAngleMin();  double top5 = link5.getAngleMax();  double mid5 = (top5+bottom5)/2;  
+		int numBones = model.getNumBones();
+		double [] top = new double[numBones]; 
+		double [] bottom = new double[numBones];
+		double [] mid = new double[numBones];
+		RobotArmBone [] link = new RobotArmBone[numBones];
+		
+		for(int i=0;i<numBones;++i) {
+			link[i] = model.getBone(i);
+			bottom[i] = link[i].getAngleMin();
+			top[i] = link[i].getAngleMax();
+			mid[i] = (top[i]+bottom[i])/2;
+		}
 
 		BufferedWriter out=null;
 		try {
-			out = new BufferedWriter(new FileWriter(new File("c:/Users/Admin/Desktop/jacobian.csv")));
+			out = new BufferedWriter(new FileWriter(new File(outputPath)));
 
-			double [] keyframe = model.getAngles();
 			// set the pose with fk
-			keyframe[0]=mid0;
-			keyframe[1]=mid1;
-			keyframe[2]=mid2;
-			keyframe[3]=mid3;
-			keyframe[4]=mid4;
-			keyframe[5]=mid5;
-
+			model.setAngles(mid);
+			
 			ApproximateJacobian aj = new ApproximateJacobian(model);
 			int i,j;
 			for(i=0;i<6;++i) {

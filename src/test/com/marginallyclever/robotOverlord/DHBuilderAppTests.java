@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHBuilderApp;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink;
 
 @Deprecated
+@Ignore
 public class DHBuilderAppTests {
 	final static String TEST_FOLDER = "src\\\\main\\resources\\Sixi";
 	@Test

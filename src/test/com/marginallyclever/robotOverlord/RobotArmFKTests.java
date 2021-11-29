@@ -13,6 +13,7 @@ import javax.vecmath.Matrix4d;
 
 import org.junit.Test;
 
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 
 public class RobotArmFKTests {
@@ -79,5 +80,12 @@ public class RobotArmFKTests {
 			
 			tempFile.deleteOnExit();
 		}
+	}
+	
+	@Test
+	public void testInverseDynamics() {
+		Sixi3 robot = new Sixi3();
+		double [] t = robot.getTorques();
+		System.out.println("Torque="+t);
 	}
 }
