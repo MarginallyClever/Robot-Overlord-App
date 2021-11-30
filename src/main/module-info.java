@@ -18,4 +18,6 @@ module com.marginallyclever.robotOverlord {
 	requires jssc;
 	requires batik.all;
 	requires xml.apis.ext;
+	
+	exports com.marginallyclever.robotOverlord to junit;
 }
