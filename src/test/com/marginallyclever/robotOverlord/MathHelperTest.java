@@ -5,7 +5,6 @@ import org.junit.Test;
 import com.marginallyclever.convenience.MathHelper;
 
 public class MathHelperTest {
-
 	@Test
 	public void testWrapDegrees() {
 		System.out.println("testWrapDegrees start");

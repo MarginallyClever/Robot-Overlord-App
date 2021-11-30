@@ -6,12 +6,10 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>RobotOverlord</artifactId>
-	<version>1.7.0</version>
+	<version>1.7.1</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots. 
-
-    If you like this project, please support us by buying Marginally Clever products.</description>
-
+If you like this project, please support us by buying Marginally Clever products.</description>
 	<url>http://www.marginallyclever.com/</url>
 
 	<issueManagement>
@@ -91,6 +89,7 @@
 				</excludes>
 			</resource>
 		</resources>
+		
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -181,6 +180,17 @@
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
+				<configuration>
+          			<parallel>methods</parallel>
+          			<threadCount>10</threadCount>
+			        <!-- <reuseForks>true</reuseForks> -->
+					<!-- <forkCount>0</forkCount> -->
+					<!-- <useSystemClassLoader>true</useSystemClassLoader> -->
+					<excludes>
+						<exclude>**/*GUITest</exclude>
+						<exclude>**/*IntegrationTest</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 			<!-- End of plugins defined originally only in Super POM -->
 			<plugin>
@@ -283,6 +293,18 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>5.8.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -403,7 +425,7 @@
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-all</artifactId>
-			<version>[1.13,)</version>
+			<version>[1.14,)</version>
 		</dependency>
 	</dependencies>
 
