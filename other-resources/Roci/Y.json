@@ -1,0 +1,10 @@
+{
+  "t" : 90.0,
+  "a" : 0.0,
+  "d" : 0.0,
+  "r" : 30.0,
+  "rmax" : 105.0,
+  "rmin" : -10.0,
+  "letter" : "Y",
+  "modelFilename" : "C:\\Users\\Admin\\Documents\\GitHub\\Robot-Overlord\\src\\main\\resources\\Roci\\Y.obj"
+}

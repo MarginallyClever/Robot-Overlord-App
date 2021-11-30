@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
@@ -8,6 +9,7 @@ import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
+@Ignore
 public class InputManagerTest {
 	// Output the current java.library.path and the current working directory.
 	@Test

@@ -7,7 +7,6 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -16,11 +15,12 @@ import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
-//https://en.wikipedia.org/wiki/Collision_response
+// See https://en.wikipedia.org/wiki/Collision_response
+// See https://www.euclideanspace.com/physics/dynamics/collision/
 public abstract class RigidBody extends PoseEntity {
 	private static final long serialVersionUID = 1L;
 
-	private static final int FORCE_RECORD_LENGTH = 50;
+	private static final int FORCE_RECORD_LENGTH = 1;
 	
 	private ArrayList<Force> forces = new ArrayList<Force>();
 	
@@ -33,9 +33,10 @@ public abstract class RigidBody extends PoseEntity {
 	private Vector3d torqueToApply = new Vector3d();
 	
 	private BooleanEntity pauseOnCollision = new BooleanEntity("Pause on collision",true);
+	private BooleanEntity applyGravity = new BooleanEntity("Apply gravity",true);
 	
 	private double coefficientOfRestitution = 0.75;
-	private double coefficientOfFriction = 0.5;
+	private double coefficientOfFriction = 0.0;
 		
 	private boolean isPaused=false;
 
@@ -45,6 +46,13 @@ public abstract class RigidBody extends PoseEntity {
 
 	public RigidBody(String name) {
 		super(name);
+	}
+	
+	public void setPauseOnCollision(boolean b) {
+		pauseOnCollision.set(b);
+	}
+	public void setApplyGravity(boolean b) {
+		applyGravity.set(b);
 	}
 	
 	@Override
@@ -60,11 +68,11 @@ public abstract class RigidBody extends PoseEntity {
 	}
 
 	private void limitForceRecordLength() {
-		while(forces.size()>FORCE_RECORD_LENGTH) forces.remove(0);
+		while(forces.size()>=FORCE_RECORD_LENGTH) forces.remove(0);
 	}
 
 	private void updateForces(double dt) {
-		addGravity();
+		if(applyGravity.get()) addGravity();
 		updateLinearForce(dt);
 		updateAngularForce(dt);
 	}
@@ -80,20 +88,17 @@ public abstract class RigidBody extends PoseEntity {
 		}*/
 		if(shape==null) return;
 
-		if(mass>0) torqueToApply.scale(1.0/mass);
-		torqueToApply.scale(dt);
+		//torqueToApply.scale(dt/mass);
 		angularVelocity.add(torqueToApply);
 		torqueToApply.set(0,0,0);
 	}
 	
 	
 	private void updateLinearForce(double dt) {
-		if(mass>0) forceToApply.scale(1.0/mass);
-		forceToApply.scale(dt);
+		//forceToApply.scale(dt/mass);
 		linearVelocity.add(forceToApply);
 		forceToApply.set(0,0,0);
 	}
-	
 
 	private void updateAngularPosition(double dt) {
 		// We can describe that spin as a vector w(t) The direction of w(t) gives the direction of 
@@ -109,8 +114,7 @@ public abstract class RigidBody extends PoseEntity {
 		m.mul(rot);
 		myPose.setRotationScale(m);
 	}
-	
-	
+		
 	private void updateLinearPosition(double dt) {
 		Vector3d p = getPosition();
 		Vector3d dp = new Vector3d(linearVelocity);
@@ -118,7 +122,6 @@ public abstract class RigidBody extends PoseEntity {
 		p.add(dp);
 		setPosition(p);
 	}
-
 
 	@Override
 	public void render(GL2 gl2) {
@@ -184,67 +187,32 @@ public abstract class RigidBody extends PoseEntity {
 		this.shape = shape;
 	}
 
-	protected Matrix3d getInertiaTensorFromShape() {		
-		ArrayList<Cuboid> list = shape.getCuboidList();
-		if(!list.isEmpty()) {
-			Cuboid cuboid = list.get(0);
-			double x = cuboid.getExtentX();
-			double y = cuboid.getExtentY();
-			double z = cuboid.getExtentZ();
-			
-			return getInertiaTensorFromDimensions(x,y,z);
-		} else {
-			Matrix3d inertiaTensor = new Matrix3d();
-			inertiaTensor.setIdentity();
-			inertiaTensor.setScale(mass/6);
-			return inertiaTensor;
-		}
-	}
+	protected abstract Matrix3d getInertiaTensorFromShape();
 	
-
-	private Matrix3d getInertiaTensorFromDimensions(double x, double y, double z) {
-		Matrix3d it = new Matrix3d();
-		it.m00=calculateMOI(y,z);
-		it.m11=calculateMOI(x,z);
-		it.m22=calculateMOI(x,y);
-		return it;
-	}
-	
-
-	private double calculateMOI(double a, double b) {
-		return mass * ( a*a + b*b ) / 12;
-	}
-	
-
 	public void setLinearVelocity(Vector3d arg0) {
 		linearVelocity.set(arg0);
 	}
 	
-
 	public Vector3d getLinearVelocity() {
 		return linearVelocity;
 	}
 	
-
 	public void setAngularVelocity(Vector3d arg0) {
 		angularVelocity.set(arg0);
 	}
 	
-
 	public Vector3d getAngularVelocity() {
 		return angularVelocity;
 	}
-	
 	
 	public void applyForceAtPoint(Vector3d force,Point3d p) {
 		double len = force.length();
 		if(len<1e-6) return;
 		
-		//forces.add(new Force(p,force,1,0,1));
+		forces.add(new Force(p,force,1,0,1));
 		
 		// linear component
-		Vector3d forceScaled = new Vector3d(force);
-		forceToApply.add(forceScaled);
+		forceToApply.add(force);
 
 		// angular component
 		Vector3d n = new Vector3d(force);
@@ -261,24 +229,21 @@ public abstract class RigidBody extends PoseEntity {
 
 		torqueToApply.add(newTorque);
 	}
-	
-	
+		
 	private Matrix3d getInertiaTensor() {
 		Matrix3d inertiaTensor = getInertiaTensorFromShape();
 		Matrix3d pose3 = new Matrix3d();
-		myPose.get(pose3);
+		getPoseWorld().get(pose3);
 		inertiaTensor.mul(pose3,inertiaTensor);
 		return inertiaTensor;
 	}
-	
-	
+		
 	private Vector3d getR(Point3d p) {
-		Vector3d r = new Vector3d(p);
-		r.sub(getPosition());
+		Vector3d r = new Vector3d();
+		r.sub(p,MatrixHelper.getPosition(getPoseWorld()));
 		return r;
 	}
-	
-	
+		
 	/**
 	 * Vp = V + W x R
 	 * Where 
@@ -296,41 +261,52 @@ public abstract class RigidBody extends PoseEntity {
 		//System.out.println(angularVelocity+"\t"+linearVelocity+"\t"+sum);
 		//forces.add(new Force(p,sum,0,0,1));
 		//forces.add(new Force(p,linearVelocity,0,1,0));
-		
+
 		return sum;
 	}
 	
 	abstract protected void testFloorContact();
 
 	// https://en.wikipedia.org/wiki/Collision_response
-	protected void applyCollisionImpulse(Point3d p, Vector3d n) {
-		//responseModeA(p,n);
-		responseModeB(p,n);
-		//applyFriction(p,n);
-		
+	protected void applyCollisionImpulse(Point3d p, Vector3d normal) {
 		if(pauseOnCollision.get())
 			isPaused=true;
+		forces.add(new Force(p,normal,0,0,0));
+
+		Vector3d rb = getR(p);
+		Vector3d angularVelChangeB = new Vector3d();
+		angularVelChangeB.cross(normal,rb);
+		
+		Matrix3d inertiaTensorB = getInertiaTensor();
+		inertiaTensorB.invert();
+		inertiaTensorB.transform(angularVelChangeB);
+		
+		Vector3d vbLinDueToR = new Vector3d();
+		vbLinDueToR.cross(angularVelChangeB,rb);
+		
+		double scalar = 0;//1 / massA + vaLinDueToR.dot(n);
+		scalar += 1 / mass + vbLinDueToR.dot(normal);
+
+		Vector3d dv = new Vector3d();
+		dv.sub(new Vector3d(0,0,0),linearVelocity);
+		
+		double jMod = (coefficientOfRestitution + 1) * dv.length() / scalar;
+		Vector3d j = new Vector3d(normal);
+		j.scale(jMod);
+		
+		Vector3d jb = new Vector3d(j);
+		jb.scale(30);
+		jb.scale(1.0/mass);
+		forceToApply.sub(jb);
+		angularVelChangeB.scale(30);
+		torqueToApply.sub(angularVelChangeB);
+		
+		//applyFriction(p,normal);
 	}
 	
-	private void responseModeB(Point3d p, Vector3d n) {
-		double jr = getImpulseMagnitude(p,n,coefficientOfRestitution);
-		Vector3d linearChange = getLinearCollisionResponse(n,jr);
-		Vector3d angularChange = getAngularCollisionResponse(n,p,jr); 
-		forces.add(new Force(p,linearChange,0,0,1));
-		
-		forceToApply.add(linearChange);
-		torqueToApply.sub(angularChange);
-	}
-
-	protected void responseModeA(Point3d p, Vector3d n) {
-		double jr = getImpulseMagnitude(p,n,coefficientOfRestitution);
-		Vector3d f = new Vector3d(n);
-		f.scale(-jr*mass);
-		applyForceAtPoint(f,p);
-		forces.add(new Force(p,f,0,1,1));
-	}
-
 	private void applyFriction(Point3d p,Vector3d n) {
+		if(coefficientOfFriction<=0) return;
+		
 		Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
 		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
 		double d = relativeVelocity.dot(n);
@@ -348,51 +324,6 @@ public abstract class RigidBody extends PoseEntity {
 			forces.add(new Force(p,t,1,1,0));
 			applyForceAtPoint(t,p);
 		}		
-	}
-	
-	private Vector3d getAngularCollisionResponse(Vector3d n, Point3d p, double jr) {
-		Vector3d r = getR(p);
-		Vector3d rxn = new Vector3d();
-		rxn.cross(r,n);
-		Matrix3d inertiaTensor = getInertiaTensor();
-		inertiaTensor.invert();
-		Vector3d irxn = new Vector3d();
-		inertiaTensor.transform(rxn,irxn);
-		
-		Vector3d newAngularVelocity = new Vector3d(irxn);
-		newAngularVelocity.scale(jr);
-		return newAngularVelocity;
-	}
-	
-
-	private Vector3d getLinearCollisionResponse(Vector3d n,double jr) {
-		double s = -jr/mass;
-		return new Vector3d( s*n.x, s*n.y, s*n.z );
-	}
-	
-
-	private double getImpulseMagnitude(Point3d p, Vector3d n,double e) {
-		Vector3d velocityAtPoint = getCombinedVelocityAtPoint(p);
-		Vector3d relativeVelocity = new Vector3d(velocityAtPoint);
-		relativeVelocity.scale(-1);
-		
-		//forces.add(new Force(p,velocityAtPoint,1,1,0));
-				
-		Vector3d r = getR(p);
-		Vector3d rxn = new Vector3d();
-		rxn.cross(r,n);
-		Matrix3d inertiaTensor = getInertiaTensor();
-		inertiaTensor.invert();
-		Vector3d irxn = new Vector3d();
-		inertiaTensor.transform(rxn, irxn);
-		Vector3d irxnr = new Vector3d();
-		irxnr.cross(irxn,r);
-		
-		double a = -(1.0 + e) * velocityAtPoint.dot(n);
-		double b = Math.pow(mass, -1) + irxnr.dot(n); 
-		double jr = a/b;
-		
-		return jr;
 	}
 	
 	@Override

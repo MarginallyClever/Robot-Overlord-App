@@ -33,10 +33,8 @@ public class PhysicsDemo implements Demo {
 		ro.camera.update(0);
 		
 		// add some lights
-    	Light light;
-
-		sc.addChild(light = new Light());
-		light.setName("Light");
+    	Light light = new Light();
+		sc.addChild(light);
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
@@ -44,19 +42,18 @@ public class PhysicsDemo implements Demo {
     	light.setAttenuationQuadratic(7*1e-6);
     	light.setDirectional(true);
     	
-		// add some collision bounds
 		// adjust grid
 		Grid grid = new Grid();
 		sc.addChild(grid);
 		
 		MakeRigidBody op;
 		double x=0;
-		//op = ()->makeOneSphere(sc);
-		//testList(x,op);
+		op = ()->makeOneSphere(sc);
+		testList(x,op);
 		
 		x+=5;
-		op = ()->makeOneCube(sc);
-		testList(x,op);
+		//op = ()->makeOneCube(sc);
+		//testList(x,op);
 		
 		//manyCubeDemo(sc);
 	}
@@ -66,14 +63,43 @@ public class PhysicsDemo implements Demo {
 	}
 	
 	private void testList(double x,MakeRigidBody op) {
-		oneFallingNoSpin     (op.operation(),new Vector3d(x,0,5));
-		oneFallingWithSpin   (op.operation(),new Vector3d(x,5,5));
-		oneFallingWithLinear (op.operation(),new Vector3d(x,10,5));
-		//oneFallingWithBoth   (op.operation(),new Vector3d(x,15,5));
-		//oneFalling45         (op.operation(),new Vector3d(x,20,5));
-		//oneSitting           (op.operation(),new Vector3d(x,25,1));
-		//oneSittingWithImpulse(op.operation(),new Vector3d(x,30,1));
-		//oneSlidingNoFall     (op.operation(),new Vector3d(x,35,1));
+		double y=0;
+		double space=5;
+		oneFallingNoSpin     (op.operation(),new Vector3d(x,y,5));  y+=space;
+		oneFallingWithSpin   (op.operation(),new Vector3d(x,y,5));  y+=space;
+		oneFallingWithLinear (op.operation(),new Vector3d(x,y,5));  y+=space;
+		oneFallingWithBoth   (op.operation(),new Vector3d(x,y,5));  y+=space;
+		oneFalling45         (op.operation(),new Vector3d(x,y,5));  y+=space;
+		oneSitting           (op.operation(),new Vector3d(x,y,1));  y+=space;
+		oneSittingWithImpulse(op.operation(),new Vector3d(x,y,1));  y+=space;
+		oneSlidingNoFall     (op.operation(),new Vector3d(x,y,1));  y+=space;
+		oneHitsAtCenter      (op,new Vector3d(x,y,10));  y+=space;
+		oneHitsOffCenter     (op,new Vector3d(x,y,10));  y+=space;
+	}
+
+	private void oneHitsOffCenter(MakeRigidBody op, Vector3d p) {
+		RigidBody a = op.operation();
+		RigidBody b = op.operation();
+		a.setPosition(p);
+		a.setApplyGravity(false);
+		a.applyForceAtPoint(new Vector3d(5,0,0), new Point3d(p));
+		
+		p.x+=5;
+		p.y+=0.5;
+		b.setPosition(p);
+		b.setApplyGravity(false);
+	}
+	
+	private void oneHitsAtCenter(MakeRigidBody op, Vector3d p) {
+		RigidBody a = op.operation();
+		RigidBody b = op.operation();
+		a.setPosition(p);
+		a.setApplyGravity(false);
+		a.applyForceAtPoint(new Vector3d(5,0,0), new Point3d(p));
+		
+		p.x+=5;
+		b.setPosition(p);
+		b.setApplyGravity(false);
 	}
 
 	private void oneSlidingNoFall(RigidBody body, Vector3d p) {
@@ -153,6 +179,8 @@ public class PhysicsDemo implements Demo {
 		RigidBodyBox body = new RigidBodyBox();
 		Box b = new Box();
 		b.setSize(2, 2, 2);
+		//b.getMaterial().setTextureFilename("/grid.png");
+		body.setPauseOnCollision(false);
 		body.setShape(b);
 		body.setMass(1);
 		sc.addChild(body);
@@ -162,8 +190,9 @@ public class PhysicsDemo implements Demo {
 	private RigidBody makeOneSphere(Entity sc) {
 		RigidBodySphere body = new RigidBodySphere();
 		Sphere s = new Sphere();
-		s.getMaterial().setTextureFilename("/grid.png");
 		s.setDiameter(2);
+		s.getMaterial().setTextureFilename("/grid.png");
+		body.setPauseOnCollision(false);
 		body.setShape(s);
 		body.setMass(1);
 		sc.addChild(body);

@@ -506,7 +506,7 @@ public class RobotArmFK extends PoseEntity {
 	}
 	
 	/**
-	 * Compute the inverse dynamics using recursive Newton-Euler algorithm (RNEA).
+	 * Compute the inverse dynamics using Recursive Newton-Euler Algorithm (RNEA).
 	 * Uses the current position, velocity, and acceleration of each joint.<br>
 	 * <br>
 	 * See https://www.gamedeveloper.com/programming/create-your-own-inverse-dynamics-in-unity
@@ -522,33 +522,4 @@ public class RobotArmFK extends PoseEntity {
 		}
 		return p;
 	}
-	/*
-	private void rootToFinal() {
-		RobotArmBone a = null;
-		RobotArmBone b = null;
-		for(int i=0;i<getNumBones();++i) {
-			a=b;
-			b=bones.get(i);
-			
-			b.computeAngularVelocity(a);
-			b.computeTorque(a);
-			
-			b.computeForceAtJoint(a);
-			b.computeForceAtCenterOfMass();
-
-			b.computeLimbForce();
-			b.computeLimbTorque();
-		}
-	}
-	
-	private void finalToRoot() {
-		RobotArmBone a = null;
-		RobotArmBone b = null;
-		for(int i=getNumBones()-1;i>=0;--i) {
-			a=b;
-			b=bones.get(i);
-			b.computeJointForce(a);
-			b.computeJointTorque(a);
-		}
-	}*/
 }

@@ -10,7 +10,6 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotOverlord.demos.demoAssets.Sphere;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
-//https://en.wikipedia.org/wiki/Collision_response
 public class RigidBodySphere extends RigidBody {
 	private static final long serialVersionUID = 1L;
 	
@@ -34,7 +33,8 @@ public class RigidBodySphere extends RigidBody {
 		}
 		return inertiaTensor;
 	}
-		
+
+	// assumes ground plane is body 1.
 	@Override
 	protected void testFloorContact() {
 		Shape shape = getShape();

@@ -45,14 +45,15 @@ public class RigidBodyBox extends RigidBody {
 		Matrix3d it = new Matrix3d();
 		it.m00=calculateMOI(y,z);
 		it.m11=calculateMOI(x,z);
-		it.m22=calculateMOI(x,y);
+		it.m22=	calculateMOI(x,y);
 		return it;
 	}
 
 	private double calculateMOI(double a, double b) {
 		return getMass() * ( a*a + b*b ) / 12;
 	}
-	
+
+	// assumes ground plane is body 1.
 	@Override
 	protected void testFloorContact() {
 		Shape shape = getShape();	
