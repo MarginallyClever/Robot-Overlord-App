@@ -325,20 +325,7 @@ If you like this project, please support us by buying Marginally Clever products
 			<artifactId>jogamp-fat</artifactId>
 			<version>2.4.0-rc-20200307</version>
 		</dependency>
-		
-		<!--
-		<dependency>
-			<groupId>org.jogamp.gluegen</groupId>
-			<artifactId>gluegen-rt-main</artifactId>
-			<version>2.3.2</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jogamp.jogl</groupId>
-			<artifactId>jogl-all-main</artifactId>
-			<version>2.3.2</version>
-		</dependency> -->
-		
+
 		<!-- opencv -->
 <!--
 		<dependency>
@@ -357,7 +344,6 @@ If you like this project, please support us by buying Marginally Clever products
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.0</version>
-			<!--<scope>runtime</scope> -->
 		</dependency>
 
 		<dependency>
@@ -373,10 +359,9 @@ If you like this project, please support us by buying Marginally Clever products
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>[4.13.1,)</version>
-			<!-- <scope>test</scope> -->
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- used for some src/main/util/PreferencesHelper logging -->
@@ -391,13 +376,13 @@ If you like this project, please support us by buying Marginally Clever products
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<version>2.10.0</version>
 		</dependency>
 		<!-- annotations let us ignore transient variables. -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson-annotations-version}</version>
+			<version>2.10.2</version>
 		</dependency>
 
 		<!-- SSH for Java -->
@@ -418,7 +403,7 @@ If you like this project, please support us by buying Marginally Clever products
 		<dependency>
 			<groupId>net.java.jinput</groupId>
 			<artifactId>jinput</artifactId>
-			<version>${jinput.version}</version>
+			<version>2.0.9</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/batik/batik-xml -->
@@ -440,22 +425,9 @@ If you like this project, please support us by buying Marginally Clever products
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minimum.maven.version>3.8.1</minimum.maven.version>
 		<minimum.java.version>15</minimum.java.version>
-		<jogl.version>2.4.0</jogl.version>
-		<jinput.version>2.0.9</jinput.version>
 		<maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
 		<maven.compiler.source>${minimum.java.version}</maven.compiler.source>
 		<maven.compiler.target>${minimum.java.version}</maven.compiler.target>
 		<maven.compiler.release>${minimum.java.version}</maven.compiler.release>
-
-		<!-- Change the nd4j.backend property to nd4j-cuda-8.0-platform, nd4j-cuda-9.0-platform or nd4j-cuda-9.1-platform to use CUDA GPUs -->
-		<nd4j.backend>nd4j-native-platform</nd4j.backend>
-		<!-- <nd4j.backend>nd4j-cuda-9.1-platform</nd4j.backend> -->
-		<nd4j.version>1.0.0-beta</nd4j.version>
-		<dl4j.version>1.0.0-beta</dl4j.version>
-		<datavec.version>1.0.0-beta</datavec.version>
-		<arbiter.version>1.0.0-beta</arbiter.version>
-		<rl4j.version>1.0.0-beta</rl4j.version>
-		<jackson.version>2.10.0</jackson.version>
-		<jackson-annotations-version>2.10.2</jackson-annotations-version>
 	</properties>
 </project>
