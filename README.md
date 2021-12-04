@@ -14,6 +14,10 @@ Some of the robots it controls are:
  - Spidee, a 6 legged crab-style walker.
  - Dog Robot, a generic 4 legged walker.
 
+# Video
+
+[![Click to watch](README.PNG)](https://www.youtube.com/watch?v=QGYz506W1Pk)
+
 # Why
 
 For our philosophy about RO, please see the Wiki: https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F
