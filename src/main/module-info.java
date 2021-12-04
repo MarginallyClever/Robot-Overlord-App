@@ -1,7 +1,8 @@
 module com.marginallyclever.robotOverlord {
-	requires java.desktop;
-	requires java.prefs;
-	requires java.logging;
+	requires transitive java.desktop;
+	requires transitive java.prefs;
+	requires transitive java.logging;
+	requires junit;
 	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.annotation;
@@ -9,12 +10,14 @@ module com.marginallyclever.robotOverlord {
 	requires org.json;
 	requires org.slf4j;
 	
-	requires vecmath;
-	requires jsch;
-	requires jinput;
-	requires jogamp.fat;
-	requires annotations;
-	requires jssc;
-	requires batik.all;
-	requires xml.apis.ext;
+	requires transitive vecmath;
+	requires transitive jsch;
+	requires transitive jinput;
+	requires transitive jogamp.fat;
+	requires transitive annotations;
+	requires transitive jssc;
+	requires transitive batik.all;
+	requires transitive xml.apis.ext;
+
+	exports com.marginallyclever.robotOverlord;
 }
