@@ -1,31 +1,46 @@
-/target/archive-tmp/**
-/target/dependency-maven-plugin-markers/**
-/target/generated-sources/**
-/target/generated-test-sources/**
-/target/javadoc-bundle-options/**
-/target/maven-archiver/**
-/target/maven-status/**
-/target/surefire-reports/**
-/target/test-classes/**
-/target/classes/com/**
-/target/classes/META-INF/**
-/target/
+# Start OS generated files #
+*/.DS_Store
+.DS_Store
+.DS_Store?
+Thumbs.db
+# End OS generated files #
 
-/html/
+# Start Maven
+target/
+# End Maven
 
-/latex/
+# Start JetBrains IDEs: IntelliJ, modified from https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+*.iml
+## File-based project format:
+*.ipr
+*.iws
+.idea/
+# End JetBrains IDEs: IntelliJ, modified from https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
 
-*.class
+# Start Eclipse IDE
+classes/
+bin/
+.settings/
+**/.project
+**/.classpath
+# End Eclipse IDE
 
+## Auto generated diff files from SourceTree
+*.orig
+
+*.log
+java/.project
+## Auto Eclipse Checkstyle configuration
+.checkstyle
+.jar
+
+## Auto generated documentation
+latex/
+html/
+build/
+docs/
+
+## packaging
+packaging/*
 **/*.tmp
 **/temp.ngc
-
-**/log.html
-**/log.txt
-
-.ssh/known_hosts
-
-.settings/**
-.settings/*.prefs
-
-/packaging/**

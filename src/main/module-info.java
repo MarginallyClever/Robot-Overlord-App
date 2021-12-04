@@ -2,7 +2,6 @@ module com.marginallyclever.robotOverlord {
 	requires java.desktop;
 	requires java.prefs;
 	requires java.logging;
-	requires junit;
 	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.annotation;
@@ -18,6 +17,4 @@ module com.marginallyclever.robotOverlord {
 	requires jssc;
 	requires batik.all;
 	requires xml.apis.ext;
-	
-	exports com.marginallyclever.robotOverlord to junit;
 }

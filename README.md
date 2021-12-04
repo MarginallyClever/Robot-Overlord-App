@@ -22,7 +22,7 @@ Some of the robots it controls are:
 
 For our philosophy about RO, please see the Wiki: https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F
 
-# Get Started!
+## Get Started!
 
 Steps to get started:
 
@@ -32,7 +32,7 @@ Steps to get started:
 
 Then you should be able to run the application.
 
-## Install The latest OpenJDK
+## #Install The latest OpenJDK
 
 Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest version is the "ready to use" edition.
 
@@ -42,13 +42,13 @@ Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest 
 
 *Linux*: https://linuxize.com/post/install-java-on-ubuntu-18-04/ _untested_
 
-## Install Eclipse
+### Install Eclipse
 
 * Download Eclipse IDE: https://www.eclipse.org/downloads/
 * install the latest.  
 * Choose "Eclipse IDE for Java developers"
 
-## Install Robot Overlord App
+### Install Robot Overlord App
 
 * Goto https://github.com/MarginallyClever/Robot-Overlord-App/
 * Fownload this zip file: https://github.com/MarginallyClever/Robot-Overlord-App/archive/refs/heads/master.zip and extract it.  Note the folder for later.
@@ -63,6 +63,6 @@ Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest 
 
 Application should now launch.
 
-# Usage
+## Usage
 
-tbd
+If you're reading this, make an issue ticket or fill in the wiki yourself, please.
