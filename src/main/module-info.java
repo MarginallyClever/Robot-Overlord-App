@@ -2,7 +2,6 @@ module com.marginallyclever.robotOverlord {
 	requires transitive java.desktop;
 	requires transitive java.prefs;
 	requires transitive java.logging;
-	requires junit;
 	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.annotation;
