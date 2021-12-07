@@ -1,5 +1,9 @@
 package com.marginallyclever.robotOverlord.swingInterface;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+
 import com.marginallyclever.convenience.log.Log;
 
 import net.java.games.input.Component;
@@ -117,6 +121,22 @@ public class InputManager {
 	private static double [] keyStateOld = new double[Source.values().length];
 	private static double [] keyState = new double[Source.values().length];
 	private static boolean hasFocus=false;
+	private static ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+	private static InputManager self = new InputManager();
+	
+	public static void addPropertyChangeListener(PropertyChangeListener p) {
+		listeners.add(p);
+	}
+	
+	public static void removePropertyChangeListener(PropertyChangeListener p) {
+		listeners.remove(p);
+	}
+	
+	private static void firePropertyChangeEvent(PropertyChangeEvent evt) {
+		for(PropertyChangeListener p : listeners) {
+			p.propertyChange(evt);
+		}
+	}
 	
 	public static void start() {
 		Log.message("InputManager start");
@@ -183,6 +203,8 @@ public class InputManager {
            		updateKeyboard(ca[i]);
         	}
         }
+        
+        firePropertyChangeEvent(new PropertyChangeEvent(self,"input",null,null));
 	}
 	
 	public static boolean isOn(Source i) {
