@@ -6,7 +6,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface.JogInterface;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface.MarlinInterface;
@@ -45,7 +45,7 @@ public class RobotArmInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmInterface(new RobotArmIK(new Sixi3())));
+		frame.add(new RobotArmInterface(new RobotArmIK(new Sixi3_5axis())));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +78,7 @@ public class RobotArmFKTests {
 
     @Test
     public void testInverseDynamics() {
-        Sixi3 robot = new Sixi3();
+        Sixi3_5axis robot = new Sixi3_5axis();
         double[] t = robot.getTorques();
         System.out.println("Torque=" + t);
     }

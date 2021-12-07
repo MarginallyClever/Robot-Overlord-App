@@ -14,7 +14,8 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
 import com.marginallyclever.robotOverlord.demos.robotArms.Mantis;
 import com.marginallyclever.robotOverlord.demos.robotArms.Sixi2;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_6axis;
 import com.marginallyclever.robotOverlord.demos.robotArms.Thor;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
@@ -73,7 +74,9 @@ public class RobotArmsDemo implements Demo {
 		// add robots
 		Vector3d p = new Vector3d();
 
-		addArm(new Sixi3(),p,sc,ro);
+		addArm(new Sixi3_5axis(),p,sc,ro);
+		p.x+=50;
+		addArm(new Sixi3_6axis(),p,sc,ro);
 		p.x+=50;
 		addArm(new Sixi2(),p,sc,ro);
 		p.x+=50;

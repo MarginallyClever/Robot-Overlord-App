@@ -12,7 +12,7 @@ import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class AngleDrivePanel extends JPanel {
@@ -106,7 +106,7 @@ public class AngleDrivePanel extends JPanel {
 
 		JFrame frame = new JFrame(AngleDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new AngleDrivePanel(new RobotArmIK(new Sixi3())));
+		frame.add(new AngleDrivePanel(new RobotArmIK(new Sixi3_5axis())));
 		frame.pack();
 		frame.setVisible(true);
 	}

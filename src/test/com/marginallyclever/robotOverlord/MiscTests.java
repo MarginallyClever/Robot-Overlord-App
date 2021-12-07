@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3;
+import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
@@ -340,7 +340,7 @@ public class MiscTests {
     //@Test
     public void reportApproximateJacobianMatrix(String outputPath) {
         System.out.println("approximateJacobianMatrix() start");
-        RobotArmFK model = new Sixi3();
+        RobotArmFK model = new Sixi3_5axis();
 
         // Find the min/max range for each joint
         int numBones = model.getNumBones();
