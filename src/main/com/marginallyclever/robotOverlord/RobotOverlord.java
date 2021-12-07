@@ -408,31 +408,30 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
     	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		
-        
         mainFrame.setLayout(new java.awt.BorderLayout());
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
     	setWindowSizeAndPosition();
-        
-        // when someone tries to close the app, confirm it.
+       
         mainFrame.addWindowListener(new WindowAdapter() {
+            // when someone tries to close the app, confirm it.
         	@Override
         	public void windowClosing(WindowEvent e) {
         		confirmClose();
         		super.windowClosing(e);
         	}
         	
+    		// switch back to this window
         	@Override
             public void windowActivated(WindowEvent e) {
-        		// switch back to this window
+        		super.windowActivated(e);
         		InputManager.focusGained();
-        		
         	}
 
+    		// switch away to another window
         	@Override
             public void windowDeactivated(WindowEvent e) {
-        		// switch away to another window
+        		super.windowDeactivated(e);
         		InputManager.focusLost();
         	}
 		});
