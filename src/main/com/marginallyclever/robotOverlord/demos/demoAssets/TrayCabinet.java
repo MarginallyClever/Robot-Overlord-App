@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.demos.demoAssets;
 
 import javax.vecmath.Vector3d;
 
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class TrayCabinet extends Shape {
@@ -25,17 +24,6 @@ public class TrayCabinet extends Shape {
 		tray.setPosition(new Vector3d(3.925*-3,-8.35,0.3+7));
 		tray.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		tray.getMaterial().setAmbientColor(1, 1, 1, 1);
-		
-	}
-	
-	@Override
-	public void update(double dt) {
-		super.update(dt);
-	}
-	
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
 		
 	}
 }
