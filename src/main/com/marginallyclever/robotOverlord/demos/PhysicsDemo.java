@@ -4,14 +4,14 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Grid;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Sphere;
 import com.marginallyclever.robotOverlord.physics.RigidBody;
 import com.marginallyclever.robotOverlord.physics.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.RigidBodySphere;
+import com.marginallyclever.robotOverlord.sceneElements.Box;
+import com.marginallyclever.robotOverlord.sceneElements.Grid;
+import com.marginallyclever.robotOverlord.sceneElements.Light;
+import com.marginallyclever.robotOverlord.sceneElements.Sphere;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 @SuppressWarnings("unused")

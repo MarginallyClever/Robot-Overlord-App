@@ -10,6 +10,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.sceneElements.Light;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 

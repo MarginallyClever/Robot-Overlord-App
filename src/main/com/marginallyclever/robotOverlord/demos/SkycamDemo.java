@@ -3,10 +3,10 @@ package com.marginallyclever.robotOverlord.demos;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Grid;
 import com.marginallyclever.robotOverlord.robots.skycam.Skycam;
+import com.marginallyclever.robotOverlord.sceneElements.Grid;
+import com.marginallyclever.robotOverlord.sceneElements.Light;
 
 public class SkycamDemo implements Demo {
 	@Override

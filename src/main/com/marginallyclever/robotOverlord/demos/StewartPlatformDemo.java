@@ -3,12 +3,12 @@ package com.marginallyclever.robotOverlord.demos;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
 import com.marginallyclever.robotOverlord.demos.demoAssets.TrayCabinet;
 import com.marginallyclever.robotOverlord.robots.LinearStewartPlatform;
 import com.marginallyclever.robotOverlord.robots.RotaryStewartPlatform;
+import com.marginallyclever.robotOverlord.sceneElements.Box;
+import com.marginallyclever.robotOverlord.sceneElements.Light;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class StewartPlatformDemo implements Demo {

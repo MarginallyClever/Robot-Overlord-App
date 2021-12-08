@@ -9,9 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Mantis;
@@ -20,6 +18,8 @@ import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_6axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Thor;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
+import com.marginallyclever.robotOverlord.sceneElements.Box;
+import com.marginallyclever.robotOverlord.sceneElements.Light;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class RobotArmsDemo implements Demo {

@@ -7,7 +7,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.robotOverlord.demos.demoAssets.Sphere;
+import com.marginallyclever.robotOverlord.sceneElements.Sphere;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 public class RigidBodySphere extends RigidBody {

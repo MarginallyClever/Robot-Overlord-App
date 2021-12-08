@@ -11,12 +11,13 @@ public class EntityFactory {
 		com.marginallyclever.robotOverlord.robots.skycam.Skycam.class,
 		com.marginallyclever.robotOverlord.Camera.class,
 		com.marginallyclever.robotOverlord.shape.Shape.class,
-		com.marginallyclever.robotOverlord.Light.class,
+		com.marginallyclever.robotOverlord.sceneElements.Light.class,
 		com.marginallyclever.robotOverlord.Decal.class,
-		com.marginallyclever.robotOverlord.demos.demoAssets.Box.class,
-		com.marginallyclever.robotOverlord.demos.demoAssets.Grid.class,
+		com.marginallyclever.robotOverlord.sceneElements.Box.class,
+		com.marginallyclever.robotOverlord.sceneElements.Grid.class,
+		com.marginallyclever.robotOverlord.sceneElements.Sphere.class,
+		//com.marginallyclever.robotOverlord.sceneElements.SkyBox.class,
 		com.marginallyclever.robotOverlord.robots.dog.DogRobot.class,
-		com.marginallyclever.robotOverlord.shape.Shape.class,
 	};
 	
 	public static ArrayList<String> getAllEntityNames() {
