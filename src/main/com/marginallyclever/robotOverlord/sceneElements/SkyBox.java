@@ -17,11 +17,11 @@ public class SkyBox extends Entity {
 	 */
 	private static final long serialVersionUID = 7218495889495845836L;
 	protected transient boolean areSkyboxTexturesLoaded=false;
-	protected transient TextureEntity skyboxtextureZPos = new TextureEntity("/skybox/cube-x-pos.png");
-	protected transient TextureEntity skyboxtextureXPos = new TextureEntity("/skybox/cube-x-neg.png");
-	protected transient TextureEntity skyboxtextureXNeg = new TextureEntity("/skybox/cube-y-pos.png");
-	protected transient TextureEntity skyboxtextureYPos = new TextureEntity("/skybox/cube-y-neg.png");
-	protected transient TextureEntity skyboxtextureYNeg = new TextureEntity("/skybox/cube-z-pos.png");
+	protected transient TextureEntity skyboxtextureZPos = new TextureEntity("/skybox/cube-z-pos.png");
+	protected transient TextureEntity skyboxtextureXPos = new TextureEntity("/skybox/cube-x-pos.png");
+	protected transient TextureEntity skyboxtextureXNeg = new TextureEntity("/skybox/cube-x-neg.png");
+	protected transient TextureEntity skyboxtextureYPos = new TextureEntity("/skybox/cube-y-pos.png");
+	protected transient TextureEntity skyboxtextureYNeg = new TextureEntity("/skybox/cube-y-neg.png");
 	protected transient TextureEntity skyboxtextureZNeg = new TextureEntity("/skybox/cube-z-neg.png");
 
 	public SkyBox() {
@@ -67,33 +67,33 @@ public class SkyBox extends Entity {
 			skyboxtextureXPos.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, -10);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
 			gl2.glEnd();
 
 			skyboxtextureXNeg.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, -10);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
 			gl2.glEnd();
 
 			skyboxtextureYPos.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
 			gl2.glEnd();
 
 			skyboxtextureYNeg.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
 				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
 				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
+				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
+				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
 			gl2.glEnd();
 
 			skyboxtextureZPos.render(gl2);
