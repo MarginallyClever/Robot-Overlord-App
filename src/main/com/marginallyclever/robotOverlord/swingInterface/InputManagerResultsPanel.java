@@ -31,7 +31,8 @@ public class InputManagerResultsPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	class Row {
-		public String controller, component, identifier;
+		public String controller, component, identifier, type;
+		int subType;
 		public boolean isRelative, isAnalog;
 		public float value;
 	}
@@ -45,7 +46,7 @@ public class InputManagerResultsPanel extends JPanel {
 
 	    @Override
 		public int getColumnCount() {
-	        return 6;
+	        return 8;
 	    }
 
 	    @Override
@@ -65,8 +66,10 @@ public class InputManagerResultsPanel extends JPanel {
 	    	case 0: return r.controller;
 	    	case 1: return r.component;
 	    	case 2: return r.identifier;
-	    	case 3: return r.isRelative;
-	    	case 4: return r.isAnalog;
+	    	case 3: return r.type;
+	    	case 4: return r.subType;
+	    	case 5: return r.isRelative;
+	    	case 6: return r.isAnalog;
 	    	default: return r.value;
 	    	} 
 	    }
@@ -78,7 +81,7 @@ public class InputManagerResultsPanel extends JPanel {
 	    }
 	}
 	
-	private static String [] columnNames = {"Controller","Component","Identifier","Relative","Analog","Value"};
+	private static String [] columnNames = {"Controller","Component","Identifier","Type","SubType","Relative","Analog","Value"};
 	private JTable table;
 	private MyTableData data = new MyTableData();
 	
@@ -97,6 +100,8 @@ public class InputManagerResultsPanel extends JPanel {
 		        return renderRight;
 		    }
 		};
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		
 		this.setLayout(new BorderLayout());
 		this.add(new JScrollPane(table),BorderLayout.CENTER);
 		this.setPreferredSize(getPreferredSize());
@@ -125,18 +130,23 @@ public class InputManagerResultsPanel extends JPanel {
 		
 		ControllerEnvironment ce = ControllerEnvironment.getDefaultEnvironment();
 		Controller[] ca = ce.getControllers();
-        for(int i =0;i<ca.length;i++){
+        for(int i =0;i<ca.length;i++) {
             Component[] components = ca[i].getComponents();
+            String name = ca[i].getName();
+            String type = ca[i].getType().toString();
 
             // Get this controllers components (buttons and axis)
             for(int j=0;j<components.length;j++){
+            	Component c = components[j];
                 Row r = new Row();
-                r.component = ca[i].getName();
-                r.controller = components[j].getName();
-                r.identifier = components[j].getIdentifier().getName();
-                r.isRelative = components[j].isRelative();
-                r.isAnalog = components[j].isAnalog();
-                r.value = components[j].getPollData();
+                r.component = name;
+                r.type = type;
+                r.subType = i;
+                r.controller = c.getName();
+                r.identifier = c.getIdentifier().getName();
+                r.isRelative = c.isRelative();
+                r.isAnalog = c.isAnalog();
+                r.value = c.getPollData();
                 data.rows.add(r);
             }
         }

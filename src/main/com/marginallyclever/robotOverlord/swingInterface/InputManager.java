@@ -159,19 +159,14 @@ public class InputManager {
 		
 		
 		Controller[] ca = ce.getControllers();
-        for(int i =0;i<ca.length;i++){
+        for(int i =0;i<ca.length;i++) {
             Component[] components = ca[i].getComponents();
 
             Log.message("Controller "+i+":"+ca[i].getName()+" ("+ca[i].getType().toString()+")");
-            //Log.message("  Component Count: "+components.length);
-
-            // Get this controllers components (buttons and axis)
             for(int j=0;j<components.length;j++){
             	Log.message("    "+j+": "+components[j].getName() + " " + components[j].getIdentifier().getName()
-            			+" ("
-                		+ (components[j].isRelative() ? "Relative" : "Absolute")
-                		+ " "
-                		+ (components[j].isAnalog()? "Analog" : "Digital")
+            			+" (" + (components[j].isRelative() ? "Relative" : "Absolute")
+                		+ " " + (components[j].isAnalog()? "Analog" : "Digital")
                 		+ ")");
             }
         }
@@ -184,8 +179,6 @@ public class InputManager {
 
 		updateOldKeyStates();
 		
-		boolean didIHearAMouse=false;
-		
         for(int i=0;i<ca.length;i++) {
         	// poll all controllers once per frame
         	if(!ca[i].poll()) {
@@ -194,9 +187,7 @@ public class InputManager {
 
         	if(ca[i].getType()==Controller.Type.MOUSE) {
         		// only listen to the first mouse and only listen if it's in
-        		if(!didIHearAMouse && isMouseIn) {
-	            	updateMouse(ca[i]);
-        		}
+        		if(isMouseIn) updateMouse(ca[i]);
         	} else if(ca[i].getType()==Controller.Type.GAMEPAD) {
        			updateStick(ca[i]);
         	} else if(ca[i].getType()==Controller.Type.KEYBOARD) {
