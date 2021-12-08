@@ -12,8 +12,8 @@ import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
 
 public class AngleDrivePanel extends JPanel {
 	private static final long serialVersionUID = 1L;

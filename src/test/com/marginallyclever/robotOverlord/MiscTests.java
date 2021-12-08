@@ -2,10 +2,11 @@ package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
+
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix4d;
