@@ -75,8 +75,7 @@ public class InputManagerResultsPanel extends JPanel {
 	    }
 
 	    @Override
-		@SuppressWarnings("unchecked")
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 	        return getValueAt(0, c).getClass();
 	    }
 	}
