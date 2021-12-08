@@ -9,7 +9,6 @@ import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix4d;
-import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
