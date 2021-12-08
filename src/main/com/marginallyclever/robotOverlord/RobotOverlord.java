@@ -130,7 +130,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	private RemoveEntityAction removeEntity;
 
 	private FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
-	public GLJPanel glCanvas;
+	private GLJPanel glCanvas;
 	
 	// should I check the state of the OpenGL stack size?  true=every frame, false=never
 	private boolean checkStackSize = false;
@@ -138,7 +138,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	// mouse steering controls
 	private boolean isMouseIn=false;
 
-	public Viewport viewport = new Viewport();
+	private Viewport viewport = new Viewport();
 	
     // timing for animations
     private long lastTime;
@@ -793,5 +793,9 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
     		add=", ";
 		}
 		Log.message(msg);
+	}
+
+	public Viewport getViewport() {
+		return viewport;
 	}
 }

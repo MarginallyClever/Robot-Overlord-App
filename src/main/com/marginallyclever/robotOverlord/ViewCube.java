@@ -33,7 +33,7 @@ public class ViewCube extends Entity {
     
 	@Override
 	public void render(GL2 gl2) {
-		Viewport viewport = ((RobotOverlord)getRoot()).viewport;
+		Viewport viewport = ((RobotOverlord)getRoot()).getViewport();
 		
 		startProjection(gl2,viewport);
 		

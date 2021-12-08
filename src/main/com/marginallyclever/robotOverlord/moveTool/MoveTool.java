@@ -132,7 +132,7 @@ public class MoveTool extends Entity {
 		if(subject==null) return;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		Viewport cameraView = ro.viewport;
+		Viewport cameraView = ro.getViewport();
 		PoseEntity camera = cameraView.getAttachedTo();
 
 		Matrix4d subjectPoseWorld = subject.getPoseWorld();
@@ -190,7 +190,7 @@ public class MoveTool extends Entity {
 
 	private void beginMovement() {
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		Viewport cameraView = ro.viewport;
+		Viewport cameraView = ro.getViewport();
 		PoseEntity camera = cameraView.getAttachedTo();
 		Ray ray = cameraView.rayPick();
 
@@ -351,7 +351,7 @@ public class MoveTool extends Entity {
 		valueNow = valueLast;
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		Viewport cameraView = ro.viewport;
+		Viewport cameraView = ro.getViewport();
 		Ray ray = cameraView.rayPick();
 
 		Vector3d dp = new Vector3d(position);
@@ -561,7 +561,7 @@ public class MoveTool extends Entity {
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ro.viewport.renderChosenProjection(gl2);
+		ro.getViewport().renderChosenProjection(gl2);
 
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 		
@@ -591,7 +591,7 @@ public class MoveTool extends Entity {
 		gl2.glEnable(GL2.GL_TEXTURE_2D);
 		
 		//ro.viewport.renderOrtho(gl2);
-		textRender.beginRendering(ro.viewport.getCanvasWidth(), ro.viewport.getCanvasHeight());
+		textRender.beginRendering(ro.getViewport().getCanvasWidth(), ro.getViewport().getCanvasHeight());
 		textRender.setColor(0,0,0,1);
 		Matrix4d w = resultMatrix;
 		Vector3d wp = MatrixHelper.getPosition(w);
@@ -617,7 +617,7 @@ public class MoveTool extends Entity {
 		final int quality=50;
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.viewport.getAttachedTo();
+		PoseEntity camera = ro.getViewport().getAttachedTo();
 		Matrix4d lookAt = new Matrix4d();
 
 		Matrix4d pw = subject.getPoseWorld();
@@ -650,7 +650,7 @@ public class MoveTool extends Entity {
 		//Matrix4d pw = subject.getPoseWorld(pw);
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.viewport.getAttachedTo();		
+		PoseEntity camera = ro.getViewport().getAttachedTo();		
 		Matrix4d pw = camera.getPoseWorld();
 		pw.m03=
 		pw.m13=
@@ -781,7 +781,7 @@ public class MoveTool extends Entity {
 	public void renderTranslation(GL2 gl2) {
 		// camera forward is -z axis 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.viewport.getAttachedTo();
+		PoseEntity camera = ro.getViewport().getAttachedTo();
 
 		Matrix4d pw = subject.getPoseWorld();
 		Vector3d lookAtVector = MatrixHelper.getPosition(pw);
