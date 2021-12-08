@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.dhRobotEntity.dhTool;
 
 import com.marginallyclever.convenience.memento.Memento;
 
+@Deprecated
 public class GripperMemento implements Memento {
 	/**
 	 * 
