@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.demos.robotArms;
+package com.marginallyclever.robotOverlord.robots.robotArm.implementations;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;

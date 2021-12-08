@@ -12,13 +12,13 @@ import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Light;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demos.demoAssets.Box;
-import com.marginallyclever.robotOverlord.demos.robotArms.Mantis;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi2;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_5axis;
-import com.marginallyclever.robotOverlord.demos.robotArms.Sixi3_6axis;
-import com.marginallyclever.robotOverlord.demos.robotArms.Thor;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Mantis;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi2;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_6axis;
+import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Thor;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
