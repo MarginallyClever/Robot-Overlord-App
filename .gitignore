@@ -44,3 +44,4 @@ docs/
 packaging/*
 **/*.tmp
 **/temp.ngc
+log.txt
