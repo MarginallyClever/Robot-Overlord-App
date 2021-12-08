@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix3d;
