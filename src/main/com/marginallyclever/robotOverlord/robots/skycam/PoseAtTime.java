@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.dhRobotEntity.sixi2;
+package com.marginallyclever.robotOverlord.robots.skycam;
 
 /**
  * Used by Sixi2Live to average motion over time and estimate forces acting on the robot.
