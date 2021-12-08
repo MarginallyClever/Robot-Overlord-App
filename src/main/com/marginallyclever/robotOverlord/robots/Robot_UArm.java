@@ -21,13 +21,6 @@ public class Robot_UArm extends RobotEntity {
 	 */
 	private static final long serialVersionUID = -9001671002787113226L;
 
-	/*
-	private transient Model linkA1;
-	private transient Model linkA2;
-	private transient Model linkA3;
-	private transient Model linkB1;
-	private transient Model linkB2;
-*/
 	public transient boolean isFirstTime;
 	
 	DHRobotModel live;
