@@ -90,6 +90,17 @@ public class LineGraph extends JPanel {
 		}
 	}
 
+	
+	public Color getLineColor() {
+		return lineColor;
+	}
+
+	public void setLineColor(Color lineColor) {
+		this.lineColor = lineColor;
+	}
+
+	// TEST 
+	
 	public static void main(String[] args) {
 		Log.start();
 
@@ -108,15 +119,5 @@ public class LineGraph extends JPanel {
 		frame.add(new LineGraph(list));
 		frame.pack();
 		frame.setVisible(true);
-	}
-
-	
-	public Color getLineColor() {
-		return lineColor;
-	}
-
-	
-	public void setLineColor(Color lineColor) {
-		this.lineColor = lineColor;
 	}
 }
