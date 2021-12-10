@@ -6,6 +6,8 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -17,7 +19,11 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.robots.robotArm.robotArmBuilder.RobotArmBuilder;
+import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -106,10 +112,6 @@ public class RobotArmFK extends PoseEntity {
 			iWP.transform(p);
 			bone.setCenterOfMass(p);
 		}
-	}
-
-	protected void addBone(RobotArmBone bone) {
-		bones.add(bone);
 	}
 	
 	protected void setTextureFilename(String fname) {
@@ -310,11 +312,42 @@ public class RobotArmFK extends PoseEntity {
 			setAngles(v);
 		});
 		view.add(showAngles);
+
+		ViewElementButton bOpen = view.addButton("Open edit panel");
+		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
 		view.popStack();
 		
 		super.getView(view);
 	}
-	
+
+	private void onOpenAction() {
+		JFrame parent = null;
+		
+		Entity e = this.getRoot();
+		if(e instanceof RobotOverlord) {
+			parent = ((RobotOverlord)e).getMainFrame();
+		}
+		
+		final RobotArmFK me = this;
+		final JFrame parentFrame = parent;
+
+	        new Thread(new Runnable() {
+	            @Override
+				public void run() {
+	        		try {
+		            	JDialog frame = new JDialog(parentFrame,getName());
+		        		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+						frame.add(new RobotArmBuilder(me));
+		        		frame.pack();
+		        		frame.setVisible(true);
+	        		} catch (CloneNotSupportedException e2) {
+	        			// TODO Auto-generated catch block
+	        			e2.printStackTrace();
+	        		}
+	            }
+	        }).start();
+	}
+
 	/**
 	 * 
 	 * @param list where to collect the information.  Must be {@link RobotArmFK#NUM_BONES} long.
@@ -451,6 +484,10 @@ public class RobotArmFK extends PoseEntity {
 		}
 		
 		updateEndEffectorPosition();
+	}
+	
+	public void addBone(RobotArmBone bone) {
+		bones.add(bone);
 	}
 	
 	public int getNumBones() {
