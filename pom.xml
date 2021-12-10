@@ -412,6 +412,13 @@ If you like this project, please support us by buying Marginally Clever products
 			<artifactId>batik-all</artifactId>
 			<version>[1.14,)</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-swing-junit</artifactId>
+			<version>3.17.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<repositories>
