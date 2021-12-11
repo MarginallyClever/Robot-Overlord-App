@@ -3,11 +3,14 @@ package com.marginallyclever.robotOverlord.robots.robotArm;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -19,10 +22,10 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -184,8 +187,7 @@ public class RobotArmFK extends PoseEntity {
 			ArrayList<Cuboid> list = getCuboidList();
 			for(Cuboid c : list) {
 				gl2.glPushMatrix();
-				c.getPose(w);
-				MatrixHelper.applyMatrix(gl2, w);
+				MatrixHelper.applyMatrix(gl2, c.getPose());
 				PrimitiveSolids.drawBoxWireframe(gl2, c.getBoundsBottom(),c.getBoundsTop());
 				gl2.glPopMatrix();
 			}
@@ -314,6 +316,16 @@ public class RobotArmFK extends PoseEntity {
 
 		ViewElementButton bOpen = view.addButton("Open edit panel");
 		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
+		ViewElementButton bSnapshot = view.addButton("Save snapshot");
+		bSnapshot.addPropertyChangeListener((evt)-> {
+			try {
+				save();
+			} catch(Exception e) {
+				Log.error(e.getMessage());
+				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		
 		view.popStack();
 		
 		super.getView(view);
@@ -441,10 +453,8 @@ public class RobotArmFK extends PoseEntity {
 			for(int j=i+2;j<list.size();++j) {
 				Cuboid b = list.get(j);
 				if(IntersectionHelper.cuboidCuboid(a, b)) {
-					Matrix4d ma = new Matrix4d();
-					Matrix4d mb = new Matrix4d();
-					a.getPose(ma);
-					b.getPose(mb);
+					Matrix4d ma = a.getPose();
+					Matrix4d mb = b.getPose();
 					Mesh sa = a.getShape();
 					Mesh sb = b.getShape();
 					
@@ -557,5 +567,17 @@ public class RobotArmFK extends PoseEntity {
 			p[i] = bones.get(i).getTorque().length();
 		}
 		return p;
+	}
+	
+	public void save() throws Exception {
+		// TODO expand this later with more choice of file formats?
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");  
+	    LocalDateTime now = LocalDateTime.now();
+	    String filePath = this.getClass().getSimpleName()+"-"+dtf.format(now)+".urdf";
+		System.out.println("Saving as "+filePath);
+		Log.message("Saving as "+filePath);
+	    
+		RobotArmSaveToURDF saver = new RobotArmSaveToURDF();
+		saver.save(filePath,this);
 	}
 }
