@@ -12,9 +12,10 @@ public class RobotArmTests {
 	public void saveAndLoad() throws Exception {
 		Log.start();
 		Sixi3_6axis arm = new Sixi3_6axis();
-		File f = File.createTempFile("test", ".xml");
+		File f = File.createTempFile("test", ".urdf");
 		System.out.println(f.getAbsolutePath());
-		RobotArmSaveToXML.save(f.getAbsolutePath(), arm);
+		RobotArmSaveToURDF saver = new RobotArmSaveToURDF();
+		saver.save(f.getAbsolutePath(), arm);
 		
 		Log.end();
 	}
