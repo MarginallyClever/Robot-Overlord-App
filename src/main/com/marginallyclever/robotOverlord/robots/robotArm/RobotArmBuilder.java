@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robots.robotArm.robotArmBuilder;
+package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -19,8 +19,6 @@ import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 
 /**
  * {@code RobotArmBuilder} contains the panel that edit a {@code RobotArmFK}.
