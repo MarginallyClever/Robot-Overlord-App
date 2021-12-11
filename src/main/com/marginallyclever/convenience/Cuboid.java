@@ -109,8 +109,8 @@ public class Cuboid implements BoundingVolume, Serializable {
 		}
 	}
 	
-	public void getPose(Matrix4d m) {
-		m.set(pose);
+	public Matrix4d getPose() {
+		return new Matrix4d(pose);
 	}
 	
 	public void render(GL2 gl2) {

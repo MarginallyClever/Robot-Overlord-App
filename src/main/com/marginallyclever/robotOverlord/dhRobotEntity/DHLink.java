@@ -596,12 +596,10 @@ public class DHLink extends PoseEntity implements Collidable {
 	public ArrayList<Cuboid> getCuboidList() {
 		ArrayList<Cuboid> list = shapeEntity.getCuboidList();
 		Matrix4d m = getPoseWorld();
-		Matrix4d m2 = new Matrix4d();
 		Matrix4d m3 = new Matrix4d();
 				
 		for( Cuboid c : list ) {
-			c.getPose(m2);
-			m3.mul(m,m2);
+			m3.mul(m,c.getPose());
 			c.setPose(m3);
 		}
 		return list;
