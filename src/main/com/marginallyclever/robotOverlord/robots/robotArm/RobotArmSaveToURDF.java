@@ -25,13 +25,22 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
+/**
+ * Export the {@code RobotArm} as a URDF XML file.
+ * See http://wiki.ros.org/urdf/XML
+ * See https://adohaha.github.io/DH2URDF/
+ * See http://docs.ros.org/en/rolling/Tutorials/URDF/Building-a-Visual-Robot-Model-with-URDF-from-Scratch.html#
+ * Tested against http://www.mymodelrobot.appspot.com/
+ * @author Dan Royer
+ *
+ */
 public class RobotArmSaveToURDF {
     private Document document;
     private RobotArmFK arm;
 	
 	
 	public void save(String filePath,RobotArmFK arm) throws Exception {
-        Log.message("RobotArmSaveToXML.save() start");
+        Log.message(RobotArmSaveToURDF.class.getSimpleName()+".save() start");
 
         this.arm=arm;
         this.document = setupNewDocument();
@@ -40,7 +49,7 @@ public class RobotArmSaveToURDF {
         
         createXMLFile(document,filePath);
         
-        Log.message("RobotArmSaveToXML.save() done");
+        Log.message(RobotArmSaveToURDF.class.getSimpleName()+".save() done");
 	}
 
 	private void buildDocumentFromArm() {
@@ -63,9 +72,9 @@ public class RobotArmSaveToURDF {
             link = buildLinkFromBone(bone,iWP);	
             root.appendChild(link);
         }
-        
-        String prev = "base";
+
         /*
+        String prev = "base";
         for(int i=0;i<arm.getNumBones();++i) {
         	RobotArmBone bone = arm.getBone(i);
         	Element joint = buildJointFromBone(bone,prev);
