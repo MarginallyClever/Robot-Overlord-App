@@ -14,15 +14,13 @@ public class Sixi3_5axis extends RobotArmFK {
 		super();
 		setName(Sixi3_5axis.class.getSimpleName());
 	}
-	
+		
 	@Override
 	protected void loadModel() {
 		setBaseShape(new Shape("Base","/Sixi3b/j0.obj"));
-		// base 
-		// Mass	201.686 g
-		// Center of Mass	-1.113, -0.011, 14.664
+		// base: Mass 201.686g, Center of Mass -1.113, -0.011, 14.664
 
-		// name d r a t max min file
+		// format: name d r alpha theta max min file
 		addBone(new RobotArmBone("X", 8.01,     0,270,  0,170,-170,"/Sixi3b/j1.obj"));
 		addBone(new RobotArmBone("Y",9.131,17.889,  0,270,370, 170,"/Sixi3b/j2.obj"));
 		addBone(new RobotArmBone("Z",    0,12.435,  0,  0,150,-150,"/Sixi3b/j3.obj"));

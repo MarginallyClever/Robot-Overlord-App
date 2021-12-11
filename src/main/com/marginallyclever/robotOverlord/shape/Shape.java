@@ -98,6 +98,9 @@ public class Shape extends PoseEntity implements Collidable {
 		rotationAdjust.set(b.rotationAdjust.get());
 	}
     
+	/**
+	 * @return full path and file of the model on disk.
+	 */
 	public String getModelFilename() {
 		return filename.get();
 	}
