@@ -32,6 +32,12 @@ public class RobotArmBone implements Cloneable {
 	public double theta;
 	
 	private double thetaMax, thetaMin;
+	
+	// model and relative offset from DH origin
+	private Shape shape;
+	
+	// TODO this doesn't belong here
+	public DoubleEntity slider = new DoubleEntity("J",0);
 
 	private double mass, iMass;
 	private Matrix3d inertiaTensor = new Matrix3d();
@@ -40,12 +46,6 @@ public class RobotArmBone implements Cloneable {
 	private Vector3d force = new Vector3d();
 	private Vector3d angularVelocity = new Vector3d();
 	private Vector3d torque = new Vector3d();
-	
-	// model and relative offset from DH origin
-	private Shape shape;
-	
-	// TODO this doesn't belong here
-	public DoubleEntity slider = new DoubleEntity("J",0);
 		
 	public RobotArmBone() {
 		inertiaTensor.setIdentity();
@@ -70,7 +70,15 @@ public class RobotArmBone implements Cloneable {
 
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		return super.clone();
+		RobotArmBone b = (RobotArmBone)super.clone();
+		b.angularVelocity= new Vector3d(this.angularVelocity);
+		b.centerOfMass= new Point3d(this.centerOfMass);
+		b.force= new Vector3d(this.force);
+		b.inertiaTensor=new Matrix3d(this.inertiaTensor);
+		b.linearVelocity = new Vector3d(this.linearVelocity);
+		b.shape = new Shape(name,this.shape.getModelFilename());
+		b.torque = new Vector3d(this.torque);
+		return b;
 	}
 	
 	@Override
@@ -91,7 +99,7 @@ public class RobotArmBone implements Cloneable {
 				+","+angularVelocity
 				+","+torque;
 		
-		return RobotArmBone.class.getSimpleName()+" ["+s+"]";
+		return this.getClass().getSimpleName()+" ["+s+"]";
 	}
 	
 	public void fromString(String s) throws Exception {

@@ -89,7 +89,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void onRobotEvent(PropertyChangeEvent e)  {
-		if(e.getPropertyName().contentEquals("ee")) sendGoto();	
+		if(e.getPropertyName().contentEquals("ee")) sendGoto();
 	}
 
 	private void onConnect() {
@@ -182,6 +182,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	public void queueAndSendCommand(String str) {
+		if(!chatInterface.getIsConnected()) return;
 		if(str.trim().length()==0) return;
 		
 		lineNumberAdded++;

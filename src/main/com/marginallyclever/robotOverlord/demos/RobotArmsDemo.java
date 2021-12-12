@@ -93,11 +93,11 @@ public class RobotArmsDemo implements Demo {
 		RobotArmIK s3 = new RobotArmIK(arm);
 		s3.setPosition(p);
 		sc.addChild(s3);
-		Matrix4d m = new Matrix4d();
 		
-		m.setIdentity();
-		m.setTranslation(new Vector3d(10,0,0));
-		s3.setToolCenterPoint(m);
+		//Matrix4d m = new Matrix4d();
+		//m.setIdentity();
+		//m.setTranslation(new Vector3d(10,0,0));
+		//s3.setToolCenterPoint(m);
 		//openControlDialog(ro,s3);
 	}
 	

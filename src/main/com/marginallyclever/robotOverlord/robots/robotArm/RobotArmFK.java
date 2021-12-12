@@ -52,7 +52,8 @@ public class RobotArmFK extends PoseEntity {
 	
 	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
 	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
-	private PoseEntity toolCenterPoint = new PoseEntity("TCP");
+	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",true);
+	private PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
 		
 	public RobotArmFK() {
 		super(RobotArmFK.class.getSimpleName());
@@ -71,9 +72,8 @@ public class RobotArmFK extends PoseEntity {
 	public Object clone() throws CloneNotSupportedException {
 		RobotArmFK b = (RobotArmFK)super.clone();
 		b.bones = new ArrayList<RobotArmBone>();
-		Iterator<RobotArmBone> i = bones.iterator();
-		while(i.hasNext()) {
-			b.bones.add((RobotArmBone)(i.next().clone()));
+		for( RobotArmBone i : bones ) {
+			b.bones.add((RobotArmBone)(i.clone()));
 		}
 		
 		return b;
@@ -159,7 +159,7 @@ public class RobotArmFK extends PoseEntity {
 		
 		if(showLineage.get()) drawLineage(gl2);
 		if(showAngles.get()) drawAngles(gl2);
-		drawForceAndTorque(gl2);
+		if(drawForceAndTorque.get()) drawForceAndTorque(gl2);
 		// bounding boxes are always relative to base?
 		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
 		
@@ -264,6 +264,8 @@ public class RobotArmFK extends PoseEntity {
 				gl2.glColor3d(1, 1, 1);
 				tex.render(gl2);
 				PrimitiveSolids.drawBillboard(gl2,p,1,1);
+				gl2.glDisable(GL2.GL_TEXTURE_2D);
+				
 				
 				// draw forces
 				gl2.glBegin(GL2.GL_LINES);
@@ -313,6 +315,8 @@ public class RobotArmFK extends PoseEntity {
 			setAngles(v);
 		});
 		view.add(showAngles);
+		view.add(showEndEffector);
+		view.add(drawForceAndTorque);
 
 		ViewElementButton bOpen = view.addButton("Open edit panel");
 		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
@@ -467,17 +471,26 @@ public class RobotArmFK extends PoseEntity {
 
 	@Override
 	public String toString() {
-		String angles = "";
+		String contents = getName()+
+				","+getPose().toString()
+				+","+base.getModelFilename()
+				+","+showAngles.get()
+				+","+showEndEffector.get()
+				+","+getToolCenterPoint();
+		
+		String angles="";
 		String add="";
 		for( RobotArmBone b : bones ) {
-			angles += add + b.toString();
-			add=",";
+			contents += add + b.toString();
+			add=",\n";
 		}
-		return RobotArmFK.class.getSimpleName()+" {"+angles+"}";
+		
+		contents+="["+angles+"]"; 
+		return this.getClass().getSimpleName()+" ["+contents+"]";
 	}
 
 	public void fromString(String s) throws Exception {
-		final String header = RobotArmFK.class.getSimpleName()+" {";
+		final String header = RobotArmFK.class.getSimpleName()+" [";
 		if(!s.startsWith(header)) throw new IOException("missing header.");
 		
 		// strip header and "}" from either end.
@@ -523,7 +536,7 @@ public class RobotArmFK extends PoseEntity {
 	public double getDistanceToTarget(final Matrix4d target) {
 		double [] d = MatrixHelper.getCartesianBetweenTwoMatrixes(getEndEffector(), target);
 		double sum=0;
-		for(int i=0;i<d.length;++i) sum+=d[i];
+		for(int i=0;i<d.length;++i) sum+=Math.abs(d[i]);
 		return sum;
 	}
 	
@@ -577,7 +590,7 @@ public class RobotArmFK extends PoseEntity {
 		System.out.println("Saving as "+filePath);
 		Log.message("Saving as "+filePath);
 	    
-		RobotArmSaveToURDF saver = new RobotArmSaveToURDF();
+		RobotArmSaveToRO saver = new RobotArmSaveToRO();
 		saver.save(filePath,this);
 	}
 }

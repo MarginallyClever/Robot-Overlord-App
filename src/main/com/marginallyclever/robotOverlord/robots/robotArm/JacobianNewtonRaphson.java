@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.StringHelper;
 
 // http://motion.pratt.duke.edu/RoboticSystems/InverseKinematics.html#mjx-eqn-eqNewtonRaphson
 public class JacobianNewtonRaphson {
@@ -27,15 +28,15 @@ public class JacobianNewtonRaphson {
 		RobotArmIK temp = (RobotArmIK)arm.clone();
 		temp.setAngles(arm.getAngles());
 		temp.setEndEffectorTarget(m4);
-		while(tries-->=0) {
+		for(int i=0;i<tries;++i) {
 			JacobianNewtonRaphson.step(temp);
-			if(temp.getDistanceToTarget(m4)<0.001) {
-				//System.out.println("JacobianNewtonRaphson.iterate hit");
+			if(temp.getDistanceToTarget(m4)<0.01) {
 				arm.setAngles(temp.getAngles());
 				arm.setEndEffectorTarget(m4);
 				break;
 			}
 		}
-		//System.out.println("JacobianNewtonRaphson.iterate ends ("+tries+")");
+		double d = temp.getDistanceToTarget(m4);
+		System.out.println("JacobianNewtonRaphson.iterate ends ("+d+")");
 	}
 }

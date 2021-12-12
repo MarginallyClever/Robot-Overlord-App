@@ -478,6 +478,13 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 	}
 	
 	@Override
+	public String toString() {
+		String s = super.toString()
+				+","+ myPose.toString();
+		return s;
+	}
+	
+	@Override
 	public boolean canBeRenamed() {
 		return true;
 	}

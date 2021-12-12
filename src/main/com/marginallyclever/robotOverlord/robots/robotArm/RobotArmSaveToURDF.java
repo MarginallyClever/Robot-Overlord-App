@@ -48,7 +48,7 @@ public class RobotArmSaveToURDF {
         buildDocumentFromArm();
         
         createXMLFile(document,filePath);
-        
+                
         Log.message(RobotArmSaveToURDF.class.getSimpleName()+".save() done");
 	}
 

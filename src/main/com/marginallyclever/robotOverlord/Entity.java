@@ -294,4 +294,13 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	public void removeAllChildren() {
 		while(!children.isEmpty()) removeChild(children.get(0));
 	}
+	
+	@Override
+	public String toString() {
+		String s = name;
+		for(Entity child : children) {
+			s+=","+child.toString();
+		}
+		return s;
+	}
 }

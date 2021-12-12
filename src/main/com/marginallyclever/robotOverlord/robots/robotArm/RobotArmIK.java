@@ -53,7 +53,6 @@ public class RobotArmIK extends PoseEntity {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		RobotArmIK b = (RobotArmIK)super.clone();
-		
 		b.myArmFK = (RobotArmFK)myArmFK.clone();
 		b.eeTarget = (PoseEntity)eeTarget.clone();
 		
