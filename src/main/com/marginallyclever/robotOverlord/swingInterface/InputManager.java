@@ -222,6 +222,11 @@ public class InputManager {
 		int v = i.getValue();
 		keyState[v] = value;
 	}
+	
+	static private void addRawValue(Source i,double value) {
+		int v = i.getValue();
+		keyState[v] += value;
+	}
 
 	static private void updateOldKeyStates() {
 		for(int i=0;i<keyState.length;++i) {
@@ -334,15 +339,15 @@ public class InputManager {
         		// digital
     			if(c.getPollData()==1) {
     				if(cid==Identifier.Button.LEFT  ) {
-    					setRawValue(Source.MOUSE_LEFT,1);
+    					addRawValue(Source.MOUSE_LEFT,1);
             			//System.out.println("ml="+v);
     				}
     				if(cid==Identifier.Button.MIDDLE) {
-    					setRawValue(Source.MOUSE_MIDDLE,1);
+    					addRawValue(Source.MOUSE_MIDDLE,1);
             			//System.out.println("mm="+v);
     				}
     				if(cid==Identifier.Button.RIGHT ) {
-    					setRawValue(Source.MOUSE_RIGHT,1);
+    					addRawValue(Source.MOUSE_RIGHT,1);
             			//System.out.println("mr="+v);
     				}
     			}
