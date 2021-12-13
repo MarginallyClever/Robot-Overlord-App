@@ -65,4 +65,12 @@ Application should now launch.
 
 ## Usage
 
-If you're reading this, make an issue ticket or fill in the wiki yourself, please.
+Camera movement: middle mouse button.  Click and drag to move forward and back.  shift+drag to orbit.  roll the middle mouse to change the orbit distance.  
+
+Double click any entity in the scene to select it, or use the entity panel in the top right.
+
+For robot arms, select an arm and then open the control panel.
+
+## More
+
+If you're reading this, make an issue ticket and we will respond to it promptly.
