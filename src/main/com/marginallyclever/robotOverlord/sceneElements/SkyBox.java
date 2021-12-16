@@ -48,8 +48,7 @@ public class SkyBox extends Entity {
 	public void render(GL2 gl2) {
 		Viewport viewport = ((RobotOverlord)this.getRoot()).getViewport();
 		PoseEntity camera = viewport.getAttachedTo();
-		
-		//gl2.glDisable(GL2.GL_DEPTH_TEST);
+
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		gl2.glEnable(GL2.GL_TEXTURE_2D);
@@ -61,8 +60,6 @@ public class SkyBox extends Entity {
 			MatrixHelper.applyMatrix(gl2, m);
 		
 			gl2.glColor3f(1, 1, 1);
-			Vector3d p = camera.getPosition();
-			//gl2.glTranslated(-p.x,-p.y,-p.z);
 
 			skyboxtextureXPos.render(gl2);
 			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
@@ -113,6 +110,8 @@ public class SkyBox extends Entity {
 			gl2.glEnd();
 			
 		gl2.glPopMatrix();
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
+
+		// Clear the depth buffer
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 	}
 }
