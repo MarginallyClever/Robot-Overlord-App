@@ -16,7 +16,7 @@ public class EntityFactory {
 		com.marginallyclever.robotOverlord.sceneElements.Box.class,
 		com.marginallyclever.robotOverlord.sceneElements.Grid.class,
 		com.marginallyclever.robotOverlord.sceneElements.Sphere.class,
-		com.marginallyclever.robotOverlord.sceneElements.SkyBox.class,
+		//com.marginallyclever.robotOverlord.sceneElements.SkyBox.class,
 		com.marginallyclever.robotOverlord.robots.dog.DogRobot.class,
 	};
 	

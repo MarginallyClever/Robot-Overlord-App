@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.demos;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import java.awt.event.WindowAdapter;

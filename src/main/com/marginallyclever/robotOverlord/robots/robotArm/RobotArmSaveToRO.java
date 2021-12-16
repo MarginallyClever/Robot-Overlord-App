@@ -1,8 +1,5 @@
 package com.marginallyclever.robotOverlord.robots.robotArm;
 
-import java.io.File;
-import java.io.FileWriter;
-
 import com.marginallyclever.convenience.log.Log;
 
 /**

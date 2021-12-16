@@ -17,6 +17,4 @@ module com.marginallyclever.robotOverlord {
 	requires transitive jssc;
 	requires transitive batik.all;
 	requires transitive xml.apis.ext;
-
-	exports com.marginallyclever.robotOverlord;
 }

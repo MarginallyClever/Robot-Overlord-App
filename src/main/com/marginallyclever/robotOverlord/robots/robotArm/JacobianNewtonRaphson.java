@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.robots.robotArm;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
 
 // http://motion.pratt.duke.edu/RoboticSystems/InverseKinematics.html#mjx-eqn-eqNewtonRaphson
 public class JacobianNewtonRaphson {
