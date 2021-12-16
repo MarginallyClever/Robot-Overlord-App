@@ -11,6 +11,7 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.sceneElements.Light;
+import com.marginallyclever.robotOverlord.sceneElements.SkyBox;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 
@@ -25,10 +26,12 @@ public class Scene extends Entity {
 	 */
 	private static final long serialVersionUID = 2990084741436544957L;
 	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
+	public SkyBox sky = new SkyBox();
 	
 	public Scene() {
 		super();
 		setName(Scene.class.getSimpleName());
+		addChild(sky);
 	}
 	
 	public void render(GL2 gl2, Camera camera) {

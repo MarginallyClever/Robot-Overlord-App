@@ -492,7 +492,9 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	}
 
 	public void newScene() {
-		scene.removeAllChildren();
+		scene = new Scene();
+		addChild(scene);
+		
 		updateEntityTree();
 		pickEntity(null);
 	}
