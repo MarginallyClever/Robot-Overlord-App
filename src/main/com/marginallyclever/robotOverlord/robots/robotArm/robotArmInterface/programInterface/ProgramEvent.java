@@ -21,6 +21,7 @@ public class ProgramEvent implements Serializable {
 
 	public ProgramEvent(ProgramEvent p) {
 		this(p.angles);
+		this.nickname = new String(p.nickname);
 	}
 	
 	public double [] getAngles() {

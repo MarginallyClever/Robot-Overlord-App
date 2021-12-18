@@ -212,14 +212,27 @@ public class ProgramInterface extends JPanel {
 	}
 
 	private void runAddAction() {
-		listModel.addElement(new ProgramEvent(myArm.getAngles()));
+		insertWhereAppropriate(new ProgramEvent(myArm.getAngles()));
 	}
 
 	private void runCopyAction() {
 		int i = listView.getSelectedIndex();
 		if(i==-1) return;
 		
-		listModel.addElement(new ProgramEvent(listModel.getElementAt(i)));
+		insertWhereAppropriate(new ProgramEvent(listModel.getElementAt(i)));
+	}
+
+	/**
+	 * if something is selected, add immediately after the selection.
+	 * if nothing is selected, add to the end of the list.
+	 */
+	private void insertWhereAppropriate(ProgramEvent pe) {
+		int index = listView.getSelectedIndex();
+		if(index == -1 || index == listModel.getSize()) {
+			listModel.addElement(pe);
+		} else {
+			listModel.add(index+1,pe);
+		}
 	}
 
 	private void runDeleteAction() {
