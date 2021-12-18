@@ -1,13 +1,19 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.programInterface;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import com.marginallyclever.convenience.StringHelper;
 
-public class ProgramEvent {
+public class ProgramEvent implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String NAME = "ProgramEvent:";
-	
 	private double [] angles;
+	private String nickname="";
 	
 	public ProgramEvent(double [] m) {
 		angles = Arrays.copyOf(m, m.length);
@@ -47,5 +53,13 @@ public class ProgramEvent {
 			add=", ";
 		}
 		return NAME+"["+s+"]";
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 }

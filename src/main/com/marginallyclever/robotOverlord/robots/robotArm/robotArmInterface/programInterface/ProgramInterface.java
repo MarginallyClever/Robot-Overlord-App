@@ -13,6 +13,7 @@ import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -24,7 +25,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
 import com.marginallyclever.convenience.log.Log;
@@ -57,6 +57,9 @@ public class ProgramInterface extends JPanel {
 		
 		listView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listView.setMaximumSize(new Dimension(300,Integer.MAX_VALUE));
+		listView.setTransferHandler(new ListItemTransferHandler());
+		listView.setDropMode(DropMode.INSERT);
+		listView.setDragEnabled(true);
 		
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
@@ -217,9 +220,6 @@ public class ProgramInterface extends JPanel {
 	public static void main(String[] args) {
 		Log.start();
 		JFrame frame = new JFrame("ProgramInterface");
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new ProgramInterface(new RobotArmIK()));
 		frame.pack();
