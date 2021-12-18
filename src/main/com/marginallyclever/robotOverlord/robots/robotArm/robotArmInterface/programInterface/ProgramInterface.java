@@ -44,6 +44,7 @@ public class ProgramInterface extends JPanel {
 	private JButton bAdd = new JButton("Add");
 	private JButton bRewind = new JButton("Rewind");
 	private JButton bStep = new JButton("Step");
+	private JButton bNickname = new JButton("Nickname");
 	
 	private RobotArmIK myArm;
 		
@@ -94,6 +95,7 @@ public class ProgramInterface extends JPanel {
 		bar.add(bLoad);
 		bar.addSeparator();
 		bar.add(bAdd);
+		bar.add(bNickname);
 		bar.add(bCopy);
 		bar.add(bDelete);
 		bar.addSeparator();
@@ -108,6 +110,7 @@ public class ProgramInterface extends JPanel {
 		bDelete.addActionListener((e)-> runDeleteAction() );
 		bRewind.addActionListener((e)-> rewind() );
 		bStep.addActionListener((e)-> step() );
+		bNickname.addActionListener((e)-> nickname() );
 
 		listView.addListSelectionListener((e)->{
 			if(e.getValueIsAdjusting()) return;
@@ -117,6 +120,15 @@ public class ProgramInterface extends JPanel {
 		updateButtonAccess(bDelete);
 		
 		return bar;
+	}
+
+	private void nickname() {
+		int i = listView.getSelectedIndex();
+		ProgramEvent pe = listModel.get(i); 
+		String oldName = pe.getNickname();
+		String newName = JOptionPane.showInputDialog("New nickname:",oldName);
+		pe.setNickname(newName);
+		listView.repaint();
 	}
 
 	public void rewind() {

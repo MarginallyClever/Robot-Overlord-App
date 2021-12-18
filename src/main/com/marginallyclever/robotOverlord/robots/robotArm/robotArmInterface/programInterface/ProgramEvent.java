@@ -29,7 +29,7 @@ public class ProgramEvent implements Serializable {
 	
 	@Override
 	public String toString() {
-		return NAME+Arrays.toString(angles);
+		return NAME+Arrays.toString(angles) + (nickname.isBlank()?"":" ")+nickname;
 	}
 
 	public static ProgramEvent valueOf(String line) {
@@ -52,7 +52,7 @@ public class ProgramEvent implements Serializable {
 			s+= add+StringHelper.formatDouble(angles[i]);
 			add=", ";
 		}
-		return NAME+"["+s+"]";
+		return NAME+"["+s+"]" + (nickname.isBlank()?"":" ")+nickname;
 	}
 
 	public String getNickname() {
