@@ -153,8 +153,9 @@ public class ProgramInterface extends JPanel {
 
 	private void updateButtonAccess(JButton bDelete) {
 		boolean somethingSelected = (listView.getSelectedIndex() != -1);
-		bDelete.setEnabled( somethingSelected );
-		bStep.setEnabled( somethingSelected );
+		bDelete.setEnabled(somethingSelected);
+		bStep.setEnabled(somethingSelected);
+		bNickname.setEnabled(somethingSelected);
 	}
 	
 	private void runNewAction() {
