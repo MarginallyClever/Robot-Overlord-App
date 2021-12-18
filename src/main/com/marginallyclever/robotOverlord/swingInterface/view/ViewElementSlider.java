@@ -8,10 +8,10 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.IntEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
@@ -20,6 +20,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  * @author Dan Royer
  */
 public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9116526652018866486L;
 	private JSlider field;
 	private JLabel value;
 	private IntEntity e;
@@ -45,10 +49,10 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 		value.setPreferredSize(dim);
 		value.setMaximumSize(dim);
 		
-		panel.setLayout(new BorderLayout());
-		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.CENTER);
-		panel.add(value,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.LINE_START);
+		this.add(field,BorderLayout.CENTER);
+		this.add(value,BorderLayout.LINE_END);
 	}
 
 	/**
@@ -67,7 +71,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 		
 		if(newValue!=oldValue) {
 			AbstractUndoableEdit event = new IntEdit(e,newValue);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 	}
 

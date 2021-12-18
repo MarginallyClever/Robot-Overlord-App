@@ -31,6 +31,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
  *
  */
 public class ViewPanel extends ViewElement {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 734937620434319234L;
 	public Hashtable<String,Object> viewElements = new Hashtable<String, Object>();
 	
 	protected class StackElement {
@@ -89,7 +93,7 @@ public class ViewPanel extends ViewElement {
 	
 	protected void pushViewElement(ViewElement c) {
 		se.gbc.gridy++;
-		se.p.add(c.panel,se.gbc);
+		se.p.add(c,se.gbc);
 	}
 
 	public JComponent getFinalView() {
@@ -122,7 +126,7 @@ public class ViewPanel extends ViewElement {
 
 	public ViewElement addStaticText(String text) {
 		ViewElement b = new ViewElement(ro);
-		b.panel.add(new JLabel(text,JLabel.LEADING));
+		b.add(new JLabel(text,JLabel.LEADING));
 		pushViewElement(b);
 		return b;
 	}

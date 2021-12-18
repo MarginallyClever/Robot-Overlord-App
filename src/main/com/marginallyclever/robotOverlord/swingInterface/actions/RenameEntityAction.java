@@ -5,11 +5,10 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
-import javax.swing.event.UndoableEditEvent;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.RenameEdit;
 
@@ -46,7 +45,7 @@ public class RenameEntityAction extends AbstractAction {
 				"Rename Entity",
 				JOptionPane.PLAIN_MESSAGE,null,null,e.getName());
 		if( newName!=null && !newName.equals(e.getName()) ) {
-			ro.undoableEditHappened(new UndoableEditEvent(this,new RenameEdit(ro,e,newName) ) );
+			UndoSystem.addEvent(this,new RenameEdit(ro,e,newName));
 		}
 	}
 }

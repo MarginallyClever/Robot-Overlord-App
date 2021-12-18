@@ -16,11 +16,11 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.DoubleEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
@@ -30,6 +30,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  *
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6763069709436830626L;
 	private JTextField field;
 	private DoubleEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -70,9 +74,9 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
-		panel.setLayout(new BorderLayout());
-		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.LINE_START);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	protected void conditionalChange() {
@@ -92,7 +96,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 
 		if(newNumber != e.get()) {
 			AbstractUndoableEdit event = new DoubleEdit(e, newNumber);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 		
 		lock.unlock();

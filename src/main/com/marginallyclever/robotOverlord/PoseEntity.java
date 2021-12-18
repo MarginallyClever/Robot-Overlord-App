@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 
-import javax.swing.event.UndoableEditEvent;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -15,6 +14,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.MoveEdit;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
@@ -389,7 +389,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new MoveEdit(this,m) ) );
+				UndoSystem.addEvent(this,new MoveEdit(this,m));
 			}
 		}
 	}
@@ -400,7 +400,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		if(m!=null) {
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new MoveEdit(this,m) ) );
+				UndoSystem.addEvent(this,new MoveEdit(this,m));
 			}
 		}
 	}

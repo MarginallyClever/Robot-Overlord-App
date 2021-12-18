@@ -11,11 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.CollapsiblePanel;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.ColorRGBAEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 
@@ -24,6 +24,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
  * @author Dan Royer
  */
 public class ViewElementColor extends ViewElement implements ChangeListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 393949606034181281L;
 	private JSlider [] fields = new JSlider[4];
 	private ColorEntity e;
 	
@@ -52,8 +56,8 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		fields[2] = addField(oldValues[2],p2,"B",gbc);
 		fields[3] = addField(oldValues[3],p2,"A",gbc);
 
-		panel.setLayout(new BorderLayout());
-		panel.add(p,BorderLayout.CENTER);
+		this.setLayout(new BorderLayout());
+		this.add(p,BorderLayout.CENTER);
 	}
 	
 	private JSlider addField(double value,JPanel parent,String labelName,GridBagConstraints gbc) {
@@ -105,7 +109,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 
 		if(sum>1e-3) {
 			AbstractUndoableEdit event = new ColorRGBAEdit(e,newValues);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 	}
 

@@ -6,12 +6,11 @@ import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.event.UndoableEditEvent;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.EntityFactory;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.AddEntityEdit;
 
@@ -60,7 +59,7 @@ public class AddEntityAction extends AbstractAction {
 	private void createInstanceOf(String className) {
 		try {
 			Entity newInstance = EntityFactory.load(className);
-			if(newInstance != null) ro.undoableEditHappened(new UndoableEditEvent(this,new AddEntityEdit(ro,newInstance)));
+			if(newInstance != null) UndoSystem.addEvent(this,new AddEntityEdit(ro,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
 			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);

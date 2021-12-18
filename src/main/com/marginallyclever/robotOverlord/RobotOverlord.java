@@ -26,9 +26,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
-import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector2d;
 
 import com.jogamp.common.nio.Buffers;
@@ -58,6 +55,7 @@ import com.marginallyclever.robotOverlord.moveTool.MoveTool;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.SelectedEntityPanel;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.actions.AboutAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.AboutControlsAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.AddEntityAction;
@@ -67,11 +65,9 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.ForumsAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.NewAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.OpenAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.QuitAction;
-import com.marginallyclever.robotOverlord.swingInterface.actions.RedoAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.RemoveEntityAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.RenameEntityAction;
 import com.marginallyclever.robotOverlord.swingInterface.actions.SaveAsAction;
-import com.marginallyclever.robotOverlord.swingInterface.actions.UndoAction;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelEvent;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelListener;
@@ -81,13 +77,13 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
 
 /**
- * Robot Overlord (RO) is the top-level controller of an application to educate robots.
+ * {@code RobotOverlord} is the top-level controller of an application to educate robots.
  * It is built around good design patterns.
  * See https://github.com/MarginallyClever/Robot-Overlord-App
  * 
  * @author Dan Royer
  */
-public class RobotOverlord extends Entity implements UndoableEditListener {
+public class RobotOverlord extends Entity {
 	/**
 	 * 
 	 */
@@ -121,11 +117,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	private EntityTreePanel entityTree;
 	private SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
 	
-	// undo/redo system
-	private UndoManager undoManager = new UndoManager();
-	private UndoAction commandUndo = new UndoAction(undoManager);
-	private RedoAction commandRedo = new RedoAction(undoManager);
-
 	private RenameEntityAction renameEntity;
 	private RemoveEntityAction removeEntity;
 
@@ -160,9 +151,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 		Translator.start();
 		SoundSystem.start();
 		InputManager.start();
-		
-        commandUndo.setRedoCommand(commandRedo);
-    	commandRedo.setUndoCommand(commandUndo);
 
         buildMainFrame();
         buildMainMenu();
@@ -466,11 +454,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	public JFrame getMainFrame() {
 		return mainFrame;
 	}
-	
-	public UndoManager getUndoManager() {
-		return undoManager;
-	}
-	
+		
 	public Scene getScene() {
 		return scene;
 	}
@@ -525,8 +509,8 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
         mainMenu.add(menu);
 		
         menu = new JMenu("Edit");
-        menu.add(new JMenuItem(commandUndo));
-        menu.add(new JMenuItem(commandRedo));
+        menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
+        menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
         mainMenu.add(menu);
     	
         menu = new JMenu("Help");
@@ -627,13 +611,6 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	        }).start();
         }
 	}
-		
-	@Override
-	public void undoableEditHappened(UndoableEditEvent e) {
-		undoManager.addEdit(e.getEdit());
-		commandUndo.updateUndoState();
-		commandRedo.updateRedoState();
-	}
 	
 	/**
 	 * Deep search for a child with this name.
@@ -682,7 +659,7 @@ public class RobotOverlord extends Entity implements UndoableEditListener {
 	        pickNow = false;
 	        int pickName = findItemUnderCursor(gl2);
         	Entity next = scene.pickPhysicalEntityWithName(pickName);
-        	undoableEditHappened(new UndoableEditEvent(this,new SelectEdit(this,selectedEntities,next) ) );
+        	UndoSystem.addEvent(this,new SelectEdit(this,selectedEntities,next));
         }
     }
     

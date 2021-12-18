@@ -6,10 +6,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.event.UndoableEditEvent;
-
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.RemoveEdit;
 
 /**
@@ -42,6 +41,6 @@ public class RemoveMeAction extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		ro.undoableEditHappened(new UndoableEditEvent(this,new RemoveEdit(ro,entity) ) );
+		UndoSystem.addEvent(this,new RemoveEdit(ro,entity));
 	}
 }

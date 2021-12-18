@@ -16,6 +16,10 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  *
  */
 public class ViewElementButton extends ViewElement implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1717097303844646955L;
 	protected JButton field;
 	
 	public ViewElementButton(RobotOverlord ro,String label) {
@@ -25,8 +29,8 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 		field.addActionListener(this);
 		field.addFocusListener(this);
 		
-		panel.setLayout(new BorderLayout());
-		panel.add(field,BorderLayout.CENTER);
+		this.setLayout(new BorderLayout());
+		this.add(field,BorderLayout.CENTER);
 	}
 	
 	@Override

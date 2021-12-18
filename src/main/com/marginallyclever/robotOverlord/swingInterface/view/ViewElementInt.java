@@ -16,10 +16,10 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.IntEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
@@ -29,6 +29,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  *
  */
 public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -337724724282366864L;
 	private JTextField field;
 	private IntEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -69,9 +73,9 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
-		panel.setLayout(new BorderLayout());
-		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.LINE_START);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	protected void conditionalChange() {
@@ -90,7 +94,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 
 		if(newNumber != e.get()) {
 			AbstractUndoableEdit event = new IntEdit(e, newNumber);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 		lock.unlock();
 	}

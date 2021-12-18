@@ -15,11 +15,11 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.StringEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
@@ -30,6 +30,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
  *
  */
 public class ViewElementFilename extends ViewElement implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2419710362557979148L;
 	private static String lastPath=System.getProperty("user.dir");
 	private JTextField field;
 	private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
@@ -55,7 +59,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		choose.setMargin(new Insets(0, 5, 0, 5));
 		choose.addFocusListener(this);
 		
-		panel.setLayout(new GridBagLayout());
+		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx=0;
@@ -63,13 +67,13 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		//gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.insets.right=5;
-		panel.add(label,gbc);
+		this.add(label,gbc);
 		gbc.weightx=1;
 		gbc.insets.left=0;
 		gbc.insets.right=0;
-		panel.add(field,gbc);
+		this.add(field,gbc);
 		gbc.weightx=0;
-		panel.add(choose,gbc);
+		this.add(choose,gbc);
 		
 		e.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
@@ -97,7 +101,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 			lastPath = chooser.getSelectedFile().getParent();
 
 			AbstractUndoableEdit event = new StringEdit(e, newFilename);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 	}
 

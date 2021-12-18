@@ -9,10 +9,10 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.StringEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 
@@ -22,6 +22,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
  *
  */
 public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3508707912948161897L;
 	private JTextField field;
 	private StringEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -40,9 +44,9 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
-		panel.setLayout(new BorderLayout());
-		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.LINE_START);
+		this.add(field,BorderLayout.LINE_END);
 	}
 
 	/**
@@ -56,7 +60,7 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 		String newValue = field.getText();
 		if( !newValue.equals(e.get()) ) {
 			AbstractUndoableEdit event = new StringEdit(e, newValue);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 		lock.unlock();
 	}

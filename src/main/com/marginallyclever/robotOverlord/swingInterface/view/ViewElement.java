@@ -9,7 +9,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 
@@ -19,9 +18,13 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  * @since 1.6.0
  *
  */
-public class ViewElement implements FocusListener {
+public class ViewElement extends JComponent implements FocusListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3266130000064484826L;
+
 	protected RobotOverlord ro;
-	protected JPanel panel = new JPanel();
 
 	// who is listening to me?
 	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<PropertyChangeListener>();

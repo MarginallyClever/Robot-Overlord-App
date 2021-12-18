@@ -9,14 +9,18 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.ComboBoxEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3675061794997239658L;
 	private JComboBox<String> field;
 	private IntEntity e;
 	
@@ -34,10 +38,10 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
-		panel.setLayout(new BorderLayout());
-		panel.setBorder(new EmptyBorder(0,0,0,1));
-		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.setBorder(new EmptyBorder(0,0,0,1));
+		this.add(label,BorderLayout.LINE_START);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	public String getValue() {
@@ -52,7 +56,7 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 		int newIndex = field.getSelectedIndex();
 		if(newIndex != e.get()) {
 			AbstractUndoableEdit event = new ComboBoxEdit(e, e.getName(), newIndex);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this,event) );
+			UndoSystem.addEvent(this,event);
 		}
 	}
 

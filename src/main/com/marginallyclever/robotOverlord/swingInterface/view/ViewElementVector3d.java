@@ -18,12 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.Vector3dEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 
@@ -33,6 +33,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
  *
  */
 public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -324379165270163587L;
 	private JTextField [] fields = new JTextField[3];
 	private Vector3dEntity e;
 	private ReentrantLock lock = new ReentrantLock();
@@ -49,9 +53,9 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		fields[1] = addField(e.get().y,p2,"Y");
 		fields[2] = addField(e.get().z,p2,"Z");
 
-		panel.setLayout(new BorderLayout());
-		panel.add(new JLabel(e.getName(),JLabel.LEADING),BorderLayout.LINE_START);
-		panel.add(p2,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.add(new JLabel(e.getName(),JLabel.LEADING),BorderLayout.LINE_START);
+		this.add(p2,BorderLayout.LINE_END);
 	}
 	
 	private JTextField addField(double value,JPanel parent,String labelName) {
@@ -118,7 +122,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		
 		if(diff.lengthSquared()>1e-6) {
 			AbstractUndoableEdit event = new Vector3dEdit(e, newValue);
-			if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this, event) );
+			UndoSystem.addEvent(this, event);
 		}
 		
 		lock.unlock();

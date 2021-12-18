@@ -9,10 +9,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.BooleanEdit;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
@@ -22,6 +22,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
  *
  */
 public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9081079237414488699L;
 	private JCheckBox field;
 	
 	public ViewElementBoolean(final RobotOverlord ro,final BooleanEntity e) {
@@ -39,7 +43,7 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 				boolean newValue = field.isSelected();
 				if(e.get()!=newValue) {
 					AbstractUndoableEdit event = new BooleanEdit(e, newValue);
-					if(ro!=null) ro.undoableEditHappened(new UndoableEditEvent(this, event ) );
+					UndoSystem.addEvent(this, event);
 				}
 			}
 		});
@@ -47,9 +51,9 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
 		label.setLabelFor(field);
 		
-		panel.setLayout(new BorderLayout());
-		panel.add(label,BorderLayout.LINE_START);
-		panel.add(field,BorderLayout.LINE_END);
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.LINE_START);
+		this.add(field,BorderLayout.LINE_END);
 	}
 	
 	@Override

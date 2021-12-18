@@ -6,12 +6,11 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.event.UndoableEditEvent;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Removable;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.RemoveEdit;
 
@@ -43,7 +42,7 @@ public class RemoveEntityAction extends AbstractAction {
 		}
 		for(Entity e : entityList) {
 			if(e instanceof Removable) {
-				ro.undoableEditHappened(new UndoableEditEvent(this,new RemoveEdit(ro,e) ) );
+				UndoSystem.addEvent(this,new RemoveEdit(ro,e));
 			} else {
 				Log.error("Entity "+e.getFullPath()+" is not a RemovableEntity.");
 			}

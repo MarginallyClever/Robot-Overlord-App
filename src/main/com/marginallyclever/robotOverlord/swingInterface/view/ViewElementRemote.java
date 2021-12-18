@@ -16,6 +16,10 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
  *
  */
 public class ViewElementRemote extends ViewElement implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1720210992376705253L;
 	private JButton field;
 	private RemoteEntity e;
 
@@ -26,8 +30,8 @@ public class ViewElementRemote extends ViewElement implements ActionListener {
 		field = new JButton(e.isConnectionOpen()?Translator.get("Close"):Translator.get("Connect"));
 		field.addActionListener(this);
 		field.addFocusListener(this);
-		panel.setLayout(new BorderLayout());
-		panel.add(field,BorderLayout.CENTER);
+		this.setLayout(new BorderLayout());
+		this.add(field,BorderLayout.CENTER);
 	}
 
 	/**
