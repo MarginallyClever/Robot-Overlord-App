@@ -6,7 +6,7 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>RobotOverlord</artifactId>
-	<version>1.7.2</version>
+	<version>1.8.0</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots. 
 If you like this project, please support us by buying Marginally Clever products.</description>
@@ -418,6 +418,12 @@ If you like this project, please support us by buying Marginally Clever products
 			<artifactId>assertj-swing-junit</artifactId>
 			<version>3.17.1</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.ode4j</groupId>
+		    <artifactId>core</artifactId>
+		    <version>0.4.0</version>
 		</dependency>
 	</dependencies>
 

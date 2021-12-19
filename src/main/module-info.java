@@ -18,4 +18,5 @@ module com.marginallyclever.robotOverlord {
 	requires transitive batik.all;
 	requires transitive xml.apis.ext;
 	requires java.datatransfer;
+	requires core;
 }
