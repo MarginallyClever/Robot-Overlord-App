@@ -43,6 +43,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotOverlord.demos.BasicDemo;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
+import com.marginallyclever.robotOverlord.demos.ODEPhysicsDemo;
 import com.marginallyclever.robotOverlord.demos.PhysicsDemo;
 import com.marginallyclever.robotOverlord.demos.RobotArmsDemo;
 import com.marginallyclever.robotOverlord.demos.SkycamDemo;
@@ -502,6 +503,7 @@ public class RobotOverlord extends Entity {
 		menu = new JMenu("Demos");
 		menu.add(new JMenuItem(new DemoAction(this,new BasicDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new RobotArmsDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new PhysicsDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new DogDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
