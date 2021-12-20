@@ -13,8 +13,7 @@ public class RobotArmSaveToRO {
 
         //FileWriter f = new FileWriter(new File(filePath));
         //f.write(arm.toString());
-        System.out.println(arm.toString());
-                        
+        Log.message(arm.toString());
         Log.message(RobotArmSaveToRO.class.getSimpleName()+".save() done");
 	}
 }

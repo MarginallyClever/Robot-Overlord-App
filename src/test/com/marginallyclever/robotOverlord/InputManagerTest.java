@@ -1,28 +1,42 @@
 package com.marginallyclever.robotOverlord;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Disabled
 public class InputManagerTest {
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     // Output the current java.library.path and the current working directory.
     @Test
     public void reportJavaLibraryPath() {
         String property = System.getProperty("java.library.path");
-        System.out.println("java.library.path=" + property.replace(";", "\n  "));
+        Log.message("java.library.path=" + property.replace(";", "\n  "));
 
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        Log.message("Working Directory = " + System.getProperty("user.dir"));
     }
 
 
     // Figure out which input just changed.  Requires human input.
     @Test
     public void detectSingleInputChange() {
-        System.out.println("detectSingleInputChange() start");
+        Log.message("detectSingleInputChange() start");
         int i, j, k;
 
         // count all devices and components
@@ -63,14 +77,14 @@ public class InputManagerTest {
                     float diff = stateNew[k] - stateOld[k];
                     if (Math.abs(diff) > 0.5) {
                         // change to state
-                        System.out.println("Found " + ca[i].getName() + "." + components[j].getName() + "=" + diff);
+                        Log.message("Found " + ca[i].getName() + "." + components[j].getName() + "=" + diff);
                         //return;
                     }
                     k++;
                 }
             }
         }
-        System.out.println("detectSingleInputChange() end");
+        Log.message("detectSingleInputChange() end");
     }
 
     // Figure out which input just changed.  Requires human input.
@@ -89,7 +103,7 @@ public class InputManagerTest {
                     float diff = components[j].getPollData();
                     if (diff > 0.5) {
                         // change to state
-                        System.out.println("Found " + ca[i].getName() + "." + components[j].getName() + "=" + diff);
+                        Log.message("Found " + ca[i].getName() + "." + components[j].getName() + "=" + diff);
                         //return;
                     }
                 }

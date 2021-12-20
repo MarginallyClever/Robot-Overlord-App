@@ -25,11 +25,11 @@ public class GradientDescent {
 		
 		// seems to work better descending from the finger than ascending from the base.
 		for( int i=sixi3.getNumBones()-1; i>=0; --i ) {  // descending mode
-			//System.out.println("\tA angles["+i+"]="+angles[i]);
+			//Log.message("\tA angles["+i+"]="+angles[i]);
 			double gradient = partialGradient(target,angles,i,samplingDistance);
-			//System.out.println("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
+			//Log.message("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
 			angles[i] -= learningRate * gradient;
-			//System.out.println("\tC angles["+i+"]="+angles[i]);
+			//Log.message("\tC angles["+i+"]="+angles[i]);
 			sixi3.setAngles(angles);
 			if(sixi3.getDistanceToTarget(target)<threshold) {
 				return true;
@@ -53,7 +53,7 @@ public class GradientDescent {
 		//double t1 = temp.getBone(i).getTheta();
 		double FxPlusD = sixi3.getDistanceToTarget(target);
 		double gradient = (FxPlusD - Fx) / samplingDistance;
-		//System.out.println("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
+		//Log.message("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
 		
 		// reset the old value
 		angles[i] = oldValue;

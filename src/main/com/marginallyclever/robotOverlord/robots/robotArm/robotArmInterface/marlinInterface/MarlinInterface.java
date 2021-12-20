@@ -132,7 +132,7 @@ public class MarlinInterface extends JPanel {
 			lastReceivedTime = System.currentTimeMillis();
 			String message = ((String)evt.data).trim();
 			if (message.startsWith("X:") && message.contains("Count")) {
-				//System.out.println("FOUND " + message);
+				//Log.message("FOUND " + message);
 				onHearM114(message);
 			} else if(message.startsWith(STR_OK)) {
 				onHearOK();
@@ -189,7 +189,7 @@ public class MarlinInterface extends JPanel {
 		String withLineNumber = "N"+lineNumberAdded+" "+str;
 		String assembled = withLineNumber + generateChecksum(withLineNumber);
 		myHistory.add(new MarlinCommand(lineNumberAdded,assembled));
-		//System.out.println("MarlinInterface queued '"+assembled+"'.  busyCount="+busyCount);
+		//Log.message("MarlinInterface queued '"+assembled+"'.  busyCount="+busyCount);
 		if(busyCount>0) sendQueuedCommand();
 	}
 
@@ -204,7 +204,7 @@ public class MarlinInterface extends JPanel {
 			if(mc.lineNumber == lineNumberToSend) {
 				busyCount--;
 				lineNumberToSend++;
-				//System.out.println("MarlinInterface sending '"+mc.command+"'.");
+				//Log.message("MarlinInterface sending '"+mc.command+"'.");
 				chatInterface.sendCommand(mc.command);
 				return;
 			}
@@ -212,9 +212,9 @@ public class MarlinInterface extends JPanel {
 		
 		if(smallest>lineNumberToSend) {
 			// history no longer contains the line?!
-			System.out.println("MarlinInterface did not find "+lineNumberToSend);
+			Log.message("MarlinInterface did not find "+lineNumberToSend);
 			for( MarlinCommand mc : myHistory ) {
-				System.out.println("..."+mc.lineNumber+": "+mc.command);
+				Log.message("..."+mc.lineNumber+": "+mc.command);
 			}
 		}
 	}
@@ -257,7 +257,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void sendGoto() {
-		//System.out.println("MarlinInterface.sendGoto()");
+		//Log.message("MarlinInterface.sendGoto()");
 		String action = "G1";
 		for (int i = 0; i < myArm.getNumBones(); ++i) {
 			RobotArmBone bone = myArm.getBone(i);

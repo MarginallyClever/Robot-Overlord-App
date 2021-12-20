@@ -1,9 +1,24 @@
 package com.marginallyclever.robotOverlord;
 
+import org.junit.After;
+import org.junit.Before;
+
+import com.marginallyclever.convenience.log.Log;
+
 //import org.junit.jupiter.api.Test;
 //import org.tensorflow.*;
 
 public class TensorFlowTest {
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
 	/*
 	@Test
 	public void testHello() throws Exception {
@@ -21,7 +36,7 @@ public class TensorFlowTest {
 	    	try (Session s = new Session(graph);
 	    			Tensor<?> output = s.runner().fetch("MyConst").run().get(0)) 
 	    	{
-	    		System.out.println(new String(output.bytesValue(), "UTF-8"));
+	    		Log.message(new String(output.bytesValue(), "UTF-8"));
 	    	}
 	    }
 	}*/

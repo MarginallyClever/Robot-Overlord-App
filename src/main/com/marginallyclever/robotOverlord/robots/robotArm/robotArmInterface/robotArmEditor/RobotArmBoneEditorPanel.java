@@ -87,19 +87,19 @@ public class RobotArmBoneEditorPanel extends JPanel {
 		f.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				System.out.println("insert");
+				Log.message("insert");
 				onEditAction();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				System.out.println("remove");
+				Log.message("remove");
 				onEditAction();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				System.out.println("changed");
+				Log.message("changed");
 				onEditAction();
 			}
 		});

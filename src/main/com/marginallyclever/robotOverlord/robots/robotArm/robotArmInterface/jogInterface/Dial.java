@@ -171,7 +171,7 @@ public class Dial extends JComponent {
 		Dial dial = new Dial();        
 		p.add(dial);
 		dial.addActionListener((e)->{
-			System.out.println(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
+			Log.message(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
 		});
 		
 		p.addComponentListener(new ComponentAdapter() {

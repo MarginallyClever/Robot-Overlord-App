@@ -75,7 +75,7 @@ public class Camera extends PoseEntity {
 		// Move the camera		
         double dz = InputManager.getRawValue(InputManager.Source.MOUSE_Z);
         if(dz!=0) {
-        	//System.out.println("dz="+dz);
+        	//Log.message("dz="+dz);
         	isCurrentlyMoving=true;
         	
         	double oldZoom = zoom.get();
@@ -97,7 +97,7 @@ public class Camera extends PoseEntity {
         }
         
 		if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
-        	//System.out.println("mouse middle");
+        	//Log.message("mouse middle");
         	isCurrentlyMoving=true;
 			double scale = 1;
 	        double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
@@ -212,7 +212,7 @@ public class Camera extends PoseEntity {
 			double dyr = rawyr * scale;
 
         	if(dxr!=0 && dyr!=0 && dxl!=0 && dyl!=0 && dzl!=0) {
-        		//System.out.println("stick");
+        		//Log.message("stick");
 	        	isCurrentlyMoving=true;
 	
 				Vector3d vx = MatrixHelper.getXAxis(myPose);

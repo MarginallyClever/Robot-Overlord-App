@@ -29,9 +29,22 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
 
+import com.marginallyclever.convenience.log.Log;
 
 public class DL4JTest {
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
 	//@Test
 	public void testDL4J() throws Exception {
 		final int numRows = 28; // The number of rows of a matrix.
@@ -72,26 +85,26 @@ public class DL4JTest {
         //print the score with every 1 iteration
         model.setListeners(new ScoreIterationListener(1));
 
-        System.out.println("Train model....");
+        Log.message("Train model....");
         model.setListeners(new ScoreIterationListener(10)); //Print score every 10 iterations
         for (int i=0; i <numEpochs; ++i) {
             model.fit(mnistTrain);
-            System.out.println("*** Completed epoch "+i+" ***");
+            Log.message("*** Completed epoch "+i+" ***");
         }
 
-        System.out.println("Evaluate model....");
+        Log.message("Evaluate model....");
         Evaluation eval = model.evaluate(mnistTest);
-        System.out.println(eval.stats());
-        System.out.println("****************Example finished********************");
+        Log.message(eval.stats());
+        Log.message("****************Example finished********************");
 	}
 
 	//@Test
 	public void testDL4JRead3Lines() throws Exception {
 		try {
 		    BufferedReader br = new BufferedReader(new FileReader(new File("FK2IK.csv")));
-		    System.out.println(br.readLine());
-		    System.out.println(br.readLine());
-		    System.out.println(br.readLine());
+		    Log.message(br.readLine());
+		    Log.message(br.readLine());
+		    Log.message(br.readLine());
 		    br.close();
 		} catch(Exception e) {}
 	}
@@ -163,14 +176,14 @@ public class DL4JTest {
 		
 		MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        System.out.println("Train model....");
+        Log.message("Train model....");
         model.setListeners(new ScoreIterationListener(100)); //Print score every 10 iterations
         for (int i=0; i <numEpochs; ++i) {
             model.fit(trainingData);
-            System.out.println("*** Completed epoch "+i+" ***");
+            Log.message("*** Completed epoch "+i+" ***");
         }
 
-        //System.out.println("Evaluate model....");
+        //Log.message("Evaluate model....");
         //Evaluation eval = new Evaluation(6);
         //INDArray output = model.output(testData.getFeatures());
 
@@ -179,10 +192,11 @@ public class DL4JTest {
         iter.reset();
         INDArray output = model.output(iter,false);
         //model.save(new File("FK2IK.nn"));
-        System.out.println(output.toString());
+        Log.message(output.toString());
         //model.eval(testData.getLabels(), output);
-        //System.out.println(eval.stats());
-        System.out.println("****************Example finished********************");
+        //Log.message(eval.stats());
+        Log.message("****************Example finished********************");
 	}
 }
 */
+

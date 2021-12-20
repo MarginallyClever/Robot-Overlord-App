@@ -1,6 +1,10 @@
 package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.log.Log;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix3d;
@@ -9,6 +13,16 @@ import javax.vecmath.Vector3d;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MatrixHelperTest {
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     @Test
     public void testEulerMatrix() {
         Vector3d v1 = new Vector3d();
@@ -25,13 +39,13 @@ public class MatrixHelperTest {
             boolean test = b.epsilonEquals(a, 1e-6);
             assertTrue(test);
             if (!test) {
-                System.out.println(i + "a=" + a);
-                System.out.println(i + "b=" + b);
+                Log.message(i + "a=" + a);
+                Log.message(i + "b=" + b);
                 b.sub(a);
-                System.out.println(i + "d=" + b);
+                Log.message(i + "d=" + b);
             }
             assertTrue(test);
         }
-        System.out.println("testEulerMatrix() OK");
+        Log.message("testEulerMatrix() OK");
     }
 }

@@ -144,7 +144,6 @@ public class CartesianDrivePanel extends JPanel {
 		} catch(Exception e) {
 			// TODO deal with this more elegantly?
 			String s = "CartesianDrivePanel failed for move: "+e.getLocalizedMessage();
-			System.out.println(s);
 			Log.error(s);
 		}
 	}

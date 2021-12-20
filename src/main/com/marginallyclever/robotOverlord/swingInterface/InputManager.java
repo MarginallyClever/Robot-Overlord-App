@@ -325,30 +325,30 @@ public class InputManager {
         		double v = c.getPollData();
         		if(cid==Identifier.Axis.X) {
         			setRawValue(Source.MOUSE_X,v);
-        			//System.out.println("mx="+v);
+        			//Log.message("mx="+v);
         		}
     			if(cid==Identifier.Axis.Y) {
     				addRawValue(Source.MOUSE_Y,v);
-        			//System.out.println("my="+v);
+        			//Log.message("my="+v);
     			}
     			if(cid==Identifier.Axis.Z) {
     				addRawValue(Source.MOUSE_Z,v);
-        			//System.out.println("mz="+v);
+        			//Log.message("mz="+v);
     			}
         	} else {
         		// digital
     			if(c.getPollData()==1) {
     				if(cid==Identifier.Button.LEFT  ) {
     					setRawValue(Source.MOUSE_LEFT,1);
-            			//System.out.println("ml="+v);
+            			//Log.message("ml="+v);
     				}
     				if(cid==Identifier.Button.MIDDLE) {
     					setRawValue(Source.MOUSE_MIDDLE,1);
-            			//System.out.println("mm="+v);
+            			//Log.message("mm="+v);
     				}
     				if(cid==Identifier.Button.RIGHT ) {
     					setRawValue(Source.MOUSE_RIGHT,1);
-            			//System.out.println("mr="+v);
+            			//Log.message("mr="+v);
     				}
     			}
         	}

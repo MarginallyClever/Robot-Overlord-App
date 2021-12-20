@@ -1,10 +1,24 @@
 package com.marginallyclever.robotOverlord;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 import java.io.*;
 
+import org.junit.After;
+import org.junit.Before;
+
 public class MaterialTest {
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     //@Test
     public void testLoadAndSave() {
         MaterialEntity m1 = new MaterialEntity();
@@ -15,7 +29,7 @@ public class MaterialTest {
         try {
             tempFile = File.createTempFile("test", "ro");
         } catch (IOException e1) {
-            System.out.println("Temp file not created.");
+            Log.message("Temp file not created.");
             e1.printStackTrace();
             return;
         }
@@ -23,10 +37,10 @@ public class MaterialTest {
         try (FileOutputStream fout = new FileOutputStream(tempFile.getCanonicalPath()); ObjectOutputStream objectOut = new ObjectOutputStream(fout)) {
             objectOut.writeObject(m1);
         } catch (java.io.NotSerializableException e) {
-            System.out.println("World can't be serialized.");
+            Log.message("World can't be serialized.");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("World save failed.");
+            Log.message("World save failed.");
             e.printStackTrace();
         }
 
@@ -39,10 +53,10 @@ public class MaterialTest {
             // Read an object in from object store, and cast it to a GameWorld
             m2 = (MaterialEntity) objectIn.readObject();
         } catch (IOException e) {
-            System.out.println("Material load failed (file io).");
+            Log.message("Material load failed (file io).");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            System.out.println("Material load failed (class not found)");
+            Log.message("Material load failed (class not found)");
             e.printStackTrace();
         }
 

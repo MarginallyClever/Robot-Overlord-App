@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -99,7 +100,7 @@ public class SkycamSim extends Entity {
 		
 		boolean verbose=false;
 		if(verbose) {
-			System.out.print(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": "
+			Log.message(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": "
 					+seg.start+" + "+seg.delta+" "+seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" = ");
 		}
 		
@@ -108,7 +109,7 @@ public class SkycamSim extends Entity {
 		poseNow.scale(fraction);
 		poseNow.add(seg.start);
 		
-		if(verbose) System.out.println(poseNow);
+		if(verbose) Log.message(poseNow.toString());
 	}
 	
 	@Override

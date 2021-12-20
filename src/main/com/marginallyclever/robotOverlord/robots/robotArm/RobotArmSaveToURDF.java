@@ -257,17 +257,17 @@ public class RobotArmSaveToURDF {
         	//Gymbal lock: pitch = -90
             angle[0] = 0.0;             //yaw = 0
             angle[2] = Math.atan2( -m.m01, -m.m02 );  // Roll
-            System.out.println("Gimbal lock: pitch = -90");
+            Log.message("Gimbal lock: pitch = -90");
         } else if( m.m20 == -1 ){
             //Gymbal lock: pitch = 90    
             angle[0] = 0.0;             //yaw = 0
             angle[2] = Math.atan2( m.m01, m.m02 );   // Roll
-            System.out.println("Gimbal lock: pitch = 90");
+            Log.message("Gimbal lock: pitch = 90");
         } else{
             //General solution
             angle[0] = Math.atan2(  m.m10, m.m00 );  // Yaw
             angle[2] = Math.atan2(  m.m21, m.m22 );  // Roll
-            System.out.println("No gimbal lock");
+            Log.message("No gimbal lock");
         }
         
         //Euler angles are now in order yaw, pitch, roll

@@ -1,6 +1,12 @@
 package com.marginallyclever.robotOverlord;
 
 import javax.swing.*;
+
+import org.junit.After;
+import org.junit.Before;
+
+import com.marginallyclever.convenience.log.Log;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +20,16 @@ public class ObserverTest2 extends JPanel {
      */
     private static final long serialVersionUID = 1L;
     GridBagConstraints gbc;
+    
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
 
     public ObserverTest2() {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -89,7 +105,7 @@ public class ObserverTest2 extends JPanel {
 
         public void setState(boolean newValue) {
             boolean oldValue = this.state;
-            System.out.println("setState(" + newValue + ")");
+            Log.message("setState(" + newValue + ")");
             this.state = newValue;
             notifyPropertyChangeListeners(new PropertyChangeEvent(this, "state", oldValue, newValue));
         }
@@ -112,13 +128,13 @@ public class ObserverTest2 extends JPanel {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             Object arg1 = evt.getNewValue();
-            System.out.println("update(" + arg1 + ")");
+            Log.message("update(" + arg1 + ")");
             setSelected((Boolean) arg1);
         }
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            System.out.println("actionPerformed(" + this.isSelected() + ")");
+            Log.message("actionPerformed(" + this.isSelected() + ")");
             mod.setState(this.isSelected());
         }
     }

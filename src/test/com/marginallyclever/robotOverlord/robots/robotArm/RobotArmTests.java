@@ -13,7 +13,7 @@ public class RobotArmTests {
 		Log.start();
 		Sixi3_6axis arm = new Sixi3_6axis();
 		File f = File.createTempFile("test", ".urdf");
-		System.out.println(f.getAbsolutePath());
+		Log.message(f.getAbsolutePath());
 		RobotArmSaveToURDF saver = new RobotArmSaveToURDF();
 		saver.save(f.getAbsolutePath(), arm);
 		

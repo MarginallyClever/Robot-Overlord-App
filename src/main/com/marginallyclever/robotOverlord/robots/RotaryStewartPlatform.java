@@ -11,6 +11,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -391,7 +392,7 @@ public class RotaryStewartPlatform  extends PoseEntity {
 						+" U0"
 						+" V0"
 						+" W0";
-				System.out.println(message);
+				Log.message(message);
 				connection.sendMessage(message);
 				Matrix4d ident = new Matrix4d();
 				ident.setIdentity();
@@ -442,7 +443,7 @@ public class RotaryStewartPlatform  extends PoseEntity {
 				+" U"+StringHelper.formatDouble(arms[3].angle*scale)
 				+" V"+StringHelper.formatDouble(arms[4].angle*scale)
 				+" W"+StringHelper.formatDouble(arms[5].angle*scale);
-		System.out.println(message);
+		Log.message(message);
 		connection.sendMessage(message);
 	}
 }

@@ -18,6 +18,7 @@ import org.ode4j.ode.OdeMath;
 import org.ode4j.ode.DGeom.DNearCallback;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 
 public class ODEPhysicsEngine extends Entity {
@@ -78,7 +79,7 @@ public class ODEPhysicsEngine extends Entity {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		System.out.println("update");
+		Log.message("update");
 
 		space.collide(null,new DNearCallback() {
 			@Override
@@ -127,6 +128,6 @@ public class ODEPhysicsEngine extends Entity {
 	public void render(GL2 gl2) {
 		super.render(gl2);
 		
-		System.out.println("rendering");
+		Log.message("rendering");
 	}
 }

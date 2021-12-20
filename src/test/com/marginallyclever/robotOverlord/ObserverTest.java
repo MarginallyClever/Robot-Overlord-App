@@ -3,6 +3,12 @@ package com.marginallyclever.robotOverlord;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.junit.After;
+import org.junit.Before;
+
+import com.marginallyclever.convenience.log.Log;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +22,16 @@ public class ObserverTest extends JPanel {
      */
     private static final long serialVersionUID = 1L;
 
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     public ObserverTest() {
         setLayout(new BorderLayout());
 
@@ -76,7 +92,7 @@ public class ObserverTest extends JPanel {
         }
 
         public void setValue(int newValue) {
-            System.out.println("setState(" + newValue + ")");
+            Log.message("setState(" + newValue + ")");
             if (newValue < min) return;
             if (newValue > max) return;
             int oldValue = value;
@@ -127,14 +143,14 @@ public class ObserverTest extends JPanel {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             int v = (Integer) evt.getNewValue();
-            System.out.println("update(" + v + ")");
+            Log.message("update(" + v + ")");
             field.setValue(v);
             label.setText(Integer.toString(v));
         }
 
         @Override
         public void stateChanged(ChangeEvent e) {
-            System.out.println("actionPerformed(" + field.getValue() + ")");
+            Log.message("actionPerformed(" + field.getValue() + ")");
             mod.setValue(field.getValue());
         }
     }

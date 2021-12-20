@@ -579,7 +579,7 @@ public class RobotOverlord extends Entity {
 
     private void saveWindowSizeAndPosition() {
 		// remember window location for next time.
-    	System.out.println("saveWindowSizeAndPosition()");
+    	Log.message("saveWindowSizeAndPosition()");
     	
 		Dimension d = mainFrame.getSize();
     	prefs.putInt("windowWidth", d.width);

@@ -258,7 +258,7 @@ public abstract class RigidBody extends PoseEntity {
 		sum.cross(angularVelocity,sum);
 		sum.add(linearVelocity);
 		
-		//System.out.println(angularVelocity+"\t"+linearVelocity+"\t"+sum);
+		//Log.message(angularVelocity+"\t"+linearVelocity+"\t"+sum);
 		//forces.add(new Force(p,sum,0,0,1));
 		//forces.add(new Force(p,linearVelocity,0,1,0));
 

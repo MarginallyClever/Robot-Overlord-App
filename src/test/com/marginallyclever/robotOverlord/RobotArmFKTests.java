@@ -1,8 +1,11 @@
 package com.marginallyclever.robotOverlord;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix4d;
@@ -11,6 +14,16 @@ import java.io.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RobotArmFKTests {
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     /**
      * Set random positions for the the robot, save, load, and compare that they match.
      * Repeat many times.
@@ -81,6 +94,6 @@ public class RobotArmFKTests {
     public void testInverseDynamics() {
         Sixi3_5axis robot = new Sixi3_5axis();
         double[] t = robot.getTorques();
-        System.out.println("Torque=" + t);
+        Log.message("Torque=" + t);
     }
 }

@@ -65,21 +65,15 @@ public class DogWalkTwo extends DogWalkOne {
 	protected void planWhereIStepFromHere(GL2 gl2,DogRobot dogRobot) {
 		double speed=1;  // TODO make me adjustable
 		
-		int hits=0;
-		
 		for(int i=0;i<DogRobot.NUM_LEGS;++i) {
 			ArcZPlanner myPlanner = planners.get(i);
 			DogLeg leg = dogRobot.getLeg(i);
 			if(leg.isToeTouchingTheFloor()) {
-				hits++;
-				//System.out.print(i+"\t");
 				Vector3d startPoint = leg.getPointOnFloorUnderToe(); 
 				Vector3d endPoint = getWhereIStepFromHere(dogRobot,leg,speed,startPoint);
 				myPlanner.planStep(startPoint,endPoint,DogLeg.DEFAULT_STEP_HEIGHT,speed);
 			}
 		}
-		
-		if(hits>0) System.out.println();
 	}
 
 	private Vector3d getWhereIStepFromHere(DogRobot dogRobot, DogLeg leg, double speed,Vector3d startPoint) {

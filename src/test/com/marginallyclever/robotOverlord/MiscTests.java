@@ -2,11 +2,14 @@ package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix4d;
@@ -18,6 +21,16 @@ import java.io.IOException;
 public class MiscTests {
     static final double ANGLE_STEP_SIZE = 30.0000;
 
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     @Test
     public void testChecksums() {
         //>>G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000*78
@@ -26,12 +39,12 @@ public class MiscTests {
 
         String a = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000");
         String b = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.4U0.000 V-30.692 W0.000");
-        System.out.println("a=" + a);
-        System.out.println("b=" + b);
+        Log.message("a=" + a);
+        Log.message("b=" + b);
         assert (a.equals("*78"));
-        System.out.println("test a passed");
+        Log.message("test a passed");
         assert (b.equals("*111"));
-        System.out.println("test b passed");
+        Log.message("test b passed");
     }
 
     /**
@@ -84,10 +97,10 @@ public class MiscTests {
         double e = n[4];
         double f = n[5];
 
-        System.out.println("time=" + (end - start) + "ms");
+        Log.message("time=" + (end - start) + "ms");
         //MatrixOperations.printMatrix(m, 1);
         //MatrixOperations.printMatrix(mInv, 1);
-        System.out.println("t\tp\tv\ta\t" + a + "\t" + b + "\t" + c + "\t" + d + "\t" + e + "\t" + f);
+        Log.message("t\tp\tv\ta\t" + a + "\t" + b + "\t" + c + "\t" + d + "\t" + e + "\t" + f);
         for (double t = t0; t <= tf; t++) {
             // p0 = a + b*t0 +  c*t0^2 +  d*t0^3 +   e*t0^4 +   f*t0^5
             // v0 =     b    + 2c*t0   + 3d*t0^2 +  4e*t0^3 +  5f*t0^4
@@ -99,7 +112,7 @@ public class MiscTests {
             double pt = a * b * t + c * t2 + d * t3 + e * t4 + f * t5;
             double vt = b + 2 * c * t + 3 * d * t2 + 4 * e * t3 + 5 * f * t4;
             double at = +2 * c + 6 * d * t + 12 * e * t2 + 20 * f * t3;
-            System.out.println(t + "\t" + pt + "\t" + vt + "\t" + at);
+            Log.message(t + "\t" + pt + "\t" + vt + "\t" + at);
         }
     }
 
@@ -166,7 +179,7 @@ public class MiscTests {
      */
     //@Test
     public void plotXZ() {
-        System.out.println("plotXZ()");
+        Log.message("plotXZ()");
         RobotArmFK model = new RobotArmFK();
         int numLinks = model.getNumBones();
         assert (numLinks > 0);
@@ -237,7 +250,7 @@ public class MiscTests {
      */
     //@Test
     public void plotXY() {
-        System.out.println("plotXY()");
+        Log.message("plotXY()");
         RobotArmFK model = new RobotArmFK();
         int numLinks = model.getNumBones();
         assert (numLinks > 0);
@@ -339,7 +352,7 @@ public class MiscTests {
      */
     //@Test
     public void reportApproximateJacobianMatrix(String outputPath) {
-        System.out.println("approximateJacobianMatrix() start");
+        Log.message("approximateJacobianMatrix() start");
         RobotArmFK model = new Sixi3_5axis();
 
         // Find the min/max range for each joint
@@ -372,6 +385,6 @@ public class MiscTests {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("approximateJacobianMatrix() end");
+        Log.message("approximateJacobianMatrix() end");
     }
 }

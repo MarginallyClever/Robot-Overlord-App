@@ -140,7 +140,7 @@ public class ProgramInterface extends JPanel {
 		if(now==-1) return;
 		
 		ProgramEvent pe = listModel.get(now);
-		System.out.println("Step to ("+now+"):"+pe.toString());
+		Log.message("Step to ("+now+"):"+pe.toString());
 
 		myArm.setAngles(pe.getAngles());
 		myArm.setEndEffectorTarget(myArm.getEndEffector());

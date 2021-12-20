@@ -13,6 +13,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -223,7 +224,7 @@ public class RobotArmIK extends PoseEntity {
 		
 		Matrix4d startCompare = myArmFK.getEndEffector();
 		if(!startCompare.equals(start)) {
-			System.out.println("Change!\nS"+start.toString()+"E"+startCompare.toString());
+			Log.message("Change!\nS"+start.toString()+"E"+startCompare.toString());
 		}
 
 		//updateSliders();

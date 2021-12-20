@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface.TextInterfaceToListeners;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marlinInterface.TextInterfaceToNetworkSession;
 
@@ -18,19 +19,17 @@ import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marl
 public class ClassExplorer {
 	public static void reportOnClass(Object o) {
 		Class<?> c = o.getClass();
-		System.out.println("Class: "+c.getName());
+		Log.message("Class: "+c.getName());
 		//reportClassFields(c);
 		//reportClassAnnotations(c);
 		reportClassPublicMethods(c);
-		
-		System.out.println();
 	}
 
 	@SuppressWarnings("unused")
 	private static void reportClassFields(Class<?> c) {
 		Field [] fields = c.getFields();
 		for(Field f : fields) {
-			System.out.println("  field: "+f.getName());
+			Log.message("  field: "+f.getName());
 		}
 	}
 
@@ -38,7 +37,7 @@ public class ClassExplorer {
 	private static void reportClassAnnotations(Class<?> c) {
 		Annotation [] annotations = c.getAnnotations();
 		for(Annotation a : annotations) {
-			System.out.println("  annotation: "+a.toString());
+			Log.message("  annotation: "+a.toString());
 		}
 	}
 
@@ -49,7 +48,7 @@ public class ClassExplorer {
 			reportClassMethod(m);
             int modifiers = m.getModifiers();
             Modifier.isPublic(modifiers);
-            System.out.println("    modifiers: "+Modifier.toString(modifiers) + "("+modifiers+")");
+            Log.message("    modifiers: "+Modifier.toString(modifiers) + "("+modifiers+")");
             
 		}
 	}
@@ -64,10 +63,10 @@ public class ClassExplorer {
 	}
 	
 	private static void reportClassMethod(Method m) {
-        System.out.println("  method: "+m);
-        //System.out.println("    decl class: " + m.getDeclaringClass());
+        Log.message("  method: "+m);
+        //Log.message("    decl class: " + m.getDeclaringClass());
         Class<?> c = m.getReturnType();
-        System.out.println("    return type: "+c.getName());
+        Log.message("    return type: "+c.getName());
         Parameter [] parameters = m.getParameters();
         for( Parameter p : parameters ) {
         	reportClassMethodParameter(p);
@@ -75,7 +74,7 @@ public class ClassExplorer {
 	}
 
 	private static void reportClassMethodParameter(Parameter p) {
-		System.out.println("    param: "+p);
+		Log.message("    param: "+p);
 	}
 
 	public static void main(String[] args) {

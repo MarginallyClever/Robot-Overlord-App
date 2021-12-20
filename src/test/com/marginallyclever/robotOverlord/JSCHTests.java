@@ -3,6 +3,10 @@ package com.marginallyclever.robotOverlord;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import com.marginallyclever.convenience.log.Log;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -18,6 +22,16 @@ public class JSCHTests {
 
     private static final String SHELL_TO_SERIAL_STRING = "picocom -b" + DEFAULT_BAUD + " " + DEFAULT_USB_DEVICE;
 
+	@Before
+	public void before() {
+		Log.start();
+	}
+	
+	@After
+	public void after() {
+		Log.end();
+	}
+	
     @Test
     @Timeout(15)
     public void testConnectAndReadData() throws Exception {
@@ -34,14 +48,14 @@ public class JSCHTests {
 
         InputStream in = channel.getInputStream();
         // TEST 1
-        //while(channel.isConnected()) System.out.print((char)in.read());
+        //while(channel.isConnected()) Log.message((char)in.read());
 
         // TEST 2
         StringBuilder input = new StringBuilder();
         while (channel.isConnected()) {
             input.append((char) in.read());
             if (input.toString().endsWith("\n")) {
-                System.out.println(input);
+                Log.message(input.toString());
             }
         }
 		/*

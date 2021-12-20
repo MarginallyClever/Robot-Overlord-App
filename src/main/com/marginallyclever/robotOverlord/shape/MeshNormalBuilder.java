@@ -2,16 +2,18 @@ package com.marginallyclever.robotOverlord.shape;
 
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.convenience.log.Log;
+
 public class MeshNormalBuilder {
 	public static void buildNormals(Mesh mesh) {
-    	//System.out.println("Building normals...");
+    	//Log.message("Building normals...");
 		mesh.normalArray.clear();
 		
 		if(mesh.getHasIndexes()) buildSmoothIndexedNormals(mesh);
 		else buildDirectNormals(mesh);
 		
 		mesh.setDirty(true);
-    	//System.out.println("Normals generated.");
+    	//Log.message("Normals generated.");
 	}
 	
 	// vertexes are not shared.  one normal per vertex, identical for all three points of a triangle.
@@ -36,8 +38,8 @@ public class MeshNormalBuilder {
 		for(int i=0;i<size;++i) myNormals[i] = new Vector3d();
 		
 		// build all normals for all faces.
-		System.out.println("Find normals for every face...");
-		System.out.println("Averaging normals for all vertices...");
+		Log.message("Find normals for every face...");
+		Log.message("Averaging normals for all vertices...");
 		for(int i=0;i<mesh.indexArray.size();i+=3) {
 			int a = mesh.indexArray.get(i  );
 			int b = mesh.indexArray.get(i+1);

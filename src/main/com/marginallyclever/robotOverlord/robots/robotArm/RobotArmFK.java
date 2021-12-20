@@ -585,7 +585,6 @@ public class RobotArmFK extends PoseEntity {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");  
 	    LocalDateTime now = LocalDateTime.now();
 	    String filePath = this.getClass().getSimpleName()+"-"+dtf.format(now)+".urdf";
-		System.out.println("Saving as "+filePath);
 		Log.message("Saving as "+filePath);
 	    
 		RobotArmSaveToRO saver = new RobotArmSaveToRO();
