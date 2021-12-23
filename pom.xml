@@ -69,8 +69,6 @@ If you like this project, please support us by buying Marginally Clever products
 	</pluginRepositories>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src/main</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test</testSourceDirectory>
 		<!-- See: http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html 
 			and http://stackoverflow.com/a/3697482 -->
 		<resources>
