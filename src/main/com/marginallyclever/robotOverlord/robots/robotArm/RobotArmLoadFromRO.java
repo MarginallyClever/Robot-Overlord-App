@@ -10,7 +10,7 @@ public class RobotArmLoadFromRO {
 		RobotArmFK arm = new RobotArmFK();
 		
 		FileReader f = new FileReader(new File(filePath));
-		
+		f.close();
 		
 		return arm;
 	}
