@@ -5,9 +5,9 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.physics.RigidBody;
-import com.marginallyclever.robotOverlord.physics.RigidBodyBox;
-import com.marginallyclever.robotOverlord.physics.RigidBodySphere;
+import com.marginallyclever.robotOverlord.physics.original.RigidBody;
+import com.marginallyclever.robotOverlord.physics.original.RigidBodyBox;
+import com.marginallyclever.robotOverlord.physics.original.RigidBodySphere;
 import com.marginallyclever.robotOverlord.sceneElements.Box;
 import com.marginallyclever.robotOverlord.sceneElements.Grid;
 import com.marginallyclever.robotOverlord.sceneElements.Light;
