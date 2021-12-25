@@ -105,7 +105,7 @@ public class ODEPhysicsEngine extends Entity {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		System.out.println("update");
+		logger.debug("update");
 
 		space.collide(null,new DNearCallback() {
 			@Override
@@ -130,13 +130,15 @@ public class ODEPhysicsEngine extends Entity {
 		final int N = 10;
 		//dContact contact[N];
 		DContactBuffer contacts = new DContactBuffer(N);
-//		n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-		n = OdeHelper.collide (o1,o2,N,contacts.getGeomBuffer());//[0].geom,sizeof(dContact));
+		n = OdeHelper.collide (o1,o2,N,contacts.getGeomBuffer());
 		if (n > 0) {
 			for (i=0; i<n; i++) {
 				DContact contact = contacts.get(i);
-				contact.surface.mode = OdeConstants.dContactSlip1 | OdeConstants.dContactSlip2 |
-				OdeConstants.dContactSoftERP | OdeConstants.dContactSoftCFM | OdeConstants.dContactApprox1;
+				contact.surface.mode = OdeConstants.dContactSlip1 
+									| OdeConstants.dContactSlip2 
+									| OdeConstants.dContactSoftERP
+									| OdeConstants.dContactSoftCFM
+									| OdeConstants.dContactApprox1;
 				contact.surface.mu = OdeConstants.dInfinity;
 				contact.surface.slip1 = 0.1;
 				contact.surface.slip2 = 0.1;

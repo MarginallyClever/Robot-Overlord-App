@@ -24,9 +24,6 @@ import com.marginallyclever.robotOverlord.sceneElements.Light;
  *
  */
 public class ODEPhysicsDemo implements Demo {
-	// some constants
-	public static int DS_VERSION = 0x0002;
-
 	private final double CHASIS_LENGTH = 0.7;
 	private final double CHASIS_WIDTH = 0.5;
 	private final double CHASIS_HEIGHT = 0.2;
@@ -47,11 +44,10 @@ public class ODEPhysicsDemo implements Demo {
 	
 	@Override
 	public void execute(RobotOverlord ro) {
-		
 		// add some lights
-    	Light light;
+    	Light light = new Light();
 
-    	ro.getScene().addChild(light = new Light());
+    	ro.getScene().addChild(light);
 		light.setName("Light");
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
@@ -64,11 +60,11 @@ public class ODEPhysicsDemo implements Demo {
 		engine = new ODEPhysicsEngine();
 		ro.addChild(engine);
 		ro.getScene().addChild(new ODEPhysicsEntity(engine.getGroundBox()));
-		//ro.getScene().addChild(new ODEPhysicsEntity(engine.getGroundPlane()));
+		ro.getScene().addChild(new ODEPhysicsEntity(engine.getGroundPlane()));
 		
 		DMass mass = OdeHelper.createMass();
 		
-		// chassis body
+		// chassis
 		body[0] = engine.createBody();
 		body[0].setPosition(0, 0, CHASIS_Z_AT_START);
 		mass.setBox(1, CHASIS_LENGTH, CHASIS_WIDTH, CHASIS_HEIGHT);
@@ -79,9 +75,9 @@ public class ODEPhysicsDemo implements Demo {
 		
 		ro.getScene().addChild(new ODEPhysicsEntity(box[0]));
 
-		// wheel bodies
+		// wheels
 		int i;
-		for (i=1; i<=3; i++) {
+		for (i=1; i<=sphere.length; i++) {
 			body[i] = engine.createBody();
 			DQuaternion q = new DQuaternion();
 			OdeMath.dQFromAxisAndAngle (q,1,0,0,Math.PI*0.5);
@@ -98,7 +94,7 @@ public class ODEPhysicsDemo implements Demo {
 		body[3].setPosition(-0.5*CHASIS_LENGTH,-CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
 				
 		// front and back wheel hinges
-		for (i=0; i<3; i++) {
+		for (i=0; i<joint.length; i++) {
 			joint[i] = engine.createHinge2Joint();
 			joint[i].attach(body[0],body[i+1]);
 			final DVector3C a = body[i+1].getPosition();
@@ -109,13 +105,13 @@ public class ODEPhysicsDemo implements Demo {
 		}
 
 		// set joint suspension
-		for (i=0; i<3; i++) {
+		for (i=0; i<joint.length; i++) {
 			joint[i].setParamSuspensionERP (0.4);
 			joint[i].setParamSuspensionCFM (0.8);
 		}
 
 		// lock back wheels along the steering axis
-		for (i=1; i<3; i++) {
+		for (i=1; i<joint.length; i++) {
 			// set stops to make sure wheels always stay in alignment
 			joint[i].setParamLoStop (0);
 			joint[i].setParamHiStop (0);
@@ -133,8 +129,7 @@ public class ODEPhysicsDemo implements Demo {
 		car_space.add (sphere[1]);
 		car_space.add (sphere[2]);
 		
-		// all objects need a draw hook to RobotOverlord.render()
-		// all objects need an update hook to RobotOverlord.update()
+		// all objects need a draw hook and an update hook via PhysicsEntity
 	}
 	
 	private void endDemo() {

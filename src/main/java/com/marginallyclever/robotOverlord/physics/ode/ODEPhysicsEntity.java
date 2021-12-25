@@ -1,5 +1,7 @@
 package com.marginallyclever.robotOverlord.physics.ode;
 
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import org.ode4j.ode.DBox;
@@ -13,6 +15,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
+import com.marginallyclever.robotOverlord.sceneElements.Grid;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 public class ODEPhysicsEntity extends PoseEntity {
@@ -41,7 +44,6 @@ public class ODEPhysicsEntity extends PoseEntity {
 		gl2.glPushMatrix();
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 			mat.render(gl2);
-			MatrixHelper.applyMatrix(gl2, ODEPhysicsEngine.getMatrix4d(geom));
 		
 			if(geom instanceof DBox) drawBox(gl2);
 			else if(geom instanceof DSphere) drawSphere(gl2);
@@ -53,14 +55,39 @@ public class ODEPhysicsEntity extends PoseEntity {
 
 	private void drawPlane(GL2 gl2) {
 		DPlane plane = (DPlane)geom;
+		Vector3d nz = ODEPhysicsEngine.getVector3d(plane.getNormal());
+		Vector3d p = new Vector3d(nz);
+		p.scale(plane.getDepth());
+		Vector3d ny = new Vector3d();
+		if(nz.x>nz.y) {
+			if(nz.x>nz.z) ny.set(nz.y,nz.x,nz.z);
+			else ny.set(nz.x,nz.z,nz.z);
+		} else {
+			if(nz.y>nz.z) ny.set(nz.y,nz.x,nz.z);
+			else ny.set(nz.x,nz.z,nz.z);
+		}
+		Vector3d nx = new Vector3d();
+		nx.cross(nz, ny);
+		ny.cross(nx, nz);
+		MatrixHelper.drawMatrix(gl2, p, nx, ny, nx);
+		Matrix4d m = new Matrix4d(
+				nx.x,nx.y,nx.z,p.x,
+				ny.x,ny.y,ny.z,p.y,
+				nz.x,nz.y,nz.z,p.z,
+				0,0,0,1);
+		MatrixHelper.applyMatrix(gl2, m);
+
+		PrimitiveSolids.drawCircleXY(gl2, 10, 40);
 		PrimitiveSolids.drawStar(gl2, 10);
 	}
 
 	private void drawSphere(GL2 gl2) {
+		MatrixHelper.applyMatrix(gl2, ODEPhysicsEngine.getMatrix4d(geom));
 		PrimitiveSolids.drawSphere(gl2, ((DSphere)geom).getRadius());
 	}
 
 	private void drawBox(GL2 gl2) {
+		MatrixHelper.applyMatrix(gl2, ODEPhysicsEngine.getMatrix4d(geom));
 		Vector3d top = ODEPhysicsEngine.getVector3d(((DBox)geom).getLengths());
 		top.scale(0.5);
 		Vector3d bottom = new Vector3d(-top.x,-top.y,-top.z);
