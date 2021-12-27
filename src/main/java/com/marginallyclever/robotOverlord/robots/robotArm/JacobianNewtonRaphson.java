@@ -37,7 +37,7 @@ public class JacobianNewtonRaphson {
 
 	/**
 	 * Move a {@link RobotArmIK} towards a target end effector pose iteratively
-	 * using the Newton Raphson method.
+	 * using the Newton Raphson method.  If the method fails to reach the target then the arm will not be altered.
 	 * 
 	 * @param arm   the {@link RobotArmIK} to move.
 	 * @param m4    the desired {@link Matrix4d} pose of the end effector.
