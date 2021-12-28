@@ -55,7 +55,7 @@ public class ODEPhysicsEntity extends PoseEntity {
 
 	private void drawPlane(GL2 gl2) {
 		DPlane plane = (DPlane)geom;
-		Vector3d nz = ODEPhysicsEngine.getVector3d(plane.getNormal());
+		Vector3d nz = ODEConverter.getVector3d(plane.getNormal());
 		Vector3d p = new Vector3d(nz);
 		p.scale(plane.getDepth());
 		Vector3d ny = new Vector3d();
@@ -82,13 +82,13 @@ public class ODEPhysicsEntity extends PoseEntity {
 	}
 
 	private void drawSphere(GL2 gl2) {
-		MatrixHelper.applyMatrix(gl2, ODEPhysicsEngine.getMatrix4d(geom));
+		MatrixHelper.applyMatrix(gl2, ODEConverter.getMatrix4d(geom));
 		PrimitiveSolids.drawSphere(gl2, ((DSphere)geom).getRadius());
 	}
 
 	private void drawBox(GL2 gl2) {
-		MatrixHelper.applyMatrix(gl2, ODEPhysicsEngine.getMatrix4d(geom));
-		Vector3d top = ODEPhysicsEngine.getVector3d(((DBox)geom).getLengths());
+		MatrixHelper.applyMatrix(gl2, ODEConverter.getMatrix4d(geom));
+		Vector3d top = ODEConverter.getVector3d(((DBox)geom).getLengths());
 		top.scale(0.5);
 		Vector3d bottom = new Vector3d(-top.x,-top.y,-top.z);
 		PrimitiveSolids.drawBox(gl2, bottom, top);
