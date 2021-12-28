@@ -45,8 +45,6 @@ public class Scene extends Entity {
 		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
 		
 		renderLights(gl2);
-		
-        camera.render(gl2);
         
 		// PASS 1: everything not a light
 		for( Entity obj : children ) {
@@ -61,6 +59,8 @@ public class Scene extends Entity {
 				gl2.glPopName();
 			}
 		}
+		
+        camera.render(gl2);
 		
 		// PASS 2: everything transparent?
 		//renderAllBoundingBoxes(gl2);

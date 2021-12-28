@@ -314,7 +314,7 @@ public class PrimitiveSolids {
 		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
 		
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
-		int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
+		//int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
 
 		size/=2.0f;
 		
@@ -327,7 +327,7 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 		gl2.glPopMatrix();
 
-		OpenGLHelper.drawAtopEverythingEnd(gl2,depth);
+		//OpenGLHelper.drawAtopEverythingEnd(gl2,depth);
 		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 		
 		// restore color
