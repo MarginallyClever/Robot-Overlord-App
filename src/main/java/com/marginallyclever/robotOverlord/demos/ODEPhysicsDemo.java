@@ -32,10 +32,9 @@ public class ODEPhysicsDemo implements Demo {
 	private final double CHASIS_MASS = 1.0;
 	private final double WHEEL_MASS = 0.2;
 
-	// dynamics and collision objects (chassis, 3 wheels, environment)
+	private ODEPhysicsEngine engine;
 
-	ODEPhysicsEngine engine;
-	
+	// dynamics and collision objects (chassis, 3 wheels, environment)
 	private static DBody [] body = new DBody[4];
 	private static DHinge2Joint [] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
 	private static DSpace car_space;
@@ -121,6 +120,14 @@ public class ODEPhysicsDemo implements Demo {
 			//   dJointSetHinge2Param (joint[i],dParamFMax,dInfinity);
 		}
 
+		joint[0].setParamVel (0.05);
+		joint[0].setParamVel2 (-1.5);
+		joint[0].setParamFMax2 (0.1);
+		joint[0].setParamFMax (0.2);
+		joint[0].setParamLoStop (-0.75);
+		joint[0].setParamHiStop (0.75);
+		joint[0].setParamFudgeFactor (0.1);
+		
 		// create car space and add it to the top level space
 		car_space = engine.createSimpleSpace();
 		car_space.setCleanup(false);
