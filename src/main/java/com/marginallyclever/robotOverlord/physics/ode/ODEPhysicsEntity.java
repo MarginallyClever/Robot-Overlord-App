@@ -1,6 +1,5 @@
 package com.marginallyclever.robotOverlord.physics.ode;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -15,7 +14,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.sceneElements.Grid;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 public class ODEPhysicsEntity extends PoseEntity {

@@ -18,8 +18,6 @@ import org.ode4j.ode.OdeHelper;
 import org.ode4j.ode.OdeMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ode4j.ode.DGeom.DNearCallback;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.Entity;
 
