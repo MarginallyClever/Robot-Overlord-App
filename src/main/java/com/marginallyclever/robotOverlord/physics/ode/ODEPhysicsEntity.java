@@ -5,8 +5,10 @@ import javax.vecmath.Vector3d;
 
 import org.ode4j.ode.DBox;
 import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DMass;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.DSphere;
+import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,15 @@ public class ODEPhysicsEntity extends PoseEntity {
 	
 	public DGeom getGeom() {
 		return geom;
+	}
+	
+	@Override
+	public void update(double dt) {
+		if(!(geom instanceof DPlane)) {
+			Matrix4d m = ODEConverter.getMatrix4d(geom);
+			setPoseWorld(m);
+		}
+		super.update(dt);
 	}
 	
 	@Override
