@@ -31,8 +31,7 @@ public class ODEPhysicsEngine extends Entity {
 	private static DWorld world;
 	private static DSpace space;
 	private static DJointGroup contactgroup;
-	private static DPlane groundPlane;
-	private static DBox groundBox;
+	private DNearCallback callback;
 	
 	public ODEPhysicsEngine() {
 		super(ODEPhysicsEngine.class.getSimpleName());
@@ -41,32 +40,13 @@ public class ODEPhysicsEngine extends Entity {
 		if(OdeHelper.initODE2(0)==0) {
 			logger.error("init failed.");
 		}
+		
 		world = OdeHelper.createWorld();
 		world.setGravity(0,0,-0.5);
 		space = OdeHelper.createHashSpace(null);
-		
-		// create world		
 		contactgroup = OdeHelper.createJointGroup();
+	}
 		
-
-		// environment
-		groundPlane = OdeHelper.createPlane(space,0,0,1,0);
-
-		groundBox = createBox(2,1.5,1);
-		DMatrix3 R = new DMatrix3();
-		OdeMath.dRFromAxisAndAngle (R,0,1,0,-0.15);
-		groundBox.setPosition(2,0,-0.34);
-		groundBox.setRotation(R);
-	}
-	
-	public DGeom getGroundPlane() {
-		return groundPlane;
-	}
-	
-	public DGeom getGroundBox() {
-		return groundBox;
-	}
-	
 	public DBody createBody() {
 		return OdeHelper.createBody(world);
 	}
@@ -93,57 +73,27 @@ public class ODEPhysicsEngine extends Entity {
 	@Override
 	public void update(double dt) {
 		super.update(dt);
-		logger.debug("update");
-
-		space.collide(null,new DNearCallback() {
-			@Override
-			public void call(Object data, DGeom o1, DGeom o2) {
-				nearCallback(data, o1, o2);
-			}
-		});
+		
+		if(callback!=null) space.collide(null,callback);
 		world.step(dt);
 
 		// remove all contact joints
 		contactgroup.empty();
 	}
+	
+	public DSpace getSpace() {
+		return space;
+	}
 
-	private void nearCallback(Object data, DGeom o1, DGeom o2) {
-		int i,n;
+	public DWorld getWorld() {
+		return world;
+	}
 
-		// only collide things with the groundPlane
-		boolean g1 = (o1 == groundPlane || o1 == groundBox);
-		boolean g2 = (o2 == groundPlane || o2 == groundBox);
-		if (!(g1 ^ g2)) return;
-
-		final int N = 10;
-		//dContact contact[N];
-		DContactBuffer contacts = new DContactBuffer(N);
-		n = OdeHelper.collide (o1,o2,N,contacts.getGeomBuffer());
-		if (n > 0) {
-			for (i=0; i<n; i++) {
-				DContact contact = contacts.get(i);
-				contact.surface.mode = OdeConstants.dContactSlip1 
-									| OdeConstants.dContactSlip2 
-									| OdeConstants.dContactSoftERP
-									| OdeConstants.dContactSoftCFM
-									| OdeConstants.dContactApprox1;
-				contact.surface.mu = OdeConstants.dInfinity;
-				contact.surface.slip1 = 0.1;
-				contact.surface.slip2 = 0.1;
-				contact.surface.soft_erp = 0.5;
-				contact.surface.soft_cfm = 0.3;
-				DJoint c = OdeHelper.createContactJoint (world,contactgroup,contact);
-				c.attach(
-						contact.geom.g1.getBody(),
-						contact.geom.g2.getBody());
-			}
-		}
+	public DJointGroup getContactGroup() {
+		return contactgroup;
 	}
 	
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
-		
-		System.out.println("rendering");
+	public void setCallback(DNearCallback arg0) {
+		callback=arg0;
 	}
 }
