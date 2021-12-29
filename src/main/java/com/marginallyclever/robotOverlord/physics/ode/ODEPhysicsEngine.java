@@ -1,24 +1,15 @@
 package com.marginallyclever.robotOverlord.physics.ode;
 
-import org.ode4j.math.DMatrix3;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DBox;
-import org.ode4j.ode.DContact;
-import org.ode4j.ode.DContactBuffer;
-import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DGeom.DNearCallback;
 import org.ode4j.ode.DHinge2Joint;
-import org.ode4j.ode.DJoint;
 import org.ode4j.ode.DJointGroup;
-import org.ode4j.ode.DPlane;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
-import org.ode4j.ode.OdeConstants;
 import org.ode4j.ode.OdeHelper;
-import org.ode4j.ode.OdeMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.Entity;
 
 public class ODEPhysicsEngine extends Entity {

@@ -5,10 +5,8 @@ import javax.vecmath.Vector3d;
 
 import org.ode4j.ode.DBox;
 import org.ode4j.ode.DGeom;
-import org.ode4j.ode.DMass;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.DSphere;
-import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

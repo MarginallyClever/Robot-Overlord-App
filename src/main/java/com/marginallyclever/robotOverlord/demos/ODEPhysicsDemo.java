@@ -19,7 +19,6 @@ import org.ode4j.ode.DSphere;
 import org.ode4j.ode.OdeConstants;
 import org.ode4j.ode.OdeHelper;
 import org.ode4j.ode.OdeMath;
-import org.ode4j.ode.DGeom.DNearCallback;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
