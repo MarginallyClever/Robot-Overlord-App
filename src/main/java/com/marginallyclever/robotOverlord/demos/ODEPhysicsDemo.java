@@ -13,6 +13,7 @@ import org.ode4j.ode.DSphere;
 import org.ode4j.ode.OdeHelper;
 import org.ode4j.ode.OdeMath;
 
+import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physics.ode.ODEPhysicsEngine;
 import com.marginallyclever.robotOverlord.physics.ode.ODEPhysicsEntity;
@@ -35,14 +36,24 @@ public class ODEPhysicsDemo implements Demo {
 	private ODEPhysicsEngine engine;
 
 	// dynamics and collision objects (chassis, 3 wheels, environment)
-	private static DBody [] body = new DBody[4];
+	private static DBody chassisBody;
+	private static DBody [] wheelBodies = new DBody[3];
 	private static DHinge2Joint [] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
 	private static DSpace car_space;
-	private static DBox [] box = new DBox[1];
+	private static DBox box;
 	private static DSphere [] sphere = new DSphere[3];
 	
 	@Override
 	public void execute(RobotOverlord ro) {
+		ro.newScene();
+		Entity sc = ro.getScene();
+		
+		// adjust default camera
+		ro.camera.setPosition(new Vector3d(40/4,-91/4,106/4));
+		ro.camera.lookAt(new Vector3d(0,0,0));
+		ro.camera.setZoom(20);
+		ro.camera.update(0);
+		
 		// add some lights
     	Light light = new Light();
 
@@ -64,39 +75,39 @@ public class ODEPhysicsDemo implements Demo {
 		DMass mass = OdeHelper.createMass();
 		
 		// chassis
-		body[0] = engine.createBody();
-		body[0].setPosition(0, 0, CHASIS_Z_AT_START);
+		chassisBody = engine.createBody();
+		chassisBody.setPosition(0, 0, CHASIS_Z_AT_START);
 		mass.setBox(1, CHASIS_LENGTH, CHASIS_WIDTH, CHASIS_HEIGHT);
 		mass.adjust(CHASIS_MASS);
-		body[0].setMass(mass);
-		box[0] = OdeHelper.createBox(null,CHASIS_LENGTH,CHASIS_WIDTH,CHASIS_HEIGHT);
-		box[0].setBody(body[0]);
+		chassisBody.setMass(mass);
+		box = OdeHelper.createBox(null,CHASIS_LENGTH,CHASIS_WIDTH,CHASIS_HEIGHT);
+		box.setBody(chassisBody);
 		
-		ro.getScene().addChild(new ODEPhysicsEntity(box[0]));
+		ro.getScene().addChild(new ODEPhysicsEntity(box));
 
 		// wheels
 		int i;
-		for (i=1; i<=sphere.length; i++) {
-			body[i] = engine.createBody();
+		for (i=0; i<sphere.length; i++) {
+			wheelBodies[i] = engine.createBody();
 			DQuaternion q = new DQuaternion();
 			OdeMath.dQFromAxisAndAngle (q,1,0,0,Math.PI*0.5);
-			body[i].setQuaternion(q);
+			wheelBodies[i].setQuaternion(q);
 			mass.setSphere(1,WHEEL_RADIUS);
 			mass.adjust(WHEEL_MASS);
-			body[i].setMass(mass);
-			sphere[i-1] = OdeHelper.createSphere(null,WHEEL_RADIUS);
-			sphere[i-1].setBody(body[i]);
-			ro.getScene().addChild(new ODEPhysicsEntity(sphere[i-1]));
+			wheelBodies[i].setMass(mass);
+			sphere[i] = OdeHelper.createSphere(null,WHEEL_RADIUS);
+			sphere[i].setBody(wheelBodies[i]);
+			ro.getScene().addChild(new ODEPhysicsEntity(sphere[i]));
 		}
-		body[1].setPosition(0.5*CHASIS_LENGTH,0,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
-		body[2].setPosition(-0.5*CHASIS_LENGTH, CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
-		body[3].setPosition(-0.5*CHASIS_LENGTH,-CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
+		wheelBodies[0].setPosition(0.5*CHASIS_LENGTH,0,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
+		wheelBodies[1].setPosition(-0.5*CHASIS_LENGTH, CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
+		wheelBodies[2].setPosition(-0.5*CHASIS_LENGTH,-CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
 				
 		// front and back wheel hinges
 		for (i=0; i<joint.length; i++) {
 			joint[i] = engine.createHinge2Joint();
-			joint[i].attach(body[0],body[i+1]);
-			final DVector3C a = body[i+1].getPosition();
+			joint[i].attach(chassisBody,wheelBodies[i]);
+			DVector3C a = wheelBodies[i].getPosition();
 			DHinge2Joint h2 = joint[i];
 			h2.setAnchor (a);
 			h2.setAxis1 (0,0,1);
@@ -120,8 +131,8 @@ public class ODEPhysicsDemo implements Demo {
 			//   dJointSetHinge2Param (joint[i],dParamFMax,dInfinity);
 		}
 
-		joint[0].setParamVel (0.05);
-		joint[0].setParamVel2 (-1.5);
+		joint[0].setParamVel (0.025);
+		joint[0].setParamVel2 (-2.5);
 		joint[0].setParamFMax2 (0.1);
 		joint[0].setParamFMax (0.2);
 		joint[0].setParamLoStop (-0.75);
@@ -131,16 +142,16 @@ public class ODEPhysicsDemo implements Demo {
 		// create car space and add it to the top level space
 		car_space = engine.createSimpleSpace();
 		car_space.setCleanup(false);
-		car_space.add (box[0]);
-		car_space.add (sphere[0]);
-		car_space.add (sphere[1]);
-		car_space.add (sphere[2]);
+		car_space.add(box);
+		car_space.add(sphere[0]);
+		car_space.add(sphere[1]);
+		car_space.add(sphere[2]);
 		
 		// all objects need a draw hook and an update hook via PhysicsEntity
 	}
 	
 	private void endDemo() {
-		box[0].destroy();
+		box.destroy();
 		sphere[0].destroy();
 		sphere[1].destroy();
 		sphere[2].destroy();
