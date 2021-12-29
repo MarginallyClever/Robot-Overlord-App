@@ -83,13 +83,7 @@ public class Camera extends PoseEntity {
         	newZoom = Math.max(1,newZoom);
 
         	if(oldZoom!=newZoom) {
-				// adjust the camera position to orbit around a point 'zoom' in front of the camera
-        		Vector3d p = getOrbitPoint();
-        		Vector3d v = getPosition();
-        		v.sub(p);
-        		v.scale(oldZoom/newZoom);
-        		p.add(v);
-				setPosition(p);
+        		adjustZoomPosition(oldZoom,newZoom);
         		
         		zoom.set(newZoom);	
         	}
@@ -248,7 +242,17 @@ public class Camera extends PoseEntity {
         	}
 		}
 	}
-	
+
+	// adjust the camera position to orbit around a point 'zoom' in front of the camera
+	private void adjustZoomPosition(double oldZoom, double newZoom) {
+		Vector3d p = getOrbitPoint();
+		Vector3d v = getPosition();
+		v.sub(p);
+		v.scale(oldZoom/newZoom);
+		p.add(v);
+		setPosition(p);
+	}
+
 	// OpenGL camera: -Z=forward, +X=right, +Y=up
 	@Override
 	public void render(GL2 gl2) {
@@ -287,6 +291,7 @@ public class Camera extends PoseEntity {
 	
 	public void setZoom(double arg0) {
 		arg0 = Math.min(Math.max(arg0, 0), 500);
+		adjustZoomPosition(zoom.get(),arg0);
 		zoom.set(arg0);
 	}
 	
