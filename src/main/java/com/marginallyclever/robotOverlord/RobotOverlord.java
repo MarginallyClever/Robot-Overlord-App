@@ -156,18 +156,10 @@ public class RobotOverlord extends Entity {
         buildMainFrame();
         buildMainMenu();
         createSimulationPanel();
-        
         layoutComponents();
-        
- 		addChild(viewport);
- 		addChild(camera);
-        addChild(scene);
- 		addChild(moveTool);
- 		addChild(viewCube);
- 		
-        viewport.setAttachedTo(camera.getFullPath());
-
         startAnimationSystem();
+        
+        newScene();
         
 		Log.message("** READY **");
     }
@@ -477,9 +469,18 @@ public class RobotOverlord extends Entity {
 	}
 
 	public void newScene() {
-		scene = new Scene();
-		addChild(scene);
+		removeAllChildren();
 		
+		scene = new Scene();
+        
+ 		addChild(viewport);
+ 		addChild(camera);
+        addChild(scene);
+ 		addChild(moveTool);
+ 		addChild(viewCube);
+ 		
+        viewport.setAttachedTo(camera.getFullPath());
+        
 		updateEntityTree();
 		pickEntity(null);
 	}
