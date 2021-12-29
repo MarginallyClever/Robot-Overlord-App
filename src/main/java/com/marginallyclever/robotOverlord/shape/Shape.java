@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.shape;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.swing.filechooser.FileFilter;
@@ -264,12 +263,7 @@ public class Shape extends PoseEntity implements Collidable {
 		}
 
 		ViewElementButton reloadButton = view.addButton("Reload");
-		reloadButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				reload();
-			}
-		});
+		reloadButton.addActionEventListener((evt)-> reload() );
 		
 		view.popStack();
 		

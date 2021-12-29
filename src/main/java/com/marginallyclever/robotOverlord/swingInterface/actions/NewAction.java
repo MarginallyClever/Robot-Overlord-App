@@ -17,9 +17,6 @@ import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
  *
  */
 public class NewAction extends AbstractAction implements ActionListener {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	

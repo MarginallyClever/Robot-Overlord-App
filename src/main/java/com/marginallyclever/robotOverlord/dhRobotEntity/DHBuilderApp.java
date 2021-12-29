@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.dhRobotEntity;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -23,7 +22,6 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver;
 import com.marginallyclever.robotOverlord.shape.Shape;
-import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
@@ -156,23 +154,20 @@ public class DHBuilderApp extends DHRobotModel {
 		view.pushStack("BA", "Builder App");
 		
 		final ViewElementButton bindButton = (ViewElementButton)view.addButton(inTest ? "Stop test":"Start test");
-		bindButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if(!inTest) {
-					testStart();
-					bindButton.setText("Stop test");
-					inTest=true;
-				} else {
-					testEnd();
-					bindButton.setText("Start test");
-					inTest=false;
-				}
+		bindButton.addActionEventListener((evt)->{
+			if(!inTest) {
+				testStart();
+				bindButton.setText("Stop test");
+				inTest=true;
+			} else {
+				testEnd();
+				bindButton.setText("Start test");
+				inTest=false;
 			}
 		});
 
 		final ViewElementButton lockButton = view.addButton("Lock");
-		lockButton.addPropertyChangeListener((evt) -> {
+		lockButton.addActionEventListener((evt)->{
 			if(lockButton.getText().contentEquals("Lock")) {
 				for(int i=0;i<links.size();++i) {
 					DHLink bone=links.get(i);
@@ -188,40 +183,32 @@ public class DHBuilderApp extends DHRobotModel {
 			}
 		});
 		
-		ViewElement saveButton = view.addButton("Save");
-		saveButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				//private static 
-				RobotOverlord ro = (RobotOverlord)getRoot();
+		ViewElementButton saveButton = view.addButton("Save");
+		saveButton.addActionEventListener((evt)->{
+			RobotOverlord ro = (RobotOverlord)getRoot();
 
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				if( LAST_PATH!=null ) chooser.setCurrentDirectory(new File(LAST_PATH));
-				if( chooser.showSaveDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION ) {
-					LAST_PATH = chooser.getSelectedFile().getPath();
-					saveToFolder(chooser.getSelectedFile());
-				}
+			JFileChooser chooser = new JFileChooser();
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			if( LAST_PATH!=null ) chooser.setCurrentDirectory(new File(LAST_PATH));
+			if( chooser.showSaveDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION ) {
+				LAST_PATH = chooser.getSelectedFile().getPath();
+				saveToFolder(chooser.getSelectedFile());
 			}
 		});
 
-		ViewElement loadButton = view.addButton("Load");
-		loadButton.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				//private static 
-				RobotOverlord ro = (RobotOverlord)getRoot();
+		ViewElementButton loadButton = view.addButton("Load");
+		loadButton.addActionEventListener((evt)->{
+			RobotOverlord ro = (RobotOverlord)getRoot();
 
-				//https://stackoverflow.com/questions/4779360/browse-for-folder-dialog
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				if( LAST_PATH!=null ) chooser.setCurrentDirectory(new File(LAST_PATH));
-				if( chooser.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION ) {
-					LAST_PATH = chooser.getSelectedFile().getPath();
-					loadFromFolder(chooser.getSelectedFile());
-					bindButton.setText("Start test");
-					inTest=false;
-				}
+			//https://stackoverflow.com/questions/4779360/browse-for-folder-dialog
+			JFileChooser chooser = new JFileChooser();
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			if( LAST_PATH!=null ) chooser.setCurrentDirectory(new File(LAST_PATH));
+			if( chooser.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION ) {
+				LAST_PATH = chooser.getSelectedFile().getPath();
+				loadFromFolder(chooser.getSelectedFile());
+				bindButton.setText("Start test");
+				inTest=false;
 			}
 		});
 		

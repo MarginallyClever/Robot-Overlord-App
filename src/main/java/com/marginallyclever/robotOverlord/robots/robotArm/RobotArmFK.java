@@ -304,7 +304,7 @@ public class RobotArmFK extends PoseEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("FK","Forward Kinematics");
 		ViewElementButton button = view.addButton("Center all");
-		button.addPropertyChangeListener((evt)-> {
+		button.addActionEventListener((evt)->{
 			double [] v = new double[bones.size()]; 
 			for(int i=0;i<bones.size();++i) {
 				RobotArmBone b = bones.get(i);
@@ -317,9 +317,9 @@ public class RobotArmFK extends PoseEntity {
 		view.add(drawForceAndTorque);
 
 		ViewElementButton bOpen = view.addButton("Open edit panel");
-		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
+		bOpen.addActionEventListener((evt)-> onOpenAction() );
 		ViewElementButton bSnapshot = view.addButton("Save snapshot");
-		bSnapshot.addPropertyChangeListener((evt)-> {
+		bSnapshot.addActionEventListener((evt)->{
 			try {
 				save();
 			} catch(Exception e) {

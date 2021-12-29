@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.robots.skycam;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -139,81 +138,50 @@ public class Skycam extends PoseEntity {
 		fileFilter.add(new FileNameExtensionFilter("Skycam", "Skycam"));
 		
 		view.pushStack("S", "Sixi");
-		view.addButton("Go Home").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				model.goHome();
-				sim.setPoseTo(model.getPosition());
-				cursor.setPosition(model.getPosition());
-			}
+		view.addButton("Go Home").addActionEventListener((evt)->{
+			model.goHome();
+			sim.setPoseTo(model.getPosition());
+			cursor.setPosition(model.getPosition());
 		});
-		view.addButton("Append").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				queueDestination((SkycamCommand)cursor);
-			}
+		view.addButton("Append").addActionEventListener((evt)-> queueDestination((SkycamCommand)cursor) );
+		view.addButton("Time estimate").addActionEventListener((evt)->{
+			double t = getTimeEstimate();
+			Log.message("Time estimate: "+StringHelper.formatTime(t));
 		});
-		view.addButton("Time estimate").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				double t = getTimeEstimate();
-				Log.message("Time estimate: "+StringHelper.formatTime(t));
-			}
-		});
-		view.addButton("New").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if(isPlaying) return;
-				clearAllCommands();
-				((RobotOverlord)getRoot()).updateEntityTree();
-			}
+		view.addButton("New").addActionEventListener((evt)->{
+			if(isPlaying) return;
+			clearAllCommands();
+			((RobotOverlord)getRoot()).updateEntityTree();
 		});
 		view.addFilename(filename,fileFilter);
-		view.addButton("Save").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				Log.message("Saving started.");
-				try {
-					String f = filename.get();
-					if(!f.endsWith("Skycam")) {
-						f+="Skycam";
-						filename.set(f);
-					}
-					save(f);
-				} catch (Exception e) {
-					//e.printStackTrace();
-					Log.error("Save failed.");
+		view.addButton("Save").addActionEventListener((evt)->{
+			Log.message("Saving started.");
+			try {
+				String f = filename.get();
+				if(!f.endsWith("Skycam")) {
+					f+="Skycam";
+					filename.set(f);
 				}
-				Log.message("Saving finished.");
+				save(f);
+			} catch (Exception e) {
+				//e.printStackTrace();
+				Log.error("Save failed.");
 			}
+			Log.message("Saving finished.");
 		});
-		view.addButton("Load").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if(isPlaying) return;
-				Log.message("Loading started.");
-				try {
-					load(filename.get());
-				} catch (Exception e) {
-					//e.printStackTrace();
-					Log.error("Load failed.");
-				}
-				Log.message("Loading finished.");
+		view.addButton("Load").addActionEventListener((evt)->{
+			if(isPlaying) return;
+			Log.message("Loading started.");
+			try {
+				load(filename.get());
+			} catch (Exception e) {
+				//e.printStackTrace();
+				Log.error("Load failed.");
 			}
+			Log.message("Loading finished.");
 		});
-		view.addButton("Run").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				runProgram();
-			}
-			
-		});
-		view.addButton("Stop").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				stopProgram();
-			}
-		});
+		view.addButton("Run").addActionEventListener((evt)-> runProgram() );
+		view.addButton("Stop").addActionEventListener((evt)-> stopProgram() );
 		
 		view.popStack();
 		

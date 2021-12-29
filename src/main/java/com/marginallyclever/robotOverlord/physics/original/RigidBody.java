@@ -331,7 +331,7 @@ public abstract class RigidBody extends PoseEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("Ph", "Physics");
 		view.add(pauseOnCollision);
-		view.addButton("Unpause").addPropertyChangeListener( (evt) -> isPaused=false );
+		view.addButton("Unpause").addActionEventListener( (evt) -> isPaused=false );
 		view.popStack();
 		shape.getView(view);
 		super.getView(view);

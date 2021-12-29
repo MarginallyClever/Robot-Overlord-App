@@ -3,7 +3,7 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 
@@ -15,18 +15,35 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
  * @since 1.6.0
  *
  */
-public class ViewElementButton extends ViewElement implements ActionListener {
-	/**
-	 * 
-	 */
+public class ViewElementButton extends ViewElement {
 	private static final long serialVersionUID = -1717097303844646955L;
 	protected JButton field;
+
+	// who is listening to me?
+	protected ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
+	
+	public void addActionEventListener(ActionListener p) {
+		actionListeners.add(p);
+	}
+	
+	public void removeActionEventListener(ActionListener p) {
+		actionListeners.remove(p);
+	}
+	
+	private void fireActionEvent(ActionEvent e) {
+		for(ActionListener a : actionListeners) {
+			a.actionPerformed(e);
+		}
+	}
+	
 	
 	public ViewElementButton(RobotOverlord ro,String label) {
 		super(ro);
 		
 		field = new JButton(label);
-		field.addActionListener(this);
+		field.addActionListener((e)->{
+			fireActionEvent(new ActionEvent(this,e.getID(),e.getActionCommand()));
+		});
 		field.addFocusListener(this);
 		
 		this.setLayout(new BorderLayout());
@@ -44,10 +61,5 @@ public class ViewElementButton extends ViewElement implements ActionListener {
 	
 	public String getText() {
 		return field.getText();
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"click",null,null));
 	}
 }

@@ -1,8 +1,6 @@
 package com.marginallyclever.robotOverlord.robots;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -374,43 +372,32 @@ public class RotaryStewartPlatform  extends PoseEntity {
 
 		view.pushStack("LSP", "Linear Stewart Platform");
 		view.add(connection);
-		view.addButton("GOTO EE").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				gotoPose();
-			}
+		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
+		view.addButton("GOTO ZERO").addActionEventListener((evt)->{
+			String message = "G0"
+					+" F"+StringHelper.formatDouble(velocity.get())
+					+" A"+StringHelper.formatDouble(acceleration.get())
+					+" X0"
+					+" Y0"
+					+" Z0"
+					+" U0"
+					+" V0"
+					+" W0";
+			Log.message(message);
+			connection.sendMessage(message);
+			Matrix4d ident = new Matrix4d();
+			ident.setIdentity();
+			ee.setPose(ident);
+			ee.setPosition(new Vector3d(0,0,BASE_Z+Math.abs(EE_Z)+ARM_LENGTH));
 		});
-		view.addButton("GOTO ZERO").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				String message = "G0"
-						+" F"+StringHelper.formatDouble(velocity.get())
-						+" A"+StringHelper.formatDouble(acceleration.get())
-						+" X0"
-						+" Y0"
-						+" Z0"
-						+" U0"
-						+" V0"
-						+" W0";
-				Log.message(message);
-				connection.sendMessage(message);
-				Matrix4d ident = new Matrix4d();
-				ident.setIdentity();
-				ee.setPose(ident);
-				ee.setPosition(new Vector3d(0,0,BASE_Z+Math.abs(EE_Z)+ARM_LENGTH));
-			}
-		});
-		view.addButton("Factory Reset").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				for(int i=0;i<6;++i) {
-					connection.sendMessage("M101 A"+i+" B-1000 T0");
-					// wait while it saves...
-					try {
-						Thread.sleep(2500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+		view.addButton("Factory Reset").addActionEventListener((evt)->{
+			for(int i=0;i<6;++i) {
+				connection.sendMessage("M101 A"+i+" B-1000 T0");
+				// wait while it saves...
+				try {
+					Thread.sleep(2500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		});

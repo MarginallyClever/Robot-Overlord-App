@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -440,19 +439,8 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		view.addComboBox(axisChoice, AXIS_LABELS);
 		view.addRange(axisAmount, 5, -5);
 		
-		view.addButton("Snap Z to major axis").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				snapZToMajorAxis();
-			}
-		});
-		
-		view.addButton("Snap X to major axis").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				snapXToMajorAxis();
-			}
-		});
+		view.addButton("Snap Z to major axis").addActionEventListener((e)->snapZToMajorAxis());
+		view.addButton("Snap X to major axis").addActionEventListener((e)->snapXToMajorAxis());
 
 		view.add(showBoundingBox);
 		view.add(showLocalOrigin);

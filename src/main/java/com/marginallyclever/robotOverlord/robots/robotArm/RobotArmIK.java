@@ -95,10 +95,10 @@ public class RobotArmIK extends PoseEntity {
 		view.pushStack("IK","Inverse Kinematics");
 
 		ViewElementButton bOpen = view.addButton("Open control panel");
-		bOpen.addPropertyChangeListener((e)-> onOpenAction() );
+		bOpen.addActionEventListener((evt)-> onOpenAction() );
 
 		ViewElementButton bResetGoto = view.addButton("Reset GoTo");
-		bResetGoto.addPropertyChangeListener((evt) -> onResetGotoAction() );
+		bResetGoto.addActionEventListener((evt)-> onResetGotoAction() );
 
 		//ViewElementButton bRunTest = view.addButton("Run test");
 		//bRunTest.addPropertyChangeListener((evt) -> onRunTest() );

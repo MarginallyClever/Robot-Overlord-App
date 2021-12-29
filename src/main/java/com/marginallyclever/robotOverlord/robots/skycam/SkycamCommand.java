@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.robots.skycam;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import javax.vecmath.Vector3d;
 
@@ -42,21 +40,15 @@ public class SkycamCommand extends PoseEntity implements Cloneable, EntityFocusL
 		
 		final SkycamCommand sc = this;
 		
-		view.addButton("Copy").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				Skycam myParent = findParentSkycam();
-				if(myParent==null) return;
-				myParent.queueDestination(sc);
-			}
+		view.addButton("Copy").addActionEventListener((evt)->{
+			Skycam myParent = findParentSkycam();
+			if(myParent==null) return;
+			myParent.queueDestination(sc);
 		});
-		view.addButton("Goto").addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				Skycam e = findParentSkycam();
-				if(e==null) return;
-				e.goTo(sc);
-			}
+		view.addButton("Goto").addActionEventListener((evt)->{
+			Skycam e = findParentSkycam();
+			if(e==null) return;
+			e.goTo(sc);
 		});
 		view.popStack();
 
