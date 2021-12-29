@@ -2,16 +2,24 @@ package com.marginallyclever.robotOverlord.demos;
 
 import javax.vecmath.Vector3d;
 
+import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DBox;
+import org.ode4j.ode.DContact;
+import org.ode4j.ode.DContactBuffer;
+import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DHinge2Joint;
+import org.ode4j.ode.DJoint;
 import org.ode4j.ode.DMass;
+import org.ode4j.ode.DPlane;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DSphere;
+import org.ode4j.ode.OdeConstants;
 import org.ode4j.ode.OdeHelper;
 import org.ode4j.ode.OdeMath;
+import org.ode4j.ode.DGeom.DNearCallback;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
@@ -25,23 +33,26 @@ import com.marginallyclever.robotOverlord.sceneElements.Light;
  *
  */
 public class ODEPhysicsDemo implements Demo {
-	private final double CHASIS_LENGTH = 0.7;
-	private final double CHASIS_WIDTH = 0.5;
-	private final double CHASIS_HEIGHT = 0.2;
-	private final float WHEEL_RADIUS = 0.18f;
-	private final double CHASIS_Z_AT_START = 0.5;
-	private final double CHASIS_MASS = 1.0;
-	private final double WHEEL_MASS = 0.2;
+	private static final double CHASIS_LENGTH = 0.7;
+	private static final double CHASIS_WIDTH = 0.5;
+	private static final double CHASIS_HEIGHT = 0.2;
+	private static final float WHEEL_RADIUS = 0.18f;
+	private static final double CHASIS_Z_AT_START = 0.5;
+	private static final double CHASIS_MASS = 1.0;
+	private static final double WHEEL_MASS = 0.2;
 
 	private ODEPhysicsEngine engine;
 
 	// dynamics and collision objects (chassis, 3 wheels, environment)
-	private static DBody chassisBody;
-	private static DBody [] wheelBodies = new DBody[3];
-	private static DHinge2Joint [] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
-	private static DSpace car_space;
-	private static DBox box;
-	private static DSphere [] sphere = new DSphere[3];
+	private DBody chassisBody;
+	private DBody [] wheelBodies = new DBody[3];
+	private DHinge2Joint [] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
+	private DSpace car_space;
+	private DBox box;
+	private DSphere [] sphere = new DSphere[3];
+	private DPlane ground;
+	private DBox ramp;
+	
 	
 	@Override
 	public void execute(RobotOverlord ro) {
@@ -57,7 +68,7 @@ public class ODEPhysicsDemo implements Demo {
 		// add some lights
     	Light light = new Light();
 
-    	ro.getScene().addChild(light);
+    	sc.addChild(light);
 		light.setName("Light");
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
@@ -69,35 +80,48 @@ public class ODEPhysicsDemo implements Demo {
     	// start physics
 		engine = new ODEPhysicsEngine();
 		ro.addChild(engine);
-		ro.getScene().addChild(new ODEPhysicsEntity(engine.getGroundBox()));
-		ro.getScene().addChild(new ODEPhysicsEntity(engine.getGroundPlane()));
+		
+		engine.setCallback((data, o1, o2) ->{
+			nearCallback(data, o1, o2);
+		});
+
+		// environment
+		ground = OdeHelper.createPlane(engine.getSpace(),0,0,1,0);
+		ramp = engine.createBox(2,1.5,1);
+		DMatrix3 R = new DMatrix3();
+		OdeMath.dRFromAxisAndAngle (R,0,1,0,-0.15);
+		ramp.setPosition(2,0,-0.34);
+		ramp.setRotation(R);
+		sc.addChild(new ODEPhysicsEntity(ramp));
+		sc.addChild(new ODEPhysicsEntity(ground));
 		
 		DMass mass = OdeHelper.createMass();
 		
 		// chassis
 		chassisBody = engine.createBody();
-		chassisBody.setPosition(0, 0, CHASIS_Z_AT_START);
 		mass.setBox(1, CHASIS_LENGTH, CHASIS_WIDTH, CHASIS_HEIGHT);
 		mass.adjust(CHASIS_MASS);
 		chassisBody.setMass(mass);
 		box = OdeHelper.createBox(null,CHASIS_LENGTH,CHASIS_WIDTH,CHASIS_HEIGHT);
 		box.setBody(chassisBody);
+		box.setPosition(0, 0, CHASIS_Z_AT_START);
 		
-		ro.getScene().addChild(new ODEPhysicsEntity(box));
+		sc.addChild(new ODEPhysicsEntity(box));
 
 		// wheels
 		int i;
 		for (i=0; i<sphere.length; i++) {
 			wheelBodies[i] = engine.createBody();
-			DQuaternion q = new DQuaternion();
-			OdeMath.dQFromAxisAndAngle (q,1,0,0,Math.PI*0.5);
-			wheelBodies[i].setQuaternion(q);
+			mass = OdeHelper.createMass();
 			mass.setSphere(1,WHEEL_RADIUS);
 			mass.adjust(WHEEL_MASS);
 			wheelBodies[i].setMass(mass);
 			sphere[i] = OdeHelper.createSphere(null,WHEEL_RADIUS);
 			sphere[i].setBody(wheelBodies[i]);
-			ro.getScene().addChild(new ODEPhysicsEntity(sphere[i]));
+			DQuaternion q = new DQuaternion();
+			OdeMath.dQFromAxisAndAngle (q,1,0,0,Math.PI*0.5);
+			sphere[i].setQuaternion(q);
+			sc.addChild(new ODEPhysicsEntity(sphere[i]));
 		}
 		wheelBodies[0].setPosition(0.5*CHASIS_LENGTH,0,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
 		wheelBodies[1].setPosition(-0.5*CHASIS_LENGTH, CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
@@ -155,6 +179,39 @@ public class ODEPhysicsDemo implements Demo {
 		sphere[0].destroy();
 		sphere[1].destroy();
 		sphere[2].destroy();
+	}
+
+	private void nearCallback(Object data, DGeom o1, DGeom o2) {
+		int i,n;
+
+		// only collide things with the ground
+		boolean g1 = (o1 == ground || o1 == ramp);
+		boolean g2 = (o2 == ground || o2 == ramp);
+		if (!(g1 ^ g2)) return;
+
+		final int N = 10;
+		//dContact contact[N];
+		DContactBuffer contacts = new DContactBuffer(N);
+		n = OdeHelper.collide (o1,o2,N,contacts.getGeomBuffer());
+		if (n > 0) {
+			for (i=0; i<n; i++) {
+				DContact contact = contacts.get(i);
+				contact.surface.mode = OdeConstants.dContactSlip1 
+									| OdeConstants.dContactSlip2 
+									| OdeConstants.dContactSoftERP
+									| OdeConstants.dContactSoftCFM
+									| OdeConstants.dContactApprox1;
+				contact.surface.mu = OdeConstants.dInfinity;
+				contact.surface.slip1 = 0.1;
+				contact.surface.slip2 = 0.1;
+				contact.surface.soft_erp = 0.5;
+				contact.surface.soft_cfm = 0.3;
+				DJoint c = OdeHelper.createContactJoint (engine.getWorld(),engine.getContactGroup(),contact);
+				c.attach(
+						contact.geom.g1.getBody(),
+						contact.geom.g2.getBody());
+			}
+		}
 	}
 
 	@Override
