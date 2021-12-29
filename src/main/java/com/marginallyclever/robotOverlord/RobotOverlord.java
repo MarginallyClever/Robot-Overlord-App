@@ -107,7 +107,7 @@ public class RobotOverlord extends Entity {
 	private transient ArrayList<Entity> selectedEntities = new ArrayList<Entity>(); 
 	private MoveTool moveTool = new MoveTool();
 	private transient ViewCube viewCube = new ViewCube();
-	public Camera camera = new Camera();
+	private Camera camera = new Camera();
 	
 	// The main frame of the GUI
 	private JFrame mainFrame; 
@@ -779,5 +779,9 @@ public class RobotOverlord extends Entity {
 
 	public Viewport getViewport() {
 		return viewport;
+	}
+
+	public Camera getCamera() {
+		return camera;
 	}
 }

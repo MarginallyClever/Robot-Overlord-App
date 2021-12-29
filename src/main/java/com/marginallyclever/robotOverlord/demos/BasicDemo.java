@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.demos;
 
 import javax.vecmath.Vector3d;
 
+import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.sceneElements.Grid;
@@ -19,11 +20,12 @@ public class BasicDemo implements Demo {
 		Entity sc = ro.getScene();
 		
 		// adjust default camera
-		ro.camera.setPosition(new Vector3d(40,-91,106));
-		ro.camera.setPan(-16);
-		ro.camera.setTilt(53);
-		ro.camera.setZoom(100);
-		ro.camera.update(0);
+		Camera camera = ro.getCamera();
+		camera.setPosition(new Vector3d(40,-91,106));
+		camera.setPan(-16);
+		camera.setTilt(53);
+		camera.setZoom(100);
+		camera.update(0);
 		
 		// add some lights
     	Light light;

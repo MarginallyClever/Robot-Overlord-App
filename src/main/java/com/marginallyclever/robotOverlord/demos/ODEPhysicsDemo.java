@@ -20,6 +20,7 @@ import org.ode4j.ode.OdeConstants;
 import org.ode4j.ode.OdeHelper;
 import org.ode4j.ode.OdeMath;
 
+import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physics.ode.ODEPhysicsEngine;
@@ -59,10 +60,11 @@ public class ODEPhysicsDemo implements Demo {
 		Entity sc = ro.getScene();
 		
 		// adjust default camera
-		ro.camera.setPosition(new Vector3d(40/4,-91/4,106/4));
-		ro.camera.lookAt(new Vector3d(0,0,0));
-		ro.camera.setZoom(20);
-		ro.camera.update(0);
+		Camera camera = ro.getCamera();
+		camera.setPosition(new Vector3d(40/4,-91/4,106/4));
+		camera.lookAt(new Vector3d(0,0,0));
+		camera.setZoom(20);
+		camera.update(0);
 		
 		// add some lights
     	Light light = new Light();

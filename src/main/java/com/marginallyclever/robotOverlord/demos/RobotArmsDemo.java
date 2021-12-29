@@ -7,6 +7,7 @@ import javax.vecmath.Vector3d;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
@@ -33,9 +34,10 @@ public class RobotArmsDemo implements Demo {
 		Entity sc = ro.getScene();
 		
 		// adjust default camera
-		ro.camera.setPosition(new Vector3d(50,-50,70));
-		ro.camera.lookAt(new Vector3d(0,0,-20));
-		ro.camera.update(0);
+		Camera camera = ro.getCamera();
+		camera.setPosition(new Vector3d(50,-50,70));
+		camera.lookAt(new Vector3d(0,0,-20));
+		camera.update(0);
 		
 		// add some lights
     	Light light;
