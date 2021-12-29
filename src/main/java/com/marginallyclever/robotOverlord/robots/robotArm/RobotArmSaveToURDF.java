@@ -26,7 +26,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
 /**
- * Export the {@code RobotArm} as a URDF XML file.
+ * Export the {link RobotArmFK} as a URDF XML file.
  * See http://wiki.ros.org/urdf/XML
  * See https://adohaha.github.io/DH2URDF/
  * See http://docs.ros.org/en/rolling/Tutorials/URDF/Building-a-Visual-Robot-Model-with-URDF-from-Scratch.html#
@@ -83,6 +83,7 @@ public class RobotArmSaveToURDF {
         }*/
 	}
 
+	@SuppressWarnings("unused")
 	private Element buildJointFromBone(RobotArmBone bone, String prev) {
     	Element joint = document.createElement("joint");
     	joint.setAttribute("name", bone.getName());
@@ -219,6 +220,7 @@ public class RobotArmSaveToURDF {
 		return origin;
 	}
 
+	@SuppressWarnings("unused")
 	private Element buildInertiaFromBone(RobotArmBone bone) {
 		Element inertial = document.createElement("inertial");
 		

@@ -173,6 +173,7 @@ public class ODEPhysicsDemo implements Demo {
 		// all objects need a draw hook and an update hook via PhysicsEntity
 	}
 	
+	@SuppressWarnings("unused")
 	private void endDemo() {
 		box.destroy();
 		sphere[0].destroy();

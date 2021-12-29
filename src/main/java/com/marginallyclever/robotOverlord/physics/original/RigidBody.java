@@ -304,6 +304,7 @@ public abstract class RigidBody extends PoseEntity {
 		//applyFriction(p,normal);
 	}
 	
+	@SuppressWarnings("unused")
 	private void applyFriction(Point3d p,Vector3d n) {
 		if(coefficientOfFriction<=0) return;
 		

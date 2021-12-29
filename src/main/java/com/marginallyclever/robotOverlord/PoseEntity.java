@@ -387,7 +387,6 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMajorAxisTarget(poseWorld);
 		if(m!=null) {
-			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
 				UndoSystem.addEvent(this,new MoveEdit(this,m));
 			}
@@ -398,7 +397,6 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMinorAxisTarget(poseWorld);
 		if(m!=null) {
-			RobotOverlord ro = (RobotOverlord)getRoot();
 			if(canYouMoveTo(m)) {
 				UndoSystem.addEvent(this,new MoveEdit(this,m));
 			}

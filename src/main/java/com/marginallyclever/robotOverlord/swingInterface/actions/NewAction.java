@@ -32,7 +32,6 @@ public class NewAction extends AbstractAction implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Did you save your work?
         int result = JOptionPane.showConfirmDialog(
                 ro.getMainFrame(),
                 Translator.get("Are you sure?"),

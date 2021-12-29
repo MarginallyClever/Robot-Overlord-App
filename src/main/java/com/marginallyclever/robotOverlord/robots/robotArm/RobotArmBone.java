@@ -39,7 +39,9 @@ public class RobotArmBone implements Cloneable {
 	// TODO this doesn't belong here
 	public DoubleEntity slider = new DoubleEntity("J",0);
 
-	private double mass, iMass;
+	private double mass;
+	@SuppressWarnings("unused")
+	private double iMass;
 	private Matrix3d inertiaTensor = new Matrix3d();
 	private Point3d centerOfMass = new Point3d();
 	private Vector3d linearVelocity = new Vector3d();
