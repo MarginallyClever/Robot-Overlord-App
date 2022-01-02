@@ -135,22 +135,6 @@ public class ProgramInterface extends JPanel {
 		listView.setSelectedIndex(0);
 	}
 
-	public void step() {
-		int now = listView.getSelectedIndex();
-		if(now==-1) return;
-		
-		ProgramEvent pe = listModel.get(now);
-		Log.message("Step to ("+now+"):"+pe.toString());
-
-		myArm.setAngles(pe.getAngles());
-		myArm.setEndEffectorTarget(myArm.getEndEffector());
-		
-		listView.setSelectedIndex(now+1);
-		if(listView.getSelectedIndex()==now) {
-			listView.clearSelection();
-		}
-	}
-
 	private void updateButtonAccess(JButton bDelete) {
 		boolean somethingSelected = (listView.getSelectedIndex() != -1);
 		bDelete.setEnabled(somethingSelected);
@@ -242,6 +226,56 @@ public class ProgramInterface extends JPanel {
 		if(i>=listModel.getSize()) i = listModel.getSize()-1; 
 		listView.setSelectedIndex(i);
 	}
+
+	/**
+	 * Move the play head to the lineNumber-th instruction.  
+	 * Does not tell the {@link Plotter} to do anything.
+	 */
+	public void setLineNumber(int lineNumber) {
+		listView.setSelectedIndex(lineNumber);
+	}
+
+	/**
+	 * @return the currently selected instruction.
+	 */
+	public int getLineNumber() {
+		return listView.getSelectedIndex();
+	}
+
+	/**
+	 * @return the total number of instructions in the buffer.
+	 */
+	public int getMoveCount() {
+		return listModel.getSize();
+	}
+
+	/**
+	 * Tell the {@link RobotArmFK} to move to the currently selected instruction and
+	 * advance the selected instruction by one. If there are no further instructions
+	 * the selection is nullified.
+	 */
+	public void step() {
+		int now = listView.getSelectedIndex();
+		if(now == -1) return;
+
+		// Increment the line as soon as possible so that step() does not get called
+		// twice on the same line.
+		listView.setSelectedIndex(now + 1);
+
+		ProgramEvent move = listModel.get(now);
+		// Log.message("Step to ("+now+"):"+move.toString());
+		myArm.setAngles(move.getAngles());
+		myArm.setEndEffectorTarget(myArm.getEndEffector());
+
+		int selected = listView.getSelectedIndex();
+		listView.ensureIndexIsVisible(selected);
+		if (selected == now) {
+			// could not advance. reached the end.
+			listView.clearSelection();
+		}
+	}
+	
+	// TEST
 
 	public static void main(String[] args) {
 		Log.start();
