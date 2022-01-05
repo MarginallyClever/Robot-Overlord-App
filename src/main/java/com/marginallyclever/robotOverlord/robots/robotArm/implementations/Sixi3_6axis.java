@@ -22,7 +22,7 @@ public class Sixi3_6axis extends RobotArmFK {
 		// Mass	201.686 g
 		// Center of Mass	-1.113, -0.011, 14.664
 
-		// name d r a t max min file
+		// name d r alpha theta thetaMax thetaMin modelFile
 		addBone(new RobotArmBone("X", 7.974,     0,270,  0,170,-170,"/Sixi3b/j1.obj"));
 		addBone(new RobotArmBone("Y", 9.131,17.889,  0,270,370, 170,"/Sixi3b/j2.obj"));
 		addBone(new RobotArmBone("Z",     0,12.435,  0,  0,150,-150,"/Sixi3b/j3.obj"));
