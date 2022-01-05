@@ -159,7 +159,8 @@ public class RobotOverlord extends Entity {
         layoutComponents();
         startAnimationSystem();
         
-        newScene();
+        BasicDemo bd = new BasicDemo();
+        bd.execute(this);
         
 		Log.message("** READY **");
     }
