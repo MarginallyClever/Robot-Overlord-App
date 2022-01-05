@@ -106,7 +106,7 @@ public class AngleDrivePanel extends JPanel {
 
 		JFrame frame = new JFrame(AngleDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new AngleDrivePanel(new RobotArmIK(new Sixi3_5axis())));
+		frame.add(new AngleDrivePanel(new Sixi3_5axis()));
 		frame.pack();
 		frame.setVisible(true);
 	}

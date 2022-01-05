@@ -138,7 +138,7 @@ public class RobotArmInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmInterface(new RobotArmIK(new Sixi3_5axis())));
+		frame.add(new RobotArmInterface(new Sixi3_5axis()));
 		frame.pack();
 		frame.setVisible(true);
 	}

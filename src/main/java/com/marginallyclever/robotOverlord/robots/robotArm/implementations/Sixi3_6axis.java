@@ -4,10 +4,10 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
-public class Sixi3_6axis extends RobotArmFK {
+public class Sixi3_6axis extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
 
 	public Sixi3_6axis() {

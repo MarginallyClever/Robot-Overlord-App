@@ -10,7 +10,6 @@ import java.awt.event.WindowEvent;
 import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Mantis;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi2;
@@ -90,10 +89,9 @@ public class RobotArmsDemo implements Demo {
 		//addArm(new Sixi1(),p,sc,ro);
 	}
 	
-	private void addArm(RobotArmFK arm,Vector3d p,Entity sc,RobotOverlord ro) {
-		RobotArmIK s3 = new RobotArmIK(arm);
-		s3.setPosition(p);
-		sc.addChild(s3);
+	private void addArm(RobotArmIK arm,Vector3d p,Entity sc,RobotOverlord ro) {
+		arm.setPosition(p);
+		sc.addChild(arm);
 		
 		//Matrix4d m = new Matrix4d();
 		//m.setIdentity();

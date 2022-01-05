@@ -1,7 +1,6 @@
 package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -27,15 +26,13 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @author Dan Royer
  * @since 2021-02-24
  */
-public class RobotArmIK extends PoseEntity {
+public class RobotArmIK extends RobotArmFK {
 	private static final long serialVersionUID = -7778520191789995554L;
 
-	private RobotArmFK myArmFK = new RobotArmFK();
 	private PoseEntity eeTarget = new PoseEntity("Target");
 	
 	public RobotArmIK(String name) {
 		super(name);
-
 		addChild(eeTarget);
 		setEndEffectorTarget(getEndEffector());
 	}
@@ -43,18 +40,10 @@ public class RobotArmIK extends PoseEntity {
 	public RobotArmIK() {
 		this(RobotArmIK.class.getSimpleName());
 	}
-	
-	public RobotArmIK(RobotArmFK armFK) {
-		super();
-		myArmFK = armFK;
-		setName(myArmFK.getName());
-		setEndEffectorTarget(getEndEffector());
-	}
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		RobotArmIK b = (RobotArmIK)super.clone();
-		b.myArmFK = (RobotArmFK)myArmFK.clone();
 		b.eeTarget = (PoseEntity)eeTarget.clone();
 		
 		return b;
@@ -66,13 +55,12 @@ public class RobotArmIK extends PoseEntity {
 
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
-		myArmFK.render(gl2);
 		drawEndEffectorPathToTarget(gl2);
 		gl2.glPopMatrix();
 	}
 	
 	private void drawEndEffectorPathToTarget(GL2 gl2) {
-		Matrix4d start = myArmFK.getEndEffector();
+		Matrix4d start = this.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
 		
@@ -104,7 +92,6 @@ public class RobotArmIK extends PoseEntity {
 		//bRunTest.addPropertyChangeListener((evt) -> onRunTest() );
 		view.popStack();
 		
-		myArmFK.getView(view);
 		super.getView(view);
 	}
 
@@ -118,7 +105,7 @@ public class RobotArmIK extends PoseEntity {
 	}
 
 	private void onResetGotoAction() {
-		setEndEffectorTarget(myArmFK.getEndEffector());
+		setEndEffectorTarget(this.getEndEffector());
 	}
 
 	private void onOpenAction() {
@@ -147,8 +134,8 @@ public class RobotArmIK extends PoseEntity {
 	@Deprecated
 	@SuppressWarnings("unused")
 	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = myArmFK.getAngles();
-		Matrix4d start = myArmFK.getEndEffector();
+		double [] jOriginal = this.getAngles();
+		Matrix4d start = this.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		
 		try {
@@ -165,7 +152,7 @@ public class RobotArmIK extends PoseEntity {
 
 				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
 	
-				double [] jBefore = myArmFK.getAngles();
+				double [] jBefore = this.getAngles();
 
 				// move arm towards result to get future pose
 				try {
@@ -175,12 +162,12 @@ public class RobotArmIK extends PoseEntity {
 					e1.printStackTrace();
 				}
 				
-				double [] jAfter = myArmFK.getAngles();
+				double [] jAfter = this.getAngles();
 
 				double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(old, interpolated);
 				old.set(interpolated);
 	
-				ApproximateJacobian aj = new ApproximateJacobian(myArmFK);
+				ApproximateJacobian aj = new ApproximateJacobian(this);
 				try {
 					double [] jointDistance = aj.getJointFromCartesian(cartesianDistance);
 					//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
@@ -220,9 +207,9 @@ public class RobotArmIK extends PoseEntity {
 			e.printStackTrace();
 		}
 		
-		myArmFK.setAngles(jOriginal);
+		this.setAngles(jOriginal);
 		
-		Matrix4d startCompare = myArmFK.getEndEffector();
+		Matrix4d startCompare = this.getEndEffector();
 		if(!startCompare.equals(start)) {
 			Log.message("Change!\nS"+start.toString()+"E"+startCompare.toString());
 		}
@@ -238,7 +225,7 @@ public class RobotArmIK extends PoseEntity {
 			if(useExact) {
 				//getExactJacobian(jacobian);
 			} else {
-				new ApproximateJacobian(myArmFK);
+				new ApproximateJacobian(this);
 			}
 		}
 		
@@ -246,10 +233,6 @@ public class RobotArmIK extends PoseEntity {
 		System.out.println("diff="+((double)(end-start)/1000.0)+(useExact?"exact":"approx"));
 	}
 	
-	public Matrix4d getEndEffector() {
-		return myArmFK.getEndEffector(); 
-	}
-
 	public Matrix4d getEndEffectorTarget() {
 		return eeTarget.getPose();
 	}
@@ -266,37 +249,7 @@ public class RobotArmIK extends PoseEntity {
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"eeTarget",m0,m1));
 	}
 
-	public double[] getAngles() {
-		return myArmFK.getAngles();
-	}
-
-	public void setAngles(double[] list) {
-		myArmFK.setAngles(list);
-	}
-
-	public int getNumBones() {
-		return myArmFK.getNumBones();
-	}
-
-	public RobotArmBone getBone(int i) {
-		return myArmFK.getBone(i);
-	}
-
-	@Override
-	public void addPropertyChangeListener(PropertyChangeListener p) {
-		super.addPropertyChangeListener(p);
-		myArmFK.addPropertyChangeListener(p);
-	}
-
 	public ApproximateJacobian getApproximateJacobian() {
-		return new ApproximateJacobian(myArmFK);
-	}
-
-	public double getDistanceToTarget(Matrix4d m4) {
-		return myArmFK.getDistanceToTarget(m4);
-	}
-
-	public void setToolCenterPoint(Matrix4d m) {
-		myArmFK.setToolCenterPoint(m);
+		return new ApproximateJacobian(this);
 	}
 }

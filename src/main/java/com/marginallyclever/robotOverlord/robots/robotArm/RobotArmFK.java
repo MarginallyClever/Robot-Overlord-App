@@ -52,18 +52,22 @@ public class RobotArmFK extends PoseEntity {
 	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
 	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",true);
 	private PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
-		
-	public RobotArmFK() {
-		super(RobotArmFK.class.getSimpleName());
+
+	public RobotArmFK(String name) {
+		super(name);
 		
 		addChild(toolCenterPoint);
-		
+
 		loadModel();
 		
 		for(int i=0;i<bones.size();++i) {
 			RobotArmBone b = bones.get(i);
 			b.updateMatrix();
 		}
+	}
+	
+	public RobotArmFK() {
+		this(RobotArmFK.class.getSimpleName());
 	}
 	
 	@Override

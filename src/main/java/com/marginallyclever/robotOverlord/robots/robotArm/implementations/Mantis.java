@@ -1,10 +1,10 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.implementations;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.shape.Shape;
 
-public class Mantis extends RobotArmFK {
+public class Mantis extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
 
 	public Mantis() {
