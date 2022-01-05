@@ -18,6 +18,12 @@ public class EntityFactory {
 		com.marginallyclever.robotOverlord.sceneElements.Sphere.class,
 		//com.marginallyclever.robotOverlord.sceneElements.SkyBox.class,
 		com.marginallyclever.robotOverlord.robots.dog.DogRobot.class,
+		
+		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Mantis.class,
+		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi2.class,
+		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis.class,
+		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_6axis.class,
+		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Thor.class,
 	};
 	
 	public static ArrayList<String> getAllEntityNames() {
