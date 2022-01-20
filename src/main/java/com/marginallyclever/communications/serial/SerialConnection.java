@@ -98,11 +98,11 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 		if( len<=0 ) return;
 		
 		rawInput = new String(buffer,0,len);
-		inputBuffer+=rawInput;
+		inputBuffer += rawInput;
 		
 		// each line ends with a \n.
 		for( x=inputBuffer.indexOf("\n"); x!=-1; x=inputBuffer.indexOf("\n") ) {
-			x=x+1;
+			x++;
 			oneLine = inputBuffer.substring(0,x);
 			inputBuffer = inputBuffer.substring(x);
 
