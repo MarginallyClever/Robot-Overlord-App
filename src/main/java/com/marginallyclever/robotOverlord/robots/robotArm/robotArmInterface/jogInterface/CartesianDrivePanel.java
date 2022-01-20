@@ -23,6 +23,14 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.JacobianNewtonRaphson;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
+/**
+ * {@link CartesianDrivePanel} displays a dial that can adjust one cartesian movement at a time.
+ * It also displays radio buttons for translation and rotation.
+ * It also displays a level of detail combobox to refine movements more than the default (1 mm/deg)
+ * When the dial is turned it calls on the {@link JacobianNewtonRaphson} iterator to move the arm.
+ * @author Dan Royer
+ *
+ */
 public class CartesianDrivePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private ButtonGroup buttonGroup = new ButtonGroup();
@@ -143,7 +151,7 @@ public class CartesianDrivePanel extends JPanel {
 			JacobianNewtonRaphson.iterate(arm,m4,20);
 		} catch(Exception e) {
 			// TODO deal with this more elegantly?
-			String s = "CartesianDrivePanel failed for move: "+e.getLocalizedMessage();
+			String s = CartesianDrivePanel.class.getSimpleName()+" failed for move: "+e.getLocalizedMessage();
 			Log.error(s);
 		}
 	}
