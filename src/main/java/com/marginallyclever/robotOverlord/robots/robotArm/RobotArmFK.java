@@ -51,7 +51,7 @@ public class RobotArmFK extends PoseEntity {
 	private BooleanEntity showSkeleton = new BooleanEntity("Show Skeleton",false);
 	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
 	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
-	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",true);
+	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",false);
 	private PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
 
 	public RobotArmFK(String name) {
@@ -275,11 +275,12 @@ public class RobotArmFK extends PoseEntity {
 		gl2.glPopMatrix();
 	}
 	
-	public Matrix4d getToolCenterPoint() {
+	private Matrix4d getToolCenterPoint() {
 		return toolCenterPoint.getPose();
 	}
 	
-	public void setToolCenterPoint(Matrix4d tcpNew) {
+	@SuppressWarnings("unused")
+	private void setToolCenterPoint(Matrix4d tcpNew) {
 		Matrix4d tcpOld = toolCenterPoint.getPose();
 		this.toolCenterPoint.setPose(tcpNew);
 
