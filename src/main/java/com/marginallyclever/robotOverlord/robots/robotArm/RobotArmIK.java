@@ -104,15 +104,6 @@ public class RobotArmIK extends RobotArmFK {
 		super.getView(view);
 	}
 
-	@Deprecated
-	@SuppressWarnings("unused")
-	private void onRunTest() {
-		//testPathCalculation(100,true);
-		//testPathCalculation(100,false);
-		//testTime(true);
-		testTime(false);
-	}
-
 	private void onResetGotoAction() {
 		setEndEffectorTarget(this.getEndEffector());
 	}
@@ -140,108 +131,6 @@ public class RobotArmIK extends RobotArmFK {
         }).start();
 	}
 
-	@Deprecated
-	@SuppressWarnings("unused")
-	private void testPathCalculation(double STEPS,boolean useExact) {
-		double [] jOriginal = this.getAngles();
-		Matrix4d start = this.getEndEffector();
-		Matrix4d end = eeTarget.getPose();
-		
-		try {
-			PrintWriter pw = new PrintWriter(new File("test"+((int)STEPS)+"-"+(useExact?"e":"a")+".csv"));
-
-			Matrix4d interpolated = new Matrix4d();
-			Matrix4d old = new Matrix4d(start);
-			//double [] cartesianDistanceCompare = new double[6];
-
-			//pw.print("S"+start.toString()+"E"+end.toString());
-
-			for(double alpha=1;alpha<=STEPS;++alpha) {
-				pw.print((int)alpha+"\t");
-
-				MatrixHelper.interpolate(start,end,alpha/STEPS,interpolated);
-	
-				double [] jBefore = this.getAngles();
-
-				// move arm towards result to get future pose
-				try {
-					JacobianNewtonRaphson.step(this);
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				double [] jAfter = this.getAngles();
-
-				double [] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(old, interpolated);
-				old.set(interpolated);
-	
-				ApproximateJacobian aj = new ApproximateJacobian(this);
-				try {
-					double [] jointDistance = aj.getJointFromCartesian(cartesianDistance);
-					//getCartesianFromJoint(jacobian, jointDistance, cartesianDistanceCompare);
-					// cartesianDistance and cartesianDistanceCompare should always match
-					// jointDistance[n] should match jAfter[n]-jBefore[n]
-	
-					/*
-					for(int i=0;i<6;++i) {
-						String add="";
-						for(int j=0;j<6;++j) {
-							pw.print(add+jacobian[i][j]);
-							add="\t";
-						}
-						pw.println();
-					}*/
-					pw.println(
-							+jointDistance[0]+"\t"
-							+jointDistance[1]+"\t"
-							+jointDistance[2]+"\t"
-							+jointDistance[3]+"\t"
-							+jointDistance[4]+"\t"
-							+jointDistance[5]+"\t"
-							+(jAfter[0]-jBefore[0])+"\t"
-							+(jAfter[1]-jBefore[1])+"\t"
-							+(jAfter[2]-jBefore[2])+"\t"
-							+(jAfter[3]-jBefore[3])+"\t"
-							+(jAfter[4]-jBefore[4])+"\t"
-							+(jAfter[5]-jBefore[5])+"\t");
-				} catch(Exception e) {
-					pw.println(" not ok");
-				}
-			}
-
-			pw.flush();
-			pw.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		this.setAngles(jOriginal);
-		
-		Matrix4d startCompare = this.getEndEffector();
-		if(!startCompare.equals(start)) {
-			Log.message("Change!\nS"+start.toString()+"E"+startCompare.toString());
-		}
-
-		//updateSliders();
-	}
-	
-	@Deprecated
-	private void testTime(boolean useExact) {
-		long start = System.nanoTime();
-
-		for(int i=0;i<1000;++i) {
-			if(useExact) {
-				//getExactJacobian(jacobian);
-			} else {
-				new ApproximateJacobian(this);
-			}
-		}
-		
-		long end = System.nanoTime();
-		System.out.println("diff="+((double)(end-start)/1000.0)+(useExact?"exact":"approx"));
-	}
-	
 	public Matrix4d getEndEffectorTarget() {
 		return eeTarget.getPose();
 	}
