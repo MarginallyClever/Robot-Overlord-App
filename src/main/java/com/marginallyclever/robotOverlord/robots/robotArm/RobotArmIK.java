@@ -93,8 +93,6 @@ public class RobotArmIK extends RobotArmFK {
 		ViewElementButton bResetGoto = view.addButton("Reset GoTo");
 		bResetGoto.addActionEventListener((evt)-> onResetGotoAction() );
 
-		//ViewElementButton bRunTest = view.addButton("Run test");
-		//bRunTest.addPropertyChangeListener((evt) -> onRunTest() );
 		view.popStack();
 		
 		super.getView(view);
