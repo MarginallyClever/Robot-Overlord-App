@@ -3,7 +3,6 @@ package com.marginallyclever.robotOverlord.robots.robotArm;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.log.Log;
 
 /**
  * Newton Raphson process of moving a robot using approximate Jacobians. See
@@ -46,7 +45,7 @@ public class JacobianNewtonRaphson {
 	 *                   calculated, which may occur if the arm is at a singularity.
 	 */
 	public static void iterate(RobotArmIK arm, Matrix4d m4, int tries) throws Exception {
-		// Log.message("JacobianNewtonRaphson.iterate begins");
+		// Log.message("iterate begins");
 		RobotArmIK temp = (RobotArmIK) arm.clone();
 		temp.setAngles(arm.getAngles());
 		temp.setEndEffectorTarget(m4);
@@ -58,7 +57,6 @@ public class JacobianNewtonRaphson {
 				break;
 			}
 		}
-		double d = temp.getDistanceToTarget(m4);
-		Log.message("JacobianNewtonRaphson.iterate ends (" + d + ")");
+		//Log.message("iterate ends (" + temp.getDistanceToTarget(m4) + ")");
 	}
 }
