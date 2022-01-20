@@ -160,13 +160,8 @@ public class RobotArmFK extends PoseEntity {
 		if(showSkeleton.get()) drawSkeleton(gl2);
 		if(showAngles.get()) drawAngles(gl2);
 		if(drawForceAndTorque.get()) drawForceAndTorque(gl2);
-		// bounding boxes are always relative to base?
 		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
-		
-		if(showEndEffector.get()) {
-			Matrix4d m = getEndEffector();
-			MatrixHelper.drawMatrix(gl2, m, 6);
-		}
+		if(showEndEffector.get()) MatrixHelper.drawMatrix(gl2, getEndEffector(), 6);
 		
 		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
