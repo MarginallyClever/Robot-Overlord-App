@@ -1,9 +1,6 @@
 package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.beans.PropertyChangeEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -13,7 +10,6 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
