@@ -23,10 +23,9 @@ public class MatrixHelper {
 	 * @param scale
 	 */
 	static public void drawMatrix(GL2 gl2,Matrix4d m,double scale) {
-		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
+		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
 		gl2.glPushMatrix();
 			gl2.glTranslated(m.m03,m.m13,m.m23);
@@ -39,8 +38,10 @@ public class MatrixHelper {
 			gl2.glEnd();
 	
 		gl2.glPopMatrix();
-		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
-		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 
 	static public void drawMatrix(GL2 gl2,double scale) {
@@ -62,10 +63,9 @@ public class MatrixHelper {
 	 * @param scale
 	 */
 	static public void drawMatrix2(GL2 gl2,Matrix4d m,double scale) {
-		boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
-		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
+		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
 		gl2.glPushMatrix();
 			gl2.glTranslated(m.m03,m.m13,m.m23);
@@ -78,8 +78,10 @@ public class MatrixHelper {
 			gl2.glEnd();
 	
 		gl2.glPopMatrix();
-		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
-		if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
+		
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 
 	/**
