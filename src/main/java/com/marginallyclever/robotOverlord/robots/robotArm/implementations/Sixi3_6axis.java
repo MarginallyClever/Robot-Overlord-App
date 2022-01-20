@@ -27,8 +27,8 @@ public class Sixi3_6axis extends RobotArmIK {
 		addBone(new RobotArmBone("Y", 9.131,17.889,  0,270,370, 170,"/Sixi3b/j2.obj"));
 		addBone(new RobotArmBone("Z",     0,12.435,  0,  0,150,-150,"/Sixi3b/j3.obj"));
 		addBone(new RobotArmBone("U",     0,     0,270,270,440, 100,"/Sixi3b/j4-6.obj"));
-		addBone(new RobotArmBone("V",15.616-0.382,     0, 90, 90,90+180,90-180,"/Sixi3b/j5-6.obj"));
-		addBone(new RobotArmBone("W",  5.12,     0,  0, 180,360,   0,"/Sixi3b/j6-6.obj"));
+		addBone(new RobotArmBone("V",15.616,     0, 90, 90,90+180,90-180,"/Sixi3b/j5-6.obj"));
+		addBone(new RobotArmBone("W",  5.15,     0,  0, 180,360,   0,"/Sixi3b/j6-6.obj"));
 
 		// numbers from fusion360 file.
 		
