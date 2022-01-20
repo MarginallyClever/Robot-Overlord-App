@@ -88,4 +88,14 @@ public class OpenGLHelper {
 		for(int i=0;i<fArray.length;++i) dArray[i]=fArray[i];
 		return new Matrix4d(dArray);
 	}
+
+	public static boolean disableTextureStart(GL2 gl2) {
+		boolean b = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
+		gl2.glDisable(GL2.GL_TEXTURE_2D);
+		return b;
+	}
+	
+	public static void disableTextureEnd(GL2 gl2,boolean oldState) {
+		if(oldState) gl2.glDisable(GL2.GL_TEXTURE_2D);
+	}
 }

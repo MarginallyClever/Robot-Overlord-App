@@ -12,6 +12,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
@@ -52,7 +53,7 @@ public class RobotArmIK extends RobotArmFK {
 	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
-
+		
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, getPose());
 		drawEndEffectorPathToTarget(gl2);
@@ -60,6 +61,10 @@ public class RobotArmIK extends RobotArmFK {
 	}
 	
 	private void drawEndEffectorPathToTarget(GL2 gl2) {
+		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+		
 		Matrix4d start = this.getEndEffector();
 		Matrix4d end = eeTarget.getPose();
 		Matrix4d interpolated = new Matrix4d();
@@ -76,6 +81,10 @@ public class RobotArmIK extends RobotArmFK {
 			MatrixHelper.interpolate(start,end,d/STEPS,interpolated);
 			MatrixHelper.drawMatrix(gl2, interpolated, 1.0);
 		}
+		
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 	
 	@Override

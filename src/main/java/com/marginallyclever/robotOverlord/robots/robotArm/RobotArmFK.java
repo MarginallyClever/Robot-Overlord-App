@@ -48,6 +48,7 @@ public class RobotArmFK extends PoseEntity {
 	private Shape base;
 	private ArrayList<RobotArmBone> bones = new ArrayList<RobotArmBone>();
 	
+	private BooleanEntity showSkeleton = new BooleanEntity("Show Skeleton",false);
 	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
 	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
 	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",true);
@@ -131,8 +132,10 @@ public class RobotArmFK extends PoseEntity {
 			MatrixHelper.applyMatrix(gl2, myPose);
 			drawMeshes(gl2);
 			drawExtras(gl2);
+			
+			toolCenterPoint.render(gl2);
 		gl2.glPopMatrix();
-		
+
 		super.render(gl2);
 	}
 	
@@ -150,16 +153,11 @@ public class RobotArmFK extends PoseEntity {
 	}
 	
 	private void drawExtras(GL2 gl2) {
-		// turn of textures so lines draw good
-		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
-		// turn off lighting so lines draw good
-		boolean wasLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		// draw on top of everything else
-		int wasOver=OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
-		if(showLineage.get()) drawLineage(gl2);
+		if(showSkeleton.get()) drawSkeleton(gl2);
 		if(showAngles.get()) drawAngles(gl2);
 		if(drawForceAndTorque.get()) drawForceAndTorque(gl2);
 		// bounding boxes are always relative to base?
@@ -169,11 +167,10 @@ public class RobotArmFK extends PoseEntity {
 			Matrix4d m = getEndEffector();
 			MatrixHelper.drawMatrix(gl2, m, 6);
 		}
-
-		// return state if needed
-		OpenGLHelper.drawAtopEverythingEnd(gl2,wasOver);
-		if(wasLit) gl2.glEnable(GL2.GL_LIGHTING);
-		if(wasTex) gl2.glEnable(GL2.GL_TEXTURE_2D);	
+		
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 	
 	private void drawBoundindBoxes(GL2 gl2) {
@@ -230,9 +227,15 @@ public class RobotArmFK extends PoseEntity {
 		if(cullOn) gl2.glEnable(GL2.GL_CULL_FACE);
 	}
 
-	private void drawLineage(GL2 gl2) {
+	public void drawSkeleton(GL2 gl2) {
+		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+		
 		Vector3d v = new Vector3d();
 		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, myPose);
+		
 			int j = bones.size()+1;
 			for( RobotArmBone bone : bones ) {
 				bone.updateMatrix();
@@ -250,25 +253,24 @@ public class RobotArmFK extends PoseEntity {
 				--j;
 			}
 		gl2.glPopMatrix();
+		
+		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 	
 	private void drawForceAndTorque(GL2 gl2) {
 		TextureEntity tex = new TextureEntity("/center-of-mass.png");
-		
+
 		gl2.glPushMatrix();
 			for( RobotArmBone bone : bones ) {
 				bone.updateMatrix();
 				MatrixHelper.applyMatrix(gl2, bone.getPose());
-				
-				Point3d p = bone.getCenterOfMass();
-				
 				// draw center of mass
-				gl2.glColor3d(1, 1, 1);
 				tex.render(gl2);
-				PrimitiveSolids.drawBillboard(gl2,p,1,1);
+				gl2.glColor3d(1, 1, 1);
+				PrimitiveSolids.drawBillboard(gl2,bone.getCenterOfMass(),1,1);
 				gl2.glDisable(GL2.GL_TEXTURE_2D);
-				
-				
 				// draw forces
 				gl2.glBegin(GL2.GL_LINES);
 				Vector3d v = bone.getLinearVelocity();	gl2.glColor3d(1, 0, 0);  gl2.glVertex3d(0, 0, 0);  gl2.glVertex3d(v.x,v.y,v.z);
@@ -294,12 +296,21 @@ public class RobotArmFK extends PoseEntity {
 	 * @param m where to store the end effector pose.
 	 */
 	public Matrix4d getEndEffector() {
+		Matrix4d m = getEndEffectorWithoutTCP();
+		m.mul(toolCenterPoint.getPose());
+		return m;
+	}
+
+	/**
+	 * Find the current end effector pose, relative to the base of this robot
+	 * @param m where to store the end effector pose.
+	 */
+	public Matrix4d getEndEffectorWithoutTCP() {
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
 		for( RobotArmBone bone : bones ) {
 			m.mul(bone.getPose());
 		}
-		m.mul(toolCenterPoint.getPose());
 		
 		return m;
 	}
@@ -316,6 +327,7 @@ public class RobotArmFK extends PoseEntity {
 			}
 			setAngles(v);
 		});
+		view.add(showSkeleton);
 		view.add(showAngles);
 		view.add(showEndEffector);
 		view.add(drawForceAndTorque);

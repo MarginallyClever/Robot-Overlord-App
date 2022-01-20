@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.IntBuffer;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -12,6 +11,7 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.MoveEdit;
@@ -95,26 +95,17 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 
 			// helpful info
 			if(showLocalOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
-			if(showLineage.get()) renderLineage(gl2);
+			if(showLineage.get()) drawLineage(gl2);
 
 			super.render(gl2);
 			
 		gl2.glPopMatrix();
 	}
 	
-	public void renderLineage(GL2 gl2) {
-		boolean isTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
-
-		// save the lighting mode
-		boolean lightWasOn = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
-
-		IntBuffer depthFunc = IntBuffer.allocate(1);
-		gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-		gl2.glDepthFunc(GL2.GL_ALWAYS);
-		//boolean depthWasOn = gl2.glIsEnabled(GL2.GL_DEPTH_TEST);
-		//gl2.glDisable(GL2.GL_DEPTH_TEST);
+	public void drawLineage(GL2 gl2) {
+		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 
 		gl2.glColor4d(1,1,1,1);
 		gl2.glBegin(GL2.GL_LINES);
@@ -128,11 +119,9 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		}
 		gl2.glEnd();
 
-		//if(depthWasOn) gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthFunc(depthFunc.get());
-		// restore lighting
-		if(lightWasOn) gl2.glEnable(GL2.GL_LIGHTING);
-		if(isTex) gl2.glDisable(GL2.GL_TEXTURE_2D);
+		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
+		OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 
 	public Vector3d getPosition() {
