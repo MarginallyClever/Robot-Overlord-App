@@ -11,10 +11,9 @@ public abstract interface Moveable {
 
 	/**
 	 * Ask this entity "can you move to newWorldPose?"
+	 * TODO if canYouMoveTo says no, get reasons why?
 	 * @param newWorldPose the desired world pose of the subject.
 	 * @return true if it can.
 	 */
 	public abstract boolean canYouMoveTo(Matrix4d newWorldPose);
-	
-	// TODO if canYouMoveTo says no, get reasons why?
 }
