@@ -570,14 +570,9 @@ public class MoveTool extends Entity {
 			boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 			float oldWidth = OpenGLHelper.setLineWidth(gl2, 2);
 
-			gl2.glPushMatrix();
-				renderOutsideCircle(gl2);
-				MatrixHelper.applyMatrix(gl2, FOR);
-				double scale = ballSize.get()*cameraDistance; 
-				gl2.glScaled(scale,scale,scale);
-				renderRotation(gl2);
-				renderTranslation(gl2);
-			gl2.glPopMatrix();
+			renderOutsideCircle(gl2);
+			renderRotation(gl2);
+			renderTranslation(gl2);
 
 			OpenGLHelper.setLineWidth(gl2, oldWidth);
 			OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
@@ -645,102 +640,105 @@ public class MoveTool extends Entity {
 
 	public void renderRotation(GL2 gl2) {
 		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, FOR);
+			double scale = ballSize.get()*cameraDistance; 
+			gl2.glScaled(scale,scale,scale);
 		
-		// camera forward is +z axis
-		//Matrix4d pw = subject.getPoseWorld(pw);
-		
-		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.getViewport().getAttachedTo();		
-		Matrix4d pw = camera.getPoseWorld();
-		pw.m03=
-		pw.m13=
-		pw.m23=0;
-		pw.invert();
-
-		double cr = (nearestPlane==Plane.X) ? 1 : 0.5f;
-		double cg = (nearestPlane==Plane.Y) ? 1 : 0.5f;
-		double cb = (nearestPlane==Plane.Z) ? 1 : 0.5f;
-		
-		gl2.glDisable(GL2.GL_CULL_FACE);
-
-		double radius0 = rScale;
-		double radius1 = radius0-0.1;
-		gl2.glColor4d(cr, 0, 0,alpha);		renderDiscYZ(gl2,radius0,radius1); //x
-		gl2.glColor4d(0, cg, 0,alpha);		renderDiscXZ(gl2,radius0,radius1); //y
-		gl2.glColor4d(0, 0, cb,alpha);		renderDiscXY(gl2,radius0,radius1); //z
-		
-		gl2.glEnable(GL2.GL_CULL_FACE);
-		gl2.glCullFace(GL2.GL_BACK);
-		
-		if(isActivelyMoving && activeMoveIsRotation) {
-			// display the distance rotated.
-			double start=MathHelper.wrapRadians(valueStart);
-			double end=MathHelper.wrapRadians(valueNow);
-			double range=end-start;
-			while(range>Math.PI) range-=Math.PI*2;
-			while(range<-Math.PI) range+=Math.PI*2;
-			double absRange= Math.abs(range);
+			// camera forward is +z axis
+			//Matrix4d pw = subject.getPoseWorld(pw);
 			
-			// snap ticks
-			if(snapOn.get()) {
-				double deg = Math.toRadians(snapDegrees.get());
-				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
-					deg *= 0.1;
-				}
-				double a=0,b=0,c=0;
-				double r1=radius0;
-				double r2=r1+0.05;
+			RobotOverlord ro = (RobotOverlord)getRoot();
+			PoseEntity camera = ro.getViewport().getAttachedTo();		
+			Matrix4d pw = camera.getPoseWorld();
+			pw.m03=
+			pw.m13=
+			pw.m23=0;
+			pw.invert();
+	
+			double cr = (nearestPlane==Plane.X) ? 1 : 0.5f;
+			double cg = (nearestPlane==Plane.Y) ? 1 : 0.5f;
+			double cb = (nearestPlane==Plane.Z) ? 1 : 0.5f;
+			
+			gl2.glDisable(GL2.GL_CULL_FACE);
+	
+			double radius0 = rScale;
+			double radius1 = radius0-0.1;
+			gl2.glColor4d(cr, 0, 0,alpha);		renderDiscYZ(gl2,radius0,radius1); //x
+			gl2.glColor4d(0, cg, 0,alpha);		renderDiscXZ(gl2,radius0,radius1); //y
+			gl2.glColor4d(0, 0, cb,alpha);		renderDiscXY(gl2,radius0,radius1); //z
+			
+			gl2.glEnable(GL2.GL_CULL_FACE);
+			gl2.glCullFace(GL2.GL_BACK);
+			
+			if(isActivelyMoving && activeMoveIsRotation) {
+				// display the distance rotated.
+				double start=MathHelper.wrapRadians(valueStart);
+				double end=MathHelper.wrapRadians(valueNow);
+				double range=end-start;
+				while(range>Math.PI) range-=Math.PI*2;
+				while(range<-Math.PI) range+=Math.PI*2;
+				double absRange= Math.abs(range);
 				
-				gl2.glBegin(GL2.GL_LINES);
-				gl2.glColor3d(1, 1, 1);
-				for(double i = 0;i<Math.PI*2;i+=deg) {
-					double j=i + start;
+				// snap ticks
+				if(snapOn.get()) {
+					double deg = Math.toRadians(snapDegrees.get());
+					if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
+						InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+						deg *= 0.1;
+					}
+					double a=0,b=0,c=0;
+					double r1=radius0;
+					double r2=r1+0.05;
+					
+					gl2.glBegin(GL2.GL_LINES);
+					gl2.glColor3d(1, 1, 1);
+					for(double i = 0;i<Math.PI*2;i+=deg) {
+						double j=i + start;
+						switch(nearestPlane) {
+						case X:
+							b=Math.cos(j+Math.PI/2);
+							c=Math.sin(j+Math.PI/2);
+							break;
+						case Y:
+							a=Math.cos(-j);
+							c=Math.sin(-j);
+							break;
+						case Z:
+							a=Math.cos( j);
+							b=Math.sin( j);
+							break;
+						}
+						gl2.glVertex3d(a*r1,b*r1,c*r1);
+						gl2.glVertex3d(a*r2,b*r2,c*r2);
+					}
+					gl2.glEnd();
+				}
+	
+				double a=0,b=0,c=0;
+				gl2.glBegin(GL2.GL_LINE_LOOP);
+				gl2.glColor3f(255,255,255);
+				gl2.glVertex3d(0,0,0);
+				for(double i=0;i<absRange;i+=0.01) {
+					double n = range * (i/absRange) + start;
+					
 					switch(nearestPlane) {
 					case X:
-						b=Math.cos(j+Math.PI/2);
-						c=Math.sin(j+Math.PI/2);
+						b=Math.cos(n+Math.PI/2);
+						c=Math.sin(n+Math.PI/2);
 						break;
 					case Y:
-						a=Math.cos(-j);
-						c=Math.sin(-j);
+						a=Math.cos(-n);
+						c=Math.sin(-n);
 						break;
 					case Z:
-						a=Math.cos( j);
-						b=Math.sin( j);
+						a=Math.cos( n); 
+						b=Math.sin( n);
 						break;
 					}
-					gl2.glVertex3d(a*r1,b*r1,c*r1);
-					gl2.glVertex3d(a*r2,b*r2,c*r2);
+					gl2.glVertex3d(a*radius0,b*radius0,c*radius0);
 				}
 				gl2.glEnd();
 			}
-
-			double a=0,b=0,c=0;
-			gl2.glBegin(GL2.GL_LINE_LOOP);
-			gl2.glColor3f(255,255,255);
-			gl2.glVertex3d(0,0,0);
-			for(double i=0;i<absRange;i+=0.01) {
-				double n = range * (i/absRange) + start;
-				
-				switch(nearestPlane) {
-				case X:
-					b=Math.cos(n+Math.PI/2);
-					c=Math.sin(n+Math.PI/2);
-					break;
-				case Y:
-					a=Math.cos(-n);
-					c=Math.sin(-n);
-					break;
-				case Z:
-					a=Math.cos( n); 
-					b=Math.sin( n);
-					break;
-				}
-				gl2.glVertex3d(a*radius0,b*radius0,c*radius0);
-			}
-			gl2.glEnd();
-		}
 
 		gl2.glPopMatrix();
 	}
@@ -779,69 +777,72 @@ public class MoveTool extends Entity {
 	}
 	
 	public void renderTranslation(GL2 gl2) {
-		// camera forward is -z axis 
-		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.getViewport().getAttachedTo();
-
-		Matrix4d pw = subject.getPoseWorld();
-		Vector3d lookAtVector = MatrixHelper.getPosition(pw);
-		lookAtVector.sub(camera.getPosition());
-		lookAtVector.normalize();
+		gl2.glPushMatrix();
+			MatrixHelper.applyMatrix(gl2, FOR);
+			double scale = ballSize.get()*cameraDistance; 
+			gl2.glScaled(scale,scale,scale);
+			
+			// camera forward is -z axis 
+			RobotOverlord ro = (RobotOverlord)getRoot();
+			PoseEntity camera = ro.getViewport().getAttachedTo();
 	
-		float r = (majorAxis==Axis.X) ? 1 : 0.5f;
-		float g = (majorAxis==Axis.Y) ? 1 : 0.5f;
-		float b = (majorAxis==Axis.Z) ? 1 : 0.5f;
-
-		gl2.glColor4d(r,0,0,alpha);		renderTranslationHandle(gl2,new Vector3d(tScale,0,0));
-		gl2.glColor4d(0,g,0,alpha);		renderTranslationHandle(gl2,new Vector3d(0,tScale,0));
-		gl2.glColor4d(0,0,b,alpha);		renderTranslationHandle(gl2,new Vector3d(0,0,tScale));
-
-		gl2.glDisable(GL2.GL_CULL_FACE);
+			Matrix4d pw = subject.getPoseWorld();
+			Vector3d lookAtVector = MatrixHelper.getPosition(pw);
+			lookAtVector.sub(camera.getPosition());
+			lookAtVector.normalize();
 		
-		// handle for XY plane
-		gl2.glColor4d(r,g,0,alpha);
-		gl2.glBegin(GL2.GL_QUADS);
-		gl2.glVertex3d(0.00, 0.00, 0);
-		gl2.glVertex3d(0.15, 0.00, 0);
-		gl2.glVertex3d(0.15, 0.15, 0);
-		gl2.glVertex3d(0.00, 0.15, 0);
-		gl2.glEnd();
+			float r = (majorAxis==Axis.X) ? 1 : 0.5f;
+			float g = (majorAxis==Axis.Y) ? 1 : 0.5f;
+			float b = (majorAxis==Axis.Z) ? 1 : 0.5f;
+	
+			gl2.glColor4d(r,0,0,alpha);		renderTranslationHandle(gl2,new Vector3d(tScale,0,0));
+			gl2.glColor4d(0,g,0,alpha);		renderTranslationHandle(gl2,new Vector3d(0,tScale,0));
+			gl2.glColor4d(0,0,b,alpha);		renderTranslationHandle(gl2,new Vector3d(0,0,tScale));
+	
+			gl2.glDisable(GL2.GL_CULL_FACE);
+			
+			// handle for XY plane
+			gl2.glColor4d(r,g,0,alpha);
+			gl2.glBegin(GL2.GL_QUADS);
+			gl2.glVertex3d(0.00, 0.00, 0);
+			gl2.glVertex3d(0.15, 0.00, 0);
+			gl2.glVertex3d(0.15, 0.15, 0);
+			gl2.glVertex3d(0.00, 0.15, 0);
+			gl2.glEnd();
+	
+			// handle for XZ plane
+			gl2.glColor4d(r,0,b,alpha);
+			gl2.glBegin(GL2.GL_QUADS);
+			gl2.glVertex3d(0.00, 0, 0.00);
+			gl2.glVertex3d(0.15, 0, 0.00);
+			gl2.glVertex3d(0.15, 0, 0.15);
+			gl2.glVertex3d(0.00, 0, 0.15);
+			gl2.glEnd();
+	
+			// handle for YZ plane
+			gl2.glColor4d(0,g,b,alpha);
+			gl2.glBegin(GL2.GL_QUADS);
+			gl2.glVertex3d(0, 0.00, 0.00);
+			gl2.glVertex3d(0, 0.00, 0.15);
+			gl2.glVertex3d(0, 0.15, 0.15);
+			gl2.glVertex3d(0, 0.15, 0.00);
+			gl2.glEnd();
+	
+			gl2.glEnable(GL2.GL_CULL_FACE);
 
-		// handle for XZ plane
-		gl2.glColor4d(r,0,b,alpha);
-		gl2.glBegin(GL2.GL_QUADS);
-		gl2.glVertex3d(0.00, 0, 0.00);
-		gl2.glVertex3d(0.15, 0, 0.00);
-		gl2.glVertex3d(0.15, 0, 0.15);
-		gl2.glVertex3d(0.00, 0, 0.15);
-		gl2.glEnd();
+		gl2.glPopMatrix();
 
-		// handle for YZ plane
-		gl2.glColor4d(0,g,b,alpha);
-		gl2.glBegin(GL2.GL_QUADS);
-		gl2.glVertex3d(0, 0.00, 0.00);
-		gl2.glVertex3d(0, 0.00, 0.15);
-		gl2.glVertex3d(0, 0.15, 0.15);
-		gl2.glVertex3d(0, 0.15, 0.00);
-		gl2.glEnd();
-
-		gl2.glEnable(GL2.GL_CULL_FACE);
-		
 		if(isActivelyMoving && !activeMoveIsRotation) {
 			// the distance we tried to move.
 			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(255,255,255);
-			gl2.glVertex3d(0,0,0);
-			
-			gl2.glVertex3d(
-					(startMatrix.m03-pw.m03)/(ballSize.get()*cameraDistance),
-					(startMatrix.m13-pw.m13)/(ballSize.get()*cameraDistance),
-					(startMatrix.m23-pw.m23)/(ballSize.get()));
+			gl2.glColor3f(1,1,1);
+			gl2.glVertex3d(startMatrix.m03,startMatrix.m13,startMatrix.m23);
+			gl2.glVertex3d(pw.m03,pw.m13,pw.m23);
 			gl2.glEnd();
 		}
 	}
 	
-	protected void renderTranslationHandle(GL2 gl2,Vector3d n) {
+	private void renderTranslationHandle(GL2 gl2,Vector3d n) {
 		double s = 0.05;
 		// draw box
 		Point3d b0 = new Point3d( s, s, s); 
