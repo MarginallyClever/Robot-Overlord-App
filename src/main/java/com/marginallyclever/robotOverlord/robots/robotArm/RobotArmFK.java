@@ -40,9 +40,6 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.TextureEntity;
  * @since 2021-02-24
  */
 public class RobotArmFK extends PoseEntity {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2436924907127292890L;
 	
 	private Shape base;
@@ -91,7 +88,9 @@ public class RobotArmFK extends PoseEntity {
 		bones.clear();
 	}
 
-	// Use the cumulative pose of each Sixi3Bone to adjust the model origins.
+	/**
+	 * Use the cumulative pose of each {@link RobotArmBone} to adjust the model origins.
+	 */
 	protected void adjustModelOriginsToDHLinks() {
 		Matrix4d current = new Matrix4d();
 		current.setIdentity();
@@ -104,7 +103,9 @@ public class RobotArmFK extends PoseEntity {
 		}
 	}
 
-	// Use the cumulative pose of each Sixi3Bone to adjust the center of mass of each bone.
+	/**
+	 * Use the cumulative pose of each {@link RobotArmBone} to adjust the center of mass of each bone.
+	 */
 	protected void adjustCenterOfMassToDHLinks() {
 		Matrix4d current = new Matrix4d();
 		current.setIdentity();
