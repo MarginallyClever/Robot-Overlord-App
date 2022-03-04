@@ -25,6 +25,7 @@ public class EntityFactory {
 		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_6axis.class,
 		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Thor.class,
 		com.marginallyclever.robotOverlord.robots.robotArm.implementations.Meca500.class,
+		com.marginallyclever.robotOverlord.robots.robotArm.implementations.K1_Osiris.class,
 	};
 	
 	public static ArrayList<String> getAllEntityNames() {
