@@ -60,7 +60,7 @@ public class RobotArmFKTests {
             a.setPose(m3);
 
             a.setAngles(av);
-            am = a.getEndEffector();
+            am = a.getToolCenterPoint();
 
             File tempFile = File.createTempFile("test", "txt", new File(System.getProperty("user.dir")));
 
@@ -83,7 +83,7 @@ public class RobotArmFKTests {
                 assertTrue(av[i] == bv[i]);
             }
 
-            bm = b.getEndEffector();
+            bm = b.getToolCenterPoint();
             assertTrue(am.equals(bm));
 
             tempFile.deleteOnExit();

@@ -35,11 +35,18 @@ public class RobotArmIKTests {
 		RobotArmIK arm = new Sixi3_6axis();
 		double [] jOriginal = arm.getAngles();
 		Matrix4d start = arm.getEndEffector();
-		Matrix4d end = arm.getEndEffectorTarget();
 		
-		try {
-			PrintWriter pw = new PrintWriter(new File("test"+((int)STEPS)+"-"+(useExact?"e":"a")+".csv"));
-
+		double [] jStart = arm.getAngles();
+		double [] jRandom = new double[jStart.length];
+		for(int i=0;i<jStart.length;++i) {
+			RobotArmBone b = arm.getBone(i); 
+			jRandom[i] = (Math.random() * (b.getAngleMax()-b.getAngleMin())) + b.getAngleMin();
+		}
+		arm.setAngles(jRandom);
+		Matrix4d end = arm.getEndEffector();
+		arm.setAngles(jStart);
+		
+		try(PrintWriter pw = new PrintWriter(new File("test"+((int)STEPS)+"-"+(useExact?"e":"a")+".csv"))) {
 			Matrix4d interpolated = new Matrix4d();
 			Matrix4d old = new Matrix4d(start);
 			//double [] cartesianDistanceCompare = new double[6];
@@ -55,7 +62,7 @@ public class RobotArmIKTests {
 
 				// move arm towards result to get future pose
 				try {
-					JacobianNewtonRaphson.step(arm);
+					JacobianNewtonRaphson.step(arm,end);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -101,14 +108,13 @@ public class RobotArmIKTests {
 			}
 
 			pw.flush();
-			pw.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		
 		arm.setAngles(jOriginal);
 		
-		Matrix4d startCompare = arm.getEndEffector();
+		Matrix4d startCompare = arm.getToolCenterPoint();
 		if(!startCompare.equals(start)) {
 			Log.message("Change!\nS"+start.toString()+"E"+startCompare.toString());
 		}

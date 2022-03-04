@@ -339,7 +339,7 @@ public class MiscTests {
 
         // use forward kinematics to find the endMatrix of the pose
         model.setAngles(keyframe0);
-        m0.set(model.getEndEffector());
+        m0.set(model.getToolCenterPoint());
 
         String message = StringHelper.formatDouble(m0.m03) + "\t"
                 + StringHelper.formatDouble(m0.m13) + "\t"
