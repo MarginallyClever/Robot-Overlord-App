@@ -35,7 +35,7 @@ public class RemoveEntityAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		ArrayList<Entity> entityList = ro.getSelectedEntities();
+		ArrayList<Entity> entityList = new ArrayList<Entity>(ro.getSelectedEntities());
 		if(entityList.size()==0) {
 			Log.error("RemoveEntity with no entity selected.");
 			return;

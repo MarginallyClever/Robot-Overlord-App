@@ -327,7 +327,6 @@ public class MarlinInterface extends JPanel {
 		try {
 			RobotArmIK temp = (RobotArmIK)myArm.clone();
 			myArm.setAngles(temp.getAngles());
-			myArm.setEndEffectorTarget(myArm.getEndEffector());
 		} catch (CloneNotSupportedException e) {
 			Log.error("GoHome: "+e.getMessage());
 		}

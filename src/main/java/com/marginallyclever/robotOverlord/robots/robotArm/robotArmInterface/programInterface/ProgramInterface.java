@@ -265,7 +265,6 @@ public class ProgramInterface extends JPanel {
 		ProgramEvent move = listModel.get(now);
 		// Log.message("Step to ("+now+"):"+move.toString());
 		myArm.setAngles(move.getAngles());
-		myArm.setEndEffectorTarget(myArm.getEndEffector());
 
 		int selected = listView.getSelectedIndex();
 		listView.ensureIndexIsVisible(selected);

@@ -2,7 +2,6 @@ package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,24 +43,23 @@ public class RobotArmFK extends PoseEntity {
 	
 	private Shape base;
 	private ArrayList<RobotArmBone> bones = new ArrayList<RobotArmBone>();
+	private RobotArmEndEffector endEffector = new RobotArmEndEffector("End Effector");
+	private PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
 	
 	private BooleanEntity showSkeleton = new BooleanEntity("Show Skeleton",false);
 	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
-	private BooleanEntity showEndEffector = new BooleanEntity("Show End Effector",true);
 	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",false);
-	private PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
 
 	public RobotArmFK(String name) {
 		super(name);
-		
-		addChild(toolCenterPoint);
+
+		addChild(endEffector);
+		endEffector.addChild(toolCenterPoint);
+		endEffector.setArm(this);
 
 		loadModel();
 		
-		for(int i=0;i<bones.size();++i) {
-			RobotArmBone b = bones.get(i);
-			b.updateMatrix();
-		}
+		updateEndEffectorPosition();
 	}
 	
 	public RobotArmFK() {
@@ -75,6 +73,8 @@ public class RobotArmFK extends PoseEntity {
 		for( RobotArmBone i : bones ) {
 			b.bones.add((RobotArmBone)(i.clone()));
 		}
+		b.endEffector = (RobotArmEndEffector)endEffector.clone();
+		b.endEffector.setArm(b);
 		
 		return b;
 	}
@@ -133,13 +133,11 @@ public class RobotArmFK extends PoseEntity {
 			MatrixHelper.applyMatrix(gl2, myPose);
 			drawMeshes(gl2);
 			drawExtras(gl2);
-			
-			toolCenterPoint.render(gl2);
 		gl2.glPopMatrix();
 
 		super.render(gl2);
 	}
-	
+
 	private void drawMeshes(GL2 gl2) {
 		base.render(gl2);
 
@@ -162,7 +160,6 @@ public class RobotArmFK extends PoseEntity {
 		if(showAngles.get()) drawAngles(gl2);
 		if(drawForceAndTorque.get()) drawForceAndTorque(gl2);
 		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
-		if(showEndEffector.get()) MatrixHelper.drawMatrix(gl2, getEndEffector(), 6);
 		
 		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
@@ -276,33 +273,33 @@ public class RobotArmFK extends PoseEntity {
 		gl2.glPopMatrix();
 	}
 	
-	private Matrix4d getToolCenterPoint() {
+	/**
+	 * @return the offset from the end effector to the tool center point.
+	 */
+	public Matrix4d getToolCenterPointOffset() {
 		return toolCenterPoint.getPose();
 	}
 	
-	@SuppressWarnings("unused")
-	private void setToolCenterPoint(Matrix4d tcpNew) {
+	public void setToolCenterPointOffset(Matrix4d tcpNew) {
 		Matrix4d tcpOld = toolCenterPoint.getPose();
 		this.toolCenterPoint.setPose(tcpNew);
 
-		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"tcp",tcpOld,tcpNew));
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"tcpOffset",tcpOld,tcpNew));
 	}
 
 	/**
-	 * Find the current end effector pose, relative to the base of this robot
-	 * @param m where to store the end effector pose.
+	 * @return the end effector + tool center pose relative to the base of this robot.
 	 */
-	public Matrix4d getEndEffector() {
-		Matrix4d m = getEndEffectorWithoutTCP();
+	public Matrix4d getToolCenterPoint() {
+		Matrix4d m = getEndEffector();
 		m.mul(toolCenterPoint.getPose());
 		return m;
 	}
 
 	/**
-	 * Find the current end effector pose, relative to the base of this robot
-	 * @param m where to store the end effector pose.
+	 * @return the current end effector pose, relative to the base of this robot
 	 */
-	public Matrix4d getEndEffectorWithoutTCP() {
+	public Matrix4d getEndEffector() {
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
 		for( RobotArmBone bone : bones ) {
@@ -310,6 +307,10 @@ public class RobotArmFK extends PoseEntity {
 		}
 		
 		return m;
+	}
+	
+	public RobotArmEndEffector getEndEffectorChild() {
+		return endEffector;
 	}
 
 	@Override
@@ -326,7 +327,6 @@ public class RobotArmFK extends PoseEntity {
 		});
 		view.add(showSkeleton);
 		view.add(showAngles);
-		view.add(showEndEffector);
 		view.add(drawForceAndTorque);
 
 		ViewElementButton bOpen = view.addButton("Open edit panel");
@@ -375,9 +375,7 @@ public class RobotArmFK extends PoseEntity {
 	}
 
 	/**
-	 * 
-	 * @param list where to collect the information.  Must be {@link RobotArmFK#NUM_BONES} long.
-	 * @throws InvalidParameterException
+	 * @returns a list of doubles with the angles in degrees.  Must be {@link RobotArmFK#NUM_BONES} long.
 	 */
 	public double [] getAngles() {
 		double [] list = new double[bones.size()];
@@ -410,19 +408,22 @@ public class RobotArmFK extends PoseEntity {
 		}
 
 		if(changed) {
+			Matrix4d eeOld = getEndEffector();
+			
 			// theta values actually changed so update matrixes and get the new end effector position.
 			updateEndEffectorPosition();
+			
+			Matrix4d eeNew = getEndEffector();
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
 	}
 	
 	private void updateEndEffectorPosition() {
-		Matrix4d eeOld = getEndEffector();
 		for( RobotArmBone b : bones ) {
 			b.updateMatrix();
 		}
-		Matrix4d eeNew = getEndEffector();
 
-		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
+		endEffector.setPose(getEndEffector());
 	}
 	
 	public ArrayList<Cuboid> getCuboidList() {
@@ -486,8 +487,7 @@ public class RobotArmFK extends PoseEntity {
 				","+getPose().toString()
 				+","+base.getModelFilename()
 				+","+showAngles.get()
-				+","+showEndEffector.get()
-				+","+getToolCenterPoint();
+				+","+getToolCenterPointOffset();
 		
 		String angles="";
 		String add="";

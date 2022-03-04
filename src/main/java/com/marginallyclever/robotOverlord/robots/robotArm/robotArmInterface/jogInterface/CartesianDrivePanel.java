@@ -122,7 +122,7 @@ public class CartesianDrivePanel extends JPanel {
 			mFor.mul(sixi3.getBone(0).getPose());
 			break;
 		case 2:
-			mFor = sixi3.getEndEffector();
+			mFor = sixi3.getToolCenterPoint();
 			break;
 		default:
 			throw new UnsupportedOperationException("frame of reference selection");
@@ -147,17 +147,11 @@ public class CartesianDrivePanel extends JPanel {
 	private void onDialTurn(RobotArmIK arm) {
 		double v_mm = getMovementStepSize();
 		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(arm,v_mm);
-		try {
-			JacobianNewtonRaphson.iterate(arm,m4,20);
-		} catch(Exception e) {
-			// TODO deal with this more elegantly?
-			String s = CartesianDrivePanel.class.getSimpleName()+" failed for move: "+e.getLocalizedMessage();
-			Log.error(s);
-		}
+		arm.getEndEffectorChild().moveTowards(m4);
 	}
 	
 	private Matrix4d getEndEffectorMovedInFrameOfReference(RobotArmIK arm, double v_mm) {
-		Matrix4d m4 = arm.getEndEffectorTarget();
+		Matrix4d m4 = arm.getEndEffector();
 		Matrix4d mFor = getFrameOfReferenceMatrix(arm);
 		
 		Vector3d p=new Vector3d();

@@ -84,7 +84,6 @@ public class AngleDrivePanel extends JPanel {
 		}
 		
 		arm.setAngles(fk);
-		arm.setEndEffectorTarget(arm.getEndEffector());
 	}
 
 	private JRadioButton makeRadioButton(ButtonGroup group, String label) {

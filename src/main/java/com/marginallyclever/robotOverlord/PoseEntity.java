@@ -135,15 +135,10 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		m.setTranslation(pos);
 		setPose(m);
 	}
-	
-	/**
-	 * Ask this entity "can you move to newWorldPose?"
-	 * @param newWorldPose the desired world pose of the PoseEntity.
-	 * @return true if it can.
-	 */
+
 	@Override
-	public boolean canYouMoveTo(Matrix4d newWorldPose) {
-		return true;
+	public void moveTowards(Matrix4d newWorldPose) {
+		setPoseWorld(newWorldPose);
 	}
 	
 	/**
@@ -375,9 +370,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMajorAxisTarget(poseWorld);
 		if(m!=null) {
-			if(canYouMoveTo(m)) {
-				UndoSystem.addEvent(this,new MoveEdit(this,m));
-			}
+			UndoSystem.addEvent(this,new MoveEdit(this,m));
 		}
 	}
 	
@@ -385,9 +378,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMinorAxisTarget(poseWorld);
 		if(m!=null) {
-			if(canYouMoveTo(m)) {
-				UndoSystem.addEvent(this,new MoveEdit(this,m));
-			}
+			UndoSystem.addEvent(this,new MoveEdit(this,m));
 		}
 	}
 

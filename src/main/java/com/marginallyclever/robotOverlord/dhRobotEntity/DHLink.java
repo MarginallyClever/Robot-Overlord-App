@@ -518,8 +518,7 @@ public class DHLink extends PoseEntity implements Collidable {
 	 * @param newWorldPose the desired world pose of the link
 	 * @return true if it can.
 	 */
-	@Override
-	public boolean canYouMoveTo(Matrix4d newWorldPose) {
+	public boolean canMoveTowards(Matrix4d newWorldPose) {
 		if( parent instanceof DHLink || parent instanceof DHRobotModel ) {
 			if( !this.getLetter().isEmpty() ) {
 				Matrix4d oldPose = getPoseWorld();
@@ -538,12 +537,10 @@ public class DHLink extends PoseEntity implements Collidable {
 				dy =Math.abs(newWorldPose.m12-oldPose.m12);
 				dz =Math.abs(newWorldPose.m22-oldPose.m22);
 				if(dx+dy+dz>1e-6) return false;
-				// we made it here, move is legal!
-				return true;
 			}
 		}
-		// else default case
-		return super.canYouMoveTo(newWorldPose);
+		// we made it here, move is legal!
+		return true;
 	}
 	
 	@Override

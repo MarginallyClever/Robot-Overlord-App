@@ -13,16 +13,16 @@ import com.marginallyclever.convenience.MatrixHelper;
  */
 public class JacobianNewtonRaphson {
 	/**
-	 * Move a {@link RobotArmIK} towards a target end effector pose. IT is assumed
+	 * Move a {@link RobotArmIK} towards a target TCP pose. IT is assumed
 	 * the travel distance is small.
 	 * 
-	 * @param arm
+	 * @param arm the subject to be moved.
+	 * @param m1 destination TCP pose
 	 * @throws Exception an exception may occur if the inverse jacobian cannot be
 	 *                   calculated, which may occur if the arm is at a singularity.
 	 */
-	public static void step(RobotArmIK arm) throws Exception {
+	public static void step(RobotArmIK arm,Matrix4d m1) throws Exception {
 		Matrix4d m0 = arm.getEndEffector();
-		Matrix4d m1 = arm.getEndEffectorTarget();
 		double[] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, m1);
 		// Log.message("cartesianDistance="+Arrays.toString(cartesianDistance));
 		ApproximateJacobian aj = arm.getApproximateJacobian();
@@ -48,12 +48,10 @@ public class JacobianNewtonRaphson {
 		// Log.message("iterate begins");
 		RobotArmIK temp = (RobotArmIK) arm.clone();
 		temp.setAngles(arm.getAngles());
-		temp.setEndEffectorTarget(m4);
 		for (int i = 0; i < tries; ++i) {
-			JacobianNewtonRaphson.step(temp);
+			JacobianNewtonRaphson.step(temp,m4);
 			if (temp.getDistanceToTarget(m4) < 0.01) {
 				arm.setAngles(temp.getAngles());
-				arm.setEndEffectorTarget(m4);
 				break;
 			}
 		}

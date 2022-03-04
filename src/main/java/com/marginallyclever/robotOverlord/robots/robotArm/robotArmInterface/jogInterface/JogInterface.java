@@ -14,7 +14,7 @@ import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 public class JogInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private RobotArmIK myArm;
-	private CartesianReportPanel eeReport, eeTargetReport;
+	private CartesianReportPanel eeReport, tcpReport;
 
 	public JogInterface(RobotArmIK arm) {
 		super();
@@ -42,7 +42,7 @@ public class JogInterface extends JPanel {
 		c.weightx = 1;
 		this.add(eeReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".EndEffector"), c);
 		c.gridy++;
-		this.add(eeTargetReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".EndEffectorTarget"), c);
+		this.add(tcpReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".ToolCenterPoint"), c);
 		c.gridy--;
 		c.gridx++;
 		c.gridheight=2;
@@ -66,8 +66,8 @@ public class JogInterface extends JPanel {
 	private void updateReports() {
 		Matrix4d m0=myArm.getEndEffector();
 		eeReport.updateReport(m0);
-		Matrix4d m1=myArm.getEndEffectorTarget();
-		eeTargetReport.updateReport(m1);
+		Matrix4d m1=myArm.getToolCenterPoint();
+		tcpReport.updateReport(m1);
 	}
 
 	public static void main(String[] args) {

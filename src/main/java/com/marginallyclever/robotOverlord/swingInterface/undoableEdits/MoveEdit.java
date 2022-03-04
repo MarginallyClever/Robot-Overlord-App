@@ -37,7 +37,7 @@ public class MoveEdit extends AbstractUndoableEdit {
 		prev = entity.getPoseWorld();
 		this.next = newPose;
 
-		entity.setPoseWorld(next);
+		entity.moveTowards(next);
 	}
 
 	@Override

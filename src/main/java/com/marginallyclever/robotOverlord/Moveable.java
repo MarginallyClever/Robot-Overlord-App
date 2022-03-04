@@ -10,10 +10,9 @@ public abstract interface Moveable {
 	public abstract Matrix4d getPoseWorld();
 
 	/**
-	 * Ask this entity "can you move to newWorldPose?"
-	 * TODO if canYouMoveTo says no, get reasons why?
+	 * Pull a {@link Moveable} object towards a new pose.  It is not guaranteed to
+	 * make it all the way.
 	 * @param newWorldPose the desired world pose of the subject.
-	 * @return true if it can.
 	 */
-	public abstract boolean canYouMoveTo(Matrix4d newWorldPose);
+	public abstract void moveTowards(Matrix4d newWorldPose);
 }

@@ -1,7 +1,5 @@
 package com.marginallyclever.robotOverlord.robots.robotArm;
 
-import java.beans.PropertyChangeEvent;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.vecmath.Matrix4d;
@@ -10,8 +8,8 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -25,13 +23,9 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  */
 public class RobotArmIK extends RobotArmFK {
 	private static final long serialVersionUID = -7778520191789995554L;
-
-	private PoseEntity eeTarget = new PoseEntity("Target");
 	
 	public RobotArmIK(String name) {
 		super(name);
-		addChild(eeTarget);
-		setEndEffectorTarget(getEndEffector());
 	}
 		
 	public RobotArmIK() {
@@ -41,7 +35,6 @@ public class RobotArmIK extends RobotArmFK {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		RobotArmIK b = (RobotArmIK)super.clone();
-		b.eeTarget = (PoseEntity)eeTarget.clone();
 		
 		return b;
 	}
@@ -62,7 +55,7 @@ public class RobotArmIK extends RobotArmFK {
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
 		Matrix4d start = this.getEndEffector();
-		Matrix4d end = eeTarget.getPose();
+		Matrix4d end = getEndEffectorChild().getPoseWorld();
 		Matrix4d interpolated = new Matrix4d();
 		
 		Vector3d a = new Vector3d();
@@ -82,7 +75,7 @@ public class RobotArmIK extends RobotArmFK {
 		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
 		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
-	
+
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("IK","Inverse Kinematics");
@@ -90,16 +83,9 @@ public class RobotArmIK extends RobotArmFK {
 		ViewElementButton bOpen = view.addButton("Open control panel");
 		bOpen.addActionEventListener((evt)-> onOpenAction() );
 
-		ViewElementButton bResetGoto = view.addButton("Reset GoTo");
-		bResetGoto.addActionEventListener((evt)-> onResetGotoAction() );
-
 		view.popStack();
 		
 		super.getView(view);
-	}
-
-	private void onResetGotoAction() {
-		setEndEffectorTarget(this.getEndEffector());
 	}
 
 	private void onOpenAction() {
@@ -125,23 +111,17 @@ public class RobotArmIK extends RobotArmFK {
         }).start();
 	}
 
-	public Matrix4d getEndEffectorTarget() {
-		return eeTarget.getPose();
-	}
-
-	/**
-	 * Update the target end effector and fire a {@link PropertyChangeEvent} notice.  
-	 * The {@link PropertyChangeEvent.propertyName} will be "eeTarget".
-	 * @param m1 the new end effector target.
-	 */
-	public void setEndEffectorTarget(Matrix4d m1) {
-		Matrix4d m0 = eeTarget.getPoseWorld();
-		eeTarget.setPose(m1);
-		
-		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"eeTarget",m0,m1));
-	}
-
 	public ApproximateJacobian getApproximateJacobian() {
 		return new ApproximateJacobian(this);
+	}
+
+	public void moveEndEffectorTowards(Matrix4d newWorldPose) {
+		try {
+			JacobianNewtonRaphson.iterate(this,newWorldPose,20);
+		} catch(Exception e) {
+			// TODO deal with this more elegantly?
+			String s = RobotArmIK.class.getSimpleName()+" failed for move: "+e.getLocalizedMessage();
+			Log.error(s);
+		}
 	}
 }

@@ -534,10 +534,8 @@ public class MoveTool extends Entity {
 	}
 	
 	public void attemptMove(RobotOverlord ro) {
-		if(subject.canYouMoveTo(resultMatrix)) {
-			FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-			UndoSystem.addEvent(this,new MoveEdit(subject,resultMatrix));
-		}
+		FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
+		UndoSystem.addEvent(this,new MoveEdit(subject,resultMatrix));
 	}
 
 	protected double testBoxHit(Ray ray,Vector3d n) {		
@@ -561,7 +559,7 @@ public class MoveTool extends Entity {
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		ro.getViewport().renderChosenProjection(gl2);
+		//ro.getViewport().renderChosenProjection(gl2);
 
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 		
@@ -833,11 +831,15 @@ public class MoveTool extends Entity {
 		gl2.glPopMatrix();
 
 		if(isActivelyMoving && !activeMoveIsRotation) {
-			// the distance we tried to move.
 			gl2.glBegin(GL2.GL_LINES);
+			// the distance we tried to move.
 			gl2.glColor3f(1,1,1);
 			gl2.glVertex3d(startMatrix.m03,startMatrix.m13,startMatrix.m23);
 			gl2.glVertex3d(pw.m03,pw.m13,pw.m23);
+			// distance we wanted to move.
+			gl2.glColor3d(0.8,0.8,0.8);
+			gl2.glVertex3d(pw.m03,pw.m13,pw.m23);
+			gl2.glVertex3d(resultMatrix.m03,resultMatrix.m13,resultMatrix.m23);
 			gl2.glEnd();
 		}
 	}
