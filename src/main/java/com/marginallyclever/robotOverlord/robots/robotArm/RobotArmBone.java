@@ -140,7 +140,7 @@ public class RobotArmBone implements Cloneable {
 			newAngle = Math.max(Math.min(newAngle, thetaMax), thetaMin);
 		}
 		
-		theta = newAngle;
+		theta = newAngle % 360;
 	}
 	
 	public void updateMatrix() {
@@ -210,8 +210,8 @@ public class RobotArmBone implements Cloneable {
 		return shape;
 	}
 
-	public void setTexturefilename(String fname) {
-		shape.getMaterial().setTextureFilename(fname);
+	public void setTextureFilename(String filename) {
+		shape.getMaterial().setTextureFilename(filename);
 	}
 
 	public double getMass() {
