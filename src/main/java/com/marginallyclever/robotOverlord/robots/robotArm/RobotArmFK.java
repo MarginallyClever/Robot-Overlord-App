@@ -123,7 +123,7 @@ public class RobotArmFK extends PoseEntity {
 	protected void setTextureFilename(String fname) {
 		base.getMaterial().setTextureFilename(fname);
 		for( RobotArmBone bone : bones ) {
-			bone.setTexturefilename(fname);
+			bone.setTextureFilename(fname);
 		}
 	}
 	
