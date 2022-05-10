@@ -54,21 +54,21 @@ public class DeltaRobot3 extends RobotEntity {
 	private final transient Shape modelBase;
 	
 	// motion state testing
-	private final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
-	private final DeltaRobot3Memento motionFuture = new DeltaRobot3Memento();
+	final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
+	final DeltaRobot3Memento motionFuture = new DeltaRobot3Memento();
 
 	// control panel
 	private transient DeltaRobot3Panel controlPanel;
-	
+
 	// keyboard history
-	private float aDir, bDir, cDir;
-	private float xDir, yDir, zDir;
+	private float aDir=0, bDir=0, cDir=0;
+	private float xDir=0, yDir=0, zDir=0;
 
 	// network info
-	private  boolean isPortConfirmed;
+	private boolean isPortConfirmed=false;
 	
 	// misc
-	private double speed;
+	private double speed=2;
 	private boolean isHomed = false;
 
 	/**
@@ -97,15 +97,6 @@ public class DeltaRobot3 extends RobotEntity {
 
 		setupBoundingVolumes();
 		setHome(new Vector3d(0,0,0));
-		
-		isPortConfirmed=false;
-		speed=2;
-		aDir = 0.0f;
-		bDir = 0.0f;
-		cDir = 0.0f;
-		xDir = 0.0f;
-		yDir = 0.0f;
-		zDir = 0.0f;
 
 		tube.setRadius(0.15f);
 
@@ -145,10 +136,8 @@ public class DeltaRobot3 extends RobotEntity {
 		volumes[2].setRadius(2.2f);
 	}
 	
-	
 	public Vector3d getHome() {  return new Vector3d(HOME_X,HOME_Y,HOME_Z);  }
-	
-	
+
 	public void setHome(Vector3d newHome) {
 		HOME_X=newHome.x;
 		HOME_Y=newHome.y;
@@ -168,29 +157,25 @@ public class DeltaRobot3 extends RobotEntity {
 		motionNow.fingerPosition.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
 		moveIfAble();
 	}
-	
 
-    private void readObject(ObjectInputStream inputStream)
-            throws IOException, ClassNotFoundException
-    {
+    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
     	inputStream.defaultReadObject();
     }
 
+	@Deprecated
 	private void moveCartesian(double delta) {
 		boolean changed=false;
+		double dv = getSpeed();
 		
-		float dv = (float)getSpeed();
-		
-		if (xDir!=0) {  motionFuture.fingerPosition.x += dv * xDir;  changed=true;  xDir=0;  }
-		if (yDir!=0) {  motionFuture.fingerPosition.y += dv * yDir;	 changed=true;  yDir=0;  }
-		if (zDir!=0) {  motionFuture.fingerPosition.z += dv * zDir;	 changed=true;  zDir=0;  }
+		if(xDir!=0) {  motionFuture.fingerPosition.x += dv * xDir;	changed=true;  xDir=0;  }
+		if(yDir!=0) {  motionFuture.fingerPosition.y += dv * yDir;	changed=true;  yDir=0;  }
+		if(zDir!=0) {  motionFuture.fingerPosition.z += dv * zDir;	changed=true;  zDir=0;  }
 		
 		if(changed) {
 			moveIfAble();
 		}
 	}
-	
-	
+
 	public void moveIfAble() {
 		if(movePermitted()) {
 			haveArmsMoved=true;
@@ -198,8 +183,8 @@ public class DeltaRobot3 extends RobotEntity {
 			if(controlPanel!=null) controlPanel.update();
 		}
 	}
-	
-	
+
+	@Deprecated
 	private void moveJoints(double delta) {
 		boolean changed=false;
 		int i;
@@ -216,9 +201,9 @@ public class DeltaRobot3 extends RobotEntity {
 		// if continuous, adjust speed over time
 		//float dv *= delta;
 		
-		if (aDir!=0) {  arms[0].angle -= dv * aDir;  changed=true;  aDir=0;  }
-		if (bDir!=0) {  arms[1].angle -= dv * bDir;  changed=true;  bDir=0;  }
-		if (cDir!=0) {  arms[2].angle += dv * cDir;  changed=true;  cDir=0;  }
+		if(aDir!=0) {  arms[0].angle -= dv * aDir;  changed=true;  aDir=0;  }
+		if(bDir!=0) {  arms[1].angle -= dv * bDir;  changed=true;  bDir=0;  }
+		if(cDir!=0) {  arms[2].angle += dv * cDir;  changed=true;  cDir=0;  }
 		
 		// if not continuous, set *Dir to zero.
 		
@@ -571,7 +556,7 @@ public class DeltaRobot3 extends RobotEntity {
 			// we need to find wop-elbow to calculate the angle at the shoulder.
 			// wop-elbow is not the same as wrist-elbow.
 			b=Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH - a*a);
-			if(Double.isNaN(b)) throw new AssertionError();
+			if(Double.isNaN(b)) throw new AssertionError("unreachable");
 
 			// use intersection of circles to find elbow point.
 			//a = (r0r0 - r1r1 + d*d ) / (2*d) 
@@ -591,7 +576,7 @@ public class DeltaRobot3 extends RobotEntity {
 			temp.add(arm.shoulder);
 			// with a and r0 we can find h, the distance from midpoint to intersections.
 			hh=Math.sqrt(r0*r0-a*a);
-			if(Double.isNaN(hh)) throw new AssertionError();
+			if(Double.isNaN(hh)) throw new AssertionError("no intersections, too far");
 			// get a normal to the line wop in the plane orthogonal to ortho
 			r.cross(ortho,wop);
 			r.scale(hh);
@@ -698,7 +683,6 @@ public class DeltaRobot3 extends RobotEntity {
 		return true;
 	}
 
-
 	public boolean checkAngleLimits() {
 		// machine specific limits
 		/*
@@ -720,7 +704,6 @@ public class DeltaRobot3 extends RobotEntity {
 		 */	
 		return true;
 	}
-
 
 	@Override
 	public Memento createKeyframe() {
