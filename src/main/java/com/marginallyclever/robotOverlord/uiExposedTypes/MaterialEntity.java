@@ -67,20 +67,47 @@ public class MaterialEntity extends Entity {
 	public double getShininess() {
 		return shininess.get();
 	}
-	
+
+	/**
+	 *
+	 * @param r 0...1
+	 * @param g 0...1
+	 * @param b 0...1
+	 * @param a 0...1
+	 */
 	public void setDiffuseColor(double r,double g,double b,double a) {
 		diffuse.set(r,g,b,a);
 	}
-	
+
+	/**
+	 *
+	 * @param r 0...1
+	 * @param g 0...1
+	 * @param b 0...1
+	 * @param a 0...1
+	 */
 	public void setSpecularColor(double r,double g,double b,double a) {
 		specular.set(r,g,b,a);
 	}
-	
+
+	/**
+	 *
+	 * @param r 0...1
+	 * @param g 0...1
+	 * @param b 0...1
+	 * @param a 0...1
+	 */
 	public void setEmissionColor(double r,double g,double b,double a) {
 		emission.set(r,g,b,a);
 	}
-	
 
+	/**
+	 *
+	 * @param r 0...1
+	 * @param g 0...1
+	 * @param b 0...1
+	 * @param a 0...1
+	 */
 	public void setAmbientColor(double r,double g,double b,double a) {
 		ambient.set(r,g,b,a);
 	}

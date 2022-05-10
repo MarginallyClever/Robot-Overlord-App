@@ -1,27 +1,16 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.JacobianNewtonRaphson;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
+
+import javax.swing.*;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.awt.*;
+import java.io.Serial;
 
 /**
  * {@link CartesianDrivePanel} displays a dial that can adjust one cartesian movement at a time.
@@ -32,22 +21,23 @@ import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
  *
  */
 public class CartesianDrivePanel extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private ButtonGroup buttonGroup = new ButtonGroup();
-	private JRadioButton x = makeRadioButton(buttonGroup,"X");
-	private JRadioButton y = makeRadioButton(buttonGroup,"Y");
-	private JRadioButton z = makeRadioButton(buttonGroup,"Z");
-	private JRadioButton roll = makeRadioButton(buttonGroup,"roll");
-	private JRadioButton pitch = makeRadioButton(buttonGroup,"pitch");
-	private JRadioButton yaw = makeRadioButton(buttonGroup,"yaw");
-	private ScalePanel stepScale = new ScalePanel();
-	private JComboBox<String> frameOfReference;
-	private Dial dial = new Dial();
+	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private final JRadioButton x = makeRadioButton(buttonGroup,"X");
+	private final JRadioButton y = makeRadioButton(buttonGroup,"Y");
+	private final JRadioButton z = makeRadioButton(buttonGroup,"Z");
+	private final JRadioButton roll = makeRadioButton(buttonGroup,"roll");
+	private final JRadioButton pitch = makeRadioButton(buttonGroup,"pitch");
+	private final JRadioButton yaw = makeRadioButton(buttonGroup,"yaw");
+	private final ScalePanel stepScale = new ScalePanel();
+	private final JComboBox<String> frameOfReference;
+	private final Dial dial = new Dial();
 
 	public CartesianDrivePanel(RobotArmIK sixi3) {
 		super();
 
-		frameOfReference = getFramesOfReference(sixi3);
+		frameOfReference = getFramesOfReference();
 		
 		x.setSelected(true);
 		
@@ -56,7 +46,7 @@ public class CartesianDrivePanel extends JPanel {
 		this.setBorder(BorderFactory.createTitledBorder(CartesianDrivePanel.class.getSimpleName()));
 		this.setLayout(new GridBagLayout());
 		
-		JPanel referenceFrameSelection = new JPanel(new FlowLayout(SwingConstants.HORIZONTAL));
+		JPanel referenceFrameSelection = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		referenceFrameSelection.add(new JLabel("Reference frame"));
 		referenceFrameSelection.add(frameOfReference);
 
@@ -87,7 +77,6 @@ public class CartesianDrivePanel extends JPanel {
 		this.add(pitch,c);
 		c.gridy++;
 		this.add(yaw,c);
-		c.gridy++;
 		
 		c.gridx=1;
 		c.gridy=2;
@@ -101,8 +90,8 @@ public class CartesianDrivePanel extends JPanel {
 		this.add(dial,c);
 	}
 
-	private JComboBox<String> getFramesOfReference(RobotArmIK sixi3) {
-		JComboBox<String> FOR = new JComboBox<String>();
+	private JComboBox<String> getFramesOfReference() {
+		JComboBox<String> FOR = new JComboBox<>();
 		FOR.addItem("World");
 		FOR.addItem("First joint");
 		FOR.addItem("End effector");
@@ -112,20 +101,15 @@ public class CartesianDrivePanel extends JPanel {
 
 	private Matrix4d getFrameOfReferenceMatrix(RobotArmIK sixi3) {
 		Matrix4d mFor;
-		
-		switch(frameOfReference.getSelectedIndex()) {
-		case 0:
-			mFor = MatrixHelper.createIdentityMatrix4();
-			break;
-		case 1:
-			mFor = sixi3.getPoseWorld();
-			mFor.mul(sixi3.getBone(0).getPose());
-			break;
-		case 2:
-			mFor = sixi3.getToolCenterPoint();
-			break;
-		default:
-			throw new UnsupportedOperationException("frame of reference selection");
+
+		switch (frameOfReference.getSelectedIndex()) {
+			case 0 -> mFor = MatrixHelper.createIdentityMatrix4();
+			case 1 -> {
+				mFor = sixi3.getPoseWorld();
+				mFor.mul(sixi3.getBone(0).getPose());
+			}
+			case 2 -> mFor = sixi3.getToolCenterPoint();
+			default -> throw new UnsupportedOperationException("frame of reference selection");
 		}
 		
 		return mFor;
@@ -173,7 +157,7 @@ public class CartesianDrivePanel extends JPanel {
 				rot.rotZ(v_mm);
 			} else if(pitch.isSelected()) {
 				rot.rotY(v_mm);
-			} else {
+			} else if(yaw.isSelected()) {
 				rot.rotX(v_mm);
 			}
 			Matrix3d mBi = new Matrix3d(mB);
@@ -203,7 +187,7 @@ public class CartesianDrivePanel extends JPanel {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {}
+		} catch (Exception ignored) {}
 
 		JFrame frame = new JFrame(CartesianDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

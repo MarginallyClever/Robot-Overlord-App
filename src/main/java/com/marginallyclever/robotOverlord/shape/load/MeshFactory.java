@@ -8,6 +8,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 
 public class MeshFactory {
@@ -19,19 +20,26 @@ public class MeshFactory {
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
 	 * @param filename file from which to load.  may be filename.ext or zipfile.zip:filename.ext
-	 * @return the instance.
-	 * @throws Exception if file cannot be read successfully
+	 * @return an instance of Mesh.  It may contain nothing.
 	 */
-	public static Mesh load(String filename) throws Exception {
+	public static Mesh load(String filename) {
 		if(filename == null || filename.trim().length()==0) return null;
 		
 		Mesh m = getMeshFromPool(filename);
-		if(m==null) {
-			m=attemptLoad(filename);
-			if(m!=null) meshPool.add(m);
+		if(m!=null) return m;
+
+		try {
+			m = attemptLoad(filename);
 		}
-		
-		return m;
+		catch(Exception e) {
+			Log.error("Failed to load mesh: "+e.getLocalizedMessage());
+		}
+		if(m!=null) {
+			meshPool.add(m);
+			return m;
+		}
+		// failed to load, return empty mesh
+		return new Mesh();
 	}
 
 	private static Mesh getMeshFromPool(String filename) {
@@ -55,6 +63,7 @@ public class MeshFactory {
 	}
 	
 	private static boolean isValidExtension(String filename, MeshLoader loader) {
+		filename = filename.toLowerCase();
 		String [] extensions = loader.getValidExtensions();
 		for( String e : extensions ) {
 			if(filename.endsWith(e)) return true;

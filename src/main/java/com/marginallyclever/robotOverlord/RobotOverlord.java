@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.Serial;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -88,6 +89,7 @@ public class RobotOverlord extends Entity {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 8890695769715268519L;
 	
 	public static final String APP_TITLE = "Robot Overlord";
@@ -100,28 +102,28 @@ public class RobotOverlord extends Entity {
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
 	// settings
-	private Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
+	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
     //private RecentFiles recentFiles = new RecentFiles();
     
     private Scene scene = new Scene();
-	private transient ArrayList<Entity> selectedEntities = new ArrayList<Entity>(); 
-	private MoveTool moveTool = new MoveTool();
-	private transient ViewCube viewCube = new ViewCube();
-	private Camera camera = new Camera();
+	private transient final ArrayList<Entity> selectedEntities = new ArrayList<Entity>();
+	private final MoveTool moveTool = new MoveTool();
+	private transient final ViewCube viewCube = new ViewCube();
+	private final Camera camera = new Camera();
 	
 	// The main frame of the GUI
 	private JFrame mainFrame; 
 	private static JFrame logFrame;
     private JMenuBar mainMenu;
-	private JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	private JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	private final JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private EntityTreePanel entityTree;
-	private SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
+	private final SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
 	
 	private RenameEntityAction renameEntity;
 	private RemoveEntityAction removeEntity;
 
-	private FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
+	private final FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
 	private GLJPanel glCanvas;
 	
 	// should I check the state of the OpenGL stack size?  true=every frame, false=never
@@ -130,7 +132,7 @@ public class RobotOverlord extends Entity {
 	// mouse steering controls
 	private boolean isMouseIn=false;
 
-	private Viewport viewport = new Viewport();
+	private final Viewport viewport = new Viewport();
 	
     // timing for animations
     private long lastTime;
@@ -192,14 +194,14 @@ public class RobotOverlord extends Entity {
 
 	private void addCanvasListeners() {
 		glCanvas.addGLEventListener(new GLEventListener() {
+			private final boolean glDebug=false;
+			private final boolean glTrace=false;
+
 		    @Override
 		    public void init( GLAutoDrawable drawable ) {
 		        GL gl = drawable.getGL();
-
-		    	final boolean glDebug=false;
-		    	if(glDebug) useGLDebugPipeline(gl);
-		    	final boolean glTrace=false;
-		        if(glTrace) useTracePipeline(gl); 
+		    	if(glDebug) gl = useGLDebugPipeline(gl);
+		        if(glTrace) gl = useTracePipeline(gl);
 		        
 		    	GL2 gl2 = drawable.getGL().getGL2();
 		    	
@@ -214,8 +216,8 @@ public class RobotOverlord extends Entity {
 		        // TODO add a settings toggle for this option, it really slows down older machines.
 		        gl2.glEnable(GL2.GL_MULTISAMPLE);
 		        
-		        int buf[] = new int[1];
-		        int sbuf[] = new int[1];
+		        int [] buf = new int[1];
+		        int [] sbuf = new int[1];
 		        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
 		        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
 
@@ -317,7 +319,7 @@ public class RobotOverlord extends Entity {
 		Log.start();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
@@ -344,17 +346,14 @@ public class RobotOverlord extends Entity {
 		entityManagerPanel.add(abContainer,BorderLayout.NORTH);
 
         entityTree = new EntityTreePanel(true);
-        entityTree.addEntityTreePanelListener(new EntityTreePanelListener() {
-    		@Override
-    		public void entityTreePanelEvent(EntityTreePanelEvent e) {
-    			if(e.eventType == EntityTreePanelEvent.UNSELECT) {
-    				selectedEntities.removeAll(e.subjects);
-    			}
-    			if(e.eventType == EntityTreePanelEvent.SELECT) {
-    				selectedEntities.addAll(e.subjects);
-    				updateSelectEntities(selectedEntities);
-    			}
-    		}
+        entityTree.addEntityTreePanelListener((e)-> {
+			if(e.eventType == EntityTreePanelEvent.UNSELECT) {
+				selectedEntities.removeAll(e.subjects);
+			}
+			if(e.eventType == EntityTreePanelEvent.SELECT) {
+				selectedEntities.addAll(e.subjects);
+				updateSelectEntities(selectedEntities);
+			}
         });
         entityManagerPanel.add(entityTree,BorderLayout.CENTER);
         
@@ -545,8 +544,8 @@ public class RobotOverlord extends Entity {
      * An entity in the 3D scene has been "picked" (aka double-clicked).  This begins the process
      * to select that entity.  Entities selected through other means should not call pickEntity() as it would
      * cause an infinite loop.
-     * 
-     * @param e
+     *
+     * @param e the entity that was picked
      */
 	private void pickEntity(Entity e) {
 		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
@@ -618,7 +617,7 @@ public class RobotOverlord extends Entity {
 	
 	/**
 	 * Deep search for a child with this name.
-	 * @param name
+	 * @param name the name to match
 	 * @return the entity.  null if nothing found.
 	 */
 	public Entity findChildWithName(String name) {
@@ -639,21 +638,23 @@ public class RobotOverlord extends Entity {
 		view.popStack();
 	}
 	
-    private void useTracePipeline(GL gl) {
+    private GL useTracePipeline(GL gl) {
         try {
-            gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }		
-	}
-
-	private void useGLDebugPipeline(GL gl) {
-        Log.message("using GL debug pipeline");
-        try {
-            gl = gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
+            return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
         } catch (Exception e) {
         	e.printStackTrace();
         }
+		return gl;
+	}
+
+	private GL useGLDebugPipeline(GL gl) {
+        Log.message("using GL debug pipeline");
+        try {
+			return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+		return gl;
 	}
 
 	private void pickStep(GL2 gl2) {

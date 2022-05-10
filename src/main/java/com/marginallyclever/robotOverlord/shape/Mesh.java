@@ -4,6 +4,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -19,18 +20,18 @@ import com.marginallyclever.convenience.Cuboid;
 public class Mesh {
 	public final static int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates,index
 	
-	public transient ArrayList<Float> vertexArray = new ArrayList<Float>();
+	public final transient List<Float> vertexArray = new ArrayList<>();
 
-	public transient ArrayList<Float> normalArray = new ArrayList<Float>();
+	public final transient List<Float> normalArray = new ArrayList<>();
 	private transient boolean hasNormals;
 	
-	public transient ArrayList<Float> colorArray = new ArrayList<Float>();
+	public final transient List<Float> colorArray = new ArrayList<>();
 	private transient boolean hasColors;
 
-	public transient ArrayList<Float> texCoordArray = new ArrayList<Float>();
+	public final transient List<Float> texCoordArray = new ArrayList<>();
 	private transient boolean hasUVs;
 
-	public transient ArrayList<Integer> indexArray = new ArrayList<Integer>();
+	public final transient List<Integer> indexArray = new ArrayList<>();
 	private transient boolean hasIndexes;
 
 	// the mesh can only be optimized after OpenGL is ready, during rendering.
@@ -43,7 +44,7 @@ public class Mesh {
 	private String fileName;
 	
 	// bounding limits
-	protected Cuboid cuboid = new Cuboid();
+	protected final Cuboid cuboid = new Cuboid();
 
 	public Mesh() {
 		super();

@@ -113,7 +113,7 @@ public class ViewPanel extends ViewElement {
 		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   (ro,(DoubleEntity)e);
 		else if(e instanceof IntEntity     ) b = new ViewElementInt      (ro,(IntEntity)e);
 		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
-		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   (ro,(RemoteEntity)e);  // must come before StringEntity because extends StringEntity
+		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   (ro,(RemoteEntity)e);  // must come before StringEntity because RemoteEntity extends StringEntity
 		else if(e instanceof StringEntity  ) b = new ViewElementString   (ro,(StringEntity)e);
 		if(null==b) {
 			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");

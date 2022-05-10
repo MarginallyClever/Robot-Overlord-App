@@ -50,7 +50,7 @@ public class AddEntityAction extends AbstractAction {
     }
 
 	private JComboBox<String> buildEntityComboBox() {
-		JComboBox<String> box = new JComboBox<String>();
+		JComboBox<String> box = new JComboBox<>();
 		ArrayList<String> names = EntityFactory.getAllEntityNames();
 		for( String n : names ) box.addItem(n);
 		return box;

@@ -20,7 +20,7 @@ public class ConvexShadow {
 		int s = hull.size();
 		if(s<2) hull.add(p);
 		else if(s<3) addThirdPointClockwise(p);
-		else if(!pointIsInsideHull(p)) {
+		else if(!contains(p)) {
 			try {
 				addPointCarefully(p);
 			} catch(Exception e) {
@@ -117,7 +117,7 @@ public class ConvexShadow {
 	 * @param p the point
 	 * @return true if inside the fan.
 	 */ 
-	private boolean pointIsInsideHull(Vector3d p) {
+	private boolean contains(Vector3d p) {
 		Vector3d a=hull.get(0);
 		int s = hull.size();
 		for(int i=1;i<s;++i) {
@@ -126,7 +126,7 @@ public class ConvexShadow {
 			if(pointIsOnTheLeft(p, a, b)) return false;
 			a=b;
 		}
-		return false;
+		return true;
 	}
 
 	// Is point p inside triangle abc?  Works with clockwise and counter-clockwise triangles.
