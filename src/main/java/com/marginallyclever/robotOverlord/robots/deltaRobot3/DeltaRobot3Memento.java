@@ -10,7 +10,6 @@ import com.marginallyclever.convenience.memento.Memento;
  * @author Dan Royer
  *
  */
-@Deprecated
 public class DeltaRobot3Memento implements Memento {
 	/**
 	 * 

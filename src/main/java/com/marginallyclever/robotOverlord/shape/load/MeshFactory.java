@@ -15,7 +15,7 @@ public class MeshFactory {
 	private static MeshLoader [] loaders = { new LoadSTL(), new LoadOBJ(), new Load3MF(), new LoadAMF(), new LoadPLY() };
 	
 	// the pool of all shapes loaded
-	private static LinkedList<Mesh> meshPool = new LinkedList<Mesh>();
+	private static LinkedList<Mesh> meshPool = new LinkedList<>();
 	
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.

@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface;
 
 import java.awt.BorderLayout;
+import java.io.Serial;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,16 +19,17 @@ import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.marl
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.programInterface.ProgramInterface;
 
 public class RobotArmInterface extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private MarlinInterface marlinInterface;
-	private JogInterface jogInterface;
-	private ProgramInterface programInterface;
+	private final MarlinInterface marlinInterface;
+	private final JogInterface jogInterface;
+	private final ProgramInterface programInterface;
 
-	private JButton bRewind = new JButton("Rewind");
-	private JButton bStart = new JButton("Play");
-	private JButton bStep = new JButton("Step");
-	private JButton bPause = new JButton("Pause");
-	private JProgressBar progress = new JProgressBar(0, 100);
+	private final JButton bRewind = new JButton("Rewind");
+	private final JButton bStart = new JButton("Play");
+	private final JButton bStep = new JButton("Step");
+	private final JButton bPause = new JButton("Pause");
+	private final JProgressBar progress = new JProgressBar(0, 100);
 
 	private boolean isRunning = false;
 	
