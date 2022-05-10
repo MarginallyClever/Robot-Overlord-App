@@ -1,19 +1,6 @@
 package com.marginallyclever.robotOverlord.robots.deltaRobot3;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.Reader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import com.jogamp.opengl.GL2;
-
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
@@ -22,57 +9,56 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotOverlord.robots.RobotEntity;
-import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.load.MeshFactory;
+import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
-@Deprecated
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+
 public class DeltaRobot3 extends RobotEntity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 5991551452979216237L;
 	// machine ID
-	protected long robotUID;
-	protected final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
+	private long robotUID;
+	private final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
 	public final static String ROBOT_NAME = "Delta Robot 3";
 	
 	//machine dimensions & calibration
-	static final float BASE_TO_SHOULDER_X   =( 0.0f);  // measured in solidworks, relative to base origin
-	static final float BASE_TO_SHOULDER_Y   =( 3.77f);
-	static final float BASE_TO_SHOULDER_Z   =(18.9f);
-	static final float BICEP_LENGTH         =( 5.000f);
-	static final float FOREARM_LENGTH       =(16.50f);
-	static final float WRIST_TO_FINGER_X    =( 0.0f);
-	static final float WRIST_TO_FINGER_Y    =( 1.724f);
-	static final float WRIST_TO_FINGER_Z    =( 0.5f);  // measured in solidworks, relative to finger origin
-
+	public static final float BASE_TO_SHOULDER_X   =( 0.0f);  // measured in solidworks, relative to base origin
+	public static final float BASE_TO_SHOULDER_Y   =( 3.77f);
+	public static final float BASE_TO_SHOULDER_Z   =(18.9f);
+	public static final float BICEP_LENGTH         =( 5.000f);
+	public static final float FOREARM_LENGTH       =(16.50f);
+	public static final float WRIST_TO_FINGER_X    =( 0.0f);
+	public static final float WRIST_TO_FINGER_Y    =( 1.724f);
+	public static final float WRIST_TO_FINGER_Z    =( 0.5f);  // measured in solidworks, relative to finger origin
 	public static final int NUM_ARMS = 3;
-	
-	protected double HOME_X = 0.0f;
-	protected double HOME_Y = 0.0f;
-	protected double HOME_Z = 3.98f;
-	
-	static final float LIMIT_U=15;
-	static final float LIMIT_V=15;
-	static final float LIMIT_W=15;
+	private static double HOME_X = 0.0f;
+	private static double HOME_Y = 0.0f;
+	private static double HOME_Z = 3.98f;
 
 	// angle of rotation
-	public DeltaRobot3Arm arms[];
+	public final DeltaRobot3Arm [] arms = new DeltaRobot3Arm[3];
 
 	// bounding volumes for collision testing
-	protected Cylinder [] volumes;
+	private Cylinder [] volumes;
 
 	// models for 3d rendering
-	protected transient Mesh modelTop;
-	protected transient Mesh modelArm;
-	protected transient Mesh modelBase;
+	private final transient Shape modelTop;
+	private final transient Shape modelArm;
+	private final transient Shape modelBase;
 	
 	// motion state testing
-	protected DeltaRobot3Memento motionNow;
-	protected DeltaRobot3Memento motionFuture;
+	private final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
+	private final DeltaRobot3Memento motionFuture = new DeltaRobot3Memento();
 
 	// control panel
-	protected transient DeltaRobot3Panel controlPanel;
+	private transient DeltaRobot3Panel controlPanel;
 	
 	// keyboard history
 	private float aDir, bDir, cDir;
@@ -84,16 +70,31 @@ public class DeltaRobot3 extends RobotEntity {
 	// misc
 	private double speed;
 	private boolean isHomed = false;
+
+	/**
+	 * When a valid move is made in the simulation, set this flag to true.
+	 * elsewhere, watch this flag and send gcode to the robot and reset this flag.
+	 * This way the robot communication is not flooded with identical moves.
+	 */
 	private boolean haveArmsMoved = false;
-	
+
+	private final BooleanEntity draw_finger_star = new BooleanEntity("Show end effector point",true);
+	private final BooleanEntity draw_base_star = new BooleanEntity("show base star",false);
+	private final BooleanEntity draw_shoulder_to_elbow = new BooleanEntity("show shoulder to elbow",false);
+	private final BooleanEntity draw_shoulder_star = new BooleanEntity("show shoulder star",false);
+	private final BooleanEntity draw_elbow_star = new BooleanEntity("show elbow star",false);
+	private final BooleanEntity draw_wrist_star = new BooleanEntity("show wrist star",false);
+
+	private final Cylinder tube = new Cylinder();  // for drawing forearms
 
 	public DeltaRobot3() {
 		super();
 		setName(ROBOT_NAME);
 
-		motionNow = new DeltaRobot3Memento();
-		motionFuture = new DeltaRobot3Memento();
-		
+		for(int i=0;i<3;++i) {
+			arms[i] = new DeltaRobot3Arm();
+		}
+
 		setupBoundingVolumes();
 		setHome(new Vector3d(0,0,0));
 		
@@ -105,18 +106,35 @@ public class DeltaRobot3 extends RobotEntity {
 		xDir = 0.0f;
 		yDir = 0.0f;
 		zDir = 0.0f;
-		
-		try {
-			modelTop = MeshFactory.load("/DeltaRobot3.zip:top.STL");
-			modelArm = MeshFactory.load("/DeltaRobot3.zip:arm.STL");
-			modelBase = MeshFactory.load("/DeltaRobot3.zip:base.STL");
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 
-	protected void setupBoundingVolumes() {
+		tube.setRadius(0.15f);
+
+		modelTop = new Shape("top","/DeltaRobot3/top.obj");
+		modelArm = new Shape("arm","/DeltaRobot3/arm.obj");
+		modelBase = new Shape("base","/DeltaRobot3/base.obj");
+
+		modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
+		modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
+		modelTop.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
+	}
+
+	@Override
+	public void getView(ViewPanel view) {
+		view.pushStack("De","Delta robot");
+		view.addButton("Go home").addActionEventListener((e)->goHome());
+		view.popStack();
+		view.pushStack("Re","Render");
+		view.add(draw_finger_star);
+		view.add(draw_base_star);
+		view.add(draw_shoulder_to_elbow);
+		view.add(draw_shoulder_star);
+		view.add(draw_elbow_star);
+		view.add(draw_wrist_star);
+		view.popStack();
+		super.getView(view);
+	}
+
+	private void setupBoundingVolumes() {
 		// set up bounding volumes
 		volumes = new Cylinder[NUM_ARMS];
 		for(int i=0;i<volumes.length;++i) {
@@ -158,7 +176,7 @@ public class DeltaRobot3 extends RobotEntity {
     	inputStream.defaultReadObject();
     }
 
-	protected void updateIK(double delta) {
+	private void moveCartesian(double delta) {
 		boolean changed=false;
 		
 		float dv = (float)getSpeed();
@@ -182,7 +200,7 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 	
 	
-	protected void updateFK(double delta) {
+	private void moveJoints(double delta) {
 		boolean changed=false;
 		int i;
 		
@@ -218,8 +236,8 @@ public class DeltaRobot3 extends RobotEntity {
 	
 	@Override
 	public void update(double delta) {
-		updateIK(delta);
-		updateFK(delta);
+		moveCartesian(delta);
+		moveJoints(delta);
 	}
 
 
@@ -233,144 +251,69 @@ public class DeltaRobot3 extends RobotEntity {
 				          );
 		if(controlPanel!=null) controlPanel.update();
 	}
-	
 
-	protected void setColor(GL2 gl2,float r,float g,float b,float a) {
-		float [] diffuse = {r,g,b,a};
-		gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, diffuse,0);
-		float[] specular={0.85f,0.85f,0.85f,1.0f};
-	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, specular,0);
-	    float[] emission={0.01f,0.01f,0.01f,1f};
-	    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_EMISSION, emission,0);
-	    
-	    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, 50.0f);
-
-	    gl2.glColor4f(r,g,b,a);
-	}
-	
-	
 	@Override
 	public void render(GL2 gl2) {
 		super.render(gl2);
-		
-		int i;
 
-		boolean draw_finger_star=true;
-		boolean draw_base_star=true;
-		boolean draw_shoulder_to_elbow=true;
-		boolean draw_shoulder_star=true;
-		boolean draw_elbow_star=true;
-		boolean draw_wrist_star=true;
-		boolean draw_stl=true;
-
-		//RebuildShoulders(motion_now);
-		
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, this.getPose());
 		gl2.glTranslated(0,0,2);
 		
-		//motion_now.moveBase(new Vector3d(0,0,0));
-		
-		if(draw_stl) {
-			// base
-			setColor(gl2,
-					247.0f/255.0f,
-					233.0f/255.0f,
-					215.0f/255.0f,
-					1.0f);
-			setColor(gl2,1,0.8f,0.6f,1);
-			modelBase.render(gl2);
+		drawModel(gl2);
+		drawForearms(gl2);
+		drawDebugInfo(gl2);
 
-			//gl2.glTranslated(0, 0, BASE_TO_SHOULDER_Z);
-			
-			// arms
-			for(i=0;i<NUM_ARMS;++i) {
-				setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
-				gl2.glPushMatrix();
-				gl2.glTranslated(arms[i].shoulder.x,
-						         arms[i].shoulder.y,
-						         arms[i].shoulder.z);
-				gl2.glRotated(90,0,1,0);  // model oriented wrong direction
-				gl2.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
-				gl2.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
-				gl2.glRotated(180-arms[i].angle,0,0,1);
-				modelArm.render(gl2);
-				gl2.glPopMatrix();
-			}
-			//top
+		gl2.glPopMatrix();
+	}
+
+	private void drawModel(GL2 gl2) {
+		modelBase.render(gl2);
+
+		for(int i=0;i<NUM_ARMS;++i) {
 			gl2.glPushMatrix();
-			setColor(gl2,255.0f/255.0f, 249.0f/255.0f, 242.0f/255.0f,1);
-			gl2.glTranslated(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
-			modelTop.render(gl2);
+			gl2.glTranslated(arms[i].shoulder.x,
+					arms[i].shoulder.y,
+					arms[i].shoulder.z);
+			gl2.glRotated(90,0,1,0);  // model oriented wrong direction
+			gl2.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
+			gl2.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
+			gl2.glRotated(180-arms[i].angle,0,0,1);
+			modelArm.render(gl2);
 			gl2.glPopMatrix();
 		}
-		
-		// draw the forearms
-		
-		Cylinder tube = new Cylinder();
-		gl2.glColor3f(0.8f,0.8f,0.8f);
-		tube.setRadius(0.15f);
-		Vector3d a = new Vector3d();
-		Vector3d b = new Vector3d();
-		Vector3d ortho = new Vector3d();
-		
-		for(i=0;i<NUM_ARMS;++i) {
-			//gl2.glBegin(GL2.GL_LINES);
-			//gl2.glColor3f(1,0,0);
-			//gl2.glVertex3d(motion_now.arms[i].wrist.x,motion_now.arms[i].wrist.y,motion_now.arms[i].wrist.z);
-			//gl2.glColor3f(0,1,0);
-			//gl2.glVertex3d(motion_now.arms[i].elbow.x,motion_now.arms[i].elbow.y,motion_now.arms[i].elbow.z);
-			//gl2.glEnd();
-			ortho.x=Math.cos((float)i*Math.PI*2.0/3.0f);
-			ortho.y=Math.sin((float)i*Math.PI*2.0/3.0f);
-			ortho.z=0;
-			a.set(arms[i].wrist);
-			b.set(ortho);
-			b.scale(1);
-			a.add(b);
-			tube.SetP1(a);
-			a.set(arms[i].elbow);
-			b.set(ortho);
-			b.scale(1);
-			a.add(b);
-			tube.SetP2(a);
-			tube.render(gl2);
+		//top
+		gl2.glPushMatrix();
+		gl2.glTranslated(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		modelTop.render(gl2);
+		gl2.glPopMatrix();
+	}
 
-			a.set(arms[i].wrist);
-			b.set(ortho);
-			b.scale(-1);
-			a.add(b);
-			tube.SetP1(a);
-			a.set(arms[i].elbow);
-			b.set(ortho);
-			b.scale(-1);
-			a.add(b);
-			tube.SetP2(a);
-			tube.render(gl2);
-		}
-
+	private void drawDebugInfo(GL2 gl2) {
 		gl2.glDisable(GL2.GL_LIGHTING);
+		gl2.glDisable(GL2.GL_TEXTURE);
 		// debug info
 		gl2.glPushMatrix();
-		for(i=0;i<NUM_ARMS;++i) {
-			gl2.glColor3f(1,1,1);
-			if(draw_shoulder_star) PrimitiveSolids.drawStar(gl2, arms[i].shoulder,5);
-			if(draw_elbow_star) PrimitiveSolids.drawStar(gl2, arms[i].elbow,3);			
-			if(draw_wrist_star) PrimitiveSolids.drawStar(gl2, arms[i].wrist,1);
 
-			if(draw_shoulder_to_elbow) {
+		for(DeltaRobot3Arm arm : arms) {
+			gl2.glColor3f(1,1,1);
+			if(draw_shoulder_star.get()) PrimitiveSolids.drawStar(gl2, arm.shoulder,5);
+			if(draw_elbow_star.get()) PrimitiveSolids.drawStar(gl2, arm.elbow,3);
+			if(draw_wrist_star.get()) PrimitiveSolids.drawStar(gl2, arm.wrist,1);
+
+			if(draw_shoulder_to_elbow.get()) {
 				gl2.glBegin(GL2.GL_LINES);
 				gl2.glColor3f(0,1,0);
-				gl2.glVertex3d(arms[i].elbow.x,arms[i].elbow.y,arms[i].elbow.z);
+				gl2.glVertex3d(arm.elbow.x,arm.elbow.y,arm.elbow.z);
 				gl2.glColor3f(0,0,1);
-				gl2.glVertex3d(arms[i].shoulder.x,arms[i].shoulder.y,arms[i].shoulder.z);
+				gl2.glVertex3d(arm.shoulder.x,arm.shoulder.y,arm.shoulder.z);
 				gl2.glEnd();
 			}
 		}
 		gl2.glPopMatrix();
-		
-		if(draw_finger_star) {
-	 		// draw finger center (end effector)
+
+		if(draw_finger_star.get()) {
+			// draw finger center (end effector)
 			gl2.glPushMatrix();
 			gl2.glTranslated(
 					motionNow.fingerPosition.x,
@@ -380,15 +323,51 @@ public class DeltaRobot3 extends RobotEntity {
 			gl2.glPopMatrix();
 		}
 
-		if(draw_base_star) {
+		if(draw_base_star.get()) {
 			PrimitiveSolids.drawStar(gl2, 2);
 		}
-		
+
 		gl2.glEnable(GL2.GL_LIGHTING);
-		
-		gl2.glPopMatrix();
+		gl2.glEnable(GL2.GL_TEXTURE);
+
 	}
-	
+
+	private void drawForearms(GL2 gl2) {
+		Vector3d a = new Vector3d();
+		Vector3d b = new Vector3d();
+
+		int i=0;
+		for(DeltaRobot3Arm arm : arms) {
+			Vector3d ortho = getNormalOfArmPlane(i);
+			++i;
+
+			a.set(arm.wrist);
+			b.set(ortho);
+			b.scale(1);
+			a.add(b);
+			tube.SetP1(a);
+
+			a.set(arm.elbow);
+			b.set(ortho);
+			b.scale(1);
+			a.add(b);
+			tube.SetP2(a);
+			tube.render(gl2);
+
+			a.set(arm.wrist);
+			b.set(ortho);
+			b.scale(-1);
+			a.add(b);
+			tube.SetP1(a);
+			a.set(arm.elbow);
+			b.set(ortho);
+			b.scale(-1);
+			a.add(b);
+			tube.SetP2(a);
+			tube.render(gl2);
+		}
+	}
+
 
 	public void setModeAbsolute() {
 		if(connection!=null) this.sendCommand("G90");
@@ -444,7 +423,7 @@ public class DeltaRobot3 extends RobotEntity {
 	
 
 	/**
-	 * based on http://www.exampledepot.com/egs/java.net/Post.html
+	 * based on <a href="http://www.exampledepot.com/egs/java.net/Post.html">http://www.exampledepot.com/egs/java.net/Post.html</a>
 	 */
 	private long getNewRobotUID() {
 		long new_uid = 0;
@@ -486,21 +465,6 @@ public class DeltaRobot3 extends RobotEntity {
 		return volumes;
 	}
 	
-	
-	Vector3d getWorldCoordinatesFor(Vector3d in) {
-		Matrix4d im = getPoseWorld();
-		im.invert();
-		Vector3d out = new Vector3d(in);
-		im.transform(out);				
-		return out;
-	}
-
-	protected float roundOff(float v) {
-		final float SCALE = 1000.0f;
-		
-		return Math.round(v*SCALE)/SCALE;
-	}
-	
 	public void setSpeed(double newSpeed) {
 		speed=newSpeed;
 	}
@@ -534,15 +498,16 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 
 
-	protected void updateIKWrists(DeltaRobot3Memento keyframe) {
+	private void updateIKWrists(DeltaRobot3Memento keyframe) {
 		Vector3d n1 = new Vector3d(),o1 = new Vector3d(),temp = new Vector3d();
 		double c,s;
 		int i;
 		for(i=0;i<NUM_ARMS;++i) {
 			DeltaRobot3Arm arma=arms[i];
 
-			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			Vector3d ortho = getNormalOfArmPlane(i);
+			c=ortho.x;
+			s=ortho.y;
 
 			//n1 = n* c + o*s;
 			Vector3d forward = MatrixHelper.getXAxis(this.myPose);
@@ -580,8 +545,8 @@ public class DeltaRobot3 extends RobotEntity {
 	}
 	
 
-	protected void updateIKShoulderAngles() throws AssertionError {
-		Vector3d ortho = new Vector3d(),w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
+	private void updateIKShoulderAngles() throws AssertionError {
+		Vector3d w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
 		double a,b,d,r1,r0,hh,y,x;
 
 		int i;
@@ -589,9 +554,7 @@ public class DeltaRobot3 extends RobotEntity {
 			DeltaRobot3Arm arm = arms[i];
 
 			// project wrist position onto plane of bicep (wop)
-			ortho.x=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			ortho.y=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			ortho.z=0;
+			Vector3d ortho = getNormalOfArmPlane(i);
 
 			//w = arm.wrist - arm.shoulder
 			w.set(arm.wrist);
@@ -607,7 +570,7 @@ public class DeltaRobot3 extends RobotEntity {
 
 			// we need to find wop-elbow to calculate the angle at the shoulder.
 			// wop-elbow is not the same as wrist-elbow.
-			b=Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH-a*a);
+			b=Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH - a*a);
 			if(Double.isNaN(b)) throw new AssertionError();
 
 			// use intersection of circles to find elbow point.
@@ -647,16 +610,17 @@ public class DeltaRobot3 extends RobotEntity {
 		}
 	}
 
+	Vector3d getNormalOfArmPlane(double i) {
+		double v = Math.PI*2.0f * (i/3.0f - 1f/6f);
+		return new Vector3d( Math.cos(v), Math.sin(v), 0);
+	}
 	
-	protected void rebuildShoulders(DeltaRobot3Memento keyframe) {
+	private void rebuildShoulders(DeltaRobot3Memento keyframe) {
 		Vector3d n1=new Vector3d(),o1=new Vector3d(),temp=new Vector3d();
-		double c,s;
 		int i;
 		for(i=0;i<3;++i) {
-			DeltaRobot3Arm arma=arms[i];
-
-			c=Math.cos( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
-			s=Math.sin( Math.PI*2.0f * (i/3.0f - 60.0f/360.0f) );
+			DeltaRobot3Arm arma = arms[i];
+			Vector3d ortho = getNormalOfArmPlane(i);
 
 			Vector3d forward = MatrixHelper.getXAxis(this.myPose);
 			Vector3d right   = MatrixHelper.getYAxis(this.myPose);
@@ -664,16 +628,16 @@ public class DeltaRobot3 extends RobotEntity {
 
 			//n1 = n* c + o*s;
 			n1.set(forward);
-			n1.scale(c);
+			n1.scale(ortho.x);
 			temp.set(right);
-			temp.scale(s);
+			temp.scale(ortho.y);
 			n1.add(temp);
 			n1.normalize();
 			//o1 = n*-s + o*c;
 			o1.set(forward);
-			o1.scale(-s);
+			o1.scale(-ortho.y);
 			temp.set(right);
-			temp.scale(c);
+			temp.scale(ortho.x);
 			o1.add(temp);
 			o1.normalize();
 			//n1.scale(-1);
