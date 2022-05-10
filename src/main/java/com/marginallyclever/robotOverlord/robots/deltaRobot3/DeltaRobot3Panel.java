@@ -35,21 +35,6 @@ public class DeltaRobot3Panel extends JPanel implements ActionListener, ChangeLi
 	private JSlider speedControl;
 
 	public JLabel angleA,angleB,angleC;
-	/*
-	private CommandMoveRobot arm5Apos;
-	private CommandMoveRobot arm5Aneg;
-	private CommandMoveRobot arm5Bpos;
-	private CommandMoveRobot arm5Bneg;
-	private CommandMoveRobot arm5Cpos;
-	private CommandMoveRobot arm5Cneg;
-	
-	private CommandMoveRobot arm5Xpos;
-	private CommandMoveRobot arm5Xneg;
-	private CommandMoveRobot arm5Ypos;
-	private CommandMoveRobot arm5Yneg;
-	private CommandMoveRobot arm5Zpos;
-	private CommandMoveRobot arm5Zneg;
-*/
 	private JButton about;
 	
 	public JLabel xPos,yPos,zPos;
