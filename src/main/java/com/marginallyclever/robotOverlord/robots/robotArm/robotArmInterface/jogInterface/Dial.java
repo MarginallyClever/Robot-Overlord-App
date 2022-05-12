@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -26,11 +27,12 @@ public class Dial extends JComponent {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	private int value=0;
 	private int change=0;
 
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private ArrayList<ActionListener> listeners = new ArrayList<>();
 
 	public Dial() {
 		super();
@@ -122,7 +124,7 @@ public class Dial extends JComponent {
 		// +
 		x = radius-inset;
 		g.drawLine(x-v,y,x,y);
-		g.drawLine(x-v/2,-radius+0+inset,x-v/2,-radius+v+inset);
+		g.drawLine(x-v/2, -radius + inset,x-v/2,-radius+v+inset);
 	}
 
 	private void drawTurnIndicator(Graphics g, int radius) {
