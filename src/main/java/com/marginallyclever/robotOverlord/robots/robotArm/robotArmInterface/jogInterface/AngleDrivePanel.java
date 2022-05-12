@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jog
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.Serial;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -12,26 +14,33 @@ import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
 
+/**
+ * Direct drive robot motors.  To display current robot motor position use {@link AngleReportPanel}.
+ */
 public class AngleDrivePanel extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private ButtonGroup buttonGroup = new ButtonGroup();
-	private JRadioButton [] buttons;
-	private ScalePanel stepScale = new ScalePanel();
-	private Dial dial = new Dial();
+	private final JRadioButton [] buttons;
+	private final ScalePanel stepScale = new ScalePanel();
+	private final Dial dial = new Dial();
 
-	public AngleDrivePanel(RobotArmIK arm) {
+	public AngleDrivePanel(Robot robot) {
 		super();
-		
-		buttons = new JRadioButton[arm.getNumBones()];
-		for(int i=0;i<buttons.length;++i) {
-			buttons[i] = makeRadioButton(buttonGroup,arm.getBone(i).getName());
+
+		int numJoints = (int)robot.get(Robot.NUM_JOINTS);
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttons = new JRadioButton[numJoints];
+		for(int i=0;i<numJoints;++i) {
+			robot.set(Robot.ACTIVE_JOINT,i);
+			buttons[i] = makeRadioButton(buttonGroup,(String)robot.get(Robot.JOINT_NAME));
 		}
 		buttons[0].setSelected(true);
 
-		dial.addActionListener((evt)-> onDialTurn(arm) );
+		dial.addActionListener((evt)-> onDialTurn(robot) );
 		dial.setPreferredSize(new Dimension(120,120));
 		
 		this.setBorder(BorderFactory.createTitledBorder(AngleDrivePanel.class.getSimpleName()));
@@ -52,8 +61,8 @@ public class AngleDrivePanel extends JPanel {
 		c.gridwidth=1;
 		c.gridy++;
 
-		for(int i=0;i<buttons.length;++i) {
-			this.add(buttons[i],c);
+		for (JRadioButton button : buttons) {
+			this.add(button, c);
 			c.gridy++;
 		}
 		
@@ -74,16 +83,15 @@ public class AngleDrivePanel extends JPanel {
 		return dial.getChange()*scale;
 	}
 
-	private void onDialTurn(RobotArmIK arm) {
-		double [] fk = arm.getAngles();
-		
+	private void onDialTurn(Robot robot) {
 		for(int i=0;i<buttons.length;++i) {
 			if(buttons[i].isSelected()) {
-				fk[i] += getMovementStepSize();
+				robot.set(Robot.ACTIVE_JOINT,i);
+				double angle = (double)robot.get(Robot.JOINT_VALUE);
+				angle += getMovementStepSize();
+				robot.set(Robot.JOINT_VALUE,angle);
 			}
 		}
-		
-		arm.setAngles(fk);
 	}
 
 	private JRadioButton makeRadioButton(ButtonGroup group, String label) {
@@ -100,8 +108,7 @@ public class AngleDrivePanel extends JPanel {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-		}
+		} catch (Exception ignored) {}
 
 		JFrame frame = new JFrame(AngleDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -307,7 +307,7 @@ public class RobotArmFK extends PoseEntity implements Robot {
 			case END_EFFECTOR_TARGET: getEndEffectorTarget().moveTowards((Matrix4d)value);  break;
 			case TOOL_CENTER_POINT: setToolCenterPointOffset((Matrix4d)value);  break;
 			case POSE: setPoseWorld((Matrix4d)value);  break;
-			default: return;
+			default: break;
 		}
 	}
 

@@ -3,7 +3,8 @@ package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jog
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.JacobianNewtonRaphson;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
+import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
+import com.marginallyclever.robotOverlord.robots.Robot;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
@@ -34,14 +35,14 @@ public class CartesianDrivePanel extends JPanel {
 	private final JComboBox<String> frameOfReference;
 	private final Dial dial = new Dial();
 
-	public CartesianDrivePanel(RobotArmIK sixi3) {
+	public CartesianDrivePanel(Robot robot) {
 		super();
 
 		frameOfReference = getFramesOfReference();
 		
 		x.setSelected(true);
 		
-		dial.addActionListener( (e)-> onDialTurn(sixi3) );
+		dial.addActionListener( (e)-> onDialTurn(robot) );
 
 		this.setBorder(BorderFactory.createTitledBorder(CartesianDrivePanel.class.getSimpleName()));
 		this.setLayout(new GridBagLayout());
@@ -99,16 +100,17 @@ public class CartesianDrivePanel extends JPanel {
 		return FOR;
 	}
 
-	private Matrix4d getFrameOfReferenceMatrix(RobotArmIK sixi3) {
+	private Matrix4d getFrameOfReferenceMatrix(Robot robot) {
 		Matrix4d mFor;
 
 		switch (frameOfReference.getSelectedIndex()) {
 			case 0 -> mFor = MatrixHelper.createIdentityMatrix4();
 			case 1 -> {
-				mFor = sixi3.getPoseWorld();
-				mFor.mul(sixi3.getBone(0).getPose());
+				mFor = (Matrix4d)robot.get(Robot.POSE);
+				robot.set(Robot.ACTIVE_JOINT,0);
+				mFor.mul((Matrix4d)robot.get(Robot.JOINT_POSE));
 			}
-			case 2 -> mFor = sixi3.getToolCenterPoint();
+			case 2 -> mFor = (Matrix4d)robot.get(Robot.TOOL_CENTER_POINT);
 			default -> throw new UnsupportedOperationException("frame of reference selection");
 		}
 		
@@ -128,15 +130,15 @@ public class CartesianDrivePanel extends JPanel {
 		return dial.getChange()*scale;
 	}
 	
-	private void onDialTurn(RobotArmIK arm) {
+	private void onDialTurn(Robot robot) {
 		double v_mm = getMovementStepSize();
-		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(arm,v_mm);
-		arm.getEndEffectorChild().moveTowards(m4);
+		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(robot,v_mm);
+		robot.set(Robot.END_EFFECTOR_TARGET,m4);
 	}
 	
-	private Matrix4d getEndEffectorMovedInFrameOfReference(RobotArmIK arm, double v_mm) {
-		Matrix4d m4 = arm.getEndEffector();
-		Matrix4d mFor = getFrameOfReferenceMatrix(arm);
+	private Matrix4d getEndEffectorMovedInFrameOfReference(Robot robot, double v_mm) {
+		Matrix4d m4 = (Matrix4d)robot.get(Robot.END_EFFECTOR);
+		Matrix4d mFor = getFrameOfReferenceMatrix(robot);
 		
 		Vector3d p=new Vector3d();
 		Matrix3d mA = new Matrix3d(); 
@@ -191,7 +193,7 @@ public class CartesianDrivePanel extends JPanel {
 
 		JFrame frame = new JFrame(CartesianDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new CartesianDrivePanel(new RobotArmIK()));
+		frame.add(new CartesianDrivePanel(new RobotArmFK()));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface;
 
 import java.awt.BorderLayout;
+import java.io.Serial;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -15,25 +16,30 @@ import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.log.Log;
 
+/**
+ * Displays the values of a {@link Matrix4d}.
+ */
 public class CartesianReportPanel extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private JTable table;
+	private final JTable table;
 
 	public CartesianReportPanel(String title) {
 		super();
 
 		DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
         renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
-		
+
 		table = new JTable(4,4) {
+			@Serial
 			private static final long serialVersionUID = 1L;
-			
+
 		    @Override
 		    public TableCellRenderer getCellRenderer (int arg0, int arg1) {
 		        return renderRight;
 		    }
 		};
-		
+
 		//setColumnNames();
 		
 		this.setBorder(BorderFactory.createTitledBorder(/*BorderFactory.createEmptyBorder(),*/title));
@@ -103,8 +109,7 @@ public class CartesianReportPanel extends JPanel {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-		}
+		} catch (Exception ignored) {}
 
 		Matrix4d m = new Matrix4d();
 		m.setIdentity();
