@@ -6,7 +6,7 @@ import com.marginallyclever.robotOverlord.PoseEntity;
 
 import java.io.Serial;
 
-public class RobotArmEndEffector extends PoseEntity {
+public class RobotEndEffectorTarget extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -14,11 +14,11 @@ public class RobotArmEndEffector extends PoseEntity {
 	private static final long serialVersionUID = -1115218582722700063L;
 	private RobotArmFK arm;
 	
-	public RobotArmEndEffector() {
-		this(RobotArmEndEffector.class.getSimpleName());
+	public RobotEndEffectorTarget() {
+		this(RobotEndEffectorTarget.class.getSimpleName());
 	}
 	
-	public RobotArmEndEffector(String name) {
+	public RobotEndEffectorTarget(String name) {
 		super(name);
 	}
 
