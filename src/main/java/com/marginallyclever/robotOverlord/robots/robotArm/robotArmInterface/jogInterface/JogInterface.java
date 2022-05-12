@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jog
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.Serial;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,14 +13,17 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class JogInterface extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private RobotArmIK myArm;
-	private CartesianReportPanel eeReport, tcpReport;
+	private final RobotArmIK myRobot;
+	private final CartesianReportPanel eeReport, tcpReport;
 
-	public JogInterface(RobotArmIK arm) {
+	public JogInterface(RobotArmIK robot) {
 		super();
 		
-		myArm = arm;
+		myRobot = robot;
+		eeReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".EndEffector");
+		tcpReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".ToolCenterPoint");
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -32,41 +36,40 @@ public class JogInterface extends JPanel {
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.NORTHWEST;
 
-		c.weightx = 1;
-		this.add(new AngleReportPanel(myArm), c);
+		this.add(new AngleReportPanel(myRobot), c);
 		c.gridx++;
 		c.weightx = 0;
-		this.add(new AngleDrivePanel(myArm), c);
+		this.add(new AngleDrivePanel(myRobot), c);
 		c.gridx--;
 		c.gridy++;
 		c.weightx = 1;
-		this.add(eeReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".EndEffector"), c);
+		this.add(eeReport, c);
 		c.gridy++;
-		this.add(tcpReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".ToolCenterPoint"), c);
+		this.add(tcpReport, c);
 		c.gridy--;
 		c.gridx++;
 		c.gridheight=2;
 		c.weightx = 0;
-		this.add(new CartesianDrivePanel(myArm), c);
+		this.add(new CartesianDrivePanel(myRobot), c);
 		c.gridheight=1;
 		c.gridx--;
 		c.gridy+=2;
 		c.gridwidth = 2;
 		c.weightx = 1;
-		this.add(new JacobianReportPanel(myArm), c);
+		this.add(new JacobianReportPanel(myRobot), c);
 		c.gridy++;
 		c.weighty = 1;
 		this.add(new JPanel(), c);
 
-		myArm.addPropertyChangeListener( (e)-> updateReports() );
+		myRobot.addPropertyChangeListener( (e)-> updateReports() );
 		
 		updateReports();
 	}
 	
 	private void updateReports() {
-		Matrix4d m0=myArm.getEndEffector();
+		Matrix4d m0= myRobot.getEndEffector();
 		eeReport.updateReport(m0);
-		Matrix4d m1=myArm.getToolCenterPoint();
+		Matrix4d m1= myRobot.getToolCenterPoint();
 		tcpReport.updateReport(m1);
 	}
 
@@ -74,7 +77,7 @@ public class JogInterface extends JPanel {
 		Log.start();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		JFrame frame = new JFrame(JogInterface.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new JogInterface(new RobotArmIK()));

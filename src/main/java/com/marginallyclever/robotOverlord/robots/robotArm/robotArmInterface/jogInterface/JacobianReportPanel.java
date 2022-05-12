@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface;
 
 import java.awt.BorderLayout;
+import java.io.Serial;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -18,8 +19,9 @@ import com.marginallyclever.robotOverlord.robots.robotArm.ApproximateJacobian;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class JacobianReportPanel extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private JTable table;
+	private final JTable table;
 	
 	public JacobianReportPanel(RobotArmIK arm) {
 		super();

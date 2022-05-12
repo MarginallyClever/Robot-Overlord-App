@@ -21,7 +21,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 public class RobotArmBone implements Cloneable {
 	private String name = "";
 	// D-H parameters combine to make this matrix which is relative to the parent.
-	private Matrix4d pose = new Matrix4d();
+	private final Matrix4d pose = new Matrix4d();
 	// length (mm) along previous Z to the common normal
 	private double d;
 	// length (mm) of the common normal. movement on X.  Assuming a revolute joint, this is the radius about previous Z
@@ -37,17 +37,17 @@ public class RobotArmBone implements Cloneable {
 	private Shape shape;
 	
 	// TODO this doesn't belong here
-	public DoubleEntity slider = new DoubleEntity("J",0);
+	public final DoubleEntity slider = new DoubleEntity("J",0);
 
 	private double mass;
 	@SuppressWarnings("unused")
 	private double iMass;
-	private Matrix3d inertiaTensor = new Matrix3d();
-	private Point3d centerOfMass = new Point3d();
-	private Vector3d linearVelocity = new Vector3d();
-	private Vector3d force = new Vector3d();
-	private Vector3d angularVelocity = new Vector3d();
-	private Vector3d torque = new Vector3d();
+	private final Matrix3d inertiaTensor = new Matrix3d();
+	private final Point3d centerOfMass = new Point3d();
+	private final Vector3d linearVelocity = new Vector3d();
+	private final Vector3d force = new Vector3d();
+	private final Vector3d angularVelocity = new Vector3d();
+	private final Vector3d torque = new Vector3d();
 		
 	public RobotArmBone() {
 		inertiaTensor.setIdentity();
@@ -73,13 +73,13 @@ public class RobotArmBone implements Cloneable {
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		RobotArmBone b = (RobotArmBone)super.clone();
-		b.angularVelocity= new Vector3d(this.angularVelocity);
-		b.centerOfMass= new Point3d(this.centerOfMass);
-		b.force= new Vector3d(this.force);
-		b.inertiaTensor=new Matrix3d(this.inertiaTensor);
-		b.linearVelocity = new Vector3d(this.linearVelocity);
+		b.angularVelocity.set(this.angularVelocity);
+		b.centerOfMass.set(this.centerOfMass);
+		b.force.set(this.force);
+		b.inertiaTensor.set(this.inertiaTensor);
+		b.linearVelocity.set(this.linearVelocity);
 		b.shape = new Shape(name,this.shape.getModelFilename());
-		b.torque = new Vector3d(this.torque);
+		b.torque.set(this.torque);
 		return b;
 	}
 	

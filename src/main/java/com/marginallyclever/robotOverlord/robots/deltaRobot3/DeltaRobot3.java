@@ -13,7 +13,6 @@ import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.io.*;
 import java.net.URL;

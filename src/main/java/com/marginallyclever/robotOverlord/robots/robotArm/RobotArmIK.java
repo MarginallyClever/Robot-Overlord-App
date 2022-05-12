@@ -15,6 +15,8 @@ import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.Robo
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
+import java.io.Serial;
+
 /**
  * {@link RobotArmIK} is a {@link RobotArmFK} with added Inverse Kinematics.  
  * @see <a href='https://en.wikipedia.org/wiki/Inverse_kinematics'>Inverse Kinematics</a>
@@ -22,6 +24,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  * @since 2021-02-24
  */
 public class RobotArmIK extends RobotArmFK {
+	@Serial
 	private static final long serialVersionUID = -7778520191789995554L;
 	
 	public RobotArmIK(String name) {
@@ -48,14 +51,14 @@ public class RobotArmIK extends RobotArmFK {
 		drawEndEffectorPathToTarget(gl2);
 		gl2.glPopMatrix();
 	}
-	
+
 	private void drawEndEffectorPathToTarget(GL2 gl2) {
 		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
 		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
 		Matrix4d start = this.getEndEffector();
-		Matrix4d end = getEndEffectorChild().getPoseWorld();
+		Matrix4d end = getEndEffectorTarget().getPoseWorld();
 		Matrix4d interpolated = new Matrix4d();
 		
 		Vector3d a = new Vector3d();
