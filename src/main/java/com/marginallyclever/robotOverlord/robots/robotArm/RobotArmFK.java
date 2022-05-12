@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm;
 
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.shape.Mesh;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
@@ -33,29 +35,31 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.TextureEntity;
 /**
  * Simulation of a robot arm with Forward Kinematics based on Denavit Hartenberg parameters.
  * It manages a set of {@link RobotArmBone} and a tool center position.
- * @see <a href='https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters'>DH parameters</a>
- * @see <a href='https://en.wikipedia.org/wiki/Forward_kinematics'>Forward Kinematics</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters">DH parameters</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a>
  * @author Dan Royer
  * @since 2021-02-24
  */
-public class RobotArmFK extends PoseEntity {
+public class RobotArmFK extends PoseEntity implements Robot {
+	@Serial
 	private static final long serialVersionUID = -2436924907127292890L;
 	
 	private Shape base;
-	private ArrayList<RobotArmBone> bones = new ArrayList<RobotArmBone>();
-	private RobotArmEndEffector endEffector = new RobotArmEndEffector("End Effector");
-	private PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
-	
-	private BooleanEntity showSkeleton = new BooleanEntity("Show Skeleton",false);
-	private BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
-	private BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",false);
+	private final ArrayList<RobotArmBone> bones = new ArrayList<>();
+	private final RobotEndEffectorTarget endEffectorTarget = new RobotEndEffectorTarget("End Effector");
+	private final PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
+	private final BooleanEntity showSkeleton = new BooleanEntity("Show Skeleton",false);
+	private final BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
+	private final BooleanEntity drawForceAndTorque = new BooleanEntity("Show forces and torques",false);
+
+	private int activeJoint = 0;
 
 	public RobotArmFK(String name) {
 		super(name);
 
-		addChild(endEffector);
-		endEffector.addChild(toolCenterPoint);
-		endEffector.setArm(this);
+		addChild(endEffectorTarget);
+		endEffectorTarget.addChild(toolCenterPoint);
+		endEffectorTarget.setArm(this);
 
 		loadModel();
 		
@@ -69,21 +73,16 @@ public class RobotArmFK extends PoseEntity {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		RobotArmFK b = (RobotArmFK)super.clone();
-		b.bones = new ArrayList<RobotArmBone>();
+		b.bones.clear();
 		for( RobotArmBone i : bones ) {
 			b.bones.add((RobotArmBone)(i.clone()));
 		}
-		b.endEffector = (RobotArmEndEffector)endEffector.clone();
-		b.endEffector.setArm(b);
+		b.endEffectorTarget.set(endEffectorTarget);
+		b.endEffectorTarget.setArm(b);
 		
 		return b;
 	}
-	
-	/**
-	 * Set up the hierarchy according to the DH parameters.  Also load the shapes.  
-	 * The physical origin of the shapes does not match the DH linkage description of the robot, 
-	 * so adjust the {@link RobotArmBone.shapeOffset} of each bone to compensate.
-	 */
+
 	protected void loadModel() {
 		bones.clear();
 	}
@@ -120,10 +119,10 @@ public class RobotArmFK extends PoseEntity {
 		}
 	}
 	
-	protected void setTextureFilename(String fname) {
-		base.getMaterial().setTextureFilename(fname);
+	protected void setTextureFilename(String filename) {
+		base.getMaterial().setTextureFilename(filename);
 		for( RobotArmBone bone : bones ) {
-			bone.setTextureFilename(fname);
+			bone.setTextureFilename(filename);
 		}
 	}
 	
@@ -159,14 +158,14 @@ public class RobotArmFK extends PoseEntity {
 		if(showSkeleton.get()) drawSkeleton(gl2);
 		if(showAngles.get()) drawAngles(gl2);
 		if(drawForceAndTorque.get()) drawForceAndTorque(gl2);
-		if(showBoundingBox.get()) drawBoundindBoxes(gl2);
+		if(showBoundingBox.get()) drawBoundingBoxes(gl2);
 		
 		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
 		OpenGLHelper.disableTextureEnd(gl2,isTex);
 	}
 	
-	private void drawBoundindBoxes(GL2 gl2) {
+	private void drawBoundingBoxes(GL2 gl2) {
 		boolean hit = collidesWithSelf();
 		if(hit) gl2.glColor3d(1, 0, 0);
 		else    gl2.glColor3d(1, 1, 1);
@@ -194,9 +193,9 @@ public class RobotArmFK extends PoseEntity {
 			int j = bones.size()+1;
 			for( RobotArmBone bone : bones ) {
 				bone.updateMatrix();
-				double bmin = bone.getAngleMin();
-				double bmax = bone.getAngleMax();
-				double color = Math.abs(0.5-MathHelper.getUnitInRange(bmin,bmax,bone.theta));
+				double bMin = bone.getAngleMin();
+				double bMax = bone.getAngleMax();
+				double color = Math.abs(0.5-MathHelper.getUnitInRange(bMin,bMax,bone.theta));
 				// curve of movement
 				gl2.glColor4d(1,1-color,1-color,0.6);
 				gl2.glBegin(GL2.GL_TRIANGLE_FAN);
@@ -287,6 +286,10 @@ public class RobotArmFK extends PoseEntity {
 		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"tcpOffset",tcpOld,tcpNew));
 	}
 
+	private void setToolCenterPoint() {
+
+	}
+
 	/**
 	 * @return the end effector + tool center pose relative to the base of this robot.
 	 */
@@ -294,6 +297,47 @@ public class RobotArmFK extends PoseEntity {
 		Matrix4d m = getEndEffector();
 		m.mul(toolCenterPoint.getPose());
 		return m;
+	}
+
+	@Override
+	public void set(int property, Object value) {
+		switch(property) {
+			case ACTIVE_JOINT: activeJoint = Math.max(0,Math.min(getNumBones(),(int)value));  break;
+			case JOINT_VALUE: getBone(activeJoint).setAngleWRTLimits((double)value);  break;
+			case END_EFFECTOR_TARGET: getEndEffectorTarget().moveTowards((Matrix4d)value);  break;
+			case TOOL_CENTER_POINT: setToolCenterPointOffset((Matrix4d)value);  break;
+			case POSE: setPoseWorld((Matrix4d)value);  break;
+			default: return;
+		}
+	}
+
+	@Override
+	public Object get(int property) {
+		switch(property) {
+			case NAME: return getName();
+			case NUM_JOINTS: return getNumBones();
+			case ACTIVE_JOINT: return activeJoint;
+			case JOINT_NAME: return getBone(activeJoint).getName();
+			case JOINT_VALUE: return getBone(activeJoint).getTheta();
+			case JOINT_RANGE_MAX: return getBone(activeJoint).getAngleMax();
+			case JOINT_RANGE_MIN: return getBone(activeJoint).getAngleMin();
+			case JOINT_HAS_RANGE_LIMITS: return true;
+			case JOINT_PRISMATIC: return false;
+			case END_EFFECTOR: return getEndEffector();
+			case END_EFFECTOR_TARGET: return getEndEffectorTarget().getPose();
+			case TOOL_CENTER_POINT: return getToolCenterPoint();
+			case POSE: return getPoseWorld();
+			case JOINT_POSE: {
+				Matrix4d m = new Matrix4d();
+				m.setIdentity();
+				for(int i=0;i<=activeJoint;++i) {
+					m.mul(getBone(i).getPose());
+				}
+				return m;
+			}
+			default :  break;
+		}
+		return null;
 	}
 
 	/**
@@ -308,9 +352,9 @@ public class RobotArmFK extends PoseEntity {
 		
 		return m;
 	}
-	
-	public RobotArmEndEffector getEndEffectorChild() {
-		return endEffector;
+
+	public RobotEndEffectorTarget getEndEffectorTarget() {
+		return endEffectorTarget;
 	}
 
 	@Override
@@ -357,25 +401,22 @@ public class RobotArmFK extends PoseEntity {
 		final RobotArmFK me = this;
 		final JFrame parentFrame = parent;
 
-	        new Thread(new Runnable() {
-	            @Override
-				public void run() {
-	        		try {
-		            	JDialog frame = new JDialog(parentFrame,getName());
-		        		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						frame.add(new RobotArmBuilder(me));
-		        		frame.pack();
-		        		frame.setVisible(true);
-	        		} catch (CloneNotSupportedException e2) {
-	        			// TODO Auto-generated catch block
-	        			e2.printStackTrace();
-	        		}
-	            }
-	        }).start();
+		new Thread(() -> {
+			try {
+				JDialog frame = new JDialog(parentFrame,getName());
+				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				frame.add(new RobotArmBuilder(me));
+				frame.pack();
+				frame.setVisible(true);
+			} catch (CloneNotSupportedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+		}).start();
 	}
 
 	/**
-	 * @returns a list of doubles with the angles in degrees.  Must be {@link RobotArmFK#NUM_BONES} long.
+	 * @return a list of doubles with the angles in degrees.  {@link RobotArmFK#getNumBones()} long.
 	 */
 	public double [] getAngles() {
 		double [] list = new double[bones.size()];
@@ -392,8 +433,8 @@ public class RobotArmFK extends PoseEntity {
 	 * It does not allow you to set the angle of a bone outside the angleMax/angleMin of that bone.
 	 * The new values will be tested against the bone limits.
 	 * If the arm moves to a new position a {@link PropertyChangeEvent} notice will be fired.  The
-	 * {@link PropertyChangeEvent.propertyName} will be "ee".
-	 * @param list new theta values.  Must be {@link RobotArmFK.getNumBones()} long.
+	 * {@link PropertyChangeEvent#getPropertyName()} will be "ee".
+	 * @param list new theta values.  Must be {@link RobotArmFK#getNumBones()} long.
 	 */
 	public void setAngles(double [] list) {
 		boolean changed=false;
@@ -410,7 +451,7 @@ public class RobotArmFK extends PoseEntity {
 		if(changed) {
 			Matrix4d eeOld = getEndEffector();
 			
-			// theta values actually changed so update matrixes and get the new end effector position.
+			// theta values actually changed so update matrices and get the new end effector position.
 			updateEndEffectorPosition();
 			
 			Matrix4d eeNew = getEndEffector();
@@ -423,17 +464,15 @@ public class RobotArmFK extends PoseEntity {
 			b.updateMatrix();
 		}
 
-		endEffector.setPose(getEndEffector());
+		endEffectorTarget.setPose(getEndEffector());
 	}
 	
 	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
-
 		// current pose starts as root pose
 		Matrix4d currentBonePose = getPoseWorld();
 		Matrix4d cuboidAfter = new Matrix4d();
 
-		list.addAll(base.getCuboidList());
+		ArrayList<Cuboid> list = new ArrayList<>(base.getCuboidList());
 		for(Cuboid c : list) {
 			// add current pose to cube pose and save that as cube pose.
 			cuboidAfter.mul(currentBonePose,base.getPose());
@@ -483,20 +522,20 @@ public class RobotArmFK extends PoseEntity {
 
 	@Override
 	public String toString() {
-		String contents = getName()+
-				","+getPose().toString()
-				+","+base.getModelFilename()
-				+","+showAngles.get()
-				+","+getToolCenterPointOffset();
+		StringBuilder contents = new StringBuilder(getName() +
+				"," + getPose().toString()
+				+ "," + base.getModelFilename()
+				+ "," + showAngles.get()
+				+ "," + getToolCenterPointOffset());
 		
 		String angles="";
 		String add="";
 		for( RobotArmBone b : bones ) {
-			contents += add + b.toString();
+			contents.append(add).append(b.toString());
 			add=",\n";
 		}
 		
-		contents+="["+angles+"]"; 
+		contents.append("[").append(angles).append("]");
 		return this.getClass().getSimpleName()+" ["+contents+"]";
 	}
 
@@ -547,7 +586,7 @@ public class RobotArmFK extends PoseEntity {
 	public double getDistanceToTarget(final Matrix4d target) {
 		double [] d = MatrixHelper.getCartesianBetweenTwoMatrixes(getEndEffector(), target);
 		double sum=0;
-		for(int i=0;i<d.length;++i) sum+=Math.abs(d[i]);
+		for (double v : d) sum += Math.abs(v);
 		return sum;
 	}
 	
@@ -576,10 +615,10 @@ public class RobotArmFK extends PoseEntity {
 	}
 	
 	/**
-	 * Compute the inverse dynamics using Recursive Newton-Euler Algorithm (RNEA).
+	 * Compute the inverse dynamics using recursive Newton-Euler algorithm.
 	 * Uses the current position, velocity, and acceleration of each joint.<br>
 	 * <br>
-	 * See https://www.gamedeveloper.com/programming/create-your-own-inverse-dynamics-in-unity
+	 * See <a href="https://www.gamedeveloper.com/programming/create-your-own-inverse-dynamics-in-unity">https://www.gamedeveloper.com/programming/create-your-own-inverse-dynamics-in-unity</a>
 	 * @return the torque at each joint
 	 */
 	public double [] getTorques() {
