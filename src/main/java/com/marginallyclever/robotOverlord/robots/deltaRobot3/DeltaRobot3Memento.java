@@ -4,6 +4,8 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.memento.Memento;
 
+import java.io.Serial;
+
 
 /**
  * Captures the physical state of a robot at a moment in time.
@@ -14,6 +16,7 @@ public class DeltaRobot3Memento implements Memento {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	// Relative to base

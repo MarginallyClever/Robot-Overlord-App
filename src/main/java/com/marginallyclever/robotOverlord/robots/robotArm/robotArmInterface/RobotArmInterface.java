@@ -12,6 +12,7 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 import com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi3_5axis;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.jogInterface.JogInterface;
@@ -33,12 +34,12 @@ public class RobotArmInterface extends JPanel {
 
 	private boolean isRunning = false;
 	
-	public RobotArmInterface(RobotArmIK sixi3) {
+	public RobotArmInterface(Robot robot) {
 		super();
 		
-		marlinInterface = new MarlinInterface(sixi3);
-		jogInterface = new JogInterface(sixi3);
-		programInterface = new ProgramInterface(sixi3);
+		marlinInterface = new MarlinInterface(robot);
+		jogInterface = new JogInterface(robot);
+		programInterface = new ProgramInterface(robot);
 		
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("MarlinInterface", marlinInterface);
