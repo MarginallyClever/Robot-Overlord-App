@@ -2,24 +2,32 @@ package com.marginallyclever.robotOverlord.robots.deltaRobot3;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Cylinder;
+import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.robotOverlord.Entity;
+import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.RobotEntity;
+import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
+import javax.swing.*;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
-public class DeltaRobot3 extends RobotEntity {
+public class DeltaRobot3 extends RobotEntity implements Robot {
 	@Serial
 	private static final long serialVersionUID = 5991551452979216237L;
 	// machine ID
@@ -42,7 +50,7 @@ public class DeltaRobot3 extends RobotEntity {
 	private static double HOME_Z = 3.98f;
 
 	// angle of rotation
-	public final DeltaRobot3Arm [] arms = new DeltaRobot3Arm[3];
+	public final DeltaRobot3Arm [] arms = new DeltaRobot3Arm[NUM_ARMS];
 
 	// bounding volumes for collision testing
 	private Cylinder [] volumes;
@@ -55,20 +63,6 @@ public class DeltaRobot3 extends RobotEntity {
 	// motion state testing
 	final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
 	final DeltaRobot3Memento motionFuture = new DeltaRobot3Memento();
-
-	// control panel
-	private transient DeltaRobot3Panel controlPanel;
-
-	// keyboard history
-	private float aDir=0, bDir=0, cDir=0;
-	private float xDir=0, yDir=0, zDir=0;
-
-	// network info
-	private boolean isPortConfirmed=false;
-	
-	// misc
-	private double speed=2;
-	private boolean isHomed = false;
 
 	/**
 	 * When a valid move is made in the simulation, set this flag to true.
@@ -86,12 +80,17 @@ public class DeltaRobot3 extends RobotEntity {
 
 	private final Cylinder tube = new Cylinder();  // for drawing forearms
 
+	/**
+	 * Used by {@link Robot} interface.
+	 */
+	private int activeJoint = 0;
+
 	public DeltaRobot3() {
 		super();
 		setName(ROBOT_NAME);
 
-		for(int i=0;i<3;++i) {
-			arms[i] = new DeltaRobot3Arm();
+		for(int i=0;i<NUM_ARMS;++i) {
+			arms[i] = new DeltaRobot3Arm(getNormalOfArmPlane(i));
 		}
 
 		setupBoundingVolumes();
@@ -112,16 +111,41 @@ public class DeltaRobot3 extends RobotEntity {
 	public void getView(ViewPanel view) {
 		view.pushStack("De","Delta robot");
 		view.addButton("Go home").addActionEventListener((e)->goHome());
-		view.popStack();
-		view.pushStack("Re","Render");
+		ViewElementButton bOpen = view.addButton("Open control panel");
+		bOpen.addActionEventListener((evt)-> onOpenAction() );
+
 		view.add(draw_finger_star);
 		view.add(draw_base_star);
 		view.add(draw_shoulder_to_elbow);
 		view.add(draw_shoulder_star);
 		view.add(draw_elbow_star);
 		view.add(draw_wrist_star);
+
 		view.popStack();
 		super.getView(view);
+	}
+
+	private void onOpenAction() {
+		JFrame parent = null;
+
+		Entity e = this.getRoot();
+		if(e instanceof RobotOverlord) {
+			parent = ((RobotOverlord)e).getMainFrame();
+		}
+
+		final Robot me = this;
+		final JFrame parentFrame = parent;
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				JDialog frame = new JDialog(parentFrame,getName());
+				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				frame.add(new RobotArmInterface(me));
+				frame.pack();
+				frame.setVisible(true);
+			}
+		}).start();
 	}
 
 	private void setupBoundingVolumes() {
@@ -134,16 +158,15 @@ public class DeltaRobot3 extends RobotEntity {
 		volumes[1].setRadius(3.0f*0.575f);
 		volumes[2].setRadius(2.2f);
 	}
-	
-	public Vector3d getHome() {  return new Vector3d(HOME_X,HOME_Y,HOME_Z);  }
 
-	public void setHome(Vector3d newHome) {
+	private Vector3d getHome() {  return new Vector3d(HOME_X,HOME_Y,HOME_Z);  }
+
+	private void setHome(Vector3d newHome) {
 		HOME_X=newHome.x;
 		HOME_Y=newHome.y;
 		HOME_Z=newHome.z;
 		
-		rebuildShoulders(motionNow);
-		updateIKWrists(motionNow);
+		rebuildShoulders();
 
 		// find the starting height of the end effector at home position
 		// @TODO: project wrist-on-bicep to get more accurate distance
@@ -161,71 +184,14 @@ public class DeltaRobot3 extends RobotEntity {
     	inputStream.defaultReadObject();
     }
 
-	@Deprecated
-	private void moveCartesian(double delta) {
-		boolean changed=false;
-		double dv = getSpeed();
-		
-		if(xDir!=0) {  motionFuture.fingerPosition.x += dv * xDir;	changed=true;  xDir=0;  }
-		if(yDir!=0) {  motionFuture.fingerPosition.y += dv * yDir;	changed=true;  yDir=0;  }
-		if(zDir!=0) {  motionFuture.fingerPosition.z += dv * zDir;	changed=true;  zDir=0;  }
-		
-		if(changed) {
-			moveIfAble();
-		}
-	}
-
-	public void moveIfAble() {
+	private void moveIfAble() {
 		if(movePermitted()) {
 			haveArmsMoved=true;
 			finalizeMove();
-			if(controlPanel!=null) controlPanel.update();
 		}
 	}
 
-	@Deprecated
-	private void moveJoints(double delta) {
-		boolean changed=false;
-		int i;
-		
-		double [] angles = new double[NUM_ARMS];
-		
-		for(i=0;i<NUM_ARMS;++i) {
-			angles[i] = arms[i].angle;
-		}
-		
-		// movement
-		float dv=(float)getSpeed();
-
-		// if continuous, adjust speed over time
-		//float dv *= delta;
-		
-		if(aDir!=0) {  arms[0].angle -= dv * aDir;  changed=true;  aDir=0;  }
-		if(bDir!=0) {  arms[1].angle -= dv * bDir;  changed=true;  bDir=0;  }
-		if(cDir!=0) {  arms[2].angle += dv * cDir;  changed=true;  cDir=0;  }
-		
-		// if not continuous, set *Dir to zero.
-		
-		if(changed) {
-			if(checkAngleLimits()) {
-				updateFK();
-				haveArmsMoved=true;
-			} else {
-				for(i=0;i<NUM_ARMS;++i) {
-					arms[i].angle= angles[i];
-				}
-			}
-		}
-	}
-	
-	@Override
-	public void update(double delta) {
-		moveCartesian(delta);
-		moveJoints(delta);
-	}
-
-
-	public void finalizeMove() {
+	private void finalizeMove() {
 		if(!haveArmsMoved) return;		
 
 		haveArmsMoved=false;
@@ -233,7 +199,6 @@ public class DeltaRobot3 extends RobotEntity {
 				          +" Y"+motionNow.fingerPosition.y
 				          +" Z"+motionNow.fingerPosition.z
 				          );
-		if(controlPanel!=null) controlPanel.update();
 	}
 
 	@Override
@@ -352,34 +317,29 @@ public class DeltaRobot3 extends RobotEntity {
 		}
 	}
 
-
-	public void setModeAbsolute() {
+	private void setModeAbsolute() {
 		if(connection!=null) this.sendCommand("G90");
 	}
-	
-	
-	public void setModeRelative() {
+
+	private void setModeRelative() {
 		if(connection!=null) this.sendCommand("G91");
 	}
 
-	
-	public void goHome() {
-		isHomed=false;
+	private void goHome() {
+		boolean isHomed = false;
 		this.sendCommand("G28");
-		motionFuture.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+		motionNow.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
 		updateIK();
 		haveArmsMoved=true;
 		finalizeMove();
-		isHomed=true;
-		
-		if(controlPanel!=null) controlPanel.update();
+		isHomed =true;
 	}
-	
 
 	// override this method to check that the software is connected to the right type of robot.
 	public void dataAvailable(NetworkSession arg0,String line) {
 		if(line.contains(hello)) {
-			isPortConfirmed=true;
+			// network info
+			boolean isPortConfirmed = true;
 			//finalizeMove();
 			setModeAbsolute();
 			
@@ -393,7 +353,6 @@ public class DeltaRobot3 extends RobotEntity {
 				} else {
 					robotUID = uid;
 				}
-				if(controlPanel!=null) controlPanel.update();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -404,7 +363,6 @@ public class DeltaRobot3 extends RobotEntity {
 		
 		Log.message("RECV "+line);
 	}
-	
 
 	/**
 	 * based on <a href="http://www.exampledepot.com/egs/java.net/Post.html">http://www.exampledepot.com/egs/java.net/Post.html</a>
@@ -416,11 +374,7 @@ public class DeltaRobot3 extends RobotEntity {
 			// Send data
 			URL url = new URL("https://marginallyclever.com/deltarobot_getuid.php");
 			URLConnection conn = url.openConnection();
-			try (
-                    final InputStream connectionInputStream = conn.getInputStream();
-                    final Reader inputStreamReader = new InputStreamReader(connectionInputStream, StandardCharsets.UTF_8);
-                    final BufferedReader rd = new BufferedReader(inputStreamReader)
-					) {
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
 				String line = rd.readLine();
 				new_uid = Long.parseLong(line);
 			}
@@ -437,42 +391,69 @@ public class DeltaRobot3 extends RobotEntity {
 		}
 		return new_uid;
 	}
-	
-	
-	public boolean isPortConfirmed() {
-		return isPortConfirmed;
-	}
-	
-	
-	public BoundingVolume [] getBoundingVolumes() {
-		// TODO finish me
-		return volumes;
-	}
-	
-	public void setSpeed(double newSpeed) {
-		speed=newSpeed;
-	}
-	public double getSpeed() {
-		return speed;
-	}
-		
-	public boolean isHomed() {
-		return isHomed;
+
+	/**
+	 * @return true if successful.
+	 */
+	private boolean updateFK() {
+		Matrix4d eeOld = getEndEffector();
+
+		updateElbowsFromAngles();
+		findEndEffectorFromElbows();
+		updateIKWrists(motionNow);
+
+		Matrix4d eeNew = getEndEffector();
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
+		return true;
 	}
 
-	
-	public boolean updateFK() {
-		return true;
+	/**
+	 * Subtract the wrist radius so that three elbow points and the radius (bicep length) form a sphere.
+	 * <a href="https://stackoverflow.com/questions/11719168/how-do-i-find-the-sphere-center-from-3-points-and-radius0">find the center of the sphere</a>.
+	 * The center of the sphere is the new end effector position relative to the base.
+	 */
+	private void findEndEffectorFromElbows() {
+		Vector3d wrist = new Vector3d(DeltaRobot3.WRIST_TO_FINGER_X,DeltaRobot3.WRIST_TO_FINGER_Y,0);
+		Vector3d [] p = new Vector3d[NUM_ARMS];
+		double r = wrist.length();
+		for(int i=0;i<NUM_ARMS;++i) {
+			p[i] = new Vector3d(arms[i].elbow);
+			Vector3d n = getNormalOfArmPlane(i);
+			Vector3d ortho = new Vector3d(-n.y,n.x,0);
+			ortho.scale(r);
+			p[i].sub(ortho);
+		}
+		// find the center of the sphere formed by the three points p and the radius.
+		// see https://stackoverflow.com/questions/11719168/how-do-i-find-the-sphere-center-from-3-points-and-radius
+
+		Vector3d t = IntersectionHelper.centerOfCircumscribedSphere(p[0],p[1],p[2],DeltaRobot3.FOREARM_LENGTH);
+		motionNow.fingerPosition.set(t);
+	}
+
+
+	/**
+	 * Use motor angles to find the elbow positions relative to the base.
+	 */
+	private void updateElbowsFromAngles() {
+		for(int i=0;i<NUM_ARMS;++i) {
+			arms[i].updateElbowFromAngle();
+		}
 	}
 
 	/**
 	 * Convert cartesian XYZ to robot motor steps.
 	 * @return true if successful, false if the IK solution cannot be found.
 	 */
-	public boolean updateIK() {
+	private boolean updateIK() {
 		try {
+			Matrix4d eeOld = getEndEffector();
+
 			updateIKWrists(motionNow);
-			updateIKShoulderAngles();
+			updateShoulderAngles();
+
+
+			Matrix4d eeNew = getEndEffector();
+			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
 		catch(AssertionError e) {
 			return false;
@@ -481,182 +462,32 @@ public class DeltaRobot3 extends RobotEntity {
 		return true;
 	}
 
-
 	private void updateIKWrists(DeltaRobot3Memento keyframe) {
-		Vector3d n1 = new Vector3d(),o1 = new Vector3d(),temp = new Vector3d();
-		double c,s;
-		int i;
-		for(i=0;i<NUM_ARMS;++i) {
-			DeltaRobot3Arm arma=arms[i];
-
-			Vector3d ortho = getNormalOfArmPlane(i);
-			c=ortho.x;
-			s=ortho.y;
-
-			//n1 = n* c + o*s;
-			Vector3d forward = MatrixHelper.getXAxis(this.myPose);
-			Vector3d right   = MatrixHelper.getYAxis(this.myPose);
-			Vector3d up      = MatrixHelper.getZAxis(this.myPose);
-
-			n1.set(forward);
-			n1.scale(c);
-			temp.set(right);
-			temp.scale(s);
-			n1.add(temp);
-			n1.normalize();
-			//o1 = n*-s + o*c;
-			o1.set(forward);
-			o1.scale(-s);
-			temp.set(right);
-			temp.scale(c);
-			o1.add(temp);
-			o1.normalize();
-			//n1.scale(-1);
-
-
-			//arma.wrist = this.finger_tip + n1*T2W_X + this.base_up*T2W_Z - o1*T2W_Y;
-			//armb.wrist = this.finger_tip + n1*T2W_X + this.base_up*T2W_Z + o1*T2W_Y;
-			arma.wrist.set(n1);
-			arma.wrist.scale(DeltaRobot3.WRIST_TO_FINGER_X);
-			arma.wrist.add(keyframe.fingerPosition);
-			temp.set(up);
-			temp.scale(DeltaRobot3.WRIST_TO_FINGER_Z);
-			arma.wrist.add(temp);
-			temp.set(o1);
-			temp.scale(DeltaRobot3.WRIST_TO_FINGER_Y);
-			arma.wrist.sub(temp);
-		}
-	}
-	
-
-	private void updateIKShoulderAngles() throws AssertionError {
-		Vector3d w = new Vector3d(),wop = new Vector3d(),temp = new Vector3d(),r = new Vector3d();
-		double a,b,d,r1,r0,hh,y,x;
-
-		int i;
-		for(i=0;i<NUM_ARMS;++i) {
-			DeltaRobot3Arm arm = arms[i];
-
-			// project wrist position onto plane of bicep (wop)
-			Vector3d ortho = getNormalOfArmPlane(i);
-
-			//w = arm.wrist - arm.shoulder
-			w.set(arm.wrist);
-			w.sub(arm.shoulder);
-
-			//a=w | ortho;
-			a = w.dot( ortho );
-			//wop = w - (ortho * a);
-			temp.set(ortho);
-			temp.scale(a);
-			wop.set(w);
-			wop.sub(temp);
-
-			// we need to find wop-elbow to calculate the angle at the shoulder.
-			// wop-elbow is not the same as wrist-elbow.
-			b=Math.sqrt(DeltaRobot3.FOREARM_LENGTH*DeltaRobot3.FOREARM_LENGTH - a*a);
-			if(Double.isNaN(b)) throw new AssertionError("unreachable");
-
-			// use intersection of circles to find elbow point.
-			//a = (r0r0 - r1r1 + d*d ) / (2*d) 
-			r1=b;  // circle 1 centers on wrist
-			r0=DeltaRobot3.BICEP_LENGTH;  // circle 0 centers on shoulder
-			d=wop.length();
-			// distance along wop to the midpoint between the two possible intersections
-			a = ( r0 * r0 - r1 * r1 + d*d ) / ( 2.0f*d );
-
-			// now find the midpoint
-			// normalize wop
-			//wop /= d;
-			wop.scale(1.0f/d);
-			//temp=arm.shoulder+(wop*a);
-			temp.set(wop);
-			temp.scale(a);
-			temp.add(arm.shoulder);
-			// with a and r0 we can find h, the distance from midpoint to intersections.
-			hh=Math.sqrt(r0*r0-a*a);
-			if(Double.isNaN(hh)) throw new AssertionError("no intersections, too far");
-			// get a normal to the line wop in the plane orthogonal to ortho
-			r.cross(ortho,wop);
-			r.scale(hh);
-			arm.elbow.set(temp);
-			//if(i%2==0) arm.elbow.add(r);
-			//else
-				arm.elbow.sub(r);
-
-			temp.sub(arm.elbow,arm.shoulder);
-			y=-temp.z;
-			temp.z=0;
-			x=temp.length();
-			// use atan2 to find theta
-			if( ( arm.shoulderToElbow.dot( temp ) ) < 0 ) x=-x;
-			arm.angle= Math.toDegrees(Math.atan2(-y,x));
+		for(int i=0;i<NUM_ARMS;++i) {
+			arms[i].updateWrist(keyframe.fingerPosition);
 		}
 	}
 
-	Vector3d getNormalOfArmPlane(double i) {
-		double v = Math.PI*2.0f * (i/3.0f - 1f/6f);
+	private void updateShoulderAngles() throws AssertionError {
+		for(int i=0;i<NUM_ARMS;++i) {
+			arms[i].updateShoulderAngle();
+		}
+	}
+
+	private Vector3d getNormalOfArmPlane(double i) {
+		double v = Math.PI*2.0f * (i/(double)NUM_ARMS - 1f/((double)NUM_ARMS*2.0));
 		return new Vector3d( Math.cos(v), Math.sin(v), 0);
 	}
 	
-	private void rebuildShoulders(DeltaRobot3Memento keyframe) {
-		Vector3d n1=new Vector3d(),o1=new Vector3d(),temp=new Vector3d();
-		int i;
-		for(i=0;i<3;++i) {
-			DeltaRobot3Arm arma = arms[i];
-			Vector3d ortho = getNormalOfArmPlane(i);
-
-			Vector3d forward = MatrixHelper.getXAxis(this.myPose);
-			Vector3d right   = MatrixHelper.getYAxis(this.myPose);
-			Vector3d up      = MatrixHelper.getZAxis(this.myPose);
-
-			//n1 = n* c + o*s;
-			n1.set(forward);
-			n1.scale(ortho.x);
-			temp.set(right);
-			temp.scale(ortho.y);
-			n1.add(temp);
-			n1.normalize();
-			//o1 = n*-s + o*c;
-			o1.set(forward);
-			o1.scale(-ortho.y);
-			temp.set(right);
-			temp.scale(ortho.x);
-			o1.add(temp);
-			o1.normalize();
-			//n1.scale(-1);
-
-
-			//		    arma.shoulder = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*BASE_TO_SHOULDER_Y;
-			arma.shoulder.set(n1);
-			arma.shoulder.scale(DeltaRobot3.BASE_TO_SHOULDER_X);
-			temp.set(up);
-			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Z);
-			arma.shoulder.add(temp);
-			temp.set(o1);
-			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Y);
-			arma.shoulder.sub(temp);
-			arma.shoulder.add(MatrixHelper.getPosition(this.myPose));
-
-			//		    arma.elbow = n1*BASE_TO_SHOULDER_X + motion_future.base_up*BASE_TO_SHOULDER_Z - o1*(BASE_TO_SHOULDER_Y+BICEP_LENGTH);
-			arma.elbow.set(n1);
-			arma.elbow.scale(DeltaRobot3.BASE_TO_SHOULDER_X);
-			temp.set(up);
-			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Z);
-			arma.elbow.add(temp);
-			temp.set(o1);
-			temp.scale(DeltaRobot3.BASE_TO_SHOULDER_Y+DeltaRobot3.BICEP_LENGTH);
-			arma.elbow.sub(temp);
-			//arma.shoulder.add(this.base);		    
-
-			arma.shoulderToElbow.set(o1);
-			arma.shoulderToElbow.scale(-1);
+	private void rebuildShoulders() {
+		for(int i=0;i<NUM_ARMS;++i) {
+			arms[i].rebuildShoulder();
 		}
 	}
 
 
 	//TODO check for collisions with http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment ?
-	public boolean movePermitted() {/*
+	private boolean movePermitted() {/*
 		// don't hit floor
 		if(state.finger_tip.z<0.25f) {
 			return false;
@@ -682,30 +513,65 @@ public class DeltaRobot3 extends RobotEntity {
 		return true;
 	}
 
-	public boolean checkAngleLimits() {
-		// machine specific limits
-		/*
-		if (state.angle_0 < -180) return false;
-		if (state.angle_0 >  180) return false;
-		if (state.angle_2 <  -20) return false;
-		if (state.angle_2 >  180) return false;
-		if (state.angle_1 < -150) return false;
-		if (state.angle_1 >   80) return false;
-		if (state.angle_1 < -state.angle_2+ 10) return false;
-		if (state.angle_1 > -state.angle_2+170) return false;
-
-		if (state.angle_3 < -180) return false;
-		if (state.angle_3 >  180) return false;
-		if (state.angle_4 < -180) return false;
-		if (state.angle_4 >  180) return false;
-		if (state.angle_5 < -180) return false;
-		if (state.angle_5 >  180) return false;
-		 */	
+	private boolean checkAngleLimits() {
 		return true;
 	}
 
 	@Override
 	public Memento createKeyframe() {
 		return new DeltaRobot3Memento();
+	}
+
+	@Override
+	public Object get(int property) {
+		switch(property) {
+			case NAME: return getName();
+			case NUM_JOINTS: return NUM_ARMS;
+			case ACTIVE_JOINT: return activeJoint;
+			case JOINT_NAME: return "Joint "+activeJoint;
+			case JOINT_VALUE: return arms[activeJoint].angle;
+			case JOINT_RANGE_MAX: return 180.0;
+			case JOINT_RANGE_MIN: return -180.0;
+			case JOINT_HAS_RANGE_LIMITS: return true;
+			case JOINT_PRISMATIC: return false;
+			case END_EFFECTOR: return getEndEffector();
+			case END_EFFECTOR_TARGET: return vector2Matrix(motionFuture.fingerPosition);
+			case TOOL_CENTER_POINT: return MatrixHelper.createIdentityMatrix4();
+			case POSE: return getPoseWorld();
+			case JOINT_POSE: return vector2Matrix(arms[activeJoint].shoulder);
+			default :  return null;
+		}
+	}
+
+	@Override
+	public void set(int property, Object value) {
+		switch(property) {
+			case ACTIVE_JOINT: activeJoint = Math.max(0,Math.min(NUM_ARMS,(int)value));  break;
+			case JOINT_VALUE: {
+				arms[activeJoint].angle = (double)value;
+				updateFK();
+			}  break;
+			case END_EFFECTOR_TARGET: {
+				Matrix4d m = (Matrix4d)value;
+				Vector3d t = new Vector3d();
+				m.get(t);
+				motionNow.fingerPosition.set(t);
+				moveIfAble();
+			}  break;
+			case TOOL_CENTER_POINT: break;
+			case POSE: setPoseWorld((Matrix4d)value);  break;
+			default: break;
+		}
+	}
+
+	private Matrix4d getEndEffector() {
+		return vector2Matrix(motionNow.fingerPosition);
+	}
+
+	private Matrix4d vector2Matrix(Vector3d v) {
+		Matrix4d m = new Matrix4d();
+		m.setIdentity();
+		m.setTranslation(v);
+		return m;
 	}
 }

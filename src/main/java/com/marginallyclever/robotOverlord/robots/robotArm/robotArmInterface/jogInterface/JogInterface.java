@@ -10,15 +10,16 @@ import javax.swing.UIManager;
 import javax.vecmath.Matrix4d;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class JogInterface extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final RobotArmIK myRobot;
+	private final Robot myRobot;
 	private final CartesianReportPanel eeReport, tcpReport;
 
-	public JogInterface(RobotArmIK robot) {
+	public JogInterface(Robot robot) {
 		super();
 		
 		myRobot = robot;
@@ -51,12 +52,14 @@ public class JogInterface extends JPanel {
 		c.gridheight=2;
 		c.weightx = 0;
 		this.add(new CartesianDrivePanel(myRobot), c);
-		c.gridheight=1;
+		c.gridheight = 1;
 		c.gridx--;
-		c.gridy+=2;
+		c.gridy += 2;
 		c.gridwidth = 2;
 		c.weightx = 1;
-		this.add(new JacobianReportPanel(myRobot), c);
+		if(myRobot instanceof RobotArmIK) {
+			this.add(new JacobianReportPanel((RobotArmIK)myRobot), c);
+		}
 		c.gridy++;
 		c.weighty = 1;
 		this.add(new JPanel(), c);
@@ -67,10 +70,8 @@ public class JogInterface extends JPanel {
 	}
 	
 	private void updateReports() {
-		Matrix4d m0= myRobot.getEndEffector();
-		eeReport.updateReport(m0);
-		Matrix4d m1= myRobot.getToolCenterPoint();
-		tcpReport.updateReport(m1);
+		eeReport.updateReport((Matrix4d)myRobot.get(Robot.END_EFFECTOR));
+		tcpReport.updateReport((Matrix4d)myRobot.get(Robot.TOOL_CENTER_POINT));
 	}
 
 	public static void main(String[] args) {

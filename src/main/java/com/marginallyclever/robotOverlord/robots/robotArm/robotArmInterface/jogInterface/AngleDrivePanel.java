@@ -28,7 +28,7 @@ public class AngleDrivePanel extends JPanel {
 	private final Dial dial = new Dial();
 
 	public AngleDrivePanel(Robot robot) {
-		super();
+		super(new GridBagLayout());
 
 		int numJoints = (int)robot.get(Robot.NUM_JOINTS);
 
@@ -44,8 +44,7 @@ public class AngleDrivePanel extends JPanel {
 		dial.setPreferredSize(new Dimension(120,120));
 		
 		this.setBorder(BorderFactory.createTitledBorder(AngleDrivePanel.class.getSimpleName()));
-		this.setLayout(new GridBagLayout());
-		
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
 		c.gridy=0;

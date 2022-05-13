@@ -32,20 +32,17 @@ public class CartesianDrivePanel extends JPanel {
 	private final JRadioButton pitch = makeRadioButton(buttonGroup,"pitch");
 	private final JRadioButton yaw = makeRadioButton(buttonGroup,"yaw");
 	private final ScalePanel stepScale = new ScalePanel();
-	private final JComboBox<String> frameOfReference;
+	private final JComboBox<String> frameOfReference = getFramesOfReference();
 	private final Dial dial = new Dial();
 
 	public CartesianDrivePanel(Robot robot) {
-		super();
+		super(new GridBagLayout());
 
-		frameOfReference = getFramesOfReference();
-		
 		x.setSelected(true);
 		
 		dial.addActionListener( (e)-> onDialTurn(robot) );
 
 		this.setBorder(BorderFactory.createTitledBorder(CartesianDrivePanel.class.getSimpleName()));
-		this.setLayout(new GridBagLayout());
 		
 		JPanel referenceFrameSelection = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		referenceFrameSelection.add(new JLabel("Reference frame"));

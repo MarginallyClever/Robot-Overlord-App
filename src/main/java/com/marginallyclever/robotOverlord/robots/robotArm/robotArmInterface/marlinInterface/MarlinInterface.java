@@ -4,9 +4,11 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,10 +23,11 @@ import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.NetworkSessionListener;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class MarlinInterface extends JPanel {
+	@Serial
 	private static final long serialVersionUID = -6388563393882327725L;
 	// number of commands we'll hold on to in case there's a resend.
 	private static final int HISTORY_BUFFER_LIMIT = 250;
@@ -39,14 +42,14 @@ public class MarlinInterface extends JPanel {
 	// MarlinInterface sends this as an ActionEvent to let listeners know it can handle more input.
 	public static final String IDLE = "idle";
 
-	private RobotArmIK myArm;
-	private TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
-	private ArrayList<MarlinCommand> myHistory = new ArrayList<MarlinCommand>();
+	private final Robot myArm;
+	private final TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
+	private final List<MarlinCommand> myHistory = new ArrayList<>();
 
-	private JButton bESTOP = new JButton("EMERGENCY STOP");
-	private JButton bGetAngles = new JButton("M114");
-	private JButton bSetHome = new JButton("Set Home");
-	private JButton bGoHome = new JButton("Go Home");
+	private final JButton bESTOP = new JButton("EMERGENCY STOP");
+	private final JButton bGetAngles = new JButton("M114");
+	private final JButton bSetHome = new JButton("Set Home");
+	private final JButton bGoHome = new JButton("Go Home");
 
 	// the next line number I should send.  Marlin may say "please resend previous line x", which would change this.
 	private int lineNumberToSend;
@@ -55,10 +58,10 @@ public class MarlinInterface extends JPanel {
 	// don't send more than this many at a time without acknowledgement.
 	private int busyCount=MARLIN_SEND_LIMIT;
 	
-	private Timer timeoutChecker = new Timer(10000,(e)->onTimeoutCheck());
+	private final Timer timeoutChecker = new Timer(10000,(e)->onTimeoutCheck());
 	private long lastReceivedTime;
 
-	public MarlinInterface(RobotArmIK arm) {
+	public MarlinInterface(Robot arm) {
 		super();
 
 		myArm = arm;
@@ -67,19 +70,19 @@ public class MarlinInterface extends JPanel {
 		this.add(getToolBar(), BorderLayout.PAGE_START);
 		this.add(chatInterface, BorderLayout.CENTER);
 
-		arm.addPropertyChangeListener((e) -> onRobotEvent(e));
+		arm.addPropertyChangeListener(this::onRobotEvent);
 
 		chatInterface.addActionListener((e) -> {
 			switch (e.getID()) {
-			case ChooseConnectionPanel.CONNECTION_OPENED:
-				onConnect();
-				notifyListeners(e);
-				break;
-			case ChooseConnectionPanel.CONNECTION_CLOSED:
-				onClose();
-				updateButtonAccess();
-				notifyListeners(e);
-				break;
+				case ChooseConnectionPanel.CONNECTION_OPENED -> {
+					onConnect();
+					notifyListeners(e);
+				}
+				case ChooseConnectionPanel.CONNECTION_CLOSED -> {
+					onClose();
+					updateButtonAccess();
+					notifyListeners(e);
+				}
 			}
 		});
 	}
@@ -124,7 +127,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void setupListener() {
-		chatInterface.addNetworkSessionListener((evt) -> onDataReceived(evt));
+		chatInterface.addNetworkSessionListener(this::onDataReceived);
 	}
 	
 	private void onDataReceived(NetworkSessionEvent evt) {
@@ -145,30 +148,26 @@ public class MarlinInterface extends JPanel {
 	private void onHearResend(String message) {
 		String numberPart = message.substring(message.indexOf(STR_RESEND) + STR_RESEND.length());
 		try {
-			int n = Integer.valueOf(numberPart);
+			int n = Integer.parseInt(numberPart);
 			if(n>lineNumberAdded-MarlinInterface.HISTORY_BUFFER_LIMIT) {
 				// no problem.
 				lineNumberToSend=n;
-			} else {
-				// line is no longer in the buffer.  should not be possible!
 			}
+			// else line is no longer in the buffer.  should not be possible!
 		} catch(NumberFormatException e) {
 			Log.message("Resend request for '"+message+"' failed: "+e.getMessage());
 		}
 	}
 
 	private void onHearOK() {
-		SwingUtilities.invokeLater(new Runnable() {
-            @Override
-			public void run() {
-        		busyCount++;
-        		sendQueuedCommand();
-            	clearOldHistory();
-        		if(lineNumberToSend>=lineNumberAdded) {
-        			fireIdleNotice();
-        		}
-            }
-        });
+		SwingUtilities.invokeLater(() -> {
+			busyCount++;
+			sendQueuedCommand();
+			clearOldHistory();
+			if(lineNumberToSend>=lineNumberAdded) {
+				fireIdleNotice();
+			}
+		});
 	}
 
 	private void fireIdleNotice() {
@@ -238,19 +237,20 @@ public class MarlinInterface extends JPanel {
 		try {
 			message = message.substring(0, message.indexOf("Count"));
 			String[] majorParts = message.split("\b");
-			double[] angles = myArm.getAngles();
-	
-			for (int i = 0; i < myArm.getNumBones(); ++i) {
-				RobotArmBone bone = myArm.getBone(i);
+
+			int count = (int)myArm.get(Robot.NUM_JOINTS);
+			for (int i = 0; i < count; ++i) {
+				myArm.set(Robot.ACTIVE_JOINT,i);
+				double v = (double)myArm.get(Robot.JOINT_VALUE);
 				for (String s : majorParts) {
 					String[] minorParts = s.split(":");
 
-					if (minorParts[0].contentEquals(bone.getName())) {
-							angles[i] = Double.valueOf(minorParts[1]);
+					if (minorParts[0].contentEquals((String)myArm.get(Robot.JOINT_NAME))) {
+						v = Double.parseDouble(minorParts[1]);
 					}
 				}
+				myArm.set(Robot.JOINT_VALUE,v);
 			}
-			myArm.setAngles(angles);
 		} catch (NumberFormatException e) {
 			Log.error("M114: "+e.getMessage());
 		}
@@ -258,12 +258,13 @@ public class MarlinInterface extends JPanel {
 
 	private void sendGoto() {
 		//Log.message("MarlinInterface.sendGoto()");
-		String action = "G1";
-		for (int i = 0; i < myArm.getNumBones(); ++i) {
-			RobotArmBone bone = myArm.getBone(i);
-			action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
+		StringBuilder action = new StringBuilder("G1");
+		int count = (int)myArm.get(Robot.NUM_JOINTS);
+		for (int i = 0; i < count; ++i) {
+			myArm.set(Robot.ACTIVE_JOINT,i);
+			action.append(" ").append(myArm.get(Robot.JOINT_NAME)).append(StringHelper.formatDouble((double) myArm.get(Robot.JOINT_VALUE)));
 		}
-		queueAndSendCommand(action);
+		queueAndSendCommand(action.toString());
 	}
 
 	private JToolBar getToolBar() {
@@ -309,26 +310,24 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void sendSetHome() {
-		try {
-			String action = "G92";
-			RobotArmIK temp = (RobotArmIK)myArm.clone();
-			for (int i = 0; i < temp.getNumBones(); ++i) {
-				RobotArmBone bone = temp.getBone(i);
-				action += " " + bone.getName() + StringHelper.formatDouble(bone.getTheta());
-			}
-			queueAndSendCommand(action);
-			myArm.setAngles(temp.getAngles());
-		} catch (CloneNotSupportedException e) {
-			Log.error("G92: "+e.getMessage());
+		StringBuilder action = new StringBuilder("G92");
+		int count = (int)myArm.get(Robot.NUM_JOINTS);
+		for (int i = 0; i < count; ++i) {
+			myArm.set(Robot.ACTIVE_JOINT,i);
+			String name = (String)myArm.get(Robot.JOINT_NAME);
+			double angle = (double)myArm.get(Robot.JOINT_HOME);
+			action.append(" ").append(name).append(StringHelper.formatDouble(angle));
 		}
+		queueAndSendCommand(action.toString());
+		sendGoHome();
 	}
 
 	private void sendGoHome() {
-		try {
-			RobotArmIK temp = (RobotArmIK)myArm.clone();
-			myArm.setAngles(temp.getAngles());
-		} catch (CloneNotSupportedException e) {
-			Log.error("GoHome: "+e.getMessage());
+		int count = (int)myArm.get(Robot.NUM_JOINTS);
+		for (int i = 0; i < count; ++i) {
+			myArm.set(Robot.ACTIVE_JOINT, i);
+			double angle = (double)myArm.get(Robot.JOINT_HOME);
+			myArm.set(Robot.JOINT_VALUE,angle);
 		}
 	}
 
@@ -342,7 +341,7 @@ public class MarlinInterface extends JPanel {
 	
 	// OBSERVER PATTERN
 	
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 
 	public void addListener(ActionListener listener) {
 		listeners.add(listener);
@@ -363,8 +362,7 @@ public class MarlinInterface extends JPanel {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-		}
+		} catch (Exception ignored) {}
 
 		JFrame frame = new JFrame(MarlinInterface.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

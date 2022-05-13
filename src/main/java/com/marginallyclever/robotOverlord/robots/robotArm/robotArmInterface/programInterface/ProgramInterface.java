@@ -3,12 +3,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.pro
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -28,27 +23,29 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
 
 public class ProgramInterface extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private DefaultListModel<ProgramEvent> listModel = new DefaultListModel<ProgramEvent>();
-	private JList<ProgramEvent> listView = new JList<ProgramEvent>(listModel);
-	private JFileChooser chooser = new JFileChooser();
+	private final DefaultListModel<ProgramEvent> listModel = new DefaultListModel<>();
+	private final JList<ProgramEvent> listView = new JList<>(listModel);
+	private final JFileChooser chooser = new JFileChooser();
 
-	private JButton bNew = new JButton("New");
-	private JButton bSave = new JButton("Save");
-	private JButton bLoad = new JButton("Load");
-	private JButton bDelete = new JButton("Delete");
-	private JButton bCopy = new JButton("Copy");
-	private JButton bAdd = new JButton("Add");
-	private JButton bRewind = new JButton("Rewind");
-	private JButton bStep = new JButton("Step");
-	private JButton bNickname = new JButton("Nickname");
+	private final JButton bNew = new JButton("New");
+	private final JButton bSave = new JButton("Save");
+	private final JButton bLoad = new JButton("Load");
+	private final JButton bDelete = new JButton("Delete");
+	private final JButton bCopy = new JButton("Copy");
+	private final JButton bAdd = new JButton("Add");
+	private final JButton bRewind = new JButton("Rewind");
+	private final JButton bStep = new JButton("Step");
+	private final JButton bNickname = new JButton("Nickname");
 	
-	private RobotArmIK myArm;
+	private final Robot myArm;
 		
-	public ProgramInterface(RobotArmIK arm) {
+	public ProgramInterface(Robot arm) {
 		super();
 		myArm = arm;
 		createCellRenderingSystem();
@@ -68,8 +65,8 @@ public class ProgramInterface extends JPanel {
 	}
 	
 	private void createCellRenderingSystem() {
-		listView.setCellRenderer(new ListCellRenderer<ProgramEvent>() {
-			private DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer(); 
+		listView.setCellRenderer(new ListCellRenderer<>() {
+			private final DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 			
 			@Override
 			public Component getListCellRendererComponent(JList<? extends ProgramEvent> list,
@@ -196,7 +193,14 @@ public class ProgramInterface extends JPanel {
 	}
 
 	private void runAddAction() {
-		insertWhereAppropriate(new ProgramEvent(myArm.getAngles()));
+		int count = (int)myArm.get(Robot.NUM_JOINTS);
+		double [] angles = new double[count];
+		for (int i = 0; i < count; ++i) {
+			myArm.set(Robot.ACTIVE_JOINT, i);
+			angles[i] = (double)myArm.get(Robot.JOINT_HOME);
+		}
+
+		insertWhereAppropriate(new ProgramEvent(angles));
 	}
 
 	private void runCopyAction() {
@@ -228,8 +232,7 @@ public class ProgramInterface extends JPanel {
 	}
 
 	/**
-	 * Move the play head to the lineNumber-th instruction.  
-	 * Does not tell the {@link Plotter} to do anything.
+	 * Move the play head to the lineNumber-th instruction.
 	 */
 	public void setLineNumber(int lineNumber) {
 		listView.setSelectedIndex(lineNumber);
@@ -250,7 +253,7 @@ public class ProgramInterface extends JPanel {
 	}
 
 	/**
-	 * Tell the {@link RobotArmFK} to move to the currently selected instruction and
+	 * Tell the {@link Robot} to move to the currently selected instruction and
 	 * advance the selected instruction by one. If there are no further instructions
 	 * the selection is nullified.
 	 */
@@ -264,7 +267,12 @@ public class ProgramInterface extends JPanel {
 
 		ProgramEvent move = listModel.get(now);
 		// Log.message("Step to ("+now+"):"+move.toString());
-		myArm.setAngles(move.getAngles());
+		int count = (int)myArm.get(Robot.NUM_JOINTS);
+		double [] angles = move.getAngles();
+		for (int i = 0; i < count; ++i) {
+			myArm.set(Robot.ACTIVE_JOINT, i);
+			myArm.set(Robot.JOINT_VALUE,angles[i]);
+		}
 
 		int selected = listView.getSelectedIndex();
 		listView.ensureIndexIsVisible(selected);

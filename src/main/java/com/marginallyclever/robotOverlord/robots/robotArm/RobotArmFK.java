@@ -6,6 +6,7 @@ import java.io.Serial;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -45,8 +46,8 @@ public class RobotArmFK extends PoseEntity implements Robot {
 	private static final long serialVersionUID = -2436924907127292890L;
 	
 	private Shape base;
-	private final ArrayList<RobotArmBone> bones = new ArrayList<>();
-	private final RobotEndEffectorTarget endEffectorTarget = new RobotEndEffectorTarget("End Effector");
+	private List<RobotArmBone> bones = new ArrayList<>();
+	private RobotEndEffectorTarget endEffectorTarget = new RobotEndEffectorTarget("End Effector");
 	private final PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
 	private final BooleanEntity showSkeleton = new BooleanEntity("Show Skeleton",false);
 	private final BooleanEntity showAngles = new BooleanEntity("Show Angles",false);
@@ -73,11 +74,11 @@ public class RobotArmFK extends PoseEntity implements Robot {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		RobotArmFK b = (RobotArmFK)super.clone();
-		b.bones.clear();
+		b.bones = new ArrayList<>();
 		for( RobotArmBone i : bones ) {
 			b.bones.add((RobotArmBone)(i.clone()));
 		}
-		b.endEffectorTarget.set(endEffectorTarget);
+		b.endEffectorTarget = (RobotEndEffectorTarget)endEffectorTarget.clone();
 		b.endEffectorTarget.setArm(b);
 		
 		return b;
@@ -300,18 +301,6 @@ public class RobotArmFK extends PoseEntity implements Robot {
 	}
 
 	@Override
-	public void set(int property, Object value) {
-		switch(property) {
-			case ACTIVE_JOINT: activeJoint = Math.max(0,Math.min(getNumBones(),(int)value));  break;
-			case JOINT_VALUE: getBone(activeJoint).setAngleWRTLimits((double)value);  break;
-			case END_EFFECTOR_TARGET: getEndEffectorTarget().moveTowards((Matrix4d)value);  break;
-			case TOOL_CENTER_POINT: setToolCenterPointOffset((Matrix4d)value);  break;
-			case POSE: setPoseWorld((Matrix4d)value);  break;
-			default: break;
-		}
-	}
-
-	@Override
 	public Object get(int property) {
 		switch(property) {
 			case NAME: return getName();
@@ -335,9 +324,23 @@ public class RobotArmFK extends PoseEntity implements Robot {
 				}
 				return m;
 			}
-			default :  break;
+			default :  return null;
 		}
-		return null;
+	}
+
+	@Override
+	public void set(int property, Object value) {
+		switch(property) {
+			case ACTIVE_JOINT: activeJoint = Math.max(0,Math.min(getNumBones(),(int)value));  break;
+			case JOINT_VALUE: {
+				getBone(activeJoint).setAngleWRTLimits((double)value);
+				updateEndEffectorPosition();
+			}  break;
+			case END_EFFECTOR_TARGET: getEndEffectorTarget().moveTowards((Matrix4d)value);  break;
+			case TOOL_CENTER_POINT: setToolCenterPointOffset((Matrix4d)value);  break;
+			case POSE: setPoseWorld((Matrix4d)value);  break;
+			default: break;
+		}
 	}
 
 	/**
@@ -449,22 +452,22 @@ public class RobotArmFK extends PoseEntity implements Robot {
 		}
 
 		if(changed) {
-			Matrix4d eeOld = getEndEffector();
-			
 			// theta values actually changed so update matrices and get the new end effector position.
 			updateEndEffectorPosition();
-			
-			Matrix4d eeNew = getEndEffector();
-			notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 		}
 	}
 	
 	private void updateEndEffectorPosition() {
+		Matrix4d eeOld = getEndEffector();
+
 		for( RobotArmBone b : bones ) {
 			b.updateMatrix();
 		}
 
 		endEffectorTarget.setPose(getEndEffector());
+
+		Matrix4d eeNew = getEndEffector();
+		notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
 	}
 	
 	public ArrayList<Cuboid> getCuboidList() {

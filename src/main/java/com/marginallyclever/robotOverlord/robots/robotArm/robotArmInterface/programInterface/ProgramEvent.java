@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.programInterface;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -9,10 +10,11 @@ public class ProgramEvent implements Serializable {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "ProgramEvent:";
-	private double [] angles;
+	private final double [] angles;
 	private String nickname="";
 	
 	public ProgramEvent(double [] m) {
@@ -21,7 +23,7 @@ public class ProgramEvent implements Serializable {
 
 	public ProgramEvent(ProgramEvent p) {
 		this(p.angles);
-		this.nickname = new String(p.nickname);
+		this.nickname = p.nickname;
 	}
 	
 	public double [] getAngles() {
@@ -30,7 +32,7 @@ public class ProgramEvent implements Serializable {
 	
 	@Override
 	public String toString() {
-		return NAME+Arrays.toString(angles) + (nickname.isBlank()?"":" ")+nickname;
+		return NAME+Arrays.toString(angles) + (nickname.isBlank()?"":" "+nickname);
 	}
 
 	public static ProgramEvent valueOf(String line) {
@@ -40,18 +42,18 @@ public class ProgramEvent implements Serializable {
 		String [] parts = line.split(", ");
 		double [] angles = new double[parts.length];
 		for(int i=0;i<parts.length;++i) {
-			angles[i] = Double.valueOf(parts[i]);
+			angles[i] = Double.parseDouble(parts[i]);
 		}
 		
 		return new ProgramEvent(angles);
 	}
 	
 	public String getFormattedDisplay() {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		String add="";
-		for(int i=0;i<angles.length;++i) {
-			s+= add+StringHelper.formatDouble(angles[i]);
-			add=", ";
+		for (double angle : angles) {
+			s.append(add).append(StringHelper.formatDouble(angle));
+			add = ", ";
 		}
 		return NAME+"["+s+"]" + (nickname.isBlank()?"":" ")+nickname;
 	}

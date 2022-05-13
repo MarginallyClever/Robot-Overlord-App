@@ -11,6 +11,7 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -99,7 +100,7 @@ public class RobotArmIK extends RobotArmFK {
 			parent = ((RobotOverlord)e).getMainFrame();
 		}
 		
-		final RobotArmIK me = this;
+		final Robot me = this;
 		final JFrame parentFrame = parent;
 		
         new Thread(new Runnable() {
