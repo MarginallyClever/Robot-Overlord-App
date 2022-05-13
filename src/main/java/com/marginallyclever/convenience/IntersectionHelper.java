@@ -298,8 +298,7 @@ public class IntersectionHelper {
 	/**
 	 * find distance to box, if hit.
 	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-	 * @param rayPoint start of ray
-	 * @param rayNormal direction of ray
+	 * @param ray start & direction
 	 * @param boxMin lower bounds
 	 * @param boxMax upper bounds
 	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
@@ -374,5 +373,68 @@ public class IntersectionHelper {
 			double numerator = dp.dot(planeNormal);
 			return numerator/denominator;
 		}
+	}
+
+	/**
+	 * <a href="https://en.wikipedia.org/wiki/Circumscribed_circle">circumscribed circle</a>
+	 * @param a point 1
+	 * @param b point 2
+	 * @param c point 3
+	 * @return the center of the circumscribed circle.
+	 */
+	static public Vector3d centerOfCircumscribedCircle(Vector3d a, Vector3d b, Vector3d c) {
+		// find the point between a and b.
+		Vector3d ab = new Vector3d(b);
+		ab.sub(a);
+		// find the point between b and c.
+		Vector3d ac = new Vector3d(c);
+		ac.sub(a);
+
+		// find the normal of the plane containing the three points.
+		Vector3d n = new Vector3d();
+		n.cross(ab,ac);
+
+		// dot(p21, p21) * p31
+		Vector3d t0 = new Vector3d();
+		t0.set(ac);
+		t0.scale(ab.dot(ab));
+		// dot(p31, p31) * p21
+		Vector3d t1 = new Vector3d();
+		t1.set(ab);
+		t1.scale(ac.dot(ac));
+		// dot(p21, p21) * p31 - dot(p31, p31) * p21
+		Vector3d t2 = new Vector3d();
+		t2.sub(t0,t1);
+		// cross( dot(p21, p21) * p31 - dot(p31, p31) * p21, n)
+		Vector3d p0 = new Vector3d();
+		p0.cross(t2,n);
+		// / 2 / dot(n, n)
+		p0.scale(1.0/(2.0*n.dot(n)));
+		p0.add(a);
+
+		return p0;
+	}
+
+	static public Vector3d centerOfCircumscribedSphere(Vector3d a, Vector3d b, Vector3d c,double r) {
+		// find the point between a and b.
+		Vector3d ab = new Vector3d(b);
+		ab.sub(a);
+		// find the point between b and c.
+		Vector3d ac = new Vector3d(c);
+		ac.sub(a);
+
+		// find the normal of the plane containing the three points.
+		Vector3d n = new Vector3d();
+		n.cross(ab,ac);
+
+		Vector3d d = centerOfCircumscribedCircle(a,b,c);
+		Vector3d ad = new Vector3d(d);
+		ad.sub(a);
+
+		double t = -Math.sqrt( (r*r - ad.dot(ad)) / n.dot(n) );
+		n.scale(t);
+		d.add(n);
+
+		return d;
 	}
 }
