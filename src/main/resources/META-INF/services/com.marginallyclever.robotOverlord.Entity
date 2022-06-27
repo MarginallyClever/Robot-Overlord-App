@@ -1,7 +1,7 @@
 com.marginallyclever.robotOverlord.dhRobotEntity.DHBuilderApp
 com.marginallyclever.robotOverlord.robots.sixi3.Sixi3IK
-com.marginallyclever.robotOverlord.robots.stewartplatform.LinearStewartPlatform
-com.marginallyclever.robotOverlord.robots.stewartplatform.RotaryStewartPlatform
+com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatformCore
+com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatform
 com.marginallyclever.robotOverlord.robots.skycam.Skycam
 com.marginallyclever.robotOverlord.dhRobotEntity.sixi2.Sixi2
 com.marginallyclever.robotOverlord.Camera

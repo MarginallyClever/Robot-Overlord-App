@@ -1,21 +1,11 @@
-package com.marginallyclever.robotOverlord.robots.stewartplatform;
+package com.marginallyclever.robotOverlord.robots.stewartplatform.rotary;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.shape.Shape;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
-import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
-import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
-import com.marginallyclever.robotOverlord.uiExposedTypes.RemoteEntity;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.beans.PropertyChangeEvent;
 import java.io.Serial;
 
 public class RotaryStewartPlatform2 extends RotaryStewartPlatform {

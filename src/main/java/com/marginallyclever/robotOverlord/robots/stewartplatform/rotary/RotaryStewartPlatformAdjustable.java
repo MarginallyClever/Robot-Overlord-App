@@ -1,8 +1,7 @@
-package com.marginallyclever.robotOverlord.robots.stewartplatform;
+package com.marginallyclever.robotOverlord.robots.stewartplatform.rotary;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 

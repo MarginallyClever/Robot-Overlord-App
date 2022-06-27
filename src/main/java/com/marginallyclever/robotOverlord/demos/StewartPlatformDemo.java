@@ -6,8 +6,8 @@ import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.demos.demoAssets.TrayCabinet;
-import com.marginallyclever.robotOverlord.robots.stewartplatform.LinearStewartPlatform;
-import com.marginallyclever.robotOverlord.robots.stewartplatform.RotaryStewartPlatform;
+import com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatformCore;
+import com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
 import com.marginallyclever.robotOverlord.sceneElements.Box;
 import com.marginallyclever.robotOverlord.sceneElements.Light;
 import com.marginallyclever.robotOverlord.shape.Shape;
@@ -71,7 +71,7 @@ public class StewartPlatformDemo implements Demo {
 
 		RotaryStewartPlatform rsp = new RotaryStewartPlatform();
 		sc.addChild(rsp);
-		LinearStewartPlatform lsp = new LinearStewartPlatform();
+		LinearStewartPlatformCore lsp = new LinearStewartPlatformCore();
 		sc.addChild(lsp);
 		lsp.setPosition(new Vector3d(50,0,0));
 	}

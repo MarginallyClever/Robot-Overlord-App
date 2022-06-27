@@ -1,13 +1,20 @@
 package com.marginallyclever.robotOverlord;
 
+import com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatform2;
+import com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatformAdjustable;
+import com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatform1;
+import com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatformAdjustable;
+
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 public class EntityFactory {
 	private static Class<?> [] available = {
 			com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK.class,
-			com.marginallyclever.robotOverlord.robots.stewartplatform.RotaryStewartPlatform2.class,
-			com.marginallyclever.robotOverlord.robots.stewartplatform.RotaryStewartPlatformAdjustable.class,
+			RotaryStewartPlatform2.class,
+			RotaryStewartPlatformAdjustable.class,
+			LinearStewartPlatform1.class,
+			LinearStewartPlatformAdjustable.class,
 			com.marginallyclever.robotOverlord.robots.skycam.Skycam.class,
 			com.marginallyclever.robotOverlord.Camera.class,
 			com.marginallyclever.robotOverlord.shape.Shape.class,
@@ -30,7 +37,7 @@ public class EntityFactory {
 	};
 	
 	public static ArrayList<String> getAllEntityNames() {
-		ArrayList<String> names = new ArrayList<String>(); 
+		ArrayList<String> names = new ArrayList<>();
 		for( Class<?> c : available ) {
 			names.add( c.getSimpleName() );
 		}

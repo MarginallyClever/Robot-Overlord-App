@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robots.stewartplatform;
+package com.marginallyclever.robotOverlord.robots.stewartplatform.rotary;
 
 import java.beans.PropertyChangeEvent;
 import java.io.Serial;
@@ -8,7 +8,6 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.PoseEntity;
