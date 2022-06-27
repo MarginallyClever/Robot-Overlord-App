@@ -67,15 +67,13 @@ public class DogLeg {
 		matShoulderA.render(gl2);
 		drawLineTo(gl2, shoulderA.getPose(), 255, 0, 0);
 		gl2.glPushMatrix();
-		gl2.glRotated(90, 1, 0, 0);
-		PrimitiveSolids.drawCylinder(gl2, 2, 2.1f);
+		PrimitiveSolids.drawCenteredCylinderAlongZ(gl2, 4, 2.1f);
 		gl2.glPopMatrix();
 
 		matShoulderB.render(gl2);
 		drawLineTo(gl2, shoulderB.getPose(), 0, 0, 0);
 		gl2.glPushMatrix();
-		gl2.glRotated(90, 1, 0, 0);
-		PrimitiveSolids.drawCylinder(gl2, 2.5f, 2);
+		PrimitiveSolids.drawCenteredCylinderAlongZ(gl2, 5f, 2);
 		gl2.glPopMatrix();
 
 		double s = 1;

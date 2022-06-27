@@ -132,41 +132,66 @@ public class PrimitiveSolids {
 		gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
 	}
 
-	static public void drawCylinder(GL2 gl2,float thicknessY,float radiusXZ) {
-		int i;
-		int c=36;
-		
-		// left
+	/**
+	 * Draw a cylinder with a base at the origin
+	 * @param gl2 render context
+	 * @param height height of the cylinder
+	 * @param radius radius in the XY plane
+	 */
+	static public void drawCylinderAlongZ(GL2 gl2, double height, double radius) {
+		gl2.glPushMatrix();
+		if(height<0) {
+			height=-height;
+			gl2.glTranslated(0,0,-height);
+		}
+		gl2.glTranslated(0,0,height/2);
+		drawCenteredCylinderAlongZ(gl2,height,radius);
+
+		gl2.glPopMatrix();
+	}
+
+	/**
+	 * Draw a cylinder with a base in the center of the cylinder
+	 * @param gl2 render context
+	 * @param height height of the cylinder
+	 * @param radius radius in the XY plane
+	 */
+	static public void drawCenteredCylinderAlongZ(GL2 gl2, double height, double radius) {
+		double i;
+		double resolution=36;
+
+		height/=2;
+
+		// top
 		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3f(0,1,0);
-		for(i=0;i<=c;++i) {
-			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3d((float)Math.sin(ratio)*radiusXZ,
-							thicknessY,
-							(float)Math.cos(ratio)*radiusXZ);
+		gl2.glNormal3d(0,0,-1);
+		for(i=0;i<=resolution;++i) {
+			double ratio= Math.PI * 2.0f * i/resolution;
+			gl2.glVertex3d(Math.sin(ratio)*radius,
+							Math.cos(ratio)*radius,
+							-height);
 		}
 		gl2.glEnd();
-		// right
+		// bottom
 		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3f(0,-1,0);
-		for(i=0;i<=c;++i) {
-			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			gl2.glVertex3d((float)Math.cos(ratio)*radiusXZ,
-							-thicknessY,
-							(float)Math.sin(ratio)*radiusXZ);
+		gl2.glNormal3d(0,0,1);
+		for(i=0;i<=resolution;++i) {
+			double ratio= Math.PI * 2.0f * i/resolution;
+			gl2.glVertex3d(Math.cos(ratio)*radius,
+							Math.sin(ratio)*radius,
+							height);
 		}
 		gl2.glEnd();
 
-		// edge
+		// sides
 		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
-		for(i=0;i<=c;++i) {
-			float ratio= (float)Math.PI * 2.0f * (float)i/(float)c;
-			float a=(float)Math.sin(ratio)*radiusXZ;
-			float b=thicknessY;
-			float d=(float)Math.cos(ratio)*radiusXZ;
-			gl2.glNormal3f(a,0,d);
-			gl2.glVertex3d(a,b,d);
-			gl2.glVertex3d(a,-b,d);
+		for(i=0;i<=resolution;++i) {
+			double ratio= Math.PI * 2.0f * i/resolution;
+			double s = Math.sin(ratio)*radius;
+			double c = Math.cos(ratio)*radius;
+			gl2.glNormal3d(c,s,0);
+			gl2.glVertex3d(c,s,height);
+			gl2.glVertex3d(c,s,-height);
 		}
 		gl2.glEnd();
 	}
@@ -344,7 +369,6 @@ public class PrimitiveSolids {
 	/** draw square billboard facing the camera.
 	 * @param gl2 render context
 	 * @param p center of billboard
-	 * @param c camera
 	 * @param w width of square
 	 * @param h height of square
 	 */

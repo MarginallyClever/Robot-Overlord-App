@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.robots;
+package com.marginallyclever.robotOverlord.robots.stewartplatform;
 
 
 import java.beans.PropertyChangeEvent;
@@ -41,6 +41,7 @@ public class LinearStewartPlatform  extends PoseEntity {
 	private Shape baseModel;
 	private Shape eeModel;
 	private Shape armModel;
+	private MaterialEntity me = new MaterialEntity();
 	
 	private PoseEntity ee = new PoseEntity("ee");
 
@@ -63,8 +64,7 @@ public class LinearStewartPlatform  extends PoseEntity {
 	};
 
 	private Arm [] arms = { new Arm(), new Arm(), new Arm(), new Arm(), new Arm(), new Arm() };
-	
-	private MaterialEntity me = new MaterialEntity();
+
 	private RemoteEntity connection = new RemoteEntity();
 	private DoubleEntity velocity = new DoubleEntity("velocity",5);
 	private DoubleEntity acceleration = new DoubleEntity("acceleration",200);
