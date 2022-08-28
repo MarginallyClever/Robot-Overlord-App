@@ -127,7 +127,7 @@ public class RobotOverlord extends Entity {
 	private GLJPanel glCanvas;
 	
 	// should I check the state of the OpenGL stack size?  true=every frame, false=never
-	private boolean checkStackSize = false;
+	private final boolean checkStackSize = false;
 	
 	// mouse steering controls
 	private boolean isMouseIn=false;
