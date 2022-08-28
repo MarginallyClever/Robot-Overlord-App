@@ -30,7 +30,9 @@ public class RobotArmBone implements Cloneable {
 	private double alpha;
 	// angle (degrees) about previous Z, from old X to new X
 	public double theta;
-	
+	// angle (degrees) at home position.
+	public double thetaHome;
+
 	private double thetaMax, thetaMin;
 	
 	// model and relative offset from DH origin
@@ -57,6 +59,7 @@ public class RobotArmBone implements Cloneable {
 	public RobotArmBone(String name,double d,double r,double alpha,double theta,double thetaMax,double thetaMin,String shapeFilename) {
 		this();
 		this.set(name,d,r,alpha,theta,thetaMax,thetaMin,shapeFilename);
+		this.thetaHome=theta;
 	}
 	
 	public void set(String name,double d,double r,double alpha,double theta,double thetaMax,double thetaMin,String shapeFilename) {
@@ -99,7 +102,8 @@ public class RobotArmBone implements Cloneable {
 				+","+linearVelocity
 				+","+force
 				+","+angularVelocity
-				+","+torque;
+				+","+torque
+				+","+thetaHome;
 		
 		return this.getClass().getSimpleName()+" ["+s+"]";
 	}
@@ -128,6 +132,7 @@ public class RobotArmBone implements Cloneable {
 		setForce((Vector3d)StringHelper.parseTuple3d(pieces[12]));
 		setLinearVelocity((Vector3d)StringHelper.parseTuple3d(pieces[13]));
 		setForce((Vector3d)StringHelper.parseTuple3d(pieces[14]));
+		setHome(Double.parseDouble(pieces[15]));
 	}
 	
 	public void setAngleWRTLimits(double newAngle) {
@@ -193,6 +198,20 @@ public class RobotArmBone implements Cloneable {
 		return theta;
 	}
 
+	/**
+	 * @retyrn the home angle (degrees)
+	 */
+	public double getHome() {
+		return thetaHome;
+	}
+
+	/**
+	 * Set the home angle (degrees)
+	 * @param theta the new angle
+	 */
+	public void setHome(double theta) {
+		thetaHome = theta;
+	}
 	public Matrix4d getPose() {
 		return pose;
 	}

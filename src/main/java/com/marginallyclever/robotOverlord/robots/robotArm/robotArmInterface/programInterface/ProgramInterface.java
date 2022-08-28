@@ -197,7 +197,7 @@ public class ProgramInterface extends JPanel {
 		double [] angles = new double[count];
 		for (int i = 0; i < count; ++i) {
 			myArm.set(Robot.ACTIVE_JOINT, i);
-			angles[i] = (double)myArm.get(Robot.JOINT_HOME);
+			angles[i] = (double)myArm.get(Robot.JOINT_VALUE);
 		}
 
 		insertWhereAppropriate(new ProgramEvent(angles));

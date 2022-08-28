@@ -324,6 +324,9 @@ public class RobotArmFK extends PoseEntity implements Robot {
 				}
 				return m;
 			}
+			case JOINT_HOME: {
+				return getBone(activeJoint).getHome();
+			}
 			default :  return null;
 		}
 	}
@@ -339,6 +342,7 @@ public class RobotArmFK extends PoseEntity implements Robot {
 			case END_EFFECTOR_TARGET: getEndEffectorTarget().moveTowards((Matrix4d)value);  break;
 			case TOOL_CENTER_POINT: setToolCenterPointOffset((Matrix4d)value);  break;
 			case POSE: setPoseWorld((Matrix4d)value);  break;
+			case JOINT_HOME: getBone(activeJoint).setHome((double)value);  break;
 			default: break;
 		}
 	}
