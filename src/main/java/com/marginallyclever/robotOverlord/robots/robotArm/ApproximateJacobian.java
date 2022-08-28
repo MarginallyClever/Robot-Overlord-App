@@ -8,14 +8,12 @@ import com.marginallyclever.convenience.MatrixHelper;
 /**
  * Given the current pose of the robot, find the approximate jacobian, which
  * describe the relationship between joint velocity and cartesian velocity.
- * 
- * @See <a href=
- *      'https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346'>Robot
+ * See <a href="https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346">Robot
  *      Academy tutorial</a>
  */
 public class ApproximateJacobian {
 	static public final double ANGLE_STEP_SIZE_DEGREES = 0.001; // degrees
-	private RobotArmFK myArm;
+	private final RobotArmFK myArm;
 
 	/**
 	 * a 6x6 matrix that will be filled with the jacobian. The first three columns
@@ -56,11 +54,12 @@ public class ApproximateJacobian {
 				// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
 				// and used to confirm that our skew-symmetric matrix match theirs.
 				/*
-				 * double[] initialT = { 0, 0 , 1 , 0.5963, 0, 1 , 0 , -0.1501, -1, 0 , 0 ,
-				 * -0.01435, 0, 0 , 0 , 1 }; double[] initialTd = { 0, -0.01, 1 , 0.5978, 0, 1 ,
-				 * 0.01, -0.1441, -1, 0 , 0 , -0.01435, 0, 0 , 0 , 1 }; T.set(initialT);
-				 * Td.set(initialTd); dT.sub(Td,T);
-				 * dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));//
+				 * double[] initialT = { 0, 0 , 1 , 0.5963, 0, 1 , 0 , -0.1501, -1, 0 , 0 ,-0.01435, 0, 0 , 0 , 1 };
+				 * double[] initialTd = { 0, -0.01, 1 , 0.5978, 0, 1 , 0.01, -0.1441, -1, 0 , 0 , -0.01435, 0, 0 , 0 , 1 };
+				 * T.set(initialT);
+				 * Td.set(initialTd);
+				 * dT.sub(Td,T);
+				 * dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
 				 */
 
 				// Log.message("T="+T);
@@ -91,11 +90,8 @@ public class ApproximateJacobian {
 
 	/**
 	 * Use the jacobian to get the cartesian velocity from the joint velocity.
-	 * 
-	 * @param jointVelocity     joint velocity in degrees.
-	 * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation
-	 *                          forces on the end effector. Will be filled with new
-	 *                          values
+	 * @param jointVelocity joint velocity in degrees.
+	 * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
 	 */
 	public double[] getCartesianFromJoint(final double[] jointVelocity) {
 		// vector-matrix multiplication (y = x^T A)
