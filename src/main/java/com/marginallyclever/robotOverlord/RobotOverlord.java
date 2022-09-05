@@ -473,25 +473,23 @@ public class RobotOverlord extends Entity {
 		removeAllChildren();
 		
 		scene = new Scene();
-		scene.addComponent(new PoseComponent());
-		Entity mainCamera = new Entity("Main Camera");
-		mainCamera.addComponent(new PoseComponent());
-		mainCamera.addComponent(new CameraComponent());
-		scene.addChild(mainCamera);
-
-		Entity light0 = new Entity("Light");
-		light0.addComponent(new PoseComponent());
-		light0.addComponent(new LightComponent());
-		scene.addChild(light0);
 
 		PoseComponent pose = new PoseComponent();
-		Entity boxEntity = new Entity("Box");
-		boxEntity.addComponent(pose);
-		BoxComponent box = new BoxComponent();
-		boxEntity.addComponent(box);
-		scene.addChild(boxEntity);
-		pose.setPosition(new Vector3d(-10,0,0));
-        
+		CameraComponent camera = new CameraComponent();
+		scene.addComponent(new PoseComponent());
+		Entity mainCamera = new Entity("Main Camera");
+		mainCamera.addComponent(pose);
+		mainCamera.addComponent(camera);
+		scene.addChild(mainCamera);
+		pose.setPosition(new Vector3d(0,-10,-5));
+		camera.lookAt(new Vector3d(0,0,0));
+
+		Entity light0 = new Entity("Light");
+		light0.addComponent(pose = new PoseComponent());
+		light0.addComponent(new LightComponent());
+		scene.addChild(light0);
+		pose.setPosition(new Vector3d(-50,-50,50));
+
  		addChild(viewport);
         addChild(scene);
  		addChild(moveTool);

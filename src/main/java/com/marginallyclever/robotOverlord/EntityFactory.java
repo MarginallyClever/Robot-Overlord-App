@@ -1,13 +1,9 @@
 package com.marginallyclever.robotOverlord;
 
-import com.marginallyclever.robotOverlord.components.sceneElements.BoxEntity;
-import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
-import com.marginallyclever.robotOverlord.components.sceneElements.SphereEntity;
 import com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatform2;
 import com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatformAdjustable;
 import com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatform1;
 import com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatformAdjustable;
-import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -20,11 +16,7 @@ public class EntityFactory {
 			LinearStewartPlatform1.class,
 			LinearStewartPlatformAdjustable.class,
 			com.marginallyclever.robotOverlord.robots.skycam.Skycam.class,
-			ShapeEntity.class,
 			com.marginallyclever.robotOverlord.Decal.class,
-			BoxEntity.class,
-			GridEntity.class,
-			SphereEntity.class,
 			com.marginallyclever.robotOverlord.robots.dog.DogRobot.class,
 
 			com.marginallyclever.robotOverlord.robots.robotArm.implementations.Mantis.class,

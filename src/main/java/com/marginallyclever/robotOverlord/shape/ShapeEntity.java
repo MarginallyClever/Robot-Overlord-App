@@ -33,6 +33,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class ShapeEntity extends PoseEntity implements Collidable {
 	@Serial
 	private static final long serialVersionUID = -6421492357105354857L;

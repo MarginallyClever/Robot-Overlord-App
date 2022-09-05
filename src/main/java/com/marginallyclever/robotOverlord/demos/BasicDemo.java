@@ -4,9 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.LightComponent;
-import com.marginallyclever.robotOverlord.components.PoseComponent;
+import com.marginallyclever.robotOverlord.components.*;
 import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
 
 public class BasicDemo implements Demo {
@@ -46,8 +44,21 @@ public class BasicDemo implements Demo {
     	light.setDiffuse(1,0.8f,0.8f,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
 
-    	GridEntity grid = new GridEntity();
-		sc.addChild(grid);
-		grid.setName("Floor");
+		Entity boxEntity = new Entity("Box");
+		boxEntity.addComponent(pose = new PoseComponent());
+		BoxComponent box = new BoxComponent();
+		boxEntity.addComponent(box);
+		sc.addChild(boxEntity);
+		pose.setPosition(new Vector3d(-10,0,0));
+
+		Entity gridEntity = new Entity("Floor");
+		MaterialComponent mat = new MaterialComponent();
+		gridEntity.addComponent(pose = new PoseComponent());
+		gridEntity.addComponent(mat);
+    	GridComponent grid = new GridComponent();
+		gridEntity.addComponent(grid);
+		sc.addChild(gridEntity);
+		mat.setDiffuseColor(0.5,0.5,0.5,1);
+		mat.setLit(false);
 	}
 }

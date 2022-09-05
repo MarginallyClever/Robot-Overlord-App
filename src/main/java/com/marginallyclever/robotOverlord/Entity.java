@@ -84,13 +84,9 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 
 	/**
 	 * Render this Entity to the display
-	 * @param gl2
+	 * @param gl2 the render context
 	 */
-	public void render(GL2 gl2) {
-		for (Entity e : children) {
-			e.render(gl2);
-		}
-	}
+	public void render(GL2 gl2) {}
 	
 	public boolean hasChild(Entity o) {
 		return children.contains(o);

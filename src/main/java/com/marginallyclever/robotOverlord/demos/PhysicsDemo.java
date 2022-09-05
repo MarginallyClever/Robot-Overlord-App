@@ -5,9 +5,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.LightComponent;
-import com.marginallyclever.robotOverlord.components.PoseComponent;
+import com.marginallyclever.robotOverlord.components.*;
 import com.marginallyclever.robotOverlord.physics.original.RigidBody;
 import com.marginallyclever.robotOverlord.physics.original.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.original.RigidBodySphere;
@@ -47,10 +45,17 @@ public class PhysicsDemo implements Demo {
     	light.setAttenuationLinear(0.0014);
     	light.setAttenuationQuadratic(7*1e-6);
     	light.setDirectional(true);
-    	
-		// adjust grid
-		GridEntity grid = new GridEntity();
-		sc.addChild(grid);
+
+
+		Entity gridEntity = new Entity("Floor");
+		MaterialComponent mat = new MaterialComponent();
+		gridEntity.addComponent(pose = new PoseComponent());
+		gridEntity.addComponent(mat);
+		GridComponent grid = new GridComponent();
+		gridEntity.addComponent(grid);
+		sc.addChild(gridEntity);
+		mat.setDiffuseColor(0.5,0.5,0.5,1);
+		mat.setLit(false);
 		
 		MakeRigidBody op;
 		double x=0;

@@ -9,6 +9,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
+@Deprecated
 public class GridEntity extends PoseEntity {
 	/**
 	 * 
@@ -77,15 +78,15 @@ public class GridEntity extends PoseEntity {
 		for(double i=startx;i<=endx;i+=gridSpace) {
 			double v = 1.0 - Math.abs(i - p.x) / halfWidth;
 			gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(i,starty);
-			gl2.glColor4d(r, g, b, v);			gl2.glVertex2d(i,p.y);
-												gl2.glVertex2d(i,p.y);
+			gl2.glColor4d(r, g, b, v);					gl2.glVertex2d(i,p.y);
+														gl2.glVertex2d(i,p.y);
 			gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(i,endy  );
 		}
 		for(double i=starty;i<=endy;i+=gridSpace) {
 			double v = 1.0 - Math.abs(i - p.y) / halfHeight;
  			gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(startx,i);
-			gl2.glColor4d(r, g, b, v);			gl2.glVertex2d(p.x   ,i);
-												gl2.glVertex2d(p.x   ,i);
+			gl2.glColor4d(r, g, b, v);					gl2.glVertex2d(p.x   ,i);
+														gl2.glVertex2d(p.x   ,i);
 			gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(endx  ,i);
 		}
 		gl2.glEnd();

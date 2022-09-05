@@ -14,15 +14,10 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.LightComponent;
-import com.marginallyclever.robotOverlord.components.PoseComponent;
-import com.marginallyclever.robotOverlord.components.ShapeComponent;
+import com.marginallyclever.robotOverlord.components.*;
 import com.marginallyclever.robotOverlord.components.sceneElements.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
-import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
-import org.ode4j.ode.internal.Matrix;
 
 /**
  * Container for all the visible objects in a scene.
@@ -32,8 +27,10 @@ import org.ode4j.ode.internal.Matrix;
 public class Scene extends Entity {
 	@Serial
 	private static final long serialVersionUID = 2990084741436544957L;
-	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
-	public SkyBoxEntity sky = new SkyBoxEntity();
+
+	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
+	private final MaterialComponent defaultMaterial = new MaterialComponent();
+	public final SkyBoxEntity sky = new SkyBoxEntity();
 	
 	public Scene() {
 		super();
@@ -49,11 +46,16 @@ public class Scene extends Entity {
 		gl2.glCullFace(GL2.GL_BACK);
 
 		sky.render(gl2);
+		renderWorldOrigin(gl2);
+
 		renderLights(gl2);
-		renderAllMeshes(gl2);
-		PrimitiveSolids.drawStar(gl2,10);
+		renderAllEntitiesWithMeshes(gl2);
 		// PASS 2: everything transparent?
 		//renderAllBoundingBoxes(gl2);
+	}
+
+	private void renderWorldOrigin(GL2 gl2) {
+		PrimitiveSolids.drawStar(gl2,10);
 	}
 
 	private void clearAll(GL2 gl2) {
@@ -62,34 +64,44 @@ public class Scene extends Entity {
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 	}
 
-	private void renderAllMeshes(GL2 gl2) {
-		Queue<Entity> found = new LinkedList<>(children);
-
-		MaterialEntity m = new MaterialEntity();
-		m.render(gl2);
-
-		while(!found.isEmpty()) {
-			Entity obj = found.remove();
-			PoseComponent pose = obj.getComponent(PoseComponent.class);
-			if(pose!=null) {
-				gl2.glPushMatrix();
-				MatrixHelper.applyMatrix(gl2,pose.getWorld());
-				PrimitiveSolids.drawStar(gl2,5);
-			}
-
-			gl2.glPushName(obj.getPickName());
-
-			ShapeComponent shape = obj.getComponent(ShapeComponent.class);
-			if(shape!=null && shape.getEnabled()) {
-				shape.render(gl2);
-			}
-
-			gl2.glPopName();
-			if(pose!=null) {
-				gl2.glPopMatrix();
-			}
-			found.addAll(obj.children);
+	private void renderAllEntitiesWithMeshes(GL2 gl2) {
+		defaultMaterial.render(gl2);
+		for(Entity child : children) {
+			renderEntitiesWithMeshes(gl2, child);
 		}
+	}
+
+	private void renderEntitiesWithMeshes(GL2 gl2,Entity obj) {
+		gl2.glPushName(obj.getPickName());
+
+		PoseComponent pose = obj.getComponent(PoseComponent.class);
+		if(pose!=null) {
+			renderOneEntityWithMeshAndPose(gl2,obj,pose);
+		} else {
+			renderOneEntityWithMesh(gl2, obj);
+		}
+
+		for (Entity child : obj.getChildren()) {
+			renderEntitiesWithMeshes(gl2, child);
+		}
+
+		gl2.glPopName();
+	}
+	private void renderOneEntityWithMeshAndPose(GL2 gl2,Entity obj,PoseComponent pose) {
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2,pose.getWorld());
+		//PrimitiveSolids.drawStar(gl2,1);
+		renderOneEntityWithMesh(gl2,obj);
+		gl2.glPopMatrix();
+	}
+
+	private void renderOneEntityWithMesh(GL2 gl2,Entity obj) {
+		MaterialComponent mat = obj.getComponent(MaterialComponent.class);
+		if(mat==null) mat = obj.findFirstComponentInParents(MaterialComponent.class);
+		if(mat!=null && mat.getEnabled()) mat.render(gl2);
+
+		ShapeComponent shape = obj.getComponent(ShapeComponent.class);
+		if(shape!=null && shape.getEnabled()) shape.render(gl2);
 	}
 
 	private void renderLights(GL2 gl2) {

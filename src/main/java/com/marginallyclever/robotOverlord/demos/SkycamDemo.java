@@ -4,9 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.LightComponent;
-import com.marginallyclever.robotOverlord.components.PoseComponent;
+import com.marginallyclever.robotOverlord.components.*;
 import com.marginallyclever.robotOverlord.robots.skycam.Skycam;
 import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
 
@@ -43,11 +41,20 @@ public class SkycamDemo implements Demo {
     	light.setDirectional(true);
     	
 		// adjust grid
-		GridEntity grid = new GridEntity();
-		sc.addChild(grid);
+
+		Entity gridEntity = new Entity("Floor");
+		MaterialComponent mat = new MaterialComponent();
+		gridEntity.addComponent(pose = new PoseComponent());
+		gridEntity.addComponent(mat);
+		GridComponent grid = new GridComponent();
+		gridEntity.addComponent(grid);
+		sc.addChild(gridEntity);
+		mat.setDiffuseColor(0.5,0.5,0.5,1);
+		mat.setLit(false);
+
 		grid.width.set(140);
 		grid.height.set(90);
-		grid.setPosition(new Vector3d(60.0,0,-0.5));
+		pose.setPosition(new Vector3d(60.0,0,-0.5));
 		
     	// add a sixi robot
 		Skycam skycam=new Skycam();

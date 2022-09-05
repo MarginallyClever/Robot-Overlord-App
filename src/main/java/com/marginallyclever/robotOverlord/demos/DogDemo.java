@@ -4,9 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.LightComponent;
-import com.marginallyclever.robotOverlord.components.PoseComponent;
+import com.marginallyclever.robotOverlord.components.*;
 import com.marginallyclever.robotOverlord.robots.dog.DogRobot;
 import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
 
@@ -42,15 +40,19 @@ public class DogDemo implements Demo {
     	light.setAttenuationQuadratic(7*1e-6);
     	light.setDirectional(true);
 
-    	GridEntity grid = new GridEntity();
-		sc.addChild(grid);
-		grid.setName("Floor");
-		
 		DogRobot dog = new DogRobot();
 		sc.addChild(dog);
 		dog.setPosition(new Vector3d(0,0,17));
 		dog.setRotation(new Vector3d(Math.toRadians(90),0,0));
-		
-		grid.shadow(dog);
+
+		Entity gridEntity = new Entity("Floor");
+		MaterialComponent mat = new MaterialComponent();
+		gridEntity.addComponent(pose = new PoseComponent());
+		gridEntity.addComponent(mat);
+		GridComponent grid = new GridComponent();
+		gridEntity.addComponent(grid);
+		dog.addChild(gridEntity);
+		mat.setDiffuseColor(0.5,0.5,0.5,1);
+		mat.setLit(false);
 	}
 }

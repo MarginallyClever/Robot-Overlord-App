@@ -12,6 +12,7 @@ import java.io.Serial;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class MaterialEntity extends Entity {
 	@Serial
 	private static final long serialVersionUID = 6239607540529931426L;
