@@ -57,7 +57,7 @@ Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest 
 * Go to Window > Show View > Package Explorer
 * Right click on "Robot Overlord" in Package Explorer view and select > Maven > Update Project
 * select Run > Debug As > Java Application
-* select "Robot Overlord - com.marginallyclever.robotOverlord.RobotOverlord" and click OK.
+* select "Robot Overlord - com.marginallyclever.robotoverlord.RobotOverlord" and click OK.
 * Wait while the progress bar in the bottom right fills up.  This is a one time thing.
 * "Errors exist...Proceed with launch?" Select Proceed.
 

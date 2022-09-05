@@ -8,7 +8,7 @@ import java.util.prefs.PreferencesFactory;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.marginallyclever.robotOverlord.Log;
+import com.marginallyclever.robotoverlord.Log;
 
 /**
  * @author Peter Colapietro

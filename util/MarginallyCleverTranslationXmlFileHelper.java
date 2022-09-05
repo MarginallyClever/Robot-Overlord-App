@@ -1,6 +1,6 @@
 package com.marginallyclever.util;
 
-import static com.marginallyclever.robotOverlord.Translator.WORKING_DIRECTORY;
+import static com.marginallyclever.robotoverlord.Translator.WORKING_DIRECTORY;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.marginallyclever.robotOverlord.Log;
+import com.marginallyclever.robotoverlord.Log;
 
 /**
  * Helper utility class to aid in loading of language files.

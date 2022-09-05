@@ -7,7 +7,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotOverlord.shape.Mesh;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 /**
  * A box aligned to the world axies.  used for fast sorting and filtering.

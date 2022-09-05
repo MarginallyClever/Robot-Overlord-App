@@ -23,7 +23,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
  * Helper utility class to aid in loading of language files.

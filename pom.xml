@@ -110,7 +110,7 @@ If you like this project, please support us by buying Marginally Clever products
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
 						</manifestEntries>
 						<manifest>
-							<mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+							<mainClass>com.marginallyclever.robotoverlord.RobotOverlord</mainClass>
 							<addClasspath>true</addClasspath>
 						</manifest>
 					</archive>
@@ -161,7 +161,7 @@ If you like this project, please support us by buying Marginally Clever products
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
 						</manifestEntries>
 						<manifest>
-							<mainClass>com.marginallyclever.robotOverlord.RobotOverlord</mainClass>
+							<mainClass>com.marginallyclever.robotoverlord.RobotOverlord</mainClass>
 							<addClasspath>true</addClasspath>
 						</manifest>
 					</archive>

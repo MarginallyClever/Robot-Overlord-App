@@ -9,7 +9,7 @@ import javax.swing.JTabbedPane;
 
 import com.marginallyclever.communications.serial.SerialTransportLayer;
 import com.marginallyclever.communications.tcp.TCPTransportLayer;
-import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
  * Handles requests between the UI and the various transport layers 
