@@ -7,8 +7,8 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.robotOverlord.sceneElements.Sphere;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.components.sceneElements.SphereEntity;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 public class RigidBodySphere extends RigidBody {
 	private static final long serialVersionUID = 1L;
@@ -26,9 +26,9 @@ public class RigidBodySphere extends RigidBody {
 		Matrix3d inertiaTensor = new Matrix3d();
 		inertiaTensor.setIdentity();
 		
-		Shape shape = getShape();
-		if( shape instanceof Sphere ) {
-			double r = ((Sphere)shape).getRadius();	
+		ShapeEntity shape = getShape();
+		if( shape instanceof SphereEntity) {
+			double r = ((SphereEntity)shape).getRadius();
 			inertiaTensor.setScale(getMass() * 2.0/5.0 * r*r);
 		}
 		return inertiaTensor;
@@ -37,13 +37,13 @@ public class RigidBodySphere extends RigidBody {
 	// assumes ground plane is body 1.
 	@Override
 	protected void testFloorContact() {
-		Shape shape = getShape();
+		ShapeEntity shape = getShape();
 		ArrayList<Cuboid> list = shape.getCuboidList();
 		if(!list.isEmpty()) {
-			if( !(shape instanceof Sphere ) ) return;
+			if( !(shape instanceof SphereEntity) ) return;
 				
 			Point3d p = new Point3d(this.getPosition());
-			p.z-=((Sphere)shape).getRadius();
+			p.z-=((SphereEntity)shape).getRadius();
 			if(p.z<0) {
 				// hit floor
 				// don't be in the floor 

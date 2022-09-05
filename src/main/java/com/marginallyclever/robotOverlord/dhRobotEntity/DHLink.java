@@ -12,7 +12,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.Collidable;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElement;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
@@ -96,7 +96,7 @@ public class DHLink extends PoseEntity implements Collidable {
 	// where mass M, Ng is the center of mass, and I terms represent the inertia.
 	//public Matrix4dEntity inertia = new Matrix4dEntity();
 	
-	protected Shape shapeEntity = new Shape();
+	protected ShapeEntity shapeEntity = new ShapeEntity();
 	
 	public DHLink() {
 		super();

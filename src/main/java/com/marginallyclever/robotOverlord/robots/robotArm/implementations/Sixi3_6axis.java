@@ -5,7 +5,7 @@ import javax.vecmath.Point3d;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 public class Sixi3_6axis extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
@@ -17,7 +17,7 @@ public class Sixi3_6axis extends RobotArmIK {
 	
 	@Override
 	protected void loadModel() {
-		setBaseShape(new Shape("Base","/Sixi3b/j0.obj"));
+		setBaseShape(new ShapeEntity("Base","/Sixi3b/j0.obj"));
 		// base 
 		// Mass	201.686 g
 		// Center of Mass	-1.113, -0.011, 14.664

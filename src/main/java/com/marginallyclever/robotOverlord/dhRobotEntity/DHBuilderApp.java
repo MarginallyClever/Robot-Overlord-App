@@ -21,7 +21,7 @@ import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.dhRobotEntity.DHLink.LinkAdjust;
 import com.marginallyclever.robotOverlord.dhRobotEntity.solvers.DHIKSolver;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
@@ -35,8 +35,8 @@ public class DHBuilderApp extends DHRobotModel {
 
 	public static final String [] BONE_NAMES = { "X", "Y", "Z", "U", "V", "W" };
 	
-	private Shape anchor = new Shape();
-	private Shape [] models = new Shape[BONE_NAMES.length];
+	private ShapeEntity anchor = new ShapeEntity();
+	private ShapeEntity[] models = new ShapeEntity[BONE_NAMES.length];
 	
 	private MaterialEntity mat = new MaterialEntity();
 	public DHLink endEffector = new DHLink();
@@ -72,7 +72,7 @@ public class DHBuilderApp extends DHRobotModel {
 		anchor.setMaterial(mat);
 		
 		for( i=0;i<BONE_NAMES.length;++i) {
-			models[i] = new Shape();
+			models[i] = new ShapeEntity();
 			models[i].setName("model "+BONE_NAMES[i]);
 			addChild(models[i]);
 			models[i].setMaterial(mat);

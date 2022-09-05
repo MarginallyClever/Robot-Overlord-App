@@ -13,7 +13,7 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.robots.RobotEntity;
 import com.marginallyclever.robotOverlord.robots.robotArm.robotArmInterface.RobotArmInterface;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
@@ -56,9 +56,9 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	private Cylinder [] volumes;
 
 	// models for 3d rendering
-	private final transient Shape modelTop;
-	private final transient Shape modelArm;
-	private final transient Shape modelBase;
+	private final transient ShapeEntity modelTop;
+	private final transient ShapeEntity modelArm;
+	private final transient ShapeEntity modelBase;
 	
 	// motion state testing
 	final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
@@ -98,9 +98,9 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 		tube.setRadius(0.15f);
 
-		modelTop = new Shape("top","/DeltaRobot3/top.obj");
-		modelArm = new Shape("arm","/DeltaRobot3/arm.obj");
-		modelBase = new Shape("base","/DeltaRobot3/base.obj");
+		modelTop = new ShapeEntity("top","/DeltaRobot3/top.obj");
+		modelArm = new ShapeEntity("arm","/DeltaRobot3/arm.obj");
+		modelBase = new ShapeEntity("base","/DeltaRobot3/base.obj");
 
 		modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
 		modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);

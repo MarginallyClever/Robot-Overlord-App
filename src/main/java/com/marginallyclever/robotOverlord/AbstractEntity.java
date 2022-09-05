@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
 import java.beans.PropertyChangeEvent;
+import java.io.Serial;
 
 /**
  * A convenience class for basic data types
@@ -8,9 +9,7 @@ import java.beans.PropertyChangeEvent;
  * @since 1.6.0
  */
 public class AbstractEntity<T> extends Entity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = -4725754267079958438L;
 	
 	// the data to store
@@ -43,8 +42,7 @@ public class AbstractEntity<T> extends Entity {
     	if( this.t==null || !this.t.equals(t) ) {
     		T oldValue = this.t;
 	    	this.t = t;
-    		T newValue = t;
-    		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"value",oldValue,newValue));
+    		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"value",oldValue,t));
     	}
     }
 	

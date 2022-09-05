@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sceneElements;
+package com.marginallyclever.robotOverlord.components.sceneElements;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.Collidable;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
@@ -19,7 +19,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @author aggra
  *
  */
-public class Box extends Shape implements Collidable {
+public class BoxEntity extends ShapeEntity implements Collidable {
 	/**
 	 * 
 	 */
@@ -31,7 +31,7 @@ public class Box extends Shape implements Collidable {
 	
 	private Cuboid cuboid = new Cuboid();
 	
-	public Box() {
+	public BoxEntity() {
 		super();
 		setName("Box");
 		addChild(width);

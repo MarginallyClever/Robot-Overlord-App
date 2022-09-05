@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sceneElements;
+package com.marginallyclever.robotOverlord.components.sceneElements;
 
 import javax.vecmath.Vector3d;
 
@@ -9,7 +9,7 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
-public class Grid extends PoseEntity {
+public class GridEntity extends PoseEntity {
 	/**
 	 * 
 	 */
@@ -19,7 +19,7 @@ public class Grid extends PoseEntity {
 	private PoseEntity follow;
 	private MaterialEntity m = new MaterialEntity();
 	
-	public Grid() {
+	public GridEntity() {
 		super("Grid");
 		
 		addChild(width);

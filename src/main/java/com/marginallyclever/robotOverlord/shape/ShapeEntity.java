@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.shape;
 
 import java.beans.PropertyChangeEvent;
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.swing.filechooser.FileFilter;
@@ -27,15 +28,13 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 
 /**
  * A {@link Mesh} is a collection of points, triangles, normals, and possibly color and possibly texture coordinates.
- * A {@link Shape} is a {@link Mesh} positioned and scaled somewhere in a Scene.  That is to say, {@link Shape}
+ * A {@link ShapeEntity} is a {@link Mesh} positioned and scaled somewhere in a Scene.  That is to say, {@link ShapeEntity}
  * allows for local changes to the {@link Mesh} origin, scale, and rotation.
  * @author Dan Royer
  *
  */
-public class Shape extends PoseEntity implements Collidable {
-	/**
-	 * 
-	 */
+public class ShapeEntity extends PoseEntity implements Collidable {
+	@Serial
 	private static final long serialVersionUID = -6421492357105354857L;
 
 	// the shape for this entity
@@ -50,18 +49,18 @@ public class Shape extends PoseEntity implements Collidable {
 	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
 	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
 
-	private IntEntity numTriangles = new IntEntity("Triangles",0);
-	private BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
-	private BooleanEntity hasColors = new BooleanEntity("Has colors",false);
-	private BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
+	private final IntEntity numTriangles = new IntEntity("Triangles",0);
+	private final BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+	private final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
+	private final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 	
 	private Cuboid cuboid = new Cuboid();
 	
-	public Shape() {
+	public ShapeEntity() {
 		this("Shape");
 	}
 	
-	public Shape(String name) {
+	public ShapeEntity(String name) {
 		super(name);
 		addChild(filename);
 
@@ -80,12 +79,12 @@ public class Shape extends PoseEntity implements Collidable {
 		addChild(hasUVs);
 	}
 	
-	public Shape(String name,String filename) {
+	public ShapeEntity(String name, String filename) {
 		super(name);
 		setShapeFilename(filename);
 	}
 	
-	public void set(Shape b) {
+	public void set(ShapeEntity b) {
 		super.set(b);
 		scale.set(b.scale.get());
 		cuboid.set(b.cuboid);

@@ -9,10 +9,14 @@ import com.jogamp.opengl.glu.GLU;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.Pose;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
+
+import java.io.Serial;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the render pipeline.
@@ -22,9 +26,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
  *
  */
 public class Viewport extends Entity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = -7613439702723031982L;
 	
 	private int canvasWidth, canvasHeight;
@@ -34,13 +36,12 @@ public class Viewport extends Entity {
 	private boolean isPressed;
 
 	// calculated when rendering.  so won't be valid on the first frame.
-	private Matrix4d projectionMatrix = new Matrix4d();
-	
-	private DoubleEntity nearZ=new DoubleEntity("Near Z",5.0);
-	private DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
-	private DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
-	private StringEntity attachedTo=new StringEntity("Attached to","");
-	private BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
+	private final Matrix4d projectionMatrix = new Matrix4d();
+	private final DoubleEntity nearZ=new DoubleEntity("Near Z",5.0);
+	private final DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
+	private final DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
+	private final StringEntity attachedTo=new StringEntity("Attached to","");
+	private final BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
 	
 	
 	public Viewport() {
@@ -67,21 +68,16 @@ public class Viewport extends Entity {
 	}
 	
 	public void renderOrtho(GL2 gl2,double zoom) {
-        double w = canvasWidth/10;
-        double h = canvasHeight/10;
-        
+        double w = canvasWidth/10.0;
+        double h = canvasHeight/10.0;
 		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
 	}
 	
-	public void renderOrtho(GL2 gl2) {
-		PoseEntity camera = getAttachedTo();
-        Camera c = (Camera)camera;
-        double z = c.getZoom()/100;
-
-        renderOrtho(gl2,z);
+	public void renderOrtho(GL2 gl2,CameraComponent cameraComponent) {
+        renderOrtho(gl2,cameraComponent.getZoom()/100.0);
 	}
 
-	public void renderShared(GL2 gl2) {
+	public void renderShared(GL2 gl2,CameraComponent cameraComponent) {
 		// store the projection matrix for later
         double [] m = new double[16];
         gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX, m, 0);
@@ -98,20 +94,20 @@ public class Viewport extends Entity {
 		}
 	}
 	
-	public void renderChosenProjection(GL2 gl2) {
+	public void renderChosenProjection(GL2 gl2, CameraComponent cameraComponent) {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 		
 		if(drawOrthographic.get()) {
-			renderOrtho(gl2);
+			renderOrtho(gl2,cameraComponent);
 		} else {
 			renderPerspective(gl2);
 		}
 		
-        renderShared(gl2);
+        renderShared(gl2,cameraComponent);
 	}
 	
-	public void renderPick(GL2 gl2,double pickX,double pickY) {
+	public void renderPick(GL2 gl2,CameraComponent cameraComponent,double pickX,double pickY) {
         // get the current viewport dimensions to set up the projection matrix
         int[] viewportDimensions = new int[4];
 		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewportDimensions,0);
@@ -125,12 +121,12 @@ public class Viewport extends Entity {
 		glu.gluPickMatrix(pickX, canvasHeight-pickY, 5.0, 5.0, viewportDimensions,0);
 
 		if(drawOrthographic.get()) {
-			renderOrtho(gl2);
+			renderOrtho(gl2,cameraComponent);
 		} else {
 			renderPerspective(gl2);
 		}
 		
-		renderShared(gl2);
+		renderShared(gl2,cameraComponent);
 	}
 	
 	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
@@ -167,8 +163,8 @@ public class Viewport extends Entity {
 		return ray; 
 	}
 
-	public void showPickingTest(GL2 gl2) {
-		renderChosenProjection(gl2);
+	public void showPickingTest(GL2 gl2,CameraComponent cameraComponent) {
+		renderChosenProjection(gl2,cameraComponent);
 		gl2.glPushMatrix();
 
 		Ray r = rayPick();
@@ -177,10 +173,10 @@ public class Viewport extends Entity {
 		double cy=cursorY;
         int w = canvasWidth;
         int h = canvasHeight;
-        setCursor(0,0);        Ray tl = rayPick();
-        setCursor(w,0);        Ray tr = rayPick();
-        setCursor(0,h);        Ray bl = rayPick();
-        setCursor(w,h);        Ray br = rayPick();
+        setCursor(0,0);	Ray tl = rayPick();
+        setCursor(w,0);		Ray tr = rayPick();
+        setCursor(0,h);		Ray bl = rayPick();
+        setCursor(w,h);			Ray br = rayPick();
 		cursorX=cx;
 		cursorY=cy;
 

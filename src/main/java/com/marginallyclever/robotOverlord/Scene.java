@@ -10,8 +10,9 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.sceneElements.Light;
-import com.marginallyclever.robotOverlord.sceneElements.SkyBox;
+import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
+import com.marginallyclever.robotOverlord.components.sceneElements.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
 
@@ -26,7 +27,7 @@ public class Scene extends Entity {
 	 */
 	private static final long serialVersionUID = 2990084741436544957L;
 	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
-	public SkyBox sky = new SkyBox();
+	public SkyBoxEntity sky = new SkyBoxEntity();
 	
 	public Scene() {
 		super();
@@ -34,7 +35,7 @@ public class Scene extends Entity {
 		addChild(sky);
 	}
 	
-	public void render(GL2 gl2, Camera camera) {
+	public void render(GL2 gl2, CameraComponent camera) {
 		// Clear the screen and depth buffer
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
         // Don't draw triangles facing away from camera
@@ -48,7 +49,7 @@ public class Scene extends Entity {
         
 		// PASS 1: everything not a light
 		for( Entity obj : children ) {
-			if(obj instanceof Light) continue;
+			if(obj instanceof LightEntity) continue;
 			// name for picking
 			if(obj instanceof PoseEntity) {
 				gl2.glPushName(((PoseEntity)obj).getPickName());
@@ -60,8 +61,6 @@ public class Scene extends Entity {
 			}
 		}
 		
-        camera.render(gl2);
-		
 		// PASS 2: everything transparent?
 		//renderAllBoundingBoxes(gl2);
 	}
@@ -71,8 +70,8 @@ public class Scene extends Entity {
 		
 		int i=0;
 		for( Entity obj : children ) {
-			if(obj instanceof Light) {
-				Light light = (Light)obj;
+			if(obj instanceof LightEntity) {
+				LightEntity light = (LightEntity)obj;
 				if(light.isOn()) {
 					light.setupLight(gl2,i++);
 				}

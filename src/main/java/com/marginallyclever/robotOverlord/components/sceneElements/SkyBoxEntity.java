@@ -1,4 +1,4 @@
-package com.marginallyclever.robotOverlord.sceneElements;
+package com.marginallyclever.robotOverlord.components.sceneElements;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -9,12 +9,14 @@ import com.marginallyclever.robotOverlord.Viewport;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
+import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.Pose;
 import com.marginallyclever.robotOverlord.uiExposedTypes.TextureEntity;
 
-public class SkyBox extends Entity {
-	/**
-	 * 
-	 */
+import java.io.Serial;
+
+public class SkyBoxEntity extends Entity {
+	@Serial
 	private static final long serialVersionUID = 7218495889495845836L;
 	protected transient boolean areSkyboxTexturesLoaded=false;
 	protected transient TextureEntity skyboxtextureZPos = new TextureEntity("/skybox/cube-z-pos.png");
@@ -24,7 +26,7 @@ public class SkyBox extends Entity {
 	protected transient TextureEntity skyboxtextureYNeg = new TextureEntity("/skybox/cube-y-neg.png");
 	protected transient TextureEntity skyboxtextureZNeg = new TextureEntity("/skybox/cube-z-neg.png");
 
-	public SkyBox() {
+	public SkyBoxEntity() {
 		super();
 		setName("Skybox");
 		
@@ -46,14 +48,14 @@ public class SkyBox extends Entity {
 	// Draw background
 	@Override
 	public void render(GL2 gl2) {
-		Viewport viewport = ((RobotOverlord)this.getRoot()).getViewport();
-		PoseEntity camera = viewport.getAttachedTo();
+		CameraComponent camera = ((RobotOverlord)this.getRoot()).getCamera();
+		Pose pose = camera.getEntity().getComponent(Pose.class);
 
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		gl2.glEnable(GL2.GL_TEXTURE_2D);
 		gl2.glPushMatrix();
-			Matrix4d m = camera.getPoseWorld();
+			Matrix4d m = pose.getWorld();
 			m.setTranslation(new Vector3d(0,0,0));
 			gl2.glLoadIdentity();
 			m.invert();

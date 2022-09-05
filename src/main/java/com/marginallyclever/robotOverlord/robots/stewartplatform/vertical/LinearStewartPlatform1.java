@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.robots.stewartplatform.vertical;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -12,20 +12,20 @@ public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final Shape baseModel;
-    private final Shape eeModel;
-    private final Shape armModel;
+    private final ShapeEntity baseModel;
+    private final ShapeEntity eeModel;
+    private final ShapeEntity armModel;
 
     public LinearStewartPlatform1() {
         super("Linear Stewart Platform 1");
 
         // load models and fix scale/orientation.
-        baseModel = new Shape("Base","/linearStewartPlatform/base.stl");
+        baseModel = new ShapeEntity("Base","/linearStewartPlatform/base.stl");
         baseModel.setShapeScale(0.1);
-        eeModel = new Shape("ee","/linearStewartPlatform/endEffector.stl");
+        eeModel = new ShapeEntity("ee","/linearStewartPlatform/endEffector.stl");
         eeModel.setShapeScale(0.1);
         eeModel.setShapeRotation(new Vector3d(0,0,-30));
-        armModel = new Shape("arm","/linearStewartPlatform/arm.stl");
+        armModel = new ShapeEntity("arm","/linearStewartPlatform/arm.stl");
         armModel.setShapeScale(0.1);
     }
 

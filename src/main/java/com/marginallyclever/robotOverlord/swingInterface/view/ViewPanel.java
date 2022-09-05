@@ -3,6 +3,7 @@ package com.marginallyclever.robotOverlord.swingInterface.view;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -34,8 +35,10 @@ public class ViewPanel extends ViewElement {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 734937620434319234L;
-	public Hashtable<String,Object> viewElements = new Hashtable<String, Object>();
+
+	public final Hashtable<String,Object> viewElements = new Hashtable<>();
 	
 	protected class StackElement {
 		public JComponent p;

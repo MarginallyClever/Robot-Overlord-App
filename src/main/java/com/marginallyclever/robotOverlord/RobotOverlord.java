@@ -42,6 +42,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
+import com.marginallyclever.robotOverlord.components.*;
 import com.marginallyclever.robotOverlord.demos.BasicDemo;
 import com.marginallyclever.robotOverlord.demos.DogDemo;
 import com.marginallyclever.robotOverlord.demos.ODEPhysicsDemo;
@@ -72,7 +73,6 @@ import com.marginallyclever.robotOverlord.swingInterface.actions.RenameEntityAct
 import com.marginallyclever.robotOverlord.swingInterface.actions.SaveAsAction;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanel;
 import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelEvent;
-import com.marginallyclever.robotOverlord.swingInterface.entityTreePanel.EntityTreePanelListener;
 import com.marginallyclever.robotOverlord.swingInterface.translator.Translator;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.SelectEdit;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
@@ -109,7 +109,6 @@ public class RobotOverlord extends Entity {
 	private transient final ArrayList<Entity> selectedEntities = new ArrayList<Entity>();
 	private final MoveTool moveTool = new MoveTool();
 	private transient final ViewCube viewCube = new ViewCube();
-	private final Camera camera = new Camera();
 	
 	// The main frame of the GUI
 	private JFrame mainFrame; 
@@ -146,6 +145,7 @@ public class RobotOverlord extends Entity {
  	private RobotOverlord() {
  		super();
  		setName("");
+		this.addComponent(new Pose());
  		 		
 		if(GraphicsEnvironment.isHeadless()) {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
@@ -472,15 +472,29 @@ public class RobotOverlord extends Entity {
 		removeAllChildren();
 		
 		scene = new Scene();
+		scene.addComponent(new Pose());
+		Entity mainCamera = new Entity("Main Camera");
+		mainCamera.addComponent(new Pose());
+		mainCamera.addComponent(new CameraComponent());
+		scene.addChild(mainCamera);
+
+		Entity light0 = new Entity("light 0");
+		light0.addComponent(new Pose());
+		light0.addComponent(new LightComponent());
+		scene.addChild(light0);
+
+		scene.addComponent(new SkyboxComponent());
+
+		Entity boxEntity = new Entity("Box");
+		BoxComponent box = new BoxComponent();
+		boxEntity.addComponent(box);
+		scene.addChild(boxEntity);
         
  		addChild(viewport);
- 		addChild(camera);
         addChild(scene);
  		addChild(moveTool);
  		addChild(viewCube);
- 		
-        viewport.setAttachedTo(camera.getFullPath());
-        
+
 		updateEntityTree();
 		pickEntity(null);
 	}
@@ -662,7 +676,11 @@ public class RobotOverlord extends Entity {
 		//pickNow=true;
         if(pickNow) {
 	        pickNow = false;
-	        int pickName = findItemUnderCursor(gl2);
+
+			CameraComponent cameraComponent = findFirstComponent(CameraComponent.class);
+			if(cameraComponent==null) return;
+
+	        int pickName = findItemUnderCursor(gl2,cameraComponent);
         	Entity next = scene.pickPhysicalEntityWithName(pickName);
         	UndoSystem.addEvent(this,new SelectEdit(this,selectedEntities,next));
         }
@@ -680,7 +698,10 @@ public class RobotOverlord extends Entity {
 	}
 	
     private void renderStep(GL2 gl2) {
-        viewport.renderChosenProjection(gl2);
+		CameraComponent camera = scene.findFirstComponent(CameraComponent.class);
+		if(camera==null) return;
+
+        viewport.renderChosenProjection(gl2,camera);
         scene.render(gl2,camera);
         // overlays
 		moveTool.render(gl2);
@@ -717,7 +738,7 @@ public class RobotOverlord extends Entity {
      * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
      * @param gl2 the openGL render context
      */
-    public int findItemUnderCursor(GL2 gl2) {
+    public int findItemUnderCursor(GL2 gl2,CameraComponent cameraComponent) {
     	IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
         gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
 
@@ -725,11 +746,11 @@ public class RobotOverlord extends Entity {
 		// wipe the select buffer
 		gl2.glInitNames();
 
-		viewport.renderPick(gl2,pickPoint.x,pickPoint.y);
+		viewport.renderPick(gl2,cameraComponent,pickPoint.x,pickPoint.y);
 		
         gl2.glLoadName(0);
         // render in selection mode, without advancing time in the simulation.
-        scene.render(gl2,camera);
+        scene.render(gl2,cameraComponent);
 
         gl2.glPopName();
         gl2.glFlush();
@@ -783,7 +804,7 @@ public class RobotOverlord extends Entity {
 		return viewport;
 	}
 
-	public Camera getCamera() {
-		return camera;
+	public CameraComponent getCamera() {
+		return findFirstComponent(CameraComponent.class);
 	}
 }

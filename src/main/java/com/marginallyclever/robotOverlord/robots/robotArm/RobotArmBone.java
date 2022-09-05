@@ -8,7 +8,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
@@ -36,7 +36,7 @@ public class RobotArmBone implements Cloneable {
 	private double thetaMax, thetaMin;
 	
 	// model and relative offset from DH origin
-	private Shape shape;
+	private ShapeEntity shape;
 	
 	// TODO this doesn't belong here
 	public final DoubleEntity slider = new DoubleEntity("J",0);
@@ -70,7 +70,7 @@ public class RobotArmBone implements Cloneable {
 		this.theta=theta;
 		this.thetaMax=thetaMax;
 		this.thetaMin=thetaMin;
-		this.shape = new Shape(name,shapeFilename);
+		this.shape = new ShapeEntity(name,shapeFilename);
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class RobotArmBone implements Cloneable {
 		b.force = new Vector3d(this.force);
 		b.inertiaTensor = new Matrix3d(this.inertiaTensor);
 		b.linearVelocity = new Vector3d(this.linearVelocity);
-		b.shape = new Shape(name,this.shape.getModelFilename());
+		b.shape = new ShapeEntity(name,this.shape.getModelFilename());
 		b.torque = new Vector3d(this.torque);
 		return b;
 	}
@@ -225,7 +225,7 @@ public class RobotArmBone implements Cloneable {
 		slider.setName(name);
 	}
 
-	public Shape getShape() {
+	public ShapeEntity getShape() {
 		return shape;
 	}
 

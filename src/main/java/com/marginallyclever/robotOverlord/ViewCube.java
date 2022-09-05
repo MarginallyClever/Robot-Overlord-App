@@ -6,7 +6,9 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.Pose;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
@@ -16,7 +18,7 @@ public class ViewCube extends Entity {
 	 * 
 	 */
 	private static final long serialVersionUID = 2625823417579183587L;
-	protected Shape model = new Shape();
+	protected ShapeEntity model = new ShapeEntity();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",32);
 	
     public ViewCube() {
@@ -34,11 +36,13 @@ public class ViewCube extends Entity {
 	@Override
 	public void render(GL2 gl2) {
 		Viewport viewport = ((RobotOverlord)getRoot()).getViewport();
-		
+		CameraComponent camera = ((RobotOverlord)getRoot()).getCamera();
+		if(camera==null) return;
+
 		startProjection(gl2,viewport);
 		
 		gl2.glPushMatrix();
-			positionCubeModel(gl2,viewport);
+			positionCubeModel(gl2,viewport,camera);
 			renderCubeModel(gl2);
 			renderMajorAxies(gl2);
 		gl2.glPopMatrix();
@@ -46,8 +50,8 @@ public class ViewCube extends Entity {
 		endProjection(gl2);
 	}
 		
-    private Matrix4d getInverseCameraMatrix(PoseEntity camera) {
-		Matrix4d m = camera.getPoseWorld();
+    private Matrix4d getInverseCameraMatrix(CameraComponent camera) {
+		Matrix4d m = camera.getEntity().getComponent(Pose.class).getWorld();
 		m.invert();
 		m.setTranslation(new Vector3d(0,0,0));
 		return m;
@@ -67,14 +71,14 @@ public class ViewCube extends Entity {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
 	
-	private void positionCubeModel(GL2 gl2, Viewport viewport) {
+	private void positionCubeModel(GL2 gl2, Viewport viewport,CameraComponent camera) {
 		double c = cubeSize.get();
         double w2 = viewport.getCanvasWidth()/2;
         double h2 = viewport.getCanvasHeight()/2;
 		MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
 		gl2.glTranslated(w2-c*2,h2-c*2,-c*2);
 		gl2.glScaled(c,c,c);
-		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(viewport.getAttachedTo()));
+		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(camera));
 	}
 
 	private void renderCubeModel(GL2 gl2) {

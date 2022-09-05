@@ -2,11 +2,11 @@ package com.marginallyclever.robotOverlord;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
@@ -21,22 +21,25 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = -470516237871859765L;
 
 	private String name;
 
 	// my children
-	protected transient ArrayList<Entity> children = new ArrayList<Entity>();
+	protected transient ArrayList<Entity> children = new ArrayList<>();
 	
 	// my parent
 	protected transient Entity parent;
 
 	// who is listening to me?
-	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<PropertyChangeListener>();
-	
+	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
+
+	private final List<Component> components = new ArrayList<>();
 	
 	public Entity() {
 		super();
+		this.name = this.getClass().getSimpleName();
 	}
 
 	public Entity(String name) {
@@ -213,9 +216,13 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	 * Explains to View in abstract terms the control interface for this entity.
 	 * Derivatives of View implement concrete versions of that view.
 	 * 
-	 * @param g
+	 * @param view
 	 */
-	public void getView(ViewPanel view) {}
+	public void getView(ViewPanel view) {
+		for(Component c : components) {
+			c.getView(view);
+		}
+	}
 
 	protected void getViewOfChildren(ViewPanel view) {
 		for (Entity child : children) {
@@ -297,10 +304,94 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	
 	@Override
 	public String toString() {
-		String s = name;
+		StringBuilder s = new StringBuilder(name);
 		for(Entity child : children) {
-			s+=","+child.toString();
+			s.append(",").append(child.toString());
 		}
-		return s;
+		return s.toString();
+	}
+
+	public int getComponentCount() {
+		return components.size();
+	}
+
+	public void addComponent(Component c) {
+		if(containsAnInstanceOfTheSameClass(c)) return;
+		components.add(c);
+		c.setEntity(this);
+	}
+
+	public boolean containsAnInstanceOfTheSameClass(Component c0) {
+		Class clazz = c0.getClass();
+		for(Component c : components) {
+			if(clazz == c.getClass()) return true;
+		}
+		return false;
+	}
+
+	public Component getComponent(int i) {
+		return components.get(i);
+	}
+
+	public Component findComponentByName(String name) {
+		for(Component c : components) {
+			if(name.equals(c.getClass().getSimpleName())) {
+				return c;
+			}
+		}
+		return null;
+	}
+
+	public Iterator<Component> getComponentIterator() {
+		return components.iterator();
+	}
+
+	public void removeComponent(Component c) {
+		components.remove(c);
+	}
+
+	/**
+	 * Returns any instance of class T found attached to this Entity.
+	 * @return the
+	 * @param <T> the type to find and return.  Must be derived from Component
+	 */
+	public <T extends Component> T getComponent(Class<T> clazz) {
+		for(Component c : components) {
+			if(clazz.isInstance(c)) {
+				return (T)c;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Search this Entity and then all child Entities until a {@link Component} match is found.
+	 */
+	public <T extends Component> T findFirstComponent(Class<T> clazz) {
+		T found = getComponent(clazz);
+		if(found!=null) return found;
+
+		for(Entity e : children) {
+			found = e.findFirstComponent(clazz);
+			if(found!=null) return found;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Search the parent of this entity for a component and then that parent and so on.
+	 * @param clazz
+	 * @return
+	 * @param <T>
+	 */
+	public <T extends Component> T findFirstComponentInParents(Class<T> clazz) {
+		Entity p = parent;
+		while(p!=null) {
+			T found = p.getComponent(clazz);
+			if (found != null) return found;
+			p = p.getParent();
+		}
+		return null;
 	}
 }

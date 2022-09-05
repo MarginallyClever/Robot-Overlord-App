@@ -23,7 +23,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 /**
  * Export the {link RobotArmFK} as a URDF XML file.
@@ -135,7 +135,7 @@ public class RobotArmSaveToURDF {
     	return base;
 	}
 
-	private void addMaterialToElement(Element e, Shape shape) {
+	private void addMaterialToElement(Element e, ShapeEntity shape) {
     	Element material = document.createElement("material");
     	//material.setAttribute("name","material");
 	    	Element texture = document.createElement("texture");
@@ -166,7 +166,7 @@ public class RobotArmSaveToURDF {
     	return link;
 	}
 
-	private ArrayList<Element> buildShapeNodesFromShape(Shape shape, String tagName,Matrix4d iWP) {
+	private ArrayList<Element> buildShapeNodesFromShape(ShapeEntity shape, String tagName, Matrix4d iWP) {
 		ArrayList<Element> elements = new ArrayList<Element>();
 		
 		ArrayList<Cuboid> list = shape.getCuboidList();

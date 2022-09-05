@@ -3,16 +3,16 @@ package com.marginallyclever.robotOverlord.demos;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.components.CameraComponent;
 import com.marginallyclever.robotOverlord.physics.original.RigidBody;
 import com.marginallyclever.robotOverlord.physics.original.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.original.RigidBodySphere;
-import com.marginallyclever.robotOverlord.sceneElements.Box;
-import com.marginallyclever.robotOverlord.sceneElements.Grid;
-import com.marginallyclever.robotOverlord.sceneElements.Light;
-import com.marginallyclever.robotOverlord.sceneElements.Sphere;
+import com.marginallyclever.robotOverlord.components.sceneElements.BoxEntity;
+import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
+import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
+import com.marginallyclever.robotOverlord.components.sceneElements.SphereEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
 @SuppressWarnings("unused")
@@ -28,14 +28,13 @@ public class PhysicsDemo implements Demo {
 		Entity sc = ro.getScene();
 		
 		// adjust default camera
-		Camera camera = ro.getCamera();
+		CameraComponent camera = ro.getCamera();
 		camera.setPosition(new Vector3d(40/4,-91/4,106/4));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setZoom(30);
-		camera.update(0);
 		
 		// add some lights
-    	Light light = new Light();
+    	LightEntity light = new LightEntity();
 		sc.addChild(light);
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
@@ -45,7 +44,7 @@ public class PhysicsDemo implements Demo {
     	light.setDirectional(true);
     	
 		// adjust grid
-		Grid grid = new Grid();
+		GridEntity grid = new GridEntity();
 		sc.addChild(grid);
 		
 		MakeRigidBody op;
@@ -119,7 +118,7 @@ public class PhysicsDemo implements Demo {
 		int count=10;
 		int countSq = (int)Math.sqrt(count);
 		for(int i=0;i<count;++i) {
-			Box box = new Box();
+			BoxEntity box = new BoxEntity();
 			box.setSize(1+Math.random()*5,
 					    1+Math.random()*5,
 					    1+Math.random()*5
@@ -179,7 +178,7 @@ public class PhysicsDemo implements Demo {
 	
 	private RigidBody makeOneCube(Entity sc) {
 		RigidBodyBox body = new RigidBodyBox();
-		Box b = new Box();
+		BoxEntity b = new BoxEntity();
 		b.setSize(2, 2, 2);
 		//b.getMaterial().setTextureFilename("/grid.png");
 		body.setPauseOnCollision(false);
@@ -191,7 +190,7 @@ public class PhysicsDemo implements Demo {
 	
 	private RigidBody makeOneSphere(Entity sc) {
 		RigidBodySphere body = new RigidBodySphere();
-		Sphere s = new Sphere();
+		SphereEntity s = new SphereEntity();
 		s.setDiameter(2);
 		s.getMaterial().setTextureFilename("/grid.png");
 		body.setPauseOnCollision(false);

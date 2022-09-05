@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm.implementations;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 public class Sixi2 extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
@@ -14,7 +14,7 @@ public class Sixi2 extends RobotArmIK {
 	
 	@Override
 	protected void loadModel() {
-		setBaseShape(new Shape("Base","/Sixi2/anchor.obj"));
+		setBaseShape(new ShapeEntity("Base","/Sixi2/anchor.obj"));
 		
 		// name d r a t max min file
 		addBone(new RobotArmBone("X",18.8452    ,0     ,-90,  0,120,-120,   "/Sixi2/shoulder.obj"));

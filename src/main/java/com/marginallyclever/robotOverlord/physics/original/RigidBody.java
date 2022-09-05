@@ -11,7 +11,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
@@ -24,7 +24,7 @@ public abstract class RigidBody extends PoseEntity {
 	
 	private ArrayList<Force> forces = new ArrayList<Force>();
 	
-	private Shape shape;
+	private ShapeEntity shape;
 	private double mass=0;
 
 	private Vector3d angularVelocity = new Vector3d();
@@ -179,11 +179,11 @@ public abstract class RigidBody extends PoseEntity {
 		this.mass = mass;
 	}
 	
-	public Shape getShape() {
+	public ShapeEntity getShape() {
 		return shape;
 	}
 
-	public void setShape(Shape shape) {
+	public void setShape(ShapeEntity shape) {
 		this.shape = shape;
 	}
 

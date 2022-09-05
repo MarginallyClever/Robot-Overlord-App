@@ -1,5 +1,6 @@
-package com.marginallyclever.robotOverlord.sceneElements;
+package com.marginallyclever.robotOverlord.components.sceneElements;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
@@ -22,10 +23,8 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class Light extends PoseEntity {
-	/**
-	 * 
-	 */
+public class LightEntity extends PoseEntity {
+	@Serial
 	private static final long serialVersionUID = -8031035180948318283L;
 
 	private final static ColorRGB [] presetBlack = {
@@ -53,26 +52,26 @@ public class Light extends PoseEntity {
 		"Black",
 	};
 	
-	private float[] position={0,0,1,0};
-	private float[] spotDirection={0,0,1};
+	private final float[] position={0,0,1,0};
+	private final float[] spotDirection={0,0,1};
 
-	private BooleanEntity enabled = new BooleanEntity("On",true);
-	private BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
+	private final BooleanEntity enabled = new BooleanEntity("On",true);
+	private final BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
 
-	private IntEntity preset = new IntEntity("Preset",0);
-	private ColorEntity diffuse = new ColorEntity("Diffuse" ,0,0,0,1);
-	private ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
-	private ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
+	private final IntEntity preset = new IntEntity("Preset",0);
+	private final ColorEntity diffuse = new ColorEntity("Diffuse" ,0,0,0,1);
+	private final ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
+	private final ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
 	
-	private DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",180);
-	private DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
+	private final DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",180);
+	private final DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
 	
-	private DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
-	private DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
-	private DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
+	private final DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
+	private final DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
+	private final DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
 	
 	
-	public Light() {
+	public LightEntity() {
 		super();
 		setName("Light");
 		addChild(enabled);

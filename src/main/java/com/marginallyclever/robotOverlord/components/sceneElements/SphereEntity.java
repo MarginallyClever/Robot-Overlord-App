@@ -1,5 +1,6 @@
-package com.marginallyclever.robotOverlord.sceneElements;
+package com.marginallyclever.robotOverlord.components.sceneElements;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.vecmath.Point3d;
@@ -8,7 +9,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotOverlord.Collidable;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
@@ -17,19 +18,17 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @author aggra
  *
  */
-public class Sphere extends Shape implements Collidable {
-	/**
-	 * 
-	 */
+public class SphereEntity extends ShapeEntity implements Collidable {
+	@Serial
 	private static final long serialVersionUID = 8418101632870526950L;
 	
 	protected DoubleEntity diameter = new DoubleEntity("Diameter",1.0);
 	
-	private Cuboid cuboid = new Cuboid();
+	private final Cuboid cuboid = new Cuboid();
 	
-	public Sphere() {
+	public SphereEntity() {
 		super();
-		setName(Sphere.class.getSimpleName());
+		setName(SphereEntity.class.getSimpleName());
 		addChild(diameter);
 		
 		diameter.addPropertyChangeListener((evt)-> updateModel() );

@@ -4,6 +4,8 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
+import java.io.Serial;
+
 
 /**
  * Material properties (surface finish, color, texture, etc) of something displayed in the world.
@@ -11,17 +13,15 @@ import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
  *
  */
 public class MaterialEntity extends Entity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 6239607540529931426L;
-	private ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
-	private ColorEntity diffuse    = new ColorEntity("Diffuse" ,1,1,1,1);
-	private ColorEntity specular   = new ColorEntity("Specular",1,1,1,1);
-	private ColorEntity emission   = new ColorEntity("Emission",0,0,0,1);
-	private IntEntity shininess    = new IntEntity("Shininess",10);
-	private BooleanEntity isLit    = new BooleanEntity("Lit",true);
-	private TextureEntity texture  = new TextureEntity();
+	private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
+	private final ColorEntity diffuse    = new ColorEntity("Diffuse" ,1,1,1,1);
+	private final ColorEntity specular   = new ColorEntity("Specular",1,1,1,1);
+	private final ColorEntity emission   = new ColorEntity("Emission",0,0,0,1);
+	private final IntEntity shininess    = new IntEntity("Shininess",10);
+	private final BooleanEntity isLit    = new BooleanEntity("Lit",true);
+	private final TextureEntity texture  = new TextureEntity();
 		
 	public MaterialEntity() {
 		super();

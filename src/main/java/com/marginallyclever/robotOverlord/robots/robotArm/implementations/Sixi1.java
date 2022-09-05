@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm.implementations;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmFK;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 @Deprecated
 // Kept for historical purposes.  These robot kinematics will never work as DH-parameters.  Bad design did not do the math before making hardware.
@@ -16,7 +16,7 @@ public class Sixi1 extends RobotArmFK {
 	
 	@Override
 	protected void loadModel() {
-		setBaseShape(new Shape("Base","/Sixi/Sixi0.stl"));
+		setBaseShape(new ShapeEntity("Base","/Sixi/Sixi0.stl"));
 		
 		// the shoulder joint is 25 up and 5 forward. https://www.calculator.net/triangle-calculator.html?vc=90&vx=25&vy=5&va=&vz=&vb=&angleunits=d&x=57&y=11
 		// the ulna rotation is 20 up and 5 back.https://www.calculator.net/triangle-calculator.html?vc=90&vx=20&vy=5&va=&vz=&vb=&angleunits=d&x=57&y=11

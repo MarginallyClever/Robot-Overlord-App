@@ -7,7 +7,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 
@@ -16,7 +16,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @author Dan Royer
  *
  */
-public class Decal extends Shape {
+public class Decal extends ShapeEntity {
 	/**
 	 * 
 	 */

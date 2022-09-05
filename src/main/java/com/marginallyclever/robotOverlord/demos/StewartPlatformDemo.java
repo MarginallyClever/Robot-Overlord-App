@@ -2,15 +2,15 @@ package com.marginallyclever.robotOverlord.demos;
 
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.Camera;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
+import com.marginallyclever.robotOverlord.components.CameraComponent;
 import com.marginallyclever.robotOverlord.demos.demoAssets.TrayCabinet;
 import com.marginallyclever.robotOverlord.robots.stewartplatform.vertical.LinearStewartPlatformCore;
 import com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
-import com.marginallyclever.robotOverlord.sceneElements.Box;
-import com.marginallyclever.robotOverlord.sceneElements.Light;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.components.sceneElements.BoxEntity;
+import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 public class StewartPlatformDemo implements Demo {
 	@Override
@@ -24,17 +24,16 @@ public class StewartPlatformDemo implements Demo {
 		Entity sc = ro.getScene();
 		
 		// adjust default camera
-		Camera camera = ro.getCamera();
+		CameraComponent camera = ro.getCamera();
 		camera.setPosition(new Vector3d(40,-91,106));
 		camera.setPan(-16);
 		camera.setTilt(53);
 		camera.setZoom(100);
-		camera.update(0);
 		
 		// add some lights
-    	Light light;
+    	LightEntity light;
 
-		sc.addChild(light = new Light());
+		sc.addChild(light = new LightEntity());
 		light.setName("Light");
     	light.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
@@ -44,22 +43,22 @@ public class StewartPlatformDemo implements Demo {
     	light.setDirectional(true);
     	
 		// add some collision bounds
-		Box box;
+		BoxEntity box;
 		
-		sc.addChild(box = new Box());
+		sc.addChild(box = new BoxEntity());
 		box.setName("Front wall");
 		box.setSize(233.5,1,100);
 		box.setPosition(new Vector3d(69.75,65,50));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 		
-		sc.addChild(box = new Box());
+		sc.addChild(box = new BoxEntity());
 		box.setName("Back wall");
 		box.setSize(180,1,100);
 		box.setPosition(new Vector3d(-47.5,-25.5,50));
 		box.setRotation(new Vector3d(0, 0, Math.toRadians(-90)));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 
-		Shape table = new Shape("Table","/table.stl");
+		ShapeEntity table = new ShapeEntity("Table","/table.stl");
 		sc.addChild(table);
 		table.setPosition(new Vector3d(0,0,-0.75));
 

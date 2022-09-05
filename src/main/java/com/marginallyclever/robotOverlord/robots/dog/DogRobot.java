@@ -12,7 +12,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.PoseEntity;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
@@ -46,7 +46,7 @@ public class DogRobot extends PoseEntity {
 	private IntEntity animationChoice = new IntEntity("Animation style",0);
 	private MaterialEntity matTorso = new MaterialEntity();
 	private MaterialEntity matShadow = new MaterialEntity();
-	private Shape torsoShape = new Shape("Torso","/SpotMicro/torso.obj");
+	private ShapeEntity torsoShape = new ShapeEntity("Torso","/SpotMicro/torso.obj");
 	
 	public DogRobot() {
 		super("Dog Robot");

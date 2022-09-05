@@ -27,7 +27,7 @@ import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.robots.Robot;
 import com.marginallyclever.robotOverlord.shape.Mesh;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewElementButton;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
@@ -45,7 +45,7 @@ public class RobotArmFK extends PoseEntity implements Robot {
 	@Serial
 	private static final long serialVersionUID = -2436924907127292890L;
 	
-	private Shape base;
+	private ShapeEntity base;
 	private List<RobotArmBone> bones = new ArrayList<>();
 	private RobotEndEffectorTarget endEffectorTarget = new RobotEndEffectorTarget("End Effector");
 	private final PoseEntity toolCenterPoint = new PoseEntity("Tool Center Point");
@@ -577,11 +577,11 @@ public class RobotArmFK extends PoseEntity implements Robot {
 		return bones.get(i);
 	}
 	
-	public Shape getBaseShape() {
+	public ShapeEntity getBaseShape() {
 		return base;
 	}
 	
-	public void setBaseShape(Shape s) {
+	public void setBaseShape(ShapeEntity s) {
 		base=s;
 	}
 	

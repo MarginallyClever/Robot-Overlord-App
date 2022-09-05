@@ -2,9 +2,9 @@ package com.marginallyclever.robotOverlord.demos.demoAssets;
 
 import javax.vecmath.Vector3d;
 
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
-public class TrayCabinet extends Shape {
+public class TrayCabinet extends ShapeEntity {
 	/**
 	 * 
 	 */
@@ -17,7 +17,7 @@ public class TrayCabinet extends Shape {
 		getMaterial().setDiffuseColor(1, 1, 1, 1);
 		getMaterial().setAmbientColor(1, 1, 1, 1);
 		
-		Shape tray = new Shape();
+		ShapeEntity tray = new ShapeEntity();
 		addChild(tray);
 		tray.setName("Tray");
 		tray.setShapeFilename("/tray_resized.stl");

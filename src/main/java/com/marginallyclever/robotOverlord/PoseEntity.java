@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -30,6 +31,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = -7250407040741008778L;
 
 	// axis names
@@ -152,7 +154,9 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 	}
 
 	/**
-	 * 
+	 * Convert Euler rotations to a matrix.
+	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * Eulers are using the ZYX convention.
 	 * @param arg0 Vector3d with three radian rotation values
 	 */
 	public void setRotation(Vector3d arg0) {

@@ -8,7 +8,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 //https://en.wikipedia.org/wiki/Collision_response
 public class RigidBodyBox extends RigidBody {
@@ -24,7 +24,7 @@ public class RigidBodyBox extends RigidBody {
 
 	@Override
 	protected Matrix3d getInertiaTensorFromShape() {	
-		Shape shape = getShape();	
+		ShapeEntity shape = getShape();
 		ArrayList<Cuboid> list = shape.getCuboidList();
 		if(!list.isEmpty()) {
 			Cuboid cuboid = list.get(0);
@@ -56,7 +56,7 @@ public class RigidBodyBox extends RigidBody {
 	// assumes ground plane is body 1.
 	@Override
 	protected void testFloorContact() {
-		Shape shape = getShape();	
+		ShapeEntity shape = getShape();
 		ArrayList<Cuboid> list = shape.getCuboidList();
 		if(!list.isEmpty()) {
 			Cuboid cuboid = list.get(0);

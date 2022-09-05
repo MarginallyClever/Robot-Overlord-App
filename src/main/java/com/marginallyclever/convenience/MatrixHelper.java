@@ -1,7 +1,11 @@
 package com.marginallyclever.convenience;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.text.MessageFormat;
 
+import javax.print.attribute.standard.NumberUpSupported;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
@@ -886,5 +890,13 @@ public class MatrixHelper {
 			m[i]=new double[cols];
 		}
 		return m;
+	}
+
+    public static void save(Matrix4d m, BufferedWriter writer) throws IOException {
+		throw new UnsupportedOperationException();
+    }
+
+	public static void load(Matrix4d m, BufferedReader reader) throws IOException {
+		throw new UnsupportedOperationException();
 	}
 }

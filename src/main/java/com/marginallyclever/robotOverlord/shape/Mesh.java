@@ -39,7 +39,7 @@ public class Mesh {
 	private transient boolean isDirty;
 
 	private transient boolean isLoaded;
-	private transient int VBO[];
+	private transient int[] VBO;
 	public int renderStyle; 
 	private String fileName;
 	

@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.robots.stewartplatform.rotary;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 import javax.vecmath.Vector3d;
@@ -14,20 +14,20 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
-	private final Shape baseModel;
-	private final Shape eeModel;
-	private final Shape armModel;
+	private final ShapeEntity baseModel;
+	private final ShapeEntity eeModel;
+	private final ShapeEntity armModel;
 
 	public RotaryStewartPlatform2() {
 		super("Rotary Stewart Platform 2");
 		
 		// load models and fix scale/orientation.
-		baseModel = new Shape("Base","/rotaryStewartPlatform/base.stl");
+		baseModel = new ShapeEntity("Base","/rotaryStewartPlatform/base.stl");
 		baseModel.setShapeScale(0.1);
-		eeModel = new Shape("ee","/rotaryStewartPlatform/endEffector.stl");
+		eeModel = new ShapeEntity("ee","/rotaryStewartPlatform/endEffector.stl");
 		eeModel.setShapeScale(0.1);
 		eeModel.setShapeRotation(new Vector3d(0,0,-30));
-		armModel = new Shape("arm","/rotaryStewartPlatform/arm.stl");
+		armModel = new ShapeEntity("arm","/rotaryStewartPlatform/arm.stl");
 		armModel.setShapeScale(0.1);
 
 		eeModel.setShapeRotation(180,0,30);

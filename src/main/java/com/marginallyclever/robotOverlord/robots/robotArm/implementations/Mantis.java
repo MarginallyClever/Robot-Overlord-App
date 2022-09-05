@@ -2,7 +2,7 @@ package com.marginallyclever.robotOverlord.robots.robotArm.implementations;
 
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmBone;
 import com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK;
-import com.marginallyclever.robotOverlord.shape.Shape;
+import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 
 public class Mantis extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
@@ -14,7 +14,7 @@ public class Mantis extends RobotArmIK {
 	
 	@Override
 	protected void loadModel() {
-		setBaseShape(new Shape("Base","/AH/AH0.obj"));
+		setBaseShape(new ShapeEntity("Base","/AH/AH0.obj"));
 		
 		// name d r a t max min file
 		addBone(new RobotArmBone("X",24.5+2.7     ,0              ,-90,  0,120,-120,"/AH/AH1.obj"));
