@@ -48,4 +48,6 @@ public class Component {
     public boolean getEnabled() {
         return enabled.get();
     }
+
+    public void update(double dt) {}
 }

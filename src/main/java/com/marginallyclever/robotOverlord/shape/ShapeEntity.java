@@ -192,18 +192,6 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 		}
 	}
 	
-	/**
-	 * Updates the {@link Cuboid} bounds.
-	 */
-	public void updateCuboid() {
-		if(myMesh != null) {
-			cuboid.set(myMesh.getCuboid());
-		} else {
-			cuboid.setShape(null);
-			cuboid.setBounds(new Point3d(0,0,0),new Point3d(0,0,0));
-		}
-	}
-	
 	@Override
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
@@ -277,6 +265,18 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 			MeshFactory.reload(myMesh);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Updates the {@link Cuboid} bounds.
+	 */
+	public void updateCuboid() {
+		if(myMesh != null) {
+			cuboid.set(myMesh.getCuboid());
+		} else {
+			cuboid.setShape(null);
+			cuboid.setBounds(new Point3d(0,0,0),new Point3d(0,0,0));
 		}
 	}
 

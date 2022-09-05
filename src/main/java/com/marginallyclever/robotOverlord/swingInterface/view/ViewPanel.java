@@ -72,7 +72,7 @@ public class ViewPanel extends ViewElement {
 		//se.p.setLayout(new BoxLayout(se.p, BoxLayout.PAGE_AXIS));
 		se.p.setLayout(new GridBagLayout());
 		//se.p.setBorder(new LineBorder(Color.RED));
-		se.p.setBorder(new EmptyBorder(5,5,5,5));
+		se.p.setBorder(new EmptyBorder(1,1,1,1));
 
 		se.gbc = new GridBagConstraints();
 		se.gbc.weightx=1;
@@ -80,7 +80,7 @@ public class ViewPanel extends ViewElement {
 		se.gbc.gridy  =0;
 		se.gbc.fill      = GridBagConstraints.HORIZONTAL;
 		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
-		se.gbc.insets.set(5,5,5,5);
+		se.gbc.insets.set(1,1,1,1);
 
 		panelStack.push(se);
 		

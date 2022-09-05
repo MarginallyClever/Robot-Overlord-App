@@ -32,6 +32,13 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	// my parent
 	protected transient Entity parent;
 
+	// unique ids for all objects in the world.
+	// zero is reserved to indicate no object.
+	static private int pickNameCounter=1;
+
+	// my unique id
+	private final transient int pickName = pickNameCounter++;
+
 	// who is listening to me?
 	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
 
@@ -66,7 +73,11 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	 * @param dt seconds since last update.
 	 */
 	public void update(double dt) {
-		for (Entity e : children) {
+		for(Component c : components) {
+			if(c.getEnabled()) c.update(dt);
+		}
+
+		for(Entity e : children) {
 			e.update(dt);
 		}
 	}
@@ -395,5 +406,9 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 			p = p.getParent();
 		}
 		return null;
+	}
+
+	protected int getPickName() {
+		return pickName;
 	}
 }

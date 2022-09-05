@@ -129,7 +129,6 @@ public class LightComponent extends Component {
         view.addComboBox(preset, presetNames);
         view.add(isDirectional);
 
-        view.add(preset);
         view.add(diffuse);
         view.add(specular);
         view.add(ambient);

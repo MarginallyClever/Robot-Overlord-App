@@ -280,11 +280,11 @@ public class MatrixHelper {
 	
 	static public void setMatrix(GL2 gl2,Matrix4d pose) {
 		double[] mat = {
-				pose.m00,pose.m10,pose.m20,pose.m30,
-				pose.m01,pose.m11,pose.m21,pose.m31,
-				pose.m02,pose.m12,pose.m22,pose.m32,
-				pose.m03,pose.m13,pose.m23,pose.m33
-			};
+			pose.m00,pose.m10,pose.m20,pose.m30,
+			pose.m01,pose.m11,pose.m21,pose.m31,
+			pose.m02,pose.m12,pose.m22,pose.m32,
+			pose.m03,pose.m13,pose.m23,pose.m33
+		};
 		
 		gl2.glLoadMatrixd(mat, 0);	
 	}

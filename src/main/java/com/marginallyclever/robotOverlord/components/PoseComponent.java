@@ -3,10 +3,13 @@ package com.marginallyclever.robotOverlord.components;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.Component;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
+import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -17,13 +20,45 @@ import java.io.IOException;
  * @author Dan Royer
  * @since 2022-08-04
  */
-public class PoseComponent extends Component {
+public class PoseComponent extends Component implements PropertyChangeListener {
     // pose relative to my parent (aka local pose).
     private final Matrix4d local = new Matrix4d();
+
+    private final Vector3dEntity position = new Vector3dEntity("position",new Vector3d());
+    private final Vector3dEntity rotation = new Vector3dEntity("rotation",new Vector3d());
+    private final Vector3dEntity scale = new Vector3dEntity("scale",new Vector3d());
 
     public PoseComponent() {
         super();
         local.setIdentity();
+        position.addPropertyChangeListener(this);
+        rotation.addPropertyChangeListener(this);
+        scale.addPropertyChangeListener(this);
+    }
+
+    @Override
+    public void update(double dt) {
+        super.update(dt);
+        Matrix4d w = getWorld();
+        updatePosition(w);
+        updateRotation(w);
+        updateScale(w);
+    }
+
+    private void updateRotation(Matrix4d w) {
+        Vector3d euler = MatrixHelper.matrixToEuler(w);
+        rotation.set(euler);
+    }
+
+    private void updateScale(Matrix4d w) {
+        double s = w.getScale();
+        scale.set(s,s,s);
+    }
+
+    private void updatePosition(Matrix4d w) {
+        Vector3d pos = new Vector3d();
+        w.get(pos);
+        position.set(pos);
     }
 
     public void save(BufferedWriter writer) throws IOException {
@@ -62,7 +97,15 @@ public class PoseComponent extends Component {
         Matrix3d m3 = MatrixHelper.eulerToMatrix(arg0);
         m4.set(m3);
         m4.setTranslation(getPosition());
-        m3.setScale(getScale());
+        m4.setScale(getScale());
+        local.set(m4);
+    }
+
+    public void setRotation(Matrix3d rotation) {
+        Matrix4d m4 = new Matrix4d();
+        m4.set(rotation);
+        m4.setTranslation(getPosition());
+        m4.setScale(getScale());
         local.set(m4);
     }
 
@@ -107,6 +150,13 @@ public class PoseComponent extends Component {
 
     @Override
     public void getView(ViewPanel view) {
+        view.add(position);
+        view.add(rotation);
+        view.add(scale);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
 
     }
 }

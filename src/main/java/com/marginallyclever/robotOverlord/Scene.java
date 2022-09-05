@@ -2,20 +2,27 @@ package com.marginallyclever.robotOverlord;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.components.CameraComponent;
 import com.marginallyclever.robotOverlord.components.LightComponent;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
+import com.marginallyclever.robotOverlord.components.ShapeComponent;
 import com.marginallyclever.robotOverlord.components.sceneElements.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
+import org.ode4j.ode.internal.Matrix;
 
 /**
  * Container for all the visible objects in a scene.
@@ -33,45 +40,74 @@ public class Scene extends Entity {
 		setName(Scene.class.getSimpleName());
 		addChild(sky);
 	}
-	
-	public void render(GL2 gl2, CameraComponent camera) {
-		// Clear the screen and depth buffer
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
+
+	@Override
+	public void render(GL2 gl2) {
+		clearAll(gl2);
+
         // Don't draw triangles facing away from camera
 		gl2.glCullFace(GL2.GL_BACK);
-		// PASS 0: all the lights
-    	
-    	// global ambient light
-		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
-		
+
+		sky.render(gl2);
 		renderLights(gl2);
-        
-		// PASS 1: everything not a light
-		for( Entity obj : children ) {
-			// name for picking
-			if(obj instanceof PoseEntity) {
-				gl2.glPushName(((PoseEntity)obj).getPickName());
-			}
-			obj.render(gl2);
-			// name for picking
-			if(obj instanceof PoseEntity) {
-				gl2.glPopName();
-			}
-		}
-		
+		renderAllMeshes(gl2);
+		PrimitiveSolids.drawStar(gl2,10);
 		// PASS 2: everything transparent?
 		//renderAllBoundingBoxes(gl2);
 	}
-	
+
+	private void clearAll(GL2 gl2) {
+		// Clear the screen and depth buffer
+		//gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
+		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+	}
+
+	private void renderAllMeshes(GL2 gl2) {
+		Queue<Entity> found = new LinkedList<>(children);
+
+		MaterialEntity m = new MaterialEntity();
+		m.render(gl2);
+
+		while(!found.isEmpty()) {
+			Entity obj = found.remove();
+			PoseComponent pose = obj.getComponent(PoseComponent.class);
+			if(pose!=null) {
+				gl2.glPushMatrix();
+				MatrixHelper.applyMatrix(gl2,pose.getWorld());
+				PrimitiveSolids.drawStar(gl2,5);
+			}
+
+			gl2.glPushName(obj.getPickName());
+
+			ShapeComponent shape = obj.getComponent(ShapeComponent.class);
+			if(shape!=null && shape.getEnabled()) {
+				shape.render(gl2);
+			}
+
+			gl2.glPopName();
+			if(pose!=null) {
+				gl2.glPopMatrix();
+			}
+			found.addAll(obj.children);
+		}
+	}
+
 	private void renderLights(GL2 gl2) {
+		// global ambient light
+		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
+
 		turnOffAllLights(gl2);
-		
+
+		Queue<Entity> found = new LinkedList<>(children);
 		int i=0;
-		for( Entity obj : children ) {
+		while(!found.isEmpty()) {
+			Entity obj = found.remove();
 			LightComponent light = obj.getComponent(LightComponent.class);
 			if(light!=null && light.getEnabled()) {
 				light.setupLight(gl2,i++);
+				if(i==GL2.GL_MAX_LIGHTS) return;
 			}
+			found.addAll(obj.children);
 		}
 	}
 
@@ -81,45 +117,15 @@ public class Scene extends Entity {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void renderAllBoundingBoxes(GL2 gl2) {
-		// turn of textures so lines draw good
-		boolean wasTex = gl2.glIsEnabled(GL2.GL_TEXTURE_2D);
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
-		// turn off lighting so lines draw good
-		boolean wasLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_LIGHTING);
-		// draw on top of everything else
-		int wasOver=OpenGLHelper.drawAtopEverythingStart(gl2);
-
-		renderAllBoundingBoxes(gl2,this);
-		
-		// return state if needed
-		OpenGLHelper.drawAtopEverythingEnd(gl2,wasOver);
-		if(wasLit) gl2.glEnable(GL2.GL_LIGHTING);
-		if(wasTex) gl2.glEnable(GL2.GL_TEXTURE_2D);	
-	}
-	
-	private void renderAllBoundingBoxes(GL2 gl2, Entity me) {
-		for( Entity child : me.getChildren() ) {
-			if(child instanceof Collidable) {
-				ArrayList<Cuboid> list = ((Collidable)child).getCuboidList();
-				for( Cuboid c : list ) {
-					c.render(gl2);
-				}
+	// Search only my children to find the PhysicalEntity with matching pickName.
+	public Entity pickEntityWithName(int pickName) {
+		Queue<Entity> found = new LinkedList<>(children);
+		while(!found.isEmpty()) {
+			Entity obj = found.remove();
+			if( obj.getPickName()==pickName ) {
+				return obj;  // found!
 			}
-			renderAllBoundingBoxes(gl2,child);
-		}
-	}
-
-	// Search only my children to find the PhysicalEntity with matchin pickName.
-	public PoseEntity pickPhysicalEntityWithName(int pickName) {
-		for( Entity obj : children ) {
-			if(!(obj instanceof PoseEntity)) continue;
-			PoseEntity pe = (PoseEntity)obj;
-			if( pe.getPickName()==pickName ) {
-				return pe;  // found!
-			}
+			found.addAll(obj.children);
 		}
 		
 		return null;

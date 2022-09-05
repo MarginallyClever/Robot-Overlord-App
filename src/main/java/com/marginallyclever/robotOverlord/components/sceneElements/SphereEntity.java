@@ -18,6 +18,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @author aggra
  *
  */
+@Deprecated
 public class SphereEntity extends ShapeEntity implements Collidable {
 	@Serial
 	private static final long serialVersionUID = 8418101632870526950L;

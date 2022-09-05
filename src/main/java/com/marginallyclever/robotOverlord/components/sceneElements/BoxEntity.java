@@ -19,6 +19,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
  * @author aggra
  *
  */
+@Deprecated
 public class BoxEntity extends ShapeEntity implements Collidable {
 	/**
 	 * 

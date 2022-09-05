@@ -28,6 +28,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.vecmath.Vector2d;
+import javax.vecmath.Vector3d;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
@@ -106,7 +107,7 @@ public class RobotOverlord extends Entity {
     //private RecentFiles recentFiles = new RecentFiles();
     
     private Scene scene = new Scene();
-	private transient final ArrayList<Entity> selectedEntities = new ArrayList<Entity>();
+	private transient final ArrayList<Entity> selectedEntities = new ArrayList<>();
 	private final MoveTool moveTool = new MoveTool();
 	private transient final ViewCube viewCube = new ViewCube();
 	
@@ -478,17 +479,18 @@ public class RobotOverlord extends Entity {
 		mainCamera.addComponent(new CameraComponent());
 		scene.addChild(mainCamera);
 
-		Entity light0 = new Entity("light 0");
+		Entity light0 = new Entity("Light");
 		light0.addComponent(new PoseComponent());
 		light0.addComponent(new LightComponent());
 		scene.addChild(light0);
 
-		scene.addComponent(new SkyboxComponent());
-
+		PoseComponent pose = new PoseComponent();
 		Entity boxEntity = new Entity("Box");
+		boxEntity.addComponent(pose);
 		BoxComponent box = new BoxComponent();
 		boxEntity.addComponent(box);
 		scene.addChild(boxEntity);
+		pose.setPosition(new Vector3d(-10,0,0));
         
  		addChild(viewport);
         addChild(scene);
@@ -681,7 +683,7 @@ public class RobotOverlord extends Entity {
 			if(cameraComponent==null) return;
 
 	        int pickName = findItemUnderCursor(gl2,cameraComponent);
-        	Entity next = scene.pickPhysicalEntityWithName(pickName);
+        	Entity next = scene.pickEntityWithName(pickName);
         	UndoSystem.addEvent(this,new SelectEdit(this,selectedEntities,next));
         }
     }
@@ -702,7 +704,7 @@ public class RobotOverlord extends Entity {
 		if(camera==null) return;
 
         viewport.renderChosenProjection(gl2,camera);
-        scene.render(gl2,camera);
+        scene.render(gl2);
         // overlays
 		moveTool.render(gl2);
 		viewCube.render(gl2);
@@ -750,7 +752,7 @@ public class RobotOverlord extends Entity {
 		
         gl2.glLoadName(0);
         // render in selection mode, without advancing time in the simulation.
-        scene.render(gl2,cameraComponent);
+        scene.render(gl2);
 
         gl2.glPopName();
         gl2.glFlush();

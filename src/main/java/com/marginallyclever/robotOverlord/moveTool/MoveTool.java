@@ -1,6 +1,7 @@
 package com.marginallyclever.robotOverlord.moveTool;
 
 import java.awt.Font;
+import java.io.Serial;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -18,9 +19,9 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.Moveable;
-import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.Viewport;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
 import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.undoableEdits.MoveEdit;
@@ -35,9 +36,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.IntEntity;
  *
  */
 public class MoveTool extends Entity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = -189456892380998828L;
 
 	private static final double STEP_SIZE = Math.PI/120.0;
@@ -50,8 +49,8 @@ public class MoveTool extends Entity {
 	public Vector3d pickPointSaved=new Vector3d();  // the point picked when the action began
 	public Vector3d pickPointOnBall=new Vector3d();  // the point picked when the action began
 	
-	private enum Plane { X,Y,Z };
-	private enum Axis { X,Y,Z };
+	private enum Plane { X,Y,Z }
+	private enum Axis { X,Y,Z }
 
 	// for rotation
 	private Plane nearestPlane;
@@ -65,28 +64,28 @@ public class MoveTool extends Entity {
 	private Moveable subject;
 	
 	// In what frame of reference?
-	private IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
+	private final IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
 	// drawing scale of ball
-	private DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
+	private final DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	// snap at all?
-	private BooleanEntity snapOn = new BooleanEntity("Snap On",true);
+	private final BooleanEntity snapOn = new BooleanEntity("Snap On",true);
 	// snap to what number of degrees rotation?
-	private DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",5);
+	private final DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",5);
 	// snap to what number of mm translation?
-	private DoubleEntity snapDistance = new DoubleEntity("Snap mm",1);
+	private final DoubleEntity snapDistance = new DoubleEntity("Snap mm",1);
 
 	// matrix of subject when move started
-	private Matrix4d startMatrix=new Matrix4d();	
-	private Matrix4d resultMatrix=new Matrix4d();
-	private Matrix4d FOR=new Matrix4d();
+	private Matrix4d startMatrix=new Matrix4d();
+	private final Matrix4d resultMatrix=new Matrix4d();
+	private final Matrix4d FOR=new Matrix4d();
 	
 	private double valueStart;  // original angle when move started
 	private double valueNow;  // current state
 	private double valueLast;  // state last frame 
 	
-	private double[] valueStarts = new double[3];
+	private final double[] valueStarts = new double[3];
 	private double[] valueNows = new double[3];
-	private double[] valueLasts = new double[3];
+	private final double[] valueLasts = new double[3];
 
 	private  SlideDirection majorAxisSlideDirection;
 
@@ -115,7 +114,7 @@ public class MoveTool extends Entity {
 	/**
 	 * transform a world-space point to the ball's current frame of reference
 	 * @param pointInWorldSpace the world space point
-	 * @return the transformed Vector3d
+	 * @return the transformed {@link Vector3d}
 	 */
 	private Vector3d getPickPointInFOR(Vector3d pointInWorldSpace,Matrix4d frameOfReference) {
 		Matrix4d iMe = new Matrix4d(frameOfReference);
@@ -133,17 +132,19 @@ public class MoveTool extends Entity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		Viewport cameraView = ro.getViewport();
-		PoseEntity camera = cameraView.getAttachedTo();
+
+		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
 
 		Matrix4d subjectPoseWorld = subject.getPoseWorld();
 		if(!isActivelyMoving()) {
 			checkChangeFrameOfReference();
 			
 			// find the current frame of reference.  This could change every frame as the camera moves.
-			switch(FrameOfReference.values()[frameOfReference.get()]) {
-			case SUBJECT: FOR.set(subjectPoseWorld);	break;
-			case CAMERA : FOR.set(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subjectPoseWorld)));  break;
-			default     : FOR.setIdentity();  break;
+			switch (FrameOfReference.values()[frameOfReference.get()]) {
+				case SUBJECT -> FOR.set(subjectPoseWorld);
+				case CAMERA ->
+						FOR.set(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subjectPoseWorld)));
+				default -> FOR.setIdentity();
 			}
 			
 			FOR.setTranslation(MatrixHelper.getPosition(subjectPoseWorld));
@@ -151,7 +152,7 @@ public class MoveTool extends Entity {
 
 		Vector3d mp = new Vector3d();
 		subjectPoseWorld.get(mp);
-		// put the dragball on the subject
+		// put the drag ball on the subject
 		position.set(mp);
 		
 		mp.sub(camera.getPosition());
@@ -191,8 +192,8 @@ public class MoveTool extends Entity {
 	private void beginMovement() {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		Viewport cameraView = ro.getViewport();
-		PoseEntity camera = cameraView.getAttachedTo();
-		Ray ray = cameraView.rayPick();
+		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+		Ray ray = cameraView.rayPick(ro.getCamera());
 
 		Vector3d dp = new Vector3d(position);
 		dp.sub(ray.start);
@@ -252,17 +253,16 @@ public class MoveTool extends Entity {
 			valueLast=0;
 			valueNow=0;
 			
-			Matrix4d cm = camera.getPose();
+			Matrix4d cm = camera.getWorld();
 			Vector3d cr = MatrixHelper.getXAxis(cm);
 			Vector3d cu = MatrixHelper.getYAxis(cm);
 			// determine which mouse direction is a positive movement on this axis.
-			Vector3d nv;
-			switch(majorAxis) {
-			case  X: nv = nx;  break;
-			case  Y: nv = ny;  break;
-			default: nv = nz;  break;
-			}
-			
+			Vector3d nv = switch (majorAxis) {
+				case X -> nx;
+				case Y -> ny;
+				default -> nz;
+			};
+
 			double cx,cy;
 			cy=cu.dot(nv);
 			cx=cr.dot(nv);
@@ -300,7 +300,7 @@ public class MoveTool extends Entity {
 				
 				Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
 				
-				// find nearest plane
+				// find the nearest plane
 				dx = Math.abs(pickPointInFOR.x);
 				dy = Math.abs(pickPointInFOR.y);
 				dz = Math.abs(pickPointInFOR.z);
@@ -316,13 +316,13 @@ public class MoveTool extends Entity {
 				}
 
 				// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-				Vector3d majorAxisVector = new Vector3d();
-				switch(nearestPlane) {
-				case X:  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
-				case Y:  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
-				case Z:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
-				}
-				
+				new Vector3d();
+				Vector3d majorAxisVector = switch (nearestPlane) {
+					case X -> MatrixHelper.getXAxis(FOR);
+					case Y -> MatrixHelper.getYAxis(FOR);
+					case Z -> MatrixHelper.getZAxis(FOR);
+				};
+
 				// find the pick point on the plane of rotation
 				double denominator = ray.direction.dot(majorAxisVector);
 				if(denominator!=0) {
@@ -332,10 +332,10 @@ public class MoveTool extends Entity {
 					pickPointSaved.set(pickPoint);
 					
 					pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
-					switch(nearestPlane) {
-					case X:  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-					case Y:  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-					case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+					switch (nearestPlane) {
+						case X -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
+						case Y -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
+						case Z -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
 					}
 					pickPointInFOR.normalize();
 					//Log.message("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
@@ -352,19 +352,19 @@ public class MoveTool extends Entity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		Viewport cameraView = ro.getViewport();
-		Ray ray = cameraView.rayPick();
+		Ray ray = cameraView.rayPick(ro.getCamera());
 
 		Vector3d dp = new Vector3d(position);
 		dp.sub(ray.start);
 		
 		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-		Vector3d majorAxisVector = new Vector3d();
-		switch(nearestPlane) {
-		case X:  majorAxisVector = MatrixHelper.getXAxis(FOR);	break;
-		case Y:  majorAxisVector = MatrixHelper.getYAxis(FOR);	break;
-		case Z:  majorAxisVector = MatrixHelper.getZAxis(FOR);	break;
-		}
-		
+		new Vector3d();
+		Vector3d majorAxisVector = switch (nearestPlane) {
+			case X -> MatrixHelper.getXAxis(FOR);
+			case Y -> MatrixHelper.getYAxis(FOR);
+			case Z -> MatrixHelper.getZAxis(FOR);
+		};
+
 		// find the pick point on the plane of rotation
 		double denominator = ray.direction.dot(majorAxisVector);
 		if(denominator!=0) {
@@ -373,10 +373,10 @@ public class MoveTool extends Entity {
 			pickPoint.set(ray.getPoint(t0));
 
 			Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
-			switch(nearestPlane) {
-			case X:  valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);	break;
-			case Y:  valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);	break;
-			case Z:  valueNow =  Math.atan2(pickPointInFOR.y, pickPointInFOR.x);	break;
+			switch (nearestPlane) {
+				case X -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
+				case Y -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
+				case Z -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
 			}
 
 			double da=valueNow - valueStart;
@@ -393,10 +393,10 @@ public class MoveTool extends Entity {
 				da = Math.toRadians(da);
 			}
 			if(da!=0) {
-				switch(nearestPlane) {
-				case X:  rollX(da);  break;
-				case Y:  rollY(da);  break;
-				case Z:  rollZ(da);  break;
+				switch (nearestPlane) {
+					case X -> rollX(da);
+					case Y -> rollY(da);
+					case Z -> rollZ(da);
 				}
 				valueLast = valueStart + da;
 				
@@ -413,21 +413,21 @@ public class MoveTool extends Entity {
 
 		// actively being dragged
 		double scale = cameraDistance*0.02*dt;  // TODO something better?
-		double rawx= InputManager.getRawValue(InputManager.Source.MOUSE_X);
-		double rawy= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
-		double dx = rawx *  scale;
-		double dy = rawy * -scale;
-		
-		switch(majorAxisSlideDirection) {
-		case SLIDE_XPOS:  valueNow+=dx;  break;
-		case SLIDE_XNEG:  valueNow-=dx;  break;
-		case SLIDE_YPOS:  valueNow+=dy;  break;
-		case SLIDE_YNEG:  valueNow-=dy;  break;
+		double rawX= InputManager.getRawValue(InputManager.Source.MOUSE_X);
+		double rawY= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
+		double dx = rawX *  scale;
+		double dy = rawY * -scale;
+
+		switch (majorAxisSlideDirection) {
+			case SLIDE_XPOS -> valueNow += dx;
+			case SLIDE_XNEG -> valueNow -= dx;
+			case SLIDE_YPOS -> valueNow += dy;
+			case SLIDE_YNEG -> valueNow -= dy;
 		}
 		
 		double dp = valueNow - valueStart;
 		if(snapOn.get()) {
-			// round to nearest mm
+			// round to the nearest mm
 			double mm = snapDistance.get()*0.1;
 			if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
 				InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
@@ -436,10 +436,10 @@ public class MoveTool extends Entity {
 			dp = Math.signum(dp)*Math.round(Math.abs(dp)/mm)*mm;
 		}
 		if(dp!=0) {
-			switch(majorAxis) {
-			case X: translate(MatrixHelper.getXAxis(FOR), dp);	break;
-			case Y: translate(MatrixHelper.getYAxis(FOR), dp);	break;
-			case Z: translate(MatrixHelper.getZAxis(FOR), dp);	break;
+			switch (majorAxis) {
+				case X -> translate(MatrixHelper.getXAxis(FOR), dp);
+				case Y -> translate(MatrixHelper.getYAxis(FOR), dp);
+				case Z -> translate(MatrixHelper.getZAxis(FOR), dp);
 			}
 			valueLast = valueStart + dp;
 
@@ -465,26 +465,27 @@ public class MoveTool extends Entity {
 			valueNow=0;
 
 			double scale = 0.75*dt;  // TODO something better?
-			double rawxr= InputManager.getRawValue(InputManager.Source.STICK_LX);
-			double rawyr= InputManager.getRawValue(InputManager.Source.STICK_LY);
-			double rawzr= InputManager.getRawValue(InputManager.Source.STICK_L2);
-			double dxr = rawxr * scale;
-			double dyr = rawyr * -scale;
-			double dzr = rawzr * scale;
+			double rawXR= InputManager.getRawValue(InputManager.Source.STICK_LX);
+			double rawYR= InputManager.getRawValue(InputManager.Source.STICK_LY);
+			double rawZR= InputManager.getRawValue(InputManager.Source.STICK_L2);
+			double dxr = rawXR * scale;
+			double dyr = rawYR * -scale;
+			double dzr = rawZR * scale;
 
-			if(Math.abs(rawxr)-Math.abs(rawyr) >= 0.3) {
+			double diff = Math.abs(rawXR)-Math.abs(rawYR);
+			if(diff >= 0.3) {
 				valueNow = dxr;
 				double dar1 = valueNow - valueStart;
 				rollX(dar1);
 				valueLast = valueStart+dar1;
 				attemptMove(ro);
-			} else if(Math.abs(rawxr)-Math.abs(rawyr) <= -0.3) {
+			} else if(diff <= -0.3) {
 				valueNow = dyr;
 				double dar1 = valueNow - valueStart;
 				rollY(dar1);
 				valueLast = valueStart+dar1;
 				attemptMove(ro);
-			} else if(rawzr!=0) {
+			} else if(rawZR!=0) {
 				valueNow = dzr;
 				double dar1 = valueNow - valueStart;
 				rollZ(dar1);
@@ -602,7 +603,7 @@ public class MoveTool extends Entity {
 	
 	/**
 	 * Render the white and grey circles around the exterior, always facing the camera.
-	 * @param gl2
+	 * @param gl2 the render context
 	 */
 	private void renderOutsideCircle(GL2 gl2) {
 		final double whiteRadius=1.05;
@@ -610,7 +611,7 @@ public class MoveTool extends Entity {
 		final int quality=50;
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseEntity camera = ro.getViewport().getAttachedTo();
+		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
 		Matrix4d lookAt = new Matrix4d();
 
 		Matrix4d pw = subject.getPoseWorld();
@@ -646,8 +647,8 @@ public class MoveTool extends Entity {
 			//Matrix4d pw = subject.getPoseWorld(pw);
 			
 			RobotOverlord ro = (RobotOverlord)getRoot();
-			PoseEntity camera = ro.getViewport().getAttachedTo();		
-			Matrix4d pw = camera.getPoseWorld();
+			PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+			Matrix4d pw = camera.getWorld();
 			pw.m03=
 			pw.m13=
 			pw.m23=0;
@@ -782,7 +783,7 @@ public class MoveTool extends Entity {
 			
 			// camera forward is -z axis 
 			RobotOverlord ro = (RobotOverlord)getRoot();
-			PoseEntity camera = ro.getViewport().getAttachedTo();
+			PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
 	
 			Matrix4d pw = subject.getPoseWorld();
 			Vector3d lookAtVector = MatrixHelper.getPosition(pw);

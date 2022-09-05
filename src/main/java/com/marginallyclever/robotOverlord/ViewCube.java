@@ -61,7 +61,7 @@ public class ViewCube extends Entity {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glPushMatrix();
 		MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
-		viewport.renderOrtho(gl2,0.2);
+		viewport.renderOrthographic(gl2,0.2);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
     

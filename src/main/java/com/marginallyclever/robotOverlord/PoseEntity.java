@@ -27,6 +27,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.Vector3dEntity;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class PoseEntity extends Entity implements Removable, Moveable {
 	/**
 	 * 
