@@ -56,7 +56,7 @@ import com.marginallyclever.robotOverlord.io.json.JSONLoad;
 import com.marginallyclever.robotOverlord.io.json.JSONSave;
 import com.marginallyclever.robotOverlord.moveTool.MoveTool;
 import com.marginallyclever.robotOverlord.swingInterface.InputManager;
-import com.marginallyclever.robotOverlord.swingInterface.SelectedEntityPanel;
+import com.marginallyclever.robotOverlord.swingInterface.ComponentPanel;
 import com.marginallyclever.robotOverlord.swingInterface.SoundSystem;
 import com.marginallyclever.robotOverlord.swingInterface.UndoSystem;
 import com.marginallyclever.robotOverlord.swingInterface.actions.AboutAction;
@@ -117,7 +117,7 @@ public class RobotOverlord extends Entity {
 	private final JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private EntityTreePanel entityTree;
-	private final SelectedEntityPanel selectedEntityPanel = new SelectedEntityPanel();
+	private final ComponentPanel componentPanel = new ComponentPanel();
 	
 	private RenameEntityAction renameEntity;
 	private RemoveEntityAction removeEntity;
@@ -145,7 +145,7 @@ public class RobotOverlord extends Entity {
  	private RobotOverlord() {
  		super();
  		setName("");
-		this.addComponent(new Pose());
+		this.addComponent(new PoseComponent());
  		 		
 		if(GraphicsEnvironment.isHeadless()) {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
@@ -366,7 +366,7 @@ public class RobotOverlord extends Entity {
         
 		// the right hand stuff			        
 		rightFrameSplitter.add(entityManagerPanel);
-		rightFrameSplitter.add(new JScrollPane(selectedEntityPanel));
+		rightFrameSplitter.add(new JScrollPane(componentPanel));
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);
@@ -472,14 +472,14 @@ public class RobotOverlord extends Entity {
 		removeAllChildren();
 		
 		scene = new Scene();
-		scene.addComponent(new Pose());
+		scene.addComponent(new PoseComponent());
 		Entity mainCamera = new Entity("Main Camera");
-		mainCamera.addComponent(new Pose());
+		mainCamera.addComponent(new PoseComponent());
 		mainCamera.addComponent(new CameraComponent());
 		scene.addChild(mainCamera);
 
 		Entity light0 = new Entity("light 0");
-		light0.addComponent(new Pose());
+		light0.addComponent(new PoseComponent());
 		light0.addComponent(new LightComponent());
 		scene.addChild(light0);
 
@@ -589,7 +589,7 @@ public class RobotOverlord extends Entity {
 				moveTool.setSubject((Moveable)firstEntity);
 			}
     	}
-    	selectedEntityPanel.update(entityList,this);
+    	componentPanel.update(entityList,this);
 	}
 
     private void saveWindowSizeAndPosition() {

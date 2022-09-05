@@ -37,24 +37,24 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	@Serial
 	private static final long serialVersionUID = -6421492357105354857L;
 
-	// the shape for this entity
+	// the shape for this Entity
 	protected transient Mesh myMesh;
 
-	protected StringEntity filename = new StringEntity("File","");
+	protected final StringEntity filename = new StringEntity("File","");
 	
 	protected MaterialEntity material = new MaterialEntity();
 	
 	// shape adjustments
-	protected DoubleEntity scale = new DoubleEntity("Scale",1.0);
-	protected Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
-	protected Vector3dEntity originAdjust = new Vector3dEntity("Origin");
+	protected final DoubleEntity scale = new DoubleEntity("Scale",1.0);
+	protected final Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
+	protected final Vector3dEntity originAdjust = new Vector3dEntity("Origin");
 
 	private final IntEntity numTriangles = new IntEntity("Triangles",0);
 	private final BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
 	private final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
 	private final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 	
-	private Cuboid cuboid = new Cuboid();
+	private final Cuboid cuboid = new Cuboid();
 	
 	public ShapeEntity() {
 		this("Shape");

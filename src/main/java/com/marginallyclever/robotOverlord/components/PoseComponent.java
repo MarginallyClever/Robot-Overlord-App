@@ -2,6 +2,7 @@ package com.marginallyclever.robotOverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.Component;
+import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -16,11 +17,11 @@ import java.io.IOException;
  * @author Dan Royer
  * @since 2022-08-04
  */
-public class Pose extends Component {
+public class PoseComponent extends Component {
     // pose relative to my parent (aka local pose).
     private final Matrix4d local = new Matrix4d();
 
-    public Pose() {
+    public PoseComponent() {
         super();
         local.setIdentity();
     }
@@ -94,7 +95,7 @@ public class Pose extends Component {
     public Matrix4d getWorld() {
         Matrix4d result = new Matrix4d();
 
-        Pose parent = getEntity().findFirstComponentInParents(Pose.class);
+        PoseComponent parent = getEntity().findFirstComponentInParents(PoseComponent.class);
         if(parent==null) {
             result.set(local);
         } else {
@@ -102,5 +103,10 @@ public class Pose extends Component {
             result.mul(local);
         }
         return result;
+    }
+
+    @Override
+    public void getView(ViewPanel view) {
+
     }
 }

@@ -5,9 +5,10 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.LightComponent;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import com.marginallyclever.robotOverlord.robots.skycam.Skycam;
 import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
-import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
 
 public class SkycamDemo implements Demo {
 	@Override
@@ -22,17 +23,19 @@ public class SkycamDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		camera.setPosition(new Vector3d(40,-91,106));
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		pose.setPosition(new Vector3d(40,-91,106));
 		camera.setPan(-16);
 		camera.setTilt(53);
 		camera.setZoom(100);
 		
 		// add some lights
-    	LightEntity light;
-    	
-    	sc.addChild(light = new LightEntity());
-		light.setName("Light");
-    	light.setPosition(new Vector3d(60,-60,160));
+		LightComponent light;
+		Entity light0 = new Entity();
+		sc.addChild(light0);
+		light0.addComponent(pose = new PoseComponent());
+		light0.addComponent(light = new LightComponent());
+    	pose.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
     	light.setAttenuationLinear(0.0014);

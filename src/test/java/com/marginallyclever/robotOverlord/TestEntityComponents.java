@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.Pose;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ public class TestEntityComponents {
         Assertions.assertEquals(1, e.getComponentCount());
         Assertions.assertEquals(c0,e.getComponent(Component.class));
 
-        e.addComponent(new Pose());
+        e.addComponent(new PoseComponent());
         Assertions.assertEquals(2, e.getComponentCount());
 
     }
@@ -43,9 +43,9 @@ public class TestEntityComponents {
     @Test
     public void getComponentWithGenerics() {
         Entity e = new Entity();
-        Assertions.assertNull(e.getComponent(Pose.class));
-        e.addComponent(new Pose());
-        Assertions.assertNotNull(e.getComponent(Pose.class));
+        Assertions.assertNull(e.getComponent(PoseComponent.class));
+        e.addComponent(new PoseComponent());
+        Assertions.assertNotNull(e.getComponent(PoseComponent.class));
     }
 
     @Test
@@ -55,12 +55,12 @@ public class TestEntityComponents {
         Entity e2 = new Entity();
         e0.addChild(e1);
         e0.addChild(e2);
-        e1.addComponent(new Pose());
+        e1.addComponent(new PoseComponent());
         e2.addComponent(new CameraComponent());
         e0.addComponent(new CameraComponent());
         Assertions.assertEquals(e0.getComponent(CameraComponent.class),e0.findFirstComponent(CameraComponent.class));
         Assertions.assertNotEquals(e2.getComponent(CameraComponent.class),e0.findFirstComponent(CameraComponent.class));
-        Assertions.assertNotNull(e0.findFirstComponent(Pose.class));
+        Assertions.assertNotNull(e0.findFirstComponent(PoseComponent.class));
         Assertions.assertNotNull(e1.findFirstComponentInParents(CameraComponent.class));
     }
 /*

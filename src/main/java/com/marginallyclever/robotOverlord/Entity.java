@@ -220,7 +220,9 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	 */
 	public void getView(ViewPanel view) {
 		for(Component c : components) {
+			view.pushStack(c.getName(),c.getName());
 			c.getView(view);
+			view.popStack();
 		}
 	}
 

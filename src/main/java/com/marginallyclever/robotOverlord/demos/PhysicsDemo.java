@@ -6,12 +6,13 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.LightComponent;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import com.marginallyclever.robotOverlord.physics.original.RigidBody;
 import com.marginallyclever.robotOverlord.physics.original.RigidBodyBox;
 import com.marginallyclever.robotOverlord.physics.original.RigidBodySphere;
 import com.marginallyclever.robotOverlord.components.sceneElements.BoxEntity;
 import com.marginallyclever.robotOverlord.components.sceneElements.GridEntity;
-import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
 import com.marginallyclever.robotOverlord.components.sceneElements.SphereEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
@@ -29,14 +30,18 @@ public class PhysicsDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		camera.setPosition(new Vector3d(40/4,-91/4,106/4));
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		pose.setPosition(new Vector3d(40/4,-91/4,106/4));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setZoom(30);
 		
 		// add some lights
-    	LightEntity light = new LightEntity();
-		sc.addChild(light);
-    	light.setPosition(new Vector3d(60,-60,160));
+		LightComponent light;
+		Entity light0 = new Entity();
+		sc.addChild(light0);
+		light0.addComponent(pose = new PoseComponent());
+		light0.addComponent(light = new LightComponent());
+    	pose.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
     	light.setAttenuationLinear(0.0014);

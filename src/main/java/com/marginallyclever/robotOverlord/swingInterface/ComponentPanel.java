@@ -11,19 +11,19 @@ import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 
 
-public class SelectedEntityPanel extends JPanel {
+public class ComponentPanel extends JPanel {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public SelectedEntityPanel() {
+	public ComponentPanel() {
 		super();
 		setLayout(new BorderLayout());
 	}
 
 	/**
-	 * Collate all the {@link EntityPanel}s for a {@link Entity}.  
+	 * Collate all the {@link java.awt.Component}s for selected {@link Entity}.
 	 * @param 
 	 */
 	public void update(ArrayList<Entity> entityList,RobotOverlord ro) {

@@ -5,12 +5,10 @@ import javax.vecmath.Vector3d;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotOverlord.RobotOverlord;
-import com.marginallyclever.robotOverlord.Viewport;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.Entity;
-import com.marginallyclever.robotOverlord.PoseEntity;
 import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.Pose;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import com.marginallyclever.robotOverlord.uiExposedTypes.TextureEntity;
 
 import java.io.Serial;
@@ -49,7 +47,7 @@ public class SkyBoxEntity extends Entity {
 	@Override
 	public void render(GL2 gl2) {
 		CameraComponent camera = ((RobotOverlord)this.getRoot()).getCamera();
-		Pose pose = camera.getEntity().getComponent(Pose.class);
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);

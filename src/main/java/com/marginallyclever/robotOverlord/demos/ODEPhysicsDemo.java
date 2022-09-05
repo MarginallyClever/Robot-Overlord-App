@@ -3,6 +3,8 @@ package com.marginallyclever.robotOverlord.demos;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotOverlord.components.CameraComponent;
+import com.marginallyclever.robotOverlord.components.LightComponent;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3C;
@@ -25,7 +27,6 @@ import com.marginallyclever.robotOverlord.Entity;
 import com.marginallyclever.robotOverlord.RobotOverlord;
 import com.marginallyclever.robotOverlord.physics.ode.ODEPhysicsEngine;
 import com.marginallyclever.robotOverlord.physics.ode.ODEPhysicsEntity;
-import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
 
 /**
  * See https://github.com/tzaeschke/ode4j/blob/master/demo/src/main/java/org/ode4j/demo/DemoBuggy.java
@@ -61,16 +62,18 @@ public class ODEPhysicsDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		camera.setPosition(new Vector3d(40/4,-91/4,106/4));
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setZoom(20);
 		
 		// add some lights
-    	LightEntity light = new LightEntity();
-
-    	sc.addChild(light);
-		light.setName("Light");
-    	light.setPosition(new Vector3d(60,-60,160));
+		LightComponent light;
+		Entity light0 = new Entity();
+		sc.addChild(light0);
+		light0.addComponent(pose = new PoseComponent());
+		light0.addComponent(light = new LightComponent());
+    	pose.setPosition(new Vector3d(60,-60,160));
     	light.setDiffuse(1,1,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
     	light.setAttenuationLinear(0.0014);
@@ -81,9 +84,7 @@ public class ODEPhysicsDemo implements Demo {
 		engine = new ODEPhysicsEngine();
 		ro.addChild(engine);
 		
-		engine.setCallback((data, o1, o2) ->{
-			nearCallback(data, o1, o2);
-		});
+		engine.setCallback(this::nearCallback);
 
 		// environment
 		ground = OdeHelper.createPlane(engine.getSpace(),0,0,1,0);

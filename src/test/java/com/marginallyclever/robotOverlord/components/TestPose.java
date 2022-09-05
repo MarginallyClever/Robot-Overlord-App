@@ -5,19 +5,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Vector3d;
-import java.io.*;
 
 public class TestPose {
     @Test
     public void addPoseToEntity() {
         Entity e = new Entity();
-        e.addComponent(new Pose());
-        Assertions.assertInstanceOf(Pose.class,e.getComponent(0));
+        e.addComponent(new PoseComponent());
+        Assertions.assertInstanceOf(PoseComponent.class,e.getComponent(0));
     }
 
     @Test
     public void movePose() {
-        Pose p = new Pose();
+        PoseComponent p = new PoseComponent();
         Assertions.assertEquals(new Vector3d(0,0,0),p.getPosition());
 
         Vector3d a = p.getPosition();
@@ -36,11 +35,11 @@ public class TestPose {
     @Test
     public void testNestedPoses() {
         Entity root = new Entity();
-        Pose p0 = new Pose();
+        PoseComponent p0 = new PoseComponent();
         root.addComponent(p0);
 
         Entity e0 = new Entity();
-        Pose p1 = new Pose();
+        PoseComponent p1 = new PoseComponent();
         e0.addComponent(p1);
 
         root.addChild(e0);

@@ -6,7 +6,6 @@ com.marginallyclever.robotOverlord.robots.stewartplatform.rotary.RotaryStewartPl
 com.marginallyclever.robotOverlord.robots.skycam.Skycam
 com.marginallyclever.robotOverlord.robots.robotArm.implementations.Sixi2
 com.marginallyclever.robotOverlord.shape.ShapeEntity
-com.marginallyclever.robotOverlord.components.sceneElements.LightEntity
 com.marginallyclever.robotOverlord.Decal
 com.marginallyclever.robotOverlord.components.sceneElements.BoxEntity
 com.marginallyclever.robotOverlord.components.sceneElements.GridEntity

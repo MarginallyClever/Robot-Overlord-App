@@ -7,16 +7,16 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.Pose;
+import com.marginallyclever.robotOverlord.components.PoseComponent;
 import com.marginallyclever.robotOverlord.shape.ShapeEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.DoubleEntity;
 import com.marginallyclever.robotOverlord.uiExposedTypes.MaterialEntity;
 
+import java.io.Serial;
+
 public class ViewCube extends Entity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 2625823417579183587L;
 	protected ShapeEntity model = new ShapeEntity();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",32);
@@ -51,7 +51,7 @@ public class ViewCube extends Entity {
 	}
 		
     private Matrix4d getInverseCameraMatrix(CameraComponent camera) {
-		Matrix4d m = camera.getEntity().getComponent(Pose.class).getWorld();
+		Matrix4d m = camera.getEntity().getComponent(PoseComponent.class).getWorld();
 		m.invert();
 		m.setTranslation(new Vector3d(0,0,0));
 		return m;

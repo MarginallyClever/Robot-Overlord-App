@@ -213,15 +213,15 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 			target.setTranslation(new Vector3d(0,0,0));
 			Matrix4d r = new Matrix4d();
 			r.setIdentity();
-			
-			switch(ac) {
-			case 0:		p.x+=aaOverTime;					break;
-			case 1:		p.y+=aaOverTime;					break;
-			case 2:		p.z+=aaOverTime;					break;
-			case 3:		r.rotX(Math.toRadians(aaOverTime));	break;
-			case 4:		r.rotY(Math.toRadians(aaOverTime));	break;
-			case 5:		r.rotZ(Math.toRadians(aaOverTime));	break;
-			default:	break;
+
+			switch (ac) {
+				case 0 -> p.x += aaOverTime;
+				case 1 -> p.y += aaOverTime;
+				case 2 -> p.z += aaOverTime;
+				case 3 -> r.rotX(Math.toRadians(aaOverTime));
+				case 4 -> r.rotY(Math.toRadians(aaOverTime));
+				case 5 -> r.rotZ(Math.toRadians(aaOverTime));
+				default -> {}
 			}
 			target.mul(r);
 			target.setTranslation(p);
@@ -255,7 +255,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 	public Matrix4d getPoseWorld() {
 		Entity parent = getParent();
 		
-		if(parent!=null && parent instanceof PoseEntity) {
+		if(parent instanceof PoseEntity) {
 			Matrix4d m = ((PoseEntity)parent).getPoseWorld();
 			m.mul(myPose);
 			return m;

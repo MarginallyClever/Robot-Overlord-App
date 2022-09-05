@@ -1,7 +1,7 @@
 package com.marginallyclever.robotOverlord;
 
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
-import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
+import com.marginallyclever.robotOverlord.uiExposedTypes.BooleanEntity;
 
 /**
  * one or more {@link Component}s are attached to an {@link Entity}.
@@ -12,10 +12,14 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.StringEntity;
 public class Component {
     private Entity myEntity;
 
-    private StringEntity name = new StringEntity("name","");
+    private final BooleanEntity enabled = new BooleanEntity("Enabled",true);
 
     public Component() {
-        this.name.set(this.getClass().getSimpleName());
+        super();
+    }
+
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
     /**
@@ -25,18 +29,23 @@ public class Component {
      * @param view the ViewPanel to decorate.
      */
     public void getView(ViewPanel view) {
-        view.add(name);
+        view.add(enabled);
+        // TODO enumerate all public AbstractEntity?
     }
 
     public Entity getEntity() {
         return myEntity;
     }
 
-    public void set(Component b) {
-        this.name.set(b.name.get());
-    }
-
     public void setEntity(Entity entity) {
         myEntity=entity;
+    }
+
+    public void setEnable(boolean arg0) {
+        enabled.set(arg0);
+    }
+
+    public boolean getEnabled() {
+        return enabled.get();
     }
 }

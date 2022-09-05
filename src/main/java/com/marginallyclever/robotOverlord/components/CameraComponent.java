@@ -22,8 +22,9 @@ public class CameraComponent extends Component {
         zoom.set(arg0);
     }
 
+    @Deprecated
     public void setPosition(Vector3d target) {
-        Pose p = getEntity().getComponent(Pose.class);
+        PoseComponent p = getEntity().getComponent(PoseComponent.class);
         p.setPosition(target);
     }
 
@@ -46,7 +47,7 @@ public class CameraComponent extends Component {
     }
 
     public void lookAt(Vector3d target) {
-        Pose p = getEntity().getComponent(Pose.class);
+        PoseComponent p = getEntity().getComponent(PoseComponent.class);
 
         Vector3d forward = new Vector3d(target);
         forward.sub(p.getPosition());

@@ -1,5 +1,6 @@
 package com.marginallyclever.robotOverlord;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotOverlord.components.CameraComponent;
-import com.marginallyclever.robotOverlord.components.sceneElements.LightEntity;
+import com.marginallyclever.robotOverlord.components.LightComponent;
 import com.marginallyclever.robotOverlord.components.sceneElements.SkyBoxEntity;
 import com.marginallyclever.robotOverlord.swingInterface.view.ViewPanel;
 import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
@@ -22,9 +23,7 @@ import com.marginallyclever.robotOverlord.uiExposedTypes.ColorEntity;
  * @since 1.6.0
  */
 public class Scene extends Entity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 2990084741436544957L;
 	public ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
 	public SkyBoxEntity sky = new SkyBoxEntity();
@@ -49,7 +48,6 @@ public class Scene extends Entity {
         
 		// PASS 1: everything not a light
 		for( Entity obj : children ) {
-			if(obj instanceof LightEntity) continue;
 			// name for picking
 			if(obj instanceof PoseEntity) {
 				gl2.glPushName(((PoseEntity)obj).getPickName());
@@ -70,11 +68,9 @@ public class Scene extends Entity {
 		
 		int i=0;
 		for( Entity obj : children ) {
-			if(obj instanceof LightEntity) {
-				LightEntity light = (LightEntity)obj;
-				if(light.isOn()) {
-					light.setupLight(gl2,i++);
-				}
+			LightComponent light = obj.getComponent(LightComponent.class);
+			if(light!=null && light.getEnabled()) {
+				light.setupLight(gl2,i++);
 			}
 		}
 	}
