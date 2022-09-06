@@ -1,21 +1,15 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.robotoverlord.components.shapes.Decal;
-import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
-
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 public class EntityFactory {
 	private static final Class<?> [] available = {
 			com.marginallyclever.robotoverlord.Entity.class,
-			Decal.class,
-			SkyBoxEntity.class,
 
 			com.marginallyclever.robotoverlord.robots.dog.DogRobot.class,
 			com.marginallyclever.robotoverlord.robots.skycam.Skycam.class,
 			com.marginallyclever.robotoverlord.robots.deltarobot3.DeltaRobot3.class,
-			//com.marginallyclever.robotOverlord.robots.robotArm.RobotArmIK.class,
 			com.marginallyclever.robotoverlord.robots.robotarm.implementations.Mantis.class,
 			com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi2.class,
 			com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_5axis.class,
