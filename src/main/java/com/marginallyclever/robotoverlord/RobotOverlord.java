@@ -169,6 +169,7 @@ public class RobotOverlord extends Entity {
         
         BasicDemo bd = new BasicDemo();
         bd.execute(this);
+		updateEntityTree();
 
 		Log.message("** READY **");
     }
