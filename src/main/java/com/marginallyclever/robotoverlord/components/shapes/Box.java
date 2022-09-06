@@ -7,8 +7,8 @@ import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 
-public class BoxComponent extends ShapeComponent {
-    public BoxComponent() {
+public class Box extends ShapeComponent {
+    public Box() {
         super();
 
         myMesh = new Mesh();

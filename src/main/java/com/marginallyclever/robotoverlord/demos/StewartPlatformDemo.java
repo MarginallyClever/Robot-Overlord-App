@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.demos.demoassets.TrayCabinet;
-import com.marginallyclever.robotoverlord.robots.stewartplatform.vertical.LinearStewartPlatformCore;
+import com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
 import com.marginallyclever.robotoverlord.components.sceneelements.BoxEntity;
 import com.marginallyclever.robotoverlord.mesh.ShapeEntity;

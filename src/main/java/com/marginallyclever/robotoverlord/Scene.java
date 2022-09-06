@@ -34,8 +34,6 @@ public class Scene extends Entity {
 	
 	public Scene() {
 		super();
-		setName(Scene.class.getSimpleName());
-		addChild(sky);
 	}
 
 	@Override

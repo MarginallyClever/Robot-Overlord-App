@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 
 import javax.vecmath.Vector3d;
 
-public class GridComponent extends ShapeComponent {
+public class Grid extends ShapeComponent {
     public final IntEntity width = new IntEntity("Width (cm)",100);
     public final IntEntity height = new IntEntity("Height (cm)",100);
 

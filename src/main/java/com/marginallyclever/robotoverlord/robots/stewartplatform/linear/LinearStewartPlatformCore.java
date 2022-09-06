@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.robots.stewartplatform.vertical;
+package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 
 import java.beans.PropertyChangeEvent;

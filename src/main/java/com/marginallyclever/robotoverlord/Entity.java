@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -313,10 +314,10 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 	
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder(name);
-		for(Entity child : children) {
-			s.append(",").append(child.toString());
-		}
+		StringBuilder s = new StringBuilder();
+		s.append("name="+name+", ");
+		s.append("children="+Arrays.toString(children.toArray())+", ");
+		s.append("components="+Arrays.toString(components.toArray()));
 		return s.toString();
 	}
 
@@ -390,9 +391,9 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 
 	/**
 	 * Search the parent of this entity for a component and then that parent and so on.
-	 * @param clazz
-	 * @return
-	 * @param <T>
+	 * @param clazz the class of the Component to find
+	 * @return the instance found or null
+	 * @param <T> the class of the Component to find
 	 */
 	public <T extends Component> T findFirstComponentInParents(Class<T> clazz) {
 		Entity p = parent;
@@ -406,5 +407,79 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 
 	protected int getPickName() {
 		return pickName;
+	}
+
+    public void save(BufferedWriter writer) throws IOException {
+		saveName(writer);
+		saveChildren(writer);
+		saveComponents(writer);
+	}
+
+	public void load(BufferedReader reader) throws Exception {
+		readName(reader);
+		readChildren(reader);
+		readComponents(reader);
+	}
+
+	private void saveChildren(BufferedWriter writer) throws IOException {
+		writer.write("Children=[\n");
+		String add="";
+		for(Entity c : children) {
+			writer.write(c.getClass().getName()+"={\n");
+			c.save(writer);
+			writer.write("}"+add+"\n");
+			add=",";
+		}
+		writer.write("]\n");
+	}
+
+	private void readChildren(BufferedReader reader) throws Exception {
+		String str = reader.readLine();
+		if(!str.startsWith("Children=[")) throw new IOException("Expected 'Children=[{]' but found "+str);
+		while(!(str = reader.readLine()).trim().startsWith("]")) {
+			if(!str.endsWith("={")) throw new IOException("Expected '={' and end but found "+str);
+			Entity entity = EntityFactory.load(str.substring(0, str.length() - 2));
+			this.addChild(entity);
+			entity.load(reader);
+			str = reader.readLine();  // } or }, at end
+			if(!str.startsWith("}")) throw new IOException("Expected '}' and end but found "+str);
+		}
+	}
+
+	private void saveComponents(BufferedWriter writer) throws IOException {
+		writer.write("Components=[\n");
+		String add="";
+		for(Component c : components) {
+			writer.write(c.getClass().getName()+"={\n");
+			c.save(writer);
+			writer.write("}"+add+"\n");
+			add=",";
+		}
+		writer.write("]\n");
+    }
+
+	private void readComponents(BufferedReader reader) throws Exception {
+		String str = reader.readLine();
+		if(!str.startsWith("Components=[")) throw new IOException("Expected 'Components=[' but found "+str);
+		while(!(str = reader.readLine()).trim().startsWith("]")) {
+			if (str.endsWith("={")) {
+				Component component = ComponentFactory.load(str.substring(0,str.length()-2));
+				this.addComponent(component);
+				component.load(reader);
+				str = reader.readLine();  // } or }, at end
+				if(!str.startsWith("}")) throw new IOException("Expected '}' and end but found "+str);
+			}
+		}
+	}
+
+	private void saveName(BufferedWriter writer) throws IOException {
+		writer.write("name="+this.name+",\n");
+	}
+
+	private void readName(BufferedReader reader) throws IOException {
+		String str = reader.readLine();
+		if(!str.startsWith("name=")) throw new IOException("Expected 'name=' but found "+str.substring(0,10));
+		if(str.endsWith(",")) str = str.substring(0,str.length()-1);
+		this.name = str.substring(5);
 	}
 }

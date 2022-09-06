@@ -3,6 +3,10 @@ package com.marginallyclever.robotoverlord;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 /**
  * one or more {@link Component}s are attached to an {@link Entity}.
  *
@@ -50,4 +54,17 @@ public class Component {
     }
 
     public void update(double dt) {}
+
+    public void save(BufferedWriter writer) throws IOException {
+        enabled.save(writer);
+    }
+
+    public void load(BufferedReader reader) throws Exception {
+        enabled.load(reader);
+    }
+
+    @Override
+    public String toString() {
+        return enabled.toString();
+    }
 }

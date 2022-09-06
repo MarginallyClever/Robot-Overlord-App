@@ -5,9 +5,9 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.shapes.BoxComponent;
-import com.marginallyclever.robotoverlord.components.shapes.GridComponent;
-import com.marginallyclever.robotoverlord.components.shapes.SphereComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
+import com.marginallyclever.robotoverlord.components.shapes.Grid;
+import com.marginallyclever.robotoverlord.components.shapes.Sphere;
 
 public class BasicDemo implements Demo {
 	@Override
@@ -48,7 +48,7 @@ public class BasicDemo implements Demo {
 
 		Entity boxEntity = new Entity("Box");
 		boxEntity.addComponent(pose = new PoseComponent());
-		BoxComponent box = new BoxComponent();
+		Box box = new Box();
 		boxEntity.addComponent(box);
 		boxEntity.addComponent(new MaterialComponent());
 		sc.addChild(boxEntity);
@@ -56,7 +56,7 @@ public class BasicDemo implements Demo {
 
 		Entity sphereEntity = new Entity("Sphere");
 		sphereEntity.addComponent(pose = new PoseComponent());
-		SphereComponent sphere = new SphereComponent();
+		Sphere sphere = new Sphere();
 		sphereEntity.addComponent(sphere);
 		sphereEntity.addComponent(new MaterialComponent());
 		sc.addChild(sphereEntity);
@@ -66,7 +66,7 @@ public class BasicDemo implements Demo {
 		MaterialComponent mat = new MaterialComponent();
 		gridEntity.addComponent(pose = new PoseComponent());
 		gridEntity.addComponent(mat);
-    	GridComponent grid = new GridComponent();
+    	Grid grid = new Grid();
 		gridEntity.addComponent(grid);
 		sc.addChild(gridEntity);
 		mat.setDiffuseColor(0.5,0.5,0.5,1);

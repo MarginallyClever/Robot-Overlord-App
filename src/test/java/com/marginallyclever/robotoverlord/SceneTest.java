@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.shapes.BoxComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Vector3d;
 
 public class SceneTest {
-    @Test
-    public void createABasicScene() {
+    private Scene createABasicProcedurallyBuiltScene() {
         PoseComponent pose;
 
         Scene scene = new Scene();
@@ -24,10 +23,19 @@ public class SceneTest {
 
         Entity boxEntity = new Entity("Box");
         boxEntity.addComponent(pose = new PoseComponent());
-        BoxComponent box = new BoxComponent();
+        Box box = new Box();
         boxEntity.addComponent(box);
         boxEntity.addComponent(new MaterialComponent());
         scene.addChild(boxEntity);
         pose.setPosition(new Vector3d(-10,0,0));
+
+        return scene;
     }
+
+    @Test
+    public void saveAndLoadTests() throws Exception {
+        EntityTest.saveAndLoad(new Scene(),new Scene());
+        EntityTest.saveAndLoad(createABasicProcedurallyBuiltScene(),new Scene());
+    }
+
 }

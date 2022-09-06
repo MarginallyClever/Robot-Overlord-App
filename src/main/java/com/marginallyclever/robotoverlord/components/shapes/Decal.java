@@ -1,11 +1,19 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.components.shapes;
 
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Serial;
 import javax.vecmath.Vector3d;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -16,10 +24,8 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
  * @author Dan Royer
  *
  */
-public class Decal extends ShapeEntity {
-	/**
-	 * 
-	 */
+public class Decal extends ShapeComponent implements PropertyChangeListener {
+	@Serial
 	private static final long serialVersionUID = -4934794752752097855L;
 	
 	protected DoubleEntity width = new DoubleEntity("Width",1.0);
@@ -27,19 +33,16 @@ public class Decal extends ShapeEntity {
 	
 	public Decal() {
 		super();
-		setName("Decal");
-		addChild(width);
-		addChild(height);
 		
 		width.addPropertyChangeListener(this);
 		height.addPropertyChangeListener(this);
 		
 		myMesh = new Mesh();
+		updateModel();
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
 		updateModel();
 	}
 	
@@ -176,10 +179,22 @@ public class Decal extends ShapeEntity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("De", "Decal");
+		super.getView(view);
 		width.getView(view);
 		height.getView(view);
-		view.popStack();
-		super.getView(view);
+	}
+
+	@Override
+	public void save(BufferedWriter writer) throws IOException {
+		super.save(writer);
+		width.save(writer);
+		height.save(writer);
+	}
+
+	@Override
+	public void load(BufferedReader reader) throws Exception {
+		super.load(reader);
+		width.load(reader);
+		height.load(reader);
 	}
 }

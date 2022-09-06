@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.jcraft.jsch.IO;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -13,6 +14,7 @@ import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A Pose component contains the local transform of an Entity - its position, rotation, and scale relative to its
@@ -51,8 +53,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     private void updateScale(Matrix4d w) {
-        double s = w.getScale();
-        scale.set(s,s,s);
+        scale.set(w.m00,w.m11,w.m22);
     }
 
     private void updatePosition(Matrix4d w) {
@@ -62,11 +63,14 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     public void save(BufferedWriter writer) throws IOException {
-        MatrixHelper.save(local,writer);
+        writer.write("Matrix4d="+Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n");
     }
 
     public void load(BufferedReader reader) throws IOException {
-        MatrixHelper.load(local,reader);
+        String str = reader.readLine();
+        if(str.endsWith(",")) str = str.substring(0,str.length()-1);
+        if(!str.startsWith("Matrix4d=")) throw new IOException("Expected 'Matrix4d=' but found "+str.substring(0,Math.min(10,str.length())));
+        local.set(MatrixHelper.readMatrix4d(str.substring(9)));
     }
 
     /**
@@ -157,6 +161,16 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        // TODO?
+    }
 
+    public void setScale(Vector3d v) {
+        scale.set(v);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                +"local="+ Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n";
     }
 }

@@ -1,11 +1,8 @@
 package com.marginallyclever.convenience;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.print.attribute.standard.NumberUpSupported;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
@@ -291,7 +288,7 @@ public class MatrixHelper {
 
 	/**
 	 * invert an N*N matrix.
-	 * @see https://github.com/rchen8/algorithms/blob/master/Matrix.java
+	 * See https://github.com/rchen8/algorithms/blob/master/Matrix.java
 	 * 
 	 * @param a the matrix to invert.
 	 * @return the result.
@@ -332,7 +329,46 @@ public class MatrixHelper {
 	
 		return b;
 	}
-	
+
+	/**
+	 * Method that calculates determinant of given matrix
+	 *
+	 * @param matrix matrix of which we need to know determinant
+	 *
+	 * @return determinant of given matrix
+	 */
+	static public double matrixDeterminant (double[][] matrix) {
+		double temporary[][];
+		double result = 0;
+
+		if (matrix.length == 1) {
+			result = matrix[0][0];
+			return (result);
+		}
+
+		if (matrix.length == 2) {
+			result = ((matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0]));
+			return (result);
+		}
+
+		for (int i = 0; i < matrix[0].length; i++) {
+			temporary = new double[matrix.length - 1][matrix[0].length - 1];
+
+			for (int j = 1; j < matrix.length; j++) {
+				for (int k = 0; k < matrix[0].length; k++) {
+					if (k < i) {
+						temporary[j - 1][k] = matrix[j][k];
+					} else if (k > i) {
+						temporary[j - 1][k - 1] = matrix[j][k];
+					}
+				}
+			}
+
+			result += matrix[0][i] * Math.pow (-1, (double) i) * matrixDeterminant (temporary);
+		}
+		return (result);
+	}
+
 	static public double determinant(double[][] matrix) {
 		if (matrix.length != matrix[0].length)
 			throw new IllegalStateException("invalid dimensions");
@@ -443,45 +479,6 @@ public class MatrixHelper {
 			}
 		}
 
-		return (result);
-	}
-
-	/**
-	 * Method that calculates determinant of given matrix
-	 *
-	 * @param matrix matrix of which we need to know determinant
-	 *
-	 * @return determinant of given matrix
-	 */
-	static public double matrixDeterminant (double[][] matrix) {
-		double temporary[][];
-		double result = 0;
-
-		if (matrix.length == 1) {
-			result = matrix[0][0];
-			return (result);
-		}
-
-		if (matrix.length == 2) {
-			result = ((matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0]));
-			return (result);
-		}
-
-		for (int i = 0; i < matrix[0].length; i++) {
-			temporary = new double[matrix.length - 1][matrix[0].length - 1];
-
-			for (int j = 1; j < matrix.length; j++) {
-				for (int k = 0; k < matrix[0].length; k++) {
-					if (k < i) {
-						temporary[j - 1][k] = matrix[j][k];
-					} else if (k > i) {
-						temporary[j - 1][k - 1] = matrix[j][k];
-					}
-				}
-			}
-
-			result += matrix[0][i] * Math.pow (-1, (double) i) * matrixDeterminant (temporary);
-		}
 		return (result);
 	}
 
@@ -892,11 +889,90 @@ public class MatrixHelper {
 		return m;
 	}
 
-    public static void save(Matrix4d m, BufferedWriter writer) throws IOException {
-		throw new UnsupportedOperationException();
-    }
+	public static double [] matrixtoArray(Matrix3d m) {
+		double [] list = new double[9];
 
-	public static void load(Matrix4d m, BufferedReader reader) throws IOException {
-		throw new UnsupportedOperationException();
+		list[0]=m.m00;
+		list[1]=m.m01;
+		list[2]=m.m02;
+
+		list[3]=m.m10;
+		list[4]=m.m11;
+		list[5]=m.m12;
+
+		list[6]=m.m20;
+		list[7]=m.m21;
+		list[8]=m.m22;
+
+		return list;
+	}
+
+	public static double [] matrixtoArray(Matrix4d m) {
+		double [] list = new double[16];
+
+		list[0]=m.m00;
+		list[1]=m.m01;
+		list[2]=m.m02;
+		list[3]=m.m03;
+
+		list[4]=m.m10;
+		list[5]=m.m11;
+		list[6]=m.m12;
+		list[7]=m.m13;
+
+		list[8]=m.m20;
+		list[9]=m.m21;
+		list[10]=m.m22;
+		list[11]=m.m23;
+
+		list[12]=m.m30;
+		list[13]=m.m31;
+		list[14]=m.m32;
+		list[15]=m.m33;
+
+		return list;
+	}
+
+	/**
+	 * Converts a {@link String} to a {@link Matrix4d}
+	 * @param str a string in the format "[a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15]"
+	 * @return returns a {@link Matrix4d} described by the input string.
+	 * @throws IOException
+	 */
+	public static Matrix4d readMatrix4d(String str) throws IOException {
+		String [] tok = readMatrixStart(str);
+		if(tok.length!=16) throw new IOException("Expected 16 parameters, found "+tok.length);
+		return new Matrix4d(convertArrayOfStringsToDoubles(tok));
+	}
+
+	/**
+	 * Converts a {@link String} to a {@link Matrix3d}
+	 * @param str a string in the format "[a0, a1, a2, a3, a4, a5, a6, a7, a8]"
+	 * @return returns a {@link Matrix3d} described by the input string.
+	 * @throws IOException
+	 */
+	public static Matrix3d readMatrix3d(String str) throws IOException {
+		String [] tok = readMatrixStart(str);
+		if(tok.length!=9) throw new IOException("Expected 9 parameters, found "+tok.length);
+		return new Matrix3d(convertArrayOfStringsToDoubles(tok));
+	}
+
+	private static double[] convertArrayOfStringsToDoubles(String[] tok) {
+		double [] result = new double[tok.length];
+		for(int i=0;i< result.length;++i) {
+			result[i] = Double.parseDouble(tok[i].trim());
+		}
+		return result;
+	}
+
+	private static String [] readMatrixStart(String str) throws IOException {
+		if (!str.startsWith("["))
+			throw new IOException("Expected '[' at start but found " + str.substring(0, Math.min(str.length(),10)));
+		if (!str.endsWith("]")) {
+			int end = str.length();
+			int start = Math.max(0,end-10);
+			throw new IOException("Expected ']' at end but found " + str.substring(start, end));
+		}
+		return str.substring(1, str.length() - 1).split(",");
 	}
 }

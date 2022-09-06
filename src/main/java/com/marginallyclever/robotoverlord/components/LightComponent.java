@@ -10,6 +10,11 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 
 import javax.vecmath.Matrix4d;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class LightComponent extends Component {
 
@@ -53,8 +58,6 @@ public class LightComponent extends Component {
     private final DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
     private final DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
     private final DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
-
-
 
     public void setupLight(GL2 gl2, int lightIndex) {
         int i = GL2.GL_LIGHT0+lightIndex;
@@ -142,14 +145,12 @@ public class LightComponent extends Component {
     }
 
     public void setPreset(int i) {
-        ColorRGB [] choice;
-
-        switch(i) {
-            case 1: choice = presetNoon;		break;
-            case 2:	choice = presetMetalHalide; break;
-            case 3: choice = presetBlack;		break;
-            default: choice=null;
-        }
+        ColorRGB [] choice = switch (i) {
+            case 1 -> presetNoon;
+            case 2 -> presetMetalHalide;
+            case 3 -> presetBlack;
+            default -> null;
+        };
 
         if(choice!=null) {
             ColorRGB c;
@@ -158,12 +159,79 @@ public class LightComponent extends Component {
             c= choice[2];	this.setDiffuse (c.red/255f, c.green/255f, c.blue/255f, 1);
         }
     }
-
+    public void setAttenuationConstant(double d) {
+        attenuationConstant.set(d);
+    }
+    public double getAttenuationConstant() {
+        return attenuationConstant.get();
+    }
     public void setAttenuationLinear(double d) {
         attenuationLinear.set(d);
     }
-
+    public double getAttenuationLinear() {
+        return attenuationLinear.get();
+    }
     public void setAttenuationQuadratic(double d) {
         attenuationQuadratic.set(d);
+    }
+    public double getAttenuationQuadratic() {
+        return attenuationQuadratic.get();
+    }
+    public double getExponent() {
+        return exponent.get();
+    }
+    public void setExponent(double exponent) {
+        this.exponent.set(exponent);
+    }
+    public double getCutoff() {
+        return cutoff.get();
+    }
+    public void setCutoff(double cutoff) {
+        this.cutoff.set(cutoff);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()+",\n"
+            +diffuse.toString()+",\n"
+            +ambient.toString()+",\n"
+            +specular.toString()+",\n"
+            +attenuationConstant.toString()+",\n"
+            +attenuationLinear.toString()+",\n"
+            +attenuationQuadratic.toString()+",\n"
+            +isDirectional.toString()+",\n"
+            +cutoff.toString()+",\n"
+            +exponent.toString()+",\n"
+            +preset.toString();
+    }
+
+    @Override
+    public void save(BufferedWriter writer) throws IOException {
+        super.save(writer);
+        diffuse.save(writer);
+        ambient.save(writer);
+        specular.save(writer);
+        attenuationConstant.save(writer);
+        attenuationLinear.save(writer);
+        attenuationQuadratic.save(writer);
+        isDirectional.save(writer);
+        cutoff.save(writer);
+        exponent.save(writer);
+        preset.save(writer);
+    }
+
+    @Override
+    public void load(BufferedReader reader) throws Exception {
+        super.load(reader);
+        diffuse.load(reader);
+        ambient.load(reader);
+        specular.load(reader);
+        attenuationConstant.load(reader);
+        attenuationLinear.load(reader);
+        attenuationQuadratic.load(reader);
+        isDirectional.load(reader);
+        cutoff.load(reader);
+        exponent.load(reader);
+        preset.load(reader);
     }
 }

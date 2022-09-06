@@ -29,8 +29,7 @@ public class CameraComponent extends Component {
         zoom.set(arg0);
     }
 
-    @Deprecated
-    public void setPosition(Vector3d target) {
+    private void setPosition(Vector3d target) {
         PoseComponent p = getEntity().getComponent(PoseComponent.class);
         p.setPosition(target);
     }

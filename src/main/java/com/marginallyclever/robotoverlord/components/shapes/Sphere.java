@@ -6,10 +6,10 @@ import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 
-public class SphereComponent extends ShapeComponent {
+public class Sphere extends ShapeComponent {
     private final DoubleEntity diameter = new DoubleEntity("Diameter",1.0);
 
-    public SphereComponent() {
+    public Sphere() {
         super();
         diameter.addPropertyChangeListener((evt)-> updateModel() );
         myMesh = new Mesh();

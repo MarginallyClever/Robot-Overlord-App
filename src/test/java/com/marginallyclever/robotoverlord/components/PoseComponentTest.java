@@ -1,12 +1,13 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.marginallyclever.robotoverlord.ComponentTest;
 import com.marginallyclever.robotoverlord.Entity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Vector3d;
 
-public class TestPose {
+public class PoseComponentTest {
     @Test
     public void addPoseToEntity() {
         Entity e = new Entity();
@@ -50,19 +51,20 @@ public class TestPose {
         p1.getWorld().get(sum);
         Assertions.assertEquals(new Vector3d(-1,0,0),sum);
     }
-/*
+
     @Test
-    public void serializePose() throws IOException {
-        File f = File.createTempFile("pose-serialize",null);
+    public void saveAndLoad() throws Exception {
+        PoseComponent a = new PoseComponent();
+        PoseComponent b = new PoseComponent();
+        ComponentTest.saveAndLoad(a,b);
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-        Pose p0 = new Pose();
-        p0.save(writer);
+        a.setPosition(new Vector3d(1,2,3));
+        ComponentTest.saveAndLoad(a,b);
 
-        BufferedReader reader = new BufferedReader(new FileReader(f));
-        Pose p1 = new Pose();
-        p1.load(reader);
+        a.setRotation(new Vector3d(4,5,6));
+        ComponentTest.saveAndLoad(a,b);
 
-        Assertions.assertEquals(p0.toString(),p1.toString());
-    }*/
+        a.setScale(new Vector3d(7,8,9));
+        ComponentTest.saveAndLoad(a,b);
+    }
 }

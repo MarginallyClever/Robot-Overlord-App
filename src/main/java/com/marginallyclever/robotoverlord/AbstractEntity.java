@@ -1,6 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
 import java.beans.PropertyChangeEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.Serial;
 
 /**
@@ -17,7 +20,6 @@ public class AbstractEntity<T> extends Entity {
 
 	protected AbstractEntity() {
 		super();
-		setName("AbstractEntity");
 	}
 	
 	public AbstractEntity(String name) {

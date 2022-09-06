@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,11 +17,9 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 // TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.
 public class TextureEntity extends StringEntity {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = -2104122122058199991L;
-	private static HashMap<String,Texture> texturePool = new HashMap<String,Texture>();
+	private static final HashMap<String,Texture> texturePool = new HashMap<>();
 	
 	private transient Texture texture;
 	private transient boolean textureDirty;
