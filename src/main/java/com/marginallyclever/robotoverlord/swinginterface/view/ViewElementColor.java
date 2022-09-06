@@ -1,10 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serial;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,19 +23,17 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
  * @author Dan Royer
  */
 public class ViewElementColor extends ViewElement implements ChangeListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 393949606034181281L;
-	private JSlider [] fields = new JSlider[4];
-	private ColorEntity e;
+	private final JSlider [] fields = new JSlider[4];
+	private final ColorEntity colorEntity;
 	
-	public ViewElementColor(RobotOverlord ro,ColorEntity e) {
+	public ViewElementColor(RobotOverlord ro,ColorEntity colorEntity) {
 		super(ro);
-		this.e=e;
+		this.colorEntity = colorEntity;
 
-		e.addPropertyChangeListener(this);
-		CollapsiblePanel p = new CollapsiblePanel(e.getName());
+		colorEntity.addPropertyChangeListener(this);
+		CollapsiblePanel p = new CollapsiblePanel(colorEntity.getName());
 		JPanel p2 = p.getContentPane();
 		p2.setLayout(new GridBagLayout());
 		
@@ -45,16 +42,13 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		gbc.gridx=0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbc.insets.bottom=5;
-		gbc.insets.left=5;
-		gbc.insets.right=5;
-		
-		
-		double [] oldValues = e.getDoubleArray();
-		fields[0] = addField(oldValues[0],p2,"R",gbc);
-		fields[1] = addField(oldValues[1],p2,"G",gbc);
-		fields[2] = addField(oldValues[2],p2,"B",gbc);
-		fields[3] = addField(oldValues[3],p2,"A",gbc);
+		//gbc.insets = new Insets(1,1,1,1);
+
+		double [] oldValues = colorEntity.getDoubleArray();
+		fields[0] = addField(oldValues[0],p2,"Red",gbc);
+		fields[1] = addField(oldValues[1],p2,"Green",gbc);
+		fields[2] = addField(oldValues[2],p2,"Blue",gbc);
+		fields[3] = addField(oldValues[3],p2,"Alpha",gbc);
 
 		this.setLayout(new BorderLayout());
 		this.add(p,BorderLayout.CENTER);
@@ -89,7 +83,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {		
-		double [] newValues = e.getDoubleArray();
+		double [] newValues = colorEntity.getDoubleArray();
 		
 		for(int i=0;i<newValues.length;++i) {
 			fields[i].setValue((int)(newValues[i]*255.0));
@@ -99,7 +93,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
 		double [] newValues = new double[fields.length];
-		double [] oldValues = ((ColorEntity)e).getDoubleArray();
+		double [] oldValues = ((ColorEntity) colorEntity).getDoubleArray();
 		
 		float sum=0;
 		for(int i=0;i<fields.length;++i) {
@@ -108,7 +102,7 @@ public class ViewElementColor extends ViewElement implements ChangeListener, Pro
 		}
 
 		if(sum>1e-3) {
-			AbstractUndoableEdit event = new ColorRGBAEdit(e,newValues);
+			AbstractUndoableEdit event = new ColorRGBAEdit(colorEntity,newValues);
 			UndoSystem.addEvent(this,event);
 		}
 	}
