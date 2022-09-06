@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jcraft.jsch.IO;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -25,10 +24,9 @@ import java.util.Arrays;
 public class PoseComponent extends Component implements PropertyChangeListener {
     // pose relative to my parent (aka local pose).
     private final Matrix4d local = new Matrix4d();
-
     private final Vector3dEntity position = new Vector3dEntity("position",new Vector3d());
     private final Vector3dEntity rotation = new Vector3dEntity("rotation",new Vector3d());
-    private final Vector3dEntity scale = new Vector3dEntity("scale",new Vector3d());
+    private final Vector3dEntity scale = new Vector3dEntity("scale",new Vector3d(1,1,1));
 
     public PoseComponent() {
         super();
@@ -41,35 +39,20 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     @Override
     public void update(double dt) {
         super.update(dt);
-        Matrix4d w = getWorld();
-        updatePosition(w);
-        updateRotation(w);
-        updateScale(w);
     }
 
-    private void updateRotation(Matrix4d w) {
-        Vector3d euler = MatrixHelper.matrixToEuler(w);
-        rotation.set(euler);
-    }
-
-    private void updateScale(Matrix4d w) {
-        scale.set(w.m00,w.m11,w.m22);
-    }
-
-    private void updatePosition(Matrix4d w) {
-        Vector3d pos = new Vector3d();
-        w.get(pos);
-        position.set(pos);
-    }
-
+    @Override
     public void save(BufferedWriter writer) throws IOException {
-        writer.write("Matrix4d="+Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n");
+        super.save(writer);
+        writer.write("local="+Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n");
     }
 
-    public void load(BufferedReader reader) throws IOException {
+    @Override
+    public void load(BufferedReader reader) throws Exception {
+        super.load(reader);
         String str = reader.readLine();
         if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-        if(!str.startsWith("Matrix4d=")) throw new IOException("Expected 'Matrix4d=' but found "+str.substring(0,Math.min(10,str.length())));
+        if(!str.startsWith("local=")) throw new IOException("Expected 'local=' but found "+str.substring(0,Math.min(10,str.length())));
         local.set(MatrixHelper.readMatrix4d(str.substring(9)));
     }
 
@@ -77,9 +60,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
      * @return local position
      */
     public Vector3d getPosition() {
-        Vector3d position = new Vector3d();
-        local.get(position);
-        return position;
+        return new Vector3d(this.position.get());
     }
 
     /**
@@ -87,48 +68,42 @@ public class PoseComponent extends Component implements PropertyChangeListener {
      * @param position the new local position
      */
     public void setPosition(Vector3d position) {
-        local.setTranslation(position);
+        this.position.set(position);
+        refreshLocalMatrix();
     }
 
     /**
      * Convert Euler rotations to a matrix.
-     * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
-     * Eulers are using the ZYX convention.
-     * @param arg0 a {@link Vector3d} with three radian rotation values
+     * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
+     * Euler rotations are using the ZYX convention.
+     * @param arg0 a {@link Vector3d} with three angles (in radians)
      */
     public void setRotation(Vector3d arg0) {
-        Matrix4d m4 = new Matrix4d();
-        Matrix3d m3 = MatrixHelper.eulerToMatrix(arg0);
-        m4.set(m3);
-        m4.setTranslation(getPosition());
-        m4.setScale(getScale());
-        local.set(m4);
+        Vector3d after = new Vector3d(
+            Math.toDegrees(arg0.x),
+            Math.toDegrees(arg0.y),
+            Math.toDegrees(arg0.z));
+        this.rotation.set(after);
+        refreshLocalMatrix();
     }
 
-    public void setRotation(Matrix3d rotation) {
+    public void setLocalMatrix3(Matrix3d mat) {
+        setRotation(MatrixHelper.matrixToEuler(mat));/*
         Matrix4d m4 = new Matrix4d();
-        m4.set(rotation);
+        m4.set(mat);
         m4.setTranslation(getPosition());
         m4.setScale(getScale());
-        local.set(m4);
+        local.set(m4);*/
     }
 
     /**
      * Convert a matrix to Euler rotations.  There are many valid solutions.
-     * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
-     * Eulers are using the ZYX convention.
-     * @return a vector3 with one possible combination of radian rotations.
+     * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
+     * Euler rotations are using the ZYX convention.
+     * @return a {@link Vector3d} with degree rotations.
      */
     public Vector3d getRotation() {
-        Vector3d arg0 = new Vector3d();
-        Matrix3d temp = new Matrix3d();
-        local.get(temp);
-        arg0.set(MatrixHelper.matrixToEuler(temp));
-        return arg0;
-    }
-
-    private double getScale() {
-        return local.getScale();
+        return new Vector3d(this.rotation.get());
     }
 
     public Matrix4d getLocal() {
@@ -137,7 +112,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     /**
      *
-     * @return the cumulative pose in the heirarchy of entities.
+     * @return the cumulative pose in the hierarchy of entities.
      */
     public Matrix4d getWorld() {
         Matrix4d result = new Matrix4d();
@@ -161,11 +136,31 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        // TODO?
+        refreshLocalMatrix();
     }
 
     public void setScale(Vector3d v) {
         scale.set(v);
+        refreshLocalMatrix();
+    }
+
+    private Vector3d getScale() {
+        return new Vector3d(this.scale.get());
+    }
+
+    private void refreshLocalMatrix() {
+        Matrix4d m4 = new Matrix4d();
+        Vector3d rot = getRotation();
+        rot.x = Math.toRadians(rot.x);
+        rot.y = Math.toRadians(rot.y);
+        rot.z = Math.toRadians(rot.z);
+        m4.set(MatrixHelper.eulerToMatrix(rot));
+        m4.setTranslation(getPosition());
+        Vector3d s = getScale();
+        m4.m00 *= s.x;
+        m4.m11 *= s.y;
+        m4.m22 *= s.z;
+        local.set(m4);
     }
 
     @Override
