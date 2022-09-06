@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.entities;
 
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
@@ -14,6 +14,10 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Moveable;
+import com.marginallyclever.robotoverlord.Removable;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.undoableedits.MoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.robots;
 
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
 

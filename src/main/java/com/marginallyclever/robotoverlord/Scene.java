@@ -15,7 +15,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.sceneelements.SkyBoxEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 
@@ -30,7 +30,6 @@ public class Scene extends Entity {
 
 	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
 	private final MaterialComponent defaultMaterial = new MaterialComponent();
-	public final SkyBoxEntity sky = new SkyBoxEntity();
 	
 	public Scene() {
 		super();
@@ -38,14 +37,7 @@ public class Scene extends Entity {
 
 	@Override
 	public void render(GL2 gl2) {
-		clearAll(gl2);
-
-        // Don't draw triangles facing away from camera
-		gl2.glCullFace(GL2.GL_BACK);
-
-		sky.render(gl2);
 		renderWorldOrigin(gl2);
-
 		renderLights(gl2);
 		renderAllEntitiesWithMeshes(gl2);
 		// PASS 2: everything transparent?
@@ -56,11 +48,6 @@ public class Scene extends Entity {
 		PrimitiveSolids.drawStar(gl2,10);
 	}
 
-	private void clearAll(GL2 gl2) {
-		// Clear the screen and depth buffer
-		//gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
-		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
-	}
 
 	private void renderAllEntitiesWithMeshes(GL2 gl2) {
 		defaultMaterial.render(gl2);
@@ -148,7 +135,7 @@ public class Scene extends Entity {
 	 * @param radius the maximum distance to search for entities.
 	 * @return a list of found PhysicalObjects
 	 */
-	public List<PoseEntity> findPhysicalObjectsNear(Vector3d target,double radius) {
+	public List<PoseEntity> findPhysicalObjectsNear(Vector3d target, double radius) {
 		radius/=2;
 		
 		//Log.message("Finding within "+epsilon+" of " + target);

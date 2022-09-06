@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.components.shapes.Decal;
+import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ public class EntityFactory {
 	private static final Class<?> [] available = {
 			com.marginallyclever.robotoverlord.Entity.class,
 			Decal.class,
-			com.marginallyclever.robotoverlord.components.sceneelements.SkyBoxEntity.class,
+			SkyBoxEntity.class,
 
 			com.marginallyclever.robotoverlord.robots.dog.DogRobot.class,
 			com.marginallyclever.robotoverlord.robots.skycam.Skycam.class,

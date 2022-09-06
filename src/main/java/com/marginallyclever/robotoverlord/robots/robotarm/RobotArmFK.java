@@ -23,7 +23,7 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.mesh.Mesh;

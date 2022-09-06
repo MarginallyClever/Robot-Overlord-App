@@ -10,8 +10,8 @@ import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.physics.original.RigidBody;
 import com.marginallyclever.robotoverlord.physics.original.RigidBodyBox;
 import com.marginallyclever.robotoverlord.physics.original.RigidBodySphere;
-import com.marginallyclever.robotoverlord.components.sceneelements.BoxEntity;
-import com.marginallyclever.robotoverlord.components.sceneelements.SphereEntity;
+import com.marginallyclever.robotoverlord.components.BoxEntity;
+import com.marginallyclever.robotoverlord.components.SphereEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 
 @SuppressWarnings("unused")

@@ -10,7 +10,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoDoubleArray;
-import com.marginallyclever.robotoverlord.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.dhrobotentity.DHLink;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;

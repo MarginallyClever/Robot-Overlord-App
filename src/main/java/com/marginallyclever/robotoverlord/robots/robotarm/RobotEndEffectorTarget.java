@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots.robotarm;
 
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotoverlord.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 
 import java.io.Serial;
 

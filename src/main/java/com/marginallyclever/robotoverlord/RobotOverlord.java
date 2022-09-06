@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
@@ -51,6 +52,8 @@ import com.marginallyclever.robotoverlord.demos.PhysicsDemo;
 import com.marginallyclever.robotoverlord.demos.RobotArmsDemo;
 import com.marginallyclever.robotoverlord.demos.SkycamDemo;
 import com.marginallyclever.robotoverlord.demos.StewartPlatformDemo;
+import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
+import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.io.Load;
 import com.marginallyclever.robotoverlord.io.Save;
 import com.marginallyclever.robotoverlord.io.json.JSONLoad;
@@ -142,6 +145,8 @@ public class RobotOverlord extends Entity {
 	// click on screen to change which entity is selected
 	protected transient boolean pickNow = false;
 	protected transient Vector2d pickPoint = new Vector2d();
+
+	public final SkyBoxEntity sky = new SkyBoxEntity();
 	
  	private RobotOverlord() {
  		super();
@@ -164,7 +169,7 @@ public class RobotOverlord extends Entity {
         
         BasicDemo bd = new BasicDemo();
         bd.execute(this);
-        
+
 		Log.message("** READY **");
     }
 
@@ -216,7 +221,10 @@ public class RobotOverlord extends Entity {
 		        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 		        // TODO add a settings toggle for this option, it really slows down older machines.
 		        gl2.glEnable(GL2.GL_MULTISAMPLE);
-		        
+
+				// Don't draw triangles facing away from camera
+				gl2.glCullFace(GL2.GL_BACK);
+
 		        int [] buf = new int[1];
 		        int [] sbuf = new int[1];
 		        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
@@ -490,6 +498,7 @@ public class RobotOverlord extends Entity {
 		scene.addChild(light0);
 		pose.setPosition(new Vector3d(-50,-50,50));
 
+		addChild(sky);
  		addChild(viewport);
         addChild(scene);
  		addChild(moveTool);
@@ -504,18 +513,25 @@ public class RobotOverlord extends Entity {
 		
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
-		
-		JMenu menu;
-		
-		menu = new JMenu(APP_TITLE);
-		menu.add(new JMenuItem(new NewAction(this)));        	
+		mainMenu.add(createFileMenu());
+		mainMenu.add(createDemoMenu());
+		mainMenu.add(createEditMenu());
+		mainMenu.add(createHelpMenu());
+        mainMenu.updateUI();
+	}
+
+	private Component createFileMenu() {
+		JMenu menu = new JMenu(APP_TITLE);
+		menu.add(new JMenuItem(new NewAction(this)));
 		menu.add(new JMenuItem(new OpenAction(this)));
 		menu.add(new JMenuItem(new SaveAsAction(this)));
 		menu.add(new JSeparator());
 		menu.add(new JMenuItem(new QuitAction(this)));
-		mainMenu.add(menu);
-		
-		menu = new JMenu("Demos");
+		return menu;
+	}
+
+	private Component createDemoMenu() {
+		JMenu menu = new JMenu("Demos");
 		menu.add(new JMenuItem(new DemoAction(this,new BasicDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new RobotArmsDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
@@ -523,27 +539,26 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(new DemoAction(this,new DogDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
 		menu.add(new JMenuItem(new DemoAction(this,new StewartPlatformDemo())));
-        mainMenu.add(menu);
-		
-        menu = new JMenu("Edit");
-        menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
-        menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
-        mainMenu.add(menu);
-    	
-        menu = new JMenu("Help");
-		
+		return menu;
+	}
+
+	private Component createEditMenu() {
+		JMenu menu = new JMenu("Edit");
+		menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
+		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
+		return menu;
+	}
+
+	private Component createHelpMenu() {
+		JMenu menu = new JMenu("Help");
 		JMenuItem buttonViewLog = new JMenuItem("Show Log");
 		buttonViewLog.addActionListener((e) -> showLogDialog() );
 		menu.add(buttonViewLog);
-		
-        menu.add(new JMenuItem(new AboutControlsAction()));
+		menu.add(new JMenuItem(new AboutControlsAction()));
 		menu.add(new JMenuItem(new ForumsAction()));
 		menu.add(new JMenuItem(new CheckForUpdateAction()));
 		menu.add(new JMenuItem(new AboutAction()));
-        mainMenu.add(menu);
-    	
-    	// done
-        mainMenu.updateUI();
+		return menu;
 	}
 
 	private void showLogDialog() {
@@ -702,10 +717,21 @@ public class RobotOverlord extends Entity {
 		if(camera==null) return;
 
         viewport.renderChosenProjection(gl2,camera);
+
+		clearAll(gl2);
+		sky.render(gl2);
+
         scene.render(gl2);
+
         // overlays
 		moveTool.render(gl2);
 		viewCube.render(gl2);
+	}
+
+	private void clearAll(GL2 gl2) {
+		// Clear the screen and depth buffer
+		//gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
+		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 	}
 
 	private void updateStep(double dt) {

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.sceneelements;
+package com.marginallyclever.robotoverlord.components;
 
 import java.util.ArrayList;
 

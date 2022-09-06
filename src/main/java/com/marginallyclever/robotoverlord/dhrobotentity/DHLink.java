@@ -11,7 +11,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Collidable;
-import com.marginallyclever.robotoverlord.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElement;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;

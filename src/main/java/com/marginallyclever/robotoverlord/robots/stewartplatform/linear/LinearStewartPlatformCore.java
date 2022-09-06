@@ -10,7 +10,7 @@ import javax.vecmath.Vector3d;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
