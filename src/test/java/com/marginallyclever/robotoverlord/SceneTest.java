@@ -4,9 +4,13 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.BoxComponent;
 import org.junit.jupiter.api.Test;
 
+import javax.vecmath.Vector3d;
+
 public class SceneTest {
     @Test
     public void createABasicScene() {
+        PoseComponent pose;
+
         Scene scene = new Scene();
         Entity mainCamera = new Entity("Main Camera");
         scene.addChild(mainCamera);
@@ -18,11 +22,12 @@ public class SceneTest {
         light0.addComponent(new PoseComponent());
         light0.addComponent(new LightComponent());
 
-        scene.addComponent(new SkyboxComponent());
-
         Entity boxEntity = new Entity("Box");
+        boxEntity.addComponent(pose = new PoseComponent());
         BoxComponent box = new BoxComponent();
         boxEntity.addComponent(box);
+        boxEntity.addComponent(new MaterialComponent());
         scene.addChild(boxEntity);
+        pose.setPosition(new Vector3d(-10,0,0));
     }
 }
