@@ -30,7 +30,7 @@ public class BasicDemo implements Demo {
 		
 		// add some lights
     	LightComponent light;
-		Entity light0 = new Entity();
+		Entity light0 = new Entity("LightB");
 		sc.addChild(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
@@ -38,7 +38,7 @@ public class BasicDemo implements Demo {
     	light.setDiffuse(0.8f,0.8f,1,1);
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
 
-		light0 = new Entity();
+		light0 = new Entity("LightC");
 		sc.addChild(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
