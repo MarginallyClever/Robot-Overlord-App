@@ -53,15 +53,15 @@ public class CameraComponent extends Component {
     }
 
     public void lookAt(Vector3d target) {
-        PoseComponent p = getEntity().getComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
 
         Vector3d forward = new Vector3d(target);
-        forward.sub(p.getPosition());
+        forward.sub(pose.getPosition());
         double xy = Math.sqrt(forward.x*forward.x + forward.y*forward.y);
         setPan(Math.toDegrees(Math.atan2(forward.x,forward.y)));
         setTilt(Math.toDegrees(Math.atan2(xy,forward.z))-90);
         Vector3d dp = new Vector3d();
-        dp.sub(target,p.getPosition());
+        dp.sub(target,pose.getPosition());
         this.zoom.set(dp.length());
     }
 
@@ -151,7 +151,7 @@ public class CameraComponent extends Component {
                         }
 
                         Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
-                        pose.setRotation(rot);
+                        pose.setLocalMatrix3(rot);
                         sumDx=0;
                         sumDy=0;
                     }
@@ -169,7 +169,7 @@ public class CameraComponent extends Component {
 
                     // do updateMatrix() but keep the rotation matrix
                     Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
-                    pose.setRotation(rot);
+                    pose.setLocalMatrix3(rot);
 
                     // get the new Z axis
                     Vector3d newZ = new Vector3d(rot.m02,rot.m12,rot.m22);
@@ -217,7 +217,7 @@ public class CameraComponent extends Component {
                 setTilt(getTilt()-dyr);
                 // do updateMatrix() but keep the rotation matrix
                 Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
-                pose.setRotation(rot);
+                pose.setLocalMatrix3(rot);
 
                 // adjust the camera position to orbit around a point 'zoom' in front of the camera
                 Vector3d oldZ = MatrixHelper.getZAxis(myPose);
