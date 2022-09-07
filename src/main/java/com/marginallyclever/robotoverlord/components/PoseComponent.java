@@ -53,7 +53,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
         String str = reader.readLine();
         if(str.endsWith(",")) str = str.substring(0,str.length()-1);
         if(!str.startsWith("local=")) throw new IOException("Expected 'local=' but found "+str.substring(0,Math.min(10,str.length())));
-        local.set(MatrixHelper.readMatrix4d(str.substring(9)));
+        local.set(MatrixHelper.readMatrix4d(str.substring(6)));
     }
 
     /**
@@ -79,21 +79,14 @@ public class PoseComponent extends Component implements PropertyChangeListener {
      * @param arg0 a {@link Vector3d} with three angles (in radians)
      */
     public void setRotation(Vector3d arg0) {
-        Vector3d after = new Vector3d(
-            Math.toDegrees(arg0.x),
-            Math.toDegrees(arg0.y),
-            Math.toDegrees(arg0.z));
-        this.rotation.set(after);
+        this.rotation.set(arg0);
         refreshLocalMatrix();
     }
 
     public void setLocalMatrix3(Matrix3d mat) {
-        setRotation(MatrixHelper.matrixToEuler(mat));/*
-        Matrix4d m4 = new Matrix4d();
-        m4.set(mat);
-        m4.setTranslation(getPosition());
-        m4.setScale(getScale());
-        local.set(m4);*/
+        Vector3d euler = MatrixHelper.matrixToEuler(mat);
+        euler.scale(Math.toDegrees(1));
+        setRotation(euler);
     }
 
     /**
