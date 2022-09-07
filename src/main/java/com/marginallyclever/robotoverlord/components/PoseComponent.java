@@ -161,4 +161,19 @@ public class PoseComponent extends Component implements PropertyChangeListener {
         return super.toString()
                 +"local="+ Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n";
     }
+
+    public void setWorld(Matrix4d wm) {
+        PoseComponent parent = getEntity().findFirstComponentInParents(PoseComponent.class);
+        if(parent!=null) {
+            Matrix4d pm = parent.getWorld();
+            pm.invert();
+            local.mul(pm,wm);
+            Vector3d pos = new Vector3d();
+            local.get(pos);
+            Matrix3d m = new Matrix3d();
+            local.get(m);
+            setLocalMatrix3(m);
+            setPosition(pos);
+        }
+    }
 }

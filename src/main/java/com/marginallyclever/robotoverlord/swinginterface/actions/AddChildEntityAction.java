@@ -1,7 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import java.awt.event.ActionEvent;
+import java.io.Serial;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
@@ -19,14 +21,12 @@ import com.marginallyclever.robotoverlord.swinginterface.undoableedits.AddEntity
  * @author Dan Royer
  *
  */
-public class AddEntityAction extends AbstractAction {
-	/**
-	 * 
-	 */
+public class AddChildEntityAction extends AbstractAction {
+	@Serial
 	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
-	public AddEntityAction(RobotOverlord ro) {
+	public AddChildEntityAction(RobotOverlord ro) {
 		super(Translator.get("Add Entity"));
         putValue(SHORT_DESCRIPTION, Translator.get("Add an entity to the world."));
 		this.ro = ro;
@@ -37,6 +37,8 @@ public class AddEntityAction extends AbstractAction {
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		List<Entity> list = ro.getSelectedEntities();
+
 		JComboBox<String> additionComboBox = buildEntityComboBox();
 		int result = JOptionPane.showConfirmDialog(
 				ro.getMainFrame(), 
@@ -45,7 +47,10 @@ public class AddEntityAction extends AbstractAction {
 				JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
-			createInstanceOf(additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
+			for(Entity parent : list) {
+				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
+			}
+			ro.updateEntityTree();
 		}
     }
 
@@ -56,10 +61,10 @@ public class AddEntityAction extends AbstractAction {
 		return box;
 	}
 
-	private void createInstanceOf(String className) {
+	private void createInstanceOf(Entity parent,String className) {
 		try {
 			Entity newInstance = EntityFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new AddEntityEdit(ro,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(this,new AddEntityEdit(parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
 			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);

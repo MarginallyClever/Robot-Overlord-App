@@ -1,6 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
 
+import java.io.Serial;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -17,14 +20,12 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  *
  */
 public class RemoveEdit extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private Entity entity;
-	private Entity parent;
-	private RobotOverlord ro;
-	
+	private final Entity entity;
+	private final Entity parent;
+	private final RobotOverlord ro;
+
 	public RemoveEdit(RobotOverlord ro,Entity entity) {
 		super();
 		
@@ -47,12 +48,8 @@ public class RemoveEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		if(entity instanceof Removable) {
-			((Removable)entity).beingRemoved();
-		}
 		if(parent!=null) parent.removeChild(entity);
 		ro.updateEntityTree();
-		ro.updateSelectEntities(null);
 	}
 
 	@Override
@@ -60,8 +57,5 @@ public class RemoveEdit extends AbstractUndoableEdit {
 		super.undo();
 		if(parent!=null) parent.addChild(entity);
 		ro.updateEntityTree();
-		ArrayList<Entity> list = new ArrayList<Entity>();
-		list.add(entity);
-		ro.updateSelectEntities(list);
 	}
 }

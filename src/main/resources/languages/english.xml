@@ -1106,18 +1106,27 @@ to check yourself.</value>
 		
 	<string>
 		<key>Add Entity</key>
-		<value>Add</value>
+		<value>Add Entity</value>
 		<hint>Above entity tree</hint>
 	</string>
 	<string>
 		<key>Rename Entity</key>
-		<value>Rename</value>
+		<value>Rename Entity</value>
 		<hint>Above entity tree</hint>
 	</string>
 	<string>
 		<key>Remove Entity</key>
-		<value>Remove</value>
+		<value>Remove Entity</value>
 		<hint>Above entity tree</hint>
+	</string>
+
+	<string>
+		<key>Add Component</key>
+		<value>Add Component</value>
+	</string>
+	<string>
+		<key>Remove Component</key>
+		<value>Remove Component</value>
 	</string>
 	
 	<string>

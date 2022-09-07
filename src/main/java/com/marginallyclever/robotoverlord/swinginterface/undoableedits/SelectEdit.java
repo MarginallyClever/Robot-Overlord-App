@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -17,43 +18,42 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  *
  */
 public class SelectEdit extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
-	
-	private Entity next;
-	private ArrayList<Entity> prev;	
-	private RobotOverlord ro;
-	
-	public SelectEdit(RobotOverlord ro,ArrayList<Entity> prev,Entity next) {
+
+	private final RobotOverlord ro;
+	private final Entity next;
+	private final ArrayList<Entity> prev;
+
+	public SelectEdit(RobotOverlord ro, ArrayList<Entity> prev, Entity next) {
 		super();
-		
+
 		this.ro = ro;
-		this.next=next;
-		this.prev=prev;
-		ArrayList<Entity> ent = new ArrayList<Entity>();
-		ent.add(next);
-		ro.updateSelectEntities(ent);
+		this.next = next;
+		this.prev = prev;
+
+		doIt();
 	}
 
 	@Override
 	public String getPresentationName() {
-		String name = (next==null) ? Translator.get("nothing") : next.getName();
-		return Translator.get("Select ")+name;
+		String name = (next == null) ? Translator.get("nothing") : next.getName();
+		return Translator.get("Select ") + name;
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		ArrayList<Entity> ent = new ArrayList<Entity>();
-		ent.add(next);
-		ro.updateSelectEntities(ent);
+		doIt();
+	}
+
+	private void doIt() {
+		ro.setSelectedEntity(next);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.updateSelectEntities(prev);
+		ro.setSelectedEntities(prev);
 	}
 }

@@ -5,9 +5,11 @@ import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
 
+import javax.swing.filechooser.FileFilter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MeshFromFile extends ShapeComponent {
     protected final StringEntity filename = new StringEntity("File","");
@@ -22,7 +24,8 @@ public class MeshFromFile extends ShapeComponent {
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
-        filename.getView(view);
+        ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
+        view.addFilename(filename,filters);
     }
 
     @Override

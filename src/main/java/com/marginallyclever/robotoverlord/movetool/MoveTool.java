@@ -61,7 +61,7 @@ public class MoveTool extends Entity {
 	private boolean activeMoveIsRotation;
 
 	// Who is being moved?
-	private Moveable subject;
+	private Entity subject;
 	
 	// In what frame of reference?
 	private final IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
@@ -135,7 +135,8 @@ public class MoveTool extends Entity {
 
 		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
 
-		Matrix4d subjectPoseWorld = subject.getPoseWorld();
+		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		Matrix4d subjectPoseWorld = subjectPose.getWorld();
 		if(!isActivelyMoving()) {
 			checkChangeFrameOfReference();
 			
@@ -246,7 +247,9 @@ public class MoveTool extends Entity {
 			isActivelyMoving = true;
 			
 			pickPointSaved.set(pickPoint);
-			startMatrix = subject.getPoseWorld();
+
+			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			startMatrix = subjectPose.getWorld();
 			resultMatrix.set(startMatrix);
 			
 			valueStart=0;
@@ -295,7 +298,8 @@ public class MoveTool extends Entity {
 				pickPointOnBall = ray.getPoint(t0);
 
 				isActivelyMoving=true;
-				startMatrix = subject.getPoseWorld();
+				PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+				startMatrix = subjectPose.getWorld();
 				resultMatrix.set(startMatrix);
 				
 				Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
@@ -458,7 +462,8 @@ public class MoveTool extends Entity {
 
 		// rotations
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
-			startMatrix = subject.getPoseWorld();
+			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			startMatrix = subjectPose.getWorld();
 			resultMatrix.set(startMatrix);
 			valueStart =0;
 			valueLast=0;
@@ -496,7 +501,8 @@ public class MoveTool extends Entity {
 		
 		// translations
 		if( InputManager.isOn(InputManager.Source.STICK_X)) {
-			startMatrix = subject.getPoseWorld();
+			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			startMatrix = subjectPose.getWorld();
 			resultMatrix.set(startMatrix);
 			
 			for(int i=0; i <3; i++) {
@@ -614,7 +620,8 @@ public class MoveTool extends Entity {
 		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
 		Matrix4d lookAt = new Matrix4d();
 
-		Matrix4d pw = subject.getPoseWorld();
+		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		Matrix4d pw = subjectPose.getWorld();
 		
 		Vector3d worldPosition = MatrixHelper.getPosition(pw);
 		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), worldPosition));
@@ -784,8 +791,10 @@ public class MoveTool extends Entity {
 			// camera forward is -z axis 
 			RobotOverlord ro = (RobotOverlord)getRoot();
 			PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
-	
-			Matrix4d pw = subject.getPoseWorld();
+
+			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			Matrix4d pw = subjectPose.getWorld();
+
 			Vector3d lookAtVector = MatrixHelper.getPosition(pw);
 			lookAtVector.sub(camera.getPosition());
 			lookAtVector.normalize();
@@ -963,7 +972,7 @@ public class MoveTool extends Entity {
 	 * Set which PhysicalEntity the drag ball is going to act upon.
 	 * @param subject
 	 */
-	public void setSubject(Moveable subject) {
+	public void setSubject(Entity subject) {
 		this.subject=subject;		
 	}
 	

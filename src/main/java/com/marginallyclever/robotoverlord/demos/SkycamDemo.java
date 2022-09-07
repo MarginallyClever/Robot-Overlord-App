@@ -52,8 +52,6 @@ public class SkycamDemo implements Demo {
 		mat.setDiffuseColor(0.5,0.5,0.5,1);
 		mat.setLit(false);
 
-		grid.width.set(140);
-		grid.height.set(90);
 		pose.setPosition(new Vector3d(60.0,0,-0.5));
 		
     	// add a sixi robot

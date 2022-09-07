@@ -1,6 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
 
+import java.io.Serial;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -16,20 +18,18 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  *
  */
 public class AddEntityEdit extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
+
+	private final Entity entity;
+	private final Entity parent;
+	private List<Entity> previouslyPickedEntities;
 	
-	private Entity entity;
-	private ArrayList<Entity> previouslyPickedEntities;	
-	private RobotOverlord ro;
-	
-	public AddEntityEdit(RobotOverlord ro,Entity entity) {
+	public AddEntityEdit(Entity parent,Entity entity) {
 		super();
 		
 		this.entity = entity;
-		this.ro = ro;
+		this.parent = parent;
 		
 		doIt();
 	}
@@ -46,19 +46,12 @@ public class AddEntityEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		ro.getScene().addChild(entity);
-		ro.updateEntityTree();
-		ArrayList<Entity> list = new ArrayList<Entity>();
-		list.add(entity);
-		ro.updateSelectEntities(list);
-		previouslyPickedEntities = ro.getSelectedEntities();
+		parent.addChild(entity);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.getScene().removeChild(entity);
-		ro.updateEntityTree();
-		ro.updateSelectEntities(previouslyPickedEntities);
+		parent.removeChild(entity);
 	}
 }

@@ -6,7 +6,10 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 import javax.vecmath.Matrix4d;
 
-import com.marginallyclever.robotoverlord.Moveable;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+
+import java.io.Serial;
 
 /**
  * An undoable command to make a physical entity move.
@@ -15,41 +18,38 @@ import com.marginallyclever.robotoverlord.Moveable;
  *
  */
 public class MoveEdit extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 		
-	private Moveable entity;
-	private Matrix4d next;
-	private Matrix4d prev;
+	private final Entity entity;
+	private final Matrix4d next;
+	private final Matrix4d prev;
 	
 	/**
 	 * 
-	 * @param robot which machine
-	 * @param axis index of axis
-	 * @param direction 1 or -1
+	 * @param entity who
+	 * @param newPose where
 	 */
-	public MoveEdit(Moveable entity,Matrix4d newPose) {
+	public MoveEdit(Entity entity, Matrix4d newPose) {
 		super();
 		
 		this.entity = entity;
-		prev = entity.getPoseWorld();
+		this.prev = entity.getComponent(PoseComponent.class).getWorld();
 		this.next = newPose;
 
-		entity.moveTowards(next);
+		entity.getComponent(PoseComponent.class).setWorld(next);
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		entity.setPoseWorld(next);
+		entity.getComponent(PoseComponent.class).setWorld(next);
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.setPoseWorld(prev);
+		entity.getComponent(PoseComponent.class).setWorld(next);
 	}
 	
 	@Override

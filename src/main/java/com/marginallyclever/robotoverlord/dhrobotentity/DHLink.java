@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.dhrobotentity;
 
 import java.beans.PropertyChangeEvent;
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.vecmath.Matrix4d;
@@ -28,6 +29,7 @@ public class DHLink extends PoseEntity implements Collidable {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = -3049913430394239397L;
 
 	// Changes visual quality of angle range curve.  Must be a whole number >=2
@@ -42,12 +44,14 @@ public class DHLink extends PoseEntity implements Collidable {
 		ALPHA(0x8,"Alpha"),
 		ALL  (0xf,"All"  );  // for editing
 		
-		private int number;
-		private String name;
+		private final int number;
+		private final String name;
+
 		private LinkAdjust(int n,String s) {
 			number=n;
 			name=s;
 		}
+
 		public int toInt() {
 			return number;
 		}
@@ -541,11 +545,6 @@ public class DHLink extends PoseEntity implements Collidable {
 		}
 		// we made it here, move is legal!
 		return true;
-	}
-	
-	@Override
-	public boolean canBeRenamed() {
-		return false;
 	}
 
 	public void setShapeFilename(String modelFilename) {

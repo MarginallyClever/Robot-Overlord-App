@@ -1,86 +1,43 @@
 package com.marginallyclever.robotoverlord;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.Serial;
-import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.prefs.Preferences;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.UIManager;
-import javax.vecmath.Vector2d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.GLPipelineFactory;
-import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
-import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.demos.BasicDemo;
-import com.marginallyclever.robotoverlord.demos.DogDemo;
-import com.marginallyclever.robotoverlord.demos.ODEPhysicsDemo;
-import com.marginallyclever.robotoverlord.demos.PhysicsDemo;
-import com.marginallyclever.robotoverlord.demos.RobotArmsDemo;
-import com.marginallyclever.robotoverlord.demos.SkycamDemo;
-import com.marginallyclever.robotoverlord.demos.StewartPlatformDemo;
+import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.LightComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.demos.*;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
-import com.marginallyclever.robotoverlord.io.Load;
-import com.marginallyclever.robotoverlord.io.Save;
-import com.marginallyclever.robotoverlord.io.json.JSONLoad;
-import com.marginallyclever.robotoverlord.io.json.JSONSave;
 import com.marginallyclever.robotoverlord.movetool.MoveTool;
-import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.ComponentPanel;
+import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.actions.AboutAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.AboutControlsAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.AddEntityAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.CheckForUpdateAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.DemoAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.ForumsAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.NewAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.OpenAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.QuitAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.RemoveEntityAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.RenameEntityAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.SaveAsAction;
+import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.undoableedits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.vecmath.Vector2d;
+import javax.vecmath.Vector3d;
+import java.awt.Component;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * {@code RobotOverlord} is the top-level controller of an application to educate robots.
@@ -90,12 +47,11 @@ import com.marginallyclever.util.PropertiesFileHelper;
  * @author Dan Royer
  */
 public class RobotOverlord extends Entity {
-	/**
-	 * 
-	 */
 	@Serial
 	private static final long serialVersionUID = 8890695769715268519L;
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
+
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	private static final int FSAA_NUM_SAMPLES = 3;
@@ -333,49 +289,53 @@ public class RobotOverlord extends Entity {
 		
 	    //Schedule a job for the event-dispatching thread:
 	    //creating and showing this application's GUI.
-	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	        @Override
-			public void run() {
-	        	new RobotOverlord();
-	        }
-	    });
+	    javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
 	}
 
-	private JPanel buildEntityManagerPanel() {
+	private JComponent buildEntityManagerPanel() {
         Log.message("buildEntityManagerPanel()");
-		JPanel entityManagerPanel = new JPanel(new BorderLayout());
-		JPanel abContainer = new JPanel(new FlowLayout());
+
+		return buildEntityTree();
+	}
+
+	private JComponent buildEntityTree() {
+		entityTree = new EntityTreePanel(true);
+		entityTree.addEntityTreePanelListener((e)-> {
+			if(e.eventType == EntityTreePanelEvent.UNSELECT) {
+				selectedEntities.removeAll(e.subjects);
+				updateSelectEntities();
+			}
+			if(e.eventType == EntityTreePanelEvent.SELECT) {
+				selectedEntities.addAll(e.subjects);
+				updateSelectEntities();
+			}
+		});
+
+		entityTree.setPopupMenu(buildEntityTreePopupMenu());
+		return entityTree;
+	}
+
+	private JPopupMenu buildEntityTreePopupMenu() {
+		JPopupMenu popupMenu = new JPopupMenu();
 		renameEntity=new RenameEntityAction(this);
 		removeEntity=new RemoveEntityAction(this);
 		renameEntity.setEnabled(false);
 		removeEntity.setEnabled(false);
-		
-		abContainer.add(new JButton(new AddEntityAction(this)));
-		abContainer.add(new JButton(renameEntity));
-		abContainer.add(new JButton(removeEntity));
-		entityManagerPanel.add(abContainer,BorderLayout.NORTH);
 
-        entityTree = new EntityTreePanel(true);
-        entityTree.addEntityTreePanelListener((e)-> {
-			if(e.eventType == EntityTreePanelEvent.UNSELECT) {
-				selectedEntities.removeAll(e.subjects);
-			}
-			if(e.eventType == EntityTreePanelEvent.SELECT) {
-				selectedEntities.addAll(e.subjects);
-				updateSelectEntities(selectedEntities);
-			}
-        });
-        entityManagerPanel.add(entityTree,BorderLayout.CENTER);
-        
-		return entityManagerPanel;
+		popupMenu.add(new AddChildEntityAction(this));
+		popupMenu.add(renameEntity);
+		popupMenu.add(removeEntity);
+
+		popupMenu.add(new AddComponentAction(this));
+
+		return popupMenu;
 	}
-	
+
 	private void layoutComponents() {
         Log.message("layoutComponents()");
-		JPanel entityManagerPanel = buildEntityManagerPanel();
         
 		// the right hand stuff			        
-		rightFrameSplitter.add(entityManagerPanel);
+		rightFrameSplitter.add(buildEntityManagerPanel());
 		rightFrameSplitter.add(new JScrollPane(componentPanel));
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
@@ -462,20 +422,28 @@ public class RobotOverlord extends Entity {
 		return scene;
 	}
 	
-	public ArrayList<Entity> getSelectedEntities() {
+	public List<Entity> getSelectedEntities() {
 		return selectedEntities;
 	}
 	
 	public void saveWorldToFile(String filename) {
-		Save io = new JSONSave();
-		//Save io = new SerialSave();
-		io.save(filename, scene);
+		 try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+			 scene.save(writer);
+		 } catch (IOException e) {
+			 logger.error(e.getMessage());
+			 JOptionPane.showMessageDialog(mainFrame,e.getLocalizedMessage());
+		 }
 	}
 	
 	public void loadWorldFromFile(String filename) {
-		Load io = new JSONLoad();
-		//Load io = new SerialLoad();
-		scene = (Scene)io.load(filename);
+		try(BufferedReader reader = new BufferedReader((new FileReader(filename)))) {
+			Scene nextScene = new Scene();
+			nextScene.load(reader);
+			scene = nextScene;
+		} catch(Exception e) {
+			logger.error(e.getMessage());
+			JOptionPane.showMessageDialog(mainFrame,e.getLocalizedMessage());
+		}
 	}
 
 	public void newScene() {
@@ -583,29 +551,31 @@ public class RobotOverlord extends Entity {
 		entityTree.setSelection(e);
 	}
 	
-    public void updateSelectEntities(ArrayList<Entity> entityList) {
-    	if( entityList != null && entityList.size()>0) {
-    		pickEntity(entityList.get(0));
+    public void updateSelectEntities() {
+		if(renameEntity!=null) renameEntity.setEnabled(false);
+
+    	if( selectedEntities != null && selectedEntities.size()>0) {
+    		pickEntity(selectedEntities.get(0));
     		
 	    	boolean removable = true;
 	    	boolean moveable = true;
 	    	
-	    	for(Entity e1 : entityList) {
-	    		if(!(e1 instanceof Removable)) removable=false;
-	    		if(!(e1 instanceof Moveable)) moveable=false;
+	    	for(Entity entity : selectedEntities) {
+	    		if(entity == scene) removable=false;
+	    		if(null==entity.getComponent(PoseComponent.class)) moveable=false;
 	    		//if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).lostFocus();
-	    		if(e1 instanceof EntityFocusListener) ((EntityFocusListener)e1).gainedFocus();
+	    		if(entity instanceof EntityFocusListener) ((EntityFocusListener)entity).gainedFocus();
 	    	}
-			Entity firstEntity = entityList.get(0);
-			if(renameEntity!=null) renameEntity.setEnabled(entityList.size()==1 && firstEntity!=null && firstEntity.canBeRenamed());
+			Entity firstEntity = selectedEntities.get(0);
+			if(renameEntity!=null) renameEntity.setEnabled(selectedEntities.size()==1);
 			if(removeEntity!=null) removeEntity.setEnabled(removable);
 			
 			moveTool.setSubject(null);
-			if(moveable && entityList.size()==1) {
-				moveTool.setSubject((Moveable)firstEntity);
+			if(moveable && selectedEntities.size()==1) {
+				moveTool.setSubject(firstEntity);
 			}
     	}
-    	componentPanel.update(entityList,this);
+    	componentPanel.update(selectedEntities,this);
 	}
 
     private void saveWindowSizeAndPosition() {
@@ -651,7 +621,7 @@ public class RobotOverlord extends Entity {
 	 * @return the entity.  null if nothing found.
 	 */
 	public Entity findChildWithName(String name) {
-		ArrayList<Entity> list = new ArrayList<Entity>();
+		ArrayList<Entity> list = new ArrayList<>();
 		list.add(scene);
 		while( !list.isEmpty() ) {
 			Entity obj = list.remove(0);
@@ -688,18 +658,16 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void pickStep(GL2 gl2) {
-        //viewport.showPickingTest(gl2);
-		//pickNow=true;
-        if(pickNow) {
-	        pickNow = false;
+        if(!pickNow) return;
 
-			CameraComponent cameraComponent = findFirstComponent(CameraComponent.class);
-			if(cameraComponent==null) return;
+		pickNow = false;
 
-	        int pickName = findItemUnderCursor(gl2,cameraComponent);
-        	Entity next = scene.pickEntityWithName(pickName);
-        	UndoSystem.addEvent(this,new SelectEdit(this,selectedEntities,next));
-        }
+		CameraComponent cameraComponent = findFirstComponent(CameraComponent.class);
+		if(cameraComponent==null) return;
+
+		int pickName = findItemUnderCursor(gl2,cameraComponent);
+		Entity next = scene.pickEntityWithName(pickName);
+		UndoSystem.addEvent(this,new SelectEdit(this,selectedEntities,next));
     }
     
     private void checkRenderStep(GL2 gl2) {
@@ -816,15 +784,15 @@ public class RobotOverlord extends Entity {
 		float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
 		float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
 		
-		String msg="  names="+nameCount+" zMin="+z1+" zMax="+z2+": ";
+		StringBuilder msg= new StringBuilder("  names=" + nameCount + " zMin=" + z1 + " zMax=" + z2 + ": ");
 		String add="";
 		int pickName;
 		for(int j=0;j<nameCount;++j) {
 			pickName = pickBuffer.get(index++);
-			msg+=add+pickName;
+			msg.append(add).append(pickName);
     		add=", ";
 		}
-		Log.message(msg);
+		Log.message(msg.toString());
 	}
 
 	public Viewport getViewport() {
@@ -833,5 +801,19 @@ public class RobotOverlord extends Entity {
 
 	public CameraComponent getCamera() {
 		return findFirstComponent(CameraComponent.class);
+	}
+
+	public void setSelectedEntity(Entity entity) {
+		selectedEntities.clear();
+		if(entity!=null) selectedEntities.add(entity);
+		updateSelectEntities();
+		updateEntityTree();
+	}
+
+	public void setSelectedEntities(List<Entity> list) {
+		selectedEntities.clear();
+		selectedEntities.addAll(list);
+		updateSelectEntities();
+		updateEntityTree();
 	}
 }

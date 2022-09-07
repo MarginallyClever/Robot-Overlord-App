@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,7 +27,7 @@ public class ComponentPanel extends JPanel {
 	 * Collate all the {@link java.awt.Component}s for selected {@link Entity}.
 	 * @param 
 	 */
-	public void update(ArrayList<Entity> entityList,RobotOverlord ro) {
+	public void update(List<Entity> entityList, RobotOverlord ro) {
 		removeAll();
 		
 		if(entityList != null ) {

@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -32,7 +33,7 @@ public class RenameEntityAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		ArrayList<Entity> entityList = ro.getSelectedEntities();
+		List<Entity> entityList = ro.getSelectedEntities();
 		if(entityList.size()!=1) {
 			Log.error("Rename more than one entity at the same time?!");
 			return;

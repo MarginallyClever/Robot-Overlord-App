@@ -243,15 +243,6 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 		}
 	}
 
-	/**
-	 * Override this to let the user rename entities of this type
-	 * 
-	 * @return
-	 */
-	public boolean canBeRenamed() {
-		return false;
-	}
-	
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		Entity e = (Entity)super.clone();
