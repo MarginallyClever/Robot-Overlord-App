@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.entities;
 
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
-
 import javax.vecmath.Vector3d;
 import java.io.Serial;
 

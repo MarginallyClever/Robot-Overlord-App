@@ -4,27 +4,31 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 
 public class Sphere extends ShapeComponent {
-    private final DoubleEntity diameter = new DoubleEntity("Diameter",1.0);
+    private final IntEntity detail = new IntEntity("Detail",32);
 
     public Sphere() {
         super();
-        diameter.addPropertyChangeListener((evt)-> updateModel() );
+        detail.addPropertyChangeListener((evt)-> {
+            detail.set(Math.max(1,detail.get()));
+            updateModel();
+        } );
         myMesh = new Mesh();
         updateModel();
+        setModel(myMesh);
     }
 
-    // Procedurally generate a list of triangles that form a box, subdivided by some amount.
+    // Procedurally generate a list of triangles that form a sphere subdivided by some amount.
     private void updateModel() {
         myMesh.clear();
         myMesh.renderStyle= GL2.GL_TRIANGLES;
 
-        float r = (float)( diameter.get()/2.0 );
+        float r = 0.5f;
 
-        int width = 64;
-        int height = 32;
+        int height = detail.get();
+        int width = height*2;
 
         double theta, phi;
         int i, j;
@@ -73,22 +77,16 @@ public class Sphere extends ShapeComponent {
         }
     }
 
-    public void setDiameter(double v) {
-        diameter.set(v);
+    public void setDetail(int v) {
+        detail.set(Math.max(1,v));
         updateModel();
     }
 
-    public double getDiameter() { return diameter.get(); }
-
-    public void setRadius(double v) {
-        diameter.set(v*2);
-    }
-
-    public double getRadius() { return diameter.get()/2; }
+    public double getDetail() { return detail.get(); }
 
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
-        view.add(diameter);
+        view.add(detail);
     }
 }

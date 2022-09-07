@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components;
+package com.marginallyclever.robotoverlord.entities;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -9,7 +9,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 

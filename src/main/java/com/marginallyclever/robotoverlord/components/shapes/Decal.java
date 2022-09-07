@@ -9,13 +9,10 @@ import java.io.IOException;
 import java.io.Serial;
 import javax.vecmath.Vector3d;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 
@@ -24,28 +21,18 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
  * @author Dan Royer
  *
  */
-public class Decal extends ShapeComponent implements PropertyChangeListener {
+public class Decal extends ShapeComponent {
 	@Serial
 	private static final long serialVersionUID = -4934794752752097855L;
-	
-	protected DoubleEntity width = new DoubleEntity("Width",1.0);
-	protected DoubleEntity height = new DoubleEntity("Height",1.0);
-	
+
 	public Decal() {
 		super();
-		
-		width.addPropertyChangeListener(this);
-		height.addPropertyChangeListener(this);
-		
+
 		myMesh = new Mesh();
 		updateModel();
+		setModel(myMesh);
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		updateModel();
-	}
-	
 	/**
 	 * Procedurally generate a list of triangles that form a box, subdivided by some amount.
 	 */
@@ -54,11 +41,11 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 		myMesh.renderStyle=GL2.GL_TRIANGLES;
 		//model.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 		
-		float w = (float)(width.get()/2);
-		float h = (float)(height.get()/2);
+		float w = 0.5f;
+		float h = 0.5f;
 		
-		int wParts = (int)(w/4)*2;
-		int hParts = (int)(h/4)*2;
+		int wParts = (int)(w/4f)*2;
+		int hParts = (int)(h/4f)*2;
 		
 		Vector3d n=new Vector3d();
 		Vector3d p0=new Vector3d();
@@ -155,46 +142,5 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 				}
 			}
 		}
-	}
-	
-	public void setWidth(double v) {
-		width.set(v);
-		updateModel();
-	}
-	
-	public void setHeight(double v) {
-		height.set(v);
-		updateModel();
-	}
-	
-
-	public void setSize(double w, double h) {
-		width.set(w);
-		height.set(h);
-		updateModel();
-	}
-	
-	public double getWidth() { return width.get(); }
-	public double getHeight() { return height.get(); }
-
-	@Override
-	public void getView(ViewPanel view) {
-		super.getView(view);
-		width.getView(view);
-		height.getView(view);
-	}
-
-	@Override
-	public void save(BufferedWriter writer) throws IOException {
-		super.save(writer);
-		width.save(writer);
-		height.save(writer);
-	}
-
-	@Override
-	public void load(BufferedReader reader) throws Exception {
-		super.load(reader);
-		width.load(reader);
-		height.load(reader);
 	}
 }

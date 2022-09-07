@@ -11,10 +11,10 @@ public class ShapeComponent extends Component {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;
 
-    private final IntEntity numTriangles = new IntEntity("Triangles",0);
-    private final BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
-    private final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
-    private final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
+    private transient final IntEntity numTriangles = new IntEntity("Triangles",0);
+    private transient final BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
+    private transient final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
+    private transient final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 
     public ShapeComponent() {
         super();

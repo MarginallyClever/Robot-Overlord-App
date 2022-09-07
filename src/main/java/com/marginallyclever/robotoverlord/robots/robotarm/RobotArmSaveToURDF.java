@@ -23,7 +23,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 /**
  * Export the {link RobotArmFK} as a URDF XML file.

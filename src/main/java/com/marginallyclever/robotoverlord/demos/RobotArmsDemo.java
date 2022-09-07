@@ -19,8 +19,8 @@ import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_
 import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_6axis;
 import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Thor;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
-import com.marginallyclever.robotoverlord.components.BoxEntity;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
+import com.marginallyclever.robotoverlord.entities.BoxEntity;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 public class RobotArmsDemo implements Demo {
 	@Override

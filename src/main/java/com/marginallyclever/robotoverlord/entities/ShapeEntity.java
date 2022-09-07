@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.mesh;
+package com.marginallyclever.robotoverlord.entities;
 
 import java.beans.PropertyChangeEvent;
 import java.io.Serial;
@@ -15,7 +15,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Collidable;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;

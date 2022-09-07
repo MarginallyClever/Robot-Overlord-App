@@ -7,8 +7,8 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.robotoverlord.components.SphereEntity;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
+import com.marginallyclever.robotoverlord.entities.SphereEntity;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 public class RigidBodySphere extends RigidBody {
 	private static final long serialVersionUID = 1L;

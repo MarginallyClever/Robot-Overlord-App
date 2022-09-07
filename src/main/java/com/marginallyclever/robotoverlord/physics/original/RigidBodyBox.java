@@ -8,7 +8,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 //https://en.wikipedia.org/wiki/Collision_response
 public class RigidBodyBox extends RigidBody {

@@ -10,8 +10,8 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entities.TrayCabinet;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
-import com.marginallyclever.robotoverlord.components.BoxEntity;
-import com.marginallyclever.robotoverlord.mesh.ShapeEntity;
+import com.marginallyclever.robotoverlord.entities.BoxEntity;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 public class StewartPlatformDemo implements Demo {
 	@Override
