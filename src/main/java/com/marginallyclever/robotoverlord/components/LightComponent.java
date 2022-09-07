@@ -129,8 +129,8 @@ public class LightComponent extends Component {
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
-        view.addComboBox(preset, presetNames);
         view.add(isDirectional);
+        view.addComboBox(preset, presetNames);
 
         view.add(diffuse);
         view.add(specular);

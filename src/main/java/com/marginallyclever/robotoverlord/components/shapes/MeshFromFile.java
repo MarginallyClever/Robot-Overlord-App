@@ -44,4 +44,10 @@ public class MeshFromFile extends ShapeComponent {
     public String getFilename() {
         return new String(filename.get());
     }
+
+    @Override
+    public String toString() {
+        return super.toString()+",\n"
+                + filename.toString();
+    }
 }
