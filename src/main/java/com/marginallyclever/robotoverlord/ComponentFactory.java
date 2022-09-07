@@ -18,6 +18,7 @@ public class ComponentFactory {
 			com.marginallyclever.robotoverlord.components.shapes.Grid.class,
 			com.marginallyclever.robotoverlord.components.shapes.Sphere.class,
 			com.marginallyclever.robotoverlord.components.shapes.Decal.class,
+			com.marginallyclever.robotoverlord.components.shapes.MeshFromFile.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {
