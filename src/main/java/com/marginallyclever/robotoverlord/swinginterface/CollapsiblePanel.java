@@ -46,6 +46,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.Serial;
 import java.net.URL;
 import java.util.Vector;
 
@@ -53,34 +54,32 @@ import java.util.Vector;
  * The user-triggered collapsable panel containing the component (trigger) in the titled border
  */
 public class CollapsiblePanel extends JPanel {
-   /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
-		public interface CollapseListener extends java.util.EventListener {
-                public void collaped();
-                public void expanded();
-        }
+    public interface CollapseListener extends java.util.EventListener {
+            public void collaped();
+            public void expanded();
+    }
 
-        Vector<CollapseListener> collapseListeners;
+    private final Vector<CollapseListener> collapseListeners = new Vector<>();
 
     //Border
-    CollapsableTitledBorder border; // includes upper left component and line type
+    private CollapsableTitledBorder border; // includes upper left component and line type
     //Border collapsedBorderLine = BorderFactory.createEmptyBorder(2, 2, 2, 2); // no border
-    Border collapsedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-    Border expandedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED); // because this is null, default is used, etched lowered border on MAC
+    private final Border collapsedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+    private final Border expandedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED); // because this is null, default is used, etched lowered border on MAC
 
     //Title
-    AbstractButton titleComponent; // displayed in the titled border
+    private final AbstractButton titleComponent; // displayed in the titled border
 
     //Expand/Collapse button
     final static int COLLAPSED = 0, EXPANDED = 1; // image States
-    ImageIcon[] iconArrow = createExpandAndCollapseIcon();
-    JButton arrow = createArrowButton();
+    private final ImageIcon[] iconArrow = createExpandAndCollapseIcon();
+    private final JButton arrow = createArrowButton();
 
     //Content Pane
-    JPanel panel;
+    private final JPanel panel = new JPanel();
 
     //Container State
     boolean collapsed; // stores current state of the collapsible panel
@@ -122,13 +121,8 @@ public class CollapsiblePanel extends JPanel {
     private void commonConstructor() {
         setLayout(new BorderLayout());
 
-        panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-
         add(titleComponent, BorderLayout.CENTER);
         add(panel, BorderLayout.CENTER);
-
-        collapseListeners = new Vector<CollapseListener>();
 
         setCollapsed(collapsed);
 
