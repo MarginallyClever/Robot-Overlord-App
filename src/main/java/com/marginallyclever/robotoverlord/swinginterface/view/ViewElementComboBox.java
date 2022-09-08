@@ -13,7 +13,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.ComboBoxEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ComboBoxEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {

@@ -18,7 +18,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.StringEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
 
 public class ViewElementEntity extends ViewElement implements ActionListener {

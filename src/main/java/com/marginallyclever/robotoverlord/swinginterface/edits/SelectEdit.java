@@ -1,8 +1,6 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -10,35 +8,37 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Removable;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
- * An undoable action to remove an {@link Entity} from the world.
+ * An undoable action to change the currently selected entity.
+ * This is the equivalent to moving the caret in a text document.
  * @author Dan Royer
  *
  */
-public class RemoveEdit extends AbstractUndoableEdit {
+public class SelectEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final Entity entity;
-	private final Entity parent;
-	private final RobotOverlord ro;
 
-	public RemoveEdit(RobotOverlord ro,Entity entity) {
+	private final RobotOverlord ro;
+	private final Entity next;
+	private final List<Entity> prev;
+
+	public SelectEdit(RobotOverlord ro, List<Entity> prev, Entity next) {
 		super();
-		
-		this.entity = entity;
+
 		this.ro = ro;
-		this.parent = entity.getParent();
+		this.next = next;
+		this.prev = prev;
 
 		doIt();
 	}
-	
+
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Remove ")+entity.getName();
+		String name = (next == null) ? Translator.get("nothing") : next.getName();
+		return Translator.get("Select ") + name;
 	}
 
 	@Override
@@ -46,16 +46,14 @@ public class RemoveEdit extends AbstractUndoableEdit {
 		super.redo();
 		doIt();
 	}
-	
-	protected void doIt() {
-		if(parent!=null) parent.removeChild(entity);
-		ro.updateEntityTree();
+
+	private void doIt() {
+		ro.setSelectedEntity(next);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		if(parent!=null) parent.addChild(entity);
-		ro.updateEntityTree();
+		ro.setSelectedEntities(prev);
 	}
 }

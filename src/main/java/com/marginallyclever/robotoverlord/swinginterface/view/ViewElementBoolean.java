@@ -13,7 +13,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.BooleanEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 
 /**

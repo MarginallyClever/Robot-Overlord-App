@@ -4,14 +4,13 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import org.json.JSONObject;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -42,18 +41,21 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     @Override
-    public void save(BufferedWriter writer) throws IOException {
-        super.save(writer);
-        writer.write("local="+Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n");
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("position",position.toJSON());
+        jo.put("rotation",rotation.toJSON());
+        jo.put("scale",scale.toJSON());
+        return jo;
     }
 
     @Override
-    public void load(BufferedReader reader) throws Exception {
-        super.load(reader);
-        String str = reader.readLine();
-        if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-        if(!str.startsWith("local=")) throw new IOException("Expected 'local=' but found "+str.substring(0,Math.min(10,str.length())));
-        local.set(MatrixHelper.readMatrix4d(str.substring(6)));
+    public void parseJSON(JSONObject jo) throws Exception {
+        super.parseJSON(jo);
+        position.parseJSON(jo.getJSONObject("position"));
+        rotation.parseJSON(jo.getJSONObject("rotation"));
+        scale.parseJSON(jo.getJSONObject("scale"));
+        refreshLocalMatrix();
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;

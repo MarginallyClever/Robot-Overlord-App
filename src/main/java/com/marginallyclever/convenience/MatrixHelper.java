@@ -932,47 +932,4 @@ public class MatrixHelper {
 
 		return list;
 	}
-
-	/**
-	 * Converts a {@link String} to a {@link Matrix4d}
-	 * @param str a string in the format "[a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15]"
-	 * @return returns a {@link Matrix4d} described by the input string.
-	 * @throws IOException
-	 */
-	public static Matrix4d readMatrix4d(String str) throws IOException {
-		String [] tok = readMatrixStart(str);
-		if(tok.length!=16) throw new IOException("Expected 16 parameters, found "+tok.length);
-		return new Matrix4d(convertArrayOfStringsToDoubles(tok));
-	}
-
-	/**
-	 * Converts a {@link String} to a {@link Matrix3d}
-	 * @param str a string in the format "[a0, a1, a2, a3, a4, a5, a6, a7, a8]"
-	 * @return returns a {@link Matrix3d} described by the input string.
-	 * @throws IOException
-	 */
-	public static Matrix3d readMatrix3d(String str) throws IOException {
-		String [] tok = readMatrixStart(str);
-		if(tok.length!=9) throw new IOException("Expected 9 parameters, found "+tok.length);
-		return new Matrix3d(convertArrayOfStringsToDoubles(tok));
-	}
-
-	private static double[] convertArrayOfStringsToDoubles(String[] tok) {
-		double [] result = new double[tok.length];
-		for(int i=0;i< result.length;++i) {
-			result[i] = Double.parseDouble(tok[i].trim());
-		}
-		return result;
-	}
-
-	private static String [] readMatrixStart(String str) throws IOException {
-		if (!str.startsWith("["))
-			throw new IOException("Expected '[' at start but found " + str.substring(0, Math.min(str.length(),10)));
-		if (!str.endsWith("]")) {
-			int end = str.length();
-			int start = Math.max(0,end-10);
-			throw new IOException("Expected ']' at end but found " + str.substring(start, end));
-		}
-		return str.substring(1, str.length() - 1).split(",");
-	}
 }

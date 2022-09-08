@@ -7,11 +7,10 @@ import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.AddComponentEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.AddComponentEdit;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +21,7 @@ import java.util.List;
  *
  */
 public class AddComponentAction extends AbstractAction {
-	@Serial
-	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
+	protected final RobotOverlord ro;
 
 	public AddComponentAction(RobotOverlord ro) {
 		super(Translator.get("Add Component"));

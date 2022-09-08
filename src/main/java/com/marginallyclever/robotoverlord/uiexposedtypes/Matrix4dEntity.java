@@ -1,10 +1,9 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
 import java.beans.PropertyChangeEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -12,6 +11,8 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author Dan Royer
@@ -19,10 +20,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
  *
  */
 public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4661259130802425144L;
 	Vector3dEntity pos = new Vector3dEntity("Position");
 	Vector3dEntity rot = new Vector3dEntity("Rotation");
 	
@@ -119,18 +116,23 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 
 	@Override
-	public void save(BufferedWriter writer) throws IOException {
-		super.save(writer);
-		writer.write("value=" + Arrays.toString(MatrixHelper.matrixtoArray(get()))+",\n");
+	public JSONObject toJSON() {
+		JSONObject jo = super.toJSON();
+		double [] list = MatrixHelper.matrixtoArray(get());
+		JSONArray array = new JSONArray();
+		for(double d : list) array.put(d);
+		jo.put("value",array);
+		return jo;
 	}
 
 	@Override
-	public void load(BufferedReader reader) throws Exception {
-		super.load(reader);
-		String str = reader.readLine();
-		if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-		if(!str.startsWith("value=")) throw new IOException("Expected 'value=' but found "+str);
-		str = str.substring(6);
-		set(MatrixHelper.readMatrix4d(str));
+	public void parseJSON(JSONObject jsonObject) throws Exception {
+		super.parseJSON(jsonObject);
+		JSONArray ja = jsonObject.getJSONArray("value");
+		double [] list = new double[16];
+		for(int i=0;i<list.length;++i) {
+			list[i] = ja.getDouble(i);
+		}
+		set(new Matrix4d(list));
 	}
 }

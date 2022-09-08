@@ -1,9 +1,8 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Serial;
 
@@ -13,9 +12,6 @@ import java.io.Serial;
  *
  */
 public class StringEntity extends AbstractEntity<String> {
-	@Serial
-	private static final long serialVersionUID = 4182705695944961446L;
-
 	public StringEntity() {
 		super("","");
 	}
@@ -39,18 +35,15 @@ public class StringEntity extends AbstractEntity<String> {
 	}
 
 	@Override
-	public void save(BufferedWriter writer) throws IOException {
-		super.save(writer);
-		writer.write("value=\"" + get().toString()+"\",\n");
+	public JSONObject toJSON() {
+		JSONObject jo = super.toJSON();
+		jo.put("value",get());
+		return jo;
 	}
 
 	@Override
-	public void load(BufferedReader reader) throws Exception {
-		super.load(reader);
-		String str = reader.readLine();
-		if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-		if(!str.startsWith("value=\"")) throw new IOException("Expected 'value=\"' at start but found "+str.substring(0,10));
-		if(!str.endsWith("\"")) throw new IOException("Expected '\"' at end but found "+str.substring(str.length()-10));
-		set(str.substring(7,str.length()-1));
+	public void parseJSON(JSONObject jo) throws Exception {
+		super.parseJSON(jo);
+		set(jo.getString("value"));
 	}
 }

@@ -1,15 +1,11 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
-
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.dhrobotentity.DHRobotModel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
@@ -17,41 +13,44 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class AddEntityEdit extends AbstractUndoableEdit {
-	@Serial
+@Deprecated
+public class DHToolEdit extends AbstractUndoableEdit {
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
-
-	private final Entity entity;
-	private final Entity parent;
-	private List<Entity> previouslyPickedEntities;
+	private DHRobotModel robot;
+	private int newTool;
+	private int previousTool;
 	
-	public AddEntityEdit(Entity parent,Entity entity) {
+	public DHToolEdit(DHRobotModel robot,int newTool) {
 		super();
 		
-		this.entity = entity;
-		this.parent = parent;
+		this.robot = robot;
+		this.newTool = newTool;
+		this.previousTool = robot.getToolIndex();
 		
 		doIt();
 	}
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Add ")+entity.getName();
+		return Translator.get("Set tool ")+newTool;//robot.getTool(newTool).getName();
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		doIt();	
+		doIt();
 	}
 	
 	protected void doIt() {
-		parent.addChild(entity);
+		robot.setToolIndex(newTool);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		parent.removeChild(entity);
+		robot.setToolIndex(previousTool);
 	}
 }

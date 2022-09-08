@@ -2,9 +2,8 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 /**
@@ -55,12 +54,15 @@ public class Component {
 
     public void update(double dt) {}
 
-    public void save(BufferedWriter writer) throws IOException {
-        enabled.save(writer);
+    public JSONObject toJSON() {
+        JSONObject jo = new JSONObject();
+        jo.put("type",this.getClass().getName());
+        jo.put("enabled",enabled.get());
+        return jo;
     }
 
-    public void load(BufferedReader reader) throws Exception {
-        enabled.load(reader);
+    public void parseJSON(JSONObject jo) throws Exception {
+        enabled.set(jo.getBoolean("enabled"));
     }
 
     @Override

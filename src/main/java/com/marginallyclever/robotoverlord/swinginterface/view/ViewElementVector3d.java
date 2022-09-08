@@ -24,7 +24,7 @@ import javax.vecmath.Vector3d;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.Vector3dEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
 
 /**

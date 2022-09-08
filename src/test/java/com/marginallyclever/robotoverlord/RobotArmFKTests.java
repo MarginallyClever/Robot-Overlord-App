@@ -13,6 +13,7 @@ import java.io.*;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Deprecated
 public class RobotArmFKTests {
 	@Before
 	public void before() {
@@ -31,7 +32,7 @@ public class RobotArmFKTests {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    @Test
+    //@Test
     public void testSerialization() throws IOException, ClassNotFoundException {
         RobotArmFK a = new RobotArmFK();
         int numBones = a.getNumBones();

@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.RemoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.RemoveEntityEdit;
 
 /**
  * Click this button to delete the active entity
@@ -41,6 +41,6 @@ public class RemoveMeAction extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		UndoSystem.addEvent(this,new RemoveEdit(ro,entity));
+		UndoSystem.addEvent(this,new RemoveEntityEdit(ro,entity));
 	}
 }

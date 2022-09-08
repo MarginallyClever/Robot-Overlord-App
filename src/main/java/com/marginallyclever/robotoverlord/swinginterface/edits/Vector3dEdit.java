@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import javax.vecmath.Vector3d;
 

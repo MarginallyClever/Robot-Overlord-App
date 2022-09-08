@@ -6,11 +6,10 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 public class Grid extends ShapeComponent {
@@ -103,10 +102,19 @@ public class Grid extends ShapeComponent {
     }
 
     @Override
-    public void save(BufferedWriter writer) throws IOException {
-        super.save(writer);
-        width.save(writer);
-        length.save(writer);
-        snap.save(writer);
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("width",width.toJSON());
+        jo.put("length",length.toJSON());
+        jo.put("snap",snap.toJSON());
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws Exception {
+        super.parseJSON(jo);
+        width.parseJSON(jo.getJSONObject("width"));
+        length.parseJSON(jo.getJSONObject("length"));
+        snap.parseJSON(jo.getJSONObject("snap"));
     }
 }

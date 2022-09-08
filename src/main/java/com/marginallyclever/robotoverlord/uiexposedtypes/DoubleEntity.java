@@ -3,9 +3,8 @@ package com.marginallyclever.robotoverlord.uiexposedtypes;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 /**
@@ -50,17 +49,15 @@ public class DoubleEntity extends AbstractEntity<Double> {
 	}
 
 	@Override
-	public void save(BufferedWriter writer) throws IOException {
-		super.save(writer);
-		writer.write("value=" + get().toString()+",\n");
+	public JSONObject toJSON() {
+		JSONObject jo = super.toJSON();
+		jo.put("value",get());
+		return jo;
 	}
 
 	@Override
-	public void load(BufferedReader reader) throws Exception {
-		super.load(reader);
-		String str = reader.readLine();
-		if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-		if(!str.startsWith("value=")) throw new IOException("Expected 'value=' but found "+str.substring(0,10));
-		set(Double.parseDouble(str.substring(6)));
+	public void parseJSON(JSONObject jo) throws Exception {
+		super.parseJSON(jo);
+		set(jo.getDouble("value"));
 	}
 }

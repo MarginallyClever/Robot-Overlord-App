@@ -8,13 +8,10 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class LightComponent extends Component {
 
@@ -206,32 +203,33 @@ public class LightComponent extends Component {
     }
 
     @Override
-    public void save(BufferedWriter writer) throws IOException {
-        super.save(writer);
-        diffuse.save(writer);
-        ambient.save(writer);
-        specular.save(writer);
-        attenuationConstant.save(writer);
-        attenuationLinear.save(writer);
-        attenuationQuadratic.save(writer);
-        isDirectional.save(writer);
-        cutoff.save(writer);
-        exponent.save(writer);
-        preset.save(writer);
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("diffuse",diffuse.toJSON());
+        jo.put("ambient",ambient.toJSON());
+        jo.put("specular",specular.toJSON());
+        jo.put("attenuationConstant",attenuationConstant.toJSON());
+        jo.put("attenuationLinear",attenuationLinear.toJSON());
+        jo.put("attenuationQuadratic",attenuationQuadratic.toJSON());
+        jo.put("isDirectional",isDirectional.toJSON());
+        jo.put("cutoff",cutoff.toJSON());
+        jo.put("exponent",exponent.toJSON());
+        jo.put("preset",preset.toJSON());
+        return jo;
     }
 
     @Override
-    public void load(BufferedReader reader) throws Exception {
-        super.load(reader);
-        diffuse.load(reader);
-        ambient.load(reader);
-        specular.load(reader);
-        attenuationConstant.load(reader);
-        attenuationLinear.load(reader);
-        attenuationQuadratic.load(reader);
-        isDirectional.load(reader);
-        cutoff.load(reader);
-        exponent.load(reader);
-        preset.load(reader);
+    public void parseJSON(JSONObject jo) throws Exception {
+        super.parseJSON(jo);
+        diffuse.parseJSON(jo.getJSONObject("diffuse"));
+        ambient.parseJSON(jo.getJSONObject("ambient"));
+        specular.parseJSON(jo.getJSONObject("specular"));
+        attenuationConstant.parseJSON(jo.getJSONObject("attenuationConstant"));
+        attenuationLinear.parseJSON(jo.getJSONObject("attenuationLinear"));
+        attenuationQuadratic.parseJSON(jo.getJSONObject("attenuationQuadratic"));
+        isDirectional.parseJSON(jo.getJSONObject("isDirectional"));
+        cutoff.parseJSON(jo.getJSONObject("cutoff"));
+        exponent.parseJSON(jo.getJSONObject("exponent"));
+        preset.parseJSON(jo.getJSONObject("preset"));
     }
 }

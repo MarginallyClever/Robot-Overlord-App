@@ -16,14 +16,11 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  * @author Dan Royer
  *
  */
-public class NewAction extends AbstractAction implements ActionListener {
-	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
+public class NewSceneAction extends AbstractAction {
+	private final RobotOverlord ro;
 	
-	public NewAction(RobotOverlord ro) {
-		super(Translator.get("New"));
-        putValue(SHORT_DESCRIPTION, "Remove everything from the world.");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK) );
+	public NewSceneAction(String name,RobotOverlord ro) {
+		super(name);
 		this.ro = ro;
 	}
 

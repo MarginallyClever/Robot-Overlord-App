@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
@@ -9,8 +9,6 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An undoable action to add a {@link com.marginallyclever.robotoverlord.Component} to an {@link Entity}.

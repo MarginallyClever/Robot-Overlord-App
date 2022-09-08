@@ -1,7 +1,6 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import java.io.Serial;
-import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -12,33 +11,30 @@ import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
- * An undoable action to change the currently selected entity.
- * This is the equivalent to moving the caret in a text document.
+ * An undoable action to remove an {@link Entity} from the world.
  * @author Dan Royer
  *
  */
-public class SelectEdit extends AbstractUndoableEdit {
+public class RemoveEntityEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
-
+	private final Entity entity;
+	private final Entity parent;
 	private final RobotOverlord ro;
-	private final Entity next;
-	private final ArrayList<Entity> prev;
 
-	public SelectEdit(RobotOverlord ro, ArrayList<Entity> prev, Entity next) {
+	public RemoveEntityEdit(RobotOverlord ro, Entity entity) {
 		super();
-
+		
+		this.entity = entity;
 		this.ro = ro;
-		this.next = next;
-		this.prev = prev;
+		this.parent = entity.getParent();
 
 		doIt();
 	}
 
 	@Override
 	public String getPresentationName() {
-		String name = (next == null) ? Translator.get("nothing") : next.getName();
-		return Translator.get("Select ") + name;
+		return Translator.get("Remove ") + entity.getName();
 	}
 
 	@Override
@@ -46,14 +42,16 @@ public class SelectEdit extends AbstractUndoableEdit {
 		super.redo();
 		doIt();
 	}
-
-	private void doIt() {
-		ro.setSelectedEntity(next);
+	
+	protected void doIt() {
+		if(parent!=null) parent.removeChild(entity);
+		ro.updateEntityTree();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.setSelectedEntities(prev);
+		if(parent!=null) parent.addChild(entity);
+		ro.updateEntityTree();
 	}
 }

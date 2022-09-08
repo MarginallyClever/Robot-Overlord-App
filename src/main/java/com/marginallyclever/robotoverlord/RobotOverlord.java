@@ -21,13 +21,15 @@ import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.SelectEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 import java.awt.Component;
@@ -47,17 +49,16 @@ import java.util.prefs.Preferences;
  * @author Dan Royer
  */
 public class RobotOverlord extends Entity {
-	@Serial
-	private static final long serialVersionUID = 8890695769715268519L;
-
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
 	private static final int FSAA_NUM_SAMPLES = 3;
 	private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
-    public static final int DEFAULT_FRAMES_PER_SECOND = 30;
+	private static final int DEFAULT_FRAMES_PER_SECOND = 30;
     public static final int PICK_BUFFER_SIZE = 256;
+
+	public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
 
 	// used for checking the application version with the github release, for "there is a new version available!" notification
 	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
@@ -66,7 +67,8 @@ public class RobotOverlord extends Entity {
     //private RecentFiles recentFiles = new RecentFiles();
     
     private Scene scene = new Scene();
-	private transient final ArrayList<Entity> selectedEntities = new ArrayList<>();
+	private transient final List<Entity> selectedEntities = new ArrayList<>();
+	private transient final List<Entity> copiedEntities = new ArrayList<>();
 	private final MoveTool moveTool = new MoveTool();
 	private transient final ViewCube viewCube = new ViewCube();
 	
@@ -317,8 +319,15 @@ public class RobotOverlord extends Entity {
 
 	private JPopupMenu buildEntityTreePopupMenu() {
 		JPopupMenu popupMenu = new JPopupMenu();
-		renameEntity=new RenameEntityAction(this);
-		removeEntity=new RemoveEntityAction(this);
+
+		renameEntity=new RenameEntityAction(Translator.get("RenameEntityAction.name"),this);
+		removeEntity=new RemoveEntityAction(Translator.get("RemoveEntityAction.name"),this);
+
+		renameEntity.putValue(Action.SHORT_DESCRIPTION, Translator.get("RenameEntityAction.shortDescription"));
+		removeEntity.putValue(Action.SHORT_DESCRIPTION, Translator.get("RemoveEntityAction.shortDescription"));
+
+		removeEntity.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.CTRL_DOWN_MASK));
+
 		renameEntity.setEnabled(false);
 		removeEntity.setEnabled(false);
 
@@ -425,25 +434,34 @@ public class RobotOverlord extends Entity {
 	public List<Entity> getSelectedEntities() {
 		return selectedEntities;
 	}
-	
-	public void saveWorldToFile(String filename) {
-		 try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-			 scene.save(writer);
-		 } catch (IOException e) {
-			 logger.error(e.getMessage());
-			 JOptionPane.showMessageDialog(mainFrame,e.getLocalizedMessage());
-		 }
-	}
-	
-	public void loadWorldFromFile(String filename) {
-		try(BufferedReader reader = new BufferedReader((new FileReader(filename)))) {
-			Scene nextScene = new Scene();
-			nextScene.load(reader);
-			scene = nextScene;
+
+	@Deprecated
+	public void loadWorldFromFile(String absolutePath) {
+		Scene nextScene = new Scene();
+
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(absolutePath)));
+			StringBuilder responseStrBuilder = new StringBuilder();
+			String inputStr;
+			while ((inputStr = reader.readLine()) != null) {
+				responseStrBuilder.append(inputStr);
+			}
+			nextScene.parseJSON(new JSONObject(responseStrBuilder.toString()));
 		} catch(Exception e) {
 			logger.error(e.getMessage());
 			JOptionPane.showMessageDialog(mainFrame,e.getLocalizedMessage());
+			return;
 		}
+
+		removeAllChildren();
+		scene = nextScene;
+		addChild(sky);
+		addChild(viewport);
+		addChild(scene);
+		addChild(moveTool);
+		addChild(viewCube);
+		setSelectedEntity(null);
+		updateEntityTree();
 	}
 
 	public void newScene() {
@@ -472,9 +490,8 @@ public class RobotOverlord extends Entity {
         addChild(scene);
  		addChild(moveTool);
  		addChild(viewCube);
-
+		setSelectedEntity(null);
 		updateEntityTree();
-		pickEntity(null);
 	}
 	
 	public void buildMainMenu() {
@@ -491,11 +508,27 @@ public class RobotOverlord extends Entity {
 
 	private Component createFileMenu() {
 		JMenu menu = new JMenu(APP_TITLE);
-		menu.add(new JMenuItem(new NewAction(this)));
-		menu.add(new JMenuItem(new OpenAction(this)));
-		menu.add(new JMenuItem(new SaveAsAction(this)));
+
+		NewSceneAction newSceneAction = new NewSceneAction(Translator.get("NewSceneAction.name"),this);
+		newSceneAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
+		newSceneAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("NewSceneAction.shortDescription"));
+		newSceneAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+
+		LoadSceneAction loadSceneAction = new LoadSceneAction(Translator.get("LoadSceneAction.name"),this);
+		loadSceneAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
+		loadSceneAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("LoadSceneAction.shortDescription"));
+		loadSceneAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
+
+		SaveSceneAction saveSceneAction = new SaveSceneAction(Translator.get("SaveAsAction.name"),this);
+		saveSceneAction.putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
+		saveSceneAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SaveAsAction.shortDescription"));
+		saveSceneAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+
+		menu.add(newSceneAction);
+		menu.add(loadSceneAction);
+		menu.add(saveSceneAction);
 		menu.add(new JSeparator());
-		menu.add(new JMenuItem(new QuitAction(this)));
+		menu.add(new QuitAction(this));
 		return menu;
 	}
 
@@ -815,5 +848,10 @@ public class RobotOverlord extends Entity {
 		selectedEntities.addAll(list);
 		updateSelectEntities();
 		updateEntityTree();
+	}
+
+	public void setCopiedEntities(List<Entity> list) {
+		copiedEntities.clear();
+		copiedEntities.addAll(list);
 	}
 }

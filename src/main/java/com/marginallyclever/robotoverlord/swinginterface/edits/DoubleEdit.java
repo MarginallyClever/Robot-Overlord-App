@@ -1,6 +1,8 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
+
+import java.io.Serial;
 
 /**
  * Undoable action to select a number.
@@ -11,9 +13,7 @@ import com.marginallyclever.robotoverlord.AbstractEntity;
  *
  */
 public class DoubleEdit extends AbstractEntityEdit<Double> {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	public DoubleEdit(AbstractEntity<Double> e, Double newValue) {

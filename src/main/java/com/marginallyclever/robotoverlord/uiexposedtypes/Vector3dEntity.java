@@ -4,11 +4,9 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @author Dan Royer
@@ -16,13 +14,6 @@ import java.util.Arrays;
  *
  */
 public class Vector3dEntity extends AbstractEntity<Vector3d> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6504746583968180431L;
-
-
 	public Vector3dEntity() {
 		super(new Vector3d());
 	}
@@ -67,27 +58,22 @@ public class Vector3dEntity extends AbstractEntity<Vector3d> {
 	}
 
 	@Override
-	public void save(BufferedWriter writer) throws IOException {
-		super.save(writer);
-		writer.write("value=" + get()+",\n");
+	public JSONObject toJSON() {
+		JSONObject jo = super.toJSON();
+		Vector3d v = get();
+		jo.put("x", v.x);
+		jo.put("y", v.y);
+		jo.put("z", v.z);
+		return jo;
 	}
 
 	@Override
-	public void load(BufferedReader reader) throws Exception {
-		super.load(reader);
-		String str = reader.readLine();
-		if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-		if(!str.startsWith("value=(")) throw new IOException("Expected 'value=(' at start but found "+str.substring(0,10));
-		if(!str.endsWith(")")) throw new IOException("Expected ')' at end but found "+str.substring(str.length()-10));
-
-		String [] tok = str.substring(7,str.length()-1).split(", ");
-
-		if(tok.length!=3) throw new IOException("Expected 3 parameters, found "+tok.length);
-
-		double [] result = new double[tok.length];
-		for(int i=0;i< result.length;++i) {
-			result[i] = Double.parseDouble(tok[i]);
-		}
-		set(result[0],result[1],result[2]);
+	public void parseJSON(JSONObject jo) throws Exception {
+		super.parseJSON(jo);
+		Vector3d v = get();
+		v.x = jo.getDouble("x");
+		v.y = jo.getDouble("y");
+		v.z = jo.getDouble("z");
+		set(v);
 	}
 }

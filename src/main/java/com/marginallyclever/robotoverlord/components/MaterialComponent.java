@@ -7,6 +7,9 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class MaterialComponent extends Component {
     private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
@@ -130,5 +133,30 @@ public class MaterialComponent extends Component {
 
     public void setLit(boolean isLit) {
         this.isLit.set(isLit);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("isLit",isLit.toJSON());
+        jo.put("emission",emission.toJSON());
+        jo.put("ambient",ambient.toJSON());
+        jo.put("diffuse",diffuse.toJSON());
+        jo.put("specular",specular.toJSON());
+        jo.put("shininess",shininess.toJSON());
+        jo.put("texture",texture.toJSON());
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws Exception {
+        super.parseJSON(jo);
+        isLit.parseJSON(jo.getJSONObject("isLit"));
+        emission.parseJSON(jo.getJSONObject("emission"));
+        ambient.parseJSON(jo.getJSONObject("ambient"));
+        diffuse.parseJSON(jo.getJSONObject("diffuse"));
+        specular.parseJSON(jo.getJSONObject("specular"));
+        shininess.parseJSON(jo.getJSONObject("shininess"));
+        texture.parseJSON(jo.getJSONObject("texture"));
     }
 }

@@ -10,6 +10,8 @@ import java.util.List;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Entities are nodes in a tree of data that can find each other and observe/be
@@ -18,13 +20,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
-public class Entity implements PropertyChangeListener, Cloneable, Serializable {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = -470516237871859765L;
-
+public class Entity implements PropertyChangeListener, Cloneable {
 	private String name;
 
 	// my children
@@ -400,77 +396,58 @@ public class Entity implements PropertyChangeListener, Cloneable, Serializable {
 		return pickName;
 	}
 
-    public void save(BufferedWriter writer) throws IOException {
-		saveName(writer);
-		saveChildren(writer);
-		saveComponents(writer);
+    public JSONObject toJSON() {
+		JSONObject jo = new JSONObject();
+		jo.put("type",this.getClass().getName());
+		jo.put("name",this.name);
+		jo.put("children",getChildrenAsJSON());
+		jo.put("components",getComponentsAsJSON());
+		return jo;
 	}
 
-	public void load(BufferedReader reader) throws Exception {
-		readName(reader);
-		readChildren(reader);
-		readComponents(reader);
-	}
-
-	private void saveChildren(BufferedWriter writer) throws IOException {
-		writer.write("Children=[\n");
-		String add="";
+	private JSONArray getChildrenAsJSON() {
+		JSONArray jo = new JSONArray();
 		for(Entity c : children) {
-			writer.write(c.getClass().getName()+"={\n");
-			c.save(writer);
-			writer.write("}"+add+"\n");
-			add=",";
+			jo.put(c.toJSON());
 		}
-		writer.write("]\n");
+		return jo;
 	}
 
-	private void readChildren(BufferedReader reader) throws Exception {
-		String str = reader.readLine();
-		if(!str.startsWith("Children=[")) throw new IOException("Expected 'Children=[{]' but found "+str);
-		while(!(str = reader.readLine()).trim().startsWith("]")) {
-			if(!str.endsWith("={")) throw new IOException("Expected '={' and end but found "+str);
-			Entity entity = EntityFactory.load(str.substring(0, str.length() - 2));
-			this.addChild(entity);
-			entity.load(reader);
-			str = reader.readLine();  // } or }, at end
-			if(!str.startsWith("}")) throw new IOException("Expected '}' and end but found "+str);
-		}
-	}
-
-	private void saveComponents(BufferedWriter writer) throws IOException {
-		writer.write("Components=[\n");
-		String add="";
+	private JSONArray getComponentsAsJSON() {
+		JSONArray jo = new JSONArray();
 		for(Component c : components) {
-			writer.write(c.getClass().getName()+"={\n");
-			c.save(writer);
-			writer.write("}"+add+"\n");
-			add=",";
+			jo.put(c.toJSON());
 		}
-		writer.write("]\n");
-    }
+		return jo;
+	}
 
-	private void readComponents(BufferedReader reader) throws Exception {
-		String str = reader.readLine();
-		if(!str.startsWith("Components=[")) throw new IOException("Expected 'Components=[' but found "+str);
-		while(!(str = reader.readLine()).trim().startsWith("]")) {
-			if (str.endsWith("={")) {
-				Component component = ComponentFactory.load(str.substring(0,str.length()-2));
-				this.addComponent(component);
-				component.load(reader);
-				str = reader.readLine();  // } or }, at end
-				if(!str.startsWith("}")) throw new IOException("Expected '}' and end but found "+str);
-			}
+	public void parseJSON(JSONObject jo) throws Exception {
+		this.name = jo.getString("name");
+		readChildren(jo.getJSONArray("children"));
+		readComponents(jo.getJSONArray("components"));
+	}
+
+	private void readChildren(JSONArray jo) throws Exception {
+		for (Object o : jo) {
+			JSONObject jo2 = (JSONObject) o;
+			Entity entity = EntityFactory.load(jo2.getString("type"));
+			this.addChild(entity);
+			entity.parseJSON(jo2);
 		}
 	}
 
-	private void saveName(BufferedWriter writer) throws IOException {
-		writer.write("name="+this.name+",\n");
+	private void readComponents(JSONArray jo) throws Exception {
+		for (Object o : jo) {
+			JSONObject jo2 = (JSONObject) o;
+			Component component = ComponentFactory.load(jo2.getString("type"));
+			this.addComponent(component);
+			component.parseJSON(jo2);
+		}
 	}
 
-	private void readName(BufferedReader reader) throws IOException {
-		String str = reader.readLine();
-		if(!str.startsWith("name=")) throw new IOException("Expected 'name=' but found "+str.substring(0,10));
-		if(str.endsWith(",")) str = str.substring(0,str.length()-1);
-		this.name = str.substring(5);
+	public Entity deepCopy() throws Exception {
+		Entity e = new Entity();
+		e.parseJSON(this.toJSON());
+		return e;
 	}
 }

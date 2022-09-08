@@ -12,22 +12,16 @@ import com.marginallyclever.robotoverlord.Removable;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.RemoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.RemoveEntityEdit;
 
 /**
  * @author Dan Royer
  */
 public class RemoveEntityAction extends AbstractAction {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
+	private final RobotOverlord ro;
 	
-	public RemoveEntityAction(RobotOverlord ro) {
+	public RemoveEntityAction(String name,RobotOverlord ro) {
 		super(Translator.get("Remove Entity"));
-        putValue(AbstractAction.SHORT_DESCRIPTION, Translator.get("Remove the selected entity from the world."));
-        //putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, ActionEvent.CTRL_MASK));
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_DELETE);
         
 		this.ro = ro;
@@ -41,11 +35,7 @@ public class RemoveEntityAction extends AbstractAction {
 			return;
 		}
 		for(Entity e : entityList) {
-			if(e instanceof Removable) {
-				UndoSystem.addEvent(this,new RemoveEdit(ro,e));
-			} else {
-				Log.error("Entity "+e.getFullPath()+" is not a RemovableEntity.");
-			}
+			UndoSystem.addEvent(this,new RemoveEntityEdit(ro,e));
 		}			
 	}
 }

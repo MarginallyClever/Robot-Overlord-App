@@ -19,7 +19,7 @@ import com.marginallyclever.robotoverlord.Moveable;
 import com.marginallyclever.robotoverlord.Removable;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.MoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.MoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;

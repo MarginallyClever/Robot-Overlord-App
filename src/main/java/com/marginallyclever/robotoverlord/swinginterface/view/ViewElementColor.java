@@ -15,7 +15,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.ColorRGBAEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ColorRGBAEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 
 /**

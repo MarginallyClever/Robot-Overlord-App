@@ -4,10 +4,9 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
+import org.json.JSONObject;
 
 import javax.swing.filechooser.FileFilter;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -29,15 +28,16 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     @Override
-    public void save(BufferedWriter writer) throws IOException {
-        super.save(writer);
-        filename.save(writer);
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("filename",filename.toJSON());
+        return jo;
     }
 
     @Override
-    public void load(BufferedReader reader) throws Exception {
-        super.load(reader);
-        filename.load(reader);
+    public void parseJSON(JSONObject jo) throws Exception {
+        super.parseJSON(jo);
+        filename.parseJSON(jo.getJSONObject("filename"));
     }
 
     public void setFilename(String name) {

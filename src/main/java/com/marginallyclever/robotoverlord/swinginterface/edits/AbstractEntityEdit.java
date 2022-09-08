@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -7,6 +7,8 @@ import javax.swing.undo.UndoableEdit;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import java.io.Serial;
 
 /**
  * Undoable action to select a boolean.
@@ -17,12 +19,10 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  *
  */
 public class AbstractEntityEdit<T> extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private AbstractEntity<T> entity;
-	private T oldValue,newValue;
+	private final AbstractEntity<T> entity;
+	private final T oldValue,newValue;
 	
 	public AbstractEntityEdit(AbstractEntity<T> entity,T newValue) {
 		super();

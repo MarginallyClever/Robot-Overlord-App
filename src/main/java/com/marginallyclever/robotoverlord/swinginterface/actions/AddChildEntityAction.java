@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import java.awt.event.ActionEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,7 @@ import com.marginallyclever.robotoverlord.EntityFactory;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.undoableedits.AddEntityEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.AddEntityEdit;
 
 /**
  * Display an Add Entity dialog box.  If an entity is selected and "ok" is pressed, add that Entity to the world. 
@@ -22,8 +21,6 @@ import com.marginallyclever.robotoverlord.swinginterface.undoableedits.AddEntity
  *
  */
 public class AddChildEntityAction extends AbstractAction {
-	@Serial
-	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
 	public AddChildEntityAction(RobotOverlord ro) {

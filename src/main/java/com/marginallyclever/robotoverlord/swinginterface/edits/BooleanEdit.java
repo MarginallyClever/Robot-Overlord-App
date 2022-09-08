@@ -1,23 +1,23 @@
-package com.marginallyclever.robotoverlord.swinginterface.undoableedits;
+package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
 
 /**
- * Undoable action to select a string.
+ * Undoable action to select a boolean.
  * <p>
  * Some Entities have string (text) parameters.  This class ensures changing those parameters is undoable.
  *  
  * @author Dan Royer
  *
  */
-public class StringEdit extends AbstractEntityEdit<String> {
+public class BooleanEdit extends AbstractEntityEdit<Boolean> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public StringEdit(AbstractEntity<String> e, String newValue) {
+	public BooleanEdit(AbstractEntity<Boolean> e, Boolean newValue) {
 		super(e, newValue);
 	}
 }

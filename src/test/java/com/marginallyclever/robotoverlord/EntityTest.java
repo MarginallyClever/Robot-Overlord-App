@@ -7,19 +7,7 @@ import java.io.*;
 
 public class EntityTest {
     public static void saveAndLoad(Entity a,Entity b) throws Exception {
-        File temp = File.createTempFile("scene",null);
-        temp.deleteOnExit();
-
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(temp))) {
-            a.save(writer);
-        }
-
-        try(BufferedReader reader = new BufferedReader(new FileReader(temp))) {
-            b.load(reader);
-        }
-
-        temp.delete();
-
+        b.parseJSON(a.toJSON());
         Assertions.assertEquals(a.toString(),b.toString());
     }
 

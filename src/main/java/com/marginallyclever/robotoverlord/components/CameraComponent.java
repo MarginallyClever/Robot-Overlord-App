@@ -4,10 +4,12 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import org.json.JSONObject;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.io.IOException;
 
 public class CameraComponent extends Component {
     private final DoubleEntity pan = new DoubleEntity("Pan",0);
@@ -271,5 +273,26 @@ public class CameraComponent extends Component {
         oldZ.scale(zoom.get());
         p.add(oldZ);
         return p;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("pan",pan.toJSON());
+        jo.put("tilt",tilt.toJSON());
+        jo.put("zoom",zoom.toJSON());
+        jo.put("snapDegrees",snapDegrees.toJSON());
+        jo.put("snapDeadZone",snapDeadZone.toJSON());
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws Exception {
+        super.parseJSON(jo);
+        pan.parseJSON(jo.getJSONObject("pan"));
+        tilt.parseJSON(jo.getJSONObject("tilt"));
+        zoom.parseJSON(jo.getJSONObject("zoom"));
+        snapDegrees.parseJSON(jo.getJSONObject("snapDegrees"));
+        snapDeadZone.parseJSON(jo.getJSONObject("snapDeadZone"));
     }
 }
