@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class StringEntity extends AbstractEntity<String> {
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws Exception {
+	public void parseJSON(JSONObject jo) throws JSONException {
 		super.parseJSON(jo);
 		set(jo.getString("value"));
 	}

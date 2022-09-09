@@ -70,7 +70,7 @@ public class ODEPhysicsDemo implements Demo {
 		// add some lights
 		LightComponent light;
 		Entity light0 = new Entity();
-		sc.addChild(light0);
+		sc.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
     	pose.setPosition(new Vector3d(60,-60,160));
@@ -82,7 +82,7 @@ public class ODEPhysicsDemo implements Demo {
     	
     	// start physics
 		engine = new ODEPhysicsEngine();
-		ro.addChild(engine);
+		ro.addEntity(engine);
 		
 		engine.setCallback(this::nearCallback);
 
@@ -93,8 +93,8 @@ public class ODEPhysicsDemo implements Demo {
 		OdeMath.dRFromAxisAndAngle (R,0,1,0,-0.15);
 		ramp.setPosition(2,0,-0.34);
 		ramp.setRotation(R);
-		sc.addChild(new ODEPhysicsEntity(ramp));
-		sc.addChild(new ODEPhysicsEntity(ground));
+		sc.addEntity(new ODEPhysicsEntity(ramp));
+		sc.addEntity(new ODEPhysicsEntity(ground));
 		
 		DMass mass = OdeHelper.createMass();
 		
@@ -107,7 +107,7 @@ public class ODEPhysicsDemo implements Demo {
 		box.setBody(chassisBody);
 		box.setPosition(0, 0, CHASIS_Z_AT_START);
 		
-		sc.addChild(new ODEPhysicsEntity(box));
+		sc.addEntity(new ODEPhysicsEntity(box));
 
 		// wheels
 		int i;
@@ -122,7 +122,7 @@ public class ODEPhysicsDemo implements Demo {
 			DQuaternion q = new DQuaternion();
 			OdeMath.dQFromAxisAndAngle (q,1,0,0,Math.PI*0.5);
 			sphere[i].setQuaternion(q);
-			sc.addChild(new ODEPhysicsEntity(sphere[i]));
+			sc.addEntity(new ODEPhysicsEntity(sphere[i]));
 		}
 		wheelBodies[0].setPosition(0.5*CHASIS_LENGTH,0,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
 		wheelBodies[1].setPosition(-0.5*CHASIS_LENGTH, CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);

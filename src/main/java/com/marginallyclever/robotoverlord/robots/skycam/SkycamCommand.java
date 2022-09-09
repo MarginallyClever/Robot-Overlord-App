@@ -5,16 +5,11 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityFocusListener;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 
-public class SkycamCommand extends PoseEntity implements Cloneable, EntityFocusListener, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4367169419590887821L;
+public class SkycamCommand extends PoseEntity implements Cloneable, Serializable {
 
 	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",SkycamModel.DEFAULT_FEEDRATE);
 	protected transient DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",SkycamModel.DEFAULT_ACCELERATION);
@@ -65,16 +60,6 @@ public class SkycamCommand extends PoseEntity implements Cloneable, EntityFocusL
 		}
 		return null;
 	}
-
-	@Override
-	public void gainedFocus() {
-		Skycam e = findParentSkycam();
-		if(e==null) return;
-		e.setCursor(this);
-	}
-
-	@Override
-	public void lostFocus() {}
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {

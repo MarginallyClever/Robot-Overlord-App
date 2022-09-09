@@ -30,7 +30,7 @@ public class SkycamDemo implements Demo {
 		// add some lights
 		LightComponent light;
 		Entity light0 = new Entity();
-		sc.addChild(light0);
+		sc.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
     	pose.setPosition(new Vector3d(60,-60,160));
@@ -48,7 +48,7 @@ public class SkycamDemo implements Demo {
 		gridEntity.addComponent(mat);
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		sc.addChild(gridEntity);
+		sc.addEntity(gridEntity);
 		mat.setDiffuseColor(0.5,0.5,0.5,1);
 		mat.setLit(false);
 
@@ -56,6 +56,6 @@ public class SkycamDemo implements Demo {
 		
     	// add a sixi robot
 		Skycam skycam=new Skycam();
-		sc.addChild(skycam);
+		sc.addEntity(skycam);
 	}
 }

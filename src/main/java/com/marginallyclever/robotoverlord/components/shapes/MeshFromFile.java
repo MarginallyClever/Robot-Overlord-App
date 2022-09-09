@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.filechooser.FileFilter;
@@ -35,7 +36,7 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         filename.parseJSON(jo.getJSONObject("filename"));
     }

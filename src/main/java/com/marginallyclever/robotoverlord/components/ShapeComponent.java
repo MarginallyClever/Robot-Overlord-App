@@ -6,6 +6,8 @@ import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ShapeComponent extends Component {
     // a mesh from the pool of meshes

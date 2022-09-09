@@ -5,6 +5,8 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Sphere extends ShapeComponent {
     private final IntEntity detail = new IntEntity("Detail",32);
@@ -88,5 +90,18 @@ public class Sphere extends ShapeComponent {
     public void getView(ViewPanel view) {
         super.getView(view);
         view.add(detail);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("detail",detail.toJSON());
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws JSONException {
+        super.parseJSON(jo);
+        detail.parseJSON(jo.getJSONObject("detail"));
     }
 }

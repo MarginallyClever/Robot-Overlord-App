@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix3d;
@@ -287,7 +288,7 @@ public class CameraComponent extends Component {
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         pan.parseJSON(jo.getJSONObject("pan"));
         tilt.parseJSON(jo.getJSONObject("tilt"));

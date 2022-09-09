@@ -33,10 +33,10 @@ import com.marginallyclever.robotoverlord.RobotOverlord;
 public class Log {
 	public static String LOG_FILE_PATH;
 	public static String LOG_FILE_NAME_TXT = "log.txt";
-	public final static String PROGRAM_START_STRING = "PROGRAM START";
-	public final static String PROGRAM_END_STRING = "PROGRAM END";
+	public static final String PROGRAM_START_STRING = "PROGRAM START";
+	public static final String PROGRAM_END_STRING = "PROGRAM END";
 	
-	private static Logger logger;
+	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
 
@@ -67,9 +67,7 @@ public class Log {
 
 		boolean hadCrashed = crashReportCheck();
 		deleteOldLog();
-		
-		logger = LoggerFactory.getLogger(RobotOverlord.class);
-		
+
 		write(PROGRAM_START_STRING);
 		write("------------------------------------------------");
 		Properties p = System.getProperties();

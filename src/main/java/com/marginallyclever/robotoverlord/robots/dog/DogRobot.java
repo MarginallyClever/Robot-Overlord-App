@@ -87,7 +87,7 @@ public class DogRobot extends PoseEntity {
 
 	public void addAnimator(DogAnimator da) {
 		animators.add(da);
-		if(da instanceof Entity) addChild((Entity)da);
+		if(da instanceof Entity) addEntity((Entity)da);
 	}
 	
 	public void removeAnimator(DogAnimator da) {

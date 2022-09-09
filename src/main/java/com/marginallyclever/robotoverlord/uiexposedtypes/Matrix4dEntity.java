@@ -12,6 +12,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -126,7 +127,7 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	}
 
 	@Override
-	public void parseJSON(JSONObject jsonObject) throws Exception {
+	public void parseJSON(JSONObject jsonObject) throws JSONException {
 		super.parseJSON(jsonObject);
 		JSONArray ja = jsonObject.getJSONArray("value");
 		double [] list = new double[16];

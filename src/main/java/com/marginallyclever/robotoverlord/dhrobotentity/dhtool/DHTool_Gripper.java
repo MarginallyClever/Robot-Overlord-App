@@ -63,10 +63,10 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		this.setRotation(r);
 		
 		// 4 bars
-		addChild(subComponents[0]=new DHLink());
-		addChild(subComponents[1]=new DHLink());
-		addChild(subComponents[2]=new DHLink());
-		addChild(subComponents[3]=new DHLink());
+		addEntity(subComponents[0]=new DHLink());
+		addEntity(subComponents[1]=new DHLink());
+		addEntity(subComponents[2]=new DHLink());
+		addEntity(subComponents[3]=new DHLink());
 		subComponents[0].setShapeFilename("/Sixi2/beerGripper/linkage.stl");
 		subComponents[0].setShapeScale(0.1);
 		subComponents[1].set(subComponents[0]);
@@ -78,10 +78,10 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		subComponents[3].setPosition(new Vector3d(-1.1/2, 0, 5.9575));
 		
 		// 2 finger tips
-		addChild(subComponents[4]=new DHLink());
+		addEntity(subComponents[4]=new DHLink());
 		subComponents[4].setShapeFilename("/Sixi2/beerGripper/finger.stl");
 		subComponents[4].setShapeScale(0.1);
-		addChild(subComponents[5]=new DHLink());
+		addEntity(subComponents[5]=new DHLink());
 		subComponents[5].set(subComponents[4]);
 		
 		wasGripping=false;

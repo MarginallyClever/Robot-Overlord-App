@@ -16,7 +16,7 @@ public class TrayCabinet extends ShapeEntity {
         getMaterial().setAmbientColor(1, 1, 1, 1);
 
         ShapeEntity tray = new ShapeEntity();
-        addChild(tray);
+        addEntity(tray);
         tray.setName("Tray");
         tray.setShapeFilename("/tray_resized.stl");
         tray.setPosition(new Vector3d(3.925 * -3, -8.35, 0.3 + 7));

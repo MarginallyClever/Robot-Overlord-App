@@ -44,7 +44,7 @@ public class AddEntityEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		parent.addChild(entity);
+		parent.addEntity(entity);
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import java.io.Serial;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -8,7 +10,6 @@ import javax.swing.undo.CannotUndoException;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
  * An undoable action to remove an {@link Entity} from the world.
@@ -16,25 +17,25 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
  *
  */
 public class RemoveEntityEdit extends AbstractUndoableEdit {
-	@Serial
-	private static final long serialVersionUID = 1L;
-	private final Entity entity;
-	private final Entity parent;
+	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final RobotOverlord ro;
+	private final String name;
 
-	public RemoveEntityEdit(RobotOverlord ro, Entity entity) {
+	public RemoveEntityEdit(String name,RobotOverlord ro, List<Entity> entityList) {
 		super();
-		
-		this.entity = entity;
+		this.name = name;
 		this.ro = ro;
-		this.parent = entity.getParent();
+
+		for(Entity entity : entityList) {
+			childParent.put(entity,entity.getParent());
+		}
 
 		doIt();
 	}
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Remove ") + entity.getName();
+		return name;
 	}
 
 	@Override
@@ -44,14 +45,18 @@ public class RemoveEntityEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		if(parent!=null) parent.removeChild(entity);
+		for(Entity entity : childParent.keySet()) {
+			entity.getParent().removeChild(entity);
+		}
 		ro.updateEntityTree();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		if(parent!=null) parent.addChild(entity);
+		for(Entity entity : childParent.keySet()) {
+			childParent.get(entity).addEntity(entity);
+		}
 		ro.updateEntityTree();
 	}
 }

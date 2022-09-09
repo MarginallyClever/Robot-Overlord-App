@@ -3,6 +3,8 @@ package com.marginallyclever.robotoverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.*;
 
@@ -29,15 +31,25 @@ public class ComponentFactory {
 		return names;
 	}
 	
-	public static Component load(String name) throws Exception {
+	public static Component load(String name) throws IllegalArgumentException {
 		for( Class<?> c : available ) {
-			if(c.getSimpleName().contentEquals(name)) {
-				return (Component)c.getDeclaredConstructor().newInstance();
-			}
-			if(c.getName().contentEquals(name)) {
-				return (Component)c.getDeclaredConstructor().newInstance();
+			if(name.contentEquals(c.getSimpleName()) || name.contentEquals(c.getCanonicalName())) {
+				return createInstance(c);
 			}
 		}
-		throw new InvalidParameterException(name);
+		throw new InvalidParameterException("ComponentFactory does not recognize '"+name+"'.");
+	}
+
+	private static Component createInstance(Class<?> c) {
+		try {
+			for (Constructor<?> constructor : c.getDeclaredConstructors()) {
+				if (constructor.getParameterCount() == 0) {
+					return (Component) constructor.newInstance();
+				}
+			}
+		} catch (IllegalAccessException | InvocationTargetException | InstantiationException var5) {
+			var5.printStackTrace();
+		}
+		return null;
 	}
 }

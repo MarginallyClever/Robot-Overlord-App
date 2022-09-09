@@ -36,7 +36,7 @@ public class PhysicsDemo implements Demo {
 		// add some lights
 		LightComponent light;
 		Entity light0 = new Entity();
-		sc.addChild(light0);
+		sc.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
     	pose.setPosition(new Vector3d(60,-60,160));
@@ -53,7 +53,7 @@ public class PhysicsDemo implements Demo {
 		gridEntity.addComponent(mat);
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		sc.addChild(gridEntity);
+		sc.addEntity(gridEntity);
 		mat.setDiffuseColor(0.5,0.5,0.5,1);
 		mat.setLit(false);
 		
@@ -151,7 +151,7 @@ public class PhysicsDemo implements Demo {
 			rigidBody.setAngularVelocity(new Vector3d(randomRotation(),randomRotation(),randomRotation()));
 			//rigidBody.applyForceAtPoint(new Vector3d(10,0,40), new Point3d(-10,0,10));
 			//rigidBody.applyForceAtPoint(new Vector3d(-1,0,-4), new Point3d(-10,0,10));
-			sc.addChild(rigidBody);
+			sc.addEntity(rigidBody);
 		}
 	}
 
@@ -194,7 +194,7 @@ public class PhysicsDemo implements Demo {
 		body.setPauseOnCollision(false);
 		body.setShape(b);
 		body.setMass(1);
-		sc.addChild(body);
+		sc.addEntity(body);
 		return body;
 	}
 	
@@ -206,7 +206,7 @@ public class PhysicsDemo implements Demo {
 		body.setPauseOnCollision(false);
 		body.setShape(s);
 		body.setMass(1);
-		sc.addChild(body);
+		sc.addEntity(body);
 		return body;
 	}
 	

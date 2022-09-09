@@ -28,13 +28,13 @@ public class MaterialEntity extends Entity {
 		super();
 		this.setName("Material");
 
-		addChild(isLit);
-		addChild(diffuse);
-		addChild(specular);
-		addChild(emission);
-		addChild(ambient);
-		addChild(shininess);
-		addChild(texture);
+		addEntity(isLit);
+		addEntity(diffuse);
+		addEntity(specular);
+		addEntity(emission);
+		addEntity(ambient);
+		addEntity(shininess);
+		addEntity(texture);
 	}
 	
 	@Override

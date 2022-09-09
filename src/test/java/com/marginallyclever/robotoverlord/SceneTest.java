@@ -12,12 +12,12 @@ public class SceneTest {
 
         Scene scene = new Scene();
         Entity mainCamera = new Entity("Main Camera");
-        scene.addChild(mainCamera);
+        scene.addEntity(mainCamera);
         mainCamera.addComponent(new PoseComponent());
         mainCamera.addComponent(new CameraComponent());
 
         Entity light0 = new Entity("light 0");
-        scene.addChild(light0);
+        scene.addEntity(light0);
         light0.addComponent(new PoseComponent());
         light0.addComponent(new LightComponent());
 
@@ -26,7 +26,7 @@ public class SceneTest {
         Box box = new Box();
         boxEntity.addComponent(box);
         boxEntity.addComponent(new MaterialComponent());
-        scene.addChild(boxEntity);
+        scene.addEntity(boxEntity);
         pose.setPosition(new Vector3d(-10,0,0));
 
         return scene;

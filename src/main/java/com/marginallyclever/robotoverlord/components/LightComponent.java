@@ -8,6 +8,7 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
@@ -219,7 +220,7 @@ public class LightComponent extends Component {
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         diffuse.parseJSON(jo.getJSONObject("diffuse"));
         ambient.parseJSON(jo.getJSONObject("ambient"));

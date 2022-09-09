@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.marginallyclever.robotoverlord.Entity;
 
@@ -18,9 +19,9 @@ public class EntityTreePanelEvent {
 
 	public int eventType;
 	public EntityTreePanel panel;
-	public ArrayList<Entity> subjects;
+	public List<Entity> subjects;
 	
-	public EntityTreePanelEvent(int eventType,EntityTreePanel panel,ArrayList<Entity> subject) {
+	public EntityTreePanelEvent(int eventType,EntityTreePanel panel,List<Entity> subject) {
 		this.eventType=eventType;
 		this.panel=panel;
 		this.subjects=subject;

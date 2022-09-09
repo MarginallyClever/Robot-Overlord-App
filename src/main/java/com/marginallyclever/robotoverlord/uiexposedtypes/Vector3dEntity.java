@@ -4,6 +4,7 @@ import javax.vecmath.Vector3d;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class Vector3dEntity extends AbstractEntity<Vector3d> {
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws Exception {
+	public void parseJSON(JSONObject jo) throws JSONException {
 		super.parseJSON(jo);
 		Vector3d v = get();
 		v.x = jo.getDouble("x");

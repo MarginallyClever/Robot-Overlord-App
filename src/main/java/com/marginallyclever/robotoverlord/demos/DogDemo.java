@@ -30,7 +30,7 @@ public class DogDemo implements Demo {
 		// add some lights
 		LightComponent light;
 		Entity light0 = new Entity();
-		sc.addChild(light0);
+		sc.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
 		pose.setPosition(new Vector3d(60,-60,160));
@@ -41,7 +41,7 @@ public class DogDemo implements Demo {
     	light.setDirectional(true);
 
 		DogRobot dog = new DogRobot();
-		sc.addChild(dog);
+		sc.addEntity(dog);
 		dog.setPosition(new Vector3d(0,0,17));
 		dog.setRotation(new Vector3d(Math.toRadians(90),0,0));
 
@@ -51,7 +51,7 @@ public class DogDemo implements Demo {
 		gridEntity.addComponent(mat);
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		dog.addChild(gridEntity);
+		dog.addEntity(gridEntity);
 		mat.setDiffuseColor(0.5,0.5,0.5,1);
 		mat.setLit(false);
 	}

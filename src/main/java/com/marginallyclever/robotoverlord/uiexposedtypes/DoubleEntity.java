@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.uiexposedtypes;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class DoubleEntity extends AbstractEntity<Double> {
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws Exception {
+	public void parseJSON(JSONObject jo) throws JSONException {
 		super.parseJSON(jo);
 		set(jo.getDouble("value"));
 	}

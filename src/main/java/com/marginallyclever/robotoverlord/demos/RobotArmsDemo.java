@@ -42,7 +42,7 @@ public class RobotArmsDemo implements Demo {
 		// add some lights
 		LightComponent light;
 		Entity light0 = new Entity();
-		sc.addChild(light0);
+		sc.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
     	pose.setPosition(new Vector3d(60,-60,160));
@@ -55,13 +55,13 @@ public class RobotArmsDemo implements Demo {
 		// add some collision bounds
 		BoxEntity box;
 		
-		sc.addChild(box = new BoxEntity());
+		sc.addEntity(box = new BoxEntity());
 		box.setName("Front wall");
 		box.setSize(233.5,1,100);
 		box.setPosition(new Vector3d(69.75,65,50));
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 		
-		sc.addChild(box = new BoxEntity());
+		sc.addEntity(box = new BoxEntity());
 		box.setName("Back wall");
 		box.setSize(180,1,100);
 		box.setPosition(new Vector3d(-47.5,-25.5,50));
@@ -69,7 +69,7 @@ public class RobotArmsDemo implements Demo {
 		box.getMaterial().setDiffuseColor(0f/255f,169f/255f,255f/255f,1f);
 
 		ShapeEntity table = new ShapeEntity("Table","/table.stl");
-		sc.addChild(table);
+		sc.addEntity(table);
 		table.setPosition(new Vector3d(0,0,-0.75));
 		table.getMaterial().setDiffuseColor(255f/255f,192f/255f,128f/255f,1f);
 
@@ -93,7 +93,7 @@ public class RobotArmsDemo implements Demo {
 	
 	private void addArm(RobotArmIK arm,Vector3d p,Entity sc,RobotOverlord ro) {
 		arm.setPosition(p);
-		sc.addChild(arm);
+		sc.addEntity(arm);
 		
 		//Matrix4d m = new Matrix4d();
 		//m.setIdentity();

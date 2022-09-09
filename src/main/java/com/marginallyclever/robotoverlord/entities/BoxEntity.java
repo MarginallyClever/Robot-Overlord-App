@@ -10,7 +10,6 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 
@@ -35,9 +34,9 @@ public class BoxEntity extends ShapeEntity implements Collidable {
 	public BoxEntity() {
 		super();
 		setName("Box");
-		addChild(width);
-		addChild(height);
-		addChild(depth);
+		addEntity(width);
+		addEntity(height);
+		addEntity(depth);
 		
 		width .addPropertyChangeListener((evt)-> updateModel() );
 		height.addPropertyChangeListener((evt)-> updateModel() );

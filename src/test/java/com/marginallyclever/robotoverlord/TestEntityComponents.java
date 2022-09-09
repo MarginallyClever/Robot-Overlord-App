@@ -53,8 +53,8 @@ public class TestEntityComponents {
         Entity e0 = new Entity();
         Entity e1 = new Entity();
         Entity e2 = new Entity();
-        e0.addChild(e1);
-        e0.addChild(e2);
+        e0.addEntity(e1);
+        e0.addEntity(e2);
         e1.addComponent(new PoseComponent());
         e2.addComponent(new CameraComponent());
         e0.addComponent(new CameraComponent());

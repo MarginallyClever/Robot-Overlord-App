@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.edits.RenameEdit;
@@ -17,7 +18,7 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.RenameEdit;
  * @author Dan Royer
  *
  */
-public class RenameEntityAction extends AbstractAction {
+public class RenameEntityAction extends AbstractAction implements EditorAction {
 	private final RobotOverlord ro;
 	
 	public RenameEntityAction(String name,RobotOverlord ro) {
@@ -42,5 +43,10 @@ public class RenameEntityAction extends AbstractAction {
 		if( newName!=null && !newName.equals(e.getName()) ) {
 			UndoSystem.addEvent(this,new RenameEdit(ro,e,newName));
 		}
+	}
+
+	@Override
+	public void updateEnableStatus() {
+		setEnabled(ro.getSelectedEntities().size()==1);
 	}
 }

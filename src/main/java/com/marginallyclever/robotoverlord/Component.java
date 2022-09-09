@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class Component {
         return jo;
     }
 
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         enabled.set(jo.getBoolean("enabled"));
     }
 

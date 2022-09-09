@@ -51,7 +51,7 @@ public class Scene extends Entity {
 
 	private void renderAllEntitiesWithMeshes(GL2 gl2) {
 		defaultMaterial.render(gl2);
-		for(Entity child : children) {
+		for(Entity child : entities) {
 			renderEntitiesWithMeshes(gl2, child);
 		}
 	}
@@ -66,7 +66,7 @@ public class Scene extends Entity {
 			renderOneEntityWithMesh(gl2, obj);
 		}
 
-		for (Entity child : obj.getChildren()) {
+		for (Entity child : obj.getEntities()) {
 			renderEntitiesWithMeshes(gl2, child);
 		}
 
@@ -95,7 +95,7 @@ public class Scene extends Entity {
 
 		turnOffAllLights(gl2);
 
-		Queue<Entity> found = new LinkedList<>(children);
+		Queue<Entity> found = new LinkedList<>(entities);
 		int i=0;
 		while(!found.isEmpty()) {
 			Entity obj = found.remove();
@@ -104,7 +104,7 @@ public class Scene extends Entity {
 				light.setupLight(gl2,i++);
 				if(i==GL2.GL_MAX_LIGHTS) return;
 			}
-			found.addAll(obj.children);
+			found.addAll(obj.entities);
 		}
 	}
 
@@ -116,13 +116,13 @@ public class Scene extends Entity {
 
 	// Search only my children to find the PhysicalEntity with matching pickName.
 	public Entity pickEntityWithName(int pickName) {
-		Queue<Entity> found = new LinkedList<>(children);
+		Queue<Entity> found = new LinkedList<>(entities);
 		while(!found.isEmpty()) {
 			Entity obj = found.remove();
 			if( obj.getPickName()==pickName ) {
 				return obj;  // found!
 			}
-			found.addAll(obj.children);
+			found.addAll(obj.entities);
 		}
 		
 		return null;
@@ -142,7 +142,7 @@ public class Scene extends Entity {
 		List<PoseEntity> found = new ArrayList<PoseEntity>();
 		
 		// check all children
-		for( Entity e : children ) {
+		for( Entity e : entities) {
 			if(e instanceof PoseEntity) {
 				// is physical, therefore has position
 				PoseEntity po = (PoseEntity)e;
@@ -167,7 +167,7 @@ public class Scene extends Entity {
 	public boolean collisionTest(ArrayList<Cuboid> listA) {
 		
 		// check all children
-		for( Entity b : children ) {
+		for( Entity b : entities) {
 			if( !(b instanceof Collidable) ) continue;
 			
 			ArrayList<Cuboid> listB = ((Collidable)b).getCuboidList();

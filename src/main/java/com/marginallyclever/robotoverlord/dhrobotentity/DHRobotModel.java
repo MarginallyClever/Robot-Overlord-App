@@ -144,7 +144,7 @@ public class DHRobotModel extends Entity {
 		while(newSize-->0) {
 			DHLink newLink = new DHLink();
 			links.add(newLink);
-			prev.addChild(newLink);
+			prev.addEntity(newLink);
 			prev = newLink;
 		}
 	}

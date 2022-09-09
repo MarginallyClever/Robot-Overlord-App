@@ -57,7 +57,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 
 	public LinearStewartPlatformCore(String name) {
 		super(name);
-		addChild(ee);
+		addEntity(ee);
 
 		connection.addPropertyChangeListener(this);
 

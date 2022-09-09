@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -11,6 +10,7 @@ import java.util.List;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -24,7 +24,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	private String name;
 
 	// my children
-	protected transient ArrayList<Entity> children = new ArrayList<>();
+	protected transient ArrayList<Entity> entities = new ArrayList<>();
 	
 	// my parent
 	protected transient Entity parent;
@@ -74,7 +74,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 			if(c.getEnabled()) c.update(dt);
 		}
 
-		for(Entity e : children) {
+		for(Entity e : entities) {
 			e.update(dt);
 		}
 	}
@@ -86,7 +86,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	public void render(GL2 gl2) {}
 	
 	public boolean hasChild(Entity o) {
-		return children.contains(o);
+		return entities.contains(o);
 	}
 
 	public String getUniqueChildName(Entity e) {
@@ -100,7 +100,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		
 		do {
 			foundMatch=false;
-			for( Entity c : children ) {
+			for( Entity c : entities) {
 				if( c.getName().equals(name) ) {
 					// matches an existing name.  increment by one and check everybody again.
 					name = rootName+Integer.toString(count++);
@@ -112,26 +112,26 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		return name;
 	}
 	
-	public void addChild(int index,Entity e) {
+	public void addEntity(int index, Entity e) {
 		// check if any child has a matching name
 		e.setName(getUniqueChildName(e));
-		children.add(index,e);
+		entities.add(index,e);
 		e.setParent(this);
 	}
 	
-	public void addChild(Entity e) {
-		addChild(children.size(),e);
+	public void addEntity(Entity e) {
+		addEntity(entities.size(),e);
 	}
 
 	public void removeChild(Entity e) {
-		if (children.contains(e)) {
-			children.remove(e);
+		if (entities.contains(e)) {
+			entities.remove(e);
 			e.setParent(null);
 		}
 	}
 
-	public ArrayList<Entity> getChildren() {
-		return children;
+	public ArrayList<Entity> getEntities() {
+		return entities;
 	}
 
 	public void removeParent() {
@@ -186,7 +186,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 				continue;
 			} else {
 				boolean found = false;
-				for (Entity c : e.getChildren()) {
+				for (Entity c : e.getEntities()) {
 					if (name.contentEquals(c.getName())) {
 						e = c;
 						found = true;
@@ -230,49 +230,18 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		}
 	}
 
-	protected void getViewOfChildren(ViewPanel view) {
-		for (Entity child : children) {
-			if (child.getChildren().isEmpty()) {
-				// only leaves
-				child.getView(view);
-			}
-		}
-	}
-
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		Entity e = (Entity)super.clone();
 		
-		e.children = new ArrayList<Entity>();
-		for(int i=0;i<children.size();++i) {
-			e.children.add((Entity)children.get(i).clone());
+		e.entities = new ArrayList<Entity>();
+		for(int i = 0; i< entities.size(); ++i) {
+			e.entities.add((Entity) entities.get(i).clone());
 		}
 		
 		e.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
 		
 		return e;
-	}
-	
-	// Serialization
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-		stream.writeObject(name);
-		stream.writeInt(children.size());
-		for( Entity c : children ) {
-			stream.writeObject(c);
-		}
-	}
-
-	// Serialization
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		name = (String)stream.readObject();
-
-		// load and associate children
-		children = new ArrayList<Entity>();
-		int count = stream.readInt();
-		for(int i=0;i<count;++i) {
-			Entity child = (Entity)stream.readObject();
-			addChild(child);
-		}
 	}
 
 	/**
@@ -295,16 +264,16 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		}
 	}
 
-	public void removeAllChildren() {
-		while(!children.isEmpty()) removeChild(children.get(0));
+	public void removeAllEntities() {
+		while(!entities.isEmpty()) removeChild(entities.get(0));
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		s.append("name="+name+", ");
-		s.append("children="+Arrays.toString(children.toArray())+", ");
-		s.append("components="+Arrays.toString(components.toArray()));
+		s.append("name=").append(name).append(", ");
+		s.append("entities=").append(Arrays.toString(entities.toArray())).append(", ");
+		s.append("components=").append(Arrays.toString(components.toArray()));
 		return s.toString();
 	}
 
@@ -368,7 +337,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		T found = getComponent(clazz);
 		if(found!=null) return found;
 
-		for(Entity e : children) {
+		for(Entity e : entities) {
 			found = e.findFirstComponent(clazz);
 			if(found!=null) return found;
 		}
@@ -400,14 +369,14 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		JSONObject jo = new JSONObject();
 		jo.put("type",this.getClass().getName());
 		jo.put("name",this.name);
-		jo.put("children",getChildrenAsJSON());
-		jo.put("components",getComponentsAsJSON());
+		if(!entities.isEmpty()) jo.put("entities", getEntitiesAsJSON());
+		if(!components.isEmpty()) jo.put("components",getComponentsAsJSON());
 		return jo;
 	}
 
-	private JSONArray getChildrenAsJSON() {
+	private JSONArray getEntitiesAsJSON() {
 		JSONArray jo = new JSONArray();
-		for(Entity c : children) {
+		for(Entity c : entities) {
 			jo.put(c.toJSON());
 		}
 		return jo;
@@ -421,22 +390,22 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		return jo;
 	}
 
-	public void parseJSON(JSONObject jo) throws Exception {
+	public void parseJSON(JSONObject jo) throws JSONException {
 		this.name = jo.getString("name");
-		readChildren(jo.getJSONArray("children"));
-		readComponents(jo.getJSONArray("components"));
+		if(jo.has("entities")) readEntities(jo.getJSONArray("entities"));
+		if(jo.has("components")) readComponents(jo.getJSONArray("components"));
 	}
 
-	private void readChildren(JSONArray jo) throws Exception {
+	private void readEntities(JSONArray jo) throws JSONException {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Entity entity = EntityFactory.load(jo2.getString("type"));
-			this.addChild(entity);
+			this.addEntity(entity);
 			entity.parseJSON(jo2);
 		}
 	}
 
-	private void readComponents(JSONArray jo) throws Exception {
+	private void readComponents(JSONArray jo) throws JSONException {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Component component = ComponentFactory.load(jo2.getString("type"));
@@ -445,7 +414,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		}
 	}
 
-	public Entity deepCopy() throws Exception {
+	public Entity deepCopy() {
 		Entity e = new Entity();
 		e.parseJSON(this.toJSON());
 		return e;

@@ -20,6 +20,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Viewport;
+import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -35,9 +36,6 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
  *
  */
 public class MoveTool extends Entity {
-	@Serial
-	private static final long serialVersionUID = -189456892380998828L;
-
 	private static final double STEP_SIZE = Math.PI/120.0;
 	
 	protected TextRenderer textRender = new TextRenderer(new Font("CourrierNew", Font.BOLD, 16));
@@ -83,10 +81,10 @@ public class MoveTool extends Entity {
 	private double valueLast;  // state last frame 
 	
 	private final double[] valueStarts = new double[3];
-	private double[] valueNows = new double[3];
+	private final double[] valueNows = new double[3];
 	private final double[] valueLasts = new double[3];
 
-	private  SlideDirection majorAxisSlideDirection;
+	private SlideDirection majorAxisSlideDirection;
 
 	// rotate handle size
 	static private final double rScale=0.8;
@@ -100,10 +98,10 @@ public class MoveTool extends Entity {
 	public MoveTool() {
 		super();
 		setName("MoveTool");
-		addChild(ballSize);
-		addChild(snapOn);
-		addChild(snapDegrees);
-		addChild(snapDistance);
+		addEntity(ballSize);
+		addEntity(snapOn);
+		addEntity(snapDegrees);
+		addEntity(snapDistance);
 		
 		FOR.setIdentity();
 				
@@ -132,7 +130,9 @@ public class MoveTool extends Entity {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		Viewport cameraView = ro.getViewport();
 
-		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+		CameraComponent cameraComponent = ro.getCamera();
+		if(cameraComponent==null) return;
+		PoseComponent camera = cameraComponent.getEntity().getComponent(PoseComponent.class);
 
 		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
 		Matrix4d subjectPoseWorld = subjectPose.getWorld();
@@ -407,8 +407,7 @@ public class MoveTool extends Entity {
 			}
 		}
 	}
-	
-	
+
 	private void updateKBTranslation(double dt) {
 		valueNow = valueLast;
 		
@@ -449,7 +448,6 @@ public class MoveTool extends Entity {
 			attemptMove(ro);
 		}
 	}
-	
 
 	// GamePad/JoyStick
 	private void updateJoyCon(double dt) {
@@ -457,7 +455,7 @@ public class MoveTool extends Entity {
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
 
-		valueNows = valueLasts;
+		System.arraycopy(valueLasts, 0, valueNows, 0, valueLasts.length);
 
 		// rotations
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
@@ -565,24 +563,25 @@ public class MoveTool extends Entity {
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		//ro.getViewport().renderChosenProjection(gl2);
 
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
-		
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+		float oldWidth = OpenGLHelper.setLineWidth(gl2, 2);
+
 		gl2.glPushMatrix();
-			
-			boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
-			float oldWidth = OpenGLHelper.setLineWidth(gl2, 2);
+
+			//PoseComponent pose = subject.getComponent(PoseComponent.class);
+			//MatrixHelper.applyMatrix(gl2, pose.getWorld());
 
 			renderOutsideCircle(gl2);
 			renderRotation(gl2);
 			renderTranslation(gl2);
 
-			OpenGLHelper.setLineWidth(gl2, oldWidth);
-			OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
-			
 		gl2.glPopMatrix();
-		
+
+		OpenGLHelper.setLineWidth(gl2, oldWidth);
+		OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
+
 		printDistanceOnScreen(gl2,ro);
 	}
 	

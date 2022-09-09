@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix3d;
@@ -50,7 +51,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         position.parseJSON(jo.getJSONObject("position"));
         rotation.parseJSON(jo.getJSONObject("rotation"));
@@ -160,8 +161,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public String toString() {
-        return super.toString()
-                +"local="+ Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n";
+        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n";
     }
 
     public void setWorld(Matrix4d wm) {

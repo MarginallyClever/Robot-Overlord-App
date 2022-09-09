@@ -27,7 +27,7 @@ public class ODEPhysicsEntity extends PoseEntity {
 	
 	public ODEPhysicsEntity(DGeom g) {
 		super(ODEPhysicsEntity.class.getSimpleName());
-		addChild(mat);
+		addEntity(mat);
 		geom=g;
 	}
 	

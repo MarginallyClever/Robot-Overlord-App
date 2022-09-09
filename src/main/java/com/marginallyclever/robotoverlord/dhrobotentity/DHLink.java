@@ -106,21 +106,21 @@ public class DHLink extends PoseEntity implements Collidable {
 		super();
 		setName("DHLink");
 
-		addChild(d);
-		addChild(r);
-		addChild(theta);
-		addChild(alpha);
+		addEntity(d);
+		addEntity(r);
+		addEntity(theta);
+		addEntity(alpha);
 		
 		d.addPropertyChangeListener(this);
 		r.addPropertyChangeListener(this);
 		alpha.addPropertyChangeListener(this);
 		theta.addPropertyChangeListener(this);
 		
-		addChild(rangeMin);
-		addChild(rangeMax);
+		addEntity(rangeMin);
+		addEntity(rangeMax);
 
-		addChild(maxAcceleration);
-		addChild(maxTorque);
+		addEntity(maxAcceleration);
+		addEntity(maxTorque);
 
 		flags=LinkAdjust.THETA;
 	}

@@ -32,7 +32,7 @@ public class NewSceneAction extends AbstractAction {
                 (String)this.getValue(AbstractAction.NAME),
                 JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-        	ro.newScene();
+
         }
 	}
 }

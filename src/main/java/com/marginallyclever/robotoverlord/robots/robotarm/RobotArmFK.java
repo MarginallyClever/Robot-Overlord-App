@@ -58,8 +58,8 @@ public class RobotArmFK extends PoseEntity implements Robot {
 	public RobotArmFK(String name) {
 		super(name);
 
-		addChild(endEffectorTarget);
-		endEffectorTarget.addChild(toolCenterPoint);
+		addEntity(endEffectorTarget);
+		endEffectorTarget.addEntity(toolCenterPoint);
 		endEffectorTarget.setArm(this);
 
 		loadModel();

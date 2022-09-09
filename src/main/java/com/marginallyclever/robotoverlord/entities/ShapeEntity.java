@@ -63,21 +63,21 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	
 	public ShapeEntity(String name) {
 		super(name);
-		addChild(filename);
+		addEntity(filename);
 
-		addChild(rotationAdjust);
-		addChild(originAdjust);
-		addChild(scale);
+		addEntity(rotationAdjust);
+		addEntity(originAdjust);
+		addEntity(scale);
 				
 		filename.addPropertyChangeListener(this);
 		rotationAdjust.addPropertyChangeListener(this);
 		originAdjust.addPropertyChangeListener(this);
 		scale.addPropertyChangeListener(this);
 
-		addChild(numTriangles);
-		addChild(hasNormals);
-		addChild(hasColors);
-		addChild(hasUVs);
+		addEntity(numTriangles);
+		addEntity(hasNormals);
+		addEntity(hasColors);
+		addEntity(hasUVs);
 	}
 	
 	public ShapeEntity(String name, String filename) {

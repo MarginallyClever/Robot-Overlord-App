@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -25,9 +24,6 @@ import com.marginallyclever.robotoverlord.Entity;
  *
  */
 public class EntityTreePanel extends JPanel implements TreeSelectionListener {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	protected Entity root;  // root of entity tree
 	protected final ArrayList<Entity> selected = new ArrayList<>();
     protected EntityTreeNode treeRoot;
@@ -50,19 +46,19 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	}
 
 	public void setSelection(Entity one) {
-		ArrayList<Entity> newSelectionList = new ArrayList<Entity>();
-		newSelectionList.add(one);
+		List<Entity> newSelectionList = new ArrayList<>();
+		if(one!=null) newSelectionList.add(one);
 		setSelection(newSelectionList);
 	}
 	
-	public void setSelection(ArrayList<Entity> newSelectionList) {
+	public void setSelection(List<Entity> newSelectionList) {
 		if(myTree ==null) return;
 		if(selected.equals(newSelectionList)) return;
 
 		ArrayList<TreePath> pathList = new ArrayList<TreePath>();
 		
 		// preserve the original expansions
-		LinkedList<EntityTreeNode> list = new LinkedList<EntityTreeNode>();
+		LinkedList<EntityTreeNode> list = new LinkedList<>();
 		list.add(treeRoot);
 		while( !list.isEmpty() ) {
 			EntityTreeNode node = list.remove();
@@ -87,10 +83,11 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 		pathList.toArray(paths);
 		myTree.setSelectionPaths(paths);
 	}
-	
 
-	// expand or collapse all nodes of a tree
-	// from https://www.logicbig.com/tutorials/java-swing/jtree-expand-collapse-all-nodes.html
+
+	/** expand or collapse all nodes of a tree
+	 * from https://www.logicbig.com/tutorials/java-swing/jtree-expand-collapse-all-nodes.html
+	 */
 	public static void setNodeExpandedState(JTree tree, EntityTreeNode node, boolean expanded) {
 		ArrayList<TreeNode> list = (ArrayList<TreeNode>)Collections.list(node.children());
 		for (TreeNode treeNode : list) {
@@ -121,14 +118,14 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 
 		if(myTree !=null) {
 			setNodeExpandedState(newTree,(EntityTreeNode)newTree.getModel().getRoot(),true);
-			
+
 			// preserve the original expansions
 			for(int i = 0; i< myTree.getRowCount(); ++i) {
 				if(!myTree.isExpanded(i)) {
 					//Log.message("Collapsing path " + oldTree.getPathForRow(i) + ":"+(oldTree.isExpanded(i)?"o":"x"));
 					TreePath p0 = myTree.getPathForRow(i);
 					String p0s = p0.toString();
-					
+
 					//Log.message("Comparing to >"+p0s+"<");
 					for(int j=0;j<newTree.getRowCount();++j) {
 						TreePath p1 = newTree.getPathForRow(j);
@@ -145,10 +142,10 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 			// restore the selected paths
 			newTree.setSelectionPaths(myTree.getSelectionPaths());
 		}
-		
+
 		if(myTree != null) this.remove(myTree);
 		scroll.setViewportView(newTree);
-		
+
 		myTree = newTree;
 		treeRoot = newRoot;
 		
@@ -193,7 +190,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	// Only add branches of the tree, ignore all leaves.  leaves *should* be handled by the ViewPanel of a single entity.
 	public EntityTreeNode createTreeNodes(Entity e) {
 		EntityTreeNode parent = new EntityTreeNode(e);
-		for( Entity child : e.getChildren() ) {
+		for( Entity child : e.getEntities() ) {
 			//if(!child.getChildren().isEmpty())
 			if(!(child instanceof AbstractEntity)) {
 				parent.add(createTreeNodes(child));
@@ -205,8 +202,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener {
 	// TreeSelectionListener event
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
-		ArrayList<Entity> added = new ArrayList<Entity>();
-		ArrayList<Entity> removed = new ArrayList<Entity>();
+		List<Entity> added = new ArrayList<>();
+		List<Entity> removed = new ArrayList<>();
 		
 		for(TreePath p : arg0.getPaths()) {
 			EntityTreeNode node = (EntityTreeNode)p.getLastPathComponent();

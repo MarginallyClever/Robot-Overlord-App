@@ -32,7 +32,7 @@ public class BasicDemo implements Demo {
 		// add some lights
     	LightComponent light;
 		Entity light0 = new Entity("LightB");
-		scene.addChild(light0);
+		scene.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
     	pose.setPosition(new Vector3d(60,-60,160));
@@ -40,7 +40,7 @@ public class BasicDemo implements Demo {
     	light.setSpecular(0.5f, 0.5f, 0.5f, 1.0f);
 
 		light0 = new Entity("LightC");
-		scene.addChild(light0);
+		scene.addEntity(light0);
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(light = new LightComponent());
     	pose.setPosition(new Vector3d(-60,60,-160));
@@ -53,7 +53,7 @@ public class BasicDemo implements Demo {
 		gridEntity.addComponent(mat);
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		scene.addChild(gridEntity);
+		scene.addEntity(gridEntity);
 		mat.setDiffuseColor(0.5,0.5,0.5,1);
 		mat.setLit(false);
 
@@ -62,7 +62,7 @@ public class BasicDemo implements Demo {
 		Box box = new Box();
 		boxEntity.addComponent(box);
 		boxEntity.addComponent(new MaterialComponent());
-		scene.addChild(boxEntity);
+		scene.addEntity(boxEntity);
 		pose.setPosition(new Vector3d(-10,0,0));
 
 		Entity sphereEntity = new Entity("Sphere");
@@ -70,7 +70,7 @@ public class BasicDemo implements Demo {
 		Sphere sphere = new Sphere();
 		sphereEntity.addComponent(sphere);
 		sphereEntity.addComponent(new MaterialComponent());
-		scene.addChild(sphereEntity);
+		scene.addEntity(sphereEntity);
 		pose.setPosition(new Vector3d(10,0,0));
 
 		Entity meshEntity = new Entity("Mesh");
@@ -79,7 +79,7 @@ public class BasicDemo implements Demo {
 		meshEntity.addComponent(mesh);
 		meshEntity.addComponent(new MaterialComponent());
 		mesh.setFilename("/Sixi3b/j0.obj");
-		scene.addChild(meshEntity);
+		scene.addEntity(meshEntity);
 		pose.setPosition(new Vector3d(0,0,0));
 	}
 }

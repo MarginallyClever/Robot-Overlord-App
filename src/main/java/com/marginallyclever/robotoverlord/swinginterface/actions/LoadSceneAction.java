@@ -1,9 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.PasteEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.PasteEntityEdit;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoadSceneAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(LoadSceneAction.class);
@@ -35,7 +38,9 @@ public class LoadSceneAction extends AbstractAction {
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
             try {
                 Scene scene = loadScene(fc.getSelectedFile().getAbsolutePath());
-                UndoSystem.addEvent(this,new PasteEdit((String)this.getValue(Action.NAME),ro,scene));
+                List<Entity> dest = new ArrayList<>();
+                dest.add(ro.getScene());
+                UndoSystem.addEvent(this,new PasteEntityEdit((String)this.getValue(Action.NAME),ro,scene,dest));
             } catch(Exception e1) {
                 JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
                 e1.printStackTrace();

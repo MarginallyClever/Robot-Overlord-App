@@ -64,27 +64,27 @@ public class DHBuilderApp extends DHRobotModel {
 		}
 		
 		endEffector.setName("End Effector");
-		links.get(links.size()-1).addChild(endEffector);
+		links.get(links.size()-1).addEntity(endEffector);
 		endEffector.addPropertyChangeListener(this);
 		
-		addChild(anchor);
+		addEntity(anchor);
 		anchor.setName("Anchor");
 		anchor.setMaterial(mat);
 		
 		for( i=0;i<BONE_NAMES.length;++i) {
 			models[i] = new ShapeEntity();
 			models[i].setName("model "+BONE_NAMES[i]);
-			addChild(models[i]);
+			addEntity(models[i]);
 			models[i].setMaterial(mat);
 		}
 		
 		endEffectorTarget.setName("End Effector Target");
-		addChild(endEffectorTarget);
+		addEntity(endEffectorTarget);
 
 		endEffectorTarget.setPoseWorld(endEffector.getPoseWorld());
 		endEffectorTarget.addPropertyChangeListener(this);
 		
-		addChild(mat);
+		addEntity(mat);
 	}
 	
 	@Override

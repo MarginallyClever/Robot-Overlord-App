@@ -58,8 +58,8 @@ public class Sixi2LinearGripper extends DHTool {
 		shapeEntity.getMaterial().setAmbientColor(1, 1, 1, 1);
 		
 		// 2 finger tips
-		addChild(leftFinger=new DHLink());
-		addChild(rightFinger=new DHLink());
+		addEntity(leftFinger=new DHLink());
+		addEntity(rightFinger=new DHLink());
 		leftFinger.setName("Left finger");
 		leftFinger.setShapeFilename("/Sixi2/linearGripper/gripperLeft.obj");
 		leftFinger.setTextureFilename("/Sixi2/sixi.png");
@@ -70,9 +70,9 @@ public class Sixi2LinearGripper extends DHTool {
 		leftFinger.flags = DHLink.LinkAdjust.R;
 		rightFinger.flags = DHLink.LinkAdjust.R;
 		
-		addChild(angleMax);
-		addChild(angleMin);
-		addChild(angleNow);
+		addEntity(angleMax);
+		addEntity(angleMin);
+		addEntity(angleNow);
 		
 		wasGripping=false;
 	}

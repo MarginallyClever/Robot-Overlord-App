@@ -5,6 +5,8 @@ import com.marginallyclever.robotoverlord.Entity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 public class PoseComponentTest {
@@ -34,22 +36,47 @@ public class PoseComponentTest {
     }
 
     @Test
-    public void testNestedPoses() {
+    public void testNestedPosePosition() {
         Entity root = new Entity();
+        Entity e0 = new Entity();
+        root.addEntity(e0);
+
         PoseComponent p0 = new PoseComponent();
         root.addComponent(p0);
-
-        Entity e0 = new Entity();
         PoseComponent p1 = new PoseComponent();
         e0.addComponent(p1);
 
-        root.addChild(e0);
+        p0.setPosition(new Vector3d(1, 0, 0));
+        p1.setPosition(new Vector3d(2, 0, 0));
+        Vector3d sumPosition = new Vector3d();
+        p1.getWorld().get(sumPosition);
+        Assertions.assertEquals(new Vector3d(3, 0, 0), sumPosition);
+    }
 
-        p0.setPosition(new Vector3d(1,0,0));
-        p1.setPosition(new Vector3d(-2,0,0));
-        Vector3d sum = new Vector3d();
-        p1.getWorld().get(sum);
-        Assertions.assertEquals(new Vector3d(-1,0,0),sum);
+    @Test
+    public void testNestedPoseRotation() {
+        Entity root = new Entity();
+        Entity e0 = new Entity();
+        root.addEntity(e0);
+
+        PoseComponent p0 = new PoseComponent();
+        root.addComponent(p0);
+        PoseComponent p1 = new PoseComponent();
+        e0.addComponent(p1);
+
+        Matrix3d a1 = new Matrix3d();
+        Matrix3d b1 = new Matrix3d();
+        Matrix3d c1 = new Matrix3d();
+        a1.rotX(Math.toRadians(10));
+        b1.rotY(Math.toRadians(20));
+        c1.mul(a1,b1);
+
+        p0.setLocalMatrix3(a1);
+        p1.setLocalMatrix3(b1);
+        Matrix4d sumMatrixes = p1.getWorld();
+        Matrix3d sumRotation = new Matrix3d();
+        sumMatrixes.get(sumRotation);
+        Assertions.assertEquals(c1,sumRotation);
     }
 
     @Test

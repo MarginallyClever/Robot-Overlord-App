@@ -26,7 +26,7 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 	public DHTool() {
 		super();
 		setName("DHTool");
-		addChild(toolTipOffset);
+		addEntity(toolTipOffset);
 	}
 	
 	public void set(DHTool b) {

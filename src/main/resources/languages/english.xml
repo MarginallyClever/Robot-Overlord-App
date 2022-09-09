@@ -1190,5 +1190,42 @@ to check yourself.</value>
 		<value>Local</value>
 		<hint>Sixi 2/Connect</hint>
 	</string>
-		
+
+	<string>
+		<key>PasteEntityAction.name</key>
+		<value>Paste Entity</value>
+	</string>
+	<string>
+		<key>CopyEntityAction.name</key>
+		<value>Copy Entity</value>
+	</string>
+	<string>
+		<key>DeleteEntityAction.name</key>
+		<value>Remove Entity</value>
+	</string>
+	<string>
+		<key>CutEntityAction.name</key>
+		<value>Cut Entity</value>
+	</string>
+	<string>
+		<key>NewSceneAction.name</key>
+		<value>New Scene</value>
+	</string>
+	<string>
+		<key>LoadSceneAction.name</key>
+		<value>Load...</value>
+	</string>
+	<string>
+		<key>SaveSceneAction.name</key>
+		<value>Save As...</value>
+	</string>
+	<string>
+		<key>AddChildEntity.name</key>
+		<value>Add Entity</value>
+	</string>
+	<string>
+		<key>RenameEntityAction.name</key>
+		<value>Rename Entity</value>
+	</string>
+
 </language>

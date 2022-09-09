@@ -29,7 +29,7 @@ public class SphereEntity extends ShapeEntity implements Collidable {
 	public SphereEntity() {
 		super();
 		setName(SphereEntity.class.getSimpleName());
-		addChild(diameter);
+		addEntity(diameter);
 		
 		diameter.addPropertyChangeListener((evt)-> updateModel() );
 		myMesh = new Mesh();

@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
@@ -111,7 +112,7 @@ public class Grid extends ShapeComponent {
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         width.parseJSON(jo.getJSONObject("width"));
         length.parseJSON(jo.getJSONObject("length"));

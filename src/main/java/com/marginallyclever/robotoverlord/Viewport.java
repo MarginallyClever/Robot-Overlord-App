@@ -43,10 +43,10 @@ public class Viewport extends Entity {
 	public Viewport() {
 		super();
 
-		addChild(drawOrthographic);
-		addChild(farZ);
-		addChild(nearZ);
-		addChild(fieldOfView);
+		addEntity(drawOrthographic);
+		addEntity(farZ);
+		addEntity(nearZ);
+		addEntity(fieldOfView);
 			
 		isPressed=false;
 	}

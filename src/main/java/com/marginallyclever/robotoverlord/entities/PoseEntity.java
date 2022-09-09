@@ -117,7 +117,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		gl2.glColor4d(1,1,1,1);
 		gl2.glBegin(GL2.GL_LINES);
 		// connection to children
-		for(Entity e : children ) {
+		for(Entity e : entities) {
 			if(e instanceof PoseEntity) {					
 				Vector3d p = ((PoseEntity)e).getPosition();
 				gl2.glVertex3d(0, 0, 0);
@@ -393,7 +393,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 
 	// recursively set for all children
 	public void setShowBoundingBox(boolean arg0) {
-		for( Entity c : getChildren() ) {
+		for( Entity c : getEntities() ) {
 			if(c instanceof PoseEntity) {
 				((PoseEntity)c).setShowBoundingBox(arg0);
 			}
@@ -403,7 +403,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 	
 	// recursively set for all children
 	public void setShowLocalOrigin(boolean arg0) {
-		for( Entity c : getChildren() ) {
+		for( Entity c : getEntities() ) {
 			if(c instanceof PoseEntity) {
 				((PoseEntity)c).setShowLocalOrigin(arg0);
 			}
@@ -413,7 +413,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 
 	// recursively set for all children
 	public void setShowLineage(boolean arg0) {
-		for( Entity c : getChildren() ) {
+		for( Entity c : getEntities() ) {
 			if(c instanceof PoseEntity) {
 				((PoseEntity)c).setShowLineage(arg0);
 			}

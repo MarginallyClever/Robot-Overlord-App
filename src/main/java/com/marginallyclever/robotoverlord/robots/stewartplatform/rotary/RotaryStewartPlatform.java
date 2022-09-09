@@ -65,7 +65,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 
 	public RotaryStewartPlatform(String name) {
 		super(name);
-		addChild(ee);
+		addEntity(ee);
 
 		connection.addPropertyChangeListener(this);
 

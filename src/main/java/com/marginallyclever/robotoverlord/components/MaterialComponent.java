@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -149,7 +150,7 @@ public class MaterialComponent extends Component {
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws Exception {
+    public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         isLit.parseJSON(jo.getJSONObject("isLit"));
         emission.parseJSON(jo.getJSONObject("emission"));

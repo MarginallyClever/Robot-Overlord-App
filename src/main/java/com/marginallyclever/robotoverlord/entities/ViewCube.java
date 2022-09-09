@@ -26,7 +26,7 @@ public class ViewCube extends Entity {
     public ViewCube() {
     	super();
     	setName("ViewCube");
-    	addChild(cubeSize);
+    	addEntity(cubeSize);
     	model.setShapeFilename("/viewCube.obj");
     	MaterialEntity mat = model.getMaterial(); 
     	mat.setTextureFilename("/images/viewCube.png");
