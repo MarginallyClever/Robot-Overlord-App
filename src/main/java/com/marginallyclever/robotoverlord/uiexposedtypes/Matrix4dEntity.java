@@ -1,19 +1,16 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
-import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
 
 /**
  * @author Dan Royer

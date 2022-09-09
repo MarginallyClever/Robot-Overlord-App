@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
-import java.awt.Dimension;
-
-import javax.swing.JLabel;
+import javax.swing.*;
+import java.awt.*;
 
 @Deprecated
 public class StatusBar extends JLabel {

@@ -1,14 +1,14 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
 
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToListeners;
+import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToNetworkSession;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToListeners;
-import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToNetworkSession;
 
 /**
  * Exploring Java reflection and what can be learned about other classes at run time.

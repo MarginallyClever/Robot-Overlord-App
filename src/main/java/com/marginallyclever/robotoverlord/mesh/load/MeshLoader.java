@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
-import java.io.BufferedInputStream;
-
 import com.marginallyclever.robotoverlord.mesh.Mesh;
+
+import java.io.BufferedInputStream;
 
 /**
  * {@link MeshLoader} interface for all classes that load a mesh.  Call upon by {@link MeshFactory}

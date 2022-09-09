@@ -1,20 +1,12 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.io.Serial;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.UIManager;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_5axis;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serial;
 
 /**
  * Direct drive robot motors.  To display current robot motor position use {@link AngleReportPanel}.

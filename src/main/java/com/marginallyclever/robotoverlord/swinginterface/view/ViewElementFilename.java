@@ -1,8 +1,14 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -11,41 +17,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
-
 /**
  * Panel to alter a file parameter.
  * @author Dan Royer
  *
  */
 public class ViewElementFilename extends ViewElement implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2419710362557979148L;
 	private static String lastPath=System.getProperty("user.dir");
-	private JTextField field;
-	private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
-	private StringEntity e;
+	private final JTextField field = new JTextField(15);
+	private final ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
+	private final StringEntity e;
 	
-	public ViewElementFilename(RobotOverlord ro,final StringEntity e) {
-		super(ro);
+	public ViewElementFilename(final StringEntity e) {
+		super();
 		this.e=e;
 		
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
-				
-		field = new JTextField(15);
+
 		field.setEditable(false);
 		field.setText(e.get());
 		field.setMargin(new Insets(1,0,1,0));
@@ -95,7 +83,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 			}
 		}
 		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
-		int returnVal = chooser.showDialog(ro.getMainFrame(), Translator.get("Select"));
+		int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(this), Translator.get("Select"));
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
@@ -115,7 +103,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	}
 	
 	/**
-	 * Plural form of {@link addChoosableFileFilter}.
+	 * Plural form of {@link #addFileFilter}.
 	 * @param arg0 {@link ArrayList} of {@link FileFilter}.
 	 */
 	public void addFileFilters(ArrayList<FileFilter> arg0) {

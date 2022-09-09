@@ -1,14 +1,5 @@
 package com.marginallyclever.robotoverlord.entities;
 
-import java.beans.PropertyChangeEvent;
-import java.io.Serial;
-import java.util.ArrayList;
-
-import javax.swing.filechooser.FileFilter;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -19,12 +10,15 @@ import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import com.marginallyclever.robotoverlord.uiexposedtypes.*;
+
+import javax.swing.filechooser.FileFilter;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.Serial;
+import java.util.ArrayList;
 
 /**
  * A {@link Mesh} is a collection of points, triangles, normals, and possibly color and possibly texture coordinates.
@@ -233,7 +227,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Mo","Model");
+		view.pushStack("ShapeEntity",true);
 
 		ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
 		view.addFilename(filename,filters);

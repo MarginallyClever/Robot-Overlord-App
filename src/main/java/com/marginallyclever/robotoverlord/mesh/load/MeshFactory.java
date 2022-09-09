@@ -1,15 +1,14 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
-import java.io.BufferedInputStream;
-import java.util.ArrayList;
-import java.util.LinkedList;
-
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
+
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.BufferedInputStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class MeshFactory {
 	private static MeshLoader [] loaders = { new LoadSTL(), new LoadOBJ(), new Load3MF(), new LoadAMF(), new LoadPLY() };

@@ -40,7 +40,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,15 +57,14 @@ public class CollapsiblePanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     public interface CollapseListener extends java.util.EventListener {
-            public void collaped();
-            public void expanded();
+        void collapsed();
+        void expanded();
     }
 
     private final Vector<CollapseListener> collapseListeners = new Vector<>();
 
     //Border
     private CollapsableTitledBorder border; // includes upper left component and line type
-    //Border collapsedBorderLine = BorderFactory.createEmptyBorder(2, 2, 2, 2); // no border
     private final Border collapsedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
     private final Border expandedBorderLine = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED); // because this is null, default is used, etched lowered border on MAC
 
@@ -178,7 +176,7 @@ public class CollapsiblePanel extends JPanel {
             arrow.setIcon(iconArrow[COLLAPSED]);
             border = new CollapsableTitledBorder(collapsedBorderLine, titleComponent);
             for(CollapseListener collapeListener : collapseListeners) {
-              collapeListener.collaped();
+              collapeListener.collapsed();
             }
         } else {
             //expand the panel, add content and set border to titled border

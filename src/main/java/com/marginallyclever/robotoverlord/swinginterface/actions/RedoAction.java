@@ -1,15 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import com.marginallyclever.convenience.log.Log;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.UndoManager;
-
-import com.marginallyclever.convenience.log.Log;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * go forward one step in the undo/redo history.

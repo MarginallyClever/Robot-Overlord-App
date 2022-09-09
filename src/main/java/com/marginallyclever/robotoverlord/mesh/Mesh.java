@@ -1,16 +1,15 @@
 package com.marginallyclever.robotoverlord.mesh;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Cuboid;
+
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
 
 /**
  * {@link Mesh} contains the vertex, normal, maybe color, and maybe texture data for a 3D model.

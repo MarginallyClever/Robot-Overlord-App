@@ -1,22 +1,8 @@
 package com.marginallyclever.robotoverlord.movetool;
 
-import java.awt.Font;
-import java.io.Serial;
-
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.awt.TextRenderer;
-import com.marginallyclever.convenience.IntersectionHelper;
-import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Viewport;
@@ -29,6 +15,12 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
@@ -976,7 +968,7 @@ public class MoveTool extends Entity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Db", "Dragball");
+		view.pushStack("MoveTool",true);
 		view.add(ballSize);
 		view.add(snapOn);
 		view.add(snapDegrees);

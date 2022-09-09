@@ -1,20 +1,17 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Panel to alter a string parameter.  There is currently no way to limit the length of strings.
@@ -22,21 +19,16 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
  *
  */
 public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3508707912948161897L;
-	private JTextField field;
-	private StringEntity e;
-	private ReentrantLock lock = new ReentrantLock();
+	private final JTextField field = new FocusTextField(20);
+	private final StringEntity e;
+	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementString(RobotOverlord ro,StringEntity e) {
-		super(ro);
+	public ViewElementString(StringEntity e) {
+		super();
 		this.e=e;
 
 		e.addPropertyChangeListener(this);
-		
-		field = new FocusTextField(20);
+
 		field.setText(e.get());
 		field.getDocument().addDocumentListener(this);
 		field.addFocusListener(this);

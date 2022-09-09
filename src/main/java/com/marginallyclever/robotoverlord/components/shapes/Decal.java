@@ -1,20 +1,13 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Serial;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+
+import javax.vecmath.Vector3d;
+import java.io.Serial;
 
 /**
  * A nearly two dimensional object with a texture on both sides.

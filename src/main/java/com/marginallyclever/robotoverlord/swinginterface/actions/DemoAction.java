@@ -1,12 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.AbstractAction;
-
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.demos.Demo;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Load a programmed demo.

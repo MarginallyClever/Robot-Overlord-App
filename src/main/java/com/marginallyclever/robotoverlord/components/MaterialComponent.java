@@ -10,8 +10,6 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 public class MaterialComponent extends Component {
     private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
     private final ColorEntity diffuse    = new ColorEntity("Diffuse" ,1,1,1,1);

@@ -1,12 +1,9 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.robotArmEditor;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
+
+import javax.swing.*;
 
 public class RobotArmEditor extends JPanel {
 	private static final long serialVersionUID = 1L;

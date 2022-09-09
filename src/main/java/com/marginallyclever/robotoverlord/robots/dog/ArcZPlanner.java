@@ -1,11 +1,10 @@
 package com.marginallyclever.robotoverlord.robots.dog;
 
-import java.security.InvalidParameterException;
-
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.OpenGLHelper;
+
+import javax.vecmath.Vector3d;
+import java.security.InvalidParameterException;
 
 public class ArcZPlanner {
 	private Vector3d pointFrom = new Vector3d();

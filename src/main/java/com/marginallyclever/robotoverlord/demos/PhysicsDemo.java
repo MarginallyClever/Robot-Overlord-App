@@ -1,18 +1,21 @@
 package com.marginallyclever.robotoverlord.demos;
 
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.LightComponent;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
+import com.marginallyclever.robotoverlord.entities.BoxEntity;
+import com.marginallyclever.robotoverlord.entities.SphereEntity;
 import com.marginallyclever.robotoverlord.physics.original.RigidBody;
 import com.marginallyclever.robotoverlord.physics.original.RigidBodyBox;
 import com.marginallyclever.robotoverlord.physics.original.RigidBodySphere;
-import com.marginallyclever.robotoverlord.entities.BoxEntity;
-import com.marginallyclever.robotoverlord.entities.SphereEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 @SuppressWarnings("unused")
 public class PhysicsDemo implements Demo {

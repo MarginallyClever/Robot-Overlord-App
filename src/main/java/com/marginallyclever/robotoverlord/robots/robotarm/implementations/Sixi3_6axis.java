@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.implementations;
 
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Point3d;
-
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Point3d;
 
 public class Sixi3_6axis extends RobotArmIK {
 	private static final long serialVersionUID = 1L;

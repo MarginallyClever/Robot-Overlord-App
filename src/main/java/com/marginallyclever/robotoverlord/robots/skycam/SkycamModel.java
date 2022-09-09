@@ -1,16 +1,16 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import javax.vecmath.Color4f;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+
+import javax.vecmath.Color4f;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 public class SkycamModel extends Entity {
 	/**
@@ -62,7 +62,7 @@ public class SkycamModel extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("M", "Model");
+		view.pushStack("Model",true);
 		view.add(size);
 		view.popStack();
 		super.getView(view);

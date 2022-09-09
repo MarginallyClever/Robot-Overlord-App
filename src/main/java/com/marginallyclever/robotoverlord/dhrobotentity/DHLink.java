@@ -1,12 +1,5 @@
 package com.marginallyclever.robotoverlord.dhrobotentity;
 
-import java.beans.PropertyChangeEvent;
-import java.io.Serial;
-import java.util.ArrayList;
-
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
@@ -18,6 +11,12 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewElement;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.Serial;
+import java.util.ArrayList;
 
 /**
  * Denavit–Hartenberg parameters
@@ -455,7 +454,7 @@ public class DHLink extends PoseEntity implements Collidable {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("DH","DHLink");
+		view.pushStack("DHLink",true);
 
 		ViewElement vt, va, vd, vr;
 		if(flags==LinkAdjust.THETA) {

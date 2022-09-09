@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
+import com.marginallyclever.robotoverlord.swinginterface.actions.RedoAction;
+import com.marginallyclever.robotoverlord.swinginterface.actions.UndoAction;
+
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
-
-import com.marginallyclever.robotoverlord.swinginterface.actions.RedoAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.UndoAction;
 
 public class UndoSystem {
 	private static UndoManager undoManager = new UndoManager();

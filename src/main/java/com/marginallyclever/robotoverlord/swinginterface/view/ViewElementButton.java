@@ -1,13 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
-import javax.swing.JButton;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
 
 /**
  * an empty element in the view
@@ -37,8 +34,8 @@ public class ViewElementButton extends ViewElement {
 	}
 	
 	
-	public ViewElementButton(RobotOverlord ro,String label) {
-		super(ro);
+	public ViewElementButton(String label) {
+		super();
 		
 		field = new JButton(label);
 		field.addActionListener((e)->{

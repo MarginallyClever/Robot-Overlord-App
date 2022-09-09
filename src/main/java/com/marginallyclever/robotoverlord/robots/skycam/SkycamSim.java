@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+
+import javax.vecmath.Vector3d;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * A simulation of a robot's movement over time.

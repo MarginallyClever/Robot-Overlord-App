@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
+import com.marginallyclever.convenience.MatrixHelper;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-
-import com.marginallyclever.convenience.MatrixHelper;
 
 /**
  * Given the current pose of the robot, find the approximate jacobian, which

@@ -5,8 +5,6 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 /**
  * one or more {@link Component}s are attached to an {@link Entity}.
  *
@@ -17,6 +15,8 @@ public class Component {
     private Entity myEntity;
 
     private final BooleanEntity enabled = new BooleanEntity("Enabled",true);
+
+    private boolean isExpanded=true;
 
     public Component() {
         super();
@@ -59,15 +59,25 @@ public class Component {
         JSONObject jo = new JSONObject();
         jo.put("type",this.getClass().getName());
         jo.put("enabled",enabled.get());
+        jo.put("expanded",isExpanded);
         return jo;
     }
 
     public void parseJSON(JSONObject jo) throws JSONException {
         enabled.set(jo.getBoolean("enabled"));
+        if(jo.has("expanded")) isExpanded = jo.getBoolean("expanded");
     }
 
     @Override
     public String toString() {
         return enabled.toString();
+    }
+
+    public boolean getExpanded() {
+        return isExpanded;
+    }
+
+    public void setExpanded(boolean arg0) {
+        isExpanded = arg0;
     }
 }

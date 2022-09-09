@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 import javax.vecmath.Matrix4d;
-
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-
 import java.io.Serial;
 
 /**

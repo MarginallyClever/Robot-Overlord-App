@@ -1,12 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 
-import java.beans.PropertyChangeEvent;
-import java.io.Serial;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
@@ -16,6 +10,12 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.Serial;
 
 public class LinearStewartPlatformCore extends PoseEntity {
 	@Serial
@@ -251,7 +251,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("LSP", "Linear Stewart Platform");
+		view.pushStack("Linear Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{

@@ -1,15 +1,10 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Color;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-
 import com.marginallyclever.convenience.log.Log;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 @Deprecated
 public class LineGraph extends JPanel {

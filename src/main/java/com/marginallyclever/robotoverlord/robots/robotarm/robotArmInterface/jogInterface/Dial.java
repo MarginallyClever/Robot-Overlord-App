@@ -1,26 +1,12 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseWheelEvent;
+import com.marginallyclever.convenience.log.Log;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.Serial;
 import java.util.ArrayList;
-
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-
-import com.marginallyclever.convenience.log.Log;
 
 
 public class Dial extends JComponent {

@@ -1,15 +1,14 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An undoable action to remove an {@link Entity} from the world.
@@ -46,6 +45,7 @@ public class RemoveEntityEdit extends AbstractUndoableEdit {
 	
 	protected void doIt() {
 		for(Entity entity : childParent.keySet()) {
+			System.out.println("Removing "+entity.getFullPath());
 			entity.getParent().removeChild(entity);
 		}
 		ro.updateEntityTree();

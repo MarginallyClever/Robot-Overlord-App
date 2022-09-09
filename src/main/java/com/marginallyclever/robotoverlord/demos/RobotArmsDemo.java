@@ -1,26 +1,20 @@
 package com.marginallyclever.robotoverlord.demos;
 
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.vecmath.Vector3d;
-
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
-import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Mantis;
-import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi2;
-import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_5axis;
-import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_6axis;
-import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Thor;
-import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotoverlord.entities.BoxEntity;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
+import com.marginallyclever.robotoverlord.robots.robotarm.implementations.*;
+import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
+
+import javax.swing.*;
+import javax.vecmath.Vector3d;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class RobotArmsDemo implements Demo {
 	@Override

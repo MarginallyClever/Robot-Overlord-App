@@ -1,14 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Panel to alter a network connection parameter.
@@ -16,15 +14,11 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
  *
  */
 public class ViewElementRemote extends ViewElement implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1720210992376705253L;
-	private JButton field;
-	private RemoteEntity e;
+	private final JButton field;
+	private final RemoteEntity e;
 
-	public ViewElementRemote(RobotOverlord ro,RemoteEntity e) {
-		super(ro);
+	public ViewElementRemote(RemoteEntity e) {
+		super();
 		this.e=e;
 		
 		field = new JButton(e.isConnectionOpen()?Translator.get("Close"):Translator.get("Connect"));

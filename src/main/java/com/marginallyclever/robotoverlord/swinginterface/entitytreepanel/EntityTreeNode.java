@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import com.marginallyclever.robotoverlord.Entity;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * This version of DefaultMutableTreeNode exists only to override the toString() method.

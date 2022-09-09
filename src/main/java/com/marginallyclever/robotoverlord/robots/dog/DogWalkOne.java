@@ -48,7 +48,7 @@ public class DogWalkOne extends Entity implements DogAnimator {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("1","One");
+		view.pushStack("One",true);
 		view.add(isFrozen);
 		view.popStack();
 		super.getView(view);

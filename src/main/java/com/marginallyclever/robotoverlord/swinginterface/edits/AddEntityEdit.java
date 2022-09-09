@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import java.io.Serial;
-import java.util.List;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import java.io.Serial;
+import java.util.List;
 
 /**
  * An undoable action to add an {@link Entity} to the world.

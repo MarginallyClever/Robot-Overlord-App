@@ -2,11 +2,9 @@ package com.marginallyclever.robotoverlord.uiexposedtypes;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.Serial;
 import java.util.Arrays;
 
@@ -17,10 +15,6 @@ import java.util.Arrays;
  *
  */
 public class ColorEntity extends AbstractEntity<double[]> {
-	@Serial
-	private static final long serialVersionUID = 2162459650636178933L;
-
-
 	public ColorEntity() {
 		this(0,0,0,0);
 	}

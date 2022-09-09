@@ -2,9 +2,9 @@ package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jog
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.JacobianNewtonRaphson;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmFK;
-import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;

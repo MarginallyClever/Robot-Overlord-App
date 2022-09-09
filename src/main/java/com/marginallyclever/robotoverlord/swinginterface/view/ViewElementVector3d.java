@@ -1,8 +1,16 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dEdit;
+import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -10,39 +18,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
-
 /**
  * Panel to alter a Vector3d parameter (three float values).
  * @author Dan Royer
  *
  */
 public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -324379165270163587L;
-	private JTextField [] fields = new JTextField[3];
-	private Vector3dEntity e;
-	private ReentrantLock lock = new ReentrantLock();
+	private final JTextField [] fields = new JTextField[3];
+	private final Vector3dEntity e;
+	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementVector3d(RobotOverlord ro,Vector3dEntity e) {
-		super(ro);
+	public ViewElementVector3d(Vector3dEntity e) {
+		super();
 		this.e=e;
 
 		e.addPropertyChangeListener(this);

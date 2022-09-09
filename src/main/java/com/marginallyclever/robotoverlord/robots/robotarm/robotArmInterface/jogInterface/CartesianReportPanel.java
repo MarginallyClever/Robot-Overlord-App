@@ -1,20 +1,14 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
-import java.awt.BorderLayout;
-import java.io.Serial;
+import com.marginallyclever.convenience.log.Log;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.vecmath.Matrix4d;
-
-import com.marginallyclever.convenience.log.Log;
+import java.awt.*;
+import java.io.Serial;
 
 /**
  * Displays the values of a {@link Matrix4d}.

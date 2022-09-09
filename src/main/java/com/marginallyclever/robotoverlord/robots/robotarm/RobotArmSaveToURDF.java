@@ -1,7 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
-import java.io.File;
-import java.util.ArrayList;
+import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -14,16 +20,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Export the {link RobotArmFK} as a URDF XML file.

@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord;
 
-import java.util.ArrayList;
-
 import com.marginallyclever.convenience.Cuboid;
+
+import java.util.ArrayList;
 
 /**
  * Objects that can collide with other objects in the world.

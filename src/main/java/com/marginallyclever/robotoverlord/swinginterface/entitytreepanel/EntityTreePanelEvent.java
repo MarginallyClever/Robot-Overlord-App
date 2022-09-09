@@ -1,9 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.marginallyclever.robotoverlord.Entity;
+
+import java.util.List;
 
 public class EntityTreePanelEvent {
 	// something in the panel was added.

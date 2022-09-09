@@ -1,15 +1,5 @@
 package com.marginallyclever.robotoverlord.entities;
 
-import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
-
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -25,6 +15,15 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
 
 /**
  * A object in the world with a position and orientation (collectively, a "pose")
@@ -423,7 +422,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("P","Pose");
+		view.pushStack("Pose",true);
 		
 		view.addComboBox(axisChoice, AXIS_LABELS);
 		view.addRange(axisAmount, 5, -5);
@@ -438,7 +437,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		//view.addStaticText("Pick name="+getPickName());
 		//	pose.getView(view);
 		view.popStack();
-		view.pushStack("WP","World Pose");
+		view.pushStack("PoseEntity",true);
 		Matrix4d poseWorld = getPoseWorld();
 		view.add(new Vector3dEntity("Position",MatrixHelper.getPosition(poseWorld)));
 		//	poseWorld.getView(view);

@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
-import java.io.IOException;
 
 public class Grid extends ShapeComponent {
     private final BooleanEntity snap = new BooleanEntity("Snap",true);

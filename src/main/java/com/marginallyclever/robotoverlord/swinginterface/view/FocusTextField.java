@@ -1,9 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
+import javax.swing.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-
-import javax.swing.JTextField;
 
 /**
  * text field that automatically selects all text when it gains focus

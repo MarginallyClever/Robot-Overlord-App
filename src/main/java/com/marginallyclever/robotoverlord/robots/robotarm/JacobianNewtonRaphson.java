@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
-import javax.vecmath.Matrix4d;
-
 import com.marginallyclever.convenience.MatrixHelper;
+
+import javax.vecmath.Matrix4d;
 
 /**
  * Newton Raphson process of moving a robot using approximate Jacobians. See

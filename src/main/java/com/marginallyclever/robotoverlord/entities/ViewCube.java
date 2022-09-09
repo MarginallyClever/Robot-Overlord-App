@@ -1,9 +1,6 @@
 package com.marginallyclever.robotoverlord.entities;
 
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
@@ -15,6 +12,8 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 public class ViewCube extends Entity {
@@ -111,7 +110,7 @@ public class ViewCube extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("VC", "View Cube");
+		view.pushStack("View Cube",true);
 		view.add(cubeSize);
 		view.popStack();
 		super.getView(view);

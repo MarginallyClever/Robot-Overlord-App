@@ -1,18 +1,16 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
-import java.io.BufferedInputStream;
-import java.util.ArrayList;
-
-import javax.vecmath.Vector3f;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import javax.vecmath.Vector3f;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedInputStream;
+import java.util.ArrayList;
 
 public class LoadAMF implements MeshLoader {
 	@Override

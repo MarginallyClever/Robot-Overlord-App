@@ -1,36 +1,29 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ComboBoxEdit;
+import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.ComboBoxEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
-
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3675061794997239658L;
-	private JComboBox<String> field;
-	private IntEntity e;
+	private final JComboBox<String> field;
+	private final IntEntity e;
 	
-	public ViewElementComboBox(RobotOverlord ro,IntEntity e,String [] listOptions) {
-		super(ro);
+	public ViewElementComboBox(IntEntity e,String [] listOptions) {
+		super();
 		this.e=e;
 		
 		e.addPropertyChangeListener(this);
 		
-		field = new JComboBox<String>(listOptions);
+		field = new JComboBox<>(listOptions);
 		field.setSelectedIndex(e.get());
 		field.addActionListener(this);
 		field.addFocusListener(this);

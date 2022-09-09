@@ -1,17 +1,12 @@
 package com.marginallyclever.robotoverlord.physics.ode;
 
+import org.ode4j.math.*;
+import org.ode4j.ode.DGeom;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
-
-import org.ode4j.math.DMatrix3;
-import org.ode4j.math.DMatrix3C;
-import org.ode4j.math.DQuaternion;
-import org.ode4j.math.DQuaternionC;
-import org.ode4j.math.DVector3;
-import org.ode4j.math.DVector3C;
-import org.ode4j.ode.DGeom;
 
 /**
  * Converts between ODE and Java.vecmath classes

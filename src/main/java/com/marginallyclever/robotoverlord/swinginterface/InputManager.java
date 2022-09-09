@@ -1,15 +1,14 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
+import com.marginallyclever.convenience.log.Log;
+import net.java.games.input.Component;
+import net.java.games.input.Component.Identifier;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-
-import com.marginallyclever.convenience.log.Log;
-
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
-import net.java.games.input.Component.Identifier;
 
 /**
  * Poll devices and store events we care about in keystate.

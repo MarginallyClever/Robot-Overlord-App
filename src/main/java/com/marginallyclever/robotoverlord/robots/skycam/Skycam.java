@@ -1,25 +1,21 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import java.beans.PropertyChangeEvent;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
+
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.*;
+import java.util.ArrayList;
 
 public class Skycam extends PoseEntity {
 	/**
@@ -137,7 +133,7 @@ public class Skycam extends PoseEntity {
 		// supported file formats
 		fileFilter.add(new FileNameExtensionFilter("Skycam", "Skycam"));
 		
-		view.pushStack("S", "Sixi");
+		view.pushStack("Sixi",true);
 		view.addButton("Go Home").addActionEventListener((evt)->{
 			model.goHome();
 			sim.setPoseTo(model.getPosition());

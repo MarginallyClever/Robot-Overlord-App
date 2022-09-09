@@ -1,16 +1,15 @@
 package com.marginallyclever.robotoverlord.entities;
 
-import java.io.Serial;
-import java.util.ArrayList;
-
-import javax.vecmath.Point3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+
+import javax.vecmath.Point3d;
+import java.io.Serial;
+import java.util.ArrayList;
 
 /**
  * {@code Sphere} can be turned any way in space.  {@code Cuboid} can only be aligned to world axies.
@@ -125,7 +124,7 @@ public class SphereEntity extends ShapeEntity implements Collidable {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Sp", "Sphere");
+		view.pushStack("Sphere",true);
 		view.add(diameter);
 		view.popStack();
 		material.getView(view);

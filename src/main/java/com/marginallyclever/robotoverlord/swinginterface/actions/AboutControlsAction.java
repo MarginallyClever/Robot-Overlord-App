@@ -1,11 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
-
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Display an About dialog box. This action is not an undoable action.

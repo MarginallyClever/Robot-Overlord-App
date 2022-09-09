@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.robotoverlord.AbstractEntity;
+
+import javax.vecmath.Vector3d;
 
 /**
  * Undoable action to select a Vector3d.

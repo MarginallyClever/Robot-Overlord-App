@@ -1,24 +1,17 @@
 package com.marginallyclever.robotoverlord.robots.spidee;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
+import com.marginallyclever.convenience.PanelHelper;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import com.marginallyclever.convenience.PanelHelper;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 
 @Deprecated
 public class SpideeControlPanel extends JPanel implements ChangeListener, ActionListener, ItemListener {

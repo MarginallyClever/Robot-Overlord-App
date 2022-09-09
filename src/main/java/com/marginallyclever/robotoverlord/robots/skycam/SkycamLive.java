@@ -1,16 +1,16 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.LinkedList;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
+
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.LinkedList;
 
 public class SkycamLive extends Entity {
 	/**
@@ -48,7 +48,7 @@ public class SkycamLive extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("L", "Live");
+		view.pushStack("Live",true);
 		view.add(connection);
 		view.popStack();
 		super.getView(view);

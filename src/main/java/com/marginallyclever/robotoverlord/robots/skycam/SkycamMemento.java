@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
+import com.marginallyclever.convenience.memento.Memento;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.memento.Memento;
 
 public class SkycamMemento implements Memento {
 	/**

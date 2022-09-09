@@ -1,10 +1,10 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.programInterface;
 
+import com.marginallyclever.convenience.StringHelper;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
-
-import com.marginallyclever.convenience.StringHelper;
 
 public class ProgramEvent implements Serializable {
 	/**

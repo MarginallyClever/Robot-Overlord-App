@@ -1,13 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 
 /**
  * An element in the View
@@ -16,16 +12,8 @@ import com.marginallyclever.robotoverlord.RobotOverlord;
  *
  */
 public class ViewElement extends JComponent implements FocusListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3266130000064484826L;
-
-	protected RobotOverlord ro;
-	
-	
-	public ViewElement(RobotOverlord ro) {
-		this.ro=ro;
+	public ViewElement() {
+		super();
 	}
 	
 	public void setReadOnly(boolean arg0) {
@@ -52,7 +40,8 @@ public class ViewElement extends JComponent implements FocusListener {
 			c1 = c1.getParent();
 		}
 		//Log.message("\tFINAL "+c0.getClass().getName() + " >> "+rec.y);
-		
+
+		assert(c0 != null);
 		((JComponent)c0).scrollRectToVisible(rec);
 	}
 

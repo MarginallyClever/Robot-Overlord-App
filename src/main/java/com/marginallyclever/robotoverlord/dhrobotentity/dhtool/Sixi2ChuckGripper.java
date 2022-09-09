@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.dhrobotentity.dhtool;
 
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+
+import javax.vecmath.Vector3d;
 
 @Deprecated
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {

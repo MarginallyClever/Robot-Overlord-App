@@ -1,22 +1,21 @@
 package com.marginallyclever.robotoverlord.dhrobotentity;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import javax.vecmath.Matrix4d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.dhrobotentity.dhtool.DHTool;
 import com.marginallyclever.robotoverlord.dhrobotentity.solvers.DHIKSolver;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+
+import javax.vecmath.Matrix4d;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Physical description of a robot designed using D-H parameters.  The model contains unchanging details such as mass, length,
@@ -175,7 +174,7 @@ public class DHRobotModel extends Entity {
 	 * &gt;N+1 We're using separating Axis Theorem. See
 	 * https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
 	 * 
-	 * @param keyframe the angles at time of test
+	 * @param futureKey the angles at time of test
 	 * @return true if there are no collisions
 	 */
 	public boolean collidesWithSelf(PoseFK futureKey) {
@@ -213,7 +212,7 @@ public class DHRobotModel extends Entity {
 	 * Test physical bounds of all links with the world.
 	 * We're using separating Axis Theorem. See https://gamedev.stackexchange.com/questions/25397/obb-vs-obb-collision-detection
 	 * 
-	 * @param keyframe the angles at time of test
+	 * @param futureKey the angles at time of test
 	 * @return false if there are no collisions
 	 */
 	public boolean collidesWithWorld(PoseFK futureKey) {
@@ -366,7 +365,7 @@ public class DHRobotModel extends Entity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Dh", "DH shortcuts");
+		view.pushStack("DH shortcuts",true);
 		
 		for( DHLink link : links ) {
 			view.addRange(link.theta,

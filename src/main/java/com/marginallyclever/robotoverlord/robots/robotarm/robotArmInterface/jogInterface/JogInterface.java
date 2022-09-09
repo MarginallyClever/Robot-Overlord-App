@@ -1,17 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.io.Serial;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.vecmath.Matrix4d;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
+
+import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import java.awt.*;
+import java.io.Serial;
 
 public class JogInterface extends JPanel {
 	@Serial

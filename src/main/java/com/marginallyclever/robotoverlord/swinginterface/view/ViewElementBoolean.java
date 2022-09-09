@@ -1,20 +1,17 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
+import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 
 /**
  * Panel to alter a boolean parameter.  There is currently no way to limit the length of strings.
@@ -22,18 +19,13 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
  *
  */
 public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9081079237414488699L;
-	private JCheckBox field;
+	private final JCheckBox field = new JCheckBox();
 	
-	public ViewElementBoolean(final RobotOverlord ro,final BooleanEntity e) {
-		super(ro);
+	public ViewElementBoolean(BooleanEntity e) {
+		super();
 		
 		e.addPropertyChangeListener(this);
-		
-		field = new JCheckBox();
+
 		field.setSelected(e.get());
 		field.setBorder(new EmptyBorder(0,0,0,0));
 		field.addFocusListener(this);

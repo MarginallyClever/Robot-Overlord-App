@@ -10,10 +10,10 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.RobotEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
@@ -109,7 +109,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("De","Delta robot");
+		view.pushStack("Delta robot",true);
 		view.addButton("Go home").addActionEventListener((e)->goHome());
 		ViewElementButton bOpen = view.addButton("Open control panel");
 		bOpen.addActionEventListener((evt)-> onOpenAction() );

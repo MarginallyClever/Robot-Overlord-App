@@ -1,11 +1,5 @@
 package com.marginallyclever.robotoverlord.physics.original;
 
-import java.util.ArrayList;
-
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -14,6 +8,11 @@ import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 
 // See https://en.wikipedia.org/wiki/Collision_response
 // See https://www.euclideanspace.com/physics/dynamics/collision/
@@ -329,7 +328,7 @@ public abstract class RigidBody extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Ph", "Physics");
+		view.pushStack("Physics",true);
 		view.add(pauseOnCollision);
 		view.addButton("Unpause").addActionEventListener( (evt) -> isPaused=false );
 		view.popStack();

@@ -1,32 +1,18 @@
 package com.marginallyclever.robotoverlord.demos;
 
-import javax.vecmath.Vector3d;
-
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEngine;
+import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEntity;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3C;
-import org.ode4j.ode.DBody;
-import org.ode4j.ode.DBox;
-import org.ode4j.ode.DContact;
-import org.ode4j.ode.DContactBuffer;
-import org.ode4j.ode.DGeom;
-import org.ode4j.ode.DHinge2Joint;
-import org.ode4j.ode.DJoint;
-import org.ode4j.ode.DMass;
-import org.ode4j.ode.DPlane;
-import org.ode4j.ode.DSpace;
-import org.ode4j.ode.DSphere;
-import org.ode4j.ode.OdeConstants;
-import org.ode4j.ode.OdeHelper;
-import org.ode4j.ode.OdeMath;
+import org.ode4j.ode.*;
 
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEngine;
-import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEntity;
+import javax.vecmath.Vector3d;
 
 /**
  * See https://github.com/tzaeschke/ode4j/blob/master/demo/src/main/java/org/ode4j/demo/DemoBuggy.java

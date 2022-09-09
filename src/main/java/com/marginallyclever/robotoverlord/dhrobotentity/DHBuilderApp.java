@@ -1,14 +1,5 @@
 package com.marginallyclever.robotoverlord.dhrobotentity;
 
-import java.beans.PropertyChangeEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.IntBuffer;
-import javax.swing.JFileChooser;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -17,14 +8,23 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.dhrobotentity.DHLink.LinkAdjust;
 import com.marginallyclever.robotoverlord.dhrobotentity.solvers.DHIKSolver;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+
+import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.IntBuffer;
 
 @Deprecated
 public class DHBuilderApp extends DHRobotModel {
@@ -151,7 +151,7 @@ public class DHBuilderApp extends DHRobotModel {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("BA", "Builder App");
+		view.pushStack("DHBuilderApp", true);
 		
 		final ViewElementButton bindButton = (ViewElementButton)view.addButton(inTest ? "Stop test":"Start test");
 		bindButton.addActionEventListener((evt)->{

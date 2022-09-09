@@ -1,5 +1,8 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
+import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,9 +10,6 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
-
-import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 public class LoadSTL implements MeshLoader {
 	@Override

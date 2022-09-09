@@ -1,22 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.robotArmEditor;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import org.apache.batik.ext.swing.GridBagConstants;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
+import org.apache.batik.ext.swing.GridBagConstants;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 
 public class RobotArmBoneEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

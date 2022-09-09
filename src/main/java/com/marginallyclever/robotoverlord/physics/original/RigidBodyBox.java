@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.physics.original;
 
-import java.util.ArrayList;
+import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import java.util.ArrayList;
 
 //https://en.wikipedia.org/wiki/Collision_response
 public class RigidBodyBox extends RigidBody {

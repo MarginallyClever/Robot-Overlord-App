@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.dhrobotentity.dhtool;
 
+import com.marginallyclever.convenience.memento.Memento;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.memento.Memento;
 
 /**
  * @author Dan Royer

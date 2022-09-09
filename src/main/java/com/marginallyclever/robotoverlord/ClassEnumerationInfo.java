@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.convenience.log.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -7,8 +9,6 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import com.marginallyclever.convenience.log.Log;
 
 // stuff for trying to find and load plugins, part of future expansion
 public class ClassEnumerationInfo {

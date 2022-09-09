@@ -1,12 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.dog;
 
-import java.util.ArrayList;
-
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -16,6 +9,12 @@ import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 
 /**
  * Forward is negative Z axis.  Up is positive Y axis.  Right is positive X axis.
@@ -185,7 +184,7 @@ public class DogRobot extends PoseEntity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("D",getName());
+		view.pushStack(getName(),true);
 		
 		animationChoice.addPropertyChangeListener((evt)->{
 			activeAnimator = animators.get(animationChoice.get());

@@ -1,19 +1,12 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.io.Serial;
-
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.UIManager;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serial;
 
 /**
  * Displays the angle of each robot joint.  To control the angles use {@link AngleDrivePanel}

@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.implementations;
 
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 public class Meca500 extends RobotArmIK {
 	private static final long serialVersionUID = 1L;

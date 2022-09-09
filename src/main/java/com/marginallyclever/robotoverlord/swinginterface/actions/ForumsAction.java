@@ -1,13 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
-
-import javax.swing.AbstractAction;
-
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
  * Go to the online help forums. This action is not undoable.

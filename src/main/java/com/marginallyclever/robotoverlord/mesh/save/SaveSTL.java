@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.mesh.save;
 
+import com.marginallyclever.robotoverlord.mesh.Mesh;
+
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
-
-import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 public class SaveSTL implements MeshSaver {
 	@Override

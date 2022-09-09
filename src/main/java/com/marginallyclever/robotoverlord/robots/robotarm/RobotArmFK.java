@@ -1,5 +1,23 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.*;
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
+
+import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.Serial;
@@ -7,31 +25,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.IntersectionHelper;
-import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
 
 /**
  * Simulation of a robot arm with Forward Kinematics based on Denavit Hartenberg parameters.
@@ -366,7 +359,7 @@ public class RobotArmFK extends PoseEntity implements Robot {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("FK","Forward Kinematics");
+		view.pushStack("Forward Kinematics",true);
 		ViewElementButton button = view.addButton("Center all");
 		button.addActionEventListener((evt)->{
 			double [] v = new double[bones.size()]; 

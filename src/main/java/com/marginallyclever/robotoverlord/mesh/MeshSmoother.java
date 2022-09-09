@@ -1,10 +1,10 @@
 package com.marginallyclever.robotoverlord.mesh;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Smooth STL models and save them back to disk.  Meant for one time processing files.

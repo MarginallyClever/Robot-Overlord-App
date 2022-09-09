@@ -1,12 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
-
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
 
 /**
  * Undoable action to select a ColorRGBA.

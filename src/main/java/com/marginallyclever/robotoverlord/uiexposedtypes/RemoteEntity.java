@@ -1,11 +1,5 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
-import java.awt.Component;
-import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.NetworkSessionListener;
@@ -14,6 +8,13 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Wraps all network connection stuff into a neat entity package designed to send one \n terminated string at a time.

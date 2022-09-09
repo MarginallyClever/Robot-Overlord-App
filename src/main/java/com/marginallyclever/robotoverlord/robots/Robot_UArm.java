@@ -1,13 +1,13 @@
 package com.marginallyclever.robotoverlord.robots;
 
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHRobotModel;
 import com.marginallyclever.robotoverlord.dhrobotentity.DHLink.LinkAdjust;
+import com.marginallyclever.robotoverlord.dhrobotentity.DHRobotModel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+
+import javax.vecmath.Vector3d;
 
 /**
  * Unfinished UArm implementation of DHRobot.

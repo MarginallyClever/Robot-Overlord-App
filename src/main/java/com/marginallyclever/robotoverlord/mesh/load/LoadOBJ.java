@@ -1,12 +1,12 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
+import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-
-import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 // see https://en.wikipedia.org/wiki/Wavefront_.obj_file
 public class LoadOBJ implements MeshLoader {

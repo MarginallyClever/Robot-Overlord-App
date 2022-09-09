@@ -1,10 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -16,6 +11,9 @@ import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.Robo
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
+import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 /**
@@ -82,7 +80,7 @@ public class RobotArmIK extends RobotArmFK {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("IK","Inverse Kinematics");
+		view.pushStack("Inverse Kinematics",true);
 
 		ViewElementButton bOpen = view.addButton("Open control panel");
 		bOpen.addActionEventListener((evt)-> onOpenAction() );

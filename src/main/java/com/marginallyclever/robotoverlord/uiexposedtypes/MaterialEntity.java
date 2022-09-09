@@ -143,7 +143,7 @@ public class MaterialEntity extends Entity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Ma","Material");
+		view.pushStack("Material",true);
 		view.add(isLit  );
 		view.add(emission);
 		view.add(ambient );

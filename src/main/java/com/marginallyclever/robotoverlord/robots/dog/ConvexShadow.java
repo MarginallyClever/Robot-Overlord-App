@@ -1,11 +1,10 @@
 package com.marginallyclever.robotoverlord.robots.dog;
 
-import java.util.ArrayList;
-
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.log.Log;
+
+import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 
 public class ConvexShadow {
 	private ArrayList<Vector3d> hull = new ArrayList<Vector3d>();

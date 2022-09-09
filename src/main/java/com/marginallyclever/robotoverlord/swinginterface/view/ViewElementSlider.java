@@ -1,40 +1,32 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.IntEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
 public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9116526652018866486L;
-	private JSlider field;
-	private JLabel value;
-	private IntEntity e;
+	private final JSlider field = new JSlider();
+	private final JLabel value;
+	private final IntEntity e;
 	
-	public ViewElementSlider(RobotOverlord ro,IntEntity e,int top,int bottom) {
-		super(ro);
+	public ViewElementSlider(IntEntity e,int top,int bottom) {
+		super();
 		this.e=e;
 
 		e.addPropertyChangeListener(this);
-		
-		field = new JSlider();
+
 		field.setMaximum(top);
 		field.setMinimum(bottom);
 		field.setMinorTickSpacing(1);

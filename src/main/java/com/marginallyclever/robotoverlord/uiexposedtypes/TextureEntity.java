@@ -1,19 +1,18 @@
 package com.marginallyclever.robotoverlord.uiexposedtypes;
 
-import java.io.IOException;
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.IOException;
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 // TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.
 public class TextureEntity extends StringEntity {

@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.mesh.save;
 
-import java.io.OutputStream;
-
 import com.marginallyclever.robotoverlord.mesh.Mesh;
+
+import java.io.OutputStream;
 
 
 public abstract interface MeshSaver {

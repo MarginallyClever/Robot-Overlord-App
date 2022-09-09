@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.robots.dog;
 
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+
+import javax.vecmath.Vector3d;
 
 public class DogWalkThree extends DogWalkTwo implements DogAnimator {	
 	/**

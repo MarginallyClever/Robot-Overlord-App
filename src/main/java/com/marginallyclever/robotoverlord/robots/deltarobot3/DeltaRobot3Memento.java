@@ -1,9 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.convenience.memento.Memento;
 
+import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 

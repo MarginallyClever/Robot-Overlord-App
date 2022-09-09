@@ -1,9 +1,5 @@
 package com.marginallyclever.robotoverlord;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -15,6 +11,9 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 /**
@@ -263,7 +262,7 @@ public class Viewport extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("V", "Viewport");
+		view.pushStack("Viewport",true);
 		view.add(drawOrthographic);
 		view.add(farZ);
 		view.add(nearZ);

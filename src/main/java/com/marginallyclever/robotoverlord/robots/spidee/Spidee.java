@@ -1,28 +1,22 @@
 package com.marginallyclever.robotoverlord.robots.spidee;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.Reader;
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.robots.RobotEntity;
+import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+
+import javax.vecmath.Vector3d;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.prefs.Preferences;
-
-import javax.vecmath.Vector3d;
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.robots.RobotEntity;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
-
-import java.io.BufferedReader;
 
 @Deprecated
 public class Spidee extends RobotEntity {

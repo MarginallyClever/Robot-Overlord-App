@@ -1,15 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
-import java.awt.Component;
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Display a message dialog box with HTML inside.

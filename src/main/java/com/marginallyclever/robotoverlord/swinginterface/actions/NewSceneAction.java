@@ -1,15 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Clear the world and start anew. This action is not an undoable action.

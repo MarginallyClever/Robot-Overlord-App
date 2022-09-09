@@ -1,12 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
-import java.awt.Frame;
-
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import java.awt.*;
 
 @Deprecated
 public class FooterBar extends JPanel {

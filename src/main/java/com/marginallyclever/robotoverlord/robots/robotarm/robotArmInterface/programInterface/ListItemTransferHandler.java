@@ -1,17 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.programInterface;
 
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DragSource;
 import java.io.IOException;
 import java.util.Objects;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.TransferHandler;
 
 @SuppressWarnings("serial")
 class ListItemTransferHandler extends TransferHandler {

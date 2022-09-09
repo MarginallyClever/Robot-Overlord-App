@@ -1,5 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -7,13 +12,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
-import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
-
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 /**
  * Checks online for a new version of Robot Overlord. This action is not undoable.

@@ -12,7 +12,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
-import java.io.IOException;
 
 public class LightComponent extends Component {
 

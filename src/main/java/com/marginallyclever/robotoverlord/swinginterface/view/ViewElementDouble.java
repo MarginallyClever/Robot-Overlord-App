@@ -1,7 +1,15 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
+import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -9,37 +17,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.swing.AbstractAction;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
-
 /**
  * Panel to alter a number parameter.  There is no way at present to limit the input options (range, step size, etc)
  * @author Dan Royer
  *
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6763069709436830626L;
-	private JTextField field;
-	private DoubleEntity e;
-	private ReentrantLock lock = new ReentrantLock();
+	private final JTextField field;
+	private final DoubleEntity e;
+	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementDouble(RobotOverlord ro,DoubleEntity e) {
-		super(ro);
+	public ViewElementDouble(DoubleEntity e) {
+		super();
 		this.e=e;
 		
 		e.addPropertyChangeListener(this);

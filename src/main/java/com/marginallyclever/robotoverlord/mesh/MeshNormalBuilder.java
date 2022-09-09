@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.mesh;
 
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.convenience.log.Log;
+
+import javax.vecmath.Vector3d;
 
 public class MeshNormalBuilder {
 	public static void buildNormals(Mesh mesh) {

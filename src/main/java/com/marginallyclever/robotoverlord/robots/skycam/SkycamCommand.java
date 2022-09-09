@@ -1,13 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import java.io.Serializable;
-import javax.vecmath.Vector3d;
-
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+
+import javax.vecmath.Vector3d;
+import java.io.Serializable;
 
 public class SkycamCommand extends PoseEntity implements Cloneable, Serializable {
 
@@ -28,7 +28,7 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("C", "Command");
+		view.pushStack("Command",true);
 		
 		view.addRange(feedrateSlider, (int)SkycamModel.MAX_FEEDRATE, 0);
 		view.addRange(accelerationSlider, (int)SkycamModel.MAX_ACCELERATION, 0);

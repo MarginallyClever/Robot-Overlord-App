@@ -1,9 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
-import javax.vecmath.Matrix4d;
-
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 
+import javax.vecmath.Matrix4d;
 import java.io.Serial;
 
 public class RobotEndEffectorTarget extends PoseEntity {

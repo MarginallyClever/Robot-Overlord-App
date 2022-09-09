@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.filechooser.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MeshFromFile extends ShapeComponent {

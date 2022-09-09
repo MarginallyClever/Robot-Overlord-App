@@ -56,7 +56,7 @@ public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
 
     @Override
     public void getView(ViewPanel view) {
-        view.pushStack("D", "Dimensions");
+        view.pushStack("Dimensions",true);
         view.add(BASE_X);
         view.add(BASE_Y);
         view.add(BASE_Z);

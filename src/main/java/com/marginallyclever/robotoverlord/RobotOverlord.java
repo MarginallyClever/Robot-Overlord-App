@@ -19,7 +19,6 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -651,13 +650,7 @@ public class RobotOverlord extends Entity {
 		}
 		return null;
 	}
-	
-	@Override
-	public void getView(ViewPanel view) {
-		view.pushStack("RO", "Robot Overlord");
-		view.popStack();
-	}
-	
+
     private GL useTracePipeline(GL gl) {
         try {
             return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );

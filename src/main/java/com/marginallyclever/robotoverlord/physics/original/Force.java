@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.physics.original;
 
+import com.jogamp.opengl.GL2;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-
-import com.jogamp.opengl.GL2;
 
 class Force {
 	public Point3d p = new Point3d();

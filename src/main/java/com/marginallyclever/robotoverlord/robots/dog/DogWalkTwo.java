@@ -1,15 +1,14 @@
 package com.marginallyclever.robotoverlord.robots.dog;
 
-import java.util.ArrayList;
-
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+
+import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 
 public class DogWalkTwo extends DogWalkOne {
 	private static final long serialVersionUID = -1161074262097357976L;
@@ -96,7 +95,7 @@ public class DogWalkTwo extends DogWalkOne {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("2","Two");
+		view.pushStack("Two",true);
 		view.add(isWalking);
 		view.popStack();
 		super.getView(view);

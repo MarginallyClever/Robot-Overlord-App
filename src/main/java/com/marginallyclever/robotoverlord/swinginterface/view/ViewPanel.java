@@ -1,26 +1,19 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.*;
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Stack;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
+import com.marginallyclever.robotoverlord.uiexposedtypes.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
-
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.StringEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import java.awt.*;
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Stack;
 
 /**
  * A factory that builds Swing elements for the entity editor
@@ -43,9 +36,11 @@ public class ViewPanel extends ViewElement {
 	//protected final JTabbedPane contentPane = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT);
 	protected final JPanel contentPane = new JPanel();
 
+	private final RobotOverlord ro;
 
 	public ViewPanel(RobotOverlord ro) {
-		super(ro);
+		super();
+		this.ro=ro;
 
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 
@@ -61,7 +56,7 @@ public class ViewPanel extends ViewElement {
 		this(null);
 	}
 	
-	public void pushStack(String title,String tip) {
+	public void pushStack(String title,boolean expanded) {
 		se = new StackElement();
 		se.p = new JPanel();
 		//se.p.setLayout(new BoxLayout(se.p, BoxLayout.PAGE_AXIS));
@@ -82,6 +77,7 @@ public class ViewPanel extends ViewElement {
 		//contentPane.addTab(title, null, se.p, tip);
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(title);
 		JPanel content = collapsiblePanel.getContentPane();
+		collapsiblePanel.setCollapsed(!expanded);
 		content.setLayout(new BorderLayout());
 		content.add(se.p,BorderLayout.CENTER);
 		contentPane.add(collapsiblePanel);
@@ -109,15 +105,15 @@ public class ViewPanel extends ViewElement {
 	public ViewElement add(Entity e) {
 		ViewElement b=null;
 		
-		//Log.message("Add "+e.getClass().toString());
+		//logger.debug("Add "+e.getClass().toString());
 		
-			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  (ro,(BooleanEntity)e);
-		else if(e instanceof ColorEntity   ) b = new ViewElementColor    (ro,(ColorEntity)e);
-		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   (ro,(DoubleEntity)e);
-		else if(e instanceof IntEntity     ) b = new ViewElementInt      (ro,(IntEntity)e);
-		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d (ro,(Vector3dEntity)e);
-		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   (ro,(RemoteEntity)e);  // must come before StringEntity because RemoteEntity extends StringEntity
-		else if(e instanceof StringEntity  ) b = new ViewElementString   (ro,(StringEntity)e);
+			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  ((BooleanEntity)e);
+		else if(e instanceof ColorEntity   ) b = new ViewElementColor    ((ColorEntity)e);
+		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   ((DoubleEntity)e);
+		else if(e instanceof IntEntity     ) b = new ViewElementInt      ((IntEntity)e);
+		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d ((Vector3dEntity)e);
+		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   ((RemoteEntity)e);  // must come before StringEntity because RemoteEntity extends StringEntity
+		else if(e instanceof StringEntity  ) b = new ViewElementString   ((StringEntity)e);
 		if(null==b) {
 			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
 		}
@@ -128,14 +124,14 @@ public class ViewPanel extends ViewElement {
 	
 
 	public ViewElement addStaticText(String text) {
-		ViewElement b = new ViewElement(ro);
+		ViewElement b = new ViewElement();
 		b.add(new JLabel(text,JLabel.LEADING));
 		pushViewElement(b);
 		return b;
 	}
 
 	public ViewElement addComboBox(IntEntity e,String [] labels) {
-		ViewElement b = new ViewElementComboBox(ro,e,labels);
+		ViewElement b = new ViewElementComboBox(e,labels);
 		pushViewElement(b);
 		return b;
 		
@@ -149,7 +145,7 @@ public class ViewPanel extends ViewElement {
 	 * @return the element
 	 */
 	public ViewElement addRange(IntEntity e,int top,int bottom) {
-		ViewElement b = new ViewElementSlider(ro,e,top,bottom);
+		ViewElement b = new ViewElementSlider(e,top,bottom);
 		pushViewElement(b);
 		return b;
 	}
@@ -162,7 +158,7 @@ public class ViewPanel extends ViewElement {
 	 * @return the element
 	 */
 	public ViewElement addRange(DoubleEntity e,int top,int bottom) {
-		ViewElement b = new ViewElementSliderDouble(ro,e,top,bottom);
+		ViewElement b = new ViewElementSliderDouble(e,top,bottom);
 		pushViewElement(b);
 		return b;
 	}
@@ -170,34 +166,19 @@ public class ViewPanel extends ViewElement {
 	/**
 	 * Add a control for an string that includes a filename selection dialog
 	 * @param e
-	 * @param top the maximum value, inclusive
-	 * @param bottom the minimum value, inclusive
+	 * @param filters
 	 * @return the element
 	 */
 	public ViewElement addFilename(StringEntity e,ArrayList<FileFilter> filters) {
-		ViewElementFilename b = new ViewElementFilename(ro,e);
+		ViewElementFilename b = new ViewElementFilename(e);
 		b.addFileFilters(filters);
 		
 		pushViewElement(b);
 		return b;
 	}
 
-	/**
-	 * Add a control for an string that includes a filename selection dialog
-	 * @param e
-	 * @param top the maximum value, inclusive
-	 * @param bottom the minimum value, inclusive
-	 * @return the element
-	 */
-	public ViewElement addEntitySelector(StringEntity e) {
-		ViewElementEntity b = new ViewElementEntity(ro,e);
-		
-		pushViewElement(b);
-		return b;
-	}
-
 	public ViewElementButton addButton(String string) {
-		ViewElementButton b = new ViewElementButton(ro,string);
+		ViewElementButton b = new ViewElementButton(string);
 		pushViewElement(b);
 		return b;
 	}

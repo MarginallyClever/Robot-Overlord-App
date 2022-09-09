@@ -1,17 +1,17 @@
 package com.marginallyclever.robotoverlord;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Entities are nodes in a tree of data that can find each other and observe/be
@@ -23,11 +23,10 @@ import org.json.JSONObject;
 public class Entity implements PropertyChangeListener, Cloneable {
 	private String name;
 
-	// my children
-	protected transient ArrayList<Entity> entities = new ArrayList<>();
-	
-	// my parent
 	protected transient Entity parent;
+
+	protected transient ArrayList<Entity> entities = new ArrayList<>();
+	private final List<Component> components = new ArrayList<>();
 
 	// unique ids for all objects in the world.
 	// zero is reserved to indicate no object.
@@ -39,8 +38,8 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	// who is listening to me?
 	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
 
-	private final List<Component> components = new ArrayList<>();
-	
+	private boolean isExpanded =false;
+
 	public Entity() {
 		super();
 		this.name = this.getClass().getSimpleName();
@@ -224,7 +223,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	 */
 	public void getView(ViewPanel view) {
 		for(Component c : components) {
-			view.pushStack(c.getName(),c.getName());
+			view.pushStack(c.getName(),c.getExpanded());
 			c.getView(view);
 			view.popStack();
 		}
@@ -274,6 +273,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		s.append("name=").append(name).append(", ");
 		s.append("entities=").append(Arrays.toString(entities.toArray())).append(", ");
 		s.append("components=").append(Arrays.toString(components.toArray()));
+		s.append("expanded=").append(isExpanded);
 		return s.toString();
 	}
 
@@ -369,6 +369,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		JSONObject jo = new JSONObject();
 		jo.put("type",this.getClass().getName());
 		jo.put("name",this.name);
+		jo.put("expanded",this.isExpanded);
 		if(!entities.isEmpty()) jo.put("entities", getEntitiesAsJSON());
 		if(!components.isEmpty()) jo.put("components",getComponentsAsJSON());
 		return jo;
@@ -394,6 +395,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		this.name = jo.getString("name");
 		if(jo.has("entities")) readEntities(jo.getJSONArray("entities"));
 		if(jo.has("components")) readComponents(jo.getJSONArray("components"));
+		if(jo.has("expanded")) this.isExpanded = jo.getBoolean("expanded");
 	}
 
 	private void readEntities(JSONArray jo) throws JSONException {
@@ -418,5 +420,13 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		Entity e = new Entity();
 		e.parseJSON(this.toJSON());
 		return e;
+	}
+
+	public boolean getExpanded() {
+		return isExpanded;
+	}
+
+	public void setExpanded(boolean arg0) {
+		isExpanded = arg0;
 	}
 }

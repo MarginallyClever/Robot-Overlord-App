@@ -1,15 +1,15 @@
 package com.marginallyclever.robotoverlord.robots.dog;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 public class DogLeg {
 	public static final double DEFAULT_STEP_HEIGHT = 3;

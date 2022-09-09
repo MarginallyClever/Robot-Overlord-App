@@ -6,8 +6,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 /**
  * @author Dan Royer
  * @since 1.6.0

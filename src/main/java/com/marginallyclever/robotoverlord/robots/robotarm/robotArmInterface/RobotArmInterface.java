@@ -1,22 +1,15 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
 
-import java.awt.BorderLayout;
-import java.io.Serial;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
-import javax.swing.UIManager;
-
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_5axis;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface.JogInterface;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.MarlinInterface;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.programInterface.ProgramInterface;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serial;
 
 public class RobotArmInterface extends JPanel {
 	@Serial

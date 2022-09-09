@@ -1,10 +1,5 @@
 package com.marginallyclever.robotoverlord.entities;
 
-import java.util.ArrayList;
-
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
@@ -12,6 +7,10 @@ import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 
 /**
  * {@code Box} can be turned any way in space.  {@code Cuboid} can only be aligned to world axies.
@@ -222,7 +221,7 @@ public class BoxEntity extends ShapeEntity implements Collidable {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Bx", "Box");
+		view.pushStack("Box",true);
 		view.add(width);
 		view.add(height);
 		view.add(depth);

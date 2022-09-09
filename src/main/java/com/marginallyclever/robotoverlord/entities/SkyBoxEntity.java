@@ -1,17 +1,16 @@
 package com.marginallyclever.robotoverlord.entities;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
 
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 public class SkyBoxEntity extends Entity {
@@ -39,7 +38,7 @@ public class SkyBoxEntity extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("skybox","skybox");
+		view.pushStack("Skybox",true);
 		view.add(skyboxTextureXPos);
 		view.add(skyboxTextureXNeg);
 		view.add(skyboxTextureYPos);

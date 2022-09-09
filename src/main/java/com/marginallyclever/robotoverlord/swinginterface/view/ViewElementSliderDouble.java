@@ -1,41 +1,33 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.undo.AbstractUndoableEdit;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
 public class ViewElementSliderDouble extends ViewElement implements ChangeListener, PropertyChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5637079548326079275L;
-	private JSlider field;
-	private JLabel value;
-	private DoubleEntity e;
+	private final JSlider field = new JSlider();
+	private final JLabel value;
+	private final DoubleEntity e;
 	boolean inUpdate=false;
 	
-	public ViewElementSliderDouble(RobotOverlord ro,DoubleEntity e,int top,int bottom) {
-		super(ro);
+	public ViewElementSliderDouble(DoubleEntity e,int top,int bottom) {
+		super();
 		this.e=e;
 
 		e.addPropertyChangeListener(this);
-		
-		field = new JSlider();
+
 		field.setMaximum(top*10);
 		field.setMinimum(bottom*10);
 		field.setMinorTickSpacing(1);

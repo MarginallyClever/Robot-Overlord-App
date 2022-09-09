@@ -1,26 +1,20 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.util.PreferencesHelper;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.prefs.Preferences;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JTextField;
-
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.util.PreferencesHelper;
 
 public class SoundSystem {
 	static private Preferences prefs;

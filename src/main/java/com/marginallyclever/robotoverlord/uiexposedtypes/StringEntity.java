@@ -4,9 +4,6 @@ import com.marginallyclever.robotoverlord.AbstractEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.Serial;
-
 /**
  * @author Dan Royer
  * @since 1.6.0

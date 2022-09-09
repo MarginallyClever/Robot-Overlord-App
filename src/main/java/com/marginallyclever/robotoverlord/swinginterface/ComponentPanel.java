@@ -1,23 +1,15 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
-import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+
 
 public class ComponentPanel extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public ComponentPanel() {
 		super();
 		setLayout(new BorderLayout());

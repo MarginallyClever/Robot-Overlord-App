@@ -8,8 +8,6 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.PasteEntityEdit;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Makes a deep copy of the selected {@link Entity}.

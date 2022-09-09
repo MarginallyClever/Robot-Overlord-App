@@ -1,13 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.RobotOverlord;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-
-import javax.swing.*;
-
-import com.marginallyclever.robotoverlord.RobotOverlord;
 
 /**
  * Save the world state to a file.  This action is not an undoable action.

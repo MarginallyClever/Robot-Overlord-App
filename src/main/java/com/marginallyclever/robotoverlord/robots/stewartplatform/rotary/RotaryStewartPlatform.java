@@ -1,10 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
-import java.beans.PropertyChangeEvent;
-import java.io.Serial;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -16,6 +11,11 @@ import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.io.Serial;
 
 /**
  * Generic rotary stewart platform.  6 Rotating biceps move forearms connected to the top plate.
@@ -364,7 +364,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("RSP", "Rotary Stewart Platform");
+		view.pushStack("Rotary Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{

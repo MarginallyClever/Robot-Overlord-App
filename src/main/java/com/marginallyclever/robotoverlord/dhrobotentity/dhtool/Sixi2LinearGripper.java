@@ -1,20 +1,19 @@
 package com.marginallyclever.robotoverlord.dhrobotentity.dhtool;
 
-import java.util.List;
-import java.util.StringTokenizer;
-
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoDoubleArray;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.dhrobotentity.DHLink;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
+import java.util.List;
+import java.util.StringTokenizer;
 
 
 /**
@@ -205,7 +204,7 @@ public class Sixi2LinearGripper extends DHTool {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Gr", "Gripper");
+		view.pushStack("Gripper",true);
 		view.addRange(angleNow, 100, 0);
 		view.addRange(angleMax, 180, 0);
 		view.addRange(angleMin, 180, 0);

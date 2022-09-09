@@ -1,20 +1,13 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import com.marginallyclever.convenience.log.Log;
+import org.apache.batik.ext.swing.GridBagConstants;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.UIManager;
-
-import org.apache.batik.ext.swing.GridBagConstants;
-
-import com.marginallyclever.convenience.log.Log;
 
 /**
  * Rewind button, Play button, Stop button, and progress bar from 0...100.

@@ -6,7 +6,6 @@ import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.LinkedList;
 import java.util.List;
 
 /**

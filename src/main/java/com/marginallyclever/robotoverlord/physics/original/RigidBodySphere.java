@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.physics.original;
 
-import java.util.ArrayList;
+import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.entities.SphereEntity;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.robotoverlord.entities.SphereEntity;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import java.util.ArrayList;
 
 public class RigidBodySphere extends RigidBody {
 	private static final long serialVersionUID = 1L;

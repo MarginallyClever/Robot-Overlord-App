@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.implementations;
 
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmFK;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 
 @Deprecated
 // Kept for historical purposes.  These robot kinematics will never work as DH-parameters.  Bad design did not do the math before making hardware.

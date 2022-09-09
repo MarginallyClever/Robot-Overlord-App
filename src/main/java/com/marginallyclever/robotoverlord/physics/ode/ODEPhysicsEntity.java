@@ -1,8 +1,10 @@
 package com.marginallyclever.robotoverlord.physics.ode;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 import org.ode4j.ode.DBox;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DPlane;
@@ -10,11 +12,8 @@ import org.ode4j.ode.DSphere;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 public class ODEPhysicsEntity extends PoseEntity {
 	/**

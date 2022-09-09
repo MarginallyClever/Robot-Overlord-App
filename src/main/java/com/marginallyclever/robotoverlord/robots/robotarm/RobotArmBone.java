@@ -1,16 +1,15 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
-import java.io.IOException;
+import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import java.io.IOException;
 
 /**
  * Math representation of one link in a robot arm described with DH parameters.

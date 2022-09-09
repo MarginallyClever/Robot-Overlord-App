@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 // see https://en.wikipedia.org/wiki/Wavefront_.obj_file
 public class LoadPLY implements MeshLoader {

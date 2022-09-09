@@ -1,6 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.translator;
 
-import java.awt.BorderLayout;
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
+import com.marginallyclever.util.PreferencesHelper;
+import org.apache.commons.io.FilenameUtils;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,30 +14,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.nio.file.*;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Stream;
-
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
-import org.apache.commons.io.FilenameUtils;
-
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
-import com.marginallyclever.util.PreferencesHelper;
 
 /**
  * MultilingualSupport is the translation engine.  You ask for a string it finds the matching string in the currently selected language.

@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.dhrobotentity.solvers;
 
-import javax.vecmath.Matrix4d;
-
 import com.marginallyclever.robotoverlord.dhrobotentity.DHRobotModel;
 import com.marginallyclever.robotoverlord.dhrobotentity.PoseFK;
+
+import javax.vecmath.Matrix4d;
 
 /**
  * Solves Inverse Kinematics for a robot arm.  Assumptions differ with each specific implementation.

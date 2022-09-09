@@ -1,20 +1,11 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.UIManager;
-
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * {@code RobotArmBuilder} contains the panel that edit a {@code RobotArmFK}.
