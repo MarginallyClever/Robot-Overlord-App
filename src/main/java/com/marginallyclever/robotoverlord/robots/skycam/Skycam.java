@@ -147,7 +147,6 @@ public class Skycam extends PoseEntity {
 		view.addButton("New").addActionEventListener((evt)->{
 			if(isPlaying) return;
 			clearAllCommands();
-			((RobotOverlord)getRoot()).updateEntityTree();
 		});
 		view.addFilename(filename,fileFilter);
 		view.addButton("Save").addActionEventListener((evt)->{
@@ -273,7 +272,6 @@ public class Skycam extends PoseEntity {
 			}
 		}
 		fin.close();
-		((RobotOverlord)getRoot()).updateEntityTree();
 	}
 	
 	/**
@@ -307,7 +305,6 @@ public class Skycam extends PoseEntity {
 			if(i==-1) i = entities.size();
 			// add before original or tail of queue, whichever comes first.
 			addEntity(i,copy);
-			((RobotOverlord)getRoot()).updateEntityTree();
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,13 +1,13 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import java.io.Serial;
-import java.util.List;
 
 /**
  * An undoable action to add an {@link Entity} to the world.
@@ -18,14 +18,13 @@ public class AddEntityEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	private final Entity entity;
+	private final Entity child;
 	private final Entity parent;
-	private List<Entity> previouslyPickedEntities;
 	
-	public AddEntityEdit(Entity parent,Entity entity) {
+	public AddEntityEdit(Entity parent, Entity child) {
 		super();
 		
-		this.entity = entity;
+		this.child = child;
 		this.parent = parent;
 		
 		doIt();
@@ -33,7 +32,7 @@ public class AddEntityEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Add ")+entity.getName();
+		return Translator.get("Add ")+ child.getName();
 	}
 
 	@Override
@@ -43,12 +42,12 @@ public class AddEntityEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		parent.addEntity(entity);
+		parent.addEntity(child);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		parent.removeChild(entity);
+		parent.removeEntity(child);
 	}
 }

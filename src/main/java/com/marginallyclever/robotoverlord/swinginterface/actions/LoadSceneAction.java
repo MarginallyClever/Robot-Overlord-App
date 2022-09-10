@@ -42,6 +42,7 @@ public class LoadSceneAction extends AbstractAction {
                 dest.add(ro.getScene());
                 UndoSystem.addEvent(this,new PasteEntityEdit((String)this.getValue(Action.NAME),ro,scene,dest));
             } catch(Exception e1) {
+                logger.error(e1.getMessage());
                 JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
                 e1.printStackTrace();
             }
@@ -59,9 +60,10 @@ public class LoadSceneAction extends AbstractAction {
         Scene nextScene = new Scene();
         try {
             nextScene.parseJSON(new JSONObject(responseStrBuilder.toString()));
-        } catch(Exception e) {
-            logger.error(e.getMessage());
-            JOptionPane.showMessageDialog(ro.getMainFrame(),e.getLocalizedMessage());
+        } catch(Exception e1) {
+            logger.error(e1.getMessage());
+            JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
+            e1.printStackTrace();
         }
 
         return nextScene;

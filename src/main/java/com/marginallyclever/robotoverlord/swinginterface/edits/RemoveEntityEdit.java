@@ -25,8 +25,8 @@ public class RemoveEntityEdit extends AbstractUndoableEdit {
 		this.name = name;
 		this.ro = ro;
 
-		for(Entity entity : entityList) {
-			childParent.put(entity,entity.getParent());
+		for(Entity child : entityList) {
+			childParent.put(child,child.getParent());
 		}
 
 		doIt();
@@ -44,19 +44,17 @@ public class RemoveEntityEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		for(Entity entity : childParent.keySet()) {
-			System.out.println("Removing "+entity.getFullPath());
-			entity.getParent().removeChild(entity);
+		for(Entity child : childParent.keySet()) {
+			System.out.println("Removing "+child.getFullPath());
+			child.getParent().removeEntity(child);
 		}
-		ro.updateEntityTree();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		for(Entity entity : childParent.keySet()) {
-			childParent.get(entity).addEntity(entity);
+		for(Entity child : childParent.keySet()) {
+			childParent.get(child).addEntity(child);
 		}
-		ro.updateEntityTree();
 	}
 }

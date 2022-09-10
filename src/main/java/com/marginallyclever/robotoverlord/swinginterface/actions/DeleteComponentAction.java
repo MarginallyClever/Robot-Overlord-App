@@ -47,7 +47,7 @@ public class DeleteComponentAction extends AbstractAction {
 			for(Entity parent : list) {
 				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
 			}
-			ro.updateSelectEntities();
+			ro.updateComponentPanel();
 		}
     }
 

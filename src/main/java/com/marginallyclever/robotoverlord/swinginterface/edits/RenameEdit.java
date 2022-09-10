@@ -48,13 +48,11 @@ public class RenameEdit extends AbstractUndoableEdit {
 
 	protected void doIt() {
 		e.setName(newName);
-		ro.updateEntityTree();
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
 		e.setName(oldName);
-		ro.updateEntityTree();
 	}
 }

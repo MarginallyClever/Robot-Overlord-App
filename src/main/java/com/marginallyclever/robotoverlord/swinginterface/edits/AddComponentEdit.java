@@ -52,6 +52,6 @@ public class AddComponentEdit extends AbstractUndoableEdit {
 	public void undo() throws CannotUndoException {
 		super.undo();
 		entity.removeComponent(component);
-		ro.updateSelectEntities();
+		ro.updateComponentPanel();
 	}
 }

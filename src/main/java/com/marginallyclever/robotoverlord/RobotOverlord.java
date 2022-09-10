@@ -60,7 +60,7 @@ public class RobotOverlord extends Entity {
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
     //private RecentFiles recentFiles = new RecentFiles();
     
-    private Scene scene = new Scene();
+    private final Scene scene = new Scene();
 	private transient final List<Entity> selectedEntities = new ArrayList<>();
 	private transient Entity copiedEntities = new Entity();
 
@@ -79,7 +79,7 @@ public class RobotOverlord extends Entity {
     private JMenuBar mainMenu;
 	private final JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-	private final EntityTreePanel entityTree = new EntityTreePanel(true);
+	private final EntityTreePanel entityTree = new EntityTreePanel();
 	private final ComponentPanel componentPanel = new ComponentPanel();
 	
 	private RenameEntityAction renameEntityAction;
@@ -115,20 +115,28 @@ public class RobotOverlord extends Entity {
 		if(GraphicsEnvironment.isHeadless()) {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
 		}
-		
+
 		Translator.start();
 		SoundSystem.start();
 		InputManager.start();
 
-        buildMainFrame();
-        buildMainMenu();
-        createSimulationPanel();
-        layoutComponents();
-        startAnimationSystem();
-        
-        BasicDemo bd = new BasicDemo();
-        bd.execute(this);
-		updateEntityTree();
+		buildMainFrame();
+		buildMainMenu();
+		createSimulationPanel();
+		layoutComponents();
+		startAnimationSystem();
+
+		entityTree.addEntity(scene);
+		scene.addSceneChangeListener(entityTree);
+
+		addEntity(sky);
+		addEntity(viewport);
+		addEntity(scene);
+		addEntity(moveTool);
+		addEntity(viewCube);
+
+		NewSceneAction action = new NewSceneAction("New Scene",this);
+		action.resetScene();
 
 		Log.message("** READY **");
     }
@@ -303,19 +311,13 @@ public class RobotOverlord extends Entity {
 
 	private JComponent buildEntityTree() {
 		entityTree.addEntityTreePanelListener((e)-> {
-			if(e.eventType == EntityTreePanelEvent.UNSELECT) {
-				selectedEntities.removeAll(e.subjects);
-				updateSelectEntities();
-				updateActionEnableStatus();
-			}
-			if(e.eventType == EntityTreePanelEvent.SELECT) {
-				selectedEntities.addAll(e.subjects);
-				updateSelectEntities();
-				updateActionEnableStatus();
+			if (e.eventType == EntityTreePanelEvent.SELECT) {
+				setSelectedEntities(e.subjects);
 			}
 		});
 
 		entityTree.setPopupMenu(buildEntityTreePopupMenu());
+
 		return entityTree;
 	}
 
@@ -328,9 +330,12 @@ public class RobotOverlord extends Entity {
 		renameEntityAction =new RenameEntityAction(Translator.get("RenameEntityAction.name"),this);
 		renameEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("RenameEntityAction.shortDescription"));
 		renameEntityAction.setEnabled(false);
+		actions.add(renameEntityAction);
+		actions.add(addChildEntityAction);
 
 		popupMenu.add(addChildEntityAction);
 		popupMenu.add(renameEntityAction);
+		popupMenu.add(deleteEntityAction);
 
 		popupMenu.add(new AddComponentAction(this));
 
@@ -429,39 +434,9 @@ public class RobotOverlord extends Entity {
 	}
 	
 	public List<Entity> getSelectedEntities() {
-		return selectedEntities;
+		return new ArrayList<>(selectedEntities);
 	}
 
-	public void newScene() {
-		removeAllEntities();
-
-		scene = new Scene();
-
-		PoseComponent pose = new PoseComponent();
-		CameraComponent camera = new CameraComponent();
-		scene.addComponent(new PoseComponent());
-		Entity mainCamera = new Entity("Main Camera");
-		mainCamera.addComponent(pose);
-		mainCamera.addComponent(camera);
-		scene.addEntity(mainCamera);
-		pose.setPosition(new Vector3d(0,-10,-5));
-		camera.lookAt(new Vector3d(0,0,0));
-
-		Entity light0 = new Entity("Light");
-		light0.addComponent(pose = new PoseComponent());
-		light0.addComponent(new LightComponent());
-		scene.addEntity(light0);
-		pose.setPosition(new Vector3d(-50,-50,50));
-
-		addEntity(sky);
- 		addEntity(viewport);
-        addEntity(scene);
- 		addEntity(moveTool);
- 		addEntity(viewCube);
-		setSelectedEntity(null);
-		updateEntityTree();
-	}
-	
 	public void buildMainMenu() {
 		Log.message("buildMainMenu()");
 		
@@ -568,10 +543,6 @@ public class RobotOverlord extends Entity {
 		logFrame.setVisible(true);
 	}
 
-	public void updateEntityTree() {
-    	entityTree.update(scene);
-    }
-    
     /**
      * An entity in the 3D scene has been "picked" (aka double-clicked).  This begins the process
      * to select that entity.  Entities selected through other means should not call pickEntity() as it would
@@ -585,22 +556,26 @@ public class RobotOverlord extends Entity {
 		entityTree.setSelection(e);
 	}
 	
-    public void updateSelectEntities() {
+    private void updateSelectEntities() {
 		if(renameEntityAction !=null) renameEntityAction.setEnabled(false);
 
 		moveTool.setSubject(null);
 
-    	if( !selectedEntities.isEmpty()) {
-			pickEntity(selectedEntities.get(0));
-
-			if(selectedEntities.size() == 1) {
-				Entity firstEntity = selectedEntities.get(0);
+		List<Entity> list = getSelectedEntities();
+    	if( !list.isEmpty()) {
+			if(list.size() == 1) {
+				Entity firstEntity = list.get(0);
+				pickEntity(firstEntity);
 				if(firstEntity.getComponent(PoseComponent.class) != null) {
 					moveTool.setSubject(firstEntity);
 				}
 			}
     	}
-    	componentPanel.update(selectedEntities,this);
+		updateComponentPanel();
+	}
+
+	public void updateComponentPanel() {
+		componentPanel.update(getSelectedEntities(),this);
 	}
 
     private void saveWindowSizeAndPosition() {
@@ -680,7 +655,7 @@ public class RobotOverlord extends Entity {
 
 		int pickName = findItemUnderCursor(gl2,cameraComponent);
 		Entity next = scene.pickEntityWithName(pickName);
-		UndoSystem.addEvent(this,new SelectEdit(this,selectedEntities,next));
+		UndoSystem.addEvent(this,new SelectEdit(this,getSelectedEntities(),next));
     }
     
     private void checkRenderStep(GL2 gl2) {
@@ -825,9 +800,7 @@ public class RobotOverlord extends Entity {
 	public void setSelectedEntities(List<Entity> list) {
 		selectedEntities.clear();
 		selectedEntities.addAll(list);
-		System.out.println("selected "+selectedEntities.size()+" entities");
 		updateSelectEntities();
-		updateEntityTree();
 		updateActionEnableStatus();
 	}
 

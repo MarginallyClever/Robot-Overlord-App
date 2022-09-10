@@ -32,6 +32,8 @@ public class Scene extends Entity {
 
 	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
 	private final MaterialComponent defaultMaterial = new MaterialComponent();
+
+	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
 	
 	public Scene() {
 		super();
@@ -203,5 +205,25 @@ public class Scene extends Entity {
 		view.pushStack("Sc", true);
 		view.add(ambientLight);
 		view.popStack();
+	}
+
+	public void addEntityToParent(Entity parent, Entity entity) {
+		for(SceneChangeListener listener : sceneChangeListeners) {
+			listener.addEntityToParent(parent,entity);
+		}
+	}
+
+	public void removeEntityFromParent(Entity parent, Entity entity) {
+		for(SceneChangeListener listener : sceneChangeListeners) {
+			listener.removeEntityFromParent(parent,entity);
+		}
+	}
+
+	public void addSceneChangeListener(SceneChangeListener listener) {
+		sceneChangeListeners.add(listener);
+	}
+
+	public void removeSceneChangeListener(SceneChangeListener listener) {
+		sceneChangeListeners.remove(listener);
 	}
 }

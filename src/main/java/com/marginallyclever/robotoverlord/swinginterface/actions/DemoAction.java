@@ -14,12 +14,8 @@ import java.awt.event.ActionListener;
  *
  */
 public class DemoAction extends AbstractAction implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	protected RobotOverlord ro;
-	protected Demo demo;
+	private final RobotOverlord ro;
+	private final Demo demo;
 	
 	public DemoAction(RobotOverlord ro,Demo demo) {
 		super(demo.getName());
@@ -30,7 +26,8 @@ public class DemoAction extends AbstractAction implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		NewSceneAction action = new NewSceneAction("New Scene",ro);
+		action.resetScene();
 		demo.execute(ro);
-		ro.updateEntityTree();
 	}
 }

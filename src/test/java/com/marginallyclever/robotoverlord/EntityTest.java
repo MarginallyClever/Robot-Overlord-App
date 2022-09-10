@@ -13,6 +13,11 @@ public class EntityTest {
 
     @Test
     public void saveAndLoad() throws Exception {
-        EntityTest.saveAndLoad(new Entity(),new Entity());
+        Entity a = new Entity();
+        Entity b = new Entity();
+        EntityTest.saveAndLoad(a,b);
+
+        a.setExpanded(!a.getExpanded());
+        EntityTest.saveAndLoad(a,b);
     }
 }

@@ -52,7 +52,8 @@ public class SkyBoxEntity extends Entity {
 	// Draw background
 	@Override
 	public void render(GL2 gl2) {
-		CameraComponent camera = ((RobotOverlord)this.getRoot()).getCamera();
+		RobotOverlord ro =(RobotOverlord)this.getRoot();
+		CameraComponent camera = ro.getCamera();
 		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 
 		gl2.glDisable(GL2.GL_LIGHTING);

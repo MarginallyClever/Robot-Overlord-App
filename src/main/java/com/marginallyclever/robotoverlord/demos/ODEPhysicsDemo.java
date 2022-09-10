@@ -43,7 +43,6 @@ public class ODEPhysicsDemo implements Demo {
 	
 	@Override
 	public void execute(RobotOverlord ro) {
-		ro.newScene();
 		Entity sc = ro.getScene();
 		
 		// adjust default camera

@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityFactory;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.AddEntityEdit;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class AddChildEntityAction extends AbstractAction {
+public class AddChildEntityAction extends AbstractAction implements EditorAction {
 	protected RobotOverlord ro;
 	
 	public AddChildEntityAction(String name,RobotOverlord ro) {
@@ -40,10 +41,10 @@ public class AddChildEntityAction extends AbstractAction {
 				JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
+			String name = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
 			for(Entity parent : list) {
-				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
+				createInstanceOf(parent,name);
 			}
-			ro.updateEntityTree();
 		}
     }
 
@@ -63,5 +64,10 @@ public class AddChildEntityAction extends AbstractAction {
 			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);
 			Log.error(msg);
 		}
+	}
+
+	@Override
+	public void updateEnableStatus() {
+		setEnabled(ro.getSelectedEntities().size()==1);
 	}
 }

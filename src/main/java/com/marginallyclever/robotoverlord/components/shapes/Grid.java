@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -77,6 +78,8 @@ public class Grid extends ShapeComponent {
         double endx = startx + gridWidth;
         double endy = starty + gridLength;
 
+        boolean wasTex = OpenGLHelper.disableTextureStart(gl2);
+
         boolean isBlend = gl2.glIsEnabled(GL2.GL_BLEND);
         gl2.glEnable(GL2.GL_BLEND);
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
@@ -99,6 +102,7 @@ public class Grid extends ShapeComponent {
         gl2.glEnd();
 
         if(!isBlend) gl2.glDisable(GL2.GL_BLEND);
+        OpenGLHelper.disableTextureEnd(gl2,wasTex);
     }
 
     @Override

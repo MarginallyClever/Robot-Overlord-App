@@ -1227,5 +1227,8 @@ to check yourself.</value>
 		<key>RenameEntityAction.name</key>
 		<value>Rename Entity</value>
 	</string>
-
+	<string>
+		<key>AddChildEntityAction</key>
+		<value>Add Entity</value>
+	</string>
 </language>

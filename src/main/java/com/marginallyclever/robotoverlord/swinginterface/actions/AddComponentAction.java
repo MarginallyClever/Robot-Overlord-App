@@ -38,7 +38,7 @@ public class AddComponentAction extends AbstractAction {
 
 		JComboBox<String> additionComboBox = buildComponentComboBox();
 		int result = JOptionPane.showConfirmDialog(
-				ro.getMainFrame(), 
+				ro.getMainFrame(),
 				additionComboBox, 
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
@@ -47,7 +47,7 @@ public class AddComponentAction extends AbstractAction {
 			for(Entity parent : list) {
 				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
 			}
-			ro.updateSelectEntities();
+			ro.updateComponentPanel();
 		}
     }
 

@@ -10,8 +10,10 @@ import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.entities.TrayCabinet;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
+import com.marginallyclever.robotoverlord.swinginterface.actions.NewSceneAction;
 
 import javax.vecmath.Vector3d;
+import java.awt.event.ActionEvent;
 
 public class StewartPlatformDemo implements Demo {
 	@Override
@@ -21,7 +23,6 @@ public class StewartPlatformDemo implements Demo {
 	
 	@Override
 	public void execute(RobotOverlord ro) {
-		ro.newScene();
 		Entity sc = ro.getScene();
 		
 		// adjust default camera

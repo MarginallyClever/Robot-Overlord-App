@@ -39,7 +39,7 @@ public class PasteEntityEdit extends AbstractUndoableEdit {
                 parent.addEntity(copy);
             }
         }
-        ro.setSelectedEntities(copies);
+        ro.setSelectedEntity(null);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class PasteEntityEdit extends AbstractUndoableEdit {
         super.undo();
         for(Entity parent : parents) {
             for(Entity copy : copies) {
-                parent.removeChild(copy);
+                parent.removeEntity(copy);
             }
         }
         ro.setSelectedEntity(null);

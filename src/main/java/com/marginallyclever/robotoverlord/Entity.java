@@ -118,14 +118,37 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		e.setParent(this);
 	}
 	
-	public void addEntity(Entity e) {
-		addEntity(entities.size(),e);
+	public void addEntity(Entity child) {
+		checkForAddToScene(this,this,child);
+		entities.add(child);
+		child.setParent(this);
 	}
 
-	public void removeChild(Entity e) {
+	private void checkForAddToScene(Entity node,Entity parent,Entity child) {
+		while(node!=null) {
+			if (node instanceof Scene) {
+				((Scene) node).addEntityToParent(parent, child);
+				return;
+			}
+			node = node.getParent();
+		}
+	}
+
+	public void removeEntity(Entity e) {
 		if (entities.contains(e)) {
+			checkForRemoveFromScene(this,this,e);
 			entities.remove(e);
 			e.setParent(null);
+		}
+	}
+
+	private void checkForRemoveFromScene(Entity node,Entity parent,Entity child) {
+		while(node!=null) {
+			if (node instanceof Scene) {
+				((Scene) node).removeEntityFromParent(parent, child);
+				return;
+			}
+			node = node.getParent();
 		}
 	}
 
@@ -264,7 +287,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	}
 
 	public void removeAllEntities() {
-		while(!entities.isEmpty()) removeChild(entities.get(0));
+		while(!entities.isEmpty()) removeEntity(entities.get(0));
 	}
 	
 	@Override

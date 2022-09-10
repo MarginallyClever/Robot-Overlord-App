@@ -51,7 +51,10 @@ public class ViewElementColor extends ViewElement implements PropertyChangeListe
 			JDialog dialog = JColorChooser.createDialog(SwingUtilities.getWindowAncestor(this),label.getText(),true, chooser,
 					e1 -> {
 						Color newColor = chooser.getColor();
-						if(!old.equals(newColor)) fireColorChangeEvent(newColor);
+						if(!old.equals(newColor)) {
+							chooseButton.setBackground(newColor);
+							fireColorChangeEvent(newColor);
+						}
 					},
 					e2 -> {
 						chooseButton.setBackground(old);
@@ -69,8 +72,8 @@ public class ViewElementColor extends ViewElement implements PropertyChangeListe
 	private void fireColorChangeEvent(Color c) {
 		double [] newValues = new double[]{
 				c.getRed()/255.0,
-				c.getBlue()/255.0,
 				c.getGreen()/255.0,
+				c.getBlue()/255.0,
 				c.getAlpha()/255.0
 		};
 
