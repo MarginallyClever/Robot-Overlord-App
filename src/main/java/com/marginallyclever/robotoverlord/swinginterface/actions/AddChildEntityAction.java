@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.EntityFactory;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.AddEntityEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -58,7 +58,7 @@ public class AddChildEntityAction extends AbstractAction implements EditorAction
 	private void createInstanceOf(Entity parent,String className) {
 		try {
 			Entity newInstance = EntityFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new AddEntityEdit(parent,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(this,new EntityAddEdit(parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
 			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);

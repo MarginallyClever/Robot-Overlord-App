@@ -48,7 +48,7 @@ public class MoveEdit extends AbstractUndoableEdit {
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.getComponent(PoseComponent.class).setWorld(next);
+		entity.getComponent(PoseComponent.class).setWorld(prev);
 	}
 	
 	@Override

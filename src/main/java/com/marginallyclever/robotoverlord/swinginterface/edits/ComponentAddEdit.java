@@ -11,16 +11,19 @@ import javax.swing.undo.CannotUndoException;
 import java.io.Serial;
 
 /**
- * An undoable action to add a {@link Component} to an {@link Entity}.
+ * An undoable action to add a {@link com.marginallyclever.robotoverlord.Component} to an {@link Entity}.
  * @author Dan Royer
  *
  */
-public class DeleteComponentEdit extends AbstractUndoableEdit {
+public class ComponentAddEdit extends AbstractUndoableEdit {
+	@Serial
+	private static final long serialVersionUID = 1L;
+
 	private final Entity entity;
 	private final Component component;
 	private final RobotOverlord ro;
 
-	public DeleteComponentEdit(RobotOverlord ro, Entity entity, Component component) {
+	public ComponentAddEdit(RobotOverlord ro, Entity entity, Component component) {
 		super();
 
 		this.ro = ro;
@@ -32,7 +35,7 @@ public class DeleteComponentEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Delete ")+entity.getName();
+		return Translator.get("Add ")+entity.getName();
 	}
 
 	@Override
@@ -42,14 +45,13 @@ public class DeleteComponentEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		entity.removeComponent(component);
-		ro.updateComponentPanel();
+		entity.addComponent(component);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.addComponent(component);
+		entity.removeComponent(component);
 		ro.updateComponentPanel();
 	}
 }

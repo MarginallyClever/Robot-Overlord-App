@@ -15,12 +15,12 @@ import java.util.Map;
  * @author Dan Royer
  *
  */
-public class DeleteEntityEdit extends AbstractUndoableEdit {
+public class EntityDeleteEdit extends AbstractUndoableEdit {
 	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final RobotOverlord ro;
 	private final String name;
 
-	public DeleteEntityEdit(String name, RobotOverlord ro, List<Entity> entityList) {
+	public EntityDeleteEdit(String name, RobotOverlord ro, List<Entity> entityList) {
 		super();
 		this.name = name;
 		this.ro = ro;

@@ -8,22 +8,18 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import java.io.Serial;
 
 /**
- * An undoable action to add a {@link com.marginallyclever.robotoverlord.Component} to an {@link Entity}.
+ * An undoable action to add a {@link Component} to an {@link Entity}.
  * @author Dan Royer
  *
  */
-public class AddComponentEdit extends AbstractUndoableEdit {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
+public class ComponentDeleteEdit extends AbstractUndoableEdit {
 	private final Entity entity;
 	private final Component component;
 	private final RobotOverlord ro;
 
-	public AddComponentEdit(RobotOverlord ro,Entity entity, Component component) {
+	public ComponentDeleteEdit(RobotOverlord ro, Entity entity, Component component) {
 		super();
 
 		this.ro = ro;
@@ -35,7 +31,7 @@ public class AddComponentEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Add ")+entity.getName();
+		return Translator.get("Delete ")+entity.getName();
 	}
 
 	@Override
@@ -45,13 +41,14 @@ public class AddComponentEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		entity.addComponent(component);
+		entity.removeComponent(component);
+		ro.updateComponentPanel();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.removeComponent(component);
+		entity.addComponent(component);
 		ro.updateComponentPanel();
 	}
 }

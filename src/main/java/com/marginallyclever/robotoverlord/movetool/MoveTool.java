@@ -127,6 +127,8 @@ public class MoveTool extends Entity {
 		PoseComponent camera = cameraComponent.getEntity().getComponent(PoseComponent.class);
 
 		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		if(subjectPose==null) return;
+
 		Matrix4d subjectPoseWorld = subjectPose.getWorld();
 		if(!isActivelyMoving()) {
 			checkChangeFrameOfReference();
@@ -551,6 +553,9 @@ public class MoveTool extends Entity {
 	@Override
 	public void render(GL2 gl2) {
 		if(subject==null) return;
+
+		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		if(subjectPose==null) return;
 
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 

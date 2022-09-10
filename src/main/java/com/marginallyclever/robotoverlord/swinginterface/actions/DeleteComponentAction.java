@@ -1,20 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.ComponentFactory;
-import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.ComponentPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.AddComponentEdit;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DeleteComponentEdit;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentDeleteEdit;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Display an `Add Component` dialog box.  If an {@link Component} is selected and
@@ -37,6 +29,6 @@ public class DeleteComponentAction extends AbstractAction {
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		UndoSystem.addEvent(this,new DeleteComponentEdit(ro,component.getEntity(),component));
+		UndoSystem.addEvent(this,new ComponentDeleteEdit(ro,component.getEntity(),component));
     }
 }

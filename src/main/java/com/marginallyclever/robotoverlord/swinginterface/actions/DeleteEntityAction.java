@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DeleteEntityEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.EntityDeleteEdit;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -21,7 +21,7 @@ public class DeleteEntityAction extends AbstractAction implements EditorAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		UndoSystem.addEvent(this,new DeleteEntityEdit((String)this.getValue(Action.NAME),ro,ro.getSelectedEntities()));
+		UndoSystem.addEvent(this,new EntityDeleteEdit((String)this.getValue(Action.NAME),ro,ro.getSelectedEntities()));
 	}
 
 	@Override

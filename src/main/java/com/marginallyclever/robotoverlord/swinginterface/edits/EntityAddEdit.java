@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -14,14 +13,14 @@ import java.io.Serial;
  * @author Dan Royer
  *
  */
-public class AddEntityEdit extends AbstractUndoableEdit {
+public class EntityAddEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private final Entity child;
 	private final Entity parent;
 	
-	public AddEntityEdit(Entity parent, Entity child) {
+	public EntityAddEdit(Entity parent, Entity child) {
 		super();
 		
 		this.child = child;
