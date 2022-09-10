@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.swinginterface;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.actions.DeleteComponentAction;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.swing.*;
@@ -10,16 +12,16 @@ import java.util.List;
 
 
 public class ComponentPanel extends JPanel {
+
 	public ComponentPanel() {
-		super();
-		setLayout(new BorderLayout());
+		super(new BorderLayout());
 	}
 
 	/**
 	 * Collate all the {@link java.awt.Component}s for selected {@link Entity}.
 	 * @param 
 	 */
-	public void update(List<Entity> entityList, RobotOverlord ro) {
+	public void refreshContents(List<Entity> entityList, RobotOverlord ro) {
 		removeAll();
 		
 		if(entityList != null ) {
@@ -51,5 +53,4 @@ public class ComponentPanel extends JPanel {
 			scroller.getVerticalScrollBar().setValue(0);
 		}
 	}
-
 }

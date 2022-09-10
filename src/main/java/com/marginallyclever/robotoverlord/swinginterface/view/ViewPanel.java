@@ -1,8 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
+import com.marginallyclever.robotoverlord.swinginterface.actions.DeleteComponentAction;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.uiexposedtypes.*;
 
 import javax.swing.*;
@@ -10,9 +14,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.io.Serial;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Stack;
 
 /**
@@ -21,11 +23,6 @@ import java.util.Stack;
  * @since 1.6.0
  */
 public class ViewPanel extends ViewElement {
-	@Serial
-	private static final long serialVersionUID = 734937620434319234L;
-
-	public final Hashtable<String,Object> viewElements = new Hashtable<>();
-	
 	protected static class StackElement {
 		public JComponent p;
 		public GridBagConstraints gbc;
@@ -33,7 +30,6 @@ public class ViewPanel extends ViewElement {
 	
 	protected final Stack<StackElement> panelStack = new Stack<>();
 	protected StackElement se;
-	//protected final JTabbedPane contentPane = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT);
 	protected final JPanel contentPane = new JPanel();
 
 	private final RobotOverlord ro;
@@ -56,37 +52,49 @@ public class ViewPanel extends ViewElement {
 		this(null);
 	}
 	
-	public void pushStack(String title,boolean expanded) {
+	public void pushStack(String name,boolean expanded) {
 		se = new StackElement();
 		se.p = new JPanel();
-		//se.p.setLayout(new BoxLayout(se.p, BoxLayout.PAGE_AXIS));
+
 		se.p.setLayout(new GridBagLayout());
 		se.p.setBorder(new LineBorder(Color.RED));
-		se.p.setBorder(new EmptyBorder(1,1,1,1));
+		se.p.setBorder(new EmptyBorder(1, 1, 1, 1));
 
 		se.gbc = new GridBagConstraints();
-		se.gbc.weightx=1;
-		se.gbc.gridx  =0;
-		se.gbc.gridy  =0;
-		se.gbc.fill      = GridBagConstraints.HORIZONTAL;
+		se.gbc.weightx = 1;
+		se.gbc.gridx = 0;
+		se.gbc.gridy = 0;
+		se.gbc.fill = GridBagConstraints.HORIZONTAL;
 		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
-		se.gbc.insets.set(1,1,1,1);
+		se.gbc.insets.set(1, 1, 1, 1);
 
 		panelStack.push(se);
-		
-		//contentPane.addTab(title, null, se.p, tip);
-		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(title);
+
+		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(name);
 		JPanel content = collapsiblePanel.getContentPane();
 		collapsiblePanel.setCollapsed(!expanded);
 		content.setLayout(new BorderLayout());
-		content.add(se.p,BorderLayout.CENTER);
+		content.add(se.p, BorderLayout.CENTER);
 		contentPane.add(collapsiblePanel);
+	}
+
+	public void pushStack(Component component) {
+		pushStack(component.getName(),component.getExpanded());
+		setPopupMenu(component, se.p);
+	}
+
+	private void setPopupMenu(Component component,JComponent panel) {
+		JPopupMenu popup = new JPopupMenu();
+
+		DeleteComponentAction deleteComponentAction = new DeleteComponentAction("DeleteComponentAction.name",component,ro);
+		deleteComponentAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("DeleteComponentAction.shortDescription"));
+		deleteComponentAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
+		popup.add(deleteComponentAction);
+
+		panel.setComponentPopupMenu(popup);
 	}
 	
 	public void popStack() {
-		//se.gbc.weighty=1;
-		//se.gbc.gridy++;
-		//se.p.add(new JLabel(""),se.gbc);
 		panelStack.pop();
 	}
 	

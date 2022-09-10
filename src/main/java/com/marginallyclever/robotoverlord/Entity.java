@@ -1,11 +1,14 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.swinginterface.actions.DeleteComponentAction;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -245,9 +248,9 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	 * @param view
 	 */
 	public void getView(ViewPanel view) {
-		for(Component c : components) {
-			view.pushStack(c.getName(),c.getExpanded());
-			c.getView(view);
+		for(Component component : components) {
+			view.pushStack(component);
+			component.getView(view);
 			view.popStack();
 		}
 	}

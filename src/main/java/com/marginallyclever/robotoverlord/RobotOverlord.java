@@ -7,7 +7,6 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.demos.*;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector2d;
-import javax.vecmath.Vector3d;
 import java.awt.Component;
 import java.awt.*;
 import java.awt.event.*;
@@ -575,7 +573,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	public void updateComponentPanel() {
-		componentPanel.update(getSelectedEntities(),this);
+		componentPanel.refreshContents(getSelectedEntities(),this);
 	}
 
     private void saveWindowSizeAndPosition() {
