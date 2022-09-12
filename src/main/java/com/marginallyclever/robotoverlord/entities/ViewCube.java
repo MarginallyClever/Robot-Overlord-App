@@ -52,7 +52,7 @@ public class ViewCube extends Entity {
 	}
 		
     private Matrix4d getInverseCameraMatrix(CameraComponent camera) {
-		Matrix4d m = camera.getEntity().getComponent(PoseComponent.class).getWorld();
+		Matrix4d m = camera.getEntity().findFirstComponent(PoseComponent.class).getWorld();
 		m.invert();
 		m.setTranslation(new Vector3d(0,0,0));
 		return m;

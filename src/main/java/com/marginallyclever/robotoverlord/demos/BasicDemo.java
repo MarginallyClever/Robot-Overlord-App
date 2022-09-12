@@ -10,10 +10,8 @@ import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
-import com.marginallyclever.robotoverlord.swinginterface.actions.NewSceneAction;
 
 import javax.vecmath.Vector3d;
-import java.awt.event.ActionEvent;
 
 public class BasicDemo implements Demo {
 	@Override
@@ -26,8 +24,8 @@ public class BasicDemo implements Demo {
 		Entity scene = ro.getScene();
 		
 		// adjust default camera
-		CameraComponent camera = scene.findFirstComponent(CameraComponent.class);
-		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		CameraComponent camera = scene.findFirstComponentRecursive(CameraComponent.class);
+		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 
 		pose.setPosition(new Vector3d(40,-91,106));
 		camera.setPan(-16);

@@ -28,7 +28,7 @@ public class RobotArmsDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(50,-50,70));
 		camera.lookAt(new Vector3d(0,0,-20));
 		

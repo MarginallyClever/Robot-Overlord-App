@@ -21,6 +21,7 @@ public class ComponentFactory {
 			com.marginallyclever.robotoverlord.components.shapes.Sphere.class,
 			com.marginallyclever.robotoverlord.components.shapes.Decal.class,
 			com.marginallyclever.robotoverlord.components.shapes.MeshFromFile.class,
+			com.marginallyclever.robotoverlord.components.PoseIllustrator.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {

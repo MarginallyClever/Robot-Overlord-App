@@ -30,7 +30,7 @@ public class PhysicsDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4,-91/4,106/4));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setZoom(30);

@@ -33,22 +33,22 @@ public class MoveEdit extends AbstractUndoableEdit {
 		super();
 		
 		this.entity = entity;
-		this.prev = entity.getComponent(PoseComponent.class).getWorld();
+		this.prev = entity.findFirstComponent(PoseComponent.class).getWorld();
 		this.next = newPose;
 
-		entity.getComponent(PoseComponent.class).setWorld(next);
+		entity.findFirstComponent(PoseComponent.class).setWorld(next);
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		entity.getComponent(PoseComponent.class).setWorld(next);
+		entity.findFirstComponent(PoseComponent.class).setWorld(next);
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.getComponent(PoseComponent.class).setWorld(prev);
+		entity.findFirstComponent(PoseComponent.class).setWorld(prev);
 	}
 	
 	@Override

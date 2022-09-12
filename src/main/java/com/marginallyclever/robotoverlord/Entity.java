@@ -1,14 +1,11 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.actions.DeleteComponentAction;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -23,7 +20,7 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class Entity implements PropertyChangeListener, Cloneable {
+public class Entity implements PropertyChangeListener {
 	private String name;
 
 	protected transient Entity parent;
@@ -86,10 +83,6 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	 * @param gl2 the render context
 	 */
 	public void render(GL2 gl2) {}
-	
-	public boolean hasChild(Entity o) {
-		return entities.contains(o);
-	}
 
 	public String getUniqueChildName(Entity e) {
 		String rootName = e.getName(); 
@@ -218,7 +211,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 						break;
 					}
 				}
-				if (found == false)
+				if (!found)
 					return null; // does not exist
 			}
 		}
@@ -230,22 +223,22 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	 * @return This entity's full pathname in the entity tree.
 	 */
 	public String getFullPath() {
-		String sum = "";
+		StringBuilder sum = new StringBuilder();
 		Entity e = this;
 
 		do {
-			sum = "/" + e.getName() + sum;
+			sum.insert(0, "/" + e.getName());
 			e = e.getParent();
 		} while (e != null);
 
-		return sum;
+		return sum.toString();
 	}
 
 	/**
 	 * Explains to View in abstract terms the control interface for this entity.
 	 * Derivatives of View implement concrete versions of that view.
 	 * 
-	 * @param view
+	 * @param view the panel to decorate
 	 */
 	public void getView(ViewPanel view) {
 		for(Component component : components) {
@@ -295,12 +288,10 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder();
-		s.append("name=").append(name).append(", ");
-		s.append("entities=").append(Arrays.toString(entities.toArray())).append(", ");
-		s.append("components=").append(Arrays.toString(components.toArray()));
-		s.append("expanded=").append(isExpanded);
-		return s.toString();
+		return "name=" + name + ", " +
+				"entities=" + Arrays.toString(entities.toArray()) + ", " +
+				"components=" + Arrays.toString(components.toArray()) +
+				"expanded=" + isExpanded;
 	}
 
 	public int getComponentCount() {
@@ -314,7 +305,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	}
 
 	public boolean containsAnInstanceOfTheSameClass(Component c0) {
-		Class clazz = c0.getClass();
+		Class<?> clazz = c0.getClass();
 		for(Component c : components) {
 			if(clazz == c.getClass()) return true;
 		}
@@ -334,10 +325,6 @@ public class Entity implements PropertyChangeListener, Cloneable {
 		return null;
 	}
 
-	public Iterator<Component> getComponentIterator() {
-		return components.iterator();
-	}
-
 	public void removeComponent(Component c) {
 		components.remove(c);
 	}
@@ -347,7 +334,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	 * @return the
 	 * @param <T> the type to find and return.  Must be derived from Component
 	 */
-	public <T extends Component> T getComponent(Class<T> clazz) {
+	public <T extends Component> T findFirstComponent(Class<T> clazz) {
 		for(Component c : components) {
 			if(clazz.isInstance(c)) {
 				return (T)c;
@@ -357,14 +344,29 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	}
 
 	/**
+	 * Returns any instance of class T found attached to this Entity.
+	 * @return the
+	 * @param <T> the type to find and return.  Must be derived from Component
+	 */
+	public <T extends Component> List<T> findAllComponents(Class<T> clazz) {
+		List<T> list = new ArrayList<>();
+		for(Component c : components) {
+			if(clazz.isInstance(c)) {
+				list.add((T)c);
+			}
+		}
+		return list;
+	}
+
+	/**
 	 * Search this Entity and then all child Entities until a {@link Component} match is found.
 	 */
-	public <T extends Component> T findFirstComponent(Class<T> clazz) {
-		T found = getComponent(clazz);
+	public <T extends Component> T findFirstComponentRecursive(Class<T> clazz) {
+		T found = findFirstComponent(clazz);
 		if(found!=null) return found;
 
 		for(Entity e : entities) {
-			found = e.findFirstComponent(clazz);
+			found = e.findFirstComponentRecursive(clazz);
 			if(found!=null) return found;
 		}
 
@@ -380,7 +382,7 @@ public class Entity implements PropertyChangeListener, Cloneable {
 	public <T extends Component> T findFirstComponentInParents(Class<T> clazz) {
 		Entity p = parent;
 		while(p!=null) {
-			T found = p.getComponent(clazz);
+			T found = p.findFirstComponent(clazz);
 			if (found != null) return found;
 			p = p.getParent();
 		}

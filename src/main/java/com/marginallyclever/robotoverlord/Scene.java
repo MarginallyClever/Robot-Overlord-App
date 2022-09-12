@@ -63,7 +63,7 @@ public class Scene extends Entity {
 	private void renderEntitiesWithMeshes(GL2 gl2,Entity obj) {
 		gl2.glPushName(obj.getPickName());
 
-		PoseComponent pose = obj.getComponent(PoseComponent.class);
+		PoseComponent pose = obj.findFirstComponent(PoseComponent.class);
 		if(pose!=null) {
 			renderOneEntityWithMeshAndPose(gl2,obj,pose);
 		} else {
@@ -79,18 +79,19 @@ public class Scene extends Entity {
 	private void renderOneEntityWithMeshAndPose(GL2 gl2,Entity obj,PoseComponent pose) {
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2,pose.getWorld());
-		//PrimitiveSolids.drawStar(gl2,1);
 		renderOneEntityWithMesh(gl2,obj);
 		gl2.glPopMatrix();
 	}
 
 	private void renderOneEntityWithMesh(GL2 gl2,Entity obj) {
-		MaterialComponent mat = obj.getComponent(MaterialComponent.class);
+		MaterialComponent mat = obj.findFirstComponent(MaterialComponent.class);
 		if(mat==null) mat = obj.findFirstComponentInParents(MaterialComponent.class);
 		if(mat!=null && mat.getEnabled()) mat.render(gl2);
 
-		ShapeComponent shape = obj.getComponent(ShapeComponent.class);
-		if(shape!=null && shape.getEnabled()) shape.render(gl2);
+		List<ShapeComponent> shapes = obj.findAllComponents(ShapeComponent.class);
+		for(ShapeComponent shape : shapes) {
+			if(shape.getEnabled()) shape.render(gl2);
+		}
 	}
 
 	private void renderLights(GL2 gl2) {
@@ -103,7 +104,7 @@ public class Scene extends Entity {
 		int i=0;
 		while(!found.isEmpty()) {
 			Entity obj = found.remove();
-			LightComponent light = obj.getComponent(LightComponent.class);
+			LightComponent light = obj.findFirstComponent(LightComponent.class);
 			if(light!=null && light.getEnabled()) {
 				light.setupLight(gl2,i++);
 				if(i==GL2.GL_MAX_LIGHTS) return;

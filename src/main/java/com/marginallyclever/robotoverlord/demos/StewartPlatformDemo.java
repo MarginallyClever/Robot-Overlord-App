@@ -10,10 +10,8 @@ import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.entities.TrayCabinet;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore;
 import com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
-import com.marginallyclever.robotoverlord.swinginterface.actions.NewSceneAction;
 
 import javax.vecmath.Vector3d;
-import java.awt.event.ActionEvent;
 
 public class StewartPlatformDemo implements Demo {
 	@Override
@@ -27,7 +25,7 @@ public class StewartPlatformDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40,-91,106));
 		camera.setPan(-16);
 		camera.setTilt(53);

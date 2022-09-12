@@ -541,19 +541,6 @@ public class RobotOverlord extends Entity {
 		logFrame.setVisible(true);
 	}
 
-    /**
-     * An entity in the 3D scene has been "picked" (aka double-clicked).  This begins the process
-     * to select that entity.  Entities selected through other means should not call pickEntity() as it would
-     * cause an infinite loop.
-     *
-     * @param e the entity that was picked
-     */
-	private void pickEntity(Entity e) {
-		//Log.message( "Picked "+((e==null)?"nothing":e.getFullPath()) );
-		if(selectedEntities.contains(e)) return;
-		entityTree.setSelection(e);
-	}
-	
     private void updateSelectEntities() {
 		if(renameEntityAction !=null) renameEntityAction.setEnabled(false);
 
@@ -563,8 +550,7 @@ public class RobotOverlord extends Entity {
     	if( !list.isEmpty()) {
 			if(list.size() == 1) {
 				Entity firstEntity = list.get(0);
-				pickEntity(firstEntity);
-				if(firstEntity.getComponent(PoseComponent.class) != null) {
+				if(firstEntity.findFirstComponent(PoseComponent.class) != null) {
 					moveTool.setSubject(firstEntity);
 				}
 			}
@@ -648,7 +634,7 @@ public class RobotOverlord extends Entity {
 
 		pickNow = false;
 
-		CameraComponent cameraComponent = findFirstComponent(CameraComponent.class);
+		CameraComponent cameraComponent = findFirstComponentRecursive(CameraComponent.class);
 		if(cameraComponent==null) return;
 
 		int pickName = findItemUnderCursor(gl2,cameraComponent);
@@ -668,7 +654,7 @@ public class RobotOverlord extends Entity {
 	}
 	
     private void renderStep(GL2 gl2) {
-		CameraComponent camera = scene.findFirstComponent(CameraComponent.class);
+		CameraComponent camera = scene.findFirstComponentRecursive(CameraComponent.class);
 		if(camera==null) return;
 
         viewport.renderChosenProjection(gl2,camera);
@@ -786,7 +772,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	public CameraComponent getCamera() {
-		return findFirstComponent(CameraComponent.class);
+		return findFirstComponentRecursive(CameraComponent.class);
 	}
 
 	public void setSelectedEntity(Entity entity) {
@@ -798,6 +784,7 @@ public class RobotOverlord extends Entity {
 	public void setSelectedEntities(List<Entity> list) {
 		selectedEntities.clear();
 		selectedEntities.addAll(list);
+		entityTree.setSelection(list);
 		updateSelectEntities();
 		updateActionEnableStatus();
 	}

@@ -124,9 +124,9 @@ public class MoveTool extends Entity {
 
 		CameraComponent cameraComponent = ro.getCamera();
 		if(cameraComponent==null) return;
-		PoseComponent camera = cameraComponent.getEntity().getComponent(PoseComponent.class);
+		PoseComponent camera = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
 
-		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 		if(subjectPose==null) return;
 
 		Matrix4d subjectPoseWorld = subjectPose.getWorld();
@@ -186,7 +186,7 @@ public class MoveTool extends Entity {
 	private void beginMovement() {
 		RobotOverlord ro = (RobotOverlord)getRoot();
 		Viewport cameraView = ro.getViewport();
-		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+		PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 		Ray ray = cameraView.rayPick(ro.getCamera());
 
 		Vector3d dp = new Vector3d(position);
@@ -241,7 +241,7 @@ public class MoveTool extends Entity {
 			
 			pickPointSaved.set(pickPoint);
 
-			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 			startMatrix = subjectPose.getWorld();
 			resultMatrix.set(startMatrix);
 			
@@ -291,7 +291,7 @@ public class MoveTool extends Entity {
 				pickPointOnBall = ray.getPoint(t0);
 
 				isActivelyMoving=true;
-				PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+				PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 				startMatrix = subjectPose.getWorld();
 				resultMatrix.set(startMatrix);
 				
@@ -453,7 +453,7 @@ public class MoveTool extends Entity {
 
 		// rotations
 		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
-			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 			startMatrix = subjectPose.getWorld();
 			resultMatrix.set(startMatrix);
 			valueStart =0;
@@ -492,7 +492,7 @@ public class MoveTool extends Entity {
 		
 		// translations
 		if( InputManager.isOn(InputManager.Source.STICK_X)) {
-			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 			startMatrix = subjectPose.getWorld();
 			resultMatrix.set(startMatrix);
 			
@@ -554,7 +554,7 @@ public class MoveTool extends Entity {
 	public void render(GL2 gl2) {
 		if(subject==null) return;
 
-		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 		if(subjectPose==null) return;
 
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
@@ -612,10 +612,10 @@ public class MoveTool extends Entity {
 		final int quality=50;
 		
 		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+		PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 		Matrix4d lookAt = new Matrix4d();
 
-		PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 		Matrix4d pw = subjectPose.getWorld();
 		
 		Vector3d worldPosition = MatrixHelper.getPosition(pw);
@@ -649,7 +649,7 @@ public class MoveTool extends Entity {
 			//Matrix4d pw = subject.getPoseWorld(pw);
 			
 			RobotOverlord ro = (RobotOverlord)getRoot();
-			PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+			PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d pw = camera.getWorld();
 			pw.m03=
 			pw.m13=
@@ -785,9 +785,9 @@ public class MoveTool extends Entity {
 			
 			// camera forward is -z axis 
 			RobotOverlord ro = (RobotOverlord)getRoot();
-			PoseComponent camera = ro.getCamera().getEntity().getComponent(PoseComponent.class);
+			PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 
-			PoseComponent subjectPose = subject.getComponent(PoseComponent.class);
+			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 			Matrix4d pw = subjectPose.getWorld();
 
 			Vector3d lookAtVector = MatrixHelper.getPosition(pw);

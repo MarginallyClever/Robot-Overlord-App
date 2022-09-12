@@ -32,7 +32,7 @@ public class CameraComponent extends Component {
     }
 
     private void setPosition(Vector3d target) {
-        PoseComponent p = getEntity().getComponent(PoseComponent.class);
+        PoseComponent p = getEntity().findFirstComponent(PoseComponent.class);
         p.setPosition(target);
     }
 
@@ -55,7 +55,7 @@ public class CameraComponent extends Component {
     }
 
     public void lookAt(Vector3d target) {
-        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
 
         Vector3d forward = new Vector3d(target);
         forward.sub(pose.getPosition());
@@ -87,7 +87,7 @@ public class CameraComponent extends Component {
             //Log.message(dz+"\t"+zoom);
         }
 
-        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Matrix4d myPose = pose.getWorld();
 
         if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
@@ -257,7 +257,7 @@ public class CameraComponent extends Component {
 
     // adjust the camera position to orbit around a point 'zoom' in front of the camera
     private void adjustZoomPosition(double oldZoom, double newZoom) {
-        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d p = pose.getPosition();
         Vector3d orbitPoint = getOrbitPoint();
         p.sub(orbitPoint);
@@ -267,7 +267,7 @@ public class CameraComponent extends Component {
     }
 
     public Vector3d getOrbitPoint() {
-        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d p = pose.getPosition();
         Vector3d oldZ = MatrixHelper.getZAxis(pose.getWorld());
         oldZ.scale(zoom.get());

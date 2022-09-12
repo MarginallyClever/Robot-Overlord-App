@@ -35,7 +35,7 @@ public class Grid extends ShapeComponent {
     private void drawGridWithSnap(GL2 gl2, int gridWidth, int gridLength, int gridSpace) {
         gl2.glPushMatrix();
 
-        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d p = pose.getPosition();
         double dx = p.x % gridSpace;
         double dy = p.y % gridSpace;
@@ -56,7 +56,7 @@ public class Grid extends ShapeComponent {
     private void drawGrid(GL2 gl2,int gridWidth,int gridLength,int gridSpace) {
         // get diffuse material color.  use black if nothing is found.
         double r=0,g=0,b=0;
-        MaterialComponent mat = getEntity().getComponent(MaterialComponent.class);
+        MaterialComponent mat = getEntity().findFirstComponent(MaterialComponent.class);
         if(mat!=null) {
             double[] c = mat.getDiffuseColor();
             r=c[0];

@@ -23,7 +23,7 @@ public class DogDemo implements Demo {
 		
 		// adjust default camera
 		CameraComponent camera = ro.getCamera();
-		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40,-91,106));
 		camera.setPan(-16);
 		camera.setTilt(53);
