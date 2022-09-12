@@ -11,17 +11,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An undoable action to remove an {@link Entity} from the world.
+ * An undoable action to move an {@link Entity} from one parent to another.
  * @author Dan Royer
  *
  */
-public class EntityDeleteEdit extends AbstractUndoableEdit {
+public class EntityMoveEdit extends AbstractUndoableEdit {
 	private final Map<Entity,Entity> childParent = new HashMap<>();
+	private final RobotOverlord ro;
 	private final String name;
 
-	public EntityDeleteEdit(String name, List<Entity> entityList) {
+	public EntityMoveEdit(String name, RobotOverlord ro, List<Entity> entityList) {
 		super();
 		this.name = name;
+		this.ro = ro;
 
 		for(Entity child : entityList) {
 			childParent.put(child,child.getParent());

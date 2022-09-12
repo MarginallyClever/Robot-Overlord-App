@@ -134,7 +134,7 @@ public class Entity implements PropertyChangeListener {
 		if (entities.contains(e)) {
 			checkForRemoveFromScene(this,this,e);
 			entities.remove(e);
-			e.setParent(null);
+			if(e.getParent()==this) e.setParent(null);
 		}
 	}
 

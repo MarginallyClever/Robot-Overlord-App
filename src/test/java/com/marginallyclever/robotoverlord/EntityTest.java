@@ -18,4 +18,18 @@ public class EntityTest {
         a.setExpanded(!a.getExpanded());
         EntityTest.saveAndLoad(a,b);
     }
+
+    @Test
+    public void moveEntity() {
+        Entity a = new Entity();
+        Entity b = new Entity();
+        Entity c = new Entity();
+        b.addEntity(a);
+        Assertions.assertEquals(b,a.getParent());
+        c.addEntity(a);
+        Assertions.assertEquals(c,a.getParent());
+        b.removeEntity(a);
+        Assertions.assertEquals(c,a.getParent());
+
+    }
 }

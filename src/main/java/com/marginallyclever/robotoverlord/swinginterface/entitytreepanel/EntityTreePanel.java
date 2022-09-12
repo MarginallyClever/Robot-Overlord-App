@@ -11,10 +11,12 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,9 +42,12 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		myTree.removeAll();
 		myTree.setModel(new DefaultTreeModel(null));
 		myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-
 		addMouseListener();
 		addExpansionListener();
+
+		myTree.setDragEnabled(true);
+		myTree.setDropMode(DropMode.ON_OR_INSERT);
+		myTree.setTransferHandler(new EntityTreeTransferHandler());
 	}
 
 	/**
@@ -81,11 +86,16 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		List<TreeNode> list = new ArrayList<>();
 		list.add(root);
 		while(!list.isEmpty()) {
-			EntityTreeNode node = (EntityTreeNode)list.remove(0);
-			if(e==node.getUserObject()) {
-				return node;
+			TreeNode treeNode = list.remove(0);
+			if(treeNode instanceof EntityTreeNode) {
+				EntityTreeNode node = (EntityTreeNode) treeNode;
+				if (e == node.getUserObject()) {
+					return node;
+				}
+			} else {
+				System.out.println("findTreeNode problem @ "+treeNode);
 			}
-			list.addAll(Collections.list(node.children()));
+			list.addAll(Collections.list(treeNode.children()));
 		}
 		return null;
 	}

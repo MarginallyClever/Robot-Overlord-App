@@ -10,16 +10,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
  *
  */
 public class EntityTreeNode extends DefaultMutableTreeNode {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1666539321833323211L;
-
-	public EntityTreeNode(Entity e) {
-		super(e);
+	public EntityTreeNode(Object obj) {
+		super(obj);
 	}
-	
+
 	@Override
 	public String toString() {
 		return ((Entity)userObject).getName();
