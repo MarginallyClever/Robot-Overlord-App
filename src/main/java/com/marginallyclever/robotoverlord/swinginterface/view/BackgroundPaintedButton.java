@@ -31,7 +31,7 @@ public class BackgroundPaintedButton extends JButton {
 	    g2.fillRect(0,0,getWidth()-1,getHeight()-1);
 
 		Color c0 = new Color(255,255,255,255-c.getAlpha());
-		Color c1 = new Color(  0,  0,  0,255-c.getAlpha());
+		Color c1 = new Color(  128,  128,  128,255-c.getAlpha());
 
 		int size=8;
 		int stepsX = (int)Math.ceil(getWidth()/(float)size);
