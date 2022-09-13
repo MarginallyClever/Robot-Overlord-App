@@ -101,16 +101,13 @@ public class RobotArmIK extends RobotArmFK {
 		final Robot me = this;
 		final JFrame parentFrame = parent;
 		
-        new Thread(new Runnable() {
-            @Override
-			public void run() {
-            	JDialog frame = new JDialog(parentFrame,getName());
-        		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        		frame.add(new RobotArmInterface(me));
-        		frame.pack();
-        		frame.setVisible(true);
-            }
-        }).start();
+        new Thread(() -> {
+			JDialog frame = new JDialog(parentFrame,getName());
+			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			frame.add(new RobotArmInterface(me));
+			frame.pack();
+			frame.setVisible(true);
+		}).start();
 	}
 
 	public ApproximateJacobian getApproximateJacobian() {
