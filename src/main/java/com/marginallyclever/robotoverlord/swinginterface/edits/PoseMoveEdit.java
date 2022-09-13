@@ -16,7 +16,7 @@ import java.io.Serial;
  * @author Dan Royer
  *
  */
-public class MoveEdit extends AbstractUndoableEdit {
+public class PoseMoveEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 		
@@ -29,7 +29,7 @@ public class MoveEdit extends AbstractUndoableEdit {
 	 * @param entity who
 	 * @param newPose where
 	 */
-	public MoveEdit(Entity entity, Matrix4d newPose) {
+	public PoseMoveEdit(Entity entity, Matrix4d newPose) {
 		super();
 		
 		this.entity = entity;
@@ -53,8 +53,8 @@ public class MoveEdit extends AbstractUndoableEdit {
 	
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof MoveEdit) {
-			MoveEdit APEM = (MoveEdit)anEdit;
+		if(anEdit instanceof PoseMoveEdit) {
+			PoseMoveEdit APEM = (PoseMoveEdit)anEdit;
 			if(APEM.entity==this.entity) return true;
 		}
 		return super.addEdit(anEdit);
