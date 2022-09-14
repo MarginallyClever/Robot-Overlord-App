@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.Moveable;
 import com.marginallyclever.robotoverlord.Removable;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.MoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
@@ -378,7 +378,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMajorAxisTarget(poseWorld);
 		if(m!=null) {
-			UndoSystem.addEvent(this,new MoveEdit(this,m));
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,m));
 		}
 	}
 	
@@ -386,7 +386,7 @@ public class PoseEntity extends Entity implements Removable, Moveable {
 		Matrix4d poseWorld = getPoseWorld();
 		Matrix4d m = findMinorAxisTarget(poseWorld);
 		if(m!=null) {
-			UndoSystem.addEvent(this,new MoveEdit(this,m));
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,m));
 		}
 	}
 

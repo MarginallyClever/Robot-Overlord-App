@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.MoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
@@ -533,7 +533,7 @@ public class MoveTool extends Entity {
 	
 	public void attemptMove(RobotOverlord ro) {
 		FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-		UndoSystem.addEvent(this,new MoveEdit(subject,resultMatrix));
+		UndoSystem.addEvent(this,new PoseMoveEdit(subject,resultMatrix));
 	}
 
 	protected double testBoxHit(Ray ray,Vector3d n) {		
