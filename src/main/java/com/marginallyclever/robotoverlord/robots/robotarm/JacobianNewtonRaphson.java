@@ -47,7 +47,6 @@ public class JacobianNewtonRaphson {
 	public static void iterate(RobotArmIK arm, Matrix4d m4, int tries) throws Exception {
 		// Log.message("iterate begins");
 		RobotArmIK temp = (RobotArmIK) arm.clone();
-		temp.setAngles(arm.getAngles());
 		for (int i = 0; i < tries; ++i) {
 			JacobianNewtonRaphson.step(temp,m4);
 			if (temp.getDistanceToTarget(m4) < 0.01) {
