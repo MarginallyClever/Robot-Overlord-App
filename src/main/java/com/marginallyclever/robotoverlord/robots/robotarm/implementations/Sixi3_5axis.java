@@ -8,6 +8,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 import java.io.Serial;
 
+@Deprecated
 public class Sixi3_5axis extends RobotArmIK {
 	@Serial
 	private static final long serialVersionUID = 1L;
