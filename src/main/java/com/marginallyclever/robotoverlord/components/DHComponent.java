@@ -118,6 +118,9 @@ public class DHComponent extends Component implements PropertyChangeListener {
     public double getTheta() {
         return theta.get();
     }
+    public void setTheta(double angle) {
+        theta.set(angle);
+    }
 
     public double getThetaMax() {
         return thetaMax.get();
@@ -133,5 +136,28 @@ public class DHComponent extends Component implements PropertyChangeListener {
 
     public void setThetaHome(double t) {
         thetaHome.set(t);
+    }
+
+    public void setAngleWRTLimits(double t) {
+        // if max angle and min angle overlap then there is no limit on this joint.
+        double max = thetaMax.get();
+        double min = thetaMin.get();
+        double angle = t;
+
+        double bMiddle = (max+min)/2.0;
+        double bMax = Math.abs(max-bMiddle);
+        double bMin = Math.abs(min-bMiddle);
+        if(bMin+bMax<360) {
+            // prevent pushing the arm to an illegal angle
+            angle = Math.max(Math.min(angle, max), min);
+        }
+
+        theta.set(angle % 360);
+    }
+
+    public Matrix4d getPose() {
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        if(pose==null) return null;
+        return pose.getLocal();
     }
 }
