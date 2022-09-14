@@ -91,6 +91,15 @@ public class PoseComponent extends Component implements PropertyChangeListener {
         setRotation(euler);
     }
 
+    public void setLocalMatrix4(Matrix4d m) {
+        Vector3d euler = MatrixHelper.matrixToEuler(m);
+        euler.scale(Math.toDegrees(1));
+        setRotation(euler);
+        Vector3d pos = new Vector3d();
+        m.get(pos);
+        setPosition(pos);
+    }
+
     /**
      * Convert a matrix to Euler rotations.  There are many valid solutions.
      * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
