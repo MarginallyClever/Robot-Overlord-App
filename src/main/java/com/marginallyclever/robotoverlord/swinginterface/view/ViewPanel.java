@@ -51,8 +51,8 @@ public class ViewPanel extends ViewElement {
 	public ViewPanel() {
 		this(null);
 	}
-	
-	public void pushStack(String name,boolean expanded) {
+
+	private void pushStackShared() {
 		se = new StackElement();
 		se.p = new JPanel();
 
@@ -69,6 +69,10 @@ public class ViewPanel extends ViewElement {
 		se.gbc.insets.set(1, 1, 1, 1);
 
 		panelStack.push(se);
+	}
+
+	public void pushStack(String name,boolean expanded) {
+		pushStackShared();
 
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(name);
 		JPanel content = collapsiblePanel.getContentPane();
@@ -79,8 +83,27 @@ public class ViewPanel extends ViewElement {
 	}
 
 	public void pushStack(Component component) {
-		pushStack(component.getName(),component.getExpanded());
+		pushStackShared();
 		setPopupMenu(component, se.p);
+
+		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(component.getName());
+		JPanel content = collapsiblePanel.getContentPane();
+		collapsiblePanel.setCollapsed(!component.getExpanded());
+		content.setLayout(new BorderLayout());
+		content.add(se.p, BorderLayout.CENTER);
+		contentPane.add(collapsiblePanel);
+
+		collapsiblePanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
+			@Override
+			public void collapsed() {
+				component.setExpanded(!collapsiblePanel.isCollapsed());
+			}
+
+			@Override
+			public void expanded() {
+				component.setExpanded(!collapsiblePanel.isCollapsed());
+			}
+		});
 	}
 
 	private void setPopupMenu(Component component,JComponent panel) {
