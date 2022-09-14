@@ -12,16 +12,21 @@ public class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {
 			com.marginallyclever.robotoverlord.components.PoseComponent.class,
+			com.marginallyclever.robotoverlord.components.DHComponent.class,
+			com.marginallyclever.robotoverlord.components.OriginAdjustComponent.class,
+			com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent.class,
+			com.marginallyclever.robotoverlord.components.RobotComponent.class,
+
 			com.marginallyclever.robotoverlord.components.LightComponent.class,
 			com.marginallyclever.robotoverlord.components.CameraComponent.class,
-			com.marginallyclever.robotoverlord.components.ShapeComponent.class,
 			com.marginallyclever.robotoverlord.components.MaterialComponent.class,
+
+			//com.marginallyclever.robotoverlord.components.ShapeComponent.class,
+			com.marginallyclever.robotoverlord.components.shapes.MeshFromFile.class,
 			com.marginallyclever.robotoverlord.components.shapes.Box.class,
 			com.marginallyclever.robotoverlord.components.shapes.Grid.class,
 			com.marginallyclever.robotoverlord.components.shapes.Sphere.class,
 			com.marginallyclever.robotoverlord.components.shapes.Decal.class,
-			com.marginallyclever.robotoverlord.components.shapes.MeshFromFile.class,
-			com.marginallyclever.robotoverlord.components.PoseIllustrator.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {
