@@ -7,7 +7,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
 
-public class ShapeComponent extends Component {
+public abstract class ShapeComponent extends Component {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;
 
@@ -16,7 +16,7 @@ public class ShapeComponent extends Component {
     private transient final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
     private transient final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 
-    public ShapeComponent() {
+    protected ShapeComponent() {
         super();
     }
 

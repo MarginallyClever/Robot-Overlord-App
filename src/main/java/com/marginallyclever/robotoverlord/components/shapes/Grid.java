@@ -18,6 +18,10 @@ public class Grid extends ShapeComponent {
     private final IntEntity width = new IntEntity("Width (cm)",100);
     private final IntEntity length = new IntEntity("Length (cm)",100);
 
+    public Grid() {
+        super();
+    }
+
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);

@@ -21,7 +21,7 @@ public class ComponentFactory {
 			com.marginallyclever.robotoverlord.components.CameraComponent.class,
 			com.marginallyclever.robotoverlord.components.MaterialComponent.class,
 
-			//com.marginallyclever.robotoverlord.components.ShapeComponent.class,
+			//com.marginallyclever.robotoverlord.components.ShapeComponent.class is not instantiated directly.
 			com.marginallyclever.robotoverlord.components.shapes.MeshFromFile.class,
 			com.marginallyclever.robotoverlord.components.shapes.Box.class,
 			com.marginallyclever.robotoverlord.components.shapes.Grid.class,
