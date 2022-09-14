@@ -9,7 +9,7 @@ public class RobotArmLoadFromRO {
 	public RobotArmFK load(String filePath) throws Exception {
 		RobotArmFK arm = new RobotArmFK();
 		
-		FileReader f = new FileReader(new File(filePath));
+		FileReader f = new FileReader(filePath);
 		f.close();
 		
 		return arm;
