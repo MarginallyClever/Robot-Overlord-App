@@ -115,12 +115,12 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 				TreePath path = new TreePath(n.getPath());
 				if (e.getExpanded()) {
 					myTree.expandPath(path);
+					// only expand children if the parent is also expanded.
+					list.addAll(Collections.list(n.children()));
 				} else {
 					myTree.collapsePath(path);
 				}
 			}
-
-			list.addAll(Collections.list(n.children()));
 		}
 	}
 
