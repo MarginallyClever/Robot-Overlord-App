@@ -9,14 +9,14 @@ import javax.swing.undo.CannotUndoException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PasteEntityEdit extends AbstractUndoableEdit {
+public class EntityPasteEdit extends AbstractUndoableEdit {
     private final String name;
     private final RobotOverlord ro;
     private final Entity copiedEntities;
     private final List<Entity> parents;
     private final List<Entity> copies = new LinkedList<>();
 
-    public PasteEntityEdit(String name, RobotOverlord ro, Entity copiedEntities,List<Entity> parents) {
+    public EntityPasteEdit(String name, RobotOverlord ro, Entity copiedEntities, List<Entity> parents) {
         super();
         this.name = name;
         this.ro = ro;

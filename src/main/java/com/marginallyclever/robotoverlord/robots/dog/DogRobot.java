@@ -45,7 +45,7 @@ public class DogRobot extends PoseEntity {
 	private IntEntity animationChoice = new IntEntity("Animation style",0);
 	private MaterialEntity matTorso = new MaterialEntity();
 	private MaterialEntity matShadow = new MaterialEntity();
-	private ShapeEntity torsoShape = new ShapeEntity("Torso","/SpotMicro/torso.obj");
+	private ShapeEntity torsoShape = new ShapeEntity("Torso", "/robots/SpotMicro/torso.obj");
 	
 	public DogRobot() {
 		super("Dog Robot");

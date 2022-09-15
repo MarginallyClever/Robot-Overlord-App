@@ -2,8 +2,6 @@ package com.marginallyclever.robotoverlord.swinginterface;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.actions.DeleteComponentAction;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.swing.*;

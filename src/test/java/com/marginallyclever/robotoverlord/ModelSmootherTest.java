@@ -28,17 +28,17 @@ public class ModelSmootherTest {
         Log.message("Working directory=" + wd);
 
         Log.message("hand");
-        MeshSmoother.smoothModel("/AH/WristRot.stl", wd + "/AH/WristRot-smooth.stl", vertexEpsilon, normalEpsilon);
+        MeshSmoother.smoothModel("/robots/AH/WristRot.stl", wd + "/robots/AH/WristRot-smooth.stl", vertexEpsilon, normalEpsilon);
         Log.message("anchor");
-        MeshSmoother.smoothModel("/AH/rotBaseCase.stl", wd + "/AH/rotBaseCase-smooth.stl", vertexEpsilon, normalEpsilon);
+        MeshSmoother.smoothModel("/robots/AH/rotBaseCase.stl", wd + "/robots/AH/rotBaseCase-smooth.stl", vertexEpsilon, normalEpsilon);
         Log.message("shoulder");
-        MeshSmoother.smoothModel("/AH/Shoulder_r1.stl", wd + "/AH/Shoulder_r1-smooth.stl", vertexEpsilon, normalEpsilon);
+        MeshSmoother.smoothModel("/robots/AH/Shoulder_r1.stl", wd + "/robots/AH/Shoulder_r1-smooth.stl", vertexEpsilon, normalEpsilon);
         Log.message("elbow");
-        MeshSmoother.smoothModel("/AH/Elbow.stl", wd + "/AH/Elbow-smooth.stl", vertexEpsilon, normalEpsilon);
+        MeshSmoother.smoothModel("/robots/AH/Elbow.stl", wd + "/robots/AH/Elbow-smooth.stl", vertexEpsilon, normalEpsilon);
         Log.message("forearm");
-        MeshSmoother.smoothModel("/AH/Forearm.stl", wd + "/AH/Forearm-smooth.stl", vertexEpsilon, normalEpsilon);
+        MeshSmoother.smoothModel("/robots/AH/Forearm.stl", wd + "/robots/AH/Forearm-smooth.stl", vertexEpsilon, normalEpsilon);
         Log.message("wrist");
-        MeshSmoother.smoothModel("/AH/Wrist_r1.stl", wd + "/AH/Wrist_r1-smooth.stl", vertexEpsilon, normalEpsilon);
+        MeshSmoother.smoothModel("/robots/AH/Wrist_r1.stl", wd + "/robots/AH/Wrist_r1-smooth.stl", vertexEpsilon, normalEpsilon);
     }
 
 }

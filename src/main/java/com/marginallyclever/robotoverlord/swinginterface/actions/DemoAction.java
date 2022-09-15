@@ -26,7 +26,7 @@ public class DemoAction extends AbstractAction implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		NewSceneAction action = new NewSceneAction("New Scene",ro);
+		SceneNewAction action = new SceneNewAction("New Scene",ro);
 		action.resetScene();
 		demo.execute(ro);
 	}

@@ -13,7 +13,7 @@ import java.io.FileWriter;
  * @author Admin
  *
  */
-public class SaveSceneAction extends AbstractAction implements ActionListener {
+public class SceneSaveAction extends AbstractAction implements ActionListener {
 	private final RobotOverlord ro;
 
 	/**
@@ -21,7 +21,7 @@ public class SaveSceneAction extends AbstractAction implements ActionListener {
 	 */
 	private final JFileChooser fc = new JFileChooser();
 	
-	public SaveSceneAction(String name, RobotOverlord ro) {
+	public SceneSaveAction(String name, RobotOverlord ro) {
 		super(name);
 		this.ro = ro;
 	}

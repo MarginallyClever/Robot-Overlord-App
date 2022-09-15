@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.movetool;
+package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.awt.TextRenderer;
@@ -12,6 +12,7 @@ import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.tools.FrameOfReference;
 import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
 import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
@@ -53,7 +54,7 @@ public class MoveTool extends Entity {
 	private Entity subject;
 	
 	// In what frame of reference?
-	private final IntEntity frameOfReference = new IntEntity("Frame of Reference",FrameOfReference.WORLD.toInt());
+	private final IntEntity frameOfReference = new IntEntity("Frame of Reference", FrameOfReference.WORLD.toInt());
 	// drawing scale of ball
 	private final DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	// snap at all?

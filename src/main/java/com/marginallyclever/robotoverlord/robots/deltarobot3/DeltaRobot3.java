@@ -98,9 +98,9 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 		tube.setRadius(0.15f);
 
-		modelTop = new ShapeEntity("top","/DeltaRobot3/top.obj");
-		modelArm = new ShapeEntity("arm","/DeltaRobot3/arm.obj");
-		modelBase = new ShapeEntity("base","/DeltaRobot3/base.obj");
+		modelTop = new ShapeEntity("top", "/robots/DeltaRobot3/top.obj");
+		modelArm = new ShapeEntity("arm", "/robots/DeltaRobot3/arm.obj");
+		modelBase = new ShapeEntity("base", "/robots/DeltaRobot3/base.obj");
 
 		modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
 		modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);

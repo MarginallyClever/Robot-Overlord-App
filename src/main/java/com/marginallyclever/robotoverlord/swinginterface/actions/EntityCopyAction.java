@@ -11,10 +11,10 @@ import java.util.List;
 /**
  * Makes a deep copy of the selected {@link com.marginallyclever.robotoverlord.Entity}.
  */
-public class CopyEntityAction extends AbstractAction implements EditorAction {
+public class EntityCopyAction extends AbstractAction implements EditorAction {
     protected final RobotOverlord ro;
 
-    public CopyEntityAction(String name,RobotOverlord ro) {
+    public EntityCopyAction(String name, RobotOverlord ro) {
         super(name);
         this.ro=ro;
     }
@@ -24,9 +24,9 @@ public class CopyEntityAction extends AbstractAction implements EditorAction {
         List<Entity> list = ro.getSelectedEntities();
         Entity container = new Entity();
         for(Entity entity : list) {
-            container.addEntity(entity);
+            container.addEntity(entity.deepCopy());
         }
-        ro.setCopiedEntities(container.deepCopy());
+        ro.setCopiedEntities(container);
     }
 
     private Entity makeDeepCopy(Entity entity) {

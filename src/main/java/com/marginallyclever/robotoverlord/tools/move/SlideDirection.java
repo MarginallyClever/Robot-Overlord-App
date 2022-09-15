@@ -1,13 +1,14 @@
-package com.marginallyclever.robotoverlord.movetool;
+package com.marginallyclever.robotoverlord.tools.move;
 
-public enum FrameOfReference {
-	SUBJECT(0,"SUBJECT"),
-	CAMERA(1,"CAMERA"),
-	WORLD(2,"WORLD");
+public enum SlideDirection {
+	SLIDE_XPOS(0,"X+"),
+	SLIDE_XNEG(1,"X-"),
+	SLIDE_YPOS(2,"Y+"),
+	SLIDE_YNEG(3,"Y-");
 	
 	private int number;
 	private String name;
-	private FrameOfReference(int n,String s) {
+	private SlideDirection(int n,String s) {
 		number=n;
 		name=s;
 	}
@@ -19,7 +20,7 @@ public enum FrameOfReference {
 		return name;
 	}
 	static public String [] getAll() {
-		FrameOfReference[] allModes = FrameOfReference.values();
+		SlideDirection[] allModes = SlideDirection.values();
 		String[] labels = new String[allModes.length];
 		for(int i=0;i<labels.length;++i) {
 			labels[i] = allModes[i].toString();

@@ -14,13 +14,13 @@ public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 	public Sixi2ChuckGripper() {
 		super();
 		setName("Sixi2 Chuck Gripper");
-		setShapeFilename("/Sixi2/chuckGripper/base.stl");
+		setShapeFilename("/robots/Sixi2/chuckGripper/base.stl");
 		shapeEntity.setShapeScale(0.1);
 		shapeEntity.setShapeOrigin(0, 0, 3.4);
-		leftFinger.setShapeFilename("/Sixi2/chuckGripper/a.stl");
+		leftFinger.setShapeFilename("/robots/Sixi2/chuckGripper/a.stl");
 		leftFinger.setShapeScale(0.1);
 		leftFinger.setShapeOrigin(new Vector3d(0, 0, 3.4));
-		rightFinger.setShapeFilename("/Sixi2/chuckGripper/b.stl");		
+		rightFinger.setShapeFilename("/robots/Sixi2/chuckGripper/b.stl");
 		rightFinger.setShapeScale(0.1);
 		rightFinger.setShapeOrigin(new Vector3d(0, 0, 3.4));
 		toolTipOffset.setD(13.5);

@@ -1,26 +1,28 @@
-package com.marginallyclever.robotoverlord.movetool;
+package com.marginallyclever.robotoverlord.tools;
 
-public enum SlideDirection {
-	SLIDE_XPOS(0,"X+"),
-	SLIDE_XNEG(1,"X-"),
-	SLIDE_YPOS(2,"Y+"),
-	SLIDE_YNEG(3,"Y-");
+public enum FrameOfReference {
+	SUBJECT(0,"SUBJECT"),
+	CAMERA(1,"CAMERA"),
+	WORLD(2,"WORLD");
 	
-	private int number;
-	private String name;
-	private SlideDirection(int n,String s) {
+	private final int number;
+	private final String name;
+	FrameOfReference(int n,String s) {
 		number=n;
 		name=s;
 	}
+
 	public int toInt() {
 		return number;
 	}
+
 	@Override
 	public String toString() {
 		return name;
 	}
+
 	static public String [] getAll() {
-		SlideDirection[] allModes = SlideDirection.values();
+		FrameOfReference[] allModes = FrameOfReference.values();
 		String[] labels = new String[allModes.length];
 		for(int i=0;i<labels.length;++i) {
 			labels[i] = allModes[i].toString();

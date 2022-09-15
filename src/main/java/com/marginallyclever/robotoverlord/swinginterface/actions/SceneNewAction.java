@@ -17,10 +17,10 @@ import java.awt.event.ActionEvent;
  * @author Dan Royer
  *
  */
-public class NewSceneAction extends AbstractAction {
+public class SceneNewAction extends AbstractAction {
 	private final RobotOverlord ro;
 	
-	public NewSceneAction(String name,RobotOverlord ro) {
+	public SceneNewAction(String name, RobotOverlord ro) {
 		super(name);
 		this.ro = ro;
 	}

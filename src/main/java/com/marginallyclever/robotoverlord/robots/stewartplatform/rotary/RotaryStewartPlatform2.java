@@ -22,12 +22,12 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 		super("Rotary Stewart Platform 2");
 		
 		// load models and fix scale/orientation.
-		baseModel = new ShapeEntity("Base","/rotaryStewartPlatform/base.stl");
+		baseModel = new ShapeEntity("Base", "/robots/rotaryStewartPlatform/base.stl");
 		baseModel.setShapeScale(0.1);
-		eeModel = new ShapeEntity("ee","/rotaryStewartPlatform/endEffector.stl");
+		eeModel = new ShapeEntity("ee", "/robots/rotaryStewartPlatform/endEffector.stl");
 		eeModel.setShapeScale(0.1);
 		eeModel.setShapeRotation(new Vector3d(0,0,-30));
-		armModel = new ShapeEntity("arm","/rotaryStewartPlatform/arm.stl");
+		armModel = new ShapeEntity("arm", "/robots/rotaryStewartPlatform/arm.stl");
 		armModel.setShapeScale(0.1);
 
 		eeModel.setShapeRotation(180,0,30);

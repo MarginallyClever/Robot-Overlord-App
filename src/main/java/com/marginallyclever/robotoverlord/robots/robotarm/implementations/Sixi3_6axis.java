@@ -17,18 +17,18 @@ public class Sixi3_6axis extends RobotArmIK {
 	
 	@Override
 	protected void loadModel() {
-		setBaseShape(new ShapeEntity("Base","/Sixi3b/j0.obj"));
+		setBaseShape(new ShapeEntity("Base", "/robots/Sixi3b/j0.obj"));
 		// base 
 		// Mass	201.686 g
 		// Center of Mass	-1.113, -0.011, 14.664
 
 		// name d r alpha theta thetaMax thetaMin modelFile
-		addBone(new RobotArmBone("X", 7.974,     0,270,  0,170,-170,"/Sixi3b/j1.obj"));
-		addBone(new RobotArmBone("Y", 9.131,17.889,  0,270,370, 170,"/Sixi3b/j2.obj"));
-		addBone(new RobotArmBone("Z",     0,12.435,  0,  0,150,-150,"/Sixi3b/j3.obj"));
-		addBone(new RobotArmBone("U",     0,     0,270,270,440, 100,"/Sixi3b/j4-6.obj"));
-		addBone(new RobotArmBone("V",15.616,     0, 90, 90,90+180,90-180,"/Sixi3b/j5-6.obj"));
-		addBone(new RobotArmBone("W",  5.15,     0,  0, 180,360,   0,"/Sixi3b/j6-6.obj"));
+		addBone(new RobotArmBone("X", 7.974,     0,270,  0,170,-170, "/robots/Sixi3b/j1.obj"));
+		addBone(new RobotArmBone("Y", 9.131,17.889,  0,270,370, 170, "/robots/Sixi3b/j2.obj"));
+		addBone(new RobotArmBone("Z",     0,12.435,  0,  0,150,-150, "/robots/Sixi3b/j3.obj"));
+		addBone(new RobotArmBone("U",     0,     0,270,270,440, 100, "/robots/Sixi3b/j4-6.obj"));
+		addBone(new RobotArmBone("V",15.616,     0, 90, 90,90+180,90-180, "/robots/Sixi3b/j5-6.obj"));
+		addBone(new RobotArmBone("W",  5.15,     0,  0, 180,360,   0, "/robots/Sixi3b/j6-6.obj"));
 
 		// numbers from fusion360 file.
 		
@@ -73,6 +73,6 @@ public class Sixi3_6axis extends RobotArmIK {
 		
 		adjustModelOriginsToDHLinks();
 		adjustCenterOfMassToDHLinks();
-		setTextureFilename("/Sixi3b/SIXI3_BASE.png");
+		setTextureFilename("/robots/Sixi3b/SIXI3_BASE.png");
 	}
 }

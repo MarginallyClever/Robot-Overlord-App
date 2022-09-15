@@ -115,12 +115,14 @@ public class Entity implements PropertyChangeListener {
 	}
 	
 	public void addEntity(Entity child) {
-		checkForAddToScene(this,this,child);
+		System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
+		checkForAddToScene(this,child);
 		entities.add(child);
 		child.setParent(this);
 	}
 
-	private void checkForAddToScene(Entity node,Entity parent,Entity child) {
+	private void checkForAddToScene(Entity parent,Entity child) {
+		Entity node = parent;
 		while(node!=null) {
 			if (node instanceof Scene) {
 				((Scene) node).addEntityToParent(parent, child);
@@ -430,8 +432,8 @@ public class Entity implements PropertyChangeListener {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Entity entity = EntityFactory.load(jo2.getString("type"));
-			this.addEntity(entity);
 			entity.parseJSON(jo2);
+			this.addEntity(entity);
 		}
 	}
 

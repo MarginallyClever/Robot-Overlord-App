@@ -8,17 +8,11 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentDeleteEd
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-/**
- * Display an `Add Component` dialog box.  If an {@link Component} is selected and
- * "ok" is pressed, add that Component to the world.
- * @author Dan Royer
- *
- */
-public class DeleteComponentAction extends AbstractAction {
+public class ComponentDeleteAction extends AbstractAction {
 	private final RobotOverlord ro;
 	private final Component component;
 
-	public DeleteComponentAction(String name,Component component,RobotOverlord ro) {
+	public ComponentDeleteAction(String name, Component component, RobotOverlord ro) {
 		super(name);
 		this.ro = ro;
 		this.component = component;

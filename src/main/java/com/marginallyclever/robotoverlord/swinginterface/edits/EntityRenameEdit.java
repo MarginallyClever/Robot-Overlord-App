@@ -14,7 +14,7 @@ import javax.swing.undo.CannotUndoException;
  * @author Dan Royer
  *
  */
-public class RenameEdit extends AbstractUndoableEdit {
+public class EntityRenameEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -25,7 +25,7 @@ public class RenameEdit extends AbstractUndoableEdit {
 	private String newName ="";
 	private RobotOverlord ro;
 	
-	public RenameEdit(RobotOverlord ro,Entity e,String newName) {
+	public EntityRenameEdit(RobotOverlord ro, Entity e, String newName) {
 		super();
 		
 		this.ro = ro;

@@ -1192,31 +1192,31 @@ to check yourself.</value>
 	</string>
 
 	<string>
-		<key>PasteEntityAction.name</key>
+		<key>EntityPasteAction.name</key>
 		<value>Paste Entity</value>
 	</string>
 	<string>
-		<key>CopyEntityAction.name</key>
+		<key>EntityCopyAction.name</key>
 		<value>Copy Entity</value>
 	</string>
 	<string>
-		<key>DeleteEntityAction.name</key>
+		<key>EntityDeleteAction.name</key>
 		<value>Remove Entity</value>
 	</string>
 	<string>
-		<key>CutEntityAction.name</key>
+		<key>EntityCutAction.name</key>
 		<value>Cut Entity</value>
 	</string>
 	<string>
-		<key>NewSceneAction.name</key>
+		<key>SceneNewAction.name</key>
 		<value>New Scene</value>
 	</string>
 	<string>
-		<key>LoadSceneAction.name</key>
+		<key>SceneLoadAction.name</key>
 		<value>Load...</value>
 	</string>
 	<string>
-		<key>SaveSceneAction.name</key>
+		<key>SceneSaveAction.name</key>
 		<value>Save As...</value>
 	</string>
 	<string>
@@ -1224,11 +1224,30 @@ to check yourself.</value>
 		<value>Add Entity</value>
 	</string>
 	<string>
-		<key>RenameEntityAction.name</key>
+		<key>EntityRenameAction.name</key>
 		<value>Rename Entity</value>
 	</string>
 	<string>
-		<key>AddChildEntityAction</key>
+		<key>EntityAddChildAction.name</key>
 		<value>Add Entity</value>
+	</string>
+	<string>
+		<key>ComponentDeleteAction.name</key>
+		<value>Delete Component</value>
+	</string>
+
+	<string>
+		<key>are you sure?</key>
+		<value>are you sure?</value>
+	</string>
+
+	<string>
+		<key>RobotOverlord.quitConfirm</key>
+		<value>Are you sure you want to quit?</value>
+	</string>
+
+	<string>
+		<key>RobotOverlord.quitTitle</key>
+		<value>Are you sure you want to quit?</value>
 	</string>
 </language>

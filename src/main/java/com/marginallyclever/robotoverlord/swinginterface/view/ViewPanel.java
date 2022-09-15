@@ -5,7 +5,7 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
-import com.marginallyclever.robotoverlord.swinginterface.actions.DeleteComponentAction;
+import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.uiexposedtypes.*;
 
@@ -109,10 +109,10 @@ public class ViewPanel extends ViewElement {
 	private void setPopupMenu(Component component,JComponent panel) {
 		JPopupMenu popup = new JPopupMenu();
 
-		DeleteComponentAction deleteComponentAction = new DeleteComponentAction("DeleteComponentAction.name",component,ro);
-		deleteComponentAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("DeleteComponentAction.shortDescription"));
-		deleteComponentAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
-		popup.add(deleteComponentAction);
+		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction("DeleteComponentAction.name",component,ro);
+		componentDeleteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("DeleteComponentAction.shortDescription"));
+		componentDeleteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
+		popup.add(componentDeleteAction);
 
 		panel.setComponentPopupMenu(popup);
 	}

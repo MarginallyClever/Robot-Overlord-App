@@ -11,10 +11,10 @@ import java.awt.event.ActionEvent;
 /**
  * @author Dan Royer
  */
-public class DeleteEntityAction extends AbstractAction implements EditorAction {
+public class EntityDeleteAction extends AbstractAction implements EditorAction {
 	private final RobotOverlord ro;
 	
-	public DeleteEntityAction(String name, RobotOverlord ro) {
+	public EntityDeleteAction(String name, RobotOverlord ro) {
 		super(name);
 		this.ro = ro;
 	}

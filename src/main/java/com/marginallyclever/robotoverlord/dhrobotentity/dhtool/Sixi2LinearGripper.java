@@ -51,8 +51,8 @@ public class Sixi2LinearGripper extends DHTool {
 		interpolatePoseT=1;
 		startT=endT=angleNow.get();
 		
-		setShapeFilename("/Sixi2/linearGripper/gripperBase.obj");
-		shapeEntity.getMaterial().setTextureFilename("/Sixi2/sixi.png");
+		setShapeFilename("/robots/Sixi2/linearGripper/gripperBase.obj");
+		shapeEntity.getMaterial().setTextureFilename("/robots/Sixi2/sixi.png");
 		shapeEntity.getMaterial().setDiffuseColor(1, 1, 1, 1);
 		shapeEntity.getMaterial().setAmbientColor(1, 1, 1, 1);
 		
@@ -60,11 +60,11 @@ public class Sixi2LinearGripper extends DHTool {
 		addEntity(leftFinger=new DHLink());
 		addEntity(rightFinger=new DHLink());
 		leftFinger.setName("Left finger");
-		leftFinger.setShapeFilename("/Sixi2/linearGripper/gripperLeft.obj");
-		leftFinger.setTextureFilename("/Sixi2/sixi.png");
+		leftFinger.setShapeFilename("/robots/Sixi2/linearGripper/gripperLeft.obj");
+		leftFinger.setTextureFilename("/robots/Sixi2/sixi.png");
 		rightFinger.setName("Right finger");
-		rightFinger.setShapeFilename("/Sixi2/linearGripper/gripperRight.obj");
-		rightFinger.setTextureFilename("/Sixi2/sixi.png");
+		rightFinger.setShapeFilename("/robots/Sixi2/linearGripper/gripperRight.obj");
+		rightFinger.setTextureFilename("/robots/Sixi2/sixi.png");
 
 		leftFinger.flags = DHLink.LinkAdjust.R;
 		rightFinger.flags = DHLink.LinkAdjust.R;

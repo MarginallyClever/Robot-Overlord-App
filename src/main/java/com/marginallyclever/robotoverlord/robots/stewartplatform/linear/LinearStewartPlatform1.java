@@ -20,12 +20,12 @@ public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
         super("Linear Stewart Platform 1");
 
         // load models and fix scale/orientation.
-        baseModel = new ShapeEntity("Base","/linearStewartPlatform/base.stl");
+        baseModel = new ShapeEntity("Base", "/robots/linearStewartPlatform/base.stl");
         baseModel.setShapeScale(0.1);
-        eeModel = new ShapeEntity("ee","/linearStewartPlatform/endEffector.stl");
+        eeModel = new ShapeEntity("ee", "/robots/linearStewartPlatform/endEffector.stl");
         eeModel.setShapeScale(0.1);
         eeModel.setShapeRotation(new Vector3d(0,0,-30));
-        armModel = new ShapeEntity("arm","/linearStewartPlatform/arm.stl");
+        armModel = new ShapeEntity("arm", "/robots/linearStewartPlatform/arm.stl");
         armModel.setShapeScale(0.1);
     }
 

@@ -16,7 +16,7 @@ public class Sixi1 extends RobotArmFK {
 	
 	@Override
 	protected void loadModel() {
-		setBaseShape(new ShapeEntity("Base","/Sixi/Sixi0.stl"));
+		setBaseShape(new ShapeEntity("Base", "/robots/Sixi/Sixi0.stl"));
 		
 		// the shoulder joint is 25 up and 5 forward. https://www.calculator.net/triangle-calculator.html?vc=90&vx=25&vy=5&va=&vz=&vb=&angleunits=d&x=57&y=11
 		// the ulna rotation is 20 up and 5 back.https://www.calculator.net/triangle-calculator.html?vc=90&vx=20&vy=5&va=&vz=&vb=&angleunits=d&x=57&y=11
@@ -43,12 +43,12 @@ public class Sixi1 extends RobotArmFK {
 		double e = 180-c-b;
 		
 		// name d r a t max min file
-		addBone(new RobotArmBone("X",25         ,0 ,-90,0    ,120,-120,"/Sixi/Sixi1.stl"));  
-		addBone(new RobotArmBone("Y",0          ,ae,  0,-90+a,170,-170,"/Sixi/Sixi2.stl"));     
-		addBone(new RobotArmBone("Z",0          ,ed,  0,-e   , 86, -91,"/Sixi/Sixi3.stl"));     
-		addBone(new RobotArmBone("U",0          ,0 , 90,0    , 90, -90,"/Sixi/Sixi4.stl"));   
-		addBone(new RobotArmBone("V",0          ,0 ,-90,-90  , 90, -90,"/Sixi/Sixi5.stl"));     
-		addBone(new RobotArmBone("W",3.9527     ,0 ,  0,0    ,170,-170,"/Sixi/Sixi6.stl"));
+		addBone(new RobotArmBone("X",25         ,0 ,-90,0    ,120,-120, "/robots/Sixi/Sixi1.stl"));
+		addBone(new RobotArmBone("Y",0          ,ae,  0,-90+a,170,-170, "/robots/Sixi/Sixi2.stl"));
+		addBone(new RobotArmBone("Z",0          ,ed,  0,-e   , 86, -91, "/robots/Sixi/Sixi3.stl"));
+		addBone(new RobotArmBone("U",0          ,0 , 90,0    , 90, -90, "/robots/Sixi/Sixi4.stl"));
+		addBone(new RobotArmBone("V",0          ,0 ,-90,-90  , 90, -90, "/robots/Sixi/Sixi5.stl"));
+		addBone(new RobotArmBone("W",3.9527     ,0 ,  0,0    ,170,-170, "/robots/Sixi/Sixi6.stl"));
 		
 		showLineage.set(true);
 		adjustModelOriginsToDHLinks();		

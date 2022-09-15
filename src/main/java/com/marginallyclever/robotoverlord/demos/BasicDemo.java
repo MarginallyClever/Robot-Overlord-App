@@ -81,7 +81,7 @@ public class BasicDemo implements Demo {
 		MeshFromFile mesh = new MeshFromFile();
 		meshEntity.addComponent(mesh);
 		meshEntity.addComponent(new MaterialComponent());
-		mesh.setFilename("/Sixi3b/j0.obj");
+		mesh.setFilename("/robots/Sixi3b/j0.obj");
 		scene.addEntity(meshEntity);
 		pose.setPosition(new Vector3d(0,0,0));
 	}

@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.demos.*;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
-import com.marginallyclever.robotoverlord.movetool.MoveTool;
+import com.marginallyclever.robotoverlord.tools.move.MoveTool;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
@@ -80,8 +80,8 @@ public class RobotOverlord extends Entity {
 	private final EntityTreePanel entityTree = new EntityTreePanel();
 	private final ComponentPanel componentPanel = new ComponentPanel();
 	
-	private RenameEntityAction renameEntityAction;
-	private DeleteEntityAction deleteEntityAction;
+	private EntityRenameAction entityRenameAction;
+	private EntityDeleteAction entityDeleteAction;
 
 	private final FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
 	private GLJPanel glCanvas;
@@ -133,7 +133,7 @@ public class RobotOverlord extends Entity {
 		addEntity(moveTool);
 		addEntity(viewCube);
 
-		NewSceneAction action = new NewSceneAction("New Scene",this);
+		SceneNewAction action = new SceneNewAction("New Scene",this);
 		action.resetScene();
 
 		Log.message("** READY **");
@@ -322,20 +322,27 @@ public class RobotOverlord extends Entity {
 	private JPopupMenu buildEntityTreePopupMenu() {
 		JPopupMenu popupMenu = new JPopupMenu();
 
-		AddChildEntityAction addChildEntityAction = new AddChildEntityAction(Translator.get("AddChildEntityAction.name"),this);
-		addChildEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("AddChildEntityAction.shortDescription"));
+		EntityAddChildAction EntityaddChildAction = new EntityAddChildAction(Translator.get("EntityAddChildAction.name"),this);
+		EntityaddChildAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
 
-		renameEntityAction =new RenameEntityAction(Translator.get("RenameEntityAction.name"),this);
-		renameEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("RenameEntityAction.shortDescription"));
-		renameEntityAction.setEnabled(false);
-		actions.add(renameEntityAction);
-		actions.add(addChildEntityAction);
+		for( AbstractAction action : actions ) {
+			if(action instanceof EntityCopyAction || action instanceof EntityPasteAction) {
+				popupMenu.add(action);
+			}
+		}
 
-		popupMenu.add(addChildEntityAction);
-		popupMenu.add(renameEntityAction);
-		popupMenu.add(deleteEntityAction);
+		entityRenameAction =new EntityRenameAction(Translator.get("EntityRenameAction.name"),this);
+		entityRenameAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
+		entityRenameAction.setEnabled(false);
 
-		popupMenu.add(new AddComponentAction(this));
+		actions.add(EntityaddChildAction);
+		actions.add(entityRenameAction);
+
+		popupMenu.add(EntityaddChildAction);
+		popupMenu.add(entityRenameAction);
+		popupMenu.add(entityDeleteAction);
+
+		popupMenu.add(new ComponentAddAction(this));
 
 		return popupMenu;
 	}
@@ -450,24 +457,24 @@ public class RobotOverlord extends Entity {
 	private Component createFileMenu() {
 		JMenu menu = new JMenu(APP_TITLE);
 
-		NewSceneAction newSceneAction = new NewSceneAction(Translator.get("NewSceneAction.name"),this);
-		newSceneAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
-		newSceneAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("NewSceneAction.shortDescription"));
-		newSceneAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+		SceneNewAction sceneNewAction = new SceneNewAction(Translator.get("SceneNewAction.name"),this);
+		sceneNewAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
+		sceneNewAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneNewAction.shortDescription"));
+		sceneNewAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 
-		LoadSceneAction loadSceneAction = new LoadSceneAction(Translator.get("LoadSceneAction.name"),this);
-		loadSceneAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-		loadSceneAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("LoadSceneAction.shortDescription"));
-		loadSceneAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
+		SceneLoadAction sceneLoadAction = new SceneLoadAction(Translator.get("SceneLoadAction.name"),this);
+		sceneLoadAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
+		sceneLoadAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
+		sceneLoadAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
 
-		SaveSceneAction saveSceneAction = new SaveSceneAction(Translator.get("SaveSceneAction.name"),this);
-		saveSceneAction.putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
-		saveSceneAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SaveSceneAction.shortDescription"));
-		saveSceneAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+		SceneSaveAction sceneSaveAction = new SceneSaveAction(Translator.get("SceneSaveAction.name"),this);
+		sceneSaveAction.putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
+		sceneSaveAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
+		sceneSaveAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 
-		menu.add(newSceneAction);
-		menu.add(loadSceneAction);
-		menu.add(saveSceneAction);
+		menu.add(sceneNewAction);
+		menu.add(sceneLoadAction);
+		menu.add(sceneSaveAction);
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 		return menu;
@@ -491,36 +498,35 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
 		menu.add(new JSeparator());
 
-		CopyEntityAction copyEntityAction = new CopyEntityAction(Translator.get("CopyEntityAction.name"),this);
-		PasteEntityAction pasteEntityAction = new PasteEntityAction(Translator.get("PasteEntityAction.name"),this);
-		deleteEntityAction = new DeleteEntityAction(Translator.get("DeleteEntityAction.name"),this);
-		CutEntityAction cutEntityAction = new CutEntityAction(Translator.get("CutEntityAction.name"), deleteEntityAction,copyEntityAction);
+		EntityCopyAction entityCopyAction = new EntityCopyAction(Translator.get("EntityCopyAction.name"),this);
+		entityCopyAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
+		entityCopyAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
+		entityCopyAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
 
-		copyEntityAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
-		copyEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("CopyEntityAction.shortDescription"));
-		copyEntityAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
+		EntityPasteAction entityPasteAction = new EntityPasteAction(Translator.get("EntityPasteAction.name"),this);
+		entityPasteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
+		entityPasteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityPasteAction.shortDescription"));
+		entityPasteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
 
-		pasteEntityAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
-		pasteEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("PasteEntityAction.shortDescription"));
-		pasteEntityAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
+		entityDeleteAction = new EntityDeleteAction(Translator.get("EntityDeleteAction.name"),this);
+		entityDeleteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
+		entityDeleteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityDeleteAction.shortDescription"));
+		entityDeleteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
 
-		deleteEntityAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
-		deleteEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("DeleteEntityAction.shortDescription"));
-		deleteEntityAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
+		EntityCutAction entityCutAction = new EntityCutAction(Translator.get("EntityCutAction.name"), entityDeleteAction, entityCopyAction);
+		entityCutAction.putValue(Action.SMALL_ICON,new UnicodeIcon("✂️"));
+		entityCutAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
+		entityCutAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
 
-		cutEntityAction.putValue(Action.SMALL_ICON,new UnicodeIcon("✂️"));
-		cutEntityAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("CutEntityAction.shortDescription"));
-		cutEntityAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
+		menu.add(entityCopyAction);
+		menu.add(entityPasteAction);
+		menu.add(entityCutAction);
+		menu.add(entityDeleteAction);
 
-		menu.add(copyEntityAction);
-		menu.add(pasteEntityAction);
-		menu.add(cutEntityAction);
-		menu.add(deleteEntityAction);
-
-		actions.add(copyEntityAction);
-		actions.add(pasteEntityAction);
-		actions.add(cutEntityAction);
-		actions.add(deleteEntityAction);
+		actions.add(entityCopyAction);
+		actions.add(entityPasteAction);
+		actions.add(entityCutAction);
+		actions.add(entityDeleteAction);
 
 		return menu;
 	}
@@ -542,7 +548,7 @@ public class RobotOverlord extends Entity {
 	}
 
     private void updateSelectEntities() {
-		if(renameEntityAction !=null) renameEntityAction.setEnabled(false);
+		if(entityRenameAction !=null) entityRenameAction.setEnabled(false);
 
 		moveTool.setSubject(null);
 
@@ -576,10 +582,10 @@ public class RobotOverlord extends Entity {
 	
 	public void confirmClose() {
         int result = JOptionPane.showConfirmDialog(
-            mainFrame,
-            "Are you sure you want to quit?",
-            "Quit",
-            JOptionPane.YES_NO_OPTION);
+				mainFrame,
+				Translator.get("RobotOverlord.quitConfirm"),
+				Translator.get("RobotOverlord.quitTitle"),
+				JOptionPane.YES_NO_OPTION);
 
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

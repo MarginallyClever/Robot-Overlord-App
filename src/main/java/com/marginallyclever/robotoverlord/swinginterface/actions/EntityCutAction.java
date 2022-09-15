@@ -5,11 +5,11 @@ import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class CutEntityAction extends AbstractAction implements EditorAction {
-    private final DeleteEntityAction removeAction;
-    private final CopyEntityAction copyAction;
+public class EntityCutAction extends AbstractAction implements EditorAction {
+    private final EntityDeleteAction removeAction;
+    private final EntityCopyAction copyAction;
 
-    public CutEntityAction(String name, DeleteEntityAction removeAction, CopyEntityAction copyAction) {
+    public EntityCutAction(String name, EntityDeleteAction removeAction, EntityCopyAction copyAction) {
         super(name);
         this.removeAction = removeAction;
         this.copyAction = copyAction;
