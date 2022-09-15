@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 
+@Deprecated
 public class Sixi3_6axis extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
 

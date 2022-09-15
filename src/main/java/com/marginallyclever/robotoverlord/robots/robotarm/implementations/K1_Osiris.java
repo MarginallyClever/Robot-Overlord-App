@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
 import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
 
+@Deprecated
 public class K1_Osiris extends RobotArmIK {
 	private static final long serialVersionUID = 1L;
 
