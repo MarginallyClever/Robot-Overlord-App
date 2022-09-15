@@ -1,10 +1,10 @@
-package com.marginallyclever.robotoverlord.dhrobotentity.dhtool;
+package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.MementoOriginator;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHLink;
+import com.marginallyclever.robotoverlord.Entity;
 
 import javax.vecmath.Matrix4d;
 
@@ -15,13 +15,13 @@ import javax.vecmath.Matrix4d;
  *
  */
 @Deprecated
-public abstract class DHTool extends DHLink implements MementoOriginator {
+public abstract class DHTool extends Entity implements MementoOriginator {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3140513593165370783L;
 	// tool tip convenience used in kinematics
-	protected DHLink toolTipOffset = new DHLink();
+	protected Entity toolTipOffset = new Entity();
 	
 	public DHTool() {
 		super();
@@ -35,22 +35,6 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 		b.toolTipOffset.set(toolTipOffset);
 	}
 
-	@Override
-	public void update(double dt) {
-		super.update(dt);
-	}
-
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
-			PrimitiveSolids.drawSphere(gl2, 1);
-
-			toolTipOffset.render(gl2);
-		gl2.glPopMatrix();
-	}
-	
 	/**
 	 * use the keyState to control the tool.
 	 * @return true if the robot's pose has been affected.
@@ -67,7 +51,4 @@ public abstract class DHTool extends DHLink implements MementoOriginator {
 	
 	public void interpolate(double dt) {}
 
-	public Matrix4d getToolTipOffset() {
-		return toolTipOffset.getPose();
-	}
 }

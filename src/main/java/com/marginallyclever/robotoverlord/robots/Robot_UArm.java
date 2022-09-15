@@ -3,132 +3,30 @@ package com.marginallyclever.robotoverlord.robots;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHLink.LinkAdjust;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHRobotModel;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 
 import javax.vecmath.Vector3d;
 
 /**
- * Unfinished UArm implementation of DHRobot.
+ * Unfinished UArm implementation.
+ * See <a href="https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf">...</a>
  * @author Dan Royer
- * See https://buildmedia.readthedocs.org/media/pdf/uarmdocs/latest/uarmdocs.pdf
  */
 @Deprecated
-public class Robot_UArm extends RobotEntity {
-/**
-	 * 
-	 */
-	private static final long serialVersionUID = -9001671002787113226L;
-
-	public transient boolean isFirstTime;
-	
-	DHRobotModel live;
+public class Robot_UArm extends Entity {
+	private final RobotComponent live = new RobotComponent();
 
 	public Robot_UArm() {
 		super();
 		setName("UArm");
 
-		live = new DHRobotModel();
-		//live.setIKSolver(new DHIKSolver_RTT());
-		setupLinks(live);
-		isFirstTime=true;
-	}
-	
-	protected void setupLinks(DHRobotModel robot) {
-		robot.setNumLinks(6);
-		// roll
-		robot.getLink(0).setD(2.4);
-		robot.getLink(0).setR(2.0728);
-		robot.getLink(0).flags = LinkAdjust.THETA;
-		robot.getLink(0).setRangeMin(-160);
-		robot.getLink(0).setRangeMax(160);
-		// tilt
-		robot.getLink(1).setD(9.5267-2.4);
-		robot.getLink(1).setTheta(90);
-		robot.getLink(1).flags = LinkAdjust.ALPHA;
-		robot.getLink(1).setRangeMin(-72);
-		// tilt
-		robot.getLink(2).setD(14.8004);
-		robot.getLink(2).flags = LinkAdjust.ALPHA;
-		robot.getLink(2).setRangeMin(-10);
-		robot.getLink(2).setRangeMax(150);
-		
-		// interim point
-		robot.getLink(3).setD(16.0136);
-		robot.getLink(3).flags = LinkAdjust.NONE;
-		// end effector
-		robot.getLink(4).setD(3.545);
-		robot.getLink(4).setTheta(-90);
-		robot.getLink(4).setR(1);
-		robot.getLink(4).flags = LinkAdjust.ALPHA;
-
-		robot.getLink(5).setR(4);
-		robot.getLink(5).flags = LinkAdjust.NONE;
-	}
-	
-	public void setupModels(DHRobotModel robot) {
-		try {
-			robot.getLink(0).setShapeFilename("/uArm/base.STL");
-			robot.getLink(1).setShapeFilename("/uArm/shoulder.STL");
-			robot.getLink(2).setShapeFilename("/uArm/bicep.STL");
-			robot.getLink(3).setShapeFilename("/uArm/forearm.STL");
-			robot.getLink(4).setShapeFilename("/uArm/wrist.STL");
-			robot.getLink(5).setShapeFilename("/uArm/hand.STL");	
-			
-			robot.getLink(0).setShapeOrigin(new Vector3d(0,0,1.65f));
-			robot.getLink(1).setShapeOrigin(new Vector3d(-2.0728f,0,1.65f-2.4f));
-			robot.getLink(1).setShapeRotation(new Vector3d(0,0,-180));
-			robot.getLink(2).setShapeOrigin(new Vector3d(-0.25f,0,1.65f));
-			robot.getLink(2).setShapeRotation(new Vector3d(0,0,90));
-			robot.getLink(3).setShapeOrigin(new Vector3d(-0.25f,0,0));//z23.511,x27.727
-			robot.getLink(3).setShapeRotation(new Vector3d(0,0,90));
-			robot.getLink(4).setShapeOrigin(new Vector3d(-0.25f,0,0));
-			robot.getLink(4).setShapeRotation(new Vector3d(-90,0,90));
-			robot.getLink(5).setShapeRotation(new Vector3d(0,-90,90));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void render(GL2 gl2) {
-		if( isFirstTime ) {
-			isFirstTime=false;
-			setupModels(live);
-		}
-		live.getLink(2).setRangeMin(20);
-		live.getLink(2).setRangeMax(165);
-		
-		// TODO calculate me in the solver?
-		live.getLink(3).setAlpha(
-				90
-				-live.getLink(1).getAlpha()
-				-live.getLink(2).getAlpha()
-				);
-		
-		live.refreshDHMatrixes();
-		
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
-			
-			// Draw models
-			MaterialEntity mat = new MaterialEntity();
-			mat.setDiffuseColor(
-					0.75f*247.0f/255.0f,
-					0.75f*233.0f/255.0f,
-					0.75f*215.0f/255.0f, 1);
-			mat.render(gl2);
-			
-			live.render(gl2);
-		gl2.glPopMatrix();
-		
-		super.render(gl2);
-	}
-
-	@Override
-	public Memento createKeyframe() {
-		// TODO Auto-generated method stub
-		return null;
+		live.getBone(0).set("",2.4,2.0728,0,0,160,-160,"/uArm/base.STL");
+		live.getBone(1).set("",9.5267-2.4,0,0,90,0,-72,"/uArm/shoulder.STL");
+		live.getBone(2).set("",14.8004,0,0,0,150,-10,"/uArm/bicep.STL");
+		live.getBone(3).set("",16.0136,0,0,0,0,0,"/uArm/forearm.STL");
+		live.getBone(4).set("",3.545,0,0,-90,0,0,"/uArm/wrist.STL");
+		live.getBone(5).set("",0,4,0,0,0,0,"/uArm/hand.STL");
 	}
 }

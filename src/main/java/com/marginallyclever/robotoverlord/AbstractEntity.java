@@ -9,9 +9,6 @@ import java.io.Serial;
  * @since 1.6.0
  */
 public class AbstractEntity<T> extends Entity {
-	@Serial
-	private static final long serialVersionUID = -4725754267079958438L;
-	
 	// the data to store
 	protected T t;
 

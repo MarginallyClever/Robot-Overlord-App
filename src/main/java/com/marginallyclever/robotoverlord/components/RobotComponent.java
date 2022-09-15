@@ -60,7 +60,7 @@ public class RobotComponent extends Component implements Robot {
         return bones.size();
     }
 
-    private DHComponent getBone(int index) {
+    public DHComponent getBone(int index) {
         return bones.get(index);
     }
 

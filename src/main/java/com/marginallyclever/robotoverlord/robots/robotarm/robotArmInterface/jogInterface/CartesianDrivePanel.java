@@ -2,9 +2,8 @@ package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jog
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.robotarm.JacobianNewtonRaphson;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmFK;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
@@ -17,7 +16,7 @@ import java.io.Serial;
  * {@link CartesianDrivePanel} displays a dial that can adjust one cartesian movement at a time.
  * It also displays radio buttons for translation and rotation.
  * It also displays a level of detail combobox to refine movements more than the default (1 mm/deg)
- * When the dial is turned it calls on the {@link JacobianNewtonRaphson} iterator to move the arm.
+ * When the dial is turned it calls on the Jacobian Newton Raphson iterator to move the arm.
  * @author Dan Royer
  *
  */
@@ -190,7 +189,7 @@ public class CartesianDrivePanel extends JPanel {
 
 		JFrame frame = new JFrame(CartesianDrivePanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new CartesianDrivePanel(new RobotArmFK()));
+		frame.add(new CartesianDrivePanel(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

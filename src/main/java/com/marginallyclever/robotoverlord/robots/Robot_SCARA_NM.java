@@ -3,8 +3,8 @@ package com.marginallyclever.robotoverlord.robots;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHLink.LinkAdjust;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHRobotModel;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 
 import javax.vecmath.Vector3d;
@@ -15,103 +15,16 @@ import javax.vecmath.Vector3d;
  *
  */
 @Deprecated
-public class Robot_SCARA_NM extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4687585577640559775L;
-	public transient boolean isFirstTime;
-	protected DHRobotModel live;
+public class Robot_SCARA_NM extends Entity {
+	private final RobotComponent live = new RobotComponent();
 	
 	public Robot_SCARA_NM() {
 		super();
 		setName("SCARA NM");
-
-		live = new DHRobotModel();
-		//live.setIKSolver(new DHIKSolver_SCARA());
-		setupLinks(live);
-		isFirstTime=true;
-	}
-	
-	protected void setupLinks(DHRobotModel robot) {
-		robot.setNumLinks(5);
-
-		// roll
-		robot.getLink(0).setD(13.784);
-		robot.getLink(0).setR(15);
-		robot.getLink(0).flags = LinkAdjust.THETA;
-		robot.getLink(0).setRangeMin(-40);
-		robot.getLink(0).setRangeMax(240);
-		
-		// roll
-		robot.getLink(1).setR(13.0);
-		robot.getLink(1).flags = LinkAdjust.THETA;		
-		robot.getLink(1).setRangeMin(-120);
-		robot.getLink(1).setRangeMax(120);
-		// slide
-		robot.getLink(2).setD(-8);
-		robot.getLink(2).flags = LinkAdjust.D;
-		live.getLink(2).setRangeMax(-10.92600+7.574);
-		live.getLink(2).setRangeMin(-10.92600-0.5);//-18.5+7.574;
-		// roll
-		robot.getLink(3).flags = LinkAdjust.THETA;
-		robot.getLink(3).setRangeMin(-180);
-		robot.getLink(3).setRangeMax(180);
-
-		robot.getLink(4).flags = LinkAdjust.NONE;
-		robot.getLink(4).setRangeMin(0);
-		robot.getLink(4).setRangeMax(0);
-		
-		robot.refreshDHMatrixes();
-	}
-
-	public void setupModels(DHRobotModel robot) {
-		try {
-			robot.getLink(0).setShapeFilename("/SCARA_NM/Scara_base.stl");
-			robot.getLink(1).setShapeFilename("/SCARA_NM/Scara_arm1.stl");
-			robot.getLink(2).setShapeFilename("/SCARA_NM/Scara_arm2.stl");
-			robot.getLink(4).setShapeFilename("/SCARA_NM/Scara_screw.stl");
-			
-			robot.getLink(0).setShapeOrigin(new Vector3d(-8,0,0));
-			robot.getLink(1).setShapeOrigin(new Vector3d(-15,8,-13.784));
-			robot.getLink(1).setShapeRotation(new Vector3d(0,0,-90));
-
-			robot.getLink(2).setShapeOrigin(new Vector3d(-13,8,-13.784));
-			robot.getLink(2).setShapeRotation(new Vector3d(0,0,-90));
-
-			robot.getLink(4).setShapeOrigin(new Vector3d(-8,0,-13.784));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void render(GL2 gl2) {
-		if( isFirstTime ) {
-			isFirstTime=false;
-			setupModels(live);
-		}
-		
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
-			
-			// Draw models
-			float r=0.5f;
-			float g=0.5f;
-			float b=0.5f;
-			MaterialEntity mat = new MaterialEntity();
-			mat.setDiffuseColor(r,g,b,1);
-			mat.render(gl2);
-			live.render(gl2);
-		gl2.glPopMatrix();
-		
-		super.render(gl2);
-	}
-
-	@Override
-	public Memento createKeyframe() {
-		// TODO Auto-generated method stub
-		return null;
+		live.getBone(0).set("",13.784,15,0,0,240,-40,"/SCARA_NM/Scara_base.stl");
+		live.getBone(1).set("",13.0,0,0,0,120,-120,"/SCARA_NM/Scara_arm1.stl");
+		live.getBone(2).set("",-8,0,0,0,-10.92600+7.574,-10.92600-0.5,"/SCARA_NM/Scara_arm2.stl");
+		live.getBone(3).set("",0,0,0,0,180,-180,"");
+		live.getBone(4).set("",0,0,0,0,0,-0,"/SCARA_NM/Scara_screw.stl");
 	}
 }

@@ -1,6 +1,7 @@
-package com.marginallyclever.robotoverlord.dhrobotentity.dhtool;
+package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
 import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.robotoverlord.Entity;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
@@ -10,7 +11,7 @@ import javax.vecmath.Vector3d;
  *
  */
 @Deprecated
-public class DHTool_GoProCamera extends DHTool {
+public class DHTool_GoProCamera extends Entity {
 	/**
 	 * 
 	 */
@@ -18,7 +19,7 @@ public class DHTool_GoProCamera extends DHTool {
 
 	public DHTool_GoProCamera() {
 		super();
-		setName("GoPro Camera");
+		setName("GoPro Camera");/*
 		flags = LinkAdjust.R;
 		
 		refreshDHMatrix();
@@ -38,17 +39,6 @@ public class DHTool_GoProCamera extends DHTool {
 		m2.rotZ(Math.toRadians(90));
 		m.mul(m2);
 		this.setRotation(m);
-	}
-
-	@Override
-	public Memento getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setState(Memento arg0) {
-		// TODO Auto-generated method stub
-		
+		*/
 	}
 }

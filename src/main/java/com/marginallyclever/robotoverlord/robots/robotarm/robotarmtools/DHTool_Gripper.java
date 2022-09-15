@@ -1,10 +1,11 @@
-package com.marginallyclever.robotoverlord.dhrobotentity.dhtool;
+package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoOriginator;
-import com.marginallyclever.robotoverlord.dhrobotentity.DHLink;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 
@@ -19,7 +20,7 @@ import java.util.StringTokenizer;
  * @author Dan Royer
  */
 @Deprecated
-public class DHTool_Gripper extends DHTool implements MementoOriginator {
+public class DHTool_Gripper extends Entity {
 	/**
 	 * 
 	 */
@@ -27,7 +28,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 	public static final double ANGLE_MAX=55;
 	public static final double ANGLE_MIN=10;
 	
-	protected DHLink[] subComponents = new DHLink[6];
+	protected DHComponent[] subComponents = new DHComponent[6];
 
 	protected double gripperServoAngle;
 	protected double interpolatePoseT;
@@ -37,10 +38,9 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 	protected transient PoseEntity subjectBeingHeld;
 	
 	public DHTool_Gripper() {
-		super();
+		super();/*
 		setLetter("T");
 		setName("Gripper");
-		refreshDHMatrix();
 		
 		gripperServoAngle=90;
 		interpolatePoseT=1;
@@ -62,10 +62,10 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		this.setRotation(r);
 		
 		// 4 bars
-		addEntity(subComponents[0]=new DHLink());
-		addEntity(subComponents[1]=new DHLink());
-		addEntity(subComponents[2]=new DHLink());
-		addEntity(subComponents[3]=new DHLink());
+		addComponent(subComponents[0]=new DHComponent());
+		addComponent(subComponents[1]=new DHComponent());
+		addComponent(subComponents[2]=new DHComponent());
+		addComponent(subComponents[3]=new DHComponent());
 		subComponents[0].setShapeFilename("/robots/Sixi2/beerGripper/linkage.stl");
 		subComponents[0].setShapeScale(0.1);
 		subComponents[1].set(subComponents[0]);
@@ -77,67 +77,21 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 		subComponents[3].setPosition(new Vector3d(-1.1/2, 0, 5.9575));
 		
 		// 2 finger tips
-		addEntity(subComponents[4]=new DHLink());
+		addComponent(subComponents[4]=new DHComponent());
 		subComponents[4].setShapeFilename("/robots/Sixi2/beerGripper/finger.stl");
 		subComponents[4].setShapeScale(0.1);
-		addEntity(subComponents[5]=new DHLink());
+		addComponent(subComponents[5]=new DHComponent());
 		subComponents[5].set(subComponents[4]);
 		
 		wasGripping=false;
-	}
-	
-	@Override
-	public void render(GL2 gl2) {
-		super.render(gl2);
-/*
-		material.render(gl2);
-		
-		gl2.glPushMatrix();
-			gl2.glRotated(90, 0, 0, 1);
-		
-			double v = -180-this.gripperServoAngle;
-		
-			gl2.glPushMatrix();
-			gl2.glRotated(v, 0, 1, 0);
-			gl2.glPopMatrix();
-			
-			gl2.glPushMatrix();
-			gl2.glRotated(v, 0, 1, 0);
-			gl2.glPopMatrix();
-			
-			gl2.glPushMatrix();
-			gl2.glRotated(-v, 0, 1, 0);
-			gl2.glPopMatrix();
-			
-			gl2.glPushMatrix();
-			gl2.glRotated(-v, 0, 1, 0);
-			gl2.glPopMatrix();
-
-			double c=Math.cos(Math.toRadians(v));
-			double s=Math.sin(Math.toRadians(v));
-			gl2.glPushMatrix();
-			gl2.glTranslated(-2.7/2-s*4.1, 0, 4.1+c*4.1);
-			gl2.glScaled(1,1,-1);
-			//gl2.glTranslated(s*4.1, 2.7/2, 4.1+c*4.1);
-			finger.render(gl2);
-			gl2.glPopMatrix();
-			
-			gl2.glPushMatrix();
-			gl2.glTranslated(2.7/2+s*4.1, 0, 4.1+c*4.1);
-			gl2.glScaled(-1,1,-1);
-			finger.render(gl2);
-			gl2.glPopMatrix();
-		
-		gl2.glPopMatrix();
 		*/
 	}
-
+	
 	/**
 	 * Read HID device to move target pose.  Currently hard-coded to PS4 joystick values. 
 	 * @return true if targetPose changes.
 	 */
-	@Override
-	public boolean directDrive() {
+	public boolean directDrive() {/*
 		boolean isDirty=false;
 		final double scaleGrip=1.8;
 		
@@ -188,64 +142,7 @@ public class DHTool_Gripper extends DHTool implements MementoOriginator {
 			}
         }
 
-        return isDirty;
-	}
-
-	@Override
-	public String getCommand() {
-		return getLetter()+StringHelper.formatDouble(this.gripperServoAngle);
-	}
-	
-	@Override
-	public void sendCommand(String str) {
-		StringTokenizer tok = new StringTokenizer(str);
-		while(tok.hasMoreTokens()) {
-			String token = tok.nextToken();
-			try {
-				if(token.startsWith("T")) {
-					startT = gripperServoAngle;
-					endT = StringHelper.parseNumber(token.substring(1));
-				}
-			} catch(NumberFormatException e) {
-				e.printStackTrace();
-			}
-		}
-		gripperServoAngle=endT;
-		interpolatePoseT=0;
-	}
-	
-	@Override
-	public void interpolate(double dt) {
-		super.interpolate(dt);
-		
-		if(interpolatePoseT<1) {
-			interpolatePoseT+=dt;
-			if(interpolatePoseT>=1) {
-				interpolatePoseT=1;
-			}
-			gripperServoAngle=((endT-startT)*interpolatePoseT + startT);
-			refreshDHMatrix();
-		}
-	}
-	
-	@Override
-	public double getAdjustableValue() {
-		return gripperServoAngle;
-	}
-	
-	@Override
-	public void setAdjustableValue(double v) {
-		v = Math.max(Math.min(v, rangeMax.get()), rangeMin.get());
-		gripperServoAngle=v;
-	}
-
-	@Override
-	public Memento getState() {
-		return new GripperMemento(gripperServoAngle);
-	}
-
-	@Override
-	public void setState(Memento arg0) {
-		gripperServoAngle = ((GripperMemento)arg0).gripperAngle;
+		*/
+        return false;
 	}
 }

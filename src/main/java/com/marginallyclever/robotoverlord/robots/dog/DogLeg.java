@@ -3,31 +3,32 @@ package com.marginallyclever.robotoverlord.robots.dog;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.components.DHComponent;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmBone;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+@Deprecated
 public class DogLeg {
 	public static final double DEFAULT_STEP_HEIGHT = 3;
 
 	private PoseEntity myParent;
 
-	private RobotArmBone shoulderA = new RobotArmBone();
-	private RobotArmBone shoulderB = new RobotArmBone();
-	private RobotArmBone elbow = new RobotArmBone();
-	private RobotArmBone foot = new RobotArmBone();
+	private DHComponent shoulderA = new DHComponent();
+	private DHComponent shoulderB = new DHComponent();
+	private DHComponent elbow = new DHComponent();
+	private DHComponent foot = new DHComponent();
 
-	private MaterialEntity matOnFloor = new MaterialEntity();
-	private MaterialEntity matStepping = new MaterialEntity();
+	private MaterialComponent matOnFloor = new MaterialComponent();
+	private MaterialComponent matStepping = new MaterialComponent();
 
-	private MaterialEntity matShoulderA = new MaterialEntity();
-	private MaterialEntity matShoulderB = new MaterialEntity();
-	private MaterialEntity matElbow = new MaterialEntity();
-	private MaterialEntity matFoot = new MaterialEntity();
+	private MaterialComponent matShoulderA = new MaterialComponent();
+	private MaterialComponent matShoulderB = new MaterialComponent();
+	private MaterialComponent matElbow = new MaterialComponent();
+	private MaterialComponent matFoot = new MaterialComponent();
 
 	// current world position of foot
 	private Vector3d toe = new Vector3d();
@@ -110,10 +111,10 @@ public class DogLeg {
 
 	public double[] getJointAngles() {
 		double[] legAngles = new double[4];
-		legAngles[0] = shoulderA.theta;
-		legAngles[1] = shoulderB.theta;
-		legAngles[2] = elbow.theta;
-		legAngles[3] = foot.theta;
+		legAngles[0] = shoulderA.getTheta();
+		legAngles[1] = shoulderB.getTheta();
+		legAngles[2] = elbow.getTheta();
+		legAngles[3] = foot.getTheta();
 		return legAngles;
 	}
 
@@ -126,10 +127,6 @@ public class DogLeg {
 	}
 
 	public void refreshMatrixes() {
-		shoulderA.updateMatrix();
-		shoulderB.updateMatrix();
-		elbow.updateMatrix();
-		foot.updateMatrix();
 		toe.set(MatrixHelper.getPosition(getWorldMatrixOfToe()));
 	}
 
@@ -154,7 +151,7 @@ public class DogLeg {
 	}
 
 	public void relaxShoulder() {
-		shoulderA.theta = idealStandingAngles[0];
+		shoulderA.setTheta(idealStandingAngles[0]);
 	}
 
 	public Matrix4d getWorldMatrixOfShoulder() {

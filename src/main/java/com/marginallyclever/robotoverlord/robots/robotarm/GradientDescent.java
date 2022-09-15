@@ -1,15 +1,26 @@
 package com.marginallyclever.robotoverlord.robots.robotarm;
 
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
+
 import javax.vecmath.Matrix4d;
 
+@Deprecated
 public class GradientDescent {
-	private RobotArmFK sixi3;
+	private final RobotComponent myRobot;
 
-	GradientDescent(RobotArmFK subject) {
+	public GradientDescent(RobotComponent subject) {
 		super();
-		sixi3=subject;
+		myRobot = subject;
 	}
-	
+
+	private double getDistanceToTarget(RobotComponent robot,Matrix4d target) {
+		double [] distance = MatrixHelper.getCartesianBetweenTwoMatrixes(myRobot.getEndEffector(),target);
+		double sum=0;
+		for( double d : distance ) sum += Math.abs(d);
+		return sum;
+	}
+
 	/**
 	 * Use gradient descent to move the end effector closer to the target.  The process is iterative, might not reach the target,
 	 * and changes depending on the position when gradient descent began. 
@@ -19,19 +30,19 @@ public class GradientDescent {
 	 * @param samplingDistance how big should the first step be?
 	 */
 	public boolean run(Matrix4d target,double learningRate, double threshold, double samplingDistance) {
-		if(sixi3.getDistanceToTarget(target)<threshold) return true;
+		if(getDistanceToTarget(myRobot,target)<threshold) return true;
 		
-		double [] angles = sixi3.getAngles();
+		double [] angles = myRobot.getAngles();
 		
 		// seems to work better descending from the finger than ascending from the base.
-		for( int i=sixi3.getNumBones()-1; i>=0; --i ) {  // descending mode
+		for(int i = myRobot.getNumBones()-1; i>=0; --i ) {  // descending mode
 			//Log.message("\tA angles["+i+"]="+angles[i]);
 			double gradient = partialGradient(target,angles,i,samplingDistance);
 			//Log.message("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
 			angles[i] -= learningRate * gradient;
 			//Log.message("\tC angles["+i+"]="+angles[i]);
-			sixi3.setAngles(angles);
-			if(sixi3.getDistanceToTarget(target)<threshold) {
+			myRobot.setAngles(angles);
+			if(getDistanceToTarget(myRobot,target)<threshold) {
 				return true;
 			}
 		}
@@ -44,20 +55,20 @@ public class GradientDescent {
 	private double partialGradient(Matrix4d target, double [] angles, int i, double samplingDistance) {
 		// get the current error term F.
 		double oldValue = angles[i];
-		double Fx = sixi3.getDistanceToTarget(target);
+		double Fx = getDistanceToTarget(myRobot,target);
 
 		// move F+D, measure again.
 		angles[i] += samplingDistance;
 		//double t0 = temp.getBone(i).getTheta();
-		sixi3.setAngles(angles);
+		myRobot.setAngles(angles);
 		//double t1 = temp.getBone(i).getTheta();
-		double FxPlusD = sixi3.getDistanceToTarget(target);
+		double FxPlusD = getDistanceToTarget(myRobot,target);
 		double gradient = (FxPlusD - Fx) / samplingDistance;
 		//Log.message("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
 		
 		// reset the old value
 		angles[i] = oldValue;
-		sixi3.setAngles(angles);
+		myRobot.setAngles(angles);
 		
 		return gradient;
 	}

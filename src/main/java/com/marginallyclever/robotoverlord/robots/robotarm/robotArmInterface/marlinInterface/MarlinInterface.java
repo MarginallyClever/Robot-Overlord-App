@@ -5,8 +5,8 @@ import com.marginallyclever.communications.NetworkSessionEvent;
 import com.marginallyclever.communications.NetworkSessionListener;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
 
 import javax.swing.*;
 import java.awt.*;
@@ -357,7 +357,7 @@ public class MarlinInterface extends JPanel {
 
 		JFrame frame = new JFrame(MarlinInterface.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new MarlinInterface(new RobotArmIK()));
+		frame.add(new MarlinInterface(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
 
 import javax.swing.*;
 import java.awt.*;
@@ -95,7 +95,7 @@ public class AngleReportPanel extends JPanel {
 
 		JFrame frame = new JFrame(AngleReportPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new AngleReportPanel(new RobotArmIK()));
+		frame.add(new AngleReportPanel(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

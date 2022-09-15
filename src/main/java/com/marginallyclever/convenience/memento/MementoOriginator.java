@@ -6,6 +6,7 @@ package com.marginallyclever.convenience.memento;
  * @author Dan Royer
  *
  */
+@Deprecated
 public abstract interface MementoOriginator {
 	/**
 	 * Return an opaque snapshot of a moment in time.  This snapshot can be used to reproduce the Originator's state.

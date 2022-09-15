@@ -332,9 +332,8 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Returns any instance of class T found attached to this Entity.
-	 * @return the
-	 * @param <T> the type to find and return.  Must be derived from Component
+	 * @return the first instance of class T found in component list.
+	 * @param <T> the type to find and return.  Must be derived from Component.
 	 */
 	public <T extends Component> T findFirstComponent(Class<T> clazz) {
 		for(Component c : components) {
@@ -346,9 +345,8 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Returns any instance of class T found attached to this Entity.
-	 * @return the
-	 * @param <T> the type to find and return.  Must be derived from Component
+	 * @return all instances of class T found attached to this Entity.
+	 * @param <T> the type to find and return.  Must be derived from Component.
 	 */
 	public <T extends Component> List<T> findAllComponents(Class<T> clazz) {
 		List<T> list = new ArrayList<>();

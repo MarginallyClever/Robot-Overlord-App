@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.robots.robotarm.ApproximateJacobian;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.robots.robotarm.ApproximateJacobian2;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -17,10 +17,10 @@ public class JacobianReportPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private final JTable table;
 	
-	public JacobianReportPanel(RobotArmIK arm) {
+	public JacobianReportPanel(RobotComponent arm) {
 		super();
 
-		ApproximateJacobian aj = arm.getApproximateJacobian();
+		ApproximateJacobian2 aj = new ApproximateJacobian2(arm);
 
 		DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
         renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -49,7 +49,7 @@ public class JacobianReportPanel extends JPanel {
 	}
 	
 	@SuppressWarnings("unused")
-	private void setColumnNames(RobotArmIK arm) {
+	private void setColumnNames(RobotComponent arm) {
 		DefaultTableCellRenderer renderHeaderRight = (DefaultTableCellRenderer)table.getTableHeader().getDefaultRenderer();
 		renderHeaderRight.setHorizontalAlignment(SwingConstants.RIGHT);
 		table.getTableHeader().setDefaultRenderer(renderHeaderRight);
@@ -61,8 +61,8 @@ public class JacobianReportPanel extends JPanel {
 		}
 	}
 
-	private void updateReport(RobotArmIK arm) {
-		ApproximateJacobian aj = arm.getApproximateJacobian();
+	private void updateReport(RobotComponent arm) {
+		ApproximateJacobian2 aj = new ApproximateJacobian2(arm);
 		for(int y=0;y<aj.jacobian.length;++y) {
 			for(int x=0;x<aj.jacobian[y].length;++x) {
 				table.setValueAt(String.format("%.5f", aj.jacobian[y][x]), y, x);
@@ -81,7 +81,7 @@ public class JacobianReportPanel extends JPanel {
 
 		JFrame frame = new JFrame(JacobianReportPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new JacobianReportPanel(new RobotArmIK()));
+		frame.add(new JacobianReportPanel(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

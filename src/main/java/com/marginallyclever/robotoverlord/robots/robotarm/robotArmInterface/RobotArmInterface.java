@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_5axis;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface.JogInterface;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.MarlinInterface;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.programInterface.ProgramInterface;
@@ -133,7 +133,7 @@ public class RobotArmInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmInterface(new Sixi3_5axis()));
+		frame.add(new RobotArmInterface(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

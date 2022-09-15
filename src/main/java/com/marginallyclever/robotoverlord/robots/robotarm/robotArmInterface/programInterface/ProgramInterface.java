@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.programInterface;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -271,7 +271,7 @@ public class ProgramInterface extends JPanel {
 		Log.start();
 		JFrame frame = new JFrame("ProgramInterface");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new ProgramInterface(new RobotArmIK()));
+		frame.add(new ProgramInterface(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

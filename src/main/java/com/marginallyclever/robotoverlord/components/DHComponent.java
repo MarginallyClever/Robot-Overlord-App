@@ -160,4 +160,17 @@ public class DHComponent extends Component implements PropertyChangeListener {
         if(pose==null) return null;
         return pose.getLocal();
     }
+
+    public void set(String name, double d, double r, double a, double t, double tMax, double tMin, String meshFile) {
+        myD.set(d);
+        myR.set(r);
+        alpha.set(a);
+        theta.set(theta);
+        thetaMax.set(tMax);
+        thetaMin.set(tMin);
+    }
+
+    public double getR() {
+        return myR.get();
+    }
 }

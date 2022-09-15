@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.robotarm.RobotArmIK;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -53,8 +53,8 @@ public class JogInterface extends JPanel {
 		c.gridy += 2;
 		c.gridwidth = 2;
 		c.weightx = 1;
-		if(myRobot instanceof RobotArmIK) {
-			this.add(new JacobianReportPanel((RobotArmIK)myRobot), c);
+		if(myRobot instanceof RobotComponent) {
+			this.add(new JacobianReportPanel((RobotComponent)myRobot), c);
 		}
 		c.gridy++;
 		c.weighty = 1;
@@ -77,7 +77,7 @@ public class JogInterface extends JPanel {
 		} catch(Exception ignored) {}
 		JFrame frame = new JFrame(JogInterface.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new JogInterface(new RobotArmIK()));
+		frame.add(new JogInterface(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}
