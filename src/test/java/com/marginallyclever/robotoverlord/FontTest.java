@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -19,7 +20,7 @@ public class FontTest {
         String s = "\u23EF";
         Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
         Log.message("Total fonts: \t" + fonts.length);
-        assertTrue(Arrays.stream(fonts).filter(font -> font.canDisplayUpTo(s) < 0).count() > 0);
+        Assertions.assertNotEquals(0,Arrays.stream(fonts).filter(font -> font.canDisplayUpTo(s) < 0).count());
     }
 
 }
