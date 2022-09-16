@@ -48,7 +48,7 @@ public class RobotOverlord extends Entity {
 	private static final int FSAA_NUM_SAMPLES = 3;
 	private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
 	private static final int DEFAULT_FRAMES_PER_SECOND = 30;
-    public static final int PICK_BUFFER_SIZE = 256;
+	private static final int PICK_BUFFER_SIZE = 256;
 
 	public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
 
@@ -100,10 +100,10 @@ public class RobotOverlord extends Entity {
     private double frameLength;
 
 	// click on screen to change which entity is selected
-	protected transient boolean pickNow = false;
-	protected transient Vector2d pickPoint = new Vector2d();
+	private transient boolean pickNow = false;
+	private transient Vector2d pickPoint = new Vector2d();
 
-	public final SkyBoxEntity sky = new SkyBoxEntity();
+	private final SkyBoxEntity sky = new SkyBoxEntity();
 	
  	private RobotOverlord() {
  		super();
@@ -304,10 +304,6 @@ public class RobotOverlord extends Entity {
 	private JComponent buildEntityManagerPanel() {
         Log.message("buildEntityManagerPanel()");
 
-		return buildEntityTree();
-	}
-
-	private JComponent buildEntityTree() {
 		entityTree.addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
 				setSelectedEntities(e.subjects);
@@ -408,26 +404,17 @@ public class RobotOverlord extends Entity {
 		Log.message("Set window size and position");
 
     	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    	
-    	int windowW = prefs.getInt("windowWidth", -1);
-    	int windowH = prefs.getInt("windowHeight", -1);
-    	if(windowW==-1 || windowH==-1) {
-    		Log.message("...default size");
-    		windowW = dim.width;
-    		windowH = dim.height;
-    	}
-        mainFrame.setSize( windowW, windowH );
-    	
-    	int windowX = prefs.getInt("windowX", -1);
-    	int windowY = prefs.getInt("windowY", -1);
-        if(windowX==-1 || windowY==-1) {
-    		Log.message("...default position");
-        	// centered
-        	windowX = (dim.width - windowW)/2;
-        	windowY = (dim.height - windowH)/2;
-        }
-        
-        mainFrame.setLocation( windowX, windowY );
+
+		boolean isFullscreen = prefs.getBoolean("isFullscreen",false);
+		if(isFullscreen) {
+			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		} else {
+			int windowW = prefs.getInt("windowWidth", dim.width);
+			int windowH = prefs.getInt("windowHeight", dim.height);
+			int windowX = prefs.getInt("windowX", (dim.width - windowW)/2);
+			int windowY = prefs.getInt("windowY", (dim.height - windowH)/2);
+			mainFrame.setBounds(windowX, windowY,windowW, windowH);
+		}
 	}
 
 	public JFrame getMainFrame() {
@@ -442,7 +429,7 @@ public class RobotOverlord extends Entity {
 		return new ArrayList<>(selectedEntities);
 	}
 
-	public void buildMainMenu() {
+	private void buildMainMenu() {
 		Log.message("buildMainMenu()");
 		
 		mainMenu = new JMenuBar();
@@ -566,32 +553,36 @@ public class RobotOverlord extends Entity {
 		componentPanel.refreshContents(getSelectedEntities(),this);
 	}
 
+	// remember window location for next time.
     private void saveWindowSizeAndPosition() {
-		// remember window location for next time.
     	logger.debug("saveWindowSizeAndPosition()");
-    	
-		Dimension d = mainFrame.getSize();
-    	prefs.putInt("windowWidth", d.width);
-    	prefs.putInt("windowHeight", d.height);
-    	Point p = mainFrame.getLocation();
-    	prefs.putInt("windowX", p.x);
-    	prefs.putInt("windowY", p.y);
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = mainFrame.getSize();
+		boolean isFullscreen = (screenSize.width==frameSize.width && screenSize.height==frameSize.height);
+		prefs.putBoolean("isFullscreen", isFullscreen);
+		if(!isFullscreen) {
+			prefs.putInt("windowWidth", frameSize.width);
+			prefs.putInt("windowHeight", frameSize.height);
+			Point p = mainFrame.getLocation();
+			prefs.putInt("windowX", p.x);
+			prefs.putInt("windowY", p.y);
+		}
 	}
-	
+
 	public void confirmClose() {
         int result = JOptionPane.showConfirmDialog(
 				mainFrame,
 				Translator.get("RobotOverlord.quitConfirm"),
 				Translator.get("RobotOverlord.quitTitle"),
 				JOptionPane.YES_NO_OPTION);
-
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         	saveWindowSizeAndPosition();
 			
         	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(() -> {
-				animator.stop();
+				stopAnimationSystem();
 				mainFrame.dispose();
 			}).start();
         }
@@ -687,8 +678,8 @@ public class RobotOverlord extends Entity {
 	    	update( frameLength );
     	}
 	}
- 	
- 	public void startAnimationSystem() {
+
+	private void startAnimationSystem() {
 		logger.debug("setup the animation system");
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
@@ -699,7 +690,7 @@ public class RobotOverlord extends Entity {
         animator.start();
 	}
 
-	public void stop() {
+	private void stopAnimationSystem() {
 		animator.stop();
 	}
 
@@ -709,7 +700,7 @@ public class RobotOverlord extends Entity {
 	 * and <a href="http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf">2</a>
 	 * @param gl2 the openGL render context
 	 */
-    public int findItemUnderCursor(GL2 gl2,CameraComponent cameraComponent) {
+	private int findItemUnderCursor(GL2 gl2,CameraComponent cameraComponent) {
     	IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
         gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
 
@@ -734,7 +725,7 @@ public class RobotOverlord extends Entity {
     
 	private int getPickNameFromPickList(IntBuffer pickBuffer,int hits,boolean verbose) {
 		if(verbose) logger.debug(hits+" PICKS @ "+pickPoint.x+","+pickPoint.y);
-		
+
         float zMinBest = Float.MAX_VALUE;
     	int i, index=0, bestPick=0;
     	

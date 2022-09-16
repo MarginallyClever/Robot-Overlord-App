@@ -15,10 +15,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 public class ObserverTest2 extends JPanel {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
     GridBagConstraints gbc;
     
 	@Before
@@ -79,7 +75,7 @@ public class ObserverTest2 extends JPanel {
         });
     }
 
-    class ObservableModel {
+    static class ObservableModel {
         protected boolean state;
 
         // who is listening to me?
@@ -111,7 +107,7 @@ public class ObserverTest2 extends JPanel {
         }
     }
 
-    class ObservingField extends JCheckBox implements PropertyChangeListener, ActionListener {
+    static class ObservingField extends JCheckBox implements PropertyChangeListener, ActionListener {
         /**
          *
          */

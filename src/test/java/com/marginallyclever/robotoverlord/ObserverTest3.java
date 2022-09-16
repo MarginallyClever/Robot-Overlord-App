@@ -20,11 +20,7 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ObserverTest3 extends JPanel {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-    
+
 	@Before
 	public void before() {
 		Log.start();
@@ -64,7 +60,7 @@ public class ObserverTest3 extends JPanel {
         });
     }
 
-    class ObservableModel {
+    static class ObservableModel {
         protected int value;
         protected int max, min;
 
@@ -105,7 +101,7 @@ public class ObserverTest3 extends JPanel {
         }
     }
 
-    class ObservingField extends JPanel implements PropertyChangeListener, ChangeListener, DocumentListener {
+    static class ObservingField extends JPanel implements PropertyChangeListener, ChangeListener, DocumentListener {
         /**
          *
          */

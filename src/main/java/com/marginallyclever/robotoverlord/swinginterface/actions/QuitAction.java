@@ -13,19 +13,15 @@ import java.awt.event.ActionListener;
  *
  */
 public class QuitAction extends AbstractAction implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	protected RobotOverlord ro;
 	
 	public QuitAction(RobotOverlord ro) {
 		super(Translator.get("Quit"));
         putValue(SHORT_DESCRIPTION, Translator.get("Gracefully terminate this app"));
         
-        // on windows
+        // on Windows
         //putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK) );
-        // on osx
+        // on OSX
         //putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK) );
         
 		this.ro = ro;

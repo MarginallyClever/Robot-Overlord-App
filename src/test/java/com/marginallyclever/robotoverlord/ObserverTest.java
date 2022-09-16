@@ -17,10 +17,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 public class ObserverTest extends JPanel {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
 	@Before
 	public void before() {
@@ -60,7 +56,7 @@ public class ObserverTest extends JPanel {
         });
     }
 
-    class ObservableModel {
+    static class ObservableModel {
         protected int value;
         protected int max, min;
 
@@ -102,7 +98,7 @@ public class ObserverTest extends JPanel {
         }
     }
 
-    class ObservingField extends JPanel implements PropertyChangeListener, ChangeListener {
+    static class ObservingField extends JPanel implements PropertyChangeListener, ChangeListener {
         /**
          *
          */
