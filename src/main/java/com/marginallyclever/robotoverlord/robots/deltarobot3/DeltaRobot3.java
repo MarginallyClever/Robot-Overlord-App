@@ -16,7 +16,7 @@ import com.marginallyclever.robotoverlord.robots.RobotEntity;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;

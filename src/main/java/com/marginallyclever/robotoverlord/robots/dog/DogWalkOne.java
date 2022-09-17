@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.robots.dog;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 
 public class DogWalkOne extends Entity implements DogAnimator {
 	/**

@@ -1,19 +1,11 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoDoubleArray;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
-
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-import java.util.List;
-import java.util.StringTokenizer;
+import com.marginallyclever.robotoverlord.parameters.IntEntity;
 
 
 /**

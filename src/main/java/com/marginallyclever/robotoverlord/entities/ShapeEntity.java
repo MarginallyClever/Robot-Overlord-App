@@ -8,9 +8,9 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.*;
 
 import javax.swing.filechooser.FileFilter;
 import javax.vecmath.Matrix4d;

@@ -8,8 +8,8 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

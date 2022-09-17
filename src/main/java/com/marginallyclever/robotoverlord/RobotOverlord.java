@@ -435,7 +435,6 @@ public class RobotOverlord extends Entity {
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
 		mainMenu.add(createFileMenu());
-		mainMenu.add(createDemoMenu());
 		mainMenu.add(createEditMenu());
 		mainMenu.add(createHelpMenu());
         mainMenu.updateUI();
@@ -467,16 +466,6 @@ public class RobotOverlord extends Entity {
 		return menu;
 	}
 
-	private Component createDemoMenu() {
-		JMenu menu = new JMenu("Demos");
-		menu.add(new JMenuItem(new DemoAction(this,new BasicDemo())));
-		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
-		menu.add(new JMenuItem(new DemoAction(this,new PhysicsDemo())));
-		menu.add(new JMenuItem(new DemoAction(this,new SkycamDemo())));
-		menu.add(new JMenuItem(new DemoAction(this,new StewartPlatformDemo())));
-		return menu;
-	}
-
 	private Component createEditMenu() {
 		JMenu menu = new JMenu("Edit");
 		menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
@@ -499,7 +488,7 @@ public class RobotOverlord extends Entity {
 		entityDeleteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
 
 		EntityCutAction entityCutAction = new EntityCutAction(Translator.get("EntityCutAction.name"), entityDeleteAction, entityCopyAction);
-		entityCutAction.putValue(Action.SMALL_ICON,new UnicodeIcon("✂️"));
+		entityCutAction.putValue(Action.SMALL_ICON,new UnicodeIcon("✂"));
 		entityCutAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
 		entityCutAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
 

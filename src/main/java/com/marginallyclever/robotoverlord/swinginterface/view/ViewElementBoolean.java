@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

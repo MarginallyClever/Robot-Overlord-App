@@ -12,7 +12,7 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 
 import javax.vecmath.Vector3d;
 import java.io.Serial;

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

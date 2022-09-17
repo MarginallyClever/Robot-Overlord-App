@@ -3,10 +3,10 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.TextureEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

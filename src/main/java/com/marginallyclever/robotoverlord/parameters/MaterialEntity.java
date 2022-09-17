@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.uiexposedtypes;
+package com.marginallyclever.robotoverlord.parameters;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Entity;

@@ -7,7 +7,7 @@ import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.robots.RobotEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 
 import javax.vecmath.Vector3d;
 import java.io.*;

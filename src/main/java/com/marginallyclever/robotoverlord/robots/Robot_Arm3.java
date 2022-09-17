@@ -1,11 +1,7 @@
 package com.marginallyclever.robotoverlord.robots;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
 
 /**
  * DHRobot version of Arm3, a palletizing robot I built long ago.  Incomplete!

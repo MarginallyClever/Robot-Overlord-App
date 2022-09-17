@@ -3,8 +3,9 @@ package com.marginallyclever.robotoverlord.physics.ode;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
+import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import org.ode4j.ode.DBox;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DPlane;
@@ -15,18 +16,13 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-public class ODEPhysicsEntity extends PoseEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3498630114673883847L;
-	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsEntity.class);
+public class ODEPhysicsComponent extends Component {
+	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsComponent.class);
 	private DGeom geom;
-	private MaterialEntity mat = new MaterialEntity();
+	private PoseComponent myPose;
 	
-	public ODEPhysicsEntity(DGeom g) {
-		super(ODEPhysicsEntity.class.getSimpleName());
-		addEntity(mat);
+	public ODEPhysicsComponent(DGeom g) {
+		super();
 		geom=g;
 	}
 	
@@ -36,26 +32,20 @@ public class ODEPhysicsEntity extends PoseEntity {
 	
 	@Override
 	public void update(double dt) {
-		if(!(geom instanceof DPlane)) {
-			Matrix4d m = ODEConverter.getMatrix4d(geom);
-			setPoseWorld(m);
+		if(myPose==null) myPose = getEntity().findFirstComponent(PoseComponent.class);
+		if(myPose!=null) {
+			if(!(geom instanceof DPlane)) {
+				myPose.setWorld(ODEConverter.getMatrix4d(geom));
+			}
 		}
-		super.update(dt);
 	}
-	
-	@Override
+
 	public void render(GL2 gl2) {
-		super.render(gl2);
-		
 		gl2.glPushMatrix();
-			gl2.glDisable(GL2.GL_TEXTURE_2D);
-			mat.render(gl2);
-		
-			if(geom instanceof DBox) drawBox(gl2);
-			else if(geom instanceof DSphere) drawSphere(gl2);
-			else if(geom instanceof DPlane) drawPlane(gl2);
-			else logger.error("render() unknown type "+geom.getClass().getName());
-		
+		if(geom instanceof DBox) drawBox(gl2);
+		else if(geom instanceof DSphere) drawSphere(gl2);
+		else if(geom instanceof DPlane) drawPlane(gl2);
+		else logger.error("render() unknown type "+geom.getClass().getName());
 		gl2.glPopMatrix();
 	}
 

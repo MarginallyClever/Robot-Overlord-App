@@ -1,7 +1,6 @@
-package com.marginallyclever.robotoverlord.components.uiexposedtypes;
+package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.AbstractEntityTest;
-import com.marginallyclever.robotoverlord.uiexposedtypes.TextureEntity;
 import org.junit.jupiter.api.Test;
 
 public class TextureEntityTest {

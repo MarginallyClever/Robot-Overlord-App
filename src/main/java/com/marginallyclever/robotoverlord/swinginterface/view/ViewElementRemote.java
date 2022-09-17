@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
 
 import javax.swing.*;
 import java.awt.*;

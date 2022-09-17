@@ -4,8 +4,8 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.IntEntity;
 
 public abstract class ShapeComponent extends Component {
     // a mesh from the pool of meshes

@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
