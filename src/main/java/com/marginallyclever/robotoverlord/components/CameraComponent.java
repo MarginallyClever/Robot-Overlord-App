@@ -65,6 +65,8 @@ public class CameraComponent extends Component {
         Vector3d dp = new Vector3d();
         dp.sub(target,pose.getPosition());
         this.zoom.set(dp.length());
+
+        pose.setLocalMatrix3(buildPanTiltMatrix(pan.get(),tilt.get()));
     }
 
     @Override

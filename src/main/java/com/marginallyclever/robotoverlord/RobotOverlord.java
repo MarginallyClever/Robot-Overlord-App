@@ -405,22 +405,32 @@ public class RobotOverlord extends Entity {
         		InputManager.focusLost();
         	}
 		});
+
+		mainFrame.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				saveWindowSizeAndPosition();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				saveWindowSizeAndPosition();
+			}
+		});
 	}
 
 	private void setWindowSizeAndPosition() {
 		Log.message("Set window size and position");
 
     	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
+		int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
+		int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
+		int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
+		int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
+		mainFrame.setBounds(windowX, windowY,windowW, windowH);
 		boolean isFullscreen = prefs.getBoolean("isFullscreen",false);
 		if(isFullscreen) {
 			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		} else {
-			int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
-			int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
-			int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
-			int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
-			mainFrame.setBounds(windowX, windowY,windowW, windowH);
 		}
 	}
 
@@ -457,6 +467,7 @@ public class RobotOverlord extends Entity {
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
 		mainMenu.add(createFileMenu());
+		mainMenu.add(createDemoMenu());
 		mainMenu.add(createEditMenu());
 		mainMenu.add(createHelpMenu());
         mainMenu.updateUI();
@@ -485,6 +496,12 @@ public class RobotOverlord extends Entity {
 		menu.add(sceneSaveAction);
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
+		return menu;
+	}
+
+	private Component createDemoMenu() {
+		JMenu menu = new JMenu("Demos");
+		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		return menu;
 	}
 
@@ -572,8 +589,7 @@ public class RobotOverlord extends Entity {
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        	saveWindowSizeAndPosition();
-			
+
         	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(() -> {
 				stopAnimationSystem();
