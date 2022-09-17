@@ -50,6 +50,13 @@ public class RobotOverlord extends Entity {
 	private static final int DEFAULT_FRAMES_PER_SECOND = 30;
 	private static final int PICK_BUFFER_SIZE = 256;
 
+
+	private static final String KEY_WINDOW_WIDTH = "windowWidth";
+	private static final String KEY_WINDOW_HEIGHT = "windowHeight";
+	private static final String KEY_WINDOW_X = "windowX";
+	private static final String KEY_WINDOW_Y = "windowY";
+	private static final String KEY_IS_FULLSCREEN = "isFullscreen";
+
 	public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
 
 	// used for checking the application version with the GitHub release, for "there is a new version available!" notification
@@ -409,11 +416,26 @@ public class RobotOverlord extends Entity {
 		if(isFullscreen) {
 			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		} else {
-			int windowW = prefs.getInt("windowWidth", dim.width);
-			int windowH = prefs.getInt("windowHeight", dim.height);
-			int windowX = prefs.getInt("windowX", (dim.width - windowW)/2);
-			int windowY = prefs.getInt("windowY", (dim.height - windowH)/2);
+			int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
+			int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
+			int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
+			int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
 			mainFrame.setBounds(windowX, windowY,windowW, windowH);
+		}
+	}
+
+	// remember window location for next time.
+	private void saveWindowSizeAndPosition() {
+		int state = mainFrame.getExtendedState();
+		boolean isFullscreen = ((state & JFrame.MAXIMIZED_BOTH)!=0);
+		prefs.putBoolean(KEY_IS_FULLSCREEN, isFullscreen);
+		if(!isFullscreen) {
+			Dimension frameSize = mainFrame.getSize();
+			prefs.putInt(KEY_WINDOW_WIDTH, frameSize.width);
+			prefs.putInt(KEY_WINDOW_HEIGHT, frameSize.height);
+			Point p = mainFrame.getLocation();
+			prefs.putInt(KEY_WINDOW_X, p.x);
+			prefs.putInt(KEY_WINDOW_Y, p.y);
 		}
 	}
 
@@ -540,23 +562,6 @@ public class RobotOverlord extends Entity {
 
 	public void updateComponentPanel() {
 		componentPanel.refreshContents(getSelectedEntities(),this);
-	}
-
-	// remember window location for next time.
-    private void saveWindowSizeAndPosition() {
-    	logger.debug("saveWindowSizeAndPosition()");
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension frameSize = mainFrame.getSize();
-		boolean isFullscreen = (screenSize.width==frameSize.width && screenSize.height==frameSize.height);
-		prefs.putBoolean("isFullscreen", isFullscreen);
-		if(!isFullscreen) {
-			prefs.putInt("windowWidth", frameSize.width);
-			prefs.putInt("windowHeight", frameSize.height);
-			Point p = mainFrame.getLocation();
-			prefs.putInt("windowX", p.x);
-			prefs.putInt("windowY", p.y);
-		}
 	}
 
 	public void confirmClose() {
