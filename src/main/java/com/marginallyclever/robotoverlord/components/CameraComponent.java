@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

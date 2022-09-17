@@ -4,10 +4,10 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.UnicodeIcon;
+import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.uiexposedtypes.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -175,7 +175,7 @@ public class ViewPanel extends ViewElement {
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElement addRange(IntEntity e,int top,int bottom) {
+	public ViewElement addRange(IntEntity e, int top, int bottom) {
 		ViewElement b = new ViewElementSlider(e,top,bottom);
 		pushViewElement(b);
 		return b;
@@ -200,7 +200,7 @@ public class ViewPanel extends ViewElement {
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringEntity e,ArrayList<FileFilter> filters) {
+	public ViewElement addFilename(StringEntity e, ArrayList<FileFilter> filters) {
 		ViewElementFilename b = new ViewElementFilename(e);
 		b.addFileFilters(filters);
 		

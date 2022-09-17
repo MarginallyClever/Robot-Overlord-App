@@ -6,8 +6,8 @@ import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

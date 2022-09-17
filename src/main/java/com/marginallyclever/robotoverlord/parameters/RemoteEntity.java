@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.uiexposedtypes;
+package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.NetworkSessionEvent;

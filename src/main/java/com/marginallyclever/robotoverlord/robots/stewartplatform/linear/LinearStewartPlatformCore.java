@@ -6,10 +6,10 @@ import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.BooleanEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.MaterialEntity;
-import com.marginallyclever.robotoverlord.uiexposedtypes.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
+import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

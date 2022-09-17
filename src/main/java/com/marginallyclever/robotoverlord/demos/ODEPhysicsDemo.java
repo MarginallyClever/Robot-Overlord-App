@@ -2,11 +2,9 @@ package com.marginallyclever.robotoverlord.demos;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEngine;
-import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEntity;
+import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsComponent;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3C;
@@ -32,11 +30,11 @@ public class ODEPhysicsDemo implements Demo {
 
 	// dynamics and collision objects (chassis, 3 wheels, environment)
 	private DBody chassisBody;
-	private DBody [] wheelBodies = new DBody[3];
-	private DHinge2Joint [] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
+	private final DBody [] wheelBodies = new DBody[3];
+	private final DHinge2Joint [] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
 	private DSpace car_space;
 	private DBox box;
-	private DSphere [] sphere = new DSphere[3];
+	private final DSphere [] sphere = new DSphere[3];
 	private DPlane ground;
 	private DBox ramp;
 	
@@ -78,8 +76,8 @@ public class ODEPhysicsDemo implements Demo {
 		OdeMath.dRFromAxisAndAngle (R,0,1,0,-0.15);
 		ramp.setPosition(2,0,-0.34);
 		ramp.setRotation(R);
-		sc.addEntity(new ODEPhysicsEntity(ramp));
-		sc.addEntity(new ODEPhysicsEntity(ground));
+		sc.addEntity(createEntity(new ODEPhysicsComponent(ramp)));
+		sc.addEntity(createEntity(new ODEPhysicsComponent(ground)));
 		
 		DMass mass = OdeHelper.createMass();
 		
@@ -92,7 +90,7 @@ public class ODEPhysicsDemo implements Demo {
 		box.setBody(chassisBody);
 		box.setPosition(0, 0, CHASIS_Z_AT_START);
 		
-		sc.addEntity(new ODEPhysicsEntity(box));
+		sc.addEntity(createEntity(new ODEPhysicsComponent(box)));
 
 		// wheels
 		int i;
@@ -107,7 +105,7 @@ public class ODEPhysicsDemo implements Demo {
 			DQuaternion q = new DQuaternion();
 			OdeMath.dQFromAxisAndAngle (q,1,0,0,Math.PI*0.5);
 			sphere[i].setQuaternion(q);
-			sc.addEntity(new ODEPhysicsEntity(sphere[i]));
+			sc.addEntity(createEntity(new ODEPhysicsComponent(sphere[i])));
 		}
 		wheelBodies[0].setPosition(0.5*CHASIS_LENGTH,0,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
 		wheelBodies[1].setPosition(-0.5*CHASIS_LENGTH, CHASIS_WIDTH*0.5,CHASIS_Z_AT_START-CHASIS_HEIGHT*0.5);
@@ -204,5 +202,13 @@ public class ODEPhysicsDemo implements Demo {
 	@Override
 	public String getName() {
 		return "ODE Physics Demo";
+	}
+
+	private Entity createEntity(ODEPhysicsComponent odePhysicsComponent) {
+		Entity e = new Entity();
+		e.addComponent(new PoseComponent());
+		e.addComponent(new MaterialComponent());
+		e.addComponent(odePhysicsComponent);
+		return e;
 	}
 }

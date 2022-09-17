@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.uiexposedtypes;
+package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import org.json.JSONException;

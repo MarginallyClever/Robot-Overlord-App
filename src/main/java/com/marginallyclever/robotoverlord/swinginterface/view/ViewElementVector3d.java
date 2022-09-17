@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

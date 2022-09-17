@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 
 import javax.vecmath.Point3d;
 import java.io.Serial;

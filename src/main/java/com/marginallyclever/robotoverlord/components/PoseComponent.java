@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

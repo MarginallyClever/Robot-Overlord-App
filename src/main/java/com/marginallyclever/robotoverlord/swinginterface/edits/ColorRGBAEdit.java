@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;

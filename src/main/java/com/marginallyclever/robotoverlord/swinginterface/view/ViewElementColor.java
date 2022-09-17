@@ -2,15 +2,10 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ColorRGBAEdit;
-import com.marginallyclever.robotoverlord.uiexposedtypes.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.undo.AbstractUndoableEdit;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

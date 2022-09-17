@@ -1,7 +1,6 @@
-package com.marginallyclever.robotoverlord.components.uiexposedtypes;
+package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.AbstractEntityTest;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Matrix4dEntity;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix4d;

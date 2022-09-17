@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import com.marginallyclever.robotoverlord.uiexposedtypes.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
 
 import javax.vecmath.Color4f;
 import javax.vecmath.Matrix4d;
