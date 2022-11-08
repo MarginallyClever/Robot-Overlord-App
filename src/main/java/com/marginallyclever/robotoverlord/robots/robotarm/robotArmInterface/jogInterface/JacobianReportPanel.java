@@ -26,6 +26,7 @@ public class JacobianReportPanel extends JPanel {
         renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
         
 		table = new JTable(aj.jacobian.length,aj.jacobian[0].length) {
+			@Serial
 			private static final long serialVersionUID = 1L;
 
 		    @Override
