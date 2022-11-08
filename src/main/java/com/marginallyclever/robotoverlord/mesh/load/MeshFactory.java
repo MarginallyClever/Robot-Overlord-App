@@ -71,14 +71,17 @@ public class MeshFactory {
 	}
 
 	private static Mesh loadMeshWithLoader(String filename, MeshLoader loader) throws Exception {
-		BufferedInputStream stream = FileAccess.open(filename);
-		Mesh m=loader.load(stream);
+		Mesh m=null;
+
+		try(BufferedInputStream stream = FileAccess.open(filename)) {
+			m = loader.load(stream);
+		}
+
 		if(m!=null) {
-			
 			m.setSourceName(filename);
 			m.updateCuboid();
 		}
-		
+
 		return m;
 	}
 
