@@ -11,10 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class SceneLoadAction extends AbstractAction {
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
             try {
-                Scene scene = loadScene(fc.getSelectedFile().getAbsolutePath());
+                Scene scene = loadScene(fc.getSelectedFile());
                 List<Entity> dest = new ArrayList<>();
                 dest.add(ro.getScene());
                 UndoSystem.addEvent(this,new EntityPasteEdit((String)this.getValue(Action.NAME),ro,scene,dest));
@@ -49,12 +48,13 @@ public class SceneLoadAction extends AbstractAction {
         }
     }
 
-    private Scene loadScene(String absolutePath) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(absolutePath)));
+    private Scene loadScene(File file) throws IOException {
         StringBuilder responseStrBuilder = new StringBuilder();
-        String inputStr;
-        while ((inputStr = reader.readLine()) != null) {
-            responseStrBuilder.append(inputStr);
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            String inputStr;
+            while ((inputStr = reader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
         }
 
         Scene nextScene = new Scene();
