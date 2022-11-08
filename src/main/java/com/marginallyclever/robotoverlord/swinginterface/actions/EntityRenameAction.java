@@ -27,12 +27,15 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		List<Entity> entityList = ro.getSelectedEntities();
-		if(entityList.size()!=1) {
+		if (entityList.size() != 1) {
 			Log.error("Rename more than one entity at the same time?!");
 			return;
 		}
 		Entity e = entityList.get(0);
+		renameEntity(ro, e);
+	}
 
+	public void renameEntity(RobotOverlord ro, Entity e) {
 		String newName = (String)JOptionPane.showInputDialog(
 				ro.getMainFrame(),
 				"New name:",
