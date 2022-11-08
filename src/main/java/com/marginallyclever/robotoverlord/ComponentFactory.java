@@ -36,17 +36,21 @@ public class ComponentFactory {
 		}
 		return names;
 	}
-	
-	public static Component load(String name) throws IllegalArgumentException {
+
+	public static Class<?> getClassFromName(String name) {
 		for( Class<?> c : available ) {
-			if(name.contentEquals(c.getSimpleName()) || name.contentEquals(c.getCanonicalName())) {
-				return createInstance(c);
-			}
+			if( c.getSimpleName().equals(name) ) return c;
 		}
-		throw new InvalidParameterException("ComponentFactory does not recognize '"+name+"'.");
+		return null;
 	}
 
-	private static Component createInstance(Class<?> c) {
+	public static Component load(String name) throws IllegalArgumentException {
+		Class<?> c = getClassFromName(name);
+		if(c==null) throw new IllegalArgumentException("ComponentFactory does not recognize '"+name+"'.");
+		return createInstance(c);
+	}
+
+	public static Component createInstance(Class<?> c) {
 		try {
 			for (Constructor<?> constructor : c.getDeclaredConstructors()) {
 				if (constructor.getParameterCount() == 0) {
