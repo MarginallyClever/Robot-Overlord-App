@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -170,7 +170,9 @@ public class DHComponent extends Component implements PropertyChangeListener {
         thetaMin.set(tMin);
     }
 
+    public double getD() { return myD.get(); }
     public double getR() {
         return myR.get();
     }
+    public double getAlpha() { return alpha.get(); }
 }
