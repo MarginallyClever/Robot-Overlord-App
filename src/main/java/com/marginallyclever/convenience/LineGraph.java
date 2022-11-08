@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
+package com.marginallyclever.convenience;
 
 import com.marginallyclever.convenience.log.Log;
 
@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-@Deprecated
 public class LineGraph extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<Double> fx;
