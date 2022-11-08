@@ -4,17 +4,23 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.ApproximateJacobian2;
+import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.DHTable;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementDouble;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 /**
  * RobotComponent is attached to the root of a robotic arm.
@@ -35,24 +41,32 @@ public class RobotComponent extends Component implements Robot {
 
         ViewElementButton bOpen = view.addButton("Open control panel");
         bOpen.addActionEventListener((evt)-> {
-            JFrame parent = null;
-
-
             Entity e = getEntity().getRoot();
-            if(e instanceof RobotOverlord) {
-                parent = ((RobotOverlord)e).getMainFrame();
-            }
-
+            final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
             final Robot me = this;
-            final JFrame parentFrame = parent;
 
             new Thread(() -> {
-                JDialog frame = new JDialog(parentFrame,getName());
+                JDialog frame = new JDialog(parentFrame,"Control panel");
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.add(new RobotArmInterface(me));
                 frame.pack();
+                frame.setLocationRelativeTo(parentFrame);
                 frame.setVisible(true);
             }).start();
+        });
+
+        ViewElementButton bDHTable = view.addButton("Open DH Table");
+        bDHTable.addActionEventListener((evt)-> {
+            Entity e = getEntity().getRoot();
+            final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+            final RobotComponent me = this;
+
+            JDialog frame = new JDialog(parentFrame,"DH Table");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.add(new DHTable(me));
+            frame.pack();
+            frame.setLocationRelativeTo(parentFrame);
+            frame.setVisible(true);
         });
     }
 
@@ -73,9 +87,7 @@ public class RobotComponent extends Component implements Robot {
         while(!queue.isEmpty()) {
             Entity e = queue.poll();
             DHComponent c = e.findFirstComponent(DHComponent.class);
-            if(c!=null) {
-                bones.add(c);
-            }
+            if(c!=null) bones.add(c);
             queue.addAll(e.getEntities());
         }
     }
