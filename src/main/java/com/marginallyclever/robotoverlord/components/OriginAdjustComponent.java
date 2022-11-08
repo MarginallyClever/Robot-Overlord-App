@@ -5,6 +5,10 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 
+/**
+ * Adjusts this Entity's pose to be relative to the parent's pose.
+ */
+@ComponentDependency(components={PoseComponent.class})
 public class OriginAdjustComponent extends Component {
     @Override
     public void getView(ViewPanel view) {
