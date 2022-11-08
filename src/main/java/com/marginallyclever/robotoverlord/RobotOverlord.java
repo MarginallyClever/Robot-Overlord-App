@@ -8,16 +8,16 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.demos.*;
+import com.marginallyclever.robotoverlord.demos.ODEPhysicsDemo;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
-import com.marginallyclever.robotoverlord.tools.move.MoveTool;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.tools.move.MoveTool;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector2d;
-import java.awt.Component;
 import java.awt.*;
 import java.awt.event.*;
 import java.nio.IntBuffer;
@@ -473,7 +472,7 @@ public class RobotOverlord extends Entity {
         mainMenu.updateUI();
 	}
 
-	private Component createFileMenu() {
+	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(APP_TITLE);
 
 		SceneNewAction sceneNewAction = new SceneNewAction(Translator.get("SceneNewAction.name"),this);
@@ -499,13 +498,13 @@ public class RobotOverlord extends Entity {
 		return menu;
 	}
 
-	private Component createDemoMenu() {
+	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu("Demos");
 		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		return menu;
 	}
 
-	private Component createEditMenu() {
+	private JComponent createEditMenu() {
 		JMenu menu = new JMenu("Edit");
 		menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
 		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
@@ -544,7 +543,7 @@ public class RobotOverlord extends Entity {
 		return menu;
 	}
 
-	private Component createHelpMenu() {
+	private JComponent createHelpMenu() {
 		JMenu menu = new JMenu("Help");
 		JMenuItem buttonViewLog = new JMenuItem("Show Log");
 		buttonViewLog.addActionListener((e) -> showLogDialog() );
