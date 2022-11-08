@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
 import javax.swing.*;
-import java.awt.Component;
 import java.awt.*;
 
 /**
@@ -20,7 +19,7 @@ public class UnicodeIcon implements Icon {
     }
 
     @Override
-    public void paintIcon(Component c, Graphics g, int x, int y) {
+    public void paintIcon(java.awt.Component c, Graphics g, int x, int y) {
         //g.drawImage(image,0,0,new Color(1,1,1,1),null);
         Graphics g2 = g.create();
         Font font = new Font("SansSerif",Font.PLAIN,(int)((double)HEIGHT/1.25));

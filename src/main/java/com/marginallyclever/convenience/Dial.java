@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.jogInterface;
+package com.marginallyclever.convenience;
 
 import com.marginallyclever.convenience.log.Log;
 
