@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.SceneChangeListener;
+import com.marginallyclever.robotoverlord.swinginterface.actions.EntityRenameAction;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -163,13 +164,15 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				super.mouseClicked(e);
-
 				int row = myTree.getRowForLocation(e.getX(), e.getY());
 				if (row == -1) {
 					// When user clicks on the "empty surface"
 					myTree.clearSelection();
 				} else {
 					myTree.setSelectionRow(row);
+					if(e.getClickCount()==2){
+						// TODO rename in place for convenience
+					}
 				}
 			}
 
