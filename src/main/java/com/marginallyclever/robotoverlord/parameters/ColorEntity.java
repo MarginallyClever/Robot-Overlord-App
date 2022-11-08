@@ -5,7 +5,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serial;
 import java.util.Arrays;
 
 /**

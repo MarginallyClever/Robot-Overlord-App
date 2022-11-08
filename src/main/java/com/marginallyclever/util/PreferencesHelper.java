@@ -1,9 +1,8 @@
 package com.marginallyclever.util;
 
-import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceKey.GRAPHICS;
-import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceKey.LANGUAGE;
-import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceKey.LEGACY_MAKELANGELO_ROOT;
-import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceKey.MACHINES;
+import com.marginallyclever.convenience.log.Log;
+import org.json.JSONObject;
+import org.json.Property;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,10 +16,7 @@ import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import org.json.JSONObject;
-import org.json.Property;
-
-import com.marginallyclever.convenience.log.Log;
+import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceKey.*;
 
 /**
  * Helper class to be used when accessing preferences.

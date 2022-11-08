@@ -1,9 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-
-import javax.vecmath.Vector3d;
-
 @Deprecated
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 	/**

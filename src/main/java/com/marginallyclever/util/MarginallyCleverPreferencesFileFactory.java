@@ -1,14 +1,13 @@
 package com.marginallyclever.util;
 
+import com.marginallyclever.convenience.log.Log;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
-
-import org.jetbrains.annotations.NotNull;
-
-import com.marginallyclever.convenience.log.Log;
 
 /**
  * @author Peter Colapietro

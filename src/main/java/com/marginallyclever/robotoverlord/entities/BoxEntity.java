@@ -5,8 +5,8 @@ import com.marginallyclever.convenience.Cuboid;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;

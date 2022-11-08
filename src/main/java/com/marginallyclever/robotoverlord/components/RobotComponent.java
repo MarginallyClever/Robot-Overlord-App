@@ -4,13 +4,11 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.DHTable;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementDouble;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.swing.*;

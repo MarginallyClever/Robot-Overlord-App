@@ -1,8 +1,8 @@
 package com.marginallyclever.communications.tcp;
 
-import javax.swing.JOptionPane;
-
 import com.jcraft.jsch.UserInfo;
+
+import javax.swing.*;
 
 public class SSHUserInfo implements UserInfo {
 	@Override

@@ -1,9 +1,9 @@
 package com.marginallyclever.convenience;
 
+import com.jogamp.opengl.GL2;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-
-import com.jogamp.opengl.GL2;
 
 /**
  * 

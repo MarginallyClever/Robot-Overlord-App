@@ -1,13 +1,12 @@
 package com.marginallyclever.convenience;
 
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class StringHelper {
 	static public String shortenNumber(String s) {

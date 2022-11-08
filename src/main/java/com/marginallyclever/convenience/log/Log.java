@@ -1,12 +1,12 @@
 package com.marginallyclever.convenience.log;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.io.Writer;
+import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -16,14 +16,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.swing.SwingUtilities;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 
 /**
  * static log methods available everywhere

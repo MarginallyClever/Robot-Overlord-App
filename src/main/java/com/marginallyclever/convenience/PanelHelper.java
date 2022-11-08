@@ -1,14 +1,10 @@
 package com.marginallyclever.convenience;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.util.ArrayList;
-
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Consistent gridBagConstraints for easier style tweaking

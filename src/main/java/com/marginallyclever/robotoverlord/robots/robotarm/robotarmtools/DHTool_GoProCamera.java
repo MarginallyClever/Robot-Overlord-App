@@ -1,10 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
-import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.Entity;
-
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Vector3d;
 
 /**
  * @author Dan Royer

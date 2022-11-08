@@ -1,15 +1,13 @@
 package com.marginallyclever.convenience;
 
-import java.io.IOException;
-import java.text.MessageFormat;
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.log.Log;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
-
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.log.Log;
+import java.text.MessageFormat;
 
 /**
  * Convenience methods for matrixes

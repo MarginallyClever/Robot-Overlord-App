@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
 import java.beans.PropertyChangeEvent;
-import java.io.Serial;
 
 /**
  * A convenience class for basic data types

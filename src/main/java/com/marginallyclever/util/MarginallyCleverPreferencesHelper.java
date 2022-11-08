@@ -1,5 +1,7 @@
 package com.marginallyclever.util;
 
+import com.marginallyclever.convenience.log.Log;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,8 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
-import com.marginallyclever.convenience.log.Log;
 
 /**
  * @author Peter Colapietro

@@ -10,12 +10,12 @@ package com.marginallyclever.communications.ssh;
  * be ugly because of lacks of terminal-emulation, but you can issue commands.
  *
  */
+
 import com.jcraft.jsch.*;
 import com.marginallyclever.convenience.log.Log;
 
-import java.awt.*;
-
 import javax.swing.*;
+import java.awt.*;
 
 public class SSHShell {
 	public static void main(String[] arg) {

@@ -1,8 +1,8 @@
 package com.marginallyclever.convenience.bezier3;
 
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
+
+import javax.vecmath.Vector3d;
 
 /**
  * 3D Bezier curve implementation

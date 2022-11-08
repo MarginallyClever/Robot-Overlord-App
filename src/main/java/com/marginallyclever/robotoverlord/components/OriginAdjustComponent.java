@@ -4,7 +4,6 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
-import java.awt.event.ActionEvent;
 
 public class OriginAdjustComponent extends Component {
     @Override

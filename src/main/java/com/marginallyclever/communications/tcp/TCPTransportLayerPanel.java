@@ -1,14 +1,11 @@
 package com.marginallyclever.communications.tcp;
 
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayerPanel;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  * Opens an SSH connection to another device, then opens a screen to the /dev/ACM0 device on that remote.

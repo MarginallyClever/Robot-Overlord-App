@@ -1,15 +1,8 @@
 package com.marginallyclever.convenience.log;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 public class LogPanel extends JPanel implements LogListener {
 	private static final long serialVersionUID = -2753297349917155256L;

@@ -1,10 +1,9 @@
 package com.marginallyclever.communications;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-
-import javax.swing.SwingUtilities;
 
 /**
  * Created on 4/12/15.

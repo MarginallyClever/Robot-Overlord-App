@@ -1,14 +1,11 @@
 package com.marginallyclever.communications.serial;
 
-import java.awt.GridLayout;
-
-import javax.swing.Box;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
-
 import com.marginallyclever.communications.NetworkSession;
 import com.marginallyclever.communications.TransportLayerPanel;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 public class SerialTransportLayerPanel extends TransportLayerPanel {
 	/**

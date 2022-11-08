@@ -4,10 +4,9 @@ import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;
-import javax.swing.table.*;
-import javax.vecmath.Matrix4d;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.Serial;
 
 public class DHTable extends JPanel {
     private final JTable table = new JTable();

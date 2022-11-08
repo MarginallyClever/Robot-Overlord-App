@@ -1,15 +1,11 @@
 package com.marginallyclever.communications;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
 import com.marginallyclever.communications.serial.SerialTransportLayer;
 import com.marginallyclever.communications.tcp.TCPTransportLayer;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Handles requests between the UI and the various transport layers 

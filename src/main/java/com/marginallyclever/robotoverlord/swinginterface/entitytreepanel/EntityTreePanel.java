@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
-import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.SceneChangeListener;
 
@@ -9,13 +8,13 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

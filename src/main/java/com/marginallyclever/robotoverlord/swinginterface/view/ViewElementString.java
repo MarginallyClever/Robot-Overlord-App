@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
+import com.marginallyclever.robotoverlord.parameters.StringEntity;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

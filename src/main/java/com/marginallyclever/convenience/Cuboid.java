@@ -1,13 +1,12 @@
 package com.marginallyclever.convenience;
 
-import java.io.Serializable;
-import java.nio.IntBuffer;
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import java.io.Serializable;
+import java.nio.IntBuffer;
 
 /**
  * A box aligned to the world axies.  used for fast sorting and filtering.

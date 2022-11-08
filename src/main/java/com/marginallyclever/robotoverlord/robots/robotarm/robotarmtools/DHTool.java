@@ -1,12 +1,7 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.MementoOriginator;
 import com.marginallyclever.robotoverlord.Entity;
-
-import javax.vecmath.Matrix4d;
 
 /**
  * DHTool has a DHLink equivalence.

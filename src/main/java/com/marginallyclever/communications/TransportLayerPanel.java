@@ -1,6 +1,6 @@
 package com.marginallyclever.communications;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public abstract class TransportLayerPanel extends JPanel {
 	/**

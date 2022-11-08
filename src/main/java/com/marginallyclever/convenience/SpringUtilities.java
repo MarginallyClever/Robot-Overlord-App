@@ -31,12 +31,10 @@
  */
 
 package com.marginallyclever.convenience;
- 
-import javax.swing.*;
-import javax.swing.SpringLayout;
 
 import com.marginallyclever.convenience.log.Log;
 
+import javax.swing.*;
 import java.awt.*;
  
 /**

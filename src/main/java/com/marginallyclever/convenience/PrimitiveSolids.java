@@ -1,12 +1,13 @@
 package com.marginallyclever.convenience;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
+
+import com.jogamp.opengl.GL2;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
-import com.jogamp.opengl.GL2;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 
 public class PrimitiveSolids {

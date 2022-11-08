@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

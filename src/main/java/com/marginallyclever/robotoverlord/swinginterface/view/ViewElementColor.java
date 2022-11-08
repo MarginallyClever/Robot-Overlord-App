@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
+import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ColorRGBAEdit;
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 
 import javax.swing.*;
 import java.awt.*;

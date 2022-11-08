@@ -9,7 +9,6 @@ import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
-
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;

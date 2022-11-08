@@ -1,9 +1,7 @@
 package com.marginallyclever.convenience.log;
 
-import java.awt.Dimension;
-import java.awt.Frame;
-
-import javax.swing.JDialog;
+import javax.swing.*;
+import java.awt.*;
 
 
 public class LogDialog extends JDialog {

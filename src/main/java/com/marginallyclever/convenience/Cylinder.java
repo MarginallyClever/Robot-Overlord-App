@@ -1,8 +1,8 @@
 package com.marginallyclever.convenience;
 
-import javax.vecmath.Vector3d;
-
 import com.jogamp.opengl.GL2;
+
+import javax.vecmath.Vector3d;
 
 
 public class Cylinder implements BoundingVolume {
