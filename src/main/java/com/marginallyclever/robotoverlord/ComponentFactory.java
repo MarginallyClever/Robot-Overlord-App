@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.shapes.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,42 +12,44 @@ import java.util.ArrayList;
 public class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {
-			com.marginallyclever.robotoverlord.components.PoseComponent.class,
-			com.marginallyclever.robotoverlord.components.DHComponent.class,
-			com.marginallyclever.robotoverlord.components.OriginAdjustComponent.class,
-			com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent.class,
-			com.marginallyclever.robotoverlord.components.RobotComponent.class,
+			PoseComponent.class,
+			DHComponent.class,
+			OriginAdjustComponent.class,
+			ArmEndEffectorComponent.class,
+			RobotComponent.class,
 
-			com.marginallyclever.robotoverlord.components.LightComponent.class,
-			com.marginallyclever.robotoverlord.components.CameraComponent.class,
-			com.marginallyclever.robotoverlord.components.MaterialComponent.class,
+			LightComponent.class,
+			CameraComponent.class,
+			MaterialComponent.class,
 
-			//com.marginallyclever.robotoverlord.components.ShapeComponent.class is not instantiated directly.
-			com.marginallyclever.robotoverlord.components.shapes.MeshFromFile.class,
-			com.marginallyclever.robotoverlord.components.shapes.Box.class,
-			com.marginallyclever.robotoverlord.components.shapes.Grid.class,
-			com.marginallyclever.robotoverlord.components.shapes.Sphere.class,
-			com.marginallyclever.robotoverlord.components.shapes.Decal.class,
+			MeshFromFile.class,
+			Box.class,
+			Grid.class,
+			Sphere.class,
+			Decal.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {
 		ArrayList<String> names = new ArrayList<>();
 		for( Class<?> c : available ) {
-			names.add( c.getSimpleName() );
+			names.add( c.getName() );
 		}
 		return names;
 	}
 
 	public static Class<?> getClassFromName(String name) {
 		for( Class<?> c : available ) {
-			if( c.getSimpleName().equals(name) ) return c;
+			if( c.getName().equals(name) ) return c;
+			//if( c.getSimpleName().equals(name) ) return c;
 		}
 		return null;
 	}
 
 	public static Component load(String name) throws IllegalArgumentException {
 		Class<?> c = getClassFromName(name);
-		if(c==null) throw new IllegalArgumentException("ComponentFactory does not recognize '"+name+"'.");
+		if(c==null) {
+			throw new IllegalArgumentException("ComponentFactory does not recognize '"+name+"'.");
+		}
 		return createInstance(c);
 	}
 
