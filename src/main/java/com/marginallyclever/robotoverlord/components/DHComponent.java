@@ -16,6 +16,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  * @since 2022-08-04
  */
+@ComponentDependency(components={PoseComponent.class})
 public class DHComponent extends Component implements PropertyChangeListener {
     private final DoubleEntity myD = new DoubleEntity("D",0.0);
     private final DoubleEntity myR = new DoubleEntity("R",0.0);

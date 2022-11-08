@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
 
+@ComponentDependency(components={PoseComponent.class, MaterialComponent.class})
 public abstract class ShapeComponent extends Component {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;

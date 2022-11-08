@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
 
+@ComponentDependency(components={PoseComponent.class})
 public class LightComponent extends Component {
 
     private final static ColorRGB[] presetBlack = {
