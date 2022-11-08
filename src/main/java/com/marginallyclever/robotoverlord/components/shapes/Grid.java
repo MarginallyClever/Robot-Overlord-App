@@ -5,9 +5,9 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,15 +37,16 @@ public class Grid extends ShapeComponent {
     }
 
     private void drawGridWithSnap(GL2 gl2, int gridWidth, int gridLength, int gridSpace) {
-        gl2.glPushMatrix();
-
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-        Vector3d p = pose.getPosition();
-        double dx = p.x % gridSpace;
-        double dy = p.y % gridSpace;
-        gl2.glTranslated(-dx,-dy,0);
+        if(pose==null) return;
 
-        drawGrid(gl2,gridWidth,gridLength,gridSpace);
+        gl2.glPushMatrix();
+            Vector3d p = pose.getPosition();
+            double dx = p.x % gridSpace;
+            double dy = p.y % gridSpace;
+            gl2.glTranslated(-dx,-dy,0);
+
+            drawGrid(gl2,gridWidth,gridLength,gridSpace);
 
         gl2.glPopMatrix();
     }
