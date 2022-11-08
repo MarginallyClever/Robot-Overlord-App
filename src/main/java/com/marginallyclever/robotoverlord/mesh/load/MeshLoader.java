@@ -9,9 +9,9 @@ import java.io.BufferedInputStream;
  * @author Dan Royer
  *
  */
-public abstract interface MeshLoader {
-	public String getEnglishName();
-	public String[] getValidExtensions();
+public interface MeshLoader {
+	String getEnglishName();
+	String[] getValidExtensions();
 
 	/**
 	 * Load data from stream
@@ -19,5 +19,5 @@ public abstract interface MeshLoader {
 	 * @returns Mesh containing all parsed data
 	 * @throws Exception
 	 */
-	public Mesh load(BufferedInputStream inputStream) throws Exception;
+	Mesh load(BufferedInputStream inputStream) throws Exception;
 }
