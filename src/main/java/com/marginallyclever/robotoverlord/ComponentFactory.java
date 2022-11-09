@@ -27,6 +27,7 @@ public class ComponentFactory {
 			Grid.class,
 			Sphere.class,
 			Decal.class,
+			Cylinder.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {
