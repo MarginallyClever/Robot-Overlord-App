@@ -46,7 +46,7 @@ public class LightComponent extends Component {
     private final BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
 
     private final IntEntity preset = new IntEntity("Preset",0);
-    private final ColorEntity diffuse = new ColorEntity("Diffuse" ,0,0,0,1);
+    private final ColorEntity diffuse = new ColorEntity("Diffuse" ,1,1,1,1);
     private final ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
     private final ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
 
