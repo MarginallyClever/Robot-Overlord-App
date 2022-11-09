@@ -7,6 +7,9 @@ import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 
+/**
+ * A box with a width, height, and length of 1.  It is centered around the origin.
+ */
 public class Box extends ShapeComponent {
     public Box() {
         super();
@@ -134,7 +137,6 @@ public class Box extends ShapeComponent {
                     myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
                     myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
                     myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-
                 } else if(myMesh.renderStyle == GL2.GL_LINES) {
                     myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
                     myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
