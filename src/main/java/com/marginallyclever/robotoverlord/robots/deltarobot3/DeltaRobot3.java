@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
+@Deprecated
 public class DeltaRobot3 extends RobotEntity implements Robot {
 	@Serial
 	private static final long serialVersionUID = 5991551452979216237L;

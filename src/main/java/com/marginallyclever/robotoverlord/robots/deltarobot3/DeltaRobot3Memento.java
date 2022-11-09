@@ -11,6 +11,7 @@ import java.io.Serial;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class DeltaRobot3Memento implements Memento {
 	/**
 	 * 
