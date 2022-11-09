@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 /**
  * A sphere with a radius of 0.5 centered around the local origin.
+ * TODO add texture coordinates
  */
 public class Sphere extends ShapeComponent {
     private final IntEntity detail = new IntEntity("Detail",32);

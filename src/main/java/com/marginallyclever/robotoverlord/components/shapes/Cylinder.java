@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.mesh.Mesh;
 
 /**
  * A cylinder with a radius of 0.5 and a height of 1.  It is centered at the origin.
+ * TODO add texture coordinates
  */
 public class Cylinder extends ShapeComponent {
     public static final int RESOLUTION_CIRCULAR = 20;

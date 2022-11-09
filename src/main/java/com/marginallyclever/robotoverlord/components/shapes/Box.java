@@ -9,6 +9,7 @@ import javax.vecmath.Vector3d;
 
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
+ * TODO add texture coordinates
  */
 public class Box extends ShapeComponent {
     public Box() {
