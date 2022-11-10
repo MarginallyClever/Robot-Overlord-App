@@ -371,18 +371,18 @@ public class PoseEntity extends Entity implements Removable {
 	}
 	
 	public void snapZToMajorAxis() {
-		Matrix4d poseWorld = getPoseWorld();
-		Matrix4d m = findMajorAxisTarget(poseWorld);
-		if(m!=null) {
-			UndoSystem.addEvent(this,new PoseMoveEdit(this,m));
+		Matrix4d before = getPoseWorld();
+		Matrix4d after = findMajorAxisTarget(before);
+		if(after!=null) {
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after));
 		}
 	}
 	
 	public void snapXToMajorAxis() {
-		Matrix4d poseWorld = getPoseWorld();
-		Matrix4d m = findMinorAxisTarget(poseWorld);
-		if(m!=null) {
-			UndoSystem.addEvent(this,new PoseMoveEdit(this,m));
+		Matrix4d before = getPoseWorld();
+		Matrix4d after = findMinorAxisTarget(before);
+		if(after!=null) {
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after));
 		}
 	}
 
