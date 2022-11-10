@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
@@ -119,15 +120,16 @@ public class PoseComponent extends Component implements PropertyChangeListener {
      * @return the cumulative pose in the hierarchy of entities.
      */
     public Matrix4d getWorld() {
-        Matrix4d result = new Matrix4d();
+        Matrix4d result = new Matrix4d(local);
 
-        PoseComponent parent = getEntity().findFirstComponentInParents(PoseComponent.class);
-        if(parent==null) {
-            result.set(local);
-        } else {
-            result.set(parent.getWorld());
-            result.mul(local);
+        Entity entity = getEntity();
+        if(entity!=null) {
+            PoseComponent parent = getEntity().findFirstComponentInParents(PoseComponent.class);
+            if(parent!=null) {
+                result.mul(parent.getWorld(),result);
+            }
         }
+
         return result;
     }
 
@@ -172,18 +174,21 @@ public class PoseComponent extends Component implements PropertyChangeListener {
         return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n";
     }
 
-    public void setWorld(Matrix4d wm) {
-        PoseComponent parent = getEntity().findFirstComponentInParents(PoseComponent.class);
-        if(parent!=null) {
-            Matrix4d pm = parent.getWorld();
-            pm.invert();
-            local.mul(pm,wm);
-            Vector3d pos = new Vector3d();
-            local.get(pos);
-            Matrix3d m = new Matrix3d();
-            local.get(m);
-            setLocalMatrix3(m);
-            setPosition(pos);
+    /**
+     * if this component is attached to an entity and any parent entity has a PoseComponent then this local matrix is
+     * relative to that PoseComponent.  Make the adjustment if necessary.
+     * @param worldMatrix the matrix to set.
+     */
+    public void setWorld(Matrix4d worldMatrix) {
+        Entity entity = getEntity();
+        if(entity!=null) {
+            PoseComponent parentPose = getEntity().findFirstComponentInParents(PoseComponent.class);
+            if (parentPose != null) {
+                Matrix4d inverseParentPose = parentPose.getWorld();
+                inverseParentPose.invert();
+                worldMatrix.mul(inverseParentPose, worldMatrix);
+            }
         }
+        setLocalMatrix4(worldMatrix);
     }
 }
