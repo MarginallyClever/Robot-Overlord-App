@@ -9,6 +9,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 import javax.vecmath.Matrix4d;
 import java.io.Serial;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,49 +26,61 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 	private final List<Entity> entities = new LinkedList<>();
 	private final Matrix4d next;
 	private final Matrix4d prev;
-	
+
+	private final String name;
+
 	/**
 	 * 
 	 * @param entity who
 	 * @param oldPivot pivot point before move
 	 * @param newPivot pivot point after move
+	 * @param name name of the edit
 	 */
-	public PoseMoveEdit(Entity entity, Matrix4d oldPivot, Matrix4d newPivot) {
+	public PoseMoveEdit(Entity entity, Matrix4d oldPivot, Matrix4d newPivot,String name) {
 		super();
 
 		this.entities.add(entity);
 		this.prev = oldPivot;
 		this.next = newPivot;
+		this.name = name;
 
 		doIt(prev,next);
 	}
+
 
 	/**
 	 *
 	 * @param entities who
 	 * @param oldPivot pivot point before move
 	 * @param newPivot pivot point after move
+	 * @param name name of the edit
 	 */
-	public PoseMoveEdit(List<Entity> entities, Matrix4d oldPivot, Matrix4d newPivot) {
+	public PoseMoveEdit(List<Entity> entities, Matrix4d oldPivot, Matrix4d newPivot,String name) {
 		super();
 
 		this.entities.addAll(entities);
 		this.prev = oldPivot;
 		this.next = newPivot;
+		this.name = name;
 
 		doIt(prev,next);
 	}
 
-	private void doIt(Matrix4d before,Matrix4d after) {
+	@Override
+	public String getPresentationName() {
+		return name;
+	}
+
+	private void doIt(Matrix4d before, Matrix4d after) {
 		Matrix4d diff = new Matrix4d(before);
 		diff.invert();
-		diff.mul(after);
+		diff.mul(after,diff);
 
 		for(Entity e : entities) {
 			PoseComponent pose = e.findFirstComponent(PoseComponent.class);
 			if(pose!=null) {
 				Matrix4d m = pose.getWorld();
-				m.mul(m,diff);
+				m.mul(diff,m);
 				pose.setWorld(m);
 			}
 		}
@@ -84,13 +97,22 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 		super.undo();
 		doIt(next,prev);
 	}
-	
+
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
 		if(anEdit instanceof PoseMoveEdit) {
-			PoseMoveEdit APEM = (PoseMoveEdit)anEdit;
-			if(APEM.entities ==this.entities) return true;
+			PoseMoveEdit moveEdit = (PoseMoveEdit)anEdit;
+			if(new HashSet<>(moveEdit.entities).containsAll(this.entities)) {
+				this.next.set(moveEdit.next);
+				System.out.println("Merging "+toString());
+				return true;
+			}
 		}
-		return super.addEdit(anEdit);
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "{prev="+prev.toString()+", next="+next.toString()+"}";
 	}
 }

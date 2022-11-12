@@ -8,9 +8,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 
 public class UndoSystem {
-	private static UndoManager undoManager = new UndoManager();
-	private static UndoAction commandUndo = new UndoAction(undoManager);
-	private static RedoAction commandRedo = new RedoAction(undoManager);
+	private static final UndoManager undoManager = new UndoManager();
+	private static final UndoAction commandUndo = new UndoAction(undoManager);
+	private static final RedoAction commandRedo = new RedoAction(undoManager);
 	
 	public void start() {
         commandUndo.setRedoCommand(commandRedo);

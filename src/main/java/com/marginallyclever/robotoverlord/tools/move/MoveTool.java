@@ -14,8 +14,10 @@ import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.tools.FrameOfReference;
+import org.jetbrains.annotations.NotNull;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -26,35 +28,38 @@ import java.awt.*;
 /**
  * A visual manipulator that facilitates moving objects in 3D.
  * @author Dan Royer
- *
  */
 public class MoveTool extends Entity {
 	private static final double STEP_SIZE = Math.PI/120.0;
 	
 	protected TextRenderer textRender = new TextRenderer(new Font("CourrierNew", Font.BOLD, 16));
 
-	protected Vector3d position = new Vector3d();
+	/**
+	 * The current frame of reference 3x3 matrix and the pivot point
+	 */
+	private final PoseComponent pivotMatrix = new PoseComponent();
 	
 	public Vector3d pickPoint=new Vector3d();  // the latest point picked on the ball
 	public Vector3d pickPointSaved=new Vector3d();  // the point picked when the action began
 	public Vector3d pickPointOnBall=new Vector3d();  // the point picked when the action began
-	
-	private enum Plane { X,Y,Z }
-	private enum Axis { X,Y,Z }
 
 	// for rotation
+	private enum Plane {YZ, XZ, XY}
 	private Plane nearestPlane;
+
 	// for translation
+	private enum Axis { X,Y,Z }
 	private Axis majorAxis;
 	
-	private boolean isActivelyMoving;
+	private boolean isActivelyMoving=false;
 	private boolean activeMoveIsRotation;
+	private boolean movePivotOnly=false;
 
 	// Who is being moved?
 	private Entity subject;
 	
 	// In what frame of reference?
-	private final IntEntity frameOfReference = new IntEntity("Frame of Reference", FrameOfReference.WORLD.toInt());
+	private final IntEntity frameOfReferenceChoice = new IntEntity("Frame of Reference", FrameOfReference.WORLD.toInt());
 	// drawing scale of ball
 	private final DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	// snap at all?
@@ -67,15 +72,10 @@ public class MoveTool extends Entity {
 	// matrix of subject when move started
 	private Matrix4d startMatrix=new Matrix4d();
 	private final Matrix4d resultMatrix=new Matrix4d();
-	private final Matrix4d FOR=new Matrix4d();
 	
 	private double valueStart;  // original angle when move started
 	private double valueNow;  // current state
-	private double valueLast;  // state last frame 
-	
-	private final double[] valueStarts = new double[3];
-	private final double[] valueNows = new double[3];
-	private final double[] valueLasts = new double[3];
+	private double valueLast;  // state last frame
 
 	private SlideDirection majorAxisSlideDirection;
 
@@ -87,18 +87,18 @@ public class MoveTool extends Entity {
 	static private final double alpha=0.8;
 	// distance from camera to moving item
 	private double cameraDistance=1;
+
+	private final RobotOverlord ro;
 	
-	public MoveTool() {
+	public MoveTool(RobotOverlord ro) {
 		super();
+		this.ro=ro;
+
 		setName("MoveTool");
 		addEntity(ballSize);
 		addEntity(snapOn);
 		addEntity(snapDegrees);
 		addEntity(snapDistance);
-		
-		FOR.setIdentity();
-				
-		isActivelyMoving=false;
 	}
 
 	/**
@@ -106,12 +106,12 @@ public class MoveTool extends Entity {
 	 * @param pointInWorldSpace the world space point
 	 * @return the transformed {@link Vector3d}
 	 */
-	private Vector3d getPickPointInFOR(Vector3d pointInWorldSpace,Matrix4d frameOfReference) {
+	private Vector3d getPickPointInFrameOfReference(Vector3d pointInWorldSpace, Matrix4d frameOfReference) {
 		Matrix4d iMe = new Matrix4d(frameOfReference);
 		iMe.m30=iMe.m31=iMe.m32=0;
 		iMe.invert();
 		Vector3d pickPointInBallSpace = new Vector3d(pointInWorldSpace);
-		pickPointInBallSpace.sub(position);
+		pickPointInBallSpace.sub(pivotMatrix.getPosition());
 		iMe.transform(pickPointInBallSpace);
 		return pickPointInBallSpace;
 	}
@@ -120,77 +120,67 @@ public class MoveTool extends Entity {
 	public void update(double dt) {
 		if(subject==null) return;
 
-		RobotOverlord ro = (RobotOverlord)getRoot();
-		Viewport cameraView = ro.getViewport();
-
 		CameraComponent cameraComponent = ro.getCamera();
 		if(cameraComponent==null) return;
-		PoseComponent camera = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
 
 		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 		if(subjectPose==null) return;
 
-		Matrix4d subjectPoseWorld = subjectPose.getWorld();
-		if(!isActivelyMoving()) {
-			checkChangeFrameOfReference();
-			
-			// find the current frame of reference.  This could change every frame as the camera moves.
-			switch (FrameOfReference.values()[frameOfReference.get()]) {
-				case SUBJECT -> FOR.set(subjectPoseWorld);
-				case CAMERA ->
-						FOR.set(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subjectPoseWorld)));
-				default -> FOR.setIdentity();
-			}
-			
-			FOR.setTranslation(MatrixHelper.getPosition(subjectPoseWorld));
-		}
+		Matrix4d subjectPoseWorld = pivotMatrix.getWorld();
+		Vector3d mp = MatrixHelper.getPosition(subjectPoseWorld);
 
-		Vector3d mp = new Vector3d();
-		subjectPoseWorld.get(mp);
-		// put the drag ball on the subject
-		position.set(mp);
-		
+		PoseComponent camera = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
 		mp.sub(camera.getPosition());
 		cameraDistance = mp.length();
+
+		if(!isActivelyMoving()) {
+			checkChangeFrameOfReference();
+			updateFrameOfReference(subjectPose.getWorld(),camera);
+		}
 		
-		// can turn off any time.
-		if(!cameraView.isPressed()) isActivelyMoving=false;
-		else if(!isActivelyMoving) {
-			// user just clicked
-			beginMovement();
+		// let go button stops movement
+		Viewport cameraView = ro.getViewport();
+		if(!cameraView.isPressed()) {
+			isActivelyMoving=false;
+		} else if(!isActivelyMoving) {
+			// button is pressed, try to start movement.
+			checkMovementBegins();
 		} else {
-			if(activeMoveIsRotation) updateKBRotation(dt);
-			else					 updateKBTranslation(dt);
-		}
+			// button is pressed, movement is active.
+			movePivotOnly = (
+					InputManager.isOn(InputManager.Source.KEY_RSHIFT) ||
+					InputManager.isOn(InputManager.Source.KEY_LSHIFT) );
 
-		if(!isActivelyMoving) {
-			updateJoyCon(dt);
+			if(activeMoveIsRotation) updateRotation();
+			else					 updateTranslation(dt);
 		}
 	}
-	
+
+	/**
+	 * Find the current frame of reference.  This could change every frame as the camera moves.
+ 	 */
+	private void updateFrameOfReference(Matrix4d subjectPoseWorld,PoseComponent camera) {
+		Vector3d pivotPoint = pivotMatrix.getPosition();
+		switch (FrameOfReference.values()[frameOfReferenceChoice.get()]) {
+			case SUBJECT -> pivotMatrix.setWorld(subjectPoseWorld);
+			case CAMERA -> pivotMatrix.setWorld(MatrixHelper.lookAt(camera.getPosition(), MatrixHelper.getPosition(subjectPoseWorld)));
+			default -> pivotMatrix.setWorld(MatrixHelper.createIdentityMatrix4());
+		}
+		pivotMatrix.setPosition(pivotPoint);
+	}
+
 	private void checkChangeFrameOfReference() {
-		if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReference.set(FrameOfReference.WORLD.toInt());
-		if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReference.set(FrameOfReference.CAMERA.toInt());
-		if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReference.set(FrameOfReference.SUBJECT.toInt());
-
-		if(InputManager.isReleased(InputManager.Source.STICK_DPAD_R)) {
-			if(frameOfReference.get()==FrameOfReference.WORLD.toInt()) {
-				frameOfReference.set(FrameOfReference.CAMERA.toInt());
-			} else if(frameOfReference.get()==FrameOfReference.CAMERA.toInt()) {
-				frameOfReference.set(FrameOfReference.SUBJECT.toInt());
-			} else if(frameOfReference.get()==FrameOfReference.SUBJECT.toInt()) {
-				frameOfReference.set(FrameOfReference.WORLD.toInt());
-			}
-		}
+		if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
+		if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
+		if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReferenceChoice.set(FrameOfReference.SUBJECT.toInt());
 	}
 
-	private void beginMovement() {
-		RobotOverlord ro = (RobotOverlord)getRoot();
+	private void checkMovementBegins() {
 		Viewport cameraView = ro.getViewport();
 		PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 		Ray ray = cameraView.rayPick(ro.getCamera());
 
-		Vector3d dp = new Vector3d(position);
+		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
 		dp.sub(ray.start);
 		
 		// not moving yet
@@ -200,9 +190,10 @@ public class MoveTool extends Entity {
 		
 		// translation
 		// box centers
-		Vector3d nx = MatrixHelper.getXAxis(FOR);
-		Vector3d ny = MatrixHelper.getYAxis(FOR);
-		Vector3d nz = MatrixHelper.getZAxis(FOR);
+		Matrix4d frameOfReference = pivotMatrix.getWorld();
+		Vector3d nx = MatrixHelper.getXAxis(frameOfReference);
+		Vector3d ny = MatrixHelper.getYAxis(frameOfReference);
+		Vector3d nz = MatrixHelper.getZAxis(frameOfReference);
 		
 		Vector3d px = new Vector3d(nx);
 		Vector3d py = new Vector3d(ny);
@@ -210,9 +201,9 @@ public class MoveTool extends Entity {
 		px.scale(ballSize.get()*cameraDistance*tScale);
 		py.scale(ballSize.get()*cameraDistance*tScale);
 		pz.scale(ballSize.get()*cameraDistance*tScale);
-		px.add(position);
-		py.add(position);
-		pz.add(position);
+		px.add(pivotMatrix.getPosition());
+		py.add(pivotMatrix.getPosition());
+		pz.add(pivotMatrix.getPosition());
 
 		// of the three boxes, the closest hit is the one to remember.			
 		double dx = testBoxHit(ray,px);
@@ -235,15 +226,13 @@ public class MoveTool extends Entity {
 		
 		pickPoint.set(ray.getPoint(t0));
 		
-		boolean isHit = (t0>=0 && t0<Double.MAX_VALUE);
-		if(isHit) {
+		if(t0<Double.MAX_VALUE) {
 			// if hitting and pressed, begin movement.
 			isActivelyMoving = true;
+			activeMoveIsRotation=false;
 			
 			pickPointSaved.set(pickPoint);
-
-			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-			startMatrix = subjectPose.getWorld();
+			startMatrix = pivotMatrix.getWorld();
 			resultMatrix.set(startMatrix);
 			
 			valueStart=0;
@@ -268,8 +257,7 @@ public class MoveTool extends Entity {
 			} else {
 				majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
 			}
-			
-			activeMoveIsRotation=false;
+
 			return;
 		}
 		
@@ -280,46 +268,35 @@ public class MoveTool extends Entity {
 			double d2 = d*d - Tca*Tca;
 			double r = ballSize.get()*cameraDistance*rScale;
 			double r2=r*r;
-			boolean isBallHit = d2>=0 && d2<=r2;
-			if(isBallHit) {
+			if(d2>=0 && d2<=r2) {
 				// ball hit!  Start move.
-				
+				isActivelyMoving=true;
+				activeMoveIsRotation=true;
+
 				double Thc = Math.sqrt(r2 - d2);
 				t0 = Tca - Thc;
-				//double t1 = Tca + Thc;
-				//Log.message("d2="+d2);
-
 				pickPointOnBall = ray.getPoint(t0);
-
-				isActivelyMoving=true;
-				PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-				startMatrix = subjectPose.getWorld();
+				startMatrix = pivotMatrix.getWorld();
 				resultMatrix.set(startMatrix);
 				
-				Vector3d pickPointInFOR = getPickPointInFOR(pickPointOnBall,FOR);
+				Vector3d pickPointInFOR = getPickPointInFrameOfReference(pickPointOnBall, startMatrix);
 				
 				// find the nearest plane
 				dx = Math.abs(pickPointInFOR.x);
 				dy = Math.abs(pickPointInFOR.y);
 				dz = Math.abs(pickPointInFOR.z);
-				nearestPlane=Plane.X;
+				nearestPlane=Plane.YZ;
 				double nearestD=dx;
 				if(dy<nearestD) {
-					nearestPlane=Plane.Y;
+					nearestPlane=Plane.XZ;
 					nearestD=dy;
 				}
 				if(dz<nearestD) {
-					nearestPlane=Plane.Z;
-					nearestD=dz;
+					nearestPlane=Plane.XY;
 				}
 
 				// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-				new Vector3d();
-				Vector3d majorAxisVector = switch (nearestPlane) {
-					case X -> MatrixHelper.getXAxis(FOR);
-					case Y -> MatrixHelper.getYAxis(FOR);
-					case Z -> MatrixHelper.getZAxis(FOR);
-				};
+				Vector3d majorAxisVector = getMajorAxisVector(frameOfReference);
 
 				// find the pick point on the plane of rotation
 				double denominator = ray.direction.dot(majorAxisVector);
@@ -329,11 +306,11 @@ public class MoveTool extends Entity {
 					pickPoint.set(ray.getPoint(t0));
 					pickPointSaved.set(pickPoint);
 					
-					pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
+					pickPointInFOR = getPickPointInFrameOfReference(pickPoint,frameOfReference);
 					switch (nearestPlane) {
-						case X -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
-						case Y -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
-						case Z -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
+						case YZ -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
+						case XZ -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
+						case XY -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
 					}
 					pickPointInFOR.normalize();
 					//Log.message("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
@@ -341,27 +318,30 @@ public class MoveTool extends Entity {
 				valueStart=valueNow;
 				valueLast=valueNow;
 			}
-			activeMoveIsRotation=true;
 		}
 	}
-	
-	private void updateKBRotation(double dt) {
+
+	@NotNull
+	private Vector3d getMajorAxisVector(Matrix4d frameOfReference) {
+		return switch (nearestPlane) {
+			case YZ -> MatrixHelper.getXAxis(frameOfReference);
+			case XZ -> MatrixHelper.getYAxis(frameOfReference);
+			case XY -> MatrixHelper.getZAxis(frameOfReference);
+		};
+	}
+
+	private void updateRotation() {
 		valueNow = valueLast;
 
-		RobotOverlord ro = (RobotOverlord)getRoot();
 		Viewport cameraView = ro.getViewport();
 		Ray ray = cameraView.rayPick(ro.getCamera());
 
-		Vector3d dp = new Vector3d(position);
+		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
 		dp.sub(ray.start);
 		
 		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-		new Vector3d();
-		Vector3d majorAxisVector = switch (nearestPlane) {
-			case X -> MatrixHelper.getXAxis(FOR);
-			case Y -> MatrixHelper.getYAxis(FOR);
-			case Z -> MatrixHelper.getZAxis(FOR);
-		};
+		Matrix4d FOR = startMatrix;
+		Vector3d majorAxisVector = getMajorAxisVector(FOR);
 
 		// find the pick point on the plane of rotation
 		double denominator = ray.direction.dot(majorAxisVector);
@@ -370,11 +350,11 @@ public class MoveTool extends Entity {
 			double t0 = numerator/denominator;
 			pickPoint.set(ray.getPoint(t0));
 
-			Vector3d pickPointInFOR = getPickPointInFOR(pickPoint,FOR);
+			Vector3d pickPointInFOR = getPickPointInFrameOfReference(pickPoint,FOR);
 			switch (nearestPlane) {
-				case X -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
-				case Y -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
-				case Z -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
+				case YZ -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
+				case XZ -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
+				case XY -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
 			}
 
 			double da=valueNow - valueStart;
@@ -392,21 +372,19 @@ public class MoveTool extends Entity {
 			}
 			if(da!=0) {
 				switch (nearestPlane) {
-					case X -> rollX(da);
-					case Y -> rollY(da);
-					case Z -> rollZ(da);
+					case YZ -> rollX(da);
+					case XZ -> rollY(da);
+					case XY -> rollZ(da);
 				}
 				valueLast = valueStart + da;
 				
-				attemptMove(ro);
+				attemptMove();
 			}
 		}
 	}
 
-	private void updateKBTranslation(double dt) {
+	private void updateTranslation(double dt) {
 		valueNow = valueLast;
-		
-		RobotOverlord ro = (RobotOverlord)getRoot();
 
 		// actively being dragged
 		double scale = cameraDistance*0.02*dt;  // TODO something better?
@@ -433,6 +411,7 @@ public class MoveTool extends Entity {
 			dp = Math.signum(dp)*Math.round(Math.abs(dp)/mm)*mm;
 		}
 		if(dp!=0) {
+			Matrix4d FOR = pivotMatrix.getWorld();
 			switch (majorAxis) {
 				case X -> translate(MatrixHelper.getXAxis(FOR), dp);
 				case Y -> translate(MatrixHelper.getYAxis(FOR), dp);
@@ -440,101 +419,15 @@ public class MoveTool extends Entity {
 			}
 			valueLast = valueStart + dp;
 
-			attemptMove(ro);
+			attemptMove();
 		}
 	}
 
-	// GamePad/JoyStick
-	private void updateJoyCon(double dt) {
-		if(isActivelyMoving) return;
-
-		RobotOverlord ro = (RobotOverlord)getRoot();
-
-		System.arraycopy(valueLasts, 0, valueNows, 0, valueLasts.length);
-
-		// rotations
-		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
-			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-			startMatrix = subjectPose.getWorld();
-			resultMatrix.set(startMatrix);
-			valueStart =0;
-			valueLast=0;
-			valueNow=0;
-
-			double scale = 0.75*dt;  // TODO something better?
-			double rawXR= InputManager.getRawValue(InputManager.Source.STICK_LX);
-			double rawYR= InputManager.getRawValue(InputManager.Source.STICK_LY);
-			double rawZR= InputManager.getRawValue(InputManager.Source.STICK_L2);
-			double dxr = rawXR * scale;
-			double dyr = rawYR * -scale;
-			double dzr = rawZR * scale;
-
-			double diff = Math.abs(rawXR)-Math.abs(rawYR);
-			if(diff >= 0.3) {
-				valueNow = dxr;
-				double dar1 = valueNow - valueStart;
-				rollX(dar1);
-				valueLast = valueStart+dar1;
-				attemptMove(ro);
-			} else if(diff <= -0.3) {
-				valueNow = dyr;
-				double dar1 = valueNow - valueStart;
-				rollY(dar1);
-				valueLast = valueStart+dar1;
-				attemptMove(ro);
-			} else if(rawZR!=0) {
-				valueNow = dzr;
-				double dar1 = valueNow - valueStart;
-				rollZ(dar1);
-				valueLast = valueStart+dar1;
-				attemptMove(ro);
-			}			
+	public void attemptMove() {
+		if(!movePivotOnly) {
+			UndoSystem.addEvent(this,new PoseMoveEdit(subject,pivotMatrix.getWorld(),resultMatrix,Translator.get("MoveTool.editName")));
 		}
-		
-		// translations
-		if( InputManager.isOn(InputManager.Source.STICK_X)) {
-			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-			startMatrix = subjectPose.getWorld();
-			resultMatrix.set(startMatrix);
-			
-			for(int i=0; i <3; i++) {
-				valueStarts[i]=0;
-				valueLasts[i]=0;
-				valueNows[i]=0;
-			}
-
-			double scale = 50.0*dt;  // TODO something better?
-			double rawx= InputManager.getRawValue(InputManager.Source.STICK_LX);
-			double rawy= InputManager.getRawValue(InputManager.Source.STICK_LY);
-			double rawz= InputManager.getRawValue(InputManager.Source.STICK_L2);
-			
-			double dx = rawx * scale;
-			double dy = rawy * -scale;
-			double dz = rawz * scale;
-			
-			valueNows[0]+=dx;
-			valueNows[1]+=dy;
-			valueNows[2]+=dz;
-			
-			double[] dp = new double[3];
-			for(int i=0; i < 3; i++) dp[i] = valueNows[i] - valueStarts[i];
-
-			if(dp[0]!=0 || dp[1]!=0 || dp[2]!=0) {
-				Matrix3d mat = new Matrix3d();
-				mat.setColumn(0, MatrixHelper.getXAxis(FOR));
-				mat.setColumn(1, MatrixHelper.getYAxis(FOR));
-				mat.setColumn(2, MatrixHelper.getZAxis(FOR));
-				translateAll(mat, dp);
-				
-				for(int i=0; i < 3; i++) valueLasts[i] = valueStarts[i] + dp[i];
-				attemptMove(ro);
-			}
-		}
-	}
-	
-	public void attemptMove(RobotOverlord ro) {
-		FOR.setTranslation(MatrixHelper.getPosition(resultMatrix));
-		UndoSystem.addEvent(this,new PoseMoveEdit(subject,resultMatrix));
+		pivotMatrix.setWorld(resultMatrix);
 	}
 
 	protected double testBoxHit(Ray ray,Vector3d n) {		
@@ -558,27 +451,21 @@ public class MoveTool extends Entity {
 		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 		if(subjectPose==null) return;
 
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
-
-		RobotOverlord ro = (RobotOverlord)getRoot();
-
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+
+		boolean wasText = OpenGLHelper.disableTextureStart(gl2);
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		float oldWidth = OpenGLHelper.setLineWidth(gl2, 2);
 
 		gl2.glPushMatrix();
-
-			//PoseComponent pose = subject.getComponent(PoseComponent.class);
-			//MatrixHelper.applyMatrix(gl2, pose.getWorld());
-
-			renderOutsideCircle(gl2);
+			MatrixHelper.applyMatrix(gl2, pivotMatrix.getWorld());
 			renderRotation(gl2);
 			renderTranslation(gl2);
-
 		gl2.glPopMatrix();
 
 		OpenGLHelper.setLineWidth(gl2, oldWidth);
 		OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
+		OpenGLHelper.disableTextureEnd(gl2, wasText);
 
 		printDistanceOnScreen(gl2,ro);
 	}
@@ -602,54 +489,12 @@ public class MoveTool extends Entity {
 		textRender.endRendering();
 		//ro.viewport.renderPerspective(gl2);
 	}
-	
-	/**
-	 * Render the white and grey circles around the exterior, always facing the camera.
-	 * @param gl2 the render context
-	 */
-	private void renderOutsideCircle(GL2 gl2) {
-		final double whiteRadius=1.05;
-		final double greyRadius=1.0;
-		final int quality=50;
-		
-		RobotOverlord ro = (RobotOverlord)getRoot();
-		PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
-		Matrix4d lookAt = new Matrix4d();
-
-		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-		Matrix4d pw = subjectPose.getWorld();
-		
-		Vector3d worldPosition = MatrixHelper.getPosition(pw);
-		lookAt.set(MatrixHelper.lookAt(camera.getPosition(), worldPosition));
-		lookAt.setTranslation(worldPosition);
-
-		gl2.glPushMatrix();
-
-			MatrixHelper.applyMatrix(gl2, lookAt);
-			double d=ballSize.get()*cameraDistance;
-			gl2.glScaled(d,d,d);
-			
-			//white circle on the xy plane of the camera pose, as the subject position
-			gl2.glColor4d(1,1,1,0.7);
-			PrimitiveSolids.drawCircleXY(gl2, whiteRadius, quality);
-
-			//grey circle on the xy plane of the camera pose, as the subject position
-			gl2.glColor4d(0.5,0.5,0.5,0.7);
-			PrimitiveSolids.drawCircleXY(gl2, greyRadius, quality);
-
-		gl2.glPopMatrix();
-	}
 
 	public void renderRotation(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, FOR);
-			double scale = ballSize.get()*cameraDistance; 
+			double scale = ballSize.get()*cameraDistance;
 			gl2.glScaled(scale,scale,scale);
-		
-			// camera forward is +z axis
-			//Matrix4d pw = subject.getPoseWorld(pw);
-			
-			RobotOverlord ro = (RobotOverlord)getRoot();
+
 			PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d pw = camera.getWorld();
 			pw.m03=
@@ -657,9 +502,9 @@ public class MoveTool extends Entity {
 			pw.m23=0;
 			pw.invert();
 	
-			double cr = (nearestPlane==Plane.X) ? 1 : 0.5f;
-			double cg = (nearestPlane==Plane.Y) ? 1 : 0.5f;
-			double cb = (nearestPlane==Plane.Z) ? 1 : 0.5f;
+			double cr = (nearestPlane==Plane.YZ) ? 1 : 0.5f;
+			double cg = (nearestPlane==Plane.XZ) ? 1 : 0.5f;
+			double cb = (nearestPlane==Plane.XY) ? 1 : 0.5f;
 			
 			gl2.glDisable(GL2.GL_CULL_FACE);
 	
@@ -688,63 +533,72 @@ public class MoveTool extends Entity {
 						InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
 						deg *= 0.1;
 					}
-					double a=0,b=0,c=0;
-					double r1=radius0;
-					double r2=r1+0.05;
-					
-					gl2.glBegin(GL2.GL_LINES);
-					gl2.glColor3d(1, 1, 1);
-					for(double i = 0;i<Math.PI*2;i+=deg) {
-						double j=i + start;
-						switch(nearestPlane) {
-						case X:
-							b=Math.cos(j+Math.PI/2);
-							c=Math.sin(j+Math.PI/2);
-							break;
-						case Y:
-							a=Math.cos(-j);
-							c=Math.sin(-j);
-							break;
-						case Z:
-							a=Math.cos( j);
-							b=Math.sin( j);
-							break;
-						}
-						gl2.glVertex3d(a*r1,b*r1,c*r1);
-						gl2.glVertex3d(a*r2,b*r2,c*r2);
-					}
-					gl2.glEnd();
+
+					renderTickMarksOnNearestPlane(gl2, start, deg,radius0);
 				}
-	
-				double a=0,b=0,c=0;
-				gl2.glBegin(GL2.GL_LINE_LOOP);
-				gl2.glColor3f(255,255,255);
-				gl2.glVertex3d(0,0,0);
-				for(double i=0;i<absRange;i+=0.01) {
-					double n = range * (i/absRange) + start;
-					
-					switch(nearestPlane) {
-					case X:
-						b=Math.cos(n+Math.PI/2);
-						c=Math.sin(n+Math.PI/2);
-						break;
-					case Y:
-						a=Math.cos(-n);
-						c=Math.sin(-n);
-						break;
-					case Z:
-						a=Math.cos( n); 
-						b=Math.sin( n);
-						break;
-					}
-					gl2.glVertex3d(a*radius0,b*radius0,c*radius0);
-				}
-				gl2.glEnd();
+
+				renderCircleOnNearestPlane(gl2, radius0, start, range, absRange);
 			}
 
 		gl2.glPopMatrix();
 	}
-	
+
+	private void renderTickMarksOnNearestPlane(GL2 gl2, double start, double deg, double r1) {
+		double r2=r1+0.05;
+		double a=0,b=0,c=0;
+
+		gl2.glBegin(GL2.GL_LINES);
+		gl2.glColor3d(1, 1, 1);
+		for(double i = 0;i<Math.PI*2;i+= deg) {
+			double j=i + start;
+			switch (nearestPlane) {
+				case YZ -> {
+					b = Math.cos(j + Math.PI / 2);
+					c = Math.sin(j + Math.PI / 2);
+				}
+				case XZ -> {
+					a = Math.cos(-j);
+					c = Math.sin(-j);
+				}
+				case XY -> {
+					a = Math.cos(j);
+					b = Math.sin(j);
+				}
+			}
+			gl2.glVertex3d(a * r1, b * r1, c * r1);
+			gl2.glVertex3d(a * r2, b * r2, c * r2);
+		}
+		gl2.glEnd();
+	}
+
+	private void renderCircleOnNearestPlane(GL2 gl2, double radius0, double start, double range, double absRange) {
+		double a=0,b=0,c=0;
+
+		gl2.glBegin(GL2.GL_LINE_LOOP);
+		gl2.glColor3f(255,255,255);
+		gl2.glVertex3d(0,0,0);
+		for(double i = 0; i< absRange; i+=0.01) {
+			double j = range * (i/ absRange) + start;
+
+			switch (nearestPlane) {
+				case YZ -> {
+					b = Math.cos(j + Math.PI / 2);
+					c = Math.sin(j + Math.PI / 2);
+				}
+				case XZ -> {
+					a = Math.cos(-j);
+					c = Math.sin(-j);
+				}
+				case XY -> {
+					a = Math.cos(j);
+					b = Math.sin(j);
+				}
+			}
+			gl2.glVertex3d(a* radius0,b* radius0,c* radius0);
+		}
+		gl2.glEnd();
+	}
+
 	private void renderDiscXY(GL2 gl2,double radius0,double radius1) {
 		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 		for(double n=0;n<Math.PI*4;n+=STEP_SIZE) {
@@ -780,12 +634,10 @@ public class MoveTool extends Entity {
 	
 	public void renderTranslation(GL2 gl2) {
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, FOR);
 			double scale = ballSize.get()*cameraDistance; 
 			gl2.glScaled(scale,scale,scale);
 			
-			// camera forward is -z axis 
-			RobotOverlord ro = (RobotOverlord)getRoot();
+			// camera forward is -z axis
 			PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 
 			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
@@ -881,18 +733,17 @@ public class MoveTool extends Entity {
 	
 	protected void rotationInternal(Matrix4d rotation) {
 		// multiply robot origin by target matrix to get target matrix in world space.
-		
+
 		// invert frame of reference to transform world target matrix into frame of reference space.
-		Matrix4d ifor = new Matrix4d(FOR);
-		ifor.invert();
 
-		Matrix4d subjectRotation = new Matrix4d(startMatrix);		
-		Matrix4d subjectAfterRotation = new Matrix4d(FOR);
-		subjectAfterRotation.mul(rotation);
-		subjectAfterRotation.mul(ifor);
-		subjectAfterRotation.mul(subjectRotation);
+		Matrix4d subjectRotation = new Matrix4d(startMatrix);
+		resultMatrix.set(pivotMatrix.getWorld());
+		Matrix4d iFOR = new Matrix4d(resultMatrix);
+		iFOR.invert();
 
-		resultMatrix.set(subjectAfterRotation);
+		resultMatrix.mul(rotation);
+		resultMatrix.mul(iFOR);
+		resultMatrix.mul(subjectRotation);
 		resultMatrix.setTranslation(MatrixHelper.getPosition(startMatrix));
 	}
 
@@ -928,50 +779,31 @@ public class MoveTool extends Entity {
 		resultMatrix.m13 = startMatrix.m13 + v.y*amount;
 		resultMatrix.m23 = startMatrix.m23 + v.z*amount;
 	}
-	
-	protected void translateAll(Matrix3d v, double[] amount) {
-		//Log.message(amount);
-		resultMatrix.m03 = startMatrix.m03 + v.m00*amount[0] + v.m01*amount[1] +v.m02*amount[2];
-		resultMatrix.m13 = startMatrix.m13 + v.m10*amount[0] + v.m11*amount[1] +v.m12*amount[2];
-		resultMatrix.m23 = startMatrix.m23 + v.m20*amount[0] + v.m21*amount[1] +v.m22*amount[2];
-	}
 
 	public Matrix4d getResultMatrix() {
 		return resultMatrix;
 	}
-	
-	public void setFrameOfReference(FrameOfReference v) {
-		frameOfReference.set(v.toInt());
-	}
-	
-	public FrameOfReference getFrameOfReference() {
-		return FrameOfReference.values()[frameOfReference.get()];
-	}
-	
-	@Deprecated
-	public String getStatusMessage() {
-		// translate
-		double dx=resultMatrix.m03 - startMatrix.m03; 
-		double dy=resultMatrix.m13 - startMatrix.m13; 
-		double dz=resultMatrix.m23 - startMatrix.m23;
-		double distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
-		// rotate
-		double start=MathHelper.wrapRadians(valueStart);
-		double end=MathHelper.wrapRadians(valueNow);
-		double range=Math.toDegrees(end-start);
-		range = MathHelper.wrapDegrees(range);
-		
-		return "twist ["+StringHelper.formatDouble(distance)+"mm,"+StringHelper.formatDouble(range)+"deg]";
-	}
 
 	/**
-	 * Set which PhysicalEntity the drag ball is going to act upon.
-	 * @param subject
+	 * Set which subject(s) the drag ball is going to act upon.
+	 * @param subject the subject to act upon.
 	 */
 	public void setSubject(Entity subject) {
-		this.subject=subject;		
+		this.subject = subject;
+		setPivotToSubject();
 	}
-	
+
+	private void setPivotToSubject() {
+		if(subject == null) return;
+
+		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
+		if(subjectPose == null) return;
+
+		Matrix4d subjectPoseWorld = subjectPose.getWorld();
+		Vector3d mp = MatrixHelper.getPosition(subjectPoseWorld);
+		pivotMatrix.setPosition(mp);
+	}
+
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("MoveTool",true);
@@ -980,7 +812,7 @@ public class MoveTool extends Entity {
 		view.add(snapDegrees);
 		view.add(snapDistance);
 		
-		view.addComboBox(frameOfReference,FrameOfReference.getAll());
+		view.addComboBox(frameOfReferenceChoice,FrameOfReference.getAll());
 		view.popStack();
 		
 		super.getView(view);

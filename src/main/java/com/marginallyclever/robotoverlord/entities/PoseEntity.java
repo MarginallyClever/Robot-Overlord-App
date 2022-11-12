@@ -13,6 +13,7 @@ import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix3d;
@@ -374,7 +375,8 @@ public class PoseEntity extends Entity implements Removable {
 		Matrix4d before = getPoseWorld();
 		Matrix4d after = findMajorAxisTarget(before);
 		if(after!=null) {
-			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after));
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after, Translator.get("PoseEntity.snapZ")));
+
 		}
 	}
 	
@@ -382,7 +384,7 @@ public class PoseEntity extends Entity implements Removable {
 		Matrix4d before = getPoseWorld();
 		Matrix4d after = findMinorAxisTarget(before);
 		if(after!=null) {
-			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after));
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after, Translator.get("PoseEntity.snapX")));
 		}
 	}
 
@@ -456,12 +458,4 @@ public class PoseEntity extends Entity implements Removable {
 
 	@Override
 	public void beingRemoved() {}
-	
-    private void writeObject(ObjectOutputStream stream) throws IOException {
-    	stream.defaultWriteObject();
-    }
-    private void readObject(ObjectInputStream stream) throws ClassNotFoundException, IOException {
-    	stream.defaultReadObject();
-    	pickName = pickNameCounter++;
-    }
 }

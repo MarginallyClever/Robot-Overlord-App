@@ -15,9 +15,6 @@ import java.io.Serial;
  *
  */
 public class Decal extends ShapeComponent {
-	@Serial
-	private static final long serialVersionUID = -4934794752752097855L;
-
 	public Decal() {
 		super();
 

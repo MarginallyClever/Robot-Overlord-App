@@ -74,7 +74,7 @@ public class RobotOverlord extends Entity {
 	 */
 	private final ArrayList<AbstractAction> actions = new ArrayList<>();
 
-	private final MoveTool moveTool = new MoveTool();
+	private final MoveTool moveTool = new MoveTool(this);
 	private transient final ViewCube viewCube = new ViewCube();
 	
 	// The main frame of the GUI
