@@ -19,7 +19,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.tools.FrameOfReference;
 import org.jetbrains.annotations.NotNull;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -188,16 +187,117 @@ public class MoveTool extends Entity {
 		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 		double d = dp.length();
 		
-		// translation
-		// box centers
+		// translation box centers
 		Matrix4d frameOfReference = pivotMatrix.getWorld();
-		Vector3d nx = MatrixHelper.getXAxis(frameOfReference);
-		Vector3d ny = MatrixHelper.getYAxis(frameOfReference);
-		Vector3d nz = MatrixHelper.getZAxis(frameOfReference);
+		double t0 = getNearestTranslationHandle(ray,frameOfReference);
+		pickPoint.set(ray.getPoint(t0));
 		
-		Vector3d px = new Vector3d(nx);
-		Vector3d py = new Vector3d(ny);
-		Vector3d pz = new Vector3d(nz);
+		if(t0<Double.MAX_VALUE) {
+			// if hitting and pressed, begin translation.
+			beginTranslation(frameOfReference,camera);
+			return;
+		}
+		
+		// rotation
+		double Tca = ray.direction.dot(dp);
+		if(Tca>=0) {
+			// ball is in front of ray start
+			double d2 = d*d - Tca*Tca;
+			double r = ballSize.get()*cameraDistance*rScale;
+			double r2=r*r;
+			if(d2>=0 && d2<=r2) {
+				// ball hit!  Begin rotation.
+				beginRotation(ray,frameOfReference,r2,d2,Tca,dp);
+			}
+		}
+	}
+
+	private void beginRotation(Ray ray, Matrix4d frameOfReference, double r2, double d2, double Tca, Vector3d dp) {
+		isActivelyMoving=true;
+		activeMoveIsRotation=true;
+
+		double Thc = Math.sqrt(r2 - d2);
+		double t0 = Tca - Thc;
+		pickPointOnBall = ray.getPoint(t0);
+		startMatrix = pivotMatrix.getWorld();
+		resultMatrix.set(startMatrix);
+
+		Vector3d pickPointInFOR = getPickPointInFrameOfReference(pickPointOnBall, startMatrix);
+
+		// find the nearest plane
+		double dx = Math.abs(pickPointInFOR.x);
+		double dy = Math.abs(pickPointInFOR.y);
+		double dz = Math.abs(pickPointInFOR.z);
+		nearestPlane=Plane.YZ;
+		double nearestD=dx;
+		if(dy<nearestD) {
+			nearestPlane=Plane.XZ;
+			nearestD=dy;
+		}
+		if(dz<nearestD) {
+			nearestPlane=Plane.XY;
+		}
+
+		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
+		Vector3d majorAxisVector = getMajorAxisVector(frameOfReference);
+
+		// find the pick point on the plane of rotation
+		double denominator = ray.direction.dot(majorAxisVector);
+		if(denominator!=0) {
+			double numerator = dp.dot(majorAxisVector);
+			t0 = numerator/denominator;
+			pickPoint.set(ray.getPoint(t0));
+			pickPointSaved.set(pickPoint);
+
+			pickPointInFOR = getPickPointInFrameOfReference(pickPoint,frameOfReference);
+			switch (nearestPlane) {
+				case YZ -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
+				case XZ -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
+				case XY -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
+			}
+			pickPointInFOR.normalize();
+			//Log.message("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
+		}
+		valueStart=valueNow;
+		valueLast=valueNow;
+	}
+
+	private void beginTranslation(Matrix4d frameOfReference,PoseComponent camera) {
+		isActivelyMoving = true;
+		activeMoveIsRotation=false;
+
+		pickPointSaved.set(pickPoint);
+		startMatrix = pivotMatrix.getWorld();
+		resultMatrix.set(startMatrix);
+
+		valueStart=0;
+		valueLast=0;
+		valueNow=0;
+
+		Matrix4d cm = camera.getWorld();
+		Vector3d cr = MatrixHelper.getXAxis(cm);
+		Vector3d cu = MatrixHelper.getYAxis(cm);
+		// determine which mouse direction is a positive movement on this axis.
+		Vector3d nv = switch (majorAxis) {
+			case X -> MatrixHelper.getXAxis(frameOfReference);
+			case Y -> MatrixHelper.getYAxis(frameOfReference);
+			case Z -> MatrixHelper.getZAxis(frameOfReference);
+		};
+
+		double cx,cy;
+		cy=cu.dot(nv);
+		cx=cr.dot(nv);
+		if( Math.abs(cx) > Math.abs(cy) ) {
+			majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
+		} else {
+			majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
+		}
+	}
+
+	private double getNearestTranslationHandle(Ray ray, Matrix4d frameOfReference) {
+		Vector3d px = new Vector3d(MatrixHelper.getXAxis(frameOfReference));
+		Vector3d py = new Vector3d(MatrixHelper.getYAxis(frameOfReference));
+		Vector3d pz = new Vector3d(MatrixHelper.getZAxis(frameOfReference));
 		px.scale(ballSize.get()*cameraDistance*tScale);
 		py.scale(ballSize.get()*cameraDistance*tScale);
 		pz.scale(ballSize.get()*cameraDistance*tScale);
@@ -205,11 +305,11 @@ public class MoveTool extends Entity {
 		py.add(pivotMatrix.getPosition());
 		pz.add(pivotMatrix.getPosition());
 
-		// of the three boxes, the closest hit is the one to remember.			
+		// of the three boxes, the closest hit is the one to remember.
 		double dx = testBoxHit(ray,px);
 		double dy = testBoxHit(ray,py);
 		double dz = testBoxHit(ray,pz);
-		
+
 		double t0=Double.MAX_VALUE;
 		if(dx>0) {
 			majorAxis=Axis.X;
@@ -223,102 +323,7 @@ public class MoveTool extends Entity {
 			majorAxis=Axis.Z;
 			t0=dz;
 		}
-		
-		pickPoint.set(ray.getPoint(t0));
-		
-		if(t0<Double.MAX_VALUE) {
-			// if hitting and pressed, begin movement.
-			isActivelyMoving = true;
-			activeMoveIsRotation=false;
-			
-			pickPointSaved.set(pickPoint);
-			startMatrix = pivotMatrix.getWorld();
-			resultMatrix.set(startMatrix);
-			
-			valueStart=0;
-			valueLast=0;
-			valueNow=0;
-			
-			Matrix4d cm = camera.getWorld();
-			Vector3d cr = MatrixHelper.getXAxis(cm);
-			Vector3d cu = MatrixHelper.getYAxis(cm);
-			// determine which mouse direction is a positive movement on this axis.
-			Vector3d nv = switch (majorAxis) {
-				case X -> nx;
-				case Y -> ny;
-				default -> nz;
-			};
-
-			double cx,cy;
-			cy=cu.dot(nv);
-			cx=cr.dot(nv);
-			if( Math.abs(cx) > Math.abs(cy) ) {
-				majorAxisSlideDirection=(cx>0) ? SlideDirection.SLIDE_XPOS : SlideDirection.SLIDE_XNEG;
-			} else {
-				majorAxisSlideDirection=(cy>0) ? SlideDirection.SLIDE_YPOS : SlideDirection.SLIDE_YNEG;
-			}
-
-			return;
-		}
-		
-		// rotation
-		double Tca = ray.direction.dot(dp);
-		if(Tca>=0) {
-			// ball is in front of ray start
-			double d2 = d*d - Tca*Tca;
-			double r = ballSize.get()*cameraDistance*rScale;
-			double r2=r*r;
-			if(d2>=0 && d2<=r2) {
-				// ball hit!  Start move.
-				isActivelyMoving=true;
-				activeMoveIsRotation=true;
-
-				double Thc = Math.sqrt(r2 - d2);
-				t0 = Tca - Thc;
-				pickPointOnBall = ray.getPoint(t0);
-				startMatrix = pivotMatrix.getWorld();
-				resultMatrix.set(startMatrix);
-				
-				Vector3d pickPointInFOR = getPickPointInFrameOfReference(pickPointOnBall, startMatrix);
-				
-				// find the nearest plane
-				dx = Math.abs(pickPointInFOR.x);
-				dy = Math.abs(pickPointInFOR.y);
-				dz = Math.abs(pickPointInFOR.z);
-				nearestPlane=Plane.YZ;
-				double nearestD=dx;
-				if(dy<nearestD) {
-					nearestPlane=Plane.XZ;
-					nearestD=dy;
-				}
-				if(dz<nearestD) {
-					nearestPlane=Plane.XY;
-				}
-
-				// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-				Vector3d majorAxisVector = getMajorAxisVector(frameOfReference);
-
-				// find the pick point on the plane of rotation
-				double denominator = ray.direction.dot(majorAxisVector);
-				if(denominator!=0) {
-					double numerator = dp.dot(majorAxisVector);
-					t0 = numerator/denominator;
-					pickPoint.set(ray.getPoint(t0));
-					pickPointSaved.set(pickPoint);
-					
-					pickPointInFOR = getPickPointInFrameOfReference(pickPoint,frameOfReference);
-					switch (nearestPlane) {
-						case YZ -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
-						case XZ -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
-						case XY -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
-					}
-					pickPointInFOR.normalize();
-					//Log.message("p="+pickPointInFOR+" valueNow="+Math.toDegrees(valueNow));
-				}
-				valueStart=valueNow;
-				valueLast=valueNow;
-			}
-		}
+		return t0;
 	}
 
 	@NotNull
