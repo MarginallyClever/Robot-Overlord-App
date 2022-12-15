@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
@@ -16,6 +17,11 @@ public class MeshFromFile extends ShapeComponent {
     public MeshFromFile() {
         super();
         filename.addPropertyChangeListener((e)->{
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                myScene.warnIfAssetPathIsNotInScenePath(filename.get());
+            }
+
             setModel(MeshFactory.load(filename.get()));
         });
     }

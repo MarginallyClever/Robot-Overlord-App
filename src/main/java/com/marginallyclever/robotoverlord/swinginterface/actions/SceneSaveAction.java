@@ -1,12 +1,15 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.LinkedList;
 
 /**
  * Save the world state to a file.  This action is not an undoable action.
@@ -19,16 +22,16 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 	/**
 	 * The file chooser remembers the last path.
 	 */
-	private final JFileChooser fc = new JFileChooser();
+	private static final JFileChooser fc = new JFileChooser();
 	
 	public SceneSaveAction(String name, RobotOverlord ro) {
 		super(name);
 		this.ro = ro;
+		fc.setFileFilter(RobotOverlord.FILE_FILTER);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		fc.setFileFilter(RobotOverlord.FILE_FILTER);
 		if (fc.showSaveDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
 			String name = addExtensionIfNeeded(fc.getSelectedFile().getAbsolutePath());
 			saveModelToFile(name);

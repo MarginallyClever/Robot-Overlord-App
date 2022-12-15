@@ -30,4 +30,10 @@ public class UndoSystem {
 		getCommandUndo().updateUndoState();
 		getCommandRedo().updateRedoState();
 	}
+
+	public static void reset() {
+		undoManager.discardAllEdits();
+		getCommandUndo().updateUndoState();
+		getCommandRedo().updateRedoState();
+	}
 }

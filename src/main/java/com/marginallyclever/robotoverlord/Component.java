@@ -80,4 +80,9 @@ public class Component {
     public void setExpanded(boolean arg0) {
         isExpanded = arg0;
     }
+
+    public Scene getScene() {
+        if(myEntity==null) return null;
+        return myEntity.getScene();
+    }
 }

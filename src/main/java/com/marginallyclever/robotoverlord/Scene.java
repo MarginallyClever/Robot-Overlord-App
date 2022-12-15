@@ -10,25 +10,36 @@ import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import javax.vecmath.Vector3d;
+import java.awt.*;
+import java.io.File;
 import java.io.Serial;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 /**
- * Container for all the visible objects in a scene.
+ * {@link Scene} is a container for all the {@link Entity} in a project.  It also contains the absolute path on disk
+ * for the root of the Scene.  All assets are relative to this path.
  * @author Dan Royer
  * @since 1.6.0
  */
 public class Scene extends Entity {
-	@Serial
-	private static final long serialVersionUID = 2990084741436544957L;
+	private static final Logger logger = LoggerFactory.getLogger(Scene.class);
+	private final StringEntity scenePath = new StringEntity("Scene Path", "");
 
 	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
 	private final MaterialComponent defaultMaterial = new MaterialComponent();
@@ -37,6 +48,11 @@ public class Scene extends Entity {
 	
 	public Scene() {
 		super();
+	}
+
+	public Scene(String absolutePath) {
+		super();
+		setScenePath(absolutePath);
 	}
 
 	@Override
@@ -204,6 +220,7 @@ public class Scene extends Entity {
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Sc", true);
+		view.add(scenePath).setReadOnly(true);
 		view.add(ambientLight);
 		view.popStack();
 	}
@@ -226,5 +243,55 @@ public class Scene extends Entity {
 
 	public void removeSceneChangeListener(SceneChangeListener listener) {
 		sceneChangeListeners.remove(listener);
+	}
+
+	public void setScenePath(String absolutePath) {
+		File file = new File(absolutePath);
+		if(!file.exists()) throw new RuntimeException("File does not exist: "+absolutePath);
+
+		//if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene path when entities are present.");
+
+		Path p = Paths.get(absolutePath);
+		String path = p.getParent().toString();
+		logger.debug("Setting scene path to "+path);
+		scenePath.set(path);
+	}
+
+	public String getScenePath() {
+		return scenePath.get();
+	}
+
+	/**
+	 * Returns true if unCheckedAssetFilename is in the scene path.
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
+	 * @return true if unCheckedAssetFilename is in the scene path.
+	 */
+	public boolean isAssetPathInScenePath(String unCheckedAssetFilename) {
+		logger.debug("Checking if asset path is in scene path: "+unCheckedAssetFilename);
+		Path input = Paths.get(unCheckedAssetFilename);
+		Path scene = Paths.get(getScenePath());
+		return input.toAbsolutePath().startsWith(scene.toAbsolutePath());
+	}
+
+	/**
+	 * Displays a warning to the user if the asset is not within the scene path.
+	 * @param unCheckedAssetFilename
+	 */
+	public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
+		if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
+
+		String message = Translator.get("Scene.AssetPathNotInScenePathWarning");
+		message = message.replace("%1", unCheckedAssetFilename);
+		message = message.replace("%2", getScenePath());
+		logger.error(message);
+
+		// try to show a pop-up if we have a display
+		if(!GraphicsEnvironment.isHeadless()) {
+			JOptionPane.showMessageDialog(
+					null,
+					message,
+					Translator.get("Scene.AssetPathNotInScenePathWarningTitle"),
+					JOptionPane.WARNING_MESSAGE);
+		}
 	}
 }

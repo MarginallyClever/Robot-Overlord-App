@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
@@ -29,6 +30,12 @@ public class MaterialComponent extends Component {
         view.add(specular);
         view.addRange(shininess, 128, 0);
         texture.getView(view);
+        texture.addPropertyChangeListener((e)->{
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                myScene.warnIfAssetPathIsNotInScenePath(texture.getFullPath());
+            }
+        });
     }
 
     public void render(GL2 gl2) {

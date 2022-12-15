@@ -26,8 +26,9 @@ public class DemoAction extends AbstractAction implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		SceneNewAction action = new SceneNewAction("New Scene",ro);
-		action.resetScene();
+		SceneClearAction action = new SceneClearAction("Clear Scene",ro);
+		action.clearScene();
+		action.addDefaultEntities();
 		demo.execute(ro);
 	}
 }

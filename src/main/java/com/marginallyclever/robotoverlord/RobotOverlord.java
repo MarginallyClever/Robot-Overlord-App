@@ -64,7 +64,7 @@ public class RobotOverlord extends Entity {
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
     //private RecentFiles recentFiles = new RecentFiles();
     
-    private final Scene scene = new Scene();
+    private Scene scene;
 	private transient final List<Entity> selectedEntities = new ArrayList<>();
 	private transient Entity copiedEntities = new Entity();
 
@@ -112,10 +112,11 @@ public class RobotOverlord extends Entity {
 	private final SkyBoxEntity sky = new SkyBoxEntity();
 	
  	private RobotOverlord() {
- 		super();
- 		setName("");
+		super();
+		setName("");
+
 		this.addComponent(new PoseComponent());
- 		 		
+
 		if(GraphicsEnvironment.isHeadless()) {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
 		}
@@ -130,6 +131,7 @@ public class RobotOverlord extends Entity {
 		layoutComponents();
 		startAnimationSystem();
 
+		scene = new Scene(System.getProperty("user.dir"));
 		entityTree.addEntity(scene);
 		scene.addSceneChangeListener(entityTree);
 
@@ -139,8 +141,9 @@ public class RobotOverlord extends Entity {
 		addEntity(moveTool);
 		addEntity(viewCube);
 
-		SceneNewAction action = new SceneNewAction("New Scene",this);
-		action.resetScene();
+		SceneClearAction action = new SceneClearAction("Clear Scene",this);
+		action.clearScene();
+		action.addDefaultEntities();
 
 		Log.message("** READY **");
     }
@@ -475,10 +478,10 @@ public class RobotOverlord extends Entity {
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(APP_TITLE);
 
-		SceneNewAction sceneNewAction = new SceneNewAction(Translator.get("SceneNewAction.name"),this);
-		sceneNewAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
-		sceneNewAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneNewAction.shortDescription"));
-		sceneNewAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+		SceneClearAction sceneClearAction = new SceneClearAction(Translator.get("SceneClearAction.name"),this);
+		sceneClearAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
+		sceneClearAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
+		sceneClearAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 
 		SceneLoadAction sceneLoadAction = new SceneLoadAction(Translator.get("SceneLoadAction.name"),this);
 		sceneLoadAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
@@ -490,7 +493,7 @@ public class RobotOverlord extends Entity {
 		sceneSaveAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
 		sceneSaveAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 
-		menu.add(sceneNewAction);
+		menu.add(sceneClearAction);
 		menu.add(sceneLoadAction);
 		menu.add(sceneSaveAction);
 		menu.add(new JSeparator());
