@@ -425,8 +425,8 @@ public class Entity implements PropertyChangeListener {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Entity entity = EntityFactory.load(jo2.getString("type"));
-			entity.parseJSON(jo2);
 			this.addEntity(entity);
+			entity.parseJSON(jo2);
 		}
 	}
 
@@ -456,10 +456,9 @@ public class Entity implements PropertyChangeListener {
 	public Scene getScene() {
 		Entity root = getRoot();
 
-		if(root==null) return null;
+		if(root instanceof Scene) return (Scene)root;
+		if(root instanceof RobotOverlord) return root.getScene();
 
-		if(!(root instanceof RobotOverlord)) return null;
-
-		return root.getScene();
+		return null;
 	}
 }
