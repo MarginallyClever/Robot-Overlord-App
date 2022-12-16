@@ -40,11 +40,8 @@ public class MeshFromFile extends ShapeComponent {
 
         Scene myScene = getScene();
         if(myScene!=null) {
-            String fn = filename.get();
-            String newFn = myScene.removeScenePath(fn);
-            filename.set(newFn);
-            jo.put("filename",filename.toJSON());
-            filename.set(fn);
+            StringEntity newFilename = new StringEntity("File",myScene.removeScenePath(filename.get()));
+            jo.put("filename",newFilename.toJSON());
         } else {
             jo.put("filename",filename.toJSON());
         }
@@ -56,14 +53,17 @@ public class MeshFromFile extends ShapeComponent {
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
 
-        filename.parseJSON(jo.getJSONObject("filename"));
-        String fn = filename.get();
+        StringEntity newFilename = new StringEntity("File","");
+        newFilename.parseJSON(jo.getJSONObject("filename"));
+
+        String fn = newFilename.get();
         if(!(new File(fn)).exists()) {
             Scene myScene = getScene();
             if(myScene!=null) {
-                filename.set(myScene.addScenePath(fn));
+                newFilename.set(myScene.addScenePath(fn));
             }
         }
+        filename.set(newFilename.get());
     }
 
     public void setFilename(String name) {

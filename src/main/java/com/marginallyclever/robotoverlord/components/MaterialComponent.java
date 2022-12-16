@@ -152,11 +152,8 @@ public class MaterialComponent extends Component {
 
         Scene myScene = getScene();
         if(myScene!=null) {
-            String fn = texture.get();
-            String newFn = myScene.removeScenePath(fn);
-            texture.set(newFn);
-            jo.put("texture",texture.toJSON());
-            texture.set(fn);
+            TextureEntity te = new TextureEntity(myScene.removeScenePath(texture.get()));
+            jo.put("texture",te.toJSON());
         } else {
             jo.put("texture",texture.toJSON());
         }
@@ -174,13 +171,15 @@ public class MaterialComponent extends Component {
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
 
-        texture.parseJSON(jo.getJSONObject("texture"));
-        String fn = texture.get();
+        TextureEntity te = new TextureEntity();
+        te.parseJSON(jo.getJSONObject("texture"));
+        String fn = te.get();
         if(!(new File(fn)).exists()) {
             Scene myScene = getScene();
             if(myScene!=null) {
-                texture.set(myScene.addScenePath(fn));
+                te.set(myScene.addScenePath(fn));
             }
         }
+        texture.set(te.get());
     }
 }
