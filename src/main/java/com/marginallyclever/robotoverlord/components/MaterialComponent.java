@@ -150,7 +150,15 @@ public class MaterialComponent extends Component {
         jo.put("diffuse",diffuse.toJSON());
         jo.put("specular",specular.toJSON());
         jo.put("shininess",shininess.toJSON());
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            String fn = texture.get();
+            fn = myScene.removeScenePath(fn);
+            texture.set(fn);
+        }
         jo.put("texture",texture.toJSON());
+
         return jo;
     }
 
@@ -164,5 +172,12 @@ public class MaterialComponent extends Component {
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
         texture.parseJSON(jo.getJSONObject("texture"));
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            String fn = texture.get();
+            fn = myScene.addScenePath(fn);
+            texture.set(fn);
+        }
     }
 }
