@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SceneLoadAction extends AbstractAction {
@@ -35,16 +36,23 @@ public class SceneLoadAction extends AbstractAction {
     public void actionPerformed(ActionEvent evt) {
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
             try {
-                Scene scene = loadScene(fc.getSelectedFile());
+                Scene source = loadScene(fc.getSelectedFile());
 
                 SceneClearAction clear = new SceneClearAction("Clear Scene",ro);
                 clear.clearScene();
-                UndoSystem.reset();
 
-                List<Entity> dest = new ArrayList<>();
-                dest.add(ro.getScene());
-                UndoSystem.addEvent(this,new EntityPasteEdit((String)this.getValue(Action.NAME),ro,scene,dest));
-                ro.getScene().setScenePath(fc.getSelectedFile().getAbsolutePath());
+                Scene destination = ro.getScene();
+                destination.setScenePath(source.getScenePath());
+                // when entities are added to destination they will automatically be removed from source.
+                // to prevent concurrent modification exception we have to have a copy of the list.
+                List<Entity> entities = new LinkedList<>();
+                entities.addAll(source.getEntities());
+                // now do the move safely.
+                for(Entity e : entities) {
+                    destination.addEntity(e);
+                }
+
+                UndoSystem.reset();
             } catch(Exception e1) {
                 logger.error(e1.getMessage());
                 JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
@@ -63,6 +71,7 @@ public class SceneLoadAction extends AbstractAction {
         }
 
         logger.debug("Loading scene from {}", file.getAbsolutePath());
+
         String pathName = (Paths.get(file.getAbsolutePath())).getParent().toString();
         Scene nextScene = new Scene(pathName);
         try {
