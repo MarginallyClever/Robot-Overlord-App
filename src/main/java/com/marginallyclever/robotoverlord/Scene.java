@@ -294,4 +294,21 @@ public class Scene extends Entity {
 					JOptionPane.WARNING_MESSAGE);
 		}
 	}
+
+	/**
+	 * Returns the relative path to the asset, or absolute if the asset is not within the scene path.
+	 * @param unCheckedAssetFilename
+	 * @return the relative path to the asset, or absolute if the asset is not within the scene path.
+	 */
+	public String removeScenePath(String unCheckedAssetFilename) {
+		String scenePathValue = getScenePath();
+		if(unCheckedAssetFilename.startsWith(scenePathValue)) {
+			return unCheckedAssetFilename.substring(scenePathValue.length());
+		}
+		return unCheckedAssetFilename;
+	}
+
+	public String addScenePath(String fn) {
+		return getScenePath() + fn;
+	}
 }
