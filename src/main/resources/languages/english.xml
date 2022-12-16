@@ -1208,7 +1208,7 @@ to check yourself.</value>
 		<value>Cut Entity</value>
 	</string>
 	<string>
-		<key>sceneClearAction.name</key>
+		<key>SceneClearAction.name</key>
 		<value>New Scene</value>
 	</string>
 	<string>
@@ -1219,6 +1219,15 @@ to check yourself.</value>
 		<key>SceneSaveAction.name</key>
 		<value>Save As...</value>
 	</string>
+	<string>
+		<key>SceneImportAction.name</key>
+		<value>Import</value>
+	</string>
+	<string>
+		<key>SceneImportAction.shortDescription</key>
+		<value>Copy a scene into the current scene.</value>
+	</string>
+
 	<string>
 		<key>AddChildEntity.name</key>
 		<value>Add Entity</value>
@@ -1260,4 +1269,10 @@ to check yourself.</value>
 		<key>Scene.AssetPathNotInScenePathWarning</key>
 		<value>Asset \n%1\nis not in scene path\n%2\nConsider moving your asset into the scene path for easier sharing with others.</value>
 	</string>
+
+	<String>
+		<key>Are you sure?</key>
+		<value>Are you sure?</value>
+	</String>
+
 </language>

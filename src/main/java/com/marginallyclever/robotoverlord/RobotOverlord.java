@@ -488,6 +488,10 @@ public class RobotOverlord extends Entity {
 		sceneLoadAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
 		sceneLoadAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
 
+		SceneImportAction sceneImportAction = new SceneImportAction(Translator.get("SceneImportAction.name"),this);
+		sceneImportAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
+		sceneImportAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
+
 		SceneSaveAction sceneSaveAction = new SceneSaveAction(Translator.get("SceneSaveAction.name"),this);
 		sceneSaveAction.putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
 		sceneSaveAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
@@ -495,6 +499,7 @@ public class RobotOverlord extends Entity {
 
 		menu.add(sceneClearAction);
 		menu.add(sceneLoadAction);
+		menu.add(sceneImportAction);
 		menu.add(sceneSaveAction);
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
