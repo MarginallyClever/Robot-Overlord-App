@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.filechooser.FileFilter;
+import java.io.File;
 import java.util.ArrayList;
 
 public class MeshFromFile extends ShapeComponent {
@@ -40,24 +41,28 @@ public class MeshFromFile extends ShapeComponent {
         Scene myScene = getScene();
         if(myScene!=null) {
             String fn = filename.get();
-            fn = myScene.removeScenePath(fn);
+            String newFn = myScene.removeScenePath(fn);
+            filename.set(newFn);
+            jo.put("filename",filename);
             filename.set(fn);
+        } else {
+            jo.put("filename",filename);
         }
 
-        jo.put("filename",filename.toJSON());
         return jo;
     }
 
     @Override
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
-        filename.parseJSON(jo.getJSONObject("filename"));
 
-        Scene myScene = getScene();
-        if(myScene!=null) {
-            String fn = filename.get();
-            fn = myScene.addScenePath(fn);
-            filename.set(fn);
+        filename.parseJSON(jo.getJSONObject("filename"));
+        String fn = filename.get();
+        if(!(new File(fn)).exists()) {
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                filename.set(myScene.addScenePath(fn));
+            }
         }
     }
 

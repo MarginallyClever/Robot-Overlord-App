@@ -3,13 +3,12 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Scene;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.parameters.TextureEntity;
+import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 
 public class MaterialComponent extends Component {
     private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
@@ -154,10 +153,13 @@ public class MaterialComponent extends Component {
         Scene myScene = getScene();
         if(myScene!=null) {
             String fn = texture.get();
-            fn = myScene.removeScenePath(fn);
+            String newFn = myScene.removeScenePath(fn);
+            texture.set(newFn);
+            jo.put("texture",texture.toJSON());
             texture.set(fn);
+        } else {
+            jo.put("texture",texture.toJSON());
         }
-        jo.put("texture",texture.toJSON());
 
         return jo;
     }
@@ -171,13 +173,14 @@ public class MaterialComponent extends Component {
         diffuse.parseJSON(jo.getJSONObject("diffuse"));
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
-        texture.parseJSON(jo.getJSONObject("texture"));
 
-        Scene myScene = getScene();
-        if(myScene!=null) {
-            String fn = texture.get();
-            fn = myScene.addScenePath(fn);
-            texture.set(fn);
+        texture.parseJSON(jo.getJSONObject("texture"));
+        String fn = texture.get();
+        if(!(new File(fn)).exists()) {
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                texture.set(myScene.addScenePath(fn));
+            }
         }
     }
 }
