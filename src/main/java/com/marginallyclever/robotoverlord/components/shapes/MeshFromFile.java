@@ -43,10 +43,10 @@ public class MeshFromFile extends ShapeComponent {
             String fn = filename.get();
             String newFn = myScene.removeScenePath(fn);
             filename.set(newFn);
-            jo.put("filename",filename);
+            jo.put("filename",filename.toJSON());
             filename.set(fn);
         } else {
-            jo.put("filename",filename);
+            jo.put("filename",filename.toJSON());
         }
 
         return jo;
