@@ -36,6 +36,14 @@ public class MeshFromFile extends ShapeComponent {
     @Override
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            String fn = filename.get();
+            fn = myScene.removeScenePath(fn);
+            filename.set(fn);
+        }
+
         jo.put("filename",filename.toJSON());
         return jo;
     }
@@ -44,6 +52,13 @@ public class MeshFromFile extends ShapeComponent {
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
         filename.parseJSON(jo.getJSONObject("filename"));
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            String fn = filename.get();
+            fn = myScene.addScenePath(fn);
+            filename.set(fn);
+        }
     }
 
     public void setFilename(String name) {
