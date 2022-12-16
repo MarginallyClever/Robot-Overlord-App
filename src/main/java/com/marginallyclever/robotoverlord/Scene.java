@@ -50,6 +50,10 @@ public class Scene extends Entity {
 		super();
 	}
 
+	/**
+	 * Initialize the scene with a path to the root of the project.
+	 * @param absolutePath
+	 */
 	public Scene(String absolutePath) {
 		super();
 		setScenePath(absolutePath);
@@ -245,16 +249,18 @@ public class Scene extends Entity {
 		sceneChangeListeners.remove(listener);
 	}
 
+	/**
+	 * Set the scene path.  This is the path to the directory containing the scene file.
+	 * @param absolutePath
+	 */
 	public void setScenePath(String absolutePath) {
 		File file = new File(absolutePath);
 		if(!file.exists()) throw new RuntimeException("File does not exist: "+absolutePath);
-
+		if(!file.isDirectory()) throw new RuntimeException("Not a directory: "+absolutePath);
 		//if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene path when entities are present.");
 
-		Path p = Paths.get(absolutePath);
-		String path = p.getParent().toString();
-		logger.debug("Setting scene path to "+path);
-		scenePath.set(path);
+		logger.debug("Setting scene path to "+absolutePath);
+		scenePath.set(absolutePath);
 	}
 
 	public String getScenePath() {
