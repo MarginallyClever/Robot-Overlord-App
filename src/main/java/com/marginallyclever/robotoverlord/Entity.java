@@ -439,6 +439,7 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
+	@Deprecated
 	public Entity deepCopy() {
 		Entity e = new Entity();
 		e.parseJSON(this.toJSON());
