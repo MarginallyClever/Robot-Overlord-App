@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
@@ -8,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.filechooser.FileFilter;
+import java.io.File;
 import java.util.ArrayList;
 
 public class MeshFromFile extends ShapeComponent {
@@ -16,6 +18,11 @@ public class MeshFromFile extends ShapeComponent {
     public MeshFromFile() {
         super();
         filename.addPropertyChangeListener((e)->{
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                myScene.warnIfAssetPathIsNotInScenePath(filename.get());
+            }
+
             setModel(MeshFactory.load(filename.get()));
         });
     }
@@ -30,14 +37,33 @@ public class MeshFromFile extends ShapeComponent {
     @Override
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
-        jo.put("filename",filename.toJSON());
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            StringEntity newFilename = new StringEntity("File",myScene.removeScenePath(filename.get()));
+            jo.put("filename",newFilename.toJSON());
+        } else {
+            jo.put("filename",filename.toJSON());
+        }
+
         return jo;
     }
 
     @Override
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
-        filename.parseJSON(jo.getJSONObject("filename"));
+
+        StringEntity newFilename = new StringEntity("File","");
+        newFilename.parseJSON(jo.getJSONObject("filename"));
+
+        String fn = newFilename.get();
+        if(!(new File(fn)).exists()) {
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                newFilename.set(myScene.addScenePath(fn));
+            }
+        }
+        filename.set(newFilename.get());
     }
 
     public void setFilename(String name) {

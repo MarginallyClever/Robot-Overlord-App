@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import org.json.JSONObject;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -31,10 +32,12 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
     }
 
     private void doIt() {
-        for(Entity parent : parents) {
-            List<Entity> from = copiedEntities.getEntities();
-            for(Entity e : from) {
-                Entity copy = e.deepCopy();
+        List<Entity> from = copiedEntities.getEntities();
+        for(Entity e : from) {
+            JSONObject serialized = e.toJSON();
+            for(Entity parent : parents) {
+                Entity copy = new Entity();
+                copy.parseJSON(serialized);
                 copies.add(copy);
                 parent.addEntity(copy);
             }

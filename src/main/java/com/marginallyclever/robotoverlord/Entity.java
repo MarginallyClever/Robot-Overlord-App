@@ -135,18 +135,14 @@ public class Entity implements PropertyChangeListener {
 		if (entities.contains(e)) {
 			checkForRemoveFromScene(this,this,e);
 			entities.remove(e);
-			if(e.getParent()==this) e.setParent(null);
+			if(e.getParent()==this) // is this always true?  then why test it?
+				e.setParent(null);
 		}
 	}
 
 	private void checkForRemoveFromScene(Entity node,Entity parent,Entity child) {
-		while(node!=null) {
-			if (node instanceof Scene) {
-				((Scene) node).removeEntityFromParent(parent, child);
-				return;
-			}
-			node = node.getParent();
-		}
+		Scene scene = getScene();
+		if(scene != null) scene.removeEntityFromParent(parent, child);
 	}
 
 	public ArrayList<Entity> getEntities() {
@@ -429,8 +425,8 @@ public class Entity implements PropertyChangeListener {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Entity entity = EntityFactory.load(jo2.getString("type"));
-			entity.parseJSON(jo2);
 			this.addEntity(entity);
+			entity.parseJSON(jo2);
 		}
 	}
 
@@ -443,6 +439,7 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
+	@Deprecated
 	public Entity deepCopy() {
 		Entity e = new Entity();
 		e.parseJSON(this.toJSON());
@@ -455,5 +452,14 @@ public class Entity implements PropertyChangeListener {
 
 	public void setExpanded(boolean arg0) {
 		isExpanded = arg0;
+	}
+
+	public Scene getScene() {
+		Entity root = getRoot();
+
+		if(root instanceof Scene) return (Scene)root;
+		if(root instanceof RobotOverlord) return root.getScene();
+
+		return null;
 	}
 }

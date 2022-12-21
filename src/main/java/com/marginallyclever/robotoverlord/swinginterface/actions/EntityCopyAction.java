@@ -20,11 +20,13 @@ public class EntityCopyAction extends AbstractAction implements EditorAction {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent evt) {
         List<Entity> list = ro.getSelectedEntities();
         Entity container = new Entity();
         for(Entity entity : list) {
-            container.addEntity(entity.deepCopy());
+            Entity e = new Entity();
+            e.parseJSON(entity.toJSON());
+            container.addEntity(e);
         }
         ro.setCopiedEntities(container);
     }

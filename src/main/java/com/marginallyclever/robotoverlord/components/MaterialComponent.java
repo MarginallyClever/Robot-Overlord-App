@@ -2,13 +2,13 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.parameters.TextureEntity;
+import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 
 public class MaterialComponent extends Component {
     private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
@@ -29,6 +29,12 @@ public class MaterialComponent extends Component {
         view.add(specular);
         view.addRange(shininess, 128, 0);
         texture.getView(view);
+        texture.addPropertyChangeListener((e)->{
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                myScene.warnIfAssetPathIsNotInScenePath(texture.getFullPath());
+            }
+        });
     }
 
     public void render(GL2 gl2) {
@@ -143,7 +149,15 @@ public class MaterialComponent extends Component {
         jo.put("diffuse",diffuse.toJSON());
         jo.put("specular",specular.toJSON());
         jo.put("shininess",shininess.toJSON());
-        jo.put("texture",texture.toJSON());
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            TextureEntity te = new TextureEntity(myScene.removeScenePath(texture.get()));
+            jo.put("texture",te.toJSON());
+        } else {
+            jo.put("texture",texture.toJSON());
+        }
+
         return jo;
     }
 
@@ -156,6 +170,16 @@ public class MaterialComponent extends Component {
         diffuse.parseJSON(jo.getJSONObject("diffuse"));
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
-        texture.parseJSON(jo.getJSONObject("texture"));
+
+        TextureEntity te = new TextureEntity();
+        te.parseJSON(jo.getJSONObject("texture"));
+        String fn = te.get();
+        if(!(new File(fn)).exists()) {
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                te.set(myScene.addScenePath(fn));
+            }
+        }
+        texture.set(te.get());
     }
 }
