@@ -206,7 +206,7 @@ public final class MarginallyCleverTranslationXmlFileHelper {
   private static URL getLanguagesFolderUrlFromUserDirectory() {
     URL languageFolderUsingUserDirectoryUrl = null;
     try {
-    	File f = new File(Translator.WORKING_DIRECTORY);
+    	File f = new File(Translator.LANGUAGES_DIRECTORY);
       languageFolderUsingUserDirectoryUrl = f.toURI().toURL();
     } catch (MalformedURLException e) {
       Log.error( e.getMessage() );

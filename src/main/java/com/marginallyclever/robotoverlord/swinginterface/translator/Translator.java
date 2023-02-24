@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.translator;
 
-import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
 import com.marginallyclever.util.PreferencesHelper;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -31,7 +30,7 @@ public final class Translator {
 	/**
 	 * Working directory. This represents the directory where the java executable launched the jar from.
 	 */
-	public static final String WORKING_DIRECTORY = /*File.separator + */"languages"/*+File.separator*/;
+	public static final String LANGUAGES_DIRECTORY = /*File.separator + */"languages"/*+File.separator*/;
 
 
 	/**
@@ -117,13 +116,10 @@ public final class Translator {
 
 	/**
 	 * @return true if a preferences node exists
-	 * @throws BackingStoreException
+	 * @throws BackingStoreException if the backing store is inaccessible
 	 */
 	static private boolean doesLanguagePreferenceExist() throws BackingStoreException {
-		if (Arrays.asList(languagePreferenceNode.keys()).contains(LANGUAGE_KEY)) {
-			return true;
-		}
-		return false;
+		return Arrays.asList(languagePreferenceNode.keys()).contains(LANGUAGE_KEY);
 	}
 
 	/**
@@ -143,18 +139,15 @@ public final class Translator {
 
 	/**
 	 * Scan folder for language files.
-	 * See http://stackoverflow.com/questions/1429172/how-do-i-list-the-files-inside-a-jar-file
+	 * See <a href="http://stackoverflow.com/questions/1429172/how-do-i-list-the-files-inside-a-jar-file">stackoverflow</a>
 	 * @throws IllegalStateException No language files found
 	 */
 	static public void loadLanguages() {
 		try {
-			if(loadLanguageInPath(getWorkingDirectory())) return;
-			if(loadLanguageInPath(getRootDirectory())) return;
+			if(loadLanguageInPath(getLanguagesPath())) return;
+			if(loadLanguageInPath(getUserDirectory())) return;
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (URISyntaxException e) {
+		catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 
@@ -164,7 +157,7 @@ public final class Translator {
 	}
 
 	private static boolean loadLanguageInPath(Path path) throws IOException {
-		System.out.println("Looking for language files in " + path.toString());
+		logger.debug("Looking for language files in " + path.toString());
 
 		int found = 0;
 		Stream<Path> walk = Files.walk(path, 1);	// check inside the JAR file.
@@ -178,17 +171,17 @@ public final class Translator {
 	}
 
 	private static boolean loadLanguage(String name) throws FileNotFoundException {
-		System.out.println("Looking at " + name);
+		logger.debug("Looking at " + name);
 		// We'll look inside the JAR file first, then look in the working directory. this way
 		// new translation files in the working directory will replace the old JAR files.
 		//if( f.isDirectory() || f.isHidden() ) continue;
 		if (!FilenameUtils.getExtension(name).equalsIgnoreCase("xml")) {
-			System.out.println("Skipping, not an XML file.");
+			logger.debug("Skipping, not an XML file.");
 			return false;
 		}
 
 		// found an XML file in the /languages folder.  Good sign!
-		String nameInsideJar = WORKING_DIRECTORY + "/" + FilenameUtils.getName(name);
+		String nameInsideJar = LANGUAGES_DIRECTORY + "/" + FilenameUtils.getName(name);
 		InputStream stream = Translator.class.getClassLoader().getResourceAsStream(nameInsideJar);
 		String actualFilename = "Jar:" + nameInsideJar;
 		File externalFile = new File(name);
@@ -197,7 +190,7 @@ public final class Translator {
 			actualFilename = name;
 		}
 		if (stream != null) {
-			System.out.println("Found " + actualFilename);
+			logger.debug("Found " + actualFilename);
 			TranslatorLanguage lang = new TranslatorLanguage();
 			try {
 				lang.loadFromInputStream(stream);
@@ -218,7 +211,7 @@ public final class Translator {
 		return false;
 	}
 
-	private static Path getRootDirectory() {
+	private static Path getUserDirectory() {
 		logger.debug("Looking for user.dir");
 		Path rootPath = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
 		logger.debug("user.dir="+rootPath);
@@ -230,17 +223,17 @@ public final class Translator {
 	 * @throws URISyntaxException
 	 * @throws IOException
 	 */
-	private static Path getWorkingDirectory() throws URISyntaxException, IOException {
-		logger.debug("Looking for working directory of '"+WORKING_DIRECTORY+"'.");
-		URL a = Translator.class.getClassLoader().getResource(WORKING_DIRECTORY);
+	private static Path getLanguagesPath() throws URISyntaxException, IOException {
+		logger.debug("Looking for languages path '"+ LANGUAGES_DIRECTORY +"'.");
+		URL a = Translator.class.getClassLoader().getResource(LANGUAGES_DIRECTORY);
 		assert a != null;
 		URI uri = a.toURI();
-		logger.debug("working directory found.");
+		logger.debug("found.");
 
 		Path myPath;
 		if (uri.getScheme().equals("jar")) {
 			FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-			myPath = fileSystem.getPath(WORKING_DIRECTORY);
+			myPath = fileSystem.getPath(LANGUAGES_DIRECTORY);
 		} else {
 			myPath = Paths.get(uri);
 		}
@@ -248,7 +241,7 @@ public final class Translator {
 	}
 
 	/**
-	 * @param key
+	 * @param key they key to translate
 	 * @return the translated value for key
 	 */
 	static public String get(String key) {
@@ -263,14 +256,14 @@ public final class Translator {
 	}
 
 	/**
-	 * @return the list of language names
+	 * @return the array of language names
 	 */
 	static public String[] getLanguageList() {
 		final String[] choices = new String[languages.keySet().size()];
 		final Object[] lang_keys = languages.keySet().toArray();
 
 		for (int i = 0; i < lang_keys.length; ++i) {
-			choices[i] = (String) lang_keys[i];
+			choices[i] = (String)lang_keys[i];
 		}
 
 		return choices;
