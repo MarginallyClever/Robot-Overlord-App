@@ -72,8 +72,13 @@ public final class Translator {
 		loadLanguages();
 		loadConfig();
 
-		if (isThisTheFirstTimeLoadingLanguageFiles()) {
-			chooseLanguage();
+		if(!GraphicsEnvironment.isHeadless()) {
+			if (isThisTheFirstTimeLoadingLanguageFiles()) {
+				chooseLanguage();
+			}
+		} else {
+			logger.debug("Headless environment detected.  Defaulting to English.");
+			currentLanguage = "English";
 		}
 	}
 
