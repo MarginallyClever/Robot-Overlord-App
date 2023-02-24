@@ -72,13 +72,15 @@ public final class Translator {
 		loadLanguages();
 		loadConfig();
 
-		if(!GraphicsEnvironment.isHeadless()) {
-			if (isThisTheFirstTimeLoadingLanguageFiles()) {
+		if (isThisTheFirstTimeLoadingLanguageFiles()) {
+			if (!GraphicsEnvironment.isHeadless()) {
 				chooseLanguage();
+			} else {
+				String [] tongues = getLanguageList();
+				String firstLanguage = tongues[0];
+				logger.debug("Headless environment detected.  Defaulting to "+firstLanguage+".");
+				setCurrentLanguage(firstLanguage);
 			}
-		} else {
-			logger.debug("Headless environment detected.  Defaulting to English.");
-			currentLanguage = "English";
 		}
 	}
 
@@ -88,7 +90,7 @@ public final class Translator {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		final String[] languageList = getLanguageList();
-		final JComboBox<String> languageOptions = new JComboBox<String>(languageList);
+		final JComboBox<String> languageOptions = new JComboBox<>(languageList);
 		int currentIndex = getCurrentLanguageIndex();
 		languageOptions.setSelectedIndex(currentIndex);
 
