@@ -1,16 +1,14 @@
 package com.marginallyclever.robotoverlord.swinginterface.translator;
 
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
 import com.marginallyclever.util.PreferencesHelper;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,6 +26,7 @@ import java.util.stream.Stream;
  * See <a href="http://www.java-samples.com/showtutorial.php?tutorialid=152">XML and Java - Parsing XML using Java Tutorial</a>
  */
 public final class Translator {
+	private static final Logger logger = LoggerFactory.getLogger(Translator.class);
 
 	/**
 	 * Working directory. This represents the directory where the java executable launched the jar from.
@@ -65,12 +64,12 @@ public final class Translator {
 	 *
 	 */
 	static public void start() {
-		Log.message("Translator start");
+		logger.debug("Translator start");
 		
 		Locale locale = Locale.getDefault();
 		defaultLanguage = locale.getDisplayLanguage(Locale.ENGLISH);
-		Log.message("Default language = "+defaultLanguage);
-		
+		logger.debug("Default language = "+defaultLanguage);
+
 		loadLanguages();
 		loadConfig();
 
@@ -99,7 +98,7 @@ public final class Translator {
 		setCurrentLanguage(languageList[languageOptions.getSelectedIndex()]);
 		saveConfig();
 	}
-	
+
 
 	/**
 	 * @return true if this is the first time loading language files (probably on install)
@@ -111,7 +110,7 @@ public final class Translator {
 				return false;
 			}
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		return true;
 	}
@@ -148,72 +147,9 @@ public final class Translator {
 	 * @throws IllegalStateException No language files found
 	 */
 	static public void loadLanguages() {
-		try {			
-			URI uri = Translator.class.getClassLoader().getResource(WORKING_DIRECTORY).toURI();
-			Log.message("Looking for translations in "+uri.toString());
-			
-			Path myPath;
-			if (uri.getScheme().equals("jar")) {
-				FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
-				myPath = fileSystem.getPath(WORKING_DIRECTORY);
-			} else {
-				myPath = Paths.get(uri);
-			}
-
-			Path rootPath = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
-			Log.message("rootDir="+rootPath.toString());
-			
-			// we'll look inside the JAR file first, then look in the working directory.
-			// this way new translation files in the working directory will replace the old
-			// JAR files.
-			int found=0;
-			Stream<Path> walk = Stream.concat(
-					Files.walk(myPath, 1),	// check inside the JAR file.
-					Files.walk(rootPath,1)	// then check the working directory
-					);
-			Iterator<Path> it = walk.iterator();
-			while( it.hasNext() ) {
-				Path p = it.next();
-				String name = p.toString();
-				//if( f.isDirectory() || f.isHidden() ) continue;
-				if( FilenameUtils.getExtension(name).equalsIgnoreCase("xml") ) {
-					// found an XML file in the /languages folder.  Good sign!
-					String nameInsideJar = WORKING_DIRECTORY+"/"+FilenameUtils.getName(name);
-					InputStream stream = Translator.class.getClassLoader().getResourceAsStream(nameInsideJar);
-					String actualFilename = "Jar:"+nameInsideJar;
-					File externalFile = new File(name);
-					if(externalFile.exists()) {
-						stream = new FileInputStream(new File(name));
-						actualFilename = name;
-					}
-					if( stream != null ) {
-						Log.message("Found "+actualFilename);
-						TranslatorLanguage lang = new TranslatorLanguage();
-						try {
-							lang.loadFromInputStream(stream);
-						} catch(Exception e) {
-							Log.error("Failed to load "+actualFilename);
-							// if the xml file is invalid then an exception can occur.
-							// make sure lang is empty in case of a partial-load failure.
-							lang = new TranslatorLanguage();
-						}
-						
-						if( !lang.getName().isEmpty() && 
-							!lang.getAuthor().isEmpty()) {
-							// we loaded a language file that seems pretty legit.
-							languages.put(lang.getName(), lang);
-							++found;
-						}
-					}
-				}
-			}
-			walk.close();
-			
-			//Log.message("total found: "+found);
-	
-			if(found==0) {
-				throw new IllegalStateException("No translations found.");
-			}
+		try {
+			if(loadLanguageInPath(getWorkingDirectory())) return;
+			if(loadLanguageInPath(getRootDirectory())) return;
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -221,20 +157,94 @@ public final class Translator {
 		catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-		catch (IllegalStateException e) {
-			Log.error( e.getMessage()+". Defaulting to "+defaultLanguage+". Language folder expected to be located at "+ WORKING_DIRECTORY);
-			final TranslatorLanguage languageContainer  = new TranslatorLanguage();
-			String path = MarginallyCleverTranslationXmlFileHelper.getDefaultLanguageFilePath();
-			Log.message("default path requested: "+path);
-			URL pathFound = Translator.class.getClassLoader().getResource(path);
-			Log.message("path found: "+pathFound);
-			try (InputStream s = pathFound.openStream()) {
-				languageContainer.loadFromInputStream(s);
-			} catch (IOException ie) {
-				Log.error(ie.getMessage());
-			}
-			languages.put(languageContainer.getName(), languageContainer);
+
+		logger.debug("No translations found.  Defaulting to blank language.");
+		TranslatorLanguage languageContainer  = new TranslatorLanguage();
+		languages.put(languageContainer.getName(), languageContainer);
+	}
+
+	private static boolean loadLanguageInPath(Path path) throws IOException {
+		System.out.println("Looking for language files in " + path.toString());
+
+		int found = 0;
+		Stream<Path> walk = Files.walk(path, 1);	// check inside the JAR file.
+		Iterator<Path> it = walk.iterator();
+		while( it.hasNext() ) {
+			if(loadLanguage(it.next().toString())) found++;
 		}
+		walk.close();
+
+		return found>0;
+	}
+
+	private static boolean loadLanguage(String name) throws FileNotFoundException {
+		System.out.println("Looking at " + name);
+		// We'll look inside the JAR file first, then look in the working directory. this way
+		// new translation files in the working directory will replace the old JAR files.
+		//if( f.isDirectory() || f.isHidden() ) continue;
+		if (!FilenameUtils.getExtension(name).equalsIgnoreCase("xml")) {
+			System.out.println("Skipping, not an XML file.");
+			return false;
+		}
+
+		// found an XML file in the /languages folder.  Good sign!
+		String nameInsideJar = WORKING_DIRECTORY + "/" + FilenameUtils.getName(name);
+		InputStream stream = Translator.class.getClassLoader().getResourceAsStream(nameInsideJar);
+		String actualFilename = "Jar:" + nameInsideJar;
+		File externalFile = new File(name);
+		if (externalFile.exists()) {
+			stream = new FileInputStream(name);
+			actualFilename = name;
+		}
+		if (stream != null) {
+			System.out.println("Found " + actualFilename);
+			TranslatorLanguage lang = new TranslatorLanguage();
+			try {
+				lang.loadFromInputStream(stream);
+			} catch (Exception e) {
+				logger.error("Failed to load " + actualFilename, e);
+				// if the xml file is invalid then an exception can occur.
+				// make sure lang is empty in case of a partial-load failure.
+				lang = new TranslatorLanguage();
+			}
+
+			if (!lang.getName().isEmpty() &&
+					!lang.getAuthor().isEmpty()) {
+				// we loaded a language file that seems pretty legit.
+				languages.put(lang.getName(), lang);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static Path getRootDirectory() {
+		logger.debug("Looking for user.dir");
+		Path rootPath = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
+		logger.debug("user.dir="+rootPath);
+		return rootPath;
+	}
+
+	/**
+	 * @return the path to the working directory
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 */
+	private static Path getWorkingDirectory() throws URISyntaxException, IOException {
+		logger.debug("Looking for working directory of '"+WORKING_DIRECTORY+"'.");
+		URL a = Translator.class.getClassLoader().getResource(WORKING_DIRECTORY);
+		assert a != null;
+		URI uri = a.toURI();
+		logger.debug("working directory found.");
+
+		Path myPath;
+		if (uri.getScheme().equals("jar")) {
+			FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+			myPath = fileSystem.getPath(WORKING_DIRECTORY);
+		} else {
+			myPath = Paths.get(uri);
+		}
+		return myPath;
 	}
 
 	/**
@@ -246,7 +256,7 @@ public final class Translator {
 		try {
 			value = languages.get(currentLanguage).get(key);
 		} catch (Exception e) {
-			Log.error("Translated string missing: "+key);
+			logger.error("Translated string missing: "+key,e);
 			//e.printStackTrace();
 		}
 		return value;
