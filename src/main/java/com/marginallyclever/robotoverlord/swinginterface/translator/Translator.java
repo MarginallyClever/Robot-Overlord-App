@@ -63,7 +63,7 @@ public final class Translator {
 	 *
 	 */
 	static public void start() {
-		System.out.println("Translator start");
+		logger.debug("Translator start");
 
 		loadLocale();
 		loadLanguages();
@@ -75,7 +75,7 @@ public final class Translator {
 			} else {
 				String [] tongues = getLanguageList();
 				String firstLanguage = tongues[0];
-				System.out.println("Headless environment detected.  Defaulting to "+firstLanguage+".");
+				logger.debug("Headless environment detected.  Defaulting to "+firstLanguage+".");
 				setCurrentLanguage(firstLanguage);
 			}
 		}
@@ -84,7 +84,7 @@ public final class Translator {
 	private static void loadLocale() {
 		Locale locale = Locale.getDefault();
 		defaultLanguage = locale.getDisplayLanguage(Locale.ENGLISH);
-		System.out.println("Default language = "+defaultLanguage);
+		logger.debug("Default language = "+defaultLanguage);
 	}
 
 
@@ -120,6 +120,7 @@ public final class Translator {
 			}
 		} catch (BackingStoreException e) {
 			logger.error(e.getMessage());
+			return false;
 		}
 		return true;
 	}
@@ -161,13 +162,13 @@ public final class Translator {
 			e.printStackTrace();
 		}
 
-		System.out.println("No translations found.  Defaulting to blank language.");
+		logger.debug("No translations found.  Defaulting to blank language.");
 		TranslatorLanguage languageContainer  = new TranslatorLanguage();
 		languages.put(languageContainer.getName(), languageContainer);
 	}
 
 	private static boolean loadLanguagesFromPath(Path path) throws IOException {
-		System.out.println("Looking for language files in " + path.toString());
+		logger.debug("Looking for language files in " + path.toString());
 
 		int found = 0;
 		Stream<Path> walk = Files.walk(path, 1);	// check inside the JAR file.
@@ -182,12 +183,12 @@ public final class Translator {
 	}
 
 	private static boolean loadLanguageFromFile(String name) throws FileNotFoundException {
-		System.out.println("Looking at " + name);
+		logger.debug("Looking at " + name);
 		// We'll look inside the JAR file first, then look in the working directory. this way
 		// new translation files in the working directory will replace the old JAR files.
 		//if( f.isDirectory() || f.isHidden() ) continue;
 		if (!FilenameUtils.getExtension(name).equalsIgnoreCase("xml")) {
-			System.out.println("Skipping, not an XML file.");
+			logger.debug("Skipping, not an XML file.");
 			return false;
 		}
 
@@ -201,7 +202,7 @@ public final class Translator {
 			actualFilename = name;
 		}
 		if (stream != null) {
-			System.out.println("Found " + actualFilename);
+			logger.debug("Found " + actualFilename);
 			TranslatorLanguage lang = new TranslatorLanguage();
 			try {
 				lang.loadFromInputStream(stream);
@@ -223,9 +224,9 @@ public final class Translator {
 	}
 
 	private static Path getUserDirectory() {
-		System.out.println("Looking for user.dir");
+		logger.debug("Looking for user.dir");
 		Path rootPath = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
-		System.out.println("user.dir="+rootPath);
+		logger.debug("user.dir="+rootPath);
 		return rootPath;
 	}
 
@@ -235,11 +236,11 @@ public final class Translator {
 	 * @throws IOException
 	 */
 	private static Path getLanguagesPath() throws URISyntaxException, IOException {
-		System.out.println("Looking for languages path '"+ LANGUAGES_DIRECTORY +"'.");
+		logger.debug("Looking for languages path '"+ LANGUAGES_DIRECTORY +"'.");
 		URL a = Translator.class.getClassLoader().getResource(LANGUAGES_DIRECTORY);
 		assert a != null;
 		URI uri = a.toURI();
-		System.out.println("found.");
+		logger.debug("found.");
 
 		Path myPath;
 		if (uri.getScheme().equals("jar")) {
