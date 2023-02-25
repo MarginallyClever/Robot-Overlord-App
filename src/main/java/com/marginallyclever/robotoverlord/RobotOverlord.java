@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +60,21 @@ public class RobotOverlord extends Entity {
 	public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
 
 	// used for checking the application version with the GitHub release, for "there is a new version available!" notification
-	public static final String VERSION = PropertiesFileHelper.getVersionPropertyValue();
+	public static final String VERSION;
+
+	static {
+		try {
+			VERSION = PropertiesFileHelper.getVersionPropertyValue();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	// settings
-	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");  // Secretly evil?  Nice.
+	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
     //private RecentFiles recentFiles = new RecentFiles();
     
-    private Scene scene;
+    private final Scene scene;
 	private transient final List<Entity> selectedEntities = new ArrayList<>();
 	private transient Entity copiedEntities = new Entity();
 
@@ -107,13 +117,12 @@ public class RobotOverlord extends Entity {
 
 	// click on screen to change which entity is selected
 	private transient boolean pickNow = false;
-	private transient Vector2d pickPoint = new Vector2d();
+	private final transient Vector2d pickPoint = new Vector2d();
 
 	private final SkyBoxEntity sky = new SkyBoxEntity();
 	
  	private RobotOverlord() {
-		super();
-		setName("");
+		super("");
 
 		this.addComponent(new PoseComponent());
 
