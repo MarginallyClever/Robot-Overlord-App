@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 /**
  * MultilingualSupport is the translation engine.  You ask for a string it finds the matching string in the currently selected language.
- *
+ * TODO replace with {@link ResourceBundle}s?
  * @author dan royer
  * @author Peter Colapietro
  * See <a href="http://www.java-samples.com/showtutorial.php?tutorialid=152">XML and Java - Parsing XML using Java Tutorial</a>
