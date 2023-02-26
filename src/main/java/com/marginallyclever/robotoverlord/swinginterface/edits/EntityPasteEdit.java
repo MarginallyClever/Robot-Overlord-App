@@ -32,14 +32,15 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
     }
 
     private void doIt() {
+        copies.clear();
         List<Entity> from = copiedEntities.getEntities();
         for(Entity e : from) {
             JSONObject serialized = e.toJSON();
             for(Entity parent : parents) {
                 Entity copy = new Entity();
+                parent.addEntity(copy);
                 copy.parseJSON(serialized);
                 copies.add(copy);
-                parent.addEntity(copy);
             }
         }
         ro.setSelectedEntity(null);

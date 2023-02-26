@@ -18,13 +18,24 @@ public class MeshFromFile extends ShapeComponent {
     public MeshFromFile() {
         super();
         filename.addPropertyChangeListener((e)->{
-            Scene myScene = getScene();
-            if(myScene!=null) {
-                myScene.warnIfAssetPathIsNotInScenePath(filename.get());
-            }
-
-            setModel(MeshFactory.load(filename.get()));
+            String fn = checkForScenePath(filename.get());
+            setModel(MeshFactory.load(fn));
         });
+    }
+
+    private String checkForScenePath(String fn) {
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            if (!myScene.isAssetPathInScenePath(fn)) {
+                String fn2 = myScene.addScenePath(fn);
+                if ((new File(fn2)).exists()) {
+                    return fn2;
+                }
+            } else {
+                myScene.warnIfAssetPathIsNotInScenePath(fn);
+            }
+        }
+        return fn;
     }
 
     @Override
