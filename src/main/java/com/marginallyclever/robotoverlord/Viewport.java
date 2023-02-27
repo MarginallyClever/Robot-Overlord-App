@@ -67,7 +67,7 @@ public class Viewport extends Entity {
 	}
 	
 	public void renderOrthographic(GL2 gl2, CameraComponent cameraComponent) {
-        renderOrthographic(gl2,cameraComponent.getZoom()/100.0);
+        renderOrthographic(gl2,cameraComponent.getOrbitDistance()/100.0);
 	}
 
 	public void renderShared(GL2 gl2,CameraComponent cameraComponent) {
@@ -76,9 +76,9 @@ public class Viewport extends Entity {
 
 		if(cameraComponent !=null) {
 			PoseComponent pose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
-			Matrix4d mFinal = pose.getWorld();
-			mFinal.invert();
-			MatrixHelper.applyMatrix(gl2, mFinal);
+			Matrix4d inverseCamera = pose.getWorld();
+			inverseCamera.invert();
+			MatrixHelper.applyMatrix(gl2, inverseCamera);
 		}
 	}
 	

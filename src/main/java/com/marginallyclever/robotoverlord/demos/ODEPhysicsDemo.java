@@ -51,7 +51,7 @@ public class ODEPhysicsDemo implements Demo {
 		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
-		camera.setZoom(20);
+		camera.setOrbitDistance(20);
 		
 		// add some lights
 		LightComponent light;
