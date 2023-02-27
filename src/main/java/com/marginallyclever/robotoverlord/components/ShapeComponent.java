@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 @ComponentDependency(components={PoseComponent.class, MaterialComponent.class})
-public abstract class ShapeComponent extends Component {
+public abstract class ShapeComponent extends RenderComponent {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;
 
@@ -34,18 +33,16 @@ public abstract class ShapeComponent extends Component {
     }
 
     public void render(GL2 gl2) {
-        if( myMesh!=null ) myMesh.render(gl2);
+        if( !getEnabled() || !getVisible() || myMesh==null ) return;
+        myMesh.render(gl2);
     }
 
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
-
-        if(myMesh!=null) {
-            view.add(numTriangles);
-            view.add(hasNormals);
-            view.add(hasColors);
-            view.add(hasUVs);
-        }
+        view.add(numTriangles);
+        view.add(hasNormals);
+        view.add(hasColors);
+        view.add(hasUVs);
     }
 }

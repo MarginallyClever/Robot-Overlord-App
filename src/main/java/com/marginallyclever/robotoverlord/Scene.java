@@ -9,8 +9,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
@@ -23,7 +22,6 @@ import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.File;
-import java.io.Serial;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -63,7 +61,7 @@ public class Scene extends Entity {
 	public void render(GL2 gl2) {
 		renderWorldOrigin(gl2);
 		renderLights(gl2);
-		renderAllEntitiesWithMeshes(gl2);
+		renderAllEntities(gl2);
 		// PASS 2: everything transparent?
 		//renderAllBoundingBoxes(gl2);
 	}
@@ -73,44 +71,46 @@ public class Scene extends Entity {
 	}
 
 
-	private void renderAllEntitiesWithMeshes(GL2 gl2) {
+	/**
+	 * Recursively render all entities.
+	 * @param gl2 the OpenGL context
+	 */
+	private void renderAllEntities(GL2 gl2) {
 		defaultMaterial.render(gl2);
-		for(Entity child : entities) {
-			renderEntitiesWithMeshes(gl2, child);
+		List<Entity> toRender = new ArrayList<>(children);
+		while(!toRender.isEmpty()) {
+			Entity child = toRender.remove(0);
+			renderEntity(gl2, child);
+			toRender.addAll(child.getChildren());
 		}
 	}
 
-	private void renderEntitiesWithMeshes(GL2 gl2,Entity obj) {
-		gl2.glPushName(obj.getPickName());
+	/**
+	 * Does not render children.
+	 * @param gl2 the OpenGL context
+	 * @param entity the entity to render
+	 */
+	private void renderEntity(GL2 gl2, Entity entity) {
+		gl2.glPushName(entity.getPickName());
+		gl2.glPushMatrix();
 
-		PoseComponent pose = obj.findFirstComponent(PoseComponent.class);
-		if(pose!=null) {
-			renderOneEntityWithMeshAndPose(gl2,obj,pose);
-		} else {
-			renderOneEntityWithMesh(gl2, obj);
-		}
+		PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+		if(pose!=null) MatrixHelper.applyMatrix(gl2, pose.getWorld());
 
-		for (Entity child : obj.getEntities()) {
-			renderEntitiesWithMeshes(gl2, child);
-		}
+		renderOneEntityWithMaterial(gl2, entity);
 
+		gl2.glPopMatrix();
 		gl2.glPopName();
 	}
-	private void renderOneEntityWithMeshAndPose(GL2 gl2,Entity obj,PoseComponent pose) {
-		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2,pose.getWorld());
-		renderOneEntityWithMesh(gl2,obj);
-		gl2.glPopMatrix();
-	}
 
-	private void renderOneEntityWithMesh(GL2 gl2,Entity obj) {
+	private void renderOneEntityWithMaterial(GL2 gl2, Entity obj) {
 		MaterialComponent mat = obj.findFirstComponent(MaterialComponent.class);
 		if(mat==null) mat = obj.findFirstComponentInParents(MaterialComponent.class);
 		if(mat!=null && mat.getEnabled()) mat.render(gl2);
 
-		List<ShapeComponent> shapes = obj.findAllComponents(ShapeComponent.class);
-		for(ShapeComponent shape : shapes) {
-			if(shape.getEnabled()) shape.render(gl2);
+		List<RenderComponent> renderComponents = obj.findAllComponents(RenderComponent.class);
+		for(RenderComponent renderComponent : renderComponents) {
+			if(renderComponent.getVisible()) renderComponent.render(gl2);
 		}
 	}
 
@@ -120,7 +120,7 @@ public class Scene extends Entity {
 
 		turnOffAllLights(gl2);
 
-		Queue<Entity> found = new LinkedList<>(entities);
+		Queue<Entity> found = new LinkedList<>(children);
 		int i=0;
 		while(!found.isEmpty()) {
 			Entity obj = found.remove();
@@ -129,7 +129,7 @@ public class Scene extends Entity {
 				light.setupLight(gl2,i++);
 				if(i==GL2.GL_MAX_LIGHTS) return;
 			}
-			found.addAll(obj.entities);
+			found.addAll(obj.children);
 		}
 	}
 
@@ -141,13 +141,13 @@ public class Scene extends Entity {
 
 	// Search only my children to find the PhysicalEntity with matching pickName.
 	public Entity pickEntityWithName(int pickName) {
-		Queue<Entity> found = new LinkedList<>(entities);
+		Queue<Entity> found = new LinkedList<>(children);
 		while(!found.isEmpty()) {
 			Entity obj = found.remove();
 			if( obj.getPickName()==pickName ) {
 				return obj;  // found!
 			}
-			found.addAll(obj.entities);
+			found.addAll(obj.children);
 		}
 		
 		return null;
@@ -164,10 +164,10 @@ public class Scene extends Entity {
 		radius/=2;
 		
 		//Log.message("Finding within "+epsilon+" of " + target);
-		List<PoseEntity> found = new ArrayList<PoseEntity>();
+		List<PoseEntity> found = new ArrayList<>();
 		
 		// check all children
-		for( Entity e : entities) {
+		for( Entity e : children) {
 			if(e instanceof PoseEntity) {
 				// is physical, therefore has position
 				PoseEntity po = (PoseEntity)e;
@@ -190,9 +190,8 @@ public class Scene extends Entity {
 	 * @return true if any cuboid in {@code listA} intersects any {@link Cuboid} in the world.
 	 */
 	public boolean collisionTest(ArrayList<Cuboid> listA) {
-		
 		// check all children
-		for( Entity b : entities) {
+		for( Entity b : children) {
 			if( !(b instanceof Collidable) ) continue;
 			
 			ArrayList<Cuboid> listB = ((Collidable)b).getCuboidList();
@@ -294,10 +293,10 @@ public class Scene extends Entity {
 		// try to show a pop-up if we have a display
 		if(!GraphicsEnvironment.isHeadless()) {
 			JOptionPane.showMessageDialog(
-					null,
-					message,
-					Translator.get("Scene.AssetPathNotInScenePathWarningTitle"),
-					JOptionPane.WARNING_MESSAGE);
+				null,
+				message,
+				Translator.get("Scene.AssetPathNotInScenePathWarningTitle"),
+				JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
