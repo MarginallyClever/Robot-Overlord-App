@@ -20,9 +20,6 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serial;
 
 /**
@@ -116,7 +113,7 @@ public class PoseEntity extends Entity implements Removable {
 		gl2.glColor4d(1,1,1,1);
 		gl2.glBegin(GL2.GL_LINES);
 		// connection to children
-		for(Entity e : entities) {
+		for(Entity e : children) {
 			if(e instanceof PoseEntity) {					
 				Vector3d p = ((PoseEntity)e).getPosition();
 				gl2.glVertex3d(0, 0, 0);
@@ -390,7 +387,7 @@ public class PoseEntity extends Entity implements Removable {
 
 	// recursively set for all children
 	public void setShowBoundingBox(boolean arg0) {
-		for( Entity c : getEntities() ) {
+		for( Entity c : getChildren() ) {
 			if(c instanceof PoseEntity) {
 				((PoseEntity)c).setShowBoundingBox(arg0);
 			}
@@ -400,7 +397,7 @@ public class PoseEntity extends Entity implements Removable {
 	
 	// recursively set for all children
 	public void setShowLocalOrigin(boolean arg0) {
-		for( Entity c : getEntities() ) {
+		for( Entity c : getChildren() ) {
 			if(c instanceof PoseEntity) {
 				((PoseEntity)c).setShowLocalOrigin(arg0);
 			}
@@ -410,7 +407,7 @@ public class PoseEntity extends Entity implements Removable {
 
 	// recursively set for all children
 	public void setShowLineage(boolean arg0) {
-		for( Entity c : getEntities() ) {
+		for( Entity c : getChildren() ) {
 			if(c instanceof PoseEntity) {
 				((PoseEntity)c).setShowLineage(arg0);
 			}

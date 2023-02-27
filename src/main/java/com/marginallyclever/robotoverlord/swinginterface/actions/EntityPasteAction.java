@@ -27,6 +27,6 @@ public class EntityPasteAction extends AbstractAction implements EditorAction {
 
     @Override
     public void updateEnableStatus() {
-        setEnabled(!ro.getCopiedEntities().getEntities().isEmpty() && !ro.getSelectedEntities().isEmpty());
+        setEnabled(!ro.getCopiedEntities().getChildren().isEmpty() && !ro.getSelectedEntities().isEmpty());
     }
 }

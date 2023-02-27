@@ -12,7 +12,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class SceneLoadAction extends AbstractAction {
                 destination.setScenePath(source.getScenePath());
                 // when entities are added to destination they will automatically be removed from source.
                 // to prevent concurrent modification exception we have to have a copy of the list.
-                List<Entity> entities = new LinkedList<>(source.getEntities());
+                List<Entity> entities = new LinkedList<>(source.getChildren());
                 // now do the move safely.
                 for(Entity e : entities) {
                     destination.addEntity(e);

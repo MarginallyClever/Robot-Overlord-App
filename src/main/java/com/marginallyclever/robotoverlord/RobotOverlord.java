@@ -626,7 +626,7 @@ public class RobotOverlord extends Entity {
 			Entity obj = list.remove(0);
 			String objectName = obj.getName();
 			if(name.equals(objectName)) return obj;
-			list.addAll(obj.getEntities());
+			list.addAll(obj.getChildren());
 		}
 		return null;
 	}
@@ -675,16 +675,15 @@ public class RobotOverlord extends Entity {
 	}
 	
     private void renderStep(GL2 gl2) {
+		clearAll(gl2);
+
 		CameraComponent camera = scene.findFirstComponentRecursive(CameraComponent.class);
 		if(camera==null) return;
 
         viewport.renderChosenProjection(gl2,camera);
 
-		clearAll(gl2);
 		sky.render(gl2);
-
         scene.render(gl2);
-
         // overlays
 		moveTool.render(gl2);
 		viewCube.render(gl2);

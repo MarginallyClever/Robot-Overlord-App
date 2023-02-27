@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.SceneChangeListener;
-import com.marginallyclever.robotoverlord.swinginterface.actions.EntityRenameAction;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -261,7 +260,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	private void recursivelyAddChildren(EntityTreeNode parentNode, Entity child) {
 		EntityTreeNode newNode = new EntityTreeNode(child);
 		parentNode.add(newNode);
-		for(Entity child2 : child.getEntities()) {
+		for(Entity child2 : child.getChildren()) {
 			recursivelyAddChildren(newNode,child2);
 		}
 	}

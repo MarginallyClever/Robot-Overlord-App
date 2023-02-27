@@ -193,7 +193,7 @@ public class Skycam extends PoseEntity {
 	public double getTimeEstimate() {
 		Vector3d p = sim.getPoseNow();
 		
-		for( Entity child : entities) {
+		for( Entity child : children) {
 			if(child instanceof SkycamCommand ) {
 				sim.addDestination((SkycamCommand)child);
 			}
@@ -219,7 +219,7 @@ public class Skycam extends PoseEntity {
 		playheadSim = 0;
 		playTimeTotal = 0;
 		// clone the playlist so that it cannot be broken while the playback is in progress.
-		for( Entity c : entities) {
+		for( Entity c : children) {
 			if( c instanceof SkycamCommand ) {
 				try {
 					playlist.add((SkycamCommand)((SkycamCommand)c).clone());
@@ -235,7 +235,7 @@ public class Skycam extends PoseEntity {
 	
 	public void save(String name) throws Exception {
 		int count=0;
-		for( Entity c : entities) {
+		for( Entity c : children) {
 			if( c instanceof SkycamCommand ) ++count;
 		}
 		Log.message("Saving "+count+" elements.");
@@ -244,7 +244,7 @@ public class Skycam extends PoseEntity {
 			ObjectOutputStream stream = new ObjectOutputStream(fout);
 			stream.writeChars("Skycam");
 			stream.writeInt(count);
-			for( Entity c : entities) {
+			for( Entity c : children) {
 				if( c instanceof SkycamCommand ) {
 					stream.writeObject(c);
 				}
@@ -278,13 +278,13 @@ public class Skycam extends PoseEntity {
 	 */
 	public void clearAllCommands() {
 		ArrayList<Entity> toKeep = new ArrayList<Entity>();
-		for( Entity c : entities) {
+		for( Entity c : children) {
 			if( !(c instanceof SkycamCommand ) ) {
 				toKeep.add(c);
 			}
 		}
-		entities.clear();
-		entities.addAll(toKeep);
+		children.clear();
+		children.addAll(toKeep);
 	}
 
 	public SkycamModel getModel() {
@@ -300,8 +300,8 @@ public class Skycam extends PoseEntity {
 		try {
 			SkycamCommand copy = (SkycamCommand)c.clone();
 			// find the original
-			int i = entities.indexOf(c);
-			if(i==-1) i = entities.size();
+			int i = children.indexOf(c);
+			if(i==-1) i = children.size();
 			// add before original or tail of queue, whichever comes first.
 			addEntity(i,copy);
 		} catch (CloneNotSupportedException e) {
@@ -345,8 +345,8 @@ public class Skycam extends PoseEntity {
 		// the interface to the simulated machine.
 		sim = new SkycamSim(model);
 		
-		for(int i = entities.size()-1; i>=0; --i) {
-			Entity c = entities.get(i);
+		for(int i = children.size()-1; i>=0; --i) {
+			Entity c = children.get(i);
 			if(c instanceof SkycamCommand) {
 				setCursor((SkycamCommand)c);
 				return;

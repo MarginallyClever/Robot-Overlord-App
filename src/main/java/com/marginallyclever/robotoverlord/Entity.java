@@ -24,7 +24,7 @@ public class Entity implements PropertyChangeListener {
 
 	protected transient Entity parent;
 
-	protected transient ArrayList<Entity> entities = new ArrayList<>();
+	protected transient ArrayList<Entity> children = new ArrayList<>();
 	private final List<Component> components = new ArrayList<>();
 
 	// unique ids for all objects in the world.
@@ -72,7 +72,7 @@ public class Entity implements PropertyChangeListener {
 			if(c.getEnabled()) c.update(dt);
 		}
 
-		for(Entity e : entities) {
+		for(Entity e : children) {
 			e.update(dt);
 		}
 	}
@@ -94,7 +94,7 @@ public class Entity implements PropertyChangeListener {
 		
 		do {
 			foundMatch=false;
-			for( Entity c : entities) {
+			for( Entity c : children) {
 				if( c.getName().equals(name) ) {
 					// matches an existing name.  increment by one and check everybody again.
 					name = rootName+Integer.toString(count++);
@@ -109,14 +109,14 @@ public class Entity implements PropertyChangeListener {
 	public void addEntity(int index, Entity e) {
 		// check if any child has a matching name
 		e.setName(getUniqueChildName(e));
-		entities.add(index,e);
+		children.add(index,e);
 		e.setParent(this);
 	}
 	
 	public void addEntity(Entity child) {
 		System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
 		checkForAddToScene(this,child);
-		entities.add(child);
+		children.add(child);
 		child.setParent(this);
 	}
 
@@ -132,9 +132,9 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	public void removeEntity(Entity e) {
-		if (entities.contains(e)) {
+		if (children.contains(e)) {
 			checkForRemoveFromScene(this,this,e);
-			entities.remove(e);
+			children.remove(e);
 			if(e.getParent()==this) // is this always true?  then why test it?
 				e.setParent(null);
 		}
@@ -145,8 +145,8 @@ public class Entity implements PropertyChangeListener {
 		if(scene != null) scene.removeEntityFromParent(parent, child);
 	}
 
-	public ArrayList<Entity> getEntities() {
-		return entities;
+	public ArrayList<Entity> getChildren() {
+		return children;
 	}
 
 	public void removeParent() {
@@ -201,7 +201,7 @@ public class Entity implements PropertyChangeListener {
 				continue;
 			} else {
 				boolean found = false;
-				for (Entity c : e.getEntities()) {
+				for (Entity c : e.getChildren()) {
 					if (name.contentEquals(c.getName())) {
 						e = c;
 						found = true;
@@ -249,9 +249,9 @@ public class Entity implements PropertyChangeListener {
 	public Object clone() throws CloneNotSupportedException {
 		Entity e = (Entity)super.clone();
 		
-		e.entities = new ArrayList<Entity>();
-		for(int i = 0; i< entities.size(); ++i) {
-			e.entities.add((Entity) entities.get(i).clone());
+		e.children = new ArrayList<Entity>();
+		for(int i = 0; i< children.size(); ++i) {
+			e.children.add((Entity) children.get(i).clone());
 		}
 		
 		e.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
@@ -280,13 +280,13 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	public void removeAllEntities() {
-		while(!entities.isEmpty()) removeEntity(entities.get(0));
+		while(!children.isEmpty()) removeEntity(children.get(0));
 	}
 	
 	@Override
 	public String toString() {
 		return "name=" + name + ", " +
-				"entities=" + Arrays.toString(entities.toArray()) + ", " +
+				"entities=" + Arrays.toString(children.toArray()) + ", " +
 				"components=" + Arrays.toString(components.toArray()) +
 				"expanded=" + isExpanded;
 	}
@@ -330,7 +330,7 @@ public class Entity implements PropertyChangeListener {
 	 * @return the first instance of class T found in component list.
 	 * @param <T> the type to find and return.  Must be derived from Component.
 	 */
-	public <T extends Component> T findFirstComponent(Class<T> clazz) {
+	public <T> T findFirstComponent(Class<T> clazz) {
 		for(Component c : components) {
 			if(clazz.isInstance(c)) {
 				return (T)c;
@@ -343,7 +343,7 @@ public class Entity implements PropertyChangeListener {
 	 * @return all instances of class T found attached to this Entity.
 	 * @param <T> the type to find and return.  Must be derived from Component.
 	 */
-	public <T extends Component> List<T> findAllComponents(Class<T> clazz) {
+	public <T> List<T> findAllComponents(Class<T> clazz) {
 		List<T> list = new ArrayList<>();
 		for(Component c : components) {
 			if(clazz.isInstance(c)) {
@@ -354,13 +354,13 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Search this Entity and then all child Entities until a {@link Component} match is found.
+	 * Search this Entity and all child Entities until a {@link Component} match is found.
 	 */
-	public <T extends Component> T findFirstComponentRecursive(Class<T> clazz) {
+	public <T> T findFirstComponentRecursive(Class<T> clazz) {
 		T found = findFirstComponent(clazz);
 		if(found!=null) return found;
 
-		for(Entity e : entities) {
+		for(Entity e : children) {
 			found = e.findFirstComponentRecursive(clazz);
 			if(found!=null) return found;
 		}
@@ -374,7 +374,7 @@ public class Entity implements PropertyChangeListener {
 	 * @return the instance found or null
 	 * @param <T> the class of the Component to find
 	 */
-	public <T extends Component> T findFirstComponentInParents(Class<T> clazz) {
+	public <T> T findFirstComponentInParents(Class<T> clazz) {
 		Entity p = parent;
 		while(p!=null) {
 			T found = p.findFirstComponent(clazz);
@@ -393,14 +393,14 @@ public class Entity implements PropertyChangeListener {
 		jo.put("type",this.getClass().getName());
 		jo.put("name",this.name);
 		jo.put("expanded",this.isExpanded);
-		if(!entities.isEmpty()) jo.put("entities", getEntitiesAsJSON());
+		if(!children.isEmpty()) jo.put("entities", getEntitiesAsJSON());
 		if(!components.isEmpty()) jo.put("components",getComponentsAsJSON());
 		return jo;
 	}
 
 	private JSONArray getEntitiesAsJSON() {
 		JSONArray jo = new JSONArray();
-		for(Entity c : entities) {
+		for(Entity c : children) {
 			jo.put(c.toJSON());
 		}
 		return jo;
