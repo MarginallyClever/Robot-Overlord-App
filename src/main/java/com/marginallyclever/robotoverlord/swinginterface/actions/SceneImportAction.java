@@ -6,9 +6,7 @@ import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.EntityPasteEdit;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +14,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -74,17 +70,19 @@ public class SceneImportAction extends AbstractAction {
         Path lastPath = path.subpath(path.getNameCount()-1,path.getNameCount());
         String destinationPath = destination.getScenePath() + File.separator + lastPath.toString();
 
-        FileUtils.copyDirectory(
-                new File(source.getScenePath()),
-                new File(destinationPath)
-        );
+        if(!source.getScenePath().equals(destinationPath)) {
+            FileUtils.copyDirectory(
+                    new File(source.getScenePath()),
+                    new File(destinationPath)
+            );
+        }
 
         recursivelyUpdatePaths(source,destinationPath);
         source.setScenePath(destination.getScenePath());
 
         // when entities are added to destination they will automatically be removed from source.
         // to prevent concurrent modification exception we have to have a copy of the list.
-        List<Entity> entities = new LinkedList<>(source.getEntities());
+        List<Entity> entities = new LinkedList<>(source.getChildren());
         // now do the move safely.
         for(Entity e : entities) {
             destination.addEntity(e);
@@ -98,7 +96,7 @@ public class SceneImportAction extends AbstractAction {
      * @param destinationPath
      */
     private void recursivelyUpdatePaths(Scene source, String destinationPath) {
-        LinkedList<Entity> list = new LinkedList<>(source.getEntities());
+        LinkedList<Entity> list = new LinkedList<>(source.getChildren());
         String originalPath = source.getScenePath();
         source.setScenePath(destinationPath);
 
@@ -125,7 +123,7 @@ public class SceneImportAction extends AbstractAction {
                 mesh.setFilename(newPath);
             }
 
-            list.addAll(e.getEntities());
+            list.addAll(e.getChildren());
         }
     }
 }
