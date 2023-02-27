@@ -9,14 +9,14 @@ module com.marginallyclever.robotOverlord {
 	requires org.json;
 	requires org.slf4j;
 	
-	requires transitive vecmath;
-	requires transitive jsch;
-	requires transitive jinput;
-	requires transitive jogamp.fat;
-	requires transitive annotations;
-	requires transitive jssc;
-	requires transitive batik.all;
-	requires transitive xml.apis.ext;
+	requires vecmath;
+	requires jsch;
+	requires jinput;
+	requires jogamp.fat;
+	requires annotations;
+	requires jssc;
+	requires batik.all;
+	requires xml.apis.ext;
 	requires java.datatransfer;
 	requires core;
 }
