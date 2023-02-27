@@ -1,6 +1,8 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.Component;
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
@@ -17,7 +19,7 @@ import java.beans.PropertyChangeListener;
  * @since 2022-08-04
  */
 @ComponentDependency(components={PoseComponent.class})
-public class DHComponent extends Component implements PropertyChangeListener {
+public class DHComponent extends RenderComponent implements PropertyChangeListener {
     private final DoubleEntity myD = new DoubleEntity("D",0.0);
     private final DoubleEntity myR = new DoubleEntity("R",0.0);
     private final DoubleEntity alpha = new DoubleEntity("Alpha",0.0);
@@ -32,6 +34,7 @@ public class DHComponent extends Component implements PropertyChangeListener {
         myR.addPropertyChangeListener(this);
         alpha.addPropertyChangeListener(this);
         theta.addPropertyChangeListener(this);
+        setVisible(false);
     }
 
     @Override
@@ -67,6 +70,8 @@ public class DHComponent extends Component implements PropertyChangeListener {
 
     @Override
     public void getView(ViewPanel view) {
+        super.getView(view);
+
         view.add(myD);
         view.add(myR);
         view.add(alpha);
@@ -82,9 +87,33 @@ public class DHComponent extends Component implements PropertyChangeListener {
     }
 
     private void refreshLocalMatrix() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-        if(pose==null) return;
+        setLocalMatrix(getLocalMatrix());
+        //updateChildAdjustmentNode();
+    }
 
+    private void updateChildAdjustmentNode() {
+        getEntity().getChildren().forEach((e)->{
+            OriginAdjustComponent adj = e.findFirstComponent(OriginAdjustComponent.class);
+            if(adj!=null) {
+                adj.adjust();
+            }
+        });
+    }
+
+    private void setLocalMatrix(Matrix4d localMatrix) {
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        if(pose==null) {
+            pose = new PoseComponent();
+            getEntity().addComponent(pose);
+        }
+
+        pose.setLocalMatrix4(localMatrix);
+    }
+
+    /**
+     * @return the local transform of this entity, calculated from its D,R, alpha, and theta.
+     */
+    private Matrix4d getLocalMatrix() {
         Matrix4d m = new Matrix4d();
         double rt = Math.toRadians(theta.get());
         double ra = Math.toRadians(alpha.get());
@@ -100,7 +129,7 @@ public class DHComponent extends Component implements PropertyChangeListener {
         m.m20 = 0;		m.m21 = sa;			m.m22 = ca;			m.m23 = myD.get();
         m.m30 = 0;		m.m31 = 0;			m.m32 = 0;			m.m33 = 1;
 
-        pose.setLocalMatrix4(m);
+        return m;
     }
 
     @Override
@@ -156,7 +185,10 @@ public class DHComponent extends Component implements PropertyChangeListener {
         theta.set(angle % 360);
     }
 
-    public Matrix4d getPose() {
+    /**
+     * @return the local pose of this entity.
+     */
+    public Matrix4d getLocal() {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         if(pose==null) return null;
         return pose.getLocal();
@@ -176,4 +208,36 @@ public class DHComponent extends Component implements PropertyChangeListener {
         return myR.get();
     }
     public double getAlpha() { return alpha.get(); }
+
+    @Override
+    public void render(GL2 gl2) {
+        boolean lit = OpenGLHelper.disableLightingStart(gl2);
+        boolean tex = OpenGLHelper.disableTextureStart(gl2);
+        int onTop = OpenGLHelper.drawAtopEverythingStart(gl2);
+
+        gl2.glPushMatrix();
+            Matrix4d m = getLocal();
+            m.invert();
+            MatrixHelper.applyMatrix(gl2,m);
+
+            double rt = Math.toRadians(theta.get());
+            double ct = Math.cos(rt);
+            double st = Math.sin(rt);
+            double r = myR.get();
+
+            gl2.glBegin(GL2.GL_LINES);
+                gl2.glColor3d(0, 0, 1);
+                gl2.glVertex3d(0, 0, 0);
+                gl2.glVertex3d(0, 0, myD.get());
+
+                gl2.glColor3d(1, 0, 0);
+                gl2.glVertex3d(0, 0, myD.get());
+                gl2.glVertex3d(r*ct, r*st, myD.get());
+            gl2.glEnd();
+        gl2.glPopMatrix();
+
+        OpenGLHelper.drawAtopEverythingEnd(gl2, onTop);
+        OpenGLHelper.disableTextureEnd(gl2, tex);
+        OpenGLHelper.disableLightingEnd(gl2, lit);
+    }
 }
