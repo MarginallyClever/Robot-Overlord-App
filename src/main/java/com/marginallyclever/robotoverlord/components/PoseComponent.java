@@ -112,7 +112,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     public Matrix4d getLocal() {
-        return local;
+        return new Matrix4d(local);
     }
 
     /**
