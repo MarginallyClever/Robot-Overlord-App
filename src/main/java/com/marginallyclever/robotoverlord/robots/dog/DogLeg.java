@@ -66,25 +66,25 @@ public class DogLeg {
 		gl2.glPushMatrix();
 
 		matShoulderA.render(gl2);
-		drawLineTo(gl2, shoulderA.getPose(), 255, 0, 0);
+		drawLineTo(gl2, shoulderA.getLocal(), 255, 0, 0);
 		gl2.glPushMatrix();
 		PrimitiveSolids.drawCenteredCylinderAlongZ(gl2, 4, 2.1f);
 		gl2.glPopMatrix();
 
 		matShoulderB.render(gl2);
-		drawLineTo(gl2, shoulderB.getPose(), 0, 0, 0);
+		drawLineTo(gl2, shoulderB.getLocal(), 0, 0, 0);
 		gl2.glPushMatrix();
 		PrimitiveSolids.drawCenteredCylinderAlongZ(gl2, 5f, 2);
 		gl2.glPopMatrix();
 
 		double s = 1;
 		matElbow.render(gl2);
-		drawLineTo(gl2, elbow.getPose(), 0, 255, 0);
+		drawLineTo(gl2, elbow.getLocal(), 0, 255, 0);
 		PrimitiveSolids.drawBox(gl2, new Point3d(-elbow.getR(), -s, -s), new Point3d(0, s, s));
 
 		s = 0.7;
 		matFoot.render(gl2);
-		drawLineTo(gl2, foot.getPose(), 0, 0, 255);
+		drawLineTo(gl2, foot.getLocal(), 0, 0, 255);
 		PrimitiveSolids.drawBox(gl2, new Point3d(-foot.getR(), -s, -s), new Point3d(0, s, s));
 
 		gl2.glPopMatrix();
@@ -132,10 +132,10 @@ public class DogLeg {
 
 	public Matrix4d getWorldMatrixOfToe() {
 		Matrix4d m = myParent == null ? MatrixHelper.createIdentityMatrix4() : myParent.getPose();
-		m.mul(shoulderA.getPose());
-		m.mul(shoulderB.getPose());
-		m.mul(elbow.getPose());
-		m.mul(foot.getPose());
+		m.mul(shoulderA.getLocal());
+		m.mul(shoulderB.getLocal());
+		m.mul(elbow.getLocal());
+		m.mul(foot.getLocal());
 		return m;
 	}
 
@@ -156,8 +156,8 @@ public class DogLeg {
 
 	public Matrix4d getWorldMatrixOfShoulder() {
 		Matrix4d m = myParent == null ? MatrixHelper.createIdentityMatrix4() : myParent.getPose();
-		m.mul(shoulderA.getPose());
-		m.mul(shoulderB.getPose());
+		m.mul(shoulderA.getLocal());
+		m.mul(shoulderB.getLocal());
 		return m;
 	}
 

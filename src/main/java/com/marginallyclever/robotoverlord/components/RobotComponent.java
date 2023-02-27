@@ -86,7 +86,7 @@ public class RobotComponent extends Component implements Robot {
             Entity e = queue.poll();
             DHComponent c = e.findFirstComponent(DHComponent.class);
             if(c!=null) bones.add(c);
-            queue.addAll(e.getEntities());
+            queue.addAll(e.getChildren());
         }
     }
 
@@ -110,7 +110,7 @@ public class RobotComponent extends Component implements Robot {
                 Matrix4d m = new Matrix4d();
                 m.setIdentity();
                 for(int i=0;i<=activeJoint;++i) {
-                    m.mul(getBone(i).getPose());
+                    m.mul(getBone(i).getLocal());
                 }
                 return m;
             }
