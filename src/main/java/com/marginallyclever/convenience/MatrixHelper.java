@@ -930,4 +930,18 @@ public class MatrixHelper {
 
 		return list;
 	}
+
+	/**
+	 *
+	 * @param gl2
+	 * @param type either GL2.GL_MODELVIEW_MATRIX or GL2.GL_PROJECTION_MATRIX
+	 * @return
+	 */
+	public static Matrix4d getMatrix(GL2 gl2, int type) {
+		Matrix4d m = new Matrix4d();
+		double [] list = new double[16];
+		gl2.glGetDoublev(type, list,0);
+		m.set(list);
+		return m;
+	}
 }
