@@ -104,7 +104,6 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 			PoseMoveEdit moveEdit = (PoseMoveEdit)anEdit;
 			if(new HashSet<>(moveEdit.entities).containsAll(this.entities)) {
 				this.next.set(moveEdit.next);
-				System.out.println("Merging "+toString());
 				return true;
 			}
 		}
