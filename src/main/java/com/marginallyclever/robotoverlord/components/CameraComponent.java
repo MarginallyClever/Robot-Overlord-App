@@ -340,7 +340,6 @@ public class CameraComponent extends RenderComponent {
      */
     public void getView(ViewPanel view) {
         view.pushStack("Camera", true);
-        view.add(isVisible);
         view.add(orbitDistance);
         view.popStack();
         super.getView(view);
