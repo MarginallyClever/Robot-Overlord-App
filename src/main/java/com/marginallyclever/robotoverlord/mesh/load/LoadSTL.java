@@ -24,9 +24,7 @@ public class LoadSTL implements MeshLoader {
 	
 	// see http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
-	public Mesh load(BufferedInputStream inputStream) throws Exception {
-		Mesh model = new Mesh();
-
+	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
 		if(!inputStream.markSupported()) {
 			throw new IOException("BufferedInputStream mark unsupported");
 		}
@@ -41,8 +39,6 @@ public class LoadSTL implements MeshLoader {
 		
 		if(isASCII) loadASCII(inputStream,model);
 		else 		loadBinary(inputStream,model);
-		
-		return model;
 	}
 
 	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
