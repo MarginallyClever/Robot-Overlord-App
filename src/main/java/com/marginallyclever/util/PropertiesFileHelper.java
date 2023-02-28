@@ -23,8 +23,7 @@ public final class PropertiesFileHelper {
         String versionPropertyValue = "";
         try (final InputStream input = RobotOverlord.class.getClassLoader().getResourceAsStream(APP_PROPERTIES_FILENAME)) {
             if (input == null) {
-                final String unableToFilePropertiesFileErrorMessage = "Sorry, unable to find " + APP_PROPERTIES_FILENAME;
-                throw new IllegalStateException(unableToFilePropertiesFileErrorMessage);
+                throw new IllegalStateException("Sorry, unable to find " + APP_PROPERTIES_FILENAME);
             }
             Properties prop = new Properties();
             //load a properties file from class path, inside static method
