@@ -8,6 +8,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.demos.DemoSpidee;
 import com.marginallyclever.robotoverlord.demos.ODEPhysicsDemo;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
@@ -534,6 +535,7 @@ public class RobotOverlord extends Entity {
 
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu("Demos");
+		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
 		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		return menu;
 	}
