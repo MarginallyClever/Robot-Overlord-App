@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.LinkedList;
 
@@ -28,6 +29,14 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 		super(name);
 		this.ro = ro;
 		fc.setFileFilter(RobotOverlord.FILE_FILTER);
+	}
+
+	public static void setLastDirectory(String s) {
+		fc.setCurrentDirectory(new File(s));
+	}
+
+	public static String getLastDirectory() {
+		return fc.getCurrentDirectory().getAbsolutePath();
 	}
 
 	@Override

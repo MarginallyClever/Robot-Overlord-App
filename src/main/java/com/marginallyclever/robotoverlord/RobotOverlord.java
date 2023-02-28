@@ -56,6 +56,9 @@ public class RobotOverlord extends Entity {
 	private static final String KEY_WINDOW_X = "windowX";
 	private static final String KEY_WINDOW_Y = "windowY";
 	private static final String KEY_IS_FULLSCREEN = "isFullscreen";
+	private static final String KEY_LAST_DIRECTORY_IMPORT = "LastDirectoryImport";
+	private static final String KEY_LAST_DIRECTORY_SAVE = "LastDirectorySave";
+	private static final String KEY_LAST_DIRECTORY_LOAD = "LastDirectoryLoad";
 
 	public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
 
@@ -134,6 +137,8 @@ public class RobotOverlord extends Entity {
 		SoundSystem.start();
 		InputManager.start();
 
+		preferencesLoad();
+
 		buildMainFrame();
 		buildMainMenu();
 		createSimulationPanel();
@@ -156,6 +161,18 @@ public class RobotOverlord extends Entity {
 
 		Log.message("** READY **");
     }
+
+	private void preferencesLoad() {
+		SceneImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
+		SceneLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
+		SceneSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
+	}
+
+	private void preferencesSave() {
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, SceneImportAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, SceneLoadAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, SceneSaveAction.getLastDirectory());
+	}
 
 	private void createSimulationPanel() {
 		createCanvas();
@@ -605,6 +622,8 @@ public class RobotOverlord extends Entity {
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
         	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			preferencesSave();
 
         	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(() -> {

@@ -37,6 +37,14 @@ public class SceneImportAction extends AbstractAction {
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
     }
 
+    public static void setLastDirectory(String s) {
+        fc.setCurrentDirectory(new File(s));
+    }
+
+    public static String getLastDirectory() {
+        return fc.getCurrentDirectory().getAbsolutePath();
+    }
+
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
