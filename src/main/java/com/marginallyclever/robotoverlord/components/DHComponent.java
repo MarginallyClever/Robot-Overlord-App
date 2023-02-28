@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
@@ -101,6 +102,9 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     }
 
     private void setLocalMatrix(Matrix4d localMatrix) {
+        Entity entity = getEntity();
+        if(entity==null) return;
+
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         if(pose==null) {
             pose = new PoseComponent();
@@ -145,29 +149,6 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
                 +",\n";
     }
 
-    public double getTheta() {
-        return theta.get();
-    }
-    public void setTheta(double angle) {
-        theta.set(angle);
-    }
-
-    public double getThetaMax() {
-        return thetaMax.get();
-    }
-
-    public double getThetaMin() {
-        return thetaMin.get();
-    }
-
-    public double getThetaHome() {
-        return thetaHome.get();
-    }
-
-    public void setThetaHome(double t) {
-        thetaHome.set(t);
-    }
-
     public void setAngleWRTLimits(double t) {
         // if max angle and min angle overlap then there is no limit on this joint.
         double max = thetaMax.get();
@@ -194,7 +175,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         return pose.getLocal();
     }
 
-    public void set(String name, double d, double r, double a, double t, double tMax, double tMin, String meshFile) {
+    public void set(double d, double r, double a, double t, double tMax, double tMin) {
         myD.set(d);
         myR.set(r);
         alpha.set(a);
@@ -203,11 +184,58 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         thetaMin.set(tMin);
     }
 
+    public void setD(double d) {
+        myD.set(d);
+    }
+
     public double getD() { return myD.get(); }
+
+    public void setR(double r) {
+        myR.set(r);
+    }
+
     public double getR() {
         return myR.get();
     }
+
+    public void setAlpha(double a) {
+        alpha.set(a);
+    }
+
     public double getAlpha() { return alpha.get(); }
+
+    public void setTheta(double angle) {
+        theta.set(angle);
+    }
+
+    public double getTheta() {
+        return theta.get();
+    }
+
+    public void setThetaMax(double v) {
+        thetaMax.set(v);
+    }
+
+    public double getThetaMax() {
+        return thetaMax.get();
+    }
+
+    public void setThetaMin(double v) {
+        thetaMin.set(v);
+    }
+
+    public double getThetaMin() {
+        return thetaMin.get();
+    }
+
+    public double getThetaHome() {
+        return thetaHome.get();
+    }
+
+    public void setThetaHome(double t) {
+        thetaHome.set(t);
+    }
+
 
     @Override
     public void render(GL2 gl2) {
