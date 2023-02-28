@@ -40,7 +40,12 @@ public class ODEPhysicsDemo implements Demo {
 	private final DSphere [] sphere = new DSphere[3];
 	private DPlane ground;
 	private DBox ramp;
-	
+
+
+	@Override
+	public String getName() {
+		return "ODE Physics";
+	}
 	
 	@Override
 	public void execute(RobotOverlord ro) {
@@ -200,11 +205,6 @@ public class ODEPhysicsDemo implements Demo {
 						contact.geom.g2.getBody());
 			}
 		}
-	}
-
-	@Override
-	public String getName() {
-		return "ODE Physics Demo";
 	}
 
 	private Entity createEntity(ODEPhysicsComponent odePhysicsComponent) {
