@@ -41,16 +41,14 @@ public class DemoSpidee implements Demo {
 		Entity spidee = new Entity("Spidee-1");
 		sc.addEntity(spidee);
 
-		spidee.addEntity(createMesh("/Spidee/body.stl"));
-/*
+		createMesh(spidee,"/Spidee/body.stl");
+
 		spidee.addEntity(positionLimb(createLimb("RF",true ),   45));
 		spidee.addEntity(positionLimb(createLimb("RM",true ),   0));
 		spidee.addEntity(positionLimb(createLimb("RB",true ),  -45));
 		spidee.addEntity(positionLimb(createLimb("LF",false),  135));
 		spidee.addEntity(positionLimb(createLimb("LM",false),  180));
 		spidee.addEntity(positionLimb(createLimb("LB",false), -135));
- */
-		spidee.addEntity(createLimb("a",true));
 	}
 
 	private Entity positionLimb(Entity limb,float degrees) {
@@ -71,8 +69,6 @@ public class DemoSpidee implements Demo {
 		limb.addComponent(new PoseComponent());
 		limb.addComponent(new RobotComponent());
 
-		OriginAdjustComponent oac = new OriginAdjustComponent();
-
 		Entity hip = new Entity("Hip");
 		limb.addEntity(hip);
 		Entity thigh = new Entity("Thigh");
@@ -84,26 +80,17 @@ public class DemoSpidee implements Demo {
 
 		hip.addComponent(dh[0]);
 		dh[0].set(0,2.2,90,0,30,-30);
-		if(isRight) hip.addEntity(createMesh("/Spidee/shoulder_right.obj"));
-		else        hip.addEntity(createMesh("/Spidee/shoulder_left.obj"));
-		hip.addComponent(oac);
-		oac.adjust();
-		hip.removeComponent(oac);
+		if(isRight) createMesh(hip,"/Spidee/shoulder_right.obj");
+		else        createMesh(hip,"/Spidee/shoulder_left.obj");
 
 		thigh.addComponent(dh[1]);
 		dh[1].set( 0,8.5,0,0,120,-120);
-		thigh.addEntity(createMesh("/Spidee/thigh.obj"));
-		thigh.addComponent(oac);
-		oac.adjust();
-		thigh.removeComponent(oac);
+		createMesh(thigh,"/Spidee/thigh.obj");
 
 		calf.addComponent(dh[2]);
 		dh[2].set(0,10.5,0,0,120,-120);
-		if(isRight) calf.addEntity(createMesh("/Spidee/calf_right.obj"));
-		else		calf.addEntity(createMesh("/Spidee/calf_left.obj"));
-		calf.addComponent(oac);
-		oac.adjust();
-		calf.removeComponent(oac);
+		if(isRight) createMesh(calf,"/Spidee/calf_right.obj");
+		else		createMesh(calf,"/Spidee/calf_left.obj");
 
 		foot.addComponent(new PoseComponent());
 		foot.addComponent(new ArmEndEffectorComponent());
@@ -111,16 +98,20 @@ public class DemoSpidee implements Demo {
 		return limb;
 	}
 
-	private Entity createMesh(String filename) {
+	private void createMesh(Entity parent,String filename) {
 		MeshFromFile mff = new MeshFromFile();
 		mff.setFilename(filename);
 
 		Entity mesh = new Entity("Mesh");
 		mesh.addComponent(new PoseComponent());
-		mesh.addComponent(new OriginAdjustComponent());
 		mesh.addComponent(new MaterialComponent());
 		mesh.addComponent(mff);
 
-		return mesh;
+		parent.addEntity(mesh);
+
+		OriginAdjustComponent oac = new OriginAdjustComponent();
+		mesh.addComponent(oac);
+		oac.adjust();
+		mesh.removeComponent(oac);
 	}
 }
