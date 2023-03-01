@@ -536,7 +536,7 @@ public class RobotOverlord extends Entity {
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu("Demos");
 		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
-		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
+		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		return menu;
 	}
 
