@@ -75,7 +75,6 @@ public class Mesh {
 
 	public void setSourceName(String filename) {
 		this.fileName = filename;
-		isDirty=true;
 	}
 	
 	public String getSourceName() {

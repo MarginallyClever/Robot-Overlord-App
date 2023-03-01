@@ -66,6 +66,7 @@ public class MeshFactory {
 		Log.message("Loading "+filename+" with "+loader.getEnglishName());
 
 		mesh.setSourceName(filename);
+		mesh.setDirty(true);
 
 		try(BufferedInputStream stream = FileAccess.open(filename)) {
 			loader.load(stream,mesh);
@@ -75,6 +76,7 @@ public class MeshFactory {
 		}
 
 		mesh.updateCuboid();
+		mesh.setDirty(true);
 	}
 
 	public static void reload(Mesh myMesh) {
