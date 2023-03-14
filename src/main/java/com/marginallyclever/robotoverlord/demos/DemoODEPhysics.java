@@ -20,7 +20,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  *
  */
-public class ODEPhysicsDemo implements Demo {
+public class DemoODEPhysics implements Demo {
 	private static final double CHASIS_LENGTH = 0.7;
 	private static final double CHASIS_WIDTH = 0.5;
 	private static final double CHASIS_HEIGHT = 0.2;

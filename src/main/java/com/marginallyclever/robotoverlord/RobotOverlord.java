@@ -9,7 +9,6 @@ import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
-import com.marginallyclever.robotoverlord.demos.ODEPhysicsDemo;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.swinginterface.*;
