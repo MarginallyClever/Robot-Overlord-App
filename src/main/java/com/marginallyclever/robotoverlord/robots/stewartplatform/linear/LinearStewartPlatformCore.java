@@ -158,9 +158,9 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		// The sphere formed by pDD2[n] and ARM_LENGTH intersects the vertical line at bBase[n] twice.
 		// The first intersection traveling up is the one we want.
 		Ray ray = new Ray();
-		ray.direction.set(0,0,1);
+		ray.setDirection(new Vector3d(0,0,1));
 		for (LinearStewartPlatformArm arm : arms) {
-			ray.start.set(arm.pBase);
+			ray.setOrigin(arm.pBase);
 			arm.linearPosition = IntersectionHelper.raySphere(ray, arm.pEE2, ARM_LENGTH.get()) - BASE_Z.get();
 			arm.pSlide.set(arm.pBase);
 			arm.pSlide.z += arm.linearPosition + BASE_Z.get();
