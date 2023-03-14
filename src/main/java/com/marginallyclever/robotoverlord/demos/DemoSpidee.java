@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.demos;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
@@ -39,6 +40,7 @@ public class DemoSpidee implements Demo {
 		camera.setOrbitDistance(20);
 
 		Entity spidee = new Entity("Spidee-1");
+		spidee.addComponent(new CrabRobotComponent());
 		sc.addEntity(spidee);
 
 		createMesh(spidee,"/Spidee/body.stl");
