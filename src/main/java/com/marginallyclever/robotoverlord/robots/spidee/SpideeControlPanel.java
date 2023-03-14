@@ -134,7 +134,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		con2.weighty=1;
 		con2.weightx=0.25;
 
-		double speed=robot.speed_scale;
+		double speed=robot.speedScale;
 		int speedIndex;
 		for(speedIndex=0;speedIndex<speedOptions.length;++speedIndex) {
 			if( speedOptions[speedIndex] >= speed )
@@ -181,7 +181,7 @@ public class SpideeControlPanel extends JPanel implements ChangeListener, Action
 		Object subject = e.getSource();
 		
 		if( subject == buttonResetLegs ) {
-			robot.Reset_Position();
+			robot.resetPosition();
 			return;
 		}
 
