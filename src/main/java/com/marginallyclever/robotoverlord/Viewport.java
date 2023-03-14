@@ -13,8 +13,8 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
-import java.io.Serial;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the render pipeline.
@@ -24,9 +24,6 @@ import java.io.Serial;
  *
  */
 public class Viewport extends Entity {
-	@Serial
-	private static final long serialVersionUID = -7613439702723031982L;
-	
 	private int canvasWidth, canvasHeight;
 	// mouse position in GUI
 	private double cursorX,cursorY;
@@ -121,34 +118,34 @@ public class Viewport extends Entity {
 	public Ray rayPick(CameraComponent cameraComponent) {
 		// OpenGL camera: -Z=forward, +X=right, +Y=up
 		// get the ray coming through the viewport in the current projection.
-		Ray ray = new Ray();
+		Point3d origin;
+		Vector3d direction;
 
 		if(drawOrthographic.get()) {
 			// orthographic projection
-			ray.start = new Point3d(
+			origin = new Point3d(
 					cursorX*canvasWidth/10,
 					cursorY*canvasHeight/10,
 					0);
-			ray.direction.set(0,0,-1);
+			direction = new Vector3d(0,0,-1);
 			PoseComponent pose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d m2 = pose.getWorld();
-			m2.transform(ray.direction);
-			m2.transform(ray.start);
+			m2.transform(direction);
+			m2.transform(origin);
 		} else {
 			// perspective projection
 			double aspect = (double)canvasWidth / (double)canvasHeight;
 			double t = Math.tan(Math.toRadians(fieldOfView.get()/2));
-			ray.direction.set(cursorX*t*aspect,cursorY*t,-1);
+			direction = new Vector3d(cursorX*t*aspect,cursorY*t,-1);
 			
 			// adjust the ray by the camera world pose.
 			PoseComponent pose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d m2 = pose.getWorld();
-			m2.transform(ray.direction);
-			ray.start.set(pose.getPosition());
+			m2.transform(direction);
+			origin = new Point3d(pose.getPosition());
 		}
-		ray.direction.normalize();
-		
-		return ray; 
+
+		return new Ray(origin,direction);
 	}
 
 	public void showPickingTest(GL2 gl2,CameraComponent cameraComponent) {
@@ -169,54 +166,58 @@ public class Viewport extends Entity {
 		cursorY=cy;
 
         double scale=20;
-        tl.direction.scale(scale);
-        tr.direction.scale(scale);
-        bl.direction.scale(scale);
-        br.direction.scale(scale);
-        r.direction .scale(scale);
         
-        Vector3d tl2 = new Vector3d(tl.direction);
-        Vector3d tr2 = new Vector3d(tr.direction);
-        Vector3d bl2 = new Vector3d(bl.direction);
-        Vector3d br2 = new Vector3d(br.direction);
-        Vector3d r2  = new Vector3d(r.direction );
-        
-        tl2.add(tl.start);
-        tr2.add(tr.start);
-        bl2.add(bl.start);
-        br2.add(br.start);
-        r2.add(r.start);
+        Vector3d tl2 = new Vector3d(tl.getDirection());
+        Vector3d tr2 = new Vector3d(tr.getDirection());
+        Vector3d bl2 = new Vector3d(bl.getDirection());
+        Vector3d br2 = new Vector3d(br.getDirection());
+        Vector3d r2  = new Vector3d(r .getDirection());
+
+		tl2.scale(scale);
+		tr2.scale(scale);
+		bl2.scale(scale);
+		br2.scale(scale);
+		r2 .scale(scale);
+
+        tl2.add(tl.getOrigin());
+        tr2.add(tr.getOrigin());
+        bl2.add(bl.getOrigin());
+        br2.add(br.getOrigin());
+        r2.add(r.getOrigin());
         
         gl2.glDisable(GL2.GL_TEXTURE_2D);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
         gl2.glColor3d(1, 0, 0);
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3d(tl.start.x, tl.start.y, tl.start.z);		gl2.glVertex3d(tl2.x, tl2.y, tl2.z);
-		gl2.glVertex3d(tr.start.x, tr.start.y, tr.start.z);		gl2.glVertex3d(tr2.x, tr2.y, tr2.z);
-		gl2.glVertex3d(bl.start.x, bl.start.y, bl.start.z);		gl2.glVertex3d(bl2.x, bl2.y, bl2.z);
-		gl2.glVertex3d(br.start.x, br.start.y, br.start.z);		gl2.glVertex3d(br2.x, br2.y, br2.z);
-
+		drawPoint(gl2,tl.getOrigin());		drawPoint(gl2,tl2);
+		drawPoint(gl2,tr.getOrigin());		drawPoint(gl2,tr2);
+		drawPoint(gl2,bl.getOrigin());		drawPoint(gl2,bl2);
+		drawPoint(gl2,br.getOrigin());		drawPoint(gl2,br2);
         gl2.glColor3d(1, 1, 1);
-		gl2.glVertex3d(r.start.x, r.start.y, r.start.z);		gl2.glVertex3d(r2.x,r2.y,r2.z);
+		drawPoint(gl2,r.getOrigin());		drawPoint(gl2,r2);
 		gl2.glEnd();
         gl2.glColor3d(0, 1, 0);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
-		gl2.glVertex3d(tl2.x, tl2.y, tl2.z);
-		gl2.glVertex3d(tr2.x, tr2.y, tr2.z);
-		gl2.glVertex3d(br2.x, br2.y, br2.z);
-		gl2.glVertex3d(bl2.x, bl2.y, bl2.z);
+		drawPoint(gl2,tl2);
+		drawPoint(gl2,tr2);
+		drawPoint(gl2,br2);
+		drawPoint(gl2,bl2);
 		gl2.glEnd();
         gl2.glColor3d(0, 0, 1);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
-		gl2.glVertex3d(tl.start.x, tl.start.y, tl.start.z);
-		gl2.glVertex3d(tr.start.x, tr.start.y, tr.start.z);
-		gl2.glVertex3d(br.start.x, br.start.y, br.start.z);
-		gl2.glVertex3d(bl.start.x, bl.start.y, bl.start.z);
+		drawPoint(gl2,tl.getOrigin());
+		drawPoint(gl2,tr.getOrigin());
+		drawPoint(gl2,br.getOrigin());
+		drawPoint(gl2,bl.getOrigin());
 		gl2.glEnd();
 		
 		PrimitiveSolids.drawStar(gl2,r2,5);
 		gl2.glPopMatrix();
+	}
+
+	private void drawPoint(GL2 gl2, Tuple3d vector) {
+		gl2.glVertex3d(vector.x, vector.y, vector.z);
 	}
 
 	public void setCursor(int x,int y) {

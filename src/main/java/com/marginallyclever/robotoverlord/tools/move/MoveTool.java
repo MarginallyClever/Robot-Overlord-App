@@ -180,7 +180,7 @@ public class MoveTool extends Entity {
 		Ray ray = cameraView.rayPick(ro.getCamera());
 
 		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
-		dp.sub(ray.start);
+		dp.sub(ray.getOrigin());
 		
 		// not moving yet
 		// find a pick point on the ball (ray/sphere intersection)
@@ -199,7 +199,7 @@ public class MoveTool extends Entity {
 		}
 		
 		// rotation
-		double Tca = ray.direction.dot(dp);
+		double Tca = ray.getDirection().dot(dp);
 		if(Tca>=0) {
 			// ball is in front of ray start
 			double d2 = d*d - Tca*Tca;
@@ -242,7 +242,7 @@ public class MoveTool extends Entity {
 		Vector3d majorAxisVector = getMajorAxisVector(frameOfReference);
 
 		// find the pick point on the plane of rotation
-		double denominator = ray.direction.dot(majorAxisVector);
+		double denominator = ray.getDirection().dot(majorAxisVector);
 		if(denominator!=0) {
 			double numerator = dp.dot(majorAxisVector);
 			t0 = numerator/denominator;
@@ -342,14 +342,14 @@ public class MoveTool extends Entity {
 		Ray ray = cameraView.rayPick(ro.getCamera());
 
 		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
-		dp.sub(ray.start);
+		dp.sub(ray.getOrigin());
 		
 		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 		Matrix4d FOR = startMatrix;
 		Vector3d majorAxisVector = getMajorAxisVector(FOR);
 
 		// find the pick point on the plane of rotation
-		double denominator = ray.direction.dot(majorAxisVector);
+		double denominator = ray.getDirection().dot(majorAxisVector);
 		if(denominator!=0) {
 			double numerator = dp.dot(majorAxisVector);
 			double t0 = numerator/denominator;
