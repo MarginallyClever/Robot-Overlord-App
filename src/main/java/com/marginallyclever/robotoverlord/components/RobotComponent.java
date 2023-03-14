@@ -137,6 +137,7 @@ public class RobotComponent extends Component implements Robot {
         if(ee==null) return null;
         Matrix4d m = ee.getToolCenterPoint();
         Matrix4d base = getPoseWorld();
+        assert base != null;
         base.invert();
         m.mul(base);
         return m;
@@ -146,6 +147,7 @@ public class RobotComponent extends Component implements Robot {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return;
         Matrix4d base = getPoseWorld();
+        assert base != null;
         value.mul(base);
         ee.setToolCenterPoint(base);
     }
@@ -157,6 +159,7 @@ public class RobotComponent extends Component implements Robot {
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
         Matrix4d base = getPoseWorld();
+        assert base != null;
         base.invert();
         m.mul(base);
         return m;
@@ -228,12 +231,12 @@ public class RobotComponent extends Component implements Robot {
     }
 
     /**
-     * @param pose The pose of the robot's base relative to the world.
+     * @param m The pose of the robot's base relative to the world.
      */
-    private void setPoseWorld(Matrix4d pose) {
-        PoseComponent p = getEntity().findFirstComponent(PoseComponent.class);
-        if(p==null) return;
-        p.setWorld(pose);
+    private void setPoseWorld(Matrix4d m) {
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        if(pose==null) return;
+        pose.setWorld(m);
     }
 
     private final List<PropertyChangeListener> listeners = new ArrayList<>();
