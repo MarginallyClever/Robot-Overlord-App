@@ -17,6 +17,10 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A text interface to a {@link NetworkSession} that also allows the user to choose the connection.
+ * This interface speaks to robots with Marlin firmware.
+ */
 public class MarlinInterface extends JPanel {
 	@Serial
 	private static final long serialVersionUID = -6388563393882327725L;

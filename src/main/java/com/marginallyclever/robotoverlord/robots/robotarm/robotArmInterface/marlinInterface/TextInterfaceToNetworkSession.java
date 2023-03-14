@@ -11,6 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/**
+ * A text interface to a {@link NetworkSession} that also allows the user to choose the connection.
+ */
 public class TextInterfaceToNetworkSession extends JPanel implements NetworkSessionListener {
 	/**
 	 * 
