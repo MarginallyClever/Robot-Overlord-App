@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots.spidee;
 
 import javax.vecmath.Vector3d;
 
-
+@Deprecated
 public class SpideeLocation  {
 	  Vector3d up = new Vector3d();
 	Vector3d left = new Vector3d();

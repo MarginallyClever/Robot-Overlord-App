@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.robots.spidee;
 
 import com.marginallyclever.convenience.memento.Memento;
 
+@Deprecated
 public class SpideeMemento implements Memento {
 
 	/**

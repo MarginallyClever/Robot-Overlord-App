@@ -20,11 +20,7 @@ import java.util.prefs.Preferences;
 
 @Deprecated
 public class Spidee extends RobotEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8759931076095273381L;
-	public static final String hello="HELLO WORLD!  I AM SPIDEE #"; 
+	public static final String hello="HELLO WORLD!  I AM SPIDEE #";
 	protected long robotUID=0;
 	
 	protected boolean isPortConfirmed=false;
@@ -59,11 +55,11 @@ public class Spidee extends RobotEntity {
 	public static final int BUTTONS_MAX =21;
 
 	
-	private MaterialEntity matBody = new MaterialEntity();
-	private MaterialEntity matHead = new MaterialEntity();
-	private MaterialEntity matLeg1 = new MaterialEntity();
-	private MaterialEntity matThigh = new MaterialEntity();
-	private MaterialEntity matShin = new MaterialEntity();
+	private final MaterialEntity matBody = new MaterialEntity();
+	private final MaterialEntity matHead = new MaterialEntity();
+	private final MaterialEntity matLeg1 = new MaterialEntity();
+	private final MaterialEntity matThigh = new MaterialEntity();
+	private final MaterialEntity matShin = new MaterialEntity();
 	
 	public static enum MoveModes {
 	  MOVE_MODE_CALIBRATE,
@@ -259,7 +255,7 @@ public class Spidee extends RobotEntity {
 		try {
 			prefs.removeNode();
 		}
-		catch(Exception e) {}
+		catch(Exception ignored) {}
 		prefs = Preferences.userRoot().node("Spidee");
 		
 		// posture settings?
@@ -491,7 +487,7 @@ public class Spidee extends RobotEntity {
 	      if( legs[i].knee_joint.pos.z-legs[i].pan_joint.pos.z < 5.5 ) legs[i].knee_joint.pos.z += 4 * scale * dt;
 	      else ++legup;
 	    }
-	    if( legup == 6*3 ) return true;
+		return legup == 6 * 3;
 	  }
 
 	  return false;
@@ -560,30 +556,30 @@ public class Spidee extends RobotEntity {
 	@Override
 	public void update(double dt) {
 		/*
-		  boolean open=comm.IsOpen();
-		  comm.Update(dt);
-		  if(!open && comm.IsOpen()) {
-		    SendZeros();
-		  }*/
+		boolean open=comm.IsOpen();
+		comm.Update(dt);
+		if(!open && comm.IsOpen()) {
+			SendZeros();
+		}*/
 		
-		  Byte b=0;
-		  switch(move_mode) {
-		  case MOVE_MODE_CALIBRATE:  b=0;  break;
-		  case MOVE_MODE_SITDOWN  :  b=1;  break;
-		  case MOVE_MODE_STANDUP  :  b=2;  break;
-		  case MOVE_MODE_BODY     :  b=3;  break;
-		  case MOVE_MODE_RIPPLE   :  b=4;  break;
-		  case MOVE_MODE_WAVE     :  b=5;  break;
-		  case MOVE_MODE_TRIPOD   :  b=6;  break;
-		  default: break;
-		  }
-		  ByteBuffer buffer=ByteBuffer.allocate(BUTTONS_MAX+1);
-		  buffer.put(0,b);
-		  for(int i=0;i<BUTTONS_MAX;++i) {
-			  buffer.put(i,(byte)buttons[i]);
-		  }
-		  buffer.rewind();
-		  instruct('I',buffer);
+		byte b=0;
+		switch (move_mode) {
+			case MOVE_MODE_CALIBRATE -> b = 0;
+			case MOVE_MODE_SITDOWN -> b = 1;
+			case MOVE_MODE_STANDUP -> b = 2;
+			case MOVE_MODE_BODY -> b = 3;
+			case MOVE_MODE_RIPPLE -> b = 4;
+			case MOVE_MODE_WAVE -> b = 5;
+			case MOVE_MODE_TRIPOD -> b = 6;
+			default -> {}
+		}
+		ByteBuffer buffer=ByteBuffer.allocate(BUTTONS_MAX+1);
+		buffer.put(0,b);
+		for(int i=0;i<BUTTONS_MAX;++i) {
+			buffer.put(i,(byte)buttons[i]);
+		}
+		buffer.rewind();
+		instruct('I',buffer);
 
 		/*if(Input.GetSingleton().GetButtonState("spidee","connect") == Input.ButtonState.RELEASED ) {
 	      open=comm.IsOpen();
@@ -599,15 +595,15 @@ public class Spidee extends RobotEntity {
 	    dt *= speed_scale;
 	    
 		if( dt != 0 ) {
-			switch(move_mode) {
-			case MOVE_MODE_CALIBRATE:   Move_Calibrate(dt);   break;
-			case MOVE_MODE_SITDOWN:     Sit_Down(dt);         break;
-			case MOVE_MODE_STANDUP:     Stand_Up(dt);         break;
-			case MOVE_MODE_BODY:        Move_Body(dt);        break;
-			case MOVE_MODE_RIPPLE:      Ripple_Gait(dt);      break;
-			case MOVE_MODE_WAVE:        Wave_Gait(dt);        break;
-			case MOVE_MODE_TRIPOD:      Tripod_Gait(dt);      break;
-			default: break;
+			switch (move_mode) {
+				case MOVE_MODE_CALIBRATE -> Move_Calibrate(dt);
+				case MOVE_MODE_SITDOWN -> Sit_Down(dt);
+				case MOVE_MODE_STANDUP -> Stand_Up(dt);
+				case MOVE_MODE_BODY -> Move_Body(dt);
+				case MOVE_MODE_RIPPLE -> Ripple_Gait(dt);
+				case MOVE_MODE_WAVE -> Wave_Gait(dt);
+				case MOVE_MODE_TRIPOD -> Tripod_Gait(dt);
+				default -> {}
 			}
 		}
 		
@@ -965,7 +961,7 @@ public class Spidee extends RobotEntity {
 	void Move_Calibrate(double dt) {
 		// turn active legs on and off.
 		float a=0, b=0, c=0;
-/*TODO finish me
+		/*TODO finish me
 		if(Input.GetSingleton().GetButtonState("spidee","leg1")==Input.ButtonState.RELEASED) legs[0].active = legs[0].active ? false : true;
 	    if(Input.GetSingleton().GetButtonState("spidee","leg2")==Input.ButtonState.RELEASED) legs[1].active = legs[1].active ? false : true;
 	    if(Input.GetSingleton().GetButtonState("spidee","leg3")==Input.ButtonState.RELEASED) legs[2].active = legs[2].active ? false : true;

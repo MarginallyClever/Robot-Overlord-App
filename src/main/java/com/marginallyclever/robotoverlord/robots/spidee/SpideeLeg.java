@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 
 import javax.vecmath.Vector3d;
 
-
+@Deprecated
 public class SpideeLeg  {
 	String name;
 	  int base_servo_address;

@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.robots.spidee;
 
 import com.jogamp.opengl.GL2;
 
+@Deprecated
 public class SpideeJoint extends SpideeLocation {
 	public static final int ANGLE_HISTORY_LENGTH = (30*3);
 
