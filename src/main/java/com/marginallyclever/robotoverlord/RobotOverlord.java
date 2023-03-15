@@ -388,7 +388,7 @@ public class RobotOverlord extends Entity {
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);
         // if the window resizes, give top and bottom halves equal share of the real estate
-		rightFrameSplitter.setResizeWeight(0.5);
+		rightFrameSplitter.setResizeWeight(0.25);
 
         Log.message("build splitters");
         splitLeftRight.add(glCanvas);
