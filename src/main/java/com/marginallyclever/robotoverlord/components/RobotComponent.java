@@ -32,6 +32,12 @@ public class RobotComponent extends Component implements Robot {
     private final List<DHComponent> bones = new ArrayList<>();
 
     @Override
+    public void setEntity(Entity entity) {
+        super.setEntity(entity);
+        findBones();
+    }
+
+    @Override
     public void getView(ViewPanel view) {
         super.getView(view);
 
@@ -165,10 +171,15 @@ public class RobotComponent extends Component implements Robot {
         return m;
     }
 
-    private void setEndEffectorTargetPose(Matrix4d mat) {
+    /**
+     * Sets the end effector target pose and immediately attempts to move the robot to that pose.
+     * @param targetPose the target pose relative to the robot's base.
+     */
+    private void setEndEffectorTargetPose(Matrix4d targetPose) {
         Matrix4d m0 = this.getEndEffector();
-        double[] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, mat);
+        double[] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, targetPose);
         // Log.message("cartesianDistance="+Arrays.toString(cartesianDistance));
+
         ApproximateJacobian2 aj = new ApproximateJacobian2(this);
         try {
             double[] jointDistance = aj.getJointFromCartesian(cartesianDistance);
@@ -191,9 +202,10 @@ public class RobotComponent extends Component implements Robot {
     }
 
     public void setAngles(double[] angles) {
+        assert angles.length == getNumBones();
+
         Matrix4d eeOld = getEndEffector();
         boolean changed = false;
-
         for(int i=0;i<getNumBones();++i) {
             DHComponent bone = getBone(i);
             double t = bone.getTheta();
@@ -216,6 +228,7 @@ public class RobotComponent extends Component implements Robot {
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
         Matrix4d base = getPoseWorld();
+        assert base != null;
         base.invert();
         m.mul(base);
         return m;
