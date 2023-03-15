@@ -317,7 +317,7 @@ public class MarlinInterface extends JPanel {
 		sendGoHome();
 	}
 
-	private void sendGoHome() {
+	public void sendGoHome() {
 		int count = (int)myArm.get(Robot.NUM_JOINTS);
 		for (int i = 0; i < count; ++i) {
 			myArm.set(Robot.ACTIVE_JOINT, i);
