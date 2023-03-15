@@ -216,18 +216,19 @@ public class Spidee extends RobotEntity {
 			j++;
 			leg.shoulderPan.angleMax = pn.getInt("panMax", 127 + 60);
 			leg.shoulderPan.angleMin = pn.getInt("panMin", 127 - 60);
+            leg.shoulderPan.zero = pn.getFloat("panZero", 127);
+            leg.shoulderPan.scale = pn.getFloat("panScale", 1);
+
 			leg.shoulderTilt.angleMax = pn.getInt("tiltMax", 240);
 			leg.shoulderTilt.angleMin = pn.getInt("tiltMin", 15);
+            leg.shoulderTilt.zero = pn.getFloat("tiltZero", 127);
+            leg.shoulderTilt.scale = pn.getFloat("tiltScale", 1);
+
 			leg.knee.angleMax = pn.getInt("kneeMax", 240);
 			leg.knee.angleMin = pn.getInt("kneeMin", 15);
-
-			leg.shoulderPan.zero = pn.getFloat("panZero", 127);
-			leg.shoulderTilt.zero = pn.getFloat("tiltZero", 127);
 			leg.knee.zero = pn.getFloat("kneeZero", 127);
-			leg.shoulderPan.scale = pn.getFloat("panScale", 1);
-			leg.shoulderTilt.scale = pn.getFloat("tiltScale", 1);
-			leg.knee.scale = pn.getFloat("kneeScale", 1);
-		}
+            leg.knee.scale = pn.getFloat("kneeScale", 1);
+        }
 	}
 
 	private void loadPostureSettings() {
@@ -1144,9 +1145,8 @@ public class Spidee extends RobotEntity {
 	 * Raise and lower the foot of a given leg over time.
 	 * @param legIndex index of leg to update
 	 * @param step 0 to 1, 0 is start of step, 1 is end of step
-	 * @param dt time since last update
 	 */
-    void updateOneLegGait(int legIndex, double step, double dt) {
+    void updateOneLegGait(int legIndex, double step) {
         SpideeLeg leg = legs[legIndex];
 
         double stepAdj = (step <= 0.5f) ? step : 1 - step;
@@ -1158,7 +1158,7 @@ public class Spidee extends RobotEntity {
         dp.z = 0;
 		dp.normalize();
         dp.scale(step);
-
+        // add in the height of the step
         leg.ankle.pos.add(dp);
         leg.ankle.pos.z = stepAdj * strideHeight;
     }
@@ -1180,7 +1180,7 @@ public class Spidee extends RobotEntity {
                 legs[i].ankle.pos.z = 0;
                 continue;
             }
-            updateOneLegGait(i, step, dt);
+            updateOneLegGait(i, step);
         }
     }
 
@@ -1230,8 +1230,8 @@ public class Spidee extends RobotEntity {
 			default -> 0;
 		};
 
-        updateOneLegGait(o1, step1, dt);
-        updateOneLegGait(o2, step2, dt);
+        updateOneLegGait(o1, step1);
+        updateOneLegGait(o2, step2);
     }
 
 
@@ -1252,7 +1252,7 @@ public class Spidee extends RobotEntity {
             if ((i % 2) != legToMove) {
                 legs[i].ankle.pos.z = 0;
             } else {
-				updateOneLegGait(i, step, dt);
+				updateOneLegGait(i, step);
 			}
         }
     }

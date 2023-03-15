@@ -97,6 +97,11 @@ public class CartesianDrivePanel extends JPanel {
 		return FOR;
 	}
 
+	/**
+	 * Get the frame of reference matrix for the selected frame of reference.
+	 * @param robot
+	 * @return
+	 */
 	private Matrix4d getFrameOfReferenceMatrix(Robot robot) {
 		Matrix4d mFor;
 
@@ -132,32 +137,38 @@ public class CartesianDrivePanel extends JPanel {
 		Matrix4d m4 = getEndEffectorMovedInFrameOfReference(robot,v_mm);
 		robot.set(Robot.END_EFFECTOR_TARGET,m4);
 	}
-	
-	private Matrix4d getEndEffectorMovedInFrameOfReference(Robot robot, double v_mm) {
+
+	/**
+	 * Move the end effector in the frame of reference.
+	 * @param robot the robot to move
+	 * @param amount translations in mm, rotations in degrees.
+	 * @return the new end effector matrix
+	 */
+	private Matrix4d getEndEffectorMovedInFrameOfReference(Robot robot, double amount) {
 		Matrix4d m4 = (Matrix4d)robot.get(Robot.END_EFFECTOR);
 		Matrix4d mFor = getFrameOfReferenceMatrix(robot);
 		
-		Vector3d p=new Vector3d();
+		Vector3d p = new Vector3d();
 		Matrix3d mA = new Matrix3d(); 
 		m4.get(p);
 		m4.get(mA);
 		
 		if(x.isSelected()) {
-			translateMatrix(m4,MatrixHelper.getXAxis(mFor),v_mm);
+			translateMatrix(m4,MatrixHelper.getXAxis(mFor),amount);
 		} else if(y.isSelected()) {
-			translateMatrix(m4,MatrixHelper.getYAxis(mFor),v_mm);
+			translateMatrix(m4,MatrixHelper.getYAxis(mFor),amount);
 		} else if(z.isSelected()) {
-			translateMatrix(m4,MatrixHelper.getZAxis(mFor),v_mm);
+			translateMatrix(m4,MatrixHelper.getZAxis(mFor),amount);
 		} else {
 			Matrix3d rot = new Matrix3d();
 			Matrix3d mB = new Matrix3d();
 			mFor.get(mB);
 			if(roll.isSelected()) {
-				rot.rotZ(v_mm);
+				rot.rotZ(amount);
 			} else if(pitch.isSelected()) {
-				rot.rotY(v_mm);
+				rot.rotY(amount);
 			} else if(yaw.isSelected()) {
-				rot.rotX(v_mm);
+				rot.rotX(amount);
 			}
 			Matrix3d mBi = new Matrix3d(mB);
 			mBi.invert();

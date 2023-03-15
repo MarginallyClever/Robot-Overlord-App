@@ -20,6 +20,10 @@ import java.util.List;
  *
  */
 public class Entity implements PropertyChangeListener {
+	public static final String PATH_SEPARATOR = "/";
+	public static final String PATH_PREVIOUS = "..";
+	public static final String PATH_CURRENT = ".";
+
 	private String name;
 
 	protected transient Entity parent;
@@ -114,7 +118,7 @@ public class Entity implements PropertyChangeListener {
 	}
 	
 	public void addEntity(Entity child) {
-		System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
+		//System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
 		checkForAddToScene(this,child);
 		children.add(child);
 		child.setParent(this);
@@ -176,12 +180,12 @@ public class Entity implements PropertyChangeListener {
 	 * @return the requested entity or null.
 	 */
 	public Entity findByPath(String path) {
-		String[] pathComponents = path.split("/");
+		String[] pathComponents = path.split(PATH_SEPARATOR);
 
 		// if absolute path, start with root node.
 		int i = 0;
 		Entity e;
-		if (path.startsWith("/")) {
+		if (path.startsWith(PATH_SEPARATOR)) {
 			e = getRoot();
 			i = 2;
 		} else {
@@ -193,10 +197,10 @@ public class Entity implements PropertyChangeListener {
 
 			if (e == null)
 				break;
-			if (name.contentEquals("..")) {
+			if (name.contentEquals(PATH_PREVIOUS)) {
 				// ".." = my parent
 				e = e.getParent();
-			} else if (name.contentEquals(".")) {
+			} else if (name.contentEquals(PATH_CURRENT)) {
 				// "." is me!
 				continue;
 			} else {

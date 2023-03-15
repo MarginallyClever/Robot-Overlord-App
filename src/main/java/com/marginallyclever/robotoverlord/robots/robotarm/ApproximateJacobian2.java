@@ -23,6 +23,10 @@ public class ApproximateJacobian2 {
 	 */
 	public double[][] jacobian;
 
+	/**
+	 * Given the current pose of the robot, find the approximate jacobian.
+	 * @param arm the robot to analyze.
+	 */
 	public ApproximateJacobian2(RobotComponent arm) {
 		myArm = arm;
 
@@ -137,7 +141,6 @@ public class ApproximateJacobian2 {
 
 	/**
 	 * Use the Jacobian to get the joint velocity from the cartesian velocity.
-	 * 
 	 * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation
 	 *                          forces on the end effector.
 	 * @return jointVelocity joint velocity in degrees. Will be filled with the new
@@ -145,14 +148,14 @@ public class ApproximateJacobian2 {
 	 * @throws Exception if joint velocities have NaN values
 	 */
 	public double[] getJointFromCartesian(final double[] cartesianVelocity) throws Exception {
+		int DOF = myArm.getNumBones();
 		double[][] inverseJacobian = getInverseJacobian();
-		double[] jointVelocity = new double[myArm.getNumBones()];
+		double[] jointVelocity = new double[DOF];
 
 		// vector-matrix multiplication (y = x^T A)
-		double sum;
-		for (int j = 0; j < myArm.getNumBones(); ++j) {
-			sum = 0;
-			for (int k = 0; k < 6; ++k) {
+		for (int j=0; j<DOF; ++j) {
+			double sum = 0;
+			for (int k=0; k<cartesianVelocity.length; ++k) {
 				sum += inverseJacobian[j][k] * cartesianVelocity[k];
 			}
 			if (Double.isNaN(sum)) {
