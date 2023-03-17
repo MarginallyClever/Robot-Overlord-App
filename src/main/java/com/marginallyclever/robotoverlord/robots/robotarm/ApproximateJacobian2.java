@@ -141,10 +141,8 @@ public class ApproximateJacobian2 {
 
 	/**
 	 * Use the Jacobian to get the joint velocity from the cartesian velocity.
-	 * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation
-	 *                          forces on the end effector.
-	 * @return jointVelocity joint velocity in degrees. Will be filled with the new
-	 *         velocity.
+	 * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation forces on the end effector.
+	 * @return jointVelocity joint velocity in degrees. Will be filled with the new velocity.
 	 * @throws Exception if joint velocities have NaN values
 	 */
 	public double[] getJointFromCartesian(final double[] cartesianVelocity) throws Exception {
