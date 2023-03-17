@@ -11,6 +11,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
  * @author Dan Royer
  *
  */
+@Deprecated
 public abstract class RobotEntity extends PoseEntity {
 	/**
 	 * 
