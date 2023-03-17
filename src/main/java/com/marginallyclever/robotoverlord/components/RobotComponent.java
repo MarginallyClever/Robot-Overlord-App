@@ -112,17 +112,19 @@ public class RobotComponent extends Component implements Robot {
             case END_EFFECTOR_TARGET: return getEndEffectorTargetPose();
             case TOOL_CENTER_POINT: return getToolCenterPoint();
             case POSE: return getPoseWorld();
-            case JOINT_POSE: {
-                Matrix4d m = new Matrix4d();
-                m.setIdentity();
-                for(int i=0;i<=activeJoint;++i) {
-                    m.mul(getBone(i).getLocal());
-                }
-                return m;
-            }
+            case JOINT_POSE: return getActiveJointPose();
             case JOINT_HOME: return getBone(activeJoint).getThetaHome();
             default : return null;
         }
+    }
+
+    private Object getActiveJointPose() {
+        Matrix4d m = new Matrix4d();
+        m.setIdentity();
+        for(int i=0;i<=activeJoint;++i) {
+            m.mul(getBone(i).getLocal());
+        }
+        return m;
     }
 
     @Override
@@ -141,9 +143,10 @@ public class RobotComponent extends Component implements Robot {
     private Matrix4d getToolCenterPoint() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
-        Matrix4d m = ee.getToolCenterPoint();
         Matrix4d base = getPoseWorld();
         assert base != null;
+
+        Matrix4d m = ee.getToolCenterPoint();
         base.invert();
         m.mul(base);
         return m;
@@ -154,6 +157,7 @@ public class RobotComponent extends Component implements Robot {
         if(ee==null) return;
         Matrix4d base = getPoseWorld();
         assert base != null;
+
         value.mul(base);
         ee.setToolCenterPoint(base);
     }
@@ -161,11 +165,12 @@ public class RobotComponent extends Component implements Robot {
     private Matrix4d getEndEffectorTargetPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
+        Matrix4d base = getPoseWorld();
+        assert base != null;
+
         PoseComponent pose = ee.getEntity().findFirstComponent(PoseComponent.class);
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
-        Matrix4d base = getPoseWorld();
-        assert base != null;
         base.invert();
         m.mul(base);
         return m;
@@ -174,18 +179,27 @@ public class RobotComponent extends Component implements Robot {
     /**
      * Sets the end effector target pose and immediately attempts to move the robot to that pose.
      * @param targetPose the target pose relative to the robot's base.
+     * @throws RuntimeException if the robot cannot be moved to the target pose.
      */
     private void setEndEffectorTargetPose(Matrix4d targetPose) {
         Matrix4d m0 = this.getEndEffector();
-        double[] cartesianDistance = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, targetPose);
+        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, targetPose);
         // Log.message("cartesianDistance="+Arrays.toString(cartesianDistance));
+        applyCartesianForceToEndEffector(cartesianVelocity);
+    }
 
+    /**
+     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
+     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
+     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
+     */
+    private void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
         ApproximateJacobian2 aj = new ApproximateJacobian2(this);
         try {
-            double[] jointDistance = aj.getJointFromCartesian(cartesianDistance);
+            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);
             double[] angles = this.getAngles();
             for (int i = 0; i < angles.length; ++i) {
-                angles[i] += jointDistance[i];
+                angles[i] += jointVelocity[i];
             }
             this.setAngles(angles);
         } catch (Exception e) {
