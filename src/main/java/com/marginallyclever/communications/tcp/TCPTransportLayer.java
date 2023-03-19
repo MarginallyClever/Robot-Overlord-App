@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.tcp;
 
-import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
 import com.marginallyclever.convenience.log.Log;
@@ -20,7 +20,7 @@ public class TCPTransportLayer implements TransportLayer {
 	 *         <code>null</code> on failure.
 	 */
 	@Override
-	public NetworkSession openConnection(String connectionName) {
+	public SessionLayer openConnection(String connectionName) {
 		/*
 		 * // check it Log.message("Validating "+connectionName); InetAddressValidator
 		 * validator = new InetAddressValidator();
@@ -31,7 +31,7 @@ public class TCPTransportLayer implements TransportLayer {
 
 		Log.message("Connecting to " + parts[parts.length - 1]);
 		// if(connectionName.equals(recentPort)) return null;
-		TCPConnection connection = new TCPConnection(this);
+		TCPSession connection = new TCPSession(this);
 
 		try {
 			connection.openConnection(connectionName);

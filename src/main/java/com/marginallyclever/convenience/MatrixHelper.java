@@ -845,11 +845,10 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Use Quaternions to interpolate between two matrixes and estimate the distance needed to
-	 * travel the distance (both linear and rotational).
+	 * Use Quaternions to estimate the distance between two matrixes (both linear and rotational).
 	 * @param mStart matrix of start pose
 	 * @param mEnd matrix of end pose
-	 * @return 6 doubles that will be filled with the XYZ translation and UVW rotation.
+	 * @return 6 doubles that will be filled with the XYZ translation and RPY rotation.
 	 */
 	static public double[] getCartesianBetweenTwoMatrixes(final Matrix4d mStart,final Matrix4d mEnd) {
 		Vector3d p0 = new Vector3d();

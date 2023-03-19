@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface;
 
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.communications.NetworkSessionEvent;
-import com.marginallyclever.communications.NetworkSessionListener;
+import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.SessionLayerEvent;
+import com.marginallyclever.communications.SessionLayerListener;
 import com.marginallyclever.convenience.log.Log;
 
 import javax.swing.*;
@@ -12,18 +12,18 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
- * A text interface to a {@link NetworkSession} that also allows the user to choose the connection.
+ * A text interface to a {@link SessionLayer} that also allows the user to choose the connection.
  */
-public class TextInterfaceToNetworkSession extends JPanel implements NetworkSessionListener {
+public class TextInterfaceToSessionLayer extends JPanel implements SessionLayerListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1032123255711692874L;
 	private TextInterfaceWithHistory myInterface = new TextInterfaceWithHistory();
 	private ChooseConnectionPanel myConnectionChoice = new ChooseConnectionPanel();
-	private NetworkSession mySession;
+	private SessionLayer mySession;
 
-	public TextInterfaceToNetworkSession() {
+	public TextInterfaceToSessionLayer() {
 		super();
 
 		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToNetworkSession.class.getName()));
@@ -59,7 +59,7 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		});
 	}
 	
-	public void setNetworkSession(NetworkSession session) {
+	public void setNetworkSession(SessionLayer session) {
 		if(mySession!=null) mySession.removeListener(this);
 		mySession = session;
 		if(mySession!=null) mySession.addListener(this);
@@ -81,8 +81,8 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	}
 	
 	@Override
-	public void networkSessionEvent(NetworkSessionEvent evt) {
-		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
+	public void networkSessionEvent(SessionLayerEvent evt) {
+		if(evt.flag == SessionLayerEvent.DATA_AVAILABLE) {
 			myInterface.addToHistory(mySession.getName(),((String)evt.data).trim());
 		}
 	}
@@ -112,11 +112,11 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 		}
 	}
 
-	public void addNetworkSessionListener(NetworkSessionListener a) {
+	public void addNetworkSessionListener(SessionLayerListener a) {
 		mySession.addListener(a);
 	}
 	
-	public void removeNetworkSessionListener(NetworkSessionListener a) {
+	public void removeNetworkSessionListener(SessionLayerListener a) {
 		mySession.removeListener(a);
 	}
 
@@ -124,13 +124,13 @@ public class TextInterfaceToNetworkSession extends JPanel implements NetworkSess
 	
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame(TextInterfaceToNetworkSession.class.getName());
+		JFrame frame = new JFrame(TextInterfaceToSessionLayer.class.getName());
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(600, 400));
-		frame.add(new TextInterfaceToNetworkSession());
+		frame.add(new TextInterfaceToSessionLayer());
 		frame.pack();
 		frame.setVisible(true);
 	}

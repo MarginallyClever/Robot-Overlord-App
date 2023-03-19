@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.serial;
 
-import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
 
 import javax.swing.*;
@@ -53,7 +53,7 @@ public class SerialTransportLayerPanel extends TransportLayerPanel {
 	}
 
 	@Override
-	public NetworkSession openConnection() {
+	public SessionLayer openConnection() {
 		lastConnectionPort = connectionPort.getItemAt(connectionPort.getSelectedIndex());
 		lastConnectionBaud = Integer.parseInt(connectionBaud.getItemAt(connectionBaud.getSelectedIndex()));
 		return layer.openConnection(lastConnectionPort + "@" + lastConnectionBaud);

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.robots.spidee;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
@@ -1485,7 +1485,7 @@ public class Spidee extends RobotEntity {
     }
 
     // override this method to check that the software is connected to the right type of robot.
-    public void dataAvailable(NetworkSession arg0, String line) {
+    public void dataAvailable(SessionLayer arg0, String line) {
         if (line.contains(hello)) {
             isPortConfirmed = true;
             //finalizeMove();

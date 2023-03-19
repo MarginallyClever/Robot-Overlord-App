@@ -1,8 +1,6 @@
 package com.marginallyclever.communications;
 
 import javax.swing.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 /**
@@ -11,7 +9,7 @@ import java.util.ArrayList;
  * @author Peter Colapietro
  * @since v7
  */
-public abstract class NetworkSession {
+public abstract class SessionLayer {
 	// close this connection
 	abstract public void closeConnection();
 
@@ -28,29 +26,24 @@ public abstract class NetworkSession {
 	
 	abstract public TransportLayer getTransportLayer();
 
-	
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-		listeners = new ArrayList<NetworkSessionListener>();
-	}
 
 	// OBSERVER PATTERN
 	
-	private transient ArrayList<NetworkSessionListener> listeners = new ArrayList<NetworkSessionListener>();
+	private final transient ArrayList<SessionLayerListener> listeners = new ArrayList<>();
 	
-	public void addListener(NetworkSessionListener listener) {
+	public void addListener(SessionLayerListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(NetworkSessionListener listener) {
+	public void removeListener(SessionLayerListener listener) {
 		listeners.remove(listener);
 	}
 
-	protected void notifyListeners(NetworkSessionEvent evt) {
+	protected void notifyListeners(SessionLayerEvent evt) {
 		SwingUtilities.invokeLater(new Runnable() {
             @Override
 			public void run() {
-				for (NetworkSessionListener a : listeners) {
+				for (SessionLayerListener a : listeners) {
 					a.networkSessionEvent(evt);
 				}
             }

@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface;
 
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.communications.NetworkSessionEvent;
-import com.marginallyclever.communications.NetworkSessionManager;
+import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.SessionLayerEvent;
+import com.marginallyclever.communications.SessionLayerManager;
 import com.marginallyclever.convenience.log.Log;
 
 import javax.swing.*;
@@ -18,7 +18,7 @@ public class ChooseConnectionPanel extends JPanel {
 	
 	private JButton bConnect = new JButton();
 	private JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
-	private NetworkSession mySession;
+	private SessionLayer mySession;
 	
 	public ChooseConnectionPanel() {
 		super();
@@ -36,7 +36,7 @@ public class ChooseConnectionPanel extends JPanel {
 		if(mySession!=null) {
 			onClose();
 		} else {
-			NetworkSession s = NetworkSessionManager.requestNewSession(this);
+			SessionLayer s = SessionLayerManager.requestNewSession(this);
 			if(s!=null) {
 				onOpen(s);
 				notifyListeners(new ActionEvent(this,ChooseConnectionPanel.CONNECTION_OPENED,""));
@@ -56,12 +56,12 @@ public class ChooseConnectionPanel extends JPanel {
 		connectionName.setText("Not connected");
 	}
 
-	private void onOpen(NetworkSession s) {
+	private void onOpen(SessionLayer s) {
 		Log.message("ChooseConnection open to "+s.getName());
 
 		mySession = s;
 		mySession.addListener((e)->{
-			if(e.flag == NetworkSessionEvent.CONNECTION_CLOSED) {
+			if(e.flag == SessionLayerEvent.CONNECTION_CLOSED) {
 				onClose(); 
 			}
 		});
@@ -70,11 +70,11 @@ public class ChooseConnectionPanel extends JPanel {
 		connectionName.setText(s.getName());
 	}
 
-	public NetworkSession getNetworkSession() {
+	public SessionLayer getNetworkSession() {
 		return mySession;
 	}
 	
-	public void setNetworkSession(NetworkSession s) {
+	public void setNetworkSession(SessionLayer s) {
 		if(s!=null && s!=mySession) {
 			onClose();
 			onOpen(s);

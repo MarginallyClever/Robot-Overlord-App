@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -337,7 +337,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	}
 
 	// override this method to check that the software is connected to the right type of robot.
-	public void dataAvailable(NetworkSession arg0,String line) {
+	public void dataAvailable(SessionLayer arg0, String line) {
 		if(line.contains(hello)) {
 			// network info
 			boolean isPortConfirmed = true;

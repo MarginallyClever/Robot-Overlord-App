@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.tcp;
 
-import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
 
 import javax.swing.*;
@@ -47,7 +47,7 @@ public class TCPTransportLayerPanel extends TransportLayerPanel {
 	}
 	
 	@Override
-	public NetworkSession openConnection() {
+	public SessionLayer openConnection() {
 		connectionName = connectionField.getText();
 		portNumber = portField.getText();
 		userName = userField.getText();

@@ -2,7 +2,7 @@ package com.marginallyclever.communications;
 
 import java.util.EventObject;
 
-public class NetworkSessionEvent extends EventObject {
+public class SessionLayerEvent extends EventObject {
 	/**
 	 * 
 	 */
@@ -19,7 +19,7 @@ public class NetworkSessionEvent extends EventObject {
 	public int flag;
 	public Object data;
 	
-	public NetworkSessionEvent(Object source,int flag,Object data) {
+	public SessionLayerEvent(Object source, int flag, Object data) {
 		super(source);
 		this.flag = flag;
 		this.data = data;

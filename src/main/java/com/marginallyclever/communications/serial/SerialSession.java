@@ -1,7 +1,7 @@
 package com.marginallyclever.communications.serial;
 
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.communications.NetworkSessionEvent;
+import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.convenience.log.Log;
 import jssc.SerialPort;
@@ -11,12 +11,11 @@ import jssc.SerialPortException;
 
 
 /**
- * Created on 4/12/15.  Encapsulate all jssc serial receive/transmit implementation
- *
+ * Encapsulate all serial receive/transmit at the session layer of the OSI model.
  * @author Peter Colapietro
- * @since v7
+ * @since v7, 4/12/15.
  */
-public final class SerialConnection extends NetworkSession implements SerialPortEventListener {
+public final class SerialSession extends SessionLayer implements SerialPortEventListener {
 	private static final int DEFAULT_BAUD_RATE = 250000;
 
 	private SerialPort serialPort;
@@ -27,7 +26,7 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 	// parsing input from outside source
 	private String inputBuffer = "";
 
-	public SerialConnection(SerialTransportLayer layer) {
+	public SerialSession(SerialTransportLayer layer) {
 		transportLayer = layer;
 	}
 
@@ -90,7 +89,7 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 		try {
 			buffer = serialPort.readBytes(len);
 		} catch (SerialPortException e) {
-			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.TRANSPORT_ERROR,e.getLocalizedMessage()));
+			notifyListeners(new SessionLayerEvent(this, SessionLayerEvent.TRANSPORT_ERROR,e.getLocalizedMessage()));
 			return;
 		}
 		
@@ -107,7 +106,7 @@ public final class SerialConnection extends NetworkSession implements SerialPort
 
 			//Log.message("SerialConnection SEND " + msg.trim());
 			
-			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.DATA_AVAILABLE,oneLine));
+			notifyListeners(new SessionLayerEvent(this, SessionLayerEvent.DATA_AVAILABLE,oneLine));
 		}
 	}
 

@@ -3,8 +3,8 @@ package com.marginallyclever.communications.tcp;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.communications.NetworkSessionEvent;
+import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.convenience.log.Log;
 
@@ -20,7 +20,7 @@ import java.net.URL;
  * @author Dan Royer 
  * @since 1.6.0 (2020-04-08)
  */
-public final class TCPConnection extends NetworkSession implements Runnable {	
+public final class TCPSession extends SessionLayer implements Runnable {
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
 	private static final int DEFAULT_TCP_PORT = 22;
     
@@ -40,7 +40,7 @@ public final class TCPConnection extends NetworkSession implements Runnable {
 	private String inputBuffer = "";
 
 	
-	public TCPConnection(TransportLayer layer) {
+	public TCPSession(TransportLayer layer) {
 		super();
 		transportLayer = layer;
 	}
@@ -159,7 +159,7 @@ public final class TCPConnection extends NetworkSession implements Runnable {
 			if(oneLine.isEmpty()) return;
 			
 			reportDataReceived(oneLine);
-			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.DATA_AVAILABLE,oneLine));
+			notifyListeners(new SessionLayerEvent(this, SessionLayerEvent.DATA_AVAILABLE,oneLine));
 		}
 	}
 
@@ -173,7 +173,7 @@ public final class TCPConnection extends NetworkSession implements Runnable {
 			reportDataSent(msg);
 		}
 		catch(IndexOutOfBoundsException e1) {
-			notifyListeners(new NetworkSessionEvent(this,NetworkSessionEvent.TRANSPORT_ERROR,e1.getLocalizedMessage()));
+			notifyListeners(new SessionLayerEvent(this, SessionLayerEvent.TRANSPORT_ERROR,e1.getLocalizedMessage()));
 		}
 	}
 

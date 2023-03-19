@@ -12,7 +12,7 @@ import java.awt.*;
  * @author Dan Royer
  *
  */
-public class NetworkSessionManager {
+public class SessionLayerManager {
 	static private TransportLayer serial = new SerialTransportLayer();
 	static private TransportLayer tcp = new TCPTransportLayer();
 	static private int selectedLayer=0;
@@ -22,7 +22,7 @@ public class NetworkSessionManager {
 	 * @param parent the root gui component
 	 * @return a new connection or null.
 	 */
-	static public NetworkSession requestNewSession(Component parent) {
+	static public SessionLayer requestNewSession(Component parent) {
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab(Translator.get("Local"), serial.getTransportLayerPanel());
 		tabs.addTab(Translator.get("Remote"), tcp.getTransportLayerPanel());

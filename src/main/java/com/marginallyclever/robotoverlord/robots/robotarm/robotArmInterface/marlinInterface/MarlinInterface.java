@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface;
 
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.communications.NetworkSessionEvent;
-import com.marginallyclever.communications.NetworkSessionListener;
+import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.SessionLayerEvent;
+import com.marginallyclever.communications.SessionLayerListener;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A text interface to a {@link NetworkSession} that also allows the user to choose the connection.
+ * A text interface to a {@link SessionLayer} that also allows the user to choose the connection.
  * This interface speaks to robots with Marlin firmware.
  */
 public class MarlinInterface extends JPanel {
@@ -38,7 +38,7 @@ public class MarlinInterface extends JPanel {
 	public static final String IDLE = "idle";
 
 	private final Robot myArm;
-	private final TextInterfaceToNetworkSession chatInterface = new TextInterfaceToNetworkSession();
+	private final TextInterfaceToSessionLayer chatInterface = new TextInterfaceToSessionLayer();
 	private final List<MarlinCommand> myHistory = new ArrayList<>();
 
 	private final JButton bESTOP = new JButton("EMERGENCY STOP");
@@ -82,7 +82,7 @@ public class MarlinInterface extends JPanel {
 		});
 	}
 
-	public void addNetworkSessionListener(NetworkSessionListener a) {
+	public void addNetworkSessionListener(SessionLayerListener a) {
 		chatInterface.addNetworkSessionListener(a);
 	}
 
@@ -125,8 +125,8 @@ public class MarlinInterface extends JPanel {
 		chatInterface.addNetworkSessionListener(this::onDataReceived);
 	}
 	
-	private void onDataReceived(NetworkSessionEvent evt) {
-		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) {
+	private void onDataReceived(SessionLayerEvent evt) {
+		if(evt.flag == SessionLayerEvent.DATA_AVAILABLE) {
 			lastReceivedTime = System.currentTimeMillis();
 			String message = ((String)evt.data).trim();
 			if (message.startsWith("X:") && message.contains("Count")) {
@@ -326,7 +326,7 @@ public class MarlinInterface extends JPanel {
 		}
 	}
 
-	public void setNetworkSession(NetworkSession session) {
+	public void setNetworkSession(SessionLayer session) {
 		chatInterface.setNetworkSession(session);
 	}
 
