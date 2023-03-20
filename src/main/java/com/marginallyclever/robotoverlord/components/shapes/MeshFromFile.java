@@ -23,6 +23,11 @@ public class MeshFromFile extends ShapeComponent {
         });
     }
 
+    public MeshFromFile(String filename) {
+        this();
+        setFilename(filename);
+    }
+
     private String checkForScenePath(String fn) {
         Scene myScene = getScene();
         if(myScene!=null) {
