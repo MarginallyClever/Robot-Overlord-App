@@ -9,8 +9,12 @@ import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
+import com.marginallyclever.robotoverlord.demos.DemoODEPhysics;
+import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
+import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
@@ -26,7 +30,14 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector2d;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -123,7 +134,10 @@ public class RobotOverlord extends Entity {
 	private final transient Vector2d pickPoint = new Vector2d();
 
 	private final SkyBoxEntity sky = new SkyBoxEntity();
-	
+
+	// drag files into the app with {@link DropTarget}
+	private DropTarget dropTarget;
+
  	private RobotOverlord() {
 		super("");
 
@@ -410,7 +424,7 @@ public class RobotOverlord extends Entity {
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
     	setWindowSizeAndPosition();
-       
+		setupDropTarget();
         mainFrame.addWindowListener(new WindowAdapter() {
             // when someone tries to close the app, confirm it.
         	@Override
@@ -847,5 +861,67 @@ public class RobotOverlord extends Entity {
 				((EditorAction)a).updateEnableStatus();
 			}
 		}
+	}
+
+	private void setupDropTarget() {
+		logger.debug("adding drag & drop support...");
+		dropTarget = new DropTarget(mainFrame,new DropTargetAdapter() {
+			@Override
+			public void drop(DropTargetDropEvent dtde) {
+				try {
+					Transferable tr = dtde.getTransferable();
+					DataFlavor[] flavors = tr.getTransferDataFlavors();
+					for (DataFlavor flavor : flavors) {
+						logger.debug("Possible flavor: {}", flavor.getMimeType());
+						if (flavor.isFlavorJavaFileListType()) {
+							dtde.acceptDrop(DnDConstants.ACTION_COPY);
+							Object o = tr.getTransferData(flavor);
+							if (o instanceof List<?>) {
+								List<?> list = (List<?>) o;
+								if (list.size() > 0) {
+									o = list.get(0);
+									if (o instanceof File) {
+										openFile(((File) o).getAbsolutePath());
+										dtde.dropComplete(true);
+										return;
+									}
+								}
+							}
+						}
+					}
+					logger.debug("Drop failed: {}", dtde);
+					dtde.rejectDrop();
+				} catch (Exception e) {
+					logger.error("Drop error", e);
+					dtde.rejectDrop();
+				}
+			}
+		});
+	}
+
+	private void openFile(String absolutePath) {
+		logger.debug("openFile({})",absolutePath);
+		try {
+			if(MeshFactory.canLoad(absolutePath)) {
+				Entity entity = new Entity();
+				ShapeComponent shape = new MeshFromFile(absolutePath);
+				String name = getFilenameWithoutExtensionFromPath(absolutePath);
+				entity.setName(name);
+				entity.addComponent(shape);
+				scene.addEntity(entity);
+				setSelectedEntity(entity);
+				PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+				pose.setPosition(getCamera().getOrbitPoint());
+			}
+		}
+		catch(Exception e) {
+			logger.error("Error opening file",e);
+		}
+	}
+
+	private String getFilenameWithoutExtensionFromPath(String absolutePath) {
+		File f = new File(absolutePath);
+		String fullName = f.getName();
+		return fullName.substring(0,fullName.lastIndexOf('.'));
 	}
 }

@@ -8,6 +8,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.BufferedInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class MeshFactory {
@@ -92,5 +93,12 @@ public class MeshFactory {
 		
 		}
 		return filters;
+	}
+
+	public static boolean canLoad(String absolutePath) {
+		for( MeshLoader loader : loaders ) {
+			if(Arrays.stream(loader.getValidExtensions()).anyMatch(absolutePath::endsWith)) return true;
+		}
+		return false;
 	}
 }

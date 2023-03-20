@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
@@ -18,6 +19,21 @@ public abstract class ShapeComponent extends RenderComponent {
 
     protected ShapeComponent() {
         super();
+    }
+
+    @Override
+    public void setEntity(Entity entity) {
+        super.setEntity(entity);
+        if(entity!=null) {
+            PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+            if(pose==null) {
+                entity.addComponent(new PoseComponent());
+            }
+            MaterialComponent mat = entity.findFirstComponent(MaterialComponent.class);
+            if(mat==null) {
+                entity.addComponent(new MaterialComponent());
+            }
+        }
     }
 
     public void setModel(Mesh m) {
