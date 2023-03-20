@@ -61,7 +61,7 @@ public class SceneClearAction extends AbstractAction {
 		Entity light0 = new Entity("Light");
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(new LightComponent());
-		scene.addEntity(light0);
-		pose.setPosition(new Vector3d(-50,-50,50));
+		mainCamera.addEntity(light0);
+		pose.setPosition(new Vector3d(0,0,50));
 	}
 }
