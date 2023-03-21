@@ -1,6 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.EntityReorganizeEdit;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +44,9 @@ class EntityTreeTransferHandler extends TransferHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(EntityTreeTransferHandler.class);
 
-    DataFlavor nodesFlavor;
-    DataFlavor[] flavors = new DataFlavor[1];
-    DefaultMutableTreeNode[] nodesToRemove;
+    private DataFlavor nodesFlavor;
+    private final DataFlavor[] flavors = new DataFlavor[1];
+    private DefaultMutableTreeNode[] nodesToRemove;
 
     public EntityTreeTransferHandler() {
         try {
@@ -174,8 +176,11 @@ class EntityTreeTransferHandler extends TransferHandler {
             Entity parentEntity = (Entity)parent.getUserObject();
             Entity entity = (Entity)node.getUserObject();
 
-            entity.getParent().removeEntity(entity);
-            parentEntity.addEntity(entity);
+            if (entity.getParent() == parentEntity) {
+                continue;
+            }
+
+            UndoSystem.addEvent(this, new EntityReorganizeEdit(entity, parentEntity));
         }
         return true;
     }
