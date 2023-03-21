@@ -8,25 +8,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-
+/**
+ * Collate all the {@link java.awt.Component}s for selected {@link Entity}s.
+ */
 public class ComponentPanel extends JPanel {
+	private final RobotOverlord robotOverlord;
 
-	public ComponentPanel() {
+	public ComponentPanel(RobotOverlord ro) {
 		super(new BorderLayout());
+		robotOverlord = ro;
 	}
 
 	/**
-	 * Collate all the {@link java.awt.Component}s for selected {@link Entity}.
-	 * @param 
+	 * Collate all the {@link java.awt.Component}s for selected {@link Entity}s.
+	 * @param entityList the list of entities to collate
 	 */
-	public void refreshContents(List<Entity> entityList, RobotOverlord ro) {
+	public void refreshContents(List<Entity> entityList) {
 		removeAll();
 		
 		if(entityList != null ) {
 			int size = entityList.size();
 			ViewPanel [] panels = new ViewPanel[size];
 			for( int i=0;i<size;++i) {
-				panels[i] = new ViewPanel(ro);
+				panels[i] = new ViewPanel(robotOverlord);
 				Entity e = entityList.get(i);
 				if(e != null) e.getView(panels[i]);
 			}
