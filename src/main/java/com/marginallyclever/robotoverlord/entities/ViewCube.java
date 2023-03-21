@@ -22,7 +22,7 @@ import java.io.Serial;
 public class ViewCube extends Entity {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
 	protected MaterialComponent mat = new MaterialComponent();
-	protected DoubleEntity cubeSize = new DoubleEntity("size",32);
+	protected DoubleEntity cubeSize = new DoubleEntity("size",25);
 	
     public ViewCube() {
     	super("ViewCube");
@@ -35,26 +35,16 @@ public class ViewCube extends Entity {
     }
 
 	public void render(GL2 gl2,Viewport viewport) {
-		CameraComponent camera = viewport.getCamera();
-		if(viewport==null || camera==null) return;
-
 		startProjection(gl2,viewport);
 		
 		gl2.glPushMatrix();
-			positionCubeModel(gl2,viewport,camera);
+			positionCubeModel(gl2,viewport);
 			renderCubeModel(gl2);
 			renderMajorAxies(gl2);
 		gl2.glPopMatrix();
 
 		endProjection(gl2);
 	}
-		
-    private Matrix4d getInverseCameraMatrix(CameraComponent camera) {
-		Matrix4d m = camera.getEntity().findFirstComponent(PoseComponent.class).getWorld();
-		m.invert();
-		m.setTranslation(new Vector3d(0,0,0));
-		return m;
-    }
     
     private void startProjection(GL2 gl2,Viewport viewport) {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
@@ -70,18 +60,28 @@ public class ViewCube extends Entity {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
 	
-	private void positionCubeModel(GL2 gl2, Viewport viewport,CameraComponent camera) {
-		double c = cubeSize.get();
-        double w2 = viewport.getCanvasWidth()/2.0;
-        double h2 = viewport.getCanvasHeight()/2.0;
+	private void positionCubeModel(GL2 gl2, Viewport viewport) {
+		cubeSize.set(25d);
+		double distance = cubeSize.get();
+		double c = 0.25;
+		double ar = viewport.getAspectRatio();
+		double fov = Math.cos(Math.toRadians(viewport.getFieldOfView()));
+
+        double w2 = distance * fov * ar -c;
+        double h2 = distance * fov      -c;
 		MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
-		gl2.glTranslated(w2-c*2,h2-c*2,-c*2);
-		gl2.glScaled(c,c,c);
-		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(camera));
+		gl2.glTranslated(w2,h2,-distance);
+		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(viewport.getCamera()));
+	}
+
+	private Matrix4d getInverseCameraMatrix(CameraComponent camera) {
+		Matrix4d m = camera.getEntity().findFirstComponent(PoseComponent.class).getWorld();
+		m.invert();
+		m.setTranslation(new Vector3d(0,0,0));
+		return m;
 	}
 
 	private void renderCubeModel(GL2 gl2) {
-		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glBlendFunc(GL2.GL_SRC_ALPHA,GL2.GL_ONE_MINUS_SRC_ALPHA);

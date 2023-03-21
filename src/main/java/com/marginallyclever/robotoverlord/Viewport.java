@@ -263,6 +263,10 @@ public class Viewport extends Entity {
 		return (double)canvasWidth/(double)canvasHeight;
 	}
 
+	public double getFieldOfView() {
+		return fieldOfView.get();
+	}
+
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Viewport",true);
