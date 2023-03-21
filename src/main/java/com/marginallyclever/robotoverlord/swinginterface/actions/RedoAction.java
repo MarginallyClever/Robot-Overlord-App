@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.UndoManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.Serial;
 
@@ -28,7 +29,7 @@ public class RedoAction extends AbstractAction {
         this.undo = undo;
         setEnabled(false);
 
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
     }
 
     @Override
