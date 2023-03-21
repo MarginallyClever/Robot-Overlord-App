@@ -830,7 +830,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void setupDropTarget() {
-		logger.debug("adding drag & drop support...");
+		logger.debug("adding drag + drop support...");
 		dropTarget = new DropTarget(mainFrame,new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
@@ -848,7 +848,6 @@ public class RobotOverlord extends Entity {
 									o = list.get(0);
 									if (o instanceof File) {
 										loadMesh(((File) o).getAbsolutePath());
-
 										dtde.dropComplete(true);
 										return;
 									}
