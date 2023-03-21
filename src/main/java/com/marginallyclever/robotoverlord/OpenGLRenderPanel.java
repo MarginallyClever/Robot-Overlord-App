@@ -287,8 +287,11 @@ public class OpenGLRenderPanel extends JPanel {
 
         sky.render(gl2,camera);
         scene.render(gl2);
-        // overlays
+        // 3D overlays
         moveTool.render(gl2);
+
+        // 2D overlays
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         viewCube.render(gl2,viewport);
     }
 
