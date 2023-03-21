@@ -150,6 +150,7 @@ public class RobotOverlord extends Entity {
 		Translator.start();
 		SoundSystem.start();
 		InputManager.start();
+		UndoSystem.start();
 
 		preferencesLoad();
 
