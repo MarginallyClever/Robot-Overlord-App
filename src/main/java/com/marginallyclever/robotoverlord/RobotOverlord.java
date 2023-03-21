@@ -82,9 +82,20 @@ public class RobotOverlord extends Entity {
 	// settings
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
     //private RecentFiles recentFiles = new RecentFiles();
-    
-    private final Scene scene = new Scene(System.getProperty("user.dir"));
+
+	/**
+	 * The scene being edited and all the entities therein.
+	 */
+	private final Scene scene = new Scene(System.getProperty("user.dir"));
+
+	/**
+	 * The list of entities selected in the editor.  This list is used by Actions.
+	 */
 	private transient final List<Entity> selectedEntities = new ArrayList<>();
+
+	/**
+	 * The list of entities copied to the clipboard.  This list is used by Actions.
+	 */
 	private transient Entity copiedEntities = new Entity();
 
 	/**
@@ -92,24 +103,51 @@ public class RobotOverlord extends Entity {
 	 * {@link #updateActionEnableStatus()}.
 	 */
 	private final ArrayList<AbstractAction> actions = new ArrayList<>();
-	
-	// The main frame of the GUI
-	private JFrame mainFrame; 
+
+	/**
+	 * The main frame of the GUI
+	 */
+	private JFrame mainFrame;
+
+	/**
+	 * The frame that contains the log panel.
+	 */
 	private static JFrame logFrame;
+
+	/**
+	 * The panel that contains the OpenGL canvas.
+	 */
+	private OpenGLRenderPanel renderPanel;
+
+	/**
+	 * The menu bar of the main frame.
+	 */
     private JMenuBar mainMenu;
+
+	/**
+	 * The left contains the renderPanel.  The right contains the rightFrameSplitter.
+	 */
 	private final JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+	/**
+	 * The panel that contains the entity tree and the component panel.
+	 */
 	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+	/**
+	 * Tree view of all Entities in the scene.
+	 */
 	private final EntityTreePanel entityTree = new EntityTreePanel();
+
+	/**
+	 * Collated view of all components in all selected Entities.
+	 */
 	private final ComponentPanel componentPanel = new ComponentPanel(this);
 	
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
 
-	private OpenGLRenderPanel renderPanel;
 
-
-	// drag files into the app with {@link DropTarget}
-	private DropTarget dropTarget;
 
  	private RobotOverlord() {
 		super("");
@@ -487,7 +525,7 @@ public class RobotOverlord extends Entity {
 
 	private void setupDropTarget() {
 		logger.debug("adding drag + drop support...");
-		dropTarget = new DropTarget(mainFrame,new DropTargetAdapter() {
+		new DropTarget(mainFrame,new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
@@ -497,15 +535,21 @@ public class RobotOverlord extends Entity {
 						logger.debug("Possible flavor: {}", flavor.getMimeType());
 						if (flavor.isFlavorJavaFileListType()) {
 							dtde.acceptDrop(DnDConstants.ACTION_COPY);
-							Object o = tr.getTransferData(flavor);
-							if (o instanceof List<?>) {
-								List<?> list = (List<?>) o;
+							Object object = tr.getTransferData(flavor);
+							if (object instanceof List<?>) {
+								List<?> list = (List<?>) object;
 								if (list.size() > 0) {
-									o = list.get(0);
-									if (o instanceof File) {
-										loadMesh(((File) o).getAbsolutePath());
-										dtde.dropComplete(true);
-										return;
+									object = list.get(0);
+									if (object instanceof File) {
+										File file = (File) object;
+										if(loadMesh(file.getAbsolutePath())) {
+											dtde.dropComplete(true);
+											return;
+										}
+										if(importScene(file)) {
+											dtde.dropComplete(true);
+											return;
+										}
 									}
 								}
 							}
@@ -521,28 +565,35 @@ public class RobotOverlord extends Entity {
 		});
 	}
 
-	private void loadMesh(String absolutePath) {
-		logger.debug("openFile({})",absolutePath);
-        try {
-			if(MeshFactory.canLoad(absolutePath)) {
-				// create entity.
-				Entity entity = new Entity();
-				entity.setName(getFilenameWithoutExtensionFromPath(absolutePath));
-				// add shape, which will add pose and material.
-				ShapeComponent shape = new MeshFromFile(absolutePath);
-				entity.addComponent(shape);
-				// move entity to camera orbit point so it's visible.
-				PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-				pose.setPosition(getCamera().getOrbitPoint());
+	private boolean importScene(File file) {
+		SceneImportAction action = new SceneImportAction(this);
+		return action.loadFile(file);
+	}
 
-				// add entity to scene.
-				UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
-				//robotOverlord.setSelectedEntity(entity);
-			}
+	private boolean loadMesh(String absolutePath) {
+		if(!MeshFactory.canLoad(absolutePath)) return false;
+
+		logger.debug("loadMesh({})",absolutePath);
+        try {
+			// create entity.
+			Entity entity = new Entity();
+			entity.setName(getFilenameWithoutExtensionFromPath(absolutePath));
+			// add shape, which will add pose and material.
+			ShapeComponent shape = new MeshFromFile(absolutePath);
+			entity.addComponent(shape);
+			// move entity to camera orbit point so it's visible.
+			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+			pose.setPosition(getCamera().getOrbitPoint());
+
+			// add entity to scene.
+			UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
+			//robotOverlord.setSelectedEntity(entity);
 		}
-			catch(Exception e) {
+		catch(Exception e) {
 			logger.error("Error opening file",e);
+			return false;
 		}
+		return true;
 	}
 
 	private String getFilenameWithoutExtensionFromPath(String absolutePath) {

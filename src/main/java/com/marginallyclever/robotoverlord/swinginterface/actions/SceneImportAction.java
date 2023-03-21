@@ -52,20 +52,28 @@ public class SceneImportAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-            try {
-                SceneLoadAction loader = new SceneLoadAction(ro);
-                Scene source = loader.loadScene(fc.getSelectedFile());
-                Scene destination = ro.getScene();
-
-                updateSceneAssetPaths(source,destination);
-
-                UndoSystem.reset();
-            } catch(Exception e1) {
-                logger.error(e1.getMessage());
-                JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
-                e1.printStackTrace();
-            }
+            loadFile(fc.getSelectedFile());
         }
+    }
+
+    public boolean loadFile(File file) {
+        if(!fc.getFileFilter().accept(file)) return false;
+
+        try {
+            SceneLoadAction loader = new SceneLoadAction(ro);
+            Scene source = loader.loadScene(file);
+            Scene destination = ro.getScene();
+
+            updateSceneAssetPaths(source,destination);
+
+            UndoSystem.reset();
+        } catch(Exception e1) {
+            logger.error(e1.getMessage());
+            JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
+            e1.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**
