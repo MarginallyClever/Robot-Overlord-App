@@ -1270,9 +1270,17 @@ to check yourself.</value>
 		<value>Asset \n%1\nis not in scene path\n%2\nConsider moving your asset into the scene path for easier sharing with others.</value>
 	</string>
 
-	<String>
+	<string>
 		<key>Are you sure?</key>
 		<value>Are you sure?</value>
-	</String>
+	</string>
 
+	<string>
+		<key>UndoAction.name</key>
+		<value>Undo</value>
+	</string>
+	<string>
+		<key>RedoAction.name</key>
+		<value>Redo</value>
+	</string>
 </language>
