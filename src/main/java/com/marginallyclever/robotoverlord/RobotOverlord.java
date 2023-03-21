@@ -56,11 +56,6 @@ public class RobotOverlord extends Entity {
 
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-	private static final int FSAA_NUM_SAMPLES = 3;
-	private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
-	private static final int DEFAULT_FRAMES_PER_SECOND = 30;
-	private static final int PICK_BUFFER_SIZE = 256;
-
 
 	private static final String KEY_WINDOW_WIDTH = "windowWidth";
 	private static final String KEY_WINDOW_HEIGHT = "windowHeight";
@@ -88,7 +83,7 @@ public class RobotOverlord extends Entity {
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
     //private RecentFiles recentFiles = new RecentFiles();
     
-    private final Scene scene;
+    private final Scene scene = new Scene(System.getProperty("user.dir"));
 	private transient final List<Entity> selectedEntities = new ArrayList<>();
 	private transient Entity copiedEntities = new Entity();
 
@@ -97,9 +92,6 @@ public class RobotOverlord extends Entity {
 	 * {@link #updateActionEnableStatus()}.
 	 */
 	private final ArrayList<AbstractAction> actions = new ArrayList<>();
-
-	private final MoveTool moveTool = new MoveTool(this);
-	private transient final ViewCube viewCube = new ViewCube();
 	
 	// The main frame of the GUI
 	private JFrame mainFrame; 
@@ -108,32 +100,13 @@ public class RobotOverlord extends Entity {
 	private final JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private final EntityTreePanel entityTree = new EntityTreePanel();
-	private final ComponentPanel componentPanel = new ComponentPanel();
+	private final ComponentPanel componentPanel = new ComponentPanel(this);
 	
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
 
-	private final FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
-	private GLJPanel glCanvas;
-	
-	// should I check the state of the OpenGL stack size?  true=every frame, false=never
-	private final boolean checkStackSize = false;
-	
-	// mouse steering controls
-	private boolean isMouseIn=false;
+	private OpenGLRenderPanel renderPanel;
 
-	private final Viewport viewport = new Viewport();
-	
-    // timing for animations
-    private long lastTime;
-    private double frameDelay;
-    private double frameLength;
-
-	// click on screen to change which entity is selected
-	private transient boolean pickNow = false;
-	private final transient Vector2d pickPoint = new Vector2d();
-
-	private final SkyBoxEntity sky = new SkyBoxEntity();
 
 	// drag files into the app with {@link DropTarget}
 	private DropTarget dropTarget;
@@ -158,17 +131,12 @@ public class RobotOverlord extends Entity {
 		buildMainMenu();
 		createSimulationPanel();
 		layoutComponents();
-		startAnimationSystem();
+		renderPanel.startAnimationSystem();
 
-		scene = new Scene(System.getProperty("user.dir"));
 		entityTree.addEntity(scene);
 		scene.addSceneChangeListener(entityTree);
 
-		addEntity(sky);
-		addEntity(viewport);
 		addEntity(scene);
-		addEntity(moveTool);
-		addEntity(viewCube);
 
 		SceneClearAction action = new SceneClearAction(this);
 		action.clearScene();
@@ -190,155 +158,9 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void createSimulationPanel() {
-		createCanvas();
-        addCanvasListeners();
-        glCanvas.setMinimumSize(new Dimension(300,300));
+		renderPanel = new OpenGLRenderPanel(this,scene);
 	}
 
-	private void createCanvas() {
-        try {
-            Log.message("...get default caps");
-    		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-            Log.message("...set caps");
-    		caps.setBackgroundOpaque(true);
-    		caps.setDoubleBuffered(true);
-    		caps.setHardwareAccelerated(true);
-            if(FSAA_NUM_SAMPLES>1) {
-            	caps.setSampleBuffers(true);
-                caps.setNumSamples(FSAA_NUM_SAMPLES);
-            }
-            Log.message("...create panel");
-            glCanvas = new GLJPanel(caps);
-    	} catch(GLException e) {
-    		Log.error("Failed the first call to OpenGL.  Are your native drivers missing?");
-    	}
-	}
-
-	private void addCanvasListeners() {
-		glCanvas.addGLEventListener(new GLEventListener() {
-			private final boolean glDebug=false;
-			private final boolean glTrace=false;
-
-		    @Override
-		    public void init( GLAutoDrawable drawable ) {
-		        GL gl = drawable.getGL();
-		    	if(glDebug) gl = useGLDebugPipeline(gl);
-		        if(glTrace) gl = useTracePipeline(gl);
-		        
-		    	GL2 gl2 = drawable.getGL().getGL2();
-		    	
-		    	// turn on vsync
-		        gl2.setSwapInterval(VERTICAL_SYNC_ON);
-		        
-				// make things pretty
-				gl2.glEnable(GL2.GL_NORMALIZE);
-		    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
-		        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-		        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-		        // TODO add a settings toggle for this option, it really slows down older machines.
-		        gl2.glEnable(GL2.GL_MULTISAMPLE);
-
-				// Don't draw triangles facing away from camera
-				gl2.glCullFace(GL2.GL_BACK);
-
-		        int [] buf = new int[1];
-		        int [] sbuf = new int[1];
-		        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
-		        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
-
-		        // depth testing and culling options
-				gl2.glDepthFunc(GL2.GL_LESS);
-				gl2.glEnable(GL2.GL_DEPTH_TEST);
-				gl2.glDepthMask(true);
-		        
-		        // Scale normals using the scale of the transform matrix so that lighting is sane.
-		        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
-				//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-				//gl2.glEnable(GL2.GL_NORMALIZE);
-		        
-				// default blending option for transparent materials
-		        gl2.glEnable(GL2.GL_BLEND);
-		        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-				
-		        // set the color to use when wiping the draw buffer
-				gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-				
-				// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
-		    	gl2.glDrawBuffer(GL2.GL_BACK);
-		    }
-			
-		    @Override
-		    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-		        // set up the projection matrix
-		        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
-		        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
-		    }
-
-			@Override
-		    public void dispose( GLAutoDrawable drawable ) {}
-			
-		    @Override
-		    public void display( GLAutoDrawable drawable ) {
-		        long nowTime = System.currentTimeMillis();
-		        long dt = nowTime - lastTime;
-		    	lastTime = nowTime;
-		    	updateStep(dt*0.001);  // to seconds
-		    	
-		    	GL2 gl2 = drawable.getGL().getGL2();
-				if(checkStackSize) checkRenderStep(gl2);
-				else renderStep(gl2);
-		    	pickStep(gl2);
-		    }
-		});  // this class also listens to the glcanvas (messy!) 
-		glCanvas.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// if they dragged the cursor around before releasing the mouse button, don't pick.
-				if (e.getClickCount() == 2) {
-					pickPoint.set(e.getX(),e.getY());
-					pickNow=true;
-				}
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(SwingUtilities.isLeftMouseButton(e)) {
-					pickPoint.set(e.getX(),e.getY());
-					viewport.pressed();
-				}
-			}
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(SwingUtilities.isLeftMouseButton(e)) {
-					viewport.released();
-				}
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				isMouseIn=true;
-				glCanvas.requestFocus();
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				isMouseIn=false;
-			}
-		});  // this class also listens to the mouse button clicks.
-		glCanvas.addMouseMotionListener(new MouseMotionListener() {
-			@Override
-			public void mouseDragged(MouseEvent e) {
-		        viewport.setCursor(e.getX(),e.getY());
-			}
-			
-			@Override
-			public void mouseMoved(MouseEvent e) {
-		        viewport.setCursor(e.getX(),e.getY());
-			}
-		});  // this class also listens to the mouse movement.
-	}
-	
 	public static void main(String[] argv) {
 		logFrame = LogPanel.createFrame();
 		Log.start();
@@ -404,7 +226,7 @@ public class RobotOverlord extends Entity {
 		rightFrameSplitter.setResizeWeight(0.25);
 
         Log.message("build splitters");
-        splitLeftRight.add(glCanvas);
+        splitLeftRight.add(renderPanel);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
         splitLeftRight.setResizeWeight(1);
@@ -575,24 +397,14 @@ public class RobotOverlord extends Entity {
 	}
 
     private void updateSelectEntities() {
-		if(entityRenameAction !=null) entityRenameAction.setEnabled(false);
+		if( entityRenameAction != null ) entityRenameAction.setEnabled(false);
 
-		moveTool.setSubject(null);
-
-		List<Entity> list = getSelectedEntities();
-    	if( !list.isEmpty()) {
-			if(list.size() == 1) {
-				Entity firstEntity = list.get(0);
-				if(firstEntity.findFirstComponent(PoseComponent.class) != null) {
-					moveTool.setSubject(firstEntity);
-				}
-			}
-    	}
+		renderPanel.updateSubjects();
 		updateComponentPanel();
 	}
 
 	public void updateComponentPanel() {
-		componentPanel.refreshContents(getSelectedEntities(),this);
+		componentPanel.refreshContents(getSelectedEntities());
 	}
 
 	public void confirmClose() {
@@ -608,7 +420,7 @@ public class RobotOverlord extends Entity {
 
         	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(() -> {
-				stopAnimationSystem();
+				renderPanel.stopAnimationSystem();
 				mainFrame.dispose();
 			}).start();
         }
@@ -631,164 +443,8 @@ public class RobotOverlord extends Entity {
 		return null;
 	}
 
-    private GL useTracePipeline(GL gl) {
-        try {
-            return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-		return gl;
-	}
-
-	private GL useGLDebugPipeline(GL gl) {
-        Log.message("using GL debug pipeline");
-        try {
-			return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-		return gl;
-	}
-
-	private void pickStep(GL2 gl2) {
-        if(!pickNow) return;
-
-		pickNow = false;
-
-		CameraComponent cameraComponent = findFirstComponentRecursive(CameraComponent.class);
-		if(cameraComponent==null) return;
-
-		int pickName = findItemUnderCursor(gl2,cameraComponent);
-		Entity next = scene.pickEntityWithName(pickName);
-		UndoSystem.addEvent(this,new SelectEdit(this,getSelectedEntities(),next));
-    }
-    
-    private void checkRenderStep(GL2 gl2) {
-		IntBuffer stackDepth = IntBuffer.allocate(1);
-		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-		logger.debug("stack depth start = "+stackDepth.get(0));
-
-		renderStep(gl2);
-		
-		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-		logger.debug("stack depth end = "+stackDepth.get(0));
-	}
-	
-    private void renderStep(GL2 gl2) {
-		clearAll(gl2);
-
-		CameraComponent camera = scene.findFirstComponentRecursive(CameraComponent.class);
-		if(camera==null) return;
-
-        viewport.renderChosenProjection(gl2,camera);
-
-		sky.render(gl2);
-        scene.render(gl2);
-        // overlays
-		moveTool.render(gl2);
-		viewCube.render(gl2);
-	}
-
-	private void clearAll(GL2 gl2) {
-		// Clear the screen and depth buffer
-		//gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
-		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
-	}
-
-	private void updateStep(double dt) {
-    	frameDelay+=dt;
-    	if(frameDelay>frameLength) {
-   			frameDelay-=frameLength;
-	    	InputManager.update(isMouseIn);
-	    	update( frameLength );
-    	}
-	}
-
-	private void startAnimationSystem() {
-		logger.debug("setup the animation system");
-        frameDelay=0;
-        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
-        animator.add(glCanvas);
-        // record the start time of the application, also the end of the core initialization process.
-        lastTime = System.currentTimeMillis();
-        // start the main application loop.  it will call display() repeatedly.
-        animator.start();
-	}
-
-	private void stopAnimationSystem() {
-		animator.stop();
-	}
-
-	/**
-	 * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
-	 * See <a href="https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java">1</a>
-	 * and <a href="http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf">2</a>
-	 * @param gl2 the openGL render context
-	 */
-	private int findItemUnderCursor(GL2 gl2,CameraComponent cameraComponent) {
-    	IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
-        gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
-
-		gl2.glRenderMode( GL2.GL_SELECT );
-		// wipe the select buffer
-		gl2.glInitNames();
-
-		viewport.renderPick(gl2,cameraComponent,pickPoint.x,pickPoint.y);
-		
-        gl2.glLoadName(0);
-        // render in selection mode, without advancing time in the simulation.
-        scene.render(gl2);
-
-        gl2.glPopName();
-        gl2.glFlush();
-        
-        // get the picking results and return the render mode to the default 
-        int hits = gl2.glRenderMode( GL2.GL_RENDER );
-
-        return getPickNameFromPickList(pickBuffer,hits,false);
-    }
-    
-	private int getPickNameFromPickList(IntBuffer pickBuffer,int hits,boolean verbose) {
-		if(verbose) logger.debug(hits+" PICKS @ "+pickPoint.x+","+pickPoint.y);
-
-        float zMinBest = Float.MAX_VALUE;
-    	int i, index=0, bestPick=0;
-    	
-    	for(i=0;i<hits;++i) {
-    		if(verbose) describePickBuffer(pickBuffer,index);
-    		
-    		int nameCount=pickBuffer.get(index++);
-    		float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    	    @SuppressWarnings("unused")
-    		float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-
-			index+=nameCount;
-			if(nameCount>0 && zMinBest > z1) {
-    			zMinBest = z1;
-    			bestPick = pickBuffer.get(index-1);
-    		}
-    	}
-    	return bestPick;
-    }
-    
-    private void describePickBuffer(IntBuffer pickBuffer, int index) {
-		int nameCount=pickBuffer.get(index++);
-		float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-		float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-		
-		StringBuilder msg= new StringBuilder("  names=" + nameCount + " zMin=" + z1 + " zMax=" + z2 + ": ");
-		String add="";
-		int pickName;
-		for(int j=0;j<nameCount;++j) {
-			pickName = pickBuffer.get(index++);
-			msg.append(add).append(pickName);
-    		add=", ";
-		}
-		logger.debug(msg.toString());
-	}
-
 	public Viewport getViewport() {
-		return viewport;
+		return renderPanel.getViewport();
 	}
 
 	public CameraComponent getCamera() {

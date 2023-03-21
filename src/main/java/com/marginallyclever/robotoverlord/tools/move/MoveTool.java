@@ -175,9 +175,9 @@ public class MoveTool extends Entity {
 	}
 
 	private void checkMovementBegins() {
-		Viewport cameraView = ro.getViewport();
-		PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
-		Ray ray = cameraView.rayPick(ro.getCamera());
+		Viewport viewport = ro.getViewport();
+		PoseComponent camera = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
+		Ray ray = viewport.rayPick();
 
 		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
 		dp.sub(ray.getOrigin());
@@ -338,8 +338,8 @@ public class MoveTool extends Entity {
 	private void updateRotation() {
 		valueNow = valueLast;
 
-		Viewport cameraView = ro.getViewport();
-		Ray ray = cameraView.rayPick(ro.getCamera());
+		Viewport viewport = ro.getViewport();
+		Ray ray = viewport.rayPick();
 
 		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
 		dp.sub(ray.getOrigin());

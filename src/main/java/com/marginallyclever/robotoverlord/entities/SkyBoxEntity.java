@@ -14,15 +14,12 @@ import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 public class SkyBoxEntity extends Entity {
-	@Serial
-	private static final long serialVersionUID = 7218495889495845836L;
-	protected transient boolean areSkyboxTexturesLoaded=false;
-	protected transient final TextureEntity skyboxTextureZPos = new TextureEntity("/skybox/cube-z-pos.png");
-	protected transient final TextureEntity skyboxTextureXPos = new TextureEntity("/skybox/cube-x-pos.png");
-	protected transient final TextureEntity skyboxTextureXNeg = new TextureEntity("/skybox/cube-x-neg.png");
-	protected transient final TextureEntity skyboxTextureYPos = new TextureEntity("/skybox/cube-y-pos.png");
-	protected transient final TextureEntity skyboxTextureYNeg = new TextureEntity("/skybox/cube-y-neg.png");
-	protected transient final TextureEntity skyboxTextureZNeg = new TextureEntity("/skybox/cube-z-neg.png");
+	private transient final TextureEntity skyboxTextureZPos = new TextureEntity("/skybox/cube-z-pos.png");
+	private transient final TextureEntity skyboxTextureXPos = new TextureEntity("/skybox/cube-x-pos.png");
+	private transient final TextureEntity skyboxTextureXNeg = new TextureEntity("/skybox/cube-x-neg.png");
+	private transient final TextureEntity skyboxTextureYPos = new TextureEntity("/skybox/cube-y-pos.png");
+	private transient final TextureEntity skyboxTextureYNeg = new TextureEntity("/skybox/cube-y-neg.png");
+	private transient final TextureEntity skyboxTextureZNeg = new TextureEntity("/skybox/cube-z-neg.png");
 
 	public SkyBoxEntity() {
 		super();
@@ -49,11 +46,7 @@ public class SkyBoxEntity extends Entity {
 		super.getView(view);
 	}
 
-	// Draw background
-	@Override
-	public void render(GL2 gl2) {
-		RobotOverlord ro =(RobotOverlord)this.getRoot();
-		CameraComponent camera = ro.getCamera();
+	public void render(GL2 gl2,CameraComponent camera) {
 		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 
 		gl2.glDisable(GL2.GL_LIGHTING);

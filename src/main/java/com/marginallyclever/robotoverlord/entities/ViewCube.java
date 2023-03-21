@@ -7,7 +7,10 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -17,28 +20,23 @@ import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 public class ViewCube extends Entity {
-	@Serial
-	private static final long serialVersionUID = 2625823417579183587L;
-	protected ShapeEntity model = new ShapeEntity();
+	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
+	protected MaterialComponent mat = new MaterialComponent();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",32);
 	
     public ViewCube() {
-    	super();
-    	setName("ViewCube");
+    	super("ViewCube");
     	addEntity(cubeSize);
-    	model.setShapeFilename("/viewCube.obj");
-    	MaterialEntity mat = model.getMaterial(); 
+
     	mat.setTextureFilename("/images/viewCube.png");
     	mat.setDiffuseColor(1, 1, 1, 1);
     	mat.setAmbientColor(1, 1, 1, 1);
     	mat.setLit(false);
     }
-    
-	@Override
-	public void render(GL2 gl2) {
-		Viewport viewport = ((RobotOverlord)getRoot()).getViewport();
-		CameraComponent camera = ((RobotOverlord)getRoot()).getCamera();
-		if(camera==null) return;
+
+	public void render(GL2 gl2,Viewport viewport) {
+		CameraComponent camera = viewport.getCamera();
+		if(viewport==null || camera==null) return;
 
 		startProjection(gl2,viewport);
 		
@@ -62,7 +60,7 @@ public class ViewCube extends Entity {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glPushMatrix();
 		MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
-		viewport.renderOrthographic(gl2,0.2);
+		viewport.renderPerspective(gl2);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
     
@@ -87,6 +85,7 @@ public class ViewCube extends Entity {
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glBlendFunc(GL2.GL_SRC_ALPHA,GL2.GL_ONE_MINUS_SRC_ALPHA);
+		mat.render(gl2);
 		model.render(gl2);
 	}
 
