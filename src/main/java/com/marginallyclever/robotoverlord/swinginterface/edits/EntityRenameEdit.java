@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import java.io.Serial;
 
 /**
  * An undoable action to change the currently selected entity.
@@ -16,8 +17,9 @@ import javax.swing.undo.CannotUndoException;
  */
 public class EntityRenameEdit extends AbstractUndoableEdit {
 	/**
-	 * 
+	 *
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	private Entity e;

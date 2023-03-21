@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serial;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -19,9 +20,12 @@ import java.nio.charset.StandardCharsets;
  *
  */
 public class CheckForUpdateAction extends AbstractAction implements ActionListener {
+	public static final String UPDATE_URL = "https://github.com/MarginallyClever/Robot-Overlord-App/releases/latest";
+
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	public CheckForUpdateAction() {
@@ -31,9 +35,8 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		String updateURL = "https://github.com/MarginallyClever/Robot-Overlord-App/releases/latest";
 		try {
-			URL github = new URL(updateURL);
+			URL github = new URL(UPDATE_URL);
 			HttpURLConnection conn = (HttpURLConnection) github.openConnection();
 			conn.setInstanceFollowRedirects(false);  //you still need to handle redirect manully.
 			HttpURLConnection.setFollowRedirects(false);
@@ -67,7 +70,7 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 			}
 			in.close();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Sorry, I failed.  Please visit "+updateURL+" to check yourself.");
+			JOptionPane.showMessageDialog(null, "Sorry, I failed.  Please visit "+ UPDATE_URL +" to check yourself.");
 		}
 	}
 }

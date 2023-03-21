@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3d;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * Clear the world and start anew. This action is not an undoable action.
@@ -22,9 +24,12 @@ import java.awt.event.ActionEvent;
 public class SceneClearAction extends AbstractAction {
 	private final RobotOverlord ro;
 
-	public SceneClearAction(String name, RobotOverlord ro) {
-		super(name);
+	public SceneClearAction(RobotOverlord ro) {
+		super(Translator.get("SceneClearAction.name"));
 		this.ro = ro;
+		putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
+		putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
+		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityRenameEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -19,8 +20,9 @@ import java.util.List;
 public class EntityRenameAction extends AbstractAction implements EditorAction {
 	private final RobotOverlord ro;
 	
-	public EntityRenameAction(String name, RobotOverlord ro) {
-		super(name);
+	public EntityRenameAction(RobotOverlord ro) {
+		super(Translator.get("EntityRenameAction.name"));
+		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
 		this.ro = ro;
 	}
 

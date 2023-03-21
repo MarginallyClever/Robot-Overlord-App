@@ -8,15 +8,15 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.demos.DemoSpidee;
-import com.marginallyclever.robotoverlord.demos.DemoODEPhysics;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.demos.DemoSpidee;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
+import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
@@ -169,7 +169,7 @@ public class RobotOverlord extends Entity {
 		addEntity(moveTool);
 		addEntity(viewCube);
 
-		SceneClearAction action = new SceneClearAction("Clear Scene",this);
+		SceneClearAction action = new SceneClearAction(this);
 		action.clearScene();
 		action.addDefaultEntities();
 
@@ -367,8 +367,7 @@ public class RobotOverlord extends Entity {
 	private JPopupMenu buildEntityTreePopupMenu() {
 		JPopupMenu popupMenu = new JPopupMenu();
 
-		EntityAddChildAction EntityaddChildAction = new EntityAddChildAction(Translator.get("EntityAddChildAction.name"),this);
-		EntityaddChildAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
+		EntityAddChildAction EntityaddChildAction = new EntityAddChildAction(this);
 
 		for( AbstractAction action : actions ) {
 			if(action instanceof EntityCopyAction || action instanceof EntityPasteAction) {
@@ -376,8 +375,7 @@ public class RobotOverlord extends Entity {
 			}
 		}
 
-		entityRenameAction =new EntityRenameAction(Translator.get("EntityRenameAction.name"),this);
-		entityRenameAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
+		entityRenameAction = new EntityRenameAction(this);
 		entityRenameAction.setEnabled(false);
 
 		actions.add(EntityaddChildAction);
@@ -518,31 +516,13 @@ public class RobotOverlord extends Entity {
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(APP_TITLE);
 
-		SceneClearAction sceneClearAction = new SceneClearAction(Translator.get("SceneClearAction.name"),this);
-		sceneClearAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
-		sceneClearAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
-		sceneClearAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
-
-		SceneLoadAction sceneLoadAction = new SceneLoadAction(Translator.get("SceneLoadAction.name"),this);
-		sceneLoadAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-		sceneLoadAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
-		sceneLoadAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
-
-		SceneImportAction sceneImportAction = new SceneImportAction(Translator.get("SceneImportAction.name"),this);
-		sceneImportAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-		sceneImportAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
-
-		SceneSaveAction sceneSaveAction = new SceneSaveAction(Translator.get("SceneSaveAction.name"),this);
-		sceneSaveAction.putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
-		sceneSaveAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
-		sceneSaveAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
-
-		menu.add(sceneClearAction);
-		menu.add(sceneLoadAction);
-		menu.add(sceneImportAction);
-		menu.add(sceneSaveAction);
+		menu.add(new SceneClearAction(this));
+		menu.add(new SceneLoadAction(this));
+		menu.add(new SceneImportAction(this));
+		menu.add(new SceneSaveAction(this));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
+
 		return menu;
 	}
 
@@ -559,25 +539,10 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
 		menu.add(new JSeparator());
 
-		EntityCopyAction entityCopyAction = new EntityCopyAction(Translator.get("EntityCopyAction.name"),this);
-		entityCopyAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
-		entityCopyAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
-		entityCopyAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
-
-		EntityPasteAction entityPasteAction = new EntityPasteAction(Translator.get("EntityPasteAction.name"),this);
-		entityPasteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
-		entityPasteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityPasteAction.shortDescription"));
-		entityPasteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
-
-		entityDeleteAction = new EntityDeleteAction(Translator.get("EntityDeleteAction.name"),this);
-		entityDeleteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
-		entityDeleteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityDeleteAction.shortDescription"));
-		entityDeleteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
-
-		EntityCutAction entityCutAction = new EntityCutAction(Translator.get("EntityCutAction.name"), entityDeleteAction, entityCopyAction);
-		entityCutAction.putValue(Action.SMALL_ICON,new UnicodeIcon("✂"));
-		entityCutAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
-		entityCutAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
+		EntityCopyAction entityCopyAction = new EntityCopyAction(this);
+		EntityPasteAction entityPasteAction = new EntityPasteAction(this);
+		entityDeleteAction = new EntityDeleteAction(this);
+		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
 
 		menu.add(entityCopyAction);
 		menu.add(entityPasteAction);
@@ -881,7 +846,8 @@ public class RobotOverlord extends Entity {
 								if (list.size() > 0) {
 									o = list.get(0);
 									if (o instanceof File) {
-										openFile(((File) o).getAbsolutePath());
+										loadMesh(((File) o).getAbsolutePath());
+
 										dtde.dropComplete(true);
 										return;
 									}
@@ -899,22 +865,26 @@ public class RobotOverlord extends Entity {
 		});
 	}
 
-	private void openFile(String absolutePath) {
+	private void loadMesh(String absolutePath) {
 		logger.debug("openFile({})",absolutePath);
-		try {
+        try {
 			if(MeshFactory.canLoad(absolutePath)) {
+				// create entity.
 				Entity entity = new Entity();
+				entity.setName(getFilenameWithoutExtensionFromPath(absolutePath));
+				// add shape, which will add pose and material.
 				ShapeComponent shape = new MeshFromFile(absolutePath);
-				String name = getFilenameWithoutExtensionFromPath(absolutePath);
-				entity.setName(name);
 				entity.addComponent(shape);
-				scene.addEntity(entity);
-				setSelectedEntity(entity);
+				// move entity to camera orbit point so it's visible.
 				PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
 				pose.setPosition(getCamera().getOrbitPoint());
+
+				// add entity to scene.
+				UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
+				//robotOverlord.setSelectedEntity(entity);
 			}
 		}
-		catch(Exception e) {
+			catch(Exception e) {
 			logger.error("Error opening file",e);
 		}
 	}
