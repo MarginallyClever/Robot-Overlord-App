@@ -30,7 +30,7 @@ public class Viewport extends Entity {
 	// is mouse pressed in GUI?
 	private boolean isPressed;
 
-	private final DoubleEntity nearZ=new DoubleEntity("Near Z",5.0);
+	private final DoubleEntity nearZ=new DoubleEntity("Near Z",0.5);
 	private final DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
 	private final DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
 	private final BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
@@ -58,14 +58,19 @@ public class Viewport extends Entity {
 	
 		gl2.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
 	}
-	
+
+	/**
+	 * Render the scene in orthographic projection.
+	 * @param gl2 the OpenGL context
+	 * @param zoom the zoom factor
+	 */
 	public void renderOrthographic(GL2 gl2, double zoom) {
-        double w = canvasWidth/10.0;
-        double h = canvasHeight/10.0;
+        double w = canvasWidth/2;
+        double h = canvasHeight/2;
 		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
 	}
 	
-	public void renderOrthographic(GL2 gl2, CameraComponent camera) {
+	public void renderOrthographic(GL2 gl2) {
         renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
 	}
 
@@ -86,7 +91,7 @@ public class Viewport extends Entity {
 		gl2.glLoadIdentity();
 		
 		if(drawOrthographic.get()) {
-			renderOrthographic(gl2,camera);
+			renderOrthographic(gl2);
 		} else {
 			renderPerspective(gl2);
 		}
@@ -94,7 +99,7 @@ public class Viewport extends Entity {
         renderShared(gl2,camera);
 	}
 	
-	public void renderPick(GL2 gl2,CameraComponent camera) {
+	public void renderPick(GL2 gl2) {
         // get the current viewport dimensions to set up the projection matrix
         int[] viewportDimensions = new int[4];
 		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewportDimensions,0);
@@ -108,7 +113,7 @@ public class Viewport extends Entity {
 		glu.gluPickMatrix(cursorX, canvasHeight-cursorY, 5.0, 5.0, viewportDimensions,0);
 
 		if(drawOrthographic.get()) {
-			renderOrthographic(gl2,camera);
+			renderOrthographic(gl2);
 		} else {
 			renderPerspective(gl2);
 		}
