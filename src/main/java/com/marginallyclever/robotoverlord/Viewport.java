@@ -65,8 +65,8 @@ public class Viewport extends Entity {
 	 * @param zoom the zoom factor
 	 */
 	public void renderOrthographic(GL2 gl2, double zoom) {
-        double w = canvasWidth/2;
-        double h = canvasHeight/2;
+        double w = canvasWidth/2.0;
+        double h = canvasHeight/2.0;
 		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
 	}
 	
