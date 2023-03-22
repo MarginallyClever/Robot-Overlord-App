@@ -140,33 +140,6 @@ public class CameraComponent extends RenderComponent {
                 }
             }
         }
-
-        // CONTROLLER
-        if(!InputManager.isOn(InputManager.Source.STICK_X) && !InputManager.isOn(InputManager.Source.STICK_CIRCLE)) {
-            double rawxl = InputManager.getRawValue(InputManager.Source.STICK_LX);
-            double rawyl = InputManager.getRawValue(InputManager.Source.STICK_LY);
-            double rawzl = InputManager.getRawValue(InputManager.Source.STICK_L2);
-
-            double rawxr = InputManager.getRawValue(InputManager.Source.STICK_RX);
-            double rawyr = InputManager.getRawValue(InputManager.Source.STICK_RY);
-
-            double scale = 50.0*dt;  // TODO something better?
-            double dxl = rawxl * -scale;
-            double dyl = rawyl * -scale;
-            double dzl = rawzl * scale;
-
-            double dxr = rawxr * scale;
-            double dyr = rawyr * scale;
-
-            if(dxr!=0 || dyr!=0 || dxl!=0 || dyl!=0 || dzl!=0) {
-                //Log.message("stick");
-                isCurrentlyMoving=true;
-                orbitCamera(dxr,dyr);
-                adjustOrbitPoint(dzl);
-                truckCamera(dxl);
-                pedestalCamera(dyl);
-            }
-        }
     }
 
     /**
