@@ -13,6 +13,8 @@ import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.tools.EditorTool;
+import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +22,10 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.vecmath.Vector2d;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,11 +71,15 @@ public class OpenGLRenderPanel extends JPanel {
     private transient final SkyBoxEntity sky = new SkyBoxEntity();
 
     private transient final MoveTool moveTool;
+    private transient final MoveCameraTool moveCameraTool = new MoveCameraTool();
+
+    List<EditorTool> editorTools = new ArrayList<>();
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
         super(new BorderLayout());
         this.robotOverlord = robotOverlord;
         this.scene = scene;
+
         moveTool = new MoveTool(robotOverlord);
 
         createCanvas();
@@ -83,6 +88,13 @@ public class OpenGLRenderPanel extends JPanel {
 
         this.setMinimumSize(new Dimension(300, 300));
         this.add(glCanvas, BorderLayout.CENTER);
+
+        setupTools();
+    }
+
+    private void setupTools() {
+        editorTools.add(moveTool);
+        editorTools.add(moveCameraTool);
     }
 
     private void hideDefaultCursor() {
@@ -203,6 +215,7 @@ public class OpenGLRenderPanel extends JPanel {
                 if(SwingUtilities.isLeftMouseButton(e)) {
                     viewport.pressed();
                 }
+                for(EditorTool tool : editorTools) tool.mousePressed(e);
             }
 
             @Override
@@ -210,12 +223,13 @@ public class OpenGLRenderPanel extends JPanel {
                 if(SwingUtilities.isLeftMouseButton(e)) {
                     viewport.released();
                 }
+                for(EditorTool tool : editorTools) tool.mouseReleased(e);
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
                 isMouseIn=true;
-                glCanvas.requestFocus();
+                glCanvas.requestFocusInWindow();
             }
 
             @Override
@@ -229,13 +243,35 @@ public class OpenGLRenderPanel extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
                 viewport.setCursor(e.getX(),e.getY());
+                for(EditorTool tool : editorTools) tool.mouseDragged(e);
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 viewport.setCursor(e.getX(),e.getY());
+                for(EditorTool tool : editorTools) tool.mouseMoved(e);
             }
         });  // this class also listens to the mouse movement.
+
+        glCanvas.addMouseWheelListener(new MouseAdapter() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                for(EditorTool tool : editorTools) tool.mouseWheelMoved(e);
+            }
+        });
+        glCanvas.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                for(EditorTool tool : editorTools) tool.keyPressed(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                for(EditorTool tool : editorTools) tool.keyReleased(e);
+            }
+        });
     }
 
 
@@ -293,6 +329,7 @@ public class OpenGLRenderPanel extends JPanel {
         }
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 
+        moveCameraTool.setCamera(camera);
         viewport.setCamera(camera);
         viewport.renderChosenProjection(gl2);
 
