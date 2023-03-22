@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.AbstractEntity;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -18,21 +19,24 @@ import javax.vecmath.Vector3d;
 public class CameraComponent extends RenderComponent {
     private final DoubleEntity pan = new DoubleEntity("Pan",0);
     private final DoubleEntity tilt = new DoubleEntity("Tilt",0);
-    private final DoubleEntity orbitDistance = new DoubleEntity("Orbit distance",100);
-    private final DoubleEntity snapDeadZone = new DoubleEntity("Snap dead zone",100);
-    private final DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",45);
-
-    protected transient boolean hasSnappingStarted=false;
-    protected transient double sumDx=0;
-    protected transient double sumDy=0;
+    private final DoubleEntity orbitDistance = new DoubleEntity("Orbit distance",0);
     protected boolean isCurrentlyMoving=false;
+
+    @Override
+    public void setEntity(Entity entity) {
+        super.setEntity(entity);
+        if(entity!=null) {
+            PoseComponent p = entity.findFirstComponent(PoseComponent.class);
+            if(p==null) entity.addComponent(new PoseComponent());
+        }
+    }
 
     public double getOrbitDistance() {
         return orbitDistance.get();
     }
 
     public void setOrbitDistance(double arg0) {
-        orbitDistance.set(arg0);
+        adjustOrbitPoint(arg0 - orbitDistance.get());
     }
 
     private void setPosition(Vector3d target) {
@@ -78,77 +82,16 @@ public class CameraComponent extends RenderComponent {
      */
     @Override
     public void update(double dt) {
-        double dz = InputManager.getRawValue(InputManager.Source.MOUSE_Z);
-        if(dz!=0) adjustOrbitPoint(dz);
-
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-        Matrix4d myPose = pose.getWorld();
-
-        if (InputManager.isOn(InputManager.Source.MOUSE_MIDDLE)) {
-            //Log.message("mouse middle");
-            isCurrentlyMoving=true;
-            double scale = 1;
-            double dx = InputManager.getRawValue(InputManager.Source.MOUSE_X) * scale;
-            double dy = InputManager.getRawValue(InputManager.Source.MOUSE_Y) * scale;
-
-            if(dx!=0 || dy!=0) {
-                // snap system
-                boolean isSnapHappeningNow = InputManager.isOn(InputManager.Source.KEY_LALT)
-                                            || InputManager.isOn(InputManager.Source.KEY_RALT);
-                if(isSnapHappeningNow) {
-                    if(!hasSnappingStarted) {
-                        sumDx=0;
-                        sumDy=0;
-                        hasSnappingStarted=true;
-                    }
-                }
-                hasSnappingStarted = isSnapHappeningNow;
-                //Log.message("Snap="+isSnapHappeningNow);
-
-                //
-                if( InputManager.isOn(InputManager.Source.KEY_LSHIFT) ||
-                        InputManager.isOn(InputManager.Source.KEY_RSHIFT) ) {
-                    pedestalCamera(dy);
-                    truckCamera(dx);
-                } else if(InputManager.isOn(InputManager.Source.KEY_LCONTROL) ||
-                        InputManager.isOn(InputManager.Source.KEY_RCONTROL) ) {
-                    dollyCamera(dy);
-                } else if( isSnapHappeningNow ) {
-                    sumDx+=dx;
-                    sumDy+=dy;
-                    if(Math.abs(sumDx)>snapDeadZone.get() || Math.abs(sumDy)>snapDeadZone.get()) {
-                        double degrees = snapDegrees.get();
-                        if(Math.abs(sumDx) > Math.abs(sumDy)) {
-                            double a=getPan();
-                            if(sumDx>0)	a+=degrees;	// snap CCW
-                            else		a-=degrees;	// snap CW
-                            setPan(Math.round(a/degrees)*degrees);
-                        } else {
-                            double a=getTilt();
-                            if(sumDy>0)	a-=degrees;	// snap down
-                            else		a+=degrees;	// snap up
-                            setTilt(Math.round(a/degrees)*degrees);
-                        }
-
-                        Matrix3d rot = buildPanTiltMatrix(pan.get(),tilt.get());
-                        pose.setLocalMatrix3(rot);
-                        sumDx=0;
-                        sumDy=0;
-                    }
-                } else {
-                    orbitCamera(dx,dy);
-                }
-            }
-        }
+        isCurrentlyMoving=true;
     }
 
     /**
      *  adjust the camera position to orbit around a point 'zoom' in front of the camera
      *  relies on the Z axis of the matrix BEFORE any rotations are applied.
-     * @param dx
-     * @param dy
+     * @param dx pan amount
+     * @param dy tilt amount
      */
-    private void orbitCamera(double dx, double dy) {
+    public void orbitCamera(double dx, double dy) {
         double distance = orbitDistance.get();
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d oldZ = MatrixHelper.getZAxis(pose.getWorld());
@@ -173,8 +116,11 @@ public class CameraComponent extends RenderComponent {
         setPosition(p);
     }
 
-    // translate relative to camera's current orientation
-    private void pedestalCamera(double dy) {
+    /**
+     * Translate relative to camera's current orientation
+     * @param dy distance to travel.  Positive is up.
+     */
+    public void pedestalCamera(double dy) {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d vy = MatrixHelper.getYAxis(pose.getWorld());
         Vector3d p = pose.getPosition();
@@ -184,8 +130,11 @@ public class CameraComponent extends RenderComponent {
         setPosition(p);
     }
 
-    // translate relative to camera's current orientation
-    private void truckCamera(double dx) {
+    /**
+     * Translate relative to camera's current orientation
+     * @param dx distance to travel.  Positive is right.
+     */
+    public void truckCamera(double dx) {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d vx = MatrixHelper.getXAxis(pose.getWorld());
         Vector3d p = pose.getPosition();
@@ -196,16 +145,16 @@ public class CameraComponent extends RenderComponent {
     }
 
     /**
-     * up and down to fly forward and back
+     * Translate relative to camera's current orientation
+     * @param dy distance to travel.  Positive is forward.
      */
-    private void dollyCamera(double dy) {
+    public void dollyCamera(double dy) {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d zAxis = MatrixHelper.getZAxis(pose.getWorld());
         zAxis.scale(dy);
         Vector3d p = pose.getPosition();
         p.add(zAxis);
         setPosition(p);
-
     }
 
     protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
@@ -221,15 +170,14 @@ public class CameraComponent extends RenderComponent {
     }
 
     /**
-     * dolly the camera forward/back relative to the orbit point.
-     * The orbit point is 'zoom' distance in front of the camera.
+     * Dolly the camera forward/back relative to the orbit point.
      * @param scale how much to dolly
      */
     private void adjustOrbitPoint(double scale) {
         isCurrentlyMoving=true;
         // get new and old scale
         double oldScale = orbitDistance.get();
-        double newScale = oldScale + scale*3.0;
+        double newScale = oldScale + scale;
 
         // don't allow scale too close
         newScale = Math.max(1,newScale);
@@ -264,8 +212,6 @@ public class CameraComponent extends RenderComponent {
         jo.put("pan",pan.toJSON());
         jo.put("tilt",tilt.toJSON());
         jo.put("zoom", orbitDistance.toJSON());
-        jo.put("snapDegrees",snapDegrees.toJSON());
-        jo.put("snapDeadZone",snapDeadZone.toJSON());
         return jo;
     }
 
@@ -275,8 +221,6 @@ public class CameraComponent extends RenderComponent {
         pan.parseJSON(jo.getJSONObject("pan"));
         tilt.parseJSON(jo.getJSONObject("tilt"));
         orbitDistance.parseJSON(jo.getJSONObject("zoom"));
-        snapDegrees.parseJSON(jo.getJSONObject("snapDegrees"));
-        snapDeadZone.parseJSON(jo.getJSONObject("snapDeadZone"));
     }
 
     @Override
@@ -316,5 +260,9 @@ public class CameraComponent extends RenderComponent {
         view.add(orbitDistance);
         view.popStack();
         super.getView(view);
+    }
+
+    public void setCurrentlyMoving(boolean state) {
+        isCurrentlyMoving = state;
     }
 }
