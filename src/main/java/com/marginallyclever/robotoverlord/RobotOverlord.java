@@ -21,6 +21,7 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveTool;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
@@ -146,8 +147,6 @@ public class RobotOverlord extends Entity {
 	
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
-
-
 
  	private RobotOverlord() {
 		super("");
@@ -513,7 +512,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	/**
-	 * All Actions have the tools to check for themselves if they are active.
+	 * Tell all Actions to check if they are active.
 	 */
 	private void updateActionEnableStatus() {
 		for(AbstractAction a : actions) {
