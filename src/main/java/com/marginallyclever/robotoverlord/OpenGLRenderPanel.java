@@ -4,6 +4,7 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -22,6 +23,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
  */
 public class OpenGLRenderPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
-    private static final int FSAA_NUM_SAMPLES = 3;
+    private static final int FSAA_NUM_SAMPLES = 1;
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
     private static final int PICK_BUFFER_SIZE = 256;
@@ -77,9 +79,18 @@ public class OpenGLRenderPanel extends JPanel {
 
         createCanvas();
         addCanvasListeners();
+        hideDefaultCursor();
 
-        this.setMinimumSize(new Dimension(300,300));
-        this.add(glCanvas,BorderLayout.CENTER);
+        this.setMinimumSize(new Dimension(300, 300));
+        this.add(glCanvas, BorderLayout.CENTER);
+    }
+
+    private void hideDefaultCursor() {
+        Cursor noCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB),
+                new Point(0, 0),
+                "blank cursor");
+        this.setCursor(noCursor);
     }
 
     private void createCanvas() {
@@ -252,7 +263,7 @@ public class OpenGLRenderPanel extends JPanel {
         if(!pickNow) return;
         pickNow = false;
 
-        int pickName = findItemUnderCursor(gl2,getCamera());
+        int pickName = findItemUnderCursor(gl2);
         Entity next = scene.pickEntityWithName(pickName);
 
         UndoSystem.addEvent(this,new SelectEdit(robotOverlord,robotOverlord.getSelectedEntities(),next));
@@ -293,6 +304,47 @@ public class OpenGLRenderPanel extends JPanel {
         // 2D overlays
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         viewCube.render(gl2,viewport);
+        drawCursor(gl2);
+    }
+
+    private void drawCursor(GL2 gl2) {
+        if(!isMouseIn) return;
+
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glPushMatrix();
+        MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
+        viewport.renderOrthographic(gl2,1);
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+
+        double [] cursor = viewport.getCursor();
+        cursor[0] *= viewport.getCanvasWidth() / 2d;
+        cursor[1] *= viewport.getCanvasHeight() / 2d;
+
+        gl2.glPushMatrix();
+        MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
+        gl2.glTranslated(cursor[0],cursor[1],-1);
+        gl2.glBegin(GL2.GL_LINES);
+        gl2.glColor4d(1,1,1,1);
+        double v = 10;
+        gl2.glVertex2d(0,-v);
+        gl2.glVertex2d(0, v);
+        gl2.glVertex2d(-v,0);
+        gl2.glVertex2d( v,0);
+        gl2.glColor3d(0,0,0);
+        gl2.glVertex2d(1,-v);
+        gl2.glVertex2d(1, v);
+        gl2.glVertex2d(-v,1);
+        gl2.glVertex2d( v,1);
+        gl2.glVertex2d(-1,-v);
+        gl2.glVertex2d(-1, v);
+        gl2.glVertex2d(-v,-1);
+        gl2.glVertex2d( v,-1);
+        gl2.glEnd();
+        gl2.glPopMatrix();
+
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glPopMatrix();
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
 
     private void updateStep(double dt) {
@@ -326,8 +378,8 @@ public class OpenGLRenderPanel extends JPanel {
      * @param gl2 the openGL render context
      * @return the name of the item under the cursor, or -1 if nothing was picked.
      */
-    private int findItemUnderCursor(GL2 gl2,CameraComponent cameraComponent) {
-        if(gl2==null || cameraComponent==null) return -1;
+    private int findItemUnderCursor(GL2 gl2) {
+        if(gl2==null) return -1;
 
         IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
         gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
@@ -336,7 +388,7 @@ public class OpenGLRenderPanel extends JPanel {
         // wipe the select buffer
         gl2.glInitNames();
 
-        viewport.renderPick(gl2,cameraComponent);
+        viewport.renderPick(gl2);
 
         gl2.glLoadName(0);
         // render in selection mode, without advancing time in the simulation.
