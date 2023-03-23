@@ -34,8 +34,8 @@ public class MoveCameraTool implements EditorTool {
     private final DoubleEntity wheelScale = new DoubleEntity("Zoom scale",1.25);
 
     private boolean isMoving=false;
-    private boolean isCTRLDown=false;
-    private boolean isSHIFTDown=false;
+    private boolean isControlDown =false;
+    private boolean isShiftDown =false;
     private double previousX, previousY;
 
 
@@ -72,10 +72,10 @@ public class MoveCameraTool implements EditorTool {
 
         updatePrevious(e);
 
-        if( isSHIFTDown ) {
+        if(isShiftDown) {
             cameraComponent.pedestalCamera(dy);
             cameraComponent.truckCamera(dx);
-        } else if( isCTRLDown ) {
+        } else if(isControlDown) {
             cameraComponent.dollyCamera(dy);
         } else {
             cameraComponent.orbitCamera(dx,dy);
@@ -100,11 +100,11 @@ public class MoveCameraTool implements EditorTool {
     public void keyPressed(KeyEvent e) {
         // remember if SHIFT is down
         if(e.getKeyCode()==KeyEvent.VK_SHIFT) {
-            isSHIFTDown=true;
+            isShiftDown =true;
         }
         // remember if CTRL is down
         if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
-            isCTRLDown=true;
+            isControlDown =true;
         }
     }
 
@@ -112,11 +112,11 @@ public class MoveCameraTool implements EditorTool {
     public void keyReleased(KeyEvent e) {
         // remember if SHIFT is down
         if(e.getKeyCode()==KeyEvent.VK_SHIFT) {
-            isSHIFTDown=false;
+            isShiftDown =false;
         }
         // remember if CTRL is down
         if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
-            isCTRLDown=false;
+            isControlDown =false;
         }
     }
 
