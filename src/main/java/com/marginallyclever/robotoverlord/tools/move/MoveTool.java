@@ -11,26 +11,34 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.FrameOfReference;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 /**
  * A visual manipulator that facilitates moving objects in 3D.
  * @author Dan Royer
  */
-public class MoveTool extends Entity {
+public class MoveTool extends Entity implements EditorTool {
 	private static final double STEP_SIZE = Math.PI/120.0;
-	
+
+	private boolean isShiftDown = false;
+	private boolean isControlDown = false;
+	private double previousX, previousY;
+
 	protected TextRenderer textRender = new TextRenderer(new Font("CourrierNew", Font.BOLD, 16));
 
 	/**
@@ -60,7 +68,7 @@ public class MoveTool extends Entity {
 	// In what frame of reference?
 	private final IntEntity frameOfReferenceChoice = new IntEntity("Frame of Reference", FrameOfReference.WORLD.toInt());
 	// drawing scale of ball
-	private final DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
+	private final DoubleEntity ballSize = new DoubleEntity("Scale",10);
 	// snap at all?
 	private final BooleanEntity snapOn = new BooleanEntity("Snap On",true);
 	// snap to what number of degrees rotation?
@@ -84,6 +92,7 @@ public class MoveTool extends Entity {
 	static private final double tScale=0.9;
 	// tool transparency
 	static private final double alpha=0.8;
+
 	// distance from camera to moving item
 	private double cameraDistance=1;
 
@@ -128,30 +137,12 @@ public class MoveTool extends Entity {
 		Matrix4d subjectPoseWorld = pivotMatrix.getWorld();
 		Vector3d mp = MatrixHelper.getPosition(subjectPoseWorld);
 
-		PoseComponent camera = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
-		mp.sub(camera.getPosition());
+		PoseComponent cameraPose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
+		mp.sub(cameraPose.getPosition());
 		cameraDistance = mp.length();
 
-		if(!isActivelyMoving()) {
-			checkChangeFrameOfReference();
-			updateFrameOfReference(subjectPose.getWorld(),camera);
-		}
-		
-		// let go button stops movement
-		Viewport cameraView = ro.getViewport();
-		if(!cameraView.isPressed()) {
-			isActivelyMoving=false;
-		} else if(!isActivelyMoving) {
-			// button is pressed, try to start movement.
-			checkMovementBegins();
-		} else {
-			// button is pressed, movement is active.
-			movePivotOnly = (
-					InputManager.isOn(InputManager.Source.KEY_RSHIFT) ||
-					InputManager.isOn(InputManager.Source.KEY_LSHIFT) );
-
-			if(activeMoveIsRotation) updateRotation();
-			else					 updateTranslation(dt);
+		if(!isActivelyMoving) {
+			updateFrameOfReference(subjectPose.getWorld(),cameraPose);
 		}
 	}
 
@@ -168,57 +159,51 @@ public class MoveTool extends Entity {
 		pivotMatrix.setPosition(pivotPoint);
 	}
 
-	private void checkChangeFrameOfReference() {
-		if(InputManager.isReleased(InputManager.Source.KEY_F1)) frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
-		if(InputManager.isReleased(InputManager.Source.KEY_F2)) frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
-		if(InputManager.isReleased(InputManager.Source.KEY_F3)) frameOfReferenceChoice.set(FrameOfReference.SUBJECT.toInt());
-	}
-
+	/**
+	 * Ray pick from the camera, through the cursor, into the world.
+	 * If the ray intersects a rotation handle, start rotating.
+	 * If the ray intersects a translation handle, start translating.
+	 */
 	private void checkMovementBegins() {
+		// get ray
 		Viewport viewport = ro.getViewport();
-		PoseComponent camera = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
-		Ray ray = viewport.rayPick();
+		PoseComponent cameraPose = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
+		Ray ray = viewport.getRayThroughCursor();
 
-		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
-		dp.sub(ray.getOrigin());
-		
-		// not moving yet
-		// find a pick point on the ball (ray/sphere intersection)
-		// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
-		double d = dp.length();
-		
-		// translation box centers
+		// translation
 		Matrix4d frameOfReference = pivotMatrix.getWorld();
-		double t0 = getNearestTranslationHandle(ray,frameOfReference);
-		pickPoint.set(ray.getPoint(t0));
-		
-		if(t0<Double.MAX_VALUE) {
-			// if hitting and pressed, begin translation.
-			beginTranslation(frameOfReference,camera);
+		double distance = getNearestTranslationHandle(ray,frameOfReference);
+		if(distance<Double.MAX_VALUE) {
+			pickPoint.set(ray.getPoint(distance));
+			beginTranslation(frameOfReference,cameraPose);
 			return;
 		}
 		
 		// rotation
+		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
+		dp.sub(ray.getOrigin());
 		double Tca = ray.getDirection().dot(dp);
 		if(Tca>=0) {
+			// find a pick point on the ball (ray/sphere intersection)
+			// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
+			double d = dp.length();
 			// ball is in front of ray start
 			double d2 = d*d - Tca*Tca;
 			double r = ballSize.get()*cameraDistance*rScale;
 			double r2=r*r;
 			if(d2>=0 && d2<=r2) {
 				// ball hit!  Begin rotation.
-				beginRotation(ray,frameOfReference,r2,d2,Tca,dp);
+				double Thc = Math.sqrt(r2 - d2);
+				beginRotation(ray,frameOfReference,Tca - Thc,dp);
 			}
 		}
 	}
 
-	private void beginRotation(Ray ray, Matrix4d frameOfReference, double r2, double d2, double Tca, Vector3d dp) {
+	private void beginRotation(Ray ray, Matrix4d frameOfReference, double distance, Vector3d dp) {
 		isActivelyMoving=true;
 		activeMoveIsRotation=true;
 
-		double Thc = Math.sqrt(r2 - d2);
-		double t0 = Tca - Thc;
-		pickPointOnBall = ray.getPoint(t0);
+		pickPointOnBall = ray.getPoint(distance);
 		startMatrix = pivotMatrix.getWorld();
 		resultMatrix.set(startMatrix);
 
@@ -245,8 +230,8 @@ public class MoveTool extends Entity {
 		double denominator = ray.getDirection().dot(majorAxisVector);
 		if(denominator!=0) {
 			double numerator = dp.dot(majorAxisVector);
-			t0 = numerator/denominator;
-			pickPoint.set(ray.getPoint(t0));
+			distance = numerator/denominator;
+			pickPoint.set(ray.getPoint(distance));
 			pickPointSaved.set(pickPoint);
 
 			pickPointInFOR = getPickPointInFrameOfReference(pickPoint,frameOfReference);
@@ -339,7 +324,7 @@ public class MoveTool extends Entity {
 		valueNow = valueLast;
 
 		Viewport viewport = ro.getViewport();
-		Ray ray = viewport.rayPick();
+		Ray ray = viewport.getRayThroughCursor();
 
 		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
 		dp.sub(ray.getOrigin());
@@ -366,8 +351,7 @@ public class MoveTool extends Entity {
 			if(snapOn.get()) {
 				// round to snapDegrees
 				double deg = snapDegrees.get();
-				if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-					InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+				if(isControlDown) {
 					deg *= 0.1;
 				}
 				
@@ -388,13 +372,11 @@ public class MoveTool extends Entity {
 		}
 	}
 
-	private void updateTranslation(double dt) {
+	private void updateTranslation(double rawX,double rawY) {
 		valueNow = valueLast;
 
 		// actively being dragged
-		double scale = cameraDistance*0.02*dt;  // TODO something better?
-		double rawX= InputManager.getRawValue(InputManager.Source.MOUSE_X);
-		double rawY= InputManager.getRawValue(InputManager.Source.MOUSE_Y);
+		double scale = cameraDistance*0.02;
 		double dx = rawX *  scale;
 		double dy = rawY * -scale;
 
@@ -409,10 +391,7 @@ public class MoveTool extends Entity {
 		if(snapOn.get()) {
 			// round to the nearest mm
 			double mm = snapDistance.get()*0.1;
-			if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-				InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
-				mm *= 0.1;
-			}
+			if( isControlDown ) mm *= 0.1;
 			dp = Math.signum(dp)*Math.round(Math.abs(dp)/mm)*mm;
 		}
 		if(dp!=0) {
@@ -534,8 +513,7 @@ public class MoveTool extends Entity {
 				// snap ticks
 				if(snapOn.get()) {
 					double deg = Math.toRadians(snapDegrees.get());
-					if( InputManager.isOn(InputManager.Source.KEY_RCONTROL) ||
-						InputManager.isOn(InputManager.Source.KEY_LCONTROL) ) {
+					if( isControlDown ) {
 						deg *= 0.1;
 					}
 
@@ -639,7 +617,7 @@ public class MoveTool extends Entity {
 	
 	public void renderTranslation(GL2 gl2) {
 		gl2.glPushMatrix();
-			double scale = ballSize.get()*cameraDistance; 
+			double scale = ballSize.get()*cameraDistance;
 			gl2.glScaled(scale,scale,scale);
 			
 			// camera forward is -z axis
@@ -821,5 +799,94 @@ public class MoveTool extends Entity {
 		view.popStack();
 		
 		super.getView(view);
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if(!isActivelyMoving) {
+			// button is pressed, try to start movement.
+			updatePrevious(e);
+			checkMovementBegins();
+		}
+	}
+
+	private void updatePrevious(MouseEvent e) {
+		previousX = e.getX();
+		previousY = e.getY();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if(SwingUtilities.isLeftMouseButton(e)) {
+			isActivelyMoving=false;
+		}
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if(!SwingUtilities.isLeftMouseButton(e)) return;
+
+		double dx = e.getX() - previousX;
+		double dy = e.getY() - previousY;
+		if(dx==0 && dy==0) return;
+
+		if(isActivelyMoving) {
+			movePivotOnly = isShiftDown;
+			if(activeMoveIsRotation) updateRotation();
+			else					 updateTranslation(dx,dy);
+		}
+		updatePrevious(e);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// remember if shift is down.
+		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			isShiftDown = true;
+		}
+		// remember if control is down.
+		if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			isControlDown = true;
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// remember if shift is down.
+		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			isShiftDown = false;
+		}
+		// remember if control is down.
+		if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			isControlDown = false;
+		}
+
+		// change frame of reference.
+		boolean changed=false;
+		if(e.getKeyCode() == KeyEvent.VK_F1) {
+			frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
+			changed=true;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_F2) {
+			frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
+			changed=true;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_F3) {
+			frameOfReferenceChoice.set(FrameOfReference.SUBJECT.toInt());
+			changed=true;
+		}
+		if(changed) {
+
+		}
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+
 	}
 }
