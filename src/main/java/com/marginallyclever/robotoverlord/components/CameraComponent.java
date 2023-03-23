@@ -6,7 +6,6 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.swinginterface.InputManager;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;

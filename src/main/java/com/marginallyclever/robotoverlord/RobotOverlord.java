@@ -159,7 +159,6 @@ public class RobotOverlord extends Entity {
 
 		Translator.start();
 		SoundSystem.start();
-		InputManager.start();
 		UndoSystem.start();
 
 		preferencesLoad();
@@ -295,14 +294,12 @@ public class RobotOverlord extends Entity {
         	@Override
             public void windowActivated(WindowEvent e) {
         		super.windowActivated(e);
-        		InputManager.focusGained();
         	}
 
     		// switch away to another window
         	@Override
             public void windowDeactivated(WindowEvent e) {
         		super.windowDeactivated(e);
-        		InputManager.focusLost();
         	}
 		});
 

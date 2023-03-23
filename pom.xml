@@ -397,13 +397,6 @@ If you like this project, please support us by buying Marginally Clever products
 			<version>15.0</version>
 		</dependency>
 
-		<!-- joystick support -->
-		<dependency>
-			<groupId>net.java.jinput</groupId>
-			<artifactId>jinput</artifactId>
-			<version>2.0.9</version>
-		</dependency>
-		
 		<!-- https://mvnrepository.com/artifact/batik/batik-xml -->
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>

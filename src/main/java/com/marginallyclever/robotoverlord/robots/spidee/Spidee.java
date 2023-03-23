@@ -914,36 +914,6 @@ public class Spidee extends RobotEntity {
     void moveCalibrate(double dt) {
         // turn active legs on and off.
         float a = 0, b = 0, c = 0;
-		/*TODO finish me
-		if(InputManager.getButtonState("spidee","leg1")==Input.ButtonState.RELEASED) legs[0].active = !legs[0].active;
-	    if(InputManager.getButtonState("spidee","leg2")==Input.ButtonState.RELEASED) legs[1].active = !legs[1].active;
-	    if(InputManager.getButtonState("spidee","leg3")==Input.ButtonState.RELEASED) legs[2].active = !legs[2].active;
-	    if(InputManager.getButtonState("spidee","leg4")==Input.ButtonState.RELEASED) legs[3].active = !legs[3].active;
-	    if(InputManager.getButtonState("spidee","leg5")==Input.ButtonState.RELEASED) legs[4].active = !legs[4].active;
-	    if(InputManager.getButtonState("spidee","leg6")==Input.ButtonState.RELEASED) legs[5].active = !legs[5].active;
-
-	    a=(float)InputManager.getAxisState("spidee","strafeBack"   )
-	     -(float)InputManager.getAxisState("spidee","strafeForward");
-	    b=(float)InputManager.getAxisState("spidee","lowerBody"    )
-	     -(float)InputManager.getAxisState("spidee","raiseBody"    );
-	    c=(float)InputManager.getAxisState("spidee","strafeRight"  )
-	     -(float)InputManager.getAxisState("spidee","strafeLeft"   );
-
-	    if(InputManager.getButtonState("spidee","calibrate")==Input.ButtonState.RELEASED) {
-	    	for(int i=0;i<6;++i) {
-	    		Preferences pn = prefs.node("Leg "+i);
-	    		legs[i].shoulderPan.zero=legs[i].shoulderPan.angle;
-	    		legs[i].tiltJoint.zero=legs[i].tiltJoint.angle;
-	    		legs[i].kneeJoint.zero=legs[i].kneeJoint.angle;
-	    		pn.putFloat( "panZero",legs[i].shoulderPan .zero);
-	    		pn.putFloat("tiltZero",legs[i].tiltJoint.zero);
-	    		pn.putFloat("kneeZero",legs[i].kneeJoint.zero);
-	    	}
-
-	    	Log.message("Updating calibration...");
-	    	sendZeros();
-	    }
-*/
         if (a != 0 || b != 0 || c != 0) {
             int i;
             for (i = 0; i < 6; ++i) {

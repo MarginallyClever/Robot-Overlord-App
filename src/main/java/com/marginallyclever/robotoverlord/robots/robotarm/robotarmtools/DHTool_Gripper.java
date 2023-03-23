@@ -80,58 +80,7 @@ public class DHTool_Gripper extends Entity {
 	 * Read HID device to move target pose.  Currently hard-coded to PS4 joystick values. 
 	 * @return true if targetPose changes.
 	 */
-	public boolean directDrive() {/*
-		boolean isDirty=false;
-		final double scaleGrip=1.8;
-		
-		if(InputManager.isOn(InputManager.Source.STICK_CIRCLE) && !wasGripping) {
-			wasGripping=true;
-			Matrix4d poseWorld = getPoseWorld();
-			// grab release
-			if(subjectBeingHeld==null) {
-				//Log.message("Grab");
-				// Get the object at the targetPos.
-				Vector3d target = new Vector3d();
-				poseWorld.get(target);
-				List<PoseEntity> list = this.getWorld().findPhysicalObjectsNear(target, 10);
-				if(!list.isEmpty()) {
-					subjectBeingHeld = list.get(0);
-					// A new subject has been acquired.
-					// The subject is being held by the gripper.  Subtract the gripper's world pose from the subject's world pose.
-					Matrix4d m = subjectBeingHeld.getPose();
-					Matrix4d iposeWorld = new Matrix4d(poseWorld);
-					iposeWorld.invert();
-					m.mul(iposeWorld);
-					subjectBeingHeld.setPose(m);
-				}
-			} else {
-				//Log.message("Release");
-				// The subject is being held relative to the gripper.  Add the gripper's world pose to the subject's pose.
-				Matrix4d m = subjectBeingHeld.getPose();
-				m.mul(poseWorld);
-				subjectBeingHeld.setPose(m);
-				// forget the subject.
-				subjectBeingHeld=null;
-			}
-		}
-		if(InputManager.isOff(InputManager.Source.STICK_CIRCLE)) wasGripping=false;
-		
-        if(InputManager.isOn(InputManager.Source.STICK_OPTIONS)) {
-			if(gripperServoAngle<ANGLE_MAX) {
-				gripperServoAngle+=scaleGrip;
-				if(gripperServoAngle>ANGLE_MAX) gripperServoAngle=ANGLE_MAX;
-				isDirty=true;
-			}
-        }
-        if(InputManager.isOn(InputManager.Source.STICK_SHARE)) {
-			if(gripperServoAngle>ANGLE_MIN) {
-				gripperServoAngle-=scaleGrip;
-				if(gripperServoAngle<ANGLE_MIN) gripperServoAngle=ANGLE_MIN;
-				isDirty=true;
-			}
-        }
-
-		*/
+	public boolean directDrive() {
         return false;
 	}
 }
