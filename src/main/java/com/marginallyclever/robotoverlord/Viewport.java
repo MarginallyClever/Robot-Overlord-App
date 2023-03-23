@@ -120,9 +120,12 @@ public class Viewport extends Entity {
 		
 		renderShared(gl2,camera);
 	}
-	
-	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
-	public Ray rayPick() {
+
+	/**
+	 * Return the ray coming through the viewport in the current projection.
+	 * @return the ray coming through the viewport in the current projection.
+	 */
+	public Ray getRayThroughCursor() {
 		// OpenGL camera: -Z=forward, +X=right, +Y=up
 		// get the ray coming through the viewport in the current projection.
 		Point3d origin;
@@ -159,16 +162,16 @@ public class Viewport extends Entity {
 		renderChosenProjection(gl2);
 		gl2.glPushMatrix();
 
-		Ray r = rayPick();
+		Ray r = getRayThroughCursor();
 
 		double cx=cursorX;
 		double cy=cursorY;
         int w = canvasWidth;
         int h = canvasHeight;
-        setCursor(0,0);	Ray tl = rayPick();
-        setCursor(w,0);		Ray tr = rayPick();
-        setCursor(0,h);		Ray bl = rayPick();
-        setCursor(w,h);			Ray br = rayPick();
+        setCursor(0,0);	Ray tl = getRayThroughCursor();
+        setCursor(w,0);		Ray tr = getRayThroughCursor();
+        setCursor(0,h);		Ray bl = getRayThroughCursor();
+        setCursor(w,h);			Ray br = getRayThroughCursor();
 		cursorX=cx;
 		cursorY=cy;
 
