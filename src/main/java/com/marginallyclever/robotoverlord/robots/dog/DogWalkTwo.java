@@ -87,7 +87,7 @@ public class DogWalkTwo extends DogWalkOne {
 
 	protected void drawBodyForce(GL2 gl2,DogRobot dogRobot, Vector3d pushToBody, double zTorque) {
 		Vector3d body = getPointOnFloorUnderCenterOfBody(dogRobot);
-		PrimitiveSolids.drawSphere(gl2,0.5,body);
+		PrimitiveSolids.drawSphere(gl2,body,0.5);
 		gl2.glColor3d(1, 1, 0);
 		gl2.glLineWidth(10);
 		OpenGLHelper.drawVector3dFrom(gl2,pushToBody,body);

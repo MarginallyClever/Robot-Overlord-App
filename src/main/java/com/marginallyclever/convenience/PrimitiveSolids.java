@@ -360,7 +360,7 @@ public class PrimitiveSolids {
 		gl2.glColor4dv(params,0);
 	}	
 
-	public static void drawSphere(GL2 gl2, double radius, Vector3d p) {
+	public static void drawSphere(GL2 gl2, Vector3d p, double radius) {
 		gl2.glPushMatrix();
 		gl2.glTranslated(p.x,p.y,p.z);
 		drawSphere(gl2,radius);

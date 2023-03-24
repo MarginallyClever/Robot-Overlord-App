@@ -49,7 +49,7 @@ public class DogWalkThree extends DogWalkTwo implements DogAnimator {
 		}
 		
 		Vector3d p = MatrixHelper.getPosition(dogRobot.getLeg(bestLeg).getWorldMatrixOfToe());
-		PrimitiveSolids.drawSphere(gl2, 1.25, p);
+		PrimitiveSolids.drawSphere(gl2, p, 1.25);
 	}
 
 	private double getHowFarIsThisLegFromIdeal(GL2 gl2, DogRobot dogRobot, DogLeg leg) {
