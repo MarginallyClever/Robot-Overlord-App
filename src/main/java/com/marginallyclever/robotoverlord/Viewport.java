@@ -25,8 +25,12 @@ import javax.vecmath.Vector3d;
  */
 public class Viewport extends Entity {
 	private int canvasWidth, canvasHeight;
-	// mouse position in GUI
-	private double cursorX,cursorY;
+
+	/**
+	 * The mouse cursor position in screen coordinates.
+ 	 */
+	private double cursorX, cursorY;
+
 	// is mouse pressed in GUI?
 	private boolean isPressed;
 
@@ -110,7 +114,12 @@ public class Viewport extends Entity {
 		// Tiny viewports are faster.
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glLoadIdentity();
-		glu.gluPickMatrix(cursorX, canvasHeight-cursorY, 5.0, 5.0, viewportDimensions,0);
+		glu.gluPickMatrix(cursorX,
+				canvasHeight-cursorY,
+				5.0,
+				5.0,
+				viewportDimensions,
+				0);
 
 		if(drawOrthographic.get()) {
 			renderOrthographic(gl2);
@@ -131,6 +140,9 @@ public class Viewport extends Entity {
 		Point3d origin;
 		Vector3d direction;
 
+		//double px = (cursorX+1.0) * canvasWidth / 2.0d;
+		//double py = (cursorY+1.0) * canvasHeight / 2.0d;
+
 		if(drawOrthographic.get()) {
 			// orthographic projection
 			origin = new Point3d(
@@ -144,9 +156,8 @@ public class Viewport extends Entity {
 			m2.transform(origin);
 		} else {
 			// perspective projection
-			double aspect = (double)canvasWidth / (double)canvasHeight;
 			double t = Math.tan(Math.toRadians(fieldOfView.get()/2));
-			direction = new Vector3d(cursorX*t*aspect,cursorY*t,-1);
+			direction = new Vector3d(cursorX*t*getAspectRatio(),cursorY*t,-1);
 			
 			// adjust the ray by the camera world pose.
 			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
@@ -230,10 +241,14 @@ public class Viewport extends Entity {
 		gl2.glVertex3d(vector.x, vector.y, vector.z);
 	}
 
+	/**
+	 * Set the cursor position in the canvas.
+	 * @param x the x position in the canvas.  0....canvasWidth
+	 * @param y the y position in the canvas.  0....canvasHeight
+	 */
 	public void setCursor(int x,int y) {
-		cursorX= (2.0*x/canvasWidth)-1.0;
-		cursorY= 1.0-(2.0*y/canvasHeight);
-        //Log.message("X"+cursorX+" Y"+cursorY);
+		cursorX = x;
+		cursorY = y;
 	}
 
 	// mouse was pressed in GUI
@@ -288,6 +303,17 @@ public class Viewport extends Entity {
 
 	public double [] getCursor() {
 		return new double[]{cursorX,cursorY};
+	}
+
+	/**
+	 * Returns the cursor position as values from -1...1.
+	 * @return the cursor position as values from -1...1.
+	 */
+	public double [] getCursorAsNormalized() {
+		double px = (2.0*cursorX/canvasWidth)-1.0;
+		double py = 1.0-(2.0*cursorY/canvasHeight);
+
+		return new double[]{px,py};
 	}
 
 	public CameraComponent getCamera() {
