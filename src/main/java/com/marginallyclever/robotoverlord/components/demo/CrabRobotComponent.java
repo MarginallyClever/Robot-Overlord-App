@@ -1,17 +1,19 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.robots.spidee.SpideeLeg;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 public class CrabRobotComponent extends RenderComponent {
@@ -20,8 +22,6 @@ public class CrabRobotComponent extends RenderComponent {
     static final String THIGH = "Thigh";
     static final String CALF = "Calf";
     static final String FOOT = "Foot";
-    static final String LAST_POC = "last poc";
-    static final String NEXT_POC = "next poc";
     private final String[] modeNames = {
             "Calibrate",
             "Sit down",
@@ -39,6 +39,10 @@ public class CrabRobotComponent extends RenderComponent {
     private final DoubleEntity strideHeight = new DoubleEntity("Stride height", 5);
     private final DoubleEntity speedScale = new DoubleEntity("Speed scale", 1);
     private final Entity [] legs = new Entity[NUM_LEGS];
+    private final Vector3d [] lastPOC = new Vector3d[NUM_LEGS];
+    private final Vector3d [] nextPOC = new Vector3d[NUM_LEGS];
+
+    double gaitCycleTime = 0;
 
     public CrabRobotComponent() {
         super();
@@ -49,13 +53,18 @@ public class CrabRobotComponent extends RenderComponent {
         gl2.glColor3d(1,0,1);
         PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
 
-        for(Entity leg : legs) {
-            Vector3d v = getNextPointOfContact(leg);
-            gl2.glPushMatrix();
-            gl2.glTranslated(v.x,v.y,v.z);
-            PrimitiveSolids.drawStar(gl2,5);
-            gl2.glPopMatrix();
+        gl2.glPushMatrix();
+        //MatrixHelper.setMatrix(gl2,MatrixHelper.createIdentityMatrix4());
+        for(int i=0;i<NUM_LEGS;++i) {
+            drawVectorAsStar(gl2,lastPOC[i],0);
+            drawVectorAsStar(gl2,nextPOC[i],1);
         }
+        gl2.glPopMatrix();
+    }
+
+    private void drawVectorAsStar(GL2 gl2,Vector3d v,int color) {
+        if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
+        else PrimitiveSolids.drawSphere(gl2,v,1);
     }
 
     @Override
@@ -70,12 +79,12 @@ public class CrabRobotComponent extends RenderComponent {
         // 0   5
         // 1 x 4
         // 2   3
-        legs[0] = createLimb("LF",false,  135);
-        legs[1] = createLimb("LM",false,  180);
-        legs[2] = createLimb("LB",false, -135);
-        legs[3] = createLimb("RB",true,   -45);
-        legs[4] = createLimb("RM",true,     0);
-        legs[5] = createLimb("RF",true,    45);
+        legs[0] = createLimb("LF",0,false,  135);
+        legs[1] = createLimb("LM",1,false,  180);
+        legs[2] = createLimb("LB",2,false, -135);
+        legs[3] = createLimb("RB",3,true,   -45);
+        legs[4] = createLimb("RM",4,true,     0);
+        legs[5] = createLimb("RF",5,true,    45);
 
         for(Entity leg : legs) {
             getEntity().addEntity(leg);
@@ -98,82 +107,35 @@ public class CrabRobotComponent extends RenderComponent {
         view.popStack();
     }
 
-    double t=0;
-
     @Override
     public void update(double dt) {
-        t += dt;
-        float offset=0;
-        for(Entity leg : legs) {
-            //updateGaitForOneLeg(leg, (t+offset) % 1);
-            offset+=1.0/(double)NUM_LEGS;
-        }
+        gaitCycleTime += dt;
 
-        //updateBasedOnMode(dt);
+        updateBasedOnMode(dt);
     }
 
     /**
      * Update the gait for one leg.
-     * @param leg the leg to update
+     * @param index the leg to update
      * @param step 0 to 1, 0 is start of step, 1 is end of step
      */
-    private void updateGaitForOneLeg(Entity leg, double step) {
+    private void updateGaitForOneLeg(int index, double step) {
+        Entity leg = legs[index];
         RobotComponent robotLeg = leg.findFirstComponent(RobotComponent.class);
         if(robotLeg==null) return;
 
-        Matrix4d footMatrix = (Matrix4d)robotLeg.get(RobotComponent.END_EFFECTOR_TARGET);
-        Vector3d toe = new Vector3d();
-        footMatrix.get(toe);
+        // horizontal distance from foot to next point of contact.
+        Vector3d start = lastPOC[index];
+        Vector3d end = nextPOC[index];
+        Vector3d mid = MathHelper.interpolate(start, end, step);
 
-        // horizontal distance from foot to next point of contact
-        Vector3d dp = new Vector3d(getNextPointOfContact(leg));
-
-        dp.sub(getLastPointOfContact(leg));
-        dp.z = 0;
-        if(dp.lengthSquared()>0) {
-            dp.normalize();
-            dp.scale(step);
-            toe.add(dp);
-        }
-
-        // add in the height of the step
+        // add in the height of the step.
         double stepAdj = (step <= 0.5f) ? step : 1 - step;
         stepAdj = Math.sin(stepAdj * Math.PI);
-        toe.z = stepAdj * strideHeight.get();
+        mid.z = stepAdj * strideHeight.get();
 
-        footMatrix.setTranslation(toe);
-        robotLeg.set(RobotComponent.END_EFFECTOR_TARGET,footMatrix);
-    }
-
-    private Vector3d getNextPointOfContact(Entity leg) {
-        Entity poc = leg.findByPath(NEXT_POC);
-        assert poc != null;
-        return getPointOfContact(poc);
-    }
-
-    private void setNextPointOfContact(Entity leg,Vector3d point) {
-        Entity poc = leg.findByPath(NEXT_POC);
-        assert poc != null;
-        setPointOfContact(poc,point);
-    }
-
-    private Vector3d getLastPointOfContact(Entity leg) {
-        Entity poc = leg.findByPath(LAST_POC);
-        assert poc != null;
-        return getPointOfContact(poc);
-    }
-
-    private void setLastPointOfContact(Entity leg,Vector3d point) {
-        Entity poc = leg.findByPath(LAST_POC);
-        assert poc != null;
-        setPointOfContact(poc,point);
-    }
-
-    private Vector3d getPointOfContact(Entity poc) {
-        Vector3d result = new Vector3d();
-        PoseComponent pose = poc.findFirstComponent(PoseComponent.class);
-        pose.getLocal().get(result);
-        return result;
+        // tell the leg where to go.
+        robotLeg.set(RobotComponent.END_EFFECTOR_TARGET_POSITION,mid);
     }
 
     private void setPointOfContact(Entity poc,Vector3d point) {
@@ -196,28 +158,126 @@ public class CrabRobotComponent extends RenderComponent {
     }
 
     private void updateCalibrate(double dt) {
+        for(int i=0;i<NUM_LEGS;++i) {
+            updateGaitForOneLeg(i, 0);
+        }
     }
 
     private void updateSitDown(double dt) {
     }
 
     private void updateStandUp(double dt) {
+        for (int i = 0; i < NUM_LEGS; ++i) {
+            putFootDown(i);
+        }
     }
 
     private void updateOnlyBody(double dt) {
     }
 
     private void updateRipple(double dt) {
+        double step = (gaitCycleTime - Math.floor(gaitCycleTime));
+        int legToMove = ((int) Math.floor(gaitCycleTime) % NUM_LEGS);
+
+        //updateGaitTarget(dt, 1d/6d);
+
+        for(int i = 0; i < NUM_LEGS; ++i) {
+            if (i != legToMove) {
+                putFootDown(i);
+            } else {
+                updateGaitForOneLeg(i, step);
+            }
+        }
     }
 
     private void updateWave(double dt) {
+        gaitCycleTime += dt;
+
+        //updateGaitTarget(dt, 2d/6d);
+
+        double gc1 = gaitCycleTime + 0.5f;
+        double gc2 = gaitCycleTime;
+
+        double x1 = gc1 - Math.floor(gc1);
+        double x2 = gc2 - Math.floor(gc2);
+        double step1 = Math.max(0, x1);
+        double step2 = Math.max(0, x2);
+        int leg1 = (int) Math.floor(gc1) % 3;
+        int leg2 = (int) Math.floor(gc2) % 3;
+
+        // 0   5
+        // 1 x 4
+        // 2   3
+        // order should be 0,3,1,5,2,4
+        int o1, o2;
+        o1 = switch (leg1) {
+            case 0 -> 0;
+            case 1 -> 1;
+            case 2 -> 2;
+            default -> 0;
+        };
+        o2 = switch (leg2) {
+            case 0 -> 3;
+            case 1 -> 5;
+            case 2 -> 4;
+            default -> 0;
+        };
+
+        updateGaitForOneLeg(o1, step1);
+        updateGaitForOneLeg(o2, step2);
+
+        // Put all feet down except the active leg(s).
+        int i;
+        for (i = 0; i < NUM_LEGS; ++i) {
+            if (i != o1 && i != o2) {
+                putFootDown(i);
+            }
+        }
     }
 
     private void updateTripod(double dt) {
+        gaitCycleTime += dt;
+
+        //updateGaitTarget(dt, 0.5f);
+
+        double step = (gaitCycleTime - Math.floor(gaitCycleTime));
+        int legToMove = ((int) Math.floor(gaitCycleTime) % 2);
+
+        // put all feet down except the active leg(s).
+        for (int i = 0; i < NUM_LEGS; ++i) {
+            Entity leg = legs[i];
+            if ((i % 2) != legToMove) {
+                putFootDown(i);
+            } else {
+                updateGaitForOneLeg(i, step);
+            }
+        }
+    }
+
+    private void putFootDown(int index) {
+        Vector3d toe = lastPOC[index];
+        toe.z=0;
+        setLegTargetPosition(index,toe);
+    }
+
+    private void setLegTargetPosition(int index,Vector3d point) {
+        Entity leg = legs[index];
+        RobotComponent robotLeg = leg.findFirstComponent(RobotComponent.class);
+        if(robotLeg==null) return;
+        PoseComponent bodyPose = leg.findFirstComponent(PoseComponent.class);
+        if(bodyPose==null) return;
+        Matrix4d bodyMatrix = bodyPose.getWorld();
+        //bodyMatrix.invert();
+        Point3d p1 = new Point3d(point);
+        Point3d p2 = new Point3d();
+
+        bodyMatrix.transform(p1,p2);
+        Vector3d point2 = new Vector3d(p2);
+        robotLeg.set(RobotComponent.END_EFFECTOR_TARGET_POSITION,point2);
     }
 
 
-    private Entity createLimb(String name,boolean isRight, float degrees) {
+    private Entity createLimb(String name,int index,boolean isRight, float degrees) {
         DHComponent[] dh = new DHComponent[3];
         for(int i=0;i<dh.length;++i) {
             dh[i] = new DHComponent();
@@ -233,10 +293,6 @@ public class CrabRobotComponent extends RenderComponent {
         thigh.addEntity(calf);
         Entity foot = createPoseEntity(FOOT);
         calf.addEntity(foot);
-        Entity lastPoc = createPoseEntity(LAST_POC);
-        limb.addEntity(lastPoc);
-        Entity nextPoc = createPoseEntity(NEXT_POC);
-        limb.addEntity(nextPoc);
 
         hip.addComponent(dh[0]);
         dh[0].set(0,2.2,90,0,60,-60);
@@ -263,12 +319,12 @@ public class CrabRobotComponent extends RenderComponent {
         // Done at the end so RobotComponent can find all bones DHComponents.
         limb.addComponent(new RobotComponent());
 
-        setInitialPointOfContact(limb);
+        setInitialPointOfContact(limb,index);
 
         return limb;
     }
 
-    private void setInitialPointOfContact(Entity limb) {
+    private void setInitialPointOfContact(Entity limb,int index) {
         Entity foot = limb.findByPath(HIP+"/"+THIGH+"/"+CALF+"/"+FOOT);
         PoseComponent footPose = foot.findFirstComponent(PoseComponent.class);
         Vector3d toe = new Vector3d();
@@ -282,8 +338,8 @@ public class CrabRobotComponent extends RenderComponent {
         toe.normalize();
         toe.scaleAdd(standingRadius.get(),body);
         toe.z=0;
-        setNextPointOfContact(limb,toe);
-        setLastPointOfContact(limb,toe);
+        nextPOC[index] = new Vector3d(toe);
+        lastPOC[index] = new Vector3d(toe);
     }
 
     private Entity createPoseEntity(String name) {
