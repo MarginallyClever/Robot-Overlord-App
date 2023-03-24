@@ -71,7 +71,10 @@ public class OpenGLRenderPanel extends JPanel {
     private transient final MoveEntityTool moveEntityTool;
     private transient final MoveCameraTool moveCameraTool = new MoveCameraTool();
 
-    List<EditorTool> editorTools = new ArrayList<>();
+    private final List<EditorTool> editorTools = new ArrayList<>();
+
+    private final IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
+
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
         super(new BorderLayout());
@@ -351,7 +354,7 @@ public class OpenGLRenderPanel extends JPanel {
         viewport.renderOrthographic(gl2,1);
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-        double [] cursor = viewport.getCursor();
+        double [] cursor = viewport.getCursorAsNormalized();
         cursor[0] *= viewport.getCanvasWidth() / 2d;
         cursor[1] *= viewport.getCanvasHeight() / 2d;
 
@@ -414,14 +417,17 @@ public class OpenGLRenderPanel extends JPanel {
      */
     private int findItemUnderCursor(GL2 gl2) {
         if(gl2==null) return -1;
+        CameraComponent camera = getCamera();
+        if(camera==null) return -1;
 
-        IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
+        pickBuffer.rewind();
         gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
-
         gl2.glRenderMode( GL2.GL_SELECT );
         // wipe the select buffer
         gl2.glInitNames();
 
+        moveCameraTool.setCamera(camera);
+        viewport.setCamera(camera);
         viewport.renderPick(gl2);
 
         gl2.glLoadName(0);
@@ -434,14 +440,20 @@ public class OpenGLRenderPanel extends JPanel {
         // get the picking results and return the render mode to the default
         int hits = gl2.glRenderMode( GL2.GL_RENDER );
 
-        return getPickNameFromPickList(pickBuffer,hits,false);
+        return getPickNameFromPickList(hits,false);
     }
 
-    private int getPickNameFromPickList(IntBuffer pickBuffer,int hits,boolean verbose) {
+    /**
+     * Parse the pick buffer to find the name of the item under the cursor.
+     * @param hits the number of hits in the pick buffer.
+     * @param verbose if true, print the contents of the pick buffer to the log.
+     * @return the name of the item under the cursor, or -1 if nothing was picked.
+     */
+    private int getPickNameFromPickList(int hits,boolean verbose) {
         if(verbose) logger.debug(hits+" PICKS @ "+ Arrays.toString(viewport.getCursor()));
 
         float zMinBest = Float.MAX_VALUE;
-        int i, index=0, bestPick=0;
+        int i, index=0, bestPick=-1;
 
         for(i=0;i<hits;++i) {
             if(verbose) describePickBuffer(pickBuffer,index);
